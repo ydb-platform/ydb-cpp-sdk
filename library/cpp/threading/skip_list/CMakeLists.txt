@@ -7,15 +7,11 @@
 
 
 
-add_library(tools-python3-lib INTERFACE)
-target_link_libraries(tools-python3-lib INTERFACE
+add_library(cpp-threading-skip_list)
+target_link_libraries(cpp-threading-skip_list PUBLIC
   contrib-libs-cxxsupp
   yutil
-  tools-python3-src
-  contrib-libs-cxxsupp
-  yutil
-  certs
-  contrib-libs-cxxsupp
-  yutil
-  python3-src-Modules
+)
+target_sources(cpp-threading-skip_list PRIVATE
+  ${CMAKE_SOURCE_DIR}/library/cpp/threading/skip_list/skiplist.cpp
 )

@@ -7,18 +7,14 @@
 
 
 
-add_library(libs-xz-common)
-target_compile_options(libs-xz-common PRIVATE
-  -DTUKLIB_SYMBOL_PREFIX=lzma_
-)
-target_include_directories(libs-xz-common PRIVATE
-  ${CMAKE_SOURCE_DIR}/contrib/libs/xz
-  ${CMAKE_SOURCE_DIR}/contrib/libs/xz/common
-)
-target_link_libraries(libs-xz-common PUBLIC
+add_library(library-cpp-linear_regression)
+target_link_libraries(library-cpp-linear_regression PUBLIC
   contrib-libs-cxxsupp
   yutil
+  library-cpp-accurate_accumulate
 )
-target_sources(libs-xz-common PRIVATE
-  ${CMAKE_SOURCE_DIR}/contrib/libs/xz/common/tuklib_cpucores.c
+target_sources(library-cpp-linear_regression PRIVATE
+  ${CMAKE_SOURCE_DIR}/library/cpp/linear_regression/linear_regression.cpp
+  ${CMAKE_SOURCE_DIR}/library/cpp/linear_regression/unimodal.cpp
+  ${CMAKE_SOURCE_DIR}/library/cpp/linear_regression/welford.cpp
 )

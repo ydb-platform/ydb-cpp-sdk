@@ -7,19 +7,18 @@
 
 
 
-add_library(python-symbols-python INTERFACE)
-target_link_libraries(python-symbols-python INTERFACE
+add_library(cpp-testing-benchmark)
+target_link_libraries(cpp-testing-benchmark PUBLIC
   contrib-libs-cxxsupp
   yutil
-  python-symbols-registry
+  contrib-libs-re2
+  library-cpp-colorizer
+  cpp-getopt-small
+  library-cpp-json
+  library-cpp-linear_regression
+  cpp-threading-poor_man_openmp
 )
-
-add_global_library_for(python-symbols-python.global python-symbols-python)
-target_link_libraries(python-symbols-python.global PUBLIC
-  contrib-libs-cxxsupp
-  yutil
-  python-symbols-registry
-)
-target_sources(python-symbols-python.global PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/python/symbols/python/syms.cpp
+target_sources(cpp-testing-benchmark PRIVATE
+  ${CMAKE_SOURCE_DIR}/library/cpp/testing/benchmark/bench.cpp
+  ${CMAKE_SOURCE_DIR}/library/cpp/testing/benchmark/dummy.cpp
 )

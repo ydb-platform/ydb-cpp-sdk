@@ -7,11 +7,19 @@
 
 
 
-add_library(python-symbols-registry)
-target_link_libraries(python-symbols-registry PUBLIC
+add_library(testing-benchmark-main INTERFACE)
+target_link_libraries(testing-benchmark-main INTERFACE
   contrib-libs-cxxsupp
   yutil
+  cpp-testing-benchmark
 )
-target_sources(python-symbols-registry PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/python/symbols/registry/syms.cpp
+
+add_global_library_for(testing-benchmark-main.global testing-benchmark-main)
+target_link_libraries(testing-benchmark-main.global PUBLIC
+  contrib-libs-cxxsupp
+  yutil
+  cpp-testing-benchmark
+)
+target_sources(testing-benchmark-main.global PRIVATE
+  ${CMAKE_SOURCE_DIR}/library/cpp/testing/benchmark/main/main.cpp
 )
