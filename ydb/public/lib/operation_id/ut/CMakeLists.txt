@@ -7,28 +7,29 @@
 
 
 
-add_executable(ydb-public-sdk-cpp-client-ydb_result-ut)
-target_include_directories(ydb-public-sdk-cpp-client-ydb_result-ut PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/sdk/cpp/client/ydb_result
+add_executable(ydb-public-lib-operation_id-ut)
+target_include_directories(ydb-public-lib-operation_id-ut PRIVATE
+  ${CMAKE_SOURCE_DIR}/ydb/public/lib/operation_id
 )
-target_link_libraries(ydb-public-sdk-cpp-client-ydb_result-ut PUBLIC
+target_link_libraries(ydb-public-lib-operation_id-ut PUBLIC
   contrib-libs-cxxsupp
   yutil
   library-cpp-lfalloc
   library-cpp-cpuid_check
   cpp-testing-unittest_main
-  cpp-client-ydb_result
+  public-lib-operation_id
+  cpp-testing-unittest
 )
-target_sources(ydb-public-sdk-cpp-client-ydb_result-ut PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/sdk/cpp/client/ydb_result/result_ut.cpp
+target_sources(ydb-public-lib-operation_id-ut PRIVATE
+  ${CMAKE_SOURCE_DIR}/ydb/public/lib/operation_id/operation_id_ut.cpp
 )
 add_test(
   NAME
-  ydb-public-sdk-cpp-client-ydb_result-ut
+  ydb-public-lib-operation_id-ut
   COMMAND
-  ydb-public-sdk-cpp-client-ydb_result-ut
+  ydb-public-lib-operation_id-ut
 )
-target_link_flags(ydb-public-sdk-cpp-client-ydb_result-ut
+target_link_flags(ydb-public-lib-operation_id-ut
   PUBLIC
   -ldl
   -lrt
@@ -39,4 +40,4 @@ target_link_flags(ydb-public-sdk-cpp-client-ydb_result-ut
   -lrt
   -ldl
 )
-vcs_info(ydb-public-sdk-cpp-client-ydb_result-ut)
+vcs_info(ydb-public-lib-operation_id-ut)

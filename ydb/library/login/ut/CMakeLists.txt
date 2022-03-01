@@ -7,18 +7,28 @@
 
 
 
-add_executable(rescompiler)
-target_link_libraries(rescompiler PUBLIC
+add_executable(ydb-library-login-ut)
+target_include_directories(ydb-library-login-ut PRIVATE
+  ${CMAKE_SOURCE_DIR}/ydb/library/login
+)
+target_link_libraries(ydb-library-login-ut PUBLIC
   contrib-libs-cxxsupp
   yutil
   library-cpp-lfalloc
   library-cpp-cpuid_check
-  library-cpp-resource
+  cpp-testing-unittest_main
+  ydb-library-login
 )
-target_sources(rescompiler PRIVATE
-  ${CMAKE_SOURCE_DIR}/tools/rescompiler/main.cpp
+target_sources(ydb-library-login-ut PRIVATE
+  ${CMAKE_SOURCE_DIR}/ydb/library/login/login_ut.cpp
 )
-target_link_flags(rescompiler
+add_test(
+  NAME
+  ydb-library-login-ut
+  COMMAND
+  ydb-library-login-ut
+)
+target_link_flags(ydb-library-login-ut
   PUBLIC
   -ldl
   -lrt
@@ -29,4 +39,4 @@ target_link_flags(rescompiler
   -lrt
   -ldl
 )
-vcs_info(rescompiler)
+vcs_info(ydb-library-login-ut)

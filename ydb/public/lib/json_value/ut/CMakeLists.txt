@@ -7,28 +7,31 @@
 
 
 
-add_executable(ydb-public-sdk-cpp-client-ydb_result-ut)
-target_include_directories(ydb-public-sdk-cpp-client-ydb_result-ut PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/sdk/cpp/client/ydb_result
+add_executable(ydb-public-lib-json_value-ut)
+target_include_directories(ydb-public-lib-json_value-ut PRIVATE
+  ${CMAKE_SOURCE_DIR}/ydb/public/lib/json_value
 )
-target_link_libraries(ydb-public-sdk-cpp-client-ydb_result-ut PUBLIC
+target_link_libraries(ydb-public-lib-json_value-ut PUBLIC
   contrib-libs-cxxsupp
   yutil
   library-cpp-lfalloc
   library-cpp-cpuid_check
   cpp-testing-unittest_main
-  cpp-client-ydb_result
+  public-lib-json_value
+  library-cpp-json
+  cpp-testing-unittest
+  cpp-client-ydb_proto
 )
-target_sources(ydb-public-sdk-cpp-client-ydb_result-ut PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/sdk/cpp/client/ydb_result/result_ut.cpp
+target_sources(ydb-public-lib-json_value-ut PRIVATE
+  ${CMAKE_SOURCE_DIR}/ydb/public/lib/json_value/ydb_json_value_ut.cpp
 )
 add_test(
   NAME
-  ydb-public-sdk-cpp-client-ydb_result-ut
+  ydb-public-lib-json_value-ut
   COMMAND
-  ydb-public-sdk-cpp-client-ydb_result-ut
+  ydb-public-lib-json_value-ut
 )
-target_link_flags(ydb-public-sdk-cpp-client-ydb_result-ut
+target_link_flags(ydb-public-lib-json_value-ut
   PUBLIC
   -ldl
   -lrt
@@ -39,4 +42,4 @@ target_link_flags(ydb-public-sdk-cpp-client-ydb_result-ut
   -lrt
   -ldl
 )
-vcs_info(ydb-public-sdk-cpp-client-ydb_result-ut)
+vcs_info(ydb-public-lib-json_value-ut)

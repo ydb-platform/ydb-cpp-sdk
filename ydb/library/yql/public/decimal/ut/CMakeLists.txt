@@ -7,28 +7,29 @@
 
 
 
-add_executable(ydb-public-sdk-cpp-client-ydb_result-ut)
-target_include_directories(ydb-public-sdk-cpp-client-ydb_result-ut PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/sdk/cpp/client/ydb_result
+add_executable(ydb-library-yql-public-decimal-ut)
+target_include_directories(ydb-library-yql-public-decimal-ut PRIVATE
+  ${CMAKE_SOURCE_DIR}/ydb/library/yql/public/decimal
 )
-target_link_libraries(ydb-public-sdk-cpp-client-ydb_result-ut PUBLIC
+target_link_libraries(ydb-library-yql-public-decimal-ut PUBLIC
   contrib-libs-cxxsupp
   yutil
   library-cpp-lfalloc
   library-cpp-cpuid_check
   cpp-testing-unittest_main
-  cpp-client-ydb_result
+  yql-public-decimal
 )
-target_sources(ydb-public-sdk-cpp-client-ydb_result-ut PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/sdk/cpp/client/ydb_result/result_ut.cpp
+target_sources(ydb-library-yql-public-decimal-ut PRIVATE
+  ${CMAKE_SOURCE_DIR}/ydb/library/yql/public/decimal/ut/yql_decimal_ut.cpp
+  ${CMAKE_SOURCE_DIR}/ydb/library/yql/public/decimal/ut/yql_wide_int_ut.cpp
 )
 add_test(
   NAME
-  ydb-public-sdk-cpp-client-ydb_result-ut
+  ydb-library-yql-public-decimal-ut
   COMMAND
-  ydb-public-sdk-cpp-client-ydb_result-ut
+  ydb-library-yql-public-decimal-ut
 )
-target_link_flags(ydb-public-sdk-cpp-client-ydb_result-ut
+target_link_flags(ydb-library-yql-public-decimal-ut
   PUBLIC
   -ldl
   -lrt
@@ -39,4 +40,4 @@ target_link_flags(ydb-public-sdk-cpp-client-ydb_result-ut
   -lrt
   -ldl
 )
-vcs_info(ydb-public-sdk-cpp-client-ydb_result-ut)
+vcs_info(ydb-library-yql-public-decimal-ut)
