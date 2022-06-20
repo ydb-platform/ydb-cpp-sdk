@@ -6,26 +6,6 @@
 # original buildsystem will not be accepted.
 
 
-
-add_executable(gencrc)
-target_link_libraries(gencrc PUBLIC
-  contrib-libs-cxxsupp
-  yutil
-  cpp-malloc-tcmalloc
-  libs-tcmalloc-no_percpu_cache
-  library-cpp-cpuid_check
-)
-target_link_options(gencrc PRIVATE
-  -ldl
-  -lrt
-  -Wl,--no-as-needed
-  -fPIC
-  -fPIC
-  -lpthread
-  -lrt
-  -ldl
-)
-target_sources(gencrc PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/digest/old_crc/gencrc/main.cpp
-)
-vcs_info(gencrc)
+if (UNIX)
+  include(CMakeLists.linux.txt)
+endif()
