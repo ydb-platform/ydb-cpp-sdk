@@ -7,15 +7,16 @@
 
 
 
-add_library(client-ydb_types-credentials)
-target_link_libraries(client-ydb_types-credentials PUBLIC
+add_library(ydb_types-credentials-login)
+target_link_libraries(ydb_types-credentials-login PUBLIC
   contrib-libs-cxxsupp
   yutil
   ydb-library-login
   api-grpc
   client-ydb_types-status
+  impl-ydb_internal-grpc_connections
   yql-public-issue
 )
-target_sources(client-ydb_types-credentials PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/sdk/cpp/client/ydb_types/credentials/credentials.cpp
+target_sources(ydb_types-credentials-login PRIVATE
+  ${CMAKE_SOURCE_DIR}/ydb/public/sdk/cpp/client/ydb_types/credentials/login/login.cpp
 )
