@@ -6,13 +6,10 @@
 # original buildsystem will not be accepted.
 
 
-add_subdirectory(base64)
-add_subdirectory(csv)
-add_subdirectory(indent_text)
-add_subdirectory(levenshtein_diff)
-add_subdirectory(parse_size)
-add_subdirectory(quote)
-add_subdirectory(relaxed_escaper)
-add_subdirectory(scan)
-add_subdirectory(url)
-add_subdirectory(ztstrbuf)
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" AND UNIX AND NOT APPLE AND NOT ANDROID)
+  include(CMakeLists.linux-aarch64.txt)
+elseif (APPLE)
+  include(CMakeLists.darwin.txt)
+elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" AND UNIX AND NOT APPLE AND NOT ANDROID)
+  include(CMakeLists.linux.txt)
+endif()
