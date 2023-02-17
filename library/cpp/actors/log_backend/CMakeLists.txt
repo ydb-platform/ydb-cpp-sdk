@@ -6,16 +6,10 @@
 # original buildsystem will not be accepted.
 
 
-add_subdirectory(core)
-add_subdirectory(dnscachelib)
-add_subdirectory(dnsresolver)
-add_subdirectory(helpers)
-add_subdirectory(http)
-add_subdirectory(interconnect)
-add_subdirectory(log_backend)
-add_subdirectory(memory_log)
-add_subdirectory(prof)
-add_subdirectory(protos)
-add_subdirectory(testlib)
-add_subdirectory(util)
-add_subdirectory(wilson)
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" AND UNIX AND NOT APPLE AND NOT ANDROID)
+  include(CMakeLists.linux-aarch64.txt)
+elseif (APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+  include(CMakeLists.darwin.txt)
+elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" AND UNIX AND NOT APPLE AND NOT ANDROID)
+  include(CMakeLists.linux.txt)
+endif()
