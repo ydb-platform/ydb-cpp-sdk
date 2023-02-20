@@ -7,24 +7,11 @@
 
 
 
-add_executable(perf)
-target_link_libraries(perf PUBLIC
+add_library(cpp-malloc-system)
+target_link_libraries(cpp-malloc-system PUBLIC
   contrib-libs-cxxsupp
-  yutil
-  cpp-malloc-system
-  library-cpp-cpuid_check
-  udf-service-exception_policy
-  library-yql-sql
-  yql-sql-v1
-  yql-sql-pg_dummy
+  cpp-malloc-api
 )
-target_link_options(perf PRIVATE
-  -Wl,-no_deduplicate
-  -Wl,-sdk_version,10.15
-  -fPIC
-  -fPIC
+target_sources(cpp-malloc-system PRIVATE
+  ${CMAKE_SOURCE_DIR}/library/cpp/malloc/system/malloc-info.cpp
 )
-target_sources(perf PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/library/yql/sql/v1/perf/parse.cpp
-)
-vcs_info(perf)
