@@ -6,14 +6,15 @@
 # original buildsystem will not be accepted.
 
 
-add_subdirectory(benchmark)
-add_subdirectory(common)
-add_subdirectory(gbenchmark)
-add_subdirectory(gmock_in_unittest)
-add_subdirectory(gtest)
-add_subdirectory(gtest_extensions)
-add_subdirectory(gtest_main)
-add_subdirectory(hook)
-add_subdirectory(mock_server)
-add_subdirectory(unittest)
-add_subdirectory(unittest_main)
+
+add_library(cpp-testing-mock_server)
+target_link_libraries(cpp-testing-mock_server PUBLIC
+  contrib-libs-linux-headers
+  contrib-libs-cxxsupp
+  yutil
+  cpp-http-misc
+  cpp-http-server
+)
+target_sources(cpp-testing-mock_server PRIVATE
+  ${CMAKE_SOURCE_DIR}/library/cpp/testing/mock_server/server.cpp
+)
