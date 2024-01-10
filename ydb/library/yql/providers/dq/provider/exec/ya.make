@@ -10,7 +10,7 @@ PEERDIR(
     library/cpp/svnversion
     library/cpp/digest/md5
     ydb/public/lib/yson_value
-    ydb/public/sdk/cpp/client/ydb_driver
+    client/ydb_driver
     ydb/library/yql/core
     ydb/library/yql/dq/integration
     ydb/library/yql/dq/runtime

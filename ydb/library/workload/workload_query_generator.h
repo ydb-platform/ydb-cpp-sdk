@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ydb/public/sdk/cpp/client/ydb_params/params.h>
-#include <ydb/public/sdk/cpp/client/ydb_query/client.h>
-#include <ydb/public/sdk/cpp/client/ydb_table/table.h>
-#include <ydb/public/sdk/cpp/client/ydb_value/value.h>
+#include <client/ydb_params/params.h>
+#include <client/ydb_query/client.h>
+#include <client/ydb_table/table.h>
+#include <client/ydb_value/value.h>
 
 #include <list>
 #include <map>

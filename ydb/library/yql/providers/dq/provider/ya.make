@@ -34,7 +34,7 @@ PEERDIR(
     library/cpp/yson/node
     library/cpp/yson
     ydb/public/lib/yson_value
-    ydb/public/sdk/cpp/client/ydb_driver
+    client/ydb_driver
     ydb/library/yql/core
     ydb/library/yql/core/issue
     ydb/library/yql/utils/backtrace

@@ -6,7 +6,7 @@
 
 #include <ydb/public/api/protos/ydb_table.pb.h>
 #include <ydb/public/lib/yson_value/ydb_yson_value.h>
-#include <ydb/public/sdk/cpp/client/ydb_table/table.h>
+#include <client/ydb_table/table.h>
 #include <ydb/public/lib/ydb_cli/common/recursive_remove.h>
 
 #include <library/cpp/containers/stack_vector/stack_vec.h>

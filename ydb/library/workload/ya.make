@@ -8,7 +8,7 @@ SRCS(
 
 PEERDIR(
     ydb/public/api/protos
-    ydb/public/sdk/cpp/client/ydb_table
+    client/ydb_table
 )
 
 END()

@@ -10,8 +10,8 @@ PEERDIR(
     ydb/core/protos
     ydb/library/db_pool/protos
     ydb/library/security
-    ydb/public/sdk/cpp/client/ydb_driver
-    ydb/public/sdk/cpp/client/ydb_table
+    client/ydb_driver
+    client/ydb_table
 )
 
 END()

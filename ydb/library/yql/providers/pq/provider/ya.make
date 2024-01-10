@@ -28,7 +28,7 @@ PEERDIR(
     ydb/library/yql/providers/common/db_id_async_resolver
     ydb/library/yql/providers/common/structured_token
     ydb/library/yql/public/udf
-    ydb/public/sdk/cpp/client/ydb_driver
+    client/ydb_driver
     ydb/library/yql/core
     ydb/library/yql/core/type_ann
     ydb/library/yql/dq/expr_nodes

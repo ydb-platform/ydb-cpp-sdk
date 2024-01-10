@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ydb/public/sdk/cpp/client/ydb_datastreams/datastreams.h>
-#include <ydb/public/sdk/cpp/client/ydb_persqueue_core/persqueue.h>
+#include <client/ydb_datastreams/datastreams.h>
+#include <client/ydb_persqueue_core/persqueue.h>
 
 #include <ydb/library/yql/providers/common/proto/gateways_config.pb.h>
 #include <ydb/library/yql/providers/common/token_accessor/client/factory.h>

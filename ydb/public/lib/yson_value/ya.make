@@ -7,8 +7,8 @@ SRCS(
 PEERDIR(
     library/cpp/yson
     library/cpp/yson/node
-    ydb/public/sdk/cpp/client/ydb_result
-    ydb/public/sdk/cpp/client/ydb_value
+    client/ydb_result
+    client/ydb_value
     ydb/library/uuid
 )
 
