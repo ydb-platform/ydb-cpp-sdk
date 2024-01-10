@@ -13,8 +13,8 @@ SRCS(
 PEERDIR(
     library/cpp/json
     library/cpp/testing/unittest
-    ydb/public/sdk/cpp/client/ydb_proto
-    ydb/public/sdk/cpp/client/ydb_params
+    client/ydb_proto
+    client/ydb_params
 )
 
 END()

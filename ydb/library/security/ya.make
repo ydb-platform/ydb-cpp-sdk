@@ -1,9 +1,9 @@
 LIBRARY()
 
 PEERDIR(
-    ydb/public/sdk/cpp/client/iam
+    client/iam
     library/cpp/digest/crc32c
-    ydb/public/sdk/cpp/client/ydb_types/credentials
+    client/ydb_types/credentials
 )
 
 SRCS(
