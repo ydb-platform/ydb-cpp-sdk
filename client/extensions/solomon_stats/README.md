@@ -32,8 +32,8 @@ After creating NYdb::TDriver you need to add Solomon Monitoring extension. If yo
 > **Important**: you must plug in monitoring before driver creation.
 
 ```cl
-#include <ydb/public/sdk/cpp/client/ydb_driver/driver.h>
-#include <ydb/public/sdk/cpp/client/extensions/solomon_stats/pull_client.h>
+#include <client/ydb_driver/driver.h>
+#include <client/extensions/solomon_stats/pull_client.h>
 
 ...
 
@@ -65,7 +65,7 @@ Implementing NMonitoring::IMetricRegistry provides more flexibility. You can del
 
 Select a method which is right for you:
 ```cl
-#include <ydb/public/sdk/cpp/client/extensions/solomon_stats/pull_connector.h>
+#include <client/extensions/solomon_stats/pull_connector.h>
 
 ...
 

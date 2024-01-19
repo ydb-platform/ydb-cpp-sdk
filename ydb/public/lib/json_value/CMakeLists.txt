@@ -1,3 +1,5 @@
+add_subdirectory(ut)
+
 add_library(public-lib-json_value)
 
 target_link_libraries(public-lib-json_value PUBLIC

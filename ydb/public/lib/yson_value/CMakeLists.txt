@@ -8,7 +8,7 @@ target_link_libraries(public-lib-yson_value PUBLIC
     cpp-client-ydb_value
     ydb-library-uuid
 )
-target_link_libraries(public-lib-yson_valuePUBLIC
+target_link_libraries(public-lib-yson_value PUBLIC
     contrib-libs-linux-headers
 )
 
