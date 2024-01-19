@@ -3,9 +3,10 @@
 #include <library/cpp/testing/unittest/registar.h>
 
 #include <util/generic/deque.h>
-#include <util/generic/map.h>
 #include <util/generic/typelist.h>
 #include <util/generic/vector.h>
+
+#include <map>
 
 Y_UNIT_TEST_SUITE(TestSerializedEnum) {
     Y_UNIT_TEST(RepresentationTypes) {
@@ -87,7 +88,7 @@ Y_UNIT_TEST_SUITE(TestSerializedEnum) {
             Eleven = 11,
             Fake = (unsigned short)(-1),
         };
-        const TMap<unsigned, unsigned> map = {{0, 1}, {1, 2}, {2, 4}, {3, 8}, {4, 16}, {11, 2048}};
+        const std::map<unsigned, unsigned> map = {{0, 1}, {1, 2}, {2, 4}, {3, 8}, {4, 16}, {11, 2048}};
         const auto view = ::NEnumSerializationRuntime::NDetail::TMappedDictView<ETestEnum, unsigned, unsigned, decltype(map)>{map};
 
         UNIT_ASSERT_VALUES_EQUAL(view.size(), map.size());
@@ -113,7 +114,7 @@ Y_UNIT_TEST_SUITE(TestSerializedEnum) {
         UNIT_ASSERT_VALUES_EQUAL(mask, 2079);
         UNIT_ASSERT_VALUES_EQUAL(sum, 2079);
 
-        const TMap<ETestEnum, unsigned> materialized = view.Materialize<TMap>();
+        const std::map<ETestEnum, unsigned> materialized = view.Materialize<std::map>();
         UNIT_ASSERT_VALUES_EQUAL(materialized.size(), map.size());
         UNIT_ASSERT_VALUES_EQUAL(materialized.at(ETestEnum::Four), 16);
     }

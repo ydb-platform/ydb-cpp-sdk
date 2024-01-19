@@ -85,7 +85,7 @@ Y_UNIT_TEST_SUITE(ParamsBuilder) {
             .EndOptional()
             .Build();
 
-        TMap<TString, TType> paramsMap;
+        std::map<TString, TType> paramsMap;
         paramsMap.emplace("$param1", param1Type);
         paramsMap.emplace("$param2", param2Type);
 
@@ -129,7 +129,7 @@ Y_UNIT_TEST_SUITE(ParamsBuilder) {
             .EndOptional()
             .Build();
 
-        TMap<TString, TType> paramsMap;
+        std::map<TString, TType> paramsMap;
         paramsMap.emplace("$param1", param1Type);
         paramsMap.emplace("$param2", param2Type);
 
@@ -187,7 +187,7 @@ Y_UNIT_TEST_SUITE(ParamsBuilder) {
             .EndOptional()
             .Build();
 
-        TMap<TString, TType> paramsMap;
+        std::map<TString, TType> paramsMap;
         paramsMap.emplace("$param1", param1Type);
         paramsMap.emplace("$param2", param2Type);
 
@@ -217,7 +217,7 @@ Y_UNIT_TEST_SUITE(ParamsBuilder) {
             .EndOptional()
             .Build();
 
-        TMap<TString, TType> paramsMap;
+        std::map<TString, TType> paramsMap;
         paramsMap.emplace("$param1", param1Type);
         paramsMap.emplace("$param2", param2Type);
 

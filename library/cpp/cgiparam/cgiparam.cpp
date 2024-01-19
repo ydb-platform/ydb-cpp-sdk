@@ -18,7 +18,7 @@ const TString& TCgiParameters::Get(const TStringBuf name, size_t numOfValue) con
 }
 
 bool TCgiParameters::Erase(const TStringBuf name, size_t pos) {
-    const auto pair = equal_range(name);
+    const auto pair = equal_range(static_cast<TString>(name));
 
     for (auto it = pair.first; it != pair.second; ++it, --pos) {
         if (0 == pos) {
@@ -31,7 +31,7 @@ bool TCgiParameters::Erase(const TStringBuf name, size_t pos) {
 }
 
 bool TCgiParameters::Erase(const TStringBuf name, const TStringBuf val) {
-    const auto pair = equal_range(name);
+    const auto pair = equal_range(static_cast<TString>(name));
 
     bool found = false;
     for (auto it = pair.first; it != pair.second;) {
@@ -47,7 +47,7 @@ bool TCgiParameters::Erase(const TStringBuf name, const TStringBuf val) {
 }
 
 bool TCgiParameters::ErasePattern(const TStringBuf name, const TStringBuf pat) {
-    const auto pair = equal_range(name);
+    const auto pair = equal_range(static_cast<TString>(name));
 
     bool found = false;
     for (auto it = pair.first; it != pair.second;) {
@@ -66,7 +66,7 @@ bool TCgiParameters::ErasePattern(const TStringBuf name, const TStringBuf pat) {
 size_t TCgiParameters::EraseAll(const TStringBuf name) {
     size_t num = 0;
 
-    const auto pair = equal_range(name);
+    const auto pair = equal_range(static_cast<TString>(name));
 
     for (auto it = pair.first; it != pair.second; erase(it++), ++num)
         ;
@@ -75,7 +75,7 @@ size_t TCgiParameters::EraseAll(const TStringBuf name) {
 }
 
 void TCgiParameters::JoinUnescaped(const TStringBuf key, char sep, TStringBuf val) {
-    const auto pair = equal_range(key);
+    const auto pair = equal_range(static_cast<TString>(key));
     auto it = pair.first;
 
     if (it == pair.second) { // not found
@@ -222,7 +222,7 @@ TString TCgiParameters::QuotedPrint(const char* safe) const {
 }
 
 TCgiParameters::const_iterator TCgiParameters::Find(const TStringBuf name, size_t pos) const noexcept {
-    const auto pair = equal_range(name);
+    const auto pair = equal_range(static_cast<TString>(name));
 
     for (auto it = pair.first; it != pair.second; ++it, --pos) {
         if (0 == pos) {
@@ -234,7 +234,7 @@ TCgiParameters::const_iterator TCgiParameters::Find(const TStringBuf name, size_
 }
 
 bool TCgiParameters::Has(const TStringBuf name, const TStringBuf value) const noexcept {
-    const auto pair = equal_range(name);
+    const auto pair = equal_range(static_cast<TString>(name));
 
     for (auto it = pair.first; it != pair.second; ++it) {
         if (value == it->second) {
@@ -266,7 +266,7 @@ TQuickCgiParam::TQuickCgiParam(const TStringBuf cgiParamStr) {
 }
 
 const TStringBuf& TQuickCgiParam::Get(const TStringBuf name, size_t pos) const noexcept {
-    const auto pair = equal_range(name);
+    const auto pair = equal_range(static_cast<TString>(name));
 
     for (auto it = pair.first; it != pair.second; ++it, --pos) {
         if (0 == pos) {
@@ -278,7 +278,7 @@ const TStringBuf& TQuickCgiParam::Get(const TStringBuf name, size_t pos) const n
 }
 
 bool TQuickCgiParam::Has(const TStringBuf name, const TStringBuf value) const noexcept {
-    const auto pair = equal_range(name);
+    const auto pair = equal_range(static_cast<TString>(name));
 
     for (auto it = pair.first; it != pair.second; ++it) {
         if (value == it->second) {

@@ -44,7 +44,7 @@ class TParams {
 public:
     bool Empty() const;
 
-    TMap<TString, TValue> GetValues() const;
+    std::map<TString, TValue> GetValues() const;
     TMaybe<TValue> GetValue(const TString& name) const;
 
 private:
@@ -75,7 +75,7 @@ class TParamsBuilder : public TMoveOnly {
 public:
     TParamsBuilder(TParamsBuilder&&);
     TParamsBuilder();
-    TParamsBuilder(const TMap<TString, TType>& typeInfo);
+    TParamsBuilder(const std::map<TString, TType>& typeInfo);
 
     ~TParamsBuilder();
 

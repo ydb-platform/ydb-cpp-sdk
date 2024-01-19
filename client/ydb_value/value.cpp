@@ -14,8 +14,8 @@
 #include <ydb/library/yql/public/decimal/yql_decimal.h>
 #include <ydb/library/uuid/uuid.h>
 
+#include <util/generic/mapfindptr.h>
 #include <util/generic/bitmap.h>
-#include <util/generic/map.h>
 #include <util/string/builder.h>
 
 namespace NYdb {
@@ -1955,7 +1955,7 @@ void TValueParser::CloseTagged() {
 
 class TValueBuilderImpl {
     using ETypeKind = TTypeParser::ETypeKind;
-    using TMembersMap = TMap<TString, size_t>;
+    using TMembersMap = std::map<TString, size_t>;
 
     struct TProtoPosition {
         Ydb::Value& Value;
@@ -2308,7 +2308,7 @@ public:
                 return;
             }
 
-            auto memberIndex = membersMap->FindPtr(memberName);
+            auto memberIndex = MapFindPtr(*membersMap, memberName);
             if (!memberIndex) {
                 FatalError(TStringBuilder() << "Struct member not found: " << memberName);
                 return;
@@ -2702,7 +2702,7 @@ private:
     //TTypeBuilder TypeBuilder_;
     TTypeBuilder::TImpl TypeBuilder_;
     Ydb::Value ProtoValue_;
-    TMap<const Ydb::StructType*, TMembersMap> StructsMap_;
+    std::map<const Ydb::StructType*, TMembersMap> StructsMap_;
 
     TStackVec<TProtoPosition, 8> Path_;
     TStackVec<TStructPosition, 8> StructsPath_;

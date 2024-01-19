@@ -2,7 +2,6 @@
 
 #include "yql_panic.h"
 
-#include <util/generic/map.h>
 #include <util/generic/ptr.h>
 #include <util/generic/string.h>
 #include <util/system/mutex.h>
@@ -75,7 +74,7 @@ private:
 
 private:
     TMutex Guard_;
-    TMap<TString, TLock::TPtr> Locks_;
+    std::map<TString, TLock::TPtr> Locks_;
 };
 
 }

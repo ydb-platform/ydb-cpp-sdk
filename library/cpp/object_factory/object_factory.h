@@ -2,10 +2,11 @@
 
 #include <util/system/guard.h>
 #include <util/system/rwlock.h>
-#include <util/generic/map.h>
 #include <util/generic/set.h>
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>
+
+#include <map>
 
 namespace NObjectFactory {
     template <class TProduct, class... TArgs>
@@ -92,7 +93,7 @@ namespace NObjectFactory {
 
     private:
         typedef TSimpleSharedPtr<IFactoryObjectCreator<TProduct, TArgs...>> ICreatorPtr;
-        typedef TMap<TKey, ICreatorPtr> ICreators;
+        typedef std::map<TKey, ICreatorPtr> ICreators;
         ICreators Creators;
         TRWMutex CreatorsLock;
     };

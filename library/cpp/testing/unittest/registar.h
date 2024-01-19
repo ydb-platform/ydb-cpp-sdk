@@ -5,7 +5,6 @@
 #include <util/generic/bt_exception.h>
 #include <util/generic/hash.h>
 #include <util/generic/intrlist.h>
-#include <util/generic/map.h>
 #include <util/generic/ptr.h>
 #include <util/generic/scope.h>
 #include <util/generic/set.h>
@@ -165,8 +164,8 @@ namespace NUnitTest {
         void AddTestFinish(const TTest& test);
 
     private:
-        TMap<TString, size_t> TestErrors_;
-        TMap<TString, size_t> CurTestErrors_;
+        std::map<TString, size_t> TestErrors_;
+        std::map<TString, size_t> CurTestErrors_;
         bool IsForked_ = false;
         bool ForkTests_ = false;
     };

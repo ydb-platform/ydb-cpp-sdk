@@ -241,14 +241,14 @@ namespace {
         void Finish() {
             Y_ENSURE(!InitialFillingDone);
             InitialFillingDone = true;
-            TMap<i64, TVector<TString>> bySize;
+            std::map<i64, TVector<TString>> bySize;
             for (const TString& fname: FileNames) {
                 TFile file(fname, OpenExisting | RdOnly);
                 bySize[file.GetLength()].push_back(fname);
             }
             for (const auto& bySizeElement: bySize) {
                 if (bySizeElement.second.size() > 1) {
-                    TMap<TString, TVector<TString>, TMyFileComparator> byContents;
+                    std::map<TString, TVector<TString>, TMyFileComparator> byContents;
                     for (const TString& fname: bySizeElement.second) {
                         byContents[fname].push_back(fname);
                     }

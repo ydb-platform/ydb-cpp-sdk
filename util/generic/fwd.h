@@ -79,12 +79,6 @@ class THashMultiSet;
 template <class T, class A = std::allocator<T>>
 class TList;
 
-template <class K, class V, class Less = TLess<K>, class A = std::allocator<K>>
-class TMap;
-
-template <class K, class V, class Less = TLess<K>, class A = std::allocator<K>>
-class TMultiMap;
-
 template <class K, class L = TLess<K>, class A = std::allocator<K>>
 class TSet;
 
