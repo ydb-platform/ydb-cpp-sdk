@@ -3,9 +3,6 @@ LIBRARY()
 SRCS(
     yql_issue.cpp
     yql_issue_message.cpp
-    yql_issue_manager.cpp
-    yql_issue_utils.cpp
-    yql_warning.cpp
 )
 
 PEERDIR(
@@ -17,14 +14,8 @@ PEERDIR(
     ydb/library/yql/utils
 )
 
-GENERATE_ENUM_SERIALIZATION(yql_warning.h)
-
 END()
 
 RECURSE(
     protos
-)
-
-RECURSE_FOR_TESTS(
-    ut
 )

@@ -1,5 +1,4 @@
 RECURSE(
     client
     common
-    server
 )
