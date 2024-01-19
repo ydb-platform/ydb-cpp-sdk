@@ -31,7 +31,7 @@ class TJUnitProcessor : public ITestSuiteProcessor {
     };
 
     struct TTestSuite {
-        TMap<TString, TTestCase> Cases;
+        std::map<TString, TTestCase> Cases;
 
         size_t GetTestsCount() const {
             return Cases.size();
@@ -136,7 +136,7 @@ private:
     const EOutputFormat OutputFormat;
     TString ResultReportFileName;
     TMaybe<TTempFile> TmpReportFile;
-    TMap<TString, TTestSuite> Suites;
+    std::map<TString, TTestSuite> Suites;
     THolder<TOutputCapturer> StdErrCapturer;
     THolder<TOutputCapturer> StdOutCapturer;
     TInstant StartCurrentTestTime;

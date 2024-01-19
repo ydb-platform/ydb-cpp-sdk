@@ -2,9 +2,9 @@
 
 #include "last_getopt_opt.h"
 
+#include <map>
 #include <library/cpp/colorizer/fwd.h>
 
-#include <util/generic/map.h>
 
 namespace NLastGetopt {
     enum EArgPermutation {
@@ -60,7 +60,7 @@ namespace NLastGetopt {
         ui32 FreeArgsMin_; // minimal number of free args
         ui32 FreeArgsMax_; // maximal number of free args
 
-        TMap<ui32, TFreeArgSpec> FreeArgSpecs_; // mapping [free arg position] -> [free arg specification]
+        std::map<ui32, TFreeArgSpec> FreeArgSpecs_; // mapping [free arg position] -> [free arg specification]
         TFreeArgSpec TrailingArgSpec_;          // spec for the trailing argument (when arguments are unlimited)
         TString DefaultFreeArgTitle_ = "ARG"; // title that's used for free args without a title
 
@@ -486,7 +486,7 @@ namespace NLastGetopt {
         /**
          * Get mapping for free args
          */
-        const TMap<ui32, TFreeArgSpec>& GetFreeArgSpecs() const {
+        const std::map<ui32, TFreeArgSpec>& GetFreeArgSpecs() const {
             return FreeArgSpecs_;
         }
 

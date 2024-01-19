@@ -16,7 +16,6 @@
 #include <util/string/cast.h>
 #include <util/string/join.h>
 #include <util/string/subst.h>
-#include <util/generic/map.h>
 #include <util/generic/string.h>
 #include <util/generic/vector.h>
 #include <util/generic/ptr.h>
@@ -224,7 +223,7 @@ void GenerateEnum(
 
     const TString nsNameBufsClass = nsName + "::TNameBufs";
 
-    auto defineConstArray = [&out, payloadCache = TMap<std::pair<TString, TVector<TString>>, TString>()](const TStringBuf indent, const TStringBuf elementType, const TStringBuf name, const TVector<TString>& items) mutable {
+    auto defineConstArray = [&out, payloadCache = std::map<std::pair<TString, TVector<TString>>, TString>()](const TStringBuf indent, const TStringBuf elementType, const TStringBuf name, const TVector<TString>& items) mutable {
         if (items.empty()) { // ISO C++ forbids zero-size array
             out << indent << "static constexpr const TArrayRef<const " << elementType << "> " << name << ";\n";
         } else {

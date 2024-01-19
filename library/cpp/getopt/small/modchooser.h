@@ -150,7 +150,7 @@ private:
     TVector<THolder<TMainClass>> Wrappers;
 
     //! Modes
-    TMap<TString, TMode*> Modes;
+    std::map<TString, TMode*> Modes;
 
     TString DefaultMode;
 

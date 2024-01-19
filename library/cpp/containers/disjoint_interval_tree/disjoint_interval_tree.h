@@ -1,16 +1,16 @@
 #pragma once
 
-#include <util/generic/map.h>
 #include <util/system/yassert.h>
 
 #include <type_traits>
+#include <map>
 
 template <class T>
 class TDisjointIntervalTree {
 private:
     static_assert(std::is_integral<T>::value, "expect std::is_integral<T>::value");
 
-    using TTree = TMap<T, T>; // [key, value)
+    using TTree = std::map<T, T>; // [key, value)
     using TIterator = typename TTree::iterator;
     using TConstIterator = typename TTree::const_iterator;
     using TReverseIterator = typename TTree::reverse_iterator;

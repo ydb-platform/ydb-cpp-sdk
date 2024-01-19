@@ -1,43 +1,41 @@
-#include "map.h"
-
 #include <library/cpp/testing/unittest/registar.h>
 #include <util/memory/pool.h>
 #include <algorithm>
 
 Y_UNIT_TEST_SUITE(TYMapTest) {
     template <typename TAlloc>
-    void DoTestMap1(TMap<char, int, TLess<char>, TAlloc>& m);
+    void DoTestMap1(std::map<char, int, TLess<char>, TAlloc>& m);
 
     template <typename TAlloc>
-    void DoTestMMap1(TMultiMap<char, int, TLess<char>, TAlloc>& mm);
+    void DoTestMMap1(std::multimap<char, int, TLess<char>, TAlloc>& mm);
 
     Y_UNIT_TEST(TestMap1) {
         {
-            TMap<char, int, TLess<char>> m;
+            std::map<char, int, TLess<char>> m;
             DoTestMap1(m);
         }
         {
             TMemoryPool p(100);
-            TMap<char, int, TLess<char>, TPoolAllocator> m(&p);
+            std::map<char, int, TLess<char>, TPoolAllocator> m(&p);
             DoTestMap1(m);
         }
     }
 
     Y_UNIT_TEST(TestMMap1) {
         {
-            TMultiMap<char, int, TLess<char>> mm;
+            std::multimap<char, int, TLess<char>> mm;
             DoTestMMap1(mm);
         }
         {
             TMemoryPool p(100);
-            TMultiMap<char, int, TLess<char>, TPoolAllocator> mm(&p);
+            std::multimap<char, int, TLess<char>, TPoolAllocator> mm(&p);
             DoTestMMap1(mm);
         }
     }
 
     template <typename TAlloc>
-    void DoTestMap1(TMap<char, int, TLess<char>, TAlloc>& m) {
-        using maptype = TMap<char, int, TLess<char>, TAlloc>;
+    void DoTestMap1(std::map<char, int, TLess<char>, TAlloc>& m) {
+        using maptype = std::map<char, int, TLess<char>, TAlloc>;
         // Store mappings between roman numerals and decimals.
         m['l'] = 50;
         m['x'] = 20; // Deliberate mistake.
@@ -67,8 +65,8 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
     }
 
     template <typename TAlloc>
-    void DoTestMMap1(TMultiMap<char, int, TLess<char>, TAlloc>& m) {
-        using mmap = TMultiMap<char, int, TLess<char>, TAlloc>;
+    void DoTestMMap1(std::multimap<char, int, TLess<char>, TAlloc>& m) {
+        using mmap = std::multimap<char, int, TLess<char>, TAlloc>;
 
         UNIT_ASSERT(m.count('X') == 0);
 
@@ -103,7 +101,7 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
         pair_type p5(3, 'x');
         pair_type p6(6, 'f');
 
-        using mmap = TMultiMap<int, char, TLess<int>>;
+        using mmap = std::multimap<int, char, TLess<int>>;
 
         pair_type array[] = {
             p1,
@@ -125,7 +123,7 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
     }
 
     Y_UNIT_TEST(TestIterators) {
-        using int_map = TMap<int, char, TLess<int>>;
+        using int_map = std::map<int, char, TLess<int>>;
         int_map imap;
 
         {
@@ -138,7 +136,7 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
             UNIT_ASSERT(!(cite != ite));
         }
 
-        using mmap = TMultiMap<int, char, TLess<int>>;
+        using mmap = std::multimap<int, char, TLess<int>>;
         using pair_type = mmap::value_type;
 
         pair_type p1(3, 'c');
@@ -188,7 +186,7 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
     }
 
     Y_UNIT_TEST(TestEqualRange) {
-        using maptype = TMap<char, int, TLess<char>>;
+        using maptype = std::map<char, int, TLess<char>>;
 
         {
             maptype m;
@@ -276,7 +274,7 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
 
     Y_UNIT_TEST(TestTemplateMethods) {
         {
-            using Container = TMap<TKey, int, TKeyCmp>;
+            using Container = std::map<TKey, int, TKeyCmp>;
             using value = Container::value_type;
 
             Container cont;
@@ -304,7 +302,7 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
         }
 
         {
-            using Container = TMap<TKey*, int, TKeyCmpPtr>;
+            using Container = std::map<TKey*, int, TKeyCmpPtr>;
             using value = Container::value_type;
 
             Container cont;
@@ -333,7 +331,7 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
         }
 
         {
-            using Container = TMultiMap<TKey, int, TKeyCmp>;
+            using Container = std::multimap<TKey, int, TKeyCmp>;
             using value = Container::value_type;
 
             Container cont;
@@ -361,7 +359,7 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
         }
 
         {
-            using Container = TMultiMap<TKey const volatile*, int, TKeyCmpPtr>;
+            using Container = std::multimap<TKey const volatile*, int, TKeyCmpPtr>;
             using value = Container::value_type;
 
             Container cont;
@@ -399,8 +397,8 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
     }
 
     Y_UNIT_TEST(TestEmpty) {
-        EmptyAndInsertTest<TMap<char, int, TLess<char>>>(std::pair<char, int>('a', 1));
-        EmptyAndInsertTest<TMultiMap<char, int, TLess<char>>>(std::pair<char, int>('a', 1));
+        EmptyAndInsertTest<std::map<char, int, TLess<char>>>(std::pair<char, int>('a', 1));
+        EmptyAndInsertTest<std::multimap<char, int, TLess<char>>>(std::pair<char, int>('a', 1));
     }
 
     struct TParametrizedKeyCmp {
@@ -421,7 +419,7 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
     };
 
     Y_UNIT_TEST(TestMoveComparator) {
-        using Container = TMultiMap<TKey, int, TParametrizedKeyCmp>;
+        using Container = std::multimap<TKey, int, TParametrizedKeyCmp>;
 
         TParametrizedKeyCmp direct(false);
         TParametrizedKeyCmp inverse(true);
@@ -447,7 +445,7 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
     }
 
     Y_UNIT_TEST(TestMapInitializerList) {
-        TMap<TString, int> m = {
+        std::map<TString, int> m = {
             {"one", 1},
             {"two", 2},
             {"three", 3},
@@ -462,14 +460,14 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
     }
 
     Y_UNIT_TEST(TestMMapInitializerList) {
-        TMultiMap<TString, int> mm = {
+        std::multimap<TString, int> mm = {
             {"one", 1},
             {"two", 2},
             {"two", -2},
             {"three", 3},
         };
         UNIT_ASSERT(mm.contains("two"));
-        TMultiMap<TString, int> expected;
+        std::multimap<TString, int> expected;
         expected.emplace("one", 1);
         expected.emplace("two", 2);
         expected.emplace("two", -2);
@@ -478,7 +476,7 @@ Y_UNIT_TEST_SUITE(TYMapTest) {
     }
 
     Y_UNIT_TEST(TestMovePoolAlloc) {
-        using TMapInPool = TMap<int, int, TLess<int>, TPoolAllocator>;
+        using TMapInPool = std::map<int, int, TLess<int>, TPoolAllocator>;
 
         TMemoryPool pool(1);
 

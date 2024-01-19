@@ -221,7 +221,7 @@ Y_UNIT_TEST_SUITE(EndpointElector) {
         UNIT_ASSERT_VALUES_EQUAL(obj4->ObjectCount(), 1);
 
         {
-            TMap<ui64, size_t> sizes;
+            std::map<ui64, size_t> sizes;
             size_t i = 0;
             elector.ForEachEndpoint([&sizes, &i](ui64 nodeId, const NYdb::IObjRegistryHandle& handle) {
                 sizes[nodeId] = handle.Size();
@@ -236,7 +236,7 @@ Y_UNIT_TEST_SUITE(EndpointElector) {
         }
 
         {
-            TMap<ui64, size_t> sizes;
+            std::map<ui64, size_t> sizes;
             size_t i = 0;
             elector.ForEachEndpoint([&sizes, &i](ui64 nodeId, const NYdb::IObjRegistryHandle& handle) {
                 sizes[nodeId] = handle.Size();
@@ -263,7 +263,7 @@ Y_UNIT_TEST_SUITE(EndpointElector) {
         UNIT_ASSERT_VALUES_EQUAL(obj4->HostRemoved(), false);
 
         {
-            TMap<ui64, size_t> sizes;
+            std::map<ui64, size_t> sizes;
             size_t i = 0;
             elector.ForEachEndpoint([&sizes, &i](ui64 nodeId, const NYdb::IObjRegistryHandle& handle) {
                 sizes[nodeId] = handle.Size();
@@ -289,7 +289,7 @@ Y_UNIT_TEST_SUITE(EndpointElector) {
         UNIT_ASSERT_VALUES_EQUAL(obj5->HostRemoved(), true);
 
         {
-            TMap<ui64, size_t> sizes;
+            std::map<ui64, size_t> sizes;
             size_t i = 0;
             elector.ForEachEndpoint([&sizes, &i](ui64 nodeId, const NYdb::IObjRegistryHandle& handle) {
                 sizes[nodeId] = handle.Size();

@@ -58,12 +58,12 @@ public:
     bool GetImportant() const;
     const TInstant& GetReadFrom() const;
     const TVector<ECodec>& GetSupportedCodecs() const;
-    const TMap<TString, TString>& GetAttributes() const;
+    const std::map<TString, TString>& GetAttributes() const;
 private:
     TString ConsumerName_;
     bool Important_;
     TInstant ReadFrom_;
-    TMap<TString, TString> Attributes_;
+    std::map<TString, TString> Attributes_;
     TVector<ECodec> SupportedCodecs_;
 };
 
@@ -214,7 +214,7 @@ public:
 
     ui64 GetPartitionWriteBurstBytes() const;
 
-    const TMap<TString, TString>& GetAttributes() const;
+    const std::map<TString, TString>& GetAttributes() const;
 
     const TVector<TConsumer>& GetConsumers() const;
 
@@ -236,7 +236,7 @@ private:
     ui64 PartitionWriteSpeedBytesPerSecond_;
     ui64 PartitionWriteBurstBytes_;
     EMeteringMode MeteringMode_;
-    TMap<TString, TString> Attributes_;
+    std::map<TString, TString> Attributes_;
     TVector<TConsumer> Consumers_;
     TTopicStats TopicStats_;
 
@@ -360,7 +360,7 @@ template<class TSettings>
 struct TConsumerSettings {
     using TSelf = TConsumerSettings;
 
-    using TAttributes = TMap<TString, TString>;
+    using TAttributes = std::map<TString, TString>;
 
     TConsumerSettings(TSettings& parent): Parent_(parent) {}
     TConsumerSettings(TSettings& parent, const TString& name) : ConsumerName_(name), Parent_(parent) {}
@@ -378,12 +378,12 @@ struct TConsumerSettings {
         return *this;
     }
 
-    TConsumerSettings& SetAttributes(TMap<TString, TString>&& attributes) {
+    TConsumerSettings& SetAttributes(std::map<TString, TString>&& attributes) {
         Attributes_ = std::move(attributes);
         return *this;
     }
 
-    TConsumerSettings& SetAttributes(const TMap<TString, TString>& attributes) {
+    TConsumerSettings& SetAttributes(const std::map<TString, TString>& attributes) {
         Attributes_ = attributes;
         return *this;
     }
@@ -408,7 +408,7 @@ private:
 struct TAlterConsumerSettings {
     using TSelf = TAlterConsumerSettings;
 
-    using TAlterAttributes = TMap<TString, TString>;
+    using TAlterAttributes = std::map<TString, TString>;
 
     TAlterConsumerSettings(TAlterTopicSettings& parent): Parent_(parent) {}
     TAlterConsumerSettings(TAlterTopicSettings& parent, const TString& name) : ConsumerName_(name), Parent_(parent) {}
@@ -445,7 +445,7 @@ private:
 struct TCreateTopicSettings : public TOperationRequestSettings<TCreateTopicSettings> {
 
     using TSelf = TCreateTopicSettings;
-    using TAttributes = TMap<TString, TString>;
+    using TAttributes = std::map<TString, TString>;
 
     FLUENT_SETTING(TPartitioningSettings, PartitioningSettings);
 
@@ -489,12 +489,12 @@ struct TCreateTopicSettings : public TOperationRequestSettings<TCreateTopicSetti
         return *this;
     }
 
-    TCreateTopicSettings& SetAttributes(TMap<TString, TString>&& attributes) {
+    TCreateTopicSettings& SetAttributes(std::map<TString, TString>&& attributes) {
         Attributes_ = std::move(attributes);
         return *this;
     }
 
-    TCreateTopicSettings& SetAttributes(const TMap<TString, TString>& attributes) {
+    TCreateTopicSettings& SetAttributes(const std::map<TString, TString>& attributes) {
         Attributes_ = attributes;
         return *this;
     }
@@ -509,7 +509,7 @@ struct TCreateTopicSettings : public TOperationRequestSettings<TCreateTopicSetti
 struct TAlterTopicSettings : public TOperationRequestSettings<TAlterTopicSettings> {
 
     using TSelf = TAlterTopicSettings;
-    using TAlterAttributes = TMap<TString, TString>;
+    using TAlterAttributes = std::map<TString, TString>;
 
     FLUENT_SETTING_OPTIONAL(TPartitioningSettings, AlterPartitioningSettings);
 

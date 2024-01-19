@@ -2,7 +2,6 @@
 
 #include <library/cpp/testing/gtest/gtest.h>
 
-#include <util/generic/map.h>
 #include <util/generic/vector.h>
 
 using namespace testing;
@@ -29,12 +28,12 @@ TEST(TIterator, TMappedRangeTest) {
 
 //TODO: replace with dedicated IterateKeys / IterateValues methods
 TEST(TIterator, TMutableMappedRangeTest) {
-    TMap<int, int> points = {{1, 2}, {3, 4}};
+    std::map<int, int> points = {{1, 2}, {3, 4}};
 
     EXPECT_THAT(
         MakeMappedRange(
             points.begin(), points.end(),
-            [](TMap<int, int>::value_type& kv) -> int& { return kv.second; }
+            [](std::map<int, int>::value_type& kv) -> int& { return kv.second; }
         ),
         ElementsAre(2, 4)
     );

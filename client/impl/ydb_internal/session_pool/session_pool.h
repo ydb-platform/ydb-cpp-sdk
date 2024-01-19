@@ -3,7 +3,6 @@
 #include <client/impl/ydb_internal/kqp_session_common/kqp_session_common.h>
 #include <client/ydb_types/core_facility/core_facility.h>
 
-#include <util/generic/map.h>
 
 namespace NYdb {
 
@@ -96,7 +95,7 @@ private:
     private:
         const ui32 MaxQueueSize_;
         const TDuration MaxWaitSessionTimeout_;
-        TMultiMap<TInstant, std::unique_ptr<IGetSessionCtx>> Waiters_;
+        std::multimap<TInstant, std::unique_ptr<IGetSessionCtx>> Waiters_;
     };
 public:
     using TKeepAliveCmd = std::function<void(TKqpSessionCommon* s)>;
@@ -130,7 +129,7 @@ private:
     mutable std::mutex Mtx_;
     bool Closed_;
 
-    TMultiMap<TInstant, std::unique_ptr<TKqpSessionCommon>> Sessions_;
+    std::multimap<TInstant, std::unique_ptr<TKqpSessionCommon>> Sessions_;
     TWaitersQueue WaitersQueue_;
 
     i64 ActiveSessions_;

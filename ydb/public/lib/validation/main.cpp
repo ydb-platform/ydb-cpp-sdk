@@ -8,7 +8,6 @@
 #include <google/protobuf/io/printer.h>
 #include <google/protobuf/io/zero_copy_stream.h>
 
-#include <util/generic/map.h>
 #include <util/generic/maybe.h>
 #include <util/generic/ptr.h>
 #include <util/generic/vector.h>
@@ -479,10 +478,10 @@ class TMessageGenerator {
         }
     };
 
-    using TItems = TMap<const OneofDescriptor*, TItem, TOrderedCmp>;
+    using TItems = std::map<const OneofDescriptor*, TItem, TOrderedCmp>;
 
     void Declare(TPrinter& printer, const TItems& items) {
-        if (!items) {
+        if (items.empty()) {
             printer->Print(Vars, "bool validate(TProtoStringType&) const { return true; }\n");
         } else {
             printer->Print(Vars, "bool validate(TProtoStringType& __err) const;\n");
@@ -490,7 +489,7 @@ class TMessageGenerator {
     }
 
     void Define(TPrinter& printer, const TItems& items) {
-        if (!items) {
+        if (items.empty()) {
             return;
         }
 

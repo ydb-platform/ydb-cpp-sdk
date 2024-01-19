@@ -1123,7 +1123,7 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
 
     LOG_LAZY(Log, TLOG_DEBUG, GetLogPrefix() << "Committed response: " << msg);
 
-    TMap<ui64, TIntrusivePtr<TPartitionStreamImpl<true>>> partitionStreams;
+    std::map<ui64, TIntrusivePtr<TPartitionStreamImpl<true>>> partitionStreams;
     for (const Ydb::PersQueue::V1::CommitCookie& cookieProto : msg.cookies()) {
         typename TPartitionCookieMapping::TCookie::TPtr cookie = CookieMapping.RetrieveCommittedCookie(cookieProto);
         if (cookie) {

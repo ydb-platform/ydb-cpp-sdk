@@ -5,7 +5,6 @@
 
 #include <client/ydb_types/fatal_error_handlers/handlers.h>
 
-#include <util/generic/map.h>
 #include <util/string/builder.h>
 
 namespace NYdb {
@@ -27,7 +26,7 @@ bool TParams::Empty() const {
     return Impl_->Empty();
 }
 
-TMap<TString, TValue> TParams::GetValues() const {
+std::map<TString, TValue> TParams::GetValues() const {
     return Impl_->GetValues();
 }
 
@@ -49,7 +48,7 @@ public:
         }
     }
 
-    TImpl(const TMap<TString, TType>& typeInfo)
+    TImpl(const std::map<TString, TType>& typeInfo)
         : HasTypeInfo_(true)
     {
         for (const auto& pair : typeInfo) {
@@ -124,7 +123,7 @@ private:
 private:
     bool HasTypeInfo_ = false;
     ::google::protobuf::Map<TString, Ydb::TypedValue> ParamsMap_;
-    TMap<TString, TParamValueBuilder> ValueBuildersMap_;
+    std::map<TString, TParamValueBuilder> ValueBuildersMap_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,7 +152,7 @@ TParamsBuilder::~TParamsBuilder() = default;
 TParamsBuilder::TParamsBuilder()
     : Impl_(new TImpl()) {}
 
-TParamsBuilder::TParamsBuilder(const TMap<TString, TType>& typeInfo)
+TParamsBuilder::TParamsBuilder(const std::map<TString, TType>& typeInfo)
     : Impl_(new TImpl(typeInfo)) {}
 
 TParamsBuilder::TParamsBuilder(const ::google::protobuf::Map<TString, Ydb::Type>& typeInfo)
