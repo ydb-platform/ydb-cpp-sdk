@@ -15,18 +15,20 @@ protected:
 
     void clear();
 
-    void generateCNonce(char* outCNonce);
+    void generateCNonce(char* outCNonce, size_t outCNonceSize);
 
     void digestCalcHA1(const THttpAuthHeader& hd,
                        char* outSessionKey,
-                       char* outCNonce);
+                       char* outCNonce,
+                       size_t outCNonceSize);
 
     void digestCalcResponse(const THttpAuthHeader& hd,
                             const char* method,
                             const char* path,
                             const char* nonceCount,
                             char* outResponse,
-                            char* outCNonce);
+                            char* outCNonce,
+                            size_t outCNonceSize);
 
 public:
     httpDigestHandler();

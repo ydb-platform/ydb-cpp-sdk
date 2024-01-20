@@ -47,9 +47,9 @@ const char* httpDigestHandler::getHeaderInstruction() const {
 }
 
 /************************************************************/
-void httpDigestHandler::generateCNonce(char* outCNonce) {
+void httpDigestHandler::generateCNonce(char* outCNonce, size_t outCNonceSize) {
     if (!*outCNonce)
-        sprintf(outCNonce, "%ld", (long)time(nullptr));
+        snprintf(outCNonce, outCNonceSize, "%ld", (long)time(nullptr));
 }
 
 /************************************************************/
@@ -69,7 +69,8 @@ inline void addMD5Sep(MD5& ctx) {
 /* calculate H(A1) as per spec */
 void httpDigestHandler::digestCalcHA1(const THttpAuthHeader& hd,
                                       char* outSessionKey,
-                                      char* outCNonce) {
+                                      char* outCNonce,
+                                      size_t outCNonceSize) {
     MD5 ctx;
     ctx.Init();
     addMD5(ctx, User_);
@@ -82,7 +83,7 @@ void httpDigestHandler::digestCalcHA1(const THttpAuthHeader& hd,
         unsigned char digest[16];
         ctx.Final(digest);
 
-        generateCNonce(outCNonce);
+        generateCNonce(outCNonce, outCNonceSize);
 
         ctx.Init();
         ctx.Update(digest, 16);
@@ -103,9 +104,10 @@ void httpDigestHandler::digestCalcResponse(const THttpAuthHeader& hd,
                                            const char* method,
                                            const char* nonceCount,
                                            char* outResponse,
-                                           char* outCNonce) {
+                                           char* outCNonce,
+                                           size_t outCNonceSize) {
     char HA1[33];
-    digestCalcHA1(hd, HA1, outCNonce);
+    digestCalcHA1(hd, HA1, outCNonce, outCNonceSize);
 
     char HA2[33];
     MD5 ctx;
@@ -124,7 +126,7 @@ void httpDigestHandler::digestCalcResponse(const THttpAuthHeader& hd,
 
     if (hd.qop_auth) {
         if (!*outCNonce)
-            generateCNonce(outCNonce);
+            generateCNonce(outCNonce, outCNonceSize);
 
         addMD5(ctx, nonceCount, 8);
         addMD5Sep(ctx);
@@ -161,7 +163,7 @@ bool httpDigestHandler::processHeader(const THttpAuthHeader* header,
     NonceCount_++;
 
     char nonceCount[20];
-    sprintf(nonceCount, "%08d", NonceCount_);
+    snprintf(nonceCount, sizeof(nonceCount), "%08d", NonceCount_);
 
     char CNonce[50];
     if (cnonce)
@@ -170,7 +172,7 @@ bool httpDigestHandler::processHeader(const THttpAuthHeader* header,
         CNonce[0] = 0;
 
     char response[33];
-    digestCalcResponse(*header, path, method, nonceCount, response, CNonce);
+    digestCalcResponse(*header, path, method, nonceCount, response, CNonce, sizeof(CNonce));
 
     //digest-response  = 1#( username | realm | nonce | digest-uri
     //                   | response | [ algorithm ] | [cnonce] |
