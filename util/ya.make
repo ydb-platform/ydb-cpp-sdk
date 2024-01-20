@@ -243,6 +243,7 @@ JOIN_SRCS(
 
 IF (GCC OR CLANG OR CLANG_CL)
     CFLAGS(-Wnarrowing)
+    CFLAGS(-Wno-deprecated)
 ENDIF()
 
 IF (TSTRING_IS_STD_STRING)
