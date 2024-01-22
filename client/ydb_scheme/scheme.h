@@ -18,12 +18,12 @@ struct TPermissions {
     TPermissions(const TString& subject)
         : Subject(subject)
     {}
-    TPermissions(const TString& subject, const TVector<TString>& names)
+    TPermissions(const TString& subject, const std::vector<TString>& names)
         : Subject(subject)
         , PermissionNames(names)
     {}
     TString Subject;
-    TVector<TString> PermissionNames;
+    std::vector<TString> PermissionNames;
 };
 
 enum class ESchemeEntryType : i32 {
@@ -68,8 +68,8 @@ struct TSchemeEntry {
     TString Name;
     TString Owner;
     ESchemeEntryType Type;
-    TVector<TPermissions> EffectivePermissions;
-    TVector<TPermissions> Permissions;
+    std::vector<TPermissions> EffectivePermissions;
+    std::vector<TPermissions> Permissions;
     ui64 SizeBytes = 0;
     TVirtualTimestamp CreatedAt;
 
@@ -124,7 +124,7 @@ struct TModifyPermissionsSettings : public TOperationRequestSettings<TModifyPerm
         return *this;
     }
 
-    TVector<std::pair<EModifyPermissionsAction, TPermissions>> Actions_;
+    std::vector<std::pair<EModifyPermissionsAction, TPermissions>> Actions_;
     bool ClearAcl_ = false;
     void AddAction(EModifyPermissionsAction action, const TPermissions& permissions) {
         Actions_.emplace_back(std::pair<EModifyPermissionsAction, TPermissions>{action, permissions});
@@ -169,11 +169,11 @@ private:
 
 class TListDirectoryResult : public TDescribePathResult {
 public:
-    TListDirectoryResult(TStatus&& status, const TSchemeEntry& self, TVector<TSchemeEntry>&& children);
-    const TVector<TSchemeEntry>& GetChildren() const;
+    TListDirectoryResult(TStatus&& status, const TSchemeEntry& self, std::vector<TSchemeEntry>&& children);
+    const std::vector<TSchemeEntry>& GetChildren() const;
 
 private:
-    TVector<TSchemeEntry> Children_;
+    std::vector<TSchemeEntry> Children_;
 };
 
 } // namespace NScheme

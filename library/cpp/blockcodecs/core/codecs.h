@@ -4,7 +4,6 @@
 #include <util/generic/strbuf.h>
 #include <util/generic/string.h>
 #include <util/generic/typetraits.h>
-#include <util/generic/vector.h>
 #include <util/generic/yexception.h>
 
 namespace NBlockCodecs {
@@ -78,7 +77,7 @@ namespace NBlockCodecs {
     const ICodec* Codec(const TStringBuf& name);
 
     // some aux methods
-    typedef TVector<TStringBuf> TCodecList;
+    typedef std::vector<TStringBuf> TCodecList;
     TCodecList ListAllCodecs();
     TString ListAllCodecsAsString();
 

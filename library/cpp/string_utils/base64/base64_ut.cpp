@@ -9,7 +9,7 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/vector.h>
+
 #include <util/random/fast.h>
 #include <util/system/cpu_id.h>
 #include <util/system/platform.h>
@@ -400,7 +400,7 @@ Y_UNIT_TEST_SUITE(TBase64) {
         constexpr size_t TEST_CASES_COUNT = 1000;
         constexpr size_t MAX_DATA_SIZE = 1000;
         TFastRng<ui32> prng{42};
-        TVector<TString> xs{TEST_CASES_COUNT};
+        std::vector<TString> xs{TEST_CASES_COUNT};
         TString xEnc;
         TString xDec;
         TString yEnc;
@@ -445,7 +445,7 @@ Y_UNIT_TEST_SUITE(TBase64) {
         constexpr size_t MAX_DATA_SIZE = 1000;
         TFastRng<ui32> prng{42};
         TString x;
-        TVector<char> buf;
+        std::vector<char> buf;
         for (size_t i = 0; i < TEST_CASES_COUNT; ++i) {
             const size_t size = prng() % MAX_DATA_SIZE;
             x.clear();
@@ -522,7 +522,7 @@ Y_UNIT_TEST_SUITE(TBase64) {
     Y_UNIT_TEST(TestDecodeUnevenDst) {
         const auto x = "How do I convert between big-endian and little-endian values in C++?aa";
         TString b64 = "SG93IGRvIEkgY29udmVydCBiZXR3ZWVuIGJpZy1lbmRpYW4gYW5kIGxpdHRsZS1lbmRpYW4gdmFsdWVzIGluIEMrKz9hYQ";
-        TVector<char> buf(Base64DecodeBufSize(b64.Size()), '\0');
+        std::vector<char> buf(Base64DecodeBufSize(b64.Size()), '\0');
         Base64DecodeUneven(buf.begin(), b64);
         TString res(buf.data());
         UNIT_ASSERT_VALUES_EQUAL(x, res);
@@ -531,7 +531,7 @@ Y_UNIT_TEST_SUITE(TBase64) {
     Y_UNIT_TEST(TestDecodeUnevenDst2) {
         const auto x = "How do I convert between big-endian and little-endian values in C++?";
         TString b64 = "SG93IGRvIEkgY29udmVydCBiZXR3ZWVuIGJpZy1lbmRpYW4gYW5kIGxpdHRsZS1lbmRpYW4gdmFsdWVzIGluIEMrKz8";
-        TVector<char> buf(Base64DecodeBufSize(b64.Size()), '\0');
+        std::vector<char> buf(Base64DecodeBufSize(b64.Size()), '\0');
         Base64DecodeUneven(buf.begin(), b64);
         TString res(buf.data());
         UNIT_ASSERT_VALUES_EQUAL(x, res);

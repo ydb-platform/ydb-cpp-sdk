@@ -54,8 +54,8 @@ namespace {
     }
 
     template <class T>
-    TVector<TFuture<T>> ToFutures(const TVector<TPromise<T>>& promises) {
-        TVector<TFuture<void>> futures;
+    std::vector<TFuture<T>> ToFutures(const std::vector<TPromise<T>>& promises) {
+        std::vector<TFuture<void>> futures;
 
         for (auto&& p : promises) {
             futures.emplace_back(p);
@@ -67,7 +67,7 @@ namespace {
     struct TStateSnapshot {
         i64 Started = -1;
         i64 StartedException = -1;
-        const TVector<TFuture<void>>* Futures = nullptr;
+        const std::vector<TFuture<void>>* Futures = nullptr;
     };
 
     // note: std::memory_order_relaxed should be enough everywhere, because TFuture::SetValue must provide the
@@ -88,7 +88,7 @@ namespace {
                 std::atomic<i64> startedException = 0;
                 std::atomic<i64> completed = 0;
 
-                TVector<TPromise<void>> promises;
+                std::vector<TPromise<void>> promises;
                 for (auto i : xrange(numPromises)) {
                     Y_UNUSED(i);
                     promises.push_back(NewPromise());

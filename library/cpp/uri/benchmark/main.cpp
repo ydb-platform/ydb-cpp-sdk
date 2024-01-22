@@ -2,7 +2,7 @@
 
 #include <library/cpp/testing/benchmark/bench.h>
 
-#include <util/generic/vector.h>
+
 
 const TString URLS[] = {
     "http://www.TEST.Ru:80/InDex.html",

@@ -7,7 +7,7 @@ class TLogBackendCreatorInitContextConfig : public ILogBackendCreator::IInitCont
 public:
     TLogBackendCreatorInitContextConfig(const NConfig::TConfig& config);
     virtual bool GetValue(TStringBuf name, TString& var) const override;
-    virtual TVector<THolder<IInitContext>> GetChildren(TStringBuf name) const override;
+    virtual std::vector<THolder<IInitContext>> GetChildren(TStringBuf name) const override;
 
 private:
     const NConfig::TConfig& Config;

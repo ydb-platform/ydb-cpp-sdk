@@ -93,7 +93,7 @@ struct TNodeDescription::TImpl {
     EConsistencyMode AttachConsistencyMode_;
     ERateLimiterCountersMode RateLimiterCountersMode_;
     TString Owner_;
-    TVector<NScheme::TPermissions> EffectivePermissions_;
+    std::vector<NScheme::TPermissions> EffectivePermissions_;
     Ydb::Coordination::DescribeNodeResult Proto_;
 };
 
@@ -126,7 +126,7 @@ const TString& TNodeDescription::GetOwner() const {
     return Impl_->Owner_;
 }
 
-const TVector<NScheme::TPermissions>& TNodeDescription::GetEffectivePermissions() const {
+const std::vector<NScheme::TPermissions>& TNodeDescription::GetEffectivePermissions() const {
     return Impl_->EffectivePermissions_;
 }
 

@@ -17,7 +17,7 @@ class TPersQueueYdbSdkTestSetup : public ::NPersQueue::SDKTestSetup {
     TAdaptiveLock Lock;
 public:
     TPersQueueYdbSdkTestSetup(const TString& testCaseName, bool start = true,
-                              const TVector<NKikimrServices::EServiceKikimr>& logServices = ::NPersQueue::TTestServer::LOGGED_SERVICES,
+                              const std::vector<NKikimrServices::EServiceKikimr>& logServices = ::NPersQueue::TTestServer::LOGGED_SERVICES,
                               NActors::NLog::EPriority logPriority = NActors::NLog::PRI_DEBUG,
                               ui32 nodeCount = NKikimr::NPersQueueTests::PQ_DEFAULT_NODE_COUNT,
                               size_t topicPartitionsCount = 1)
@@ -77,7 +77,7 @@ public:
 struct TYDBClientEventLoop : public ::NPersQueue::IClientEventLoop {
 public:
     std::shared_ptr<TPersQueueYdbSdkTestSetup> Setup;
-    using TAcksCallback = std::function<void (const TVector<ui64>&)>;
+    using TAcksCallback = std::function<void (const std::vector<ui64>&)>;
 
     TYDBClientEventLoop(
             std::shared_ptr<TPersQueueYdbSdkTestSetup> setup,
@@ -373,7 +373,7 @@ public:
         Stop = true;
         Thread.Join();
     }
-    void PostImpl(TVector<TFunction>&& fs) override {
+    void PostImpl(std::vector<TFunction>&& fs) override {
         for (auto& f : fs) {
             TasksQueue.Enqueue(std::move(f));
         }

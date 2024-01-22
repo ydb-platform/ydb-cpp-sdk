@@ -647,7 +647,7 @@ private:
     TEvent* End_;
 
     TMyMutex CommandLock_;
-    TVector<TCommand> Commands_;
+    std::vector<TCommand> Commands_;
 
     SOCKET Signal_[2];
 };

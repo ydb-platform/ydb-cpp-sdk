@@ -14,8 +14,8 @@ Y_UNIT_TEST_SUITE(TestHashPrimes) {
         UNIT_ASSERT_VALUES_EQUAL(HashBucketCount(8), 17);
     }
 
-    static TVector<size_t> Numbers() {
-        TVector<size_t> numbers;
+    static std::vector<size_t> Numbers() {
+        std::vector<size_t> numbers;
 
         TFastRng64 rng{961923};
         size_t k = 1;
@@ -31,8 +31,8 @@ Y_UNIT_TEST_SUITE(TestHashPrimes) {
         return numbers;
     }
 
-    static TVector<size_t> Divisors() {
-        TVector<size_t> divisors;
+    static std::vector<size_t> Divisors() {
+        std::vector<size_t> divisors;
         divisors.push_back(HashBucketCountExt(0)());
         for (;;) {
             const size_t prevSize = divisors.back();
@@ -46,8 +46,8 @@ Y_UNIT_TEST_SUITE(TestHashPrimes) {
     }
 
     Y_UNIT_TEST(Remainder) {
-        const TVector<size_t> numbers = Numbers();
-        const TVector<size_t> divisors = Divisors();
+        const std::vector<size_t> numbers = Numbers();
+        const std::vector<size_t> divisors = Divisors();
 
         auto testDivisor = [&](const auto& c) {
             for (size_t n : numbers) {
@@ -65,7 +65,7 @@ Y_UNIT_TEST_SUITE(TestHashPrimes) {
 
     Y_UNIT_TEST(MisleadingHints) {
         TFastRng64 rng{332142};
-        TVector<size_t> cases = Numbers();
+        std::vector<size_t> cases = Numbers();
         for (size_t d : Divisors()) {
             cases.push_back(d);
         }

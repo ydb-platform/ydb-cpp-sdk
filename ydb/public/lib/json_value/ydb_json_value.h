@@ -25,10 +25,10 @@ void FormatValueJson(const TValue& value, NJsonWriter::TBuf& writer, EBinaryStri
 
 TString FormatValueJson(const TValue& value, EBinaryStringEncoding encoding);
 
-void FormatResultRowJson(TResultSetParser& parser, const TVector<TColumn>& columns, NJsonWriter::TBuf& writer,
+void FormatResultRowJson(TResultSetParser& parser, const std::vector<TColumn>& columns, NJsonWriter::TBuf& writer,
     EBinaryStringEncoding encoding);
 
-TString FormatResultRowJson(TResultSetParser& parser, const TVector<TColumn>& columns,
+TString FormatResultRowJson(TResultSetParser& parser, const std::vector<TColumn>& columns,
     EBinaryStringEncoding encoding);
 
 void FormatResultSetJson(const TResultSet& result, IOutputStream* out, EBinaryStringEncoding encoding);

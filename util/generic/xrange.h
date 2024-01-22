@@ -14,7 +14,7 @@
  *      DoSomething(i, MyVector[i]);
  *  }
  *
- * TVector<int> arithmeticSeq = xrange(10); // instead: TVector<int> arithmeticSeq; for(size_t i = 0; i < 10; ++i) { arithmeticSeq.push_back(i); }
+ * std::vector<int> arithmeticSeq = xrange(10); // instead: std::vector<int> arithmeticSeq; for(size_t i = 0; i < 10; ++i) { arithmeticSeq.push_back(i); }
  *
  */
 

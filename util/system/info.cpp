@@ -84,7 +84,7 @@ our approximation doesn't work so we can bail out earlier.
 */
 static inline double CgroupV2Cpus(const TString& cpuMaxPath) {
     try {
-        TVector<TString> cgroupCpuMax = StringSplitter(TFileInput(cpuMaxPath).ReadAll()).Split(' ').Take(2);
+        std::vector<TString> cgroupCpuMax = StringSplitter(TFileInput(cpuMaxPath).ReadAll()).Split(' ').Take(2);
         double max = FromString<int32_t>(StripString(cgroupCpuMax[0]));
         double period = FromString<int32_t>(StripString(cgroupCpuMax[1]));
 

@@ -4,7 +4,7 @@
 #include <util/folder/path.h>
 #include <util/generic/singleton.h>
 #include <util/generic/utility.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/ylimits.h>
 #include <util/network/address.h>
 #include <util/network/sock.h>
@@ -70,9 +70,9 @@ namespace {
         return pair;
     }
 
-    TVector<std::pair<ui16, ui16>> GetPortRanges() {
+    std::vector<std::pair<ui16, ui16>> GetPortRanges() {
         TString givenRange = GetEnv("VALID_PORT_RANGE");
-        TVector<std::pair<ui16, ui16>> ranges;
+        std::vector<std::pair<ui16, ui16>> ranges;
         if (givenRange.Contains(':')) {
             auto res = StringSplitter(givenRange).Split(':').Limit(2).ToList<TString>();
             ranges.emplace_back(FromString<ui16>(res.front()), FromString<ui16>(res.back()));
@@ -140,9 +140,9 @@ namespace {
             Y_ABORT("Cannot get free port!");
         }
 
-        TVector<NTesting::TPortHolder> GetFreePortsRange(size_t count) const {
+        std::vector<NTesting::TPortHolder> GetFreePortsRange(size_t count) const {
             Y_ABORT_UNLESS(count > 0);
-            TVector<NTesting::TPortHolder> ports(Reserve(count));
+            std::vector<NTesting::TPortHolder> ports(count);
             for (size_t i = 0; i < Retries; ++i) {
                 for (auto[left, right] : Ranges_) {
                     if (right - left < count) {
@@ -202,7 +202,7 @@ namespace {
 
     private:
         TFsPath SyncDir_;
-        TVector<std::pair<ui16, ui16>> Ranges_;
+        std::vector<std::pair<ui16, ui16>> Ranges_;
         size_t TotalCount_;
         bool DisableRandomPorts_;
     };
@@ -221,7 +221,7 @@ namespace NTesting {
         TPortHolder GetPort( ui16 port ) {
             return Singleton<TPortManager>()->GetPort(port);
         }
-        TVector<TPortHolder> GetFreePortsRange(size_t count) {
+        std::vector<TPortHolder> GetFreePortsRange(size_t count) {
             return Singleton<TPortManager>()->GetFreePortsRange(count);
         }
     }

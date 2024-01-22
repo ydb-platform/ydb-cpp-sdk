@@ -306,7 +306,7 @@ namespace {
     private:
         typedef TIndexedArray<TChange> TFds;
         TFds S_;
-        typedef TVector<pollfd> TPollVec;
+        typedef std::vector<pollfd> TPollVec;
         TPollVec T_;
     };
 

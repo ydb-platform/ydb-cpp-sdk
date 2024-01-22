@@ -5,7 +5,7 @@
 #include <library/cpp/threading/cancellation/operation_cancelled_exception.h>
 
 #include <util/generic/scope.h>
-#include <util/generic/vector.h>
+
 #include <util/thread/pool.h>
 
 using namespace NThreading;
@@ -17,7 +17,7 @@ Y_UNIT_TEST_SUITE(TSemaphoreAsync) {
         TSimpleThreadPool pool(TThreadPool::TParams().SetCatching(false));
         pool.Start(MAX_IN_PROGRESS * 2);
 
-        TVector<TFuture<size_t>> futures;
+        std::vector<TFuture<size_t>> futures;
         auto semaphore = TAsyncSemaphore::Make(MAX_IN_PROGRESS);
         for (size_t i = 0; i < 100; ++i) {
             auto f = semaphore->AcquireAsync()
@@ -62,7 +62,7 @@ Y_UNIT_TEST_SUITE(TSemaphoreAsync) {
 
         std::atomic_uint64_t inProgress = 0;
 
-        TVector<TFuture<size_t>> futures;
+        std::vector<TFuture<size_t>> futures;
         auto semaphore = TAsyncSemaphore::Make(MAX_IN_PROGRESS);
         for (size_t i = 0; i < 100; ++i) {
             auto f = semaphore->AcquireAsync()
@@ -101,7 +101,7 @@ Y_UNIT_TEST_SUITE(TSemaphoreAsync) {
 
         std::atomic_size_t latestId = 0;
 
-        TVector<TFuture<size_t>> futures;
+        std::vector<TFuture<size_t>> futures;
         auto semaphore = TAsyncSemaphore::Make(MAX_IN_PROGRESS);
         for (size_t i = 0; i < 100; ++i) {
             auto f = semaphore->AcquireAsync()

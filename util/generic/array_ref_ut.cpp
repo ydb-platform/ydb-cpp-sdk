@@ -174,10 +174,10 @@ Y_UNIT_TEST_SUITE(TestArrayRef) {
         auto fc = [](TArrayRef<const int>) {};
         auto fm = [](TArrayRef<int>) {};
 
-        fc(TVector<int>({1}));
+        fc(std::vector<int>({1}));
 
-        const TVector<int> ac = {1};
-        TVector<int> am = {1};
+        const std::vector<int> ac = {1};
+        std::vector<int> am = {1};
 
         fc(ac);
         fc(am);
@@ -214,13 +214,13 @@ Y_UNIT_TEST_SUITE(TestArrayRef) {
     }
 
     Y_UNIT_TEST(SubRegion) {
-        TVector<char> x;
+        std::vector<char> x;
         for (size_t i = 0; i < 42; ++i) {
             x.push_back('a' + (i * 42424243) % 13);
         }
         TArrayRef<const char> ref(x.data(), 42);
         for (size_t i = 0; i <= 50; ++i) {
-            TVector<char> expected;
+            std::vector<char> expected;
             for (size_t j = 0; j <= 100; ++j) {
                 UNIT_ASSERT(MakeArrayRef(expected) == ref.SubRegion(i, j));
                 if (i + j < 42) {
@@ -260,13 +260,13 @@ Y_UNIT_TEST_SUITE(TestArrayRef) {
     }
 
     Y_UNIT_TEST(TestTypeDeductionViaMakeArrayRef) {
-        TVector<int> vec{17, 19, 21};
+        std::vector<int> vec{17, 19, 21};
         TArrayRef<int> ref = MakeArrayRef(vec);
         UNIT_ASSERT_VALUES_EQUAL(21, ref[2]);
         ref[1] = 23;
         UNIT_ASSERT_VALUES_EQUAL(23, vec[1]);
 
-        const TVector<int>& constVec(vec);
+        const std::vector<int>& constVec(vec);
         TArrayRef<const int> constRef = MakeArrayRef(constVec);
         UNIT_ASSERT_VALUES_EQUAL(21, constRef[2]);
 
@@ -305,7 +305,7 @@ Y_UNIT_TEST_SUITE(TestArrayRef) {
     }
 
     Y_UNIT_TEST(TestMakeConstArrayRef) {
-        TVector<int> data;
+        std::vector<int> data;
 
         // Won't compile because can't deduce `T` for `Foo`
         // Foo(data);
@@ -316,7 +316,7 @@ Y_UNIT_TEST_SUITE(TestArrayRef) {
         // Success!
         Foo(MakeConstArrayRef(data));
 
-        const TVector<int> constData;
+        const std::vector<int> constData;
         Foo(MakeConstArrayRef(constData));
     }
 }

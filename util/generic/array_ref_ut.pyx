@@ -1,13 +1,13 @@
 import pytest
 import unittest
 from util.generic.array_ref cimport TArrayRef
-from util.generic.vector cimport TVector
+from util.generic.vector cimport std::vector
 
 
 class TestArrayRef(unittest.TestCase):
     def test_array_data_reference(self):
         array_size = 30
-        cdef TVector[int] vec
+        cdef std::vector[int] vec
         for i in xrange(array_size):
             vec.push_back(i)
         cdef TArrayRef[int] array_ref = TArrayRef[int](vec.data(), vec.size())
@@ -18,7 +18,7 @@ class TestArrayRef(unittest.TestCase):
 
     def test_array_vec_reference(self):
         array_size = 30
-        cdef TVector[int] vec
+        cdef std::vector[int] vec
         for i in xrange(array_size):
             vec.push_back(i)
         cdef TArrayRef[int] array_ref = TArrayRef[int](vec)

@@ -34,7 +34,7 @@ public:
     }
 
     int operator()(const int argc, const char** argv) override {
-        TVector<TString> nargv(argv, argv + argc);
+        std::vector<TString> nargv(argv, argv + argc);
         return Main(nargv);
     }
 
@@ -50,7 +50,7 @@ public:
     }
 
     int operator()(const int argc, const char** argv) override {
-        TVector<TString> nargv(argv, argv + argc);
+        std::vector<TString> nargv(argv, argv + argc);
         return (*Main)(nargv);
     }
 
@@ -204,7 +204,7 @@ int TModChooser::Run(const int argc, const char** argv) const {
 
     if (shiftArgs) {
         TString firstArg;
-        TVector<const char*> nargv(Reserve(argc));
+        std::vector<const char*> nargv(argc);
 
         if (PrintShortCommandInUsage) {
             firstArg = modeIter->second->Name;
@@ -227,8 +227,8 @@ int TModChooser::Run(const int argc, const char** argv) const {
     }
 }
 
-int TModChooser::Run(const TVector<TString>& argv) const {
-    TVector<const char*> nargv(Reserve(argv.size() + 1));
+int TModChooser::Run(const std::vector<TString>& argv) const {
+    std::vector<const char*> nargv(argv.size() + 1);
     for (auto& arg : argv) {
         nargv.push_back(arg.c_str());
     }
@@ -241,7 +241,7 @@ int TModChooser::Run(const TVector<TString>& argv) const {
 
 size_t TModChooser::TMode::CalculateFullNameLen() const {
     size_t len = Name.size();
-    if (Aliases) {
+    if (Aliases.size()) {
         len += 2;
         for (auto& alias : Aliases) {
             len += alias.size() + 1;
@@ -252,7 +252,7 @@ size_t TModChooser::TMode::CalculateFullNameLen() const {
 
 TString TModChooser::TMode::FormatFullName(size_t pad) const {
     TStringBuilder name;
-    if (Aliases) {
+    if (Aliases.size()) {
         name << "{";
     }
 
@@ -260,7 +260,7 @@ TString TModChooser::TMode::FormatFullName(size_t pad) const {
     name << Name;
     name << NColorizer::StdErr().OldColor();
 
-    if (Aliases) {
+    if (Aliases.size()) {
         for (const auto& alias : Aliases) {
             name << "|" << NColorizer::StdErr().GreenColor() << alias << NColorizer::StdErr().OldColor();
         }

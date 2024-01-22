@@ -55,9 +55,9 @@ Y_UNIT_TEST_SUITE(TCaseInsensitiveStringTestEx) {
 /*
     Y_UNIT_TEST(TestSplit) {
         TCaseInsensitiveStringBuf input("splitAmeAbro");
-        TVector<TCaseInsensitiveStringBuf> expected{"split", "me", "bro"};
+        std::vector<TCaseInsensitiveStringBuf> expected{"split", "me", "bro"};
 
-        TVector<TCaseInsensitiveStringBuf> split = StringSplitter(input).Split('a');
+        std::vector<TCaseInsensitiveStringBuf> split = StringSplitter(input).Split('a');
 
         UNIT_ASSERT_VALUES_EQUAL(split, expected);
     }

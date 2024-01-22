@@ -46,7 +46,7 @@ private:
 
     TDeque<TString> Strings_;
     THashMap<TStringBuf, TCodec> Codecs_;
-    TVector<TStringBuf> BestCodecs_;
+    std::vector<TStringBuf> BestCodecs_;
 };
 
 namespace NHttp {

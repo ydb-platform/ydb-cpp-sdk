@@ -278,7 +278,7 @@ namespace {
             TPromise<void> promise1 = NewPromise();
             TPromise<void> promise2 = NewPromise();
 
-            TVector<TFuture<void>> promises;
+            std::vector<TFuture<void>> promises;
             promises.push_back(promise1);
             promises.push_back(promise2);
 
@@ -296,7 +296,7 @@ namespace {
             TPromise<int> promise1 = NewPromise<int>();
             TPromise<int> promise2 = NewPromise<int>();
 
-            TVector<TFuture<int>> promises;
+            std::vector<TFuture<int>> promises;
             promises.push_back(promise1);
             promises.push_back(promise2);
 
@@ -329,7 +329,7 @@ namespace {
         }
 
         Y_UNIT_TEST(ShouldWaitExceptionOrAllVectorEmpty) {
-            TVector<TFuture<void>> promises;
+            std::vector<TFuture<void>> promises;
 
             TFuture<void> future = WaitExceptionOrAll(promises);
             UNIT_ASSERT(future.HasValue());
@@ -339,7 +339,7 @@ namespace {
             TPromise<void> promise1 = NewPromise();
             TPromise<void> promise2 = NewPromise();
 
-            TVector<TFuture<void>> promises;
+            std::vector<TFuture<void>> promises;
             promises.push_back(promise1);
             promises.push_back(promise2);
 
@@ -358,7 +358,7 @@ namespace {
             TPromise<int> promise1 = NewPromise<int>();
             TPromise<int> promise2 = NewPromise<int>();
 
-            TVector<TFuture<int>> promises;
+            std::vector<TFuture<int>> promises;
             promises.push_back(promise1);
             promises.push_back(promise2);
 
@@ -391,7 +391,7 @@ namespace {
         }
 
         Y_UNIT_TEST(ShouldWaitAnyVectorEmpty) {
-            TVector<TFuture<void>> promises;
+            std::vector<TFuture<void>> promises;
 
             TFuture<void> future = WaitAny(promises);
             UNIT_ASSERT(future.HasValue());
@@ -540,7 +540,7 @@ namespace {
 
         Y_UNIT_TEST(WaitAllowsExtract) {
             auto future = MakeFuture<int>(42);
-            TVector vec{future, future, future};
+            std::vector vec{future, future, future};
             WaitExceptionOrAll(vec).GetValue();
             WaitAny(vec).GetValue();
 

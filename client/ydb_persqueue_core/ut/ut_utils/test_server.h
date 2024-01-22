@@ -17,7 +17,7 @@ class TTestServer {
 public:
     TTestServer(const NKikimr::Tests::TServerSettings& settings, 
                 bool start = true,
-                const TVector<NKikimrServices::EServiceKikimr>& logServices = TTestServer::LOGGED_SERVICES,
+                const std::vector<NKikimrServices::EServiceKikimr>& logServices = TTestServer::LOGGED_SERVICES,
                 NActors::NLog::EPriority logPriority = NActors::NLog::PRI_DEBUG,
                 TMaybe<TSimpleSharedPtr<TPortManager>> portManager = Nothing())
         : PortManager(portManager.GetOrElse(MakeSimpleShared<TPortManager>()))
@@ -84,7 +84,7 @@ public:
         return CleverServer->GetRuntime();
     }
 
-    void EnableLogs(const TVector<NKikimrServices::EServiceKikimr>& services = LOGGED_SERVICES,
+    void EnableLogs(const std::vector<NKikimrServices::EServiceKikimr>& services = LOGGED_SERVICES,
                     NActors::NLog::EPriority prio = NActors::NLog::PRI_DEBUG) {
         Y_ABORT_UNLESS(CleverServer != nullptr, "Start server before enabling logs");
         for (auto s : services) {
@@ -165,7 +165,7 @@ public:
     THolder<NKikimr::NPersQueueTests::TFlatMsgBusPQClient> AnnoyingClient;
 
 
-    static const TVector<NKikimrServices::EServiceKikimr> LOGGED_SERVICES;
+    static const std::vector<NKikimrServices::EServiceKikimr> LOGGED_SERVICES;
 };
 
 } // namespace NPersQueue

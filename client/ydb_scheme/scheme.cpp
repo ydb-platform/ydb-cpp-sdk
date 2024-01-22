@@ -174,7 +174,7 @@ public:
                     any->UnpackTo(&result);
                 }
 
-                TVector<TSchemeEntry> children(Reserve(result.children().size()));
+                std::vector<TSchemeEntry> children(result.children().size());
                 for (const auto& child : result.children()) {
                     children.emplace_back(child);
                 }
@@ -252,12 +252,12 @@ const TSchemeEntry& TDescribePathResult::GetEntry() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TListDirectoryResult::TListDirectoryResult(TStatus&& status, const TSchemeEntry& self, TVector<TSchemeEntry>&& children)
+TListDirectoryResult::TListDirectoryResult(TStatus&& status, const TSchemeEntry& self, std::vector<TSchemeEntry>&& children)
     : TDescribePathResult(std::move(status), self)
     , Children_(std::move(children))
 {}
 
-const TVector<TSchemeEntry>& TListDirectoryResult::GetChildren() const {
+const std::vector<TSchemeEntry>& TListDirectoryResult::GetChildren() const {
     CheckStatusOk("TListDirectoryResult::GetChildren");
     return Children_;
 }

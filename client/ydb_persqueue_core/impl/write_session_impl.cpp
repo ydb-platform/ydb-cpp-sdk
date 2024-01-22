@@ -311,7 +311,7 @@ TMaybe<TWriteSessionEvent::TEvent> TWriteSessionImpl::GetEvent(bool block) {
 }
 
 // Client method
-TVector<TWriteSessionEvent::TEvent> TWriteSessionImpl::GetEvents(bool block, TMaybe<size_t> maxEventsCount) {
+std::vector<TWriteSessionEvent::TEvent> TWriteSessionImpl::GetEvents(bool block, TMaybe<size_t> maxEventsCount) {
     return EventsQueue->GetEvents(block, maxEventsCount);
 }
 
@@ -890,7 +890,7 @@ TMemoryUsageChange TWriteSessionImpl::OnMemoryUsageChangedImpl(i64 diff) {
     return {wasOk, nowOk};
 }
 
-TBuffer CompressBuffer(TVector<TStringBuf>& data, ECodec codec, i32 level) {
+TBuffer CompressBuffer(std::vector<TStringBuf>& data, ECodec codec, i32 level) {
     TBuffer result;
     THolder<IOutputStream> coder = NCompressionDetails::CreateCoder(codec, result, level);
     for (auto& buffer : data) {

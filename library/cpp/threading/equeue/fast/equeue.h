@@ -5,7 +5,7 @@
 #include <util/datetime/base.h>
 #include <util/thread/lfqueue.h>
 #include <util/system/thread.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/scope.h>
 #include <util/stream/str.h>
 
@@ -143,7 +143,7 @@ private:
     alignas(64) std::atomic<size_t> GuardCount_ = 0;
     alignas(64) std::atomic<size_t> QueueSize_ = 0;
 
-    TVector<THolder<IThreadFactory::IThread>> Threads_;
+    std::vector<THolder<IThreadFactory::IThread>> Threads_;
 
     THolder<NThreading::TBoundedQueue<IObjectInQueue*>> Queue_;
     NYT::NThreading::TEventCount Event_;

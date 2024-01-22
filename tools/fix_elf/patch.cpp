@@ -121,7 +121,7 @@ void Patch(const TString& path, const TString& library, IOutputStream& verboseOu
     TStringBuf skipFrom("GLIBC_2.14");
     TStringBuf patchFrom("GLIBC_2.2.5");
 
-    TVector<Elf64_Vernaux*> patchAux;
+    std::vector<Elf64_Vernaux*> patchAux;
 
     Elf64_Vernaux* patchFromAux = nullptr;
 
@@ -235,7 +235,7 @@ int main(int argc, char* argv[]) {
     opts.SetFreeArgTitle(0, "<file>", "File");
 
     TOptsParseResult res(&opts, argc, argv);
-    TVector<TString> files = res.GetFreeArgs();
+    std::vector<TString> files = res.GetFreeArgs();
 
     IOutputStream& verboseOut = verbose ? Cout : Cnull;
 

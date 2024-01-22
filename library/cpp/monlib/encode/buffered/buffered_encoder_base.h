@@ -59,7 +59,7 @@ protected:
         const TPooledStr* Value;
     };
 
-    using TPooledLabels = TVector<TPooledLabel>;
+    using TPooledLabels = std::vector<TPooledLabel>;
 
     struct TPooledLabelsHash {
         size_t operator()(const TPooledLabels& val) const {
@@ -92,7 +92,7 @@ protected:
     TStringPoolBuilder LabelValuesPool_;
     TInstant CommonTime_ = TInstant::Zero();
     TPooledLabels CommonLabels_;
-    TVector<TMetric> Metrics_;
+    std::vector<TMetric> Metrics_;
     TMetricMap MetricMap_;
     EMetricsMergingMode MetricsMergingMode_ = EMetricsMergingMode::DEFAULT;
 };

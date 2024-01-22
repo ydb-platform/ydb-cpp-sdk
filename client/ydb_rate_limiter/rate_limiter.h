@@ -68,15 +68,15 @@ struct TDescribeResourceSettings : public TOperationRequestSettings<TDescribeRes
 
 // Result for list resources request.
 struct TListResourcesResult : public TStatus {
-    TListResourcesResult(TStatus status, TVector<TString> paths);
+    TListResourcesResult(TStatus status, std::vector<TString> paths);
 
     // Paths of listed resources inside a specified coordination node.
-    const TVector<TString>& GetResourcePaths() const {
+    const std::vector<TString>& GetResourcePaths() const {
         return ResourcePaths_;
     }
 
 private:
-    TVector<TString> ResourcePaths_;
+    std::vector<TString> ResourcePaths_;
 };
 
 // Settings for acquire resource request.

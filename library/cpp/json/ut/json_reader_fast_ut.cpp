@@ -84,7 +84,7 @@ namespace NJson {
             }
         };
 
-        using TEvents = TVector<TEvent>;
+        using TEvents = std::vector<TEvent>;
 
         struct TTestHandler : TJsonCallbacks {
             TEvents Events;

@@ -359,7 +359,7 @@ TString FormatValueJson(const TValue& value, EBinaryStringEncoding encoding)
     return out.Str();
 }
 
-void FormatResultRowJson(TResultSetParser& parser, const TVector<TColumn>& columns, NJsonWriter::TBuf& writer,
+void FormatResultRowJson(TResultSetParser& parser, const std::vector<TColumn>& columns, NJsonWriter::TBuf& writer,
     EBinaryStringEncoding encoding)
 {
     writer.BeginObject();
@@ -371,7 +371,7 @@ void FormatResultRowJson(TResultSetParser& parser, const TVector<TColumn>& colum
     writer.EndObject();
 }
 
-TString FormatResultRowJson(TResultSetParser& parser, const TVector<TColumn>& columns,
+TString FormatResultRowJson(TResultSetParser& parser, const std::vector<TColumn>& columns,
     EBinaryStringEncoding encoding)
 {
     TStringStream out;

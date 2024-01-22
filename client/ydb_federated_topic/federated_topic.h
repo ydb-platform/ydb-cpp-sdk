@@ -111,7 +111,7 @@ struct TReadSessionEvent {
     public:
         TDataReceivedEvent(NTopic::TReadSessionEvent::TDataReceivedEvent event, std::shared_ptr<TDbInfo> db);
 
-        TDataReceivedEvent(TVector<TMessage> messages, TVector<TCompressedMessage> compressedMessages,
+        TDataReceivedEvent(std::vector<TMessage> messages, std::vector<TCompressedMessage> compressedMessages,
                            NTopic::TPartitionSession::TPtr partitionSession, std::shared_ptr<TDbInfo> db);
 
         const NTopic::TPartitionSession::TPtr& GetPartitionSession() const override {
@@ -127,23 +127,23 @@ struct TReadSessionEvent {
         }
 
         //! Get messages.
-        TVector<TMessage>& GetMessages() {
+        std::vector<TMessage>& GetMessages() {
             CheckMessagesFilled(false);
             return Messages;
         }
 
-        const TVector<TMessage>& GetMessages() const {
+        const std::vector<TMessage>& GetMessages() const {
             CheckMessagesFilled(false);
             return Messages;
         }
 
         //! Get compressed messages.
-        TVector<TCompressedMessage>& GetCompressedMessages() {
+        std::vector<TCompressedMessage>& GetCompressedMessages() {
             CheckMessagesFilled(true);
             return CompressedMessages;
         }
 
-        const TVector<TCompressedMessage>& GetCompressedMessages() const {
+        const std::vector<TCompressedMessage>& GetCompressedMessages() const {
             CheckMessagesFilled(true);
             return CompressedMessages;
         }
@@ -163,8 +163,8 @@ struct TReadSessionEvent {
         }
 
     private:
-        TVector<TMessage> Messages;
-        TVector<TCompressedMessage> CompressedMessages;
+        std::vector<TMessage> Messages;
+        std::vector<TCompressedMessage> CompressedMessages;
         std::vector<std::pair<ui64, ui64>> OffsetRanges;
     };
 
@@ -400,7 +400,7 @@ public:
     //!
     //! If maxEventsCount is not specified,
     //! read session chooses event batch size automatically.
-    virtual TVector<TReadSessionEvent::TEvent>
+    virtual std::vector<TReadSessionEvent::TEvent>
     GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing(),
               size_t maxByteSize = std::numeric_limits<size_t>::max()) = 0;
 

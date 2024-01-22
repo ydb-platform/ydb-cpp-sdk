@@ -342,9 +342,9 @@ void TPointerTest::TestIntrPtr() {
         TIntrusivePtr<TOp> p, p2;
         TOp3 op3;
         {
-            TVector<TIntrusivePtr<TOp>> f1;
+            std::vector<TIntrusivePtr<TOp>> f1;
             {
-                TVector<TIntrusivePtr<TOp>> f2;
+                std::vector<TIntrusivePtr<TOp>> f2;
                 f2.push_back(new TOp);
                 p = new TOp;
                 f2.push_back(p);
@@ -562,7 +562,7 @@ namespace {
 }
 
 void TPointerTest::TestOperatorBool() {
-    using TVec = TVector<ui32>;
+    using TVec = std::vector<ui32>;
 
     // to be sure TImplicitlyCastable works as expected
     UNIT_ASSERT((TImplicitlyCastable<int, bool>::Result));

@@ -129,7 +129,7 @@ NThreading::TFuture<void> TFederatedReadSessionImpl::WaitEvent() {
     });
 }
 
-TVector<TReadSessionEvent::TEvent> TFederatedReadSessionImpl::GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize) {
+std::vector<TReadSessionEvent::TEvent> TFederatedReadSessionImpl::GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize) {
     if (block) {
         WaitEvent().Wait();
     }
@@ -146,7 +146,7 @@ TVector<TReadSessionEvent::TEvent> TFederatedReadSessionImpl::GetEvents(bool blo
             return {};
         }
     }
-    TVector<TReadSessionEvent::TEvent> result;
+    std::vector<TReadSessionEvent::TEvent> result;
     with_lock(Lock) {
         do {
             auto sub = SubSessions[SubsessionIndex];

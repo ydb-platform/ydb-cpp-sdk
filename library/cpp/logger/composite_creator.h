@@ -1,7 +1,7 @@
 #pragma once
 
 #include "backend_creator.h"
-#include <util/generic/vector.h>
+
 
 class TCompositeBackendCreator : public TLogBackendCreatorBase {
 public:
@@ -14,5 +14,5 @@ protected:
 
 private:
     virtual THolder<TLogBackend> DoCreateLogBackend() const override;
-    TVector<THolder<ILogBackendCreator>> Children;
+    std::vector<THolder<ILogBackendCreator>> Children;
 };

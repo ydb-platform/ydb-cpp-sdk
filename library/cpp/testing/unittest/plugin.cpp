@@ -1,7 +1,7 @@
 #include "plugin.h"
 
 #include <util/generic/singleton.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/utility.h>
 
 namespace NUnitTest {
@@ -30,7 +30,7 @@ namespace NUnitTest {
                 }
 
             private:
-                TVector<TSimpleSharedPtr<IPlugin>> Plugins;
+                std::vector<TSimpleSharedPtr<IPlugin>> Plugins;
             };
         } // anonymous namespace
 

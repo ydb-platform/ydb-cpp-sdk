@@ -19,22 +19,22 @@ namespace {
     };
 
     class TOptsParseResultTestWrapper: public TOptsParseResultException {
-        TVector<const char*> Argv_;
+        std::vector<const char*> Argv_;
 
     public:
-        TOptsParseResultTestWrapper(const TOpts* opts, TVector<const char*> argv)
+        TOptsParseResultTestWrapper(const TOpts* opts, std::vector<const char*> argv)
             : Argv_(argv)
         {
             Init(opts, (int)Argv_.size(), Argv_.data());
         }
     };
 
-    using V = TVector<const char*>;
+    using V = std::vector<const char*>;
 }
 
 struct TOptsParserTester {
     TOptsNoDefault Opts_;
-    TVector<const char*> Argv_;
+    std::vector<const char*> Argv_;
 
     THolder<TOptsParser> Parser_;
 
@@ -517,7 +517,7 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
 
     Y_UNIT_TEST(TestSplitValue) {
         TOptsNoDefault opts;
-        TVector<TString> vals;
+        std::vector<TString> vals;
         opts.AddLongOption('s', "split").SplitHandler(&vals, ',');
         TOptsParseResultTestWrapper r(&opts, V({"prog", "--split=a,b,c"}));
         UNIT_ASSERT_EQUAL(vals.size(), 3);
@@ -528,7 +528,7 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
 
     Y_UNIT_TEST(TestRangeSplitValue) {
         TOptsNoDefault opts;
-        TVector<ui32> vals;
+        std::vector<ui32> vals;
         opts.AddLongOption('s', "split").RangeSplitHandler(&vals, ',', '-');
         TOptsParseResultTestWrapper r(&opts, V({"prog", "--split=1,8-10", "--split=12-14"}));
         UNIT_ASSERT_EQUAL(vals.size(), 7);
@@ -717,10 +717,10 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
                 SubstGlobal(printed, TString(colors.CyanColor()), "");
                 SubstGlobal(printed, TString(colors.OldColor()), "");
             }
-            TVector<TString> lines;
+            std::vector<TString> lines;
             StringSplitter(printed).Split('\n').SkipEmpty().Collect(&lines);
             UNIT_ASSERT(!lines.empty());
-            TVector<size_t> indents;
+            std::vector<size_t> indents;
             for (const TString& line : lines) {
                 const size_t indent = line.find("description ");
                 if (indent != TString::npos)
@@ -735,7 +735,7 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
     }
 
     Y_UNIT_TEST(TestAppendTo) {
-        TVector<int> ints;
+        std::vector<int> ints;
         std::vector<std::string> strings;
 
         TOptsNoDefault opts;
@@ -754,7 +754,7 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
     }
 
     Y_UNIT_TEST(TestEmplaceTo) {
-        TVector<std::tuple<TString>> richPaths;
+        std::vector<std::tuple<TString>> richPaths;
 
         TOptsNoDefault opts;
         opts.AddLongOption("path").EmplaceTo(&richPaths);

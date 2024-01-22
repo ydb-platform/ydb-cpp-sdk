@@ -4,7 +4,7 @@
 
 Y_UNIT_TEST_SUITE(TIterator) {
     Y_UNIT_TEST(ToForwardIteratorTest) {
-        TVector<int> x = {1, 2};
+        std::vector<int> x = {1, 2};
         UNIT_ASSERT_VALUES_EQUAL(*std::prev(x.end()), *ToForwardIterator(x.rbegin()));
         UNIT_ASSERT_VALUES_EQUAL(*ToForwardIterator(std::prev(x.rend())), *x.begin());
     }
@@ -52,7 +52,7 @@ Y_UNIT_TEST_SUITE(TInputRangeAdaptor) {
     };
 
     Y_UNIT_TEST(TUrlPart) {
-        const TVector<TStringBuf> expected = {TStringBuf("yandex.ru"), TStringBuf("search?")};
+        const std::vector<TStringBuf> expected = {TStringBuf("yandex.ru"), TStringBuf("search?")};
         auto expected_part = expected.begin();
         for (const TStringBuf& part : TUrlPart(TStringBuf("yandex.ru/search?"))) {
             UNIT_ASSERT_VALUES_EQUAL(part, *expected_part);

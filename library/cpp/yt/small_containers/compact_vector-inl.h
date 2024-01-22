@@ -37,15 +37,15 @@ struct TCompactVectorOnHeapStorage
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <class TVector, class TPtr>
+template <class std::vector, class TPtr>
 class TCompactVectorReallocationPtrAdjuster
 {
 public:
-    TCompactVectorReallocationPtrAdjuster(TVector* vector, TPtr& ptr)
+    TCompactVectorReallocationPtrAdjuster(std::vector* vector, TPtr& ptr)
         : Vector_(vector)
         , Ptr_(ptr)
         , Index_(ptr >= Vector_->begin() && ptr <= Vector_->end()
-            ? std::distance(Vector_->begin(), const_cast<typename TVector::iterator>(ptr))
+            ? std::distance(Vector_->begin(), const_cast<typename std::vector::iterator>(ptr))
             : -1)
     { }
 
@@ -57,16 +57,16 @@ public:
     }
 
 private:
-    TVector* const Vector_;
+    std::vector* const Vector_;
     TPtr& Ptr_;
     const ptrdiff_t Index_;
 };
 
-template <class TVector>
-class TCompactVectorReallocationPtrAdjuster<TVector, std::nullptr_t>
+template <class std::vector>
+class TCompactVectorReallocationPtrAdjuster<std::vector, std::nullptr_t>
 {
 public:
-    TCompactVectorReallocationPtrAdjuster(TVector* /*vector*/, std::nullptr_t /*ptr*/)
+    TCompactVectorReallocationPtrAdjuster(std::vector* /*vector*/, std::nullptr_t /*ptr*/)
     { }
 };
 

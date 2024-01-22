@@ -227,7 +227,7 @@ namespace NMonitoring {
             consumer->OnLabelsEnd();
         }
 
-        TVector<std::pair<ILabelsPtr, IMetricPtr>> tmpMetrics;
+        std::vector<std::pair<ILabelsPtr, IMetricPtr>> tmpMetrics;
 
         {
             TReadGuard g{*Lock_};

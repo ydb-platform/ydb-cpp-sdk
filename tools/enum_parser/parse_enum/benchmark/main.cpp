@@ -9,7 +9,7 @@
 namespace {
 
     template <class TEnum>
-    TVector<TEnum> SelectValues(size_t count) {
+    std::vector<TEnum> SelectValues(size_t count) {
         auto values = GetEnumAllValues<TEnum>().Materialize();
         SortBy(values, [](const TEnum& v) { return IntHash(static_cast<ui64>(v)); });
         values.crop(count);
@@ -17,8 +17,8 @@ namespace {
     }
 
     template <class TEnum>
-    TVector<TStringBuf> SelectStrings(size_t count) {
-        TVector<TStringBuf> strings(Reserve(GetEnumItemsCount<TEnum>()));
+    std::vector<TStringBuf> SelectStrings(size_t count) {
+        std::vector<TStringBuf> strings(Reserve(GetEnumItemsCount<TEnum>()));
         for (const auto& [_, s] : GetEnumNames<TEnum>()) {
             strings.push_back(s);
         }

@@ -59,7 +59,7 @@ void ValidateCommonParts(TCommonParts&& commonParts, bool checkLabels, bool chec
     }
 }
 
-void ValidateMetrics(const TVector<TMetricData>& metrics) {
+void ValidateMetrics(const std::vector<TMetricData>& metrics) {
     UNIT_ASSERT_VALUES_EQUAL(metrics.size(), 1);
 
     auto& m = metrics[0];

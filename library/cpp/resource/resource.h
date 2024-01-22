@@ -2,7 +2,7 @@
 
 #include <util/generic/string.h>
 #include <util/generic/strbuf.h>
-#include <util/generic/vector.h>
+#include <vector>
 
 namespace NResource {
     struct TResource {
@@ -10,7 +10,7 @@ namespace NResource {
         TString Data;
     };
 
-    typedef TVector<TResource> TResources;
+    typedef std::vector<TResource> TResources;
 
     bool Has(const TStringBuf key);
     TString Find(const TStringBuf key);
@@ -19,5 +19,5 @@ namespace NResource {
     void FindMatch(const TStringBuf subkey, TResources* out);
     size_t Count() noexcept;
     TStringBuf KeyByIndex(size_t idx);
-    TVector<TStringBuf> ListAllKeys();
+    std::vector<TStringBuf> ListAllKeys();
 }

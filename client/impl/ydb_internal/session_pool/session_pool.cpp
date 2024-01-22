@@ -77,7 +77,7 @@ std::unique_ptr<IGetSessionCtx> TSessionPool::TWaitersQueue::TryGet() {
     return result;
 }
 
-void TSessionPool::TWaitersQueue::GetOld(TInstant now, TVector<std::unique_ptr<IGetSessionCtx>>& oldWaiters) {
+void TSessionPool::TWaitersQueue::GetOld(TInstant now, std::vector<std::unique_ptr<IGetSessionCtx>>& oldWaiters) {
     auto it = Waiters_.begin();
     while (it != Waiters_.end()) {
         if (now < it->first + MaxWaitSessionTimeout_)
@@ -265,11 +265,11 @@ TPeriodicCb TSessionPool::CreatePeriodicTask(std::weak_ptr<ISessionClient> weakC
             return false;
         } else {
             auto keepAliveBatchSize = PERIODIC_ACTION_BATCH_SIZE;
-            TVector<std::unique_ptr<TKqpSessionCommon>> sessionsToTouch;
+            std::vector<std::unique_ptr<TKqpSessionCommon>> sessionsToTouch;
             sessionsToTouch.reserve(keepAliveBatchSize);
-            TVector<std::unique_ptr<TKqpSessionCommon>> sessionsToDelete;
+            std::vector<std::unique_ptr<TKqpSessionCommon>> sessionsToDelete;
             sessionsToDelete.reserve(keepAliveBatchSize);
-            TVector<std::unique_ptr<IGetSessionCtx>> waitersToReplyError;
+            std::vector<std::unique_ptr<IGetSessionCtx>> waitersToReplyError;
             waitersToReplyError.reserve(keepAliveBatchSize);
             const auto now = TInstant::Now();
             {

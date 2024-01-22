@@ -160,7 +160,7 @@ void TCoroTest::TestSimpleX1() {
 }
 
 void TCoroTest::TestSimpleX1MultiThread() {
-    TVector<THolder<TThread>> threads;
+    std::vector<THolder<TThread>> threads;
     const size_t nThreads = 0;
     TAtomic c = 0;
     for (size_t i = 0; i < nThreads; ++i) {

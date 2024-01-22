@@ -29,7 +29,7 @@ public:
             TDbDriverStatePtr dbDriverState);
 
     TMaybe<TWriteSessionEvent::TEvent> GetEvent(bool block = false) override;
-    TVector<TWriteSessionEvent::TEvent> GetEvents(bool block = false,
+    std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false,
                                                   TMaybe<size_t> maxEventsCount = Nothing()) override;
     NThreading::TFuture<ui64> GetInitSeqNo() override;
 

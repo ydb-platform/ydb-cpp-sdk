@@ -4,7 +4,7 @@
 
 #include <util/generic/buffer.h>
 #include <util/generic/map.h>
-#include <util/generic/vector.h>
+
 #include <util/network/address.h>
 #include <util/network/ip.h>
 #include <util/network/socket.h>
@@ -14,9 +14,9 @@
 #include <cerrno>
 #include <util/generic/noncopyable.h>
 
-class TAddrList: public TVector<NAddr::IRemoteAddrRef> {
+class TAddrList: public std::vector<NAddr::IRemoteAddrRef> {
 private:
-    using TBase = TVector<NAddr::IRemoteAddrRef>;
+    using TBase = std::vector<NAddr::IRemoteAddrRef>;
 
 public:
     //msvc doesn't support base class constructor inheritance

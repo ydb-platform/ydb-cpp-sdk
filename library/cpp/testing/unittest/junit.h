@@ -20,7 +20,7 @@ class TJUnitProcessor : public ITestSuiteProcessor {
     struct TTestCase {
         TString Name;
         bool Success;
-        TVector<TFailure> Failures;
+        std::vector<TFailure> Failures;
         TString StdOut;
         TString StdErr;
         double DurationSecods = 0.0;

@@ -5,8 +5,8 @@
 #include <util/generic/noncopyable.h>
 
 template <class T, class D = TDelete>
-class THolderVector: public TVector<T*>, public TNonCopyable {
-    using TBase = TVector<T*>;
+class THolderVector: public std::vector<T*>, public TNonCopyable {
+    using TBase = std::vector<T*>;
 
 public:
     explicit THolderVector(size_t n = 0)
@@ -30,7 +30,7 @@ public:
         return TBase::size();
     }
 
-    // TVector takes ownership of T
+    // std::vector takes ownership of T
     void PushBack(T* t) {
         try {
             TBase::push_back(t);

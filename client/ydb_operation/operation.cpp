@@ -91,7 +91,8 @@ public:
                     NYql::IssuesFromMessage(response->issues(), opIssues);
                     TStatus st(static_cast<EStatus>(response->status()), std::move(opIssues));
 
-                    TVector<TOp> operations(Reserve(response->operations_size()));
+                    std::vector<TOp> operations;
+                    operations.reserve(response->operations_size());
                     for (auto& operation : *response->mutable_operations()) {
                         NYql::TIssues opIssues;
                         NYql::IssuesFromMessage(operation.issues(), opIssues);

@@ -145,7 +145,7 @@ void TBufferedEncoderBase::OnLogHistogram(TInstant time, TLogHistogramSnapshotPt
 }
 
 TString TBufferedEncoderBase::FormatLabels(const TPooledLabels& labels) const {
-    auto formattedLabels = TVector<TString>(Reserve(labels.size() + CommonLabels_.size()));
+    auto formattedLabels = std::vector<TString>(labels.size() + CommonLabels_.size());
     auto addLabel = [&](const TPooledLabel& l) {
         auto formattedLabel = TStringBuilder() << LabelNamesPool_.Get(l.Key) << '=' << LabelValuesPool_.Get(l.Value);
         formattedLabels.push_back(std::move(formattedLabel));

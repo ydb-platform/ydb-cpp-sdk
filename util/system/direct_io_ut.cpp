@@ -12,8 +12,8 @@ static const char* FileName_("./test.file");
 Y_UNIT_TEST_SUITE(TDirectIoTestSuite) {
     Y_UNIT_TEST(TestDirectFile) {
         TDirectIOBufferedFile file(FileName_, RdWr | Direct | Seq | CreateAlways, 1 << 15);
-        TVector<ui64> data((1 << 15) + 1);
-        TVector<ui64> readResult(data.size());
+        std::vector<ui64> data((1 << 15) + 1);
+        std::vector<ui64> readResult(data.size());
         for (auto& i : data) {
             i = RandomNumber<ui64>();
         }
@@ -57,13 +57,13 @@ Y_UNIT_TEST_SUITE(TDirectIoTestSuite) {
 
         {
             TDirectIOBufferedFile directIOFile(tmpFile.Name(), WrOnly | CreateAlways | Direct);
-            TVector<ui8> data(size, 'x');
+            std::vector<ui8> data(size, 'x');
             directIOFile.Write(&data[0], data.size());
         }
 
         {
             TDirectIOBufferedFile directIOFile(tmpFile.Name(), RdOnly | Direct);
-            TVector<ui8> data(size + 1, 'y');
+            std::vector<ui8> data(size + 1, 'y');
 
             const size_t readResult = directIOFile.Read(&data[0], data.size());
 

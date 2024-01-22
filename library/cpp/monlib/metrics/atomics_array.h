@@ -1,7 +1,7 @@
 #pragma once
 
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
+
 
 #include <atomic>
 
@@ -37,8 +37,8 @@ namespace NMonitoring {
             }
         }
 
-        TVector<ui64> Copy() const {
-            TVector<ui64> copy(Reserve(Size_));
+        std::vector<ui64> Copy() const {
+            std::vector<ui64> copy(Size_);
             for (size_t i = 0; i < Size_; i++) {
                 copy.push_back(Values_[i].load(std::memory_order_relaxed));
             }
