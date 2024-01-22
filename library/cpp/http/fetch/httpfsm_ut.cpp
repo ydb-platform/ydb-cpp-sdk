@@ -495,7 +495,7 @@ Y_UNIT_TEST_SUITE(TestHttpChunkParser) {
         return parser;
     }
 
-    static THttpChunkParser parseByteByByte(const TStringBuf& blob, const TVector<int>& states) {
+    static THttpChunkParser parseByteByByte(const TStringBuf& blob, const std::vector<int>& states) {
         UNIT_ASSERT(states.size() <= blob.size());
         THttpChunkParser parser{initParser()};
         for (size_t n = 0; n < states.size(); n++) {
@@ -508,7 +508,7 @@ Y_UNIT_TEST_SUITE(TestHttpChunkParser) {
     }
 
     static THttpChunkParser parseBytesWithLastState(const TStringBuf& blob, const int last_state) {
-        TVector<int> states(blob.size() - 1, 1);
+        std::vector<int> states(blob.size() - 1, 1);
         states.push_back(last_state);
         return parseByteByByte(blob, states);
     }
@@ -517,7 +517,7 @@ Y_UNIT_TEST_SUITE(TestHttpChunkParser) {
         const TStringBuf blob{
             "4\r\n"
             "____\r\n"};
-        TVector<int> states{
+        std::vector<int> states{
             -1, /* 1, -1,
             1, -1,  1, -1, 1, -1 */};
         // as soon as error happens parser state should be considered
@@ -540,7 +540,7 @@ Y_UNIT_TEST_SUITE(TestHttpChunkParser) {
         const TStringBuf blob{
             "\r\n"
             "-1"};
-        TVector<int> states{
+        std::vector<int> states{
             1, 1,
             -1,
             /* 1 */};
@@ -570,7 +570,7 @@ Y_UNIT_TEST_SUITE(TestHttpChunkParser) {
             "4\r\n"
             "_" // first byte of the chunk
         };
-        TVector<int> states{
+        std::vector<int> states{
             1, 1,
             1, 1, 2,
             -1};

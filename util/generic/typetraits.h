@@ -222,7 +222,7 @@ class TTypeTraits<void>: public TTypeTraitsBase<void> {};
  *     std::false_type,
  * >;
  *
- * static_assert(TIsAssocCont<TVector<int>>::value == false, "");
+ * static_assert(TIsAssocCont<std::vector<int>>::value == false, "");
  * static_assert(TIsAssocCont<THashMap<int>>::value == true, "");
  * @endcode
  */

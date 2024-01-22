@@ -20,10 +20,10 @@ public:
     void Start();
 
     NThreading::TFuture<void> WaitEvent() override;
-    TVector<TReadSessionEvent::TEvent> GetEvents(bool block,
+    std::vector<TReadSessionEvent::TEvent> GetEvents(bool block,
                                                  TMaybe<size_t> maxEventsCount,
                                                  size_t maxByteSize) override;
-    TVector<TReadSessionEvent::TEvent> GetEvents(const TReadSessionGetEventSettings& settings) override;
+    std::vector<TReadSessionEvent::TEvent> GetEvents(const TReadSessionGetEventSettings& settings) override;
     TMaybe<TReadSessionEvent::TEvent> GetEvent(bool block,
                                                size_t maxByteSize) override;
     TMaybe<TReadSessionEvent::TEvent> GetEvent(const TReadSessionGetEventSettings& settings) override;
@@ -87,7 +87,7 @@ private:
     std::shared_ptr<NPersQueue::TReadSessionEventsQueue<false>> EventsQueue;
 
     std::shared_ptr<NPersQueue::TCallbackContext<NPersQueue::TSingleClusterReadSessionImpl<false>>> CbContext;
-    TVector<TTopicReadSettings> Topics;
+    std::vector<TTopicReadSettings> Topics;
 
     std::shared_ptr<NPersQueue::TCountersLogger<false>> CountersLogger;
     std::shared_ptr<NPersQueue::TCallbackContext<NPersQueue::TCountersLogger<false>>> DumpCountersContext;

@@ -8,7 +8,7 @@
 #include <util/generic/function.h>
 #include <util/generic/maybe.h>
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/yexception.h>
 #include <util/system/event.h>
 #include <util/system/spinlock.h>

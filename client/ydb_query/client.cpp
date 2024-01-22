@@ -678,7 +678,7 @@ const TTransaction& TBeginTransactionResult::GetTransaction() const {
     return Transaction_;
 }
 
-const TVector<TResultSet>& TExecuteQueryResult::GetResultSets() const {
+const std::vector<TResultSet>& TExecuteQueryResult::GetResultSets() const {
     return ResultSets_;
 }
 

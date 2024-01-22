@@ -95,7 +95,7 @@ Y_UNIT_TEST_SUITE(TTimerTest) {
     Y_UNIT_TEST(Histogram) {
         TTestClock::TimePoint = TTestClock::time_point::min();
 
-        auto assertHistogram = [](const TVector<ui64>& expected, IHistogramSnapshotPtr snapshot) {
+        auto assertHistogram = [](const std::vector<ui64>& expected, IHistogramSnapshotPtr snapshot) {
             UNIT_ASSERT_EQUAL(expected.size(), snapshot->Count());
             for (size_t i = 0; i < expected.size(); ++i) {
                 UNIT_ASSERT_EQUAL(expected[i], snapshot->Value(i));

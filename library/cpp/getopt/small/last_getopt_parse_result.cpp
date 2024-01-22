@@ -107,8 +107,8 @@ namespace NLastGetopt {
         return Parser_->Pos_;
     }
 
-    TVector<TString> TOptsParseResult::GetFreeArgs() const {
-        TVector<TString> v;
+    std::vector<TString> TOptsParseResult::GetFreeArgs() const {
+        std::vector<TString> v;
         for (size_t i = GetFreeArgsPos(); i < Parser_->Argc_; ++i) {
             v.push_back(Parser_->Argv_[i]);
         }
@@ -152,7 +152,7 @@ namespace NLastGetopt {
             }
 
             if (options->CheckUserTypos_) {
-                for (auto arg: TVector<TString>(argv, std::next(argv, argc))) {
+                for (auto arg: std::vector<TString>(argv, std::next(argv, argc))) {
                     FindUserTypos(arg, options);
                 }
             }

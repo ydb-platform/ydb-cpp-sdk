@@ -3,13 +3,13 @@
 #include "priority.h"
 
 #include <util/generic/string.h>
-#include <util/generic/vector.h>
 #include <util/system/defaults.h>
 
 #include <utility>
+#include <vector>
 
 struct TLogRecord {
-    using TMetaFlags = TVector<std::pair<TString, TString>>;
+    using TMetaFlags = std::vector<std::pair<TString, TString>>;
 
     const char* Data;
     size_t Len;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
+
 #include <util/network/socket.h>
 #include <util/network/pollerimpl.h>
 #include <util/datetime/base.h>
@@ -28,7 +28,7 @@ public:
         ui16 Filter;
     };
 
-    using TEvents = TVector<TEvent>;
+    using TEvents = std::vector<TEvent>;
 
     virtual ~IPollerFace() {
     }

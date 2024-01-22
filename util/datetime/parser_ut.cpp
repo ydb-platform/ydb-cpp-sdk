@@ -459,7 +459,7 @@ Y_UNIT_TEST_SUITE(TDateTimeParseTest) {
     }
 
     Y_UNIT_TEST(TestIso8601BigDate) {
-        TVector<std::pair<TString, int>> dates{
+        std::vector<std::pair<TString, int>> dates{
             {"2019-01-01", 17897},
 
             {"2037-01-01", 24472},

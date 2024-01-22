@@ -56,7 +56,7 @@ public:
 
 public:
     const Ydb::ResultSet ProtoResultSet_;
-    TVector<TColumn> ColumnsMeta_;
+    std::vector<TColumn> ColumnsMeta_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ bool TResultSet::Truncated() const {
     return Impl_->ProtoResultSet_.truncated();
 }
 
-const TVector<TColumn>& TResultSet::GetColumnsMeta() const {
+const std::vector<TColumn>& TResultSet::GetColumnsMeta() const {
     return Impl_->ColumnsMeta_;
 }
 
@@ -185,7 +185,7 @@ private:
 private:
     TResultSet ResultSet_;
     TMap<TString, size_t> ColumnIndexMap;
-    TVector<TValueParser> ColumnParsers;
+    std::vector<TValueParser> ColumnParsers;
     size_t RowIndex_ = 0;
 };
 

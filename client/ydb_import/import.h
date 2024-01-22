@@ -48,7 +48,7 @@ public:
     struct TMetadata {
         TImportFromS3Settings Settings;
         EImportProgress Progress;
-        TVector<TImportItemProgress> ItemsProgress;
+        std::vector<TImportItemProgress> ItemsProgress;
     };
 
 public:

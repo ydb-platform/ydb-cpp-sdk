@@ -198,7 +198,7 @@ NThreading::TFuture<void> TFederatedWriteSession::WaitEvent() {
     return ClientEventsQueue->WaitEvent();
 }
 
-TVector<NTopic::TWriteSessionEvent::TEvent> TFederatedWriteSession::GetEvents(bool block, TMaybe<size_t> maxEventsCount) {
+std::vector<NTopic::TWriteSessionEvent::TEvent> TFederatedWriteSession::GetEvents(bool block, TMaybe<size_t> maxEventsCount) {
     return ClientEventsQueue->GetEvents(block, maxEventsCount);
 }
 

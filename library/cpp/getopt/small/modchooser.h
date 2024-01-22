@@ -4,13 +4,13 @@
 
 #include <util/generic/map.h>
 #include <util/generic/string.h>
-#include <util/generic/vector.h>
+
 
 #include <functional>
 
 //! Mode function with vector of cli arguments.
-using TMainFunctionPtrV = std::function<int(const TVector<TString>&)> ;
-using TMainFunctionRawPtrV = int (*)(const TVector<TString>& argv);
+using TMainFunctionPtrV = std::function<int(const std::vector<TString>&)> ;
+using TMainFunctionRawPtrV = int (*)(const std::vector<TString>& argv);
 
 //! Mode function with classic argc and argv arguments.
 using TMainFunctionPtr = std::function<int(int, const char**)> ;
@@ -19,7 +19,7 @@ using TMainFunctionRawPtr = int (*)(const int argc, const char** argv);
 //! Mode class with vector of cli arguments.
 class TMainClassV {
 public:
-    virtual int operator()(const TVector<TString>& argv) = 0;
+    virtual int operator()(const std::vector<TString>& argv) = 0;
     virtual ~TMainClassV() = default;
 };
 
@@ -103,7 +103,7 @@ public:
     int Run(int argc, const char** argv) const;
 
     //! Run appropriate mode. Same as Run(const int, const char**)
-    int Run(const TVector<TString>& argv) const;
+    int Run(const std::vector<TString>& argv) const;
 
     void PrintHelp(const TString& progName, bool toStdErr = false) const;
 
@@ -113,7 +113,7 @@ public:
         TString Description;
         bool Hidden;
         bool NoCompletion;
-        TVector<TString> Aliases;
+        std::vector<TString> Aliases;
 
         TMode()
             : Main(nullptr)
@@ -127,8 +127,8 @@ public:
         TString FormatFullName(size_t pad) const;
     };
 
-    TVector<const TMode*> GetUnsortedModes() const {
-        auto ret = TVector<const TMode*>(Reserve(UnsortedModes.size()));
+    std::vector<const TMode*> GetUnsortedModes() const {
+        auto ret = std::vector<const TMode*>(UnsortedModes.size());
         for (auto& mode : UnsortedModes) {
             ret.push_back(mode.Get());
         }
@@ -147,7 +147,7 @@ private:
     TString ModesHelpOption;
 
     //! Wrappers around all modes.
-    TVector<THolder<TMainClass>> Wrappers;
+    std::vector<THolder<TMainClass>> Wrappers;
 
     //! Modes
     TMap<TString, TMode*> Modes;
@@ -170,7 +170,7 @@ private:
     TString SeparationString;
 
     //! Unsorted list of options
-    TVector<THolder<TMode>> UnsortedModes;
+    std::vector<THolder<TMode>> UnsortedModes;
 
     //! Mode that generates completions
     THolder<TMainClass> CompletionsGenerator;

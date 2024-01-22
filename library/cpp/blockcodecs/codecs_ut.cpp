@@ -17,7 +17,7 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
     }
 
     void TestAllAtOnce(size_t n, size_t m) {
-        TVector<TBuffer> datas;
+        std::vector<TBuffer> datas;
 
         datas.emplace_back();
         datas.push_back(Buffer("na gorshke sidel korol"));
@@ -144,7 +144,7 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
     }
 
     void TestStreams(size_t n, size_t m) {
-        TVector<TString> datas;
+        std::vector<TString> datas;
         TString res;
 
         for (size_t i = 0; i < 256; ++i) {
@@ -274,7 +274,7 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
 
         UNIT_ASSERT_VALUES_EQUAL(GetMaxPossibleDecompressedLength(), Max<size_t>());
 
-        TVector<char> input(10001, ' ');
+        std::vector<char> input(10001, ' ');
         TCodecList codecs = ListAllCodecs();
         SetMaxPossibleDecompressedLength(10000);
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/yexception.h>
 
 #include <iterator>
@@ -147,11 +147,11 @@ namespace std {
 namespace NPagedVector {
     //2-level radix tree
     template <class T, ui32 PageSize, class A>
-    class TPagedVector: private TVector<TSimpleSharedPtr<TVector<T, A>>, A> {
+    class TPagedVector: private std::vector<TSimpleSharedPtr<std::vector<T, A>>, A> {
         static_assert(PageSize, "expect PageSize");
 
-        typedef TVector<T, A> TPage;
-        typedef TVector<TSimpleSharedPtr<TPage>, A> TPages;
+        typedef std::vector<T, A> TPage;
+        typedef std::vector<TSimpleSharedPtr<TPage>, A> TPages;
         typedef TPagedVector<T, PageSize, A> TSelf;
 
     public:

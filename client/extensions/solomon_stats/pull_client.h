@@ -9,8 +9,6 @@
 #include <library/cpp/monlib/service/pages/mon_page.h>
 #include <library/cpp/monlib/service/monservice.h>
 
-#include <util/generic/vector.h>
-
 namespace NSolomonStatExtension {
 
 class TSolomonStatPullExtension: public NYdb::IExtension {
@@ -26,7 +24,7 @@ public:
                 , const TString& project
                 , const TString& service
                 , const TString& cluster
-                , const TVector<std::pair<TString, TString>>& labels = {});
+                , const std::vector<std::pair<TString, TString>>& labels = {});
 
         NMonitoring::TLabels GetLabels() const;
 

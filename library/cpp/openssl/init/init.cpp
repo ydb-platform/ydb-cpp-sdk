@@ -1,7 +1,7 @@
 #include "init.h"
 
 #include <util/generic/singleton.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/ptr.h>
 #include <util/generic/buffer.h>
 
@@ -40,7 +40,7 @@ namespace {
                 }
             }
 
-            TVector<TAutoPtr<TMutex>> Mutexes;
+            std::vector<TAutoPtr<TMutex>> Mutexes;
         };
 
         inline TInitSsl() {

@@ -1,5 +1,5 @@
 from util.generic.string cimport TString, TStringBuf
-from util.generic.vector cimport TVector
+from util.generic.vector cimport std::vector
 
 
 # NOTE (danila-eremin) Currently not possible to use `const` and `except +` at the same time, so some function not marked const
@@ -57,8 +57,8 @@ cdef extern from "util/folder/path.h" nogil:
         void MkDirs() except +
         void MkDirs(const int) except +
 
-        void List(TVector[TFsPath]&) except +
-        void ListNames(TVector[TString]&) except +
+        void List(std::vector[TFsPath]&) except +
+        void ListNames(std::vector[TString]&) except +
 
         bint Contains(const TString&) const
 

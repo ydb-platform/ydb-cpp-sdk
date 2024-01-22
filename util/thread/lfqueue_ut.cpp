@@ -160,7 +160,7 @@ Y_UNIT_TEST_SUITE(TLockFreeQueueTests) {
         UNIT_ASSERT(!queue.Dequeue(&i));
         UNIT_ASSERT_VALUES_EQUAL(i, -1);
 
-        TVector<int> v;
+        std::vector<int> v;
         v.push_back(20);
         v.push_back(21);
 
@@ -195,7 +195,7 @@ Y_UNIT_TEST_SUITE(TLockFreeQueueTests) {
         TThreadPool p;
         p.Start(threadsNum, 0);
 
-        TVector<NThreading::TFuture<void>> futures;
+        std::vector<NThreading::TFuture<void>> futures;
 
         for (size_t i = 0; i < threadsNum; ++i) {
             NThreading::TPromise<void> promise = NThreading::NewPromise();
@@ -214,14 +214,14 @@ Y_UNIT_TEST_SUITE(TLockFreeQueueTests) {
 
         ui64 numOfConsumers = singleConsumer ? 1 : threadsNum;
 
-        TVector<TVector<int>> dataBuckets(numOfConsumers);
+        std::vector<std::vector<int>> dataBuckets(numOfConsumers);
 
         for (size_t i = 0; i < numOfConsumers; ++i) {
             NThreading::TPromise<void> promise = NThreading::NewPromise();
             futures.emplace_back(promise.GetFuture());
 
             p.SafeAddFunc([&queue, &elementsLeft, promise, consumerData{&dataBuckets[i]}]() mutable {
-                TVector<int> vec;
+                std::vector<int> vec;
                 while (static_cast<i64>(elementsLeft.load()) > 0) {
                     for (size_t i = 0; i != 100; ++i) {
                         vec.clear();
@@ -239,12 +239,12 @@ Y_UNIT_TEST_SUITE(TLockFreeQueueTests) {
         NThreading::WaitExceptionOrAll(futures).GetValueSync();
         p.Stop();
 
-        TVector<int> left;
+        std::vector<int> left;
         queue.DequeueAll(&left);
 
         UNIT_ASSERT(left.empty());
 
-        TVector<int> data;
+        std::vector<int> data;
         for (auto& dataBucket : dataBuckets) {
             data.insert(data.end(), dataBucket.begin(), dataBucket.end());
         }
@@ -278,7 +278,7 @@ Y_UNIT_TEST_SUITE(TLockFreeQueueTests) {
 
     Y_UNIT_TEST(TestDequeueAllEmptyQueue) {
         TLockFreeQueue<int> queue;
-        TVector<int> vec;
+        std::vector<int> vec;
 
         queue.DequeueAll(&vec);
 
@@ -291,7 +291,7 @@ Y_UNIT_TEST_SUITE(TLockFreeQueueTests) {
         queue.Enqueue(2);
         queue.Enqueue(3);
 
-        TVector<int> v;
+        std::vector<int> v;
         queue.DequeueAll(&v);
 
         UNIT_ASSERT_VALUES_EQUAL(v.size(), 3);

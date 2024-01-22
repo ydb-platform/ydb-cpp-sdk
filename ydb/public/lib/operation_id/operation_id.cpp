@@ -148,7 +148,7 @@ TOperationId::TOperationId(const TString &string, bool allowEmpty) {
     }
 }
 
-const TVector<const TString*>& TOperationId::GetValue(const TString &key) const {
+const std::vector<const TString*>& TOperationId::GetValue(const TString &key) const {
     auto it = Index_.find(key);
     if (it != Index_.end()) {
         return it->second;

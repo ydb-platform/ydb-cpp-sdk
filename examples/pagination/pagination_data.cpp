@@ -15,7 +15,7 @@ struct TSchool {
 };
 
 TParams GetTablesDataParams() {
-    TVector<TSchool> schoolsData = {
+    std::vector<TSchool> schoolsData = {
         TSchool("Орлов", 1, "Ст.Халтурина, 2"),
         TSchool("Орлов", 2, "Свободы, 4"),
         TSchool("Яранск", 1, "Гоголя, 25"),

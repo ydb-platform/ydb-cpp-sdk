@@ -4,7 +4,7 @@
 
 class TStringListInput: public IWalkInput {
 public:
-    TStringListInput(const TVector<TString>& data)
+    TStringListInput(const std::vector<TString>& data)
         : Data_(data)
         , Index_(0)
     {
@@ -23,13 +23,13 @@ protected:
     }
 
 private:
-    const TVector<TString>& Data_;
+    const std::vector<TString>& Data_;
     size_t Index_;
 };
 
 Y_UNIT_TEST_SUITE(TWalkTest) {
     Y_UNIT_TEST(ReadTo) {
-        TVector<TString> data;
+        std::vector<TString> data;
         data.push_back("111a");
         data.push_back("222b");
         data.push_back("333c");

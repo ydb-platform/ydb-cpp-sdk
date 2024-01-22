@@ -3,7 +3,7 @@
 #include <library/cpp/testing/unittest/registar.h>
 
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
+
 
 namespace {
     struct TMySuperTaskQueue {
@@ -51,7 +51,7 @@ Y_UNIT_TEST_SUITE(Async) {
         NThreading::TFuture<void> f1 = NThreading::Async([]() {}, *queue);
         NThreading::TFuture<int> f2 = NThreading::Async([]() { return 5; }, *queue);
         NThreading::TFuture<double> f3 = NThreading::Async([]() { return 5.0; }, *queue);
-        NThreading::TFuture<TVector<int>> f4 = NThreading::Async([]() { return TVector<int>(); }, *queue);
+        NThreading::TFuture<std::vector<int>> f4 = NThreading::Async([]() { return std::vector<int>(); }, *queue);
         NThreading::TFuture<int> f5 = NThreading::Async([]() { return NThreading::MakeFuture(5); }, *queue);
     }
 }

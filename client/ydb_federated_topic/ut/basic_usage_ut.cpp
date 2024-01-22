@@ -450,7 +450,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         ui64 count = 300u;
 
         TString messageBase = "message----";
-        TVector<TString> sentMessages;
+        std::vector<TString> sentMessages;
 
         for (auto i = 0u; i < count; i++) {
             // sentMessages.emplace_back(messageBase * (i+1) + ToString(i));

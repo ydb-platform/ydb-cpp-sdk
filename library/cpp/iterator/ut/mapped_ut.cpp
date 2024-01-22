@@ -3,12 +3,12 @@
 #include <library/cpp/testing/gtest/gtest.h>
 
 #include <util/generic/map.h>
-#include <util/generic/vector.h>
+
 
 using namespace testing;
 
 TEST(TIterator, TMappedIteratorTest) {
-    TVector<int> x = {1, 2, 3, 4, 5};
+    std::vector<int> x = {1, 2, 3, 4, 5};
     auto it = MakeMappedIterator(x.begin(), [](int x) { return x + 7; });
 
     EXPECT_EQ(*it, 8);
@@ -16,7 +16,7 @@ TEST(TIterator, TMappedIteratorTest) {
 }
 
 TEST(TIterator, TMappedRangeTest) {
-    TVector<int> x = {1, 2, 3, 4, 5};
+    std::vector<int> x = {1, 2, 3, 4, 5};
 
     EXPECT_THAT(
         MakeMappedRange(
@@ -42,7 +42,7 @@ TEST(TIterator, TMutableMappedRangeTest) {
 
 TEST(TIterator, TOwningMappedMethodTest) {
     auto range = MakeMappedRange(
-        TVector<std::pair<int, int>>{std::make_pair(1, 2), std::make_pair(3, 4)},
+        std::vector<std::pair<int, int>>{std::make_pair(1, 2), std::make_pair(3, 4)},
         [](auto& point) -> int& {
             return point.first;
         }

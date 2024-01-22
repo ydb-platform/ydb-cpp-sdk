@@ -5,7 +5,7 @@
 #include <util/network/address.h>
 #include <util/generic/size_literals.h>
 #include <util/generic/string.h>
-#include <util/generic/vector.h>
+
 #include <util/datetime/base.h>
 
 class THttpServerOptions {
@@ -15,7 +15,7 @@ public:
     {
     }
 
-    using TBindAddresses = TVector<TNetworkAddress>;
+    using TBindAddresses = std::vector<TNetworkAddress>;
     void BindAddresses(TBindAddresses& ret) const;
 
     inline THttpServerOptions& AddBindAddress(const TString& address, ui16 port) {
@@ -156,7 +156,7 @@ public:
         ui16 Port;
     };
 
-    typedef TVector<TAddr> TAddrs;
+    typedef std::vector<TAddr> TAddrs;
 
     bool KeepAliveEnabled = true;
     bool CompressionEnabled = false;

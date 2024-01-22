@@ -2,11 +2,11 @@
 
 #include <library/cpp/testing/gtest/gtest.h>
 
-#include <util/generic/vector.h>
+
 
 TEST(TIterator, ZipSimplePostIncrement) {
-    TVector<int> left{1, 2, 3};
-    TVector<int> right{4, 5, 6};
+    std::vector<int> left{1, 2, 3};
+    std::vector<int> right{4, 5, 6};
 
     auto zipped = Zip(left, right);
     auto cur = zipped.begin();

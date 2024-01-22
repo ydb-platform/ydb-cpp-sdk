@@ -347,7 +347,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         const ui16 port = pm.GetPort();
 
         TEchoServer serverImpl(res);
-        TVector<THolder<THttpServer>> servers;
+        std::vector<THolder<THttpServer>> servers;
         for (ui32 i = 0; i < 10; i++) {
             servers.push_back(MakeHolder<THttpServer>(&serverImpl, THttpServer::TOptions(port).EnableReusePort(true)));
         }
@@ -711,7 +711,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
                 UNIT_ASSERT(server.Lock.TryAcquire());
 
                 std::atomic<size_t> threadsFinished = 0;
-                TVector<THolder<IThreadFactory::IThread>> threads;
+                std::vector<THolder<IThreadFactory::IThread>> threads;
                 auto func = [port, keepAlive, &threadsFinished]() {
                     try {
                         TTestRequest r(port);
@@ -833,9 +833,9 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
             Stop();
         }
     private:
-        TVector<THolder<IThreadFactory::IThread>> Threads_;
+        std::vector<THolder<IThreadFactory::IThread>> Threads_;
         std::atomic<bool> Stopped_ = false;
-        TVector<TCounters> Counters_;
+        std::vector<TCounters> Counters_;
     };
 
     struct TTestConfig {
@@ -843,7 +843,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         ui32 ListenerThreads = 1;
     };
 
-    TVector<TTestConfig> testConfigs = {
+    std::vector<TTestConfig> testConfigs = {
         {.OneShot = false, .ListenerThreads = 1},
         {.OneShot = true, .ListenerThreads = 1},
         {.OneShot = true, .ListenerThreads = 4},

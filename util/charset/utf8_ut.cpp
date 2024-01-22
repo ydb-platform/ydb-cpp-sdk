@@ -100,7 +100,7 @@ Y_UNIT_TEST_SUITE(TUtfUtilTest) {
     }
 
     Y_UNIT_TEST(TestInvalidUTF8) {
-        TVector<TString> testData;
+        std::vector<TString> testData;
         TFileInput input(ArcadiaSourceRoot() + TStringBuf("/util/charset/ut/utf8/invalid_UTF8.bin"));
         Load(&input, testData);
 

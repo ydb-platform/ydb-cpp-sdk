@@ -12,11 +12,11 @@ namespace NMonitoring {
 
 struct TPercentileBase : public TThrRefBase {
     using TPercentile = std::pair<float, NMonitoring::TDynamicCounters::TCounterPtr>;
-    using TPercentiles = TVector<TPercentile>;
+    using TPercentiles = std::vector<TPercentile>;
 
     TPercentiles Percentiles;
 
-    void Initialize(const TIntrusivePtr<NMonitoring::TDynamicCounters> &counters, const TVector<float> &thresholds,
+    void Initialize(const TIntrusivePtr<NMonitoring::TDynamicCounters> &counters, const std::vector<float> &thresholds,
             TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public) {
         Percentiles.reserve(thresholds.size());
         for (size_t i = 0; i < thresholds.size(); ++i) {
@@ -26,7 +26,7 @@ struct TPercentileBase : public TThrRefBase {
     }
 
     void Initialize(const TIntrusivePtr<NMonitoring::TDynamicCounters> &counters, TString group, TString subgroup,
-            TString name, const TVector<float> &thresholds,
+            TString name, const std::vector<float> &thresholds,
             TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public) {
         auto subCounters = counters->GetSubgroup(group, subgroup)->GetSubgroup("sensor", name);
         Initialize(subCounters, thresholds, visibility);

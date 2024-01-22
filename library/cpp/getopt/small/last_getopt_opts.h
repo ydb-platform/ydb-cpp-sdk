@@ -41,9 +41,9 @@ namespace NLastGetopt {
     public:
         static constexpr const ui32 UNLIMITED_ARGS = Max<ui32>();
 
-        typedef TVector<TSimpleSharedPtr<TOpt>> TOptsVector;
+        typedef std::vector<TSimpleSharedPtr<TOpt>> TOptsVector;
         TOptsVector Opts_; // infomation about named (short and long) options
-        TVector<std::function<void(TStringBuf)>> ArgBindings_;
+        std::vector<std::function<void(TStringBuf)>> ArgBindings_;
 
         EArgPermutation ArgPermutation_ = DEFAULT_ARG_PERMUTATION; // determines how to parse positions of named and free options. See information below.
         bool AllowSingleDashForLong_ = false;                      //
@@ -68,7 +68,7 @@ namespace NLastGetopt {
         TString CustomCmdLineDescr; // user defined help string
         TString CustomUsage;        // user defined usage string
 
-        TVector<std::pair<TString, TString>> Sections;  // additional help entries to print after usage
+        std::vector<std::pair<TString, TString>> Sections;  // additional help entries to print after usage
 
     public:
         /**
@@ -615,8 +615,8 @@ namespace NLastGetopt {
         /**
          * Get list of options in order of definition.
          */
-        TVector<const TOpt*> GetOpts() const {
-            auto ret = TVector<const TOpt*>(Reserve(Opts_.size()));
+        std::vector<const TOpt*> GetOpts() const {
+            auto ret = std::vector<const TOpt*>(Opts_.size());
             for (auto& opt : Opts_) {
                 ret.push_back(opt.Get());
             }

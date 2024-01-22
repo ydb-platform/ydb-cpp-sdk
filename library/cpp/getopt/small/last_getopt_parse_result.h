@@ -12,7 +12,7 @@ namespace NLastGetopt {
      */
     class TOptParseResult {
     public:
-        typedef TVector<const char*> TValues;
+        typedef std::vector<const char*> TValues;
 
     public:
         TOptParseResult(const TOpt* opt = nullptr)
@@ -69,7 +69,7 @@ namespace NLastGetopt {
         THolder<TOptsParser> Parser_; //The instance of parser.
 
         // XXX: make argc, argv
-        typedef TVector<TOptParseResult> TdVec;
+        typedef std::vector<TOptParseResult> TdVec;
 
         TdVec Opts_;    //Parsing result for all options, that have been explicitly defined in argc/argv
         TdVec OptsDef_; //Parsing result for options, that have been defined by default values only
@@ -180,7 +180,7 @@ namespace NLastGetopt {
         /**
          * @return all fetched free arguments
          */
-        TVector<TString> GetFreeArgs() const;
+        std::vector<TString> GetFreeArgs() const;
 
         /**
          * @return true if given option exist in results of parsing

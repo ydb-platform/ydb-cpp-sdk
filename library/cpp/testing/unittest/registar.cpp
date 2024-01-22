@@ -144,7 +144,7 @@ TString NUnitTest::GetResetTag() {
 
 TString NUnitTest::ColoredDiff(TStringBuf s1, TStringBuf s2, const TString& delims, bool reverse) {
     TStringStream res;
-    TVector<NDiff::TChunk<char>> chunks;
+    std::vector<NDiff::TChunk<char>> chunks;
     NDiff::InlineDiff(chunks, s1, s2, delims);
     if (NUnitTest::ShouldColorizeDiff) {
         NDiff::PrintChunks(res, TDiffColorizer(reverse), chunks);
@@ -381,7 +381,7 @@ void NUnitTest::TTestBase::BeforeTest() {
 void NUnitTest::TTestBase::AfterTest() {
     TearDown();
 
-    TVector<std::function<void()>> afterTestFunctions;
+    std::vector<std::function<void()>> afterTestFunctions;
     with_lock (AfterTestFunctionsLock_) {
         afterTestFunctions.swap(AfterTestFunctions_);
     }

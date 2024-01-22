@@ -5,6 +5,7 @@
 
 #include <util/generic/strbuf.h>
 #include <util/string/cast.h>
+#include <vector>
 
 class THttpHeaders;
 class IOutputStream;

@@ -31,7 +31,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
     void WriteAndReadAndCommitRandomMessages(TPersQueueYdbSdkTestSetup* setup, TWriteCallable write, bool disableClusterDiscovery = false) {
         auto log = setup->GetLog();
         const TInstant start = TInstant::Now();
-        TVector<TString> messages;
+        std::vector<TString> messages;
         const ui32 messageCount = 5;
         ui32 totalSize = 0;
         std::queue<NThreading::TFuture<TWriteResult>> writeFutures;
@@ -138,7 +138,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         auto& client = setup->GetPersQueueClient();
         auto session = client.CreateSimpleBlockingWriteSession(writeSettings);
         TString messageBase = "message-";
-        TVector<TString> sentMessages;
+        std::vector<TString> sentMessages;
 
         for (auto i = 0u; i < count; i++) {
             sentMessages.emplace_back(messageBase * (i+1) + ToString(i));

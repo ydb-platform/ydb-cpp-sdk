@@ -443,7 +443,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
 
     Y_UNIT_TEST(CodecsPriority) {
         TMemoryInput request("GET / HTTP/1.1\r\nAccept-Encoding: gzip, br\r\n\r\n");
-        TVector<TStringBuf> codecs = {"br", "gzip"};
+        std::vector<TStringBuf> codecs = {"br", "gzip"};
 
         THttpInput i(&request);
         TString result;
@@ -466,7 +466,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
 
     Y_UNIT_TEST(CodecsPriority2) {
         TMemoryInput request("GET / HTTP/1.1\r\nAccept-Encoding: gzip, br\r\n\r\n");
-        TVector<TStringBuf> codecs = {"gzip", "br"};
+        std::vector<TStringBuf> codecs = {"gzip", "br"};
 
         THttpInput i(&request);
         TString result;

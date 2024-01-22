@@ -43,7 +43,7 @@ public:
 
     NThreading::TFuture<void> WaitEvent() override;
     TMaybe<NTopic::TWriteSessionEvent::TEvent> GetEvent(bool block) override;
-    TVector<NTopic::TWriteSessionEvent::TEvent> GetEvents(bool block, TMaybe<size_t> maxEventsCount) override;
+    std::vector<NTopic::TWriteSessionEvent::TEvent> GetEvents(bool block, TMaybe<size_t> maxEventsCount) override;
 
     virtual NThreading::TFuture<ui64> GetInitSeqNo() override;
 

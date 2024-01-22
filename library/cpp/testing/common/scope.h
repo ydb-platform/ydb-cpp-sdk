@@ -1,7 +1,7 @@
 #pragma once
 
 #include <util/generic/string.h>
-#include <util/generic/vector.h>
+
 #include <util/system/env.h>
 
 #include <utility>
@@ -16,8 +16,8 @@ namespace NTesting {
             ::SetEnv(name, value);
         }
 
-        TScopedEnvironment(const TVector<std::pair<TString, TString>>& vars)
-            : PreviousState(Reserve(vars.size()))
+        TScopedEnvironment(const std::vector<std::pair<TString, TString>>& vars)
+            : PreviousState(vars.size())
         {
             for (const auto& [k, v] : vars) {
                 PreviousState.emplace_back(k, ::GetEnv(k));
@@ -34,6 +34,6 @@ namespace NTesting {
         TScopedEnvironment(const TScopedEnvironment&) = delete;
         TScopedEnvironment& operator=(const TScopedEnvironment&) = delete;
     private:
-        TVector<std::pair<TString, TString>> PreviousState;
+        std::vector<std::pair<TString, TString>> PreviousState;
     };
 }

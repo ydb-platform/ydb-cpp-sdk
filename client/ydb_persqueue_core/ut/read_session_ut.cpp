@@ -1100,7 +1100,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
 
         setup.MockProcessor->AddServerResponse(TMockReadSessionProcessor::TServerReadInfo().CreatePartitionStream()); // Callback will be called.
         {
-            TVector<TReadSessionEvent::TEvent> events = setup.EventsQueue->GetEvents(true);
+            std::vector<TReadSessionEvent::TEvent> events = setup.EventsQueue->GetEvents(true);
             UNIT_ASSERT_VALUES_EQUAL(events.size(), 1);
             UNIT_ASSERT_EVENT_TYPE(events[0], TReadSessionEvent::TCreatePartitionStreamEvent);
             auto& event = std::get<TReadSessionEvent::TCreatePartitionStreamEvent>(events[0]);
@@ -1495,7 +1495,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         }
 
         {
-            TVector<TReadSessionEvent::TEvent> events = setup.EventsQueue->GetEvents(true);
+            std::vector<TReadSessionEvent::TEvent> events = setup.EventsQueue->GetEvents(true);
             UNIT_ASSERT_VALUES_EQUAL(events.size(), 1);
             UNIT_ASSERT_EVENT_TYPE(events[0], TReadSessionEvent::TDataReceivedEvent);
             TReadSessionEvent::TDataReceivedEvent& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(events[0]);
@@ -1504,7 +1504,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         }
 
         {
-            TVector<TReadSessionEvent::TEvent> events = setup.EventsQueue->GetEvents(true);
+            std::vector<TReadSessionEvent::TEvent> events = setup.EventsQueue->GetEvents(true);
             UNIT_ASSERT_VALUES_EQUAL(events.size(), 1);
             UNIT_ASSERT_EVENT_TYPE(events[0], TReadSessionEvent::TDataReceivedEvent);
             TReadSessionEvent::TDataReceivedEvent& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(events[0]);

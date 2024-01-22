@@ -6,7 +6,7 @@
 #include <util/string/ascii.h>
 
 //do not own any data
-struct TPathSplitStore: public TVector<TStringBuf> {
+struct TPathSplitStore: public std::vector<TStringBuf> {
     TStringBuf Drive;
     bool IsAbsolute = false;
 

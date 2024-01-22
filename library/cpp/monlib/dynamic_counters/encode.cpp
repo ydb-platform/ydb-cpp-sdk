@@ -89,7 +89,7 @@ namespace NMonitoring {
 
         private:
             NMonitoring::IMetricEncoderPtr EncoderImpl_;
-            TVector<TLabel> ParentLabels_;
+            std::vector<TLabel> ParentLabels_;
             TCountableBase::EVisibility Visibility_;
         };
 
