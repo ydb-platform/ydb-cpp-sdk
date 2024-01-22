@@ -3,9 +3,8 @@
 #include "last_getopt_opts.h"
 
 #include <library/cpp/colorizer/fwd.h>
-
+#include <list>
 #include <util/generic/hash_set.h>
-#include <util/generic/list.h>
 
 namespace NLastGetopt {
     /**
@@ -53,7 +52,7 @@ namespace NLastGetopt {
         typedef THashSet<const TOpt*> TdOptSet;
         TdOptSet OptsSeen_; //the set of options that have been met during parsing
 
-        TList<const TOpt*> OptsDefault_;
+        std::list<const TOpt*> OptsDefault_;
 
     private:
         void Init(const TOpts* options, int argc, const char* argv[]);

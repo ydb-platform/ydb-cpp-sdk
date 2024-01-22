@@ -2,7 +2,6 @@
 
 #include <util/generic/noncopyable.h>
 #include <util/generic/string.h>
-#include <util/generic/list.h>
 #include <util/generic/hash.h>
 #include <util/generic/strbuf.h>
 #include <util/generic/maybe.h>
@@ -13,7 +12,7 @@
 #include "thread.h"
 #include "mutex.h"
 #include <sys/types.h>
-
+#include <list>
 #include <atomic>
 
 class TShellCommandOptions {
@@ -369,7 +368,7 @@ public:
      * @param options execution options
      * @todo store entire options structure
      */
-    TShellCommand(const TStringBuf cmd, const TList<TString>& args, const TShellCommandOptions& options = TShellCommandOptions(),
+    TShellCommand(const TStringBuf cmd, const std::list<TString>& args, const TShellCommandOptions& options = TShellCommandOptions(),
                   const TString& workdir = TString());
     TShellCommand(const TStringBuf cmd, const TShellCommandOptions& options = TShellCommandOptions(), const TString& workdir = TString());
     ~TShellCommand();

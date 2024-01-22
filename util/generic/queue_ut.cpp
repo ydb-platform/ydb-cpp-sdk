@@ -153,7 +153,7 @@ Y_UNIT_TEST_SUITE(TYQueueTest) {
     }
 
     Y_UNIT_TEST(queue1) {
-        TQueue<int, TList<int>> q;
+        TQueue<int, std::list<int>> q;
 
         q.push(42);
         q.push(101);

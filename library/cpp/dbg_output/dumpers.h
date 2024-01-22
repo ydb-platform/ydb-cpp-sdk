@@ -111,7 +111,7 @@ struct TDumper<TDeque<T, A>>: public TSeqDumper {
 };
 
 template <class T, class A>
-struct TDumper<TList<T, A>>: public TSeqDumper {
+struct TDumper<std::list<T, A>>: public TSeqDumper {
 };
 
 //associatives
