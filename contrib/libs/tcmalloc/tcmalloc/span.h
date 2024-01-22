@@ -67,7 +67,7 @@ inline constexpr size_t kBitmapScalingDenominator = 65536;
 //    and is on returned PageHeap list.
 //    location_ == ON_RETURNED_FREELIST.
 class Span;
-typedef TList<Span> SpanList;
+typedef std::list<Span> SpanList;
 
 class Span : public SpanList::Elem {
  public:

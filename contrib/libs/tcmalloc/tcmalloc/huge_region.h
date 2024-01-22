@@ -213,7 +213,7 @@ class HugeRegionSet {
 
   size_t n_;
   // Sorted by longest_free increasing.
-  TList<Region> list_;
+  std::list<Region> list_;
 };
 
 // REQUIRES: r.len() == size(); r unbacked.
