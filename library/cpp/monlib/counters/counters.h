@@ -1,8 +1,8 @@
 #pragma once
 
+#include <list>
 #include <util/datetime/base.h>
 #include <util/generic/algorithm.h>
-#include <util/generic/list.h>
 #include <util/generic/map.h>
 #include <util/generic/ptr.h>
 #include <util/generic/singleton.h>
@@ -248,7 +248,7 @@ namespace NMonitoring {
 
     private:
         TCollection* Groups;
-        TList<TOldGroup> OldGroups;
+        std::list<TOldGroup> OldGroups;
         TSpinLock AddMutex;
 
         ui64 Timeout;
@@ -295,7 +295,7 @@ namespace NMonitoring {
             Groups->Free();
             delete Groups;
             Groups = nullptr;
-            typename TList<TOldGroup>::iterator i;
+            typename std::list<TOldGroup>::iterator i;
             for (i = OldGroups.begin(); i != OldGroups.end(); ++i) {
                 delete i->Collection;
                 i->Collection = nullptr;

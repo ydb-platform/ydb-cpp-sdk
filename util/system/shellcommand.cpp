@@ -190,7 +190,7 @@ class TShellCommand::TImpl
     : public TAtomicRefCount<TShellCommand::TImpl> {
 private:
     TString Command;
-    TList<TString> Arguments;
+    std::list<TString> Arguments;
     TShellCommandOptions Options_;
     TString WorkDir;
 
@@ -263,7 +263,7 @@ private:
 #endif
 
 public:
-    inline TImpl(const TStringBuf cmd, const TList<TString>& args, const TShellCommandOptions& options, const TString& workdir)
+    inline TImpl(const TStringBuf cmd, const std::list<TString>& args, const TShellCommandOptions& options, const TString& workdir)
         : Command(ToString(cmd))
         , Arguments(args)
         , Options_(options)
@@ -1087,14 +1087,14 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
     TerminateIsRequired(pi);
 }
 
-TShellCommand::TShellCommand(const TStringBuf cmd, const TList<TString>& args, const TShellCommandOptions& options,
+TShellCommand::TShellCommand(const TStringBuf cmd, const std::list<TString>& args, const TShellCommandOptions& options,
                              const TString& workdir)
     : Impl(new TImpl(cmd, args, options, workdir))
 {
 }
 
 TShellCommand::TShellCommand(const TStringBuf cmd, const TShellCommandOptions& options, const TString& workdir)
-    : Impl(new TImpl(cmd, TList<TString>(), options, workdir))
+    : Impl(new TImpl(cmd, std::list<TString>(), options, workdir))
 {
 }
 

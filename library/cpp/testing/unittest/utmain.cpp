@@ -525,7 +525,7 @@ private:
             return f();
         }
 
-        TList<TString> args(1, "--is-forked-internal");
+        std::list<TString> args(1, "--is-forked-internal");
         args.push_back(Sprintf("+%s::%s", suite.data(), name));
 
         // stdin is ignored - unittest should not need them...
