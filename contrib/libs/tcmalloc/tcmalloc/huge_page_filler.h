@@ -907,7 +907,7 @@ class HugePageFiller {
   void PrintInPbtxt(PbtxtRegion* hpaa) const;
 
  private:
-  typedef std::list<TrackerType> TrackerList;
+  typedef TList<TrackerType> TrackerList;
 
   // This class wraps an array of N TrackerLists and a Bitmap storing which
   // elements are non-empty.
