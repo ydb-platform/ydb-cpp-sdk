@@ -6,7 +6,6 @@
 # original buildsystem will not be accepted.
 
 
-find_package(Iconv REQUIRED)
 add_subdirectory(lite)
 
 add_library(library-cpp-charset)

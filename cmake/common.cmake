@@ -21,7 +21,7 @@ endfunction()
 
 
 function(target_ragel_lexers TgtName Key Src)
-  SET(RAGEL_BIN ${CMAKE_BINARY_DIR}/bin/ragel${CMAKE_EXECUTABLE_SUFFIX})
+  SET(RAGEL_BIN ragel${CMAKE_EXECUTABLE_SUFFIX})
   get_filename_component(OutPath ${Src} NAME_WLE)
   get_filename_component(SrcDirPath ${Src} DIRECTORY)
   get_filename_component(OutputExt ${OutPath} EXT)
@@ -38,7 +38,7 @@ function(target_ragel_lexers TgtName Key Src)
 endfunction()
 
 function(target_yasm_source TgtName Key Src)
-  SET(YASM_BIN ${CMAKE_BINARY_DIR}/bin/yasm${CMAKE_EXECUTABLE_SUFFIX})
+  SET(YASM_BIN yasm${CMAKE_EXECUTABLE_SUFFIX})
   get_filename_component(OutPath ${Src} NAME_WLE)
   string(APPEND OutPath .o)
   add_custom_command(
