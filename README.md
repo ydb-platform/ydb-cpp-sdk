@@ -7,6 +7,13 @@
 - lld-14
 - git 2.20+
 - ninja 1.10+
+- ragel
+- yasm
+
+## Runtime Requirements
+
+- libidn11-dev
+- libiconv
 
 ## Install dependencies
 
@@ -14,10 +21,7 @@
 sudo apt-get -y install git cmake ninja-build clang-14 lld-14 libidn11-dev llvm-14 ragel yasm
 ```
 
-## Runtime Requirements
-
-- libidn11-dev
-- libiconv
+- libiconv: https://www.gnu.org/software/libiconv/
 
 ## Create the work directory
 
