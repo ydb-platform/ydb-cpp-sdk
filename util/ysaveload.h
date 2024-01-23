@@ -357,10 +357,6 @@ class TSerializer<std::vector<T, A>>: public TVectorSerializer<std::vector<T, A>
 };
 
 template <class T, class A>
-class TSerializer<TList<T, A>>: public TVectorSerializer<TList<T, A>> {
-};
-
-template <class T, class A>
 class TSerializer<std::list<T, A>>: public TVectorSerializer<std::list<T, A>> {
 };
 

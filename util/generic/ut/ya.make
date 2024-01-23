@@ -26,7 +26,6 @@ SRCS(
     generic/iterator_range_ut.cpp
     generic/iterator_ut.cpp
     generic/lazy_value_ut.cpp
-    generic/list_ut.cpp
     generic/map_ut.cpp
     generic/mapfindptr_ut.cpp
     generic/maybe_ut.cpp
