@@ -13,6 +13,7 @@ target_link_libraries(library-cpp-charset PUBLIC
   contrib-libs-cxxsupp
   yutil
   cpp-charset-lite
+  Iconv::Iconv
 )
 target_sources(library-cpp-charset PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/charset/decodeunknownplane.cpp

@@ -21,7 +21,6 @@ include(cmake/antlr.cmake)
 include(cmake/archive.cmake)
 include(cmake/bison.cmake)
 include(cmake/common.cmake)
-include(cmake/conan.cmake)
 include(cmake/fbs.cmake)
 include(cmake/global_flags.cmake)
 include(cmake/llvm-tools.cmake)
@@ -30,20 +29,8 @@ include(cmake/protobuf.cmake)
 include(cmake/shared_libs.cmake)
 include(cmake/global_vars.cmake)
 
-if (CMAKE_CROSSCOMPILING)
-  include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
-else()
-  conan_cmake_autodetect(settings)
-  conan_cmake_install(
-    PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
-    INSTALL_FOLDER ${CMAKE_BINARY_DIR}
-    BUILD missing
-    REMOTE conancenter
-    SETTINGS ${settings}
-      ENV "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}"
-      CONF "tools.cmake.cmaketoolchain:generator=${CMAKE_GENERATOR}"
-  )
-endif()
+find_package(IDN REQUIRED)
+find_package(Iconv REQUIRED)
 
 add_subdirectory(tools)
 add_subdirectory(contrib)
