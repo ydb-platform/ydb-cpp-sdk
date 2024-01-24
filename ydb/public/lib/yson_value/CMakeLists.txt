@@ -8,9 +8,11 @@ target_link_libraries(public-lib-yson_value PUBLIC
     cpp-client-ydb_value
     ydb-library-uuid
 )
-target_link_libraries(public-lib-yson_value PUBLIC
-    contrib-libs-linux-headers
-)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
+    target_link_libraries(public-lib-json_value PUBLIC
+        contrib-libs-linux-headers
+    )
+endif()
 
 target_sources(public-lib-yson_value PRIVATE
     ${CMAKE_SOURCE_DIR}/ydb/public/lib/yson_value/ydb_yson_value.cpp
