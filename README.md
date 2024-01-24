@@ -3,8 +3,7 @@
 ## Prerequisites
 
 - cmake 3.22+
-- clang-14
-- lld-14
+- llvm 16+
 - git 2.20+
 - ninja 1.10+
 - ragel
@@ -18,7 +17,10 @@
 ## Install dependencies
 
 ```bash
-sudo apt-get -y install git cmake ninja-build clang-14 lld-14 libidn11-dev llvm-14 ragel yasm
+sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm
+wget https://apt.llvm.org/llvm.sh
+chmod u+x llvm.sh
+sudo ./llvm.sh 16
 ```
 
 - libiconv: https://www.gnu.org/software/libiconv/
