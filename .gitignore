@@ -87,3 +87,4 @@ util/charset/all_charset.cpp
 
 cmake-build-debug
 examples
+llvm.sh
