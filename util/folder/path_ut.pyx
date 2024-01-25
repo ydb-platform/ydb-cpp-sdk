@@ -2,7 +2,7 @@
 
 from util.folder.path cimport TFsPath
 from util.generic.string cimport TString, TStringBuf
-from util.generic.vector cimport std::vector
+from util.generic.vector cimport TVector
 
 import unittest
 import yatest.common
@@ -230,8 +230,8 @@ class TestPath(unittest.TestCase):
         TFsPath("test_list/b").Touch()
         TFsPath("test_list/c").Touch()
 
-        cdef std::vector[TFsPath] files
-        cdef std::vector[TString] names
+        cdef TVector[TFsPath] files
+        cdef TVector[TString] names
 
         dir.List(files)
         dir.ListNames(names)

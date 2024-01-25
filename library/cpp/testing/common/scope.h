@@ -5,6 +5,7 @@
 #include <util/system/env.h>
 
 #include <utility>
+#include <vector>
 
 namespace NTesting {
     // @brief Assigns new values to the given environment variables and restores old values upon destruction.
@@ -17,8 +18,9 @@ namespace NTesting {
         }
 
         TScopedEnvironment(const std::vector<std::pair<TString, TString>>& vars)
-            : PreviousState(vars.size())
+            : PreviousState{}
         {
+            PreviousState.reserve(vars.size());
             for (const auto& [k, v] : vars) {
                 PreviousState.emplace_back(k, ::GetEnv(k));
                 ::SetEnv(k, v);

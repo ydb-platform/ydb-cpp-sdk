@@ -174,7 +174,8 @@ public:
                     any->UnpackTo(&result);
                 }
 
-                std::vector<TSchemeEntry> children(result.children().size());
+                std::vector<TSchemeEntry> children;
+                children.reserve(result.children().size());
                 for (const auto& child : result.children()) {
                     children.emplace_back(child);
                 }

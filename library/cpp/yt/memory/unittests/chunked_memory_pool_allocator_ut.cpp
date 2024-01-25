@@ -49,8 +49,8 @@ TEST(TChunkedMemoryPoolAllocatorTest, SimpleVector)
     TChunkedMemoryPool pool;
     TChunkedMemoryPoolAllocator<int> allocator(&pool);
 
-    using std::vector = std::vector<int, TChunkedMemoryPoolAllocator<int>>;
-    std::vector vector(allocator);
+    using TVector = std::vector<int, TChunkedMemoryPoolAllocator<int>>;
+    TVector vector(allocator);
 
     constexpr int seed = 0;
     std::mt19937 generator(seed);

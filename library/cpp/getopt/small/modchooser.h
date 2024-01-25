@@ -128,7 +128,8 @@ public:
     };
 
     std::vector<const TMode*> GetUnsortedModes() const {
-        auto ret = std::vector<const TMode*>(UnsortedModes.size());
+        std::vector<const TMode*> ret;
+        ret.reserve(UnsortedModes.size());
         for (auto& mode : UnsortedModes) {
             ret.push_back(mode.Get());
         }

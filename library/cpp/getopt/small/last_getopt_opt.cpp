@@ -98,7 +98,7 @@ namespace NLastGetopt {
     }
 
     TOpt& TOpt::IfPresentDisableCompletionFor(const TOpt& opt) {
-        if (opt.GetLongNames().size()) {
+        if (!opt.GetLongNames().empty()) {
             IfPresentDisableCompletionFor(opt.GetName());
         } else {
             IfPresentDisableCompletionFor(opt.GetChar());

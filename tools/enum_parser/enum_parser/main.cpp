@@ -193,7 +193,7 @@ void GenerateEnum(
         OpenArray(jAliases);
 
         TString strValue = it.CppName;
-        if (it.Aliases.size()) {
+        if (!it.Aliases.empty()) {
             // first alias is main
             strValue = it.Aliases[0];
             OutKey(jEnumItem, "str_value", strValue);
@@ -208,7 +208,7 @@ void GenerateEnum(
         FinishItems(jAliases);
         CloseArray(jAliases);
 
-        if (it.Aliases.size() == 0) {
+        if (it.Aliases.empty()) {
             valueInitializerPairsUnsorted.emplace_back("TNameBufsBase::EnumStringPair(" + outerScopeStr + it.CppName + ", " + WrapStringBuf(it.CppName) + ")", it.CppName);
         }
         OutKey(jEnumItem, "aliases", jAliases.Str(), false);

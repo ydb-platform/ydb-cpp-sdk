@@ -142,7 +142,8 @@ namespace {
 
         std::vector<NTesting::TPortHolder> GetFreePortsRange(size_t count) const {
             Y_ABORT_UNLESS(count > 0);
-            std::vector<NTesting::TPortHolder> ports(count);
+            std::vector<NTesting::TPortHolder> ports;
+            ports.reserve(count);
             for (size_t i = 0; i < Retries; ++i) {
                 for (auto[left, right] : Ranges_) {
                     if (right - left < count) {

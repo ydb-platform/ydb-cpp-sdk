@@ -616,7 +616,8 @@ namespace NLastGetopt {
          * Get list of options in order of definition.
          */
         std::vector<const TOpt*> GetOpts() const {
-            auto ret = std::vector<const TOpt*>(Opts_.size());
+            std::vector<const TOpt*> ret;
+            ret.reserve(Opts_.size());
             for (auto& opt : Opts_) {
                 ret.push_back(opt.Get());
             }
