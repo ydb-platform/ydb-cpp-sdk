@@ -158,7 +158,7 @@ namespace NThreading {
                     readyEvent->Signal();
                 }
 
-                if (callbacks.size()) {
+                if (!callbacks.empty()) {
                     TFuture<T> temp(this);
                     for (auto& callback : callbacks) {
                         callback(temp);
@@ -197,7 +197,7 @@ namespace NThreading {
                     readyEvent->Signal();
                 }
 
-                if (callbacks.size()) {
+                if (!callbacks.empty()) {
                     TFuture<T> temp(this);
                     for (auto& callback : callbacks) {
                         callback(temp);
@@ -344,7 +344,7 @@ namespace NThreading {
                     readyEvent->Signal();
                 }
 
-                if (callbacks.size()) {
+                if (!callbacks.empty()) {
                     TFuture<void> temp(this);
                     for (auto& callback : callbacks) {
                         callback(temp);
@@ -383,7 +383,7 @@ namespace NThreading {
                     readyEvent->Signal();
                 }
 
-                if (callbacks.size()) {
+                if (!callbacks.empty()) {
                     TFuture<void> temp(this);
                     for (auto& callback : callbacks) {
                         callback(temp);

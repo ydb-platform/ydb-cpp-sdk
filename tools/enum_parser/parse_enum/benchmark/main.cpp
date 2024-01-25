@@ -18,7 +18,8 @@ namespace {
 
     template <class TEnum>
     std::vector<TStringBuf> SelectStrings(size_t count) {
-        std::vector<TStringBuf> strings(Reserve(GetEnumItemsCount<TEnum>()));
+        std::vector<TStringBuf> strings;
+        strings.reserve(GetEnumItemsCount<TEnum>());
         for (const auto& [_, s] : GetEnumNames<TEnum>()) {
             strings.push_back(s);
         }

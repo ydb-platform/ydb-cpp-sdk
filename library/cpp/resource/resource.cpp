@@ -53,7 +53,8 @@ TStringBuf NResource::KeyByIndex(size_t idx) {
 }
 
 std::vector<TStringBuf> NResource::ListAllKeys() {
-    std::vector<TStringBuf> res(NResource::Count());
+    std::vector<TStringBuf> res;
+    res.reserve(NResource::Count());
     for (auto i : xrange(NResource::Count())) {
         res.push_back(NResource::KeyByIndex(i));
     }

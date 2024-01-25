@@ -184,7 +184,7 @@ inline void Split(const TStringType& s, char /*delim*/,
 template <>
 inline void Split(const TString &s, char delim,
                   std::vector<TString> *append_to) {
-  std::vector<TString> parts;
+  TVector<TString> parts;
   Split(s, TString(1, delim), parts);
   for (auto& p : parts) {
     append_to->push_back(std::move(p));

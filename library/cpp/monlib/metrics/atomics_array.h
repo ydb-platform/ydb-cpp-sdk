@@ -37,8 +37,9 @@ namespace NMonitoring {
             }
         }
 
-        std::vector<ui64> Copy() const {
-            std::vector<ui64> copy(Size_);
+        [[nodiscard]] std::vector<ui64> Copy() const {
+            std::vector<ui64> copy;
+            copy.reserve(Size_);
             for (size_t i = 0; i < Size_; i++) {
                 copy.push_back(Values_[i].load(std::memory_order_relaxed));
             }

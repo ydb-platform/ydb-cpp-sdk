@@ -204,7 +204,8 @@ int TModChooser::Run(const int argc, const char** argv) const {
 
     if (shiftArgs) {
         TString firstArg;
-        std::vector<const char*> nargv(argc);
+        std::vector<const char*> nargv;
+        nargv.reserve(argc);
 
         if (PrintShortCommandInUsage) {
             firstArg = modeIter->second->Name;
@@ -228,7 +229,8 @@ int TModChooser::Run(const int argc, const char** argv) const {
 }
 
 int TModChooser::Run(const std::vector<TString>& argv) const {
-    std::vector<const char*> nargv(argv.size() + 1);
+    std::vector<const char*> nargv;
+    nargv.reserve(argv.size() + 1);
     for (auto& arg : argv) {
         nargv.push_back(arg.c_str());
     }
@@ -241,7 +243,7 @@ int TModChooser::Run(const std::vector<TString>& argv) const {
 
 size_t TModChooser::TMode::CalculateFullNameLen() const {
     size_t len = Name.size();
-    if (Aliases.size()) {
+    if (!Aliases.empty()) {
         len += 2;
         for (auto& alias : Aliases) {
             len += alias.size() + 1;
@@ -252,7 +254,7 @@ size_t TModChooser::TMode::CalculateFullNameLen() const {
 
 TString TModChooser::TMode::FormatFullName(size_t pad) const {
     TStringBuilder name;
-    if (Aliases.size()) {
+    if (!Aliases.empty()) {
         name << "{";
     }
 
@@ -260,7 +262,7 @@ TString TModChooser::TMode::FormatFullName(size_t pad) const {
     name << Name;
     name << NColorizer::StdErr().OldColor();
 
-    if (Aliases.size()) {
+    if (!Aliases.empty()) {
         for (const auto& alias : Aliases) {
             name << "|" << NColorizer::StdErr().GreenColor() << alias << NColorizer::StdErr().OldColor();
         }
