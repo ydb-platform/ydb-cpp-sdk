@@ -86,5 +86,4 @@ util/all_util.cpp
 util/charset/all_charset.cpp
 
 cmake-build-debug
-examples
 llvm.sh
