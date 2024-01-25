@@ -18,6 +18,7 @@
 #include <openssl/rand.h>
 #include <openssl/conf.h>
 #include <openssl/crypto.h>
+#include <vector>
 
 namespace {
     struct TInitSsl {
