@@ -180,7 +180,7 @@ protected:
 
         {
             //This is to test move constructor
-            TVector<TStringType> str_vect;
+            std::vector<TStringType> str_vect;
 
             str_vect.push_back(short_str1);
             str_vect.push_back(long_str1);

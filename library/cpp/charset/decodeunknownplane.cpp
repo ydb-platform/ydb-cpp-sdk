@@ -3,7 +3,7 @@
 #include "recyr.hh"
 
 #include <util/system/hi_lo.h>
-#include <util/generic/vector.h>
+
 
 template <typename TxChar>
 static inline RECODE_RESULT utf8_read_rune_from_unknown_plane(TxChar& rune, size_t& rune_len, const TxChar* s, const TxChar* end) {
@@ -87,7 +87,7 @@ void DoDecodeUnknownPlane(TxChar* str, TxChar*& ee, const ECharset enc) {
         TxChar* s = str;
         TxChar* d = str;
 
-        TVector<char> buf;
+        std::vector<char> buf;
 
         size_t read = 0;
         size_t written = 0;

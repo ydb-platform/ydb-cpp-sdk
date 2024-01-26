@@ -11,7 +11,7 @@ IMonPage::IMonPage(const TString& path, const TString& title)
 }
 
 void IMonPage::OutputNavBar(IOutputStream& out) {
-    TVector<const IMonPage*> parents;
+    std::vector<const IMonPage*> parents;
     for (const IMonPage* p = this; p; p = p->Parent) {
         parents.push_back(p);
     }

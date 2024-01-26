@@ -2,20 +2,20 @@
 
 #include <util/generic/array_ref.h>
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/yexception.h>
 
 #include <cmath>
 #include <limits>
-
+#include <vector>
 
 namespace NMonitoring {
 
     using TBucketBound = double;
     using TBucketValue = ui64;
 
-    using TBucketBounds = TVector<TBucketBound>;
-    using TBucketValues = TVector<TBucketValue>;
+    using TBucketBounds = std::vector<TBucketBound>;
+    using TBucketValues = std::vector<TBucketValue>;
 
     constexpr ui32 HISTOGRAM_MAX_BUCKETS_COUNT = 51;
     constexpr TBucketBound HISTOGRAM_INF_BOUND = std::numeric_limits<TBucketBound>::max();

@@ -77,12 +77,12 @@ void TKeepAliveHttpClient::ResetConnection() {
     Connection.Reset();
 }
 
-TVector<IOutputStream::TPart> TKeepAliveHttpClient::FormRequest(TStringBuf method,
+std::vector<IOutputStream::TPart> TKeepAliveHttpClient::FormRequest(TStringBuf method,
                                                                 const TStringBuf relativeUrl,
                                                                 TStringBuf body,
                                                                 const TKeepAliveHttpClient::THeaders& headers,
                                                                 TStringBuf contentLength) const {
-    TVector<IOutputStream::TPart> parts;
+    std::vector<IOutputStream::TPart> parts;
 
     parts.reserve(16 + 4 * headers.size());
     parts.push_back(method);
@@ -315,7 +315,7 @@ void TRedirectableHttpClient::PrepareClient(TKeepAliveHttpClient& cl) const {
 void TRedirectableHttpClient::ProcessResponse(const TStringBuf relativeUrl, THttpInput& input, IOutputStream* output, const unsigned statusCode) const {
     for (auto i = input.Headers().Begin(), e = input.Headers().End(); i != e; ++i) {
         if (0 == TString::compare(i->Name(), TStringBuf("Location"))) {
-            TVector<TString> request_url_parts, request_body_parts;
+            std::vector<TString> request_url_parts, request_body_parts;
 
             size_t splitted_index = 0;
             for (auto& iter : StringSplitter(i->Value()).Split('/')) {

@@ -55,20 +55,20 @@ struct TEndpointInfo {
     ui32 Port = 0;
     float LoadFactor = 0.0;
     bool Ssl = false;
-    TVector<TString> Services;
+    std::vector<TString> Services;
     TString Location;
     ui32 NodeId = 0;
-    TVector<TString> IPv4Addrs;
-    TVector<TString> IPv6Addrs;
+    std::vector<TString> IPv4Addrs;
+    std::vector<TString> IPv6Addrs;
     TString SslTargetNameOverride;
 };
 
 class TListEndpointsResult : public TStatus {
 public:
     TListEndpointsResult(TStatus&& status, const Ydb::Discovery::ListEndpointsResult& endpoints);
-    const TVector<TEndpointInfo>& GetEndpointsInfo() const;
+    const std::vector<TEndpointInfo>& GetEndpointsInfo() const;
 private:
-    TVector<TEndpointInfo> Info_;
+    std::vector<TEndpointInfo> Info_;
 };
 
 using TAsyncListEndpointsResult = NThreading::TFuture<TListEndpointsResult>;
@@ -77,10 +77,10 @@ class TWhoAmIResult : public TStatus {
 public:
     TWhoAmIResult(TStatus&& status, const Ydb::Discovery::WhoAmIResult& proto);
     const TString& GetUserName() const;
-    const TVector<TString>& GetGroups() const;
+    const std::vector<TString>& GetGroups() const;
 private:
     TString UserName_;
-    TVector<TString> Groups_;
+    std::vector<TString> Groups_;
 };
 
 using TAsyncWhoAmIResult = NThreading::TFuture<TWhoAmIResult>;
@@ -109,7 +109,7 @@ public:
     bool HasScopeTabletId() const;
     const ui64& GetScopePathId() const;
     bool HasScopePathId() const;
-    const TVector<TNodeInfo>& GetNodes() const;
+    const std::vector<TNodeInfo>& GetNodes() const;
 
 private:
     ui32 NodeId_;
@@ -117,7 +117,7 @@ private:
     ui64 Expire_;
     std::optional<ui64> ScopeTableId_;
     std::optional<ui64> ScopePathId_;
-    TVector<TNodeInfo> Nodes_;
+    std::vector<TNodeInfo> Nodes_;
 };
 
 using TAsyncNodeRegistrationResult = NThreading::TFuture<TNodeRegistrationResult>;

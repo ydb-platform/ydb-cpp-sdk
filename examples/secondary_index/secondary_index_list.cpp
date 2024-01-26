@@ -8,7 +8,7 @@ using namespace NYdb::NTable;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void ParseSeries(TVector<TSeries>& results, TResultSetParser&& parser) {
+static void ParseSeries(std::vector<TSeries>& results, TResultSetParser&& parser) {
     results.clear();
     while (parser.TryNextRow()) {
         auto& series = results.emplace_back();
@@ -21,7 +21,7 @@ static void ParseSeries(TVector<TSeries>& results, TResultSetParser&& parser) {
 }
 
 static TStatus ListByViews(
-        TVector<TSeries>& results,
+        std::vector<TSeries>& results,
         TSession& session,
         const TString& prefix,
         ui64 limit,
@@ -99,7 +99,7 @@ static TStatus ListByViews(
 }
 
 static TStatus ListByViews(
-        TVector<TSeries>& results,
+        std::vector<TSeries>& results,
         TSession& session,
         const TString& prefix,
         ui64 limit)
@@ -148,7 +148,7 @@ static TStatus ListByViews(
 }
 
 static TStatus ListById(
-        TVector<TSeries>& results,
+        std::vector<TSeries>& results,
         TSession& session,
         const TString& prefix,
         ui64 limit,
@@ -196,7 +196,7 @@ static TStatus ListById(
 }
 
 static TStatus ListById(
-        TVector<TSeries>& results,
+        std::vector<TSeries>& results,
         TSession& session,
         const TString& prefix,
         ui64 limit)
@@ -255,7 +255,7 @@ int RunListSeries(TDriver& driver, const TString& prefix, int argc, char** argv)
 
     TOptsParseResult res(&opts, argc, argv);
 
-    TVector<TSeries> results;
+    std::vector<TSeries> results;
     TTableClient client(driver);
     ThrowOnError(client.RetryOperationSync([&](TSession session) -> TStatus {
         if (byViews) {
@@ -274,7 +274,7 @@ int RunListSeries(TDriver& driver, const TString& prefix, int argc, char** argv)
     }));
 
     size_t rows = results.size() + 1;
-    TVector<TString> columns[5];
+    std::vector<TString> columns[5];
     for (size_t i = 0; i < 5; ++i) {
         columns[i].reserve(rows);
     }

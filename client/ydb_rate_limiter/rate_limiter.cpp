@@ -9,7 +9,7 @@
 
 namespace NYdb::NRateLimiter {
 
-TListResourcesResult::TListResourcesResult(TStatus status, TVector<TString> paths)
+TListResourcesResult::TListResourcesResult(TStatus status, std::vector<TString> paths)
     : TStatus(std::move(status))
     , ResourcePaths_(std::move(paths))
 {
@@ -111,7 +111,7 @@ public:
 
         auto extractor = [promise]
             (google::protobuf::Any* any, TPlainStatus status) mutable {
-                TVector<TString> list;
+                std::vector<TString> list;
                 if (any) {
                     Ydb::RateLimiter::ListResourcesResult result;
                     any->UnpackTo(&result);

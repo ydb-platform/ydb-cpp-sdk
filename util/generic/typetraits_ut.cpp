@@ -461,8 +461,6 @@ static_assert(!TIsSpecializationOf<std::pair, std::vector<int>>::value, "");
 static_assert(TIsTemplateBaseOf<std::vector, std::vector<int>>::value);
 static_assert(TIsTemplateBaseOf<std::tuple, std::tuple<int, double, char>>::value);
 static_assert(TIsTemplateBaseOf<std::basic_string_view, std::wstring_view>::value);
-static_assert(TIsTemplateBaseOf<std::vector, TVector<int>>::value);
-static_assert(!TIsTemplateBaseOf<TVector, std::vector<int>>::value);
 static_assert(TIsTemplateBaseOf<TBasicStringBuf, TWtringBuf>::value);
 static_assert(TIsTemplateBaseOf<std::basic_string_view, TUtf32StringBuf>::value);
 static_assert(TIsTemplateBaseOf<std::basic_string_view, TWtringBuf>::value);

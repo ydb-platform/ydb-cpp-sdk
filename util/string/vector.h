@@ -17,14 +17,14 @@
 
 namespace NPrivate {
 
-    void SplitStringImpl(TVector<TString>* res, const char* ptr,
+    void SplitStringImpl(std::vector<TString>* res, const char* ptr,
                          const char* delimiter, size_t maxFields, int options);
-    void SplitStringImpl(TVector<TString>* res, const char* ptr, size_t len,
+    void SplitStringImpl(std::vector<TString>* res, const char* ptr, size_t len,
                          const char* delimiter, size_t maxFields, int options);
 
-    void SplitStringImpl(TVector<TUtf16String>* res, const wchar16* ptr,
+    void SplitStringImpl(std::vector<TUtf16String>* res, const wchar16* ptr,
                          const wchar16* delimiter, size_t maxFields, int options);
-    void SplitStringImpl(TVector<TUtf16String>* res, const wchar16* ptr, size_t len,
+    void SplitStringImpl(std::vector<TUtf16String>* res, const wchar16* ptr, size_t len,
                          const wchar16* delimiter, size_t maxFields, int options);
 
     template <typename C>
@@ -42,25 +42,25 @@ namespace NPrivate {
 }
 
 template <typename C>
-TVector<typename ::NPrivate::TStringDeducer<C>::type>
+std::vector<typename ::NPrivate::TStringDeducer<C>::type>
 SplitString(const C* ptr, const C* delimiter,
             size_t maxFields = 0, int options = 0) {
-    TVector<typename ::NPrivate::TStringDeducer<C>::type> res;
+    std::vector<typename ::NPrivate::TStringDeducer<C>::type> res;
     ::NPrivate::SplitStringImpl(&res, ptr, delimiter, maxFields, options);
     return res;
 }
 
 template <typename C>
-TVector<typename ::NPrivate::TStringDeducer<C>::type>
+std::vector<typename ::NPrivate::TStringDeducer<C>::type>
 SplitString(const C* ptr, size_t len, const C* delimiter,
             size_t maxFields = 0, int options = 0) {
-    TVector<typename ::NPrivate::TStringDeducer<C>::type> res;
+    std::vector<typename ::NPrivate::TStringDeducer<C>::type> res;
     ::NPrivate::SplitStringImpl(&res, ptr, len, delimiter, maxFields, options);
     return res;
 }
 
 template <typename C>
-TVector<typename ::NPrivate::TStringDeducer<C>::type>
+std::vector<typename ::NPrivate::TStringDeducer<C>::type>
 SplitString(const typename ::NPrivate::TStringDeducer<C>::type& str, const C* delimiter,
             size_t maxFields = 0, int options = 0) {
     return SplitString(str.data(), str.size(), delimiter, maxFields, options);
@@ -96,34 +96,34 @@ inline TUtf16String JoinStrings(TIter begin, TIter end, const TWtringBuf delim) 
     return result;
 }
 
-/// Concatenates elements of given TVector<TString>.
-inline TString JoinStrings(const TVector<TString>& v, const TStringBuf delim) {
+/// Concatenates elements of given std::vector<TString>.
+inline TString JoinStrings(const std::vector<TString>& v, const TStringBuf delim) {
     return JoinStrings(v.begin(), v.end(), delim);
 }
 
-inline TString JoinStrings(const TVector<TString>& v, size_t index, size_t count, const TStringBuf delim) {
+inline TString JoinStrings(const std::vector<TString>& v, size_t index, size_t count, const TStringBuf delim) {
     Y_ASSERT(index + count <= v.size() && "JoinStrings(): index or count out of range");
     return JoinStrings(v.begin() + index, v.begin() + index + count, delim);
 }
 
 template <typename T>
-inline TString JoinVectorIntoString(const TVector<T>& v, const TStringBuf delim) {
+inline TString JoinVectorIntoString(const std::vector<T>& v, const TStringBuf delim) {
     return JoinStrings(v.begin(), v.end(), delim);
 }
 
 template <typename T>
-inline TString JoinVectorIntoString(const TVector<T>& v, size_t index, size_t count, const TStringBuf delim) {
+inline TString JoinVectorIntoString(const std::vector<T>& v, size_t index, size_t count, const TStringBuf delim) {
     Y_ASSERT(index + count <= v.size() && "JoinVectorIntoString(): index or count out of range");
     return JoinStrings(v.begin() + index, v.begin() + index + count, delim);
 }
 
-TUtf16String JoinStrings(const TVector<TUtf16String>& v, const TWtringBuf delim);
-TUtf16String JoinStrings(const TVector<TUtf16String>& v, size_t index, size_t count, const TWtringBuf delim);
+TUtf16String JoinStrings(const std::vector<TUtf16String>& v, const TWtringBuf delim);
+TUtf16String JoinStrings(const std::vector<TUtf16String>& v, size_t index, size_t count, const TWtringBuf delim);
 
 //! Converts vector of strings to vector of type T variables
 template <typename T, typename TStringType>
-TVector<T> Scan(const TVector<TStringType>& input) {
-    TVector<T> output;
+std::vector<T> Scan(const std::vector<TStringType>& input) {
+    std::vector<T> output;
     output.reserve(input.size());
     for (int i = 0; i < input.ysize(); ++i) {
         output.push_back(FromString<T>(input[i]));

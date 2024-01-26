@@ -7,7 +7,7 @@ class TLogBackendCreatorInitContextYConf: public ILogBackendCreator::IInitContex
 public:
     TLogBackendCreatorInitContextYConf(const TYandexConfig::Section& section);
     virtual bool GetValue(TStringBuf name, TString& var) const override;
-    virtual TVector<THolder<IInitContext>> GetChildren(TStringBuf name) const override;
+    virtual std::vector<THolder<IInitContext>> GetChildren(TStringBuf name) const override;
 private:
     const TYandexConfig::Section& Section;
 };

@@ -13,7 +13,7 @@ template <typename Fun>
 void Iterate(const TNode::TMapType& nodeMap, bool sortByKey, Fun action)
 {
     if (sortByKey) {
-        TVector<TNode::TMapType::const_iterator> iterators;
+        std::vector<TNode::TMapType::const_iterator> iterators;
         for (auto it = nodeMap.begin(); it != nodeMap.end(); ++it) {
             iterators.push_back(it);
         }

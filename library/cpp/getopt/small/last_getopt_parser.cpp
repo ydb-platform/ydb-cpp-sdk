@@ -333,8 +333,8 @@ namespace NLastGetopt {
         if (optvec.size() == OptsSeen_.size())
             return;
 
-        TVector<TString> missingLong;
-        TVector<char> missingShort;
+        std::vector<TString> missingLong;
+        std::vector<char> missingShort;
 
         TOpts::TOptsVector::const_iterator it;
         for (it = optvec.begin(); it != optvec.end(); ++it) {

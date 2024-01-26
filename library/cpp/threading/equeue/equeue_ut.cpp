@@ -5,7 +5,7 @@
 
 #include <util/system/event.h>
 #include <util/datetime/base.h>
-#include <util/generic/vector.h>
+
 
 Y_UNIT_TEST_SUITE(TElasticQueueTest) {
     const size_t MaxQueueSize = 20;
@@ -139,7 +139,7 @@ Y_UNIT_TEST_SUITE(TElasticQueueTest) {
         {
             typename TEnv<T>::TQueueSetup setup;
 
-            TVector< TAutoPtr<IThreadFactory::IThread> > senders;
+            std::vector< TAutoPtr<IThreadFactory::IThread> > senders;
             for (size_t i = 0; i < ThreadCount; ++i) {
                 senders.push_back(::SystemThreadFactory()->Run(&sender));
             }

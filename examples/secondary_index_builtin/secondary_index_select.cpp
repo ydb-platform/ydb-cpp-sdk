@@ -6,7 +6,7 @@ using namespace NYdb;
 using namespace NYdb::NTable;
 using namespace NLastGetopt;
 
-TStatus SelectSeriesWithViews(TSession session, const TString& path, TVector<TSeries>& selectResult, ui64 minViews) {
+TStatus SelectSeriesWithViews(TSession session, const TString& path, std::vector<TSeries>& selectResult, ui64 minViews) {
     auto queryText = Sprintf(R"(
         --!syntax_v1
         PRAGMA TablePathPrefix("%s");
@@ -51,7 +51,7 @@ int Select(TDriver& driver, const TString& path, int argc, char **argv) {
     TOptsParseResult res(&opts, argc, argv);
     TTableClient client(driver);
 
-    TVector<TSeries> selectResult;
+    std::vector<TSeries> selectResult;
     ThrowOnError(client.RetryOperationSync([path, minViews, &selectResult](TSession session) {
         return SelectSeriesWithViews(session, path, selectResult, minViews);
     }));

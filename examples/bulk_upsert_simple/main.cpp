@@ -20,7 +20,7 @@ struct TLogMessage {
     TString Message;
 };
 
-void GetLogBatch(ui64 logOffset, TVector<TLogMessage>& logBatch) {
+void GetLogBatch(ui64 logOffset, std::vector<TLogMessage>& logBatch) {
     logBatch.clear();
     for (size_t i = 0; i < BATCH_SIZE; ++i) {
         TLogMessage message;
@@ -33,7 +33,7 @@ void GetLogBatch(ui64 logOffset, TVector<TLogMessage>& logBatch) {
     }
 }
 
-bool WriteLogBatch(NYdb::NTable::TTableClient& tableClient, const TString& table, const TVector<TLogMessage>& logBatch,
+bool WriteLogBatch(NYdb::NTable::TTableClient& tableClient, const TString& table, const std::vector<TLogMessage>& logBatch,
                    const NYdb::NTable::TRetryOperationSettings& retrySettings)
 {
     NYdb::TValueBuilder rows;
@@ -100,7 +100,7 @@ bool Run(const NYdb::TDriver &driver, const TString &table, ui32 batchCount) {
             .Idempotent(true)
             .MaxRetries(20);
 
-    TVector<TLogMessage> logBatch;
+    std::vector<TLogMessage> logBatch;
     for (ui32 offset = 0; offset < batchCount; ++offset) {
         GetLogBatch(offset, logBatch);
         if (!WriteLogBatch(client, table, logBatch, writeRetrySettings)) {

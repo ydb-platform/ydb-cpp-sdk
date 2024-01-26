@@ -1,7 +1,7 @@
 #include "init.h"
 
 #include <util/generic/singleton.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/ptr.h>
 #include <util/generic/buffer.h>
 
@@ -18,6 +18,7 @@
 #include <openssl/rand.h>
 #include <openssl/conf.h>
 #include <openssl/crypto.h>
+#include <vector>
 
 namespace {
     struct TInitSsl {
@@ -40,7 +41,7 @@ namespace {
                 }
             }
 
-            TVector<TAutoPtr<TMutex>> Mutexes;
+            std::vector<TAutoPtr<TMutex>> Mutexes;
         };
 
         inline TInitSsl() {

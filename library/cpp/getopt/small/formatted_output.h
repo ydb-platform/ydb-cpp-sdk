@@ -1,9 +1,9 @@
 #pragma once
 
 #include <util/generic/algorithm.h>
-#include <util/generic/vector.h>
 #include <util/string/builder.h>
 #include <util/memory/tempbuf.h>
+#include <vector>
 
 namespace NLastGetopt {
     /// Utility for printing indented lines. Used by completion generators.
@@ -27,6 +27,6 @@ namespace NLastGetopt {
 
     private:
         int IndentLevel_ = 0;
-        TVector<std::pair<int, TStringBuilder>> Lines_;
+        std::vector<std::pair<int, TStringBuilder>> Lines_;
     };
 }

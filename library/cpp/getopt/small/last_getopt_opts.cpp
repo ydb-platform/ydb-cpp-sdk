@@ -369,8 +369,8 @@ namespace NLastGetopt {
 
         PrintCmdLine(program, os, colors);
 
-        TVector<TString> leftColumn(Opts_.size());
-        TVector<size_t> leftColumnSizes(leftColumn.size());
+        std::vector<TString> leftColumn(Opts_.size());
+        std::vector<size_t> leftColumnSizes(leftColumn.size());
         const size_t kMaxLeftWidth = 25;
         size_t leftWidth = 0;
         size_t requiredOptionsCount = 0;

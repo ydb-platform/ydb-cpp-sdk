@@ -28,11 +28,11 @@ public:
     ~TValuesContext() override {
     }
 
-    TVector<TString> Values;
+    std::vector<TString> Values;
 };
 
-static TVector<TString> ParseEnumValues(const TString& strValues) {
-    TVector<TString> result;
+static std::vector<TString> ParseEnumValues(const TString& strValues) {
+    std::vector<TString> result;
 
     TValuesContext ctx;
     TCppSaxParser parser(&ctx);
@@ -153,7 +153,7 @@ public:
         CurrentItem.CommentText = commentText;
         CurrentItem.Aliases = ParseEnumValues(commentText);
 
-        if (CurrentItem.Aliases && !CurrentItem.CppName) {
+        if (!CurrentItem.Aliases.empty() && !CurrentItem.CppName) {
             // this means we process multiline comment when item name was not set yet.
             ythrow yexception() << "Are you hit with https://clubs.at.yandex-team.ru/stackoverflow/2603 typo? ";
         }
@@ -292,7 +292,7 @@ public:
 
     /// @param offset: terminating curly brace position
     void OnLeaveScope(size_t offset) {
-        if (!Scope) {
+        if (Scope.empty()) {
             size_t contextOffsetBegin = (offset >= 256) ? offset - 256 : 0;
             TString codeContext = TString(Data + contextOffsetBegin, offset - contextOffsetBegin + 1);
             ythrow yexception() << "C++ source parse failed: unbalanced scope. Did you miss a closing '}' bracket? "
@@ -431,7 +431,7 @@ void TEnumParser::Parse(const char* dataIn, size_t lengthIn) {
     parser.Finish();
     // obtain result
     Enums = cppContext.Enums;
-    if (cppContext.Scope) {
+    if (!cppContext.Scope.empty()) {
         cppContext.PrintEnums();
         cppContext.PrintScope();
         ythrow yexception() << "Unbalanced scope, something is wrong with enum parser. ";

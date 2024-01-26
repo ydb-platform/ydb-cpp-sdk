@@ -35,7 +35,7 @@ TMaybe<TWriteSessionEvent::TEvent> TWriteSession::GetEvent(bool block) {
     return TryGetImpl()->EventsQueue->GetEvent(block);
 }
 
-TVector<TWriteSessionEvent::TEvent> TWriteSession::GetEvents(bool block, TMaybe<size_t> maxEventsCount) {
+std::vector<TWriteSessionEvent::TEvent> TWriteSession::GetEvents(bool block, TMaybe<size_t> maxEventsCount) {
     return TryGetImpl()->EventsQueue->GetEvents(block, maxEventsCount);
 }
 

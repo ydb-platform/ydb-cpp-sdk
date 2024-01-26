@@ -5,7 +5,7 @@
 
 #include <library/cpp/json/json_writer.h>
 
-#include <util/generic/vector.h>
+
 
 namespace NYT {
     ////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ namespace NYT {
         void LeaveNode();
         bool IsWriteAllowed();
 
-        TVector<bool> HasUnfoldedStructureStack;
+        std::vector<bool> HasUnfoldedStructureStack;
         int InAttributesBalance;
         bool HasAttributes;
         int Depth;

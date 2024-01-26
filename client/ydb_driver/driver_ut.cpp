@@ -126,7 +126,7 @@ Y_UNIT_TEST_SUITE(CppGrpcClientSimpleTest) {
             return result.GetStatus();
         };
 
-        TVector<TString> InvalidTokens = {
+        std::vector<TString> InvalidTokens = {
             TString('\t'),
             TString('\n'),
             TString('\r')
@@ -135,7 +135,7 @@ Y_UNIT_TEST_SUITE(CppGrpcClientSimpleTest) {
             UNIT_ASSERT_EQUAL(checkToken(t), EStatus::CLIENT_UNAUTHENTICATED);
         }
 
-        TVector<TString> ValidTokens = {
+        std::vector<TString> ValidTokens = {
             TString("qwerty 1234 <>,.?/:;\"'\\|}{~`!@#$%^&*()_+=-"),
             TString()
         };

@@ -5,7 +5,7 @@
 #include <util/generic/algorithm.h>
 #include <util/generic/array_ref.h>
 #include <util/generic/strbuf.h>
-#include <util/generic/vector.h>
+
 #include <util/stream/output.h>
 #include <util/string/split.h>
 
@@ -27,7 +27,7 @@ namespace NDiff {
     };
 
     template <typename T>
-    size_t InlineDiff(TVector<TChunk<T>>& chunks, const TConstArrayRef<T>& left, const TConstArrayRef<T>& right) {
+    size_t InlineDiff(std::vector<TChunk<T>>& chunks, const TConstArrayRef<T>& left, const TConstArrayRef<T>& right) {
         TConstArrayRef<T> s1(left);
         TConstArrayRef<T> s2(right);
 
@@ -39,7 +39,7 @@ namespace NDiff {
             swapped = true;
         }
 
-        TVector<T> lcs;
+        std::vector<T> lcs;
         NLCS::TLCSCtx<T> ctx;
         NLCS::MakeLCS<T>(s1, s2, &lcs, &ctx);
 
@@ -91,8 +91,8 @@ namespace NDiff {
     }
 
     template <typename TFormatter, typename T>
-    void PrintChunks(IOutputStream& out, const TFormatter& fmt, const TVector<TChunk<T>>& chunks) {
-        for (typename TVector<TChunk<T>>::const_iterator chunk = chunks.begin(); chunk != chunks.end(); ++chunk) {
+    void PrintChunks(IOutputStream& out, const TFormatter& fmt, const std::vector<TChunk<T>>& chunks) {
+        for (typename std::vector<TChunk<T>>::const_iterator chunk = chunks.begin(); chunk != chunks.end(); ++chunk) {
             if (!chunk->Left.empty() || !chunk->Right.empty()) {
                 out << fmt.Special("(");
                 out << fmt.Left(chunk->Left);
@@ -106,7 +106,7 @@ namespace NDiff {
 
     // Without delimiters calculates character-wise diff
     // With delimiters calculates token-wise diff
-    size_t InlineDiff(TVector<TChunk<char>>& chunks, const TStringBuf& left, const TStringBuf& right, const TString& delims = TString());
-    size_t InlineDiff(TVector<TChunk<wchar16>>& chunks, const TWtringBuf& left, const TWtringBuf& right, const TUtf16String& delims = TUtf16String());
+    size_t InlineDiff(std::vector<TChunk<char>>& chunks, const TStringBuf& left, const TStringBuf& right, const TString& delims = TString());
+    size_t InlineDiff(std::vector<TChunk<wchar16>>& chunks, const TWtringBuf& left, const TWtringBuf& right, const TUtf16String& delims = TUtf16String());
 
 }

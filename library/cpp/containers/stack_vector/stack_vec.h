@@ -1,13 +1,13 @@
 #pragma once
 
-#include <util/generic/vector.h>
+#include <util/memory/alloc.h>
 #include <util/ysaveload.h>
 
 #include <type_traits>
 
 // A vector preallocated on the stack.
 // After exceeding the preconfigured stack space falls back to the heap.
-// Publicly inherits TVector, but disallows swap (and hence shrink_to_fit, also operator= is reimplemented via copying).
+// Publicly inherits std::vector, but disallows swap (and hence shrink_to_fit, also operator= is reimplemented via copying).
 //
 // Inspired by: http://qt-project.org/doc/qt-4.8/qvarlengtharray.html#details
 
@@ -93,9 +93,9 @@ namespace NPrivate {
 }
 
 template <typename T, size_t CountOnStack, bool UseFallbackAlloc, class Alloc>
-class TStackVec: public TVector<T, ::NPrivate::TStackBasedAllocator<T, CountOnStack, UseFallbackAlloc, TReboundAllocator<Alloc, T>>> {
+class TStackVec: public std::vector<T, ::NPrivate::TStackBasedAllocator<T, CountOnStack, UseFallbackAlloc, TReboundAllocator<Alloc, T>>> {
 private:
-    using TBase = TVector<T, ::NPrivate::TStackBasedAllocator<T, CountOnStack, UseFallbackAlloc, TReboundAllocator<Alloc, T>>>;
+    using TBase = std::vector<T, ::NPrivate::TStackBasedAllocator<T, CountOnStack, UseFallbackAlloc, TReboundAllocator<Alloc, T>>>;
     using TAllocator = typename TBase::allocator_type;
 
 public:
@@ -137,7 +137,7 @@ public:
     }
 
     template <class A>
-    TStackVec(const TVector<T, A>& src)
+    TStackVec(const std::vector<T, A>& src)
         : TStackVec(src.begin(), src.end())
     {
     }
@@ -151,9 +151,9 @@ public:
     TStackVec(TIter first, TIter last, const TAllocator& alloc = TAllocator())
         : TBase(alloc)
     {
-        // NB(eeight) Since we want to call 'reserve' here, we cannot just delegate to TVector ctor.
-        // The best way to insert values afterwards is to call TVector::insert. However there is a caveat.
-        // In order to call this ctor of TVector, T needs to be just move-constructible. Insert however
+        // NB(eeight) Since we want to call 'reserve' here, we cannot just delegate to std::vector ctor.
+        // The best way to insert values afterwards is to call std::vector::insert. However there is a caveat.
+        // In order to call this ctor of std::vector, T needs to be just move-constructible. Insert however
         // requires T to be move-assignable.
         TBase::reserve(CountOnStack);
         if constexpr (std::is_move_assignable_v<T>) {
@@ -177,7 +177,7 @@ public:
     }
 
     template <class A>
-    TStackVec& operator=(const TVector<T, A>& src) {
+    TStackVec& operator=(const std::vector<T, A>& src) {
         TBase::assign(src.begin(), src.end());
         return *this;
     }

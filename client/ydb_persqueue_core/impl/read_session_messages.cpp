@@ -223,7 +223,7 @@ void TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::DebugString(TStr
 
 TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::TCompressedMessage(ECodec codec,
                                                                               const TString& data,
-                                                                              const TVector<TMessageInformation>& information,
+                                                                              const std::vector<TMessageInformation>& information,
                                                                               TPartitionStream::TPtr partitionStream,
                                                                               const TString& partitionKey,
                                                                               const TString& explicitHash)

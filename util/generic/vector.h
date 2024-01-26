@@ -4,7 +4,6 @@
 #include "reserve.h"
 
 #include <util/memory/alloc.h>
-
 #include <vector>
 #include <initializer_list>
 

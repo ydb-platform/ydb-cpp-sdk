@@ -421,7 +421,7 @@ protected:
 
 class IAsyncExecutor : public IExecutor {
 private:
-    virtual void PostImpl(TVector<std::function<void()>>&&) = 0;
+    virtual void PostImpl(std::vector<std::function<void()>>&&) = 0;
     virtual void PostImpl(std::function<void()>&&) = 0;
 
 public:
@@ -455,7 +455,7 @@ public:
     }
 
 private:
-    void PostImpl(TVector<TFunction>&& fs) override;
+    void PostImpl(std::vector<TFunction>&& fs) override;
     void PostImpl(TFunction&& f) override;
 
 private:
@@ -475,7 +475,7 @@ public:
     ~TSerialExecutor() = default;
 
 private:
-    void PostImpl(TVector<TFunction>&& fs) override;
+    void PostImpl(std::vector<TFunction>&& fs) override;
     void PostImpl(TFunction&& f) override;
     void PostNext();
 };

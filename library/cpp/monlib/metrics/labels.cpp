@@ -51,7 +51,7 @@ namespace NMonitoring {
         }
 
         bool ok = true;
-        TVector<std::pair<TStringBuf, TStringBuf>> rawLabels;
+        std::vector<std::pair<TStringBuf, TStringBuf>> rawLabels;
         StringSplitter(sb).SplitBySet(" ,").SkipEmpty().Consume([&] (TStringBuf label) {
             TStringBuf key, value;
             ok &= label.TrySplit('=', key, value);

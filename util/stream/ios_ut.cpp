@@ -280,7 +280,7 @@ void TStreamsTest::TestBufferStream() {
 namespace {
     class TStringListInput: public IWalkInput {
     public:
-        TStringListInput(const TVector<TString>& data)
+        TStringListInput(const std::vector<TString>& data)
             : Data_(data)
             , Index_(0)
         {
@@ -299,7 +299,7 @@ namespace {
         }
 
     private:
-        const TVector<TString>& Data_;
+        const std::vector<TString>& Data_;
         size_t Index_;
     };
 
@@ -389,7 +389,7 @@ namespace {
         TStringInput slave(text);
         TBufferedInput bdi(&slave);
         test(bdi, "TBufferedInput");
-        TVector<TString> lst(1, text);
+        std::vector<TString> lst(1, text);
         TStringListInput sli(lst);
         test(sli, "IWalkInput");
     }
@@ -407,7 +407,7 @@ void TStreamsTest::TestReadTo() {
 void TStreamsTest::TestStrokaInput() {
     TString s;
     for (ui32 i = 0; i < 100000; ++i) {
-        TVector<char> d(i % 1000, 'a');
+        std::vector<char> d(i % 1000, 'a');
         s.append(d.data(), d.size());
         s.append('\n');
     }

@@ -95,7 +95,7 @@ private:
                                 IOutputStream* output,
                                 THttpHeaders* outHeaders);
 
-    TVector<IOutputStream::TPart> FormRequest(TStringBuf method, const TStringBuf relativeUrl,
+    std::vector<IOutputStream::TPart> FormRequest(TStringBuf method, const TStringBuf relativeUrl,
                                               TStringBuf body,
                                               const THeaders& headers, TStringBuf contentLength) const;
 

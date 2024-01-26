@@ -179,7 +179,7 @@ TReadSessionEvent::TDataReceivedEvent::TDataReceivedEvent(NTopic::TReadSessionEv
 }
 
 TReadSessionEvent::TDataReceivedEvent::TDataReceivedEvent(
-    TVector<TMessage> messages, TVector<TCompressedMessage> compressedMessages,
+    std::vector<TMessage> messages, std::vector<TCompressedMessage> compressedMessages,
     NTopic::TPartitionSession::TPtr partitionSession, std::shared_ptr<TDbInfo> db)
     : NTopic::TReadSessionEvent::TPartitionSessionAccessor(partitionSession)
     , TFederatedPartitionSessionAccessor(partitionSession, db)

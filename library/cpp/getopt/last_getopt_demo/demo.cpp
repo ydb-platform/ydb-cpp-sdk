@@ -41,7 +41,7 @@ class TMain: public TMainClassArgs {
     TString UserAgent_;
     TMaybe<TString> PostData_;
     TMaybe<TString> PostFile_;
-    TVector<TString> Headers_;
+    std::vector<TString> Headers_;
 
 protected:
     void RegisterOptions(NLastGetopt::TOpts& opts) override {

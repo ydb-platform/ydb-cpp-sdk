@@ -21,7 +21,7 @@ protected:
 
 public:
     SDKTestSetup(const TString& testCaseName, bool start = true,
-                 const TVector<NKikimrServices::EServiceKikimr>& logServices = TTestServer::LOGGED_SERVICES,
+                 const std::vector<NKikimrServices::EServiceKikimr>& logServices = TTestServer::LOGGED_SERVICES,
                  NActors::NLog::EPriority logPriority = NActors::NLog::PRI_DEBUG,
                  ui32 nodeCount = NKikimr::NPersQueueTests::PQ_DEFAULT_NODE_COUNT,
                  size_t topicPartitionsCount = 1)
@@ -155,7 +155,7 @@ public:
         UNIT_ASSERT_C(!initResponse.Response.HasError(), "Failed to start: " << initResponse.Response);
     }
 
-    void WriteToTopic(const TVector<TString>& data, bool compress = true) {
+    void WriteToTopic(const std::vector<TString>& data, bool compress = true) {
 
         auto client = NYdb::NPersQueue::TPersQueueClient(*(Server.AnnoyingClient->GetDriver()));
         NYdb::NPersQueue::TWriteSessionSettings settings;

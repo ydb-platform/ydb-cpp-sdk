@@ -4,7 +4,7 @@
 #include <util/generic/noncopyable.h>
 #include <util/generic/ptr.h>
 #include <util/generic/typetraits.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/ylimits.h>
 #include <library/cpp/deprecated/atomic/atomic.h>
 #include <util/system/guard.h>

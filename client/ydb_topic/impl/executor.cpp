@@ -10,7 +10,7 @@ IAsyncExecutor::TPtr CreateDefaultExecutor() {
     return CreateThreadPoolExecutor(1);
 }
 
-void TThreadPoolExecutor::PostImpl(TVector<TFunction>&& fs) {
+void TThreadPoolExecutor::PostImpl(std::vector<TFunction>&& fs) {
     for (auto& f : fs) {
         ThreadPool->SafeAddFunc(std::move(f));
     }
@@ -26,7 +26,7 @@ TSerialExecutor::TSerialExecutor(IAsyncExecutor::TPtr executor)
     Y_ABORT_UNLESS(executor);
 }
 
-void TSerialExecutor::PostImpl(TVector<TFunction>&& fs) {
+void TSerialExecutor::PostImpl(std::vector<TFunction>&& fs) {
     for (auto& f : fs) {
         PostImpl(std::move(f));
     }

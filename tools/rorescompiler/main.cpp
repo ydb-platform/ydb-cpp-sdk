@@ -4,7 +4,6 @@
 #include <util/stream/output.h>
 #include <util/stream/file.h>
 #include <util/string/escape.h>
-#include <util/string/vector.h>
 #include <util/string/split.h>
 
 using namespace NResource;
@@ -32,7 +31,7 @@ int main(int argc, char** argv) {
     out << "#include <library/cpp/resource/registry.h>\n\n";
 
     while (*argv) {
-        TVector<TString> items = StringSplitter(TString(*(argv))).Split('=').Limit(2).ToList<TString>();
+        std::vector<TString> items = StringSplitter(TString(*(argv))).Split('=').Limit(2).ToList<TString>();
         GenOne(items[0], items[1], out);
         argv++;
     }

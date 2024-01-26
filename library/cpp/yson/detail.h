@@ -3,7 +3,7 @@
 #include "public.h"
 #include "zigzag.h"
 
-#include <util/generic/vector.h>
+
 #include <util/generic/maybe.h>
 #include <util/generic/buffer.h>
 #include <util/string/escape.h>
@@ -375,7 +375,7 @@ namespace NYson {
            : public TCodedStream<TCharStream<TBlockStream, TPositionInfo<EnableLinePositionInfo>>> {
         private:
             using TBaseStream = TCodedStream<TCharStream<TBlockStream, TPositionInfo<EnableLinePositionInfo>>>;
-            TVector<char> Buffer_;
+            std::vector<char> Buffer_;
             TMaybe<ui64> MemoryLimit_;
 
             void CheckMemoryLimit() {

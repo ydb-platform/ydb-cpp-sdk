@@ -164,7 +164,7 @@ Y_UNIT_TEST(TestSpeed) {
     }
 
     {
-        TVector<char> buf;
+        std::vector<char> buf;
 
         t2 = MicroSeconds();
 

@@ -56,7 +56,7 @@ Y_UNIT_TEST_SUITE(TestSerializedEnum) {
             Four = 4,
             Eleven = 11,
         };
-        const TVector<int> values = {1, 2, 3, 0, 0, 0, 11, 0, 0, 0, 0, 0, 2};
+        const std::vector<int> values = {1, 2, 3, 0, 0, 0, 11, 0, 0, 0, 0, 0, 2};
         const auto view = ::NEnumSerializationRuntime::TMappedArrayView<ETestEnum>{values};
 
         UNIT_ASSERT_VALUES_EQUAL(view.size(), values.size());
@@ -70,7 +70,7 @@ Y_UNIT_TEST_SUITE(TestSerializedEnum) {
             UNIT_ASSERT_UNEQUAL(e, ETestEnum::Four);
         }
 
-        const TVector<ETestEnum> typedValues = {ETestEnum::One, ETestEnum::Two, ETestEnum::Three, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Eleven, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Two};
+        const std::vector<ETestEnum> typedValues = {ETestEnum::One, ETestEnum::Two, ETestEnum::Three, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Eleven, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Two};
         UNIT_ASSERT_EQUAL(typedValues, view.Materialize());
 
         const TDeque<ETestEnum> typedValuesDeque{typedValues.begin(), typedValues.end()};

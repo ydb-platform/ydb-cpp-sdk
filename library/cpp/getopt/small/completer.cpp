@@ -46,7 +46,7 @@ namespace NLastGetopt::NComp {
 
     class TAlternativeCompleter: public ICompleter {
     public:
-        TAlternativeCompleter(TVector<TAlternative>  alternatives)
+        TAlternativeCompleter(std::vector<TAlternative>  alternatives)
             : Alternatives_(std::move(alternatives))
         {
         }
@@ -96,10 +96,10 @@ namespace NLastGetopt::NComp {
         }
 
     private:
-        TVector<TAlternative> Alternatives_;
+        std::vector<TAlternative> Alternatives_;
     };
 
-    ICompleterPtr Alternative(TVector<TAlternative> alternatives) {
+    ICompleterPtr Alternative(std::vector<TAlternative> alternatives) {
         return MakeSimpleShared<TAlternativeCompleter>(std::move(alternatives));
     }
 
@@ -130,7 +130,7 @@ namespace NLastGetopt::NComp {
         TString Action;
     };
 
-    ICompleterPtr Choice(TVector<TChoice> choices) {
+    ICompleterPtr Choice(std::vector<TChoice> choices) {
         auto bash = TStringBuilder() << "COMPREPLY+=( $(compgen -W '";
         TStringBuf sep = "";
         for (auto& choice : choices) {

@@ -7,7 +7,7 @@
 
 #include <util/datetime/base.h>
 #include <util/generic/algorithm.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/cast.h>
 #include <util/generic/ymath.h>
 
@@ -476,7 +476,7 @@ namespace NMonitoring {
 
     private:
         EMetricValueType ValueType_ = EMetricValueType::UNKNOWN;
-        TVector<TPoint> Points_;
+        std::vector<TPoint> Points_;
     };
 
     template <EMetricValueType valueType, typename TPoint>
@@ -497,7 +497,7 @@ namespace NMonitoring {
     }
 
     template <EMetricValueType valueType, typename TPoint>
-    static void EraseDuplicates(TVector<TPoint>& points) {
+    static void EraseDuplicates(std::vector<TPoint>& points) {
         // we have to manually clean reference to a snapshot from point
         // while removing duplicates
         auto result = points.rbegin();
@@ -517,7 +517,7 @@ namespace NMonitoring {
     }
 
     template <typename TPoint>
-    void SortPointsByTs(EMetricValueType valueType, TVector<TPoint>& points) {
+    void SortPointsByTs(EMetricValueType valueType, std::vector<TPoint>& points) {
         if (points.size() < 2) {
             return;
         }

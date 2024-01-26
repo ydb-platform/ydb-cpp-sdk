@@ -73,7 +73,7 @@ namespace {
         TAdaptiveLock Lock_;
         std::atomic<bool> FinishStarted_;
         TDeque<TFunc> Store_;
-        TPriorityQueue<TFunc*, TVector<TFunc*>, TCmp> Items_;
+        TPriorityQueue<TFunc*, std::vector<TFunc*>, TCmp> Items_;
     };
 
     static TAdaptiveLock atExitLock;

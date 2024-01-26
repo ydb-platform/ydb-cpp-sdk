@@ -220,7 +220,7 @@ private:
 
 class TExecuteQueryResult : public TStatus {
 public:
-    const TVector<TResultSet>& GetResultSets() const;
+    const std::vector<TResultSet>& GetResultSets() const;
     TResultSet GetResultSet(size_t resultIndex) const;
     TResultSetParser GetResultSetParser(size_t resultIndex) const;
 
@@ -232,7 +232,7 @@ public:
         : TStatus(std::move(status))
     {}
 
-    TExecuteQueryResult(TStatus&& status, TVector<TResultSet>&& resultSets,
+    TExecuteQueryResult(TStatus&& status, std::vector<TResultSet>&& resultSets,
         TMaybe<TExecStats>&& stats, TMaybe<TTransaction>&& tx)
         : TStatus(std::move(status))
         , ResultSets_(std::move(resultSets))
@@ -241,7 +241,7 @@ public:
     {}
 
 private:
-    TVector<TResultSet> ResultSets_;
+    std::vector<TResultSet> ResultSets_;
     TMaybe<TExecStats> Stats_;
     TMaybe<TTransaction> Transaction_;
 };

@@ -9,7 +9,7 @@
 #include <util/generic/algorithm.h>
 #include <util/random/mersenne.h>
 
-static TString JoinWithNewline(const TVector<TString>& strings) {
+static TString JoinWithNewline(const std::vector<TString>& strings) {
     TStringStream ss;
     for (const auto& string : strings) {
         ss << string << "\n";
@@ -86,7 +86,7 @@ private:
         }
 
     private:
-        TVector<TPath> Paths_;
+        std::vector<TPath> Paths_;
         THashMap<TString, TPath> Srch_;
     };
 
@@ -192,7 +192,7 @@ private:
             }
         }
 
-        TVector<TString> fnames;
+        std::vector<TString> fnames;
 
         {
             TDirIterator d(dir, TDirIterator::TOptions().SetSortByName());
@@ -204,7 +204,7 @@ private:
             }
         }
 
-        TVector<TString> sorted(fnames);
+        std::vector<TString> sorted(fnames);
         Sort(sorted.begin(), sorted.end());
 
         UNIT_ASSERT_VALUES_EQUAL(JoinWithNewline(fnames), JoinWithNewline(sorted));

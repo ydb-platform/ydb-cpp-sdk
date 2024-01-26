@@ -13,7 +13,7 @@
 #include <util/system/yassert.h>
 #include <util/generic/string.h>
 #include <util/datetime/base.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/maybe.h>
 
 using THttpHeadersContainer = THashMap<TString, TString, TCIOps, TCIOps>;
@@ -97,7 +97,7 @@ private:
     SOCKET Socket_;
     ui64 BeginTime_;
     mutable TString CurPage_;
-    TVector<char> ParseBuf_;
+    std::vector<char> ParseBuf_;
     TString ModifiedQueryString_;
 };
 

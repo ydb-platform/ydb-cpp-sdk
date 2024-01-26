@@ -126,10 +126,10 @@ Y_NO_INLINE void Indent(IOutputStream& out, ui32 indentation) {
 
 void ProgramLinesWithErrors(
         const TString& programText,
-        const TVector<TIssue>& errors,
+        const std::vector<TIssue>& errors,
         TMap<ui32, TStringBuf>& lines)
 {
-    TVector<ui32> rows;
+    std::vector<ui32> rows;
     for (const auto& topIssue: errors) {
         WalkThroughIssues(topIssue, false, [&](const TIssue& issue, ui16 /*level*/) {
             for (ui32 row = issue.Position.Row; row <= issue.EndPosition.Row; row++) {

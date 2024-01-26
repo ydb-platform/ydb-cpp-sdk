@@ -490,7 +490,7 @@ Y_UNIT_TEST_SUITE(TThreadSafeCacheUnsafeTest) {
 Y_UNIT_TEST_SUITE(TThreadSafeLRUCacheTest) {
     typedef TThreadSafeLRUCache<size_t, TString, size_t> TCache;
 
-    TVector<TString> Values = {"zero", "one", "two", "three", "four"};
+    std::vector<TString> Values = {"zero", "one", "two", "three", "four"};
 
     class TCallbacks: public TCache::ICallbacks {
     public:

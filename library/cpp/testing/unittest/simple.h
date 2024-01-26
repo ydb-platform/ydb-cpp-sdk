@@ -4,7 +4,7 @@
 
 namespace NUnitTest {
     struct TSimpleTestExecutor: public TTestBase {
-        typedef TVector<TBaseTestCase> TTests;
+        typedef std::vector<TBaseTestCase> TTests;
 
         TTests Tests;
 

@@ -289,9 +289,9 @@ void TPollTest::TestPollInOut() {
 
     ui32 localIp = ntohl(inet_addr("127.0.0.1"));
 
-    TVector<TSimpleSharedPtr<TSocketHolder>> clientSockets;
-    TVector<TSimpleSharedPtr<TSocketHolder>> connectedSockets;
-    TVector<pollfd> fds;
+    std::vector<TSimpleSharedPtr<TSocketHolder>> clientSockets;
+    std::vector<TSimpleSharedPtr<TSocketHolder>> connectedSockets;
+    std::vector<pollfd> fds;
 
     for (size_t i = 0; i < socketCount; ++i) {
         TSimpleSharedPtr<TSocketHolder> clientSocket(new TSocketHolder(StartClientSocket(localIp, port)));

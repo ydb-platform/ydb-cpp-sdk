@@ -58,7 +58,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncStatus RemoveVolatileConfig(const TString& cluster, ui64 version, const TVector<ui64>& ids, const TClusterConfigSettings& settings = {}) {
+    TAsyncStatus RemoveVolatileConfig(const TString& cluster, ui64 version, const std::vector<ui64>& ids, const TClusterConfigSettings& settings = {}) {
         auto request = MakeOperationRequest<Ydb::DynamicConfig::RemoveVolatileConfigRequest>(settings);
 
         request.mutable_identity()->set_cluster(cluster);
@@ -87,7 +87,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncStatus ForceRemoveVolatileConfig(const TVector<ui64>& ids, const TClusterConfigSettings& settings = {}) {
+    TAsyncStatus ForceRemoveVolatileConfig(const std::vector<ui64>& ids, const TClusterConfigSettings& settings = {}) {
         auto request = MakeOperationRequest<Ydb::DynamicConfig::RemoveVolatileConfigRequest>(settings);
 
         for (auto& id: ids) {
@@ -308,9 +308,9 @@ public:
 
             if (Ydb::DynamicConfig::ResolveAllConfigResult result; any && any->UnpackTo(&result)) {
                 for (auto& config : result.configs()) {
-                    TSet<TVector<TVerboseResolveConfigResult::TLabel>> labelSets;
+                    TSet<std::vector<TVerboseResolveConfigResult::TLabel>> labelSets;
                     for (auto& labelSet : config.label_sets()) {
-                        TVector<TVerboseResolveConfigResult::TLabel> set;
+                        std::vector<TVerboseResolveConfigResult::TLabel> set;
                         for (auto& label : labelSet.labels()) {
                             labels.insert(label.label());
                             set.push_back(TVerboseResolveConfigResult::TLabel{convert(label.type()), label.value()});
@@ -373,7 +373,7 @@ TAsyncStatus TDynamicConfigClient::AddVolatileConfig(
 TAsyncStatus TDynamicConfigClient::RemoveVolatileConfig(
     const TString& cluster,
     ui64 version,
-    const TVector<ui64>& ids,
+    const std::vector<ui64>& ids,
     const TClusterConfigSettings& settings) {
     return Impl_->RemoveVolatileConfig(cluster, version, ids, settings);
 }
@@ -386,7 +386,7 @@ TAsyncStatus TDynamicConfigClient::RemoveAllVolatileConfigs(
 }
 
 TAsyncStatus TDynamicConfigClient::ForceRemoveVolatileConfig(
-    const TVector<ui64>& ids,
+    const std::vector<ui64>& ids,
     const TClusterConfigSettings& settings) {
     return Impl_->ForceRemoveVolatileConfig(ids, settings);
 }

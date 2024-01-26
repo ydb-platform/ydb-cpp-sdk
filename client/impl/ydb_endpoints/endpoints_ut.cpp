@@ -60,7 +60,7 @@ public:
     void Exec() {
         for (ui64 i = 0; i < MaxEvents_; i++) {
             ui8 mask = RandomNumber<ui8>(16);
-            TVector<TEndpointRecord> endpoints;
+            std::vector<TEndpointRecord> endpoints;
 
             for (size_t i = 0; i < Pool_.size(); i++) {
                 if (mask & (1 << i))
@@ -76,7 +76,7 @@ public:
         Finished_.store(true);
     }
 
-    const TVector<TEndpointRecord>& GetPool() const {
+    const std::vector<TEndpointRecord>& GetPool() const {
         return Pool_;
     }
 
@@ -89,10 +89,10 @@ private:
     ui64 MaxEvents_;
     std::atomic_bool Finished_;
 
-    static const TVector<TEndpointRecord> Pool_;
+    static const std::vector<TEndpointRecord> Pool_;
 };
 
-const TVector<TEndpointRecord> TDiscoveryEmulator::Pool_ = TVector<TEndpointRecord>{{"One", 1}, {"Two", 2}, {"Three", 3}, {"Four", 4}};
+const std::vector<TEndpointRecord> TDiscoveryEmulator::Pool_ = std::vector<TEndpointRecord>{{"One", 1}, {"Two", 2}, {"Three", 3}, {"Four", 4}};
 
 Y_UNIT_TEST_SUITE(CheckUtils) {
 
@@ -116,7 +116,7 @@ Y_UNIT_TEST_SUITE(EndpointElector) {
 
     Y_UNIT_TEST(GetEndpoint) {
         TEndpointElectorSafe elector;
-        elector.SetNewState(TVector<TEndpointRecord>{{"Two", 0, "", 2}, {"One", 0, "", 1}});
+        elector.SetNewState(std::vector<TEndpointRecord>{{"Two", 0, "", 2}, {"One", 0, "", 1}});
         UNIT_ASSERT_VALUES_EQUAL(elector.GetEndpoint(TEndpointKey("One", 0), true).Endpoint, "One");
         UNIT_ASSERT_VALUES_EQUAL(elector.GetEndpoint(TEndpointKey("Two", 0), true).Endpoint, "Two");
         UNIT_ASSERT_VALUES_EQUAL(elector.GetEndpoint(TEndpointKey("", 1), true).NodeId, 1);
@@ -127,26 +127,26 @@ Y_UNIT_TEST_SUITE(EndpointElector) {
 
     Y_UNIT_TEST(DiffOnRemove) {
         TEndpointElectorSafe elector;
-        auto removed = elector.SetNewState(TVector<TEndpointRecord>{{"Two", 2}, {"One", 1}});
+        auto removed = elector.SetNewState(std::vector<TEndpointRecord>{{"Two", 2}, {"One", 1}});
         UNIT_ASSERT_VALUES_EQUAL(removed.size(), 0);
-        removed = elector.SetNewState(TVector<TEndpointRecord>{{"One", 1}});
+        removed = elector.SetNewState(std::vector<TEndpointRecord>{{"One", 1}});
         UNIT_ASSERT_VALUES_EQUAL(removed.size(), 1);
         UNIT_ASSERT_VALUES_EQUAL(removed[0], TString("Two"));
     }
 
     Y_UNIT_TEST(Pessimization) {
         TEndpointElectorSafe elector;
-        elector.SetNewState(TVector<TEndpointRecord>{{"Two", 2}, {"One", 1}});
+        elector.SetNewState(std::vector<TEndpointRecord>{{"Two", 2}, {"One", 1}});
         UNIT_ASSERT_VALUES_EQUAL(elector.GetPessimizationRatio(), 0);
         elector.PessimizeEndpoint("One");
         UNIT_ASSERT_VALUES_EQUAL(elector.GetPessimizationRatio(), 50);
-        elector.SetNewState(TVector<TEndpointRecord>{{"Two", 2}});
+        elector.SetNewState(std::vector<TEndpointRecord>{{"Two", 2}});
         UNIT_ASSERT_VALUES_EQUAL(elector.GetPessimizationRatio(), 0);
     }
 
     Y_UNIT_TEST(Election) {
         TEndpointElectorSafe elector;
-        elector.SetNewState(TVector<TEndpointRecord>{{"Two", 2}, {"One_A", 1}, {"Three", 3}, {"One_B", 1}});
+        elector.SetNewState(std::vector<TEndpointRecord>{{"Two", 2}, {"One_A", 1}, {"Three", 3}, {"One_B", 1}});
         std::unordered_set<TString> endpoints;
         // Just to make sure no possible to get more than expected
         size_t extra_attempts = 1000;
@@ -158,7 +158,7 @@ Y_UNIT_TEST_SUITE(EndpointElector) {
         UNIT_ASSERT(endpoints.find("One_A") != endpoints.end());
         UNIT_ASSERT(endpoints.find("One_B") != endpoints.end());
 
-        elector.SetNewState(TVector<TEndpointRecord>{{"One", 1}});
+        elector.SetNewState(std::vector<TEndpointRecord>{{"One", 1}});
         // no preferred endpoint, expect avaliable
         UNIT_ASSERT_VALUES_EQUAL(elector.GetEndpoint(TEndpointKey("Three", 0)).Endpoint, "One");
         UNIT_ASSERT_VALUES_EQUAL(elector.GetEndpoint(TEndpointKey()).Endpoint, "One");
@@ -174,7 +174,7 @@ Y_UNIT_TEST_SUITE(EndpointElector) {
         int counter1 = 0;
         int counter2 = 0;
 
-        TVector<std::unique_ptr<TTestObj>> storage;
+        std::vector<std::unique_ptr<TTestObj>> storage;
         while (!emulator.Finished()) {
             auto obj = std::make_unique<TTestObj>(counter2);
             if (elector.LinkObjToEndpoint(TEndpointKey("Two", 2), obj.get(), nullptr)) {
@@ -194,7 +194,7 @@ Y_UNIT_TEST_SUITE(EndpointElector) {
 
     Y_UNIT_TEST(EndpointAssiciationSingleThread) {
         TEndpointElectorSafe elector;
-        elector.SetNewState(TVector<TEndpointRecord>{{"Two", 2, "", 2}, {"One_A", 10, "", 10}, {"Three", 3, "", 3}, {"One_B", 4, "", 4}});
+        elector.SetNewState(std::vector<TEndpointRecord>{{"Two", 2, "", 2}, {"One_A", 10, "", 10}, {"Three", 3, "", 3}, {"One_B", 4, "", 4}});
 
         auto obj1 = std::make_unique<TTestObj>();
         auto obj2 = std::make_unique<TTestObj>();
@@ -280,7 +280,7 @@ Y_UNIT_TEST_SUITE(EndpointElector) {
         obj1.reset(new TTestObj());
         elector.LinkObjToEndpoint(TEndpointKey("Two", 2), obj1.get(), nullptr);
 
-        elector.SetNewState(TVector<TEndpointRecord>{{"Two", 2, "", 2}, {"One_A", 10, "", 10}, {"One_C", 1, "", 1}});
+        elector.SetNewState(std::vector<TEndpointRecord>{{"Two", 2, "", 2}, {"One_A", 10, "", 10}, {"One_C", 1, "", 1}});
 
         UNIT_ASSERT_VALUES_EQUAL(obj1->HostRemoved(), false);
         UNIT_ASSERT_VALUES_EQUAL(obj2->HostRemoved(), true);
