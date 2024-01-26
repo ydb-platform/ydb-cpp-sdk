@@ -352,8 +352,8 @@ private:
 
 private:
     TType Type_;
-    TStackVec<TProtoPosition, 8> Path_;
-    TStackVec<std::unique_ptr<Ydb::Type>, 8> WrappedVariants_;
+    std::vector<TProtoPosition> Path_;
+    std::vector<std::unique_ptr<Ydb::Type>> WrappedVariants_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -800,7 +800,7 @@ private:
 
 private:
     Ydb::Type ProtoType_;
-    TStackVec<TProtoPosition, 8> Path_;
+    std::vector<TProtoPosition> Path_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1609,7 +1609,7 @@ private:
 private:
     std::shared_ptr<TValue::TImpl> Value_;
     TTypeParser TypeParser_;
-    TStackVec<TProtoPosition, 8> Path_;
+    std::vector<TProtoPosition> Path_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2704,8 +2704,8 @@ private:
     Ydb::Value ProtoValue_;
     TMap<const Ydb::StructType*, TMembersMap> StructsMap_;
 
-    TStackVec<TProtoPosition, 8> Path_;
-    TStackVec<TStructPosition, 8> StructsPath_;
+    std::vector<TProtoPosition> Path_;
+    std::vector<TStructPosition> StructsPath_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

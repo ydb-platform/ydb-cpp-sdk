@@ -263,10 +263,10 @@ namespace NMonitoring {
             return res;
         }
 
-        TStackVec<TCounters::value_type, 256> ReadSnapshot() const {
+        std::vector<TCounters::value_type> ReadSnapshot() const {
             RemoveExpired();
             TReadGuard g(Lock);
-            TStackVec<TCounters::value_type, 256> items(Counters.begin(), Counters.end());
+            std::vector<TCounters::value_type> items(Counters.begin(), Counters.end());
             return items;
         }
 

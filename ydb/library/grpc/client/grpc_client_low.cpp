@@ -275,8 +275,8 @@ public:
     }
 
     bool Cancel() override {
-        TStackVec<TCallback, 1> callbacks;
-        TStackVec<TContextPtr, 2> children;
+        std::vector<TCallback> callbacks;
+        std::vector<TContextPtr> children;
 
         {
             std::unique_lock<std::mutex> guard(Mutex);
@@ -400,7 +400,7 @@ private:
     std::unordered_set<TContextImpl*> Children;
 
     // Single callback is stored without extra allocations
-    TStackVec<TCallback, 1> Callbacks;
+    std::vector<TCallback> Callbacks;
 
     // Atomic flag for a faster IsCancelled() implementation
     std::atomic<bool> Cancelled;
