@@ -27,7 +27,22 @@ jobs:
         sudo make
         sudo make install
         cd ..
+        (V=4.8.1; curl -L https://github.com/ccache/ccache/releases/download/v${V}/ccache-${V}-linux-x86_64.tar.xz | \
+        sudo tar -xJ -C /usr/local/bin/ --strip-components=1 --no-same-owner ccache-${V}-linux-x86_64/ccache)
         sudo rm -rf llvm.sh libiconv-1.15
+    - name: Prepare ccache timestamp
+      id: ccache_cache_timestamp
+      shell: cmake -P {0}
+      run: |
+        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+        message("::set-output name=timestamp::${current_date}")
+    - name: Cache files
+      uses: actions/cache@v1.1.0
+      with:
+      path: .ccache
+      key: ubuntu-22.04-ccache-${{steps.ccache_cache_timestamp.outputs.timestamp}}
+      restore-keys: |
+        ubuntu-22.04-ccache-
     - name: Checkout PR
       uses: actions/checkout@v3
       if: github.event.pull_request.head.sha != ''
@@ -43,11 +58,14 @@ jobs:
         cd ../build
         rm -rf *
         cmake -G Ninja -DCMAKE_BUILD_TYPE=Release \
+          -DCCACHE_PATH=/usr/local/bin/ccache \
           -DCMAKE_TOOLCHAIN_FILE=../ydb-cpp-sdk/clang.toolchain \
           ../ydb-cpp-sdk
     - name: Build
       shell: bash
       run: |
+        ccache -z
         cd ../build
         ninja examples/all client/all
-      
+        ccache -s
+  
