@@ -11,7 +11,7 @@ on:
 jobs:
   main:
     name: Build YDB C++ SDK
-    runs-on: [ubuntu-22.04]
+    runs-on: ubuntu-22.04
     steps:
     - name: Install dependencies
       shell: bash
@@ -24,8 +24,8 @@ jobs:
         tar -xvzf libiconv-1.15.tar.gz
         cd libiconv-1.15
         ./configure --prefix=/usr/local
-        make
-        make install
+        sudo make
+        sudo make install
         cd ..
         rm -rf llvm.sh libiconv-1.15
     - name: Checkout PR
@@ -49,5 +49,5 @@ jobs:
       shell: bash
       run: |
         cd ../build
-        ninja examples/all client/all
+        ninja examples/all client/allcd
       

@@ -27,8 +27,8 @@ wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
 tar -xvzf libiconv-1.15.tar.gz
 cd libiconv-1.15
 ./configure --prefix=/usr/local
-make
-make install
+sudo make
+sudo make install
 ```
 
 ## Create the work directory
