@@ -49,5 +49,5 @@ jobs:
       shell: bash
       run: |
         cd ../build
-        ninja examples/all client/allcd
+        ninja examples/all client/all
       
