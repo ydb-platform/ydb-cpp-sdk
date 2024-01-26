@@ -1,0 +1,53 @@
+name: PR-check
+
+on:
+  push:
+    branches:
+      - master
+      - release-*
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  main:
+    name: Build YDB C++ SDK
+    runs-on: [ubuntu-22.04]
+    steps:
+    - name: Install dependencies
+      shell: bash
+      run: |
+        sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm
+        wget https://apt.llvm.org/llvm.sh
+        chmod u+x llvm.sh
+        sudo ./llvm.sh 16
+        wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
+        tar -xvzf libiconv-1.15.tar.gz
+        cd libiconv-1.15
+        ./configure --prefix=/usr/local
+        make
+        make install
+        cd ..
+        rm -rf llvm.sh libiconv-1.15
+    - name: Checkout PR
+      uses: actions/checkout@v3
+      if: github.event.pull_request.head.sha != ''
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+    - name: Checkout
+      uses: actions/checkout@v3
+      if: github.event.pull_request.head.sha == ''
+    - name: Configure
+      shell: bash
+      run: |
+        mkdir -p ../build
+        cd ../build
+        rm -rf *
+        cmake -G Ninja -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_TOOLCHAIN_FILE=../ydb-cpp-sdk/clang.toolchain \
+          ../ydb-cpp-sdk
+    - name: Build
+      shell: bash
+      run: |
+        cd ../build
+        ninja examples/all client/all
+      

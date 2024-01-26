@@ -18,12 +18,18 @@
 
 ```bash
 sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm
+
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh
 sudo ./llvm.sh 16
-```
 
-- libiconv: https://www.gnu.org/software/libiconv/
+wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
+tar -xvzf libiconv-1.15.tar.gz
+cd libiconv-1.15
+./configure --prefix=/usr/local
+make
+make install
+```
 
 ## Create the work directory
 
