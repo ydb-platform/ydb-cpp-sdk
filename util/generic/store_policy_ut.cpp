@@ -7,7 +7,7 @@ Y_UNIT_TEST_SUITE(StorePolicy) {
     Y_UNIT_TEST(Compileability) {
         // construction
         TAutoEmbedOrPtrPolicy<THolder<int>>(MakeHolder<int>(1));
-        TAutoEmbedOrPtrPolicy<TVector<int>>(TVector<int>{1, 2, 3});
+        TAutoEmbedOrPtrPolicy<std::vector<int>>(std::vector<int>{1, 2, 3});
         auto a = MakeHolder<int>(42);
         TAutoEmbedOrPtrPolicy<THolder<int>&>{a};
 
@@ -15,9 +15,9 @@ Y_UNIT_TEST_SUITE(StorePolicy) {
         (**TAutoEmbedOrPtrPolicy<THolder<int>>(MakeHolder<int>(1)).Ptr())++; // ok
         (**TAutoEmbedOrPtrPolicy<THolder<int>&>(a).Ptr())++;                 // ok
 
-        const TVector<int> b = {0};
-        auto bValue = (*TAutoEmbedOrPtrPolicy<const TVector<int>&>(b).Ptr())[0]; // ok
-        // (*TAutoEmbedOrPtrPolicy<const TVector<int>&>(b).Ptr())[0]++; // not ok
+        const std::vector<int> b = {0};
+        auto bValue = (*TAutoEmbedOrPtrPolicy<const std::vector<int>&>(b).Ptr())[0]; // ok
+        // (*TAutoEmbedOrPtrPolicy<const std::vector<int>&>(b).Ptr())[0]++; // not ok
         Y_UNUSED(bValue);
     }
 
@@ -29,7 +29,7 @@ Y_UNIT_TEST_SUITE(StorePolicy) {
 
     Y_UNIT_TEST(Reference) {
         {
-            TVector<ui32> a = {1, 2, 3};
+            std::vector<ui32> a = {1, 2, 3};
 
             FunctionTakingRefDefaultIsObject(a, [](auto& holder) {
                 holder.Ptr()->push_back(4);
@@ -40,7 +40,7 @@ Y_UNIT_TEST_SUITE(StorePolicy) {
             UNIT_ASSERT_VALUES_EQUAL(a.size(), 5);
         }
         {
-            const TVector<ui32> a = {1, 2, 3};
+            const std::vector<ui32> a = {1, 2, 3};
 
             static_assert(std::is_const<decltype(a)>::value);
 
@@ -58,7 +58,7 @@ Y_UNIT_TEST_SUITE(StorePolicy) {
     }
 
     Y_UNIT_TEST(Object) {
-        TVector<ui32> a = {1, 2, 3};
+        std::vector<ui32> a = {1, 2, 3};
 
         FunctionTakingObjectDefaultObject(std::move(a), [&a](auto& holder) {
             static_assert(std::is_copy_assignable<decltype(holder)>::value);
@@ -112,6 +112,6 @@ Y_UNIT_TEST_SUITE(StorePolicy) {
 
     Y_UNIT_TEST(ConstructorTraits) {
         TestWrapperConstructors<TNoDefaultConstructible>();
-        TestWrapperConstructors<TVector<short>>();
+        TestWrapperConstructors<std::vector<short>>();
     }
 }

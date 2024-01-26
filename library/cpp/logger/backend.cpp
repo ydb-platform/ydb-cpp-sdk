@@ -1,5 +1,5 @@
 #include "backend.h"
-#include <util/generic/vector.h>
+
 #include <util/system/mutex.h>
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>
@@ -7,7 +7,7 @@
 namespace {
     class TGlobalLogsStorage {
     private:
-        TVector<TLogBackend*> Backends;
+        std::vector<TLogBackend*> Backends;
         TMutex Mutex;
 
     public:

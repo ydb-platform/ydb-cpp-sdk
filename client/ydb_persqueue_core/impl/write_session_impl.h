@@ -61,8 +61,8 @@ public:
         return std::move(eventInfo->Event);
     }
 
-    TVector<TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing()) {
-        TVector<TEventInfo> eventInfos;
+    std::vector<TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing()) {
+        std::vector<TEventInfo> eventInfos;
         with_lock (Mutex) {
             if (block) {
                 WaitEventsImpl();
@@ -79,7 +79,7 @@ public:
             }
         }
 
-        TVector<TEvent> result;
+        std::vector<TEvent> result;
         result.reserve(eventInfos.size());
         for (TEventInfo& eventInfo : eventInfos) {
             eventInfo.OnUserRetrievedEvent();
@@ -190,7 +190,7 @@ private:
 
     struct TMessageBatch {
         TBuffer Data;
-        TVector<TMessage> Messages;
+        std::vector<TMessage> Messages;
         ui64 CurrentSize = 0;
         TInstant StartedAt = TInstant::Zero();
         bool Acquired = false;
@@ -238,7 +238,7 @@ private:
         size_t OriginalSize = 0;
         size_t OriginalMemoryUsage = 0;
         TString CodecID = GetCodecId(ECodec::RAW);
-        mutable TVector<TStringBuf> OriginalDataRefs;
+        mutable std::vector<TStringBuf> OriginalDataRefs;
         mutable TBuffer Data;
         bool Compressed = false;
         mutable bool Valid = true;
@@ -291,7 +291,7 @@ private:
     struct TProcessSrvMessageResult {
         THandleResult HandleResult;
         TMaybe<ui64> InitSeqNo;
-        TVector<TWriteSessionEvent::TEvent> Events;
+        std::vector<TWriteSessionEvent::TEvent> Events;
         bool Ok = true;
     };
 
@@ -304,7 +304,7 @@ public:
             TDbDriverStatePtr dbDriverState);
 
     TMaybe<TWriteSessionEvent::TEvent> GetEvent(bool block = false);
-    TVector<TWriteSessionEvent::TEvent> GetEvents(bool block = false,
+    std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false,
                                                   TMaybe<size_t> maxEventsCount = Nothing());
     NThreading::TFuture<ui64> GetInitSeqNo();
 

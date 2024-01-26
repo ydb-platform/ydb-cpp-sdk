@@ -489,7 +489,7 @@ NThreading::TFuture<void> TReadSession::WaitEvent() {
     return EventsQueue->WaitEvent();
 }
 
-TVector<TReadSessionEvent::TEvent> TReadSession::GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize) {
+std::vector<TReadSessionEvent::TEvent> TReadSession::GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize) {
     auto res = EventsQueue->GetEvents(block, maxEventsCount, maxByteSize);
     if (EventsQueue->IsClosed()) {
         Abort();
@@ -589,8 +589,8 @@ TReadSessionEvent::TPartitionStreamClosedEvent::TPartitionStreamClosedEvent(TPar
 {
 }
 
-TReadSessionEvent::TDataReceivedEvent::TDataReceivedEvent(TVector<TMessage> messages,
-                                                          TVector<TCompressedMessage> compressedMessages,
+TReadSessionEvent::TDataReceivedEvent::TDataReceivedEvent(std::vector<TMessage> messages,
+                                                          std::vector<TCompressedMessage> compressedMessages,
                                                           TPartitionStream::TPtr partitionStream)
     : Messages(std::move(messages))
     , CompressedMessages(std::move(compressedMessages))

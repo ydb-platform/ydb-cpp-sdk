@@ -56,7 +56,7 @@ void TTableClient::TImpl::InitStopper() {
 }
 
 NThreading::TFuture<void> TTableClient::TImpl::Drain() {
-    TVector<std::unique_ptr<TKqpSessionCommon>> sessions;
+    std::vector<std::unique_ptr<TKqpSessionCommon>> sessions;
     // No realocations under lock
     sessions.reserve(Settings_.SessionPoolSettings_.MaxActiveSessions_);
     auto drainer = [&sessions](std::unique_ptr<TKqpSessionCommon>&& impl) mutable {
@@ -64,7 +64,7 @@ NThreading::TFuture<void> TTableClient::TImpl::Drain() {
         return true;
     };
     SessionPool_.Drain(drainer, true);
-    TVector<TAsyncStatus> closeResults;
+    std::vector<TAsyncStatus> closeResults;
     for (auto& s : sessions) {
         if (s->GetId()) {
             closeResults.push_back(CloseInternal(s.get()));
@@ -199,7 +199,7 @@ std::pair<ui64, size_t> TTableClient::TImpl::ScanLocation(std::shared_ptr<TTable
 }
 
 NMath::TStats TTableClient::TImpl::CalcCV(const std::unordered_map<ui64, size_t>& in) {
-    TVector<size_t> t;
+    std::vector<size_t> t;
     t.reserve(in.size());
     std::transform(in.begin(), in.end(), std::back_inserter(t), [](const std::pair<ui64, size_t>& pair) {
         return pair.second;
@@ -801,7 +801,7 @@ NThreading::TFuture<std::pair<TPlainStatus, TTableClient::TImpl::TReadTableStrea
 
 }
 
-TAsyncReadRowsResult TTableClient::TImpl::ReadRows(const TString& path, TValue&& keys, const TVector<TString>& columns, const TReadRowsSettings& settings) {
+TAsyncReadRowsResult TTableClient::TImpl::ReadRows(const TString& path, TValue&& keys, const std::vector<TString>& columns, const TReadRowsSettings& settings) {
     auto request = MakeRequest<Ydb::Table::ReadRowsRequest>();
     request.set_path(path);
     auto* protoKeys = request.mutable_keys();

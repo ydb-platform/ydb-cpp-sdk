@@ -9,7 +9,7 @@
 #include <util/generic/hash_multi_map.h>
 #include <util/generic/deque.h>
 #include <util/generic/string.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/buffer.h>
 #include <util/generic/hash_set.h>
 #include <util/generic/maybe.h>
@@ -122,7 +122,7 @@ private:
         }
 
         {
-            TVector<ui16> vec;
+            std::vector<ui16> vec;
 
             vec.push_back((ui16)1);
             vec.push_back((ui16)2);
@@ -173,7 +173,7 @@ private:
         }
 
         {
-            TVector<const char*> vec;
+            std::vector<const char*> vec;
 
             vec.push_back("1");
             vec.push_back("123");
@@ -253,7 +253,7 @@ private:
         }
 
         {
-            TVector<ui16> vec;
+            std::vector<ui16> vec;
 
             Load(&S_, vec);
             UNIT_ASSERT_EQUAL(vec.size(), 3);
@@ -314,7 +314,7 @@ private:
         }
 
         {
-            TVector<const char*> vec;
+            std::vector<const char*> vec;
             TMemoryPool pool(1024);
 
             Load(&S_, vec, pool);
@@ -428,11 +428,11 @@ private:
     }
 
     void TestVariant() {
-        std::variant<int, bool, TString, TVector<char>> v(1);
+        std::variant<int, bool, TString, std::vector<char>> v(1);
         TestVariantImpl(v, 42);
         TestVariantImpl(v, true);
         TestVariantImpl(v, TString("foo"));
-        TestVariantImpl(v, TVector<char>{'b', 'a', 'r'});
+        TestVariantImpl(v, std::vector<char>{'b', 'a', 'r'});
 
         v = TString("baz");
         TBufferStream s;

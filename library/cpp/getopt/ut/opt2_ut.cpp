@@ -26,7 +26,7 @@ Y_UNIT_TEST_SUITE(Opt2Test) {
         bool c = opt.Has('c', "usage of -c");
         int d = opt.Int('d', "<var_name> - usage of -d", 13);
         const char* e = opt.Arg('e', "<unused> - only default is really used", edef);
-        const TVector<const char*>& x = opt.MArg('x', "<var_name> - usage of -x");
+        const std::vector<const char*>& x = opt.MArg('x', "<var_name> - usage of -x");
 
         UNIT_ASSERT(!opt.AutoUsage("<L> <M>"));
         UNIT_ASSERT_VALUES_EQUAL("aaaa", a);

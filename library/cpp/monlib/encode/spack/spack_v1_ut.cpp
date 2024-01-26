@@ -253,7 +253,7 @@ Y_UNIT_TEST_SUITE(TSpackTest) {
     }
 
     TLogHistogramSnapshotPtr TestLogHistogram() {
-        TVector buckets{0.5, 0.25, 0.25, 0.5};
+        std::vector buckets{0.5, 0.25, 0.25, 0.5};
         return MakeIntrusive<TLogHistogramSnapshot>(1.5, 1u, 0, std::move(buckets));
     }
 

@@ -14,7 +14,7 @@ TEST(TScopedEnvironment, SingleValue) {
 }
 
 TEST(TScopedEnvironment, MultiValue) {
-    TVector<TString> before{GetEnv("ARCADIA_SOURCE_ROOT"), GetEnv("ARCADIA_BUILD_ROOT")};
+    std::vector<TString> before{GetEnv("ARCADIA_SOURCE_ROOT"), GetEnv("ARCADIA_BUILD_ROOT")};
     {
         NTesting::TScopedEnvironment guard{{
             {"ARCADIA_SOURCE_ROOT", "source"},
@@ -23,6 +23,6 @@ TEST(TScopedEnvironment, MultiValue) {
         EXPECT_EQ("source", GetEnv("ARCADIA_SOURCE_ROOT"));
         EXPECT_EQ("build", GetEnv("ARCADIA_BUILD_ROOT"));
     }
-    TVector<TString> after{GetEnv("ARCADIA_SOURCE_ROOT"), GetEnv("ARCADIA_BUILD_ROOT")};
+    std::vector<TString> after{GetEnv("ARCADIA_SOURCE_ROOT"), GetEnv("ARCADIA_BUILD_ROOT")};
     EXPECT_EQ(before, after);
 }

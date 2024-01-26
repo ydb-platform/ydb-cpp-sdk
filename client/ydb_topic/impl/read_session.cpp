@@ -124,7 +124,7 @@ NThreading::TFuture<void> TReadSession::WaitEvent() {
     return EventsQueue->WaitEvent();
 }
 
-TVector<TReadSessionEvent::TEvent> TReadSession::GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize) {
+std::vector<TReadSessionEvent::TEvent> TReadSession::GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize) {
     auto res = EventsQueue->GetEvents(block, maxEventsCount, maxByteSize);
     if (EventsQueue->IsClosed()) {
         Abort(EStatus::ABORTED, "Aborted");
@@ -132,7 +132,7 @@ TVector<TReadSessionEvent::TEvent> TReadSession::GetEvents(bool block, TMaybe<si
     return res;
 }
 
-TVector<TReadSessionEvent::TEvent> TReadSession::GetEvents(const TReadSessionGetEventSettings& settings)
+std::vector<TReadSessionEvent::TEvent> TReadSession::GetEvents(const TReadSessionGetEventSettings& settings)
 {
     auto events = GetEvents(settings.Block_, settings.MaxEventsCount_, settings.MaxByteSize_);
     if (!events.empty() && settings.Tx_) {
@@ -203,7 +203,7 @@ void TReadSession::UpdateOffsets(const NTable::TTransaction& tx)
         return;
     }
 
-    TVector<TTopicOffsets> topics;
+    std::vector<TTopicOffsets> topics;
     for (auto& [path, partitions] : p->second) {
         TTopicOffsets topic;
         topic.Path = path;

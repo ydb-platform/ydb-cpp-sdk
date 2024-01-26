@@ -34,7 +34,7 @@ TListEndpointsResult::TListEndpointsResult(TStatus&& status, const Ydb::Discover
     }
 }
 
-const TVector<TEndpointInfo>& TListEndpointsResult::GetEndpointsInfo() const {
+const std::vector<TEndpointInfo>& TListEndpointsResult::GetEndpointsInfo() const {
     return Info_;
 }
 
@@ -53,7 +53,7 @@ const TString& TWhoAmIResult::GetUserName() const {
     return UserName_;
 }
 
-const TVector<TString>& TWhoAmIResult::GetGroups() const {
+const std::vector<TString>& TWhoAmIResult::GetGroups() const {
     return Groups_;
 }
 
@@ -122,7 +122,7 @@ bool TNodeRegistrationResult::HasScopePathId() const {
     return ScopePathId_.value();
 }
 
-const TVector<TNodeInfo>& TNodeRegistrationResult::GetNodes() const {
+const std::vector<TNodeInfo>& TNodeRegistrationResult::GetNodes() const {
     return Nodes_;
 }
 

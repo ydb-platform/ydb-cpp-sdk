@@ -21,12 +21,12 @@ struct TOffsetsRange {
 
 struct TPartitionOffsets {
     ui64 PartitionId;
-    TVector<TOffsetsRange> Offsets;
+    std::vector<TOffsetsRange> Offsets;
 };
 
 struct TTopicOffsets {
     TString Path;
-    TVector<TPartitionOffsets> Partitions;
+    std::vector<TPartitionOffsets> Partitions;
 };
 
 struct TUpdateOffsetsInTransactionSettings : public TOperationRequestSettings<TUpdateOffsetsInTransactionSettings> {
@@ -310,7 +310,7 @@ public:
     }
 
     TAsyncStatus UpdateOffsetsInTransaction(const NTable::TTransaction& tx,
-                                            const TVector<TTopicOffsets>& topics,
+                                            const std::vector<TTopicOffsets>& topics,
                                             const TString& consumerName,
                                             const TUpdateOffsetsInTransactionSettings& settings)
     {

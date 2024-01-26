@@ -6,7 +6,7 @@
 #include <util/generic/map.h>
 #include <util/generic/ptr.h>
 #include <util/generic/singleton.h>
-#include <util/generic/vector.h>
+
 #include <util/str_stl.h>
 #include <util/stream/output.h>
 #include <util/string/util.h>
@@ -148,7 +148,7 @@ namespace NMonitoring {
     class TDeprecatedCounterGroups {
     public:
         typedef TMap<T, G*> TGroups;
-        typedef TVector<T> TGroupsNames;
+        typedef std::vector<T> TGroupsNames;
         typedef THolder<TGroupsNames> TGroupsNamesPtr;
 
     private:

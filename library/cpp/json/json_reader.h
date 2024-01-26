@@ -91,7 +91,7 @@ namespace NJson {
     protected:
         TJsonValue& Value;
         TString Key;
-        TVector<TJsonValue*> ValuesStack;
+        std::vector<TJsonValue*> ValuesStack;
         bool NotClosedBracketIsError;
 
         enum {

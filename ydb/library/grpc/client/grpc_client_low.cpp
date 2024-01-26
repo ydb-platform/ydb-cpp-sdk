@@ -312,7 +312,7 @@ public:
         }
 
         // Call directly subscribed callbacks
-        if (callbacks) {
+        if (!callbacks.empty()) {
             RunCallbacksNoExcept(callbacks);
         }
 
@@ -464,7 +464,7 @@ void TGRpcClientLow::Stop(bool wait) {
 void TGRpcClientLow::StopInternal(bool silent) {
     bool shutdown;
 
-    TVector<TContextImpl::TContextPtr> cancelQueue;
+    std::vector<TContextImpl::TContextPtr> cancelQueue;
 
     {
         std::unique_lock<std::mutex> guard(Mtx_);

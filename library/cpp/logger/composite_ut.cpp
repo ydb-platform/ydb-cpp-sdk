@@ -8,8 +8,8 @@
 
 Y_UNIT_TEST_SUITE(TCompositeLogTest)
 {
-    TVector<TString> ReadLines(const TString & filename) {
-        TVector<TString> lines;
+    std::vector<TString> ReadLines(const TString & filename) {
+        std::vector<TString> lines;
         TIFStream fin(filename);
         TString line;
         while (fin.ReadLine(line)) {

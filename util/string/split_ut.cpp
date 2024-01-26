@@ -95,10 +95,10 @@ void TestConsumerOnRange(TResult& good, I* b, I* e, I* d) {
     UNIT_ASSERT_EQUAL(good, test);
 }
 
-using TStrokaConsumer = TContainerConsumer<TVector<TString>>;
+using TStrokaConsumer = TContainerConsumer<std::vector<TString>>;
 
-void TestLimitingConsumerOnString(TVector<TString>& good, const char* str, const char* d, size_t n, const char* last) {
-    TVector<TString> test;
+void TestLimitingConsumerOnString(std::vector<TString>& good, const char* str, const char* d, size_t n, const char* last) {
+    std::vector<TString> test;
     TStrokaConsumer consumer(&test);
     TLimitingConsumer<TStrokaConsumer, const char> limits(n, &consumer);
     TCharDelimiter<const char> delim(*d);
@@ -108,8 +108,8 @@ void TestLimitingConsumerOnString(TVector<TString>& good, const char* str, const
     UNIT_ASSERT_EQUAL(TString(limits.Last), TString(last)); // Quite unobvious behaviour. Why the last token is not added to slave consumer?
 }
 
-void TestLimitingConsumerOnRange(TVector<TString>& good, const char* b, const char* e, const char* d, size_t n, const char* last) {
-    TVector<TString> test;
+void TestLimitingConsumerOnRange(std::vector<TString>& good, const char* b, const char* e, const char* d, size_t n, const char* last) {
+    std::vector<TString> test;
     TStrokaConsumer consumer(&test);
     TLimitingConsumer<TStrokaConsumer, const char> limits(n, &consumer);
     TCharDelimiter<const char> delim(*d);
@@ -123,7 +123,7 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(TestCharSingleDelimiter) {
         TString data("qw ab  qwabcab");
         TString canonic[] = {"qw", "ab", "", "qwabcab"};
-        TVector<TString> good(canonic, canonic + 4);
+        std::vector<TString> good(canonic, canonic + 4);
         TCharDelimiter<const char> delim(' ');
 
         TestDelimiterOnString<TContainerConsumer>(good, data.data(), delim);
@@ -133,7 +133,7 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(TestWideSingleDelimiter) {
         TUtf16String data(u"qw ab  qwabcab");
         TUtf16String canonic[] = {u"qw", u"ab", TUtf16String(), u"qwabcab"};
-        TVector<TUtf16String> good(canonic, canonic + 4);
+        std::vector<TUtf16String> good(canonic, canonic + 4);
         TCharDelimiter<const wchar16> delim(' ');
 
         TestDelimiterOnString<TContainerConsumer>(good, data.data(), delim);
@@ -143,7 +143,7 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(TestConvertToIntCharSingleDelimiter) {
         TString data("42 4242 -12345 0");
         i32 canonic[] = {42, 4242, -12345, 0};
-        TVector<i32> good(canonic, canonic + 4);
+        std::vector<i32> good(canonic, canonic + 4);
         TCharDelimiter<const char> delim(' ');
 
         TestDelimiterOnString<TContainerConvertingConsumer>(good, data.data(), delim);
@@ -153,7 +153,7 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(TestCharSkipEmpty) {
         TString data("qw ab  qwabcab ");
         TString canonic[] = {"qw", "ab", "qwabcab"};
-        TVector<TString> good(canonic, canonic + 3);
+        std::vector<TString> good(canonic, canonic + 3);
 
         TestConsumerOnString<TSkipEmptyTokens<TStrokaConsumer>>(good, data.data(), " ");
         TestConsumerOnRange<TSkipEmptyTokens<TStrokaConsumer>>(good, data.data(), data.end(), " ");
@@ -162,7 +162,7 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(TestCharKeepDelimiters) {
         TString data("qw ab  qwabcab ");
         TString canonic[] = {"qw", " ", "ab", " ", "", " ", "qwabcab", " ", ""};
-        TVector<TString> good(canonic, canonic + 9);
+        std::vector<TString> good(canonic, canonic + 9);
 
         TestConsumerOnString<TKeepDelimiters<TStrokaConsumer>>(good, data.data(), " ");
         TestConsumerOnRange<TKeepDelimiters<TStrokaConsumer>>(good, data.data(), data.end(), " ");
@@ -171,7 +171,7 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(TestCharLimit) {
         TString data("qw ab  qwabcab ");
         TString canonic[] = {"qw", "ab"};
-        TVector<TString> good(canonic, canonic + 2);
+        std::vector<TString> good(canonic, canonic + 2);
 
         TestLimitingConsumerOnString(good, data.data(), " ", 3, " qwabcab ");
         TestLimitingConsumerOnRange(good, data.data(), data.end(), " ", 3, " qwabcab ");
@@ -180,7 +180,7 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(TestCharStringDelimiter) {
         TString data("qw ab qwababcab");
         TString canonic[] = {"qw ", " qw", "", "c", ""};
-        TVector<TString> good(canonic, canonic + 5);
+        std::vector<TString> good(canonic, canonic + 5);
         TStringDelimiter<const char> delim("ab");
 
         TestDelimiterOnString<TContainerConsumer>(good, data.data(), delim);
@@ -190,7 +190,7 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(TestWideStringDelimiter) {
         TUtf16String data(u"qw ab qwababcab");
         TUtf16String canonic[] = {u"qw ", u" qw", TUtf16String(), u"c", TUtf16String()};
-        TVector<TUtf16String> good(canonic, canonic + 5);
+        std::vector<TUtf16String> good(canonic, canonic + 5);
         TUtf16String wideDelim(u"ab");
         TStringDelimiter<const wchar16> delim(wideDelim.data());
 
@@ -201,7 +201,7 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(TestCharSetDelimiter) {
         TString data("qw ab qwababccab");
         TString canonic[] = {"q", " ab q", "abab", "", "ab"};
-        TVector<TString> good(canonic, canonic + 5);
+        std::vector<TString> good(canonic, canonic + 5);
         TSetDelimiter<const char> delim("wc");
 
         TestDelimiterOnString<TContainerConsumer>(good, data.data(), delim);
@@ -211,7 +211,7 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(TestWideSetDelimiter) {
         TUtf16String data(u"qw ab qwababccab");
         TUtf16String canonic[] = {u"q", u" ab q", u"abab", TUtf16String(), u"ab"};
-        TVector<TUtf16String> good(canonic, canonic + 5);
+        std::vector<TUtf16String> good(canonic, canonic + 5);
         TUtf16String wideDelim(u"wc");
         TSetDelimiter<const wchar16> delim(wideDelim.data());
 
@@ -221,12 +221,12 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(TestWideSetDelimiterRange) {
         TUtf16String data(u"qw ab qwababccab");
         TUtf16String canonic[] = {u"q", u" ab q", u"abab", TUtf16String(), u"ab"};
-        TVector<TUtf16String> good(1);
+        std::vector<TUtf16String> good(1);
         TUtf16String wideDelim(u"wc");
         TSetDelimiter<const wchar16> delim(wideDelim.data());
 
-        TVector<TUtf16String> test;
-        TContainerConsumer<TVector<TUtf16String>> consumer(&test);
+        std::vector<TUtf16String> test;
+        TContainerConsumer<std::vector<TUtf16String>> consumer(&test);
         SplitString(data.data(), data.data(), delim, consumer); // Empty string is still inserted into consumer
         Cmp(good, test);
 
@@ -240,13 +240,13 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(TestSplit) {
         TString data("qw ab qwababcba");
         TString canonic[] = {"qw ", " qw", "c"};
-        TVector<TString> good(canonic, canonic + 3);
+        std::vector<TString> good(canonic, canonic + 3);
         TString delim = "ab";
-        TVector<TString> test;
+        std::vector<TString> test;
         Split(data, delim, test);
         Cmp(good, test);
 
-        TVector<TStringBuf> test1;
+        std::vector<TStringBuf> test1;
         Split(data, delim.data(), test1);
         Cmp(good, test1);
     }
@@ -336,14 +336,14 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     }
 
     Y_UNIT_TEST(TestSplitLimited) {
-        TVector<TString> expected = {"1", "2", "3,4,5"};
-        TVector<TString> actual = StringSplitter("1,2,3,4,5").Split(',').Limit(3).ToList<TString>();
+        std::vector<TString> expected = {"1", "2", "3,4,5"};
+        std::vector<TString> actual = StringSplitter("1,2,3,4,5").Split(',').Limit(3).ToList<TString>();
         UNIT_ASSERT_VALUES_EQUAL(expected, actual);
     }
 
     Y_UNIT_TEST(TestSplitLimitedWithEmptySkip) {
-        TVector<TString> expected = {"1", "2", "3,4,5"};
-        TVector<TString> actual = StringSplitter("1,,,2,,,,3,4,5").Split(',').SkipEmpty().Limit(3).ToList<TString>();
+        std::vector<TString> expected = {"1", "2", "3,4,5"};
+        std::vector<TString> actual = StringSplitter("1,,,2,,,,3,4,5").Split(',').SkipEmpty().Limit(3).ToList<TString>();
         UNIT_ASSERT_VALUES_EQUAL(expected, actual);
 
         expected = {"1", "2", ",,,3,4,5"};
@@ -362,14 +362,14 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     }
 
     Y_UNIT_TEST(TestSplitBySetLimited) {
-        TVector<TString> expected = {"1", "2", "3,4:5"};
-        TVector<TString> actual = StringSplitter("1,2:3,4:5").SplitBySet(",:").Limit(3).ToList<TString>();
+        std::vector<TString> expected = {"1", "2", "3,4:5"};
+        std::vector<TString> actual = StringSplitter("1,2:3,4:5").SplitBySet(",:").Limit(3).ToList<TString>();
         UNIT_ASSERT_VALUES_EQUAL(expected, actual);
     }
 
     Y_UNIT_TEST(TestSplitBySetLimitedWithEmptySkip) {
-        TVector<TString> expected = {"1", "2", "3,4:5"};
-        TVector<TString> actual = StringSplitter("1,:,2::::,3,4:5").SplitBySet(",:").SkipEmpty().Limit(3).ToList<TString>();
+        std::vector<TString> expected = {"1", "2", "3,4:5"};
+        std::vector<TString> actual = StringSplitter("1,:,2::::,3,4:5").SplitBySet(",:").SkipEmpty().Limit(3).ToList<TString>();
         UNIT_ASSERT_VALUES_EQUAL(expected, actual);
 
         expected = {"1", ",2::::,3,4:5"};
@@ -388,22 +388,22 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     }
 
     Y_UNIT_TEST(TestSplitByStringLimited) {
-        TVector<TString> expected = {"1", "2", "3ab4ab5"};
-        TVector<TString> actual = StringSplitter("1ab2ab3ab4ab5").SplitByString("ab").Limit(3).ToList<TString>();
+        std::vector<TString> expected = {"1", "2", "3ab4ab5"};
+        std::vector<TString> actual = StringSplitter("1ab2ab3ab4ab5").SplitByString("ab").Limit(3).ToList<TString>();
         UNIT_ASSERT_VALUES_EQUAL(expected, actual);
     }
 
     Y_UNIT_TEST(TestSplitByStringLimitedWithEmptySkip) {
-        TVector<TString> expected = {"1", "2", "3ab4ab5"};
-        TVector<TString> actual = StringSplitter("1abab2ababababab3ab4ab5").SplitByString("ab").SkipEmpty().Limit(3).ToList<TString>();
+        std::vector<TString> expected = {"1", "2", "3ab4ab5"};
+        std::vector<TString> actual = StringSplitter("1abab2ababababab3ab4ab5").SplitByString("ab").SkipEmpty().Limit(3).ToList<TString>();
         UNIT_ASSERT_VALUES_EQUAL(expected, actual);
     }
 
     Y_UNIT_TEST(TestSplitByFunc) {
         TString s = "123 456 \t\n789\n10\t 20";
-        TVector<TString> pattern = {"123", "456", "789", "10", "20"};
+        std::vector<TString> pattern = {"123", "456", "789", "10", "20"};
 
-        TVector<TString> tokens;
+        std::vector<TString> tokens;
         auto f = [](char a) { return a == ' ' || a == '\t' || a == '\n'; };
         for (auto v : StringSplitter(s).SplitByFunc(f)) {
             if (v) {
@@ -415,16 +415,16 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     }
 
     Y_UNIT_TEST(TestSplitByFuncLimited) {
-        TVector<TString> expected = {"1", "2", "3a4b5"};
+        std::vector<TString> expected = {"1", "2", "3a4b5"};
         auto f = [](char a) { return a == 'a' || a == 'b'; };
-        TVector<TString> actual = StringSplitter("1a2b3a4b5").SplitByFunc(f).Limit(3).ToList<TString>();
+        std::vector<TString> actual = StringSplitter("1a2b3a4b5").SplitByFunc(f).Limit(3).ToList<TString>();
         UNIT_ASSERT_VALUES_EQUAL(expected, actual);
     }
 
     Y_UNIT_TEST(TestSplitByFuncLimitedWithEmptySkip) {
-        TVector<TString> expected = {"1", "2", "3a4b5"};
+        std::vector<TString> expected = {"1", "2", "3a4b5"};
         auto f = [](char a) { return a == 'a' || a == 'b'; };
-        TVector<TString> actual = StringSplitter("1aaba2bbababa3a4b5").SplitByFunc(f).SkipEmpty().Limit(3).Take(3).ToList<TString>();
+        std::vector<TString> actual = StringSplitter("1aaba2bbababa3a4b5").SplitByFunc(f).SkipEmpty().Limit(3).Take(3).ToList<TString>();
         UNIT_ASSERT_VALUES_EQUAL(expected, actual);
     }
 
@@ -446,7 +446,7 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     }
 
     Y_UNIT_TEST(TestTake) {
-        TVector<TString> expected = {"1", "2", "3"};
+        std::vector<TString> expected = {"1", "2", "3"};
         UNIT_ASSERT_VALUES_EQUAL(expected, StringSplitter("1 2 3 4 5 6 7 8 9 10").Split(' ').Take(3).ToList<TString>());
 
         expected = {"1", "2"};
@@ -490,8 +490,8 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     }
 
     Y_UNIT_TEST(TestStringSplitterConsume) {
-        TVector<TString> expected = {"1", "2", "3"};
-        TVector<TString> actual;
+        std::vector<TString> expected = {"1", "2", "3"};
+        std::vector<TString> actual;
         auto func = [&actual](const TBasicStringBuf<char>& token) {
             actual.push_back(TString(token));
         };
@@ -500,8 +500,8 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     }
 
     Y_UNIT_TEST(TestStringSplitterConsumeConditional) {
-        TVector<TString> expected = {"1", "2"};
-        TVector<TString> actual;
+        std::vector<TString> expected = {"1", "2"};
+        std::vector<TString> actual;
         auto func = [&actual](const TBasicStringBuf<char>& token) {
             if (token == "3") {
                 return false;
@@ -515,14 +515,14 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     }
 
     Y_UNIT_TEST(TestStringSplitterToList) {
-        TVector<TString> expected = {"1", "2", "3"};
-        TVector<TString> actual = StringSplitter("1 2 3").Split(' ').ToList<TString>();
+        std::vector<TString> expected = {"1", "2", "3"};
+        std::vector<TString> actual = StringSplitter("1 2 3").Split(' ').ToList<TString>();
         UNIT_ASSERT_VALUES_EQUAL(expected, actual);
     }
 
     Y_UNIT_TEST(TestStringSplitterCollectPushBack) {
-        TVector<TString> expected = {"1", "2", "3"};
-        TVector<TString> actual;
+        std::vector<TString> expected = {"1", "2", "3"};
+        std::vector<TString> actual;
         StringSplitter("1 2 3").Split(' ').Collect(&actual);
         UNIT_ASSERT_VALUES_EQUAL(expected, actual);
     }
@@ -535,7 +535,7 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     }
 
     Y_UNIT_TEST(TestStringSplitterCollectClears) {
-        TVector<TString> v;
+        std::vector<TString> v;
         StringSplitter("1 2 3").Split(' ').Collect(&v);
         UNIT_ASSERT_VALUES_EQUAL(v.size(), 3);
         StringSplitter("4 5").Split(' ').Collect(&v);
@@ -543,7 +543,7 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     }
 
     Y_UNIT_TEST(TestStringSplitterAddToDoesntClear) {
-        TVector<TString> v;
+        std::vector<TString> v;
         StringSplitter("1 2 3").Split(' ').AddTo(&v);
         UNIT_ASSERT_VALUES_EQUAL(v.size(), 3);
         StringSplitter("4 5").Split(' ').AddTo(&v);
@@ -625,8 +625,8 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     }
 
     Y_UNIT_TEST(TestAssigment) {
-        TVector<TString> expected0 = {"1", "2", "3", "4"};
-        TVector<TString> actual0 = StringSplitter("1 2 3 4").Split(' ');
+        std::vector<TString> expected0 = {"1", "2", "3", "4"};
+        std::vector<TString> actual0 = StringSplitter("1 2 3 4").Split(' ');
         UNIT_ASSERT_VALUES_EQUAL(expected0, actual0);
 
         TSet<TString> expected1 = {"11", "22", "33", "44"};
@@ -637,45 +637,45 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
         auto actual2 = static_cast<TSet<TString>>(StringSplitter("11 aa 11 11 aa").Split(' '));
         UNIT_ASSERT_VALUES_EQUAL(expected2, actual2);
 
-        TVector<TString> expected3 = {"dd", "bb"};
-        auto actual3 = TVector<TString>(StringSplitter("dd\tbb").Split('\t'));
+        std::vector<TString> expected3 = {"dd", "bb"};
+        auto actual3 = std::vector<TString>(StringSplitter("dd\tbb").Split('\t'));
         UNIT_ASSERT_VALUES_EQUAL(expected3, actual3);
     }
 
     Y_UNIT_TEST(TestRangeBasedFor) {
-        TVector<TString> actual0 = {"11", "22", "33", "44"};
+        std::vector<TString> actual0 = {"11", "22", "33", "44"};
         size_t num = 0;
         for (TStringBuf elem : StringSplitter("11 22 33 44").Split(' ')) {
             UNIT_ASSERT_VALUES_EQUAL(elem, actual0[num++]);
         }
 
-        TVector<TString> actual1 = {"another", "one,", "and", "another", "one"};
+        std::vector<TString> actual1 = {"another", "one,", "and", "another", "one"};
         num = 0;
         for (TStringBuf elem : StringSplitter(TStringBuf("another one, and \n\n     another    one")).SplitBySet(" \n").SkipEmpty()) {
             UNIT_ASSERT_VALUES_EQUAL(elem, actual1[num++]);
         }
 
-        TVector<TUtf16String> actual2 = {u"привет,", u"как", u"дела"};
+        std::vector<TUtf16String> actual2 = {u"привет,", u"как", u"дела"};
         num = 0;
         for (TWtringBuf elem : StringSplitter(u"привет, как дела").Split(wchar16(' '))) {
             UNIT_ASSERT_VALUES_EQUAL(elem, actual2[num++]);
         }
 
-        TVector<TString> copy(4);
+        std::vector<TString> copy(4);
         auto v = StringSplitter("11 22 33 44").Split(' ');
         Copy(v.begin(), v.end(), copy.begin());
         UNIT_ASSERT_VALUES_EQUAL(actual0, copy);
     }
 
     Y_UNIT_TEST(TestParseInto) {
-        TVector<int> actual0 = {1, 2, 3, 4};
-        TVector<int> answer0;
+        std::vector<int> actual0 = {1, 2, 3, 4};
+        std::vector<int> answer0;
 
         StringSplitter("1 2 3 4").Split(' ').ParseInto(&answer0);
         UNIT_ASSERT_VALUES_EQUAL(actual0, answer0);
 
-        TVector<int> actual1 = {42, 1, 2, 3, 4};
-        TVector<int> answer1 = {42};
+        std::vector<int> actual1 = {42, 1, 2, 3, 4};
+        std::vector<int> answer1 = {42};
         StringSplitter("1 2 3 4").Split(' ').ParseInto(&answer1);
         UNIT_ASSERT_VALUES_EQUAL(actual1, answer1);
 
@@ -725,21 +725,21 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
 
     Y_UNIT_TEST(TestStdSplitWithParsing) {
         std::string_view input = "1,2,3,4";
-        TVector<ui64> numbers;
-        const TVector<ui64> expected{1, 2, 3, 4};
+        std::vector<ui64> numbers;
+        const std::vector<ui64> expected{1, 2, 3, 4};
         StringSplitter(input).Split(',').ParseInto(&numbers);
         UNIT_ASSERT_VALUES_EQUAL(numbers, expected);
     }
 
     Y_UNIT_TEST(TestArcadiaStdInterop) {
-        TVector<TString> expected0 = {"a", "b"};
-        TVector<TStringBuf> expected1 = {"a", "b"};
+        std::vector<TString> expected0 = {"a", "b"};
+        std::vector<TStringBuf> expected1 = {"a", "b"};
         std::string src1("a  b");
         std::string_view src2("a  b");
-        TVector<TString> actual0 = StringSplitter(src1).Split(' ').SkipEmpty();
-        TVector<TString> actual1 = StringSplitter(src2).Split(' ').SkipEmpty();
-        TVector<TStringBuf> actual2 = StringSplitter(src1).Split(' ').SkipEmpty();
-        TVector<TStringBuf> actual3 = StringSplitter(src2).Split(' ').SkipEmpty();
+        std::vector<TString> actual0 = StringSplitter(src1).Split(' ').SkipEmpty();
+        std::vector<TString> actual1 = StringSplitter(src2).Split(' ').SkipEmpty();
+        std::vector<TStringBuf> actual2 = StringSplitter(src1).Split(' ').SkipEmpty();
+        std::vector<TStringBuf> actual3 = StringSplitter(src2).Split(' ').SkipEmpty();
         UNIT_ASSERT_VALUES_EQUAL(expected0, actual0);
         UNIT_ASSERT_VALUES_EQUAL(expected0, actual1);
         UNIT_ASSERT_VALUES_EQUAL(expected1, actual2);

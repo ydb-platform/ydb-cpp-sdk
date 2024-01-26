@@ -106,7 +106,7 @@ public:
     ERateLimiterCountersMode GetRateLimiterCountersMode() const;
 
     const TString& GetOwner() const;
-    const TVector<NScheme::TPermissions>& GetEffectivePermissions() const;
+    const std::vector<NScheme::TPermissions>& GetEffectivePermissions() const;
     const Ydb::Coordination::DescribeNodeResult& GetProto() const;
 
 private:
@@ -150,8 +150,8 @@ public:
     const TString& GetData() const { return Data_; }
     ui64 GetCount() const { return Count_; }
     ui64 GetLimit() const { return Limit_; }
-    const TVector<TSemaphoreSession>& GetOwners() const { return Owners_; }
-    const TVector<TSemaphoreSession>& GetWaiters() const { return Waiters_; }
+    const std::vector<TSemaphoreSession>& GetOwners() const { return Owners_; }
+    const std::vector<TSemaphoreSession>& GetWaiters() const { return Waiters_; }
     bool IsEphemeral() const { return IsEphemeral_; }
 
 private:
@@ -159,8 +159,8 @@ private:
     TString Data_;
     ui64 Count_;
     ui64 Limit_;
-    TVector<TSemaphoreSession> Owners_;
-    TVector<TSemaphoreSession> Waiters_;
+    std::vector<TSemaphoreSession> Owners_;
+    std::vector<TSemaphoreSession> Waiters_;
     bool IsEphemeral_;
 };
 

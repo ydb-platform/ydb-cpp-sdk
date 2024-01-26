@@ -25,8 +25,9 @@ TInstant ProtoTimestampToInstant(const NProtoBuf::Timestamp& timestamp) {
     return TInstant::MicroSeconds(us);
 }
 
-TVector<TImportItemProgress> ItemsProgressFromProto(const google::protobuf::RepeatedPtrField<Ydb::Import::ImportItemProgress>& proto) {
-    TVector<TImportItemProgress> result(Reserve(proto.size()));
+std::vector<TImportItemProgress> ItemsProgressFromProto(const google::protobuf::RepeatedPtrField<Ydb::Import::ImportItemProgress>& proto) {
+    std::vector<TImportItemProgress> result;
+    result.reserve(proto.size());
 
     for (const auto& protoItem : proto) {
         auto& item = result.emplace_back();

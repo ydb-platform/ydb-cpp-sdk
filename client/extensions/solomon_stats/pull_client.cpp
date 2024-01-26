@@ -7,7 +7,7 @@ TSolomonStatPullExtension::TParams::TParams(const TString& host
     , const TString& project
     , const TString& service
     , const TString& cluster
-    , const TVector<std::pair<TString, TString>>& labels)
+    , const std::vector<std::pair<TString, TString>>& labels)
     : Host_(host), Port_(port), Labels_()
 {
     Labels_.Add("project", project);

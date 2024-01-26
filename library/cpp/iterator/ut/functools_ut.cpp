@@ -2,7 +2,7 @@
 
 #include <library/cpp/testing/gtest/gtest.h>
 
-#include <util/generic/vector.h>
+
 #include <util/generic/xrange.h>
 #include <util/generic/adaptor.h>
 
@@ -126,9 +126,9 @@ using namespace NFuncTools;
 
 
     TEST(FuncTools, Enumerate) {
-        TVector<size_t> a = {1, 2, 4};
-        TVector<size_t> b;
-        TVector<size_t> c = {1};
+        std::vector<size_t> a = {1, 2, 4};
+        std::vector<size_t> b;
+        std::vector<size_t> c = {1};
         for (auto& v : {a, b, c}) {
             size_t j = 0;
             FOR_DISPATCH_2(i, x, Enumerate(v)) {
@@ -139,7 +139,7 @@ using namespace NFuncTools;
             EXPECT_EQ(j, v.size());
         }
 
-        TVector<size_t> d = {0, 0, 0};
+        std::vector<size_t> d = {0, 0, 0};
         FOR_DISPATCH_2(i, x, Enumerate(d)) {
             x = i;
         }
@@ -150,12 +150,12 @@ using namespace NFuncTools;
     }
 
     TEST(FuncTools, EnumerateTemporary) {
-        TVector<size_t> a = {1, 2, 4};
-        TVector<size_t> b;
-        TVector<size_t> c = {1};
+        std::vector<size_t> a = {1, 2, 4};
+        std::vector<size_t> b;
+        std::vector<size_t> c = {1};
         for (auto& v : {a, b, c}) {
             size_t j = 0;
-            FOR_DISPATCH_2(i, x, Enumerate(TVector(v))) {
+            FOR_DISPATCH_2(i, x, Enumerate(std::vector(v))) {
                 EXPECT_EQ(v[i], x);
                 EXPECT_EQ(i, j++);
                 EXPECT_LT(i, v.size());
@@ -163,7 +163,7 @@ using namespace NFuncTools;
             EXPECT_EQ(j, v.size());
         }
 
-        FOR_DISPATCH_2(i, x, Enumerate(TVector<size_t>{1, 2, 3})) {
+        FOR_DISPATCH_2(i, x, Enumerate(std::vector<size_t>{1, 2, 3})) {
             EXPECT_EQ(i + 1, x);
         }
     }
@@ -186,7 +186,7 @@ using namespace NFuncTools;
     }
 
     TEST(FuncTools, Zip) {
-        TVector<std::pair<TVector<size_t>, TVector<size_t>>> ts = {
+        std::vector<std::pair<std::vector<size_t>, std::vector<size_t>>> ts = {
             {{1, 2, 3}, {4, 5, 6}},
             {{1, 2, 3}, {4, 5, 6, 7}},
             {{1, 2, 3, 4}, {4, 5, 6}},
@@ -204,8 +204,8 @@ using namespace NFuncTools;
     }
 
     TEST(FuncTools, ZipReference) {
-        TVector a = {0, 1, 2};
-        TVector b = {2, 1, 0, -1};
+        std::vector a = {0, 1, 2};
+        std::vector b = {2, 1, 0, -1};
         FOR_DISPATCH_2(ai, bi, Zip(a, b)) {
             ai = bi;
         }
@@ -216,7 +216,7 @@ using namespace NFuncTools;
     }
 
     TEST(FuncTools, Zip3) {
-        TVector<std::tuple<TVector<i32>, TVector<i32>, TVector<i32>>> ts = {
+        std::vector<std::tuple<std::vector<i32>, std::vector<i32>, std::vector<i32>>> ts = {
             {{1, 2, 3}, {4, 5, 6}, {11, 3}},
             {{1, 2, 3}, {4, 5, 6, 7}, {9, 0}},
             {{1, 2, 3, 4}, {9}, {4, 5, 6}},
@@ -225,12 +225,12 @@ using namespace NFuncTools;
         };
 
         FOR_DISPATCH_3(a, b, c, ts) {
-            TVector<std::tuple<i32, i32, i32>> e;
+            std::vector<std::tuple<i32, i32, i32>> e;
             for (size_t j = 0; j < a.size() && j < b.size() && j < c.size(); ++j) {
                 e.push_back({a[j], b[j], c[j]});
             }
 
-            TVector<std::tuple<i32, i32, i32>> f;
+            std::vector<std::tuple<i32, i32, i32>> f;
             FOR_DISPATCH_3(ai, bi, ci, Zip(a, b, c)) {
                 f.push_back({ai, bi, ci});
             }
@@ -258,7 +258,7 @@ using namespace NFuncTools;
     }
 
     TEST(FuncTools, Filter) {
-        TVector<TVector<i32>> ts = {
+        std::vector<std::vector<i32>> ts = {
             {},
             {1},
             {2},
@@ -270,14 +270,14 @@ using namespace NFuncTools;
         auto pred = [](i32 x) -> bool { return x & 1; };
 
         for (auto& a : ts) {
-            TVector<i32> b;
+            std::vector<i32> b;
             for (i32 x : a) {
                 if (pred(x)) {
                     b.push_back(x);
                 }
             }
 
-            TVector<i32> c;
+            std::vector<i32> c;
             for (i32 x : Filter(pred, a)) {
                 c.push_back(x);
             }
@@ -295,7 +295,7 @@ using namespace NFuncTools;
     }
 
     TEST(FuncTools, Map) {
-        TVector<TVector<i32>> ts = {
+        std::vector<std::vector<i32>> ts = {
             {},
             {1},
             {1, 2},
@@ -305,12 +305,12 @@ using namespace NFuncTools;
         auto f = [](i32 x) { return x * x; };
 
         for (auto& a : ts) {
-            TVector<i32> b;
+            std::vector<i32> b;
             for (i32 x : a) {
                 b.push_back(f(x));
             }
 
-            TVector<i32> c;
+            std::vector<i32> c;
             for (i32 x : Map(f, a)) {
                 c.push_back(x);
             }
@@ -318,11 +318,11 @@ using namespace NFuncTools;
             EXPECT_EQ(b, c);
         }
 
-        TVector floats = {1.4, 4.1, 13.9};
-        TVector ints = {1, 4, 13};
-        TVector<float> roundedFloats = {1, 4, 13};
-        TVector<int> res;
-        TVector<float> resFloat;
+        std::vector floats = {1.4, 4.1, 13.9};
+        std::vector ints = {1, 4, 13};
+        std::vector<float> roundedFloats = {1, 4, 13};
+        std::vector<int> res;
+        std::vector<float> resFloat;
         for (auto i : Map<int>(floats)) {
             res.push_back(i);
         }
@@ -360,7 +360,7 @@ using namespace NFuncTools;
     }
 
     TEST(FuncTools, CartesianProduct) {
-        TVector<std::pair<TVector<i32>, TVector<i32>>> ts = {
+        std::vector<std::pair<std::vector<i32>, std::vector<i32>>> ts = {
             {{1, 2, 3}, {4, 5, 6}},
             {{1, 2, 3}, {4, 5, 6, 7}},
             {{1, 2, 3, 4}, {4, 5, 6}},
@@ -369,14 +369,14 @@ using namespace NFuncTools;
         };
 
         for (auto [a, b] : ts) {
-            TVector<std::pair<i32, i32>> c;
+            std::vector<std::pair<i32, i32>> c;
             for (auto ai : a) {
                 for (auto bi : b) {
                     c.push_back({ai, bi});
                 }
             }
 
-            TVector<std::pair<i32, i32>> d;
+            std::vector<std::pair<i32, i32>> d;
             FOR_DISPATCH_2(ai, bi, CartesianProduct(a, b)) {
                 d.push_back({ai, bi});
             }
@@ -385,8 +385,8 @@ using namespace NFuncTools;
         }
 
         {
-            TVector<TVector<int>> g = {{}, {}};
-            TVector h = {10, 11, 12};
+            std::vector<std::vector<int>> g = {{}, {}};
+            std::vector h = {10, 11, 12};
             FOR_DISPATCH_2(gi, i, CartesianProduct(g, h)) {
                 gi.push_back(i);
             }
@@ -396,7 +396,7 @@ using namespace NFuncTools;
     }
 
     TEST(FuncTools, CartesianProduct3) {
-        TVector<std::tuple<TVector<i32>, TVector<i32>, TVector<i32>>> ts = {
+        std::vector<std::tuple<std::vector<i32>, std::vector<i32>, std::vector<i32>>> ts = {
             {{1, 2, 3}, {4, 5, 6}, {11, 3}},
             {{1, 2, 3}, {4, 5, 6, 7}, {9}},
             {{1, 2, 3, 4}, {9}, {4, 5, 6}},
@@ -405,7 +405,7 @@ using namespace NFuncTools;
         };
 
         FOR_DISPATCH_3(a, b, c, ts) {
-            TVector<std::tuple<i32, i32, i32>> e;
+            std::vector<std::tuple<i32, i32, i32>> e;
             for (auto ai : a) {
                 for (auto bi : b) {
                     for (auto ci : c) {
@@ -414,7 +414,7 @@ using namespace NFuncTools;
                 }
             }
 
-            TVector<std::tuple<i32, i32, i32>> f;
+            std::vector<std::tuple<i32, i32, i32>> f;
             FOR_DISPATCH_3(ai, bi, ci, CartesianProduct(a, b, c)) {
                 f.push_back({ai, bi, ci});
             }
@@ -443,7 +443,7 @@ using namespace NFuncTools;
     }
 
     TEST(FuncTools, Concatenate2) {
-        TVector<std::pair<TVector<i32>, TVector<i32>>> ts = {
+        std::vector<std::pair<std::vector<i32>, std::vector<i32>>> ts = {
             {{1, 2, 3}, {4, 5, 6}},
             {{1, 2, 3}, {4, 5, 6, 7}},
             {{1, 2, 3, 4}, {4, 5, 6}},
@@ -452,7 +452,7 @@ using namespace NFuncTools;
         };
 
         for (auto [a, b] : ts) {
-            TVector<i32> c;
+            std::vector<i32> c;
             for (auto ai : a) {
                 c.push_back(ai);
             }
@@ -460,7 +460,7 @@ using namespace NFuncTools;
                 c.push_back(bi);
             }
 
-            TVector<i32> d;
+            std::vector<i32> d;
             for (auto x : Concatenate(a, b)) {
                 d.push_back(x);
             }
@@ -469,12 +469,12 @@ using namespace NFuncTools;
         }
 
         {
-            TVector<i32> a = {1, 2, 3, 4};
-            TVector<i32> c;
-            for (auto x : Concatenate(a, TVector<i32>{5, 6})) {
+            std::vector<i32> a = {1, 2, 3, 4};
+            std::vector<i32> c;
+            for (auto x : Concatenate(a, std::vector<i32>{5, 6})) {
                 c.push_back(x);
             }
-            EXPECT_EQ(c, (TVector<i32>{1, 2, 3, 4, 5, 6}));
+            EXPECT_EQ(c, (std::vector<i32>{1, 2, 3, 4, 5, 6}));
         }
     }
 
@@ -503,7 +503,7 @@ using namespace NFuncTools;
             EXPECT_EQ(std::get<0>(jk), std::get<1>(jk));
         }
 
-        TVector<size_t> a = {0, 1, 2};
+        std::vector<size_t> a = {0, 1, 2};
         FOR_DISPATCH_2(i, j, Enumerate(Reversed(a))) {
             EXPECT_EQ(i, 2 - j);
         }
@@ -526,8 +526,8 @@ using namespace NFuncTools;
 
 
     TEST(FuncTools, CopyIterator) {
-        TVector a = {1, 2, 3, 4};
-        TVector b = {4, 5, 6, 7};
+        std::vector a = {1, 2, 3, 4};
+        std::vector b = {4, 5, 6, 7};
 
         // calls f on 2nd, 3d and 4th positions (numeration from 1st)
         auto testIterator = [](auto it, auto f) {
@@ -588,7 +588,7 @@ using namespace NFuncTools;
         }
 
         {
-            auto iterable = CartesianProduct(TVector{0, 1}, TVector{2, 3});
+            auto iterable = CartesianProduct(std::vector{0, 1}, std::vector{2, 3});
             // (0, 2), (0, 3), (1, 2), (1, 3)
             testIterator(std::begin(iterable),
                 [](auto p2, auto p3, auto p4) {

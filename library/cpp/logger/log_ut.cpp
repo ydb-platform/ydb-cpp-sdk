@@ -8,7 +8,7 @@
 #include <util/memory/blob.h>
 #include <util/stream/file.h>
 #include <util/generic/string.h>
-#include <util/generic/vector.h>
+
 
 class TLogTest: public TTestBase {
     UNIT_TEST_SUITE(TLogTest);
@@ -174,7 +174,7 @@ void TLogTest::TestWrite() {
         TLog log(THolder(new TStreamLogBackend(&data)));
 
         for (size_t i = 0; i < 1000; ++i) {
-            TVector<char> buf(i, (char)i);
+            std::vector<char> buf(i, (char)i);
 
             test.append(buf.data(), buf.size());
             log.Write(buf.data(), buf.size());

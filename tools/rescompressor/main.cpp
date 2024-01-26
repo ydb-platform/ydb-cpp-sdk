@@ -76,7 +76,7 @@ private:
     }
 };
 
-static TString CompressPath(const TVector<TStringBuf>& replacements, TStringBuf in) {
+static TString CompressPath(const std::vector<TStringBuf>& replacements, TStringBuf in) {
     for (auto r : replacements) {
         TStringBuf from, to;
         r.Split('=', from, to);
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    TVector<TStringBuf> replacements;
+    std::vector<TStringBuf> replacements;
 
     ind++;
     TFixedBufferFileOutput asmout(argv[ind]);

@@ -7,7 +7,7 @@ using namespace NYdb::NTable;
 using namespace NLastGetopt;
 
 TStatus SelectSeriesWithUserName(TSession session, const TString& path,
-            TVector<TSeries>& selectResult, const TString& name) {
+            std::vector<TSeries>& selectResult, const TString& name) {
 
     auto queryText = Sprintf(R"(
         --!syntax_v1
@@ -55,7 +55,7 @@ int SelectJoin(TDriver& driver, const TString& path, int argc, char **argv) {
     TOptsParseResult res(&opts, argc, argv);
     TTableClient client(driver);
 
-    TVector<TSeries> selectResult;
+    std::vector<TSeries> selectResult;
 
     ThrowOnError(client.RetryOperationSync([path, &selectResult, name](TSession session) {
         return SelectSeriesWithUserName(session, path, selectResult, name);

@@ -10,13 +10,13 @@
  * `TArrayRef` works pretty much like `std::span` with dynamic extent, presenting
  * an array-like interface into a contiguous sequence of objects.
  *
- * It can be used at interface boundaries instead of `TVector` or
+ * It can be used at interface boundaries instead of `std::vector` or
  * pointer-size pairs, and is actually a preferred way to pass contiguous data
  * into functions.
  *
  * Note that `TArrayRef` can be auto-constructed from any contiguous container
  * (with `size` and `data` members), and thus you don't have to change client code
- * when switching over from passing `TVector` to `TArrayRef`.
+ * when switching over from passing `std::vector` to `TArrayRef`.
  *
  * Note that `TArrayRef` has the same const-semantics as raw pointers:
  * - `TArrayRef<T>` is a non-const reference to non-const data (like `T*`);

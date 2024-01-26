@@ -80,7 +80,7 @@ TString GetCommandsList();
 TCommand Parse(const char *stringCmnd);
 TString JoinPath(const TString& prefix, const TString& path);
 
-void ParseSelectSeries(TVector<TSeries>& parseResult, TResultSetParser&& parser);
+void ParseSelectSeries(std::vector<TSeries>& parseResult, TResultSetParser&& parser);
 
 int Create(NYdb::TDriver& driver, const TString& path);
 int Insert(NYdb::TDriver& driver, const TString& path);

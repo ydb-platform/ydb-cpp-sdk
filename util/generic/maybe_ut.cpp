@@ -533,7 +533,7 @@ Y_UNIT_TEST_SUITE(TMaybeTest) {
         }
 
         {
-            auto m3 = MakeMaybe<TVector<int>>({1, 2, 3, 4, 5});
+            auto m3 = MakeMaybe<std::vector<int>>({1, 2, 3, 4, 5});
             UNIT_ASSERT(m3->size() == 5);
             UNIT_ASSERT(m3->at(0) == 1);
             UNIT_ASSERT(m3->at(1) == 2);
@@ -564,13 +564,13 @@ Y_UNIT_TEST_SUITE(TMaybeTest) {
 
         {
             struct TMockStruct5 {
-                TMockStruct5(const TVector<int>& vec, bool someFlag)
+                TMockStruct5(const std::vector<int>& vec, bool someFlag)
                     : Vec_(vec)
                     , SomeFlag_(someFlag)
                 {
                 }
 
-                TVector<int> Vec_;
+                std::vector<int> Vec_;
                 bool SomeFlag_;
             };
 

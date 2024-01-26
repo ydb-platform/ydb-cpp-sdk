@@ -12,7 +12,7 @@ namespace NThreading {
         using TCallback = std::function<void(const TFuture<T>&)>;
 
         template <typename T>
-        using TCallbackList = TVector<TCallback<T>>; // TODO: small vector
+        using TCallbackList = std::vector<TCallback<T>>; // TODO: small vector
 
         ////////////////////////////////////////////////////////////////////////////////
 
@@ -158,7 +158,7 @@ namespace NThreading {
                     readyEvent->Signal();
                 }
 
-                if (callbacks) {
+                if (!callbacks.empty()) {
                     TFuture<T> temp(this);
                     for (auto& callback : callbacks) {
                         callback(temp);
@@ -197,7 +197,7 @@ namespace NThreading {
                     readyEvent->Signal();
                 }
 
-                if (callbacks) {
+                if (!callbacks.empty()) {
                     TFuture<T> temp(this);
                     for (auto& callback : callbacks) {
                         callback(temp);
@@ -344,7 +344,7 @@ namespace NThreading {
                     readyEvent->Signal();
                 }
 
-                if (callbacks) {
+                if (!callbacks.empty()) {
                     TFuture<void> temp(this);
                     for (auto& callback : callbacks) {
                         callback(temp);
@@ -383,7 +383,7 @@ namespace NThreading {
                     readyEvent->Signal();
                 }
 
-                if (callbacks) {
+                if (!callbacks.empty()) {
                     TFuture<void> temp(this);
                     for (auto& callback : callbacks) {
                         callback(temp);

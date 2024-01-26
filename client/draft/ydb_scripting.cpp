@@ -14,13 +14,13 @@ namespace NScripting {
 
 using namespace NThreading;
 
-TExecuteYqlResult::TExecuteYqlResult(TStatus&& status, TVector<TResultSet>&& resultSets,
+TExecuteYqlResult::TExecuteYqlResult(TStatus&& status, std::vector<TResultSet>&& resultSets,
     const TMaybe<NTable::TQueryStats>& queryStats)
     : TStatus(std::move(status))
     , ResultSets_(std::move(resultSets))
     , QueryStats_(queryStats) {}
 
-const TVector<TResultSet>& TExecuteYqlResult::GetResultSets() const {
+const std::vector<TResultSet>& TExecuteYqlResult::GetResultSets() const {
     return ResultSets_;
 }
 
@@ -163,7 +163,7 @@ public:
 
         auto extractor = [promise]
             (google::protobuf::Any* any, TPlainStatus status) mutable {
-                TVector<TResultSet> res;
+                std::vector<TResultSet> res;
                 TMaybe<NTable::TQueryStats> queryStats;
                 if (any) {
                     Ydb::Scripting::ExecuteYqlResult result;

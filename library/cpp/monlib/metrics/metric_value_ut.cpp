@@ -37,7 +37,7 @@ Y_UNIT_TEST_SUITE(TMetricValueTest) {
     }
 
     TLogHistogramSnapshotPtr MakeLogHistogram(ui64 count = 0) {
-        TVector<double> buckets;
+        std::vector<double> buckets;
         for (ui64 i = 0; i < count; ++i) {
             buckets.push_back(i);
         }

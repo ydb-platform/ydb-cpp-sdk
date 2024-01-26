@@ -4,16 +4,16 @@
 
 #include <util/generic/ptr.h>
 #include <util/generic/hash.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/algorithm.h>
 #include <util/memory/pool.h>
 
 namespace NLCS {
     template <typename TVal>
     struct TLCSCtx {
-        typedef TVector<ui32> TSubsequence;
+        typedef std::vector<ui32> TSubsequence;
         typedef THashMap<TVal, TSubsequence, THash<TVal>, TEqualTo<TVal>, ::TPoolAllocator> TEncounterIndex;
-        typedef TVector<std::pair<ui32, ui32>> TLastIndex;
+        typedef std::vector<std::pair<ui32, ui32>> TLastIndex;
         typedef NPagedVector::TPagedVector<TSubsequence, 4096> TCover;
 
         TMemoryPool Pool;
@@ -183,7 +183,7 @@ namespace NLCS {
 
     template <typename TVal, typename TIter>
     size_t MeasureLCS(TIter beg1, TIter end1, TIter beg2, TIter end2, TLCSCtx<TVal>* ctx = nullptr) {
-        return MakeLCS<TVal>(beg1, end1, beg2, end2, (TVector<TVal>*)nullptr, ctx);
+        return MakeLCS<TVal>(beg1, end1, beg2, end2, (std::vector<TVal>*)nullptr, ctx);
     }
 
     template <typename TVal, typename TColl>

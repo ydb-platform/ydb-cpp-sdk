@@ -14,7 +14,7 @@ public:
     struct TItem {
         TMaybe<TString> Value;
         TString CppName;
-        TVector<TString> Aliases;
+        std::vector<TString> Aliases;
         TString CommentText;
 
         void Clear() {
@@ -30,9 +30,9 @@ public:
     };
 
     // vector is to preserve declaration order
-    typedef TVector<TItem> TItems;
+    typedef std::vector<TItem> TItems;
 
-    typedef TVector<TString> TScope;
+    typedef std::vector<TString> TScope;
 
     struct TEnum {
         TItems Items;
@@ -48,7 +48,7 @@ public:
         }
     };
 
-    typedef TVector<TEnum> TEnums;
+    typedef std::vector<TEnum> TEnums;
 
     /// Parse results stored here
     TEnums Enums;

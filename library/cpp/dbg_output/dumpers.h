@@ -91,10 +91,6 @@ struct TDumper<std::pair<A, B>> {
 
 //sequences
 template <class T, class A>
-struct TDumper<TVector<T, A>>: public TSeqDumper {
-};
-
-template <class T, class A>
 struct TDumper<std::vector<T, A>>: public TSeqDumper {
 };
 

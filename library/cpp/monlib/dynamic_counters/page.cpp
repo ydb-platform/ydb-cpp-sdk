@@ -36,7 +36,7 @@ void TDynamicCountersPage::Output(NMonitoring::IMonHttpRequest& request) {
         TCountableBase::EVisibility::Public
     };
 
-    TVector<TStringBuf> parts;
+    std::vector<TStringBuf> parts;
     StringSplitter(request.GetPathInfo())
         .Split('/')
         .SkipEmpty()
@@ -48,7 +48,7 @@ void TDynamicCountersPage::Output(NMonitoring::IMonHttpRequest& request) {
     }
 
     if (!parts.empty() && parts.back().StartsWith(TStringBuf("name_label="))) {
-        TVector<TString> labels;
+        std::vector<TString> labels;
         StringSplitter(parts.back()).Split('=').SkipEmpty().Collect(&labels);
         if (labels.size() == 2U) {
             nameLabel = labels.back();
@@ -66,7 +66,7 @@ void TDynamicCountersPage::Output(NMonitoring::IMonHttpRequest& request) {
     for (const auto& escaped : parts) {
         const auto part = CGIUnescapeRet(escaped);
 
-        TVector<TString> labels;
+        std::vector<TString> labels;
         StringSplitter(part).Split('=').SkipEmpty().Collect(&labels);
 
         if (labels.size() != 2U)

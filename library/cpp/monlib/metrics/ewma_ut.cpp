@@ -21,7 +21,7 @@ Y_UNIT_TEST_SUITE(TEwmaTest) {
         ewma->Update(3);
         ewma->Tick();
 
-        TVector<double> expectedValues {
+        std::vector<double> expectedValues {
             0.6,
             0.22072766,
             0.08120117,
@@ -53,7 +53,7 @@ Y_UNIT_TEST_SUITE(TEwmaTest) {
         ewma->Update(3);
         ewma->Tick();
 
-        TVector<double> expectedValues {
+        std::vector<double> expectedValues {
             0.6,
             0.49123845,
             0.40219203,
@@ -85,7 +85,7 @@ Y_UNIT_TEST_SUITE(TEwmaTest) {
         ewma->Update(3);
         ewma->Tick();
 
-        TVector<double> expectedValues {
+        std::vector<double> expectedValues {
             0.6,
             0.56130419,
             0.52510399,

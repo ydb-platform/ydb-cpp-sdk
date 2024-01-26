@@ -11,8 +11,8 @@
 
 namespace NYdb::NPersQueue {
 
-const TVector<ECodec>& GetDefaultCodecs() {
-    static const TVector<ECodec> codecs = {};
+const std::vector<ECodec>& GetDefaultCodecs() {
+    static const std::vector<ECodec> codecs = {};
     return codecs;
 }
 

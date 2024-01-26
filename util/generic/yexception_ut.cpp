@@ -145,7 +145,7 @@ private:
         } catch (...) {
             TString exceptionMessage = FormatCurrentException();
             UNIT_ASSERT(exceptionMessage.Contains("(std::logic_error) some exception"));
-            TVector<TString> backtraceStrs = StringSplitter(exceptionMessage).Split('\n');
+            std::vector<TString> backtraceStrs = StringSplitter(exceptionMessage).Split('\n');
             UNIT_ASSERT(backtraceStrs.size() > 1);
         }
     }

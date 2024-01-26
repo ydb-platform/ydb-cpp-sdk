@@ -2,7 +2,7 @@
 #include "ygetopt.h"
 
 #include <util/generic/string.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/yexception.h>
 
 class TGetOpt::TImpl: public TSimpleRefCount<TImpl> {
@@ -18,7 +18,7 @@ public:
 
     inline ~TImpl() = default;
 
-    TVector<TString> args;
+    std::vector<TString> args;
     const TString format;
 };
 
@@ -59,7 +59,7 @@ public:
     }
 
 private:
-    TVector<TString> Args_;
+    std::vector<TString> Args_;
     TArrayHolder<char*> ArgsPtrs_;
     const TString Format_;
     THolder<Opt> Opt_;

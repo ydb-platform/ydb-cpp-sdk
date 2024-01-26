@@ -43,7 +43,7 @@ namespace NMonitoring {
     private:
         int StartPower_;
         ui64 CountZero_;
-        TVector<double> Buckets_;
+        std::vector<double> Buckets_;
         mutable std::mutex Mutex_;
 
         static constexpr size_t MAX_BUCKETS = LOG_HIST_MAX_BUCKETS;

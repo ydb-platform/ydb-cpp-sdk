@@ -74,7 +74,7 @@ struct TDescribeTopicResult : public TStatus {
             GETTER(bool, Important);
             GETTER(TInstant, StartingMessageTimestamp);
             GETTER(EFormat, SupportedFormat);
-            const TVector<ECodec>& SupportedCodecs() const {
+            const std::vector<ECodec>& SupportedCodecs() const {
                 return SupportedCodecs_;
             }
             GETTER(ui32, Version);
@@ -85,7 +85,7 @@ struct TDescribeTopicResult : public TStatus {
             bool Important_;
             TInstant StartingMessageTimestamp_;
             EFormat SupportedFormat_;
-            TVector<ECodec> SupportedCodecs_;
+            std::vector<ECodec> SupportedCodecs_;
             ui32 Version_;
             TString ServiceType_;
         };
@@ -111,7 +111,7 @@ struct TDescribeTopicResult : public TStatus {
         GETTER(ui32, PartitionsCount);
         GETTER(TDuration, RetentionPeriod);
         GETTER(EFormat, SupportedFormat);
-        const TVector<ECodec>& SupportedCodecs() const {
+        const std::vector<ECodec>& SupportedCodecs() const {
             return SupportedCodecs_;
         }
         GETTER(ui64, MaxPartitionStorageSize);
@@ -127,7 +127,7 @@ struct TDescribeTopicResult : public TStatus {
         GETTER(TMaybe<TString>, AbcSlug);
         GETTER(TMaybe<TString>, FederationAccount);
 
-        const TVector<TReadRule>& ReadRules() const {
+        const std::vector<TReadRule>& ReadRules() const {
             return ReadRules_;
         }
         GETTER(TMaybe<TRemoteMirrorRule>, RemoteMirrorRule);
@@ -139,12 +139,12 @@ struct TDescribeTopicResult : public TStatus {
         ui32 PartitionsCount_;
         TDuration RetentionPeriod_;
         EFormat SupportedFormat_;
-        TVector<ECodec> SupportedCodecs_;
+        std::vector<ECodec> SupportedCodecs_;
         ui64 MaxPartitionStorageSize_;
         ui64 MaxPartitionWriteSpeed_;
         ui64 MaxPartitionWriteBurst_;
         bool ClientWriteDisabled_;
-        TVector<TReadRule> ReadRules_;
+        std::vector<TReadRule> ReadRules_;
         TMaybe<TRemoteMirrorRule> RemoteMirrorRule_;
         // attributes
         bool AllowUnauthenticatedRead_;
@@ -173,7 +173,7 @@ using TAsyncDescribeTopicResult = NThreading::TFuture<TDescribeTopicResult>;
 
 
 
-const TVector<ECodec>& GetDefaultCodecs();
+const std::vector<ECodec>& GetDefaultCodecs();
 
 struct TReadRuleSettings {
     TReadRuleSettings() {}
@@ -182,7 +182,7 @@ struct TReadRuleSettings {
     FLUENT_SETTING_DEFAULT(bool, Important, false);
     FLUENT_SETTING_DEFAULT(TInstant, StartingMessageTimestamp, TInstant::Zero());
     FLUENT_SETTING_DEFAULT(EFormat, SupportedFormat, EFormat::BASE)
-    FLUENT_SETTING_DEFAULT(TVector<ECodec>, SupportedCodecs, GetDefaultCodecs());
+    FLUENT_SETTING_DEFAULT(std::vector<ECodec>, SupportedCodecs, GetDefaultCodecs());
 
     FLUENT_SETTING_DEFAULT(ui32, Version, 0);
     FLUENT_SETTING(TString, ServiceType);
@@ -234,7 +234,7 @@ struct TTopicSettings : public TOperationRequestSettings<TDerived> {
     FLUENT_SETTING_DEFAULT(ui32, PartitionsCount, 1);
     FLUENT_SETTING_DEFAULT(TDuration, RetentionPeriod, TDuration::Hours(18));
     FLUENT_SETTING_DEFAULT(EFormat, SupportedFormat, EFormat::BASE)
-    FLUENT_SETTING_DEFAULT(TVector<ECodec>, SupportedCodecs, GetDefaultCodecs());
+    FLUENT_SETTING_DEFAULT(std::vector<ECodec>, SupportedCodecs, GetDefaultCodecs());
 
     FLUENT_SETTING_DEFAULT(ui64, MaxPartitionStorageSize, 0);
     FLUENT_SETTING_DEFAULT(ui64, MaxPartitionWriteSpeed, 2_MB);
@@ -251,7 +251,7 @@ struct TTopicSettings : public TOperationRequestSettings<TDerived> {
     FLUENT_SETTING_OPTIONAL(TString, FederationAccount);
 
     //TODO: FLUENT_SETTING_VECTOR
-    FLUENT_SETTING_DEFAULT(TVector<TReadRuleSettings>, ReadRules, {});
+    FLUENT_SETTING_DEFAULT(std::vector<TReadRuleSettings>, ReadRules, {});
     FLUENT_SETTING_OPTIONAL(TRemoteMirrorRuleSettings, RemoteMirrorRule);
 
     TSelf& SetSettings(const TDescribeTopicResult::TTopicSettings& settings) {
@@ -325,7 +325,7 @@ struct TMessageMeta : public TThrRefBase {
     using TPtr = TIntrusivePtr<TWriteSessionMeta>;
 
     //! User defined fields.
-    TVector<std::pair<TString, TString>> Fields;
+    std::vector<std::pair<TString, TString>> Fields;
 };
 
 //! Event that is sent to client during session destruction.
@@ -644,7 +644,7 @@ struct TReadSessionEvent {
             virtual ~TCompressedMessage() {}
             TCompressedMessage(ECodec codec,
                                const TString& data,
-                               const TVector<TMessageInformation>& information,
+                               const std::vector<TMessageInformation>& information,
                                TPartitionStream::TPtr partitionStream,
                                const TString& partitionKey,
                                const TString& explicitHash);
@@ -657,7 +657,7 @@ struct TReadSessionEvent {
 
         private:
             ECodec Codec;
-            TVector<TMessageInformation> Information;
+            std::vector<TMessageInformation> Information;
         };
 
         //! Partition stream.
@@ -674,23 +674,23 @@ struct TReadSessionEvent {
         }
 
         //! Get messages.
-        TVector<TMessage>& GetMessages() {
+        std::vector<TMessage>& GetMessages() {
             CheckMessagesFilled(false);
             return Messages;
         }
 
-        const TVector<TMessage>& GetMessages() const {
+        const std::vector<TMessage>& GetMessages() const {
             CheckMessagesFilled(false);
             return Messages;
         }
 
         //! Get compressed messages.
-        TVector<TCompressedMessage>& GetCompressedMessages() {
+        std::vector<TCompressedMessage>& GetCompressedMessages() {
             CheckMessagesFilled(true);
             return CompressedMessages;
         }
 
-        const TVector<TCompressedMessage>& GetCompressedMessages() const {
+        const std::vector<TCompressedMessage>& GetCompressedMessages() const {
             CheckMessagesFilled(true);
             return CompressedMessages;
         }
@@ -700,8 +700,8 @@ struct TReadSessionEvent {
 
         TString DebugString(bool printData = false) const;
 
-        TDataReceivedEvent(TVector<TMessage> messages,
-                           TVector<TCompressedMessage> compressedMessages,
+        TDataReceivedEvent(std::vector<TMessage> messages,
+                           std::vector<TCompressedMessage> compressedMessages,
                            TPartitionStream::TPtr partitionStream);
 
     private:
@@ -716,8 +716,8 @@ struct TReadSessionEvent {
         }
 
     private:
-        TVector<TMessage> Messages;
-        TVector<TCompressedMessage> CompressedMessages;
+        std::vector<TMessage> Messages;
+        std::vector<TCompressedMessage> CompressedMessages;
         TPartitionStream::TPtr PartitionStream;
         std::vector<std::pair<ui64, ui64>> OffsetRanges;
     };
@@ -1017,7 +1017,7 @@ struct TWriteSessionEvent {
         //! Acks could be batched from several WriteBatch/Write requests.
         //! Acks for messages from one WriteBatch request could be emitted as several TAcksEvents -
         //! they are provided to client as soon as possible.
-        TVector<TWriteAck> Acks;
+        std::vector<TWriteAck> Acks;
 
         TString DebugString() const;
 
@@ -1290,7 +1290,7 @@ struct TReadSessionSettings : public TRequestSettings<TReadSessionSettings> {
     }
 
     //! Read original topic instances specified in "Topics" from several clusters.
-    TSelf& ReadOriginal(TVector<TString> clusters) {
+    TSelf& ReadOriginal(std::vector<TString> clusters) {
         Clusters_ = std::move(clusters);
         return ReadOnlyOriginal(true);
     }
@@ -1400,7 +1400,7 @@ public:
     //! If blocking = false, instantly returns up to maxEventsCount available events.
     //! If blocking = true, blocks till maxEventsCount events are available.
     //! If maxEventsCount is unset, write session decides the count to return itself.
-    virtual TVector<TWriteSessionEvent::TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing()) = 0;
+    virtual std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing()) = 0;
 
     //! Future that is set when initial SeqNo is available.
     virtual NThreading::TFuture<ui64> GetInitSeqNo() = 0;
@@ -1442,7 +1442,7 @@ public:
     //!
     //! If maxEventsCount is not specified,
     //! read session chooses event batch size automatically.
-    virtual TVector<TReadSessionEvent::TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing(), size_t maxByteSize = std::numeric_limits<size_t>::max()) = 0;
+    virtual std::vector<TReadSessionEvent::TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing(), size_t maxByteSize = std::numeric_limits<size_t>::max()) = 0;
 
     //! Get single event.
     virtual TMaybe<TReadSessionEvent::TEvent> GetEvent(bool block = false, size_t maxByteSize = std::numeric_limits<size_t>::max()) = 0;
@@ -1454,7 +1454,7 @@ public:
     // virtual void RemoveTopic(const TString& path) = 0; // Not implemented yet.
 
     //! Remove partition groups of topic from session.
-    // virtual void RemoveTopic(const TString& path, const TVector<ui64>& partitionGruops) = 0; // Not implemented yet.
+    // virtual void RemoveTopic(const TString& path, const std::vector<ui64>& partitionGruops) = 0; // Not implemented yet.
 
     //! Stop reading data and process only control events.
     //! You might need this function if a receiving side

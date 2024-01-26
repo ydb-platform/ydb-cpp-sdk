@@ -46,7 +46,7 @@ static inline void DoSplit0(C* res, const TBasicStringBuf<TChr> str, TDelim& d, 
 }
 
 template <typename TChr>
-static void SplitStringImplT(TVector<std::conditional_t<std::is_same<TChr, wchar16>::value, TUtf16String, TString>>* res,
+static void SplitStringImplT(std::vector<std::conditional_t<std::is_same<TChr, wchar16>::value, TUtf16String, TString>>* res,
                              const TBasicStringBuf<TChr> str, const TChr* delim, size_t maxFields, int options) {
     if (!*delim) {
         return;
@@ -63,27 +63,27 @@ static void SplitStringImplT(TVector<std::conditional_t<std::is_same<TChr, wchar
     }
 }
 
-void ::NPrivate::SplitStringImpl(TVector<TString>* res, const char* ptr, const char* delim, size_t maxFields, int options) {
+void ::NPrivate::SplitStringImpl(std::vector<TString>* res, const char* ptr, const char* delim, size_t maxFields, int options) {
     return SplitStringImplT<char>(res, TStringBuf(ptr), delim, maxFields, options);
 }
 
-void ::NPrivate::SplitStringImpl(TVector<TString>* res, const char* ptr, size_t len, const char* delim, size_t maxFields, int options) {
+void ::NPrivate::SplitStringImpl(std::vector<TString>* res, const char* ptr, size_t len, const char* delim, size_t maxFields, int options) {
     return SplitStringImplT<char>(res, TStringBuf(ptr, len), delim, maxFields, options);
 }
 
-void ::NPrivate::SplitStringImpl(TVector<TUtf16String>* res, const wchar16* ptr, const wchar16* delimiter, size_t maxFields, int options) {
+void ::NPrivate::SplitStringImpl(std::vector<TUtf16String>* res, const wchar16* ptr, const wchar16* delimiter, size_t maxFields, int options) {
     return SplitStringImplT<wchar16>(res, TWtringBuf(ptr), delimiter, maxFields, options);
 }
 
-void ::NPrivate::SplitStringImpl(TVector<TUtf16String>* res, const wchar16* ptr, size_t len, const wchar16* delimiter, size_t maxFields, int options) {
+void ::NPrivate::SplitStringImpl(std::vector<TUtf16String>* res, const wchar16* ptr, size_t len, const wchar16* delimiter, size_t maxFields, int options) {
     return SplitStringImplT<wchar16>(res, TWtringBuf(ptr, len), delimiter, maxFields, options);
 }
 
-TUtf16String JoinStrings(const TVector<TUtf16String>& v, const TWtringBuf delim) {
+TUtf16String JoinStrings(const std::vector<TUtf16String>& v, const TWtringBuf delim) {
     return JoinStrings(v.begin(), v.end(), delim);
 }
 
-TUtf16String JoinStrings(const TVector<TUtf16String>& v, size_t index, size_t count, const TWtringBuf delim) {
+TUtf16String JoinStrings(const std::vector<TUtf16String>& v, size_t index, size_t count, const TWtringBuf delim) {
     const size_t f = Min(index, v.size());
     const size_t l = f + Min(count, v.size() - f);
 

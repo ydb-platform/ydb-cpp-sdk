@@ -222,7 +222,7 @@ Y_UNIT_TEST_F(WriteToTopic, TFixture)
     auto session = CreateSession();
     auto tx = BeginTx(session);
 
-    auto writeMessages = [&](const TVector<TString>& messages) {
+    auto writeMessages = [&](const std::vector<TString>& messages) {
         NTopic::TTopicClient client(GetDriver());
         auto session = client.CreateSimpleBlockingWriteSession(options);
 

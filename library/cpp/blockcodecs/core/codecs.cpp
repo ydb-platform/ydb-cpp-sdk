@@ -61,7 +61,7 @@ namespace {
 
         TDeque<TString> Tmp;
         TNullCodec Null;
-        TVector<TCodecPtr> Codecs;
+        std::vector<TCodecPtr> Codecs;
         typedef THashMap<TStringBuf, ICodec*> TRegistry;
         TRegistry Registry;
 

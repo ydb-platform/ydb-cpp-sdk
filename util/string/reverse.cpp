@@ -16,7 +16,7 @@ void ReverseInPlace(TUtf16String& string) {
     const auto len = string.size();
     auto* end = begin + string.size();
 
-    TVector<wchar16> buffer(len);
+    std::vector<wchar16> buffer(len);
     wchar16* rbegin = buffer.data() + len;
     for (wchar16* p = begin; p < end;) {
         const size_t symbolSize = W16SymbolSize(p, end);

@@ -5,7 +5,7 @@
 
 #include <util/generic/noncopyable.h>
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
+
 
 
 namespace NCoro::NStack {
@@ -42,7 +42,7 @@ namespace NCoro::NStack {
         const size_t StackSize_ = 0;
         size_t RssPagesToKeep_ = 0;
         const TGuard& Guard_;
-        TVector<TMemory> Memory_; // memory chunks
+        std::vector<TMemory> Memory_; // memory chunks
         THolder<TStorage> Storage_;
         char* NextToAlloc_ = nullptr; // points to next available stack in the last memory chunk
         const size_t ChunkSize_ = 0;

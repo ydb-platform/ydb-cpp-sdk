@@ -228,7 +228,7 @@ protected:
     THttpURL URL_;
     bool PersistentConn_;
     httpAgentReader* Reader_;
-    TVector<TString> Headers_;
+    std::vector<TString> Headers_;
     int ErrCode_;
     char* RealHost_;
     httpDigestHandler Digest_;

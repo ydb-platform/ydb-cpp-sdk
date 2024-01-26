@@ -125,8 +125,8 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
 
     TPromise<TExecuteQueryResult> Promise_;
     TExecuteQueryIterator Iterator_;
-    TVector<NYql::TIssue> Issues_;
-    TVector<Ydb::ResultSet> ResultSets_;
+    std::vector<NYql::TIssue> Issues_;
+    std::vector<Ydb::ResultSet> ResultSets_;
     TMaybe<TExecStats> Stats_;
     TMaybe<TTransaction> Tx_;
 
@@ -138,8 +138,8 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
 
             if (!part.IsSuccess()) {
                 if (part.EOS()) {
-                    TVector<NYql::TIssue> issues;
-                    TVector<Ydb::ResultSet> resultProtos;
+                    std::vector<NYql::TIssue> issues;
+                    std::vector<Ydb::ResultSet> resultProtos;
                     TMaybe<TExecStats> stats;
                     TMaybe<TTransaction> tx;
 
@@ -148,7 +148,7 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
                     std::swap(self->Stats_, stats);
                     std::swap(self->Tx_, tx);
 
-                    TVector<TResultSet> resultSets;
+                    std::vector<TResultSet> resultSets;
                     for (auto& proto : resultProtos) {
                         resultSets.emplace_back(std::move(proto));
                     }

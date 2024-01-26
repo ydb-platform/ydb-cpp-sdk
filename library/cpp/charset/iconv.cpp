@@ -20,7 +20,8 @@ TDescriptor::TDescriptor(const char* from, const char* to)
 
 TDescriptor::~TDescriptor() {
     if (!Invalid()) {
-        iconv_close(Descriptor_);
+        auto descriptor = static_cast<iconv_t>(Descriptor_);
+        iconv_close(descriptor);
     }
 }
 
@@ -33,7 +34,8 @@ size_t NICONVPrivate::RecodeImpl(const TDescriptor& descriptor, const char* in, 
     char* outPtr = out;
     size_t inSizeMod = inSize;
     size_t outSizeMod = outSize;
-    size_t res = iconv(descriptor.Get(), &inPtr, &inSizeMod, &outPtr, &outSizeMod);
+    auto descr = static_cast<iconv_t>(descriptor.Get());
+    size_t res = iconv(descr, &inPtr, &inSizeMod, &outPtr, &outSizeMod);
 
     read = inSize - inSizeMod;
     written = outSize - outSizeMod;

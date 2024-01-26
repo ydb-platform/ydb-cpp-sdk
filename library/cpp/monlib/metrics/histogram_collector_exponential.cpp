@@ -2,7 +2,7 @@
 #include "atomics_array.h"
 
 #include <util/generic/algorithm.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/yexception.h>
 #include <util/generic/ylimits.h>
 

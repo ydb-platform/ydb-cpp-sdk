@@ -1,8 +1,8 @@
 #pragma once
 
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
 
+#include <vector>
 #include <cmath>
 
 namespace NMonitoring {
@@ -11,7 +11,7 @@ namespace NMonitoring {
 
     class TLogHistogramSnapshot: public TAtomicRefCount<TLogHistogramSnapshot> {
     public:
-        TLogHistogramSnapshot(double base, ui64 zerosCount, int startPower, TVector<double> buckets)
+        TLogHistogramSnapshot(double base, ui64 zerosCount, int startPower, std::vector<double> buckets)
             : Base_(base)
             , ZerosCount_(zerosCount)
             , StartPower_(startPower)
@@ -62,7 +62,7 @@ namespace NMonitoring {
         double Base_;
         ui64 ZerosCount_;
         int StartPower_;
-        TVector<double> Buckets_;
+        std::vector<double> Buckets_;
     };
 
     using TLogHistogramSnapshotPtr = TIntrusivePtr<TLogHistogramSnapshot>;

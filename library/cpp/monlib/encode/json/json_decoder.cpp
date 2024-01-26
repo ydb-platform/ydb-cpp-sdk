@@ -167,7 +167,7 @@ private:
     double Base_ = 1.5;
     ui64 ZerosCount_ = 0;
     int StartPower_ = 0;
-    TVector<double> Buckets_;
+    std::vector<double> Buckets_;
 };
 
 std::pair<double, bool> ParseSpecDouble(TStringBuf string) {
@@ -192,7 +192,7 @@ struct TMetricCollector {
     TSummaryDoubleBuilder SummaryBuilder;
     TLogHistogramBuilder LogHistBuilder;
     TTypedPoint LastPoint;
-    TVector<TTypedPoint> TimeSeries;
+    std::vector<TTypedPoint> TimeSeries;
 
     bool SeenTsOrValue = false;
     bool SeenTimeseries = false;

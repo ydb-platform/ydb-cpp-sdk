@@ -123,7 +123,7 @@ public:
         const TString& sessionId,
         const TString& path,
         const TReadTableSettings& settings);
-    TAsyncReadRowsResult ReadRows(const TString& path, TValue&& keys, const TVector<TString>& columns, const TReadRowsSettings& settings);
+    TAsyncReadRowsResult ReadRows(const TString& path, TValue&& keys, const std::vector<TString>& columns, const TReadRowsSettings& settings);
 
     TAsyncStatus Close(const TKqpSessionCommon* sessionImpl, const TCloseSessionSettings& settings);
     TAsyncStatus CloseInternal(const TKqpSessionCommon* sessionImpl);
@@ -210,7 +210,7 @@ private:
         auto sessionPtr = new TSession(session);
         auto extractor = [promise, sessionPtr, query, fromCache, keepInCache]
             (google::protobuf::Any* any, TPlainStatus status) mutable {
-                TVector<TResultSet> res;
+                std::vector<TResultSet> res;
                 TMaybe<TTransaction> tx;
                 TMaybe<TDataQuery> dataQuery;
                 TMaybe<TQueryStats> queryStats;
