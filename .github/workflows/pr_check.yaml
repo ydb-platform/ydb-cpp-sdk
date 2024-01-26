@@ -27,7 +27,7 @@ jobs:
         sudo make
         sudo make install
         cd ..
-        rm -rf llvm.sh libiconv-1.15
+        sudo rm -rf llvm.sh libiconv-1.15
     - name: Checkout PR
       uses: actions/checkout@v3
       if: github.event.pull_request.head.sha != ''
