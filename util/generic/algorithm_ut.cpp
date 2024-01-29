@@ -283,13 +283,13 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
     }
 
     Y_UNIT_TEST(EraseNodesIfTest) {
-        TMap<int, int> map{{1, 1}, {2, 2}, {3, 5}};
-        TMap<int, int> expectedMap{{1, 1}};
+        std::map<int, int> map{{1, 1}, {2, 2}, {3, 5}};
+        std::map<int, int> expectedMap{{1, 1}};
         EraseNodesIf(map, [](auto p) { return p.first >= 2; });
         UNIT_ASSERT_EQUAL(map, expectedMap);
 
-        TMultiMap<int, int> multiMap{{1, 1}, {1, 3}, {2, 2}, {3, 5}};
-        TMultiMap<int, int> expectedMultiMap{{1, 1}, {1, 3}};
+        std::multimap<int, int> multiMap{{1, 1}, {1, 3}, {2, 2}, {3, 5}};
+        std::multimap<int, int> expectedMultiMap{{1, 1}, {1, 3}};
         EraseNodesIf(multiMap, [](auto p) { return p.first >= 2; });
         UNIT_ASSERT_EQUAL(multiMap, expectedMultiMap);
 

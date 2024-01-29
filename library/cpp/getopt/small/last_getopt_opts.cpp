@@ -339,7 +339,9 @@ namespace NLastGetopt {
         ui32 numArgsToShow = Max(FreeArgsMin_, FreeArgsMax_ == UNLIMITED_ARGS ? numDescribedFlags : FreeArgsMax_);
 
         for (ui32 i = 0, nonOptionalFlagsPrinted = 0; i < numArgsToShow; ++i) {
-            bool isOptional = nonOptionalFlagsPrinted >= FreeArgsMin_ || FreeArgSpecs_.Value(i, TFreeArgSpec()).Optional_;
+            auto found = MapFindPtr(FreeArgSpecs_, i);
+            TFreeArgSpec value = found ? *found : TFreeArgSpec();
+            bool isOptional = nonOptionalFlagsPrinted >= FreeArgsMin_ || value.Optional_;
 
             nonOptionalFlagsPrinted += !isOptional;
 

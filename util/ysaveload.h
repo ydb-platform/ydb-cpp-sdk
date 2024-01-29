@@ -575,16 +575,8 @@ template <class TSetType, bool sorted = false>
 struct TSetSerializer: public TSetSerializerBase<TSetType, typename TSetType::value_type, sorted> {
 };
 
-template <class T1, class T2, class T3, class T4>
-class TSerializer<TMap<T1, T2, T3, T4>>: public TMapSerializer<TMap<T1, T2, T3, T4>, true> {
-};
-
 template <class K, class T, class C, class A>
 class TSerializer<std::map<K, T, C, A>>: public TMapSerializer<std::map<K, T, C, A>, true> {
-};
-
-template <class T1, class T2, class T3, class T4>
-class TSerializer<TMultiMap<T1, T2, T3, T4>>: public TMapSerializer<TMultiMap<T1, T2, T3, T4>, true> {
 };
 
 template <class K, class T, class C, class A>

@@ -6,6 +6,8 @@
 #include <util/generic/strbuf.h>
 #include <util/generic/string.h>
 
+#include <map>
+
 //smart pointers
 template <class T, class D>
 struct TDumper<TAutoPtr<T, D>> {
@@ -112,11 +114,11 @@ struct TDumper<std::list<T, A>>: public TSeqDumper {
 
 //associatives
 template <class K, class V, class P, class A>
-struct TDumper<TMap<K, V, P, A>>: public TAssocDumper {
+struct TDumper<std::map<K, V, P, A>>: public TAssocDumper {
 };
 
 template <class K, class V, class P, class A>
-struct TDumper<TMultiMap<K, V, P, A>>: public TAssocDumper {
+struct TDumper<std::multimap<K, V, P, A>>: public TAssocDumper {
 };
 
 template <class T, class P, class A>

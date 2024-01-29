@@ -61,7 +61,7 @@ namespace NEnumSerializationRuntime {
             return AllCppNames;
         }
 
-        const TMap<TRepresentationType, TString>& TypelessEnumNames() const noexcept {
+        const std::map<TRepresentationType, TString>& TypelessEnumNames() const noexcept {
             return Names;
         }
 
@@ -70,8 +70,8 @@ namespace NEnumSerializationRuntime {
         }
 
     private:
-        TMap<TRepresentationType, TString> Names;
-        TMap<TStringBuf, TRepresentationType> Values;
+        std::map<TRepresentationType, TString> Names;
+        std::map<TStringBuf, TRepresentationType> Values;
         TString AllNames;
         std::vector<TString> AllCppNames;
         TString ClassName;

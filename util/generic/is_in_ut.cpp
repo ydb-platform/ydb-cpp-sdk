@@ -5,7 +5,6 @@
 #include "hash_multi_map.h"
 #include "hash_set.h"
 #include "is_in.h"
-#include "map.h"
 #include "set.h"
 #include "strbuf.h"
 #include "string.h"
@@ -42,8 +41,6 @@ Y_UNIT_TEST_SUITE(TIsIn) {
     }
 
     Y_UNIT_TEST(IsInTest) {
-        TestIsInWithCont<TMap<TString, TString>>(std::make_pair("found", "1"));
-        TestIsInWithCont<TMultiMap<TString, TString>>(std::make_pair("found", "1"));
         TestIsInWithCont<THashMap<TString, TString>>(std::make_pair("found", "1"));
         TestIsInWithCont<THashMultiMap<TString, TString>>(std::make_pair("found", "1"));
 

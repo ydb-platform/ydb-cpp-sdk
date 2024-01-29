@@ -9,7 +9,6 @@
 
 #include <util/generic/string.h>
 #include <util/generic/set.h>
-#include <util/generic/map.h>
 #include <util/system/types.h>
 
 #include <memory>
@@ -22,7 +21,7 @@ struct TGetConfigResult : public TStatus {
         TString&& clusterName,
         ui64 version,
         TString&& config,
-        TMap<ui64, TString>&& volatileConfigs)
+        std::map<ui64, TString>&& volatileConfigs)
         : TStatus(std::move(status))
         , ClusterName_(std::move(clusterName))
         , Version_(version)
@@ -42,7 +41,7 @@ struct TGetConfigResult : public TStatus {
         return Config_;
     }
 
-    const TMap<ui64, TString>& GetVolatileConfigs() const {
+    const std::map<ui64, TString>& GetVolatileConfigs() const {
         return VolatileConfigs_;
     }
 
@@ -50,7 +49,7 @@ private:
     TString ClusterName_;
     ui64 Version_;
     TString Config_;
-    TMap<ui64, TString> VolatileConfigs_;
+    std::map<ui64, TString> VolatileConfigs_;
 };
 
 using TAsyncGetConfigResult = NThreading::TFuture<TGetConfigResult>;
@@ -59,7 +58,7 @@ struct TGetMetadataResult : public TStatus {
     TGetMetadataResult(
         TStatus&& status,
         TString&& metadata,
-        TMap<ui64, TString>&& volatileConfigs)
+        std::map<ui64, TString>&& volatileConfigs)
         : TStatus(std::move(status))
         , Metadata_(std::move(metadata))
         , VolatileConfigs_(std::move(volatileConfigs))
@@ -69,13 +68,13 @@ struct TGetMetadataResult : public TStatus {
         return Metadata_;
     }
 
-    const TMap<ui64, TString>& GetVolatileConfigs() const {
+    const std::map<ui64, TString>& GetVolatileConfigs() const {
         return VolatileConfigs_;
     }
 
 private:
     TString Metadata_;
-    TMap<ui64, TString> VolatileConfigs_;
+    std::map<ui64, TString> VolatileConfigs_;
 };
 
 using TAsyncGetMetadataResult = NThreading::TFuture<TGetMetadataResult>;
@@ -101,17 +100,17 @@ using TAsyncResolveConfigResult = NThreading::TFuture<TResolveConfigResult>;
 struct TGetNodeLabelsResult : public TStatus {
     TGetNodeLabelsResult(
         TStatus&& status,
-        TMap<TString, TString>&& labels)
+        std::map<TString, TString>&& labels)
         : TStatus(std::move(status))
         , Labels_(std::move(labels))
     {}
 
-    const TMap<TString, TString>& GetLabels() const {
+    const std::map<TString, TString>& GetLabels() const {
         return Labels_;
     }
 
 private:
-    TMap<TString, TString> Labels_;
+    std::map<TString, TString> Labels_;
 };
 
 using TAsyncGetNodeLabelsResult = NThreading::TFuture<TGetNodeLabelsResult>;
@@ -140,7 +139,7 @@ struct TVerboseResolveConfigResult : public TStatus {
         }
     };
 
-    using ConfigByLabelSet = TMap<TSet<std::vector<TLabel>>, TString>;
+    using ConfigByLabelSet = std::map<TSet<std::vector<TLabel>>, TString>;
 
     TVerboseResolveConfigResult(
         TStatus&& status,
@@ -230,20 +229,20 @@ public:
     // Resolve arbitrary config for specific labels
     TAsyncResolveConfigResult ResolveConfig(
         const TString& config,
-        const TMap<ui64, TString>& volatileConfigs,
-        const TMap<TString, TString>& labels,
+        const std::map<ui64, TString>& volatileConfigs,
+        const std::map<TString, TString>& labels,
         const TClusterConfigSettings& settings = {});
 
     // Resolve arbitrary config for all label combinations
     TAsyncResolveConfigResult ResolveConfig(
         const TString& config,
-        const TMap<ui64, TString>& volatileConfigs,
+        const std::map<ui64, TString>& volatileConfigs,
         const TClusterConfigSettings& settings = {});
 
     // Resolve arbitrary config for all label combinations
     TAsyncVerboseResolveConfigResult VerboseResolveConfig(
         const TString& config,
-        const TMap<ui64, TString>& volatileConfigs,
+        const std::map<ui64, TString>& volatileConfigs,
         const TClusterConfigSettings& settings = {});
 
 private:

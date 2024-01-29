@@ -1,7 +1,6 @@
 #include "enum_runtime.h"
 
 #include <util/generic/algorithm.h>
-#include <util/generic/map.h>
 #include <util/generic/yexception.h>
 #include <util/stream/output.h>
 
@@ -172,8 +171,8 @@ namespace NEnumSerializationRuntime {
         const TArrayRef<const TEnumStringPair>& valuesInitializer = enumInitData.ValuesInitializer;
         const TArrayRef<const TStringBuf>& cppNamesInitializer = enumInitData.CppNamesInitializer;
 
-        TMap<TRepresentationType, TString> mapValueToName;
-        TMap<TStringBuf, TRepresentationType> mapNameToValue;
+        std::map<TRepresentationType, TString> mapValueToName;
+        std::map<TStringBuf, TRepresentationType> mapNameToValue;
         for (const TEnumStringPair& it : namesInitializer) {
             mapValueToName.emplace(it.Key, TString(it.Name));
         }

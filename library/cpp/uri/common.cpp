@@ -1,7 +1,8 @@
 #include "common.h"
 
-#include <util/generic/map.h>
 #include <util/generic/singleton.h>
+
+#include <map>
 
 namespace NUri {
     static_assert(TFeature::FeatureMAX <= sizeof(ui64) * 8, "expect TFeature::FeatureMAX <= sizeof(ui64) * 8");
@@ -26,7 +27,7 @@ namespace NUri {
         };
 
         class TSchemeInfoMap {
-            typedef TMap<TStringBuf, TScheme::EKind, TLessNoCase> TdMap;
+            typedef std::map<TStringBuf, TScheme::EKind, TLessNoCase> TdMap;
             TdMap Map_;
 
         public:

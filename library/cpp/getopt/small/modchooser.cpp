@@ -97,7 +97,7 @@ void TModChooser::AddMode(const TString& mode, const TMainFunctionPtrV func, con
 }
 
 void TModChooser::AddMode(const TString& mode, TMainClass* func, const TString& description, bool hidden, bool noCompletion) {
-    if (Modes.FindPtr(mode)) {
+    if (MapFindPtr(Modes, mode)) {
         ythrow yexception() << "TMode '" << mode << "' already exists in TModChooser.";
     }
 
@@ -118,7 +118,7 @@ void TModChooser::SetDefaultMode(const TString& mode) {
 }
 
 void TModChooser::AddAlias(const TString& alias, const TString& mode) {
-    if (!Modes.FindPtr(mode)) {
+    if (!MapFindPtr(Modes, mode)) {
         ythrow yexception() << "TMode '" << mode << "' not found in TModChooser.";
     }
 
