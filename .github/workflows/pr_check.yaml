@@ -21,7 +21,7 @@ jobs:
         string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
         message("::set-output name=timestamp::${current_date}")
     - name: Restore cache files
-      uses: actions/restore@v4
+      uses: actions/cache/restore@v4
       with:
         path: ../.ccache
         key: ubuntu-22.04-ccache-${{steps.ccache_cache_timestamp.outputs.timestamp}}
