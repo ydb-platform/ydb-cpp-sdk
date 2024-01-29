@@ -11,7 +11,6 @@
 #include <util/string/strip.h>
 #include <util/string/subst.h>
 #include <util/system/compiler.h>
-#include <util/generic/map.h>
 #include <util/generic/stack.h>
 #include <cstdlib>
 
@@ -127,7 +126,7 @@ Y_NO_INLINE void Indent(IOutputStream& out, ui32 indentation) {
 void ProgramLinesWithErrors(
         const TString& programText,
         const std::vector<TIssue>& errors,
-        TMap<ui32, TStringBuf>& lines)
+        std::map<ui32, TStringBuf>& lines)
 {
     std::vector<ui32> rows;
     for (const auto& topIssue: errors) {
@@ -198,7 +197,7 @@ void TIssues::PrintWithProgramTo(
 {
     using namespace NColorizer;
 
-    TMap<ui32, TStringBuf> lines;
+    std::map<ui32, TStringBuf> lines;
     ProgramLinesWithErrors(programText, Issues_, lines);
 
     for (const TIssue& topIssue: Issues_) {

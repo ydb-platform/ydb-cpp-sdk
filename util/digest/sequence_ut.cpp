@@ -1,7 +1,6 @@
 #include "sequence.h"
 
 #include <library/cpp/testing/unittest/registar.h>
-#include <util/generic/map.h>
 #include <util/generic/vector.h>
 
 class TRangeHashTest: public TTestBase {
@@ -33,7 +32,7 @@ private:
 
     inline void TestMap() {
         const size_t canonicalHash = static_cast<size_t>(ULL(4415387926488545605));
-        TMap<TString, int> testMap{{"foo", 123}, {"bar", 456}};
+        std::map<TString, int> testMap{{"foo", 123}, {"bar", 456}};
         UNIT_ASSERT_EQUAL(canonicalHash, TRangeHash<>()(testMap));
     }
 

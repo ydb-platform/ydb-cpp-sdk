@@ -125,7 +125,7 @@ private:
         size_t MessagesCount = 0;
     };
 
-    TMap<TDataDecompressionInfoPtr<UseMigrationProtocol>, TCounter> Counters;
+    std::map<TDataDecompressionInfoPtr<UseMigrationProtocol>, TCounter> Counters;
 };
 
 // Special class that stores actions to be done after lock will be released.

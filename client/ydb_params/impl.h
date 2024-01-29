@@ -9,7 +9,7 @@ public:
     TImpl(::google::protobuf::Map<TString, Ydb::TypedValue>&& paramsMap);
 
     bool Empty() const;
-    TMap<TString, TValue> GetValues() const;
+    std::map<TString, TValue> GetValues() const;
     TMaybe<TValue> GetValue(const TString& name) const;
     ::google::protobuf::Map<TString, Ydb::TypedValue>* GetProtoMapPtr();
     const ::google::protobuf::Map<TString, Ydb::TypedValue>& GetProtoMap() const;

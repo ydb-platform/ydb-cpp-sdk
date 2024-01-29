@@ -1,8 +1,6 @@
 #include "gtest.h"
 #include "simple.h"
 
-#include <util/generic/map.h>
-
 #include <util/system/type_name.h>
 
 using namespace NUnitTest;
@@ -55,7 +53,7 @@ namespace {
 }
 
 IGTestFactory* NUnitTest::NPrivate::ByName(const char* name) {
-    static TMap<TStringBuf, TAutoPtr<TGTestFactory>> tests;
+    static std::map<TStringBuf, TAutoPtr<TGTestFactory>> tests;
 
     auto& ret = tests[name];
 

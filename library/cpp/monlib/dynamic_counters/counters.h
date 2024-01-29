@@ -7,11 +7,11 @@
 #include <library/cpp/containers/stack_vector/stack_vec.h>
 
 #include <util/generic/cast.h>
-#include <util/generic/map.h>
 #include <util/generic/ptr.h>
 #include <util/string/cast.h>
 #include <util/system/rwlock.h>
 
+#include <map>
 #include <functional>
 
 namespace NMonitoring {
@@ -224,7 +224,7 @@ namespace NMonitoring {
             }
         };
 
-        using TCounters = TMap<TChildId, TCountablePtr>;
+        using TCounters = std::map<TChildId, TCountablePtr>;
         using TLabels = std::vector<TChildId>;
 
         /// XXX: hack for deferred removal of expired counters. Remove once Output* functions are not used for serialization

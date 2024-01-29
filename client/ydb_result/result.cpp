@@ -132,7 +132,7 @@ public:
     }
 
     ssize_t ColumnIndex(const TString& columnName) {
-        auto idx = ColumnIndexMap.FindPtr(columnName);
+        auto idx = MapFindPtr(ColumnIndexMap, columnName);
         return idx ? static_cast<ssize_t>(*idx) : -1;
     }
 
@@ -145,7 +145,7 @@ public:
     }
 
     TValueParser& ColumnParser(const TString& columnName) {
-        auto idx = ColumnIndexMap.FindPtr(columnName);
+        auto idx = MapFindPtr(ColumnIndexMap, columnName);
         if (!idx) {
             FatalError(TStringBuilder() << "Unknown column: " << columnName);
         }
@@ -169,7 +169,7 @@ public:
     }
 
     TValue GetValue(const TString& columnName) const {
-        auto idx = ColumnIndexMap.FindPtr(columnName);
+        auto idx = MapFindPtr(ColumnIndexMap, columnName);
         if (!idx) {
             FatalError(TStringBuilder() << "Unknown column: " << columnName);
         }
@@ -184,8 +184,10 @@ private:
 
 private:
     TResultSet ResultSet_;
-    TMap<TString, size_t> ColumnIndexMap;
+
+    std::map<TString, size_t> ColumnIndexMap;
     std::vector<TValueParser> ColumnParsers;
+
     size_t RowIndex_ = 0;
 };
 

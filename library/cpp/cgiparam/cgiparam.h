@@ -3,13 +3,13 @@
 #include <library/cpp/iterator/iterate_values.h>
 
 #include <util/generic/iterator_range.h>
-#include <util/generic/map.h>
 #include <util/generic/strbuf.h>
 #include <util/generic/string.h>
 
+#include <map>
 #include <initializer_list>
 
-class TCgiParameters: public TMultiMap<TString, TString> {
+class TCgiParameters: public std::multimap<TString, TString> {
 public:
     TCgiParameters() = default;
 
@@ -26,7 +26,7 @@ public:
     size_t EraseAll(const TStringBuf name);
 
     size_t NumOfValues(const TStringBuf name) const noexcept {
-        return count(name);
+        return count(static_cast<std::string>(name));
     }
 
     TString operator()() const {
@@ -57,7 +57,7 @@ public:
 
     Y_PURE_FUNCTION
     auto Range(const TStringBuf name) const noexcept {
-        return IterateValues(MakeIteratorRange(equal_range(name)));
+        return IterateValues(MakeIteratorRange(equal_range(static_cast<std::string>(name))));
     }
 
     Y_PURE_FUNCTION
@@ -68,7 +68,7 @@ public:
 
     Y_PURE_FUNCTION
     bool Has(const TStringBuf name) const noexcept {
-        const auto pair = equal_range(name);
+        const auto pair = equal_range(static_cast<std::string>(name));
         return pair.first != pair.second;
     }
     /// Returns value by name
@@ -139,7 +139,7 @@ public:
 
 template <typename TIter>
 void TCgiParameters::ReplaceUnescaped(const TStringBuf key, TIter valuesBegin, const TIter valuesEnd) {
-    const auto oldRange = equal_range(key);
+    const auto oldRange = equal_range(static_cast<std::string>(key));
     auto current = oldRange.first;
 
     // reuse as many existing nodes as possible (probably none)
@@ -165,7 +165,7 @@ void TCgiParameters::ReplaceUnescaped(const TStringBuf key, TIter valuesBegin, c
  *  - note that the result of Get() is invalidated when TQuickCgiParam object is destroyed.
  */
 
-class TQuickCgiParam: public TMultiMap<TStringBuf, TStringBuf> {
+class TQuickCgiParam: public std::multimap<TStringBuf, TStringBuf> {
 public:
     TQuickCgiParam() = default;
 
@@ -176,7 +176,7 @@ public:
 
     Y_PURE_FUNCTION
     bool Has(const TStringBuf name) const noexcept {
-        const auto pair = equal_range(name);
+        const auto pair = equal_range(static_cast<std::string>(name));
         return pair.first != pair.second;
     }
 

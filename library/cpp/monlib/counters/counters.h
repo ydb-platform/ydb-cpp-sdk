@@ -3,7 +3,8 @@
 #include <list>
 #include <util/datetime/base.h>
 #include <util/generic/algorithm.h>
-#include <util/generic/map.h>
+
+#include <util/generic/list.h>
 #include <util/generic/ptr.h>
 #include <util/generic/singleton.h>
 
@@ -16,6 +17,7 @@
 #include <util/system/sem.h>
 #include <util/system/spinlock.h>
 
+#include <map>
 #include <array>
 
 namespace NMonitoring {
@@ -147,8 +149,9 @@ namespace NMonitoring {
     template <typename T, typename G, typename TL = TLess<T>>
     class TDeprecatedCounterGroups {
     public:
-        typedef TMap<T, G*> TGroups;
+        typedef std::map<T, G*> TGroups;
         typedef std::vector<T> TGroupsNames;
+
         typedef THolder<TGroupsNames> TGroupsNamesPtr;
 
     private:

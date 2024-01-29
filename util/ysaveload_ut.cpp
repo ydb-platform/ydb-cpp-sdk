@@ -5,7 +5,8 @@
 #include <util/memory/pool.h>
 #include <util/stream/buffer.h>
 #include <util/memory/blob.h>
-#include <util/generic/map.h>
+
+#include <util/generic/list.h>
 #include <util/generic/hash_multi_map.h>
 #include <util/generic/deque.h>
 #include <util/generic/string.h>
@@ -132,7 +133,7 @@ private:
         }
 
         {
-            TMap<ui16, ui32> map;
+            std::map<ui16, ui32> map;
 
             map[(ui16)1] = 2;
             map[(ui16)2] = 3;
@@ -142,7 +143,7 @@ private:
         }
 
         {
-            TMultiMap<ui16, ui32> multimap;
+            std::multimap<ui16, ui32> multimap;
 
             multimap.emplace((ui16)1, 2);
             multimap.emplace((ui16)2, 3);
@@ -263,7 +264,7 @@ private:
         }
 
         {
-            TMap<ui16, ui32> map;
+            std::map<ui16, ui32> map;
 
             Load(&S_, map);
             UNIT_ASSERT_EQUAL(map.size(), 3);
@@ -273,7 +274,7 @@ private:
         }
 
         {
-            TMultiMap<ui16, ui32> multimap;
+            std::multimap<ui16, ui32> multimap;
 
             Load(&S_, multimap);
             UNIT_ASSERT_EQUAL(multimap.size(), 5);

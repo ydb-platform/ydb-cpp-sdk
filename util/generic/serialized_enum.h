@@ -39,7 +39,7 @@ namespace NEnumSerializationRuntime {
         template <typename TEnumType, typename TRepresentationType, class TStorage = std::vector<TRepresentationType>>
         class TMappedArrayView;
 
-        template <typename TEnumType, typename TRepresentationType, typename TValueType, class TStorage = TMap<TRepresentationType, TValueType>>
+        template <typename TEnumType, typename TRepresentationType, typename TValueType, class TStorage = std::map<TRepresentationType, TValueType>>
         class TMappedDictView;
     }
 
@@ -395,7 +395,7 @@ namespace NEnumSerializationRuntime {
             }
 
             // Allocate container and copy view's content into it
-            template <template <class...> class TContainer = TMap>
+            template <template <class...> class TContainer = std::map>
             TContainer<TEnumType, TValueType> Materialize() const {
                 return {begin(), end()};
             }

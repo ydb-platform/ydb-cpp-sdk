@@ -120,7 +120,7 @@ const std::vector<ECodec>& TConsumer::GetSupportedCodecs() const {
     return SupportedCodecs_;
 }
 
-const TMap<TString, TString>& TConsumer::GetAttributes() const {
+const std::map<TString, TString>& TConsumer::GetAttributes() const {
     return Attributes_;
 }
 
@@ -172,7 +172,7 @@ EMeteringMode TTopicDescription::GetMeteringMode() const {
     return MeteringMode_;
 }
 
-const TMap<TString, TString>& TTopicDescription::GetAttributes() const {
+const std::map<TString, TString>& TTopicDescription::GetAttributes() const {
     return Attributes_;
 }
 
