@@ -1,0 +1,23 @@
+name: Prepare VM for YDB SDK build
+description: Install required packages
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: |
+        sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm
+        wget https://apt.llvm.org/llvm.sh
+        chmod u+x llvm.sh
+        sudo ./llvm.sh 16
+        wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
+        tar -xvzf libiconv-1.15.tar.gz
+        cd libiconv-1.15
+        ./configure --prefix=/usr/local
+        sudo make
+        sudo make install
+        cd ..
+        (V=4.8.1; curl -L https://github.com/ccache/ccache/releases/download/v${V}/ccache-${V}-linux-x86_64.tar.xz | \
+        sudo tar -xJ -C /usr/local/bin/ --strip-components=1 --no-same-owner ccache-${V}-linux-x86_64/ccache)
+        sudo rm -rf llvm.sh libiconv-1.15
