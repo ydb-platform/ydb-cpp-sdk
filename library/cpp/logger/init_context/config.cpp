@@ -12,8 +12,8 @@ bool TLogBackendCreatorInitContextConfig::GetValue(TStringBuf name, TString& var
     return false;
 }
 
-TVector<THolder<ILogBackendCreator::IInitContext>> TLogBackendCreatorInitContextConfig::GetChildren(TStringBuf name) const {
-    TVector<THolder<IInitContext>> result;
+std::vector<THolder<ILogBackendCreator::IInitContext>> TLogBackendCreatorInitContextConfig::GetChildren(TStringBuf name) const {
+    std::vector<THolder<IInitContext>> result;
     const NConfig::TConfig& child = Config[name];
     if (child.IsA<NConfig::TArray>()) {
         for (const auto& i: child.Get<NConfig::TArray>()) {

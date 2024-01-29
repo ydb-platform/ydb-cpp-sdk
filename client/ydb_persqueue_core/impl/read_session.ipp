@@ -133,8 +133,8 @@ template <bool UseMigrationProtocol>
 void TPartitionStreamImpl<UseMigrationProtocol>::GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                                                                   size_t& maxEventsCount,
                                                                   size_t& maxByteSize,
-                                                                  TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                                                                  TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                                                                  std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
+                                                                  std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
                                                                   TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator)
 {
     partitionStream->EventsQueue.GetDataEventImpl(partitionStream,
@@ -165,8 +165,8 @@ void TRawPartitionStreamEventQueue<UseMigrationProtocol>::SignalReadyEvents(TInt
 
         if (front.IsDataEvent()) {
             if (queue.HasDataEventCallback()) {
-                TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage> messages;
-                TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage> compressedMessages;
+                std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage> messages;
+                std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage> compressedMessages;
                 TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol> accumulator;
                 auto maxEventsCount = Max<size_t>();
                 auto maxByteSize = Max<size_t>();
@@ -1919,8 +1919,8 @@ template <bool UseMigrationProtocol>
 void TRawPartitionStreamEventQueue<UseMigrationProtocol>::GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                                                                            size_t& maxEventsCount,
                                                                            size_t& maxByteSize,
-                                                                           TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                                                                           TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                                                                           std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
+                                                                           std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
                                                                            TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator)
 {
     GetDataEventImpl(partitionStream,
@@ -1936,8 +1936,8 @@ template <bool UseMigrationProtocol>
 void TRawPartitionStreamEventQueue<UseMigrationProtocol>::GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                                                                            size_t& maxEventsCount,
                                                                            size_t& maxByteSize,
-                                                                           TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                                                                           TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                                                                           std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
+                                                                           std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
                                                                            TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator,
                                                                            std::deque<TRawPartitionStreamEvent<UseMigrationProtocol>>& queue)
 {
@@ -1972,8 +1972,8 @@ TReadSessionEventsQueue<UseMigrationProtocol>::GetDataEventImpl(TIntrusivePtr<TP
                                                                 size_t& maxByteSize,
                                                                 TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator) // Assumes that we're under lock.
 {
-    TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage> messages;
-    TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage> compressedMessages;
+    std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage> messages;
+    std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage> compressedMessages;
 
     Y_ABORT_UNLESS(!TParent::Events.empty());
 
@@ -2035,14 +2035,14 @@ TReadSessionEventsQueue<UseMigrationProtocol>::GetEventImpl(size_t& maxByteSize,
 }
 
 template <bool UseMigrationProtocol>
-TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent>
+std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent>
 TReadSessionEventsQueue<UseMigrationProtocol>::GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize)
 {
     if (!maxByteSize) {
         ThrowFatalError("the maxByteSize value must be greater than 0");
     }
 
-    TVector<TReadSessionEventInfo<UseMigrationProtocol>> eventInfos;
+    std::vector<TReadSessionEventInfo<UseMigrationProtocol>> eventInfos;
     const size_t maxCount = maxEventsCount ? *maxEventsCount : std::numeric_limits<size_t>::max();
     TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol> accumulator;
 
@@ -2065,7 +2065,7 @@ TReadSessionEventsQueue<UseMigrationProtocol>::GetEvents(bool block, TMaybe<size
 
     accumulator.OnUserRetrievedEvent();
 
-    TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent> result;
+    std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent> result;
     result.reserve(eventInfos.size());
     for (TReadSessionEventInfo<UseMigrationProtocol>& eventInfo : eventInfos) {
         result.emplace_back(std::move(eventInfo.GetEvent()));
@@ -2395,8 +2395,8 @@ void TDataDecompressionInfo<UseMigrationProtocol>::PlanDecompressionTasks(double
 
 template<bool UseMigrationProtocol>
 void TDataDecompressionEvent<UseMigrationProtocol>::TakeData(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
-                                                             TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                                                             TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                                                             std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
+                                                             std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
                                                              size_t& maxByteSize,
                                                              size_t& dataSize) const
 {
@@ -2437,7 +2437,7 @@ void TDataDecompressionEvent<UseMigrationProtocol>::TakeData(TIntrusivePtr<TPart
         } else {
             compressedMessages.emplace_back(static_cast<ECodec>(messageData.codec()),
                                             messageData.data(),
-                                            TVector<TReadSessionEvent::TDataReceivedEvent::TMessageInformation>{messageInfo},
+                                            std::vector<TReadSessionEvent::TDataReceivedEvent::TMessageInformation>{messageInfo},
                                             partitionStream,
                                             messageData.partition_key(),
                                             messageData.explicit_hash());

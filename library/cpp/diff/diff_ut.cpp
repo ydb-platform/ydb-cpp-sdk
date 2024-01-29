@@ -6,7 +6,7 @@ using namespace NDiff;
 
 struct TDiffTester {
     TStringStream Res;
-    TVector<TChunk<char>> Chunks;
+    std::vector<TChunk<char>> Chunks;
 
     TStringBuf Special(const TStringBuf& str) const {
         return str;
@@ -38,7 +38,7 @@ struct TDiffTester {
 
 Y_UNIT_TEST_SUITE(DiffTokens) {
     Y_UNIT_TEST(ReturnValue) {
-        TVector<TChunk<char>> res;
+        std::vector<TChunk<char>> res;
         UNIT_ASSERT_VALUES_EQUAL(InlineDiff(res, "aaa", "aaa"), 0);
         UNIT_ASSERT_VALUES_EQUAL(InlineDiff(res, "aaa", "aa"), 1);
         UNIT_ASSERT_VALUES_EQUAL(InlineDiff(res, "aaa", "a"), 2);

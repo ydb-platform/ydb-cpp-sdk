@@ -964,7 +964,7 @@ public:
         ToTitle(temp.begin(), temp.size());
         UNIT_ASSERT(temp == title);
 
-        TVector<wchar32> buffer(WideStringTestData[0], WideStringTestData[0] + CaseTestDataSize);
+        std::vector<wchar32> buffer(WideStringTestData[0], WideStringTestData[0] + CaseTestDataSize);
         std::reverse(buffer.begin(), buffer.end());
         const TUtf16String reversed = UTF32ToWide(buffer.data(), buffer.size());
 

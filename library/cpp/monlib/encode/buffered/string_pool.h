@@ -1,7 +1,7 @@
 #pragma once
 
 #include <util/generic/hash.h>
-#include <util/generic/vector.h>
+
 
 namespace NMonitoring {
     ////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ namespace NMonitoring {
 
     private:
         THashMap<TString, TValue> StrMap_;
-        TVector<std::pair<TStringBuf, TValue*>> StrVector_;
+        std::vector<std::pair<TStringBuf, TValue*>> StrVector_;
         bool RequiresSorting_ = false;
         bool IsBuilt_ = false;
         size_t BytesSize_ = 0;
@@ -94,7 +94,7 @@ namespace NMonitoring {
         void InitIndex(const char* data, ui32 size);
 
     private:
-        TVector<TStringBuf> Index_;
+        std::vector<TStringBuf> Index_;
     };
 
 }

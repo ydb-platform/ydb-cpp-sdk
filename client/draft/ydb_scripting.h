@@ -9,10 +9,10 @@ namespace NScripting {
 
 class TExecuteYqlResult : public TStatus {
 public:
-    TExecuteYqlResult(TStatus&& status, TVector<TResultSet>&& resultSets,
+    TExecuteYqlResult(TStatus&& status, std::vector<TResultSet>&& resultSets,
         const TMaybe<NTable::TQueryStats>& queryStats);
 
-    const TVector<TResultSet>& GetResultSets() const;
+    const std::vector<TResultSet>& GetResultSets() const;
     TResultSet GetResultSet(size_t resultIndex) const;
 
     TResultSetParser GetResultSetParser(size_t resultIndex) const;
@@ -20,7 +20,7 @@ public:
     const TMaybe<NTable::TQueryStats>& GetStats() const;
 
 private:
-    TVector<TResultSet> ResultSets_;
+    std::vector<TResultSet> ResultSets_;
     TMaybe<NTable::TQueryStats> QueryStats_;
 };
 

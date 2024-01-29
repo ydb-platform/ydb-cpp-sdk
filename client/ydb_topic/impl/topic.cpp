@@ -116,7 +116,7 @@ const TInstant& TConsumer::GetReadFrom() const {
     return ReadFrom_;
 }
 
-const TVector<ECodec>& TConsumer::GetSupportedCodecs() const {
+const std::vector<ECodec>& TConsumer::GetSupportedCodecs() const {
     return SupportedCodecs_;
 }
 
@@ -132,11 +132,11 @@ ui32 TTopicDescription::GetTotalPartitionsCount() const {
     return Partitions_.size();
 }
 
-const TVector<TPartitionInfo>& TTopicDescription::GetPartitions() const {
+const std::vector<TPartitionInfo>& TTopicDescription::GetPartitions() const {
     return Partitions_;
 }
 
-const TVector<TPartitionInfo>& TConsumerDescription::GetPartitions() const {
+const std::vector<TPartitionInfo>& TConsumerDescription::GetPartitions() const {
     return Partitions_;
 }
 
@@ -148,7 +148,7 @@ const TConsumer& TConsumerDescription::GetConsumer() const {
     return Consumer_;
 }
 
-const TVector<ECodec>& TTopicDescription::GetSupportedCodecs() const {
+const std::vector<ECodec>& TTopicDescription::GetSupportedCodecs() const {
     return SupportedCodecs_;
 }
 
@@ -176,7 +176,7 @@ const std::map<TString, TString>& TTopicDescription::GetAttributes() const {
     return Attributes_;
 }
 
-const TVector<TConsumer>& TTopicDescription::GetConsumers() const {
+const std::vector<TConsumer>& TTopicDescription::GetConsumers() const {
     return Consumers_;
 }
 
@@ -209,11 +209,11 @@ const TTopicStats& TTopicDescription::GetTopicStats() const {
     return TopicStats_;
 }
 
-const TVector<NScheme::TPermissions>& TTopicDescription::GetPermissions() const {
+const std::vector<NScheme::TPermissions>& TTopicDescription::GetPermissions() const {
     return Permissions_;
 }
 
-const TVector<NScheme::TPermissions>& TTopicDescription::GetEffectivePermissions() const {
+const std::vector<NScheme::TPermissions>& TTopicDescription::GetEffectivePermissions() const {
     return EffectivePermissions_;
 }
 

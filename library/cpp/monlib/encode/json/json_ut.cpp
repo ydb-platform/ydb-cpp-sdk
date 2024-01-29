@@ -36,7 +36,7 @@ namespace {
                       return {elem.GetName(), elem.GetValue()};
                   });
 
-        TVector<TLabel> diff;
+        std::vector<TLabel> diff;
         SetSymmetricDifference(std::begin(expectedSet), std::end(expectedSet),
                                std::begin(actualSet), std::end(actualSet), std::back_inserter(diff));
 
@@ -242,7 +242,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
     }
 
     TLogHistogramSnapshotPtr TestLogHistogram(ui32 v = 1) {
-        TVector<double> buckets{0.5 * v, 0.25 * v, 0.25 * v, 0.5 * v};
+        std::vector<double> buckets{0.5 * v, 0.25 * v, 0.25 * v, 0.5 * v};
         return MakeIntrusive<TLogHistogramSnapshot>(1.5, 1u, 0, std::move(buckets));
     }
 

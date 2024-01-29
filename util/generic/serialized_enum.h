@@ -36,7 +36,7 @@ namespace NEnumSerializationRuntime {
         template <typename EEnum>
         struct TSelectEnumRepresentationType;
 
-        template <typename TEnumType, typename TRepresentationType, class TStorage = TVector<TRepresentationType>>
+        template <typename TEnumType, typename TRepresentationType, class TStorage = std::vector<TRepresentationType>>
         class TMappedArrayView;
 
         template <typename TEnumType, typename TRepresentationType, typename TValueType, class TStorage = std::map<TRepresentationType, TValueType>>
@@ -47,7 +47,7 @@ namespace NEnumSerializationRuntime {
     template <typename EnumT, typename TValueType>
     using TMappedDictView = NDetail::TMappedDictView<EnumT, typename NDetail::TSelectEnumRepresentationType<EnumT>::TType, TValueType>;
 
-    /// Class with behaviour similar to TVector<EnumT>
+    /// Class with behaviour similar to std::vector<EnumT>
     template <typename EnumT>
     using TMappedArrayView = NDetail::TMappedArrayView<EnumT, typename NDetail::TSelectEnumRepresentationType<EnumT>::TType>;
 
@@ -80,7 +80,7 @@ namespace NEnumSerializationRuntime {
      * @tparam EnumT     enum type
      */
     template <typename EnumT>
-    const TVector<TString>& GetEnumAllCppNamesImpl();
+    const std::vector<TString>& GetEnumAllCppNamesImpl();
 
     /**
      * Converts @c e to a string. Works like @c ToString(e) function, but returns @c TStringBuf instead of @c TString.
@@ -127,7 +127,7 @@ Y_CONST_FUNCTION const TString& GetEnumAllNames() {
  * @tparam EnumT     enum type
  */
 template <typename EnumT>
-Y_CONST_FUNCTION const TVector<TString>& GetEnumAllCppNames() {
+Y_CONST_FUNCTION const std::vector<TString>& GetEnumAllCppNames() {
     return ::NEnumSerializationRuntime::GetEnumAllCppNamesImpl<EnumT>();
 }
 
@@ -173,7 +173,7 @@ namespace NEnumSerializationRuntime {
             }
         };
 
-        /// Wrapper class with behaviour similar to TVector<EnumT>
+        /// Wrapper class with behaviour similar to std::vector<EnumT>
         ///
         /// @tparam TEnumType            enum type at the external interface
         /// @tparam TRepresentationType  designated underlying type of enum
@@ -268,7 +268,7 @@ namespace NEnumSerializationRuntime {
             }
 
             // Allocate container and copy view's content into it
-            template <template <class...> class TContainer = TVector>
+            template <template <class...> class TContainer = std::vector>
             TContainer<TEnumType> Materialize() const {
                 return {begin(), end()};
             }

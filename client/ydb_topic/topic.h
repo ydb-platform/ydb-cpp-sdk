@@ -57,14 +57,16 @@ public:
     const TString& GetConsumerName() const;
     bool GetImportant() const;
     const TInstant& GetReadFrom() const;
-    const TVector<ECodec>& GetSupportedCodecs() const;
+    const std::vector<ECodec>& GetSupportedCodecs() const;
     const std::map<TString, TString>& GetAttributes() const;
+
 private:
     TString ConsumerName_;
     bool Important_;
     TInstant ReadFrom_;
     std::map<TString, TString> Attributes_;
-    TVector<ECodec> SupportedCodecs_;
+    std::vector<ECodec> SupportedCodecs_;
+
 };
 
 
@@ -151,8 +153,8 @@ public:
 
     ui64 GetPartitionId() const;
     bool GetActive() const;
-    const TVector<ui64> GetChildPartitionIds() const;
-    const TVector<ui64> GetParentPartitionIds() const;
+    const std::vector<ui64> GetChildPartitionIds() const;
+    const std::vector<ui64> GetParentPartitionIds() const;
 
     const TMaybe<TPartitionStats>& GetPartitionStats() const;
     const TMaybe<TPartitionConsumerStats>& GetPartitionConsumerStats() const;
@@ -161,8 +163,8 @@ public:
 private:
     ui64 PartitionId_;
     bool Active_;
-    TVector<ui64> ChildPartitionIds_;
-    TVector<ui64> ParentPartitionIds_;
+    std::vector<ui64> ChildPartitionIds_;
+    std::vector<ui64> ParentPartitionIds_;
     TMaybe<TPartitionStats> PartitionStats_;
     TMaybe<TPartitionConsumerStats> PartitionConsumerStats_;
     TMaybe<TPartitionLocation> PartitionLocation_;
@@ -194,17 +196,17 @@ public:
 
     const NScheme::TVirtualTimestamp& GetCreationTimestamp() const;
 
-    const TVector<NScheme::TPermissions>& GetPermissions() const;
+    const std::vector<NScheme::TPermissions>& GetPermissions() const;
 
-    const TVector<NScheme::TPermissions>& GetEffectivePermissions() const;
+    const std::vector<NScheme::TPermissions>& GetEffectivePermissions() const;
 
     const TPartitioningSettings& GetPartitioningSettings() const;
 
     ui32 GetTotalPartitionsCount() const;
 
-    const TVector<TPartitionInfo>& GetPartitions() const;
+    const std::vector<TPartitionInfo>& GetPartitions() const;
 
-    const TVector<ECodec>& GetSupportedCodecs() const;
+    const std::vector<ECodec>& GetSupportedCodecs() const;
 
     const TDuration& GetRetentionPeriod() const;
 
@@ -216,7 +218,7 @@ public:
 
     const std::map<TString, TString>& GetAttributes() const;
 
-    const TVector<TConsumer>& GetConsumers() const;
+    const std::vector<TConsumer>& GetConsumers() const;
 
     EMeteringMode GetMeteringMode() const;
 
@@ -228,8 +230,8 @@ private:
     const Ydb::Topic::DescribeTopicResult& GetProto() const;
 
     const Ydb::Topic::DescribeTopicResult Proto_;
-    TVector<TPartitionInfo> Partitions_;
-    TVector<ECodec> SupportedCodecs_;
+    std::vector<TPartitionInfo> Partitions_;
+    std::vector<ECodec> SupportedCodecs_;
     TPartitioningSettings PartitioningSettings_;
     TDuration RetentionPeriod_;
     TMaybe<ui64> RetentionStorageMb_;
@@ -237,13 +239,14 @@ private:
     ui64 PartitionWriteBurstBytes_;
     EMeteringMode MeteringMode_;
     std::map<TString, TString> Attributes_;
-    TVector<TConsumer> Consumers_;
+    std::vector<TConsumer> Consumers_;
+
     TTopicStats TopicStats_;
 
     TString Owner_;
     NScheme::TVirtualTimestamp CreationTimestamp_;
-    TVector<NScheme::TPermissions> Permissions_;
-    TVector<NScheme::TPermissions> EffectivePermissions_;
+    std::vector<NScheme::TPermissions> Permissions_;
+    std::vector<NScheme::TPermissions> EffectivePermissions_;
 };
 
 
@@ -253,7 +256,7 @@ class TConsumerDescription {
 public:
     TConsumerDescription(Ydb::Topic::DescribeConsumerResult&& desc);
 
-    const TVector<TPartitionInfo>& GetPartitions() const;
+    const std::vector<TPartitionInfo>& GetPartitions() const;
 
     const TConsumer& GetConsumer() const;
 
@@ -263,7 +266,7 @@ private:
 
 
     const Ydb::Topic::DescribeConsumerResult Proto_;
-    TVector<TPartitionInfo> Partitions_;
+    std::vector<TPartitionInfo> Partitions_;
     TConsumer Consumer_;
 };
 
@@ -388,12 +391,12 @@ struct TConsumerSettings {
         return *this;
     }
 
-    TConsumerSettings& SetSupportedCodecs(TVector<ECodec>&& codecs) {
+    TConsumerSettings& SetSupportedCodecs(std::vector<ECodec>&& codecs) {
         SupportedCodecs_ = std::move(codecs);
         return *this;
     }
 
-    TConsumerSettings& SetSupportedCodecs(const TVector<ECodec>& codecs) {
+    TConsumerSettings& SetSupportedCodecs(const std::vector<ECodec>& codecs) {
         SupportedCodecs_ = codecs;
         return *this;
     }
@@ -425,12 +428,12 @@ struct TAlterConsumerSettings {
         return TAlterConsumerAttributesBuilder(*this);
     }
 
-    TAlterConsumerSettings& SetSupportedCodecs(TVector<ECodec>&& codecs) {
+    TAlterConsumerSettings& SetSupportedCodecs(std::vector<ECodec>&& codecs) {
         SetSupportedCodecs_ = std::move(codecs);
         return *this;
     }
 
-    TAlterConsumerSettings& SetSupportedCodecs(const TVector<ECodec>& codecs) {
+    TAlterConsumerSettings& SetSupportedCodecs(const std::vector<ECodec>& codecs) {
         SetSupportedCodecs_ = codecs;
         return *this;
     }
@@ -464,12 +467,12 @@ struct TCreateTopicSettings : public TOperationRequestSettings<TCreateTopicSetti
     FLUENT_SETTING(TAttributes, Attributes);
 
 
-    TCreateTopicSettings& SetSupportedCodecs(TVector<ECodec>&& codecs) {
+    TCreateTopicSettings& SetSupportedCodecs(std::vector<ECodec>&& codecs) {
         SupportedCodecs_ = std::move(codecs);
         return *this;
     }
 
-    TCreateTopicSettings& SetSupportedCodecs(const TVector<ECodec>& codecs) {
+    TCreateTopicSettings& SetSupportedCodecs(const std::vector<ECodec>& codecs) {
         SupportedCodecs_ = codecs;
         return *this;
     }
@@ -534,12 +537,12 @@ struct TAlterTopicSettings : public TOperationRequestSettings<TAlterTopicSetting
         return TAlterTopicAttributesBuilder(*this);
     }
 
-    TAlterTopicSettings& SetSupportedCodecs(TVector<ECodec>&& codecs) {
+    TAlterTopicSettings& SetSupportedCodecs(std::vector<ECodec>&& codecs) {
         SetSupportedCodecs_ = std::move(codecs);
         return *this;
     }
 
-    TAlterTopicSettings& SetSupportedCodecs(const TVector<ECodec>& codecs) {
+    TAlterTopicSettings& SetSupportedCodecs(const std::vector<ECodec>& codecs) {
         SetSupportedCodecs_ = codecs;
         return *this;
     }
@@ -633,7 +636,7 @@ struct TMessageMeta: public TThrRefBase {
     using TPtr = TIntrusivePtr<TMessageMeta>;
 
     //! User defined fields.
-    TVector<std::pair<TString, TString>> Fields;
+    std::vector<std::pair<TString, TString>> Fields;
 };
 
 //! Event that is sent to client during session destruction.
@@ -907,7 +910,7 @@ struct TReadSessionEvent {
         };
 
     public:
-        TDataReceivedEvent(TVector<TMessage> messages, TVector<TCompressedMessage> compressedMessages,
+        TDataReceivedEvent(std::vector<TMessage> messages, std::vector<TCompressedMessage> compressedMessages,
                            TPartitionSession::TPtr partitionSession);
 
         bool HasCompressedMessages() const {
@@ -919,23 +922,23 @@ struct TReadSessionEvent {
         }
 
         //! Get messages.
-        TVector<TMessage>& GetMessages() {
+        std::vector<TMessage>& GetMessages() {
             CheckMessagesFilled(false);
             return Messages;
         }
 
-        const TVector<TMessage>& GetMessages() const {
+        const std::vector<TMessage>& GetMessages() const {
             CheckMessagesFilled(false);
             return Messages;
         }
 
         //! Get compressed messages.
-        TVector<TCompressedMessage>& GetCompressedMessages() {
+        std::vector<TCompressedMessage>& GetCompressedMessages() {
             CheckMessagesFilled(true);
             return CompressedMessages;
         }
 
-        const TVector<TCompressedMessage>& GetCompressedMessages() const {
+        const std::vector<TCompressedMessage>& GetCompressedMessages() const {
             CheckMessagesFilled(true);
             return CompressedMessages;
         }
@@ -955,8 +958,8 @@ struct TReadSessionEvent {
         }
 
     private:
-        TVector<TMessage> Messages;
-        TVector<TCompressedMessage> CompressedMessages;
+        std::vector<TMessage> Messages;
+        std::vector<TCompressedMessage> CompressedMessages;
         std::vector<std::pair<ui64, ui64>> OffsetRanges;
     };
 
@@ -1241,7 +1244,7 @@ struct TWriteSessionEvent {
     struct TAcksEvent : public TPrintable<TAcksEvent> {
         //! Acks could be batched from several Write requests.
         //! They are provided to client as soon as possible.
-        TVector<TWriteAck> Acks;
+        std::vector<TWriteAck> Acks;
     };
 
     //! Indicates that a writer is ready to accept new message(s).
@@ -1574,7 +1577,7 @@ struct TReadSessionSettings: public TRequestSettings<TReadSessionSettings> {
 //! Contains the message to write and all the options.
 struct TWriteMessage {
     using TSelf = TWriteMessage;
-    using TMessageMeta = TVector<std::pair<TString, TString>>;
+    using TMessageMeta = std::vector<std::pair<TString, TString>>;
 public:
     TWriteMessage() = delete;
     TWriteMessage(TStringBuf data)
@@ -1666,7 +1669,7 @@ public:
     //! If blocking = false, instantly returns up to maxEventsCount available events.
     //! If blocking = true, blocks till maxEventsCount events are available.
     //! If maxEventsCount is unset, write session decides the count to return itself.
-    virtual TVector<TWriteSessionEvent::TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing()) = 0;
+    virtual std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing()) = 0;
 
     //! Future that is set when initial SeqNo is available.
     virtual NThreading::TFuture<ui64> GetInitSeqNo() = 0;
@@ -1724,10 +1727,10 @@ public:
     //!
     //! If maxEventsCount is not specified,
     //! read session chooses event batch size automatically.
-    virtual TVector<TReadSessionEvent::TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing(),
+    virtual std::vector<TReadSessionEvent::TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing(),
                                                          size_t maxByteSize = std::numeric_limits<size_t>::max()) = 0;
 
-    virtual TVector<TReadSessionEvent::TEvent> GetEvents(const TReadSessionGetEventSettings& settings) = 0;
+    virtual std::vector<TReadSessionEvent::TEvent> GetEvents(const TReadSessionGetEventSettings& settings) = 0;
 
     //! Get single event.
     virtual TMaybe<TReadSessionEvent::TEvent> GetEvent(bool block = false,

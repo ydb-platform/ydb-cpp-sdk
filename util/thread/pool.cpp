@@ -262,7 +262,7 @@ private:
     TCondVar QueuePopCond;
     TCondVar StopCond;
     TJobQueue Queue;
-    TVector<TThreadRef> Tharr;
+    std::vector<TThreadRef> Tharr;
     std::atomic<bool> ShouldTerminate;
     size_t MaxQueueSize;
     size_t ThreadCountExpected;

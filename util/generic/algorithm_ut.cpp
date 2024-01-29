@@ -223,7 +223,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         UNIT_ASSERT_EQUAL(2, FindIndex(array, 3));
         UNIT_ASSERT_EQUAL(NPOS, FindIndex(array, 42));
 
-        TVector<int> empty;
+        std::vector<int> empty;
         UNIT_ASSERT_EQUAL(NPOS, FindIndex(empty, 0));
     }
 
@@ -245,39 +245,39 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         UNIT_ASSERT_EQUAL(2, FindIndexIf(array, [](int x) { return x == 3; }));
         UNIT_ASSERT_EQUAL(NPOS, FindIndexIf(array, [](int x) { return x == 42; }));
 
-        TVector<int> empty;
+        std::vector<int> empty;
         UNIT_ASSERT_EQUAL(NPOS, FindIndexIf(empty, [](int x) { return x == 3; }));
     }
 
     Y_UNIT_TEST(SortUniqueTest) {
         {
-            TVector<TString> v;
+            std::vector<TString> v;
             SortUnique(v);
-            UNIT_ASSERT_EQUAL(v, TVector<TString>());
+            UNIT_ASSERT_EQUAL(v, std::vector<TString>());
         }
 
         {
             const char* ar[] = {"345", "3", "123", "2", "23", "3", "2"};
-            TVector<TString> v(ar, ar + Y_ARRAY_SIZE(ar));
+            std::vector<TString> v(ar, ar + Y_ARRAY_SIZE(ar));
             SortUnique(v);
 
             const char* suAr[] = {"123", "2", "23", "3", "345"};
-            TVector<TString> suV(suAr, suAr + Y_ARRAY_SIZE(suAr));
+            std::vector<TString> suV(suAr, suAr + Y_ARRAY_SIZE(suAr));
 
             UNIT_ASSERT_EQUAL(v, suV);
         }
     }
 
     Y_UNIT_TEST(EraseTest) {
-        TVector<int> data = {5, 4, 3, 2, 1, 0};
-        TVector<int> expected = {5, 4, 2, 1, 0};
+        std::vector<int> data = {5, 4, 3, 2, 1, 0};
+        std::vector<int> expected = {5, 4, 2, 1, 0};
         Erase(data, 3);
         UNIT_ASSERT_EQUAL(data, expected);
     }
 
     Y_UNIT_TEST(EraseIfTest) {
-        TVector<int> data = {5, 4, 3, 2, 1, 0};
-        TVector<int> expected = {2, 1, 0};
+        std::vector<int> data = {5, 4, 3, 2, 1, 0};
+        std::vector<int> expected = {2, 1, 0};
         EraseIf(data, [](int i) { return i >= 3; });
         UNIT_ASSERT_EQUAL(data, expected);
     }
@@ -316,14 +316,14 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
 
     Y_UNIT_TEST(NthElementTest) {
         {
-            TVector<TString> v;
+            std::vector<TString> v;
             NthElement(v.begin(), v.begin(), v.end());
-            UNIT_ASSERT_EQUAL(v, TVector<TString>());
+            UNIT_ASSERT_EQUAL(v, std::vector<TString>());
         }
 
         {
             int data[] = {3, 2, 1, 4, 6, 5, 7, 9, 8};
-            TVector<int> testVector(data, data + Y_ARRAY_SIZE(data));
+            std::vector<int> testVector(data, data + Y_ARRAY_SIZE(data));
 
             size_t medianInd = testVector.size() / 2;
 
@@ -336,7 +336,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
 
         {
             const char* data[] = {"3", "234", "1231", "333", "545345", "11", "111", "55", "66"};
-            TVector<TString> testVector(data, data + Y_ARRAY_SIZE(data));
+            std::vector<TString> testVector(data, data + Y_ARRAY_SIZE(data));
 
             size_t medianInd = testVector.size() / 2;
             NthElement(testVector.begin(), testVector.begin() + medianInd, testVector.end());
@@ -352,7 +352,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
 
     Y_UNIT_TEST(BinarySearchTest) {
         {
-            TVector<TString> v;
+            std::vector<TString> v;
             bool test = BinarySearch(v.begin(), v.end(), "test");
             UNIT_ASSERT_EQUAL(test, false);
         }
@@ -368,7 +368,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         }
 
         {
-            TVector<size_t> data = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+            std::vector<size_t> data = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
 
             bool test = BinarySearch(data.begin(), data.end(), (size_t)9, TGreater<size_t>());
             UNIT_ASSERT_EQUAL(test, true);
@@ -383,8 +383,8 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
 
     Y_UNIT_TEST(EqualRangeTest) {
         {
-            TVector<TString> v;
-            using PairOfVector = std::pair<TVector<TString>::iterator, TVector<TString>::iterator>;
+            std::vector<TString> v;
+            using PairOfVector = std::pair<std::vector<TString>::iterator, std::vector<TString>::iterator>;
             PairOfVector tmp = EqualRange(v.begin(), v.end(), "tmp");
 
             UNIT_ASSERT_EQUAL(tmp.first, tmp.second);
@@ -402,15 +402,15 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         }
 
         {
-            TVector<size_t> data = {9, 9, 8, 8, 8, 5, 4, 3, 3, 0, 0};
+            std::vector<size_t> data = {9, 9, 8, 8, 8, 5, 4, 3, 3, 0, 0};
 
-            using PairOfVector = std::pair<TVector<size_t>::iterator, TVector<size_t>::iterator>;
+            using PairOfVector = std::pair<std::vector<size_t>::iterator, std::vector<size_t>::iterator>;
             PairOfVector tmp = EqualRange(data.begin(), data.end(), 8, TGreater<size_t>());
 
             UNIT_ASSERT_EQUAL(tmp.first - data.begin(), 2);
             UNIT_ASSERT_EQUAL(tmp.second - tmp.first, 3);
 
-            using PairOfVectorReverse = std::pair<TVector<size_t>::reverse_iterator, TVector<size_t>::reverse_iterator>;
+            using PairOfVectorReverse = std::pair<std::vector<size_t>::reverse_iterator, std::vector<size_t>::reverse_iterator>;
             PairOfVectorReverse tmpR = EqualRange(data.rbegin(), data.rend(), (size_t)0);
 
             UNIT_ASSERT_EQUAL(tmpR.first, data.rbegin());
@@ -419,19 +419,19 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
     }
 
     Y_UNIT_TEST(AdjacentFindTest) {
-        TVector<int> v0;
+        std::vector<int> v0;
         UNIT_ASSERT_EQUAL(AdjacentFind(v0), v0.end());
 
-        TVector<int> v1 = {1};
+        std::vector<int> v1 = {1};
         UNIT_ASSERT_EQUAL(AdjacentFind(v1), v1.end());
 
         const int v2[] = {8, 7, 6, 6, 5, 5, 5, 4, 3, 2, 1};
         UNIT_ASSERT_EQUAL(AdjacentFind(v2), std::begin(v2) + 2);
 
-        TVector<TStringBuf> v3 = {"six", "five", "four", "three", "two", "one"};
+        std::vector<TStringBuf> v3 = {"six", "five", "four", "three", "two", "one"};
         UNIT_ASSERT_EQUAL(AdjacentFind(v3), v3.end());
 
-        TVector<int> v4 = {1, 1, 1, 1, 1};
+        std::vector<int> v4 = {1, 1, 1, 1, 1};
         for (;;) {
             if (auto it = AdjacentFind(v4); it == v4.end()) {
                 break;
@@ -439,25 +439,25 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
                 *it += 1;
             }
         }
-        UNIT_ASSERT_VALUES_EQUAL(v4, (TVector<int>{5, 4, 3, 2, 1}));
+        UNIT_ASSERT_VALUES_EQUAL(v4, (std::vector<int>{5, 4, 3, 2, 1}));
     }
 
     Y_UNIT_TEST(AdjacentFindByTest) {
-        TVector<int> v0;
+        std::vector<int> v0;
         UNIT_ASSERT_EQUAL(AdjacentFindBy(v0, std::negate<int>()), v0.end());
 
-        TVector<int> v1 = {1};
+        std::vector<int> v1 = {1};
         UNIT_ASSERT_EQUAL(AdjacentFindBy(v1, std::negate<int>()), v1.end());
 
         const int v2[] = {8, 7, 6, 6, 5, 5, 5, 4, 3, 2, 1};
         UNIT_ASSERT_EQUAL(AdjacentFindBy(v2, std::negate<int>()), std::begin(v2) + 2);
         UNIT_ASSERT_EQUAL(AdjacentFindBy(v2, [](const auto& e) { return e / 8; }), std::begin(v2) + 1);
 
-        TVector<TStringBuf> v3 = {"six", "five", "four", "three", "two", "one"};
+        std::vector<TStringBuf> v3 = {"six", "five", "four", "three", "two", "one"};
         UNIT_ASSERT_EQUAL(AdjacentFind(v3), v3.end());
         UNIT_ASSERT_EQUAL(AdjacentFindBy(v3, std::mem_fn(&TStringBuf::size)), v3.begin() + 1);
 
-        TVector<int> v4 = {101, 201, 301, 401, 501};
+        std::vector<int> v4 = {101, 201, 301, 401, 501};
         for (;;) {
             if (auto it = AdjacentFindBy(v4, [](int a) { return a % 10; }); it == v4.end()) {
                 break;
@@ -465,128 +465,128 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
                 *it += 1;
             }
         }
-        UNIT_ASSERT_VALUES_EQUAL(v4, (TVector<int>{105, 204, 303, 402, 501}));
+        UNIT_ASSERT_VALUES_EQUAL(v4, (std::vector<int>{105, 204, 303, 402, 501}));
     }
 
     Y_UNIT_TEST(IsSortedTest) {
-        TVector<int> v0;
+        std::vector<int> v0;
         UNIT_ASSERT_VALUES_EQUAL(IsSorted(v0.begin(), v0.end()), true);
 
-        TVector<int> v1 = {1, 2, 3, 4, 5, 5, 5, 6, 6, 7, 8};
+        std::vector<int> v1 = {1, 2, 3, 4, 5, 5, 5, 6, 6, 7, 8};
         UNIT_ASSERT_VALUES_EQUAL(IsSorted(v1.begin(), v1.end()), true);
         UNIT_ASSERT_VALUES_EQUAL(IsSorted(v1.begin(), v1.end(), TLess<int>()), true);
         UNIT_ASSERT_VALUES_EQUAL(IsSorted(v1.begin(), v1.end(), TGreater<int>()), false);
 
-        TVector<int> v2 = {1, 2, 1};
+        std::vector<int> v2 = {1, 2, 1};
         UNIT_ASSERT_VALUES_EQUAL(IsSorted(v2.begin(), v2.end()), false);
         UNIT_ASSERT_VALUES_EQUAL(IsSorted(v2.begin(), v2.end(), TLess<int>()), false);
         UNIT_ASSERT_VALUES_EQUAL(IsSorted(v2.begin(), v2.end(), TGreater<int>()), false);
     }
 
     Y_UNIT_TEST(IsSortedByTest) {
-        TVector<int> v0;
+        std::vector<int> v0;
         UNIT_ASSERT_VALUES_EQUAL(IsSortedBy(v0.begin(), v0.end(), std::negate<int>()), true);
         UNIT_ASSERT_VALUES_EQUAL(IsSortedBy(v0, std::negate<int>()), true);
 
-        TVector<int> v1 = {1};
+        std::vector<int> v1 = {1};
         UNIT_ASSERT_VALUES_EQUAL(IsSortedBy(v1.begin(), v1.end(), std::negate<int>()), true);
         UNIT_ASSERT_VALUES_EQUAL(IsSortedBy(v1, std::negate<int>()), true);
 
-        TVector<int> v2 = {8, 7, 6, 6, 5, 5, 5, 4, 3, 2, 1};
+        std::vector<int> v2 = {8, 7, 6, 6, 5, 5, 5, 4, 3, 2, 1};
         UNIT_ASSERT_VALUES_EQUAL(IsSortedBy(v2.begin(), v2.end(), std::negate<int>()), true);
         UNIT_ASSERT_VALUES_EQUAL(IsSortedBy(v2, std::negate<int>()), true);
 
-        TVector<int> v3 = {1, 2, 1};
+        std::vector<int> v3 = {1, 2, 1};
         UNIT_ASSERT_VALUES_EQUAL(IsSortedBy(v3.begin(), v3.end(), std::negate<int>()), false);
         UNIT_ASSERT_VALUES_EQUAL(IsSortedBy(v3, std::negate<int>()), false);
     }
 
     Y_UNIT_TEST(SortTestTwoIterators) {
-        TVector<int> collection = {10, 2, 7};
+        std::vector<int> collection = {10, 2, 7};
         Sort(collection.begin(), collection.end());
-        TVector<int> expected = {2, 7, 10};
+        std::vector<int> expected = {2, 7, 10};
         UNIT_ASSERT_VALUES_EQUAL(collection, expected);
     }
 
     Y_UNIT_TEST(SortTestTwoIteratorsAndComparator) {
-        TVector<int> collection = {10, 2, 7};
+        std::vector<int> collection = {10, 2, 7};
         Sort(collection.begin(), collection.end(), [](int l, int r) { return l > r; });
-        TVector<int> expected = {10, 7, 2};
+        std::vector<int> expected = {10, 7, 2};
         UNIT_ASSERT_VALUES_EQUAL(collection, expected);
     }
 
     Y_UNIT_TEST(SortTestContainer) {
-        TVector<int> collection = {10, 2, 7};
+        std::vector<int> collection = {10, 2, 7};
         Sort(collection);
-        TVector<int> expected = {2, 7, 10};
+        std::vector<int> expected = {2, 7, 10};
         UNIT_ASSERT_VALUES_EQUAL(collection, expected);
     }
 
     Y_UNIT_TEST(SortTestContainerAndComparator) {
-        TVector<int> collection = {10, 2, 7};
+        std::vector<int> collection = {10, 2, 7};
         Sort(collection, [](int l, int r) { return l > r; });
-        TVector<int> expected = {10, 7, 2};
+        std::vector<int> expected = {10, 7, 2};
         UNIT_ASSERT_VALUES_EQUAL(collection, expected);
     }
 
     Y_UNIT_TEST(StableSortTestTwoIterators) {
-        TVector<int> collection = {10, 2, 7};
+        std::vector<int> collection = {10, 2, 7};
         StableSort(collection.begin(), collection.end());
-        TVector<int> expected = {2, 7, 10};
+        std::vector<int> expected = {2, 7, 10};
         UNIT_ASSERT_VALUES_EQUAL(collection, expected);
     }
 
     Y_UNIT_TEST(StableSortTestTwoIteratorsAndComparator) {
-        TVector<int> collection = {404, 101, 106, 203, 102, 205, 401};
+        std::vector<int> collection = {404, 101, 106, 203, 102, 205, 401};
         StableSort(collection.begin(), collection.end(), [](int l, int r) { return (l / 100) < (r / 100); });
-        TVector<int> expected = {101, 106, 102, 203, 205, 404, 401};
+        std::vector<int> expected = {101, 106, 102, 203, 205, 404, 401};
         UNIT_ASSERT_VALUES_EQUAL(collection, expected);
     }
 
     Y_UNIT_TEST(StableSortTestContainer) {
-        TVector<int> collection = {10, 2, 7};
+        std::vector<int> collection = {10, 2, 7};
         StableSort(collection);
-        TVector<int> expected = {2, 7, 10};
+        std::vector<int> expected = {2, 7, 10};
         UNIT_ASSERT_VALUES_EQUAL(collection, expected);
     }
 
     Y_UNIT_TEST(StableSortTestContainerAndComparator) {
-        TVector<int> collection = {404, 101, 106, 203, 102, 205, 401};
+        std::vector<int> collection = {404, 101, 106, 203, 102, 205, 401};
         StableSort(collection, [](int l, int r) { return (l / 100) < (r / 100); });
-        TVector<int> expected = {101, 106, 102, 203, 205, 404, 401};
+        std::vector<int> expected = {101, 106, 102, 203, 205, 404, 401};
         UNIT_ASSERT_VALUES_EQUAL(collection, expected);
     }
 
     Y_UNIT_TEST(SortByTest) {
-        TVector<int> collection = {10, 2, 7};
+        std::vector<int> collection = {10, 2, 7};
         SortBy(collection, [](int x) { return -x; });
-        TVector<int> expected = {10, 7, 2};
+        std::vector<int> expected = {10, 7, 2};
         UNIT_ASSERT_VALUES_EQUAL(collection, expected);
     }
 
     Y_UNIT_TEST(StableSortByTest) {
-        TVector<int> collection = {404, 101, 106, 203, 102, 205, 401};
+        std::vector<int> collection = {404, 101, 106, 203, 102, 205, 401};
         StableSortBy(collection, [](int x) { return x / 100; });
-        TVector<int> expected = {101, 106, 102, 203, 205, 404, 401};
+        std::vector<int> expected = {101, 106, 102, 203, 205, 404, 401};
         UNIT_ASSERT_VALUES_EQUAL(collection, expected);
     }
 
     Y_UNIT_TEST(SortUniqueByTest) {
-        TVector<int> collection = {404, 101, 101, 203, 101, 203, 404};
+        std::vector<int> collection = {404, 101, 101, 203, 101, 203, 404};
         StableSortUniqueBy(collection, [](int x) { return x / 100; });
-        TVector<int> expected = {101, 203, 404};
+        std::vector<int> expected = {101, 203, 404};
         UNIT_ASSERT_VALUES_EQUAL(collection, expected);
     }
 
     Y_UNIT_TEST(StableSortUniqueByTest) {
-        TVector<int> collection = {404, 101, 106, 203, 102, 205, 401};
+        std::vector<int> collection = {404, 101, 106, 203, 102, 205, 401};
         StableSortUniqueBy(collection, [](int x) { return x / 100; });
-        TVector<int> expected = {101, 203, 404};
+        std::vector<int> expected = {101, 203, 404};
         UNIT_ASSERT_VALUES_EQUAL(collection, expected);
     }
 
     Y_UNIT_TEST(IotaTest) {
-        TVector<int> v(10);
+        std::vector<int> v(10);
 
         Iota(v.begin(), v.end(), 0);
         UNIT_ASSERT_VALUES_EQUAL(v[0], 0);
@@ -602,10 +602,10 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
     Y_UNIT_TEST(CopyNTest) {
         int data[] = {1, 2, 3, 4, 8, 7, 6, 5};
         const size_t vSize = 10;
-        TVector<int> result(10, 0);
+        std::vector<int> result(10, 0);
         size_t toCopy = 5;
 
-        TVector<int>::iterator iter = CopyN(data, toCopy, result.begin());
+        std::vector<int>::iterator iter = CopyN(data, toCopy, result.begin());
         UNIT_ASSERT_VALUES_EQUAL(iter - result.begin(), toCopy);
         UNIT_ASSERT_VALUES_EQUAL(result.size(), 10);
         for (size_t idx = 0; idx < toCopy; ++idx) {
@@ -635,9 +635,9 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         const size_t count = 9;
         int data[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         const size_t vSize = 10;
-        TVector<int> v(vSize, 0);
+        std::vector<int> v(vSize, 0);
 
-        TVector<int>::iterator iter = CopyIf(data, data + count, v.begin(), [](int x) { return !(x % 3); });
+        std::vector<int>::iterator iter = CopyIf(data, data + count, v.begin(), [](int x) { return !(x % 3); });
         UNIT_ASSERT_VALUES_EQUAL(v.size(), vSize);
         UNIT_ASSERT_VALUES_EQUAL(iter - v.begin(), 3);
         v.resize(iter - v.begin());
@@ -647,7 +647,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
     }
 
     Y_UNIT_TEST(MinMaxElementTest) {
-        TVector<int> v(10);
+        std::vector<int> v(10);
         Iota(v.begin(), v.end(), 0);
         UNIT_ASSERT_EQUAL(*MinMaxElement(v.begin(), v.end()).first, 0);
         UNIT_ASSERT_EQUAL(*MinMaxElement(v.begin(), v.end()).second, 9);
@@ -674,7 +674,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
             return x * x;
         }), 5);
 
-        const TVector<int> vec(array, array + Y_ARRAY_SIZE(array));
+        const std::vector<int> vec(array, array + Y_ARRAY_SIZE(array));
         UNIT_ASSERT_VALUES_EQUAL(*MaxElementBy(vec, [](int x) {
             return -1.0 * x;
         }), 1);
@@ -700,7 +700,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
             return 'a' + x;
         }), 1);
 
-        const TVector<int> vec(std::begin(array), std::end(array));
+        const std::vector<int> vec(std::begin(array), std::end(array));
         UNIT_ASSERT_VALUES_EQUAL(*MinElementBy(vec, [](int x) {
             return -x;
         }), 5);
@@ -716,7 +716,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         auto singleElementSequence = {'z'};
         UNIT_ASSERT_VALUES_EQUAL(*MinElementBy(singleElementSequence, identity), 'z');
 
-        const TVector<TStringBuf> strings = {"one", "two", "three", "four"};
+        const std::vector<TStringBuf> strings = {"one", "two", "three", "four"};
         auto stringLength = [](TStringBuf s) {
             return s.size();
         };
@@ -725,12 +725,12 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
     }
 
     Y_UNIT_TEST(MaxElementByReturnsEndForEmptyRange) {
-        const TVector<int> empty;
+        const std::vector<int> empty;
         UNIT_ASSERT_EQUAL(MaxElementBy(empty, [](int) { return 0; }), empty.end());
     }
 
     Y_UNIT_TEST(MaxElementByDoesntCallFunctorForEmptyRange) {
-        const TVector<int> empty;
+        const std::vector<int> empty;
         auto functor = [](int) {
             UNIT_ASSERT(false);
             return 0;
@@ -739,12 +739,12 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
     }
 
     Y_UNIT_TEST(MinElementByReturnsEndForEmptyRange) {
-        const TVector<int> empty;
+        const std::vector<int> empty;
         UNIT_ASSERT_EQUAL(MinElementBy(empty, [](int) { return 0; }), empty.end());
     }
 
     Y_UNIT_TEST(MinElementByDoesntCallFunctorForEmptyRange) {
-        const TVector<int> empty;
+        const std::vector<int> empty;
         auto functor = [](int) {
             UNIT_ASSERT(false);
             return 0;
@@ -787,7 +787,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         UNIT_ASSERT(!AllOf(std::make_tuple(1, 2, 0, 4, 5), [&](auto v) { UNIT_ASSERT_LT(v, 3); return 0 != v; }));
         UNIT_ASSERT(AllOf(std::make_tuple(1, 2, 3, 4, 5), [](auto v) { return 0 != v; }));
         {
-            auto pred = std::function<bool(int)>([x = TVector<int>(1, 0)](auto v) { return x.front() != v; });
+            auto pred = std::function<bool(int)>([x = std::vector<int>(1, 0)](auto v) { return x.front() != v; });
             UNIT_ASSERT(AllOf(std::make_tuple(1, 2), pred));
             UNIT_ASSERT(AllOf(std::make_tuple(1, 2), pred));
         }
@@ -802,7 +802,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         UNIT_ASSERT(!AnyOf(std::tuple<>{}, [](auto) { return true; }));
         UNIT_ASSERT(AnyOf(std::make_tuple(0, 1, 2, 3, 4), [&](auto v) { UNIT_ASSERT_LT(v, 2); return 1 == v; }));
         UNIT_ASSERT(AnyOf(std::make_tuple(1, 2, 3, 4, 5), [](auto v) { return 5 == v; }));
-        auto pred = std::function<bool(int)>([x = TVector<int>(1, 0)](auto v) { return x.front() == v; });
+        auto pred = std::function<bool(int)>([x = std::vector<int>(1, 0)](auto v) { return x.front() == v; });
         UNIT_ASSERT(!AnyOf(std::make_tuple(1, 2), pred));
         UNIT_ASSERT(!AnyOf(std::make_tuple(1, 2), pred));
         {
@@ -820,7 +820,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         UNIT_ASSERT_EQUAL(FindIf(array, [](int x) { return x == 1; }), begin(array));
         UNIT_ASSERT_EQUAL(FindIf(array, [](int x) { return x > 5; }), end(array));
 
-        TVector<int> vector = {1, 2, 3, 4, 5};
+        std::vector<int> vector = {1, 2, 3, 4, 5};
         UNIT_ASSERT_EQUAL(FindIf(vector, [](int x) { return x == 1; }), begin(vector));
         UNIT_ASSERT_EQUAL(FindIf(vector, [](int x) { return x > 5; }), end(vector));
 
@@ -829,7 +829,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         *iter = 5;
 
         // Compilability test. Check if the returned iterator is const. Should not compile
-        const TVector<int> constVector = {1, 2, 3, 4, 5};
+        const std::vector<int> constVector = {1, 2, 3, 4, 5};
         auto constIter = FindIf(constVector, [](int x) { return x == 1; });
         Y_UNUSED(constIter);
         // *constIter = 5;
@@ -854,7 +854,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
     }
 
     Y_UNIT_TEST(TestLowerBoundBy) {
-        using TIntPairs = TVector<std::pair<i32, i32>>;
+        using TIntPairs = std::vector<std::pair<i32, i32>>;
 
         auto data = TIntPairs{{1, 5}, {3, 2}, {3, 4}, {8, 0}, {5, 4}};
         auto getKey = [](const auto& x) { return x.second; };
@@ -874,7 +874,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
     }
 
     Y_UNIT_TEST(TestUpperBoundBy) {
-        using TIntPairs = TVector<std::pair<i32, i32>>;
+        using TIntPairs = std::vector<std::pair<i32, i32>>;
 
         auto data = TIntPairs{{1, 5}, {3, 2}, {3, 4}, {8, 0}, {5, 4}};
         auto getKey = [](const auto& x) { return x.second; };

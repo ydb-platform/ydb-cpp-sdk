@@ -7,7 +7,7 @@
 
 Y_UNIT_TEST_SUITE(TEndpointTest) {
     Y_UNIT_TEST(TestSimple) {
-        TVector<TNetworkAddress> addrs;
+        std::vector<TNetworkAddress> addrs;
 
         TEndpoint ep0;
 

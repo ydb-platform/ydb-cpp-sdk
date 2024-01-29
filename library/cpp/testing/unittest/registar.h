@@ -9,7 +9,7 @@
 #include <util/generic/scope.h>
 #include <util/generic/set.h>
 #include <util/generic/typetraits.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/yexception.h>
 
 #include <util/string/builder.h>
@@ -253,7 +253,7 @@ namespace NUnitTest {
         size_t TestErrors_;
         const char* CurrentSubtest_;
         TAdaptiveLock AfterTestFunctionsLock_;
-        TVector<std::function<void()>> AfterTestFunctions_;
+        std::vector<std::function<void()>> AfterTestFunctions_;
     };
 
 #define UNIT_TEST_SUITE(N)                           \
@@ -928,7 +928,7 @@ public:                       \
         class TCurrentTest: public T {                                                                                  \
         private:                                                                                                        \
             typedef std::function<THolder<NUnitTest::TBaseTestCase>()> TTestCaseFactory;                                \
-            typedef TVector<TTestCaseFactory> TTests;                                                                   \
+            typedef std::vector<TTestCaseFactory> TTests;                                                                   \
                                                                                                                         \
             static TTests& Tests() {                                                                                    \
                 static TTests tests;                                                                                    \

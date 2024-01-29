@@ -372,7 +372,7 @@ public:
     void ListenSocket(size_t threadNum) {
         TThread::SetCurrentThreadName(Options_.ListenThreadName.c_str());
 
-        TVector<void*> events;
+        std::vector<void*> events;
         events.resize(Options_.EpollMaxEvents);
 
         TInstant now = TInstant::Now();
@@ -483,7 +483,7 @@ public:
         return Options_.MaxConnections && ((size_t)GetClientCount() >= Options_.MaxConnections);
     }
 
-    TVector<THolder<TThread>> ListenThreads;
+    std::vector<THolder<TThread>> ListenThreads;
     std::atomic<size_t> RunningListeners_ = 0;
     TIntrusiveListWithAutoDelete<TListenSocket, TDelete> Reqs;
     TPipeHandle ListenWakeupReadFd;

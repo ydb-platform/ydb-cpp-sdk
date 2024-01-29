@@ -235,11 +235,11 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
         dir.Child("c").MkDir();
         dir.Child("d").Touch();
 
-        TVector<TString> children;
+        std::vector<TString> children;
         dir.ListNames(children);
         std::sort(children.begin(), children.end());
 
-        TVector<TString> expected;
+        std::vector<TString> expected;
         expected.push_back("a");
         expected.push_back("b");
         expected.push_back("c");

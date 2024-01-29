@@ -59,8 +59,8 @@ public:
         return std::move(eventInfo->Event);
     }
 
-    TVector<TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing()) {
-        TVector<TEventInfo> eventInfos;
+    std::vector<TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing()) {
+        std::vector<TEventInfo> eventInfos;
         with_lock (Mutex) {
             if (block) {
                 WaitEventsImpl();
@@ -77,7 +77,7 @@ public:
             }
         }
 
-        TVector<TEvent> result;
+        std::vector<TEvent> result;
         result.reserve(eventInfos.size());
         for (TEventInfo& eventInfo : eventInfos) {
             eventInfo.OnUserRetrievedEvent();
@@ -170,11 +170,11 @@ private:
         TStringBuf DataRef;
         TMaybe<ECodec> Codec;
         ui32 OriginalSize; // only for coded messages
-        TVector<std::pair<TString, TString>> MessageMeta;
+        std::vector<std::pair<TString, TString>> MessageMeta;
         const NTable::TTransaction* Tx;
 
         TMessage(ui64 id, const TInstant& createdAt, TStringBuf data, TMaybe<ECodec> codec = {},
-                 ui32 originalSize = 0, const TVector<std::pair<TString, TString>>& messageMeta = {},
+                 ui32 originalSize = 0, const std::vector<std::pair<TString, TString>>& messageMeta = {},
                  const NTable::TTransaction* tx = nullptr)
             : Id(id)
             , CreatedAt(createdAt)
@@ -188,14 +188,14 @@ private:
 
     struct TMessageBatch {
         TBuffer Data;
-        TVector<TMessage> Messages;
+        std::vector<TMessage> Messages;
         ui64 CurrentSize = 0;
         TInstant StartedAt = TInstant::Zero();
         bool Acquired = false;
         bool FlushRequested = false;
 
         void Add(ui64 id, const TInstant& createdAt, TStringBuf data, TMaybe<ECodec> codec, ui32 originalSize,
-                 const TVector<std::pair<TString, TString>>& messageMeta,
+                 const std::vector<std::pair<TString, TString>>& messageMeta,
                  const NTable::TTransaction* tx) {
             if (StartedAt == TInstant::Zero())
                 StartedAt = TInstant::Now();
@@ -239,7 +239,7 @@ private:
         size_t OriginalSize = 0;
         size_t OriginalMemoryUsage = 0;
         ui32 CodecID = static_cast<ui32>(ECodec::RAW);
-        mutable TVector<TStringBuf> OriginalDataRefs;
+        mutable std::vector<TStringBuf> OriginalDataRefs;
         mutable TBuffer Data;
         bool Compressed = false;
         mutable bool Valid = true;
@@ -269,7 +269,7 @@ private:
         ui64 Id;
         TInstant CreatedAt;
         size_t Size;
-        TVector<std::pair<TString, TString>> MessageMeta;
+        std::vector<std::pair<TString, TString>> MessageMeta;
         const NTable::TTransaction* Tx;
 
         TOriginalMessage(const ui64 id, const TInstant createdAt, const size_t size,
@@ -281,7 +281,7 @@ private:
         {}
 
         TOriginalMessage(const ui64 id, const TInstant createdAt, const size_t size,
-                         TVector<std::pair<TString, TString>>&& messageMeta,
+                         std::vector<std::pair<TString, TString>>&& messageMeta,
                          const NTable::TTransaction* tx)
             : Id(id)
             , CreatedAt(createdAt)
@@ -307,7 +307,7 @@ private:
     struct TProcessSrvMessageResult {
         THandleResult HandleResult;
         TMaybe<ui64> InitSeqNo;
-        TVector<TWriteSessionEvent::TEvent> Events;
+        std::vector<TWriteSessionEvent::TEvent> Events;
         bool Ok = true;
     };
 
@@ -325,7 +325,7 @@ public:
             TDbDriverStatePtr dbDriverState);
 
     TMaybe<TWriteSessionEvent::TEvent> GetEvent(bool block = false);
-    TVector<TWriteSessionEvent::TEvent> GetEvents(bool block = false,
+    std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false,
                                                   TMaybe<size_t> maxEventsCount = Nothing());
     NThreading::TFuture<ui64> GetInitSeqNo();
 

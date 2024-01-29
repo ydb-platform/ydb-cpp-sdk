@@ -7,7 +7,7 @@
 #include <library/cpp/http/io/stream.h>
 #include <util/memory/blob.h>
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
+
 #include <library/cpp/deprecated/atomic/atomic.h>
 
 class IThreadFactory;
@@ -144,7 +144,7 @@ private:
     void Process(void* ThreadSpecificResource) override;
 
 public:
-    TVector<std::pair<TString, TString>> ParsedHeaders;
+    std::vector<std::pair<TString, TString>> ParsedHeaders;
     TString RequestString;
 
 private:

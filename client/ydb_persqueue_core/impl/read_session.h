@@ -359,8 +359,8 @@ public:
     }
 
     void TakeData(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
-                  TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                  TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                  std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
+                  std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
                   size_t& maxByteSize,
                   size_t& dataSize) const;
 
@@ -526,16 +526,16 @@ public:
     void GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                           size_t& maxEventsCount,
                           size_t& maxByteSize,
-                          TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                          TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                          std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
+                          std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
                           TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator);
 
 private:
     static void GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                                  size_t& maxEventsCount,
                                  size_t& maxByteSize,
-                                 TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                                 TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                                 std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
+                                 std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
                                  TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator,
                                  std::deque<TRawPartitionStreamEvent<UseMigrationProtocol>>& queue);
 
@@ -722,8 +722,8 @@ public:
     static void GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                                  size_t& maxEventsCount,
                                  size_t& maxByteSize,
-                                 TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                                 TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                                 std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
+                                 std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
                                  TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator);
 
     TMutex& GetLock() {
@@ -765,7 +765,7 @@ public:
     GetEventImpl(size_t& maxByteSize,
                  TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator);
 
-    TVector<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent>
+    std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent>
     GetEvents(bool block = false,
               TMaybe<size_t> maxEventsCount = Nothing(),
               size_t maxByteSize = std::numeric_limits<size_t>::max());
@@ -1206,7 +1206,7 @@ class TReadSession : public IReadSession,
 
         TString ClusterName; // In lower case
         TSingleClusterReadSessionImpl<true>::TPtr Session;
-        TVector<TTopicReadSettings> Topics;
+        std::vector<TTopicReadSettings> Topics;
         TString ClusterEndpoint;
     };
 
@@ -1221,7 +1221,7 @@ public:
     void Start();
 
     NThreading::TFuture<void> WaitEvent() override;
-    TVector<TReadSessionEvent::TEvent> GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize) override;
+    std::vector<TReadSessionEvent::TEvent> GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize) override;
     TMaybe<TReadSessionEvent::TEvent> GetEvent(bool block, size_t maxByteSize) override;
 
     bool Close(TDuration timeout) override;
@@ -1246,7 +1246,7 @@ public:
         ThrowFatalError("Method \"RemoveTopic\" is not implemented");
     }
 
-    void RemoveTopic(const TString& path, const TVector<ui64>& partitionGruops) /*override*/ {
+    void RemoveTopic(const TString& path, const std::vector<ui64>& partitionGruops) /*override*/ {
         Y_UNUSED(path);
         Y_UNUSED(partitionGruops);
         // TODO: implement.

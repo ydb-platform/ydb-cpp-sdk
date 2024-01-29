@@ -96,7 +96,7 @@ Y_UNIT_TEST_SUITE(EventTest) {
         TManualEvent event[limit];
         TThreadPool queue;
         queue.Start(limit);
-        TVector<THolder<IObjectInQueue>> tasks;
+        std::vector<THolder<IObjectInQueue>> tasks;
         for (size_t i = 0; i < limit; ++i) {
             tasks.emplace_back(MakeHolder<TSignalTask>(event[i]));
             UNIT_ASSERT(queue.Add(tasks.back().Get()));
@@ -110,7 +110,7 @@ Y_UNIT_TEST_SUITE(EventTest) {
     /** Test for a problem: http://nga.at.yandex-team.ru/5772 */
     Y_UNIT_TEST(DestructorBeforeSignalFinishTest) {
         return;
-        TVector<THolder<IObjectInQueue>> tasks;
+        std::vector<THolder<IObjectInQueue>> tasks;
         for (size_t i = 0; i < 1000; ++i) {
             auto owner = MakeHolder<TOwnerTask>();
             tasks.emplace_back(MakeHolder<TSignalTask>(*owner->Ev));

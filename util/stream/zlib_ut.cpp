@@ -111,7 +111,7 @@ Y_UNIT_TEST_SUITE(TZLibTest) {
     }
 
     Y_UNIT_TEST(CompressionExceptionSegfault) {
-        TVector<char> buf(512 * 1024);
+        std::vector<char> buf(512 * 1024);
         EntropyPool().Load(buf.data(), buf.size());
 
         TThrowingStream o(128 * 1024);
@@ -122,7 +122,7 @@ Y_UNIT_TEST_SUITE(TZLibTest) {
         }
 
         o.Ignore = true;
-        TVector<char>().swap(buf);
+        std::vector<char>().swap(buf);
     }
 
     Y_UNIT_TEST(DecompressFirstOfTwoStreams) {

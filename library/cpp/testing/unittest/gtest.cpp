@@ -1,7 +1,6 @@
 #include "gtest.h"
 #include "simple.h"
 
-#include <util/generic/vector.h>
 #include <util/system/type_name.h>
 
 using namespace NUnitTest;

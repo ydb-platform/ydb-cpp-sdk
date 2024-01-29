@@ -16,14 +16,14 @@ public:
     {
     }
 
-    TOperationsList(TStatus&& status, TVector<TOp>&& operations, const TString& nextPageToken)
+    TOperationsList(TStatus&& status, std::vector<TOp>&& operations, const TString& nextPageToken)
         : TStatus(std::move(status))
         , Operations_(std::move(operations))
         , NextPageToken_(nextPageToken)
     {
     }
 
-    const TVector<TOp>& GetList() const { return Operations_; }
+    const std::vector<TOp>& GetList() const { return Operations_; }
     const TString& NextPageToken() const { return NextPageToken_; }
 
     TString ToJsonString() const {
@@ -41,7 +41,7 @@ public:
     }
 
 private:
-    TVector<TOp> Operations_;
+    std::vector<TOp> Operations_;
     TString NextPageToken_;
 };
 

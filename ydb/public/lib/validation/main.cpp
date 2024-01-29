@@ -10,7 +10,6 @@
 
 #include <util/generic/maybe.h>
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
 #include <util/string/builder.h>
 #include <util/string/cast.h>
 #include <util/string/subst.h>
@@ -443,14 +442,14 @@ public:
 
 private:
     const TVariables Vars;
-    TVector<TFieldGenerator::TPtr> Fields;
+    std::vector<TFieldGenerator::TPtr> Fields;
 
 }; // TOneofGenerator
 
 class TMessageGenerator {
     struct TItem {
         TOneofGenerator::TPtr Oneof;
-        TVector<TFieldGenerator::TPtr> Fields;
+        std::vector<TFieldGenerator::TPtr> Fields;
 
         explicit TItem(TOneofGenerator::TPtr oneof)
             : Oneof(oneof)

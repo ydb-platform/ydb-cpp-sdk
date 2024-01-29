@@ -65,7 +65,7 @@ private:
 
 private:
     TMutex Lock;
-    TVector<TAtomicSharedPtr<NTesting::IPort>> ReservedPorts;
+    std::vector<TAtomicSharedPtr<NTesting::IPort>> ReservedPorts;
     const bool EnableReservePortsForCurrentTest;
     const bool DisableRandomPorts;
 };

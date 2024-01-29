@@ -8,7 +8,7 @@
 #include <util/generic/ptr.h>
 #include <util/generic/string.h>
 #include <util/generic/maybe.h>
-#include <util/generic/vector.h>
+
 #include <util/string/cast.h>
 #include <util/string/join.h>
 
@@ -45,8 +45,8 @@ namespace NLastGetopt {
      */
     class TOpt {
     public:
-        typedef TVector<char> TShortNames;
-        typedef TVector<TString> TLongNames;
+        typedef std::vector<char> TShortNames;
+        typedef std::vector<TString> TLongNames;
 
     protected:
         TShortNames Chars_;
@@ -54,7 +54,7 @@ namespace NLastGetopt {
 
     private:
         typedef TMaybe<TString> TdOptVal;
-        typedef TVector<TSimpleSharedPtr<IOptHandler>> TOptHandlers;
+        typedef std::vector<TSimpleSharedPtr<IOptHandler>> TOptHandlers;
 
     public:
         bool Hidden_ = false;       // is visible in help
@@ -73,7 +73,7 @@ namespace NLastGetopt {
         bool DisableCompletionForFreeArgs_ = false;
         TShortNames DisableCompletionForChar_;
         TLongNames DisableCompletionForLongName_;
-        TVector<size_t> DisableCompletionForFreeArg_;
+        std::vector<size_t> DisableCompletionForFreeArg_;
         NComp::ICompleterPtr Completer_;
 
     private:
@@ -728,7 +728,7 @@ namespace NLastGetopt {
 
         // Emplaces TString arg to *target for each argument
         template <typename T>
-        TOpt& EmplaceTo(TVector<T>* target) {
+        TOpt& EmplaceTo(std::vector<T>* target) {
             return Handler1T<TString>([target](TString arg) { target->emplace_back(std::move(arg)); } );
         }
 
@@ -770,7 +770,7 @@ namespace NLastGetopt {
                 });
         }
 
-        TOpt& Choices(TVector<TString> choices) {
+        TOpt& Choices(std::vector<TString> choices) {
             return Choices(
                 THashSet<TString>{
                     std::make_move_iterator(choices.begin()),
@@ -778,7 +778,7 @@ namespace NLastGetopt {
                 });
         }
 
-        TOpt& ChoicesWithCompletion(TVector<NComp::TChoice> choices) {
+        TOpt& ChoicesWithCompletion(std::vector<NComp::TChoice> choices) {
             Completer(NComp::Choice(choices));
             THashSet<TString> choicesSet;
             choicesSet.reserve(choices.size());

@@ -38,6 +38,7 @@ __pycache__/
 
 # MacOS specific
 .DS_Store
+*.dSYM
 
 # clangd cache
 /.cache
@@ -85,3 +86,4 @@ util/all_util.cpp
 util/charset/all_charset.cpp
 
 cmake-build-debug
+llvm.sh

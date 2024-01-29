@@ -47,7 +47,7 @@ struct TEpisode {
 };
 
 TParams GetTablesDataParams() {
-    TVector<TSeries> seriesData = {
+    std::vector<TSeries> seriesData = {
         TSeries(1, "IT Crowd",  TInstant::ParseIso8601("2006-02-03"),
             "The IT Crowd is a British sitcom produced by Channel 4, written by Graham Linehan, produced by "
             "Ash Atalla and starring Chris O'Dowd, Richard Ayoade, Katherine Parkinson, and Matt Berry."),
@@ -56,7 +56,7 @@ TParams GetTablesDataParams() {
             "Dave Krinsky. The series focuses on five young men who founded a startup company in Silicon Valley.")
     };
 
-    TVector<TSeason> seasonsData = {
+    std::vector<TSeason> seasonsData = {
         TSeason(1, 1, "Season 1", TInstant::ParseIso8601("2006-02-03"), TInstant::ParseIso8601("2006-03-03")),
         TSeason(1, 2, "Season 2", TInstant::ParseIso8601("2007-08-24"), TInstant::ParseIso8601("2007-09-28")),
         TSeason(1, 3, "Season 3", TInstant::ParseIso8601("2008-11-21"), TInstant::ParseIso8601("2008-12-26")),
@@ -68,7 +68,7 @@ TParams GetTablesDataParams() {
         TSeason(2, 5, "Season 5", TInstant::ParseIso8601("2018-03-25"), TInstant::ParseIso8601("2018-05-13"))
     };
 
-    TVector<TEpisode> episodesData = {
+    std::vector<TEpisode> episodesData = {
         TEpisode(1, 1, 1, "Yesterday's Jam", TInstant::ParseIso8601("2006-02-03")),
         TEpisode(1, 1, 2, "Calamity Jen", TInstant::ParseIso8601("2006-02-03")),
         TEpisode(1, 1, 3, "Fifty-Fifty", TInstant::ParseIso8601("2006-02-10")),

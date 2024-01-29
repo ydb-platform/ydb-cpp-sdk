@@ -69,7 +69,7 @@ Y_UNIT_TEST_SUITE(TLockFreeStackTests) {
             StartLatch.CountDown();
             StartLatch.Await();
 
-            TVector<int> temp;
+            std::vector<int> temp;
             while (LeftToDequeue.load() > 0) {
                 size_t dequeued = 0;
                 for (size_t i = 0; i < 100; ++i) {
@@ -86,7 +86,7 @@ Y_UNIT_TEST_SUITE(TLockFreeStackTests) {
         }
 
         void Run() {
-            TVector<TSimpleSharedPtr<NThreading::TLegacyFuture<>>> futures;
+            std::vector<TSimpleSharedPtr<NThreading::TLegacyFuture<>>> futures;
 
             for (size_t i = 0; i < EnqueueThreads; ++i) {
                 futures.push_back(new NThreading::TLegacyFuture<>(std::bind(&TDequeueAllTester<SingleConsumer>::Enqueuer, this)));
@@ -101,7 +101,7 @@ Y_UNIT_TEST_SUITE(TLockFreeStackTests) {
 
             UNIT_ASSERT_VALUES_EQUAL(0, int(LeftToDequeue.load()));
 
-            TVector<int> left;
+            std::vector<int> left;
             Stack.DequeueAll(&left);
             UNIT_ASSERT(left.empty());
         }
@@ -118,7 +118,7 @@ Y_UNIT_TEST_SUITE(TLockFreeStackTests) {
     Y_UNIT_TEST(TestDequeueAllEmptyStack) {
         TLockFreeStack<int> stack;
 
-        TVector<int> r;
+        std::vector<int> r;
         stack.DequeueAll(&r);
 
         UNIT_ASSERT(r.empty());
@@ -131,7 +131,7 @@ Y_UNIT_TEST_SUITE(TLockFreeStackTests) {
         stack.Enqueue(19);
         stack.Enqueue(23);
 
-        TVector<int> r;
+        std::vector<int> r;
 
         stack.DequeueAll(&r);
 
@@ -144,8 +144,8 @@ Y_UNIT_TEST_SUITE(TLockFreeStackTests) {
     Y_UNIT_TEST(TestEnqueueAll) {
         TLockFreeStack<int> stack;
 
-        TVector<int> v;
-        TVector<int> expected;
+        std::vector<int> v;
+        std::vector<int> expected;
 
         stack.EnqueueAll(v); // add empty
 
@@ -166,7 +166,7 @@ Y_UNIT_TEST_SUITE(TLockFreeStackTests) {
         expected.insert(expected.end(), v.begin(), v.end());
         stack.EnqueueAll(v);
 
-        TVector<int> actual;
+        std::vector<int> actual;
         stack.DequeueAll(&actual);
 
         UNIT_ASSERT_VALUES_EQUAL(expected.size(), actual.size());
@@ -250,7 +250,7 @@ Y_UNIT_TEST_SUITE(TLockFreeStackTests) {
             StartLatch.CountDown();
             StartLatch.Await();
 
-            TVector<typename TTest::ValueType> unused;
+            std::vector<typename TTest::ValueType> unused;
             for (size_t i = 0; i < OperationsPerThread; ++i) {
                 switch (GetCycleCount() % 4) {
                     case 0: {
@@ -297,12 +297,12 @@ Y_UNIT_TEST_SUITE(TLockFreeStackTests) {
         }
 
         static void EnqueueAll(TLockFreeStack<int>& stack) {
-            TVector<int> values(5);
+            std::vector<int> values(5);
             stack.EnqueueAll(values);
         }
 
         static void DequeueAll(TLockFreeStack<int>& stack) {
-            TVector<int> value;
+            std::vector<int> value;
             stack.DequeueAll(&value);
         }
     };
@@ -332,7 +332,7 @@ Y_UNIT_TEST_SUITE(TLockFreeStackTests) {
         }
 
         static void DequeueAll(TLockFreeStack<ValueType>& stack) {
-            TVector<ValueType> values;
+            std::vector<ValueType> values;
             stack.DequeueAll(&values);
             for (auto& v : values) {
                 UNIT_ASSERT(v);

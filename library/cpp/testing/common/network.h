@@ -1,7 +1,7 @@
 #pragma once
 
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
+
 
 namespace NTesting {
 
@@ -35,7 +35,7 @@ namespace NTesting {
     namespace NLegacy {
         // Do not use these methods made for Unittest TPortManager backward compatibility.
         // Returns continuous sequence of the specified number of ports.
-        [[nodiscard]] TVector<TPortHolder> GetFreePortsRange(size_t count);
+        [[nodiscard]] std::vector<TPortHolder> GetFreePortsRange(size_t count);
         //@brief Returns port from parameter if NO_RANDOM_PORTS env var is set, otherwise first free port
         [[nodiscard]] TPortHolder GetPort(ui16 port);
     }

@@ -16,7 +16,8 @@ static TTempDir TmpDir;
 TEST(NetworkTest, FreePort) {
     NTesting::TScopedEnvironment envGuard("PORT_SYNC_PATH", TmpDir.Name());
     NTesting::InitPortManagerFromEnv();
-    TVector<NTesting::TPortHolder> ports(Reserve(100));
+    std::vector<NTesting::TPortHolder> ports;
+    ports.reserve(100);
 
     for (size_t i = 0; i < 100; ++i) {
         ports.push_back(NTesting::GetFreePort());
@@ -77,7 +78,8 @@ TEST(NetworkTest, GetPortNonRandom) {
         }};
     NTesting::InitPortManagerFromEnv();
 
-    TVector<ui16> ports(Reserve(100)); // keep integers, we don't need the ports to remain allocated
+    std::vector<ui16> ports; // keep integers, we don't need the ports to remain allocated
+    ports.reserve(100);
 
     for (size_t i = 0; i < 10; ++i) {
         auto portHolder = NTesting::GetFreePort();
@@ -97,7 +99,7 @@ TEST(FreePortTest, FreePortsRange) {
     NTesting::InitPortManagerFromEnv();
 
     for (ui16 i = 2; i < 10; ++i) {
-        TVector<NTesting::TPortHolder> ports = NTesting::NLegacy::GetFreePortsRange(i);
+        std::vector<NTesting::TPortHolder> ports = NTesting::NLegacy::GetFreePortsRange(i);
         ASSERT_EQ(i, ports.size());
         for (ui16 j = 1; j < i; ++j) {
             EXPECT_EQ(static_cast<ui16>(ports[j]), static_cast<ui16>(ports[0]) + j);

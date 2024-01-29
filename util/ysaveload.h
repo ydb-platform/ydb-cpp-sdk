@@ -349,10 +349,6 @@ public:
 };
 
 template <class T, class A>
-class TSerializer<TVector<T, A>>: public TVectorSerializer<TVector<T, A>> {
-};
-
-template <class T, class A>
 class TSerializer<std::vector<T, A>>: public TVectorSerializer<std::vector<T, A>> {
 };
 

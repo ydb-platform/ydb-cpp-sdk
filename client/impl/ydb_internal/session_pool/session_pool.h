@@ -89,7 +89,7 @@ private:
         // otherwise returns false and doesn't not touch ctx
         bool TryPush(std::unique_ptr<IGetSessionCtx>& p);
         std::unique_ptr<IGetSessionCtx> TryGet();
-        void GetOld(TInstant now, TVector<std::unique_ptr<IGetSessionCtx>>& oldWaiters);
+        void GetOld(TInstant now, std::vector<std::unique_ptr<IGetSessionCtx>>& oldWaiters);
         ui32 Size() const;
 
     private:

@@ -8,7 +8,7 @@
 #include <util/system/yassert.h>
 #include <util/generic/hash.h>
 #include <util/generic/string.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/hash_set.h>
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>

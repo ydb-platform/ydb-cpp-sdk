@@ -139,7 +139,7 @@ struct TVerboseResolveConfigResult : public TStatus {
         }
     };
 
-    using ConfigByLabelSet = std::map<TSet<TVector<TLabel>>, TString>;
+    using ConfigByLabelSet = std::map<TSet<std::vector<TLabel>>, TString>;
 
     TVerboseResolveConfigResult(
         TStatus&& status,
@@ -199,7 +199,7 @@ public:
     TAsyncStatus RemoveVolatileConfig(
         const TString& cluster,
         ui64 version,
-        const TVector<ui64>& ids,
+        const std::vector<ui64>& ids,
         const TClusterConfigSettings& settings = {});
 
     // Remove all volatile config
@@ -210,7 +210,7 @@ public:
 
     // Remove specific volatile configs
     TAsyncStatus ForceRemoveVolatileConfig(
-        const TVector<ui64>& ids,
+        const std::vector<ui64>& ids,
         const TClusterConfigSettings& settings = {});
 
     // Remove all volatile config

@@ -33,7 +33,7 @@ TString JoinPath(const TString& prefix, const TString& path) {
 }
 
 
-void ParseSelectSeries(TVector<TSeries>& parseResult, TResultSetParser&& parser) {
+void ParseSelectSeries(std::vector<TSeries>& parseResult, TResultSetParser&& parser) {
     parseResult.clear();
     while (parser.TryNextRow()) {
         auto& series = parseResult.emplace_back();

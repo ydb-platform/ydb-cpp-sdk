@@ -13,11 +13,11 @@ class TOperationId : public Ydb::TOperationId {
 public:
     TOperationId();
     explicit TOperationId(const TString& string, bool allowEmpty = false);
-    const TVector<const TString*>& GetValue(const TString& key) const;
+    const std::vector<const TString*>& GetValue(const TString& key) const;
     TString GetSubKind() const;
 
 private:
-     THashMap<TString, TVector<const TString*>> Index_;
+     THashMap<TString, std::vector<const TString*>> Index_;
 };
 
 TString ProtoToString(const Ydb::TOperationId& proto);

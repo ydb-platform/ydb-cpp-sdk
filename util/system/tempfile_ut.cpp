@@ -34,7 +34,7 @@ Y_UNIT_TEST_SUITE(TTempFileHandle) {
             path = tmp.Name();
             UNIT_ASSERT(NFs::Exists(path));
 
-            TVector<TString> names;
+            std::vector<TString> names;
             TFsPath(".").ListNames(names);
             bool containsFileWithPrefix = std::any_of(names.begin(), names.end(), [&](const TString& name) {
                 return name.Contains(TEST_PREFIX);

@@ -57,7 +57,7 @@ namespace NEnumSerializationRuntime {
             return AllNames;
         }
 
-        const TVector<TString>& AllEnumCppNames() const noexcept {
+        const std::vector<TString>& AllEnumCppNames() const noexcept {
             return AllCppNames;
         }
 
@@ -65,7 +65,7 @@ namespace NEnumSerializationRuntime {
             return Names;
         }
 
-        const TVector<TRepresentationType>& TypelessEnumValues() const noexcept {
+        const std::vector<TRepresentationType>& TypelessEnumValues() const noexcept {
             return AllValues;
         }
 
@@ -73,9 +73,9 @@ namespace NEnumSerializationRuntime {
         std::map<TRepresentationType, TString> Names;
         std::map<TStringBuf, TRepresentationType> Values;
         TString AllNames;
-        TVector<TString> AllCppNames;
+        std::vector<TString> AllCppNames;
         TString ClassName;
-        TVector<TRepresentationType> AllValues;
+        std::vector<TRepresentationType> AllValues;
     };
 
     /// Wraps TEnumDescriptionBase and performs on-demand casts

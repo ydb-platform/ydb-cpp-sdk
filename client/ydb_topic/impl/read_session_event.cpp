@@ -229,7 +229,7 @@ void TPrintable<TCompressedMessage>::DebugString(TStringBuilder& ret, bool print
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NTopic::TReadSessionEvent::TDataReceivedEvent
 
-TDataReceivedEvent::TDataReceivedEvent(TVector<TMessage> messages, TVector<TCompressedMessage> compressedMessages,
+TDataReceivedEvent::TDataReceivedEvent(std::vector<TMessage> messages, std::vector<TCompressedMessage> compressedMessages,
                                        TPartitionSession::TPtr partitionSession)
     : TPartitionSessionAccessor(std::move(partitionSession))
     , Messages(std::move(messages))

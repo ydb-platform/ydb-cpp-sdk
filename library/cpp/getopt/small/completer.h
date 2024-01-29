@@ -24,7 +24,7 @@ namespace NLastGetopt::NComp {
     private:
         TStringBuf Command_;
         size_t Id_;
-        TVector<std::pair<TString, const ICompleter*>> Queue_;
+        std::vector<std::pair<TString, const ICompleter*>> Queue_;
     };
 
     class ICompleter {
@@ -74,7 +74,7 @@ namespace NLastGetopt::NComp {
 
     /// Run multiple completers and unite their output.
     /// Each completer's output placed in a separate group with its own description.
-    ICompleterPtr Alternative(TVector<TAlternative> alternatives);
+    ICompleterPtr Alternative(std::vector<TAlternative> alternatives);
 
     struct TChoice {
         /// Option value.
@@ -96,7 +96,7 @@ namespace NLastGetopt::NComp {
     };
 
     /// Complete items from a predefined list of choices.
-    ICompleterPtr Choice(TVector<TChoice> choices);
+    ICompleterPtr Choice(std::vector<TChoice> choices);
 
     /// Complete files and directories. May filter results by pattern, e.g. `*.txt`.
     ICompleterPtr File(TString pattern= "");

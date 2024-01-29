@@ -68,12 +68,12 @@ namespace NMonitoring {
                     << " exceeds the limit which is " << HumanReadableSize(LABEL_SIZE_LIMIT, SF_BYTES));
 
                 // (2) read string pools
-                TVector<char> namesBuf(Header_.LabelNamesSize);
+                std::vector<char> namesBuf(Header_.LabelNamesSize);
                 readBytes = In_->Load(namesBuf.data(), namesBuf.size());
                 DECODE_ENSURE(readBytes == Header_.LabelNamesSize, "not enough data to read label names pool");
                 TStringPool labelNames(namesBuf.data(), namesBuf.size());
 
-                TVector<char> valuesBuf(Header_.LabelValuesSize);
+                std::vector<char> valuesBuf(Header_.LabelValuesSize);
                 readBytes = In_->Load(valuesBuf.data(), valuesBuf.size());
                 DECODE_ENSURE(readBytes == Header_.LabelValuesSize, "not enough data to read label values pool");
                 TStringPool labelValues(valuesBuf.data(), valuesBuf.size());
@@ -202,7 +202,7 @@ namespace NMonitoring {
                 // and https://a.yandex-team.ru/arc/trunk/arcadia/infra/yasm/common/points/hgram/normal/normal.h?rev=r8268697#L9
                 // TODO: share this constant value
                 Y_ENSURE(count <= 100u, "more than 100 buckets in log histogram: " << count);
-                TVector<double> buckets;
+                std::vector<double> buckets;
                 buckets.reserve(count);
                 for (ui32 i = 0; i < count; ++i) {
                     buckets.emplace_back(ReadFixed<double>());

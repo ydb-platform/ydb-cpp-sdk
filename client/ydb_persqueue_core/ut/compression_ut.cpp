@@ -3,8 +3,8 @@
 namespace NYdb::NPersQueue::NTests {
 
 Y_UNIT_TEST_SUITE(Compression) {
-    TVector<TString> GetTestMessages(ECodec codec = ECodec::RAW) {
-        static const TVector<THashMap<ECodec, TString>> TEST_MESSAGES = {
+    std::vector<TString> GetTestMessages(ECodec codec = ECodec::RAW) {
+        static const std::vector<THashMap<ECodec, TString>> TEST_MESSAGES = {
             {
                 {ECodec::RAW, "Alice and Bob"},
                 {ECodec::GZIP, TString("\x1F\x8B\x08\x0\x0\x0\x0\x0\x0\x3\x73\xCC\xC9\x4C\x4E\x55\x48\xCC\x4B\x51\x70\xCA\x4F\x2\x0\x2C\xE7\x84\x5D\x0D\x0\x0\x0", 33)},
@@ -16,7 +16,7 @@ Y_UNIT_TEST_SUITE(Compression) {
                 {ECodec::ZSTD, TString("\x28\xB5\x2F\xFD\x0\x58\x61\x0\x0\x59\x61\x6E\x64\x65\x78\x2E\x43\x6C\x6F\x75\x64", 21)}
             }
         };
-        TVector<TString> messages;
+        std::vector<TString> messages;
         for (auto& m : TEST_MESSAGES) {
             messages.push_back(m.at(codec));
         }
@@ -59,7 +59,7 @@ Y_UNIT_TEST_SUITE(Compression) {
         UNIT_ASSERT_VALUES_EQUAL(response.operation().status(), Ydb::StatusIds::SUCCESS);
     }
 
-    void Write(TPersQueueYdbSdkTestSetup& setup, const TVector<TString>& messages, ECodec codec) {
+    void Write(TPersQueueYdbSdkTestSetup& setup, const std::vector<TString>& messages, ECodec codec) {
         auto& client = setup.GetPersQueueClient();
         TWriteSessionSettings writeSettings = setup.GetWriteSessionSettings();
         writeSettings.Codec(codec);
@@ -74,8 +74,8 @@ Y_UNIT_TEST_SUITE(Compression) {
 
     void Read(
         TPersQueueYdbSdkTestSetup& setup,
-        const TVector<TString> messages,
-        const TVector<ECodec> codecs,
+        const std::vector<TString> messages,
+        const std::vector<ECodec> codecs,
         bool decompress
     ) {
         Cerr << Endl << "Start read" << Endl << Endl;
@@ -117,8 +117,8 @@ Y_UNIT_TEST_SUITE(Compression) {
 
         auto messages = GetTestMessages();
         Write(setup, messages, codec);
-        Read(setup, messages, TVector<ECodec>(messages.size(), ECodec::RAW), true);
-        Read(setup, GetTestMessages(codec), TVector<ECodec>(messages.size(), codec), false);
+        Read(setup, messages, std::vector<ECodec>(messages.size(), ECodec::RAW), true);
+        Read(setup, GetTestMessages(codec), std::vector<ECodec>(messages.size(), codec), false);
     }
 
     Y_UNIT_TEST(WriteRAW) {
@@ -141,9 +141,9 @@ Y_UNIT_TEST_SUITE(Compression) {
         AlterTopic(setup); // add zstd support
 
         auto messages = GetTestMessages();
-        TVector<TString> originalMessages;
-        TVector<TString> targetMessages;
-        TVector<ECodec> targetCodecs;
+        std::vector<TString> originalMessages;
+        std::vector<TString> targetMessages;
+        std::vector<ECodec> targetCodecs;
 
         auto addToTarget = [&](ECodec codec) {
             originalMessages.insert(originalMessages.end(), messages.begin(), messages.end());
@@ -158,7 +158,7 @@ Y_UNIT_TEST_SUITE(Compression) {
         addToTarget(ECodec::GZIP);
         addToTarget(ECodec::ZSTD);
 
-        Read(setup, originalMessages, TVector<ECodec>(originalMessages.size(), ECodec::RAW), true);
+        Read(setup, originalMessages, std::vector<ECodec>(originalMessages.size(), ECodec::RAW), true);
         Read(setup, targetMessages, targetCodecs, false);
     }
 }

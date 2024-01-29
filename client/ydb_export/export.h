@@ -48,7 +48,7 @@ public:
     struct TMetadata {
         TExportToYtSettings Settings;
         EExportProgress Progress;
-        TVector<TExportItemProgress> ItemsProgress;
+        std::vector<TExportItemProgress> ItemsProgress;
     };
 
 public:
@@ -97,7 +97,7 @@ public:
     struct TMetadata {
         TExportToS3Settings Settings;
         EExportProgress Progress;
-        TVector<TExportItemProgress> ItemsProgress;
+        std::vector<TExportItemProgress> ItemsProgress;
     };
 
 public:

@@ -2,7 +2,6 @@
 
 #include <client/ydb_value/value.h>
 
-#include <util/generic/vector.h>
 #include <util/generic/string.h>
 
 namespace Ydb {
@@ -46,7 +45,7 @@ public:
     bool Truncated() const;
 
     //! Returns meta information (name, type) for columns
-    const TVector<TColumn>& GetColumnsMeta() const;
+    const std::vector<TColumn>& GetColumnsMeta() const;
 
 private:
     const Ydb::ResultSet& GetProto() const;
@@ -104,7 +103,7 @@ private:
     std::unique_ptr<TImpl> Impl_;
 };
 
-using TResultSets = TVector<TResultSet>;
+using TResultSets = std::vector<TResultSet>;
 
 } // namespace NYdb
 

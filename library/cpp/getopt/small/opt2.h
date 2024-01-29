@@ -2,7 +2,7 @@
 
 #include <util/system/defaults.h>
 #include <util/generic/string.h>
-#include <util/generic/vector.h>
+#include <vector>
 
 // simplified options parser
 // No 'optional argument' (e.g. "a::" in spec.) support;
@@ -33,7 +33,7 @@ struct Opt2Param {
     const char* DefValue;
     TString DefValueStr;
     TString HelpUsage;
-    TVector<const char*> ActualValue;
+    std::vector<const char*> ActualValue;
     const char* LongOptName;
     Opt2Param()
         : HasArg(false)
@@ -90,7 +90,7 @@ public:
     const char* Arg(char opt, const char* helpUsage, TString defValue, bool required = false);
 
     // Options with parameters that can be specified several times
-    const TVector<const char*>& MArg(char opt, const char* helpUsage);
+    const std::vector<const char*>& MArg(char opt, const char* helpUsage);
 
     // Get() + strtol, may set up HasErrors
     long Int(char opt, const char* helpUsage, long defValue, bool required = false);
@@ -112,7 +112,7 @@ public:
 
 public:
     // non-option args
-    TVector<char*> Pos;
+    std::vector<char*> Pos;
     bool HasErrors;
 
 private:
@@ -122,14 +122,14 @@ private:
     char OptionMissingArg;
     char OptionWrongArg;
     char RequiredOptionMissing;
-    TVector<TString> UserErrorMessages;
+    std::vector<TString> UserErrorMessages;
 
 protected:
     int Argc;
     char* const* Argv;
     int MinArgs, MaxArgs;
     ui8 SpecsMap[256];
-    TVector<Opt2Param> Specs;
+    std::vector<Opt2Param> Specs;
     TString alias_copy;
     void EatArgv(const char* optspec, const char* long_alias);
     void Clear();

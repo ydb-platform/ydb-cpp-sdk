@@ -1,6 +1,6 @@
 #include <benchmark/benchmark.h>
 
-#include <util/generic/vector.h>
+
 #include <util/system/yassert.h>
 
 #include <library/cpp/coroutine/engine/stack/stack_allocator.h>
@@ -122,7 +122,7 @@ namespace NCoro::NStack::NBenchmark {
         TPoolAllocatorSettings settings;
         settings.StacksPerChunk = state.range(2);
         auto allocator = GetAllocator(settings, (EGuard)state.range(0));
-        TVector<TStackHolder> stacks; // store stacks during benchmark
+        std::vector<TStackHolder> stacks; // store stacks during benchmark
         stacks.reserve(ManyStacks);
         for (auto _ : state) {
             for (size_t i = 0; i < ManyStacks; ++i) {
@@ -143,7 +143,7 @@ namespace NCoro::NStack::NBenchmark {
 
     static void BM_DefaultAllocatorManyStacks(benchmark::State& state) {
         auto allocator = GetAllocator(Nothing(), (EGuard)state.range(0));
-        TVector<TStackHolder> stacks; // store stacks during benchmark
+        std::vector<TStackHolder> stacks; // store stacks during benchmark
         stacks.reserve(ManyStacks);
         for (auto _ : state) {
             for (size_t i = 0; i < ManyStacks; ++i) {
@@ -163,7 +163,7 @@ namespace NCoro::NStack::NBenchmark {
         TPoolAllocatorSettings settings;
         settings.StacksPerChunk = state.range(2);
         auto allocator = GetAllocator(settings, (EGuard)state.range(0));
-        TVector<TStackHolder> stacks; // store stacks during benchmark
+        std::vector<TStackHolder> stacks; // store stacks during benchmark
         stacks.reserve(ManyStacks);
         for (auto _ : state) {
             for (size_t i = 0; i < ManyStacks; ++i) {
@@ -185,7 +185,7 @@ namespace NCoro::NStack::NBenchmark {
 
     static void BM_DefaultAllocatorManyStacksReleased(benchmark::State& state) {
         auto allocator = GetAllocator(Nothing(), (EGuard)state.range(0));
-        TVector<TStackHolder> stacks; // store stacks during benchmark
+        std::vector<TStackHolder> stacks; // store stacks during benchmark
         stacks.reserve(ManyStacks);
         for (auto _ : state) {
             for (size_t i = 0; i < ManyStacks; ++i) {
@@ -206,7 +206,7 @@ namespace NCoro::NStack::NBenchmark {
         TPoolAllocatorSettings settings;
         settings.StacksPerChunk = state.range(2);
         auto allocator = GetAllocator(settings, (EGuard)state.range(0));
-        TVector<TStackHolder> stacks; // store stacks during benchmark
+        std::vector<TStackHolder> stacks; // store stacks during benchmark
         stacks.reserve(ManyStacks);
         for (auto _ : state) {
             for (size_t i = 0; i < ManyStacks; ++i) {
@@ -236,7 +236,7 @@ namespace NCoro::NStack::NBenchmark {
 
     static void BM_DefaultAllocatorManyStacksReleasedAndRealloc(benchmark::State& state) {
         auto allocator = GetAllocator(Nothing(), (EGuard)state.range(0));
-        TVector<TStackHolder> stacks; // store stacks during benchmark
+        std::vector<TStackHolder> stacks; // store stacks during benchmark
         stacks.reserve(ManyStacks);
         for (auto _ : state) {
             for (size_t i = 0; i < ManyStacks; ++i) {
@@ -261,7 +261,7 @@ namespace NCoro::NStack::NBenchmark {
         TPoolAllocatorSettings settings;
         settings.StacksPerChunk = state.range(2);
         auto allocator = GetAllocator(settings, (EGuard)state.range(0));
-        TVector<TStackHolder> stacks; // store stacks during benchmark
+        std::vector<TStackHolder> stacks; // store stacks during benchmark
         stacks.reserve(ManyStacks);
         for (auto _ : state) {
             for (size_t i = 0; i < ManyStacks; ++i) {
@@ -291,7 +291,7 @@ namespace NCoro::NStack::NBenchmark {
 
     static void BM_DefaultAllocatorManyStacksMemoryWriteReleasedAndRealloc(benchmark::State& state) {
         auto allocator = GetAllocator(Nothing(), (EGuard)state.range(0));
-        TVector<TStackHolder> stacks; // store stacks during benchmark
+        std::vector<TStackHolder> stacks; // store stacks during benchmark
         stacks.reserve(ManyStacks);
         for (auto _ : state) {
             for (size_t i = 0; i < ManyStacks; ++i) {

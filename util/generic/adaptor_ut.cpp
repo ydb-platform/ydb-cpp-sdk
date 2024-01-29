@@ -34,8 +34,8 @@ struct TState {
 
 Y_UNIT_TEST_SUITE(TReverseAdaptor) {
     Y_UNIT_TEST(ReadTest) {
-        TVector<int> cont = {1, 2, 3};
-        TVector<int> etalon = {3, 2, 1};
+        std::vector<int> cont = {1, 2, 3};
+        std::vector<int> etalon = {3, 2, 1};
         size_t idx = 0;
         for (const auto& x : Reversed(cont)) {
             UNIT_ASSERT_VALUES_EQUAL(etalon[idx++], x);
@@ -47,8 +47,8 @@ Y_UNIT_TEST_SUITE(TReverseAdaptor) {
     }
 
     Y_UNIT_TEST(WriteTest) {
-        TVector<int> cont = {1, 2, 3};
-        TVector<int> etalon = {3, 6, 9};
+        std::vector<int> cont = {1, 2, 3};
+        std::vector<int> etalon = {3, 6, 9};
         size_t idx = 0;
         for (auto& x : Reversed(cont)) {
             x *= x + idx++;
@@ -60,7 +60,7 @@ Y_UNIT_TEST_SUITE(TReverseAdaptor) {
     }
 
     Y_UNIT_TEST(InnerTypeTest) {
-        using TStub = TVector<int>;
+        using TStub = std::vector<int>;
         TStub stub;
         const TStub cstub;
 
@@ -77,7 +77,7 @@ Y_UNIT_TEST_SUITE(TReverseAdaptor) {
     }
 
     Y_UNIT_TEST(ReverseX2Test) {
-        TVector<int> cont = {1, 2, 3};
+        std::vector<int> cont = {1, 2, 3};
         size_t idx = 0;
         for (const auto& x : Reversed(Reversed(cont))) {
             UNIT_ASSERT_VALUES_EQUAL(cont[idx++], x);
@@ -85,8 +85,8 @@ Y_UNIT_TEST_SUITE(TReverseAdaptor) {
     }
 
     Y_UNIT_TEST(ReverseX3Test) {
-        TVector<int> cont = {1, 2, 3};
-        TVector<int> etalon = {3, 2, 1};
+        std::vector<int> cont = {1, 2, 3};
+        std::vector<int> etalon = {3, 2, 1};
         size_t idx = 0;
         for (const auto& x : Reversed(Reversed(Reversed(cont)))) {
             UNIT_ASSERT_VALUES_EQUAL(etalon[idx++], x);
@@ -94,14 +94,14 @@ Y_UNIT_TEST_SUITE(TReverseAdaptor) {
     }
 
     Y_UNIT_TEST(ReverseTemporaryTest) {
-        TVector<int> etalon = {3, 2, 1};
-        TVector<int> etalon2 = {1, 2, 3};
+        std::vector<int> etalon = {3, 2, 1};
+        std::vector<int> etalon2 = {1, 2, 3};
         size_t idx = 0;
-        for (const auto& x : Reversed(TVector<int>{1, 2, 3})) {
+        for (const auto& x : Reversed(std::vector<int>{1, 2, 3})) {
             UNIT_ASSERT_VALUES_EQUAL(etalon[idx++], x);
         }
         idx = 0;
-        for (const auto& x : Reversed(Reversed(TVector<int>{1, 2, 3}))) {
+        for (const auto& x : Reversed(Reversed(std::vector<int>{1, 2, 3}))) {
             UNIT_ASSERT_VALUES_EQUAL(etalon2[idx++], x);
         }
     }
@@ -109,8 +109,8 @@ Y_UNIT_TEST_SUITE(TReverseAdaptor) {
     Y_UNIT_TEST(ReverseInitializerListTest) {
         // initializer_list has no rbegin and rend
         auto cont = {1, 2, 3};
-        TVector<int> etalon = {3, 2, 1};
-        TVector<int> etalon2 = {1, 2, 3};
+        std::vector<int> etalon = {3, 2, 1};
+        std::vector<int> etalon2 = {1, 2, 3};
 
         size_t idx = 0;
         for (const auto& x : Reversed(cont)) {

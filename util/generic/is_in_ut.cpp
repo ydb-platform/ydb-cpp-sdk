@@ -52,7 +52,7 @@ Y_UNIT_TEST_SUITE(TIsIn) {
         TestIsInWithCont<THashMultiSet<TString>>("found");
 
         // vector also compiles and works
-        TVector<TString> v;
+        std::vector<TString> v;
         v.push_back("found");
         UNIT_ASSERT(IsIn(v, "found"));
         UNIT_ASSERT(!IsIn(v, "not found"));
@@ -101,8 +101,8 @@ Y_UNIT_TEST_SUITE(TIsIn) {
         const TString b = "b";
 
         UNIT_ASSERT(!IsIn({"a", "b", "c"}, b.data())); // compares pointers by value. Whether it's good or not.
-        UNIT_ASSERT(IsIn(TVector<TStringBuf>({"a", "b", "c"}), b.data()));
-        UNIT_ASSERT(IsIn(TVector<TStringBuf>({"a", "b", "c"}), "b"));
+        UNIT_ASSERT(IsIn(std::vector<TStringBuf>({"a", "b", "c"}), b.data()));
+        UNIT_ASSERT(IsIn(std::vector<TStringBuf>({"a", "b", "c"}), "b"));
     }
 
     Y_UNIT_TEST(IsInArrayTest) {

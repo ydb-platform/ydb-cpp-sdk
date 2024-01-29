@@ -750,7 +750,7 @@ void TShellCommand::TImpl::Run() {
 
     /* arguments holders */
     TString shellArg;
-    TVector<char*> qargv;
+    std::vector<char*> qargv;
     /*
       Following "const_cast"s are safe:
       http://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
@@ -773,8 +773,8 @@ void TShellCommand::TImpl::Run() {
 
     qargv.push_back(nullptr);
 
-    TVector<TString> envHolder;
-    TVector<char*> envp;
+    std::vector<TString> envHolder;
+    std::vector<char*> envp;
     if (!Options_.Environment.empty()) {
         for (auto& env : Options_.Environment) {
             envHolder.emplace_back(env.first + '=' + env.second);
@@ -872,7 +872,7 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
         pumps[0] = {&pi->ErrorFd, error};
         pumps[1] = {&pi->OutputFd, output};
 
-        TVector<THolder<TThread>> streamThreads;
+        std::vector<THolder<TThread>> streamThreads;
         streamThreads.emplace_back(new TThread(&TImpl::ReadStream, &pumps[0]));
         streamThreads.emplace_back(new TThread(&TImpl::ReadStream, &pumps[1]));
 

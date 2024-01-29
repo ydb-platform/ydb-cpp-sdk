@@ -6,8 +6,8 @@
 using namespace NYdb;
 using namespace NYdb::NTable;
 
-TVector<TSeries> GetSeries() {
-    TVector<TSeries> series = {
+std::vector<TSeries> GetSeries() {
+    std::vector<TSeries> series = {
         TSeries(1, "First episode", TInstant::ParseIso8601("2006-01-01"), "Pilot episode.", 1000, 0),
         TSeries(2, "Second episode", TInstant::ParseIso8601("2006-02-01"), "Jon Snow knows nothing.", 2000, 1),
         TSeries(3, "Third episode", TInstant::ParseIso8601("2006-03-01"), "Daenerys is the mother of dragons.", 3000, 2),
@@ -22,8 +22,8 @@ TVector<TSeries> GetSeries() {
     return series;
 }
 
-TVector<TUser> GetUsers() {
-    TVector<TUser> users = {
+std::vector<TUser> GetUsers() {
+    std::vector<TUser> users = {
         TUser(0, "Kit Harrington", 32),
         TUser(1, "Emilia Clarke", 32),
         TUser(2, "Jason Momoa", 39),
@@ -32,7 +32,7 @@ TVector<TUser> GetUsers() {
     return users;
 }
 
-TParams Build(const TVector<TSeries>& seriesList, const TVector<TUser>& usersList) {
+TParams Build(const std::vector<TSeries>& seriesList, const std::vector<TUser>& usersList) {
 
     TParamsBuilder paramsBuilder;
 

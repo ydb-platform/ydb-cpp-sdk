@@ -2,12 +2,12 @@
 
 #include <library/cpp/testing/gtest/gtest.h>
 
-#include <util/generic/vector.h>
+
 
 using namespace testing;
 
 TEST(Filtering, TFilteringRangeTest) {
-    const TVector<int> x = {1, 2, 3, 4, 5};
+    const std::vector<int> x = {1, 2, 3, 4, 5};
 
     EXPECT_THAT(
         MakeFilteringRange(
@@ -19,7 +19,7 @@ TEST(Filtering, TFilteringRangeTest) {
 }
 
 TEST(Filtering, TEmptyFilteringRangeTest) {
-    TVector<int> x = {1, 2, 3, 4, 5};
+    std::vector<int> x = {1, 2, 3, 4, 5};
     EXPECT_THAT(
         MakeFilteringRange(
             x,
@@ -30,7 +30,7 @@ TEST(Filtering, TEmptyFilteringRangeTest) {
 }
 
 TEST(Filtering, TMutableFilteringRangeTest) {
-    TVector<int> x = {1, 2, 3, 4, 5};
+    std::vector<int> x = {1, 2, 3, 4, 5};
     for (auto& y : MakeFilteringRange(x, [](int x) { return x % 2 == 0; })) {
         y = 7;
     }

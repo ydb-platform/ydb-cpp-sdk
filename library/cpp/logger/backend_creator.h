@@ -3,7 +3,7 @@
 #include "backend.h"
 #include <library/cpp/object_factory/object_factory.h>
 #include <library/cpp/json/json_value.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/ptr.h>
 #include <util/string/cast.h>
 
@@ -31,7 +31,7 @@ public:
 
         virtual ~IInitContext() = default;
         virtual bool GetValue(TStringBuf name, TString& var) const = 0;
-        virtual TVector<THolder<IInitContext>> GetChildren(TStringBuf name) const = 0;
+        virtual std::vector<THolder<IInitContext>> GetChildren(TStringBuf name) const = 0;
     };
 
 public:

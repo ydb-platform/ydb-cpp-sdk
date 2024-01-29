@@ -147,7 +147,7 @@ namespace std {
 namespace NPagedVector {
     //2-level radix tree
     template <class T, ui32 PageSize, class A>
-    class TPagedVector: private TVector<TSimpleSharedPtr<TVector<T, A>>, A> {
+    class TPagedVector: TVector<TSimpleSharedPtr<TVector<T, A>>, A> {
         static_assert(PageSize, "expect PageSize");
 
         typedef TVector<T, A> TPage;

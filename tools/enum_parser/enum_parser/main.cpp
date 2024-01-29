@@ -17,7 +17,7 @@
 #include <util/string/join.h>
 #include <util/string/subst.h>
 #include <util/generic/string.h>
-#include <util/generic/vector.h>
+
 #include <util/generic/ptr.h>
 #include <util/generic/yexception.h>
 #include <util/generic/maybe.h>
@@ -173,9 +173,9 @@ void GenerateEnum(
 
     out << "namespace { namespace " << nsName << " {\n";
 
-    TVector<TString> nameInitializerPairs;
-    TVector<std::pair<TString, TString>> valueInitializerPairsUnsorted;  // data, sort_key
-    TVector<TString> cppNamesInitializer;
+    std::vector<TString> nameInitializerPairs;
+    std::vector<std::pair<TString, TString>> valueInitializerPairsUnsorted;  // data, sort_key
+    std::vector<TString> cppNamesInitializer;
 
     TStringStream jItems;
     OpenArray(jItems);
@@ -192,7 +192,7 @@ void GenerateEnum(
         OpenArray(jAliases);
 
         TString strValue = it.CppName;
-        if (it.Aliases) {
+        if (!it.Aliases.empty()) {
             // first alias is main
             strValue = it.Aliases[0];
             OutKey(jEnumItem, "str_value", strValue);
@@ -207,7 +207,7 @@ void GenerateEnum(
         FinishItems(jAliases);
         CloseArray(jAliases);
 
-        if (!it.Aliases) {
+        if (it.Aliases.empty()) {
             valueInitializerPairsUnsorted.emplace_back("TNameBufsBase::EnumStringPair(" + outerScopeStr + it.CppName + ", " + WrapStringBuf(it.CppName) + ")", it.CppName);
         }
         OutKey(jEnumItem, "aliases", jAliases.Str(), false);
@@ -223,7 +223,7 @@ void GenerateEnum(
 
     const TString nsNameBufsClass = nsName + "::TNameBufs";
 
-    auto defineConstArray = [&out, payloadCache = std::map<std::pair<TString, TVector<TString>>, TString>()](const TStringBuf indent, const TStringBuf elementType, const TStringBuf name, const TVector<TString>& items) mutable {
+    auto defineConstArray = [&out, payloadCache = std::map<std::pair<TString, std::vector<TString>>, TString>()](const TStringBuf indent, const TStringBuf elementType, const TStringBuf name, const std::vector<TString>& items) mutable {
         if (items.empty()) { // ISO C++ forbids zero-size array
             out << indent << "static constexpr const TArrayRef<const " << elementType << "> " << name << ";\n";
         } else {
@@ -256,7 +256,8 @@ void GenerateEnum(
     }
     {
         StableSortBy(valueInitializerPairsUnsorted, [](const auto& pair) -> const TString& { return pair.second; });
-        TVector<TString> valueInitializerPairs(Reserve(valueInitializerPairsUnsorted.size()));
+        std::vector<TString> valueInitializerPairs;
+        valueInitializerPairs.reserve(valueInitializerPairsUnsorted.size());
         for (auto& [value, _] : valueInitializerPairsUnsorted) {
             valueInitializerPairs.push_back(std::move(value));
         }
@@ -383,7 +384,7 @@ void GenerateEnum(
 
     // template<> GetEnumAllCppNames, see IGNIETFERRO-534
     out << "    template<>\n";
-    out << "    const TVector<TString>& GetEnumAllCppNamesImpl<" << name << ">() {\n";
+    out << "    const std::vector<TString>& GetEnumAllCppNamesImpl<" << name << ">() {\n";
     out << "        const " << nsNameBufsClass << "& names = " << nsNameBufsClass << "::Instance();\n";
     out << "        return names.AllEnumCppNames();\n";
     out << "    }\n";
@@ -443,7 +444,7 @@ int main(int argc, char** argv) {
 
         TOptsParseResult res(&opts, argc, argv);
 
-        TVector<TString> freeArgs = res.GetFreeArgs();
+        std::vector<TString> freeArgs = res.GetFreeArgs();
         TString inputFileName = freeArgs[0];
 
         THolder<IOutputStream> hOut;

@@ -5,7 +5,7 @@
 #include <util/generic/algorithm.h>
 #include <util/generic/maybe.h>
 #include <util/generic/string.h>
-#include <util/generic/vector.h>
+
 #include <util/stream/output.h>
 #include <util/string/builder.h>
 #include <util/string/strip.h>
@@ -381,16 +381,16 @@ namespace NMonitoring {
         using const_iterator = iterator;
 
     protected:
-        TVector<TLabelImpl<TStringBackend>>& AsVector() {
+        std::vector<TLabelImpl<TStringBackend>>& AsVector() {
             return Labels_;
         }
 
-        const TVector<TLabelImpl<TStringBackend>>& AsVector() const {
+        const std::vector<TLabelImpl<TStringBackend>>& AsVector() const {
             return Labels_;
         }
 
     private:
-        TVector<TLabelImpl<TStringBackend>> Labels_;
+        std::vector<TLabelImpl<TStringBackend>> Labels_;
     };
 
     using TLabels = TLabelsImpl<TString>;

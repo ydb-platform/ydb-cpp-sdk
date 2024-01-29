@@ -91,7 +91,7 @@ namespace {
             }
 
         private:
-            TVector<TStoredValue*> Values_;
+            std::vector<TStoredValue*> Values_;
             THashMap<size_t, TStoredValue*> FarValues_;
             TIntrusiveListWithAutoDelete<TStoredValue, TDelete> Storage_;
         };

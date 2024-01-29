@@ -7,8 +7,8 @@
 namespace NThreading {
     namespace NImpl {
         template <typename TContainer>
-        TVector<TFuture<void>> ToVoidFutures(const TContainer& futures) {
-            TVector<TFuture<void>> voidFutures;
+        std::vector<TFuture<void>> ToVoidFutures(const TContainer& futures) {
+            std::vector<TFuture<void>> voidFutures;
             voidFutures.reserve(futures.size());
 
             for (const auto& future: futures) {

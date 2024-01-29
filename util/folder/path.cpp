@@ -278,7 +278,7 @@ struct TClosedir {
     }
 };
 
-void TFsPath::ListNames(TVector<TString>& children) const {
+void TFsPath::ListNames(std::vector<TString>& children) const {
     CheckDefined();
     THolder<DIR, TClosedir> dir(opendir(this->c_str()));
     if (!dir) {
@@ -325,8 +325,8 @@ bool TFsPath::Contains(const TString& component) const {
     return false;
 }
 
-void TFsPath::List(TVector<TFsPath>& files) const {
-    TVector<TString> names;
+void TFsPath::List(std::vector<TFsPath>& files) const {
+    std::vector<TString> names;
     ListNames(names);
     for (auto& name : names) {
         files.push_back(Child(name));
@@ -457,7 +457,7 @@ void TFsPath::ForceDelete() const {
 
     ClearLastSystemError();
     if (stat.IsDir()) {
-        TVector<TFsPath> children;
+        std::vector<TFsPath> children;
         List(children);
         for (auto& i : children) {
             i.ForceDelete();
@@ -479,7 +479,7 @@ void TFsPath::CopyTo(const TString& newPath, bool force) const {
         } else if (!TFsPath(newPath).IsDirectory()) {
             ythrow TIoException() << "Target path is not a directory " << newPath;
         }
-        TVector<TFsPath> children;
+        std::vector<TFsPath> children;
         List(children);
         for (auto&& i : children) {
             i.CopyTo(newPath + "/" + i.GetName(), force);

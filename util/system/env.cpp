@@ -32,7 +32,7 @@ TString GetEnv(const TString& key, const TString& def) {
         return TString{};
     }
 
-    TVector<char> buffer(len);
+    std::vector<char> buffer(len);
     size_t bufferSize;
     do {
         bufferSize = buffer.size();

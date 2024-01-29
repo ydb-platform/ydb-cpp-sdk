@@ -411,15 +411,15 @@ static inline void Split(char* buf, char ch, T* res) {
 /// Old good slow split function.
 /// Field delimter is any number of symbols specified in delim (no empty strings in res vector)
 /// @return number of elements created
-size_t Split(const char* in, const char* delim, TVector<TString>& res);
-size_t Split(const TString& in, const TString& delim, TVector<TString>& res);
+size_t Split(const char* in, const char* delim, std::vector<TString>& res);
+size_t Split(const TString& in, const TString& delim, std::vector<TString>& res);
 
 /// Old split reimplemented for TStringBuf using the new code
 /// Note that delim can be constructed from char* automatically (it is not cheap though)
-inline size_t Split(const TStringBuf s, const TSetDelimiter<const char>& delim, TVector<TStringBuf>& res) {
+inline size_t Split(const TStringBuf s, const TSetDelimiter<const char>& delim, std::vector<TStringBuf>& res) {
     res.clear();
-    TContainerConsumer<TVector<TStringBuf>> res1(&res);
-    TSkipEmptyTokens<TContainerConsumer<TVector<TStringBuf>>> consumer(&res1);
+    TContainerConsumer<std::vector<TStringBuf>> res1(&res);
+    TSkipEmptyTokens<TContainerConsumer<std::vector<TStringBuf>>> consumer(&res1);
     SplitString(s.data(), s.data() + s.size(), delim, consumer);
     return res.size();
 }
@@ -464,18 +464,18 @@ void Split(TStringBuf s, D delim, P1& p1, P2& p2, Other&... other) {
  *
  * Some examples:
  * \code
- * TVector<TStringBuf> values = StringSplitter("1\t2\t3").Split('\t');
+ * std::vector<TStringBuf> values = StringSplitter("1\t2\t3").Split('\t');
  *
  * for(TStringBuf part: StringSplitter("1::2::::3").SplitByString("::").SkipEmpty()) {
  *     Cerr << part;
  * }
  *
- * TVector<TString> firstTwoValues = StringSplitter("1\t2\t3").Split('\t').Take(2);
+ * std::vector<TString> firstTwoValues = StringSplitter("1\t2\t3").Split('\t').Take(2);
  * \endcode
  *
  * Use `Collect` or `AddTo` to store split results into an existing container:
  * \code
- * TVector<TStringBuf> values = {"0"};
+ * std::vector<TStringBuf> values = {"0"};
  * StringSplitter("1\t2\t3").Split('\t').AddTo(&values);
  * \endcode
  * Note that `Collect` clears target container, while `AddTo` just inserts values.
@@ -741,8 +741,8 @@ namespace NStringSplitPrivate {
         }
 
         template <class S>
-        inline TVector<S> ToList() {
-            TVector<S> result;
+        inline std::vector<S> ToList() {
+            std::vector<S> result;
             for (auto&& it : *this) {
                 result.push_back(S(it.Token()));
             }
