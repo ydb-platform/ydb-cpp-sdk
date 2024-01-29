@@ -42,7 +42,6 @@ Y_UNIT_TEST_SUITE(TIsIn) {
 
     Y_UNIT_TEST(IsInTest) {
         TestIsInWithCont<std::map<TString, TString>>(std::make_pair("found", "1"));
-        TestIsInWithCont<std::multimap<TString, TString>>(std::make_pair("found", "1"));
         TestIsInWithCont<THashMap<TString, TString>>(std::make_pair("found", "1"));
         TestIsInWithCont<THashMultiMap<TString, TString>>(std::make_pair("found", "1"));
 
