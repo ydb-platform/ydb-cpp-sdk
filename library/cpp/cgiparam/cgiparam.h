@@ -26,7 +26,7 @@ public:
     size_t EraseAll(const TStringBuf name);
 
     size_t NumOfValues(const TStringBuf name) const noexcept {
-        return count(static_cast<TString>(name));
+        return count(static_cast<std::string>(name));
     }
 
     TString operator()() const {
@@ -57,7 +57,7 @@ public:
 
     Y_PURE_FUNCTION
     auto Range(const TStringBuf name) const noexcept {
-        return IterateValues(MakeIteratorRange(equal_range(static_cast<TString>(name))));
+        return IterateValues(MakeIteratorRange(equal_range(static_cast<std::string>(name))));
     }
 
     Y_PURE_FUNCTION
@@ -68,7 +68,7 @@ public:
 
     Y_PURE_FUNCTION
     bool Has(const TStringBuf name) const noexcept {
-        const auto pair = equal_range(static_cast<TString>(name));
+        const auto pair = equal_range(static_cast<std::string>(name));
         return pair.first != pair.second;
     }
     /// Returns value by name
@@ -139,7 +139,7 @@ public:
 
 template <typename TIter>
 void TCgiParameters::ReplaceUnescaped(const TStringBuf key, TIter valuesBegin, const TIter valuesEnd) {
-    const auto oldRange = equal_range(static_cast<TString>(key));
+    const auto oldRange = equal_range(static_cast<std::string>(key));
     auto current = oldRange.first;
 
     // reuse as many existing nodes as possible (probably none)
@@ -176,7 +176,7 @@ public:
 
     Y_PURE_FUNCTION
     bool Has(const TStringBuf name) const noexcept {
-        const auto pair = equal_range(static_cast<TString>(name));
+        const auto pair = equal_range(static_cast<std::string>(name));
         return pair.first != pair.second;
     }
 
