@@ -3,11 +3,8 @@
 #include <list>
 #include <util/datetime/base.h>
 #include <util/generic/algorithm.h>
-<<<<<<< HEAD
-#include <util/generic/map.h>
-=======
+
 #include <util/generic/list.h>
->>>>>>> f76958d9b3 (Replace TMap/TMultiMap to std::map/std::multimap)
 #include <util/generic/ptr.h>
 #include <util/generic/singleton.h>
 #include <util/generic/vector.h>

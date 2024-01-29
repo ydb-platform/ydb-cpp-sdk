@@ -5,11 +5,8 @@
 #include <util/memory/pool.h>
 #include <util/stream/buffer.h>
 #include <util/memory/blob.h>
-<<<<<<< HEAD
-#include <util/generic/map.h>
-=======
+
 #include <util/generic/list.h>
->>>>>>> f76958d9b3 (Replace TMap/TMultiMap to std::map/std::multimap)
 #include <util/generic/hash_multi_map.h>
 #include <util/generic/deque.h>
 #include <util/generic/string.h>
