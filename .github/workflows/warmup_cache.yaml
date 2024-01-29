@@ -1,22 +1,15 @@
-name: PR-check
+name: Warm up cache
 
-on:
-  push:
-    branches:
-      - main
-      - release-*
-  pull_request:
+on:  
+  schedule:
+    - cron: "0 12 * * *"
+  workflow_dispatch:
 
 jobs:
   main:
-    name: Build YDB C++ SDK
+    name: Build YDB C++ SDK and cache artifacts
     runs-on: ubuntu-22.04
     steps:
-    - name: Checkout PR
-      uses: actions/checkout@v3
-      if: github.event.pull_request.head.sha != ''
-      with:
-        ref: ${{ github.event.pull_request.head.sha }}
     - name: Checkout
       uses: actions/checkout@v3
       if: github.event.pull_request.head.sha == ''
@@ -28,8 +21,8 @@ jobs:
       run: |
         string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
         message("::set-output name=timestamp::${current_date}")
-    - name: Restore cache files
-      uses: actions/cache/restore@v4
+    - name: Cache files
+      uses: actions/cache@v4
       with:
         path: ../.ccache
         key: ubuntu-22.04-ccache-${{steps.ccache_cache_timestamp.outputs.timestamp}}
