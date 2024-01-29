@@ -65,7 +65,7 @@ jobs:
       shell: bash
       run: |
         ccache -z
-        export CCACHE_BASEDIR=`realpath ..`
+        export CCACHE_DIR=`realpath ../.ccache`
         cd ../build
         ninja examples/all client/all
         ccache -s
