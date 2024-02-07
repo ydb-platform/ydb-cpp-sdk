@@ -13,5 +13,5 @@ target_include_directories(contrib-libs-jwt-cpp INTERFACE
 )
 target_link_libraries(contrib-libs-jwt-cpp INTERFACE
   contrib-libs-linux-headers
-  contrib-libs-openssl
+  OpenSSL::SSL
 )

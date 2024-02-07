@@ -31,6 +31,9 @@ include(cmake/global_vars.cmake)
 
 find_package(IDN REQUIRED)
 find_package(Iconv REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(Protobuf REQUIRED)
+find_package(gRPC REQUIRED)
 
 add_subdirectory(tools)
 add_subdirectory(contrib)

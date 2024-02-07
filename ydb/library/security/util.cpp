@@ -7,8 +7,8 @@
 
 namespace NKikimr {
 
-TString MaskTicket(TStringBuf token) {
-    TStringBuilder mask;
+std::string MaskTicket(std::string_view token) {
+    TYdbStringBuilder mask;
     if (token.size() >= 16) {
         mask << token.substr(0, 4);
         mask << "****";
@@ -22,8 +22,8 @@ TString MaskTicket(TStringBuf token) {
     return mask;
 }
 
-TString MaskTicket(const TString& token) {
-    return MaskTicket(TStringBuf(token));
+std::string MaskTicket(const std::string& token) {
+    return MaskTicket(std::string_view(token));
 }
 
 } // namespace NKikimr

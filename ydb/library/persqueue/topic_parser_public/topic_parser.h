@@ -5,29 +5,29 @@
 
 namespace NPersQueue {
 
-TString GetDC(const TString& topic);
+std::string GetDC(const std::string& topic);
 
-TString GetRealTopic(const TString& topic);
+std::string GetRealTopic(const std::string& topic);
 
-TString BuildFullTopicName(const TString& topicPath, const TString& topicDC);
+std::string BuildFullTopicName(const std::string& topicPath, const std::string& topicDC);
 
-TString GetProducer(const TString& topic);
-TString GetAccount(const TString& topic);
-TString GetTopicPath(const TString& topic);
+std::string GetProducer(const std::string& topic);
+std::string GetAccount(const std::string& topic);
+std::string GetTopicPath(const std::string& topic);
 
-TString NormalizePath(const TString& path);
+std::string NormalizePath(const std::string& path);
 
-bool CorrectName(const TString& topic);
+bool CorrectName(const std::string& topic);
 
-TString ConvertNewTopicName(const TString& topic);
+std::string ConvertNewTopicName(const std::string& topic);
 
-TString ConvertNewConsumerName(const TString& consumer);
-TString ConvertNewProducerName(const TString& consumer);
+std::string ConvertNewConsumerName(const std::string& consumer);
+std::string ConvertNewProducerName(const std::string& consumer);
 
 
-TString ConvertOldTopicName(const TString& topic);
-TString ConvertOldProducerName(const TString& producer);
-TString ConvertOldConsumerName(const TString& consumer);
+std::string ConvertOldTopicName(const std::string& topic);
+std::string ConvertOldProducerName(const std::string& producer);
+std::string ConvertOldConsumerName(const std::string& consumer);
 
 
 } // namespace NPersQueue

@@ -12,7 +12,7 @@ target_link_libraries(client-ydb_types-operation PUBLIC
   contrib-libs-linux-headers
   contrib-libs-cxxsupp
   yutil
-  contrib-libs-protobuf
+  protobuf::libprotobuf
   cpp-threading-future
   public-lib-operation_id
   cpp-client-ydb_types

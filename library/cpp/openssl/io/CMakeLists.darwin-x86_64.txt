@@ -12,7 +12,7 @@ target_link_libraries(cpp-openssl-io PUBLIC
   contrib-libs-cxxsupp
   yutil
   certs
-  contrib-libs-openssl
+  OpenSSL::SSL
   cpp-openssl-init
   cpp-openssl-method
 )

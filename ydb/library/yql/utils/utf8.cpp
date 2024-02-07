@@ -229,7 +229,7 @@ std::optional<std::string> NextValidUtf8(const std::string_view& str) {
     Y_ENSURE(toDrop < wide.size());
     wide.resize(wide.size() - toDrop);
 
-    TString result = WideToUTF8(wide);
+    std::string result = WideToUTF8(wide);
     return std::string(result.data(), result.size());
 }
 

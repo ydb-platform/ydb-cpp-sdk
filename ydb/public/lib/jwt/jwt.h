@@ -6,14 +6,14 @@
 namespace NYdb {
 
 struct TJwtParams {
-    TStringType PrivKey;
-    TStringType PubKey;
-    TStringType AccountId;
-    TStringType KeyId;
+    std::stringType PrivKey;
+    std::stringType PubKey;
+    std::stringType AccountId;
+    std::stringType KeyId;
 };
 
-TJwtParams ParseJwtParams(const TStringType& jsonParamsStr);
-TStringType MakeSignedJwt(
+TJwtParams ParseJwtParams(const std::stringType& jsonParamsStr);
+std::stringType MakeSignedJwt(
     const TJwtParams& params,
     const TDuration& lifetime = TDuration::Hours(1)
 );

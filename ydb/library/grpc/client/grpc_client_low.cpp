@@ -110,7 +110,7 @@ TChannelPool::TChannelPool(const TTcpKeepAliveSettings& tcpKeepAliveSettings, co
 {}
 
 void TChannelPool::GetStubsHolderLocked(
-    const TString& channelId,
+    const std::string& channelId,
     const TGRpcClientConfig& config,
     std::function<void(TStubsHolder&)> cb)
 {
@@ -155,7 +155,7 @@ void TChannelPool::GetStubsHolderLocked(
     }
 }
 
-void TChannelPool::DeleteChannel(const TString& channelId) {
+void TChannelPool::DeleteChannel(const std::string& channelId) {
     std::unique_lock writeLock(RWMutex_);
     auto poolIt = Pool_.find(channelId);
     if (poolIt != Pool_.end()) {
@@ -173,7 +173,7 @@ void TChannelPool::DeleteExpiredStubsHolders() {
     LastUsedQueue_.erase(LastUsedQueue_.begin(), lastExpired);
 }
 
-void TChannelPool::EraseFromQueueByTime(const TInstant& lastUseTime, const TString& channelId) {
+void TChannelPool::EraseFromQueueByTime(const TInstant& lastUseTime, const std::string& channelId) {
     auto [begin, end] = LastUsedQueue_.equal_range(lastUseTime);
     auto pos = std::find_if(begin, end, [&](auto a){return a.second == channelId;});
     Y_ABORT_UNLESS(pos != LastUsedQueue_.end(), "data corruption at TChannelPool");

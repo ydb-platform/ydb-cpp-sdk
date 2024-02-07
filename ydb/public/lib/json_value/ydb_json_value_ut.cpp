@@ -13,7 +13,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Bool(true)
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "true");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -26,7 +26,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Int8(-128)
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "-128");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -39,7 +39,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Uint8(255)
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "255");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -52,7 +52,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Int16(-32768)
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "-32768");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -65,7 +65,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Uint16(65535)
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "65535");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -78,7 +78,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Int32(-2147483648)
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "-2147483648");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -91,7 +91,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Uint32(4294967295)
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "4294967295");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -104,7 +104,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Int64(-9223372036854775807 - 1)
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "-9223372036854775808");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -117,7 +117,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Uint64(18446744073709551615ull)
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "18446744073709551615");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -130,7 +130,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Float(0.1234567890123456789)
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "0.12345679");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -143,7 +143,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Double(0.1234567890123456789)
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "0.12345678901234568");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -157,7 +157,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Date(TInstant::Days(timestamp.Days()))
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, R"("2000-01-02")");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -171,7 +171,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Datetime(TInstant::Seconds(timestamp.Seconds()))
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, R"("2000-01-02T03:04:05Z")");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -185,7 +185,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Timestamp(TInstant::MicroSeconds(timestamp.MicroSeconds()))
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, R"("2000-01-02T03:04:05.678901Z")");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -198,7 +198,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .String("Escape characters: \" \\ \f \b \t \r\nNon-escaped characters: / ' < > & []() ")
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
             jsonString,
             "\"Escape characters: \\\" " R"(\\ \f \b \t \r\nNon-escaped characters: / ' < > & []() ")"
@@ -211,8 +211,8 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     namespace {
-        TString GenerateBinaryString() {
-            TStringStream str;
+        std::string GenerateBinaryString() {
+            std::stringStream str;
             for (ui8 i = 0; i < 255; ++i) {
                 str << static_cast<unsigned char>(i);
             }
@@ -222,12 +222,12 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     Y_UNIT_TEST(BinaryStringAsciiFollowedByNonAscii) {
-        TString binaryString = TStringBuilder() << "abc" << static_cast<unsigned char>(0xff)
+        std::string binaryString = TYdbStringBuilder() << "abc" << static_cast<unsigned char>(0xff)
             << static_cast<unsigned char>(0xfe);
         TValue value = TValueBuilder()
             .String(binaryString)
             .Build();
-        TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
             jsonString,
             R"("abc\u00FF\u00FE")"
@@ -240,12 +240,12 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     Y_UNIT_TEST(BinaryStringUnicode) {
-        TString binaryString = GenerateBinaryString();
+        std::string binaryString = GenerateBinaryString();
         TValue value = TValueBuilder()
             .String(binaryString)
             .Build();
-        TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
-        TStringBuilder from0To255Utf8;
+        std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        TYdbStringBuilder from0To255Utf8;
         from0To255Utf8 << "\"";
         from0To255Utf8 <<
             R"(\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000B\f\r\u000E\u000F)"
@@ -273,11 +273,11 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     Y_UNIT_TEST(BinaryStringBase64) {
-        TString binaryString = GenerateBinaryString();
+        std::string binaryString = GenerateBinaryString();
         TValue value = TValueBuilder()
             .String(binaryString)
             .Build();
-        TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Base64);
+        std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Base64);
         UNIT_ASSERT_NO_DIFF(
             jsonString,
             R"("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHS)"
@@ -293,11 +293,11 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     Y_UNIT_TEST(EmptyBinaryStringUnicode) {
-        TString binaryString;
+        std::string binaryString;
         TValue value = TValueBuilder()
             .String(binaryString)
             .Build();
-        TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "\"\"");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -307,11 +307,11 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     Y_UNIT_TEST(EmptyBinaryStringBase64) {
-        TString binaryString;
+        std::string binaryString;
         TValue value = TValueBuilder()
             .String(binaryString)
             .Build();
-        TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Base64);
+        std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Base64);
         UNIT_ASSERT_NO_DIFF(jsonString, "\"\"");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Base64);
         UNIT_ASSERT_NO_DIFF(
@@ -324,7 +324,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .EmptyList(TTypeBuilder().Primitive(EPrimitiveType::Int64).Build())
             .Build();
-        TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "[]");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -334,8 +334,8 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     namespace {
-        TString InvalidJsonToBinaryStringBase(const TString& jsonString) {
-            TString errorMessage;
+        std::string InvalidJsonToBinaryStringBase(const std::string& jsonString) {
+            std::string errorMessage;
             try {
                 TType stringType = TTypeBuilder().Primitive(EPrimitiveType::String).Build();
                 TValue resultValue = JsonToYdbValue(jsonString, stringType, EBinaryStringEncoding::Unicode);
@@ -345,15 +345,15 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
                 errorMessage = e.what();
             }
             catch (std::exception& e) {
-                UNIT_FAIL(TStringBuilder() << "Uncaught exception: " << e.what());
+                UNIT_FAIL(TYdbStringBuilder() << "Uncaught exception: " << e.what());
             }
             return errorMessage;
         }
     }
 
     Y_UNIT_TEST(InvalidJsonToBinaryString1) {
-        TString jsonString = R"(some string")";
-        TString errorMessage = InvalidJsonToBinaryStringBase(jsonString);
+        std::string jsonString = R"(some string")";
+        std::string errorMessage = InvalidJsonToBinaryStringBase(jsonString);
         UNIT_ASSERT_STRING_CONTAINS(
             errorMessage,
             "Invalid value"
@@ -361,8 +361,8 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     Y_UNIT_TEST(InvalidJsonToBinaryString2) {
-        TString jsonString = R"("some string)";
-        TString errorMessage = InvalidJsonToBinaryStringBase(jsonString);
+        std::string jsonString = R"("some string)";
+        std::string errorMessage = InvalidJsonToBinaryStringBase(jsonString);
         UNIT_ASSERT_STRING_CONTAINS(
             errorMessage,
             "Missing a closing quotation mark in string"
@@ -370,8 +370,8 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     Y_UNIT_TEST(InvalidJsonToBinaryString3) {
-        TString jsonString = "\"some string \\\"";
-        TString errorMessage = InvalidJsonToBinaryStringBase(jsonString);
+        std::string jsonString = "\"some string \\\"";
+        std::string errorMessage = InvalidJsonToBinaryStringBase(jsonString);
         UNIT_ASSERT_STRING_CONTAINS(
             errorMessage,
             "Missing a closing quotation mark in string"
@@ -379,8 +379,8 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     Y_UNIT_TEST(InvalidJsonToBinaryString4) {
-        TString jsonString = R"("some \ string")";
-        TString errorMessage = InvalidJsonToBinaryStringBase(jsonString);
+        std::string jsonString = R"("some \ string")";
+        std::string errorMessage = InvalidJsonToBinaryStringBase(jsonString);
         UNIT_ASSERT_STRING_CONTAINS(
             errorMessage,
             "Invalid escape character in string"
@@ -388,8 +388,8 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     Y_UNIT_TEST(InvalidJsonToBinaryString5) {
-        TString jsonString = R"("some string \u001")";
-        TString errorMessage = InvalidJsonToBinaryStringBase(jsonString);
+        std::string jsonString = R"("some string \u001")";
+        std::string errorMessage = InvalidJsonToBinaryStringBase(jsonString);
         UNIT_ASSERT_STRING_CONTAINS(
             errorMessage,
             "Incorrect hex digit after \\u escape in string"
@@ -397,8 +397,8 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     Y_UNIT_TEST(InvalidJsonToBinaryString6) {
-        TString jsonString = R"("some string \u0140")";
-        TString errorMessage = InvalidJsonToBinaryStringBase(jsonString);
+        std::string jsonString = R"("some string \u0140")";
+        std::string errorMessage = InvalidJsonToBinaryStringBase(jsonString);
         UNIT_ASSERT_STRING_CONTAINS(
             errorMessage,
             "Unicode symbols with codes greater than 255 are not supported"
@@ -406,8 +406,8 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     Y_UNIT_TEST(InvalidJsonToBinaryString7) {
-        TString jsonString = R"("some string \u00AG")";
-        TString errorMessage = InvalidJsonToBinaryStringBase(jsonString);
+        std::string jsonString = R"("some string \u00AG")";
+        std::string errorMessage = InvalidJsonToBinaryStringBase(jsonString);
         UNIT_ASSERT_STRING_CONTAINS(
             errorMessage,
             "Incorrect hex digit after \\u escape in string"
@@ -415,11 +415,11 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     Y_UNIT_TEST(PrimitiveValueUtf8String1) {
-        TString utf8Str = "Escape characters: \" \\ \f \b \t \r\nNon-escaped characters: / ' < > & []() ";
+        std::string utf8Str = "Escape characters: \" \\ \f \b \t \r\nNon-escaped characters: / ' < > & []() ";
         TValue value = TValueBuilder()
             .Utf8(utf8Str)
             .Build();
-        TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
 
         UNIT_ASSERT_NO_DIFF(
             jsonString,
@@ -433,7 +433,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
     }
 
     Y_UNIT_TEST(PrimitiveValueUtf8String2) {
-        TString utf8Str = "\xD0\xB0\xD0\xB1\xD0\xB2\xD0\xB3\xD0\xB4\xD0\xB5\xD1\x91\xD0\xB6\xD0\xB7\xD0\xB8\xD0\xBA\xD0\xBB"
+        std::string utf8Str = "\xD0\xB0\xD0\xB1\xD0\xB2\xD0\xB3\xD0\xB4\xD0\xB5\xD1\x91\xD0\xB6\xD0\xB7\xD0\xB8\xD0\xBA\xD0\xBB"
             "\xD0\xBC\xD0\xBD\xD0\xBE\xD0\xBF\xD1\x80\xD1\x81\xD1\x82\xD1\x83\xD1\x84\xD1\x85\xD1\x86\xD1\x87\xD1\x88"
             "\xD1\x89\xD1\x8A\xD1\x8B\xD1\x8C\xD1\x8D\xD1\x8E\xD1\x8F\xD0\x90\xD0\x91\xD0\x92\xD0\x93\xD0\x94\xD0\x95"
             "\xD0\x81\xD0\x96\xD0\x97\xD0\x98\xD0\x9A\xD0\x9B\xD0\x9C\xD0\x9D\xD0\x9E\xD0\x9F\xD0\xA0\xD0\xA1\xD0\xA2"
@@ -441,11 +441,11 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .Utf8(utf8Str)
             .Build();
-        TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
 
         UNIT_ASSERT_NO_DIFF(
             jsonString,
-            TStringBuilder() << '"' << utf8Str << '"'
+            TYdbStringBuilder() << '"' << utf8Str << '"'
         );
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -462,7 +462,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
                 .EndTagged()
             .EndTagged()
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, R"(1)");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -475,7 +475,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         TValue value = TValueBuilder()
             .EmptyList(TTypeBuilder().Primitive(EPrimitiveType::Uint32).Build())
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "[]");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -495,7 +495,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
                 .Int32(100)
             .EndList()
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "[1,10,100]");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -517,7 +517,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
                 .EmptyOptional(EPrimitiveType::Utf8)
             .EndStruct()
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, R"({"Id":1,"Name":"Anna","Value":-100,"Description":null})");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -555,7 +555,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
                 .EndOptional()
             .EndTuple()
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, "[10,-1,null,null]");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -579,7 +579,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
                     .String("Value2")
             .EndDict()
             .Build();
-        const TString jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString, R"([[1,"Value1"],[2,"Value2"]])");
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(
@@ -612,7 +612,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
             .Build();
 
         // unicode
-        const TString jsonString1 = FormatValueJson(value, EBinaryStringEncoding::Unicode);
+        const std::string jsonString1 = FormatValueJson(value, EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(jsonString1, R"(["text_value",["binary_value"],"",[""],null])");
 
         TValue resultValue1 = JsonToYdbValue(jsonString1, value.GetType(), EBinaryStringEncoding::Unicode);
@@ -622,7 +622,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
         );
 
         // base64
-        const TString jsonString2 = FormatValueJson(value, EBinaryStringEncoding::Base64);
+        const std::string jsonString2 = FormatValueJson(value, EBinaryStringEncoding::Base64);
         UNIT_ASSERT_NO_DIFF(jsonString2, R"(["text_value",["YmluYXJ5X3ZhbHVl"],"",[""],null])");
 
         TValue resultValue2 = JsonToYdbValue(jsonString2, value.GetType(), EBinaryStringEncoding::Base64);

@@ -119,7 +119,7 @@ namespace {
 }
 
 
-TInt128 FromString(const TStringBuf& str, ui8 precision, ui8 scale) {
+TInt128 FromString(const std::string_view& str, ui8 precision, ui8 scale) {
     if (scale > precision)
         return Err();
 
@@ -205,7 +205,7 @@ TInt128 FromString(const TStringBuf& str, ui8 precision, ui8 scale) {
     return neg ? -v : v;
 }
 
-TInt128 FromStringEx(const TStringBuf& str, ui8 precision, ui8 scale) {
+TInt128 FromStringEx(const std::string_view& str, ui8 precision, ui8 scale) {
     if (scale > precision)
         return Err();
 
@@ -247,7 +247,7 @@ TInt128 FromStringEx(const TStringBuf& str, ui8 precision, ui8 scale) {
     return FromString(str, precision, scale);
 }
 
-bool IsValid(const TStringBuf& str) {
+bool IsValid(const std::string_view& str) {
     auto s = str.data();
     auto l = str.size();
 

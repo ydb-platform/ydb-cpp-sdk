@@ -4,8 +4,8 @@
 #include <util/datetime/base.h>
 
 namespace NKikimr {
-    TString MaskTicket(TStringBuf token);
-    TString MaskTicket(const TString& token);
+    std::string MaskTicket(std::string_view token);
+    std::string MaskTicket(const std::string& token);
 
     // copy-pasted from <robot/library/utils/time_convert.h>
     template<typename Rep, typename Period>

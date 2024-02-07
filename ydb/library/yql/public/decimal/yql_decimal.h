@@ -74,10 +74,10 @@ inline bool IsNormal(TInt128 v) {
 }
 
 const char* ToString(TInt128 v, ui8 precision, ui8 scale = 0);
-TInt128 FromString(const TStringBuf& str, ui8 precision, ui8 scale = 0);
+TInt128 FromString(const std::string_view& str, ui8 precision, ui8 scale = 0);
 
 // Accept string representation with exponent.
-TInt128 FromStringEx(const TStringBuf& str, ui8 precision, ui8 scale);
+TInt128 FromStringEx(const std::string_view& str, ui8 precision, ui8 scale);
 
 template<typename TMkqlProto>
 inline TInt128 FromProto(const TMkqlProto& val) {
@@ -143,7 +143,7 @@ inline std::pair<ui64, ui64> MakePair(const TInt128 v) {
     static_assert(sizeof(r) == sizeof(v), "Bad pair size.");
 }
 
-bool IsValid(const TStringBuf& str);
+bool IsValid(const std::string_view& str);
 
 // Round to nearest, ties to even.
 TInt128 Div(TInt128 a, TInt128 b); // a/b

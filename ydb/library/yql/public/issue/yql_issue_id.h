@@ -26,14 +26,14 @@ using ESeverity = NYql::TSeverityIds::ESeverityId;
 const TIssueCode DEFAULT_ERROR = 0;
 const TIssueCode UNEXPECTED_ERROR = 1;
 
-inline TString SeverityToString(ESeverity severity)
+inline std::string SeverityToString(ESeverity severity)
 {
     auto ret = NYql::TSeverityIds::ESeverityId_Name(severity);
     return ret.empty() ? "Unknown" : to_title(ret.substr(2)); //remove prefix "S_"
 }
 
 template <typename T>
-inline TString IssueCodeToString(TIssueCode id) {
+inline std::string IssueCodeToString(TIssueCode id) {
     auto ret = T::EIssueCode_Name(static_cast<typename T::EIssueCode>(id));
     if (!ret.empty()) {
         SubstGlobal(ret, '_', ' ');
@@ -47,7 +47,7 @@ template<typename TProto, const char* ResourceName>
 class TIssueId {
     TProto ProtoIssues_;
     THashMap<TIssueCode, NYql::TSeverityIds::ESeverityId> IssuesMap_;
-    THashMap<TIssueCode, TString> IssuesFormatMap_;
+    THashMap<TIssueCode, std::string> IssuesFormatMap_;
 
     const google::protobuf::Descriptor* GetProtoDescriptor() const {
         auto ret = ProtoIssues_.GetDescriptor();
@@ -55,7 +55,7 @@ class TIssueId {
         return ret;
     }
 
-    bool CheckSeverityNameFormat(const TString& name) const {
+    bool CheckSeverityNameFormat(const std::string& name) const {
         if (name.size() > 2 && name.substr(0,2) == "S_") {
             return true;
         }
@@ -70,7 +70,7 @@ public:
         return it->second;
     }
 
-    TString GetMessage(TIssueCode id) const {
+    std::string GetMessage(TIssueCode id) const {
         auto it = IssuesFormatMap_.find(id);
         Y_ENSURE(it != IssuesFormatMap_.end(), "Unknown issue id: "
             << id << "(" << IssueCodeToString<TProto>(id) << ")");
@@ -78,7 +78,7 @@ public:
     }
 
     TIssueId() {
-        auto configData = NResource::Find(TStringBuf(ResourceName));
+        auto configData = NResource::Find(std::string_view(ResourceName));
         if (!::google::protobuf::TextFormat::ParseFromString(configData, &ProtoIssues_)) {
             Y_ENSURE(false, "Bad format of protobuf data file, resource: " << ResourceName);
         }
@@ -121,7 +121,7 @@ inline ESeverity GetSeverity(TIssueCode id) {
 }
 
 template<typename TProto, const char* ResourceName>
-inline TString GetMessage(TIssueCode id) {
+inline std::string GetMessage(TIssueCode id) {
     return Singleton<TIssueId<TProto, ResourceName>>()->GetMessage(id);
 }
 

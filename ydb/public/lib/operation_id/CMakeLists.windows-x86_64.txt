@@ -13,7 +13,7 @@ add_library(public-lib-operation_id)
 target_link_libraries(public-lib-operation_id PUBLIC
   contrib-libs-cxxsupp
   yutil
-  contrib-libs-protobuf
+  protobuf::libprotobuf
   library-cpp-cgiparam
   library-cpp-uri
   lib-operation_id-protos

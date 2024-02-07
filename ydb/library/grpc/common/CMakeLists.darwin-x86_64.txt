@@ -11,5 +11,5 @@ add_library(library-grpc-common INTERFACE)
 target_link_libraries(library-grpc-common INTERFACE
   contrib-libs-cxxsupp
   yutil
-  contrib-libs-grpc
+  gRPC::grpc++
 )
