@@ -96,9 +96,9 @@ namespace NYdb::NDataStreams::V1 {
     using TAsyncUpdateStreamResult = NThreading::TFuture<TUpdateStreamResult>;
 
     struct TDataRecord {
-        TString Data;
-        TString PartitionKey;
-        TString ExplicitHashDecimal;
+        std::string Data;
+        std::string PartitionKey;
+        std::string ExplicitHashDecimal;
     };
 
     struct TCreateStreamSettings : public NYdb::TOperationRequestSettings<TCreateStreamSettings> {
@@ -110,7 +110,7 @@ namespace NYdb::NDataStreams::V1 {
     };
     struct TListStreamsSettings : public NYdb::TOperationRequestSettings<TListStreamsSettings> {
         FLUENT_SETTING(ui32, Limit);
-        FLUENT_SETTING(TString, ExclusiveStartStreamName);
+        FLUENT_SETTING(std::string, ExclusiveStartStreamName);
         FLUENT_SETTING_DEFAULT(bool, Recurse, true);
     };
     struct TDeleteStreamSettings : public NYdb::TOperationRequestSettings<TDeleteStreamSettings> {
@@ -118,19 +118,19 @@ namespace NYdb::NDataStreams::V1 {
     };
     struct TDescribeStreamSettings : public NYdb::TOperationRequestSettings<TDescribeStreamSettings> {
         FLUENT_SETTING(ui32, Limit);
-        FLUENT_SETTING(TString, ExclusiveStartShardId);
+        FLUENT_SETTING(std::string, ExclusiveStartShardId);
     };
     struct TListShardsSettings : public NYdb::TOperationRequestSettings<TListShardsSettings> {
-        FLUENT_SETTING(TString, ExclusiveStartShardId);
+        FLUENT_SETTING(std::string, ExclusiveStartShardId);
         FLUENT_SETTING(ui32, MaxResults);
-        FLUENT_SETTING(TString, NextToken);
+        FLUENT_SETTING(std::string, NextToken);
         FLUENT_SETTING(ui64, StreamCreationTimestamp);
     };
     struct TGetRecordsSettings : public NYdb::TOperationRequestSettings<TGetRecordsSettings> {
         FLUENT_SETTING_DEFAULT(ui32, Limit, 10000);
     };
     struct TGetShardIteratorSettings : public NYdb::TOperationRequestSettings<TGetShardIteratorSettings> {
-        FLUENT_SETTING(TString, StartingSequenceNumber);
+        FLUENT_SETTING(std::string, StartingSequenceNumber);
         FLUENT_SETTING(ui64, Timestamp);
     };
     struct TSubscribeToShardSettings : public NYdb::TOperationRequestSettings<TSubscribeToShardSettings> {};
@@ -163,7 +163,7 @@ namespace NYdb::NDataStreams::V1 {
     struct TDescribeStreamConsumerSettings : public NYdb::TOperationRequestSettings<TDescribeStreamConsumerSettings> {};
     struct TListStreamConsumersSettings : public NYdb::TOperationRequestSettings<TListStreamConsumersSettings> {
         FLUENT_SETTING(ui32, MaxResults);
-        FLUENT_SETTING(TString, NextToken);
+        FLUENT_SETTING(std::string, NextToken);
     };
     struct TAddTagsToStreamSettings : public NYdb::TOperationRequestSettings<TAddTagsToStreamSettings> {};
     struct TDisableEnhancedMonitoringSettings : public NYdb::TOperationRequestSettings<TDisableEnhancedMonitoringSettings> {};
@@ -182,27 +182,27 @@ namespace NYdb::NDataStreams::V1 {
     public:
         TDataStreamsClient(const NYdb::TDriver& driver, const NYdb::TCommonClientSettings& settings = NYdb::TCommonClientSettings());
 
-        TAsyncCreateStreamResult CreateStream(const TString& path, TCreateStreamSettings settings = TCreateStreamSettings());
-        TAsyncDeleteStreamResult DeleteStream(const TString& path, TDeleteStreamSettings settings = TDeleteStreamSettings());
-        TAsyncDescribeStreamResult DescribeStream(const TString& path, TDescribeStreamSettings settings = TDescribeStreamSettings());
-        TAsyncPutRecordResult PutRecord(const TString& path, const TDataRecord& record, TPutRecordSettings settings = TPutRecordSettings());
+        TAsyncCreateStreamResult CreateStream(const std::string& path, TCreateStreamSettings settings = TCreateStreamSettings());
+        TAsyncDeleteStreamResult DeleteStream(const std::string& path, TDeleteStreamSettings settings = TDeleteStreamSettings());
+        TAsyncDescribeStreamResult DescribeStream(const std::string& path, TDescribeStreamSettings settings = TDescribeStreamSettings());
+        TAsyncPutRecordResult PutRecord(const std::string& path, const TDataRecord& record, TPutRecordSettings settings = TPutRecordSettings());
         TAsyncListStreamsResult ListStreams(TListStreamsSettings settings = TListStreamsSettings());
-        TAsyncListShardsResult ListShards(const TString& path, const Ydb::DataStreams::V1::ShardFilter& shardFilter, TListShardsSettings settings = TListShardsSettings());
-        TAsyncPutRecordsResult PutRecords(const TString& path, const std::vector<TDataRecord>& records, TPutRecordsSettings settings = TPutRecordsSettings());
-        TAsyncGetRecordsResult GetRecords(const TString& shardIterator, TGetRecordsSettings settings = TGetRecordsSettings());
-        TAsyncGetShardIteratorResult GetShardIterator(const TString& path, const TString& shardId, Ydb::DataStreams::V1::ShardIteratorType shardIteratorTypeStr,
+        TAsyncListShardsResult ListShards(const std::string& path, const Ydb::DataStreams::V1::ShardFilter& shardFilter, TListShardsSettings settings = TListShardsSettings());
+        TAsyncPutRecordsResult PutRecords(const std::string& path, const std::vector<TDataRecord>& records, TPutRecordsSettings settings = TPutRecordsSettings());
+        TAsyncGetRecordsResult GetRecords(const std::string& shardIterator, TGetRecordsSettings settings = TGetRecordsSettings());
+        TAsyncGetShardIteratorResult GetShardIterator(const std::string& path, const std::string& shardId, Ydb::DataStreams::V1::ShardIteratorType shardIteratorTypeStr,
                                                       TGetShardIteratorSettings settings = TGetShardIteratorSettings());
         // TAsyncSubscribeToShardResult SubscribeToShard(TSubscribeToShardSettings settings = TSubscribeToShardSettings());
         TAsyncDescribeLimitsResult DescribeLimits(TDescribeLimitsSettings settings = TDescribeLimitsSettings());
-        TAsyncDescribeStreamSummaryResult DescribeStreamSummary(const TString& path, TDescribeStreamSummarySettings settings = TDescribeStreamSummarySettings());
-        TAsyncDecreaseStreamRetentionPeriodResult DecreaseStreamRetentionPeriod(const TString& path, TDecreaseStreamRetentionPeriodSettings settings = TDecreaseStreamRetentionPeriodSettings());
-        TAsyncIncreaseStreamRetentionPeriodResult IncreaseStreamRetentionPeriod(const TString& path, TIncreaseStreamRetentionPeriodSettings settings = TIncreaseStreamRetentionPeriodSettings());
-        TAsyncUpdateShardCountResult UpdateShardCount(const TString& path, TUpdateShardCountSettings settings = TUpdateShardCountSettings());
-        TAsyncUpdateStreamModeResult UpdateStreamMode(const TString& path, TUpdateStreamModeSettings settings = TUpdateStreamModeSettings());
-        TAsyncRegisterStreamConsumerResult RegisterStreamConsumer(const TString& path, const TString& consumer_name, TRegisterStreamConsumerSettings settings = TRegisterStreamConsumerSettings());
-        TAsyncDeregisterStreamConsumerResult DeregisterStreamConsumer(const TString& path, const TString& consumer_name, TDeregisterStreamConsumerSettings settings = TDeregisterStreamConsumerSettings());
+        TAsyncDescribeStreamSummaryResult DescribeStreamSummary(const std::string& path, TDescribeStreamSummarySettings settings = TDescribeStreamSummarySettings());
+        TAsyncDecreaseStreamRetentionPeriodResult DecreaseStreamRetentionPeriod(const std::string& path, TDecreaseStreamRetentionPeriodSettings settings = TDecreaseStreamRetentionPeriodSettings());
+        TAsyncIncreaseStreamRetentionPeriodResult IncreaseStreamRetentionPeriod(const std::string& path, TIncreaseStreamRetentionPeriodSettings settings = TIncreaseStreamRetentionPeriodSettings());
+        TAsyncUpdateShardCountResult UpdateShardCount(const std::string& path, TUpdateShardCountSettings settings = TUpdateShardCountSettings());
+        TAsyncUpdateStreamModeResult UpdateStreamMode(const std::string& path, TUpdateStreamModeSettings settings = TUpdateStreamModeSettings());
+        TAsyncRegisterStreamConsumerResult RegisterStreamConsumer(const std::string& path, const std::string& consumer_name, TRegisterStreamConsumerSettings settings = TRegisterStreamConsumerSettings());
+        TAsyncDeregisterStreamConsumerResult DeregisterStreamConsumer(const std::string& path, const std::string& consumer_name, TDeregisterStreamConsumerSettings settings = TDeregisterStreamConsumerSettings());
         TAsyncDescribeStreamConsumerResult DescribeStreamConsumer(TDescribeStreamConsumerSettings settings = TDescribeStreamConsumerSettings());
-        TAsyncListStreamConsumersResult ListStreamConsumers(const TString& path, TListStreamConsumersSettings settings = TListStreamConsumersSettings());
+        TAsyncListStreamConsumersResult ListStreamConsumers(const std::string& path, TListStreamConsumersSettings settings = TListStreamConsumersSettings());
         TAsyncAddTagsToStreamResult AddTagsToStream(TAddTagsToStreamSettings settings = TAddTagsToStreamSettings());
         TAsyncDisableEnhancedMonitoringResult DisableEnhancedMonitoring(TDisableEnhancedMonitoringSettings settings = TDisableEnhancedMonitoringSettings());
         TAsyncEnableEnhancedMonitoringResult EnableEnhancedMonitoring(TEnableEnhancedMonitoringSettings settings = TEnableEnhancedMonitoringSettings());
@@ -212,7 +212,7 @@ namespace NYdb::NDataStreams::V1 {
         TAsyncSplitShardResult SplitShard(TSplitShardSettings settings = TSplitShardSettings());
         TAsyncStartStreamEncryptionResult StartStreamEncryption(TStartStreamEncryptionSettings settings = TStartStreamEncryptionSettings());
         TAsyncStopStreamEncryptionResult StopStreamEncryption(TStopStreamEncryptionSettings settings = TStopStreamEncryptionSettings());
-        TAsyncUpdateStreamResult UpdateStream(const TString& streamName, TUpdateStreamSettings settings = TUpdateStreamSettings());
+        TAsyncUpdateStreamResult UpdateStream(const std::string& streamName, TUpdateStreamSettings settings = TUpdateStreamSettings());
 
         template<class TProtoRequest, class TProtoResponse, class TProtoResult, class TMethod>
         NThreading::TFuture<TProtoResultWrapper<TProtoResult>> DoProtoRequest(const TProtoRequest& request, TMethod method, TProtoRequestSettings settings = TProtoRequestSettings());

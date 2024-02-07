@@ -153,7 +153,7 @@ TAsyncStatus TOperationClient::Forget(const TOperation::TOperationId& id) {
 }
 
 template <typename TOp>
-TFuture<TOperationsList<TOp>> TOperationClient::List(const TString& kind, ui64 pageSize, const TString& pageToken) {
+TFuture<TOperationsList<TOp>> TOperationClient::List(const std::string& kind, ui64 pageSize, const std::string& pageToken) {
     auto request = MakeRequest<ListOperationsRequest>();
 
     request.set_kind(kind);
@@ -170,32 +170,32 @@ TFuture<TOperationsList<TOp>> TOperationClient::List(const TString& kind, ui64 p
 // Instantiations
 template TFuture<NExport::TExportToYtResponse> TOperationClient::Get(const TOperation::TOperationId& id);
 template <>
-TFuture<TOperationsList<NExport::TExportToYtResponse>> TOperationClient::List(ui64 pageSize, const TString& pageToken) {
+TFuture<TOperationsList<NExport::TExportToYtResponse>> TOperationClient::List(ui64 pageSize, const std::string& pageToken) {
     // TODO: export -> export/yt
     return List<NExport::TExportToYtResponse>("export", pageSize, pageToken);
 }
 
 template TFuture<NExport::TExportToS3Response> TOperationClient::Get(const TOperation::TOperationId& id);
 template <>
-TFuture<TOperationsList<NExport::TExportToS3Response>> TOperationClient::List(ui64 pageSize, const TString& pageToken) {
+TFuture<TOperationsList<NExport::TExportToS3Response>> TOperationClient::List(ui64 pageSize, const std::string& pageToken) {
     return List<NExport::TExportToS3Response>("export/s3", pageSize, pageToken);
 }
 
 template TFuture<NImport::TImportFromS3Response> TOperationClient::Get(const TOperation::TOperationId& id);
 template <>
-TFuture<TOperationsList<NImport::TImportFromS3Response>> TOperationClient::List(ui64 pageSize, const TString& pageToken) {
+TFuture<TOperationsList<NImport::TImportFromS3Response>> TOperationClient::List(ui64 pageSize, const std::string& pageToken) {
     return List<NImport::TImportFromS3Response>("import/s3", pageSize, pageToken);
 }
 
 template TFuture<NTable::TBuildIndexOperation> TOperationClient::Get(const TOperation::TOperationId& id);
 template <>
-TFuture<TOperationsList<NTable::TBuildIndexOperation>> TOperationClient::List(ui64 pageSize, const TString& pageToken) {
+TFuture<TOperationsList<NTable::TBuildIndexOperation>> TOperationClient::List(ui64 pageSize, const std::string& pageToken) {
     return List<NTable::TBuildIndexOperation>("buildindex", pageSize, pageToken);
 }
 
 template TFuture<NQuery::TScriptExecutionOperation> TOperationClient::Get(const TOperation::TOperationId& id);
 template <>
-TFuture<TOperationsList<NQuery::TScriptExecutionOperation>> TOperationClient::List(ui64 pageSize, const TString& pageToken) {
+TFuture<TOperationsList<NQuery::TScriptExecutionOperation>> TOperationClient::List(ui64 pageSize, const std::string& pageToken) {
     return List<NQuery::TScriptExecutionOperation>("scriptexec", pageSize, pageToken);
 }
 

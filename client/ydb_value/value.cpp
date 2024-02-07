@@ -20,10 +20,10 @@
 
 namespace NYdb {
 
-static void CheckKind(TTypeParser::ETypeKind actual, TTypeParser::ETypeKind expected, const TString& method)
+static void CheckKind(TTypeParser::ETypeKind actual, TTypeParser::ETypeKind expected, const std::string& method)
 {
     if (expected != actual) {
-        ThrowFatalError(TStringBuilder() << method << "(): invalid state, expected type: "
+        ThrowFatalError(TYdbStringBuilder() << method << "(): invalid state, expected type: "
             << expected << ", actual: " << actual);
     }
 }
@@ -64,7 +64,7 @@ static TTypeParser::ETypeKind GetKind(const Ydb::Type& type) {
             break;
     }
 
-    ThrowFatalError(TStringBuilder() << "Unexpected proto type kind: " << (ui32) type.type_case());
+    ThrowFatalError(TYdbStringBuilder() << "Unexpected proto type kind: " << (ui32) type.type_case());
     return ETypeKind::Void;
 }
 
@@ -93,7 +93,7 @@ TType::TType(const Ydb::Type& typeProto)
 TType::TType(Ydb::Type&& typeProto)
     : Impl_(new TImpl(std::move(typeProto))) {}
 
-TString TType::ToString() const {
+std::string TType::ToString() const {
     return FormatType(*this);
 }
 
@@ -192,7 +192,7 @@ public:
         Path_.back().Idx = -1;
     }
 
-    const TString& GetMemberName() {
+    const std::string& GetMemberName() {
         CheckPreviousKind(ETypeKind::Struct, "GetMemberName");
         return GetProto(1).struct_type().members(Path_[Path_.size() - 2].Idx).name();
     }
@@ -220,7 +220,7 @@ public:
         ForwardStep();
     }
 
-    const TString& GetTag() {
+    const std::string& GetTag() {
         CheckPreviousKind(ETypeKind::Tagged, "GetTag");
         return GetProto(1).tagged_type().tag();
     }
@@ -295,7 +295,7 @@ public:
                         break;
                     }
                     default: {
-                        FatalError(TStringBuilder() << "Unexpected variant type kind: " << variantType);
+                        FatalError(TYdbStringBuilder() << "Unexpected variant type kind: " << variantType);
                         break;
                     }
                 }
@@ -310,7 +310,7 @@ public:
             }
 
             default:
-                FatalError(TStringBuilder() << "Unexpected type kind: " << GetKind());
+                FatalError(TYdbStringBuilder() << "Unexpected type kind: " << GetKind());
                 break;
         }
 
@@ -319,11 +319,11 @@ public:
     }
 
 private:
-    void CheckKind(ETypeKind kind, const TString& method) const {
+    void CheckKind(ETypeKind kind, const std::string& method) const {
         NYdb::CheckKind(GetKind(), kind, method);
     }
 
-    void CheckPreviousKind(ETypeKind kind, const TString method) const {
+    void CheckPreviousKind(ETypeKind kind, const std::string method) const {
         if (Path_.size() < 2) {
             FatalError("Expected container type.");
             return;
@@ -340,8 +340,8 @@ private:
         Path_.pop_back();
     }
 
-    void FatalError(const TString& msg) const {
-        ThrowFatalError(TStringBuilder() << "TTypeParser: " << msg);
+    void FatalError(const std::string& msg) const {
+        ThrowFatalError(TYdbStringBuilder() << "TTypeParser: " << msg);
     }
 
 private:
@@ -404,7 +404,7 @@ void TTypeParser::CloseStruct() {
     Impl_->Close<ETypeKind::Struct>();
 }
 
-const TString& TTypeParser::GetMemberName() {
+const std::string& TTypeParser::GetMemberName() {
     return Impl_->GetMemberName();
 }
 
@@ -456,7 +456,7 @@ void TTypeParser::OpenTagged() {
     Impl_->Open<ETypeKind::Tagged>();
 }
 
-const TString& TTypeParser::GetTag() {
+const std::string& TTypeParser::GetTag() {
     return Impl_->GetTag();
 }
 
@@ -566,14 +566,14 @@ void FormatTypeInternal(TTypeParser& parser, IOutputStream& out) {
             break;
 
         default:
-            ThrowFatalError(TStringBuilder()
+            ThrowFatalError(TYdbStringBuilder()
                 << "Unexpected type kind: " << parser.GetKind());
     }
 }
 
-TString FormatType(const TType& type) {
+std::string FormatType(const TType& type) {
     TTypeParser parser(type);
-    TStringStream out;
+    std::stringStream out;
     FormatTypeInternal(parser, out);
     return out.Str();
 }
@@ -653,7 +653,7 @@ public:
         CloseContainer<ETypeKind::Struct>();
     }
 
-    void AddMember(const TString& memberName) {
+    void AddMember(const std::string& memberName) {
         CheckPreviousKind(ETypeKind::Struct, "AddMember");
         PopPosition();
         auto member = GetProto().mutable_struct_type()->add_members();
@@ -661,7 +661,7 @@ public:
         AddPosition(member->mutable_type());
     }
 
-    void AddMember(const TString& memberName, const TType& memberType) {
+    void AddMember(const std::string& memberName, const TType& memberType) {
         AddMember(memberName);
         GetProto().CopyFrom(memberType.GetProto());
     }
@@ -730,7 +730,7 @@ public:
         GetProto().CopyFrom(payloadType.GetProto());
     }
 
-    void BeginTagged(const TString& tag) {
+    void BeginTagged(const std::string& tag) {
         GetProto().mutable_tagged_type()->set_tag(tag);
         AddPosition(GetProto().mutable_tagged_type()->mutable_type());
     }
@@ -739,7 +739,7 @@ public:
         CloseContainer<ETypeKind::Tagged>();
     }
 
-    void Tagged(const TString& tag, const TType& itemType) {
+    void Tagged(const std::string& tag, const TType& itemType) {
         auto taggedType = GetProto().mutable_tagged_type();
         taggedType->set_tag(tag);
         taggedType->mutable_type()->CopyFrom(itemType.GetProto());
@@ -766,15 +766,15 @@ private:
         Path_.pop_back();
     }
 
-    void FatalError(const TString& msg) const {
-        ThrowFatalError(TStringBuilder() << "TTypeBuilder: " << msg);
+    void FatalError(const std::string& msg) const {
+        ThrowFatalError(TYdbStringBuilder() << "TTypeBuilder: " << msg);
     }
 
-    void CheckKind(ETypeKind kind, const TString& method) {
+    void CheckKind(ETypeKind kind, const std::string& method) {
         NYdb::CheckKind(GetKind(), kind, method);
     }
 
-    void CheckPreviousKind(ETypeKind kind, const TString& method) {
+    void CheckPreviousKind(ETypeKind kind, const std::string& method) {
         NYdb::CheckKind(GetKind(1), kind, method);
     }
 
@@ -870,12 +870,12 @@ TTypeBuilder& TTypeBuilder::EndStruct() {
     return *this;
 }
 
-TTypeBuilder& TTypeBuilder::AddMember(const TString& memberName) {
+TTypeBuilder& TTypeBuilder::AddMember(const std::string& memberName) {
     Impl_->AddMember(memberName);
     return *this;
 }
 
-TTypeBuilder& TTypeBuilder::AddMember(const TString& memberName, const TType& memberType) {
+TTypeBuilder& TTypeBuilder::AddMember(const std::string& memberName, const TType& memberType) {
     Impl_->AddMember(memberName, memberType);
     return *this;
 }
@@ -930,7 +930,7 @@ TTypeBuilder& TTypeBuilder::EndDict() {
     return *this;
 }
 
-TTypeBuilder& TTypeBuilder::BeginTagged(const TString& tag) {
+TTypeBuilder& TTypeBuilder::BeginTagged(const std::string& tag) {
     Impl_->BeginTagged(tag);
     return *this;
 }
@@ -940,7 +940,7 @@ TTypeBuilder& TTypeBuilder::EndTagged() {
     return *this;
 }
 
-TTypeBuilder& TTypeBuilder::Tagged(const TString& tag, const TType& itemType) {
+TTypeBuilder& TTypeBuilder::Tagged(const std::string& tag, const TType& itemType) {
     Impl_->Tagged(tag, itemType);
     return *this;
 }
@@ -953,7 +953,7 @@ TDecimalValue::TDecimalValue(const Ydb::Value& valueProto, const TDecimalType& d
     , Hi_(valueProto.high_128())
 {}
 
-TDecimalValue::TDecimalValue(const TString& decimalString, ui8 precision, ui8 scale)
+TDecimalValue::TDecimalValue(const std::string& decimalString, ui8 precision, ui8 scale)
     : DecimalType_(precision, scale)
 {
     NYql::NDecimal::TInt128 val = NYql::NDecimal::FromString(decimalString, precision, scale);
@@ -963,7 +963,7 @@ TDecimalValue::TDecimalValue(const TString& decimalString, ui8 precision, ui8 sc
     Hi_ = *(i64*)(buf + 8);
 }
 
-TString TDecimalValue::ToString() const {
+std::string TDecimalValue::ToString() const {
     NYql::NDecimal::TInt128 val = NYql::NDecimal::FromHalfs(Low_, Hi_);
     return NYql::NDecimal::ToString(val, DecimalType_.Precision, DecimalType_.Scale);
 }
@@ -988,7 +988,7 @@ TPgValue::TPgValue(const Ydb::Value& pgValueProto, const TPgType& pgType)
     Kind_ = VK_NULL;
 }
 
-TPgValue::TPgValue(EPgValueKind kind, const TString& content, const TPgType& pgType)
+TPgValue::TPgValue(EPgValueKind kind, const std::string& content, const TPgType& pgType)
     : PgType_(pgType)
     , Kind_(kind)
     , Content_(content)
@@ -1015,18 +1015,18 @@ TUuidValue::TUuidValue(const Ydb::Value& valueProto) {
     Buf_.Halfs[1] = valueProto.high_128();
 }
 
-TUuidValue::TUuidValue(const TString& uuidString) {
+TUuidValue::TUuidValue(const std::string& uuidString) {
     ui16 dw[8];
     if (!NKikimr::NUuid::ParseUuidToArray(uuidString, dw, false)) {
-        ThrowFatalError(TStringBuilder() << "Unable to parse string as uuid");
+        ThrowFatalError(TYdbStringBuilder() << "Unable to parse string as uuid");
     }
     static_assert(sizeof(dw) == sizeof(Buf_.Bytes));
     // TODO: check output on big-endian machines here and everywhere.
     std::memcpy(Buf_.Bytes, dw, sizeof(dw));
 }
 
-TString TUuidValue::ToString() const {
-    TStringStream s;
+std::string TUuidValue::ToString() const {
+    std::stringStream s;
     ui16 dw[8];
     static_assert(sizeof(dw) == sizeof(Buf_.Bytes));
     std::memcpy(dw, Buf_.Bytes, sizeof(dw));
@@ -1194,37 +1194,37 @@ public:
         return GetProto().int64_value();
     }
 
-    const TString& GetTzDate() const {
+    const std::string& GetTzDate() const {
         CheckPrimitive(NYdb::EPrimitiveType::TzDate);
         return GetProto().text_value();
     }
 
-    const TString& GetTzDatetime() const {
+    const std::string& GetTzDatetime() const {
         CheckPrimitive(NYdb::EPrimitiveType::TzDatetime);
         return GetProto().text_value();
     }
 
-    const TString& GetTzTimestamp() const {
+    const std::string& GetTzTimestamp() const {
         CheckPrimitive(NYdb::EPrimitiveType::TzTimestamp);
         return GetProto().text_value();
     }
 
-    const TString& GetString() const {
+    const std::string& GetString() const {
         CheckPrimitive(NYdb::EPrimitiveType::String);
         return GetProto().bytes_value();
     }
 
-    const TString& GetUtf8() const {
+    const std::string& GetUtf8() const {
         CheckPrimitive(NYdb::EPrimitiveType::Utf8);
         return GetProto().text_value();
     }
 
-    const TString& GetYson() const {
+    const std::string& GetYson() const {
         CheckPrimitive(NYdb::EPrimitiveType::Yson);
         return GetProto().bytes_value();
     }
 
-    const TString& GetJson() const {
+    const std::string& GetJson() const {
         CheckPrimitive(NYdb::EPrimitiveType::Json);
         return GetProto().text_value();
     }
@@ -1234,12 +1234,12 @@ public:
         return TUuidValue(GetProto());
     }
 
-    const TString& GetJsonDocument() const {
+    const std::string& GetJsonDocument() const {
         CheckPrimitive(NYdb::EPrimitiveType::JsonDocument);
         return GetProto().text_value();
     }
 
-    const TString& GetDyNumber() const {
+    const std::string& GetDyNumber() const {
         CheckPrimitive(NYdb::EPrimitiveType::DyNumber);
         return GetProto().text_value();
     }
@@ -1300,13 +1300,13 @@ public:
                 return true;
             }
 
-            FatalError(TStringBuilder() << "Missing struct 'items' value at index: " << GetPathBack().Idx);
+            FatalError(TYdbStringBuilder() << "Missing struct 'items' value at index: " << GetPathBack().Idx);
         }
 
         return false;
     }
 
-    const TString& GetMemberName() {
+    const std::string& GetMemberName() {
         return TypeParser_.GetMemberName();
     }
 
@@ -1326,7 +1326,7 @@ public:
                 return true;
             }
 
-            FatalError(TStringBuilder() << "Missing tuple 'items' value at index: " << GetPathBack().Idx);
+            FatalError(TYdbStringBuilder() << "Missing tuple 'items' value at index: " << GetPathBack().Idx);
         }
 
         return false;
@@ -1377,7 +1377,7 @@ public:
         if (GetProto().value_case() == Ydb::Value::kNestedValue) {
             AddPath(EParseKind::Value, &GetProto().nested_value());
         } else {
-            FatalError(TStringBuilder() << "No nested value for variant type.");
+            FatalError(TYdbStringBuilder() << "No nested value for variant type.");
         }
     }
 
@@ -1390,7 +1390,7 @@ public:
         TypeParser_.OpenTagged();
     }
 
-    const TString& GetTag() {
+    const std::string& GetTag() {
         return TypeParser_.GetTag();
     }
 
@@ -1401,7 +1401,7 @@ public:
 private:
     const TProtoPosition& GetPathBack() const {
         if (Path_.empty()) {
-            FatalError(TStringBuilder() << "Bad parser state, no open value.");
+            FatalError(TYdbStringBuilder() << "Bad parser state, no open value.");
         }
 
         return Path_.back();
@@ -1409,7 +1409,7 @@ private:
 
     void PopPath() {
         if (Path_.empty()) {
-            FatalError(TStringBuilder() << "Bad parser state, no open value.");
+            FatalError(TYdbStringBuilder() << "Bad parser state, no open value.");
         }
 
         Path_.pop_back();
@@ -1418,7 +1418,7 @@ private:
     void AddPath(EParseKind kind, const google::protobuf::Message* message, i32 idx = -1) {
         if (!Path_.empty()) {
             if (Path_.back().Kind == EParseKind::Null) {
-                FatalError(TStringBuilder() << "Can't parse inside NULL value");
+                FatalError(TYdbStringBuilder() << "Can't parse inside NULL value");
                 return;
             }
 
@@ -1428,13 +1428,13 @@ private:
 
                 case EParseKind::Pair:
                     if (kind != EParseKind::Value) {
-                        FatalError(TStringBuilder() << "Bad parser state, expected dict pair.");
+                        FatalError(TYdbStringBuilder() << "Bad parser state, expected dict pair.");
                         return;
                     }
                     break;
 
                 default:
-                    FatalError(TStringBuilder() << "Bad parser state, no value to parse.");
+                    FatalError(TYdbStringBuilder() << "Bad parser state, no value to parse.");
                     return;
             }
         }
@@ -1506,13 +1506,13 @@ private:
         PopPath();
     }
 
-    void CheckKind(ETypeKind kind, const TString& method) const {
+    void CheckKind(ETypeKind kind, const std::string& method) const {
         NYdb::CheckKind(TypeParser_.GetKind(), kind, method);
     }
 
     void CheckTransportKind(Ydb::Value::ValueCase expectedCase) const {
         if (expectedCase != GetProto().value_case()) {
-            FatalError(TStringBuilder() << "Transport value case mismatch, requested: " << (ui32)expectedCase
+            FatalError(TYdbStringBuilder() << "Transport value case mismatch, requested: " << (ui32)expectedCase
                 << ", actual: " << (ui32)GetProto().value_case());
         }
     }
@@ -1521,7 +1521,7 @@ private:
         CheckKind(ETypeKind::Primitive, "Get");
 
         if (primitiveType != TypeParser_.GetPrimitive()) {
-            FatalError(TStringBuilder() << "Type mismatch, requested: " << primitiveType
+            FatalError(TYdbStringBuilder() << "Type mismatch, requested: " << primitiveType
                 << ", actual: " << TypeParser_.GetPrimitive());
         }
 
@@ -1543,7 +1543,7 @@ private:
 
     const Ydb::ValuePair& GetProtoPair() const {
         if (GetPathBack().Kind != EParseKind::Pair) {
-            FatalError(TStringBuilder() << "Bad parser state, expected dict pair");
+            FatalError(TYdbStringBuilder() << "Bad parser state, expected dict pair");
         }
 
         return *static_cast<const Ydb::ValuePair*>(GetPathBack().Ptr);
@@ -1597,13 +1597,13 @@ private:
             case NYdb::EPrimitiveType::Uuid:
                 return Ydb::Value::kLow128;
             default:
-                FatalError(TStringBuilder() << "Unexpected primitive type: " << primitiveTypeId);
+                FatalError(TYdbStringBuilder() << "Unexpected primitive type: " << primitiveTypeId);
                 return Ydb::Value::kBytesValue;
         }
     }
 
-    void FatalError(const TString& msg) const {
-        ThrowFatalError(TStringBuilder() << "TValueParser: " << msg);
+    void FatalError(const std::string& msg) const {
+        ThrowFatalError(TYdbStringBuilder() << "TValueParser: " << msg);
     }
 
 private:
@@ -1697,31 +1697,31 @@ i64 TValueParser::GetInterval() const {
     return Impl_->GetInterval();
 }
 
-const TString& TValueParser::GetTzDate() const {
+const std::string& TValueParser::GetTzDate() const {
     return Impl_->GetTzDate();
 }
 
-const TString& TValueParser::GetTzDatetime() const {
+const std::string& TValueParser::GetTzDatetime() const {
     return Impl_->GetTzDatetime();
 }
 
-const TString& TValueParser::GetTzTimestamp() const {
+const std::string& TValueParser::GetTzTimestamp() const {
     return Impl_->GetTzTimestamp();
 }
 
-const TString& TValueParser::GetString() const {
+const std::string& TValueParser::GetString() const {
     return Impl_->GetString();
 }
 
-const TString& TValueParser::GetUtf8() const {
+const std::string& TValueParser::GetUtf8() const {
     return Impl_->GetUtf8();
 }
 
-const TString& TValueParser::GetYson() const {
+const std::string& TValueParser::GetYson() const {
     return Impl_->GetYson();
 }
 
-const TString& TValueParser::GetJson() const {
+const std::string& TValueParser::GetJson() const {
     return Impl_->GetJson();
 }
 
@@ -1729,11 +1729,11 @@ TUuidValue TValueParser::GetUuid() const {
     return Impl_->GetUuid();
 }
 
-const TString& TValueParser::GetJsonDocument() const {
+const std::string& TValueParser::GetJsonDocument() const {
     return Impl_->GetJsonDocument();
 }
 
-const TString& TValueParser::GetDyNumber() const {
+const std::string& TValueParser::GetDyNumber() const {
     return Impl_->GetDyNumber();
 }
 
@@ -1813,44 +1813,44 @@ TMaybe<i64> TValueParser::GetOptionalInterval() const {
     RET_OPT_VALUE(i64, Interval);
 }
 
-TMaybe<TString> TValueParser::GetOptionalTzDate() const {
-    RET_OPT_VALUE(TString, TzDate);
+TMaybe<std::string> TValueParser::GetOptionalTzDate() const {
+    RET_OPT_VALUE(std::string, TzDate);
 }
 
-TMaybe<TString> TValueParser::GetOptionalTzDatetime() const {
-    RET_OPT_VALUE(TString, TzDatetime);
+TMaybe<std::string> TValueParser::GetOptionalTzDatetime() const {
+    RET_OPT_VALUE(std::string, TzDatetime);
 }
 
-TMaybe<TString> TValueParser::GetOptionalTzTimestamp() const {
-    RET_OPT_VALUE(TString, TzTimestamp);
+TMaybe<std::string> TValueParser::GetOptionalTzTimestamp() const {
+    RET_OPT_VALUE(std::string, TzTimestamp);
 }
 
-TMaybe<TString> TValueParser::GetOptionalString() const {
-    RET_OPT_VALUE(TString, String);
+TMaybe<std::string> TValueParser::GetOptionalString() const {
+    RET_OPT_VALUE(std::string, String);
 }
 
-TMaybe<TString> TValueParser::GetOptionalUtf8() const {
-    RET_OPT_VALUE(TString, Utf8);
+TMaybe<std::string> TValueParser::GetOptionalUtf8() const {
+    RET_OPT_VALUE(std::string, Utf8);
 }
 
-TMaybe<TString> TValueParser::GetOptionalYson() const {
-    RET_OPT_VALUE(TString, Yson);
+TMaybe<std::string> TValueParser::GetOptionalYson() const {
+    RET_OPT_VALUE(std::string, Yson);
 }
 
-TMaybe<TString> TValueParser::GetOptionalJson() const {
-    RET_OPT_VALUE(TString, Json);
+TMaybe<std::string> TValueParser::GetOptionalJson() const {
+    RET_OPT_VALUE(std::string, Json);
 }
 
 TMaybe<TUuidValue> TValueParser::GetOptionalUuid() const {
     RET_OPT_VALUE(TUuidValue, Uuid);
 }
 
-TMaybe<TString> TValueParser::GetOptionalJsonDocument() const {
-    RET_OPT_VALUE(TString, JsonDocument);
+TMaybe<std::string> TValueParser::GetOptionalJsonDocument() const {
+    RET_OPT_VALUE(std::string, JsonDocument);
 }
 
-TMaybe<TString> TValueParser::GetOptionalDyNumber() const {
-    RET_OPT_VALUE(TString, DyNumber);
+TMaybe<std::string> TValueParser::GetOptionalDyNumber() const {
+    RET_OPT_VALUE(std::string, DyNumber);
 }
 
 TMaybe<TDecimalValue> TValueParser::GetOptionalDecimal() const {
@@ -1891,7 +1891,7 @@ bool TValueParser::TryNextMember() {
     return Impl_->TryNextMember();
 }
 
-const TString& TValueParser::GetMemberName() const {
+const std::string& TValueParser::GetMemberName() const {
     return Impl_->GetMemberName();
 }
 
@@ -1943,7 +1943,7 @@ void TValueParser::OpenTagged() {
     Impl_->OpenTagged();
 }
 
-const TString& TValueParser::GetTag() const {
+const std::string& TValueParser::GetTag() const {
     return Impl_->GetTag();
 }
 
@@ -1955,7 +1955,7 @@ void TValueParser::CloseTagged() {
 
 class TValueBuilderImpl {
     using ETypeKind = TTypeParser::ETypeKind;
-    using TMembersMap = std::map<TString, size_t>;
+    using TMembersMap = std::map<std::string, size_t>;
 
     struct TProtoPosition {
         Ydb::Value& Value;
@@ -2086,37 +2086,37 @@ public:
         GetValue().set_int64_value(value);
     }
 
-    void TzDate(const TString& value) {
+    void TzDate(const std::string& value) {
         FillPrimitiveType(EPrimitiveType::TzDate);
         GetValue().set_text_value(value);
     }
 
-    void TzDatetime(const TString& value) {
+    void TzDatetime(const std::string& value) {
         FillPrimitiveType(EPrimitiveType::TzDatetime);
         GetValue().set_text_value(value);
     }
 
-    void TzTimestamp(const TString& value) {
+    void TzTimestamp(const std::string& value) {
         FillPrimitiveType(EPrimitiveType::TzTimestamp);
         GetValue().set_text_value(value);
     }
 
-    void String(const TString& value) {
+    void String(const std::string& value) {
         FillPrimitiveType(EPrimitiveType::String);
         GetValue().set_bytes_value(value);
     }
 
-    void Utf8(const TString& value) {
+    void Utf8(const std::string& value) {
         FillPrimitiveType(EPrimitiveType::Utf8);
         GetValue().set_text_value(value);
     }
 
-    void Yson(const TString& value) {
+    void Yson(const std::string& value) {
         FillPrimitiveType(EPrimitiveType::Yson);
         GetValue().set_bytes_value(value);
     }
 
-    void Json(const TString& value) {
+    void Json(const std::string& value) {
         FillPrimitiveType(EPrimitiveType::Json);
         GetValue().set_text_value(value);
     }
@@ -2127,12 +2127,12 @@ public:
         GetValue().set_high_128(value.Buf_.Halfs[1]);
     }
 
-    void JsonDocument(const TString& value) {
+    void JsonDocument(const std::string& value) {
         FillPrimitiveType(EPrimitiveType::JsonDocument);
         GetValue().set_text_value(value);
     }
 
-    void DyNumber(const TString& value) {
+    void DyNumber(const std::string& value) {
         FillPrimitiveType(EPrimitiveType::DyNumber);
         GetValue().set_text_value(value);
     }
@@ -2173,7 +2173,7 @@ public:
         TypeBuilder_.EndOptional();
 
         if (!PathTop().OptLevel) {
-            FatalError(TStringBuilder() << "No opened optional");
+            FatalError(TYdbStringBuilder() << "No opened optional");
         }
 
         --PathTop().OptLevel;
@@ -2206,7 +2206,7 @@ public:
     void EmptyOptional() {
         BeginOptional();
         if (!CheckType()) {
-            FatalError(TStringBuilder() << "EmptyOptional: unknown item type");
+            FatalError(TYdbStringBuilder() << "EmptyOptional: unknown item type");
             return;
         }
         NestEmptyOptional();
@@ -2271,7 +2271,7 @@ public:
     void EmptyList() {
         BeginList();
         if (!CheckType()) {
-            FatalError(TStringBuilder() << "EmptyList: unknown item type");
+            FatalError(TYdbStringBuilder() << "EmptyList: unknown item type");
             return;
         }
         EndList();
@@ -2293,7 +2293,7 @@ public:
         PushPath(GetValue());
     }
 
-    void AddMember(const TString& memberName) {
+    void AddMember(const std::string& memberName) {
         CheckContainerKind(ETypeKind::Struct);
 
         PopPath();
@@ -2304,13 +2304,13 @@ public:
         } else {
             auto membersMap = StructsPathTop().MembersMap;
             if (!membersMap) {
-                FatalError(TStringBuilder() << "Missing struct members info.");
+                FatalError(TYdbStringBuilder() << "Missing struct members info.");
                 return;
             }
 
             auto memberIndex = MapFindPtr(*membersMap, memberName);
             if (!memberIndex) {
-                FatalError(TStringBuilder() << "Struct member not found: " << memberName);
+                FatalError(TYdbStringBuilder() << "Struct member not found: " << memberName);
                 return;
             }
 
@@ -2321,7 +2321,7 @@ public:
         }
     }
 
-    void AddMember(const TString& memberName, const TValue& memberValue) {
+    void AddMember(const std::string& memberName, const TValue& memberValue) {
         AddMember(memberName);
 
         if (!CheckType(memberValue.GetType())) {
@@ -2331,7 +2331,7 @@ public:
         SetProtoValue(memberValue);
     }
 
-    void AddMember(const TString& memberName, TValue&& memberValue) {
+    void AddMember(const std::string& memberName, TValue&& memberValue) {
         AddMember(memberName);
 
         if (!CheckType(memberValue.GetType())) {
@@ -2357,7 +2357,7 @@ public:
                 auto it = std::find_if(membersMap.begin(), membersMap.end(),
                     [index](const auto& pair) { return pair.second == index; });
 
-                FatalError(TStringBuilder() << "No value given for struct member: " << it->first);
+                FatalError(TYdbStringBuilder() << "No value given for struct member: " << it->first);
             }
 
             PopStructsPath();
@@ -2381,7 +2381,7 @@ public:
             auto index = GetValue().items_size();
             auto tuple_size = GetType(1).tuple_type().elements_size();
             if (index >= tuple_size) {
-                FatalError(TStringBuilder() << "Tuple elements count mismatch, expected: "
+                FatalError(TYdbStringBuilder() << "Tuple elements count mismatch, expected: "
                     << tuple_size << ", actual: " << index + 1);
                 return;
             }
@@ -2411,7 +2411,7 @@ public:
             auto expectedElements = GetType().tuple_type().elements_size();
             auto actualIElements = GetValue().items_size();
             if (expectedElements != actualIElements) {
-                FatalError(TStringBuilder() << "Tuple elements count mismatch, expected: " << expectedElements
+                FatalError(TYdbStringBuilder() << "Tuple elements count mismatch, expected: " << expectedElements
                     << ", actual: " << actualIElements);
             }
         }
@@ -2501,20 +2501,20 @@ public:
 
         TypeBuilder_.DictKey();
         if (!CheckType()) {
-            FatalError(TStringBuilder() << "EmptyDict: unknown key type");
+            FatalError(TYdbStringBuilder() << "EmptyDict: unknown key type");
             return;
         }
 
         TypeBuilder_.DictPayload();
         if (!CheckType()) {
-            FatalError(TStringBuilder() << "EmptyDict: unknown payload type");
+            FatalError(TYdbStringBuilder() << "EmptyDict: unknown payload type");
             return;
         }
 
         EndDict();
     }
 
-    void BeginTagged(const TString& tag) {
+    void BeginTagged(const std::string& tag) {
         SetBuildType(!CheckType(ETypeKind::Tagged));
         TypeBuilder_.BeginTagged(tag);
         PushPath(GetValue());
@@ -2585,7 +2585,7 @@ private:
 
         auto expectedKind = GetKind(GetType());
         if (expectedKind != kind) {
-            FatalError(TStringBuilder() << "Type mismatch, expected: " << expectedKind
+            FatalError(TYdbStringBuilder() << "Type mismatch, expected: " << expectedKind
                 << ", actual: " << kind);
             return false;
         }
@@ -2599,7 +2599,7 @@ private:
         }
 
         if (!TypesEqual(GetType(), type.GetProto())) {
-            FatalError(TStringBuilder() << "Type mismatch, expected: " << FormatType(GetType())
+            FatalError(TYdbStringBuilder() << "Type mismatch, expected: " << FormatType(GetType())
                 << ", actual: " << FormatType(type));
             return false;
         }
@@ -2614,7 +2614,7 @@ private:
 
         auto expectedType = EPrimitiveType(GetType().type_id());
         if (expectedType != type) {
-            FatalError(TStringBuilder() << "Primitive type mismatch, expected: " << expectedType
+            FatalError(TYdbStringBuilder() << "Primitive type mismatch, expected: " << expectedType
                 << ", actual: " << type);
             return false;
         }
@@ -2632,12 +2632,12 @@ private:
 
     void CheckContainerKind(ETypeKind kind) {
         if (Path_.size() < 2) {
-            FatalError(TStringBuilder() << "No opened container");
+            FatalError(TYdbStringBuilder() << "No opened container");
         }
 
         auto actualKind = GetKind(GetType(1));
         if (actualKind != kind) {
-            FatalError(TStringBuilder() << "Container type mismatch, expected: " << kind
+            FatalError(TYdbStringBuilder() << "Container type mismatch, expected: " << kind
                 << ", actual: " << actualKind);
         }
     }
@@ -2693,8 +2693,8 @@ private:
         return it->second;
     }
 
-    void FatalError(const TString& msg) const {
-        ThrowFatalError(TStringBuilder() << "TValueBuilder: " << msg);
+    void FatalError(const std::string& msg) const {
+        ThrowFatalError(TYdbStringBuilder() << "TValueBuilder: " << msg);
     }
 
 private:
@@ -2824,43 +2824,43 @@ TDerived& TValueBuilderBase<TDerived>::Interval(i64 value) {
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::TzDate(const TString& value) {
+TDerived& TValueBuilderBase<TDerived>::TzDate(const std::string& value) {
     Impl_->TzDate(value);
     return static_cast<TDerived&>(*this);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::TzDatetime(const TString& value) {
+TDerived& TValueBuilderBase<TDerived>::TzDatetime(const std::string& value) {
     Impl_->TzDatetime(value);
     return static_cast<TDerived&>(*this);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::TzTimestamp(const TString& value) {
+TDerived& TValueBuilderBase<TDerived>::TzTimestamp(const std::string& value) {
     Impl_->TzTimestamp(value);
     return static_cast<TDerived&>(*this);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::String(const TString& value) {
+TDerived& TValueBuilderBase<TDerived>::String(const std::string& value) {
     Impl_->String(value);
     return static_cast<TDerived&>(*this);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::Utf8(const TString& value) {
+TDerived& TValueBuilderBase<TDerived>::Utf8(const std::string& value) {
     Impl_->Utf8(value);
     return static_cast<TDerived&>(*this);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::Yson(const TString& value) {
+TDerived& TValueBuilderBase<TDerived>::Yson(const std::string& value) {
     Impl_->Yson(value);
     return static_cast<TDerived&>(*this);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::Json(const TString& value) {
+TDerived& TValueBuilderBase<TDerived>::Json(const std::string& value) {
     Impl_->Json(value);
     return static_cast<TDerived&>(*this);
 }
@@ -2872,13 +2872,13 @@ TDerived& TValueBuilderBase<TDerived>::Uuid(const TUuidValue& value) {
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::JsonDocument(const TString& value) {
+TDerived& TValueBuilderBase<TDerived>::JsonDocument(const std::string& value) {
     Impl_->JsonDocument(value);
     return static_cast<TDerived&>(*this);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::DyNumber(const TString& value) {
+TDerived& TValueBuilderBase<TDerived>::DyNumber(const std::string& value) {
     Impl_->DyNumber(value);
     return static_cast<TDerived&>(*this);
 }
@@ -2987,37 +2987,37 @@ TDerived& TValueBuilderBase<TDerived>::OptionalInterval(const TMaybe<i64>& value
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalTzDate(const TMaybe<TString>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalTzDate(const TMaybe<std::string>& value) {
     SET_OPT_VALUE_MAYBE(TzDate);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalTzDatetime(const TMaybe<TString>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalTzDatetime(const TMaybe<std::string>& value) {
     SET_OPT_VALUE_MAYBE(TzDatetime);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalTzTimestamp(const TMaybe<TString>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalTzTimestamp(const TMaybe<std::string>& value) {
     SET_OPT_VALUE_MAYBE(TzTimestamp);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalString(const TMaybe<TString>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalString(const TMaybe<std::string>& value) {
     SET_OPT_VALUE_MAYBE(String);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalUtf8(const TMaybe<TString>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalUtf8(const TMaybe<std::string>& value) {
     SET_OPT_VALUE_MAYBE(Utf8);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalYson(const TMaybe<TString>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalYson(const TMaybe<std::string>& value) {
     SET_OPT_VALUE_MAYBE(Yson);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalJson(const TMaybe<TString>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalJson(const TMaybe<std::string>& value) {
     SET_OPT_VALUE_MAYBE(Json);
 }
 
@@ -3027,12 +3027,12 @@ TDerived& TValueBuilderBase<TDerived>::OptionalUuid(const TMaybe<TUuidValue>& va
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalJsonDocument(const TMaybe<TString>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalJsonDocument(const TMaybe<std::string>& value) {
     SET_OPT_VALUE_MAYBE(JsonDocument);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalDyNumber(const TMaybe<TString>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalDyNumber(const TMaybe<std::string>& value) {
     SET_OPT_VALUE_MAYBE(DyNumber);
 }
 
@@ -3116,19 +3116,19 @@ TDerived& TValueBuilderBase<TDerived>::BeginStruct() {
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::AddMember(const TString& memberName) {
+TDerived& TValueBuilderBase<TDerived>::AddMember(const std::string& memberName) {
     Impl_->AddMember(memberName);
     return static_cast<TDerived&>(*this);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::AddMember(const TString& memberName, const TValue& memberValue) {
+TDerived& TValueBuilderBase<TDerived>::AddMember(const std::string& memberName, const TValue& memberValue) {
     Impl_->AddMember(memberName, memberValue);
     return static_cast<TDerived&>(*this);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::AddMember(const TString& memberName, TValue&& memberValue) {
+TDerived& TValueBuilderBase<TDerived>::AddMember(const std::string& memberName, TValue&& memberValue) {
     Impl_->AddMember(memberName, std::move(memberValue));
     return static_cast<TDerived&>(*this);
 }
@@ -3218,7 +3218,7 @@ TDerived& TValueBuilderBase<TDerived>::EmptyDict() {
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::BeginTagged(const TString& tag) {
+TDerived& TValueBuilderBase<TDerived>::BeginTagged(const std::string& tag) {
     Impl_->BeginTagged(tag);
     return static_cast<TDerived&>(*this);
 }

@@ -2,11 +2,11 @@
 
 namespace NYdb {
 
-TYdbException::TYdbException(const TString& reason) {
+TYdbException::TYdbException(const std::string& reason) {
     Append(reason);
 }
 
-TContractViolation::TContractViolation(const TString& reason)
+TContractViolation::TContractViolation(const std::string& reason)
     : TYdbException(reason) {}
 
 } // namespace NYdb

@@ -17,7 +17,7 @@ public:
         GetTicket();
     }
 
-    TStringType GetAuthInfo() const override {
+    std::string GetAuthInfo() const override {
         if (TInstant::Now() >= NextTicketUpdate_) {
             GetTicket();
         }
@@ -30,14 +30,14 @@ public:
 
 private:
     TSimpleHttpClient HttpClient_;
-    TStringType Request_;
-    mutable TStringType Ticket_;
+    std::string Request_;
+    mutable std::string Ticket_;
     mutable TInstant NextTicketUpdate_;
     TDuration RefreshPeriod_;
 
     void GetTicket() const {
         try {
-            TStringStream out;
+            std::stringStream out;
             TSimpleHttpClient::THeaders headers;
             headers["Metadata-Flavor"] = "Google";
             HttpClient_.DoGet(Request_, &out, headers);
@@ -48,7 +48,7 @@ private:
 
             if (auto it = respMap.find("access_token"); it == respMap.end())
                 ythrow yexception() << "Result doesn't contain access_token";
-            else if (TString ticket = it->second.GetStringSafe(); ticket.empty())
+            else if (std::string ticket = it->second.GetStringSafe(); ticket.empty())
                 ythrow yexception() << "Got empty ticket";
             else
                 Ticket_ = std::move(ticket);

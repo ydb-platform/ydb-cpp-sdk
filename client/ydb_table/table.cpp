@@ -64,7 +64,7 @@ const Ydb::Table::StorageSettings& TStorageSettings::GetProto() const {
     return Impl_->Proto_;
 }
 
-TMaybe<TString> TStorageSettings::GetTabletCommitLog0() const {
+TMaybe<std::string> TStorageSettings::GetTabletCommitLog0() const {
     if (GetProto().has_tablet_commit_log0()) {
         return GetProto().tablet_commit_log0().media();
     } else {
@@ -72,7 +72,7 @@ TMaybe<TString> TStorageSettings::GetTabletCommitLog0() const {
     }
 }
 
-TMaybe<TString> TStorageSettings::GetTabletCommitLog1() const {
+TMaybe<std::string> TStorageSettings::GetTabletCommitLog1() const {
     if (GetProto().has_tablet_commit_log1()) {
         return GetProto().tablet_commit_log1().media();
     } else {
@@ -80,7 +80,7 @@ TMaybe<TString> TStorageSettings::GetTabletCommitLog1() const {
     }
 }
 
-TMaybe<TString> TStorageSettings::GetExternal() const {
+TMaybe<std::string> TStorageSettings::GetExternal() const {
     if (GetProto().has_external()) {
         return GetProto().external().media();
     } else {
@@ -119,11 +119,11 @@ const Ydb::Table::ColumnFamily& TColumnFamilyDescription::GetProto() const {
     return Impl_->Proto_;
 }
 
-const TString& TColumnFamilyDescription::GetName() const {
+const std::string& TColumnFamilyDescription::GetName() const {
     return GetProto().name();
 }
 
-TMaybe<TString> TColumnFamilyDescription::GetData() const {
+TMaybe<std::string> TColumnFamilyDescription::GetData() const {
     if (GetProto().has_data()) {
         return GetProto().data().media();
     } else {
@@ -436,23 +436,23 @@ public:
         return Proto_;
     }
 
-    void AddColumn(const TString& name, const Ydb::Type& type, const TString& family, std::optional<bool> notNull) {
+    void AddColumn(const std::string& name, const Ydb::Type& type, const std::string& family, std::optional<bool> notNull) {
         Columns_.emplace_back(name, type, family, notNull);
     }
 
-    void SetPrimaryKeyColumns(const std::vector<TString>& primaryKeyColumns) {
+    void SetPrimaryKeyColumns(const std::vector<std::string>& primaryKeyColumns) {
         PrimaryKey_ = primaryKeyColumns;
     }
 
-    void AddSecondaryIndex(const TString& indexName, EIndexType type, const std::vector<TString>& indexColumns) {
+    void AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns) {
         Indexes_.emplace_back(TIndexDescription(indexName, type, indexColumns));
     }
 
-    void AddSecondaryIndex(const TString& indexName, EIndexType type, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns) {
+    void AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns) {
         Indexes_.emplace_back(TIndexDescription(indexName, type, indexColumns, dataColumns));
     }
 
-    void AddChangefeed(const TString& name, EChangefeedMode mode, EChangefeedFormat format) {
+    void AddChangefeed(const std::string& name, EChangefeedMode mode, EChangefeedFormat format) {
         Changefeeds_.emplace_back(name, mode, format);
     }
 
@@ -473,19 +473,19 @@ public:
         ColumnFamilies_.emplace_back(desc);
     }
 
-    void AddAttribute(const TString& key, const TString& value) {
+    void AddAttribute(const std::string& key, const std::string& value) {
         Attributes_[key] = value;
     }
 
-    void SetAttributes(const THashMap<TString, TString>& attrs) {
+    void SetAttributes(const THashMap<std::string, std::string>& attrs) {
         Attributes_ = attrs;
     }
 
-    void SetAttributes(THashMap<TString, TString>&& attrs) {
+    void SetAttributes(THashMap<std::string, std::string>&& attrs) {
         Attributes_ = std::move(attrs);
     }
 
-    void SetCompactionPolicy(const TString& name) {
+    void SetCompactionPolicy(const std::string& name) {
         CompactionPolicy_ = name;
     }
 
@@ -514,7 +514,7 @@ public:
         StoreType_ = type;
     }
 
-    const std::vector<TString>& GetPrimaryKeyColumns() const {
+    const std::vector<std::string>& GetPrimaryKeyColumns() const {
         return PrimaryKey_;
     }
 
@@ -534,7 +534,7 @@ public:
         return TtlSettings_;
     }
 
-    const TMaybe<TString>& GetTiering() const {
+    const TMaybe<std::string>& GetTiering() const {
         return Tiering_;
     }
 
@@ -542,7 +542,7 @@ public:
         return StoreType_;
     }
 
-    const TString& GetOwner() const {
+    const std::string& GetOwner() const {
         return Owner_;
     }
 
@@ -578,11 +578,11 @@ public:
         return ColumnFamilies_;
     }
 
-    const THashMap<TString, TString>& GetAttributes() const {
+    const THashMap<std::string, std::string>& GetAttributes() const {
         return Attributes_;
     }
 
-    const TString& GetCompactionPolicy() const {
+    const std::string& GetCompactionPolicy() const {
         return CompactionPolicy_;
     }
 
@@ -613,21 +613,21 @@ public:
 private:
     Ydb::Table::DescribeTableResult Proto_;
     TStorageSettings StorageSettings_;
-    std::vector<TString> PrimaryKey_;
+    std::vector<std::string> PrimaryKey_;
     std::vector<TTableColumn> Columns_;
     std::vector<TIndexDescription> Indexes_;
     std::vector<TChangefeedDescription> Changefeeds_;
     TMaybe<TTtlSettings> TtlSettings_;
-    TMaybe<TString> Tiering_;
-    TString Owner_;
+    TMaybe<std::string> Tiering_;
+    std::string Owner_;
     std::vector<NScheme::TPermissions> Permissions_;
     std::vector<NScheme::TPermissions> EffectivePermissions_;
     std::vector<TKeyRange> Ranges_;
     std::vector<TPartitionStats> PartitionStats_;
     TTableStats TableStats;
     std::vector<TColumnFamilyDescription> ColumnFamilies_;
-    THashMap<TString, TString> Attributes_;
-    TString CompactionPolicy_;
+    THashMap<std::string, std::string> Attributes_;
+    std::string CompactionPolicy_;
     TMaybe<ui64> UniformPartitions_;
     TMaybe<TExplicitPartitions> PartitionAtKeys_;
     TPartitioningSettings PartitioningSettings_;
@@ -654,7 +654,7 @@ TTableDescription::TTableDescription(const Ydb::Table::CreateTableRequest& reque
 {
 }
 
-const std::vector<TString>& TTableDescription::GetPrimaryKeyColumns() const {
+const std::vector<std::string>& TTableDescription::GetPrimaryKeyColumns() const {
     return Impl_->GetPrimaryKeyColumns();
 }
 
@@ -685,7 +685,7 @@ TMaybe<TTtlSettings> TTableDescription::GetTtlSettings() const {
     return Impl_->GetTtlSettings();
 }
 
-TMaybe<TString> TTableDescription::GetTiering() const {
+TMaybe<std::string> TTableDescription::GetTiering() const {
     return Impl_->GetTiering();
 }
 
@@ -693,7 +693,7 @@ EStoreType TTableDescription::GetStoreType() const {
     return Impl_->GetStoreType();
 }
 
-const TString& TTableDescription::GetOwner() const {
+const std::string& TTableDescription::GetOwner() const {
     return Impl_->GetOwner();
 }
 
@@ -709,51 +709,51 @@ const std::vector<TKeyRange>& TTableDescription::GetKeyRanges() const {
     return Impl_->GetKeyRanges();
 }
 
-void TTableDescription::AddColumn(const TString& name, const Ydb::Type& type, const TString& family, std::optional<bool> notNull) {
+void TTableDescription::AddColumn(const std::string& name, const Ydb::Type& type, const std::string& family, std::optional<bool> notNull) {
     Impl_->AddColumn(name, type, family, notNull);
 }
 
-void TTableDescription::SetPrimaryKeyColumns(const std::vector<TString>& primaryKeyColumns) {
+void TTableDescription::SetPrimaryKeyColumns(const std::vector<std::string>& primaryKeyColumns) {
     Impl_->SetPrimaryKeyColumns(primaryKeyColumns);
 }
 
-void TTableDescription::AddSecondaryIndex(const TString& indexName, EIndexType type, const std::vector<TString>& indexColumns) {
+void TTableDescription::AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns) {
     Impl_->AddSecondaryIndex(indexName, type, indexColumns);
 }
 
-void TTableDescription::AddSecondaryIndex(const TString& indexName, EIndexType type, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns) {
+void TTableDescription::AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns) {
     Impl_->AddSecondaryIndex(indexName, type, indexColumns, dataColumns);
 }
 
-void TTableDescription::AddSyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns) {
+void TTableDescription::AddSyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns) {
     AddSecondaryIndex(indexName, EIndexType::GlobalSync, indexColumns);
 }
 
-void TTableDescription::AddSyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns) {
+void TTableDescription::AddSyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns) {
     AddSecondaryIndex(indexName, EIndexType::GlobalSync, indexColumns, dataColumns);
 }
 
-void TTableDescription::AddAsyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns) {
+void TTableDescription::AddAsyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns) {
     AddSecondaryIndex(indexName, EIndexType::GlobalAsync, indexColumns);
 }
 
-void TTableDescription::AddAsyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns) {
+void TTableDescription::AddAsyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns) {
     AddSecondaryIndex(indexName, EIndexType::GlobalAsync, indexColumns, dataColumns);
 }
 
-void TTableDescription::AddUniqueSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns) {
+void TTableDescription::AddUniqueSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns) {
     AddSecondaryIndex(indexName, EIndexType::GlobalUnique, indexColumns);
 }
 
-void TTableDescription::AddUniqueSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns) {
+void TTableDescription::AddUniqueSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns) {
     AddSecondaryIndex(indexName, EIndexType::GlobalUnique, indexColumns, dataColumns);
 }
 
-void TTableDescription::AddSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns) {
+void TTableDescription::AddSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns) {
     AddSyncSecondaryIndex(indexName, indexColumns);
 }
 
-void TTableDescription::AddSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns) {
+void TTableDescription::AddSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns) {
     AddSyncSecondaryIndex(indexName, indexColumns, dataColumns);
 }
 
@@ -773,19 +773,19 @@ void TTableDescription::AddColumnFamily(const TColumnFamilyDescription& desc) {
     Impl_->AddColumnFamily(desc);
 }
 
-void TTableDescription::AddAttribute(const TString& key, const TString& value) {
+void TTableDescription::AddAttribute(const std::string& key, const std::string& value) {
     Impl_->AddAttribute(key, value);
 }
 
-void TTableDescription::SetAttributes(const THashMap<TString, TString>& attrs) {
+void TTableDescription::SetAttributes(const THashMap<std::string, std::string>& attrs) {
     Impl_->SetAttributes(attrs);
 }
 
-void TTableDescription::SetAttributes(THashMap<TString, TString>&& attrs) {
+void TTableDescription::SetAttributes(THashMap<std::string, std::string>&& attrs) {
     Impl_->SetAttributes(std::move(attrs));
 }
 
-void TTableDescription::SetCompactionPolicy(const TString& name) {
+void TTableDescription::SetCompactionPolicy(const std::string& name) {
     Impl_->SetCompactionPolicy(name);
 }
 
@@ -845,7 +845,7 @@ const std::vector<TColumnFamilyDescription>& TTableDescription::GetColumnFamilie
     return Impl_->GetColumnFamilies();
 }
 
-const THashMap<TString, TString>& TTableDescription::GetAttributes() const {
+const THashMap<std::string, std::string>& TTableDescription::GetAttributes() const {
     return Impl_->GetAttributes();
 }
 
@@ -967,17 +967,17 @@ TStorageSettingsBuilder::TStorageSettingsBuilder()
 
 TStorageSettingsBuilder::~TStorageSettingsBuilder() { }
 
-TStorageSettingsBuilder& TStorageSettingsBuilder::SetTabletCommitLog0(const TString& media) {
+TStorageSettingsBuilder& TStorageSettingsBuilder::SetTabletCommitLog0(const std::string& media) {
     Impl_->Proto.mutable_tablet_commit_log0()->set_media(media);
     return *this;
 }
 
-TStorageSettingsBuilder& TStorageSettingsBuilder::SetTabletCommitLog1(const TString& media) {
+TStorageSettingsBuilder& TStorageSettingsBuilder::SetTabletCommitLog1(const std::string& media) {
     Impl_->Proto.mutable_tablet_commit_log1()->set_media(media);
     return *this;
 }
 
-TStorageSettingsBuilder& TStorageSettingsBuilder::SetExternal(const TString& media) {
+TStorageSettingsBuilder& TStorageSettingsBuilder::SetExternal(const std::string& media) {
     Impl_->Proto.mutable_external()->set_media(media);
     return *this;
 }
@@ -1043,7 +1043,7 @@ public:
     Ydb::Table::ColumnFamily Proto;
 };
 
-TColumnFamilyBuilder::TColumnFamilyBuilder(const TString& name)
+TColumnFamilyBuilder::TColumnFamilyBuilder(const std::string& name)
     : Impl_(new TImpl)
 {
     Impl_->Proto.set_name(name);
@@ -1051,7 +1051,7 @@ TColumnFamilyBuilder::TColumnFamilyBuilder(const TString& name)
 
 TColumnFamilyBuilder::~TColumnFamilyBuilder() { }
 
-TColumnFamilyBuilder& TColumnFamilyBuilder::SetData(const TString& media) {
+TColumnFamilyBuilder& TColumnFamilyBuilder::SetData(const std::string& media) {
     Impl_->Proto.mutable_data()->set_media(media);
     return *this;
 }
@@ -1079,7 +1079,7 @@ TTableBuilder& TTableBuilder::SetStoreType(EStoreType type) {
     return *this;
 }
 
-TTableBuilder& TTableBuilder::AddNullableColumn(const TString& name, const EPrimitiveType& type, const TString& family) {
+TTableBuilder& TTableBuilder::AddNullableColumn(const std::string& name, const EPrimitiveType& type, const std::string& family) {
     auto columnType = TTypeBuilder()
         .BeginOptional()
             .Primitive(type)
@@ -1090,7 +1090,7 @@ TTableBuilder& TTableBuilder::AddNullableColumn(const TString& name, const EPrim
     return *this;
 }
 
-TTableBuilder& TTableBuilder::AddNullableColumn(const TString& name, const TDecimalType& type, const TString& family) {
+TTableBuilder& TTableBuilder::AddNullableColumn(const std::string& name, const TDecimalType& type, const std::string& family) {
     auto columnType = TTypeBuilder()
         .BeginOptional()
             .Decimal(type)
@@ -1100,7 +1100,7 @@ TTableBuilder& TTableBuilder::AddNullableColumn(const TString& name, const TDeci
     return *this;
 }
 
-TTableBuilder& TTableBuilder::AddNullableColumn(const TString& name, const TPgType& type, const TString& family) {
+TTableBuilder& TTableBuilder::AddNullableColumn(const std::string& name, const TPgType& type, const std::string& family) {
     auto columnType = TTypeBuilder()
         .Pg(type)
         .Build();
@@ -1109,7 +1109,7 @@ TTableBuilder& TTableBuilder::AddNullableColumn(const TString& name, const TPgTy
     return *this;
 }
 
-TTableBuilder& TTableBuilder::AddNonNullableColumn(const TString& name, const EPrimitiveType& type, const TString& family) {
+TTableBuilder& TTableBuilder::AddNonNullableColumn(const std::string& name, const EPrimitiveType& type, const std::string& family) {
     auto columnType = TTypeBuilder()
         .Primitive(type)
         .Build();
@@ -1118,7 +1118,7 @@ TTableBuilder& TTableBuilder::AddNonNullableColumn(const TString& name, const EP
     return *this;
 }
 
-TTableBuilder& TTableBuilder::AddNonNullableColumn(const TString& name, const TDecimalType& type, const TString& family) {
+TTableBuilder& TTableBuilder::AddNonNullableColumn(const std::string& name, const TDecimalType& type, const std::string& family) {
     auto columnType = TTypeBuilder()
         .Decimal(type)
         .Build();
@@ -1127,7 +1127,7 @@ TTableBuilder& TTableBuilder::AddNonNullableColumn(const TString& name, const TD
     return *this;
 }
 
-TTableBuilder& TTableBuilder::AddNonNullableColumn(const TString& name, const TPgType& type, const TString& family) {
+TTableBuilder& TTableBuilder::AddNonNullableColumn(const std::string& name, const TPgType& type, const std::string& family) {
     auto columnType = TTypeBuilder()
         .Pg(type)
         .Build();
@@ -1136,72 +1136,72 @@ TTableBuilder& TTableBuilder::AddNonNullableColumn(const TString& name, const TP
     return *this;
 }
 
-TTableBuilder& TTableBuilder::SetPrimaryKeyColumns(const std::vector<TString>& primaryKeyColumns) {
+TTableBuilder& TTableBuilder::SetPrimaryKeyColumns(const std::vector<std::string>& primaryKeyColumns) {
     TableDescription_.SetPrimaryKeyColumns(primaryKeyColumns);
     return *this;
 }
 
-TTableBuilder& TTableBuilder::SetPrimaryKeyColumn(const TString& primaryKeyColumn) {
-    TableDescription_.SetPrimaryKeyColumns(std::vector<TString>{primaryKeyColumn});
+TTableBuilder& TTableBuilder::SetPrimaryKeyColumn(const std::string& primaryKeyColumn) {
+    TableDescription_.SetPrimaryKeyColumns(std::vector<std::string>{primaryKeyColumn});
     return *this;
 }
 
-TTableBuilder& TTableBuilder::AddSecondaryIndex(const TString& indexName, EIndexType type, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns) {
+TTableBuilder& TTableBuilder::AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns) {
     TableDescription_.AddSecondaryIndex(indexName, type, indexColumns, dataColumns);
     return *this;
 }
 
-TTableBuilder& TTableBuilder::AddSecondaryIndex(const TString& indexName, EIndexType type, const std::vector<TString>& indexColumns) {
+TTableBuilder& TTableBuilder::AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns) {
     TableDescription_.AddSecondaryIndex(indexName, type, indexColumns);
     return *this;
 }
 
-TTableBuilder& TTableBuilder::AddSecondaryIndex(const TString& indexName, EIndexType type, const TString& indexColumn) {
-    TableDescription_.AddSecondaryIndex(indexName, type, std::vector<TString>{indexColumn});
+TTableBuilder& TTableBuilder::AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::string& indexColumn) {
+    TableDescription_.AddSecondaryIndex(indexName, type, std::vector<std::string>{indexColumn});
     return *this;
 }
 
-TTableBuilder& TTableBuilder::AddSyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns) {
+TTableBuilder& TTableBuilder::AddSyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns) {
     return AddSecondaryIndex(indexName, EIndexType::GlobalSync, indexColumns, dataColumns);
 }
 
-TTableBuilder& TTableBuilder::AddSyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns) {
+TTableBuilder& TTableBuilder::AddSyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns) {
     return AddSecondaryIndex(indexName, EIndexType::GlobalSync, indexColumns);
 }
 
-TTableBuilder& TTableBuilder::AddSyncSecondaryIndex(const TString& indexName, const TString& indexColumn) {
+TTableBuilder& TTableBuilder::AddSyncSecondaryIndex(const std::string& indexName, const std::string& indexColumn) {
     return AddSecondaryIndex(indexName, EIndexType::GlobalSync, indexColumn);
 }
 
-TTableBuilder& TTableBuilder::AddAsyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns) {
+TTableBuilder& TTableBuilder::AddAsyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns) {
     return AddSecondaryIndex(indexName, EIndexType::GlobalAsync, indexColumns, dataColumns);
 }
 
-TTableBuilder& TTableBuilder::AddAsyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns) {
+TTableBuilder& TTableBuilder::AddAsyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns) {
     return AddSecondaryIndex(indexName, EIndexType::GlobalAsync, indexColumns);
 }
 
-TTableBuilder& TTableBuilder::AddAsyncSecondaryIndex(const TString& indexName, const TString& indexColumn) {
+TTableBuilder& TTableBuilder::AddAsyncSecondaryIndex(const std::string& indexName, const std::string& indexColumn) {
     return AddSecondaryIndex(indexName, EIndexType::GlobalAsync, indexColumn);
 }
 
-TTableBuilder& TTableBuilder::AddSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns) {
+TTableBuilder& TTableBuilder::AddSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns) {
     return AddSyncSecondaryIndex(indexName, indexColumns, dataColumns);
 }
 
-TTableBuilder& TTableBuilder::AddSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns) {
+TTableBuilder& TTableBuilder::AddSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns) {
     return AddSyncSecondaryIndex(indexName, indexColumns);
 }
 
-TTableBuilder& TTableBuilder::AddUniqueSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns) {
+TTableBuilder& TTableBuilder::AddUniqueSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns) {
     return AddSecondaryIndex(indexName, EIndexType::GlobalUnique, indexColumns, dataColumns);
 }
 
-TTableBuilder& TTableBuilder::AddUniqueSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns) {
+TTableBuilder& TTableBuilder::AddUniqueSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns) {
     return AddSecondaryIndex(indexName, EIndexType::GlobalUnique, indexColumns);
 }
 
-TTableBuilder& TTableBuilder::AddSecondaryIndex(const TString& indexName, const TString& indexColumn) {
+TTableBuilder& TTableBuilder::AddSecondaryIndex(const std::string& indexName, const std::string& indexColumn) {
     return AddSyncSecondaryIndex(indexName, indexColumn);
 }
 
@@ -1215,11 +1215,11 @@ TTableBuilder& TTableBuilder::SetTtlSettings(const TTtlSettings& settings) {
     return *this;
 }
 
-TTableBuilder& TTableBuilder::SetTtlSettings(const TString& columnName, const TDuration& expireAfter) {
+TTableBuilder& TTableBuilder::SetTtlSettings(const std::string& columnName, const TDuration& expireAfter) {
     return SetTtlSettings(TTtlSettings(columnName, expireAfter));
 }
 
-TTableBuilder& TTableBuilder::SetTtlSettings(const TString& columnName, EUnit columnUnit, const TDuration& expireAfter) {
+TTableBuilder& TTableBuilder::SetTtlSettings(const std::string& columnName, EUnit columnUnit, const TDuration& expireAfter) {
     return SetTtlSettings(TTtlSettings(columnName, columnUnit, expireAfter));
 }
 
@@ -1233,22 +1233,22 @@ TTableBuilder& TTableBuilder::AddColumnFamily(const TColumnFamilyDescription& de
     return *this;
 }
 
-TTableBuilder& TTableBuilder::AddAttribute(const TString& key, const TString& value) {
+TTableBuilder& TTableBuilder::AddAttribute(const std::string& key, const std::string& value) {
     TableDescription_.AddAttribute(key, value);
     return *this;
 }
 
-TTableBuilder& TTableBuilder::SetAttributes(const THashMap<TString, TString>& attrs) {
+TTableBuilder& TTableBuilder::SetAttributes(const THashMap<std::string, std::string>& attrs) {
     TableDescription_.SetAttributes(attrs);
     return *this;
 }
 
-TTableBuilder& TTableBuilder::SetAttributes(THashMap<TString, TString>&& attrs) {
+TTableBuilder& TTableBuilder::SetAttributes(THashMap<std::string, std::string>&& attrs) {
     TableDescription_.SetAttributes(std::move(attrs));
     return *this;
 }
 
-TTableBuilder& TTableBuilder::SetCompactionPolicy(const TString& name) {
+TTableBuilder& TTableBuilder::SetCompactionPolicy(const std::string& name) {
     TableDescription_.SetCompactionPolicy(name);
     return *this;
 }
@@ -1419,31 +1419,31 @@ NThreading::TFuture<void> TTableClient::Stop() {
     return Impl_->Stop();
 }
 
-TAsyncBulkUpsertResult TTableClient::BulkUpsert(const TString& table, TValue&& rows,
+TAsyncBulkUpsertResult TTableClient::BulkUpsert(const std::string& table, TValue&& rows,
     const TBulkUpsertSettings& settings)
 {
     return Impl_->BulkUpsert(table, std::move(rows), settings);
 }
 
-TAsyncBulkUpsertResult TTableClient::BulkUpsert(const TString& table, EDataFormat format,
-        const TString& data, const TString& schema, const TBulkUpsertSettings& settings)
+TAsyncBulkUpsertResult TTableClient::BulkUpsert(const std::string& table, EDataFormat format,
+        const std::string& data, const std::string& schema, const TBulkUpsertSettings& settings)
 {
     return Impl_->BulkUpsert(table, format, data, schema, settings);
 }
 
-TAsyncReadRowsResult TTableClient::ReadRows(const TString& table, TValue&& rows, const std::vector<TString>& columns,
+TAsyncReadRowsResult TTableClient::ReadRows(const std::string& table, TValue&& rows, const std::vector<std::string>& columns,
     const TReadRowsSettings& settings)
 {
     return Impl_->ReadRows(table, std::move(rows), columns, settings);
 }
 
-TAsyncScanQueryPartIterator TTableClient::StreamExecuteScanQuery(const TString& query, const TParams& params,
+TAsyncScanQueryPartIterator TTableClient::StreamExecuteScanQuery(const std::string& query, const TParams& params,
     const TStreamExecScanQuerySettings& settings)
 {
     return Impl_->StreamExecuteScanQuery(query, &params.GetProtoMap(), settings);
 }
 
-TAsyncScanQueryPartIterator TTableClient::StreamExecuteScanQuery(const TString& query,
+TAsyncScanQueryPartIterator TTableClient::StreamExecuteScanQuery(const std::string& query,
     const TStreamExecScanQuerySettings& settings)
 {
     return Impl_->StreamExecuteScanQuery(query, nullptr, settings);
@@ -1550,7 +1550,7 @@ static void ConvertCreateTableSettingsToProto(const TCreateTableSettings& settin
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TSession::TSession(std::shared_ptr<TTableClient::TImpl> client, const TString& sessionId, const TString& endpointId, bool isOwnedBySessionPool)
+TSession::TSession(std::shared_ptr<TTableClient::TImpl> client, const std::string& sessionId, const std::string& endpointId, bool isOwnedBySessionPool)
     : Client_(client)
     , SessionImpl_(new TSession::TImpl(
             sessionId,
@@ -1570,7 +1570,7 @@ TSession::TSession(std::shared_ptr<TTableClient::TImpl> client, std::shared_ptr<
     , SessionImpl_(sessionid)
 {}
 
-TFuture<TStatus> TSession::CreateTable(const TString& path, TTableDescription&& tableDesc,
+TFuture<TStatus> TSession::CreateTable(const std::string& path, TTableDescription&& tableDesc,
         const TCreateTableSettings& settings)
 {
     auto request = MakeOperationRequest<Ydb::Table::CreateTableRequest>(settings);
@@ -1588,7 +1588,7 @@ TFuture<TStatus> TSession::CreateTable(const TString& path, TTableDescription&& 
         GetMinTimeToTouch(Client_->Settings_.SessionPoolSettings_));
 }
 
-TFuture<TStatus> TSession::DropTable(const TString& path, const TDropTableSettings& settings) {
+TFuture<TStatus> TSession::DropTable(const std::string& path, const TDropTableSettings& settings) {
     return InjectSessionStatusInterception(
         SessionImpl_,
         Client_->DropTable(SessionImpl_->GetId(), path, settings),
@@ -1597,7 +1597,7 @@ TFuture<TStatus> TSession::DropTable(const TString& path, const TDropTableSettin
 }
 
 static Ydb::Table::AlterTableRequest MakeAlterTableProtoRequest(
-    const TString& path, const TAlterTableSettings& settings, const TString& sessionId)
+    const std::string& path, const TAlterTableSettings& settings, const std::string& sessionId)
 {
     auto request = MakeOperationRequest<Ydb::Table::AlterTableRequest>(settings);
     request.set_session_id(sessionId);
@@ -1699,7 +1699,7 @@ static Ydb::Table::AlterTableRequest MakeAlterTableProtoRequest(
     return request;
 }
 
-TAsyncStatus TSession::AlterTable(const TString& path, const TAlterTableSettings& settings) {
+TAsyncStatus TSession::AlterTable(const std::string& path, const TAlterTableSettings& settings) {
     auto request = MakeAlterTableProtoRequest(path, settings, SessionImpl_->GetId());
 
     return InjectSessionStatusInterception(
@@ -1709,7 +1709,7 @@ TAsyncStatus TSession::AlterTable(const TString& path, const TAlterTableSettings
         GetMinTimeToTouch(Client_->Settings_.SessionPoolSettings_));
 }
 
-TAsyncOperation TSession::AlterTableLong(const TString& path, const TAlterTableSettings& settings) {
+TAsyncOperation TSession::AlterTableLong(const std::string& path, const TAlterTableSettings& settings) {
     auto request = MakeAlterTableProtoRequest(path, settings, SessionImpl_->GetId());
 
     return InjectSessionStatusInterception(
@@ -1755,7 +1755,7 @@ TAsyncStatus TSession::CopyTables(const std::vector<TCopyItem>& copyItems, const
         GetMinTimeToTouch(Client_->Settings_.SessionPoolSettings_));
 }
 
-TFuture<TStatus> TSession::CopyTable(const TString& src, const TString& dst, const TCopyTableSettings& settings) {
+TFuture<TStatus> TSession::CopyTable(const std::string& src, const std::string& dst, const TCopyTableSettings& settings) {
     return InjectSessionStatusInterception(
         SessionImpl_,
         Client_->CopyTable(SessionImpl_->GetId(), src, dst, settings),
@@ -1763,24 +1763,24 @@ TFuture<TStatus> TSession::CopyTable(const TString& src, const TString& dst, con
         GetMinTimeToTouch(Client_->Settings_.SessionPoolSettings_));
 }
 
-TAsyncDescribeTableResult TSession::DescribeTable(const TString& path, const TDescribeTableSettings& settings) {
+TAsyncDescribeTableResult TSession::DescribeTable(const std::string& path, const TDescribeTableSettings& settings) {
     return Client_->DescribeTable(SessionImpl_->GetId(), path, settings);
 }
 
-TAsyncDataQueryResult TSession::ExecuteDataQuery(const TString& query, const TTxControl& txControl,
+TAsyncDataQueryResult TSession::ExecuteDataQuery(const std::string& query, const TTxControl& txControl,
     const TExecDataQuerySettings& settings)
 {
     return Client_->ExecuteDataQuery(*this, query, txControl, nullptr, settings);
 }
 
-TAsyncDataQueryResult TSession::ExecuteDataQuery(const TString& query, const TTxControl& txControl,
+TAsyncDataQueryResult TSession::ExecuteDataQuery(const std::string& query, const TTxControl& txControl,
     TParams&& params, const TExecDataQuerySettings& settings)
 {
     auto paramsPtr = params.Empty() ? nullptr : params.GetProtoMapPtr();
     return Client_->ExecuteDataQuery(*this, query, txControl, paramsPtr, settings);
 }
 
-TAsyncDataQueryResult TSession::ExecuteDataQuery(const TString& query, const TTxControl& txControl,
+TAsyncDataQueryResult TSession::ExecuteDataQuery(const std::string& query, const TTxControl& txControl,
     const TParams& params, const TExecDataQuerySettings& settings)
 {
     if (params.Empty()) {
@@ -1791,7 +1791,7 @@ TAsyncDataQueryResult TSession::ExecuteDataQuery(const TString& query, const TTx
             nullptr,
             settings);
     } else {
-        using TProtoParamsType = const ::google::protobuf::Map<TString, Ydb::TypedValue>;
+        using TProtoParamsType = const ::google::protobuf::Map<std::string, Ydb::TypedValue>;
         return Client_->ExecuteDataQuery<TProtoParamsType&>(
             *this,
             query,
@@ -1801,7 +1801,7 @@ TAsyncDataQueryResult TSession::ExecuteDataQuery(const TString& query, const TTx
     }
 }
 
-TAsyncPrepareQueryResult TSession::PrepareDataQuery(const TString& query, const TPrepareDataQuerySettings& settings) {
+TAsyncPrepareQueryResult TSession::PrepareDataQuery(const std::string& query, const TPrepareDataQuerySettings& settings) {
     auto maybeQuery = SessionImpl_->GetQueryFromCache(query, Client_->Settings_.AllowRequestMigration_);
     if (maybeQuery) {
         TStatus status(EStatus::SUCCESS, NYql::TIssues());
@@ -1819,7 +1819,7 @@ TAsyncPrepareQueryResult TSession::PrepareDataQuery(const TString& query, const 
         GetMinTimeToTouch(Client_->Settings_.SessionPoolSettings_));
 }
 
-TAsyncStatus TSession::ExecuteSchemeQuery(const TString& query, const TExecSchemeQuerySettings& settings) {
+TAsyncStatus TSession::ExecuteSchemeQuery(const std::string& query, const TExecSchemeQuerySettings& settings) {
     return InjectSessionStatusInterception(
         SessionImpl_,
         Client_->ExecuteSchemeQuery(SessionImpl_->GetId(), query, settings),
@@ -1837,7 +1837,7 @@ TAsyncBeginTransactionResult TSession::BeginTransaction(const TTxSettings& txSet
         GetMinTimeToTouch(Client_->Settings_.SessionPoolSettings_));
 }
 
-TAsyncExplainDataQueryResult TSession::ExplainDataQuery(const TString& query,
+TAsyncExplainDataQueryResult TSession::ExplainDataQuery(const std::string& query,
     const TExplainDataQuerySettings& settings)
 {
     return InjectSessionStatusInterception(
@@ -1847,7 +1847,7 @@ TAsyncExplainDataQueryResult TSession::ExplainDataQuery(const TString& query,
         GetMinTimeToTouch(Client_->Settings_.SessionPoolSettings_));
 }
 
-TAsyncTablePartIterator TSession::ReadTable(const TString& path,
+TAsyncTablePartIterator TSession::ReadTable(const std::string& path,
     const TReadTableSettings& settings)
 {
     auto promise = NThreading::NewPromise<TTablePartIterator>();
@@ -1895,7 +1895,7 @@ TTypeBuilder TSession::GetTypeBuilder() {
     return TTypeBuilder();
 }
 
-const TString& TSession::GetId() const {
+const std::string& TSession::GetId() const {
     return SessionImpl_->GetId();
 }
 
@@ -1911,7 +1911,7 @@ TTxControl::TTxControl(const TTxSettings& begin)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TTransaction::TTransaction(const TSession& session, const TString& txId)
+TTransaction::TTransaction(const TSession& session, const std::string& txId)
     : Session_(session)
     , TxId_(txId)
 {}
@@ -1926,22 +1926,22 @@ TAsyncStatus TTransaction::Rollback(const TRollbackTxSettings& settings) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TDataQuery::TDataQuery(const TSession& session, const TString& text, const TString& id)
+TDataQuery::TDataQuery(const TSession& session, const std::string& text, const std::string& id)
     : Impl_(new TImpl(session, text, session.Client_->Settings_.KeepDataQueryText_, id,
                       session.Client_->Settings_.AllowRequestMigration_))
 {}
 
-TDataQuery::TDataQuery(const TSession& session, const TString& text, const TString& id,
-    const ::google::protobuf::Map<TString, Ydb::Type>& types)
+TDataQuery::TDataQuery(const TSession& session, const std::string& text, const std::string& id,
+    const ::google::protobuf::Map<std::string, Ydb::Type>& types)
     : Impl_(new TImpl(session, text, session.Client_->Settings_.KeepDataQueryText_, id,
                       session.Client_->Settings_.AllowRequestMigration_, types))
 {}
 
-const TString& TDataQuery::GetId() const {
+const std::string& TDataQuery::GetId() const {
     return Impl_->GetId();
 }
 
-const TMaybe<TString>& TDataQuery::GetText() const {
+const TMaybe<std::string>& TDataQuery::GetText() const {
     return Impl_->GetText();
 }
 
@@ -1980,7 +1980,7 @@ TAsyncDataQueryResult TDataQuery::Execute(const TTxControl& txControl, const TPa
             settings,
             false);
     } else {
-        using TProtoParamsType = const ::google::protobuf::Map<TString, Ydb::TypedValue>;
+        using TProtoParamsType = const ::google::protobuf::Map<std::string, Ydb::TypedValue>;
         return Impl_->Session_.Client_->ExecuteDataQuery<TProtoParamsType&>(
             Impl_->Session_,
             *this,
@@ -2034,24 +2034,24 @@ bool TPrepareQueryResult::IsQueryFromCache() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TExplainQueryResult::TExplainQueryResult(TStatus&& status, TString&& plan, TString&& ast, TString&& diagnostics)
+TExplainQueryResult::TExplainQueryResult(TStatus&& status, std::string&& plan, std::string&& ast, std::string&& diagnostics)
     : TStatus(std::move(status))
     , Plan_(std::move(plan))
     , Ast_(std::move(ast))
     , Diagnostics_(std::move(diagnostics))
 {}
 
-const TString& TExplainQueryResult::GetPlan() const {
+const std::string& TExplainQueryResult::GetPlan() const {
     CheckStatusOk("TExplainQueryResult::GetPlan");
     return Plan_;
 }
 
-const TString& TExplainQueryResult::GetAst() const {
+const std::string& TExplainQueryResult::GetAst() const {
     CheckStatusOk("TExplainQueryResult::GetAst");
     return Ast_;
 }
 
-const TString& TExplainQueryResult::GetDiagnostics() const {
+const std::string& TExplainQueryResult::GetDiagnostics() const {
     CheckStatusOk("TExplainQueryResult::GetDiagnostics");
     return Diagnostics_;
 }
@@ -2087,7 +2087,7 @@ const std::vector<TResultSet>& TDataQueryResult::GetResultSets() const {
 
 TResultSet TDataQueryResult::GetResultSet(size_t resultIndex) const {
     if (resultIndex >= ResultSets_.size()) {
-        RaiseError(TString("Requested index out of range\n"));
+        RaiseError(std::string("Requested index out of range\n"));
     }
 
     return ResultSets_[resultIndex];
@@ -2113,7 +2113,7 @@ const TMaybe<TQueryStats>& TDataQueryResult::GetStats() const {
     return QueryStats_;
 }
 
-const TString TDataQueryResult::GetQueryPlan() const {
+const std::string TDataQueryResult::GetQueryPlan() const {
     if (QueryStats_.Defined()) {
         return NYdb::TProtoAccessor::GetProto(*QueryStats_.Get()).query_plan();
     } else {
@@ -2146,17 +2146,17 @@ const TMaybe<TQueryStats>& TCommitTransactionResult::GetStats() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TCopyItem::TCopyItem(const TString& source, const TString& destination)
+TCopyItem::TCopyItem(const std::string& source, const std::string& destination)
     : Source_(source)
     , Destination_(destination)
     , OmitIndexes_(false) {
 }
 
-const TString& TCopyItem::SourcePath() const {
+const std::string& TCopyItem::SourcePath() const {
     return Source_;
 }
 
-const TString& TCopyItem::DestinationPath() const {
+const std::string& TCopyItem::DestinationPath() const {
     return Destination_;
 }
 
@@ -2171,17 +2171,17 @@ bool TCopyItem::OmitIndexes() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TRenameItem::TRenameItem(const TString& source, const TString& destination)
+TRenameItem::TRenameItem(const std::string& source, const std::string& destination)
     : Source_(source)
     , Destination_(destination)
     , ReplaceDestination_(false) {
 }
 
-const TString& TRenameItem::SourcePath() const {
+const std::string& TRenameItem::SourcePath() const {
     return Source_;
 }
 
-const TString& TRenameItem::DestinationPath() const {
+const std::string& TRenameItem::DestinationPath() const {
     return Destination_;
 }
 
@@ -2196,15 +2196,15 @@ bool TRenameItem::ReplaceDestination() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TIndexDescription::TIndexDescription(const TString& name, EIndexType type,
-        const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns)
+TIndexDescription::TIndexDescription(const std::string& name, EIndexType type,
+        const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns)
     : IndexName_(name)
     , IndexType_(type)
     , IndexColumns_(indexColumns)
     , DataColumns_(dataColumns)
 {}
 
-TIndexDescription::TIndexDescription(const TString& name, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns)
+TIndexDescription::TIndexDescription(const std::string& name, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns)
     : TIndexDescription(name, EIndexType::GlobalSync, indexColumns, dataColumns)
 {}
 
@@ -2216,7 +2216,7 @@ TIndexDescription::TIndexDescription(const Ydb::Table::TableIndexDescription& ta
     : TIndexDescription(FromProto(tableIndexDesc))
 {}
 
-const TString& TIndexDescription::GetIndexName() const {
+const std::string& TIndexDescription::GetIndexName() const {
     return IndexName_;
 }
 
@@ -2224,11 +2224,11 @@ EIndexType TIndexDescription::GetIndexType() const {
     return IndexType_;
 }
 
-const std::vector<TString>& TIndexDescription::GetIndexColumns() const {
+const std::vector<std::string>& TIndexDescription::GetIndexColumns() const {
     return IndexColumns_;
 }
 
-const std::vector<TString>& TIndexDescription::GetDataColumns() const {
+const std::vector<std::string>& TIndexDescription::GetDataColumns() const {
     return DataColumns_;
 }
 
@@ -2239,8 +2239,8 @@ ui64 TIndexDescription::GetSizeBytes() const {
 template <typename TProto>
 TIndexDescription TIndexDescription::FromProto(const TProto& proto) {
     EIndexType type;
-    std::vector<TString> indexColumns;
-    std::vector<TString> dataColumns;
+    std::vector<std::string> indexColumns;
+    std::vector<std::string> dataColumns;
 
     indexColumns.assign(proto.index_columns().begin(), proto.index_columns().end());
     dataColumns.assign(proto.data_columns().begin(), proto.data_columns().end());
@@ -2291,9 +2291,9 @@ void TIndexDescription::SerializeTo(Ydb::Table::TableIndex& proto) const {
     }
 }
 
-TString TIndexDescription::ToString() const {
-    TString result;
-    TStringOutput out(result);
+std::string TIndexDescription::ToString() const {
+    std::string result;
+    std::stringOutput out(result);
     Out(out);
     return result;
 }
@@ -2323,7 +2323,7 @@ bool operator!=(const TIndexDescription& lhs, const TIndexDescription& rhs) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TChangefeedDescription::TChangefeedDescription(const TString& name, EChangefeedMode mode, EChangefeedFormat format)
+TChangefeedDescription::TChangefeedDescription(const std::string& name, EChangefeedMode mode, EChangefeedFormat format)
     : Name_(name)
     , Mode_(mode)
     , Format_(format)
@@ -2357,27 +2357,27 @@ TChangefeedDescription& TChangefeedDescription::WithInitialScan() {
     return *this;
 }
 
-TChangefeedDescription& TChangefeedDescription::AddAttribute(const TString& key, const TString& value) {
+TChangefeedDescription& TChangefeedDescription::AddAttribute(const std::string& key, const std::string& value) {
     Attributes_[key] = value;
     return *this;
 }
 
-TChangefeedDescription& TChangefeedDescription::SetAttributes(const THashMap<TString, TString>& attrs) {
+TChangefeedDescription& TChangefeedDescription::SetAttributes(const THashMap<std::string, std::string>& attrs) {
     Attributes_ = attrs;
     return *this;
 }
 
-TChangefeedDescription& TChangefeedDescription::SetAttributes(THashMap<TString, TString>&& attrs) {
+TChangefeedDescription& TChangefeedDescription::SetAttributes(THashMap<std::string, std::string>&& attrs) {
     Attributes_ = std::move(attrs);
     return *this;
 }
 
-TChangefeedDescription& TChangefeedDescription::WithAwsRegion(const TString& value) {
+TChangefeedDescription& TChangefeedDescription::WithAwsRegion(const std::string& value) {
     AwsRegion_ = value;
     return *this;
 }
 
-const TString& TChangefeedDescription::GetName() const {
+const std::string& TChangefeedDescription::GetName() const {
     return Name_;
 }
 
@@ -2405,11 +2405,11 @@ bool TChangefeedDescription::GetInitialScan() const {
     return InitialScan_;
 }
 
-const THashMap<TString, TString>& TChangefeedDescription::GetAttributes() const {
+const THashMap<std::string, std::string>& TChangefeedDescription::GetAttributes() const {
     return Attributes_;
 }
 
-const TString& TChangefeedDescription::GetAwsRegion() const {
+const std::string& TChangefeedDescription::GetAwsRegion() const {
     return AwsRegion_;
 }
 
@@ -2542,9 +2542,9 @@ void TChangefeedDescription::SerializeTo(Ydb::Table::Changefeed& proto) const {
     }
 }
 
-TString TChangefeedDescription::ToString() const {
-    TString result;
-    TStringOutput out(result);
+std::string TChangefeedDescription::ToString() const {
+    std::string result;
+    std::stringOutput out(result);
     Out(out);
     return result;
 }
@@ -2585,7 +2585,7 @@ bool operator!=(const TChangefeedDescription& lhs, const TChangefeedDescription&
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TDateTypeColumnModeSettings::TDateTypeColumnModeSettings(const TString& columnName, const TDuration& expireAfter)
+TDateTypeColumnModeSettings::TDateTypeColumnModeSettings(const std::string& columnName, const TDuration& expireAfter)
     : ColumnName_(columnName)
     , ExpireAfter_(expireAfter)
 {}
@@ -2595,7 +2595,7 @@ void TDateTypeColumnModeSettings::SerializeTo(Ydb::Table::DateTypeColumnModeSett
     proto.set_expire_after_seconds(ExpireAfter_.Seconds());
 }
 
-const TString& TDateTypeColumnModeSettings::GetColumnName() const {
+const std::string& TDateTypeColumnModeSettings::GetColumnName() const {
     return ColumnName_;
 }
 
@@ -2603,7 +2603,7 @@ const TDuration& TDateTypeColumnModeSettings::GetExpireAfter() const {
     return ExpireAfter_;
 }
 
-TValueSinceUnixEpochModeSettings::TValueSinceUnixEpochModeSettings(const TString& columnName, EUnit columnUnit, const TDuration& expireAfter)
+TValueSinceUnixEpochModeSettings::TValueSinceUnixEpochModeSettings(const std::string& columnName, EUnit columnUnit, const TDuration& expireAfter)
     : ColumnName_(columnName)
     , ColumnUnit_(columnUnit)
     , ExpireAfter_(expireAfter)
@@ -2615,7 +2615,7 @@ void TValueSinceUnixEpochModeSettings::SerializeTo(Ydb::Table::ValueSinceUnixEpo
     proto.set_expire_after_seconds(ExpireAfter_.Seconds());
 }
 
-const TString& TValueSinceUnixEpochModeSettings::GetColumnName() const {
+const std::string& TValueSinceUnixEpochModeSettings::GetColumnName() const {
     return ColumnName_;
 }
 
@@ -2644,14 +2644,14 @@ void TValueSinceUnixEpochModeSettings::Out(IOutputStream& out, EUnit unit) {
 #undef PRINT_UNIT
 }
 
-TString TValueSinceUnixEpochModeSettings::ToString(EUnit unit) {
-    TString result;
-    TStringOutput out(result);
+std::string TValueSinceUnixEpochModeSettings::ToString(EUnit unit) {
+    std::string result;
+    std::stringOutput out(result);
     Out(out, unit);
     return result;
 }
 
-TValueSinceUnixEpochModeSettings::EUnit TValueSinceUnixEpochModeSettings::UnitFromString(const TString& value) {
+TValueSinceUnixEpochModeSettings::EUnit TValueSinceUnixEpochModeSettings::UnitFromString(const std::string& value) {
     const auto norm = to_lower(value);
 
     if (norm == "s" || norm == "sec" || norm == "seconds") {
@@ -2667,7 +2667,7 @@ TValueSinceUnixEpochModeSettings::EUnit TValueSinceUnixEpochModeSettings::UnitFr
     return EUnit::Unknown;
 }
 
-TTtlSettings::TTtlSettings(const TString& columnName, const TDuration& expireAfter)
+TTtlSettings::TTtlSettings(const std::string& columnName, const TDuration& expireAfter)
     : Mode_(TDateTypeColumnModeSettings(columnName, expireAfter))
 {}
 
@@ -2681,7 +2681,7 @@ const TDateTypeColumnModeSettings& TTtlSettings::GetDateTypeColumn() const {
     return std::get<TDateTypeColumnModeSettings>(Mode_);
 }
 
-TTtlSettings::TTtlSettings(const TString& columnName, EUnit columnUnit, const TDuration& expireAfter)
+TTtlSettings::TTtlSettings(const std::string& columnName, EUnit columnUnit, const TDuration& expireAfter)
     : Mode_(TValueSinceUnixEpochModeSettings(columnName, columnUnit, expireAfter))
 {}
 
@@ -2777,11 +2777,11 @@ TAlterTtlSettingsBuilder& TAlterTtlSettingsBuilder::Set(const TTtlSettings& sett
     return *this;
 }
 
-TAlterTtlSettingsBuilder& TAlterTtlSettingsBuilder::Set(const TString& columnName, const TDuration& expireAfter) {
+TAlterTtlSettingsBuilder& TAlterTtlSettingsBuilder::Set(const std::string& columnName, const TDuration& expireAfter) {
     return Set(TTtlSettings(columnName, expireAfter));
 }
 
-TAlterTtlSettingsBuilder& TAlterTtlSettingsBuilder::Set(const TString& columnName, EUnit columnUnit, const TDuration& expireAfter) {
+TAlterTtlSettingsBuilder& TAlterTtlSettingsBuilder::Set(const std::string& columnName, EUnit columnUnit, const TDuration& expireAfter) {
     return Set(TTtlSettings(columnName, columnUnit, expireAfter));
 }
 

@@ -32,11 +32,11 @@ namespace NYdb::NTopic {
 }
 
 namespace NYdb::NPersQueue::NCompressionDetails {
-    extern TString Decompress(const Ydb::PersQueue::V1::MigrationStreamingReadServerMessage::DataBatch::MessageData& data);
+    extern std::string Decompress(const Ydb::PersQueue::V1::MigrationStreamingReadServerMessage::DataBatch::MessageData& data);
 }
 
 namespace NYdb::NTopic::NCompressionDetails {
-    extern TString Decompress(const Ydb::Topic::StreamReadMessage::ReadResponse::MessageData& data, Ydb::Topic::Codec codec);
+    extern std::string Decompress(const Ydb::Topic::StreamReadMessage::ReadResponse::MessageData& data, Ydb::Topic::Codec codec);
 }
 
 namespace NYdb::NPersQueue {
@@ -226,8 +226,8 @@ void TRawPartitionStreamEventQueue<UseMigrationProtocol>::DeleteNotReadyTail(TDe
 // TSingleClusterReadSessionImpl
 
 template<bool UseMigrationProtocol>
-TStringBuilder TSingleClusterReadSessionImpl<UseMigrationProtocol>::GetLogPrefix() const {
-    return TStringBuilder() << GetDatabaseLogPrefix(Database) << "[" << SessionId << "] [" << ClusterName << "] ";
+TYdbStringBuilder TSingleClusterReadSessionImpl<UseMigrationProtocol>::GetLogPrefix() const {
+    return TYdbStringBuilder() << GetDatabaseLogPrefix(Database) << "[" << SessionId << "] [" << ClusterName << "] ";
 }
 
 template<bool UseMigrationProtocol>
@@ -395,7 +395,7 @@ void TSingleClusterReadSessionImpl<UseMigrationProtocol>::OnConnectTimeout(const
     }
 
     ++*Settings.Counters_->Errors;
-    TStringBuilder description;
+    TYdbStringBuilder description;
     description << "Failed to establish connection to server. Attempts done: " << ConnectionAttemptsDone;
     if (!Reconnect(TPlainStatus(EStatus::TIMEOUT, description))) {
         AbortSession(EStatus::TIMEOUT, description);
@@ -433,7 +433,7 @@ void TSingleClusterReadSessionImpl<UseMigrationProtocol>::OnConnect(
         ++*Settings.Counters_->Errors;
         if (!Reconnect(st)) {
             AbortSession(
-                st.Status, MakeIssueWithSubIssues(TStringBuilder() << "Failed to establish connection to server \""
+                st.Status, MakeIssueWithSubIssues(TYdbStringBuilder() << "Failed to establish connection to server \""
                                                                    << st.Endpoint << "\" ( cluster " << ClusterName
                                                                    << "). Attempts done: " << ConnectionAttemptsDone,
                                                   st.Issues));
@@ -555,7 +555,7 @@ ui64 GetPartitionStreamId(const TPartitionStreamImpl<UseMigrationProtocol>* part
 }
 
 template<bool UseMigrationProtocol>
-TString GetCluster(const TPartitionStreamImpl<UseMigrationProtocol>* partitionStream) {
+std::string GetCluster(const TPartitionStreamImpl<UseMigrationProtocol>* partitionStream) {
     if constexpr (UseMigrationProtocol) {
         return partitionStream->GetCluster();
     } else {
@@ -573,7 +573,7 @@ bool TSingleClusterReadSessionImpl<UseMigrationProtocol>::IsActualPartitionStrea
 
 template<bool UseMigrationProtocol>
 void TSingleClusterReadSessionImpl<UseMigrationProtocol>::ConfirmPartitionStreamCreate(const TPartitionStreamImpl<UseMigrationProtocol>* partitionStream, TMaybe<ui64> readOffset, TMaybe<ui64> commitOffset) {
-    TStringBuilder commitOffsetLogStr;
+    TYdbStringBuilder commitOffsetLogStr;
     if (commitOffset) {
         commitOffsetLogStr << ". Commit offset: " << *commitOffset;
     }
@@ -965,7 +965,7 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
         if (partitionStreamIt == PartitionStreams.end()) {
             ++*Settings.Counters_->Errors;
             BreakConnectionAndReconnectImpl(EStatus::INTERNAL_ERROR,
-                                            TStringBuilder()
+                                            TYdbStringBuilder()
                                                 << "Got unexpected partition stream data message. Topic: "
                                                 << partitionData.topic() << ". Partition: " << partitionData.partition()
                                                 << " AssignId: " << partitionData.cookie().assign_id(),
@@ -1003,7 +1003,7 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
         }
         if (firstOffset == std::numeric_limits<ui64>::max()) {
             BreakConnectionAndReconnectImpl(EStatus::INTERNAL_ERROR,
-                                            TStringBuilder() << "Got empty data message. Topic: "
+                                            TYdbStringBuilder() << "Got empty data message. Topic: "
                                                 << partitionData.topic()
                                                 << ". Partition: " << partitionData.partition()
                                                 << " message: " << msg,
@@ -1014,7 +1014,7 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
         partitionStream->SetFirstNotReadOffset(desiredOffset);
         if (!CookieMapping.AddMapping(cookie)) {
             BreakConnectionAndReconnectImpl(EStatus::INTERNAL_ERROR,
-                                            TStringBuilder() << "Got unexpected data message. Topic: "
+                                            TYdbStringBuilder() << "Got unexpected data message. Topic: "
                                                 << partitionData.topic()
                                                 << ". Partition: " << partitionData.partition()
                                                 << ". Cookie mapping already has such cookie",
@@ -1224,7 +1224,7 @@ inline void TSingleClusterReadSessionImpl<false>::OnReadDoneImpl(
         if (partitionStreamIt == PartitionStreams.end()) {
             ++*Settings.Counters_->Errors;
             BreakConnectionAndReconnectImpl(EStatus::INTERNAL_ERROR,
-                                            TStringBuilder() << "Got unexpected partition stream data message. "
+                                            TYdbStringBuilder() << "Got unexpected partition stream data message. "
                                             << "PartitionSessionId: " << partitionData.partition_session_id(),
                                             deferred);
             return;
@@ -1258,7 +1258,7 @@ inline void TSingleClusterReadSessionImpl<false>::OnReadDoneImpl(
         }
         if (firstOffset == std::numeric_limits<i64>::max()) {
             BreakConnectionAndReconnectImpl(EStatus::INTERNAL_ERROR,
-                                            TStringBuilder() << "Got empty data message. "
+                                            TYdbStringBuilder() << "Got empty data message. "
                                                 << "PartitionSessionId: " << partitionData.partition_session_id()
                                                 << " message: " << msg,
                                             deferred);
@@ -1726,7 +1726,7 @@ typename TSingleClusterReadSessionImpl<UseMigrationProtocol>::TPartitionCookieMa
         UncommittedOffsetToCookie.erase(cookieIt);
         return cookie;
     } else {
-        ThrowFatalError(TStringBuilder() << "Invalid offset " << offset << ". Partition stream id: " << partitionStreamId << Endl);
+        ThrowFatalError(TYdbStringBuilder() << "Invalid offset " << offset << ". Partition stream id: " << partitionStreamId << Endl);
     }
     // If offset wasn't found, there might be already hard released partition.
     // This situation is OK.
@@ -2472,7 +2472,7 @@ void TDataDecompressionEvent<UseMigrationProtocol>::TakeData(TIntrusivePtr<TPart
     // Clear data to free internal session's memory.
     messageData.clear_data();
 
-    LOG_LAZY(partitionStream->GetLog(), TLOG_DEBUG, TStringBuilder()
+    LOG_LAZY(partitionStream->GetLog(), TLOG_DEBUG, TYdbStringBuilder()
                                         << "Take Data. Partition " << partitionStream->GetPartitionId()
                                         << ". Read: {" << Batch << ", " << Message << "} ("
                                         << minOffset << "-" << maxOffset << ")");
@@ -2564,7 +2564,7 @@ void TDataDecompressionInfo<UseMigrationProtocol>::TDecompressionTask::operator(
                         && data.codec() != Ydb::PersQueue::V1::CODEC_RAW
                         && data.codec() != Ydb::PersQueue::V1::CODEC_UNSPECIFIED
                     ) {
-                        TString decompressed = NCompressionDetails::Decompress(data);
+                        std::string decompressed = NCompressionDetails::Decompress(data);
                         data.set_data(decompressed);
                         data.set_codec(Ydb::PersQueue::V1::CODEC_RAW);
                     }
@@ -2573,7 +2573,7 @@ void TDataDecompressionInfo<UseMigrationProtocol>::TDecompressionTask::operator(
                         && static_cast<Ydb::Topic::Codec>(batch.codec()) != Ydb::Topic::CODEC_RAW
                         && static_cast<Ydb::Topic::Codec>(batch.codec()) != Ydb::Topic::CODEC_UNSPECIFIED
                     ) {
-                        TString decompressed = ::NYdb::NTopic::NCompressionDetails::Decompress(data, static_cast<Ydb::Topic::Codec>(batch.codec()));
+                        std::string decompressed = ::NYdb::NTopic::NCompressionDetails::Decompress(data, static_cast<Ydb::Topic::Codec>(batch.codec()));
                         data.set_data(decompressed);
                     }
                 }
@@ -2590,7 +2590,7 @@ void TDataDecompressionInfo<UseMigrationProtocol>::TDecompressionTask::operator(
         }
     }
     if (auto session = Parent->CbContext->LockShared()) {
-        LOG_LAZY(session->GetLog(), TLOG_DEBUG, TStringBuilder() << "Decompression task done. Partition/PartitionSessionId: "
+        LOG_LAZY(session->GetLog(), TLOG_DEBUG, TYdbStringBuilder() << "Decompression task done. Partition/PartitionSessionId: "
                                                                  << partition_id << " (" << minOffset << "-"
                                                                  << maxOffset << ")");
     }
@@ -2659,7 +2659,7 @@ void TDeferredActions<UseMigrationProtocol>::DeferAbortSession(TCallbackContextP
 }
 
 template<bool UseMigrationProtocol>
-void TDeferredActions<UseMigrationProtocol>::DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, EStatus statusCode, const TString& message) {
+void TDeferredActions<UseMigrationProtocol>::DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, EStatus statusCode, const std::string& message) {
     NYql::TIssues issues;
     issues.AddIssue(message);
     DeferAbortSession(std::move(cbContext), statusCode, std::move(issues));

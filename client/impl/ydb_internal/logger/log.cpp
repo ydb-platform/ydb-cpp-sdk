@@ -6,7 +6,7 @@
 
 namespace NYdb {
 
-static const TStringBuf LogPrioritiesStrings[] = {
+static const std::string_view LogPrioritiesStrings[] = {
     " :EMERG: ",
     " :ALERT: ",
     " :CRIT: ",
@@ -18,19 +18,19 @@ static const TStringBuf LogPrioritiesStrings[] = {
     " :TRACE: ",
 };
 
-TStringBuf LogPriorityToString(ELogPriority priority) {
+std::string_view LogPriorityToString(ELogPriority priority) {
     constexpr int maxPriority = static_cast<int>(std::size(LogPrioritiesStrings) - 1);
     const int index = static_cast<int>(priority);
     return LogPrioritiesStrings[ClampVal(index, 0, maxPriority)];
 }
 
-TLogFormatter GetPrefixLogFormatter(const TString& prefix) {
-    return [prefix](ELogPriority priority, TStringBuf message) -> TString {
+TLogFormatter GetPrefixLogFormatter(const std::string& prefix) {
+    return [prefix](ELogPriority priority, std::string_view message) -> std::string {
         constexpr size_t timeLen = 27; // 2020-10-08T20:31:11.202588Z
         constexpr size_t endlLen = 1;
 
-        const TStringBuf priorityString = LogPriorityToString(priority);
-        TStringBuilder result;
+        const std::string_view priorityString = LogPriorityToString(priority);
+        TYdbStringBuilder result;
         const size_t toReserve = prefix.size() + message.Size() + timeLen + endlLen + priorityString.Size();
         result.reserve(toReserve);
 
@@ -40,7 +40,7 @@ TLogFormatter GetPrefixLogFormatter(const TString& prefix) {
     };
 }
 
-TStringType GetDatabaseLogPrefix(const TStringType& database) {
+std::string GetDatabaseLogPrefix(const std::string& database) {
     return "[" + database + "] ";
 }
 

@@ -16,7 +16,7 @@ public:
     {
     }
 
-    TOperationsList(TStatus&& status, std::vector<TOp>&& operations, const TString& nextPageToken)
+    TOperationsList(TStatus&& status, std::vector<TOp>&& operations, const std::string& nextPageToken)
         : TStatus(std::move(status))
         , Operations_(std::move(operations))
         , NextPageToken_(nextPageToken)
@@ -24,10 +24,10 @@ public:
     }
 
     const std::vector<TOp>& GetList() const { return Operations_; }
-    const TString& NextPageToken() const { return NextPageToken_; }
+    const std::string& NextPageToken() const { return NextPageToken_; }
 
-    TString ToJsonString() const {
-        TStringBuilder json;
+    std::string ToJsonString() const {
+        TYdbStringBuilder json;
         json << "{\"operations\":[";
 
         bool first = true;
@@ -42,7 +42,7 @@ public:
 
 private:
     std::vector<TOp> Operations_;
-    TString NextPageToken_;
+    std::string NextPageToken_;
 };
 
 class TOperationClient {
@@ -58,11 +58,11 @@ public:
     TAsyncStatus Forget(const TOperation::TOperationId& id);
 
     template <typename TOp>
-    NThreading::TFuture<TOperationsList<TOp>> List(ui64 pageSize = 0, const TString& pageToken = TString());
+    NThreading::TFuture<TOperationsList<TOp>> List(ui64 pageSize = 0, const std::string& pageToken = std::string());
 
 private:
     template <typename TOp>
-    NThreading::TFuture<TOperationsList<TOp>> List(const TString& kind, ui64 pageSize, const TString& pageToken);
+    NThreading::TFuture<TOperationsList<TOp>> List(const std::string& kind, ui64 pageSize, const std::string& pageToken);
 
 private:
     std::shared_ptr<TImpl> Impl_;

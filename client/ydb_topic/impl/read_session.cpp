@@ -10,7 +10,7 @@
 
 namespace NYdb::NTopic {
 
-static const TString DRIVER_IS_STOPPING_DESCRIPTION = "Driver is stopping";
+static const std::string DRIVER_IS_STOPPING_DESCRIPTION = "Driver is stopping";
 
 void MakeCountersNotNull(TReaderCounters& counters);
 bool HasNullCounters(TReaderCounters& counters);
@@ -185,18 +185,18 @@ void TReadSession::CollectOffsets(NTable::TTransaction& tx,
 }
 
 void TReadSession::CollectOffsets(NTable::TTransaction& tx,
-                                  const TString& topicPath, ui32 partitionId, ui64 offset)
+                                  const std::string& topicPath, ui32 partitionId, ui64 offset)
 {
-    const TString& sessionId = tx.GetSession().GetId();
-    const TString& txId = tx.GetId();
+    const std::string& sessionId = tx.GetSession().GetId();
+    const std::string& txId = tx.GetId();
     TOffsetRanges& ranges = OffsetRanges[std::make_pair(sessionId, txId)];
     ranges[topicPath][partitionId].InsertInterval(offset, offset + 1);
 }
 
 void TReadSession::UpdateOffsets(const NTable::TTransaction& tx)
 {
-    const TString& sessionId = tx.GetSession().GetId();
-    const TString& txId = tx.GetId();
+    const std::string& sessionId = tx.GetSession().GetId();
+    const std::string& txId = tx.GetId();
 
     auto p = OffsetRanges.find(std::make_pair(sessionId, txId));
     if (p == OffsetRanges.end()) {
@@ -305,7 +305,7 @@ bool TReadSession::Close(TDuration timeout) {
         session->Abort();
 
         NYql::TIssues issues;
-        issues.AddIssue(TStringBuilder() << "Session was closed after waiting " << timeout);
+        issues.AddIssue(TYdbStringBuilder() << "Session was closed after waiting " << timeout);
         EventsQueue->Close(TSessionClosedEvent(EStatus::TIMEOUT, std::move(issues)), deferred);
     }
 
@@ -319,8 +319,8 @@ void TReadSession::ClearAllEvents() {
     EventsQueue->ClearAllEvents();
 }
 
-TStringBuilder TReadSession::GetLogPrefix() const {
-     return TStringBuilder() << GetDatabaseLogPrefix(DbDriverState->Database) << "[" << SessionId << "] ";
+TYdbStringBuilder TReadSession::GetLogPrefix() const {
+     return TYdbStringBuilder() << GetDatabaseLogPrefix(DbDriverState->Database) << "[" << SessionId << "] ";
 }
 
 void TReadSession::MakeCountersIfNeeded() {
@@ -370,7 +370,7 @@ void TReadSession::AbortImpl(EStatus statusCode, NYql::TIssues&& issues, NPersQu
     AbortImpl(TSessionClosedEvent(statusCode, std::move(issues)), deferred);
 }
 
-void TReadSession::AbortImpl(EStatus statusCode, const TString& message, NPersQueue::TDeferredActions<false>& deferred) {
+void TReadSession::AbortImpl(EStatus statusCode, const std::string& message, NPersQueue::TDeferredActions<false>& deferred) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     NYql::TIssues issues;
@@ -382,7 +382,7 @@ void TReadSession::Abort(EStatus statusCode, NYql::TIssues&& issues) {
     Abort(TSessionClosedEvent(statusCode, std::move(issues)));
 }
 
-void TReadSession::Abort(EStatus statusCode, const TString& message) {
+void TReadSession::Abort(EStatus statusCode, const std::string& message) {
     NYql::TIssues issues;
     issues.AddIssue(message);
     Abort(statusCode, std::move(issues));

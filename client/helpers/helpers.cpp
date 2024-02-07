@@ -8,15 +8,15 @@
 
 namespace NYdb {
 
-TDriverConfig CreateFromEnvironment(const TStringType& connectionString) {
+TDriverConfig CreateFromEnvironment(const std::string& connectionString) {
     TDriverConfig driverConfig;
     if (connectionString != "") {
         auto connectionInfo = ParseConnectionString(connectionString);
         driverConfig.SetEndpoint(connectionInfo.Endpoint);
         driverConfig.SetDatabase(connectionInfo.Database);
         if (connectionInfo.EnableSsl) {
-            TStringType rootCertsFile = GetStrFromEnv("YDB_SSL_ROOT_CERTIFICATES_FILE", "");
-            TStringType rootCerts = GetRootCertificate();
+            std::string rootCertsFile = GetStrFromEnv("YDB_SSL_ROOT_CERTIFICATES_FILE", "");
+            std::string rootCerts = GetRootCertificate();
             if (rootCertsFile != "") {
                 TFileInput in(rootCertsFile);
                 rootCerts += in.ReadAll();
@@ -25,7 +25,7 @@ TDriverConfig CreateFromEnvironment(const TStringType& connectionString) {
         }
     }
 
-    TStringType saKeyFile = GetStrFromEnv("YDB_SERVICE_ACCOUNT_KEY_FILE_CREDENTIALS", "");
+    std::string saKeyFile = GetStrFromEnv("YDB_SERVICE_ACCOUNT_KEY_FILE_CREDENTIALS", "");
     if (!saKeyFile.empty()) {
         driverConfig.SetCredentialsProviderFactory(
             CreateIamJwtFileCredentialsProviderFactory({.JwtFilename = saKeyFile}));
@@ -48,7 +48,7 @@ TDriverConfig CreateFromEnvironment(const TStringType& connectionString) {
         return driverConfig;
     }
 
-    TStringType accessToken = GetStrFromEnv("YDB_ACCESS_TOKEN_CREDENTIALS", "");
+    std::string accessToken = GetStrFromEnv("YDB_ACCESS_TOKEN_CREDENTIALS", "");
     if (accessToken != ""){
         driverConfig.SetAuthToken(accessToken);
         return driverConfig;
@@ -57,7 +57,7 @@ TDriverConfig CreateFromEnvironment(const TStringType& connectionString) {
     ythrow yexception() << "Unable to create driver config from environment";
 }
 
-TDriverConfig CreateFromSaKeyFile(const TStringType& saKeyFile, const TStringType& connectionString) {
+TDriverConfig CreateFromSaKeyFile(const std::string& saKeyFile, const std::string& connectionString) {
     TDriverConfig driverConfig(connectionString);
     driverConfig.SetCredentialsProviderFactory(
         CreateIamJwtFileCredentialsProviderFactory({.JwtFilename = saKeyFile}));

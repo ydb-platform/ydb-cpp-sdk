@@ -11,9 +11,9 @@
 
 namespace NYdb::NTopic {
 
-inline const TString& GetCodecId(const ECodec codec) {
-    static THashMap<ECodec, TString> idByCodec{
-        {ECodec::RAW, TString(1, '\0')},
+inline const std::string& GetCodecId(const ECodec codec) {
+    static THashMap<ECodec, std::string> idByCodec{
+        {ECodec::RAW, std::string(1, '\0')},
         {ECodec::GZIP, "\1"},
         {ECodec::LZOP, "\2"},
         {ECodec::ZSTD, "\3"}
@@ -171,14 +171,14 @@ private:
     struct TMessage {
         ui64 Id;
         TInstant CreatedAt;
-        TStringBuf DataRef;
+        std::string_view DataRef;
         TMaybe<ECodec> Codec;
         ui32 OriginalSize; // only for coded messages
-        std::vector<std::pair<TString, TString>> MessageMeta;
+        std::vector<std::pair<std::string, std::string>> MessageMeta;
         const NTable::TTransaction* Tx;
 
-        TMessage(ui64 id, const TInstant& createdAt, TStringBuf data, TMaybe<ECodec> codec = {},
-                 ui32 originalSize = 0, const std::vector<std::pair<TString, TString>>& messageMeta = {},
+        TMessage(ui64 id, const TInstant& createdAt, std::string_view data, TMaybe<ECodec> codec = {},
+                 ui32 originalSize = 0, const std::vector<std::pair<std::string, std::string>>& messageMeta = {},
                  const NTable::TTransaction* tx = nullptr)
             : Id(id)
             , CreatedAt(createdAt)
@@ -198,8 +198,8 @@ private:
         bool Acquired = false;
         bool FlushRequested = false;
 
-        void Add(ui64 id, const TInstant& createdAt, TStringBuf data, TMaybe<ECodec> codec, ui32 originalSize,
-                 const std::vector<std::pair<TString, TString>>& messageMeta,
+        void Add(ui64 id, const TInstant& createdAt, std::string_view data, TMaybe<ECodec> codec, ui32 originalSize,
+                 const std::vector<std::pair<std::string, std::string>>& messageMeta,
                  const NTable::TTransaction* tx) {
             if (StartedAt == TInstant::Zero())
                 StartedAt = TInstant::Now();
@@ -217,7 +217,7 @@ private:
                 return false;
             auto currSize = Data.size();
             Data.Append(Messages.back().DataRef.data(), Messages.back().DataRef.size());
-            Messages.back().DataRef = TStringBuf(Data.data() + currSize, Data.size() - currSize);
+            Messages.back().DataRef = std::string_view(Data.data() + currSize, Data.size() - currSize);
             Acquired = true;
             return true;
         }
@@ -243,7 +243,7 @@ private:
         size_t OriginalSize = 0;
         size_t OriginalMemoryUsage = 0;
         ui32 CodecID = static_cast<ui32>(ECodec::RAW);
-        mutable std::vector<TStringBuf> OriginalDataRefs;
+        mutable std::vector<std::string_view> OriginalDataRefs;
         mutable TBuffer Data;
         bool Compressed = false;
         mutable bool Valid = true;
@@ -273,7 +273,7 @@ private:
         ui64 Id;
         TInstant CreatedAt;
         size_t Size;
-        std::vector<std::pair<TString, TString>> MessageMeta;
+        std::vector<std::pair<std::string, std::string>> MessageMeta;
         const NTable::TTransaction* Tx;
 
         TOriginalMessage(const ui64 id, const TInstant createdAt, const size_t size,
@@ -285,7 +285,7 @@ private:
         {}
 
         TOriginalMessage(const ui64 id, const TInstant createdAt, const size_t size,
-                         std::vector<std::pair<TString, TString>>&& messageMeta,
+                         std::vector<std::pair<std::string, std::string>>&& messageMeta,
                          const NTable::TTransaction* tx)
             : Id(id)
             , CreatedAt(createdAt)
@@ -335,7 +335,7 @@ public:
 
     void Write(TContinuationToken&& continuationToken, TWriteMessage&& message);
 
-    void Write(TContinuationToken&&, TStringBuf, TMaybe<ui64> seqNo = Nothing(),
+    void Write(TContinuationToken&&, std::string_view, TMaybe<ui64> seqNo = Nothing(),
                TMaybe<TInstant> createTimestamp = Nothing()) {
         Y_UNUSED(seqNo);
         Y_UNUSED(createTimestamp);
@@ -344,7 +344,7 @@ public:
 
     void WriteEncoded(TContinuationToken&& continuationToken, TWriteMessage&& message);
 
-    void WriteEncoded(TContinuationToken&&, TStringBuf, ECodec, ui32,
+    void WriteEncoded(TContinuationToken&&, std::string_view, ECodec, ui32,
                       TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) {
         Y_UNUSED(seqNo);
         Y_UNUSED(createTimestamp);
@@ -367,7 +367,7 @@ public:
 
 private:
 
-    TStringBuilder LogPrefix() const;
+    TYdbStringBuilder LogPrefix() const;
 
     void UpdateTokenIfNeededImpl();
 
@@ -395,7 +395,7 @@ private:
     void OnCompressed(TBlock&& block, bool isSyncCompression=false);
     TMemoryUsageChange OnCompressedImpl(TBlock&& block);
 
-    //TString GetDebugIdentity() const;
+    //std::string GetDebugIdentity() const;
     TClientMessage GetInitClientMessage();
     bool CleanupOnAcknowledged(ui64 id);
     bool IsReadyToSendNextImpl() const;
@@ -405,7 +405,7 @@ private:
     void SendImpl();
     void AbortImpl();
     void CloseImpl(EStatus statusCode, NYql::TIssues&& issues);
-    void CloseImpl(EStatus statusCode, const TString& message);
+    void CloseImpl(EStatus statusCode, const std::string& message);
     void CloseImpl(TPlainStatus&& status);
 
     void OnErrorResolved() {
@@ -425,13 +425,13 @@ private:
     TWriteSessionSettings Settings;
     std::shared_ptr<TTopicClient::TImpl> Client;
     std::shared_ptr<TGRpcConnectionsImpl> Connections;
-    TString TargetCluster;
-    TString InitialCluster;
-    TString CurrentCluster;
-    TString PreferredClusterByCDS;
+    std::string TargetCluster;
+    std::string InitialCluster;
+    std::string CurrentCluster;
+    std::string PreferredClusterByCDS;
     std::shared_ptr<IWriteSessionConnectionProcessorFactory> ConnectionFactory;
     TDbDriverStatePtr DbDriverState;
-    TStringType PrevToken;
+    std::string PrevToken;
     bool UpdateTokenInProgress = false;
     TInstant LastTokenUpdate = TInstant::Zero();
     std::shared_ptr<TWriteSessionEventsQueue> EventsQueue;
@@ -447,7 +447,7 @@ private:
     IRetryPolicy::IRetryState::TPtr RetryState; // Current retry state (if now we are (re)connecting).
     std::shared_ptr<TServerMessage> ServerMessage; // Server message to write server response to.
 
-    TString SessionId;
+    std::string SessionId;
     IExecutor::TPtr Executor;
     IExecutor::TPtr CompressionExecutor;
     size_t MemoryUsage = 0; //!< Estimated amount of memory used

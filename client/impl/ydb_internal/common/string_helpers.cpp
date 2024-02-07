@@ -5,12 +5,12 @@
 
 namespace NYdb {
 
-bool StringStartsWith(const TStringType& line, const TStringType& pattern) {
+bool StringStartsWith(const std::string& line, const std::string& pattern) {
     return std::equal(pattern.begin(), pattern.end(), line.begin());
 }
 
-TStringType ToStringType(const std::string& str) {
-    return TStringType(str.data(), str.size());
+std::string ToStringType(const std::string& str) {
+    return std::string(str.data(), str.size());
 }
 
 } // namespace NYdb

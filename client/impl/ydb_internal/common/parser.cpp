@@ -5,21 +5,21 @@
 
 namespace NYdb {
 
-TConnectionInfo ParseConnectionString(const TString& connectionString) {
+TConnectionInfo ParseConnectionString(const std::string& connectionString) {
     if (connectionString.length() == 0) {
         ythrow TContractViolation("Empty connection string");
     }
 
-    const TStringType databaseFlag = "/?database=";
-    const TStringType grpcProtocol = "grpc://";
-    const TStringType grpcsProtocol = "grpcs://";
-    const TStringType localhostDomain = "localhost:";
+    const std::string databaseFlag = "/?database=";
+    const std::string grpcProtocol = "grpc://";
+    const std::string grpcsProtocol = "grpcs://";
+    const std::string localhostDomain = "localhost:";
 
     TConnectionInfo connectionInfo;
-    TStringType endpoint;
+    std::string endpoint;
 
     size_t pathIndex = connectionString.find(databaseFlag);
-    if (pathIndex == TStringType::npos){
+    if (pathIndex == std::string::npos){
         pathIndex = connectionString.length();
     }
     if (pathIndex != connectionString.length()) {

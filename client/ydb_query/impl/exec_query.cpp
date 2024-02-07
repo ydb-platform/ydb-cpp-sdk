@@ -42,7 +42,7 @@ public:
     using TGRpcStatus = NYdbGrpc::TGrpcStatus;
     using TBatchReadResult = std::pair<TResponse, TGRpcStatus>;
 
-    TReaderImpl(TStreamProcessorPtr streamProcessor, const TString& endpoint, const TMaybe<TSession>& session)
+    TReaderImpl(TStreamProcessorPtr streamProcessor, const std::string& endpoint, const TMaybe<TSession>& session)
         : StreamProcessor_(streamProcessor)
         , Finished_(false)
         , Endpoint_(endpoint)
@@ -102,7 +102,7 @@ private:
     TStreamProcessorPtr StreamProcessor_;
     TResponse Response_;
     bool Finished_;
-    TString Endpoint_;
+    std::string Endpoint_;
     TMaybe<TSession> Session_;
 };
 
@@ -200,7 +200,7 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
 
 TFuture<std::pair<TPlainStatus, TExecuteQueryProcessorPtr>> StreamExecuteQueryImpl(
     const std::shared_ptr<TGRpcConnectionsImpl>& connections, const TDbDriverStatePtr& driverState,
-    const TString& query, const TTxControl& txControl, const ::google::protobuf::Map<TString, Ydb::TypedValue>* params,
+    const std::string& query, const TTxControl& txControl, const ::google::protobuf::Map<std::string, Ydb::TypedValue>* params,
     const TExecuteQuerySettings& settings, const TMaybe<TSession>& session)
 {
     auto request = MakeRequest<Ydb::Query::ExecuteQueryRequest>();
@@ -260,7 +260,7 @@ TFuture<std::pair<TPlainStatus, TExecuteQueryProcessorPtr>> StreamExecuteQueryIm
 }
 
 TAsyncExecuteQueryIterator TExecQueryImpl::StreamExecuteQuery(const std::shared_ptr<TGRpcConnectionsImpl>& connections,
-    const TDbDriverStatePtr& driverState, const TString& query, const TTxControl& txControl,
+    const TDbDriverStatePtr& driverState, const std::string& query, const TTxControl& txControl,
     const TMaybe<TParams>& params, const TExecuteQuerySettings& settings, const TMaybe<TSession>& session)
 {
     auto promise = NewPromise<TExecuteQueryIterator>();
@@ -286,7 +286,7 @@ TAsyncExecuteQueryIterator TExecQueryImpl::StreamExecuteQuery(const std::shared_
 }
 
 TAsyncExecuteQueryResult TExecQueryImpl::ExecuteQuery(const std::shared_ptr<TGRpcConnectionsImpl>& connections,
-    const TDbDriverStatePtr& driverState, const TString& query, const TTxControl& txControl,
+    const TDbDriverStatePtr& driverState, const std::string& query, const TTxControl& txControl,
     const TMaybe<TParams>& params, const TExecuteQuerySettings& settings, const TMaybe<TSession>& session)
 {
     auto syncSettings = settings;

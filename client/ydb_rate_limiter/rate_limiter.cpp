@@ -9,7 +9,7 @@
 
 namespace NYdb::NRateLimiter {
 
-TListResourcesResult::TListResourcesResult(TStatus status, std::vector<TString> paths)
+TListResourcesResult::TListResourcesResult(TStatus status, std::vector<std::string> paths)
     : TStatus(std::move(status))
     , ResourcePaths_(std::move(paths))
 {
@@ -48,7 +48,7 @@ public:
     }
 
     template <class TRequest, class TSettings>
-    static TRequest MakePropsCreateOrAlterRequest(const TString& coordinationNodePath, const TString& resourcePath, const TSettings& settings) {
+    static TRequest MakePropsCreateOrAlterRequest(const std::string& coordinationNodePath, const std::string& resourcePath, const TSettings& settings) {
         TRequest request = MakeOperationRequest<TRequest>(settings);
         request.set_coordination_node_path(coordinationNodePath);
 
@@ -72,7 +72,7 @@ public:
         return request;
     }
 
-    TAsyncStatus CreateResource(const TString& coordinationNodePath, const TString& resourcePath, const TCreateResourceSettings& settings) {
+    TAsyncStatus CreateResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TCreateResourceSettings& settings) {
         auto request = MakePropsCreateOrAlterRequest<Ydb::RateLimiter::CreateResourceRequest>(coordinationNodePath, resourcePath, settings);
 
         return RunSimple<Ydb::RateLimiter::V1::RateLimiterService, Ydb::RateLimiter::CreateResourceRequest, Ydb::RateLimiter::CreateResourceResponse>(
@@ -81,7 +81,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncStatus AlterResource(const TString& coordinationNodePath, const TString& resourcePath, const TAlterResourceSettings& settings) {
+    TAsyncStatus AlterResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TAlterResourceSettings& settings) {
         auto request = MakePropsCreateOrAlterRequest<Ydb::RateLimiter::AlterResourceRequest>(coordinationNodePath, resourcePath, settings);
 
         return RunSimple<Ydb::RateLimiter::V1::RateLimiterService, Ydb::RateLimiter::AlterResourceRequest, Ydb::RateLimiter::AlterResourceResponse>(
@@ -90,7 +90,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncStatus DropResource(const TString& coordinationNodePath, const TString& resourcePath, const TDropResourceSettings& settings) {
+    TAsyncStatus DropResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TDropResourceSettings& settings) {
         auto request = MakeOperationRequest<Ydb::RateLimiter::DropResourceRequest>(settings);
         request.set_coordination_node_path(coordinationNodePath);
         request.set_resource_path(resourcePath);
@@ -101,7 +101,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncListResourcesResult ListResources(const TString& coordinationNodePath, const TString& resourcePath, const TListResourcesSettings& settings) {
+    TAsyncListResourcesResult ListResources(const std::string& coordinationNodePath, const std::string& resourcePath, const TListResourcesSettings& settings) {
         auto request = MakeOperationRequest<Ydb::RateLimiter::ListResourcesRequest>(settings);
         request.set_coordination_node_path(coordinationNodePath);
         request.set_resource_path(resourcePath);
@@ -111,12 +111,12 @@ public:
 
         auto extractor = [promise]
             (google::protobuf::Any* any, TPlainStatus status) mutable {
-                std::vector<TString> list;
+                std::vector<std::string> list;
                 if (any) {
                     Ydb::RateLimiter::ListResourcesResult result;
                     any->UnpackTo(&result);
                     list.reserve(result.resource_paths_size());
-                    for (const TString& path : result.resource_paths()) {
+                    for (const std::string& path : result.resource_paths()) {
                         list.push_back(path);
                     }
                 }
@@ -136,7 +136,7 @@ public:
         return promise.GetFuture();
     }
 
-    TAsyncDescribeResourceResult DescribeResource(const TString& coordinationNodePath, const TString& resourcePath, const TDescribeResourceSettings& settings) {
+    TAsyncDescribeResourceResult DescribeResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TDescribeResourceSettings& settings) {
         auto request = MakeOperationRequest<Ydb::RateLimiter::DescribeResourceRequest>(settings);
         request.set_coordination_node_path(coordinationNodePath);
         request.set_resource_path(resourcePath);
@@ -165,7 +165,7 @@ public:
         return promise.GetFuture();
     }
 
-    TAsyncStatus AcquireResource(const TString& coordinationNodePath, const TString& resourcePath, const TAcquireResourceSettings& settings) {
+    TAsyncStatus AcquireResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TAcquireResourceSettings& settings) {
         auto request = MakeOperationRequest<Ydb::RateLimiter::AcquireResourceRequest>(settings);
         request.set_coordination_node_path(coordinationNodePath);
         request.set_resource_path(resourcePath);
@@ -188,27 +188,27 @@ TRateLimiterClient::TRateLimiterClient(const TDriver& driver, const TCommonClien
 {
 }
 
-TAsyncStatus TRateLimiterClient::CreateResource(const TString& coordinationNodePath, const TString& resourcePath, const TCreateResourceSettings& settings) {
+TAsyncStatus TRateLimiterClient::CreateResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TCreateResourceSettings& settings) {
     return Impl_->CreateResource(coordinationNodePath, resourcePath, settings);
 }
 
-TAsyncStatus TRateLimiterClient::AlterResource(const TString& coordinationNodePath, const TString& resourcePath, const TAlterResourceSettings& settings) {
+TAsyncStatus TRateLimiterClient::AlterResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TAlterResourceSettings& settings) {
     return Impl_->AlterResource(coordinationNodePath, resourcePath, settings);
 }
 
-TAsyncStatus TRateLimiterClient::DropResource(const TString& coordinationNodePath, const TString& resourcePath, const TDropResourceSettings& settings) {
+TAsyncStatus TRateLimiterClient::DropResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TDropResourceSettings& settings) {
     return Impl_->DropResource(coordinationNodePath, resourcePath, settings);
 }
 
-TAsyncListResourcesResult TRateLimiterClient::ListResources(const TString& coordinationNodePath, const TString& resourcePath, const TListResourcesSettings& settings) {
+TAsyncListResourcesResult TRateLimiterClient::ListResources(const std::string& coordinationNodePath, const std::string& resourcePath, const TListResourcesSettings& settings) {
     return Impl_->ListResources(coordinationNodePath, resourcePath, settings);
 }
 
-TAsyncDescribeResourceResult TRateLimiterClient::DescribeResource(const TString& coordinationNodePath, const TString& resourcePath, const TDescribeResourceSettings& settings) {
+TAsyncDescribeResourceResult TRateLimiterClient::DescribeResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TDescribeResourceSettings& settings) {
     return Impl_->DescribeResource(coordinationNodePath, resourcePath, settings);
 }
 
-TAsyncStatus TRateLimiterClient::AcquireResource(const TString& coordinationNodePath, const TString& resourcePath, const TAcquireResourceSettings& settings) {
+TAsyncStatus TRateLimiterClient::AcquireResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TAcquireResourceSettings& settings) {
     return Impl_->AcquireResource(coordinationNodePath, resourcePath, settings);
 }
 

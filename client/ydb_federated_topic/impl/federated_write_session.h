@@ -51,10 +51,10 @@ public:
 
     virtual void WriteEncoded(NTopic::TContinuationToken&& continuationToken, NTopic::TWriteMessage&& params) override;
 
-    virtual void Write(NTopic::TContinuationToken&&, TStringBuf, TMaybe<ui64> seqNo = Nothing(),
+    virtual void Write(NTopic::TContinuationToken&&, std::string_view, TMaybe<ui64> seqNo = Nothing(),
                        TMaybe<TInstant> createTimestamp = Nothing()) override;
 
-    virtual void WriteEncoded(NTopic::TContinuationToken&&, TStringBuf, NTopic::ECodec, ui32,
+    virtual void WriteEncoded(NTopic::TContinuationToken&&, std::string_view, NTopic::ECodec, ui32,
                               TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) override;
 
     bool Close(TDuration timeout) override;
@@ -88,7 +88,7 @@ private:
 
     std::shared_ptr<TDbInfo> CurrentDatabase;
 
-    TString SessionId;
+    std::string SessionId;
     const TInstant StartSessionTime = TInstant::Now();
 
     TAdaptiveLock Lock;

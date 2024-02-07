@@ -39,7 +39,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         // Create topic client.
         NYdb::TDriverConfig cfg;
-        cfg.SetEndpoint(TStringBuilder() << "localhost:" << newServicePort);
+        cfg.SetEndpoint(TYdbStringBuilder() << "localhost:" << newServicePort);
         cfg.SetDatabase("/Root");
         cfg.SetLog(CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG));
         NYdb::TDriver driver(cfg);
@@ -122,7 +122,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         // Create topic client.
         NYdb::TDriverConfig cfg;
-        cfg.SetEndpoint(TStringBuilder() << "localhost:" << newServicePort);
+        cfg.SetEndpoint(TYdbStringBuilder() << "localhost:" << newServicePort);
         cfg.SetDatabase("/Root");
         cfg.SetLog(CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG));
         NYdb::TDriver driver(cfg);
@@ -166,7 +166,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         // Create topic client.
         NYdb::TDriverConfig cfg;
-        cfg.SetEndpoint(TStringBuilder() << "localhost:" << newServicePort);
+        cfg.SetEndpoint(TYdbStringBuilder() << "localhost:" << newServicePort);
         cfg.SetDatabase("/Root");
         cfg.SetLog(CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG));
         NYdb::TDriver driver(cfg);
@@ -211,7 +211,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         // Create topic client.
         NYdb::TDriverConfig cfg;
-        cfg.SetEndpoint(TStringBuilder() << "localhost:" << newServicePort);
+        cfg.SetEndpoint(TYdbStringBuilder() << "localhost:" << newServicePort);
         cfg.SetDatabase("/Root");
         cfg.SetLog(CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG));
         NYdb::TDriver driver(cfg);
@@ -284,7 +284,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         auto& client = setup->GetPersQueueClient();
         auto session = client.CreateSimpleBlockingWriteSession(writeSettings);
-        TString messageBase = "message----";
+        std::string messageBase = "message----";
 
 
         ui64 count = 100u;
@@ -326,7 +326,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         // Create topic client.
         NYdb::TDriverConfig cfg;
-        cfg.SetEndpoint(TStringBuilder() << "localhost:" << newServicePort);
+        cfg.SetEndpoint(TYdbStringBuilder() << "localhost:" << newServicePort);
         cfg.SetDatabase("/Root");
         cfg.SetLog(CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG));
         NYdb::TDriver driver(cfg);
@@ -436,7 +436,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         // Create topic client.
         NYdb::TDriverConfig cfg;
-        cfg.SetEndpoint(TStringBuilder() << "localhost:" << newServicePort);
+        cfg.SetEndpoint(TYdbStringBuilder() << "localhost:" << newServicePort);
         cfg.SetDatabase("/Root");
         cfg.SetLog(CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG));
         NYdb::TDriver driver(cfg);
@@ -449,8 +449,8 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         ui64 count = 300u;
 
-        TString messageBase = "message----";
-        std::vector<TString> sentMessages;
+        std::string messageBase = "message----";
+        std::vector<std::string> sentMessages;
 
         for (auto i = 0u; i < count; i++) {
             // sentMessages.emplace_back(messageBase * (i+1) + ToString(i));
@@ -536,7 +536,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         // Create topic client.
         NYdb::TDriverConfig cfg;
-        cfg.SetEndpoint(TStringBuilder() << "localhost:" << newServicePort);
+        cfg.SetEndpoint(TYdbStringBuilder() << "localhost:" << newServicePort);
         cfg.SetDatabase("/Root");
         cfg.SetLog(CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG));
         NYdb::TDriver driver(cfg);

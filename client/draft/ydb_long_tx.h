@@ -108,11 +108,11 @@ public:
 
     TAsyncBeginTxResult BeginWriteTx();
     TAsyncBeginTxResult BeginReadTx();
-    TAsyncCommitTxResult CommitTx(const TString& txId);
-    TAsyncRollbackTxResult RollbackTx(const TString& txId);
-    TAsyncWriteResult Write(const TString& txId, const TString& table, const TString& dedupId,
-                            const TString& data, Ydb::LongTx::Data::Format format);
-    TAsyncReadResult Read(const TString& txId, const TString& table);
+    TAsyncCommitTxResult CommitTx(const std::string& txId);
+    TAsyncRollbackTxResult RollbackTx(const std::string& txId);
+    TAsyncWriteResult Write(const std::string& txId, const std::string& table, const std::string& dedupId,
+                            const std::string& data, Ydb::LongTx::Data::Format format);
+    TAsyncReadResult Read(const std::string& txId, const std::string& table);
 
 private:
     class TImpl;

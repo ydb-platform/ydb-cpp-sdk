@@ -781,7 +781,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             "  null_flag_value: NULL_VALUE\n"
             "}\n";
 
-        TString protoValueStr;
+        std::string protoValueStr;
         NProtoBuf::TextFormat::PrintToString(value.GetProto(), &protoValueStr);
         UNIT_ASSERT_NO_DIFF(protoValueStr, expectedProtoValueStr);
     }
@@ -843,7 +843,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             "  }\n"
             "}\n";
 
-        TString protoValueStr;
+        std::string protoValueStr;
         NProtoBuf::TextFormat::PrintToString(value.GetProto(), &protoValueStr);
         UNIT_ASSERT_NO_DIFF(protoValueStr, expectedProtoValueStr);
     }
@@ -1359,7 +1359,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
     }
 
     Y_UNIT_TEST(CorrectUuid) {
-        TString uuidStr = "5ca32c22-841b-11e8-adc0-fa7ae01bbebc";
+        std::string uuidStr = "5ca32c22-841b-11e8-adc0-fa7ae01bbebc";
         TUuidValue uuid(uuidStr);
         UNIT_ASSERT_VALUES_EQUAL(uuidStr, uuid.ToString());
     }

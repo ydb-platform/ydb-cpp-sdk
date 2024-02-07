@@ -143,8 +143,8 @@ TWriteSessionImpl::THandleResult TWriteSessionImpl::RestartImpl(const TPlainStat
     return result;
 }
 
-bool IsFederation(const TString& endpoint) {
-    TStringBuf host = GetHost(endpoint);
+bool IsFederation(const std::string& endpoint) {
+    std::string_view host = GetHost(endpoint);
     return host == "logbroker.yandex.net" || host == "logbroker-prestable.yandex.net";
 }
 
@@ -183,7 +183,7 @@ void TWriteSessionImpl::DoCdsRequest(TDuration delay) {
 
             LOG_LAZY(DbDriverState->Log, TLOG_INFO, LogPrefix() << "Do schedule cds request after " << delay.MilliSeconds() << " ms\n");
             auto cdsRequestCall = [req_=std::move(req), extr=std::move(extractor), connections = std::shared_ptr<TGRpcConnectionsImpl>(Connections), dbState=DbDriverState, settings=Settings]() mutable {
-                LOG_LAZY(dbState->Log, TLOG_INFO, TStringBuilder() << "MessageGroupId [" << settings.MessageGroupId_ << "] Running cds request ms\n");
+                LOG_LAZY(dbState->Log, TLOG_INFO, TYdbStringBuilder() << "MessageGroupId [" << settings.MessageGroupId_ << "] Running cds request ms\n");
                 connections->RunDeferred<Ydb::PersQueue::V1::ClusterDiscoveryService,
                                         Ydb::PersQueue::ClusterDiscovery::DiscoverClustersRequest,
                                         Ydb::PersQueue::ClusterDiscovery::DiscoverClustersResponse>(
@@ -209,7 +209,7 @@ void TWriteSessionImpl::OnCdsResponse(
         TStatus& status, const Ydb::PersQueue::ClusterDiscovery::DiscoverClustersResult& result
 ) {
     LOG_LAZY(DbDriverState->Log, TLOG_INFO, LogPrefix() << "Got CDS response: \n" << result.ShortDebugString());
-    TString endpoint, name;
+    std::string endpoint, name;
     THandleResult handleResult;
     if (!status.IsSuccess()) {
         with_lock (Lock) {
@@ -229,7 +229,7 @@ void TWriteSessionImpl::OnCdsResponse(
         bool isFirst = true;
 
         for (const auto& clusterInfo : wsClusters.clusters()) {
-            TString normalizedName = clusterInfo.name();
+            std::string normalizedName = clusterInfo.name();
             normalizedName.to_lower();
 
             if(isFirst) {
@@ -240,14 +240,14 @@ void TWriteSessionImpl::OnCdsResponse(
             if (!clusterInfo.available()) {
                 if (TargetCluster && TargetCluster == normalizedName) {
                     errorStatus = EStatus::UNAVAILABLE;
-                    issues.AddIssue(TStringBuilder() << "Selected destination cluster: " << normalizedName
+                    issues.AddIssue(TYdbStringBuilder() << "Selected destination cluster: " << normalizedName
                                                      << " is currently disabled");
                     break;
                 }
                 continue;
             }
             if (clusterInfo.endpoint().empty()) {
-                issues.AddIssue(TStringBuilder() << "Unexpected reply from cluster discovery. Empty endpoint for cluster "
+                issues.AddIssue(TYdbStringBuilder() << "Unexpected reply from cluster discovery. Empty endpoint for cluster "
                                                  << normalizedName);
             } else {
                 name = clusterInfo.name();
@@ -257,7 +257,7 @@ void TWriteSessionImpl::OnCdsResponse(
         }
         if (endpoint.empty()) {
             errorStatus = EStatus::GENERIC_ERROR;
-            issues.AddIssue(TStringBuilder() << "Could not get valid endpoint from cluster discovery");
+            issues.AddIssue(TYdbStringBuilder() << "Could not get valid endpoint from cluster discovery");
         }
     }
     if (issues) {
@@ -301,7 +301,7 @@ NThreading::TFuture<ui64> TWriteSessionImpl::GetInitSeqNo() {
     return InitSeqNoPromise.GetFuture();
 }
 
-TString DebugString(const TWriteSessionEvent::TEvent& event) {
+std::string DebugString(const TWriteSessionEvent::TEvent& event) {
     return std::visit([](const auto& ev) { return ev.DebugString(); }, event);
 }
 
@@ -380,7 +380,7 @@ NThreading::TFuture<void> TWriteSessionImpl::WaitEvent() {
 
 // Client method.
 void TWriteSessionImpl::WriteInternal(
-            TContinuationToken&&, TStringBuf data, TMaybe<ECodec> codec, ui32 originalSize, TMaybe<ui64> seqNo, TMaybe<TInstant> createTimestamp
+            TContinuationToken&&, std::string_view data, TMaybe<ECodec> codec, ui32 originalSize, TMaybe<ui64> seqNo, TMaybe<TInstant> createTimestamp
         ) {
     TInstant createdAtValue = createTimestamp.Defined() ? *createTimestamp : TInstant::Now();
     bool readyToAccept = false;
@@ -398,13 +398,13 @@ void TWriteSessionImpl::WriteInternal(
 
 // Client method.
 void TWriteSessionImpl::WriteEncoded(
-            TContinuationToken&& token, TStringBuf data, ECodec codec, ui32 originalSize, TMaybe<ui64> seqNo, TMaybe<TInstant> createTimestamp
+            TContinuationToken&& token, std::string_view data, ECodec codec, ui32 originalSize, TMaybe<ui64> seqNo, TMaybe<TInstant> createTimestamp
         ) {
     WriteInternal(std::move(token), data, codec, originalSize, seqNo, createTimestamp);
 }
 
 void TWriteSessionImpl::Write(
-            TContinuationToken&& token, TStringBuf data, TMaybe<ui64> seqNo, TMaybe<TInstant> createTimestamp
+            TContinuationToken&& token, std::string_view data, TMaybe<ui64> seqNo, TMaybe<TInstant> createTimestamp
         ) {
     WriteInternal(std::move(token), data, {}, 0, seqNo, createTimestamp);
 }
@@ -422,7 +422,7 @@ TWriteSessionImpl::THandleResult TWriteSessionImpl::OnErrorImpl(NYdb::TPlainStat
 }
 
 // No lock
-void TWriteSessionImpl::DoConnect(const TDuration& delay, const TString& endpoint) {
+void TWriteSessionImpl::DoConnect(const TDuration& delay, const std::string& endpoint) {
     LOG_LAZY(DbDriverState->Log, TLOG_INFO, LogPrefix() << "Start write session. Will connect to endpoint: " << endpoint);
 
     NYdbGrpc::IQueueClientContextPtr prevConnectContext;
@@ -521,7 +521,7 @@ void TWriteSessionImpl::OnConnectTimeout(const NYdbGrpc::IQueueClientContextPtr&
         } else {
             return;
         }
-        TStringBuilder description;
+        TYdbStringBuilder description;
         description << "Failed to establish connection to server. Attempts done: " << ConnectionAttemptsDone;
         handleResult = RestartImpl(TPlainStatus(EStatus::TIMEOUT, description));
         if (handleResult.DoStop) {
@@ -560,7 +560,7 @@ void TWriteSessionImpl::OnConnect(
                 CloseImpl(
                         st.Status,
                         MakeIssueWithSubIssues(
-                                TStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
+                                TYdbStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
                                                  << "\". Attempts done: " << ConnectionAttemptsDone,
                                 st.Issues
                         )
@@ -700,12 +700,12 @@ void TWriteSessionImpl::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t co
     ProcessHandleResult(processResult.HandleResult);
 }
 
-TStringBuilder TWriteSessionImpl::LogPrefix() const {
-    return TStringBuilder() << "MessageGroupId [" << Settings.MessageGroupId_ << "] SessionId [" << SessionId << "] ";
+TYdbStringBuilder TWriteSessionImpl::LogPrefix() const {
+    return TYdbStringBuilder() << "MessageGroupId [" << Settings.MessageGroupId_ << "] SessionId [" << SessionId << "] ";
 }
 
-TString TWriteSessionEvent::TAcksEvent::DebugString() const {
-    TStringBuilder res;
+std::string TWriteSessionEvent::TAcksEvent::DebugString() const {
+    TYdbStringBuilder res;
     res << "AcksEvent:";
     for (auto& ack : Acks) {
         res << " { seqNo : " << ack.SeqNo << ", State : " << ack.State;
@@ -722,7 +722,7 @@ TString TWriteSessionEvent::TAcksEvent::DebugString() const {
     return res;
 }
 
-TString TWriteSessionEvent::TReadyToAcceptEvent::DebugString() const {
+std::string TWriteSessionEvent::TReadyToAcceptEvent::DebugString() const {
     return "ReadyToAcceptEvent";
 }
 
@@ -890,7 +890,7 @@ TMemoryUsageChange TWriteSessionImpl::OnMemoryUsageChangedImpl(i64 diff) {
     return {wasOk, nowOk};
 }
 
-TBuffer CompressBuffer(std::vector<TStringBuf>& data, ECodec codec, i32 level) {
+TBuffer CompressBuffer(std::vector<std::string_view>& data, ECodec codec, i32 level) {
     TBuffer result;
     THolder<IOutputStream> coder = NCompressionDetails::CreateCoder(codec, result, level);
     for (auto& buffer : data) {
@@ -1095,7 +1095,7 @@ bool TWriteSessionImpl::IsReadyToSendNextImpl() {
 }
 
 void TWriteSessionImpl::DumpState() {
-    TStringBuilder s;
+    TYdbStringBuilder s;
     s << "STATE:\n";
 
     auto omts = OriginalMessagesToSend;
@@ -1376,7 +1376,7 @@ void TWriteSessionImpl::CloseImpl(EStatus statusCode, NYql::TIssues&& issues) {
     AbortImpl();
 }
 
-void TWriteSessionImpl::CloseImpl(EStatus statusCode, const TString& message) {
+void TWriteSessionImpl::CloseImpl(EStatus statusCode, const std::string& message) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     NYql::TIssues issues;

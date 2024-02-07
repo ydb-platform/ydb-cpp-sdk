@@ -6,8 +6,8 @@
 namespace NYdb {
 
 // C++17 support for external users
-bool StringStartsWith(const TStringType& line, const TStringType& pattern);
-TStringType ToStringType(const std::string& str);
+bool StringStartsWith(const std::string& line, const std::string& pattern);
+std::string ToStringType(const std::string& str);
 
 } // namespace NYdb
 

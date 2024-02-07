@@ -4,9 +4,9 @@
 
 namespace NYdb {
 
-TStringType GetStrFromEnv(const char* envVarName, const TStringType& defaultValue) {
+std::string GetStrFromEnv(const char* envVarName, const std::string& defaultValue) {
     auto envVarPointer = getenv(envVarName);
-    return envVarPointer ? TStringType(envVarPointer) : defaultValue;
+    return envVarPointer ? std::string(envVarPointer) : defaultValue;
 }
 
 } // namespace NYdb

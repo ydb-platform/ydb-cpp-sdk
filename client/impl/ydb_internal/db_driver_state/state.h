@@ -28,8 +28,8 @@ public:
     using TPtr = std::shared_ptr<TDbDriverState>;
 
     TDbDriverState(
-        const TStringType& database,
-        const TStringType& discoveryEndpoint,
+        const std::string& database,
+        const std::string& discoveryEndpoint,
         EDiscoveryMode discoveryMode,
         const TSslCredentials& sslCredentials,
         IInternalClient* client
@@ -46,11 +46,11 @@ public:
     void ForEachLocalEndpoint(const TEndpointElectorSafe::THandleCb& cb, const void* tag) const;
     void ForEachForeignEndpoint(const TEndpointElectorSafe::THandleCb& cb, const void* tag) const;
     EBalancingPolicy GetBalancingPolicy() const;
-    TStringType GetEndpoint() const;
+    std::string GetEndpoint() const;
     void SetCredentialsProvider(std::shared_ptr<ICredentialsProvider> credentialsProvider);
 
-    const TStringType Database;
-    const TStringType DiscoveryEndpoint;
+    const std::string Database;
+    const std::string DiscoveryEndpoint;
     const EDiscoveryMode DiscoveryMode;
     const TSslCredentials SslCredentials;
     std::shared_ptr<ICredentialsProvider> CredentialsProvider;
@@ -72,10 +72,10 @@ public:
 
 // Tracker allows to get driver state by database and credentials
 class TDbDriverStateTracker {
-    using TStateKey = std::tuple<TStringType, TStringType, TStringType, EDiscoveryMode, TSslCredentials>;
+    using TStateKey = std::tuple<std::string, std::string, std::string, EDiscoveryMode, TSslCredentials>;
     struct TStateKeyHash {
         size_t operator()(const TStateKey& k) const noexcept {
-            THash<TStringType> strHash;
+            THash<std::string> strHash;
             const size_t h0 = strHash(std::get<0>(k));
             const size_t h1 = strHash(std::get<1>(k));
             const size_t h2 = strHash(std::get<2>(k));
@@ -89,8 +89,8 @@ class TDbDriverStateTracker {
 public:
     TDbDriverStateTracker(IInternalClient* client);
     TDbDriverState::TPtr GetDriverState(
-        TStringType database,
-        TStringType DiscoveryEndpoint,
+        std::string database,
+        std::string DiscoveryEndpoint,
         EDiscoveryMode discoveryMode,
         const TSslCredentials& sslCredentials,
         std::shared_ptr<ICredentialsProviderFactory> credentialsProviderFactory

@@ -9,8 +9,8 @@ class TSession::TImpl : public TKqpSessionCommon {
 public:
     struct TAttachSessionArgs {
         TAttachSessionArgs(NThreading::TPromise<TCreateSessionResult> promise,
-            TString sessionId,
-            TString endpoint,
+            std::string sessionId,
+            std::string endpoint,
             std::shared_ptr<TQueryClient::TImpl> client)
             : Promise(promise)
             , SessionId(sessionId)
@@ -18,14 +18,14 @@ public:
             , Client(client)
         { }
         NThreading::TPromise<TCreateSessionResult> Promise;
-        TString SessionId;
-        TString Endpoint;
+        std::string SessionId;
+        std::string Endpoint;
         std::shared_ptr<TQueryClient::TImpl> Client;
     };
 
     using TResponse = Ydb::Query::SessionState;
     using TStreamProcessorPtr = NYdbGrpc::IStreamRequestReadProcessor<TResponse>::TPtr;
-    TImpl(TStreamProcessorPtr ptr, const TString& id, const TString& endpoint);
+    TImpl(TStreamProcessorPtr ptr, const std::string& id, const std::string& endpoint);
     ~TImpl();
 
     static void MakeImplAsync(TStreamProcessorPtr processor, std::shared_ptr<TAttachSessionArgs> args);

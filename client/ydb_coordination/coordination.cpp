@@ -57,8 +57,8 @@ void ConvertSettingsToProtoConfig(
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TString GenerateProtectionKey(size_t size) {
-    TString key;
+std::string GenerateProtectionKey(size_t size) {
+    std::string key;
     if (size > 0) {
         key.resize(size);
         EntropyPool().Read(key.Detach(), size);
@@ -92,7 +92,7 @@ struct TNodeDescription::TImpl {
     EConsistencyMode ReadConsistencyMode_;
     EConsistencyMode AttachConsistencyMode_;
     ERateLimiterCountersMode RateLimiterCountersMode_;
-    TString Owner_;
+    std::string Owner_;
     std::vector<NScheme::TPermissions> EffectivePermissions_;
     Ydb::Coordination::DescribeNodeResult Proto_;
 };
@@ -122,7 +122,7 @@ ERateLimiterCountersMode TNodeDescription::GetRateLimiterCountersMode() const {
     return Impl_->RateLimiterCountersMode_;
 }
 
-const TString& TNodeDescription::GetOwner() const {
+const std::string& TNodeDescription::GetOwner() const {
     return Impl_->Owner_;
 }
 
@@ -192,7 +192,7 @@ public:
     TSessionContext(
             TGRpcConnectionsImpl* connections,
             TDbDriverStatePtr dbState,
-            const TString& path,
+            const std::string& path,
             const TSessionSettings& settings)
         : Connections_(connections)
         , DbDriverState_(dbState)
@@ -261,7 +261,7 @@ private:
         {}
 
         virtual ~TSemaphoreOp() = default;
-        virtual void FillRequest(TRequest& req, const TString& name) const = 0;
+        virtual void FillRequest(TRequest& req, const std::string& name) const = 0;
     };
 
     struct TSemaphoreAcquireOp : public TSemaphoreOp {
@@ -281,7 +281,7 @@ private:
             return (Deadline - TInstant::Now()).MilliSeconds();
         }
 
-        void FillRequest(TRequest& req, const TString& name) const override {
+        void FillRequest(TRequest& req, const std::string& name) const override {
             auto& inner = *req.mutable_acquire_semaphore();
             inner.set_req_id(ReqId);
             inner.set_name(name);
@@ -297,7 +297,7 @@ private:
             : TSemaphoreOp(SEM_OP_RELEASE)
         {}
 
-        void FillRequest(TRequest& req, const TString& name) const override {
+        void FillRequest(TRequest& req, const std::string& name) const override {
             auto& inner = *req.mutable_release_semaphore();
             inner.set_req_id(ReqId);
             inner.set_name(name);
@@ -305,7 +305,7 @@ private:
     };
 
     struct TSemaphoreState {
-        TString Name;
+        std::string Name;
         TIntrusivePtr<TSemaphoreOp> LastSentOp;
         TIntrusivePtr<TSemaphoreOp> LastAckedOp;
         THashMap<ui64, TIntrusivePtr<TSemaphoreOp>> WaitingOps;
@@ -344,11 +344,11 @@ private:
     };
 
     struct TDescribeSemaphoreOp : public TSimpleOp {
-        const TString Name;
+        const std::string Name;
         TDescribeSemaphoreSettings Settings;
         TPromise<TDescribeSemaphoreResult> Promise = NewPromise<TDescribeSemaphoreResult>();
 
-        TDescribeSemaphoreOp(const TString& name, const TDescribeSemaphoreSettings& settings)
+        TDescribeSemaphoreOp(const std::string& name, const TDescribeSemaphoreSettings& settings)
             : Name(name)
             , Settings(settings)
         {}
@@ -375,12 +375,12 @@ private:
     };
 
     struct TCreateSemaphoreOp : public TSimpleOp {
-        const TString Name;
+        const std::string Name;
         const ui64 Limit;
-        const TString Data;
+        const std::string Data;
         TResultPromise<void> Promise = NewResultPromise<void>();
 
-        TCreateSemaphoreOp(const TString& name, ui64 limit, const TString& data)
+        TCreateSemaphoreOp(const std::string& name, ui64 limit, const std::string& data)
             : Name(name)
             , Limit(limit)
             , Data(data)
@@ -400,11 +400,11 @@ private:
     };
 
     struct TUpdateSemaphoreOp : public TSimpleOp {
-        const TString Name;
-        const TString Data;
+        const std::string Name;
+        const std::string Data;
         TResultPromise<void> Promise = NewResultPromise<void>();
 
-        TUpdateSemaphoreOp(const TString& name, const TString& data)
+        TUpdateSemaphoreOp(const std::string& name, const std::string& data)
             : Name(name)
             , Data(data)
         {}
@@ -422,11 +422,11 @@ private:
     };
 
     struct TDeleteSemaphoreOp : public TSimpleOp {
-        const TString Name;
+        const std::string Name;
         const bool Force;
         TResultPromise<void> Promise = NewResultPromise<void>();
 
-        TDeleteSemaphoreOp(const TString& name, bool force)
+        TDeleteSemaphoreOp(const std::string& name, bool force)
             : Name(name)
             , Force(force)
         {}
@@ -515,7 +515,7 @@ private:
     }
 
     TAsyncResult<bool> DoAcquireSemaphore(
-            const TString& name,
+            const std::string& name,
             const TAcquireSemaphoreSettings& settings)
         {
         with_lock (Lock) {
@@ -528,7 +528,7 @@ private:
         }
     }
 
-    TAsyncResult<bool> DoReleaseSemaphore(const TString& name) {
+    TAsyncResult<bool> DoReleaseSemaphore(const std::string& name) {
         with_lock (Lock) {
             if (IsClosed()) {
                 return MakeClosedResult<bool>();
@@ -540,7 +540,7 @@ private:
     }
 
     TAsyncDescribeSemaphoreResult DoDescribeSemaphore(
-            const TString& name,
+            const std::string& name,
             const TDescribeSemaphoreSettings& settings)
     {
         with_lock (Lock) {
@@ -558,7 +558,7 @@ private:
         }
     }
 
-    TAsyncResult<void> DoCreateSemaphore(const TString& name, ui64 limit, const TString& data) {
+    TAsyncResult<void> DoCreateSemaphore(const std::string& name, ui64 limit, const std::string& data) {
         with_lock (Lock) {
             if (IsClosed()) {
                 return MakeClosedResult<void>();
@@ -574,7 +574,7 @@ private:
         }
     }
 
-    TAsyncResult<void> DoUpdateSemaphore(const TString& name, const TString& data) {
+    TAsyncResult<void> DoUpdateSemaphore(const std::string& name, const std::string& data) {
         with_lock (Lock) {
             if (IsClosed()) {
                 return MakeClosedResult<void>();
@@ -590,7 +590,7 @@ private:
         }
     }
 
-    TAsyncResult<void> DoDeleteSemaphore(const TString& name, bool force) {
+    TAsyncResult<void> DoDeleteSemaphore(const std::string& name, bool force) {
         with_lock (Lock) {
             if (IsClosed()) {
                 return MakeClosedResult<void>();
@@ -686,7 +686,7 @@ private:
         return TStatus(TPlainStatus(status, std::move(issues)));
     }
 
-    TStatus MakeStatus(EStatus status, const TString& message) const {
+    TStatus MakeStatus(EStatus status, const std::string& message) const {
         return TStatus(TPlainStatus(status, message));
     }
 
@@ -837,14 +837,14 @@ private:
 
         if (state->IsEmpty()) {
             // Forget useless semaphore entries
-            TString name = state->Name;
+            std::string name = state->Name;
             Semaphores.erase(name);
         }
 
         return true;
     }
 
-    void DoSemaphoreEnqueueOp(const TString& name, TIntrusivePtr<TSemaphoreOp> op) {
+    void DoSemaphoreEnqueueOp(const std::string& name, TIntrusivePtr<TSemaphoreOp> op) {
         TSemaphoreState* state = Semaphores.FindPtr(name);
         if (!state) {
             state = &Semaphores[name];
@@ -1732,9 +1732,9 @@ private:
 private:
     TGRpcConnectionsImpl* const Connections_;
     TDbDriverStatePtr DbDriverState_;
-    const TString Path_;
+    const std::string Path_;
     const TSessionSettings Settings_;
-    const TString ProtectionKey_;
+    const std::string ProtectionKey_;
 
     TAdaptiveLock Lock;
 
@@ -1755,7 +1755,7 @@ private:
     IQueueClientContextPtr ConnectContext;
     IQueueClientContextPtr ConnectTimeoutContext;
 
-    THashMap<TString, TSemaphoreState> Semaphores;
+    THashMap<std::string, TSemaphoreState> Semaphores;
     THashMap<ui64, TSemaphoreState*> SemaphoreByReqId;
     TDeque<THolder<TSimpleOp>> PendingRequests;
     THashMap<ui64, THolder<TSimpleOp>> SentRequests;
@@ -1800,7 +1800,7 @@ public:
     }
 
     TAsyncSessionResult StartSession(
-        const TString& path,
+        const std::string& path,
         const TSessionSettings& settings)
     {
         auto session = MakeIntrusive<TSessionContext>(
@@ -1893,14 +1893,14 @@ TClient::~TClient() {
 }
 
 TAsyncSessionResult TClient::StartSession(
-    const TString& path,
+    const std::string& path,
     const TSessionSettings& settings)
 {
     return Impl_->StartSession(path, settings);
 }
 
 TAsyncStatus TClient::CreateNode(
-    const TString& path,
+    const std::string& path,
     const TCreateNodeSettings& settings)
 {
     auto request = MakeOperationRequest<Ydb::Coordination::CreateNodeRequest>(settings);
@@ -1910,7 +1910,7 @@ TAsyncStatus TClient::CreateNode(
 }
 
 TAsyncStatus TClient::AlterNode(
-    const TString& path,
+    const std::string& path,
     const TAlterNodeSettings& settings)
 {
     auto request = MakeOperationRequest<Ydb::Coordination::AlterNodeRequest>(settings);
@@ -1920,7 +1920,7 @@ TAsyncStatus TClient::AlterNode(
 }
 
 TAsyncStatus TClient::DropNode(
-    const TString& path,
+    const std::string& path,
     const TDropNodeSettings& settings)
 {
     auto request = MakeOperationRequest<Ydb::Coordination::DropNodeRequest>(settings);
@@ -1929,7 +1929,7 @@ TAsyncStatus TClient::DropNode(
 }
 
 TAsyncDescribeNodeResult TClient::DescribeNode(
-    const TString& path,
+    const std::string& path,
     const TDescribeNodeSettings& settings)
 {
     auto request = MakeOperationRequest<Ydb::Coordination::DescribeNodeRequest>(settings);
@@ -1974,32 +1974,32 @@ public:
     }
 
     TAsyncResult<bool> AcquireSemaphore(
-            const TString& name,
+            const std::string& name,
             const TAcquireSemaphoreSettings& settings)
     {
         return Context->DoAcquireSemaphore(name, settings);
     }
 
-    TAsyncResult<bool> ReleaseSemaphore(const TString& name) {
+    TAsyncResult<bool> ReleaseSemaphore(const std::string& name) {
         return Context->DoReleaseSemaphore(name);
     }
 
     TAsyncDescribeSemaphoreResult DescribeSemaphore(
-            const TString& name,
+            const std::string& name,
             const TDescribeSemaphoreSettings& settings)
     {
         return Context->DoDescribeSemaphore(name, settings);
     }
 
-    TAsyncResult<void> CreateSemaphore(const TString& name, ui64 limit, const TString& data) {
+    TAsyncResult<void> CreateSemaphore(const std::string& name, ui64 limit, const std::string& data) {
         return Context->DoCreateSemaphore(name, limit, data);
     }
 
-    TAsyncResult<void> UpdateSemaphore(const TString& name, const TString& data) {
+    TAsyncResult<void> UpdateSemaphore(const std::string& name, const std::string& data) {
         return Context->DoUpdateSemaphore(name, data);
     }
 
-    TAsyncResult<void> DeleteSemaphore(const TString& name, bool force) {
+    TAsyncResult<void> DeleteSemaphore(const std::string& name, bool force) {
         return Context->DoDeleteSemaphore(name, force);
     }
 
@@ -2038,40 +2038,40 @@ TAsyncResult<void> TSession::Reconnect() {
 }
 
 TAsyncResult<bool> TSession::AcquireSemaphore(
-    const TString& name,
+    const std::string& name,
     const TAcquireSemaphoreSettings& settings)
 {
     return Impl_->AcquireSemaphore(name, settings);
 }
 
-TAsyncResult<bool> TSession::ReleaseSemaphore(const TString& name) {
+TAsyncResult<bool> TSession::ReleaseSemaphore(const std::string& name) {
     return Impl_->ReleaseSemaphore(name);
 }
 
 TAsyncDescribeSemaphoreResult TSession::DescribeSemaphore(
-    const TString& name,
+    const std::string& name,
     const TDescribeSemaphoreSettings& settings)
 {
     return Impl_->DescribeSemaphore(name, settings);
 }
 
 TAsyncResult<void> TSession::CreateSemaphore(
-    const TString& name,
+    const std::string& name,
     ui64 limit,
-    const TString& data)
+    const std::string& data)
 {
     return Impl_->CreateSemaphore(name, limit, data);
 }
 
 TAsyncResult<void> TSession::UpdateSemaphore(
-    const TString& name,
-    const TString& data)
+    const std::string& name,
+    const std::string& data)
 {
     return Impl_->UpdateSemaphore(name, data);
 }
 
 TAsyncResult<void> TSession::DeleteSemaphore(
-    const TString& name,
+    const std::string& name,
     bool force)
 {
     return Impl_->DeleteSemaphore(name, force);

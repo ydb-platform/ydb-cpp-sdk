@@ -12,9 +12,9 @@
 namespace NYdb {
 
 #ifndef EXTERNAL_BUILD
-    using TStringType = TString;
+    using std::string = std::string;
 #else
-    using TStringType = std::string;
+    using std::string = std::string;
     using ToString = std::to_string;
 #endif
 

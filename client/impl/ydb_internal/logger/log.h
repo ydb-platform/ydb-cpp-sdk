@@ -7,7 +7,7 @@
 
 namespace NYdb {
 
-TLogFormatter GetPrefixLogFormatter(const TString& prefix);
-TStringType GetDatabaseLogPrefix(const TStringType& database);
+TLogFormatter GetPrefixLogFormatter(const std::string& prefix);
+std::string GetDatabaseLogPrefix(const std::string& database);
 
 } // namespace NYdb

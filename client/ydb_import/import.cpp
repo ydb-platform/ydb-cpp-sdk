@@ -115,7 +115,7 @@ public:
     }
 
     template <typename TData>
-    TAsyncImportDataResult ImportData(const TString& table, TData&& data, const TImportYdbDumpDataSettings& settings) {
+    TAsyncImportDataResult ImportData(const std::string& table, TData&& data, const TImportYdbDumpDataSettings& settings) {
         auto request = MakeOperationRequest<ImportDataRequest>(settings);
 
         request.set_path(table);
@@ -163,11 +163,11 @@ TFuture<TImportFromS3Response> TImportClient::ImportFromS3(const TImportFromS3Se
     return Impl_->ImportFromS3(std::move(request), settings);
 }
 
-TAsyncImportDataResult TImportClient::ImportData(const TString& table, TString&& data, const TImportYdbDumpDataSettings& settings) {
+TAsyncImportDataResult TImportClient::ImportData(const std::string& table, std::string&& data, const TImportYdbDumpDataSettings& settings) {
     return Impl_->ImportData(table, std::move(data), settings);
 }
 
-TAsyncImportDataResult TImportClient::ImportData(const TString& table, const TString& data, const TImportYdbDumpDataSettings& settings) {
+TAsyncImportDataResult TImportClient::ImportData(const std::string& table, const std::string& data, const TImportYdbDumpDataSettings& settings) {
     return Impl_->ImportData(table, data, settings);
 }
 

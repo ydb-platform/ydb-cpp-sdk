@@ -104,7 +104,7 @@ TConsumer::TConsumer(const Ydb::Topic::Consumer& consumer)
     }
 }
 
-const TString& TConsumer::GetConsumerName() const {
+const std::string& TConsumer::GetConsumerName() const {
     return ConsumerName_;
 }
 
@@ -120,7 +120,7 @@ const std::vector<ECodec>& TConsumer::GetSupportedCodecs() const {
     return SupportedCodecs_;
 }
 
-const std::map<TString, TString>& TConsumer::GetAttributes() const {
+const std::map<std::string, std::string>& TConsumer::GetAttributes() const {
     return Attributes_;
 }
 
@@ -172,7 +172,7 @@ EMeteringMode TTopicDescription::GetMeteringMode() const {
     return MeteringMode_;
 }
 
-const std::map<TString, TString>& TTopicDescription::GetAttributes() const {
+const std::map<std::string, std::string>& TTopicDescription::GetAttributes() const {
     return Attributes_;
 }
 
@@ -197,7 +197,7 @@ const Ydb::Topic::DescribePartitionResult& TPartitionDescription::GetProto() con
     return Proto_;
 }
 
-const TString& TTopicDescription::GetOwner() const {
+const std::string& TTopicDescription::GetOwner() const {
     return Owner_;
 }
 
@@ -325,11 +325,11 @@ ui64 TPartitionConsumerStats::GetLastReadOffset() const {
     return LastReadOffset_;
 }
 
-TString TPartitionConsumerStats::GetReaderName() const {
+std::string TPartitionConsumerStats::GetReaderName() const {
     return ReaderName_;
 }
 
-TString TPartitionConsumerStats::GetReadSessionId() const {
+std::string TPartitionConsumerStats::GetReadSessionId() const {
     return ReadSessionId_;
 }
 
@@ -410,28 +410,28 @@ ui64 TPartitionInfo::GetPartitionId() const {
 }
 
 
-TAsyncStatus TTopicClient::CreateTopic(const TString& path, const TCreateTopicSettings& settings) {
+TAsyncStatus TTopicClient::CreateTopic(const std::string& path, const TCreateTopicSettings& settings) {
     return Impl_->CreateTopic(path, settings);
 }
 
 
-TAsyncStatus TTopicClient::AlterTopic(const TString& path, const TAlterTopicSettings& settings) {
+TAsyncStatus TTopicClient::AlterTopic(const std::string& path, const TAlterTopicSettings& settings) {
     return Impl_->AlterTopic(path, settings);
 }
 
-TAsyncStatus TTopicClient::DropTopic(const TString& path, const TDropTopicSettings& settings) {
+TAsyncStatus TTopicClient::DropTopic(const std::string& path, const TDropTopicSettings& settings) {
     return Impl_->DropTopic(path, settings);
 }
 
-TAsyncDescribeTopicResult TTopicClient::DescribeTopic(const TString& path, const TDescribeTopicSettings& settings) {
+TAsyncDescribeTopicResult TTopicClient::DescribeTopic(const std::string& path, const TDescribeTopicSettings& settings) {
     return Impl_->DescribeTopic(path, settings);
 }
 
-TAsyncDescribeConsumerResult TTopicClient::DescribeConsumer(const TString& path, const TString& consumer, const TDescribeConsumerSettings& settings) {
+TAsyncDescribeConsumerResult TTopicClient::DescribeConsumer(const std::string& path, const std::string& consumer, const TDescribeConsumerSettings& settings) {
     return Impl_->DescribeConsumer(path, consumer, settings);
 }
 
-TAsyncDescribePartitionResult TTopicClient::DescribePartition(const TString& path, i64 partitionId, const TDescribePartitionSettings& settings) {
+TAsyncDescribePartitionResult TTopicClient::DescribePartition(const std::string& path, i64 partitionId, const TDescribePartitionSettings& settings) {
     return Impl_->DescribePartition(path, partitionId, settings);
 }
 
@@ -474,7 +474,7 @@ std::shared_ptr<IWriteSession> TTopicClient::CreateWriteSession(const TWriteSess
     return Impl_->CreateWriteSession(settings);
 }
 
-TAsyncStatus TTopicClient::CommitOffset(const TString& path, ui64 partitionId, const TString& consumerName, ui64 offset,
+TAsyncStatus TTopicClient::CommitOffset(const std::string& path, ui64 partitionId, const std::string& consumerName, ui64 offset,
     const TCommitOffsetSettings& settings) {
     return Impl_->CommitOffset(path, partitionId, consumerName, offset, settings);
 }

@@ -4,7 +4,7 @@
 
 namespace NYdb {
 
-TStringType GetStrFromEnv(const char* envVarName, const TStringType& defaultValue = "");
+std::string GetStrFromEnv(const char* envVarName, const std::string& defaultValue = "");
 
 } // namespace NYdb
 

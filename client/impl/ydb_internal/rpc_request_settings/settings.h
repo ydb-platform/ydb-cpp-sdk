@@ -7,9 +7,9 @@
 namespace NYdb {
 
 struct TRpcRequestSettings {
-    TStringType TraceId;
-    TStringType RequestType;
-    std::vector<std::pair<TStringType, TStringType>> Header;
+    std::string TraceId;
+    std::string RequestType;
+    std::vector<std::pair<std::string, std::string>> Header;
     TEndpointKey PreferredEndpoint = {};
     enum class TEndpointPolicy {
         UsePreferredEndpointOptionally, // Try to use the preferred endpoint

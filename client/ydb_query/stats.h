@@ -25,9 +25,9 @@ public:
     explicit TExecStats(Ydb::TableStats::QueryStats&& proto);
     explicit TExecStats(const Ydb::TableStats::QueryStats& proto);
 
-    TString ToString(bool withPlan = false) const;
+    std::string ToString(bool withPlan = false) const;
 
-    TMaybe<TString> GetPlan() const;
+    TMaybe<std::string> GetPlan() const;
 
     TDuration GetTotalDuration() const;
     TDuration GetTotalCpuTime() const;

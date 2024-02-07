@@ -14,10 +14,10 @@ namespace NKikimr::NPersQueueTests {
 
     std::shared_ptr<NYdb::NPersQueue::IWriteSession> CreateWriter(
         NYdb::TDriver& driver,
-        const TString& topic,
-        const TString& sourceId,
+        const std::string& topic,
+        const std::string& sourceId,
         std::optional<ui32> partitionGroup = {},
-        std::optional<TString> codec = {},
+        std::optional<std::string> codec = {},
         std::optional<bool> reconnectOnFailure = {},
         std::shared_ptr<NYdb::ICredentialsProviderFactory> creds = nullptr
     );
@@ -29,12 +29,12 @@ namespace NKikimr::NPersQueueTests {
 
     std::shared_ptr<NYdb::NPersQueue::ISimpleBlockingWriteSession> CreateSimpleWriter(
         NYdb::TDriver& driver,
-        const TString& topic,
-        const TString& sourceId,
+        const std::string& topic,
+        const std::string& sourceId,
         std::optional<ui32> partitionGroup = {},
-        std::optional<TString> codec = {},
+        std::optional<std::string> codec = {},
         std::optional<bool> reconnectOnFailure = {},
-        THashMap<TString, TString> sessionMeta = {}
+        THashMap<std::string, std::string> sessionMeta = {}
     );
 
     std::shared_ptr<NYdb::NPersQueue::IReadSession> CreateReader(

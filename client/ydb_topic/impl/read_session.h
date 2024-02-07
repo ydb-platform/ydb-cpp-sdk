@@ -30,7 +30,7 @@ public:
 
     bool Close(TDuration timeout) override;
 
-    inline TString GetSessionId() const override {
+    inline std::string GetSessionId() const override {
         return SessionId;
     }
 
@@ -43,7 +43,7 @@ public:
     void ClearAllEvents();
 
 private:
-    TStringBuilder GetLogPrefix() const;
+    TYdbStringBuilder GetLogPrefix() const;
 
     // Start
     bool ValidateSettings();
@@ -55,29 +55,29 @@ private:
 
     // Shutdown.
     void Abort(EStatus statusCode, NYql::TIssues&& issues);
-    void Abort(EStatus statusCode, const TString& message);
+    void Abort(EStatus statusCode, const std::string& message);
 
     void AbortImpl(NPersQueue::TDeferredActions<false>& deferred);
     void AbortImpl(TSessionClosedEvent&& closeEvent, NPersQueue::TDeferredActions<false>& deferred);
     void AbortImpl(EStatus statusCode, NYql::TIssues&& issues, NPersQueue::TDeferredActions<false>& deferred);
-    void AbortImpl(EStatus statusCode, const TString& message, NPersQueue::TDeferredActions<false>& deferred);
+    void AbortImpl(EStatus statusCode, const std::string& message, NPersQueue::TDeferredActions<false>& deferred);
 
 private:
-    using TOffsetRanges = THashMap<TString, THashMap<ui64, TDisjointIntervalTree<ui64>>>;
+    using TOffsetRanges = THashMap<std::string, THashMap<ui64, TDisjointIntervalTree<ui64>>>;
 
     void CollectOffsets(NTable::TTransaction& tx,
                         const TReadSessionEvent::TDataReceivedEvent& event);
     void CollectOffsets(NTable::TTransaction& tx,
-                        const TString& topicPath, ui32 partitionId, ui64 offset);
+                        const std::string& topicPath, ui32 partitionId, ui64 offset);
     void UpdateOffsets(const NTable::TTransaction& tx);
 
     //
     // (session, tx) -> topic -> partition -> (begin, end)
     //
-    THashMap<std::pair<TString, TString>, TOffsetRanges> OffsetRanges;
+    THashMap<std::pair<std::string, std::string>, TOffsetRanges> OffsetRanges;
 
     TReadSessionSettings Settings;
-    const TString SessionId;
+    const std::string SessionId;
     const TInstant StartSessionTime = TInstant::Now();
     TLog Log;
     std::shared_ptr<TTopicClient::TImpl> Client;

@@ -19,11 +19,11 @@ struct TWriteResult {
     bool Ok = false;
     // No acknowledgement is expected from a writer under test
     bool NoWait = false;
-    TString ResponseDebugString = TString();
+    std::string ResponseDebugString = std::string();
 };
 
 struct TAcknowledgableMessage {
-    TString Value;
+    std::string Value;
     ui64 SequenceNumber;
     TInstant CreatedAt;
     TPromise<TWriteResult> AckPromise;

@@ -37,7 +37,7 @@ public:
 
     bool Close(TDuration timeout);
 
-    inline TString GetSessionId() const {
+    inline std::string GetSessionId() const {
         return SessionId;
     }
 
@@ -47,7 +47,7 @@ public:
 
 private:
     // TODO logging
-    TStringBuilder GetLogPrefix() const;
+    TYdbStringBuilder GetLogPrefix() const;
 
     void Start();
     bool ValidateSettings();
@@ -71,7 +71,7 @@ private:
     // TODO
     // TLog Log;
 
-    const TString SessionId;
+    const std::string SessionId;
     const TInstant StartSessionTime = TInstant::Now();
 
     TAdaptiveLock Lock;
@@ -117,7 +117,7 @@ public:
         return TryGetImpl()->Close(timeout);
     }
 
-    inline TString GetSessionId() const override {
+    inline std::string GetSessionId() const override {
         return TryGetImpl()->GetSessionId();
     }
 

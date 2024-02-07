@@ -15,8 +15,8 @@ namespace NYdb {
 struct TPlainStatus {
     EStatus Status;
     NYql::TIssues Issues;
-    TStringType Endpoint;
-    std::multimap<TStringType, TStringType> Metadata;
+    std::string Endpoint;
+    std::multimap<std::string, std::string> Metadata;
     Ydb::CostInfo ConstInfo;
 
     TPlainStatus()
@@ -29,14 +29,14 @@ struct TPlainStatus {
     { }
 
     TPlainStatus(EStatus status, NYql::TIssues&& issues, const std::string& endpoint,
-        std::multimap<TStringType, TStringType>&& metadata)
+        std::multimap<std::string, std::string>&& metadata)
         : Status(status)
         , Issues(std::move(issues))
         , Endpoint(endpoint)
         , Metadata(std::move(metadata))
     { }
 
-    TPlainStatus(EStatus status, const TStringType& message)
+    TPlainStatus(EStatus status, const std::string& message)
         : Status(status)
     {
         if (!message.empty()) {
@@ -46,7 +46,7 @@ struct TPlainStatus {
 
     TPlainStatus(
         const NYdbGrpc::TGrpcStatus& grpcStatus, const std::string& endpoint = std::string(),
-        std::multimap<TStringType, TStringType>&& metadata = {});
+        std::multimap<std::string, std::string>&& metadata = {});
 
     template<class T>
     void SetCostInfo(T&& costInfo) {
@@ -57,15 +57,15 @@ struct TPlainStatus {
         return Status == EStatus::SUCCESS;
     }
 
-    static TPlainStatus Internal(const TStringType& message);
+    static TPlainStatus Internal(const std::string& message);
 
     bool IsTransportError() const {
         auto status = static_cast<size_t>(Status);
         return TRANSPORT_STATUSES_FIRST <= status && status <= TRANSPORT_STATUSES_LAST;
     }
 
-    TStringBuilder ToDebugString() const {
-        TStringBuilder ret;
+    TYdbStringBuilder ToDebugString() const {
+        TYdbStringBuilder ret;
         ret << "Status: " << Status;
         if(!Ok())
             ret << ", Description: " << SubstGlobalCopy(Issues.ToString(), '\n', ' ');

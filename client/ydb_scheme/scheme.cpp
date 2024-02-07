@@ -24,9 +24,9 @@ TVirtualTimestamp::TVirtualTimestamp(const ::Ydb::VirtualTimestamp& proto)
     : TVirtualTimestamp(proto.plan_step(), proto.tx_id())
 {}
 
-TString TVirtualTimestamp::ToString() const {
-    TString result;
-    TStringOutput out(result);
+std::string TVirtualTimestamp::ToString() const {
+    std::string result;
+    std::stringOutput out(result);
     Out(out);
     return result;
 }
@@ -114,7 +114,7 @@ public:
     TImpl(std::shared_ptr<TGRpcConnectionsImpl>&& connections, const TCommonClientSettings& settings)
         : TClientImplCommon(std::move(connections), settings) {}
 
-    TAsyncStatus MakeDirectory(const TString& path, const TMakeDirectorySettings& settings) {
+    TAsyncStatus MakeDirectory(const std::string& path, const TMakeDirectorySettings& settings) {
         auto request = MakeOperationRequest<Ydb::Scheme::MakeDirectoryRequest>(settings);
         request.set_path(path);
 
@@ -124,7 +124,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncStatus RemoveDirectory(const TString& path, const TRemoveDirectorySettings& settings) {
+    TAsyncStatus RemoveDirectory(const std::string& path, const TRemoveDirectorySettings& settings) {
         auto request = MakeOperationRequest<Ydb::Scheme::RemoveDirectoryRequest>(settings);
         request.set_path(path);
 
@@ -134,7 +134,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncDescribePathResult DescribePath(const TString& path, const TDescribePathSettings& settings) {
+    TAsyncDescribePathResult DescribePath(const std::string& path, const TDescribePathSettings& settings) {
         auto request = MakeOperationRequest<Ydb::Scheme::DescribePathRequest>(settings);
         request.set_path(path);
 
@@ -161,7 +161,7 @@ public:
         return promise.GetFuture();
     }
 
-    TAsyncListDirectoryResult ListDirectory(const TString& path, const TListDirectorySettings& settings) {
+    TAsyncListDirectoryResult ListDirectory(const std::string& path, const TListDirectorySettings& settings) {
         auto request = MakeOperationRequest<Ydb::Scheme::ListDirectoryRequest>(settings);
         request.set_path(path);
 
@@ -202,7 +202,7 @@ public:
         }
     }
 
-    TAsyncStatus ModifyPermissions(const TString& path, const TModifyPermissionsSettings& settings) {
+    TAsyncStatus ModifyPermissions(const std::string& path, const TModifyPermissionsSettings& settings) {
         auto request = MakeOperationRequest<Ydb::Scheme::ModifyPermissionsRequest>(settings);
         request.set_path(path);
         if (settings.ClearAcl_) {
@@ -269,25 +269,25 @@ TSchemeClient::TSchemeClient(const TDriver& driver, const TCommonClientSettings&
     : Impl_(new TImpl(CreateInternalInterface(driver), settings))
 {}
 
-TAsyncStatus TSchemeClient::MakeDirectory(const TString& path, const TMakeDirectorySettings& settings) {
+TAsyncStatus TSchemeClient::MakeDirectory(const std::string& path, const TMakeDirectorySettings& settings) {
     return Impl_->MakeDirectory(path, settings);
 }
 
-TAsyncStatus TSchemeClient::RemoveDirectory(const TString &path, const TRemoveDirectorySettings& settings) {
+TAsyncStatus TSchemeClient::RemoveDirectory(const std::string &path, const TRemoveDirectorySettings& settings) {
     return Impl_->RemoveDirectory(path, settings);
 }
 
-TAsyncDescribePathResult TSchemeClient::DescribePath(const TString& path, const TDescribePathSettings& settings) {
+TAsyncDescribePathResult TSchemeClient::DescribePath(const std::string& path, const TDescribePathSettings& settings) {
     return Impl_->DescribePath(path, settings);
 }
 
-TAsyncListDirectoryResult TSchemeClient::ListDirectory(const TString& path,
+TAsyncListDirectoryResult TSchemeClient::ListDirectory(const std::string& path,
     const TListDirectorySettings& settings)
 {
     return Impl_->ListDirectory(path, settings);
 }
 
-TAsyncStatus TSchemeClient::ModifyPermissions(const TString& path,
+TAsyncStatus TSchemeClient::ModifyPermissions(const std::string& path,
     const TModifyPermissionsSettings& data)
 {
     return Impl_->ModifyPermissions(path, data);

@@ -23,15 +23,15 @@ public:
     const NYql::TIssues& GetIssues() const;
     bool IsSuccess() const;
     bool IsTransportError() const;
-    const TStringType& GetEndpoint() const;
-    const std::multimap<TStringType, TStringType>& GetResponseMetadata() const;
+    const std::string& GetEndpoint() const;
+    const std::multimap<std::string, std::string>& GetResponseMetadata() const;
     float GetConsumedRu() const;
 
     friend IOutputStream& operator<<(IOutputStream& out, const TStatus& st);
 
 protected:
-    void CheckStatusOk(const TStringType& str) const;
-    void RaiseError(const TStringType& str) const;
+    void CheckStatusOk(const std::string& str) const;
+    void RaiseError(const std::string& str) const;
 private:
     class TImpl;
     std::shared_ptr<TImpl> Impl_;

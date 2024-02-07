@@ -32,13 +32,13 @@ using namespace ::testing; // Google mock.
                   "Real event got: " << DebugString(event)) \
     /**/
 
-TString Compress(const TString& sourceData, Ydb::PersQueue::V1::Codec codec = Ydb::PersQueue::V1::CODEC_GZIP) {
+std::string Compress(const std::string& sourceData, Ydb::PersQueue::V1::Codec codec = Ydb::PersQueue::V1::CODEC_GZIP) {
     if (codec == Ydb::PersQueue::V1::CODEC_RAW || codec == Ydb::PersQueue::V1::CODEC_UNSPECIFIED) {
         return sourceData;
     }
 
-    TString compressed;
-    TStringOutput out(compressed);
+    std::string compressed;
+    std::stringOutput out(compressed);
     THolder<IOutputStream> coder;
     switch (codec) {
     case Ydb::PersQueue::V1::CODEC_GZIP:
@@ -107,7 +107,7 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         }
     }
 
-    void FailCreation(EStatus status = EStatus::INTERNAL_ERROR, const TString& message = {}) { // Fail.
+    void FailCreation(EStatus status = EStatus::INTERNAL_ERROR, const std::string& message = {}) { // Fail.
         UNIT_ASSERT(ConnectedCallback);
         auto cb = std::move(ConnectedCallback);
         ConnectedCallback = nullptr;
@@ -141,7 +141,7 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         }
     }
 
-    void FailAndThenTimeout(EStatus status = EStatus::INTERNAL_ERROR, const TString& message = {}) {
+    void FailAndThenTimeout(EStatus status = EStatus::INTERNAL_ERROR, const std::string& message = {}) {
         UNIT_ASSERT(ConnectedCallback);
         UNIT_ASSERT(ConnectTimeoutCallback);
         auto cb2 = [cbt = std::move(ConnectTimeoutCallback), cb = std::move(ConnectedCallback), status, message]() mutable {
@@ -211,19 +211,19 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
         NYdbGrpc::TGrpcStatus Status;
         Ydb::PersQueue::V1::MigrationStreamingReadServerMessage Response;
 
-        TServerReadInfo& Failure(grpc::StatusCode status = grpc::StatusCode::UNAVAILABLE, const TString& message = {}, bool internal = false) {
+        TServerReadInfo& Failure(grpc::StatusCode status = grpc::StatusCode::UNAVAILABLE, const std::string& message = {}, bool internal = false) {
             Status.GRpcStatusCode = status;
             Status.InternalError = internal;
             Status.Msg = message;
             return *this;
         }
 
-        TServerReadInfo& InitResponse(const TString& sessionId) {
+        TServerReadInfo& InitResponse(const std::string& sessionId) {
             Response.mutable_init_response()->set_session_id(sessionId);
             return *this;
         }
 
-        TServerReadInfo& CreatePartitionStream(const TString& topic = "TestTopic", const TString& cluster = "TestCluster", const ui64 partition = 1, const ui64 assignId = 1, ui64 readOffset = 0, ui64 endOffset = 0) {
+        TServerReadInfo& CreatePartitionStream(const std::string& topic = "TestTopic", const std::string& cluster = "TestCluster", const ui64 partition = 1, const ui64 assignId = 1, ui64 readOffset = 0, ui64 endOffset = 0) {
             auto* req = Response.mutable_assigned();
             req->mutable_topic()->set_path(topic);
             req->set_cluster(cluster);
@@ -234,7 +234,7 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
             return *this;
         }
 
-        TServerReadInfo& ReleasePartitionStream(const TString& topic = "TestTopic", const TString& cluster = "TestCluster", const ui64 partition = 1, const ui64 assignId = 1, ui64 commitOffset = 0, bool forceful = false) {
+        TServerReadInfo& ReleasePartitionStream(const std::string& topic = "TestTopic", const std::string& cluster = "TestCluster", const ui64 partition = 1, const ui64 assignId = 1, ui64 commitOffset = 0, bool forceful = false) {
             auto* req = Response.mutable_release();
             req->mutable_topic()->set_path(topic);
             req->set_cluster(cluster);
@@ -245,12 +245,12 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
             return *this;
         }
 
-        TServerReadInfo& ForcefulReleasePartitionStream(const TString& topic = "TestTopic", const TString& cluster = "TestCluster", const ui64 partition = 1, const ui64 assignId = 1, ui64 commitOffset = 0) {
+        TServerReadInfo& ForcefulReleasePartitionStream(const std::string& topic = "TestTopic", const std::string& cluster = "TestCluster", const ui64 partition = 1, const ui64 assignId = 1, ui64 commitOffset = 0) {
             return ReleasePartitionStream(topic, cluster, partition, assignId, commitOffset, true);
         }
 
         // Data helpers.
-        TServerReadInfo& PartitionData(const ui64 cookie, const TString& topic = "TestTopic", const TString& cluster = "TestCluster", const ui64 partition = 1, const ui64 assignId = 1) {
+        TServerReadInfo& PartitionData(const ui64 cookie, const std::string& topic = "TestTopic", const std::string& cluster = "TestCluster", const ui64 partition = 1, const ui64 assignId = 1) {
             auto* req = Response.mutable_data_batch()->add_partition_data();
             req->mutable_topic()->set_path(topic);
             req->set_cluster(cluster);
@@ -261,7 +261,7 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
             return *this;
         }
 
-        TServerReadInfo& Batch(const TString& sourceId, TInstant writeTimestamp = TInstant::MilliSeconds(42), const TString& ip = "::1", const std::vector<std::pair<TString, TString>>& extraFields = {}) {
+        TServerReadInfo& Batch(const std::string& sourceId, TInstant writeTimestamp = TInstant::MilliSeconds(42), const std::string& ip = "::1", const std::vector<std::pair<std::string, std::string>>& extraFields = {}) {
             const int lastPartitionData = Response.data_batch().partition_data_size();
             UNIT_ASSERT(lastPartitionData > 0);
             auto* partitionData = Response.mutable_data_batch()->mutable_partition_data(lastPartitionData - 1);
@@ -277,7 +277,7 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
             return *this;
         }
 
-        TServerReadInfo& Message(ui64 offset, const TString& data, Ydb::PersQueue::V1::Codec codec, ui64 seqNo = 1, TInstant createTimestamp = TInstant::MilliSeconds(42)) {
+        TServerReadInfo& Message(ui64 offset, const std::string& data, Ydb::PersQueue::V1::Codec codec, ui64 seqNo = 1, TInstant createTimestamp = TInstant::MilliSeconds(42)) {
             const int lastPartitionData = Response.data_batch().partition_data_size();
             UNIT_ASSERT(lastPartitionData > 0);
             auto* partitionData = Response.mutable_data_batch()->mutable_partition_data(lastPartitionData - 1);
@@ -293,16 +293,16 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
             return *this;
         }
 
-        TServerReadInfo& CompressMessage(ui64 offset, const TString& sourceData, Ydb::PersQueue::V1::Codec codec = Ydb::PersQueue::V1::CODEC_GZIP, ui64 seqNo = 1, TInstant createTimestamp = TInstant::MilliSeconds(42)) {
+        TServerReadInfo& CompressMessage(ui64 offset, const std::string& sourceData, Ydb::PersQueue::V1::Codec codec = Ydb::PersQueue::V1::CODEC_GZIP, ui64 seqNo = 1, TInstant createTimestamp = TInstant::MilliSeconds(42)) {
             return Message(offset, Compress(sourceData, codec), codec, seqNo, createTimestamp);
         }
 
-        TServerReadInfo& BrokenCompressMessage(ui64 offset, const TString& sourceData, Ydb::PersQueue::V1::Codec codec = Ydb::PersQueue::V1::CODEC_GZIP, ui64 seqNo = 1, TInstant createTimestamp = TInstant::MilliSeconds(42)) {
+        TServerReadInfo& BrokenCompressMessage(ui64 offset, const std::string& sourceData, Ydb::PersQueue::V1::Codec codec = Ydb::PersQueue::V1::CODEC_GZIP, ui64 seqNo = 1, TInstant createTimestamp = TInstant::MilliSeconds(42)) {
             return Message(offset, "broken_header_" + Compress(sourceData, codec), codec, seqNo, createTimestamp);
         }
 
 
-        TServerReadInfo& PartitionStreamStatus(ui64 committedOffset, ui64 endOffset, TInstant writeWatermark, const TString& topic = "TestTopic", const TString& cluster = "TestCluster", const ui64 partition = 1, const ui64 assignId = 1) {
+        TServerReadInfo& PartitionStreamStatus(ui64 committedOffset, ui64 endOffset, TInstant writeWatermark, const std::string& topic = "TestTopic", const std::string& cluster = "TestCluster", const ui64 partition = 1, const ui64 assignId = 1) {
             auto* req = Response.mutable_partition_status();
             req->mutable_topic()->set_path(topic);
             req->set_cluster(cluster);
@@ -330,7 +330,7 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
     void Cancel() override {
     }
 
-    void ReadInitialMetadata(std::unordered_multimap<TString, TString>* metadata, TReadCallback callback) override {
+    void ReadInitialMetadata(std::unordered_multimap<std::string, std::string>* metadata, TReadCallback callback) override {
         Y_UNUSED(metadata);
         Y_UNUSED(callback);
         UNIT_ASSERT_C(false, "This method is not expected to be called");
@@ -493,7 +493,7 @@ public:
     ::IExecutor::TPtr GetDefaultExecutor();
 
     void SuccessfulInit(bool flag = true);
-    TPartitionStream::TPtr CreatePartitionStream(const TString& topic = "TestTopic", const TString& cluster = "TestCluster", ui64 partition = 1, ui64 assignId = 1);
+    TPartitionStream::TPtr CreatePartitionStream(const std::string& topic = "TestTopic", const std::string& cluster = "TestCluster", ui64 partition = 1, ui64 assignId = 1);
 
     // Assertions.
     void AssertNoEvents();
@@ -501,7 +501,7 @@ public:
 public:
     // Members
     TReadSessionSettings Settings;
-    TString ClusterName = "cluster";
+    std::string ClusterName = "cluster";
     TLog Log = CreateLogBackend("cerr");
     std::shared_ptr<TReadSessionEventsQueue<true>> EventsQueue;
     std::shared_ptr<TFakeContext> FakeContext = std::make_shared<TFakeContext>();
@@ -577,7 +577,7 @@ class TSynchronousExecutor : public ::IExecutor {
     }
 };
 
-extern TLogFormatter NYdb::GetPrefixLogFormatter(const TString& prefix); // Defined in ydb.cpp.
+extern TLogFormatter NYdb::GetPrefixLogFormatter(const std::string& prefix); // Defined in ydb.cpp.
 
 TReadSessionImplTestSetup::TReadSessionImplTestSetup() {
     Settings
@@ -655,7 +655,7 @@ void TReadSessionImplTestSetup::SuccessfulInit(bool hasInitRequest) {
     MockProcessor->Wait();
 }
 
-TPartitionStream::TPtr TReadSessionImplTestSetup::CreatePartitionStream(const TString& topic, const TString& cluster, ui64 partition, ui64 assignId) {
+TPartitionStream::TPtr TReadSessionImplTestSetup::CreatePartitionStream(const std::string& topic, const std::string& cluster, ui64 partition, ui64 assignId) {
     MockProcessor->AddServerResponse(TMockReadSessionProcessor::TServerReadInfo().CreatePartitionStream(topic, cluster, partition, assignId)); // Callback will be called.
     TMaybe<TReadSessionEvent::TEvent> event = EventsQueue->GetEvent(true);
     UNIT_ASSERT(event);
@@ -864,7 +864,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         }
 
         // Event 2: receive data.
-        auto GetDataEvent = [&](const TString& content) -> TMaybe<TReadSessionEvent::TEvent> {
+        auto GetDataEvent = [&](const std::string& content) -> TMaybe<TReadSessionEvent::TEvent> {
             TMaybe<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
@@ -1191,7 +1191,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
             setup.MockProcessor->AddServerResponse(TMockReadSessionProcessor::TServerReadInfo()
                                                    .PartitionData(i)
                                                    .Batch("src_id")
-                                                   .CompressMessage(i, TStringBuilder() << "message" << i)); // Callback will be called.
+                                                   .CompressMessage(i, TYdbStringBuilder() << "message" << i)); // Callback will be called.
         }
 
         for (ui64 i = 1; i <= 2; ) {
@@ -1200,7 +1200,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
             auto& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(*event);
             for (ui32 j = 0; j < dataEvent.GetMessages().size(); ++j, ++i) {
-                UNIT_ASSERT_VALUES_EQUAL(dataEvent.GetMessages()[j].GetData(), TStringBuilder() << "message" << i);
+                UNIT_ASSERT_VALUES_EQUAL(dataEvent.GetMessages()[j].GetData(), TYdbStringBuilder() << "message" << i);
             }
         }
 
@@ -1235,7 +1235,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         setup.AssertNoEvents();
     }
 
-    void DecompressImpl(Ydb::PersQueue::V1::Codec codec, const TString& data = "msg", ::IExecutor::TPtr executor = nullptr) {
+    void DecompressImpl(Ydb::PersQueue::V1::Codec codec, const std::string& data = "msg", ::IExecutor::TPtr executor = nullptr) {
         TReadSessionImplTestSetup setup;
         if (executor) {
             setup.Settings.DecompressionExecutor(executor);
@@ -1289,8 +1289,8 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         DecompressImpl(Ydb::PersQueue::V1::CODEC_ZSTD, "msg", new TSynchronousExecutor());
     }
 
-    TString GenerateMessageData(size_t size) {
-        TString result;
+    std::string GenerateMessageData(size_t size) {
+        std::string result;
         result.reserve(size);
         unsigned char ch = static_cast<unsigned char>(size);
         while (size--) {
@@ -1318,8 +1318,8 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         setup.SuccessfulInit();
         TPartitionStream::TPtr stream = setup.CreatePartitionStream();
 
-        const TString messageData = GenerateMessageData(messageSize);
-        const TString compressedMessageData = Compress(messageData);
+        const std::string messageData = GenerateMessageData(messageSize);
+        const std::string compressedMessageData = Compress(messageData);
         Cerr << "Message data size: " << messageData.size() << Endl;
         Cerr << "Compressed message data size: " << compressedMessageData.size() << Endl;
         ui64 offset = 1;
@@ -1475,8 +1475,8 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         TPartitionStream::TPtr stream2 = setup.CreatePartitionStream("TestTopic", "TestCluster", 2, 2);
 
 
-        const TString messageData = GenerateMessageData(100);
-        const TString compressedMessageData = Compress(messageData);
+        const std::string messageData = GenerateMessageData(100);
+        const std::string compressedMessageData = Compress(messageData);
         ui64 offset = 1;
         ui64 seqNo = 42;
 
@@ -1633,7 +1633,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
             for (auto& message: event.GetMessages()) {
                 ++time;
                 Cerr << "GOT MESSAGE: " << message.DebugString(true) << "\n";
-                UNIT_ASSERT_VALUES_EQUAL(message.GetData(), TStringBuilder() << "message" << time);
+                UNIT_ASSERT_VALUES_EQUAL(message.GetData(), TYdbStringBuilder() << "message" << time);
                 if (time == 3) {
                     calledPromise.SetValue();
                 }
@@ -1662,7 +1662,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         setup.Settings.EventHandlers_.DataReceivedHandler([&](TReadSessionEvent::TDataReceivedEvent& event) {
             for (ui32 i = 0; i < event.GetMessages().size(); ++i) {
                 ++time;
-                UNIT_ASSERT_VALUES_EQUAL(event.GetMessages()[i].GetData(), TStringBuilder() << "message" << time);
+                UNIT_ASSERT_VALUES_EQUAL(event.GetMessages()[i].GetData(), TYdbStringBuilder() << "message" << time);
 
                 if (time == 2) {
                     calledPromise.SetValue();

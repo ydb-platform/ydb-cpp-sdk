@@ -6,13 +6,13 @@ namespace NYdb {
 
 struct TSslCredentials {
     bool IsEnabled = false;
-    TStringType CaCert;
-    TStringType Cert;
-    TStringType PrivateKey;
+    std::string CaCert;
+    std::string Cert;
+    std::string PrivateKey;
 
     TSslCredentials() = default;
 
-    TSslCredentials(const bool isEnabled, const TStringType& caCert = "", const TStringType& cert = "", const TStringType& privateKey = "")
+    TSslCredentials(const bool isEnabled, const std::string& caCert = "", const std::string& cert = "", const std::string& privateKey = "")
     : IsEnabled(isEnabled), CaCert(caCert), Cert(cert), PrivateKey(privateKey) {}
 
     bool operator==(const TSslCredentials& other) const {

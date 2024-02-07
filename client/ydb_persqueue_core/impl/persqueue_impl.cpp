@@ -61,7 +61,7 @@ std::shared_ptr<ISimpleBlockingWriteSession> TPersQueueClient::TImpl::CreateSimp
     return std::move(session);
 }
 
-std::shared_ptr<TPersQueueClient::TImpl> TPersQueueClient::TImpl::GetClientForEndpoint(const TString& clusterEndoint) {
+std::shared_ptr<TPersQueueClient::TImpl> TPersQueueClient::TImpl::GetClientForEndpoint(const std::string& clusterEndoint) {
     with_lock (Lock) {
         Y_ABORT_UNLESS(!CustomEndpoint);
         std::shared_ptr<TImpl>& client = Subclients[clusterEndoint];

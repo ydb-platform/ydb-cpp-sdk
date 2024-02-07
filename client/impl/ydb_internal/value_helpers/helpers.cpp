@@ -89,7 +89,7 @@ bool TypesEqual(const Ydb::Type& t1, const Ydb::Type& t2) {
                     }
                     return true;
                 default:
-                    ThrowFatalError(TStringBuilder() << "Unexpected Variant type case " << static_cast<int>(t1.type_case()));
+                    ThrowFatalError(TYdbStringBuilder() << "Unexpected Variant type case " << static_cast<int>(t1.type_case()));
                     return false;
             }
             return false;
@@ -103,7 +103,7 @@ bool TypesEqual(const Ydb::Type& t1, const Ydb::Type& t2) {
         case Ydb::Type::kEmptyDictType:
             return true;
         default:
-            ThrowFatalError(TStringBuilder() << "Unexpected type case " << static_cast<int>(t1.type_case()));
+            ThrowFatalError(TYdbStringBuilder() << "Unexpected type case " << static_cast<int>(t1.type_case()));
             return false;
     }
 }

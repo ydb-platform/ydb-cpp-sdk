@@ -5,12 +5,12 @@
 namespace NYdb {
 
 struct TConnectionInfo {
-    TStringType Endpoint = "";
-    TStringType Database = "";
+    std::string Endpoint = "";
+    std::string Database = "";
     bool EnableSsl = false;
 };
 
-TConnectionInfo ParseConnectionString(const TStringType& connectionString);
+TConnectionInfo ParseConnectionString(const std::string& connectionString);
 
 } // namespace NYdb
 

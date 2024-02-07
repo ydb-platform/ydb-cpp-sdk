@@ -25,10 +25,10 @@ IInputStream* CreateDecompressorStream(TInputStreamVariant& inputStreamStorage, 
     }
 }
 
-TString Decompress(const Ydb::Topic::StreamReadMessage::ReadResponse::MessageData& data, Ydb::Topic::Codec codec) {
+std::string Decompress(const Ydb::Topic::StreamReadMessage::ReadResponse::MessageData& data, Ydb::Topic::Codec codec) {
     TMemoryInput input(data.data().data(), data.data().size());
-    TString result;
-    TStringOutput resultOutput(result);
+    std::string result;
+    std::stringOutput resultOutput(result);
     TInputStreamVariant inputStreamStorage;
     TransferData(CreateDecompressorStream(inputStreamStorage, codec, &input), &resultOutput);
     return result;

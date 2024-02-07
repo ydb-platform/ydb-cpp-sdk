@@ -16,7 +16,7 @@ using namespace NYdb::NScripting;
 namespace {
 
 template<class TService>
-std::unique_ptr<grpc::Server> StartGrpcServer(const TString& address, TService& service) {
+std::unique_ptr<grpc::Server> StartGrpcServer(const std::string& address, TService& service) {
     grpc::ServerBuilder builder;
     builder.AddListeningPort(address, grpc::InsecureServerCredentials());
     builder.RegisterService(&service);
@@ -49,7 +49,7 @@ Y_UNIT_TEST_SUITE(ResponseHeaders) {
     Y_UNIT_TEST(PassHeader) {
         TMockSlyDbProxy slyDbProxy;
 
-        TString addr = "localhost:2135";
+        std::string addr = "localhost:2135";
 
         auto server = StartGrpcServer(addr, slyDbProxy);
 
