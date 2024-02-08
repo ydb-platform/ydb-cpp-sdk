@@ -270,7 +270,7 @@ size_t Base64DecodeUneven(void* dst, const std::string_view s) {
 
 std::string Base64DecodeUneven(const std::string_view s) {
     std::string ret;
-    ret.ReserveAndResize(Base64DecodeBufSize(s.size()));
+    ret.resize(Base64DecodeBufSize(s.size()));
     size_t size = Base64DecodeUneven(const_cast<char*>(ret.data()), s);
     ret.resize(size);
     return ret;

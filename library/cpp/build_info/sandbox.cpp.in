@@ -10,7 +10,7 @@ extern "C" const char* GetSandboxTaskId() {
 class TKosherVersionHolder {
 public:
     const char* Version() const {
-        if (!Version_) {
+        if (Version_.empty()) {
             std::string version = "@KOSHER_SVN_VERSION@";
             SubstGlobal(version, ".", "=");
             Version_ = Base64Decode(version);

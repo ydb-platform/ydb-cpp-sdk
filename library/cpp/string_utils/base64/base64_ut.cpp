@@ -36,7 +36,7 @@ using namespace std::string_view_literals;
                                                                                                                                \
     Y_DECLARE_UNUSED                                                                                                           \
     static inline void prefix##Base64Decode(const std::string_view& src, std::string& dst) {                                             \
-        dst.ReserveAndResize(Base64DecodeBufSize(src.size()));                                                                 \
+        dst.resize(Base64DecodeBufSize(src.size()));                                                                 \
         dst.resize(::NB64Etalon::prefix##Base64Decode(src, dst.begin()).size());                                               \
     }                                                                                                                          \
                                                                                                                                \
@@ -62,7 +62,7 @@ using namespace std::string_view_literals;
                                                                                                                                \
     Y_DECLARE_UNUSED                                                                                                           \
     static inline void prefix##Base64Encode(const std::string_view& src, std::string& dst) {                                             \
-        dst.ReserveAndResize(Base64EncodeBufSize(src.size()));                                                                 \
+        dst.resize(Base64EncodeBufSize(src.size()));                                                                 \
         dst.resize(::NB64Etalon::prefix##Base64Encode(src, dst.begin()).size());                                               \
     }                                                                                                                          \
                                                                                                                                \
