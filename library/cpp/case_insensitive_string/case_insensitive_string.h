@@ -21,7 +21,7 @@ struct THash<TCaseInsensitiveString> : THash<TCaseInsensitiveStringBuf> {};
 namespace NStringSplitPrivate {
 
     template<>
-    struct std::string_viewOfImpl<TCaseInsensitiveStringBuf> {
+    struct TStringBufOfImpl<TCaseInsensitiveStringBuf> {
         /*
          * WARN:
          * StringSplitter does not use TCharTraits properly.
@@ -31,7 +31,7 @@ namespace NStringSplitPrivate {
     };
 
     template<>
-    struct std::string_viewOfImpl<TCaseInsensitiveString> : std::string_viewOfImpl<TCaseInsensitiveStringBuf> {
+    struct TStringBufOfImpl<TCaseInsensitiveString> : TStringBufOfImpl<TCaseInsensitiveStringBuf> {
     };
 
 } // namespace NStringSplitPrivate

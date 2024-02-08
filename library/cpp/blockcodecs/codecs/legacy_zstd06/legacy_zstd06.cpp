@@ -13,7 +13,7 @@ namespace {
     struct TZStd06Codec: public TAddLengthCodec<TZStd06Codec> {
         inline TZStd06Codec(unsigned level)
             : Level(level)
-            , MyName(NYdb::NUtils::TYdbStringBuilder() << std::string_view("zstd06_") << std::to_string(Level))
+            , MyName(NUtils::TYdbStringBuilder() << std::string_view("zstd06_") << std::to_string(Level))
         {
         }
 

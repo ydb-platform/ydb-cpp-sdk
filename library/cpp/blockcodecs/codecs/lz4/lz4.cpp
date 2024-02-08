@@ -72,14 +72,14 @@ namespace {
     template <class TC, class TD>
     struct TLz4Codec: public TAddLengthCodec<TLz4Codec<TC, TD>>, public TLz4Base, public TC, public TD {
         inline TLz4Codec()
-            : MyName(NYdb::NUtils::TYdbStringBuilder() << "lz4-" << TC::CPrefix() << "-" << TD::DPrefix())
+            : MyName(NUtils::TYdbStringBuilder() << "lz4-" << TC::CPrefix() << "-" << TD::DPrefix())
         {
         }
 
         template <class T>
         inline TLz4Codec(const T& t)
             : TC(t)
-            , MyName(NYdb::NUtils::TYdbStringBuilder() << "lz4-" << TC::CPrefix() << "-" << TD::DPrefix())
+            , MyName(NUtils::TYdbStringBuilder() << "lz4-" << TC::CPrefix() << "-" << TD::DPrefix())
         {
         }
 

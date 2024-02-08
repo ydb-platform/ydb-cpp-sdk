@@ -2,6 +2,8 @@
 
 #include "doccodes.h"
 
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <util/charset/recode_result.h>
 #include <util/charset/unidata.h> // all wchar32 functions
 #include <util/charset/utf8.h>
@@ -10,8 +12,6 @@
 #include <util/generic/yexception.h>
 #include <util/system/yassert.h>
 #include <util/system/defaults.h>
-
-#include <cctype>
 
 struct CodePage;
 struct Recoder;
@@ -304,17 +304,17 @@ inline void ToUpper(char* s, size_t n, const CodePage& cp = csYandex) {
 }
 
 inline std::string ToLower(std::string s, const CodePage& cp, size_t pos = 0, size_t n = std::string::npos) {
-    s.Transform([&cp](size_t, char c) { return cp.ToLower(c); }, pos, n);
+    NUtils::ContainerTransform(s, [&cp](size_t, char c) { return cp.ToLower(c); }, pos, n);
     return s;
 }
 
 inline std::string ToUpper(std::string s, const CodePage& cp, size_t pos = 0, size_t n = std::string::npos) {
-    s.Transform([&cp](size_t, char c) { return cp.ToUpper(c); }, pos, n);
+    NUtils::ContainerTransform(s, [&cp](size_t, char c) { return cp.ToUpper(c); }, pos, n);
     return s;
 }
 
 inline std::string ToTitle(std::string s, const CodePage& cp, size_t pos = 0, size_t n = std::string::npos) {
-    s.Transform(
+    NUtils::ContainerTransform(s,
         [pos, &cp](size_t i, char c) {
             return i == pos ? cp.ToTitle(c) : cp.ToLower(c);
         },

@@ -144,8 +144,8 @@ private:
         AddNameWithCheck(name, code);
 
         std::string temp = name;
-        RemoveAll(temp, '-');
-        RemoveAll(temp, '_');
+        NUtils::RemoveAll(temp, '-');
+        NUtils::RemoveAll(temp, '_');
         AddNameWithCheck(temp, code);
 
         temp = name;
@@ -179,7 +179,7 @@ public:
     }
 
     inline ECharset CharsetByName(std::string_view name) {
-        if (!name)
+        if (name.empty())
             return CODES_UNKNOWN;
 
         TData::const_iterator it = Data.find(name);
@@ -270,39 +270,39 @@ static inline void NormalizeEncodingPrefixes(std::string& enc) {
     std::string prefix = enc.substr(0, preflen);
     for (size_t i = 0; i < prefix.length(); ++i) {
         if (prefix[i] == '-') {
-            prefix.remove(i--);
+            prefix.erase(i--);
         }
     }
 
     if (Singleton<TWindowsPrefixesHashSet>()->Has(prefix)) {
-        enc.remove(0, preflen);
-        enc.prepend("windows-");
+        enc.erase(0, preflen);
+        enc.insert(0, "windows-");
         return;
     }
 
     if (Singleton<TCpPrefixesHashSet>()->Has(prefix)) {
         if (enc.length() > preflen + 3 && !strncmp(enc.c_str() + preflen, "125", 3) && isdigit(enc[preflen + 3])) {
-            enc.remove(0, preflen);
-            enc.prepend("windows-");
+            enc.erase(0, preflen);
+            enc.insert(0, "windows-");
             return;
         }
-        enc.remove(0, preflen);
-        enc.prepend("cp");
+        enc.erase(0, preflen);
+        enc.insert(0, "cp");
         return;
     }
 
     if (Singleton<TIsoPrefixesHashSet>()->Has(prefix)) {
         if (enc.length() == preflen + 1 || enc.length() == preflen + 2) {
             std::string enccopy = enc.substr(preflen);
-            enccopy.prepend("latin");
+            enccopy.insert(0, "latin");
             const TLatinToIsoHash* latinhash = Singleton<TLatinToIsoHash>();
             TLatinToIsoHash::const_iterator it = latinhash->find(enccopy.data());
             if (it != latinhash->end())
                 enc.assign(it->second);
             return;
         } else if (enc.length() > preflen + 5 && enc[preflen] == '8') {
-            enc.remove(0, preflen);
-            enc.prepend("iso-");
+            enc.erase(0, preflen);
+            enc.insert(0, "iso-");
             return;
         }
     }
@@ -376,7 +376,7 @@ ECharset EncodingHintByName(const char* encname) {
 
     // Do some normalization
     std::string enc(encname, lastpos - encname + 1);
-    enc.to_lower();
+    NUtils::ToLower(enc);
     for (char* p = enc.begin(); p != enc.end(); ++p) {
         if (*p == ' ' || *p == '=' || *p == '_')
             *p = '-';

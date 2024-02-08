@@ -17,7 +17,7 @@ namespace {
 
         inline TBrotliCodec(ui32 level)
             : Quality(level)
-            , MyName(NYdb::NUtils::TYdbStringBuilder() << std::string_view("brotli_") << std::to_string(level))
+            , MyName(NUtils::TYdbStringBuilder() << std::string_view("brotli_") << std::to_string(level))
         {
         }
 

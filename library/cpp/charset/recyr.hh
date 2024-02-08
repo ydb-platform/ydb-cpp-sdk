@@ -117,7 +117,7 @@ inline bool Recode(ECharset from, ECharset to, const std::string_view& in, std::
     const size_t inSize = in.length();
     const size_t outSize = SingleByteCodepage(to) ? inSize : 3 * inSize;
     out.clear(); // so we don't copy stuff around when resizing
-    out.ReserveAndResize(outSize);
+    out.resize(outSize);
 
     size_t inRead = 0;
     size_t outWritten = 0;
@@ -127,7 +127,7 @@ inline bool Recode(ECharset from, ECharset to, const std::string_view& in, std::
         ythrow yexception() << "Recode overrun the buffer: size="
                             << outSize << " need=" << outWritten;
 
-    out.remove(outWritten);
+    out.erase(outWritten);
     return true;
 }
 

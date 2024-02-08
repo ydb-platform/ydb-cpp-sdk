@@ -1,7 +1,9 @@
+#pragma once
+
 #include <string>
 #include <sstream>
 
-namespace NYdb::NUtils {
+namespace NUtils {
 
 class TYdbStringBuilder {
     using TStdStreamManipulator = std::ostream& (*)(std::ostream&);

@@ -41,11 +41,6 @@ public:
     {
     }
 
-    TCiString(const TUninitialized& uninitialized)
-        : std::string(uninitialized)
-    {
-    }
-
     TCiString(const char* b, const char* e)
         : std::string(b, e)
     {
@@ -87,12 +82,12 @@ public:
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator==(const TCiString& s, const std::stringBase<TDerived2, TChar, TTraits2>& pc) {
+    friend bool operator==(const TCiString& s, const std::basic_string<TDerived2, TChar, TTraits2>& pc) {
         return TCiString::compare(s, pc) == 0;
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator==(const std::stringBase<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
+    friend bool operator==(const std::basic_string<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
         return TCiString::compare(pc, s) == 0;
     }
 
@@ -109,12 +104,12 @@ public:
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator!=(const TCiString& s, const std::stringBase<TDerived2, TChar, TTraits2>& pc) {
+    friend bool operator!=(const TCiString& s, const std::basic_string<TDerived2, TChar, TTraits2>& pc) {
         return TCiString::compare(s, pc) != 0;
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator!=(const std::stringBase<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
+    friend bool operator!=(const std::basic_string<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
         return TCiString::compare(pc, s) != 0;
     }
 
@@ -131,12 +126,12 @@ public:
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator<(const TCiString& s, const std::stringBase<TDerived2, TChar, TTraits2>& pc) {
+    friend bool operator<(const TCiString& s, const std::basic_string<TDerived2, TChar, TTraits2>& pc) {
         return TCiString::compare(s, pc) < 0;
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator<(const std::stringBase<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
+    friend bool operator<(const std::basic_string<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
         return TCiString::compare(pc, s) < 0;
     }
 
@@ -153,12 +148,12 @@ public:
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator<=(const TCiString& s, const std::stringBase<TDerived2, TChar, TTraits2>& pc) {
+    friend bool operator<=(const TCiString& s, const std::basic_string<TDerived2, TChar, TTraits2>& pc) {
         return TCiString::compare(s, pc) <= 0;
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator<=(const std::stringBase<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
+    friend bool operator<=(const std::basic_string<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
         return TCiString::compare(pc, s) <= 0;
     }
 
@@ -175,12 +170,12 @@ public:
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator>(const TCiString& s, const std::stringBase<TDerived2, TChar, TTraits2>& pc) noexcept {
+    friend bool operator>(const TCiString& s, const std::basic_string<TDerived2, TChar, TTraits2>& pc) noexcept {
         return TCiString::compare(s, pc) > 0;
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator>(const std::stringBase<TDerived2, TChar, TTraits2>& pc, const TCiString& s) noexcept {
+    friend bool operator>(const std::basic_string<TDerived2, TChar, TTraits2>& pc, const TCiString& s) noexcept {
         return TCiString::compare(pc, s) > 0;
     }
 
@@ -197,12 +192,12 @@ public:
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator>=(const TCiString& s, const std::stringBase<TDerived2, TChar, TTraits2>& pc) {
+    friend bool operator>=(const TCiString& s, const std::basic_string<TDerived2, TChar, TTraits2>& pc) {
         return TCiString::compare(s, pc) >= 0;
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator>=(const std::stringBase<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
+    friend bool operator>=(const std::basic_string<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
         return TCiString::compare(pc, s) >= 0;
     }
 
