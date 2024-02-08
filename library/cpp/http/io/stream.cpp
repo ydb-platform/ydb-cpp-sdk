@@ -31,11 +31,11 @@ namespace {
         return 8192;
     }
 
-    inline TStringBuf Trim(const char* b, const char* e) noexcept {
-        return StripString(TStringBuf(b, e));
+    inline std::string_view Trim(const char* b, const char* e) noexcept {
+        return StripString(std::string_view(b, e));
     }
 
-    inline TStringBuf RmSemiColon(const TStringBuf& s) {
+    inline std::string_view RmSemiColon(const std::string_view& s) {
         return s.Before(';');
     }
 
@@ -131,7 +131,7 @@ namespace {
 }
 
 class THttpInput::TImpl {
-    typedef THashSet<TString> TAcceptCodings;
+    typedef THashSet<std::string> TAcceptCodings;
 
 public:
     inline TImpl(IInputStream* slave)
@@ -151,8 +151,8 @@ public:
         Y_ASSERT(Input_);
     }
 
-    static TString ReadFirstLine(TBufferedInput& in) {
-        TString s;
+    static std::string ReadFirstLine(TBufferedInput& in) {
+        std::string s;
         Y_ENSURE_EX(in.ReadLine(s), THttpReadException() << "Failed to get first line");
         return s;
     }
@@ -168,7 +168,7 @@ public:
         return Perform(len, [this](size_t toSkip) { return Input_->Skip(toSkip); });
     }
 
-    inline const TString& FirstLine() const noexcept {
+    inline const std::string& FirstLine() const noexcept {
         return FirstLine_;
     }
 
@@ -184,7 +184,7 @@ public:
         return KeepAlive_;
     }
 
-    inline bool AcceptEncoding(const TString& s) const {
+    inline bool AcceptEncoding(const std::string& s) const {
         return Codings_.find(to_lower(s)) != Codings_.end();
     }
 
@@ -230,12 +230,12 @@ private:
     struct TParsedHeaders {
         bool Chunked = false;
         bool KeepAlive = false;
-        TStringBuf LZipped;
+        std::string_view LZipped;
     };
 
     struct TTrEnc {
-        inline void operator()(const TStringBuf& s) {
-            if (s == TStringBuf("chunked")) {
+        inline void operator()(const std::string_view& s) {
+            if (s == std::string_view("chunked")) {
                 p->Chunked = true;
             }
         }
@@ -244,7 +244,7 @@ private:
     };
 
     struct TAccCoding {
-        inline void operator()(const TStringBuf& s) {
+        inline void operator()(const std::string_view& s) {
             c->insert(ToString(s));
         }
 
@@ -252,7 +252,7 @@ private:
     };
 
     template <class Functor>
-    inline void ForEach(TString in, Functor& f) {
+    inline void ForEach(std::string in, Functor& f) {
         in.to_lower();
 
         const char* b = in.begin();
@@ -284,7 +284,7 @@ private:
 
         size_t pos = FirstLine_.rfind(' ');
         // In HTTP/1.1 Keep-Alive is turned on by default
-        if (pos != TString::npos && strcmp(FirstLine_.c_str() + pos + 1, "HTTP/1.1") == 0) {
+        if (pos != std::string::npos && strcmp(FirstLine_.c_str() + pos + 1, "HTTP/1.1") == 0) {
             p.KeepAlive = true; //request
         } else if (strnicmp(FirstLine_.data(), "HTTP/1.1", 8) == 0) {
             p.KeepAlive = true; //reply
@@ -322,7 +322,7 @@ private:
                 }
                 [[fallthrough]];
                 HEADERCMP(header, "expect") {
-                    auto findContinue = [&](const TStringBuf& s) {
+                    auto findContinue = [&](const std::string_view& s) {
                         if (strnicmp(s.data(), "100-continue", 13) == 0) {
                             Expect100Continue_ = true;
                         }
@@ -372,7 +372,7 @@ private:
      */
     IInputStream* Input_;
 
-    TString FirstLine_;
+    std::string FirstLine_;
     THttpHeaders Headers_;
     TMaybe<THttpHeaders> Trailers_;
     bool KeepAlive_;
@@ -412,7 +412,7 @@ const TMaybe<THttpHeaders>& THttpInput::Trailers() const noexcept {
     return Impl_->Trailers();
 }
 
-const TString& THttpInput::FirstLine() const noexcept {
+const std::string& THttpInput::FirstLine() const noexcept {
     return Impl_->FirstLine();
 }
 
@@ -420,20 +420,20 @@ bool THttpInput::IsKeepAlive() const noexcept {
     return Impl_->IsKeepAlive();
 }
 
-bool THttpInput::AcceptEncoding(const TString& coding) const {
+bool THttpInput::AcceptEncoding(const std::string& coding) const {
     return Impl_->AcceptEncoding(coding);
 }
 
-TString THttpInput::BestCompressionScheme(TArrayRef<const TStringBuf> codings) const {
+std::string THttpInput::BestCompressionScheme(TArrayRef<const std::string_view> codings) const {
     return NHttp::ChooseBestCompressionScheme(
-        [this](const TString& coding) {
+        [this](const std::string& coding) {
             return AcceptEncoding(coding);
         },
         codings
     );
 }
 
-TString THttpInput::BestCompressionScheme() const {
+std::string THttpInput::BestCompressionScheme() const {
     return BestCompressionScheme(TCompressionCodecFactory::Instance().GetBestCodecs());
 }
 
@@ -580,7 +580,7 @@ public:
         return Headers_;
     }
 
-    inline void EnableCompression(TArrayRef<const TStringBuf> schemas) {
+    inline void EnableCompression(TArrayRef<const std::string_view> schemas) {
         ComprSchemas_ = schemas;
     }
 
@@ -616,7 +616,7 @@ public:
         return SupportChunkedTransfer() && IsKeepAliveEnabled() && (Request_ ? Request_->IsKeepAlive() : true);
     }
 
-    inline const TString& FirstLine() const noexcept {
+    inline const std::string& FirstLine() const noexcept {
         return FirstLine_;
     }
 
@@ -625,11 +625,11 @@ public:
     }
 
 private:
-    static inline bool IsResponse(const TString& s) noexcept {
+    static inline bool IsResponse(const std::string& s) noexcept {
         return strnicmp(s.data(), "HTTP/", 5) == 0;
     }
 
-    static inline bool IsRequest(const TString& s) noexcept {
+    static inline bool IsRequest(const std::string& s) noexcept {
         return !IsResponse(s);
     }
 
@@ -639,7 +639,7 @@ private:
 
     inline bool HasResponseBody() const noexcept {
         if (IsHttpResponse()) {
-            if (Request_ && Request_->FirstLine().StartsWith(TStringBuf("HEAD")))
+            if (Request_ && Request_->FirstLine().StartsWith(std::string_view("HEAD")))
                 return false;
             if (FirstLine_.size() > 9 && strncmp(FirstLine_.data() + 9, "204", 3) == 0)
                 return false;
@@ -657,7 +657,7 @@ private:
                strnicmp(FirstLine_.data(), "PATCH", 5) == 0 ||
                strnicmp(FirstLine_.data(), "PUT", 3) == 0;
     }
-    static inline size_t ParseHttpVersion(const TString& s) {
+    static inline size_t ParseHttpVersion(const std::string& s) {
         if (s.empty()) {
             ythrow THttpParseException() << "malformed http stream";
         }
@@ -706,7 +706,7 @@ private:
         Version_ = parsed_version;
     }
 
-    inline void Process(const TString& s) {
+    inline void Process(const std::string& s) {
         Y_ASSERT(State_ != HeadersSent);
 
         if (State_ == Begin) {
@@ -770,7 +770,7 @@ private:
 
         if (IsHttpResponse()) {
             if (Request_ && IsCompressionEnabled() && HasResponseBody()) {
-                TString scheme = Request_->BestCompressionScheme(ComprSchemas_);
+                std::string scheme = Request_->BestCompressionScheme(ComprSchemas_);
                 if (scheme != "identity") {
                     AddOrReplaceHeader(THttpInputHeader("Content-Encoding", scheme));
                     RemoveHeader("Content-Length");
@@ -788,8 +788,8 @@ private:
         }
     }
 
-    inline TString BuildAcceptEncoding() const {
-        TString ret;
+    inline std::string BuildAcceptEncoding() const {
+        std::string ret;
 
         for (const auto& coding : ComprSchemas_) {
             if (ret) {
@@ -810,15 +810,15 @@ private:
 
         for (THttpHeaders::TConstIterator h = Headers_.Begin(); h != Headers_.End(); ++h) {
             const THttpInputHeader& header = *h;
-            const TString hl = to_lower(header.Name());
+            const std::string hl = to_lower(header.Name());
 
-            if (hl == TStringBuf("connection")) {
-                keepAlive = to_lower(header.Value()) == TStringBuf("keep-alive");
-            } else if (IsCompressionHeaderEnabled() && hl == TStringBuf("content-encoding")) {
+            if (hl == std::string_view("connection")) {
+                keepAlive = to_lower(header.Value()) == std::string_view("keep-alive");
+            } else if (IsCompressionHeaderEnabled() && hl == std::string_view("content-encoding")) {
                 encoder = TCompressionCodecFactory::Instance().FindEncoder(to_lower(header.Value()));
-            } else if (hl == TStringBuf("transfer-encoding")) {
-                chunked = to_lower(header.Value()) == TStringBuf("chunked");
-            } else if (hl == TStringBuf("content-length")) {
+            } else if (hl == std::string_view("transfer-encoding")) {
+                chunked = to_lower(header.Value()) == std::string_view("chunked");
+            } else if (hl == std::string_view("content-length")) {
                 haveContentLength = true;
             }
         }
@@ -847,7 +847,7 @@ private:
         Headers_.AddOrReplaceHeader(hdr);
     }
 
-    inline void RemoveHeader(const TString& hdr) {
+    inline void RemoveHeader(const std::string& hdr) {
         Headers_.RemoveHeader(hdr);
     }
 
@@ -856,13 +856,13 @@ private:
     TState State_;
     IOutputStream* Output_;
     TStreams<IOutputStream, 8> Streams_;
-    TString Line_;
-    TString FirstLine_;
+    std::string Line_;
+    std::string FirstLine_;
     THttpHeaders Headers_;
     THttpInput* Request_;
     size_t Version_;
 
-    TArrayRef<const TStringBuf> ComprSchemas_;
+    TArrayRef<const std::string_view> ComprSchemas_;
 
     bool KeepAliveEnabled_;
     bool BodyEncodingEnabled_;
@@ -910,12 +910,12 @@ void THttpOutput::EnableCompression(bool enable) {
     if (enable) {
         EnableCompression(TCompressionCodecFactory::Instance().GetBestCodecs());
     } else {
-        TArrayRef<TStringBuf> codings;
+        TArrayRef<std::string_view> codings;
         EnableCompression(codings);
     }
 }
 
-void THttpOutput::EnableCompression(TArrayRef<const TStringBuf> schemas) {
+void THttpOutput::EnableCompression(TArrayRef<const std::string_view> schemas) {
     Impl_->EnableCompression(schemas);
 }
 
@@ -955,7 +955,7 @@ void THttpOutput::SendContinue() {
     Impl_->SendContinue();
 }
 
-const TString& THttpOutput::FirstLine() const noexcept {
+const std::string& THttpOutput::FirstLine() const noexcept {
     return Impl_->FirstLine();
 }
 
@@ -963,13 +963,13 @@ size_t THttpOutput::SentSize() const noexcept {
     return Impl_->SentSize();
 }
 
-unsigned ParseHttpRetCode(const TStringBuf& ret) {
-    const TStringBuf code = StripString(StripString(ret.After(' ')).Before(' '));
+unsigned ParseHttpRetCode(const std::string_view& ret) {
+    const std::string_view code = StripString(StripString(ret.After(' ')).Before(' '));
 
     return FromString<unsigned>(code.data(), code.size());
 }
 
-void SendMinimalHttpRequest(TSocket& s, const TStringBuf& host, const TStringBuf& request, const TStringBuf& agent, const TStringBuf& from) {
+void SendMinimalHttpRequest(TSocket& s, const std::string_view& host, const std::string_view& request, const std::string_view& agent, const std::string_view& from) {
     TSocketOutput so(s);
     THttpOutput output(&so);
 
@@ -977,17 +977,17 @@ void SendMinimalHttpRequest(TSocket& s, const TStringBuf& host, const TStringBuf
     output.EnableCompression(false);
 
     const IOutputStream::TPart parts[] = {
-        IOutputStream::TPart(TStringBuf("GET ")),
+        IOutputStream::TPart(std::string_view("GET ")),
         IOutputStream::TPart(request),
-        IOutputStream::TPart(TStringBuf(" HTTP/1.1")),
+        IOutputStream::TPart(std::string_view(" HTTP/1.1")),
         IOutputStream::TPart::CrLf(),
-        IOutputStream::TPart(TStringBuf("Host: ")),
+        IOutputStream::TPart(std::string_view("Host: ")),
         IOutputStream::TPart(host),
         IOutputStream::TPart::CrLf(),
-        IOutputStream::TPart(TStringBuf("User-Agent: ")),
+        IOutputStream::TPart(std::string_view("User-Agent: ")),
         IOutputStream::TPart(agent),
         IOutputStream::TPart::CrLf(),
-        IOutputStream::TPart(TStringBuf("From: ")),
+        IOutputStream::TPart(std::string_view("From: ")),
         IOutputStream::TPart(from),
         IOutputStream::TPart::CrLf(),
         IOutputStream::TPart::CrLf(),
@@ -997,6 +997,6 @@ void SendMinimalHttpRequest(TSocket& s, const TStringBuf& host, const TStringBuf
     output.Finish();
 }
 
-TArrayRef<const TStringBuf> SupportedCodings() {
+TArrayRef<const std::string_view> SupportedCodings() {
     return TCompressionCodecFactory::Instance().GetBestCodecs();
 }

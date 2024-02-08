@@ -10,13 +10,13 @@ namespace NYT {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline char* TStringBuilderBase::Preallocate(size_t size)
+inline char* TYdbStringBuilderBase::Preallocate(size_t size)
 {
     Reserve(size + GetLength());
     return Current_;
 }
 
-inline void TStringBuilderBase::Reserve(size_t size)
+inline void TYdbStringBuilderBase::Reserve(size_t size)
 {
     if (Y_UNLIKELY(End_ - Begin_ < static_cast<ssize_t>(size))) {
         size_t length = GetLength();
@@ -26,29 +26,29 @@ inline void TStringBuilderBase::Reserve(size_t size)
     }
 }
 
-inline size_t TStringBuilderBase::GetLength() const
+inline size_t TYdbStringBuilderBase::GetLength() const
 {
     return Current_ ? Current_ - Begin_ : 0;
 }
 
-inline TStringBuf TStringBuilderBase::GetBuffer() const
+inline std::string_view TYdbStringBuilderBase::GetBuffer() const
 {
-    return TStringBuf(Begin_, Current_);
+    return std::string_view(Begin_, Current_);
 }
 
-inline void TStringBuilderBase::Advance(size_t size)
+inline void TYdbStringBuilderBase::Advance(size_t size)
 {
     Current_ += size;
     YT_ASSERT(Current_ <= End_);
 }
 
-inline void TStringBuilderBase::AppendChar(char ch)
+inline void TYdbStringBuilderBase::AppendChar(char ch)
 {
     *Preallocate(1) = ch;
     Advance(1);
 }
 
-inline void TStringBuilderBase::AppendChar(char ch, int n)
+inline void TYdbStringBuilderBase::AppendChar(char ch, int n)
 {
     YT_ASSERT(n >= 0);
     if (Y_LIKELY(0 != n)) {
@@ -58,7 +58,7 @@ inline void TStringBuilderBase::AppendChar(char ch, int n)
     }
 }
 
-inline void TStringBuilderBase::AppendString(TStringBuf str)
+inline void TYdbStringBuilderBase::AppendString(std::string_view str)
 {
     if (Y_LIKELY(str)) {
         char* dst = Preallocate(str.length());
@@ -67,32 +67,32 @@ inline void TStringBuilderBase::AppendString(TStringBuf str)
     }
 }
 
-inline void TStringBuilderBase::AppendString(const char* str)
+inline void TYdbStringBuilderBase::AppendString(const char* str)
 {
-    AppendString(TStringBuf(str));
+    AppendString(std::string_view(str));
 }
 
-inline void TStringBuilderBase::Reset()
+inline void TYdbStringBuilderBase::Reset()
 {
     Begin_ = Current_ = End_ = nullptr;
     DoReset();
 }
 
 template <class... TArgs>
-void TStringBuilderBase::AppendFormat(TStringBuf format, TArgs&& ... args)
+void TYdbStringBuilderBase::AppendFormat(std::string_view format, TArgs&& ... args)
 {
     Format(this, format, std::forward<TArgs>(args)...);
 }
 
 template <size_t Length, class... TArgs>
-void TStringBuilderBase::AppendFormat(const char (&format)[Length], TArgs&& ... args)
+void TYdbStringBuilderBase::AppendFormat(const char (&format)[Length], TArgs&& ... args)
 {
     Format(this, format, std::forward<TArgs>(args)...);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline TString TStringBuilder::Flush()
+inline std::string TYdbStringBuilder::Flush()
 {
     Buffer_.resize(GetLength());
     auto result = std::move(Buffer_);
@@ -100,12 +100,12 @@ inline TString TStringBuilder::Flush()
     return result;
 }
 
-inline void TStringBuilder::DoReset()
+inline void TYdbStringBuilder::DoReset()
 {
     Buffer_ = {};
 }
 
-inline void TStringBuilder::DoReserve(size_t newLength)
+inline void TYdbStringBuilder::DoReserve(size_t newLength)
 {
     Buffer_.ReserveAndResize(newLength);
     auto capacity = Buffer_.capacity();
@@ -116,15 +116,15 @@ inline void TStringBuilder::DoReserve(size_t newLength)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline void FormatValue(TStringBuilderBase* builder, const TStringBuilder& value, TStringBuf /*format*/)
+inline void FormatValue(TYdbStringBuilderBase* builder, const TYdbStringBuilder& value, std::string_view /*format*/)
 {
     builder->AppendString(value.GetBuffer());
 }
 
 template <class T>
-TString ToStringViaBuilder(const T& value, TStringBuf spec)
+std::string ToStringViaBuilder(const T& value, std::string_view spec)
 {
-    TStringBuilder builder;
+    TYdbStringBuilder builder;
     FormatValue(&builder, value, spec);
     return builder.Flush();
 }

@@ -4,7 +4,7 @@
 #include <util/system/yassert.h>
 
 extern "C" int LLVMFuzzerTestOneInput(const ui8* data, size_t size) {
-    const TStringBuf example{reinterpret_cast<const char*>(data), size};
+    const std::string_view example{reinterpret_cast<const char*>(data), size};
     Y_UNUSED(Base64DecodeUneven(example));
     return 0;
 }

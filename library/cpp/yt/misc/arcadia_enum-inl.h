@@ -17,23 +17,23 @@ struct TArcadiaEnumTraitsImpl
     static constexpr bool IsBitEnum = false;
     static constexpr bool IsStringSerializableEnum = false;
 
-    static TStringBuf GetTypeName()
+    static std::string_view GetTypeName()
     {
         static const auto Result = TypeName<T>();
         return Result;
     }
 
-    static std::optional<TStringBuf> FindLiteralByValue(T value)
+    static std::optional<std::string_view> FindLiteralByValue(T value)
     {
         auto names = GetEnumNames<T>();
         auto it = names.find(value);
-        return it == names.end() ? std::nullopt : std::make_optional(TStringBuf(it->second));
+        return it == names.end() ? std::nullopt : std::make_optional(std::string_view(it->second));
     }
 
-    static std::optional<T> FindValueByLiteral(TStringBuf literal)
+    static std::optional<T> FindValueByLiteral(std::string_view literal)
     {
         static const auto LiteralToValue = [] {
-            THashMap<TString, T> result;
+            THashMap<std::string, T> result;
             for (const auto& [value, name] : GetEnumNames<T>()) {
                 result.emplace(name, value);
             }

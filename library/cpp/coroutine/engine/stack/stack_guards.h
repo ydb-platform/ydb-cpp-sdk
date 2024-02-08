@@ -57,7 +57,7 @@ namespace NCoro::NStack {
             Y_ASSERT(stack);
 
             char* guardPos = (char*) ((size_t)stack - Canary.size());
-            return TStringBuf(guardPos, Canary.size()) == Canary;
+            return std::string_view(guardPos, Canary.size()) == Canary;
         }
 
         static bool CheckOverride(void* stack, size_t size) noexcept {
@@ -65,11 +65,11 @@ namespace NCoro::NStack {
             Y_ASSERT(size > Canary.size());
 
             char* guardPos = (char*) ((size_t)stack + size - Canary.size());
-            return TStringBuf(guardPos, Canary.size()) == Canary;
+            return std::string_view(guardPos, Canary.size()) == Canary;
         }
 
     private:
-        static constexpr TStringBuf Canary = "[ThisIsACanaryCoroutineStackGuardIfYouReadThisTheStackIsStillOK]";
+        static constexpr std::string_view Canary = "[ThisIsACanaryCoroutineStackGuardIfYouReadThisTheStackIsStillOK]";
         static_assert(Canary.size() == 64);
         static constexpr size_t AlignedSize_ = (Canary.size() + PageSize - 1) & ~PageSizeMask;
     };

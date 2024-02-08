@@ -9,7 +9,7 @@ class TLCSTest: public TTestBase {
     UNIT_TEST_SUITE_END();
 
 private:
-    size_t Length(TStringBuf s1, TStringBuf s2) {
+    size_t Length(std::string_view s1, std::string_view s2) {
         std::vector<std::vector<size_t>> c;
         c.resize(s1.size() + 1);
 
@@ -29,22 +29,22 @@ private:
         return c[s1.size()][s2.size()];
     }
 
-    void CheckLCSLength(TStringBuf s1, TStringBuf s2, size_t size) {
+    void CheckLCSLength(std::string_view s1, std::string_view s2, size_t size) {
         size_t len = NLCS::MeasureLCS<char>(s1, s2);
 
         UNIT_ASSERT_VALUES_EQUAL(len, Length(s1, s2));
         UNIT_ASSERT_VALUES_EQUAL(len, size);
     }
 
-    void CheckLCSString(TStringBuf s1, TStringBuf s2, TStringBuf reflcs) {
-        TString lcs;
+    void CheckLCSString(std::string_view s1, std::string_view s2, std::string_view reflcs) {
+        std::string lcs;
         size_t len = NLCS::MakeLCS<char>(s1, s2, &lcs);
         const char* comment = Sprintf("%s & %s = %s", s1.data(), s2.data(), reflcs.data()).c_str();
 
         UNIT_ASSERT_VALUES_EQUAL_C(Length(s1, s2), len, comment);
         UNIT_ASSERT_VALUES_EQUAL_C(lcs.size(), len, comment);
         UNIT_ASSERT_VALUES_EQUAL_C(NLCS::MeasureLCS<char>(s1, s2), len, comment);
-        UNIT_ASSERT_VALUES_EQUAL_C(reflcs, TStringBuf(lcs), comment);
+        UNIT_ASSERT_VALUES_EQUAL_C(reflcs, std::string_view(lcs), comment);
     }
 
     void LCSTest() {

@@ -23,7 +23,7 @@ namespace NMonitoring {
             SVG
         };
 
-        TResourceMonPage(const TString& path, const TString& resourceName,
+        TResourceMonPage(const std::string& path, const std::string& resourceName,
                          const EResourceType& resourceType = BINARY, const bool isCached = false)
             : IMonPage(path, "")
             , ResourceName(resourceName)
@@ -37,7 +37,7 @@ namespace NMonitoring {
         void NotFound(NMonitoring::IMonHttpRequest& request) const;
 
     private:
-        TString ResourceName;
+        std::string ResourceName;
         EResourceType ResourceType;
         bool IsCached;
     };

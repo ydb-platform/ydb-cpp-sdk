@@ -4,19 +4,19 @@
 
 namespace NMonitoring {
     namespace NFormatContenType {
-        constexpr TStringBuf TEXT = "application/x-solomon-txt";
-        constexpr TStringBuf JSON = "application/json";
-        constexpr TStringBuf PROTOBUF = "application/x-solomon-pb";
-        constexpr TStringBuf SPACK = "application/x-solomon-spack";
-        constexpr TStringBuf PROMETHEUS = "text/plain";
-        constexpr TStringBuf UNISTAT = "text/json";
+        constexpr std::string_view TEXT = "application/x-solomon-txt";
+        constexpr std::string_view JSON = "application/json";
+        constexpr std::string_view PROTOBUF = "application/x-solomon-pb";
+        constexpr std::string_view SPACK = "application/x-solomon-spack";
+        constexpr std::string_view PROMETHEUS = "text/plain";
+        constexpr std::string_view UNISTAT = "text/json";
     }
 
     namespace NFormatContentEncoding {
-        constexpr TStringBuf IDENTITY = "identity";
-        constexpr TStringBuf ZLIB = "zlib";
-        constexpr TStringBuf LZ4 = "lz4";
-        constexpr TStringBuf ZSTD = "zstd";
+        constexpr std::string_view IDENTITY = "identity";
+        constexpr std::string_view ZLIB = "zlib";
+        constexpr std::string_view LZ4 = "lz4";
+        constexpr std::string_view ZSTD = "zstd";
     }
 
     /**
@@ -123,7 +123,7 @@ namespace NMonitoring {
      * @param value  value of the "Accept" header.
      * @return most preffered serialization format type
      */
-    EFormat FormatFromAcceptHeader(TStringBuf value);
+    EFormat FormatFromAcceptHeader(std::string_view value);
 
     /**
      * Matches serialization format by the given "Content-Type" header value
@@ -131,7 +131,7 @@ namespace NMonitoring {
      * @param value value of the "Content-Type" header
      * @return message format
      */
-    EFormat FormatFromContentType(TStringBuf value);
+    EFormat FormatFromContentType(std::string_view value);
 
     /**
      * Returns value for "Content-Type" header determined by the given
@@ -141,7 +141,7 @@ namespace NMonitoring {
      * @return mime-type indentificator
      *         or empty string if format is UNKNOWN
      */
-    TStringBuf ContentTypeByFormat(EFormat format);
+    std::string_view ContentTypeByFormat(EFormat format);
 
     /**
      * Matches compression algorithm by the given "Accept-Encoding" header value.
@@ -149,7 +149,7 @@ namespace NMonitoring {
      * @param value  value of the "Accept-Encoding" header.
      * @return most preffered compression algorithm
      */
-    ECompression CompressionFromAcceptEncodingHeader(TStringBuf value);
+    ECompression CompressionFromAcceptEncodingHeader(std::string_view value);
 
     /**
      * Matches compression algorithm by the given "Content-Encoding" header value.
@@ -157,7 +157,7 @@ namespace NMonitoring {
      * @param value  value of the "Accept-Encoding" header.
      * @return most preffered compression algorithm
      */
-    ECompression CompressionFromContentEncodingHeader(TStringBuf value);
+    ECompression CompressionFromContentEncodingHeader(std::string_view value);
 
     /**
      * Returns value for "Content-Encoding" header determined by the given
@@ -167,6 +167,6 @@ namespace NMonitoring {
      * @return media-type compresion algorithm
      *         or empty string if compression is UNKNOWN
      */
-    TStringBuf ContentEncodingByCompression(ECompression compression);
+    std::string_view ContentEncodingByCompression(ECompression compression);
 
 }

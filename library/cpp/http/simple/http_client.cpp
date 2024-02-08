@@ -8,7 +8,7 @@
 #include <util/string/join.h>
 #include <util/string/split.h>
 
-TKeepAliveHttpClient::TKeepAliveHttpClient(const TString& host,
+TKeepAliveHttpClient::TKeepAliveHttpClient(const std::string& host,
                                            ui32 port,
                                            TDuration socketTimeout,
                                            TDuration connectTimeout)
@@ -23,11 +23,11 @@ TKeepAliveHttpClient::TKeepAliveHttpClient(const TString& host,
 {
 }
 
-TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::DoGet(const TStringBuf relativeUrl,
+TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::DoGet(const std::string_view relativeUrl,
                                                             IOutputStream* output,
                                                             const THeaders& headers,
                                                             THttpHeaders* outHeaders) {
-    return DoRequest(TStringBuf("GET"),
+    return DoRequest(std::string_view("GET"),
                      relativeUrl,
                      {},
                      output,
@@ -35,12 +35,12 @@ TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::DoGet(const TStringBuf rel
                      outHeaders);
 }
 
-TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::DoPost(const TStringBuf relativeUrl,
-                                                             const TStringBuf body,
+TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::DoPost(const std::string_view relativeUrl,
+                                                             const std::string_view body,
                                                              IOutputStream* output,
                                                              const THeaders& headers,
                                                              THttpHeaders* outHeaders) {
-    return DoRequest(TStringBuf("POST"),
+    return DoRequest(std::string_view("POST"),
                      relativeUrl,
                      body,
                      output,
@@ -48,17 +48,17 @@ TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::DoPost(const TStringBuf re
                      outHeaders);
 }
 
-TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::DoRequest(const TStringBuf method,
-                                                                const TStringBuf relativeUrl,
-                                                                const TStringBuf body,
+TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::DoRequest(const std::string_view method,
+                                                                const std::string_view relativeUrl,
+                                                                const std::string_view body,
                                                                 IOutputStream* output,
                                                                 const THeaders& inHeaders,
                                                                 THttpHeaders* outHeaders) {
-    const TString contentLength = IntToString<10, size_t>(body.size());
+    const std::string contentLength = IntToString<10, size_t>(body.size());
     return DoRequestReliable(FormRequest(method, relativeUrl, body, inHeaders, contentLength), output, outHeaders);
 }
 
-TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::DoRequestRaw(const TStringBuf raw,
+TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::DoRequestRaw(const std::string_view raw,
                                                                    IOutputStream* output,
                                                                    THttpHeaders* outHeaders) {
     return DoRequestReliable(raw, output, outHeaders);
@@ -77,29 +77,29 @@ void TKeepAliveHttpClient::ResetConnection() {
     Connection.Reset();
 }
 
-std::vector<IOutputStream::TPart> TKeepAliveHttpClient::FormRequest(TStringBuf method,
-                                                                const TStringBuf relativeUrl,
-                                                                TStringBuf body,
+std::vector<IOutputStream::TPart> TKeepAliveHttpClient::FormRequest(std::string_view method,
+                                                                const std::string_view relativeUrl,
+                                                                std::string_view body,
                                                                 const TKeepAliveHttpClient::THeaders& headers,
-                                                                TStringBuf contentLength) const {
+                                                                std::string_view contentLength) const {
     std::vector<IOutputStream::TPart> parts;
 
     parts.reserve(16 + 4 * headers.size());
     parts.push_back(method);
-    parts.push_back(TStringBuf(" "));
+    parts.push_back(std::string_view(" "));
     parts.push_back(relativeUrl);
-    parts.push_back(TStringBuf(" HTTP/1.1"));
+    parts.push_back(std::string_view(" HTTP/1.1"));
     parts.push_back(IOutputStream::TPart::CrLf());
-    parts.push_back(TStringBuf("Host: "));
-    parts.push_back(TStringBuf(Host));
+    parts.push_back(std::string_view("Host: "));
+    parts.push_back(std::string_view(Host));
     parts.push_back(IOutputStream::TPart::CrLf());
-    parts.push_back(TStringBuf("Content-Length: "));
+    parts.push_back(std::string_view("Content-Length: "));
     parts.push_back(contentLength);
     parts.push_back(IOutputStream::TPart::CrLf());
 
     for (const auto& entry : headers) {
         parts.push_back(IOutputStream::TPart(entry.first));
-        parts.push_back(IOutputStream::TPart(TStringBuf(": ")));
+        parts.push_back(IOutputStream::TPart(std::string_view(": ")));
         parts.push_back(IOutputStream::TPart(entry.second));
         parts.push_back(IOutputStream::TPart::CrLf());
     }
@@ -119,7 +119,7 @@ TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::ReadAndTransferHttp(THttpI
     try {
         statusCode = ParseHttpRetCode(input.FirstLine());
     } catch (TFromStringException& e) {
-        TString rest = input.ReadAll();
+        std::string rest = input.ReadAll();
         ythrow THttpRequestException() << "Failed parse status code in response of " << Host << ": " << e.what() << " (" << input.FirstLine() << ")"
                                        << "\nFull http response:\n"
                                        << rest;
@@ -178,7 +178,7 @@ TSimpleHttpClient::TSimpleHttpClient(const TOptions& options)
 {
 }
 
-TSimpleHttpClient::TSimpleHttpClient(const TString& host, ui32 port, TDuration socketTimeout, TDuration connectTimeout)
+TSimpleHttpClient::TSimpleHttpClient(const std::string& host, ui32 port, TDuration socketTimeout, TDuration connectTimeout)
     : Host(host)
     , Port(port)
     , SocketTimeout(socketTimeout)
@@ -190,7 +190,7 @@ void TSimpleHttpClient::EnableVerificationForHttps() {
     HttpsVerification = true;
 }
 
-void TSimpleHttpClient::DoGet(const TStringBuf relativeUrl, IOutputStream* output, const THeaders& headers) const {
+void TSimpleHttpClient::DoGet(const std::string_view relativeUrl, IOutputStream* output, const THeaders& headers) const {
     TKeepAliveHttpClient cl = CreateClient();
 
     TKeepAliveHttpClient::THttpCode code = cl.DoGet(relativeUrl, output, headers);
@@ -199,7 +199,7 @@ void TSimpleHttpClient::DoGet(const TStringBuf relativeUrl, IOutputStream* outpu
     ProcessResponse(relativeUrl, *cl.GetHttpInput(), output, code);
 }
 
-void TSimpleHttpClient::DoPost(const TStringBuf relativeUrl, TStringBuf body, IOutputStream* output, const THashMap<TString, TString>& headers) const {
+void TSimpleHttpClient::DoPost(const std::string_view relativeUrl, std::string_view body, IOutputStream* output, const THashMap<std::string, std::string>& headers) const {
     TKeepAliveHttpClient cl = CreateClient();
 
     TKeepAliveHttpClient::THttpCode code = cl.DoPost(relativeUrl, body, output, headers);
@@ -208,7 +208,7 @@ void TSimpleHttpClient::DoPost(const TStringBuf relativeUrl, TStringBuf body, IO
     ProcessResponse(relativeUrl, *cl.GetHttpInput(), output, code);
 }
 
-void TSimpleHttpClient::DoPostRaw(const TStringBuf relativeUrl, const TStringBuf rawRequest, IOutputStream* output) const {
+void TSimpleHttpClient::DoPostRaw(const std::string_view relativeUrl, const std::string_view rawRequest, IOutputStream* output) const {
     TKeepAliveHttpClient cl = CreateClient();
 
     TKeepAliveHttpClient::THttpCode code = cl.DoRequestRaw(rawRequest, output);
@@ -218,7 +218,7 @@ void TSimpleHttpClient::DoPostRaw(const TStringBuf relativeUrl, const TStringBuf
 }
 
 namespace NPrivate {
-    THttpConnection::THttpConnection(const TString& host,
+    THttpConnection::THttpConnection(const std::string& host,
                                      ui32 port,
                                      TDuration sockTimeout,
                                      TDuration connTimeout,
@@ -248,7 +248,7 @@ namespace NPrivate {
         HttpOut->EnableKeepAlive(true);
     }
 
-    TNetworkAddress THttpConnection::Resolve(const TString& host, ui32 port) {
+    TNetworkAddress THttpConnection::Resolve(const std::string& host, ui32 port) {
         try {
             return TNetworkAddress(host, port);
         } catch (const yexception& e) {
@@ -259,7 +259,7 @@ namespace NPrivate {
     TSocket THttpConnection::Connect(TNetworkAddress& addr,
                                      TDuration sockTimeout,
                                      TDuration connTimeout,
-                                     const TString& host,
+                                     const std::string& host,
                                      ui32 port) {
         try {
             TSocket socket(addr, connTimeout);
@@ -275,9 +275,9 @@ namespace NPrivate {
     }
 }
 
-void TSimpleHttpClient::ProcessResponse(const TStringBuf relativeUrl, THttpInput& input, IOutputStream*, const unsigned statusCode) const {
+void TSimpleHttpClient::ProcessResponse(const std::string_view relativeUrl, THttpInput& input, IOutputStream*, const unsigned statusCode) const {
     if (!(statusCode >= 200 && statusCode < 300)) {
-        TString rest = input.ReadAll();
+        std::string rest = input.ReadAll();
         ythrow THttpRequestException(statusCode) << "Got " << statusCode << " at " << Host << relativeUrl << "\nFull http response:\n"
                                                  << rest;
     }
@@ -301,7 +301,7 @@ TKeepAliveHttpClient TSimpleHttpClient::CreateClient() const {
 void TSimpleHttpClient::PrepareClient(TKeepAliveHttpClient&) const {
 }
 
-TRedirectableHttpClient::TRedirectableHttpClient(const TString& host, ui32 port, TDuration socketTimeout, TDuration connectTimeout)
+TRedirectableHttpClient::TRedirectableHttpClient(const std::string& host, ui32 port, TDuration socketTimeout, TDuration connectTimeout)
     : TSimpleHttpClient(host, port, socketTimeout, connectTimeout)
 {
 }
@@ -312,22 +312,22 @@ void TRedirectableHttpClient::PrepareClient(TKeepAliveHttpClient& cl) const {
     };
 }
 
-void TRedirectableHttpClient::ProcessResponse(const TStringBuf relativeUrl, THttpInput& input, IOutputStream* output, const unsigned statusCode) const {
+void TRedirectableHttpClient::ProcessResponse(const std::string_view relativeUrl, THttpInput& input, IOutputStream* output, const unsigned statusCode) const {
     for (auto i = input.Headers().Begin(), e = input.Headers().End(); i != e; ++i) {
-        if (0 == TString::compare(i->Name(), TStringBuf("Location"))) {
-            std::vector<TString> request_url_parts, request_body_parts;
+        if (0 == std::string::compare(i->Name(), std::string_view("Location"))) {
+            std::vector<std::string> request_url_parts, request_body_parts;
 
             size_t splitted_index = 0;
             for (auto& iter : StringSplitter(i->Value()).Split('/')) {
                 if (splitted_index < 3) {
-                    request_url_parts.push_back(TString(iter.Token()));
+                    request_url_parts.push_back(std::string(iter.Token()));
                 } else {
-                    request_body_parts.push_back(TString(iter.Token()));
+                    request_body_parts.push_back(std::string(iter.Token()));
                 }
                 ++splitted_index;
             }
 
-            TString url = JoinSeq("/", request_url_parts);
+            std::string url = JoinSeq("/", request_url_parts);
             ui16 port = 443;
 
             THttpURL u;
@@ -343,12 +343,12 @@ void TRedirectableHttpClient::ProcessResponse(const TStringBuf relativeUrl, THtt
             if (HttpsVerification) {
                 cl.EnableVerificationForHttps();
             }
-            cl.DoGet(TString("/") + JoinSeq("/", request_body_parts), output);
+            cl.DoGet(std::string("/") + JoinSeq("/", request_body_parts), output);
             return;
         }
     }
     if (!(statusCode >= 200 && statusCode < 300)) {
-        TString rest = input.ReadAll();
+        std::string rest = input.ReadAll();
         ythrow THttpRequestException(statusCode) << "Got " << statusCode << " at " << Host << relativeUrl << "\nFull http response:\n"
                                                  << rest;
     }

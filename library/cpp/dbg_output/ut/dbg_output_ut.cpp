@@ -33,13 +33,13 @@ DEFINE_DUMPER(TMyNS::TMyStruct, A, B)
 
 Y_UNIT_TEST_SUITE(TContainerPrintersTest) {
     Y_UNIT_TEST(TestVectorInt) {
-        TStringStream out;
+        std::stringStream out;
         out << DbgDump(std::vector<int>({1, 2, 3, 4, 5}));
         UNIT_ASSERT_STRINGS_EQUAL(out.Str(), "[1, 2, 3, 4, 5]");
     }
 
     Y_UNIT_TEST(TestMapCharToCharArray) {
-        TStringStream out;
+        std::stringStream out;
 
         TMap<char, const char*> m;
 
@@ -52,7 +52,7 @@ Y_UNIT_TEST_SUITE(TContainerPrintersTest) {
     }
 
     Y_UNIT_TEST(TestVectorOfVectors) {
-        TStringStream out;
+        std::stringStream out;
         std::vector<std::vector<wchar16>> vec(2);
         vec[0].push_back(0);
         vec[1] = {wchar16('a')};
@@ -61,28 +61,28 @@ Y_UNIT_TEST_SUITE(TContainerPrintersTest) {
     }
 
     Y_UNIT_TEST(TestInfinite) {
-        UNIT_ASSERT(!!(TStringBuilder() << DbgDumpDeep(TX())));
+        UNIT_ASSERT(!!(TYdbStringBuilder() << DbgDumpDeep(TX())));
     }
 
     Y_UNIT_TEST(TestLabeledDump) {
-        TStringStream out;
+        std::stringStream out;
         int a = 1, b = 2;
         out << LabeledDump(a, b, 1 + 2);
         UNIT_ASSERT_STRINGS_EQUAL(out.Str(), "{\"a\": 1, \"b\": 2, \"1 + 2\": 3}");
     }
 
     Y_UNIT_TEST(TestStructDumper) {
-        TStringStream out;
+        std::stringStream out;
         out << DbgDump(TMyNS::TMyStruct{3, 4});
         UNIT_ASSERT_STRINGS_EQUAL(out.Str(), "{\"A\": 3, \"B\": 4}");
     }
 
     Y_UNIT_TEST(TestColors) {
-        using TComplex = TMap<TString, TMap<int, char>>;
+        using TComplex = TMap<std::string, TMap<int, char>>;
         TComplex test;
         test["a"][1] = '7';
         test["b"][2] = '6';
-        TStringStream out;
+        std::stringStream out;
         out << DbgDump<TComplex, NDbgDump::NColorScheme::TEyebleed</* Enforce = */ true>>(test);
         UNIT_ASSERT_STRINGS_EQUAL(
             EscapeC(out.Str()),
@@ -99,8 +99,8 @@ Y_UNIT_TEST_SUITE(TContainerPrintersTest) {
         char c = 'e';
         i8 i = -100;
         ui8 u = 10;
-        UNIT_ASSERT_VALUES_EQUAL(TStringBuilder() << DbgDump(c), "'e'");
-        UNIT_ASSERT_VALUES_EQUAL(TStringBuilder() << DbgDump(i), "-100");
-        UNIT_ASSERT_VALUES_EQUAL(TStringBuilder() << DbgDump(u), "10");
+        UNIT_ASSERT_VALUES_EQUAL(TYdbStringBuilder() << DbgDump(c), "'e'");
+        UNIT_ASSERT_VALUES_EQUAL(TYdbStringBuilder() << DbgDump(i), "-100");
+        UNIT_ASSERT_VALUES_EQUAL(TYdbStringBuilder() << DbgDump(u), "10");
     }
 }

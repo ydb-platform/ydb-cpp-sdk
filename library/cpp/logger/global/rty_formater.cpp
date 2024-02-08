@@ -35,29 +35,29 @@ namespace NLoggingImpl {
         return out;
     }
 
-    TLocalTimeS::operator TString() const {
-        TString res;
+    TLocalTimeS::operator std::string() const {
+        std::string res;
         res.reserve(LocalTimeSBufferSize);
         res.ReserveAndResize(PrintLocalTimeS(Instant, res.begin(), res.begin() + res.capacity()));
         return res;
     }
 
-    TString TLocalTimeS::operator+(const TStringBuf right) const {
-        TString res(*this);
+    std::string TLocalTimeS::operator+(const std::string_view right) const {
+        std::string res(*this);
         res += right;
         return res;
     }
 
-    TStringBuf StripFileName(TStringBuf string) {
+    std::string_view StripFileName(std::string_view string) {
         return string.RNextTok(LOCSLASH_C);
     }
 
-    TString GetSystemResources() {
+    std::string GetSystemResources() {
         NMemInfo::TMemInfo mi = NMemInfo::GetMemInfo();
         return PrintSystemResources(mi);
     }
 
-    TString PrintSystemResources(const NMemInfo::TMemInfo& mi) {
+    std::string PrintSystemResources(const NMemInfo::TMemInfo& mi) {
         return Sprintf(" rss=%0.3fMb, vms=%0.3fMb", mi.RSS * 1.0 / (1024 * 1024), mi.VMS * 1.0 / (1024 * 1024));
     }
 }

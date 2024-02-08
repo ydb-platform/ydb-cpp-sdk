@@ -6,18 +6,18 @@
 
 namespace NResource {
     struct TResource {
-        TStringBuf Key;
-        TString Data;
+        std::string_view Key;
+        std::string Data;
     };
 
     typedef std::vector<TResource> TResources;
 
-    bool Has(const TStringBuf key);
-    TString Find(const TStringBuf key);
-    bool FindExact(const TStringBuf key, TString* out);
+    bool Has(const std::string_view key);
+    std::string Find(const std::string_view key);
+    bool FindExact(const std::string_view key, std::string* out);
     /// @note Perform full scan for now.
-    void FindMatch(const TStringBuf subkey, TResources* out);
+    void FindMatch(const std::string_view subkey, TResources* out);
     size_t Count() noexcept;
-    TStringBuf KeyByIndex(size_t idx);
-    std::vector<TStringBuf> ListAllKeys();
+    std::string_view KeyByIndex(size_t idx);
+    std::vector<std::string_view> ListAllKeys();
 }

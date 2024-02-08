@@ -11,7 +11,7 @@
 using namespace NColorizer;
 
 namespace {
-    constexpr TStringBuf ToStringBufC(NColorizer::EAnsiCode x) {
+    constexpr std::string_view ToStringBufC(NColorizer::EAnsiCode x) {
         switch(x) {
             case RESET:
                 return "\033[0m";
@@ -136,12 +136,12 @@ namespace {
     }
 }
 
-TStringBuf ToStringBuf(NColorizer::EAnsiCode x) {
+std::string_view ToStringBuf(NColorizer::EAnsiCode x) {
     return ToStringBufC(x);
 }
 
-TString ToString(NColorizer::EAnsiCode x) {
-    return TString(ToStringBufC(x));
+std::string ToString(NColorizer::EAnsiCode x) {
+    return std::string(ToStringBufC(x));
 }
 
 template<>
@@ -176,242 +176,242 @@ TColors::TColors(bool ontty)
     SetIsTTY(ontty);
 }
 
-TStringBuf TColors::Reset() const noexcept {
+std::string_view TColors::Reset() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::RESET) : ToStringBufC(EAnsiCode::INVALID);
 }
 
-TStringBuf TColors::StyleLight() const noexcept {
+std::string_view TColors::StyleLight() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::ST_LIGHT) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::StyleDark() const noexcept {
+std::string_view TColors::StyleDark() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::ST_DARK) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::StyleNormal() const noexcept {
+std::string_view TColors::StyleNormal() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::ST_NORMAL) : ToStringBufC(EAnsiCode::INVALID);
 }
 
-TStringBuf TColors::ItalicOn() const noexcept {
+std::string_view TColors::ItalicOn() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::ITALIC_ON) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::ItalicOff() const noexcept {
+std::string_view TColors::ItalicOff() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::ITALIC_OFF) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::UnderlineOn() const noexcept {
+std::string_view TColors::UnderlineOn() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::UNDERLINE_ON) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::UnderlineOff() const noexcept {
+std::string_view TColors::UnderlineOff() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::UNDERLINE_OFF) : ToStringBufC(EAnsiCode::INVALID);
 }
 
-TStringBuf TColors::ForeDefault() const noexcept {
+std::string_view TColors::ForeDefault() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::FG_DEFAULT) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::ForeBlack() const noexcept {
+std::string_view TColors::ForeBlack() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::FG_BLACK) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::ForeRed() const noexcept {
+std::string_view TColors::ForeRed() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::FG_RED) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::ForeGreen() const noexcept {
+std::string_view TColors::ForeGreen() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::FG_GREEN) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::ForeYellow() const noexcept {
+std::string_view TColors::ForeYellow() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::FG_YELLOW) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::ForeBlue() const noexcept {
+std::string_view TColors::ForeBlue() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::FG_BLUE) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::ForeMagenta() const noexcept {
+std::string_view TColors::ForeMagenta() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::FG_MAGENTA) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::ForeCyan() const noexcept {
+std::string_view TColors::ForeCyan() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::FG_CYAN) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::ForeWhite() const noexcept {
+std::string_view TColors::ForeWhite() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::FG_WHITE) : ToStringBufC(EAnsiCode::INVALID);
 }
 
-TStringBuf TColors::BackDefault() const noexcept {
+std::string_view TColors::BackDefault() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::BG_DEFAULT) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::BackBlack() const noexcept {
+std::string_view TColors::BackBlack() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::BG_BLACK) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::BackRed() const noexcept {
+std::string_view TColors::BackRed() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::BG_RED) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::BackGreen() const noexcept {
+std::string_view TColors::BackGreen() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::BG_GREEN) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::BackYellow() const noexcept {
+std::string_view TColors::BackYellow() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::BG_YELLOW) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::BackBlue() const noexcept {
+std::string_view TColors::BackBlue() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::BG_BLUE) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::BackMagenta() const noexcept {
+std::string_view TColors::BackMagenta() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::BG_MAGENTA) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::BackCyan() const noexcept {
+std::string_view TColors::BackCyan() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::BG_CYAN) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::BackWhite() const noexcept {
+std::string_view TColors::BackWhite() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::BG_WHITE) : ToStringBufC(EAnsiCode::INVALID);
 }
 
-TStringBuf TColors::Default() const noexcept {
+std::string_view TColors::Default() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::DEFAULT) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::Black() const noexcept {
+std::string_view TColors::Black() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::BLACK) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::Red() const noexcept {
+std::string_view TColors::Red() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::RED) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::Green() const noexcept {
+std::string_view TColors::Green() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::GREEN) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::Yellow() const noexcept {
+std::string_view TColors::Yellow() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::YELLOW) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::Blue() const noexcept {
+std::string_view TColors::Blue() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::BLUE) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::Magenta() const noexcept {
+std::string_view TColors::Magenta() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::MAGENTA) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::Cyan() const noexcept {
+std::string_view TColors::Cyan() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::CYAN) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::White() const noexcept {
+std::string_view TColors::White() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::WHITE) : ToStringBufC(EAnsiCode::INVALID);
 }
 
-TStringBuf TColors::LightDefault() const noexcept {
+std::string_view TColors::LightDefault() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::LIGHT_DEFAULT) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::LightBlack() const noexcept {
+std::string_view TColors::LightBlack() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::LIGHT_BLACK) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::LightRed() const noexcept {
+std::string_view TColors::LightRed() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::LIGHT_RED) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::LightGreen() const noexcept {
+std::string_view TColors::LightGreen() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::LIGHT_GREEN) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::LightYellow() const noexcept {
+std::string_view TColors::LightYellow() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::LIGHT_YELLOW) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::LightBlue() const noexcept {
+std::string_view TColors::LightBlue() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::LIGHT_BLUE) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::LightMagenta() const noexcept {
+std::string_view TColors::LightMagenta() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::LIGHT_MAGENTA) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::LightCyan() const noexcept {
+std::string_view TColors::LightCyan() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::LIGHT_CYAN) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::LightWhite() const noexcept {
+std::string_view TColors::LightWhite() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::LIGHT_WHITE) : ToStringBufC(EAnsiCode::INVALID);
 }
 
-TStringBuf TColors::DarkDefault() const noexcept {
+std::string_view TColors::DarkDefault() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::DARK_DEFAULT) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::DarkBlack() const noexcept {
+std::string_view TColors::DarkBlack() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::DARK_BLACK) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::DarkRed() const noexcept {
+std::string_view TColors::DarkRed() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::DARK_RED) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::DarkGreen() const noexcept {
+std::string_view TColors::DarkGreen() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::DARK_GREEN) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::DarkYellow() const noexcept {
+std::string_view TColors::DarkYellow() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::DARK_YELLOW) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::DarkBlue() const noexcept {
+std::string_view TColors::DarkBlue() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::DARK_BLUE) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::DarkMagenta() const noexcept {
+std::string_view TColors::DarkMagenta() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::DARK_MAGENTA) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::DarkCyan() const noexcept {
+std::string_view TColors::DarkCyan() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::DARK_CYAN) : ToStringBufC(EAnsiCode::INVALID);
 }
-TStringBuf TColors::DarkWhite() const noexcept {
+std::string_view TColors::DarkWhite() const noexcept {
     return IsTTY() ? ToStringBufC(EAnsiCode::DARK_WHITE) : ToStringBufC(EAnsiCode::INVALID);
 }
 
-TStringBuf TColors::OldColor() const noexcept {
+std::string_view TColors::OldColor() const noexcept {
     return IsTTY() ? "\033[22;39m" : "";
 }
 
-TStringBuf TColors::BoldColor() const noexcept {
+std::string_view TColors::BoldColor() const noexcept {
     return IsTTY() ? "\033[1m" : "";
 }
 
-TStringBuf TColors::BlackColor() const noexcept {
+std::string_view TColors::BlackColor() const noexcept {
     return IsTTY() ? "\033[22;30m" : "";
 }
 
-TStringBuf TColors::BlueColor() const noexcept {
+std::string_view TColors::BlueColor() const noexcept {
     return IsTTY() ? "\033[22;34m" : "";
 }
 
-TStringBuf TColors::GreenColor() const noexcept {
+std::string_view TColors::GreenColor() const noexcept {
     return IsTTY() ? "\033[22;32m" : "";
 }
 
-TStringBuf TColors::CyanColor() const noexcept {
+std::string_view TColors::CyanColor() const noexcept {
     return IsTTY() ? "\033[22;36m" : "";
 }
 
-TStringBuf TColors::RedColor() const noexcept {
+std::string_view TColors::RedColor() const noexcept {
     return IsTTY() ? "\033[22;31m" : "";
 }
 
-TStringBuf TColors::PurpleColor() const noexcept {
+std::string_view TColors::PurpleColor() const noexcept {
     return IsTTY() ? "\033[22;35m" : "";
 }
 
-TStringBuf TColors::BrownColor() const noexcept {
+std::string_view TColors::BrownColor() const noexcept {
     return IsTTY() ? "\033[22;33m" : "";
 }
 
-TStringBuf TColors::LightGrayColor() const noexcept {
+std::string_view TColors::LightGrayColor() const noexcept {
     return IsTTY() ? "\033[22;37m" : "";
 }
 
-TStringBuf TColors::DarkGrayColor() const noexcept {
+std::string_view TColors::DarkGrayColor() const noexcept {
     return IsTTY() ? "\033[1;30m" : "";
 }
 
-TStringBuf TColors::LightBlueColor() const noexcept {
+std::string_view TColors::LightBlueColor() const noexcept {
     return IsTTY() ? "\033[1;34m" : "";
 }
 
-TStringBuf TColors::LightGreenColor() const noexcept {
+std::string_view TColors::LightGreenColor() const noexcept {
     return IsTTY() ? "\033[1;32m" : "";
 }
 
-TStringBuf TColors::LightCyanColor() const noexcept {
+std::string_view TColors::LightCyanColor() const noexcept {
     return IsTTY() ? "\033[1;36m" : "";
 }
 
-TStringBuf TColors::LightRedColor() const noexcept {
+std::string_view TColors::LightRedColor() const noexcept {
     return IsTTY() ? "\033[1;31m" : "";
 }
 
-TStringBuf TColors::LightPurpleColor() const noexcept {
+std::string_view TColors::LightPurpleColor() const noexcept {
     return IsTTY() ? "\033[1;35m" : "";
 }
 
-TStringBuf TColors::YellowColor() const noexcept {
+std::string_view TColors::YellowColor() const noexcept {
     return IsTTY() ? "\033[1;33m" : "";
 }
 
-TStringBuf TColors::WhiteColor() const noexcept {
+std::string_view TColors::WhiteColor() const noexcept {
     return IsTTY() ? "\033[1;37m" : "";
 }
 
@@ -460,7 +460,7 @@ TColors& NColorizer::AutoColors(IOutputStream& os) {
     return *Singleton<TDisabledColors>();
 }
 
-size_t NColorizer::TotalAnsiEscapeCodeLen(TStringBuf text) {
+size_t NColorizer::TotalAnsiEscapeCodeLen(std::string_view text) {
     enum {
         TEXT,
         BEFORE_CODE,

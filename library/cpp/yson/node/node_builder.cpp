@@ -9,7 +9,7 @@ TNodeBuilder::TNodeBuilder(TNode* node)
     Stack_.push(node);
 }
 
-void TNodeBuilder::OnStringScalar(TStringBuf value)
+void TNodeBuilder::OnStringScalar(std::string_view value)
 {
     AddNode(value, true);
 }
@@ -69,9 +69,9 @@ void TNodeBuilder::OnBeginMap(ui64 reserveSize) {
     Stack_.top()->AsMap().reserve(reserveSize);
 }
 
-void TNodeBuilder::OnKeyedItem(TStringBuf key)
+void TNodeBuilder::OnKeyedItem(std::string_view key)
 {
-    Stack_.push(&(*Stack_.top())[TString(key)]);
+    Stack_.push(&(*Stack_.top())[std::string(key)]);
 }
 
 void TNodeBuilder::OnEndMap()

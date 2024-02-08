@@ -313,7 +313,7 @@ bool httpLoadAgent::startOneRequest(const char* local_url) {
 
 /************************************************************/
 bool httpLoadAgent::doStartRequest() {
-    TString urlStr = URL_.PrintS(THttpURL::FlagPath | THttpURL::FlagQuery);
+    std::string urlStr = URL_.PrintS(THttpURL::FlagPath | THttpURL::FlagQuery);
     if (!urlStr)
         urlStr = "/";
 
@@ -337,7 +337,7 @@ bool httpLoadAgent::doStartRequest() {
             return false;
         }
 
-        TString urlBaseStr = URL_.PrintS(THttpURL::FlagNoFrag);
+        std::string urlBaseStr = URL_.PrintS(THttpURL::FlagNoFrag);
 
         clearReader();
         Reader_ = new httpAgentReader(*this, urlBaseStr.c_str(),

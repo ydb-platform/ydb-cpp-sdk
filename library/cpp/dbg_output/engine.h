@@ -45,10 +45,10 @@ struct TDumpBase: public ::NDumpPrivate::TADLBase {
     void Char(char ch);
     void Char(wchar16 ch);
 
-    void String(const TStringBuf& s);
+    void String(const std::string_view& s);
     void String(const TWtringBuf& s);
 
-    void Raw(const TStringBuf& s);
+    void Raw(const std::string_view& s);
 
     IOutputStream* Out;
     size_t IndentLevel;
@@ -104,7 +104,7 @@ struct TDumper<TIndentNewLine> {
     template <class S>
     static inline void Dump(S& s, const TIndentNewLine&) {
         if (s.Indent) {
-            s << DumpRaw("\n") << DumpRaw(TString(s.IndentLevel * 4, ' ').data());
+            s << DumpRaw("\n") << DumpRaw(std::string(s.IndentLevel * 4, ' ').data());
         }
     }
 };

@@ -42,17 +42,17 @@ TGuid TGuid::Create()
     return TGuid(RandomNumber<ui64>(), RandomNumber<ui64>());
 }
 
-TGuid TGuid::FromString(TStringBuf str)
+TGuid TGuid::FromString(std::string_view str)
 {
     TGuid guid;
     if (!FromString(str, &guid)) {
         throw TSimpleException(Sprintf("Error parsing GUID \"%s\"",
-            TString(str).c_str()));
+            std::string(str).c_str()));
     }
     return guid;
 }
 
-bool TGuid::FromString(TStringBuf str, TGuid* result)
+bool TGuid::FromString(std::string_view str, TGuid* result)
 {
     size_t partId = 3;
     ui64 partValue = 0;
@@ -99,17 +99,17 @@ bool TGuid::FromString(TStringBuf str, TGuid* result)
     return true;
 }
 
-TGuid TGuid::FromStringHex32(TStringBuf str)
+TGuid TGuid::FromStringHex32(std::string_view str)
 {
     TGuid guid;
     if (!FromStringHex32(str, &guid)) {
         throw TSimpleException(Sprintf("Error parsing Hex32 GUID \"%s\"",
-            TString(str).c_str()));
+            std::string(str).c_str()));
     }
     return guid;
 }
 
-bool TGuid::FromStringHex32(TStringBuf str, TGuid* result)
+bool TGuid::FromStringHex32(std::string_view str, TGuid* result)
 {
     if (str.size() != 32) {
         return false;
@@ -204,7 +204,7 @@ TFormattableGuid::TFormattableGuid(TGuid guid)
     : End_(WriteGuidToBuffer(Buffer_.data(), guid))
 { }
 
-TStringBuf TFormattableGuid::ToStringBuf() const
+std::string_view TFormattableGuid::ToStringBuf() const
 {
     return {Buffer_.data(), End_};
 }

@@ -14,13 +14,13 @@
 namespace NMonitoring {
     class TMonService2: public TMtHttpServer {
     protected:
-        const TString Title;
+        const std::string Title;
         char StartTime[26];
         TIntrusivePtr<TIndexMonPage> IndexMonPage;
         THolder<IAuthProvider> AuthProvider_;
 
     public:
-        static THttpServerOptions HttpServerOptions(ui16 port, const TString& host, ui32 threads) {
+        static THttpServerOptions HttpServerOptions(ui16 port, const std::string& host, ui32 threads) {
             THttpServerOptions opts(port);
             if (!host.empty()) {
                 opts.SetHost(host);
@@ -34,15 +34,15 @@ namespace NMonitoring {
         }
 
         static THttpServerOptions HttpServerOptions(ui16 port, ui32 threads) {
-            return HttpServerOptions(port, TString(), threads);
+            return HttpServerOptions(port, std::string(), threads);
         }
 
     public:
-        explicit TMonService2(ui16 port, const TString& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
-        explicit TMonService2(ui16 port, ui32 threads, const TString& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
-        explicit TMonService2(ui16 port, const TString& host, ui32 threads, const TString& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
-        explicit TMonService2(const THttpServerOptions& options, const TString& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
-        explicit TMonService2(const THttpServerOptions& options, TSimpleSharedPtr<IThreadPool> pool, const TString& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
+        explicit TMonService2(ui16 port, const std::string& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
+        explicit TMonService2(ui16 port, ui32 threads, const std::string& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
+        explicit TMonService2(ui16 port, const std::string& host, ui32 threads, const std::string& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
+        explicit TMonService2(const THttpServerOptions& options, const std::string& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
+        explicit TMonService2(const THttpServerOptions& options, TSimpleSharedPtr<IThreadPool> pool, const std::string& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
 
         ~TMonService2() override {
         }
@@ -51,7 +51,7 @@ namespace NMonitoring {
             return StartTime;
         }
 
-        const TString& GetTitle() const {
+        const std::string& GetTitle() const {
             return Title;
         }
 
@@ -63,10 +63,10 @@ namespace NMonitoring {
         void Register(IMonPage* page);
         void Register(TMonPagePtr page);
 
-        TIndexMonPage* RegisterIndexPage(const TString& path, const TString& title);
+        TIndexMonPage* RegisterIndexPage(const std::string& path, const std::string& title);
 
-        IMonPage* FindPage(const TString& relativePath);
-        TIndexMonPage* FindIndexPage(const TString& relativePath);
+        IMonPage* FindPage(const std::string& relativePath);
+        TIndexMonPage* FindIndexPage(const std::string& relativePath);
         void SortPages();
 
         TIndexMonPage* GetRoot() {

@@ -37,7 +37,7 @@ Y_UNIT_TEST_SUITE(OptTest) {
             int argc = 5;
             Opt opts(argc, argv, "", options);
 
-            TString optionValue = "";
+            std::string optionValue = "";
             int optlet = 0;
             while ((optlet = opts.Get()) != EOF) {
                 if (optlet == SOME_OPTION_ID) {

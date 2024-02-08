@@ -26,10 +26,10 @@ namespace NObjectFactory {
     };
 
 #define FACTORY_OBJECT_NAME(Name)              \
-    static TString GetTypeName() {             \
+    static std::string GetTypeName() {             \
         return #Name;                          \
     }                                          \
-    virtual TString GetType() const override { \
+    virtual std::string GetType() const override { \
         return #Name;                          \
     }
 
@@ -175,7 +175,7 @@ namespace NObjectFactory {
             {
             }
 
-            TString GetName() const {
+            std::string GetName() const {
                 return Product::GetTypeName();
             }
         };

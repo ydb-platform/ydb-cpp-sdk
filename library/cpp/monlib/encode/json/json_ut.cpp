@@ -49,7 +49,7 @@ namespace {
         }
     }
 
-    void AssertLabelEqual(const NProto::TLabel& l, TStringBuf name, TStringBuf value) {
+    void AssertLabelEqual(const NProto::TLabel& l, std::string_view name, std::string_view value) {
         UNIT_ASSERT_STRINGS_EQUAL(l.GetName(), name);
         UNIT_ASSERT_STRINGS_EQUAL(l.GetValue(), value);
     }
@@ -136,9 +136,9 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
     const TInstant now = TInstant::ParseIso8601Deprecated("2017-11-05T01:02:03Z");
 
     Y_UNIT_TEST(Encode) {
-        auto check = [](bool cloud, bool buffered, TStringBuf expectedResourceKey) {
-            TString json;
-            TStringOutput out(json);
+        auto check = [](bool cloud, bool buffered, std::string_view expectedResourceKey) {
+            std::string json;
+            std::stringOutput out(json);
             auto e = cloud
                 ? (buffered ? BufferedEncoderCloudJson(&out, 2, "metric") : EncoderCloudJson(&out, 2, "metric"))
                 : (buffered ? BufferedEncoderJson(&out, 2) : EncoderJson(&out, 2));
@@ -286,13 +286,13 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         };
 
         auto doTest = [&](bool buffered, EMetricType metricType) {
-            TString json;
-            TStringOutput out(json);
+            std::string json;
+            std::stringOutput out(json);
             auto encoder = buffered ? BufferedEncoderCloudJson(&out, 2) : EncoderCloudJson(&out, 2);
-            const TString expectedMessage = TStringBuilder()
+            const std::string expectedMessage = TYdbStringBuilder()
                 << "metric type '" << metricType << "' is not supported by cloud json format";
             UNIT_ASSERT_EXCEPTION_CONTAINS_C(emit(encoder.Get(), metricType), yexception, expectedMessage,
-                                             TString("buffered: ") + ToString(buffered));
+                                             std::string("buffered: ") + ToString(buffered));
         };
 
         doTest(false, EMetricType::HIST);
@@ -304,8 +304,8 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
     }
 
     Y_UNIT_TEST(MetricsWithDifferentLabelOrderGetMerged) {
-        TString json;
-        TStringOutput out(json);
+        std::string json;
+        std::stringOutput out(json);
         auto e = BufferedEncoderJson(&out, 2);
 
         e->OnStreamBegin();
@@ -335,7 +335,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         e->Close();
         json += "\n";
 
-        TString expectedJson = NResource::Find("/merged.json");
+        std::string expectedJson = NResource::Find("/merged.json");
         // we cannot be sure regarding the label order in the result,
         // so we'll have to parse the expected value and then compare it with actual
 
@@ -358,7 +358,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);
 
-            TString testJson = NResource::Find("/expected.json");
+            std::string testJson = NResource::Find("/expected.json");
             DecodeJson(testJson, e.Get());
         }
 
@@ -440,7 +440,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);
 
-            TString metricsJson = NResource::Find("/metrics.json");
+            std::string metricsJson = NResource::Find("/metrics.json");
             DecodeJson(metricsJson, e.Get());
         }
 
@@ -502,7 +502,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);
 
-            TString sensorsJson = NResource::Find("/sensors.json");
+            std::string sensorsJson = NResource::Find("/sensors.json");
             DecodeJson(sensorsJson, e.Get());
         }
 
@@ -562,7 +562,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
     Y_UNIT_TEST(DecodeToEncoder) {
         auto testJson = NResource::Find("/test_decode_to_encode.json");
 
-        TStringStream Stream_;
+        std::stringStream Stream_;
         auto encoder = BufferedEncoderJson(&Stream_, 4);
         DecodeJson(testJson, encoder.Get());
 
@@ -591,14 +591,14 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
     }
 
     Y_UNIT_TEST(EncodeEmptySeries) {
-        TString json;
-        TStringOutput out(json);
+        std::string json;
+        std::stringOutput out(json);
 
         auto e = EncoderJson(&out, 2);
         WriteEmptySeries(e);
         json += "\n";
 
-        TString expectedJson = NResource::Find("/empty_series.json");
+        std::string expectedJson = NResource::Find("/empty_series.json");
         UNIT_ASSERT_NO_DIFF(json, expectedJson);
     }
 
@@ -611,41 +611,41 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
     }
 
     Y_UNIT_TEST(LabelsCannotBeEmpty) {
-        TString json;
-        TStringOutput out(json);
+        std::string json;
+        std::stringOutput out(json);
 
         auto e = EncoderJson(&out, 2);
         WriteEmptyLabels(e);
     }
 
     Y_UNIT_TEST(LabelsCannotBeEmptyBuffered) {
-        TString json;
-        TStringOutput out(json);
+        std::string json;
+        std::stringOutput out(json);
 
         auto e = BufferedEncoderJson(&out, 2);
         WriteEmptyLabels(e);
     }
 
     Y_UNIT_TEST(EncodeEmptySeriesBuffered) {
-        TString json;
-        TStringOutput out(json);
+        std::string json;
+        std::stringOutput out(json);
 
         auto e = BufferedEncoderJson(&out, 2);
         WriteEmptySeries(e);
         json += "\n";
 
-        TString expectedJson = NResource::Find("/empty_series.json");
+        std::string expectedJson = NResource::Find("/empty_series.json");
         UNIT_ASSERT_NO_DIFF(json, expectedJson);
     }
 
     Y_UNIT_TEST(BufferedEncoderMergesMetrics) {
-        TString json;
-        TStringOutput out(json);
+        std::string json;
+        std::stringOutput out(json);
 
         auto e = BufferedEncoderJson(&out, 2);
         auto ts = 1;
 
-        auto writeMetric = [&] (const TString& val) {
+        auto writeMetric = [&] (const std::string& val) {
             e->OnMetricBegin(EMetricType::COUNTER);
 
             e->OnLabelsBegin();
@@ -666,12 +666,12 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
 
         json += "\n";
 
-        TString expectedJson = NResource::Find("/buffered_test.json");
+        std::string expectedJson = NResource::Find("/buffered_test.json");
         UNIT_ASSERT_NO_DIFF(json, expectedJson);
     }
 
     Y_UNIT_TEST(JsonEncoderDisallowsValuesInTimeseriesWithoutTs) {
-        TStringStream out;
+        std::stringStream out;
 
         auto e = EncoderJson(&out);
         auto writePreamble = [&] {
@@ -700,7 +700,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
     }
 
     Y_UNIT_TEST(BufferedJsonEncoderMergesTimeseriesWithoutTs) {
-        TStringStream out;
+        std::stringStream out;
 
         {
             auto e = BufferedEncoderJson(&out, 2);
@@ -724,8 +724,8 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
     }
 
     template <typename TFactory, typename TConsumer>
-    TString EncodeToString(TFactory factory, TConsumer consumer) {
-        TStringStream out;
+    std::string EncodeToString(TFactory factory, TConsumer consumer) {
+        std::stringStream out;
         {
             IMetricEncoderPtr e = factory(&out, 2);
             consumer(e.Get());
@@ -751,10 +751,10 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
             e->OnStreamEnd();
         };
 
-        TString result1 = EncodeToString(EncoderJson, writeDocument);
+        std::string result1 = EncodeToString(EncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result1, NResource::Find("/summary_value.json"));
 
-        TString result2 = EncodeToString(BufferedEncoderJson, writeDocument);
+        std::string result2 = EncodeToString(BufferedEncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result2, NResource::Find("/summary_value.json"));
     }
 
@@ -784,10 +784,10 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
             e->OnStreamEnd();
         };
 
-        TString result1 = EncodeToString(EncoderJson, writeDocument);
+        std::string result1 = EncodeToString(EncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result1, NResource::Find("/summary_inf.json"));
 
-        TString result2 = EncodeToString(BufferedEncoderJson, writeDocument);
+        std::string result2 = EncodeToString(BufferedEncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result2, NResource::Find("/summary_inf.json"));
     }
 
@@ -796,7 +796,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);
 
-            TString testJson = NResource::Find("/summary_inf.json");
+            std::string testJson = NResource::Find("/summary_inf.json");
             DecodeJson(testJson, e.Get());
         }
 
@@ -822,7 +822,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);
 
-            TString testJson = NResource::Find("/summary_value.json");
+            std::string testJson = NResource::Find("/summary_value.json");
             DecodeJson(testJson, e.Get());
         }
 
@@ -867,10 +867,10 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
             e->OnStreamEnd();
         };
 
-        TString result1 = EncodeToString(EncoderJson, writeDocument);
+        std::string result1 = EncodeToString(EncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result1, NResource::Find("/summary_timeseries.json"));
 
-        TString result2 = EncodeToString(BufferedEncoderJson, writeDocument);
+        std::string result2 = EncodeToString(BufferedEncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result2, NResource::Find("/summary_timeseries.json"));
     }
 
@@ -879,7 +879,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);
 
-            TString testJson = NResource::Find("/summary_timeseries.json");
+            std::string testJson = NResource::Find("/summary_timeseries.json");
             DecodeJson(testJson, e.Get());
         }
 
@@ -922,10 +922,10 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
             e->OnStreamEnd();
         };
 
-        TString result1 = EncodeToString(EncoderJson, writeDocument);
+        std::string result1 = EncodeToString(EncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result1, NResource::Find("/log_histogram_value.json"));
 
-        TString result2 = EncodeToString(BufferedEncoderJson, writeDocument);
+        std::string result2 = EncodeToString(BufferedEncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result2, NResource::Find("/log_histogram_value.json"));
     }
 
@@ -934,7 +934,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);
 
-            TString testJson = NResource::Find("/log_histogram_value.json");
+            std::string testJson = NResource::Find("/log_histogram_value.json");
             DecodeJson(testJson, e.Get());
         }
 
@@ -974,10 +974,10 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
             e->OnStreamEnd();
         };
 
-        TString result1 = EncodeToString(EncoderJson, writeDocument);
+        std::string result1 = EncodeToString(EncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result1, NResource::Find("/histogram_value.json"));
 
-        TString result2 = EncodeToString(BufferedEncoderJson, writeDocument);
+        std::string result2 = EncodeToString(BufferedEncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result2, NResource::Find("/histogram_value.json"));
     }
 
@@ -1001,10 +1001,10 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
             e->OnStreamEnd();
         };
 
-        TString result1 = EncodeToString(EncoderJson, writeDocument);
+        std::string result1 = EncodeToString(EncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result1, NResource::Find("/log_histogram_timeseries.json"));
 
-        TString result2 = EncodeToString(BufferedEncoderJson, writeDocument);
+        std::string result2 = EncodeToString(BufferedEncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result2, NResource::Find("/log_histogram_timeseries.json"));
     }
 
@@ -1013,7 +1013,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);
 
-            TString testJson = NResource::Find("/log_histogram_timeseries.json");
+            std::string testJson = NResource::Find("/log_histogram_timeseries.json");
             DecodeJson(testJson, e.Get());
         }
 
@@ -1033,12 +1033,12 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         AssertPointEqual(s.GetPoints(1), now + TDuration::Seconds(15), *logHist);
     }
 
-    void HistogramValueDecode(const TString& filePath) {
+    void HistogramValueDecode(const std::string& filePath) {
         NProto::TMultiSamplesList samples;
         {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);
 
-            TString testJson = NResource::Find(filePath);
+            std::string testJson = NResource::Find(filePath);
             DecodeJson(testJson, e.Get());
         }
 
@@ -1093,10 +1093,10 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
             e->OnStreamEnd();
         };
 
-        TString result1 = EncodeToString(EncoderJson, writeDocument);
+        std::string result1 = EncodeToString(EncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result1, NResource::Find("/histogram_timeseries.json"));
 
-        TString result2 = EncodeToString(BufferedEncoderJson, writeDocument);
+        std::string result2 = EncodeToString(BufferedEncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result2, NResource::Find("/histogram_timeseries.json"));
     }
 
@@ -1105,7 +1105,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);
 
-            TString testJson = NResource::Find("/histogram_timeseries.json");
+            std::string testJson = NResource::Find("/histogram_timeseries.json");
             DecodeJson(testJson, e.Get());
         }
 
@@ -1151,15 +1151,15 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
             e->OnStreamEnd();
         };
 
-        TString result1 = EncodeToString(EncoderJson, writeDocument);
+        std::string result1 = EncodeToString(EncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result1, NResource::Find("/int_gauge.json"));
 
-        TString result2 = EncodeToString(BufferedEncoderJson, writeDocument);
+        std::string result2 = EncodeToString(BufferedEncoderJson, writeDocument);
         UNIT_ASSERT_NO_DIFF(result2, NResource::Find("/int_gauge.json"));
     }
 
     Y_UNIT_TEST(InconsistentMetricTypes) {
-        auto emitMetrics = [](IMetricEncoder& encoder, const TString& expectedError) {
+        auto emitMetrics = [](IMetricEncoder& encoder, const std::string& expectedError) {
             encoder.OnMetricBegin(EMetricType::GAUGE);
             {
                 encoder.OnLabelsBegin();
@@ -1187,7 +1187,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         };
 
         {
-            TStringStream out;
+            std::stringStream out;
             auto encoder = BufferedEncoderJson(&out);
 
             encoder->OnStreamBegin();
@@ -1200,7 +1200,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         }
 
         {
-            TStringStream out;
+            std::stringStream out;
             auto encoder = BufferedEncoderJson(&out);
 
             encoder->OnStreamBegin();
@@ -1218,7 +1218,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);
 
-            TString testJson = NResource::Find("/int_gauge.json");
+            std::string testJson = NResource::Find("/int_gauge.json");
             DecodeJson(testJson, e.Get());
         }
 
@@ -1242,7 +1242,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);
 
             for (auto f : { "/hist_crash.json", "/crash.json" }) {
-                TString testJson = NResource::Find(f);
+                std::string testJson = NResource::Find(f);
                 UNIT_ASSERT_EXCEPTION(DecodeJson(testJson, e.Get()), yexception);
             }
         }
@@ -1269,7 +1269,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
         {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);
 
-            TString metricsJson = NResource::Find("/named_metrics.json");
+            std::string metricsJson = NResource::Find("/named_metrics.json");
             DecodeJson(metricsJson, e.Get(), "sensor");
         }
 

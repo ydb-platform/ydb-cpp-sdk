@@ -30,7 +30,7 @@ namespace NMonitoring {
                 State_.Expect(TEncoderState::EState::ROOT);
                 CommonTime_ = time;
                 if (time != TInstant::Zero()) {
-                    Out_->Write(TStringBuf("common time: "));
+                    Out_->Write(std::string_view("common time: "));
                     WriteTime(time);
                     Out_->Write('\n');
                 }
@@ -62,7 +62,7 @@ namespace NMonitoring {
                     State_ = TEncoderState::EState::METRIC;
                 } else if (State_ == TEncoderState::EState::COMMON_LABELS) {
                     State_ = TEncoderState::EState::ROOT;
-                    Out_->Write(TStringBuf("common labels: "));
+                    Out_->Write(std::string_view("common labels: "));
                     WriteLabels();
                     Out_->Write('\n');
                 } else {
@@ -70,7 +70,7 @@ namespace NMonitoring {
                 }
             }
 
-            void OnLabel(TStringBuf name, TStringBuf value) override {
+            void OnLabel(std::string_view name, std::string_view value) override {
                 Labels_.Add(name, value);
             }
 
@@ -149,11 +149,11 @@ namespace NMonitoring {
 
                 out << '{';
                 for (auto&& l : Labels_) {
-                    out << l.Name() << TStringBuf("='") << l.Value() << '\'';
+                    out << l.Name() << std::string_view("='") << l.Value() << '\'';
 
                     ++i;
                     if (i < size) {
-                        out << TStringBuf(", ");
+                        out << std::string_view(", ");
                     }
                 };
 
@@ -162,13 +162,13 @@ namespace NMonitoring {
 
             void WriteMetric() {
                 // (1) type
-                TStringBuf typeStr = MetricTypeToStr(MetricType_);
+                std::string_view typeStr = MetricTypeToStr(MetricType_);
                 (*Out_) << LeftPad(typeStr, MaxMetricTypeNameLength) << ' ';
 
                 // (2) name and labels
-                auto name = Labels_.Extract(TStringBuf("sensor"));
+                auto name = Labels_.Extract(std::string_view("sensor"));
                 if (name) {
-                    if (name->Value().find(' ') != TString::npos) {
+                    if (name->Value().find(' ') != std::string::npos) {
                         (*Out_) << '"' << name->Value() << '"';
                     } else {
                         (*Out_) << name->Value();
@@ -179,10 +179,10 @@ namespace NMonitoring {
                 // (3) values
                 if (!TimeSeries_.Empty()) {
                     TimeSeries_.SortByTs();
-                    Out_->Write(TStringBuf(" ["));
+                    Out_->Write(std::string_view(" ["));
                     for (size_t i = 0; i < TimeSeries_.Size(); i++) {
                         if (i > 0) {
-                            Out_->Write(TStringBuf(", "));
+                            Out_->Write(std::string_view(", "));
                         }
 
                         const auto& point = TimeSeries_[i];
@@ -191,7 +191,7 @@ namespace NMonitoring {
                         } else {
                             Out_->Write('(');
                             WriteTime(point.GetTime());
-                            Out_->Write(TStringBuf(", "));
+                            Out_->Write(std::string_view(", "));
                             WriteValue(TimeSeries_.GetValueType(), point.GetValue());
                             Out_->Write(')');
                         }

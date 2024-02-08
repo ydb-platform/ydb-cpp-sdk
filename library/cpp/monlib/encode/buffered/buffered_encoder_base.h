@@ -25,9 +25,9 @@ public:
 
     void OnLabelsBegin() override;
     void OnLabelsEnd() override;
-    void OnLabel(TStringBuf name, TStringBuf value) override;
+    void OnLabel(std::string_view name, std::string_view value) override;
     void OnLabel(ui32 name, ui32 value) override;
-    std::pair<ui32, ui32> PrepareLabel(TStringBuf name, TStringBuf value) override;
+    std::pair<ui32, ui32> PrepareLabel(std::string_view name, std::string_view value) override;
 
     void OnDouble(TInstant time, double value) override;
     void OnInt64(TInstant time, i64 value) override;
@@ -38,7 +38,7 @@ public:
     void OnLogHistogram(TInstant, TLogHistogramSnapshotPtr) override;
 
 protected:
-    using TPooledStr = TStringPoolBuilder::TValue;
+    using TPooledStr = std::stringPoolBuilder::TValue;
 
     struct TPooledLabel {
         TPooledLabel(const TPooledStr* key, const TPooledStr* value)
@@ -83,13 +83,13 @@ protected:
     };
 
 protected:
-    TString FormatLabels(const TPooledLabels& labels) const;
+    std::string FormatLabels(const TPooledLabels& labels) const;
 
 protected:
     TEncoderState State_;
 
-    TStringPoolBuilder LabelNamesPool_;
-    TStringPoolBuilder LabelValuesPool_;
+    std::stringPoolBuilder LabelNamesPool_;
+    std::stringPoolBuilder LabelValuesPool_;
     TInstant CommonTime_ = TInstant::Zero();
     TPooledLabels CommonLabels_;
     std::vector<TMetric> Metrics_;

@@ -8,7 +8,7 @@ bool CanBeEncoded(TWtringBuf text, ECharset encoding) {
 
     while (!text.empty()) {
         TWtringBuf src = text.NextTokAt(LEN);
-        TStringBuf encoded = NDetail::NBaseOps::Recode(src, encodeBuf, encoding);
+        std::string_view encoded = NDetail::NBaseOps::Recode(src, encodeBuf, encoding);
         TWtringBuf decoded = NDetail::NBaseOps::Recode(encoded, decodeBuf, encoding);
         if (decoded != src)
             return false;

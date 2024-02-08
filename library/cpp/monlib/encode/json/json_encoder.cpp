@@ -24,7 +24,7 @@ namespace NMonitoring {
         ///////////////////////////////////////////////////////////////////////
         class TJsonWriter {
         public:
-            TJsonWriter(IOutputStream* out, int indentation, EJsonStyle style, TStringBuf metricNameLabel)
+            TJsonWriter(IOutputStream* out, int indentation, EJsonStyle style, std::string_view metricNameLabel)
                 : Buf_(NJsonWriter::HEM_UNSAFE, out)
                 , Style_(style)
                 , MetricNameLabel_(metricNameLabel)
@@ -36,7 +36,7 @@ namespace NMonitoring {
 
             void WriteTime(TInstant time) {
                 if (time != TInstant::Zero()) {
-                    Buf_.WriteKey(TStringBuf("ts"));
+                    Buf_.WriteKey(std::string_view("ts"));
                     if (Style_ == EJsonStyle::Solomon) {
                         Buf_.WriteULongLong(time.Seconds());
                     } else {
@@ -46,24 +46,24 @@ namespace NMonitoring {
             }
 
             void WriteValue(double value) {
-                Buf_.WriteKey(TStringBuf("value"));
+                Buf_.WriteKey(std::string_view("value"));
                 Buf_.WriteDouble(value);
             }
 
             void WriteValue(i64 value) {
-                Buf_.WriteKey(TStringBuf("value"));
+                Buf_.WriteKey(std::string_view("value"));
                 Buf_.WriteLongLong(value);
             }
 
             void WriteValue(ui64 value) {
-                Buf_.WriteKey(TStringBuf("value"));
+                Buf_.WriteKey(std::string_view("value"));
                 Buf_.WriteULongLong(value);
             }
 
             void WriteValue(IHistogramSnapshot* s) {
                 Y_ENSURE(Style_ == EJsonStyle::Solomon);
 
-                Buf_.WriteKey(TStringBuf("hist"));
+                Buf_.WriteKey(std::string_view("hist"));
                 Buf_.BeginObject();
                 if (ui32 count = s->Count()) {
                     bool hasInf = (s->UpperBound(count - 1) == Max<double>());
@@ -71,14 +71,14 @@ namespace NMonitoring {
                         count--;
                     }
 
-                    Buf_.WriteKey(TStringBuf("bounds"));
+                    Buf_.WriteKey(std::string_view("bounds"));
                     Buf_.BeginList();
                     for (ui32 i = 0; i < count; i++) {
                         Buf_.WriteDouble(s->UpperBound(i));
                     }
                     Buf_.EndList();
 
-                    Buf_.WriteKey(TStringBuf("buckets"));
+                    Buf_.WriteKey(std::string_view("buckets"));
                     Buf_.BeginList();
                     for (ui32 i = 0; i < count; i++) {
                         Buf_.WriteULongLong(s->Value(i));
@@ -86,7 +86,7 @@ namespace NMonitoring {
                     Buf_.EndList();
 
                     if (hasInf) {
-                        Buf_.WriteKey(TStringBuf("inf"));
+                        Buf_.WriteKey(std::string_view("inf"));
                         Buf_.WriteULongLong(s->Value(count));
                     }
                 }
@@ -96,22 +96,22 @@ namespace NMonitoring {
             void WriteValue(ISummaryDoubleSnapshot* s) {
                 Y_ENSURE(Style_ == EJsonStyle::Solomon);
 
-                Buf_.WriteKey(TStringBuf("summary"));
+                Buf_.WriteKey(std::string_view("summary"));
                 Buf_.BeginObject();
 
-                Buf_.WriteKey(TStringBuf("sum"));
+                Buf_.WriteKey(std::string_view("sum"));
                 Buf_.WriteDouble(s->GetSum());
 
-                Buf_.WriteKey(TStringBuf("min"));
+                Buf_.WriteKey(std::string_view("min"));
                 Buf_.WriteDouble(s->GetMin());
 
-                Buf_.WriteKey(TStringBuf("max"));
+                Buf_.WriteKey(std::string_view("max"));
                 Buf_.WriteDouble(s->GetMax());
 
-                Buf_.WriteKey(TStringBuf("last"));
+                Buf_.WriteKey(std::string_view("last"));
                 Buf_.WriteDouble(s->GetLast());
 
-                Buf_.WriteKey(TStringBuf("count"));
+                Buf_.WriteKey(std::string_view("count"));
                 Buf_.WriteULongLong(s->GetCount());
 
                 Buf_.EndObject();
@@ -120,19 +120,19 @@ namespace NMonitoring {
             void WriteValue(TLogHistogramSnapshot* s) {
                 Y_ENSURE(Style_ == EJsonStyle::Solomon);
 
-                Buf_.WriteKey(TStringBuf("log_hist"));
+                Buf_.WriteKey(std::string_view("log_hist"));
                 Buf_.BeginObject();
 
-                Buf_.WriteKey(TStringBuf("base"));
+                Buf_.WriteKey(std::string_view("base"));
                 Buf_.WriteDouble(s->Base());
 
-                Buf_.WriteKey(TStringBuf("zeros_count"));
+                Buf_.WriteKey(std::string_view("zeros_count"));
                 Buf_.WriteULongLong(s->ZerosCount());
 
-                Buf_.WriteKey(TStringBuf("start_power"));
+                Buf_.WriteKey(std::string_view("start_power"));
                 Buf_.WriteInt(s->StartPower());
 
-                Buf_.WriteKey(TStringBuf("buckets"));
+                Buf_.WriteKey(std::string_view("buckets"));
                 Buf_.BeginList();
                 for (size_t i = 0; i < s->Count(); ++i) {
                     Buf_.WriteDouble(s->Bucket(i));
@@ -173,7 +173,7 @@ namespace NMonitoring {
                 }
             }
 
-            void WriteLabel(TStringBuf name, TStringBuf value) {
+            void WriteLabel(std::string_view name, std::string_view value) {
                 Y_ENSURE(IsUtf(name), "label name is not valid UTF-8 string");
                 Y_ENSURE(IsUtf(value), "label value is not valid UTF-8 string");
                 if (Style_ == EJsonStyle::Cloud && name == MetricNameLabel_) {
@@ -207,16 +207,16 @@ namespace NMonitoring {
             }
 
         private:
-            static TStringBuf MetricTypeToCloudStr(EMetricType type) {
+            static std::string_view MetricTypeToCloudStr(EMetricType type) {
                 switch (type) {
                     case EMetricType::GAUGE:
-                        return TStringBuf("DGAUGE");
+                        return std::string_view("DGAUGE");
                     case EMetricType::COUNTER:
-                        return TStringBuf("COUNTER");
+                        return std::string_view("COUNTER");
                     case EMetricType::RATE:
-                        return TStringBuf("RATE");
+                        return std::string_view("RATE");
                     case EMetricType::IGAUGE:
-                        return TStringBuf("IGAUGE");
+                        return std::string_view("IGAUGE");
                     default:
                         ythrow yexception() << "metric type '" << type << "' is not supported by cloud json format";
                 }
@@ -225,8 +225,8 @@ namespace NMonitoring {
         protected:
             NJsonWriter::TBuf Buf_;
             EJsonStyle Style_;
-            TString MetricNameLabel_;
-            TString CurrentMetricName_;
+            std::string MetricNameLabel_;
+            std::string CurrentMetricName_;
         };
 
         ///////////////////////////////////////////////////////////////////////
@@ -234,7 +234,7 @@ namespace NMonitoring {
         ///////////////////////////////////////////////////////////////////////
         class TEncoderJson final: public IMetricEncoder, public TJsonWriter {
         public:
-            TEncoderJson(IOutputStream* out, int indentation, EJsonStyle style, TStringBuf metricNameLabel)
+            TEncoderJson(IOutputStream* out, int indentation, EJsonStyle style, std::string_view metricNameLabel)
                 : TJsonWriter{out, indentation, style, metricNameLabel}
             {
             }
@@ -267,7 +267,7 @@ namespace NMonitoring {
                 State_.Switch(TEncoderState::EState::ROOT, TEncoderState::EState::METRIC);
                 if (Buf_.KeyExpected()) {
                     // first metric, so open metrics array
-                    Buf_.WriteKey(TStringBuf(Style_ == EJsonStyle::Solomon ? "sensors" : "metrics"));
+                    Buf_.WriteKey(std::string_view(Style_ == EJsonStyle::Solomon ? "sensors" : "metrics"));
                     Buf_.BeginList();
                 }
                 Buf_.BeginObject();
@@ -300,10 +300,10 @@ namespace NMonitoring {
                 }
                 if (State_ == TEncoderState::EState::ROOT) {
                     State_ = TEncoderState::EState::COMMON_LABELS;
-                    Buf_.WriteKey(TStringBuf(Style_ == EJsonStyle::Solomon ? "commonLabels" : "labels"));
+                    Buf_.WriteKey(std::string_view(Style_ == EJsonStyle::Solomon ? "commonLabels" : "labels"));
                 } else if (State_ == TEncoderState::EState::METRIC) {
                     State_ = TEncoderState::EState::METRIC_LABELS;
-                    Buf_.WriteKey(TStringBuf("labels"));
+                    Buf_.WriteKey(std::string_view("labels"));
                 } else {
                     State_.ThrowInvalid("expected METRIC or ROOT");
                 }
@@ -328,7 +328,7 @@ namespace NMonitoring {
                 }
             }
 
-            void OnLabel(TStringBuf name, TStringBuf value) override {
+            void OnLabel(std::string_view name, std::string_view value) override {
                 if (State_ == TEncoderState::EState::METRIC_LABELS || State_ == TEncoderState::EState::COMMON_LABELS) {
                     WriteLabel(name, value);
                 } else {
@@ -381,7 +381,7 @@ namespace NMonitoring {
                              "mixed metric value types in one metric");
 
                     if (!TimeSeries_) {
-                        Buf_.WriteKey(TStringBuf("timeseries"));
+                        Buf_.WriteKey(std::string_view("timeseries"));
                         Buf_.BeginList();
                         Buf_.BeginObject();
                         Y_ENSURE(LastPoint_.GetTime() != TInstant::Zero(),
@@ -420,7 +420,7 @@ namespace NMonitoring {
         ///////////////////////////////////////////////////////////////////////
         class TBufferedJsonEncoder : public TBufferedEncoderBase, public TJsonWriter {
         public:
-            TBufferedJsonEncoder(IOutputStream* out, int indentation, EJsonStyle style, TStringBuf metricNameLabel)
+            TBufferedJsonEncoder(IOutputStream* out, int indentation, EJsonStyle style, std::string_view metricNameLabel)
                 : TJsonWriter{out, indentation, style, metricNameLabel}
             {
                 MetricsMergingMode_ = EMetricsMergingMode::MERGE_METRICS;
@@ -435,7 +435,7 @@ namespace NMonitoring {
                 EmptyLabels_ = true;
             }
 
-            void OnLabel(TStringBuf name, TStringBuf value) override {
+            void OnLabel(std::string_view name, std::string_view value) override {
                 TBufferedEncoderBase::OnLabel(name, value);
                 EmptyLabels_ = false;
             }
@@ -464,12 +464,12 @@ namespace NMonitoring {
 
                 WriteTime(CommonTime_);
                 if (CommonLabels_.size() > 0) {
-                    Buf_.WriteKey(TStringBuf(Style_ == EJsonStyle::Solomon ? "commonLabels": "labels"));
+                    Buf_.WriteKey(std::string_view(Style_ == EJsonStyle::Solomon ? "commonLabels": "labels"));
                     WriteLabels(CommonLabels_, true);
                 }
 
                 if (Metrics_.size() > 0) {
-                    Buf_.WriteKey(TStringBuf(Style_ == EJsonStyle::Solomon ? "sensors" : "metrics"));
+                    Buf_.WriteKey(std::string_view(Style_ == EJsonStyle::Solomon ? "sensors" : "metrics"));
                     WriteMetrics();
                 }
 
@@ -490,7 +490,7 @@ namespace NMonitoring {
 
                 WriteMetricType(metric.MetricType);
 
-                Buf_.WriteKey(TStringBuf("labels"));
+                Buf_.WriteKey(std::string_view("labels"));
                 WriteLabels(metric.Labels, false);
 
                 metric.TimeSeries.SortByTs();
@@ -499,7 +499,7 @@ namespace NMonitoring {
                     WriteTime(point.GetTime());
                     WriteValue(metric.TimeSeries.GetValueType(), point.GetValue());
                 } else if (metric.TimeSeries.Size() > 1) {
-                    Buf_.WriteKey(TStringBuf("timeseries"));
+                    Buf_.WriteKey(std::string_view("timeseries"));
                     Buf_.BeginList();
                     metric.TimeSeries.ForEach([this](TInstant time, EMetricValueType type, TMetricValue value) {
                         Buf_.BeginObject();
@@ -519,8 +519,8 @@ namespace NMonitoring {
                 Buf_.BeginObject();
 
                 for (auto i = 0u; i < labels.size(); ++i) {
-                    TStringBuf name = LabelNamesPool_.Get(labels[i].Key->Index);
-                    TStringBuf value = LabelValuesPool_.Get(labels[i].Value->Index);
+                    std::string_view name = LabelNamesPool_.Get(labels[i].Key->Index);
+                    std::string_view value = LabelValuesPool_.Get(labels[i].Value->Index);
 
                     WriteLabel(name, value);
                 }
@@ -546,11 +546,11 @@ namespace NMonitoring {
         return MakeHolder<TBufferedJsonEncoder>(out, indentation, EJsonStyle::Solomon, "");
     }
 
-    IMetricEncoderPtr EncoderCloudJson(IOutputStream* out, int indentation, TStringBuf metricNameLabel) {
+    IMetricEncoderPtr EncoderCloudJson(IOutputStream* out, int indentation, std::string_view metricNameLabel) {
         return MakeHolder<TEncoderJson>(out, indentation, EJsonStyle::Cloud, metricNameLabel);
     }
 
-    IMetricEncoderPtr BufferedEncoderCloudJson(IOutputStream* out, int indentation, TStringBuf metricNameLabel) {
+    IMetricEncoderPtr BufferedEncoderCloudJson(IOutputStream* out, int indentation, std::string_view metricNameLabel) {
         return MakeHolder<TBufferedJsonEncoder>(out, indentation, EJsonStyle::Cloud, metricNameLabel);
     }
 }

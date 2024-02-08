@@ -11,12 +11,12 @@ Y_COMPLETER(HeaderCompleter) {
     bool addPostHeaders = false;
 
     for (int i = 0; i < argc; ++i) {
-        if (argv[i] == TStringBuf("--method") && i + 1 < argc) {
-            auto method = TString(argv[i + 1]);
+        if (argv[i] == std::string_view("--method") && i + 1 < argc) {
+            auto method = std::string(argv[i + 1]);
             method.to_upper();
             addPostHeaders = method == "POST" || method == "PUT";
             break;
-        } else if (argv[i] == TStringBuf("--post-data") || argv[i] == TStringBuf("--post-file")) {
+        } else if (argv[i] == std::string_view("--post-data") || argv[i] == std::string_view("--post-file")) {
             addPostHeaders = true;
             break;
         }
@@ -36,12 +36,12 @@ Y_COMPLETER(HeaderCompleter) {
 class TMain: public TMainClassArgs {
     bool Background_;
     size_t Timeout_;
-    TString ExplicitMethod_;
-    TString ImplicitMethod_ = "GET";
-    TString UserAgent_;
-    TMaybe<TString> PostData_;
-    TMaybe<TString> PostFile_;
-    std::vector<TString> Headers_;
+    std::string ExplicitMethod_;
+    std::string ImplicitMethod_ = "GET";
+    std::string UserAgent_;
+    TMaybe<std::string> PostData_;
+    TMaybe<std::string> PostFile_;
+    std::vector<std::string> Headers_;
 
 protected:
     void RegisterOptions(NLastGetopt::TOpts& opts) override {
@@ -105,7 +105,7 @@ protected:
             .Help("use POST method and send the specified data in the request body (cannot be used with --post-file)")
             .CompletionHelp("use POST method and send the specified data in the request body")
             .CompletionArgHelp("POST data string")
-            .StoreResultT<TString>(&PostData_)
+            .StoreResultT<std::string>(&PostData_)
             .Handler0([this]() {
                 ImplicitMethod_ = "POST";
             });
@@ -115,7 +115,7 @@ protected:
             .Help("use POST method and send contents of the specified file in the request body (cannot be used with --post-data)")
             .CompletionHelp("use POST method and send contents of the specified file in the request body")
             .CompletionArgHelp("POST file")
-            .StoreResultT<TString>(&PostFile_)
+            .StoreResultT<std::string>(&PostFile_)
             .Handler0([this]() {
                 ImplicitMethod_ = "POST";
             })
@@ -189,7 +189,7 @@ protected:
         opts.AddSection(
             "Examples",
 
-            TStringBuilder()
+            TYdbStringBuilder()
                 << "Download a file:"
                 << "\n"
                 << colors.Cyan()
@@ -206,7 +206,7 @@ protected:
     int DoRun(NLastGetopt::TOptsParseResult&& parsedOptions) override {
         using namespace NColorizer;
 
-        TString method = ExplicitMethod_ ? ExplicitMethod_ : ImplicitMethod_;
+        std::string method = ExplicitMethod_ ? ExplicitMethod_ : ImplicitMethod_;
 
         Cerr << ST_LIGHT << "Settings:" << RESET << Endl;
         Cerr << GREEN << "  Background: " << RESET << Background_ << Endl;

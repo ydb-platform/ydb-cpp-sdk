@@ -12,7 +12,7 @@ using namespace NLastGetopt;
 
 namespace {
     struct TOptsNoDefault: public TOpts {
-        TOptsNoDefault(const TStringBuf& optstring = TStringBuf())
+        TOptsNoDefault(const std::string_view& optstring = std::string_view())
             : TOpts(optstring)
         {
         }
@@ -58,13 +58,13 @@ struct TOptsParserTester {
         UNIT_ASSERT(Parser_->CurOpt()->CharIs(c));
     }
 
-    void AcceptOption(const TString& optName) {
+    void AcceptOption(const std::string& optName) {
         AcceptOption();
         UNIT_ASSERT(Parser_->CurOpt()->NameIs(optName));
     }
 
     template <typename TOpt>
-    void AcceptOptionWithValue(TOpt optName, const TString& value) {
+    void AcceptOptionWithValue(TOpt optName, const std::string& value) {
         AcceptOption(optName);
         UNIT_ASSERT_VALUES_EQUAL_C(value, Parser_->CurValStr(), "; option " << optName);
     }
@@ -75,7 +75,7 @@ struct TOptsParserTester {
         UNIT_ASSERT_C(!Parser_->CurVal(), ": opt " << optName << " must have no param");
     }
 
-    void AcceptFreeArgInOrder(const TString& expected) {
+    void AcceptFreeArgInOrder(const std::string& expected) {
         Accept();
         UNIT_ASSERT(!Parser_->CurOpt());
         UNIT_ASSERT_VALUES_EQUAL(expected, Parser_->CurValStr());
@@ -114,7 +114,7 @@ struct TOptsParserTester {
         UNIT_ASSERT_VALUES_EQUAL(sop, Parser_->Sop_);
     }
 
-    void AcceptFreeArg(const TString& expected) {
+    void AcceptFreeArg(const std::string& expected) {
         UNIT_ASSERT(Pos_ < Parser_->Argc_);
         UNIT_ASSERT_VALUES_EQUAL(expected, Parser_->Argv_[Pos_]);
         ++Pos_;
@@ -451,9 +451,9 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
 
     Y_UNIT_TEST(TestStoreResult) {
         TOptsNoDefault opts;
-        TString data;
+        std::string data;
         int number;
-        TMaybe<TString> optionalString0, optionalString1;
+        TMaybe<std::string> optionalString0, optionalString1;
         TMaybe<int> optionalNumber0, optionalNumber1;
         opts.AddLongOption('d', "data").StoreResult(&data);
         opts.AddLongOption('n', "number").StoreResult(&number);
@@ -517,7 +517,7 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
 
     Y_UNIT_TEST(TestSplitValue) {
         TOptsNoDefault opts;
-        std::vector<TString> vals;
+        std::vector<std::string> vals;
         opts.AddLongOption('s', "split").SplitHandler(&vals, ',');
         TOptsParseResultTestWrapper r(&opts, V({"prog", "--split=a,b,c"}));
         UNIT_ASSERT_EQUAL(vals.size(), 3);
@@ -611,31 +611,31 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
     Y_UNIT_TEST(TestTitleAndPrintUsage) {
         TOpts opts;
         const char* prog = "my_program";
-        TString title = TString("Sample ") + TString(prog).Quote() + " application";
+        std::string title = std::string("Sample ") + std::string(prog).Quote() + " application";
         opts.SetTitle(title);
         int argc = 2;
         const char* cmd[] = {prog};
         TOptsParser parser(&opts, argc, cmd);
-        TStringStream out;
+        std::stringStream out;
         parser.PrintUsage(out);
         // find title
-        UNIT_ASSERT(out.Str().find(title) != TString::npos);
+        UNIT_ASSERT(out.Str().find(title) != std::string::npos);
         // find usage
-        UNIT_ASSERT(out.Str().find(" " + TString(prog) + " ") != TString::npos);
+        UNIT_ASSERT(out.Str().find(" " + std::string(prog) + " ") != std::string::npos);
     }
 
     Y_UNIT_TEST(TestCustomCmdLineDescr) {
         TOpts opts;
         const char* prog = "my_program";
-        TString customDescr = "<FILE|TABLE> USER [OPTIONS]";
+        std::string customDescr = "<FILE|TABLE> USER [OPTIONS]";
         int argc = 2;
         const char* cmd[] = {prog};
         opts.SetCmdLineDescr(customDescr);
         TOptsParser parser(&opts, argc, cmd);
-        TStringStream out;
+        std::stringStream out;
         parser.PrintUsage(out);
         // find custom usage
-        UNIT_ASSERT(out.Str().find(customDescr) != TString::npos);
+        UNIT_ASSERT(out.Str().find(customDescr) != std::string::npos);
     }
 
     Y_UNIT_TEST(TestColorPrint) {
@@ -651,45 +651,45 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
         opts.AddSection("Section", "Section\n  text");
         const char* cmd[] = {prog};
         TOptsParser parser(&opts, Y_ARRAY_SIZE(cmd), cmd);
-        TStringStream out;
+        std::stringStream out;
         NColorizer::TColors colors(true);
         parser.PrintUsage(out, colors);
 
         // find options and green color
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.GreenColor() << "--long_option" << colors.OldColor()) != TString::npos);
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.GreenColor() << "--other" << colors.OldColor()) != TString::npos);
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.GreenColor() << "-o" << colors.OldColor()) != TString::npos);
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.GreenColor() << "-d" << colors.OldColor()) != TString::npos);
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.GreenColor() << "-s" << colors.OldColor()) != TString::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.GreenColor() << "--long_option" << colors.OldColor()) != std::string::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.GreenColor() << "--other" << colors.OldColor()) != std::string::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.GreenColor() << "-o" << colors.OldColor()) != std::string::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.GreenColor() << "-d" << colors.OldColor()) != std::string::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.GreenColor() << "-s" << colors.OldColor()) != std::string::npos);
 
         // find default values
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.CyanColor() << "42" << colors.OldColor()) != TString::npos);
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.CyanColor() << "\"str_default\"" << colors.OldColor()) != TString::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.CyanColor() << "42" << colors.OldColor()) != std::string::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.CyanColor() << "\"str_default\"" << colors.OldColor()) != std::string::npos);
 
         // find free args
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.GreenColor() << "123" << colors.OldColor()) != TString::npos);
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.GreenColor() << "456" << colors.OldColor()) != TString::npos);
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.GreenColor() << "first_free_arg" << colors.OldColor()) != TString::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.GreenColor() << "123" << colors.OldColor()) != std::string::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.GreenColor() << "456" << colors.OldColor()) != std::string::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.GreenColor() << "first_free_arg" << colors.OldColor()) != std::string::npos);
         // free args without help not rendered even if they have custom title
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.GreenColor() << "second_free_arg" << colors.OldColor()) == TString::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.GreenColor() << "second_free_arg" << colors.OldColor()) == std::string::npos);
 
         // find signatures
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.BoldColor() << "Usage" << colors.OldColor()) != TString::npos);
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.BoldColor() << "Required parameters" << colors.OldColor()) != TString::npos);
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.BoldColor() << "Optional parameters" << colors.OldColor()) != TString::npos);
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.BoldColor() << "Free args" << colors.OldColor()) != TString::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.BoldColor() << "Usage" << colors.OldColor()) != std::string::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.BoldColor() << "Required parameters" << colors.OldColor()) != std::string::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.BoldColor() << "Optional parameters" << colors.OldColor()) != std::string::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.BoldColor() << "Free args" << colors.OldColor()) != std::string::npos);
 
         // find sections
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << colors.BoldColor() << "Section" << colors.OldColor() << ":") != TString::npos);
-        UNIT_ASSERT(out.Str().find(TStringBuilder() << "  Section\n    text") != TString::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << colors.BoldColor() << "Section" << colors.OldColor() << ":") != std::string::npos);
+        UNIT_ASSERT(out.Str().find(TYdbStringBuilder() << "  Section\n    text") != std::string::npos);
 
         // print without colors
-        TStringStream out2;
+        std::stringStream out2;
         opts.PrintUsage(prog, out2);
-        UNIT_ASSERT(out2.Str().find(colors.GreenColor()) == TString::npos);
-        UNIT_ASSERT(out2.Str().find(colors.CyanColor()) == TString::npos);
-        UNIT_ASSERT(out2.Str().find(colors.BoldColor()) == TString::npos);
-        UNIT_ASSERT(out2.Str().find(colors.OldColor()) == TString::npos);
+        UNIT_ASSERT(out2.Str().find(colors.GreenColor()) == std::string::npos);
+        UNIT_ASSERT(out2.Str().find(colors.CyanColor()) == std::string::npos);
+        UNIT_ASSERT(out2.Str().find(colors.BoldColor()) == std::string::npos);
+        UNIT_ASSERT(out2.Str().find(colors.OldColor()) == std::string::npos);
     }
 
     Y_UNIT_TEST(TestPadding) {
@@ -705,25 +705,25 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
             const char* cmd[] = {prog};
             TOptsParser parser(&opts, Y_ARRAY_SIZE(cmd), cmd);
 
-            TStringStream out;
+            std::stringStream out;
             NColorizer::TColors colors(withColors);
             parser.PrintUsage(out, colors);
 
-            TString printed = out.Str();
+            std::string printed = out.Str();
             if (withColors) {
                 // remove not printable characters
-                SubstGlobal(printed, TString(colors.BoldColor()), "");
-                SubstGlobal(printed, TString(colors.GreenColor()), "");
-                SubstGlobal(printed, TString(colors.CyanColor()), "");
-                SubstGlobal(printed, TString(colors.OldColor()), "");
+                SubstGlobal(printed, std::string(colors.BoldColor()), "");
+                SubstGlobal(printed, std::string(colors.GreenColor()), "");
+                SubstGlobal(printed, std::string(colors.CyanColor()), "");
+                SubstGlobal(printed, std::string(colors.OldColor()), "");
             }
-            std::vector<TString> lines;
+            std::vector<std::string> lines;
             StringSplitter(printed).Split('\n').SkipEmpty().Collect(&lines);
             UNIT_ASSERT(!lines.empty());
             std::vector<size_t> indents;
-            for (const TString& line : lines) {
+            for (const std::string& line : lines) {
                 const size_t indent = line.find("description ");
-                if (indent != TString::npos)
+                if (indent != std::string::npos)
                     indents.push_back(indent);
             }
             UNIT_ASSERT_VALUES_EQUAL(indents.size(), 7);
@@ -754,7 +754,7 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
     }
 
     Y_UNIT_TEST(TestEmplaceTo) {
-        std::vector<std::tuple<TString>> richPaths;
+        std::vector<std::tuple<std::string>> richPaths;
 
         TOptsNoDefault opts;
         opts.AddLongOption("path").EmplaceTo(&richPaths);
@@ -767,10 +767,10 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
     }
 
     Y_UNIT_TEST(TestKVHandler) {
-        TStringBuilder keyvals;
+        TYdbStringBuilder keyvals;
 
         TOptsNoDefault opts;
-        opts.AddLongOption("set").KVHandler([&keyvals](TString k, TString v) { keyvals << k << ":" << v << ","; });
+        opts.AddLongOption("set").KVHandler([&keyvals](std::string k, std::string v) { keyvals << k << ":" << v << ","; });
 
         TOptsParseResultTestWrapper r(&opts, V({"cmd", "--set", "x=1", "--set", "y=2", "--set=z=3"}));
 
@@ -822,7 +822,7 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
 
     Y_UNIT_TEST(TestFreeArgsStoreResult) {
         TOptsNoDefault opts;
-        TString data;
+        std::string data;
         int number = 0;
         opts.AddFreeArgBinding("data", data);
         opts.AddFreeArgBinding("number", number);

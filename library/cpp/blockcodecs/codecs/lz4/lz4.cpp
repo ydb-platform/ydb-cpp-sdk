@@ -2,6 +2,8 @@
 #include <library/cpp/blockcodecs/core/common.h>
 #include <library/cpp/blockcodecs/core/register.h>
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <contrib/libs/lz4/lz4.h>
 #include <contrib/libs/lz4/lz4hc.h>
 
@@ -24,8 +26,8 @@ namespace {
             return LZ4_compress_default(in.data(), (char*)buf, in.size(), LZ4_compressBound(in.size()));
         }
 
-        inline TString CPrefix() {
-            return "fast" + ToString(Memory);
+        inline std::string CPrefix() {
+            return "fast" + std::to_string(Memory);
         }
 
         const int Memory;
@@ -36,7 +38,7 @@ namespace {
             return LZ4_compress_HC(in.data(), (char*)buf, in.size(), LZ4_compressBound(in.size()), 0);
         }
 
-        static inline TString CPrefix() {
+        static inline std::string CPrefix() {
             return "hc";
         }
     };
@@ -49,8 +51,8 @@ namespace {
             }
         }
 
-        static inline TStringBuf DPrefix() {
-            return TStringBuf("fast");
+        static inline std::string_view DPrefix() {
+            return std::string_view("fast");
         }
     };
 
@@ -62,30 +64,30 @@ namespace {
             }
         }
 
-        static inline TStringBuf DPrefix() {
-            return TStringBuf("safe");
+        static inline std::string_view DPrefix() {
+            return std::string_view("safe");
         }
     };
 
     template <class TC, class TD>
     struct TLz4Codec: public TAddLengthCodec<TLz4Codec<TC, TD>>, public TLz4Base, public TC, public TD {
         inline TLz4Codec()
-            : MyName("lz4-" + TC::CPrefix() + "-" + TD::DPrefix())
+            : MyName(NYdb::NUtils::TYdbStringBuilder() << "lz4-" << TC::CPrefix() << "-" << TD::DPrefix())
         {
         }
 
         template <class T>
         inline TLz4Codec(const T& t)
             : TC(t)
-            , MyName("lz4-" + TC::CPrefix() + "-" + TD::DPrefix())
+            , MyName(NYdb::NUtils::TYdbStringBuilder() << "lz4-" << TC::CPrefix() << "-" << TD::DPrefix())
         {
         }
 
-        TStringBuf Name() const noexcept override {
+        std::string_view Name() const noexcept override {
             return MyName;
         }
 
-        const TString MyName;
+        const std::string MyName;
     };
 
     struct TLz4Registrar {

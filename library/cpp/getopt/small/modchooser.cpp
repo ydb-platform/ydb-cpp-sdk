@@ -34,7 +34,7 @@ public:
     }
 
     int operator()(const int argc, const char** argv) override {
-        std::vector<TString> nargv(argv, argv + argc);
+        std::vector<std::string> nargv(argv, argv + argc);
         return Main(nargv);
     }
 
@@ -50,7 +50,7 @@ public:
     }
 
     int operator()(const int argc, const char** argv) override {
-        std::vector<TString> nargv(argv, argv + argc);
+        std::vector<std::string> nargv(argv, argv + argc);
         return (*Main)(nargv);
     }
 
@@ -58,7 +58,7 @@ private:
     TMainClassV* Main;
 };
 
-TModChooser::TMode::TMode(const TString& name, TMainClass* main, const TString& descr, bool hidden, bool noCompletion)
+TModChooser::TMode::TMode(const std::string& name, TMainClass* main, const std::string& descr, bool hidden, bool noCompletion)
     : Name(name)
     , Main(main)
     , Description(descr)
@@ -78,25 +78,25 @@ TModChooser::TModChooser()
 
 TModChooser::~TModChooser() = default;
 
-void TModChooser::AddMode(const TString& mode, const TMainFunctionRawPtr func, const TString& description, bool hidden, bool noCompletion) {
+void TModChooser::AddMode(const std::string& mode, const TMainFunctionRawPtr func, const std::string& description, bool hidden, bool noCompletion) {
     AddMode(mode, TMainFunctionPtr(func), description, hidden, noCompletion);
 }
 
-void TModChooser::AddMode(const TString& mode, const TMainFunctionRawPtrV func, const TString& description, bool hidden, bool noCompletion) {
+void TModChooser::AddMode(const std::string& mode, const TMainFunctionRawPtrV func, const std::string& description, bool hidden, bool noCompletion) {
     AddMode(mode, TMainFunctionPtrV(func), description, hidden, noCompletion);
 }
 
-void TModChooser::AddMode(const TString& mode, const TMainFunctionPtr func, const TString& description, bool hidden, bool noCompletion) {
+void TModChooser::AddMode(const std::string& mode, const TMainFunctionPtr func, const std::string& description, bool hidden, bool noCompletion) {
     Wrappers.push_back(MakeHolder<PtrWrapper>(func));
     AddMode(mode, Wrappers.back().Get(), description, hidden, noCompletion);
 }
 
-void TModChooser::AddMode(const TString& mode, const TMainFunctionPtrV func, const TString& description, bool hidden, bool noCompletion) {
+void TModChooser::AddMode(const std::string& mode, const TMainFunctionPtrV func, const std::string& description, bool hidden, bool noCompletion) {
     Wrappers.push_back(MakeHolder<PtrvWrapper>(func));
     AddMode(mode, Wrappers.back().Get(), description, hidden, noCompletion);
 }
 
-void TModChooser::AddMode(const TString& mode, TMainClass* func, const TString& description, bool hidden, bool noCompletion) {
+void TModChooser::AddMode(const std::string& mode, TMainClass* func, const std::string& description, bool hidden, bool noCompletion) {
     if (MapFindPtr(Modes, mode)) {
         ythrow yexception() << "TMode '" << mode << "' already exists in TModChooser.";
     }
@@ -104,20 +104,20 @@ void TModChooser::AddMode(const TString& mode, TMainClass* func, const TString& 
     Modes[mode] = UnsortedModes.emplace_back(MakeHolder<TMode>(mode, func, description, hidden, noCompletion)).Get();
 }
 
-void TModChooser::AddMode(const TString& mode, TMainClassV* func, const TString& description, bool hidden, bool noCompletion) {
+void TModChooser::AddMode(const std::string& mode, TMainClassV* func, const std::string& description, bool hidden, bool noCompletion) {
     Wrappers.push_back(MakeHolder<ClassWrapper>(func));
     AddMode(mode, Wrappers.back().Get(), description, hidden, noCompletion);
 }
 
-void TModChooser::AddGroupModeDescription(const TString& description, bool hidden, bool noCompletion) {
-    UnsortedModes.push_back(MakeHolder<TMode>(TString(), nullptr, description.data(), hidden, noCompletion));
+void TModChooser::AddGroupModeDescription(const std::string& description, bool hidden, bool noCompletion) {
+    UnsortedModes.push_back(MakeHolder<TMode>(std::string(), nullptr, description.data(), hidden, noCompletion));
 }
 
-void TModChooser::SetDefaultMode(const TString& mode) {
+void TModChooser::SetDefaultMode(const std::string& mode) {
     DefaultMode = mode;
 }
 
-void TModChooser::AddAlias(const TString& alias, const TString& mode) {
+void TModChooser::AddAlias(const std::string& alias, const std::string& mode) {
     if (!MapFindPtr(Modes, mode)) {
         ythrow yexception() << "TMode '" << mode << "' not found in TModChooser.";
     }
@@ -126,11 +126,11 @@ void TModChooser::AddAlias(const TString& alias, const TString& mode) {
     Modes[alias] = Modes[mode];
 }
 
-void TModChooser::SetDescription(const TString& descr) {
+void TModChooser::SetDescription(const std::string& descr) {
     Description = descr;
 }
 
-void TModChooser::SetModesHelpOption(const TString& helpOption) {
+void TModChooser::SetModesHelpOption(const std::string& helpOption) {
     ModesHelpOption = helpOption;
 }
 
@@ -142,7 +142,7 @@ void TModChooser::SetSeparatedMode(bool separated) {
     ShowSeparated = separated;
 }
 
-void TModChooser::SetSeparationString(const TString& str) {
+void TModChooser::SetSeparationString(const std::string& str) {
     SeparationString = str;
 }
 
@@ -154,7 +154,7 @@ void TModChooser::DisableSvnRevisionOption() {
     SvnRevisionOptionDisabled = true;
 }
 
-void TModChooser::AddCompletions(TString progName, const TString& name, bool hidden, bool noCompletion) {
+void TModChooser::AddCompletions(std::string progName, const std::string& name, bool hidden, bool noCompletion) {
     if (CompletionsGenerator == nullptr) {
         CompletionsGenerator = NLastGetopt::MakeCompletionMod(this, std::move(progName), name);
         AddMode(name, CompletionsGenerator.Get(), "generate autocompletion files", hidden, noCompletion);
@@ -165,7 +165,7 @@ int TModChooser::Run(const int argc, const char** argv) const {
     Y_ENSURE(argc, "Can't run TModChooser with empty list of arguments.");
 
     bool shiftArgs = true;
-    TString modeName;
+    std::string modeName;
     if (argc == 1) {
         if (DefaultMode.empty()) {
             PrintHelp(argv[0], HelpAlwaysToStdErr);
@@ -203,14 +203,14 @@ int TModChooser::Run(const int argc, const char** argv) const {
     }
 
     if (shiftArgs) {
-        TString firstArg;
+        std::string firstArg;
         std::vector<const char*> nargv;
         nargv.reserve(argc);
 
         if (PrintShortCommandInUsage) {
             firstArg = modeIter->second->Name;
         } else {
-            firstArg = argv[0] + TString(" ") + modeIter->second->Name;
+            firstArg = argv[0] + std::string(" ") + modeIter->second->Name;
         }
 
         nargv.push_back(firstArg.data());
@@ -228,7 +228,7 @@ int TModChooser::Run(const int argc, const char** argv) const {
     }
 }
 
-int TModChooser::Run(const std::vector<TString>& argv) const {
+int TModChooser::Run(const std::vector<std::string>& argv) const {
     std::vector<const char*> nargv;
     nargv.reserve(argv.size() + 1);
     for (auto& arg : argv) {
@@ -252,8 +252,8 @@ size_t TModChooser::TMode::CalculateFullNameLen() const {
     return len;
 }
 
-TString TModChooser::TMode::FormatFullName(size_t pad) const {
-    TStringBuilder name;
+std::string TModChooser::TMode::FormatFullName(size_t pad) const {
+    TYdbStringBuilder name;
     if (!Aliases.empty()) {
         name << "{";
     }
@@ -271,13 +271,13 @@ TString TModChooser::TMode::FormatFullName(size_t pad) const {
 
     auto len = CalculateFullNameLen();
     if (pad > len) {
-        name << TString(" ") * (pad - len);
+        name << std::string(" ") * (pad - len);
     }
 
     return name;
 }
 
-void TModChooser::PrintHelp(const TString& progName, bool toStdErr) const {
+void TModChooser::PrintHelp(const std::string& progName, bool toStdErr) const {
     auto baseName = TFsPath(progName).Basename();
     auto& out = toStdErr ? Cerr : Cout;
     const auto& colors = toStdErr ? NColorizer::StdErr() : NColorizer::StdOut();

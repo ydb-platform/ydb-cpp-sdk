@@ -126,13 +126,13 @@ const NCodepagePrivate::TCodepagesMap& NCodepagePrivate::TCodepagesMap::Instance
 
 class TCodePageHash {
 private:
-    using TData = THashMap<TStringBuf, ECharset, ci_hash, ci_equal_to>;
+    using TData = THashMap<std::string_view, ECharset, ci_hash, ci_equal_to>;
 
     TData Data;
     TMemoryPool Pool;
 
 private:
-    inline void AddNameWithCheck(const TString& name, ECharset code) {
+    inline void AddNameWithCheck(const std::string& name, ECharset code) {
         if (Data.find(name.c_str()) == Data.end()) {
             Data.insert(TData::value_type(Pool.Append(name.data(), name.size() + 1), code));
         } else {
@@ -140,10 +140,10 @@ private:
         }
     }
 
-    inline void AddName(const TString& name, ECharset code) {
+    inline void AddName(const std::string& name, ECharset code) {
         AddNameWithCheck(name, code);
 
-        TString temp = name;
+        std::string temp = name;
         RemoveAll(temp, '-');
         RemoveAll(temp, '_');
         AddNameWithCheck(temp, code);
@@ -161,7 +161,7 @@ public:
     inline TCodePageHash()
         : Pool(20 * 1024) /* Currently used: 17KB. */
     {
-        TString xPrefix = "x-";
+        std::string xPrefix = "x-";
         const char* name;
 
         for (size_t i = 0; i != CODES_MAX; ++i) {
@@ -178,7 +178,7 @@ public:
         }
     }
 
-    inline ECharset CharsetByName(TStringBuf name) {
+    inline ECharset CharsetByName(std::string_view name) {
         if (!name)
             return CODES_UNKNOWN;
 
@@ -190,11 +190,11 @@ public:
     }
 };
 
-ECharset CharsetByName(TStringBuf name) {
+ECharset CharsetByName(std::string_view name) {
     return Singleton<TCodePageHash>()->CharsetByName(name);
 }
 
-ECharset CharsetByNameOrDie(TStringBuf name) {
+ECharset CharsetByNameOrDie(std::string_view name) {
     ECharset result = CharsetByName(name);
     if (result == CODES_UNKNOWN)
         ythrow yexception() << "CharsetByNameOrDie: unknown charset '" << name << "'";
@@ -202,13 +202,13 @@ ECharset CharsetByNameOrDie(TStringBuf name) {
 }
 
 namespace {
-    class THashSetType: public THashSet<TString> {
+    class THashSetType: public THashSet<std::string> {
     public:
-        inline void Add(const TString& s) {
+        inline void Add(const std::string& s) {
             insert(s);
         }
 
-        inline bool Has(const TString& s) const noexcept {
+        inline bool Has(const std::string& s) const noexcept {
             return find(s) != end();
         }
     };
@@ -246,7 +246,7 @@ public:
     }
 };
 
-class TLatinToIsoHash: public THashMap<const char*, TString, ci_hash, ci_equal_to> {
+class TLatinToIsoHash: public THashMap<const char*, std::string, ci_hash, ci_equal_to> {
 public:
     inline TLatinToIsoHash() {
         insert(value_type("latin1", "iso-8859-1"));
@@ -262,12 +262,12 @@ public:
     }
 };
 
-static inline void NormalizeEncodingPrefixes(TString& enc) {
+static inline void NormalizeEncodingPrefixes(std::string& enc) {
     size_t preflen = enc.find_first_of("0123456789");
-    if (preflen == TString::npos)
+    if (preflen == std::string::npos)
         return;
 
-    TString prefix = enc.substr(0, preflen);
+    std::string prefix = enc.substr(0, preflen);
     for (size_t i = 0; i < prefix.length(); ++i) {
         if (prefix[i] == '-') {
             prefix.remove(i--);
@@ -293,7 +293,7 @@ static inline void NormalizeEncodingPrefixes(TString& enc) {
 
     if (Singleton<TIsoPrefixesHashSet>()->Has(prefix)) {
         if (enc.length() == preflen + 1 || enc.length() == preflen + 2) {
-            TString enccopy = enc.substr(preflen);
+            std::string enccopy = enc.substr(preflen);
             enccopy.prepend("latin");
             const TLatinToIsoHash* latinhash = Singleton<TLatinToIsoHash>();
             TLatinToIsoHash::const_iterator it = latinhash->find(enccopy.data());
@@ -375,7 +375,7 @@ ECharset EncodingHintByName(const char* encname) {
         --lastpos;
 
     // Do some normalization
-    TString enc(encname, lastpos - encname + 1);
+    std::string enc(encname, lastpos - encname + 1);
     enc.to_lower();
     for (char* p = enc.begin(); p != enc.end(); ++p) {
         if (*p == ' ' || *p == '=' || *p == '_')

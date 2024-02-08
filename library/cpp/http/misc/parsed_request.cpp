@@ -4,17 +4,17 @@
 #include <util/generic/yexception.h>
 #include <util/string/cast.h>
 
-static inline TStringBuf StripLeft(const TStringBuf& s) noexcept {
+static inline std::string_view StripLeft(const std::string_view& s) noexcept {
     const char* b = s.begin();
     const char* e = s.end();
 
     StripRangeBegin(b, e);
 
-    return TStringBuf(b, e);
+    return std::string_view(b, e);
 }
 
-TParsedHttpRequest::TParsedHttpRequest(const TStringBuf& str) {
-    TStringBuf tmp;
+TParsedHttpRequest::TParsedHttpRequest(const std::string_view& str) {
+    std::string_view tmp;
 
     if (!StripLeft(str).TrySplit(' ', Method, tmp)) {
         ythrow yexception() << "bad request(" << ToString(str).Quote() << ")";
@@ -27,6 +27,6 @@ TParsedHttpRequest::TParsedHttpRequest(const TStringBuf& str) {
     Proto = StripLeft(Proto);
 }
 
-TParsedHttpLocation::TParsedHttpLocation(const TStringBuf& req) {
+TParsedHttpLocation::TParsedHttpLocation(const std::string_view& req) {
     req.Split('?', Path, Cgi);
 }

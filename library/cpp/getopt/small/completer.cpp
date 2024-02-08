@@ -18,14 +18,14 @@ namespace NLastGetopt::NComp {
 #define L out.Line()
 #define I auto Y_GENERATE_UNIQUE_ID(indent) = out.Indent()
 
-    TCompleterManager::TCompleterManager(TStringBuf command)
+    TCompleterManager::TCompleterManager(std::string_view command)
         : Command_(command)
         , Id_(0)
     {
     }
 
-    TStringBuf TCompleterManager::GetCompleterID(const ICompleter* completer) {
-        return Queue_.emplace_back(TStringBuilder() << "_" << Command_ << "__completer_" << ++Id_, completer).first;
+    std::string_view TCompleterManager::GetCompleterID(const ICompleter* completer) {
+        return Queue_.emplace_back(TYdbStringBuilder() << "_" << Command_ << "__completer_" << ++Id_, completer).first;
     }
 
     void TCompleterManager::GenerateZsh(TFormattedOutput& out) {
@@ -59,7 +59,7 @@ namespace NLastGetopt::NComp {
             }
         }
 
-        TStringBuf GenerateZshAction(TCompleterManager& manager) const override {
+        std::string_view GenerateZshAction(TCompleterManager& manager) const override {
             return manager.GetCompleterID(this);
         }
 
@@ -72,7 +72,7 @@ namespace NLastGetopt::NComp {
             size_t i = 0;
             for (auto& alternative: Alternatives_) {
                 auto tag = "alt-" + ToString(++i);
-                auto action = alternative.Completer ? alternative.Completer->GenerateZshAction(manager) : TStringBuf();
+                auto action = alternative.Completer ? alternative.Completer->GenerateZshAction(manager) : std::string_view();
 
                 L;
 
@@ -88,7 +88,7 @@ namespace NLastGetopt::NComp {
                     L << action.substr(1);
                 } else {
                     L << "_description " << SS(tag) << " expl " << SS(alternative.Description);
-                    TStringBuf word, args;
+                    std::string_view word, args;
                     action.Split(' ', word, args);
                     L << word << " \"${expl[@]}\" " << args;
                 }
@@ -105,7 +105,7 @@ namespace NLastGetopt::NComp {
 
     class TSimpleCompleter: public ICompleter {
     public:
-        TSimpleCompleter(TString bashCode, TString action)
+        TSimpleCompleter(std::string bashCode, std::string action)
             : BashCode(std::move(bashCode))
             , Action(std::move(action))
         {
@@ -117,7 +117,7 @@ namespace NLastGetopt::NComp {
             }
         }
 
-        TStringBuf GenerateZshAction(TCompleterManager&) const override {
+        std::string_view GenerateZshAction(TCompleterManager&) const override {
             return Action;
         }
 
@@ -126,20 +126,20 @@ namespace NLastGetopt::NComp {
         }
 
     private:
-        TString BashCode;
-        TString Action;
+        std::string BashCode;
+        std::string Action;
     };
 
     ICompleterPtr Choice(std::vector<TChoice> choices) {
-        auto bash = TStringBuilder() << "COMPREPLY+=( $(compgen -W '";
-        TStringBuf sep = "";
+        auto bash = TYdbStringBuilder() << "COMPREPLY+=( $(compgen -W '";
+        std::string_view sep = "";
         for (auto& choice : choices) {
             bash << sep << B(choice.Choice);
             sep = " ";
         }
         bash << "' -- ${cur}) )";
 
-        auto action = TStringBuilder();
+        auto action = TYdbStringBuilder();
         action << "((";
         for (auto& choice: choices) {
             action << " " << SS(choice.Choice);
@@ -151,15 +151,15 @@ namespace NLastGetopt::NComp {
         return MakeSimpleShared<TSimpleCompleter>(bash, action);
     }
 
-    TString Compgen(TStringBuf flags) {
-        return TStringBuilder() << "COMPREPLY+=( $(compgen " << flags << " -- ${cur}) )";
+    std::string Compgen(std::string_view flags) {
+        return TYdbStringBuilder() << "COMPREPLY+=( $(compgen " << flags << " -- ${cur}) )";
     }
 
     ICompleterPtr Default() {
         return MakeSimpleShared<TSimpleCompleter>("", "_default");
     }
 
-    ICompleterPtr File(TString pattern) {
+    ICompleterPtr File(std::string pattern) {
         if (pattern) {
             pattern = " -g " + SS(pattern);
         }
@@ -219,7 +219,7 @@ namespace NLastGetopt::NComp {
 
     namespace {
         TCustomCompleter* Head = nullptr;
-        TStringBuf SpecialFlag = "---CUSTOM-COMPLETION---";
+        std::string_view SpecialFlag = "---CUSTOM-COMPLETION---";
     }
 
     void TCustomCompleter::FireCustomCompleter(int argc, const char** argv) {
@@ -229,14 +229,14 @@ namespace NLastGetopt::NComp {
 
         for (int i = 1; i < argc - 4; ++i) {
             if (SpecialFlag == argv[i]) {
-                auto name = TStringBuf(argv[i + 1]);
+                auto name = std::string_view(argv[i + 1]);
                 auto curIdx = FromString<int>(argv[i + 2]);
-                auto prefix = TStringBuf(argv[i + 3]);
-                auto suffix = TStringBuf(argv[i + 4]);
+                auto prefix = std::string_view(argv[i + 3]);
+                auto suffix = std::string_view(argv[i + 4]);
 
-                auto cur = TStringBuf();
+                auto cur = std::string_view();
                 if (0 <= curIdx && curIdx < i) {
-                    cur = TStringBuf(argv[curIdx]);
+                    cur = std::string_view(argv[curIdx]);
                 }
                 if (cur && !prefix && !suffix) {
                     prefix = cur;  // bash does not send prefix and suffix
@@ -261,15 +261,15 @@ namespace NLastGetopt::NComp {
         Head = completer;
     }
 
-    void TCustomCompleter::AddCompletion(TStringBuf completion) {
+    void TCustomCompleter::AddCompletion(std::string_view completion) {
         Cout << completion << Endl;  // this was easy =)
         // TODO: support option descriptions and messages
     }
 
-    void TMultipartCustomCompleter::GenerateCompletions(int argc, const char** argv, int curIdx, TStringBuf cur, TStringBuf prefix, TStringBuf suffix) {
-        auto root = TStringBuf();
+    void TMultipartCustomCompleter::GenerateCompletions(int argc, const char** argv, int curIdx, std::string_view cur, std::string_view prefix, std::string_view suffix) {
+        auto root = std::string_view();
         if (prefix.Contains(Sep_)) {
-            auto tmp = TStringBuf();
+            auto tmp = std::string_view();
             prefix.RSplit(Sep_, root, tmp);
         }
 
@@ -297,7 +297,7 @@ namespace NLastGetopt::NComp {
             L << "IFS=$' \\t\\n'";
         }
 
-        TStringBuf GenerateZshAction(TCompleterManager& manager) const override {
+        std::string_view GenerateZshAction(TCompleterManager& manager) const override {
             return manager.GetCompleterID(this);
         }
 
@@ -329,7 +329,7 @@ namespace NLastGetopt::NComp {
             L << "IFS=$' \\t\\n'";
         }
 
-        TStringBuf GenerateZshAction(TCompleterManager& manager) const override {
+        std::string_view GenerateZshAction(TCompleterManager& manager) const override {
             return manager.GetCompleterID(this);
         }
 

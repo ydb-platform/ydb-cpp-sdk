@@ -42,11 +42,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class TStringHolder
+class std::stringHolder
     : public TSharedRangeHolder
 {
 public:
-    TStringHolder(TString&& string, TRefCountedTypeCookie cookie)
+    std::stringHolder(std::string&& string, TRefCountedTypeCookie cookie)
         : String_(std::move(string))
 #ifdef YT_ENABLE_REF_COUNTED_TRACKING
         , Cookie_(cookie)
@@ -57,7 +57,7 @@ public:
         TRefCountedTrackerFacade::AllocateSpace(Cookie_, String_.length());
 #endif
     }
-    ~TStringHolder()
+    ~std::stringHolder()
     {
 #ifdef YT_ENABLE_REF_COUNTED_TRACKING
         TRefCountedTrackerFacade::FreeTagInstance(Cookie_);
@@ -65,7 +65,7 @@ public:
 #endif
     }
 
-    const TString& String() const
+    const std::string& String() const
     {
         return String_;
     }
@@ -77,7 +77,7 @@ public:
     }
 
 private:
-    const TString String_;
+    const std::string String_;
 #ifdef YT_ENABLE_REF_COUNTED_TRACKING
     const TRefCountedTypeCookie Cookie_;
 #endif
@@ -220,9 +220,9 @@ TMutableRef TMutableRef::FromBlob(TBlob& blob)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TSharedRef TSharedRef::FromString(TString str, TRefCountedTypeCookie tagCookie)
+TSharedRef TSharedRef::FromString(std::string str, TRefCountedTypeCookie tagCookie)
 {
-    auto holder = New<TStringHolder>(std::move(str), tagCookie);
+    auto holder = New<std::stringHolder>(std::move(str), tagCookie);
     auto ref = TRef::FromString(holder->String());
     return TSharedRef(ref, std::move(holder));
 }
@@ -302,22 +302,22 @@ TSharedMutableRef TSharedMutableRef::MakeCopy(TRef ref, TRefCountedTypeCookie ta
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TString ToString(TRef ref)
+std::string ToString(TRef ref)
 {
-    return TString(ref.Begin(), ref.End());
+    return std::string(ref.Begin(), ref.End());
 }
 
-TString ToString(const TMutableRef& ref)
-{
-    return ToString(TRef(ref));
-}
-
-TString ToString(const TSharedRef& ref)
+std::string ToString(const TMutableRef& ref)
 {
     return ToString(TRef(ref));
 }
 
-TString ToString(const TSharedMutableRef& ref)
+std::string ToString(const TSharedRef& ref)
+{
+    return ToString(TRef(ref));
+}
+
+std::string ToString(const TSharedMutableRef& ref)
 {
     return ToString(TRef(ref));
 }
@@ -366,13 +366,13 @@ std::vector<TSharedRef> TSharedRefArray::ToVector() const
     return std::vector<TSharedRef>(Begin(), End());
 }
 
-TString TSharedRefArray::ToString() const
+std::string TSharedRefArray::ToString() const
 {
     if (!Impl_) {
         return {};
     }
 
-    TString result;
+    std::string result;
     size_t size = 0;
     for (const auto& part : *this) {
         size += part.size();

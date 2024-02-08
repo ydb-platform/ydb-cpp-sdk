@@ -25,7 +25,7 @@ TEST(NetworkTest, FreePort) {
 
     THashSet<ui16> uniqPorts;
     for (auto& port : ports) {
-        const TString guardPath = TmpDir.Path() / ToString(static_cast<ui16>(port));
+        const std::string guardPath = TmpDir.Path() / ToString(static_cast<ui16>(port));
         EXPECT_TRUE(NFs::Exists(guardPath));
         EXPECT_TRUE(uniqPorts.emplace(port).second);
 
@@ -36,7 +36,7 @@ TEST(NetworkTest, FreePort) {
     }
     ports.clear();
     for (ui16 port : uniqPorts) {
-        const TString guardPath = TmpDir.Path() / ToString(port);
+        const std::string guardPath = TmpDir.Path() / ToString(port);
         EXPECT_FALSE(NFs::Exists(guardPath));
     }
 }

@@ -8,48 +8,48 @@
 #include <util/system/src_location.h>
 
 // @brief return full path to arcadia root
-TString ArcadiaSourceRoot();
+std::string ArcadiaSourceRoot();
 
 // @brief return full path for file or folder specified by known source location `where` and `path` which is relative to parent folder of `where`
 //        for the instance: there is 2 files in folder test example_ut.cpp and example.data, so full path to test/example.data can be obtained
 //        from example_ut.cpp as ArcadiaFromCurrentLocation(__SOURCE_FILE__, "example.data")
-TString ArcadiaFromCurrentLocation(TStringBuf where, TStringBuf path);
+std::string ArcadiaFromCurrentLocation(std::string_view where, std::string_view path);
 
 // @brief return build folder path
-TString BuildRoot();
+std::string BuildRoot();
 
 // @brief return full path to built artefact, where path is relative from arcadia root
-TString BinaryPath(TStringBuf path);
+std::string BinaryPath(std::string_view path);
 
 // @brief return true if environment is testenv otherwise false
 bool FromYaTest();
 
 // @brief returns TestsData dir (from env:ARCADIA_TESTS_DATA_DIR or path to existing folder `arcadia_tests_data` within parent folders)
-TString GetArcadiaTestsData();
+std::string GetArcadiaTestsData();
 
 // @brief return current working dir (from env:TEST_WORK_PATH or cwd)
-TString GetWorkPath();
+std::string GetWorkPath();
 
 // @brief return tests output path (workdir + testing_out_stuff)
 TFsPath GetOutputPath();
 
 // @brief return path from env:YA_TEST_RAM_DRIVE_PATH
-const TString& GetRamDrivePath();
+const std::string& GetRamDrivePath();
 
 // @brief return path from env:YA_TEST_OUTPUT_RAM_DRIVE_PATH
-const TString& GetOutputRamDrivePath();
+const std::string& GetOutputRamDrivePath();
 
 // @brief return test parameter by name. If not exists, return an empty string
-const TString& GetTestParam(TStringBuf name);
+const std::string& GetTestParam(std::string_view name);
 
 // @brief return test parameter by name. If not exists, return specified default value
-const TString& GetTestParam(TStringBuf name, const TString& def);
+const std::string& GetTestParam(std::string_view name, const std::string& def);
 
 // @brief return path to global resource. If not exists, aborts the test run
-const TString& GetGlobalResource(TStringBuf name);
+const std::string& GetGlobalResource(std::string_view name);
 
 // @brief return path to the gdb
-const TString& GdbPath();
+const std::string& GdbPath();
 
 // @brief register the process. Test suite will be marked as failed if the process is terminated with a core dump file after testing
 void WatchProcessCore(int pid, const TFsPath& binaryPath, const TFsPath& cwd = TFsPath());
@@ -66,24 +66,24 @@ namespace NPrivate {
 
         void ReInitialize();
 
-        void AddTestParam(TStringBuf name, TStringBuf value);
+        void AddTestParam(std::string_view name, std::string_view value);
 
         bool IsRunningFromTest;
-        TString ArcadiaTestsDataDir;
-        TString SourceRoot;
-        TString BuildRoot;
-        TString WorkPath;
-        TString RamDrivePath;
-        TString YtHddPath;
-        TString TestOutputRamDrivePath;
-        TString GdbPath;
-        TString CoreSearchFile;
-        TString EnvFile;
-        std::unordered_map<TString, TString> TestParameters;
-        std::unordered_map<TString, TString> GlobalResources;
+        std::string ArcadiaTestsDataDir;
+        std::string SourceRoot;
+        std::string BuildRoot;
+        std::string WorkPath;
+        std::string RamDrivePath;
+        std::string YtHddPath;
+        std::string TestOutputRamDrivePath;
+        std::string GdbPath;
+        std::string CoreSearchFile;
+        std::string EnvFile;
+        std::unordered_map<std::string, std::string> TestParameters;
+        std::unordered_map<std::string, std::string> GlobalResources;
     };
 
-    TString GetCwd();
+    std::string GetCwd();
 
     const TTestEnv& GetTestEnv();
 }

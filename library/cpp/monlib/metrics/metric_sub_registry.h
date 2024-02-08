@@ -102,7 +102,7 @@ public:
     }
 
     void RemoveMetric(const ILabels& labels) noexcept override {
-        TLabelsImpl<TStringBuf> toRemove;
+        TLabelsImpl<std::string_view> toRemove;
         for (auto& l: labels) {
             toRemove.Add(l);
         }

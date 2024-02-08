@@ -9,7 +9,7 @@ THolder<TLogBackend> TLogBackendCreatorUninitialized::DoCreateLogBackend() const
     return Slave->CreateLogBackend();
 }
 
-void TLogBackendCreatorUninitialized::InitCustom(const TString& type, ELogPriority priority, bool threaded) {
+void TLogBackendCreatorUninitialized::InitCustom(const std::string& type, ELogPriority priority, bool threaded) {
     if (!type) {
         Slave = MakeHolder<TNullLogBackendCreator>();
     } else if (TFactory::Has(type)) {
@@ -28,10 +28,10 @@ void TLogBackendCreatorUninitialized::InitCustom(const TString& type, ELogPriori
 }
 
 bool TLogBackendCreatorUninitialized::Init(const IInitContext& ctx) {
-    auto type = ctx.GetOrElse("LoggerType", TString());
+    auto type = ctx.GetOrElse("LoggerType", std::string());
     bool threaded = ctx.GetOrElse("Threaded", false);
     ELogPriority priority = LOG_MAX_PRIORITY;
-    TString prStr;
+    std::string prStr;
     if (ctx.GetValue("LogLevel", prStr)) {
         if (!TryFromString(prStr, priority)) {
             priority = (ELogPriority)FromString<int>(prStr);

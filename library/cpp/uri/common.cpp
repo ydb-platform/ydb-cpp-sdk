@@ -8,26 +8,26 @@ namespace NUri {
     static_assert(TFeature::FeatureMAX <= sizeof(ui64) * 8, "expect TFeature::FeatureMAX <= sizeof(ui64) * 8");
 
     const TSchemeInfo TSchemeInfo::Registry[] = {
-        TSchemeInfo(TScheme::SchemeEmpty, TStringBuf()), // scheme is empty and inited
-        TSchemeInfo(TScheme::SchemeHTTP, TStringBuf("http"), TField::FlagHost | TField::FlagPath, 80),
-        TSchemeInfo(TScheme::SchemeHTTPS, TStringBuf("https"), TField::FlagHost | TField::FlagPath, 443),
-        TSchemeInfo(TScheme::SchemeFTP, TStringBuf("ftp"), TField::FlagHost | TField::FlagPath, 20),
-        TSchemeInfo(TScheme::SchemeFILE, TStringBuf("file"), TField::FlagPath),
-        TSchemeInfo(TScheme::SchemeWS, TStringBuf("ws"), TField::FlagHost | TField::FlagPath, 80),
-        TSchemeInfo(TScheme::SchemeWSS, TStringBuf("wss"), TField::FlagHost | TField::FlagPath, 443),
+        TSchemeInfo(TScheme::SchemeEmpty, std::string_view()), // scheme is empty and inited
+        TSchemeInfo(TScheme::SchemeHTTP, std::string_view("http"), TField::FlagHost | TField::FlagPath, 80),
+        TSchemeInfo(TScheme::SchemeHTTPS, std::string_view("https"), TField::FlagHost | TField::FlagPath, 443),
+        TSchemeInfo(TScheme::SchemeFTP, std::string_view("ftp"), TField::FlagHost | TField::FlagPath, 20),
+        TSchemeInfo(TScheme::SchemeFILE, std::string_view("file"), TField::FlagPath),
+        TSchemeInfo(TScheme::SchemeWS, std::string_view("ws"), TField::FlagHost | TField::FlagPath, 80),
+        TSchemeInfo(TScheme::SchemeWSS, std::string_view("wss"), TField::FlagHost | TField::FlagPath, 443),
         // add above
-        TSchemeInfo(TScheme::SchemeUnknown, TStringBuf()) // scheme is empty and uninited
+        TSchemeInfo(TScheme::SchemeUnknown, std::string_view()) // scheme is empty and uninited
     };
 
     namespace {
         struct TLessNoCase {
-            bool operator()(const TStringBuf& lt, const TStringBuf& rt) const {
+            bool operator()(const std::string_view& lt, const std::string_view& rt) const {
                 return 0 > CompareNoCase(lt, rt);
             }
         };
 
         class TSchemeInfoMap {
-            typedef std::map<TStringBuf, TScheme::EKind, TLessNoCase> TdMap;
+            typedef std::map<std::string_view, TScheme::EKind, TLessNoCase> TdMap;
             TdMap Map_;
 
         public:
@@ -38,7 +38,7 @@ namespace NUri {
                 }
             }
 
-            TScheme::EKind Get(const TStringBuf& scheme) const {
+            TScheme::EKind Get(const std::string_view& scheme) const {
                 const TdMap::const_iterator it = Map_.find(scheme);
                 return Map_.end() == it ? TScheme::SchemeUnknown : it->second;
             }
@@ -50,7 +50,7 @@ namespace NUri {
 
     }
 
-    const TSchemeInfo& TSchemeInfo::Get(const TStringBuf& scheme) {
+    const TSchemeInfo& TSchemeInfo::Get(const std::string_view& scheme) {
         return Registry[TSchemeInfoMap::Instance().Get(scheme)];
     }
 

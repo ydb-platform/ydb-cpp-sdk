@@ -12,7 +12,7 @@ namespace NMonitoring {
         constexpr TInstant ZERO_TIME = TInstant::Zero();
 
         class TConsumer final: public ICountableConsumer {
-            using TLabel = std::pair<TString, TString>; // name, value
+            using TLabel = std::pair<std::string, std::string>; // name, value
 
         public:
             explicit TConsumer(NMonitoring::IMetricEncoderPtr encoderImpl, TCountableBase::EVisibility vis)
@@ -22,7 +22,7 @@ namespace NMonitoring {
             }
 
             void OnCounter(
-                const TString& labelName, const TString& labelValue,
+                const std::string& labelName, const std::string& labelValue,
                 const TCounterForPtr* counter) override {
                 NMonitoring::EMetricType metricType = counter->ForDerivative()
                                                           ? NMonitoring::EMetricType::RATE
@@ -40,7 +40,7 @@ namespace NMonitoring {
             }
 
             void OnHistogram(
-                const TString& labelName, const TString& labelValue,
+                const std::string& labelName, const std::string& labelValue,
                 IHistogramSnapshotPtr snapshot, bool derivative) override {
                 NMonitoring::EMetricType metricType = derivative ? EMetricType::HIST_RATE : EMetricType::HIST;
 
@@ -51,7 +51,7 @@ namespace NMonitoring {
             }
 
             void OnGroupBegin(
-                const TString& labelName, const TString& labelValue,
+                const std::string& labelName, const std::string& labelValue,
                 const TDynamicCounters*) override {
                 if (labelName.empty() && labelValue.empty()) {
                     // root group has empty label name and value
@@ -62,7 +62,7 @@ namespace NMonitoring {
             }
 
             void OnGroupEnd(
-                const TString& labelName, const TString& labelValue,
+                const std::string& labelName, const std::string& labelValue,
                 const TDynamicCounters*) override {
                 if (labelName.empty() && labelValue.empty()) {
                     // root group has empty label name and value
@@ -78,7 +78,7 @@ namespace NMonitoring {
             }
 
         private:
-            void EncodeLabels(const TString& labelName, const TString& labelValue) {
+            void EncodeLabels(const std::string& labelName, const std::string& labelValue) {
                 EncoderImpl_->OnLabelsBegin();
                 for (const auto& label : ParentLabels_) {
                     EncoderImpl_->OnLabel(label.first, label.second);
@@ -96,7 +96,7 @@ namespace NMonitoring {
     }
 
     THolder<ICountableConsumer> CreateEncoder(IOutputStream* out, EFormat format,
-        TStringBuf nameLabel, TCountableBase::EVisibility vis)
+        std::string_view nameLabel, TCountableBase::EVisibility vis)
     {
         switch (format) {
             case EFormat::JSON:
@@ -121,11 +121,11 @@ namespace NMonitoring {
 
     void ToJson(const TDynamicCounters& counters, IOutputStream* out) {
         TConsumer consumer{EncoderJson(out), TCountableBase::EVisibility::Public};
-        counters.Accept(TString{}, TString{}, consumer);
+        counters.Accept(std::string{}, std::string{}, consumer);
     }
 
-    TString ToJson(const TDynamicCounters& counters) {
-        TStringStream ss;
+    std::string ToJson(const TDynamicCounters& counters) {
+        std::stringStream ss;
         ToJson(counters, &ss);
         return ss.Str();
     }

@@ -11,7 +11,7 @@ namespace NYT {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void UnderscoreCaseToCamelCase(TStringBuilderBase* builder, TStringBuf str)
+void UnderscoreCaseToCamelCase(TYdbStringBuilderBase* builder, std::string_view str)
 {
     bool first = true;
     bool upper = true;
@@ -32,14 +32,14 @@ void UnderscoreCaseToCamelCase(TStringBuilderBase* builder, TStringBuf str)
     }
 }
 
-TString UnderscoreCaseToCamelCase(TStringBuf str)
+std::string UnderscoreCaseToCamelCase(std::string_view str)
 {
-    TStringBuilder builder;
+    TYdbStringBuilder builder;
     UnderscoreCaseToCamelCase(&builder, str);
     return builder.Flush();
 }
 
-void CamelCaseToUnderscoreCase(TStringBuilderBase* builder, TStringBuf str)
+void CamelCaseToUnderscoreCase(TYdbStringBuilderBase* builder, std::string_view str)
 {
     bool first = true;
     for (char c : str) {
@@ -54,16 +54,16 @@ void CamelCaseToUnderscoreCase(TStringBuilderBase* builder, TStringBuf str)
     }
 }
 
-TString CamelCaseToUnderscoreCase(TStringBuf str)
+std::string CamelCaseToUnderscoreCase(std::string_view str)
 {
-    TStringBuilder builder;
+    TYdbStringBuilder builder;
     CamelCaseToUnderscoreCase(&builder, str);
     return builder.Flush();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TString TrimLeadingWhitespaces(const TString& str)
+std::string TrimLeadingWhitespaces(const std::string& str)
 {
     for (int i = 0; i < static_cast<int>(str.size()); ++i) {
         if (str[i] != ' ') {
@@ -73,7 +73,7 @@ TString TrimLeadingWhitespaces(const TString& str)
     return "";
 }
 
-TString Trim(const TString& str, const TString& whitespaces)
+std::string Trim(const std::string& str, const std::string& whitespaces)
 {
     size_t end = str.size();
     while (end > 0) {
@@ -96,7 +96,7 @@ TString Trim(const TString& str, const TString& whitespaces)
     }
 
     size_t begin = str.find_first_not_of(whitespaces);
-    YT_VERIFY(begin != TString::npos);
+    YT_VERIFY(begin != std::string::npos);
     YT_VERIFY(begin < end);
     return str.substr(begin, end - begin);
 }
@@ -119,7 +119,7 @@ const ui16 DecimalDigits2[100] = {
 };
 
 template <class T>
-char* WriteSignedDecIntToBufferBackwardsImpl(char* ptr, T value, TStringBuf min)
+char* WriteSignedDecIntToBufferBackwardsImpl(char* ptr, T value, std::string_view min)
 {
     if (value == 0) {
         --ptr;
@@ -191,13 +191,13 @@ char* WriteUnsignedDecIntToBufferBackwardsImpl(char* ptr, T value)
 template <>
 char* WriteDecIntToBufferBackwards(char* ptr, i32 value)
 {
-    return WriteSignedDecIntToBufferBackwardsImpl(ptr, value, TStringBuf("-2147483647"));
+    return WriteSignedDecIntToBufferBackwardsImpl(ptr, value, std::string_view("-2147483647"));
 }
 
 template <>
 char* WriteDecIntToBufferBackwards(char* ptr, i64 value)
 {
-    return WriteSignedDecIntToBufferBackwardsImpl(ptr, value, TStringBuf("-9223372036854775808"));
+    return WriteSignedDecIntToBufferBackwardsImpl(ptr, value, std::string_view("-9223372036854775808"));
 }
 
 template <>
@@ -217,7 +217,7 @@ char* WriteDecIntToBufferBackwards(char* ptr, ui64 value)
 namespace {
 
 template <class T>
-char* WriteSignedHexIntToBufferBackwardsImpl(char* ptr, T value, bool uppercase, TStringBuf min)
+char* WriteSignedHexIntToBufferBackwardsImpl(char* ptr, T value, bool uppercase, std::string_view min)
 {
     if (value == 0) {
         --ptr;
@@ -279,13 +279,13 @@ char* WriteUnsignedHexIntToBufferBackwardsImpl(char* ptr, T value, bool uppercas
 template <>
 char* WriteHexIntToBufferBackwards(char* ptr, i32 value, bool uppercase)
 {
-    return WriteSignedHexIntToBufferBackwardsImpl(ptr, value, uppercase, TStringBuf("-80000000"));
+    return WriteSignedHexIntToBufferBackwardsImpl(ptr, value, uppercase, std::string_view("-80000000"));
 }
 
 template <>
 char* WriteHexIntToBufferBackwards(char* ptr, i64 value, bool uppercase)
 {
-    return WriteSignedHexIntToBufferBackwardsImpl(ptr, value, uppercase, TStringBuf("-8000000000000000"));
+    return WriteSignedHexIntToBufferBackwardsImpl(ptr, value, uppercase, std::string_view("-8000000000000000"));
 }
 
 template <>
@@ -302,13 +302,13 @@ char* WriteHexIntToBufferBackwards(char* ptr, ui64 value, bool uppercase)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-size_t TCaseInsensitiveStringHasher::operator()(TStringBuf arg) const
+size_t TCaseInsensitiveStringHasher::operator()(std::string_view arg) const
 {
     auto compute = [&] (char* buffer) {
         for (size_t index = 0; index < arg.length(); ++index) {
             buffer[index] = AsciiToLower(arg[index]);
         }
-        return ComputeHash(TStringBuf(buffer, arg.length()));
+        return ComputeHash(std::string_view(buffer, arg.length()));
     };
     const size_t SmallSize = 256;
     if (arg.length() <= SmallSize) {
@@ -320,14 +320,14 @@ size_t TCaseInsensitiveStringHasher::operator()(TStringBuf arg) const
     }
 }
 
-bool TCaseInsensitiveStringEqualityComparer::operator()(TStringBuf lhs, TStringBuf rhs) const
+bool TCaseInsensitiveStringEqualityComparer::operator()(std::string_view lhs, std::string_view rhs) const
 {
     return AsciiEqualsIgnoreCase(lhs, rhs);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool TryParseBool(TStringBuf value, bool* result)
+bool TryParseBool(std::string_view value, bool* result)
 {
     if (value == "true" || value == "1") {
         *result = true;
@@ -340,7 +340,7 @@ bool TryParseBool(TStringBuf value, bool* result)
     }
 }
 
-bool ParseBool(TStringBuf value)
+bool ParseBool(std::string_view value)
 {
     bool result;
     if (!TryParseBool(value, &result)) {
@@ -350,9 +350,9 @@ bool ParseBool(TStringBuf value)
     return result;
 }
 
-TStringBuf FormatBool(bool value)
+std::string_view FormatBool(bool value)
 {
-    return value ? TStringBuf("true") : TStringBuf("false");
+    return value ? std::string_view("true") : std::string_view("false");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

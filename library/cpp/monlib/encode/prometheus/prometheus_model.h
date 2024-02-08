@@ -13,16 +13,16 @@ namespace NPrometheus {
     // and https://github.com/prometheus/common/blob/master/expfmt/text_parse.go
     //
 
-    inline constexpr TStringBuf BUCKET_SUFFIX = "_bucket";
-    inline constexpr TStringBuf COUNT_SUFFIX = "_count";
-    inline constexpr TStringBuf SUM_SUFFIX = "_sum";
-    inline constexpr TStringBuf MIN_SUFFIX = "_min";
-    inline constexpr TStringBuf MAX_SUFFIX = "_max";
-    inline constexpr TStringBuf LAST_SUFFIX = "_last";
+    inline constexpr std::string_view BUCKET_SUFFIX = "_bucket";
+    inline constexpr std::string_view COUNT_SUFFIX = "_count";
+    inline constexpr std::string_view SUM_SUFFIX = "_sum";
+    inline constexpr std::string_view MIN_SUFFIX = "_min";
+    inline constexpr std::string_view MAX_SUFFIX = "_max";
+    inline constexpr std::string_view LAST_SUFFIX = "_last";
 
     // Used for the label that defines the upper bound of a bucket of a
     // histogram ("le" -> "less or equal").
-    inline constexpr TStringBuf BUCKET_LABEL = "le";
+    inline constexpr std::string_view BUCKET_LABEL = "le";
 
 
     inline bool IsValidLabelNameStart(char ch) {
@@ -41,19 +41,19 @@ namespace NPrometheus {
         return IsValidLabelNameContinuation(ch) || ch == ':';
     }
 
-    inline bool IsSum(TStringBuf name) {
+    inline bool IsSum(std::string_view name) {
         return name.EndsWith(SUM_SUFFIX);
     }
 
-    inline bool IsCount(TStringBuf name) {
+    inline bool IsCount(std::string_view name) {
         return name.EndsWith(COUNT_SUFFIX);
     }
 
-    inline bool IsBucket(TStringBuf name) {
+    inline bool IsBucket(std::string_view name) {
         return name.EndsWith(BUCKET_SUFFIX);
     }
 
-    inline TStringBuf ToBaseName(TStringBuf name) {
+    inline std::string_view ToBaseName(std::string_view name) {
         if (IsBucket(name)) {
             return name.SubString(0, name.length() - BUCKET_SUFFIX.length());
         }

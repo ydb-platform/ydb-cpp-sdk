@@ -3,7 +3,7 @@
 #include <util/generic/hash.h>
 #include <util/generic/string_ut.h>
 
-class TCaseStringTest: public TTestBase, private TStringTestImpl<TCiString, TTestData<char>> {
+class TCaseStringTest: public TTestBase, private std::stringTestImpl<TCiString, TTestData<char>> {
 public:
     void TestSpecial() {
         TCiString ss = Data._0123456(); // type 'TCiString' is used as is

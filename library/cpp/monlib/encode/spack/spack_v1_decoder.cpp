@@ -27,7 +27,7 @@ namespace NMonitoring {
         ///////////////////////////////////////////////////////////////////////
         class TDecoderSpackV1 {
         public:
-            TDecoderSpackV1(IInputStream* in, TStringBuf metricNameLabel)
+            TDecoderSpackV1(IInputStream* in, std::string_view metricNameLabel)
                 : In_(in)
                 , MetricNameLabel_(metricNameLabel)
             {
@@ -71,12 +71,12 @@ namespace NMonitoring {
                 std::vector<char> namesBuf(Header_.LabelNamesSize);
                 readBytes = In_->Load(namesBuf.data(), namesBuf.size());
                 DECODE_ENSURE(readBytes == Header_.LabelNamesSize, "not enough data to read label names pool");
-                TStringPool labelNames(namesBuf.data(), namesBuf.size());
+                std::stringPool labelNames(namesBuf.data(), namesBuf.size());
 
                 std::vector<char> valuesBuf(Header_.LabelValuesSize);
                 readBytes = In_->Load(valuesBuf.data(), valuesBuf.size());
                 DECODE_ENSURE(readBytes == Header_.LabelValuesSize, "not enough data to read label values pool");
-                TStringPool labelValues(valuesBuf.data(), valuesBuf.size());
+                std::stringPool labelValues(valuesBuf.data(), valuesBuf.size());
 
                 // (3) read common time
                 c->OnCommonTime(ReadTime());
@@ -95,8 +95,8 @@ namespace NMonitoring {
 
         private:
             void ReadMetrics(
-                    const TStringPool& labelNames,
-                    const TStringPool& labelValues,
+                    const std::stringPool& labelNames,
+                    const std::stringPool& labelValues,
                     IMetricConsumer* c)
             {
                 for (ui32 i = 0; i < Header_.MetricCount; i++) {
@@ -239,8 +239,8 @@ namespace NMonitoring {
             }
 
             void ReadLabels(
-                const TStringPool& labelNames,
-                const TStringPool& labelValues,
+                const std::stringPool& labelNames,
+                const std::stringPool& labelValues,
                 ui32 count,
                 IMetricConsumer* c)
             {
@@ -275,7 +275,7 @@ namespace NMonitoring {
 
         private:
             IInputStream* In_;
-            TString MetricNameLabel_;
+            std::string MetricNameLabel_;
             ETimePrecision TimePrecision_;
             TSpackHeader Header_;
         }; // class TDecoderSpackV1
@@ -450,7 +450,7 @@ namespace NMonitoring {
         }
     }
 
-    void DecodeSpackV1(IInputStream* in, IMetricConsumer* c, TStringBuf metricNameLabel) {
+    void DecodeSpackV1(IInputStream* in, IMetricConsumer* c, std::string_view metricNameLabel) {
         TDecoderSpackV1 decoder(in, metricNameLabel);
         decoder.Decode(c);
     }

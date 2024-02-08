@@ -170,12 +170,12 @@ private:
     std::vector<double> Buckets_;
 };
 
-std::pair<double, bool> ParseSpecDouble(TStringBuf string) {
-    if (string == TStringBuf("nan") || string == TStringBuf("NaN")) {
+std::pair<double, bool> ParseSpecDouble(std::string_view string) {
+    if (string == std::string_view("nan") || string == std::string_view("NaN")) {
         return {std::numeric_limits<double>::quiet_NaN(), true};
-    } else if (string == TStringBuf("inf") || string == TStringBuf("Infinity")) {
+    } else if (string == std::string_view("inf") || string == std::string_view("Infinity")) {
         return {std::numeric_limits<double>::infinity(), true};
-    } else if (string == TStringBuf("-inf") || string == TStringBuf("-Infinity")) {
+    } else if (string == std::string_view("-inf") || string == std::string_view("-Infinity")) {
         return  {-std::numeric_limits<double>::infinity(), true};
     } else {
         return {0, false};
@@ -299,7 +299,7 @@ private:
     void OnLabelsEnd() override {
     }
 
-    void OnLabel(TStringBuf name, TStringBuf value) override {
+    void OnLabel(std::string_view name, std::string_view value) override {
         if (!IsMetric_) {
             CommonParts_.CommonLabels.Add(std::move(name), std::move(value));
         }
@@ -389,7 +389,7 @@ private:
         }
     }
 
-    void OnLabel(TStringBuf name, TStringBuf value) override {
+    void OnLabel(std::string_view name, std::string_view value) override {
         if (IsMetric_) {
             Consumer_->OnLabel(std::move(name), std::move(value));
         }
@@ -481,7 +481,7 @@ class TDecoderJson final: public NJson::TJsonCallbacks {
     };
 
 public:
-    TDecoderJson(TStringBuf data, IHaltableMetricConsumer* metricConsumer, TStringBuf metricNameLabel)
+    TDecoderJson(std::string_view data, IHaltableMetricConsumer* metricConsumer, std::string_view metricNameLabel)
         : Data_(data)
         , MetricConsumer_(metricConsumer)
         , MetricNameLabel_(metricNameLabel)
@@ -492,7 +492,7 @@ private:
 #define PARSE_ENSURE(CONDITION, ...)                     \
 do {                                                 \
 if (Y_UNLIKELY(!(CONDITION))) {                  \
-    ErrorMsg_ = TStringBuilder() << __VA_ARGS__; \
+    ErrorMsg_ = TYdbStringBuilder() << __VA_ARGS__; \
     return false;                                \
 }                                                \
 } while (false)
@@ -712,21 +712,21 @@ if (Y_UNLIKELY(!(CONDITION))) {                  \
         return true;
     }
 
-    bool OnString(const TStringBuf& value) override {
+    bool OnString(const std::string_view& value) override {
         switch (State_.Current()) {
             case TState::COMMON_LABELS:
                 PARSE_ENSURE(!LastLabelName_.empty(), "empty label name in common labels");
-                MetricConsumer_->OnLabel(LastLabelName_, TString{value});
+                MetricConsumer_->OnLabel(LastLabelName_, std::string{value});
                 break;
 
             case TState::METRIC_LABELS:
                 PARSE_ENSURE(!LastLabelName_.empty(), "empty label name in metric labels");
-                LastMetric_.Labels.Add(LastLabelName_, TString{value});
+                LastMetric_.Labels.Add(LastLabelName_, std::string{value});
                 break;
 
             case TState::METRIC_NAME:
                 PARSE_ENSURE(!value.empty(), "empty metric name");
-                LastMetric_.Labels.Add(MetricNameLabel_, TString{value});
+                LastMetric_.Labels.Add(MetricNameLabel_, std::string{value});
                 State_.ToPrev();
                 break;
 
@@ -761,7 +761,7 @@ if (Y_UNLIKELY(!(CONDITION))) {                  \
                 break;
 
             case TState::METRIC_MODE:
-                if (value == TStringBuf("deriv")) {
+                if (value == std::string_view("deriv")) {
                     LastMetric_.Type = EMetricType::RATE;
                 }
                 State_.ToPrev();
@@ -810,14 +810,14 @@ if (Y_UNLIKELY(!(CONDITION))) {                  \
         return true;
     }
 
-    bool OnMapKey(const TStringBuf& key) override {
+    bool OnMapKey(const std::string_view& key) override {
         switch (State_.Current()) {
             case TState::ROOT_OBJECT:
-                if (key == TStringBuf("commonLabels") || key == TStringBuf("labels")) {
+                if (key == std::string_view("commonLabels") || key == std::string_view("labels")) {
                     State_.ToNext(TState::COMMON_LABELS);
-                } else if (key == TStringBuf("ts")) {
+                } else if (key == std::string_view("ts")) {
                     State_.ToNext(TState::COMMON_TS);
-                } else if (key == TStringBuf("sensors") || key == TStringBuf("metrics")) {
+                } else if (key == std::string_view("sensors") || key == std::string_view("metrics")) {
                     State_.ToNext(TState::METRICS_ARRAY);
                 }
                 break;
@@ -828,89 +828,89 @@ if (Y_UNLIKELY(!(CONDITION))) {                  \
                 break;
 
             case TState::METRIC_OBJECT:
-                if (key == TStringBuf("labels")) {
+                if (key == std::string_view("labels")) {
                     State_.ToNext(TState::METRIC_LABELS);
-                } else if (key == TStringBuf("name")) {
+                } else if (key == std::string_view("name")) {
                     State_.ToNext(TState::METRIC_NAME);
-                } else if (key == TStringBuf("ts")) {
+                } else if (key == std::string_view("ts")) {
                     PARSE_ENSURE(!LastMetric_.SeenTimeseries,
                              "mixed timeseries and ts attributes");
                     LastMetric_.SeenTsOrValue = true;
                     State_.ToNext(TState::METRIC_TS);
-                } else if (key == TStringBuf("value")) {
+                } else if (key == std::string_view("value")) {
                     PARSE_ENSURE(!LastMetric_.SeenTimeseries,
                              "mixed timeseries and value attributes");
                     LastMetric_.SeenTsOrValue = true;
                     State_.ToNext(TState::METRIC_VALUE);
-                } else if (key == TStringBuf("timeseries")) {
+                } else if (key == std::string_view("timeseries")) {
                     PARSE_ENSURE(!LastMetric_.SeenTsOrValue,
                              "mixed timeseries and ts/value attributes");
                     LastMetric_.SeenTimeseries = true;
                     State_.ToNext(TState::METRIC_TIMESERIES);
-                } else if (key == TStringBuf("mode")) {
+                } else if (key == std::string_view("mode")) {
                     State_.ToNext(TState::METRIC_MODE);
-                } else if (key == TStringBuf("kind") || key == TStringBuf("type")) {
+                } else if (key == std::string_view("kind") || key == std::string_view("type")) {
                     State_.ToNext(TState::METRIC_TYPE);
-                } else if (key == TStringBuf("hist")) {
+                } else if (key == std::string_view("hist")) {
                     State_.ToNext(TState::METRIC_HIST);
-                } else if (key == TStringBuf("summary")) {
+                } else if (key == std::string_view("summary")) {
                     State_.ToNext(TState::METRIC_DSUMMARY);
-                } else if (key == TStringBuf("log_hist")) {
+                } else if (key == std::string_view("log_hist")) {
                     State_.ToNext(TState::METRIC_LOG_HIST);
-                } else if (key == TStringBuf("memOnly")) {
+                } else if (key == std::string_view("memOnly")) {
                     // deprecated. Skip it without errors for backward compatibility
                 } else {
-                    ErrorMsg_ = TStringBuilder() << "unexpected key \"" << key << "\" in a metric schema";
+                    ErrorMsg_ = TYdbStringBuilder() << "unexpected key \"" << key << "\" in a metric schema";
                     return false;
                 }
                 break;
 
             case TState::METRIC_TIMESERIES:
-                if (key == TStringBuf("ts")) {
+                if (key == std::string_view("ts")) {
                     State_.ToNext(TState::METRIC_TS);
-                } else if (key == TStringBuf("value")) {
+                } else if (key == std::string_view("value")) {
                     State_.ToNext(TState::METRIC_VALUE);
-                } else if (key == TStringBuf("hist")) {
+                } else if (key == std::string_view("hist")) {
                     State_.ToNext(TState::METRIC_HIST);
-                } else if (key == TStringBuf("summary")) {
+                } else if (key == std::string_view("summary")) {
                     State_.ToNext(TState::METRIC_DSUMMARY);
-                } else if (key == TStringBuf("log_hist")) {
+                } else if (key == std::string_view("log_hist")) {
                     State_.ToNext(TState::METRIC_LOG_HIST);
                 }
                 break;
 
             case TState::METRIC_HIST:
-                if (key == TStringBuf("bounds")) {
+                if (key == std::string_view("bounds")) {
                     State_.ToNext(TState::METRIC_HIST_BOUNDS);
-                } else if (key == TStringBuf("buckets")) {
+                } else if (key == std::string_view("buckets")) {
                     State_.ToNext(TState::METRIC_HIST_BUCKETS);
-                } else if (key == TStringBuf("inf")) {
+                } else if (key == std::string_view("inf")) {
                     State_.ToNext(TState::METRIC_HIST_INF);
                 }
                 break;
 
             case TState::METRIC_LOG_HIST:
-                if (key == TStringBuf("base")) {
+                if (key == std::string_view("base")) {
                     State_.ToNext(TState::METRIC_LOG_HIST_BASE);
-                } else if (key == TStringBuf("zeros_count")) {
+                } else if (key == std::string_view("zeros_count")) {
                     State_.ToNext(TState::METRIC_LOG_HIST_ZEROS);
-                } else if (key == TStringBuf("start_power")) {
+                } else if (key == std::string_view("start_power")) {
                     State_.ToNext(TState::METRIC_LOG_HIST_START_POWER);
-                } else if (key == TStringBuf("buckets")) {
+                } else if (key == std::string_view("buckets")) {
                     State_.ToNext(TState::METRIC_LOG_HIST_BUCKETS);
                 }
                 break;
 
             case TState::METRIC_DSUMMARY:
-                if (key == TStringBuf("sum")) {
+                if (key == std::string_view("sum")) {
                     State_.ToNext(TState::METRIC_DSUMMARY_SUM);
-                } else if (key == TStringBuf("min")) {
+                } else if (key == std::string_view("min")) {
                     State_.ToNext(TState::METRIC_DSUMMARY_MIN);
-                } else if (key == TStringBuf("max")) {
+                } else if (key == std::string_view("max")) {
                     State_.ToNext(TState::METRIC_DSUMMARY_MAX);
-                } else if (key == TStringBuf("last")) {
+                } else if (key == std::string_view("last")) {
                     State_.ToNext(TState::METRIC_DSUMMARY_LAST);
-                } else if (key == TStringBuf("count")) {
+                } else if (key == std::string_view("count")) {
                     State_.ToNext(TState::METRIC_DSUMMARY_COUNT);
                 }
 
@@ -1015,17 +1015,17 @@ if (Y_UNLIKELY(!(CONDITION))) {                  \
         return true;
     }
 
-    void OnError(size_t off, TStringBuf reason) override {
+    void OnError(size_t off, std::string_view reason) override {
         if (IsIntentionallyHalted_) {
             return;
         }
 
         size_t snippetBeg = (off < 20) ? 0 : (off - 20);
-        TStringBuf snippet = Data_.SubStr(snippetBeg, 40);
+        std::string_view snippet = Data_.SubStr(snippetBeg, 40);
 
         throw TJsonDecodeError()
             << "cannot parse JSON, error at: " << off
-            << ", reason: " << (ErrorMsg_.empty() ? reason : TStringBuf{ErrorMsg_})
+            << ", reason: " << (ErrorMsg_.empty() ? reason : std::string_view{ErrorMsg_})
             << "\nsnippet: ..." << snippet << "...";
     }
 
@@ -1126,19 +1126,19 @@ if (Y_UNLIKELY(!(CONDITION))) {                  \
     }
 
 private:
-    TStringBuf Data_;
+    std::string_view Data_;
     IHaltableMetricConsumer* MetricConsumer_;
-    TString MetricNameLabel_;
+    std::string MetricNameLabel_;
     TState State_;
-    TString LastLabelName_;
+    std::string LastLabelName_;
     TMetricCollector LastMetric_;
-    TString ErrorMsg_;
+    std::string ErrorMsg_;
     bool IsIntentionallyHalted_{false};
 };
 
 } // namespace
 
-void DecodeJson(TStringBuf data, IMetricConsumer* c, TStringBuf metricNameLabel) {
+void DecodeJson(std::string_view data, IMetricConsumer* c, std::string_view metricNameLabel) {
     TCommonPartsCollector commonPartsCollector;
     {
         TMemoryInput memIn(data);

@@ -10,7 +10,7 @@ namespace {
     struct TLzmaCodec: public TAddLengthCodec<TLzmaCodec> {
         inline TLzmaCodec(int level)
             : Level(level)
-            , MyName("lzma-" + ToString(Level))
+            , MyName("lzma-" + std::to_string(Level))
         {
         }
 
@@ -18,7 +18,7 @@ namespace {
             return Max<size_t>(in + in / 20, 128) + LZMA_PROPS_SIZE;
         }
 
-        TStringBuf Name() const noexcept override {
+        std::string_view Name() const noexcept override {
             return MyName;
         }
 
@@ -39,7 +39,7 @@ namespace {
 
         inline void DoDecompress(const TData& in, void* out, size_t len) const {
             if (in.size() <= LZMA_PROPS_SIZE) {
-                ythrow TDataError() << TStringBuf("broken lzma stream");
+                ythrow TDataError() << std::string_view("broken lzma stream");
             }
 
             const unsigned char* props = (const unsigned char*)in.data();
@@ -59,7 +59,7 @@ namespace {
         }
 
         const int Level;
-        const TString MyName;
+        const std::string MyName;
     };
 
     struct TLzmaRegistrar {

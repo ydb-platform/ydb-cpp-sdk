@@ -9,8 +9,8 @@
 #include <functional>
 
 //! Mode function with vector of cli arguments.
-using TMainFunctionPtrV = std::function<int(const std::vector<TString>&)> ;
-using TMainFunctionRawPtrV = int (*)(const std::vector<TString>& argv);
+using TMainFunctionPtrV = std::function<int(const std::vector<std::string>&)> ;
+using TMainFunctionRawPtrV = int (*)(const std::vector<std::string>& argv);
 
 //! Mode function with classic argc and argv arguments.
 using TMainFunctionPtr = std::function<int(int, const char**)> ;
@@ -19,7 +19,7 @@ using TMainFunctionRawPtr = int (*)(const int argc, const char** argv);
 //! Mode class with vector of cli arguments.
 class TMainClassV {
 public:
-    virtual int operator()(const std::vector<TString>& argv) = 0;
+    virtual int operator()(const std::vector<std::string>& argv) = 0;
     virtual ~TMainClassV() = default;
 };
 
@@ -47,26 +47,26 @@ public:
     ~TModChooser();
 
 public:
-    void AddMode(const TString& mode, TMainFunctionRawPtr func, const TString& description, bool hidden = false, bool noCompletion = false);
-    void AddMode(const TString& mode, TMainFunctionRawPtrV func, const TString& description, bool hidden = false, bool noCompletion = false);
-    void AddMode(const TString& mode, TMainFunctionPtr func, const TString& description, bool hidden = false, bool noCompletion = false);
-    void AddMode(const TString& mode, TMainFunctionPtrV func, const TString& description, bool hidden = false, bool noCompletion = false);
-    void AddMode(const TString& mode, TMainClass* func, const TString& description, bool hidden = false, bool noCompletion = false);
-    void AddMode(const TString& mode, TMainClassV* func, const TString& description, bool hidden = false, bool noCompletion = false);
+    void AddMode(const std::string& mode, TMainFunctionRawPtr func, const std::string& description, bool hidden = false, bool noCompletion = false);
+    void AddMode(const std::string& mode, TMainFunctionRawPtrV func, const std::string& description, bool hidden = false, bool noCompletion = false);
+    void AddMode(const std::string& mode, TMainFunctionPtr func, const std::string& description, bool hidden = false, bool noCompletion = false);
+    void AddMode(const std::string& mode, TMainFunctionPtrV func, const std::string& description, bool hidden = false, bool noCompletion = false);
+    void AddMode(const std::string& mode, TMainClass* func, const std::string& description, bool hidden = false, bool noCompletion = false);
+    void AddMode(const std::string& mode, TMainClassV* func, const std::string& description, bool hidden = false, bool noCompletion = false);
 
     //! Hidden groups won't be displayed in 'help' block
-    void AddGroupModeDescription(const TString& description, bool hidden = false, bool noCompletion = false);
+    void AddGroupModeDescription(const std::string& description, bool hidden = false, bool noCompletion = false);
 
     //! Set default mode (if not specified explicitly)
-    void SetDefaultMode(const TString& mode);
+    void SetDefaultMode(const std::string& mode);
 
-    void AddAlias(const TString& alias, const TString& mode);
+    void AddAlias(const std::string& alias, const std::string& mode);
 
     //! Set main program description.
-    void SetDescription(const TString& descr);
+    void SetDescription(const std::string& descr);
 
     //! Set modes help option name (-? is by default)
-    void SetModesHelpOption(const TString& helpOption);
+    void SetModesHelpOption(const std::string& helpOption);
 
     //! Specify handler for '--version' parameter
     void SetVersionHandler(TVersionHandlerPtr handler);
@@ -75,7 +75,7 @@ public:
     void SetSeparatedMode(bool separated = true);
 
     //! Set separation string
-    void SetSeparationString(const TString& str);
+    void SetSeparationString(const std::string& str);
 
     //! Set short command representation in Usage block
     void SetPrintShortCommandInUsage(bool printShortCommandInUsage);
@@ -87,7 +87,7 @@ public:
 
     void DisableSvnRevisionOption();
 
-    void AddCompletions(TString progName, const TString& name = "completion", bool hidden = false, bool noCompletion = false);
+    void AddCompletions(std::string progName, const std::string& name = "completion", bool hidden = false, bool noCompletion = false);
 
     /*! Run appropriate mode.
      *
@@ -103,28 +103,28 @@ public:
     int Run(int argc, const char** argv) const;
 
     //! Run appropriate mode. Same as Run(const int, const char**)
-    int Run(const std::vector<TString>& argv) const;
+    int Run(const std::vector<std::string>& argv) const;
 
-    void PrintHelp(const TString& progName, bool toStdErr = false) const;
+    void PrintHelp(const std::string& progName, bool toStdErr = false) const;
 
     struct TMode {
-        TString Name;
+        std::string Name;
         TMainClass* Main;
-        TString Description;
+        std::string Description;
         bool Hidden;
         bool NoCompletion;
-        std::vector<TString> Aliases;
+        std::vector<std::string> Aliases;
 
         TMode()
             : Main(nullptr)
         {
         }
 
-        TMode(const TString& name, TMainClass* main, const TString& descr, bool hidden, bool noCompletion);
+        TMode(const std::string& name, TMainClass* main, const std::string& descr, bool hidden, bool noCompletion);
 
         // Full name includes primary name and aliases. Also, will add ANSI colors.
         size_t CalculateFullNameLen() const;
-        TString FormatFullName(size_t pad) const;
+        std::string FormatFullName(size_t pad) const;
     };
 
     std::vector<const TMode*> GetUnsortedModes() const {
@@ -142,18 +142,18 @@ public:
 
 private:
     //! Main program description.
-    TString Description;
+    std::string Description;
 
     //! Help option for modes.
-    TString ModesHelpOption;
+    std::string ModesHelpOption;
 
     //! Wrappers around all modes.
     std::vector<THolder<TMainClass>> Wrappers;
 
     //! Modes
-    std::map<TString, TMode*> Modes;
+    std::map<std::string, TMode*> Modes;
 
-    TString DefaultMode;
+    std::string DefaultMode;
 
     //! Handler for '--version' parameter
     TVersionHandlerPtr VersionHandler;
@@ -168,7 +168,7 @@ private:
     bool PrintShortCommandInUsage;
 
     //! Text string used when displaying each separator
-    TString SeparationString;
+    std::string SeparationString;
 
     //! Unsorted list of options
     std::vector<THolder<TMode>> UnsortedModes;

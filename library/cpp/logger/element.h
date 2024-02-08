@@ -36,7 +36,7 @@ public:
     }
 
     template<typename T>
-    TLogElement& With(const TStringBuf key, const T value) {
+    TLogElement& With(const std::string_view key, const T value) {
         Context_.emplace_back(key, ToString(value));
 
         return *this;

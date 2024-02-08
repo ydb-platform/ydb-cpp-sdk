@@ -10,7 +10,7 @@ namespace NMonitoring {
     THolder<ICountableConsumer> CreateEncoder(
         IOutputStream* out,
         EFormat format,
-        TStringBuf nameLabel = "sensor",
+        std::string_view nameLabel = "sensor",
         TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public
     );
 
@@ -20,5 +20,5 @@ namespace NMonitoring {
 
     void ToJson(const TDynamicCounters& counters, IOutputStream* out);
 
-    TString ToJson(const TDynamicCounters& counters);
+    std::string ToJson(const TDynamicCounters& counters);
 }

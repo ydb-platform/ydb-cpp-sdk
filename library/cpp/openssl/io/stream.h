@@ -12,12 +12,12 @@ public:
             // Uses builtin certs.
             // Also uses default CA path /etc/ssl/certs/ - can be provided with debian package: ca-certificates.deb.
             // It can be expanded with ENV: SSL_CERT_DIR.
-            TString Hostname_;
+            std::string Hostname_;
         };
         struct TClientCert {
-            TString CertificateFile_;
-            TString PrivateKeyFile_;
-            TString PrivateKeyPassword_;
+            std::string CertificateFile_;
+            std::string PrivateKeyFile_;
+            std::string PrivateKeyPassword_;
         };
 
         TMaybe<TVerifyCert> VerifyCert_;

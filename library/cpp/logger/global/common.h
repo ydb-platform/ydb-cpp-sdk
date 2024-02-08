@@ -66,26 +66,26 @@ public:
 
 namespace NLoggingImpl {
 
-    TString GetLocalTimeSSimple();
+    std::string GetLocalTimeSSimple();
 
     // Returns correct log type to use
-    TString PrepareToOpenLog(TString logType, int logLevel, bool rotation, bool startAsDaemon);
+    std::string PrepareToOpenLog(std::string logType, int logLevel, bool rotation, bool startAsDaemon);
 
     template <class TLoggerType>
-    void InitLogImpl(TString logType, const int logLevel, const bool rotation, const bool startAsDaemon) {
+    void InitLogImpl(std::string logType, const int logLevel, const bool rotation, const bool startAsDaemon) {
         TLoggerOperator<TLoggerType>::Set(new TLoggerType(PrepareToOpenLog(logType, logLevel, rotation, startAsDaemon), (ELogPriority)logLevel));
     }
 }
 
 struct TLogRecordContext {
-    constexpr TLogRecordContext(const TSourceLocation& sourceLocation, TStringBuf customMessage, ELogPriority priority)
+    constexpr TLogRecordContext(const TSourceLocation& sourceLocation, std::string_view customMessage, ELogPriority priority)
         : SourceLocation(sourceLocation)
         , CustomMessage(customMessage)
         , Priority(priority)
     {}
 
     TSourceLocation SourceLocation;
-    TStringBuf CustomMessage;
+    std::string_view CustomMessage;
     ELogPriority Priority;
 };
 

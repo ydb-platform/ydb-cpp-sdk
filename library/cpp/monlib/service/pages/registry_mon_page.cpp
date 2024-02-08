@@ -8,21 +8,21 @@
 
 namespace NMonitoring {
     void TMetricRegistryPage::Output(NMonitoring::IMonHttpRequest& request) {
-        const auto formatStr = TStringBuf{request.GetPathInfo()}.RNextTok('/');
+        const auto formatStr = std::string_view{request.GetPathInfo()}.RNextTok('/');
         auto& out = request.Output();
 
         if (!formatStr.empty()) {
             IMetricEncoderPtr encoder;
-            TString resp;
+            std::string resp;
 
-            if (formatStr == TStringBuf("json")) {
+            if (formatStr == std::string_view("json")) {
                 resp = HTTPOKJSON;
                 encoder = NMonitoring::EncoderJson(&out);
-            } else if (formatStr == TStringBuf("spack")) {
+            } else if (formatStr == std::string_view("spack")) {
                 resp = HTTPOKSPACK;
                 const auto compression = ParseCompression(request);
                 encoder = NMonitoring::EncoderSpackV1(&out, ETimePrecision::SECONDS, compression);
-            } else if (formatStr == TStringBuf("prometheus")) {
+            } else if (formatStr == std::string_view("prometheus")) {
                 resp = HTTPOKPROMETHEUS;
                 encoder = NMonitoring::EncoderPrometheus(&out);
             } else {

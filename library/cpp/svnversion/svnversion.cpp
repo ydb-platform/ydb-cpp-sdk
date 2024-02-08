@@ -18,7 +18,7 @@ extern "C" void PrintSvnVersionAndExit0() {
 
 extern "C" void PrintSvnVersionAndExitEx(int argc, char* argv[], const char* opts) {
     if (2 == argc) {
-        for (TStringBuf all = opts, versionOpt; all.NextTok(';', versionOpt);) {
+        for (std::string_view all = opts, versionOpt; all.NextTok(';', versionOpt);) {
             if (versionOpt == argv[1]) {
                 PrintSvnVersionAndExit0();
             }

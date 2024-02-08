@@ -33,7 +33,7 @@ namespace NLastGetopt {
         Y_ABORT_UNLESS(opts != nullptr);
     }
 
-    void TZshCompletionGenerator::Generate(TStringBuf command, IOutputStream& stream) {
+    void TZshCompletionGenerator::Generate(std::string_view command, IOutputStream& stream) {
         TFormattedOutput out;
         NComp::TCompleterManager manager{command};
 
@@ -249,13 +249,13 @@ namespace NLastGetopt {
     void TZshCompletionGenerator::GenerateOptCompletion(TFormattedOutput& out, const TOpts& opts, const TOpt& opt, NComp::TCompleterManager& manager) {
         auto& line = L;
 
-        THashSet<TString> disableOptions;
+        THashSet<std::string> disableOptions;
         if (opt.DisableCompletionForOptions_) {
             disableOptions.insert("-");
         } else {
             if (!opt.AllowMultipleCompletion_) {
                 for (auto shortName: opt.GetShortNames()) {
-                    disableOptions.insert(TString("-") + shortName);
+                    disableOptions.insert(std::string("-") + shortName);
                 }
                 for (auto& longName: opt.GetLongNames()) {
                     disableOptions.insert("--" + longName);
@@ -265,20 +265,20 @@ namespace NLastGetopt {
                 auto disabledOpt = opts.FindCharOption(disabledShortName);
                 if (disabledOpt) {
                     for (auto shortName: disabledOpt->GetShortNames()) {
-                        disableOptions.insert(TString("-") + shortName);
+                        disableOptions.insert(std::string("-") + shortName);
                     }
                     for (auto& longName: disabledOpt->GetLongNames()) {
                         disableOptions.insert("--" + longName);
                     }
                 } else {
-                    disableOptions.insert(TString("-") + disabledShortName);
+                    disableOptions.insert(std::string("-") + disabledShortName);
                 }
             }
             for (auto& disabledLongName : opt.DisableCompletionForLongName_) {
                 auto disabledOpt = opts.FindLongOption(disabledLongName);
                 if (disabledOpt) {
                     for (auto shortName: disabledOpt->GetShortNames()) {
-                        disableOptions.insert(TString("-") + shortName);
+                        disableOptions.insert(std::string("-") + shortName);
                     }
                     for (auto& longName: disabledOpt->GetLongNames()) {
                         disableOptions.insert("--" + longName);
@@ -297,7 +297,7 @@ namespace NLastGetopt {
             }
         }
 
-        TStringBuf sep = "";
+        std::string_view sep = "";
 
         if (!disableOptions.empty()) {
             line << "'(";
@@ -309,8 +309,8 @@ namespace NLastGetopt {
         }
 
         sep = "";
-        TStringBuf mul = "";
-        TStringBuf quot = "";
+        std::string_view mul = "";
+        std::string_view quot = "";
 
         if (opt.GetShortNames().size() + opt.GetLongNames().size() > 1) {
             if (!disableOptions.empty()) {
@@ -329,7 +329,7 @@ namespace NLastGetopt {
         }
 
         for (auto& flag : opt.GetShortNames()) {
-            line << sep << quot << mul << "-" << Q(TStringBuf(&flag, 1)) << quot;
+            line << sep << quot << mul << "-" << Q(std::string_view(&flag, 1)) << quot;
             sep = ",";
         }
 
@@ -373,7 +373,7 @@ namespace NLastGetopt {
         line << "' \\";
     }
 
-    void TBashCompletionGenerator::Generate(TStringBuf command, IOutputStream& stream) {
+    void TBashCompletionGenerator::Generate(std::string_view command, IOutputStream& stream) {
         TFormattedOutput out;
         NComp::TCompleterManager manager{command};
 
@@ -451,7 +451,7 @@ namespace NLastGetopt {
             {
                 I;
                 auto& line = L << "COMPREPLY+=( $(compgen -W '";
-                TStringBuf sep = "";
+                std::string_view sep = "";
                 for (auto& mode : modes) {
                     if (!mode->Hidden && !mode->NoCompletion) {
                         line << sep << B(mode->Name);
@@ -507,14 +507,14 @@ namespace NLastGetopt {
         {
             I;
             auto& line = L << "COMPREPLY+=( $(compgen -W '";
-            TStringBuf sep = "";
+            std::string_view sep = "";
             for (auto& opt : unorderedOpts) {
                 if (opt->IsHidden()) {
                     continue;
                 }
 
                 for (auto& shortName : opt->GetShortNames()) {
-                    line << sep << "-" << B(TStringBuf(&shortName, 1));
+                    line << sep << "-" << B(std::string_view(&shortName, 1));
                     sep = " ";
                 }
                 for (auto& longName: opt->GetLongNames()) {
@@ -536,9 +536,9 @@ namespace NLastGetopt {
                     }
 
                     auto& line = L;
-                    TStringBuf sep = "";
+                    std::string_view sep = "";
                     for (auto& shortName : opt->GetShortNames()) {
-                        line << sep << "'-" << B(TStringBuf(&shortName, 1)) << "'";
+                        line << sep << "'-" << B(std::string_view(&shortName, 1)) << "'";
                         sep = "|";
                     }
                     for (auto& longName: opt->GetLongNames()) {
@@ -561,13 +561,13 @@ namespace NLastGetopt {
 
                     L << "args=0";
                     auto& line = L << "opts='@(";
-                    TStringBuf sep = "";
+                    std::string_view sep = "";
                     for (auto& opt : unorderedOpts) {
                         if (opt->HasArg_ == EHasArg::NO_ARGUMENT || opt->IsHidden()) {
                             continue;
                         }
                         for (auto& shortName : opt->GetShortNames()) {
-                            line << sep << "-" << B(TStringBuf(&shortName, 1));
+                            line << sep << "-" << B(std::string_view(&shortName, 1));
                             sep = "|";
                         }
                         for (auto& longName: opt->GetLongNames()) {
@@ -645,8 +645,8 @@ namespace NLastGetopt {
 #undef I
 #undef L
 
-    TString NEscaping::Q(TStringBuf string) {
-        TStringBuilder out;
+    std::string NEscaping::Q(std::string_view string) {
+        TYdbStringBuilder out;
         out.reserve(string.size());
         for (auto c: string) {
             switch (c) {
@@ -691,13 +691,13 @@ namespace NLastGetopt {
         return out;
     }
 
-    TString NEscaping::QQ(TStringBuf string) {
+    std::string NEscaping::QQ(std::string_view string) {
         auto q = Q(string);
         return "'" + q + "'";
     }
 
-    TString NEscaping::C(TStringBuf string) {
-        TStringBuilder out;
+    std::string NEscaping::C(std::string_view string) {
+        TYdbStringBuilder out;
         out.reserve(string.size() + 1);
         for (auto c: string) {
             switch (c) {
@@ -724,13 +724,13 @@ namespace NLastGetopt {
         return out;
     }
 
-    TString NEscaping::CC(TStringBuf string) {
+    std::string NEscaping::CC(std::string_view string) {
         auto c = C(string);
         return "'" + c + "'";
     }
 
-    TString NEscaping::S(TStringBuf string) {
-        TStringBuilder out;
+    std::string NEscaping::S(std::string_view string) {
+        TYdbStringBuilder out;
         out.reserve(string.size() + 1);
         for (auto c: string) {
             switch (c) {
@@ -754,13 +754,13 @@ namespace NLastGetopt {
         return out;
     }
 
-    TString NEscaping::SS(TStringBuf string) {
+    std::string NEscaping::SS(std::string_view string) {
         auto s = S(string);
         return "'" + s + "'";
     }
 
-    TString NEscaping::B(TStringBuf string) {
-        TStringBuilder out;
+    std::string NEscaping::B(std::string_view string) {
+        TYdbStringBuilder out;
         out.reserve(string.size() + 1);
         for (auto c: string) {
             switch (c) {
@@ -784,7 +784,7 @@ namespace NLastGetopt {
         return out;
     }
 
-    TString NEscaping::BB(TStringBuf string) {
+    std::string NEscaping::BB(std::string_view string) {
         auto b = B(string);
         return "'" + b + "'";
     }

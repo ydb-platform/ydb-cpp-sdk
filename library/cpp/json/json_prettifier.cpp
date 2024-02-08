@@ -51,42 +51,42 @@ namespace NJson {
             memset(&S, ' ', sizeof(S));
         }
 
-        TStringBuf Get(ui8 sz) const {
-            return TStringBuf(S, sz);
+        std::string_view Get(ui8 sz) const {
+            return std::string_view(S, sz);
         }
     };
 
-    bool TJsonPrettifier::MayUnquoteNew(TStringBuf s) {
+    bool TJsonPrettifier::MayUnquoteNew(std::string_view s) {
         static str_spn alpha("a-zA-Z_@$", true);
         static str_spn alnum("a-zA-Z_@$0-9.-", true);
-        static TStringBuf true0("true");
-        static TStringBuf false0("false");
-        static TStringBuf null0("null");
+        static std::string_view true0("true");
+        static std::string_view false0("false");
+        static std::string_view null0("null");
 
         return !!s && alpha.chars_table[(ui8)s[0]] && alnum.cbrk(s.begin() + 1, s.end()) == s.end() && !EqualToOneOf(s, null0, true0, false0);
     }
 
     // to keep arcadia tests happy
-    bool TJsonPrettifier::MayUnquoteOld(TStringBuf s) {
+    bool TJsonPrettifier::MayUnquoteOld(std::string_view s) {
         static str_spn alpha("a-zA-Z_@$", true);
         static str_spn alnum("a-zA-Z_@$0-9", true);
-        static TStringBuf true0("true");
-        static TStringBuf false0("false");
-        static TStringBuf true1("on");
-        static TStringBuf false1("off");
-        static TStringBuf true2("da");
-        static TStringBuf false2("net");
-        static TStringBuf null0("null");
+        static std::string_view true0("true");
+        static std::string_view false0("false");
+        static std::string_view true1("on");
+        static std::string_view false1("off");
+        static std::string_view true2("da");
+        static std::string_view false2("net");
+        static std::string_view null0("null");
 
         return !!s && alpha.chars_table[(ui8)s[0]] && alnum.cbrk(s.begin() + 1, s.end()) == s.end() && !EqualToOneOf(s, null0, true0, false0, true1, false1, true2, false2);
     }
 
     class TPrettifier: public TJsonCallbacks {
         TRewritableOut Out;
-        TStringBuf Spaces;
-        TStringBuf Quote;
-        TStringBuf Unsafe;
-        TStringBuf Safe;
+        std::string_view Spaces;
+        std::string_view Quote;
+        std::string_view Unsafe;
+        std::string_view Safe;
 
         ui32 Level = 0;
         ui32 MaxPaddingLevel;
@@ -161,11 +161,11 @@ namespace NJson {
         }
 
         bool OnNull() override {
-            return WriteVal(TStringBuf("null"));
+            return WriteVal(std::string_view("null"));
         }
 
         bool OnBoolean(bool v) override {
-            return WriteVal(v ? TStringBuf("true") : TStringBuf("false"));
+            return WriteVal(v ? std::string_view("true") : std::string_view("false"));
         }
 
         bool OnInteger(long long i) override {
@@ -180,7 +180,7 @@ namespace NJson {
             return WriteVal(d);
         }
 
-        void WriteString(TStringBuf s) {
+        void WriteString(std::string_view s) {
             if (Unquote && (NewUnquote ? TJsonPrettifier::MayUnquoteNew(s) : TJsonPrettifier::MayUnquoteOld(s))) {
                 Out.Slave << s;
             } else {
@@ -190,7 +190,7 @@ namespace NJson {
             }
         }
 
-        bool OnString(const TStringBuf& s) override {
+        bool OnString(const std::string_view& s) override {
             OnVal();
             WriteString(s);
             AfterVal();
@@ -212,7 +212,7 @@ namespace NJson {
             return OnOpen('[');
         }
 
-        bool OnMapKey(const TStringBuf& k) override {
+        bool OnMapKey(const std::string_view& k) override {
             OnVal();
             WriteString(k);
             WriteSpace(' ');
@@ -257,7 +257,7 @@ namespace NJson {
         }
     };
 
-    bool TJsonPrettifier::Prettify(TStringBuf in, IOutputStream& out) const {
+    bool TJsonPrettifier::Prettify(std::string_view in, IOutputStream& out) const {
         TPrettifier p(out, *this);
         if (Strict) {
             TMemoryInput mIn(in.data(), in.size());
@@ -267,11 +267,11 @@ namespace NJson {
         }
     }
 
-    TString TJsonPrettifier::Prettify(TStringBuf in) const {
-        TStringStream s;
+    std::string TJsonPrettifier::Prettify(std::string_view in) const {
+        std::stringStream s;
         if (Prettify(in, s))
             return s.Str();
-        return TString();
+        return std::string();
     }
 
 }

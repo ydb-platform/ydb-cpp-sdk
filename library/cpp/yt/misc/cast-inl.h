@@ -54,23 +54,23 @@ bool IsInIntegralRange(S value)
 }
 
 template <class T>
-TString FormatInvalidCastValue(T value)
+std::string FormatInvalidCastValue(T value)
 {
     return ::ToString(value);
 }
 
-inline TString FormatInvalidCastValue(signed char value)
+inline std::string FormatInvalidCastValue(signed char value)
 {
-    return TString("'") + value + TString("'");
+    return std::string("'") + value + std::string("'");
 }
 
-inline TString FormatInvalidCastValue(unsigned char value)
+inline std::string FormatInvalidCastValue(unsigned char value)
 {
-    return TString("'") + value + TString("'");
+    return std::string("'") + value + std::string("'");
 }
 
 #ifdef __cpp_char8_t
-inline TString FormatInvalidCastValue(char8_t value)
+inline std::string FormatInvalidCastValue(char8_t value)
 {
     return FormatInvalidCastValue(static_cast<unsigned char>(value));
 }

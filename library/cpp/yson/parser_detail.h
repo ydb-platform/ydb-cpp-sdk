@@ -99,14 +99,14 @@ namespace NYson {
 
                     case '"': {
                         TBase::Advance(1);
-                        TStringBuf value;
+                        std::string_view value;
                         TBase::ReadQuotedString(&value);
                         Consumer->OnStringScalar(value);
                         break;
                     }
                     case StringMarker: {
                         TBase::Advance(1);
-                        TStringBuf value;
+                        std::string_view value;
                         TBase::ReadBinaryString(&value);
                         Consumer->OnStringScalar(value);
                         break;
@@ -151,7 +151,7 @@ namespace NYson {
                         if (isdigit((unsigned char)ch) || ch == '-' || ch == '+') { // case of '+' is handled in AfterPlus state
                             ReadNumeric<AllowFinish>();
                         } else if (isalpha((unsigned char)ch) || ch == '_') {
-                            TStringBuf value;
+                            std::string_view value;
                             TBase::template ReadUnquotedString<AllowFinish>(&value);
                             Consumer->OnStringScalar(value);
                         } else if (ch == '%') {
@@ -177,21 +177,21 @@ namespace NYson {
                 switch (ch) {
                     case '"': {
                         TBase::Advance(1);
-                        TStringBuf value;
+                        std::string_view value;
                         TBase::ReadQuotedString(&value);
                         Consumer->OnKeyedItem(value);
                         break;
                     }
                     case StringMarker: {
                         TBase::Advance(1);
-                        TStringBuf value;
+                        std::string_view value;
                         TBase::ReadBinaryString(&value);
                         Consumer->OnKeyedItem(value);
                         break;
                     }
                     default: {
                         if (isalpha(ch) || ch == '_') {
-                            TStringBuf value;
+                            std::string_view value;
                             TBase::ReadUnquotedString(&value);
                             Consumer->OnKeyedItem(value);
                         } else {
@@ -264,7 +264,7 @@ namespace NYson {
 
             template <bool AllowFinish>
             void ReadNumeric() {
-                TStringBuf valueBuffer;
+                std::string_view valueBuffer;
                 ENumericResult numericResult = TBase::template ReadNumeric<AllowFinish>(&valueBuffer);
 
                 if (numericResult == ENumericResult::Double) {
@@ -322,7 +322,7 @@ namespace NYson {
 
     class TStatelessYsonParserImplBase {
     public:
-        virtual void Parse(const TStringBuf& data, EYsonType type = ::NYson::EYsonType::Node) = 0;
+        virtual void Parse(const std::string_view& data, EYsonType type = ::NYson::EYsonType::Node) = 0;
 
         virtual ~TStatelessYsonParserImplBase() {
         }
@@ -332,16 +332,16 @@ namespace NYson {
     class TStatelessYsonParserImpl
        : public TStatelessYsonParserImplBase {
     private:
-        using TParser = NDetail::TParser<TConsumer, TStringReader, EnableLinePositionInfo>;
+        using TParser = NDetail::TParser<TConsumer, std::stringReader, EnableLinePositionInfo>;
         TParser Parser;
 
     public:
         TStatelessYsonParserImpl(TConsumer* consumer, TMaybe<ui64> memoryLimit)
-            : Parser(TStringReader(), consumer, memoryLimit)
+            : Parser(std::stringReader(), consumer, memoryLimit)
         {
         }
 
-        void Parse(const TStringBuf& data, EYsonType type = ::NYson::EYsonType::Node) override {
+        void Parse(const std::string_view& data, EYsonType type = ::NYson::EYsonType::Node) override {
             Parser.SetBuffer(data.begin(), data.end());
             Parser.DoParse(type);
         }

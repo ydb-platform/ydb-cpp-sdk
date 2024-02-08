@@ -38,7 +38,7 @@ namespace {
             ythrow TDecompressError(0);
         }
 
-        TStringBuf Name() const noexcept override {
+        std::string_view Name() const noexcept override {
             return "snappy";
         }
     };

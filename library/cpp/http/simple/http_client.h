@@ -42,37 +42,37 @@ namespace NPrivate {
 
 class TKeepAliveHttpClient {
 public:
-    using THeaders = THashMap<TString, TString>;
+    using THeaders = THashMap<std::string, std::string>;
     using THttpCode = unsigned;
 
 public:
-    TKeepAliveHttpClient(const TString& host,
+    TKeepAliveHttpClient(const std::string& host,
                          ui32 port,
                          TDuration socketTimeout = TDuration::Seconds(5),
                          TDuration connectTimeout = TDuration::Seconds(30));
 
-    THttpCode DoGet(const TStringBuf relativeUrl,
+    THttpCode DoGet(const std::string_view relativeUrl,
                     IOutputStream* output = nullptr,
                     const THeaders& headers = THeaders(),
                     THttpHeaders* outHeaders = nullptr);
 
     // builds post request from headers and body
-    THttpCode DoPost(const TStringBuf relativeUrl,
-                     const TStringBuf body,
+    THttpCode DoPost(const std::string_view relativeUrl,
+                     const std::string_view body,
                      IOutputStream* output = nullptr,
                      const THeaders& headers = THeaders(),
                      THttpHeaders* outHeaders = nullptr);
 
     // builds request with any HTTP method from headers and body
-    THttpCode DoRequest(const TStringBuf method,
-                        const TStringBuf relativeUrl,
-                        const TStringBuf body,
+    THttpCode DoRequest(const std::string_view method,
+                        const std::string_view relativeUrl,
+                        const std::string_view body,
                         IOutputStream* output = nullptr,
                         const THeaders& inHeaders = THeaders(),
                         THttpHeaders* outHeaders = nullptr);
 
     // requires already well-formed request
-    THttpCode DoRequestRaw(const TStringBuf raw,
+    THttpCode DoRequestRaw(const std::string_view raw,
                            IOutputStream* output = nullptr,
                            THttpHeaders* outHeaders = nullptr);
 
@@ -81,7 +81,7 @@ public:
 
     void ResetConnection();
 
-    const TString& GetHost() const {
+    const std::string& GetHost() const {
         return Host;
     }
 
@@ -95,9 +95,9 @@ private:
                                 IOutputStream* output,
                                 THttpHeaders* outHeaders);
 
-    std::vector<IOutputStream::TPart> FormRequest(TStringBuf method, const TStringBuf relativeUrl,
-                                              TStringBuf body,
-                                              const THeaders& headers, TStringBuf contentLength) const;
+    std::vector<IOutputStream::TPart> FormRequest(std::string_view method, const std::string_view relativeUrl,
+                                              std::string_view body,
+                                              const THeaders& headers, std::string_view contentLength) const;
 
     THttpCode ReadAndTransferHttp(THttpInput& input, IOutputStream* output, THttpHeaders* outHeaders) const;
 
@@ -107,7 +107,7 @@ private:
     using TVerifyCert = TOpenSslClientIO::TOptions::TVerifyCert;
     using TClientCert = TOpenSslClientIO::TOptions::TClientCert;
 
-    const TString Host;
+    const std::string Host;
     const ui32 Port;
     const TDuration SocketTimeout;
     const TDuration ConnectTimeout;
@@ -148,7 +148,7 @@ class TSimpleHttpClient {
 protected:
     using TVerifyCert = TKeepAliveHttpClient::TVerifyCert;
 
-    const TString Host;
+    const std::string Host;
     const ui32 Port;
     const TDuration SocketTimeout;
     const TDuration ConnectTimeout;
@@ -161,18 +161,18 @@ public:
 public:
     explicit TSimpleHttpClient(const TOptions& options);
 
-    TSimpleHttpClient(const TString& host, ui32 port,
+    TSimpleHttpClient(const std::string& host, ui32 port,
                       TDuration socketTimeout = TDuration::Seconds(5), TDuration connectTimeout = TDuration::Seconds(30));
 
     void EnableVerificationForHttps();
 
-    void DoGet(const TStringBuf relativeUrl, IOutputStream* output, const THeaders& headers = THeaders()) const;
+    void DoGet(const std::string_view relativeUrl, IOutputStream* output, const THeaders& headers = THeaders()) const;
 
     // builds post request from headers and body
-    void DoPost(const TStringBuf relativeUrl, TStringBuf body, IOutputStream* output, const THeaders& headers = THeaders()) const;
+    void DoPost(const std::string_view relativeUrl, std::string_view body, IOutputStream* output, const THeaders& headers = THeaders()) const;
 
     // requires already well-formed post request
-    void DoPostRaw(const TStringBuf relativeUrl, TStringBuf rawRequest, IOutputStream* output) const;
+    void DoPostRaw(const std::string_view relativeUrl, std::string_view rawRequest, IOutputStream* output) const;
 
     virtual ~TSimpleHttpClient();
 
@@ -180,23 +180,23 @@ private:
     TKeepAliveHttpClient CreateClient() const;
 
     virtual void PrepareClient(TKeepAliveHttpClient& cl) const;
-    virtual void ProcessResponse(const TStringBuf relativeUrl, THttpInput& input, IOutputStream* output, const unsigned statusCode) const;
+    virtual void ProcessResponse(const std::string_view relativeUrl, THttpInput& input, IOutputStream* output, const unsigned statusCode) const;
 };
 
 class TRedirectableHttpClient: public TSimpleHttpClient {
 public:
-    TRedirectableHttpClient(const TString& host, ui32 port, TDuration socketTimeout = TDuration::Seconds(5),
+    TRedirectableHttpClient(const std::string& host, ui32 port, TDuration socketTimeout = TDuration::Seconds(5),
                             TDuration connectTimeout = TDuration::Seconds(30));
 
 private:
     void PrepareClient(TKeepAliveHttpClient& cl) const override;
-    void ProcessResponse(const TStringBuf relativeUrl, THttpInput& input, IOutputStream* output, const unsigned statusCode) const override;
+    void ProcessResponse(const std::string_view relativeUrl, THttpInput& input, IOutputStream* output, const unsigned statusCode) const override;
 };
 
 namespace NPrivate {
     class THttpConnection {
     public:
-        THttpConnection(const TString& host,
+        THttpConnection(const std::string& host,
                         ui32 port,
                         TDuration sockTimeout,
                         TDuration connTimeout,
@@ -221,12 +221,12 @@ namespace NPrivate {
         }
 
     private:
-        static TNetworkAddress Resolve(const TString& host, ui32 port);
+        static TNetworkAddress Resolve(const std::string& host, ui32 port);
 
         static TSocket Connect(TNetworkAddress& addr,
                                TDuration sockTimeout,
                                TDuration connTimeout,
-                               const TString& host,
+                               const std::string& host,
                                ui32 port);
 
     private:

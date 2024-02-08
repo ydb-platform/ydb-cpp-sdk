@@ -2,4 +2,4 @@
 
 #include <util/generic/strbuf.h>
 
-TStringBuf UnescapeJsonUnicode(TStringBuf data, char* scratch);
+std::string_view UnescapeJsonUnicode(std::string_view data, char* scratch);

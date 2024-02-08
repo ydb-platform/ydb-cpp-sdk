@@ -41,16 +41,16 @@ namespace NMonitoring {
         ///////////////////////////////////////////////////////////////////////////////
         // TBlock
         ///////////////////////////////////////////////////////////////////////////////
-        struct TBlock: public TStringBuf {
+        struct TBlock: public std::string_view {
             template <typename T>
             TBlock(T&& t)
-                : TStringBuf(t.data(), t.size())
+                : std::string_view(t.data(), t.size())
             {
                 Y_ENSURE(t.data() != nullptr);
             }
 
             char* data() noexcept {
-                return const_cast<char*>(TStringBuf::data());
+                return const_cast<char*>(std::string_view::data());
             }
         };
 
@@ -124,7 +124,7 @@ namespace NMonitoring {
             static size_t Compress(TBlock in, TBlock out) {
                 size_t rc = ZSTD_compress(out.data(), out.size(), in.data(), in.size(), LEVEL);
                 if (Y_UNLIKELY(ZSTD_isError(rc))) {
-                    ythrow yexception() << TStringBuf("zstd compression failed: ")
+                    ythrow yexception() << std::string_view("zstd compression failed: ")
                                         << ZSTD_getErrorName(rc);
                 }
                 return rc;
@@ -133,7 +133,7 @@ namespace NMonitoring {
             static void Decompress(TBlock in, TBlock out) {
                 size_t rc = ZSTD_decompress(out.data(), out.size(), in.data(), in.size());
                 if (Y_UNLIKELY(ZSTD_isError(rc))) {
-                    ythrow yexception() << TStringBuf("zstd decompression failed: ")
+                    ythrow yexception() << std::string_view("zstd decompression failed: ")
                                         << ZSTD_getErrorName(rc);
                 }
                 Y_ENSURE(rc == out.size(), "zstd decompressed wrong size");

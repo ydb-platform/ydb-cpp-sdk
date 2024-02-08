@@ -2,7 +2,7 @@
 
 extern "C" int LLVMFuzzerTestOneInput(const ui8* data, size_t size) {
     try {
-        TCgiParameters(TStringBuf((const char*)data, size));
+        TCgiParameters(std::string_view((const char*)data, size));
     } catch (...) {
         // ¯\_(ツ)_/¯
     }

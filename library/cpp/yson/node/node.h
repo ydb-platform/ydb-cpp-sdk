@@ -46,7 +46,7 @@ public:
     };
 
     using TListType = std::vector<TNode>;
-    using TMapType = THashMap<TString, TNode>;
+    using TMapType = THashMap<std::string, TNode>;
 
 private:
     struct TNull {
@@ -62,7 +62,7 @@ private:
         i64,
         ui64,
         double,
-        TString,
+        std::string,
         TListType,
         TMapType,
         TNull,
@@ -73,10 +73,10 @@ public:
 
     TNode();
     TNode(const char* s);
-    TNode(TStringBuf s);
+    TNode(std::string_view s);
     explicit TNode(std::string_view s);
     explicit TNode(const std::string& s);
-    TNode(TString s);
+    TNode(std::string s);
     TNode(int i);
 
     //this case made speccially for prevent mess cast of EType into TNode through TNode(int) constructor
@@ -139,7 +139,7 @@ public:
 
     EType GetType() const;
 
-    const TString& AsString() const;
+    const std::string& AsString() const;
     i64 AsInt64() const;
     ui64 AsUint64() const;
     double AsDouble() const;
@@ -149,7 +149,7 @@ public:
     TListType& AsList();
     TMapType& AsMap();
 
-    const TString& UncheckedAsString() const noexcept;
+    const std::string& UncheckedAsString() const noexcept;
     i64 UncheckedAsInt64() const noexcept;
     ui64 UncheckedAsUint64() const noexcept;
     double UncheckedAsDouble() const noexcept;
@@ -193,45 +193,45 @@ public:
     TNode& Add(TNode&& node) &;
     TNode Add(TNode&& node) &&;
 
-    bool HasKey(const TStringBuf key) const;
+    bool HasKey(const std::string_view key) const;
 
-    TNode& operator()(const TString& key, const TNode& value) &;
-    TNode operator()(const TString& key, const TNode& value) &&;
-    TNode& operator()(const TString& key, TNode&& value) &;
-    TNode operator()(const TString& key, TNode&& value) &&;
+    TNode& operator()(const std::string& key, const TNode& value) &;
+    TNode operator()(const std::string& key, const TNode& value) &&;
+    TNode& operator()(const std::string& key, TNode&& value) &;
+    TNode operator()(const std::string& key, TNode&& value) &&;
 
-    const TNode& operator[](const TStringBuf key) const;
-    TNode& operator[](const TStringBuf key);
-    const TNode& At(const TStringBuf key) const;
-    TNode& At(const TStringBuf key);
+    const TNode& operator[](const std::string_view key) const;
+    TNode& operator[](const std::string_view key);
+    const TNode& At(const std::string_view key) const;
+    TNode& At(const std::string_view key);
 
     // map getters
     // works the same way like simple getters
-    const TString& ChildAsString(const TStringBuf key) const;
-    i64 ChildAsInt64(const TStringBuf key) const;
-    ui64 ChildAsUint64(const TStringBuf key) const;
-    double ChildAsDouble(const TStringBuf key) const;
-    bool ChildAsBool(const TStringBuf key) const;
-    const TListType& ChildAsList(const TStringBuf key) const;
-    const TMapType& ChildAsMap(const TStringBuf key) const;
-    TListType& ChildAsList(const TStringBuf key);
-    TMapType& ChildAsMap(const TStringBuf key);
+    const std::string& ChildAsString(const std::string_view key) const;
+    i64 ChildAsInt64(const std::string_view key) const;
+    ui64 ChildAsUint64(const std::string_view key) const;
+    double ChildAsDouble(const std::string_view key) const;
+    bool ChildAsBool(const std::string_view key) const;
+    const TListType& ChildAsList(const std::string_view key) const;
+    const TMapType& ChildAsMap(const std::string_view key) const;
+    TListType& ChildAsList(const std::string_view key);
+    TMapType& ChildAsMap(const std::string_view key);
 
     template<typename T>
-    T ChildIntCast(const TStringBuf key) const;
+    T ChildIntCast(const std::string_view key) const;
 
     template<typename T>
-    T ChildConvertTo(const TStringBuf key) const;
+    T ChildConvertTo(const std::string_view key) const;
 
     template<typename T>
-    const T& ChildAs(const TStringBuf key) const;
+    const T& ChildAs(const std::string_view key) const;
 
     template<typename T>
-    T& ChildAs(const TStringBuf key);
+    T& ChildAs(const std::string_view key);
 
     // list getters
     // works the same way like simple getters
-    const TString& ChildAsString(size_t index) const;
+    const std::string& ChildAsString(size_t index) const;
     i64 ChildAsInt64(size_t index) const;
     ui64 ChildAsUint64(size_t index) const;
     double ChildAsDouble(size_t index) const;
@@ -345,7 +345,7 @@ inline T TNode::ConvertTo() const {
 }
 
 template<>
-inline TString TNode::ConvertTo<TString>() const {
+inline std::string TNode::ConvertTo<std::string>() const {
     switch (GetType()) {
         case NYT::TNode::String:
             return AsString();
@@ -361,7 +361,7 @@ inline TString TNode::ConvertTo<TString>() const {
         case NYT::TNode::Map:
         case NYT::TNode::Null:
         case NYT::TNode::Undefined:
-            ythrow TTypeError() << "ConvertTo<TString>() called for type " << GetType();
+            ythrow TTypeError() << "ConvertTo<std::string>() called for type " << GetType();
     }
     Y_UNREACHABLE();
 }
@@ -409,7 +409,7 @@ inline bool TNode::ConvertTo<bool>() const {
 }
 
 template<typename T>
-inline T TNode::ChildIntCast(const TStringBuf key) const {
+inline T TNode::ChildIntCast(const std::string_view key) const {
     const auto& node = At(key);
     try {
         return node.IntCast<T>();
@@ -435,7 +435,7 @@ inline T TNode::ChildIntCast(size_t index) const {
 }
 
 template<typename T>
-inline T TNode::ChildConvertTo(const TStringBuf key) const {
+inline T TNode::ChildConvertTo(const std::string_view key) const {
     const auto& node = At(key);
     try {
         return node.ConvertTo<T>();
@@ -461,7 +461,7 @@ inline T TNode::ChildConvertTo(size_t index) const {
 }
 
 template<typename T>
-inline const T& TNode::ChildAs(const TStringBuf key) const {
+inline const T& TNode::ChildAs(const std::string_view key) const {
     const auto& node = At(key);
     try {
         return node.As<T>();
@@ -487,7 +487,7 @@ inline const T& TNode::ChildAs(size_t index) const {
 }
 
 template<typename T>
-inline T& TNode::ChildAs(const TStringBuf key) {
+inline T& TNode::ChildAs(const std::string_view key) {
     return const_cast<T&>(static_cast<const TNode*>(this)->ChildAs<T>(key));
 }
 

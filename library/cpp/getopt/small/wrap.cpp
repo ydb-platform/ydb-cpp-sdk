@@ -9,9 +9,9 @@
 #include <cctype>
 
 namespace NLastGetopt {
-    TString Wrap(ui32 width, TStringBuf text, TStringBuf indent, size_t* lastLineLen, bool* hasParagraphs) {
+    std::string Wrap(ui32 width, std::string_view text, std::string_view indent, size_t* lastLineLen, bool* hasParagraphs) {
         if (width == 0) {
-            return TString(text);
+            return std::string(text);
         }
 
         if (width >= indent.size()) {
@@ -22,8 +22,8 @@ namespace NLastGetopt {
             *hasParagraphs = false;
         }
 
-        TString res;
-        auto os = TStringOutput(res);
+        std::string res;
+        auto os = std::stringOutput(res);
 
         const char* spaceBegin = text.begin();
         const char* wordBegin = text.begin();
@@ -51,8 +51,8 @@ namespace NLastGetopt {
                 wordEnd++;
             }
 
-            auto spaces = TStringBuf(spaceBegin, wordBegin);
-            auto word = TStringBuf(wordBegin, wordEnd);
+            auto spaces = std::string_view(spaceBegin, wordBegin);
+            auto word = std::string_view(wordBegin, wordEnd);
 
             size_t spaceLen = spaces.size();
 

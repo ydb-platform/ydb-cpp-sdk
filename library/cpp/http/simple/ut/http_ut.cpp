@@ -34,7 +34,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
         }
 
         bool DoReply(const TReplyParams& params) override {
-            TStringBuf path = TParsedHttpFull(params.Input.FirstLine()).Path;
+            std::string_view path = TParsedHttpFull(params.Input.FirstLine()).Path;
             params.Input.ReadAll();
             if (path == "/redirect") {
                 params.Output << "HTTP/1.1 307 Internal Redirect\r\n"
@@ -103,7 +103,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
         }
 
         bool DoReply(const TReplyParams& params) override {
-            TStringBuf path = TParsedHttpFull(params.Input.FirstLine()).Path;
+            std::string_view path = TParsedHttpFull(params.Input.FirstLine()).Path;
 
             if (path == "/bad_redirect") {
                 params.Output << "HTTP/1.1 500 Internal Redirect\r\n"
@@ -138,14 +138,14 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
         UNIT_ASSERT_VALUES_EQUAL(0, server.GetClientCount());
 
         {
-            TStringStream s;
+            std::stringStream s;
             UNIT_ASSERT_NO_EXCEPTION(cl.DoGet("/ping", &s));
             UNIT_ASSERT_VALUES_EQUAL("pong", s.Str());
             Sleep(TDuration::MilliSeconds(500));
             UNIT_ASSERT_VALUES_EQUAL(0, server.GetClientCount());
         }
         {
-            TStringStream s;
+            std::stringStream s;
             UNIT_ASSERT_NO_EXCEPTION(cl.DoGet("/ping", &s));
             UNIT_ASSERT_VALUES_EQUAL("pong", s.Str());
             Sleep(TDuration::MilliSeconds(500));
@@ -153,14 +153,14 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
         }
 
         {
-            TStringStream s;
+            std::stringStream s;
             UNIT_ASSERT_NO_EXCEPTION(cl.DoPost("/ping", "", &s));
             UNIT_ASSERT_VALUES_EQUAL("pong", s.Str());
             Sleep(TDuration::MilliSeconds(500));
             UNIT_ASSERT_VALUES_EQUAL(0, server.GetClientCount());
         }
         {
-            TStringStream s;
+            std::stringStream s;
             UNIT_ASSERT_NO_EXCEPTION(cl.DoPost("/ping", "", &s));
             UNIT_ASSERT_VALUES_EQUAL("pong", s.Str());
             Sleep(TDuration::MilliSeconds(500));
@@ -177,7 +177,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
         UNIT_ASSERT_VALUES_EQUAL(0, server.GetClientCount());
 
         {
-            TStringStream s;
+            std::stringStream s;
             UNIT_ASSERT_NO_EXCEPTION(cl.DoGet("/ping", &s));
             UNIT_ASSERT_VALUES_EQUAL("pong", s.Str());
             Sleep(TDuration::MilliSeconds(500));
@@ -191,7 +191,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
 
         server.SetGenerator([]() { return new TCodedPong(HTTP_CONTINUE); });
         {
-            TStringStream s;
+            std::stringStream s;
             UNIT_ASSERT_EXCEPTION_CONTAINS(cl.DoPost("/ping", "", &s),
                                            THttpRequestException,
                                            "Got 100 at localhost/ping\n"
@@ -218,7 +218,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
 
         TSimpleHttpClient cl("localhost", port, TDuration::MilliSeconds(50), TDuration::MilliSeconds(50));
 
-        TStringStream s;
+        std::stringStream s;
         UNIT_ASSERT_EXCEPTION_CONTAINS(cl.DoGet("/ping", &s),
                                        TSystemError,
                                        "Resource temporarily unavailable");
@@ -236,7 +236,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
         UNIT_ASSERT_VALUES_EQUAL(0, server.GetClientCount());
 
         {
-            TStringStream s;
+            std::stringStream s;
             server.SetGenerator([]() { return new TCodedPong(HTTP_CONTINUE); });
             UNIT_ASSERT_EXCEPTION_CONTAINS(cl.DoGet("/ping", &s),
                                            THttpRequestException,
@@ -248,7 +248,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
         }
 
         {
-            TStringStream s;
+            std::stringStream s;
             server.SetGenerator([]() { return new TCodedPong(HTTP_OK); });
             UNIT_ASSERT_NO_EXCEPTION(cl.DoGet("/ping", &s));
             UNIT_ASSERT_VALUES_EQUAL("pong", s.Str());
@@ -262,7 +262,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
         }
 
         {
-            TStringStream s;
+            std::stringStream s;
             server.SetGenerator([]() { return new TCodedPong(HTTP_MULTIPLE_CHOICES); });
             UNIT_ASSERT_EXCEPTION_CONTAINS(cl.DoGet("/ping", &s),
                                            THttpRequestException,
@@ -283,7 +283,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
         UNIT_ASSERT_VALUES_EQUAL(0, server.GetClientCount());
 
         {
-            TStringStream s;
+            std::stringStream s;
             UNIT_ASSERT_NO_EXCEPTION(cl.DoGet("/redirect", &s));
             UNIT_ASSERT_VALUES_EQUAL("pong", s.Str());
             Sleep(TDuration::MilliSeconds(500));
@@ -292,7 +292,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
 
         server.SetGenerator([port]() { return new T500(port); });
 
-        TStringStream s;
+        std::stringStream s;
         UNIT_ASSERT_EXCEPTION_CONTAINS(cl.DoGet("/bad_redirect", &s),
                                        THttpRequestException,
                                        "can not connect to ");
@@ -317,7 +317,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
             TKeepAliveHttpClient cl("localhost", port);
             UNIT_ASSERT_VALUES_EQUAL(0, server.GetClientCount());
             {
-                TStringStream s;
+                std::stringStream s;
                 int code = -1;
                 UNIT_ASSERT_NO_EXCEPTION_C(code = cl.DoGet("/ping", &s), keepalive);
                 UNIT_ASSERT_VALUES_EQUAL_C(200, code, keepalive);
@@ -326,7 +326,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
                 UNIT_ASSERT_VALUES_EQUAL(clientCount, server.GetClientCount());
             }
             {
-                TStringStream s;
+                std::stringStream s;
                 int code = -1;
                 UNIT_ASSERT_NO_EXCEPTION_C(code = cl.DoGet("/ping", &s), keepalive);
                 UNIT_ASSERT_VALUES_EQUAL_C(200, code, keepalive);
@@ -336,7 +336,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
             }
 
             {
-                TStringStream s;
+                std::stringStream s;
                 int code = -1;
                 UNIT_ASSERT_NO_EXCEPTION_C(code = cl.DoPost("/ping", "", &s), keepalive);
                 UNIT_ASSERT_VALUES_EQUAL_C(200, code, keepalive);
@@ -345,7 +345,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
                 UNIT_ASSERT_VALUES_EQUAL(clientCount, server.GetClientCount());
             }
             {
-                TStringStream s;
+                std::stringStream s;
                 int code = -1;
                 UNIT_ASSERT_NO_EXCEPTION_C(code = cl.DoPost("/ping", "", &s), keepalive);
                 UNIT_ASSERT_VALUES_EQUAL_C(200, code, keepalive);
@@ -366,7 +366,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
 
         TKeepAliveHttpClient cl("localhost", port, TDuration::MilliSeconds(50), TDuration::MilliSeconds(50));
 
-        TStringStream s;
+        std::stringStream s;
         UNIT_ASSERT_EXCEPTION_CONTAINS(cl.DoGet("/ping", &s),
                                        TSystemError,
                                        "Resource temporarily unavailable");
@@ -382,10 +382,10 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
 
         TKeepAliveHttpClient cl("localhost", port);
 
-        TStringStream s;
+        std::stringStream s;
         THttpHeaders h;
         UNIT_ASSERT_VALUES_EQUAL(200, cl.DoGet("/ping", &s, {}, &h));
-        TStringStream hs;
+        std::stringStream hs;
         h.OutTo(&hs);
         UNIT_ASSERT_VALUES_EQUAL("Content-Length: 4\r\nConnection: Keep-Alive\r\n", hs.Str());
     }
@@ -397,10 +397,10 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
 
         TKeepAliveHttpClient cl("localhost", port);
 
-        TStringStream s;
+        std::stringStream s;
         THttpHeaders h;
 
-        TString raw = "POST /ping HTTP/1.1\r\n"
+        std::string raw = "POST /ping HTTP/1.1\r\n"
                       "Connection: Keep-Alive\r\n"
                       "Accept-Encoding: gzip, deflate\r\n"
                       "Content-Length: 9\r\n"
@@ -410,7 +410,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
                       "some body";
 
         UNIT_ASSERT_VALUES_EQUAL(200, cl.DoRequestRaw(raw, &s, &h));
-        TStringStream hs;
+        std::stringStream hs;
         h.OutTo(&hs);
         UNIT_ASSERT_VALUES_EQUAL("Content-Length: 4\r\nConnection: Keep-Alive\r\n", hs.Str());
 

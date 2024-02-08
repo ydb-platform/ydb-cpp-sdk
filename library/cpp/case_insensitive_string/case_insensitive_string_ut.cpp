@@ -2,7 +2,7 @@
 
 #include <util/generic/string_ut.h>
 
-class TCaseInsensitiveStringTest : public TTestBase, private TStringTestImpl<TCaseInsensitiveString, TTestData<char>> {
+class TCaseInsensitiveStringTest : public TTestBase, private std::stringTestImpl<TCaseInsensitiveString, TTestData<char>> {
 public:
     UNIT_TEST_SUITE(TCaseInsensitiveStringTest);
     UNIT_TEST(TestOperators);
@@ -14,7 +14,7 @@ public:
 UNIT_TEST_SUITE_REGISTRATION(TCaseInsensitiveStringTest);
 
 Y_UNIT_TEST_SUITE(TCaseInsensitiveStringTestEx) {
-    Y_UNIT_TEST(BasicTString) {
+    Y_UNIT_TEST(Basicstd::string) {
         TCaseInsensitiveString foo("foo");
         TCaseInsensitiveString FOO("FOO");
         TCaseInsensitiveString Bar("Bar");

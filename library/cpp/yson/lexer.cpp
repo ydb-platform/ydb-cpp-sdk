@@ -19,7 +19,7 @@ namespace NYson {
                    {
         }
 
-        size_t GetToken(const TStringBuf& data, TToken* token) {
+        size_t GetToken(const std::string_view& data, TToken* token) {
             return Impl->GetToken(data, token);
         }
     };
@@ -34,7 +34,7 @@ namespace NYson {
     TStatelessLexer::~TStatelessLexer() {
     }
 
-    size_t TStatelessLexer::GetToken(const TStringBuf& data, TToken* token) {
+    size_t TStatelessLexer::GetToken(const std::string_view& data, TToken* token) {
         return Impl->GetToken(data, token);
     }
 

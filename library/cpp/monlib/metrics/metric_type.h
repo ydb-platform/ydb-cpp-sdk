@@ -19,7 +19,7 @@ namespace NMonitoring {
         LOGHIST = 9,
     };
 
-    TStringBuf MetricTypeToStr(EMetricType type);
-    EMetricType MetricTypeFromStr(TStringBuf str);
+    std::string_view MetricTypeToStr(EMetricType type);
+    EMetricType MetricTypeFromStr(std::string_view str);
 
 }

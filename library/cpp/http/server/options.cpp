@@ -9,12 +9,12 @@
 
 using TAddr = THttpServerOptions::TAddr;
 
-static inline TString AddrToString(const TAddr& addr) {
+static inline std::string AddrToString(const TAddr& addr) {
     return addr.Addr + ":" + ToString(addr.Port);
 }
 
-static inline TNetworkAddress ToNetworkAddr(const TString& address, ui16 port) {
-    if (address.empty() || address == TStringBuf("*")) {
+static inline TNetworkAddress ToNetworkAddr(const std::string& address, ui16 port) {
+    if (address.empty() || address == std::string_view("*")) {
         return TNetworkAddress(port);
     }
 
@@ -22,14 +22,14 @@ static inline TNetworkAddress ToNetworkAddr(const TString& address, ui16 port) {
 }
 
 void THttpServerOptions::BindAddresses(TBindAddresses& ret) const {
-    THashSet<TString> check;
+    THashSet<std::string> check;
 
     for (auto addr : BindSockaddr) {
         if (!addr.Port) {
             addr.Port = Port;
         }
 
-        const TString straddr = AddrToString(addr);
+        const std::string straddr = AddrToString(addr);
 
         if (check.find(straddr) == check.end()) {
             check.insert(straddr);

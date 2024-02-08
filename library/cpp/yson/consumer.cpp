@@ -6,7 +6,7 @@ namespace NYson {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    void TYsonConsumerBase::OnRaw(TStringBuf str, NYT::NYson::EYsonType type) {
+    void TYsonConsumerBase::OnRaw(std::string_view str, NYT::NYson::EYsonType type) {
         ParseYsonStringBuffer(str, this, type);
     }
 

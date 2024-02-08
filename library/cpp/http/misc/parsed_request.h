@@ -3,22 +3,22 @@
 #include <util/generic/strbuf.h>
 
 struct TParsedHttpRequest {
-    TParsedHttpRequest(const TStringBuf& str);
+    TParsedHttpRequest(const std::string_view& str);
 
-    TStringBuf Method;
-    TStringBuf Request;
-    TStringBuf Proto;
+    std::string_view Method;
+    std::string_view Request;
+    std::string_view Proto;
 };
 
 struct TParsedHttpLocation {
-    TParsedHttpLocation(const TStringBuf& req);
+    TParsedHttpLocation(const std::string_view& req);
 
-    TStringBuf Path;
-    TStringBuf Cgi;
+    std::string_view Path;
+    std::string_view Cgi;
 };
 
 struct TParsedHttpFull: public TParsedHttpRequest, public TParsedHttpLocation {
-    inline TParsedHttpFull(const TStringBuf& line)
+    inline TParsedHttpFull(const std::string_view& line)
         : TParsedHttpRequest(line)
         , TParsedHttpLocation(Request)
     {

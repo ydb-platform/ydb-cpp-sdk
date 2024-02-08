@@ -77,7 +77,7 @@ namespace NJson {
         size_t Count;
     };
 
-    struct TStringBufStreamWrapper : TReadOnlyStreamBase {
+    struct std::string_viewStreamWrapper : TReadOnlyStreamBase {
         Ch Peek() const {
             return Pos < Data.size() ? Data[Pos] : 0;
         }
@@ -92,13 +92,13 @@ namespace NJson {
             return Pos;
         }
 
-        TStringBufStreamWrapper(TStringBuf data)
+        std::string_viewStreamWrapper(std::string_view data)
             : Data(data)
             , Pos(0)
         {
         }
 
-        TStringBuf Data;
+        std::string_view Data;
         size_t Pos;
     };
 }

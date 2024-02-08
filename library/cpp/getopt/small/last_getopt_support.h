@@ -142,37 +142,37 @@ namespace NLastGetopt {
             }
         };
 
-        TString OptToString(char c);
-        TString OptToString(const TString& longOption);
-        TString OptToString(const TOpt* opt);
+        std::string OptToString(char c);
+        std::string OptToString(const std::string& longOption);
+        std::string OptToString(const TOpt* opt);
 
         template <typename T>
-        inline T OptFromStringImpl(const TStringBuf& value) {
+        inline T OptFromStringImpl(const std::string_view& value) {
             return FromString<T>(value);
         }
 
         template <>
-        inline TStringBuf OptFromStringImpl<TStringBuf>(const TStringBuf& value) {
+        inline std::string_view OptFromStringImpl<std::string_view>(const std::string_view& value) {
             return value;
         }
 
         template <>
-        inline const char* OptFromStringImpl<const char*>(const TStringBuf& value) {
+        inline const char* OptFromStringImpl<const char*>(const std::string_view& value) {
             return value.data();
         }
 
         template <typename T, typename TSomeOpt>
-        T OptFromString(const TStringBuf& value, const TSomeOpt opt) {
+        T OptFromString(const std::string_view& value, const TSomeOpt opt) {
             try {
                 return OptFromStringImpl<T>(value);
             } catch (...) {
-                throw TUsageException() << "failed to parse opt " << OptToString(opt) << " value " << TString(value).Quote() << ": " << CurrentExceptionMessage();
+                throw TUsageException() << "failed to parse opt " << OptToString(opt) << " value " << std::string(value).Quote() << ": " << CurrentExceptionMessage();
             }
         }
 
         // wrapper of FromString<T> that prints nice message about option used
         template <typename T, typename TSomeOpt>
-        T OptFromString(const TStringBuf& value, const TSomeOpt opt);
+        T OptFromString(const std::string_view& value, const TSomeOpt opt);
 
     }
 }

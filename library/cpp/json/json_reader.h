@@ -30,9 +30,9 @@ namespace NJson {
         size_t BufferSize;
     };
 
-    bool ReadJsonTree(TStringBuf in, TJsonValue* out, bool throwOnError = false);
-    bool ReadJsonTree(TStringBuf in, bool allowComments, TJsonValue* out, bool throwOnError = false);
-    bool ReadJsonTree(TStringBuf in, const TJsonReaderConfig* config, TJsonValue* out, bool throwOnError = false);
+    bool ReadJsonTree(std::string_view in, TJsonValue* out, bool throwOnError = false);
+    bool ReadJsonTree(std::string_view in, bool allowComments, TJsonValue* out, bool throwOnError = false);
+    bool ReadJsonTree(std::string_view in, const TJsonReaderConfig* config, TJsonValue* out, bool throwOnError = false);
 
     bool ReadJsonTree(IInputStream* in, TJsonValue* out, bool throwOnError = false);
     bool ReadJsonTree(IInputStream* in, bool allowComments, TJsonValue* out, bool throwOnError = false);
@@ -59,7 +59,7 @@ namespace NJson {
         return ReadJson(in, config, &c);
     }
 
-    inline bool ValidateJson(TStringBuf in, const TJsonReaderConfig& config = TJsonReaderConfig(), bool throwOnError = false) {
+    inline bool ValidateJson(std::string_view in, const TJsonReaderConfig& config = TJsonReaderConfig(), bool throwOnError = false) {
         TMemoryInput min(in.data(), in.size());
         return ValidateJson(&min, &config, throwOnError);
     }
@@ -68,7 +68,7 @@ namespace NJson {
         return ValidateJson(in, config, true);
     }
 
-    inline bool ValidateJsonThrow(TStringBuf in, const TJsonReaderConfig& config = TJsonReaderConfig()) {
+    inline bool ValidateJsonThrow(std::string_view in, const TJsonReaderConfig& config = TJsonReaderConfig()) {
         return ValidateJson(in, config, true);
     }
 
@@ -79,18 +79,18 @@ namespace NJson {
         bool OnBoolean(bool val) override;
         bool OnInteger(long long val) override;
         bool OnUInteger(unsigned long long val) override;
-        bool OnString(const TStringBuf& val) override;
+        bool OnString(const std::string_view& val) override;
         bool OnDouble(double val) override;
         bool OnOpenArray() override;
         bool OnCloseArray() override;
         bool OnOpenMap() override;
         bool OnCloseMap() override;
-        bool OnMapKey(const TStringBuf& val) override;
+        bool OnMapKey(const std::string_view& val) override;
         bool OnEnd() override;
 
     protected:
         TJsonValue& Value;
-        TString Key;
+        std::string Key;
         std::vector<TJsonValue*> ValuesStack;
         bool NotClosedBracketIsError;
 
@@ -129,6 +129,6 @@ namespace NJson {
     };
 
     //// relaxed json, used in library/cpp/scheme
-    bool ReadJsonFastTree(TStringBuf in, TJsonValue* out, bool throwOnError = false, bool notClosedBracketIsError = false);
-    TJsonValue ReadJsonFastTree(TStringBuf in, bool notClosedBracketIsError = false);
+    bool ReadJsonFastTree(std::string_view in, TJsonValue* out, bool throwOnError = false, bool notClosedBracketIsError = false);
+    TJsonValue ReadJsonFastTree(std::string_view in, bool notClosedBracketIsError = false);
 }

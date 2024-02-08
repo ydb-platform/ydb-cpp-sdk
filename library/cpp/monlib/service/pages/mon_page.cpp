@@ -2,7 +2,7 @@
 
 using namespace NMonitoring;
 
-IMonPage::IMonPage(const TString& path, const TString& title)
+IMonPage::IMonPage(const std::string& path, const std::string& title)
     : Path(path)
     , Title(title)
 {
@@ -19,9 +19,9 @@ void IMonPage::OutputNavBar(IOutputStream& out) {
 
     out << "<ol class='breadcrumb'>\n";
 
-    TString absolutePath;
+    std::string absolutePath;
     for (size_t i = 0; i < parents.size(); ++i) {
-        const TString& title = parents[i]->GetTitle();
+        const std::string& title = parents[i]->GetTitle();
         if (i == parents.size() - 1) {
             out << "<li>" << title << "</li>\n";
         } else {

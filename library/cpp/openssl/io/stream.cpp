@@ -33,7 +33,7 @@ namespace {
         return ERR_error_string(error, nullptr);
     }
 
-    inline TStringBuf SslLastError() noexcept {
+    inline std::string_view SslLastError() noexcept {
         return SslErrorText(GetLastSslError());
     }
 
@@ -280,7 +280,7 @@ namespace NPrivate {
 class TBuiltinCerts {
 public:
     TBuiltinCerts() {
-        TString c = NResource::Find("/builtin/cacert");
+        std::string c = NResource::Find("/builtin/cacert");
 
         TBioPtr cbio(BIO_new_mem_buf(c.data(), c.size()));
         Y_ENSURE_EX(cbio, TSslError() << "BIO_new_mem_buf");

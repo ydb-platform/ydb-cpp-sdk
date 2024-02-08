@@ -10,7 +10,7 @@
 
 class TSyncPageCacheFileLogBackend::TImpl: public TNonCopyable {
 public:
-    TImpl(const TString& path, size_t maxBufferSize, size_t maxPendingCacheSize)
+    TImpl(const std::string& path, size_t maxBufferSize, size_t maxPendingCacheSize)
         : File_{OpenFile(path)}
         , MaxBufferSize_{maxBufferSize}
         , MaxPendingCacheSize_{maxPendingCacheSize}
@@ -64,7 +64,7 @@ private:
         GuaranteedWrittenPtr_ = WrittenPtr_;
     }
 
-    static TFile OpenFile(const TString& path) {
+    static TFile OpenFile(const std::string& path) {
         return TFile{path, OpenAlways | WrOnly | ForAppend | Seq | NoReuse};
     }
 
@@ -114,7 +114,7 @@ private:
     i64 GuaranteedWrittenPtr_ = 0;
 };
 
-TSyncPageCacheFileLogBackend::TSyncPageCacheFileLogBackend(const TString& path, size_t maxBufferSize, size_t maxPengingCacheSize)
+TSyncPageCacheFileLogBackend::TSyncPageCacheFileLogBackend(const std::string& path, size_t maxBufferSize, size_t maxPengingCacheSize)
     : Impl_(MakeHolder<TImpl>(path, maxBufferSize, maxPengingCacheSize))
 {}
 

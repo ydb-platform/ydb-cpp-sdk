@@ -17,7 +17,7 @@ TCppSaxParser::TText::TText(ui64 offset)
 {
 }
 
-TCppSaxParser::TText::TText(const TString& data, ui64 offset)
+TCppSaxParser::TText::TText(const std::string& data, ui64 offset)
     : Data(data)
     , Offset(offset)
 {
@@ -558,14 +558,14 @@ void TCppSimpleSax::DoCode(const TText& text) {
 }
 
 class TCppFullSax::TImpl {
-    typedef THashSet<TString> TKeyWords;
+    typedef THashSet<std::string> TKeyWords;
 
     class TRegExp {
     public:
         inline TRegExp(const char*) {
         }
 
-        inline bool Match(const TString& /*s*/) const noexcept {
+        inline bool Match(const std::string& /*s*/) const noexcept {
             return false;
         }
     };
@@ -634,27 +634,27 @@ public:
 
     inline ~TImpl() = default;
 
-    inline void AddKeyword(const TString& keyword) {
+    inline void AddKeyword(const std::string& keyword) {
         KeyWords_.insert(keyword);
     }
 
-    inline bool IsKeyword(const TString& s) {
+    inline bool IsKeyword(const std::string& s) {
         return KeyWords_.find(s) != KeyWords_.end();
     }
 
-    inline bool IsOctNumber(const TString& s) {
+    inline bool IsOctNumber(const std::string& s) {
         return OctNumber_.Match(s);
     }
 
-    inline bool IsHexNumber(const TString& s) {
+    inline bool IsHexNumber(const std::string& s) {
         return HexNumber_.Match(s);
     }
 
-    inline bool IsDecNumber(const TString& s) {
+    inline bool IsDecNumber(const std::string& s) {
         return DecNumber_.Match(s);
     }
 
-    inline bool IsFloatNumber(const TString& s) {
+    inline bool IsFloatNumber(const std::string& s) {
         return FltNumber_.Match(s);
     }
 
@@ -673,7 +673,7 @@ TCppFullSax::TCppFullSax()
 
 TCppFullSax::~TCppFullSax() = default;
 
-void TCppFullSax::AddKeyword(const TString& keyword) {
+void TCppFullSax::AddKeyword(const std::string& keyword) {
     Impl_->AddKeyword(keyword);
 }
 

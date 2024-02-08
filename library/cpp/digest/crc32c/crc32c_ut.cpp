@@ -8,7 +8,7 @@ Y_UNIT_TEST_SUITE(TestCrc32c) {
     }
 
     Y_UNIT_TEST(TestUnaligned) {
-        const TString str(1000, 'a');
+        const std::string str(1000, 'a');
         for (size_t substrLen = 0; substrLen <= str.length(); ++substrLen) {
             const ui32 crc = Crc32c(str.data(), substrLen);
             for (size_t offset = 1; offset + substrLen <= str.length(); ++offset) {

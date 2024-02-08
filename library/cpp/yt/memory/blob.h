@@ -96,10 +96,10 @@ public:
         return Capacity_;
     }
 
-    //! Returns the TStringBuf instance for the occupied part of the blob.
-    Y_FORCE_INLINE TStringBuf ToStringBuf() const
+    //! Returns the std::string_view instance for the occupied part of the blob.
+    Y_FORCE_INLINE std::string_view ToStringBuf() const
     {
-        return TStringBuf(Begin_, Size_);
+        return std::string_view(Begin_, Size_);
     }
 
     //! Returns the TRef instance for the occupied part of the blob.

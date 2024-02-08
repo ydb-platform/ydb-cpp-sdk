@@ -42,9 +42,9 @@ template <>
 TYsonString ConvertToYsonString<ui64>(const ui64& value);
 
 template <>
-TYsonString ConvertToYsonString<TString>(const TString& value);
+TYsonString ConvertToYsonString<std::string>(const std::string& value);
 template <>
-TYsonString ConvertToYsonString<TStringBuf>(const TStringBuf& value);
+TYsonString ConvertToYsonString<std::string_view>(const std::string_view& value);
 TYsonString ConvertToYsonString(const char* value);
 
 template <>
@@ -90,7 +90,7 @@ template <>
 ui64 ConvertFromYsonString<ui64>(const TYsonStringBuf& str);
 
 template <>
-TString ConvertFromYsonString<TString>(const TYsonStringBuf& str);
+std::string ConvertFromYsonString<std::string>(const TYsonStringBuf& str);
 
 template <>
 float ConvertFromYsonString<float>(const TYsonStringBuf& str);

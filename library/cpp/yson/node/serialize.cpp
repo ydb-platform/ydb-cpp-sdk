@@ -8,12 +8,12 @@ namespace NYT {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Serialize(const TString& value, NYson::IYsonConsumer* consumer)
+void Serialize(const std::string& value, NYson::IYsonConsumer* consumer)
 {
     consumer->OnStringScalar(value);
 }
 
-void Serialize(const TStringBuf& value, NYson::IYsonConsumer* consumer)
+void Serialize(const std::string_view& value, NYson::IYsonConsumer* consumer)
 {
     consumer->OnStringScalar(value);
 }
@@ -23,7 +23,7 @@ void Serialize(const char* value, NYson::IYsonConsumer* consumer)
     consumer->OnStringScalar(value);
 }
 
-void Deserialize(TString& value, const TNode& node)
+void Deserialize(std::string& value, const TNode& node)
 {
     value = node.AsString();
 }

@@ -7,11 +7,11 @@
 
 using namespace NResource;
 
-bool NResource::FindExact(const TStringBuf key, TString* out) {
+bool NResource::FindExact(const std::string_view key, std::string* out) {
     return CommonStore()->FindExact(key, out);
 }
 
-void NResource::FindMatch(const TStringBuf subkey, TResources* out) {
+void NResource::FindMatch(const std::string_view subkey, TResources* out) {
     struct TMatch: public IMatch {
         inline TMatch(TResources* r)
             : R(r)
@@ -30,12 +30,12 @@ void NResource::FindMatch(const TStringBuf subkey, TResources* out) {
     CommonStore()->FindMatch(subkey, m);
 }
 
-bool NResource::Has(const TStringBuf key) {
+bool NResource::Has(const std::string_view key) {
     return CommonStore()->Has(key);
 }
 
-TString NResource::Find(const TStringBuf key) {
-    TString ret;
+std::string NResource::Find(const std::string_view key) {
+    std::string ret;
 
     if (FindExact(key, &ret)) {
         return ret;
@@ -48,12 +48,12 @@ size_t NResource::Count() noexcept {
     return CommonStore()->Count();
 }
 
-TStringBuf NResource::KeyByIndex(size_t idx) {
+std::string_view NResource::KeyByIndex(size_t idx) {
     return CommonStore()->KeyByIndex(idx);
 }
 
-std::vector<TStringBuf> NResource::ListAllKeys() {
-    std::vector<TStringBuf> res;
+std::vector<std::string_view> NResource::ListAllKeys() {
+    std::vector<std::string_view> res;
     res.reserve(NResource::Count());
     for (auto i : xrange(NResource::Count())) {
         res.push_back(NResource::KeyByIndex(i));

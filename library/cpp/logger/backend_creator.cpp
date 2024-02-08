@@ -35,7 +35,7 @@ THolder<ILogBackendCreator> ILogBackendCreator::Create(const IInitContext& ctx) 
     return res;
 }
 
-TLogBackendCreatorBase::TLogBackendCreatorBase(const TString& type)
+TLogBackendCreatorBase::TLogBackendCreatorBase(const std::string& type)
     : Type(type)
 {}
 

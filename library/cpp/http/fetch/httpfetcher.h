@@ -54,9 +54,9 @@ public:
         const char* scheme = HttpUrlSchemeKindToString((THttpURL::TSchemeKind)TAgent::GetScheme());
         size_t schemelen = strlen(scheme);
         if (*path == '/') {
-            header->base = TStringBuf(scheme, schemelen);
-            header->base += TStringBuf("://", 3);
-            header->base += TStringBuf(TAgent::pHostBeg, TAgent::pHostEnd - TAgent::pHostBeg);
+            header->base = std::string_view(scheme, schemelen);
+            header->base += std::string_view("://", 3);
+            header->base += std::string_view(TAgent::pHostBeg, TAgent::pHostEnd - TAgent::pHostBeg);
             header->base += path;
         } else {
             if (strlen(path) >= FETCHER_URL_MAX) {

@@ -8,8 +8,8 @@ using namespace NMonitoring;
 
 Y_UNIT_TEST_SUITE(TTextText) {
     template <typename TFunc>
-    TString EncodeToString(bool humanReadableTs, TFunc fn) {
-        TStringStream ss;
+    std::string EncodeToString(bool humanReadableTs, TFunc fn) {
+        std::stringStream ss;
         IMetricEncoderPtr encoder = EncoderText(&ss, humanReadableTs);
         fn(encoder.Get());
         return ss.Str();
@@ -231,7 +231,7 @@ Y_UNIT_TEST_SUITE(TTextText) {
         h->Collect(13);
         auto s = h->Snapshot();
 
-        TString result = EncodeToString(true, [s](IMetricEncoder* e) {
+        std::string result = EncodeToString(true, [s](IMetricEncoder* e) {
             e->OnStreamBegin();
             {
                 e->OnMetricBegin(EMetricType::HIST);
@@ -263,7 +263,7 @@ Y_UNIT_TEST_SUITE(TTextText) {
 
     Y_UNIT_TEST(Summary) {
         auto s = MakeIntrusive<TSummaryDoubleSnapshot>(10.1, -0.45, 0.478, 0.3, 30u);
-        TString result = EncodeToString(true, [s](IMetricEncoder* e) {
+        std::string result = EncodeToString(true, [s](IMetricEncoder* e) {
             e->OnStreamBegin();
             {
                 e->OnMetricBegin(EMetricType::DSUMMARY);

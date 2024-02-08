@@ -374,15 +374,15 @@ namespace NUri {
         return lt == rt ? 0 : ::strnicmp(lt, rt, len);
     }
 
-    static inline int CompareNoCasePrefix(const TStringBuf& lt, const TStringBuf& rt) {
+    static inline int CompareNoCasePrefix(const std::string_view& lt, const std::string_view& rt) {
         return strnicmp(lt.data(), rt.data(), rt.length());
     }
 
-    static inline bool EqualNoCase(const TStringBuf& lt, const TStringBuf& rt) {
+    static inline bool EqualNoCase(const std::string_view& lt, const std::string_view& rt) {
         return lt.length() == rt.length() && 0 == CompareNoCasePrefix(lt, rt);
     }
 
-    static inline int CompareNoCase(const TStringBuf& lt, const TStringBuf& rt) {
+    static inline int CompareNoCase(const std::string_view& lt, const std::string_view& rt) {
         if (lt.length() == rt.length())
             return CompareNoCasePrefix(lt, rt);
         return lt.length() < rt.length() ? -1 : 1;
@@ -392,28 +392,28 @@ namespace NUri {
     public:
         const TScheme::EKind Kind;
         const ui16 Port;
-        const TStringBuf Str;
+        const std::string_view Str;
         const ui32 FldReq;
-        TSchemeInfo(TScheme::EKind kind, TStringBuf str, ui32 fldReq = 0, ui16 port = 0)
+        TSchemeInfo(TScheme::EKind kind, std::string_view str, ui32 fldReq = 0, ui16 port = 0)
             : Kind(kind)
             , Port(port)
             , Str(str)
             , FldReq(fldReq)
         {
         }
-        bool Matches(const TStringBuf& scheme) const {
+        bool Matches(const std::string_view& scheme) const {
             return EqualNoCase(scheme, Str);
         }
 
     public:
-        static const TSchemeInfo& Get(const TStringBuf& scheme);
+        static const TSchemeInfo& Get(const std::string_view& scheme);
         static const TSchemeInfo& Get(TScheme::EKind scheme) {
             return Registry[scheme];
         }
-        static TScheme::EKind GetKind(const TStringBuf& scheme) {
+        static TScheme::EKind GetKind(const std::string_view& scheme) {
             return Get(scheme).Kind;
         }
-        static TStringBuf GetCanon(TScheme::EKind scheme) {
+        static std::string_view GetCanon(TScheme::EKind scheme) {
             return Get(scheme).Str;
         }
         static ui16 GetDefaultPort(TScheme::EKind scheme) {
@@ -451,8 +451,8 @@ namespace NUri {
 #define FEATURE_FLAG(f) FEATURE_FLAG_NAME(f) = 1ULL << FEATURE_NAME(f)
 
     struct TQueryArg {
-        TStringBuf Name;
-        TStringBuf Value;
+        std::string_view Name;
+        std::string_view Value;
 
     private:
         enum EBit {
@@ -511,6 +511,6 @@ static inline ui16 DefaultPort(NUri::TScheme::EKind scheme) {
     return NUri::TSchemeInfo::GetDefaultPort(scheme);
 }
 
-static inline NUri::TScheme::EKind SchemeKind(const TStringBuf& scheme) {
+static inline NUri::TScheme::EKind SchemeKind(const std::string_view& scheme) {
     return NUri::TSchemeInfo::GetKind(scheme);
 }

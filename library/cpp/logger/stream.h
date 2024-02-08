@@ -21,7 +21,7 @@ private:
 
 class TStreamWithContextLogBackend : public TLogBackend {
 private:
-    static constexpr TStringBuf DELIMITER = "; ";
+    static constexpr std::string_view DELIMITER = "; ";
 
 public:
     explicit TStreamWithContextLogBackend(IOutputStream* slave);

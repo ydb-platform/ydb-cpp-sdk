@@ -243,7 +243,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
             h2->Record(i);
         }
 
-        TStringStream ss;
+        std::stringStream ss;
         {
             auto encoder = EncoderJson(&ss, 2);
             registry.Accept(TInstant::Zero(), encoder.Get());
@@ -284,7 +284,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
             h2->Record(i);
         }
 
-        TStringStream ss;
+        std::stringStream ss;
         {
             auto encoder = EncoderJson(&ss, 2);
             registry.Accept(TInstant::Zero(), encoder.Get());
@@ -295,7 +295,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
     }
 
     Y_UNIT_TEST(StreamingEncoderTest) {
-        const TString expected {
+        const std::string expected {
             "{\"commonLabels\":{\"common\":\"label\"},"
             "\"sensors\":[{\"kind\":\"GAUGE\",\"labels\":{\"my\":\"gauge\"},\"value\":12.34}]}"
         };
@@ -305,7 +305,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
         TGauge* g = registry.Gauge({{"my", "gauge"}});
         g->Set(12.34);
 
-        TStringStream os;
+        std::stringStream os;
         auto encoder = EncoderJson(&os);
         registry.Accept(TInstant::Zero(), encoder.Get());
 
@@ -331,7 +331,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
         // Append() adds common labels to each metric, allowing to combine
         // several metric registries in one resulting blob
         {
-            TStringStream os;
+            std::stringStream os;
             auto encoder = EncoderJson(&os);
             encoder->OnStreamBegin();
             registry.Append(TInstant::Zero(), encoder.Get());
@@ -344,7 +344,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
 
         // Accept() adds common labels to the beginning of the blob
         {
-            TStringStream os;
+            std::stringStream os;
             auto encoder = EncoderJson(&os);
             registry.Accept(TInstant::Zero(), encoder.Get());
 

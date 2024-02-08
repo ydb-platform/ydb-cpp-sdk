@@ -64,9 +64,9 @@ namespace {
 
 namespace NUrl {
 
-    TSplitUrlToHostAndPathResult SplitUrlToHostAndPath(const TStringBuf url) {
-        TStringBuf host = GetSchemeHostAndPort(url, /*trimHttp=*/false, /*trimDefaultPort=*/false);
-        TStringBuf path = url;
+    TSplitUrlToHostAndPathResult SplitUrlToHostAndPath(const std::string_view url) {
+        std::string_view host = GetSchemeHostAndPort(url, /*trimHttp=*/false, /*trimDefaultPort=*/false);
+        std::string_view path = url;
         path.SkipPrefix(host);
         return {host, path};
     }
@@ -81,7 +81,7 @@ size_t GetHttpPrefixSize(const wchar16* url, bool ignorehttps) noexcept {
     return GetHttpPrefixSizeImpl<wchar16>(url, TUncheckedSize(), ignorehttps);
 }
 
-size_t GetHttpPrefixSize(const TStringBuf url, bool ignorehttps) noexcept {
+size_t GetHttpPrefixSize(const std::string_view url, bool ignorehttps) noexcept {
     return GetHttpPrefixSizeImpl<char>(url.data(), TKnownSize(url.size()), ignorehttps);
 }
 
@@ -89,7 +89,7 @@ size_t GetHttpPrefixSize(const TWtringBuf url, bool ignorehttps) noexcept {
     return GetHttpPrefixSizeImpl<wchar16>(url.data(), TKnownSize(url.size()), ignorehttps);
 }
 
-TStringBuf CutHttpPrefix(const TStringBuf url, bool ignorehttps) noexcept {
+std::string_view CutHttpPrefix(const std::string_view url, bool ignorehttps) noexcept {
     return CutHttpPrefixImpl(url, ignorehttps);
 }
 
@@ -97,7 +97,7 @@ TWtringBuf CutHttpPrefix(const TWtringBuf url, bool ignorehttps) noexcept {
     return CutHttpPrefixImpl(url, ignorehttps);
 }
 
-size_t GetSchemePrefixSize(const TStringBuf url) noexcept {
+size_t GetSchemePrefixSize(const std::string_view url) noexcept {
     if (url.empty()) {
         return 0;
     }
@@ -119,17 +119,17 @@ size_t GetSchemePrefixSize(const TStringBuf url) noexcept {
     return n + 3 - url.begin();
 }
 
-TStringBuf GetSchemePrefix(const TStringBuf url) noexcept {
+std::string_view GetSchemePrefix(const std::string_view url) noexcept {
     return url.Head(GetSchemePrefixSize(url));
 }
 
-TStringBuf CutSchemePrefix(const TStringBuf url) noexcept {
+std::string_view CutSchemePrefix(const std::string_view url) noexcept {
     return url.Tail(GetSchemePrefixSize(url));
 }
 
 template <bool KeepPort>
-static inline TStringBuf GetHostAndPortImpl(const TStringBuf url) {
-    TStringBuf urlNoScheme = url;
+static inline std::string_view GetHostAndPortImpl(const std::string_view url) {
+    std::string_view urlNoScheme = url;
 
     urlNoScheme.Skip(GetHttpPrefixSize(url));
 
@@ -150,44 +150,44 @@ static inline TStringBuf GetHostAndPortImpl(const TStringBuf url) {
     return urlNoScheme;
 }
 
-TStringBuf GetHost(const TStringBuf url) noexcept {
+std::string_view GetHost(const std::string_view url) noexcept {
     return GetHostAndPortImpl<false>(url);
 }
 
-TStringBuf GetHostAndPort(const TStringBuf url) noexcept {
+std::string_view GetHostAndPort(const std::string_view url) noexcept {
     return GetHostAndPortImpl<true>(url);
 }
 
-TStringBuf GetSchemeHost(const TStringBuf url, bool trimHttp) noexcept {
+std::string_view GetSchemeHost(const std::string_view url, bool trimHttp) noexcept {
     const size_t schemeSize = GetSchemePrefixSize(url);
-    const TStringBuf scheme = url.Head(schemeSize);
+    const std::string_view scheme = url.Head(schemeSize);
 
-    const bool isHttp = (schemeSize == 0 || scheme == TStringBuf("http://"));
+    const bool isHttp = (schemeSize == 0 || scheme == std::string_view("http://"));
 
-    const TStringBuf host = GetHost(url.Tail(schemeSize));
+    const std::string_view host = GetHost(url.Tail(schemeSize));
 
     if (isHttp && trimHttp) {
         return host;
     } else {
-        return TStringBuf(scheme.begin(), host.end());
+        return std::string_view(scheme.begin(), host.end());
     }
 }
 
-TStringBuf GetSchemeHostAndPort(const TStringBuf url, bool trimHttp, bool trimDefaultPort) noexcept {
+std::string_view GetSchemeHostAndPort(const std::string_view url, bool trimHttp, bool trimDefaultPort) noexcept {
     const size_t schemeSize = GetSchemePrefixSize(url);
-    const TStringBuf scheme = url.Head(schemeSize);
+    const std::string_view scheme = url.Head(schemeSize);
 
-    const bool isHttp = (schemeSize == 0 || scheme == TStringBuf("http://"));
+    const bool isHttp = (schemeSize == 0 || scheme == std::string_view("http://"));
 
-    TStringBuf hostAndPort = GetHostAndPort(url.Tail(schemeSize));
+    std::string_view hostAndPort = GetHostAndPort(url.Tail(schemeSize));
 
     if (trimDefaultPort) {
         const size_t pos = hostAndPort.find(':');
-        if (pos != TStringBuf::npos) {
-            const bool isHttps = (scheme == TStringBuf("https://"));
+        if (pos != std::string_view::npos) {
+            const bool isHttps = (scheme == std::string_view("https://"));
 
-            const TStringBuf port = hostAndPort.Tail(pos + 1);
-            if ((isHttp && port == TStringBuf("80")) || (isHttps && port == TStringBuf("443"))) {
+            const std::string_view port = hostAndPort.Tail(pos + 1);
+            if ((isHttp && port == std::string_view("80")) || (isHttps && port == std::string_view("443"))) {
                 // trimming default port
                 hostAndPort = hostAndPort.Head(pos);
             }
@@ -197,24 +197,24 @@ TStringBuf GetSchemeHostAndPort(const TStringBuf url, bool trimHttp, bool trimDe
     if (isHttp && trimHttp) {
         return hostAndPort;
     } else {
-        return TStringBuf(scheme.begin(), hostAndPort.end());
+        return std::string_view(scheme.begin(), hostAndPort.end());
     }
 }
 
-void SplitUrlToHostAndPath(const TStringBuf url, TStringBuf& host, TStringBuf& path) {
+void SplitUrlToHostAndPath(const std::string_view url, std::string_view& host, std::string_view& path) {
     auto [hostBuf, pathBuf] = NUrl::SplitUrlToHostAndPath(url);
     host = hostBuf;
     path = pathBuf;
 }
 
-void SplitUrlToHostAndPath(const TStringBuf url, TString& host, TString& path) {
+void SplitUrlToHostAndPath(const std::string_view url, std::string& host, std::string& path) {
     auto [hostBuf, pathBuf] = NUrl::SplitUrlToHostAndPath(url);
     host = hostBuf;
     path = pathBuf;
 }
 
-void SeparateUrlFromQueryAndFragment(const TStringBuf url, TStringBuf& sanitizedUrl, TStringBuf& query, TStringBuf& fragment) {
-    TStringBuf urlWithoutFragment;
+void SeparateUrlFromQueryAndFragment(const std::string_view url, std::string_view& sanitizedUrl, std::string_view& query, std::string_view& fragment) {
+    std::string_view urlWithoutFragment;
     if (!url.TrySplit('#', urlWithoutFragment, fragment)) {
         fragment = "";
         urlWithoutFragment = url;
@@ -225,14 +225,14 @@ void SeparateUrlFromQueryAndFragment(const TStringBuf url, TStringBuf& sanitized
     }
 }
 
-bool TryGetSchemeHostAndPort(const TStringBuf url, TStringBuf& scheme, TStringBuf& host, ui16& port) {
+bool TryGetSchemeHostAndPort(const std::string_view url, std::string_view& scheme, std::string_view& host, ui16& port) {
     const size_t schemeSize = GetSchemePrefixSize(url);
     if (schemeSize != 0) {
         scheme = url.Head(schemeSize);
     }
 
-    TStringBuf portStr;
-    TStringBuf hostAndPort = GetHostAndPort(url.Tail(schemeSize));
+    std::string_view portStr;
+    std::string_view hostAndPort = GetHostAndPort(url.Tail(schemeSize));
     if (hostAndPort && hostAndPort.back() != ']' && hostAndPort.TryRSplit(':', host, portStr)) {
         // URL has port
         if (!TryFromString(portStr, port)) {
@@ -240,27 +240,27 @@ bool TryGetSchemeHostAndPort(const TStringBuf url, TStringBuf& scheme, TStringBu
         }
     } else {
         host = hostAndPort;
-        if (scheme == TStringBuf("https://")) {
+        if (scheme == std::string_view("https://")) {
             port = 443;
-        } else if (scheme == TStringBuf("http://")) {
+        } else if (scheme == std::string_view("http://")) {
             port = 80;
         }
     }
     return true;
 }
 
-void GetSchemeHostAndPort(const TStringBuf url, TStringBuf& scheme, TStringBuf& host, ui16& port) {
+void GetSchemeHostAndPort(const std::string_view url, std::string_view& scheme, std::string_view& host, ui16& port) {
     bool isOk = TryGetSchemeHostAndPort(url, scheme, host, port);
     Y_ENSURE(isOk, "cannot parse port number from URL: " << url);
 }
 
-TStringBuf GetOnlyHost(const TStringBuf url) noexcept {
+std::string_view GetOnlyHost(const std::string_view url) noexcept {
     return GetHost(CutSchemePrefix(url));
 }
 
-TStringBuf GetPathAndQuery(const TStringBuf url, bool trimFragment) noexcept {
+std::string_view GetPathAndQuery(const std::string_view url, bool trimFragment) noexcept {
     const size_t off = url.find('/', GetHttpPrefixSize(url));
-    TStringBuf hostUnused, path;
+    std::string_view hostUnused, path;
     if (!url.TrySplitAt(off, hostUnused, path))
         return "/";
 
@@ -268,7 +268,7 @@ TStringBuf GetPathAndQuery(const TStringBuf url, bool trimFragment) noexcept {
 }
 
 // this strange creature returns 2nd level domain, possibly with port
-TStringBuf GetDomain(const TStringBuf host) noexcept {
+std::string_view GetDomain(const std::string_view host) noexcept {
     const char* c = !host ? host.data() : host.end() - 1;
     for (bool wasPoint = false; c != host.data(); --c) {
         if (*c == '.') {
@@ -279,30 +279,30 @@ TStringBuf GetDomain(const TStringBuf host) noexcept {
             wasPoint = true;
         }
     }
-    return TStringBuf(c, host.end());
+    return std::string_view(c, host.end());
 }
 
-TStringBuf GetParentDomain(const TStringBuf host, size_t level) noexcept {
+std::string_view GetParentDomain(const std::string_view host, size_t level) noexcept {
     size_t pos = host.size();
     for (size_t i = 0; i < level; ++i) {
         pos = host.rfind('.', pos);
-        if (pos == TString::npos)
+        if (pos == std::string::npos)
             return host;
     }
     return host.SubStr(pos + 1);
 }
 
-TStringBuf GetZone(const TStringBuf host) noexcept {
+std::string_view GetZone(const std::string_view host) noexcept {
     return GetParentDomain(host, 1);
 }
 
-TStringBuf CutWWWPrefix(const TStringBuf url) noexcept {
+std::string_view CutWWWPrefix(const std::string_view url) noexcept {
     if (url.size() >= 4 && url[3] == '.' && !strnicmp(url.data(), "www", 3))
         return url.substr(4);
     return url;
 }
 
-TStringBuf CutWWWNumberedPrefix(const TStringBuf url) noexcept {
+std::string_view CutWWWNumberedPrefix(const std::string_view url) noexcept {
     auto it = url.begin();
 
     StripRangeBegin(it, url.end(), [](auto& it){ return *it == 'w' || *it == 'W'; });
@@ -322,7 +322,7 @@ TStringBuf CutWWWNumberedPrefix(const TStringBuf url) noexcept {
     return url;
 }
 
-TStringBuf CutMPrefix(const TStringBuf url) noexcept {
+std::string_view CutMPrefix(const std::string_view url) noexcept {
     if (url.size() >= 2 && url[1] == '.' && (url[0] == 'm' || url[0] == 'M')) {
         return url.substr(2);
     }
@@ -333,24 +333,24 @@ static inline bool IsSchemeChar(char c) noexcept {
     return IsAsciiAlnum(c); //what about '+' ?..
 }
 
-static bool HasPrefix(const TStringBuf url) noexcept {
-    TStringBuf scheme, unused;
-    if (!url.TrySplit(TStringBuf("://"), scheme, unused))
+static bool HasPrefix(const std::string_view url) noexcept {
+    std::string_view scheme, unused;
+    if (!url.TrySplit(std::string_view("://"), scheme, unused))
         return false;
 
     return AllOf(scheme, IsSchemeChar);
 }
 
-TString AddSchemePrefix(const TString& url) {
-    return AddSchemePrefix(url, TStringBuf("http"));
+std::string AddSchemePrefix(const std::string& url) {
+    return AddSchemePrefix(url, std::string_view("http"));
 }
 
-TString AddSchemePrefix(const TString& url, TStringBuf scheme) {
+std::string AddSchemePrefix(const std::string& url, std::string_view scheme) {
     if (HasPrefix(url)) {
         return url;
     }
 
-    return TString::Join(scheme, TStringBuf("://"), url);
+    return std::string::Join(scheme, std::string_view("://"), url);
 }
 
 #define X(c) (c >= 'A' ? ((c & 0xdf) - 'A') + 10 : (c - '0'))
@@ -380,7 +380,7 @@ static inline int Unescape(char* str) {
     return dlen;
 }
 
-size_t NormalizeUrlName(char* dest, const TStringBuf source, size_t dest_size) {
+size_t NormalizeUrlName(char* dest, const std::string_view source, size_t dest_size) {
     if (source.empty() || source[0] == '?')
         return strlcpy(dest, "/", dest_size);
     size_t len = Min(dest_size - 1, source.length());
@@ -391,7 +391,7 @@ size_t NormalizeUrlName(char* dest, const TStringBuf source, size_t dest_size) {
     return len;
 }
 
-size_t NormalizeHostName(char* dest, const TStringBuf source, size_t dest_size, ui16 defport) {
+size_t NormalizeHostName(char* dest, const std::string_view source, size_t dest_size, ui16 defport) {
     size_t len = Min(dest_size - 1, source.length());
     memcpy(dest, source.data(), len);
     dest[len] = 0;
@@ -407,22 +407,22 @@ size_t NormalizeHostName(char* dest, const TStringBuf source, size_t dest_size, 
     return len;
 }
 
-TStringBuf RemoveFinalSlash(TStringBuf str) noexcept {
+std::string_view RemoveFinalSlash(std::string_view str) noexcept {
     if (str.EndsWith('/')) {
         str.Chop(1);
     }
     return str;
 }
 
-TStringBuf CutUrlPrefixes(TStringBuf url) noexcept {
+std::string_view CutUrlPrefixes(std::string_view url) noexcept {
     url = CutSchemePrefix(url);
     url = CutWWWPrefix(url);
     return url;
 }
 
-bool DoesUrlPathStartWithToken(TStringBuf url, const TStringBuf& token) noexcept {
+bool DoesUrlPathStartWithToken(std::string_view url, const std::string_view& token) noexcept {
     url = CutSchemePrefix(url);
-    const TStringBuf noHostSuffix = url.After('/');
+    const std::string_view noHostSuffix = url.After('/');
     if (noHostSuffix == url) {
         // no slash => no suffix with token info
         return false;

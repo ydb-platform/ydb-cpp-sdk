@@ -24,10 +24,10 @@ namespace NMonitoring {
     namespace {
         constexpr ui32 MAX_LABEL_VALUE_LEN = 256;
 
-        using TLabelsMap = THashMap<TString, TString>;
+        using TLabelsMap = THashMap<std::string, std::string>;
 
-        TString LabelsToStr(const TLabelsMap& labels) {
-            TStringBuilder sb;
+        std::string LabelsToStr(const TLabelsMap& labels) {
+            TYdbStringBuilder sb;
             auto it = labels.begin();
             auto end = labels.end();
 
@@ -71,11 +71,11 @@ namespace NMonitoring {
             using TBucketData = std::pair<TBucketBound, TBucketValue>;
             constexpr static TBucketData ZERO_BUCKET = { -std::numeric_limits<TBucketBound>::max(), 0 };
         public:
-            TStringBuf GetName() const noexcept {
+            std::string_view GetName() const noexcept {
                 return Name_;
             }
 
-            void SetName(TStringBuf name) noexcept {
+            void SetName(std::string_view name) noexcept {
                 Name_ = name;
             }
 
@@ -105,7 +105,7 @@ namespace NMonitoring {
                 return Bounds_.empty();
             }
 
-            bool Same(TStringBuf name, const TLabelsMap& labels) const noexcept {
+            bool Same(std::string_view name, const TLabelsMap& labels) const noexcept {
                 return Name_ == name && Labels_ == labels;
             }
 
@@ -144,7 +144,7 @@ namespace NMonitoring {
             }
 
         private:
-            TStringBuf Name_;
+            std::string_view Name_;
             TMaybe<TLabelsMap> Labels_;
             TInstant Time_;
             TBucketBounds Bounds_;
@@ -168,7 +168,7 @@ namespace NMonitoring {
         ///////////////////////////////////////////////////////////////////////
         class TPrometheusReader {
         public:
-            TPrometheusReader(TStringBuf data, IMetricConsumer* c, TStringBuf metricNameLabel)
+            TPrometheusReader(std::string_view data, IMetricConsumer* c, std::string_view metricNameLabel)
                 : Data_(data)
                 , Consumer_(c)
                 , MetricNameLabel_(metricNameLabel)
@@ -224,11 +224,11 @@ namespace NMonitoring {
                 SkipExpectedChar('#');
                 SkipSpaces();
 
-                TStringBuf keyword = ReadToken();
-                if (keyword == TStringBuf("TYPE")) {
+                std::string_view keyword = ReadToken();
+                if (keyword == std::string_view("TYPE")) {
                     SkipSpaces();
 
-                    TStringBuf nextName = ReadTokenAsMetricName();
+                    std::string_view nextName = ReadTokenAsMetricName();
                     Y_PARSER_ENSURE(!nextName.Empty(), "invalid metric name");
 
                     SkipSpaces();
@@ -255,7 +255,7 @@ namespace NMonitoring {
 
             // metric_name [labels] value [timestamp]
             void ParseMetric() {
-                TStringBuf name = ReadTokenAsMetricName();
+                std::string_view name = ReadTokenAsMetricName();
                 SkipSpaces();
 
                 TLabelsMap labels = ReadLabels();
@@ -269,7 +269,7 @@ namespace NMonitoring {
                     time = TInstant::MilliSeconds(FromString<ui64>(ReadToken()));
                 }
 
-                TStringBuf baseName = name;
+                std::string_view baseName = name;
                 EPrometheusMetricType type = EPrometheusMetricType::UNTYPED;
 
                 if (auto* seenType = SeenTypes_.FindPtr(name)) {
@@ -357,13 +357,13 @@ namespace NMonitoring {
                 SkipSpaces();
 
                 while (CurrentByte_ != '}') {
-                    TStringBuf name = ReadTokenAsLabelName();
+                    std::string_view name = ReadTokenAsLabelName();
                     SkipSpaces();
 
                     SkipExpectedChar('=');
                     SkipSpaces();
 
-                    TString value = ReadTokenAsLabelValue();
+                    std::string value = ReadTokenAsLabelValue();
                     SkipSpaces();
                     labels.emplace(name, value);
 
@@ -378,7 +378,7 @@ namespace NMonitoring {
             }
 
             EPrometheusMetricType ReadType() {
-                TStringBuf keyword = ReadToken();
+                std::string_view keyword = ReadToken();
                 if (AsciiEqualsIgnoreCase(keyword, "GAUGE")) {
                     return EPrometheusMetricType::GAUGE;
                 } else if (AsciiEqualsIgnoreCase(keyword, "COUNTER")) {
@@ -427,7 +427,7 @@ namespace NMonitoring {
                 }
             }
 
-            TStringBuf ReadToken() {
+            std::string_view ReadToken() {
                 Y_DEBUG_ABORT_UNLESS(CurrentPos_ > 0);
                 size_t begin = CurrentPos_ - 1; // read first byte again
                 while (HasRemaining() && !IsSpace(CurrentByte_) && CurrentByte_ != '\n') {
@@ -436,7 +436,7 @@ namespace NMonitoring {
                 return TokenFromPos(begin);
             }
 
-            TStringBuf ReadTokenAsMetricName() {
+            std::string_view ReadTokenAsMetricName() {
                 if (!NPrometheus::IsValidMetricNameStart(CurrentByte_)) {
                     return "";
                 }
@@ -452,7 +452,7 @@ namespace NMonitoring {
                 return TokenFromPos(begin);
             }
 
-            TStringBuf ReadTokenAsLabelName() {
+            std::string_view ReadTokenAsLabelName() {
                 if (!NPrometheus::IsValidLabelNameStart(CurrentByte_)) {
                     return "";
                 }
@@ -468,8 +468,8 @@ namespace NMonitoring {
                 return TokenFromPos(begin);
             }
 
-            TString ReadTokenAsLabelValue() {
-                TString labelValue;
+            std::string ReadTokenAsLabelValue() {
+                std::string labelValue;
 
                 SkipExpectedChar('"');
                 for (ui32 i = 0; i < MAX_LABEL_VALUE_LEN; i++) {
@@ -507,7 +507,7 @@ namespace NMonitoring {
                 Y_PARSER_FAIL("trying to parse too long label value, size >= " << MAX_LABEL_VALUE_LEN);
             }
 
-            TStringBuf TokenFromPos(size_t begin) {
+            std::string_view TokenFromPos(size_t begin) {
                 Y_DEBUG_ABORT_UNLESS(CurrentPos_ > begin);
                 size_t len = CurrentPos_ - begin - 1;
                 if (len == 0) {
@@ -517,20 +517,20 @@ namespace NMonitoring {
                 return Data_.SubString(begin, len);
             }
 
-            void ConsumeLabels(TStringBuf name, const TLabelsMap& labels) {
+            void ConsumeLabels(std::string_view name, const TLabelsMap& labels) {
                 Y_PARSER_ENSURE(labels.count(MetricNameLabel_) == 0,
                     "label name '" << MetricNameLabel_ <<
                     "' is reserved, but is used with metric: " << name << LabelsToStr(labels));
 
                 Consumer_->OnLabelsBegin();
-                Consumer_->OnLabel(MetricNameLabel_, TString(name)); // TODO: remove this string allocation
+                Consumer_->OnLabel(MetricNameLabel_, std::string(name)); // TODO: remove this string allocation
                 for (const auto& it: labels) {
                     Consumer_->OnLabel(it.first, it.second);
                 }
                 Consumer_->OnLabelsEnd();
             }
 
-            void ConsumeCounter(TStringBuf name, const TLabelsMap& labels, TInstant time, double value) {
+            void ConsumeCounter(std::string_view name, const TLabelsMap& labels, TInstant time, double value) {
                 i64 intValue{0};
                 // not nan
                 if (value == value) {
@@ -546,7 +546,7 @@ namespace NMonitoring {
                 Consumer_->OnMetricEnd();
             }
 
-            void ConsumeGauge(TStringBuf name, const TLabelsMap& labels, TInstant time, double value) {
+            void ConsumeGauge(std::string_view name, const TLabelsMap& labels, TInstant time, double value) {
                 Consumer_->OnMetricBegin(EMetricType::GAUGE);
                 ConsumeLabels(name, labels);
                 Consumer_->OnDouble(time, value);
@@ -562,12 +562,12 @@ namespace NMonitoring {
                 Consumer_->OnMetricEnd();
             }
 
-            double ParseGoDouble(TStringBuf str) {
-                if (str == TStringBuf("+Inf")) {
+            double ParseGoDouble(std::string_view str) {
+                if (str == std::string_view("+Inf")) {
                     return std::numeric_limits<double>::infinity();
-                } else if (str == TStringBuf("-Inf")) {
+                } else if (str == std::string_view("-Inf")) {
                     return -std::numeric_limits<double>::infinity();
-                } else if (str == TStringBuf("NaN")) {
+                } else if (str == std::string_view("NaN")) {
                     return NAN;
                 }
 
@@ -579,10 +579,10 @@ namespace NMonitoring {
             }
 
         private:
-            TStringBuf Data_;
+            std::string_view Data_;
             IMetricConsumer* Consumer_;
-            TStringBuf MetricNameLabel_;
-            THashMap<TString, EPrometheusMetricType> SeenTypes_;
+            std::string_view MetricNameLabel_;
+            THashMap<std::string, EPrometheusMetricType> SeenTypes_;
             THistogramBuilder HistogramBuilder_;
 
             ui32 CurrentLine_ = 1;
@@ -591,7 +591,7 @@ namespace NMonitoring {
         };
     } // namespace
 
-void DecodePrometheus(TStringBuf data, IMetricConsumer* c, TStringBuf metricNameLabel) {
+void DecodePrometheus(std::string_view data, IMetricConsumer* c, std::string_view metricNameLabel) {
     TPrometheusReader reader(data, c, metricNameLabel);
     reader.Read();
 }

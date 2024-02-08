@@ -310,9 +310,9 @@ namespace {
         TPollVec T_;
     };
 
-    struct TUserPoller: public TString {
+    struct TUserPoller: public std::string {
         TUserPoller()
-            : TString(GetEnv("USER_POLLER"))
+            : std::string(GetEnv("USER_POLLER"))
         {
         }
     };
@@ -322,7 +322,7 @@ THolder<IPollerFace> IPollerFace::Default() {
     return Construct(*SingletonWithPriority<TUserPoller, 0>());
 }
 
-THolder<IPollerFace> IPollerFace::Construct(TStringBuf name) {
+THolder<IPollerFace> IPollerFace::Construct(std::string_view name) {
     return Construct(name ? FromString<EContPoller>(name) : EContPoller::Default);
 }
 

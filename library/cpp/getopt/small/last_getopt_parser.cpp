@@ -47,7 +47,7 @@ namespace NLastGetopt {
         DoSwap(OptsSeen_, that.OptsSeen_);
     }
 
-    bool TOptsParser::Commit(const TOpt* currentOpt, const TStringBuf& currentValue, size_t pos, size_t sop) {
+    bool TOptsParser::Commit(const TOpt* currentOpt, const std::string_view& currentValue, size_t pos, size_t sop) {
         Pos_ = pos;
         Sop_ = sop;
         CurrentOpt_ = currentOpt;
@@ -77,7 +77,7 @@ namespace NLastGetopt {
 
     bool TOptsParser::ParseUnknownShortOptWithinArg(size_t pos, size_t sop) {
         Y_ASSERT(pos < Argc_);
-        const TStringBuf arg(Argv_[pos]);
+        const std::string_view arg(Argv_[pos]);
         Y_ASSERT(sop > 0);
         Y_ASSERT(sop < arg.length());
         Y_ASSERT(EIO_NONE != IsOpt(arg));
@@ -107,7 +107,7 @@ namespace NLastGetopt {
 
     bool TOptsParser::ParseShortOptWithinArg(size_t pos, size_t sop) {
         Y_ASSERT(pos < Argc_);
-        const TStringBuf arg(Argv_[pos]);
+        const std::string_view arg(Argv_[pos]);
         Y_ASSERT(sop > 0);
         Y_ASSERT(sop < arg.length());
         Y_ASSERT(EIO_NONE != IsOpt(arg));
@@ -129,7 +129,7 @@ namespace NLastGetopt {
 
     bool TOptsParser::ParseShortOptArg(size_t pos) {
         Y_ASSERT(pos < Argc_);
-        const TStringBuf arg(Argv_[pos]);
+        const std::string_view arg(Argv_[pos]);
         Y_ASSERT(EIO_NONE != IsOpt(arg));
         Y_ASSERT(!arg.StartsWith("--"));
         return ParseShortOptWithinArg(pos, 1);
@@ -137,14 +137,14 @@ namespace NLastGetopt {
 
     bool TOptsParser::ParseOptArg(size_t pos) {
         Y_ASSERT(pos < Argc_);
-        TStringBuf arg(Argv_[pos]);
+        std::string_view arg(Argv_[pos]);
         const EIsOpt eio = IsOpt(arg);
         Y_ASSERT(EIO_NONE != eio);
         if (EIO_DDASH == eio || EIO_PLUS == eio || (Opts_->AllowSingleDashForLong_ || !Opts_->HasAnyShortOption())) {
             // long option
             bool singleCharPrefix = EIO_DDASH != eio;
             arg.Skip(singleCharPrefix ? 1 : 2);
-            TStringBuf optionName = arg.NextTok('=');
+            std::string_view optionName = arg.NextTok('=');
             const TOpt* option = Opts_->FindLongOption(optionName);
             if (!option) {
                 if (singleCharPrefix && !arg.IsInited()) {
@@ -178,14 +178,14 @@ namespace NLastGetopt {
                 throw TUsageException() << "option " << opt->ToShortString() << " must have arg";
             return Commit(opt, nullptr, pos, 0);
         }
-        const TStringBuf arg(Argv_[pos]);
+        const std::string_view arg(Argv_[pos]);
         if (!arg.StartsWith('-') || opt->GetHasArg() == REQUIRED_ARGUMENT) {
             return Commit(opt, arg, pos + 1, 0);
         }
         return Commit(opt, nullptr, pos, 0);
     }
 
-    TOptsParser::EIsOpt TOptsParser::IsOpt(const TStringBuf& arg) const {
+    TOptsParser::EIsOpt TOptsParser::IsOpt(const std::string_view& arg) const {
         EIsOpt eio = EIO_NONE;
         if (1 < arg.length()) {
             switch (arg[0]) {
@@ -266,7 +266,7 @@ namespace NLastGetopt {
             return ParseShortOptWithinArg(Pos_, Sop_);
 
         size_t pos = Pos_;
-        const TStringBuf arg(Argv_[pos]);
+        const std::string_view arg(Argv_[pos]);
         if (EIO_NONE != IsOpt(arg)) {
             return ParseOptArg(pos);
         } else if (arg == "--") {
@@ -333,7 +333,7 @@ namespace NLastGetopt {
         if (optvec.size() == OptsSeen_.size())
             return;
 
-        std::vector<TString> missingLong;
+        std::vector<std::string> missingLong;
         std::vector<char> missingShort;
 
         TOpts::TOptsVector::const_iterator it;

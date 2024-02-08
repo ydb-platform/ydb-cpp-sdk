@@ -23,21 +23,21 @@ namespace NYT {
 struct TDefaultFormatter
 {
     template <class T>
-    void operator()(TStringBuilderBase* builder, const T& obj) const
+    void operator()(TYdbStringBuilderBase* builder, const T& obj) const
     {
-        FormatValue(builder, obj, TStringBuf("v"));
+        FormatValue(builder, obj, std::string_view("v"));
     }
 };
 
-static constexpr TStringBuf DefaultJoinToStringDelimiter = ", ";
-static constexpr TStringBuf DefaultKeyValueDelimiter = ": ";
-static constexpr TStringBuf DefaultRangeEllipsisFormat = "...";
+static constexpr std::string_view DefaultJoinToStringDelimiter = ", ";
+static constexpr std::string_view DefaultKeyValueDelimiter = ": ";
+static constexpr std::string_view DefaultRangeEllipsisFormat = "...";
 
 // ASCII characters from 0x20 = ' ' to 0x7e = '~' are printable.
 static constexpr char PrintableASCIILow = 0x20;
 static constexpr char PrintableASCIIHigh = 0x7e;
-static constexpr TStringBuf IntToHexLowercase = "0123456789abcdef";
-static constexpr TStringBuf IntToHexUppercase = "0123456789ABCDEF";
+static constexpr std::string_view IntToHexLowercase = "0123456789abcdef";
+static constexpr std::string_view IntToHexUppercase = "0123456789ABCDEF";
 
 //! Joins a range of items into a string intermixing them with the delimiter.
 /*!
@@ -50,11 +50,11 @@ static constexpr TStringBuf IntToHexUppercase = "0123456789ABCDEF";
  */
 template <class TIterator, class TFormatter>
 void JoinToString(
-    TStringBuilderBase* builder,
+    TYdbStringBuilderBase* builder,
     const TIterator& begin,
     const TIterator& end,
     const TFormatter& formatter,
-    TStringBuf delimiter = DefaultJoinToStringDelimiter)
+    std::string_view delimiter = DefaultJoinToStringDelimiter)
 {
     for (auto current = begin; current != end; ++current) {
         if (current != begin) {
@@ -65,23 +65,23 @@ void JoinToString(
 }
 
 template <class TIterator, class TFormatter>
-TString JoinToString(
+std::string JoinToString(
     const TIterator& begin,
     const TIterator& end,
     const TFormatter& formatter,
-    TStringBuf delimiter = DefaultJoinToStringDelimiter)
+    std::string_view delimiter = DefaultJoinToStringDelimiter)
 {
-    TStringBuilder builder;
+    TYdbStringBuilder builder;
     JoinToString(&builder, begin, end, formatter, delimiter);
     return builder.Flush();
 }
 
 //! A handy shortcut with default formatter.
 template <class TIterator>
-TString JoinToString(
+std::string JoinToString(
     const TIterator& begin,
     const TIterator& end,
-    TStringBuf delimiter = DefaultJoinToStringDelimiter)
+    std::string_view delimiter = DefaultJoinToStringDelimiter)
 {
     return JoinToString(begin, end, TDefaultFormatter(), delimiter);
 }
@@ -93,10 +93,10 @@ TString JoinToString(
  *  \param delimiter A delimiter to be inserted between items; ", " by default.
  */
 template <class TCollection, class TFormatter>
-TString JoinToString(
+std::string JoinToString(
     const TCollection& collection,
     const TFormatter& formatter,
-    TStringBuf delimiter = DefaultJoinToStringDelimiter)
+    std::string_view delimiter = DefaultJoinToStringDelimiter)
 {
     using std::begin;
     using std::end;
@@ -105,21 +105,21 @@ TString JoinToString(
 
 //! A handy shortcut with the default formatter.
 template <class TCollection>
-TString JoinToString(
+std::string JoinToString(
     const TCollection& collection,
-    TStringBuf delimiter = DefaultJoinToStringDelimiter)
+    std::string_view delimiter = DefaultJoinToStringDelimiter)
 {
     return JoinToString(collection, TDefaultFormatter(), delimiter);
 }
 
-//! Concatenates a bunch of TStringBuf-like instances into TString.
+//! Concatenates a bunch of std::string_view-like instances into std::string.
 template <class... Ts>
-TString ConcatToString(Ts... args)
+std::string ConcatToString(Ts... args)
 {
     size_t length = 0;
     ((length += args.length()), ...);
 
-    TString result;
+    std::string result;
     result.reserve(length);
     (result.append(args), ...);
 
@@ -128,15 +128,15 @@ TString ConcatToString(Ts... args)
 
 //! Converts a range of items into strings.
 template <class TIter, class TFormatter>
-std::vector<TString> ConvertToStrings(
+std::vector<std::string> ConvertToStrings(
     const TIter& begin,
     const TIter& end,
     const TFormatter& formatter,
     size_t maxSize = std::numeric_limits<size_t>::max())
 {
-    std::vector<TString> result;
+    std::vector<std::string> result;
     for (auto it = begin; it != end; ++it) {
-        TStringBuilder builder;
+        TYdbStringBuilder builder;
         formatter(&builder, *it);
         result.push_back(builder.Flush());
         if (result.size() == maxSize) {
@@ -148,7 +148,7 @@ std::vector<TString> ConvertToStrings(
 
 //! A handy shortcut with the default formatter.
 template <class TIter>
-std::vector<TString> ConvertToStrings(
+std::vector<std::string> ConvertToStrings(
     const TIter& begin,
     const TIter& end,
     size_t maxSize = std::numeric_limits<size_t>::max())
@@ -163,7 +163,7 @@ std::vector<TString> ConvertToStrings(
  *  \param maxSize Size limit for the resulting vector.
  */
 template <class TCollection, class TFormatter>
-std::vector<TString> ConvertToStrings(
+std::vector<std::string> ConvertToStrings(
     const TCollection& collection,
     const TFormatter& formatter,
     size_t maxSize = std::numeric_limits<size_t>::max())
@@ -175,7 +175,7 @@ std::vector<TString> ConvertToStrings(
 
 //! A handy shortcut with default formatter.
 template <class TCollection>
-std::vector<TString> ConvertToStrings(
+std::vector<std::string> ConvertToStrings(
     const TCollection& collection,
     size_t maxSize = std::numeric_limits<size_t>::max())
 {
@@ -184,14 +184,14 @@ std::vector<TString> ConvertToStrings(
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void UnderscoreCaseToCamelCase(TStringBuilderBase* builder, TStringBuf str);
-TString UnderscoreCaseToCamelCase(TStringBuf str);
+void UnderscoreCaseToCamelCase(TYdbStringBuilderBase* builder, std::string_view str);
+std::string UnderscoreCaseToCamelCase(std::string_view str);
 
-void CamelCaseToUnderscoreCase(TStringBuilderBase* builder, TStringBuf str);
-TString CamelCaseToUnderscoreCase(TStringBuf str);
+void CamelCaseToUnderscoreCase(TYdbStringBuilderBase* builder, std::string_view str);
+std::string CamelCaseToUnderscoreCase(std::string_view str);
 
-TString TrimLeadingWhitespaces(const TString& str);
-TString Trim(const TString& str, const TString& whitespaces);
+std::string TrimLeadingWhitespaces(const std::string& str);
+std::string Trim(const std::string& str, const std::string& whitespaces);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -207,19 +207,19 @@ char* WriteHexIntToBufferBackwards(char* ptr, T value, bool uppercase);
 
 struct TCaseInsensitiveStringHasher
 {
-    size_t operator()(TStringBuf arg) const;
+    size_t operator()(std::string_view arg) const;
 };
 
 struct TCaseInsensitiveStringEqualityComparer
 {
-    bool operator()(TStringBuf lhs, TStringBuf rhs) const;
+    bool operator()(std::string_view lhs, std::string_view rhs) const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool TryParseBool(TStringBuf value, bool* result);
-bool ParseBool(TStringBuf value);
-TStringBuf FormatBool(bool value);
+bool TryParseBool(std::string_view value, bool* result);
+bool ParseBool(std::string_view value);
+std::string_view FormatBool(bool value);
 
 ////////////////////////////////////////////////////////////////////////////////
 

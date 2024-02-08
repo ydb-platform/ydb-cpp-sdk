@@ -6,7 +6,7 @@
 // ATTENTION! MUST CALL DoInitGlobalLog BEFORE USAGE
 
 bool GlobalLogInitialized();
-void DoInitGlobalLog(const TString& logType, const int logLevel, const bool rotation, const bool startAsDaemon, THolder<ILoggerFormatter> formatter = {}, bool threaded = false);
+void DoInitGlobalLog(const std::string& logType, const int logLevel, const bool rotation, const bool startAsDaemon, THolder<ILoggerFormatter> formatter = {}, bool threaded = false);
 void DoInitGlobalLog(THolder<TLogBackend> backend, THolder<ILoggerFormatter> formatter = {});
 
 inline void InitGlobalLog2Null() {
@@ -19,7 +19,7 @@ inline void InitGlobalLog2Console(int loglevel = TLOG_INFO) {
 
 class TGlobalLog: public TLog {
 public:
-    TGlobalLog(const TString& logType, ELogPriority priority = LOG_MAX_PRIORITY)
+    TGlobalLog(const std::string& logType, ELogPriority priority = LOG_MAX_PRIORITY)
         : TLog(logType, priority)
     {
     }
@@ -35,7 +35,7 @@ TGlobalLog* CreateDefaultLogger<TGlobalLog>();
 
 class TNullLog: public TLog {
 public:
-    TNullLog(const TString& logType, ELogPriority priority = LOG_MAX_PRIORITY)
+    TNullLog(const std::string& logType, ELogPriority priority = LOG_MAX_PRIORITY)
         : TLog(logType, priority)
     {
     }
@@ -86,7 +86,7 @@ public:
     } while (0);
 
 namespace NPrivateGlobalLogger {
-    class TVerifyEvent: public TStringStream {
+    class TVerifyEvent: public std::stringStream {
     public:
         ~TVerifyEvent();
         template <class T>
@@ -96,7 +96,7 @@ namespace NPrivateGlobalLogger {
             return *this;
         }
     };
-    class TNullStream: public TStringStream {
+    class TNullStream: public std::stringStream {
     public:
         ~TNullStream() = default;
 

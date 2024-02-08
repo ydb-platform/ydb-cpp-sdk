@@ -5,10 +5,10 @@
 
 namespace NUri {
     namespace {
-        TString AsWin1251(const TString& s) {
+        std::string AsWin1251(const std::string& s) {
             return Recode(CODES_UTF8, CODES_WIN, s);
         }
-        TString AsKoi8(const TString& s) {
+        std::string AsKoi8(const std::string& s) {
             return Recode(CODES_UTF8, CODES_KOI8, s);
         }
     }
@@ -62,7 +62,7 @@ namespace NUri {
             UNIT_ASSERT_VALUES_EQUAL(url.Parse("//server/path", TFeature::FeaturesRobot), TState::ParsedOK);
         }
 
-        const TString links[] = {
+        const std::string links[] = {
             "viewforum.php?f=1&amp;sid=b4568481b67b1d7683bea78634b2e240", "viewforum.php?f=1&sid=b4568481b67b1d7683bea78634b2e240",
             "./viewtopic.php?p=74&amp;sid=6#p74", "./viewtopic.php?p=74&sid=6#p74",
             "viewtopic.php?p=9313&amp;sid=8#9313", "viewtopic.php?p=9313&sid=8#9313",
@@ -149,12 +149,12 @@ namespace NUri {
 
         // Regression test for SEARCH-11283
         Y_UNIT_TEST(RegressionTest11283) {
-            TStringBuf url = "http://xn--n1aaa.пидорасы.com/";
+            std::string_view url = "http://xn--n1aaa.пидорасы.com/";
 
             TUri uri;
             TState::EParsed er = uri.Parse(url, NUri::TParseFlags(NUri::TFeature::FeaturesRobot | NUri::TFeature::FeatureNoRelPath));
             UNIT_ASSERT_VALUES_EQUAL(er, TState::ParsedOK);
-            TStringBuf host = uri.GetHost();
+            std::string_view host = uri.GetHost();
             // Should be properly null-terminated
             UNIT_ASSERT_VALUES_EQUAL(host.size(), strlen(host.data()));
         }

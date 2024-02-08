@@ -14,8 +14,8 @@ void TIndexMonPage::OutputIndexPage(IMonHttpRequest& request) {
 }
 
 void TIndexMonPage::Output(IMonHttpRequest& request) {
-    TStringBuf pathInfo = request.GetPathInfo();
-    if (pathInfo.empty() || pathInfo == TStringBuf("/")) {
+    std::string_view pathInfo = request.GetPathInfo();
+    if (pathInfo.empty() || pathInfo == std::string_view("/")) {
         OutputIndexPage(request);
         return;
     }
@@ -26,7 +26,7 @@ void TIndexMonPage::Output(IMonHttpRequest& request) {
     // analogous to CGI PATH_INFO
     {
         TGuard<TMutex> g(Mtx);
-        TStringBuf pathTmp = request.GetPathInfo();
+        std::string_view pathTmp = request.GetPathInfo();
         for (;;) {
             if (TPagesByPath::iterator i = PagesByPath.find(pathTmp); i != PagesByPath.end()) {
                 found = *i->second;
@@ -35,7 +35,7 @@ void TIndexMonPage::Output(IMonHttpRequest& request) {
                 break;
             }
             size_t slash = pathTmp.find_last_of('/');
-            Y_ABORT_UNLESS(slash != TString::npos);
+            Y_ABORT_UNLESS(slash != std::string::npos);
             pathTmp = pathTmp.substr(0, slash);
             if (!pathTmp) {
                 break;
@@ -43,7 +43,7 @@ void TIndexMonPage::Output(IMonHttpRequest& request) {
         }
     }
     if (found) {
-        THolder<IMonHttpRequest> child(request.MakeChild(found.Get(), TString{pathInfo}));
+        THolder<IMonHttpRequest> child(request.MakeChild(found.Get(), std::string{pathInfo}));
         found->Output(*child);
     } else {
         request.Output() << HTTPNOTFOUND;
@@ -55,7 +55,7 @@ void TIndexMonPage::OutputIndex(IOutputStream& out, bool pathEndsWithSlash) {
     for (auto& Page : Pages) {
         IMonPage* page = Page.Get();
         if (page->IsInIndex()) {
-            TString pathToDir = "";
+            std::string pathToDir = "";
             if (!pathEndsWithSlash) {
                 pathToDir = this->GetPath() + "/";
             }
@@ -76,7 +76,7 @@ void TIndexMonPage::Register(TMonPagePtr page) {
     page->Parent = this;
 }
 
-TIndexMonPage* TIndexMonPage::RegisterIndexPage(const TString& path, const TString& title) {
+TIndexMonPage* TIndexMonPage::RegisterIndexPage(const std::string& path, const std::string& title) {
     TGuard<TMutex> g(Mtx);
     TIndexMonPage* page = VerifyDynamicCast<TIndexMonPage*>(FindPage(path));
     if (page) {
@@ -87,7 +87,7 @@ TIndexMonPage* TIndexMonPage::RegisterIndexPage(const TString& path, const TStri
     return VerifyDynamicCast<TIndexMonPage*>(page);
 }
 
-IMonPage* TIndexMonPage::FindPage(const TString& relativePath) {
+IMonPage* TIndexMonPage::FindPage(const std::string& relativePath) {
     TGuard<TMutex> g(Mtx);
 
     TPagesByPath::iterator i = PagesByPath.find("/" + relativePath);
@@ -98,19 +98,19 @@ IMonPage* TIndexMonPage::FindPage(const TString& relativePath) {
     }
 }
 
-IMonPage* TIndexMonPage::FindPageByAbsolutePath(const TString& absolutePath) {
+IMonPage* TIndexMonPage::FindPageByAbsolutePath(const std::string& absolutePath) {
     TIndexMonPage* page = this;
-    TString path = absolutePath;
+    std::string path = absolutePath;
     while (!path.empty()) {
         while (path.StartsWith('/')) {
             path.erase(0, 1);
         }
-        TString tryPath = path;
+        std::string tryPath = path;
         while (!tryPath.empty()) {
             IMonPage* found = page->FindPage(tryPath);
             if (found == nullptr) {
                 size_t slash = tryPath.find_last_of('/');
-                if (slash == TString::npos) {
+                if (slash == std::string::npos) {
                     return nullptr;
                 }
                 tryPath.resize(slash);
@@ -131,7 +131,7 @@ IMonPage* TIndexMonPage::FindPageByAbsolutePath(const TString& absolutePath) {
     return nullptr;
 }
 
-TIndexMonPage* TIndexMonPage::FindIndexPage(const TString& relativePath) {
+TIndexMonPage* TIndexMonPage::FindIndexPage(const std::string& relativePath) {
     return VerifyDynamicCast<TIndexMonPage*>(FindPage(relativePath));
 }
 

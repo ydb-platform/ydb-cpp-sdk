@@ -29,7 +29,7 @@ namespace NMonitoring {
                         out << "HTTP/1.1 400 Invalid url\r\nConnection: Close\r\n\r\n";
                         return;
                     }
-                    TString path = GetPath();
+                    std::string path = GetPath();
                     if (!path.StartsWith('/')) {
                         out << "HTTP/1.1 400 Bad request\r\nConnection: Close\r\n\r\n";
                         return;
@@ -68,14 +68,14 @@ namespace NMonitoring {
                 const_cast<THttpClient*>(this)->ScanPostParams();
             return PostParams;
         }
-        TStringBuf GetPostContent() const override {
-            return TStringBuf(PostContent.Buffer().Data(), PostContent.Buffer().Size());
+        std::string_view GetPostContent() const override {
+            return std::string_view(PostContent.Buffer().Data(), PostContent.Buffer().Size());
         }
         HTTP_METHOD GetMethod() const override {
             return (HTTP_METHOD)Header.http_method;
         }
         void ScanPostParams() {
-            PostParams.Scan(TStringBuf(PostContent.Buffer().data(), PostContent.Buffer().size()));
+            PostParams.Scan(std::string_view(PostContent.Buffer().data(), PostContent.Buffer().size()));
         }
 
         const THttpHeaders& GetHeaders() const override {
@@ -86,8 +86,8 @@ namespace NMonitoring {
             return defaultHeaders;
         }
 
-        TString GetRemoteAddr() const override {
-            return RemoteAddr ? NAddr::PrintHostAndPort(*RemoteAddr) : TString();
+        std::string GetRemoteAddr() const override {
+            return RemoteAddr ? NAddr::PrintHostAndPort(*RemoteAddr) : std::string();
         }
 
     private:
@@ -118,7 +118,7 @@ namespace NMonitoring {
                 THttpInput in(&io);
                 THttpOutput out(&io, &in);
                 // buffer reply so there will be ne context switching
-                TStringStream s;
+                std::stringStream s;
                 ServeRequest(in, s, RemoteAddr, Parent.Handler);
                 out << s.Str();
                 out.Finish();
@@ -133,7 +133,7 @@ namespace NMonitoring {
         const TCoHttpServer& Parent;
     };
 
-    TCoHttpServer::TCoHttpServer(TContExecutor& executor, const TString& bindAddr, TIpPort port, THandler handler)
+    TCoHttpServer::TCoHttpServer(TContExecutor& executor, const std::string& bindAddr, TIpPort port, THandler handler)
         : Executor(executor)
         , Listener(this, &executor)
         , Handler(std::move(handler))

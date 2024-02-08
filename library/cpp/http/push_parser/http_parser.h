@@ -67,7 +67,7 @@ public:
         return ExtraDataSize_;
     }
 
-    const TString& FirstLine() const noexcept {
+    const std::string& FirstLine() const noexcept {
         return FirstLine_;
     }
 
@@ -96,13 +96,13 @@ public:
         return true;
     }
 
-    TString GetBestCompressionScheme() const;
+    std::string GetBestCompressionScheme() const;
 
-    const TString& Content() const noexcept {
+    const std::string& Content() const noexcept {
         return Content_;
     }
 
-    const TString& DecodedContent() const noexcept {
+    const std::string& DecodedContent() const noexcept {
         return DecodedContent_;
     }
 
@@ -131,13 +131,13 @@ private:
     // continue read to CurrentLine_
     bool ReadLine();
 
-    void ParseHttpVersion(TStringBuf httpVersion);
+    void ParseHttpVersion(std::string_view httpVersion);
     void ParseHeaderLine();
 
     void OnEof();
     bool DecodeContent();
 
-    void ApplyHeaderLine(const TStringBuf& name, const TStringBuf& val);
+    void ApplyHeaderLine(const std::string_view& name, const std::string_view& val);
 
     typedef bool (THttpParser::*TParser)();
 
@@ -151,20 +151,20 @@ private:
     // parsed data
     const char* Data_ = nullptr;
     const char* DataEnd_ = nullptr;
-    TString CurrentLine_;
-    TString HeaderLine_;
+    std::string CurrentLine_;
+    std::string HeaderLine_;
 
     size_t ExtraDataSize_ = 0;
 
     // headers
-    TString FirstLine_;
+    std::string FirstLine_;
     THttpVersion HttpVersion_;
     unsigned RetCode_ = 0;
     THttpHeaders Headers_;
     bool KeepAlive_ = false;
-    THashSet<TString> AcceptEncodings_;
+    THashSet<std::string> AcceptEncodings_;
 
-    TString ContentEncoding_;
+    std::string ContentEncoding_;
     bool HasContentLength_ = false;
     ui64 ContentLength_ = 0;
 
@@ -175,6 +175,6 @@ private:
 
     TAutoPtr<TChunkInputState> ChunkInputState_;
 
-    TString Content_;
-    TString DecodedContent_;
+    std::string Content_;
+    std::string DecodedContent_;
 };

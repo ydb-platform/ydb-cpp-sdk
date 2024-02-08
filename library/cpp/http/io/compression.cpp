@@ -55,11 +55,11 @@ TCompressionCodecFactory::TCompressionCodecFactory() {
             return MakeHolder<NBlockCodecs::TDecodedInput>(s, codec);
         };
 
-        Add(TString("z-") + codecName, dec, enc);
+        Add(std::string("z-") + codecName, dec, enc);
     }
 }
 
-void TCompressionCodecFactory::Add(TStringBuf name, TDecoderConstructor d, TEncoderConstructor e) {
+void TCompressionCodecFactory::Add(std::string_view name, TDecoderConstructor d, TEncoderConstructor e) {
     Strings_.emplace_back(name);
     Codecs_[Strings_.back()] = TCodec{d, e};
     BestCodecs_.emplace_back(Strings_.back());

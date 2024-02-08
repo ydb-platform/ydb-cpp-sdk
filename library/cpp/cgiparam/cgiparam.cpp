@@ -7,19 +7,19 @@
 
 #include <string>
 
-TCgiParameters::TCgiParameters(std::initializer_list<std::pair<TString, TString>> il) {
+TCgiParameters::TCgiParameters(std::initializer_list<std::pair<std::string, std::string>> il) {
     for (const auto& item : il) {
         insert(item);
     }
 }
 
-const TString& TCgiParameters::Get(const TStringBuf name, size_t numOfValue) const noexcept {
+const std::string& TCgiParameters::Get(const std::string_view name, size_t numOfValue) const noexcept {
     const auto it = Find(name, numOfValue);
 
-    return end() == it ? Default<TString>() : it->second;
+    return end() == it ? Default<std::string>() : it->second;
 }
 
-bool TCgiParameters::Erase(const TStringBuf name, size_t pos) {
+bool TCgiParameters::Erase(const std::string_view name, size_t pos) {
     const auto pair = equal_range(static_cast<std::string>(name));
 
     for (auto it = pair.first; it != pair.second; ++it, --pos) {
@@ -32,7 +32,7 @@ bool TCgiParameters::Erase(const TStringBuf name, size_t pos) {
     return false;
 }
 
-bool TCgiParameters::Erase(const TStringBuf name, const TStringBuf val) {
+bool TCgiParameters::Erase(const std::string_view name, const std::string_view val) {
     const auto pair = equal_range(static_cast<std::string>(name));
 
     bool found = false;
@@ -48,7 +48,7 @@ bool TCgiParameters::Erase(const TStringBuf name, const TStringBuf val) {
     return found;
 }
 
-bool TCgiParameters::ErasePattern(const TStringBuf name, const TStringBuf pat) {
+bool TCgiParameters::ErasePattern(const std::string_view name, const std::string_view pat) {
     const auto pair = equal_range(static_cast<std::string>(name));
 
     bool found = false;
@@ -65,7 +65,7 @@ bool TCgiParameters::ErasePattern(const TStringBuf name, const TStringBuf pat) {
     return found;
 }
 
-size_t TCgiParameters::EraseAll(const TStringBuf name) {
+size_t TCgiParameters::EraseAll(const std::string_view name) {
     size_t num = 0;
 
     const auto pair = equal_range(static_cast<std::string>(name));
@@ -76,16 +76,16 @@ size_t TCgiParameters::EraseAll(const TStringBuf name) {
     return num;
 }
 
-void TCgiParameters::JoinUnescaped(const TStringBuf key, char sep, TStringBuf val) {
+void TCgiParameters::JoinUnescaped(const std::string_view key, char sep, std::string_view val) {
     const auto pair = equal_range(static_cast<std::string>(key));
     auto it = pair.first;
 
     if (it == pair.second) { // not found
         if (val.IsInited()) {
-            emplace_hint(it, TString(key), TString(val));
+            emplace_hint(it, std::string(key), std::string(val));
         }
     } else {
-        TString& dst = it->second;
+        std::string& dst = it->second;
 
         for (++it; it != pair.second; erase(it++)) {
             dst += sep;
@@ -99,8 +99,8 @@ void TCgiParameters::JoinUnescaped(const TStringBuf key, char sep, TStringBuf va
     }
 }
 
-static inline TString DoUnescape(const TStringBuf s) {
-    TString res;
+static inline std::string DoUnescape(const std::string_view s) {
+    std::string res;
 
     res.ReserveAndResize(CgiUnescapeBufLen(s.size()));
     res.resize(CgiUnescape(res.begin(), s).size());
@@ -108,58 +108,58 @@ static inline TString DoUnescape(const TStringBuf s) {
     return res;
 }
 
-void TCgiParameters::InsertEscaped(const TStringBuf name, const TStringBuf value) {
+void TCgiParameters::InsertEscaped(const std::string_view name, const std::string_view value) {
     InsertUnescaped(DoUnescape(name), DoUnescape(value));
 }
 
 template <bool addAll, class F>
-static inline void DoScan(const TStringBuf s, F& f) {
+static inline void DoScan(const std::string_view s, F& f) {
     ScanKeyValue<addAll, '&', '='>(s, f);
 }
 
 struct TAddEscaped {
     TCgiParameters* C;
 
-    inline void operator()(const TStringBuf key, const TStringBuf val) {
+    inline void operator()(const std::string_view key, const std::string_view val) {
         C->InsertEscaped(key, val);
     }
 };
 
-void TCgiParameters::Scan(const TStringBuf query, bool form) {
+void TCgiParameters::Scan(const std::string_view query, bool form) {
     Flush();
     form ? ScanAdd(query) : ScanAddAll(query);
 }
 
-void TCgiParameters::ScanAdd(const TStringBuf query) {
+void TCgiParameters::ScanAdd(const std::string_view query) {
     TAddEscaped f = {this};
 
     DoScan<false>(query, f);
 }
 
-void TCgiParameters::ScanAddUnescaped(const TStringBuf query) {
-    auto f = [this](const TStringBuf key, const TStringBuf val) {
+void TCgiParameters::ScanAddUnescaped(const std::string_view query) {
+    auto f = [this](const std::string_view key, const std::string_view val) {
         this->InsertUnescaped(key, val);
     };
 
     DoScan<false>(query, f);
 }
 
-void TCgiParameters::ScanAddAllUnescaped(const TStringBuf query) {
-    auto f = [this](const TStringBuf key, const TStringBuf val) {
+void TCgiParameters::ScanAddAllUnescaped(const std::string_view query) {
+    auto f = [this](const std::string_view key, const std::string_view val) {
         this->InsertUnescaped(key, val);
     };
 
     DoScan<true>(query, f);
 }
 
-void TCgiParameters::ScanAddAll(const TStringBuf query) {
+void TCgiParameters::ScanAddAll(const std::string_view query) {
     TAddEscaped f = {this};
 
     DoScan<true>(query, f);
 }
 
-TString TCgiParameters::Print() const {
-    TString res;
+std::string TCgiParameters::Print() const {
+    std::string res;
 
     res.reserve(PrintSize());
     const char* end = Print(res.begin());
@@ -198,12 +198,12 @@ size_t TCgiParameters::PrintSize() const noexcept {
     return res;
 }
 
-TString TCgiParameters::QuotedPrint(const char* safe) const {
+std::string TCgiParameters::QuotedPrint(const char* safe) const {
     if (empty()) {
-        return TString();
+        return std::string();
     }
 
-    TString res;
+    std::string res;
     res.ReserveAndResize(PrintSize());
 
     char* ptr = res.begin();
@@ -223,7 +223,7 @@ TString TCgiParameters::QuotedPrint(const char* safe) const {
     return res;
 }
 
-TCgiParameters::const_iterator TCgiParameters::Find(const TStringBuf name, size_t pos) const noexcept {
+TCgiParameters::const_iterator TCgiParameters::Find(const std::string_view name, size_t pos) const noexcept {
     const auto pair = equal_range(static_cast<std::string>(name));
 
     for (auto it = pair.first; it != pair.second; ++it, --pos) {
@@ -235,7 +235,7 @@ TCgiParameters::const_iterator TCgiParameters::Find(const TStringBuf name, size_
     return end();
 }
 
-bool TCgiParameters::Has(const TStringBuf name, const TStringBuf value) const noexcept {
+bool TCgiParameters::Has(const std::string_view name, const std::string_view value) const noexcept {
     const auto pair = equal_range(static_cast<std::string>(name));
 
     for (auto it = pair.first; it != pair.second; ++it) {
@@ -247,14 +247,14 @@ bool TCgiParameters::Has(const TStringBuf name, const TStringBuf value) const no
     return false;
 }
 
-TQuickCgiParam::TQuickCgiParam(const TStringBuf cgiParamStr) {
+TQuickCgiParam::TQuickCgiParam(const std::string_view cgiParamStr) {
     UnescapeBuf.reserve(CgiUnescapeBufLen(cgiParamStr.size()));
     char* buf = UnescapeBuf.begin();
 
-    auto f = [this, &buf](const TStringBuf key, const TStringBuf val) {
-        TStringBuf name = CgiUnescapeBuf(buf, key);
+    auto f = [this, &buf](const std::string_view key, const std::string_view val) {
+        std::string_view name = CgiUnescapeBuf(buf, key);
         buf += name.size() + 1;
-        TStringBuf value = CgiUnescapeBuf(buf, val);
+        std::string_view value = CgiUnescapeBuf(buf, val);
         buf += value.size() + 1;
         Y_ASSERT(buf <= UnescapeBuf.begin() + UnescapeBuf.capacity() + 1 /*trailing zero*/);
         emplace(name, value);
@@ -267,7 +267,7 @@ TQuickCgiParam::TQuickCgiParam(const TStringBuf cgiParamStr) {
     }
 }
 
-const TStringBuf& TQuickCgiParam::Get(const TStringBuf name, size_t pos) const noexcept {
+const std::string_view& TQuickCgiParam::Get(const std::string_view name, size_t pos) const noexcept {
     const auto pair = equal_range(static_cast<std::string>(name));
 
     for (auto it = pair.first; it != pair.second; ++it, --pos) {
@@ -276,10 +276,10 @@ const TStringBuf& TQuickCgiParam::Get(const TStringBuf name, size_t pos) const n
         }
     }
 
-    return Default<TStringBuf>();
+    return Default<std::string_view>();
 }
 
-bool TQuickCgiParam::Has(const TStringBuf name, const TStringBuf value) const noexcept {
+bool TQuickCgiParam::Has(const std::string_view name, const std::string_view value) const noexcept {
     const auto pair = equal_range(static_cast<std::string>(name));
 
     for (auto it = pair.first; it != pair.second; ++it) {

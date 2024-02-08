@@ -20,13 +20,13 @@ namespace NLastGetopt {
         IndentGuard Indent();
 
         /// Append a new indented line to the stream.
-        TStringBuilder& Line();
+        TYdbStringBuilder& Line();
 
         /// Collect all lines into a stream.
         void Print(IOutputStream& out);
 
     private:
         int IndentLevel_ = 0;
-        std::vector<std::pair<int, TStringBuilder>> Lines_;
+        std::vector<std::pair<int, TYdbStringBuilder>> Lines_;
     };
 }

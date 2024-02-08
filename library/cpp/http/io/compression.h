@@ -16,7 +16,7 @@ public:
         return *SingletonWithPriority<TCompressionCodecFactory, 0>();
     }
 
-    inline const TDecoderConstructor* FindDecoder(TStringBuf name) const {
+    inline const TDecoderConstructor* FindDecoder(std::string_view name) const {
         if (auto codec = Codecs_.FindPtr(name)) {
             return &codec->Decoder;
         }
@@ -24,7 +24,7 @@ public:
         return nullptr;
     }
 
-    inline const TEncoderConstructor* FindEncoder(TStringBuf name) const {
+    inline const TEncoderConstructor* FindEncoder(std::string_view name) const {
         if (auto codec = Codecs_.FindPtr(name)) {
             return &codec->Encoder;
         }
@@ -32,36 +32,36 @@ public:
         return nullptr;
     }
 
-    inline TArrayRef<const TStringBuf> GetBestCodecs() const {
+    inline TArrayRef<const std::string_view> GetBestCodecs() const {
         return BestCodecs_;
     }
 
 private:
-    void Add(TStringBuf name, TDecoderConstructor d, TEncoderConstructor e);
+    void Add(std::string_view name, TDecoderConstructor d, TEncoderConstructor e);
 
     struct TCodec {
         TDecoderConstructor Decoder;
         TEncoderConstructor Encoder;
     };
 
-    TDeque<TString> Strings_;
-    THashMap<TStringBuf, TCodec> Codecs_;
-    std::vector<TStringBuf> BestCodecs_;
+    TDeque<std::string> Strings_;
+    THashMap<std::string_view, TCodec> Codecs_;
+    std::vector<std::string_view> BestCodecs_;
 };
 
 namespace NHttp {
     template <typename F>
-    TString ChooseBestCompressionScheme(F accepted, TArrayRef<const TStringBuf> available) {
+    std::string ChooseBestCompressionScheme(F accepted, TArrayRef<const std::string_view> available) {
         if (available.empty()) {
             return "identity";
         }
 
         if (accepted("*")) {
-            return TString(available[0]);
+            return std::string(available[0]);
         }
 
         for (const auto& coding : available) {
-            TString s(coding);
+            std::string s(coding);
             if (accepted(s)) {
                 return s;
             }

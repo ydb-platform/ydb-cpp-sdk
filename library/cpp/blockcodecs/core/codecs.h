@@ -7,7 +7,7 @@
 #include <util/generic/yexception.h>
 
 namespace NBlockCodecs {
-    struct TData: public TStringBuf {
+    struct TData: public std::string_view {
         inline TData() = default;
 
         Y_HAS_MEMBER(Data);
@@ -15,13 +15,13 @@ namespace NBlockCodecs {
 
         template <class T, std::enable_if_t<!THasSize<T>::value || !THasData<T>::value, int> = 0>
         inline TData(const T& t)
-            : TStringBuf((const char*)t.data(), t.size())
+            : std::string_view((const char*)t.data(), t.size())
         {
         }
 
         template <class T, std::enable_if_t<THasSize<T>::value && THasData<T>::value, int> = 0>
         inline TData(const T& t)
-            : TStringBuf((const char*)t.Data(), t.Size())
+            : std::string_view((const char*)t.Data(), t.Size())
         {
         }
     };
@@ -44,25 +44,25 @@ namespace NBlockCodecs {
         virtual size_t Compress(const TData& in, void* out) const = 0;
         virtual size_t Decompress(const TData& in, void* out) const = 0;
 
-        virtual TStringBuf Name() const noexcept = 0;
+        virtual std::string_view Name() const noexcept = 0;
 
         // some useful helpers
         void Encode(const TData& in, TBuffer& out) const;
         void Decode(const TData& in, TBuffer& out) const;
 
-        void Encode(const TData& in, TString& out) const;
-        void Decode(const TData& in, TString& out) const;
+        void Encode(const TData& in, std::string& out) const;
+        void Decode(const TData& in, std::string& out) const;
 
-        inline TString Encode(const TData& in) const {
-            TString out;
+        inline std::string Encode(const TData& in) const {
+            std::string out;
 
             Encode(in, out);
 
             return out;
         }
 
-        inline TString Decode(const TData& in) const {
-            TString out;
+        inline std::string Decode(const TData& in) const {
+            std::string out;
 
             Decode(in, out);
 
@@ -74,12 +74,12 @@ namespace NBlockCodecs {
 
     using TCodecPtr = THolder<ICodec>;
 
-    const ICodec* Codec(const TStringBuf& name);
+    const ICodec* Codec(const std::string_view& name);
 
     // some aux methods
-    typedef std::vector<TStringBuf> TCodecList;
+    typedef std::vector<std::string_view> TCodecList;
     TCodecList ListAllCodecs();
-    TString ListAllCodecsAsString();
+    std::string ListAllCodecsAsString();
 
     // SEARCH-8344: Get the size of max possible decompressed block
     size_t GetMaxPossibleDecompressedLength();

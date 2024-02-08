@@ -27,7 +27,7 @@ namespace {
             Add(&Null);
         }
 
-        inline const ICodec* Find(const TStringBuf& name) const {
+        inline const ICodec* Find(const std::string_view& name) const {
             auto it = Registry.find(name);
 
             if (it == Registry.end()) {
@@ -54,15 +54,15 @@ namespace {
             Add(Codecs.back().Get());
         }
 
-        inline void Alias(TStringBuf from, TStringBuf to) {
+        inline void Alias(std::string_view from, std::string_view to) {
             Tmp.emplace_back(from);
             Registry[Tmp.back()] = Registry[to];
         }
 
-        TDeque<TString> Tmp;
+        TDeque<std::string> Tmp;
         TNullCodec Null;
         std::vector<TCodecPtr> Codecs;
-        typedef THashMap<TStringBuf, ICodec*> TRegistry;
+        typedef THashMap<std::string_view, ICodec*> TRegistry;
         TRegistry Registry;
 
         // SEARCH-8344: Global decompressed size limiter (to prevent remote DoS)
@@ -70,7 +70,7 @@ namespace {
     };
 }
 
-const ICodec* NBlockCodecs::Codec(const TStringBuf& name) {
+const ICodec* NBlockCodecs::Codec(const std::string_view& name) {
     return Singleton<TCodecFactory>()->Find(name);
 }
 
@@ -82,15 +82,15 @@ TCodecList NBlockCodecs::ListAllCodecs() {
     return ret;
 }
 
-TString NBlockCodecs::ListAllCodecsAsString() {
-    return JoinSeq(TStringBuf(","), ListAllCodecs());
+std::string NBlockCodecs::ListAllCodecsAsString() {
+    return JoinSeq(std::string_view(","), ListAllCodecs());
 }
 
 void NBlockCodecs::RegisterCodec(TCodecPtr codec) {
     Singleton<TCodecFactory>()->Add(std::move(codec));
 }
 
-void NBlockCodecs::RegisterAlias(TStringBuf from, TStringBuf to) {
+void NBlockCodecs::RegisterAlias(std::string_view from, std::string_view to) {
     Singleton<TCodecFactory>()->Alias(from, to);
 }
 
@@ -127,18 +127,18 @@ void ICodec::Decode(const TData& in, TBuffer& out) const {
     out.Resize(Decompress(in, out.Data()));
 }
 
-void ICodec::Encode(const TData& in, TString& out) const {
+void ICodec::Encode(const TData& in, std::string& out) const {
     const size_t maxLen = MaxCompressedLength(in);
-    out.ReserveAndResize(maxLen);
+    out.resize(maxLen);
 
     size_t actualLen = Compress(in, out.begin());
     Y_ASSERT(actualLen <= maxLen);
     out.resize(actualLen);
 }
 
-void ICodec::Decode(const TData& in, TString& out) const {
+void ICodec::Decode(const TData& in, std::string& out) const {
     const size_t maxLen = GetDecompressedLength(in);
-    out.ReserveAndResize(maxLen);
+    out.resize(maxLen);
 
     size_t actualLen = Decompress(in, out.begin());
     Y_ASSERT(actualLen <= maxLen);

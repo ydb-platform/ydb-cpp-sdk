@@ -6,9 +6,9 @@ namespace NYT {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FormatValue(TStringBuilderBase* builder, const std::monostate&, TStringBuf /*format*/)
+void FormatValue(TYdbStringBuilderBase* builder, const std::monostate&, std::string_view /*format*/)
 {
-    builder->AppendString(TStringBuf("<monostate>"));
+    builder->AppendString(std::string_view("<monostate>"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

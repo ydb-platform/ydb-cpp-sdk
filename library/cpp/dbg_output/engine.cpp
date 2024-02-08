@@ -7,9 +7,9 @@
 #define DBGDUMP_INLINE_IF_INCLUDED
 #endif
 
-DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::String(const TStringBuf& s) {
+DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::String(const std::string_view& s) {
     if (s) {
-        Raw(TString(s).Quote());
+        Raw(std::string(s).Quote());
     } else {
         Raw("(empty)");
     }
@@ -20,7 +20,7 @@ DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::String(const TWtringBuf& s) {
     String(ToString(s));
 }
 
-DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::Raw(const TStringBuf& s) {
+DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::Raw(const std::string_view& s) {
     Stream().Write(s.data(), s.size());
 }
 

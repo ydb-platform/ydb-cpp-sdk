@@ -3,7 +3,7 @@
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////
 
-    TTokenizer::TTokenizer(const TStringBuf& input)
+    TTokenizer::TTokenizer(const std::string_view& input)
         : Input(input)
         , Parsed(0)
     {
@@ -24,11 +24,11 @@ namespace NYson {
         return CurrentToken().GetType();
     }
 
-    TStringBuf TTokenizer::GetCurrentSuffix() const {
+    std::string_view TTokenizer::GetCurrentSuffix() const {
         return Input.Tail(Parsed);
     }
 
-    const TStringBuf& TTokenizer::CurrentInput() const {
+    const std::string_view& TTokenizer::CurrentInput() const {
         return Input;
     }
 

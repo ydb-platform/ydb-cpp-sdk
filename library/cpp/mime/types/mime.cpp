@@ -22,7 +22,7 @@ public:
     const char* StrByExt(const char* ext) const;
 
     MimeTypes MimeByStr(const char* str) const;
-    MimeTypes MimeByStr(const TStringBuf& str) const;
+    MimeTypes MimeByStr(const std::string_view& str) const;
     const char* StrByMime(MimeTypes mime) const;
 
     // Constants
@@ -157,7 +157,7 @@ MimeTypes TMimeTypes::MimeByStr(const char* str) const {
     return Records[it->second].Mime;
 }
 
-MimeTypes TMimeTypes::MimeByStr(const TStringBuf& str) const {
+MimeTypes TMimeTypes::MimeByStr(const std::string_view& str) const {
     TRecordHash::const_iterator it = ContentTypes.find(str);
     if (it == ContentTypes.end())
         return MIME_UNKNOWN;
@@ -196,7 +196,7 @@ MimeTypes mimeByStr(const char* mimeStr) {
     return Singleton<TMimeTypes>()->MimeByStr(mimeStr);
 }
 
-MimeTypes mimeByStr(const TStringBuf& mimeStr) {
+MimeTypes mimeByStr(const std::string_view& mimeStr) {
     return Singleton<TMimeTypes>()->MimeByStr(mimeStr);
 }
 

@@ -7,22 +7,22 @@ namespace NYT {
 ////////////////////////////////////////////////////////////////////////////////
 
 // Forward declarations.
-class TStringBuilderBase;
-class TStringBuilder;
+class TYdbStringBuilderBase;
+class TYdbStringBuilder;
 class TDelimitedStringBuilderWrapper;
 
 template <size_t Length, class... TArgs>
-void Format(TStringBuilderBase* builder, const char (&format)[Length], TArgs&&... args);
+void Format(TYdbStringBuilderBase* builder, const char (&format)[Length], TArgs&&... args);
 template <class... TArgs>
-void Format(TStringBuilderBase* builder, TStringBuf format, TArgs&&... args);
+void Format(TYdbStringBuilderBase* builder, std::string_view format, TArgs&&... args);
 
 ////////////////////////////////////////////////////////////////////////////////
 
 //! A simple helper for constructing strings by a sequence of appends.
-class TStringBuilderBase
+class TYdbStringBuilderBase
 {
 public:
-    virtual ~TStringBuilderBase() = default;
+    virtual ~TYdbStringBuilderBase() = default;
 
     char* Preallocate(size_t size);
 
@@ -30,20 +30,20 @@ public:
 
     size_t GetLength() const;
 
-    TStringBuf GetBuffer() const;
+    std::string_view GetBuffer() const;
 
     void Advance(size_t size);
 
     void AppendChar(char ch);
     void AppendChar(char ch, int n);
 
-    void AppendString(TStringBuf str);
+    void AppendString(std::string_view str);
     void AppendString(const char* str);
 
     template <size_t Length, class... TArgs>
     void AppendFormat(const char (&format)[Length], TArgs&&... args);
     template <class... TArgs>
-    void AppendFormat(TStringBuf format, TArgs&&... args);
+    void AppendFormat(std::string_view format, TArgs&&... args);
 
     void Reset();
 
@@ -60,14 +60,14 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class TStringBuilder
-    : public TStringBuilderBase
+class TYdbStringBuilder
+    : public TYdbStringBuilderBase
 {
 public:
-    TString Flush();
+    std::string Flush();
 
 protected:
-    TString Buffer_;
+    std::string Buffer_;
 
     void DoReset() override;
     void DoReserve(size_t size) override;
@@ -76,7 +76,7 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-TString ToStringViaBuilder(const T& value, TStringBuf spec = TStringBuf("v"));
+std::string ToStringViaBuilder(const T& value, std::string_view spec = std::string_view("v"));
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -86,13 +86,13 @@ class TDelimitedStringBuilderWrapper
 {
 public:
     TDelimitedStringBuilderWrapper(
-        TStringBuilderBase* builder,
-        TStringBuf delimiter = TStringBuf(", "))
+        TYdbStringBuilderBase* builder,
+        std::string_view delimiter = std::string_view(", "))
         : Builder_(builder)
         , Delimiter_(delimiter)
     { }
 
-    TStringBuilderBase* operator->()
+    TYdbStringBuilderBase* operator->()
     {
         if (!FirstCall_) {
             Builder_->AppendString(Delimiter_);
@@ -102,8 +102,8 @@ public:
     }
 
 private:
-    TStringBuilderBase* const Builder_;
-    const TStringBuf Delimiter_;
+    TYdbStringBuilderBase* const Builder_;
+    const std::string_view Delimiter_;
 
     bool FirstCall_ = true;
 };

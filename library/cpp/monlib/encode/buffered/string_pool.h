@@ -5,9 +5,9 @@
 
 namespace NMonitoring {
     ////////////////////////////////////////////////////////////////////////////////
-    // TStringPoolBuilder
+    // std::stringPoolBuilder
     ////////////////////////////////////////////////////////////////////////////////
-    class TStringPoolBuilder {
+    class std::stringPoolBuilder {
     public:
         struct TValue: TNonCopyable {
             TValue(ui32 idx, ui32 freq)
@@ -21,18 +21,18 @@ namespace NMonitoring {
         };
 
     public:
-        const TValue* PutIfAbsent(TStringBuf str);
+        const TValue* PutIfAbsent(std::string_view str);
         const TValue* GetByIndex(ui32 index) const;
 
         /// Determines whether pool must be sorted by value frequencies
-        TStringPoolBuilder& SetSorted(bool sorted) {
+        std::stringPoolBuilder& SetSorted(bool sorted) {
             RequiresSorting_ = sorted;
             return *this;
         }
 
-        TStringPoolBuilder& Build();
+        std::stringPoolBuilder& Build();
 
-        TStringBuf Get(ui32 index) const {
+        std::string_view Get(ui32 index) const {
             if (RequiresSorting_) {
                 Y_ENSURE(IsBuilt_, "Pool must be sorted first");
             }
@@ -40,7 +40,7 @@ namespace NMonitoring {
             return StrVector_.at(index).first;
         }
 
-        TStringBuf Get(const TValue* value) const {
+        std::string_view Get(const TValue* value) const {
             return StrVector_.at(value->Index).first;
         }
 
@@ -62,23 +62,23 @@ namespace NMonitoring {
         }
 
     private:
-        THashMap<TString, TValue> StrMap_;
-        std::vector<std::pair<TStringBuf, TValue*>> StrVector_;
+        THashMap<std::string, TValue> StrMap_;
+        std::vector<std::pair<std::string_view, TValue*>> StrVector_;
         bool RequiresSorting_ = false;
         bool IsBuilt_ = false;
         size_t BytesSize_ = 0;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    // TStringPool
+    // std::stringPool
     ////////////////////////////////////////////////////////////////////////////////
-    class TStringPool {
+    class std::stringPool {
     public:
-        TStringPool(const char* data, ui32 size) {
+        std::stringPool(const char* data, ui32 size) {
             InitIndex(data, size);
         }
 
-        TStringBuf Get(ui32 i) const {
+        std::string_view Get(ui32 i) const {
             return Index_.at(i);
         }
 
@@ -87,14 +87,14 @@ namespace NMonitoring {
         }
 
         size_t SizeBytes() const {
-            return Index_.capacity() * sizeof(TStringBuf);
+            return Index_.capacity() * sizeof(std::string_view);
         }
 
     private:
         void InitIndex(const char* data, ui32 size);
 
     private:
-        std::vector<TStringBuf> Index_;
+        std::vector<std::string_view> Index_;
     };
 
 }

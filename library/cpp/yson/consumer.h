@@ -8,6 +8,6 @@
 namespace NYson {
     struct TYsonConsumerBase
        : public virtual NYT::NYson::IYsonConsumer {
-        void OnRaw(TStringBuf ysonNode, NYT::NYson::EYsonType type) override;
+        void OnRaw(std::string_view ysonNode, NYT::NYson::EYsonType type) override;
     };
 } // namespace NYson

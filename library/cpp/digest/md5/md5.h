@@ -17,7 +17,7 @@ public:
         return Update(MakeArrayRef(static_cast<const ui8*>(data), len));
     }
 
-    inline MD5& Update(TStringBuf data) {
+    inline MD5& Update(std::string_view data) {
         return Update(data.data(), data.size());
     }
 
@@ -46,24 +46,24 @@ public:
      * Return nullptr / empty string if the file does not exist.
      */
     static char* File(const char* filename, char* buf);
-    static TString File(const TString& filename);
+    static std::string File(const std::string& filename);
 
     static char* Data(const void* data, size_t len, char* buf);
     static char* Data(const TArrayRef<const ui8>& data, char* buf);
-    static TString Data(const TArrayRef<const ui8>& data);
-    static TString Data(TStringBuf data);
+    static std::string Data(const TArrayRef<const ui8>& data);
+    static std::string Data(std::string_view data);
     static char* Stream(IInputStream* in, char* buf);
 
-    static TString Calc(TStringBuf data);                     // 32-byte hex-encoded
-    static TString Calc(const TArrayRef<const ui8>& data);    // 32-byte hex-encoded
-    static TString CalcRaw(TStringBuf data);                  // 16-byte raw
-    static TString CalcRaw(const TArrayRef<const ui8>& data); // 16-byte raw
+    static std::string Calc(std::string_view data);                     // 32-byte hex-encoded
+    static std::string Calc(const TArrayRef<const ui8>& data);    // 32-byte hex-encoded
+    static std::string CalcRaw(std::string_view data);                  // 16-byte raw
+    static std::string CalcRaw(const TArrayRef<const ui8>& data); // 16-byte raw
 
-    static ui64 CalcHalfMix(TStringBuf data);
+    static ui64 CalcHalfMix(std::string_view data);
     static ui64 CalcHalfMix(const TArrayRef<const ui8>& data);
     static ui64 CalcHalfMix(const char* data, size_t len);
 
-    static bool IsMD5(TStringBuf data);
+    static bool IsMD5(std::string_view data);
     static bool IsMD5(const TArrayRef<const ui8>& data);
 
 private:

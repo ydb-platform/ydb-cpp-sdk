@@ -31,7 +31,7 @@ void TStreamWithContextLogBackend::WriteData(const TLogRecord& rec) {
     Slave_->Write(rec.Data, rec.Len);
     Slave_->Write(DELIMITER);
     for (const auto& [key, value] : rec.MetaFlags) {
-        Slave_->Write(TString::Join(key, "=", value));
+        Slave_->Write(std::string::Join(key, "=", value));
         Slave_->Write(DELIMITER);
     }
 }

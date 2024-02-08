@@ -76,9 +76,9 @@ enum HttpCodes {
     HTTP_CODE_MAX
 };
 
-TStringBuf HttpCodeStrEx(int code) noexcept;
+std::string_view HttpCodeStrEx(int code) noexcept;
 
-inline TStringBuf HttpCodeStr(int code) noexcept {
+inline std::string_view HttpCodeStr(int code) noexcept {
     return HttpCodeStrEx(code).Skip(4);
 }
 

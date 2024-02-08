@@ -48,7 +48,7 @@ namespace {
     }
 
     std::string EscapeJson(std::string_view str) {
-        TString result;
+        std::string result;
         NEscJ::EscapeJ<true, true>(str, result);
         return result;
     }

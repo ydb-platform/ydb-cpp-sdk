@@ -16,7 +16,7 @@
 #define DBGOUT(args)
 
 namespace {
-    const TString BestCodings[] = {
+    const std::string BestCodings[] = {
         "gzip",
         "deflate",
         "br",
@@ -30,7 +30,7 @@ namespace {
     };
 }
 
-TString THttpParser::GetBestCompressionScheme() const {
+std::string THttpParser::GetBestCompressionScheme() const {
     if (AcceptEncodings_.contains("*")) {
         return BestCodings[0];
     }
@@ -41,7 +41,7 @@ TString THttpParser::GetBestCompressionScheme() const {
         }
     }
 
-    return TString();
+    return std::string();
 }
 
 bool THttpParser::FirstLineParser() {
@@ -52,17 +52,17 @@ bool THttpParser::FirstLineParser() {
     CurrentLine_.swap(FirstLine_);
 
     try {
-        TStringBuf s(FirstLine_);
+        std::string_view s(FirstLine_);
         if (MessageType_ == Response) {
             // Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
-            TStringBuf httpVersion, statusCode;
+            std::string_view httpVersion, statusCode;
             GetNext(s, ' ', httpVersion);
             ParseHttpVersion(httpVersion);
             GetNext(s, ' ', statusCode);
             RetCode_ = FromString<unsigned>(statusCode);
         } else {
             // Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
-            TStringBuf httpVersion = s.After(' ').After(' ');
+            std::string_view httpVersion = s.After(' ').After(' ');
             ParseHttpVersion(httpVersion);
         }
     } catch (...) {
@@ -157,7 +157,7 @@ bool THttpParser::ChunkedContentParser() {
             }
             Y_ENSURE(CurrentLine_.size(), "NEH: LeftBytes hex number cannot be empty. ");
             size_t size = CurrentLine_.find_first_of(" \t;");
-            if (size == TString::npos) {
+            if (size == std::string::npos) {
                 size = CurrentLine_.size();
             }
             ci.LeftBytes_ = IntFromString<ui32, 16, char>(CurrentLine_.c_str(), size);
@@ -190,10 +190,10 @@ bool THttpParser::OnEndParsing() {
 
 //continue read to CurrentLine_
 bool THttpParser::ReadLine() {
-    TStringBuf in(Data_, DataEnd_);
+    std::string_view in(Data_, DataEnd_);
     size_t endl = in.find('\n');
 
-    if (Y_UNLIKELY(endl == TStringBuf::npos)) {
+    if (Y_UNLIKELY(endl == std::string_view::npos)) {
         //input line not completed
         CurrentLine_.append(Data_, DataEnd_);
         return false;
@@ -213,13 +213,13 @@ bool THttpParser::ReadLine() {
     return true;
 }
 
-void THttpParser::ParseHttpVersion(TStringBuf httpVersion) {
+void THttpParser::ParseHttpVersion(std::string_view httpVersion) {
     if (!httpVersion.StartsWith("HTTP/", 5)) {
         throw yexception() << "expect 'HTTP/'";
     }
     httpVersion.Skip(5);
     {
-        TStringBuf major, minor;
+        std::string_view major, minor;
         Split(httpVersion, '.', major, minor);
         HttpVersion_.Major = FromString<unsigned>(major);
         HttpVersion_.Minor = FromString<unsigned>(minor);
@@ -242,12 +242,12 @@ void THttpParser::ParseHeaderLine() {
             //some dirty optimization (avoid reallocation new strings)
             size_t pos = HeaderLine_.find(':');
 
-            if (pos == TString::npos) {
+            if (pos == std::string::npos) {
                 ythrow THttpParseException() << "can not parse http header(" << HeaderLine_.Quote() << ")";
             }
 
-            TStringBuf name(StripString(TStringBuf(HeaderLine_.begin(), HeaderLine_.begin() + pos)));
-            TStringBuf val(StripString(TStringBuf(HeaderLine_.begin() + pos + 1, HeaderLine_.end())));
+            std::string_view name(StripString(std::string_view(HeaderLine_.begin(), HeaderLine_.begin() + pos)));
+            std::string_view val(StripString(std::string_view(HeaderLine_.begin() + pos + 1, HeaderLine_.end())));
             ApplyHeaderLine(name, val);
         }
         HeaderLine_.remove(0);
@@ -258,7 +258,7 @@ void THttpParser::OnEof() {
     if (Parser_ == &THttpParser::ContentParser && !HasContentLength_ && !ChunkInputState_) {
         return; //end of content determined by end of input
     }
-    throw THttpException() << TStringBuf("incompleted http response");
+    throw THttpException() << std::string_view("incompleted http response");
 }
 
 bool THttpParser::DecodeContent() {
@@ -304,7 +304,7 @@ bool THttpParser::DecodeContent() {
         // opposite for library/cpp/http/io/stream.h
         const NBlockCodecs::ICodec* codec = nullptr;
         try {
-            const TStringBuf codecName = TStringBuf(ContentEncoding_).SubStr(2);
+            const std::string_view codecName = std::string_view(ContentEncoding_).SubStr(2);
             if (codecName.StartsWith("zstd06") || codecName.StartsWith("zstd08")) {
                 ythrow NBlockCodecs::TNotFound() << codecName;
             }
@@ -315,7 +315,7 @@ bool THttpParser::DecodeContent() {
         NBlockCodecs::TDecodedInput decoder(&in, codec);
         DecodedContent_ = decoder.ReadAll();
     } else if (ContentEncoding_ == "lz4") {
-        const auto* codec = NBlockCodecs::Codec(TStringBuf(ContentEncoding_));
+        const auto* codec = NBlockCodecs::Codec(std::string_view(ContentEncoding_));
         DecodedContent_ = codec->Decode(Content_);
     } else if (ContentEncoding_ == "br") {
         TBrotliDecompress decoder(&in);
@@ -326,30 +326,30 @@ bool THttpParser::DecodeContent() {
     return true;
 }
 
-void THttpParser::ApplyHeaderLine(const TStringBuf& name, const TStringBuf& val) {
-    if (AsciiEqualsIgnoreCase(name, TStringBuf("connection"))) {
-        KeepAlive_ = AsciiEqualsIgnoreCase(val, TStringBuf("keep-alive"));
-    } else if (AsciiEqualsIgnoreCase(name, TStringBuf("content-length"))) {
+void THttpParser::ApplyHeaderLine(const std::string_view& name, const std::string_view& val) {
+    if (AsciiEqualsIgnoreCase(name, std::string_view("connection"))) {
+        KeepAlive_ = AsciiEqualsIgnoreCase(val, std::string_view("keep-alive"));
+    } else if (AsciiEqualsIgnoreCase(name, std::string_view("content-length"))) {
         Y_ENSURE(val.size(), "NEH: Content-Length cannot be empty string. ");
         ContentLength_ = FromString<ui64>(val);
         HasContentLength_ = true;
-    } else if (AsciiEqualsIgnoreCase(name, TStringBuf("transfer-encoding"))) {
-        if (AsciiEqualsIgnoreCase(val, TStringBuf("chunked"))) {
+    } else if (AsciiEqualsIgnoreCase(name, std::string_view("transfer-encoding"))) {
+        if (AsciiEqualsIgnoreCase(val, std::string_view("chunked"))) {
             ChunkInputState_ = new TChunkInputState();
         }
-    } else if (AsciiEqualsIgnoreCase(name, TStringBuf("accept-encoding"))) {
-        TStringBuf encodings(val);
+    } else if (AsciiEqualsIgnoreCase(name, std::string_view("accept-encoding"))) {
+        std::string_view encodings(val);
         while (encodings.size()) {
-            TStringBuf enc = encodings.NextTok(',').After(' ').Before(' ');
+            std::string_view enc = encodings.NextTok(',').After(' ').Before(' ');
             if (!enc) {
                 continue;
             }
-            TString s(enc);
+            std::string s(enc);
             s.to_lower();
             AcceptEncodings_.insert(s);
         }
-    } else if (AsciiEqualsIgnoreCase(name, TStringBuf("content-encoding"))) {
-        TString s(val);
+    } else if (AsciiEqualsIgnoreCase(name, std::string_view("content-encoding"))) {
+        std::string s(val);
         s.to_lower();
         ContentEncoding_ = s;
     }

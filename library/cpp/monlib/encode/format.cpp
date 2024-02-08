@@ -7,13 +7,13 @@
 #include <util/string/cast.h>
 
 namespace NMonitoring {
-    static ECompression CompressionFromHeader(TStringBuf value) {
+    static ECompression CompressionFromHeader(std::string_view value) {
         if (value.empty()) {
             return ECompression::UNKNOWN;
         }
 
         for (const auto& it : StringSplitter(value).Split(',').SkipEmpty()) {
-            TStringBuf token = StripString(it.Token());
+            std::string_view token = StripString(it.Token());
 
             if (AsciiEqualsIgnoreCase(token, NFormatContentEncoding::IDENTITY)) {
                 return ECompression::IDENTITY;
@@ -29,7 +29,7 @@ namespace NMonitoring {
         return ECompression::UNKNOWN;
     }
 
-    static EFormat FormatFromHttpMedia(TStringBuf value) {
+    static EFormat FormatFromHttpMedia(std::string_view value) {
         if (AsciiEqualsIgnoreCase(value, NFormatContenType::SPACK)) {
             return EFormat::SPACK;
         } else if (AsciiEqualsIgnoreCase(value, NFormatContenType::JSON)) {
@@ -47,11 +47,11 @@ namespace NMonitoring {
         return EFormat::UNKNOWN;
     }
 
-    EFormat FormatFromAcceptHeader(TStringBuf value) {
+    EFormat FormatFromAcceptHeader(std::string_view value) {
         EFormat result{EFormat::UNKNOWN};
 
         for (const auto& it : StringSplitter(value).Split(',').SkipEmpty()) {
-            TStringBuf token = StripString(it.Token()).Before(';');
+            std::string_view token = StripString(it.Token()).Before(';');
 
             result = FormatFromHttpMedia(token);
             if (result != EFormat::UNKNOWN) {
@@ -62,13 +62,13 @@ namespace NMonitoring {
         return result;
     }
 
-    EFormat FormatFromContentType(TStringBuf value) {
+    EFormat FormatFromContentType(std::string_view value) {
         value = value.NextTok(';');
 
         return FormatFromHttpMedia(value);
     }
 
-    TStringBuf ContentTypeByFormat(EFormat format) {
+    std::string_view ContentTypeByFormat(EFormat format) {
         switch (format) {
             case EFormat::SPACK:
                 return NFormatContenType::SPACK;
@@ -83,21 +83,21 @@ namespace NMonitoring {
             case EFormat::UNISTAT:
                 return NFormatContenType::UNISTAT;
             case EFormat::UNKNOWN:
-                return TStringBuf();
+                return std::string_view();
         }
 
         Y_ABORT(); // for GCC
     }
 
-    ECompression CompressionFromAcceptEncodingHeader(TStringBuf value) {
+    ECompression CompressionFromAcceptEncodingHeader(std::string_view value) {
         return CompressionFromHeader(value);
     }
 
-    ECompression CompressionFromContentEncodingHeader(TStringBuf value) {
+    ECompression CompressionFromContentEncodingHeader(std::string_view value) {
         return CompressionFromHeader(value);
     }
 
-    TStringBuf ContentEncodingByCompression(ECompression compression) {
+    std::string_view ContentEncodingByCompression(ECompression compression) {
         switch (compression) {
             case ECompression::IDENTITY:
                 return NFormatContentEncoding::IDENTITY;
@@ -108,7 +108,7 @@ namespace NMonitoring {
             case ECompression::ZSTD:
                 return NFormatContentEncoding::ZSTD;
             case ECompression::UNKNOWN:
-                return TStringBuf();
+                return std::string_view();
         }
 
         Y_ABORT(); // for GCC
@@ -119,20 +119,20 @@ namespace NMonitoring {
 template <>
 NMonitoring::EFormat FromStringImpl<NMonitoring::EFormat>(const char* str, size_t len) {
     using NMonitoring::EFormat;
-    TStringBuf value(str, len);
-    if (value == TStringBuf("SPACK")) {
+    std::string_view value(str, len);
+    if (value == std::string_view("SPACK")) {
         return EFormat::SPACK;
-    } else if (value == TStringBuf("JSON")) {
+    } else if (value == std::string_view("JSON")) {
         return EFormat::JSON;
-    } else if (value == TStringBuf("PROTOBUF")) {
+    } else if (value == std::string_view("PROTOBUF")) {
         return EFormat::PROTOBUF;
-    } else if (value == TStringBuf("TEXT")) {
+    } else if (value == std::string_view("TEXT")) {
         return EFormat::TEXT;
-    } else if (value == TStringBuf("PROMETHEUS")) {
+    } else if (value == std::string_view("PROMETHEUS")) {
         return EFormat::PROMETHEUS;
-    } else if (value == TStringBuf("UNISTAT")) {
+    } else if (value == std::string_view("UNISTAT")) {
         return EFormat::UNISTAT;
-    } else if (value == TStringBuf("UNKNOWN")) {
+    } else if (value == std::string_view("UNKNOWN")) {
         return EFormat::UNKNOWN;
     }
     ythrow yexception() << "unknown format: " << value;
@@ -143,25 +143,25 @@ void Out<NMonitoring::EFormat>(IOutputStream& o, NMonitoring::EFormat f) {
     using NMonitoring::EFormat;
     switch (f) {
         case EFormat::SPACK:
-            o << TStringBuf("SPACK");
+            o << std::string_view("SPACK");
             return;
         case EFormat::JSON:
-            o << TStringBuf("JSON");
+            o << std::string_view("JSON");
             return;
         case EFormat::PROTOBUF:
-            o << TStringBuf("PROTOBUF");
+            o << std::string_view("PROTOBUF");
             return;
         case EFormat::TEXT:
-            o << TStringBuf("TEXT");
+            o << std::string_view("TEXT");
             return;
         case EFormat::PROMETHEUS:
-            o << TStringBuf("PROMETHEUS");
+            o << std::string_view("PROMETHEUS");
             return;
         case EFormat::UNISTAT:
-            o << TStringBuf("UNISTAT");
+            o << std::string_view("UNISTAT");
             return;
         case EFormat::UNKNOWN:
-            o << TStringBuf("UNKNOWN");
+            o << std::string_view("UNKNOWN");
             return;
     }
 
@@ -171,16 +171,16 @@ void Out<NMonitoring::EFormat>(IOutputStream& o, NMonitoring::EFormat f) {
 template <>
 NMonitoring::ECompression FromStringImpl<NMonitoring::ECompression>(const char* str, size_t len) {
     using NMonitoring::ECompression;
-    TStringBuf value(str, len);
-    if (value == TStringBuf("IDENTITY")) {
+    std::string_view value(str, len);
+    if (value == std::string_view("IDENTITY")) {
         return ECompression::IDENTITY;
-    } else if (value == TStringBuf("ZLIB")) {
+    } else if (value == std::string_view("ZLIB")) {
         return ECompression::ZLIB;
-    } else if (value == TStringBuf("LZ4")) {
+    } else if (value == std::string_view("LZ4")) {
         return ECompression::LZ4;
-    } else if (value == TStringBuf("ZSTD")) {
+    } else if (value == std::string_view("ZSTD")) {
         return ECompression::ZSTD;
-    } else if (value == TStringBuf("UNKNOWN")) {
+    } else if (value == std::string_view("UNKNOWN")) {
         return ECompression::UNKNOWN;
     }
     ythrow yexception() << "unknown compression: " << value;
@@ -191,19 +191,19 @@ void Out<NMonitoring::ECompression>(IOutputStream& o, NMonitoring::ECompression 
     using NMonitoring::ECompression;
     switch (c) {
         case ECompression::IDENTITY:
-            o << TStringBuf("IDENTITY");
+            o << std::string_view("IDENTITY");
             return;
         case ECompression::ZLIB:
-            o << TStringBuf("ZLIB");
+            o << std::string_view("ZLIB");
             return;
         case ECompression::LZ4:
-            o << TStringBuf("LZ4");
+            o << std::string_view("LZ4");
             return;
         case ECompression::ZSTD:
-            o << TStringBuf("ZSTD");
+            o << std::string_view("ZSTD");
             return;
         case ECompression::UNKNOWN:
-            o << TStringBuf("UNKNOWN");
+            o << std::string_view("UNKNOWN");
             return;
     }
 

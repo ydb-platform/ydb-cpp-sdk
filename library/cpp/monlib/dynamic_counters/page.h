@@ -27,8 +27,8 @@ namespace NMonitoring {
         void HandleAbsentSubgroup(IMonHttpRequest& request);
 
     public:
-        TDynamicCountersPage(const TString& path,
-                             const TString& title,
+        TDynamicCountersPage(const std::string& path,
+                             const std::string& title,
                              TIntrusivePtr<TDynamicCounters> counters,
                              TOutputCallback outputCallback = nullptr)
             : TPreMonPage(path, title)

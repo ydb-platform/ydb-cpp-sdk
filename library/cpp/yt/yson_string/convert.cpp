@@ -36,7 +36,7 @@ TYsonString ConvertToYsonString<i64>(const i64& value)
     auto* ptr = buffer.data();
     *ptr++ = NDetail::Int64Marker;
     ptr += WriteVarInt64(ptr, value);
-    return TYsonString(TStringBuf(buffer.data(), ptr - buffer.data()));
+    return TYsonString(std::string_view(buffer.data(), ptr - buffer.data()));
 }
 
 template <>
@@ -58,20 +58,20 @@ TYsonString ConvertToYsonString<ui64>(const ui64& value)
     auto* ptr = buffer.data();
     *ptr++ = NDetail::Uint64Marker;
     ptr += WriteVarUint64(ptr, value);
-    return TYsonString(TStringBuf(buffer.data(), ptr - buffer.data()));
+    return TYsonString(std::string_view(buffer.data(), ptr - buffer.data()));
 }
 
 template <>
-TYsonString ConvertToYsonString<TString>(const TString& value)
+TYsonString ConvertToYsonString<std::string>(const std::string& value)
 {
-    return ConvertToYsonString(static_cast<TStringBuf>(value));
+    return ConvertToYsonString(static_cast<std::string_view>(value));
 }
 
 struct TConvertStringToYsonStringTag
 { };
 
 template <>
-TYsonString ConvertToYsonString<TStringBuf>(const TStringBuf& value)
+TYsonString ConvertToYsonString<std::string_view>(const std::string_view& value)
 {
     auto buffer = TSharedMutableRef::Allocate<TConvertStringToYsonStringTag>(
         1 + MaxVarInt64Size + value.length(),
@@ -86,7 +86,7 @@ TYsonString ConvertToYsonString<TStringBuf>(const TStringBuf& value)
 
 TYsonString ConvertToYsonString(const char* value)
 {
-    return ConvertToYsonString(TStringBuf(value));
+    return ConvertToYsonString(std::string_view(value));
 }
 
 template <>
@@ -103,14 +103,14 @@ TYsonString ConvertToYsonString<double>(const double& value)
     *ptr++ = NDetail::DoubleMarker;
     ::memcpy(ptr, &value, sizeof(value));
     ptr += sizeof(value);
-    return TYsonString(TStringBuf(buffer.data(), ptr - buffer.data()));
+    return TYsonString(std::string_view(buffer.data(), ptr - buffer.data()));
 }
 
 template <>
 TYsonString ConvertToYsonString<bool>(const bool& value)
 {
     char ch = value ? NDetail::TrueMarker : NDetail::FalseMarker;
-    return TYsonString(TStringBuf(&ch, 1));
+    return TYsonString(std::string_view(&ch, 1));
 }
 
 template <>
@@ -136,14 +136,14 @@ TYsonString ConvertToYsonString<TGuid>(const TGuid& value)
     ptr += WriteVarInt64(ptr, static_cast<i64>(guidLength));
     ::memcpy(ptr, guidBuffer.data(), guidLength);
     ptr += guidLength;
-    return TYsonString(TStringBuf(ysonBuffer.data(), ptr - ysonBuffer.data()));
+    return TYsonString(std::string_view(ysonBuffer.data(), ptr - ysonBuffer.data()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace {
 
-TString FormatUnexpectedMarker(char ch)
+std::string FormatUnexpectedMarker(char ch)
 {
     switch (ch) {
         case NDetail::BeginListSymbol:
@@ -214,7 +214,7 @@ ui64 ParseUint64FromYsonString(const TYsonStringBuf& str)
     return result;
 }
 
-TString ParseStringFromYsonString(const TYsonStringBuf& str)
+std::string ParseStringFromYsonString(const TYsonStringBuf& str)
 {
     YT_ASSERT(str.GetType() == EYsonType::Node);
     auto strBuf = str.AsStringBuf();
@@ -242,7 +242,7 @@ TString ParseStringFromYsonString(const TYsonStringBuf& str)
             length,
             input.Avail()));
     }
-    TString result;
+    std::string result;
     result.ReserveAndResize(length);
     YT_VERIFY(static_cast<i64>(input.Read(result.Detach(), length)) == length);
     return result;
@@ -296,7 +296,7 @@ PARSE(ui64, Uint64)
 #undef PARSE
 
 template <>
-TString ConvertFromYsonString<TString>(const TYsonStringBuf& str)
+std::string ConvertFromYsonString<std::string>(const TYsonStringBuf& str)
 {
     try {
         return ParseStringFromYsonString(str);

@@ -7,7 +7,7 @@
 
 class TSyncPageCacheFileLogBackend final: public TLogBackend {
 public:
-    TSyncPageCacheFileLogBackend(const TString& path, size_t maxBufferSize, size_t maxPendingCacheSize);
+    TSyncPageCacheFileLogBackend(const std::string& path, size_t maxBufferSize, size_t maxPendingCacheSize);
     ~TSyncPageCacheFileLogBackend();
 
     void WriteData(const TLogRecord& rec) override;

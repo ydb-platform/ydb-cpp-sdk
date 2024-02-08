@@ -12,7 +12,7 @@ namespace {
 TEST(TYsonStringTest, SaveLoadNull)
 {
     const TYsonString expected;
-    TStringStream s;
+    std::stringStream s;
     ::Save(&s, expected);
     TYsonString result;
     ::Load(&s, result);
@@ -21,8 +21,8 @@ TEST(TYsonStringTest, SaveLoadNull)
 
 TEST(TYsonStringTest, SaveLoadString)
 {
-    const TYsonString expected(TString("My tests data"));
-    TStringStream s;
+    const TYsonString expected(std::string("My tests data"));
+    std::stringStream s;
     ::Save(&s, expected);
     TYsonString result;
     ::Load(&s, result);
@@ -33,7 +33,7 @@ TEST(TYsonStringTest, SaveLoadSharedRef)
 {
     TSharedRef ref = TSharedRef::FromString("My tests data");
     const TYsonString expected(ref);
-    TStringStream s;
+    std::stringStream s;
     ::Save(&s, expected);
     TYsonString result;
     ::Load(&s, result);

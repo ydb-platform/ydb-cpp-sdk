@@ -31,27 +31,27 @@ namespace NJson {
             return p;
         }
 
-        bool Prettify(TStringBuf in, IOutputStream& out) const;
+        bool Prettify(std::string_view in, IOutputStream& out) const;
 
-        TString Prettify(TStringBuf in) const;
+        std::string Prettify(std::string_view in) const;
 
-        static bool MayUnquoteNew(TStringBuf in);
-        static bool MayUnquoteOld(TStringBuf in);
+        static bool MayUnquoteNew(std::string_view in);
+        static bool MayUnquoteOld(std::string_view in);
     };
 
-    inline TString PrettifyJson(TStringBuf in, bool unquote = false, ui8 padding = 4, bool sq = false) {
+    inline std::string PrettifyJson(std::string_view in, bool unquote = false, ui8 padding = 4, bool sq = false) {
         return TJsonPrettifier::Prettifier(unquote, padding, sq).Prettify(in);
     }
 
-    inline bool PrettifyJson(TStringBuf in, IOutputStream& out, bool unquote = false, ui8 padding = 4, bool sq = false) {
+    inline bool PrettifyJson(std::string_view in, IOutputStream& out, bool unquote = false, ui8 padding = 4, bool sq = false) {
         return TJsonPrettifier::Prettifier(unquote, padding, sq).Prettify(in, out);
     }
 
-    inline bool CompactifyJson(TStringBuf in, IOutputStream& out, bool unquote = false, bool sq = false) {
+    inline bool CompactifyJson(std::string_view in, IOutputStream& out, bool unquote = false, bool sq = false) {
         return TJsonPrettifier::Compactifier(unquote, sq).Prettify(in, out);
     }
 
-    inline TString CompactifyJson(TStringBuf in, bool unquote = false, bool sq = false) {
+    inline std::string CompactifyJson(std::string_view in, bool unquote = false, bool sq = false) {
         return TJsonPrettifier::Compactifier(unquote, sq).Prettify(in);
     }
 

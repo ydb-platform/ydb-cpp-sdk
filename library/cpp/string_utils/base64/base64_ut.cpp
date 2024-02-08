@@ -30,19 +30,19 @@ using namespace std::string_view_literals;
     }                                                                                                                          \
                                                                                                                                \
     Y_DECLARE_UNUSED                                                                                                           \
-    static inline TStringBuf prefix##Base64Decode(const TStringBuf& src, void* dst) {                                          \
-        return TStringBuf((const char*)dst, ::NB64Etalon::prefix##Base64Decode(dst, src.begin(), src.end()));                  \
+    static inline std::string_view prefix##Base64Decode(const std::string_view& src, void* dst) {                                          \
+        return std::string_view((const char*)dst, ::NB64Etalon::prefix##Base64Decode(dst, src.begin(), src.end()));                  \
     }                                                                                                                          \
                                                                                                                                \
     Y_DECLARE_UNUSED                                                                                                           \
-    static inline void prefix##Base64Decode(const TStringBuf& src, TString& dst) {                                             \
+    static inline void prefix##Base64Decode(const std::string_view& src, std::string& dst) {                                             \
         dst.ReserveAndResize(Base64DecodeBufSize(src.size()));                                                                 \
         dst.resize(::NB64Etalon::prefix##Base64Decode(src, dst.begin()).size());                                               \
     }                                                                                                                          \
                                                                                                                                \
     Y_DECLARE_UNUSED                                                                                                           \
-    static inline TString prefix##Base64Decode(const TStringBuf& s) {                                                          \
-        TString ret;                                                                                                           \
+    static inline std::string prefix##Base64Decode(const std::string_view& s) {                                                          \
+        std::string ret;                                                                                                           \
         prefix##Base64Decode(s, ret);                                                                                          \
         return ret;                                                                                                            \
     }                                                                                                                          \
@@ -56,19 +56,19 @@ using namespace std::string_view_literals;
     }                                                                                                                          \
                                                                                                                                \
     Y_DECLARE_UNUSED                                                                                                           \
-    static inline TStringBuf prefix##Base64Encode(const TStringBuf& src, void* tmp) {                                          \
-        return TStringBuf((const char*)tmp, ::NB64Etalon::prefix##Base64Encode((char*)tmp, (const unsigned char*)src.data(), src.size())); \
+    static inline std::string_view prefix##Base64Encode(const std::string_view& src, void* tmp) {                                          \
+        return std::string_view((const char*)tmp, ::NB64Etalon::prefix##Base64Encode((char*)tmp, (const unsigned char*)src.data(), src.size())); \
     }                                                                                                                          \
                                                                                                                                \
     Y_DECLARE_UNUSED                                                                                                           \
-    static inline void prefix##Base64Encode(const TStringBuf& src, TString& dst) {                                             \
+    static inline void prefix##Base64Encode(const std::string_view& src, std::string& dst) {                                             \
         dst.ReserveAndResize(Base64EncodeBufSize(src.size()));                                                                 \
         dst.resize(::NB64Etalon::prefix##Base64Encode(src, dst.begin()).size());                                               \
     }                                                                                                                          \
                                                                                                                                \
     Y_DECLARE_UNUSED                                                                                                           \
-    static inline TString prefix##Base64Encode(const TStringBuf& s) {                                                          \
-        TString ret;                                                                                                           \
+    static inline std::string prefix##Base64Encode(const std::string_view& s) {                                                          \
+        std::string ret;                                                                                                           \
         prefix##Base64Encode(s, ret);                                                                                          \
         return ret;                                                                                                            \
     }
@@ -94,8 +94,8 @@ namespace NB64Etalon {
             MAX_IMPL
         };
 
-        using TEncodeF = void (*)(const TStringBuf&, TString&);
-        using TDecodeF = void (*)(const TStringBuf&, TString&);
+        using TEncodeF = void (*)(const std::string_view&, std::string&);
+        using TDecodeF = void (*)(const std::string_view&, std::string&);
 
         struct TImpl {
             TEncodeF Encode = nullptr;
@@ -141,30 +141,30 @@ template <>
 void Out<NB64Etalon::TImpls::EImpl>(IOutputStream& o, typename TTypeTraits<NB64Etalon::TImpls::EImpl>::TFuncParam v) {
     switch (v) {
         case NB64Etalon::TImpls::PLAIN32_IMPL:
-            o << TStringBuf{"PLAIN32"};
+            o << std::string_view{"PLAIN32"};
             return;
         case NB64Etalon::TImpls::PLAIN64_IMPL:
-            o << TStringBuf{"PLAIN64"};
+            o << std::string_view{"PLAIN64"};
             return;
         case NB64Etalon::TImpls::NEON64_IMPL:
-            o << TStringBuf{"NEON64"};
+            o << std::string_view{"NEON64"};
             return;
         case NB64Etalon::TImpls::NEON32_IMPL:
-            o << TStringBuf{"NEON32"};
+            o << std::string_view{"NEON32"};
             return;
         case NB64Etalon::TImpls::SSSE3_IMPL:
-            o << TStringBuf{"SSSE3"};
+            o << std::string_view{"SSSE3"};
             return;
         case NB64Etalon::TImpls::AVX2_IMPL:
-            o << TStringBuf{"AVX2"};
+            o << std::string_view{"AVX2"};
             return;
         default:
             ythrow yexception() << "invalid";
     }
 }
 
-static void TestEncodeDecodeIntoString(const TString& plain, const TString& encoded, const TString& encodedUrl, const TString& encodedUrlNoPadding) {
-    TString a, b;
+static void TestEncodeDecodeIntoString(const std::string& plain, const std::string& encoded, const std::string& encodedUrl, const std::string& encodedUrlNoPadding) {
+    std::string a, b;
 
     Base64Encode(plain, a);
     UNIT_ASSERT_VALUES_EQUAL(a, encoded);
@@ -181,12 +181,12 @@ static void TestEncodeDecodeIntoString(const TString& plain, const TString& enco
     Base64EncodeUrlNoPadding(plain, a);
     UNIT_ASSERT_VALUES_EQUAL(a, encodedUrlNoPadding);
 
-    TString c = Base64DecodeUneven(a);
+    std::string c = Base64DecodeUneven(a);
     UNIT_ASSERT_VALUES_EQUAL(c, plain);
 }
 
-static void TestEncodeStrictDecodeIntoString(const TString& plain, const TString& encoded, const TString& encodedUrl) {
-    TString a, b;
+static void TestEncodeStrictDecodeIntoString(const std::string& plain, const std::string& encoded, const std::string& encodedUrl) {
+    std::string a, b;
 
     Base64Encode(plain, a);
     UNIT_ASSERT_VALUES_EQUAL(a, encoded);
@@ -211,11 +211,11 @@ Y_UNIT_TEST_SUITE(TBase64) {
 
     Y_UNIT_TEST(TestIntoString) {
         {
-            TString str;
+            std::string str;
             for (size_t i = 0; i < 256; ++i)
                 str += char(i);
 
-            const TString base64 =
+            const std::string base64 =
                 "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJy"
                 "gpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9Q"
                 "UVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eH"
@@ -223,7 +223,7 @@ Y_UNIT_TEST_SUITE(TBase64) {
                 "oqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIyc"
                 "rLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy"
                 "8/T19vf4+fr7/P3+/w==";
-            const TString base64Url =
+            const std::string base64Url =
                 "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJy"
                 "gpKissLS4vMDEyMzQ1Njc4OTo7PD0-P0BBQkNERUZHSElKS0xNTk9Q"
                 "UVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eH"
@@ -231,7 +231,7 @@ Y_UNIT_TEST_SUITE(TBase64) {
                 "oqOkpaanqKmqq6ytrq-wsbKztLW2t7i5uru8vb6_wMHCw8TFxsfIyc"
                 "rLzM3Oz9DR0tPU1dbX2Nna29zd3t_g4eLj5OXm5-jp6uvs7e7v8PHy"
                 "8_T19vf4-fr7_P3-_w,,";
-            const TString base64UrlWithoutPadding =
+            const std::string base64UrlWithoutPadding =
                 "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJy"
                 "gpKissLS4vMDEyMzQ1Njc4OTo7PD0-P0BBQkNERUZHSElKS0xNTk9Q"
                 "UVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eH"
@@ -245,11 +245,11 @@ Y_UNIT_TEST_SUITE(TBase64) {
         }
 
         {
-            const TString str = "http://yandex.ru:1234/request?param=value&lll=fff#fragment";
+            const std::string str = "http://yandex.ru:1234/request?param=value&lll=fff#fragment";
 
-            const TString base64 = "aHR0cDovL3lhbmRleC5ydToxMjM0L3JlcXVlc3Q/cGFyYW09dmFsdWUmbGxsPWZmZiNmcmFnbWVudA==";
-            const TString base64Url = "aHR0cDovL3lhbmRleC5ydToxMjM0L3JlcXVlc3Q_cGFyYW09dmFsdWUmbGxsPWZmZiNmcmFnbWVudA,,";
-            const TString base64UrlWithoutPadding = "aHR0cDovL3lhbmRleC5ydToxMjM0L3JlcXVlc3Q_cGFyYW09dmFsdWUmbGxsPWZmZiNmcmFnbWVudA";
+            const std::string base64 = "aHR0cDovL3lhbmRleC5ydToxMjM0L3JlcXVlc3Q/cGFyYW09dmFsdWUmbGxsPWZmZiNmcmFnbWVudA==";
+            const std::string base64Url = "aHR0cDovL3lhbmRleC5ydToxMjM0L3JlcXVlc3Q_cGFyYW09dmFsdWUmbGxsPWZmZiNmcmFnbWVudA,,";
+            const std::string base64UrlWithoutPadding = "aHR0cDovL3lhbmRleC5ydToxMjM0L3JlcXVlc3Q_cGFyYW09dmFsdWUmbGxsPWZmZiNmcmFnbWVudA";
 
             TestEncodeDecodeIntoString(str, base64, base64Url, base64UrlWithoutPadding);
             TestEncodeStrictDecodeIntoString(str, base64, base64Url);
@@ -301,14 +301,14 @@ Y_UNIT_TEST_SUITE(TBase64) {
     }
 
     Y_UNIT_TEST(TestDecodeRandom) {
-        TString input;
+        std::string input;
         constexpr size_t testSize = 240000;
         for (size_t i = 0; i < testSize; ++i) {
             input.push_back(rand() % 256);
         }
-        TString output;
-        TString encoded = Base64Encode(input);
-        TString encodedUrl = TString::Uninitialized(Base64EncodeBufSize(input.length()));
+        std::string output;
+        std::string encoded = Base64Encode(input);
+        std::string encodedUrl = std::string::Uninitialized(Base64EncodeBufSize(input.length()));
         Base64EncodeUrlNoPadding(input, encodedUrl);
         UNIT_ASSERT_VALUES_EQUAL(Base64Decode(encoded), input);
         UNIT_ASSERT_VALUES_EQUAL(Base64StrictDecode(encoded), input);
@@ -316,82 +316,82 @@ Y_UNIT_TEST_SUITE(TBase64) {
     }
 
     Y_UNIT_TEST(TestAllPossibleOctets) {
-        const TString x("\0\x01\x02\x03\x04\x05\x06\x07\b\t\n\x0B\f\r\x0E\x0F\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7F"sv);
-        const TString xEnc = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn8=";
-        const TString y = Base64Decode(xEnc);
-        const TString yEnc = Base64Encode(x);
+        const std::string x("\0\x01\x02\x03\x04\x05\x06\x07\b\t\n\x0B\f\r\x0E\x0F\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7F"sv);
+        const std::string xEnc = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn8=";
+        const std::string y = Base64Decode(xEnc);
+        const std::string yEnc = Base64Encode(x);
         UNIT_ASSERT_VALUES_EQUAL(x, y);
         UNIT_ASSERT_VALUES_EQUAL(xEnc, yEnc);
     }
 
     Y_UNIT_TEST(TestTwoPaddingCharacters) {
-        const TString x("a");
-        const TString xEnc = "YQ==";
-        const TString y = Base64Decode(xEnc);
-        const TString yEnc = Base64Encode(x);
+        const std::string x("a");
+        const std::string xEnc = "YQ==";
+        const std::string y = Base64Decode(xEnc);
+        const std::string yEnc = Base64Encode(x);
         UNIT_ASSERT_VALUES_EQUAL(x, y);
         UNIT_ASSERT_VALUES_EQUAL(xEnc, yEnc);
     }
 
     Y_UNIT_TEST(TestOnePaddingCharacter) {
-        const TString x("aa");
-        const TString xEnc = "YWE=";
-        const TString y = Base64Decode(xEnc);
-        const TString yEnc = Base64Encode(x);
+        const std::string x("aa");
+        const std::string xEnc = "YWE=";
+        const std::string y = Base64Decode(xEnc);
+        const std::string yEnc = Base64Encode(x);
         UNIT_ASSERT_VALUES_EQUAL(x, y);
         UNIT_ASSERT_VALUES_EQUAL(xEnc, yEnc);
     }
 
     Y_UNIT_TEST(TestNoPaddingCharacters) {
-        const TString x("aaa");
-        const TString xEnc = "YWFh";
-        const TString y = Base64Decode(xEnc);
-        const TString yEnc = Base64Encode(x);
+        const std::string x("aaa");
+        const std::string xEnc = "YWFh";
+        const std::string y = Base64Decode(xEnc);
+        const std::string yEnc = Base64Encode(x);
         UNIT_ASSERT_VALUES_EQUAL(x, y);
         UNIT_ASSERT_VALUES_EQUAL(xEnc, yEnc);
     }
 
     Y_UNIT_TEST(TestTrailingZero) {
-        const TString x("foo\0"sv);
-        const TString xEnc = "Zm9vAA==";
-        const TString y = Base64Decode(xEnc);
-        const TString yEnc = Base64Encode(x);
+        const std::string x("foo\0"sv);
+        const std::string xEnc = "Zm9vAA==";
+        const std::string y = Base64Decode(xEnc);
+        const std::string yEnc = Base64Encode(x);
         UNIT_ASSERT_VALUES_EQUAL(x, y);
         UNIT_ASSERT_VALUES_EQUAL(xEnc, yEnc);
     }
 
     Y_UNIT_TEST(TestTwoTrailingZeroes) {
-        const TString x("foo\0\0"sv);
-        const TString xEnc = "Zm9vAAA=";
-        const TString y = Base64Decode(xEnc);
-        const TString yEnc = Base64Encode(x);
+        const std::string x("foo\0\0"sv);
+        const std::string xEnc = "Zm9vAAA=";
+        const std::string y = Base64Decode(xEnc);
+        const std::string yEnc = Base64Encode(x);
         UNIT_ASSERT_VALUES_EQUAL(x, y);
         UNIT_ASSERT_VALUES_EQUAL(xEnc, yEnc);
     }
 
     Y_UNIT_TEST(TestZero) {
-        const TString x("\0"sv);
-        const TString xEnc = "AA==";
-        const TString y = Base64Decode(xEnc);
-        const TString yEnc = Base64Encode(x);
+        const std::string x("\0"sv);
+        const std::string xEnc = "AA==";
+        const std::string y = Base64Decode(xEnc);
+        const std::string yEnc = Base64Encode(x);
         UNIT_ASSERT_VALUES_EQUAL(x, y);
         UNIT_ASSERT_VALUES_EQUAL(xEnc, yEnc);
     }
 
     Y_UNIT_TEST(TestSymbolsAfterZero) {
-        const TString x("\0a"sv);
-        const TString xEnc = "AGE=";
-        const TString y = Base64Decode(xEnc);
-        const TString yEnc = Base64Encode(x);
+        const std::string x("\0a"sv);
+        const std::string xEnc = "AGE=";
+        const std::string y = Base64Decode(xEnc);
+        const std::string yEnc = Base64Encode(x);
         UNIT_ASSERT_VALUES_EQUAL(x, y);
         UNIT_ASSERT_VALUES_EQUAL(xEnc, yEnc);
     }
 
     Y_UNIT_TEST(TestEmptyString) {
-        const TString x = "";
-        const TString xEnc = "";
-        const TString y = Base64Decode(xEnc);
-        const TString yEnc = Base64Encode(x);
+        const std::string x = "";
+        const std::string xEnc = "";
+        const std::string y = Base64Decode(xEnc);
+        const std::string yEnc = Base64Encode(x);
         UNIT_ASSERT_VALUES_EQUAL(x, y);
         UNIT_ASSERT_VALUES_EQUAL(xEnc, yEnc);
     }
@@ -400,11 +400,11 @@ Y_UNIT_TEST_SUITE(TBase64) {
         constexpr size_t TEST_CASES_COUNT = 1000;
         constexpr size_t MAX_DATA_SIZE = 1000;
         TFastRng<ui32> prng{42};
-        std::vector<TString> xs{TEST_CASES_COUNT};
-        TString xEnc;
-        TString xDec;
-        TString yEnc;
-        TString yDec;
+        std::vector<std::string> xs{TEST_CASES_COUNT};
+        std::string xEnc;
+        std::string xDec;
+        std::string yEnc;
+        std::string yDec;
 
         for (auto& x : xs) {
             const size_t size = prng() % MAX_DATA_SIZE;
@@ -444,7 +444,7 @@ Y_UNIT_TEST_SUITE(TBase64) {
         constexpr size_t TEST_CASES_COUNT = 1000;
         constexpr size_t MAX_DATA_SIZE = 1000;
         TFastRng<ui32> prng{42};
-        TString x;
+        std::string x;
         std::vector<char> buf;
         for (size_t i = 0; i < TEST_CASES_COUNT; ++i) {
             const size_t size = prng() % MAX_DATA_SIZE;
@@ -521,19 +521,19 @@ Y_UNIT_TEST_SUITE(TBase64) {
 
     Y_UNIT_TEST(TestDecodeUnevenDst) {
         const auto x = "How do I convert between big-endian and little-endian values in C++?aa";
-        TString b64 = "SG93IGRvIEkgY29udmVydCBiZXR3ZWVuIGJpZy1lbmRpYW4gYW5kIGxpdHRsZS1lbmRpYW4gdmFsdWVzIGluIEMrKz9hYQ";
+        std::string b64 = "SG93IGRvIEkgY29udmVydCBiZXR3ZWVuIGJpZy1lbmRpYW4gYW5kIGxpdHRsZS1lbmRpYW4gdmFsdWVzIGluIEMrKz9hYQ";
         std::vector<char> buf(Base64DecodeBufSize(b64.Size()), '\0');
         Base64DecodeUneven(buf.begin(), b64);
-        TString res(buf.data());
+        std::string res(buf.data());
         UNIT_ASSERT_VALUES_EQUAL(x, res);
     }
 
     Y_UNIT_TEST(TestDecodeUnevenDst2) {
         const auto x = "How do I convert between big-endian and little-endian values in C++?";
-        TString b64 = "SG93IGRvIEkgY29udmVydCBiZXR3ZWVuIGJpZy1lbmRpYW4gYW5kIGxpdHRsZS1lbmRpYW4gdmFsdWVzIGluIEMrKz8";
+        std::string b64 = "SG93IGRvIEkgY29udmVydCBiZXR3ZWVuIGJpZy1lbmRpYW4gYW5kIGxpdHRsZS1lbmRpYW4gdmFsdWVzIGluIEMrKz8";
         std::vector<char> buf(Base64DecodeBufSize(b64.Size()), '\0');
         Base64DecodeUneven(buf.begin(), b64);
-        TString res(buf.data());
+        std::string res(buf.data());
         UNIT_ASSERT_VALUES_EQUAL(x, res);
     }
 }

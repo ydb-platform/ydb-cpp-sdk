@@ -3,8 +3,8 @@
 #include <util/generic/strbuf.h>
 
 template <bool addAll, char sep, char sepKeyVal, class F>
-static inline void ScanKeyValue(TStringBuf s, F&& f) {
-    TStringBuf key, val;
+static inline void ScanKeyValue(std::string_view s, F&& f) {
+    std::string_view key, val;
 
     while (!s.empty()) {
         val = s.NextTok(sep);

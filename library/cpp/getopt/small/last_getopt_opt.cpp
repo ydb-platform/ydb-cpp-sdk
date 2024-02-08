@@ -8,10 +8,10 @@
 #include <ctype.h>
 
 namespace NLastGetopt {
-    static const TStringBuf ExcludedShortNameChars = "= -\t\n";
-    static const TStringBuf ExcludedLongNameChars = "= \t\n";
+    static const std::string_view ExcludedShortNameChars = "= -\t\n";
+    static const std::string_view ExcludedLongNameChars = "= \t\n";
 
-    bool TOpt::NameIs(const TString& name) const {
+    bool TOpt::NameIs(const std::string& name) const {
         for (const auto& next : LongNames_) {
             if (next == name)
                 return true;
@@ -39,14 +39,14 @@ namespace NLastGetopt {
         return GetChar();
     }
 
-    TString TOpt::GetName() const {
+    std::string TOpt::GetName() const {
         if (LongNames_.empty())
             ythrow TConfException() << "no name for option " << this->ToShortString();
         return LongNames_.at(0);
     }
 
     bool TOpt::IsAllowedShortName(unsigned char c) {
-        return isprint(c) && TStringBuf::npos == ExcludedShortNameChars.find(c);
+        return isprint(c) && std::string_view::npos == ExcludedShortNameChars.find(c);
     }
 
     TOpt& TOpt::AddShortName(unsigned char c) {
@@ -56,10 +56,10 @@ namespace NLastGetopt {
         return *this;
     }
 
-    bool TOpt::IsAllowedLongName(const TString& name, unsigned char* out) {
+    bool TOpt::IsAllowedLongName(const std::string& name, unsigned char* out) {
         for (size_t i = 0; i != name.size(); ++i) {
             const unsigned char c = name[i];
-            if (!isprint(c) || TStringBuf::npos != ExcludedLongNameChars.find(c)) {
+            if (!isprint(c) || std::string_view::npos != ExcludedLongNameChars.find(c)) {
                 if (nullptr != out)
                     *out = c;
                 return false;
@@ -68,7 +68,7 @@ namespace NLastGetopt {
         return true;
     }
 
-    TOpt& TOpt::AddLongName(const TString& name) {
+    TOpt& TOpt::AddLongName(const std::string& name) {
         unsigned char c = 0;
         if (!IsAllowedLongName(name, &c))
             throw TUsageException() << "option char '" << c
@@ -78,12 +78,12 @@ namespace NLastGetopt {
     }
 
     namespace NPrivate {
-        TString OptToString(char c);
+        std::string OptToString(char c);
 
-        TString OptToString(const TString& longOption);
+        std::string OptToString(const std::string& longOption);
     }
 
-    TString TOpt::ToShortString() const {
+    std::string TOpt::ToShortString() const {
         if (!LongNames_.empty())
             return NPrivate::OptToString(LongNames_.front());
         if (!Chars_.empty())

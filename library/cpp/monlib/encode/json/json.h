@@ -18,12 +18,12 @@ namespace NMonitoring {
 
     IMetricEncoderPtr EncoderCloudJson(IOutputStream* out,
                                        int indentation = 0,
-                                       TStringBuf metricNameLabel = "name");
+                                       std::string_view metricNameLabel = "name");
 
     IMetricEncoderPtr BufferedEncoderCloudJson(IOutputStream* out,
                                                int indentation = 0,
-                                               TStringBuf metricNameLabel = "name");
+                                               std::string_view metricNameLabel = "name");
 
-    void DecodeJson(TStringBuf data, IMetricConsumer* c, TStringBuf metricNameLabel = "name");
+    void DecodeJson(std::string_view data, IMetricConsumer* c, std::string_view metricNameLabel = "name");
 
 }

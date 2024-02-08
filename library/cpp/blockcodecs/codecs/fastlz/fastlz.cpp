@@ -9,7 +9,7 @@ using namespace NBlockCodecs;
 namespace {
     struct TFastLZCodec: public TAddLengthCodec<TFastLZCodec> {
         inline TFastLZCodec(int level)
-            : MyName("fastlz-" + ToString(level))
+            : MyName("fastlz-" + std::to_string(level))
             , Level(level)
         {
         }
@@ -18,7 +18,7 @@ namespace {
             return Max<size_t>(in + in / 20, 128);
         }
 
-        TStringBuf Name() const noexcept override {
+        std::string_view Name() const noexcept override {
             return MyName;
         }
 
@@ -34,11 +34,11 @@ namespace {
             const int ret = fastlz_decompress(in.data(), in.size(), out, len);
 
             if (ret < 0 || (size_t)ret != len) {
-                ythrow TDataError() << TStringBuf("can not decompress");
+                ythrow TDataError() << std::string_view("can not decompress");
             }
         }
 
-        const TString MyName;
+        const std::string MyName;
         const int Level;
     };
 

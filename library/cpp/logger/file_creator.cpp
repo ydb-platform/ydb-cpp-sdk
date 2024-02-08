@@ -1,7 +1,7 @@
 #include "file_creator.h"
 #include "file.h"
 
-TFileLogBackendCreator::TFileLogBackendCreator(const TString& path /*= TString()*/, const TString& type /*= "file"*/)
+TFileLogBackendCreator::TFileLogBackendCreator(const std::string& path /*= std::string()*/, const std::string& type /*= "file"*/)
     : TLogBackendCreatorBase(type)
     , Path(path)
 {}

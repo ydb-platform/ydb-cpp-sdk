@@ -139,4 +139,4 @@ static inline int Http2Status(int code) {
     return http2status[code & (EXT_HTTP_CODE_MAX - 1)];
 }
 
-TStringBuf ExtHttpCodeStr(int code) noexcept;
+std::string_view ExtHttpCodeStr(int code) noexcept;

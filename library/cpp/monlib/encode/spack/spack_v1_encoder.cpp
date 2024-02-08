@@ -25,7 +25,7 @@ namespace NMonitoring {
                 ECompression compression,
                 EMetricsMergingMode mergingMode,
                 ESpackV1Version version,
-                TStringBuf metricNameLabel
+                std::string_view metricNameLabel
             )
                 : Out_(out)
                 , TimePrecision_(timePrecision)
@@ -107,7 +107,7 @@ namespace NMonitoring {
                 }
 
                 // (2) write string pools
-                auto strPoolWrite = [this](TStringBuf str, ui32, ui32) {
+                auto strPoolWrite = [this](std::string_view str, ui32, ui32) {
                     Out_->Write(str);
                     Out_->Write('\0');
                 };
@@ -310,7 +310,7 @@ namespace NMonitoring {
         ETimePrecision timePrecision,
         ECompression compression,
         EMetricsMergingMode mergingMode,
-        TStringBuf metricNameLabel
+        std::string_view metricNameLabel
     ) {
         Y_ENSURE(!metricNameLabel.Empty(), "metricNameLabel can't be empty");
         return MakeHolder<TEncoderSpackV1>(out, timePrecision, compression, mergingMode, SV1_02, metricNameLabel);
