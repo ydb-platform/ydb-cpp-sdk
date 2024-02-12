@@ -7,6 +7,7 @@
 
 
 add_subdirectory(base64)
+add_subdirectory(escape)
 add_subdirectory(misc)
 add_subdirectory(quote)
 add_subdirectory(relaxed_escaper)

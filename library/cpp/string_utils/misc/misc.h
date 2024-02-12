@@ -6,6 +6,7 @@ namespace NUtils {
 
 void ToLower(std::string& str);
 void RemoveAll(std::string& str, char ch);
+std::string TStringQuote(std::string_view s);
 
 template <class TContainer, class T>
 bool ContainerTransform(TContainer& str, T&& f, size_t pos = 0, size_t n = TContainer::npos) {

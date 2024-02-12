@@ -1,5 +1,8 @@
 #include "misc.h"
 
+#include <library/cpp/string_builder/string_builder.h>
+#include <library/cpp/string_utils/escape/escape.h>
+
 namespace NUtils {
 
 void ToLower(std::string& str) {
@@ -8,6 +11,9 @@ void ToLower(std::string& str) {
     }
 }
 
+std::string TStringQuote(std::string_view s) {
+    return TYdbStringBuilder() << "\"" << EscapeC(s) << "\"";
+}
 
 void RemoveAll(std::string& str, char ch) {
     size_t pos = str.find(ch); // 'find' to avoid cloning of string in 'TString.begin()'
