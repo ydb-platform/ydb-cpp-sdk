@@ -16,7 +16,7 @@
     do {                                                                \
         c *= 16;                                                        \
         c += (x[0] >= 'A' ? ((x[0] & 0xdf) - 'A') + 10 : (x[0] - '0')); \
-        x.Skip(1);                                                      \
+        x.remove_prefix(1);                                                      \
     } while (0)
 
 
@@ -157,19 +157,19 @@ void CGIEscape(std::string& url) {
     TTempBuf tempBuf(CgiEscapeBufLen(url.size()));
     char* to = tempBuf.Data();
 
-    url.AssignNoAlias(to, CGIEscape(to, url.data(), url.size()));
+    url = {to, CGIEscape(to, url.data(), url.size())};
 }
 
 std::string CGIEscapeRet(const std::string_view url) {
     std::string to;
-    to.ReserveAndResize(CgiEscapeBufLen(url.size()));
+    to.resize(CgiEscapeBufLen(url.size()));
     to.resize(CGIEscape(to.begin(), url.data(), url.size()) - to.data());
     return to;
 }
 
 std::string& AppendCgiEscaped(const std::string_view value, std::string& to) {
     const size_t origLength = to.length();
-    to.ReserveAndResize(origLength + CgiEscapeBufLen(value.size()));
+    to.resize(origLength + CgiEscapeBufLen(value.size()));
     to.resize(CGIEscape(to.begin() + origLength, value.data(), value.size()) - to.data());
     return to;
 }
@@ -209,7 +209,7 @@ void Quote(std::string& url, const char* safe) {
     TTempBuf tempBuf(CgiEscapeBufLen(url.size()));
     char* to = tempBuf.Data();
 
-    url.AssignNoAlias(to, Quote(to, url, safe));
+    url = {to, Quote(to, url, safe)};
 }
 
 char* CGIUnescape(char* to, const char* from) {
@@ -224,18 +224,14 @@ void CGIUnescape(std::string& url) {
     if (url.empty()) {
         return;
     }
-    if (url.IsDetached()) { // in-place when refcount == 1
-        char* resBegin = url.begin();
-        const char* resEnd = CGIUnescape(resBegin, resBegin, url.size());
-        url.resize(resEnd - resBegin);
-    } else {
-        url = CGIUnescapeRet(url);
-    }
+    char* resBegin = url.begin();
+    const char* resEnd = CGIUnescape(resBegin, resBegin, url.size());
+    url.resize(resEnd - resBegin);
 }
 
 std::string CGIUnescapeRet(const std::string_view from) {
     std::string to;
-    to.ReserveAndResize(CgiUnescapeBufLen(from.size()));
+    to.resize(CgiUnescapeBufLen(from.size()));
     to.resize(CGIUnescape(to.begin(), from.data(), from.size()) - to.data());
     return to;
 }
@@ -243,7 +239,7 @@ std::string CGIUnescapeRet(const std::string_view from) {
 char* UrlUnescape(char* to, std::string_view from) {
     while (!from.empty()) {
         char ch = from[0];
-        from.Skip(1);
+        from.remove_prefix(1);
         if ('%' == ch && 2 <= from.length())
             ch = TFromHexZeroTerm::x2c(from);
         *to++ = ch;
@@ -258,18 +254,14 @@ void UrlUnescape(std::string& url) {
     if (url.empty()) {
         return;
     }
-    if (url.IsDetached()) { // in-place when refcount == 1
-        char* resBegin = url.begin();
-        const char* resEnd = UrlUnescape(resBegin, url);
-        url.resize(resEnd - resBegin);
-    } else {
-        url = UrlUnescapeRet(url);
-    }
+    char* resBegin = url.begin();
+    const char* resEnd = UrlUnescape(resBegin, url);
+    url.resize(resEnd - resBegin);
 }
 
 std::string UrlUnescapeRet(const std::string_view from) {
     std::string to;
-    to.ReserveAndResize(CgiUnescapeBufLen(from.size()));
+    to.resize(CgiUnescapeBufLen(from.size()));
     to.resize(UrlUnescape(to.begin(), from) - to.data());
     return to;
 }
@@ -298,12 +290,12 @@ char* UrlEscape(char* to, const char* from, bool forceEscape) {
 void UrlEscape(std::string& url, bool forceEscape) {
     TTempBuf tempBuf(CgiEscapeBufLen(url.size()));
     char* to = tempBuf.Data();
-    url.AssignNoAlias(to, UrlEscape(to, url.data(), forceEscape));
+    url = {to, UrlEscape(to, url.data(), forceEscape)};
 }
 
 std::string UrlEscapeRet(const std::string_view from, bool forceEscape) {
     std::string to;
-    to.ReserveAndResize(CgiEscapeBufLen(from.size()));
+    to.resize(CgiEscapeBufLen(from.size()));
     to.resize(UrlEscape(to.begin(), from.begin(), forceEscape) - to.data());
     return to;
 }

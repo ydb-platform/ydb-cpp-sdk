@@ -53,7 +53,7 @@ bool TCgiParameters::ErasePattern(const std::string_view name, const std::string
 
     bool found = false;
     for (auto it = pair.first; it != pair.second;) {
-        bool startsWith = it->second.StartsWith(pat);
+        bool startsWith = std::string_view(it->second).starts_with(pat);
         if (startsWith) {
             it = erase(it);
             found = true;
@@ -81,7 +81,7 @@ void TCgiParameters::JoinUnescaped(const std::string_view key, char sep, std::st
     auto it = pair.first;
 
     if (it == pair.second) { // not found
-        if (val.IsInited()) {
+        if (val.data() != nullptr) {
             emplace_hint(it, std::string(key), std::string(val));
         }
     } else {
@@ -89,10 +89,10 @@ void TCgiParameters::JoinUnescaped(const std::string_view key, char sep, std::st
 
         for (++it; it != pair.second; erase(it++)) {
             dst += sep;
-            dst.AppendNoAlias(it->second.data(), it->second.size());
+            dst += std::string_view(it->second.data(), it->second.size());
         }
 
-        if (val.IsInited()) {
+        if (val.data() != nullptr) {
             dst += sep;
             dst += val;
         }
@@ -102,7 +102,7 @@ void TCgiParameters::JoinUnescaped(const std::string_view key, char sep, std::st
 static inline std::string DoUnescape(const std::string_view s) {
     std::string res;
 
-    res.ReserveAndResize(CgiUnescapeBufLen(s.size()));
+    res.resize(CgiUnescapeBufLen(s.size()));
     res.resize(CgiUnescape(res.begin(), s).size());
 
     return res;
@@ -163,7 +163,7 @@ std::string TCgiParameters::Print() const {
 
     res.reserve(PrintSize());
     const char* end = Print(res.begin());
-    res.ReserveAndResize(end - res.data());
+    res.resize(end - res.data());
 
     return res;
 }
@@ -204,7 +204,7 @@ std::string TCgiParameters::QuotedPrint(const char* safe) const {
     }
 
     std::string res;
-    res.ReserveAndResize(PrintSize());
+    res.resize(PrintSize());
 
     char* ptr = res.begin();
     for (auto i = begin();;) {
@@ -219,7 +219,7 @@ std::string TCgiParameters::QuotedPrint(const char* safe) const {
         *ptr++ = '&';
     }
 
-    res.ReserveAndResize(ptr - res.data());
+    res.resize(ptr - res.data());
     return res;
 }
 
@@ -263,7 +263,7 @@ TQuickCgiParam::TQuickCgiParam(const std::string_view cgiParamStr) {
     DoScan<false>(cgiParamStr, f);
 
     if (buf != UnescapeBuf.begin()) {
-        UnescapeBuf.ReserveAndResize(buf - UnescapeBuf.begin() - 1 /*trailing zero*/);
+        UnescapeBuf.resize(buf - UnescapeBuf.begin() - 1 /*trailing zero*/);
     }
 }
 

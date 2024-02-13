@@ -130,7 +130,7 @@ public:
         const_iterator it = Find(name, numOfValue);
 
         if (it == end()) {
-            return nullptr;
+            return {};
         }
 
         return it->second.data();
