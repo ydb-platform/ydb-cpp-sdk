@@ -10,7 +10,7 @@
 
 DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::String(const std::string_view& s) {
     if (!s.empty()) {
-        Raw(NUtils::TStringQuote(s));
+        Raw(NUtils::Quote(s));
     } else {
         Raw("(empty)");
     }

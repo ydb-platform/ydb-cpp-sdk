@@ -1,5 +1,8 @@
 #include "url.h"
 
+#include <library/cpp/string_builder/string_builder.h>
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <util/string/cast.h>
 #include <util/string/util.h>
 #include <util/string/cstriter.h>
@@ -55,7 +58,7 @@ namespace {
 
     template <typename T>
     inline T CutHttpPrefixImpl(const T& url, bool ignorehttps) {
-        size_t prefixSize = GetHttpPrefixSizeImpl<typename T::char_type>(url.data(), TKnownSize(url.size()), ignorehttps);
+        size_t prefixSize = GetHttpPrefixSizeImpl<typename T::value_type>(url.data(), TKnownSize(url.size()), ignorehttps);
         if (prefixSize)
             return url.substr(prefixSize);
         return url;
@@ -67,7 +70,9 @@ namespace NUrl {
     TSplitUrlToHostAndPathResult SplitUrlToHostAndPath(const std::string_view url) {
         std::string_view host = GetSchemeHostAndPort(url, /*trimHttp=*/false, /*trimDefaultPort=*/false);
         std::string_view path = url;
-        path.SkipPrefix(host);
+        if (path.starts_with(host)) {
+            path.remove_prefix(host.size());
+        }
         return {host, path};
     }
 
@@ -120,18 +125,18 @@ size_t GetSchemePrefixSize(const std::string_view url) noexcept {
 }
 
 std::string_view GetSchemePrefix(const std::string_view url) noexcept {
-    return url.Head(GetSchemePrefixSize(url));
+    return url.substr(0, GetSchemePrefixSize(url));
 }
 
 std::string_view CutSchemePrefix(const std::string_view url) noexcept {
-    return url.Tail(GetSchemePrefixSize(url));
+    return url.substr(GetSchemePrefixSize(url));
 }
 
 template <bool KeepPort>
 static inline std::string_view GetHostAndPortImpl(const std::string_view url) {
     std::string_view urlNoScheme = url;
 
-    urlNoScheme.Skip(GetHttpPrefixSize(url));
+    urlNoScheme.remove_prefix(GetHttpPrefixSize(url));
 
     struct TDelim: public str_spn {
         inline TDelim()
@@ -160,11 +165,11 @@ std::string_view GetHostAndPort(const std::string_view url) noexcept {
 
 std::string_view GetSchemeHost(const std::string_view url, bool trimHttp) noexcept {
     const size_t schemeSize = GetSchemePrefixSize(url);
-    const std::string_view scheme = url.Head(schemeSize);
+    const std::string_view scheme = url.substr(0, schemeSize);
 
     const bool isHttp = (schemeSize == 0 || scheme == std::string_view("http://"));
 
-    const std::string_view host = GetHost(url.Tail(schemeSize));
+    const std::string_view host = GetHost(url.substr(schemeSize));
 
     if (isHttp && trimHttp) {
         return host;
@@ -175,21 +180,21 @@ std::string_view GetSchemeHost(const std::string_view url, bool trimHttp) noexce
 
 std::string_view GetSchemeHostAndPort(const std::string_view url, bool trimHttp, bool trimDefaultPort) noexcept {
     const size_t schemeSize = GetSchemePrefixSize(url);
-    const std::string_view scheme = url.Head(schemeSize);
+    const std::string_view scheme = url.substr(0, schemeSize);
 
     const bool isHttp = (schemeSize == 0 || scheme == std::string_view("http://"));
 
-    std::string_view hostAndPort = GetHostAndPort(url.Tail(schemeSize));
+    std::string_view hostAndPort = GetHostAndPort(url.substr(schemeSize));
 
     if (trimDefaultPort) {
         const size_t pos = hostAndPort.find(':');
         if (pos != std::string_view::npos) {
             const bool isHttps = (scheme == std::string_view("https://"));
 
-            const std::string_view port = hostAndPort.Tail(pos + 1);
+            const std::string_view port = hostAndPort.substr(pos + 1);
             if ((isHttp && port == std::string_view("80")) || (isHttps && port == std::string_view("443"))) {
                 // trimming default port
-                hostAndPort = hostAndPort.Head(pos);
+                hostAndPort = hostAndPort.substr(0, pos);
             }
         }
     }
@@ -215,11 +220,11 @@ void SplitUrlToHostAndPath(const std::string_view url, std::string& host, std::s
 
 void SeparateUrlFromQueryAndFragment(const std::string_view url, std::string_view& sanitizedUrl, std::string_view& query, std::string_view& fragment) {
     std::string_view urlWithoutFragment;
-    if (!url.TrySplit('#', urlWithoutFragment, fragment)) {
+    if (!NUtils::TrySplit(url, urlWithoutFragment, fragment, '#')) {
         fragment = "";
         urlWithoutFragment = url;
     }
-    if (!urlWithoutFragment.TrySplit('?', sanitizedUrl, query)) {
+    if (!NUtils::TrySplit(urlWithoutFragment, sanitizedUrl, query, '?')) {
         query = "";
         sanitizedUrl = urlWithoutFragment;
     }
@@ -228,12 +233,12 @@ void SeparateUrlFromQueryAndFragment(const std::string_view url, std::string_vie
 bool TryGetSchemeHostAndPort(const std::string_view url, std::string_view& scheme, std::string_view& host, ui16& port) {
     const size_t schemeSize = GetSchemePrefixSize(url);
     if (schemeSize != 0) {
-        scheme = url.Head(schemeSize);
+        scheme = url.substr(0, schemeSize);
     }
 
     std::string_view portStr;
-    std::string_view hostAndPort = GetHostAndPort(url.Tail(schemeSize));
-    if (hostAndPort && hostAndPort.back() != ']' && hostAndPort.TryRSplit(':', host, portStr)) {
+    std::string_view hostAndPort = GetHostAndPort(url.substr(schemeSize));
+    if (!hostAndPort.empty() && hostAndPort.back() != ']' && NUtils::TryRSplit(hostAndPort, host, portStr, ':')) {
         // URL has port
         if (!TryFromString(portStr, port)) {
             return false;
@@ -261,15 +266,15 @@ std::string_view GetOnlyHost(const std::string_view url) noexcept {
 std::string_view GetPathAndQuery(const std::string_view url, bool trimFragment) noexcept {
     const size_t off = url.find('/', GetHttpPrefixSize(url));
     std::string_view hostUnused, path;
-    if (!url.TrySplitAt(off, hostUnused, path))
+    if (!NUtils::TrySplitOn(url, hostUnused, path, off, 0))
         return "/";
 
-    return trimFragment ? path.Before('#') : path;
+    return trimFragment ? NUtils::Before(path, '#') : path;
 }
 
 // this strange creature returns 2nd level domain, possibly with port
 std::string_view GetDomain(const std::string_view host) noexcept {
-    const char* c = !host ? host.data() : host.end() - 1;
+    const char* c = host.empty() ? host.data() : host.end() - 1;
     for (bool wasPoint = false; c != host.data(); --c) {
         if (*c == '.') {
             if (wasPoint) {
@@ -289,7 +294,7 @@ std::string_view GetParentDomain(const std::string_view host, size_t level) noex
         if (pos == std::string::npos)
             return host;
     }
-    return host.SubStr(pos + 1);
+    return host.substr(pos + 1);
 }
 
 std::string_view GetZone(const std::string_view host) noexcept {
@@ -316,7 +321,7 @@ std::string_view CutWWWNumberedPrefix(const std::string_view url) noexcept {
     }
 
     if (*it++ == '.') {
-        return url.Tail(it - url.begin());
+        return url.substr(it - url.begin());
     }
 
     return url;
@@ -335,7 +340,7 @@ static inline bool IsSchemeChar(char c) noexcept {
 
 static bool HasPrefix(const std::string_view url) noexcept {
     std::string_view scheme, unused;
-    if (!url.TrySplit(std::string_view("://"), scheme, unused))
+    if (!NUtils::TrySplit(url, scheme, unused, std::string_view("://")))
         return false;
 
     return AllOf(scheme, IsSchemeChar);
@@ -350,7 +355,7 @@ std::string AddSchemePrefix(const std::string& url, std::string_view scheme) {
         return url;
     }
 
-    return std::string::Join(scheme, std::string_view("://"), url);
+    return NUtils::TYdbStringBuilder() << scheme << std::string_view("://") << url;
 }
 
 #define X(c) (c >= 'A' ? ((c & 0xdf) - 'A') + 10 : (c - '0'))
@@ -408,8 +413,8 @@ size_t NormalizeHostName(char* dest, const std::string_view source, size_t dest_
 }
 
 std::string_view RemoveFinalSlash(std::string_view str) noexcept {
-    if (str.EndsWith('/')) {
-        str.Chop(1);
+    if (str.ends_with('/')) {
+        str.remove_suffix(1);
     }
     return str;
 }
@@ -422,12 +427,12 @@ std::string_view CutUrlPrefixes(std::string_view url) noexcept {
 
 bool DoesUrlPathStartWithToken(std::string_view url, const std::string_view& token) noexcept {
     url = CutSchemePrefix(url);
-    const std::string_view noHostSuffix = url.After('/');
+    const std::string_view noHostSuffix = NUtils::After(url, '/');
     if (noHostSuffix == url) {
         // no slash => no suffix with token info
         return false;
     }
-    const bool suffixHasPrefix = noHostSuffix.StartsWith(token);
+    const bool suffixHasPrefix = noHostSuffix.starts_with(token);
     if (!suffixHasPrefix) {
         return false;
     }
