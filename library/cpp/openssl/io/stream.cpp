@@ -134,10 +134,10 @@ namespace {
         inline TSslContextPtr CreateClientContext() {
             TSslContextPtr ctx = CreateSslCtx(SSLv23_client_method());
             if (ClientCert_) {
-                if (!ClientCert_->CertificateFile_ || !ClientCert_->PrivateKeyFile_) {
+                if (ClientCert_->CertificateFile_.empty() || ClientCert_->PrivateKeyFile_.empty()) {
                     ythrow yexception() << "both client certificate and private key are required";
                 }
-                if (ClientCert_->PrivateKeyPassword_) {
+                if (!ClientCert_->PrivateKeyPassword_.empty()) {
                     SSL_CTX_set_default_passwd_cb(ctx.Get(), [](char* buf, int size, int rwflag, void* userData) -> int {
                         Y_UNUSED(rwflag);
                         auto io = static_cast<TSslIO*>(userData);

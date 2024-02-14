@@ -1,6 +1,7 @@
 #include "registry.h"
 
 #include <library/cpp/blockcodecs/core/codecs.h>
+#include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/system/yassert.h>
 #include <util/generic/hash.h>
@@ -31,14 +32,14 @@ namespace {
                         Y_ABORT_UNLESS(false, "Redefinition of key %s:\n"
                                  "  old value: %s,\n"
                                  "  new value: %s.",
-                                 std::string{key}.Quote().c_str(),
-                                 Decompress(value).Quote().c_str(),
-                                 Decompress(data).Quote().c_str());
+                                 NUtils::Quote(key).c_str(),
+                                 NUtils::Quote(Decompress(value)).c_str(),
+                                 NUtils::Quote(Decompress(data)).c_str());
                     } else {
                         Y_ABORT_UNLESS(false, "Redefinition of key %s,"
                                  " old size: %zu,"
                                  " new size: %zu.",
-                                 std::string{key}.Quote().c_str(), vsize, dsize);
+                                 NUtils::Quote(key).c_str(), vsize, dsize);
                     }
                 }
             } else {
@@ -74,7 +75,7 @@ namespace {
 
         void FindMatch(const std::string_view subkey, IMatch& cb) const override {
             for (const auto& it : *this) {
-                if (it.first.StartsWith(subkey)) {
+                if (it.first.starts_with(subkey)) {
                     // temporary
                     // https://st.yandex-team.ru/DEVTOOLS-3985
                     try {
