@@ -104,7 +104,7 @@ namespace NUri {
                 break;
         }
 
-        if (!value.IsInited()) {
+        if (value.data() == nullptr) {
             FldClr(field);
             return false;
         }
@@ -140,7 +140,7 @@ namespace NUri {
 
                 memcpy(oldV, value.data(), value.length());
                 oldV[value.length()] = 0;
-                fld.Trunc(value.length());
+                fld.substr(value.length());
                 return false;
             } while (false);
 
@@ -205,7 +205,7 @@ namespace NUri {
         const std::string_view& selfscheme = GetField(FieldScheme);
         // basescheme is present since IsValidGlobal() succeeded
         const std::string_view& basescheme = base.GetField(FieldScheme);
-        const bool noscheme = !selfscheme.IsInited();
+        const bool noscheme = selfscheme.data() == nullptr;
         if (!noscheme && !EqualNoCase(selfscheme, basescheme))
             return;
 
@@ -246,19 +246,19 @@ namespace NUri {
                 break;
 
             std::string_view p0 = base.GetField(FieldPath);
-            if (!p0.IsInited())
+            if (p0.data() == nullptr)
                 p0 = rootPath;
 
             std::string_view p1 = GetField(FieldPath);
-            if (!p1.IsInited()) {
+            if (p1.data() == nullptr) {
                 if (p0.data() != rootPath.data())
                     FldSet(FieldPath, p0);
                 else
                     FldSetNoDirty(FieldPath, rootPath);
                 break;
             }
-            if (p1 && '/' == p1[0])
-                p1.Skip(1); // p0 will have one
+            if (!p1.empty() && '/' == p1[0])
+                p1.remove_prefix(1); // p0 will have one
 
             bool pathop = true;
 
@@ -341,7 +341,7 @@ namespace NUri {
         for (int fld = 0; opt <= flags && fld < FieldAllMAX; ++fld, opt <<= 1) {
             if (opt & flags) {
                 const std::string_view& v = Fields[fld];
-                if (v.IsInited()) {
+                if (v.data() != nullptr) {
                     if (opt & FlagAuth)
                         len += 3 * v.length() + 1;
                     else
@@ -378,7 +378,7 @@ namespace NUri {
         if ((flags & FlagPort) && 0 != Port && Port != DefaultPort)
             port = Fields[FieldPort];
 
-        if (host) {
+        if (!host.empty()) {
             if (wantFlags & FlagScheme)
                 out << "//";
 
@@ -391,7 +391,7 @@ namespace NUri {
 
                 if (flags & FlagPass) {
                     v = Fields[FieldPass];
-                    if (v.IsInited()) {
+                    if (v.data() != nullptr) {
                         out << ':';
                         TEncoder::EncodeAll(out, v);
                     }
@@ -402,10 +402,10 @@ namespace NUri {
 
             out << host;
 
-            if (port)
+            if (!port.empty())
                 out << ':';
         }
-        if (port)
+        if (!port.empty())
             out << port;
 
         if (flags & FlagPath) {
@@ -418,19 +418,19 @@ namespace NUri {
 
         if (flags & FlagQuery) {
             v = Fields[FieldQuery];
-            if (v.IsInited())
+            if (v.data() != nullptr)
                 out << '?' << v;
         }
 
         if (flags & FlagFrag) {
             v = Fields[FieldFrag];
-            if (v.IsInited())
+            if (v.data() != nullptr)
                 out << '#' << v;
         }
 
         if (flags & FlagHashBang) {
             v = Fields[FieldHashBang];
-            if (v.IsInited())
+            if (v.data() != nullptr)
                 out << '#' << '!' << v;
         }
 

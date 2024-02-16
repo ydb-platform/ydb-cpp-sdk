@@ -4,14 +4,10 @@
 #include "encode.h"
 
 #include <library/cpp/charset/doccodes.h>
+#include <library/cpp/string_utils/string_output/string_output.h>
 #include <util/generic/buffer.h>
-#include <util/generic/ptr.h>
 #include <util/generic/singleton.h>
-#include <util/generic/string.h>
-#include <util/memory/alloc.h>
 #include <util/stream/mem.h>
-#include <util/stream/output.h>
-#include <util/stream/str.h>
 #include <util/system/yassert.h>
 
 #include <cstdlib>
@@ -122,7 +118,7 @@ namespace NUri {
     private:
         /// depending on value, clears or sets it
         void FldChkSet(EField fld, const std::string_view& value) {
-            if (value.IsInited())
+            if (value.data() != nullptr)
                 FldSet(fld, value);
             else
                 FldClr(fld);
@@ -133,7 +129,7 @@ namespace NUri {
 
         /// set only if initialized
         bool FldTrySet(EField fld, const std::string_view& value) {
-            const bool ok = value.IsInited();
+            const bool ok = value.data() != nullptr;
             if (ok)
                 FldSet(fld, value);
             return ok;
@@ -151,7 +147,7 @@ namespace NUri {
 
     public: // clear a field
         void FldClr(EField fld) {
-            Fields[fld].Clear();
+            Fields[fld] = {};
             FldMarkUnset(fld);
             FldMarkClean(fld);
         }
@@ -412,7 +408,7 @@ namespace NUri {
         void Print(std::string& str, int flags = FlagUrlFields) const {
             flags = PrintFlags(flags);
             str.reserve(str.length() + PrintSize(flags));
-            std::stringOutput out(str);
+            NUtils::TStringOutput out(str);
             PrintImpl(out, flags);
         }
 

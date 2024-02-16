@@ -19,7 +19,7 @@ namespace NUri {
             return "";
         }
         // Inherit fragment.
-        if (!locationUri.GetField(NUri::TField::FieldFragment)) {
+        if (locationUri.GetField(NUri::TField::FieldFragment).empty()) {
             NUri::TUriUpdate update(locationUri);
             update.Set(NUri::TField::FieldFragment, baseUri.GetField(NUri::TField::FieldFragment));
         }
