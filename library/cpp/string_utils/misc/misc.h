@@ -5,6 +5,7 @@
 namespace NUtils {
 
 void ToLower(std::string& str);
+std::string ToLower(const std::string& str);
 
 void RemoveAll(std::string& str, char ch);
 

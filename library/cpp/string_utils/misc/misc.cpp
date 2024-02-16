@@ -19,6 +19,12 @@ void ToLower(std::string& str) {
     }
 }
 
+std::string ToLower(const std::string& str) {
+    std::string ret(str);
+    ToLower(ret);
+    return ret;
+}
+
 std::string Quote(std::string_view s) {
     return TYdbStringBuilder() << "\"" << EscapeC(s) << "\"";
 }

@@ -1,6 +1,7 @@
 #include "httpreqdata.h"
 
 #include <library/cpp/case_insensitive_string/case_insensitive_string.h>
+#include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/stream/mem.h>
 #include <util/string/join.h>
@@ -27,7 +28,7 @@ TBaseServerRequestData::TBaseServerRequestData(std::string_view qs, SOCKET s)
 
 void TBaseServerRequestData::AppendQueryString(std::string_view str) {
     if (Y_UNLIKELY(!Query_.empty())) {
-        std::string_view separator = !Query_.EndsWith('&') && !str.StartsWith('&') ? "&"sv : ""sv;
+        std::string_view separator = !Query_.ends_with('&') && !str.starts_with('&') ? "&"sv : ""sv;
         ModifiedQueryString_ = std::string::Join(Query_, separator, str);
      } else {
         ModifiedQueryString_ = str;
@@ -42,7 +43,7 @@ void TBaseServerRequestData::SetRemoteAddr(std::string_view addr) {
 std::string_view TBaseServerRequestData::RemoteAddr() const {
     if (!Addr_) {
         auto& addr = Addr_.ConstructInPlace();
-        addr.ReserveAndResize(INET6_ADDRSTRLEN);
+        addr.resize(INET6_ADDRSTRLEN);
         if (GetRemoteAddr(Socket_, addr.begin(), addr.size())) {
             if (auto pos = addr.find('\0'); pos != std::string::npos) {
                 addr.resize(pos);

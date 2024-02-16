@@ -3,24 +3,22 @@
 #include "compression.h"
 #include "chunk.h"
 
+#include <library/cpp/string_utils/misc/misc.h>
+#include <library/cpp/string_utils/stream/stream.h>
+
 #include <util/stream/buffered.h>
 #include <util/stream/length.h>
 #include <util/stream/multi.h>
 #include <util/stream/null.h>
 #include <util/stream/tee.h>
 
-#include <util/system/compat.h>
 #include <util/system/yassert.h>
 
 #include <util/network/socket.h>
 
-#include <util/string/cast.h>
 #include <util/string/strip.h>
 
-#include <util/generic/string.h>
-#include <util/generic/utility.h>
 #include <util/generic/hash_set.h>
-#include <util/generic/yexception.h>
 
 #define HEADERCMP(header, str) \
     case sizeof(str) - 1:      \
@@ -36,7 +34,7 @@ namespace {
     }
 
     inline std::string_view RmSemiColon(const std::string_view& s) {
-        return s.Before(';');
+        return NUtils::Before(s, ';');
     }
 
     template <class T, size_t N>
@@ -153,7 +151,7 @@ public:
 
     static std::string ReadFirstLine(TBufferedInput& in) {
         std::string s;
-        Y_ENSURE_EX(in.ReadLine(s), THttpReadException() << "Failed to get first line");
+        Y_ENSURE_EX(NUtils::ReadLine(in, s), THttpReadException() << "Failed to get first line");
         return s;
     }
 
@@ -185,7 +183,7 @@ public:
     }
 
     inline bool AcceptEncoding(const std::string& s) const {
-        return Codings_.find(to_lower(s)) != Codings_.end();
+        return Codings_.find(NUtils::ToLower(s)) != Codings_.end();
     }
 
     inline bool GetContentLength(ui64& value) const noexcept {
@@ -253,7 +251,7 @@ private:
 
     template <class Functor>
     inline void ForEach(std::string in, Functor& f) {
-        in.to_lower();
+        NUtils::ToLower(in);
 
         const char* b = in.begin();
         const char* c = b;
@@ -276,7 +274,7 @@ private:
     inline bool IsRequest() const {
         // https://datatracker.ietf.org/doc/html/rfc7231#section-4
         // more rare methods: https://www.iana.org/assignments/http-methods/http-methods.xhtml
-        return EqualToOneOf(to_lower(FirstLine().substr(0, FirstLine().find(" "))), "get", "post", "put", "head", "delete", "connect", "options", "trace", "patch");
+        return EqualToOneOf(NUtils::ToLower(FirstLine().substr(0, FirstLine().find(" "))), "get", "post", "put", "head", "delete", "connect", "options", "trace", "patch");
     }
 
     inline void BuildInputChain() {
@@ -309,7 +307,7 @@ private:
                 break;
                 HEADERCMP(header, "content-length") {
                     HasContentLength_ = true;
-                    ContentLength_ = FromString(header.Value());
+                    ContentLength_ = std::stoll(header.Value());
                 }
                 break;
                 HEADERCMP(header, "connection") {
@@ -639,7 +637,7 @@ private:
 
     inline bool HasResponseBody() const noexcept {
         if (IsHttpResponse()) {
-            if (Request_ && Request_->FirstLine().StartsWith(std::string_view("HEAD")))
+            if (Request_ && std::string_view(Request_->FirstLine()).starts_with("HEAD"))
                 return false;
             if (FirstLine_.size() > 9 && strncmp(FirstLine_.data() + 9, "204", 3) == 0)
                 return false;
@@ -792,7 +790,7 @@ private:
         std::string ret;
 
         for (const auto& coding : ComprSchemas_) {
-            if (ret) {
+            if (!ret.empty()) {
                 ret += ", ";
             }
 
@@ -810,14 +808,14 @@ private:
 
         for (THttpHeaders::TConstIterator h = Headers_.Begin(); h != Headers_.End(); ++h) {
             const THttpInputHeader& header = *h;
-            const std::string hl = to_lower(header.Name());
+            const std::string hl = NUtils::ToLower(header.Name());
 
             if (hl == std::string_view("connection")) {
-                keepAlive = to_lower(header.Value()) == std::string_view("keep-alive");
+                keepAlive = NUtils::ToLower(header.Value()) == std::string_view("keep-alive");
             } else if (IsCompressionHeaderEnabled() && hl == std::string_view("content-encoding")) {
-                encoder = TCompressionCodecFactory::Instance().FindEncoder(to_lower(header.Value()));
+                encoder = TCompressionCodecFactory::Instance().FindEncoder(NUtils::ToLower(header.Value()));
             } else if (hl == std::string_view("transfer-encoding")) {
-                chunked = to_lower(header.Value()) == std::string_view("chunked");
+                chunked = NUtils::ToLower(header.Value()) == std::string_view("chunked");
             } else if (hl == std::string_view("content-length")) {
                 haveContentLength = true;
             }
@@ -964,7 +962,7 @@ size_t THttpOutput::SentSize() const noexcept {
 }
 
 unsigned ParseHttpRetCode(const std::string_view& ret) {
-    const std::string_view code = StripString(StripString(ret.After(' ')).Before(' '));
+    const std::string_view code = StripString(NUtils::Before(StripString(NUtils::After(ret, ' ')), ' '));
 
     return FromString<unsigned>(code.data(), code.size());
 }

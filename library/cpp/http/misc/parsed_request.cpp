@@ -1,5 +1,7 @@
 #include "parsed_request.h"
 
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <util/string/strip.h>
 #include <util/generic/yexception.h>
 #include <util/string/cast.h>
@@ -16,11 +18,11 @@ static inline std::string_view StripLeft(const std::string_view& s) noexcept {
 TParsedHttpRequest::TParsedHttpRequest(const std::string_view& str) {
     std::string_view tmp;
 
-    if (!StripLeft(str).TrySplit(' ', Method, tmp)) {
+    if (!NUtils::TrySplit(StripLeft(str), Method, tmp, ' ')) {
         ythrow yexception() << "bad request(" << ToString(str).Quote() << ")";
     }
 
-    if (!StripLeft(tmp).TrySplit(' ', Request, Proto)) {
+    if (!NUtils::TrySplit(StripLeft(tmp), Request, Proto, ' ')) {
         ythrow yexception() << "bad request(" << ToString(str).Quote() << ")";
     }
 
@@ -28,5 +30,8 @@ TParsedHttpRequest::TParsedHttpRequest(const std::string_view& str) {
 }
 
 TParsedHttpLocation::TParsedHttpLocation(const std::string_view& req) {
-    req.Split('?', Path, Cgi);
+    if (!NUtils::TrySplit(req, Path, Cgi, '?')) {
+        Path = req;
+        Cgi = {};
+    }
 }

@@ -1,11 +1,8 @@
 #include "headers.h"
 #include "stream.h"
 
-#include <util/generic/strbuf.h>
-#include <util/generic/yexception.h>
-#include <util/stream/output.h>
-#include <util/string/ascii.h>
-#include <util/string/cast.h>
+#include <library/cpp/string_utils/misc/misc.h>
+#include <library/cpp/string_utils/stream/stream.h>
 #include <util/string/strip.h>
 
 static inline std::string_view Trim(const char* b, const char* e) noexcept {
@@ -23,7 +20,7 @@ THttpInputHeader::THttpInputHeader(const std::string_view header) {
     size_t pos = header.find(':');
 
     if (pos == std::string::npos) {
-        ythrow THttpParseException() << "can not parse http header(" << std::string{header}.Quote() << ")";
+        ythrow THttpParseException() << "can not parse http header(" << NUtils::Quote(header) << ")";
     }
 
     Name_ = std::string(header.cbegin(), header.cbegin() + pos);
@@ -53,9 +50,9 @@ THttpHeaders::THttpHeaders(IInputStream* stream) {
     std::string header;
     std::string line;
 
-    bool rdOk = stream->ReadLine(header);
+    bool rdOk = NUtils::ReadLine(*stream, header);
     while (rdOk && !header.empty()) {
-        rdOk = stream->ReadLine(line);
+        rdOk = NUtils::ReadLine(*stream, line);
 
         if (rdOk && ((line[0] == ' ') || (line[0] == '\t'))) {
             header += line;
