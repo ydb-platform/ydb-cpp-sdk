@@ -2,12 +2,6 @@
 
 #include "formatted_output.h"
 
-#include <util/generic/strbuf.h>
-#include <util/generic/hash.h>
-
-#include <utility>
-#include <util/generic/fwd.h>
-
 namespace NLastGetopt::NComp {
     class ICompleter;
 

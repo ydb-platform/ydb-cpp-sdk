@@ -1,10 +1,6 @@
 #include "opt.h"
 #include "ygetopt.h"
 
-#include <util/generic/string.h>
-
-#include <util/generic/yexception.h>
-
 class TGetOpt::TImpl: public TSimpleRefCount<TImpl> {
 public:
     inline TImpl(int argc, const char* const* argv, const std::string& fmt)

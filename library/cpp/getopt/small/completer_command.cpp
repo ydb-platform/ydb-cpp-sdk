@@ -5,8 +5,7 @@
 #include "wrap.h"
 
 #include <library/cpp/colorizer/colors.h>
-
-#include <util/string/subst.h>
+#include <library/cpp/string_utils/misc/misc.h>
 
 namespace NLastGetopt {
     std::string MakeInfo(std::string_view command, std::string_view flag) {
@@ -104,7 +103,7 @@ namespace NLastGetopt {
                 } else if (shell == "zsh") {
                     TZshCompletionGenerator(opts).Generate(command, Cout);
                 } else {
-                    Cerr << "Unknown shell name " << std::string{shell}.Quote() << Endl;
+                    Cerr << "Unknown shell name " << NUtils::Quote(shell) << Endl;
                     exit(1);
                 }
                 exit(0);
@@ -138,14 +137,14 @@ namespace NLastGetopt {
 
         int DoRun(NLastGetopt::TOptsParseResult&& parsedOptions) override {
             auto arg = parsedOptions.GetFreeArgs()[0];
-            arg.to_lower();
+            NUtils::ToLower(arg);
 
             if (arg == "bash") {
                 TBashCompletionGenerator(Modes_).Generate(Command_, Cout);
             } else if (arg == "zsh") {
                 TZshCompletionGenerator(Modes_).Generate(Command_, Cout);
             } else {
-                Cerr << "Unknown shell name " << arg.Quote() << Endl;
+                Cerr << "Unknown shell name " << NUtils::Quote(arg) << Endl;
                 parsedOptions.PrintUsage();
                 return 1;
             }

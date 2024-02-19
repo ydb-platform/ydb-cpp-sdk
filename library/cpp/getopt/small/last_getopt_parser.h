@@ -4,7 +4,6 @@
 
 #include <library/cpp/colorizer/fwd.h>
 #include <list>
-#include <util/generic/hash_set.h>
 
 namespace NLastGetopt {
     /**
@@ -121,14 +120,14 @@ namespace NLastGetopt {
 
         std::string_view CurValOrOpt() const {
             std::string_view val(CurValStr());
-            if (!val.IsInited() && CurOpt()->HasOptionalValue())
+            if (val.data() == nullptr && CurOpt()->HasOptionalValue())
                 val = CurOpt()->GetOptionalValue();
             return val;
         }
 
         std::string_view CurValOrDef(bool useDef = true) const {
             std::string_view val(CurValOrOpt());
-            if (!val.IsInited() && useDef && CurOpt()->HasDefaultValue())
+            if (val.data() == nullptr && useDef && CurOpt()->HasDefaultValue())
                 val = CurOpt()->GetDefaultValue();
             return val;
         }

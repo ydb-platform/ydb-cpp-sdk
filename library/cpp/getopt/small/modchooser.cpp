@@ -6,10 +6,6 @@
 #include <library/cpp/colorizer/colors.h>
 
 #include <util/folder/path.h>
-#include <util/stream/output.h>
-#include <util/generic/yexception.h>
-#include <util/generic/ptr.h>
-#include <util/string/builder.h>
 
 class PtrWrapper: public TMainClass {
 public:
@@ -197,7 +193,7 @@ int TModChooser::Run(const int argc, const char** argv) const {
     }
 
     if (modeIter == Modes.end()) {
-        Cerr << "Unknown mode " << modeName.Quote() << "." << Endl;
+        Cerr << "Unknown mode " << NUtils::Quote(modeName) << "." << Endl;
         PrintHelp(argv[0], true);
         return 1;
     }
@@ -253,7 +249,7 @@ size_t TModChooser::TMode::CalculateFullNameLen() const {
 }
 
 std::string TModChooser::TMode::FormatFullName(size_t pad) const {
-    TYdbStringBuilder name;
+    NUtils::TYdbStringBuilder name;
     if (!Aliases.empty()) {
         name << "{";
     }
@@ -271,7 +267,7 @@ std::string TModChooser::TMode::FormatFullName(size_t pad) const {
 
     auto len = CalculateFullNameLen();
     if (pad > len) {
-        name << std::string(" ") * (pad - len);
+        name << std::string(" ", pad - len);
     }
 
     return name;

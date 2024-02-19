@@ -1,30 +1,40 @@
 #pragma once
 
+#include <library/cpp/string_utils/string_output/string_output.h>
+
 #include <string>
-#include <sstream>
 
 namespace NUtils {
 
-class TYdbStringBuilder {
-    using TStdStreamManipulator = std::ostream& (*)(std::ostream&);
+class TYdbStringBuilder: public std::string {
 public:
-    template <class T>
-    TYdbStringBuilder& operator<<(const T& value) {
-        stream << value;
-        return *this;
+    inline TYdbStringBuilder()
+        : Out(*this)
+    {
     }
 
-    TYdbStringBuilder& operator<<(TStdStreamManipulator mod) {
-        mod(stream);
-        return *this;
+    TYdbStringBuilder(TYdbStringBuilder&& rhs) noexcept
+        : std::string(std::move(rhs))
+        , Out(*this)
+    {
     }
 
-    operator std::string() {
-        return stream.str();
-    }
-private:
-    std::stringstream stream;
+    TStringOutput Out;
 };
+
+template <class T>
+static inline TYdbStringBuilder& operator<<(TYdbStringBuilder& builder Y_LIFETIME_BOUND, const T& t) {
+    builder.Out << t;
+
+    return builder;
+}
+
+template <class T>
+static inline TYdbStringBuilder&& operator<<(TYdbStringBuilder&& builder Y_LIFETIME_BOUND, const T& t) {
+    builder.Out << t;
+
+    return std::move(builder);
+}
 
 }
 

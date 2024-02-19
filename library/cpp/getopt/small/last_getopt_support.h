@@ -1,5 +1,7 @@
 #pragma once
 
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <util/string/cast.h>
 #include <util/generic/string.h>
 
@@ -166,7 +168,7 @@ namespace NLastGetopt {
             try {
                 return OptFromStringImpl<T>(value);
             } catch (...) {
-                throw TUsageException() << "failed to parse opt " << OptToString(opt) << " value " << std::string(value).Quote() << ": " << CurrentExceptionMessage();
+                throw TUsageException() << "failed to parse opt " << OptToString(opt) << " value " << NUtils::Quote(value) << ": " << CurrentExceptionMessage();
             }
         }
 

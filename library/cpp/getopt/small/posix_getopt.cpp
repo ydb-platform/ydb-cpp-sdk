@@ -1,7 +1,5 @@
 #include "posix_getopt.h"
 
-#include <util/generic/ptr.h>
-
 #include <ctype.h>
 
 namespace NLastGetopt {

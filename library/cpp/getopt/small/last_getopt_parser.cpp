@@ -1,5 +1,6 @@
 #include "last_getopt_parser.h"
 
+#include <library/cpp/string_utils/misc/misc.h>
 #include <library/cpp/colorizer/colors.h>
 
 #include <util/string/escape.h>
@@ -21,7 +22,7 @@ namespace NLastGetopt {
         Pos_ = 1;
         Sop_ = 0;
         CurrentOpt_ = nullptr;
-        CurrentValue_ = nullptr;
+        CurrentValue_ = {};
         GotMinusMinus_ = false;
         Stopped_ = false;
         OptsSeen_.clear();
@@ -93,13 +94,13 @@ namespace NLastGetopt {
 
         // mimic behavior of Opt: unknown option has arg only if char is last within arg
         if (sop < arg.length()) {
-            return Commit(TempCurrentOpt_.Get(), nullptr, pos, sop);
+            return Commit(TempCurrentOpt_.Get(), {}, pos, sop);
         }
 
         pos += 1;
         sop = 0;
         if (pos == Argc_ || EIO_NONE != IsOpt(Argv_[pos])) {
-            return Commit(TempCurrentOpt_.Get(), nullptr, pos, 0);
+            return Commit(TempCurrentOpt_.Get(), {}, pos, 0);
         }
 
         return Commit(TempCurrentOpt_.Get(), Argv_[pos], pos + 1, 0);
@@ -122,16 +123,16 @@ namespace NLastGetopt {
             return ParseOptParam(opt, pos + 1);
         }
         if (opt->GetHasArg() == NO_ARGUMENT) {
-            return Commit(opt, nullptr, pos, p);
+            return Commit(opt, {}, pos, p);
         }
-        return Commit(opt, arg.SubStr(p), pos + 1, 0);
+        return Commit(opt, arg.substr(p), pos + 1, 0);
     }
 
     bool TOptsParser::ParseShortOptArg(size_t pos) {
         Y_ASSERT(pos < Argc_);
         const std::string_view arg(Argv_[pos]);
         Y_ASSERT(EIO_NONE != IsOpt(arg));
-        Y_ASSERT(!arg.StartsWith("--"));
+        Y_ASSERT(!arg.starts_with("--"));
         return ParseShortOptWithinArg(pos, 1);
     }
 
@@ -143,11 +144,11 @@ namespace NLastGetopt {
         if (EIO_DDASH == eio || EIO_PLUS == eio || (Opts_->AllowSingleDashForLong_ || !Opts_->HasAnyShortOption())) {
             // long option
             bool singleCharPrefix = EIO_DDASH != eio;
-            arg.Skip(singleCharPrefix ? 1 : 2);
-            std::string_view optionName = arg.NextTok('=');
+            arg.remove_prefix(singleCharPrefix ? 1 : 2);
+            std::string_view optionName = NUtils::NextTok(arg, '=');
             const TOpt* option = Opts_->FindLongOption(optionName);
             if (!option) {
-                if (singleCharPrefix && !arg.IsInited()) {
+                if (singleCharPrefix && arg.data() == nullptr) {
                     return ParseShortOptArg(pos);
                 } else if (Opts_->AllowUnknownLongOptions_) {
                     return false;
@@ -156,7 +157,7 @@ namespace NLastGetopt {
                                              << "' in '" << Argv_[pos] << "'";
                 }
             }
-            if (arg.IsInited()) {
+            if (arg.data() != nullptr) {
                 if (option->GetHasArg() == NO_ARGUMENT)
                     throw TUsageException() << "option " << optionName << " must have no arg";
                 return Commit(option, arg, pos + 1, 0);
@@ -171,18 +172,18 @@ namespace NLastGetopt {
     bool TOptsParser::ParseOptParam(const TOpt* opt, size_t pos) {
         Y_ASSERT(opt);
         if (opt->GetHasArg() == NO_ARGUMENT || opt->IsEqParseOnly()) {
-            return Commit(opt, nullptr, pos, 0);
+            return Commit(opt, {}, pos, 0);
         }
         if (pos == Argc_) {
             if (opt->GetHasArg() == REQUIRED_ARGUMENT)
                 throw TUsageException() << "option " << opt->ToShortString() << " must have arg";
-            return Commit(opt, nullptr, pos, 0);
+            return Commit(opt, {}, pos, 0);
         }
         const std::string_view arg(Argv_[pos]);
-        if (!arg.StartsWith('-') || opt->GetHasArg() == REQUIRED_ARGUMENT) {
+        if (!arg.starts_with('-') || opt->GetHasArg() == REQUIRED_ARGUMENT) {
             return Commit(opt, arg, pos + 1, 0);
         }
-        return Commit(opt, nullptr, pos, 0);
+        return Commit(opt, {}, pos, 0);
     }
 
     TOptsParser::EIsOpt TOptsParser::IsOpt(const std::string_view& arg) const {
@@ -295,7 +296,7 @@ namespace NLastGetopt {
             CurrentOpt_ = nullptr;
             TempCurrentOpt_.Destroy();
 
-            CurrentValue_ = nullptr;
+            CurrentValue_ = {};
 
             if (Stopped_)
                 return false;

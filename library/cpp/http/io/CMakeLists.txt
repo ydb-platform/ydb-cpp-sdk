@@ -9,6 +9,7 @@ target_link_libraries(cpp-http-io PUBLIC
   cpp-streams-lzma
   cpp-string_utils-stream
   cpp-string_utils-misc
+  cpp-string_builder
 )
 
 target_sources(cpp-http-io PRIVATE

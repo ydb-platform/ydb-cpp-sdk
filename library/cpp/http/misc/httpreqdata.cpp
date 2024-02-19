@@ -1,6 +1,7 @@
 #include "httpreqdata.h"
 
 #include <library/cpp/case_insensitive_string/case_insensitive_string.h>
+#include <library/cpp/string_builder/string_builder.h>
 #include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/stream/mem.h>
@@ -29,7 +30,7 @@ TBaseServerRequestData::TBaseServerRequestData(std::string_view qs, SOCKET s)
 void TBaseServerRequestData::AppendQueryString(std::string_view str) {
     if (Y_UNLIKELY(!Query_.empty())) {
         std::string_view separator = !Query_.ends_with('&') && !str.starts_with('&') ? "&"sv : ""sv;
-        ModifiedQueryString_ = std::string::Join(Query_, separator, str);
+        ModifiedQueryString_ = NUtils::TYdbStringBuilder() << Query_ << separator << str;
      } else {
         ModifiedQueryString_ = str;
      }
@@ -72,7 +73,7 @@ std::string TBaseServerRequestData::HeaderByIndex(size_t n) const noexcept {
 
     const auto& [key, value] = *std::next(HeadersIn_.begin(), n);
 
-    return std::string::Join(key, ": ", value);
+    return NUtils::TYdbStringBuilder() << key << ": " << value;
 }
 
 std::string_view TBaseServerRequestData::Environment(std::string_view key) const {
@@ -100,18 +101,18 @@ std::string_view TBaseServerRequestData::Environment(std::string_view key) const
     OrigQuery_ = {};
     Host_.clear();
     Port_.clear();
-    CurPage_.remove();
+    CurPage_.erase();
     ParseBuf_.clear();
     BeginTime_ = MicroSeconds();
 }
 
 const std::string& TBaseServerRequestData::GetCurPage() const {
-    if (!CurPage_ && Host_) {
+    if (CurPage_.empty() && !Host_.empty()) {
         std::array<std::string_view, 7> fragments;
         auto fragmentIt = fragments.begin();
         *fragmentIt++ = "http://"sv;
         *fragmentIt++ = Host_;
-        if (Port_) {
+        if (!Port_.empty()) {
             *fragmentIt++ = ":"sv;
             *fragmentIt++ = Port_;
         }

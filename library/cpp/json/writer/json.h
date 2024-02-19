@@ -148,7 +148,7 @@ namespace NJsonWriter {
 
     private:
         IOutputStream* Stream;
-        THolder<std::stringStream> StringStream;
+        THolder<TStringStream> StringStream;
         typedef std::vector<const std::string*> TKeys;
         TKeys Keys;
 

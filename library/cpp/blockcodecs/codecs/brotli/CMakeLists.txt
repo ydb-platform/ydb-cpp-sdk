@@ -6,6 +6,7 @@ target_link_libraries(blockcodecs-codecs-brotli INTERFACE
   libs-brotli-enc
   libs-brotli-dec
   cpp-blockcodecs-core
+  cpp-string_builder
 )
 
 add_global_library_for(blockcodecs-codecs-brotli.global blockcodecs-codecs-brotli)
@@ -16,6 +17,7 @@ target_link_libraries(blockcodecs-codecs-brotli.global PUBLIC
   libs-brotli-enc
   libs-brotli-dec
   cpp-blockcodecs-core
+  cpp-string_builder
 )
 
 target_sources(blockcodecs-codecs-brotli.global PRIVATE

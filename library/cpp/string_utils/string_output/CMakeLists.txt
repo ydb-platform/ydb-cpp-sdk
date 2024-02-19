@@ -3,7 +3,6 @@ add_library(cpp-string_utils-string_output)
 target_link_libraries(cpp-string_utils-string_output PUBLIC
   contrib-libs-cxxsupp
   yutil
-  cpp-string_utils-misc
 )
 
 target_sources(cpp-string_utils-string_output PRIVATE

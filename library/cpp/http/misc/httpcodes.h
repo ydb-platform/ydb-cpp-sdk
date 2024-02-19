@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 enum HttpCodes {
     HTTP_CONTINUE = 100,
@@ -79,7 +79,9 @@ enum HttpCodes {
 std::string_view HttpCodeStrEx(int code) noexcept;
 
 inline std::string_view HttpCodeStr(int code) noexcept {
-    return HttpCodeStrEx(code).Skip(4);
+    auto res = HttpCodeStrEx(code);
+    res.remove_prefix(4);
+    return res;
 }
 
 inline bool IsHttpCode(int code) noexcept {

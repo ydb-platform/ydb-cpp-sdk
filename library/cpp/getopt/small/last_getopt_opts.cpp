@@ -4,9 +4,9 @@
 #include "last_getopt_parser.h"
 
 #include <library/cpp/colorizer/colors.h>
+#include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/stream/format.h>
-#include <util/charset/utf8.h>
 
 #include <stdlib.h>
 
@@ -25,35 +25,35 @@ namespace NLastGetopt {
     static const std::string_view SPad = "  ";
 
     void PrintVersionAndExit(const TOptsParser*) {
-        Cout << (NLastGetoptPrivate::VersionString() ? NLastGetoptPrivate::VersionString() : "program version: not linked with library/cpp/getopt") << Endl;
+        Cout << (!NLastGetoptPrivate::VersionString().empty() ? NLastGetoptPrivate::VersionString() : "program version: not linked with library/cpp/getopt") << Endl;
         exit(NLastGetoptPrivate::VersionString().empty());
     }
 
     void PrintShortVersionAndExit(const std::string& appName) {
-        Cout << appName << " version " << (NLastGetoptPrivate::ShortVersionString() ? NLastGetoptPrivate::ShortVersionString() : "not linked with library/cpp/getopt") << Endl;
+        Cout << appName << " version " << (!NLastGetoptPrivate::ShortVersionString().empty() ? NLastGetoptPrivate::ShortVersionString() : "not linked with library/cpp/getopt") << Endl;
         exit(NLastGetoptPrivate::ShortVersionString().empty());
     }
 
     // Like std::string::Quote(), but does not quote digits-only string
     static std::string QuoteForHelp(const std::string& str) {
         if (str.empty())
-            return str.Quote();
+            return NUtils::Quote(str);
         for (size_t i = 0; i < str.size(); ++i) {
             if (!isdigit(str[i]))
-                return str.Quote();
+                return NUtils::Quote(str);
         }
         return str;
     }
 
     namespace NPrivate {
         std::string OptToString(char c) {
-            std::stringStream ss;
+            TStringStream ss;
             ss << "-" << c;
             return ss.Str();
         }
 
         std::string OptToString(const std::string& longOption) {
-            std::stringStream ss;
+            TStringStream ss;
             ss << "--" << longOption;
             return ss.Str();
         }
@@ -275,7 +275,7 @@ namespace NLastGetopt {
     }
 
     static std::string FormatOption(const TOpt* option, const NColorizer::TColors& colors) {
-        std::stringStream result;
+        TStringStream result;
         const TOpt::TShortNames& shorts = option->GetShortNames();
         const TOpt::TLongNames& longs = option->GetLongNames();
 
@@ -324,12 +324,12 @@ namespace NLastGetopt {
 
     void TOpts::PrintCmdLine(const std::string_view& program, IOutputStream& os, const NColorizer::TColors& colors) const {
         os << colors.BoldColor() << "Usage" << colors.OldColor() << ": ";
-        if (CustomUsage) {
+        if (!CustomUsage.empty()) {
             os << CustomUsage;
         } else {
             os << program << " ";
         }
-        if (CustomCmdLineDescr) {
+        if (!CustomCmdLineDescr.empty()) {
             os << CustomCmdLineDescr << Endl;
             return;
         }
@@ -364,7 +364,7 @@ namespace NLastGetopt {
     }
 
     void TOpts::PrintUsage(const std::string_view& program, IOutputStream& osIn, const NColorizer::TColors& colors) const {
-        std::stringStream os;
+        TStringStream os;
 
         if (!Title.empty())
             os << Title << "\n\n";
@@ -430,18 +430,18 @@ namespace NLastGetopt {
                 }
 
                 std::string_view help = opt->GetHelp();
-                while (help && isspace(help.back())) {
-                    help.Chop(1);
+                while (!help.empty() && isspace(help.back())) {
+                    help.remove_suffix(1);
                 }
                 size_t lastLineLength = 0;
                 bool helpHasParagraphs = false;
-                if (help) {
-                    os << Wrap(Wrap_, help, SPad + leftPadding + " ", &lastLineLength, &helpHasParagraphs);
+                if (!help.empty()) {
+                    os << Wrap(Wrap_, help, NUtils::TYdbStringBuilder() << SPad << leftPadding << " ", &lastLineLength, &helpHasParagraphs);
                 }
 
                 auto choicesHelp = opt->GetChoicesHelp();
                 if (!choicesHelp.empty()) {
-                    if (help) {
+                    if (!help.empty()) {
                         os << Endl << SPad << leftPadding << " ";
                     }
                     os << "(values: " << choicesHelp << ")";
@@ -452,10 +452,10 @@ namespace NLastGetopt {
                     if (helpHasParagraphs) {
                         os << Endl << Endl << SPad << leftPadding << " ";
                         os << "Default: " << colors.CyanColor() << quotedDef << colors.OldColor() << ".";
-                    } else if (help.EndsWith('.')) {
+                    } else if (help.ends_with('.')) {
                         os << Endl << SPad << leftPadding << " ";
                         os << "Default: " << colors.CyanColor() << quotedDef << colors.OldColor() << ".";
-                    } else if (help) {
+                    } else if (!help.empty()) {
                         if (SPad.size() + leftWidth + 1 + lastLineLength + 12 + quotedDef.size() > Wrap_) {
                             os << Endl << SPad << leftPadding << " ";
                         } else {
@@ -520,8 +520,8 @@ namespace NLastGetopt {
             if (!FreeArgSpecs_.contains(i)) {
                 continue;
             }
-
-            if (auto help = FreeArgSpecs_.at(i).GetHelp()) {
+            auto help = FreeArgSpecs_.at(i).GetHelp();
+            if (!help.empty()) {
                 auto title = GetFreeArgTitle(i);
                 os << SPad << colors.GreenColor() << RightPad(title, leftFreeWidth, ' ') << colors.OldColor()
                    << SPad << help << Endl;
@@ -530,7 +530,8 @@ namespace NLastGetopt {
 
         if (FreeArgsMax_ == UNLIMITED_ARGS) {
             auto title = TrailingArgSpec_.GetTitle(DefaultFreeArgTitle_);
-            if (auto help = TrailingArgSpec_.GetHelp()) {
+            auto help = TrailingArgSpec_.GetHelp();
+            if (!help.empty()) {
                 os << SPad << colors.GreenColor() << RightPad(title, leftFreeWidth, ' ') << colors.OldColor()
                    << SPad << help << Endl;
             }

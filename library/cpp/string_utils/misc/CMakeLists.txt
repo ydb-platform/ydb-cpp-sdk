@@ -2,7 +2,9 @@ add_library(cpp-string_utils-misc)
 
 target_link_libraries(cpp-string_utils-misc PUBLIC
   contrib-libs-cxxsupp
+  yutil
   cpp-string_utils-escape
+  cpp-string_builder
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <util/generic/fwd.h>
-#include <util/generic/strbuf.h>
+#include <util/system/defaults.h>
+
+#include <string>
 
 namespace NLastGetopt {
     /**

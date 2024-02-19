@@ -1,8 +1,7 @@
 #pragma once
 
-#include <util/generic/algorithm.h>
-#include <util/string/builder.h>
-#include <util/memory/tempbuf.h>
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <vector>
 
 namespace NLastGetopt {
@@ -20,13 +19,13 @@ namespace NLastGetopt {
         IndentGuard Indent();
 
         /// Append a new indented line to the stream.
-        TYdbStringBuilder& Line();
+        NUtils::TYdbStringBuilder& Line();
 
         /// Collect all lines into a stream.
         void Print(IOutputStream& out);
 
     private:
         int IndentLevel_ = 0;
-        std::vector<std::pair<int, TYdbStringBuilder>> Lines_;
+        std::vector<std::pair<int, NUtils::TYdbStringBuilder>> Lines_;
     };
 }

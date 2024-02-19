@@ -32,15 +32,15 @@ namespace NLastGetopt {
 
         void HandleOpt(const TOptsParser* parser) override {
             const std::string_view curval(parser->CurValOrDef());
-            if (curval.IsInited()) {
+            if (curval.data() != nullptr) {
                 StringSplitter(curval).Split(ElementsDelim).Consume([&](const std::string_view& val) {
                     std::string_view mutableValue = val;
 
-                    TValue first = NPrivate::OptFromString<TValue>(mutableValue.NextTok(RangesDelim), parser->CurOpt());
-                    TValue last = mutableValue ? NPrivate::OptFromString<TValue>(mutableValue, parser->CurOpt()) : first;
+                    TValue first = NPrivate::OptFromString<TValue>(NUtils::NextTok(mutableValue, RangesDelim), parser->CurOpt());
+                    TValue last = !mutableValue.empty() ? NPrivate::OptFromString<TValue>(mutableValue, parser->CurOpt()) : first;
 
                     if (last < first) {
-                        throw TUsageException() << "failed to parse opt " << NPrivate::OptToString(parser->CurOpt()) << " value " << std::string(val).Quote() << ": the second argument is less than the first one";
+                        throw TUsageException() << "failed to parse opt " << NPrivate::OptToString(parser->CurOpt()) << " value " << NUtils::Quote(val) << ": the second argument is less than the first one";
                     }
 
                     for (++last; first < last; ++first) {
@@ -70,7 +70,7 @@ namespace NLastGetopt {
 
         void HandleOpt(const TOptsParser* parser) override {
             const std::string_view curval(parser->CurValOrDef());
-            if (curval.IsInited()) {
+            if (curval.data() != nullptr) {
                 StringSplitter(curval).Split(Delim).Consume([&](const std::string_view& val) {
                     Target->insert(Target->end(), NPrivate::OptFromString<TValue>(val, parser->CurOpt()));
                 });
@@ -97,11 +97,11 @@ namespace NLastGetopt {
         void HandleOpt(const TOptsParser* parser) override {
             const std::string_view curval(parser->CurValOrDef());
             const TOpt* curOpt(parser->CurOpt());
-            if (curval.IsInited()) {
+            if (curval.data() != nullptr) {
                 std::string_view key, value;
-                if (!curval.TrySplit(KVDelim, key, value)) {
+                if (!NUtils::TrySplit(curval, key, value, KVDelim)) {
                     throw TUsageException() << "failed to parse opt " << NPrivate::OptToString(curOpt)
-                                             << " value " << std::string(curval).Quote() << ": expected key" << KVDelim << "value format";
+                                             << " value " << NUtils::Quote(curval) << ": expected key" << KVDelim << "value format";
                 }
                 Func(NPrivate::OptFromString<TKey>(key, curOpt), NPrivate::OptFromString<TValue>(value, curOpt));
             }
@@ -116,14 +116,14 @@ namespace NLastGetopt {
         template <typename TpFunc, typename TpArg>
         void THandlerFunctor1<TpFunc, TpArg>::HandleOpt(const TOptsParser* parser) {
             const std::string_view curval = parser->CurValOrDef(!HasDef_);
-            const TpArg& arg = curval.IsInited() ? OptFromString<TpArg>(curval, parser->CurOpt()) : Def_;
+            const TpArg& arg = curval.data() != nullptr ? OptFromString<TpArg>(curval, parser->CurOpt()) : Def_;
             try {
                 Func_(arg);
             } catch (const TUsageException&) {
                 throw;
             } catch (...) {
                 throw TUsageException() << "failed to handle opt " << OptToString(parser->CurOpt())
-                                         << " value " << std::string(curval).Quote() << ": " << CurrentExceptionMessage();
+                                         << " value " << NUtils::Quote(curval) << ": " << CurrentExceptionMessage();
             }
         }
 

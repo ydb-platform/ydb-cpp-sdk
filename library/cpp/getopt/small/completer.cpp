@@ -2,8 +2,8 @@
 
 #include "completion_generator.h"
 
-#include <util/string/cast.h>
-#include <util/generic/fwd.h>
+#include <library/cpp/string_builder/string_builder.h>
+#include <library/cpp/string_utils/misc/misc.h>
 
 using NLastGetopt::NEscaping::Q;
 using NLastGetopt::NEscaping::QQ;
@@ -25,7 +25,7 @@ namespace NLastGetopt::NComp {
     }
 
     std::string_view TCompleterManager::GetCompleterID(const ICompleter* completer) {
-        return Queue_.emplace_back(TYdbStringBuilder() << "_" << Command_ << "__completer_" << ++Id_, completer).first;
+        return Queue_.emplace_back(NUtils::TYdbStringBuilder() << "_" << Command_ << "__completer_" << ++Id_, completer).first;
     }
 
     void TCompleterManager::GenerateZsh(TFormattedOutput& out) {
@@ -78,18 +78,18 @@ namespace NLastGetopt::NComp {
 
                 if (action.empty()) {
                     L << "_message -e " << SS(tag) << " " << SS(alternative.Description);
-                } else if (action.StartsWith("((") && action.EndsWith("))")) {
+                } else if (action.starts_with("((") && action.ends_with("))")) {
                     L << "action=" << action.substr(1, action.size() - 2);
                     L << "_describe -t " << SS(tag) << " " << SS(alternative.Description) << " action -M 'r:|[_-]=* r:|=*'";
-                } else if (action.StartsWith("(") && action.EndsWith(")")) {
+                } else if (action.starts_with("(") && action.ends_with(")")) {
                     L << "action=" << action << "";
                     L << "_describe -t " << SS(tag) << " " << SS(alternative.Description) << " action -M 'r:|[_-]=* r:|=*'";
-                } else if (action.StartsWith(' ')) {
+                } else if (action.starts_with(' ')) {
                     L << action.substr(1);
                 } else {
                     L << "_description " << SS(tag) << " expl " << SS(alternative.Description);
                     std::string_view word, args;
-                    action.Split(' ', word, args);
+                    NUtils::Split(action, word, args, ' ');
                     L << word << " \"${expl[@]}\" " << args;
                 }
             }
@@ -112,7 +112,7 @@ namespace NLastGetopt::NComp {
         }
 
         void GenerateBash(TFormattedOutput& out) const override {
-            if (BashCode) {
+            if (!BashCode.empty()) {
                 L << BashCode;
             }
         }
@@ -131,7 +131,8 @@ namespace NLastGetopt::NComp {
     };
 
     ICompleterPtr Choice(std::vector<TChoice> choices) {
-        auto bash = TYdbStringBuilder() << "COMPREPLY+=( $(compgen -W '";
+        NUtils::TYdbStringBuilder bash;  
+        bash << "COMPREPLY+=( $(compgen -W '";
         std::string_view sep = "";
         for (auto& choice : choices) {
             bash << sep << B(choice.Choice);
@@ -139,11 +140,11 @@ namespace NLastGetopt::NComp {
         }
         bash << "' -- ${cur}) )";
 
-        auto action = TYdbStringBuilder();
+        NUtils::TYdbStringBuilder action;
         action << "((";
         for (auto& choice: choices) {
             action << " " << SS(choice.Choice);
-            if (choice.Description) {{
+            if (!choice.Description.empty()) {{
                 action << ":" << SS(choice.Description);
             }}
         }
@@ -152,7 +153,7 @@ namespace NLastGetopt::NComp {
     }
 
     std::string Compgen(std::string_view flags) {
-        return TYdbStringBuilder() << "COMPREPLY+=( $(compgen " << flags << " -- ${cur}) )";
+        return NUtils::TYdbStringBuilder() << "COMPREPLY+=( $(compgen " << flags << " -- ${cur}) )";
     }
 
     ICompleterPtr Default() {
@@ -160,7 +161,7 @@ namespace NLastGetopt::NComp {
     }
 
     ICompleterPtr File(std::string pattern) {
-        if (pattern) {
+        if (!pattern.empty()) {
             pattern = " -g " + SS(pattern);
         }
         return MakeSimpleShared<TSimpleCompleter>("", "_files" + pattern);
@@ -238,7 +239,7 @@ namespace NLastGetopt::NComp {
                 if (0 <= curIdx && curIdx < i) {
                     cur = std::string_view(argv[curIdx]);
                 }
-                if (cur && !prefix && !suffix) {
+                if (!cur.empty() && prefix.empty() && suffix.empty()) {
                     prefix = cur;  // bash does not send prefix and suffix
                 }
 
@@ -268,12 +269,12 @@ namespace NLastGetopt::NComp {
 
     void TMultipartCustomCompleter::GenerateCompletions(int argc, const char** argv, int curIdx, std::string_view cur, std::string_view prefix, std::string_view suffix) {
         auto root = std::string_view();
-        if (prefix.Contains(Sep_)) {
+        if (!Sep_.length() || prefix.find(Sep_) != std::string_view::npos) {
             auto tmp = std::string_view();
-            prefix.RSplit(Sep_, root, tmp);
+            NUtils::RSplit(prefix, root, tmp, Sep_);
         }
 
-        if (root) {
+        if (!root.empty()) {
             Cout << root << Sep_ << Endl;
         } else {
             Cout << Endl;

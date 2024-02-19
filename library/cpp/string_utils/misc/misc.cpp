@@ -64,6 +64,46 @@ bool TryRSplit(std::string_view src, std::string_view& l, std::string_view& r, s
     return TrySplitOn(src, l, r, src.rfind(delim), delim.size());
 }
 
+void Split(std::string_view src, std::string_view& l, std::string_view& r, char delim) {
+    if (!TrySplit(src, l, r, delim)) {
+        l = src;
+        r = {};
+    }
+}
+
+void Split(std::string_view src, std::string_view& l, std::string_view& r, std::string_view delim) {
+    if (!TrySplit(src, l, r, delim)) {
+        l = src;
+        r = {};
+    }
+}
+
+void RSplit(std::string_view src, std::string_view& l, std::string_view& r, char delim) {
+    if (!TryRSplit(src, l, r, delim)) {
+        r = src;
+        l = {};
+    }
+}
+
+void RSplit(std::string_view src, std::string_view& l, std::string_view& r, std::string_view delim) {
+    if (!TryRSplit(src, l, r, delim)) {
+        r = src;
+        l = {};
+    }
+}
+
+std::string_view NextTok(std::string_view& src, char delim) {
+    std::string_view tok;
+    Split(src, tok, src, delim);
+    return tok;
+}
+
+std::string_view NextTok(std::string_view& src, std::string_view delim) {
+    std::string_view tok;
+    Split(src, tok, src, delim);
+    return tok;
+}
+
 std::string_view After(std::string_view src, char c) {
     std::string_view l, r;
     return TrySplit(src, l, r, c) ? r : src;

@@ -4,6 +4,7 @@ target_link_libraries(cpp-string_utils-url PUBLIC
   contrib-libs-cxxsupp
   yutil
   cpp-string_utils-misc
+  cpp-string_builder
 )
 
 target_sources(cpp-string_utils-url PRIVATE

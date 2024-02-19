@@ -220,14 +220,8 @@ void SplitUrlToHostAndPath(const std::string_view url, std::string& host, std::s
 
 void SeparateUrlFromQueryAndFragment(const std::string_view url, std::string_view& sanitizedUrl, std::string_view& query, std::string_view& fragment) {
     std::string_view urlWithoutFragment;
-    if (!NUtils::TrySplit(url, urlWithoutFragment, fragment, '#')) {
-        fragment = "";
-        urlWithoutFragment = url;
-    }
-    if (!NUtils::TrySplit(urlWithoutFragment, sanitizedUrl, query, '?')) {
-        query = "";
-        sanitizedUrl = urlWithoutFragment;
-    }
+    NUtils::Split(url, urlWithoutFragment, fragment, '#');
+    NUtils::Split(urlWithoutFragment, sanitizedUrl, query, '?');
 }
 
 bool TryGetSchemeHostAndPort(const std::string_view url, std::string_view& scheme, std::string_view& host, ui16& port) {

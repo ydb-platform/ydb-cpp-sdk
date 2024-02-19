@@ -1,5 +1,8 @@
 #include "formatted_output.h"
 
+#include <util/memory/tempbuf.h>
+#include <util/generic/algorithm.h>
+
 namespace NLastGetopt {
 
     TFormattedOutput::IndentGuard::IndentGuard(TFormattedOutput* output)
@@ -16,8 +19,8 @@ namespace NLastGetopt {
         return IndentGuard(this);
     }
 
-    TYdbStringBuilder& TFormattedOutput::Line() {
-        return Lines_.emplace_back(IndentLevel_, TYdbStringBuilder()).second;
+    NUtils::TYdbStringBuilder& TFormattedOutput::Line() {
+        return Lines_.emplace_back(IndentLevel_, NUtils::TYdbStringBuilder()).second;
     }
 
     void TFormattedOutput::Print(IOutputStream& out) {
@@ -28,7 +31,7 @@ namespace NLastGetopt {
                 out.Write(buf.Data(), indent);
             }
             out << line;
-            if (!line.EndsWith('\n')) {
+            if (!std::string_view(line).ends_with('\n')) {
                 out << Endl;
             }
         }

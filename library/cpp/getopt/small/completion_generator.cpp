@@ -2,9 +2,6 @@
 
 #include <util/generic/overloaded.h>
 
-#include <util/string/ascii.h>
-#include <util/generic/hash_set.h>
-
 #include "last_getopt_parse_result.h"
 
 using NLastGetopt::NEscaping::Q;
@@ -202,7 +199,7 @@ namespace NLastGetopt {
                     line << ":";
                 }
                 auto argHelp = spec.GetCompletionArgHelp(opts.GetDefaultFreeArgTitle());
-                if (argHelp) {
+                if (!argHelp.empty()) {
                     line << Q(argHelp);
                 } else {
                     line << " ";
@@ -220,7 +217,7 @@ namespace NLastGetopt {
                 auto& spec = opts.GetTrailingArgSpec();
                 auto& line = L << "'*:";
                 auto argHelp = spec.GetCompletionArgHelp(opts.GetDefaultFreeArgTitle());
-                if (argHelp) {
+                if (!argHelp.empty()) {
                     line << Q(argHelp);
                 } else {
                     line << " ";
@@ -342,7 +339,7 @@ namespace NLastGetopt {
             line << "}'";
         }
 
-        if (opt.GetCompletionHelp()) {
+        if (!opt.GetCompletionHelp().empty()) {
             line << "[";
             line << Q(opt.GetCompletionHelp());
             line << "]";
@@ -355,7 +352,7 @@ namespace NLastGetopt {
 
             line << ":";
 
-            if (opt.GetCompletionArgHelp()) {
+            if (!opt.GetCompletionArgHelp().empty()) {
                 line << C(opt.GetCompletionArgHelp());
             } else {
                 line << " ";
@@ -646,8 +643,8 @@ namespace NLastGetopt {
 #undef L
 
     std::string NEscaping::Q(std::string_view string) {
-        TYdbStringBuilder out;
-        out.reserve(string.size());
+        NUtils::TYdbStringBuilder out;
+        // out.reserve(string.size());
         for (auto c: string) {
             switch (c) {
                 case '\a':
@@ -697,8 +694,8 @@ namespace NLastGetopt {
     }
 
     std::string NEscaping::C(std::string_view string) {
-        TYdbStringBuilder out;
-        out.reserve(string.size() + 1);
+        NUtils::TYdbStringBuilder out;
+        // out.reserve(string.size() + 1);
         for (auto c: string) {
             switch (c) {
                 case '\a':
@@ -730,8 +727,8 @@ namespace NLastGetopt {
     }
 
     std::string NEscaping::S(std::string_view string) {
-        TYdbStringBuilder out;
-        out.reserve(string.size() + 1);
+        NUtils::TYdbStringBuilder out;
+        // out.reserve(string.size() + 1);
         for (auto c: string) {
             switch (c) {
                 case '\a':
@@ -760,8 +757,8 @@ namespace NLastGetopt {
     }
 
     std::string NEscaping::B(std::string_view string) {
-        TYdbStringBuilder out;
-        out.reserve(string.size() + 1);
+        NUtils::TYdbStringBuilder out;
+        // out.reserve(string.size() + 1);
         for (auto c: string) {
             switch (c) {
                 case '\a':

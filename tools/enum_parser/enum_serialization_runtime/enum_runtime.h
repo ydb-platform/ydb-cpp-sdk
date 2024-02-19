@@ -4,11 +4,7 @@
 #include "ordered_pairs.h"
 
 #include <util/generic/array_ref.h>
-#include <util/generic/strbuf.h>
-#include <util/generic/string.h>
-#include <util/generic/vector.h>
 #include <util/generic/serialized_enum.h>
-#include <util/stream/fwd.h>
 
 #include <utility>
 
@@ -24,44 +20,44 @@ namespace NEnumSerializationRuntime {
         struct TInitializationData {
             const TArrayRef<const TEnumStringPair> NamesInitializer;
             const TArrayRef<const TEnumStringPair> ValuesInitializer;
-            const TArrayRef<const TStringBuf> CppNamesInitializer;
-            const TStringBuf CppNamesPrefix;
-            const TStringBuf ClassName;
+            const TArrayRef<const std::string_view> CppNamesInitializer;
+            const std::string_view CppNamesPrefix;
+            const std::string_view ClassName;
         };
 
     public:
         TEnumDescriptionBase(const TInitializationData& enumInitData);
         ~TEnumDescriptionBase();
 
-        const TString& ToString(TRepresentationType key) const;
+        const std::string& ToString(TRepresentationType key) const;
 
-        TStringBuf ToStringBuf(TRepresentationType key) const;
-        static TStringBuf ToStringBufFullScan(const TRepresentationType key, const TInitializationData& enumInitData);
-        static TStringBuf ToStringBufSorted(const TRepresentationType key, const TInitializationData& enumInitData);
-        static TStringBuf ToStringBufDirect(const TRepresentationType key, const TInitializationData& enumInitData);
+        std::string_view ToStringBuf(TRepresentationType key) const;
+        static std::string_view ToStringBufFullScan(const TRepresentationType key, const TInitializationData& enumInitData);
+        static std::string_view ToStringBufSorted(const TRepresentationType key, const TInitializationData& enumInitData);
+        static std::string_view ToStringBufDirect(const TRepresentationType key, const TInitializationData& enumInitData);
 
-        std::pair<bool, TRepresentationType> TryFromString(const TStringBuf name) const;
-        static std::pair<bool, TRepresentationType> TryFromStringFullScan(const TStringBuf name, const TInitializationData& enumInitData);
-        static std::pair<bool, TRepresentationType> TryFromStringSorted(const TStringBuf name, const TInitializationData& enumInitData);
+        std::pair<bool, TRepresentationType> TryFromString(const std::string_view name) const;
+        static std::pair<bool, TRepresentationType> TryFromStringFullScan(const std::string_view name, const TInitializationData& enumInitData);
+        static std::pair<bool, TRepresentationType> TryFromStringSorted(const std::string_view name, const TInitializationData& enumInitData);
 
-        TRepresentationType FromString(const TStringBuf name) const;
-        static TRepresentationType FromStringFullScan(const TStringBuf name, const TInitializationData& enumInitData);
-        static TRepresentationType FromStringSorted(const TStringBuf name, const TInitializationData& enumInitData);
+        TRepresentationType FromString(const std::string_view name) const;
+        static TRepresentationType FromStringFullScan(const std::string_view name, const TInitializationData& enumInitData);
+        static TRepresentationType FromStringSorted(const std::string_view name, const TInitializationData& enumInitData);
 
         void Out(IOutputStream* os, const TRepresentationType key) const;
         static void OutFullScan(IOutputStream* os, const TRepresentationType key, const TInitializationData& enumInitData);
         static void OutSorted(IOutputStream* os, const TRepresentationType key, const TInitializationData& enumInitData);
         static void OutDirect(IOutputStream* os, const TRepresentationType key, const TInitializationData& enumInitData);
 
-        const TString& AllEnumNames() const noexcept {
+        const std::string& AllEnumNames() const noexcept {
             return AllNames;
         }
 
-        const std::vector<TString>& AllEnumCppNames() const noexcept {
+        const std::vector<std::string>& AllEnumCppNames() const noexcept {
             return AllCppNames;
         }
 
-        const std::map<TRepresentationType, TString>& TypelessEnumNames() const noexcept {
+        const std::map<TRepresentationType, std::string>& TypelessEnumNames() const noexcept {
             return Names;
         }
 
@@ -70,11 +66,11 @@ namespace NEnumSerializationRuntime {
         }
 
     private:
-        std::map<TRepresentationType, TString> Names;
-        std::map<TStringBuf, TRepresentationType> Values;
-        TString AllNames;
-        std::vector<TString> AllCppNames;
-        TString ClassName;
+        std::map<TRepresentationType, std::string> Names;
+        std::map<std::string_view, TRepresentationType> Values;
+        std::string AllNames;
+        std::vector<std::string> AllCppNames;
+        std::string ClassName;
         std::vector<TRepresentationType> AllValues;
     };
 
@@ -104,50 +100,50 @@ namespace NEnumSerializationRuntime {
 
         // ToString
         // Return reference to singleton preallocated string
-        const TString& ToString(const EEnum key) const {
+        const std::string& ToString(const EEnum key) const {
             return TBase::ToString(TCast::CastToRepresentationType(key));
         }
 
         // ToStringBuf
-        TStringBuf ToStringBuf(EEnum key) const {
+        std::string_view ToStringBuf(EEnum key) const {
             return TBase::ToStringBuf(TCast::CastToRepresentationType(key));
         }
-        static TStringBuf ToStringBufFullScan(const EEnum key, const TInitializationData& enumInitData) {
+        static std::string_view ToStringBufFullScan(const EEnum key, const TInitializationData& enumInitData) {
             return TBase::ToStringBufFullScan(TCast::CastToRepresentationType(key), enumInitData);
         }
-        static TStringBuf ToStringBufSorted(const EEnum key, const TInitializationData& enumInitData) {
+        static std::string_view ToStringBufSorted(const EEnum key, const TInitializationData& enumInitData) {
             return TBase::ToStringBufSorted(TCast::CastToRepresentationType(key), enumInitData);
         }
-        static TStringBuf ToStringBufDirect(const EEnum key, const TInitializationData& enumInitData) {
+        static std::string_view ToStringBufDirect(const EEnum key, const TInitializationData& enumInitData) {
             return TBase::ToStringBufDirect(TCast::CastToRepresentationType(key), enumInitData);
         }
 
         // TryFromString-like functons
         // Return false for unknown enumeration names
-        bool FromString(const TStringBuf name, EEnum& ret) const {
+        bool FromString(const std::string_view name, EEnum& ret) const {
             return MapFindResult(TBase::TryFromString(name), ret);
         }
-        static bool TryFromStringFullScan(const TStringBuf name, EEnum& ret, const TInitializationData& enumInitData) {
+        static bool TryFromStringFullScan(const std::string_view name, EEnum& ret, const TInitializationData& enumInitData) {
             return MapFindResult(TBase::TryFromStringFullScan(name, enumInitData), ret);
         }
-        static bool TryFromStringSorted(const TStringBuf name, EEnum& ret, const TInitializationData& enumInitData) {
+        static bool TryFromStringSorted(const std::string_view name, EEnum& ret, const TInitializationData& enumInitData) {
             return MapFindResult(TBase::TryFromStringSorted(name, enumInitData), ret);
         }
 
         // FromString
         // Throw exception for unknown enumeration names
-        EEnum FromString(const TStringBuf name) const {
+        EEnum FromString(const std::string_view name) const {
             return TCast::CastFromRepresentationType(TBase::FromString(name));
         }
-        static EEnum FromStringFullScan(const TStringBuf name, const TInitializationData& enumInitData) {
+        static EEnum FromStringFullScan(const std::string_view name, const TInitializationData& enumInitData) {
             return TCast::CastFromRepresentationType(TBase::FromStringFullScan(name, enumInitData));
         }
-        static EEnum FromStringSorted(const TStringBuf name, const TInitializationData& enumInitData) {
+        static EEnum FromStringSorted(const std::string_view name, const TInitializationData& enumInitData) {
             return TCast::CastFromRepresentationType(TBase::FromStringSorted(name, enumInitData));
         }
 
         // Inspection
-        TMappedDictView<EEnum, TString> EnumNames() const noexcept {
+        TMappedDictView<EEnum, std::string> EnumNames() const noexcept {
             return {TBase::TypelessEnumNames()};
         }
 
@@ -169,7 +165,7 @@ namespace NEnumSerializationRuntime {
             TBase::OutDirect(os, TCast::CastToRepresentationType(key), enumInitData);
         }
 
-        static constexpr TEnumStringPair EnumStringPair(const EEnum key, const TStringBuf name) noexcept {
+        static constexpr TEnumStringPair EnumStringPair(const EEnum key, const std::string_view name) noexcept {
             return {TCast::CastToRepresentationType(key), name};
         }
     };

@@ -165,10 +165,7 @@ namespace NUri {
         bool ParseHashBangFromQuery(const TParser& parser) {
             const TSection& query = parser.Get(TField::FieldQuery);
             if (query.IsSet()) {
-                if (!NUtils::TryRSplit(query.Get(), Query, HashBang, '&')) {
-                    Query = {};
-                    HashBang = query.Get();
-                }
+                NUtils::RSplit(query.Get(), Query, HashBang, '&');
                 if (HashBang.starts_with(ESCAPED_FRAGMENT)) {
                     HashBang.remove_prefix(ESCAPED_FRAGMENT.length());
                     return true;

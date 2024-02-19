@@ -30,8 +30,5 @@ TParsedHttpRequest::TParsedHttpRequest(const std::string_view& str) {
 }
 
 TParsedHttpLocation::TParsedHttpLocation(const std::string_view& req) {
-    if (!NUtils::TrySplit(req, Path, Cgi, '?')) {
-        Path = req;
-        Cgi = {};
-    }
+    NUtils::Split(req, Path, Cgi, '?');
 }

@@ -3,17 +3,10 @@
 #include "completer.h"
 #include "last_getopt_handlers.h"
 
-#include <util/string/split.h>
 #include <util/generic/hash_set.h>
-#include <util/generic/ptr.h>
-#include <util/generic/string.h>
-#include <util/generic/maybe.h>
-
-#include <util/string/cast.h>
 #include <util/string/join.h>
 
 #include <optional>
-#include <stdarg.h>
 
 namespace NLastGetopt {
     enum EHasArg {
@@ -431,7 +424,7 @@ namespace NLastGetopt {
          * Get help string that appears when argument completer lists available options.
          */
         const std::string& GetCompletionHelp() const {
-            return CompletionHelp_ ? CompletionHelp_ : Help_;
+            return !CompletionHelp_.empty() ? CompletionHelp_ : Help_;
         }
 
         /**
@@ -456,7 +449,7 @@ namespace NLastGetopt {
          *  @return argument help string for use in completion script.
          */
         const std::string& GetCompletionArgHelp() const {
-            return CompletionArgHelp_ ? CompletionArgHelp_ : ArgTitle_;
+            return !CompletionArgHelp_.empty() ? CompletionArgHelp_ : ArgTitle_;
         }
 
         /**
@@ -832,7 +825,7 @@ namespace NLastGetopt {
          * Get argument title. If title is empty, returns a default one.
          */
         std::string_view GetTitle(std::string_view defaultTitle) const {
-            return Title_ ? std::string_view(Title_) : defaultTitle;
+            return !Title_.empty() ? std::string_view(Title_) : defaultTitle;
         }
 
         /**
@@ -866,7 +859,7 @@ namespace NLastGetopt {
          * Get help string that appears when completer suggests values fot this argument.
          */
         std::string_view GetCompletionArgHelp(std::string_view defaultTitle) const {
-            return CompletionArgHelp_ ? std::string_view(CompletionArgHelp_) : GetTitle(defaultTitle);
+            return !CompletionArgHelp_.empty() ? std::string_view(CompletionArgHelp_) : GetTitle(defaultTitle);
         }
 
         /**

@@ -1,13 +1,8 @@
 #include "opt2.h"
 
 #include <util/generic/hash.h>
-#include <util/generic/utility.h>
-#include <util/generic/yexception.h>
-#include <util/str_stl.h>
 
 #include <stdio.h>
-#include <errno.h>
-#include <ctype.h>
 
 void Opt2::Clear() {
     Specs.clear();

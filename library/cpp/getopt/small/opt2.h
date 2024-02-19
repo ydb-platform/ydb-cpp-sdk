@@ -1,7 +1,8 @@
 #pragma once
 
 #include <util/system/defaults.h>
-#include <util/generic/string.h>
+
+#include <string>
 #include <vector>
 
 // simplified options parser

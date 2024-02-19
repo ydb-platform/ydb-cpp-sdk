@@ -120,7 +120,7 @@ namespace NLastGetopt {
     }
 
     void FindUserTypos(const std::string& arg, const TOpts* options) {
-        if (arg.size() < 4 || !arg.StartsWith("-")) {
+        if (arg.size() < 4 || !arg.starts_with("-")) {
             return;
         }
 
