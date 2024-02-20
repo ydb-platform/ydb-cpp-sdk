@@ -38,7 +38,8 @@ public:
         }
 
         TWaiter waiter;
-        with_lock (Mutex) {
+        {
+            std::lock_guard<std::mutex> guard(Mutex);
             Events.emplace(std::move(eventInfo));
             waiter = PopWaiterImpl();
         }
@@ -47,7 +48,8 @@ public:
 
     TMaybe<TEvent> GetEvent(bool block = false) {
         TMaybe<TEventInfo> eventInfo;
-        with_lock (Mutex) {
+        {
+            std::lock_guard<std::mutex> guard(Mutex);
             if (block) {
                 WaitEventsImpl();
             }
@@ -63,7 +65,8 @@ public:
 
     std::vector<TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing()) {
         std::vector<TEventInfo> eventInfos;
-        with_lock (Mutex) {
+        {
+            std::lock_guard<std::mutex> guard(Mutex);
             if (block) {
                 WaitEventsImpl();
             }
@@ -90,7 +93,8 @@ public:
 
     void Close(const TSessionClosedEvent& event) {
         TWaiter waiter;
-        with_lock (Mutex) {
+        {
+            std::lock_guard<std::mutex> guard(Mutex);
             CloseEvent = event;
             Closed = true;
             waiter = TWaiter(Waiter.ExtractPromise(), this);

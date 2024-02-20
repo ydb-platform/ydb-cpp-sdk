@@ -4,10 +4,10 @@
 #include <client/ydb_common_client/impl/client.h>
 
 #include <util/generic/queue.h>
-#include <util/system/condvar.h>
 #include <util/thread/pool.h>
 
 #include <queue>
+#include <condition_variable>
 
 namespace NYdb::NPersQueue {
 
@@ -364,7 +364,7 @@ public:
 
 
     void Signal() override {
-        CondVar.Signal();
+        CondVar.notify_one();
     }
 
 protected:
@@ -380,7 +380,8 @@ protected:
 
     void WaitEventsImpl() { // Assumes that we're under lock. Posteffect: HasEventsImpl() is true.
         while (!HasEventsImpl()) {
-            CondVar.WaitI(Mutex);
+            std::unique_lock<std::mutex> lk(Mutex, std::defer_lock);
+            CondVar.wait(lk);
         }
     }
 
@@ -393,7 +394,8 @@ protected:
 
 public:
     NThreading::TFuture<void> WaitEvent() {
-        with_lock (Mutex) {
+        {
+            std::lock_guard<std::mutex> guard (Mutex);
             if (HasEventsImpl()) {
                 return NThreading::MakeFuture(); // Signalled
             } else {
@@ -413,8 +415,8 @@ protected:
     TWaiter Waiter;
     bool WaiterWillBeSignaled = false;
     std::queue<TEventInfo> Events;
-    TCondVar CondVar;
-    TMutex Mutex;
+    std::condition_variable CondVar;
+    std::mutex Mutex;
     TMaybe<TClosedEvent> CloseEvent;
     std::atomic<bool> Closed = false;
 };
@@ -467,7 +469,7 @@ class TSerialExecutor : public IAsyncExecutor, public std::enable_shared_from_th
 private:
     IAsyncExecutor::TPtr Executor; //!< Wrapped executor that is actually doing the job
     bool Busy = false; //!< Set if some closure was scheduled for execution and did not finish yet
-    TMutex Mutex = {};
+    std::mutex Mutex;
     TQueue<TFunction> ExecutionQueue = {};
 
 public:

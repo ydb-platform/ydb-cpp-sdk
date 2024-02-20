@@ -1848,26 +1848,25 @@ bool TReadSessionEventsQueue<UseMigrationProtocol>::PushEvent(TIntrusivePtr<TPar
                                                               typename TAReadSessionEvent<UseMigrationProtocol>::TEvent event,
                                                               TDeferredActions<UseMigrationProtocol>& deferred)
 {
-    with_lock (TParent::Mutex) {
-        if (TParent::Closed) {
-            return false;
-        }
-        //TODO: check session closed event and return false
-        using TClosedEvent = std::conditional_t<
-            UseMigrationProtocol,
-                NPersQueue::TReadSessionEvent::TPartitionStreamClosedEvent,
-                NTopic::TReadSessionEvent::TPartitionSessionClosedEvent
-        >;
-
-        if (std::holds_alternative<TClosedEvent>(event)) {
-            stream->DeleteNotReadyTail(deferred);
-        }
-
-        stream->InsertEvent(std::move(event));
-        Y_ASSERT(stream->HasEvents());
-
-        SignalReadyEventsImpl(stream, deferred);
+    std::lock_guard<std::mutex> guard(TParent::Mutex);
+    if (TParent::Closed) {
+        return false;
     }
+    //TODO: check session closed event and return false
+    using TClosedEvent = std::conditional_t<
+        UseMigrationProtocol,
+            NPersQueue::TReadSessionEvent::TPartitionStreamClosedEvent,
+            NTopic::TReadSessionEvent::TPartitionSessionClosedEvent
+    >;
+
+    if (std::holds_alternative<TClosedEvent>(event)) {
+        stream->DeleteNotReadyTail(deferred);
+    }
+
+    stream->InsertEvent(std::move(event));
+    Y_ASSERT(stream->HasEvents());
+
+    SignalReadyEventsImpl(stream, deferred);
     return true;
 }
 
@@ -1906,12 +1905,12 @@ bool TReadSessionEventsQueue<UseMigrationProtocol>::PushDataEvent(TIntrusivePtr<
                                                                   TDataDecompressionInfoPtr<UseMigrationProtocol> parent,
                                                                   std::atomic<bool>& ready)
 {
-    with_lock (TParent::Mutex) {
-        if (this->Closed) {
-            return false;
-        }
-        partitionStream->InsertDataEvent(batch, message, parent, ready);
+
+    std::lock_guard<std::mutex> guard(TParent::Mutex);
+    if (this->Closed) {
+        return false;
     }
+    partitionStream->InsertDataEvent(batch, message, parent, ready);
     return true;
 }
 
@@ -2046,22 +2045,21 @@ TReadSessionEventsQueue<UseMigrationProtocol>::GetEvents(bool block, TMaybe<size
     const size_t maxCount = maxEventsCount ? *maxEventsCount : std::numeric_limits<size_t>::max();
     TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol> accumulator;
 
-    with_lock (TParent::Mutex) {
-        eventInfos.reserve(Min(TParent::Events.size() + TParent::CloseEvent.Defined(), maxCount));
-        do {
-            if (block) {
-                TParent::WaitEventsImpl();
-            }
+    std::lock_guard<std::mutex> guard(TParent::Mutex);
+    eventInfos.reserve(Min(TParent::Events.size() + TParent::CloseEvent.Defined(), maxCount));
+    do {
+        if (block) {
+            TParent::WaitEventsImpl();
+        }
 
-            while (TParent::HasEventsImpl() && eventInfos.size() < maxCount && maxByteSize > 0) {
-                TReadSessionEventInfo<UseMigrationProtocol> event = GetEventImpl(maxByteSize, accumulator);
-                eventInfos.emplace_back(std::move(event));
-                if (eventInfos.back().IsSessionClosedEvent()) {
-                    break;
-                }
+        while (TParent::HasEventsImpl() && eventInfos.size() < maxCount && maxByteSize > 0) {
+            TReadSessionEventInfo<UseMigrationProtocol> event = GetEventImpl(maxByteSize, accumulator);
+            eventInfos.emplace_back(std::move(event));
+            if (eventInfos.back().IsSessionClosedEvent()) {
+                break;
             }
-        } while (block && eventInfos.empty());
-    }
+        }
+    } while (block && eventInfos.empty());
 
     accumulator.OnUserRetrievedEvent();
 
@@ -2085,18 +2083,17 @@ TReadSessionEventsQueue<UseMigrationProtocol>::GetEvent(bool block, size_t maxBy
     TMaybe<TReadSessionEventInfo<UseMigrationProtocol>> eventInfo;
     TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol> accumulator;
 
-    with_lock (TParent::Mutex) {
-        do {
-            if (block) {
-                TParent::WaitEventsImpl();
-            }
+    std::lock_guard<std::mutex> guard(TParent::Mutex);
+    do {
+        if (block) {
+            TParent::WaitEventsImpl();
+        }
 
-            if (TParent::HasEventsImpl()) {
-                eventInfo = GetEventImpl(maxByteSize, accumulator);
-            }
+        if (TParent::HasEventsImpl()) {
+            eventInfo = GetEventImpl(maxByteSize, accumulator);
+        }
 
-        } while (block && !eventInfo);
-    }
+    } while (block && !eventInfo);
 
     accumulator.OnUserRetrievedEvent();
 
@@ -2112,11 +2109,11 @@ void TReadSessionEventsQueue<UseMigrationProtocol>::SignalReadyEvents(
     TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream) {
     Y_ASSERT(partitionStream);
 
-    with_lock (partitionStream->GetLock()) {
-        TDeferredActions<UseMigrationProtocol> deferred;
-        with_lock (TParent::Mutex) {
-            SignalReadyEventsImpl(partitionStream, deferred);
-        }
+    std::lock_guard<std::mutex> guard1(partitionStream->GetLock());
+    TDeferredActions<UseMigrationProtocol> deferred;
+    {
+        std::lock_guard<std::mutex> g(TParent::Mutex);
+        SignalReadyEventsImpl(partitionStream, deferred);
     }
 }
 
@@ -2192,14 +2189,13 @@ void TReadSessionEventsQueue<UseMigrationProtocol>::GetDataEventCallbackSettings
 
 template<bool UseMigrationProtocol>
 void TReadSessionEventsQueue<UseMigrationProtocol>::ClearAllEvents() {
-    with_lock (TParent::Mutex) {
-        while (!TParent::Events.empty()) {
-            auto& event = TParent::Events.front();
-            if (event.PartitionStream && event.PartitionStream->HasEvents()) {
-                event.PartitionStream->PopEvent();
-            }
-            TParent::Events.pop();
+    std::lock_guard<std::mutex> guard(TParent::Mutex);
+    while (!TParent::Events.empty()) {
+        auto& event = TParent::Events.front();
+        if (event.PartitionStream && event.PartitionStream->HasEvents()) {
+            event.PartitionStream->PopEvent();
         }
+        TParent::Events.pop();
     }
 }
 
