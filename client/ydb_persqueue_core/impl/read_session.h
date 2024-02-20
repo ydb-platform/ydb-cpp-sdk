@@ -16,7 +16,6 @@
 #include <util/digest/numeric.h>
 #include <util/generic/hash.h>
 #include <util/generic/hash_multi_map.h>
-#include <util/system/condvar.h>
 
 #include <atomic>
 #include <deque>
@@ -726,7 +725,7 @@ public:
                                  std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
                                  TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator);
 
-    TMutex& GetLock() {
+    std::mutex& GetLock() {
         return Lock;
     }
 
@@ -742,7 +741,7 @@ private:
     TDisjointIntervalTree<ui64> Commits;
     TDisjointIntervalTree<ui64> ClientCommits;
 
-    TMutex Lock;
+    std::mutex Lock;
 };
 
 template <bool UseMigrationProtocol>
@@ -776,7 +775,8 @@ public:
 
     bool Close(const TASessionClosedEvent<UseMigrationProtocol>& event, TDeferredActions<UseMigrationProtocol>& deferred) {
         TWaiter waiter;
-        with_lock (TParent::Mutex) {
+        {
+            std::lock_guard<std::mutex> guard(TParent::Mutex);
             if (TParent::Closed)
                 return false;
             TParent::CloseEvent = event;
