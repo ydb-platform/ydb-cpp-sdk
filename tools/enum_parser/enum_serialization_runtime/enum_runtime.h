@@ -2,9 +2,9 @@
 
 #include "dispatch_methods.h"
 #include "ordered_pairs.h"
+#include "serialized_enum.h"
 
 #include <util/generic/array_ref.h>
-#include <util/generic/serialized_enum.h>
 
 #include <utility>
 

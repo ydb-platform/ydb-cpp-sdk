@@ -1,9 +1,8 @@
 #include "json_writer.h"
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/charset/utf8.h>
-#include <util/generic/algorithm.h>
-#include <util/string/cast.h>
-#include <util/system/yassert.h>
 
 namespace NJson {
     TJsonWriter::TJsonWriter(IOutputStream* out, bool formatOutput, bool sortkeys, bool validateUtf8)
@@ -75,7 +74,7 @@ namespace NJson {
             Buf.WriteKey(value);
         } else {
             if (DontEscapeStrings) {
-                Buf.UnsafeWriteValue(std::string("\"") + value + '"');
+                Buf.UnsafeWriteValue(NUtils::TYdbStringBuilder() << "\"" << value << '"');
             } else {
                 Buf.WriteString(value);
             }
@@ -123,13 +122,13 @@ namespace NJson {
     }
 
     std::string WriteJson(const TJsonValue* value, bool formatOutput, bool sortkeys, bool validateUtf8) {
-        std::stringStream ss;
+        TStringStream ss;
         WriteJson(&ss, value, formatOutput, sortkeys, validateUtf8);
         return ss.Str();
     }
 
     std::string WriteJson(const TJsonValue& value, bool formatOutput, bool sortkeys, bool validateUtf8) {
-        std::stringStream ss;
+        TStringStream ss;
         WriteJson(&ss, &value, formatOutput, sortkeys, validateUtf8);
         return ss.Str();
     }

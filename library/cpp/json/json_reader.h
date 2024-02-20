@@ -5,10 +5,6 @@
 #include <library/cpp/json/common/defs.h>
 #include <library/cpp/json/fast_sax/parser.h>
 
-#include <util/generic/yexception.h>
-
-#include <util/stream/input.h>
-#include <util/stream/str.h>
 #include <util/stream/mem.h>
 
 namespace NJson {

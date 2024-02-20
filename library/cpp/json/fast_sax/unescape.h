@@ -1,5 +1,5 @@
 #pragma once
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 std::string_view UnescapeJsonUnicode(std::string_view data, char* scratch);

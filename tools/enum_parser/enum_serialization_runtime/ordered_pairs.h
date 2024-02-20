@@ -1,5 +1,6 @@
 #pragma once
 
+#include <util/generic/algorithm.h>
 #include <util/generic/array_ref.h>
 #include <array>
 #include <functional>

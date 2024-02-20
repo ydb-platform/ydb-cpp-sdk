@@ -1,7 +1,9 @@
 #pragma once
 
-#include <util/generic/strbuf.h>
 #include <util/stream/input.h>
+#include <util/system/yassert.h>
+
+#include <string_view>
 
 namespace NJson {
     struct TReadOnlyStreamBase {
@@ -77,7 +79,7 @@ namespace NJson {
         size_t Count;
     };
 
-    struct std::string_viewStreamWrapper : TReadOnlyStreamBase {
+    struct TStringViewStreamWrapper : TReadOnlyStreamBase {
         Ch Peek() const {
             return Pos < Data.size() ? Data[Pos] : 0;
         }
@@ -92,7 +94,7 @@ namespace NJson {
             return Pos;
         }
 
-        std::string_viewStreamWrapper(std::string_view data)
+        TStringViewStreamWrapper(std::string_view data)
             : Data(data)
             , Pos(0)
         {

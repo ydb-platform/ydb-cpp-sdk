@@ -1,12 +1,11 @@
 #include "json.h"
 
 #include <library/cpp/json/json_value.h>
+#include <library/cpp/string_builder/string_builder.h>
 
 #include <util/string/cast.h>
 #include <util/string/strspn.h>
-#include <util/generic/algorithm.h>
 #include <util/generic/ymath.h>
-#include <util/generic/singleton.h>
 
 namespace NJsonWriter {
     TBuf::TBuf(EHtmlEscapeMode mode, IOutputStream* stream)
@@ -22,7 +21,7 @@ namespace NJsonWriter {
                  mode == HEM_RELAXED ||
                  mode == HEM_UNSAFE);
         if (!Stream) {
-            StringStream.Reset(new std::stringStream);
+            StringStream.Reset(new TStringStream);
             Stream = StringStream.Get();
         }
 
@@ -100,7 +99,7 @@ namespace NJsonWriter {
 
         count += (prependWithNewLine);
         do {
-            const std::string_view buffer = whitespacesTemplate.SubString(prependWithNewLine ? 0 : 1, count);
+            const std::string_view buffer = whitespacesTemplate.substr(prependWithNewLine ? 0 : 1, count);
             count -= buffer.size();
             UnsafeWriteRawBytes(buffer);
             prependWithNewLine = false;  // skip '\n' in subsequent writes
@@ -491,10 +490,10 @@ namespace NJsonWriter {
     }
 
     std::string WrapJsonToCallback(const TBuf& buf, std::string_view callback) {
-        if (!callback) {
+        if (callback.empty()) {
             return buf.Str();
         } else {
-            return std::string::Join(callback, "(", buf.Str(), ")");
+            return NUtils::TYdbStringBuilder() << callback << "(" << buf.Str() << ")";
         }
     }
 

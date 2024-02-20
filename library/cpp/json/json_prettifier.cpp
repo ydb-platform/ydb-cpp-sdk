@@ -3,6 +3,7 @@
 #include <util/generic/deque.h>
 #include <util/generic/algorithm.h>
 #include <util/memory/pool.h>
+#include <util/stream/str.h>
 #include <util/string/util.h>
 
 #include <library/cpp/string_utils/relaxed_escaper/relaxed_escaper.h>
@@ -63,7 +64,7 @@ namespace NJson {
         static std::string_view false0("false");
         static std::string_view null0("null");
 
-        return !!s && alpha.chars_table[(ui8)s[0]] && alnum.cbrk(s.begin() + 1, s.end()) == s.end() && !EqualToOneOf(s, null0, true0, false0);
+        return !s.empty() && alpha.chars_table[(ui8)s[0]] && alnum.cbrk(s.begin() + 1, s.end()) == s.end() && !EqualToOneOf(s, null0, true0, false0);
     }
 
     // to keep arcadia tests happy
@@ -78,7 +79,7 @@ namespace NJson {
         static std::string_view false2("net");
         static std::string_view null0("null");
 
-        return !!s && alpha.chars_table[(ui8)s[0]] && alnum.cbrk(s.begin() + 1, s.end()) == s.end() && !EqualToOneOf(s, null0, true0, false0, true1, false1, true2, false2);
+        return !s.empty() && alpha.chars_table[(ui8)s[0]] && alnum.cbrk(s.begin() + 1, s.end()) == s.end() && !EqualToOneOf(s, null0, true0, false0, true1, false1, true2, false2);
     }
 
     class TPrettifier: public TJsonCallbacks {
@@ -124,7 +125,7 @@ namespace NJson {
                 return;
             }
             if (Level || close) {
-                Out.Write(Spaces ? "\n" : " ");
+                Out.Write(!Spaces.empty() ? "\n" : " ");
             }
             for (ui32 i = 0; i < Level; ++i) {
                 Out.Write(Spaces);
@@ -268,7 +269,7 @@ namespace NJson {
     }
 
     std::string TJsonPrettifier::Prettify(std::string_view in) const {
-        std::stringStream s;
+        TStringStream s;
         if (Prettify(in, s))
             return s.Str();
         return std::string();

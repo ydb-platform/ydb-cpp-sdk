@@ -34,7 +34,6 @@ void WriteHeader(const std::string& headerName, IOutputStream& out, IOutputStrea
     out << "#include <util/generic/string.h>\n";
     out << "#include <util/generic/vector.h>\n";
     out << "#include <util/generic/map.h>\n";
-    out << "#include <util/generic/serialized_enum.h>\n";
     out << "#include <util/string/cast.h>\n";
     out << "#include <util/stream/output.h>\n\n";
 
@@ -42,7 +41,6 @@ void WriteHeader(const std::string& headerName, IOutputStream& out, IOutputStrea
         auto& outHeader = *headerOutPtr;
         outHeader << "// This file was auto-generated. Do not edit!!!\n";
         outHeader << "#pragma once\n\n";
-        outHeader << "#include <util/generic/serialized_enum.h>\n";
         outHeader << "#include " << headerName << "\n";
     }
 }

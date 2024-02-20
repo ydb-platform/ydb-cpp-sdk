@@ -1,9 +1,9 @@
 #pragma once
 
 #include <util/system/defaults.h>
-#include <util/generic/strbuf.h>
 
-#include <cstring>
+#include <string>
+#include <string_view>
 
 enum MimeTypes {
     MIME_UNKNOWN = 0,

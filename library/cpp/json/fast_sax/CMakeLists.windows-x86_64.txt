@@ -12,6 +12,7 @@ target_link_libraries(cpp-json-fast_sax PUBLIC
   contrib-libs-cxxsupp
   yutil
   cpp-json-common
+  cpp-string_builder
 )
 target_sources(cpp-json-fast_sax PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/json/fast_sax/unescape.cpp

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <util/generic/fwd.h>
-#include <util/generic/vector.h>
 #include <util/generic/map.h>
 
 #include <cstddef>
@@ -57,7 +56,7 @@ namespace NEnumSerializationRuntime {
      * @tparam EnumT     enum type
      */
     template <typename EnumT>
-    TMappedDictView<EnumT, TString> GetEnumNamesImpl();
+    TMappedDictView<EnumT, std::string> GetEnumNamesImpl();
     /**
      * Returns unique items in enum or enum class
      *
@@ -72,7 +71,7 @@ namespace NEnumSerializationRuntime {
      * @tparam EnumT     enum type
      */
     template <typename EnumT>
-    const TString& GetEnumAllNamesImpl();
+    const std::string& GetEnumAllNamesImpl();
 
     /**
      * Returns C++ identifiers for items in enum or enum class
@@ -80,15 +79,15 @@ namespace NEnumSerializationRuntime {
      * @tparam EnumT     enum type
      */
     template <typename EnumT>
-    const std::vector<TString>& GetEnumAllCppNamesImpl();
+    const std::vector<std::string>& GetEnumAllCppNamesImpl();
 
     /**
-     * Converts @c e to a string. Works like @c ToString(e) function, but returns @c TStringBuf instead of @c TString.
+     * Converts @c e to a string. Works like @c ToString(e) function, but returns @c std::string_view instead of @c std::string.
      * Thus works slightly faster and usually avoids any dynamic memory allocation.
      * @throw yexception is case of unknown enum value
      */
     template <typename EnumT>
-    TStringBuf ToStringBuf(EnumT e);
+    std::string_view ToStringBuf(EnumT e);
 }
 
 /**
@@ -97,7 +96,7 @@ namespace NEnumSerializationRuntime {
  * @tparam EnumT     enum type
  */
 template <typename EnumT>
-Y_CONST_FUNCTION ::NEnumSerializationRuntime::TMappedDictView<EnumT, TString> GetEnumNames() {
+Y_CONST_FUNCTION ::NEnumSerializationRuntime::TMappedDictView<EnumT, std::string> GetEnumNames() {
     return ::NEnumSerializationRuntime::GetEnumNamesImpl<EnumT>();
 }
 
@@ -117,7 +116,7 @@ Y_CONST_FUNCTION ::NEnumSerializationRuntime::TMappedArrayView<EnumT> GetEnumAll
  * @tparam EnumT     enum type
  */
 template <typename EnumT>
-Y_CONST_FUNCTION const TString& GetEnumAllNames() {
+Y_CONST_FUNCTION const std::string& GetEnumAllNames() {
     return ::NEnumSerializationRuntime::GetEnumAllNamesImpl<EnumT>();
 }
 
@@ -127,7 +126,7 @@ Y_CONST_FUNCTION const TString& GetEnumAllNames() {
  * @tparam EnumT     enum type
  */
 template <typename EnumT>
-Y_CONST_FUNCTION const std::vector<TString>& GetEnumAllCppNames() {
+Y_CONST_FUNCTION const std::vector<std::string>& GetEnumAllCppNames() {
     return ::NEnumSerializationRuntime::GetEnumAllCppNamesImpl<EnumT>();
 }
 

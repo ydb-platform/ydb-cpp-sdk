@@ -6,17 +6,17 @@
 #include <contrib/libs/rapidjson/include/rapidjson/error/error.h>
 #include <contrib/libs/rapidjson/include/rapidjson/reader.h>
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/generic/stack.h>
-#include <util/string/cast.h>
 #include <util/system/yassert.h>
-#include <util/string/builder.h>
 
 namespace NJson {
     namespace {
         std::string PrintError(const rapidjson::ParseResult& result) {
-            return TYdbStringBuilder() << std::string_view("Offset: ") << result.Offset()
-                                    << std::string_view(", Code: ") << (int)result.Code()
-                                    << std::string_view(", Error: ") << GetParseError_En(result.Code());
+            return NUtils::TYdbStringBuilder() << "Offset: " << result.Offset()
+                                    << ", Code: " << (int)result.Code()
+                                    << ", Error: " << GetParseError_En(result.Code());
         }
     }
 
@@ -434,7 +434,7 @@ namespace NJson {
 
         template <class TData>
         bool ReadJsonTreeImpl(TData* in, const TJsonReaderConfig* config, TJsonValue* out, bool throwOnError) {
-            std::conditional_t<std::is_same<TData, std::string_view>::value, std::string_viewStreamWrapper, TInputStreamWrapper> is(*in);
+            std::conditional_t<std::is_same<TData, std::string_view>::value, TStringViewStreamWrapper, TInputStreamWrapper> is(*in);
             return ReadJsonTree(is, config, out, throwOnError);
         }
 

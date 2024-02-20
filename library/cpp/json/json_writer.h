@@ -9,7 +9,8 @@
 #include <util/stream/output.h>
 #include <util/generic/hash.h>
 #include <util/generic/maybe.h>
-#include <util/generic/strbuf.h>
+
+#include <string>
 
 namespace NJson {
     struct TJsonWriterConfig {
@@ -119,9 +120,6 @@ namespace NJson {
         void Write(const std::string& value) {
             Write(std::string_view(value));
         }
-        void Write(const std::string& value) {
-            Write(std::string_view(value));
-        }
 
         // write raw json without checks
         void UnsafeWrite(const std::string_view& value) {
@@ -165,10 +163,6 @@ namespace NJson {
         }
 
         void WriteKey(const char* key) {
-            WriteKey(std::string_view{key});
-        }
-
-        void WriteKey(const std::string& key) {
             WriteKey(std::string_view{key});
         }
 

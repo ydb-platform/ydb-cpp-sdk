@@ -2,7 +2,6 @@
 
 #include <library/cpp/json/common/defs.h>
 
-#include <util/generic/string.h>
 #include <util/generic/hash.h>
 
 #include <util/generic/deque.h>
@@ -196,7 +195,7 @@ namespace NJson {
             long long Integer;
             unsigned long long UInteger;
             double Double;
-            std::string String;
+            std::string* String;
             TMapType* Map;
             TArray* Array;
 
