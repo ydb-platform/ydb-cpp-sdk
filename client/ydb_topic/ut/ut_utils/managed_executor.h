@@ -2,9 +2,9 @@
 
 #include <client/ydb_topic/topic.h>
 #include <client/ydb_topic/impl/executor.h>
-#include <util/system/mutex.h>
 
 #include <vector>
+#include <mutex>
 
 namespace NYdb::NTopic::NTests {
 

@@ -4,7 +4,6 @@
 #include <client/ydb_common_client/impl/client.h>
 
 #include <util/generic/queue.h>
-#include <util/system/condvar.h>
 #include <util/thread/pool.h>
 
 
