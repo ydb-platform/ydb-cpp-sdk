@@ -47,7 +47,6 @@ namespace NJson {
         TJsonValue(long long value) noexcept;
         TJsonValue(unsigned long long value) noexcept;
         TJsonValue(double value) noexcept;
-        TJsonValue(std::string value);
         TJsonValue(const char* value);
         template <class T>
         TJsonValue(const T*) = delete;

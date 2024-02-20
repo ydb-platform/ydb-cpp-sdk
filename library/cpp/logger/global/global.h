@@ -86,7 +86,7 @@ public:
     } while (0);
 
 namespace NPrivateGlobalLogger {
-    class TVerifyEvent: public std::stringStream {
+    class TVerifyEvent: public TStringStream {
     public:
         ~TVerifyEvent();
         template <class T>
@@ -96,7 +96,7 @@ namespace NPrivateGlobalLogger {
             return *this;
         }
     };
-    class TNullStream: public std::stringStream {
+    class TNullStream: public TStringStream {
     public:
         ~TNullStream() = default;
 

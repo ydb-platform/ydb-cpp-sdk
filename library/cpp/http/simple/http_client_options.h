@@ -12,7 +12,7 @@ public:
     explicit TSimpleHttpClientOptions(std::string_view url) {
         std::string_view scheme, host;
         GetSchemeHostAndPort(url, scheme, host, Port_);
-        Host_ = url.Head(scheme.size() + host.size());
+        Host_ = url.substr(0, scheme.size() + host.size());
     }
 
     TSelf& Host(std::string_view host) {

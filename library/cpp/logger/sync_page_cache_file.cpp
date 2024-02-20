@@ -65,7 +65,7 @@ private:
     }
 
     static TFile OpenFile(const std::string& path) {
-        return TFile{path, OpenAlways | WrOnly | ForAppend | Seq | NoReuse};
+        return TFile{path.c_str(), OpenAlways | WrOnly | ForAppend | Seq | NoReuse};
     }
 
     static i64 GetPageSize() {

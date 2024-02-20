@@ -508,7 +508,7 @@ private:
         }
 
         THolder<IThreadPool> pool;
-        const auto params = IThreadPool::TParams().SetFactory(factory).SetThreadName(threadName);
+        const auto params = IThreadPool::TParams().SetFactory(factory).SetThreadName(threadName.c_str());
         if (callback) {
             pool = MakeHolder<TThreadPoolBinder<TThreadPool_, THttpServer::ICallBack>>(callback, params);
         } else {

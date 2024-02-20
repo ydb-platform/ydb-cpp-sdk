@@ -12,7 +12,7 @@ THolder<TLogBackend> TFileLogBackendCreator::DoCreateLogBackend() const {
 
 bool TFileLogBackendCreator::Init(const IInitContext& ctx) {
     ctx.GetValue("Path", Path);
-    return !!Path;
+    return !Path.empty();
 }
 
 ILogBackendCreator::TFactory::TRegistrator<TFileLogBackendCreator> TFileLogBackendCreator::Registrar("file");

@@ -18,7 +18,7 @@ static inline TNetworkAddress ToNetworkAddr(const std::string& address, ui16 por
         return TNetworkAddress(port);
     }
 
-    return TNetworkAddress(address, port);
+    return TNetworkAddress(address.c_str(), port);
 }
 
 void THttpServerOptions::BindAddresses(TBindAddresses& ret) const {
@@ -38,6 +38,6 @@ void THttpServerOptions::BindAddresses(TBindAddresses& ret) const {
     }
 
     if (ret.empty()) {
-        ret.push_back(Host ? TNetworkAddress(Host, Port) : TNetworkAddress(Port));
+        ret.push_back(!Host.empty() ? TNetworkAddress(Host.c_str(), Port) : TNetworkAddress(Port));
     }
 }

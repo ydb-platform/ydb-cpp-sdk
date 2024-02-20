@@ -2,6 +2,8 @@
 #include "file.h"
 #include "record.h"
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/string/builder.h>
 #include <util/system/fstat.h>
 #include <util/system/rwlock.h>
@@ -23,7 +25,7 @@ public:
         : Log_(path)
         , Path_(path)
         , MaxSizeBytes_(maxSizeBytes)
-        , Size_(TFileStat(Path_).Size)
+        , Size_(TFileStat(Path_.c_str()).Size)
         , RotatedFilesCount_(rotatedFilesCount)
     {
         Y_ENSURE(RotatedFilesCount_ != 0);
@@ -33,13 +35,13 @@ public:
         if (static_cast<ui64>(AtomicGet(Size_)) > MaxSizeBytes_) {
             TWriteGuard guard(Lock_);
             if (static_cast<ui64>(AtomicGet(Size_)) > MaxSizeBytes_) {
-                std::string newLogPath(TYdbStringBuilder{} << Path_ << "." << RotatedFilesCount_);
+                std::string newLogPath(NUtils::TYdbStringBuilder() << Path_ << "." << RotatedFilesCount_);
                 for (size_t fileId = RotatedFilesCount_ - 1; fileId; --fileId) {
-                    std::string oldLogPath(TYdbStringBuilder{} << Path_ << "." << fileId);
-                    NFs::Rename(oldLogPath, newLogPath);
+                    std::string oldLogPath(NUtils::TYdbStringBuilder() << Path_ << "." << fileId);
+                    NFs::Rename(oldLogPath.c_str(), newLogPath.c_str());
                     newLogPath = oldLogPath;
                 }
-                NFs::Rename(Path_, newLogPath);
+                NFs::Rename(Path_.c_str(), newLogPath.c_str());
                 Log_.ReopenLog();
                 AtomicSet(Size_, 0);
             }
@@ -53,7 +55,7 @@ public:
         TWriteGuard guard(Lock_);
 
         Log_.ReopenLog();
-        AtomicSet(Size_, TFileStat(Path_).Size);
+        AtomicSet(Size_, TFileStat(Path_.c_str()).Size);
     }
 
 private:

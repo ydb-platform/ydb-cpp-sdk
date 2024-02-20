@@ -4,8 +4,6 @@
 
 #include <util/datetime/base.h>
 #include <util/generic/hash.h>
-#include <util/generic/ptr.h>
-#include <util/generic/strbuf.h>
 #include <util/generic/yexception.h>
 #include <util/network/socket.h>
 

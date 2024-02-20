@@ -5,7 +5,6 @@
 #include "http_digest.h"
 
 #include <util/system/compat.h>
-#include <util/string/vector.h>
 #include <util/network/ip.h>
 #include <library/cpp/uri/http_url.h>
 #include <library/cpp/http/misc/httpcodes.h>

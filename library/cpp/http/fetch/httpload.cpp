@@ -314,7 +314,7 @@ bool httpLoadAgent::startOneRequest(const char* local_url) {
 /************************************************************/
 bool httpLoadAgent::doStartRequest() {
     std::string urlStr = URL_.PrintS(THttpURL::FlagPath | THttpURL::FlagQuery);
-    if (!urlStr)
+    if (urlStr.empty())
         urlStr = "/";
 
     for (int step = 0; step < 10; step++) {

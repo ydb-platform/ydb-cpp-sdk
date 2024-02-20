@@ -179,7 +179,7 @@ bool httpDigestHandler::processHeader(const THttpAuthHeader* header,
     //                   [opaque] | [message-qop] |
     //                   [nonce-count]  | [auth-param] )
 
-    std::stringStream out;
+    TStringStream out;
     out << WWW_PREFIX << "username=\"" << User_ << "\"";
     out << ", realm=\"" << header->realm << "\"";
     out << ", nonce=\"" << header->nonce << "\"";

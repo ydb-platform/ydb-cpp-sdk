@@ -104,6 +104,18 @@ std::string_view NextTok(std::string_view& src, std::string_view delim) {
     return tok;
 }
 
+std::string_view RNextTok(std::string_view& src, char delim) {
+    std::string_view tok;
+    RSplit(src, src, tok, delim);
+    return tok;
+}
+
+std::string_view RNextTok(std::string_view& src, std::string_view delim) {
+    std::string_view tok;
+    RSplit(src, src, tok, delim);
+    return tok;
+}
+
 std::string_view After(std::string_view src, char c) {
     std::string_view l, r;
     return TrySplit(src, l, r, c) ? r : src;

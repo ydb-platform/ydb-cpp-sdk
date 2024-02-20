@@ -10,7 +10,7 @@ THolder<TLogBackend> TLogBackendCreatorUninitialized::DoCreateLogBackend() const
 }
 
 void TLogBackendCreatorUninitialized::InitCustom(const std::string& type, ELogPriority priority, bool threaded) {
-    if (!type) {
+    if (type.empty()) {
         Slave = MakeHolder<TNullLogBackendCreator>();
     } else if (TFactory::Has(type)) {
         Slave = TFactory::MakeHolder(type);

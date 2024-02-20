@@ -1,7 +1,9 @@
 #include "rty_formater.h"
+
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <util/datetime/base.h>
 #include <util/datetime/systime.h>
-#include <util/stream/str.h>
 #include <util/stream/printf.h>
 #include <util/system/mem_info.h>
 #include <util/system/yassert.h>
@@ -38,7 +40,7 @@ namespace NLoggingImpl {
     TLocalTimeS::operator std::string() const {
         std::string res;
         res.reserve(LocalTimeSBufferSize);
-        res.ReserveAndResize(PrintLocalTimeS(Instant, res.begin(), res.begin() + res.capacity()));
+        res.resize(PrintLocalTimeS(Instant, res.begin(), res.begin() + res.capacity()));
         return res;
     }
 
@@ -49,7 +51,7 @@ namespace NLoggingImpl {
     }
 
     std::string_view StripFileName(std::string_view string) {
-        return string.RNextTok(LOCSLASH_C);
+        return NUtils::RNextTok(string, LOCSLASH_C);
     }
 
     std::string GetSystemResources() {

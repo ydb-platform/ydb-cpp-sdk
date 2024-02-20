@@ -3,8 +3,6 @@
 #include <library/cpp/string_utils/url/url.h>
 #include <library/cpp/uri/http_url.h>
 
-#include <util/stream/output.h>
-#include <util/string/cast.h>
 #include <util/string/join.h>
 #include <util/string/split.h>
 
@@ -16,7 +14,7 @@ TKeepAliveHttpClient::TKeepAliveHttpClient(const std::string& host,
     , Port(port)
     , SocketTimeout(socketTimeout)
     , ConnectTimeout(connectTimeout)
-    , IsHttps(host.StartsWith("https"))
+    , IsHttps(std::string_view{host}.starts_with("https"))
     , IsClosingRequired(false)
     , HttpsVerification(TVerifyCert{Host})
     , IfResponseRequired([](const THttpInput&) { return true; })
@@ -85,16 +83,16 @@ std::vector<IOutputStream::TPart> TKeepAliveHttpClient::FormRequest(std::string_
     std::vector<IOutputStream::TPart> parts;
 
     parts.reserve(16 + 4 * headers.size());
-    parts.push_back(method);
-    parts.push_back(std::string_view(" "));
-    parts.push_back(relativeUrl);
-    parts.push_back(std::string_view(" HTTP/1.1"));
+    parts.push_back(TStringBuf(method));
+    parts.push_back(TStringBuf(" "));
+    parts.push_back(TStringBuf(relativeUrl));
+    parts.push_back(TStringBuf(" HTTP/1.1"));
     parts.push_back(IOutputStream::TPart::CrLf());
-    parts.push_back(std::string_view("Host: "));
-    parts.push_back(std::string_view(Host));
+    parts.push_back(TStringBuf("Host: "));
+    parts.push_back(TStringBuf(Host));
     parts.push_back(IOutputStream::TPart::CrLf());
-    parts.push_back(std::string_view("Content-Length: "));
-    parts.push_back(contentLength);
+    parts.push_back(TStringBuf("Content-Length: "));
+    parts.push_back(TStringBuf(contentLength));
     parts.push_back(IOutputStream::TPart::CrLf());
 
     for (const auto& entry : headers) {
@@ -105,7 +103,7 @@ std::vector<IOutputStream::TPart> TKeepAliveHttpClient::FormRequest(std::string_
     }
 
     parts.push_back(IOutputStream::TPart::CrLf());
-    if (body) {
+    if (!body.empty()) {
         parts.push_back(IOutputStream::TPart(body));
     }
 
@@ -250,7 +248,7 @@ namespace NPrivate {
 
     TNetworkAddress THttpConnection::Resolve(const std::string& host, ui32 port) {
         try {
-            return TNetworkAddress(host, port);
+            return TNetworkAddress(host.c_str(), port);
         } catch (const yexception& e) {
             ythrow THttpRequestException() << "Resolve of " << host << ": " << e.what();
         }
@@ -314,7 +312,7 @@ void TRedirectableHttpClient::PrepareClient(TKeepAliveHttpClient& cl) const {
 
 void TRedirectableHttpClient::ProcessResponse(const std::string_view relativeUrl, THttpInput& input, IOutputStream* output, const unsigned statusCode) const {
     for (auto i = input.Headers().Begin(), e = input.Headers().End(); i != e; ++i) {
-        if (0 == std::string::compare(i->Name(), std::string_view("Location"))) {
+        if (i->Name() == "Location") {
             std::vector<std::string> request_url_parts, request_body_parts;
 
             size_t splitted_index = 0;
