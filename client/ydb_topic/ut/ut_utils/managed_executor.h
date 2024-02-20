@@ -34,7 +34,7 @@ private:
     void RunTask(TFunction&& func);
 
     TExecutorPtr Executor;
-    TMutex Mutex;
+    std::mutex Mutex;
     std::vector<TFunction> Funcs;
     std::atomic<size_t> Planned = 0;
     std::atomic<size_t> Running = 0;

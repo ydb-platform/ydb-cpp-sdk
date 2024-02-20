@@ -58,7 +58,7 @@ class TSerialExecutor : public IAsyncExecutor, public std::enable_shared_from_th
 private:
     IAsyncExecutor::TPtr Executor; //!< Wrapped executor that is actually doing the job
     bool Busy = false; //!< Set if some closure was scheduled for execution and did not finish yet
-    TMutex Mutex = {};
+    std::mutex Mutex = {};
     TQueue<TFunction> ExecutionQueue = {};
 
 public:
