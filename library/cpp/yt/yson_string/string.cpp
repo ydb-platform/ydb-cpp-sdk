@@ -75,7 +75,7 @@ TYsonString::TYsonString(const TYsonStringBuf& ysonStringBuf)
         auto holder = NDetail::TYsonStringHolder::Allocate(data.length());
         ::memcpy(holder->GetData(), data.data(), data.length());
         Begin_ = holder->GetData();
-        Size_ = data.Size();
+        Size_ = data.size();
         Type_ = ysonStringBuf.GetType();
         Payload_ = std::move(holder);
     } else {
@@ -188,7 +188,7 @@ void TYsonString::Load(IInputStream* s)
     EYsonType type;
     std::string data;
     ::LoadMany(s, type, data);
-    if (data) {
+    if (!data.empty()) {
         *this = TYsonString(data, type);
     } else {
         *this = TYsonString();

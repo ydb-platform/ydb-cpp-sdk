@@ -253,7 +253,7 @@ namespace NYson {
                     }
                 } else if (numericResult == ENumericResult::Uint64) {
                     try {
-                        *token = TToken(FromString<ui64>(valueBuffer.SubStr(0, valueBuffer.size() - 1)));
+                        *token = TToken(FromString<ui64>(valueBuffer.substr(0, valueBuffer.size() - 1)));
                     } catch (yexception&) {
                         ythrow TYsonException() << "Error parsing uint64 literal " << valueBuffer;
                     }
@@ -275,12 +275,12 @@ namespace NYson {
     template <bool EnableLinePositionInfo>
     class TStatelesYsonLexerImpl: public TStatelessYsonLexerImplBase {
     private:
-        using TLexer = NDetail::TLexer<std::stringReader, EnableLinePositionInfo>;
+        using TLexer = NDetail::TLexer<TStringReader, EnableLinePositionInfo>;
         TLexer Lexer;
 
     public:
         TStatelesYsonLexerImpl()
-            : Lexer(std::stringReader(), Nothing())
+            : Lexer(TStringReader(), Nothing())
         {
         }
 

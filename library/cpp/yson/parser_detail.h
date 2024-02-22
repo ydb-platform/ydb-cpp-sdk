@@ -288,7 +288,7 @@ namespace NYson {
                 } else if (numericResult == ENumericResult::Uint64) {
                     ui64 value;
                     try {
-                        value = FromString<ui64>(valueBuffer.SubStr(0, valueBuffer.size() - 1));
+                        value = FromString<ui64>(valueBuffer.substr(0, valueBuffer.size() - 1));
                     } catch (yexception& e) {
                         // This exception is wrapped in parser.
                         ythrow TYsonException() << "Failed to parse uint64 literal '" << valueBuffer << "'" << e;
@@ -332,12 +332,12 @@ namespace NYson {
     class TStatelessYsonParserImpl
        : public TStatelessYsonParserImplBase {
     private:
-        using TParser = NDetail::TParser<TConsumer, std::stringReader, EnableLinePositionInfo>;
+        using TParser = NDetail::TParser<TConsumer, TStringReader, EnableLinePositionInfo>;
         TParser Parser;
 
     public:
         TStatelessYsonParserImpl(TConsumer* consumer, TMaybe<ui64> memoryLimit)
-            : Parser(std::stringReader(), consumer, memoryLimit)
+            : Parser(TStringReader(), consumer, memoryLimit)
         {
         }
 

@@ -1,8 +1,7 @@
 #pragma once
 
-#include <util/generic/string.h>
-
 #include <exception>
+#include <string>
 
 namespace NYT {
 

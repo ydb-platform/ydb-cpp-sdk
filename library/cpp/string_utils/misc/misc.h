@@ -25,6 +25,8 @@ void RSplit(std::string_view src, std::string_view& l, std::string_view& r, std:
 
 std::string_view NextTok(std::string_view& src, char delim);
 std::string_view NextTok(std::string_view& src, std::string_view delim);
+bool NextTok(std::string_view& src, std::string_view& tok, char delim);
+bool NextTok(std::string_view& src, std::string_view& tok, std::string_view delim);
 
 std::string_view RNextTok(std::string_view& src, char delim);
 std::string_view RNextTok(std::string_view& src, std::string_view delim);

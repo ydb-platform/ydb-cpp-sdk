@@ -7,22 +7,22 @@ namespace NYT {
 ////////////////////////////////////////////////////////////////////////////////
 
 // Forward declarations.
-class TYdbStringBuilderBase;
-class TYdbStringBuilder;
+class TStringBuilderBase;
+class TStringBuilder;
 class TDelimitedStringBuilderWrapper;
 
 template <size_t Length, class... TArgs>
-void Format(TYdbStringBuilderBase* builder, const char (&format)[Length], TArgs&&... args);
+void Format(TStringBuilderBase* builder, const char (&format)[Length], TArgs&&... args);
 template <class... TArgs>
-void Format(TYdbStringBuilderBase* builder, std::string_view format, TArgs&&... args);
+void Format(TStringBuilderBase* builder, std::string_view format, TArgs&&... args);
 
 ////////////////////////////////////////////////////////////////////////////////
 
 //! A simple helper for constructing strings by a sequence of appends.
-class TYdbStringBuilderBase
+class TStringBuilderBase
 {
 public:
-    virtual ~TYdbStringBuilderBase() = default;
+    virtual ~TStringBuilderBase() = default;
 
     char* Preallocate(size_t size);
 
@@ -60,8 +60,8 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class TYdbStringBuilder
-    : public TYdbStringBuilderBase
+class TStringBuilder
+    : public TStringBuilderBase
 {
 public:
     std::string Flush();
@@ -86,13 +86,13 @@ class TDelimitedStringBuilderWrapper
 {
 public:
     TDelimitedStringBuilderWrapper(
-        TYdbStringBuilderBase* builder,
+        TStringBuilderBase* builder,
         std::string_view delimiter = std::string_view(", "))
         : Builder_(builder)
         , Delimiter_(delimiter)
     { }
 
-    TYdbStringBuilderBase* operator->()
+    TStringBuilderBase* operator->()
     {
         if (!FirstCall_) {
             Builder_->AppendString(Delimiter_);
@@ -102,7 +102,7 @@ public:
     }
 
 private:
-    TYdbStringBuilderBase* const Builder_;
+    TStringBuilderBase* const Builder_;
     const std::string_view Delimiter_;
 
     bool FirstCall_ = true;

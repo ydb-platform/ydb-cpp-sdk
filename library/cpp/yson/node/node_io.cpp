@@ -90,14 +90,14 @@ TNode NodeFromYsonString(const std::string_view input, ::NYson::EYsonType type)
 
 std::string NodeToYsonString(const TNode& node, NYson::EYsonFormat format)
 {
-    std::stringStream stream;
+    TStringStream stream;
     NodeToYsonStream(node, &stream, format);
     return stream.Str();
 }
 
 std::string NodeToCanonicalYsonString(const TNode& node, NYson::EYsonFormat format)
 {
-    std::stringStream stream;
+    TStringStream stream;
     NodeToCanonicalYsonStream(node, &stream, format);
     return stream.Str();
 }

@@ -104,6 +104,22 @@ std::string_view NextTok(std::string_view& src, std::string_view delim) {
     return tok;
 }
 
+bool NextTok(std::string_view& src, std::string_view& tok, char delim) {
+    if (!src.empty()) {
+        Split(src, tok, src, delim);
+        return true;
+    }
+    return false;
+}
+
+bool NextTok(std::string_view& src, std::string_view& tok, std::string_view delim) {
+    if (!src.empty()) {
+        Split(src, tok, src, delim);
+        return true;
+    }
+    return false;
+}
+
 std::string_view RNextTok(std::string_view& src, char delim) {
     std::string_view tok;
     RSplit(src, src, tok, delim);

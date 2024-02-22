@@ -21,7 +21,7 @@ template <class T>
 T ParseEnum(std::string_view value);
 
 template <class T>
-void FormatEnum(TYdbStringBuilderBase* builder, T value, bool lowerCase);
+void FormatEnum(TStringBuilderBase* builder, T value, bool lowerCase);
 
 template <class T>
 std::string FormatEnum(T value);

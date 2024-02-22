@@ -33,13 +33,10 @@ public:
     //! Creates a non-owning TRef for a given blob.
     static TRef FromBlob(const TBlob& blob);
 
-    //! Creates a non-owning TRef for a given string.
-    static TRef FromString(const std::string& str);
-
     //! Creates a non-owning TRef for a given std::string.
     static TRef FromString(const std::string& str);
 
-    //! Creates a non-owning TRef for a given stringbuf.
+    //! Creates a non-owning TRef for a given std::string_view.
     static TRef FromStringBuf(std::string_view strBuf);
 
     //! Creates a non-owning TRef for a given pod structure.

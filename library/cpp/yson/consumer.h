@@ -2,7 +2,6 @@
 
 #include <library/cpp/yt/yson/consumer.h>
 
-#include <util/generic/strbuf.h>
 #include <util/system/defaults.h>
 
 namespace NYson {

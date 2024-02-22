@@ -6,6 +6,7 @@
 
 #include "format.h"
 
+#include <library/cpp/string_utils/misc/misc.h>
 #include <library/cpp/yt/exception/exception.h>
 
 #include <util/string/printf.h>
@@ -22,7 +23,7 @@ void ThrowMalformedEnumValueException(
     std::string_view value);
 
 void FormatUnknownEnumValue(
-    TYdbStringBuilderBase* builder,
+    TStringBuilderBase* builder,
     std::string_view name,
     i64 value);
 
@@ -44,14 +45,14 @@ std::optional<T> TryParseEnum(std::string_view value)
         };
 
         std::string_view typeName;
-        auto isTypeNameCorrect = value.NextTok('(', typeName) && typeName == TEnumTraits<T>::GetTypeName();
+        auto isTypeNameCorrect = NUtils::NextTok(value, typeName, '(') && typeName == TEnumTraits<T>::GetTypeName();
         if (!isTypeNameCorrect) {
             reportError();
         }
 
         std::string_view enumValue;
         std::underlying_type_t<T> underlyingValue = 0;
-        auto isEnumValueCorrect = value.NextTok(')', enumValue) && TryFromString(enumValue, underlyingValue);
+        auto isEnumValueCorrect = NUtils::NextTok(value, enumValue, ')') && TryFromString(enumValue, underlyingValue);
         if (!isEnumValueCorrect) {
             reportError();
         }
@@ -67,7 +68,7 @@ std::optional<T> TryParseEnum(std::string_view value)
     if constexpr (TEnumTraits<T>::IsBitEnum) {
         T result{};
         std::string_view token;
-        while (value.NextTok('|', token)) {
+        while (NUtils::NextTok(value, token, '|')) {
             if (auto scalar = tryFromString(StripString(token))) {
                 result |= *scalar;
             } else {
@@ -90,7 +91,7 @@ T ParseEnum(std::string_view value)
 }
 
 template <class T>
-void FormatEnum(TYdbStringBuilderBase* builder, T value, bool lowerCase)
+void FormatEnum(TStringBuilderBase* builder, T value, bool lowerCase)
 {
     auto formatScalarValue = [builder, lowerCase] (T value) {
         auto optionalLiteral = TEnumTraits<T>::FindLiteralByValue(value);
@@ -132,7 +133,7 @@ void FormatEnum(TYdbStringBuilderBase* builder, T value, bool lowerCase)
 template <class T>
 std::string FormatEnum(T value)
 {
-    TYdbStringBuilder builder;
+    TStringBuilder builder;
     FormatEnum(&builder, value, /*lowerCase*/ true);
     return builder.Flush();
 }

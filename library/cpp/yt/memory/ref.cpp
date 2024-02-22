@@ -42,11 +42,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class std::stringHolder
+class TStringHolder
     : public TSharedRangeHolder
 {
 public:
-    std::stringHolder(std::string&& string, TRefCountedTypeCookie cookie)
+    TStringHolder(std::string&& string, TRefCountedTypeCookie cookie)
         : String_(std::move(string))
 #ifdef YT_ENABLE_REF_COUNTED_TRACKING
         , Cookie_(cookie)
@@ -57,7 +57,7 @@ public:
         TRefCountedTrackerFacade::AllocateSpace(Cookie_, String_.length());
 #endif
     }
-    ~std::stringHolder()
+    ~TStringHolder()
     {
 #ifdef YT_ENABLE_REF_COUNTED_TRACKING
         TRefCountedTrackerFacade::FreeTagInstance(Cookie_);
@@ -222,7 +222,7 @@ TMutableRef TMutableRef::FromBlob(TBlob& blob)
 
 TSharedRef TSharedRef::FromString(std::string str, TRefCountedTypeCookie tagCookie)
 {
-    auto holder = New<std::stringHolder>(std::move(str), tagCookie);
+    auto holder = New<TStringHolder>(std::move(str), tagCookie);
     auto ref = TRef::FromString(holder->String());
     return TSharedRef(ref, std::move(holder));
 }
@@ -377,7 +377,7 @@ std::string TSharedRefArray::ToString() const
     for (const auto& part : *this) {
         size += part.size();
     }
-    result.ReserveAndResize(size);
+    result.resize(size);
     char* ptr = result.begin();
     for (const auto& part : *this) {
         size += part.size();

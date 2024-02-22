@@ -11,7 +11,7 @@ TNodeBuilder::TNodeBuilder(TNode* node)
 
 void TNodeBuilder::OnStringScalar(std::string_view value)
 {
-    AddNode(value, true);
+    AddNode(TNode{value}, true);
 }
 
 void TNodeBuilder::OnInt64Scalar(i64 value)

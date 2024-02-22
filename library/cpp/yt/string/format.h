@@ -55,9 +55,9 @@ namespace NYT {
  */
 
 template <size_t Length, class... TArgs>
-void Format(TYdbStringBuilderBase* builder, const char (&format)[Length], TArgs&&... args);
+void Format(TStringBuilderBase* builder, const char (&format)[Length], TArgs&&... args);
 template <class... TArgs>
-void Format(TYdbStringBuilderBase* builder, std::string_view format, TArgs&&... args);
+void Format(TStringBuilderBase* builder, std::string_view format, TArgs&&... args);
 
 template <size_t Length, class... TArgs>
 std::string Format(const char (&format)[Length], TArgs&&... args);
@@ -112,7 +112,7 @@ class TLazyMultiValueFormatter;
 
 template <class... TArgs>
 void FormatValue(
-    TYdbStringBuilderBase* builder,
+    TStringBuilderBase* builder,
     const TLazyMultiValueFormatter<TArgs...>& value,
     std::string_view /*format*/);
 
@@ -132,7 +132,7 @@ public:
     TLazyMultiValueFormatter(std::string_view format, TArgs&&... args);
 
     friend void FormatValue<>(
-        TYdbStringBuilderBase* builder,
+        TStringBuilderBase* builder,
         const TLazyMultiValueFormatter& value,
         std::string_view /*format*/);
 

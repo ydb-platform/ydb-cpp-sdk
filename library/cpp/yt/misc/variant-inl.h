@@ -19,7 +19,7 @@ template <size_t Index>
 struct TVariantFormatter<Index>
 {
     template <class TVariant>
-    static void Do(TYdbStringBuilderBase* /*builder*/, const TVariant& /*variant*/, std::string_view /*spec*/)
+    static void Do(TStringBuilderBase* /*builder*/, const TVariant& /*variant*/, std::string_view /*spec*/)
     { }
 };
 
@@ -27,7 +27,7 @@ template <size_t Index, class T, class... Ts>
 struct TVariantFormatter<Index, T, Ts...>
 {
     template <class TVariant>
-    static void Do(TYdbStringBuilderBase* builder, const TVariant& variant, std::string_view spec)
+    static void Do(TStringBuilderBase* builder, const TVariant& variant, std::string_view spec)
     {
         if (variant.index() == Index) {
             FormatValue(builder, std::get<Index>(variant), spec);
@@ -40,7 +40,7 @@ struct TVariantFormatter<Index, T, Ts...>
 } // namespace NDetail
 
 template <class... Ts>
-void FormatValue(TYdbStringBuilderBase* builder, const std::variant<Ts...>& variant, std::string_view spec)
+void FormatValue(TStringBuilderBase* builder, const std::variant<Ts...>& variant, std::string_view spec)
 {
     NDetail::TVariantFormatter<0, Ts...>::Do(builder, variant, spec);
 }

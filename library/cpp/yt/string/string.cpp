@@ -11,7 +11,7 @@ namespace NYT {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void UnderscoreCaseToCamelCase(TYdbStringBuilderBase* builder, std::string_view str)
+void UnderscoreCaseToCamelCase(TStringBuilderBase* builder, std::string_view str)
 {
     bool first = true;
     bool upper = true;
@@ -34,12 +34,12 @@ void UnderscoreCaseToCamelCase(TYdbStringBuilderBase* builder, std::string_view 
 
 std::string UnderscoreCaseToCamelCase(std::string_view str)
 {
-    TYdbStringBuilder builder;
+    TStringBuilder builder;
     UnderscoreCaseToCamelCase(&builder, str);
     return builder.Flush();
 }
 
-void CamelCaseToUnderscoreCase(TYdbStringBuilderBase* builder, std::string_view str)
+void CamelCaseToUnderscoreCase(TStringBuilderBase* builder, std::string_view str)
 {
     bool first = true;
     for (char c : str) {
@@ -56,7 +56,7 @@ void CamelCaseToUnderscoreCase(TYdbStringBuilderBase* builder, std::string_view 
 
 std::string CamelCaseToUnderscoreCase(std::string_view str)
 {
-    TYdbStringBuilder builder;
+    TStringBuilder builder;
     CamelCaseToUnderscoreCase(&builder, str);
     return builder.Flush();
 }

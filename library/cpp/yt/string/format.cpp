@@ -7,7 +7,7 @@ namespace NYT::NDetail {
 
 template <class TValue>
 void FormatValueViaSprintf(
-    TYdbStringBuilderBase* builder,
+    TStringBuilderBase* builder,
     TValue value,
     std::string_view format,
     std::string_view genericSpec)
@@ -52,7 +52,7 @@ void FormatValueViaSprintf(
 #define XX(type) \
     template \
     void FormatValueViaSprintf( \
-        TYdbStringBuilderBase* builder, \
+        TStringBuilderBase* builder, \
         type value, \
         std::string_view format, \
         std::string_view genericSpec);
@@ -69,7 +69,7 @@ XX(const void*)
 
 template <class TValue>
 void FormatIntValue(
-    TYdbStringBuilderBase* builder,
+    TStringBuilderBase* builder,
     TValue value,
     std::string_view format,
     std::string_view genericSpec)
@@ -94,7 +94,7 @@ void FormatIntValue(
 #define XX(type) \
     template \
     void FormatIntValue( \
-        TYdbStringBuilderBase* builder, \
+        TStringBuilderBase* builder, \
         type value, \
         std::string_view format, \
         std::string_view genericSpec);
@@ -107,7 +107,7 @@ XX(ui64)
 #undef XX
 
 void FormatPointerValue(
-    TYdbStringBuilderBase* builder,
+    TStringBuilderBase* builder,
     const void* value,
     std::string_view format)
 {

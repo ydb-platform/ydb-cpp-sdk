@@ -10,7 +10,7 @@ namespace NYson {
     }
 
     bool TTokenizer::ParseNext() {
-        Input = Input.Tail(Parsed);
+        Input = Input.substr(Parsed);
         Token.Reset();
         Parsed = Lexer.GetToken(Input, &Token);
         return !CurrentToken().IsEmpty();
@@ -25,7 +25,7 @@ namespace NYson {
     }
 
     std::string_view TTokenizer::GetCurrentSuffix() const {
-        return Input.Tail(Parsed);
+        return Input.substr(Parsed);
     }
 
     const std::string_view& TTokenizer::CurrentInput() const {

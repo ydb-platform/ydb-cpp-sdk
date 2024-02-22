@@ -23,7 +23,7 @@ namespace NYT {
 struct TDefaultFormatter
 {
     template <class T>
-    void operator()(TYdbStringBuilderBase* builder, const T& obj) const
+    void operator()(TStringBuilderBase* builder, const T& obj) const
     {
         FormatValue(builder, obj, std::string_view("v"));
     }
@@ -50,7 +50,7 @@ static constexpr std::string_view IntToHexUppercase = "0123456789ABCDEF";
  */
 template <class TIterator, class TFormatter>
 void JoinToString(
-    TYdbStringBuilderBase* builder,
+    TStringBuilderBase* builder,
     const TIterator& begin,
     const TIterator& end,
     const TFormatter& formatter,
@@ -71,7 +71,7 @@ std::string JoinToString(
     const TFormatter& formatter,
     std::string_view delimiter = DefaultJoinToStringDelimiter)
 {
-    TYdbStringBuilder builder;
+    TStringBuilder builder;
     JoinToString(&builder, begin, end, formatter, delimiter);
     return builder.Flush();
 }
@@ -136,7 +136,7 @@ std::vector<std::string> ConvertToStrings(
 {
     std::vector<std::string> result;
     for (auto it = begin; it != end; ++it) {
-        TYdbStringBuilder builder;
+        TStringBuilder builder;
         formatter(&builder, *it);
         result.push_back(builder.Flush());
         if (result.size() == maxSize) {
@@ -184,10 +184,10 @@ std::vector<std::string> ConvertToStrings(
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void UnderscoreCaseToCamelCase(TYdbStringBuilderBase* builder, std::string_view str);
+void UnderscoreCaseToCamelCase(TStringBuilderBase* builder, std::string_view str);
 std::string UnderscoreCaseToCamelCase(std::string_view str);
 
-void CamelCaseToUnderscoreCase(TYdbStringBuilderBase* builder, std::string_view str);
+void CamelCaseToUnderscoreCase(TStringBuilderBase* builder, std::string_view str);
 std::string CamelCaseToUnderscoreCase(std::string_view str);
 
 std::string TrimLeadingWhitespaces(const std::string& str);

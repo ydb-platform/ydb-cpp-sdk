@@ -243,8 +243,8 @@ std::string ParseStringFromYsonString(const TYsonStringBuf& str)
             input.Avail()));
     }
     std::string result;
-    result.ReserveAndResize(length);
-    YT_VERIFY(static_cast<i64>(input.Read(result.Detach(), length)) == length);
+    result.resize(length);
+    YT_VERIFY(static_cast<i64>(input.Read(result.data(), length)) == length);
     return result;
 }
 

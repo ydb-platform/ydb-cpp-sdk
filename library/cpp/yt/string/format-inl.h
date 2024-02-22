@@ -30,9 +30,9 @@ inline bool IsQuotationSpecSymbol(char symbol)
 }
 
 // std::string_view
-inline void FormatValue(TYdbStringBuilderBase* builder, std::string_view value, std::string_view format)
+inline void FormatValue(TStringBuilderBase* builder, std::string_view value, std::string_view format)
 {
-    if (!format) {
+    if (format.empty()) {
         builder->AppendString(value);
         return;
     }
@@ -120,31 +120,31 @@ inline void FormatValue(TYdbStringBuilderBase* builder, std::string_view value, 
 }
 
 // std::string
-inline void FormatValue(TYdbStringBuilderBase* builder, const std::string& value, std::string_view format)
+inline void FormatValue(TStringBuilderBase* builder, const std::string& value, std::string_view format)
 {
     FormatValue(builder, std::string_view(value), format);
 }
 
 // const char*
-inline void FormatValue(TYdbStringBuilderBase* builder, const char* value, std::string_view format)
+inline void FormatValue(TStringBuilderBase* builder, const char* value, std::string_view format)
 {
     FormatValue(builder, std::string_view(value), format);
 }
 
 // char*
-inline void FormatValue(TYdbStringBuilderBase* builder, char* value, std::string_view format)
+inline void FormatValue(TStringBuilderBase* builder, char* value, std::string_view format)
 {
     FormatValue(builder, std::string_view(value), format);
 }
 
 // char
-inline void FormatValue(TYdbStringBuilderBase* builder, char value, std::string_view format)
+inline void FormatValue(TStringBuilderBase* builder, char value, std::string_view format)
 {
     FormatValue(builder, std::string_view(&value, 1), format);
 }
 
 // bool
-inline void FormatValue(TYdbStringBuilderBase* builder, bool value, std::string_view format)
+inline void FormatValue(TStringBuilderBase* builder, bool value, std::string_view format)
 {
     // Parse custom flags.
     bool lowercase = false;
@@ -173,7 +173,7 @@ struct TToStringFallbackValueFormatterTag
 template <class TValue, class = void>
 struct TValueFormatter
 {
-    static TToStringFallbackValueFormatterTag Do(TYdbStringBuilderBase* builder, const TValue& value, std::string_view format)
+    static TToStringFallbackValueFormatterTag Do(TStringBuilderBase* builder, const TValue& value, std::string_view format)
     {
         using ::ToString;
         FormatValue(builder, ToString(value), format);
@@ -185,7 +185,7 @@ struct TValueFormatter
 template <class TEnum>
 struct TValueFormatter<TEnum, typename std::enable_if<TEnumTraits<TEnum>::IsEnum>::type>
 {
-    static void Do(TYdbStringBuilderBase* builder, TEnum value, std::string_view format)
+    static void Do(TStringBuilderBase* builder, TEnum value, std::string_view format)
     {
         // Parse custom flags.
         bool lowercase = false;
@@ -235,7 +235,7 @@ TFormattableView<TRange, TFormatter> MakeShrunkFormattableView(
 }
 
 template <class TRange, class TFormatter>
-void FormatRange(TYdbStringBuilderBase* builder, const TRange& range, const TFormatter& formatter, size_t limit = std::numeric_limits<size_t>::max())
+void FormatRange(TStringBuilderBase* builder, const TRange& range, const TFormatter& formatter, size_t limit = std::numeric_limits<size_t>::max())
 {
     builder->AppendChar('[');
     size_t index = 0;
@@ -254,7 +254,7 @@ void FormatRange(TYdbStringBuilderBase* builder, const TRange& range, const TFor
 }
 
 template <class TRange, class TFormatter>
-void FormatKeyValueRange(TYdbStringBuilderBase* builder, const TRange& range, const TFormatter& formatter, size_t limit = std::numeric_limits<size_t>::max())
+void FormatKeyValueRange(TStringBuilderBase* builder, const TRange& range, const TFormatter& formatter, size_t limit = std::numeric_limits<size_t>::max())
 {
     builder->AppendChar('{');
     size_t index = 0;
@@ -278,7 +278,7 @@ void FormatKeyValueRange(TYdbStringBuilderBase* builder, const TRange& range, co
 template <class TRange, class TFormatter>
 struct TValueFormatter<TFormattableView<TRange, TFormatter>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const TFormattableView<TRange, TFormatter>& range, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const TFormattableView<TRange, TFormatter>& range, std::string_view /*format*/)
     {
         FormatRange(builder, range, range.Formatter, range.Limit);
     }
@@ -297,7 +297,7 @@ TFormatterWrapper<TFormatter> MakeFormatterWrapper(
 template <class TFormatter>
 struct TValueFormatter<TFormatterWrapper<TFormatter>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const TFormatterWrapper<TFormatter>& wrapper, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const TFormatterWrapper<TFormatter>& wrapper, std::string_view /*format*/)
     {
         wrapper.Formatter(builder);
     }
@@ -307,7 +307,7 @@ struct TValueFormatter<TFormatterWrapper<TFormatter>>
 template <class T, class TAllocator>
 struct TValueFormatter<std::vector<T, TAllocator>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const std::vector<T, TAllocator>& collection, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const std::vector<T, TAllocator>& collection, std::string_view /*format*/)
     {
         FormatRange(builder, collection, TDefaultFormatter());
     }
@@ -317,7 +317,7 @@ struct TValueFormatter<std::vector<T, TAllocator>>
 template <class T, unsigned N>
 struct TValueFormatter<TCompactVector<T, N>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const TCompactVector<T, N>& collection, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const TCompactVector<T, N>& collection, std::string_view /*format*/)
     {
         FormatRange(builder, collection, TDefaultFormatter());
     }
@@ -327,7 +327,7 @@ struct TValueFormatter<TCompactVector<T, N>>
 template <class T>
 struct TValueFormatter<std::set<T>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const std::set<T>& collection, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const std::set<T>& collection, std::string_view /*format*/)
     {
         FormatRange(builder, collection, TDefaultFormatter());
     }
@@ -337,7 +337,7 @@ struct TValueFormatter<std::set<T>>
 template <class K, class V>
 struct TValueFormatter<std::map<K, V>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const std::map<K, V>& collection, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const std::map<K, V>& collection, std::string_view /*format*/)
     {
         FormatKeyValueRange(builder, collection, TDefaultFormatter());
     }
@@ -347,7 +347,7 @@ struct TValueFormatter<std::map<K, V>>
 template <class K, class V>
 struct TValueFormatter<std::multimap<K, V>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const std::multimap<K, V>& collection, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const std::multimap<K, V>& collection, std::string_view /*format*/)
     {
         FormatKeyValueRange(builder, collection, TDefaultFormatter());
     }
@@ -357,7 +357,7 @@ struct TValueFormatter<std::multimap<K, V>>
 template <class T>
 struct TValueFormatter<THashSet<T>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const THashSet<T>& collection, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const THashSet<T>& collection, std::string_view /*format*/)
     {
         FormatRange(builder, collection, TDefaultFormatter());
     }
@@ -367,7 +367,7 @@ struct TValueFormatter<THashSet<T>>
 template <class T>
 struct TValueFormatter<THashMultiSet<T>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const THashMultiSet<T>& collection, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const THashMultiSet<T>& collection, std::string_view /*format*/)
     {
         FormatRange(builder, collection, TDefaultFormatter());
     }
@@ -377,7 +377,7 @@ struct TValueFormatter<THashMultiSet<T>>
 template <class K, class V>
 struct TValueFormatter<THashMap<K, V>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const THashMap<K, V>& collection, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const THashMap<K, V>& collection, std::string_view /*format*/)
     {
         FormatKeyValueRange(builder, collection, TDefaultFormatter());
     }
@@ -387,7 +387,7 @@ struct TValueFormatter<THashMap<K, V>>
 template <class K, class V>
 struct TValueFormatter<THashMultiMap<K, V>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const THashMultiMap<K, V>& collection, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const THashMultiMap<K, V>& collection, std::string_view /*format*/)
     {
         FormatKeyValueRange(builder, collection, TDefaultFormatter());
     }
@@ -397,7 +397,7 @@ struct TValueFormatter<THashMultiMap<K, V>>
 template <class E, class T>
 struct TValueFormatter<TEnumIndexedVector<E, T>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const TEnumIndexedVector<E, T>& collection, std::string_view format)
+    static void Do(TStringBuilderBase* builder, const TEnumIndexedVector<E, T>& collection, std::string_view format)
     {
         builder->AppendChar('{');
         bool firstItem = true;
@@ -418,7 +418,7 @@ struct TValueFormatter<TEnumIndexedVector<E, T>>
 template <class T1, class T2>
 struct TValueFormatter<std::pair<T1, T2>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const std::pair<T1, T2>& value, std::string_view format)
+    static void Do(TStringBuilderBase* builder, const std::pair<T1, T2>& value, std::string_view format)
     {
         builder->AppendChar('{');
         FormatValue(builder, value.first, format);
@@ -429,7 +429,7 @@ struct TValueFormatter<std::pair<T1, T2>>
 };
 
 // std::optional
-inline void FormatValue(TYdbStringBuilderBase* builder, std::nullopt_t, std::string_view /*format*/)
+inline void FormatValue(TStringBuilderBase* builder, std::nullopt_t, std::string_view /*format*/)
 {
     builder->AppendString(std::string_view("<null>"));
 }
@@ -437,7 +437,7 @@ inline void FormatValue(TYdbStringBuilderBase* builder, std::nullopt_t, std::str
 template <class T>
 struct TValueFormatter<std::optional<T>>
 {
-    static void Do(TYdbStringBuilderBase* builder, const std::optional<T>& value, std::string_view format)
+    static void Do(TStringBuilderBase* builder, const std::optional<T>& value, std::string_view format)
     {
         if (value) {
             FormatValue(builder, *value, format);
@@ -448,7 +448,7 @@ struct TValueFormatter<std::optional<T>>
 };
 
 template <class TValue>
-auto FormatValue(TYdbStringBuilderBase* builder, const TValue& value, std::string_view format) ->
+auto FormatValue(TStringBuilderBase* builder, const TValue& value, std::string_view format) ->
     decltype(TValueFormatter<TValue>::Do(builder, value, format))
 {
     return TValueFormatter<TValue>::Do(builder, value, format);
@@ -458,27 +458,27 @@ namespace NDetail {
 
 template <class TValue>
 void FormatValueViaSprintf(
-    TYdbStringBuilderBase* builder,
+    TStringBuilderBase* builder,
     TValue value,
     std::string_view format,
     std::string_view genericSpec);
 
 template <class TValue>
 void FormatIntValue(
-    TYdbStringBuilderBase* builder,
+    TStringBuilderBase* builder,
     TValue value,
     std::string_view format,
     std::string_view genericSpec);
 
 void FormatPointerValue(
-    TYdbStringBuilderBase* builder,
+    TStringBuilderBase* builder,
     const void* value,
     std::string_view format);
 
 } // namespace NDetail
 
 #define XX(valueType, castType, genericSpec) \
-    inline void FormatValue(TYdbStringBuilderBase* builder, valueType value, std::string_view format) \
+    inline void FormatValue(TStringBuilderBase* builder, valueType value, std::string_view format) \
     { \
         NYT::NDetail::FormatIntValue(builder, static_cast<castType>(value), format, genericSpec); \
     }
@@ -500,7 +500,7 @@ XX(unsigned long,       ui64,     std::string_view("lu"))
 #undef XX
 
 #define XX(valueType, castType, genericSpec) \
-    inline void FormatValue(TYdbStringBuilderBase* builder, valueType value, std::string_view format) \
+    inline void FormatValue(TStringBuilderBase* builder, valueType value, std::string_view format) \
     { \
         NYT::NDetail::FormatValueViaSprintf(builder, static_cast<castType>(value), format, genericSpec); \
     }
@@ -512,19 +512,19 @@ XX(float,               float,    std::string_view("f"))
 
 // Pointer
 template <class T>
-void FormatValue(TYdbStringBuilderBase* builder, T* value, std::string_view format)
+void FormatValue(TStringBuilderBase* builder, T* value, std::string_view format)
 {
     NYT::NDetail::FormatPointerValue(builder, static_cast<const void*>(value), format);
 }
 
 // TDuration (specialize for performance reasons)
-inline void FormatValue(TYdbStringBuilderBase* builder, TDuration value, std::string_view /*format*/)
+inline void FormatValue(TStringBuilderBase* builder, TDuration value, std::string_view /*format*/)
 {
     builder->AppendFormat("%vus", value.MicroSeconds());
 }
 
 // TInstant (specialize for TFormatTraits)
-inline void FormatValue(TYdbStringBuilderBase* builder, TInstant value, std::string_view format)
+inline void FormatValue(TStringBuilderBase* builder, TInstant value, std::string_view format)
 {
     // TODO(babenko): optimize
     builder->AppendFormat("%v", ToString(value), format);
@@ -536,7 +536,7 @@ namespace NDetail {
 
 template <class TArgFormatter>
 void FormatImpl(
-    TYdbStringBuilderBase* builder,
+    TStringBuilderBase* builder,
     std::string_view format,
     const TArgFormatter& argFormatter)
 {
@@ -654,7 +654,7 @@ TLazyMultiValueFormatter<TArgs...>::TLazyMultiValueFormatter(
 
 template <class... TArgs>
 void FormatValue(
-    TYdbStringBuilderBase* builder,
+    TStringBuilderBase* builder,
     const TLazyMultiValueFormatter<TArgs...>& value,
     std::string_view /*format*/)
 {
@@ -678,7 +678,7 @@ struct TFormatTraits
 {
     static constexpr bool HasCustomFormatValue = !std::is_same_v<
         decltype(FormatValue(
-            static_cast<TYdbStringBuilderBase*>(nullptr),
+            static_cast<TStringBuilderBase*>(nullptr),
             *static_cast<const T*>(nullptr),
             std::string_view())),
         TToStringFallbackValueFormatterTag>;
@@ -692,7 +692,7 @@ struct TArgFormatterImpl;
 template <size_t IndexBase>
 struct TArgFormatterImpl<IndexBase>
 {
-    void operator() (size_t /*index*/, TYdbStringBuilderBase* builder, std::string_view /*format*/) const
+    void operator() (size_t /*index*/, TStringBuilderBase* builder, std::string_view /*format*/) const
     {
         builder->AppendString(std::string_view("<missing argument>"));
     }
@@ -709,7 +709,7 @@ struct TArgFormatterImpl<IndexBase, THeadArg, TTailArgs...>
     const THeadArg& HeadArg;
     TArgFormatterImpl<IndexBase + 1, TTailArgs...> TailFormatter;
 
-    void operator() (size_t index, TYdbStringBuilderBase* builder, std::string_view format) const
+    void operator() (size_t index, TStringBuilderBase* builder, std::string_view format) const
     {
         YT_ASSERT(index >= IndexBase);
         if (index == IndexBase) {
@@ -724,7 +724,7 @@ struct TArgFormatterImpl<IndexBase, THeadArg, TTailArgs...>
 
 template <size_t Length, class... TArgs>
 void Format(
-    TYdbStringBuilderBase* builder,
+    TStringBuilderBase* builder,
     const char (&format)[Length],
     TArgs&&... args)
 {
@@ -733,7 +733,7 @@ void Format(
 
 template <class... TArgs>
 void Format(
-    TYdbStringBuilderBase* builder,
+    TStringBuilderBase* builder,
     std::string_view format,
     TArgs&&... args)
 {
@@ -746,7 +746,7 @@ std::string Format(
     const char (&format)[Length],
     TArgs&&... args)
 {
-    TYdbStringBuilder builder;
+    TStringBuilder builder;
     Format(&builder, format, std::forward<TArgs>(args)...);
     return builder.Flush();
 }
@@ -756,7 +756,7 @@ std::string Format(
     std::string_view format,
     TArgs&&... args)
 {
-    TYdbStringBuilder builder;
+    TStringBuilder builder;
     Format(&builder, format, std::forward<TArgs>(args)...);
     return builder.Flush();
 }

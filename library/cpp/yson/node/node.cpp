@@ -106,10 +106,6 @@ TNode::TNode(std::string_view s)
     : Value_(std::string(s))
 { }
 
-TNode::TNode(std::string_view s)
-    : Value_(std::string(s))
-{ }
-
 TNode::TNode(const std::string& s)
     : Value_(std::string(s))
 { }
@@ -497,7 +493,7 @@ TNode TNode::Add(TNode&& node) &&
 bool TNode::HasKey(const std::string_view key) const
 {
     CheckType(Map);
-    return std::get<TMapType>(Value_).contains(key);
+    return std::get<TMapType>(Value_).contains(std::string{key});
 }
 
 TNode& TNode::operator()(const std::string& key, const TNode& value) &
@@ -529,7 +525,7 @@ const TNode& TNode::operator[](const std::string_view key) const
     CheckType(Map);
     static TNode notFound;
     const auto& map = std::get<TMapType>(Value_);
-    TMapType::const_iterator i = map.find(key);
+    TMapType::const_iterator i = map.find(std::string{key});
     if (i == map.end()) {
         return notFound;
     } else {
@@ -540,13 +536,13 @@ const TNode& TNode::operator[](const std::string_view key) const
 TNode& TNode::operator[](const std::string_view key)
 {
     AssureMap();
-    return std::get<TMapType>(Value_)[key];
+    return std::get<TMapType>(Value_)[std::string{key}];
 }
 
 const TNode& TNode::At(const std::string_view key) const {
     CheckType(Map);
     const auto& map = std::get<TMapType>(Value_);
-    TMapType::const_iterator i = map.find(key);
+    TMapType::const_iterator i = map.find(std::string{key});
     if (i == map.end()) {
         ythrow TLookupError() << "Cannot find key " << key;
     } else {
@@ -557,7 +553,7 @@ const TNode& TNode::At(const std::string_view key) const {
 TNode& TNode::At(const std::string_view key) {
     CheckType(Map);
     auto& map = std::get<TMapType>(Value_);
-    TMapType::iterator i = map.find(key);
+    TMapType::iterator i = map.find(std::string{key});
     if (i == map.end()) {
         ythrow TLookupError() << "Cannot find key " << key;
     } else {

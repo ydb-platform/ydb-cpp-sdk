@@ -49,7 +49,7 @@ void ThrowMalformedEnumValueException(std::string_view typeName, std::string_vie
         value));
 }
 
-void FormatUnknownEnumValue(TYdbStringBuilderBase* builder, std::string_view name, i64 value)
+void FormatUnknownEnumValue(TStringBuilderBase* builder, std::string_view name, i64 value)
 {
     builder->AppendFormat("%v(%v)", name, value);
 }

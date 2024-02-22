@@ -4,7 +4,7 @@ namespace NYT {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FormatValue(TYdbStringBuilderBase* builder, TGuid value, std::string_view /*format*/)
+void FormatValue(TStringBuilderBase* builder, TGuid value, std::string_view /*format*/)
 {
     char* begin = builder->Preallocate(MaxGuidStringSize);
     char* end = WriteGuidToBuffer(begin, value);

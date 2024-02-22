@@ -73,7 +73,6 @@ public:
 
     TNode();
     TNode(const char* s);
-    TNode(std::string_view s);
     explicit TNode(std::string_view s);
     explicit TNode(const std::string& s);
     TNode(std::string s);
@@ -322,7 +321,7 @@ inline T TNode::ConvertTo() const {
     if constexpr (std::is_integral<T>::value) {
         switch (GetType()) {
             case NYT::TNode::String:
-                return ::FromString(AsString());
+                return ::FromString<T>(AsString());
             case NYT::TNode::Int64:
             case NYT::TNode::Uint64:
                 return IntCast<T>();
@@ -370,7 +369,7 @@ template<>
 inline double TNode::ConvertTo<double>() const {
     switch (GetType()) {
         case NYT::TNode::String:
-            return ::FromString(AsString());
+            return ::FromString<double>(AsString());
         case NYT::TNode::Int64:
             return AsInt64();
         case NYT::TNode::Uint64:
@@ -391,7 +390,7 @@ template<>
 inline bool TNode::ConvertTo<bool>() const {
     switch (GetType()) {
         case NYT::TNode::String:
-            return ::FromString(AsString());
+            return ::FromString<bool>(AsString());
         case NYT::TNode::Int64:
             return AsInt64();
         case NYT::TNode::Uint64:

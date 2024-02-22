@@ -7,12 +7,12 @@ namespace NYT {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class TYdbStringBuilderBase;
+class TStringBuilderBase;
 
 template <class... Ts>
-void FormatValue(TYdbStringBuilderBase* builder, const std::variant<Ts...>& variant, std::string_view spec);
+void FormatValue(TStringBuilderBase* builder, const std::variant<Ts...>& variant, std::string_view spec);
 
-void FormatValue(TYdbStringBuilderBase* builder, const std::monostate&, std::string_view /*format*/);
+void FormatValue(TStringBuilderBase* builder, const std::monostate&, std::string_view /*format*/);
 
 template <class... Ts>
 std::string ToString(const std::variant<Ts...>& variant);

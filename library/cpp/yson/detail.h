@@ -458,7 +458,7 @@ namespace NYson {
                     if (expectedString[i] != ch) {
                         ythrow TYsonException()
                             << "Incorrect %-literal prefix "
-                            << "'" << expectedString.SubStr(0, i) << ch << "',"
+                            << "'" << expectedString.substr(0, i) << ch << "',"
                             << "expected " << expectedString;
                     }
                     TBaseStream::Advance(1);
@@ -708,19 +708,19 @@ namespace NYson {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    class std::stringReader {
+    class TStringReader {
     private:
         const char* BeginPtr;
         const char* EndPtr;
 
     public:
-        std::stringReader()
+        TStringReader()
             : BeginPtr(nullptr)
             , EndPtr(nullptr)
         {
         }
 
-        std::stringReader(const char* begin, const char* end)
+        TStringReader(const char* begin, const char* end)
             : BeginPtr(begin)
             , EndPtr(end)
         {

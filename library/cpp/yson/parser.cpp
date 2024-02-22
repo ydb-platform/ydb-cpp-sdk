@@ -110,8 +110,8 @@ namespace NYson {
         EYsonType type,
         bool enableLinePositionInfo,
         TMaybe<ui64> memoryLimit) {
-        ParseYsonStreamImpl<NYT::NYson::IYsonConsumer, std::stringReader>(
-            std::stringReader(buffer.begin(), buffer.end()),
+        ParseYsonStreamImpl<NYT::NYson::IYsonConsumer, TStringReader>(
+            TStringReader(buffer.begin(), buffer.end()),
             consumer,
             type,
             enableLinePositionInfo,
