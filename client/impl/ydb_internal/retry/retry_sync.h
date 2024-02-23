@@ -89,7 +89,7 @@ class TRetryWithSession : public TRetryContext<TClient, TStatusType> {
 
 private:
     const TOperation& Operation_;
-    TMaybe<TSession> Session_;
+    std::optional<TSession> Session_;
 
 public:
     TRetryWithSession(TClient& client, const TOperation& operation, const TRetryOperationSettings& settings)
@@ -99,7 +99,7 @@ public:
 
 protected:
     TStatusType Retry() override {
-        TMaybe<TStatusType> status;
+        std::optional<TStatusType> status;
 
         if (!Session_) {
             auto settings = TCreateSessionSettings().ClientTimeout(this->Settings_.GetSessionClientTimeout_);
@@ -119,14 +119,14 @@ protected:
 
     TStatusType RunOperation() override {
         if constexpr (TFunctionArgs<TOperation>::Length == 1) {
-            return Operation_(this->Session_.GetRef());
+            return Operation_(this->Session_.value());
         } else {
-            return Operation_(this->Session_.GetRef(), this->GetRemainingTimeout());
+            return Operation_(this->Session_.value(), this->GetRemainingTimeout());
         }
     }
 
     void Reset() override {
-        Session_.Clear();
+        Session_.reset();
     }
 };
 
