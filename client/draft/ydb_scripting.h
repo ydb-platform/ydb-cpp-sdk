@@ -41,10 +41,10 @@ private:
 
 class TYqlResultPart : public TStreamPartStatus {
 public:
-    bool HasPartialResult() const { return PartialResult_.Defined(); }
+    bool HasPartialResult() const { return PartialResult_.has_value(); }
     const TYqlPartialResult& GetPartialResult() const { return *PartialResult_; }
 
-    bool HasQueryStats() const { return QueryStats_.Defined(); }
+    bool HasQueryStats() const { return QueryStats_.has_value(); }
     const NTable::TQueryStats& GetQueryStats() const { return *QueryStats_; }
     NTable::TQueryStats ExtractQueryStats() { return std::move(*QueryStats_); }
 
