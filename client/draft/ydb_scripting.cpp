@@ -15,7 +15,7 @@ namespace NScripting {
 using namespace NThreading;
 
 TExecuteYqlResult::TExecuteYqlResult(TStatus&& status, std::vector<TResultSet>&& resultSets,
-    const TMaybe<NTable::TQueryStats>& queryStats)
+    const std::optional<NTable::TQueryStats>& queryStats)
     : TStatus(std::move(status))
     , ResultSets_(std::move(resultSets))
     , QueryStats_(queryStats) {}
@@ -36,7 +36,7 @@ TResultSetParser TExecuteYqlResult::GetResultSetParser(size_t resultIndex) const
     return TResultSetParser(GetResultSet(resultIndex));
 }
 
-const TMaybe<NTable::TQueryStats>& TExecuteYqlResult::GetStats() const {
+const std::optional<NTable::TQueryStats>& TExecuteYqlResult::GetStats() const {
     return QueryStats_;
 }
 
@@ -77,7 +77,7 @@ public:
                 EStatus clientStatus = static_cast<EStatus>(self->Response_.status());
                 TPlainStatus plainStatus{ clientStatus, std::move(issues), self->Endpoint_, {} };
                 TStatus status{ std::move(plainStatus) };
-                TMaybe<NTable::TQueryStats> queryStats;
+                std::optional<NTable::TQueryStats> queryStats;
 
                 if (self->Response_.result().has_query_stats()) {
                     queryStats = NTable::TQueryStats(self->Response_.result().query_stats());
@@ -164,7 +164,7 @@ public:
         auto extractor = [promise]
             (google::protobuf::Any* any, TPlainStatus status) mutable {
                 std::vector<TResultSet> res;
-                TMaybe<NTable::TQueryStats> queryStats;
+                std::optional<NTable::TQueryStats> queryStats;
                 if (any) {
                     Ydb::Scripting::ExecuteYqlResult result;
                     any->UnpackTo(&result);
