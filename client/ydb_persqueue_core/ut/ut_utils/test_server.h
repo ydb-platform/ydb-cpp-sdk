@@ -19,7 +19,7 @@ public:
                 bool start = true,
                 const std::vector<NKikimrServices::EServiceKikimr>& logServices = TTestServer::LOGGED_SERVICES,
                 NActors::NLog::EPriority logPriority = NActors::NLog::PRI_DEBUG,
-                TMaybe<TSimpleSharedPtr<TPortManager>> portManager = Nothing())
+                std::optional<TSimpleSharedPtr<TPortManager>> portManager = std::nullopt)
         : PortManager(portManager.GetOrElse(MakeSimpleShared<TPortManager>()))
         , Port(PortManager->GetPort(2134))
         , GrpcPort(PortManager->GetPort(2135))
@@ -44,7 +44,7 @@ public:
     {
     }
 
-    void StartServer(bool doClientInit = true, TMaybe<TString> databaseName = Nothing()) {
+    void StartServer(bool doClientInit = true, std::optional<TString> databaseName = std::nullopt) {
         Log.SetFormatter([](ELogPriority priority, TStringBuf message) {
             return TStringBuilder() << TInstant::Now() << " " << priority << ": " << message << Endl;
         });

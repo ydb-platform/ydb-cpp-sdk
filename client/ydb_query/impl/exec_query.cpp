@@ -210,7 +210,7 @@ TFuture<std::pair<TPlainStatus, TExecuteQueryProcessorPtr>> StreamExecuteQueryIm
     request.mutable_query_content()->set_syntax(::Ydb::Query::Syntax(settings.Syntax_));
     if (session.has_value()) {
         request.set_session_id(session->GetId());
-    } else if ((txControl.TxSettings_.Defined() && !txControl.CommitTx_) || txControl.TxId_.Defined()) {
+    } else if ((txControl.TxSettings_.has_value() && !txControl.CommitTx_) || txControl.TxId_.has_value()) {
         throw TContractViolation("Interactive tx must use explisit session");
     }
 
