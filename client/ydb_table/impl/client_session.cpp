@@ -35,7 +35,7 @@ void TSession::TImpl::InvalidateQueryCache() {
     }
 }
 
-TMaybe<TSession::TImpl::TDataQueryInfo> TSession::TImpl::GetQueryFromCache(const TString& query, bool allowMigration) {
+std::optional<TSession::TImpl::TDataQueryInfo> TSession::TImpl::GetQueryFromCache(const TString& query, bool allowMigration) {
     if (!UseQueryCache_) {
         return {};
     }
@@ -49,7 +49,7 @@ TMaybe<TSession::TImpl::TDataQueryInfo> TSession::TImpl::GetQueryFromCache(const
         }
     }
 
-    return Nothing();
+    return std::nullopt;
 }
 
 void TSession::TImpl::AddQueryToCache(const TDataQuery& query) {

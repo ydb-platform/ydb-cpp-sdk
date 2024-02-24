@@ -46,7 +46,7 @@ public:
 
     void InvalidateQueryInCache(const TString& key);
     void InvalidateQueryCache();
-    TMaybe<TDataQueryInfo> GetQueryFromCache(const TString& query, bool allowMigration);
+    std::optional<TDataQueryInfo> GetQueryFromCache(const TString& query, bool allowMigration);
     void AddQueryToCache(const TDataQuery& query);
 
     const TLRUCache<TString, TDataQueryInfo>& GetQueryCacheUnsafe() const;
