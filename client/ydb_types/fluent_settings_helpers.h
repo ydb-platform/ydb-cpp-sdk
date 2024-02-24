@@ -50,8 +50,16 @@
         return static_cast<TSelf&>(*this); \
     }
 
+// #define FLUENT_SETTING_OPTIONAL_VECTOR(type, name) \
+//     TMaybe<std::vector<type>> name##_; \
+//     TSelf& Append##name(const type& value) { \
+//         if (!name##_) name##_ = std::vector<type>{}; \
+//         name##_->push_back(value); \
+//         return static_cast<TSelf&>(*this); \
+//     }
+
 #define FLUENT_SETTING_OPTIONAL_VECTOR(type, name) \
-    TMaybe<std::vector<type>> name##_; \
+    std::optional<std::vector<type>> name##_; \
     TSelf& Append##name(const type& value) { \
         if (!name##_) name##_ = std::vector<type>{}; \
         name##_->push_back(value); \
