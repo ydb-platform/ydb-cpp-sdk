@@ -59,7 +59,7 @@ void PrintTo(TBasicStringBuf<TCharType, TCharTraits> value, std::ostream* stream
 }
 
 template <typename T, typename P>
-void PrintTo(const TMaybe<T, P>& value, std::ostream* stream) {
+void PrintTo(const std::optional<T, P>& value, std::ostream* stream) {
     if (value.Defined()) {
         ::testing::internal::UniversalPrint(value.GetRef(), stream);
     } else {

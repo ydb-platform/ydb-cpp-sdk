@@ -644,8 +644,8 @@ namespace NThreading {
     }
 
     template <typename T>
-    inline TMaybe<TFutureStateId> TFuture<T>::StateId() const noexcept {
-        return State != nullptr ? MakeMaybe<TFutureStateId>(*State) : Nothing();
+    inline std::optional<TFutureStateId> TFuture<T>::StateId() const noexcept {
+        return State != nullptr ? std::make_optional<TFutureStateId>(*State) : std::nullopt;
     }
 
     template <typename T>
@@ -747,8 +747,8 @@ namespace NThreading {
         return bool(State);
     }
 
-    inline TMaybe<TFutureStateId> TFuture<void>::StateId() const noexcept {
-        return State != nullptr ? MakeMaybe<TFutureStateId>(*State) : Nothing();
+    inline std::optional<TFutureStateId> TFuture<void>::StateId() const noexcept {
+        return State != nullptr ? std::make_optional<TFutureStateId>(*State) : std::nullopt;
     }
 
     inline void TFuture<void>::EnsureInitialized() const {

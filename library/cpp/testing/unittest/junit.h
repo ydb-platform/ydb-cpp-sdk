@@ -135,7 +135,7 @@ private:
     const TString ExecName; // cmd line param
     const EOutputFormat OutputFormat;
     TString ResultReportFileName;
-    TMaybe<TTempFile> TmpReportFile;
+    std::optional<TTempFile> TmpReportFile;
     std::map<TString, TTestSuite> Suites;
     THolder<TOutputCapturer> StdErrCapturer;
     THolder<TOutputCapturer> StdOutCapturer;

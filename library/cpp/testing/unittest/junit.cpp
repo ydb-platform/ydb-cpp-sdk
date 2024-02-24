@@ -306,7 +306,7 @@ void TJUnitProcessor::SetForkTestsParams(bool forkTests, bool isForked) {
 
 void TJUnitProcessor::MakeTmpFileNameForForkedTests() {
     if (GetForkTests() && !GetIsForked()) {
-        TmpReportFile.ConstructInPlace(MakeTempName());
+        TmpReportFile.emplace(MakeTempName());
         // Replace option for child processes
         SetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION, TStringBuilder() << "json:" << TmpReportFile->Name());
     }
