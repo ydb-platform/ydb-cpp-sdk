@@ -207,7 +207,7 @@ protected:
     virtual int DoRun(NLastGetopt::TOptsParseResult&& parsedOptions) = 0;
 
 private:
-    TMaybe<NLastGetopt::TOpts> Opts_;
+    std::optional<NLastGetopt::TOpts> Opts_;
 };
 
 //! Mode class that uses sub-modes to dispatch commands further.
@@ -227,5 +227,5 @@ protected:
     virtual void RegisterModes(TModChooser& modes);
 
 private:
-    TMaybe<TModChooser> Modes_;
+    std::optional<TModChooser> Modes_;
 };

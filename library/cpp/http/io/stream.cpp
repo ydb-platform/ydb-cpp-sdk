@@ -176,7 +176,7 @@ public:
         return Headers_;
     }
 
-    inline const TMaybe<THttpHeaders>& Trailers() const noexcept {
+    inline const std::optional<THttpHeaders>& Trailers() const noexcept {
         return Trailers_;
     }
 
@@ -214,7 +214,7 @@ private:
         size_t processed = operation(len);
         if (processed == 0 && len > 0) {
             if (!ChunkedInput_) {
-                Trailers_.ConstructInPlace();
+                Trailers_.emplace();
             } else {
                 // Read the header of the trailing chunk. It remains in
                 // the TChunkedInput stream if the HTTP response is compressed.
@@ -374,7 +374,7 @@ private:
 
     TString FirstLine_;
     THttpHeaders Headers_;
-    TMaybe<THttpHeaders> Trailers_;
+    std::optional<THttpHeaders> Trailers_;
     bool KeepAlive_;
 
     TAcceptCodings Codings_;
@@ -408,7 +408,7 @@ const THttpHeaders& THttpInput::Headers() const noexcept {
     return Impl_->Headers();
 }
 
-const TMaybe<THttpHeaders>& THttpInput::Trailers() const noexcept {
+const std::optional<THttpHeaders>& THttpInput::Trailers() const noexcept {
     return Impl_->Trailers();
 }
 

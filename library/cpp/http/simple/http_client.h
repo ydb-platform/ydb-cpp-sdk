@@ -115,8 +115,8 @@ private:
 
     THolder<NPrivate::THttpConnection> Connection;
     bool IsClosingRequired;
-    TMaybe<TClientCert> ClientCertificate;
-    TMaybe<TVerifyCert> HttpsVerification;
+    std::optional<TClientCert> ClientCertificate;
+    std::optional<TVerifyCert> HttpsVerification;
 
 private:
     THttpInput* GetHttpInput();
@@ -201,8 +201,8 @@ namespace NPrivate {
                         TDuration sockTimeout,
                         TDuration connTimeout,
                         bool isHttps,
-                        const TMaybe<TOpenSslClientIO::TOptions::TClientCert>& clientCert,
-                        const TMaybe<TOpenSslClientIO::TOptions::TVerifyCert>& verifyCert);
+                        const std::optional<TOpenSslClientIO::TOptions::TClientCert>& clientCert,
+                        const std::optional<TOpenSslClientIO::TOptions::TVerifyCert>& verifyCert);
 
         bool IsOk() const {
             return IsNotSocketClosedByOtherSide(Socket);
