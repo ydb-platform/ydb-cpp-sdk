@@ -254,7 +254,7 @@ namespace NMonitoring {
         }
 
         // XXX for backward compatibility
-        TMaybe<TLabelImpl<TStringBackend>> Find(TStringBuf name) const {
+        std::optional<TLabelImpl<TStringBackend>> Find(TStringBuf name) const {
             auto it = FindIf(Labels_, [name](const TLabelImpl<TStringBackend>& label) {
                 return name == TStringBuf{label.Name()};
             });
@@ -280,12 +280,12 @@ namespace NMonitoring {
             return &(*this)[idx];
         }
 
-        TMaybe<TLabelImpl<TStringBackend>> Extract(TStringBuf name) {
+        std::optional<TLabelImpl<TStringBackend>> Extract(TStringBuf name) {
             auto it = FindIf(Labels_, [name](const TLabelImpl<TStringBackend>& label) {
                 return name == TStringBuf{label.Name()};
             });
             if (it == Labels_.end()) {
-                return Nothing();
+                return std::nullopt;
             }
             TLabel tmp = *it;
             Labels_.erase(it);

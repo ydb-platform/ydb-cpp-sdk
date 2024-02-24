@@ -146,7 +146,7 @@ namespace NJson {
         }
 
         template <typename T>
-        void WriteOptional(const TStringBuf& key, const TMaybe<T>& value) {
+        void WriteOptional(const TStringBuf& key, const std::optional<T>& value) {
             if (value) {
                 Write(key, *value);
             }

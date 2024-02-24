@@ -36,12 +36,12 @@ void TBaseServerRequestData::AppendQueryString(TStringBuf str) {
 }
 
 void TBaseServerRequestData::SetRemoteAddr(TStringBuf addr) {
-    Addr_.ConstructInPlace(addr.substr(0, INET6_ADDRSTRLEN - 1));
+    Addr_.emplace(addr.substr(0, INET6_ADDRSTRLEN - 1));
 }
 
 TStringBuf TBaseServerRequestData::RemoteAddr() const {
     if (!Addr_) {
-        auto& addr = Addr_.ConstructInPlace();
+        auto& addr = Addr_.emplace();
         addr.ReserveAndResize(INET6_ADDRSTRLEN);
         if (GetRemoteAddr(Socket_, addr.begin(), addr.size())) {
             if (auto pos = addr.find('\0'); pos != TString::npos) {
@@ -93,7 +93,7 @@ TStringBuf TBaseServerRequestData::Environment(TStringBuf key) const {
 
  void TBaseServerRequestData::Clear() {
     HeadersIn_.clear();
-    Addr_ = Nothing();
+    Addr_ = std::nullopt;
     Path_.clear();
     Query_ = {};
     OrigQuery_ = {};

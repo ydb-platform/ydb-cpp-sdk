@@ -141,7 +141,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
 
             TStringStream out;
 
-            TMaybe<int> nothing = Nothing();
+            std::optional<int> nothing = std::nullopt;
 
             TJsonWriter json(&out, false);
             json.OpenMap();
@@ -156,7 +156,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
 
             TStringStream out;
 
-            TMaybe<int> empty;
+            std::optional<int> empty;
 
             TJsonWriter json(&out, false);
             json.OpenMap();

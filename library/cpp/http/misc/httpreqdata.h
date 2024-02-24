@@ -87,7 +87,7 @@ public:
     void AddHeader(const TString& name, const TString& value);
 
 private:
-    mutable TMaybe<TString> Addr_;
+    mutable std::optional<TString> Addr_;
     TString Host_;
     TString Port_;
     TString Path_;
