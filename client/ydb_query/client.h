@@ -188,22 +188,22 @@ private:
 
 class TExecuteQueryPart : public TStreamPartStatus {
 public:
-    bool HasResultSet() const { return ResultSet_.Defined(); }
+    bool HasResultSet() const { return ResultSet_.has_value(); }
     ui64 GetResultSetIndex() const { return ResultSetIndex_; }
     const TResultSet& GetResultSet() const { return *ResultSet_; }
     TResultSet ExtractResultSet() { return std::move(*ResultSet_); }
 
-    const TMaybe<TExecStats>& GetStats() const { return Stats_; }
-    const TMaybe<TTransaction>& GetTransaction() const { return Transaction_; }
+    const std::optional<TExecStats>& GetStats() const { return Stats_; }
+    const std::optional<TTransaction>& GetTransaction() const { return Transaction_; }
 
-    TExecuteQueryPart(TStatus&& status, TMaybe<TExecStats>&& queryStats, TMaybe<TTransaction>&& tx)
+    TExecuteQueryPart(TStatus&& status, std::optional<TExecStats>&& queryStats, std::optional<TTransaction>&& tx)
         : TStreamPartStatus(std::move(status))
         , Stats_(std::move(queryStats))
         , Transaction_(std::move(tx))
     {}
 
     TExecuteQueryPart(TStatus&& status, TResultSet&& resultSet, i64 resultSetIndex,
-        TMaybe<TExecStats>&& queryStats, TMaybe<TTransaction>&& tx)
+        std::optional<TExecStats>&& queryStats, std::optional<TTransaction>&& tx)
         : TStreamPartStatus(std::move(status))
         , ResultSet_(std::move(resultSet))
         , ResultSetIndex_(resultSetIndex)
@@ -212,10 +212,10 @@ public:
     {}
 
 private:
-    TMaybe<TResultSet> ResultSet_;
+    std::optional<TResultSet> ResultSet_;
     i64 ResultSetIndex_ = 0;
-    TMaybe<TExecStats> Stats_;
-    TMaybe<TTransaction> Transaction_;
+    std::optional<TExecStats> Stats_;
+    std::optional<TTransaction> Transaction_;
 };
 
 class TExecuteQueryResult : public TStatus {
@@ -224,16 +224,16 @@ public:
     TResultSet GetResultSet(size_t resultIndex) const;
     TResultSetParser GetResultSetParser(size_t resultIndex) const;
 
-    const TMaybe<TExecStats>& GetStats() const { return Stats_; }
+    const std::optional<TExecStats>& GetStats() const { return Stats_; }
 
-    TMaybe<TTransaction> GetTransaction() const {return Transaction_; }
+    std::optional<TTransaction> GetTransaction() const {return Transaction_; }
 
     TExecuteQueryResult(TStatus&& status)
         : TStatus(std::move(status))
     {}
 
     TExecuteQueryResult(TStatus&& status, std::vector<TResultSet>&& resultSets,
-        TMaybe<TExecStats>&& stats, TMaybe<TTransaction>&& tx)
+        std::optional<TExecStats>&& stats, std::optional<TTransaction>&& tx)
         : TStatus(std::move(status))
         , ResultSets_(std::move(resultSets))
         , Stats_(std::move(stats))
@@ -242,8 +242,8 @@ public:
 
 private:
     std::vector<TResultSet> ResultSets_;
-    TMaybe<TExecStats> Stats_;
-    TMaybe<TTransaction> Transaction_;
+    std::optional<TExecStats> Stats_;
+    std::optional<TTransaction> Transaction_;
 };
 
 } // namespace NYdb::NQuery

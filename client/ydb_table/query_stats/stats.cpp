@@ -15,7 +15,7 @@ std::optional<ECollectQueryStatsMode> ParseQueryStatsMode(std::string_view stats
         return ECollectQueryStatsMode::Profile;
     }
 
-    return {};
+    return std::nullopt;
 }
 
 std::string_view QueryStatsModeToString(ECollectQueryStatsMode statsMode)

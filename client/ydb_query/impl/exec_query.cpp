@@ -42,7 +42,7 @@ public:
     using TGRpcStatus = NYdbGrpc::TGrpcStatus;
     using TBatchReadResult = std::pair<TResponse, TGRpcStatus>;
 
-    TReaderImpl(TStreamProcessorPtr streamProcessor, const TString& endpoint, const TMaybe<TSession>& session)
+    TReaderImpl(TStreamProcessorPtr streamProcessor, const TString& endpoint, const std::optional<TSession>& session)
         : StreamProcessor_(streamProcessor)
         , Finished_(false)
         , Endpoint_(endpoint)
@@ -71,14 +71,14 @@ public:
                 TPlainStatus plainStatus{clientStatus, std::move(issues), self->Endpoint_, {}};
                 TStatus status{std::move(plainStatus)};
 
-                TMaybe<TExecStats> stats;
-                TMaybe<TTransaction> tx;
+                std::optional<TExecStats> stats;
+                std::optional<TTransaction> tx;
                 if (self->Response_.has_exec_stats()) {
                     stats = TExecStats(std::move(*self->Response_.mutable_exec_stats()));
                 }
 
-                if (self->Response_.has_tx_meta() && self->Session_.Defined()) {
-                    tx = TTransaction(self->Session_.GetRef(), self->Response_.tx_meta().id());
+                if (self->Response_.has_tx_meta() && self->Session_.has_value()) {
+                    tx = TTransaction(self->Session_.value(), self->Response_.tx_meta().id());
                 }
 
                 if (self->Response_.has_result_set()) {
@@ -103,7 +103,7 @@ private:
     TResponse Response_;
     bool Finished_;
     TString Endpoint_;
-    TMaybe<TSession> Session_;
+    std::optional<TSession> Session_;
 };
 
 TAsyncExecuteQueryPart TExecuteQueryIterator::ReadNext() {
@@ -127,8 +127,8 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
     TExecuteQueryIterator Iterator_;
     std::vector<NYql::TIssue> Issues_;
     std::vector<Ydb::ResultSet> ResultSets_;
-    TMaybe<TExecStats> Stats_;
-    TMaybe<TTransaction> Tx_;
+    std::optional<TExecStats> Stats_;
+    std::optional<TTransaction> Tx_;
 
     void Next() {
         TPtr self(this);
@@ -140,8 +140,8 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
                 if (part.EOS()) {
                     std::vector<NYql::TIssue> issues;
                     std::vector<Ydb::ResultSet> resultProtos;
-                    TMaybe<TExecStats> stats;
-                    TMaybe<TTransaction> tx;
+                    std::optional<TExecStats> stats;
+                    std::optional<TTransaction> tx;
 
                     std::swap(self->Issues_, issues);
                     std::swap(self->ResultSets_, resultProtos);
@@ -201,14 +201,14 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
 TFuture<std::pair<TPlainStatus, TExecuteQueryProcessorPtr>> StreamExecuteQueryImpl(
     const std::shared_ptr<TGRpcConnectionsImpl>& connections, const TDbDriverStatePtr& driverState,
     const TString& query, const TTxControl& txControl, const ::google::protobuf::Map<TString, Ydb::TypedValue>* params,
-    const TExecuteQuerySettings& settings, const TMaybe<TSession>& session)
+    const TExecuteQuerySettings& settings, const std::optional<TSession>& session)
 {
     auto request = MakeRequest<Ydb::Query::ExecuteQueryRequest>();
     request.set_exec_mode(::Ydb::Query::ExecMode(settings.ExecMode_));
     request.set_stats_mode(::Ydb::Query::StatsMode(settings.StatsMode_));
     request.mutable_query_content()->set_text(query);
     request.mutable_query_content()->set_syntax(::Ydb::Query::Syntax(settings.Syntax_));
-    if (session.Defined()) {
+    if (session.has_value()) {
         request.set_session_id(session->GetId());
     } else if ((txControl.TxSettings_.Defined() && !txControl.CommitTx_) || txControl.TxId_.Defined()) {
         throw TContractViolation("Interactive tx must use explisit session");
@@ -238,7 +238,7 @@ TFuture<std::pair<TPlainStatus, TExecuteQueryProcessorPtr>> StreamExecuteQueryIm
     auto promise = NewPromise<std::pair<TPlainStatus, TExecuteQueryProcessorPtr>>();
 
     auto rpcSettings = TRpcRequestSettings::Make(settings);
-    if (session.Defined()) {
+    if (session.has_value()) {
         rpcSettings.PreferredEndpoint = TEndpointKey(GetNodeIdFromSession(session->GetId()));
     }
 
@@ -261,7 +261,7 @@ TFuture<std::pair<TPlainStatus, TExecuteQueryProcessorPtr>> StreamExecuteQueryIm
 
 TAsyncExecuteQueryIterator TExecQueryImpl::StreamExecuteQuery(const std::shared_ptr<TGRpcConnectionsImpl>& connections,
     const TDbDriverStatePtr& driverState, const TString& query, const TTxControl& txControl,
-    const TMaybe<TParams>& params, const TExecuteQuerySettings& settings, const TMaybe<TSession>& session)
+    const std::optional<TParams>& params, const TExecuteQuerySettings& settings, const std::optional<TSession>& session)
 {
     auto promise = NewPromise<TExecuteQueryIterator>();
 
@@ -287,7 +287,7 @@ TAsyncExecuteQueryIterator TExecQueryImpl::StreamExecuteQuery(const std::shared_
 
 TAsyncExecuteQueryResult TExecQueryImpl::ExecuteQuery(const std::shared_ptr<TGRpcConnectionsImpl>& connections,
     const TDbDriverStatePtr& driverState, const TString& query, const TTxControl& txControl,
-    const TMaybe<TParams>& params, const TExecuteQuerySettings& settings, const TMaybe<TSession>& session)
+    const std::optional<TParams>& params, const TExecuteQuerySettings& settings, const std::optional<TSession>& session)
 {
     auto syncSettings = settings;
     syncSettings.ConcurrentResultSets(true);

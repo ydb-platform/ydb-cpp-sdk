@@ -9,9 +9,16 @@
         return static_cast<TSelf&>(*this); \
     }
 
+// #define FLUENT_SETTING_OPTIONAL(type, name) \
+//     TMaybe<type> name##_; \
+//     TSelf& name(const TMaybe<type>& value) { \
+//         name##_ = value; \
+//         return static_cast<TSelf&>(*this); \
+//     }
+
 #define FLUENT_SETTING_OPTIONAL(type, name) \
-    TMaybe<type> name##_; \
-    TSelf& name(const TMaybe<type>& value) { \
+    std::optional<type> name##_; \
+    TSelf& name(const std::optional<type>& value) { \
         name##_ = value; \
         return static_cast<TSelf&>(*this); \
     }

@@ -81,20 +81,20 @@ private:
 
 class TKeyRange {
 public:
-    TKeyRange(const TMaybe<TKeyBound>& from, const TMaybe<TKeyBound>& to)
+    TKeyRange(const std::optional<TKeyBound>& from, const std::optional<TKeyBound>& to)
         : From_(from)
         , To_(to) {}
 
-    const TMaybe<TKeyBound>& From() const {
+    const std::optional<TKeyBound>& From() const {
         return From_;
     }
 
-    const TMaybe<TKeyBound>& To() const {
+    const std::optional<TKeyBound>& To() const {
         return To_;
     }
 private:
-    TMaybe<TKeyBound> From_;
-    TMaybe<TKeyBound> To_;
+    std::optional<TKeyBound> From_;
+    std::optional<TKeyBound> To_;
 };
 
 struct TTableColumn {
@@ -203,7 +203,7 @@ public:
         EBuildIndexState State;
         float Progress;
         TString Path;
-        TMaybe<TIndexDescription> Desctiption;
+        std::optional<TIndexDescription> Desctiption;
     };
 
     const TMetadata& Metadata() const;
@@ -398,10 +398,10 @@ public:
 
     const Ydb::Table::StorageSettings& GetProto() const;
 
-    TMaybe<TString> GetTabletCommitLog0() const;
-    TMaybe<TString> GetTabletCommitLog1() const;
-    TMaybe<TString> GetExternal() const;
-    TMaybe<bool> GetStoreExternalBlobs() const;
+    std::optional<TString> GetTabletCommitLog0() const;
+    std::optional<TString> GetTabletCommitLog1() const;
+    std::optional<TString> GetExternal() const;
+    std::optional<bool> GetStoreExternalBlobs() const;
 
 private:
     class TImpl;
@@ -416,9 +416,9 @@ public:
     const Ydb::Table::ColumnFamily& GetProto() const;
 
     const TString& GetName() const;
-    TMaybe<TString> GetData() const;
-    TMaybe<EColumnFamilyCompression> GetCompression() const;
-    TMaybe<bool> GetKeepInMemory() const;
+    std::optional<TString> GetData() const;
+    std::optional<EColumnFamilyCompression> GetCompression() const;
+    std::optional<bool> GetKeepInMemory() const;
 
 private:
     class TImpl;
@@ -433,8 +433,8 @@ public:
 
     const Ydb::Table::PartitioningSettings& GetProto() const;
 
-    TMaybe<bool> GetPartitioningBySize() const;
-    TMaybe<bool> GetPartitioningByLoad() const;
+    std::optional<bool> GetPartitioningBySize() const;
+    std::optional<bool> GetPartitioningByLoad() const;
     ui64 GetPartitionSizeMb() const;
     ui64 GetMinPartitionsCount() const;
     ui64 GetMaxPartitionsCount() const;
@@ -486,8 +486,8 @@ public:
     std::vector<TTableColumn> GetTableColumns() const;
     std::vector<TIndexDescription> GetIndexDescriptions() const;
     std::vector<TChangefeedDescription> GetChangefeedDescriptions() const;
-    TMaybe<TTtlSettings> GetTtlSettings() const;
-    TMaybe<TString> GetTiering() const;
+    std::optional<TTtlSettings> GetTtlSettings() const;
+    std::optional<TString> GetTiering() const;
     EStoreType GetStoreType() const;
 
     // Deprecated. Use GetEntry() of TDescribeTableResult instead
@@ -528,10 +528,10 @@ public:
     const TPartitioningSettings& GetPartitioningSettings() const;
 
     // Bloom filter by key
-    TMaybe<bool> GetKeyBloomFilter() const;
+    std::optional<bool> GetKeyBloomFilter() const;
 
     // Returns read replicas settings of the table
-    TMaybe<TReadReplicasSettings> GetReadReplicasSettings() const;
+    std::optional<TReadReplicasSettings> GetReadReplicasSettings() const;
 
     // Fills CreateTableRequest proto from this description
     void SerializeTo(Ydb::Table::CreateTableRequest& request) const;
@@ -1179,7 +1179,7 @@ private:
     TTxControl(const TTxSettings& begin);
 
 private:
-    TMaybe<TString> TxId_;
+    std::optional<TString> TxId_;
     TTxSettings BeginTx_;
 };
 
@@ -1452,8 +1452,8 @@ struct TAlterTableSettings : public TOperationRequestSettings<TAlterTableSetting
     FLUENT_SETTING_VECTOR(TColumnFamilyDescription, AlterColumnFamilies);
 
     // workaround for MSVC
-    TSelf& AlterTtlSettings(const TMaybe<TAlterTtlSettings>& value);
-    const TMaybe<TAlterTtlSettings>& GetAlterTtlSettings() const;
+    TSelf& AlterTtlSettings(const std::optional<TAlterTtlSettings>& value);
+    const std::optional<TAlterTtlSettings>& GetAlterTtlSettings() const;
 
     FLUENT_SETTING(TAlterAttributes, AlterAttributes);
 
@@ -1747,7 +1747,7 @@ class TDataQuery {
 
 public:
     const TString& GetId() const;
-    const TMaybe<TString>& GetText() const;
+    const std::optional<TString>& GetText() const;
     TParamsBuilder GetParamsBuilder() const;
 
     TAsyncDataQueryResult Execute(const TTxControl& txControl,
@@ -1814,29 +1814,29 @@ private:
 
 class TDataQueryResult : public TStatus {
 public:
-    TDataQueryResult(TStatus&& status, std::vector<TResultSet>&& resultSets, const TMaybe<TTransaction>& transaction,
-        const TMaybe<TDataQuery>& dataQuery, bool fromCache, const TMaybe<TQueryStats>& queryStats);
+    TDataQueryResult(TStatus&& status, std::vector<TResultSet>&& resultSets, const std::optional<TTransaction>& transaction,
+        const std::optional<TDataQuery>& dataQuery, bool fromCache, const std::optional<TQueryStats>& queryStats);
 
     const std::vector<TResultSet>& GetResultSets() const;
     TResultSet GetResultSet(size_t resultIndex) const;
 
     TResultSetParser GetResultSetParser(size_t resultIndex) const;
 
-    TMaybe<TTransaction> GetTransaction() const;
+    std::optional<TTransaction> GetTransaction() const;
 
-    TMaybe<TDataQuery> GetQuery() const;
+    std::optional<TDataQuery> GetQuery() const;
     bool IsQueryFromCache() const;
 
-    const TMaybe<TQueryStats>& GetStats() const;
+    const std::optional<TQueryStats>& GetStats() const;
 
     const TString GetQueryPlan() const;
 
 private:
-    TMaybe<TTransaction> Transaction_;
+    std::optional<TTransaction> Transaction_;
     std::vector<TResultSet> ResultSets_;
-    TMaybe<TDataQuery> DataQuery_;
+    std::optional<TDataQuery> DataQuery_;
     bool FromCache_;
-    TMaybe<TQueryStats> QueryStats_;
+    std::optional<TQueryStats> QueryStats_;
 };
 
 class TReadTableSnapshot {
@@ -1895,15 +1895,15 @@ using TReadTableResultPart = TSimpleStreamPart<TResultSet>;
 
 class TScanQueryPart : public TStreamPartStatus {
 public:
-    bool HasResultSet() const { return ResultSet_.Defined(); }
+    bool HasResultSet() const { return ResultSet_.has_value(); }
     const TResultSet& GetResultSet() const { return *ResultSet_; }
     TResultSet ExtractResultSet() { return std::move(*ResultSet_); }
 
-    bool HasQueryStats() const { return QueryStats_.Defined(); }
+    bool HasQueryStats() const { return QueryStats_.has_value(); }
     const TQueryStats& GetQueryStats() const { return *QueryStats_; }
     TQueryStats ExtractQueryStats() { return std::move(*QueryStats_); }
 
-    bool HasDiagnostics() const { return Diagnostics_.Defined(); }
+    bool HasDiagnostics() const { return Diagnostics_.has_value(); }
     const TString& GetDiagnostics() const { return *Diagnostics_; }
     TString&& ExtractDiagnostics() { return std::move(*Diagnostics_); }
 
@@ -1911,13 +1911,13 @@ public:
         : TStreamPartStatus(std::move(status))
     {}
 
-    TScanQueryPart(TStatus&& status, const TMaybe<TQueryStats>& queryStats, const TMaybe<TString>& diagnostics)
+    TScanQueryPart(TStatus&& status, const std::optional<TQueryStats>& queryStats, const std::optional<TString>& diagnostics)
         : TStreamPartStatus(std::move(status))
         , QueryStats_(queryStats)
         , Diagnostics_(diagnostics)
     {}
 
-    TScanQueryPart(TStatus&& status, TResultSet&& resultSet, const TMaybe<TQueryStats>& queryStats, const TMaybe<TString>& diagnostics)
+    TScanQueryPart(TStatus&& status, TResultSet&& resultSet, const std::optional<TQueryStats>& queryStats, const std::optional<TString>& diagnostics)
         : TStreamPartStatus(std::move(status))
         , ResultSet_(std::move(resultSet))
         , QueryStats_(queryStats)
@@ -1925,9 +1925,9 @@ public:
     {}
 
 private:
-    TMaybe<TResultSet> ResultSet_;
-    TMaybe<TQueryStats> QueryStats_;
-    TMaybe<TString> Diagnostics_;
+    std::optional<TResultSet> ResultSet_;
+    std::optional<TQueryStats> QueryStats_;
+    std::optional<TString> Diagnostics_;
 };
 
 using TAsyncScanQueryPart = NThreading::TFuture<TScanQueryPart>;
@@ -1957,12 +1957,12 @@ private:
 
 class TCommitTransactionResult : public TStatus {
 public:
-    TCommitTransactionResult(TStatus&& status, const TMaybe<TQueryStats>& queryStats);
+    TCommitTransactionResult(TStatus&& status, const std::optional<TQueryStats>& queryStats);
 
-    const TMaybe<TQueryStats>& GetStats() const;
+    const std::optional<TQueryStats>& GetStats() const;
 
 private:
-    TMaybe<TQueryStats> QueryStats_;
+    std::optional<TQueryStats> QueryStats_;
 };
 
 class TCreateSessionResult: public TStatus {

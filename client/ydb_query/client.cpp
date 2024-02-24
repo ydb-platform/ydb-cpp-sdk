@@ -67,15 +67,15 @@ public:
     }
 
     TAsyncExecuteQueryIterator StreamExecuteQuery(const TString& query, const TTxControl& txControl,
-        const TMaybe<TParams>& params, const TExecuteQuerySettings& settings, const TMaybe<TSession>& session = {})
+        const std::optional<TParams>& params, const TExecuteQuerySettings& settings, const std::optional<TSession>& session = {})
     {
         return TExecQueryImpl::StreamExecuteQuery(
             Connections_, DbDriverState_, query, txControl, params, settings, session);
     }
 
     TAsyncExecuteQueryResult ExecuteQuery(const TString& query, const TTxControl& txControl,
-        const TMaybe<TParams>& params, const TExecuteQuerySettings& settings,
-        const TMaybe<TSession>& session = {})
+        const std::optional<TParams>& params, const TExecuteQuerySettings& settings,
+        const std::optional<TSession>& session = {})
     {
         return TExecQueryImpl::ExecuteQuery(
             Connections_, DbDriverState_, query, txControl, params, settings, session);

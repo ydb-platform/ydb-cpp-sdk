@@ -36,11 +36,11 @@ TString TExecStats::ToString(bool withPlan) const {
     return res;
 }
 
-TMaybe<TString> TExecStats::GetPlan() const {
+std::optional<TString> TExecStats::GetPlan() const {
     auto proto = Impl_->Proto;
 
     if (proto.query_plan().empty()) {
-        return {};
+        return std::nullopt;
     }
 
     return proto.query_plan();

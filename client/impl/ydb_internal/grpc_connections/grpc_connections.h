@@ -59,11 +59,11 @@ public:
     // This method returns DbDriverState (or just db state) for given database credentials pair
     // this state is used to keep data related to particular database.
     TDbDriverStatePtr GetDriverState(
-        const TMaybe<TStringType>& database,
-        const TMaybe<TStringType>& discoveryEndpoint,
-        const TMaybe<EDiscoveryMode>& discoveryMode,
-        const TMaybe<TSslCredentials>& sslCredentials,
-        const TMaybe<std::shared_ptr<ICredentialsProviderFactory>>& credentialsProviderFactory
+        const std::optional<TStringType>& database,
+        const std::optional<TStringType>& discoveryEndpoint,
+        const std::optional<EDiscoveryMode>& discoveryMode,
+        const std::optional<TSslCredentials>& sslCredentials,
+        const std::optional<std::shared_ptr<ICredentialsProviderFactory>>& credentialsProviderFactory
     );
     IQueueClientContextPtr CreateContext() override;
     bool TryCreateContext(IQueueClientContextPtr& context);

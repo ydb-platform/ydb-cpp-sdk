@@ -51,7 +51,7 @@ TTopicDescription::TTopicDescription(Ydb::Topic::DescribeTopicResult&& result)
     : Proto_(std::move(result))
     , PartitioningSettings_(Proto_.partitioning_settings())
     , RetentionPeriod_(TDuration::Seconds(Proto_.retention_period().seconds()))
-    , RetentionStorageMb_(Proto_.retention_storage_mb() > 0 ? TMaybe<ui64>(Proto_.retention_storage_mb()) : Nothing())
+    , RetentionStorageMb_(Proto_.retention_storage_mb() > 0 ? std::optional<ui64>(Proto_.retention_storage_mb()) : std::nullopt)
     , PartitionWriteSpeedBytesPerSecond_(Proto_.partition_write_speed_bytes_per_second())
     , PartitionWriteBurstBytes_(Proto_.partition_write_burst_bytes())
     , MeteringMode_(TProtoAccessor::FromProto(Proto_.metering_mode()))
@@ -156,7 +156,7 @@ const TDuration& TTopicDescription::GetRetentionPeriod() const {
     return RetentionPeriod_;
 }
 
-TMaybe<ui64> TTopicDescription::GetRetentionStorageMb() const {
+std::optional<ui64> TTopicDescription::GetRetentionStorageMb() const {
     return RetentionStorageMb_;
 }
 
@@ -389,15 +389,15 @@ TPartitionInfo::TPartitionInfo(const Ydb::Topic::DescribeConsumerResult::Partiti
     }
 }
 
-const TMaybe<TPartitionStats>& TPartitionInfo::GetPartitionStats() const {
+const std::optional<TPartitionStats>& TPartitionInfo::GetPartitionStats() const {
     return PartitionStats_;
 }
 
-const TMaybe<TPartitionConsumerStats>& TPartitionInfo::GetPartitionConsumerStats() const {
+const std::optional<TPartitionConsumerStats>& TPartitionInfo::GetPartitionConsumerStats() const {
     return PartitionConsumerStats_;
 }
 
-const TMaybe<TPartitionLocation>& TPartitionInfo::GetPartitionLocation() const {
+const std::optional<TPartitionLocation>& TPartitionInfo::GetPartitionLocation() const {
     return PartitionLocation_;
 }
 

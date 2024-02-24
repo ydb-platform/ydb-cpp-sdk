@@ -417,7 +417,7 @@ protected:
     std::queue<TEventInfo> Events;
     std::condition_variable CondVar;
     std::mutex Mutex;
-    TMaybe<TClosedEvent> CloseEvent;
+    std::optional<TClosedEvent> CloseEvent;
     std::atomic<bool> Closed = false;
 };
 

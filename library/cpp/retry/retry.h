@@ -103,9 +103,9 @@ public:
         {
         }
 
-        TMaybe<TDuration> GetNextRetryDelay(const TException&) override {
+        std::optional<TDuration> GetNextRetryDelay(const TException&) override {
             if (Attempt == Opts.RetryCount) {
-                return Nothing();
+                return std::nullopt;
             }
             return Opts.GetTimeToSleep(Attempt++);
         }
@@ -136,7 +136,7 @@ typename IRetryPolicy<const TException&>::TPtr MakeRetryPolicy(const NRetry::TRe
 }
 
 template <typename TResult, typename TException = yexception>
-TMaybe<TResult> DoWithRetry(std::function<TResult()> func, const typename IRetryPolicy<const TException&>::TPtr& retryPolicy, bool throwLast = true, std::function<void(const TException&)> onFail = {}, std::function<void(TDuration)> sleepFunction = {}) {
+std::optional<TResult> DoWithRetry(std::function<TResult()> func, const typename IRetryPolicy<const TException&>::TPtr& retryPolicy, bool throwLast = true, std::function<void(const TException&)> onFail = {}, std::function<void(TDuration)> sleepFunction = {}) {
     typename IRetryPolicy<const TException&>::IRetryState::TPtr retryState;
     while (true) {
         try {
@@ -150,7 +150,7 @@ TMaybe<TResult> DoWithRetry(std::function<TResult()> func, const typename IRetry
                 retryState = retryPolicy->CreateRetryState();
             }
 
-            if (const TMaybe<TDuration> delay = retryState->GetNextRetryDelay(ex)) {
+            if (const std::optional<TDuration> delay = retryState->GetNextRetryDelay(ex)) {
                 if (*delay) {
                     if (sleepFunction) {
                         sleepFunction(*delay);
@@ -166,16 +166,16 @@ TMaybe<TResult> DoWithRetry(std::function<TResult()> func, const typename IRetry
             }
         }
     }
-    return Nothing();
+    return std::nullopt;
 }
 
 template <typename TResult, typename TException = yexception>
-TMaybe<TResult> DoWithRetry(std::function<TResult()> func, std::function<void(const TException&)> onFail, TRetryOptions retryOptions, bool throwLast = true) {
+std::optional<TResult> DoWithRetry(std::function<TResult()> func, std::function<void(const TException&)> onFail, TRetryOptions retryOptions, bool throwLast = true) {
     return DoWithRetry<TResult, TException>(std::move(func), MakeRetryPolicy<TException>(retryOptions), throwLast, std::move(onFail), retryOptions.SleepFunction);
 }
 
 template <typename TResult, typename TException = yexception>
-TMaybe<TResult> DoWithRetry(std::function<TResult()> func, TRetryOptions retryOptions, bool throwLast = true) {
+std::optional<TResult> DoWithRetry(std::function<TResult()> func, TRetryOptions retryOptions, bool throwLast = true) {
     return DoWithRetry<TResult, TException>(std::move(func), MakeRetryPolicy<TException>(retryOptions), throwLast, {}, retryOptions.SleepFunction);
 }
 
@@ -203,7 +203,7 @@ TRetCode DoWithRetryOnRetCode(std::function<TRetCode()> func, const typename IRe
     auto retryState = retryPolicy->CreateRetryState();
     while (true) {
         TRetCode code = func();
-        if (const TMaybe<TDuration> delay = retryState->GetNextRetryDelay(code)) {
+        if (const std::optional<TDuration> delay = retryState->GetNextRetryDelay(code)) {
             if (*delay) {
                 if (sleepFunction) {
                     sleepFunction(*delay);

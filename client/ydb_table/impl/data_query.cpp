@@ -29,7 +29,7 @@ TDataQuery::TImpl::TImpl(const TSession& session, const TString& text, bool keep
     : Session_(session)
     , Id_(id)
     , TextHash_(EncodeQuery(text, allowMigration))
-    , Text_(keepText ? text : TMaybe<TString>())
+    , Text_(keepText ? text : std::optional<TString>())
 {}
 
 TDataQuery::TImpl::TImpl(const TSession& session, const TString& text, bool keepText, const TString& id, bool allowMigration,
@@ -38,7 +38,7 @@ TDataQuery::TImpl::TImpl(const TSession& session, const TString& text, bool keep
     , Id_(id)
     , ParameterTypes_(types)
     , TextHash_(EncodeQuery(text, allowMigration))
-    , Text_(keepText ? text : TMaybe<TString>())
+    , Text_(keepText ? text : std::optional<TString>())
 {}
 
 const TString& TDataQuery::TImpl::GetId() const {
@@ -53,7 +53,7 @@ const TString& TDataQuery::TImpl::GetTextHash() const {
     return TextHash_;
 }
 
-const TMaybe<TString>& TDataQuery::TImpl::GetText() const {
+const std::optional<TString>& TDataQuery::TImpl::GetText() const {
     return Text_;
 }
 

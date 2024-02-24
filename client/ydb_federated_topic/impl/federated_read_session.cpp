@@ -129,7 +129,7 @@ NThreading::TFuture<void> TFederatedReadSessionImpl::WaitEvent() {
     });
 }
 
-std::vector<TReadSessionEvent::TEvent> TFederatedReadSessionImpl::GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize) {
+std::vector<TReadSessionEvent::TEvent> TFederatedReadSessionImpl::GetEvents(bool block, std::optional<size_t> maxEventsCount, size_t maxByteSize) {
     if (block) {
         WaitEvent().Wait();
     }

@@ -57,8 +57,8 @@ TWriteSessionImpl::TWriteSessionImpl(
     , PrevToken(DbDriverState->CredentialsProvider ? DbDriverState->CredentialsProvider->GetAuthInfo() : "")
     , InitSeqNoPromise(NThreading::NewPromise<ui64>())
     , WakeupInterval(
-            Settings.BatchFlushInterval_.GetOrElse(TDuration::Zero()) ?
-                std::min(Settings.BatchFlushInterval_.GetOrElse(TDuration::Seconds(1)) / 5, TDuration::MilliSeconds(100))
+            Settings.BatchFlushInterval_.value_or(TDuration::Zero()) ?
+                std::min(Settings.BatchFlushInterval_.value_or(TDuration::Seconds(1)) / 5, TDuration::MilliSeconds(100))
                 :
                 TDuration::MilliSeconds(100)
     )
@@ -66,7 +66,7 @@ TWriteSessionImpl::TWriteSessionImpl(
     if (!Settings.RetryPolicy_) {
         Settings.RetryPolicy_ = IRetryPolicy::GetDefaultPolicy();
     }
-    if (Settings.Counters_.Defined()) {
+    if (Settings.Counters_.has_value()) {
         Counters = *Settings.Counters_;
     } else {
         Counters = MakeIntrusive<TWriterCounters>(new ::NMonitoring::TDynamicCounters());
@@ -104,7 +104,7 @@ void TWriteSessionImpl::Start(const TDuration& delay) {
     }
     Started = true;
 
-    if (Settings.PartitionId_.Defined() && Settings.DirectWriteToPartition_)
+    if (Settings.PartitionId_.has_value() && Settings.DirectWriteToPartition_)
     {
         with_lock (Lock) {
             PreferredPartitionLocation = {};
@@ -128,7 +128,7 @@ TWriteSessionImpl::THandleResult TWriteSessionImpl::RestartImpl(const TPlainStat
     }
     LOG_LAZY(DbDriverState->Log, TLOG_ERR, LogPrefix() << "Got error. " << status.ToDebugString());
     SessionEstablished = false;
-    TMaybe<TDuration> nextDelay = TDuration::Zero();
+    std::optional<TDuration> nextDelay = TDuration::Zero();
     if (!RetryState) {
         RetryState = Settings.RetryPolicy_->CreateRetryState();
     }
@@ -151,7 +151,7 @@ TWriteSessionImpl::THandleResult TWriteSessionImpl::RestartImpl(const TPlainStat
 void TWriteSessionImpl::ConnectToPreferredPartitionLocation(const TDuration& delay)
 {
     Y_ABORT_UNLESS(Lock.IsLocked());
-    Y_ABORT_UNLESS(Settings.PartitionId_.Defined() && Settings.DirectWriteToPartition_);
+    Y_ABORT_UNLESS(Settings.PartitionId_.has_value() && Settings.DirectWriteToPartition_);
 
     if (AtomicGet(Aborting)) {
         return;
@@ -235,12 +235,12 @@ void TWriteSessionImpl::OnDescribePartition(const TStatus& status, const Ydb::To
         return;
     }
 
-    TMaybe<TEndpointKey> preferredEndpoint;
+    std::optional<TEndpointKey> preferredEndpoint;
     with_lock (Lock) {
         preferredEndpoint = GetPreferredEndpointImpl(*Settings.PartitionId_, partition.partition_location().node_id());
     }
 
-    if (!preferredEndpoint.Defined()) {
+    if (!preferredEndpoint.has_value()) {
         with_lock (Lock) {
             handleResult = OnErrorImpl({EStatus::UNAVAILABLE, "Partition preferred endpoint is not found"});
         }
@@ -255,7 +255,7 @@ void TWriteSessionImpl::OnDescribePartition(const TStatus& status, const Ydb::To
     Connect(TDuration::Zero());
 }
 
-TMaybe<TEndpointKey> TWriteSessionImpl::GetPreferredEndpointImpl(ui32 partitionId, ui64 partitionNodeId) {
+std::optional<TEndpointKey> TWriteSessionImpl::GetPreferredEndpointImpl(ui32 partitionId, ui64 partitionNodeId) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     TEndpointKey preferredEndpoint{"", partitionNodeId};
@@ -279,10 +279,10 @@ TString GenerateProducerId() {
 }
 
 void TWriteSessionImpl::InitWriter() { // No Lock, very initial start - no race yet as well.
-    if (!Settings.DeduplicationEnabled_.Defined()) {
+    if (!Settings.DeduplicationEnabled_.has_value()) {
         Settings.DeduplicationEnabled_ = !(Settings.ProducerId_.empty());
     }
-    else if (Settings.DeduplicationEnabled_.GetRef()) {
+    else if (Settings.DeduplicationEnabled_.value()) {
         if (Settings.ProducerId_.empty()) {
             Settings.ProducerId(GenerateProducerId());
         }
@@ -304,12 +304,12 @@ void TWriteSessionImpl::InitWriter() { // No Lock, very initial start - no race 
 }
 // Client method
 NThreading::TFuture<ui64> TWriteSessionImpl::GetInitSeqNo() {
-    if (!Settings.DeduplicationEnabled_.GetOrElse(true)) {
+    if (!Settings.DeduplicationEnabled_.value_or(true)) {
         LOG_LAZY(DbDriverState->Log, TLOG_ERR, LogPrefix() << "GetInitSeqNo called with deduplication disabled");
         ThrowFatalError("Cannot call GetInitSeqNo when deduplication is disabled");
     }
     if (Settings.ValidateSeqNo_) {
-        if (AutoSeqNoMode.Defined() && *AutoSeqNoMode) {
+        if (AutoSeqNoMode.has_value() && *AutoSeqNoMode) {
             LOG_LAZY(DbDriverState->Log, TLOG_ERR, LogPrefix() << "Cannot call GetInitSeqNo in Auto SeqNo mode");
             ThrowFatalError("Cannot call GetInitSeqNo in Auto SeqNo mode");
         }
@@ -324,38 +324,38 @@ TString DebugString(const TWriteSessionEvent::TEvent& event) {
 }
 
 // Client method
-TMaybe<TWriteSessionEvent::TEvent> TWriteSessionImpl::GetEvent(bool block) {
+std::optional<TWriteSessionEvent::TEvent> TWriteSessionImpl::GetEvent(bool block) {
     return EventsQueue->GetEvent(block);
 }
 
 // Client method
-std::vector<TWriteSessionEvent::TEvent> TWriteSessionImpl::GetEvents(bool block, TMaybe<size_t> maxEventsCount) {
+std::vector<TWriteSessionEvent::TEvent> TWriteSessionImpl::GetEvents(bool block, std::optional<size_t> maxEventsCount) {
     return EventsQueue->GetEvents(block, maxEventsCount);
 }
 
 ui64 TWriteSessionImpl::GetIdImpl(ui64 seqNo) {
-    Y_ABORT_UNLESS(AutoSeqNoMode.Defined());
-    Y_ABORT_UNLESS(!*AutoSeqNoMode || InitSeqNo.Defined() && seqNo > *InitSeqNo);
+    Y_ABORT_UNLESS(AutoSeqNoMode.has_value());
+    Y_ABORT_UNLESS(!*AutoSeqNoMode || InitSeqNo.has_value() && seqNo > *InitSeqNo);
     return *AutoSeqNoMode ? seqNo - *InitSeqNo : seqNo;
 }
 
 ui64 TWriteSessionImpl::GetSeqNoImpl(ui64 id) {
-    Y_ABORT_UNLESS(AutoSeqNoMode.Defined());
-    Y_ABORT_UNLESS(InitSeqNo.Defined());
+    Y_ABORT_UNLESS(AutoSeqNoMode.has_value());
+    Y_ABORT_UNLESS(InitSeqNo.has_value());
     return *AutoSeqNoMode ? id + *InitSeqNo : id;
 
 }
 
-ui64 TWriteSessionImpl::GetNextIdImpl(const TMaybe<ui64>& seqNo) {
+ui64 TWriteSessionImpl::GetNextIdImpl(const std::optional<ui64>& seqNo) {
 
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     ui64 id = ++NextId;
-    if (!AutoSeqNoMode.Defined()) {
-        AutoSeqNoMode = !seqNo.Defined();
+    if (!AutoSeqNoMode.has_value()) {
+        AutoSeqNoMode = !seqNo.has_value();
     }
-    if (seqNo.Defined()) {
-        if (!Settings.DeduplicationEnabled_.GetOrElse(true)) {
+    if (seqNo.has_value()) {
+        if (!Settings.DeduplicationEnabled_.value_or(true)) {
             LOG_LAZY(DbDriverState->Log, TLOG_ERR, LogPrefix() << "SeqNo is provided on write when deduplication is disabled");
             ThrowFatalError("Cannot provide SeqNo on Write() when deduplication is disabled");
         }
@@ -401,7 +401,7 @@ NThreading::TFuture<void> TWriteSessionImpl::WaitEvent() {
 }
 
 void TWriteSessionImpl::WriteInternal(TContinuationToken&&, TWriteMessage&& message) {
-    TInstant createdAtValue = message.CreateTimestamp_.Defined() ? *message.CreateTimestamp_ : TInstant::Now();
+    TInstant createdAtValue = message.CreateTimestamp_.has_value() ? *message.CreateTimestamp_ : TInstant::Now();
     bool readyToAccept = false;
     size_t bufferSize = message.Data.size();
     with_lock(Lock) {
@@ -602,7 +602,7 @@ void TWriteSessionImpl::InitImpl() {
     init->set_path(Settings.Path_);
     init->set_producer_id(Settings.ProducerId_);
 
-    if (Settings.PartitionId_.Defined()) {
+    if (Settings.PartitionId_.has_value()) {
         if (Settings.DirectWriteToPartition_) {
             auto* partitionWithGeneration = init->mutable_partition_with_generation();
             partitionWithGeneration->set_partition_id(*Settings.PartitionId_);
@@ -707,7 +707,7 @@ void TWriteSessionImpl::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t co
                 errorStatus = NPersQueue::MakeErrorFromProto(*ServerMessage);
             } else {
                 processResult = ProcessServerMessageImpl();
-                needSetValue = !InitSeqNoSetDone && processResult.InitSeqNo.Defined() && (InitSeqNoSetDone = true);
+                needSetValue = !InitSeqNoSetDone && processResult.InitSeqNo.has_value() && (InitSeqNoSetDone = true);
                 if (errorStatus.Ok() && processResult.Ok) {
                     doRead = true;
                 }
@@ -741,7 +741,7 @@ TStringBuilder TWriteSessionImpl::LogPrefix() const {
     TStringBuilder ret;
     ret << " SessionId [" << SessionId << "] ";
 
-    if (Settings.PartitionId_.Defined()) {
+    if (Settings.PartitionId_.has_value()) {
         ret << " PartitionId [" << *Settings.PartitionId_ << "] ";
         if (Settings.DirectWriteToPartition_)
             ret << " Generation [" << PreferredPartitionLocation.Generation << "] ";
@@ -798,11 +798,11 @@ TWriteSessionImpl::TProcessSrvMessageResult TWriteSessionImpl::ProcessServerMess
             SessionId = initResponse.session_id();
             PartitionId = initResponse.partition_id();
             ui64 newLastSeqNo = initResponse.last_seq_no();
-            if (!Settings.DeduplicationEnabled_.GetOrElse(true)) {
+            if (!Settings.DeduplicationEnabled_.value_or(true)) {
                 newLastSeqNo = 0;
             }
             result.InitSeqNo = newLastSeqNo;
-            if (!InitSeqNo.Defined()) {
+            if (!InitSeqNo.has_value()) {
                 InitSeqNo = newLastSeqNo;
             }
 
@@ -1056,8 +1056,8 @@ void TWriteSessionImpl::FlushWriteIfRequiredImpl() {
 
     if (!CurrentBatch.Empty() && !CurrentBatch.FlushRequested) {
         MessagesAcquired += static_cast<ui64>(CurrentBatch.Acquire());
-        if (TInstant::Now() - CurrentBatch.StartedAt >= Settings.BatchFlushInterval_.GetOrElse(TDuration::Zero())
-            || CurrentBatch.CurrentSize >= Settings.BatchFlushSizeBytes_.GetOrElse(0)
+        if (TInstant::Now() - CurrentBatch.StartedAt >= Settings.BatchFlushInterval_.value_or(TDuration::Zero())
+            || CurrentBatch.CurrentSize >= Settings.BatchFlushSizeBytes_.value_or(0)
             || CurrentBatch.CurrentSize >= MaxBlockSize
             || CurrentBatch.Messages.size() >= MaxBlockMessageCount
             || CurrentBatch.HasCodec()
@@ -1101,7 +1101,7 @@ size_t TWriteSessionImpl::WriteBatchImpl() {
             block.OriginalSize += datum.size();
             block.OriginalMemoryUsage = CurrentBatch.Data.size();
             block.OriginalDataRefs.emplace_back(datum);
-            if (CurrentBatch.Messages[i].Codec.Defined()) {
+            if (CurrentBatch.Messages[i].Codec.has_value()) {
                 Y_ABORT_UNLESS(CurrentBatch.Messages.size() == 1);
                 block.CodecID = static_cast<ui32>(*currMessage.Codec);
                 block.OriginalSize = currMessage.OriginalSize;

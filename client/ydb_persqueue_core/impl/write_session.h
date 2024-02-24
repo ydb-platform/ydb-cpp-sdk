@@ -33,16 +33,16 @@ public:
             std::shared_ptr<TGRpcConnectionsImpl> connections,
             TDbDriverStatePtr dbDriverState);
 
-    TMaybe<TWriteSessionEvent::TEvent> GetEvent(bool block = false) override;
+    std::optional<TWriteSessionEvent::TEvent> GetEvent(bool block = false) override;
     std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false,
-                                                  TMaybe<size_t> maxEventsCount = Nothing()) override;
+                                                  std::optional<size_t> maxEventsCount = std::nullopt) override;
     NThreading::TFuture<ui64> GetInitSeqNo() override;
 
     void Write(TContinuationToken&& continuationToken, TStringBuf data,
-               TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) override;
+               std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) override;
 
     void WriteEncoded(TContinuationToken&& continuationToken, TStringBuf data, ECodec codec, ui32 originalSize,
-               TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) override;
+               std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) override;
 
 
     NThreading::TFuture<void> WaitEvent() override;
@@ -77,7 +77,7 @@ public:
             std::shared_ptr<TGRpcConnectionsImpl> connections,
             TDbDriverStatePtr dbDriverState);
 
-    bool Write(TStringBuf data, TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing(),
+    bool Write(TStringBuf data, std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt,
                const TDuration& blockTimeout = TDuration::Max()) override;
 
     ui64 GetInitSeqNo() override;
@@ -91,7 +91,7 @@ protected:
     std::shared_ptr<TWriteSession> Writer;
 
 private:
-    TMaybe<TContinuationToken> WaitForToken(const TDuration& timeout);
+    std::optional<TContinuationToken> WaitForToken(const TDuration& timeout);
     void HandleAck(TWriteSessionEvent::TAcksEvent&);
     void HandleReady(TWriteSessionEvent::TReadyToAcceptEvent&);
     void HandleClosed(const TSessionClosedEvent&);

@@ -132,7 +132,7 @@ void TFederatedDbObserverImpl::OnFederationDiscovery(TStatus&& status, Ydb::Fede
         if (status.GetStatus() == EStatus::CLIENT_CALL_UNIMPLEMENTED) {
             // fall back to single db mode
             FederatedDbState->Status = TPlainStatus{};  // SUCCESS
-            auto dbState = Connections_->GetDriverState(Nothing(),Nothing(),Nothing(),Nothing(),Nothing());
+            auto dbState = Connections_->GetDriverState(std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt);
             FederatedDbState->ControlPlaneEndpoint = dbState->DiscoveryEndpoint;
             // FederatedDbState->SelfLocation = ???;
             auto db = std::make_shared<Ydb::FederationDiscovery::DatabaseInfo>();
@@ -147,7 +147,7 @@ void TFederatedDbObserverImpl::OnFederationDiscovery(TStatus&& status, Ydb::Fede
                 if (!FederationDiscoveryRetryState) {
                     FederationDiscoveryRetryState = FederationDiscoveryRetryPolicy->CreateRetryState();
                 }
-                TMaybe<TDuration> retryDelay = FederationDiscoveryRetryState->GetNextRetryDelay(status.GetStatus());
+                std::optional<TDuration> retryDelay = FederationDiscoveryRetryState->GetNextRetryDelay(status.GetStatus());
                 if (retryDelay) {
                     ScheduleFederationDiscoveryImpl(*retryDelay);
                     return;

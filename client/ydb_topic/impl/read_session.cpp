@@ -21,7 +21,7 @@ TReadSession::TReadSession(const TReadSessionSettings& settings,
              TDbDriverStatePtr dbDriverState)
     : Settings(settings)
     , SessionId(CreateGuidAsString())
-    , Log(settings.Log_.GetOrElse(dbDriverState->Log))
+    , Log(settings.Log_.value_or(dbDriverState->Log))
     , Client(std::move(client))
     , Connections(std::move(connections))
     , DbDriverState(std::move(dbDriverState))
@@ -124,7 +124,7 @@ NThreading::TFuture<void> TReadSession::WaitEvent() {
     return EventsQueue->WaitEvent();
 }
 
-std::vector<TReadSessionEvent::TEvent> TReadSession::GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize) {
+std::vector<TReadSessionEvent::TEvent> TReadSession::GetEvents(bool block, std::optional<size_t> maxEventsCount, size_t maxByteSize) {
     auto res = EventsQueue->GetEvents(block, maxEventsCount, maxByteSize);
     if (EventsQueue->IsClosed()) {
         Abort(EStatus::ABORTED, "Aborted");
@@ -147,7 +147,7 @@ std::vector<TReadSessionEvent::TEvent> TReadSession::GetEvents(const TReadSessio
     return events;
 }
 
-TMaybe<TReadSessionEvent::TEvent> TReadSession::GetEvent(bool block, size_t maxByteSize) {
+std::optional<TReadSessionEvent::TEvent> TReadSession::GetEvent(bool block, size_t maxByteSize) {
     auto res = EventsQueue->GetEvent(block, maxByteSize);
     if (EventsQueue->IsClosed()) {
         Abort(EStatus::ABORTED, "Aborted");
@@ -155,7 +155,7 @@ TMaybe<TReadSessionEvent::TEvent> TReadSession::GetEvent(bool block, size_t maxB
     return res;
 }
 
-TMaybe<TReadSessionEvent::TEvent> TReadSession::GetEvent(const TReadSessionGetEventSettings& settings)
+std::optional<TReadSessionEvent::TEvent> TReadSession::GetEvent(const TReadSessionGetEventSettings& settings)
 {
     auto event = GetEvent(settings.Block_, settings.MaxByteSize_);
     if (event) {
