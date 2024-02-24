@@ -81,7 +81,7 @@ static TStatus FillTableDataTransaction(TSession& session, const TString& path) 
 
 //! Shows usage of query paging.
 static TStatus SelectPagingTransaction(TSession& session, const TString& path,
-    ui64 pageLimit, const TString& lastCity, ui32 lastNumber, TMaybe<TResultSet>& resultSet)
+    ui64 pageLimit, const TString& lastCity, ui32 lastNumber, std::optional<TResultSet>& resultSet)
 {
     auto query = Sprintf(R"(
         --!syntax_v1
@@ -138,7 +138,7 @@ static TStatus SelectPagingTransaction(TSession& session, const TString& path,
 }
 
 bool SelectPaging(TTableClient client, const TString& path, ui64 pageLimit, TString& lastCity, ui32& lastNumber) {
-    TMaybe<TResultSet> resultSet;
+    std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, pageLimit, &lastCity, lastNumber, &resultSet](TSession session) {
         return SelectPagingTransaction(session, path, pageLimit, lastCity, lastNumber, resultSet);
     }));
@@ -149,8 +149,8 @@ bool SelectPaging(TTableClient client, const TString& path, ui64 pageLimit, TStr
         return false;
     }
     do {
-        lastCity = parser.ColumnParser("city").GetOptionalUtf8().GetRef();
-        lastNumber = parser.ColumnParser("number").GetOptionalUint32().GetRef();
+        lastCity = parser.ColumnParser("city").GetOptionalUtf8().value();
+        lastNumber = parser.ColumnParser("number").GetOptionalUint32().value();
         Cout << lastCity << ", Школа №" << lastNumber << ", Адрес: " << parser.ColumnParser("address").GetOptionalUtf8() << Endl;
     } while (parser.TryNextRow());
     return true;

@@ -64,16 +64,16 @@ namespace NYdb::NTopic::NTests {
 
             auto readSession = client.CreateReadSession(CreateReadSessionSettings());
 
-            TMaybe<TReadSessionEvent::TEvent> event = readSession->GetEvent(true);
+            std::optional<TReadSessionEvent::TEvent> event = readSession->GetEvent(true);
             UNIT_ASSERT(event);
-            auto startPartitionSession = std::get_if<TReadSessionEvent::TStartPartitionSessionEvent>(event.Get());
+            auto startPartitionSession = std::get_if<TReadSessionEvent::TStartPartitionSessionEvent>(event.value());
             UNIT_ASSERT_C(startPartitionSession, DebugString(*event));
 
             startPartitionSession->Confirm();
 
             event = readSession->GetEvent(true);
             UNIT_ASSERT(event);
-            auto dataReceived = std::get_if<TReadSessionEvent::TDataReceivedEvent>(event.Get());
+            auto dataReceived = std::get_if<TReadSessionEvent::TDataReceivedEvent>(event.value());
             UNIT_ASSERT_C(dataReceived, DebugString(*event));
 
             dataReceived->Commit();
@@ -84,7 +84,7 @@ namespace NYdb::NTopic::NTests {
 
             event = readSession->GetEvent(true);
             UNIT_ASSERT(event);
-            auto commitOffsetAck = std::get_if<TReadSessionEvent::TCommitOffsetAcknowledgementEvent>(event.Get());
+            auto commitOffsetAck = std::get_if<TReadSessionEvent::TCommitOffsetAcknowledgementEvent>(event.value());
             UNIT_ASSERT_C(commitOffsetAck, DebugString(*event));
             UNIT_ASSERT_VALUES_EQUAL(commitOffsetAck->GetCommittedOffset(), expectedCommitedOffset);
         }

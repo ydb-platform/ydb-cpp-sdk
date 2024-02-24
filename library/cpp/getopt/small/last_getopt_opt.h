@@ -53,7 +53,7 @@ namespace NLastGetopt {
         TLongNames LongNames_;
 
     private:
-        typedef TMaybe<TString> TdOptVal;
+        typedef std::optional<TString> TdOptVal;
         typedef std::vector<TSimpleSharedPtr<IOptHandler>> TOptHandlers;
 
     public:
@@ -270,7 +270,7 @@ namespace NLastGetopt {
          *  checks if default value is set.
          */
         bool HasDefaultValue() const {
-            return DefaultValue_.Defined();
+            return DefaultValue_.has_value();
         }
 
         /**
@@ -631,10 +631,10 @@ namespace NLastGetopt {
         }
 
         // Uses TMaybe<T> to store FromString<T>(arg)
-        template <typename T>
-        TOpt& StoreResult(TMaybe<T>* target) {
-            return StoreResultT<T>(target);
-        }
+        // template <typename T>
+        // TOpt& StoreResult(TMaybe<T>* target) {
+        //     return StoreResultT<T>(target);
+        // }
 
         template <typename T>
         TOpt& StoreResult(std::optional<T>* target) {

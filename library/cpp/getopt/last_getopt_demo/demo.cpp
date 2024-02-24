@@ -39,8 +39,8 @@ class TMain: public TMainClassArgs {
     TString ExplicitMethod_;
     TString ImplicitMethod_ = "GET";
     TString UserAgent_;
-    TMaybe<TString> PostData_;
-    TMaybe<TString> PostFile_;
+    std::optional<TString> PostData_;
+    std::optional<TString> PostFile_;
     std::vector<TString> Headers_;
 
 protected:
