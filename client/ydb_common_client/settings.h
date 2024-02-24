@@ -27,7 +27,7 @@ struct TCommonClientSettings {
     //! Allows to override current discovery endpoint
     FLUENT_SETTING_OPTIONAL(TStringType, DiscoveryEndpoint);
     //! Allows to override current token for client
-    TSelf& AuthToken(const TMaybe<TStringType>& token);
+    TSelf& AuthToken(const std::optional<TStringType>& token);
     //! Allows to override current credentials provider
     FLUENT_SETTING_OPTIONAL(std::shared_ptr<ICredentialsProviderFactory>, CredentialsProviderFactory);
     //! Allows to override discovery mode
@@ -47,7 +47,7 @@ struct TCommonClientSettingsBase : public TCommonClientSettings {
 
     COMMON_CLIENT_SETTINGS_TO_DERIVED(TStringType, Database);
     COMMON_CLIENT_SETTINGS_TO_DERIVED(TStringType, DiscoveryEndpoint);
-    COMMON_CLIENT_SETTINGS_TO_DERIVED(TMaybe<TStringType>, AuthToken);
+    COMMON_CLIENT_SETTINGS_TO_DERIVED(std::optional<TStringType>, AuthToken);
     COMMON_CLIENT_SETTINGS_TO_DERIVED(std::shared_ptr<ICredentialsProviderFactory>, CredentialsProviderFactory);
     COMMON_CLIENT_SETTINGS_TO_DERIVED(EDiscoveryMode, DiscoveryMode);
     COMMON_CLIENT_SETTINGS_TO_DERIVED(TSslCredentials, SslCredentials);
