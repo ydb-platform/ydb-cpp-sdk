@@ -26,14 +26,14 @@ std::map<TString, TValue> TParams::TImpl::GetValues() const {
     return valuesMap;
 }
 
-TMaybe<TValue> TParams::TImpl::GetValue(const TString& name) const {
+std::optional<TValue> TParams::TImpl::GetValue(const TString& name) const {
     auto it = ParamsMap_.find(name);
     if (it != ParamsMap_.end()) {
         auto paramType = TType(it->second.type());
         return TValue(paramType, it->second.value());
     }
 
-    return TMaybe<TValue>();
+    return std::optional<TValue>();
 }
 
 ::google::protobuf::Map<TString, Ydb::TypedValue>* TParams::TImpl::GetProtoMapPtr() {

@@ -3,7 +3,7 @@
 
 namespace NCoro::NStack {
 
-    THolder<IAllocator> GetAllocator(TMaybe<TPoolAllocatorSettings> poolSettings, EGuard guardType) {
+    THolder<IAllocator> GetAllocator(std::optional<TPoolAllocatorSettings> poolSettings, EGuard guardType) {
         THolder<IAllocator> allocator;
         if (poolSettings) {
             if (guardType == EGuard::Canary) {

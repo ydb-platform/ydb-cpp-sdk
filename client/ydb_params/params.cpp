@@ -30,7 +30,7 @@ std::map<TString, TValue> TParams::GetValues() const {
     return Impl_->GetValues();
 }
 
-TMaybe<TValue> TParams::GetValue(const TString& name) const {
+std::optional<TValue> TParams::GetValue(const TString& name) const {
     return Impl_->GetValue(name);
 }
 
