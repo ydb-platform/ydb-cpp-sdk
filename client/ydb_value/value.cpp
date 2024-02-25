@@ -1793,7 +1793,7 @@ std::optional<float> TValueParser::GetOptionalFloat() const {
     RET_OPT_VALUE(float, Float);
 }
 
-std::optional<double> TValueParser::GetOptionalDouble() const {
+std::optional<double> TValueParser::    GetOptionalDouble() const {
     RET_OPT_VALUE(double, Double);
 }
 
