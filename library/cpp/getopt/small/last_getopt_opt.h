@@ -7,7 +7,6 @@
 #include <util/generic/hash_set.h>
 #include <util/generic/ptr.h>
 #include <util/generic/string.h>
-// #include <util/generic/maybe.h>
 
 #include <util/string/cast.h>
 #include <util/string/join.h>
@@ -629,12 +628,6 @@ namespace NLastGetopt {
         TOpt& StoreResult(T* target) {
             return StoreResultT<T>(target);
         }
-
-        // Uses TMaybe<T> to store FromString<T>(arg)
-        // template <typename T>
-        // TOpt& StoreResult(TMaybe<T>* target) {
-        //     return StoreResultT<T>(target);
-        // }
 
         template <typename T>
         TOpt& StoreResult(std::optional<T>* target) {
