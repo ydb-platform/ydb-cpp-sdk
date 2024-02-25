@@ -16,7 +16,7 @@ public:
     }
 
     bool WasLazilyInitialized() const noexcept {
-        return ValueHolder.Defined();
+        return ValueHolder.has_value();
     }
 
     const T& GetRef() const {
@@ -40,7 +40,7 @@ public:
     }
 
 private:
-    mutable TMaybe<T> ValueHolder;
+    mutable std::optional<T> ValueHolder;
     TInitializer Initializer;
 };
 
