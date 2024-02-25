@@ -3,11 +3,12 @@
 #include "stack.h"
 #include "stack_common.h"
 
-#include <util/generic/maybe.h>
+// #include <util/generic/maybe.h>
 #include <util/generic/noncopyable.h>
 #include <util/generic/ptr.h>
 
 #include <cstdint>
+#include <optional>
 
 
 namespace NCoro::NStack {
