@@ -226,7 +226,7 @@ void TIssues::PrintWithProgramTo(
 TIssue ExceptionToIssue(const std::exception& e, const TPosition& pos) {
     TStringBuf messageBuf = e.what();
     auto parsedPos = TryParseTerminationMessage(messageBuf);
-    auto issue = TIssue(parsedPos.GetOrElse(pos), messageBuf);
+    auto issue = TIssue(parsedPos.value_or(pos), messageBuf);
     const TErrorException* errorException = dynamic_cast<const TErrorException*>(&e);
     if (errorException) {
         issue.SetCode(errorException->GetCode(), ESeverity::TSeverityIds_ESeverityId_S_ERROR);
@@ -238,7 +238,7 @@ TIssue ExceptionToIssue(const std::exception& e, const TPosition& pos) {
 
 static constexpr TStringBuf TerminationMessageMarker = "Terminate was called, reason(";
 
-TMaybe<TPosition> TryParseTerminationMessage(TStringBuf& message) {
+std::optional<TPosition> TryParseTerminationMessage(TStringBuf& message) {
     size_t len = 0;
     size_t startPos = message.find(TerminationMessageMarker);
     size_t endPos = 0;
@@ -258,12 +258,12 @@ TMaybe<TPosition> TryParseTerminationMessage(TStringBuf& message) {
     if (len) {
         message = message.Tail(endPos + 3).Trunc(len);
         auto s = message;
-        TMaybe<TStringBuf> file;
-        TMaybe<TStringBuf> row;
-        TMaybe<TStringBuf> column;
-        GetNext(s, ':', file);
-        GetNext(s, ':', row);
-        GetNext(s, ':', column);
+        std::optional<TStringBuf> file;
+        std::optional<TStringBuf> row;
+        std::optional<TStringBuf> column;
+        GetNext(s, ':', *file);
+        GetNext(s, ':', *row);
+        GetNext(s, ':', *column);
         ui32 rowValue, columnValue;
         if (file && row && column && TryFromString(*row, rowValue) && TryFromString(*column, columnValue)) {
             message = StripStringLeft(s);
@@ -271,7 +271,7 @@ TMaybe<TPosition> TryParseTerminationMessage(TStringBuf& message) {
         }
     }
 
-    return Nothing();
+    return std::nullopt;
 }
 
 } // namspace NYql
