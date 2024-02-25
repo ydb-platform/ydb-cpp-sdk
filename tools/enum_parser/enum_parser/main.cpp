@@ -72,8 +72,8 @@ void OutKey(IOutputStream& out, const TString& key, const T& value, bool escape 
     out << "\"" << key << "\": " << quoted << ",\n";
 }
 
-/// Simplifed JSON map encoder for TMaybe
-void OutKey(IOutputStream& out, const TString& key, const TMaybe<TString>& value) {
+/// Simplifed JSON map encoder for std::optional
+void OutKey(IOutputStream& out, const TString& key, const std::optional<TString>& value) {
     TString quoted;
     if (value) {
         quoted = JsonQuote(ToString(*value));
