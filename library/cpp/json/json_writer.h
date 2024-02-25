@@ -8,8 +8,10 @@
 
 #include <util/stream/output.h>
 #include <util/generic/hash.h>
-#include <util/generic/maybe.h>
+// #include <util/generic/maybe.h>
 #include <util/generic/strbuf.h>
+
+#include <optional>
 
 namespace NJson {
     struct TJsonWriterConfig {
@@ -152,7 +154,7 @@ namespace NJson {
             }
         }
 
-        void WriteOptional(const TStringBuf&, const TNothing&) {
+        void WriteOptional(const TStringBuf&, std::nullopt_t) {
             // nothing to do
         }
 

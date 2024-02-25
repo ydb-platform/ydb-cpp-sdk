@@ -1,5 +1,10 @@
 #pragma once
 
+#include <util/system/align.h>
+#include <util/system/compiler.h>
+#include <util/stream/output.h>
+#include <util/ysaveload.h>
+
 #include "fluent_settings_helpers.h"
 
 namespace NYdb {

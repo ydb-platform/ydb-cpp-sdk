@@ -1,10 +1,12 @@
 #pragma once
 
+#include <optional>
+
 #include <util/stream/output.h>
 #include <util/stream/input.h>
 #include <util/stream/mem.h>
 #include <util/string/strip.h>
-#include <util/generic/maybe.h>
+// #include <util/generic/maybe.h>
 #include <util/generic/string.h>
 #include <util/generic/vector.h>
 

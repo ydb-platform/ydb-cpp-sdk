@@ -173,7 +173,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
 
             TJsonWriter json(&out, false);
             json.OpenMap();
-            json.WriteOptional("test", Nothing());
+            json.WriteOptional("test", std::nullopt);
             json.CloseMap();
             json.Flush();
             UNIT_ASSERT_VALUES_EQUAL(out.Str(), expected);
