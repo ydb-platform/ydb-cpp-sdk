@@ -1,7 +1,7 @@
 #pragma once
 
 #include <util/stream/output.h>
-#include <util/generic/maybe.h>
+#include <util/ysaveload.h>
 #include <util/generic/ptr.h>
 
 class THttpHeaders;
