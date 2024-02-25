@@ -259,7 +259,7 @@ namespace NMonitoring {
                 return name == TStringBuf{label.Name()};
             });
             if (it == Labels_.end()) {
-                return Nothing();
+                return std::nullopt;
             }
             return *it;
         }

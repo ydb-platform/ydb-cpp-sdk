@@ -33,10 +33,11 @@ public:
     io::Printer* operator->() {
         if (!Printer) {
             Stream.Reset(Output->OpenForInsert(FileName, Scope));
-            Printer.ConstructInPlace(Stream.Get(), '$');
+            Printer.emplace(Stream.Get(), '$');
+
         }
 
-        return Printer.Get();
+        return Printer.has_value() ? std::addressof(Printer.value()) : nullptr;
     }
 
 private:
@@ -45,7 +46,7 @@ private:
     const TString Scope;
 
     THolder<io::ZeroCopyOutputStream> Stream;
-    TMaybe<io::Printer> Printer;
+    std::optional<io::Printer> Printer;
 
 }; // TPrinter
 
