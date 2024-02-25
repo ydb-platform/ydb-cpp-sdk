@@ -1,6 +1,5 @@
 #pragma once
 
-#include "maybe.h"
 #include "function.h"
 
 template <class T>

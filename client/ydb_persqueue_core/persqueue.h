@@ -9,7 +9,6 @@
 
 #include <util/datetime/base.h>
 #include <util/generic/hash.h>
-// #include <util/generic/maybe.h>
 #include <util/generic/ptr.h>
 #include <util/generic/size_literals.h>
 #include <util/string/builder.h>
@@ -767,7 +766,7 @@ struct TReadSessionEvent {
 
         //! Confirm partition stream creation.
         //! This signals that user is ready to receive data from this partition stream.
-        //! If maybe is empty then no rewinding
+        //! If optional is empty then no rewinding
         void Confirm(std::optional<ui64> readOffset = std::nullopt, std::optional<ui64> commitOffset = std::nullopt);
 
         TString DebugString() const;
@@ -1373,7 +1372,7 @@ public:
     virtual ui64 GetInitSeqNo() = 0;
 
     //! Complete all active writes, wait for ack from server and close.
-    //! closeTimeout - max time to wait. Empty Maybe means infinity.
+    //! closeTimeout - max time to wait. Empty Optional means infinity.
     //! return - true if all writes were completed and acked. false if timeout was reached and some writes were aborted.
 
     virtual bool Close(TDuration closeTimeout = TDuration::Max()) = 0;
@@ -1415,7 +1414,7 @@ public:
     virtual void WriteEncoded(TContinuationToken&& continuationToken, TStringBuf data, ECodec codec, ui32 originalSize, std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) = 0;
 
 
-    //! Wait for all writes to complete (no more that closeTimeout()), than close. Empty maybe - means infinite timeout.
+    //! Wait for all writes to complete (no more that closeTimeout()), than close. Empty optional - means infinite timeout.
     //! return - true if all writes were completed and acked. false if timeout was reached and some writes were aborted.
     virtual bool Close(TDuration closeTimeout = TDuration::Max()) = 0;
 

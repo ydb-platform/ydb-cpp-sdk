@@ -1,8 +1,6 @@
 #pragma once
 
 #include <client/ydb_query/stats.h>
-
-// #include <util/generic/maybe.h>
 #include <util/generic/string.h>
 
 #include <memory>

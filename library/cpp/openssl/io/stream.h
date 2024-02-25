@@ -2,7 +2,6 @@
 
 #include <optional>
 
-// #include <util/generic/maybe.h>
 #include <util/generic/ptr.h>
 #include <util/stream/input.h>
 #include <util/stream/output.h>

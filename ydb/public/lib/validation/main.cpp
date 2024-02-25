@@ -8,7 +8,6 @@
 #include <google/protobuf/io/printer.h>
 #include <google/protobuf/io/zero_copy_stream.h>
 
-// #include <util/generic/maybe.h>
 #include <util/generic/ptr.h>
 #include <util/string/builder.h>
 #include <util/string/cast.h>
