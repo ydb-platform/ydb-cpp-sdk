@@ -16,7 +16,7 @@ namespace NYson {
             IInputStream* stream,
             EYsonType type,
             bool enableLinePositionInfo,
-            TMaybe<ui64> memoryLimit = Nothing())
+            std::optional<ui64> memoryLimit = std::nullopt)
             : Consumer_(consumer)
             , Stream_(stream)
             , Type_(type)
@@ -40,7 +40,7 @@ namespace NYson {
         IInputStream* Stream_;
         EYsonType Type_;
         bool EnableLinePositionInfo_;
-        TMaybe<ui64> MemoryLimit_;
+        std::optional<ui64> MemoryLimit_;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ namespace NYson {
         IInputStream* stream,
         EYsonType type,
         bool enableLinePositionInfo,
-        TMaybe<ui64> memoryLimit)
+        std::optional<ui64> memoryLimit)
         : Impl(new TImpl(consumer, stream, type, enableLinePositionInfo, memoryLimit))
     {
     }
@@ -72,7 +72,7 @@ namespace NYson {
         TImpl(
             NYT::NYson::IYsonConsumer* consumer,
             bool enableLinePositionInfo,
-            TMaybe<ui64> memoryLimit)
+            std::optional<ui64> memoryLimit)
             : Impl(
                   enableLinePositionInfo
                       ? static_cast<TStatelessYsonParserImplBase*>(new TStatelessYsonParserImpl<NYT::NYson::IYsonConsumer, true>(consumer, memoryLimit))
@@ -90,7 +90,7 @@ namespace NYson {
     TStatelessYsonParser::TStatelessYsonParser(
         NYT::NYson::IYsonConsumer* consumer,
         bool enableLinePositionInfo,
-        TMaybe<ui64> memoryLimit)
+        std::optional<ui64> memoryLimit)
         : Impl(new TImpl(consumer, enableLinePositionInfo, memoryLimit))
     {
     }
@@ -109,7 +109,7 @@ namespace NYson {
         NYT::NYson::IYsonConsumer* consumer,
         EYsonType type,
         bool enableLinePositionInfo,
-        TMaybe<ui64> memoryLimit) {
+        std::optional<ui64> memoryLimit) {
         ParseYsonStreamImpl<NYT::NYson::IYsonConsumer, TStringReader>(
             TStringReader(buffer.begin(), buffer.end()),
             consumer,
@@ -126,7 +126,7 @@ namespace NYson {
             NYT::NYson::IYsonConsumer* consumer,
             IInputStream* stream,
             bool enableLinePositionInfo,
-            TMaybe<ui64> memoryLimit = Nothing())
+            std::optional<ui64> memoryLimit = std::nullopt)
             : Consumer_(consumer)
             , Stream_(stream)
             , EnableLinePositionInfo_(enableLinePositionInfo)
@@ -150,7 +150,7 @@ namespace NYson {
         NYT::NYson::IYsonConsumer* Consumer_;
         IInputStream* Stream_;
         bool EnableLinePositionInfo_;
-        TMaybe<ui64> MemoryLimit_;
+        std::optional<ui64> MemoryLimit_;
         TBuffer Buffer_;
         TStreamReader Reader_;
         THolder<TYsonListParserImplBase> Impl_;
@@ -162,7 +162,7 @@ namespace NYson {
         NYT::NYson::IYsonConsumer* consumer,
         IInputStream* stream,
         bool enableLinePositionInfo,
-        TMaybe<ui64> memoryLimit)
+        std::optional<ui64> memoryLimit)
         : Impl(new TImpl(consumer, stream, enableLinePositionInfo, memoryLimit))
     {
     }

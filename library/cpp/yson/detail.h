@@ -376,7 +376,7 @@ namespace NYson {
         private:
             using TBaseStream = TCodedStream<TCharStream<TBlockStream, TPositionInfo<EnableLinePositionInfo>>>;
             std::vector<char> Buffer_;
-            TMaybe<ui64> MemoryLimit_;
+            std::optional<ui64> MemoryLimit_;
 
             void CheckMemoryLimit() {
                 if (MemoryLimit_ && Buffer_.capacity() > *MemoryLimit_) {
@@ -387,7 +387,7 @@ namespace NYson {
             }
 
         public:
-            TLexerBase(const TBlockStream& blockStream, TMaybe<ui64> memoryLimit)
+            TLexerBase(const TBlockStream& blockStream, std::optional<ui64> memoryLimit)
                 : TBaseStream(blockStream)
                 , MemoryLimit_(memoryLimit)
             {
