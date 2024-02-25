@@ -272,32 +272,32 @@ inline bool TryFromString(const TUtf16String& s, T& result) {
 }
 
 template <class T, class TChar>
-inline TMaybe<T> TryFromString(TBasicStringBuf<TChar> s) {
-    TMaybe<T> result{NMaybe::TInPlace{}};
+inline std::optional<T> TryFromString(TBasicStringBuf<TChar> s) {
+    std::optional<T> result{NMaybe::TInPlace{}};
     if (!TryFromString<T>(s, *result)) {
-        result.Clear();
+        result.reset();
     }
 
     return result;
 }
 
 template <class T, class TChar>
-inline TMaybe<T> TryFromString(const TChar* data) {
+inline std::optional<T> TryFromString(const TChar* data) {
     return TryFromString<T>(TBasicStringBuf<TChar>(data));
 }
 
 template <class T>
-inline TMaybe<T> TryFromString(const TString& s) {
+inline std::optional<T> TryFromString(const TString& s) {
     return TryFromString<T>(TStringBuf(s));
 }
 
 template <class T>
-inline TMaybe<T> TryFromString(const std::string& s) {
+inline std::optional<T> TryFromString(const std::string& s) {
     return TryFromString<T>(TStringBuf(s));
 }
 
 template <class T>
-inline TMaybe<T> TryFromString(const TUtf16String& s) {
+inline std::optional<T> TryFromString(const TUtf16String& s) {
     return TryFromString<T>(TWtringBuf(s));
 }
 
