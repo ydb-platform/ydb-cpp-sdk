@@ -242,8 +242,8 @@ TEST(PrettyPrinters, String) {
 }
 
 TEST(PrettyPrinters, Maybe) {
-    EXPECT_EQ(GtestPrint(TMaybe<TString>("hello world")), "\"hello world\"");
-    EXPECT_EQ(GtestPrint(TMaybe<TString>()), "nothing");
+    EXPECT_EQ(GtestPrint(std::optional<TString>("hello world")), "\"hello world\"");
+    EXPECT_EQ(GtestPrint(std::optional<TString>()), "nothing");
     EXPECT_EQ(GtestPrint(Nothing()), "nothing");
 }
 

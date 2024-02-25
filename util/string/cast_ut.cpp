@@ -437,8 +437,8 @@ Y_UNIT_TEST_SUITE(TCastTest) {
         UNIT_ASSERT_VALUES_EQUAL(FromStringWithDefault<size_t>(s4), size_t());
     }
 
-    Y_UNIT_TEST(TestMaybe) {
-        TMaybe<int> res;
+    Y_UNIT_TEST(TestSTLOptional) {
+        std::optional<int> res;
 
         TString s1("100500");
         UNIT_CHECK_GENERATED_NO_EXCEPTION(res = TryFromString<int>(s1), yexception);

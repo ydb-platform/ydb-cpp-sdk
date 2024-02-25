@@ -521,9 +521,9 @@ Y_UNIT_TEST_SUITE(YdbValue) {
         UNIT_ASSERT(parser.TryNextElement());
         UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalUtf8(), "SomeUtf");
         UNIT_ASSERT(parser.TryNextElement());
-        // UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalInt8(), -5);
+        UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalInt8().value(), -5);  // .value exploit
         UNIT_ASSERT(parser.TryNextElement());
-        UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalDouble(), std::optional<double>().value());  // CHANGED ??
+        UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalDouble(), std::optional<double>().value());  // .value exploit
         UNIT_ASSERT(parser.TryNextElement());
         UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalUint64(), (ui64)7);
         UNIT_ASSERT(parser.TryNextElement());

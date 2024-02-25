@@ -373,7 +373,7 @@ class PROTOBUF_EXPORT Printer {
   // generated code.
   AnnotationCollector* const annotation_collector_;
 
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(Printer);
+  // GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(Printer);
 };
 
 }  // namespace io
