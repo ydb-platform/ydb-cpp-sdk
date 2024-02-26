@@ -1,6 +1,5 @@
 #include "monservice.h"
 
-#include <library/cpp/malloc/api/malloc.h>
 #include <library/cpp/string_utils/base64/base64.h>
 #include <library/cpp/svnversion/svnversion.h>
 
@@ -23,7 +22,7 @@ TMonService2::TMonService2(const THttpServerOptions& options, const std::string&
     , IndexMonPage(new TIndexMonPage("", Title))
     , AuthProvider_{std::move(auth)}
 {
-    Y_ABORT_UNLESS(!!title);
+    Y_ABORT_UNLESS(!title.empty());
     time_t t = time(nullptr);
     ctime_r(&t, StartTime);
 }
@@ -34,7 +33,7 @@ TMonService2::TMonService2(const THttpServerOptions& options, TSimpleSharedPtr<I
     , IndexMonPage(new TIndexMonPage("", Title))
     , AuthProvider_{std::move(auth)}
 {
-    Y_ABORT_UNLESS(!!title);
+    Y_ABORT_UNLESS(!title.empty());
     time_t t = time(nullptr);
     ctime_r(&t, StartTime);
 }
@@ -79,7 +78,7 @@ void TMonService2::OutputIndexBody(IOutputStream& out) {
 
 void TMonService2::ServeRequest(IOutputStream& out, const NMonitoring::IHttpRequest& request) {
     std::string path = request.GetPath();
-    Y_ABORT_UNLESS(path.StartsWith('/'));
+    Y_ABORT_UNLESS(path.starts_with('/'));
 
     if (AuthProvider_) {
         const auto authResult = AuthProvider_->Check(request);

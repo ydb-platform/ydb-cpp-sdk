@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 
 namespace NMonitoring {
@@ -42,26 +42,26 @@ namespace NPrometheus {
     }
 
     inline bool IsSum(std::string_view name) {
-        return name.EndsWith(SUM_SUFFIX);
+        return name.ends_with(SUM_SUFFIX);
     }
 
     inline bool IsCount(std::string_view name) {
-        return name.EndsWith(COUNT_SUFFIX);
+        return name.ends_with(COUNT_SUFFIX);
     }
 
     inline bool IsBucket(std::string_view name) {
-        return name.EndsWith(BUCKET_SUFFIX);
+        return name.ends_with(BUCKET_SUFFIX);
     }
 
     inline std::string_view ToBaseName(std::string_view name) {
         if (IsBucket(name)) {
-            return name.SubString(0, name.length() - BUCKET_SUFFIX.length());
+            return name.substr(0, name.length() - BUCKET_SUFFIX.length());
         }
         if (IsCount(name)) {
-            return name.SubString(0, name.length() - COUNT_SUFFIX.length());
+            return name.substr(0, name.length() - COUNT_SUFFIX.length());
         }
         if (IsSum(name)) {
-            return name.SubString(0, name.length() - SUM_SUFFIX.length());
+            return name.substr(0, name.length() - SUM_SUFFIX.length());
         }
         return name;
     }

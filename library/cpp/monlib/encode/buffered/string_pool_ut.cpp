@@ -4,9 +4,9 @@
 
 using namespace NMonitoring;
 
-Y_UNIT_TEST_SUITE(std::stringPoolTest) {
+Y_UNIT_TEST_SUITE(TStringPoolTest) {
     Y_UNIT_TEST(PutIfAbsent) {
-        std::stringPoolBuilder strPool;
+        TStringPoolBuilder strPool;
         strPool.SetSorted(true);
 
         auto* h1 = strPool.PutIfAbsent("one");
@@ -26,7 +26,7 @@ Y_UNIT_TEST_SUITE(std::stringPoolTest) {
     }
 
     Y_UNIT_TEST(SortByFrequency) {
-        std::stringPoolBuilder strPool;
+        TStringPoolBuilder strPool;
         strPool.SetSorted(true);
 
         auto* h1 = strPool.PutIfAbsent("one");
@@ -48,7 +48,7 @@ Y_UNIT_TEST_SUITE(std::stringPoolTest) {
     }
 
     Y_UNIT_TEST(ForEach) {
-        std::stringPoolBuilder strPool;
+        TStringPoolBuilder strPool;
         strPool.SetSorted(true);
 
         strPool.PutIfAbsent("one");

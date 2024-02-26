@@ -4,10 +4,11 @@
 #include <library/cpp/monlib/metrics/histogram_snapshot.h>
 #include <library/cpp/monlib/metrics/metric.h>
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/datetime/base.h>
 #include <util/generic/hash.h>
 #include <util/string/cast.h>
-#include <util/string/builder.h>
 #include <util/generic/maybe.h>
 #include <util/string/ascii.h>
 
@@ -27,7 +28,7 @@ namespace NMonitoring {
         using TLabelsMap = THashMap<std::string, std::string>;
 
         std::string LabelsToStr(const TLabelsMap& labels) {
-            TYdbStringBuilder sb;
+            NUtils::TYdbStringBuilder sb;
             auto it = labels.begin();
             auto end = labels.end();
 
@@ -214,7 +215,7 @@ namespace NMonitoring {
 
         private:
             bool HasRemaining() const noexcept {
-                return CurrentPos_ < Data_.Size();
+                return CurrentPos_ < Data_.size();
             }
 
             // # 'TYPE' metric_name {counter|gauge|histogram|summary|untyped}
@@ -229,7 +230,7 @@ namespace NMonitoring {
                     SkipSpaces();
 
                     std::string_view nextName = ReadTokenAsMetricName();
-                    Y_PARSER_ENSURE(!nextName.Empty(), "invalid metric name");
+                    Y_PARSER_ENSURE(!nextName.empty(), "invalid metric name");
 
                     SkipSpaces();
                     EPrometheusMetricType nextType = ReadType();
@@ -285,7 +286,7 @@ namespace NMonitoring {
                     case EPrometheusMetricType::HISTOGRAM:
                         if (NPrometheus::IsBucket(name)) {
                             double bound = 0.0;
-                            auto it = labels.find(NPrometheus::BUCKET_LABEL);
+                            auto it = labels.find(std::string{NPrometheus::BUCKET_LABEL});
                             if (it != labels.end()) {
                                 bound = ParseGoDouble(it->second);
                                 labels.erase(it);
@@ -486,10 +487,10 @@ namespace NMonitoring {
                             switch (CurrentByte_) {
                                 case '"':
                                 case '\\':
-                                    labelValue.append(CurrentByte_);
+                                    labelValue.push_back(CurrentByte_);
                                     break;
                                 case 'n':
-                                    labelValue.append('\n');
+                                    labelValue.push_back('\n');
                                     break;
                                 default:
                                     Y_PARSER_FAIL("invalid escape sequence '" << CurrentByte_ << '\'');
@@ -497,7 +498,7 @@ namespace NMonitoring {
                             break;
 
                         default:
-                            labelValue.append(CurrentByte_);
+                            labelValue.push_back(CurrentByte_);
                             break;
                     }
 
@@ -514,11 +515,11 @@ namespace NMonitoring {
                     return {};
                 }
 
-                return Data_.SubString(begin, len);
+                return Data_.substr(begin, len);
             }
 
             void ConsumeLabels(std::string_view name, const TLabelsMap& labels) {
-                Y_PARSER_ENSURE(labels.count(MetricNameLabel_) == 0,
+                Y_PARSER_ENSURE(labels.count(std::string{MetricNameLabel_}) == 0,
                     "label name '" << MetricNameLabel_ <<
                     "' is reserved, but is used with metric: " << name << LabelsToStr(labels));
 

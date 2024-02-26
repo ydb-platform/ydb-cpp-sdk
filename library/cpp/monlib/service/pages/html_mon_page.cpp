@@ -12,7 +12,7 @@ void THtmlMonPage::Output(NMonitoring::IMonHttpRequest& request) {
         out << "<!DOCTYPE html>\n";
         HTML_TAG() {
             HEAD() {
-                if (!!Title) {
+                if (!Title.empty()) {
                     out << "<title>" << Title << "</title>\n";
                 }
                 out << "<link rel='stylesheet' href='/static/css/bootstrap.min.css'>\n";
@@ -37,7 +37,7 @@ void THtmlMonPage::Output(NMonitoring::IMonHttpRequest& request) {
                 OutputNavBar(out);
 
                 DIV_CLASS("container") {
-                    if (!!Title) {
+                    if (!Title.empty()) {
                         out << "<h2>" << Title << "</h2>";
                     }
                     OutputContent(request);

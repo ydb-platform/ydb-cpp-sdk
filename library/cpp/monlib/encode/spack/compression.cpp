@@ -316,8 +316,8 @@ namespace NMonitoring {
 
                 // compress
                 TBlock compressedBlock = Frame_;
-                compressedBlock.Skip(sizeof(TFrameHeader));
-                compressedBlock.Trunc(TCodecAlg::Compress(Uncompressed_, compressedBlock));
+                compressedBlock.remove_prefix(sizeof(TFrameHeader));
+                compressedBlock = compressedBlock.substr(0, TCodecAlg::Compress(Uncompressed_, compressedBlock));
 
                 // add header
                 auto header = reinterpret_cast<TFrameHeader*>(Frame_.Data());

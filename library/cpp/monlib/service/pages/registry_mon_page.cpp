@@ -6,9 +6,12 @@
 #include <library/cpp/monlib/encode/spack/spack_v1.h>
 #include <library/cpp/monlib/service/format.h>
 
+#include <library/cpp/string_utils/misc/misc.h>
+
 namespace NMonitoring {
     void TMetricRegistryPage::Output(NMonitoring::IMonHttpRequest& request) {
-        const auto formatStr = std::string_view{request.GetPathInfo()}.RNextTok('/');
+        std::string_view pathInfo = request.GetPathInfo();
+        const auto formatStr = NUtils::RNextTok(pathInfo, '/');
         auto& out = request.Output();
 
         if (!formatStr.empty()) {

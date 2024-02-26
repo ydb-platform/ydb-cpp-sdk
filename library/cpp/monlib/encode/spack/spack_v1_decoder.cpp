@@ -71,12 +71,12 @@ namespace NMonitoring {
                 std::vector<char> namesBuf(Header_.LabelNamesSize);
                 readBytes = In_->Load(namesBuf.data(), namesBuf.size());
                 DECODE_ENSURE(readBytes == Header_.LabelNamesSize, "not enough data to read label names pool");
-                std::stringPool labelNames(namesBuf.data(), namesBuf.size());
+                TStringPool labelNames(namesBuf.data(), namesBuf.size());
 
                 std::vector<char> valuesBuf(Header_.LabelValuesSize);
                 readBytes = In_->Load(valuesBuf.data(), valuesBuf.size());
                 DECODE_ENSURE(readBytes == Header_.LabelValuesSize, "not enough data to read label values pool");
-                std::stringPool labelValues(valuesBuf.data(), valuesBuf.size());
+                TStringPool labelValues(valuesBuf.data(), valuesBuf.size());
 
                 // (3) read common time
                 c->OnCommonTime(ReadTime());
@@ -95,8 +95,8 @@ namespace NMonitoring {
 
         private:
             void ReadMetrics(
-                    const std::stringPool& labelNames,
-                    const std::stringPool& labelValues,
+                    const TStringPool& labelNames,
+                    const TStringPool& labelValues,
                     IMetricConsumer* c)
             {
                 for (ui32 i = 0; i < Header_.MetricCount; i++) {
@@ -239,8 +239,8 @@ namespace NMonitoring {
             }
 
             void ReadLabels(
-                const std::stringPool& labelNames,
-                const std::stringPool& labelValues,
+                const TStringPool& labelNames,
+                const TStringPool& labelValues,
                 ui32 count,
                 IMetricConsumer* c)
             {

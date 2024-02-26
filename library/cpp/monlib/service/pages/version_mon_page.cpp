@@ -9,7 +9,7 @@ using namespace NMonitoring;
 void TVersionMonPage::OutputText(IOutputStream& out, NMonitoring::IMonHttpRequest&) {
     const char* version = GetProgramSvnVersion();
     out << version;
-    if (!std::string(version).EndsWith("\n"))
+    if (!std::string_view{version}.ends_with("\n"))
         out << "\n";
     out << GetBuildInfo() << "\n\n";
     out << "linked with malloc: " << NMalloc::MallocInfo().Name << "\n";

@@ -5,9 +5,9 @@
 
 namespace NMonitoring {
     ////////////////////////////////////////////////////////////////////////////////
-    // std::stringPoolBuilder
+    // TStringPoolBuilder
     ////////////////////////////////////////////////////////////////////////////////
-    class std::stringPoolBuilder {
+    class TStringPoolBuilder {
     public:
         struct TValue: TNonCopyable {
             TValue(ui32 idx, ui32 freq)
@@ -25,12 +25,12 @@ namespace NMonitoring {
         const TValue* GetByIndex(ui32 index) const;
 
         /// Determines whether pool must be sorted by value frequencies
-        std::stringPoolBuilder& SetSorted(bool sorted) {
+        TStringPoolBuilder& SetSorted(bool sorted) {
             RequiresSorting_ = sorted;
             return *this;
         }
 
-        std::stringPoolBuilder& Build();
+        TStringPoolBuilder& Build();
 
         std::string_view Get(ui32 index) const {
             if (RequiresSorting_) {
@@ -70,11 +70,11 @@ namespace NMonitoring {
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    // std::stringPool
+    // TStringPool
     ////////////////////////////////////////////////////////////////////////////////
-    class std::stringPool {
+    class TStringPool {
     public:
-        std::stringPool(const char* data, ui32 size) {
+        TStringPool(const char* data, ui32 size) {
             InitIndex(data, size);
         }
 

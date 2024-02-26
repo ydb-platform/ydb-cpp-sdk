@@ -35,18 +35,18 @@ Y_MONLIB_DEFINE_LABEL_OUT(NMonitoring::TLabel);
 
 namespace NMonitoring {
     bool TryLoadLabelsFromString(std::string_view sb, ILabels& labels) {
-        if (sb.Empty()) {
+        if (sb.empty()) {
             return false;
         }
 
-        if (!sb.StartsWith('{') || !sb.EndsWith('}')) {
+        if (!sb.starts_with('{') || !sb.ends_with('}')) {
             return false;
         }
 
-        sb.Skip(1);
-        sb.Chop(1);
+        sb.remove_prefix(1);
+        sb.remove_suffix(1);
 
-        if (sb.Empty()) {
+        if (sb.empty()) {
             return true;
         }
 
@@ -54,7 +54,7 @@ namespace NMonitoring {
         std::vector<std::pair<std::string_view, std::string_view>> rawLabels;
         StringSplitter(sb).SplitBySet(" ,").SkipEmpty().Consume([&] (std::string_view label) {
             std::string_view key, value;
-            ok &= label.TrySplit('=', key, value);
+            ok &= NUtils::TrySplit(label, key, value, '=');
 
             if (!ok) {
                 return;

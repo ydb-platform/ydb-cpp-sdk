@@ -38,7 +38,7 @@ public:
     void OnLogHistogram(TInstant, TLogHistogramSnapshotPtr) override;
 
 protected:
-    using TPooledStr = std::stringPoolBuilder::TValue;
+    using TPooledStr = TStringPoolBuilder::TValue;
 
     struct TPooledLabel {
         TPooledLabel(const TPooledStr* key, const TPooledStr* value)
@@ -88,8 +88,8 @@ protected:
 protected:
     TEncoderState State_;
 
-    std::stringPoolBuilder LabelNamesPool_;
-    std::stringPoolBuilder LabelValuesPool_;
+    TStringPoolBuilder LabelNamesPool_;
+    TStringPoolBuilder LabelValuesPool_;
     TInstant CommonTime_ = TInstant::Zero();
     TPooledLabels CommonLabels_;
     std::vector<TMetric> Metrics_;

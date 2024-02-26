@@ -323,7 +323,7 @@ THolder<IPollerFace> IPollerFace::Default() {
 }
 
 THolder<IPollerFace> IPollerFace::Construct(std::string_view name) {
-    return Construct(name ? FromString<EContPoller>(name) : EContPoller::Default);
+    return Construct(!name.empty() ? FromString<EContPoller>(name) : EContPoller::Default);
 }
 
 THolder<IPollerFace> IPollerFace::Construct(EContPoller poller) {

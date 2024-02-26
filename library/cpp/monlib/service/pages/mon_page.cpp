@@ -6,8 +6,8 @@ IMonPage::IMonPage(const std::string& path, const std::string& title)
     : Path(path)
     , Title(title)
 {
-    Y_ABORT_UNLESS(!Path.StartsWith('/'));
-    Y_ABORT_UNLESS(!Path.EndsWith('/'));
+    Y_ABORT_UNLESS(!Path.starts_with('/'));
+    Y_ABORT_UNLESS(!Path.ends_with('/'));
 }
 
 void IMonPage::OutputNavBar(IOutputStream& out) {
@@ -25,7 +25,7 @@ void IMonPage::OutputNavBar(IOutputStream& out) {
         if (i == parents.size() - 1) {
             out << "<li>" << title << "</li>\n";
         } else {
-            if (!absolutePath.EndsWith('/')) {
+            if (!absolutePath.ends_with('/')) {
                 absolutePath += '/';
             }
             absolutePath += parents[i]->GetPath();

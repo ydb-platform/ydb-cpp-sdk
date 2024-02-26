@@ -193,6 +193,11 @@ struct TEqualTo: public std::equal_to<T> {
 };
 
 template <>
+struct TEqualTo<std::string>: public TEqualTo<std::string_view> {
+    using is_transparent = void;
+};
+
+template <>
 struct TEqualTo<TString>: public TEqualTo<TStringBuf> {
     using is_transparent = void;
 };

@@ -30,7 +30,7 @@ namespace NMonitoring {
                         return;
                     }
                     std::string path = GetPath();
-                    if (!path.StartsWith('/')) {
+                    if (!path.starts_with('/')) {
                         out << "HTTP/1.1 400 Bad request\r\nConnection: Close\r\n\r\n";
                         return;
                     }
@@ -87,7 +87,7 @@ namespace NMonitoring {
         }
 
         std::string GetRemoteAddr() const override {
-            return RemoteAddr ? NAddr::PrintHostAndPort(*RemoteAddr) : std::string();
+            return RemoteAddr ? NAddr::PrintHostAndPort(*RemoteAddr).c_str() : std::string();
         }
 
     private:
@@ -118,7 +118,7 @@ namespace NMonitoring {
                 THttpInput in(&io);
                 THttpOutput out(&io, &in);
                 // buffer reply so there will be ne context switching
-                std::stringStream s;
+                TStringStream s;
                 ServeRequest(in, s, RemoteAddr, Parent.Handler);
                 out << s.Str();
                 out.Finish();
@@ -167,7 +167,7 @@ namespace NMonitoring {
 
     void TCoHttpServer::ProcessRequest(IOutputStream& out, const IHttpRequest& request) {
         try {
-            TNetworkAddress addr(BindAddr, Port);
+            TNetworkAddress addr(BindAddr.c_str(), Port);
             TSocket sock(addr);
             TSocketOutput sock_out(sock);
             TSocketInput sock_in(sock);
@@ -222,8 +222,8 @@ namespace NMonitoring {
     void TMtHttpServer::StartOrThrow() {
         if (!Start()) {
             const auto& opts = THttpServer::Options();
-            TNetworkAddress addr = opts.Host
-                                       ? TNetworkAddress(opts.Host, opts.Port)
+            TNetworkAddress addr = !opts.Host.empty()
+                                       ? TNetworkAddress(opts.Host.c_str(), opts.Port)
                                        : TNetworkAddress(opts.Port);
             ythrow TSystemError(GetErrorCode()) << addr;
         }

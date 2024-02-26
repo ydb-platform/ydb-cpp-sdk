@@ -8,6 +8,8 @@
 
 #include <library/cpp/json/json_reader.h>
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/datetime/base.h>
 #include <util/string/cast.h>
 
@@ -492,7 +494,7 @@ private:
 #define PARSE_ENSURE(CONDITION, ...)                     \
 do {                                                 \
 if (Y_UNLIKELY(!(CONDITION))) {                  \
-    ErrorMsg_ = TYdbStringBuilder() << __VA_ARGS__; \
+    ErrorMsg_ = NUtils::TYdbStringBuilder() << __VA_ARGS__; \
     return false;                                \
 }                                                \
 } while (false)
@@ -860,7 +862,7 @@ if (Y_UNLIKELY(!(CONDITION))) {                  \
                 } else if (key == std::string_view("memOnly")) {
                     // deprecated. Skip it without errors for backward compatibility
                 } else {
-                    ErrorMsg_ = TYdbStringBuilder() << "unexpected key \"" << key << "\" in a metric schema";
+                    ErrorMsg_ = NUtils::TYdbStringBuilder() << "unexpected key \"" << key << "\" in a metric schema";
                     return false;
                 }
                 break;
@@ -1021,7 +1023,7 @@ if (Y_UNLIKELY(!(CONDITION))) {                  \
         }
 
         size_t snippetBeg = (off < 20) ? 0 : (off - 20);
-        std::string_view snippet = Data_.SubStr(snippetBeg, 40);
+        std::string_view snippet = Data_.substr(snippetBeg, 40);
 
         throw TJsonDecodeError()
             << "cannot parse JSON, error at: " << off

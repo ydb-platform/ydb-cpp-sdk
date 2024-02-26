@@ -2,12 +2,12 @@
 
 namespace NMonitoring {
     ////////////////////////////////////////////////////////////////////////////////
-    // std::stringPoolBuilder
+    // TStringPoolBuilder
     ////////////////////////////////////////////////////////////////////////////////
-    const std::stringPoolBuilder::TValue* std::stringPoolBuilder::PutIfAbsent(std::string_view str) {
+    const TStringPoolBuilder::TValue* TStringPoolBuilder::PutIfAbsent(std::string_view str) {
         Y_ENSURE(!IsBuilt_, "Cannot add more values after string has been built");
 
-        auto [it, isInserted] = StrMap_.try_emplace(str, Max<ui32>(), 0);
+        auto [it, isInserted] = StrMap_.try_emplace(std::string{str}, Max<ui32>(), 0);
         if (isInserted) {
             BytesSize_ += str.size();
             it->second.Index = StrVector_.size();
@@ -19,11 +19,11 @@ namespace NMonitoring {
         return value;
     }
 
-    const std::stringPoolBuilder::TValue* std::stringPoolBuilder::GetByIndex(ui32 index) const {
+    const TStringPoolBuilder::TValue* TStringPoolBuilder::GetByIndex(ui32 index) const {
         return StrVector_.at(index).second;
     }
 
-    std::stringPoolBuilder& std::stringPoolBuilder::Build() {
+    TStringPoolBuilder& TStringPoolBuilder::Build() {
         if (RequiresSorting_) {
             // sort in reversed order
             std::sort(StrVector_.begin(), StrVector_.end(), [](auto& a, auto& b) {
@@ -42,9 +42,9 @@ namespace NMonitoring {
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    // std::stringPool
+    // TStringPool
     ////////////////////////////////////////////////////////////////////////////////
-    void std::stringPool::InitIndex(const char* data, ui32 size) {
+    void TStringPool::InitIndex(const char* data, ui32 size) {
         const char* begin = data;
         const char* end = begin + size;
         for (const char* p = begin; p != end; ++p) {

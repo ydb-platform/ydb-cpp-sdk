@@ -1,5 +1,7 @@
 #include "format.h"
 
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <util/string/ascii.h>
 #include <util/string/split.h>
 #include <util/string/strip.h>
@@ -51,7 +53,7 @@ namespace NMonitoring {
         EFormat result{EFormat::UNKNOWN};
 
         for (const auto& it : StringSplitter(value).Split(',').SkipEmpty()) {
-            std::string_view token = StripString(it.Token()).Before(';');
+            std::string_view token = NUtils::Before(StripString(it.Token()), ';');
 
             result = FormatFromHttpMedia(token);
             if (result != EFormat::UNKNOWN) {
@@ -63,7 +65,7 @@ namespace NMonitoring {
     }
 
     EFormat FormatFromContentType(std::string_view value) {
-        value = value.NextTok(';');
+        value = NUtils::NextTok(value, ';');
 
         return FormatFromHttpMedia(value);
     }

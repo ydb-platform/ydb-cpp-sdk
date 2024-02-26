@@ -1,5 +1,7 @@
 #include "buffered_encoder_base.h"
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/string/join.h>
 #include <util/string/builder.h>
 
@@ -147,7 +149,7 @@ void TBufferedEncoderBase::OnLogHistogram(TInstant time, TLogHistogramSnapshotPt
 std::string TBufferedEncoderBase::FormatLabels(const TPooledLabels& labels) const {
     auto formattedLabels = std::vector<std::string>(labels.size() + CommonLabels_.size());
     auto addLabel = [&](const TPooledLabel& l) {
-        auto formattedLabel = TYdbStringBuilder() << LabelNamesPool_.Get(l.Key) << '=' << LabelValuesPool_.Get(l.Value);
+        auto formattedLabel = NUtils::TYdbStringBuilder() << LabelNamesPool_.Get(l.Key) << '=' << LabelValuesPool_.Get(l.Value);
         formattedLabels.push_back(std::move(formattedLabel));
     };
 
@@ -164,7 +166,7 @@ std::string TBufferedEncoderBase::FormatLabels(const TPooledLabels& labels) cons
     }
     Sort(formattedLabels);
 
-    return TYdbStringBuilder() << "{" <<  JoinSeq(", ", formattedLabels) << "}";
+    return NUtils::TYdbStringBuilder() << "{" <<  JoinSeq(", ", formattedLabels) << "}";
 }
 
 } // namespace NMonitoring

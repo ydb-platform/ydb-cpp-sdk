@@ -1,10 +1,11 @@
 #pragma once
 
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <util/digest/multi.h>
 #include <util/digest/sequence.h>
 #include <util/generic/algorithm.h>
 #include <util/generic/maybe.h>
-#include <util/generic/string.h>
 
 #include <util/stream/output.h>
 #include <util/string/builder.h>
@@ -24,10 +25,10 @@ namespace NMonitoring {
     ///////////////////////////////////////////////////////////////////////////
     // TLabel
     ///////////////////////////////////////////////////////////////////////////
-    template <typename std::stringBackend>
+    template <typename TStringBackend>
     class TLabelImpl: public ILabel {
     public:
-        using std::stringType = std::stringBackend;
+        using TStringType = TStringBackend;
 
         TLabelImpl() = default;
 
@@ -53,11 +54,11 @@ namespace NMonitoring {
             return Value_;
         }
 
-        inline const std::stringBackend& NameStr() const {
+        inline const TStringBackend& NameStr() const {
             return Name_;
         }
 
-        inline const std::stringBackend& ValueStr() const {
+        inline const TStringBackend& ValueStr() const {
             return Value_;
         }
 
@@ -65,8 +66,8 @@ namespace NMonitoring {
             return MultiHash(Name_, Value_);
         }
 
-        std::stringBackend ToString() const {
-            std::stringBackend buf = Name_;
+        TStringBackend ToString() const {
+            TStringBackend buf = Name_;
             buf += '=';
             buf += Value_;
 
@@ -75,7 +76,7 @@ namespace NMonitoring {
 
         static TLabelImpl FromString(std::string_view str) {
             std::string_view name, value;
-            Y_ENSURE(str.TrySplit('=', name, value),
+            Y_ENSURE(NUtils::TrySplit(str, name, value, '='),
                      "invalid label string format: '" << str << '\'');
 
             std::string_view nameStripped = StripString(name);
@@ -89,7 +90,7 @@ namespace NMonitoring {
 
         static bool TryFromString(std::string_view str, TLabelImpl& label) {
             std::string_view name, value;
-            if (!str.TrySplit('=', name, value)) {
+            if (!NUtils::TrySplit(str, name, value, '=')) {
                 return false;
             }
 
@@ -108,8 +109,8 @@ namespace NMonitoring {
         }
 
     private:
-        std::stringBackend Name_;
-        std::stringBackend Value_;
+        TStringBackend Name_;
+        TStringBackend Value_;
     };
 
     using TLabel = TLabelImpl<std::string>;
@@ -191,10 +192,10 @@ namespace NMonitoring {
     ///////////////////////////////////////////////////////////////////////////
     // TLabels
     ///////////////////////////////////////////////////////////////////////////
-    template <typename std::stringBackend>
+    template <typename TStringBackend>
     class TLabelsImpl: public ILabels {
     public:
-        using value_type = TLabelImpl<std::stringBackend>;
+        using value_type = TLabelImpl<TStringBackend>;
 
         TLabelsImpl() = default;
 
@@ -240,22 +241,22 @@ namespace NMonitoring {
         using ILabels::Add;
 
         bool Has(std::string_view name) const noexcept override {
-            auto it = FindIf(Labels_, [name](const TLabelImpl<std::stringBackend>& label) {
+            auto it = FindIf(Labels_, [name](const TLabelImpl<TStringBackend>& label) {
                 return name == std::string_view{label.Name()};
             });
             return it != Labels_.end();
         }
 
         bool Has(const std::string& name) const noexcept {
-            auto it = FindIf(Labels_, [name](const TLabelImpl<std::stringBackend>& label) {
+            auto it = FindIf(Labels_, [name](const TLabelImpl<TStringBackend>& label) {
                 return name == std::string_view{label.Name()};
             });
             return it != Labels_.end();
         }
 
         // XXX for backward compatibility
-        TMaybe<TLabelImpl<std::stringBackend>> Find(std::string_view name) const {
-            auto it = FindIf(Labels_, [name](const TLabelImpl<std::stringBackend>& label) {
+        TMaybe<TLabelImpl<TStringBackend>> Find(std::string_view name) const {
+            auto it = FindIf(Labels_, [name](const TLabelImpl<TStringBackend>& label) {
                 return name == std::string_view{label.Name()};
             });
             if (it == Labels_.end()) {
@@ -280,8 +281,8 @@ namespace NMonitoring {
             return &(*this)[idx];
         }
 
-        TMaybe<TLabelImpl<std::stringBackend>> Extract(std::string_view name) {
-            auto it = FindIf(Labels_, [name](const TLabelImpl<std::stringBackend>& label) {
+        TMaybe<TLabelImpl<TStringBackend>> Extract(std::string_view name) {
+            auto it = FindIf(Labels_, [name](const TLabelImpl<TStringBackend>& label) {
                 return name == std::string_view{label.Name()};
             });
             if (it == Labels_.end()) {
@@ -318,35 +319,35 @@ namespace NMonitoring {
             Labels_.clear();
         }
 
-        TLabelImpl<std::stringBackend>& front() {
+        TLabelImpl<TStringBackend>& front() {
             return Labels_.front();
         }
 
-        const TLabelImpl<std::stringBackend>& front() const {
+        const TLabelImpl<TStringBackend>& front() const {
             return Labels_.front();
         }
 
-        TLabelImpl<std::stringBackend>& back() {
+        TLabelImpl<TStringBackend>& back() {
             return Labels_.back();
         }
 
-        const TLabelImpl<std::stringBackend>& back() const {
+        const TLabelImpl<TStringBackend>& back() const {
             return Labels_.back();
         }
 
-        TLabelImpl<std::stringBackend>& operator[](size_t index) {
+        TLabelImpl<TStringBackend>& operator[](size_t index) {
             return Labels_[index];
         }
 
-        const TLabelImpl<std::stringBackend>& operator[](size_t index) const {
+        const TLabelImpl<TStringBackend>& operator[](size_t index) const {
             return Labels_[index];
         }
 
-        TLabelImpl<std::stringBackend>& at(size_t index) {
+        TLabelImpl<TStringBackend>& at(size_t index) {
             return Labels_.at(index);
         }
 
-        const TLabelImpl<std::stringBackend>& at(size_t index) const {
+        const TLabelImpl<TStringBackend>& at(size_t index) const {
             return Labels_.at(index);
         }
 
@@ -354,11 +355,11 @@ namespace NMonitoring {
             return Labels_.capacity();
         }
 
-        TLabelImpl<std::stringBackend>* data() {
+        TLabelImpl<TStringBackend>* data() {
             return Labels_.data();
         }
 
-        const TLabelImpl<std::stringBackend>* data() const {
+        const TLabelImpl<TStringBackend>* data() const {
             return Labels_.data();
         }
 
@@ -381,16 +382,16 @@ namespace NMonitoring {
         using const_iterator = iterator;
 
     protected:
-        std::vector<TLabelImpl<std::stringBackend>>& AsVector() {
+        std::vector<TLabelImpl<TStringBackend>>& AsVector() {
             return Labels_;
         }
 
-        const std::vector<TLabelImpl<std::stringBackend>>& AsVector() const {
+        const std::vector<TLabelImpl<TStringBackend>>& AsVector() const {
             return Labels_;
         }
 
     private:
-        std::vector<TLabelImpl<std::stringBackend>> Labels_;
+        std::vector<TLabelImpl<TStringBackend>> Labels_;
     };
 
     using TLabels = TLabelsImpl<std::string>;
@@ -422,16 +423,16 @@ struct THash<NMonitoring::ILabelsPtr> {
     }
 };
 
-template<typename std::stringBackend>
-struct THash<NMonitoring::TLabelsImpl<std::stringBackend>> {
-    size_t operator()(const NMonitoring::TLabelsImpl<std::stringBackend>& labels) const noexcept {
+template<typename TStringBackend>
+struct THash<NMonitoring::TLabelsImpl<TStringBackend>> {
+    size_t operator()(const NMonitoring::TLabelsImpl<TStringBackend>& labels) const noexcept {
         return labels.Hash();
     }
 };
 
-template <typename std::stringBackend>
-struct THash<NMonitoring::TLabelImpl<std::stringBackend>> {
-    inline size_t operator()(const NMonitoring::TLabelImpl<std::stringBackend>& label) const noexcept {
+template <typename TStringBackend>
+struct THash<NMonitoring::TLabelImpl<TStringBackend>> {
+    inline size_t operator()(const NMonitoring::TLabelImpl<TStringBackend>& label) const noexcept {
         return label.Hash();
     }
 };

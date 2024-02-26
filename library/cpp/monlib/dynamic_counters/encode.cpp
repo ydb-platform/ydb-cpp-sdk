@@ -125,7 +125,7 @@ namespace NMonitoring {
     }
 
     std::string ToJson(const TDynamicCounters& counters) {
-        std::stringStream ss;
+        TStringStream ss;
         ToJson(counters, &ss);
         return ss.Str();
     }

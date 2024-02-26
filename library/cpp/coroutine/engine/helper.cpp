@@ -10,7 +10,7 @@ namespace NCoro {
 
         auto f = [&connected, &host, port, timeout](TCont* c) {
             TSocketHolder socket;
-            TNetworkAddress address(host, port);
+            TNetworkAddress address(host.c_str(), port);
             connected = (0 == NCoro::ConnectT(c, socket, address, timeout));
         };
 

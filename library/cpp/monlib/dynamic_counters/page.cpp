@@ -47,7 +47,7 @@ void TDynamicCountersPage::Output(NMonitoring::IMonHttpRequest& request) {
         parts.pop_back();
     }
 
-    if (!parts.empty() && parts.back().StartsWith(std::string_view("name_label="))) {
+    if (!parts.empty() && parts.back().starts_with(std::string_view("name_label="))) {
         std::vector<std::string> labels;
         StringSplitter(parts.back()).Split('=').SkipEmpty().Collect(&labels);
         if (labels.size() == 2U) {

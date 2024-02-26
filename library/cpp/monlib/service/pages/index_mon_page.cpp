@@ -20,7 +20,7 @@ void TIndexMonPage::Output(IMonHttpRequest& request) {
         return;
     }
 
-    Y_ABORT_UNLESS(pathInfo.StartsWith('/'));
+    Y_ABORT_UNLESS(pathInfo.starts_with('/'));
 
     TMonPagePtr found;
     // analogous to CGI PATH_INFO
@@ -31,13 +31,13 @@ void TIndexMonPage::Output(IMonHttpRequest& request) {
             if (TPagesByPath::iterator i = PagesByPath.find(pathTmp); i != PagesByPath.end()) {
                 found = *i->second;
                 pathInfo = request.GetPathInfo().substr(pathTmp.size());
-                Y_ABORT_UNLESS(pathInfo.empty() || pathInfo.StartsWith('/'));
+                Y_ABORT_UNLESS(pathInfo.empty() || pathInfo.starts_with('/'));
                 break;
             }
             size_t slash = pathTmp.find_last_of('/');
             Y_ABORT_UNLESS(slash != std::string::npos);
             pathTmp = pathTmp.substr(0, slash);
-            if (!pathTmp) {
+            if (pathTmp.empty()) {
                 break;
             }
         }
@@ -102,7 +102,7 @@ IMonPage* TIndexMonPage::FindPageByAbsolutePath(const std::string& absolutePath)
     TIndexMonPage* page = this;
     std::string path = absolutePath;
     while (!path.empty()) {
-        while (path.StartsWith('/')) {
+        while (path.starts_with('/')) {
             path.erase(0, 1);
         }
         std::string tryPath = path;
@@ -157,7 +157,7 @@ void TIndexMonPage::OutputBody(IMonHttpRequest& req) {
 
     out << "<div class='container'>\n"
              << "<h2>" << Title << "</h2>\n";
-    OutputIndex(out, req.GetPathInfo().EndsWith('/'));
+    OutputIndex(out, req.GetPathInfo().ends_with('/'));
     out << "</div>\n"
         << "</body>\n";
 }

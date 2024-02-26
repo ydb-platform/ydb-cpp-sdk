@@ -2,6 +2,8 @@
 
 #include <util/generic/fwd.h>
 
+#include <string_view>
+
 namespace NMonitoring {
 
     constexpr ui32 MaxMetricTypeNameLength = 9;
