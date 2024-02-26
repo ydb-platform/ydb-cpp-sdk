@@ -35,8 +35,8 @@ std::string ProtoToString(const Ydb::TOperationId& proto) {
     const Reflection& reflection = *proto.GetReflection();
     std::vector<const FieldDescriptor*> fields;
     reflection.ListFields(proto, &fields);
-    std::stringStream res;
-    switch (proto.GetKind()) {
+    TStringStream res;
+    switch (proto.kind()) {
         case Ydb::TOperationId::OPERATION_DDL:
         case Ydb::TOperationId::OPERATION_DML:
             res << "ydb://operation";
@@ -79,9 +79,9 @@ std::string ProtoToString(const Ydb::TOperationId& proto) {
                 for (int i = 0; i < size; i++) {
                     const auto& message = reflection.GetRepeatedMessage(proto, field, i);
                     const auto& data = dynamic_cast<const Ydb::TOperationId::TData&>(message);
-                    TUri::ReEncode(res, data.GetKey());
+                    TUri::ReEncode(res, data.key());
                     res << "=";
-                    TUri::ReEncode(res, data.GetValue());
+                    TUri::ReEncode(res, data.value());
                     if (i < size - 1) {
                         res << "&";
                     }
@@ -104,12 +104,12 @@ std::string ProtoToString(const Ydb::TOperationId& proto) {
 }
 
 TOperationId::TOperationId() {
-    SetKind(Ydb::TOperationId::UNUSED);
+    Proto_.set_kind(Ydb::TOperationId::UNUSED);
 }
 
 TOperationId::TOperationId(const std::string &string, bool allowEmpty) {
     if (allowEmpty && string.empty()) {
-        SetKind(Ydb::TOperationId::UNUSED);
+        Proto_.set_kind(Ydb::TOperationId::UNUSED);
         return;
     }
 
@@ -129,23 +129,27 @@ TOperationId::TOperationId(const std::string &string, bool allowEmpty) {
         ythrow yexception() << "Unable to cast \"kind\" field: " << path;
     }
 
-    if (!EKind_IsValid(kind)) {
+    if (!Proto_.EKind_IsValid(kind)) {
         ythrow yexception() << "Invalid operation kind: " << kind;
     }
 
-    SetKind(static_cast<Ydb::TOperationId::EKind>(kind));
+    Proto_.set_kind(static_cast<Ydb::TOperationId::EKind>(kind));
 
     const std::string& query = uri.PrintS(TField::FlagQuery);
 
-    if (query) {
+    if (!query.empty()) {
         TCgiParameters params(query.substr(1)); // start from 1 to remove first '?'
         for (auto it : params) {
-            auto data = AddData();
-            data->SetKey(it.first);
-            data->SetValue(it.second);
-            Index_[it.first].push_back(&data->GetValue());
+            auto data = Proto_.add_data();
+            data->set_key(it.first);
+            data->set_value(it.second);
+            Index_[it.first].push_back(&data->value());
         }
     }
+}
+
+Ydb::TOperationId& TOperationId::GetProto() {
+    return Proto_;
 }
 
 const std::vector<const std::string*>& TOperationId::GetValue(const std::string &key) const {
@@ -170,25 +174,25 @@ std::string TOperationId::GetSubKind() const {
 }
 
 void AddOptionalValue(Ydb::TOperationId& proto, const std::string& key, const std::string& value) {
-    auto data = proto.AddData();
-    data->SetKey(key);
-    data->SetValue(value);
+    auto data = proto.add_data();
+    data->set_key(key);
+    data->set_value(value);
 }
 
 Ydb::TOperationId::EKind ParseKind(const std::string_view value) {
-    if (value.StartsWith("export")) {
+    if (value.starts_with("export")) {
         return Ydb::TOperationId::EXPORT;
     }
 
-    if (value.StartsWith("import")) {
+    if (value.starts_with("import")) {
         return Ydb::TOperationId::IMPORT;
     }
 
-    if (value.StartsWith("buildindex")) {
+    if (value.starts_with("buildindex")) {
         return Ydb::TOperationId::BUILD_INDEX;
     }
 
-    if (value.StartsWith("scriptexec")) {
+    if (value.starts_with("scriptexec")) {
         return Ydb::TOperationId::SCRIPT_EXECUTION;
     }
 

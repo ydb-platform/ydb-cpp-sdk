@@ -10,6 +10,7 @@ target_link_libraries(public-lib-json_value PUBLIC
     cpp-client-ydb_result
     cpp-client-ydb_value
     ydb-library-uuid
+    cpp-string_builder 
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)

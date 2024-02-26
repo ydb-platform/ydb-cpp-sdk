@@ -9,15 +9,17 @@
 namespace NKikimr {
 namespace NOperationId {
 
-class TOperationId : public Ydb::TOperationId {
+class TOperationId {
 public:
     TOperationId();
     explicit TOperationId(const std::string& string, bool allowEmpty = false);
     const std::vector<const std::string*>& GetValue(const std::string& key) const;
     std::string GetSubKind() const;
+    Ydb::TOperationId& GetProto();
 
 private:
-     THashMap<std::string, std::vector<const std::string*>> Index_;
+    Ydb::TOperationId Proto_;
+    THashMap<std::string, std::vector<const std::string*>> Index_;
 };
 
 std::string ProtoToString(const Ydb::TOperationId& proto);
