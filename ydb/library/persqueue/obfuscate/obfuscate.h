@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/fwd.h>
+#include <string>
 
 namespace NPersQueue {
 

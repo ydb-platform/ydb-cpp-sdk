@@ -73,7 +73,7 @@ inline std::shared_ptr<grpc::ChannelInterface> CreateChannelInterface(const TGRp
     if (!config.SslTargetNameOverride.empty()) {
         args.SetSslTargetNameOverride(config.SslTargetNameOverride);
     }
-    if (config.EnableSsl || config.SslCredentials.pem_root_certs) {
+    if (config.EnableSsl || !config.SslCredentials.pem_root_certs.empty()) {
         return grpc::CreateCustomChannel(config.Locator, grpc::SslCredentials(config.SslCredentials), args);
     } else {
         return grpc::CreateCustomChannel(config.Locator, grpc::InsecureChannelCredentials(), args);

@@ -5,7 +5,7 @@
 #include <client/ydb_types/core_facility/core_facility.h>
 #include <ydb/public/api/grpc/ydb_auth_v1.grpc.pb.h>
 #include <ydb/library/login/login.h>
-#include <ydb/library/security/util.h>
+
 #include <util/string/cast.h>
 
 namespace NYdb {

@@ -1,5 +1,6 @@
 #include <contrib/libs/jwt-cpp/include/jwt-cpp/jwt.h>
 #include <library/cpp/digest/argonish/argon2.h>
+#include <library/cpp/string_builder/string_builder.h>
 #include <library/cpp/string_utils/base64/base64.h>
 #include <library/cpp/json/json_value.h>
 #include <library/cpp/json/json_reader.h>
@@ -54,7 +55,7 @@ TLoginProvider::TBasicResponse TLoginProvider::CreateUser(const TCreateUserReque
         response.Error = "Name is not allowed";
         return response;
     }
-    auto itUserCreate = Sids.emplace(request.User, TSidRecord{.Type = NLoginProto::ESidType::USER});
+    auto itUserCreate = Sids.emplace(request.User, TSidRecord{.Type = ESidType::USER});
     if (!itUserCreate.second) {
         if (itUserCreate.first->second.Type == ESidType::USER) {
             response.Error = "User already exists";
@@ -163,7 +164,7 @@ TLoginProvider::TBasicResponse TLoginProvider::AddGroupMembership(const TAddGrou
     TSidRecord& group = itGroupModify->second;
 
     if (group.Members.count(request.Member)) {
-        response.Notice = TYdbStringBuilder() << "Role \"" << request.Member << "\" is already a member of role \"" << group.Name << "\"";
+        response.Notice = NUtils::TYdbStringBuilder() << "Role \"" << request.Member << "\" is already a member of role \"" << group.Name << "\"";
     } else {
         group.Members.insert(request.Member);
     }
@@ -185,7 +186,7 @@ TLoginProvider::TBasicResponse TLoginProvider::RemoveGroupMembership(const TRemo
     TSidRecord& group = itGroupModify->second;
 
     if (!group.Members.count(request.Member)) {
-        response.Warning = TYdbStringBuilder() << "Role \"" << request.Member << "\" is not a member of role \"" << group.Name << "\"";
+        response.Warning = NUtils::TYdbStringBuilder() << "Role \"" << request.Member << "\" is not a member of role \"" << group.Name << "\"";
     } else {
         group.Members.erase(request.Member);
     }
@@ -301,7 +302,7 @@ std::vector<std::string> TLoginProvider::GetGroupsMembership(const std::string& 
 
 TLoginProvider::TLoginUserResponse TLoginProvider::LoginUser(const TLoginUserRequest& request) {
     TLoginUserResponse response;
-    if (!request.ExternalAuth) {
+    if (request.ExternalAuth.empty()) {
         auto itUser = Sids.find(request.User);
         if (itUser == Sids.end() || itUser->second.Type != ESidType::USER) {
             response.Error = "Invalid user";
@@ -342,7 +343,7 @@ TLoginProvider::TLoginUserResponse TLoginProvider::LoginUser(const TLoginUserReq
         token.set_audience(Audience);
     }
 
-    if (request.ExternalAuth) {
+    if (!request.ExternalAuth.empty()) {
         token.set_payload_claim(EXTERNAL_AUTH_CLAIM_NAME, jwt::claim(request.ExternalAuth));
     } else {
         if (request.Options.WithUserGroups) {
@@ -380,7 +381,7 @@ TLoginProvider::TValidateTokenResponse TLoginProvider::ValidateToken(const TVali
     TLoginProvider::TValidateTokenResponse response;
     try {
         jwt::decoded_jwt decoded_token = jwt::decode(request.Token);
-        if (Audience) {
+        if (!Audience.empty()) {
             // we check audience manually because we wan't this error instead of wrong key id in case of databases mismatch
             auto audience = decoded_token.get_audience();
             if (audience.empty() || std::string(*audience.begin()) != Audience) {
@@ -393,7 +394,7 @@ TLoginProvider::TValidateTokenResponse TLoginProvider::ValidateToken(const TVali
         if (key != nullptr) {
             auto verifier = jwt::verify()
                 .allow_algorithm(jwt::algorithm::ps256(key->PublicKey));
-            if (Audience) {
+            if (!Audience.empty()) {
                 verifier.with_audience(std::set<std::string>({Audience}));
             }
             verifier.verify(decoded_token);
@@ -580,27 +581,27 @@ bool TLoginProvider::TImpl::VerifyHash(const std::string& password, const std::s
 
 NLoginProto::TSecurityState TLoginProvider::GetSecurityState() const {
     NLoginProto::TSecurityState state;
-    state.SetAudience(Audience);
+    state.set_audience(Audience);
     {
-        auto& pbPublicKeys = *state.MutablePublicKeys();
+        auto& pbPublicKeys = *state.mutable_publickeys();
         pbPublicKeys.Clear();
         for (const TKeyRecord& key : Keys) {
             NLoginProto::TPublicKey& publicKey = *pbPublicKeys.Add();
-            publicKey.SetKeyId(key.KeyId);
-            publicKey.SetKeyDataPEM(key.PublicKey);
-            publicKey.SetExpiresAt(std::chrono::duration_cast<std::chrono::milliseconds>(key.ExpiresAt.time_since_epoch()).count());
+            publicKey.set_keyid(key.KeyId);
+            publicKey.set_keydatapem(key.PublicKey);
+            publicKey.set_expiresat(std::chrono::duration_cast<std::chrono::milliseconds>(key.ExpiresAt.time_since_epoch()).count());
             // no private key here
         }
     }
     {
-        auto& pbSids = *state.MutableSids();
+        auto& pbSids = *state.mutable_sids();
         pbSids.Clear();
         for (const auto& [sidName, sidInfo] : Sids) {
             NLoginProto::TSid& sid = *pbSids.Add();
-            sid.SetType(sidInfo.Type);
-            sid.SetName(sidInfo.Name);
+            sid.set_type(sidInfo.Type);
+            sid.set_name(sidInfo.Name);
             for (const auto& subSid : sidInfo.Members) {
-                sid.AddMembers(subSid);
+                sid.add_members(subSid);
             }
             // no user hash here
         }
@@ -609,36 +610,36 @@ NLoginProto::TSecurityState TLoginProvider::GetSecurityState() const {
 }
 
 void TLoginProvider::UpdateSecurityState(const NLoginProto::TSecurityState& state) {
-    Audience = state.GetAudience();
+    Audience = state.audience();
     {
         auto now = std::chrono::system_clock::now();
         while (Keys.size() > MAX_CLIENT_KEYS || (!Keys.empty() && Keys.front().ExpiresAt <= now)) {
             Keys.pop_front();
         }
 
-        if (!Keys.empty() && state.PublicKeysSize() != 0) {
-            auto keyId = state.GetPublicKeys(0).GetKeyId();
+        if (!Keys.empty() && state.publickeys_size() != 0) {
+            auto keyId = state.publickeys(0).keyid();
             auto itKey = FindKeyIterator(keyId);
             Keys.erase(itKey, Keys.end()); // erase tail which we are going to reinsert later
         }
 
-        for (const auto& pbPublicKey : state.GetPublicKeys()) {
+        for (const auto& pbPublicKey : state.publickeys()) {
             Keys.push_back({
-                .KeyId = pbPublicKey.GetKeyId(),
-                .PublicKey = pbPublicKey.GetKeyDataPEM(),
-                .ExpiresAt = std::chrono::system_clock::time_point(std::chrono::milliseconds(pbPublicKey.GetExpiresAt())),
+                .KeyId = pbPublicKey.keyid(),
+                .PublicKey = pbPublicKey.keydatapem(),
+                .ExpiresAt = std::chrono::system_clock::time_point(std::chrono::milliseconds(pbPublicKey.expiresat())),
             });
         }
     }
     {
         Sids.clear();
         ChildToParentIndex.clear();
-        for (const auto& pbSid : state.GetSids()) {
-            TSidRecord& sid = Sids[pbSid.GetName()];
-            sid.Type = pbSid.GetType();
-            sid.Name = pbSid.GetName();
-            sid.Hash = pbSid.GetHash();
-            for (const auto& pbSubSid : pbSid.GetMembers()) {
+        for (const auto& pbSid : state.sids()) {
+            TSidRecord& sid = Sids[pbSid.name()];
+            sid.Type = pbSid.type();
+            sid.Name = pbSid.name();
+            sid.Hash = pbSid.hash();
+            for (const auto& pbSubSid : pbSid.members()) {
                 sid.Members.emplace(pbSubSid);
                 ChildToParentIndex[pbSubSid].emplace(sid.Name);
             }

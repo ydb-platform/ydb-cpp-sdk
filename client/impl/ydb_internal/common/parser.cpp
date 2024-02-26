@@ -1,6 +1,5 @@
 #include "parser.h"
 
-#include <client/impl/ydb_internal/common/string_helpers.h>
 #include <client/ydb_types/exceptions/exceptions.h>
 
 namespace NYdb {
@@ -29,15 +28,15 @@ TConnectionInfo ParseConnectionString(const std::string& connectionString) {
         endpoint = connectionString;
     }
 
-    if (!StringStartsWith(endpoint, grpcProtocol) && !StringStartsWith(endpoint, grpcsProtocol) &&
-        !StringStartsWith(endpoint, localhostDomain))
+    if (!std::string_view{endpoint}.starts_with(grpcProtocol) && !std::string_view{endpoint}.starts_with(grpcsProtocol) &&
+        !std::string_view{endpoint}.starts_with(localhostDomain))
     {
         connectionInfo.Endpoint = endpoint;
         connectionInfo.EnableSsl = true;
-    } else if (StringStartsWith(endpoint, grpcProtocol)) {
+    } else if (std::string_view{endpoint}.starts_with(grpcProtocol)) {
         connectionInfo.Endpoint = endpoint.substr(grpcProtocol.length());
         connectionInfo.EnableSsl = false;
-    } else if (StringStartsWith(endpoint, grpcsProtocol)) {
+    } else if (std::string_view{endpoint}.starts_with(grpcsProtocol)) {
         connectionInfo.Endpoint = endpoint.substr(grpcsProtocol.length());
         connectionInfo.EnableSsl = true;
     } else {

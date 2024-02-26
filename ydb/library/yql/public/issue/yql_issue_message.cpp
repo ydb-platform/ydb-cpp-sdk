@@ -127,7 +127,7 @@ std::string IssueToBinaryMessage(const TIssue& issue) {
     std::string result;
     Ydb::Issue::IssueMessage protobuf;
     IssueToMessage(issue, &protobuf);
-    Y_PROTOBUF_SUPPRESS_NODISCARD protobuf.SerializeToString(&result);
+    protobuf.SerializeToString(&result);
     return result;
 }
 

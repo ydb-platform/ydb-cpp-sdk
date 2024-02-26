@@ -1,14 +1,14 @@
 #include "util.h"
 
-#include <util/string/builder.h>
 #include <util/string/printf.h>
 
 #include <library/cpp/digest/crc32c/crc32c.h>
+#include <library/cpp/string_builder/string_builder.h>
 
 namespace NKikimr {
 
 std::string MaskTicket(std::string_view token) {
-    TYdbStringBuilder mask;
+    NUtils::TYdbStringBuilder mask;
     if (token.size() >= 16) {
         mask << token.substr(0, 4);
         mask << "****";

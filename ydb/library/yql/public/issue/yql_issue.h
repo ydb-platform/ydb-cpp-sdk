@@ -200,7 +200,7 @@ public:
     void PrintTo(IOutputStream& out, bool oneLine = false) const;
 
     std::string ToString(bool oneLine = false) const {
-        std::stringStream out;
+        TStringStream out;
         PrintTo(out, oneLine);
         return out.Str();
     }
@@ -312,7 +312,7 @@ public:
             const std::string& programText) const;
 
     inline std::string ToString(bool oneLine = false) const {
-        std::stringStream out;
+        TStringStream out;
         PrintTo(out, oneLine);
         return out.Str();
     }

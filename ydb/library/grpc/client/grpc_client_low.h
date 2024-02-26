@@ -3,6 +3,7 @@
 #include "grpc_common.h"
 
 #include <library/cpp/deprecated/atomic/atomic.h>
+#include <library/cpp/string_builder/string_builder.h>
 
 #include <util/thread/factory.h>
 #include <util/string/builder.h>
@@ -172,8 +173,8 @@ struct TGrpcStatus {
         return !InternalError && GRpcStatusCode == grpc::StatusCode::OK;
     }
 
-    TYdbStringBuilder ToDebugString() const {
-        TYdbStringBuilder ret;
+    NUtils::TYdbStringBuilder ToDebugString() const {
+        NUtils::TYdbStringBuilder ret;
         ret << "gRpcStatusCode: " << GRpcStatusCode;
         if(!Ok())
             ret << ", Msg: " << Msg << ", Details: " << Details << ", InternalError: " << InternalError;

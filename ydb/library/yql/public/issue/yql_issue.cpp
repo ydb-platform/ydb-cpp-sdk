@@ -4,6 +4,7 @@
 #include <ydb/library/yql/utils/utf8.h>
 
 #include <library/cpp/colorizer/output.h>
+#include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/charset/utf8.h>
 #include <util/string/ascii.h>
@@ -245,8 +246,8 @@ TMaybe<TPosition> TryParseTerminationMessage(std::string_view& message) {
     if (startPos != std::string::npos) {
         endPos = message.find(')', startPos + TerminationMessageMarker.size());
         if (endPos != std::string::npos) {
-            std::string_view lenText = message.Tail(startPos + TerminationMessageMarker.size())
-                .Trunc(endPos - startPos - TerminationMessageMarker.size());
+            std::string_view lenText = message.substr(startPos + TerminationMessageMarker.size())
+                .substr(0, endPos - startPos - TerminationMessageMarker.size());
             try {
                 len = FromString<size_t>(lenText);
             } catch (const TFromStringException&) {
@@ -256,14 +257,14 @@ TMaybe<TPosition> TryParseTerminationMessage(std::string_view& message) {
     }
 
     if (len) {
-        message = message.Tail(endPos + 3).Trunc(len);
+        message = message.substr(endPos + 3).substr(0, len);
         auto s = message;
-        TMaybe<std::string_view> file;
-        TMaybe<std::string_view> row;
-        TMaybe<std::string_view> column;
-        GetNext(s, ':', file);
-        GetNext(s, ':', row);
-        GetNext(s, ':', column);
+        std::optional<std::string_view> file = NUtils::NextTok(s, ':');
+        std::optional<std::string_view> row;
+        std::optional<std::string_view> column;
+        NUtils::GetNext(s, ':', file);
+        NUtils::GetNext(s, ':', row);
+        NUtils::GetNext(s, ':', column);
         ui32 rowValue, columnValue;
         if (file && row && column && TryFromString(*row, rowValue) && TryFromString(*column, columnValue)) {
             message = StripStringLeft(s);
@@ -278,7 +279,7 @@ TMaybe<TPosition> TryParseTerminationMessage(std::string_view& message) {
 
 template <>
 void Out<NYql::TPosition>(IOutputStream& out, const NYql::TPosition& pos) {
-    out << (pos.File ? pos.File : "<main>");
+    out << (!pos.File.empty() ? pos.File : "<main>");
     if (pos) {
         out << ":" << pos.Row << ':' << pos.Column;
     }

@@ -1,11 +1,13 @@
 #include "topic_parser.h"
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/folder/path.h>
 
 namespace NPersQueue {
 
 bool CorrectName(const std::string& topic) {
-    if (!topic.StartsWith("rt3."))
+    if (!std::string_view{topic}.starts_with("rt3."))
         return false;
     auto pos = topic.find("--");
     if (pos == std::string::npos || pos == 4) //dc is empty
@@ -61,7 +63,7 @@ std::string ConvertNewTopicName(const std::string& topic) {
     auto pos = t.rfind("/");
     if (pos == std::string::npos)
         return t;
-    TYdbStringBuilder res;
+    NUtils::TYdbStringBuilder res;
     for (ui32 i = 0; i < pos; ++i) {
         if (t[i] == '/') res << '@';
         else res << t[i];
@@ -76,7 +78,7 @@ std::string ConvertOldTopicName(const std::string& topic) {
     auto pos = topic.rfind("--");
     if (pos == std::string::npos)
         return topic;
-    TYdbStringBuilder res;
+    NUtils::TYdbStringBuilder res;
     for (ui32 i = 0; i < pos; ++i) {
         if (topic[i] == '@') res << '/';
         else res << topic[i];
@@ -91,7 +93,7 @@ std::string BuildFullTopicName(const std::string& topicPath, const std::string& 
 }
 
 std::string ConvertOldProducerName(const std::string& producer) {
-    TYdbStringBuilder res;
+    NUtils::TYdbStringBuilder res;
     for (ui32 i = 0; i < producer.size(); ++i) {
         if (producer[i] == '@') res << "/";
         else res << producer[i];
@@ -103,17 +105,17 @@ std::string ConvertOldProducerName(const std::string& producer) {
 std::string NormalizePath(const std::string& path) {
     size_t st = 0;
     size_t end = path.size();
-    if (path.StartsWith("/")) st = 1;
-    if (path.EndsWith("/") && end > st) end--;
+    if (std::string_view{path}.starts_with("/")) st = 1;
+    if (std::string_view{path}.ends_with("/") && end > st) end--;
     return path.substr(st, end - st);
 }
 
 
 std::string ConvertNewConsumerName(const std::string& consumer) {
-    TYdbStringBuilder res;
+    NUtils::TYdbStringBuilder res;
     ui32 pos = 0;
     std::string c = NormalizePath(consumer);
-    if (c.StartsWith("shared/"))
+    if (std::string_view{c}.starts_with("shared/"))
         pos = 7;
     for (ui32 i = pos; i < c.size(); ++i) {
         if (c[i] == '/') res  << "@";
@@ -123,7 +125,7 @@ std::string ConvertNewConsumerName(const std::string& consumer) {
 }
 
 std::string ConvertNewProducerName(const std::string& producer) {
-    TYdbStringBuilder res;
+    NUtils::TYdbStringBuilder res;
     for (ui32 i = 0; i < producer.size(); ++i) {
         if (producer[i] == '/') res  << "@";
         else res << producer[i];
@@ -133,7 +135,7 @@ std::string ConvertNewProducerName(const std::string& producer) {
 
 
 std::string ConvertOldConsumerName(const std::string& consumer) {
-    TYdbStringBuilder res;
+    NUtils::TYdbStringBuilder res;
     bool shared = true;
     for (ui32 i = 0; i < consumer.size(); ++i) {
         if (consumer[i] == '@') {
@@ -144,7 +146,7 @@ std::string ConvertOldConsumerName(const std::string& consumer) {
         }
     }
     if (shared)
-        return TYdbStringBuilder() << "shared/" << res;
+        return NUtils::TYdbStringBuilder() << "shared/" << res;
     return res;
 }
 

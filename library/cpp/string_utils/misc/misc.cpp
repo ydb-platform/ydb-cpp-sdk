@@ -25,6 +25,14 @@ std::string ToLower(const std::string& str) {
     return ret;
 }
 
+std::string ToTitle(const std::string& s) {
+    std::string res = ToLower(s);
+    if (!res.empty()) {
+        res[0] = std::toupper(res[0]);
+    }
+    return res;
+}
+
 std::string Quote(std::string_view s) {
     return TYdbStringBuilder() << "\"" << EscapeC(s) << "\"";
 }

@@ -222,10 +222,9 @@ TInt128 FromStringEx(const std::string_view& str, ui8 precision, ui8 scale) {
                 return Err();
 
             const int p = precision, s = int(scale) + exp;
-
             const auto r = exp > 0 ?
-                FromString(str.Head(len), precision, std::min(s, p)):
-                FromString(str.Head(len), std::min(p - exp, int(MaxPrecision)), std::max(s, 0));
+                FromString(str.substr(0, len), precision, std::min(s, p)):
+                FromString(str.substr(0, len), std::min(p - exp, int(MaxPrecision)), std::max(s, 0));
 
             if (IsNan(r)) {
                 return Err();

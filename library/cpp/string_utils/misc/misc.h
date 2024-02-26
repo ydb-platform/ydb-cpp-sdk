@@ -1,11 +1,17 @@
 #pragma once
 
+#include <optional>
 #include <string>
+
+#include <util/generic/yexception.h>
+#include <util/string/cast.h>
 
 namespace NUtils {
 
 void ToLower(std::string& str);
 std::string ToLower(const std::string& str);
+
+std::string ToTitle(const std::string& s);
 
 void RemoveAll(std::string& str, char ch);
 
@@ -54,6 +60,23 @@ bool ContainerTransform(TContainer& str, T&& f, size_t pos = 0, size_t n = TCont
         }
     }
     return changed;
+}
+
+template <class P, class D>
+void GetNext(std::string_view& s, D delim, P& param) {
+    std::string_view next;
+    Y_ENSURE(NUtils::NextTok(s, next, delim), "Split: number of fields less than number of Split output arguments");
+    param = FromString<P>(next);
+}
+
+template <class P, class D>
+void GetNext(std::string_view& s, D delim, std::optional<P>& param) {
+    std::string_view next;
+    if (NUtils::NextTok(s, next, delim)) {
+        param = FromString<P>(next);
+    } else {
+        param.reset();
+    }
 }
 
 }

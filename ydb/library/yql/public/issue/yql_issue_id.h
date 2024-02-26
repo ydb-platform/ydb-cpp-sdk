@@ -3,6 +3,8 @@
 #include <ydb/library/yql/public/issue/protos/issue_severity.pb.h>
 
 #include <library/cpp/resource/resource.h>
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/text_format.h>
@@ -29,7 +31,7 @@ const TIssueCode UNEXPECTED_ERROR = 1;
 inline std::string SeverityToString(ESeverity severity)
 {
     auto ret = NYql::TSeverityIds::ESeverityId_Name(severity);
-    return ret.empty() ? "Unknown" : to_title(ret.substr(2)); //remove prefix "S_"
+    return ret.empty() ? "Unknown" : NUtils::ToTitle(ret.substr(2)); //remove prefix "S_"
 }
 
 template <typename T>
