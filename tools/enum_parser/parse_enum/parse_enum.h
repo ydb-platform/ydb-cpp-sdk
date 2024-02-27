@@ -3,6 +3,7 @@
 #include <optional>
 
 #include <util/string/strip.h>
+#include <util/stream/input.h>
 
 #include <string>
 #include <vector>

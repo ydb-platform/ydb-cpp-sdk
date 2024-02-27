@@ -7,6 +7,7 @@
 #include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/stream/format.h>
+#include <util/generic/is_in.h>
 
 #include <stdlib.h>
 
