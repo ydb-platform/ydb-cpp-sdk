@@ -14,23 +14,23 @@ enum EJsonPart : ui8 {
     COMMON_LABELS = 2,
 };
 
-constexpr std::array<TStringBuf, 3> JSON_PARTS = {
-    TStringBuf(R"("metrics": [{
+constexpr std::array<std::string_view, 3> JSON_PARTS = {
+    std::string_view(R"("metrics": [{
         "labels": { "key": "value" },
         "type": "GAUGE",
         "value": 123
     }])"),
 
-    TStringBuf(R"("ts": 1)"),
+    std::string_view(R"("ts": 1)"),
 
-    TStringBuf(R"("commonLabels": {
+    std::string_view(R"("commonLabels": {
         "key1": "value1",
         "key2": "value2"
     })"),
 };
 
-TString BuildJson(std::initializer_list<EJsonPart> parts) {
-    TString data = "{";
+std::string BuildJson(std::initializer_list<EJsonPart> parts) {
+    std::string data = "{";
 
     for (auto it = parts.begin(); it != parts.end(); ++it) {
         data += JSON_PARTS[*it];
@@ -52,10 +52,10 @@ void ValidateCommonParts(TCommonParts&& commonParts, bool checkLabels, bool chec
     if (checkLabels) {
         auto& labels = commonParts.CommonLabels;
         UNIT_ASSERT_VALUES_EQUAL(labels.Size(), 2);
-        UNIT_ASSERT(labels.Has(TStringBuf("key1")));
-        UNIT_ASSERT(labels.Has(TStringBuf("key2")));
-        UNIT_ASSERT_VALUES_EQUAL(labels.Get(TStringBuf("key1")).value()->Value(), "value1");
-        UNIT_ASSERT_VALUES_EQUAL(labels.Get(TStringBuf("key2")).value()->Value(), "value2");
+        UNIT_ASSERT(labels.Has(std::string_view("key1")));
+        UNIT_ASSERT(labels.Has(std::string_view("key2")));
+        UNIT_ASSERT_VALUES_EQUAL(labels.Get(std::string_view("key1")).value()->Value(), "value1");
+        UNIT_ASSERT_VALUES_EQUAL(labels.Get(std::string_view("key2")).value()->Value(), "value2");
     }
 }
 
@@ -73,7 +73,7 @@ void ValidateMetrics(const std::vector<TMetricData>& metrics) {
     UNIT_ASSERT_VALUES_EQUAL((*m.Values)[0].GetValue().AsDouble(), 123);
 }
 
-void CheckCommonPartsCollector(TString data, bool shouldBeStopped, bool checkLabels = true, bool checkTs = true, TStringBuf metricNameLabel = "name") {
+void CheckCommonPartsCollector(std::string data, bool shouldBeStopped, bool checkLabels = true, bool checkTs = true, std::string_view metricNameLabel = "name") {
     TCommonPartsCollector commonPartsCollector;
     TMemoryInput memIn(data);
     TDecoderJson decoder(data, &commonPartsCollector, metricNameLabel);

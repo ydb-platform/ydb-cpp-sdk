@@ -5,6 +5,7 @@
 #define FROM_IMPL
 #include "svnversion.h"
 
+#include <library/cpp/string_utils/misc/misc.h>
 #include <util/generic/strbuf.h>
 
 extern "C" void PrintProgramSvnVersion() {
@@ -18,7 +19,7 @@ extern "C" void PrintSvnVersionAndExit0() {
 
 extern "C" void PrintSvnVersionAndExitEx(int argc, char* argv[], const char* opts) {
     if (2 == argc) {
-        for (TStringBuf all = opts, versionOpt; all.NextTok(';', versionOpt);) {
+        for (std::string_view all = opts, versionOpt; NUtils::TrySplit(all, versionOpt, all, ';');) {
             if (versionOpt == argv[1]) {
                 PrintSvnVersionAndExit0();
             }

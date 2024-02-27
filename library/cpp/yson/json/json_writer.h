@@ -45,7 +45,7 @@ namespace NYT {
 
         void Flush();
 
-        void OnStringScalar(TStringBuf value) override;
+        void OnStringScalar(std::string_view value) override;
         void OnInt64Scalar(i64 value) override;
         void OnUint64Scalar(ui64 value) override;
         void OnDoubleScalar(double value) override;
@@ -58,7 +58,7 @@ namespace NYT {
         void OnEndList() override;
 
         void OnBeginMap() override;
-        void OnKeyedItem(TStringBuf key) override;
+        void OnKeyedItem(std::string_view key) override;
         void OnEndMap() override;
 
         void OnBeginAttributes() override;
@@ -72,7 +72,7 @@ namespace NYT {
         EJsonAttributesMode AttributesMode;
         ESerializedBoolFormat BooleanFormat;
 
-        void WriteStringScalar(const TStringBuf& value);
+        void WriteStringScalar(const std::string_view& value);
 
         void EnterNode();
         void LeaveNode();

@@ -43,7 +43,7 @@ namespace NLastGetopt {
 
         typedef std::vector<TSimpleSharedPtr<TOpt>> TOptsVector;
         TOptsVector Opts_; // infomation about named (short and long) options
-        std::vector<std::function<void(TStringBuf)>> ArgBindings_;
+        std::vector<std::function<void(std::string_view)>> ArgBindings_;
 
         EArgPermutation ArgPermutation_ = DEFAULT_ARG_PERMUTATION; // determines how to parse positions of named and free options. See information below.
         bool AllowSingleDashForLong_ = false;                      //
@@ -62,25 +62,25 @@ namespace NLastGetopt {
 
         std::map<ui32, TFreeArgSpec> FreeArgSpecs_; // mapping [free arg position] -> [free arg specification]
         TFreeArgSpec TrailingArgSpec_;          // spec for the trailing argument (when arguments are unlimited)
-        TString DefaultFreeArgTitle_ = "ARG"; // title that's used for free args without a title
+        std::string DefaultFreeArgTitle_ = "ARG"; // title that's used for free args without a title
 
-        TString Title;              // title of the help string
-        TString CustomCmdLineDescr; // user defined help string
-        TString CustomUsage;        // user defined usage string
+        std::string Title;              // title of the help string
+        std::string CustomCmdLineDescr; // user defined help string
+        std::string CustomUsage;        // user defined usage string
 
-        std::vector<std::pair<TString, TString>> Sections;  // additional help entries to print after usage
+        std::vector<std::pair<std::string, std::string>> Sections;  // additional help entries to print after usage
 
     public:
         /**
          * Constructs TOpts from string as in getopt(3)
          */
-        TOpts(const TStringBuf& optstring = TStringBuf());
+        TOpts(const std::string_view& optstring = std::string_view());
 
         /**
          * Constructs TOpts from string as in getopt(3) and
          * additionally adds help option (for '?') and svn-verstion option (for 'V')
          */
-        static TOpts Default(const TStringBuf& optstring = TStringBuf()) {
+        static TOpts Default(const std::string_view& optstring = std::string_view()) {
             TOpts opts(optstring);
             opts.AddHelpOption();
             opts.AddVersionOption();
@@ -101,7 +101,7 @@ namespace NLastGetopt {
          * @param name     long name for search
          * @return         ptr on result (nullptr if not found)
          */
-        const TOpt* FindLongOption(const TStringBuf& name) const;
+        const TOpt* FindLongOption(const std::string_view& name) const;
 
         /**
          * Search for the option with given short name
@@ -115,7 +115,7 @@ namespace NLastGetopt {
          * @param name     long name for search
          * @return         ptr on result (nullptr if not found)
          */
-        TOpt* FindLongOption(const TStringBuf& name);
+        TOpt* FindLongOption(const std::string_view& name);
 
         /**
          * Search for the option with given short name
@@ -131,11 +131,11 @@ namespace NLastGetopt {
          */
         /// @{
 
-        const TOpt* FindOption(const TStringBuf& name) const {
+        const TOpt* FindOption(const std::string_view& name) const {
             return FindLongOption(name);
         }
 
-        TOpt* FindOption(const TStringBuf& name) {
+        TOpt* FindOption(const std::string_view& name) {
             return FindLongOption(name);
         }
 
@@ -153,7 +153,7 @@ namespace NLastGetopt {
          * Sets title of the help string
          * @param title        title to set
          */
-        void SetTitle(const TString& title) {
+        void SetTitle(const std::string& title) {
             Title = title;
         }
 
@@ -162,7 +162,7 @@ namespace NLastGetopt {
          *
          * @param name        long name for search
          */
-        bool HasLongOption(const TString& name) const {
+        bool HasLongOption(const std::string& name) const {
             return FindLongOption(name) != nullptr;
         }
 
@@ -180,14 +180,14 @@ namespace NLastGetopt {
          * @param name     long name for search
          * @return         ref on result (throw exception if not found)
          */
-        const TOpt& GetLongOption(const TStringBuf& name) const;
+        const TOpt& GetLongOption(const std::string_view& name) const;
 
         /**
          * Search for the option with given long name
          * @param name     long name for search
          * @return         ref on result (throw exception if not found)
          */
-        TOpt& GetLongOption(const TStringBuf& name);
+        TOpt& GetLongOption(const std::string_view& name);
 
         /**
          * Search for the option with given short name
@@ -210,11 +210,11 @@ namespace NLastGetopt {
          */
         /// @{
 
-        const TOpt& GetOption(const TStringBuf& name) const {
+        const TOpt& GetOption(const std::string_view& name) const {
             return GetLongOption(name);
         }
 
-        TOpt& GetOption(const TStringBuf& name) {
+        TOpt& GetOption(const std::string_view& name) {
             return GetLongOption(name);
         }
 
@@ -252,8 +252,8 @@ namespace NLastGetopt {
          * @param help   help string to show in help
          */
         template <typename T>
-        void AddFreeArgBinding(const TString& name, T& target, const TString& help = "") {
-            ArgBindings_.emplace_back([&target](TStringBuf value) {
+        void AddFreeArgBinding(const std::string& name, T& target, const std::string& help = "") {
+            ArgBindings_.emplace_back([&target](std::string_view value) {
                 target = FromString<T>(value);
             });
 
@@ -266,7 +266,7 @@ namespace NLastGetopt {
          *
          * @param optstring   source
          */
-        void AddCharOptions(const TStringBuf& optstring);
+        void AddCharOptions(const std::string_view& optstring);
 
         /**
          * Creates new [option description (TOpt)] with given short name and given help string
@@ -275,7 +275,7 @@ namespace NLastGetopt {
          * @param help     help string
          * @return         reference for created option
          */
-        TOpt& AddCharOption(char c, const TString& help = "") {
+        TOpt& AddCharOption(char c, const std::string& help = "") {
             return AddCharOption(c, DEFAULT_HAS_ARG, help);
         }
 
@@ -286,7 +286,7 @@ namespace NLastGetopt {
          * @param help     help string
          * @return         reference for created option
          */
-        TOpt& AddCharOption(char c, EHasArg hasArg, const TString& help = "") {
+        TOpt& AddCharOption(char c, EHasArg hasArg, const std::string& help = "") {
             TOpt option;
             option.AddShortName(c);
             option.Help(help);
@@ -301,7 +301,7 @@ namespace NLastGetopt {
          * @param help     help string
          * @return         reference for created option
          */
-        TOpt& AddLongOption(const TString& name, const TString& help = "") {
+        TOpt& AddLongOption(const std::string& name, const std::string& help = "") {
             return AddLongOption(0, name, help);
         }
 
@@ -313,7 +313,7 @@ namespace NLastGetopt {
          * @param help     help string
          * @return         reference for created option
          */
-        TOpt& AddLongOption(char c, const TString& name, const TString& help = "") {
+        TOpt& AddLongOption(char c, const std::string& name, const std::string& help = "") {
             TOpt option;
             if (c != 0)
                 option.AddShortName(c);
@@ -373,7 +373,7 @@ namespace NLastGetopt {
          *
          * @param command name of command that should be completed (typically corresponds to the executable name).
          */
-        TOpt& AddCompletionOption(TString command, TString longName = "completion");
+        TOpt& AddCompletionOption(std::string command, std::string longName = "completion");
 
         /**
          * Creates or finds option with given short name
@@ -420,7 +420,7 @@ namespace NLastGetopt {
          *
          * @param decr        new help string
          */
-        void SetCmdLineDescr(const TString& descr) {
+        void SetCmdLineDescr(const std::string& descr) {
             CustomCmdLineDescr = descr;
         }
 
@@ -429,14 +429,14 @@ namespace NLastGetopt {
          *
          * @param usage        new usage string
          */
-        void SetCustomUsage(const TString& usage) {
+        void SetCustomUsage(const std::string& usage) {
             CustomUsage = usage;
         }
 
         /**
          * Add a section to print after the main usage spec.
          */
-        void AddSection(TString title, TString text) {
+        void AddSection(std::string title, std::string text) {
             Sections.emplace_back(std::move(title), std::move(text));
         }
 
@@ -445,7 +445,7 @@ namespace NLastGetopt {
          *
          * @param examples text of this section
          */
-        void SetExamples(TString examples) {
+        void SetExamples(std::string examples) {
             AddSection("Examples", std::move(examples));
         }
 
@@ -520,7 +520,7 @@ namespace NLastGetopt {
          * @param optional     indicates that the flag's help string should be rendered as for optional flag;
          *                     does not affect actual flags parsing
          */
-        void SetFreeArgTitle(size_t pos, const TString& title, const TString& help = TString(), bool optional = false);
+        void SetFreeArgTitle(size_t pos, const std::string& title, const std::string& help = std::string(), bool optional = false);
 
         /**
          * Get free argument's spec for further modification.
@@ -532,21 +532,21 @@ namespace NLastGetopt {
          * Older versions of lastgetopt didn't have destinction between default title and title
          * for the trailing argument.
          */
-        void SetFreeArgDefaultTitle(const TString& title, const TString& help = TString()) {
+        void SetFreeArgDefaultTitle(const std::string& title, const std::string& help = std::string()) {
             SetTrailingArgTitle(title, help);
         }
 
         /**
          * Set default title that will be used for all arguments that have no title.
          */
-        void SetDefaultFreeArgTitle(TString title) {
+        void SetDefaultFreeArgTitle(std::string title) {
             DefaultFreeArgTitle_ = std::move(title);
         }
 
         /**
          * Set default title that will be used for all arguments that have no title.
          */
-        const TString& GetDefaultFreeArgTitle() const {
+        const std::string& GetDefaultFreeArgTitle() const {
             return DefaultFreeArgTitle_;
         }
 
@@ -556,10 +556,10 @@ namespace NLastGetopt {
          * This title and help are used to render the last repeated argument when max number of arguments is unlimited.
          */
         /// @{
-        void SetTrailingArgTitle(TString title) {
+        void SetTrailingArgTitle(std::string title) {
             TrailingArgSpec_.Title(std::move(title));
         }
-        void SetTrailingArgTitle(TString title, TString help) {
+        void SetTrailingArgTitle(std::string title, std::string help) {
             TrailingArgSpec_.Title(std::move(title));
             TrailingArgSpec_.Help(std::move(help));
         }
@@ -602,7 +602,7 @@ namespace NLastGetopt {
          * @param os           destination stream
          * @param colors       colorizer
          */
-        void PrintUsage(const TStringBuf& program, IOutputStream& os, const NColorizer::TColors& colors) const;
+        void PrintUsage(const std::string_view& program, IOutputStream& os, const NColorizer::TColors& colors) const;
 
         /**
          * Print usage string
@@ -610,7 +610,7 @@ namespace NLastGetopt {
          * @param program      prefix of result (path to the program)
          * @param os           destination stream
          */
-        void PrintUsage(const TStringBuf& program, IOutputStream& os = Cout) const;
+        void PrintUsage(const std::string_view& program, IOutputStream& os = Cout) const;
 
         /**
          * Get list of options in order of definition.
@@ -630,7 +630,7 @@ namespace NLastGetopt {
          *
          * @param pos     position of the argument
          */
-        TStringBuf GetFreeArgTitle(size_t pos) const;
+        std::string_view GetFreeArgTitle(size_t pos) const;
 
         /**
          * Print usage helper
@@ -639,7 +639,7 @@ namespace NLastGetopt {
          * @param os         destination stream
          * @param colors     colorizer
          */
-        void PrintCmdLine(const TStringBuf& program, IOutputStream& os, const NColorizer::TColors& colors) const;
+        void PrintCmdLine(const std::string_view& program, IOutputStream& os, const NColorizer::TColors& colors) const;
 
         /**
          * Print usage helper

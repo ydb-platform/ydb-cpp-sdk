@@ -32,14 +32,14 @@ Y_UNIT_TEST_SUITE(JsonWriter) {
     Y_UNIT_TEST(EscapedString) {
         NJsonWriter::TBuf w(NJsonWriter::HEM_ESCAPE_HTML);
         w.WriteString(" \n \r \t \007 \b \f ' <tag> &ent; \"txt\" ");
-        TString ws = w.Str();
+        std::string ws = w.Str();
         const char* exp = "\" \\n \\r \\t \\u0007 \\b \\f &#39; &lt;tag&gt; &amp;ent; &quot;txt&quot; \"";
         UNIT_ASSERT_STRINGS_EQUAL(ws.c_str(), exp);
     }
     Y_UNIT_TEST(UnescapedString) {
         NJsonWriter::TBuf w;
         w.WriteString(" \n \r \t \b \f '; -- <tag> &ent; \"txt\"", NJsonWriter::HEM_DONT_ESCAPE_HTML);
-        TString ws = w.Str();
+        std::string ws = w.Str();
         const char* exp = "\" \\n \\r \\t \\b \\f \\u0027; -- \\u003Ctag\\u003E &ent; \\\"txt\\\"\"";
         UNIT_ASSERT_STRINGS_EQUAL(ws.c_str(), exp);
     }
@@ -48,12 +48,12 @@ Y_UNIT_TEST_SUITE(JsonWriter) {
         w.UnsafeWriteRawBytes("(", 1);
         w.BeginList().WriteString("<>&'\\").BeginList();
         w.EndList().EndList();
-        TString ws = w.Str();
+        std::string ws = w.Str();
         const char* exp = "([\"\\u003C\\u003E&\\u0027\\\\\",[]]";
         UNIT_ASSERT_STRINGS_EQUAL(ws.c_str(), exp);
     }
     Y_UNIT_TEST(Utf8) {
-        TString ws = NJsonWriter::TBuf().WriteString("яЯ σΣ ש א").Str();
+        std::string ws = NJsonWriter::TBuf().WriteString("яЯ σΣ ש א").Str();
         const char* exp = "\"яЯ σΣ ש א\"";
         UNIT_ASSERT_STRINGS_EQUAL(ws.c_str(), exp);
     }
@@ -80,14 +80,14 @@ Y_UNIT_TEST_SUITE(JsonWriter) {
             .CompatWriteKeyWithoutQuotes("n")
             .WriteInt(0)
             .EndObject();
-        TString ws = w.Str();
+        std::string ws = w.Str();
         const char* exp = "{p:1,n:0}";
         UNIT_ASSERT_STRINGS_EQUAL(ws.c_str(), exp);
     }
     Y_UNIT_TEST(UnescapedStringInObject) {
         NJsonWriter::TBuf w(NJsonWriter::HEM_DONT_ESCAPE_HTML);
         w.BeginObject().WriteKey("key").WriteString("</&>'").EndObject();
-        TString ws = w.Str();
+        std::string ws = w.Str();
         const char* exp = "{\"key\":\"\\u003C\\/&\\u003E\\u0027\"}";
         UNIT_ASSERT_STRINGS_EQUAL(ws.c_str(), exp);
     }
@@ -96,7 +96,7 @@ Y_UNIT_TEST_SUITE(JsonWriter) {
         UNIT_ASSERT_EXCEPTION(w.Str(), NJsonWriter::TError);
     }
     Y_UNIT_TEST(ForeignStreamValue) {
-        TStringStream ss;
+        std::stringStream ss;
         NJsonWriter::TBuf w(NJsonWriter::HEM_DONT_ESCAPE_HTML, &ss);
         w.WriteInt(1543);
         UNIT_ASSERT_STRINGS_EQUAL(ss.Str(), "1543");
@@ -171,7 +171,7 @@ Y_UNIT_TEST_SUITE(JsonWriter) {
     }
     Y_UNIT_TEST(LittleBobbyInvalid) {
         NJsonWriter::TBuf buf;
-        TStringBuf incomplete("\xe2\x80\xa8", 2);
+        std::string_view incomplete("\xe2\x80\xa8", 2);
         buf.WriteString(incomplete);
         // garbage in - garbage out
         UNIT_ASSERT_STRINGS_EQUAL("\"\xe2\x80\"", buf.Str());

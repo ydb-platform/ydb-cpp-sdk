@@ -33,7 +33,7 @@ namespace {
         return ERR_error_string(error, nullptr);
     }
 
-    inline TStringBuf SslLastError() noexcept {
+    inline std::string_view SslLastError() noexcept {
         return SslErrorText(GetLastSslError());
     }
 
@@ -134,10 +134,10 @@ namespace {
         inline TSslContextPtr CreateClientContext() {
             TSslContextPtr ctx = CreateSslCtx(SSLv23_client_method());
             if (ClientCert_) {
-                if (!ClientCert_->CertificateFile_ || !ClientCert_->PrivateKeyFile_) {
+                if (ClientCert_->CertificateFile_.empty() || ClientCert_->PrivateKeyFile_.empty()) {
                     ythrow yexception() << "both client certificate and private key are required";
                 }
-                if (ClientCert_->PrivateKeyPassword_) {
+                if (!ClientCert_->PrivateKeyPassword_.empty()) {
                     SSL_CTX_set_default_passwd_cb(ctx.Get(), [](char* buf, int size, int rwflag, void* userData) -> int {
                         Y_UNUSED(rwflag);
                         auto io = static_cast<TSslIO*>(userData);
@@ -280,7 +280,7 @@ namespace NPrivate {
 class TBuiltinCerts {
 public:
     TBuiltinCerts() {
-        TString c = NResource::Find("/builtin/cacert");
+        std::string c = NResource::Find("/builtin/cacert");
 
         TBioPtr cbio(BIO_new_mem_buf(c.data(), c.size()));
         Y_ENSURE_EX(cbio, TSslError() << "BIO_new_mem_buf");

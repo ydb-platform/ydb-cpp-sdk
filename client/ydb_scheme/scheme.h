@@ -15,15 +15,15 @@ namespace NScheme {
 ////////////////////////////////////////////////////////////////////////////////
 
 struct TPermissions {
-    TPermissions(const TString& subject)
+    TPermissions(const std::string& subject)
         : Subject(subject)
     {}
-    TPermissions(const TString& subject, const std::vector<TString>& names)
+    TPermissions(const std::string& subject, const std::vector<std::string>& names)
         : Subject(subject)
         , PermissionNames(names)
     {}
-    TString Subject;
-    std::vector<TString> PermissionNames;
+    std::string Subject;
+    std::vector<std::string> PermissionNames;
 };
 
 enum class ESchemeEntryType : i32 {
@@ -53,7 +53,7 @@ struct TVirtualTimestamp {
     TVirtualTimestamp(ui64 planStep, ui64 txId);
     TVirtualTimestamp(const ::Ydb::VirtualTimestamp& proto);
 
-    TString ToString() const;
+    std::string ToString() const;
     void Out(IOutputStream& o) const;
 
     bool operator<(const TVirtualTimestamp& rhs) const;
@@ -65,8 +65,8 @@ struct TVirtualTimestamp {
 };
 
 struct TSchemeEntry {
-    TString Name;
-    TString Owner;
+    std::string Name;
+    std::string Owner;
     ESchemeEntryType Type;
     std::vector<TPermissions> EffectivePermissions;
     std::vector<TPermissions> Permissions;
@@ -115,7 +115,7 @@ struct TModifyPermissionsSettings : public TOperationRequestSettings<TModifyPerm
         AddAction(EModifyPermissionsAction::Set, permissions);
         return *this;
     }
-    TModifyPermissionsSettings& AddChangeOwner(const TString& owner) {
+    TModifyPermissionsSettings& AddChangeOwner(const std::string& owner) {
         AddAction(EModifyPermissionsAction::Chown, TPermissions(owner));
         return *this;
     }
@@ -137,19 +137,19 @@ class TSchemeClient {
 public:
     TSchemeClient(const TDriver& driver, const TCommonClientSettings& settings = TCommonClientSettings());
 
-    TAsyncStatus MakeDirectory(const TString& path,
+    TAsyncStatus MakeDirectory(const std::string& path,
         const TMakeDirectorySettings& settings = TMakeDirectorySettings());
 
-    TAsyncStatus RemoveDirectory(const TString& path,
+    TAsyncStatus RemoveDirectory(const std::string& path,
         const TRemoveDirectorySettings& settings = TRemoveDirectorySettings());
 
-    TAsyncDescribePathResult DescribePath(const TString& path,
+    TAsyncDescribePathResult DescribePath(const std::string& path,
         const TDescribePathSettings& settings = TDescribePathSettings());
 
-    TAsyncListDirectoryResult ListDirectory(const TString& path,
+    TAsyncListDirectoryResult ListDirectory(const std::string& path,
         const TListDirectorySettings& settings = TListDirectorySettings());
 
-    TAsyncStatus ModifyPermissions(const TString& path,
+    TAsyncStatus ModifyPermissions(const std::string& path,
         const TModifyPermissionsSettings& data);
 
 private:

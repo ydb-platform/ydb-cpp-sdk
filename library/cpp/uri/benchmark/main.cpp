@@ -4,7 +4,7 @@
 
 
 
-const TString URLS[] = {
+const std::string URLS[] = {
     "http://www.TEST.Ru:80/InDex.html",
     "www.ya.ru/index.html",
     "https://workplace.z.yandex-team.ru/di#vertical=drive&datePreset=week",

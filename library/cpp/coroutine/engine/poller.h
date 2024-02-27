@@ -44,6 +44,6 @@ public:
     virtual EContPoller PollEngine() const = 0;
 
     static THolder<IPollerFace> Default();
-    static THolder<IPollerFace> Construct(TStringBuf name);
+    static THolder<IPollerFace> Construct(std::string_view name);
     static THolder<IPollerFace> Construct(EContPoller poller);
 };

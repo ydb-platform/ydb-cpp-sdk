@@ -107,9 +107,9 @@ void THttpHeaderParserTestSuite::TestSplitRequestHeader() {
 
     for (size_t n1 = 0; n1 < rlen; n1++) {
         for (size_t n2 = n1; n2 < rlen; n2++) {
-            TString s1{request, 0, n1};
-            TString s2{request, n1, n2 - n1};
-            TString s3{request, n2, rlen - n2};
+            std::string s1{request, 0, n1};
+            std::string s2{request, n1, n2 - n1};
+            std::string s3{request, n2, rlen - n2};
             UNIT_ASSERT_EQUAL(s1 + s2 + s3, request);
 
             THttpRequestHeader httpRequestHeader;
@@ -144,7 +144,7 @@ void THttpHeaderParserTestSuite::TestTrailingData() {
     UNIT_ASSERT_EQUAL(httpRequestHeader.http_method, HTTP_METHOD_GET);
     UNIT_ASSERT_EQUAL(strcmp(httpRequestHeader.host, "www.google.ru:8080"), 0);
     UNIT_ASSERT_EQUAL(httpRequestHeader.request_uri, "/search?q=hi");
-    UNIT_ASSERT_EQUAL(TString(httpHeaderParser->lastchar + 1), "high.ru");
+    UNIT_ASSERT_EQUAL(std::string(httpHeaderParser->lastchar + 1), "high.ru");
     UNIT_ASSERT_EQUAL(httpRequestHeader.http_minor, 1);
     UNIT_ASSERT_EQUAL(httpRequestHeader.transfer_chunked, -1);
     UNIT_ASSERT_EQUAL(httpRequestHeader.content_length, -1);
@@ -402,8 +402,8 @@ void THttpHeaderParserTestSuite::TestHreflangOnLongInput() {
     TestStart();
     THttpHeader httpHeader;
     httpHeaderParser->Init(&httpHeader);
-    TStringBuf testInput(hreflang_ut_in);
-    TStringBuf testOut(hreflang_ut_out);
+    std::string_view testInput(hreflang_ut_in);
+    std::string_view testOut(hreflang_ut_out);
     i32 result = httpHeaderParser->Execute(testInput.data(), testInput.size());
     UNIT_ASSERT_VALUES_EQUAL(result, 2);
     UNIT_ASSERT_VALUES_EQUAL(httpHeader.hreflangs, testOut);
@@ -495,26 +495,26 @@ Y_UNIT_TEST_SUITE(TestHttpChunkParser) {
         return parser;
     }
 
-    static THttpChunkParser parseByteByByte(const TStringBuf& blob, const std::vector<int>& states) {
+    static THttpChunkParser parseByteByByte(const std::string_view& blob, const std::vector<int>& states) {
         UNIT_ASSERT(states.size() <= blob.size());
         THttpChunkParser parser{initParser()};
         for (size_t n = 0; n < states.size(); n++) {
-            const TStringBuf d{blob, n, 1};
+            const std::string_view d{blob, n, 1};
             int code = parser.Execute(d.data(), d.size());
-            Cout << TString(d).Quote() << " " << code << Endl;
+            Cout << std::string(d).Quote() << " " << code << Endl;
             UNIT_ASSERT_EQUAL(code, states[n]);
         }
         return parser;
     }
 
-    static THttpChunkParser parseBytesWithLastState(const TStringBuf& blob, const int last_state) {
+    static THttpChunkParser parseBytesWithLastState(const std::string_view& blob, const int last_state) {
         std::vector<int> states(blob.size() - 1, 1);
         states.push_back(last_state);
         return parseByteByByte(blob, states);
     }
 
     Y_UNIT_TEST(TestWithoutEolHead) {
-        const TStringBuf blob{
+        const std::string_view blob{
             "4\r\n"
             "____\r\n"};
         std::vector<int> states{
@@ -528,7 +528,7 @@ Y_UNIT_TEST_SUITE(TestHttpChunkParser) {
     }
 
     Y_UNIT_TEST(TestTrivialChunk) {
-        const TStringBuf blob{
+        const std::string_view blob{
             "\r\n"
             "4\r\n"};
         THttpChunkParser parser(parseBytesWithLastState(blob, 2));
@@ -537,7 +537,7 @@ Y_UNIT_TEST_SUITE(TestHttpChunkParser) {
     }
 
     Y_UNIT_TEST(TestNegative) {
-        const TStringBuf blob{
+        const std::string_view blob{
             "\r\n"
             "-1"};
         std::vector<int> states{
@@ -548,7 +548,7 @@ Y_UNIT_TEST_SUITE(TestHttpChunkParser) {
     }
 
     Y_UNIT_TEST(TestLeadingZero) {
-        const TStringBuf blob{
+        const std::string_view blob{
             "\r\n"
             "042\r\n"};
         THttpChunkParser parser(parseBytesWithLastState(blob, 2));
@@ -556,7 +556,7 @@ Y_UNIT_TEST_SUITE(TestHttpChunkParser) {
     }
 
     Y_UNIT_TEST(TestIntOverflow) {
-        const TStringBuf blob{
+        const std::string_view blob{
             "\r\n"
             "deadbeef"};
         THttpChunkParser parser(parseBytesWithLastState(blob, -2));
@@ -565,7 +565,7 @@ Y_UNIT_TEST_SUITE(TestHttpChunkParser) {
     }
 
     Y_UNIT_TEST(TestTrivialChunkWithTail) {
-        const TStringBuf blob{
+        const std::string_view blob{
             "\r\n"
             "4\r\n"
             "_" // first byte of the chunk
@@ -580,7 +580,7 @@ Y_UNIT_TEST_SUITE(TestHttpChunkParser) {
     Y_UNIT_TEST(TestLastChunk) {
         // NB: current parser does not permit whitespace before `foo`,
         // but I've never seen the feature in real-life traffic
-        const TStringBuf blob{
+        const std::string_view blob{
             "\r\n"
             "000 ;foo = bar \r\n"
             "Trailer: bar\r\n"

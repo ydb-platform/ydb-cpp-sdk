@@ -4,14 +4,10 @@
 #include "encode.h"
 
 #include <library/cpp/charset/doccodes.h>
+#include <library/cpp/string_utils/string_output/string_output.h>
 #include <util/generic/buffer.h>
-#include <util/generic/ptr.h>
 #include <util/generic/singleton.h>
-#include <util/generic/string.h>
-#include <util/memory/alloc.h>
 #include <util/stream/mem.h>
-#include <util/stream/output.h>
-#include <util/stream/str.h>
 #include <util/system/yassert.h>
 
 #include <cstdlib>
@@ -34,7 +30,7 @@ namespace NUri {
 
     private:
         TBuffer Buffer;
-        TStringBuf Fields[FieldAllMAX];
+        std::string_view Fields[FieldAllMAX];
         ui32 FieldsSet;
         ui16 Port;
         ui16 DefaultPort;
@@ -105,24 +101,24 @@ namespace NUri {
         }
 
         // use when we know the field is dirty or RewriteImpl will be called
-        void FldSetNoDirty(EField fld, const TStringBuf& value) {
+        void FldSetNoDirty(EField fld, const std::string_view& value) {
             Fields[fld] = value;
             FldMarkSet(fld);
         }
 
-        void FldSet(EField fld, const TStringBuf& value) {
+        void FldSet(EField fld, const std::string_view& value) {
             FldSetNoDirty(fld, value);
             FldMarkDirty(fld);
         }
 
-        const TStringBuf& FldGet(EField fld) const {
+        const std::string_view& FldGet(EField fld) const {
             return Fields[fld];
         }
 
     private:
         /// depending on value, clears or sets it
-        void FldChkSet(EField fld, const TStringBuf& value) {
-            if (value.IsInited())
+        void FldChkSet(EField fld, const std::string_view& value) {
+            if (value.data() != nullptr)
                 FldSet(fld, value);
             else
                 FldClr(fld);
@@ -132,8 +128,8 @@ namespace NUri {
         }
 
         /// set only if initialized
-        bool FldTrySet(EField fld, const TStringBuf& value) {
-            const bool ok = value.IsInited();
+        bool FldTrySet(EField fld, const std::string_view& value) {
+            const bool ok = value.data() != nullptr;
             if (ok)
                 FldSet(fld, value);
             return ok;
@@ -144,14 +140,14 @@ namespace NUri {
 
     private:
         /// copies the value if it fits
-        bool FldTryCpy(EField fld, const TStringBuf& value);
+        bool FldTryCpy(EField fld, const std::string_view& value);
 
         // main method: sets the field value, possibly copies, etc.
-        bool FldSetImpl(EField fld, TStringBuf value, bool strconst = false, bool nocopy = false);
+        bool FldSetImpl(EField fld, std::string_view value, bool strconst = false, bool nocopy = false);
 
     public: // clear a field
         void FldClr(EField fld) {
-            Fields[fld].Clear();
+            Fields[fld] = {};
             FldMarkUnset(fld);
             FldMarkClean(fld);
         }
@@ -165,18 +161,18 @@ namespace NUri {
 
     public: // set a field value: might leave state dirty and require a Rewrite()
         // copies if fits and not dirty, sets and marks dirty otherwise
-        bool FldMemCpy(EField field, const TStringBuf& value) {
+        bool FldMemCpy(EField field, const std::string_view& value) {
             return FldSetImpl(field, value, false);
         }
 
         // uses directly, marks dirty
         /// @note client MUST guarantee value will be alive until Rewrite is called
-        bool FldMemSet(EField field, const TStringBuf& value) {
+        bool FldMemSet(EField field, const std::string_view& value) {
             return FldSetImpl(field, value, false, true);
         }
 
         // uses directly, doesn't mark dirty (value scope exceeds "this")
-        bool FldMemUse(EField field, const TStringBuf& value) {
+        bool FldMemUse(EField field, const std::string_view& value) {
             return FldSetImpl(field, value, true);
         }
 
@@ -184,7 +180,7 @@ namespace NUri {
         template <size_t size>
         bool FldMemSet(EField field, const char (&value)[size]) {
             static_assert(size > 0);
-            return FldSetImpl(field, TStringBuf(value, size - 1), true);
+            return FldSetImpl(field, std::string_view(value, size - 1), true);
         }
 
         // duplicate one field to another
@@ -233,19 +229,19 @@ namespace NUri {
         void RewriteImpl();
 
     public:
-        static TState::EParsed CheckHost(const TStringBuf& host);
+        static TState::EParsed CheckHost(const std::string_view& host);
 
         // convert a [potential] IDN to ascii
         static TMallocPtr<char> IDNToAscii(const wchar32* idna);
-        static TMallocPtr<char> IDNToAscii(const TStringBuf& host, ECharset enc = CODES_UTF8);
+        static TMallocPtr<char> IDNToAscii(const std::string_view& host, ECharset enc = CODES_UTF8);
 
         // convert hosts with percent-encoded or extended chars
 
         // returns non-empty string if host can be converted to ASCII with given parameters
-        static TStringBuf HostToAscii(TStringBuf host, TMallocPtr<char>& buf, bool hasExtended, bool allowIDN, ECharset enc = CODES_UTF8);
+        static std::string_view HostToAscii(std::string_view host, TMallocPtr<char>& buf, bool hasExtended, bool allowIDN, ECharset enc = CODES_UTF8);
 
         // returns host if already ascii, or non-empty if it can be converted
-        static TStringBuf HostToAscii(const TStringBuf& host, TMallocPtr<char>& buf, bool allowIDN, ECharset enc = CODES_UTF8);
+        static std::string_view HostToAscii(const std::string_view& host, TMallocPtr<char>& buf, bool allowIDN, ECharset enc = CODES_UTF8);
 
     public:
         explicit TUri(unsigned defaultPort = 0)
@@ -257,7 +253,7 @@ namespace NUri {
         {
         }
 
-        TUri(const TStringBuf& host, ui16 port, const TStringBuf& path, const TStringBuf& query = TStringBuf(), const TStringBuf& scheme = "http", unsigned defaultPort = 0, const TStringBuf& hashbang = TStringBuf());
+        TUri(const std::string_view& host, ui16 port, const std::string_view& path, const std::string_view& query = std::string_view(), const std::string_view& scheme = "http", unsigned defaultPort = 0, const std::string_view& hashbang = std::string_view());
 
         TUri(const TUri& url)
             : FieldsSet(url.FieldsSet)
@@ -309,7 +305,7 @@ namespace NUri {
     private:
         TState::EParsed AssignImpl(const TParser& parser, TScheme::EKind defscheme = SchemeEmpty);
 
-        TState::EParsed ParseImpl(const TStringBuf& url, const TParseFlags& flags = FeaturesDefault, ui32 maxlen = 0, TScheme::EKind defscheme = SchemeEmpty, ECharset enc = CODES_UTF8);
+        TState::EParsed ParseImpl(const std::string_view& url, const TParseFlags& flags = FeaturesDefault, ui32 maxlen = 0, TScheme::EKind defscheme = SchemeEmpty, ECharset enc = CODES_UTF8);
 
     public:
         TState::EParsed Assign(const TParser& parser, TScheme::EKind defscheme = SchemeEmpty) {
@@ -319,7 +315,7 @@ namespace NUri {
             return ret;
         }
 
-        TState::EParsed ParseUri(const TStringBuf& url, const TParseFlags& flags = FeaturesDefault, ui32 maxlen = 0, ECharset enc = CODES_UTF8) {
+        TState::EParsed ParseUri(const std::string_view& url, const TParseFlags& flags = FeaturesDefault, ui32 maxlen = 0, ECharset enc = CODES_UTF8) {
             const TState::EParsed ret = ParseImpl(url, flags, maxlen, SchemeEmpty, enc);
             if (ParsedOK == ret)
                 Rewrite();
@@ -328,21 +324,21 @@ namespace NUri {
 
         // parses absolute URIs
         // prepends default scheme (unless unknown) if URI has none
-        TState::EParsed ParseAbsUri(const TStringBuf& url, const TParseFlags& flags = FeaturesDefault, ui32 maxlen = 0, TScheme::EKind defscheme = SchemeUnknown, ECharset enc = CODES_UTF8);
+        TState::EParsed ParseAbsUri(const std::string_view& url, const TParseFlags& flags = FeaturesDefault, ui32 maxlen = 0, TScheme::EKind defscheme = SchemeUnknown, ECharset enc = CODES_UTF8);
 
-        TState::EParsed ParseAbsOrHttpUri(const TStringBuf& url, const TParseFlags& flags = FeaturesDefault, ui32 maxlen = 0, ECharset enc = CODES_UTF8) {
+        TState::EParsed ParseAbsOrHttpUri(const std::string_view& url, const TParseFlags& flags = FeaturesDefault, ui32 maxlen = 0, ECharset enc = CODES_UTF8) {
             return ParseAbsUri(url, flags, maxlen, SchemeHTTP, enc);
         }
 
-        TState::EParsed Parse(const TStringBuf& url, const TUri& base, const TParseFlags& flags = FeaturesDefault, ui32 maxlen = 0, ECharset enc = CODES_UTF8);
+        TState::EParsed Parse(const std::string_view& url, const TUri& base, const TParseFlags& flags = FeaturesDefault, ui32 maxlen = 0, ECharset enc = CODES_UTF8);
 
-        TState::EParsed Parse(const TStringBuf& url, const TParseFlags& flags = FeaturesDefault) {
+        TState::EParsed Parse(const std::string_view& url, const TParseFlags& flags = FeaturesDefault) {
             return ParseUri(url, flags);
         }
 
-        TState::EParsed Parse(const TStringBuf& url, const TParseFlags& flags, const TStringBuf& base_url, ui32 maxlen = 0, ECharset enc = CODES_UTF8);
+        TState::EParsed Parse(const std::string_view& url, const TParseFlags& flags, const std::string_view& base_url, ui32 maxlen = 0, ECharset enc = CODES_UTF8);
 
-        TState::EParsed ParseAbs(const TStringBuf& url, const TParseFlags& flags = FeaturesDefault, const TStringBuf& base_url = TStringBuf(), ui32 maxlen = 0, ECharset enc = CODES_UTF8) {
+        TState::EParsed ParseAbs(const std::string_view& url, const TParseFlags& flags = FeaturesDefault, const std::string_view& base_url = std::string_view(), ui32 maxlen = 0, ECharset enc = CODES_UTF8) {
             const TState::EParsed result = Parse(url, flags, base_url, maxlen, enc);
             return ParsedOK != result || IsValidGlobal() ? result : ParsedBadFormat;
         }
@@ -354,7 +350,7 @@ namespace NUri {
 
         void Merge(const TUri& base, int correctAbs = -1);
 
-        TLinkType Normalize(const TUri& base, const TStringBuf& link, const TStringBuf& codebase = TStringBuf(), ui64 careFlags = FeaturesDefault, ECharset enc = CODES_UTF8);
+        TLinkType Normalize(const TUri& base, const std::string_view& link, const std::string_view& codebase = std::string_view(), ui64 careFlags = FeaturesDefault, ECharset enc = CODES_UTF8);
 
     private:
         int PrintFlags(int flags) const {
@@ -375,7 +371,7 @@ namespace NUri {
             return str;
         }
 
-        static bool IsAbsPath(const TStringBuf& path) {
+        static bool IsAbsPath(const std::string_view& path) {
             return 1 <= path.length() && path[0] == '/';
         }
 
@@ -409,15 +405,15 @@ namespace NUri {
         }
 
         // Output method to str
-        void Print(TString& str, int flags = FlagUrlFields) const {
+        void Print(std::string& str, int flags = FlagUrlFields) const {
             flags = PrintFlags(flags);
             str.reserve(str.length() + PrintSize(flags));
-            TStringOutput out(str);
+            NUtils::TStringOutput out(str);
             PrintImpl(out, flags);
         }
 
-        TString PrintS(int flags = FlagUrlFields) const {
-            TString str;
+        std::string PrintS(int flags = FlagUrlFields) const {
+            std::string str;
             Print(str, flags);
             return str;
         }
@@ -426,7 +422,7 @@ namespace NUri {
         char* PrintHost(char* str, size_t size) const {
             return Print(str, size, (Scheme != SchemeHTTP ? FlagScheme : 0) | FlagHostPort);
         }
-        TString PrintHostS() const {
+        std::string PrintHostS() const {
             return PrintS((Scheme != SchemeHTTP ? FlagScheme : 0) | FlagHostPort);
         }
 
@@ -435,20 +431,20 @@ namespace NUri {
 
         int CompareField(EField fld, const TUri& url) const;
 
-        const TStringBuf& GetField(EField fld) const {
-            return FldIsValid(fld) && FldIsSet(fld) ? FldGet(fld) : Default<TStringBuf>();
+        const std::string_view& GetField(EField fld) const {
+            return FldIsValid(fld) && FldIsSet(fld) ? FldGet(fld) : Default<std::string_view>();
         }
 
         ui16 GetPort() const {
             return 0 == Port ? DefaultPort : Port;
         }
 
-        const TStringBuf& GetHost() const {
+        const std::string_view& GetHost() const {
             if (GetFieldMask() & FlagHostAscii)
                 return FldGet(FieldHostAscii);
             if (GetFieldMask() & FlagHost)
                 return FldGet(FieldHost);
-            return Default<TStringBuf>();
+            return Default<std::string_view>();
         }
 
         bool UseHostAscii() {
@@ -543,15 +539,15 @@ namespace NUri {
             return LinkIsGlobal;
         }
 
-        static IOutputStream& ReEncodeField(IOutputStream& out, const TStringBuf& val, EField fld, ui64 flags = FeaturesEncodeDecode) {
+        static IOutputStream& ReEncodeField(IOutputStream& out, const std::string_view& val, EField fld, ui64 flags = FeaturesEncodeDecode) {
             return NEncode::TEncoder::ReEncode(out, val, NEncode::TEncodeMapper(flags, fld));
         }
 
-        static IOutputStream& ReEncodeToField(IOutputStream& out, const TStringBuf& val, EField srcfld, ui64 srcflags, EField dstfld, ui64 dstflags) {
+        static IOutputStream& ReEncodeToField(IOutputStream& out, const std::string_view& val, EField srcfld, ui64 srcflags, EField dstfld, ui64 dstflags) {
             return NEncode::TEncoder::ReEncodeTo(out, val, NEncode::TEncodeMapper(srcflags, srcfld), NEncode::TEncodeToMapper(dstflags, dstfld));
         }
 
-        static IOutputStream& ReEncode(IOutputStream& out, const TStringBuf& val, ui64 flags = FeaturesEncodeDecode) {
+        static IOutputStream& ReEncode(IOutputStream& out, const std::string_view& val, ui64 flags = FeaturesEncodeDecode) {
             return ReEncodeField(out, val, FieldAllMAX, flags);
         }
 
@@ -599,7 +595,7 @@ namespace NUri {
         }
 
     public:
-        bool Set(TField::EField field, const TStringBuf& value) {
+        bool Set(TField::EField field, const std::string_view& value) {
             return Uri_.FldMemSet(field, value);
         }
 

@@ -7,10 +7,10 @@
 
 namespace NYdb {
 
-TStringType MakeSignedJwt(const TJwtParams& params, const TDuration& lifetime) {
+std::string MakeSignedJwt(const TJwtParams& params, const TDuration& lifetime) {
     // this constant works on all envs (internal IAM, preprod cloud, prod cloud)
     // according to potamus@, it's recommended audience
-    static const TStringType AUDIENCE{"https://iam.api.cloud.yandex.net/iam/v1/tokens"};
+    static const std::string AUDIENCE{"https://iam.api.cloud.yandex.net/iam/v1/tokens"};
     const auto now = std::chrono::system_clock::now();
     const auto expire = now + std::chrono::milliseconds(lifetime.MilliSeconds());
     const auto token = jwt::create()
@@ -20,10 +20,10 @@ TStringType MakeSignedJwt(const TJwtParams& params, const TDuration& lifetime) {
         .set_audience(AUDIENCE)
         .set_expires_at(expire)
         .sign(jwt::algorithm::ps256(params.PubKey, params.PrivKey));
-    return TStringType{token};
+    return std::string{token};
 }
 
-TJwtParams ParseJwtParams(const TStringType& jsonParamsStr) {
+TJwtParams ParseJwtParams(const std::string& jsonParamsStr) {
     NJson::TJsonValue json;
     NJson::ReadJsonTree(jsonParamsStr, &json, true);
     auto map = json.GetMap();

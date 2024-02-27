@@ -104,7 +104,7 @@ Y_UNIT_TEST_SUITE(THistogramCollectorTest) {
 
         auto snapshot = histogram->Snapshot();
 
-        TStringStream ss;
+        std::stringStream ss;
         ss << *snapshot;
 
         UNIT_ASSERT_STRINGS_EQUAL(

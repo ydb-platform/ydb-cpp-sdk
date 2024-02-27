@@ -1,11 +1,6 @@
 #pragma once
 
-#include <util/generic/noncopyable.h>
-#include <util/generic/ptr.h>
-#include <util/generic/string.h>
-
 #include <util/generic/yexception.h>
-#include <util/stream/str.h>
 #include <util/string/cast.h>
 
 #include <vector>
@@ -45,8 +40,8 @@ namespace NJsonWriter {
     public:
         TBuf(EHtmlEscapeMode mode = HEM_DONT_ESCAPE_HTML, IOutputStream* stream = nullptr);
 
-        TValueContext WriteString(const TStringBuf& s, EHtmlEscapeMode hem);
-        TValueContext WriteString(const TStringBuf& s);
+        TValueContext WriteString(const std::string_view& s, EHtmlEscapeMode hem);
+        TValueContext WriteString(const std::string_view& s);
         TValueContext WriteInt(int i);
         TValueContext WriteLongLong(long long i);
         TValueContext WriteULongLong(unsigned long long i);
@@ -60,15 +55,15 @@ namespace NJsonWriter {
         TBuf& EndList();
 
         TPairContext BeginObject();
-        TAfterColonContext WriteKey(const TStringBuf& key, EHtmlEscapeMode hem);
-        TAfterColonContext WriteKey(const TStringBuf& key);
-        TAfterColonContext UnsafeWriteKey(const TStringBuf& key);
+        TAfterColonContext WriteKey(const std::string_view& key, EHtmlEscapeMode hem);
+        TAfterColonContext WriteKey(const std::string_view& key);
+        TAfterColonContext UnsafeWriteKey(const std::string_view& key);
         bool KeyExpected() const {
             return Stack.back() == JE_OBJECT;
         }
 
         //! deprecated, do not use in new code
-        TAfterColonContext CompatWriteKeyWithoutQuotes(const TStringBuf& key);
+        TAfterColonContext CompatWriteKeyWithoutQuotes(const std::string_view& key);
 
         TBuf& EndObject();
 
@@ -87,10 +82,10 @@ namespace NJsonWriter {
             return *this;
         }
 
-        /*** Return the string formed in the internal TStringStream.
+        /*** Return the string formed in the internal std::stringStream.
            * You may only call it if the `stream' parameter was NULL
            * at construction time.                                        */
-        const TString& Str() const;
+        const std::string& Str() const;
 
         /*** Dump and forget the string constructed so far.
            * You may only call it if the `stream' parameter was NULL
@@ -104,7 +99,7 @@ namespace NJsonWriter {
            * j.UnsafeWriteValue("[1, 2, 3, \"o'clock\", 4, \"o'clock rock\"]");
            *
            * As in all of the Unsafe* functions, no escaping is done.     */
-        void UnsafeWriteValue(const TStringBuf& s);
+        void UnsafeWriteValue(const std::string_view& s);
         void UnsafeWriteValue(const char* s, size_t len);
 
         /*** When in the context of an object, write a literal string
@@ -116,10 +111,10 @@ namespace NJsonWriter {
            * j.EndObject();
            *
            * As in all of the Unsafe* functions, no escaping is done.     */
-        TPairContext UnsafeWritePair(const TStringBuf& s);
+        TPairContext UnsafeWritePair(const std::string_view& s);
 
         /*** Copy the supplied string directly into the output stream.    */
-        void UnsafeWriteRawBytes(const TStringBuf& s);
+        void UnsafeWriteRawBytes(const std::string_view& s);
         void UnsafeWriteRawBytes(const char* c, size_t len);
 
         TBufState State() const;
@@ -132,7 +127,7 @@ namespace NJsonWriter {
         void BeginKey();
         void RawWriteChar(char c);
         bool EscapedWriteChar(const char* b, const char* c, EHtmlEscapeMode hem);
-        void WriteBareString(const TStringBuf s, EHtmlEscapeMode hem);
+        void WriteBareString(const std::string_view s, EHtmlEscapeMode hem);
         void WriteComma();
         void PrintIndentation(bool closing);
         void PrintWhitespaces(size_t count, bool prependWithNewLine);
@@ -149,7 +144,7 @@ namespace NJsonWriter {
     private:
         IOutputStream* Stream;
         THolder<TStringStream> StringStream;
-        typedef std::vector<const TString*> TKeys;
+        typedef std::vector<const std::string*> TKeys;
         TKeys Keys;
 
         std::vector<EJsonEntity> Stack;
@@ -166,8 +161,8 @@ namespace NJsonWriter {
     class TValueWriter {
     public:
         TOutContext WriteNull();
-        TOutContext WriteString(const TStringBuf&);
-        TOutContext WriteString(const TStringBuf& s, EHtmlEscapeMode hem);
+        TOutContext WriteString(const std::string_view&);
+        TOutContext WriteString(const std::string_view& s, EHtmlEscapeMode hem);
         TOutContext WriteInt(int);
         TOutContext WriteLongLong(long long);
         TOutContext WriteULongLong(unsigned long long);
@@ -177,7 +172,7 @@ namespace NJsonWriter {
         TOutContext WriteDouble(double);
         TOutContext WriteDouble(double, EFloatToStringMode, int ndigits);
         TOutContext WriteJsonValue(const NJson::TJsonValue* value, bool sortKeys = false);
-        TOutContext UnsafeWriteValue(const TStringBuf&);
+        TOutContext UnsafeWriteValue(const std::string_view&);
 
         TValueContext BeginList();
         TPairContext BeginObject();
@@ -198,7 +193,7 @@ namespace NJsonWriter {
         TBuf& EndList() {
             return Buf.EndList();
         }
-        TString Str() const {
+        std::string Str() const {
             return Buf.Str();
         }
 
@@ -223,19 +218,19 @@ namespace NJsonWriter {
 
     class TPairContext {
     public:
-        TAfterColonContext WriteKey(const TStringBuf& s, EHtmlEscapeMode hem) {
+        TAfterColonContext WriteKey(const std::string_view& s, EHtmlEscapeMode hem) {
             return Buf.WriteKey(s, hem);
         }
-        TAfterColonContext WriteKey(const TStringBuf& s) {
+        TAfterColonContext WriteKey(const std::string_view& s) {
             return Buf.WriteKey(s);
         }
-        TAfterColonContext UnsafeWriteKey(const TStringBuf& s) {
+        TAfterColonContext UnsafeWriteKey(const std::string_view& s) {
             return Buf.UnsafeWriteKey(s);
         }
-        TAfterColonContext CompatWriteKeyWithoutQuotes(const TStringBuf& s) {
+        TAfterColonContext CompatWriteKeyWithoutQuotes(const std::string_view& s) {
             return Buf.CompatWriteKeyWithoutQuotes(s);
         }
-        TPairContext UnsafeWritePair(const TStringBuf& s) {
+        TPairContext UnsafeWritePair(const std::string_view& s) {
             return Buf.UnsafeWritePair(s);
         }
         TBuf& EndObject() {
@@ -263,8 +258,8 @@ namespace NJsonWriter {
     }
 
     JSON_VALUE_WRITER_WRAP(WriteNull, (), ())
-    JSON_VALUE_WRITER_WRAP(WriteString, (const TStringBuf& arg), (arg))
-    JSON_VALUE_WRITER_WRAP(WriteString, (const TStringBuf& s, EHtmlEscapeMode hem), (s, hem))
+    JSON_VALUE_WRITER_WRAP(WriteString, (const std::string_view& arg), (arg))
+    JSON_VALUE_WRITER_WRAP(WriteString, (const std::string_view& s, EHtmlEscapeMode hem), (s, hem))
     JSON_VALUE_WRITER_WRAP(WriteInt, (int arg), (arg))
     JSON_VALUE_WRITER_WRAP(WriteLongLong, (long long arg), (arg))
     JSON_VALUE_WRITER_WRAP(WriteULongLong, (unsigned long long arg), (arg))
@@ -274,7 +269,7 @@ namespace NJsonWriter {
     JSON_VALUE_WRITER_WRAP(WriteDouble, (double arg), (arg))
     JSON_VALUE_WRITER_WRAP(WriteDouble, (double arg, EFloatToStringMode mode, int ndigits), (arg, mode, ndigits))
     JSON_VALUE_WRITER_WRAP(WriteJsonValue, (const NJson::TJsonValue* value, bool sortKeys), (value, sortKeys))
-    JSON_VALUE_WRITER_WRAP(UnsafeWriteValue, (const TStringBuf& arg), (arg))
+    JSON_VALUE_WRITER_WRAP(UnsafeWriteValue, (const std::string_view& arg), (arg))
 #undef JSON_VALUE_WRITER_WRAP
 
     template <typename TOutContext>
@@ -287,5 +282,5 @@ namespace NJsonWriter {
         return Buf.BeginObject();
     }
 
-    TString WrapJsonToCallback(const TBuf& buf, TStringBuf callback);
+    std::string WrapJsonToCallback(const TBuf& buf, std::string_view callback);
 }

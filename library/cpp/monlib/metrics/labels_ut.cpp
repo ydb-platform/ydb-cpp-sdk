@@ -93,9 +93,9 @@ Y_UNIT_TEST_SUITE(TLabelsTest) {
 
     Y_UNIT_TEST(Labels) {
         TLabels labels;
-        UNIT_ASSERT(labels.Add(TStringBuf("name1"), TStringBuf("value1")));
+        UNIT_ASSERT(labels.Add(std::string_view("name1"), std::string_view("value1")));
         UNIT_ASSERT(labels.Size() == 1);
-        UNIT_ASSERT(labels.Has(TStringBuf("name1")));
+        UNIT_ASSERT(labels.Has(std::string_view("name1")));
         {
             auto l = labels.Find("name1");
             UNIT_ASSERT(l.Defined());
@@ -108,12 +108,12 @@ Y_UNIT_TEST_SUITE(TLabelsTest) {
         }
 
         // duplicated name
-        UNIT_ASSERT(!labels.Add(TStringBuf("name1"), TStringBuf("value2")));
+        UNIT_ASSERT(!labels.Add(std::string_view("name1"), std::string_view("value2")));
         UNIT_ASSERT(labels.Size() == 1);
 
-        UNIT_ASSERT(labels.Add(TStringBuf("name2"), TStringBuf("value2")));
+        UNIT_ASSERT(labels.Add(std::string_view("name2"), std::string_view("value2")));
         UNIT_ASSERT(labels.Size() == 2);
-        UNIT_ASSERT(labels.Has(TStringBuf("name2")));
+        UNIT_ASSERT(labels.Has(std::string_view("name2")));
         {
             auto l = labels.Find("name2");
             UNIT_ASSERT(l.Defined());
@@ -151,13 +151,13 @@ Y_UNIT_TEST_SUITE(TLabelsTest) {
 
     Y_UNIT_TEST(MakeEmptyLabels) {
         {
-            auto labels = MakeLabels<TString>();
+            auto labels = MakeLabels<std::string>();
             UNIT_ASSERT(labels);
             UNIT_ASSERT(labels->Empty());
             UNIT_ASSERT_VALUES_EQUAL(labels->Size(), 0);
         }
         {
-            auto labels = MakeLabels<TStringBuf>();
+            auto labels = MakeLabels<std::string_view>();
             UNIT_ASSERT(labels);
             UNIT_ASSERT(labels->Empty());
             UNIT_ASSERT_VALUES_EQUAL(labels->Size(), 0);
@@ -165,7 +165,7 @@ Y_UNIT_TEST_SUITE(TLabelsTest) {
     }
 
     Y_UNIT_TEST(MakeLabelsFromInitializerList) {
-        auto labels = MakeLabels<TString>({{"my", "label"}});
+        auto labels = MakeLabels<std::string>({{"my", "label"}});
         UNIT_ASSERT(labels);
         UNIT_ASSERT(!labels->Empty());
         UNIT_ASSERT_VALUES_EQUAL(labels->Size(), 1);

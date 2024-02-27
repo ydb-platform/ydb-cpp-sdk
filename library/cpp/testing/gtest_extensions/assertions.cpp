@@ -6,9 +6,9 @@
 
 namespace NGTest::NInternal {
     namespace {
-        void FormatActual(const std::exception& err, const TBackTrace* bt, TStringBuilder& out) {
+        void FormatActual(const std::exception& err, const TBackTrace* bt, TYdbStringBuilder& out) {
             out << "an exception of type " << TypeName(err) << " "
-                << "with message " << TString(err.what()).Quote() << ".";
+                << "with message " << std::string(err.what()).Quote() << ".";
             if (bt) {
                 out << "\n   Trace: ";
                 for (auto& line: StringSplitter(bt->PrintToString()).Split('\n')) {
@@ -17,7 +17,7 @@ namespace NGTest::NInternal {
             }
         }
 
-        void FormatActual(TStringBuilder& out) {
+        void FormatActual(TYdbStringBuilder& out) {
             out << "  Actual: it throws ";
             auto exceptionPtr = std::current_exception();
             if (exceptionPtr) {
@@ -37,9 +37,9 @@ namespace NGTest::NInternal {
             out << "nothing.";
         }
 
-        void FormatExpected(const char* statement, const char* type, const TString& contains, TStringBuilder& out) {
+        void FormatExpected(const char* statement, const char* type, const std::string& contains, TYdbStringBuilder& out) {
             out << "Expected: ";
-            if (TStringBuf(statement).size() > 80) {
+            if (std::string_view(statement).size() > 80) {
                 out << "statement";
             } else {
                 out << statement;
@@ -54,12 +54,12 @@ namespace NGTest::NInternal {
         }
     }
 
-    TString FormatErrorWrongException(const char* statement, const char* type) {
+    std::string FormatErrorWrongException(const char* statement, const char* type) {
         return FormatErrorWrongException(statement, type, "");
     }
 
-    TString FormatErrorWrongException(const char* statement, const char* type, TString contains) {
-        TStringBuilder out;
+    std::string FormatErrorWrongException(const char* statement, const char* type, std::string contains) {
+        TYdbStringBuilder out;
 
         FormatExpected(statement, type, contains, out);
         out << "\n";
@@ -68,11 +68,11 @@ namespace NGTest::NInternal {
         return out;
     }
 
-    TString FormatErrorUnexpectedException(const char* statement) {
-        TStringBuilder out;
+    std::string FormatErrorUnexpectedException(const char* statement) {
+        TYdbStringBuilder out;
 
         out << "Expected: ";
-        if (TStringBuf(statement).size() > 80) {
+        if (std::string_view(statement).size() > 80) {
             out << "statement";
         } else {
             out << statement;
@@ -84,7 +84,7 @@ namespace NGTest::NInternal {
         return out;
     }
 
-    bool ExceptionMessageContains(const std::exception& err, TString contains) {
-        return TStringBuf(err.what()).Contains(contains);
+    bool ExceptionMessageContains(const std::exception& err, std::string contains) {
+        return std::string_view(err.what()).Contains(contains);
     }
 }

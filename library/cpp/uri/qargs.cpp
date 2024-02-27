@@ -5,9 +5,9 @@
 namespace NUri {
     namespace NOnStackArgsList {
         struct TQArgNode {
-            TStringBuf Name;
-            TStringBuf Value;
-            TStringBuf All;
+            std::string_view Name;
+            std::string_view Value;
+            std::string_view All;
         };
 
         const char* SkipDelimiter(const char* str, const char* end) {
@@ -26,28 +26,28 @@ namespace NUri {
             const char* valueStart = strchr(pos, '=');
             if (valueStart && nextArg && valueStart < nextArg) // a=1& or a=&
             {
-                arg.Name = TStringBuf(nameStart, valueStart - nameStart);
-                arg.Value = TStringBuf(valueStart + 1, nextArg - valueStart - 1);
-                arg.All = TStringBuf(nameStart, nextArg - nameStart);
+                arg.Name = std::string_view(nameStart, valueStart - nameStart);
+                arg.Value = std::string_view(valueStart + 1, nextArg - valueStart - 1);
+                arg.All = std::string_view(nameStart, nextArg - nameStart);
                 return nextArg;
             } else if (valueStart && nextArg && valueStart > nextArg) // a&b=2
             {
-                arg.Name = TStringBuf(nameStart, nextArg - nameStart);
+                arg.Name = std::string_view(nameStart, nextArg - nameStart);
                 arg.All = arg.Name;
                 return nextArg;
             } else if (valueStart && !nextArg) // a=1 or a=
             {
-                arg.Name = TStringBuf(nameStart, valueStart - nameStart);
-                arg.Value = TStringBuf(valueStart + 1, end - valueStart - 1);
-                arg.All = TStringBuf(nameStart, end - nameStart);
+                arg.Name = std::string_view(nameStart, valueStart - nameStart);
+                arg.Value = std::string_view(valueStart + 1, end - valueStart - 1);
+                arg.All = std::string_view(nameStart, end - nameStart);
                 return end;
             } else if (!valueStart && nextArg) // a&b
             {
-                arg.Name = TStringBuf(nameStart, nextArg - nameStart);
+                arg.Name = std::string_view(nameStart, nextArg - nameStart);
                 arg.All = arg.Name;
                 return nextArg;
             } else { // a
-                arg.Name = TStringBuf(nameStart, end - nameStart);
+                arg.Name = std::string_view(nameStart, end - nameStart);
                 arg.All = arg.Name;
                 return end;
             }
@@ -66,7 +66,7 @@ namespace NUri {
         }
 
         TQueryArg::EProcessed Process() {
-            const TStringBuf& query = Subject.GetField(NUri::TField::FieldQuery);
+            const std::string_view& query = Subject.GetField(NUri::TField::FieldQuery);
             if (query.empty())
                 return ProcessEmpty();
 

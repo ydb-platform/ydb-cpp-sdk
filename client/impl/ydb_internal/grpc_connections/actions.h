@@ -128,7 +128,7 @@ public:
         TPlainStatus status(GRpcStatus_, Endpoint_, {});
 
         if (!Endpoint_.empty()) {
-            TStringType msg = "Grpc error response on endpoint ";
+            std::string msg = "Grpc error response on endpoint ";
             msg += Endpoint_;
             status.Issues.AddIssue(NYql::TIssue(msg));
         }
@@ -155,7 +155,7 @@ public:
             TGRpcConnectionsImpl* connections,
             std::shared_ptr<IQueueClientContext> context,
             const std::string& endpoint,
-            std::multimap<TStringType, TStringType>&& metadata)
+            std::multimap<std::string, std::string>&& metadata)
         : TGenericCbHolder<TResponseCb<TResponse>>(std::move(userCb), connections, std::move(context))
         , Response_(std::move(response))
         , GRpcStatus_(std::move(status))
@@ -171,7 +171,7 @@ private:
     TResponse Response_;
     NYdbGrpc::TGrpcStatus GRpcStatus_;
     const std::string Endpoint_;
-    std::multimap<TStringType, TStringType> Metadata_;
+    std::multimap<std::string, std::string> Metadata_;
 };
 
 class TSimpleCbResult
@@ -195,13 +195,13 @@ public:
     using TPtr = TIntrusivePtr<TDeferredAction>;
 
     TDeferredAction(
-        const TStringType& operationId,
+        const std::string& operationId,
         TDeferredOperationCb&& userCb,
         TGRpcConnectionsImpl* connection,
         std::shared_ptr<IQueueClientContext> context,
         TDuration timeout,
         TDbDriverStatePtr dbState,
-        const TStringType& endpoint);
+        const std::string& endpoint);
 
     void OnAlarm() override;
     void OnError() override;
@@ -209,8 +209,8 @@ public:
 private:
     TDuration NextDelay_;
     TDbDriverStatePtr DbDriverState_;
-    const TStringType OperationId_;
-    const TStringType Endpoint_;
+    const std::string OperationId_;
+    const std::string Endpoint_;
 };
 
 class TPeriodicAction

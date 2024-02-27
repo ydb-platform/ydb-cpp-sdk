@@ -3,7 +3,6 @@
 #include <util/stream/output.h>
 
 #include <utility>
-#include <util/generic/strbuf.h>
 
 template <class T>
 struct TDumper {
@@ -45,10 +44,10 @@ struct TDumpBase: public ::NDumpPrivate::TADLBase {
     void Char(char ch);
     void Char(wchar16 ch);
 
-    void String(const TStringBuf& s);
-    void String(const TWtringBuf& s);
+    void String(const std::string_view& s);
+    void String(const std::wstring_view& s);
 
-    void Raw(const TStringBuf& s);
+    void Raw(const std::string_view& s);
 
     IOutputStream* Out;
     size_t IndentLevel;
@@ -71,11 +70,11 @@ struct TIndentScope {
 
 template <class TChar>
 struct TRawLiteral {
-    const TBasicStringBuf<TChar> S;
+    const std::basic_string_view<TChar> S;
 };
 
 template <class TChar>
-static inline TRawLiteral<TChar> DumpRaw(const TBasicStringBuf<TChar>& s) noexcept {
+static inline TRawLiteral<TChar> DumpRaw(const std::basic_string_view<TChar>& s) noexcept {
     return {s};
 }
 
@@ -104,7 +103,7 @@ struct TDumper<TIndentNewLine> {
     template <class S>
     static inline void Dump(S& s, const TIndentNewLine&) {
         if (s.Indent) {
-            s << DumpRaw("\n") << DumpRaw(TString(s.IndentLevel * 4, ' ').data());
+            s << DumpRaw("\n") << DumpRaw(std::string(s.IndentLevel * 4, ' ').data());
         }
     }
 };

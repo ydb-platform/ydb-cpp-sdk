@@ -119,7 +119,7 @@ namespace {
 }
 
 
-TInt128 FromString(const TStringBuf& str, ui8 precision, ui8 scale) {
+TInt128 FromString(const std::string_view& str, ui8 precision, ui8 scale) {
     if (scale > precision)
         return Err();
 
@@ -205,7 +205,7 @@ TInt128 FromString(const TStringBuf& str, ui8 precision, ui8 scale) {
     return neg ? -v : v;
 }
 
-TInt128 FromStringEx(const TStringBuf& str, ui8 precision, ui8 scale) {
+TInt128 FromStringEx(const std::string_view& str, ui8 precision, ui8 scale) {
     if (scale > precision)
         return Err();
 
@@ -222,10 +222,9 @@ TInt128 FromStringEx(const TStringBuf& str, ui8 precision, ui8 scale) {
                 return Err();
 
             const int p = precision, s = int(scale) + exp;
-
             const auto r = exp > 0 ?
-                FromString(str.Head(len), precision, std::min(s, p)):
-                FromString(str.Head(len), std::min(p - exp, int(MaxPrecision)), std::max(s, 0));
+                FromString(str.substr(0, len), precision, std::min(s, p)):
+                FromString(str.substr(0, len), std::min(p - exp, int(MaxPrecision)), std::max(s, 0));
 
             if (IsNan(r)) {
                 return Err();
@@ -247,7 +246,7 @@ TInt128 FromStringEx(const TStringBuf& str, ui8 precision, ui8 scale) {
     return FromString(str, precision, scale);
 }
 
-bool IsValid(const TStringBuf& str) {
+bool IsValid(const std::string_view& str) {
     auto s = str.data();
     auto l = str.size();
 

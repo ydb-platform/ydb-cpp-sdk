@@ -21,16 +21,16 @@ namespace NJson {
         virtual bool OnInteger(long long);
         virtual bool OnUInteger(unsigned long long);
         virtual bool OnDouble(double);
-        virtual bool OnString(const TStringBuf&);
+        virtual bool OnString(const std::string_view&);
         virtual bool OnOpenMap();
-        virtual bool OnMapKey(const TStringBuf&);
+        virtual bool OnMapKey(const std::string_view&);
         virtual bool OnCloseMap();
         virtual bool OnOpenArray();
         virtual bool OnCloseArray();
-        virtual bool OnStringNoCopy(const TStringBuf& s);
-        virtual bool OnMapKeyNoCopy(const TStringBuf& s);
+        virtual bool OnStringNoCopy(const std::string_view& s);
+        virtual bool OnMapKeyNoCopy(const std::string_view& s);
         virtual bool OnEnd();
-        virtual void OnError(size_t off, TStringBuf reason);
+        virtual void OnError(size_t off, std::string_view reason);
 
         bool GetHaveErrors() const {
             return HaveErrors;

@@ -6,8 +6,8 @@ namespace NYT {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FormatValue(TStringBuilderBase* builder, TGuid value, TStringBuf /*format*/);
-TString ToString(TGuid guid);
+void FormatValue(TStringBuilderBase* builder, TGuid value, std::string_view /*format*/);
+std::string ToString(TGuid guid);
 
 ////////////////////////////////////////////////////////////////////////////////
 

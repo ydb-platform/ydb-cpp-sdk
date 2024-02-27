@@ -255,7 +255,7 @@ void TCoroTest::TestSimpleX3() {
     UNIT_ASSERT_EQUAL(runner.Runs, 1000);
 }
 
-static TString res;
+static std::string res;
 static TContMutex mutex;
 
 static void CoMutex(TCont* c, void* /*run*/) {
@@ -512,7 +512,7 @@ namespace NCoroWaitWakeLivelockBug {
     struct TSubState {
         TSubState(TState& parent, ui32 self)
             : Parent(parent)
-            , Name(TStringBuilder() << "Sub" << self)
+            , Name(TYdbStringBuilder() << "Sub" << self)
             , Self(self)
         {
             UNIT_ASSERT(self < 2);
@@ -523,7 +523,7 @@ namespace NCoroWaitWakeLivelockBug {
         TState& Parent;
         TTimerEvent* Event = nullptr;
         TCont* Cont = nullptr;
-        TString Name;
+        std::string Name;
         ui32 Self = -1;
     };
 
@@ -600,14 +600,14 @@ namespace NCoroTestFastPathWake {
     struct TSubState {
         TSubState(TState& parent, ui32 self)
             : Parent(parent)
-            , Name(TStringBuilder() << "Sub" << self)
+            , Name(TYdbStringBuilder() << "Sub" << self)
         {}
 
         TState& Parent;
         TInstant Finish;
         TTimerEvent* Event = nullptr;
         TCont* Cont = nullptr;
-        TString Name;
+        std::string Name;
     };
 
     struct TState {
@@ -1017,7 +1017,7 @@ void TCoroTest::TestOverrideTime() {
 void TCoroTest::TestCancelWithException() {
     TContExecutor exec(32000);
 
-    TString excText = "test exception";
+    std::string excText = "test exception";
     THolder<std::exception> excep = MakeHolder<yexception>(yexception() << excText);
     std::exception* excPtr = excep.Get();
 

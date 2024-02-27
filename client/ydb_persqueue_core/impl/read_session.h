@@ -139,7 +139,7 @@ public:
     void DeferStartExecutorTask(const typename IAExecutor<UseMigrationProtocol>::TPtr& executor, typename IAExecutor<UseMigrationProtocol>::TFunction task);
     void DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, TASessionClosedEvent<UseMigrationProtocol>&& closeEvent);
     void DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, EStatus statusCode, NYql::TIssues&& issues);
-    void DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, EStatus statusCode, const TString& message);
+    void DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, EStatus statusCode, const std::string& message);
     void DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, TPlainStatus&& status);
     void DeferReconnection(TCallbackContextPtr<UseMigrationProtocol> cbContext, TPlainStatus&& status);
     void DeferStartSession(TCallbackContextPtr<UseMigrationProtocol> cbContext);
@@ -546,8 +546,8 @@ template <bool UseMigrationProtocol>
 class TPartitionStreamImpl : public TAPartitionStream<UseMigrationProtocol> {
 public:
     struct TKey { // Hash<TKey> is defined later in this file.
-        TString Topic;
-        TString Cluster;
+        std::string Topic;
+        std::string Cluster;
         ui64 Partition;
 
         bool operator==(const TKey& other) const {
@@ -560,8 +560,8 @@ public:
 
     template <bool V = UseMigrationProtocol, class = std::enable_if_t<V>>
     TPartitionStreamImpl(ui64 partitionStreamId,
-                         TString topicPath,
-                         TString cluster,
+                         std::string topicPath,
+                         std::string cluster,
                          ui64 partitionGroupId,
                          ui64 partitionId,
                          ui64 assignId,
@@ -582,7 +582,7 @@ public:
 
     template <bool V = UseMigrationProtocol, class = std::enable_if_t<!V>>
     TPartitionStreamImpl(ui64 partitionStreamId,
-                         TString topicPath,
+                         std::string topicPath,
                          i64 partitionId,
                          i64 assignId,
                          i64 readOffset,
@@ -704,7 +704,7 @@ public:
                     return this->PartitionSessionId;
                 }
             }();
-            ThrowFatalError(TStringBuilder() << "Invalid offset range [" << startOffset << ", " << endOffset << ") : range must start from "
+            ThrowFatalError(NUtils::TYdbStringBuilder() << "Invalid offset range [" << startOffset << ", " << endOffset << ") : range must start from "
                                              << MaxCommittedOffset << " or has some offsets that are committed already. Partition stream id: -" << id << Endl);
             return false;
         }
@@ -896,7 +896,7 @@ private:
 template <>
 struct THash<NYdb::NPersQueue::TPartitionStreamImpl<false>::TKey> {
     size_t operator()(const NYdb::NPersQueue::TPartitionStreamImpl<false>::TKey& key) const {
-        THash<TString> strHash;
+        THash<std::string> strHash;
         const size_t h1 = strHash(key.Topic);
         const size_t h2 = NumericHash(key.Partition);
         return CombineHashes(h1, h2);
@@ -906,7 +906,7 @@ struct THash<NYdb::NPersQueue::TPartitionStreamImpl<false>::TKey> {
 template <>
 struct THash<NYdb::NPersQueue::TPartitionStreamImpl<true>::TKey> {
     size_t operator()(const NYdb::NPersQueue::TPartitionStreamImpl<true>::TKey& key) const {
-        THash<TString> strHash;
+        THash<std::string> strHash;
         const size_t h1 = strHash(key.Topic);
         const size_t h2 = strHash(key.Cluster);
         const size_t h3 = NumericHash(key.Partition);
@@ -933,9 +933,9 @@ public:
 
     TSingleClusterReadSessionImpl(
         const TAReadSessionSettings<UseMigrationProtocol>& settings,
-        const TString& database,
-        const TString& sessionId,
-        const TString& clusterName,
+        const std::string& database,
+        const std::string& sessionId,
+        const std::string& clusterName,
         const TLog& log,
         std::shared_ptr<IReadSessionConnectionProcessorFactory<UseMigrationProtocol>> connectionFactory,
         std::shared_ptr<TReadSessionEventsQueue<UseMigrationProtocol>> eventsQueue,
@@ -985,7 +985,7 @@ public:
         AbortSession(TASessionClosedEvent<UseMigrationProtocol>(statusCode, std::move(issues)));
     }
 
-    void AbortSession(EStatus statusCode, const TString& message) {
+    void AbortSession(EStatus statusCode, const std::string& message) {
         NYql::TIssues issues;
         issues.AddIssue(message);
         AbortSession(statusCode, std::move(issues));
@@ -1003,7 +1003,7 @@ public:
     void DumpStatisticsToLog(TLogElement& log);
     void UpdateMemoryUsageStatistics();
 
-    TStringBuilder GetLogPrefix() const;
+    NUtils::TYdbStringBuilder GetLogPrefix() const;
 
     const TLog& GetLog() const {
         return Log;
@@ -1016,7 +1016,7 @@ private:
         BreakConnectionAndReconnectImpl(TPlainStatus(statusCode, std::move(issues)), deferred);
     }
 
-    void BreakConnectionAndReconnectImpl(EStatus statusCode, const TString& message, TDeferredActions<UseMigrationProtocol>& deferred) {
+    void BreakConnectionAndReconnectImpl(EStatus statusCode, const std::string& message, TDeferredActions<UseMigrationProtocol>& deferred) {
         BreakConnectionAndReconnectImpl(TPlainStatus(statusCode, message), deferred);
     }
 
@@ -1152,9 +1152,9 @@ private:
 
 private:
     const TAReadSessionSettings<UseMigrationProtocol> Settings;
-    const TString Database;
-    const TString SessionId;
-    const TString ClusterName;
+    const std::string Database;
+    const std::string SessionId;
+    const std::string ClusterName;
     TLog Log;
     ui64 NextPartitionStreamId;
     ui64 PartitionStreamIdStep;
@@ -1199,15 +1199,15 @@ private:
 class TReadSession : public IReadSession,
                      public std::enable_shared_from_this<TReadSession> {
     struct TClusterSessionInfo {
-        TClusterSessionInfo(const TString& cluster)
+        TClusterSessionInfo(const std::string& cluster)
             : ClusterName(cluster)
         {
         }
 
-        TString ClusterName; // In lower case
+        std::string ClusterName; // In lower case
         TSingleClusterReadSessionImpl<true>::TPtr Session;
         std::vector<TTopicReadSettings> Topics;
-        TString ClusterEndpoint;
+        std::string ClusterEndpoint;
     };
 
 public:
@@ -1226,7 +1226,7 @@ public:
 
     bool Close(TDuration timeout) override;
 
-    TString GetSessionId() const override {
+    std::string GetSessionId() const override {
         return SessionId;
     }
 
@@ -1240,13 +1240,13 @@ public:
         ThrowFatalError("Method \"AddTopic\" is not implemented");
     }
 
-    void RemoveTopic(const TString& path) /*override*/ {
+    void RemoveTopic(const std::string& path) /*override*/ {
         Y_UNUSED(path);
         // TODO: implement.
         ThrowFatalError("Method \"RemoveTopic\" is not implemented");
     }
 
-    void RemoveTopic(const TString& path, const std::vector<ui64>& partitionGruops) /*override*/ {
+    void RemoveTopic(const std::string& path, const std::vector<ui64>& partitionGruops) /*override*/ {
         Y_UNUSED(path);
         Y_UNUSED(partitionGruops);
         // TODO: implement.
@@ -1261,7 +1261,7 @@ public:
     void ClearAllEvents();
 
 private:
-    TStringBuilder GetLogPrefix() const;
+    NUtils::TYdbStringBuilder GetLogPrefix() const;
 
     // Start
     bool ValidateSettings();
@@ -1277,14 +1277,14 @@ private:
     void AbortImpl(TDeferredActions<true>& deferred);
     void AbortImpl(TSessionClosedEvent&& closeEvent, TDeferredActions<true>& deferred);
     void AbortImpl(EStatus statusCode, NYql::TIssues&& issues, TDeferredActions<true>& deferred);
-    void AbortImpl(EStatus statusCode, const TString& message, TDeferredActions<true>& deferred);
+    void AbortImpl(EStatus statusCode, const std::string& message, TDeferredActions<true>& deferred);
 
     void MakeCountersIfNeeded();
     void SetupCountersLogger();
 
 private:
     TReadSessionSettings Settings;
-    const TString SessionId;
+    const std::string SessionId;
     const TInstant StartSessionTime = TInstant::Now();
     TLog Log;
     std::shared_ptr<TPersQueueClient::TImpl> Client;
@@ -1292,7 +1292,7 @@ private:
     TDbDriverStatePtr DbDriverState;
     TAdaptiveLock Lock;
     std::shared_ptr<TReadSessionEventsQueue<true>> EventsQueue;
-    THashMap<TString, TClusterSessionInfo> ClusterSessions; // Cluster name (in lower case) -> TClusterSessionInfo
+    THashMap<std::string, TClusterSessionInfo> ClusterSessions; // Cluster name (in lower case) -> TClusterSessionInfo
     NYdbGrpc::IQueueClientContextPtr ClusterDiscoveryDelayContext;
     IRetryPolicy::IRetryState::TPtr ClusterDiscoveryRetryState;
     bool DataReadingSuspended = false;

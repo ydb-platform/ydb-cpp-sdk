@@ -76,8 +76,8 @@ namespace NYson {
         }
     }
 
-    TString TokenTypeToString(ETokenType type) {
-        return TString(1, TokenTypeToChar(type));
+    std::string TokenTypeToString(ETokenType type) {
+        return std::string(1, TokenTypeToChar(type));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ namespace NYson {
         }
     }
 
-    TToken::TToken(const TStringBuf& stringValue)
+    TToken::TToken(const std::string_view& stringValue)
         : Type_(ETokenType::String)
         , StringValue(stringValue)
         , Int64Value(0)
@@ -160,7 +160,7 @@ namespace NYson {
         return Type_ == ETokenType::EndOfStream;
     }
 
-    const TStringBuf& TToken::GetStringValue() const {
+    const std::string_view& TToken::GetStringValue() const {
         CheckType(ETokenType::String);
         return StringValue;
     }
@@ -202,17 +202,17 @@ namespace NYson {
         Int64Value = 0;
         Uint64Value = 0;
         DoubleValue = 0.0;
-        StringValue = TStringBuf();
+        StringValue = std::string_view();
         BooleanValue = false;
     }
 
-    TString ToString(const TToken& token) {
+    std::string ToString(const TToken& token) {
         switch (token.GetType()) {
             case ETokenType::EndOfStream:
-                return TString();
+                return std::string();
 
             case ETokenType::String:
-                return TString(token.GetStringValue());
+                return std::string(token.GetStringValue());
 
             case ETokenType::Int64:
                 return ::ToString(token.GetInt64Value());

@@ -17,15 +17,15 @@ TEST(TChunkedMemoryPoolTest, Absorb)
     TChunkedMemoryPool second;
     TChunkedMemoryPool third;
 
-    std::vector<std::pair<TStringBuf, TString>> tests;
+    std::vector<std::pair<std::string_view, std::string>> tests;
     size_t totalSize = 0;
 
-    auto fillPool = [&] (TChunkedMemoryPool& pool, TString prefix, int count) {
+    auto fillPool = [&] (TChunkedMemoryPool& pool, std::string prefix, int count) {
         for (int i = 0; i < count; i++) {
-            TString expected = prefix + ToString(count);
+            std::string expected = prefix + ToString(count);
             char* buf = pool.AllocateUnaligned(expected.Size());
             ::memcpy(buf, expected.c_str(), expected.size());
-            TStringBuf ref(buf, buf + expected.size());
+            std::string_view ref(buf, buf + expected.size());
             totalSize += expected.size();
             tests.emplace_back(std::move(ref), std::move(expected));
         }

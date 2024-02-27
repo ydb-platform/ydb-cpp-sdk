@@ -14,7 +14,7 @@ void UnTrspChars(const char* s, char* d);
 
 void InvertDomain(char* begin, char* end);
 
-inline TString& InvertDomain(TString& url) {
+inline std::string& InvertDomain(std::string& url) {
     InvertDomain(url.begin(), url.begin() + url.size());
     return url;
 }
@@ -25,7 +25,7 @@ inline void InvertUrl(char* url) {
     InvertUrl(url, url + strlen(url));
 }
 
-inline TString& InvertUrl(TString& url) {
+inline std::string& InvertUrl(std::string& url) {
     InvertUrl(url.begin(), url.begin() + url.size());
     return url;
 }
@@ -36,7 +36,7 @@ inline void RevertUrl(char* url) {
     RevertUrl(url, url + strlen(url));
 }
 
-inline TString& RevertUrl(TString& url) {
+inline std::string& RevertUrl(std::string& url) {
     RevertUrl(url.begin(), url.begin() + url.size());
     return url;
 }

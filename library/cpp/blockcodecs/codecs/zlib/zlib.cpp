@@ -9,7 +9,7 @@ using namespace NBlockCodecs;
 namespace {
     struct TZLibCodec: public TAddLengthCodec<TZLibCodec> {
         inline TZLibCodec(int level)
-            : MyName("zlib-" + ToString(level))
+            : MyName("zlib-" + std::to_string(level))
             , Level(level)
         {
         }
@@ -18,7 +18,7 @@ namespace {
             return compressBound(in);
         }
 
-        TStringBuf Name() const noexcept override {
+        std::string_view Name() const noexcept override {
             return MyName;
         }
 
@@ -48,7 +48,7 @@ namespace {
             }
         }
 
-        const TString MyName;
+        const std::string MyName;
         const int Level;
     };
 

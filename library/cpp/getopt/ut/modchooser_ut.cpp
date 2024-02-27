@@ -53,9 +53,9 @@ Y_UNIT_TEST_SUITE(TModChooserTest) {
             UNIT_ASSERT_EQUAL(static_cast<int>(idx) + 1, chooser.Run(argc, argv));
         }
 
-        // test std::vector<TString> argv
+        // test std::vector<std::string> argv
         for (size_t idx = 0; idx < Y_ARRAY_SIZE(NAMES); ++idx) {
-            const std::vector<TString> argv = {"UNITTEST", NAMES[idx]};
+            const std::vector<std::string> argv = {"UNITTEST", NAMES[idx]};
             UNIT_ASSERT_EQUAL(static_cast<int>(idx) + 1, chooser.Run(argv));
         }
     }

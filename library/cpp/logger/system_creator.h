@@ -14,7 +14,7 @@ protected:
 
 private:
     virtual THolder<TLogBackend> DoCreateLogBackend() const override;
-    TString Ident;
+    std::string Ident;
     TSysLogBackend::EFacility Facility = TSysLogBackend::TSYSLOG_LOCAL0;
     int Flags = 0;
 };

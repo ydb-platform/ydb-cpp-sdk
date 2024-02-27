@@ -34,7 +34,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncCommitTxResult CommitTx(const TString& txId,
+    TAsyncCommitTxResult CommitTx(const std::string& txId,
                                   const TOpSettings& settings = TOpSettings()) {
         auto request = MakeOperationRequest<Ydb::LongTx::CommitTransactionRequest>(settings);
         request.set_tx_id(txId);
@@ -46,7 +46,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncRollbackTxResult RollbackTx(const TString& txId,
+    TAsyncRollbackTxResult RollbackTx(const std::string& txId,
                                       const TOpSettings& settings = TOpSettings()) {
         auto request = MakeOperationRequest<Ydb::LongTx::RollbackTransactionRequest>(settings);
         request.set_tx_id(txId);
@@ -58,8 +58,8 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncWriteResult Write(const TString& txId, const TString& table, const TString& dedupId,
-                            const TString& data, Ydb::LongTx::Data::Format format,
+    TAsyncWriteResult Write(const std::string& txId, const std::string& table, const std::string& dedupId,
+                            const std::string& data, Ydb::LongTx::Data::Format format,
                             const TOpSettings& settings = TOpSettings()) {
         auto request = MakeOperationRequest<Ydb::LongTx::WriteRequest>(settings);
         request.set_tx_id(txId);
@@ -77,7 +77,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncReadResult Read(const TString& txId, const TString& table,
+    TAsyncReadResult Read(const std::string& txId, const std::string& table,
                           const TOpSettings& settings = TOpSettings()) {
         auto request = MakeOperationRequest<Ydb::LongTx::ReadRequest>(settings);
         request.set_tx_id(txId);
@@ -104,20 +104,20 @@ TClient::TAsyncBeginTxResult TClient::BeginReadTx() {
     return Impl_->BeginTx(Ydb::LongTx::BeginTransactionRequest::READ);
 }
 
-TClient::TAsyncCommitTxResult TClient::CommitTx(const TString& txId) {
+TClient::TAsyncCommitTxResult TClient::CommitTx(const std::string& txId) {
     return Impl_->CommitTx(txId);
 }
 
-TClient::TAsyncRollbackTxResult TClient::RollbackTx(const TString& txId) {
+TClient::TAsyncRollbackTxResult TClient::RollbackTx(const std::string& txId) {
     return Impl_->RollbackTx(txId);
 }
 
-TClient::TAsyncWriteResult TClient::Write(const TString& txId, const TString& table, const TString& dedupId,
-                                          const TString& data, Ydb::LongTx::Data::Format format) {
+TClient::TAsyncWriteResult TClient::Write(const std::string& txId, const std::string& table, const std::string& dedupId,
+                                          const std::string& data, Ydb::LongTx::Data::Format format) {
     return Impl_->Write(txId, table, dedupId, data, format);
 }
 
-TClient::TAsyncReadResult TClient::Read(const TString& txId, const TString& table) {
+TClient::TAsyncReadResult TClient::Read(const std::string& txId, const std::string& table) {
     return Impl_->Read(txId, table);
 }
 

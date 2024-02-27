@@ -6,17 +6,17 @@
 #include <contrib/libs/rapidjson/include/rapidjson/error/error.h>
 #include <contrib/libs/rapidjson/include/rapidjson/reader.h>
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/generic/stack.h>
-#include <util/string/cast.h>
 #include <util/system/yassert.h>
-#include <util/string/builder.h>
 
 namespace NJson {
     namespace {
-        TString PrintError(const rapidjson::ParseResult& result) {
-            return TStringBuilder() << TStringBuf("Offset: ") << result.Offset()
-                                    << TStringBuf(", Code: ") << (int)result.Code()
-                                    << TStringBuf(", Error: ") << GetParseError_En(result.Code());
+        std::string PrintError(const rapidjson::ParseResult& result) {
+            return NUtils::TYdbStringBuilder() << "Offset: " << result.Offset()
+                                    << ", Code: " << (int)result.Code()
+                                    << ", Error: " << GetParseError_En(result.Code());
         }
     }
 
@@ -91,7 +91,7 @@ namespace NJson {
         return SetValue(val);
     }
 
-    bool TParserCallbacks::OnString(const TStringBuf& val) {
+    bool TParserCallbacks::OnString(const std::string_view& val) {
         return SetValue(val);
     }
 
@@ -121,7 +121,7 @@ namespace NJson {
         return CloseComplexValue();
     }
 
-    bool TParserCallbacks::OnMapKey(const TStringBuf& val) {
+    bool TParserCallbacks::OnMapKey(const std::string_view& val) {
         switch (CurrentState) {
             case IN_MAP:
                 Key = val;
@@ -264,7 +264,7 @@ namespace NJson {
 
             bool String(const char* str, rapidjson::SizeType length, bool copy) {
                 Y_ASSERT(copy);
-                Set(TStringBuf(str, length));
+                Set(std::string_view(str, length));
                 return true;
             }
 
@@ -282,7 +282,7 @@ namespace NJson {
 
             bool Key(const char* str, rapidjson::SizeType length, bool copy) {
                 Y_ASSERT(copy);
-                auto& value = Access(S.top())[TStringBuf(str, length)];
+                auto& value = Access(S.top())[std::string_view(str, length)];
                 if (Y_UNLIKELY(value.GetType() != JSON_UNDEFINED)) {
 #ifndef NDEBUG
                     ++S.top().DuplicateKeyCount;
@@ -434,7 +434,7 @@ namespace NJson {
 
         template <class TData>
         bool ReadJsonTreeImpl(TData* in, const TJsonReaderConfig* config, TJsonValue* out, bool throwOnError) {
-            std::conditional_t<std::is_same<TData, TStringBuf>::value, TStringBufStreamWrapper, TInputStreamWrapper> is(*in);
+            std::conditional_t<std::is_same<TData, std::string_view>::value, TStringViewStreamWrapper, TInputStreamWrapper> is(*in);
             return ReadJsonTree(is, config, out, throwOnError);
         }
 
@@ -451,15 +451,15 @@ namespace NJson {
         }
     } //namespace
 
-    bool ReadJsonTree(TStringBuf in, TJsonValue* out, bool throwOnError) {
+    bool ReadJsonTree(std::string_view in, TJsonValue* out, bool throwOnError) {
         return ReadJsonTreeImpl(&in, out, throwOnError);
     }
 
-    bool ReadJsonTree(TStringBuf in, bool allowComments, TJsonValue* out, bool throwOnError) {
+    bool ReadJsonTree(std::string_view in, bool allowComments, TJsonValue* out, bool throwOnError) {
         return ReadJsonTreeImpl(&in, allowComments, out, throwOnError);
     }
 
-    bool ReadJsonTree(TStringBuf in, const TJsonReaderConfig* config, TJsonValue* out, bool throwOnError) {
+    bool ReadJsonTree(std::string_view in, const TJsonReaderConfig* config, TJsonValue* out, bool throwOnError) {
         return ReadJsonTreeImpl(&in, config, out, throwOnError);
     }
 
@@ -475,13 +475,13 @@ namespace NJson {
         return ReadJsonTreeImpl(in, config, out, throwOnError);
     }
 
-    bool ReadJsonFastTree(TStringBuf in, TJsonValue* out, bool throwOnError, bool notClosedBracketIsError) {
+    bool ReadJsonFastTree(std::string_view in, TJsonValue* out, bool throwOnError, bool notClosedBracketIsError) {
         TParserCallbacks cb(*out, throwOnError, notClosedBracketIsError);
 
         return ReadJsonFast(in, &cb);
     }
 
-    TJsonValue ReadJsonFastTree(TStringBuf in, bool notClosedBracketIsError) {
+    TJsonValue ReadJsonFastTree(std::string_view in, bool notClosedBracketIsError) {
         TJsonValue value;
         // There is no way to report an error apart from throwing an exception when we return result by value.
         ReadJsonFastTree(in, &value, /* throwOnError = */ true, notClosedBracketIsError);
@@ -544,7 +544,7 @@ namespace NJson {
 
             bool String(const char* str, rapidjson::SizeType length, bool copy) {
                 Y_ASSERT(copy);
-                return Impl.OnString(TStringBuf(str, length));
+                return Impl.OnString(std::string_view(str, length));
             }
 
             bool StartObject() {
@@ -553,7 +553,7 @@ namespace NJson {
 
             bool Key(const char* str, rapidjson::SizeType length, bool copy) {
                 Y_ASSERT(copy);
-                return Impl.OnMapKey(TStringBuf(str, length));
+                return Impl.OnMapKey(std::string_view(str, length));
             }
 
             bool EndObject(rapidjson::SizeType memberCount) {

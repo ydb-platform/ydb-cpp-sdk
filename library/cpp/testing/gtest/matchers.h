@@ -6,7 +6,7 @@
 
 namespace NGTest {
     namespace NDetail {
-        [[nodiscard]] bool MatchOrUpdateGolden(std::string_view actualContent, const TString& goldenFilename);
+        [[nodiscard]] bool MatchOrUpdateGolden(std::string_view actualContent, const std::string& goldenFilename);
     }
 
     /**
@@ -30,7 +30,7 @@ namespace NGTest {
      */
     MATCHER_P(GoldenFileEq, filename, "")
     {
-        if (!NDetail::MatchOrUpdateGolden(std::string_view(arg.data(), arg.size()), TString(filename))) {
+        if (!NDetail::MatchOrUpdateGolden(std::string_view(arg.data(), arg.size()), std::string(filename))) {
             *result_listener
                 << "\nCall `ya m -rA --test-param GTEST_UPDATE_GOLDEN=1` to update the golden file";
             return false;

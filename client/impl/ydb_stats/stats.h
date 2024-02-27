@@ -1,13 +1,10 @@
 #pragma once
 
 #include <client/ydb_types/status_codes.h>
-#include <client/impl/ydb_internal/common/type_switcher.h>
 
 #include <ydb/library/grpc/client/grpc_client_low.h>
 #include <library/cpp/monlib/metrics/metric_registry.h>
 #include <library/cpp/monlib/metrics/histogram_collector.h>
-
-#include <util/string/builder.h>
 
 #include <atomic>
 #include <memory>
@@ -18,8 +15,8 @@ namespace NSdkStats {
 
 // works only for case normal (foo_bar) underscore
 
-inline TStringType UnderscoreToUpperCamel(const TStringType& in) {
-    TStringType result;
+inline std::string UnderscoreToUpperCamel(const std::string& in) {
+    std::string result;
     result.reserve(in.size());
 
     if (in.empty())
@@ -201,29 +198,29 @@ public:
 
         TClientRetryOperationStatCollector() : MetricRegistry_(), Database_() {}
 
-        TClientRetryOperationStatCollector(::NMonitoring::TMetricRegistry* registry, const TStringType& database)
+        TClientRetryOperationStatCollector(::NMonitoring::TMetricRegistry* registry, const std::string& database)
         : MetricRegistry_(registry), Database_(database)
         { }
 
         void IncSyncRetryOperation(const EStatus& status) {
             if (auto registry = MetricRegistry_.Get()) {
-                TString statusName = TStringBuilder() << status;
-                TString sensor = TStringBuilder() << "RetryOperation/" << UnderscoreToUpperCamel(statusName);
+                std::string statusName = NUtils::TYdbStringBuilder() << status;
+                std::string sensor = NUtils::TYdbStringBuilder() << "RetryOperation/" << UnderscoreToUpperCamel(statusName);
                 registry->Rate({ {"database", Database_}, {"sensor", sensor} })->Inc();
             }
         }
 
         void IncAsyncRetryOperation(const EStatus& status) {
             if (auto registry = MetricRegistry_.Get()) {
-                TString statusName = TStringBuilder() << status;
-                TString sensor = TStringBuilder() << "RetryOperation/" << UnderscoreToUpperCamel(statusName);
+                std::string statusName = NUtils::TYdbStringBuilder() << status;
+                std::string sensor = NUtils::TYdbStringBuilder() << "RetryOperation/" << UnderscoreToUpperCamel(statusName);
                 registry->Rate({ {"database", Database_}, {"sensor", sensor} })->Inc();
             }
         }
 
     private:
         TAtomicPointer<::NMonitoring::TMetricRegistry> MetricRegistry_;
-        TStringType Database_;
+        std::string Database_;
     };
 
     struct TClientStatCollector {
@@ -250,7 +247,7 @@ public:
         TClientRetryOperationStatCollector RetryOperationStatCollector;
     };
 
-    TStatCollector(const TStringType& database, TMetricRegistry* sensorsRegistry)
+    TStatCollector(const std::string& database, TMetricRegistry* sensorsRegistry)
         : Database_(database)
         , DatabaseLabel_({"database", database})
     {
@@ -320,7 +317,7 @@ public:
         ResultSize_.Record(size);
     }
 
-    void IncCounter(const TStringType& sensor) {
+    void IncCounter(const std::string& sensor) {
         if (auto registry = MetricRegistryPtr_.Get()) {
             registry->Counter({ {"database", Database_}, {"sensor", sensor} })->Inc();
         }
@@ -379,7 +376,7 @@ public:
     void IncGRpcInFlightByHost(const std::string& host);
     void DecGRpcInFlightByHost(const std::string& host);
 private:
-    const TStringType Database_;
+    const std::string Database_;
     const ::NMonitoring::TLabel DatabaseLabel_;
     TAtomicPointer<TMetricRegistry> MetricRegistryPtr_;
     TAtomicCounter<::NMonitoring::TRate> DiscoveryDuePessimization_;

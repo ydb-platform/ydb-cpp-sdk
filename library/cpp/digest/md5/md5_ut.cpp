@@ -15,19 +15,19 @@ Y_UNIT_TEST_SUITE(TMD5Test) {
         r.Update((const unsigned char*)b + 15, strlen(b) - 15);
 
         char rs[33];
-        TString s(r.End(rs));
+        std::string s(r.End(rs));
         s.to_lower();
 
-        UNIT_ASSERT_NO_DIFF(s, TStringBuf("3ac00dd696b966fd74deee3c35a59d8f"));
+        UNIT_ASSERT_NO_DIFF(s, std::string_view("3ac00dd696b966fd74deee3c35a59d8f"));
 
-        TString result = r.Calc(TStringBuf(b));
+        std::string result = r.Calc(std::string_view(b));
         result.to_lower();
-        UNIT_ASSERT_NO_DIFF(result, TStringBuf("3ac00dd696b966fd74deee3c35a59d8f"));
+        UNIT_ASSERT_NO_DIFF(result, std::string_view("3ac00dd696b966fd74deee3c35a59d8f"));
     }
 
     Y_UNIT_TEST(TestFile) {
-        TString s = NUnitTest::RandomString(1000000, 1);
-        const TString tmpFile = "tmp";
+        std::string s = NUnitTest::RandomString(1000000, 1);
+        const std::string tmpFile = "tmp";
 
         {
             TFixedBufferFileOutput fo(tmpFile);
@@ -36,8 +36,8 @@ Y_UNIT_TEST_SUITE(TMD5Test) {
 
         char fileBuf[100];
         char memBuf[100];
-        TString fileHash = MD5::File(tmpFile.data(), fileBuf);
-        TString memoryHash = MD5::Data((const unsigned char*)s.data(), s.size(), memBuf);
+        std::string fileHash = MD5::File(tmpFile.data(), fileBuf);
+        std::string memoryHash = MD5::Data((const unsigned char*)s.data(), s.size(), memBuf);
 
         UNIT_ASSERT_NO_DIFF(fileHash, memoryHash);
 
@@ -50,13 +50,13 @@ Y_UNIT_TEST_SUITE(TMD5Test) {
     }
 
     Y_UNIT_TEST(TestIsMD5) {
-        UNIT_ASSERT_EQUAL(false, MD5::IsMD5(TStringBuf()));
-        UNIT_ASSERT_EQUAL(false, MD5::IsMD5(TStringBuf("4136ebb0e4c45d21e2b09294c75cfa0")));   // length 31
-        UNIT_ASSERT_EQUAL(false, MD5::IsMD5(TStringBuf("4136ebb0e4c45d21e2b09294c75cfa000"))); // length 33
-        UNIT_ASSERT_EQUAL(false, MD5::IsMD5(TStringBuf("4136ebb0e4c45d21e2b09294c75cfa0g")));  // wrong character 'g'
-        UNIT_ASSERT_EQUAL(true, MD5::IsMD5(TStringBuf("4136EBB0E4C45D21E2B09294C75CFA08")));
-        UNIT_ASSERT_EQUAL(true, MD5::IsMD5(TStringBuf("4136ebb0E4C45D21e2b09294C75CfA08")));
-        UNIT_ASSERT_EQUAL(true, MD5::IsMD5(TStringBuf("4136ebb0e4c45d21e2b09294c75cfa08")));
+        UNIT_ASSERT_EQUAL(false, MD5::IsMD5(std::string_view()));
+        UNIT_ASSERT_EQUAL(false, MD5::IsMD5(std::string_view("4136ebb0e4c45d21e2b09294c75cfa0")));   // length 31
+        UNIT_ASSERT_EQUAL(false, MD5::IsMD5(std::string_view("4136ebb0e4c45d21e2b09294c75cfa000"))); // length 33
+        UNIT_ASSERT_EQUAL(false, MD5::IsMD5(std::string_view("4136ebb0e4c45d21e2b09294c75cfa0g")));  // wrong character 'g'
+        UNIT_ASSERT_EQUAL(true, MD5::IsMD5(std::string_view("4136EBB0E4C45D21E2B09294C75CFA08")));
+        UNIT_ASSERT_EQUAL(true, MD5::IsMD5(std::string_view("4136ebb0E4C45D21e2b09294C75CfA08")));
+        UNIT_ASSERT_EQUAL(true, MD5::IsMD5(std::string_view("4136ebb0e4c45d21e2b09294c75cfa08")));
     }
 
     Y_UNIT_TEST(TestMd5HalfMix) {

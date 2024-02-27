@@ -484,15 +484,15 @@ namespace {
             UNIT_CHECK_GENERATED_EXCEPTION(MakeFuture<int>().ExtractValue(), TFutureException);
 
             struct TStorage {
-                TString String = TString(100, 'a');
+                std::string String = std::string(100, 'a');
             };
             try {
-                TString s = MakeFuture<TStorage>().ExtractValue().String;
+                std::string s = MakeFuture<TStorage>().ExtractValue().String;
                 Y_UNUSED(s);
             } catch (TFutureException) {
                 // pass
             }
-            UNIT_ASSERT_VALUES_EQUAL(MakeFuture<TStorage>().GetValue().String, TString(100, 'a'));
+            UNIT_ASSERT_VALUES_EQUAL(MakeFuture<TStorage>().GetValue().String, std::string(100, 'a'));
         }
 
         Y_UNIT_TEST(HandlingRepetitiveSet) {
@@ -637,14 +637,14 @@ namespace {
         }
 
         Y_UNIT_TEST(ReturnForwardingTypeDeduction) {
-            const TString e = TString(80, 'a');
-            TString l = TString(80, 'a');
+            const std::string e = std::string(80, 'a');
+            std::string l = std::string(80, 'a');
 
-            TFuture<TString> futureL = MakeFuture().Return(l);
+            TFuture<std::string> futureL = MakeFuture().Return(l);
             UNIT_ASSERT_VALUES_EQUAL(futureL.GetValue(), e);
             UNIT_ASSERT_VALUES_EQUAL(l, e);
 
-            TFuture<TString> futureR = MakeFuture().Return(std::move(l));
+            TFuture<std::string> futureR = MakeFuture().Return(std::move(l));
             UNIT_ASSERT_VALUES_EQUAL(futureR.GetValue(), e);
         }
 

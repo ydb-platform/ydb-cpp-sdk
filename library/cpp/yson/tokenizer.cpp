@@ -3,14 +3,14 @@
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////
 
-    TTokenizer::TTokenizer(const TStringBuf& input)
+    TTokenizer::TTokenizer(const std::string_view& input)
         : Input(input)
         , Parsed(0)
     {
     }
 
     bool TTokenizer::ParseNext() {
-        Input = Input.Tail(Parsed);
+        Input = Input.substr(Parsed);
         Token.Reset();
         Parsed = Lexer.GetToken(Input, &Token);
         return !CurrentToken().IsEmpty();
@@ -24,11 +24,11 @@ namespace NYson {
         return CurrentToken().GetType();
     }
 
-    TStringBuf TTokenizer::GetCurrentSuffix() const {
-        return Input.Tail(Parsed);
+    std::string_view TTokenizer::GetCurrentSuffix() const {
+        return Input.substr(Parsed);
     }
 
-    const TStringBuf& TTokenizer::CurrentInput() const {
+    const std::string_view& TTokenizer::CurrentInput() const {
         return Input;
     }
 

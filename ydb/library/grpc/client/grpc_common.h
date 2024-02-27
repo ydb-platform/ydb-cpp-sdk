@@ -11,7 +11,7 @@
 namespace NYdbGrpc {
 
 struct TGRpcClientConfig {
-    TString Locator; // format host:port
+    std::string Locator; // format host:port
     TDuration Timeout = TDuration::Max(); // request timeout
     ui64 MaxMessageSize = DEFAULT_GRPC_MESSAGE_SIZE_LIMIT; // Max request and response size
     ui64 MaxInboundMessageSize = 0; // overrides MaxMessageSize for incoming requests
@@ -21,10 +21,10 @@ struct TGRpcClientConfig {
     grpc::SslCredentialsOptions SslCredentials;
     grpc_compression_algorithm CompressionAlgoritm = GRPC_COMPRESS_NONE;
     ui64 MemQuota = 0;
-    std::unordered_map<TString, TString> StringChannelParams;
-    std::unordered_map<TString, int> IntChannelParams;
-    TString LoadBalancingPolicy = { };
-    TString SslTargetNameOverride = { };
+    std::unordered_map<std::string, std::string> StringChannelParams;
+    std::unordered_map<std::string, int> IntChannelParams;
+    std::string LoadBalancingPolicy = { };
+    std::string SslTargetNameOverride = { };
 
     TGRpcClientConfig() = default;
     TGRpcClientConfig(const TGRpcClientConfig&) = default;
@@ -32,9 +32,9 @@ struct TGRpcClientConfig {
     TGRpcClientConfig& operator=(const TGRpcClientConfig&) = default;
     TGRpcClientConfig& operator=(TGRpcClientConfig&&) = default;
 
-    TGRpcClientConfig(const TString& locator, TDuration timeout = TDuration::Max(),
-            ui64 maxMessageSize = DEFAULT_GRPC_MESSAGE_SIZE_LIMIT, ui32 maxInFlight = 0, const TString& caCert = "", const TString& clientCert = "",
-            const TString& clientPrivateKey = "", grpc_compression_algorithm compressionAlgorithm = GRPC_COMPRESS_NONE, bool enableSsl = false)
+    TGRpcClientConfig(const std::string& locator, TDuration timeout = TDuration::Max(),
+            ui64 maxMessageSize = DEFAULT_GRPC_MESSAGE_SIZE_LIMIT, ui32 maxInFlight = 0, const std::string& caCert = "", const std::string& clientCert = "",
+            const std::string& clientPrivateKey = "", grpc_compression_algorithm compressionAlgorithm = GRPC_COMPRESS_NONE, bool enableSsl = false)
         : Locator(locator)
         , Timeout(timeout)
         , MaxMessageSize(maxMessageSize)
@@ -73,7 +73,7 @@ inline std::shared_ptr<grpc::ChannelInterface> CreateChannelInterface(const TGRp
     if (!config.SslTargetNameOverride.empty()) {
         args.SetSslTargetNameOverride(config.SslTargetNameOverride);
     }
-    if (config.EnableSsl || config.SslCredentials.pem_root_certs) {
+    if (config.EnableSsl || !config.SslCredentials.pem_root_certs.empty()) {
         return grpc::CreateCustomChannel(config.Locator, grpc::SslCredentials(config.SslCredentials), args);
     } else {
         return grpc::CreateCustomChannel(config.Locator, grpc::InsecureChannelCredentials(), args);

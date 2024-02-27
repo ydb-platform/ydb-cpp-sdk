@@ -7,7 +7,6 @@
 #include "params.h"
 
 #include <ydb/public/api/grpc/ydb_discovery_v1.grpc.pb.h>
-#include <client/impl/ydb_internal/common/string_helpers.h>
 #include <client/impl/ydb_internal/db_driver_state/state.h>
 #include <client/impl/ydb_internal/rpc_request_settings/settings.h>
 #include <client/impl/ydb_internal/thread_pool/pool.h>
@@ -31,9 +30,9 @@ class ICredentialsProvider;
 // Deferred callbacks
 using TDeferredResultCb = std::function<void(google::protobuf::Any*, TPlainStatus status)>;
 
-TStringType GetAuthInfo(TDbDriverStatePtr p);
-void SetDatabaseHeader(TCallMeta& meta, const TStringType& database);
-TStringType CreateSDKBuildInfo();
+std::string GetAuthInfo(TDbDriverStatePtr p);
+void SetDatabaseHeader(TCallMeta& meta, const std::string& database);
+std::string CreateSDKBuildInfo();
 
 class TGRpcConnectionsImpl
     : public IQueueClientContextProvider
@@ -59,8 +58,8 @@ public:
     // This method returns DbDriverState (or just db state) for given database credentials pair
     // this state is used to keep data related to particular database.
     TDbDriverStatePtr GetDriverState(
-        const TMaybe<TStringType>& database,
-        const TMaybe<TStringType>& discoveryEndpoint,
+        const TMaybe<std::string>& database,
+        const TMaybe<std::string>& discoveryEndpoint,
         const TMaybe<EDiscoveryMode>& discoveryMode,
         const TMaybe<TSslCredentials>& sslCredentials,
         const TMaybe<std::shared_ptr<ICredentialsProviderFactory>>& credentialsProviderFactory
@@ -189,7 +188,7 @@ public:
                             nullptr,
                             TPlainStatus(
                                 EStatus::CLIENT_UNAUTHENTICATED,
-                                TStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
+                                NUtils::TYdbStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
                             )
                         );
                         return;
@@ -224,17 +223,17 @@ public:
                         dbState->StatCollector.DecGRpcInFlightByHost(endpoint.GetEndpoint());
 
                         if (NYdbGrpc::IsGRpcStatusGood(grpcStatus)) {
-                            std::multimap<TStringType, TStringType> metadata;
+                            std::multimap<std::string, std::string> metadata;
 
                             for (const auto& [name, value] : ctx.GetServerInitialMetadata()) {
                                 metadata.emplace(
-                                    TStringType(name.begin(), name.end()),
-                                    TStringType(value.begin(), value.end()));
+                                    std::string(name.begin(), name.end()),
+                                    std::string(value.begin(), value.end()));
                             }
                             for (const auto& [name, value] : ctx.GetServerTrailingMetadata()) {
                                 metadata.emplace(
-                                    TStringType(name.begin(), name.end()),
-                                    TStringType(value.begin(), value.end()));
+                                    std::string(name.begin(), name.end()),
+                                    std::string(value.begin(), value.end()));
                             }
 
                             auto resp = new TResult<TResponse>(
@@ -422,7 +421,7 @@ public:
                         responseCb(
                             TPlainStatus(
                                 EStatus::CLIENT_UNAUTHENTICATED,
-                                TStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
+                                NUtils::TYdbStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
                             ),
                             nullptr
                         );
@@ -518,7 +517,7 @@ public:
                         connectedCallback(
                             TPlainStatus(
                                 EStatus::CLIENT_UNAUTHENTICATED,
-                                TStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
+                                NUtils::TYdbStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
                             ),
                             nullptr
                         );
@@ -583,7 +582,7 @@ public:
 #ifndef YDB_GRPC_BYPASS_CHANNEL_POOL
     void DeleteChannels(const std::vector<std::string>& endpoints) override {
         for (const auto& endpoint : endpoints) {
-            ChannelPool_.DeleteChannel(ToStringType(endpoint));
+            ChannelPool_.DeleteChannel(endpoint);
         }
     }
 #endif
@@ -686,9 +685,9 @@ private:
 
     std::unique_ptr<IThreadPool> ResponseQueue_;
 
-    const TStringType DefaultDiscoveryEndpoint_;
+    const std::string DefaultDiscoveryEndpoint_;
     const TSslCredentials SslCredentials_;
-    const TStringType DefaultDatabase_;
+    const std::string DefaultDatabase_;
     std::shared_ptr<ICredentialsProviderFactory> DefaultCredentialsProviderFactory_;
     TDbDriverStateTracker StateTracker_;
     const EDiscoveryMode DefaultDiscoveryMode_;

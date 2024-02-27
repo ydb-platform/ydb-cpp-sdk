@@ -4,7 +4,7 @@
 
 namespace NMonitoring {
     struct TVersionMonPage: public TPreMonPage {
-        TVersionMonPage(const TString& path = "ver", const TString& title = "Version")
+        TVersionMonPage(const std::string& path = "ver", const std::string& title = "Version")
             : TPreMonPage(path, title)
         {
         }

@@ -10,10 +10,10 @@ struct IYsonConsumer;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Serialize(const TString& value, NYson::IYsonConsumer* consumer);
-void Serialize(const TStringBuf& value, NYson::IYsonConsumer* consumer);
+void Serialize(const std::string& value, NYson::IYsonConsumer* consumer);
+void Serialize(const std::string_view& value, NYson::IYsonConsumer* consumer);
 void Serialize(const char* value, NYson::IYsonConsumer* consumer);
-void Deserialize(TString& value, const TNode& node);
+void Deserialize(std::string& value, const TNode& node);
 
 void Serialize(signed char value, NYson::IYsonConsumer* consumer);
 void Serialize(short value, NYson::IYsonConsumer* consumer);
@@ -38,7 +38,7 @@ void Deserialize(bool& value, const TNode& node);
 void Serialize(const TNode& node, NYson::IYsonConsumer* consumer);
 void Deserialize(TNode& value, const TNode& node);
 
-void Serialize(const THashMap<TString, TString>& renameColumns, NYson::IYsonConsumer* consumer);
+void Serialize(const THashMap<std::string, std::string>& renameColumns, NYson::IYsonConsumer* consumer);
 
 ////////////////////////////////////////////////////////////////////////////////
 

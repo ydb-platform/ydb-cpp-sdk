@@ -9,10 +9,10 @@ namespace NMonitoring {
         TMutex Mtx;
         using TPages = std::list<TMonPagePtr>;
         TPages Pages; // a list of pages to maintain specific order
-        using TPagesByPath = THashMap<TString, TPages::iterator>;
+        using TPagesByPath = THashMap<std::string, TPages::iterator>;
         TPagesByPath PagesByPath;
 
-        TIndexMonPage(const TString& path, const TString& title)
+        TIndexMonPage(const std::string& path, const std::string& title)
             : IMonPage(path, title)
         {
         }
@@ -32,11 +32,11 @@ namespace NMonitoring {
         void OutputBody(IMonHttpRequest& out);
 
         void Register(TMonPagePtr page);
-        TIndexMonPage* RegisterIndexPage(const TString& path, const TString& title);
+        TIndexMonPage* RegisterIndexPage(const std::string& path, const std::string& title);
 
-        IMonPage* FindPage(const TString& relativePath);
-        TIndexMonPage* FindIndexPage(const TString& relativePath);
-        IMonPage* FindPageByAbsolutePath(const TString& absolutePath);
+        IMonPage* FindPage(const std::string& relativePath);
+        TIndexMonPage* FindIndexPage(const std::string& relativePath);
+        IMonPage* FindPageByAbsolutePath(const std::string& absolutePath);
 
         void SortPages();
         void ClearPages();

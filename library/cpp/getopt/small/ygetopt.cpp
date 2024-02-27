@@ -1,13 +1,9 @@
 #include "opt.h"
 #include "ygetopt.h"
 
-#include <util/generic/string.h>
-
-#include <util/generic/yexception.h>
-
 class TGetOpt::TImpl: public TSimpleRefCount<TImpl> {
 public:
-    inline TImpl(int argc, const char* const* argv, const TString& fmt)
+    inline TImpl(int argc, const char* const* argv, const std::string& fmt)
         : args(argv, argv + argc)
         , format(fmt)
     {
@@ -18,8 +14,8 @@ public:
 
     inline ~TImpl() = default;
 
-    std::vector<TString> args;
-    const TString format;
+    std::vector<std::string> args;
+    const std::string format;
 };
 
 class TGetOpt::TIterator::TIterImpl: public TSimpleRefCount<TIterImpl> {
@@ -59,9 +55,9 @@ public:
     }
 
 private:
-    std::vector<TString> Args_;
+    std::vector<std::string> Args_;
     TArrayHolder<char*> ArgsPtrs_;
-    const TString Format_;
+    const std::string Format_;
     THolder<Opt> Opt_;
     int OptLet_;
     const char* Arg_;
@@ -102,7 +98,7 @@ const char* TGetOpt::TIterator::Arg() const noexcept {
     return nullptr;
 }
 
-TGetOpt::TGetOpt(int argc, const char* const* argv, const TString& format)
+TGetOpt::TGetOpt(int argc, const char* const* argv, const std::string& format)
     : Impl_(new TImpl(argc, argv, format))
 {
 }

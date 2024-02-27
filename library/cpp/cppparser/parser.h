@@ -9,12 +9,12 @@ public:
     struct TText {
         TText();
         TText(ui64 offset);
-        TText(const TString& data, ui64 offset);
+        TText(const std::string& data, ui64 offset);
         ~TText();
 
         void Reset() noexcept;
 
-        TString Data;
+        std::string Data;
         ui64 Offset;
     };
 
@@ -88,7 +88,7 @@ public:
     void DoMultiLineComment(const TText& text) override;
     void DoPreprocessor(const TText& text) override;
 
-    void AddKeyword(const TString& keyword);
+    void AddKeyword(const std::string& keyword);
 
 private:
     void DoIdentifier(const TText& text) override;

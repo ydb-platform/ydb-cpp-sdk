@@ -6,7 +6,7 @@
 // Consider printing elements of `EAnsiCode` directly.
 
 namespace NColorizer {
-    typedef TStringBuf (TColors::*TColorFunc)() const;
+    typedef std::string_view (TColors::*TColorFunc)() const;
 
     struct TColorHandle {
         const TColors* C;

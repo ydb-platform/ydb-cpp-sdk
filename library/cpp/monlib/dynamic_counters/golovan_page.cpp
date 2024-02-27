@@ -22,7 +22,7 @@ public:
         FirstCounter = true;
     }
 
-    void OnCounter(const TString&, const TString& value, const TCounterForPtr* counter) override {
+    void OnCounter(const std::string&, const std::string& value, const TCounterForPtr* counter) override {
         if (FirstCounter) {
             FirstCounter = false;
         } else {
@@ -39,17 +39,17 @@ public:
         out << "\"," << counter->Val() << "]";
     }
 
-    void OnHistogram(const TString&, const TString&, IHistogramSnapshotPtr, bool) override {
+    void OnHistogram(const std::string&, const std::string&, IHistogramSnapshotPtr, bool) override {
     }
 
-    void OnGroupBegin(const TString&, const TString& value, const TDynamicCounters*) override {
+    void OnGroupBegin(const std::string&, const std::string& value, const TDynamicCounters*) override {
         prefix += value;
         if (!value.empty()) {
             prefix += "_";
         }
     }
 
-    void OnGroupEnd(const TString&, const TString&, const TDynamicCounters*) override {
+    void OnGroupEnd(const std::string&, const std::string&, const TDynamicCounters*) override {
         prefix = "";
     }
 
@@ -61,10 +61,10 @@ public:
 private:
     IOutputStream& out;
     bool FirstCounter;
-    TString prefix;
+    std::string prefix;
 };
 
-TGolovanCountersPage::TGolovanCountersPage(const TString& path, TIntrusivePtr<NMonitoring::TDynamicCounters> counters,
+TGolovanCountersPage::TGolovanCountersPage(const std::string& path, TIntrusivePtr<NMonitoring::TDynamicCounters> counters,
                                            TOutputCallback outputCallback)
     : IMonPage(path)
     , Counters(counters)

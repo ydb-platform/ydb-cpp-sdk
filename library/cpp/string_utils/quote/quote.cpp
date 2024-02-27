@@ -16,7 +16,7 @@
     do {                                                                \
         c *= 16;                                                        \
         c += (x[0] >= 'A' ? ((x[0] & 0xdf) - 'A') + 10 : (x[0] - '0')); \
-        x.Skip(1);                                                      \
+        x.remove_prefix(1);                                                      \
     } while (0)
 
 
@@ -33,7 +33,7 @@ namespace {
             return c;
         }
 
-        static inline char x2c(TStringBuf& x) {
+        static inline char x2c(std::string_view& x) {
             if (!IsAsciiHex((ui8)x[0]) || !IsAsciiHex((ui8)x[1]))
                 return '%';
             ui8 c = 0;
@@ -153,23 +153,23 @@ char* CGIEscape(char* to, const char* from, size_t len) {
     return Escape(to, from, from + len);
 }
 
-void CGIEscape(TString& url) {
+void CGIEscape(std::string& url) {
     TTempBuf tempBuf(CgiEscapeBufLen(url.size()));
     char* to = tempBuf.Data();
 
-    url.AssignNoAlias(to, CGIEscape(to, url.data(), url.size()));
+    url = {to, CGIEscape(to, url.data(), url.size())};
 }
 
-TString CGIEscapeRet(const TStringBuf url) {
-    TString to;
-    to.ReserveAndResize(CgiEscapeBufLen(url.size()));
+std::string CGIEscapeRet(const std::string_view url) {
+    std::string to;
+    to.resize(CgiEscapeBufLen(url.size()));
     to.resize(CGIEscape(to.begin(), url.data(), url.size()) - to.data());
     return to;
 }
 
-TString& AppendCgiEscaped(const TStringBuf value, TString& to) {
+std::string& AppendCgiEscaped(const std::string_view value, std::string& to) {
     const size_t origLength = to.length();
-    to.ReserveAndResize(origLength + CgiEscapeBufLen(value.size()));
+    to.resize(origLength + CgiEscapeBufLen(value.size()));
     to.resize(CGIEscape(to.begin() + origLength, value.data(), value.size()) - to.data());
     return to;
 }
@@ -201,15 +201,15 @@ char* Quote(char* to, const char* from, const char* safe) {
     return Quote(to, FixZero(from), TCStringEndIterator(), safe);
 }
 
-char* Quote(char* to, const TStringBuf s, const char* safe) {
+char* Quote(char* to, const std::string_view s, const char* safe) {
     return Quote(to, s.data(), s.data() + s.size(), safe);
 }
 
-void Quote(TString& url, const char* safe) {
+void Quote(std::string& url, const char* safe) {
     TTempBuf tempBuf(CgiEscapeBufLen(url.size()));
     char* to = tempBuf.Data();
 
-    url.AssignNoAlias(to, Quote(to, url, safe));
+    url = {to, Quote(to, url, safe)};
 }
 
 char* CGIUnescape(char* to, const char* from) {
@@ -220,30 +220,26 @@ char* CGIUnescape(char* to, const char* from, size_t len) {
     return Unescape(to, from, from + len, TFromHexLenLimited(from + len));
 }
 
-void CGIUnescape(TString& url) {
+void CGIUnescape(std::string& url) {
     if (url.empty()) {
         return;
     }
-    if (url.IsDetached()) { // in-place when refcount == 1
-        char* resBegin = url.begin();
-        const char* resEnd = CGIUnescape(resBegin, resBegin, url.size());
-        url.resize(resEnd - resBegin);
-    } else {
-        url = CGIUnescapeRet(url);
-    }
+    char* resBegin = url.begin();
+    const char* resEnd = CGIUnescape(resBegin, resBegin, url.size());
+    url.resize(resEnd - resBegin);
 }
 
-TString CGIUnescapeRet(const TStringBuf from) {
-    TString to;
-    to.ReserveAndResize(CgiUnescapeBufLen(from.size()));
+std::string CGIUnescapeRet(const std::string_view from) {
+    std::string to;
+    to.resize(CgiUnescapeBufLen(from.size()));
     to.resize(CGIUnescape(to.begin(), from.data(), from.size()) - to.data());
     return to;
 }
 
-char* UrlUnescape(char* to, TStringBuf from) {
+char* UrlUnescape(char* to, std::string_view from) {
     while (!from.empty()) {
         char ch = from[0];
-        from.Skip(1);
+        from.remove_prefix(1);
         if ('%' == ch && 2 <= from.length())
             ch = TFromHexZeroTerm::x2c(from);
         *to++ = ch;
@@ -254,22 +250,18 @@ char* UrlUnescape(char* to, TStringBuf from) {
     return to;
 }
 
-void UrlUnescape(TString& url) {
+void UrlUnescape(std::string& url) {
     if (url.empty()) {
         return;
     }
-    if (url.IsDetached()) { // in-place when refcount == 1
-        char* resBegin = url.begin();
-        const char* resEnd = UrlUnescape(resBegin, url);
-        url.resize(resEnd - resBegin);
-    } else {
-        url = UrlUnescapeRet(url);
-    }
+    char* resBegin = url.begin();
+    const char* resEnd = UrlUnescape(resBegin, url);
+    url.resize(resEnd - resBegin);
 }
 
-TString UrlUnescapeRet(const TStringBuf from) {
-    TString to;
-    to.ReserveAndResize(CgiUnescapeBufLen(from.size()));
+std::string UrlUnescapeRet(const std::string_view from) {
+    std::string to;
+    to.resize(CgiUnescapeBufLen(from.size()));
     to.resize(UrlUnescape(to.begin(), from) - to.data());
     return to;
 }
@@ -295,15 +287,15 @@ char* UrlEscape(char* to, const char* from, bool forceEscape) {
     return to;
 }
 
-void UrlEscape(TString& url, bool forceEscape) {
+void UrlEscape(std::string& url, bool forceEscape) {
     TTempBuf tempBuf(CgiEscapeBufLen(url.size()));
     char* to = tempBuf.Data();
-    url.AssignNoAlias(to, UrlEscape(to, url.data(), forceEscape));
+    url = {to, UrlEscape(to, url.data(), forceEscape)};
 }
 
-TString UrlEscapeRet(const TStringBuf from, bool forceEscape) {
-    TString to;
-    to.ReserveAndResize(CgiEscapeBufLen(from.size()));
+std::string UrlEscapeRet(const std::string_view from, bool forceEscape) {
+    std::string to;
+    to.resize(CgiEscapeBufLen(from.size()));
     to.resize(UrlEscape(to.begin(), from.begin(), forceEscape) - to.data());
     return to;
 }

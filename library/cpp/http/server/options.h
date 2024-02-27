@@ -4,7 +4,6 @@
 #include <util/network/init.h>
 #include <util/network/address.h>
 #include <util/generic/size_literals.h>
-#include <util/generic/string.h>
 
 #include <util/datetime/base.h>
 
@@ -18,7 +17,7 @@ public:
     using TBindAddresses = std::vector<TNetworkAddress>;
     void BindAddresses(TBindAddresses& ret) const;
 
-    inline THttpServerOptions& AddBindAddress(const TString& address, ui16 port) {
+    inline THttpServerOptions& AddBindAddress(const std::string& address, ui16 port) {
         const TAddr addr = {
             address,
             port,
@@ -28,7 +27,7 @@ public:
         return *this;
     }
 
-    inline THttpServerOptions& AddBindAddress(const TString& address) {
+    inline THttpServerOptions& AddBindAddress(const std::string& address) {
         return AddBindAddress(address, 0);
     }
 
@@ -69,7 +68,7 @@ public:
     }
 
     /// Default interface name to bind the server. Used when none of BindAddress are provided.
-    inline THttpServerOptions& SetHost(const TString& host) noexcept {
+    inline THttpServerOptions& SetHost(const std::string& host) noexcept {
         Host = host;
 
         return *this;
@@ -131,7 +130,7 @@ public:
         return *this;
     }
 
-    inline THttpServerOptions& SetThreadsName(const TString& listenThreadName, const TString& requestsThreadName, const TString& failRequestsThreadName) noexcept {
+    inline THttpServerOptions& SetThreadsName(const std::string& listenThreadName, const std::string& requestsThreadName, const std::string& failRequestsThreadName) noexcept {
         ListenThreadName = listenThreadName;
         RequestsThreadName = requestsThreadName;
         FailRequestsThreadName = failRequestsThreadName;
@@ -152,7 +151,7 @@ public:
     }
 
     struct TAddr {
-        TString Addr;
+        std::string Addr;
         ui16 Port;
     };
 
@@ -165,7 +164,7 @@ public:
     bool ReuseAddress = true; // set SO_REUSEADDR socket option
     TAddrs BindSockaddr;
     ui16 Port = 17000;                  // The port on which to run the web server
-    TString Host;                       // DNS entry
+    std::string Host;                       // DNS entry
     const char* ServerName = "YWS/1.0"; // The Web server name to return in HTTP headers
     ui32 nThreads = 0;                  // Thread count for requests processing
     ui32 MaxQueueSize = 0;              // Max allowed request count in queue
@@ -183,9 +182,9 @@ public:
     TDuration PollTimeout; // timeout of TSocketPoller::WaitT call
     TDuration ExpirationTimeout; // drop inactive connections after ExpirationTimeout (should be > 0)
 
-    TString ListenThreadName = "HttpListen";
-    TString RequestsThreadName = "HttpServer";
-    TString FailRequestsThreadName = "HttpServer";
+    std::string ListenThreadName = "HttpListen";
+    std::string RequestsThreadName = "HttpServer";
+    std::string FailRequestsThreadName = "HttpServer";
 
     bool OneShotPoll = false;
     ui32 nListenerThreads = 1;

@@ -93,7 +93,7 @@
 
 namespace NMonitoring {
     struct THref {
-        THref(IOutputStream& str, TStringBuf path)
+        THref(IOutputStream& str, std::string_view path)
             : Str(str)
         {
             Str << "<a href="<< path << '>';
@@ -112,7 +112,7 @@ namespace NMonitoring {
 
     template <const char* tag>
     struct TTag {
-        TTag(IOutputStream& str, TStringBuf cls = "", TStringBuf for0 = "", TStringBuf id = "")
+        TTag(IOutputStream& str, std::string_view cls = "", std::string_view for0 = "", std::string_view id = "")
             : Str(str)
         {
             Str << "<" << tag;
@@ -131,11 +131,11 @@ namespace NMonitoring {
             Str << ">";
         }
 
-        TTag(IOutputStream& str, std::initializer_list<std::pair<TStringBuf, TStringBuf>> attributes)
+        TTag(IOutputStream& str, std::initializer_list<std::pair<std::string_view, std::string_view>> attributes)
             : Str(str)
         {
             Str << "<" << tag;
-            for (const std::pair<TStringBuf, TStringBuf>& attr : attributes) {
+            for (const std::pair<std::string_view, std::string_view>& attr : attributes) {
                 if (!attr.second.empty()) {
                     Str << ' ' << attr.first << "=\"" << attr.second << "\"";
                 }
@@ -159,7 +159,7 @@ namespace NMonitoring {
 
     // a nice class for creating collapsable regions of html output
     struct TCollapsedButton {
-        TCollapsedButton(IOutputStream& str, const TString& targetId, const TString& buttonText)
+        TCollapsedButton(IOutputStream& str, const std::string& targetId, const std::string& buttonText)
             : Str(str)
         {
             Str << "<button type='button' class='btn' data-toggle='collapse' data-target='#" << targetId << "'>"

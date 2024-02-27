@@ -8,8 +8,8 @@ public:
     TInsecureCredentialsProvider()
     {}
 
-    TStringType GetAuthInfo() const override {
-        return TStringType();
+    std::string GetAuthInfo() const override {
+        return std::string();
     }
 
     bool IsValid() const override {
@@ -17,7 +17,7 @@ public:
     }
 };
 
-TStringType ICredentialsProviderFactory::GetClientIdentity() const {
+std::string ICredentialsProviderFactory::GetClientIdentity() const {
     return ToString((ui64)this);
 }
 
@@ -30,18 +30,18 @@ public:
         return std::make_shared<TInsecureCredentialsProvider>();
     }
 
-    TStringType GetClientIdentity() const override {
-        return TStringType();
+    std::string GetClientIdentity() const override {
+        return std::string();
     }
 };
 
 class TOAuthCredentialsProvider : public ICredentialsProvider {
 public:
-    TOAuthCredentialsProvider(const TStringType& token)
+    TOAuthCredentialsProvider(const std::string& token)
         : Token(token)
     {}
 
-    TStringType GetAuthInfo() const override {
+    std::string GetAuthInfo() const override {
         return Token;
     }
 
@@ -50,12 +50,12 @@ public:
     }
 
 private:
-    TStringType Token;
+    std::string Token;
 };
 
 class TOAuthCredentialsProviderFactory : public ICredentialsProviderFactory {
 public:
-    TOAuthCredentialsProviderFactory(const TStringType& token)
+    TOAuthCredentialsProviderFactory(const std::string& token)
         : Token(token)
     {}
 
@@ -63,18 +63,18 @@ public:
         return std::make_shared<TOAuthCredentialsProvider>(Token);
     }
 
-    TStringType GetClientIdentity() const override {
+    std::string GetClientIdentity() const override {
         return Token;
     }
 
 private:
-    TStringType Token;
+    std::string Token;
 };
 
 std::shared_ptr<ICredentialsProviderFactory> CreateInsecureCredentialsProviderFactory() {
     return std::make_shared<TInsecureCredentialsProviderFactory>();
 }
-std::shared_ptr<ICredentialsProviderFactory> CreateOAuthCredentialsProviderFactory(const TStringType& token) {
+std::shared_ptr<ICredentialsProviderFactory> CreateOAuthCredentialsProviderFactory(const std::string& token) {
     return std::make_shared<TOAuthCredentialsProviderFactory>(token);
 }
 

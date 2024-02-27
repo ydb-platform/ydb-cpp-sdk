@@ -7,7 +7,7 @@
 
 namespace testing {
     /**
-     * When matching `const TStringBuf&`, implicitly convert other strings and string views to `Eq` matchers.
+     * When matching `const std::string_view&`, implicitly convert other strings and string views to `Eq` matchers.
      */
     template <typename T, typename TT>
     class Matcher<const TBasicStringBuf<T, TT>&>: public internal::MatcherBase<const TBasicStringBuf<T, TT>&> {
@@ -73,7 +73,7 @@ namespace testing {
     };
 
     /**
-     * When matching `const TString&`, implicitly convert other strings and string views to `Eq` matchers.
+     * When matching `const std::string&`, implicitly convert other strings and string views to `Eq` matchers.
      */
     template <typename T, typename TT>
     class Matcher<const TBasicString<T, TT>&>: public internal::MatcherBase<const TBasicString<T, TT>&> {
@@ -100,7 +100,7 @@ namespace testing {
     };
 
     /**
-     * When matching `TString`, implicitly convert other strings and string views to `Eq` matchers.
+     * When matching `std::string`, implicitly convert other strings and string views to `Eq` matchers.
      */
     template <typename T, typename TT>
     class Matcher<TBasicString<T, TT>>: public internal::MatcherBase<TBasicString<T, TT>> {

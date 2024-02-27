@@ -30,13 +30,13 @@ namespace NYT {
         bool OnBoolean(bool val) override;
         bool OnInteger(long long val) override;
         bool OnUInteger(unsigned long long val) override;
-        bool OnString(const TStringBuf& val) override;
+        bool OnString(const std::string_view& val) override;
         bool OnDouble(double val) override;
         bool OnOpenArray() override;
         bool OnCloseArray() override;
         bool OnOpenMap() override;
         bool OnCloseMap() override;
-        bool OnMapKey(const TStringBuf& val) override;
+        bool OnMapKey(const std::string_view& val) override;
 
         TState State() const {
             return State_;

@@ -2,33 +2,29 @@
 
 #include <library/cpp/digest/lower_case/hash_ops.h>
 
-#include <util/str_stl.h>
-
 #include <util/system/defaults.h>
-#include <util/string/cast.h>
 #include <library/cpp/cgiparam/cgiparam.h>
 #include <util/network/address.h>
 #include <util/network/socket.h>
 #include <util/generic/hash.h>
 #include <util/system/yassert.h>
-#include <util/generic/string.h>
 #include <util/datetime/base.h>
 
 #include <util/generic/maybe.h>
 
-using THttpHeadersContainer = THashMap<TString, TString, TCIOps, TCIOps>;
+using THttpHeadersContainer = THashMap<std::string, std::string, TCIOps, TCIOps>;
 
 class TBaseServerRequestData {
 public:
     TBaseServerRequestData(SOCKET s = INVALID_SOCKET);
-    TBaseServerRequestData(TStringBuf qs, SOCKET s = INVALID_SOCKET);
+    TBaseServerRequestData(std::string_view qs, SOCKET s = INVALID_SOCKET);
 
-    void SetHost(const TString& host, ui16 port) {
+    void SetHost(const std::string& host, ui16 port) {
         Host_ = host;
         Port_ = ToString(port);
     }
 
-    const TString& ServerName() const {
+    const std::string& ServerName() const {
         return Host_;
     }
 
@@ -36,29 +32,29 @@ public:
         return NAddr::GetSockAddr(Socket_);
     }
 
-    const TString& ServerPort() const {
+    const std::string& ServerPort() const {
         return Port_;
     }
 
-    TStringBuf ScriptName() const {
+    std::string_view ScriptName() const {
         return Path_;
     }
 
-    TStringBuf Query() const {
+    std::string_view Query() const {
         return Query_;
     }
 
-    TStringBuf OrigQuery() const {
+    std::string_view OrigQuery() const {
         return OrigQuery_;
     }
 
-    void AppendQueryString(TStringBuf str);
-    TStringBuf RemoteAddr() const;
-    void SetRemoteAddr(TStringBuf addr);
+    void AppendQueryString(std::string_view str);
+    std::string_view RemoteAddr() const;
+    void SetRemoteAddr(std::string_view addr);
     // Returns nullptr when the header does not exist
-    const TString* HeaderIn(TStringBuf key) const;
+    const std::string* HeaderIn(std::string_view key) const;
     // Throws on missing header
-    TStringBuf HeaderInOrEmpty(TStringBuf key) const;
+    std::string_view HeaderInOrEmpty(std::string_view key) const;
 
     const THttpHeadersContainer& HeadersIn() const {
         return HeadersIn_;
@@ -68,8 +64,8 @@ public:
         return HeadersIn_.size();
     }
 
-    TString HeaderByIndex(size_t n) const noexcept;
-    TStringBuf Environment(TStringBuf key) const;
+    std::string HeaderByIndex(size_t n) const noexcept;
+    std::string_view Environment(std::string_view key) const;
 
     void Clear();
 
@@ -81,24 +77,24 @@ public:
         return BeginTime_;
     }
 
-    void SetPath(TString path);
-    const TString& GetCurPage() const;
-    bool Parse(TStringBuf req);
-    void AddHeader(const TString& name, const TString& value);
+    void SetPath(std::string path);
+    const std::string& GetCurPage() const;
+    bool Parse(std::string_view req);
+    void AddHeader(const std::string& name, const std::string& value);
 
 private:
-    mutable TMaybe<TString> Addr_;
-    TString Host_;
-    TString Port_;
-    TString Path_;
-    TStringBuf Query_;
-    TStringBuf OrigQuery_;
+    mutable TMaybe<std::string> Addr_;
+    std::string Host_;
+    std::string Port_;
+    std::string Path_;
+    std::string_view Query_;
+    std::string_view OrigQuery_;
     THttpHeadersContainer HeadersIn_;
     SOCKET Socket_;
     ui64 BeginTime_;
-    mutable TString CurPage_;
+    mutable std::string CurPage_;
     std::vector<char> ParseBuf_;
-    TString ModifiedQueryString_;
+    std::string ModifiedQueryString_;
 };
 
 class TServerRequestData: public TBaseServerRequestData {
@@ -107,7 +103,7 @@ public:
         : TBaseServerRequestData(s)
     {
     }
-    TServerRequestData(TStringBuf qs, SOCKET s = INVALID_SOCKET)
+    TServerRequestData(std::string_view qs, SOCKET s = INVALID_SOCKET)
         : TBaseServerRequestData(qs, s)
     {
         Scan();

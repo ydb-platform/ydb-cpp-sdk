@@ -9,17 +9,17 @@
 #include <util/system/yassert.h>
 #include <util/generic/scope.h>
 
-THolder<TLogBackend> CreateLogBackend(const TString& fname, ELogPriority priority, bool threaded) {
+THolder<TLogBackend> CreateLogBackend(const std::string& fname, ELogPriority priority, bool threaded) {
     TLogBackendCreatorUninitialized creator;
     creator.InitCustom(fname, priority, threaded);
     return creator.CreateLogBackend();
 }
 
-THolder<TLogBackend> CreateFilteredOwningThreadedLogBackend(const TString& fname, ELogPriority priority, size_t queueLen) {
+THolder<TLogBackend> CreateFilteredOwningThreadedLogBackend(const std::string& fname, ELogPriority priority, size_t queueLen) {
     return MakeHolder<TFilteredLogBackend>(CreateOwningThreadedLogBackend(fname, queueLen), priority);
 }
 
-THolder<TOwningThreadedLogBackend> CreateOwningThreadedLogBackend(const TString& fname, size_t queueLen) {
+THolder<TOwningThreadedLogBackend> CreateOwningThreadedLogBackend(const std::string& fname, size_t queueLen) {
     return MakeHolder<TOwningThreadedLogBackend>(CreateLogBackend(fname, LOG_MAX_PRIORITY, false).Release(), queueLen);
 }
 
@@ -127,7 +127,7 @@ TLog::TLog()
 {
 }
 
-TLog::TLog(const TString& fname, ELogPriority priority)
+TLog::TLog(const std::string& fname, ELogPriority priority)
     : TLog(CreateLogBackend(fname, priority, false))
 {
 }
@@ -225,14 +225,14 @@ THolder<TLogBackend> TLog::ReleaseBackend() noexcept {
 
 void TLog::Write(ELogPriority priority, const char* data, size_t len, TLogRecord::TMetaFlags metaFlags) const {
     if (Formatter_) {
-        const auto formated = Formatter_(priority, TStringBuf{data, len});
+        const auto formated = Formatter_(priority, std::string_view{data, len});
         Impl_->WriteData(priority, formated.data(), formated.size(), std::move(metaFlags));
     } else {
         Impl_->WriteData(priority, data, len, std::move(metaFlags));
     }
 }
 
-void TLog::Write(ELogPriority priority, const TStringBuf data, TLogRecord::TMetaFlags metaFlags) const {
+void TLog::Write(ELogPriority priority, const std::string_view data, TLogRecord::TMetaFlags metaFlags) const {
     Write(priority, data.data(), data.size(), std::move(metaFlags));
 }
 

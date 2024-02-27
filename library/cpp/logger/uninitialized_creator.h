@@ -4,7 +4,7 @@
 
 class TLogBackendCreatorUninitialized : public ILogBackendCreator {
 public:
-    void InitCustom(const TString& type, ELogPriority priority, bool threaded);
+    void InitCustom(const std::string& type, ELogPriority priority, bool threaded);
     virtual bool Init(const IInitContext& ctx) override;
     virtual void ToJson(NJson::TJsonValue& value) const override;
 

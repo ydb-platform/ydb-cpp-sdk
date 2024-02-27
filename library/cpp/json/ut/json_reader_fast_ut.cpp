@@ -29,7 +29,7 @@ namespace NJson {
 
             i64 INum = 0;
             double DNum = 0;
-            TString Str;
+            std::string Str;
 
             TEvent(ETestEvent e = E_NO_EVENT)
                 : Type(e)
@@ -48,13 +48,13 @@ namespace NJson {
             {
             }
 
-            TEvent(TStringBuf t, ETestEvent e)
+            TEvent(std::string_view t, ETestEvent e)
                 : Type(e)
                 , Str(NEscJ::EscapeJ<true, false>(t))
             {
             }
 
-            TString ToString() const {
+            std::string ToString() const {
                 switch (Type) {
                     default:
                         return "YOUFAILED";
@@ -133,21 +133,21 @@ namespace NJson {
                 return true;
             }
 
-            bool OnString(const TStringBuf& v) override {
+            bool OnString(const std::string_view& v) override {
                 Events.push_back(TEvent(v, E_STR));
                 return true;
             }
 
-            bool OnMapKey(const TStringBuf& v) override {
+            bool OnMapKey(const std::string_view& v) override {
                 Events.push_back(TEvent(v, E_KEY));
                 return true;
             }
 
-            void OnError(size_t, TStringBuf token) override {
+            void OnError(size_t, std::string_view token) override {
                 Events.push_back(TEvent(token, E_ERROR));
             }
 
-            void Assert(const TEvents& e, TString str) {
+            void Assert(const TEvents& e, std::string str) {
                 try {
                     UNIT_ASSERT_VALUES_EQUAL_C(e.size(), Events.size(), str);
 
@@ -179,7 +179,7 @@ class TFastJsonTest: public TTestBase {
 
 public:
     template <bool accept>
-    void DoTestParse(TStringBuf json, ui32 amount, ...) {
+    void DoTestParse(std::string_view json, ui32 amount, ...) {
         using namespace NJson::NTest;
         TEvents evs;
         va_list vl;
@@ -218,13 +218,13 @@ public:
                 }
                 case E_STR: {
                     const char* s = va_arg(vl, const char*);
-                    evs.push_back(TEvent(TStringBuf(s), E_STR));
+                    evs.push_back(TEvent(std::string_view(s), E_STR));
                     break;
                 }
                 case E_KEY:
                 case E_ERROR: {
                     const char* s = va_arg(vl, const char*);
-                    evs.push_back(TEvent(TStringBuf(s), e));
+                    evs.push_back(TEvent(std::string_view(s), e));
                     break;
                 }
             }
@@ -280,7 +280,7 @@ public:
     }
 
     void TestReadJsonFastTree() {
-        const TString json = R"(
+        const std::string json = R"(
             {
                 "a": {
                     "b": {}

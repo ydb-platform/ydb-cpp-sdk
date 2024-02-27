@@ -4,6 +4,7 @@
 #include <ydb/library/yql/utils/utf8.h>
 
 #include <library/cpp/colorizer/output.h>
+#include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/charset/utf8.h>
 #include <util/string/ascii.h>
@@ -17,9 +18,9 @@
 
 namespace NYql {
 
-void SanitizeNonAscii(TString& s) {
+void SanitizeNonAscii(std::string& s) {
     if (!NYql::IsUtf8(s)) {
-        TString escaped;
+        std::string escaped;
         escaped.reserve(s.size());
         const unsigned char* i = reinterpret_cast<const unsigned char*>(s.data());
         const unsigned char* end = i + s.size();
@@ -67,7 +68,7 @@ TTextWalker& TTextWalker::Advance(char c) {
 void TIssue::PrintTo(IOutputStream& out, bool oneLine) const {
     out << Range() << ": " << SeverityToString(GetSeverity()) << ": ";
     if (oneLine) {
-        TString message = StripString(Message);
+        std::string message = StripString(Message);
         SubstGlobal(message, '\n', ' ');
         out << message;
     } else {
@@ -124,9 +125,9 @@ Y_NO_INLINE void Indent(IOutputStream& out, ui32 indentation) {
 }
 
 void ProgramLinesWithErrors(
-        const TString& programText,
+        const std::string& programText,
         const std::vector<TIssue>& errors,
-        std::map<ui32, TStringBuf>& lines)
+        std::map<ui32, std::string_view>& lines)
 {
     std::vector<ui32> rows;
     for (const auto& topIssue: errors) {
@@ -192,12 +193,12 @@ void TIssues::PrintTo(IOutputStream& out, bool oneLine) const
 
 void TIssues::PrintWithProgramTo(
         IOutputStream& out,
-        const TString& programFilename,
-        const TString& programText) const
+        const std::string& programFilename,
+        const std::string& programText) const
 {
     using namespace NColorizer;
 
-    std::map<ui32, TStringBuf> lines;
+    std::map<ui32, std::string_view> lines;
     ProgramLinesWithErrors(programText, Issues_, lines);
 
     for (const TIssue& topIssue: Issues_) {
@@ -224,7 +225,7 @@ void TIssues::PrintWithProgramTo(
 }
 
 TIssue ExceptionToIssue(const std::exception& e, const TPosition& pos) {
-    TStringBuf messageBuf = e.what();
+    std::string_view messageBuf = e.what();
     auto parsedPos = TryParseTerminationMessage(messageBuf);
     auto issue = TIssue(parsedPos.GetOrElse(pos), messageBuf);
     const TErrorException* errorException = dynamic_cast<const TErrorException*>(&e);
@@ -236,17 +237,17 @@ TIssue ExceptionToIssue(const std::exception& e, const TPosition& pos) {
     return issue;
 }
 
-static constexpr TStringBuf TerminationMessageMarker = "Terminate was called, reason(";
+static constexpr std::string_view TerminationMessageMarker = "Terminate was called, reason(";
 
-TMaybe<TPosition> TryParseTerminationMessage(TStringBuf& message) {
+TMaybe<TPosition> TryParseTerminationMessage(std::string_view& message) {
     size_t len = 0;
     size_t startPos = message.find(TerminationMessageMarker);
     size_t endPos = 0;
-    if (startPos != TString::npos) {
+    if (startPos != std::string::npos) {
         endPos = message.find(')', startPos + TerminationMessageMarker.size());
-        if (endPos != TString::npos) {
-            TStringBuf lenText = message.Tail(startPos + TerminationMessageMarker.size())
-                .Trunc(endPos - startPos - TerminationMessageMarker.size());
+        if (endPos != std::string::npos) {
+            std::string_view lenText = message.substr(startPos + TerminationMessageMarker.size())
+                .substr(0, endPos - startPos - TerminationMessageMarker.size());
             try {
                 len = FromString<size_t>(lenText);
             } catch (const TFromStringException&) {
@@ -256,18 +257,18 @@ TMaybe<TPosition> TryParseTerminationMessage(TStringBuf& message) {
     }
 
     if (len) {
-        message = message.Tail(endPos + 3).Trunc(len);
+        message = message.substr(endPos + 3).substr(0, len);
         auto s = message;
-        TMaybe<TStringBuf> file;
-        TMaybe<TStringBuf> row;
-        TMaybe<TStringBuf> column;
-        GetNext(s, ':', file);
-        GetNext(s, ':', row);
-        GetNext(s, ':', column);
+        std::optional<std::string_view> file = NUtils::NextTok(s, ':');
+        std::optional<std::string_view> row;
+        std::optional<std::string_view> column;
+        NUtils::GetNext(s, ':', file);
+        NUtils::GetNext(s, ':', row);
+        NUtils::GetNext(s, ':', column);
         ui32 rowValue, columnValue;
         if (file && row && column && TryFromString(*row, rowValue) && TryFromString(*column, columnValue)) {
             message = StripStringLeft(s);
-            return TPosition(columnValue, rowValue, TString(*file));
+            return TPosition(columnValue, rowValue, std::string(*file));
         }
     }
 
@@ -278,7 +279,7 @@ TMaybe<TPosition> TryParseTerminationMessage(TStringBuf& message) {
 
 template <>
 void Out<NYql::TPosition>(IOutputStream& out, const NYql::TPosition& pos) {
-    out << (pos.File ? pos.File : "<main>");
+    out << (!pos.File.empty() ? pos.File : "<main>");
     if (pos) {
         out << ":" << pos.Row << ':' << pos.Column;
     }

@@ -14,7 +14,7 @@ Y_UNIT_TEST_SUITE(TCGIEscapeTest) {
         char r[] = {'1', '2', '3', '4'};
         char buf[sizeof(r) * 3 + 2];
 
-        TString ret(buf, CGIEscape(buf, r, sizeof(r)));
+        std::string ret(buf, CGIEscape(buf, r, sizeof(r)));
 
         UNIT_ASSERT_EQUAL(ret, "1234");
     }
@@ -22,27 +22,27 @@ Y_UNIT_TEST_SUITE(TCGIEscapeTest) {
     Y_UNIT_TEST(StringBuf) {
         char tmp[100];
 
-        UNIT_ASSERT_VALUES_EQUAL(CgiEscape(tmp, "!@#$%^&*(){}[]\" "), TStringBuf("!@%23$%25%5E%26*%28%29%7B%7D%5B%5D%22+"));
+        UNIT_ASSERT_VALUES_EQUAL(CgiEscape(tmp, "!@#$%^&*(){}[]\" "), std::string_view("!@%23$%25%5E%26*%28%29%7B%7D%5B%5D%22+"));
     }
 
     Y_UNIT_TEST(StrokaRet) {
-        UNIT_ASSERT_VALUES_EQUAL(CGIEscapeRet("!@#$%^&*(){}[]\" "), TString("!@%23$%25%5E%26*%28%29%7B%7D%5B%5D%22+"));
+        UNIT_ASSERT_VALUES_EQUAL(CGIEscapeRet("!@#$%^&*(){}[]\" "), std::string("!@%23$%25%5E%26*%28%29%7B%7D%5B%5D%22+"));
     }
 
     Y_UNIT_TEST(StrokaAppendRet) {
-        TString param;
+        std::string param;
         AppendCgiEscaped("!@#$%^&*(){}[]\" ", param);
-        UNIT_ASSERT_VALUES_EQUAL(param, TString("!@%23$%25%5E%26*%28%29%7B%7D%5B%5D%22+"));
+        UNIT_ASSERT_VALUES_EQUAL(param, std::string("!@%23$%25%5E%26*%28%29%7B%7D%5B%5D%22+"));
 
-        TString param2 = "&param=";
+        std::string param2 = "&param=";
         AppendCgiEscaped("!@#$%^&*(){}[]\" ", param2);
         UNIT_ASSERT_VALUES_EQUAL(param2,
-            TString("&param=!@%23$%25%5E%26*%28%29%7B%7D%5B%5D%22+"));
+            std::string("&param=!@%23$%25%5E%26*%28%29%7B%7D%5B%5D%22+"));
 
         param2.append("&param_param=");
         AppendCgiEscaped("!@#$%^&*(){}[]\" ", param2);
         UNIT_ASSERT_VALUES_EQUAL(param2,
-            TString("&param=!@%23$%25%5E%26*%28%29%7B%7D%5B%5D%22+&param_param=!@%23$%25%5E%26*%28%29%7B%7D%5B%5D%22+"));
+            std::string("&param=!@%23$%25%5E%26*%28%29%7B%7D%5B%5D%22+&param_param=!@%23$%25%5E%26*%28%29%7B%7D%5B%5D%22+"));
     }
 
 }
@@ -51,7 +51,7 @@ Y_UNIT_TEST_SUITE(TCGIUnescapeTest) {
     Y_UNIT_TEST(StringBuf) {
         char tmp[100];
 
-        UNIT_ASSERT_VALUES_EQUAL(CgiUnescape(tmp, "!@%23$%25^%26*%28%29"), TStringBuf("!@#$%^&*()"));
+        UNIT_ASSERT_VALUES_EQUAL(CgiUnescape(tmp, "!@%23$%25^%26*%28%29"), std::string_view("!@#$%^&*()"));
     }
 
     Y_UNIT_TEST(TestValidZeroTerm) {
@@ -125,7 +125,7 @@ Y_UNIT_TEST_SUITE(TCGIUnescapeTest) {
     }
 
     Y_UNIT_TEST(StrokaOutParameterInplace) {
-        TString s;
+        std::string s;
 
         s = "hello%3dworld";
         CGIUnescape(s);
@@ -149,7 +149,7 @@ Y_UNIT_TEST_SUITE(TCGIUnescapeTest) {
     }
 
     Y_UNIT_TEST(StrokaOutParameterNotInplace) {
-        TString s, sCopy;
+        std::string s, sCopy;
 
         s = "hello%3dworld";
         sCopy = s;
@@ -180,7 +180,7 @@ Y_UNIT_TEST_SUITE(TCGIUnescapeTest) {
 
 Y_UNIT_TEST_SUITE(TUrlEscapeTest) {
     Y_UNIT_TEST(EscapeEscaped) {
-        TString s;
+        std::string s;
 
         s = "hello%3dworld";
         UNIT_ASSERT_VALUES_EQUAL(UrlEscapeRet(s), "hello%3dworld");
@@ -189,7 +189,7 @@ Y_UNIT_TEST_SUITE(TUrlEscapeTest) {
     }
 
     Y_UNIT_TEST(EscapeUnescape) {
-        TString s;
+        std::string s;
 
         s = "hello%3dworld";
         UrlEscape(s);
@@ -198,14 +198,14 @@ Y_UNIT_TEST_SUITE(TUrlEscapeTest) {
     }
 
     Y_UNIT_TEST(EscapeUnescapeRet) {
-        TString s;
+        std::string s;
 
         s = "hello%3dworld";
         UNIT_ASSERT_VALUES_EQUAL(UrlUnescapeRet(UrlEscapeRet(s)), "hello=world");
     }
 
     Y_UNIT_TEST(EscapeEscapedForce) {
-        TString s;
+        std::string s;
 
         s = "hello%3dworld";
         UNIT_ASSERT_VALUES_EQUAL(UrlEscapeRet(s, true), "hello%253dworld");
@@ -214,7 +214,7 @@ Y_UNIT_TEST_SUITE(TUrlEscapeTest) {
     }
 
     Y_UNIT_TEST(EscapeUnescapeForce) {
-        TString s;
+        std::string s;
 
         s = "hello%3dworld";
         UrlEscape(s, true);
@@ -223,7 +223,7 @@ Y_UNIT_TEST_SUITE(TUrlEscapeTest) {
     }
 
     Y_UNIT_TEST(EscapeUnescapeForceRet) {
-        TString s;
+        std::string s;
 
         s = "hello%3dworld";
         UNIT_ASSERT_VALUES_EQUAL(UrlUnescapeRet(UrlEscapeRet(s, true)), "hello%3dworld");
@@ -232,7 +232,7 @@ Y_UNIT_TEST_SUITE(TUrlEscapeTest) {
 
 Y_UNIT_TEST_SUITE(TUrlUnescapeTest) {
     Y_UNIT_TEST(StrokaOutParameterInplace) {
-        TString s;
+        std::string s;
 
         s = "hello%3dworld";
         UrlUnescape(s);
@@ -256,7 +256,7 @@ Y_UNIT_TEST_SUITE(TUrlUnescapeTest) {
     }
 
     Y_UNIT_TEST(StrokaOutParameterNotInplace) {
-        TString s, sCopy;
+        std::string s, sCopy;
 
         s = "hello%3dworld";
         sCopy = s;
@@ -297,7 +297,7 @@ Y_UNIT_TEST_SUITE(TQuoteTest) {
         char r[100];
         Quote(r, "/path;tail/path,tail/");
         UNIT_ASSERT_VALUES_EQUAL("/path%3Btail/path%2Ctail/", r);
-        TString s("/path;tail/path,tail/");
+        std::string s("/path;tail/path,tail/");
         Quote(s);
         UNIT_ASSERT_VALUES_EQUAL("/path%3Btail/path%2Ctail/", s.c_str());
     }
@@ -306,7 +306,7 @@ Y_UNIT_TEST_SUITE(TQuoteTest) {
         char r[100];
         Quote(r, "/path;tail/path,tail/", ";,");
         UNIT_ASSERT_VALUES_EQUAL("%2Fpath;tail%2Fpath,tail%2F", r);
-        TString s("/path;tail/path,tail/");
+        std::string s("/path;tail/path,tail/");
         Quote(s, ";,");
         UNIT_ASSERT_VALUES_EQUAL("%2Fpath;tail%2Fpath,tail%2F", s.c_str());
     }
@@ -314,6 +314,6 @@ Y_UNIT_TEST_SUITE(TQuoteTest) {
     Y_UNIT_TEST(StringBuf) {
         char r[100];
         char* end = Quote(r, "abc\0/path", "");
-        UNIT_ASSERT_VALUES_EQUAL("abc\0%2Fpath", TStringBuf(r, end));
+        UNIT_ASSERT_VALUES_EQUAL("abc\0%2Fpath", std::string_view(r, end));
     }
 }

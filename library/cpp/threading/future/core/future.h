@@ -216,7 +216,7 @@ namespace NThreading {
 
         void TryRethrow() const;
         bool HasException() const;
-        void SetException(const TString& e);
+        void SetException(const std::string& e);
         void SetException(std::exception_ptr e);
         bool TrySetException(std::exception_ptr e);
 
@@ -256,7 +256,7 @@ namespace NThreading {
 
         void TryRethrow() const;
         bool HasException() const;
-        void SetException(const TString& e);
+        void SetException(const std::string& e);
         void SetException(std::exception_ptr e);
         bool TrySetException(std::exception_ptr e);
 

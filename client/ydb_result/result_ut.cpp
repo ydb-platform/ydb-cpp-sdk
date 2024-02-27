@@ -11,7 +11,7 @@ using namespace NYdb;
 
 Y_UNIT_TEST_SUITE(CppGrpcClientResultSetTest) {
     Y_UNIT_TEST(ListResultSet) {
-        const TString resultSetString =
+        const std::string resultSetString =
             "columns {\n"
             "  name: \"colName\"\n"
             "  type {\n"
@@ -68,7 +68,7 @@ Y_UNIT_TEST_SUITE(CppGrpcClientResultSetTest) {
     }
 
     Y_UNIT_TEST(OptionalDictResultSet) {
-        const TString resultSetString =
+        const std::string resultSetString =
             "columns {\n"
             "  name: \"colName\"\n"
             "  type {\n"
@@ -150,7 +150,7 @@ Y_UNIT_TEST_SUITE(CppGrpcClientResultSetTest) {
     }
 
     Y_UNIT_TEST(Utf8OptionalResultSet) {
-        const TString resultSetString =
+        const std::string resultSetString =
             "columns {\n"
             "  name: \"colName\"\n"
             "  type {\n"
@@ -196,7 +196,7 @@ Y_UNIT_TEST_SUITE(CppGrpcClientResultSetTest) {
     }
 
     Y_UNIT_TEST(ListCorruptedResultSet) {
-        const TString resultSetString =
+        const std::string resultSetString =
             "columns {\n"
             "  name: \"colName1\"\n"
             "  type {\n"

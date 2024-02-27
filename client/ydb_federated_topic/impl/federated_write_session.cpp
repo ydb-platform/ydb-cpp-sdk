@@ -132,8 +132,8 @@ std::shared_ptr<TDbInfo> TFederatedWriteSession::SelectDatabaseImpl() {
                || lhs->weight() == rhs->weight() && lhs->name() < rhs->name();
     });
 
-    ui64 hashValue = THash<TString>()(Settings.Path_);
-    hashValue = CombineHashes(hashValue, THash<TString>()(Settings.ProducerId_));
+    ui64 hashValue = THash<std::string>()(Settings.Path_);
+    hashValue = CombineHashes(hashValue, THash<std::string>()(Settings.ProducerId_));
     hashValue %= totalWeight;
 
     ui64 borderWeight = 0;
@@ -211,7 +211,7 @@ NThreading::TFuture<ui64> TFederatedWriteSession::GetInitSeqNo() {
     return NThreading::MakeFuture<ui64>(0u);
 }
 
-void TFederatedWriteSession::Write(NTopic::TContinuationToken&& token, TStringBuf data, TMaybe<ui64> seqNo,
+void TFederatedWriteSession::Write(NTopic::TContinuationToken&& token, std::string_view data, TMaybe<ui64> seqNo,
                                    TMaybe<TInstant> createTimestamp) {
     NTopic::TWriteMessage message{std::move(data)};
     if (seqNo.Defined())
@@ -225,7 +225,7 @@ void TFederatedWriteSession::Write(NTopic::TContinuationToken&& token, NTopic::T
     return WriteInternal(std::move(token), std::move(message));
 }
 
-void TFederatedWriteSession::WriteEncoded(NTopic::TContinuationToken&& token, TStringBuf data, NTopic::ECodec codec,
+void TFederatedWriteSession::WriteEncoded(NTopic::TContinuationToken&& token, std::string_view data, NTopic::ECodec codec,
                                           ui32 originalSize, TMaybe<ui64> seqNo, TMaybe<TInstant> createTimestamp) {
     auto message = NTopic::TWriteMessage::CompressedMessage(std::move(data), codec, originalSize);
     if (seqNo.Defined())

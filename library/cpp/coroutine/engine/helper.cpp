@@ -5,12 +5,12 @@
 
 namespace NCoro {
 
-    bool TryConnect(const TString& host, ui16 port, TDuration timeout) {
+    bool TryConnect(const std::string& host, ui16 port, TDuration timeout) {
         bool connected = false;
 
         auto f = [&connected, &host, port, timeout](TCont* c) {
             TSocketHolder socket;
-            TNetworkAddress address(host, port);
+            TNetworkAddress address(host.c_str(), port);
             connected = (0 == NCoro::ConnectT(c, socket, address, timeout));
         };
 
@@ -20,7 +20,7 @@ namespace NCoro {
         return connected;
     }
 
-    bool WaitUntilConnectable(const TString& host, ui16 port, TDuration timeout) {
+    bool WaitUntilConnectable(const std::string& host, ui16 port, TDuration timeout) {
         const TInstant deadline = timeout.ToDeadLine();
 
         for (size_t i = 1; Now() < deadline; ++i) {

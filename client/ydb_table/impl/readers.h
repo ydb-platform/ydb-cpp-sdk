@@ -27,7 +27,7 @@ public:
     using TGRpcStatus = NYdbGrpc::TGrpcStatus;
     using TBatchReadResult = std::pair<TResponse, TGRpcStatus>;
 
-    TReaderImpl(TStreamProcessorPtr streamProcessor, const TString& endpoint);
+    TReaderImpl(TStreamProcessorPtr streamProcessor, const std::string& endpoint);
     ~TReaderImpl();
     bool IsFinished();
     TAsyncSimpleStreamPart<TResultSet> ReadNext(std::shared_ptr<TSelf> self);
@@ -36,7 +36,7 @@ private:
     TStreamProcessorPtr StreamProcessor_;
     TResponse Response_;
     bool Finished_;
-    TString Endpoint_;
+    std::string Endpoint_;
 };
 
 
@@ -49,7 +49,7 @@ public:
     using TGRpcStatus = NYdbGrpc::TGrpcStatus;
     using TBatchReadResult = std::pair<TResponse, TGRpcStatus>;
 
-    TReaderImpl(TStreamProcessorPtr streamProcessor, const TString& endpoint);
+    TReaderImpl(TStreamProcessorPtr streamProcessor, const std::string& endpoint);
     ~TReaderImpl();
     bool IsFinished() const;
     TAsyncScanQueryPart ReadNext(std::shared_ptr<TSelf> self);
@@ -58,7 +58,7 @@ private:
     TStreamProcessorPtr StreamProcessor_;
     TResponse Response_;
     bool Finished_;
-    TString Endpoint_;
+    std::string Endpoint_;
 };
 
 

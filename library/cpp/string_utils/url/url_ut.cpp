@@ -215,7 +215,7 @@ Y_UNIT_TEST_SUITE(TUtilUrlTest) {
     }
 
     Y_UNIT_TEST(TestSplitUrlToHostAndPath) {
-        TStringBuf host, path;
+        std::string_view host, path;
 
         SplitUrlToHostAndPath("https://yandex.ru/yandsearch", host, path);
         UNIT_ASSERT_STRINGS_EQUAL(host, "https://yandex.ru");
@@ -239,7 +239,7 @@ Y_UNIT_TEST_SUITE(TUtilUrlTest) {
     }
 
     Y_UNIT_TEST(TestSeparateUrlFromQueryAndFragment) {
-        TStringBuf sanitizedUrl, query, fragment;
+        std::string_view sanitizedUrl, query, fragment;
 
         SeparateUrlFromQueryAndFragment("https://yandex.ru/yandsearch", sanitizedUrl, query, fragment);
         UNIT_ASSERT_STRINGS_EQUAL(sanitizedUrl, "https://yandex.ru/yandsearch");
@@ -264,7 +264,7 @@ Y_UNIT_TEST_SUITE(TUtilUrlTest) {
 
     Y_UNIT_TEST(TestGetSchemeHostAndPort) {
         { // all components are present
-            TStringBuf scheme("unknown"), host("unknown");
+            std::string_view scheme("unknown"), host("unknown");
             ui16 port = 0;
             GetSchemeHostAndPort("https://ya.ru:8080/bebe", scheme, host, port);
             UNIT_ASSERT_VALUES_EQUAL(scheme, "https://");
@@ -272,7 +272,7 @@ Y_UNIT_TEST_SUITE(TUtilUrlTest) {
             UNIT_ASSERT_VALUES_EQUAL(port, 8080);
         }
         { // scheme is abset
-            TStringBuf scheme("unknown"), host("unknown");
+            std::string_view scheme("unknown"), host("unknown");
             ui16 port = 0;
             GetSchemeHostAndPort("ya.ru:8080/bebe", scheme, host, port);
             UNIT_ASSERT_VALUES_EQUAL(scheme, "unknown");
@@ -280,7 +280,7 @@ Y_UNIT_TEST_SUITE(TUtilUrlTest) {
             UNIT_ASSERT_VALUES_EQUAL(port, 8080);
         }
         { // scheme and port are absent
-            TStringBuf scheme("unknown"), host("unknown");
+            std::string_view scheme("unknown"), host("unknown");
             ui16 port = 0;
             GetSchemeHostAndPort("ya.ru/bebe", scheme, host, port);
             UNIT_ASSERT_VALUES_EQUAL(scheme, "unknown");
@@ -288,7 +288,7 @@ Y_UNIT_TEST_SUITE(TUtilUrlTest) {
             UNIT_ASSERT_VALUES_EQUAL(port, 0);
         }
         { // port is absent, but returned its default value for HTTP
-            TStringBuf scheme("unknown"), host("unknown");
+            std::string_view scheme("unknown"), host("unknown");
             ui16 port = 0;
             GetSchemeHostAndPort("http://ya.ru/bebe", scheme, host, port);
             UNIT_ASSERT_VALUES_EQUAL(scheme, "http://");
@@ -296,7 +296,7 @@ Y_UNIT_TEST_SUITE(TUtilUrlTest) {
             UNIT_ASSERT_VALUES_EQUAL(port, 80);
         }
         { // port is absent, but returned its default value for HTTPS
-            TStringBuf scheme("unknown"), host("unknown");
+            std::string_view scheme("unknown"), host("unknown");
             ui16 port = 0;
             GetSchemeHostAndPort("https://ya.ru/bebe", scheme, host, port);
             UNIT_ASSERT_VALUES_EQUAL(scheme, "https://");
@@ -304,7 +304,7 @@ Y_UNIT_TEST_SUITE(TUtilUrlTest) {
             UNIT_ASSERT_VALUES_EQUAL(port, 443);
         }
         { // ipv6
-            TStringBuf scheme("unknown"), host("unknown");
+            std::string_view scheme("unknown"), host("unknown");
             ui16 port = 0;
             GetSchemeHostAndPort("https://[1080:0:0:0:8:800:200C:417A]:443/bebe", scheme, host, port);
             UNIT_ASSERT_VALUES_EQUAL(scheme, "https://");
@@ -312,7 +312,7 @@ Y_UNIT_TEST_SUITE(TUtilUrlTest) {
             UNIT_ASSERT_VALUES_EQUAL(port, 443);
         }
         { // ipv6
-            TStringBuf scheme("unknown"), host("unknown");
+            std::string_view scheme("unknown"), host("unknown");
             ui16 port = 0;
             GetSchemeHostAndPort("[::1]/bebe", scheme, host, port);
             UNIT_ASSERT_VALUES_EQUAL(scheme, "unknown");
@@ -320,7 +320,7 @@ Y_UNIT_TEST_SUITE(TUtilUrlTest) {
             UNIT_ASSERT_VALUES_EQUAL(port, 0);
         }
         { // ipv6
-            TStringBuf scheme("unknown"), host("unknown");
+            std::string_view scheme("unknown"), host("unknown");
             ui16 port = 0;
             GetSchemeHostAndPort("unknown:///bebe", scheme, host, port);
             UNIT_ASSERT_VALUES_EQUAL(scheme, "unknown://");
@@ -329,7 +329,7 @@ Y_UNIT_TEST_SUITE(TUtilUrlTest) {
         }
         // port overflow
         auto testCase = []() {
-            TStringBuf scheme("unknown"), host("unknown");
+            std::string_view scheme("unknown"), host("unknown");
             ui16 port = 0;
             GetSchemeHostAndPort("https://ya.ru:65536/bebe", scheme, host, port);
         };

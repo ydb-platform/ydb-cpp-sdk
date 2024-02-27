@@ -14,12 +14,12 @@ namespace NUrl {
      * @param[out] <host, path>     parsed host and path
      */
     struct TSplitUrlToHostAndPathResult {
-        TStringBuf host;
-        TStringBuf path;
+        std::string_view host;
+        std::string_view path;
     };
 
     Y_PURE_FUNCTION
-    TSplitUrlToHostAndPathResult SplitUrlToHostAndPath(const TStringBuf url);
+    TSplitUrlToHostAndPathResult SplitUrlToHostAndPath(const std::string_view url);
 
 } // namespace NUrl
 
@@ -29,18 +29,18 @@ Y_PURE_FUNCTION
 size_t GetHttpPrefixSize(const wchar16* url, bool ignorehttps = false) noexcept;
 
 Y_PURE_FUNCTION
-size_t GetHttpPrefixSize(const TStringBuf url, bool ignorehttps = false) noexcept;
+size_t GetHttpPrefixSize(const std::string_view url, bool ignorehttps = false) noexcept;
 
 Y_PURE_FUNCTION
 size_t GetHttpPrefixSize(const TWtringBuf url, bool ignorehttps = false) noexcept;
 
-/** BEWARE of TStringBuf! You can not use operator ~ or c_str() like in TString
+/** BEWARE of std::string_view! You can not use operator ~ or c_str() like in std::string
     !!!!!!!!!!!! */
 Y_PURE_FUNCTION
-size_t GetSchemePrefixSize(const TStringBuf url) noexcept;
+size_t GetSchemePrefixSize(const std::string_view url) noexcept;
 
 Y_PURE_FUNCTION
-TStringBuf GetSchemePrefix(const TStringBuf url) noexcept;
+std::string_view GetSchemePrefix(const std::string_view url) noexcept;
 
 //! removes protocol prefixes 'http://' and 'https://' from given URL
 //! @note if URL has no prefix or some other prefix the function does nothing
@@ -48,32 +48,32 @@ TStringBuf GetSchemePrefix(const TStringBuf url) noexcept;
 //! @param ignorehttps if true, leaves https://
 //! @return a new URL without protocol prefix
 Y_PURE_FUNCTION
-TStringBuf CutHttpPrefix(const TStringBuf url, bool ignorehttps = false) noexcept;
+std::string_view CutHttpPrefix(const std::string_view url, bool ignorehttps = false) noexcept;
 
 Y_PURE_FUNCTION
 TWtringBuf CutHttpPrefix(const TWtringBuf url, bool ignorehttps = false) noexcept;
 
 Y_PURE_FUNCTION
-TStringBuf CutSchemePrefix(const TStringBuf url) noexcept;
+std::string_view CutSchemePrefix(const std::string_view url) noexcept;
 
 //! adds specified scheme prefix if URL has no scheme
 //! @note if URL has scheme prefix already the function returns unchanged URL
-TString AddSchemePrefix(const TString& url, const TStringBuf scheme);
+std::string AddSchemePrefix(const std::string& url, const std::string_view scheme);
 
 //! Same as `AddSchemePrefix(url, "http")`.
-TString AddSchemePrefix(const TString& url);
+std::string AddSchemePrefix(const std::string& url);
 
 Y_PURE_FUNCTION
-TStringBuf GetHost(const TStringBuf url) noexcept;
+std::string_view GetHost(const std::string_view url) noexcept;
 
 Y_PURE_FUNCTION
-TStringBuf GetHostAndPort(const TStringBuf url) noexcept;
+std::string_view GetHostAndPort(const std::string_view url) noexcept;
 
 Y_PURE_FUNCTION
-TStringBuf GetSchemeHost(const TStringBuf url, bool trimHttp = true) noexcept;
+std::string_view GetSchemeHost(const std::string_view url, bool trimHttp = true) noexcept;
 
 Y_PURE_FUNCTION
-TStringBuf GetSchemeHostAndPort(const TStringBuf url, bool trimHttp = true, bool trimDefaultPort = true) noexcept;
+std::string_view GetSchemeHostAndPort(const std::string_view url, bool trimHttp = true, bool trimDefaultPort = true) noexcept;
 
 /**
  * Splits URL to host and path
@@ -82,8 +82,8 @@ TStringBuf GetSchemeHostAndPort(const TStringBuf url, bool trimHttp = true, bool
  * @param[out] host     parsed host
  * @param[out] path     parsed path
  */
-void SplitUrlToHostAndPath(const TStringBuf url, TStringBuf& host, TStringBuf& path);
-void SplitUrlToHostAndPath(const TStringBuf url, TString& host, TString& path);
+void SplitUrlToHostAndPath(const std::string_view url, std::string_view& host, std::string_view& path);
+void SplitUrlToHostAndPath(const std::string_view url, std::string& host, std::string& path);
 
 /**
  * Separates URL into url prefix, query (aka cgi params list), and fragment (aka part after #)
@@ -93,7 +93,7 @@ void SplitUrlToHostAndPath(const TStringBuf url, TString& host, TString& path);
  * @param[out] query            parsed query
  * @param[out] fragment         parsed fragment
  */
-void SeparateUrlFromQueryAndFragment(const TStringBuf url, TStringBuf& sanitizedUrl, TStringBuf& query, TStringBuf& fragment);
+void SeparateUrlFromQueryAndFragment(const std::string_view url, std::string_view& sanitizedUrl, std::string_view& query, std::string_view& fragment);
 
 /**
  * Extracts scheme, host and port from URL.
@@ -110,7 +110,7 @@ void SeparateUrlFromQueryAndFragment(const TStringBuf url, TStringBuf& sanitized
  * @return false if present port number cannot be parsed into ui16
  *         true  otherwise.
  */
-bool TryGetSchemeHostAndPort(const TStringBuf url, TStringBuf& scheme, TStringBuf& host, ui16& port);
+bool TryGetSchemeHostAndPort(const std::string_view url, std::string_view& scheme, std::string_view& host, ui16& port);
 
 /**
  * Extracts scheme, host and port from URL.
@@ -124,29 +124,29 @@ bool TryGetSchemeHostAndPort(const TStringBuf url, TStringBuf& scheme, TStringBu
  * @param[out] port     parsed port number
  * @throws yexception  if present port number cannot be parsed into ui16.
  */
-void GetSchemeHostAndPort(const TStringBuf url, TStringBuf& scheme, TStringBuf& host, ui16& port);
+void GetSchemeHostAndPort(const std::string_view url, std::string_view& scheme, std::string_view& host, ui16& port);
 
 Y_PURE_FUNCTION
-TStringBuf GetPathAndQuery(const TStringBuf url, bool trimFragment = true) noexcept;
+std::string_view GetPathAndQuery(const std::string_view url, bool trimFragment = true) noexcept;
 /**
  * Extracts host from url and cuts http(https) protocol prefix and port if any.
  * @param[in] url   any URL
  * @return          host without port and http(https) prefix.
  */
 Y_PURE_FUNCTION
-TStringBuf GetOnlyHost(const TStringBuf url) noexcept;
+std::string_view GetOnlyHost(const std::string_view url) noexcept;
 
 Y_PURE_FUNCTION
-TStringBuf GetParentDomain(const TStringBuf host, size_t level) noexcept; // ("www.ya.ru", 2) -> "ya.ru"
+std::string_view GetParentDomain(const std::string_view host, size_t level) noexcept; // ("www.ya.ru", 2) -> "ya.ru"
 
 Y_PURE_FUNCTION
-TStringBuf GetZone(const TStringBuf host) noexcept;
+std::string_view GetZone(const std::string_view host) noexcept;
 
 Y_PURE_FUNCTION
-TStringBuf CutWWWPrefix(const TStringBuf url) noexcept;
+std::string_view CutWWWPrefix(const std::string_view url) noexcept;
 
 Y_PURE_FUNCTION
-TStringBuf CutWWWNumberedPrefix(const TStringBuf url) noexcept;
+std::string_view CutWWWNumberedPrefix(const std::string_view url) noexcept;
 
 /**
  * Cuts 'm.' prefix from url if and only if the url starts with it
@@ -157,17 +157,17 @@ TStringBuf CutWWWNumberedPrefix(const TStringBuf url) noexcept;
  * @return          url without 'm.' or 'M.' prefix.
  */
 Y_PURE_FUNCTION
-TStringBuf CutMPrefix(const TStringBuf url) noexcept;
+std::string_view CutMPrefix(const std::string_view url) noexcept;
 
 Y_PURE_FUNCTION
-TStringBuf GetDomain(const TStringBuf host) noexcept; // should not be used
+std::string_view GetDomain(const std::string_view host) noexcept; // should not be used
 
-size_t NormalizeUrlName(char* dest, const TStringBuf source, size_t dest_size);
-size_t NormalizeHostName(char* dest, const TStringBuf source, size_t dest_size, ui16 defport = 80);
+size_t NormalizeUrlName(char* dest, const std::string_view source, size_t dest_size);
+size_t NormalizeHostName(char* dest, const std::string_view source, size_t dest_size, ui16 defport = 80);
 
 Y_PURE_FUNCTION
-TStringBuf RemoveFinalSlash(TStringBuf str) noexcept;
+std::string_view RemoveFinalSlash(std::string_view str) noexcept;
 
-TStringBuf CutUrlPrefixes(TStringBuf url) noexcept;
-bool DoesUrlPathStartWithToken(TStringBuf url, const TStringBuf& token) noexcept;
+std::string_view CutUrlPrefixes(std::string_view url) noexcept;
+bool DoesUrlPathStartWithToken(std::string_view url, const std::string_view& token) noexcept;
 

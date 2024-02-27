@@ -358,7 +358,7 @@ private:
     }
 
     void TestEmplaceBack2() {
-        using TPair = std::pair<int, TString>;
+        using TPair = std::pair<int, std::string>;
         NPagedVector::TPagedVector<TPair, 5> arr;
 
         for (int i = 0; i < 55; ++i) {

@@ -4,6 +4,8 @@
 #include <library/cpp/streams/lz/lz.h>
 #endif
 
+#include <library/cpp/string_builder/string_builder.h>
+#include <library/cpp/string_utils/misc/misc.h>
 #include <library/cpp/streams/brotli/brotli.h>
 #include <library/cpp/streams/lzma/lzma.h>
 #include <library/cpp/streams/bzip2/bzip2.h>
@@ -37,11 +39,11 @@ TCompressionCodecFactory::TCompressionCodecFactory() {
     Add("y-lzma", [](auto s) { return MakeHolder<TLzmaDecompress>(s); }, [](auto s) { return MakeHolder<TLzmaCompress>(s); });
 
     for (auto codecName : NBlockCodecs::ListAllCodecs()) {
-        if (codecName.StartsWith("zstd06")) {
+        if (codecName.starts_with("zstd06")) {
             continue;
         }
 
-        if (codecName.StartsWith("zstd08")) {
+        if (codecName.starts_with("zstd08")) {
             continue;
         }
 
@@ -54,12 +56,12 @@ TCompressionCodecFactory::TCompressionCodecFactory() {
         auto dec = [codec](auto s) {
             return MakeHolder<NBlockCodecs::TDecodedInput>(s, codec);
         };
-
-        Add(TString("z-") + codecName, dec, enc);
+        std::string fullName = NUtils::TYdbStringBuilder() << "z-" << codecName;
+        Add(fullName, dec, enc);
     }
 }
 
-void TCompressionCodecFactory::Add(TStringBuf name, TDecoderConstructor d, TEncoderConstructor e) {
+void TCompressionCodecFactory::Add(std::string_view name, TDecoderConstructor d, TEncoderConstructor e) {
     Strings_.emplace_back(name);
     Codecs_[Strings_.back()] = TCodec{d, e};
     BestCodecs_.emplace_back(Strings_.back());

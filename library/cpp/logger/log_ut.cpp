@@ -58,7 +58,7 @@ void TLogTest::TestFile() {
 
     TBlob data = TBlob::FromFileSingleThreaded(LOGFILE);
 
-    UNIT_ASSERT_EQUAL(TString((const char*)data.Begin(), data.Size()), "some useful data 12, 34, 3.000000, qwqwqw\n");
+    UNIT_ASSERT_EQUAL(std::string((const char*)data.Begin(), data.Size()), "some useful data 12, 34, 3.000000, qwqwqw\n");
 }
 
 void TLogTest::TestThreaded() {
@@ -77,7 +77,7 @@ void TLogTest::TestThreaded() {
 
     TBlob data = TBlob::FromFileSingleThreaded(LOGFILE);
 
-    UNIT_ASSERT_EQUAL(TString((const char*)data.Begin(), data.Size()), "some useful data 12, 34, 3.000000, qwqwqw\n");
+    UNIT_ASSERT_EQUAL(std::string((const char*)data.Begin(), data.Size()), "some useful data 12, 34, 3.000000, qwqwqw\n");
 }
 
 void TLogTest::TestThreadedWithOverflow() {
@@ -149,11 +149,11 @@ void TLogTest::TestNoFlush() {
 
     TBlob data = TBlob::FromFileSingleThreaded(LOGFILE);
 
-    UNIT_ASSERT_EQUAL(TString((const char*)data.Begin(), data.Size()), "some useful data 12, 34, 3.000000, qwqwqw\n");
+    UNIT_ASSERT_EQUAL(std::string((const char*)data.Begin(), data.Size()), "some useful data 12, 34, 3.000000, qwqwqw\n");
 }
 
 void TLogTest::TestFormat() {
-    TStringStream data;
+    std::stringStream data;
 
     {
         TLog log(THolder(new TStreamLogBackend(&data)));
@@ -167,8 +167,8 @@ void TLogTest::TestFormat() {
 }
 
 void TLogTest::TestWrite() {
-    TStringStream data;
-    TString test;
+    std::stringStream data;
+    std::string test;
 
     {
         TLog log(THolder(new TStreamLogBackend(&data)));
@@ -205,7 +205,7 @@ void TLogTest::TestMetaFlags() {
 
     TLogRecord::TMetaFlags metaFlags;
     TLog log(MakeHolder<TTestLogBackendStub>(metaFlags));
-    log.Write(ELogPriority::TLOG_INFO, TString("message"), {{"key", "value"}});
+    log.Write(ELogPriority::TLOG_INFO, std::string("message"), {{"key", "value"}});
 
     TLogRecord::TMetaFlags expected{{"key", "value"}};
     UNIT_ASSERT_EQUAL(metaFlags, expected);

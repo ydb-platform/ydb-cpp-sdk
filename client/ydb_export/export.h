@@ -30,15 +30,15 @@ struct TExportItemProgress {
 /// YT
 struct TExportToYtSettings : public TOperationRequestSettings<TExportToYtSettings> {
     struct TItem {
-        TString Src;
-        TString Dst;
+        std::string Src;
+        std::string Dst;
     };
 
-    FLUENT_SETTING(TString, Host);
+    FLUENT_SETTING(std::string, Host);
     FLUENT_SETTING_OPTIONAL(ui16, Port);
-    FLUENT_SETTING(TString, Token);
+    FLUENT_SETTING(std::string, Token);
     FLUENT_SETTING_VECTOR(TItem, Item);
-    FLUENT_SETTING_OPTIONAL(TString, Description);
+    FLUENT_SETTING_OPTIONAL(std::string, Description);
     FLUENT_SETTING_OPTIONAL(ui32, NumberOfRetries);
     FLUENT_SETTING_DEFAULT(bool, UseTypeV3, false);
 };
@@ -81,15 +81,15 @@ struct TExportToS3Settings : public TOperationRequestSettings<TExportToS3Setting
     };
 
     struct TItem {
-        TString Src;
-        TString Dst;
+        std::string Src;
+        std::string Dst;
     };
 
     FLUENT_SETTING_DEFAULT(EStorageClass, StorageClass, EStorageClass::NOT_SET);
     FLUENT_SETTING_VECTOR(TItem, Item);
-    FLUENT_SETTING_OPTIONAL(TString, Description);
+    FLUENT_SETTING_OPTIONAL(std::string, Description);
     FLUENT_SETTING_OPTIONAL(ui32, NumberOfRetries);
-    FLUENT_SETTING_OPTIONAL(TString, Compression);
+    FLUENT_SETTING_OPTIONAL(std::string, Compression);
 };
 
 class TExportToS3Response : public TOperation {

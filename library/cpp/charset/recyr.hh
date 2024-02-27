@@ -110,14 +110,14 @@ inline RECODE_RESULT Recode(ECharset from, ECharset to, const char* in, char* ou
  * @return false if conversion was not attempted (charsets were the same),
  *         true if successful
  */
-inline bool Recode(ECharset from, ECharset to, const TStringBuf& in, TString& out) {
+inline bool Recode(ECharset from, ECharset to, const std::string_view& in, std::string& out) {
     if (to == from)
         return false;
 
     const size_t inSize = in.length();
     const size_t outSize = SingleByteCodepage(to) ? inSize : 3 * inSize;
     out.clear(); // so we don't copy stuff around when resizing
-    out.ReserveAndResize(outSize);
+    out.resize(outSize);
 
     size_t inRead = 0;
     size_t outWritten = 0;
@@ -127,28 +127,28 @@ inline bool Recode(ECharset from, ECharset to, const TStringBuf& in, TString& ou
         ythrow yexception() << "Recode overrun the buffer: size="
                             << outSize << " need=" << outWritten;
 
-    out.remove(outWritten);
+    out.erase(outWritten);
     return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//     TString -> TString                                                              //
+//     std::string -> std::string                                                              //
 ///////////////////////////////////////////////////////////////////////////////////////
-inline TString Recode(ECharset from, ECharset to, const TString& in) {
-    TString out;
+inline std::string Recode(ECharset from, ECharset to, const std::string& in) {
+    std::string out;
     return to != from && Recode(from, to, in, out) ? out : in;
 }
-inline TString RecodeToYandex(ECharset from, const TString& in) {
+inline std::string RecodeToYandex(ECharset from, const std::string& in) {
     return Recode(from, CODES_YANDEX, in);
 }
-inline TString RecodeFromYandex(ECharset to, const TString& in) {
+inline std::string RecodeFromYandex(ECharset to, const std::string& in) {
     return Recode(CODES_YANDEX, to, in);
 }
 
-inline TString RecodeToHTMLEntities(ECharset from, const TString& in) {
+inline std::string RecodeToHTMLEntities(ECharset from, const std::string& in) {
     RECODE_RESULT res;
     size_t outWritten, inRead;
-    TString out;
+    std::string out;
     out.resize(in.length() * (4 + 4));
     res = NCodepagePrivate::_recodeToHTMLEntities(from, in.c_str(), out.begin(), in.length(), out.length(), inRead, outWritten);
     if (res == RECODE_EOOUTPUT) { //input contains many 8-byte characters?

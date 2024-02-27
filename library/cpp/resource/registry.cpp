@@ -1,6 +1,7 @@
 #include "registry.h"
 
 #include <library/cpp/blockcodecs/core/codecs.h>
+#include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/system/yassert.h>
 #include <util/generic/hash.h>
@@ -18,12 +19,12 @@ namespace {
         return ret;
     }
 
-    typedef std::pair<TStringBuf, TStringBuf> TDescriptor;
+    typedef std::pair<std::string_view, std::string_view> TDescriptor;
 
-    struct TStore: public IStore, public THashMap<TStringBuf, TDescriptor*> {
-        void Store(const TStringBuf key, const TStringBuf data) override {
+    struct TStore: public IStore, public THashMap<std::string_view, TDescriptor*> {
+        void Store(const std::string_view key, const std::string_view data) override {
             if (contains(key)) {
-                const TStringBuf value = (*this)[key]->second;
+                const std::string_view value = (*this)[key]->second;
                 if (value != data) {
                     size_t vsize = GetCodec()->DecompressedLength(value);
                     size_t dsize = GetCodec()->DecompressedLength(data);
@@ -31,14 +32,14 @@ namespace {
                         Y_ABORT_UNLESS(false, "Redefinition of key %s:\n"
                                  "  old value: %s,\n"
                                  "  new value: %s.",
-                                 TString{key}.Quote().c_str(),
-                                 Decompress(value).Quote().c_str(),
-                                 Decompress(data).Quote().c_str());
+                                 NUtils::Quote(key).c_str(),
+                                 NUtils::Quote(Decompress(value)).c_str(),
+                                 NUtils::Quote(Decompress(data)).c_str());
                     } else {
                         Y_ABORT_UNLESS(false, "Redefinition of key %s,"
                                  " old size: %zu,"
                                  " new size: %zu.",
-                                 TString{key}.Quote().c_str(), vsize, dsize);
+                                 NUtils::Quote(key).c_str(), vsize, dsize);
                     }
                 }
             } else {
@@ -49,11 +50,11 @@ namespace {
             Y_ABORT_UNLESS(size() == Count(), "size mismatch");
         }
 
-        bool Has(const TStringBuf key) const override {
+        bool Has(const std::string_view key) const override {
             return contains(key);
         }
 
-        bool FindExact(const TStringBuf key, TString* out) const override {
+        bool FindExact(const std::string_view key, std::string* out) const override {
             if (TDescriptor* const* res = FindPtr(key)) {
                 // temporary
                 // https://st.yandex-team.ru/DEVTOOLS-3985
@@ -72,9 +73,9 @@ namespace {
             return false;
         }
 
-        void FindMatch(const TStringBuf subkey, IMatch& cb) const override {
+        void FindMatch(const std::string_view subkey, IMatch& cb) const override {
             for (const auto& it : *this) {
-                if (it.first.StartsWith(subkey)) {
+                if (it.first.starts_with(subkey)) {
                     // temporary
                     // https://st.yandex-team.ru/DEVTOOLS-3985
                     try {
@@ -95,7 +96,7 @@ namespace {
             return D_.size();
         }
 
-        TStringBuf KeyByIndex(size_t idx) const override {
+        std::string_view KeyByIndex(size_t idx) const override {
             return D_.at(idx).first;
         }
 
@@ -104,11 +105,11 @@ namespace {
     };
 }
 
-TString NResource::Compress(const TStringBuf data) {
+std::string NResource::Compress(const std::string_view data) {
     return GetCodec()->Encode(data);
 }
 
-TString NResource::Decompress(const TStringBuf data) {
+std::string NResource::Decompress(const std::string_view data) {
     return GetCodec()->Decode(data);
 }
 

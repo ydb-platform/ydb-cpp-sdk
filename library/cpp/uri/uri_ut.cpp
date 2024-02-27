@@ -67,8 +67,8 @@ namespace NUri {
             UNIT_ASSERT(base.IsValidAbs());
             UNIT_ASSERT_VALUES_EQUAL(base.PrintS(), urls[0]);
 
-            TString errbuf;
-            TStringOutput out(errbuf);
+            std::string errbuf;
+            std::stringOutput out(errbuf);
             const long mflag = TFeature::FeaturesAll;
             for (int i = 1; urls[i]; i += 2) {
                 er = rel.Parse(urls[i]);
@@ -137,7 +137,7 @@ namespace NUri {
                 UNIT_ASSERT_VALUES_EQUAL_C(er, TState::ParsedOK, link4Norm[i].base);
                 TUri::TLinkType ltype = normalizedLink.Normalize(base, link4Norm[i].link);
                 UNIT_ASSERT_VALUES_EQUAL_C(ltype, link4Norm[i].ltype, link4Norm[i].link);
-                TString s = TUri::LinkIsBad == ltype ? "" : normalizedLink.PrintS();
+                std::string s = TUri::LinkIsBad == ltype ? "" : normalizedLink.PrintS();
                 UNIT_ASSERT_VALUES_EQUAL_C(s, link4Norm[i].result, link4Norm[i].link);
             }
         }
@@ -152,13 +152,13 @@ namespace NUri {
         Y_UNIT_TEST(test_httpURLPathOperation) {
             char copyUrl[URL_MAXLEN];
             for (int i = 0; urlsWithMultipleSlash[i]; i += 2) {
-                const TStringBuf url(urlsWithMultipleSlash[i]);
-                const TStringBuf normurl(urlsWithMultipleSlash[i + 1]);
+                const std::string_view url(urlsWithMultipleSlash[i]);
+                const std::string_view normurl(urlsWithMultipleSlash[i + 1]);
                 memcpy(copyUrl, url.data(), url.length());
                 char* p = copyUrl;
                 char* e = copyUrl + url.length();
                 TUri::PathOperation(p, e, 1);
-                UNIT_ASSERT_VALUES_EQUAL(TStringBuf(p, e), normurl);
+                UNIT_ASSERT_VALUES_EQUAL(std::string_view(p, e), normurl);
                 TUri uri;
                 UNIT_ASSERT_VALUES_EQUAL(TState::ParsedOK, uri.Parse(url));
                 UNIT_ASSERT_VALUES_EQUAL_C(uri.PrintS(), normurl, url);
@@ -323,7 +323,7 @@ namespace NUri {
             // cause a dirty field
             url.FldMemSet(TField::FieldUser, "use"); // it is now shorter
             UNIT_ASSERT(!url.FldIsDirty());
-            url.FldMemSet(TField::FieldUser, TStringBuf("user"));
+            url.FldMemSet(TField::FieldUser, std::string_view("user"));
             UNIT_ASSERT(url.FldIsDirty());
 
             // copy again
@@ -346,7 +346,7 @@ namespace NUri {
             url2 = url;
             URL_EQ(url, url2);
             // set query to null value (should clear it)
-            url2.FldMemSet(TField::FieldQuery, TStringBuf());
+            url2.FldMemSet(TField::FieldQuery, std::string_view());
             // make sure they are no longer equal
             URL_NEQ(url, url2);
             // reset query
@@ -374,9 +374,9 @@ namespace NUri {
             }
 
             {
-                const TString scheme = "http";
-                const TString host = "host.com";
-                const TString urlstr = scheme + "://" + host;
+                const std::string scheme = "http";
+                const std::string host = "host.com";
+                const std::string urlstr = scheme + "://" + host;
                 TTest test = {
                     urlstr, TFeature::FeaturesAll | TFeature::FeatureNoRelPath, TState::ParsedOK, scheme, "", "", host, 80, "/", "", "", ""};
                 TUri url;
@@ -496,9 +496,9 @@ namespace NUri {
         Y_UNIT_TEST(test10) {
             // test some escaping madness, note the ehost vs host
             {
-                TString host = "президент.рф";
-                TString ehost = "%D0%BF%D1%80%D0%B5%D0%B7%D0%B8%D0%B4%D0%B5%D0%BD%D1%82.%D1%80%D1%84";
-                const TString urlstr = TString::Join("http://", host, "/");
+                std::string host = "президент.рф";
+                std::string ehost = "%D0%BF%D1%80%D0%B5%D0%B7%D0%B8%D0%B4%D0%B5%D0%BD%D1%82.%D1%80%D1%84";
+                const std::string urlstr = std::string::Join("http://", host, "/");
                 TTest test = {
                     urlstr, TFeature::FeatureEncodeExtendedASCII | TFeature::FeaturesDefault | TFeature::FeatureCheckHost, TState::ParsedBadHost, "http", "", "", ehost, 80, "/", "", "", ""};
                 TUri url;
@@ -506,8 +506,8 @@ namespace NUri {
             }
 
             {
-                TString host = "%D0%BF%D1%80%D0%B5%D0%B7%D0%B8%D0%B4%D0%B5%D0%BD%D1%82.%D1%80%D1%84";
-                const TString urlstr = TString::Join("http://", host, "/");
+                std::string host = "%D0%BF%D1%80%D0%B5%D0%B7%D0%B8%D0%B4%D0%B5%D0%BD%D1%82.%D1%80%D1%84";
+                const std::string urlstr = std::string::Join("http://", host, "/");
                 TTest test = {
                     urlstr, TFeature::FeatureEncodeExtendedASCII | TFeature::FeaturesDefault | TFeature::FeatureCheckHost, TState::ParsedBadHost, "http", "", "", host, 80, "/", "", "", ""};
                 TUri url;
@@ -515,9 +515,9 @@ namespace NUri {
             }
 
             {
-                TString host = "Фilip.ru";
-                TString ehost = "%D0%A4ilip.ru";
-                const TString urlstr = TString::Join("http://", host);
+                std::string host = "Фilip.ru";
+                std::string ehost = "%D0%A4ilip.ru";
+                const std::string urlstr = std::string::Join("http://", host);
                 TTest test = {
                     urlstr, TFeature::FeatureEncodeExtendedASCII | TFeature::FeaturesDefault, TState::ParsedBadHost, "http", "", "", ehost, 80, "/", "", "", ""};
                 TUri url;
@@ -525,8 +525,8 @@ namespace NUri {
             }
 
             {
-                TString host = "%D0%A4ilip.ru";
-                const TString urlstr = TString::Join("http://", host);
+                std::string host = "%D0%A4ilip.ru";
+                const std::string urlstr = std::string::Join("http://", host);
                 TTest test = {
                     urlstr, TFeature::FeatureEncodeExtendedASCII | TFeature::FeaturesDefault, TState::ParsedBadHost, "http", "", "", host, 80, "/", "", "", ""};
                 TUri url;
@@ -534,9 +534,9 @@ namespace NUri {
             }
 
             {
-                TString host = "Filip%90.rЯ";
-                TString ehost = "Filip%90.r%D0%AF";
-                const TString urlstr = TString::Join(host, ":8080");
+                std::string host = "Filip%90.rЯ";
+                std::string ehost = "Filip%90.r%D0%AF";
+                const std::string urlstr = std::string::Join(host, ":8080");
                 TTest test = {
                     urlstr, TFeature::FeatureEncodeExtendedASCII | TFeature::FeatureDecodeAllowed | TFeature::FeaturesDefault | TFeature::FeatureNoRelPath, TState::ParsedBadHost, "", "", "", ehost, 8080, "", "", "", ""};
                 TUri url;
@@ -544,8 +544,8 @@ namespace NUri {
             }
 
             {
-                TString host = "Filip%90.r%D0%AF";
-                const TString urlstr = TString::Join(host, ":8080");
+                std::string host = "Filip%90.r%D0%AF";
+                const std::string urlstr = std::string::Join(host, ":8080");
                 TTest test = {
                     urlstr, TFeature::FeatureEncodeExtendedASCII | TFeature::FeatureDecodeAllowed | TFeature::FeaturesDefault | TFeature::FeatureNoRelPath, TState::ParsedBadHost, "", "", "", host, 8080, "", "", "", ""};
                 TUri url;
@@ -772,13 +772,13 @@ namespace NUri {
 
         Y_UNIT_TEST(testReEncode) {
             {
-                TStringStream out;
+                std::stringStream out;
                 TUri::ReEncode(out, "foo bar");
                 UNIT_ASSERT_VALUES_EQUAL(out.Str(), "foo%20bar");
             }
         }
 
-        static const TStringBuf NonRfcUrls[] = {
+        static const std::string_view NonRfcUrls[] = {
             "http://deshevle.ru/price/price=&SrchTp=1&clID=24&BL=SrchTp=0|clID=24&frmID=75&SortBy=P&PreSort=&NmDir=0&VndDir=0&PrDir=0&SPP=44",
             "http://secure.rollerwarehouse.com/skates/aggressive/skates/c/11[03]/tx/$$$+11[03][a-z]",
             "http://secure.rollerwarehouse.com/skates/aggressive/skates/tx/$$$+110[a-z]",
@@ -796,14 +796,14 @@ namespace NUri {
             TUri url;
             const long flags = TFeature::FeaturesRobot;
             for (size_t i = 0;; ++i) {
-                const TStringBuf& buf = NonRfcUrls[i];
+                const std::string_view& buf = NonRfcUrls[i];
                 if (!buf.IsInited())
                     break;
                 UNIT_ASSERT_VALUES_EQUAL(TState::ParsedOK, url.Parse(buf, flags));
             }
         }
 
-        static const TStringBuf CheckParseException[] = {
+        static const std::string_view CheckParseException[] = {
             "http://www.'>'.com/?.net/",
             nullptr};
 
@@ -811,10 +811,10 @@ namespace NUri {
             TUri url;
             const long flags = TFeature::FeaturesRobot | TFeature::FeaturesEncode;
             for (size_t i = 0;; ++i) {
-                const TStringBuf& buf = CheckParseException[i];
+                const std::string_view& buf = CheckParseException[i];
                 if (!buf.IsInited())
                     break;
-                TString what;
+                std::string what;
                 try {
                     // we care only about exceptions, not whether it parses correctly
                     url.Parse(buf, flags);
@@ -832,13 +832,13 @@ namespace NUri {
             TUri uri;
             {
                 uri.Parse("http://srv.net:9100/print", TFeature::FeaturesRecommended);
-                TString s = uri.PrintS(TUri::FlagPort);
+                std::string s = uri.PrintS(TUri::FlagPort);
                 Cdbg << uri.PrintS() << ',' << uri.PrintS(TUri::FlagPort) << Endl;
                 UNIT_ASSERT_VALUES_EQUAL(9100, FromString<ui32>(s));
             }
             {
                 uri.Parse("http://srv.net:80/print", TFeature::FeaturesRecommended);
-                TString s = uri.PrintS(TUri::FlagPort);
+                std::string s = uri.PrintS(TUri::FlagPort);
                 Cdbg << uri.PrintS() << ',' << uri.PrintS(TUri::FlagPort) << Endl;
                 UNIT_ASSERT(s.Empty());
             }
@@ -913,31 +913,31 @@ namespace NUri {
 
     Y_UNIT_TEST_SUITE(TInvertDomainTest) {
         Y_UNIT_TEST(TestInvert) {
-            TString a;
+            std::string a;
             UNIT_ASSERT_EQUAL(InvertDomain(a), "");
-            TString aa(".:/foo");
+            std::string aa(".:/foo");
             UNIT_ASSERT_EQUAL(InvertDomain(aa), ".:/foo");
-            TString aaa("/foo.bar:");
+            std::string aaa("/foo.bar:");
             UNIT_ASSERT_EQUAL(InvertDomain(aaa), "/foo.bar:");
-            TString b("ru");
+            std::string b("ru");
             UNIT_ASSERT_EQUAL(InvertDomain(b), "ru");
-            TString c(".ru");
+            std::string c(".ru");
             UNIT_ASSERT_EQUAL(InvertDomain(c), "ru.");
-            TString d("ru.");
+            std::string d("ru.");
             UNIT_ASSERT_EQUAL(InvertDomain(d), ".ru");
-            TString e("www.yandex.ru:80/yandsearch?text=foo");
+            std::string e("www.yandex.ru:80/yandsearch?text=foo");
             UNIT_ASSERT_EQUAL(InvertDomain(e), "ru.yandex.www:80/yandsearch?text=foo");
-            TString f("www.yandex.ru:80/yandsearch?text=foo");
+            std::string f("www.yandex.ru:80/yandsearch?text=foo");
             InvertDomain(f.begin(), f.begin() + 10);
             UNIT_ASSERT_EQUAL(f, "yandex.www.ru:80/yandsearch?text=foo");
-            TString g("https://www.yandex.ru:80//");
+            std::string g("https://www.yandex.ru:80//");
             UNIT_ASSERT_EQUAL(InvertDomain(g), "https://ru.yandex.www:80//");
-            TString h("www.yandex.ru:8080/redir.pl?url=https://google.com/");
+            std::string h("www.yandex.ru:8080/redir.pl?url=https://google.com/");
             UNIT_ASSERT_EQUAL(InvertDomain(h), "ru.yandex.www:8080/redir.pl?url=https://google.com/");
         }
     }
 
-    TQueryArg::EProcessed ProcessQargs(TString url, TString& processed, TQueryArgFilter filter = 0, void* filterData = 0) {
+    TQueryArg::EProcessed ProcessQargs(std::string url, std::string& processed, TQueryArgFilter filter = 0, void* filterData = 0) {
         TUri uri;
         uri.Parse(url, NUri::TFeature::FeaturesRecommended);
 
@@ -947,8 +947,8 @@ namespace NUri {
         return result;
     }
 
-    TString SortQargs(TString url) {
-        TString r;
+    std::string SortQargs(std::string url) {
+        std::string r;
         ProcessQargs(url, r);
         return r;
     }
@@ -958,8 +958,8 @@ namespace NUri {
         return arg.Name != skipName;
     }
 
-    TString FilterQargs(TString url, const char* name) {
-        TString r;
+    std::string FilterQargs(std::string url, const char* name) {
+        std::string r;
         ProcessQargs(url, r, &QueryArgsFilter, const_cast<char*>(name));
         return r;
     }
@@ -984,7 +984,7 @@ namespace NUri {
         }
 
         Y_UNIT_TEST(TestParsingCorners) {
-            TString s;
+            std::string s;
 
             UNIT_ASSERT_EQUAL(ProcessQargs("http://ya.ru/?=", s), TQueryArg::ProcessedOK);
             UNIT_ASSERT_EQUAL(ProcessQargs("http://ya.ru/?some", s), TQueryArg::ProcessedOK);

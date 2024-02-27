@@ -23,7 +23,7 @@ TExecStats::TExecStats(Ydb::TableStats::QueryStats&& proto) {
     Impl_->Proto = std::move(proto);
 }
 
-TString TExecStats::ToString(bool withPlan) const {
+std::string TExecStats::ToString(bool withPlan) const {
     auto proto = Impl_->Proto;
 
     if (!withPlan) {
@@ -31,12 +31,12 @@ TString TExecStats::ToString(bool withPlan) const {
         proto.clear_query_ast();
     }
 
-    TString res;
+    std::string res;
     ::google::protobuf::TextFormat::PrintToString(proto, &res);
     return res;
 }
 
-TMaybe<TString> TExecStats::GetPlan() const {
+TMaybe<std::string> TExecStats::GetPlan() const {
     auto proto = Impl_->Proto;
 
     if (proto.query_plan().empty()) {

@@ -7,7 +7,7 @@ namespace NYT {
 ////////////////////////////////////////////////////////////////////////////////
 
 template <bool failOnError>
-std::optional<TString> DecodeEnumValueImpl(TStringBuf value)
+std::optional<std::string> DecodeEnumValueImpl(std::string_view value)
 {
     auto camelValue = UnderscoreCaseToCamelCase(value);
     auto underscoreValue = CamelCaseToUnderscoreCase(camelValue);
@@ -23,33 +23,33 @@ std::optional<TString> DecodeEnumValueImpl(TStringBuf value)
     return camelValue;
 }
 
-std::optional<TString> TryDecodeEnumValue(TStringBuf value)
+std::optional<std::string> TryDecodeEnumValue(std::string_view value)
 {
     return DecodeEnumValueImpl<false>(value);
 }
 
-TString DecodeEnumValue(TStringBuf value)
+std::string DecodeEnumValue(std::string_view value)
 {
     auto decodedValue = DecodeEnumValueImpl<true>(value);
     YT_VERIFY(decodedValue);
     return *decodedValue;
 }
 
-TString EncodeEnumValue(TStringBuf value)
+std::string EncodeEnumValue(std::string_view value)
 {
     return CamelCaseToUnderscoreCase(value);
 }
 
 namespace NDetail {
 
-void ThrowMalformedEnumValueException(TStringBuf typeName, TStringBuf value)
+void ThrowMalformedEnumValueException(std::string_view typeName, std::string_view value)
 {
     throw TSimpleException(Format("Error parsing %v value %Qv",
         typeName,
         value));
 }
 
-void FormatUnknownEnumValue(TStringBuilderBase* builder, TStringBuf name, i64 value)
+void FormatUnknownEnumValue(TStringBuilderBase* builder, std::string_view name, i64 value)
 {
     builder->AppendFormat("%v(%v)", name, value);
 }

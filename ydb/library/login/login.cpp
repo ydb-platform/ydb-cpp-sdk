@@ -1,5 +1,6 @@
 #include <contrib/libs/jwt-cpp/include/jwt-cpp/jwt.h>
 #include <library/cpp/digest/argonish/argon2.h>
+#include <library/cpp/string_builder/string_builder.h>
 #include <library/cpp/string_utils/base64/base64.h>
 #include <library/cpp/json/json_value.h>
 #include <library/cpp/json/json_reader.h>
@@ -31,9 +32,9 @@ struct TLoginProvider::TImpl {
             1 // number of threads and lanes
             );
     }
-    void GenerateKeyPair(TString& publicKey, TString& privateKey);
-    TString GenerateHash(const TString& password);
-    bool VerifyHash(const TString& password, const TString& hash);
+    void GenerateKeyPair(std::string& publicKey, std::string& privateKey);
+    std::string GenerateHash(const std::string& password);
+    bool VerifyHash(const std::string& password, const std::string& hash);
 };
 
 TLoginProvider::TLoginProvider()
@@ -43,7 +44,7 @@ TLoginProvider::TLoginProvider()
 TLoginProvider::~TLoginProvider()
 {}
 
-bool TLoginProvider::CheckAllowedName(const TString& name) {
+bool TLoginProvider::CheckAllowedName(const std::string& name) {
     return name.find_first_not_of("abcdefghijklmnopqrstuvwxyz0123456789") == std::string::npos;
 }
 
@@ -54,7 +55,7 @@ TLoginProvider::TBasicResponse TLoginProvider::CreateUser(const TCreateUserReque
         response.Error = "Name is not allowed";
         return response;
     }
-    auto itUserCreate = Sids.emplace(request.User, TSidRecord{.Type = NLoginProto::ESidType::USER});
+    auto itUserCreate = Sids.emplace(request.User, TSidRecord{.Type = ESidType::USER});
     if (!itUserCreate.second) {
         if (itUserCreate.first->second.Type == ESidType::USER) {
             response.Error = "User already exists";
@@ -71,12 +72,12 @@ TLoginProvider::TBasicResponse TLoginProvider::CreateUser(const TCreateUserReque
     return response;
 }
 
-bool TLoginProvider::CheckSubjectExists(const TString& name, const ESidType::SidType& type) {
+bool TLoginProvider::CheckSubjectExists(const std::string& name, const ESidType::SidType& type) {
     auto itSidModify = Sids.find(name);
     return itSidModify != Sids.end() && itSidModify->second.Type == type;
 }
 
-bool TLoginProvider::CheckUserExists(const TString& name) {
+bool TLoginProvider::CheckUserExists(const std::string& name) {
     return CheckSubjectExists(name, ESidType::USER);
 }
 
@@ -108,7 +109,7 @@ TLoginProvider::TRemoveUserResponse TLoginProvider::RemoveUser(const TRemoveUser
 
     auto itChildToParentIndex = ChildToParentIndex.find(request.User);
     if (itChildToParentIndex != ChildToParentIndex.end()) {
-        for (const TString& parent : itChildToParentIndex->second) {
+        for (const std::string& parent : itChildToParentIndex->second) {
             auto itGroup = Sids.find(parent);
             if (itGroup != Sids.end()) {
                 response.TouchedGroups.emplace_back(itGroup->first);
@@ -163,7 +164,7 @@ TLoginProvider::TBasicResponse TLoginProvider::AddGroupMembership(const TAddGrou
     TSidRecord& group = itGroupModify->second;
 
     if (group.Members.count(request.Member)) {
-        response.Notice = TStringBuilder() << "Role \"" << request.Member << "\" is already a member of role \"" << group.Name << "\"";
+        response.Notice = NUtils::TYdbStringBuilder() << "Role \"" << request.Member << "\" is already a member of role \"" << group.Name << "\"";
     } else {
         group.Members.insert(request.Member);
     }
@@ -185,7 +186,7 @@ TLoginProvider::TBasicResponse TLoginProvider::RemoveGroupMembership(const TRemo
     TSidRecord& group = itGroupModify->second;
 
     if (!group.Members.count(request.Member)) {
-        response.Warning = TStringBuilder() << "Role \"" << request.Member << "\" is not a member of role \"" << group.Name << "\"";
+        response.Warning = NUtils::TYdbStringBuilder() << "Role \"" << request.Member << "\" is not a member of role \"" << group.Name << "\"";
     } else {
         group.Members.erase(request.Member);
     }
@@ -225,7 +226,7 @@ TLoginProvider::TRenameGroupResponse TLoginProvider::RenameGroup(const TRenameGr
     auto itChildToParentIndex = ChildToParentIndex.find(request.Group);
     if (itChildToParentIndex != ChildToParentIndex.end()) {
         ChildToParentIndex[request.NewName] = itChildToParentIndex->second;
-        for (const TString& parent : ChildToParentIndex[request.NewName]) {
+        for (const std::string& parent : ChildToParentIndex[request.NewName]) {
             auto itGroup = Sids.find(parent);
             if (itGroup != Sids.end()) {
                 response.TouchedGroups.emplace_back(itGroup->first);
@@ -236,7 +237,7 @@ TLoginProvider::TRenameGroupResponse TLoginProvider::RenameGroup(const TRenameGr
         ChildToParentIndex.erase(itChildToParentIndex);
     }
 
-    for (const TString& member : itGroupModify->second.Members) {
+    for (const std::string& member : itGroupModify->second.Members) {
         ChildToParentIndex[member].erase(request.Group);
         ChildToParentIndex[member].insert(request.NewName);
     }
@@ -259,7 +260,7 @@ TLoginProvider::TRemoveGroupResponse TLoginProvider::RemoveGroup(const TRemoveGr
 
     auto itChildToParentIndex = ChildToParentIndex.find(request.Group);
     if (itChildToParentIndex != ChildToParentIndex.end()) {
-        for (const TString& parent : itChildToParentIndex->second) {
+        for (const std::string& parent : itChildToParentIndex->second) {
             auto itGroup = Sids.find(parent);
             if (itGroup != Sids.end()) {
                 response.TouchedGroups.emplace_back(itGroup->first);
@@ -269,7 +270,7 @@ TLoginProvider::TRemoveGroupResponse TLoginProvider::RemoveGroup(const TRemoveGr
         ChildToParentIndex.erase(itChildToParentIndex);
     }
 
-    for (const TString& member : itGroupModify->second.Members) {
+    for (const std::string& member : itGroupModify->second.Members) {
         ChildToParentIndex[member].erase(request.Group);
     }
 
@@ -278,17 +279,17 @@ TLoginProvider::TRemoveGroupResponse TLoginProvider::RemoveGroup(const TRemoveGr
     return response;
 }
 
-std::vector<TString> TLoginProvider::GetGroupsMembership(const TString& member) {
-    std::vector<TString> groups;
-    std::unordered_set<TString> visited;
-    std::deque<TString> queue;
+std::vector<std::string> TLoginProvider::GetGroupsMembership(const std::string& member) {
+    std::vector<std::string> groups;
+    std::unordered_set<std::string> visited;
+    std::deque<std::string> queue;
     queue.push_back(member);
     while (!queue.empty()) {
-        TString member = queue.front();
+        std::string member = queue.front();
         queue.pop_front();
         auto itChildToParentIndex = ChildToParentIndex.find(member);
         if (itChildToParentIndex != ChildToParentIndex.end()) {
-            for (const TString& parent : itChildToParentIndex->second) {
+            for (const std::string& parent : itChildToParentIndex->second) {
                 if (visited.insert(parent).second) {
                     queue.push_back(parent);
                     groups.push_back(parent);
@@ -301,7 +302,7 @@ std::vector<TString> TLoginProvider::GetGroupsMembership(const TString& member) 
 
 TLoginProvider::TLoginUserResponse TLoginProvider::LoginUser(const TLoginUserRequest& request) {
     TLoginUserResponse response;
-    if (!request.ExternalAuth) {
+    if (request.ExternalAuth.empty()) {
         auto itUser = Sids.find(request.User);
         if (itUser == Sids.end() || itUser->second.Type != ESidType::USER) {
             response.Error = "Invalid user";
@@ -342,7 +343,7 @@ TLoginProvider::TLoginUserResponse TLoginProvider::LoginUser(const TLoginUserReq
         token.set_audience(Audience);
     }
 
-    if (request.ExternalAuth) {
+    if (!request.ExternalAuth.empty()) {
         token.set_payload_claim(EXTERNAL_AUTH_CLAIM_NAME, jwt::claim(request.ExternalAuth));
     } else {
         if (request.Options.WithUserGroups) {
@@ -353,7 +354,7 @@ TLoginProvider::TLoginUserResponse TLoginProvider::LoginUser(const TLoginUserReq
 
     auto encoded_token = token.sign(algorithm);
 
-    response.Token = TString(encoded_token);
+    response.Token = std::string(encoded_token);
 
     return response;
 }
@@ -380,10 +381,10 @@ TLoginProvider::TValidateTokenResponse TLoginProvider::ValidateToken(const TVali
     TLoginProvider::TValidateTokenResponse response;
     try {
         jwt::decoded_jwt decoded_token = jwt::decode(request.Token);
-        if (Audience) {
+        if (!Audience.empty()) {
             // we check audience manually because we wan't this error instead of wrong key id in case of databases mismatch
             auto audience = decoded_token.get_audience();
-            if (audience.empty() || TString(*audience.begin()) != Audience) {
+            if (audience.empty() || std::string(*audience.begin()) != Audience) {
                 response.Error = "Wrong audience";
                 return response;
             }
@@ -393,7 +394,7 @@ TLoginProvider::TValidateTokenResponse TLoginProvider::ValidateToken(const TVali
         if (key != nullptr) {
             auto verifier = jwt::verify()
                 .allow_algorithm(jwt::algorithm::ps256(key->PublicKey));
-            if (Audience) {
+            if (!Audience.empty()) {
                 verifier.with_audience(std::set<std::string>({Audience}));
             }
             verifier.verify(decoded_token);
@@ -403,7 +404,7 @@ TLoginProvider::TValidateTokenResponse TLoginProvider::ValidateToken(const TVali
                 const jwt::claim& groups = decoded_token.get_payload_claim(GROUPS_CLAIM_NAME);
                 if (groups.get_type() == jwt::claim::type::array) {
                     const picojson::array& array = groups.as_array();
-                    std::vector<TString> groups;
+                    std::vector<std::string> groups;
                     groups.resize(array.size());
                     for (size_t i = 0; i < array.size(); ++i) {
                         groups[i] = array[i].get<std::string>();
@@ -417,7 +418,7 @@ TLoginProvider::TValidateTokenResponse TLoginProvider::ValidateToken(const TVali
                     response.ExternalAuth = externalAuthClaim.as_string();
                 }
             } else if (!Sids.empty()) {
-                auto itUser = Sids.find(TString(decoded_token.get_subject()));
+                auto itUser = Sids.find(std::string(decoded_token.get_subject()));
                 if (itUser == Sids.end()) {
                     response.Error = "Token is valid, but subject wasn't found";
                 }
@@ -449,12 +450,12 @@ TLoginProvider::TValidateTokenResponse TLoginProvider::ValidateToken(const TVali
     return response;
 }
 
-TString TLoginProvider::GetTokenAudience(const TString& token) {
+std::string TLoginProvider::GetTokenAudience(const std::string& token) {
     try {
         jwt::decoded_jwt decoded_token = jwt::decode(token);
         auto audience = decoded_token.get_audience();
         if (!audience.empty()) {
-            return TString(*audience.begin());
+            return std::string(*audience.begin());
         }
     }
     catch (...) {
@@ -462,7 +463,7 @@ TString TLoginProvider::GetTokenAudience(const TString& token) {
     return {};
 }
 
-std::chrono::system_clock::time_point TLoginProvider::GetTokenExpiresAt(const TString& token) {
+std::chrono::system_clock::time_point TLoginProvider::GetTokenExpiresAt(const std::string& token) {
     try {
         jwt::decoded_jwt decoded_token = jwt::decode(token);
         return decoded_token.get_expires_at();
@@ -485,8 +486,8 @@ void TLoginProvider::RotateKeys() {
 }
 
 void TLoginProvider::RotateKeys(std::vector<ui64>& keysExpired, std::vector<ui64>& keysAdded) {
-    TString publicKey;
-    TString privateKey;
+    std::string publicKey;
+    std::string privateKey;
     Impl->GenerateKeyPair(publicKey, privateKey);
     ui64 newKeyId;
     if (Keys.empty()) {
@@ -510,7 +511,7 @@ void TLoginProvider::RotateKeys(std::vector<ui64>& keysExpired, std::vector<ui64
     KeysRotationTime = now;
 }
 
-void TLoginProvider::TImpl::GenerateKeyPair(TString& publicKey, TString& privateKey) {
+void TLoginProvider::TImpl::GenerateKeyPair(std::string& publicKey, std::string& privateKey) {
     static constexpr int bits = 2048;
     publicKey.clear();
     privateKey.clear();
@@ -540,7 +541,7 @@ void TLoginProvider::TImpl::GenerateKeyPair(TString& publicKey, TString& private
     BN_free(bne);
 }
 
-TString TLoginProvider::TImpl::GenerateHash(const TString& password) {
+std::string TLoginProvider::TImpl::GenerateHash(const std::string& password) {
     char salt[SALT_SIZE];
     char hash[HASH_SIZE];
     RAND_bytes(reinterpret_cast<unsigned char*>(salt), SALT_SIZE);
@@ -553,22 +554,22 @@ TString TLoginProvider::TImpl::GenerateHash(const TString& password) {
         HASH_SIZE);
     NJson::TJsonValue json;
     json["type"] = "argon2id";
-    json["salt"] = Base64Encode(TStringBuf(salt, SALT_SIZE));
-    json["hash"] = Base64Encode(TStringBuf(hash, HASH_SIZE));
+    json["salt"] = Base64Encode(std::string_view(salt, SALT_SIZE));
+    json["hash"] = Base64Encode(std::string_view(hash, HASH_SIZE));
     return NJson::WriteJson(json, false);
 }
 
-bool TLoginProvider::TImpl::VerifyHash(const TString& password, const TString& hashJson) {
+bool TLoginProvider::TImpl::VerifyHash(const std::string& password, const std::string& hashJson) {
     NJson::TJsonValue json;
     if (!NJson::ReadJsonTree(hashJson, &json)) {
         return false;
     }
-    TString type = json["type"].GetStringRobust();
+    std::string type = json["type"].GetStringRobust();
     if (type != "argon2id") {
         return false;
     }
-    TString salt = Base64Decode(json["salt"].GetStringRobust());
-    TString hash = Base64Decode(json["hash"].GetStringRobust());
+    std::string salt = Base64Decode(json["salt"].GetStringRobust());
+    std::string hash = Base64Decode(json["hash"].GetStringRobust());
     return ArgonHasher->Verify(
         reinterpret_cast<const ui8*>(password.data()),
         password.size(),
@@ -580,27 +581,27 @@ bool TLoginProvider::TImpl::VerifyHash(const TString& password, const TString& h
 
 NLoginProto::TSecurityState TLoginProvider::GetSecurityState() const {
     NLoginProto::TSecurityState state;
-    state.SetAudience(Audience);
+    state.set_audience(Audience);
     {
-        auto& pbPublicKeys = *state.MutablePublicKeys();
+        auto& pbPublicKeys = *state.mutable_publickeys();
         pbPublicKeys.Clear();
         for (const TKeyRecord& key : Keys) {
             NLoginProto::TPublicKey& publicKey = *pbPublicKeys.Add();
-            publicKey.SetKeyId(key.KeyId);
-            publicKey.SetKeyDataPEM(key.PublicKey);
-            publicKey.SetExpiresAt(std::chrono::duration_cast<std::chrono::milliseconds>(key.ExpiresAt.time_since_epoch()).count());
+            publicKey.set_keyid(key.KeyId);
+            publicKey.set_keydatapem(key.PublicKey);
+            publicKey.set_expiresat(std::chrono::duration_cast<std::chrono::milliseconds>(key.ExpiresAt.time_since_epoch()).count());
             // no private key here
         }
     }
     {
-        auto& pbSids = *state.MutableSids();
+        auto& pbSids = *state.mutable_sids();
         pbSids.Clear();
         for (const auto& [sidName, sidInfo] : Sids) {
             NLoginProto::TSid& sid = *pbSids.Add();
-            sid.SetType(sidInfo.Type);
-            sid.SetName(sidInfo.Name);
+            sid.set_type(sidInfo.Type);
+            sid.set_name(sidInfo.Name);
             for (const auto& subSid : sidInfo.Members) {
-                sid.AddMembers(subSid);
+                sid.add_members(subSid);
             }
             // no user hash here
         }
@@ -609,36 +610,36 @@ NLoginProto::TSecurityState TLoginProvider::GetSecurityState() const {
 }
 
 void TLoginProvider::UpdateSecurityState(const NLoginProto::TSecurityState& state) {
-    Audience = state.GetAudience();
+    Audience = state.audience();
     {
         auto now = std::chrono::system_clock::now();
         while (Keys.size() > MAX_CLIENT_KEYS || (!Keys.empty() && Keys.front().ExpiresAt <= now)) {
             Keys.pop_front();
         }
 
-        if (!Keys.empty() && state.PublicKeysSize() != 0) {
-            auto keyId = state.GetPublicKeys(0).GetKeyId();
+        if (!Keys.empty() && state.publickeys_size() != 0) {
+            auto keyId = state.publickeys(0).keyid();
             auto itKey = FindKeyIterator(keyId);
             Keys.erase(itKey, Keys.end()); // erase tail which we are going to reinsert later
         }
 
-        for (const auto& pbPublicKey : state.GetPublicKeys()) {
+        for (const auto& pbPublicKey : state.publickeys()) {
             Keys.push_back({
-                .KeyId = pbPublicKey.GetKeyId(),
-                .PublicKey = pbPublicKey.GetKeyDataPEM(),
-                .ExpiresAt = std::chrono::system_clock::time_point(std::chrono::milliseconds(pbPublicKey.GetExpiresAt())),
+                .KeyId = pbPublicKey.keyid(),
+                .PublicKey = pbPublicKey.keydatapem(),
+                .ExpiresAt = std::chrono::system_clock::time_point(std::chrono::milliseconds(pbPublicKey.expiresat())),
             });
         }
     }
     {
         Sids.clear();
         ChildToParentIndex.clear();
-        for (const auto& pbSid : state.GetSids()) {
-            TSidRecord& sid = Sids[pbSid.GetName()];
-            sid.Type = pbSid.GetType();
-            sid.Name = pbSid.GetName();
-            sid.Hash = pbSid.GetHash();
-            for (const auto& pbSubSid : pbSid.GetMembers()) {
+        for (const auto& pbSid : state.sids()) {
+            TSidRecord& sid = Sids[pbSid.name()];
+            sid.Type = pbSid.type();
+            sid.Name = pbSid.name();
+            sid.Hash = pbSid.hash();
+            for (const auto& pbSubSid : pbSid.members()) {
                 sid.Members.emplace(pbSubSid);
                 ChildToParentIndex[pbSubSid].emplace(sid.Name);
             }

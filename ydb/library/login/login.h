@@ -29,9 +29,9 @@ public:
     struct TBasicRequest {};
 
     struct TBasicResponse {
-        TString Error;
-        TString Warning;
-        TString Notice;
+        std::string Error;
+        std::string Warning;
+        std::string Notice;
     };
 
     struct TLoginUserRequest : TBasicRequest {
@@ -40,46 +40,46 @@ public:
             std::chrono::system_clock::duration ExpiresAfter = std::chrono::system_clock::duration::zero();
         };
 
-        TString User;
-        TString Password;
+        std::string User;
+        std::string Password;
         TOptions Options;
-        TString ExternalAuth;
+        std::string ExternalAuth;
     };
 
     struct TLoginUserResponse : TBasicResponse {
-        TString Token;
+        std::string Token;
     };
 
     struct TValidateTokenRequest : TBasicRequest {
-        TString Token;
+        std::string Token;
     };
 
     struct TValidateTokenResponse : TBasicResponse {
         bool TokenUnrecognized = false;
         bool ErrorRetryable = false;
-        TString User;
-        std::optional<std::vector<TString>> Groups;
+        std::string User;
+        std::optional<std::vector<std::string>> Groups;
         std::chrono::system_clock::time_point ExpiresAt;
-        TString ExternalAuth;
+        std::string ExternalAuth;
     };
 
     struct TCreateUserRequest : TBasicRequest {
-        TString User;
-        TString Password;
+        std::string User;
+        std::string Password;
     };
 
     struct TModifyUserRequest : TBasicRequest {
-        TString User;
-        TString Password;
+        std::string User;
+        std::string Password;
     };
 
     struct TRemoveUserRequest : TBasicRequest {
-        TString User;
+        std::string User;
         bool MissingOk;
     };
 
     struct TRemoveUserResponse : TBasicResponse {
-        std::vector<TString> TouchedGroups;
+        std::vector<std::string> TouchedGroups;
     };
 
     struct TCreateGroupRequest : TBasicRequest {
@@ -87,18 +87,18 @@ public:
             bool CheckName = true;
         };
 
-        TString Group;
+        std::string Group;
         TOptions Options;
     };
 
     struct TAddGroupMembershipRequest : TBasicRequest {
-        TString Group;
-        TString Member;
+        std::string Group;
+        std::string Member;
     };
 
     struct TRemoveGroupMembershipRequest : TBasicRequest {
-        TString Group;
-        TString Member;
+        std::string Group;
+        std::string Member;
     };
 
     struct TRenameGroupRequest : TBasicRequest {
@@ -106,28 +106,28 @@ public:
             bool CheckName = true;
         };
 
-        TString Group;
-        TString NewName;
+        std::string Group;
+        std::string NewName;
         TOptions Options;
     };
 
     struct TRenameGroupResponse : TBasicResponse {
-        std::vector<TString> TouchedGroups;
+        std::vector<std::string> TouchedGroups;
     };
 
     struct TRemoveGroupRequest : TBasicRequest {
-        TString Group;
+        std::string Group;
         bool MissingOk;
     };
 
     struct TRemoveGroupResponse : TBasicResponse {
-        std::vector<TString> TouchedGroups;
+        std::vector<std::string> TouchedGroups;
     };
 
     struct TKeyRecord {
         ui64 KeyId;
-        TString PublicKey;
-        TString PrivateKey;
+        std::string PublicKey;
+        std::string PrivateKey;
         std::chrono::system_clock::time_point ExpiresAt;
     };
 
@@ -136,19 +136,19 @@ public:
 
     struct TSidRecord {
         ESidType::SidType Type = ESidType::UNKNOWN;
-        TString Name;
-        TString Hash;
-        std::unordered_set<TString> Members;
+        std::string Name;
+        std::string Hash;
+        std::unordered_set<std::string> Members;
     };
 
     // our current audience (database name)
-    TString Audience;
+    std::string Audience;
 
     // all users and theirs hashs
-    std::unordered_map<TString, TSidRecord> Sids;
+    std::unordered_map<std::string, TSidRecord> Sids;
 
     // index for fast traversal
-    std::unordered_map<TString, std::unordered_set<TString>> ChildToParentIndex;
+    std::unordered_map<std::string, std::unordered_set<std::string>> ChildToParentIndex;
 
     // servers duty to call this method periodically (and publish PublicKeys after that)
     const TKeyRecord* FindKey(ui64 keyId);
@@ -164,7 +164,7 @@ public:
     TBasicResponse CreateUser(const TCreateUserRequest& request);
     TBasicResponse ModifyUser(const TModifyUserRequest& request);
     TRemoveUserResponse RemoveUser(const TRemoveUserRequest& request);
-    bool CheckUserExists(const TString& name);
+    bool CheckUserExists(const std::string& name);
 
     TBasicResponse CreateGroup(const TCreateGroupRequest& request);
     TBasicResponse AddGroupMembership(const TAddGroupMembershipRequest& request);
@@ -175,14 +175,14 @@ public:
     TLoginProvider();
     ~TLoginProvider();
 
-    std::vector<TString> GetGroupsMembership(const TString& member);
-    static TString GetTokenAudience(const TString& token);
-    static std::chrono::system_clock::time_point GetTokenExpiresAt(const TString& token);
+    std::vector<std::string> GetGroupsMembership(const std::string& member);
+    static std::string GetTokenAudience(const std::string& token);
+    static std::chrono::system_clock::time_point GetTokenExpiresAt(const std::string& token);
 
 private:
     std::deque<TKeyRecord>::iterator FindKeyIterator(ui64 keyId);
-    bool CheckSubjectExists(const TString& name, const ESidType::SidType& type);
-    static bool CheckAllowedName(const TString& name);
+    bool CheckSubjectExists(const std::string& name, const ESidType::SidType& type);
+    static bool CheckAllowedName(const std::string& name);
 
     struct TImpl;
     THolder<TImpl> Impl;

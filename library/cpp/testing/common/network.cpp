@@ -71,10 +71,10 @@ namespace {
     }
 
     std::vector<std::pair<ui16, ui16>> GetPortRanges() {
-        TString givenRange = GetEnv("VALID_PORT_RANGE");
+        std::string givenRange = GetEnv("VALID_PORT_RANGE");
         std::vector<std::pair<ui16, ui16>> ranges;
         if (givenRange.Contains(':')) {
-            auto res = StringSplitter(givenRange).Split(':').Limit(2).ToList<TString>();
+            auto res = StringSplitter(givenRange).Split(':').Limit(2).ToList<std::string>();
             ranges.emplace_back(FromString<ui16>(res.front()), FromString<ui16>(res.back()));
         } else {
             const ui16 firstValid = 1025;
@@ -184,7 +184,7 @@ namespace {
 
     private:
         THolder<NTesting::IPort> TryAcquirePort(ui16 port) const {
-            auto lock = MakeHolder<TFileLock>(TString(SyncDir_ / ::ToString(port)));
+            auto lock = MakeHolder<TFileLock>(std::string(SyncDir_ / ::ToString(port)));
             if (!lock->TryAcquire()) {
                 return nullptr;
             }

@@ -10,7 +10,7 @@
 Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
     using namespace NBlockCodecs;
 
-    TBuffer Buffer(TStringBuf b) {
+    TBuffer Buffer(std::string_view b) {
         TBuffer bb;
         bb.Assign(b.data(), b.size());
         return bb;
@@ -21,14 +21,14 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
 
         datas.emplace_back();
         datas.push_back(Buffer("na gorshke sidel korol"));
-        datas.push_back(Buffer(TStringBuf("", 1)));
+        datas.push_back(Buffer(std::string_view("", 1)));
         datas.push_back(Buffer(" "));
         datas.push_back(Buffer("  "));
         datas.push_back(Buffer("   "));
         datas.push_back(Buffer("    "));
 
         {
-            TStringStream data;
+            std::stringStream data;
 
             for (size_t i = 0; i < 1024; ++i) {
                 data << " " << i;
@@ -50,7 +50,7 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
 
             for (size_t j = 0; j < datas.size(); ++j) {
                 const TBuffer& data = datas[j];
-                TString res;
+                std::string res;
 
                 try {
                     TBuffer e, d;
@@ -59,7 +59,7 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
                     d.AsString(res);
                     UNIT_ASSERT_EQUAL(NBlockCodecs::TData(res), NBlockCodecs::TData(data));
                 } catch (...) {
-                    Cerr << c->Name() << "(" << res.Quote() << ")(" << TString{NBlockCodecs::TData(data)}.Quote() << ")" << Endl;
+                    Cerr << c->Name() << "(" << res.Quote() << ")(" << std::string{NBlockCodecs::TData(data)}.Quote() << ")" << Endl;
 
                     throw;
                 }
@@ -144,11 +144,11 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
     }
 
     void TestStreams(size_t n, size_t m) {
-        std::vector<TString> datas;
-        TString res;
+        std::vector<std::string> datas;
+        std::string res;
 
         for (size_t i = 0; i < 256; ++i) {
-            datas.push_back(TString(i, (char)(i % 128)));
+            datas.push_back(std::string(i, (char)(i % 128)));
         }
 
         for (size_t i = 0; i < datas.size(); ++i) {
@@ -158,7 +158,7 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
         TCodecList lst = ListAllCodecs();
 
         for (size_t i = 0; i < lst.size(); ++i) {
-            TStringStream ss;
+            std::stringStream ss;
 
             const ICodec* c = Codec(lst[i]);
             const auto h = MultiHash(c->Name(), i, 2);
@@ -178,7 +178,7 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
                 out.Finish();
             }
 
-            const TString resNew = TDecodedInput(&ss).ReadAll();
+            const std::string resNew = TDecodedInput(&ss).ReadAll();
 
             try {
                 UNIT_ASSERT_EQUAL(resNew, res);
@@ -292,7 +292,7 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
     }
 
     Y_UNIT_TEST(TestListAllCodecs) {
-        static const TString ALL_CODECS =
+        static const std::string ALL_CODECS =
             "brotli_1,brotli_10,brotli_11,brotli_2,brotli_3,brotli_4,brotli_5,brotli_6,brotli_7,brotli_8,brotli_9,"
 
             "bzip2,bzip2-1,bzip2-2,bzip2-3,bzip2-4,bzip2-5,bzip2-6,bzip2-7,bzip2-8,bzip2-9,"
@@ -326,13 +326,13 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
     }
 
     Y_UNIT_TEST(TestEncodeDecodeIntoString) {
-        TStringBuf data = "na gorshke sidel korol";
+        std::string_view data = "na gorshke sidel korol";
 
         TCodecList codecs = ListAllCodecs();
         for (const auto& codec : codecs) {
             const ICodec* c = Codec(codec);
-            TString encoded = c->Encode(data);
-            TString decoded = c->Decode(encoded);
+            std::string encoded = c->Encode(data);
+            std::string decoded = c->Decode(encoded);
 
             UNIT_ASSERT_VALUES_EQUAL(decoded, data);
         }

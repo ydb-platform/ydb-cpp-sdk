@@ -49,11 +49,11 @@ TWhoAmIResult::TWhoAmIResult(TStatus&& status, const Ydb::Discovery::WhoAmIResul
     }
 }
 
-const TString& TWhoAmIResult::GetUserName() const {
+const std::string& TWhoAmIResult::GetUserName() const {
     return UserName_;
 }
 
-const std::vector<TString>& TWhoAmIResult::GetGroups() const {
+const std::vector<std::string>& TWhoAmIResult::GetGroups() const {
     return Groups_;
 }
 
@@ -98,7 +98,7 @@ const ui32& TNodeRegistrationResult::GetNodeId() const {
     return NodeId_;
 }
 
-const TString& TNodeRegistrationResult::GetDomainPath() const {
+const std::string& TNodeRegistrationResult::GetDomainPath() const {
     return DomainPath_;
 }
 
@@ -196,7 +196,7 @@ public:
         request.set_address(settings.Address_);
         request.set_domain_path(settings.DomainPath_);
         request.set_fixed_node_id(settings.FixedNodeId_);
-        if (!settings.Path_.Empty()) {
+        if (!settings.Path_.empty()) {
             request.set_path(settings.Path_);
         }
 

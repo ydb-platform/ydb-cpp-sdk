@@ -25,9 +25,9 @@ public:
 
     void OnLabelsBegin() override;
     void OnLabelsEnd() override;
-    void OnLabel(TStringBuf name, TStringBuf value) override;
+    void OnLabel(std::string_view name, std::string_view value) override;
     void OnLabel(ui32 name, ui32 value) override;
-    std::pair<ui32, ui32> PrepareLabel(TStringBuf name, TStringBuf value) override;
+    std::pair<ui32, ui32> PrepareLabel(std::string_view name, std::string_view value) override;
 
     void OnDouble(TInstant time, double value) override;
     void OnInt64(TInstant time, i64 value) override;
@@ -83,7 +83,7 @@ protected:
     };
 
 protected:
-    TString FormatLabels(const TPooledLabels& labels) const;
+    std::string FormatLabels(const TPooledLabels& labels) const;
 
 protected:
     TEncoderState State_;

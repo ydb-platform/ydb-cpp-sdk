@@ -107,7 +107,7 @@ TEST(Runtime, GdbPath) {
 }
 #endif
 
-TString ReInitializeContext(TStringBuf data) {
+std::string ReInitializeContext(std::string_view data) {
     auto tmpDir = ::GetSystemTempDir();
     auto filename = tmpDir + "/context.json";
     TOFStream stream(filename);
@@ -121,7 +121,7 @@ TString ReInitializeContext(TStringBuf data) {
 }
 
 TEST(Runtime, GetTestParam) {
-    TString context = R"json({
+    std::string context = R"json({
         "runtime": {
             "test_params": {
                 "a": "b",
@@ -141,7 +141,7 @@ TEST(Runtime, GetTestParam) {
 }
 
 TEST(Runtime, WatchProcessCore) {
-    TString context = R"json({
+    std::string context = R"json({
         "internal": {
             "core_search_file": "watch_core.txt"
         }
@@ -154,7 +154,7 @@ TEST(Runtime, WatchProcessCore) {
 
     TIFStream file("watch_core.txt");
     auto data = file.ReadAll();
-    TString expected = R"json({"cmd":"add","pid":1,"binary_path":"bin1","cwd":"pwd"}
+    std::string expected = R"json({"cmd":"add","pid":1,"binary_path":"bin1","cwd":"pwd"}
 {"cmd":"add","pid":2,"binary_path":"bin1"}
 {"cmd":"drop","pid":2}
 )json";
@@ -162,7 +162,7 @@ TEST(Runtime, WatchProcessCore) {
 }
 
 TEST(Runtime, GlobalResources) {
-    TString context = R"json({
+    std::string context = R"json({
         "resources": {
             "global": {
                 "TOOL_NAME_RESOURCE_GLOBAL": "path"

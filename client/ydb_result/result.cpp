@@ -5,16 +5,18 @@
 #include <ydb/public/api/protos/ydb_common.pb.h>
 #include <ydb/public/api/protos/ydb_value.pb.h>
 
-#include <util/generic/map.h>
-#include <util/string/builder.h>
+#include <library/cpp/string_builder/string_builder.h>
+#include <library/cpp/string_utils/string_output/string_output.h>
+
+#include <util/generic/mapfindptr.h>
 
 #include <google/protobuf/text_format.h>
 
 namespace NYdb {
 
-TString TColumn::ToString() const {
-    TString result;
-    TStringOutput out(result);
+std::string TColumn::ToString() const {
+    std::string result;
+    NUtils::TStringOutput out(result);
     Out(out);
     return result;
 }
@@ -120,7 +122,7 @@ public:
         auto& row = ResultSet_.GetProto().rows()[RowIndex_];
 
         if (static_cast<size_t>(row.items_size()) != ColumnsCount()) {
-            FatalError(TStringBuilder() << "Corrupted data: row " << RowIndex_ << " contains " << row.items_size() << " column(s), but metadata contains " << ColumnsCount() << " column(s)");
+            FatalError(NUtils::TYdbStringBuilder() << "Corrupted data: row " << RowIndex_ << " contains " << row.items_size() << " column(s), but metadata contains " << ColumnsCount() << " column(s)");
         }
 
         for (size_t i = 0; i < ColumnsCount(); ++i) {
@@ -131,23 +133,23 @@ public:
         return true;
     }
 
-    ssize_t ColumnIndex(const TString& columnName) {
+    ssize_t ColumnIndex(const std::string& columnName) {
         auto idx = MapFindPtr(ColumnIndexMap, columnName);
         return idx ? static_cast<ssize_t>(*idx) : -1;
     }
 
     TValueParser& ColumnParser(size_t columnIndex) {
         if (columnIndex >= ColumnParsers.size()) {
-            FatalError(TStringBuilder() << "Column index out of bounds: " << columnIndex);
+            FatalError(NUtils::TYdbStringBuilder() << "Column index out of bounds: " << columnIndex);
         }
 
         return ColumnParsers[columnIndex];
     }
 
-    TValueParser& ColumnParser(const TString& columnName) {
+    TValueParser& ColumnParser(const std::string& columnName) {
         auto idx = MapFindPtr(ColumnIndexMap, columnName);
         if (!idx) {
-            FatalError(TStringBuilder() << "Unknown column: " << columnName);
+            FatalError(NUtils::TYdbStringBuilder() << "Unknown column: " << columnName);
         }
 
         return ColumnParser(*idx);
@@ -155,11 +157,11 @@ public:
 
     TValue GetValue(size_t columnIndex) const {
         if (columnIndex >= ColumnParsers.size()) {
-            FatalError(TStringBuilder() << "Column index out of bounds: " << columnIndex);
+            FatalError(NUtils::TYdbStringBuilder() << "Column index out of bounds: " << columnIndex);
         }
 
         if (RowIndex_ == 0) {
-            FatalError(TStringBuilder() << "Row position is undefined");
+            FatalError(NUtils::TYdbStringBuilder() << "Row position is undefined");
         }
 
         const auto& row = ResultSet_.GetProto().rows()[RowIndex_ - 1];
@@ -168,24 +170,24 @@ public:
         return TValue(valueType, row.items(columnIndex));
     }
 
-    TValue GetValue(const TString& columnName) const {
+    TValue GetValue(const std::string& columnName) const {
         auto idx = MapFindPtr(ColumnIndexMap, columnName);
         if (!idx) {
-            FatalError(TStringBuilder() << "Unknown column: " << columnName);
+            FatalError(NUtils::TYdbStringBuilder() << "Unknown column: " << columnName);
         }
 
         return GetValue(*idx);
     }
 
 private:
-    void FatalError(const TString& msg) const {
-        ThrowFatalError(TStringBuilder() << "TResultSetParser: " << msg);
+    void FatalError(const std::string& msg) const {
+        ThrowFatalError(NUtils::TYdbStringBuilder() << "TResultSetParser: " << msg);
     }
 
 private:
     TResultSet ResultSet_;
 
-    std::map<TString, size_t> ColumnIndexMap;
+    std::map<std::string, size_t> ColumnIndexMap;
     std::vector<TValueParser> ColumnParsers;
 
     size_t RowIndex_ = 0;
@@ -211,7 +213,7 @@ bool TResultSetParser::TryNextRow() {
     return Impl_->TryNextRow();
 }
 
-ssize_t TResultSetParser::ColumnIndex(const TString& columnName) {
+ssize_t TResultSetParser::ColumnIndex(const std::string& columnName) {
     return Impl_->ColumnIndex(columnName);
 }
 
@@ -219,7 +221,7 @@ TValueParser& TResultSetParser::ColumnParser(size_t columnIndex) {
     return Impl_->ColumnParser(columnIndex);
 }
 
-TValueParser& TResultSetParser::ColumnParser(const TString& columnName) {
+TValueParser& TResultSetParser::ColumnParser(const std::string& columnName) {
     return Impl_->ColumnParser(columnName);
 }
 
@@ -227,7 +229,7 @@ TValue TResultSetParser::GetValue(size_t columnIndex) const {
     return Impl_->GetValue(columnIndex);
 }
 
-TValue TResultSetParser::GetValue(const TString& columnName) const {
+TValue TResultSetParser::GetValue(const std::string& columnName) const {
     return Impl_->GetValue(columnName);
 }
 

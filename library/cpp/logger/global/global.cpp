@@ -8,7 +8,7 @@ static void DoInitGlobalLog(THolder<TGlobalLog> logger, THolder<ILoggerFormatter
     TLoggerFormatterOperator::Set(formatter.Release());
 }
 
-void DoInitGlobalLog(const TString& logType, const int logLevel, const bool rotation, const bool startAsDaemon, THolder<ILoggerFormatter> formatter, bool threaded) {
+void DoInitGlobalLog(const std::string& logType, const int logLevel, const bool rotation, const bool startAsDaemon, THolder<ILoggerFormatter> formatter, bool threaded) {
     DoInitGlobalLog(
         MakeHolder<TGlobalLog>(
             CreateLogBackend(
@@ -37,7 +37,7 @@ TNullLog* CreateDefaultLogger<TNullLog>() {
 }
 
 NPrivateGlobalLogger::TVerifyEvent::~TVerifyEvent() {
-    const TString info = Str();
+    const std::string info = Str();
     FATAL_LOG << info << Endl;
     Y_ABORT("%s", info.data());
 }

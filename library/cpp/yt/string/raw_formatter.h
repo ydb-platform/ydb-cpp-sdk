@@ -76,7 +76,7 @@ public:
     }
 
     //! Appends the string and updates the internal cursor.
-    void AppendString(TStringBuf string)
+    void AppendString(std::string_view string)
     {
         size_t position = 0;
         while (position < string.length() && Cursor_ < End_) {
@@ -166,7 +166,7 @@ public:
             // Slow path.
             std::array<char, MaxGuidStringSize> buffer;
             auto* end = WriteGuidToBuffer(buffer.data(), guid);
-            AppendString(TStringBuf(buffer.data(), end));
+            AppendString(std::string_view(buffer.data(), end));
         }
     }
 
@@ -176,7 +176,7 @@ public:
         Cursor_ = Begin_;
     }
 
-    TStringBuf GetBuffer() const
+    std::string_view GetBuffer() const
     {
         return {Begin_, Cursor_};
     }

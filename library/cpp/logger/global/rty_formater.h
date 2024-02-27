@@ -27,8 +27,8 @@ namespace NLoggingImpl {
             return Instant;
         }
 
-        operator TString() const;
-        TString operator+(TStringBuf right) const;
+        operator std::string() const;
+        std::string operator+(std::string_view right) const;
 
     private:
         TInstant Instant;
@@ -40,8 +40,8 @@ namespace NLoggingImpl {
         return TLocalTimeS();
     }
 
-    TString GetSystemResources();
-    TString PrintSystemResources(const NMemInfo::TMemInfo& info);
+    std::string GetSystemResources();
+    std::string PrintSystemResources(const NMemInfo::TMemInfo& info);
 
     struct TLoggerFormatterTraits {
         static ILoggerFormatter* CreateDefault() {

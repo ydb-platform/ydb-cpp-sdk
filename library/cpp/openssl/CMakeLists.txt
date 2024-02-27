@@ -6,8 +6,6 @@
 # original buildsystem will not be accepted.
 
 
-add_subdirectory(big_integer)
-add_subdirectory(crypto)
 add_subdirectory(holders)
 add_subdirectory(init)
 add_subdirectory(io)

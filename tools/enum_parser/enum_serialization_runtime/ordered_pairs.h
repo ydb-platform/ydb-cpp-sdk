@@ -2,7 +2,6 @@
 
 #include <util/generic/algorithm.h>
 #include <util/generic/array_ref.h>
-#include <util/generic/strbuf.h>
 #include <array>
 #include <functional>
 
@@ -17,7 +16,7 @@ namespace NEnumSerializationRuntime {
     template <typename TEnumRepresentationType>
     struct TEnumStringPair {
         TEnumRepresentationType Key;
-        TStringBuf Name;
+        std::string_view Name;
     };
 
     template <typename TEnumRepresentationType>

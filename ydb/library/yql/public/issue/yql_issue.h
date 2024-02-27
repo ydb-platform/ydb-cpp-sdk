@@ -16,7 +16,7 @@
 
 namespace NYql {
 
-void SanitizeNonAscii(TString& s);
+void SanitizeNonAscii(std::string& s);
 
 ///////////////////////////////////////////////////////////////////////////////
 // TPosition
@@ -24,11 +24,11 @@ void SanitizeNonAscii(TString& s);
 struct TPosition {
     ui32 Column = 0U;
     ui32 Row = 0U;
-    TString File;
+    std::string File;
 
     TPosition() = default;
 
-    TPosition(ui32 column, ui32 row, const TString& file = {})
+    TPosition(ui32 column, ui32 row, const std::string& file = {})
         : Column(column)
         , Row(row)
         , File(file)
@@ -109,7 +109,7 @@ class TIssue;
 using TIssuePtr = TIntrusivePtr<TIssue>;
 class TIssue: public TThrRefBase {
     std::vector<TIntrusivePtr<TIssue>> Children_;
-    TString Message;
+    std::string Message;
 public:
     TPosition Position;
     TPosition EndPosition;
@@ -169,7 +169,7 @@ public:
         return *this;
     }
 
-    TIssue& SetMessage(const TString& msg) {
+    TIssue& SetMessage(const std::string& msg) {
         Message = msg;
         SanitizeNonAscii(Message);
         return *this;
@@ -183,7 +183,7 @@ public:
         return IssueCode;
     }
 
-    const TString& GetMessage() const {
+    const std::string& GetMessage() const {
         return Message;
     }
 
@@ -199,14 +199,14 @@ public:
 
     void PrintTo(IOutputStream& out, bool oneLine = false) const;
 
-    TString ToString(bool oneLine = false) const {
+    std::string ToString(bool oneLine = false) const {
         TStringStream out;
         PrintTo(out, oneLine);
         return out.Str();
     }
 
     // Unsafe method. Doesn't call SanitizeNonAscii(Message)
-    TString* MutableMessage() {
+    std::string* MutableMessage() {
         return &Message;
     }
 
@@ -308,16 +308,16 @@ public:
     void PrintTo(IOutputStream& out, bool oneLine = false) const;
     void PrintWithProgramTo(
             IOutputStream& out,
-            const TString& programFilename,
-            const TString& programText) const;
+            const std::string& programFilename,
+            const std::string& programText) const;
 
-    inline TString ToString(bool oneLine = false) const {
+    inline std::string ToString(bool oneLine = false) const {
         TStringStream out;
         PrintTo(out, oneLine);
         return out.Str();
     }
 
-    TString ToOneLineString() const {
+    std::string ToOneLineString() const {
         return ToString(true);
     }
 
@@ -345,7 +345,7 @@ public:
 };
 
 TIssue ExceptionToIssue(const std::exception& e, const TPosition& pos = TPosition());
-TMaybe<TPosition> TryParseTerminationMessage(TStringBuf& message);
+TMaybe<TPosition> TryParseTerminationMessage(std::string_view& message);
 
 } // namespace NYql
 

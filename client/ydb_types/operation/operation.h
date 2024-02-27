@@ -32,8 +32,8 @@ public:
     bool Ready() const;
     const TStatus& Status() const;
 
-    TString ToString() const;
-    TString ToJsonString() const;
+    std::string ToString() const;
+    std::string ToJsonString() const;
     void Out(IOutputStream& o) const;
 
 protected:

@@ -2,7 +2,7 @@
 
 #include <client/ydb_value/value.h>
 
-#include <util/generic/string.h>
+#include <string>
 
 namespace Ydb {
     class ResultSet;
@@ -13,14 +13,14 @@ namespace NYdb {
 class TProtoAccessor;
 
 struct TColumn {
-    TString Name;
+    std::string Name;
     TType Type;
 
-    TColumn(const TString& name, const TType& type)
+    TColumn(const std::string& name, const TType& type)
         : Name(name)
         , Type(type) {}
 
-    TString ToString() const;
+    std::string ToString() const;
     void Out(IOutputStream& o) const;
 };
 
@@ -76,7 +76,7 @@ public:
 
     //! Returns index for column with specified name.
     //! If there is no column with such name, then -1 is returned.
-    ssize_t ColumnIndex(const TString& columnName);
+    ssize_t ColumnIndex(const std::string& columnName);
 
     //! Returns column value parser for column with specified index.
     //! State of the parser is preserved until next TryNextRow call.
@@ -84,7 +84,7 @@ public:
 
     //! Returns column value parser for column with specified name.
     //! State of the parser is preserved until next TryNextRow call.
-    TValueParser& ColumnParser(const TString& columnName);
+    TValueParser& ColumnParser(const std::string& columnName);
 
     //! Returns TValue for column with specified index.
     //! TValue will have copy of coresponding data so this method
@@ -96,7 +96,7 @@ public:
     //! TValue will have copy of coresponding data so this method
     //! is less effective compare with
     //! direct TValueParser constructed by ColumnParser call
-    TValue GetValue(const TString& columnName) const;
+    TValue GetValue(const std::string& columnName) const;
 
 private:
     class TImpl;

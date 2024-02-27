@@ -39,8 +39,8 @@ inline bool IsValidUuid(const T& buf) {
         return false;
     }
 
-    for (size_t i = 0; i < buf.Size(); ++i) {
-        const char c = buf.Data()[i];
+    for (size_t i = 0; i < buf.size(); ++i) {
+        const char c = buf.data()[i];
 
         if (c == '-') {
             if (i != 8 && i != 13 && i != 18 && i != 23) {
@@ -56,7 +56,7 @@ inline bool IsValidUuid(const T& buf) {
 
 template<typename T>
 bool ParseUuidToArray(const T& buf, ui16* dw, bool shortForm) {
-    if (buf.Size() != (shortForm ? 32 : 36)) {
+    if (buf.size() != (shortForm ? 32 : 36)) {
         return false;
     }
 
@@ -64,8 +64,8 @@ bool ParseUuidToArray(const T& buf, ui16* dw, bool shortForm) {
     ui64 partValue = 0;
     size_t digitCount = 0;
 
-    for (size_t i = 0; i < buf.Size(); ++i) {
-        const char c = buf.Data()[i];
+    for (size_t i = 0; i < buf.size(); ++i) {
+        const char c = buf.data()[i];
 
         if (!shortForm && (i == 8 || i == 13 || i == 18 || i == 23)) {
             if (c == '-') {

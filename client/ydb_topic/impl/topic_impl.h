@@ -25,7 +25,7 @@ struct TPartitionOffsets {
 };
 
 struct TTopicOffsets {
-    TString Path;
+    std::string Path;
     std::vector<TPartitionOffsets> Partitions;
 };
 
@@ -75,7 +75,7 @@ public:
     }
 
 
-    static Ydb::Topic::CreateTopicRequest MakePropsCreateRequest(const TString& path, const TCreateTopicSettings& settings) {
+    static Ydb::Topic::CreateTopicRequest MakePropsCreateRequest(const std::string& path, const TCreateTopicSettings& settings) {
         Ydb::Topic::CreateTopicRequest request = MakeOperationRequest<Ydb::Topic::CreateTopicRequest>(settings);
         request.set_path(path);
 
@@ -105,7 +105,7 @@ public:
     }
 
 
-    TAsyncStatus CreateTopic(const TString& path, const TCreateTopicSettings& settings) {
+    TAsyncStatus CreateTopic(const std::string& path, const TCreateTopicSettings& settings) {
         auto request = MakePropsCreateRequest(path, settings);
 
         return RunSimple<Ydb::Topic::V1::TopicService, Ydb::Topic::CreateTopicRequest, Ydb::Topic::CreateTopicResponse>(
@@ -115,7 +115,7 @@ public:
     }
 
 
-    static Ydb::Topic::AlterTopicRequest MakePropsAlterRequest(const TString& path, const TAlterTopicSettings& settings) {
+    static Ydb::Topic::AlterTopicRequest MakePropsAlterRequest(const std::string& path, const TAlterTopicSettings& settings) {
         Ydb::Topic::AlterTopicRequest request = MakeOperationRequest<Ydb::Topic::AlterTopicRequest>(settings);
         request.set_path(path);
 
@@ -166,7 +166,7 @@ public:
     }
 
 
-    TAsyncStatus AlterTopic(const TString& path, const TAlterTopicSettings& settings) {
+    TAsyncStatus AlterTopic(const std::string& path, const TAlterTopicSettings& settings) {
         auto request = MakePropsAlterRequest(path, settings);
 
         return RunSimple<Ydb::Topic::V1::TopicService, Ydb::Topic::AlterTopicRequest, Ydb::Topic::AlterTopicResponse>(
@@ -176,7 +176,7 @@ public:
     }
 
 
-    TAsyncStatus DropTopic(const TString& path, const TDropTopicSettings& settings) {
+    TAsyncStatus DropTopic(const std::string& path, const TDropTopicSettings& settings) {
         auto request = MakeOperationRequest<Ydb::Topic::DropTopicRequest>(settings);
         request.set_path(path);
 
@@ -186,7 +186,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncDescribeTopicResult DescribeTopic(const TString& path, const TDescribeTopicSettings& settings) {
+    TAsyncDescribeTopicResult DescribeTopic(const std::string& path, const TDescribeTopicSettings& settings) {
         auto request = MakeOperationRequest<Ydb::Topic::DescribeTopicRequest>(settings);
         request.set_path(path);
 
@@ -222,7 +222,7 @@ public:
         return promise.GetFuture();
     }
 
-    TAsyncDescribeConsumerResult DescribeConsumer(const TString& path, const TString& consumer, const TDescribeConsumerSettings& settings) {
+    TAsyncDescribeConsumerResult DescribeConsumer(const std::string& path, const std::string& consumer, const TDescribeConsumerSettings& settings) {
         auto request = MakeOperationRequest<Ydb::Topic::DescribeConsumerRequest>(settings);
         request.set_path(path);
         request.set_consumer(consumer);
@@ -259,7 +259,7 @@ public:
         return promise.GetFuture();
     }
 
-    TAsyncDescribePartitionResult DescribePartition(const TString& path, i64 partitionId, const TDescribePartitionSettings& settings) {
+    TAsyncDescribePartitionResult DescribePartition(const std::string& path, i64 partitionId, const TDescribePartitionSettings& settings) {
         auto request = MakeOperationRequest<Ydb::Topic::DescribePartitionRequest>(settings);
         request.set_path(path);
         request.set_partition_id(partitionId);
@@ -295,7 +295,7 @@ public:
         return promise.GetFuture();
     }
 
-    TAsyncStatus CommitOffset(const TString& path, ui64 partitionId, const TString& consumerName, ui64 offset,
+    TAsyncStatus CommitOffset(const std::string& path, ui64 partitionId, const std::string& consumerName, ui64 offset,
         const TCommitOffsetSettings& settings) {
         Ydb::Topic::CommitOffsetRequest request = MakeOperationRequest<Ydb::Topic::CommitOffsetRequest>(settings);
         request.set_path(path);
@@ -311,7 +311,7 @@ public:
 
     TAsyncStatus UpdateOffsetsInTransaction(const NTable::TTransaction& tx,
                                             const std::vector<TTopicOffsets>& topics,
-                                            const TString& consumerName,
+                                            const std::string& consumerName,
                                             const TUpdateOffsetsInTransactionSettings& settings)
     {
         auto request = MakeOperationRequest<Ydb::Topic::UpdateOffsetsInTransactionRequest>(settings);

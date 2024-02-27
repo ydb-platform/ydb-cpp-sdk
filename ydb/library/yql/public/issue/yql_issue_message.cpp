@@ -123,15 +123,15 @@ NIssue::NProto::IssueMessage IssueToMessage(const TIssue& topIssue) {
     return issueMessage;
 }
 
-TString IssueToBinaryMessage(const TIssue& issue) {
-    TString result;
+std::string IssueToBinaryMessage(const TIssue& issue) {
+    std::string result;
     Ydb::Issue::IssueMessage protobuf;
     IssueToMessage(issue, &protobuf);
-    Y_PROTOBUF_SUPPRESS_NODISCARD protobuf.SerializeToString(&result);
+    protobuf.SerializeToString(&result);
     return result;
 }
 
-TIssue IssueFromBinaryMessage(const TString& binaryMessage) {
+TIssue IssueFromBinaryMessage(const std::string& binaryMessage) {
     Ydb::Issue::IssueMessage protobuf;
     if (!protobuf.ParseFromString(binaryMessage)) {
         ythrow yexception() << "unable to parse binary string as issue protobuf";

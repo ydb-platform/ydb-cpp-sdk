@@ -13,7 +13,7 @@ Y_UNIT_TEST_SUITE(TestMP) {
             }
         };
 
-        TString s;
+        std::string s;
 
         try {
             NYmp::ParallelForStaticAutoChunk(0, 10, f);

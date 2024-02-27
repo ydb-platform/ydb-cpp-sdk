@@ -1,7 +1,8 @@
 #pragma once
 
-#include <util/generic/fwd.h>
-#include <util/generic/strbuf.h>
+#include <util/system/defaults.h>
+
+#include <string>
 
 namespace NLastGetopt {
     /**
@@ -12,5 +13,5 @@ namespace NLastGetopt {
      * @param lastLineLen output: will set to number of unicode codepoints in the last printed line.
      * @param hasParagraphs output: will set to true if there are two consecutive newlines in the text.
      */
-    TString Wrap(ui32 width, TStringBuf text, TStringBuf indent = "", size_t* lastLineLen = nullptr, bool* hasParagraphs = nullptr);
+    std::string Wrap(ui32 width, std::string_view text, std::string_view indent = "", size_t* lastLineLen = nullptr, bool* hasParagraphs = nullptr);
 }

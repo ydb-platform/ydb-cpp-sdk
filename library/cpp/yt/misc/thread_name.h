@@ -11,9 +11,9 @@ namespace NYT {
 struct TThreadName
 {
     TThreadName() = default;
-    TThreadName(const TString& name);
+    TThreadName(const std::string& name);
 
-    TStringBuf ToStringBuf() const;
+    std::string_view ToStringBuf() const;
 
     static constexpr int BufferCapacity = 16; // including zero terminator
     std::array<char, BufferCapacity> Buffer{}; // zero-terminated

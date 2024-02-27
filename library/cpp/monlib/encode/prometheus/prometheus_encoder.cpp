@@ -22,7 +22,7 @@ namespace NMonitoring {
             {
             }
 
-            void WriteType(EMetricType type, const TString& name) {
+            void WriteType(EMetricType type, const std::string& name) {
                 auto r = WrittenTypes_.insert(name);
                 if (!r.second) {
                     // type for this metric was already written
@@ -58,11 +58,11 @@ namespace NMonitoring {
                 Out_->Write('\n');
             }
 
-            void WriteDouble(TStringBuf name, const TLabels& labels, TInstant time, double value) {
+            void WriteDouble(std::string_view name, const TLabels& labels, TInstant time, double value) {
                 WriteValue(name, "", labels, "", "", time, value);
             }
 
-            void WriteHistogram(TStringBuf name, const TLabels& labels, TInstant time, IHistogramSnapshot* h) {
+            void WriteHistogram(std::string_view name, const TLabels& labels, TInstant time, IHistogramSnapshot* h) {
                 Y_ENSURE(!labels.Has(NPrometheus::BUCKET_LABEL),
                          "histogram metric " << name << " has label '" <<
                          NPrometheus::BUCKET_LABEL << "' which is reserved in Prometheus");
@@ -70,12 +70,12 @@ namespace NMonitoring {
                 double totalCount = 0;
                 for (ui32 i = 0, count = h->Count(); i < count; i++) {
                     TBucketBound bound = h->UpperBound(i);
-                    TStringBuf boundStr;
+                    std::string_view boundStr;
                     if (bound == HISTOGRAM_INF_BOUND) {
-                        boundStr = TStringBuf("+Inf");
+                        boundStr = std::string_view("+Inf");
                     } else {
                         size_t len = FloatToString(bound, TmpBuf_, Y_ARRAY_SIZE(TmpBuf_));
-                        boundStr = TStringBuf(TmpBuf_, len);
+                        boundStr = std::string_view(TmpBuf_, len);
                     }
 
                     TBucketValue value = h->Value(i);
@@ -91,7 +91,7 @@ namespace NMonitoring {
                 WriteValue(name, NPrometheus::COUNT_SUFFIX, labels, "", "", time, totalCount);
             }
 
-            void WriteSummaryDouble(TStringBuf name, const TLabels& labels, TInstant time, ISummaryDoubleSnapshot* s) {
+            void WriteSummaryDouble(std::string_view name, const TLabels& labels, TInstant time, ISummaryDoubleSnapshot* s) {
                 WriteValue(name, NPrometheus::SUM_SUFFIX, labels, "", "", time, s->GetSum());
                 WriteValue(name, NPrometheus::MIN_SUFFIX, labels, "", "", time, s->GetMin());
                 WriteValue(name, NPrometheus::MAX_SUFFIX, labels, "", "", time, s->GetMax());
@@ -105,8 +105,8 @@ namespace NMonitoring {
 
         private:
             // will replace invalid chars with '_'
-            void WriteMetricName(TStringBuf name) {
-                Y_ENSURE(!name.Empty(), "trying to write metric with empty name");
+            void WriteMetricName(std::string_view name) {
+                Y_ENSURE(!name.empty(), "trying to write metric with empty name");
 
                 char ch = name[0];
                 if (NPrometheus::IsValidMetricNameStart(ch)) {
@@ -125,7 +125,7 @@ namespace NMonitoring {
                 }
             }
 
-            void WriteLabels(const TLabels& labels, TStringBuf addLabelKey, TStringBuf addLabelValue) {
+            void WriteLabels(const TLabels& labels, std::string_view addLabelKey, std::string_view addLabelValue) {
                 Out_->Write('{');
                 for (auto&& l: labels) {
                     Out_->Write(l.Name());
@@ -133,7 +133,7 @@ namespace NMonitoring {
                     WriteLabelValue(l.Value());
                     Out_->Write(", "); // trailign comma is supported in parsers
                 }
-                if (!addLabelKey.Empty() && !addLabelValue.Empty()) {
+                if (!addLabelKey.empty() && !addLabelValue.empty()) {
                     Out_->Write(addLabelKey);
                     Out_->Write('=');
                     WriteLabelValue(addLabelValue);
@@ -141,7 +141,7 @@ namespace NMonitoring {
                 Out_->Write('}');
             }
 
-            void WriteLabelValue(TStringBuf value) {
+            void WriteLabelValue(std::string_view value) {
                 Out_->Write('"');
                 for (char ch: value) {
                     if (ch == '"') {
@@ -158,18 +158,18 @@ namespace NMonitoring {
             }
 
             void WriteValue(
-                    TStringBuf name, TStringBuf suffix,
-                    const TLabels& labels, TStringBuf addLabelKey, TStringBuf addLabelValue,
+                    std::string_view name, std::string_view suffix,
+                    const TLabels& labels, std::string_view addLabelKey, std::string_view addLabelValue,
                     TInstant time, double value)
             {
                 // (1) name
                 WriteMetricName(name);
-                if (!suffix.Empty()) {
+                if (!suffix.empty()) {
                     Out_->Write(suffix);
                 }
 
                 // (2) labels
-                if (!labels.Empty() || !addLabelKey.Empty()) {
+                if (!labels.Empty() || !addLabelKey.empty()) {
                     WriteLabels(labels, addLabelKey, addLabelValue);
                 }
                 Out_->Write(' ');
@@ -191,7 +191,7 @@ namespace NMonitoring {
 
         private:
             IOutputStream* Out_;
-            THashSet<TString> WrittenTypes_;
+            THashSet<std::string> WrittenTypes_;
             char TmpBuf_[512]; // used to convert doubles to strings
         };
 
@@ -250,7 +250,7 @@ namespace NMonitoring {
         ///////////////////////////////////////////////////////////////////////
         class TPrometheusEncoder final: public IMetricEncoder {
         public:
-            explicit TPrometheusEncoder(IOutputStream* out, TStringBuf metricNameLabel)
+            explicit TPrometheusEncoder(IOutputStream* out, std::string_view metricNameLabel)
                 : Writer_(out)
                 , MetricNameLabel_(metricNameLabel)
             {
@@ -302,7 +302,7 @@ namespace NMonitoring {
                 }
             }
 
-            void OnLabel(TStringBuf name, TStringBuf value) override {
+            void OnLabel(std::string_view name, std::string_view value) override {
                 if (State_ == TEncoderState::EState::METRIC_LABELS) {
                     MetricState_.Labels.Add(name, value);
                 } else if (State_ == TEncoderState::EState::COMMON_LABELS) {
@@ -316,7 +316,7 @@ namespace NMonitoring {
                 OnLabel(LabelNamesPool_.Get(name), LabelValuesPool_.Get(value));
             }
 
-            std::pair<ui32, ui32> PrepareLabel(TStringBuf name, TStringBuf value) override {
+            std::pair<ui32, ui32> PrepareLabel(std::string_view name, std::string_view value) override {
                 auto nameLabel = LabelNamesPool_.PutIfAbsent(name);
                 auto valueLabel = LabelValuesPool_.PutIfAbsent(value);
                 return std::make_pair(nameLabel->Index, valueLabel->Index);
@@ -374,7 +374,7 @@ namespace NMonitoring {
                          "labels " << MetricState_.Labels <<
                          " does not contain label '" << MetricNameLabel_ << '\'');
 
-                const TString& metricName = ToString(nameLabel->Value());
+                const std::string& metricName = ToString(nameLabel->Value());
                 if (MetricState_.Type != EMetricType::DSUMMARY) {
                     Writer_.WriteType(MetricState_.Type, metricName);
                 }
@@ -410,7 +410,7 @@ namespace NMonitoring {
         private:
             TEncoderState State_;
             TPrometheusWriter Writer_;
-            TString MetricNameLabel_;
+            std::string MetricNameLabel_;
             TInstant CommonTime_ = TInstant::Zero();
             TLabels CommonLabels_;
             TMetricState MetricState_;
@@ -420,7 +420,7 @@ namespace NMonitoring {
         };
     }
 
-    IMetricEncoderPtr EncoderPrometheus(IOutputStream* out, TStringBuf metricNameLabel) {
+    IMetricEncoderPtr EncoderPrometheus(IOutputStream* out, std::string_view metricNameLabel) {
         return MakeHolder<TPrometheusEncoder>(out, metricNameLabel);
     }
 

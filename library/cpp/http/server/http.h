@@ -23,7 +23,7 @@ public:
     public:
         struct TFailLogData {
             int failstate;
-            TString url;
+            std::string url;
         };
 
         virtual ~ICallBack() {
@@ -144,8 +144,8 @@ private:
     void Process(void* ThreadSpecificResource) override;
 
 public:
-    std::vector<std::pair<TString, TString>> ParsedHeaders;
-    TString RequestString;
+    std::vector<std::pair<std::string, std::string>> ParsedHeaders;
+    std::string RequestString;
 
 private:
     THolder<TClientConnection> Conn_;

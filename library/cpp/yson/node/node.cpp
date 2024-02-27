@@ -99,22 +99,18 @@ TNode::TNode()
 { }
 
 TNode::TNode(const char* s)
-    : Value_(TString(s))
-{ }
-
-TNode::TNode(TStringBuf s)
-    : Value_(TString(s))
+    : Value_(std::string(s))
 { }
 
 TNode::TNode(std::string_view s)
-    : Value_(TString(s))
+    : Value_(std::string(s))
 { }
 
 TNode::TNode(const std::string& s)
-    : Value_(TString(s))
+    : Value_(std::string(s))
 { }
 
-TNode::TNode(TString s)
+TNode::TNode(std::string s)
     : Value_(std::move(s))
 { }
 
@@ -199,7 +195,7 @@ void TNode::Clear()
 
 bool TNode::IsString() const
 {
-    return std::holds_alternative<TString>(Value_);
+    return std::holds_alternative<std::string>(Value_);
 }
 
 bool TNode::IsInt64() const
@@ -256,7 +252,7 @@ bool TNode::Empty() const
 {
     switch (GetType()) {
         case String:
-            return std::get<TString>(Value_).empty();
+            return std::get<std::string>(Value_).empty();
         case List:
             return std::get<TListType>(Value_).empty();
         case Map:
@@ -270,7 +266,7 @@ size_t TNode::Size() const
 {
     switch (GetType()) {
         case String:
-            return std::get<TString>(Value_).size();
+            return std::get<std::string>(Value_).size();
         case List:
             return std::get<TListType>(Value_).size();
         case Map:
@@ -284,7 +280,7 @@ TNode::EType TNode::GetType() const
 {
     return std::visit(TOverloaded{
         [](const TUndefined&) { return Undefined; },
-        [](const TString&) { return String; },
+        [](const std::string&) { return String; },
         [](i64) { return Int64; },
         [](ui64) { return Uint64; },
         [](double) { return Double; },
@@ -295,10 +291,10 @@ TNode::EType TNode::GetType() const
     }, Value_);
 }
 
-const TString& TNode::AsString() const
+const std::string& TNode::AsString() const
 {
     CheckType(String);
-    return std::get<TString>(Value_);
+    return std::get<std::string>(Value_);
 }
 
 i64 TNode::AsInt64() const
@@ -349,9 +345,9 @@ TNode::TMapType& TNode::AsMap()
     return std::get<TMapType>(Value_);
 }
 
-const TString& TNode::UncheckedAsString() const noexcept
+const std::string& TNode::UncheckedAsString() const noexcept
 {
-    return std::get<TString>(Value_);
+    return std::get<std::string>(Value_);
 }
 
 i64 TNode::UncheckedAsInt64() const noexcept
@@ -494,42 +490,42 @@ TNode TNode::Add(TNode&& node) &&
     return std::move(Add(std::move(node)));
 }
 
-bool TNode::HasKey(const TStringBuf key) const
+bool TNode::HasKey(const std::string_view key) const
 {
     CheckType(Map);
-    return std::get<TMapType>(Value_).contains(key);
+    return std::get<TMapType>(Value_).contains(std::string{key});
 }
 
-TNode& TNode::operator()(const TString& key, const TNode& value) &
+TNode& TNode::operator()(const std::string& key, const TNode& value) &
 {
     AssureMap();
     std::get<TMapType>(Value_)[key] = value;
     return *this;
 }
 
-TNode TNode::operator()(const TString& key, const TNode& value) &&
+TNode TNode::operator()(const std::string& key, const TNode& value) &&
 {
     return std::move(operator()(key, value));
 }
 
-TNode& TNode::operator()(const TString& key, TNode&& value) &
+TNode& TNode::operator()(const std::string& key, TNode&& value) &
 {
     AssureMap();
     std::get<TMapType>(Value_)[key] = std::move(value);
     return *this;
 }
 
-TNode TNode::operator()(const TString& key, TNode&& value) &&
+TNode TNode::operator()(const std::string& key, TNode&& value) &&
 {
     return std::move(operator()(key, std::move(value)));
 }
 
-const TNode& TNode::operator[](const TStringBuf key) const
+const TNode& TNode::operator[](const std::string_view key) const
 {
     CheckType(Map);
     static TNode notFound;
     const auto& map = std::get<TMapType>(Value_);
-    TMapType::const_iterator i = map.find(key);
+    TMapType::const_iterator i = map.find(std::string{key});
     if (i == map.end()) {
         return notFound;
     } else {
@@ -537,16 +533,16 @@ const TNode& TNode::operator[](const TStringBuf key) const
     }
 }
 
-TNode& TNode::operator[](const TStringBuf key)
+TNode& TNode::operator[](const std::string_view key)
 {
     AssureMap();
-    return std::get<TMapType>(Value_)[key];
+    return std::get<TMapType>(Value_)[std::string{key}];
 }
 
-const TNode& TNode::At(const TStringBuf key) const {
+const TNode& TNode::At(const std::string_view key) const {
     CheckType(Map);
     const auto& map = std::get<TMapType>(Value_);
-    TMapType::const_iterator i = map.find(key);
+    TMapType::const_iterator i = map.find(std::string{key});
     if (i == map.end()) {
         ythrow TLookupError() << "Cannot find key " << key;
     } else {
@@ -554,10 +550,10 @@ const TNode& TNode::At(const TStringBuf key) const {
     }
 }
 
-TNode& TNode::At(const TStringBuf key) {
+TNode& TNode::At(const std::string_view key) {
     CheckType(Map);
     auto& map = std::get<TMapType>(Value_);
-    TMapType::iterator i = map.find(key);
+    TMapType::iterator i = map.find(std::string{key});
     if (i == map.end()) {
         ythrow TLookupError() << "Cannot find key " << key;
     } else {
@@ -565,7 +561,7 @@ TNode& TNode::At(const TStringBuf key) {
     }
 }
 
-const TString& TNode::ChildAsString(const TStringBuf key) const {
+const std::string& TNode::ChildAsString(const std::string_view key) const {
     const auto& node = At(key);
     try {
         return node.AsString();
@@ -577,7 +573,7 @@ const TString& TNode::ChildAsString(const TStringBuf key) const {
     }
 }
 
-i64 TNode::ChildAsInt64(const TStringBuf key) const {
+i64 TNode::ChildAsInt64(const std::string_view key) const {
     const auto& node = At(key);
     try {
         return node.AsInt64();
@@ -589,7 +585,7 @@ i64 TNode::ChildAsInt64(const TStringBuf key) const {
     }
 }
 
-ui64 TNode::ChildAsUint64(const TStringBuf key) const {
+ui64 TNode::ChildAsUint64(const std::string_view key) const {
     const auto& node = At(key);
     try {
         return node.AsUint64();
@@ -601,7 +597,7 @@ ui64 TNode::ChildAsUint64(const TStringBuf key) const {
     }
 }
 
-double TNode::ChildAsDouble(const TStringBuf key) const {
+double TNode::ChildAsDouble(const std::string_view key) const {
     const auto& node = At(key);
     try {
         return node.AsDouble();
@@ -613,7 +609,7 @@ double TNode::ChildAsDouble(const TStringBuf key) const {
     }
 }
 
-bool TNode::ChildAsBool(const TStringBuf key) const {
+bool TNode::ChildAsBool(const std::string_view key) const {
     const auto& node = At(key);
     try {
         return node.AsBool();
@@ -625,7 +621,7 @@ bool TNode::ChildAsBool(const TStringBuf key) const {
     }
 }
 
-const TNode::TListType& TNode::ChildAsList(const TStringBuf key) const {
+const TNode::TListType& TNode::ChildAsList(const std::string_view key) const {
     const auto& node = At(key);
     try {
         return node.AsList();
@@ -637,7 +633,7 @@ const TNode::TListType& TNode::ChildAsList(const TStringBuf key) const {
     }
 }
 
-const TNode::TMapType& TNode::ChildAsMap(const TStringBuf key) const {
+const TNode::TMapType& TNode::ChildAsMap(const std::string_view key) const {
     const auto& node = At(key);
     try {
         return node.AsMap();
@@ -649,7 +645,7 @@ const TNode::TMapType& TNode::ChildAsMap(const TStringBuf key) const {
     }
 }
 
-TNode::TListType& TNode::ChildAsList(const TStringBuf key) {
+TNode::TListType& TNode::ChildAsList(const std::string_view key) {
     auto& node = At(key);
     try {
         return node.AsList();
@@ -661,7 +657,7 @@ TNode::TListType& TNode::ChildAsList(const TStringBuf key) {
     }
 }
 
-TNode::TMapType& TNode::ChildAsMap(const TStringBuf key) {
+TNode::TMapType& TNode::ChildAsMap(const std::string_view key) {
     auto& node = At(key);
     try {
         return node.AsMap();
@@ -673,7 +669,7 @@ TNode::TMapType& TNode::ChildAsMap(const TStringBuf key) {
     }
 }
 
-const TString& TNode::ChildAsString(size_t index) const {
+const std::string& TNode::ChildAsString(size_t index) const {
     const auto& node = At(index);
     try {
         return node.AsString();

@@ -4,11 +4,11 @@ namespace NYT {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TSimpleException::TSimpleException(TString message)
+TSimpleException::TSimpleException(std::string message)
     : Message_(std::move(message))
 { }
 
-const TString& TSimpleException::GetMessage() const
+const std::string& TSimpleException::GetMessage() const
 {
     return Message_;
 }
@@ -20,14 +20,14 @@ const char* TSimpleException::what() const noexcept
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TCompositeException::TCompositeException(TString message)
+TCompositeException::TCompositeException(std::string message)
     : TSimpleException(std::move(message))
     , What_(Message_)
 { }
 
 TCompositeException::TCompositeException(
     const std::exception& exception,
-    TString message)
+    std::string message)
     : TSimpleException(message)
     , InnerException_(std::current_exception())
     , What_(message + "\n" + exception.what())

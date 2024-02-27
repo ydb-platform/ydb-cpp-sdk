@@ -23,20 +23,20 @@ enum class EBinaryStringEncoding {
 // ====== YDB to json ======
 void FormatValueJson(const TValue& value, NJsonWriter::TBuf& writer, EBinaryStringEncoding encoding);
 
-TString FormatValueJson(const TValue& value, EBinaryStringEncoding encoding);
+std::string FormatValueJson(const TValue& value, EBinaryStringEncoding encoding);
 
 void FormatResultRowJson(TResultSetParser& parser, const std::vector<TColumn>& columns, NJsonWriter::TBuf& writer,
     EBinaryStringEncoding encoding);
 
-TString FormatResultRowJson(TResultSetParser& parser, const std::vector<TColumn>& columns,
+std::string FormatResultRowJson(TResultSetParser& parser, const std::vector<TColumn>& columns,
     EBinaryStringEncoding encoding);
 
 void FormatResultSetJson(const TResultSet& result, IOutputStream* out, EBinaryStringEncoding encoding);
 
-TString FormatResultSetJson(const TResultSet& result, EBinaryStringEncoding encoding);
+std::string FormatResultSetJson(const TResultSet& result, EBinaryStringEncoding encoding);
 
 // ====== json to YDB ======
-TValue JsonToYdbValue(const TString& jsonString, const TType& type, EBinaryStringEncoding encoding);
+TValue JsonToYdbValue(const std::string& jsonString, const TType& type, EBinaryStringEncoding encoding);
 TValue JsonToYdbValue(const NJson::TJsonValue& jsonValue, const TType& type, EBinaryStringEncoding encoding);
 
 } // namespace NYdb

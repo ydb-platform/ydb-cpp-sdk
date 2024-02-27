@@ -68,7 +68,7 @@ void TRecyr_intTest::TestUTFFromUnknownPlane() {
         writtenbytes2 += nwr;
         UNIT_ASSERT(BUFFER_SIZE > writtenbytes2);
     }
-    UNIT_ASSERT_VALUES_EQUAL(TStringBuf(bytebuffer, writtenbytes), TStringBuf(bytebuffer2, writtenbytes2));
+    UNIT_ASSERT_VALUES_EQUAL(std::string_view(bytebuffer, writtenbytes), std::string_view(bytebuffer2, writtenbytes2));
 
     wchar32 charbuffer[BUFFER_SIZE];
     size_t readbytes = 0;
@@ -114,7 +114,7 @@ void TRecyr_intTest::TestUTFFromUnknownPlane() {
 
     // test TChar version
     // bytebuffer of len writtenbytes contains sampletext of len samplelen chars in utf8
-    TUtf16String wtr = CharToWide(TStringBuf(bytebuffer, writtenbytes), CODES_UNKNOWNPLANE);
+    TUtf16String wtr = CharToWide(std::string_view(bytebuffer, writtenbytes), CODES_UNKNOWNPLANE);
     TChar* strend = wtr.begin() + wtr.size();
     DecodeUnknownPlane(wtr.begin(), strend, CODES_UTF8);
     wtr.resize(strend - wtr.data(), 'Q');

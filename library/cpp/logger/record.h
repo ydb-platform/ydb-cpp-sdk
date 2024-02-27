@@ -9,7 +9,7 @@
 #include <vector>
 
 struct TLogRecord {
-    using TMetaFlags = std::vector<std::pair<TString, TString>>;
+    using TMetaFlags = std::vector<std::pair<std::string, std::string>>;
 
     const char* Data;
     size_t Len;

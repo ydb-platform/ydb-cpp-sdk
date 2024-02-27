@@ -31,9 +31,9 @@ inline size_t TStringBuilderBase::GetLength() const
     return Current_ ? Current_ - Begin_ : 0;
 }
 
-inline TStringBuf TStringBuilderBase::GetBuffer() const
+inline std::string_view TStringBuilderBase::GetBuffer() const
 {
-    return TStringBuf(Begin_, Current_);
+    return std::string_view(Begin_, Current_);
 }
 
 inline void TStringBuilderBase::Advance(size_t size)
@@ -58,9 +58,9 @@ inline void TStringBuilderBase::AppendChar(char ch, int n)
     }
 }
 
-inline void TStringBuilderBase::AppendString(TStringBuf str)
+inline void TStringBuilderBase::AppendString(std::string_view str)
 {
-    if (Y_LIKELY(str)) {
+    if (Y_LIKELY(!str.empty())) {
         char* dst = Preallocate(str.length());
         ::memcpy(dst, str.begin(), str.length());
         Advance(str.length());
@@ -69,7 +69,7 @@ inline void TStringBuilderBase::AppendString(TStringBuf str)
 
 inline void TStringBuilderBase::AppendString(const char* str)
 {
-    AppendString(TStringBuf(str));
+    AppendString(std::string_view(str));
 }
 
 inline void TStringBuilderBase::Reset()
@@ -79,7 +79,7 @@ inline void TStringBuilderBase::Reset()
 }
 
 template <class... TArgs>
-void TStringBuilderBase::AppendFormat(TStringBuf format, TArgs&& ... args)
+void TStringBuilderBase::AppendFormat(std::string_view format, TArgs&& ... args)
 {
     Format(this, format, std::forward<TArgs>(args)...);
 }
@@ -92,7 +92,7 @@ void TStringBuilderBase::AppendFormat(const char (&format)[Length], TArgs&& ... 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline TString TStringBuilder::Flush()
+inline std::string TStringBuilder::Flush()
 {
     Buffer_.resize(GetLength());
     auto result = std::move(Buffer_);
@@ -107,22 +107,22 @@ inline void TStringBuilder::DoReset()
 
 inline void TStringBuilder::DoReserve(size_t newLength)
 {
-    Buffer_.ReserveAndResize(newLength);
+    Buffer_.resize(newLength);
     auto capacity = Buffer_.capacity();
-    Buffer_.ReserveAndResize(capacity);
+    Buffer_.resize(capacity);
     Begin_ = &*Buffer_.begin();
     End_ = Begin_ + capacity;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline void FormatValue(TStringBuilderBase* builder, const TStringBuilder& value, TStringBuf /*format*/)
+inline void FormatValue(TStringBuilderBase* builder, const TStringBuilder& value, std::string_view /*format*/)
 {
     builder->AppendString(value.GetBuffer());
 }
 
 template <class T>
-TString ToStringViaBuilder(const T& value, TStringBuf spec)
+std::string ToStringViaBuilder(const T& value, std::string_view spec)
 {
     TStringBuilder builder;
     FormatValue(&builder, value, spec);

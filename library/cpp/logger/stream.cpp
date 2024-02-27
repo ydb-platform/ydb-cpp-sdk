@@ -1,6 +1,8 @@
 #include "stream.h"
 #include "record.h"
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/stream/output.h>
 
 
@@ -31,7 +33,7 @@ void TStreamWithContextLogBackend::WriteData(const TLogRecord& rec) {
     Slave_->Write(rec.Data, rec.Len);
     Slave_->Write(DELIMITER);
     for (const auto& [key, value] : rec.MetaFlags) {
-        Slave_->Write(TString::Join(key, "=", value));
+        Slave_->Write(NUtils::TYdbStringBuilder() << key << "=" << value);
         Slave_->Write(DELIMITER);
     }
 }

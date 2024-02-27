@@ -16,7 +16,7 @@
 #include <library/cpp/json/json_value.h>
 #include <library/cpp/json/json_writer.h>
 
-TString ArcadiaSourceRoot() {
+std::string ArcadiaSourceRoot() {
     if (const auto& sourceRoot = NPrivate::GetTestEnv().SourceRoot) {
         return sourceRoot;
     } else {
@@ -24,7 +24,7 @@ TString ArcadiaSourceRoot() {
     }
 }
 
-TString BuildRoot() {
+std::string BuildRoot() {
     if (const auto& buildRoot = NPrivate::GetTestEnv().BuildRoot) {
         return buildRoot;
     } else {
@@ -32,30 +32,30 @@ TString BuildRoot() {
     }
 }
 
-TString ArcadiaFromCurrentLocation(TStringBuf where, TStringBuf path) {
+std::string ArcadiaFromCurrentLocation(std::string_view where, std::string_view path) {
     return (TFsPath(ArcadiaSourceRoot()) / TFsPath(where).Parent() / path).Fix();
 }
 
-TString BinaryPath(TStringBuf path) {
+std::string BinaryPath(std::string_view path) {
     return (TFsPath(BuildRoot()) / path).Fix();
 }
 
-TString GetArcadiaTestsData() {
-    TString atdRoot = NPrivate::GetTestEnv().ArcadiaTestsDataDir;
+std::string GetArcadiaTestsData() {
+    std::string atdRoot = NPrivate::GetTestEnv().ArcadiaTestsDataDir;
     if (atdRoot) {
         return atdRoot;
     }
 
-    TString path = NPrivate::GetCwd();
+    std::string path = NPrivate::GetCwd();
     const char pathsep = GetDirectorySeparator();
     while (!path.empty()) {
-        TString dataDir = path + "/arcadia_tests_data";
+        std::string dataDir = path + "/arcadia_tests_data";
         if (IsDir(dataDir)) {
             return dataDir;
         }
 
         size_t pos = path.find_last_of(pathsep);
-        if (pos == TString::npos) {
+        if (pos == std::string::npos) {
             pos = 0;
         }
         path.erase(pos);
@@ -64,8 +64,8 @@ TString GetArcadiaTestsData() {
     return {};
 }
 
-TString GetWorkPath() {
-    TString workPath = NPrivate::GetTestEnv().WorkPath;
+std::string GetWorkPath() {
+    std::string workPath = NPrivate::GetTestEnv().WorkPath;
     if (workPath) {
         return workPath;
     }
@@ -77,28 +77,28 @@ TFsPath GetOutputPath() {
     return GetWorkPath() + "/testing_out_stuff";
 }
 
-const TString& GetRamDrivePath() {
+const std::string& GetRamDrivePath() {
     return NPrivate::GetTestEnv().RamDrivePath;
 }
 
-const TString& GetYtHddPath() {
+const std::string& GetYtHddPath() {
     return NPrivate::GetTestEnv().YtHddPath;
 }
 
-const TString& GetOutputRamDrivePath() {
+const std::string& GetOutputRamDrivePath() {
     return NPrivate::GetTestEnv().TestOutputRamDrivePath;
 }
 
-const TString& GdbPath() {
+const std::string& GdbPath() {
     return NPrivate::GetTestEnv().GdbPath;
 }
 
-const TString& GetTestParam(TStringBuf name) {
-    const static TString def = "";
+const std::string& GetTestParam(std::string_view name) {
+    const static std::string def = "";
     return GetTestParam(name, def);
 }
 
-const TString& GetTestParam(TStringBuf name, const TString& def) {
+const std::string& GetTestParam(std::string_view name, const std::string& def) {
     auto& testParameters = NPrivate::GetTestEnv().TestParameters;
     auto it = testParameters.find(name.data());
     if (it != testParameters.end()) {
@@ -107,14 +107,14 @@ const TString& GetTestParam(TStringBuf name, const TString& def) {
     return def;
 }
 
-const TString& GetGlobalResource(TStringBuf name) {
+const std::string& GetGlobalResource(std::string_view name) {
     auto& resources = NPrivate::GetTestEnv().GlobalResources;
     auto it = resources.find(name.data());
     Y_ABORT_UNLESS(it != resources.end());
     return it->second;
 }
 
-void AddEntryToCoreSearchFile(const TString& filename, TStringBuf cmd, int pid, const TFsPath& binaryPath = TFsPath(), const TFsPath& cwd = TFsPath()) {
+void AddEntryToCoreSearchFile(const std::string& filename, std::string_view cmd, int pid, const TFsPath& binaryPath = TFsPath(), const TFsPath& cwd = TFsPath()) {
     auto lock = TFileLock(filename);
     TGuard<TFileLock> guard(lock);
 
@@ -174,7 +174,7 @@ namespace NPrivate {
         TestParameters.clear();
         GlobalResources.clear();
 
-        const TString contextFilename = GetEnv("YA_TEST_CONTEXT_FILE");
+        const std::string contextFilename = GetEnv("YA_TEST_CONTEXT_FILE");
         if (contextFilename && TFsPath(contextFilename).Exists()) {
             NJson::TJsonValue context;
             NJson::ReadJsonTree(TFileInput(contextFilename).ReadAll(), &context);
@@ -246,7 +246,7 @@ namespace NPrivate {
                 if (TFsPath(EnvFile).Exists()) {
                     TFileInput file(EnvFile);
                     NJson::TJsonValue envVar;
-                    TString ljson;
+                    std::string ljson;
                     while (file.ReadLine(ljson) > 0) {
                         NJson::ReadJsonTree(ljson, &envVar);
                         for (const auto& entry : envVar.GetMap()) {
@@ -285,15 +285,15 @@ namespace NPrivate {
             TestOutputRamDrivePath = GetEnv("YA_TEST_OUTPUT_RAM_DRIVE_PATH");
         }
 
-        const TString fromEnv = GetEnv("YA_TEST_RUNNER");
+        const std::string fromEnv = GetEnv("YA_TEST_RUNNER");
         IsRunningFromTest = (fromEnv == "1");
     }
 
-    void TTestEnv::AddTestParam(TStringBuf name, TStringBuf value) {
-        TestParameters[TString{name}] = value;
+    void TTestEnv::AddTestParam(std::string_view name, std::string_view value) {
+        TestParameters[std::string{name}] = value;
     }
 
-    TString GetCwd() {
+    std::string GetCwd() {
         try {
             return NFs::CurrentWorkingDirectory();
         } catch (...) {

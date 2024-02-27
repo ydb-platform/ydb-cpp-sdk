@@ -10,17 +10,17 @@ namespace NPersQueue {
 
 class SDKTestSetup {
 protected:
-    TString TestCaseName;
+    std::string TestCaseName;
 
     THolder<TTempFileHandle> NetDataFile;
-    THashMap<TString, NKikimr::NPersQueueTests::TPQTestClusterInfo> DataCenters;
-    TString LocalDC = "dc1";
+    THashMap<std::string, NKikimr::NPersQueueTests::TPQTestClusterInfo> DataCenters;
+    std::string LocalDC = "dc1";
     TTestServer Server;
     TLog Log = CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG);
     size_t TopicPartitionsCount = 1;
 
 public:
-    SDKTestSetup(const TString& testCaseName, bool start = true,
+    SDKTestSetup(const std::string& testCaseName, bool start = true,
                  const std::vector<NKikimrServices::EServiceKikimr>& logServices = TTestServer::LOGGED_SERVICES,
                  NActors::NLog::EPriority logPriority = NActors::NLog::PRI_DEBUG,
                  ui32 nodeCount = NKikimr::NPersQueueTests::PQ_DEFAULT_NODE_COUNT,
@@ -36,8 +36,8 @@ public:
     }
 
     void InitOptions(ui32 nodeCount = NKikimr::NPersQueueTests::PQ_DEFAULT_NODE_COUNT) {
-        Log.SetFormatter([testCaseName = TestCaseName](ELogPriority priority, TStringBuf message) {
-            return TStringBuilder() << TInstant::Now() << " :" << testCaseName << " " << priority << ": " << message << Endl;
+        Log.SetFormatter([testCaseName = TestCaseName](ELogPriority priority, std::string_view message) {
+            return TYdbStringBuilder() << TInstant::Now() << " :" << testCaseName << " " << priority << ": " << message << Endl;
         });
         Server.ServerSettings.SetNodeCount(nodeCount);
         Server.GrpcServerOptions.SetGRpcShutdownDeadline(TDuration::Max());
@@ -70,8 +70,8 @@ public:
         Server.StartServer(false);
         Server.AnnoyingClient->InitRoot();
         if (DataCenters.empty()) {
-            THashMap<TString, NKikimr::NPersQueueTests::TPQTestClusterInfo> dataCenters;
-            dataCenters.emplace("dc1", NKikimr::NPersQueueTests::TPQTestClusterInfo{TStringBuilder() << "localhost:" << Server.GrpcPort, true});
+            THashMap<std::string, NKikimr::NPersQueueTests::TPQTestClusterInfo> dataCenters;
+            dataCenters.emplace("dc1", NKikimr::NPersQueueTests::TPQTestClusterInfo{TYdbStringBuilder() << "localhost:" << Server.GrpcPort, true});
             if (addBrokenDatacenter) {
                 dataCenters.emplace("dc2", NKikimr::NPersQueueTests::TPQTestClusterInfo{"dc2.logbroker.yandex.net", false});
             }
@@ -88,23 +88,23 @@ public:
         }
     }
 
-    static TString GetTestTopic() {
+    static std::string GetTestTopic() {
         return "test-topic";
     }
 
-    static TString GetTestConsumer() {
+    static std::string GetTestConsumer() {
         return "shared/user";
     }
 
-    static TString GetTestMessageGroupId() {
+    static std::string GetTestMessageGroupId() {
         return "test-message-group-id";
     }
 
-    TString GetLocalCluster() const {
+    std::string GetLocalCluster() const {
         return LocalDC;
     }
 
-    TString GetTestTopicPath() const
+    std::string GetTestTopicPath() const
     {
         return Server.ServerSettings.PQConfig.GetRoot() + "/" + ::NPersQueue::BuildFullTopicName(GetTestTopic(), LocalDC);
     }
@@ -128,7 +128,7 @@ public:
         return Server.GrpcServerOptions;
     }
 
-    void SetNetDataViaFile(const TString& netDataTsv) {
+    void SetNetDataViaFile(const std::string& netDataTsv) {
         NetDataFile = MakeHolder<TTempFileHandle>();
         NetDataFile->Write(netDataTsv.Data(), netDataTsv.Size());
         NetDataFile->FlushData();
@@ -155,7 +155,7 @@ public:
         UNIT_ASSERT_C(!initResponse.Response.HasError(), "Failed to start: " << initResponse.Response);
     }
 
-    void WriteToTopic(const std::vector<TString>& data, bool compress = true) {
+    void WriteToTopic(const std::vector<std::string>& data, bool compress = true) {
 
         auto client = NYdb::NPersQueue::TPersQueueClient(*(Server.AnnoyingClient->GetDriver()));
         NYdb::NPersQueue::TWriteSessionSettings settings;
@@ -163,7 +163,7 @@ public:
         if (!compress) settings.Codec(NYdb::NPersQueue::ECodec::RAW);
         auto writer = client.CreateSimpleBlockingWriteSession(settings);
 
-        for (const TString& d : data) {
+        for (const std::string& d : data) {
             Log << TLOG_INFO << "WriteToTopic: " << d;
             auto res = writer->Write(d);
             UNIT_ASSERT(res);
@@ -171,17 +171,17 @@ public:
         writer->Close();
     }
 
-    void SetSingleDataCenter(const TString& name = "dc1") {
+    void SetSingleDataCenter(const std::string& name = "dc1") {
         UNIT_ASSERT(
                 DataCenters.insert(std::make_pair(
                         name,
-                        NKikimr::NPersQueueTests::TPQTestClusterInfo{TStringBuilder() << "localhost:" << Server.GrpcPort, true}
+                        NKikimr::NPersQueueTests::TPQTestClusterInfo{TYdbStringBuilder() << "localhost:" << Server.GrpcPort, true}
                 )).second
         );
         LocalDC = name;
     }
 
-    void AddDataCenter(const TString& name, const TString& address, bool enabled = true, bool setSelfAsDc = true) {
+    void AddDataCenter(const std::string& name, const std::string& address, bool enabled = true, bool setSelfAsDc = true) {
         if (DataCenters.empty() && setSelfAsDc) {
             SetSingleDataCenter();
         }
@@ -192,16 +192,16 @@ public:
         UNIT_ASSERT(DataCenters.insert(std::make_pair(name, info)).second);
     }
 
-    void AddDataCenter(const TString& name, const SDKTestSetup& cluster, bool enabled = true, bool setSelfAsDc = true) {
-        AddDataCenter(name, TStringBuilder() << "localhost:" << cluster.Server.GrpcPort, enabled, setSelfAsDc);
+    void AddDataCenter(const std::string& name, const SDKTestSetup& cluster, bool enabled = true, bool setSelfAsDc = true) {
+        AddDataCenter(name, TYdbStringBuilder() << "localhost:" << cluster.Server.GrpcPort, enabled, setSelfAsDc);
     }
 
-    void EnableDataCenter(const TString& name) {
+    void EnableDataCenter(const std::string& name) {
         auto iter = DataCenters.find(name);
         UNIT_ASSERT(iter != DataCenters.end());
         Server.AnnoyingClient->UpdateDcEnabled(name, true);
     }
-    void DisableDataCenter(const TString& name) {
+    void DisableDataCenter(const std::string& name) {
         auto iter = DataCenters.find(name);
         UNIT_ASSERT(iter != DataCenters.end());
         Server.AnnoyingClient->UpdateDcEnabled(name, false);
@@ -231,7 +231,7 @@ public:
         }
     }
 
-    void CreateTopic(const TString& topic, const TString& cluster, size_t partitionsCount = 1) {
+    void CreateTopic(const std::string& topic, const std::string& cluster, size_t partitionsCount = 1) {
         Server.AnnoyingClient->CreateTopic(BuildFullTopicName(topic, cluster), partitionsCount);
     }
 };

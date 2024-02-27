@@ -6,8 +6,8 @@
 #include "resource.h"
 
 namespace NResource {
-    TString Compress(const TStringBuf data);
-    TString Decompress(const TStringBuf data);
+    std::string Compress(const std::string_view data);
+    std::string Decompress(const std::string_view data);
 
     class IMatch {
     public:
@@ -17,19 +17,19 @@ namespace NResource {
 
     class IStore {
     public:
-        virtual void Store(const TStringBuf key, const TStringBuf data) = 0;
-        virtual bool Has(const TStringBuf key) const = 0;
-        virtual bool FindExact(const TStringBuf key, TString* out) const = 0;
-        virtual void FindMatch(const TStringBuf subkey, IMatch& cb) const = 0;
+        virtual void Store(const std::string_view key, const std::string_view data) = 0;
+        virtual bool Has(const std::string_view key) const = 0;
+        virtual bool FindExact(const std::string_view key, std::string* out) const = 0;
+        virtual void FindMatch(const std::string_view subkey, IMatch& cb) const = 0;
         virtual size_t Count() const noexcept = 0;
-        virtual TStringBuf KeyByIndex(size_t idx) const = 0;
+        virtual std::string_view KeyByIndex(size_t idx) const = 0;
         virtual ~IStore() = default;
     };
 
     IStore* CommonStore();
 
     struct TRegHelper {
-        inline TRegHelper(const TStringBuf key, const TStringBuf data) {
+        inline TRegHelper(const std::string_view key, const std::string_view data) {
             CommonStore()->Store(key, data);
         }
     };

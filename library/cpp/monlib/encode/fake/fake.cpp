@@ -22,7 +22,7 @@ namespace NMonitoring {
         }
         void OnLabelsEnd() override {
         }
-        void OnLabel(const TStringBuf, const TStringBuf) override {
+        void OnLabel(const std::string_view, const std::string_view) override {
         }
 
         void OnDouble(TInstant, double) override {

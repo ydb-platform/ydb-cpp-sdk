@@ -7,6 +7,6 @@
 #define Y_FAIL(...) Y_ABORT(__VA_ARGS__)
 #define Y_VERIFY_DEBUG(...) Y_DEBUG_ABORT_UNLESS(__VA_ARGS__)
 
-#define Y_VERIFY_S(expr, msg) Y_VERIFY(expr, "%s", (TStringBuilder() << msg).c_str())
-#define Y_FAIL_S(msg) Y_FAIL("%s", (TStringBuilder() << msg).c_str())
-#define Y_VERIFY_DEBUG_S(expr, msg) Y_VERIFY_DEBUG(expr, "%s", (TStringBuilder() << msg).c_str())
+#define Y_VERIFY_S(expr, msg) Y_VERIFY(expr, "%s", (TYdbStringBuilder() << msg).c_str())
+#define Y_FAIL_S(msg) Y_FAIL("%s", (TYdbStringBuilder() << msg).c_str())
+#define Y_VERIFY_DEBUG_S(expr, msg) Y_VERIFY_DEBUG(expr, "%s", (TYdbStringBuilder() << msg).c_str())

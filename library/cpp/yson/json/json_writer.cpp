@@ -1,11 +1,12 @@
 #include "json_writer.h"
 
 #include <library/cpp/json/json_writer.h>
+#include <library/cpp/string_builder/string_builder.h>
 
 namespace NYT {
     ////////////////////////////////////////////////////////////////////////////////
 
-    static bool IsSpecialJsonKey(const TStringBuf& key) {
+    static bool IsSpecialJsonKey(const std::string_view& key) {
         return key.size() > 0 && key[0] == '$';
     }
 
@@ -97,7 +98,7 @@ namespace NYT {
         return true;
     }
 
-    void TJsonWriter::OnStringScalar(TStringBuf value) {
+    void TJsonWriter::OnStringScalar(std::string_view value) {
         if (IsWriteAllowed()) {
             EnterNode();
             WriteStringScalar(value);
@@ -173,10 +174,10 @@ namespace NYT {
         }
     }
 
-    void TJsonWriter::OnKeyedItem(TStringBuf name) {
+    void TJsonWriter::OnKeyedItem(std::string_view name) {
         if (IsWriteAllowed()) {
             if (IsSpecialJsonKey(name)) {
-                WriteStringScalar(TString("$") + name);
+                WriteStringScalar(NUtils::TYdbStringBuilder() << "$" << name);
             } else {
                 WriteStringScalar(name);
             }
@@ -207,7 +208,7 @@ namespace NYT {
         }
     }
 
-    void TJsonWriter::WriteStringScalar(const TStringBuf& value) {
+    void TJsonWriter::WriteStringScalar(const std::string_view& value) {
         JsonWriter->Write(value);
     }
 

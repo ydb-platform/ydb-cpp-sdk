@@ -107,90 +107,90 @@ namespace NColorizer {
         explicit TColors(FILE* = stderr);
         explicit TColors(bool ontty);
 
-        TStringBuf Reset() const noexcept;
+        std::string_view Reset() const noexcept;
 
-        TStringBuf StyleLight() const noexcept;
-        TStringBuf StyleDark() const noexcept;
-        TStringBuf StyleNormal() const noexcept;
+        std::string_view StyleLight() const noexcept;
+        std::string_view StyleDark() const noexcept;
+        std::string_view StyleNormal() const noexcept;
 
-        TStringBuf ItalicOn() const noexcept;
-        TStringBuf ItalicOff() const noexcept;
-        TStringBuf UnderlineOn() const noexcept;
-        TStringBuf UnderlineOff() const noexcept;
+        std::string_view ItalicOn() const noexcept;
+        std::string_view ItalicOff() const noexcept;
+        std::string_view UnderlineOn() const noexcept;
+        std::string_view UnderlineOff() const noexcept;
 
-        TStringBuf ForeDefault() const noexcept;
-        TStringBuf ForeBlack() const noexcept;
-        TStringBuf ForeRed() const noexcept;
-        TStringBuf ForeGreen() const noexcept;
-        TStringBuf ForeYellow() const noexcept;
-        TStringBuf ForeBlue() const noexcept;
-        TStringBuf ForeMagenta() const noexcept;
-        TStringBuf ForeCyan() const noexcept;
-        TStringBuf ForeWhite() const noexcept;
+        std::string_view ForeDefault() const noexcept;
+        std::string_view ForeBlack() const noexcept;
+        std::string_view ForeRed() const noexcept;
+        std::string_view ForeGreen() const noexcept;
+        std::string_view ForeYellow() const noexcept;
+        std::string_view ForeBlue() const noexcept;
+        std::string_view ForeMagenta() const noexcept;
+        std::string_view ForeCyan() const noexcept;
+        std::string_view ForeWhite() const noexcept;
 
-        TStringBuf BackDefault() const noexcept;
-        TStringBuf BackBlack() const noexcept;
-        TStringBuf BackRed() const noexcept;
-        TStringBuf BackGreen() const noexcept;
-        TStringBuf BackYellow() const noexcept;
-        TStringBuf BackBlue() const noexcept;
-        TStringBuf BackMagenta() const noexcept;
-        TStringBuf BackCyan() const noexcept;
-        TStringBuf BackWhite() const noexcept;
+        std::string_view BackDefault() const noexcept;
+        std::string_view BackBlack() const noexcept;
+        std::string_view BackRed() const noexcept;
+        std::string_view BackGreen() const noexcept;
+        std::string_view BackYellow() const noexcept;
+        std::string_view BackBlue() const noexcept;
+        std::string_view BackMagenta() const noexcept;
+        std::string_view BackCyan() const noexcept;
+        std::string_view BackWhite() const noexcept;
 
-        TStringBuf Default() const noexcept;
-        TStringBuf Black() const noexcept;
-        TStringBuf Red() const noexcept;
-        TStringBuf Green() const noexcept;
-        TStringBuf Yellow() const noexcept;
-        TStringBuf Blue() const noexcept;
-        TStringBuf Magenta() const noexcept;
-        TStringBuf Cyan() const noexcept;
-        TStringBuf White() const noexcept;
+        std::string_view Default() const noexcept;
+        std::string_view Black() const noexcept;
+        std::string_view Red() const noexcept;
+        std::string_view Green() const noexcept;
+        std::string_view Yellow() const noexcept;
+        std::string_view Blue() const noexcept;
+        std::string_view Magenta() const noexcept;
+        std::string_view Cyan() const noexcept;
+        std::string_view White() const noexcept;
 
-        TStringBuf LightDefault() const noexcept;
-        TStringBuf LightBlack() const noexcept;
-        TStringBuf LightRed() const noexcept;
-        TStringBuf LightGreen() const noexcept;
-        TStringBuf LightYellow() const noexcept;
-        TStringBuf LightBlue() const noexcept;
-        TStringBuf LightMagenta() const noexcept;
-        TStringBuf LightCyan() const noexcept;
-        TStringBuf LightWhite() const noexcept;
+        std::string_view LightDefault() const noexcept;
+        std::string_view LightBlack() const noexcept;
+        std::string_view LightRed() const noexcept;
+        std::string_view LightGreen() const noexcept;
+        std::string_view LightYellow() const noexcept;
+        std::string_view LightBlue() const noexcept;
+        std::string_view LightMagenta() const noexcept;
+        std::string_view LightCyan() const noexcept;
+        std::string_view LightWhite() const noexcept;
 
-        TStringBuf DarkDefault() const noexcept;
-        TStringBuf DarkBlack() const noexcept;
-        TStringBuf DarkRed() const noexcept;
-        TStringBuf DarkGreen() const noexcept;
-        TStringBuf DarkYellow() const noexcept;
-        TStringBuf DarkBlue() const noexcept;
-        TStringBuf DarkMagenta() const noexcept;
-        TStringBuf DarkCyan() const noexcept;
-        TStringBuf DarkWhite() const noexcept;
+        std::string_view DarkDefault() const noexcept;
+        std::string_view DarkBlack() const noexcept;
+        std::string_view DarkRed() const noexcept;
+        std::string_view DarkGreen() const noexcept;
+        std::string_view DarkYellow() const noexcept;
+        std::string_view DarkBlue() const noexcept;
+        std::string_view DarkMagenta() const noexcept;
+        std::string_view DarkCyan() const noexcept;
+        std::string_view DarkWhite() const noexcept;
 
         /// Compatibility; prefer using methods without `Color` suffix in their names.
         /// Note: these behave differently from their un-suffixed counterparts.
         /// While functions declared above will reset colors completely, these will only reset foreground color and
         /// style, without changing the background color and underline/italic settings. Also, names of these functions
         /// don't conform with standard, e.g. `YellowColor` actually emits the `lite yellow` escape code.
-        TStringBuf OldColor() const noexcept;
-        TStringBuf BoldColor() const noexcept;
-        TStringBuf BlackColor() const noexcept;
-        TStringBuf BlueColor() const noexcept;
-        TStringBuf GreenColor() const noexcept;
-        TStringBuf CyanColor() const noexcept;
-        TStringBuf RedColor() const noexcept;
-        TStringBuf PurpleColor() const noexcept;
-        TStringBuf BrownColor() const noexcept;
-        TStringBuf LightGrayColor() const noexcept;
-        TStringBuf DarkGrayColor() const noexcept;
-        TStringBuf LightBlueColor() const noexcept;
-        TStringBuf LightGreenColor() const noexcept;
-        TStringBuf LightCyanColor() const noexcept;
-        TStringBuf LightRedColor() const noexcept;
-        TStringBuf LightPurpleColor() const noexcept;
-        TStringBuf YellowColor() const noexcept;
-        TStringBuf WhiteColor() const noexcept;
+        std::string_view OldColor() const noexcept;
+        std::string_view BoldColor() const noexcept;
+        std::string_view BlackColor() const noexcept;
+        std::string_view BlueColor() const noexcept;
+        std::string_view GreenColor() const noexcept;
+        std::string_view CyanColor() const noexcept;
+        std::string_view RedColor() const noexcept;
+        std::string_view PurpleColor() const noexcept;
+        std::string_view BrownColor() const noexcept;
+        std::string_view LightGrayColor() const noexcept;
+        std::string_view DarkGrayColor() const noexcept;
+        std::string_view LightBlueColor() const noexcept;
+        std::string_view LightGreenColor() const noexcept;
+        std::string_view LightCyanColor() const noexcept;
+        std::string_view LightRedColor() const noexcept;
+        std::string_view LightPurpleColor() const noexcept;
+        std::string_view YellowColor() const noexcept;
+        std::string_view WhiteColor() const noexcept;
 
         inline bool IsTTY() const noexcept {
             return IsTTY_;
@@ -221,8 +221,8 @@ namespace NColorizer {
     TColors& AutoColors(IOutputStream& os);
 
     /// Calculate total length of all ANSI escape codes in the text.
-    size_t TotalAnsiEscapeCodeLen(TStringBuf text);
+    size_t TotalAnsiEscapeCodeLen(std::string_view text);
 }
 
-TStringBuf ToStringBuf(NColorizer::EAnsiCode x);
-TString ToString(NColorizer::EAnsiCode x);
+std::string_view ToStringBuf(NColorizer::EAnsiCode x);
+std::string ToString(NColorizer::EAnsiCode x);
