@@ -7,13 +7,13 @@
 #include <library/cpp/monlib/dynamic_counters/counters.h>
 #include <library/cpp/logger/log.h>
 #include <library/cpp/retry/retry_policy.h>
+#include <library/cpp/string_builder/string_builder.h>
 
 #include <util/datetime/base.h>
 #include <util/generic/hash.h>
 #include <util/generic/maybe.h>
 #include <util/generic/ptr.h>
 #include <util/generic/size_literals.h>
-#include <util/string/builder.h>
 #include <util/thread/pool.h>
 
 #include <exception>
@@ -615,13 +615,13 @@ template <typename TEvent>
 class TPrintable {
 public:
     std::string DebugString(bool printData = false) const {
-        TYdbStringBuilder b;
+        NUtils::TYdbStringBuilder b;
         static_cast<const TEvent*>(this)->DebugString(b, printData);
         return b;
     }
 
     // implemented in template specializations
-    void DebugString(TYdbStringBuilder& ret, bool printData = false) const = delete;
+    void DebugString(NUtils::TYdbStringBuilder& ret, bool printData = false) const = delete;
 };
 
 //! Session metainformation.
@@ -645,7 +645,7 @@ struct TSessionClosedEvent: public TStatus, public TPrintable<TSessionClosedEven
 };
 
 template<>
-void TPrintable<TSessionClosedEvent>::DebugString(TYdbStringBuilder& res, bool) const;
+void TPrintable<TSessionClosedEvent>::DebugString(NUtils::TYdbStringBuilder& res, bool) const;
 
 struct TWriteStat : public TThrRefBase {
     TDuration WriteTime;
@@ -786,7 +786,7 @@ protected:
 };
 
 template<>
-void TPrintable<TPartitionSession>::DebugString(TYdbStringBuilder& res, bool) const;
+void TPrintable<TPartitionSession>::DebugString(NUtils::TYdbStringBuilder& res, bool) const;
 
 //! Events for read session.
 struct TReadSessionEvent {
@@ -1126,25 +1126,25 @@ private:
 
 //! Events debug strings.
 template<>
-void TPrintable<TReadSessionEvent::TDataReceivedEvent::TMessageBase>::DebugString(TYdbStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TDataReceivedEvent::TMessageBase>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TDataReceivedEvent::TMessage>::DebugString(TYdbStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TDataReceivedEvent::TMessage>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TDataReceivedEvent::TCompressedMessage>::DebugString(TYdbStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TDataReceivedEvent::TCompressedMessage>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TDataReceivedEvent>::DebugString(TYdbStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TDataReceivedEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TCommitOffsetAcknowledgementEvent>::DebugString(TYdbStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TCommitOffsetAcknowledgementEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TStartPartitionSessionEvent>::DebugString(TYdbStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TStartPartitionSessionEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TStopPartitionSessionEvent>::DebugString(TYdbStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TStopPartitionSessionEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TPartitionSessionStatusEvent>::DebugString(TYdbStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TPartitionSessionStatusEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TPartitionSessionClosedEvent>::DebugString(TYdbStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TPartitionSessionClosedEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TSessionClosedEvent>::DebugString(TYdbStringBuilder& ret, bool printData) const;
+void TPrintable<TSessionClosedEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 
 std::string DebugString(const TReadSessionEvent::TEvent& event);
 
@@ -1270,9 +1270,9 @@ struct TWriteSessionEvent {
 
 //! Events debug strings.
 template<>
-void TPrintable<TWriteSessionEvent::TAcksEvent>::DebugString(TYdbStringBuilder& ret, bool printData) const;
+void TPrintable<TWriteSessionEvent::TAcksEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TWriteSessionEvent::TReadyToAcceptEvent>::DebugString(TYdbStringBuilder& ret, bool printData) const;
+void TPrintable<TWriteSessionEvent::TReadyToAcceptEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 
 std::string DebugString(const TWriteSessionEvent::TEvent& event);
 

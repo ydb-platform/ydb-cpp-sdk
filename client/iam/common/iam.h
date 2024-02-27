@@ -45,7 +45,7 @@ struct TIamJwtContent : TIamEndpoint { std::string JwtContent; };
 struct TIamJwtParams : TIamEndpoint { TJwtParams JwtParams; };
 
 inline TJwtParams ReadJwtKeyFile(const std::string& filename) {
-    return ParseJwtParams(TFileInput(filename).ReadAll());
+    return ParseJwtParams(TFileInput(filename.c_str()).ReadAll());
 }
 
 struct TIamOAuth : TIamEndpoint { std::string OAuthToken; };
@@ -157,7 +157,7 @@ private:
             if (!status.Ok()) {
                 TDuration sleepDuration;
                 with_lock(Lock_) {
-                    LastRequestError_ = TYdbStringBuilder()
+                    LastRequestError_ = NUtils::TYdbStringBuilder()
                         << "Last request error was at " << TInstant::Now()
                         << ". GrpcStatusCode: " << status.GRpcStatusCode
                         << " Message: \"" << status.Msg

@@ -9,6 +9,8 @@
 #include <ydb/public/api/protos/ydb_scheme.pb.h>
 #include <client/ydb_common_client/impl/client.h>
 
+#include <library/cpp/string_utils/string_output/string_output.h>
+
 namespace NYdb {
 namespace NScheme {
 
@@ -26,7 +28,7 @@ TVirtualTimestamp::TVirtualTimestamp(const ::Ydb::VirtualTimestamp& proto)
 
 std::string TVirtualTimestamp::ToString() const {
     std::string result;
-    std::stringOutput out(result);
+    NUtils::TStringOutput out(result);
     Out(out);
     return result;
 }

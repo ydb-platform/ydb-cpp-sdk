@@ -18,7 +18,7 @@ TDriverConfig CreateFromEnvironment(const std::string& connectionString) {
             std::string rootCertsFile = GetStrFromEnv("YDB_SSL_ROOT_CERTIFICATES_FILE", "");
             std::string rootCerts = GetRootCertificate();
             if (rootCertsFile != "") {
-                TFileInput in(rootCertsFile);
+                TFileInput in(rootCertsFile.c_str());
                 rootCerts += in.ReadAll();
             }
             driverConfig.UseSecureConnection(rootCerts);

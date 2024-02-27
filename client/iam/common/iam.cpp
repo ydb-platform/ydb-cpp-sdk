@@ -37,7 +37,7 @@ private:
 
     void GetTicket() const {
         try {
-            std::stringStream out;
+            TStringStream out;
             TSimpleHttpClient::THeaders headers;
             headers["Metadata-Flavor"] = "Google";
             HttpClient_.DoGet(Request_, &out, headers);
