@@ -22,7 +22,7 @@ find_path(gRPC_INCLUDE_DIR
 )
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(gRPC DEFAULT_MSG gRPC_grcp++_LIBRARY gRPC_grpc_LIBRARY gRPC_INCLUDE_DIR)
+find_package_handle_standard_args(gRPC DEFAULT_MSG gRPC_grpc++_LIBRARY gRPC_grpc_LIBRARY gRPC_INCLUDE_DIR)
 
 mark_as_advanced(gRPC_grcp++_LIBRARIES gRPC_grpc_LIBRARIES gRPC_INCLUDE_DIR)
 
