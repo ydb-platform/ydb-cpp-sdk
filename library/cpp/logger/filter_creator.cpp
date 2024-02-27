@@ -15,6 +15,6 @@ bool TFilteredBackendCreator::Init(const IInitContext& ctx) {
 }
 
 void TFilteredBackendCreator::ToJson(NJson::TJsonValue& value) const {
-    value["LogLevel"] = ToString(Priority);
+    value["LogLevel"] = ToString(Priority).c_str();
     Slave->ToJson(value);
 }

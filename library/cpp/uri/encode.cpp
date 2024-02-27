@@ -157,13 +157,13 @@ namespace NUri {
             return out << sHexCodes[(val >> 4) & 0xF] << sHexCodes[val & 0xF];
         }
 
-        IOutputStream& TEncoder::EncodeAll(IOutputStream& out, const TStringBuf& val) {
+        IOutputStream& TEncoder::EncodeAll(IOutputStream& out, const std::string_view& val) {
             for (size_t i = 0; i != val.length(); ++i)
                 Encode(out, val[i]);
             return out;
         }
 
-        IOutputStream& TEncoder::EncodeNotAlnum(IOutputStream& out, const TStringBuf& val) {
+        IOutputStream& TEncoder::EncodeNotAlnum(IOutputStream& out, const std::string_view& val) {
             for (size_t i = 0; i != val.length(); ++i) {
                 const char c = val[i];
                 if (IsAlnum(c))
@@ -175,7 +175,7 @@ namespace NUri {
         }
 
         IOutputStream& TEncoder::EncodeField(
-            IOutputStream& out, const TStringBuf& val, TField::EField fld) {
+            IOutputStream& out, const std::string_view& val, TField::EField fld) {
             const ui32 fldmask = ui32(1) << fld;
             for (size_t i = 0; i != val.length(); ++i) {
                 const char ch = val[i];
@@ -188,7 +188,7 @@ namespace NUri {
         }
 
         IOutputStream& TEncoder::EncodeField(
-            IOutputStream& out, const TStringBuf& val, TField::EField fld, ui64 flags) {
+            IOutputStream& out, const std::string_view& val, TField::EField fld, ui64 flags) {
             const ui32 fldmask = ui32(1) << fld;
             for (size_t i = 0; i != val.length(); ++i) {
                 const char ch = val[i];

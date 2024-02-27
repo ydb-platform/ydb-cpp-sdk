@@ -2,7 +2,6 @@
 
 #include <library/cpp/json/common/defs.h>
 
-#include <util/generic/string.h>
 #include <util/generic/hash.h>
 
 #include <util/generic/deque.h>
@@ -28,14 +27,14 @@ namespace NJson {
     public:
         virtual ~IScanCallback() = default;
 
-        virtual bool Do(const TString& path, TJsonValue* parent, TJsonValue& value) = 0;
+        virtual bool Do(const std::string& path, TJsonValue* parent, TJsonValue& value) = 0;
     };
 
     class TJsonValue {
         void Clear() noexcept;
 
     public:
-        typedef THashMap<TString, TJsonValue> TMapType;
+        typedef THashMap<std::string, TJsonValue> TMapType;
         typedef TDeque<TJsonValue> TArray;
 
         TJsonValue() noexcept = default;
@@ -48,14 +47,13 @@ namespace NJson {
         TJsonValue(long long value) noexcept;
         TJsonValue(unsigned long long value) noexcept;
         TJsonValue(double value) noexcept;
-        TJsonValue(TString value);
         TJsonValue(const char* value);
         template <class T>
         TJsonValue(const T*) = delete;
-        TJsonValue(TStringBuf value);
+        TJsonValue(std::string_view value);
 
         TJsonValue(const std::string& s)
-            : TJsonValue(TStringBuf(s))
+            : TJsonValue(std::string_view(s))
         {
         }
 
@@ -76,11 +74,11 @@ namespace NJson {
         TJsonValue& SetValue(TJsonValue&& value);
 
         // for Map
-        TJsonValue& InsertValue(const TString& key, const TJsonValue& value);
-        TJsonValue& InsertValue(TStringBuf key, const TJsonValue& value);
+        TJsonValue& InsertValue(const std::string& key, const TJsonValue& value);
+        TJsonValue& InsertValue(std::string_view key, const TJsonValue& value);
         TJsonValue& InsertValue(const char* key, const TJsonValue& value);
-        TJsonValue& InsertValue(const TString& key, TJsonValue&& value);
-        TJsonValue& InsertValue(TStringBuf key, TJsonValue&& value);
+        TJsonValue& InsertValue(const std::string& key, TJsonValue&& value);
+        TJsonValue& InsertValue(std::string_view key, TJsonValue&& value);
         TJsonValue& InsertValue(const char* key, TJsonValue&& value);
 
         // for Array
@@ -89,27 +87,27 @@ namespace NJson {
         TJsonValue& Back();
         const TJsonValue& Back() const;
 
-        bool GetValueByPath(TStringBuf path, TJsonValue& result, char delimiter = '.') const;
-        bool SetValueByPath(TStringBuf path, const TJsonValue& value, char delimiter = '.');
-        bool SetValueByPath(TStringBuf path, TJsonValue&& value, char delimiter = '.');
+        bool GetValueByPath(std::string_view path, TJsonValue& result, char delimiter = '.') const;
+        bool SetValueByPath(std::string_view path, const TJsonValue& value, char delimiter = '.');
+        bool SetValueByPath(std::string_view path, TJsonValue&& value, char delimiter = '.');
 
         // returns NULL on failure
-        const TJsonValue* GetValueByPath(TStringBuf path, char delimiter = '.') const noexcept;
-        TJsonValue* GetValueByPath(TStringBuf path, char delimiter = '.') noexcept;
+        const TJsonValue* GetValueByPath(std::string_view path, char delimiter = '.') const noexcept;
+        TJsonValue* GetValueByPath(std::string_view path, char delimiter = '.') noexcept;
 
-        void EraseValue(TStringBuf key);
+        void EraseValue(std::string_view key);
         void EraseValue(size_t index);
 
         TJsonValue& operator[](size_t idx);
-        TJsonValue& operator[](const TStringBuf& key);
+        TJsonValue& operator[](const std::string_view& key);
         const TJsonValue& operator[](size_t idx) const noexcept;
-        const TJsonValue& operator[](const TStringBuf& key) const noexcept;
+        const TJsonValue& operator[](const std::string_view& key) const noexcept;
 
         bool GetBoolean() const;
         long long GetInteger() const;
         unsigned long long GetUInteger() const;
         double GetDouble() const;
-        const TString& GetString() const;
+        const std::string& GetString() const;
         const TMapType& GetMap() const;
         const TArray& GetArray() const;
 
@@ -118,7 +116,7 @@ namespace NJson {
         long long GetIntegerSafe() const;
         unsigned long long GetUIntegerSafe() const;
         double GetDoubleSafe() const;
-        const TString& GetStringSafe() const;
+        const std::string& GetStringSafe() const;
         const TMapType& GetMapSafe() const;
         TMapType& GetMapSafe();
         const TArray& GetArraySafe() const;
@@ -128,13 +126,13 @@ namespace NJson {
         long long GetIntegerSafe(long long defaultValue) const;
         unsigned long long GetUIntegerSafe(unsigned long long defaultValue) const;
         double GetDoubleSafe(double defaultValue) const;
-        TString GetStringSafe(const TString& defaultValue) const;
+        std::string GetStringSafe(const std::string& defaultValue) const;
 
         bool GetBooleanRobust() const noexcept;
         long long GetIntegerRobust() const noexcept;
         unsigned long long GetUIntegerRobust() const noexcept;
         double GetDoubleRobust() const noexcept;
-        TString GetStringRobust() const;
+        std::string GetStringRobust() const;
 
         // Exception-free accessors
         bool GetBoolean(bool* value) const noexcept;
@@ -144,14 +142,14 @@ namespace NJson {
         bool GetMapPointer(const TMapType** value) const noexcept;
         bool GetArrayPointer(const TArray** value) const noexcept;
 
-        bool GetString(TString* value) const;
+        bool GetString(std::string* value) const;
         bool GetMap(TMapType* value) const;
         bool GetArray(TArray* value) const;
         bool GetValue(size_t index, TJsonValue* value) const;
-        bool GetValue(TStringBuf key, TJsonValue* value) const;
+        bool GetValue(std::string_view key, TJsonValue* value) const;
         bool GetValuePointer(size_t index, const TJsonValue** value) const noexcept;
-        bool GetValuePointer(TStringBuf key, const TJsonValue** value) const noexcept;
-        bool GetValuePointer(TStringBuf key, TJsonValue** value) noexcept;
+        bool GetValuePointer(std::string_view key, const TJsonValue** value) const noexcept;
+        bool GetValuePointer(std::string_view key, TJsonValue** value) noexcept;
 
         // Checking for defined non-null value
         bool IsDefined() const noexcept {
@@ -171,7 +169,7 @@ namespace NJson {
         /// @return true if JSON_UINTEGER or (JSON_INTEGER and Value >= 0)
         bool IsUInteger() const noexcept;
 
-        bool Has(const TStringBuf& key) const noexcept;
+        bool Has(const std::string_view& key) const noexcept;
         bool Has(size_t key) const noexcept;
 
         void Scan(IScanCallback& callback);
@@ -196,7 +194,7 @@ namespace NJson {
             long long Integer;
             unsigned long long UInteger;
             double Double;
-            TString String;
+            std::string* String;
             TMapType* Map;
             TArray* Array;
 
@@ -207,7 +205,7 @@ namespace NJson {
             }
         };
         TValueUnion Value;
-        void DoScan(const TString& path, TJsonValue* parent, IScanCallback& callback);
+        void DoScan(const std::string& path, TJsonValue* parent, IScanCallback& callback);
         void SwapWithUndefined(TJsonValue& output) noexcept;
 
         /**
@@ -232,35 +230,35 @@ namespace NJson {
         return jv[index].GetDouble(value);
     }
 
-    inline bool GetString(const TJsonValue& jv, size_t index, TString* value) {
+    inline bool GetString(const TJsonValue& jv, size_t index, std::string* value) {
         return jv[index].GetString(value);
     }
 
     bool GetMapPointer(const TJsonValue& jv, size_t index, const TJsonValue::TMapType** value);
     bool GetArrayPointer(const TJsonValue& jv, size_t index, const TJsonValue::TArray** value);
 
-    inline bool GetBoolean(const TJsonValue& jv, TStringBuf key, bool* value) noexcept {
+    inline bool GetBoolean(const TJsonValue& jv, std::string_view key, bool* value) noexcept {
         return jv[key].GetBoolean(value);
     }
 
-    inline bool GetInteger(const TJsonValue& jv, TStringBuf key, long long* value) noexcept {
+    inline bool GetInteger(const TJsonValue& jv, std::string_view key, long long* value) noexcept {
         return jv[key].GetInteger(value);
     }
 
-    inline bool GetUInteger(const TJsonValue& jv, TStringBuf key, unsigned long long* value) noexcept {
+    inline bool GetUInteger(const TJsonValue& jv, std::string_view key, unsigned long long* value) noexcept {
         return jv[key].GetUInteger(value);
     }
 
-    inline bool GetDouble(const TJsonValue& jv, TStringBuf key, double* value) noexcept {
+    inline bool GetDouble(const TJsonValue& jv, std::string_view key, double* value) noexcept {
         return jv[key].GetDouble(value);
     }
 
-    inline bool GetString(const TJsonValue& jv, TStringBuf key, TString* value) {
+    inline bool GetString(const TJsonValue& jv, std::string_view key, std::string* value) {
         return jv[key].GetString(value);
     }
 
-    bool GetMapPointer(const TJsonValue& jv, const TStringBuf key, const TJsonValue::TMapType** value);
-    bool GetArrayPointer(const TJsonValue& jv, const TStringBuf key, const TJsonValue::TArray** value);
+    bool GetMapPointer(const TJsonValue& jv, const std::string_view key, const TJsonValue::TMapType** value);
+    bool GetArrayPointer(const TJsonValue& jv, const std::string_view key, const TJsonValue::TArray** value);
 
     class TJsonMap: public TJsonValue {
     public:
@@ -268,10 +266,10 @@ namespace NJson {
             : TJsonValue(NJson::JSON_MAP)
         {}
 
-        TJsonMap(const std::initializer_list<std::pair<TString, TJsonValue>>& list)
+        TJsonMap(const std::initializer_list<std::pair<std::string, TJsonValue>>& list)
             : TJsonValue(NJson::JSON_MAP)
         {
-            GetMapSafe() = THashMap<TString, TJsonValue>(list);
+            GetMapSafe() = THashMap<std::string, TJsonValue>(list);
         }
     };
 

@@ -1,13 +1,8 @@
 #include "opt2.h"
 
 #include <util/generic/hash.h>
-#include <util/generic/utility.h>
-#include <util/generic/yexception.h>
-#include <util/str_stl.h>
 
 #include <stdio.h>
-#include <errno.h>
-#include <ctype.h>
 
 void Opt2::Clear() {
     Specs.clear();
@@ -105,7 +100,7 @@ void Opt2::EatArgv(const char* optspec, const char* long_alias) {
             }
             // long option always spans one argv (--switch or --option-name=value)
             const char* eq = strchr(s, '=');
-            TString lname(s, eq ? (size_t)(eq - s) : (size_t)strlen(s));
+            std::string lname(s, eq ? (size_t)(eq - s) : (size_t)strlen(s));
             THashMap<const char*, char>::iterator i = long2short.find(lname.data());
             if (i == long2short.end()) {
                 UnknownLongOption = strdup(lname.data()); // free'd in AutoUsage()
@@ -188,7 +183,7 @@ const char* Opt2::Arg(char opt, const char* help, const char* def, bool required
 }
 
 // For options with parameters
-const char* Opt2::Arg(char opt, const char* help, TString def, bool required) {
+const char* Opt2::Arg(char opt, const char* help, std::string def, bool required) {
     Opt2Param& p = GetInternal(opt, nullptr, help, required);
     if (!p.HasArg)
         ythrow yexception() << "Opt2::Arg called for '" << opt << "' which is an option without argument";
@@ -315,7 +310,7 @@ void Opt2::AutoUsageErr(const char* free_arg_names) {
 
 bool opt2_ut_fail = false, opt_ut_verbose = false;
 const char* ut_optspec;
-int ut_real(TString args, bool err_exp, const char* A_exp, int b_exp, bool a_exp, const char* p1_exp, const char* p2_exp) {
+int ut_real(std::string args, bool err_exp, const char* A_exp, int b_exp, bool a_exp, const char* p1_exp, const char* p2_exp) {
     char* argv[32];
     int argc = sf(' ', argv, args.begin());
     Opt2 opt(argc, argv, ut_optspec, 2, "option-1=A,option-2=a,");

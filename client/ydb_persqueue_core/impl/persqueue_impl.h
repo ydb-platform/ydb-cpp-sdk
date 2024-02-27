@@ -23,7 +23,7 @@ public:
     // Constructor for subclients with endpoints discovered by cluster discovery.
     // Async discovery mode is used because this client is created inside SDK threads.
     // See YDB-1231 and YDB-1232.
-    TImpl(const TString& clusterEndpoint, std::shared_ptr<TGRpcConnectionsImpl> connections, const TPersQueueClientSettings& settings)
+    TImpl(const std::string& clusterEndpoint, std::shared_ptr<TGRpcConnectionsImpl> connections, const TPersQueueClientSettings& settings)
         : TClientImplCommon(std::move(connections), settings.Database_, clusterEndpoint, EDiscoveryMode::Async, settings.SslCredentials_, settings.CredentialsProviderFactory_)
         , Settings(settings)
         , CustomEndpoint(clusterEndpoint)
@@ -44,7 +44,7 @@ public:
     }
 
     template <class TRequest, class TSettings>
-    static TRequest MakePropsCreateOrAlterRequest(const TString& path, const TSettings& settings) {
+    static TRequest MakePropsCreateOrAlterRequest(const std::string& path, const TSettings& settings) {
         TRequest request = MakeOperationRequest<TRequest>(settings);
         request.set_path(path);
 
@@ -106,7 +106,7 @@ public:
         return request;
     }
 
-    TAsyncStatus CreateTopic(const TString& path, const TCreateTopicSettings& settings) {
+    TAsyncStatus CreateTopic(const std::string& path, const TCreateTopicSettings& settings) {
         auto request = MakePropsCreateOrAlterRequest<Ydb::PersQueue::V1::CreateTopicRequest>(path,
             settings.PartitionsPerTablet_ ? settings : TCreateTopicSettings(settings).PartitionsPerTablet(2));
 
@@ -116,7 +116,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncStatus AlterTopic(const TString& path, const TAlterTopicSettings& settings) {
+    TAsyncStatus AlterTopic(const std::string& path, const TAlterTopicSettings& settings) {
         auto request = MakePropsCreateOrAlterRequest<Ydb::PersQueue::V1::AlterTopicRequest>(path, settings);
 
         return RunSimple<Ydb::PersQueue::V1::PersQueueService, Ydb::PersQueue::V1::AlterTopicRequest, Ydb::PersQueue::V1::AlterTopicResponse>(
@@ -126,7 +126,7 @@ public:
     }
 
 
-    TAsyncStatus DropTopic(const TString& path, const TDropTopicSettings& settings) {
+    TAsyncStatus DropTopic(const std::string& path, const TDropTopicSettings& settings) {
         auto request = MakeOperationRequest<Ydb::PersQueue::V1::DropTopicRequest>(settings);
         request.set_path(path);
 
@@ -136,7 +136,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncStatus AddReadRule(const TString& path, const TAddReadRuleSettings& settings) {
+    TAsyncStatus AddReadRule(const std::string& path, const TAddReadRuleSettings& settings) {
         auto request = MakeOperationRequest<Ydb::PersQueue::V1::AddReadRuleRequest>(settings);
         request.set_path(path);
         ConvertToProtoReadRule(settings.ReadRule_, *request.mutable_read_rule());
@@ -146,7 +146,7 @@ public:
                 TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncStatus RemoveReadRule(const TString& path, const TRemoveReadRuleSettings& settings) {
+    TAsyncStatus RemoveReadRule(const std::string& path, const TRemoveReadRuleSettings& settings) {
         auto request = MakeOperationRequest<Ydb::PersQueue::V1::RemoveReadRuleRequest>(settings);
         request.set_path(path);
 
@@ -158,7 +158,7 @@ public:
     }
 
 
-    TAsyncDescribeTopicResult DescribeTopic(const TString& path, const TDescribeTopicSettings& settings) {
+    TAsyncDescribeTopicResult DescribeTopic(const std::string& path, const TDescribeTopicSettings& settings) {
         auto request = MakeOperationRequest<Ydb::PersQueue::V1::DescribeTopicRequest>(settings);
         request.set_path(path);
 
@@ -191,7 +191,7 @@ public:
     std::shared_ptr<ISimpleBlockingWriteSession> CreateSimpleWriteSession(const TWriteSessionSettings& settings);
     std::shared_ptr<IWriteSession> CreateWriteSession(const TWriteSessionSettings& settings);
 
-    std::shared_ptr<TImpl> GetClientForEndpoint(const TString& clusterEndoint);
+    std::shared_ptr<TImpl> GetClientForEndpoint(const std::string& clusterEndoint);
 
     using IReadSessionConnectionProcessorFactory = ISessionConnectionProcessorFactory<Ydb::PersQueue::V1::MigrationStreamingReadClientMessage, Ydb::PersQueue::V1::MigrationStreamingReadServerMessage>;
 
@@ -209,9 +209,9 @@ public:
 
 private:
     const TPersQueueClientSettings Settings;
-    const TString CustomEndpoint;
+    const std::string CustomEndpoint;
     TAdaptiveLock Lock;
-    THashMap<TString, std::shared_ptr<TImpl>> Subclients; // Endpoint -> Subclient.
+    THashMap<std::string, std::shared_ptr<TImpl>> Subclients; // Endpoint -> Subclient.
 };
 
 } // namespace NYdb::NPersQueue

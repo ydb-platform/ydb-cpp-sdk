@@ -5,8 +5,8 @@ namespace NUri {
     static const ui64 URI_PARSE_FLAGS =
         (TFeature::FeaturesRecommended | TFeature::FeatureConvertHostIDN | TFeature::FeatureEncodeExtendedDelim | TFeature::FeatureEncodePercent) & ~TFeature::FeatureHashBangToEscapedFragment;
 
-    TString ResolveRedirectLocation(const TStringBuf& baseUrl,
-                                    const TStringBuf& location) {
+    std::string ResolveRedirectLocation(const std::string_view& baseUrl,
+                                    const std::string_view& location) {
         TUri baseUri;
         TUri locationUri;
 
@@ -19,11 +19,11 @@ namespace NUri {
             return "";
         }
         // Inherit fragment.
-        if (!locationUri.GetField(NUri::TField::FieldFragment)) {
+        if (locationUri.GetField(NUri::TField::FieldFragment).empty()) {
             NUri::TUriUpdate update(locationUri);
             update.Set(NUri::TField::FieldFragment, baseUri.GetField(NUri::TField::FieldFragment));
         }
-        TString res;
+        std::string res;
         locationUri.Print(res, NUri::TField::FlagAllFields);
         return res;
     }

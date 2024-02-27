@@ -63,16 +63,16 @@ Y_UNIT_TEST_SUITE(TStringPoolTest) {
 
         strPool.Build();
 
-        std::vector<TString> strings;
+        std::vector<std::string> strings;
         std::vector<ui32> indexes;
         std::vector<ui32> frequences;
-        strPool.ForEach([&](TStringBuf str, ui32 index, ui32 freq) {
+        strPool.ForEach([&](std::string_view str, ui32 index, ui32 freq) {
             strings.emplace_back(str);
             indexes.push_back(index);
             frequences.push_back(freq);
         });
 
-        std::vector<TString> expectedStrings = {"three", "two", "one"};
+        std::vector<std::string> expectedStrings = {"three", "two", "one"};
         UNIT_ASSERT_EQUAL(strings, expectedStrings);
 
         std::vector<ui32> expectedIndexes = {0, 1, 2};

@@ -5,33 +5,33 @@
 using namespace NDiff;
 
 struct TDiffTester {
-    TStringStream Res;
+    std::stringStream Res;
     std::vector<TChunk<char>> Chunks;
 
-    TStringBuf Special(const TStringBuf& str) const {
+    std::string_view Special(const std::string_view& str) const {
         return str;
     }
 
-    TStringBuf Common(const TConstArrayRef<const char>& str) const {
-        return TStringBuf(str.begin(), str.end());
+    std::string_view Common(const TConstArrayRef<const char>& str) const {
+        return std::string_view(str.begin(), str.end());
     }
 
-    TStringBuf Left(const TConstArrayRef<const char>& str) const {
-        return TStringBuf(str.begin(), str.end());
+    std::string_view Left(const TConstArrayRef<const char>& str) const {
+        return std::string_view(str.begin(), str.end());
     }
 
-    TStringBuf Right(const TConstArrayRef<const char>& str) const {
-        return TStringBuf(str.begin(), str.end());
+    std::string_view Right(const TConstArrayRef<const char>& str) const {
+        return std::string_view(str.begin(), str.end());
     }
 
-    void Test(const TStringBuf& a, const TStringBuf& b, const TString& delims = " \t\n") {
+    void Test(const std::string_view& a, const std::string_view& b, const std::string& delims = " \t\n") {
         Chunks.clear();
         InlineDiff(Chunks, a, b, delims);
         Res.clear();
         PrintChunks(Res, *this, Chunks);
     }
 
-    const TString& Result() const {
+    const std::string& Result() const {
         return Res.Str();
     }
 };
@@ -100,7 +100,7 @@ Y_UNIT_TEST_SUITE(DiffTokens) {
     Y_UNIT_TEST(EqualStringsTwoTokens) {
         TDiffTester tester;
 
-        TStringBuf str("aaa bbb");
+        std::string_view str("aaa bbb");
         tester.Test(str, str);
 
         //~ Cerr << tester.Result() << Endl;

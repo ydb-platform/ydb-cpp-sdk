@@ -8,7 +8,7 @@
 
 class TStrokaByOneByte: public IZeroCopyInput {
 public:
-    TStrokaByOneByte(const TString& s)
+    TStrokaByOneByte(const std::string& s)
         : Data(s)
         , Pos(s.data())
     {
@@ -26,7 +26,7 @@ private:
         }
     }
 
-    TString Data;
+    std::string Data;
     const char* Pos;
 };
 
@@ -37,15 +37,15 @@ class TLzmaTest: public TTestBase {
     UNIT_TEST_SUITE_END();
 
 private:
-    inline TString GenData() {
-        TString data;
+    inline std::string GenData() {
+        std::string data;
         TReallyFastRng32 rnd(RandomNumber<ui64>());
 
         for (size_t i = 0; i < 50000; ++i) {
             const char ch = rnd.Uniform(256);
             const size_t len = 1 + rnd.Uniform(10);
 
-            data += TString(len, ch);
+            data += std::string(len, ch);
         }
 
         return data;
@@ -62,7 +62,7 @@ private:
             }
         };
 
-        TString data(GenData());
+        std::string data(GenData());
         TMemoryInput mi(data.data(), data.size());
         TExcOutput out;
 
@@ -76,13 +76,13 @@ private:
     }
 
     inline void Test1() {
-        TString data(GenData());
-        TString data1;
-        TString res;
+        std::string data(GenData());
+        std::string data1;
+        std::string res;
 
         {
             TMemoryInput mi(data.data(), data.size());
-            TStringOutput so(res);
+            std::stringOutput so(res);
             TLzmaCompress c(&so);
 
             TransferData(&mi, &c);
@@ -92,7 +92,7 @@ private:
 
         {
             TMemoryInput mi(res.data(), res.size());
-            TStringOutput so(data1);
+            std::stringOutput so(data1);
             TLzmaDecompress d((IInputStream*)&mi);
 
             TransferData(&d, &so);
@@ -103,7 +103,7 @@ private:
         data1.clear();
         {
             TMemoryInput mi(res.data(), res.size());
-            TStringOutput so(data1);
+            std::stringOutput so(data1);
             TLzmaDecompress d(&mi);
 
             TransferData(&d, &so);
@@ -114,7 +114,7 @@ private:
         data1.clear();
         {
             TStrokaByOneByte mi(res);
-            TStringOutput so(data1);
+            std::stringOutput so(data1);
             TLzmaDecompress d(&mi);
 
             TransferData(&d, &so);

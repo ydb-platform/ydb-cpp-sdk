@@ -117,6 +117,6 @@ struct THash<NYT::NYson::TYsonStringBuf>
 {
     size_t operator () (const NYT::NYson::TYsonStringBuf& str) const
     {
-        return THash<TStringBuf>()(str.AsStringBuf());
+        return THash<std::string_view>()(str.AsStringBuf());
     }
 };

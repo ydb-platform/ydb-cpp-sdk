@@ -33,21 +33,18 @@ public:
     //! Creates a non-owning TRef for a given blob.
     static TRef FromBlob(const TBlob& blob);
 
-    //! Creates a non-owning TRef for a given string.
-    static TRef FromString(const TString& str);
-
     //! Creates a non-owning TRef for a given std::string.
     static TRef FromString(const std::string& str);
 
-    //! Creates a non-owning TRef for a given stringbuf.
-    static TRef FromStringBuf(TStringBuf strBuf);
+    //! Creates a non-owning TRef for a given std::string_view.
+    static TRef FromStringBuf(std::string_view strBuf);
 
     //! Creates a non-owning TRef for a given pod structure.
     template <class T>
     static TRef FromPod(const T& data);
 
-    //! Converts to TStringBuf.
-    TStringBuf ToStringBuf() const;
+    //! Converts to std::string_view.
+    std::string_view ToStringBuf() const;
 
     //! Creates a TRef for a part of existing range.
     TRef Slice(size_t startOffset, size_t endOffset) const;
@@ -90,7 +87,7 @@ public:
 
     //! Creates a non-owning TMutableRef for a given string.
     //! Ensures that the string is not shared.
-    static TMutableRef FromString(TString& str);
+    static TMutableRef FromString(std::string& str);
 
     //! Creates a TMutableRef for a part of existing range.
     TMutableRef Slice(size_t startOffset, size_t endOffset) const;
@@ -133,23 +130,23 @@ public:
     //! Since strings are ref-counted, no data is copied.
     //! The memory is marked with a given tag.
     template <class TTag>
-    static TSharedRef FromString(TString str);
+    static TSharedRef FromString(std::string str);
 
     //! Creates a TSharedRef from a string.
     //! Since strings are ref-counted, no data is copied.
     //! The memory is marked with TDefaultSharedBlobTag.
-    static TSharedRef FromString(TString str);
+    static TSharedRef FromString(std::string str);
 
     //! Creates a TSharedRef reference from a string.
     //! Since strings are ref-counted, no data is copied.
     //! The memory is marked with a given tag.
-    static TSharedRef FromString(TString str, TRefCountedTypeCookie tagCookie);
+    static TSharedRef FromString(std::string str, TRefCountedTypeCookie tagCookie);
 
     //! Creates a TSharedRef for a given blob taking ownership of its content.
     static TSharedRef FromBlob(TBlob&& blob);
 
-    //! Converts to TStringBuf.
-    TStringBuf ToStringBuf() const;
+    //! Converts to std::string_view.
+    std::string_view ToStringBuf() const;
 
     //! Creates a copy of a given TRef.
     //! The memory is marked with a given tag.
@@ -303,7 +300,7 @@ public:
     const TSharedRef* End() const;
 
     std::vector<TSharedRef> ToVector() const;
-    TString ToString() const;
+    std::string ToString() const;
 
     //! Creates a copy of a given TSharedRefArray.
     //! The memory is marked with a given tag.
@@ -381,10 +378,10 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TString ToString(TRef ref);
-TString ToString(const TMutableRef& ref);
-TString ToString(const TSharedRef& ref);
-TString ToString(const TSharedMutableRef& ref);
+std::string ToString(TRef ref);
+std::string ToString(const TMutableRef& ref);
+std::string ToString(const TSharedRef& ref);
+std::string ToString(const TSharedMutableRef& ref);
 
 size_t GetPageSize();
 size_t RoundUpToPage(size_t bytes);

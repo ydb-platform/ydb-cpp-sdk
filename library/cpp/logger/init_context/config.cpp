@@ -4,15 +4,15 @@ TLogBackendCreatorInitContextConfig::TLogBackendCreatorInitContextConfig(const N
     : Config(config)
 {}
 
-bool TLogBackendCreatorInitContextConfig::GetValue(TStringBuf name, TString& var) const {
+bool TLogBackendCreatorInitContextConfig::GetValue(std::string_view name, std::string& var) const {
     if (Config.Has(name)) {
-        var = Config[name].Get<TString>();
+        var = Config[name].Get<std::string>();
         return true;
     }
     return false;
 }
 
-std::vector<THolder<ILogBackendCreator::IInitContext>> TLogBackendCreatorInitContextConfig::GetChildren(TStringBuf name) const {
+std::vector<THolder<ILogBackendCreator::IInitContext>> TLogBackendCreatorInitContextConfig::GetChildren(std::string_view name) const {
     std::vector<THolder<IInitContext>> result;
     const NConfig::TConfig& child = Config[name];
     if (child.IsA<NConfig::TArray>()) {

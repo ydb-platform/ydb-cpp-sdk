@@ -74,7 +74,7 @@ private:
 struct TTxControl {
     using TSelf = TTxControl;
 
-    static TTxControl Tx(const TString& txId) {
+    static TTxControl Tx(const std::string& txId) {
         return TTxControl(txId);
     }
 
@@ -86,7 +86,7 @@ struct TTxControl {
         return TTxControl();
     }
 
-    const TMaybe<TString> TxId_;
+    const TMaybe<std::string> TxId_;
     const TMaybe<TTxSettings> TxSettings_;
     FLUENT_SETTING_FLAG(CommitTx);
 
@@ -95,7 +95,7 @@ struct TTxControl {
 private:
     TTxControl() {}
 
-    TTxControl(const TString& txId)
+    TTxControl(const std::string& txId)
         : TxId_(txId) {}
 
     TTxControl(const TTxSettings& txSettings)

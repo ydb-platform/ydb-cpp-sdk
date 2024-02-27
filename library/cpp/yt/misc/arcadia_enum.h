@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/serialized_enum.h>
+#include <tools/enum_parser/enum_serialization_runtime/serialized_enum.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 // TEnumTraits interop for Arcadia enums

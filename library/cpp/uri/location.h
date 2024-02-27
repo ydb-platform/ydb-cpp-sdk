@@ -8,6 +8,6 @@ namespace NUri {
  *
  * @return  Resolved location's url or empty string in case of any error.
  */
-    TString ResolveRedirectLocation(const TStringBuf& baseUrl, const TStringBuf& location);
+    std::string ResolveRedirectLocation(const std::string_view& baseUrl, const std::string_view& location);
 
 }

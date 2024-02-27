@@ -1,26 +1,27 @@
 #include "engine.h"
 
 #include <util/string/cast.h>
-#include <util/string/escape.h>
+#include <library/cpp/string_utils/escape/escape.h>
+#include <library/cpp/string_utils/misc/misc.h>
 
 #if !defined(DBGDUMP_INLINE_IF_INCLUDED)
 #define DBGDUMP_INLINE_IF_INCLUDED
 #endif
 
-DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::String(const TStringBuf& s) {
-    if (s) {
-        Raw(TString(s).Quote());
+DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::String(const std::string_view& s) {
+    if (!s.empty()) {
+        Raw(NUtils::Quote(s));
     } else {
         Raw("(empty)");
     }
 }
 
-DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::String(const TWtringBuf& s) {
+DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::String(const std::wstring_view& s) {
     Raw("w");
     String(ToString(s));
 }
 
-DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::Raw(const TStringBuf& s) {
+DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::Raw(const std::string_view& s) {
     Stream().Write(s.data(), s.size());
 }
 

@@ -5,20 +5,20 @@
 
 #include <client/ydb_types/fatal_error_handlers/handlers.h>
 
-#include <util/string/builder.h>
+#include <library/cpp/string_builder/string_builder.h>
 
 namespace NYdb {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TParams::TParams(::google::protobuf::Map<TString, Ydb::TypedValue>&& protoMap)
+TParams::TParams(::google::protobuf::Map<std::string, Ydb::TypedValue>&& protoMap)
     : Impl_(new TImpl(std::move(protoMap))) {}
 
-::google::protobuf::Map<TString, Ydb::TypedValue>* TParams::GetProtoMapPtr() {
+::google::protobuf::Map<std::string, Ydb::TypedValue>* TParams::GetProtoMapPtr() {
     return Impl_->GetProtoMapPtr();
 }
 
-const ::google::protobuf::Map<TString, Ydb::TypedValue>& TParams::GetProtoMap() const {
+const ::google::protobuf::Map<std::string, Ydb::TypedValue>& TParams::GetProtoMap() const {
     return Impl_->GetProtoMap();
 }
 
@@ -26,11 +26,11 @@ bool TParams::Empty() const {
     return Impl_->Empty();
 }
 
-std::map<TString, TValue> TParams::GetValues() const {
+std::map<std::string, TValue> TParams::GetValues() const {
     return Impl_->GetValues();
 }
 
-TMaybe<TValue> TParams::GetValue(const TString& name) const {
+TMaybe<TValue> TParams::GetValue(const std::string& name) const {
     return Impl_->GetValue(name);
 }
 
@@ -40,7 +40,7 @@ class TParamsBuilder::TImpl {
 public:
     TImpl() = default;
 
-    TImpl(const ::google::protobuf::Map<TString, Ydb::Type>& typeInfo)
+    TImpl(const ::google::protobuf::Map<std::string, Ydb::Type>& typeInfo)
         : HasTypeInfo_(true)
     {
         for (const auto& pair : typeInfo) {
@@ -48,7 +48,7 @@ public:
         }
     }
 
-    TImpl(const std::map<TString, TType>& typeInfo)
+    TImpl(const std::map<std::string, TType>& typeInfo)
         : HasTypeInfo_(true)
     {
         for (const auto& pair : typeInfo) {
@@ -60,7 +60,7 @@ public:
         return HasTypeInfo_;
     }
 
-    TParamValueBuilder& AddParam(TParamsBuilder& owner, const TString& name) {
+    TParamValueBuilder& AddParam(TParamsBuilder& owner, const std::string& name) {
         auto param = GetParam(name);
         Y_ABORT_UNLESS(param);
 
@@ -70,13 +70,13 @@ public:
         return result.first->second;
     }
 
-    void AddParam(const TString& name, const TValue& value) {
+    void AddParam(const std::string& name, const TValue& value) {
         auto param = GetParam(name);
         Y_ABORT_UNLESS(param);
 
         if (HasTypeInfo()) {
             if (!TypesEqual(param->type(), value.GetType().GetProto())) {
-                FatalError(TStringBuilder() << "Type mismatch for parameter: " << name << ", expected: "
+                FatalError(NUtils::TYdbStringBuilder() << "Type mismatch for parameter: " << name << ", expected: "
                     << FormatType(TType(param->type())) << ", actual: " << FormatType(value.GetType()));
             }
         } else {
@@ -89,24 +89,24 @@ public:
     TParams Build() {
         for (auto& pair : ValueBuildersMap_) {
             if (!pair.second.Finished()) {
-                FatalError(TStringBuilder() << "Incomplete value for parameter: " << pair.first
+                FatalError(NUtils::TYdbStringBuilder() << "Incomplete value for parameter: " << pair.first
                     << ", call Build() on parameter value builder");
             }
         }
 
         ValueBuildersMap_.clear();
 
-        ::google::protobuf::Map<TString, Ydb::TypedValue> paramsMap;
+        ::google::protobuf::Map<std::string, Ydb::TypedValue> paramsMap;
         paramsMap.swap(ParamsMap_);
         return TParams(std::move(paramsMap));
     }
 
 private:
-    Ydb::TypedValue* GetParam(const TString& name) {
+    Ydb::TypedValue* GetParam(const std::string& name) {
         if (HasTypeInfo()) {
             auto it = ParamsMap_.find(name);
             if (it == ParamsMap_.end()) {
-                FatalError(TStringBuilder() << "Parameter not found: " << name);
+                FatalError(NUtils::TYdbStringBuilder() << "Parameter not found: " << name);
                 return nullptr;
             }
 
@@ -116,14 +116,14 @@ private:
         }
     }
 
-    void FatalError(const TString& msg) const {
-        ThrowFatalError(TStringBuilder() << "TParamsBuilder: " << msg);
+    void FatalError(const std::string& msg) const {
+        ThrowFatalError(NUtils::TYdbStringBuilder() << "TParamsBuilder: " << msg);
     }
 
 private:
     bool HasTypeInfo_ = false;
-    ::google::protobuf::Map<TString, Ydb::TypedValue> ParamsMap_;
-    std::map<TString, TParamValueBuilder> ValueBuildersMap_;
+    ::google::protobuf::Map<std::string, Ydb::TypedValue> ParamsMap_;
+    std::map<std::string, TParamValueBuilder> ValueBuildersMap_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -152,21 +152,21 @@ TParamsBuilder::~TParamsBuilder() = default;
 TParamsBuilder::TParamsBuilder()
     : Impl_(new TImpl()) {}
 
-TParamsBuilder::TParamsBuilder(const std::map<TString, TType>& typeInfo)
+TParamsBuilder::TParamsBuilder(const std::map<std::string, TType>& typeInfo)
     : Impl_(new TImpl(typeInfo)) {}
 
-TParamsBuilder::TParamsBuilder(const ::google::protobuf::Map<TString, Ydb::Type>& typeInfo)
+TParamsBuilder::TParamsBuilder(const ::google::protobuf::Map<std::string, Ydb::Type>& typeInfo)
     : Impl_(new TImpl(typeInfo)) {}
 
 bool TParamsBuilder::HasTypeInfo() const {
     return Impl_->HasTypeInfo();
 }
 
-TParamValueBuilder& TParamsBuilder::AddParam(const TString& name) {
+TParamValueBuilder& TParamsBuilder::AddParam(const std::string& name) {
     return Impl_->AddParam(*this, name);
 }
 
-TParamsBuilder& TParamsBuilder::AddParam(const TString& name, const TValue& value) {
+TParamsBuilder& TParamsBuilder::AddParam(const std::string& name, const TValue& value) {
     Impl_->AddParam(name, value);
     return *this;
 }

@@ -58,8 +58,8 @@ private:
     T Underlying_;
 
     //! NB: Hidden friend definition to make this name accessible only via ADL.
-    friend TString ToString(const TStrongTypedef& value)
-        requires requires (T value) { { ToString(value) } -> std::same_as<TString>; }
+    friend std::string ToString(const TStrongTypedef& value)
+        requires requires (T value) { { ToString(value) } -> std::same_as<std::string>; }
     {
         return ToString(value.Underlying_);
     }

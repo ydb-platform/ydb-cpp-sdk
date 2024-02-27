@@ -49,13 +49,13 @@ public:
         const CodePage* cp = CodePageByCharset(CODES_ASCII);
         char tmp[100];
 
-        TStringBuf s = "abcde";
+        std::string_view s = "abcde";
 
-        TStringBuf upper(tmp, cp->ToUpper(s.begin(), s.end(), tmp));
-        UNIT_ASSERT_VALUES_EQUAL(upper, TStringBuf("ABCDE"));
+        std::string_view upper(tmp, cp->ToUpper(s.begin(), s.end(), tmp));
+        UNIT_ASSERT_VALUES_EQUAL(upper, std::string_view("ABCDE"));
 
-        TStringBuf lower(tmp, cp->ToLower(upper.begin(), upper.end(), tmp));
-        UNIT_ASSERT_VALUES_EQUAL(lower, TStringBuf("abcde"));
+        std::string_view lower(tmp, cp->ToLower(upper.begin(), upper.end(), tmp));
+        UNIT_ASSERT_VALUES_EQUAL(lower, std::string_view("abcde"));
     }
 
     void TestBrokenRune() {

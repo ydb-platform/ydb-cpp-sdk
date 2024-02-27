@@ -2,9 +2,6 @@
 
 #include "ordered_pairs.h"
 
-#include <util/generic/strbuf.h>
-#include <util/stream/fwd.h>
-
 namespace NEnumSerializationRuntime {
     // compile-time conversion method selection
 
@@ -27,7 +24,7 @@ namespace NEnumSerializationRuntime {
     }
 
     template <class TNameBufs, typename EEnum>
-    inline TStringBuf DispatchToStringBufFn(EEnum n) {
+    inline std::string_view DispatchToStringBufFn(EEnum n) {
         constexpr auto order = TNameBufs::NamesOrder;
         if constexpr (order >= ::NEnumSerializationRuntime::ESortOrder::DirectMapping) {
             return TNameBufs::ToStringBufDirect(n, TNameBufs::EnumInitializationData);
@@ -43,7 +40,7 @@ namespace NEnumSerializationRuntime {
 
     template <class TNameBufs, typename EEnum>
     inline EEnum DispatchFromStringImplFn(const char* data, size_t len) {
-        const TStringBuf name{data, len};
+        const std::string_view name{data, len};
         constexpr auto order = TNameBufs::ValuesOrder;
         static_assert(order >= ::NEnumSerializationRuntime::ESortOrder::Ascending, "enum_parser produced unsorted output"); // comment this line to use run-time sort for temporary workaround
         if constexpr (std::size(TNameBufs::EnumInitializationData.ValuesInitializer) <= LINEAR_SEARCH_VALUES_SIZE_THRESHOLD) {
@@ -58,7 +55,7 @@ namespace NEnumSerializationRuntime {
 
     template <class TNameBufs, typename EEnum>
     inline bool DispatchTryFromStringImplFn(const char* data, size_t len, EEnum& result) {
-        const TStringBuf name{data, len};
+        const std::string_view name{data, len};
         constexpr auto order = TNameBufs::ValuesOrder;
         if constexpr (std::size(TNameBufs::EnumInitializationData.ValuesInitializer) <= LINEAR_SEARCH_VALUES_SIZE_THRESHOLD) {
             return TNameBufs::TryFromStringFullScan(name, result, TNameBufs::EnumInitializationData);

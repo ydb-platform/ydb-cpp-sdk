@@ -2,8 +2,6 @@
 
 #include <client/impl/ydb_internal/internal_header.h>
 
-#include <client/impl/ydb_internal/common/type_switcher.h>
-
 #include <client/ydb_types/status_codes.h>
 #include <client/ydb_types/ydb.h>
 
@@ -20,7 +18,7 @@ using TErrorCb = std::function<void(NYdbGrpc::TGrpcStatus&)>;
 
 struct TBalancingSettings {
     EBalancingPolicy Policy;
-    TStringType PolicyParams;
+    std::string PolicyParams;
 };
 
 } // namespace NYdb

@@ -1,10 +1,11 @@
 #pragma once
 
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <util/digest/multi.h>
 #include <util/digest/sequence.h>
 #include <util/generic/algorithm.h>
 #include <util/generic/maybe.h>
-#include <util/generic/string.h>
 
 #include <util/stream/output.h>
 #include <util/string/builder.h>
@@ -17,8 +18,8 @@ namespace NMonitoring {
     struct ILabel {
         virtual ~ILabel() = default;
 
-        virtual TStringBuf Name() const noexcept = 0;
-        virtual TStringBuf Value() const noexcept = 0;
+        virtual std::string_view Name() const noexcept = 0;
+        virtual std::string_view Value() const noexcept = 0;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -31,7 +32,7 @@ namespace NMonitoring {
 
         TLabelImpl() = default;
 
-        inline TLabelImpl(TStringBuf name, TStringBuf value)
+        inline TLabelImpl(std::string_view name, std::string_view value)
             : Name_{name}
             , Value_{value}
         {
@@ -45,11 +46,11 @@ namespace NMonitoring {
             return !(*this == rhs);
         }
 
-        inline TStringBuf Name() const noexcept {
+        inline std::string_view Name() const noexcept {
             return Name_;
         }
 
-        inline TStringBuf Value() const noexcept {
+        inline std::string_view Value() const noexcept {
             return Value_;
         }
 
@@ -73,32 +74,32 @@ namespace NMonitoring {
             return buf;
         }
 
-        static TLabelImpl FromString(TStringBuf str) {
-            TStringBuf name, value;
-            Y_ENSURE(str.TrySplit('=', name, value),
+        static TLabelImpl FromString(std::string_view str) {
+            std::string_view name, value;
+            Y_ENSURE(NUtils::TrySplit(str, name, value, '='),
                      "invalid label string format: '" << str << '\'');
 
-            TStringBuf nameStripped = StripString(name);
+            std::string_view nameStripped = StripString(name);
             Y_ENSURE(!nameStripped.empty(), "label name cannot be empty");
 
-            TStringBuf valueStripped = StripString(value);
+            std::string_view valueStripped = StripString(value);
             Y_ENSURE(!valueStripped.empty(), "label value cannot be empty");
 
             return {nameStripped, valueStripped};
         }
 
-        static bool TryFromString(TStringBuf str, TLabelImpl& label) {
-            TStringBuf name, value;
-            if (!str.TrySplit('=', name, value)) {
+        static bool TryFromString(std::string_view str, TLabelImpl& label) {
+            std::string_view name, value;
+            if (!NUtils::TrySplit(str, name, value, '=')) {
                 return false;
             }
 
-            TStringBuf nameStripped = StripString(name);
+            std::string_view nameStripped = StripString(name);
             if (nameStripped.empty()) {
                 return false;
             }
 
-            TStringBuf valueStripped = StripString(value);
+            std::string_view valueStripped = StripString(value);
             if (valueStripped.empty()) {
                 return false;
             }
@@ -112,7 +113,7 @@ namespace NMonitoring {
         TStringBackend Value_;
     };
 
-    using TLabel = TLabelImpl<TString>;
+    using TLabel = TLabelImpl<std::string>;
 
     struct ILabels : public TThrRefBase {
         struct TIterator {
@@ -158,12 +159,12 @@ namespace NMonitoring {
 
         virtual ~ILabels() = default;
 
-        virtual bool Add(TStringBuf name, TStringBuf value) noexcept = 0;
+        virtual bool Add(std::string_view name, std::string_view value) noexcept = 0;
         virtual bool Add(const ILabel& label) noexcept {
             return Add(label.Name(), label.Value());
         }
 
-        virtual bool Has(TStringBuf name) const noexcept = 0;
+        virtual bool Has(std::string_view name) const noexcept = 0;
 
         virtual size_t Size() const noexcept = 0;
         virtual bool Empty() const noexcept = 0;
@@ -171,7 +172,7 @@ namespace NMonitoring {
 
         virtual size_t Hash() const noexcept = 0;
 
-        virtual std::optional<const ILabel*> Get(TStringBuf name) const = 0;
+        virtual std::optional<const ILabel*> Get(std::string_view name) const = 0;
 
         // NB: there's no guarantee that indices are preserved after any object modification
         virtual const ILabel* Get(size_t idx) const = 0;
@@ -185,7 +186,7 @@ namespace NMonitoring {
         }
     };
 
-    bool TryLoadLabelsFromString(TStringBuf sb, ILabels& labels);
+    bool TryLoadLabelsFromString(std::string_view sb, ILabels& labels);
     bool TryLoadLabelsFromString(IInputStream& is, ILabels& labels);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -228,7 +229,7 @@ namespace NMonitoring {
             return Labels_ != rhs.Labels_;
         }
 
-        bool Add(TStringBuf name, TStringBuf value) noexcept override {
+        bool Add(std::string_view name, std::string_view value) noexcept override {
             if (Has(name)) {
                 return false;
             }
@@ -239,24 +240,24 @@ namespace NMonitoring {
 
         using ILabels::Add;
 
-        bool Has(TStringBuf name) const noexcept override {
+        bool Has(std::string_view name) const noexcept override {
             auto it = FindIf(Labels_, [name](const TLabelImpl<TStringBackend>& label) {
-                return name == TStringBuf{label.Name()};
+                return name == std::string_view{label.Name()};
             });
             return it != Labels_.end();
         }
 
-        bool Has(const TString& name) const noexcept {
+        bool Has(const std::string& name) const noexcept {
             auto it = FindIf(Labels_, [name](const TLabelImpl<TStringBackend>& label) {
-                return name == TStringBuf{label.Name()};
+                return name == std::string_view{label.Name()};
             });
             return it != Labels_.end();
         }
 
         // XXX for backward compatibility
-        TMaybe<TLabelImpl<TStringBackend>> Find(TStringBuf name) const {
+        TMaybe<TLabelImpl<TStringBackend>> Find(std::string_view name) const {
             auto it = FindIf(Labels_, [name](const TLabelImpl<TStringBackend>& label) {
-                return name == TStringBuf{label.Name()};
+                return name == std::string_view{label.Name()};
             });
             if (it == Labels_.end()) {
                 return Nothing();
@@ -264,7 +265,7 @@ namespace NMonitoring {
             return *it;
         }
 
-        std::optional<const ILabel*> Get(TStringBuf name) const override {
+        std::optional<const ILabel*> Get(std::string_view name) const override {
             auto it = FindIf(Labels_, [name] (auto&& l) {
                 return name == l.Name();
             });
@@ -280,9 +281,9 @@ namespace NMonitoring {
             return &(*this)[idx];
         }
 
-        TMaybe<TLabelImpl<TStringBackend>> Extract(TStringBuf name) {
+        TMaybe<TLabelImpl<TStringBackend>> Extract(std::string_view name) {
             auto it = FindIf(Labels_, [name](const TLabelImpl<TStringBackend>& label) {
-                return name == TStringBuf{label.Name()};
+                return name == std::string_view{label.Name()};
             });
             if (it == Labels_.end()) {
                 return Nothing();
@@ -393,7 +394,7 @@ namespace NMonitoring {
         std::vector<TLabelImpl<TStringBackend>> Labels_;
     };
 
-    using TLabels = TLabelsImpl<TString>;
+    using TLabels = TLabelsImpl<std::string>;
     using ILabelsPtr = TIntrusivePtr<ILabels>;
 
     template <typename T>

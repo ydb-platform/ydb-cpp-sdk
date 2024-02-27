@@ -51,25 +51,25 @@ namespace {
 
 template <typename TStream>
 auto& Output(TStream& os, const NMonitoring::IHistogramSnapshot& hist) {
-    os << TStringBuf("{");
+    os << std::string_view("{");
 
     ui32 i = 0;
     ui32 count = hist.Count();
 
     if (count > 0) {
         for (; i < count - 1; ++i) {
-            os << hist.UpperBound(i) << TStringBuf(": ") << hist.Value(i);
-            os << TStringBuf(", ");
+            os << hist.UpperBound(i) << std::string_view(": ") << hist.Value(i);
+            os << std::string_view(", ");
         }
 
         if (hist.UpperBound(i) == Max<NMonitoring::TBucketBound>()) {
-            os << TStringBuf("inf: ") << hist.Value(i);
+            os << std::string_view("inf: ") << hist.Value(i);
         } else {
-            os << hist.UpperBound(i) << TStringBuf(": ") << hist.Value(i);
+            os << hist.UpperBound(i) << std::string_view(": ") << hist.Value(i);
         }
     }
 
-    os << TStringBuf("}");
+    os << std::string_view("}");
 
     return os;
 }

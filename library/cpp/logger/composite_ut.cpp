@@ -8,22 +8,22 @@
 
 Y_UNIT_TEST_SUITE(TCompositeLogTest)
 {
-    std::vector<TString> ReadLines(const TString & filename) {
-        std::vector<TString> lines;
+    std::vector<std::string> ReadLines(const std::string & filename) {
+        std::vector<std::string> lines;
         TIFStream fin(filename);
-        TString line;
+        std::string line;
         while (fin.ReadLine(line)) {
             lines.push_back(std::move(line));
         }
         return lines;
     }
 
-    void Clear(const TString & filename) {
+    void Clear(const std::string & filename) {
         NFs::Remove(filename + "1");
         NFs::Remove(filename + "2");
     }
 
-    void DoTestComposite(const ILogBackendCreator::IInitContext& ctx, const TString & filename) {
+    void DoTestComposite(const ILogBackendCreator::IInitContext& ctx, const std::string & filename) {
         Clear(filename);
         {
             TLog log;
@@ -47,7 +47,7 @@ Y_UNIT_TEST_SUITE(TCompositeLogTest)
     }
 
     Y_UNIT_TEST(TestCompositeConfig) {
-        TString s(R"(
+        std::string s(R"(
 {
     "LoggerType": "composite",
     "SubLogger":[
@@ -60,12 +60,12 @@ Y_UNIT_TEST_SUITE(TCompositeLogTest)
         }
     ]
 })");
-        TStringInput si(s);
+        std::stringInput si(s);
         NConfig::TConfig cfg = NConfig::TConfig::FromJson(si);
         //Прогоняем конфигурацию через серализацию и десериализацию
         TLogBackendCreatorInitContextConfig ctx(cfg);
-        TString newCfg = ILogBackendCreator::Create(ctx)->AsJson().GetStringRobust();
-        TStringInput si2(newCfg);
+        std::string newCfg = ILogBackendCreator::Create(ctx)->AsJson().GetStringRobust();
+        std::stringInput si2(newCfg);
         DoTestComposite(TLogBackendCreatorInitContextConfig(NConfig::TConfig::FromJson(si2)), "config_log_");
 
     }
@@ -85,7 +85,7 @@ Y_UNIT_TEST_SUITE(TCompositeLogTest)
 )";
         TUnstrictConfig cfg;
         if (!cfg.ParseMemory(CONFIG)) {
-            TString errors;
+            std::string errors;
             cfg.PrintErrors(errors);
             UNIT_ASSERT_C(false, errors);
         }

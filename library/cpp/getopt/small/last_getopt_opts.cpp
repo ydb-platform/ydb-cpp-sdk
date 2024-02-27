@@ -4,66 +4,66 @@
 #include "last_getopt_parser.h"
 
 #include <library/cpp/colorizer/colors.h>
+#include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/stream/format.h>
-#include <util/charset/utf8.h>
 
 #include <stdlib.h>
 
 namespace NLastGetoptPrivate {
-    TString& VersionString() {
-        static TString data;
+    std::string& VersionString() {
+        static std::string data;
         return data;
     }
-    TString& ShortVersionString() {
-        static TString data;
+    std::string& ShortVersionString() {
+        static std::string data;
         return data;
     }
 }
 
 namespace NLastGetopt {
-    static const TStringBuf SPad = "  ";
+    static const std::string_view SPad = "  ";
 
     void PrintVersionAndExit(const TOptsParser*) {
-        Cout << (NLastGetoptPrivate::VersionString() ? NLastGetoptPrivate::VersionString() : "program version: not linked with library/cpp/getopt") << Endl;
+        Cout << (!NLastGetoptPrivate::VersionString().empty() ? NLastGetoptPrivate::VersionString() : "program version: not linked with library/cpp/getopt") << Endl;
         exit(NLastGetoptPrivate::VersionString().empty());
     }
 
-    void PrintShortVersionAndExit(const TString& appName) {
-        Cout << appName << " version " << (NLastGetoptPrivate::ShortVersionString() ? NLastGetoptPrivate::ShortVersionString() : "not linked with library/cpp/getopt") << Endl;
+    void PrintShortVersionAndExit(const std::string& appName) {
+        Cout << appName << " version " << (!NLastGetoptPrivate::ShortVersionString().empty() ? NLastGetoptPrivate::ShortVersionString() : "not linked with library/cpp/getopt") << Endl;
         exit(NLastGetoptPrivate::ShortVersionString().empty());
     }
 
-    // Like TString::Quote(), but does not quote digits-only string
-    static TString QuoteForHelp(const TString& str) {
+    // Like std::string::Quote(), but does not quote digits-only string
+    static std::string QuoteForHelp(const std::string& str) {
         if (str.empty())
-            return str.Quote();
+            return NUtils::Quote(str);
         for (size_t i = 0; i < str.size(); ++i) {
             if (!isdigit(str[i]))
-                return str.Quote();
+                return NUtils::Quote(str);
         }
         return str;
     }
 
     namespace NPrivate {
-        TString OptToString(char c) {
+        std::string OptToString(char c) {
             TStringStream ss;
             ss << "-" << c;
             return ss.Str();
         }
 
-        TString OptToString(const TString& longOption) {
+        std::string OptToString(const std::string& longOption) {
             TStringStream ss;
             ss << "--" << longOption;
             return ss.Str();
         }
 
-        TString OptToString(const TOpt* opt) {
+        std::string OptToString(const TOpt* opt) {
             return opt->ToShortString();
         }
     }
 
-    TOpts::TOpts(const TStringBuf& optstring)
+    TOpts::TOpts(const std::string_view& optstring)
         : ArgPermutation_(DEFAULT_ARG_PERMUTATION)
         , AllowSingleDashForLong_(false)
         , AllowPlusForLong_(false)
@@ -78,7 +78,7 @@ namespace NLastGetopt {
         AddVersionOption(0);
     }
 
-    void TOpts::AddCharOptions(const TStringBuf& optstring) {
+    void TOpts::AddCharOptions(const std::string_view& optstring) {
         size_t p = 0;
         if (optstring[p] == '+') {
             ArgPermutation_ = REQUIRE_ORDER;
@@ -104,7 +104,7 @@ namespace NLastGetopt {
         }
     }
 
-    const TOpt* TOpts::FindLongOption(const TStringBuf& name) const {
+    const TOpt* TOpts::FindLongOption(const std::string_view& name) const {
         for (const auto& Opt : Opts_) {
             const TOpt* opt = Opt.Get();
             if (IsIn(opt->GetLongNames(), name))
@@ -113,7 +113,7 @@ namespace NLastGetopt {
         return nullptr;
     }
 
-    TOpt* TOpts::FindLongOption(const TStringBuf& name) {
+    TOpt* TOpts::FindLongOption(const std::string_view& name) {
         for (auto& Opt : Opts_) {
             TOpt* opt = Opt.Get();
             if (IsIn(opt->GetLongNames(), name))
@@ -154,14 +154,14 @@ namespace NLastGetopt {
         return *option;
     }
 
-    const TOpt& TOpts::GetLongOption(const TStringBuf& name) const {
+    const TOpt& TOpts::GetLongOption(const std::string_view& name) const {
         const TOpt* option = FindLongOption(name);
         if (!option)
             ythrow TException() << "unknown option " << name;
         return *option;
     }
 
-    TOpt& TOpts::GetLongOption(const TStringBuf& name) {
+    TOpt& TOpts::GetLongOption(const std::string_view& name) {
         TOpt* option = FindLongOption(name);
         if (!option)
             ythrow TException() << "unknown option " << name;
@@ -225,7 +225,7 @@ namespace NLastGetopt {
         return *Opts_.back();
     }
 
-    TOpt& TOpts::AddCompletionOption(TString command, TString longName) {
+    TOpt& TOpts::AddCompletionOption(std::string command, std::string longName) {
         if (TOpt* o = FindLongOption(longName)) {
             return *o;
         }
@@ -259,14 +259,14 @@ namespace NLastGetopt {
         return it - Opts_.begin();
     }
 
-    TStringBuf TOpts::GetFreeArgTitle(size_t pos) const {
+    std::string_view TOpts::GetFreeArgTitle(size_t pos) const {
         if (FreeArgSpecs_.contains(pos)) {
             return FreeArgSpecs_.at(pos).GetTitle(DefaultFreeArgTitle_);
         }
         return DefaultFreeArgTitle_;
     }
 
-    void TOpts::SetFreeArgTitle(size_t pos, const TString& title, const TString& help, bool optional) {
+    void TOpts::SetFreeArgTitle(size_t pos, const std::string& title, const std::string& help, bool optional) {
         FreeArgSpecs_[pos] = TFreeArgSpec(title, help, optional);
     }
 
@@ -274,7 +274,7 @@ namespace NLastGetopt {
         return FreeArgSpecs_[pos];
     }
 
-    static TString FormatOption(const TOpt* option, const NColorizer::TColors& colors) {
+    static std::string FormatOption(const TOpt* option, const NColorizer::TColors& colors) {
         TStringStream result;
         const TOpt::TShortNames& shorts = option->GetShortNames();
         const TOpt::TLongNames& longs = option->GetLongNames();
@@ -295,9 +295,9 @@ namespace NLastGetopt {
         if (multiple)
             result << '}';
 
-        static const TString metavarDef("VAL");
-        const TString& title = option->GetArgTitle();
-        const TString& metavar = title.empty() ? metavarDef : title;
+        static const std::string metavarDef("VAL");
+        const std::string& title = option->GetArgTitle();
+        const std::string& metavar = title.empty() ? metavarDef : title;
 
         if (option->GetHasArg() == OPTIONAL_ARGUMENT) {
             if (option->IsEqParseOnly()) {
@@ -322,14 +322,14 @@ namespace NLastGetopt {
         return result.Str();
     }
 
-    void TOpts::PrintCmdLine(const TStringBuf& program, IOutputStream& os, const NColorizer::TColors& colors) const {
+    void TOpts::PrintCmdLine(const std::string_view& program, IOutputStream& os, const NColorizer::TColors& colors) const {
         os << colors.BoldColor() << "Usage" << colors.OldColor() << ": ";
-        if (CustomUsage) {
+        if (!CustomUsage.empty()) {
             os << CustomUsage;
         } else {
             os << program << " ";
         }
-        if (CustomCmdLineDescr) {
+        if (!CustomCmdLineDescr.empty()) {
             os << CustomCmdLineDescr << Endl;
             return;
         }
@@ -363,7 +363,7 @@ namespace NLastGetopt {
         os << Endl;
     }
 
-    void TOpts::PrintUsage(const TStringBuf& program, IOutputStream& osIn, const NColorizer::TColors& colors) const {
+    void TOpts::PrintUsage(const std::string_view& program, IOutputStream& osIn, const NColorizer::TColors& colors) const {
         TStringStream os;
 
         if (!Title.empty())
@@ -371,7 +371,7 @@ namespace NLastGetopt {
 
         PrintCmdLine(program, os, colors);
 
-        std::vector<TString> leftColumn(Opts_.size());
+        std::vector<std::string> leftColumn(Opts_.size());
         std::vector<size_t> leftColumnSizes(leftColumn.size());
         const size_t kMaxLeftWidth = 25;
         size_t leftWidth = 0;
@@ -395,7 +395,7 @@ namespace NLastGetopt {
                 requiredOptionsCount++;
         }
 
-        const TString leftPadding(leftWidth, ' ');
+        const std::string leftPadding(leftWidth, ' ');
 
         for (size_t sectionId = 0; sectionId <= 1; sectionId++) {
             bool requiredOptionsSection = (sectionId == 0);
@@ -426,22 +426,22 @@ namespace NLastGetopt {
                 } else {
                     os << SPad << leftColumn[i] << ' ';
                     if (leftColumnSizes[i] < leftWidth)
-                        os << TStringBuf(leftPadding.data(), leftWidth - leftColumnSizes[i]);
+                        os << std::string_view(leftPadding.data(), leftWidth - leftColumnSizes[i]);
                 }
 
-                TStringBuf help = opt->GetHelp();
-                while (help && isspace(help.back())) {
-                    help.Chop(1);
+                std::string_view help = opt->GetHelp();
+                while (!help.empty() && isspace(help.back())) {
+                    help.remove_suffix(1);
                 }
                 size_t lastLineLength = 0;
                 bool helpHasParagraphs = false;
-                if (help) {
-                    os << Wrap(Wrap_, help, SPad + leftPadding + " ", &lastLineLength, &helpHasParagraphs);
+                if (!help.empty()) {
+                    os << Wrap(Wrap_, help, NUtils::TYdbStringBuilder() << SPad << leftPadding << " ", &lastLineLength, &helpHasParagraphs);
                 }
 
                 auto choicesHelp = opt->GetChoicesHelp();
                 if (!choicesHelp.empty()) {
-                    if (help) {
+                    if (!help.empty()) {
                         os << Endl << SPad << leftPadding << " ";
                     }
                     os << "(values: " << choicesHelp << ")";
@@ -452,10 +452,10 @@ namespace NLastGetopt {
                     if (helpHasParagraphs) {
                         os << Endl << Endl << SPad << leftPadding << " ";
                         os << "Default: " << colors.CyanColor() << quotedDef << colors.OldColor() << ".";
-                    } else if (help.EndsWith('.')) {
+                    } else if (help.ends_with('.')) {
                         os << Endl << SPad << leftPadding << " ";
                         os << "Default: " << colors.CyanColor() << quotedDef << colors.OldColor() << ".";
-                    } else if (help) {
+                    } else if (!help.empty()) {
                         if (SPad.size() + leftWidth + 1 + lastLineLength + 12 + quotedDef.size() > Wrap_) {
                             os << Endl << SPad << leftPadding << " ";
                         } else {
@@ -486,7 +486,7 @@ namespace NLastGetopt {
         osIn << os.Str();
     }
 
-    void TOpts::PrintUsage(const TStringBuf& program, IOutputStream& os) const {
+    void TOpts::PrintUsage(const std::string_view& program, IOutputStream& os) const {
         PrintUsage(program, os, NColorizer::AutoColors(os));
     }
 
@@ -520,8 +520,8 @@ namespace NLastGetopt {
             if (!FreeArgSpecs_.contains(i)) {
                 continue;
             }
-
-            if (auto help = FreeArgSpecs_.at(i).GetHelp()) {
+            auto help = FreeArgSpecs_.at(i).GetHelp();
+            if (!help.empty()) {
                 auto title = GetFreeArgTitle(i);
                 os << SPad << colors.GreenColor() << RightPad(title, leftFreeWidth, ' ') << colors.OldColor()
                    << SPad << help << Endl;
@@ -530,7 +530,8 @@ namespace NLastGetopt {
 
         if (FreeArgsMax_ == UNLIMITED_ARGS) {
             auto title = TrailingArgSpec_.GetTitle(DefaultFreeArgTitle_);
-            if (auto help = TrailingArgSpec_.GetHelp()) {
+            auto help = TrailingArgSpec_.GetHelp();
+            if (!help.empty()) {
                 os << SPad << colors.GreenColor() << RightPad(title, leftFreeWidth, ' ') << colors.OldColor()
                    << SPad << help << Endl;
             }

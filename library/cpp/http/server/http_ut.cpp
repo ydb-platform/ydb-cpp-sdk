@@ -41,7 +41,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         };
 
     public:
-        inline TEchoServer(const TString& res)
+        inline TEchoServer(const std::string& res)
             : Res_(res)
         {
         }
@@ -51,7 +51,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         }
 
     private:
-        TString Res_;
+        std::string Res_;
     };
 
     class TSleepingServer: public THttpServer::ICallBack {
@@ -106,10 +106,10 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         size_t Ttl;
     };
 
-    static const TString CrLf = "\r\n";
+    static const std::string CrLf = "\r\n";
 
     struct TTestRequest {
-        TTestRequest(ui16 port, TString content = TString())
+        TTestRequest(ui16 port, std::string content = std::string())
             : Port(port)
             , Content(std::move(content))
         {
@@ -117,11 +117,11 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
 
         void CheckContinue(TSocketInput& si) {
             if (Expect100Continue) {
-                TStringStream ss;
-                TString firstLine;
+                std::stringStream ss;
+                std::string firstLine;
                 si.ReadLine(firstLine);
                 for (;;) {
-                    TString buf;
+                    std::string buf;
                     si.ReadLine(buf);
                     if (buf.size() == 0) {
                         break;
@@ -132,7 +132,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
             }
         }
 
-        TString Execute() {
+        std::string Execute() {
             TSocket* s = nullptr;
             THolder<TSocket> singleReqSocket;
             if (KeepAliveConnection) {
@@ -155,7 +155,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
                 output.EnableKeepAlive(KeepAliveConnection);
                 output.EnableCompression(EnableResponseEncoding);
 
-                TStringStream r;
+                std::stringStream r;
                 r << Type << " / HTTP/1.1" << CrLf;
                 r << "Host: localhost:" + ToString(Port) << CrLf;
                 if (isPost) {
@@ -181,7 +181,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
                     output.Finish();
                 }
             } else {
-                TStringStream r;
+                std::stringStream r;
                 r << Type << " / HTTP/1.1" << CrLf;
                 r << "Host: localhost:" + ToString(Port) << CrLf;
                 if (KeepAliveConnection) {
@@ -197,7 +197,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
                 }
                 if (isPost && ContentEncoding.size() && Content.size()) {
                     r << "Content-Encoding: " << ContentEncoding << CrLf;
-                    TStringStream compressedContent;
+                    std::stringStream compressedContent;
                     {
                         TZLibCompress zlib(&compressedContent);
                         zlib.Write(Content.data(), Content.size());
@@ -209,7 +209,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
                     s->Send(r.Data(), r.Size());
                     CheckContinue(si);
                     Hdr = r.Str();
-                    TString tosend = compressedContent.Str();
+                    std::string tosend = compressedContent.Str();
                     s->Send(tosend.data(), tosend.size());
                 } else {
                     if (isPost) {
@@ -228,15 +228,15 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
             }
 
             THttpInput input(&si);
-            TStringStream ss;
+            std::stringStream ss;
             TransferData(&input, &ss);
 
             return ss.Str();
         }
 
-        TString GetDescription() const {
+        std::string GetDescription() const {
             if (UseHttpOutput) {
-                TStringStream ss;
+                std::stringStream ss;
                 ss << (KeepAliveConnection ? "keep-alive " : "") << Type;
                 if (ContentEncoding.size()) {
                     ss << " with encoding=" << ContentEncoding;
@@ -249,13 +249,13 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
 
         ui16 Port = 0;
         bool UseHttpOutput = true;
-        TString Type = "GET";
-        TString ContentEncoding;
-        TString Content;
+        std::string Type = "GET";
+        std::string ContentEncoding;
+        std::string Content;
         bool KeepAliveConnection = false;
         THolder<TSocket> KeepAlivedSocket;
         bool EnableResponseEncoding = false;
-        TString Hdr;
+        std::string Hdr;
         bool Expect100Continue = false;
     };
 
@@ -281,8 +281,8 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         }
     };
 
-    TString TestData(size_t size = 5 * 4096) {
-        TString res;
+    std::string TestData(size_t size = 5 * 4096) {
+        std::string res;
 
         for (size_t i = 0; i < size; ++i) {
             res += (char)i;
@@ -291,7 +291,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
     }
 
     Y_UNIT_TEST(TestEchoServer) {
-        TString res = TestData();
+        std::string res = TestData();
         TPortManager pm;
         const ui16 port = pm.GetPort();
         const bool trueFalse[] = {true, false};
@@ -315,17 +315,17 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
                     for (bool enableResponseEncoding : trueFalse) {
                         r.EnableResponseEncoding = enableResponseEncoding;
 
-                        const TString reqTypes[] = {"GET", "POST"};
-                        for (const TString& reqType : reqTypes) {
+                        const std::string reqTypes[] = {"GET", "POST"};
+                        for (const std::string& reqType : reqTypes) {
                             r.Type = reqType;
 
-                            const TString encoders[] = {"", "deflate"};
-                            for (const TString& encoder : encoders) {
+                            const std::string encoders[] = {"", "deflate"};
+                            for (const std::string& encoder : encoders) {
                                 r.ContentEncoding = encoder;
 
                                 for (bool expect100Continue : trueFalse) {
                                     r.Expect100Continue = expect100Continue;
-                                    TString resp = r.Execute();
+                                    std::string resp = r.Execute();
                                     UNIT_ASSERT_C(resp == res, "diff echo response for request:\n" + r.GetDescription());
                                 }
                             }
@@ -342,7 +342,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         if (!IsReusePortAvailable()) {
             return; // skip test
         }
-        TString res = TestData();
+        std::string res = TestData();
         TPortManager pm;
         const ui16 port = pm.GetPort();
 
@@ -379,7 +379,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         TPortManager pm;
         const ui16 port = pm.GetPort();
 
-        TEchoServer serverImpl(TString{});
+        TEchoServer serverImpl(std::string{});
         THttpServer server1(&serverImpl, THttpServer::TOptions(port));
         THttpServer server2(&serverImpl, THttpServer::TOptions(port));
 
@@ -397,7 +397,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
          * Emulate request processing failures
          * Data should be large enough not to fit into socket buffer
          **/
-        TString res = TestData(10 * 1024 * 1024);
+        std::string res = TestData(10 * 1024 * 1024);
         TPortManager portManager;
         const ui16 port = portManager.GetPort();
         TEchoServer serverImpl(res);
@@ -416,7 +416,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
             TTestRequest r(port);
             r.Content = res;
             r.Type = "POST";
-            TString resp = r.Execute();
+            std::string resp = r.Execute();
             if (i == 1) {
                 UNIT_ASSERT(resp.Contains("Service Unavailable"));
             } else {
@@ -451,7 +451,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
             ExceptionMessage = CurrentExceptionMessage();
         }
 
-        TString ExceptionMessage;
+        std::string ExceptionMessage;
     };
 
     class TResetConnectionServer: public THttpServer::ICallBack {
@@ -474,7 +474,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
             ExceptionMessage = CurrentExceptionMessage();
         }
 
-        TString ExceptionMessage;
+        std::string ExceptionMessage;
     };
 
     class TListenerSockAddrReplyServer: public THttpServer::ICallBack {
@@ -544,7 +544,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         return input;
     }
 
-    THttpInput SendRequestWithBody(TSocket& socket, ui16 port, TString body) {
+    THttpInput SendRequestWithBody(TSocket& socket, ui16 port, std::string body) {
         TSocketInput si(socket);
         TSocketOutput so(socket);
         THttpOutput out(&so);
@@ -603,10 +603,10 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         UNIT_ASSERT(server.Start());
 
         TSocket socket(TNetworkAddress("localhost", port), TDuration::Seconds(5));
-        UNIT_ASSERT_STRING_CONTAINS(SendRequestWithBody(socket, port, TString(1_KB, 'a')).FirstLine(), "HTTP/1.1 200 Ok");
+        UNIT_ASSERT_STRING_CONTAINS(SendRequestWithBody(socket, port, std::string(1_KB, 'a')).FirstLine(), "HTTP/1.1 200 Ok");
 
         TSocket socket2(TNetworkAddress("localhost", port), TDuration::Seconds(5));
-        UNIT_ASSERT_STRING_CONTAINS(SendRequestWithBody(socket2, port, TString(10_KB, 'a')).FirstLine(), "HTTP/1.1 413 Payload Too Large");
+        UNIT_ASSERT_STRING_CONTAINS(SendRequestWithBody(socket2, port, std::string(10_KB, 'a')).FirstLine(), "HTTP/1.1 413 Payload Too Large");
 
         server.Stop();
     }
@@ -675,21 +675,21 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         TTestRequest r1(port1);
         r1.KeepAliveConnection = true;
 
-        TString resp = r1.Execute();
-        UNIT_ASSERT(resp == TString::Join("127.0.0.1", ":", ToString(port1)));
+        std::string resp = r1.Execute();
+        UNIT_ASSERT(resp == std::string::Join("127.0.0.1", ":", ToString(port1)));
 
         TTestRequest r2(port2);
         r2.KeepAliveConnection = true;
 
         resp = r2.Execute();
-        UNIT_ASSERT(resp == TString::Join("127.0.0.1", ":", ToString(port2)));
+        UNIT_ASSERT(resp == std::string::Join("127.0.0.1", ":", ToString(port2)));
 
         server.Stop();
     }
 
     Y_UNIT_TEST(TestSocketsLeak) {
         TPortManager portManager;
-        TString res = TestData(25);
+        std::string res = TestData(25);
 
         const bool trueFalse[] = {true, false};
 
@@ -743,7 +743,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
                     thread->Join();
                 }
 
-                TStringStream opts;
+                std::stringStream opts;
                 opts << " [" << rejectExcessConnections << ", " << keepAlive << "] ";
 
                 UNIT_ASSERT_EQUAL_C(server.MaxConns, 2, opts.Str() +  "we should get MaxConn notification 2 times, got " + ToString(server.MaxConns.load()));
@@ -864,7 +864,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         const size_t threadCount = 5;
         TShooter shooter(threadCount, port);
 
-        TString res = TestData();
+        std::string res = TestData();
         for (const auto& cfg : testConfigs) {
             TEchoServer serverImpl(res);
             THttpServer server(&serverImpl, ApplyConfig(THttpServer::TOptions(port).EnableKeepAlive(true), cfg));
@@ -917,7 +917,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
 
         const size_t maxConnections = 5;
 
-        TString res = TestData();
+        std::string res = TestData();
 
         for (const auto& cfg : testConfigs) {
             TMaxConnServer serverImpl(res);
@@ -946,7 +946,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
     }
 
     Y_UNIT_TEST(StartFail) {
-        TString res = TestData();
+        std::string res = TestData();
         TEchoServer serverImpl(res);
         {
             THttpServer server(&serverImpl, THttpServer::TOptions(1));
@@ -970,8 +970,8 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
 
     }
 
-    inline TString ToString(const THashSet<TString>& hs) {
-        TString res = "";
+    inline std::string ToString(const THashSet<std::string>& hs) {
+        std::string res = "";
         for (auto s : hs) {
             if (res) {
                 res.append(",");
@@ -987,7 +987,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         // So second request in queue should fail with TTL Exceed, because fist one lock thread pool for (ttl + 1) ms
         TPortManager portManager;
         const ui16 port = portManager.GetPort();
-        TString res = TestData(25);
+        std::string res = TestData(25);
         const size_t ttl = 10;
         TSleepingServer server{ttl};
         THttpServer::TOptions options(port);
@@ -998,12 +998,12 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         UNIT_ASSERT(srv.Start());
         UNIT_ASSERT(server.Lock.TryAcquire());
 
-        THashSet<TString> results;
+        THashSet<std::string> results;
         TMutex resultLock;
         auto func = [port, &resultLock, &results]() {
             try {
                 TTestRequest r(port);
-                TString result = r.Execute();
+                std::string result = r.Execute();
                 with_lock(resultLock) {
                     results.insert(result);
                 }
@@ -1017,6 +1017,6 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         server.Lock.Release();
         t1->Join();
         t2->Join();
-        UNIT_ASSERT_EQUAL_C(results, (THashSet<TString>({"Zoooo", "TTL Exceed"})), "Results is {" + ToString(results) + "}");
+        UNIT_ASSERT_EQUAL_C(results, (THashSet<std::string>({"Zoooo", "TTL Exceed"})), "Results is {" + ToString(results) + "}");
     }
 }

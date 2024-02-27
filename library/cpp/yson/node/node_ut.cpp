@@ -78,7 +78,7 @@ Y_UNIT_TEST_SUITE(YtNodeTest) {
         UNIT_ASSERT_VALUES_EQUAL(listNode.AsList(), expectedListValue);
 
         const TNode mapNode = TNode::CreateMap({{"one", 1}, {"two", 2u}});
-        const auto expectedMapValue = THashMap<TString, TNode>({{"one", 1}, {"two", 2u}});
+        const auto expectedMapValue = THashMap<std::string, TNode>({{"one", 1}, {"two", 2u}});
         UNIT_ASSERT_VALUES_EQUAL(mapNode.AsMap(), expectedMapValue);
     }
 
@@ -264,15 +264,15 @@ Y_UNIT_TEST_SUITE(YtNodeTest) {
         TNode node = TNode()("foo", "bar")("baz", 42);
         node.Attributes()["attr_name"] = "attr_value";
 
-        TString bytes;
+        std::string bytes;
         {
-            TStringOutput s(bytes);
+            std::stringOutput s(bytes);
             ::Save(&s, node);
         }
 
         TNode nodeCopy;
         {
-            TStringInput s(bytes);
+            std::stringInput s(bytes);
             ::Load(&s, nodeCopy);
         }
 
@@ -316,14 +316,14 @@ Y_UNIT_TEST_SUITE(YtNodeTest) {
     }
 
     Y_UNIT_TEST(TestConvertToString) {
-        UNIT_ASSERT_VALUES_EQUAL(TNode(5).ConvertTo<TString>(), "5");
-        UNIT_ASSERT_VALUES_EQUAL(TNode(123432423).ConvertTo<TString>(), "123432423");
-        UNIT_ASSERT_VALUES_EQUAL(TNode(123456789012345678ll).ConvertTo<TString>(), "123456789012345678");
-        UNIT_ASSERT_VALUES_EQUAL(TNode(123456789012345678ull).ConvertTo<TString>(), "123456789012345678");
-        UNIT_ASSERT_VALUES_EQUAL(TNode(-123456789012345678ll).ConvertTo<TString>(), "-123456789012345678");
-        UNIT_ASSERT_VALUES_EQUAL(TNode(true).ConvertTo<TString>(), "1");
-        UNIT_ASSERT_VALUES_EQUAL(TNode(false).ConvertTo<TString>(), "0");
-        UNIT_ASSERT_VALUES_EQUAL(TNode(5.3).ConvertTo<TString>(), "5.3");
+        UNIT_ASSERT_VALUES_EQUAL(TNode(5).ConvertTo<std::string>(), "5");
+        UNIT_ASSERT_VALUES_EQUAL(TNode(123432423).ConvertTo<std::string>(), "123432423");
+        UNIT_ASSERT_VALUES_EQUAL(TNode(123456789012345678ll).ConvertTo<std::string>(), "123456789012345678");
+        UNIT_ASSERT_VALUES_EQUAL(TNode(123456789012345678ull).ConvertTo<std::string>(), "123456789012345678");
+        UNIT_ASSERT_VALUES_EQUAL(TNode(-123456789012345678ll).ConvertTo<std::string>(), "-123456789012345678");
+        UNIT_ASSERT_VALUES_EQUAL(TNode(true).ConvertTo<std::string>(), "1");
+        UNIT_ASSERT_VALUES_EQUAL(TNode(false).ConvertTo<std::string>(), "0");
+        UNIT_ASSERT_VALUES_EQUAL(TNode(5.3).ConvertTo<std::string>(), "5.3");
     }
 
     Y_UNIT_TEST(TestConvertFromString) {
@@ -415,7 +415,7 @@ Y_UNIT_TEST_SUITE(YtNodeTest) {
             ("list", TNode::CreateList().Add(5))
             ("map", TNode::CreateMap()("key", "value"));
 
-        UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<TString>("string"), "7");
+        UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<std::string>("string"), "7");
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAsString("string"), "7");
         UNIT_ASSERT_VALUES_EQUAL(node.ChildConvertTo<i64>("string"), 7);
 
@@ -426,11 +426,11 @@ Y_UNIT_TEST_SUITE(YtNodeTest) {
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<ui64>("uint64"), 5u);
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAsUint64("uint64"), 5u);
         UNIT_ASSERT_VALUES_EQUAL(node.ChildIntCast<i64>("uint64"), 5);
-        UNIT_ASSERT_VALUES_EQUAL(node.ChildConvertTo<TString>("uint64"), "5");
+        UNIT_ASSERT_VALUES_EQUAL(node.ChildConvertTo<std::string>("uint64"), "5");
 
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<double>("double"), -3.5);
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAsDouble("double"), -3.5);
-        UNIT_ASSERT_VALUES_EQUAL(node.ChildConvertTo<TString>("double"), "-3.5");
+        UNIT_ASSERT_VALUES_EQUAL(node.ChildConvertTo<std::string>("double"), "-3.5");
 
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<TNode::TListType>("list")[0].AsInt64(), 5);
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAsList("list")[0].AsInt64(), 5);
@@ -439,9 +439,9 @@ Y_UNIT_TEST_SUITE(YtNodeTest) {
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAsMap("map")["key"].AsString(), "value");
 
         // mutable accessor
-        auto& childString = node.ChildAs<TString>("string");
+        auto& childString = node.ChildAs<std::string>("string");
         childString = "yaddayadda";
-        UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<TString>("string"), "yaddayadda");
+        UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<std::string>("string"), "yaddayadda");
     }
 
     Y_UNIT_TEST(TestListGetters) {
@@ -453,7 +453,7 @@ Y_UNIT_TEST_SUITE(YtNodeTest) {
             .Add(TNode::CreateList().Add(5))
             .Add(TNode::CreateMap()("key", "value"));
 
-        UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<TString>(0), "7");
+        UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<std::string>(0), "7");
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAsString(0), "7");
         UNIT_ASSERT_VALUES_EQUAL(node.ChildConvertTo<i64>(0), 7);
 
@@ -464,11 +464,11 @@ Y_UNIT_TEST_SUITE(YtNodeTest) {
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<ui64>(2), 5u);
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAsUint64(2), 5u);
         UNIT_ASSERT_VALUES_EQUAL(node.ChildIntCast<i64>(2), 5);
-        UNIT_ASSERT_VALUES_EQUAL(node.ChildConvertTo<TString>(2), "5");
+        UNIT_ASSERT_VALUES_EQUAL(node.ChildConvertTo<std::string>(2), "5");
 
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<double>(3), -3.5);
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAsDouble(3), -3.5);
-        UNIT_ASSERT_VALUES_EQUAL(node.ChildConvertTo<TString>(3), "-3.5");
+        UNIT_ASSERT_VALUES_EQUAL(node.ChildConvertTo<std::string>(3), "-3.5");
 
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<TNode::TListType>(4)[0].AsInt64(), 5);
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAsList(4)[0].AsInt64(), 5);
@@ -477,9 +477,9 @@ Y_UNIT_TEST_SUITE(YtNodeTest) {
         UNIT_ASSERT_VALUES_EQUAL(node.ChildAsMap(5)["key"].AsString(), "value");
 
         // mutable accessor
-        auto& childString = node.ChildAs<TString>(0);
+        auto& childString = node.ChildAs<std::string>(0);
         childString = "yaddayadda";
-        UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<TString>(0), "yaddayadda");
+        UNIT_ASSERT_VALUES_EQUAL(node.ChildAs<std::string>(0), "yaddayadda");
     }
 }
 

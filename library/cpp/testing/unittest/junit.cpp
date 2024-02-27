@@ -26,8 +26,8 @@
 
 namespace NUnitTest {
 
-extern const TString Y_UNITTEST_OUTPUT_CMDLINE_OPTION = "Y_UNITTEST_OUTPUT";
-extern const TString Y_UNITTEST_TEST_FILTER_FILE_OPTION = "Y_UNITTEST_FILTER_FILE";
+extern const std::string Y_UNITTEST_OUTPUT_CMDLINE_OPTION = "Y_UNITTEST_OUTPUT";
+extern const std::string Y_UNITTEST_TEST_FILTER_FILE_OPTION = "Y_UNITTEST_FILTER_FILE";
 
 static bool IsAllowed(wchar32 c) {
     // https://en.wikipedia.org/wiki/Valid_characters_in_XML
@@ -39,8 +39,8 @@ static bool IsAllowed(wchar32 c) {
         || c >= 0x10000 && c <= 0x10FFFF;
 }
 
-static TString SanitizeString(TString s) {
-    TString escaped;
+static std::string SanitizeString(std::string s) {
+    std::string escaped;
     bool fixedSomeChars = false;
     const unsigned char* i = reinterpret_cast<const unsigned char*>(s.data());
     const unsigned char* end = i + s.size();
@@ -114,12 +114,12 @@ struct TJUnitProcessor::TOutputCapturer {
         }
     }
 
-    TString GetTmpFileName() {
+    std::string GetTmpFileName() {
         Uncapture();
         return TmpFile.Name();
     }
 
-    TString GetCapturedString() {
+    std::string GetCapturedString() {
         Uncapture();
 
         TFile captured(TmpFile.Name(), EOpenModeFlag::RdOnly);
@@ -128,21 +128,21 @@ struct TJUnitProcessor::TOutputCapturer {
             try {
                 constexpr size_t LIMIT = 10_KB;
                 constexpr size_t PART_LIMIT = 5_KB;
-                TStringBuilder out;
+                TYdbStringBuilder out;
                 if (static_cast<size_t>(len) <= LIMIT) {
                     out.resize(len);
                     captured.Read((void*)out.data(), len);
                 } else {
                     // Read first 5_KB
                     {
-                        TString first;
+                        std::string first;
                         first.resize(PART_LIMIT);
                         captured.Read((void*)first.data(), PART_LIMIT);
                         size_t lastNewLine = first.find_last_of('\n');
-                        if (lastNewLine == TString::npos) {
+                        if (lastNewLine == std::string::npos) {
                             out << first << Endl;
                         } else {
-                            out << TStringBuf(first.c_str(), lastNewLine);
+                            out << std::string_view(first.c_str(), lastNewLine);
                         }
                     }
 
@@ -150,15 +150,15 @@ struct TJUnitProcessor::TOutputCapturer {
 
                     // Read last 5_KB
                     {
-                        TString last;
+                        std::string last;
                         last.resize(PART_LIMIT);
                         captured.Seek(-PART_LIMIT, sEnd);
                         captured.Read((void*)last.data(), PART_LIMIT);
                         size_t newLine = last.find_first_of('\n');
-                        if (newLine == TString::npos) {
+                        if (newLine == std::string::npos) {
                             out << last << Endl;
                         } else {
-                            out << TStringBuf(last.c_str() + newLine + 1);
+                            out << std::string_view(last.c_str() + newLine + 1);
                         }
                     }
                 }
@@ -178,7 +178,7 @@ struct TJUnitProcessor::TOutputCapturer {
     TTempFile TmpFile;
 };
 
-TJUnitProcessor::TJUnitProcessor(TString file, TString exec, EOutputFormat outputFormat)
+TJUnitProcessor::TJUnitProcessor(std::string file, std::string exec, EOutputFormat outputFormat)
     : FileName(file)
     , ExecName(exec)
     , OutputFormat(outputFormat)
@@ -208,7 +208,7 @@ void TJUnitProcessor::OnError(const TError* descr) {
     }
 }
 
-void TJUnitProcessor::TransferFromCapturer(THolder<TJUnitProcessor::TOutputCapturer>& capturer, TString& out, IOutputStream& outStream) {
+void TJUnitProcessor::TransferFromCapturer(THolder<TJUnitProcessor::TOutputCapturer>& capturer, std::string& out, IOutputStream& outStream) {
     if (capturer) {
         capturer->Uncapture();
         {
@@ -236,8 +236,8 @@ void TJUnitProcessor::OnFinish(const TFinish* descr) {
     UncaptureSignal();
 }
 
-TString TJUnitProcessor::BuildFileName(size_t index, const TStringBuf extension) const {
-    TStringBuilder result;
+std::string TJUnitProcessor::BuildFileName(size_t index, const std::string_view extension) const {
+    TYdbStringBuilder result;
     result << FileName << ExecName;
     if (index > 0) {
         result << "-"sv << index;
@@ -246,14 +246,14 @@ TString TJUnitProcessor::BuildFileName(size_t index, const TStringBuf extension)
     return std::move(result);
 }
 
-TStringBuf TJUnitProcessor::GetFileExtension() const {
+std::string_view TJUnitProcessor::GetFileExtension() const {
     switch (OutputFormat) {
     case EOutputFormat::Xml:
         return ".xml"sv;
     case EOutputFormat::Json:
         return ".json"sv;
     }
-    return TStringBuf();
+    return std::string_view();
 }
 
 void TJUnitProcessor::MakeReportFileName() {
@@ -276,7 +276,7 @@ void TJUnitProcessor::MakeReportFileName() {
             NFs::MakeDirectoryRecursive(FileName);
         }
         for (size_t i = 0; i < MaxReps; ++i) {
-            TString uniqReportFileName = BuildFileName(i, GetFileExtension());
+            std::string uniqReportFileName = BuildFileName(i, GetFileExtension());
             try {
                 TFile newUniqReportFile(uniqReportFileName, EOpenModeFlag::CreateNew);
                 newUniqReportFile.Close();
@@ -308,7 +308,7 @@ void TJUnitProcessor::MakeTmpFileNameForForkedTests() {
     if (GetForkTests() && !GetIsForked()) {
         TmpReportFile.ConstructInPlace(MakeTempName());
         // Replace option for child processes
-        SetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION, TStringBuilder() << "json:" << TmpReportFile->Name());
+        SetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION, TYdbStringBuilder() << "json:" << TmpReportFile->Name());
     }
 }
 
@@ -444,7 +444,7 @@ public:
     class TTag {
         friend class TXmlWriter;
 
-        explicit TTag(TXmlWriter* parent, TStringBuf name, size_t indent)
+        explicit TTag(TXmlWriter* parent, std::string_view name, size_t indent)
             : Parent(parent)
             , Name(name)
             , Indent(indent)
@@ -467,11 +467,11 @@ public:
         }
 
         template <class T>
-        TTag& Attribute(TStringBuf name, const T& value) {
-            return Attribute(name, TStringBuf(ToString(value)));
+        TTag& Attribute(std::string_view name, const T& value) {
+            return Attribute(name, std::string_view(ToString(value)));
         }
 
-        TTag& Attribute(TStringBuf name, const TStringBuf& value) {
+        TTag& Attribute(std::string_view name, const std::string_view& value) {
             Y_ABORT_UNLESS(!HasChildren);
             Parent->Out << ' ';
             Parent->Escape(name);
@@ -481,7 +481,7 @@ public:
             return *this;
         }
 
-        TTag Tag(TStringBuf name) {
+        TTag Tag(std::string_view name) {
             if (!HasChildren) {
                 HasChildren = true;
                 Close();
@@ -489,7 +489,7 @@ public:
             return TTag(Parent, name, Indent + 1);
         }
 
-        TTag& Text(TStringBuf text) {
+        TTag& Text(std::string_view text) {
             if (!HasChildren) {
                 HasChildren = true;
                 Close();
@@ -525,14 +525,14 @@ public:
 
     private:
         TXmlWriter* Parent = nullptr;
-        TStringBuf Name;
+        std::string_view Name;
         size_t Indent = 0;
         bool HasChildren = false;
         bool NewLineBeforeIndent = true;
     };
 
 public:
-    explicit TXmlWriter(const TString& fileName)
+    explicit TXmlWriter(const std::string& fileName)
         : Out(fileName)
     {
         StartFile();
@@ -542,7 +542,7 @@ public:
         Out << '\n';
     }
 
-    TTag Tag(TStringBuf name) {
+    TTag Tag(std::string_view name) {
         return TTag(this, name, 0);
     }
 
@@ -561,7 +561,7 @@ private:
         }
     }
 
-    void Escape(const TStringBuf str) {
+    void Escape(const std::string_view str) {
         const unsigned char* i = reinterpret_cast<const unsigned char*>(str.data());
         const unsigned char* end = i + str.size();
         while (i < end) {
@@ -696,7 +696,7 @@ void TJUnitProcessor::MergeSubprocessReport() {
             continue;
         }
 
-        const TString& suiteId = suiteIdJson->GetString();
+        const std::string& suiteId = suiteIdJson->GetString();
         if (suiteId.empty()) {
             Cerr << "Invalid subprocess report format: suite has empty id" << Endl;
             continue;
@@ -720,7 +720,7 @@ void TJUnitProcessor::MergeSubprocessReport() {
                 continue;
             }
 
-            const TString& testCaseId = testCaseIdJson->GetString();
+            const std::string& testCaseId = testCaseIdJson->GetString();
             if (testCaseId.empty()) {
                 Cerr << "Invalid subprocess report format: test case has empty id" << Endl;
                 continue;

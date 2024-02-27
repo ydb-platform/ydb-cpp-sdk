@@ -35,7 +35,7 @@ namespace NYT {
         return true;
     }
 
-    bool TYson2JsonCallbacksAdapter::OnString(const TStringBuf& val) {
+    bool TYson2JsonCallbacksAdapter::OnString(const std::string_view& val) {
         WrapIfListItem();
         Impl_->OnStringScalar(val);
         return true;
@@ -79,7 +79,7 @@ namespace NYT {
         return true;
     }
 
-    bool TYson2JsonCallbacksAdapter::OnMapKey(const TStringBuf& val) {
+    bool TYson2JsonCallbacksAdapter::OnMapKey(const std::string_view& val) {
         Impl_->OnKeyedItem(val);
         return true;
     }

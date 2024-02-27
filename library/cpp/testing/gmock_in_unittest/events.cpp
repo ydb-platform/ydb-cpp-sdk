@@ -8,22 +8,22 @@
 
 void TGMockTestEventListener::OnTestPartResult(const testing::TestPartResult& result) {
     if (result.failed()) {
-        const TString message = result.message();
-        const TString summary = result.summary();
-        TStringBuilder msg;
+        const std::string message = result.message();
+        const std::string summary = result.summary();
+        TYdbStringBuilder msg;
         if (result.file_name())
-            msg << result.file_name() << TStringBuf(":");
+            msg << result.file_name() << std::string_view(":");
         if (result.line_number() != -1)
-            msg << result.line_number() << TStringBuf(":");
+            msg << result.line_number() << std::string_view(":");
         if (summary) {
             if (msg) {
-                msg << TStringBuf("\n");
+                msg << std::string_view("\n");
             }
             msg << summary;
         }
         if (message && summary != message) {
             if (msg) {
-                msg << TStringBuf("\n");
+                msg << std::string_view("\n");
             }
             msg << message;
         }

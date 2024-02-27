@@ -131,7 +131,7 @@ Y_UNIT_TEST_SUITE(EndpointElector) {
         UNIT_ASSERT_VALUES_EQUAL(removed.size(), 0);
         removed = elector.SetNewState(std::vector<TEndpointRecord>{{"One", 1}});
         UNIT_ASSERT_VALUES_EQUAL(removed.size(), 1);
-        UNIT_ASSERT_VALUES_EQUAL(removed[0], TString("Two"));
+        UNIT_ASSERT_VALUES_EQUAL(removed[0], std::string("Two"));
     }
 
     Y_UNIT_TEST(Pessimization) {
@@ -147,7 +147,7 @@ Y_UNIT_TEST_SUITE(EndpointElector) {
     Y_UNIT_TEST(Election) {
         TEndpointElectorSafe elector;
         elector.SetNewState(std::vector<TEndpointRecord>{{"Two", 2}, {"One_A", 1}, {"Three", 3}, {"One_B", 1}});
-        std::unordered_set<TString> endpoints;
+        std::unordered_set<std::string> endpoints;
         // Just to make sure no possible to get more than expected
         size_t extra_attempts = 1000;
         while (endpoints.size() != 2 || --extra_attempts) {

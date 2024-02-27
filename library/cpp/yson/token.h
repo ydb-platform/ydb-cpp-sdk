@@ -2,8 +2,6 @@
 
 #include "public.h"
 
-#include <util/generic/strbuf.h>
-
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +38,7 @@ namespace NYson {
 
     ETokenType CharToTokenType(char ch);
     char TokenTypeToChar(ETokenType type);
-    TString TokenTypeToString(ETokenType type);
+    std::string TokenTypeToString(ETokenType type);
 
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +52,7 @@ namespace NYson {
 
         TToken();
         TToken(ETokenType type);
-        explicit TToken(const TStringBuf& stringValue);
+        explicit TToken(const std::string_view& stringValue);
         explicit TToken(i64 int64Value);
         explicit TToken(ui64 int64Value);
         explicit TToken(double doubleValue);
@@ -65,7 +63,7 @@ namespace NYson {
         }
 
         bool IsEmpty() const;
-        const TStringBuf& GetStringValue() const;
+        const std::string_view& GetStringValue() const;
         i64 GetInt64Value() const;
         ui64 GetUint64Value() const;
         double GetDoubleValue() const;
@@ -79,14 +77,14 @@ namespace NYson {
 
         ETokenType Type_;
 
-        TStringBuf StringValue;
+        std::string_view StringValue;
         i64 Int64Value;
         ui64 Uint64Value;
         double DoubleValue;
         bool BooleanValue;
     };
 
-    TString ToString(const TToken& token);
+    std::string ToString(const TToken& token);
 
     ////////////////////////////////////////////////////////////////////////////////
 

@@ -12,11 +12,11 @@ namespace NYdb::NQuery {
 class TExecQueryImpl {
 public:
     static TAsyncExecuteQueryIterator StreamExecuteQuery(const std::shared_ptr<TGRpcConnectionsImpl>& connections,
-        const TDbDriverStatePtr& driverState, const TString& query, const TTxControl& txControl,
+        const TDbDriverStatePtr& driverState, const std::string& query, const TTxControl& txControl,
         const TMaybe<TParams>& params, const TExecuteQuerySettings& settings, const TMaybe<TSession>& session);
 
     static TAsyncExecuteQueryResult ExecuteQuery(const std::shared_ptr<TGRpcConnectionsImpl>& connections,
-        const TDbDriverStatePtr& driverState, const TString& query, const TTxControl& txControl,
+        const TDbDriverStatePtr& driverState, const std::string& query, const TTxControl& txControl,
         const TMaybe<TParams>& params, const TExecuteQuerySettings& settings, const TMaybe<TSession>& session);
 };
 

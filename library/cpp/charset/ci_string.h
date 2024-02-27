@@ -5,54 +5,49 @@
 #include <util/generic/string.h>
 #include <util/str_stl.h>
 
-// Same as TString but uses CASE INSENSITIVE comparator and hash. Use with care.
-class TCiString: public TString {
+// Same as std::string but uses CASE INSENSITIVE comparator and hash. Use with care.
+class TCiString: public std::string {
 public:
     TCiString() {
     }
 
-    TCiString(const TString& s)
-        : TString(s)
+    TCiString(const std::string& s)
+        : std::string(s)
     {
     }
 
-    TCiString(const TString& s, size_t pos, size_t n)
-        : TString(s, pos, n)
+    TCiString(const std::string& s, size_t pos, size_t n)
+        : std::string(s, pos, n)
     {
     }
 
     TCiString(const char* pc)
-        : TString(pc)
+        : std::string(pc)
     {
     }
 
     TCiString(const char* pc, size_t n)
-        : TString(pc, n)
+        : std::string(pc, n)
     {
     }
 
     TCiString(const char* pc, size_t pos, size_t n)
-        : TString(pc, pos, n)
+        : std::string(pc, pos, n)
     {
     }
 
     TCiString(size_t n, char c)
-        : TString(n, c)
-    {
-    }
-
-    TCiString(const TUninitialized& uninitialized)
-        : TString(uninitialized)
+        : std::string(n, c)
     {
     }
 
     TCiString(const char* b, const char* e)
-        : TString(b, e)
+        : std::string(b, e)
     {
     }
 
-    explicit TCiString(const TStringBuf& s)
-        : TString(s)
+    explicit TCiString(const std::string_view& s)
+        : std::string(s)
     {
     }
 
@@ -60,17 +55,17 @@ public:
     static int compare(const TCiString& s1, const TCiString& s2, const CodePage& cp = csYandex);
     static int compare(const char* p, const TCiString& s2, const CodePage& cp = csYandex);
     static int compare(const TCiString& s1, const char* p, const CodePage& cp = csYandex);
-    static int compare(const TStringBuf& p1, const TStringBuf& p2, const CodePage& cp = csYandex);
+    static int compare(const std::string_view& p1, const std::string_view& p2, const CodePage& cp = csYandex);
 
-    // TODO: implement properly in TString via enum ECaseSensitivity
-    static bool is_prefix(const TStringBuf& what, const TStringBuf& of, const CodePage& cp = csYandex);
-    static bool is_suffix(const TStringBuf& what, const TStringBuf& of, const CodePage& cp = csYandex);
+    // TODO: implement properly in std::string via enum ECaseSensitivity
+    static bool is_prefix(const std::string_view& what, const std::string_view& of, const CodePage& cp = csYandex);
+    static bool is_suffix(const std::string_view& what, const std::string_view& of, const CodePage& cp = csYandex);
 
-    bool StartsWith(const TStringBuf& s, const CodePage& cp = csYandex) const {
+    bool StartsWith(const std::string_view& s, const CodePage& cp = csYandex) const {
         return is_prefix(s, *this, cp);
     }
 
-    bool EndsWith(const TStringBuf& s, const CodePage& cp = csYandex) const {
+    bool EndsWith(const std::string_view& s, const CodePage& cp = csYandex) const {
         return is_suffix(s, *this, cp);
     }
 
@@ -87,12 +82,12 @@ public:
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator==(const TCiString& s, const TStringBase<TDerived2, TChar, TTraits2>& pc) {
+    friend bool operator==(const TCiString& s, const std::basic_string<TDerived2, TChar, TTraits2>& pc) {
         return TCiString::compare(s, pc) == 0;
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator==(const TStringBase<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
+    friend bool operator==(const std::basic_string<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
         return TCiString::compare(pc, s) == 0;
     }
 
@@ -109,12 +104,12 @@ public:
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator!=(const TCiString& s, const TStringBase<TDerived2, TChar, TTraits2>& pc) {
+    friend bool operator!=(const TCiString& s, const std::basic_string<TDerived2, TChar, TTraits2>& pc) {
         return TCiString::compare(s, pc) != 0;
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator!=(const TStringBase<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
+    friend bool operator!=(const std::basic_string<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
         return TCiString::compare(pc, s) != 0;
     }
 
@@ -131,12 +126,12 @@ public:
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator<(const TCiString& s, const TStringBase<TDerived2, TChar, TTraits2>& pc) {
+    friend bool operator<(const TCiString& s, const std::basic_string<TDerived2, TChar, TTraits2>& pc) {
         return TCiString::compare(s, pc) < 0;
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator<(const TStringBase<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
+    friend bool operator<(const std::basic_string<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
         return TCiString::compare(pc, s) < 0;
     }
 
@@ -153,12 +148,12 @@ public:
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator<=(const TCiString& s, const TStringBase<TDerived2, TChar, TTraits2>& pc) {
+    friend bool operator<=(const TCiString& s, const std::basic_string<TDerived2, TChar, TTraits2>& pc) {
         return TCiString::compare(s, pc) <= 0;
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator<=(const TStringBase<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
+    friend bool operator<=(const std::basic_string<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
         return TCiString::compare(pc, s) <= 0;
     }
 
@@ -175,12 +170,12 @@ public:
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator>(const TCiString& s, const TStringBase<TDerived2, TChar, TTraits2>& pc) noexcept {
+    friend bool operator>(const TCiString& s, const std::basic_string<TDerived2, TChar, TTraits2>& pc) noexcept {
         return TCiString::compare(s, pc) > 0;
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator>(const TStringBase<TDerived2, TChar, TTraits2>& pc, const TCiString& s) noexcept {
+    friend bool operator>(const std::basic_string<TDerived2, TChar, TTraits2>& pc, const TCiString& s) noexcept {
         return TCiString::compare(pc, s) > 0;
     }
 
@@ -197,12 +192,12 @@ public:
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator>=(const TCiString& s, const TStringBase<TDerived2, TChar, TTraits2>& pc) {
+    friend bool operator>=(const TCiString& s, const std::basic_string<TDerived2, TChar, TTraits2>& pc) {
         return TCiString::compare(s, pc) >= 0;
     }
 
     template <typename TDerived2, typename TTraits2>
-    friend bool operator>=(const TStringBase<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
+    friend bool operator>=(const std::basic_string<TDerived2, TChar, TTraits2>& pc, const TCiString& s) {
         return TCiString::compare(pc, s) >= 0;
     }
 
@@ -217,7 +212,7 @@ struct ci_hash {
     inline size_t operator()(const char* s) const {
         return TCiString::hashVal(s, strlen(s));
     }
-    inline size_t operator()(const TStringBuf& s) const {
+    inline size_t operator()(const std::string_view& s) const {
         return TCiString::hashVal(s.data(), s.size());
     }
 };
@@ -240,21 +235,21 @@ struct TCIHash {
 
 template <>
 struct TCIHash<const char*> {
-    inline size_t operator()(const TStringBuf& s) const {
+    inline size_t operator()(const std::string_view& s) const {
         return TCiString::hashVal(s.data(), s.size());
     }
 };
 
 template <>
-struct TCIHash<TStringBuf> {
-    inline size_t operator()(const TStringBuf& s) const {
+struct TCIHash<std::string_view> {
+    inline size_t operator()(const std::string_view& s) const {
         return TCiString::hashVal(s.data(), s.size());
     }
 };
 
 template <>
-struct TCIHash<TString> {
-    inline size_t operator()(const TString& s) const {
+struct TCIHash<std::string> {
+    inline size_t operator()(const std::string& s) const {
         return TCiString::hashVal(s.data(), s.size());
     }
 };
@@ -270,7 +265,7 @@ struct ci_equal_to {
         return csYandex.stricmp(x, y) == 0;
     }
     // this implementation is not suitable for strings with zero characters inside, sorry
-    bool operator()(const TStringBuf& x, const TStringBuf& y) const {
+    bool operator()(const std::string_view& x, const std::string_view& y) const {
         return x.size() == y.size() && csYandex.strnicmp(x.data(), y.data(), y.size()) == 0;
     }
 };

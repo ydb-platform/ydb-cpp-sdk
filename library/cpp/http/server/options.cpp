@@ -9,27 +9,27 @@
 
 using TAddr = THttpServerOptions::TAddr;
 
-static inline TString AddrToString(const TAddr& addr) {
+static inline std::string AddrToString(const TAddr& addr) {
     return addr.Addr + ":" + ToString(addr.Port);
 }
 
-static inline TNetworkAddress ToNetworkAddr(const TString& address, ui16 port) {
-    if (address.empty() || address == TStringBuf("*")) {
+static inline TNetworkAddress ToNetworkAddr(const std::string& address, ui16 port) {
+    if (address.empty() || address == std::string_view("*")) {
         return TNetworkAddress(port);
     }
 
-    return TNetworkAddress(address, port);
+    return TNetworkAddress(address.c_str(), port);
 }
 
 void THttpServerOptions::BindAddresses(TBindAddresses& ret) const {
-    THashSet<TString> check;
+    THashSet<std::string> check;
 
     for (auto addr : BindSockaddr) {
         if (!addr.Port) {
             addr.Port = Port;
         }
 
-        const TString straddr = AddrToString(addr);
+        const std::string straddr = AddrToString(addr);
 
         if (check.find(straddr) == check.end()) {
             check.insert(straddr);
@@ -38,6 +38,6 @@ void THttpServerOptions::BindAddresses(TBindAddresses& ret) const {
     }
 
     if (ret.empty()) {
-        ret.push_back(Host ? TNetworkAddress(Host, Port) : TNetworkAddress(Port));
+        ret.push_back(!Host.empty() ? TNetworkAddress(Host.c_str(), Port) : TNetworkAddress(Port));
     }
 }

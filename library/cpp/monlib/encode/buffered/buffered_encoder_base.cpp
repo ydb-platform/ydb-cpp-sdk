@@ -1,5 +1,7 @@
 #include "buffered_encoder_base.h"
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/string/join.h>
 #include <util/string/builder.h>
 
@@ -76,7 +78,7 @@ void TBufferedEncoderBase::OnLabelsEnd() {
     }
 }
 
-void TBufferedEncoderBase::OnLabel(TStringBuf name, TStringBuf value) {
+void TBufferedEncoderBase::OnLabel(std::string_view name, std::string_view value) {
     TPooledLabels* labels;
     if (State_ == TEncoderState::EState::METRIC_LABELS) {
         labels = &Metrics_.back().Labels;
@@ -102,7 +104,7 @@ void TBufferedEncoderBase::OnLabel(ui32 name, ui32 value) {
     labels->emplace_back(LabelNamesPool_.GetByIndex(name), LabelValuesPool_.GetByIndex(value));
 }
 
-std::pair<ui32, ui32> TBufferedEncoderBase::PrepareLabel(TStringBuf name, TStringBuf value) {
+std::pair<ui32, ui32> TBufferedEncoderBase::PrepareLabel(std::string_view name, std::string_view value) {
     auto nameLabel = LabelNamesPool_.PutIfAbsent(name);
     auto valueLabel = LabelValuesPool_.PutIfAbsent(value);
     return std::make_pair(nameLabel->Index, valueLabel->Index);
@@ -144,10 +146,10 @@ void TBufferedEncoderBase::OnLogHistogram(TInstant time, TLogHistogramSnapshotPt
     metric.TimeSeries.Add(time, s.Get());
 }
 
-TString TBufferedEncoderBase::FormatLabels(const TPooledLabels& labels) const {
-    auto formattedLabels = std::vector<TString>(labels.size() + CommonLabels_.size());
+std::string TBufferedEncoderBase::FormatLabels(const TPooledLabels& labels) const {
+    auto formattedLabels = std::vector<std::string>(labels.size() + CommonLabels_.size());
     auto addLabel = [&](const TPooledLabel& l) {
-        auto formattedLabel = TStringBuilder() << LabelNamesPool_.Get(l.Key) << '=' << LabelValuesPool_.Get(l.Value);
+        auto formattedLabel = NUtils::TYdbStringBuilder() << LabelNamesPool_.Get(l.Key) << '=' << LabelValuesPool_.Get(l.Value);
         formattedLabels.push_back(std::move(formattedLabel));
     };
 
@@ -164,7 +166,7 @@ TString TBufferedEncoderBase::FormatLabels(const TPooledLabels& labels) const {
     }
     Sort(formattedLabels);
 
-    return TStringBuilder() << "{" <<  JoinSeq(", ", formattedLabels) << "}";
+    return NUtils::TYdbStringBuilder() << "{" <<  JoinSeq(", ", formattedLabels) << "}";
 }
 
 } // namespace NMonitoring

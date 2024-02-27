@@ -32,13 +32,13 @@ namespace {
         "\xd1\x80\xd1\x81\xd1\x82\xd1\x83\xd1\x84\xd1\x85\xd1\x86\xd1\x87"
         "\xd1\x88\xd1\x89\xd1\x8a\xd1\x8b\xd1\x8c\xd1\x8d\xd1\x8e\xd1\x8f";
 
-    TString CreateYandexText() {
+    std::string CreateYandexText() {
         const int len = 256;
         char text[len] = {0};
         for (int i = 0; i < len; ++i) {
             text[i] = static_cast<char>(i);
         }
-        return TString(text, len);
+        return std::string(text, len);
     }
 
     TUtf16String CreateUnicodeText() {
@@ -68,7 +68,7 @@ namespace {
         return TUtf16String(text, len);
     }
 
-    TString CreateUTF8Text() {
+    std::string CreateUTF8Text() {
         char text[] = {
             '\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x0a', '\x0b', '\x0c', '\x0d', '\x0e', '\x0f',
             '\x10', '\x11', '\x12', '\x13', '\x14', '\x15', '\x16', '\x17', '\x18', '\x19', '\x1a', '\x1b', '\x1c', '\x1d', '\x1e', '\x1f',
@@ -95,12 +95,12 @@ namespace {
             '\xd0', '\xbf', '\xd1', '\x80', '\xd1', '\x81', '\xd1', '\x82', '\xd1', '\x83', '\xd1', '\x84', '\xd1', '\x85', '\xd1', '\x86',
             '\xd1', '\x87', '\xd1', '\x88', '\xd1', '\x89', '\xd1', '\x8a', '\xd1', '\x8b', '\xd1', '\x8c', '\xd1', '\x8d', '\xd1', '\x8e',
             '\xd1', '\x8f'};
-        return TString(text, Y_ARRAY_SIZE(text));
+        return std::string(text, Y_ARRAY_SIZE(text));
     }
 
     //! use this function to dump UTF8 text into a file in case of any changes
     //    void DumpUTF8Text() {
-    //        TString s = WideToUTF8(UnicodeText);
+    //        std::string s = WideToUTF8(UnicodeText);
     //        std::ofstream f("utf8.txt");
     //        f << std::hex;
     //        for (int i = 0; i < (int)s.size(); ++i) {
@@ -117,9 +117,9 @@ namespace {
 class TConversionTest: public TTestBase {
 private:
     //! @note every of the text can have zeros in the middle
-    const TString YandexText;
+    const std::string YandexText;
     const TUtf16String UnicodeText;
-    const TString UTF8Text;
+    const std::string UTF8Text;
 
 private:
     UNIT_TEST_SUITE(TConversionTest);
@@ -163,7 +163,7 @@ UNIT_TEST_SUITE_REGISTRATION(TConversionTest);
                                                                                                                                       \
         /* convert wchar32 to char */                                                                                                 \
         TTempBuf tmpbuf2(s4buf.length() * 4);                                                                                         \
-        const TStringBuf s1buf = NDetail::NBaseOps::Recode(s4buf, tmpbuf2.Data(), enc);                                               \
+        const std::string_view s1buf = NDetail::NBaseOps::Recode(s4buf, tmpbuf2.Data(), enc);                                               \
                                                                                                                                       \
         /* convert wchar32 to wchar16 */                                                                                              \
         const TUtf16String wstr2 = UTF32ToWide(s4buf.data(), s4buf.length());                                                         \
@@ -185,7 +185,7 @@ void TConversionTest::TestCharToWide() {
 }
 
 void TConversionTest::TestWideToChar() {
-    TString s = WideToChar(UnicodeText, CODES_YANDEX);
+    std::string s = WideToChar(UnicodeText, CODES_YANDEX);
 
     UNIT_ASSERT(s.size() == 256);
     UNIT_ASSERT(s.size() == YandexText.size());
@@ -201,7 +201,7 @@ static void TestSurrogates(const char* str, const wchar16* wide, size_t wideSize
     UNIT_ASSERT(w.size() == wideSize);
     UNIT_ASSERT(!memcmp(w.c_str(), wide, wideSize));
 
-    TString s = WideToChar(w, enc);
+    std::string s = WideToChar(w, enc);
 
     UNIT_ASSERT(s == str);
 }
@@ -220,7 +220,7 @@ void TConversionTest::TestYandexEncoding() {
         const char* yandexNonBMP2 = "ab?n";
         UNIT_ASSERT(yandexNonBMP2 == WideToChar(wNonBMPDummy2, Y_ARRAY_SIZE(wNonBMPDummy2), CODES_YANDEX));
 
-        TString temp;
+        std::string temp;
         temp.resize(Y_ARRAY_SIZE(wNonBMPDummy2));
         size_t read = 0;
         size_t written = 0;
@@ -232,9 +232,9 @@ void TConversionTest::TestYandexEncoding() {
 }
 
 void TConversionTest::TestRecodeIntoString() {
-    TString sYandex(UnicodeText.size() * 4, 'x');
+    std::string sYandex(UnicodeText.size() * 4, 'x');
     const char* sdata = sYandex.data();
-    TStringBuf sres = NDetail::Recode<wchar16>(UnicodeText, sYandex, CODES_YANDEX);
+    std::string_view sres = NDetail::Recode<wchar16>(UnicodeText, sYandex, CODES_YANDEX);
     UNIT_ASSERT(sYandex == YandexText); // same content
     UNIT_ASSERT(sYandex.data() == sdata);     // reserved buffer reused
     UNIT_ASSERT(sYandex.data() == sres.data());     // same buffer
@@ -250,7 +250,7 @@ void TConversionTest::TestRecodeIntoString() {
     UNIT_ASSERT(sUnicode.data() == wres.data());      // same buffer
     UNIT_ASSERT(sUnicode.size() == wres.size());      // same size
 
-    TString sUtf8 = " ";
+    std::string sUtf8 = " ";
     size_t scap = sUtf8.capacity();
     sres = NDetail::Recode<wchar16>(UnicodeText, sUtf8, CODES_UTF8);
     UNIT_ASSERT(sUtf8 == UTF8Text);       // same content
@@ -271,8 +271,8 @@ void TConversionTest::TestRecodeIntoString() {
     UNIT_ASSERT(sUnicode.size() == wres.size());      // same content
 }
 
-static TString GenerateJunk(size_t seed) {
-    TString res;
+static std::string GenerateJunk(size_t seed) {
+    std::string res;
     size_t hash = NumericHash(seed);
     size_t size = hash % 1024;
     res.reserve(size);
@@ -283,7 +283,7 @@ static TString GenerateJunk(size_t seed) {
 
 void TConversionTest::TestRecodeAppend() {
     {
-        TString s1, s2;
+        std::string s1, s2;
         NDetail::RecodeAppend<wchar16>(TUtf16String(), s1, CODES_YANDEX);
         UNIT_ASSERT(s1.empty());
 
@@ -312,7 +312,7 @@ void TConversionTest::TestRecodeAppend() {
 
     {
         TUtf16String s1, s2;
-        NDetail::RecodeAppend<char>(TString(), s1, CODES_YANDEX);
+        NDetail::RecodeAppend<char>(std::string(), s1, CODES_YANDEX);
         UNIT_ASSERT(s1.empty());
 
         NDetail::RecodeAppend<char>(YandexText, s1, CODES_WIN);
@@ -323,7 +323,7 @@ void TConversionTest::TestRecodeAppend() {
         s2 += CharToWide(YandexText, CODES_YANDEX);
         UNIT_ASSERT_EQUAL(s1, s2);
 
-        NDetail::RecodeAppend<char>(TString(), s1, CODES_YANDEX);
+        NDetail::RecodeAppend<char>(std::string(), s1, CODES_YANDEX);
         UNIT_ASSERT_EQUAL(s1, s2);
 
         NDetail::RecodeAppend<char>(UTF8Text, s1, CODES_UTF8);
@@ -331,7 +331,7 @@ void TConversionTest::TestRecodeAppend() {
         UNIT_ASSERT_EQUAL(s1, s2);
 
         for (size_t i = 0; i < 100; ++i) {
-            TString junk = GenerateJunk(i);
+            std::string junk = GenerateJunk(i);
             NDetail::RecodeAppend<char>(junk, s1, CODES_YANDEX);
             s2 += CharToWide(junk, CODES_YANDEX);
             UNIT_ASSERT_EQUAL(s1, s2);

@@ -28,16 +28,16 @@ Y_UNIT_TEST_SUITE(ColorizerTest) {
     Y_UNIT_TEST(PrintAnsi) {
         UNIT_ASSERT_STRINGS_EQUAL(EscapeC(ToString(NColorizer::BLUE)), "\\x1B[0m\\x1B[0;34m");
         {
-            TString str;
-            TStringOutput sink{str};
+            std::string str;
+            std::stringOutput sink{str};
 
             sink << NColorizer::BLUE << "foo!" << NColorizer::RESET;
 
-            UNIT_ASSERT_STRINGS_EQUAL(EscapeC(str), "foo!");  // TStringOutput is not tty
+            UNIT_ASSERT_STRINGS_EQUAL(EscapeC(str), "foo!");  // std::stringOutput is not tty
         }
         {
-            TString str;
-            TStringOutput sink{str};
+            std::string str;
+            std::stringOutput sink{str};
 
             // Enable this for test purposes. If you're making output of the `AutoColors` constant and this
             // test does not compile, you're free to remove it.
@@ -45,7 +45,7 @@ Y_UNIT_TEST_SUITE(ColorizerTest) {
 
             sink << NColorizer::BLUE << "foo!" << NColorizer::RESET;
 
-            UNIT_ASSERT_STRINGS_EQUAL(EscapeC(str), "\\x1B[0m\\x1B[0;34mfoo!\\x1B[0m");  // TStringOutput is not tty
+            UNIT_ASSERT_STRINGS_EQUAL(EscapeC(str), "\\x1B[0m\\x1B[0;34mfoo!\\x1B[0m");  // std::stringOutput is not tty
         }
     }
 

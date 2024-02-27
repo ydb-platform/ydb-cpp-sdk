@@ -44,11 +44,11 @@ namespace NEscJ {
         static constexpr size_t ESCAPE_C_BUFFER_SIZE = 6;
 
         template <bool asunicode, bool hasCustomSafeUnsafe>
-        static inline size_t EscapeJ(ui8 c, ui8 next, char r[ESCAPE_C_BUFFER_SIZE], TStringBuf safe, TStringBuf unsafe) {
+        static inline size_t EscapeJ(ui8 c, ui8 next, char r[ESCAPE_C_BUFFER_SIZE], std::string_view safe, std::string_view unsafe) {
             // (1) Printable characters go as-is, except backslash and double quote.
             // (2) Characters \r, \n, \t and \0 ... \7 replaced by their simple escape characters (if possible).
             // (3) Otherwise, character is encoded using hexadecimal escape sequence (if possible), or octal.
-            if (hasCustomSafeUnsafe && safe.find(c) != TStringBuf::npos) {
+            if (hasCustomSafeUnsafe && safe.find(c) != std::string_view::npos) {
                 r[0] = c;
                 return 1;
             }
@@ -60,7 +60,7 @@ namespace NEscJ {
                 r[0] = '\\';
                 r[1] = '\\';
                 return 2;
-            } else if (IsPrintable(c) && (!hasCustomSafeUnsafe || unsafe.find(c) == TStringBuf::npos)) {
+            } else if (IsPrintable(c) && (!hasCustomSafeUnsafe || unsafe.find(c) == std::string_view::npos)) {
                 r[0] = c;
                 return 1;
             } else if (c == '\b') {
@@ -116,7 +116,7 @@ namespace NEscJ {
     }
 
     template <bool tounicode, bool hasCustomSafeUnsafe>
-    inline size_t EscapeJImpl(const char* str, size_t len, char* out, TStringBuf safe, TStringBuf unsafe) {
+    inline size_t EscapeJImpl(const char* str, size_t len, char* out, std::string_view safe, std::string_view unsafe) {
         char* out0 = out;
         char buffer[TEscapeUtil::ESCAPE_C_BUFFER_SIZE];
 
@@ -146,7 +146,7 @@ namespace NEscJ {
     }
 
     template <bool tounicode>
-    inline size_t EscapeJ(const char* str, size_t len, char* out, TStringBuf safe = TStringBuf(), TStringBuf unsafe = TStringBuf()) {
+    inline size_t EscapeJ(const char* str, size_t len, char* out, std::string_view safe = std::string_view(), std::string_view unsafe = std::string_view()) {
         if (Y_LIKELY(safe.empty() && unsafe.empty())) {
             return EscapeJImpl<tounicode, false>(str, len, out, safe, unsafe);
         }
@@ -154,7 +154,7 @@ namespace NEscJ {
     }
 
     template <bool quote, bool tounicode>
-    inline void EscapeJ(TStringBuf in, IOutputStream& out, TStringBuf safe = TStringBuf(), TStringBuf unsafe = TStringBuf()) {
+    inline void EscapeJ(std::string_view in, IOutputStream& out, std::string_view safe = std::string_view(), std::string_view unsafe = std::string_view()) {
         TTempBuf b(SuggestBuffer(in.size()) + 2);
 
         if (quote)
@@ -169,7 +169,7 @@ namespace NEscJ {
     }
 
     template <bool quote, bool tounicode>
-    inline void EscapeJ(TStringBuf in, TString& out, TStringBuf safe = TStringBuf(), TStringBuf unsafe = TStringBuf()) {
+    inline void EscapeJ(std::string_view in, std::string& out, std::string_view safe = std::string_view(), std::string_view unsafe = std::string_view()) {
         TTempBuf b(SuggestBuffer(in.size()) + 2);
 
         if (quote)
@@ -184,29 +184,29 @@ namespace NEscJ {
     }
 
     template <bool quote, bool tounicode>
-    inline TString EscapeJ(TStringBuf in, TStringBuf safe = TStringBuf(), TStringBuf unsafe = TStringBuf()) {
-        TString s;
+    inline std::string EscapeJ(std::string_view in, std::string_view safe = std::string_view(), std::string_view unsafe = std::string_view()) {
+        std::string s;
         EscapeJ<quote, tounicode>(in, s, safe, unsafe);
         return s;
     }
 
     // If the template parameter "tounicode" is ommited, then use the default value false
-    inline size_t EscapeJ(const char* str, size_t len, char* out, TStringBuf safe = TStringBuf(), TStringBuf unsafe = TStringBuf()) {
+    inline size_t EscapeJ(const char* str, size_t len, char* out, std::string_view safe = std::string_view(), std::string_view unsafe = std::string_view()) {
         return EscapeJ<false>(str, len, out, safe, unsafe);
     }
 
     template <bool quote>
-    inline void EscapeJ(TStringBuf in, IOutputStream& out, TStringBuf safe = TStringBuf(), TStringBuf unsafe = TStringBuf()) {
+    inline void EscapeJ(std::string_view in, IOutputStream& out, std::string_view safe = std::string_view(), std::string_view unsafe = std::string_view()) {
         EscapeJ<quote, false>(in, out, safe, unsafe);
     }
 
     template <bool quote>
-    inline void EscapeJ(TStringBuf in, TString& out, TStringBuf safe = TStringBuf(), TStringBuf unsafe = TStringBuf()) {
+    inline void EscapeJ(std::string_view in, std::string& out, std::string_view safe = std::string_view(), std::string_view unsafe = std::string_view()) {
         EscapeJ<quote, false>(in, out, safe, unsafe);
     }
 
     template <bool quote>
-    inline TString EscapeJ(TStringBuf in, TStringBuf safe = TStringBuf(), TStringBuf unsafe = TStringBuf()) {
+    inline std::string EscapeJ(std::string_view in, std::string_view safe = std::string_view(), std::string_view unsafe = std::string_view()) {
         return EscapeJ<quote, false>(in, safe, unsafe);
     }
 }

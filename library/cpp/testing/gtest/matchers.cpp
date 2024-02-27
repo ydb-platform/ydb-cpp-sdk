@@ -6,7 +6,7 @@
 #include <util/stream/file.h>
 #include <util/system/fs.h>
 
-bool NGTest::NDetail::MatchOrUpdateGolden(std::string_view actualContent, const TString& goldenFilename) {
+bool NGTest::NDetail::MatchOrUpdateGolden(std::string_view actualContent, const std::string& goldenFilename) {
     if (!GetTestParam("GTEST_UPDATE_GOLDEN").empty()) {
         Y_ENSURE(NFs::MakeDirectoryRecursive(TFsPath(goldenFilename).Parent()));
         TFile file(goldenFilename, CreateAlways);

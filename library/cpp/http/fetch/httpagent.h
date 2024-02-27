@@ -11,7 +11,6 @@
 #include <util/network/sock.h>
 #include <util/generic/scope.h>
 #include <util/generic/utility.h>
-#include <util/string/cast.h>
 
 #include "exthttpcodes.h"
 #include "sockhandler.h"

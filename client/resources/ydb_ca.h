@@ -4,6 +4,6 @@
 
 namespace NYdb {
 
-TString GetRootCertificate();
+std::string GetRootCertificate();
 
 } // namespace NYdb

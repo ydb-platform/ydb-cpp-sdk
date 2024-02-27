@@ -13,11 +13,11 @@ namespace NDetail {
 
 [[noreturn]]
 void AssertTrapImpl(
-    TStringBuf trapType,
-    TStringBuf expr,
-    TStringBuf file,
+    std::string_view trapType,
+    std::string_view expr,
+    std::string_view file,
     int line,
-    TStringBuf function);
+    std::string_view function);
 
 } // namespace NDetail
 
@@ -28,7 +28,7 @@ void AssertTrapImpl(
 #endif
 
 #define YT_ASSERT_TRAP(trapType, expr) \
-    ::NYT::NDetail::AssertTrapImpl(TStringBuf(trapType), TStringBuf(expr), __SOURCE_FILE_IMPL__.As<TStringBuf>(), __LINE__, TStringBuf(__FUNCTION__)); \
+    ::NYT::NDetail::AssertTrapImpl(std::string_view(trapType), std::string_view(expr), __SOURCE_FILE_IMPL__.As<std::string_view>(), __LINE__, std::string_view(__FUNCTION__)); \
     Y_UNREACHABLE() \
 
 #ifdef NDEBUG

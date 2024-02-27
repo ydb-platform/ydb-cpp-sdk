@@ -55,7 +55,7 @@ ERetryErrorClass GetRetryErrorClassV2(EStatus status) {
     }
 }
 
-TString IssuesSingleLineString(const NYql::TIssues& issues) {
+std::string IssuesSingleLineString(const NYql::TIssues& issues) {
     return SubstGlobalCopy(issues.ToString(), '\n', ' ');
 }
 
@@ -65,7 +65,7 @@ void Cancel(NYdbGrpc::IQueueClientContextPtr& context) {
     }
 }
 
-NYql::TIssues MakeIssueWithSubIssues(const TString& description, const NYql::TIssues& subissues) {
+NYql::TIssues MakeIssueWithSubIssues(const std::string& description, const NYql::TIssues& subissues) {
     NYql::TIssues issues;
     NYql::TIssue issue(description);
     for (const NYql::TIssue& i : subissues) {
@@ -75,34 +75,34 @@ NYql::TIssues MakeIssueWithSubIssues(const TString& description, const NYql::TIs
     return issues;
 }
 
-static TStringBuf SplitPort(TStringBuf endpoint) {
-    for (int i = endpoint.Size() - 1; i >= 0; --i) {
+static std::string_view SplitPort(std::string_view endpoint) {
+    for (int i = endpoint.size() - 1; i >= 0; --i) {
         if (endpoint[i] == ':') {
-            return endpoint.SubString(i + 1, TStringBuf::npos);
+            return endpoint.substr(i + 1, std::string_view::npos);
         }
         if (!IsDigit(endpoint[i])) {
-            return TStringBuf(); // empty
+            return std::string_view(); // empty
         }
     }
-    return TStringBuf(); // empty
+    return std::string_view(); // empty
 }
 
-TString ApplyClusterEndpoint(TStringBuf driverEndpoint, const TString& clusterDiscoveryEndpoint) {
-    const TStringBuf clusterDiscoveryPort = SplitPort(clusterDiscoveryEndpoint);
-    if (!clusterDiscoveryPort.Empty()) {
+std::string ApplyClusterEndpoint(std::string_view driverEndpoint, const std::string& clusterDiscoveryEndpoint) {
+    const std::string_view clusterDiscoveryPort = SplitPort(clusterDiscoveryEndpoint);
+    if (!clusterDiscoveryPort.empty()) {
         return clusterDiscoveryEndpoint;
     }
 
-    const TStringBuf driverPort = SplitPort(driverEndpoint);
-    if (driverPort.Empty()) {
+    const std::string_view driverPort = SplitPort(driverEndpoint);
+    if (driverPort.empty()) {
         return clusterDiscoveryEndpoint;
     }
 
-    const bool hasColon = clusterDiscoveryEndpoint.find(':') != TString::npos;
+    const bool hasColon = clusterDiscoveryEndpoint.find(':') != std::string::npos;
     if (hasColon) {
-        return TStringBuilder() << '[' << clusterDiscoveryEndpoint << "]:" << driverPort;
+        return NUtils::TYdbStringBuilder() << '[' << clusterDiscoveryEndpoint << "]:" << driverPort;
     } else {
-        return TStringBuilder() << clusterDiscoveryEndpoint << ':' << driverPort;
+        return NUtils::TYdbStringBuilder() << clusterDiscoveryEndpoint << ':' << driverPort;
     }
 }
 

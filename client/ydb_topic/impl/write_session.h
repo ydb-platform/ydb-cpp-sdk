@@ -33,10 +33,10 @@ public:
                                                   TMaybe<size_t> maxEventsCount = Nothing()) override;
     NThreading::TFuture<ui64> GetInitSeqNo() override;
 
-    void Write(TContinuationToken&& continuationToken, TStringBuf data,
+    void Write(TContinuationToken&& continuationToken, std::string_view data,
                TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) override;
 
-    void WriteEncoded(TContinuationToken&& continuationToken, TStringBuf data, ECodec codec, ui32 originalSize,
+    void WriteEncoded(TContinuationToken&& continuationToken, std::string_view data, ECodec codec, ui32 originalSize,
                TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) override;
 
     void Write(TContinuationToken&& continuationToken, TWriteMessage&& message) override;
@@ -67,7 +67,7 @@ public:
             std::shared_ptr<TGRpcConnectionsImpl> connections,
             TDbDriverStatePtr dbDriverState);
 
-    bool Write(TStringBuf data, TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing(),
+    bool Write(std::string_view data, TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing(),
                const TDuration& blockTimeout = TDuration::Max()) override;
 
     bool Write(TWriteMessage&& message, const TDuration& blockTimeout = TDuration::Max()) override;

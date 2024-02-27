@@ -5,7 +5,7 @@
 
 namespace NYdb {
 
-bool IsTokenCorrect(const TStringType& in) {
+bool IsTokenCorrect(const std::string& in) {
     for (char c : in) {
         if (!(IsAsciiAlnum(c) || IsAsciiPunct(c) || c == ' '))
             return false;
@@ -13,7 +13,7 @@ bool IsTokenCorrect(const TStringType& in) {
     return true;
 }
 
-TStringType GetAuthInfo(TDbDriverStatePtr p) {
+std::string GetAuthInfo(TDbDriverStatePtr p) {
     auto token = p->CredentialsProvider->GetAuthInfo();
     if (!IsTokenCorrect(token)) {
         throw TContractViolation("token is incorrect, illegal characters found");
@@ -21,13 +21,13 @@ TStringType GetAuthInfo(TDbDriverStatePtr p) {
     return token;
 }
 
-void SetDatabaseHeader(TCallMeta& meta, const TStringType& database) {
+void SetDatabaseHeader(TCallMeta& meta, const std::string& database) {
     // See TDbDriverStateTracker::GetDriverState to find place where we do quote non ASCII characters
     meta.Aux.push_back({YDB_DATABASE_HEADER, database});
 }
 
-TStringType CreateSDKBuildInfo() {
-    return TStringType("ydb-cpp-sdk/") + GetSdkSemver();
+std::string CreateSDKBuildInfo() {
+    return std::string("ydb-cpp-sdk/") + GetSdkSemver();
 }
 
 template<class TDerived>
@@ -265,8 +265,8 @@ void TGRpcConnectionsImpl::ScheduleCallback(
 }
 
 TDbDriverStatePtr TGRpcConnectionsImpl::GetDriverState(
-    const TMaybe<TStringType>& database,
-    const TMaybe<TStringType>& discoveryEndpoint,
+    const TMaybe<std::string>& database,
+    const TMaybe<std::string>& discoveryEndpoint,
     const TMaybe<EDiscoveryMode>& discoveryMode,
     const TMaybe<TSslCredentials>& sslCredentials,
     const TMaybe<std::shared_ptr<ICredentialsProviderFactory>>& credentialsProviderFactory

@@ -27,7 +27,7 @@ namespace NMonitoring {
         ///////////////////////////////////////////////////////////////////////
         class TDecoderSpackV1 {
         public:
-            TDecoderSpackV1(IInputStream* in, TStringBuf metricNameLabel)
+            TDecoderSpackV1(IInputStream* in, std::string_view metricNameLabel)
                 : In_(in)
                 , MetricNameLabel_(metricNameLabel)
             {
@@ -275,7 +275,7 @@ namespace NMonitoring {
 
         private:
             IInputStream* In_;
-            TString MetricNameLabel_;
+            std::string MetricNameLabel_;
             ETimePrecision TimePrecision_;
             TSpackHeader Header_;
         }; // class TDecoderSpackV1
@@ -450,7 +450,7 @@ namespace NMonitoring {
         }
     }
 
-    void DecodeSpackV1(IInputStream* in, IMetricConsumer* c, TStringBuf metricNameLabel) {
+    void DecodeSpackV1(IInputStream* in, IMetricConsumer* c, std::string_view metricNameLabel) {
         TDecoderSpackV1 decoder(in, metricNameLabel);
         decoder.Decode(c);
     }

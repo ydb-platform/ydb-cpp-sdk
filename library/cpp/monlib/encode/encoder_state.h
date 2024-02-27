@@ -2,7 +2,7 @@
 
 #include "encoder_state_enum.h"
 
-#include <util/generic/serialized_enum.h>
+#include <tools/enum_parser/enum_serialization_runtime/serialized_enum.h>
 #include <util/generic/yexception.h>
 
 
@@ -31,7 +31,7 @@ namespace NMonitoring {
             return !operator==(rhs);
         }
 
-        [[noreturn]] inline void ThrowInvalid(TStringBuf message) const {
+        [[noreturn]] inline void ThrowInvalid(std::string_view message) const {
             ythrow yexception() << "invalid encoder state: "
                                 << ToStr() << ", " << message;
         }
@@ -49,7 +49,7 @@ namespace NMonitoring {
             State_ = to;
         }
 
-        TStringBuf ToStr() const noexcept {
+        std::string_view ToStr() const noexcept {
             return NEnumSerializationRuntime::GetEnumNamesImpl<EEncoderState>().at(State_);
         }
 

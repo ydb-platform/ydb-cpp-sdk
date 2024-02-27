@@ -166,7 +166,7 @@ namespace NYson {
                 if (stateBits & 1) {          // Other = x1b
                     if (stateBits & 1 << 1) { // Other = xxx11b
                         if (state == EReadStartCase::Quote) {
-                            TStringBuf value;
+                            std::string_view value;
                             TBase::Advance(1);
                             TBase::ReadQuotedString(&value);
                             *token = TToken(value);
@@ -183,7 +183,7 @@ namespace NYson {
                                 ReadNumeric<true>(token);
                             }
                         } else if (state == EReadStartCase::String) {
-                            TStringBuf value;
+                            std::string_view value;
                             TBase::template ReadUnquotedString<true>(&value);
                             *token = TToken(value);
                         } else if (state == EReadStartCase::Percent) {
@@ -227,7 +227,7 @@ namespace NYson {
                         *token = TToken(ETokenType(stateBits >> 2));
                     } else { // BinaryString = 00b
                         Y_ASSERT((stateBits & 3) == static_cast<unsigned>(EReadStartCase::BinaryString));
-                        TStringBuf value;
+                        std::string_view value;
                         TBase::ReadBinaryString(&value);
                         *token = TToken(value);
                     }
@@ -236,7 +236,7 @@ namespace NYson {
 
             template <bool AllowFinish>
             void ReadNumeric(TToken* token) {
-                TStringBuf valueBuffer;
+                std::string_view valueBuffer;
                 ENumericResult numericResult = TBase::template ReadNumeric<AllowFinish>(&valueBuffer);
 
                 if (numericResult == ENumericResult::Double) {
@@ -253,7 +253,7 @@ namespace NYson {
                     }
                 } else if (numericResult == ENumericResult::Uint64) {
                     try {
-                        *token = TToken(FromString<ui64>(valueBuffer.SubStr(0, valueBuffer.size() - 1)));
+                        *token = TToken(FromString<ui64>(valueBuffer.substr(0, valueBuffer.size() - 1)));
                     } catch (yexception&) {
                         ythrow TYsonException() << "Error parsing uint64 literal " << valueBuffer;
                     }
@@ -266,7 +266,7 @@ namespace NYson {
 
     class TStatelessYsonLexerImplBase {
     public:
-        virtual size_t GetToken(const TStringBuf& data, TToken* token) = 0;
+        virtual size_t GetToken(const std::string_view& data, TToken* token) = 0;
 
         virtual ~TStatelessYsonLexerImplBase() {
         }
@@ -284,7 +284,7 @@ namespace NYson {
         {
         }
 
-        size_t GetToken(const TStringBuf& data, TToken* token) override {
+        size_t GetToken(const std::string_view& data, TToken* token) override {
             Lexer.SetBuffer(data.begin(), data.end());
             Lexer.GetToken(token);
             return Lexer.Begin() - data.begin();

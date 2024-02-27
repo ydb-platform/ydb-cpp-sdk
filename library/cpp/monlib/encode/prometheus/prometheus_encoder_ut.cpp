@@ -13,8 +13,8 @@ using namespace NMonitoring;
 Y_UNIT_TEST_SUITE(TPrometheusEncoderTest) {
 
     template <typename TFunc>
-    TString EncodeToString(TFunc fn) {
-        TStringStream ss;
+    std::string EncodeToString(TFunc fn) {
+        std::stringStream ss;
         IMetricEncoderPtr encoder = EncoderPrometheus(&ss);
         fn(encoder.Get());
         return ss.Str();

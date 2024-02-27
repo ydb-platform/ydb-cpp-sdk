@@ -2,12 +2,12 @@
 
 using namespace NMonitoring;
 
-IMonPage::IMonPage(const TString& path, const TString& title)
+IMonPage::IMonPage(const std::string& path, const std::string& title)
     : Path(path)
     , Title(title)
 {
-    Y_ABORT_UNLESS(!Path.StartsWith('/'));
-    Y_ABORT_UNLESS(!Path.EndsWith('/'));
+    Y_ABORT_UNLESS(!Path.starts_with('/'));
+    Y_ABORT_UNLESS(!Path.ends_with('/'));
 }
 
 void IMonPage::OutputNavBar(IOutputStream& out) {
@@ -19,13 +19,13 @@ void IMonPage::OutputNavBar(IOutputStream& out) {
 
     out << "<ol class='breadcrumb'>\n";
 
-    TString absolutePath;
+    std::string absolutePath;
     for (size_t i = 0; i < parents.size(); ++i) {
-        const TString& title = parents[i]->GetTitle();
+        const std::string& title = parents[i]->GetTitle();
         if (i == parents.size() - 1) {
             out << "<li>" << title << "</li>\n";
         } else {
-            if (!absolutePath.EndsWith('/')) {
+            if (!absolutePath.ends_with('/')) {
                 absolutePath += '/';
             }
             absolutePath += parents[i]->GetPath();

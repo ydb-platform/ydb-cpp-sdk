@@ -13,13 +13,13 @@ namespace NOperationId {
 
 using namespace NUri;
 
-static const TString QueryIdPrefix = "ydb://preparedqueryid/4?id=";
+static const std::string QueryIdPrefix = "ydb://preparedqueryid/4?id=";
 
-TString FormatPreparedQueryIdCompat(const TString& in) {
+std::string FormatPreparedQueryIdCompat(const std::string& in) {
     return QueryIdPrefix + in;
 }
 
-bool DecodePreparedQueryIdCompat(const TString& in, TString& out) {
+bool DecodePreparedQueryIdCompat(const std::string& in, std::string& out) {
     if (in.size() <= QueryIdPrefix.size()) {
         ythrow yexception() << "Unable to parse input string";
     }
@@ -30,13 +30,13 @@ bool DecodePreparedQueryIdCompat(const TString& in, TString& out) {
     return false;
 }
 
-TString ProtoToString(const Ydb::TOperationId& proto) {
+std::string ProtoToString(const Ydb::TOperationId& proto) {
     using namespace ::google::protobuf;
     const Reflection& reflection = *proto.GetReflection();
     std::vector<const FieldDescriptor*> fields;
     reflection.ListFields(proto, &fields);
     TStringStream res;
-    switch (proto.GetKind()) {
+    switch (proto.kind()) {
         case Ydb::TOperationId::OPERATION_DDL:
         case Ydb::TOperationId::OPERATION_DML:
             res << "ydb://operation";
@@ -79,9 +79,9 @@ TString ProtoToString(const Ydb::TOperationId& proto) {
                 for (int i = 0; i < size; i++) {
                     const auto& message = reflection.GetRepeatedMessage(proto, field, i);
                     const auto& data = dynamic_cast<const Ydb::TOperationId::TData&>(message);
-                    TUri::ReEncode(res, data.GetKey());
+                    TUri::ReEncode(res, data.key());
                     res << "=";
-                    TUri::ReEncode(res, data.GetValue());
+                    TUri::ReEncode(res, data.value());
                     if (i < size - 1) {
                         res << "&";
                     }
@@ -104,12 +104,12 @@ TString ProtoToString(const Ydb::TOperationId& proto) {
 }
 
 TOperationId::TOperationId() {
-    SetKind(Ydb::TOperationId::UNUSED);
+    Proto_.set_kind(Ydb::TOperationId::UNUSED);
 }
 
-TOperationId::TOperationId(const TString &string, bool allowEmpty) {
+TOperationId::TOperationId(const std::string &string, bool allowEmpty) {
     if (allowEmpty && string.empty()) {
-        SetKind(Ydb::TOperationId::UNUSED);
+        Proto_.set_kind(Ydb::TOperationId::UNUSED);
         return;
     }
 
@@ -119,7 +119,7 @@ TOperationId::TOperationId(const TString &string, bool allowEmpty) {
         ythrow yexception() << "Unable to parse input string";
     }
 
-    const TString& path = uri.PrintS(TField::FlagPath).substr(1); // start from 1 to remove first '/'
+    const std::string& path = uri.PrintS(TField::FlagPath).substr(1); // start from 1 to remove first '/'
     if (path.length() < 1) {
         ythrow yexception() << "Invalid path length";
     }
@@ -129,26 +129,30 @@ TOperationId::TOperationId(const TString &string, bool allowEmpty) {
         ythrow yexception() << "Unable to cast \"kind\" field: " << path;
     }
 
-    if (!EKind_IsValid(kind)) {
+    if (!Proto_.EKind_IsValid(kind)) {
         ythrow yexception() << "Invalid operation kind: " << kind;
     }
 
-    SetKind(static_cast<Ydb::TOperationId::EKind>(kind));
+    Proto_.set_kind(static_cast<Ydb::TOperationId::EKind>(kind));
 
-    const TString& query = uri.PrintS(TField::FlagQuery);
+    const std::string& query = uri.PrintS(TField::FlagQuery);
 
-    if (query) {
+    if (!query.empty()) {
         TCgiParameters params(query.substr(1)); // start from 1 to remove first '?'
         for (auto it : params) {
-            auto data = AddData();
-            data->SetKey(it.first);
-            data->SetValue(it.second);
-            Index_[it.first].push_back(&data->GetValue());
+            auto data = Proto_.add_data();
+            data->set_key(it.first);
+            data->set_value(it.second);
+            Index_[it.first].push_back(&data->value());
         }
     }
 }
 
-const std::vector<const TString*>& TOperationId::GetValue(const TString &key) const {
+const Ydb::TOperationId& TOperationId::GetProto() const {
+    return Proto_;
+}
+
+const std::vector<const std::string*>& TOperationId::GetValue(const std::string &key) const {
     auto it = Index_.find(key);
     if (it != Index_.end()) {
         return it->second;
@@ -156,10 +160,10 @@ const std::vector<const TString*>& TOperationId::GetValue(const TString &key) co
     ythrow yexception() << "Unable to find key: " << key;
 }
 
-TString TOperationId::GetSubKind() const {
+std::string TOperationId::GetSubKind() const {
     auto it = Index_.find("kind");
     if (it == Index_.end()) {
-        return TString();
+        return std::string();
     }
 
     if (it->second.size() != 1) {
@@ -169,26 +173,26 @@ TString TOperationId::GetSubKind() const {
     return *it->second.at(0);
 }
 
-void AddOptionalValue(Ydb::TOperationId& proto, const TString& key, const TString& value) {
-    auto data = proto.AddData();
-    data->SetKey(key);
-    data->SetValue(value);
+void AddOptionalValue(Ydb::TOperationId& proto, const std::string& key, const std::string& value) {
+    auto data = proto.add_data();
+    data->set_key(key);
+    data->set_value(value);
 }
 
-Ydb::TOperationId::EKind ParseKind(const TStringBuf value) {
-    if (value.StartsWith("export")) {
+Ydb::TOperationId::EKind ParseKind(const std::string_view value) {
+    if (value.starts_with("export")) {
         return Ydb::TOperationId::EXPORT;
     }
 
-    if (value.StartsWith("import")) {
+    if (value.starts_with("import")) {
         return Ydb::TOperationId::IMPORT;
     }
 
-    if (value.StartsWith("buildindex")) {
+    if (value.starts_with("buildindex")) {
         return Ydb::TOperationId::BUILD_INDEX;
     }
 
-    if (value.StartsWith("scriptexec")) {
+    if (value.starts_with("scriptexec")) {
         return Ydb::TOperationId::SCRIPT_EXECUTION;
     }
 

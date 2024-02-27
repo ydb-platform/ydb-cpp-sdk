@@ -6,7 +6,7 @@ namespace NYdb {
 
 using std::string;
 
-ui64 GetNodeIdFromSession(const TStringType& sessionId) {
+ui64 GetNodeIdFromSession(const std::string& sessionId) {
     if (sessionId.empty()) {
         return 0;
     }
@@ -27,7 +27,7 @@ ui64 GetNodeIdFromSession(const TStringType& sessionId) {
 }
 
 TKqpSessionCommon::TKqpSessionCommon(
-    const TStringType& sessionId, const TStringType& endpoint,
+    const std::string& sessionId, const std::string& endpoint,
     bool isOwnedBySessionPool)
     : Lock_()
     , SessionId_(sessionId)
@@ -43,7 +43,7 @@ TKqpSessionCommon::~TKqpSessionCommon() {
     Unlink();
 }
 
-const TStringType& TKqpSessionCommon::GetId() const {
+const std::string& TKqpSessionCommon::GetId() const {
     return SessionId_;
 }
 

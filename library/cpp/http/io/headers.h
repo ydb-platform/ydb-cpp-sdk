@@ -1,5 +1,7 @@
 #pragma once
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/generic/string.h>
 #include <util/generic/strbuf.h>
 #include <util/generic/deque.h>
@@ -21,18 +23,18 @@ public:
     THttpInputHeader& operator=(THttpInputHeader&&) = default;
 
     /// @param[in] header - строка вида 'параметр: значение'.
-    THttpInputHeader(TStringBuf header);
+    THttpInputHeader(std::string_view header);
     /// @param[in] name - имя параметра.
     /// @param[in] value - значение параметра.
-    THttpInputHeader(TString name, TString value);
+    THttpInputHeader(std::string name, std::string value);
 
     /// Возвращает имя параметра.
-    inline const TString& Name() const noexcept {
+    inline const std::string& Name() const noexcept {
         return Name_;
     }
 
     /// Возвращает значение параметра.
-    inline const TString& Value() const noexcept {
+    inline const std::string& Value() const noexcept {
         return Value_;
     }
 
@@ -40,13 +42,13 @@ public:
     void OutTo(IOutputStream* stream) const;
 
     /// Возвращает строку "имя параметра: значение".
-    inline TString ToString() const {
-        return Name_ + TStringBuf(": ") + Value_;
+    inline std::string ToString() const {
+        return NUtils::TYdbStringBuilder() << Name_ << ": " << Value_;
     }
 
 private:
-    TString Name_;
-    TString Value_;
+    std::string Name_;
+    std::string Value_;
 };
 
 /// Контейнер для хранения HTTP-заголовков
@@ -95,7 +97,7 @@ public:
     void AddHeader(THttpInputHeader header);
 
     template <typename ValueType>
-    void AddHeader(TString name, const ValueType& value) {
+    void AddHeader(std::string name, const ValueType& value) {
         AddHeader(THttpInputHeader(std::move(name), ToString(value)));
     }
 
@@ -105,19 +107,19 @@ public:
     void AddOrReplaceHeader(const THttpInputHeader& header);
 
     template <typename ValueType>
-    void AddOrReplaceHeader(TString name, const ValueType& value) {
+    void AddOrReplaceHeader(std::string name, const ValueType& value) {
         AddOrReplaceHeader(THttpInputHeader(std::move(name), ToString(value)));
     }
 
     // Проверяет, есть ли такой заголовок
-    bool HasHeader(TStringBuf header) const;
+    bool HasHeader(std::string_view header) const;
 
     /// Удаляет заголовок, если он есть.
-    void RemoveHeader(TStringBuf header);
+    void RemoveHeader(std::string_view header);
 
     /// Ищет заголовок по указанному имени
     /// Возвращает nullptr, если не нашел
-    const THttpInputHeader* FindHeader(TStringBuf header) const;
+    const THttpInputHeader* FindHeader(std::string_view header) const;
 
     /// Записывает все заголовки контейнера в поток.
     /// @details Каждый заголовк записывается в виде "имя параметра: значение\r\n".

@@ -41,7 +41,7 @@ namespace NMonitoring {
         }
     };
 
-    void AssertLabelsEqual(const NProto::TLabel& l, TStringBuf name, TStringBuf value) {
+    void AssertLabelsEqual(const NProto::TLabel& l, std::string_view name, std::string_view value) {
         UNIT_ASSERT_STRINGS_EQUAL(l.GetName(), name);
         UNIT_ASSERT_STRINGS_EQUAL(l.GetValue(), value);
     }
@@ -134,11 +134,11 @@ namespace NMonitoring {
         TTestData Data;
 
         Y_UNIT_TEST(Json) {
-            TString result;
+            std::string result;
             {
-                TStringOutput out(result);
+                std::stringOutput out(result);
                 auto encoder = CreateEncoder(&out, EFormat::JSON);
-                Data.Accept(TString(), TString(), *encoder);
+                Data.Accept(std::string(), std::string(), *encoder);
             }
 
             NProto::TSingleSamplesList samples;
@@ -155,7 +155,7 @@ namespace NMonitoring {
             {
                 TBufferOutput out(result);
                 auto encoder = CreateEncoder(&out, EFormat::SPACK);
-                Data.Accept(TString(), TString(), *encoder);
+                Data.Accept(std::string(), std::string(), *encoder);
             }
 
             NProto::TSingleSamplesList samples;
@@ -177,7 +177,7 @@ namespace NMonitoring {
             {
                 TBufferOutput out(result);
                 auto encoder = CreateEncoder(&out, EFormat::SPACK);
-                Data.Accept(TString(), TString(), *encoder);
+                Data.Accept(std::string(), std::string(), *encoder);
             }
 
             NProto::TSingleSamplesList samples;
@@ -197,7 +197,7 @@ namespace NMonitoring {
             {
                 TBufferOutput out(result);
                 auto encoder = CreateEncoder(&out, EFormat::SPACK);
-                Data.Accept(TString(), TString(), *encoder);
+                Data.Accept(std::string(), std::string(), *encoder);
             }
 
             NProto::TSingleSamplesList samples;
@@ -211,7 +211,7 @@ namespace NMonitoring {
         }
 
         Y_UNIT_TEST(ToJson) {
-            TString result = ToJson(Data);
+            std::string result = ToJson(Data);
 
             NProto::TSingleSamplesList samples;
             {

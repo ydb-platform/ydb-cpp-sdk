@@ -2,6 +2,8 @@
 #include <library/cpp/blockcodecs/core/common.h>
 #include <library/cpp/blockcodecs/core/register.h>
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #define ZSTD_STATIC_LINKING_ONLY
 #include <contrib/libs/zstd/include/zstd.h>
 
@@ -11,13 +13,13 @@ namespace {
     struct TZStd08Codec: public TAddLengthCodec<TZStd08Codec> {
         inline TZStd08Codec(unsigned level)
             : Level(level)
-            , MyName(TStringBuf("zstd08_") + ToString(Level))
+            , MyName(NUtils::TYdbStringBuilder() << std::string_view("zstd08_") << std::to_string(Level))
         {
         }
 
         static inline size_t CheckError(size_t ret, const char* what) {
             if (ZSTD_isError(ret)) {
-                ythrow yexception() << what << TStringBuf(" zstd error: ") << ZSTD_getErrorName(ret);
+                ythrow yexception() << what << std::string_view(" zstd error: ") << ZSTD_getErrorName(ret);
             }
 
             return ret;
@@ -39,19 +41,19 @@ namespace {
             }
         }
 
-        TStringBuf Name() const noexcept override {
+        std::string_view Name() const noexcept override {
             return MyName;
         }
 
         const unsigned Level;
-        const TString MyName;
+        const std::string MyName;
     };
 
     struct TZStd08Registrar {
         TZStd08Registrar() {
             for (int i = 1; i <= ZSTD_maxCLevel(); ++i) {
                 RegisterCodec(MakeHolder<TZStd08Codec>(i));
-                RegisterAlias("zstd_" + ToString(i), "zstd08_" + ToString(i));
+                RegisterAlias("zstd_" + std::to_string(i), "zstd08_" + std::to_string(i));
             }
         }
     };

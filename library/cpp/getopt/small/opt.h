@@ -93,7 +93,7 @@ public:
         return Arg;
     }
 
-    std::vector<TString> GetFreeArgs() const {
+    std::vector<std::string> GetFreeArgs() const {
         return NLastGetopt::TOptsParseResult(&*Opts_, GetArgC(), GetArgV()).GetFreeArgs();
     }
 

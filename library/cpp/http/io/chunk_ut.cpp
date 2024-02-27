@@ -11,14 +11,14 @@
 Y_UNIT_TEST_SUITE(TestChunkedIO) {
     static const char test_data[] = "87s6cfbsudg cuisg s igasidftasiy tfrcua6s";
 
-    TString CombString(const TString& s, size_t chunkSize) {
-        TString result;
+    std::string CombString(const std::string& s, size_t chunkSize) {
+        std::string result;
         for (size_t pos = 0; pos < s.size(); pos += 2 * chunkSize)
             result += s.substr(pos, chunkSize);
         return result;
     }
 
-    void WriteTestData(IOutputStream * stream, TString * contents) {
+    void WriteTestData(IOutputStream * stream, std::string * contents) {
         contents->clear();
         for (size_t i = 0; i < sizeof(test_data); ++i) {
             stream->Write(test_data, i);
@@ -26,7 +26,7 @@ Y_UNIT_TEST_SUITE(TestChunkedIO) {
         }
     }
 
-    void ReadInSmallChunks(IInputStream * stream, TString * contents) {
+    void ReadInSmallChunks(IInputStream * stream, std::string * contents) {
         char buf[11];
         size_t read = 0;
 
@@ -37,7 +37,7 @@ Y_UNIT_TEST_SUITE(TestChunkedIO) {
         } while (read > 0);
     }
 
-    void ReadCombed(IInputStream * stream, TString * contents, size_t chunkSize) {
+    void ReadCombed(IInputStream * stream, std::string * contents, size_t chunkSize) {
         Y_ASSERT(chunkSize < 128);
         char buf[128];
 
@@ -59,7 +59,7 @@ Y_UNIT_TEST_SUITE(TestChunkedIO) {
 
     Y_UNIT_TEST(TestChunkedIo) {
         TTempFile tmpFile(CDATA);
-        TString tmp;
+        std::string tmp;
 
         {
             TUnbufferedFileOutput fo(CDATA);
@@ -70,7 +70,7 @@ Y_UNIT_TEST_SUITE(TestChunkedIO) {
         {
             TUnbufferedFileInput fi(CDATA);
             TChunkedInput ci(&fi);
-            TString r;
+            std::string r;
 
             ReadInSmallChunks(&ci, &r);
 
@@ -80,7 +80,7 @@ Y_UNIT_TEST_SUITE(TestChunkedIO) {
         {
             TUnbufferedFileInput fi(CDATA);
             TChunkedInput ci(&fi);
-            TString r;
+            std::string r;
 
             ReadCombed(&ci, &r, 11);
 
@@ -92,7 +92,7 @@ Y_UNIT_TEST_SUITE(TestChunkedIO) {
         bool hasError = false;
 
         try {
-            TString badChunk = "10\r\nqwerty";
+            std::string badChunk = "10\r\nqwerty";
             TMemoryInput mi(badChunk.data(), badChunk.size());
             TChunkedInput ci(&mi);
             TransferData(&ci, &Cnull);

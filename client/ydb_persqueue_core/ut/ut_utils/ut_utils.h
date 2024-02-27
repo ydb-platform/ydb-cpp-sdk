@@ -16,7 +16,7 @@ class TPersQueueYdbSdkTestSetup : public ::NPersQueue::SDKTestSetup {
 
     TAdaptiveLock Lock;
 public:
-    TPersQueueYdbSdkTestSetup(const TString& testCaseName, bool start = true,
+    TPersQueueYdbSdkTestSetup(const std::string& testCaseName, bool start = true,
                               const std::vector<NKikimrServices::EServiceKikimr>& logServices = ::NPersQueue::TTestServer::LOGGED_SERVICES,
                               NActors::NLog::EPriority logPriority = NActors::NLog::PRI_DEBUG,
                               ui32 nodeCount = NKikimr::NPersQueueTests::PQ_DEFAULT_NODE_COUNT,
@@ -39,7 +39,7 @@ public:
     NYdb::TDriver& GetDriver() {
         if (!Driver) {
             NYdb::TDriverConfig cfg;
-            cfg.SetEndpoint(TStringBuilder() << "localhost:" << Server.GrpcPort);
+            cfg.SetEndpoint(TYdbStringBuilder() << "localhost:" << Server.GrpcPort);
             cfg.SetDatabase("/Root");
             cfg.SetLog(CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG));
             Driver = MakeHolder<NYdb::TDriver>(cfg);
@@ -83,8 +83,8 @@ public:
             std::shared_ptr<TPersQueueYdbSdkTestSetup> setup,
             IRetryPolicy::TPtr retryPolicy = nullptr,
             IExecutor::TPtr compressExecutor = nullptr,
-            const TString& preferredCluster = TString(),
-            const TString& sourceId = TString(),
+            const std::string& preferredCluster = std::string(),
+            const std::string& sourceId = std::string(),
             bool autoSeqNo = false
     )
         : IClientEventLoop()
@@ -407,14 +407,14 @@ struct TYdbPqWriterTestHelper {
 
     TAutoEvent MessagesWrittenToBuffer;
     ui64 SeqNo = 1;
-    TString Message = "message";
+    std::string Message = "message";
 public:
     TYdbPqWriterTestHelper(
-            const TString& name,
+            const std::string& name,
             std::shared_ptr<TLockFreeQueue<ui64>> executorQueue = nullptr,
-            const TString& preferredCluster = TString(),
+            const std::string& preferredCluster = std::string(),
             std::shared_ptr<TPersQueueYdbSdkTestSetup> setup = nullptr,
-            const TString& sourceId = TString(),
+            const std::string& sourceId = std::string(),
             bool autoSeqNo = false
     )
         : Setup(setup ? setup : std::make_shared<TPersQueueYdbSdkTestSetup>(name))
@@ -426,7 +426,7 @@ public:
                                                           autoSeqNo);
     }
 
-    NThreading::TFuture<::NPersQueue::TWriteResult> Write(bool doWait = false, const TString& message = TString()) {
+    NThreading::TFuture<::NPersQueue::TWriteResult> Write(bool doWait = false, const std::string& message = std::string()) {
         //auto f = ClientWrite(Message, SeqNo, TInstant::Now());
         auto promise = NThreading::NewPromise<::NPersQueue::TWriteResult>();
         auto log = Setup->GetLog();

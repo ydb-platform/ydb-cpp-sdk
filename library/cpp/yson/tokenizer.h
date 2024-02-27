@@ -8,16 +8,16 @@ namespace NYson {
 
     class TTokenizer {
     public:
-        explicit TTokenizer(const TStringBuf& input);
+        explicit TTokenizer(const std::string_view& input);
 
         bool ParseNext();
         const TToken& CurrentToken() const;
         ETokenType GetCurrentType() const;
-        TStringBuf GetCurrentSuffix() const;
-        const TStringBuf& CurrentInput() const;
+        std::string_view GetCurrentSuffix() const;
+        const std::string_view& CurrentInput() const;
 
     private:
-        TStringBuf Input;
+        std::string_view Input;
         TToken Token;
         TStatelessLexer Lexer;
         size_t Parsed;

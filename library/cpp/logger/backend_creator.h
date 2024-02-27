@@ -9,13 +9,13 @@
 
 class ILogBackendCreator {
 public:
-    using TFactory = NObjectFactory::TObjectFactory<ILogBackendCreator, TString>;
+    using TFactory = NObjectFactory::TObjectFactory<ILogBackendCreator, std::string>;
 
     class IInitContext {
     public:
         template<class T>
-        bool GetValue(TStringBuf name, T& var) const {
-            TString tmp;
+        bool GetValue(std::string_view name, T& var) const {
+            std::string tmp;
             if (!GetValue(name, tmp)) {
                 return false;
             }
@@ -24,14 +24,14 @@ public:
         }
 
         template<class T>
-        T GetOrElse(TStringBuf name, const T& def) const {
+        T GetOrElse(std::string_view name, const T& def) const {
             T res;
             return GetValue(name, res) ? res : def;
         }
 
         virtual ~IInitContext() = default;
-        virtual bool GetValue(TStringBuf name, TString& var) const = 0;
-        virtual std::vector<THolder<IInitContext>> GetChildren(TStringBuf name) const = 0;
+        virtual bool GetValue(std::string_view name, std::string& var) const = 0;
+        virtual std::vector<THolder<IInitContext>> GetChildren(std::string_view name) const = 0;
     };
 
 public:
@@ -50,10 +50,10 @@ private:
 
 class TLogBackendCreatorBase: public ILogBackendCreator {
 public:
-    TLogBackendCreatorBase(const TString& type);
+    TLogBackendCreatorBase(const std::string& type);
     virtual void ToJson(NJson::TJsonValue& value) const override final;
 
 protected:
     virtual void DoToJson(NJson::TJsonValue& value) const = 0;
-    TString Type;
+    std::string Type;
 };

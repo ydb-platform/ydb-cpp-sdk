@@ -14,7 +14,7 @@ public:
 
 private:
     void OnCounter(
-        const TString& labelName, const TString& labelValue,
+        const std::string& labelName, const std::string& labelValue,
         const TCounterForPtr* counter) override {
         Indent(Out_, Level_)
             << labelName << ':' << labelValue
@@ -22,7 +22,7 @@ private:
     }
 
     void OnHistogram(
-        const TString& labelName, const TString& labelValue,
+        const std::string& labelName, const std::string& labelValue,
         IHistogramSnapshotPtr snapshot, bool /*derivative*/) override {
         Indent(Out_, Level_)
             << labelName << ':' << labelValue
@@ -30,13 +30,13 @@ private:
     }
 
     void OnGroupBegin(
-        const TString& labelName, const TString& labelValue,
+        const std::string& labelName, const std::string& labelValue,
         const TDynamicCounters*) override {
         Indent(Out_, Level_++) << labelName << ':' << labelValue << " {\n";
     }
 
     void OnGroupEnd(
-        const TString&, const TString&,
+        const std::string&, const std::string&,
         const TDynamicCounters*) override {
         Indent(Out_, --Level_) << "}\n";
     }
@@ -76,7 +76,7 @@ Y_UNIT_TEST_SUITE(TDynamicCountersTest) {
         *rxCounter = 8;
         *txCounter = 9;
 
-        TStringStream ss;
+        std::stringStream ss;
         TCountersPrinter printer(&ss);
         rootGroup->Accept("root", "counters", printer);
 
@@ -113,7 +113,7 @@ Y_UNIT_TEST_SUITE(TDynamicCountersTest) {
 
         rootGroup->MergeWithSubgroup("group", "1");
 
-        TStringStream ss;
+        std::stringStream ss;
         TCountersPrinter printer(&ss);
         rootGroup->Accept("root", "counters", printer);
 
@@ -143,7 +143,7 @@ Y_UNIT_TEST_SUITE(TDynamicCountersTest) {
 
         rootGroup->ResetCounters(true);
 
-        TStringStream ss1;
+        std::stringStream ss1;
         TCountersPrinter printer1(&ss1);
         rootGroup->Accept("root", "counters", printer1);
 
@@ -160,7 +160,7 @@ Y_UNIT_TEST_SUITE(TDynamicCountersTest) {
 
         rootGroup->ResetCounters();
 
-        TStringStream ss2;
+        std::stringStream ss2;
         TCountersPrinter printer2(&ss2);
         rootGroup->Accept("root", "counters", printer2);
 
@@ -190,7 +190,7 @@ Y_UNIT_TEST_SUITE(TDynamicCountersTest) {
         rootGroup->RemoveCounter("2");
         rootGroup->RemoveCounter("5");
 
-        TStringStream ss;
+        std::stringStream ss;
         TCountersPrinter printer(&ss);
         rootGroup->Accept("root", "counters", printer);
 
@@ -213,7 +213,7 @@ Y_UNIT_TEST_SUITE(TDynamicCountersTest) {
         rootGroup->RemoveSubgroup("group", "3");
         rootGroup->RemoveSubgroup("sensor", "2");
 
-        TStringStream ss;
+        std::stringStream ss;
         TCountersPrinter printer(&ss);
         rootGroup->Accept("root", "counters", printer);
 
@@ -233,7 +233,7 @@ Y_UNIT_TEST_SUITE(TDynamicCountersTest) {
             auto h = rootGroup->GetExpiringHistogram("bar", ExplicitHistogram({1, 42}));
             h->Collect(15);
 
-            TStringStream ss;
+            std::stringStream ss;
             TCountersPrinter printer(&ss);
             rootGroup->Accept("root", "counters", printer);
             UNIT_ASSERT_STRINGS_EQUAL(ss.Str(),
@@ -243,7 +243,7 @@ Y_UNIT_TEST_SUITE(TDynamicCountersTest) {
                                       "}\n");
         }
 
-        TStringStream ss;
+        std::stringStream ss;
         TCountersPrinter printer(&ss);
         rootGroup->Accept("root", "counters", printer);
         UNIT_ASSERT_STRINGS_EQUAL(ss.Str(),
@@ -258,7 +258,7 @@ Y_UNIT_TEST_SUITE(TDynamicCountersTest) {
             TDynamicCounterPtr rootGroup{new TDynamicCounters()};
             ptr = rootGroup->GetExpiringCounter("foo");
 
-            TStringStream ss;
+            std::stringStream ss;
             TCountersPrinter printer(&ss);
             rootGroup->Accept("root", "counters", printer);
             UNIT_ASSERT_STRINGS_EQUAL(ss.Str(),
@@ -276,7 +276,7 @@ Y_UNIT_TEST_SUITE(TDynamicCountersTest) {
             h->Collect(i);
         }
 
-        TStringStream ss;
+        std::stringStream ss;
         TCountersPrinter printer(&ss);
         rootGroup->Accept("root", "counters", printer);
         UNIT_ASSERT_STRINGS_EQUAL(ss.Str(),

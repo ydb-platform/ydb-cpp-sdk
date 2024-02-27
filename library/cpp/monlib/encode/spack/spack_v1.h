@@ -107,9 +107,9 @@ namespace NMonitoring {
         ETimePrecision timePrecision,
         ECompression compression,
         EMetricsMergingMode mergingMode = EMetricsMergingMode::DEFAULT,
-        TStringBuf metricNameLabel = "name"
+        std::string_view metricNameLabel = "name"
     );
 
-    void DecodeSpackV1(IInputStream* in, IMetricConsumer* c, TStringBuf metricNameLabel = "name");
+    void DecodeSpackV1(IInputStream* in, IMetricConsumer* c, std::string_view metricNameLabel = "name");
 
 }

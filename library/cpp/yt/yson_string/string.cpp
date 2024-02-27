@@ -28,18 +28,18 @@ TYsonStringBuf::TYsonStringBuf(const TYsonString& ysonString)
     }
 }
 
-TYsonStringBuf::TYsonStringBuf(const TString& data, EYsonType type)
-    : TYsonStringBuf(TStringBuf(data), type)
+TYsonStringBuf::TYsonStringBuf(const std::string& data, EYsonType type)
+    : TYsonStringBuf(std::string_view(data), type)
 { }
 
-TYsonStringBuf::TYsonStringBuf(TStringBuf data, EYsonType type)
+TYsonStringBuf::TYsonStringBuf(std::string_view data, EYsonType type)
     : Data_(data)
     , Type_(type)
     , Null_(false)
 { }
 
 TYsonStringBuf::TYsonStringBuf(const char* data, EYsonType type)
-    : TYsonStringBuf(TStringBuf(data), type)
+    : TYsonStringBuf(std::string_view(data), type)
 { }
 
 TYsonStringBuf::operator bool() const
@@ -47,7 +47,7 @@ TYsonStringBuf::operator bool() const
     return !Null_;
 }
 
-TStringBuf TYsonStringBuf::AsStringBuf() const
+std::string_view TYsonStringBuf::AsStringBuf() const
 {
     YT_VERIFY(*this);
     return Data_;
@@ -75,7 +75,7 @@ TYsonString::TYsonString(const TYsonStringBuf& ysonStringBuf)
         auto holder = NDetail::TYsonStringHolder::Allocate(data.length());
         ::memcpy(holder->GetData(), data.data(), data.length());
         Begin_ = holder->GetData();
-        Size_ = data.Size();
+        Size_ = data.size();
         Type_ = ysonStringBuf.GetType();
         Payload_ = std::move(holder);
     } else {
@@ -86,23 +86,23 @@ TYsonString::TYsonString(const TYsonStringBuf& ysonStringBuf)
 }
 
 TYsonString::TYsonString(
-    TStringBuf data,
+    std::string_view data,
     EYsonType type)
     : TYsonString(TYsonStringBuf(data, type))
 { }
 
 #ifdef TSTRING_IS_STD_STRING
 TYsonString::TYsonString(
-    const TString& data,
+    const std::string& data,
     EYsonType type)
     : TYsonString(TYsonStringBuf(data, type))
 { }
 #else
 TYsonString::TYsonString(
-    const TString& data,
+    const std::string& data,
     EYsonType type)
 {
-    // NOTE: CoW TString implementation is assumed
+    // NOTE: CoW std::string implementation is assumed
     // Moving the payload MUST NOT invalidate its internal pointers
     Payload_ = data;
     Begin_ = data.data();
@@ -132,23 +132,23 @@ EYsonType TYsonString::GetType() const
     return Type_;
 }
 
-TStringBuf TYsonString::AsStringBuf() const
+std::string_view TYsonString::AsStringBuf() const
 {
     YT_VERIFY(*this);
-    return TStringBuf(Begin_, Begin_ + Size_);
+    return std::string_view(Begin_, Begin_ + Size_);
 }
 
-TString TYsonString::ToString() const
+std::string TYsonString::ToString() const
 {
     return Visit(
         Payload_,
-        [] (const TNullPayload&) -> TString {
+        [] (const TNullPayload&) -> std::string {
             YT_ABORT();
         },
         [&] (const TSharedRangeHolderPtr&) {
-            return TString(AsStringBuf());
+            return std::string(AsStringBuf());
         },
-        [] (const TString& payload) {
+        [] (const std::string& payload) {
             return payload;
         });
 }
@@ -163,14 +163,14 @@ TSharedRef TYsonString::ToSharedRef() const
         [&] (const TSharedRangeHolderPtr& holder) {
             return TSharedRef(Begin_, Size_, holder);
         },
-        [] (const TString& payload) {
+        [] (const std::string& payload) {
             return TSharedRef::FromString(payload);
         });
 }
 
 size_t TYsonString::ComputeHash() const
 {
-    return THash<TStringBuf>()(TStringBuf(Begin_, Begin_ + Size_));
+    return THash<std::string_view>()(std::string_view(Begin_, Begin_ + Size_));
 }
 
 void TYsonString::Save(IOutputStream* s) const
@@ -179,16 +179,16 @@ void TYsonString::Save(IOutputStream* s) const
     if (*this) {
         ::SaveMany(s, type, ToSharedRef());
     } else {
-        ::SaveMany(s, type, TString());
+        ::SaveMany(s, type, std::string());
     }
 }
 
 void TYsonString::Load(IInputStream* s)
 {
     EYsonType type;
-    TString data;
+    std::string data;
     ::LoadMany(s, type, data);
-    if (data) {
+    if (!data.empty()) {
         *this = TYsonString(data, type);
     } else {
         *this = TYsonString();
@@ -197,14 +197,14 @@ void TYsonString::Load(IInputStream* s)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TString ToString(const TYsonString& yson)
+std::string ToString(const TYsonString& yson)
 {
     return yson.ToString();
 }
 
-TString ToString(const TYsonStringBuf& yson)
+std::string ToString(const TYsonStringBuf& yson)
 {
-    return TString(yson.AsStringBuf());
+    return std::string(yson.AsStringBuf());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

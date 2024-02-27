@@ -24,12 +24,12 @@ public:
 UNIT_TEST_SUITE_REGISTRATION(TLogElementTest);
 
 void TLogElementTest::TestMoveCtor() {
-    TStringStream output;
+    std::stringStream output;
     TLog log(MakeHolder<TStreamLogBackend>(&output));
 
     THolder<TLogElement> src = MakeHolder<TLogElement>(&log);
 
-    TString message = "Hello, World!";
+    std::string message = "Hello, World!";
     (*src) << message;
 
     THolder<TLogElement> dst = MakeHolder<TLogElement>(std::move(*src));
@@ -42,12 +42,12 @@ void TLogElementTest::TestMoveCtor() {
 }
 
 void TLogElementTest::TestWith() {
-    TStringStream output;
+    std::stringStream output;
     TLog log(MakeHolder<TStreamWithContextLogBackend>(&output));
 
     THolder<TLogElement> src = MakeHolder<TLogElement>(&log);
 
-    TString message = "Hello, World!";
+    std::string message = "Hello, World!";
     (*src).With("Foo", "Bar").With("Foo", "Baz") << message;
 
     src.Destroy();

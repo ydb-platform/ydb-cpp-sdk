@@ -1,25 +1,24 @@
 #include "parser.h"
 
-#include <client/impl/ydb_internal/common/string_helpers.h>
 #include <client/ydb_types/exceptions/exceptions.h>
 
 namespace NYdb {
 
-TConnectionInfo ParseConnectionString(const TString& connectionString) {
+TConnectionInfo ParseConnectionString(const std::string& connectionString) {
     if (connectionString.length() == 0) {
         ythrow TContractViolation("Empty connection string");
     }
 
-    const TStringType databaseFlag = "/?database=";
-    const TStringType grpcProtocol = "grpc://";
-    const TStringType grpcsProtocol = "grpcs://";
-    const TStringType localhostDomain = "localhost:";
+    const std::string databaseFlag = "/?database=";
+    const std::string grpcProtocol = "grpc://";
+    const std::string grpcsProtocol = "grpcs://";
+    const std::string localhostDomain = "localhost:";
 
     TConnectionInfo connectionInfo;
-    TStringType endpoint;
+    std::string endpoint;
 
     size_t pathIndex = connectionString.find(databaseFlag);
-    if (pathIndex == TStringType::npos){
+    if (pathIndex == std::string::npos){
         pathIndex = connectionString.length();
     }
     if (pathIndex != connectionString.length()) {
@@ -29,15 +28,15 @@ TConnectionInfo ParseConnectionString(const TString& connectionString) {
         endpoint = connectionString;
     }
 
-    if (!StringStartsWith(endpoint, grpcProtocol) && !StringStartsWith(endpoint, grpcsProtocol) &&
-        !StringStartsWith(endpoint, localhostDomain))
+    if (!std::string_view{endpoint}.starts_with(grpcProtocol) && !std::string_view{endpoint}.starts_with(grpcsProtocol) &&
+        !std::string_view{endpoint}.starts_with(localhostDomain))
     {
         connectionInfo.Endpoint = endpoint;
         connectionInfo.EnableSsl = true;
-    } else if (StringStartsWith(endpoint, grpcProtocol)) {
+    } else if (std::string_view{endpoint}.starts_with(grpcProtocol)) {
         connectionInfo.Endpoint = endpoint.substr(grpcProtocol.length());
         connectionInfo.EnableSsl = false;
-    } else if (StringStartsWith(endpoint, grpcsProtocol)) {
+    } else if (std::string_view{endpoint}.starts_with(grpcsProtocol)) {
         connectionInfo.Endpoint = endpoint.substr(grpcsProtocol.length());
         connectionInfo.EnableSsl = true;
     } else {

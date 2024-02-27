@@ -14,12 +14,12 @@ namespace {
     currentCounters(nullptr);
 }
 
-TMaybe<EFormat> ParseFormat(TStringBuf str) {
-    if (str == TStringBuf("json")) {
+TMaybe<EFormat> ParseFormat(std::string_view str) {
+    if (str == std::string_view("json")) {
         return EFormat::JSON;
-    } else if (str == TStringBuf("spack")) {
+    } else if (str == std::string_view("spack")) {
         return EFormat::SPACK;
-    } else if (str == TStringBuf("prometheus")) {
+    } else if (str == std::string_view("prometheus")) {
         return EFormat::PROMETHEUS;
     } else {
         return Nothing();
@@ -31,12 +31,12 @@ void TDynamicCountersPage::Output(NMonitoring::IMonHttpRequest& request) {
         OutputCallback();
     }
 
-    TString nameLabel("sensor");
+    std::string nameLabel("sensor");
     TCountableBase::EVisibility visibility{
         TCountableBase::EVisibility::Public
     };
 
-    std::vector<TStringBuf> parts;
+    std::vector<std::string_view> parts;
     StringSplitter(request.GetPathInfo())
         .Split('/')
         .SkipEmpty()
@@ -47,8 +47,8 @@ void TDynamicCountersPage::Output(NMonitoring::IMonHttpRequest& request) {
         parts.pop_back();
     }
 
-    if (!parts.empty() && parts.back().StartsWith(TStringBuf("name_label="))) {
-        std::vector<TString> labels;
+    if (!parts.empty() && parts.back().starts_with(std::string_view("name_label="))) {
+        std::vector<std::string> labels;
         StringSplitter(parts.back()).Split('=').SkipEmpty().Collect(&labels);
         if (labels.size() == 2U) {
             nameLabel = labels.back();
@@ -56,7 +56,7 @@ void TDynamicCountersPage::Output(NMonitoring::IMonHttpRequest& request) {
         parts.pop_back();
    }
 
-    if (!parts.empty() && parts.back() == TStringBuf("private")) {
+    if (!parts.empty() && parts.back() == std::string_view("private")) {
         visibility = TCountableBase::EVisibility::Private;
         parts.pop_back();
     }
@@ -66,7 +66,7 @@ void TDynamicCountersPage::Output(NMonitoring::IMonHttpRequest& request) {
     for (const auto& escaped : parts) {
         const auto part = CGIUnescapeRet(escaped);
 
-        std::vector<TString> labels;
+        std::vector<std::string> labels;
         StringSplitter(part).Split('=').SkipEmpty().Collect(&labels);
 
         if (labels.size() != 2U)
@@ -101,7 +101,7 @@ void TDynamicCountersPage::Output(NMonitoring::IMonHttpRequest& request) {
     }
 
     auto encoder = CreateEncoder(&out, *format, nameLabel, visibility);
-    counters->Accept(TString(), TString(), *encoder);
+    counters->Accept(std::string(), std::string(), *encoder);
     out.Flush();
 }
 
@@ -127,9 +127,9 @@ void TDynamicCountersPage::BeforePre(IMonHttpRequest& request) {
             out << "Counters subgroups";
         }
         UL() {
-            currentCounters->EnumerateSubgroups([&](const TString& name, const TString& value) {
+            currentCounters->EnumerateSubgroups([&](const std::string& name, const std::string& value) {
                 LI() {
-                    TString pathPart = name + "=" + value;
+                    std::string pathPart = name + "=" + value;
                     Quote(pathPart, "");
                     out << "\n<a href='" << request.GetPath() << "/" << pathPart << "'>" << name << " " << value << "</a>";
                 }

@@ -3,14 +3,14 @@
 #include <library/cpp/testing/unittest/registar.h>
 
 struct TStrokaWeighter {
-    static size_t Weight(const TString& s) {
+    static size_t Weight(const std::string& s) {
         return s.size();
     }
 };
 
 Y_UNIT_TEST_SUITE(TCacheTest) {
     Y_UNIT_TEST(LRUListTest) {
-        typedef TLRUList<int, TString> TListType;
+        typedef TLRUList<int, std::string> TListType;
         TListType list(2);
 
         TListType::TItem x1(1, "ttt");
@@ -30,7 +30,7 @@ Y_UNIT_TEST_SUITE(TCacheTest) {
     }
 
     Y_UNIT_TEST(LRUListWeightedTest) {
-        typedef TLRUList<int, TString, size_t (*)(const TString&)> TListType;
+        typedef TLRUList<int, std::string, size_t (*)(const std::string&)> TListType;
         TListType list(7, [](auto& string) {
             return string.size();
         });
@@ -66,7 +66,7 @@ Y_UNIT_TEST_SUITE(TCacheTest) {
     }
 
     Y_UNIT_TEST(LFUListTest) {
-        typedef TLFUList<int, TString> TListType;
+        typedef TLFUList<int, std::string> TListType;
         TListType list(2);
 
         TListType::TItem x1(1, "ttt");
@@ -86,7 +86,7 @@ Y_UNIT_TEST_SUITE(TCacheTest) {
     }
 
     Y_UNIT_TEST(LWListTest) {
-        typedef TLWList<int, TString, size_t, TStrokaWeighter> TListType;
+        typedef TLWList<int, std::string, size_t, TStrokaWeighter> TListType;
         TListType list(2);
 
         TListType::TItem x1(1, "tt");
@@ -115,7 +115,7 @@ Y_UNIT_TEST_SUITE(TCacheTest) {
     }
 
     Y_UNIT_TEST(SimpleTest) {
-        typedef TLRUCache<int, TString> TCache;
+        typedef TLRUCache<int, std::string> TCache;
         TCache s(2); // size 2
         s.Insert(1, "abcd");
         UNIT_ASSERT(s.Find(1) != s.End());
@@ -142,7 +142,7 @@ Y_UNIT_TEST_SUITE(TCacheTest) {
     }
 
     Y_UNIT_TEST(LRUWithCustomSizeProviderTest) {
-        typedef TLRUCache<int, TString, TNoopDelete, size_t(*)(const TString&)> TCache;
+        typedef TLRUCache<int, std::string, TNoopDelete, size_t(*)(const std::string&)> TCache;
         TCache s(10, false, [](auto& string) { return string.size(); }); // size 10
         s.Insert(1, "abcd");
         UNIT_ASSERT(s.Find(1) != s.End());
@@ -173,7 +173,7 @@ Y_UNIT_TEST_SUITE(TCacheTest) {
     }
 
     Y_UNIT_TEST(LRUSetMaxSizeTest) {
-        typedef TLRUCache<int, TString> TCache;
+        typedef TLRUCache<int, std::string> TCache;
         TCache s(2); // size 2
         s.Insert(1, "abcd");
         s.Insert(2, "efgh");
@@ -221,7 +221,7 @@ Y_UNIT_TEST_SUITE(TCacheTest) {
     }
 
     Y_UNIT_TEST(LWSetMaxSizeTest) {
-        typedef TLWCache<int, TString, size_t, TStrokaWeighter> TCache;
+        typedef TLWCache<int, std::string, size_t, TStrokaWeighter> TCache;
         TCache s(2); // size 2
         s.Insert(1, "a");
         s.Insert(2, "aa");
@@ -269,7 +269,7 @@ Y_UNIT_TEST_SUITE(TCacheTest) {
     }
 
     Y_UNIT_TEST(LFUSetMaxSizeTest) {
-        typedef TLFUCache<int, TString> TCache;
+        typedef TLFUCache<int, std::string> TCache;
         TCache s(2); // size 2
         s.Insert(1, "abcd");
         s.Insert(2, "efgh");
@@ -312,7 +312,7 @@ Y_UNIT_TEST_SUITE(TCacheTest) {
     }
 
     Y_UNIT_TEST(MultiCacheTest) {
-        typedef TLRUCache<int, TString> TCache;
+        typedef TLRUCache<int, std::string> TCache;
         TCache s(3, true);
         UNIT_ASSERT(s.Insert(1, "abcd"));
         UNIT_ASSERT(s.Insert(1, "bcde"));
@@ -334,7 +334,7 @@ Y_UNIT_TEST_SUITE(TCacheTest) {
     int TMyDelete::count = 0;
 
     Y_UNIT_TEST(DeleterTest) {
-        typedef TLRUCache<int, TString, TMyDelete> TCache;
+        typedef TLRUCache<int, std::string, TMyDelete> TCache;
         TCache s(2);
         s.Insert(1, "123");
         s.Insert(2, "456");
@@ -347,7 +347,7 @@ Y_UNIT_TEST_SUITE(TCacheTest) {
     }
 
     Y_UNIT_TEST(PromoteOnFind) {
-        typedef TLRUCache<int, TString> TCache;
+        typedef TLRUCache<int, std::string> TCache;
         TCache s(2);
         s.Insert(1, "123");
         s.Insert(2, "456");
@@ -406,7 +406,7 @@ Y_UNIT_TEST_SUITE(TCacheTest) {
 }
 
 Y_UNIT_TEST_SUITE(TThreadSafeCacheTest) {
-    typedef TThreadSafeCache<ui32, TString, ui32> TCache;
+    typedef TThreadSafeCache<ui32, std::string, ui32> TCache;
 
     const char* VALS[] = {"abcd", "defg", "hjkl"};
 
@@ -417,7 +417,7 @@ Y_UNIT_TEST_SUITE(TThreadSafeCacheTest) {
         }
         TValue* CreateObject(ui32 i) const override {
             Creations++;
-            return new TString(VALS[i]);
+            return new std::string(VALS[i]);
         }
 
         mutable i32 Creations = 0;
@@ -425,7 +425,7 @@ Y_UNIT_TEST_SUITE(TThreadSafeCacheTest) {
 
     Y_UNIT_TEST(SimpleTest) {
         for (ui32 i = 0; i < Y_ARRAY_SIZE(VALS); ++i) {
-            const TString data = *TCache::Get<TCallbacks>(i);
+            const std::string data = *TCache::Get<TCallbacks>(i);
             UNIT_ASSERT(data == VALS[i]);
         }
     }
@@ -434,19 +434,19 @@ Y_UNIT_TEST_SUITE(TThreadSafeCacheTest) {
         TCallbacks callbacks;
         TCache cache(callbacks, 10);
 
-        cache.Insert(2, MakeAtomicShared<TString>("hj"));
-        TAtomicSharedPtr<TString> item = cache.Get(2);
+        cache.Insert(2, MakeAtomicShared<std::string>("hj"));
+        TAtomicSharedPtr<std::string> item = cache.Get(2);
 
         UNIT_ASSERT(callbacks.Creations == 0);
         UNIT_ASSERT(*item == "hj");
 
-        cache.Insert(2, MakeAtomicShared<TString>("hjk"));
+        cache.Insert(2, MakeAtomicShared<std::string>("hjk"));
         item = cache.Get(2);
 
         UNIT_ASSERT(callbacks.Creations == 0);
         UNIT_ASSERT(*item == "hj");
 
-        cache.Update(2, MakeAtomicShared<TString>("hjk"));
+        cache.Update(2, MakeAtomicShared<std::string>("hjk"));
         item = cache.Get(2);
 
         UNIT_ASSERT(callbacks.Creations == 0);
@@ -455,7 +455,7 @@ Y_UNIT_TEST_SUITE(TThreadSafeCacheTest) {
 }
 
 Y_UNIT_TEST_SUITE(TThreadSafeCacheUnsafeTest) {
-    typedef TThreadSafeCache<ui32, TString, ui32> TCache;
+    typedef TThreadSafeCache<ui32, std::string, ui32> TCache;
 
     const char* VALS[] = {"abcd", "defg", "hjkl"};
     const ui32 FAILED_IDX = 1;
@@ -469,7 +469,7 @@ Y_UNIT_TEST_SUITE(TThreadSafeCacheUnsafeTest) {
             if (i == FAILED_IDX) {
                 return nullptr;
             }
-            return new TString(VALS[i]);
+            return new std::string(VALS[i]);
         }
     };
 
@@ -477,7 +477,7 @@ Y_UNIT_TEST_SUITE(TThreadSafeCacheUnsafeTest) {
         TCallbacks callbacks;
         TCache cache(callbacks, Y_ARRAY_SIZE(VALS));
         for (ui32 i = 0; i < Y_ARRAY_SIZE(VALS); ++i) {
-            const TString* data = cache.GetUnsafe(i).Get();
+            const std::string* data = cache.GetUnsafe(i).Get();
             if (i == FAILED_IDX) {
                 UNIT_ASSERT(data == nullptr);
             } else {
@@ -488,9 +488,9 @@ Y_UNIT_TEST_SUITE(TThreadSafeCacheUnsafeTest) {
 }
 
 Y_UNIT_TEST_SUITE(TThreadSafeLRUCacheTest) {
-    typedef TThreadSafeLRUCache<size_t, TString, size_t> TCache;
+    typedef TThreadSafeLRUCache<size_t, std::string, size_t> TCache;
 
-    std::vector<TString> Values = {"zero", "one", "two", "three", "four"};
+    std::vector<std::string> Values = {"zero", "one", "two", "three", "four"};
 
     class TCallbacks: public TCache::ICallbacks {
     public:
@@ -500,7 +500,7 @@ Y_UNIT_TEST_SUITE(TThreadSafeLRUCacheTest) {
         TValue* CreateObject(size_t i) const override {
             UNIT_ASSERT(i < Values.size());
             Creations++;
-            return new TString(Values[i]);
+            return new std::string(Values[i]);
         }
 
         mutable size_t Creations = 0;
@@ -508,7 +508,7 @@ Y_UNIT_TEST_SUITE(TThreadSafeLRUCacheTest) {
 
     Y_UNIT_TEST(SimpleTest) {
         for (size_t i = 0; i < Values.size(); ++i) {
-            const TString data = *TCache::Get<TCallbacks>(i);
+            const std::string data = *TCache::Get<TCallbacks>(i);
             UNIT_ASSERT(data == Values[i]);
         }
     }
@@ -517,19 +517,19 @@ Y_UNIT_TEST_SUITE(TThreadSafeLRUCacheTest) {
         TCallbacks callbacks;
         TCache cache(callbacks, 10);
 
-        cache.Insert(2, MakeAtomicShared<TString>("hj"));
-        TAtomicSharedPtr<TString> item = cache.Get(2);
+        cache.Insert(2, MakeAtomicShared<std::string>("hj"));
+        TAtomicSharedPtr<std::string> item = cache.Get(2);
 
         UNIT_ASSERT(callbacks.Creations == 0);
         UNIT_ASSERT(*item == "hj");
 
-        cache.Insert(2, MakeAtomicShared<TString>("hjk"));
+        cache.Insert(2, MakeAtomicShared<std::string>("hjk"));
         item = cache.Get(2);
 
         UNIT_ASSERT(callbacks.Creations == 0);
         UNIT_ASSERT(*item == "hj");
 
-        cache.Update(2, MakeAtomicShared<TString>("hjk"));
+        cache.Update(2, MakeAtomicShared<std::string>("hjk"));
         item = cache.Get(2);
 
         UNIT_ASSERT(callbacks.Creations == 0);
@@ -543,13 +543,13 @@ Y_UNIT_TEST_SUITE(TThreadSafeLRUCacheTest) {
         UNIT_ASSERT_EQUAL(cache.GetMaxSize(), 3);
 
         for (size_t i = 0; i < Values.size(); ++i) {
-            TAtomicSharedPtr<TString> item = cache.Get(i);
+            TAtomicSharedPtr<std::string> item = cache.Get(i);
             UNIT_ASSERT(*item == Values[i]);
         }
         UNIT_ASSERT(callbacks.Creations == Values.size());
 
         size_t expectedCreations = Values.size();
-        TAtomicSharedPtr<TString> item;
+        TAtomicSharedPtr<std::string> item;
 
 
         item = cache.Get(4);
@@ -606,12 +606,12 @@ Y_UNIT_TEST_SUITE(TThreadSafeLRUCacheTest) {
         UNIT_ASSERT_EQUAL(cache.GetMaxSize(), 3);
 
         for (size_t i = 0; i < Values.size(); ++i) {
-            TAtomicSharedPtr<TString> item = cache.Get(i);
+            TAtomicSharedPtr<std::string> item = cache.Get(i);
             UNIT_ASSERT(*item == Values[i]);
         }
 
         size_t expectedCreations = Values.size();
-        TAtomicSharedPtr<TString> item;
+        TAtomicSharedPtr<std::string> item;
 
         item = cache.Get(4);
         UNIT_ASSERT_EQUAL(callbacks.Creations, expectedCreations);

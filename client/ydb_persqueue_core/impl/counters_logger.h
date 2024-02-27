@@ -30,7 +30,7 @@ public:
 public:
     explicit TCountersLogger(std::shared_ptr<TGRpcConnectionsImpl> connections,
                              std::vector<TCallbackContextPtr<UseMigrationProtocol>> sessions,
-                             TReaderCountersPtr counters, const TLog& log, TString prefix, TInstant startSessionTime)
+                             TReaderCountersPtr counters, const TLog& log, std::string prefix, TInstant startSessionTime)
         : Connections(std::move(connections))
         , SessionsContexts(std::move(sessions))
         , Counters(std::move(counters))
@@ -115,7 +115,7 @@ private:
 
         if (logCounters) {
             LOG_LAZY(Log, TLOG_INFO,
-                TStringBuilder() << Prefix << "Counters: {"
+                NUtils::TYdbStringBuilder() << Prefix << "Counters: {"
                 C(Errors)
                 C(CurrentSessionLifetimeMs)
                 C(BytesRead)
@@ -148,7 +148,7 @@ private:
     TReaderCountersPtr Counters;
 
     TLog Log;
-    const TString Prefix;
+    const std::string Prefix;
     const TInstant StartSessionTime;
 
     bool Stopping = false;

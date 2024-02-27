@@ -16,8 +16,8 @@ static_assert(TFormatTraits<int>::HasCustomFormatValue);
 static_assert(TFormatTraits<double>::HasCustomFormatValue);
 static_assert(TFormatTraits<void*>::HasCustomFormatValue);
 static_assert(TFormatTraits<const char*>::HasCustomFormatValue);
-static_assert(TFormatTraits<TStringBuf>::HasCustomFormatValue);
-static_assert(TFormatTraits<TString>::HasCustomFormatValue);
+static_assert(TFormatTraits<std::string_view>::HasCustomFormatValue);
+static_assert(TFormatTraits<std::string>::HasCustomFormatValue);
 static_assert(TFormatTraits<std::vector<int>>::HasCustomFormatValue);
 
 // N.B. TCompactVector<int, 1> is not buildable on Windows
@@ -60,17 +60,17 @@ TEST(TFormatTest, MultipleArgs)
 TEST(TFormatTest, Strings)
 {
     EXPECT_EQ("test", Format("%s", "test"));
-    EXPECT_EQ("test", Format("%s", TStringBuf("test")));
-    EXPECT_EQ("test", Format("%s", TString("test")));
+    EXPECT_EQ("test", Format("%s", std::string_view("test")));
+    EXPECT_EQ("test", Format("%s", std::string("test")));
 
-    EXPECT_EQ("   abc", Format("%6s", TString("abc")));
-    EXPECT_EQ("abc   ", Format("%-6s", TString("abc")));
-    EXPECT_EQ("       abc", Format("%10v", TString("abc")));
-    EXPECT_EQ("abc       ", Format("%-10v", TString("abc")));
-    EXPECT_EQ("abc", Format("%2s", TString("abc")));
-    EXPECT_EQ("abc", Format("%-2s", TString("abc")));
-    EXPECT_EQ("abc", Format("%0s", TString("abc")));
-    EXPECT_EQ("abc", Format("%-0s", TString("abc")));
+    EXPECT_EQ("   abc", Format("%6s", std::string("abc")));
+    EXPECT_EQ("abc   ", Format("%-6s", std::string("abc")));
+    EXPECT_EQ("       abc", Format("%10v", std::string("abc")));
+    EXPECT_EQ("abc       ", Format("%-10v", std::string("abc")));
+    EXPECT_EQ("abc", Format("%2s", std::string("abc")));
+    EXPECT_EQ("abc", Format("%-2s", std::string("abc")));
+    EXPECT_EQ("abc", Format("%0s", std::string("abc")));
+    EXPECT_EQ("abc", Format("%-0s", std::string("abc")));
     EXPECT_EQ(100, std::ssize(Format("%100v", "abc")));
 }
 
@@ -129,7 +129,7 @@ TEST(TFormatTest, Floats)
     EXPECT_EQ("3.14", Format("%.2v", 3.1415F));
     EXPECT_EQ("3.14", Format("%.2lf", 3.1415));
     EXPECT_EQ("3.14", Format("%.2v", 3.1415));
-    EXPECT_EQ(TString(std::to_string(std::numeric_limits<double>::max())),
+    EXPECT_EQ(std::string(std::to_string(std::numeric_limits<double>::max())),
             Format("%lF", std::numeric_limits<double>::max()));
 }
 
@@ -197,7 +197,7 @@ TEST(TFormatTest, Pointers)
 TEST(TFormatTest, LazyMultiValueFormatter)
 {
     int i = 1;
-    TString s = "hello";
+    std::string s = "hello";
     std::vector<int> range{1, 2, 3};
     auto lazyFormatter = MakeLazyMultiValueFormatter(
         "int: %v, string: %v, range: %v",

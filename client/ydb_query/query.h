@@ -105,19 +105,19 @@ class TQueryContent {
 public:
     TQueryContent() = default;
 
-    TQueryContent(const TString& text, ESyntax syntax)
+    TQueryContent(const std::string& text, ESyntax syntax)
         : Text(text)
         , Syntax(syntax)
     {}
 
-    TString Text;
+    std::string Text;
     ESyntax Syntax = ESyntax::Unspecified;
 };
 
 class TScriptExecutionOperation : public TOperation {
 public:
     struct TMetadata {
-        TString ExecutionId;
+        std::string ExecutionId;
         EExecStatus ExecStatus = EExecStatus::Unspecified;
         EExecMode ExecMode = EExecMode::Unspecified;
 
@@ -138,7 +138,7 @@ private:
 };
 
 struct TFetchScriptResultsSettings : public TRequestSettings<TFetchScriptResultsSettings> {
-    FLUENT_SETTING(TString, FetchToken);
+    FLUENT_SETTING(std::string, FetchToken);
     FLUENT_SETTING_DEFAULT(ui64, RowsLimit, 1000);
 };
 
@@ -148,13 +148,13 @@ public:
     ui64 GetResultSetIndex() const { return ResultSetIndex_; }
     const TResultSet& GetResultSet() const { return *ResultSet_; }
     TResultSet ExtractResultSet() { return std::move(*ResultSet_); }
-    const TString& GetNextFetchToken() const { return NextFetchToken_; }
+    const std::string& GetNextFetchToken() const { return NextFetchToken_; }
 
     explicit TFetchScriptResultsResult(TStatus&& status)
         : TStatus(std::move(status))
     {}
 
-    TFetchScriptResultsResult(TStatus&& status, TResultSet&& resultSet, i64 resultSetIndex, const TString& nextFetchToken)
+    TFetchScriptResultsResult(TStatus&& status, TResultSet&& resultSet, i64 resultSetIndex, const std::string& nextFetchToken)
         : TStatus(std::move(status))
         , ResultSet_(std::move(resultSet))
         , ResultSetIndex_(resultSetIndex)
@@ -164,7 +164,7 @@ public:
 private:
     TMaybe<TResultSet> ResultSet_;
     i64 ResultSetIndex_ = 0;
-    TString NextFetchToken_;
+    std::string NextFetchToken_;
 };
 
 class TExecuteQueryResult;

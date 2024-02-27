@@ -42,7 +42,7 @@ namespace {
         }
 
         // From database name to result
-        THashMap<TString, Ydb::Discovery::ListEndpointsResult> MockResults;
+        THashMap<std::string, Ydb::Discovery::ListEndpointsResult> MockResults;
     };
 
     class TMockTableService : public Ydb::Table::V1::TableService::Service {
@@ -68,7 +68,7 @@ namespace {
     };
 
     template<class TService>
-    std::unique_ptr<grpc::Server> StartGrpcServer(const TString& address, TService& service) {
+    std::unique_ptr<grpc::Server> StartGrpcServer(const std::string& address, TService& service) {
         grpc::ServerBuilder builder;
         builder.AddListeningPort(address, grpc::InsecureServerCredentials());
         builder.RegisterService(&service);
@@ -114,7 +114,7 @@ Y_UNIT_TEST_SUITE(CppGrpcClientSimpleTest) {
     }
 
     Y_UNIT_TEST(TokenCharacters) {
-        auto checkToken = [](const TString& token) {
+        auto checkToken = [](const std::string& token) {
             auto driver = TDriver(
                 TDriverConfig()
                     .SetEndpoint("localhost:100")
@@ -126,18 +126,18 @@ Y_UNIT_TEST_SUITE(CppGrpcClientSimpleTest) {
             return result.GetStatus();
         };
 
-        std::vector<TString> InvalidTokens = {
-            TString('\t'),
-            TString('\n'),
-            TString('\r')
+        std::vector<std::string> InvalidTokens = {
+            std::string('\t'),
+            std::string('\n'),
+            std::string('\r')
         };
         for (auto& t : InvalidTokens) {
             UNIT_ASSERT_EQUAL(checkToken(t), EStatus::CLIENT_UNAUTHENTICATED);
         }
 
-        std::vector<TString> ValidTokens = {
-            TString("qwerty 1234 <>,.?/:;\"'\\|}{~`!@#$%^&*()_+=-"),
-            TString()
+        std::vector<std::string> ValidTokens = {
+            std::string("qwerty 1234 <>,.?/:;\"'\\|}{~`!@#$%^&*()_+=-"),
+            std::string()
         };
         for (auto& t : ValidTokens) {
             UNIT_ASSERT_EQUAL(checkToken(t), EStatus::TRANSPORT_UNAVAILABLE);
@@ -151,7 +151,7 @@ Y_UNIT_TEST_SUITE(CppGrpcClientSimpleTest) {
         TMockTableService tableService;
         ui16 tablePort = pm.GetPort();
         auto tableServer = StartGrpcServer(
-                TStringBuilder() << "127.0.0.1:" << tablePort,
+                TYdbStringBuilder() << "127.0.0.1:" << tablePort,
                 tableService);
 
         // Start our mock discovery service
@@ -165,12 +165,12 @@ Y_UNIT_TEST_SUITE(CppGrpcClientSimpleTest) {
         }
         ui16 discoveryPort = pm.GetPort();
         auto discoveryServer = StartGrpcServer(
-                TStringBuilder() << "0.0.0.0:" << discoveryPort,
+                TYdbStringBuilder() << "0.0.0.0:" << discoveryPort,
                 discoveryService);
 
         auto driver = TDriver(
             TDriverConfig()
-                .SetEndpoint(TStringBuilder() << "localhost:" << discoveryPort)
+                .SetEndpoint(TYdbStringBuilder() << "localhost:" << discoveryPort)
                 .SetDatabase("/Root/My/DB"));
         auto client = NTable::TTableClient(driver);
         auto sessionFuture = client.CreateSession();

@@ -18,7 +18,7 @@ namespace NLastGetopt {
      */
     class TEasySetup: public TOpts {
     public:
-        TEasySetup(const TStringBuf& optstring = TStringBuf());
+        TEasySetup(const std::string_view& optstring = std::string_view());
         TEasySetup& operator()(char shortName, const char* longName, const char* help, bool required = false);
         TEasySetup& operator()(char shortName, const char* longName, const char* argName, const char* help, bool required = false);
 

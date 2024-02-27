@@ -10,15 +10,15 @@ using std::string;
 TPlainStatus::TPlainStatus(
     const NYdbGrpc::TGrpcStatus& grpcStatus,
     const string& endpoint,
-    std::multimap<TStringType, TStringType>&& metadata)
+    std::multimap<std::string, std::string>&& metadata)
     : Endpoint(endpoint)
     , Metadata(std::move(metadata))
 {
-    TStringType msg;
+    std::string msg;
     if (grpcStatus.InternalError) {
         Status = EStatus::CLIENT_INTERNAL_ERROR;
-        if (grpcStatus.Msg) {
-            msg = TStringBuilder() << "Internal client error: " << grpcStatus.Msg;
+        if (!grpcStatus.Msg.empty()) {
+            msg = NUtils::TYdbStringBuilder() << "Internal client error: " << grpcStatus.Msg;
         } else {
             msg = "Unknown internal client error";
         }
@@ -49,22 +49,22 @@ TPlainStatus::TPlainStatus(
                 Status = EStatus::CLIENT_INTERNAL_ERROR;
                 break;
         }
-        msg = TStringBuilder() << "GRpc error: (" << grpcStatus.GRpcStatusCode << "): " << grpcStatus.Msg;
+        msg = NUtils::TYdbStringBuilder() << "GRpc error: (" << grpcStatus.GRpcStatusCode << "): " << grpcStatus.Msg;
     } else {
         Status = EStatus::SUCCESS;
     }
-    if (msg) {
+    if (!msg.empty()) {
         Issues.AddIssue(NYql::TIssue(msg));
     }
     for (const auto& [name, value] : grpcStatus.ServerTrailingMetadata) {
         Metadata.emplace(
-            TStringType(name.begin(), name.end()),
-            TStringType(value.begin(), value.end())
+            std::string(name.begin(), name.end()),
+            std::string(value.begin(), value.end())
         );
     }
 }
 
-TPlainStatus TPlainStatus::Internal(const TStringType& message) {
+TPlainStatus TPlainStatus::Internal(const std::string& message) {
     return { EStatus::CLIENT_INTERNAL_ERROR, "Internal client error: " + message };
 }
 

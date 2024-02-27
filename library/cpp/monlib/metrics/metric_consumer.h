@@ -22,9 +22,9 @@ namespace NMonitoring {
 
         virtual void OnLabelsBegin() = 0;
         virtual void OnLabelsEnd() = 0;
-        virtual void OnLabel(TStringBuf name, TStringBuf value) = 0;
+        virtual void OnLabel(std::string_view name, std::string_view value) = 0;
         virtual void OnLabel(ui32 name, ui32 value);
-        virtual std::pair<ui32, ui32> PrepareLabel(TStringBuf name, TStringBuf value);
+        virtual std::pair<ui32, ui32> PrepareLabel(std::string_view name, std::string_view value);
 
         virtual void OnDouble(TInstant time, double value) = 0;
         virtual void OnInt64(TInstant time, i64 value) = 0;

@@ -2,6 +2,8 @@
 
 #include "doccodes.h"
 
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <util/charset/recode_result.h>
 #include <util/charset/unidata.h> // all wchar32 functions
 #include <util/charset/utf8.h>
@@ -10,8 +12,6 @@
 #include <util/generic/yexception.h>
 #include <util/system/yassert.h>
 #include <util/system/defaults.h>
-
-#include <cctype>
 
 struct CodePage;
 struct Recoder;
@@ -153,10 +153,10 @@ inline const CodePage* CodePageByCharset(ECharset e) {
     return ::NCodepagePrivate::TCodepagesMap::Instance().Get(e);
 }
 
-ECharset CharsetByName(TStringBuf name);
+ECharset CharsetByName(std::string_view name);
 
 // Same as CharsetByName, but throws yexception() if name is invalid
-ECharset CharsetByNameOrDie(TStringBuf name);
+ECharset CharsetByNameOrDie(std::string_view name);
 
 inline ECharset CharsetByCodePage(const CodePage* CP) {
     return CP->CPEnum;
@@ -303,18 +303,18 @@ inline void ToUpper(char* s, size_t n, const CodePage& cp = csYandex) {
         *s = cp.ToUpper(*s);
 }
 
-inline TString ToLower(TString s, const CodePage& cp, size_t pos = 0, size_t n = TString::npos) {
-    s.Transform([&cp](size_t, char c) { return cp.ToLower(c); }, pos, n);
+inline std::string ToLower(std::string s, const CodePage& cp, size_t pos = 0, size_t n = std::string::npos) {
+    NUtils::ContainerTransform(s, [&cp](size_t, char c) { return cp.ToLower(c); }, pos, n);
     return s;
 }
 
-inline TString ToUpper(TString s, const CodePage& cp, size_t pos = 0, size_t n = TString::npos) {
-    s.Transform([&cp](size_t, char c) { return cp.ToUpper(c); }, pos, n);
+inline std::string ToUpper(std::string s, const CodePage& cp, size_t pos = 0, size_t n = std::string::npos) {
+    NUtils::ContainerTransform(s, [&cp](size_t, char c) { return cp.ToUpper(c); }, pos, n);
     return s;
 }
 
-inline TString ToTitle(TString s, const CodePage& cp, size_t pos = 0, size_t n = TString::npos) {
-    s.Transform(
+inline std::string ToTitle(std::string s, const CodePage& cp, size_t pos = 0, size_t n = std::string::npos) {
+    NUtils::ContainerTransform(s,
         [pos, &cp](size_t i, char c) {
             return i == pos ? cp.ToTitle(c) : cp.ToLower(c);
         },

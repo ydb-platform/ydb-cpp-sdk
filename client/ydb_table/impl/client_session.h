@@ -28,28 +28,28 @@ class TSession::TImpl : public TKqpSessionCommon {
 #ifdef YDB_IMPL_TABLE_CLIENT_SESSION_UT
 public:
 #endif
-    TImpl(const TString& sessionId, const TString& endpoint, bool useQueryCache, ui32 queryCacheSize, bool isOwnedBySessionPool);
+    TImpl(const std::string& sessionId, const std::string& endpoint, bool useQueryCache, ui32 queryCacheSize, bool isOwnedBySessionPool);
 public:
     struct TDataQueryInfo {
-        TString QueryId;
-        ::google::protobuf::Map<TString, Ydb::Type> ParameterTypes;
+        std::string QueryId;
+        ::google::protobuf::Map<std::string, Ydb::Type> ParameterTypes;
 
         TDataQueryInfo() {}
 
-        TDataQueryInfo(const TString& queryId,
-            const ::google::protobuf::Map<TString, Ydb::Type>& parameterTypes)
+        TDataQueryInfo(const std::string& queryId,
+            const ::google::protobuf::Map<std::string, Ydb::Type>& parameterTypes)
             : QueryId(queryId)
             , ParameterTypes(parameterTypes) {}
     };
 public:
     ~TImpl() = default;
 
-    void InvalidateQueryInCache(const TString& key);
+    void InvalidateQueryInCache(const std::string& key);
     void InvalidateQueryCache();
-    TMaybe<TDataQueryInfo> GetQueryFromCache(const TString& query, bool allowMigration);
+    TMaybe<TDataQueryInfo> GetQueryFromCache(const std::string& query, bool allowMigration);
     void AddQueryToCache(const TDataQuery& query);
 
-    const TLRUCache<TString, TDataQueryInfo>& GetQueryCacheUnsafe() const;
+    const TLRUCache<std::string, TDataQueryInfo>& GetQueryCacheUnsafe() const;
 
     static TSessionInspectorFn GetSessionInspector(
         NThreading::TPromise<TCreateSessionResult>& promise,
@@ -59,7 +59,7 @@ public:
 
 private:
     bool UseQueryCache_;
-    TLRUCache<TString, TDataQueryInfo> QueryCache_;
+    TLRUCache<std::string, TDataQueryInfo> QueryCache_;
 };
 
 } // namespace NTable

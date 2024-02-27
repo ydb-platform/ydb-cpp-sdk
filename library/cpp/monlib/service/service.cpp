@@ -29,8 +29,8 @@ namespace NMonitoring {
                         out << "HTTP/1.1 400 Invalid url\r\nConnection: Close\r\n\r\n";
                         return;
                     }
-                    TString path = GetPath();
-                    if (!path.StartsWith('/')) {
+                    std::string path = GetPath();
+                    if (!path.starts_with('/')) {
                         out << "HTTP/1.1 400 Bad request\r\nConnection: Close\r\n\r\n";
                         return;
                     }
@@ -68,14 +68,14 @@ namespace NMonitoring {
                 const_cast<THttpClient*>(this)->ScanPostParams();
             return PostParams;
         }
-        TStringBuf GetPostContent() const override {
-            return TStringBuf(PostContent.Buffer().Data(), PostContent.Buffer().Size());
+        std::string_view GetPostContent() const override {
+            return std::string_view(PostContent.Buffer().Data(), PostContent.Buffer().Size());
         }
         HTTP_METHOD GetMethod() const override {
             return (HTTP_METHOD)Header.http_method;
         }
         void ScanPostParams() {
-            PostParams.Scan(TStringBuf(PostContent.Buffer().data(), PostContent.Buffer().size()));
+            PostParams.Scan(std::string_view(PostContent.Buffer().data(), PostContent.Buffer().size()));
         }
 
         const THttpHeaders& GetHeaders() const override {
@@ -86,8 +86,8 @@ namespace NMonitoring {
             return defaultHeaders;
         }
 
-        TString GetRemoteAddr() const override {
-            return RemoteAddr ? NAddr::PrintHostAndPort(*RemoteAddr) : TString();
+        std::string GetRemoteAddr() const override {
+            return RemoteAddr ? NAddr::PrintHostAndPort(*RemoteAddr).c_str() : std::string();
         }
 
     private:
@@ -133,7 +133,7 @@ namespace NMonitoring {
         const TCoHttpServer& Parent;
     };
 
-    TCoHttpServer::TCoHttpServer(TContExecutor& executor, const TString& bindAddr, TIpPort port, THandler handler)
+    TCoHttpServer::TCoHttpServer(TContExecutor& executor, const std::string& bindAddr, TIpPort port, THandler handler)
         : Executor(executor)
         , Listener(this, &executor)
         , Handler(std::move(handler))
@@ -167,7 +167,7 @@ namespace NMonitoring {
 
     void TCoHttpServer::ProcessRequest(IOutputStream& out, const IHttpRequest& request) {
         try {
-            TNetworkAddress addr(BindAddr, Port);
+            TNetworkAddress addr(BindAddr.c_str(), Port);
             TSocket sock(addr);
             TSocketOutput sock_out(sock);
             TSocketInput sock_in(sock);
@@ -222,8 +222,8 @@ namespace NMonitoring {
     void TMtHttpServer::StartOrThrow() {
         if (!Start()) {
             const auto& opts = THttpServer::Options();
-            TNetworkAddress addr = opts.Host
-                                       ? TNetworkAddress(opts.Host, opts.Port)
+            TNetworkAddress addr = !opts.Host.empty()
+                                       ? TNetworkAddress(opts.Host.c_str(), opts.Port)
                                        : TNetworkAddress(opts.Port);
             ythrow TSystemError(GetErrorCode()) << addr;
         }

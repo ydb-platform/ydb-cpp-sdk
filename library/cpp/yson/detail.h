@@ -397,7 +397,7 @@ namespace NYson {
             /// Lexer routines
 
             template <bool AllowFinish>
-            ENumericResult ReadNumeric(TStringBuf* value) {
+            ENumericResult ReadNumeric(std::string_view* value) {
                 Buffer_.clear();
                 ENumericResult result = ENumericResult::Int64;
                 while (true) {
@@ -419,18 +419,18 @@ namespace NYson {
                     TBaseStream::Advance(1);
                 }
 
-                *value = TStringBuf(Buffer_.data(), Buffer_.size());
+                *value = std::string_view(Buffer_.data(), Buffer_.size());
                 return result;
             }
 
             template <bool AllowFinish>
             double ReadNanOrInf() {
-                static const TStringBuf nanString = "nan";
-                static const TStringBuf infString = "inf";
-                static const TStringBuf plusInfString = "+inf";
-                static const TStringBuf minusInfString = "-inf";
+                static const std::string_view nanString = "nan";
+                static const std::string_view infString = "inf";
+                static const std::string_view plusInfString = "+inf";
+                static const std::string_view minusInfString = "-inf";
 
-                TStringBuf expectedString;
+                std::string_view expectedString;
                 double expectedValue;
                 char ch = TBaseStream::template GetChar<AllowFinish>();
                 switch (ch) {
@@ -458,7 +458,7 @@ namespace NYson {
                     if (expectedString[i] != ch) {
                         ythrow TYsonException()
                             << "Incorrect %-literal prefix "
-                            << "'" << expectedString.SubStr(0, i) << ch << "',"
+                            << "'" << expectedString.substr(0, i) << ch << "',"
                             << "expected " << expectedString;
                     }
                     TBaseStream::Advance(1);
@@ -468,7 +468,7 @@ namespace NYson {
                 return expectedValue;
             }
 
-            void ReadQuotedString(TStringBuf* value) {
+            void ReadQuotedString(std::string_view* value) {
                 Buffer_.clear();
                 while (true) {
                     if (TBaseStream::IsEmpty()) {
@@ -499,11 +499,11 @@ namespace NYson {
                 Buffer_.clear();
                 Buffer_.insert(Buffer_.end(), unquotedValue.data(), unquotedValue.data() + unquotedValue.size());
                 CheckMemoryLimit();
-                *value = TStringBuf(Buffer_.data(), Buffer_.size());
+                *value = std::string_view(Buffer_.data(), Buffer_.size());
             }
 
             template <bool AllowFinish>
-            void ReadUnquotedString(TStringBuf* value) {
+            void ReadUnquotedString(std::string_view* value) {
                 Buffer_.clear();
                 while (true) {
                     char ch = TBaseStream::template GetChar<AllowFinish>();
@@ -516,14 +516,14 @@ namespace NYson {
                     CheckMemoryLimit();
                     TBaseStream::Advance(1);
                 }
-                *value = TStringBuf(Buffer_.data(), Buffer_.size());
+                *value = std::string_view(Buffer_.data(), Buffer_.size());
             }
 
-            void ReadUnquotedString(TStringBuf* value) {
+            void ReadUnquotedString(std::string_view* value) {
                 return ReadUnquotedString<false>(value);
             }
 
-            void ReadBinaryString(TStringBuf* value) {
+            void ReadBinaryString(std::string_view* value) {
                 ui32 ulength = 0;
                 if (!TBaseStream::ReadVarint32(&ulength)) {
                     ythrow TYsonException() << "Error parsing varint value";
@@ -535,7 +535,7 @@ namespace NYson {
                 }
 
                 if (TBaseStream::Begin() + length <= TBaseStream::End()) {
-                    *value = TStringBuf(TBaseStream::Begin(), length);
+                    *value = std::string_view(TBaseStream::Begin(), length);
                     TBaseStream::Advance(length);
                 } else { // reading in Buffer
                     size_t needToRead = length;
@@ -552,7 +552,7 @@ namespace NYson {
                         needToRead -= readingBytes;
                         TBaseStream::Advance(readingBytes);
                     }
-                    *value = TStringBuf(Buffer_.data(), Buffer_.size());
+                    *value = std::string_view(Buffer_.data(), Buffer_.size());
                 }
             }
 
@@ -560,11 +560,11 @@ namespace NYson {
             bool ReadBoolean() {
                 Buffer_.clear();
 
-                static TStringBuf trueString = "true";
-                static TStringBuf falseString = "false";
+                static std::string_view trueString = "true";
+                static std::string_view falseString = "false";
 
                 auto throwIncorrectBoolean = [&]() {
-                    ythrow TYsonException() << "Incorrect boolean string " << TString(Buffer_.data(), Buffer_.size());
+                    ythrow TYsonException() << "Incorrect boolean string " << std::string(Buffer_.data(), Buffer_.size());
                 };
 
                 Buffer_.push_back(TBaseStream::template GetChar<AllowFinish>());

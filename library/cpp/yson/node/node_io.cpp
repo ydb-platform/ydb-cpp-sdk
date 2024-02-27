@@ -82,20 +82,20 @@ static TNode CreateEmptyNodeByType(::NYson::EYsonType type)
     return result;
 }
 
-TNode NodeFromYsonString(const TStringBuf input, ::NYson::EYsonType type)
+TNode NodeFromYsonString(const std::string_view input, ::NYson::EYsonType type)
 {
     TMemoryInput stream(input);
     return NodeFromYsonStream(&stream, type);
 }
 
-TString NodeToYsonString(const TNode& node, NYson::EYsonFormat format)
+std::string NodeToYsonString(const TNode& node, NYson::EYsonFormat format)
 {
     TStringStream stream;
     NodeToYsonStream(node, &stream, format);
     return stream.Str();
 }
 
-TString NodeToCanonicalYsonString(const TNode& node, NYson::EYsonFormat format)
+std::string NodeToCanonicalYsonString(const TNode& node, NYson::EYsonFormat format)
 {
     TStringStream stream;
     NodeToCanonicalYsonStream(node, &stream, format);
@@ -126,7 +126,7 @@ void NodeToCanonicalYsonStream(const TNode& node, IOutputStream* output, NYson::
     visitor.Visit(node);
 }
 
-bool TryNodeFromJsonString(const TStringBuf input, TNode& dst)
+bool TryNodeFromJsonString(const std::string_view input, TNode& dst)
 {
     TMemoryInput stream(input);
     TNodeBuilder builder(&dst);
@@ -137,7 +137,7 @@ bool TryNodeFromJsonString(const TStringBuf input, TNode& dst)
     return !callbacks.GetHaveErrors();
 }
 
-TNode NodeFromJsonString(const TStringBuf input)
+TNode NodeFromJsonString(const std::string_view input)
 {
     TMemoryInput stream(input);
 
@@ -151,7 +151,7 @@ TNode NodeFromJsonString(const TStringBuf input)
     return result;
 }
 
-TNode NodeFromJsonStringIterative(const TStringBuf input, ui64 maxDepth)
+TNode NodeFromJsonStringIterative(const std::string_view input, ui64 maxDepth)
 {
     TMemoryInput stream(input);
 

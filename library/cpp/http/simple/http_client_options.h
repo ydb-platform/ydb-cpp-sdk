@@ -9,18 +9,18 @@ class TSimpleHttpClientOptions {
 public:
     TSimpleHttpClientOptions() = default;
 
-    explicit TSimpleHttpClientOptions(TStringBuf url) {
-        TStringBuf scheme, host;
+    explicit TSimpleHttpClientOptions(std::string_view url) {
+        std::string_view scheme, host;
         GetSchemeHostAndPort(url, scheme, host, Port_);
-        Host_ = url.Head(scheme.size() + host.size());
+        Host_ = url.substr(0, scheme.size() + host.size());
     }
 
-    TSelf& Host(TStringBuf host) {
+    TSelf& Host(std::string_view host) {
         Host_ = host;
         return *this;
     }
 
-    const TString& Host() const noexcept {
+    const std::string& Host() const noexcept {
         return Host_;
     }
 
@@ -52,7 +52,7 @@ public:
     }
 
 private:
-    TString Host_;
+    std::string Host_;
     ui16 Port_;
     TDuration SocketTimeout_ = TDuration::Seconds(5);
     TDuration ConnectTimeout_ = TDuration::Seconds(30);

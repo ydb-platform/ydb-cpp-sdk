@@ -30,17 +30,12 @@ Y_FORCE_INLINE TRef TRef::MakeEmpty()
     return TRef(NDetail::EmptyRefData, NDetail::EmptyRefData);
 }
 
-Y_FORCE_INLINE TRef TRef::FromString(const TString& str)
+Y_FORCE_INLINE TRef TRef::FromString(const std::string& str)
 {
     return FromStringBuf(str);
 }
 
-Y_FORCE_INLINE TRef TRef::FromString(const std::string& str)
-{
-    return TRef(str.data(), str.size());
-}
-
-Y_FORCE_INLINE TRef TRef::FromStringBuf(TStringBuf strBuf)
+Y_FORCE_INLINE TRef TRef::FromStringBuf(std::string_view strBuf)
 {
     return TRef(strBuf.data(), strBuf.length());
 }
@@ -52,9 +47,9 @@ Y_FORCE_INLINE TRef TRef::FromPod(const T& data)
     return TRef(&data, sizeof (data));
 }
 
-Y_FORCE_INLINE TStringBuf TRef::ToStringBuf() const
+Y_FORCE_INLINE std::string_view TRef::ToStringBuf() const
 {
-    return TStringBuf(Begin(), Size());
+    return std::string_view(Begin(), Size());
 }
 
 Y_FORCE_INLINE TRef TRef::Slice(size_t startOffset, size_t endOffset) const
@@ -90,7 +85,7 @@ Y_FORCE_INLINE TMutableRef TMutableRef::FromPod(T& data)
     return TMutableRef(&data, sizeof (data));
 }
 
-Y_FORCE_INLINE TMutableRef TMutableRef::FromString(TString& str)
+Y_FORCE_INLINE TMutableRef TMutableRef::FromString(std::string& str)
 {
     // NB: begin() invokes CloneIfShared().
     return TMutableRef(str.begin(), str.length());
@@ -127,19 +122,19 @@ Y_FORCE_INLINE TSharedRef::operator TRef() const
 }
 
 template <class TTag>
-Y_FORCE_INLINE TSharedRef TSharedRef::FromString(TString str)
+Y_FORCE_INLINE TSharedRef TSharedRef::FromString(std::string str)
 {
     return FromString(std::move(str), GetRefCountedTypeCookie<TTag>());
 }
 
-Y_FORCE_INLINE TSharedRef TSharedRef::FromString(TString str)
+Y_FORCE_INLINE TSharedRef TSharedRef::FromString(std::string str)
 {
     return FromString<TDefaultSharedBlobTag>(std::move(str));
 }
 
-Y_FORCE_INLINE TStringBuf TSharedRef::ToStringBuf() const
+Y_FORCE_INLINE std::string_view TSharedRef::ToStringBuf() const
 {
-    return TStringBuf(Begin(), Size());
+    return std::string_view(Begin(), Size());
 }
 
 template <class TTag>

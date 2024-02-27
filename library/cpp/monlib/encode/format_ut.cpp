@@ -78,7 +78,7 @@ Y_UNIT_TEST_SUITE(TFormatTest) {
         }};
 
         for (EFormat f : formats) {
-            TString str = (TStringBuilder() << f);
+            std::string str = (TYdbStringBuilder() << f);
             EFormat g = FromString<EFormat>(str);
             UNIT_ASSERT_EQUAL(f, g);
         }
@@ -132,7 +132,7 @@ Y_UNIT_TEST_SUITE(TFormatTest) {
         }};
 
         for (ECompression a : algs) {
-            TString str = (TStringBuilder() << a);
+            std::string str = (TYdbStringBuilder() << a);
             ECompression b = FromString<ECompression>(str);
             UNIT_ASSERT_EQUAL(a, b);
         }

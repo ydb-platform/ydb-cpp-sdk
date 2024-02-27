@@ -2,6 +2,8 @@
 #include <library/cpp/blockcodecs/core/common.h>
 #include <library/cpp/blockcodecs/core/register.h>
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <contrib/libs/zstd06/common/zstd.h>
 #include <contrib/libs/zstd06/common/zstd_static.h>
 
@@ -11,13 +13,13 @@ namespace {
     struct TZStd06Codec: public TAddLengthCodec<TZStd06Codec> {
         inline TZStd06Codec(unsigned level)
             : Level(level)
-            , MyName(TStringBuf("zstd06_") + ToString(Level))
+            , MyName(NUtils::TYdbStringBuilder() << std::string_view("zstd06_") << std::to_string(Level))
         {
         }
 
         static inline size_t CheckError(size_t ret, const char* what) {
             if (ZSTD_isError(ret)) {
-                ythrow yexception() << what << TStringBuf(" zstd error: ") << ZSTD_getErrorName(ret);
+                ythrow yexception() << what << std::string_view(" zstd error: ") << ZSTD_getErrorName(ret);
             }
 
             return ret;
@@ -39,12 +41,12 @@ namespace {
             }
         }
 
-        TStringBuf Name() const noexcept override {
+        std::string_view Name() const noexcept override {
             return MyName;
         }
 
         const unsigned Level;
-        const TString MyName;
+        const std::string MyName;
     };
 
     struct TZStd06Registrar {

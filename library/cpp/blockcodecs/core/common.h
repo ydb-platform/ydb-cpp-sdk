@@ -55,8 +55,8 @@ namespace NBlockCodecs {
             return in.size();
         }
 
-        TStringBuf Name() const noexcept override {
-            return TStringBuf("null");
+        std::string_view Name() const noexcept override {
+            return std::string_view("null");
         }
     };
 
@@ -83,7 +83,7 @@ namespace NBlockCodecs {
 
             WriteUnaligned<ui64>(ptr, (ui64) in.size());
 
-            return Base()->DoCompress(!in ? TData(TStringBuf("")) : in, ptr + 1) + sizeof(*ptr);
+            return Base()->DoCompress(in.empty() ? TData(std::string_view("")) : in, ptr + 1) + sizeof(*ptr);
         }
 
         size_t Decompress(const TData& in, void* out) const override {
@@ -93,8 +93,9 @@ namespace NBlockCodecs {
 
             if (!len)
                 return 0;
-
-            Base()->DoDecompress(TData(in).Skip(sizeof(len)), out, len);
+            TData inCopy(in);
+            inCopy.remove_prefix(sizeof(len));
+            Base()->DoDecompress(inCopy, out, len);
             return len;
         }
 

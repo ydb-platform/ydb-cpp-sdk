@@ -16,7 +16,7 @@ namespace NLastGetopt {
         return r;
     }
 
-    const TOptParseResult* TOptsParseResult::FindLongOptParseResult(const TString& name, bool includeDefault) const {
+    const TOptParseResult* TOptsParseResult::FindLongOptParseResult(const std::string& name, bool includeDefault) const {
         return FindOptParseResult(&Parser_->Opts_->GetLongOption(name), includeDefault);
     }
 
@@ -29,7 +29,7 @@ namespace NLastGetopt {
         return FindOptParseResult(opt, includeDefault) != nullptr;
     }
 
-    bool TOptsParseResult::Has(const TString& name, bool includeDefault) const {
+    bool TOptsParseResult::Has(const std::string& name, bool includeDefault) const {
         return FindLongOptParseResult(name, includeDefault) != nullptr;
     }
 
@@ -63,7 +63,7 @@ namespace NLastGetopt {
         }
     }
 
-    const char* TOptsParseResult::Get(const TString& name, bool includeDefault) const {
+    const char* TOptsParseResult::Get(const std::string& name, bool includeDefault) const {
         return Get(&Parser_->Opts_->GetLongOption(name), includeDefault);
     }
 
@@ -71,7 +71,7 @@ namespace NLastGetopt {
         return Get(&Parser_->Opts_->GetCharOption(c), includeDefault);
     }
 
-    const char* TOptsParseResult::GetOrElse(const TString& name, const char* defaultValue) const {
+    const char* TOptsParseResult::GetOrElse(const std::string& name, const char* defaultValue) const {
         if (!Has(name))
             return defaultValue;
         return Get(name);
@@ -95,7 +95,7 @@ namespace NLastGetopt {
         return opts.back();
     }
 
-    TString TOptsParseResult::GetProgramName() const {
+    std::string TOptsParseResult::GetProgramName() const {
         return Parser_->ProgramName_;
     }
 
@@ -107,8 +107,8 @@ namespace NLastGetopt {
         return Parser_->Pos_;
     }
 
-    std::vector<TString> TOptsParseResult::GetFreeArgs() const {
-        std::vector<TString> v;
+    std::vector<std::string> TOptsParseResult::GetFreeArgs() const {
+        std::vector<std::string> v;
         for (size_t i = GetFreeArgsPos(); i < Parser_->Argc_; ++i) {
             v.push_back(Parser_->Argv_[i]);
         }
@@ -119,8 +119,8 @@ namespace NLastGetopt {
         return Parser_->Argc_ - GetFreeArgsPos();
     }
 
-    void FindUserTypos(const TString& arg, const TOpts* options) {
-        if (arg.size() < 4 || !arg.StartsWith("-")) {
+    void FindUserTypos(const std::string& arg, const TOpts* options) {
+        if (arg.size() < 4 || !arg.starts_with("-")) {
             return;
         }
 
@@ -152,7 +152,7 @@ namespace NLastGetopt {
             }
 
             if (options->CheckUserTypos_) {
-                for (auto arg: std::vector<TString>(argv, std::next(argv, argc))) {
+                for (auto arg: std::vector<std::string>(argv, std::next(argv, argc))) {
                     FindUserTypos(arg, options);
                 }
             }

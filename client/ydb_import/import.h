@@ -34,12 +34,12 @@ struct TImportFromS3Settings : public TOperationRequestSettings<TImportFromS3Set
     using TSelf = TImportFromS3Settings;
 
     struct TItem {
-        TString Src;
-        TString Dst;
+        std::string Src;
+        std::string Dst;
     };
 
     FLUENT_SETTING_VECTOR(TItem, Item);
-    FLUENT_SETTING_OPTIONAL(TString, Description);
+    FLUENT_SETTING_OPTIONAL(std::string, Description);
     FLUENT_SETTING_OPTIONAL(ui32, NumberOfRetries);
 };
 
@@ -65,7 +65,7 @@ private:
 struct TImportYdbDumpDataSettings : public TOperationRequestSettings<TImportYdbDumpDataSettings> {
     using TSelf = TImportYdbDumpDataSettings;
 
-    FLUENT_SETTING_VECTOR(TString, Columns);
+    FLUENT_SETTING_VECTOR(std::string, Columns);
 
     using TOperationRequestSettings::TOperationRequestSettings;
 };
@@ -86,8 +86,8 @@ public:
     NThreading::TFuture<TImportFromS3Response> ImportFromS3(const TImportFromS3Settings& settings);
 
     // ydb dump format
-    TAsyncImportDataResult ImportData(const TString& table, TString&& data, const TImportYdbDumpDataSettings& settings);
-    TAsyncImportDataResult ImportData(const TString& table, const TString& data, const TImportYdbDumpDataSettings& settings);
+    TAsyncImportDataResult ImportData(const std::string& table, std::string&& data, const TImportYdbDumpDataSettings& settings);
+    TAsyncImportDataResult ImportData(const std::string& table, const std::string& data, const TImportYdbDumpDataSettings& settings);
 
 private:
     std::shared_ptr<TImpl> Impl_;

@@ -1,15 +1,16 @@
 #pragma once
 
-#include <client/impl/ydb_internal/common/type_switcher.h>
+#include <util/system/compiler.h>
 
 #include <memory>
+#include <string>
 
 namespace NYdb {
 
 class ICredentialsProvider {
 public:
     virtual ~ICredentialsProvider() = default;
-    virtual TStringType GetAuthInfo() const = 0;
+    virtual std::string GetAuthInfo() const = 0;
     virtual bool IsValid() const = 0;
 };
 
@@ -25,17 +26,17 @@ public:
         Y_UNUSED(facility);
         return CreateProvider();
     }
-    virtual TStringType GetClientIdentity() const;
+    virtual std::string GetClientIdentity() const;
 };
 
 using TCredentialsProviderFactoryPtr = std::shared_ptr<ICredentialsProviderFactory>;
 
 std::shared_ptr<ICredentialsProviderFactory> CreateInsecureCredentialsProviderFactory();
-std::shared_ptr<ICredentialsProviderFactory> CreateOAuthCredentialsProviderFactory(const TStringType& token);
+std::shared_ptr<ICredentialsProviderFactory> CreateOAuthCredentialsProviderFactory(const std::string& token);
 
 struct TLoginCredentialsParams {
-    TString User;
-    TString Password;
+    std::string User;
+    std::string Password;
 };
 
 std::shared_ptr<ICredentialsProviderFactory> CreateLoginCredentialsProviderFactory(TLoginCredentialsParams params);

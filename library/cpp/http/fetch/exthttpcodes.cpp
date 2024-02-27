@@ -172,95 +172,95 @@ static ui16* prepare_flags(http_flag* arg) {
 
 ui16* http2status = prepare_flags(HTTP_FLAG);
 
-TStringBuf ExtHttpCodeStr(int code) noexcept {
+std::string_view ExtHttpCodeStr(int code) noexcept {
     if (code < HTTP_CODE_MAX) {
         return HttpCodeStr(code);
     }
     switch (code) {
         case HTTP_BAD_RESPONSE_HEADER:
-            return TStringBuf("Bad response header");
+            return std::string_view("Bad response header");
         case HTTP_CONNECTION_LOST:
-            return TStringBuf("Connection lost");
+            return std::string_view("Connection lost");
         case HTTP_BODY_TOO_LARGE:
-            return TStringBuf("Body too large");
+            return std::string_view("Body too large");
         case HTTP_ROBOTS_TXT_DISALLOW:
-            return TStringBuf("robots.txt disallow");
+            return std::string_view("robots.txt disallow");
         case HTTP_BAD_URL:
-            return TStringBuf("Bad url");
+            return std::string_view("Bad url");
         case HTTP_BAD_MIME:
-            return TStringBuf("Bad mime type");
+            return std::string_view("Bad mime type");
         case HTTP_DNS_FAILURE:
-            return TStringBuf("Dns failure");
+            return std::string_view("Dns failure");
         case HTTP_BAD_STATUS_CODE:
-            return TStringBuf("Bad status code");
+            return std::string_view("Bad status code");
         case HTTP_BAD_HEADER_STRING:
-            return TStringBuf("Bad header string");
+            return std::string_view("Bad header string");
         case HTTP_BAD_CHUNK:
-            return TStringBuf("Bad chunk");
+            return std::string_view("Bad chunk");
         case HTTP_CONNECT_FAILED:
-            return TStringBuf("Connect failed");
+            return std::string_view("Connect failed");
         case HTTP_FILTER_DISALLOW:
-            return TStringBuf("Filter disallow");
+            return std::string_view("Filter disallow");
         case HTTP_LOCAL_EIO:
-            return TStringBuf("Local eio");
+            return std::string_view("Local eio");
         case HTTP_BAD_CONTENT_LENGTH:
-            return TStringBuf("Bad content length");
+            return std::string_view("Bad content length");
         case HTTP_BAD_ENCODING:
-            return TStringBuf("Bad encoding");
+            return std::string_view("Bad encoding");
         case HTTP_LENGTH_UNKNOWN:
-            return TStringBuf("Length unknown");
+            return std::string_view("Length unknown");
         case HTTP_HEADER_EOF:
-            return TStringBuf("Header EOF");
+            return std::string_view("Header EOF");
         case HTTP_MESSAGE_EOF:
-            return TStringBuf("Message EOF");
+            return std::string_view("Message EOF");
         case HTTP_CHUNK_EOF:
-            return TStringBuf("Chunk EOF");
+            return std::string_view("Chunk EOF");
         case HTTP_PAST_EOF:
-            return TStringBuf("Past EOF");
+            return std::string_view("Past EOF");
         case HTTP_HEADER_TOO_LARGE:
-            return TStringBuf("Header is too large");
+            return std::string_view("Header is too large");
         case HTTP_URL_TOO_LARGE:
-            return TStringBuf("Url is too large");
+            return std::string_view("Url is too large");
         case HTTP_INTERRUPTED:
-            return TStringBuf("Interrupted");
+            return std::string_view("Interrupted");
         case HTTP_CUSTOM_NOT_MODIFIED:
-            return TStringBuf("Signature detector thinks that doc is not modified");
+            return std::string_view("Signature detector thinks that doc is not modified");
         case HTTP_BAD_CONTENT_ENCODING:
-            return TStringBuf("Bad content encoding");
+            return std::string_view("Bad content encoding");
         case HTTP_NO_RESOURCES:
-            return TStringBuf("No resources");
+            return std::string_view("No resources");
         case HTTP_FETCHER_SHUTDOWN:
-            return TStringBuf("Fetcher shutdown");
+            return std::string_view("Fetcher shutdown");
         case HTTP_CHUNK_TOO_LARGE:
-            return TStringBuf("Chunk size is too big");
+            return std::string_view("Chunk size is too big");
         case HTTP_SERVER_BUSY:
-            return TStringBuf("Server is busy");
+            return std::string_view("Server is busy");
         case HTTP_SERVICE_UNKNOWN:
-            return TStringBuf("Service is unknown");
+            return std::string_view("Service is unknown");
         case HTTP_PROXY_UNKNOWN:
-            return TStringBuf("Zora: unknown error");
+            return std::string_view("Zora: unknown error");
         case HTTP_PROXY_REQUEST_TIME_OUT:
-            return TStringBuf("Zora: request time out");
+            return std::string_view("Zora: request time out");
         case HTTP_PROXY_INTERNAL_ERROR:
-            return TStringBuf("Zora: internal server error");
+            return std::string_view("Zora: internal server error");
         case HTTP_PROXY_CONNECT_FAILED:
-            return TStringBuf("Spider proxy connect failed");
+            return std::string_view("Spider proxy connect failed");
         case HTTP_PROXY_CONNECTION_LOST:
-            return TStringBuf("Spider proxy connection lost");
+            return std::string_view("Spider proxy connection lost");
         case HTTP_PROXY_NO_PROXY:
-            return TStringBuf("Spider proxy no proxy alive in region");
+            return std::string_view("Spider proxy no proxy alive in region");
         case HTTP_PROXY_ERROR:
-            return TStringBuf("Spider proxy returned custom error");
+            return std::string_view("Spider proxy returned custom error");
         case HTTP_SSL_ERROR:
-            return TStringBuf("Ssl library returned error");
+            return std::string_view("Ssl library returned error");
         case HTTP_CACHED_COPY_NOT_FOUND:
-            return TStringBuf("Cached copy for the url is not available");
+            return std::string_view("Cached copy for the url is not available");
         case HTTP_TIMEDOUT_WHILE_BYTES_RECEIVING:
-            return TStringBuf("Timed out while bytes receiving");
+            return std::string_view("Timed out while bytes receiving");
 
             // TODO: messages for >2000 codes
 
         default:
-            return TStringBuf("Unknown HTTP code");
+            return std::string_view("Unknown HTTP code");
     }
 }

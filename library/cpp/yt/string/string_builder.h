@@ -14,7 +14,7 @@ class TDelimitedStringBuilderWrapper;
 template <size_t Length, class... TArgs>
 void Format(TStringBuilderBase* builder, const char (&format)[Length], TArgs&&... args);
 template <class... TArgs>
-void Format(TStringBuilderBase* builder, TStringBuf format, TArgs&&... args);
+void Format(TStringBuilderBase* builder, std::string_view format, TArgs&&... args);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,20 +30,20 @@ public:
 
     size_t GetLength() const;
 
-    TStringBuf GetBuffer() const;
+    std::string_view GetBuffer() const;
 
     void Advance(size_t size);
 
     void AppendChar(char ch);
     void AppendChar(char ch, int n);
 
-    void AppendString(TStringBuf str);
+    void AppendString(std::string_view str);
     void AppendString(const char* str);
 
     template <size_t Length, class... TArgs>
     void AppendFormat(const char (&format)[Length], TArgs&&... args);
     template <class... TArgs>
-    void AppendFormat(TStringBuf format, TArgs&&... args);
+    void AppendFormat(std::string_view format, TArgs&&... args);
 
     void Reset();
 
@@ -64,10 +64,10 @@ class TStringBuilder
     : public TStringBuilderBase
 {
 public:
-    TString Flush();
+    std::string Flush();
 
 protected:
-    TString Buffer_;
+    std::string Buffer_;
 
     void DoReset() override;
     void DoReserve(size_t size) override;
@@ -76,7 +76,7 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-TString ToStringViaBuilder(const T& value, TStringBuf spec = TStringBuf("v"));
+std::string ToStringViaBuilder(const T& value, std::string_view spec = std::string_view("v"));
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -87,7 +87,7 @@ class TDelimitedStringBuilderWrapper
 public:
     TDelimitedStringBuilderWrapper(
         TStringBuilderBase* builder,
-        TStringBuf delimiter = TStringBuf(", "))
+        std::string_view delimiter = std::string_view(", "))
         : Builder_(builder)
         , Delimiter_(delimiter)
     { }
@@ -103,7 +103,7 @@ public:
 
 private:
     TStringBuilderBase* const Builder_;
-    const TStringBuf Delimiter_;
+    const std::string_view Delimiter_;
 
     bool FirstCall_ = true;
 };

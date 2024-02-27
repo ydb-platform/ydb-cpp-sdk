@@ -89,12 +89,12 @@ namespace NMonitoring {
             void OnLabelsEnd() override {
             }
 
-            void OnLabel(TStringBuf name, TStringBuf value) override {
+            void OnLabel(std::string_view name, std::string_view value) override {
                 NProto::TLabel* label = (Sample_ == nullptr)
                                             ? Samples_->AddCommonLabels()
                                             : Sample_->AddLabels();
-                label->SetName(TString{name});
-                label->SetValue(TString{value});
+                label->SetName(std::string{name});
+                label->SetValue(std::string{value});
             }
 
             void OnDouble(TInstant time, double value) override {
@@ -176,13 +176,13 @@ namespace NMonitoring {
             void OnLabelsEnd() override {
             }
 
-            void OnLabel(TStringBuf name, TStringBuf value) override {
+            void OnLabel(std::string_view name, std::string_view value) override {
                 NProto::TLabel* label = (Sample_ == nullptr)
                                             ? Samples_->AddCommonLabels()
                                             : Sample_->AddLabels();
 
-                label->SetName(TString{name});
-                label->SetValue(TString{value});
+                label->SetName(std::string{name});
+                label->SetValue(std::string{value});
             }
 
             void OnDouble(TInstant time, double value) override {

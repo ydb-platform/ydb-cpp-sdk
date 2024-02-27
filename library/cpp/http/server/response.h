@@ -3,8 +3,6 @@
 #include <library/cpp/http/misc/httpcodes.h>
 #include <library/cpp/http/io/stream.h>
 
-#include <util/generic/strbuf.h>
-#include <util/string/cast.h>
 #include <vector>
 
 class THttpHeaders;
@@ -23,7 +21,7 @@ public:
     }
 
     template <typename ValueType>
-    THttpResponse& AddHeader(const TString& name, const ValueType& value) {
+    THttpResponse& AddHeader(const std::string& name, const ValueType& value) {
         return AddHeader(THttpInputHeader(name, ToString(value)));
     }
 
@@ -34,7 +32,7 @@ public:
     }
 
     template <typename ValueType>
-    THttpResponse& AddOrReplaceHeader(const TString& name, const ValueType& value) {
+    THttpResponse& AddOrReplaceHeader(const std::string& name, const ValueType& value) {
         return AddOrReplaceHeader(THttpInputHeader(name, ToString(value)));
     }
 
@@ -50,26 +48,26 @@ public:
         return Headers;
     }
 
-    THttpResponse& SetContentType(const TStringBuf& contentType);
+    THttpResponse& SetContentType(const std::string_view& contentType);
 
     /**
      * @note If @arg content isn't empty its size is automatically added as a
      * "Content-Length" header during output to IOutputStream.
      * @see IOutputStream& operator << (IOutputStream&, const THttpResponse&)
      */
-    THttpResponse& SetContent(const TString& content) {
+    THttpResponse& SetContent(const std::string& content) {
         Content = content;
 
         return *this;
     }
 
-    THttpResponse& SetContent(TString&& content) {
+    THttpResponse& SetContent(std::string&& content) {
         Content = std::move(content);
 
         return *this;
     }
 
-    TString GetContent() const {
+    std::string GetContent() const {
         return Content;
     }
 
@@ -78,7 +76,7 @@ public:
      * "Content-Length" header during output to IOutputStream.
      * @see IOutputStream& operator << (IOutputStream&, const THttpResponse&)
      */
-    THttpResponse& SetContent(const TString& content, const TStringBuf& contentType) {
+    THttpResponse& SetContent(const std::string& content, const std::string_view& contentType) {
         return SetContent(content).SetContentType(contentType);
     }
 
@@ -96,5 +94,5 @@ public:
 private:
     HttpCodes Code;
     THttpHeaders Headers;
-    TString Content;
+    std::string Content;
 };

@@ -7,13 +7,13 @@
 #include <library/cpp/monlib/dynamic_counters/counters.h>
 #include <library/cpp/logger/log.h>
 #include <library/cpp/retry/retry_policy.h>
+#include <library/cpp/string_builder/string_builder.h>
 
 #include <util/datetime/base.h>
 #include <util/generic/hash.h>
 #include <util/generic/maybe.h>
 #include <util/generic/ptr.h>
 #include <util/generic/size_literals.h>
-#include <util/string/builder.h>
 #include <util/thread/pool.h>
 
 #include <exception>
@@ -54,17 +54,17 @@ class TConsumer {
 public:
     TConsumer(const Ydb::Topic::Consumer&);
 
-    const TString& GetConsumerName() const;
+    const std::string& GetConsumerName() const;
     bool GetImportant() const;
     const TInstant& GetReadFrom() const;
     const std::vector<ECodec>& GetSupportedCodecs() const;
-    const std::map<TString, TString>& GetAttributes() const;
+    const std::map<std::string, std::string>& GetAttributes() const;
 
 private:
-    TString ConsumerName_;
+    std::string ConsumerName_;
     bool Important_;
     TInstant ReadFrom_;
-    std::map<TString, TString> Attributes_;
+    std::map<std::string, std::string> Attributes_;
     std::vector<ECodec> SupportedCodecs_;
 
 };
@@ -121,14 +121,14 @@ public:
     TPartitionConsumerStats(const Ydb::Topic::DescribeConsumerResult::PartitionConsumerStats& partitionStats);
     ui64 GetCommittedOffset() const;
     ui64 GetLastReadOffset() const;
-    TString GetReaderName() const;
-    TString GetReadSessionId() const;
+    std::string GetReaderName() const;
+    std::string GetReadSessionId() const;
 
 private:
     ui64 CommittedOffset_;
     i64 LastReadOffset_;
-    TString ReaderName_;
-    TString ReadSessionId_;
+    std::string ReaderName_;
+    std::string ReadSessionId_;
 };
 
 // Topic partition location
@@ -192,7 +192,7 @@ class TTopicDescription {
 public:
     TTopicDescription(Ydb::Topic::DescribeTopicResult&& desc);
 
-    const TString& GetOwner() const;
+    const std::string& GetOwner() const;
 
     const NScheme::TVirtualTimestamp& GetCreationTimestamp() const;
 
@@ -216,7 +216,7 @@ public:
 
     ui64 GetPartitionWriteBurstBytes() const;
 
-    const std::map<TString, TString>& GetAttributes() const;
+    const std::map<std::string, std::string>& GetAttributes() const;
 
     const std::vector<TConsumer>& GetConsumers() const;
 
@@ -238,12 +238,12 @@ private:
     ui64 PartitionWriteSpeedBytesPerSecond_;
     ui64 PartitionWriteBurstBytes_;
     EMeteringMode MeteringMode_;
-    std::map<TString, TString> Attributes_;
+    std::map<std::string, std::string> Attributes_;
     std::vector<TConsumer> Consumers_;
 
     TTopicStats TopicStats_;
 
-    TString Owner_;
+    std::string Owner_;
     NScheme::TVirtualTimestamp CreationTimestamp_;
     std::vector<NScheme::TPermissions> Permissions_;
     std::vector<NScheme::TPermissions> EffectivePermissions_;
@@ -333,16 +333,16 @@ public:
     : Parent_(parent)
     { }
 
-    TAlterAttributesBuilderImpl& Alter(const TString& key, const TString& value) {
+    TAlterAttributesBuilderImpl& Alter(const std::string& key, const std::string& value) {
         Parent_.AlterAttributes_[key] = value;
         return *this;
     }
 
-    TAlterAttributesBuilderImpl& Add(const TString& key, const TString& value) {
+    TAlterAttributesBuilderImpl& Add(const std::string& key, const std::string& value) {
         return Alter(key, value);
     }
 
-    TAlterAttributesBuilderImpl& Drop(const TString& key) {
+    TAlterAttributesBuilderImpl& Drop(const std::string& key) {
         return Alter(key, "");
     }
 
@@ -363,12 +363,12 @@ template<class TSettings>
 struct TConsumerSettings {
     using TSelf = TConsumerSettings;
 
-    using TAttributes = std::map<TString, TString>;
+    using TAttributes = std::map<std::string, std::string>;
 
     TConsumerSettings(TSettings& parent): Parent_(parent) {}
-    TConsumerSettings(TSettings& parent, const TString& name) : ConsumerName_(name), Parent_(parent) {}
+    TConsumerSettings(TSettings& parent, const std::string& name) : ConsumerName_(name), Parent_(parent) {}
 
-    FLUENT_SETTING(TString, ConsumerName);
+    FLUENT_SETTING(std::string, ConsumerName);
     FLUENT_SETTING_DEFAULT(bool, Important, false);
     FLUENT_SETTING_DEFAULT(TInstant, ReadFrom, TInstant::Zero());
 
@@ -376,17 +376,17 @@ struct TConsumerSettings {
 
     FLUENT_SETTING(TAttributes, Attributes);
 
-    TConsumerSettings& AddAttribute(const TString& key, const TString& value) {
+    TConsumerSettings& AddAttribute(const std::string& key, const std::string& value) {
         Attributes_[key] = value;
         return *this;
     }
 
-    TConsumerSettings& SetAttributes(std::map<TString, TString>&& attributes) {
+    TConsumerSettings& SetAttributes(std::map<std::string, std::string>&& attributes) {
         Attributes_ = std::move(attributes);
         return *this;
     }
 
-    TConsumerSettings& SetAttributes(const std::map<TString, TString>& attributes) {
+    TConsumerSettings& SetAttributes(const std::map<std::string, std::string>& attributes) {
         Attributes_ = attributes;
         return *this;
     }
@@ -411,12 +411,12 @@ private:
 struct TAlterConsumerSettings {
     using TSelf = TAlterConsumerSettings;
 
-    using TAlterAttributes = std::map<TString, TString>;
+    using TAlterAttributes = std::map<std::string, std::string>;
 
     TAlterConsumerSettings(TAlterTopicSettings& parent): Parent_(parent) {}
-    TAlterConsumerSettings(TAlterTopicSettings& parent, const TString& name) : ConsumerName_(name), Parent_(parent) {}
+    TAlterConsumerSettings(TAlterTopicSettings& parent, const std::string& name) : ConsumerName_(name), Parent_(parent) {}
 
-    FLUENT_SETTING(TString, ConsumerName);
+    FLUENT_SETTING(std::string, ConsumerName);
     FLUENT_SETTING_OPTIONAL(bool, SetImportant);
     FLUENT_SETTING_OPTIONAL(TInstant, SetReadFrom);
 
@@ -448,7 +448,7 @@ private:
 struct TCreateTopicSettings : public TOperationRequestSettings<TCreateTopicSettings> {
 
     using TSelf = TCreateTopicSettings;
-    using TAttributes = std::map<TString, TString>;
+    using TAttributes = std::map<std::string, std::string>;
 
     FLUENT_SETTING(TPartitioningSettings, PartitioningSettings);
 
@@ -482,22 +482,22 @@ struct TCreateTopicSettings : public TOperationRequestSettings<TCreateTopicSetti
         return Consumers_.back();
     }
 
-    TConsumerSettings<TCreateTopicSettings>& BeginAddConsumer(const TString& name) {
+    TConsumerSettings<TCreateTopicSettings>& BeginAddConsumer(const std::string& name) {
         Consumers_.push_back({*this, name});
         return Consumers_.back();
     }
 
-    TCreateTopicSettings& AddAttribute(const TString& key, const TString& value) {
+    TCreateTopicSettings& AddAttribute(const std::string& key, const std::string& value) {
         Attributes_[key] = value;
         return *this;
     }
 
-    TCreateTopicSettings& SetAttributes(std::map<TString, TString>&& attributes) {
+    TCreateTopicSettings& SetAttributes(std::map<std::string, std::string>&& attributes) {
         Attributes_ = std::move(attributes);
         return *this;
     }
 
-    TCreateTopicSettings& SetAttributes(const std::map<TString, TString>& attributes) {
+    TCreateTopicSettings& SetAttributes(const std::map<std::string, std::string>& attributes) {
         Attributes_ = attributes;
         return *this;
     }
@@ -512,7 +512,7 @@ struct TCreateTopicSettings : public TOperationRequestSettings<TCreateTopicSetti
 struct TAlterTopicSettings : public TOperationRequestSettings<TAlterTopicSettings> {
 
     using TSelf = TAlterTopicSettings;
-    using TAlterAttributes = std::map<TString, TString>;
+    using TAlterAttributes = std::map<std::string, std::string>;
 
     FLUENT_SETTING_OPTIONAL(TPartitioningSettings, AlterPartitioningSettings);
 
@@ -528,7 +528,7 @@ struct TAlterTopicSettings : public TOperationRequestSettings<TAlterTopicSetting
     FLUENT_SETTING_OPTIONAL(EMeteringMode, SetMeteringMode);
 
     FLUENT_SETTING_VECTOR(TConsumerSettings<TAlterTopicSettings>, AddConsumers);
-    FLUENT_SETTING_VECTOR(TString, DropConsumers);
+    FLUENT_SETTING_VECTOR(std::string, DropConsumers);
     FLUENT_SETTING_VECTOR(TAlterConsumerSettings, AlterConsumers);
 
     FLUENT_SETTING(TAlterAttributes, AlterAttributes);
@@ -552,7 +552,7 @@ struct TAlterTopicSettings : public TOperationRequestSettings<TAlterTopicSetting
         return AddConsumers_.back();
     }
 
-    TConsumerSettings<TAlterTopicSettings>& BeginAddConsumer(const TString& name) {
+    TConsumerSettings<TAlterTopicSettings>& BeginAddConsumer(const std::string& name) {
         AddConsumers_.push_back({*this, name});
         return AddConsumers_.back();
     }
@@ -562,7 +562,7 @@ struct TAlterTopicSettings : public TOperationRequestSettings<TAlterTopicSetting
         return AlterConsumers_.back();
     }
 
-    TAlterConsumerSettings& BeginAlterConsumer(const TString& name) {
+    TAlterConsumerSettings& BeginAlterConsumer(const std::string& name) {
         AlterConsumers_.push_back({*this, name});
         return AlterConsumers_.back();
     }
@@ -614,14 +614,14 @@ struct TCommitOffsetSettings : public TOperationRequestSettings<TCommitOffsetSet
 template <typename TEvent>
 class TPrintable {
 public:
-    TString DebugString(bool printData = false) const {
-        TStringBuilder b;
+    std::string DebugString(bool printData = false) const {
+        NUtils::TYdbStringBuilder b;
         static_cast<const TEvent*>(this)->DebugString(b, printData);
         return b;
     }
 
     // implemented in template specializations
-    void DebugString(TStringBuilder& ret, bool printData = false) const = delete;
+    void DebugString(NUtils::TYdbStringBuilder& ret, bool printData = false) const = delete;
 };
 
 //! Session metainformation.
@@ -629,14 +629,14 @@ struct TWriteSessionMeta: public TThrRefBase {
     using TPtr = TIntrusivePtr<TWriteSessionMeta>;
 
     //! User defined fields.
-    THashMap<TString, TString> Fields;
+    THashMap<std::string, std::string> Fields;
 };
 
 struct TMessageMeta: public TThrRefBase {
     using TPtr = TIntrusivePtr<TMessageMeta>;
 
     //! User defined fields.
-    std::vector<std::pair<TString, TString>> Fields;
+    std::vector<std::pair<std::string, std::string>> Fields;
 };
 
 //! Event that is sent to client during session destruction.
@@ -645,7 +645,7 @@ struct TSessionClosedEvent: public TStatus, public TPrintable<TSessionClosedEven
 };
 
 template<>
-void TPrintable<TSessionClosedEvent>::DebugString(TStringBuilder& res, bool) const;
+void TPrintable<TSessionClosedEvent>::DebugString(NUtils::TYdbStringBuilder& res, bool) const;
 
 struct TWriteStat : public TThrRefBase {
     TDuration WriteTime;
@@ -770,7 +770,7 @@ public:
     }
 
     //! Topic path.
-    const TString& GetTopicPath() const {
+    const std::string& GetTopicPath() const {
         return TopicPath;
     }
 
@@ -781,12 +781,12 @@ public:
 
 protected:
     ui64 PartitionSessionId;
-    TString TopicPath;
+    std::string TopicPath;
     ui64 PartitionId;
 };
 
 template<>
-void TPrintable<TPartitionSession>::DebugString(TStringBuilder& res, bool) const;
+void TPrintable<TPartitionSession>::DebugString(NUtils::TYdbStringBuilder& res, bool) const;
 
 //! Events for read session.
 struct TReadSessionEvent {
@@ -807,32 +807,32 @@ struct TReadSessionEvent {
     struct TDataReceivedEvent : public TPartitionSessionAccessor, public TPrintable<TDataReceivedEvent> {
         struct TMessageInformation {
             TMessageInformation(ui64 offset,
-                                TString producerId,
+                                std::string producerId,
                                 ui64 seqNo,
                                 TInstant createTime,
                                 TInstant writeTime,
                                 TWriteSessionMeta::TPtr meta,
                                 TMessageMeta::TPtr messageMeta,
                                 ui64 uncompressedSize,
-                                TString messageGroupId);
+                                std::string messageGroupId);
             ui64 Offset;
-            TString ProducerId;
+            std::string ProducerId;
             ui64 SeqNo;
             TInstant CreateTime;
             TInstant WriteTime;
             TWriteSessionMeta::TPtr Meta;
             TMessageMeta::TPtr MessageMeta;
             ui64 UncompressedSize;
-            TString MessageGroupId;
+            std::string MessageGroupId;
         };
 
         class TMessageBase : public TPrintable<TMessageBase> {
         public:
-            TMessageBase(const TString& data, TMessageInformation info);
+            TMessageBase(const std::string& data, TMessageInformation info);
 
             virtual ~TMessageBase() = default;
 
-            virtual const TString& GetData() const;
+            virtual const std::string& GetData() const;
 
             virtual void Commit() = 0;
 
@@ -840,10 +840,10 @@ struct TReadSessionEvent {
             ui64 GetOffset() const;
 
             //! Producer id.
-            const TString& GetProducerId() const;
+            const std::string& GetProducerId() const;
 
             //! Message group id.
-            const TString& GetMessageGroupId() const;
+            const std::string& GetMessageGroupId() const;
 
             //! Sequence number.
             ui64 GetSeqNo() const;
@@ -861,7 +861,7 @@ struct TReadSessionEvent {
             const TMessageMeta::TPtr& GetMessageMeta() const;
 
         protected:
-            TString Data;
+            std::string Data;
             TMessageInformation Information;
         };
 
@@ -869,12 +869,12 @@ struct TReadSessionEvent {
         struct TMessage: public TMessageBase, public TPartitionSessionAccessor, public TPrintable<TMessage> {
             using TPrintable<TMessage>::DebugString;
 
-            TMessage(const TString& data, std::exception_ptr decompressionException, TMessageInformation information,
+            TMessage(const std::string& data, std::exception_ptr decompressionException, TMessageInformation information,
                      TPartitionSession::TPtr partitionSession);
 
             //! User data.
             //! Throws decompressor exception if decompression failed.
-            const TString& GetData() const override;
+            const std::string& GetData() const override;
 
             //! Commits single message.
             void Commit() override;
@@ -890,7 +890,7 @@ struct TReadSessionEvent {
                                    public TPrintable<TCompressedMessage> {
             using TPrintable<TCompressedMessage>::DebugString;
 
-            TCompressedMessage(ECodec codec, const TString& data, TMessageInformation information,
+            TCompressedMessage(ECodec codec, const std::string& data, TMessageInformation information,
                                TPartitionSession::TPtr partitionSession);
 
             virtual ~TCompressedMessage() {
@@ -1126,27 +1126,27 @@ private:
 
 //! Events debug strings.
 template<>
-void TPrintable<TReadSessionEvent::TDataReceivedEvent::TMessageBase>::DebugString(TStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TDataReceivedEvent::TMessageBase>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TDataReceivedEvent::TMessage>::DebugString(TStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TDataReceivedEvent::TMessage>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TDataReceivedEvent::TCompressedMessage>::DebugString(TStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TDataReceivedEvent::TCompressedMessage>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TDataReceivedEvent>::DebugString(TStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TDataReceivedEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TCommitOffsetAcknowledgementEvent>::DebugString(TStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TCommitOffsetAcknowledgementEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TStartPartitionSessionEvent>::DebugString(TStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TStartPartitionSessionEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TStopPartitionSessionEvent>::DebugString(TStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TStopPartitionSessionEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TPartitionSessionStatusEvent>::DebugString(TStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TPartitionSessionStatusEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TReadSessionEvent::TPartitionSessionClosedEvent>::DebugString(TStringBuilder& ret, bool printData) const;
+void TPrintable<TReadSessionEvent::TPartitionSessionClosedEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TSessionClosedEvent>::DebugString(TStringBuilder& ret, bool printData) const;
+void TPrintable<TSessionClosedEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 
-TString DebugString(const TReadSessionEvent::TEvent& event);
+std::string DebugString(const TReadSessionEvent::TEvent& event);
 
 //! Retry policy.
 //! Calculates delay before next retry.
@@ -1270,11 +1270,11 @@ struct TWriteSessionEvent {
 
 //! Events debug strings.
 template<>
-void TPrintable<TWriteSessionEvent::TAcksEvent>::DebugString(TStringBuilder& ret, bool printData) const;
+void TPrintable<TWriteSessionEvent::TAcksEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 template<>
-void TPrintable<TWriteSessionEvent::TReadyToAcceptEvent>::DebugString(TStringBuilder& ret, bool printData) const;
+void TPrintable<TWriteSessionEvent::TReadyToAcceptEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const;
 
-TString DebugString(const TWriteSessionEvent::TEvent& event);
+std::string DebugString(const TWriteSessionEvent::TEvent& event);
 
 using TSessionClosedHandler = std::function<void(const TSessionClosedEvent&)>;
 
@@ -1285,7 +1285,7 @@ struct TWriteSessionSettings : public TRequestSettings<TWriteSessionSettings> {
     TWriteSessionSettings() = default;
     TWriteSessionSettings(const TWriteSessionSettings&) = default;
     TWriteSessionSettings(TWriteSessionSettings&&) = default;
-    TWriteSessionSettings(const TString& path, const TString& producerId, const TString& messageGroupId) {
+    TWriteSessionSettings(const std::string& path, const std::string& producerId, const std::string& messageGroupId) {
         Path(path);
         ProducerId(producerId);
         MessageGroupId(messageGroupId);
@@ -1295,13 +1295,13 @@ struct TWriteSessionSettings : public TRequestSettings<TWriteSessionSettings> {
     TWriteSessionSettings& operator=(TWriteSessionSettings&&) = default;
 
     //! Path of topic to write.
-    FLUENT_SETTING(TString, Path);
+    FLUENT_SETTING(std::string, Path);
 
     //! ProducerId (aka SourceId) to use.
-    FLUENT_SETTING(TString, ProducerId);
+    FLUENT_SETTING(std::string, ProducerId);
 
     //! MessageGroupId to use.
-    FLUENT_SETTING(TString, MessageGroupId);
+    FLUENT_SETTING(std::string, MessageGroupId);
 
     //! Explicitly enables or disables deduplication for this write session.
     //! If ProducerId option is defined deduplication will always be enabled.
@@ -1334,7 +1334,7 @@ struct TWriteSessionSettings : public TRequestSettings<TWriteSessionSettings> {
     FLUENT_SETTING(IRetryPolicy::TPtr, RetryPolicy);
 
     //! User metadata that may be attached to write session.
-    TWriteSessionSettings& AppendSessionMeta(const TString& key, const TString& value) {
+    TWriteSessionSettings& AppendSessionMeta(const std::string& key, const std::string& value) {
         Meta_.Fields[key] = value;
         return *this;
     };
@@ -1410,7 +1410,7 @@ struct TTopicReadSettings {
     TTopicReadSettings() = default;
     TTopicReadSettings(const TTopicReadSettings&) = default;
     TTopicReadSettings(TTopicReadSettings&&) = default;
-    TTopicReadSettings(const TString& path) {
+    TTopicReadSettings(const std::string& path) {
         Path(path);
     }
 
@@ -1418,7 +1418,7 @@ struct TTopicReadSettings {
     TTopicReadSettings& operator=(TTopicReadSettings&&) = default;
 
     //! Path of topic to read.
-    FLUENT_SETTING(TString, Path);
+    FLUENT_SETTING(std::string, Path);
 
     //! Start reading from this timestamp.
     FLUENT_SETTING_OPTIONAL(TInstant, ReadFromTimestamp);
@@ -1520,9 +1520,9 @@ struct TReadSessionSettings: public TRequestSettings<TReadSessionSettings> {
     };
 
 
-    TString ConsumerName_ = "";
+    std::string ConsumerName_ = "";
     //! Consumer.
-    TSelf& ConsumerName(const TString& name) {
+    TSelf& ConsumerName(const std::string& name) {
         ConsumerName_ = name;
         WithoutConsumer_ = false;
         return static_cast<TSelf&>(*this);
@@ -1577,16 +1577,16 @@ struct TReadSessionSettings: public TRequestSettings<TReadSessionSettings> {
 //! Contains the message to write and all the options.
 struct TWriteMessage {
     using TSelf = TWriteMessage;
-    using TMessageMeta = std::vector<std::pair<TString, TString>>;
+    using TMessageMeta = std::vector<std::pair<std::string, std::string>>;
 public:
     TWriteMessage() = delete;
-    TWriteMessage(TStringBuf data)
+    TWriteMessage(std::string_view data)
         : Data(data)
     {}
 
     //! A message that is already compressed by codec. Codec from WriteSessionSettings does not apply to this message.
     //! Compression will not be performed in SDK for such messages.
-    static TWriteMessage CompressedMessage(const TStringBuf& data, ECodec codec, ui32 originalSize) {
+    static TWriteMessage CompressedMessage(const std::string_view& data, ECodec codec, ui32 originalSize) {
         TWriteMessage result{data};
         result.Codec = codec;
         result.OriginalSize = originalSize;
@@ -1598,7 +1598,7 @@ public:
     }
 
     //! Message body.
-    const TStringBuf Data;
+    const std::string_view Data;
 
     //! Codec and original size for compressed message.
     //! Do not specify or change these options directly, use CompressedMessage()
@@ -1635,7 +1635,7 @@ public:
 
 
     //! Write single message. Deprecated method with only basic message options.
-    virtual bool Write(TStringBuf data, TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing(),
+    virtual bool Write(std::string_view data, TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing(),
                        const TDuration& blockTimeout = TDuration::Max()) = 0;
 
     //! Blocks till SeqNo is discovered from server. Returns 0 in case of failure on init.
@@ -1679,7 +1679,7 @@ public:
     virtual void Write(TContinuationToken&& continuationToken, TWriteMessage&& message) = 0;
 
     //! Write single message. Old method with only basic message options.
-    virtual void Write(TContinuationToken&& continuationToken, TStringBuf data, TMaybe<ui64> seqNo = Nothing(),
+    virtual void Write(TContinuationToken&& continuationToken, std::string_view data, TMaybe<ui64> seqNo = Nothing(),
                        TMaybe<TInstant> createTimestamp = Nothing()) = 0;
 
     //! Write single message that is already coded by codec.
@@ -1687,7 +1687,7 @@ public:
     virtual void WriteEncoded(TContinuationToken&& continuationToken, TWriteMessage&& params) = 0;
 
     //! Write single message that is already compressed by codec. Old method with only basic message options.
-    virtual void WriteEncoded(TContinuationToken&& continuationToken, TStringBuf data, ECodec codec, ui32 originalSize,
+    virtual void WriteEncoded(TContinuationToken&& continuationToken, std::string_view data, ECodec codec, ui32 originalSize,
                               TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) = 0;
 
 
@@ -1750,7 +1750,7 @@ public:
     virtual TReaderCounters::TPtr GetCounters() const = 0;
 
     //! Get unique identifier of read session.
-    virtual TString GetSessionId() const = 0;
+    virtual std::string GetSessionId() const = 0;
 
     virtual ~IReadSession() = default;
 };
@@ -1773,22 +1773,22 @@ public:
     TTopicClient(const TDriver& driver, const TTopicClientSettings& settings = TTopicClientSettings());
 
     // Create a new topic.
-    TAsyncStatus CreateTopic(const TString& path, const TCreateTopicSettings& settings = {});
+    TAsyncStatus CreateTopic(const std::string& path, const TCreateTopicSettings& settings = {});
 
     // Update a topic.
-    TAsyncStatus AlterTopic(const TString& path, const TAlterTopicSettings& settings = {});
+    TAsyncStatus AlterTopic(const std::string& path, const TAlterTopicSettings& settings = {});
 
     // Delete a topic.
-    TAsyncStatus DropTopic(const TString& path, const TDropTopicSettings& settings = {});
+    TAsyncStatus DropTopic(const std::string& path, const TDropTopicSettings& settings = {});
 
     // Describe a topic.
-    TAsyncDescribeTopicResult DescribeTopic(const TString& path, const TDescribeTopicSettings& settings = {});
+    TAsyncDescribeTopicResult DescribeTopic(const std::string& path, const TDescribeTopicSettings& settings = {});
 
     // Describe a topic consumer.
-    TAsyncDescribeConsumerResult DescribeConsumer(const TString& path, const TString& consumer, const TDescribeConsumerSettings& settings = {});
+    TAsyncDescribeConsumerResult DescribeConsumer(const std::string& path, const std::string& consumer, const TDescribeConsumerSettings& settings = {});
 
     // Describe a topic partition
-    TAsyncDescribePartitionResult DescribePartition(const TString& path, i64 partitionId, const TDescribePartitionSettings& settings = {});
+    TAsyncDescribePartitionResult DescribePartition(const std::string& path, i64 partitionId, const TDescribePartitionSettings& settings = {});
 
     //! Create read session.
     std::shared_ptr<IReadSession> CreateReadSession(const TReadSessionSettings& settings);
@@ -1798,7 +1798,7 @@ public:
     std::shared_ptr<IWriteSession> CreateWriteSession(const TWriteSessionSettings& settings);
 
     // Commit offset
-    TAsyncStatus CommitOffset(const TString& path, ui64 partitionId, const TString& consumerName, ui64 offset,
+    TAsyncStatus CommitOffset(const std::string& path, ui64 partitionId, const std::string& consumerName, ui64 offset,
         const TCommitOffsetSettings& settings = {});
 
 private:

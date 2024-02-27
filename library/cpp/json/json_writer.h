@@ -9,7 +9,8 @@
 #include <util/stream/output.h>
 #include <util/generic/hash.h>
 #include <util/generic/maybe.h>
-#include <util/generic/strbuf.h>
+
+#include <string>
 
 namespace NJson {
     struct TJsonWriterConfig {
@@ -65,14 +66,14 @@ namespace NJson {
         void Flush();
 
         void OpenMap();
-        void OpenMap(const TStringBuf& key) {
+        void OpenMap(const std::string_view& key) {
             Buf.WriteKey(key);
             OpenMap();
         }
         void CloseMap();
 
         void OpenArray();
-        void OpenArray(const TStringBuf& key) {
+        void OpenArray(const std::string_view& key) {
             Buf.WriteKey(key);
             OpenArray();
         }
@@ -80,7 +81,7 @@ namespace NJson {
 
         void WriteNull();
 
-        void Write(const TStringBuf& value);
+        void Write(const std::string_view& value);
         void Write(float value);
         void Write(double value);
         void Write(bool value);
@@ -114,49 +115,46 @@ namespace NJson {
             Write((const char*)value);
         }
         void Write(const char* value) {
-            Write(TStringBuf(value));
-        }
-        void Write(const TString& value) {
-            Write(TStringBuf(value));
+            Write(std::string_view(value));
         }
         void Write(const std::string& value) {
-            Write(TStringBuf(value));
+            Write(std::string_view(value));
         }
 
         // write raw json without checks
-        void UnsafeWrite(const TStringBuf& value) {
+        void UnsafeWrite(const std::string_view& value) {
             Buf.UnsafeWriteValue(value);
         }
 
         template <typename T>
-        void Write(const TStringBuf& key, const T& value) {
+        void Write(const std::string_view& key, const T& value) {
             Buf.WriteKey(key);
             Write(value);
         }
 
         // write raw json without checks
-        void UnsafeWrite(const TStringBuf& key, const TStringBuf& value) {
+        void UnsafeWrite(const std::string_view& key, const std::string_view& value) {
             Buf.WriteKey(key);
             UnsafeWrite(value);
         }
 
-        void WriteNull(const TStringBuf& key) {
+        void WriteNull(const std::string_view& key) {
             Buf.WriteKey(key);
             WriteNull();
         }
 
         template <typename T>
-        void WriteOptional(const TStringBuf& key, const TMaybe<T>& value) {
+        void WriteOptional(const std::string_view& key, const TMaybe<T>& value) {
             if (value) {
                 Write(key, *value);
             }
         }
 
-        void WriteOptional(const TStringBuf&, const TNothing&) {
+        void WriteOptional(const std::string_view&, const TNothing&) {
             // nothing to do
         }
 
-        void WriteKey(const TStringBuf key) {
+        void WriteKey(const std::string_view key) {
             Buf.WriteKey(key);
         }
 
@@ -165,15 +163,11 @@ namespace NJson {
         }
 
         void WriteKey(const char* key) {
-            WriteKey(TStringBuf{key});
-        }
-
-        void WriteKey(const TString& key) {
-            WriteKey(TStringBuf{key});
+            WriteKey(std::string_view{key});
         }
 
         void WriteKey(const std::string& key) {
-            WriteKey(TStringBuf{key});
+            WriteKey(std::string_view{key});
         }
 
         NJsonWriter::TBufState State() const {
@@ -190,7 +184,7 @@ namespace NJson {
     };
 
     void WriteJson(IOutputStream*, const TJsonValue*, bool formatOutput = false, bool sortkeys = false, bool validateUtf8 = true);
-    TString WriteJson(const TJsonValue*, bool formatOutput = true, bool sortkeys = false, bool validateUtf8 = false);
-    TString WriteJson(const TJsonValue&, bool formatOutput = true, bool sortkeys = false, bool validateUtf8 = false);
+    std::string WriteJson(const TJsonValue*, bool formatOutput = true, bool sortkeys = false, bool validateUtf8 = false);
+    std::string WriteJson(const TJsonValue&, bool formatOutput = true, bool sortkeys = false, bool validateUtf8 = false);
     void WriteJson(IOutputStream*, const TJsonValue*, const TJsonWriterConfig& config);
 }

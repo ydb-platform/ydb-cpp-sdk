@@ -27,7 +27,7 @@ static std::vector<TTestCase> TestCases {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TEST(TStringTest, UnderscoreCaseToCamelCase)
+TEST(std::stringTest, UnderscoreCaseToCamelCase)
 {
     for (const auto& testCase : TestCases) {
         auto result = UnderscoreCaseToCamelCase(testCase.UnderCase);
@@ -36,7 +36,7 @@ TEST(TStringTest, UnderscoreCaseToCamelCase)
     }
 }
 
-TEST(TStringTest, CamelCaseToUnderscoreCase)
+TEST(std::stringTest, CamelCaseToUnderscoreCase)
 {
     for (const auto& testCase : TestCases) {
         auto result = CamelCaseToUnderscoreCase(testCase.CamelCase);

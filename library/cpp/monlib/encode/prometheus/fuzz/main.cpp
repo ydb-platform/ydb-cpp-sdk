@@ -8,7 +8,7 @@ extern "C" int LLVMFuzzerTestOneInput(const ui8* buf, size_t size) {
     using namespace NMonitoring;
 
     try {
-        TStringBuf data(reinterpret_cast<const char*>(buf), size);
+        std::string_view data(reinterpret_cast<const char*>(buf), size);
         auto encoder = EncoderFake();
         DecodePrometheus(data, encoder.Get());
     } catch (...) {

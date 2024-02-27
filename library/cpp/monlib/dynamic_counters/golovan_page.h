@@ -15,7 +15,7 @@ public:
 
     const TIntrusivePtr<NMonitoring::TDynamicCounters> Counters;
 
-    TGolovanCountersPage(const TString& path, TIntrusivePtr<NMonitoring::TDynamicCounters> counters,
+    TGolovanCountersPage(const std::string& path, TIntrusivePtr<NMonitoring::TDynamicCounters> counters,
                          TOutputCallback outputCallback = nullptr);
 
     void Output(NMonitoring::IMonHttpRequest& request) override;

@@ -68,15 +68,15 @@ struct TDescribeResourceSettings : public TOperationRequestSettings<TDescribeRes
 
 // Result for list resources request.
 struct TListResourcesResult : public TStatus {
-    TListResourcesResult(TStatus status, std::vector<TString> paths);
+    TListResourcesResult(TStatus status, std::vector<std::string> paths);
 
     // Paths of listed resources inside a specified coordination node.
-    const std::vector<TString>& GetResourcePaths() const {
+    const std::vector<std::string>& GetResourcePaths() const {
         return ResourcePaths_;
     }
 
 private:
-    std::vector<TString> ResourcePaths_;
+    std::vector<std::string> ResourcePaths_;
 };
 
 // Settings for acquire resource request.
@@ -125,7 +125,7 @@ struct TDescribeResourceResult : public TStatus {
     TDescribeResourceResult(TStatus status, const Ydb::RateLimiter::DescribeResourceResult& result);
 
     // Path of resource inside a coordination node.
-    const TString& GetResourcePath() const {
+    const std::string& GetResourcePath() const {
         return ResourcePath_;
     }
 
@@ -134,7 +134,7 @@ struct TDescribeResourceResult : public TStatus {
     }
 
 private:
-    TString ResourcePath_;
+    std::string ResourcePath_;
     THierarchicalDrrProps HierarchicalDrrProps_;
 };
 
@@ -146,22 +146,22 @@ public:
     TRateLimiterClient(const TDriver& driver, const TCommonClientSettings& settings = TCommonClientSettings());
 
     // Create a new resource in existing coordination node.
-    TAsyncStatus CreateResource(const TString& coordinationNodePath, const TString& resourcePath, const TCreateResourceSettings& = {});
+    TAsyncStatus CreateResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TCreateResourceSettings& = {});
 
     // Update a resource in coordination node.
-    TAsyncStatus AlterResource(const TString& coordinationNodePath, const TString& resourcePath, const TAlterResourceSettings& = {});
+    TAsyncStatus AlterResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TAlterResourceSettings& = {});
 
     // Delete a resource from coordination node.
-    TAsyncStatus DropResource(const TString& coordinationNodePath, const TString& resourcePath, const TDropResourceSettings& = {});
+    TAsyncStatus DropResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TDropResourceSettings& = {});
 
     // List resources in given coordination node.
-    TAsyncListResourcesResult ListResources(const TString& coordinationNodePath, const TString& resourcePath, const TListResourcesSettings& = {});
+    TAsyncListResourcesResult ListResources(const std::string& coordinationNodePath, const std::string& resourcePath, const TListResourcesSettings& = {});
 
     // Describe properties of resource in coordination node.
-    TAsyncDescribeResourceResult DescribeResource(const TString& coordinationNodePath, const TString& resourcePath, const TDescribeResourceSettings& = {});
+    TAsyncDescribeResourceResult DescribeResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TDescribeResourceSettings& = {});
 
     // Acquire resources's units inside a coordination node.
-    TAsyncStatus AcquireResource(const TString& coordinationNodePath, const TString& resourcePath, const TAcquireResourceSettings& = {});
+    TAsyncStatus AcquireResource(const std::string& coordinationNodePath, const std::string& resourcePath, const TAcquireResourceSettings& = {});
 
 private:
     class TImpl;

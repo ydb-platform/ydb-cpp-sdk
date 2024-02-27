@@ -26,7 +26,7 @@ const char* YDB_CLIENT_CAPABILITIES = "x-ydb-client-capabilities";
 const char* YDB_CLIENT_CAPABILITY_SESSION_BALANCER = "session-balancer";
 
 
-TString GetSdkSemver() {
+std::string GetSdkSemver() {
     return NResource::Find("ydb_sdk_version.txt");
 }
 

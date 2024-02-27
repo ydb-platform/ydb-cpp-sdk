@@ -161,8 +161,8 @@ private:
  */
 TAutoPtr<IInputStream> OpenLzDecompressor(IInputStream* input);
 TAutoPtr<IInputStream> TryOpenLzDecompressor(IInputStream* input);
-TAutoPtr<IInputStream> TryOpenLzDecompressor(const TStringBuf& signature, IInputStream* input);
+TAutoPtr<IInputStream> TryOpenLzDecompressor(const std::string_view& signature, IInputStream* input);
 
 TAutoPtr<IInputStream> OpenOwnedLzDecompressor(TAutoPtr<IInputStream> input);
 TAutoPtr<IInputStream> TryOpenOwnedLzDecompressor(TAutoPtr<IInputStream> input);
-TAutoPtr<IInputStream> TryOpenOwnedLzDecompressor(const TStringBuf& signature, TAutoPtr<IInputStream> input);
+TAutoPtr<IInputStream> TryOpenOwnedLzDecompressor(const std::string_view& signature, TAutoPtr<IInputStream> input);

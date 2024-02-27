@@ -17,9 +17,9 @@
 namespace NYdb {
 
 namespace NIam {
-constexpr TStringBuf DEFAULT_ENDPOINT = "iam.api.cloud.yandex.net";
+constexpr std::string_view DEFAULT_ENDPOINT = "iam.api.cloud.yandex.net";
 
-constexpr TStringBuf DEFAULT_HOST = "169.254.169.254";
+constexpr std::string_view DEFAULT_HOST = "169.254.169.254";
 constexpr ui32 DEFAULT_PORT = 80;
 
 constexpr TDuration DEFAULT_REFRESH_PERIOD = TDuration::Hours(1);
@@ -27,28 +27,28 @@ constexpr TDuration DEFAULT_REQUEST_TIMEOUT = TDuration::Seconds(10);
 }
 
 struct TIamHost {
-    TString Host = TString(NIam::DEFAULT_HOST);
+    std::string Host = std::string(NIam::DEFAULT_HOST);
     ui32 Port = NIam::DEFAULT_PORT;
     TDuration RefreshPeriod = NIam::DEFAULT_REFRESH_PERIOD;
 };
 
 struct TIamEndpoint {
-    TString Endpoint = TString(NIam::DEFAULT_ENDPOINT);
+    std::string Endpoint = std::string(NIam::DEFAULT_ENDPOINT);
     TDuration RefreshPeriod = NIam::DEFAULT_REFRESH_PERIOD;
     TDuration RequestTimeout = NIam::DEFAULT_REQUEST_TIMEOUT;
 };
 
-struct TIamJwtFilename : TIamEndpoint { TString JwtFilename; };
+struct TIamJwtFilename : TIamEndpoint { std::string JwtFilename; };
 
-struct TIamJwtContent : TIamEndpoint { TString JwtContent; };
+struct TIamJwtContent : TIamEndpoint { std::string JwtContent; };
 
 struct TIamJwtParams : TIamEndpoint { TJwtParams JwtParams; };
 
-inline TJwtParams ReadJwtKeyFile(const TString& filename) {
-    return ParseJwtParams(TFileInput(filename).ReadAll());
+inline TJwtParams ReadJwtKeyFile(const std::string& filename) {
+    return ParseJwtParams(TFileInput(filename.c_str()).ReadAll());
 }
 
-struct TIamOAuth : TIamEndpoint { TString OAuthToken; };
+struct TIamOAuth : TIamEndpoint { std::string OAuthToken; };
 
 /// Acquire an IAM token using a local metadata service on a virtual machine.
 TCredentialsProviderFactoryPtr CreateIamCredentialsProviderFactory(const TIamHost& params = {});
@@ -126,9 +126,9 @@ private:
             }
         }
 
-        TStringType GetTicket() {
+        std::string GetTicket() {
             TInstant nextTicketUpdate;
-            TString ticket;
+            std::string ticket;
             with_lock(Lock_) {
                 ticket = Ticket_;
                 nextTicketUpdate = NextTicketUpdate_;
@@ -157,7 +157,7 @@ private:
             if (!status.Ok()) {
                 TDuration sleepDuration;
                 with_lock(Lock_) {
-                    LastRequestError_ = TStringBuilder()
+                    LastRequestError_ = NUtils::TYdbStringBuilder()
                         << "Last request error was at " << TInstant::Now()
                         << ". GrpcStatusCode: " << status.GRpcStatusCode
                         << " Message: \"" << status.Msg
@@ -193,12 +193,12 @@ private:
 
         THolder<NYdbGrpc::TGRpcClientLow> Client;
         THolder<NYdbGrpc::TServiceConnection<TService>> Connection_;
-        TStringType Ticket_;
+        std::string Ticket_;
         TInstant NextTicketUpdate_;
         const TIamEndpoint IamEndpoint_;
         const TRequestFiller RequestFiller_;
         bool RequestInflight_;
-        TStringType LastRequestError_;
+        std::string LastRequestError_;
         bool NeedStop_;
         TDuration BackoffTimeout_;
         TAdaptiveLock Lock_;
@@ -215,7 +215,7 @@ public:
         Impl_->Stop();
     }
 
-    TStringType GetAuthInfo() const override {
+    std::string GetAuthInfo() const override {
         return Impl_->GetTicket();
     }
 

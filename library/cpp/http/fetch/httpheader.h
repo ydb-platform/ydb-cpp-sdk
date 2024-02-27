@@ -75,7 +75,7 @@ public:
     i8 compression_method;
     i8 transfer_chunked;
     i8 connection_closed;
-    TString base;
+    std::string base;
 
 public:
     void Init() {
@@ -117,7 +117,7 @@ public:
                 int hostNameLength = 0) {
         if (*path == '/') {
             base = "http://";
-            base += TStringBuf(hostNamePtr, hostNameLength);
+            base += std::string_view(hostNamePtr, hostNameLength);
             base += path;
         } else {
             base = path;
@@ -134,11 +134,11 @@ public:
     i8 squid_error;
     i8 x_robots_tag; // deprecated, use x_robots_state instead
     i16 http_status;
-    TString location;
-    TString rel_canonical;
+    std::string location;
+    std::string rel_canonical;
     char hreflangs[HREFLANG_MAX];
     i64 retry_after;
-    TString x_robots_state; // 'xxxxx' format, see `library/html/zoneconf/parsefunc.cpp`
+    std::string x_robots_state; // 'xxxxx' format, see `library/html/zoneconf/parsefunc.cpp`
 
 public:
     void Init() {
@@ -166,7 +166,7 @@ public:
 
 struct THttpRequestHeader: public THttpBaseHeader {
 public:
-    TString request_uri;
+    std::string request_uri;
     char host[HOST_MAX];
     char from[MAXWORD_LEN];
     char user_agent[MAXWORD_LEN];
@@ -217,8 +217,8 @@ public:
     /// It doesn't care about errors in request or headers, where
     /// request_uri equals to '*'.
     /// This returns copy of the string, which you have to delete.
-    TString GetUrl() {
-        TString url;
+    std::string GetUrl() {
+        std::string url;
         if (host[0] == 0 || !strcmp(host, "")) {
             url = request_uri;
         } else {

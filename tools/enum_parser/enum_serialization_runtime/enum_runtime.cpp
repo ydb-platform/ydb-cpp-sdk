@@ -1,17 +1,17 @@
 #include "enum_runtime.h"
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/generic/algorithm.h>
-#include <util/generic/yexception.h>
-#include <util/stream/output.h>
 
 namespace NEnumSerializationRuntime {
     template <typename TEnumRepresentationType>
-    [[noreturn]] static void ThrowUndefinedValueException(const TEnumRepresentationType key, const TStringBuf className) {
+    [[noreturn]] static void ThrowUndefinedValueException(const TEnumRepresentationType key, const std::string_view className) {
         throw yexception() << "Undefined value " << key << " in " << className << ". ";
     }
 
     template <typename TEnumRepresentationType>
-    const TString& TEnumDescriptionBase<TEnumRepresentationType>::ToString(TRepresentationType key) const {
+    const std::string& TEnumDescriptionBase<TEnumRepresentationType>::ToString(TRepresentationType key) const {
         const auto it = Names.find(key);
         if (Y_LIKELY(it != Names.end())) {
             return it->second;
@@ -20,7 +20,7 @@ namespace NEnumSerializationRuntime {
     }
 
     template <typename TEnumRepresentationType>
-    std::pair<bool, TEnumRepresentationType> TEnumDescriptionBase<TEnumRepresentationType>::TryFromString(const TStringBuf name) const {
+    std::pair<bool, TEnumRepresentationType> TEnumDescriptionBase<TEnumRepresentationType>::TryFromString(const std::string_view name) const {
         const auto it = Values.find(name);
         if (it != Values.end()) {
             return {true, it->second};
@@ -41,7 +41,7 @@ namespace NEnumSerializationRuntime {
     }
 
     template <typename TEnumRepresentationType>
-    std::pair<bool, TEnumRepresentationType> TEnumDescriptionBase<TEnumRepresentationType>::TryFromStringSorted(const TStringBuf name, const TInitializationData& enumInitData) {
+    std::pair<bool, TEnumRepresentationType> TEnumDescriptionBase<TEnumRepresentationType>::TryFromStringSorted(const std::string_view name, const TInitializationData& enumInitData) {
         const auto& vec = enumInitData.ValuesInitializer;
         const auto* ptr = FindPtrInSortedContainer(vec, name, std::mem_fn(&TEnumStringPair::Name));
         if (ptr) {
@@ -51,7 +51,7 @@ namespace NEnumSerializationRuntime {
     }
 
     template <typename TEnumRepresentationType>
-    std::pair<bool, TEnumRepresentationType> TEnumDescriptionBase<TEnumRepresentationType>::TryFromStringFullScan(const TStringBuf name, const TInitializationData& enumInitData) {
+    std::pair<bool, TEnumRepresentationType> TEnumDescriptionBase<TEnumRepresentationType>::TryFromStringFullScan(const std::string_view name, const TInitializationData& enumInitData) {
         const auto& vec = enumInitData.ValuesInitializer;
         const auto* ptr = FindIfPtr(vec, [&](const auto& item) { return item.Name == name; });
         if (ptr) {
@@ -60,12 +60,12 @@ namespace NEnumSerializationRuntime {
         return {false, TRepresentationType()};
     }
 
-    [[noreturn]] static void ThrowUndefinedNameException(const TStringBuf name, const TStringBuf className, const TStringBuf allEnumNames) {
+    [[noreturn]] static void ThrowUndefinedNameException(const std::string_view name, const std::string_view className, const std::string_view allEnumNames) {
         ythrow yexception() << "Key '" << name << "' not found in enum " << className << ". Valid options are: " << allEnumNames << ". ";
     }
 
     template <typename TEnumRepresentationType>
-    [[noreturn]] static void ThrowUndefinedNameException(const TStringBuf name, const typename TEnumDescriptionBase<TEnumRepresentationType>::TInitializationData& enumInitData) {
+    [[noreturn]] static void ThrowUndefinedNameException(const std::string_view name, const typename TEnumDescriptionBase<TEnumRepresentationType>::TInitializationData& enumInitData) {
         auto exc = __LOCATION__ + yexception() << "Key '" << name << "' not found in enum " << enumInitData.ClassName << ". Valid options are: ";
         const auto& vec = enumInitData.NamesInitializer;
         for (size_t i = 0; i < vec.size(); ++i) {
@@ -79,7 +79,7 @@ namespace NEnumSerializationRuntime {
     }
 
     template <typename TEnumRepresentationType>
-    auto TEnumDescriptionBase<TEnumRepresentationType>::FromString(const TStringBuf name) const -> TRepresentationType {
+    auto TEnumDescriptionBase<TEnumRepresentationType>::FromString(const std::string_view name) const -> TRepresentationType {
         const auto findResult = TryFromString(name);
         if (Y_LIKELY(findResult.first)) {
             return findResult.second;
@@ -88,7 +88,7 @@ namespace NEnumSerializationRuntime {
     }
 
     template <typename TEnumRepresentationType>
-    TEnumRepresentationType TEnumDescriptionBase<TEnumRepresentationType>::FromStringFullScan(const TStringBuf name, const TInitializationData& enumInitData) {
+    TEnumRepresentationType TEnumDescriptionBase<TEnumRepresentationType>::FromStringFullScan(const std::string_view name, const TInitializationData& enumInitData) {
         const auto findResult = TryFromStringFullScan(name, enumInitData);
         if (Y_LIKELY(findResult.first)) {
             return findResult.second;
@@ -97,7 +97,7 @@ namespace NEnumSerializationRuntime {
     }
 
     template <typename TEnumRepresentationType>
-    TEnumRepresentationType TEnumDescriptionBase<TEnumRepresentationType>::FromStringSorted(const TStringBuf name, const TInitializationData& enumInitData) {
+    TEnumRepresentationType TEnumDescriptionBase<TEnumRepresentationType>::FromStringSorted(const std::string_view name, const TInitializationData& enumInitData) {
         const auto findResult = TryFromStringSorted(name, enumInitData);
         if (Y_LIKELY(findResult.first)) {
             return findResult.second;
@@ -106,12 +106,12 @@ namespace NEnumSerializationRuntime {
     }
 
     template <typename TEnumRepresentationType>
-    TStringBuf TEnumDescriptionBase<TEnumRepresentationType>::ToStringBuf(TRepresentationType key) const {
+    std::string_view TEnumDescriptionBase<TEnumRepresentationType>::ToStringBuf(TRepresentationType key) const {
         return this->ToString(key);
     }
 
     template <typename TEnumRepresentationType>
-    TStringBuf TEnumDescriptionBase<TEnumRepresentationType>::ToStringBufFullScan(const TRepresentationType key, const TInitializationData& enumInitData) {
+    std::string_view TEnumDescriptionBase<TEnumRepresentationType>::ToStringBufFullScan(const TRepresentationType key, const TInitializationData& enumInitData) {
         const auto& vec = enumInitData.NamesInitializer;
         const auto* ptr = FindIfPtr(vec, [&](const auto& item) { return item.Key == key; });
         if (Y_UNLIKELY(!ptr)) {
@@ -121,7 +121,7 @@ namespace NEnumSerializationRuntime {
     }
 
     template <typename TEnumRepresentationType>
-    TStringBuf TEnumDescriptionBase<TEnumRepresentationType>::ToStringBufSorted(const TRepresentationType key, const TInitializationData& enumInitData) {
+    std::string_view TEnumDescriptionBase<TEnumRepresentationType>::ToStringBufSorted(const TRepresentationType key, const TInitializationData& enumInitData) {
         const auto& vec = enumInitData.NamesInitializer;
         const auto* ptr = FindPtrInSortedContainer(vec, key, std::mem_fn(&TEnumStringPair::Key));
         if (Y_UNLIKELY(!ptr)) {
@@ -131,7 +131,7 @@ namespace NEnumSerializationRuntime {
     }
 
     template <typename TEnumRepresentationType>
-    TStringBuf TEnumDescriptionBase<TEnumRepresentationType>::ToStringBufDirect(const TRepresentationType key, const TInitializationData& enumInitData) {
+    std::string_view TEnumDescriptionBase<TEnumRepresentationType>::ToStringBufDirect(const TRepresentationType key, const TInitializationData& enumInitData) {
         const auto& vec = enumInitData.NamesInitializer;
         if (Y_UNLIKELY(vec.empty() || key < vec.front().Key)) {
             ThrowUndefinedValueException(key, enumInitData.ClassName);
@@ -169,12 +169,12 @@ namespace NEnumSerializationRuntime {
     {
         const TArrayRef<const TEnumStringPair>& namesInitializer = enumInitData.NamesInitializer;
         const TArrayRef<const TEnumStringPair>& valuesInitializer = enumInitData.ValuesInitializer;
-        const TArrayRef<const TStringBuf>& cppNamesInitializer = enumInitData.CppNamesInitializer;
+        const TArrayRef<const std::string_view>& cppNamesInitializer = enumInitData.CppNamesInitializer;
 
-        std::map<TRepresentationType, TString> mapValueToName;
-        std::map<TStringBuf, TRepresentationType> mapNameToValue;
+        std::map<TRepresentationType, std::string> mapValueToName;
+        std::map<std::string_view, TRepresentationType> mapNameToValue;
         for (const TEnumStringPair& it : namesInitializer) {
-            mapValueToName.emplace(it.Key, TString(it.Name));
+            mapValueToName.emplace(it.Key, std::string(it.Name));
         }
         for (const TEnumStringPair& it : valuesInitializer) {
             mapNameToValue.emplace(it.Name, it.Key);
@@ -187,13 +187,13 @@ namespace NEnumSerializationRuntime {
             if (!AllNames.empty()) {
                 AllNames += ", ";
             }
-            AllNames += TString::Join('\'', it.second, '\'');
+            AllNames += NUtils::TYdbStringBuilder() << '\'' << it.second << '\'';
             AllValues.push_back(it.first);
         }
 
         AllCppNames.reserve(cppNamesInitializer.size());
         for (const auto& cn : cppNamesInitializer) {
-            AllCppNames.push_back(TString::Join(enumInitData.CppNamesPrefix, cn));
+            AllCppNames.push_back(NUtils::TYdbStringBuilder() << enumInitData.CppNamesPrefix << cn);
         }
     }
 

@@ -27,7 +27,7 @@ struct TMockLogBackend : public TLogBackend {
     std::atomic<ui64> NumReopens{0};
 };
 
-void WriteData(TReopenLogBackend& log, const TString& data) {
+void WriteData(TReopenLogBackend& log, const std::string& data) {
     log.WriteData(TLogRecord(ELogPriority::TLOG_INFO, data.data(), data.size()));
 }
 
@@ -44,7 +44,7 @@ Y_UNIT_TEST_SUITE(ReopenLogSuite) {
         TReopenLogBackend log(std::move(mockHolder), limit);
 
         ui64 expectedWritten = 0;
-        for (const TString str : testData) {
+        for (const std::string str : testData) {
             WriteData(log, str);
             expectedWritten += str.size();
         }
@@ -67,7 +67,7 @@ Y_UNIT_TEST_SUITE(ReopenLogSuite) {
         TReopenLogBackend log(std::move(mockHolder), limit);
 
         for (ui64 i = 0; i < numLogs; ++i) {
-            WriteData(log, TString(logSize, 'a'));
+            WriteData(log, std::string(logSize, 'a'));
         }
 
         UNIT_ASSERT(mock.BytesWritten.load() == expectedWritten);
@@ -96,7 +96,7 @@ Y_UNIT_TEST_SUITE(ReopenLogSuite) {
             barrier.arrive_and_wait();
 
             for (ui64 i = 0; i < numLogsPerThread; ++i) {
-                WriteData(log, TString(logSize, 'a'));
+                WriteData(log, std::string(logSize, 'a'));
             }
         };
 

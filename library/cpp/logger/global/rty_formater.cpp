@@ -1,7 +1,9 @@
 #include "rty_formater.h"
+
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <util/datetime/base.h>
 #include <util/datetime/systime.h>
-#include <util/stream/str.h>
 #include <util/stream/printf.h>
 #include <util/system/mem_info.h>
 #include <util/system/yassert.h>
@@ -35,29 +37,29 @@ namespace NLoggingImpl {
         return out;
     }
 
-    TLocalTimeS::operator TString() const {
-        TString res;
+    TLocalTimeS::operator std::string() const {
+        std::string res;
         res.reserve(LocalTimeSBufferSize);
-        res.ReserveAndResize(PrintLocalTimeS(Instant, res.begin(), res.begin() + res.capacity()));
+        res.resize(PrintLocalTimeS(Instant, res.begin(), res.begin() + res.capacity()));
         return res;
     }
 
-    TString TLocalTimeS::operator+(const TStringBuf right) const {
-        TString res(*this);
+    std::string TLocalTimeS::operator+(const std::string_view right) const {
+        std::string res(*this);
         res += right;
         return res;
     }
 
-    TStringBuf StripFileName(TStringBuf string) {
-        return string.RNextTok(LOCSLASH_C);
+    std::string_view StripFileName(std::string_view string) {
+        return NUtils::RNextTok(string, LOCSLASH_C);
     }
 
-    TString GetSystemResources() {
+    std::string GetSystemResources() {
         NMemInfo::TMemInfo mi = NMemInfo::GetMemInfo();
         return PrintSystemResources(mi);
     }
 
-    TString PrintSystemResources(const NMemInfo::TMemInfo& mi) {
+    std::string PrintSystemResources(const NMemInfo::TMemInfo& mi) {
         return Sprintf(" rss=%0.3fMb, vms=%0.3fMb", mi.RSS * 1.0 / (1024 * 1024), mi.VMS * 1.0 / (1024 * 1024));
     }
 }

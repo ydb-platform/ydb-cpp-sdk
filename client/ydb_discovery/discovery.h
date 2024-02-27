@@ -33,34 +33,34 @@ struct TNodeLocation {
     std::optional<ui32> BodyNum;
     std::optional<ui32> Body;
 
-    std::optional<TString> DataCenter;
-    std::optional<TString> Module;
-    std::optional<TString> Rack;
-    std::optional<TString> Unit;
+    std::optional<std::string> DataCenter;
+    std::optional<std::string> Module;
+    std::optional<std::string> Rack;
+    std::optional<std::string> Unit;
 };
 
 struct TNodeRegistrationSettings : public TSimpleRequestSettings<TNodeRegistrationSettings> {
-    FLUENT_SETTING(TString, Host);
+    FLUENT_SETTING(std::string, Host);
     FLUENT_SETTING(ui32, Port);
-    FLUENT_SETTING(TString, ResolveHost);
-    FLUENT_SETTING(TString, Address);
+    FLUENT_SETTING(std::string, ResolveHost);
+    FLUENT_SETTING(std::string, Address);
     FLUENT_SETTING(TNodeLocation, Location);
-    FLUENT_SETTING(TString, DomainPath);
+    FLUENT_SETTING(std::string, DomainPath);
     FLUENT_SETTING_DEFAULT(bool, FixedNodeId, false);
-    FLUENT_SETTING(TString, Path);
+    FLUENT_SETTING(std::string, Path);
 };
 
 struct TEndpointInfo {
-    TString Address;
+    std::string Address;
     ui32 Port = 0;
     float LoadFactor = 0.0;
     bool Ssl = false;
-    std::vector<TString> Services;
-    TString Location;
+    std::vector<std::string> Services;
+    std::string Location;
     ui32 NodeId = 0;
-    std::vector<TString> IPv4Addrs;
-    std::vector<TString> IPv6Addrs;
-    TString SslTargetNameOverride;
+    std::vector<std::string> IPv4Addrs;
+    std::vector<std::string> IPv6Addrs;
+    std::string SslTargetNameOverride;
 };
 
 class TListEndpointsResult : public TStatus {
@@ -76,11 +76,11 @@ using TAsyncListEndpointsResult = NThreading::TFuture<TListEndpointsResult>;
 class TWhoAmIResult : public TStatus {
 public:
     TWhoAmIResult(TStatus&& status, const Ydb::Discovery::WhoAmIResult& proto);
-    const TString& GetUserName() const;
-    const std::vector<TString>& GetGroups() const;
+    const std::string& GetUserName() const;
+    const std::vector<std::string>& GetGroups() const;
 private:
-    TString UserName_;
-    std::vector<TString> Groups_;
+    std::string UserName_;
+    std::vector<std::string> Groups_;
 };
 
 using TAsyncWhoAmIResult = NThreading::TFuture<TWhoAmIResult>;
@@ -90,10 +90,10 @@ struct TNodeInfo {
     TNodeInfo(const Ydb::Discovery::NodeInfo& info);
 
     ui32 NodeId;
-    TString Host;
+    std::string Host;
     ui32 Port;
-    TString ResolveHost;
-    TString Address;
+    std::string ResolveHost;
+    std::string Address;
     TNodeLocation Location;
     ui64 Expire;
 };
@@ -103,7 +103,7 @@ public:
     TNodeRegistrationResult() : TStatus(EStatus::GENERIC_ERROR, NYql::TIssues()) {}
     TNodeRegistrationResult(TStatus&& status, const Ydb::Discovery::NodeRegistrationResult& proto);
     const ui32& GetNodeId() const;
-    const TString& GetDomainPath() const;
+    const std::string& GetDomainPath() const;
     const ui64& GetExpire() const;
     const ui64& GetScopeTabletId() const;
     bool HasScopeTabletId() const;
@@ -113,7 +113,7 @@ public:
 
 private:
     ui32 NodeId_;
-    TString DomainPath_;
+    std::string DomainPath_;
     ui64 Expire_;
     std::optional<ui64> ScopeTableId_;
     std::optional<ui64> ScopePathId_;

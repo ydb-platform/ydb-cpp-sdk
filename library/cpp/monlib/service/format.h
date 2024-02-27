@@ -21,9 +21,9 @@ namespace NMonitoring {
         auto it = FindIf(std::begin(headers), std::end(headers),
             [=] (const auto& h) {
                 if constexpr (NPrivate::THasName<std::decay_t<decltype(h)>>::value) {
-                    return AsciiCompareIgnoreCase(h.Name(), TStringBuf("accept-encoding")) == 0;
+                    return AsciiCompareIgnoreCase(h.Name(), std::string_view("accept-encoding")) == 0;
                 } else if (isPlainPair) {
-                    return AsciiCompareIgnoreCase(h.first, TStringBuf("accept-encoding")) == 0;
+                    return AsciiCompareIgnoreCase(h.first, std::string_view("accept-encoding")) == 0;
                 }
             });
 
@@ -46,14 +46,14 @@ namespace NMonitoring {
     template <typename TRequest>
     NMonitoring::EFormat ParseFormat(const TRequest& req) {
         auto&& formatStr = req.GetParams()
-            .Get(TStringBuf("format"));
+            .Get(std::string_view("format"));
 
         if (!formatStr.empty()) {
-            if (formatStr == TStringBuf("SPACK")) {
+            if (formatStr == std::string_view("SPACK")) {
                 return EFormat::SPACK;
-            } else if (formatStr == TStringBuf("TEXT")) {
+            } else if (formatStr == std::string_view("TEXT")) {
                 return EFormat::TEXT;
-            } else if (formatStr == TStringBuf("JSON")) {
+            } else if (formatStr == std::string_view("JSON")) {
                 return EFormat::JSON;
             } else {
                 ythrow yexception() << "unknown format: " << formatStr << ". Only spack is supported here";
@@ -66,9 +66,9 @@ namespace NMonitoring {
         auto it = FindIf(std::begin(headers), std::end(headers),
             [=] (const auto& h) {
                 if constexpr (NPrivate::THasName<std::decay_t<decltype(h)>>::value) {
-                    return AsciiCompareIgnoreCase(h.Name(), TStringBuf("accept")) == 0;
+                    return AsciiCompareIgnoreCase(h.Name(), std::string_view("accept")) == 0;
                 } else if (isPlainPair) {
-                    return AsciiCompareIgnoreCase(h.first, TStringBuf("accept")) == 0;
+                    return AsciiCompareIgnoreCase(h.first, std::string_view("accept")) == 0;
                 }
             });
 

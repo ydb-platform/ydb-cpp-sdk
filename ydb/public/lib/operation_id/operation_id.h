@@ -9,24 +9,26 @@
 namespace NKikimr {
 namespace NOperationId {
 
-class TOperationId : public Ydb::TOperationId {
+class TOperationId {
 public:
     TOperationId();
-    explicit TOperationId(const TString& string, bool allowEmpty = false);
-    const std::vector<const TString*>& GetValue(const TString& key) const;
-    TString GetSubKind() const;
+    explicit TOperationId(const std::string& string, bool allowEmpty = false);
+    const std::vector<const std::string*>& GetValue(const std::string& key) const;
+    std::string GetSubKind() const;
+    const Ydb::TOperationId& GetProto() const;
 
 private:
-     THashMap<TString, std::vector<const TString*>> Index_;
+    Ydb::TOperationId Proto_;
+    THashMap<std::string, std::vector<const std::string*>> Index_;
 };
 
-TString ProtoToString(const Ydb::TOperationId& proto);
-void AddOptionalValue(Ydb::TOperationId& proto, const TString& key, const TString& value);
-void AddOptionalValue(Ydb::TOperationId& proto, const TString& key, const char* value, size_t size);
-Ydb::TOperationId::EKind ParseKind(const TStringBuf value);
+std::string ProtoToString(const Ydb::TOperationId& proto);
+void AddOptionalValue(Ydb::TOperationId& proto, const std::string& key, const std::string& value);
+void AddOptionalValue(Ydb::TOperationId& proto, const std::string& key, const char* value, size_t size);
+Ydb::TOperationId::EKind ParseKind(const std::string_view value);
 
-TString FormatPreparedQueryIdCompat(const TString& str);
-bool DecodePreparedQueryIdCompat(const TString& in, TString& out);
+std::string FormatPreparedQueryIdCompat(const std::string& str);
+bool DecodePreparedQueryIdCompat(const std::string& in, std::string& out);
 
 } // namespace NOperationId
 } // namespace NKikimr

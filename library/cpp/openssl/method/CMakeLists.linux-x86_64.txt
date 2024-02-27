@@ -12,7 +12,7 @@ target_link_libraries(cpp-openssl-method PUBLIC
   contrib-libs-linux-headers
   contrib-libs-cxxsupp
   yutil
-  contrib-libs-openssl
+  OpenSSL::SSL
   cpp-openssl-holders
 )
 target_sources(cpp-openssl-method PRIVATE

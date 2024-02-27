@@ -1,8 +1,7 @@
 #pragma once
 
-#include <util/generic/string.h>
-
 #include <exception>
+#include <string>
 
 namespace NYT {
 
@@ -14,30 +13,30 @@ class TSimpleException
     : public std::exception
 {
 public:
-    explicit TSimpleException(TString message);
+    explicit TSimpleException(std::string message);
 
-    const TString& GetMessage() const;
+    const std::string& GetMessage() const;
     const char* what() const noexcept override;
 
 protected:
-    const TString Message_;
+    const std::string Message_;
 };
 
 class TCompositeException
     : public TSimpleException
 {
 public:
-    explicit TCompositeException(TString message);
+    explicit TCompositeException(std::string message);
     TCompositeException(
         const std::exception& exception,
-        TString message);
+        std::string message);
 
     const std::exception_ptr& GetInnerException() const;
     const char* what() const noexcept override;
 
 private:
     const std::exception_ptr InnerException_;
-    const TString What_;
+    const std::string What_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

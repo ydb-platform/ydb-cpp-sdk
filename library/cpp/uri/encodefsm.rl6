@@ -33,7 +33,7 @@ namespace NEncode {
     write data;
 }%%
 
-ui64 TEncoder::ReEncode(const TStringBuf &url)
+ui64 TEncoder::ReEncode(const std::string_view &url)
 {
     const char *p  = url.data();
     const char *pe = p + url.length();

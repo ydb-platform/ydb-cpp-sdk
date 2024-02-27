@@ -12,15 +12,15 @@ namespace NYT {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TStringBuf TThreadName::ToStringBuf() const
+std::string_view TThreadName::ToStringBuf() const
 {
     // Buffer is zero terminated.
-    return TStringBuf(Buffer.data(), Length);
+    return std::string_view(Buffer.data(), Length);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TThreadName::TThreadName(const TString& name)
+TThreadName::TThreadName(const std::string& name)
 {
     Length = std::min<int>(TThreadName::BufferCapacity - 1, name.length());
     ::memcpy(Buffer.data(), name.data(), Length);

@@ -35,7 +35,7 @@ namespace NMonitoring {
         }
 
         virtual void Accept(
-            const TString& labelName, const TString& labelValue,
+            const std::string& labelName, const std::string& labelValue,
             ICountableConsumer& consumer) const = 0;
 
         virtual EVisibility Visibility() const {
@@ -61,19 +61,19 @@ namespace NMonitoring {
         }
 
         virtual void OnCounter(
-            const TString& labelName, const TString& labelValue,
+            const std::string& labelName, const std::string& labelValue,
             const TCounterForPtr* counter) = 0;
 
         virtual void OnHistogram(
-            const TString& labelName, const TString& labelValue,
+            const std::string& labelName, const std::string& labelValue,
             IHistogramSnapshotPtr snapshot, bool derivative) = 0;
 
         virtual void OnGroupBegin(
-            const TString& labelName, const TString& labelValue,
+            const std::string& labelName, const std::string& labelValue,
             const TDynamicCounters* group) = 0;
 
         virtual void OnGroupEnd(
-            const TString& labelName, const TString& labelValue,
+            const std::string& labelName, const std::string& labelValue,
             const TDynamicCounters* group) = 0;
 
         virtual TCountableBase::EVisibility Visibility() const {
@@ -97,7 +97,7 @@ namespace NMonitoring {
         TCounterForPtr& operator=(const TCounterForPtr& other) = delete;
 
         void Accept(
-            const TString& labelName, const TString& labelValue,
+            const std::string& labelName, const std::string& labelValue,
             ICountableConsumer& consumer) const override {
             if (IsVisible(Visibility(), consumer.Visibility())) {
                 consumer.OnCounter(labelName, labelValue, this);
@@ -154,7 +154,7 @@ namespace NMonitoring {
         }
 
         void Accept(
-            const TString& labelName, const TString& labelValue,
+            const std::string& labelName, const std::string& labelValue,
             ICountableConsumer& consumer) const override
         {
             if (IsVisible(Visibility(), consumer.Visibility())) {
@@ -191,7 +191,7 @@ namespace NMonitoring {
     struct TDynamicCounters: public TCountableBase {
     public:
         using TCounterPtr = TIntrusivePtr<TCounterForPtr>;
-        using TOnLookupPtr = void (*)(const char *methodName, const TString &name, const TString &value);
+        using TOnLookupPtr = void (*)(const char *methodName, const std::string &name, const std::string &value);
 
     private:
         TRWMutex Lock;
@@ -201,11 +201,11 @@ namespace NMonitoring {
         typedef TIntrusivePtr<TCountableBase> TCountablePtr;
 
         struct TChildId {
-            TString LabelName;
-            TString LabelValue;
+            std::string LabelName;
+            std::string LabelValue;
             TChildId() {
             }
-            TChildId(const TString& labelName, const TString& labelValue)
+            TChildId(const std::string& labelName, const std::string& labelValue)
                 : LabelName(labelName)
                 , LabelValue(labelValue)
             {
@@ -252,7 +252,7 @@ namespace NMonitoring {
             OnLookup = onLookup;
         }
 
-        TWriteGuard LockForUpdate(const char *method, const TString& name, const TString& value) {
+        TWriteGuard LockForUpdate(const char *method, const std::string& name, const std::string& value) {
             auto res = TWriteGuard(Lock);
             if (LookupCounter) {
                 ++*LookupCounter;
@@ -271,25 +271,25 @@ namespace NMonitoring {
         }
 
         TCounterPtr GetCounter(
-            const TString& value,
+            const std::string& value,
             bool derivative = false,
             TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public);
 
         TCounterPtr GetNamedCounter(
-            const TString& name,
-            const TString& value,
+            const std::string& name,
+            const std::string& value,
             bool derivative = false,
             TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public);
 
         THistogramPtr GetHistogram(
-            const TString& value,
+            const std::string& value,
             IHistogramCollectorPtr collector,
             bool derivative = true,
             TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public);
 
         THistogramPtr GetNamedHistogram(
-            const TString& name,
-            const TString& value,
+            const std::string& name,
+            const std::string& value,
             IHistogramCollectorPtr collector,
             bool derivative = true,
             TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public);
@@ -297,61 +297,61 @@ namespace NMonitoring {
         // These counters will be automatically removed from the registry
         // when last reference to the counter expires.
         TCounterPtr GetExpiringCounter(
-            const TString& value,
+            const std::string& value,
             bool derivative = false,
             TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public);
 
         TCounterPtr GetExpiringNamedCounter(
-            const TString& name,
-            const TString& value,
+            const std::string& name,
+            const std::string& value,
             bool derivative = false,
             TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public);
 
         THistogramPtr GetExpiringHistogram(
-            const TString& value,
+            const std::string& value,
             IHistogramCollectorPtr collector,
             bool derivative = true,
             TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public);
 
         THistogramPtr GetExpiringNamedHistogram(
-            const TString& name,
-            const TString& value,
+            const std::string& name,
+            const std::string& value,
             IHistogramCollectorPtr collector,
             bool derivative = true,
             TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public);
 
-        TCounterPtr FindCounter(const TString& value) const;
-        TCounterPtr FindNamedCounter(const TString& name, const TString& value) const;
+        TCounterPtr FindCounter(const std::string& value) const;
+        TCounterPtr FindNamedCounter(const std::string& name, const std::string& value) const;
 
-        THistogramPtr FindHistogram(const TString& value) const;
-        THistogramPtr FindNamedHistogram(const TString& name,const TString& value) const;
+        THistogramPtr FindHistogram(const std::string& value) const;
+        THistogramPtr FindNamedHistogram(const std::string& name,const std::string& value) const;
 
-        void RemoveCounter(const TString &value);
-        bool RemoveNamedCounter(const TString& name, const TString &value);
-        void RemoveSubgroupChain(const std::vector<std::pair<TString, TString>>& chain);
+        void RemoveCounter(const std::string &value);
+        bool RemoveNamedCounter(const std::string& name, const std::string &value);
+        void RemoveSubgroupChain(const std::vector<std::pair<std::string, std::string>>& chain);
 
-        TIntrusivePtr<TDynamicCounters> GetSubgroup(const TString& name, const TString& value);
-        TIntrusivePtr<TDynamicCounters> FindSubgroup(const TString& name, const TString& value) const;
-        bool RemoveSubgroup(const TString& name, const TString& value);
-        void ReplaceSubgroup(const TString& name, const TString& value, TIntrusivePtr<TDynamicCounters> subgroup);
+        TIntrusivePtr<TDynamicCounters> GetSubgroup(const std::string& name, const std::string& value);
+        TIntrusivePtr<TDynamicCounters> FindSubgroup(const std::string& name, const std::string& value) const;
+        bool RemoveSubgroup(const std::string& name, const std::string& value);
+        void ReplaceSubgroup(const std::string& name, const std::string& value, TIntrusivePtr<TDynamicCounters> subgroup);
 
         // Move all counters from specified subgroup and remove the subgroup.
-        void MergeWithSubgroup(const TString& name, const TString& value);
+        void MergeWithSubgroup(const std::string& name, const std::string& value);
         // Recursively reset all/deriv counters to 0.
         void ResetCounters(bool derivOnly = false);
 
-        void RegisterSubgroup(const TString& name,
-            const TString& value,
+        void RegisterSubgroup(const std::string& name,
+            const std::string& value,
             TIntrusivePtr<TDynamicCounters> subgroup);
 
         void OutputHtml(IOutputStream& os) const;
-        void EnumerateSubgroups(const std::function<void(const TString& name, const TString& value)>& output) const;
+        void EnumerateSubgroups(const std::function<void(const std::string& name, const std::string& value)>& output) const;
 
         // mostly for debugging purposes -- use accept with encoder instead
-        void OutputPlainText(IOutputStream& os, const TString& indent = "") const;
+        void OutputPlainText(IOutputStream& os, const std::string& indent = "") const;
 
         void Accept(
-            const TString& labelName, const TString& labelValue,
+            const std::string& labelName, const std::string& labelValue,
             ICountableConsumer& consumer) const override;
 
     private:
@@ -362,14 +362,14 @@ namespace NMonitoring {
             return counters;
         }
 
-        void RegisterCountable(const TString& name, const TString& value, TCountablePtr countable);
+        void RegisterCountable(const std::string& name, const std::string& value, TCountablePtr countable);
         void RemoveExpired() const;
 
         template <bool expiring, class TCounterType, class... TArgs>
-        TCountablePtr GetNamedCounterImpl(const TString& name, const TString& value, TArgs&&... args);
+        TCountablePtr GetNamedCounterImpl(const std::string& name, const std::string& value, TArgs&&... args);
 
         template <class TCounterType>
-        TCountablePtr FindNamedCounterImpl(const TString& name, const TString& value) const;
+        TCountablePtr FindNamedCounterImpl(const std::string& name, const std::string& value) const;
     };
 
 }

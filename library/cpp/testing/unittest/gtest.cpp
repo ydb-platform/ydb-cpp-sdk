@@ -11,24 +11,24 @@ IGTestFactory::~IGTestFactory() {
 
 namespace {
     struct TCurrentTest: public TSimpleTestExecutor {
-        inline TCurrentTest(TStringBuf name)
+        inline TCurrentTest(std::string_view name)
             : MyName(name)
         {
         }
 
-        TString TypeId() const override {
+        std::string TypeId() const override {
             return TypeName(*this) + "-" + MyName;
         }
 
-        TString Name() const noexcept override {
-            return TString(MyName);
+        std::string Name() const noexcept override {
+            return std::string(MyName);
         }
 
-        const TStringBuf MyName;
+        const std::string_view MyName;
     };
 
     struct TGTestFactory: public IGTestFactory {
-        inline TGTestFactory(TStringBuf name)
+        inline TGTestFactory(std::string_view name)
             : Test(name)
         {
         }
@@ -36,7 +36,7 @@ namespace {
         ~TGTestFactory() override {
         }
 
-        TString Name() const noexcept override {
+        std::string Name() const noexcept override {
             return Test.Name();
         }
 
@@ -53,7 +53,7 @@ namespace {
 }
 
 IGTestFactory* NUnitTest::NPrivate::ByName(const char* name) {
-    static std::map<TStringBuf, TAutoPtr<TGTestFactory>> tests;
+    static std::map<std::string_view, TAutoPtr<TGTestFactory>> tests;
 
     auto& ret = tests[name];
 

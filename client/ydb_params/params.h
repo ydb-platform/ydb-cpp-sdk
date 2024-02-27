@@ -44,14 +44,14 @@ class TParams {
 public:
     bool Empty() const;
 
-    std::map<TString, TValue> GetValues() const;
-    TMaybe<TValue> GetValue(const TString& name) const;
+    std::map<std::string, TValue> GetValues() const;
+    TMaybe<TValue> GetValue(const std::string& name) const;
 
 private:
-    TParams(::google::protobuf::Map<TString, Ydb::TypedValue>&& protoMap);
+    TParams(::google::protobuf::Map<std::string, Ydb::TypedValue>&& protoMap);
 
-    ::google::protobuf::Map<TString, Ydb::TypedValue>* GetProtoMapPtr();
-    const ::google::protobuf::Map<TString, Ydb::TypedValue>& GetProtoMap() const;
+    ::google::protobuf::Map<std::string, Ydb::TypedValue>* GetProtoMapPtr();
+    const ::google::protobuf::Map<std::string, Ydb::TypedValue>& GetProtoMap() const;
 
     class TImpl;
     std::shared_ptr<TImpl> Impl_;
@@ -75,19 +75,19 @@ class TParamsBuilder : public TMoveOnly {
 public:
     TParamsBuilder(TParamsBuilder&&);
     TParamsBuilder();
-    TParamsBuilder(const std::map<TString, TType>& typeInfo);
+    TParamsBuilder(const std::map<std::string, TType>& typeInfo);
 
     ~TParamsBuilder();
 
-    TParamValueBuilder& AddParam(const TString& name);
-    TParamsBuilder& AddParam(const TString& name, const TValue& value);
+    TParamValueBuilder& AddParam(const std::string& name);
+    TParamsBuilder& AddParam(const std::string& name, const TValue& value);
 
     bool HasTypeInfo() const;
 
     TParams Build();
 
 private:
-    TParamsBuilder(const ::google::protobuf::Map<TString, Ydb::Type>& typeInfo);
+    TParamsBuilder(const ::google::protobuf::Map<std::string, Ydb::Type>& typeInfo);
 
     class TImpl;
     std::unique_ptr<TImpl> Impl_;

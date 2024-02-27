@@ -20,8 +20,8 @@ namespace {
         }
 
     public:
-        void Add(TStringBuf name, TStringBuf value) {
-            Impl.emplace(TString(name), TString(value));
+        void Add(std::string_view name, std::string_view value) {
+            Impl.emplace(std::string(name), std::string(value));
         }
 
         bool operator==(const THeadersExistence& rhs) const {
@@ -29,7 +29,7 @@ namespace {
         }
 
     private:
-        typedef TMultiSet<std::pair<TString, TString>> TImpl;
+        typedef TMultiSet<std::pair<std::string, std::string>> TImpl;
         TImpl Impl;
     };
 }
@@ -53,8 +53,8 @@ class THttpHeadersTest: public TTestBase {
     UNIT_TEST_SUITE_END();
 
 private:
-    typedef void (*TAddHeaderFunction)(THttpHeaders&, TStringBuf name, TStringBuf value);
-    typedef void (*TAddOrReplaceHeaderFunction)(THttpHeaders&, TStringBuf name, TStringBuf value);
+    typedef void (*TAddHeaderFunction)(THttpHeaders&, std::string_view name, std::string_view value);
+    typedef void (*TAddOrReplaceHeaderFunction)(THttpHeaders&, std::string_view name, std::string_view value);
 
 public:
     void TestAddOperation1Arg();
@@ -65,20 +65,20 @@ public:
     void TestFindHeader();
 
 private:
-    static void AddHeaderImpl1Arg(THttpHeaders& headers, TStringBuf name, TStringBuf value) {
-        headers.AddHeader(THttpInputHeader(TString(name), TString(value)));
+    static void AddHeaderImpl1Arg(THttpHeaders& headers, std::string_view name, std::string_view value) {
+        headers.AddHeader(THttpInputHeader(std::string(name), std::string(value)));
     }
 
-    static void AddHeaderImpl2Args(THttpHeaders& headers, TStringBuf name, TStringBuf value) {
-        headers.AddHeader(TString(name), TString(value));
+    static void AddHeaderImpl2Args(THttpHeaders& headers, std::string_view name, std::string_view value) {
+        headers.AddHeader(std::string(name), std::string(value));
     }
 
-    static void AddOrReplaceHeaderImpl1Arg(THttpHeaders& headers, TStringBuf name, TStringBuf value) {
-        headers.AddOrReplaceHeader(THttpInputHeader(TString(name), TString(value)));
+    static void AddOrReplaceHeaderImpl1Arg(THttpHeaders& headers, std::string_view name, std::string_view value) {
+        headers.AddOrReplaceHeader(THttpInputHeader(std::string(name), std::string(value)));
     }
 
-    static void AddOrReplaceHeaderImpl2Args(THttpHeaders& headers, TStringBuf name, TStringBuf value) {
-        headers.AddOrReplaceHeader(TString(name), TString(value));
+    static void AddOrReplaceHeaderImpl2Args(THttpHeaders& headers, std::string_view name, std::string_view value) {
+        headers.AddOrReplaceHeader(std::string(name), std::string(value));
     }
 
     void DoTestAddOperation(TAddHeaderFunction);
@@ -154,9 +154,9 @@ void THttpHeadersTest::DoTestAddOrReplaceOperation(TAddHeaderFunction addHeader,
 void THttpHeadersTest::TestAddHeaderTemplateness() {
     THttpHeaders h1;
     h1.AddHeader("h1", "v1");
-    h1.AddHeader("h2", TString("v2"));
-    h1.AddHeader("h3", TStringBuf("v3"));
-    h1.AddHeader("h4", TStringBuf("v4"));
+    h1.AddHeader("h2", std::string("v2"));
+    h1.AddHeader("h3", std::string_view("v3"));
+    h1.AddHeader("h4", std::string_view("v4"));
 
     THeadersExistence h2;
     h2.Add("h1", "v1");

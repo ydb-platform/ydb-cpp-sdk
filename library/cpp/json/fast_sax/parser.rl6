@@ -1,5 +1,6 @@
 #include <library/cpp/json/fast_sax/unescape.h>
 #include <library/cpp/json/fast_sax/parser.h>
+#include <library/cpp/string_builder/string_builder.h>
 
 #include <util/string/cast.h>
 #include <util/generic/buffer.h>
@@ -16,7 +17,7 @@ struct TParserCtx {
     TJsonCallbacks& Hndl;
 
     TBuffer Buffer;
-    TStringBuf String;
+    std::string_view String;
     EStoredStr Stored = SS_NONE;
     bool ExpectValue = true;
 
@@ -29,7 +30,7 @@ struct TParserCtx {
     int cs = 0;
     int act = 0;
 
-    TParserCtx(TJsonCallbacks& h, TStringBuf data)
+    TParserCtx(TJsonCallbacks& h, std::string_view data)
         : Hndl(h)
         , p0(data.data())
         , p(data.data())
@@ -41,9 +42,9 @@ struct TParserCtx {
         return b && e && b <= e;
     }
 
-    bool OnError(TStringBuf reason = TStringBuf(""), bool end = false) const {
+    bool OnError(std::string_view reason = std::string_view(""), bool end = false) const {
         size_t off = 0;
-        TStringBuf token;
+        std::string_view token;
 
         if (GoodPtrs(p0, ts)) {
             off = ts - p0;
@@ -52,13 +53,13 @@ struct TParserCtx {
         }
 
         if (GoodPtrs(ts, te)) {
-            token = TStringBuf(ts, te);
+            token = std::string_view(ts, te);
         }
 
-        if (!token) {
+        if (token.empty()) {
             Hndl.OnError(off, reason);
         } else {
-            Hndl.OnError(off, TString::Join(reason, " at token: '", token, "'"));
+            Hndl.OnError(off, NUtils::TYdbStringBuilder() << reason << " at token: '" << token << "'");
         }
 
         return false;
@@ -90,21 +91,21 @@ struct TParserCtx {
     bool OnPInt() {
         unsigned long long res = 0;
         return Y_LIKELY(OnVal())
-               && TryFromString<unsigned long long>(TStringBuf(ts, te), res)
+               && TryFromString<unsigned long long>(std::string_view(ts, te), res)
                && Hndl.OnUInteger(res);
     }
 
     bool OnNInt() {
         long long res = 0;
         return Y_LIKELY(OnVal())
-               && TryFromString<long long>(TStringBuf(ts, te), res)
+               && TryFromString<long long>(std::string_view(ts, te), res)
                && Hndl.OnInteger(res);
     }
 
     bool OnFlt() {
         double res = 0;
         return Y_LIKELY(OnVal())
-               && TryFromString<double>(TStringBuf(ts, te), res)
+               && TryFromString<double>(std::string_view(ts, te), res)
                && IsFinite(res)
                && Hndl.OnDouble(res);
     }
@@ -123,7 +124,7 @@ struct TParserCtx {
         return res;
     }
 
-    bool OnString(TStringBuf s, EStoredStr t) {
+    bool OnString(std::string_view s, EStoredStr t) {
         if (Y_LIKELY(OnVal())) {
             String = s;
             Stored = t;
@@ -134,18 +135,18 @@ struct TParserCtx {
     }
 
     bool OnStrU() {
-        return OnString(TStringBuf(ts, te), SS_NOCOPY);
+        return OnString(std::string_view(ts, te), SS_NOCOPY);
     }
 
     bool OnStrQ() {
-        return OnString(TStringBuf(ts + 1, te - 1), SS_NOCOPY);
+        return OnString(std::string_view(ts + 1, te - 1), SS_NOCOPY);
     }
 
     bool OnStrE() {
         Buffer.Clear();
         Buffer.Reserve(2 * (te - ts));
 
-        return OnString(UnescapeJsonUnicode(TStringBuf(ts + 1, te - ts - 2), Buffer.data()), SS_MUSTCOPY);
+        return OnString(UnescapeJsonUnicode(std::string_view(ts + 1, te - ts - 2), Buffer.data()), SS_MUSTCOPY);
     }
 
     bool OnMapClose() {
@@ -306,7 +307,7 @@ bool TParserCtx::Parse() {
     return OnError("invalid syntax");
 }
 
-bool ReadJsonFast(TStringBuf data, TJsonCallbacks* h) {
+bool ReadJsonFast(std::string_view data, TJsonCallbacks* h) {
     return TParserCtx(*h, data).Parse();
 }
 

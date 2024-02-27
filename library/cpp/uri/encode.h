@@ -131,9 +131,9 @@ namespace NUri {
         public:
             TEncoder(IOutputStream& out, const TEncodeMapper& fldsrc, const TEncodeToMapper& flddst = TEncodeToMapper());
 
-            ui64 ReEncode(const TStringBuf& url);
+            ui64 ReEncode(const std::string_view& url);
             ui64 ReEncode(const char* str, size_t len) {
-                return ReEncode(TStringBuf(str, len));
+                return ReEncode(std::string_view(str, len));
             }
 
         protected:
@@ -166,18 +166,18 @@ namespace NUri {
 
         public:
             // process an encoded string, decoding safe chars and encoding unsafe
-            static IOutputStream& ReEncode(IOutputStream& out, const TStringBuf& val, const TEncodeMapper& srcfld) {
+            static IOutputStream& ReEncode(IOutputStream& out, const std::string_view& val, const TEncodeMapper& srcfld) {
                 TEncoder(out, srcfld).ReEncode(val);
                 return out;
             }
-            static IOutputStream& ReEncodeTo(IOutputStream& out, const TStringBuf& val, const TEncodeMapper& srcfld, const TEncodeToMapper& dstfld) {
+            static IOutputStream& ReEncodeTo(IOutputStream& out, const std::string_view& val, const TEncodeMapper& srcfld, const TEncodeToMapper& dstfld) {
                 TEncoder(out, srcfld, dstfld).ReEncode(val);
                 return out;
             }
 
             // see also UrlUnescape() from string/quote.h
             static IOutputStream& Decode(
-                IOutputStream& out, const TStringBuf& val, ui64 flags) {
+                IOutputStream& out, const std::string_view& val, ui64 flags) {
                 return ReEncode(out, val, flags | TFeature::FeatureDecodeANY);
             }
 
@@ -188,17 +188,17 @@ namespace NUri {
                 out << '%';
                 return Hex(out, val);
             }
-            static IOutputStream& EncodeAll(IOutputStream& out, const TStringBuf& val);
-            static IOutputStream& EncodeNotAlnum(IOutputStream& out, const TStringBuf& val);
+            static IOutputStream& EncodeAll(IOutputStream& out, const std::string_view& val);
+            static IOutputStream& EncodeNotAlnum(IOutputStream& out, const std::string_view& val);
 
-            static IOutputStream& EncodeField(IOutputStream& out, const TStringBuf& val, TField::EField fld);
-            static IOutputStream& EncodeField(IOutputStream& out, const TStringBuf& val, TField::EField fld, ui64 flags);
+            static IOutputStream& EncodeField(IOutputStream& out, const std::string_view& val, TField::EField fld);
+            static IOutputStream& EncodeField(IOutputStream& out, const std::string_view& val, TField::EField fld, ui64 flags);
 
-            static IOutputStream& Encode(IOutputStream& out, const TStringBuf& val) {
+            static IOutputStream& Encode(IOutputStream& out, const std::string_view& val) {
                 return EncodeField(out, val, TField::FieldAllMAX);
             }
 
-            static IOutputStream& Encode(IOutputStream& out, const TStringBuf& val, ui64 flags) {
+            static IOutputStream& Encode(IOutputStream& out, const std::string_view& val, ui64 flags) {
                 return EncodeField(out, val, TField::FieldAllMAX, flags);
             }
 
@@ -227,11 +227,11 @@ namespace NUri {
                     AddRng(lo, hi, TCharFlags(type, feat, decmask, encmask));
                 }
 
-                void Add(const TStringBuf& set, const TCharFlags& val) {
+                void Add(const std::string_view& set, const TCharFlags& val) {
                     for (size_t i = 0; i != set.length(); ++i)
                         Add(set[i], val);
                 }
-                void Add(const TStringBuf& set, ui32 type, ui64 feat, ui32 decmask = 0, ui32 encmask = 0) {
+                void Add(const std::string_view& set, ui32 type, ui64 feat, ui32 decmask = 0, ui32 encmask = 0) {
                     Add(set, TCharFlags(type, feat, decmask, encmask));
                 }
             };
