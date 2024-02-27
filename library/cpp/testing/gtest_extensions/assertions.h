@@ -43,15 +43,15 @@
 // Implementation details
 
 namespace NGTest::NInternal {
-    TString FormatErrorWrongException(const char* statement, const char* type);
-    TString FormatErrorWrongException(const char* statement, const char* type, TString contains);
-    TString FormatErrorUnexpectedException(const char* statement);
-    bool ExceptionMessageContains(const std::exception& err, TString contains);
+    std::string FormatErrorWrongException(const char* statement, const char* type);
+    std::string FormatErrorWrongException(const char* statement, const char* type, std::string contains);
+    std::string FormatErrorUnexpectedException(const char* statement);
+    bool ExceptionMessageContains(const std::exception& err, std::string contains);
 }
 
 #define _Y_GTEST_EXPECT_THROW_IMPL_(statement, expectedException, fail)                                             \
     GTEST_AMBIGUOUS_ELSE_BLOCKER_                                                                                   \
-    if (::TString gtestMsg = ""; ::testing::internal::AlwaysTrue()) {                                               \
+    if (::std::string gtestMsg = ""; ::testing::internal::AlwaysTrue()) {                                               \
         bool gtestCaughtExpected = false;                                                                           \
         try {                                                                                                       \
             GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);                                              \
@@ -72,9 +72,9 @@ namespace NGTest::NInternal {
 
 #define _Y_GTEST_EXPECT_THROW_MESSAGE_HAS_SUBSTR_IMPL_(statement, expectedException, substring, fail)               \
     GTEST_AMBIGUOUS_ELSE_BLOCKER_                                                                                   \
-    if (::TString gtestMsg = ""; ::testing::internal::AlwaysTrue()) {                                               \
+    if (::std::string gtestMsg = ""; ::testing::internal::AlwaysTrue()) {                                               \
         bool gtestCaughtExpected = false;                                                                           \
-        ::TString gtestSubstring{substring};                                                                        \
+        ::std::string gtestSubstring{substring};                                                                        \
         try {                                                                                                       \
             GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);                                              \
         } catch (expectedException const& gtestError) {                                                             \
@@ -99,7 +99,7 @@ namespace NGTest::NInternal {
 
 #define _Y_GTEST_EXPECT_NO_THROW_IMPL_(statement, fail)                                                             \
     GTEST_AMBIGUOUS_ELSE_BLOCKER_                                                                                   \
-    if (::TString gtestMsg = ""; ::testing::internal::AlwaysTrue()) {                                               \
+    if (::std::string gtestMsg = ""; ::testing::internal::AlwaysTrue()) {                                               \
         try {                                                                                                       \
             GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);                                              \
         } catch (...) {                                                                                             \

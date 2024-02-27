@@ -49,22 +49,22 @@ TCredentials::EMode TCredentials::GetMode() const {
     return Mode_;
 }
 
-TString TCredentials::GetOauthToken() const {
+std::string TCredentials::GetOauthToken() const {
     Y_ENSURE(GetMode() == EMode::OAUTH_TOKEN);
     return Credentials_.oauth_token();
 }
 
-TString TCredentials::GetJwtParams() const {
+std::string TCredentials::GetJwtParams() const {
     Y_ENSURE(GetMode() == EMode::JWT_PARAMS);
     return Credentials_.jwt_params();
 }
 
-TString TCredentials::GetIamEndpoint() const {
+std::string TCredentials::GetIamEndpoint() const {
     Y_ENSURE(GetMode() == EMode::IAM);
     return Credentials_.iam().endpoint();
 }
 
-TString TCredentials::GetIamServiceAccountKey() const {
+std::string TCredentials::GetIamServiceAccountKey() const {
     Y_ENSURE(GetMode() == EMode::IAM);
     return Credentials_.iam().service_account_key();
 }
@@ -146,27 +146,27 @@ TPersQueueClient::TPersQueueClient(const TDriver& driver, const TPersQueueClient
 
 
 
-TAsyncStatus TPersQueueClient::CreateTopic(const TString& path, const TCreateTopicSettings& settings) {
+TAsyncStatus TPersQueueClient::CreateTopic(const std::string& path, const TCreateTopicSettings& settings) {
     return Impl_->CreateTopic(path, settings);
 }
 
-TAsyncStatus TPersQueueClient::AlterTopic(const TString& path, const TAlterTopicSettings& settings) {
+TAsyncStatus TPersQueueClient::AlterTopic(const std::string& path, const TAlterTopicSettings& settings) {
     return Impl_->AlterTopic(path, settings);
 }
 
-TAsyncStatus TPersQueueClient::DropTopic(const TString& path, const TDropTopicSettings& settings) {
+TAsyncStatus TPersQueueClient::DropTopic(const std::string& path, const TDropTopicSettings& settings) {
     return Impl_->DropTopic(path, settings);
 }
 
-TAsyncStatus TPersQueueClient::AddReadRule(const TString& path, const TAddReadRuleSettings& settings) {
+TAsyncStatus TPersQueueClient::AddReadRule(const std::string& path, const TAddReadRuleSettings& settings) {
     return Impl_->AddReadRule(path, settings);
 }
 
-TAsyncStatus TPersQueueClient::RemoveReadRule(const TString& path, const TRemoveReadRuleSettings& settings) {
+TAsyncStatus TPersQueueClient::RemoveReadRule(const std::string& path, const TRemoveReadRuleSettings& settings) {
     return Impl_->RemoveReadRule(path, settings);
 }
 
-TAsyncDescribeTopicResult TPersQueueClient::DescribeTopic(const TString& path, const TDescribeTopicSettings& settings) {
+TAsyncDescribeTopicResult TPersQueueClient::DescribeTopic(const std::string& path, const TDescribeTopicSettings& settings) {
     return Impl_->DescribeTopic(path, settings);
 }
 

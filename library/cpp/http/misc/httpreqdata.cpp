@@ -1,6 +1,8 @@
 #include "httpreqdata.h"
 
 #include <library/cpp/case_insensitive_string/case_insensitive_string.h>
+#include <library/cpp/string_builder/string_builder.h>
+#include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/stream/mem.h>
 #include <util/string/join.h>
@@ -17,7 +19,7 @@ TBaseServerRequestData::TBaseServerRequestData(SOCKET s)
 {
 }
 
-TBaseServerRequestData::TBaseServerRequestData(TStringBuf qs, SOCKET s)
+TBaseServerRequestData::TBaseServerRequestData(std::string_view qs, SOCKET s)
     : Query_(qs)
     , OrigQuery_(Query_)
     , Socket_(s)
@@ -25,26 +27,26 @@ TBaseServerRequestData::TBaseServerRequestData(TStringBuf qs, SOCKET s)
 {
 }
 
-void TBaseServerRequestData::AppendQueryString(TStringBuf str) {
+void TBaseServerRequestData::AppendQueryString(std::string_view str) {
     if (Y_UNLIKELY(!Query_.empty())) {
-        TStringBuf separator = !Query_.EndsWith('&') && !str.StartsWith('&') ? "&"sv : ""sv;
-        ModifiedQueryString_ = TString::Join(Query_, separator, str);
+        std::string_view separator = !Query_.ends_with('&') && !str.starts_with('&') ? "&"sv : ""sv;
+        ModifiedQueryString_ = NUtils::TYdbStringBuilder() << Query_ << separator << str;
      } else {
         ModifiedQueryString_ = str;
      }
     Query_ = ModifiedQueryString_;
 }
 
-void TBaseServerRequestData::SetRemoteAddr(TStringBuf addr) {
+void TBaseServerRequestData::SetRemoteAddr(std::string_view addr) {
     Addr_.emplace(addr.substr(0, INET6_ADDRSTRLEN - 1));
 }
 
-TStringBuf TBaseServerRequestData::RemoteAddr() const {
+std::string_view TBaseServerRequestData::RemoteAddr() const {
     if (!Addr_) {
         auto& addr = Addr_.emplace();
-        addr.ReserveAndResize(INET6_ADDRSTRLEN);
+        addr.resize(INET6_ADDRSTRLEN);
         if (GetRemoteAddr(Socket_, addr.begin(), addr.size())) {
-            if (auto pos = addr.find('\0'); pos != TString::npos) {
+            if (auto pos = addr.find('\0'); pos != std::string::npos) {
                 addr.resize(pos);
             }
         } else {
@@ -55,26 +57,26 @@ TStringBuf TBaseServerRequestData::RemoteAddr() const {
     return *Addr_;
  }
 
-const TString* TBaseServerRequestData::HeaderIn(TStringBuf key) const {
+const std::string* TBaseServerRequestData::HeaderIn(std::string_view key) const {
     return HeadersIn_.FindPtr(key);
 }
 
-TStringBuf TBaseServerRequestData::HeaderInOrEmpty(TStringBuf key) const {
+std::string_view TBaseServerRequestData::HeaderInOrEmpty(std::string_view key) const {
     const auto* ptr = HeaderIn(key);
-    return ptr ? TStringBuf{*ptr} : TStringBuf{};
+    return ptr ? std::string_view{*ptr} : std::string_view{};
 }
 
-TString TBaseServerRequestData::HeaderByIndex(size_t n) const noexcept {
+std::string TBaseServerRequestData::HeaderByIndex(size_t n) const noexcept {
     if (n >= HeadersIn_.size()) {
         return {};
     }
 
     const auto& [key, value] = *std::next(HeadersIn_.begin(), n);
 
-    return TString::Join(key, ": ", value);
+    return NUtils::TYdbStringBuilder() << key << ": " << value;
 }
 
-TStringBuf TBaseServerRequestData::Environment(TStringBuf key) const {
+std::string_view TBaseServerRequestData::Environment(std::string_view key) const {
     TCaseInsensitiveStringBuf ciKey(key.data(), key.size());
     if (ciKey == "REMOTE_ADDR") {
         const auto ip = HeaderIn("X-Real-IP");
@@ -99,18 +101,18 @@ TStringBuf TBaseServerRequestData::Environment(TStringBuf key) const {
     OrigQuery_ = {};
     Host_.clear();
     Port_.clear();
-    CurPage_.remove();
+    CurPage_.erase();
     ParseBuf_.clear();
     BeginTime_ = MicroSeconds();
 }
 
-const TString& TBaseServerRequestData::GetCurPage() const {
-    if (!CurPage_ && Host_) {
-        std::array<TStringBuf, 7> fragments;
+const std::string& TBaseServerRequestData::GetCurPage() const {
+    if (CurPage_.empty() && !Host_.empty()) {
+        std::array<std::string_view, 7> fragments;
         auto fragmentIt = fragments.begin();
         *fragmentIt++ = "http://"sv;
         *fragmentIt++ = Host_;
-        if (Port_) {
+        if (!Port_.empty()) {
             *fragmentIt++ = ":"sv;
             *fragmentIt++ = Port_;
         }
@@ -125,7 +127,7 @@ const TString& TBaseServerRequestData::GetCurPage() const {
     return CurPage_;
 }
 
-bool TBaseServerRequestData::Parse(TStringBuf origReq) {
+bool TBaseServerRequestData::Parse(std::string_view origReq) {
     ParseBuf_.reserve(origReq.size() + 16);
     ParseBuf_.assign(origReq.begin(), origReq.end());
     ParseBuf_.insert(ParseBuf_.end(), 15, ' ');
@@ -210,9 +212,9 @@ bool TBaseServerRequestData::Parse(TStringBuf origReq) {
     // Make sure Path_ and Query_ are actually zero-reminated.
     *pathEnd = '\0';
     *req = '\0';
-    Path_ = TStringBuf{pathBegin, pathEnd};
+    Path_ = std::string_view{pathBegin, pathEnd};
     if (queryBegin) {
-        Query_ = TStringBuf{queryBegin, req};
+        Query_ = std::string_view{queryBegin, req};
         OrigQuery_ = Query_;
     } else {
         Query_ = {};
@@ -222,7 +224,7 @@ bool TBaseServerRequestData::Parse(TStringBuf origReq) {
     return true;
 }
 
-void TBaseServerRequestData::AddHeader(const TString& name, const TString& value) {
+void TBaseServerRequestData::AddHeader(const std::string& name, const std::string& value) {
     HeadersIn_[name] = value;
 
     if (stricmp(name.data(), "Host") == 0) {
@@ -233,6 +235,6 @@ void TBaseServerRequestData::AddHeader(const TString& name, const TString& value
     }
 }
 
-void TBaseServerRequestData::SetPath(TString path) {
+void TBaseServerRequestData::SetPath(std::string path) {
     Path_ = std::move(path);
 }

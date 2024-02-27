@@ -2,29 +2,23 @@
 
 #include "formatted_output.h"
 
-#include <util/generic/strbuf.h>
-#include <util/generic/hash.h>
-
-#include <utility>
-#include <util/generic/fwd.h>
-
 namespace NLastGetopt::NComp {
     class ICompleter;
 
     class TCompleterManager {
     public:
-        TCompleterManager(TStringBuf command);
+        TCompleterManager(std::string_view command);
 
         /// Register new completer and get its function name.
-        TStringBuf GetCompleterID(const ICompleter* completer);
+        std::string_view GetCompleterID(const ICompleter* completer);
 
         /// Generate zsh code for all collected completers.
         void GenerateZsh(TFormattedOutput& out);
 
     private:
-        TStringBuf Command_;
+        std::string_view Command_;
         size_t Id_;
-        std::vector<std::pair<TString, const ICompleter*>> Queue_;
+        std::vector<std::pair<std::string, const ICompleter*>> Queue_;
     };
 
     class ICompleter {
@@ -39,7 +33,7 @@ namespace NLastGetopt::NComp {
         /// register it in the given manager and return function name assigned by manager.
         /// Supported forms are '()', '(items...)', '((items...))', 'command ...' and ' command ...'.
         /// Other forms, such as '{eval-string}', '->state', '=action' are not supported.
-        virtual TStringBuf GenerateZshAction(TCompleterManager& manager) const = 0;
+        virtual std::string_view GenerateZshAction(TCompleterManager& manager) const = 0;
 
         /// Generate body of a zsh function (if Action points to a custom function).
         virtual void GenerateZsh(TFormattedOutput& out, TCompleterManager& manager) const = 0;
@@ -54,7 +48,7 @@ namespace NLastGetopt::NComp {
 
     struct TAlternative {
         /// Description for this group of completions. Leave empty to use completer's default description.
-        TString Description;
+        std::string Description;
 
         /// Completer that generates values
         ICompleterPtr Completer;
@@ -65,7 +59,7 @@ namespace NLastGetopt::NComp {
         {
         }
 
-        TAlternative(TString description, ICompleterPtr completer)
+        TAlternative(std::string description, ICompleterPtr completer)
             : Description(std::move(description))
             , Completer(std::move(completer))
         {
@@ -78,17 +72,17 @@ namespace NLastGetopt::NComp {
 
     struct TChoice {
         /// Option value.
-        TString Choice;
+        std::string Choice;
 
         /// Description for a value.
-        TString Description = "";
+        std::string Description = "";
 
-        TChoice(TString choice)
+        TChoice(std::string choice)
             : Choice(std::move(choice))
         {
         }
 
-        TChoice(TString choice, TString description)
+        TChoice(std::string choice, std::string description)
             : Choice(std::move(choice))
             , Description(std::move(description))
         {
@@ -99,7 +93,7 @@ namespace NLastGetopt::NComp {
     ICompleterPtr Choice(std::vector<TChoice> choices);
 
     /// Complete files and directories. May filter results by pattern, e.g. `*.txt`.
-    ICompleterPtr File(TString pattern= "");
+    ICompleterPtr File(std::string pattern= "");
 
     /// Complete directories.
     ICompleterPtr Directory();
@@ -158,11 +152,11 @@ namespace NLastGetopt::NComp {
         /// @param cur currently completed argument.
         /// @param prefix part of the currently completed argument before the cursor.
         /// @param suffix part of the currently completed argument after the cursor.
-        virtual void GenerateCompletions(int argc, const char** argv, int curIdx, TStringBuf cur, TStringBuf prefix, TStringBuf suffix) = 0;
-        virtual TStringBuf GetUniqueName() const = 0;
+        virtual void GenerateCompletions(int argc, const char** argv, int curIdx, std::string_view cur, std::string_view prefix, std::string_view suffix) = 0;
+        virtual std::string_view GetUniqueName() const = 0;
 
     protected:
-        void AddCompletion(TStringBuf completion);
+        void AddCompletion(std::string_view completion);
 
     private:
         TCustomCompleter* Next_ = nullptr;
@@ -171,14 +165,14 @@ namespace NLastGetopt::NComp {
     /// Custom completer for objects that consist of multiple parts split by a common separator, such as file paths.
     class TMultipartCustomCompleter: public TCustomCompleter {
     public:
-        TMultipartCustomCompleter(TStringBuf sep)
+        TMultipartCustomCompleter(std::string_view sep)
             : Sep_(sep)
         {
             Y_ABORT_UNLESS(!Sep_.empty());
         }
 
     public:
-        void GenerateCompletions(int argc, const char** argv, int curIdx, TStringBuf cur, TStringBuf prefix, TStringBuf suffix) final;
+        void GenerateCompletions(int argc, const char** argv, int curIdx, std::string_view cur, std::string_view prefix, std::string_view suffix) final;
 
     public:
         /// @param argc same as in `GenerateCompletions`.
@@ -188,17 +182,17 @@ namespace NLastGetopt::NComp {
         /// @param prefix same as in `GenerateCompletions`.
         /// @param suffix same as in `GenerateCompletions`.
         /// @param root part of the currently completed argument before the last separator.
-        virtual void GenerateCompletionParts(int argc, const char** argv, int curIdx, TStringBuf cur, TStringBuf prefix, TStringBuf suffix, TStringBuf root) = 0;
+        virtual void GenerateCompletionParts(int argc, const char** argv, int curIdx, std::string_view cur, std::string_view prefix, std::string_view suffix, std::string_view root) = 0;
 
     protected:
-        TStringBuf Sep_;
+        std::string_view Sep_;
     };
 
 #define Y_COMPLETER(N)                                                                                                 \
 class T##N: public ::NLastGetopt::NComp::TCustomCompleter {                                                            \
     public:                                                                                                            \
-        void GenerateCompletions(int, const char**, int, TStringBuf, TStringBuf, TStringBuf) override;                 \
-        TStringBuf GetUniqueName() const override { return #N; }                                                       \
+        void GenerateCompletions(int, const char**, int, std::string_view, std::string_view, std::string_view) override;                 \
+        std::string_view GetUniqueName() const override { return #N; }                                                       \
     };                                                                                                                 \
     T##N N = T##N();                                                                                                   \
     ::NLastGetopt::NComp::TCustomCompleter::TReg _Reg_##N = &N;                                                        \
@@ -206,16 +200,16 @@ class T##N: public ::NLastGetopt::NComp::TCustomCompleter {                     
         Y_DECLARE_UNUSED int argc,                                                                                     \
         Y_DECLARE_UNUSED const char** argv,                                                                            \
         Y_DECLARE_UNUSED int curIdx,                                                                                   \
-        Y_DECLARE_UNUSED TStringBuf cur,                                                                               \
-        Y_DECLARE_UNUSED TStringBuf prefix,                                                                            \
-        Y_DECLARE_UNUSED TStringBuf suffix)
+        Y_DECLARE_UNUSED std::string_view cur,                                                                               \
+        Y_DECLARE_UNUSED std::string_view prefix,                                                                            \
+        Y_DECLARE_UNUSED std::string_view suffix)
 
 #define Y_MULTIPART_COMPLETER(N, SEP)                                                                                  \
 class T##N: public ::NLastGetopt::NComp::TMultipartCustomCompleter {                                                   \
     public:                                                                                                            \
         T##N() : ::NLastGetopt::NComp::TMultipartCustomCompleter(SEP) {}                                               \
-        void GenerateCompletionParts(int, const char**, int, TStringBuf, TStringBuf, TStringBuf, TStringBuf) override; \
-        TStringBuf GetUniqueName() const override { return #N; }                                                       \
+        void GenerateCompletionParts(int, const char**, int, std::string_view, std::string_view, std::string_view, std::string_view) override; \
+        std::string_view GetUniqueName() const override { return #N; }                                                       \
     };                                                                                                                 \
     T##N N = T##N();                                                                                                   \
     ::NLastGetopt::NComp::TCustomCompleter::TReg _Reg_##N = &N;                                                        \
@@ -223,10 +217,10 @@ class T##N: public ::NLastGetopt::NComp::TMultipartCustomCompleter {            
         Y_DECLARE_UNUSED int argc,                                                                                     \
         Y_DECLARE_UNUSED const char** argv,                                                                            \
         Y_DECLARE_UNUSED int curIdx,                                                                                   \
-        Y_DECLARE_UNUSED TStringBuf cur,                                                                               \
-        Y_DECLARE_UNUSED TStringBuf prefix,                                                                            \
-        Y_DECLARE_UNUSED TStringBuf suffix,                                                                            \
-        Y_DECLARE_UNUSED TStringBuf root)
+        Y_DECLARE_UNUSED std::string_view cur,                                                                               \
+        Y_DECLARE_UNUSED std::string_view prefix,                                                                            \
+        Y_DECLARE_UNUSED std::string_view suffix,                                                                            \
+        Y_DECLARE_UNUSED std::string_view root)
 
     /// Launches this binary with a specially formed flags and retrieves completions from stdout.
     ///

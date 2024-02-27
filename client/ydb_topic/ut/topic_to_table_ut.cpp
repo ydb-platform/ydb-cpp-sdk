@@ -30,7 +30,7 @@ protected:
 
     void ReadMessage(TTopicReadSessionPtr reader, NTable::TTransaction& tx, ui64 offset);
 
-    void WriteMessage(const TString& data);
+    void WriteMessage(const std::string& data);
 
 protected:
     const TDriver& GetDriver() const;
@@ -131,7 +131,7 @@ E TFixture::ReadEvent(TTopicReadSessionPtr reader)
     return *ev;
 }
 
-void TFixture::WriteMessage(const TString& data)
+void TFixture::WriteMessage(const std::string& data)
 {
     NTopic::TWriteSessionSettings options;
     options.Path(TEST_TOPIC);
@@ -222,7 +222,7 @@ Y_UNIT_TEST_F(WriteToTopic, TFixture)
     auto session = CreateSession();
     auto tx = BeginTx(session);
 
-    auto writeMessages = [&](const std::vector<TString>& messages) {
+    auto writeMessages = [&](const std::vector<std::string>& messages) {
         NTopic::TTopicClient client(GetDriver());
         auto session = client.CreateSimpleBlockingWriteSession(options);
 

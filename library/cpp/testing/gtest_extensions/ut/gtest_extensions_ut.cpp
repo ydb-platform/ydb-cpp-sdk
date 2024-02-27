@@ -7,18 +7,18 @@
 namespace {
     class IMock {
     public:
-        virtual void M1(const TStringBuf&) = 0;
-        virtual void M2(TStringBuf) = 0;
-        virtual void M3(const TString&) = 0;
-        virtual void M4(TString) = 0;
+        virtual void M1(const std::string_view&) = 0;
+        virtual void M2(std::string_view) = 0;
+        virtual void M3(const std::string&) = 0;
+        virtual void M4(std::string) = 0;
     };
 
     class TSampleMock : IMock {
     public:
-        MOCK_METHOD(void, M1, (const TStringBuf&));
-        MOCK_METHOD(void, M2, (TStringBuf));
-        MOCK_METHOD(void, M3, (const TString&));
-        MOCK_METHOD(void, M4, (TString));
+        MOCK_METHOD(void, M1, (const std::string_view&));
+        MOCK_METHOD(void, M2, (std::string_view));
+        MOCK_METHOD(void, M3, (const std::string&));
+        MOCK_METHOD(void, M4, (std::string));
     };
 }
 
@@ -26,11 +26,11 @@ namespace {
 TEST(MatchersSpecializations, String) {
     TSampleMock mock;
 
-    TStringBuf simpleStringBuf = "SimpleStringBuf";
-    const TStringBuf constSimpleStringBuf = "ConstSimpleStringBuf";
+    std::string_view simpleStringBuf = "SimpleStringBuf";
+    const std::string_view constSimpleStringBuf = "ConstSimpleStringBuf";
 
-    TString simpleString = "SimpleString";
-    const TString constSimpleString = "ConstSimpleString";
+    std::string simpleString = "SimpleString";
+    const std::string constSimpleString = "ConstSimpleString";
 
     EXPECT_CALL(mock, M1("ConstSimpleStringBuf")).Times(1);
     EXPECT_CALL(mock, M2("SimpleStringBuf")).Times(1);
@@ -236,13 +236,13 @@ struct TThrowsOnMove {
 };
 
 TEST(PrettyPrinters, String) {
-    EXPECT_EQ(GtestPrint(TString("hello world")), "\"hello world\"");
-    EXPECT_EQ(GtestPrint(TStringBuf("hello world")), "\"hello world\"");
+    EXPECT_EQ(GtestPrint(std::string("hello world")), "\"hello world\"");
+    EXPECT_EQ(GtestPrint(std::string_view("hello world")), "\"hello world\"");
 }
 
 TEST(PrettyPrinters, Maybe) {
-    EXPECT_EQ(GtestPrint(std::optional<TString>("hello world")), "\"hello world\"");
-    EXPECT_EQ(GtestPrint(std::optional<TString>()), "nothing");
+    EXPECT_EQ(GtestPrint(std::optional<std::string>("hello world")), "\"hello world\"");
+    EXPECT_EQ(GtestPrint(std::optional<std::string>()), "nothing");
     EXPECT_EQ(GtestPrint(Nothing()), "nothing");
 }
 

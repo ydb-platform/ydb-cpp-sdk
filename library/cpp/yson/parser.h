@@ -42,7 +42,7 @@ namespace NYson {
 
         ~TStatelessYsonParser();
 
-        void Parse(const TStringBuf& data, EYsonType type = ::NYson::EYsonType::Node);
+        void Parse(const std::string_view& data, EYsonType type = ::NYson::EYsonType::Node);
 
     private:
         class TImpl;
@@ -71,7 +71,7 @@ namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////
 
     void ParseYsonStringBuffer(
-        const TStringBuf& buffer,
+        const std::string_view& buffer,
         NYT::NYson::IYsonConsumer* consumer,
         EYsonType type = ::NYson::EYsonType::Node,
         bool enableLinePositionInfo = false,

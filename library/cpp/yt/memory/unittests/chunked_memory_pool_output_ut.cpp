@@ -15,10 +15,10 @@ TEST(TChunkedMemoryPoolOutputTest, Basic)
     TChunkedMemoryPool pool(NullRefCountedTypeCookie, PoolChunkSize);
     TChunkedMemoryPoolOutput output(&pool, PoolOutputChunkSize);
 
-    TString s1("Short.");
+    std::string s1("Short.");
     output.Write(s1);
 
-    TString s2("Quite a long string.");
+    std::string s2("Quite a long string.");
     output.Write(s2);
 
     char* buf;
@@ -26,9 +26,9 @@ TEST(TChunkedMemoryPoolOutputTest, Basic)
     output.Undo(len);
 
     auto chunks = output.Finish();
-    TString s;
+    std::string s;
     for (auto chunk : chunks) {
-        s += TString(chunk.Begin(), chunk.End());
+        s += std::string(chunk.Begin(), chunk.End());
     }
     ASSERT_EQ(s1 + s2, s);
 }

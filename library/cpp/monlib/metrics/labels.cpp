@@ -8,7 +8,7 @@ static void OutputLabels(IOutputStream& out, const NMonitoring::ILabels& labels)
     out << '{';
     for (const auto& label: labels) {
         if (i++ > 0) {
-            out << TStringBuf(", ");
+            out << std::string_view(", ");
         }
         out << label;
     }
@@ -34,27 +34,27 @@ Y_MONLIB_DEFINE_LABELS_OUT(NMonitoring::TLabels);
 Y_MONLIB_DEFINE_LABEL_OUT(NMonitoring::TLabel);
 
 namespace NMonitoring {
-    bool TryLoadLabelsFromString(TStringBuf sb, ILabels& labels) {
-        if (sb.Empty()) {
+    bool TryLoadLabelsFromString(std::string_view sb, ILabels& labels) {
+        if (sb.empty()) {
             return false;
         }
 
-        if (!sb.StartsWith('{') || !sb.EndsWith('}')) {
+        if (!sb.starts_with('{') || !sb.ends_with('}')) {
             return false;
         }
 
-        sb.Skip(1);
-        sb.Chop(1);
+        sb.remove_prefix(1);
+        sb.remove_suffix(1);
 
-        if (sb.Empty()) {
+        if (sb.empty()) {
             return true;
         }
 
         bool ok = true;
-        std::vector<std::pair<TStringBuf, TStringBuf>> rawLabels;
-        StringSplitter(sb).SplitBySet(" ,").SkipEmpty().Consume([&] (TStringBuf label) {
-            TStringBuf key, value;
-            ok &= label.TrySplit('=', key, value);
+        std::vector<std::pair<std::string_view, std::string_view>> rawLabels;
+        StringSplitter(sb).SplitBySet(" ,").SkipEmpty().Consume([&] (std::string_view label) {
+            std::string_view key, value;
+            ok &= NUtils::TrySplit(label, key, value, '=');
 
             if (!ok) {
                 return;
@@ -75,7 +75,7 @@ namespace NMonitoring {
     }
 
     bool TryLoadLabelsFromString(IInputStream& is, ILabels& labels) {
-        TString str = is.ReadAll();
+        std::string str = is.ReadAll();
         return TryLoadLabelsFromString(str, labels);
     }
 

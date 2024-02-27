@@ -189,7 +189,7 @@ void TWriteSessionImpl::ConnectToPreferredPartitionLocation(const TDuration& del
 
     auto callback = [req = std::move(request), extr = std::move(extractor),
                      connections = std::shared_ptr<TGRpcConnectionsImpl>(Connections), dbState = DbDriverState,
-                     context = describePartitionContext, prefix = TString(LogPrefix()),
+                     context = describePartitionContext, prefix = std::string(LogPrefix()),
                      partId = Settings.PartitionId_]() mutable {
         LOG_LAZY(dbState->Log, TLOG_DEBUG, prefix + " Getting partition location, partition " + ToString(partId));
         connections->Run<Ydb::Topic::V1::TopicService, Ydb::Topic::DescribePartitionRequest, Ydb::Topic::DescribePartitionResponse>(
@@ -207,7 +207,7 @@ void TWriteSessionImpl::ConnectToPreferredPartitionLocation(const TDuration& del
 void TWriteSessionImpl::OnDescribePartition(const TStatus& status, const Ydb::Topic::DescribePartitionResult& proto, const NYdbGrpc::IQueueClientContextPtr& describePartitionContext)
 {
     LOG_LAZY(DbDriverState->Log, TLOG_INFO, LogPrefix() << "Got PartitionLocation response. Status " << status.GetStatus() << ", proto:\n" << proto.DebugString());
-    TString endpoint, name;
+    std::string endpoint, name;
     THandleResult handleResult;
 
     with_lock (Lock) {
@@ -274,7 +274,7 @@ std::optional<TEndpointKey> TWriteSessionImpl::GetPreferredEndpointImpl(ui32 par
     }
 }
 
-TString GenerateProducerId() {
+std::string GenerateProducerId() {
     return CreateGuidAsString();
 }
 
@@ -319,7 +319,7 @@ NThreading::TFuture<ui64> TWriteSessionImpl::GetInitSeqNo() {
     return InitSeqNoPromise.GetFuture();
 }
 
-TString DebugString(const TWriteSessionEvent::TEvent& event) {
+std::string DebugString(const TWriteSessionEvent::TEvent& event) {
     return std::visit([](const auto& ev) { return ev.DebugString(); }, event);
 }
 
@@ -541,7 +541,7 @@ void TWriteSessionImpl::OnConnectTimeout(const NYdbGrpc::IQueueClientContextPtr&
         } else {
             return;
         }
-        TStringBuilder description;
+        NUtils::TYdbStringBuilder description;
         description << "Failed to establish connection to server. Attempts done: " << ConnectionAttemptsDone;
         handleResult = RestartImpl(TPlainStatus(EStatus::TIMEOUT, description));
         if (handleResult.DoStop) {
@@ -580,7 +580,7 @@ void TWriteSessionImpl::OnConnect(
                 CloseImpl(
                         st.Status,
                         NPersQueue::MakeIssueWithSubIssues(
-                                TStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
+                                NUtils::TYdbStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
                                                  << "\". Attempts done: " << ConnectionAttemptsDone,
                                 st.Issues
                         )
@@ -737,8 +737,8 @@ void TWriteSessionImpl::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t co
     ProcessHandleResult(processResult.HandleResult);
 }
 
-TStringBuilder TWriteSessionImpl::LogPrefix() const {
-    TStringBuilder ret;
+NUtils::TYdbStringBuilder TWriteSessionImpl::LogPrefix() const {
+    NUtils::TYdbStringBuilder ret;
     ret << " SessionId [" << SessionId << "] ";
 
     if (Settings.PartitionId_.has_value()) {
@@ -753,7 +753,7 @@ TStringBuilder TWriteSessionImpl::LogPrefix() const {
 }
 
 template<>
-void TPrintable<TWriteSessionEvent::TAcksEvent>::DebugString(TStringBuilder& res, bool) const {
+void TPrintable<TWriteSessionEvent::TAcksEvent>::DebugString(NUtils::TYdbStringBuilder& res, bool) const {
     const auto* self = static_cast<const TWriteSessionEvent::TAcksEvent*>(this);
     res << "AcksEvent:";
     for (auto& ack : self->Acks) {
@@ -774,7 +774,7 @@ void TPrintable<TWriteSessionEvent::TAcksEvent>::DebugString(TStringBuilder& res
 }
 
 template<>
-void TPrintable<TWriteSessionEvent::TReadyToAcceptEvent>::DebugString(TStringBuilder& res, bool) const {
+void TPrintable<TWriteSessionEvent::TReadyToAcceptEvent>::DebugString(NUtils::TYdbStringBuilder& res, bool) const {
     res << "ReadyToAcceptEvent";
 }
 
@@ -782,7 +782,7 @@ TWriteSessionImpl::TProcessSrvMessageResult TWriteSessionImpl::ProcessServerMess
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     TProcessSrvMessageResult result;
-    switch (ServerMessage->GetServerMessageCase()) {
+    switch (ServerMessage->server_message_case()) {
         case TServerMessage::SERVER_MESSAGE_NOT_SET: {
             SessionEstablished = false;
             result.HandleResult = OnErrorImpl({
@@ -951,7 +951,7 @@ TMemoryUsageChange TWriteSessionImpl::OnMemoryUsageChangedImpl(i64 diff) {
     return {wasOk, nowOk};
 }
 
-TBuffer CompressBuffer(std::vector<TStringBuf>& data, ECodec codec, i32 level) {
+TBuffer CompressBuffer(std::vector<std::string_view>& data, ECodec codec, i32 level) {
     TBuffer result;
     THolder<IOutputStream> coder = NCompressionDetails::CreateCoder(codec, result, level);
     for (auto& buffer : data) {
@@ -1379,7 +1379,7 @@ void TWriteSessionImpl::CloseImpl(EStatus statusCode, NYql::TIssues&& issues) {
     AbortImpl();
 }
 
-void TWriteSessionImpl::CloseImpl(EStatus statusCode, const TString& message) {
+void TWriteSessionImpl::CloseImpl(EStatus statusCode, const std::string& message) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     NYql::TIssues issues;

@@ -14,9 +14,9 @@
 
 bool NUnitTest::ShouldColorizeDiff = true;
 
-TString NUnitTest::RandomString(size_t len, ui32 seed) {
+std::string NUnitTest::RandomString(size_t len, ui32 seed) {
     TReallyFastRng32 rand(seed);
-    TString ret;
+    std::string ret;
 
     ret.reserve(len);
 
@@ -33,7 +33,7 @@ Y_POD_STATIC_THREAD(NUnitTest::TTestBase*)
 currentTest;
 ::NUnitTest::TRaiseErrorHandler RaiseErrorHandler;
 
-void ::NUnitTest::NPrivate::RaiseError(const char* what, const TString& msg, bool fatalFailure) {
+void ::NUnitTest::NPrivate::RaiseError(const char* what, const std::string& msg, bool fatalFailure) {
     Y_ABORT_UNLESS(UnittestThread, "%s in non-unittest thread with message:\n%s", what, msg.data());
     Y_ABORT_UNLESS(GetCurrentTest());
 
@@ -80,27 +80,27 @@ struct TDiffColorizer {
     {
     }
 
-    TString Special(TStringBuf str) const {
+    std::string Special(std::string_view str) const {
         return ToString(Colors.YellowColor()) + str;
     }
 
-    TString Common(TArrayRef<const char> str) const {
-        return ToString(Colors.OldColor()) + TString(str.begin(), str.end());
+    std::string Common(TArrayRef<const char> str) const {
+        return ToString(Colors.OldColor()) + std::string(str.begin(), str.end());
     }
 
-    TString Left(TArrayRef<const char> str) const {
-        return ToString(GetLeftColor()) + TString(str.begin(), str.end());
+    std::string Left(TArrayRef<const char> str) const {
+        return ToString(GetLeftColor()) + std::string(str.begin(), str.end());
     }
 
-    TString Right(TArrayRef<const char> str) const {
-        return ToString(GetRightColor()) + TString(str.begin(), str.end());
+    std::string Right(TArrayRef<const char> str) const {
+        return ToString(GetRightColor()) + std::string(str.begin(), str.end());
     }
 
-    TStringBuf GetLeftColor() const {
+    std::string_view GetLeftColor() const {
         return Reverse ? Colors.RedColor() : Colors.GreenColor();
     }
 
-    TStringBuf GetRightColor() const {
+    std::string_view GetRightColor() const {
         return Reverse ? Colors.GreenColor() : Colors.RedColor();
     }
 };
@@ -113,37 +113,37 @@ struct TTraceDiffFormatter {
     {
     }
 
-    TString Special(TStringBuf str) const {
+    std::string Special(std::string_view str) const {
         return ToString(str);
     }
 
-    TString Common(TArrayRef<const char> str) const {
-        return TString(str.begin(), str.end());
+    std::string Common(TArrayRef<const char> str) const {
+        return std::string(str.begin(), str.end());
     }
 
-    TString Left(TArrayRef<const char> str) const {
+    std::string Left(TArrayRef<const char> str) const {
         return NUnitTest::GetFormatTag("good") +
-               TString(str.begin(), str.end()) +
+               std::string(str.begin(), str.end()) +
                NUnitTest::GetResetTag();
     }
 
-    TString Right(TArrayRef<const char> str) const {
+    std::string Right(TArrayRef<const char> str) const {
         return NUnitTest::GetFormatTag("bad") +
-               TString(str.begin(), str.end()) +
+               std::string(str.begin(), str.end()) +
                NUnitTest::GetResetTag();
     }
 };
 
-TString NUnitTest::GetFormatTag(const char* name) {
+std::string NUnitTest::GetFormatTag(const char* name) {
     return Sprintf("[[%s]]", name);
 }
 
-TString NUnitTest::GetResetTag() {
-    return TString("[[rst]]");
+std::string NUnitTest::GetResetTag() {
+    return std::string("[[rst]]");
 }
 
-TString NUnitTest::ColoredDiff(TStringBuf s1, TStringBuf s2, const TString& delims, bool reverse) {
-    TStringStream res;
+std::string NUnitTest::ColoredDiff(std::string_view s1, std::string_view s2, const std::string& delims, bool reverse) {
+    std::stringStream res;
     std::vector<NDiff::TChunk<char>> chunks;
     NDiff::InlineDiff(chunks, s1, s2, delims);
     if (NUnitTest::ShouldColorizeDiff) {
@@ -155,11 +155,11 @@ TString NUnitTest::ColoredDiff(TStringBuf s1, TStringBuf s2, const TString& deli
     return res.Str();
 }
 
-static TString MakeTestName(const NUnitTest::ITestSuiteProcessor::TTest& test) {
-    return TStringBuilder() << test.unit->name << "::" << test.name;
+static std::string MakeTestName(const NUnitTest::ITestSuiteProcessor::TTest& test) {
+    return TYdbStringBuilder() << test.unit->name << "::" << test.name;
 }
 
-static size_t CountTests(const std::map<TString, size_t>& testErrors, bool succeeded) {
+static size_t CountTests(const std::map<std::string, size_t>& testErrors, bool succeeded) {
     size_t cnt = 0;
     for (const auto& t : testErrors) {
         if (succeeded && t.second == 0) {
@@ -225,15 +225,15 @@ unsigned NUnitTest::ITestSuiteProcessor::FailTestsInCurrentUnit() const noexcept
     return CountTests(CurTestErrors_, false);
 }
 
-bool NUnitTest::ITestSuiteProcessor::CheckAccess(TString /*name*/, size_t /*num*/) {
+bool NUnitTest::ITestSuiteProcessor::CheckAccess(std::string /*name*/, size_t /*num*/) {
     return true;
 }
 
-bool NUnitTest::ITestSuiteProcessor::CheckAccessTest(TString /*suite*/, const char* /*name*/) {
+bool NUnitTest::ITestSuiteProcessor::CheckAccessTest(std::string /*suite*/, const char* /*name*/) {
     return true;
 }
 
-void NUnitTest::ITestSuiteProcessor::Run(std::function<void()> f, const TString& /*suite*/, const char* /*name*/, const bool /*forceFork*/) {
+void NUnitTest::ITestSuiteProcessor::Run(std::function<void()> f, const std::string& /*suite*/, const char* /*name*/, const bool /*forceFork*/) {
     f();
 }
 
@@ -272,13 +272,13 @@ void NUnitTest::ITestSuiteProcessor::OnBeforeTest(const TTest* /*test*/) {
 }
 
 void NUnitTest::ITestSuiteProcessor::AddTestError(const TTest& test) {
-    const TString name = MakeTestName(test);
+    const std::string name = MakeTestName(test);
     ++TestErrors_[name];
     ++CurTestErrors_[name];
 }
 
 void NUnitTest::ITestSuiteProcessor::AddTestFinish(const TTest& test) {
-    const TString name = MakeTestName(test);
+    const std::string name = MakeTestName(test);
     TestErrors_[name];    // zero errors if not touched
     CurTestErrors_[name]; // zero errors if not touched
 }
@@ -302,7 +302,7 @@ NUnitTest::TTestBase::TTestBase() noexcept
 
 NUnitTest::TTestBase::~TTestBase() = default;
 
-TString NUnitTest::TTestBase::TypeId() const {
+std::string NUnitTest::TTestBase::TypeId() const {
     return TypeName(*this);
 }
 
@@ -312,7 +312,7 @@ void NUnitTest::TTestBase::SetUp() {
 void NUnitTest::TTestBase::TearDown() {
 }
 
-void NUnitTest::TTestBase::AddError(const char* msg, const TString& backtrace, TTestContext* context) {
+void NUnitTest::TTestBase::AddError(const char* msg, const std::string& backtrace, TTestContext* context) {
     ++TestErrors_;
     const NUnitTest::ITestSuiteProcessor::TUnit unit = {Name()};
     const NUnitTest::ITestSuiteProcessor::TTest test = {&unit, CurrentSubtest_};
@@ -322,7 +322,7 @@ void NUnitTest::TTestBase::AddError(const char* msg, const TString& backtrace, T
 }
 
 void NUnitTest::TTestBase::AddError(const char* msg, TTestContext* context) {
-    AddError(msg, TString(), context);
+    AddError(msg, std::string(), context);
 }
 
 void NUnitTest::TTestBase::RunAfterTest(std::function<void()> f) {
@@ -368,7 +368,7 @@ void NUnitTest::TTestBase::AtEnd() {
     Processor()->UnitStop(unit);
 }
 
-void NUnitTest::TTestBase::Run(std::function<void()> f, const TString& suite, const char* name, const bool forceFork) {
+void NUnitTest::TTestBase::Run(std::function<void()> f, const std::string& suite, const char* name, const bool forceFork) {
     TestErrors_ = 0;
     CurrentSubtest_ = name;
     Processor()->Run(f, suite, name, forceFork);
@@ -469,7 +469,7 @@ unsigned NUnitTest::TTestFactory::Execute() {
     Items_.QuickSort(TCmp());
     Processor_->Start();
 
-    TSet<TString> types;
+    TSet<std::string> types;
     size_t cnt = 0;
 
     for (TIntrusiveList<ITestBaseFactory>::TIterator factory = Items_.Begin(); factory != Items_.End(); ++factory) {
@@ -480,7 +480,7 @@ unsigned NUnitTest::TTestFactory::Execute() {
         THolder<TTestBase> test(factory->ConstructTest());
 
 #ifdef _unix_ // on Windows RTTI causes memory leaks
-        TString type = test->TypeId();
+        std::string type = test->TypeId();
         if (types.insert(type).second == false) {
             warnx("Duplicate suite found: %s (%s). Probably you have copy-pasted suite without changing it name", factory->Name().c_str(), type.c_str());
             return 1;

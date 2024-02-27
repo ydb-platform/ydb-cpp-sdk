@@ -97,14 +97,14 @@ private:
 };
 
 struct TTableColumn {
-    TString Name;
+    std::string Name;
     TType Type;
-    TString Family;
+    std::string Family;
     std::optional<bool> NotNull;
 
     TTableColumn() = default;
 
-    TTableColumn(TString name, TType type, TString family = TString(), std::optional<bool> notNull = std::nullopt)
+    TTableColumn(std::string name, TType type, std::string family = std::string(), std::optional<bool> notNull = std::nullopt)
         : Name(std::move(name))
         , Type(std::move(type))
         , Family(std::move(family))
@@ -130,16 +130,16 @@ struct TTableColumn {
 };
 
 struct TAlterTableColumn {
-    TString Name;
-    TString Family;
+    std::string Name;
+    std::string Family;
 
     TAlterTableColumn() = default;
 
-    explicit TAlterTableColumn(TString name)
+    explicit TAlterTableColumn(std::string name)
         : Name(std::move(name))
     { }
 
-    TAlterTableColumn(TString name, TString family)
+    TAlterTableColumn(std::string name, std::string family)
         : Name(std::move(name))
         , Family(std::move(family))
     { }
@@ -153,20 +153,20 @@ class TIndexDescription {
 
 public:
     TIndexDescription(
-        const TString& name, EIndexType type,
-        const std::vector<TString>& indexColumns,
-        const std::vector<TString>& dataColumns = std::vector<TString>());
+        const std::string& name, EIndexType type,
+        const std::vector<std::string>& indexColumns,
+        const std::vector<std::string>& dataColumns = std::vector<std::string>());
 
-    TIndexDescription(const TString& name, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns = std::vector<TString>());
+    TIndexDescription(const std::string& name, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns = std::vector<std::string>());
 
-    const TString& GetIndexName() const;
+    const std::string& GetIndexName() const;
     EIndexType GetIndexType() const;
-    const std::vector<TString>& GetIndexColumns() const;
-    const std::vector<TString>& GetDataColumns() const;
+    const std::vector<std::string>& GetIndexColumns() const;
+    const std::vector<std::string>& GetDataColumns() const;
     ui64 GetSizeBytes() const;
 
     void SerializeTo(Ydb::Table::TableIndex& proto) const;
-    TString ToString() const;
+    std::string ToString() const;
     void Out(IOutputStream& o) const;
 
 private:
@@ -177,16 +177,16 @@ private:
     static TIndexDescription FromProto(const TProto& proto);
 
 private:
-    TString IndexName_;
+    std::string IndexName_;
     EIndexType IndexType_;
-    std::vector<TString> IndexColumns_;
-    std::vector<TString> DataColumns_;
+    std::vector<std::string> IndexColumns_;
+    std::vector<std::string> DataColumns_;
     ui64 SizeBytes = 0;
 };
 
 struct TRenameIndex {
-    TString SourceName_;
-    TString DestinationName_;
+    std::string SourceName_;
+    std::string DestinationName_;
     bool ReplaceDestination_ = false;
 };
 
@@ -201,7 +201,7 @@ public:
     struct TMetadata {
         EBuildIndexState State;
         float Progress;
-        TString Path;
+        std::string Path;
         std::optional<TIndexDescription> Desctiption;
     };
 
@@ -217,7 +217,7 @@ class TChangefeedDescription {
     friend class NYdb::TProtoAccessor;
 
 public:
-    TChangefeedDescription(const TString& name, EChangefeedMode mode, EChangefeedFormat format);
+    TChangefeedDescription(const std::string& name, EChangefeedMode mode, EChangefeedFormat format);
 
     // Enable virtual timestamps
     TChangefeedDescription& WithVirtualTimestamps();
@@ -228,24 +228,24 @@ public:
     // Initial scan will output the current state of the table first
     TChangefeedDescription& WithInitialScan();
     // Attributes
-    TChangefeedDescription& AddAttribute(const TString& key, const TString& value);
-    TChangefeedDescription& SetAttributes(const THashMap<TString, TString>& attrs);
-    TChangefeedDescription& SetAttributes(THashMap<TString, TString>&& attrs);
+    TChangefeedDescription& AddAttribute(const std::string& key, const std::string& value);
+    TChangefeedDescription& SetAttributes(const THashMap<std::string, std::string>& attrs);
+    TChangefeedDescription& SetAttributes(THashMap<std::string, std::string>&& attrs);
     // Value that will be emitted in the `awsRegion` field of the record in DynamoDBStreamsJson format
-    TChangefeedDescription& WithAwsRegion(const TString& value);
+    TChangefeedDescription& WithAwsRegion(const std::string& value);
 
-    const TString& GetName() const;
+    const std::string& GetName() const;
     EChangefeedMode GetMode() const;
     EChangefeedFormat GetFormat() const;
     EChangefeedState GetState() const;
     bool GetVirtualTimestamps() const;
     const std::optional<TDuration>& GetResolvedTimestamps() const;
     bool GetInitialScan() const;
-    const THashMap<TString, TString>& GetAttributes() const;
-    const TString& GetAwsRegion() const;
+    const THashMap<std::string, std::string>& GetAttributes() const;
+    const std::string& GetAwsRegion() const;
 
     void SerializeTo(Ydb::Table::Changefeed& proto) const;
-    TString ToString() const;
+    std::string ToString() const;
     void Out(IOutputStream& o) const;
 
 private:
@@ -256,7 +256,7 @@ private:
     static TChangefeedDescription FromProto(const TProto& proto);
 
 private:
-    TString Name_;
+    std::string Name_;
     EChangefeedMode Mode_;
     EChangefeedFormat Format_;
     EChangefeedState State_ = EChangefeedState::Unknown;
@@ -264,8 +264,8 @@ private:
     std::optional<TDuration> ResolvedTimestamps_;
     std::optional<TDuration> RetentionPeriod_;
     bool InitialScan_ = false;
-    THashMap<TString, TString> Attributes_;
-    TString AwsRegion_;
+    THashMap<std::string, std::string> Attributes_;
+    std::string AwsRegion_;
 };
 
 bool operator==(const TChangefeedDescription& lhs, const TChangefeedDescription& rhs);
@@ -280,14 +280,14 @@ struct TPartitionStats {
 
 class TDateTypeColumnModeSettings {
 public:
-    explicit TDateTypeColumnModeSettings(const TString& columnName, const TDuration& expireAfter);
+    explicit TDateTypeColumnModeSettings(const std::string& columnName, const TDuration& expireAfter);
     void SerializeTo(Ydb::Table::DateTypeColumnModeSettings& proto) const;
 
-    const TString& GetColumnName() const;
+    const std::string& GetColumnName() const;
     const TDuration& GetExpireAfter() const;
 
 private:
-    TString ColumnName_;
+    std::string ColumnName_;
     TDuration ExpireAfter_;
 };
 
@@ -303,19 +303,19 @@ public:
     };
 
 public:
-    explicit TValueSinceUnixEpochModeSettings(const TString& columnName, EUnit columnUnit, const TDuration& expireAfter);
+    explicit TValueSinceUnixEpochModeSettings(const std::string& columnName, EUnit columnUnit, const TDuration& expireAfter);
     void SerializeTo(Ydb::Table::ValueSinceUnixEpochModeSettings& proto) const;
 
-    const TString& GetColumnName() const;
+    const std::string& GetColumnName() const;
     EUnit GetColumnUnit() const;
     const TDuration& GetExpireAfter() const;
 
     static void Out(IOutputStream& o, EUnit unit);
-    static TString ToString(EUnit unit);
-    static EUnit UnitFromString(const TString& value);
+    static std::string ToString(EUnit unit);
+    static EUnit UnitFromString(const std::string& value);
 
 private:
-    TString ColumnName_;
+    std::string ColumnName_;
     EUnit ColumnUnit_;
     TDuration ExpireAfter_;
 };
@@ -330,11 +330,11 @@ public:
         ValueSinceUnixEpoch = 1,
     };
 
-    explicit TTtlSettings(const TString& columnName, const TDuration& expireAfter);
+    explicit TTtlSettings(const std::string& columnName, const TDuration& expireAfter);
     explicit TTtlSettings(const Ydb::Table::DateTypeColumnModeSettings& mode, ui32 runIntervalSeconds);
     const TDateTypeColumnModeSettings& GetDateTypeColumn() const;
 
-    explicit TTtlSettings(const TString& columnName, EUnit columnUnit, const TDuration& expireAfter);
+    explicit TTtlSettings(const std::string& columnName, EUnit columnUnit, const TDuration& expireAfter);
     explicit TTtlSettings(const Ydb::Table::ValueSinceUnixEpochModeSettings& mode, ui32 runIntervalSeconds);
     const TValueSinceUnixEpochModeSettings& GetValueSinceUnixEpoch() const;
 
@@ -397,9 +397,9 @@ public:
 
     const Ydb::Table::StorageSettings& GetProto() const;
 
-    std::optional<TString> GetTabletCommitLog0() const;
-    std::optional<TString> GetTabletCommitLog1() const;
-    std::optional<TString> GetExternal() const;
+    std::optional<std::string> GetTabletCommitLog0() const;
+    std::optional<std::string> GetTabletCommitLog1() const;
+    std::optional<std::string> GetExternal() const;
     std::optional<bool> GetStoreExternalBlobs() const;
 
 private:
@@ -414,8 +414,8 @@ public:
 
     const Ydb::Table::ColumnFamily& GetProto() const;
 
-    const TString& GetName() const;
-    std::optional<TString> GetData() const;
+    const std::string& GetName() const;
+    std::optional<std::string> GetData() const;
     std::optional<EColumnFamilyCompression> GetCompression() const;
     std::optional<bool> GetKeepInMemory() const;
 
@@ -479,18 +479,18 @@ class TTableDescription {
 public:
     TTableDescription(Ydb::Table::DescribeTableResult&& desc, const TDescribeTableSettings& describeSettings);
 
-    const std::vector<TString>& GetPrimaryKeyColumns() const;
+    const std::vector<std::string>& GetPrimaryKeyColumns() const;
     // DEPRECATED: use GetTableColumns()
     std::vector<TColumn> GetColumns() const;
     std::vector<TTableColumn> GetTableColumns() const;
     std::vector<TIndexDescription> GetIndexDescriptions() const;
     std::vector<TChangefeedDescription> GetChangefeedDescriptions() const;
     std::optional<TTtlSettings> GetTtlSettings() const;
-    std::optional<TString> GetTiering() const;
+    std::optional<std::string> GetTiering() const;
     EStoreType GetStoreType() const;
 
     // Deprecated. Use GetEntry() of TDescribeTableResult instead
-    const TString& GetOwner() const;
+    const std::string& GetOwner() const;
     const std::vector<NScheme::TPermissions>& GetPermissions() const;
     const std::vector<NScheme::TPermissions>& GetEffectivePermissions() const;
 
@@ -521,7 +521,7 @@ public:
     const std::vector<TColumnFamilyDescription>& GetColumnFamilies() const;
 
     // Attributes
-    const THashMap<TString, TString>& GetAttributes() const;
+    const THashMap<std::string, std::string>& GetAttributes() const;
 
     // Returns partitioning settings of the table
     const TPartitioningSettings& GetPartitioningSettings() const;
@@ -539,35 +539,35 @@ private:
     TTableDescription();
     explicit TTableDescription(const Ydb::Table::CreateTableRequest& request);
 
-    void AddColumn(const TString& name, const Ydb::Type& type, const TString& family, std::optional<bool> notNull);
-    void SetPrimaryKeyColumns(const std::vector<TString>& primaryKeyColumns);
+    void AddColumn(const std::string& name, const Ydb::Type& type, const std::string& family, std::optional<bool> notNull);
+    void SetPrimaryKeyColumns(const std::vector<std::string>& primaryKeyColumns);
 
     // common
-    void AddSecondaryIndex(const TString& indexName, EIndexType type, const std::vector<TString>& indexColumns);
-    void AddSecondaryIndex(const TString& indexName, EIndexType type, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns);
+    void AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns);
+    void AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns);
     // sync
-    void AddSyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns);
-    void AddSyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns);
+    void AddSyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns);
+    void AddSyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns);
     // async
-    void AddAsyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns);
-    void AddAsyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns);
+    void AddAsyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns);
+    void AddAsyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns);
     // unique
-    void AddUniqueSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns);
-    void AddUniqueSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns);
+    void AddUniqueSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns);
+    void AddUniqueSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns);
 
     // default
-    void AddSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns);
-    void AddSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns);
+    void AddSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns);
+    void AddSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns);
 
     void SetTtlSettings(TTtlSettings&& settings);
     void SetTtlSettings(const TTtlSettings& settings);
 
     void SetStorageSettings(const TStorageSettings& settings);
     void AddColumnFamily(const TColumnFamilyDescription& desc);
-    void AddAttribute(const TString& key, const TString& value);
-    void SetAttributes(const THashMap<TString, TString>& attrs);
-    void SetAttributes(THashMap<TString, TString>&& attrs);
-    void SetCompactionPolicy(const TString& name);
+    void AddAttribute(const std::string& key, const std::string& value);
+    void SetAttributes(const THashMap<std::string, std::string>& attrs);
+    void SetAttributes(THashMap<std::string, std::string>&& attrs);
+    void SetCompactionPolicy(const std::string& name);
     void SetUniformPartitions(ui64 partitionsCount);
     void SetPartitionAtKeys(const TExplicitPartitions& keys);
     void SetPartitioningSettings(const TPartitioningSettings& settings);
@@ -587,9 +587,9 @@ public:
     TStorageSettingsBuilder();
     ~TStorageSettingsBuilder();
 
-    TStorageSettingsBuilder& SetTabletCommitLog0(const TString& media);
-    TStorageSettingsBuilder& SetTabletCommitLog1(const TString& media);
-    TStorageSettingsBuilder& SetExternal(const TString& media);
+    TStorageSettingsBuilder& SetTabletCommitLog0(const std::string& media);
+    TStorageSettingsBuilder& SetTabletCommitLog1(const std::string& media);
+    TStorageSettingsBuilder& SetExternal(const std::string& media);
     TStorageSettingsBuilder& SetStoreExternalBlobs(bool enabled);
 
     TStorageSettings Build() const;
@@ -623,10 +623,10 @@ private:
 
 class TColumnFamilyBuilder {
 public:
-    explicit TColumnFamilyBuilder(const TString& name);
+    explicit TColumnFamilyBuilder(const std::string& name);
     ~TColumnFamilyBuilder();
 
-    TColumnFamilyBuilder& SetData(const TString& media);
+    TColumnFamilyBuilder& SetData(const std::string& media);
     TColumnFamilyBuilder& SetCompression(EColumnFamilyCompression compression);
 
     TColumnFamilyDescription Build() const;
@@ -646,17 +646,17 @@ public:
         : Parent_(parent)
     { }
 
-    TTableStorageSettingsBuilder& SetTabletCommitLog0(const TString& media) {
+    TTableStorageSettingsBuilder& SetTabletCommitLog0(const std::string& media) {
         Builder_.SetTabletCommitLog0(media);
         return *this;
     }
 
-    TTableStorageSettingsBuilder& SetTabletCommitLog1(const TString& media) {
+    TTableStorageSettingsBuilder& SetTabletCommitLog1(const std::string& media) {
         Builder_.SetTabletCommitLog1(media);
         return *this;
     }
 
-    TTableStorageSettingsBuilder& SetExternal(const TString& media) {
+    TTableStorageSettingsBuilder& SetExternal(const std::string& media) {
         Builder_.SetExternal(media);
         return *this;
     }
@@ -675,12 +675,12 @@ private:
 
 class TTableColumnFamilyBuilder {
 public:
-    TTableColumnFamilyBuilder(TTableBuilder& parent, const TString& name)
+    TTableColumnFamilyBuilder(TTableBuilder& parent, const std::string& name)
         : Parent_(parent)
         , Builder_(name)
     { }
 
-    TTableColumnFamilyBuilder& SetData(const TString& media) {
+    TTableColumnFamilyBuilder& SetData(const std::string& media) {
         Builder_.SetData(media);
         return *this;
     }
@@ -745,53 +745,53 @@ public:
 
     TTableBuilder& SetStoreType(EStoreType type);
 
-    TTableBuilder& AddNullableColumn(const TString& name, const EPrimitiveType& type, const TString& family = TString());
-    TTableBuilder& AddNullableColumn(const TString& name, const TDecimalType& type, const TString& family = TString());
-    TTableBuilder& AddNullableColumn(const TString& name, const TPgType& type, const TString& family = TString());
-    TTableBuilder& AddNonNullableColumn(const TString& name, const EPrimitiveType& type, const TString& family = TString());
-    TTableBuilder& AddNonNullableColumn(const TString& name, const TDecimalType& type, const TString& family = TString());
-    TTableBuilder& AddNonNullableColumn(const TString& name, const TPgType& type, const TString& family = TString());
-    TTableBuilder& SetPrimaryKeyColumns(const std::vector<TString>& primaryKeyColumns);
-    TTableBuilder& SetPrimaryKeyColumn(const TString& primaryKeyColumn);
+    TTableBuilder& AddNullableColumn(const std::string& name, const EPrimitiveType& type, const std::string& family = std::string());
+    TTableBuilder& AddNullableColumn(const std::string& name, const TDecimalType& type, const std::string& family = std::string());
+    TTableBuilder& AddNullableColumn(const std::string& name, const TPgType& type, const std::string& family = std::string());
+    TTableBuilder& AddNonNullableColumn(const std::string& name, const EPrimitiveType& type, const std::string& family = std::string());
+    TTableBuilder& AddNonNullableColumn(const std::string& name, const TDecimalType& type, const std::string& family = std::string());
+    TTableBuilder& AddNonNullableColumn(const std::string& name, const TPgType& type, const std::string& family = std::string());
+    TTableBuilder& SetPrimaryKeyColumns(const std::vector<std::string>& primaryKeyColumns);
+    TTableBuilder& SetPrimaryKeyColumn(const std::string& primaryKeyColumn);
 
     // common
-    TTableBuilder& AddSecondaryIndex(const TString& indexName, EIndexType type, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns);
-    TTableBuilder& AddSecondaryIndex(const TString& indexName, EIndexType type, const std::vector<TString>& indexColumns);
-    TTableBuilder& AddSecondaryIndex(const TString& indexName, EIndexType type, const TString& indexColumn);
+    TTableBuilder& AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns);
+    TTableBuilder& AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns);
+    TTableBuilder& AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::string& indexColumn);
 
     // sync
-    TTableBuilder& AddSyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns);
-    TTableBuilder& AddSyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns);
-    TTableBuilder& AddSyncSecondaryIndex(const TString& indexName, const TString& indexColumn);
+    TTableBuilder& AddSyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns);
+    TTableBuilder& AddSyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns);
+    TTableBuilder& AddSyncSecondaryIndex(const std::string& indexName, const std::string& indexColumn);
 
     // async
-    TTableBuilder& AddAsyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns);
-    TTableBuilder& AddAsyncSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns);
-    TTableBuilder& AddAsyncSecondaryIndex(const TString& indexName, const TString& indexColumn);
+    TTableBuilder& AddAsyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns);
+    TTableBuilder& AddAsyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns);
+    TTableBuilder& AddAsyncSecondaryIndex(const std::string& indexName, const std::string& indexColumn);
 
     // unique
-    TTableBuilder& AddUniqueSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns);
-    TTableBuilder& AddUniqueSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns);
+    TTableBuilder& AddUniqueSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns);
+    TTableBuilder& AddUniqueSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns);
 
     // default
-    TTableBuilder& AddSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns, const std::vector<TString>& dataColumns);
-    TTableBuilder& AddSecondaryIndex(const TString& indexName, const std::vector<TString>& indexColumns);
-    TTableBuilder& AddSecondaryIndex(const TString& indexName, const TString& indexColumn);
+    TTableBuilder& AddSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns);
+    TTableBuilder& AddSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns);
+    TTableBuilder& AddSecondaryIndex(const std::string& indexName, const std::string& indexColumn);
 
     TTableBuilder& SetTtlSettings(TTtlSettings&& settings);
     TTableBuilder& SetTtlSettings(const TTtlSettings& settings);
-    TTableBuilder& SetTtlSettings(const TString& columnName, const TDuration& expireAfter = TDuration::Zero());
-    TTableBuilder& SetTtlSettings(const TString& columnName, EUnit columnUnit, const TDuration& expireAfter = TDuration::Zero());
+    TTableBuilder& SetTtlSettings(const std::string& columnName, const TDuration& expireAfter = TDuration::Zero());
+    TTableBuilder& SetTtlSettings(const std::string& columnName, EUnit columnUnit, const TDuration& expireAfter = TDuration::Zero());
 
     TTableBuilder& SetStorageSettings(const TStorageSettings& settings);
 
     TTableBuilder& AddColumnFamily(const TColumnFamilyDescription& desc);
 
-    TTableBuilder& AddAttribute(const TString& key, const TString& value);
-    TTableBuilder& SetAttributes(const THashMap<TString, TString>& attrs);
-    TTableBuilder& SetAttributes(THashMap<TString, TString>&& attrs);
+    TTableBuilder& AddAttribute(const std::string& key, const std::string& value);
+    TTableBuilder& SetAttributes(const THashMap<std::string, std::string>& attrs);
+    TTableBuilder& SetAttributes(THashMap<std::string, std::string>&& attrs);
 
-    TTableBuilder& SetCompactionPolicy(const TString& name);
+    TTableBuilder& SetCompactionPolicy(const std::string& name);
 
     // UniformPartitions and PartitionAtKeys are mutually exclusive
     TTableBuilder& SetUniformPartitions(ui64 partitionsCount);
@@ -807,7 +807,7 @@ public:
         return TTableStorageSettingsBuilder(*this);
     }
 
-    TTableColumnFamilyBuilder BeginColumnFamily(const TString& name) {
+    TTableColumnFamilyBuilder BeginColumnFamily(const std::string& name) {
         return TTableColumnFamilyBuilder(*this, name);
     }
 
@@ -837,16 +837,16 @@ inline TTableBuilder& TTablePartitioningSettingsBuilder::EndPartitioningSettings
 
 class TCopyItem {
 public:
-    TCopyItem(const TString& source, const TString& destination);
+    TCopyItem(const std::string& source, const std::string& destination);
 
-    const TString& SourcePath() const;
-    const TString& DestinationPath() const;
+    const std::string& SourcePath() const;
+    const std::string& DestinationPath() const;
 
     TCopyItem& SetOmitIndexes();
     bool OmitIndexes() const;
 private:
-    TString Source_;
-    TString Destination_;
+    std::string Source_;
+    std::string Destination_;
     bool OmitIndexes_;
 };
 
@@ -854,16 +854,16 @@ private:
 
 class TRenameItem {
 public:
-    TRenameItem(const TString& source, const TString& destination);
+    TRenameItem(const std::string& source, const std::string& destination);
 
-    const TString& SourcePath() const;
-    const TString& DestinationPath() const;
+    const std::string& SourcePath() const;
+    const std::string& DestinationPath() const;
 
     TRenameItem& SetReplaceDestination();
     bool ReplaceDestination() const;
 private:
-    TString Source_;
-    TString Destination_;
+    std::string Source_;
+    std::string Destination_;
     bool ReplaceDestination_;
 };
 
@@ -958,7 +958,7 @@ struct TClientSettings : public TCommonClientSettingsBase<TClientSettings> {
 struct TBulkUpsertSettings : public TOperationRequestSettings<TBulkUpsertSettings> {
     // Format setting proto serialized into string. If not set format defaults are used.
     // I.e. it's Ydb.Table.CsvSettings for CSV.
-    FLUENT_SETTING_DEFAULT(TString, FormatSettings, "");
+    FLUENT_SETTING_DEFAULT(std::string, FormatSettings, "");
 };
 
 struct TReadRowsSettings : public TOperationRequestSettings<TReadRowsSettings> {
@@ -1064,18 +1064,18 @@ public:
     //! "rows" parameter must be a list of structs where each stuct represents one row.
     //! It must contain all key columns but not necessarily all non-key columns.
     //! Similar to UPSERT statement only values of specified columns will be updated.
-    TAsyncBulkUpsertResult BulkUpsert(const TString& table, TValue&& rows,
+    TAsyncBulkUpsertResult BulkUpsert(const std::string& table, TValue&& rows,
         const TBulkUpsertSettings& settings = TBulkUpsertSettings());
-    TAsyncBulkUpsertResult BulkUpsert(const TString& table, EDataFormat format,
-        const TString& data, const TString& schema = {}, const TBulkUpsertSettings& settings = TBulkUpsertSettings());
+    TAsyncBulkUpsertResult BulkUpsert(const std::string& table, EDataFormat format,
+        const std::string& data, const std::string& schema = {}, const TBulkUpsertSettings& settings = TBulkUpsertSettings());
 
-    TAsyncReadRowsResult ReadRows(const TString& table, TValue&& keys, const std::vector<TString>& columns = {},
+    TAsyncReadRowsResult ReadRows(const std::string& table, TValue&& keys, const std::vector<std::string>& columns = {},
         const TReadRowsSettings& settings = TReadRowsSettings());
 
-    TAsyncScanQueryPartIterator StreamExecuteScanQuery(const TString& query,
+    TAsyncScanQueryPartIterator StreamExecuteScanQuery(const std::string& query,
         const TStreamExecScanQuerySettings& settings = TStreamExecScanQuerySettings());
 
-    TAsyncScanQueryPartIterator StreamExecuteScanQuery(const TString& query, const TParams& params,
+    TAsyncScanQueryPartIterator StreamExecuteScanQuery(const std::string& query, const TParams& params,
         const TStreamExecScanQuerySettings& settings = TStreamExecScanQuerySettings());
 
 private:
@@ -1178,7 +1178,7 @@ private:
     TTxControl(const TTxSettings& begin);
 
 private:
-    std::optional<TString> TxId_;
+    std::optional<std::string> TxId_;
     TTxSettings BeginTx_;
 };
 
@@ -1193,11 +1193,11 @@ enum class EAutoPartitioningPolicy {
 struct TColumnFamilyPolicy {
     using TSelf = TColumnFamilyPolicy;
 
-    FLUENT_SETTING_OPTIONAL(TString, Name);
+    FLUENT_SETTING_OPTIONAL(std::string, Name);
 
-    FLUENT_SETTING_OPTIONAL(TString, Data);
+    FLUENT_SETTING_OPTIONAL(std::string, Data);
 
-    FLUENT_SETTING_OPTIONAL(TString, External);
+    FLUENT_SETTING_OPTIONAL(std::string, External);
 
     FLUENT_SETTING_OPTIONAL(bool, KeepInMemory);
 
@@ -1207,15 +1207,15 @@ struct TColumnFamilyPolicy {
 struct TStoragePolicy {
     using TSelf = TStoragePolicy;
 
-    FLUENT_SETTING_OPTIONAL(TString, PresetName);
+    FLUENT_SETTING_OPTIONAL(std::string, PresetName);
 
-    FLUENT_SETTING_OPTIONAL(TString, SysLog);
+    FLUENT_SETTING_OPTIONAL(std::string, SysLog);
 
-    FLUENT_SETTING_OPTIONAL(TString, Log);
+    FLUENT_SETTING_OPTIONAL(std::string, Log);
 
-    FLUENT_SETTING_OPTIONAL(TString, Data);
+    FLUENT_SETTING_OPTIONAL(std::string, Data);
 
-    FLUENT_SETTING_OPTIONAL(TString, External);
+    FLUENT_SETTING_OPTIONAL(std::string, External);
 
     FLUENT_SETTING_VECTOR(TColumnFamilyPolicy, ColumnFamilies);
 };
@@ -1229,7 +1229,7 @@ struct TExplicitPartitions {
 struct TPartitioningPolicy {
     using TSelf = TPartitioningPolicy;
 
-    FLUENT_SETTING_OPTIONAL(TString, PresetName);
+    FLUENT_SETTING_OPTIONAL(std::string, PresetName);
 
     FLUENT_SETTING_OPTIONAL(EAutoPartitioningPolicy, AutoPartitioning);
 
@@ -1241,7 +1241,7 @@ struct TPartitioningPolicy {
 struct TReplicationPolicy {
     using TSelf = TReplicationPolicy;
 
-    FLUENT_SETTING_OPTIONAL(TString, PresetName);
+    FLUENT_SETTING_OPTIONAL(std::string, PresetName);
 
     FLUENT_SETTING_OPTIONAL(ui32, ReplicasCount);
 
@@ -1255,11 +1255,11 @@ struct TReplicationPolicy {
 struct TCreateTableSettings : public TOperationRequestSettings<TCreateTableSettings> {
     using TSelf = TCreateTableSettings;
 
-    FLUENT_SETTING_OPTIONAL(TString, PresetName);
+    FLUENT_SETTING_OPTIONAL(std::string, PresetName);
 
-    FLUENT_SETTING_OPTIONAL(TString, ExecutionPolicy);
+    FLUENT_SETTING_OPTIONAL(std::string, ExecutionPolicy);
 
-    FLUENT_SETTING_OPTIONAL(TString, CompactionPolicy);
+    FLUENT_SETTING_OPTIONAL(std::string, CompactionPolicy);
 
     FLUENT_SETTING_OPTIONAL(TPartitioningPolicy, PartitioningPolicy);
 
@@ -1284,17 +1284,17 @@ public:
         : Parent_(parent)
     { }
 
-    TAlterStorageSettingsBuilder& SetTabletCommitLog0(const TString& media) {
+    TAlterStorageSettingsBuilder& SetTabletCommitLog0(const std::string& media) {
         Builder_.SetTabletCommitLog0(media);
         return *this;
     }
 
-    TAlterStorageSettingsBuilder& SetTabletCommitLog1(const TString& media) {
+    TAlterStorageSettingsBuilder& SetTabletCommitLog1(const std::string& media) {
         Builder_.SetTabletCommitLog1(media);
         return *this;
     }
 
-    TAlterStorageSettingsBuilder& SetExternal(const TString& media) {
+    TAlterStorageSettingsBuilder& SetExternal(const std::string& media) {
         Builder_.SetExternal(media);
         return *this;
     }
@@ -1313,12 +1313,12 @@ private:
 
 class TAlterColumnFamilyBuilder {
 public:
-    TAlterColumnFamilyBuilder(TAlterTableSettings& parent, const TString& name)
+    TAlterColumnFamilyBuilder(TAlterTableSettings& parent, const std::string& name)
         : Parent_(parent)
         , Builder_(name)
     { }
 
-    TAlterColumnFamilyBuilder& SetData(const TString& media) {
+    TAlterColumnFamilyBuilder& SetData(const std::string& media) {
         Builder_.SetData(media);
         return *this;
     }
@@ -1345,8 +1345,8 @@ public:
     TAlterTtlSettingsBuilder& Drop();
     TAlterTtlSettingsBuilder& Set(TTtlSettings&& settings);
     TAlterTtlSettingsBuilder& Set(const TTtlSettings& settings);
-    TAlterTtlSettingsBuilder& Set(const TString& columnName, const TDuration& expireAfter = TDuration::Zero());
-    TAlterTtlSettingsBuilder& Set(const TString& columnName, EUnit columnUnit, const TDuration& expireAfter = TDuration::Zero());
+    TAlterTtlSettingsBuilder& Set(const std::string& columnName, const TDuration& expireAfter = TDuration::Zero());
+    TAlterTtlSettingsBuilder& Set(const std::string& columnName, EUnit columnUnit, const TDuration& expireAfter = TDuration::Zero());
 
     TAlterTableSettings& EndAlterTtlSettings();
 
@@ -1363,16 +1363,16 @@ public:
         : Parent_(parent)
     { }
 
-    TAlterAttributesBuilder& Alter(const TString& key, const TString& value) {
+    TAlterAttributesBuilder& Alter(const std::string& key, const std::string& value) {
         AlterAttributes_[key] = value;
         return *this;
     }
 
-    TAlterAttributesBuilder& Add(const TString& key, const TString& value) {
+    TAlterAttributesBuilder& Add(const std::string& key, const std::string& value) {
         return Alter(key, value);
     }
 
-    TAlterAttributesBuilder& Drop(const TString& key) {
+    TAlterAttributesBuilder& Drop(const std::string& key) {
         return Alter(key, "");
     }
 
@@ -1380,7 +1380,7 @@ public:
 
 private:
     TAlterTableSettings& Parent_;
-    THashMap<TString, TString> AlterAttributes_;
+    THashMap<std::string, std::string> AlterAttributes_;
 };
 
 class TAlterPartitioningSettingsBuilder {
@@ -1423,24 +1423,24 @@ private:
 
 struct TAlterTableSettings : public TOperationRequestSettings<TAlterTableSettings> {
     using TSelf = TAlterTableSettings;
-    using TAlterAttributes = THashMap<TString, TString>;
+    using TAlterAttributes = THashMap<std::string, std::string>;
 
     TAlterTableSettings();
 
     FLUENT_SETTING_VECTOR(TTableColumn, AddColumns);
 
-    FLUENT_SETTING_VECTOR(TString, DropColumns);
+    FLUENT_SETTING_VECTOR(std::string, DropColumns);
 
     FLUENT_SETTING_VECTOR(TAlterTableColumn, AlterColumns);
 
     FLUENT_SETTING_VECTOR(TIndexDescription, AddIndexes);
-    FLUENT_SETTING_VECTOR(TString, DropIndexes);
+    FLUENT_SETTING_VECTOR(std::string, DropIndexes);
     FLUENT_SETTING_VECTOR(TRenameIndex, RenameIndexes);
 
     FLUENT_SETTING_VECTOR(TChangefeedDescription, AddChangefeeds);
-    FLUENT_SETTING_VECTOR(TString, DropChangefeeds);
+    FLUENT_SETTING_VECTOR(std::string, DropChangefeeds);
 
-    TSelf& AlterColumnFamily(TString name, TString family) {
+    TSelf& AlterColumnFamily(std::string name, std::string family) {
         AlterColumns_.emplace_back(std::move(name), std::move(family));
         return *this;
     }
@@ -1456,7 +1456,7 @@ struct TAlterTableSettings : public TOperationRequestSettings<TAlterTableSetting
 
     FLUENT_SETTING(TAlterAttributes, AlterAttributes);
 
-    FLUENT_SETTING(TString, SetCompactionPolicy);
+    FLUENT_SETTING(std::string, SetCompactionPolicy);
 
     FLUENT_SETTING_OPTIONAL(TPartitioningSettings, AlterPartitioningSettings);
 
@@ -1472,11 +1472,11 @@ struct TAlterTableSettings : public TOperationRequestSettings<TAlterTableSetting
         return TAlterStorageSettingsBuilder(*this);
     }
 
-    TAlterColumnFamilyBuilder BeginAddColumnFamily(const TString& name) {
+    TAlterColumnFamilyBuilder BeginAddColumnFamily(const std::string& name) {
         return TAlterColumnFamilyBuilder(*this, name);
     }
 
-    TAlterColumnFamilyBuilder BeginAlterColumnFamily(const TString& name) {
+    TAlterColumnFamilyBuilder BeginAlterColumnFamily(const std::string& name) {
         return TAlterColumnFamilyBuilder(*this, name);
     }
 
@@ -1565,7 +1565,7 @@ struct TReadTableSettings : public TRequestSettings<TReadTableSettings> {
 
     FLUENT_SETTING_OPTIONAL(TKeyBound, To);
 
-    FLUENT_SETTING_VECTOR(TString, Columns);
+    FLUENT_SETTING_VECTOR(std::string, Columns);
 
     FLUENT_SETTING_FLAG(Ordered);
 
@@ -1589,17 +1589,17 @@ class TSession {
 public:
     //! The following methods perform corresponding calls.
     //! Results are NThreading::TFuture<T> where T is corresponding result.
-    TAsyncStatus CreateTable(const TString& path, TTableDescription&& tableDesc,
+    TAsyncStatus CreateTable(const std::string& path, TTableDescription&& tableDesc,
         const TCreateTableSettings& settings = TCreateTableSettings());
 
-    TAsyncStatus DropTable(const TString& path, const TDropTableSettings& settings = TDropTableSettings());
+    TAsyncStatus DropTable(const std::string& path, const TDropTableSettings& settings = TDropTableSettings());
 
-    TAsyncStatus AlterTable(const TString& path, const TAlterTableSettings& settings = TAlterTableSettings());
+    TAsyncStatus AlterTable(const std::string& path, const TAlterTableSettings& settings = TAlterTableSettings());
 
     // Same as AlterTable but may return operation in case of long running
-    TAsyncOperation AlterTableLong(const TString& path, const TAlterTableSettings& settings = TAlterTableSettings());
+    TAsyncOperation AlterTableLong(const std::string& path, const TAlterTableSettings& settings = TAlterTableSettings());
 
-    TAsyncStatus CopyTable(const TString& src, const TString& dst,
+    TAsyncStatus CopyTable(const std::string& src, const std::string& dst,
         const TCopyTableSettings& settings = TCopyTableSettings());
 
     TAsyncStatus CopyTables(const std::vector<TCopyItem>& copyItems,
@@ -1608,31 +1608,31 @@ public:
     TAsyncStatus RenameTables(const std::vector<TRenameItem>& renameItems,
         const TRenameTablesSettings& settings = TRenameTablesSettings());
 
-    TAsyncDescribeTableResult DescribeTable(const TString& path,
+    TAsyncDescribeTableResult DescribeTable(const std::string& path,
         const TDescribeTableSettings& settings = TDescribeTableSettings());
 
     TAsyncBeginTransactionResult BeginTransaction(const TTxSettings& txSettings = TTxSettings(),
         const TBeginTxSettings& settings = TBeginTxSettings());
 
-    TAsyncExplainDataQueryResult ExplainDataQuery(const TString& query,
+    TAsyncExplainDataQueryResult ExplainDataQuery(const std::string& query,
         const TExplainDataQuerySettings& settings = TExplainDataQuerySettings());
 
-    TAsyncPrepareQueryResult PrepareDataQuery(const TString& query,
+    TAsyncPrepareQueryResult PrepareDataQuery(const std::string& query,
         const TPrepareDataQuerySettings& settings = TPrepareDataQuerySettings());
 
-    TAsyncDataQueryResult ExecuteDataQuery(const TString& query, const TTxControl& txControl,
+    TAsyncDataQueryResult ExecuteDataQuery(const std::string& query, const TTxControl& txControl,
         const TExecDataQuerySettings& settings = TExecDataQuerySettings());
 
-    TAsyncDataQueryResult ExecuteDataQuery(const TString& query, const TTxControl& txControl,
+    TAsyncDataQueryResult ExecuteDataQuery(const std::string& query, const TTxControl& txControl,
         const TParams& params, const TExecDataQuerySettings& settings = TExecDataQuerySettings());
 
-    TAsyncDataQueryResult ExecuteDataQuery(const TString& query, const TTxControl& txControl,
+    TAsyncDataQueryResult ExecuteDataQuery(const std::string& query, const TTxControl& txControl,
         TParams&& params, const TExecDataQuerySettings& settings = TExecDataQuerySettings());
 
-    TAsyncStatus ExecuteSchemeQuery(const TString& query,
+    TAsyncStatus ExecuteSchemeQuery(const std::string& query,
         const TExecSchemeQuerySettings& settings = TExecSchemeQuerySettings());
 
-    TAsyncTablePartIterator ReadTable(const TString& path,
+    TAsyncTablePartIterator ReadTable(const std::string& path,
         const TReadTableSettings& settings = TReadTableSettings());
 
     TAsyncStatus Close(const TCloseSessionSettings& settings = TCloseSessionSettings());
@@ -1648,11 +1648,11 @@ public:
     //! Returns new type builder
     TTypeBuilder GetTypeBuilder();
     //! Returns session id
-    const TString& GetId() const;
+    const std::string& GetId() const;
 
     class TImpl;
 private:
-    TSession(std::shared_ptr<TTableClient::TImpl> client, const TString& sessionId, const TString& endpointId, bool isOwnedBySessionPool);
+    TSession(std::shared_ptr<TTableClient::TImpl> client, const std::string& sessionId, const std::string& endpointId, bool isOwnedBySessionPool);
     TSession(std::shared_ptr<TTableClient::TImpl> client, std::shared_ptr<TSession::TImpl> SessionImpl_);
 
     std::shared_ptr<TTableClient::TImpl> Client_;
@@ -1715,7 +1715,7 @@ TAsyncStatus TTableClient::RetryOperation(
 class TTransaction {
     friend class TTableClient;
 public:
-    const TString& GetId() const {
+    const std::string& GetId() const {
         return TxId_;
     }
 
@@ -1731,10 +1731,10 @@ public:
     }
 
 private:
-    TTransaction(const TSession& session, const TString& txId);
+    TTransaction(const TSession& session, const std::string& txId);
 
     TSession Session_;
-    TString TxId_;
+    std::string TxId_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1745,8 +1745,8 @@ class TDataQuery {
     friend class TSession;
 
 public:
-    const TString& GetId() const;
-    const std::optional<TString>& GetText() const;
+    const std::string& GetId() const;
+    const std::optional<std::string>& GetText() const;
     TParamsBuilder GetParamsBuilder() const;
 
     TAsyncDataQueryResult Execute(const TTxControl& txControl,
@@ -1759,9 +1759,9 @@ public:
         const TExecDataQuerySettings& settings = TExecDataQuerySettings());
 
 private:
-    TDataQuery(const TSession& session, const TString& text, const TString& id);
-    TDataQuery(const TSession& session, const TString& text, const TString& id,
-        const ::google::protobuf::Map<TString, Ydb::Type>& types);
+    TDataQuery(const TSession& session, const std::string& text, const std::string& id);
+    TDataQuery(const TSession& session, const std::string& text, const std::string& id,
+        const ::google::protobuf::Map<std::string, Ydb::Type>& types);
 
     class TImpl;
     std::shared_ptr<TImpl> Impl_;
@@ -1787,16 +1787,16 @@ private:
 //! Represents result of ExplainDataQuery call
 class TExplainQueryResult : public TStatus {
 public:
-    TExplainQueryResult(TStatus&& status, TString&& plan, TString&& ast, TString&& diagnostics);
+    TExplainQueryResult(TStatus&& status, std::string&& plan, std::string&& ast, std::string&& diagnostics);
 
-    const TString& GetPlan() const;
-    const TString& GetAst() const;
-    const TString& GetDiagnostics() const;
+    const std::string& GetPlan() const;
+    const std::string& GetAst() const;
+    const std::string& GetDiagnostics() const;
 
 private:
-    TString Plan_;
-    TString Ast_;
-    TString Diagnostics_;
+    std::string Plan_;
+    std::string Ast_;
+    std::string Diagnostics_;
 };
 
 //! Represents result of DescribeTable call
@@ -1828,7 +1828,7 @@ public:
 
     const std::optional<TQueryStats>& GetStats() const;
 
-    const TString GetQueryPlan() const;
+    const std::string GetQueryPlan() const;
 
 private:
     std::optional<TTransaction> Transaction_;
@@ -1903,20 +1903,20 @@ public:
     TQueryStats ExtractQueryStats() { return std::move(*QueryStats_); }
 
     bool HasDiagnostics() const { return Diagnostics_.has_value(); }
-    const TString& GetDiagnostics() const { return *Diagnostics_; }
-    TString&& ExtractDiagnostics() { return std::move(*Diagnostics_); }
+    const std::string& GetDiagnostics() const { return *Diagnostics_; }
+    std::string&& ExtractDiagnostics() { return std::move(*Diagnostics_); }
 
     TScanQueryPart(TStatus&& status)
         : TStreamPartStatus(std::move(status))
     {}
 
-    TScanQueryPart(TStatus&& status, const std::optional<TQueryStats>& queryStats, const std::optional<TString>& diagnostics)
+    TScanQueryPart(TStatus&& status, const std::optional<TQueryStats>& queryStats, const std::optional<std::string>& diagnostics)
         : TStreamPartStatus(std::move(status))
         , QueryStats_(queryStats)
         , Diagnostics_(diagnostics)
     {}
 
-    TScanQueryPart(TStatus&& status, TResultSet&& resultSet, const std::optional<TQueryStats>& queryStats, const std::optional<TString>& diagnostics)
+    TScanQueryPart(TStatus&& status, TResultSet&& resultSet, const std::optional<TQueryStats>& queryStats, const std::optional<std::string>& diagnostics)
         : TStreamPartStatus(std::move(status))
         , ResultSet_(std::move(resultSet))
         , QueryStats_(queryStats)
@@ -1926,7 +1926,7 @@ public:
 private:
     std::optional<TResultSet> ResultSet_;
     std::optional<TQueryStats> QueryStats_;
-    std::optional<TString> Diagnostics_;
+    std::optional<std::string> Diagnostics_;
 };
 
 using TAsyncScanQueryPart = NThreading::TFuture<TScanQueryPart>;

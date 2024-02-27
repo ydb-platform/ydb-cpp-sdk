@@ -4,7 +4,6 @@
 
 #include <library/cpp/colorizer/fwd.h>
 #include <list>
-#include <util/generic/hash_set.h>
 
 namespace NLastGetopt {
     /**
@@ -35,7 +34,7 @@ namespace NLastGetopt {
 
     public:
         //storage of argv[0]
-        TString ProgramName_;
+        std::string ProgramName_;
 
         //state of parsing:
 
@@ -46,7 +45,7 @@ namespace NLastGetopt {
 
     protected:
         const TOpt* CurrentOpt_;  // ptr on the last meeted option
-        TStringBuf CurrentValue_; // the value of the last met argument (corresponding to CurrentOpt_)
+        std::string_view CurrentValue_; // the value of the last met argument (corresponding to CurrentOpt_)
 
     private:
         typedef THashSet<const TOpt*> TdOptSet;
@@ -59,7 +58,7 @@ namespace NLastGetopt {
         void Init(const TOpts* options, int argc, char* argv[]);
 
         bool CommitEndOfOptions(size_t pos);
-        bool Commit(const TOpt* currentOption, const TStringBuf& currentValue, size_t pos, size_t sop);
+        bool Commit(const TOpt* currentOption, const std::string_view& currentValue, size_t pos, size_t sop);
 
         bool ParseShortOptArg(size_t pos);
         bool ParseOptArg(size_t pos);
@@ -71,7 +70,7 @@ namespace NLastGetopt {
         bool DoNext();
         void Finish();
 
-        EIsOpt IsOpt(const TStringBuf& arg) const;
+        EIsOpt IsOpt(const std::string_view& arg) const;
 
         void Swap(TOptsParser& that);
 
@@ -91,7 +90,7 @@ namespace NLastGetopt {
             return OptsSeen_.contains(opt);
         }
 
-        bool Seen(TStringBuf name) const {
+        bool Seen(std::string_view name) const {
             if (auto opt = Opts_->FindLongOption(name)) {
                 return Seen(opt);
             } else {
@@ -115,20 +114,20 @@ namespace NLastGetopt {
             return CurrentValue_.data();
         }
 
-        const TStringBuf& CurValStr() const {
+        const std::string_view& CurValStr() const {
             return CurrentValue_;
         }
 
-        TStringBuf CurValOrOpt() const {
-            TStringBuf val(CurValStr());
-            if (!val.IsInited() && CurOpt()->HasOptionalValue())
+        std::string_view CurValOrOpt() const {
+            std::string_view val(CurValStr());
+            if (val.data() == nullptr && CurOpt()->HasOptionalValue())
                 val = CurOpt()->GetOptionalValue();
             return val;
         }
 
-        TStringBuf CurValOrDef(bool useDef = true) const {
-            TStringBuf val(CurValOrOpt());
-            if (!val.IsInited() && useDef && CurOpt()->HasDefaultValue())
+        std::string_view CurValOrDef(bool useDef = true) const {
+            std::string_view val(CurValOrOpt());
+            if (val.data() == nullptr && useDef && CurOpt()->HasDefaultValue())
                 val = CurOpt()->GetDefaultValue();
             return val;
         }
@@ -138,11 +137,11 @@ namespace NLastGetopt {
             return nullptr == CurrentOpt_ || !OptsSeen_.empty();
         }
 
-        bool CurrentIs(const TString& name) const {
+        bool CurrentIs(const std::string& name) const {
             return CurOpt()->NameIs(name);
         }
 
-        const TString& ProgramName() const {
+        const std::string& ProgramName() const {
             return ProgramName_;
         }
 

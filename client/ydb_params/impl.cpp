@@ -6,7 +6,7 @@
 
 namespace NYdb {
 
-TParams::TImpl::TImpl(::google::protobuf::Map<TString, Ydb::TypedValue>&& paramsMap) {
+TParams::TImpl::TImpl(::google::protobuf::Map<std::string, Ydb::TypedValue>&& paramsMap) {
     ParamsMap_.swap(paramsMap);
 }
 
@@ -14,8 +14,8 @@ bool TParams::TImpl::Empty() const {
     return ParamsMap_.empty();
 }
 
-std::map<TString, TValue> TParams::TImpl::GetValues() const {
-    std::map<TString, TValue> valuesMap;
+std::map<std::string, TValue> TParams::TImpl::GetValues() const {
+    std::map<std::string, TValue> valuesMap;
     for (auto it = ParamsMap_.begin(); it != ParamsMap_.end(); ++it) {
         auto paramType = TType(it->second.type());
         auto paramValue = TValue(paramType, it->second.value());
@@ -26,7 +26,7 @@ std::map<TString, TValue> TParams::TImpl::GetValues() const {
     return valuesMap;
 }
 
-std::optional<TValue> TParams::TImpl::GetValue(const TString& name) const {
+std::optional<TValue> TParams::TImpl::GetValue(const std::string& name) const {
     auto it = ParamsMap_.find(name);
     if (it != ParamsMap_.end()) {
         auto paramType = TType(it->second.type());
@@ -36,11 +36,11 @@ std::optional<TValue> TParams::TImpl::GetValue(const TString& name) const {
     return std::optional<TValue>();
 }
 
-::google::protobuf::Map<TString, Ydb::TypedValue>* TParams::TImpl::GetProtoMapPtr() {
+::google::protobuf::Map<std::string, Ydb::TypedValue>* TParams::TImpl::GetProtoMapPtr() {
     return &ParamsMap_;
 }
 
-const ::google::protobuf::Map<TString, Ydb::TypedValue>& TParams::TImpl::GetProtoMap() const {
+const ::google::protobuf::Map<std::string, Ydb::TypedValue>& TParams::TImpl::GetProtoMap() const {
     return ParamsMap_;
 }
 

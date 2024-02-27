@@ -117,10 +117,10 @@ bool TryFromStringImpl(const TChar* data, size_t size, T& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class TStringBuilderBase;
+class TYdbStringBuilderBase;
 
 template <class T, class TTag>
-void FormatValue(TStringBuilderBase* builder, const TStrongTypedef<T, TTag>& value, TStringBuf format)
+void FormatValue(TYdbStringBuilderBase* builder, const TStrongTypedef<T, TTag>& value, std::string_view format)
     noexcept(noexcept(FormatValue(builder, value.Underlying(), format)))
 {
     FormatValue(builder, value.Underlying(), format);

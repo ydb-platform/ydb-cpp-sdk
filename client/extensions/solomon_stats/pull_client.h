@@ -19,17 +19,17 @@ public:
         friend class TSolomonStatPullExtension;
 
     public:
-        TParams(const TString& host
+        TParams(const std::string& host
                 , ui16 port
-                , const TString& project
-                , const TString& service
-                , const TString& cluster
-                , const std::vector<std::pair<TString, TString>>& labels = {});
+                , const std::string& project
+                , const std::string& service
+                , const std::string& cluster
+                , const std::vector<std::pair<std::string, std::string>>& labels = {});
 
         NMonitoring::TLabels GetLabels() const;
 
     private:
-        const TString Host_;
+        const std::string Host_;
         ui16 Port_;
         NMonitoring::TLabels Labels_;
     };
@@ -41,7 +41,7 @@ private:
     class TSolomonStatPage: public NMonitoring::IMonPage {
         friend class TSolomonStatPullExtension;
     public:
-        TSolomonStatPage(const TString& title, const TString& path, IApi* api);
+        TSolomonStatPage(const std::string& title, const std::string& path, IApi* api);
 
         void Output(NMonitoring::IMonHttpRequest& request) override ;
 

@@ -7,12 +7,12 @@ namespace NYdb {
 class TYdbException : public yexception {
 public:
     using yexception::yexception;
-    TYdbException(const TString& reason);
+    TYdbException(const std::string& reason);
 };
 
 class TContractViolation : public TYdbException {
 public:
-    TContractViolation(const TString& reason);
+    TContractViolation(const std::string& reason);
 };
 
 } // namespace NYdb

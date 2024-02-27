@@ -7,21 +7,21 @@
 
 namespace NUnitTest {
 
-extern const TString Y_UNITTEST_OUTPUT_CMDLINE_OPTION;
-extern const TString Y_UNITTEST_TEST_FILTER_FILE_OPTION;
+extern const std::string Y_UNITTEST_OUTPUT_CMDLINE_OPTION;
+extern const std::string Y_UNITTEST_TEST_FILTER_FILE_OPTION;
 
 class TJUnitProcessor : public ITestSuiteProcessor {
     struct TFailure {
-        TString Message;
-        TString BackTrace;
+        std::string Message;
+        std::string BackTrace;
     };
 
     struct TTestCase {
-        TString Name;
+        std::string Name;
         bool Success;
         std::vector<TFailure> Failures;
-        TString StdOut;
-        TString StdErr;
+        std::string StdOut;
+        std::string StdErr;
         double DurationSecods = 0.0;
 
         size_t GetFailuresCount() const {
@@ -30,7 +30,7 @@ class TJUnitProcessor : public ITestSuiteProcessor {
     };
 
     struct TTestSuite {
-        std::map<TString, TTestCase> Cases;
+        std::map<std::string, TTestCase> Cases;
 
         size_t GetTestsCount() const {
             return Cases.size();
@@ -68,7 +68,7 @@ class TJUnitProcessor : public ITestSuiteProcessor {
         }
 
     private:
-        TString TestName;
+        std::string TestName;
         TUnit Unit;
         TTest Test;
     };
@@ -81,7 +81,7 @@ public:
         Json,
     };
 
-    TJUnitProcessor(TString file, TString exec, EOutputFormat outputFormat);
+    TJUnitProcessor(std::string file, std::string exec, EOutputFormat outputFormat);
     ~TJUnitProcessor();
 
     void SetForkTestsParams(bool forkTests, bool isForked) override;
@@ -119,23 +119,23 @@ private:
     void SerializeToJson();
     void MergeSubprocessReport();
 
-    TString BuildFileName(size_t index, const TStringBuf extension) const;
-    TStringBuf GetFileExtension() const;
+    std::string BuildFileName(size_t index, const std::string_view extension) const;
+    std::string_view GetFileExtension() const;
     void MakeReportFileName();
     void MakeTmpFileNameForForkedTests();
-    static void TransferFromCapturer(THolder<TJUnitProcessor::TOutputCapturer>& capturer, TString& out, IOutputStream& outStream);
+    static void TransferFromCapturer(THolder<TJUnitProcessor::TOutputCapturer>& capturer, std::string& out, IOutputStream& outStream);
 
     static void CaptureSignal(TJUnitProcessor* processor);
     static void UncaptureSignal();
     static void SignalHandler(int signal);
 
 private:
-    const TString FileName; // cmd line param
-    const TString ExecName; // cmd line param
+    const std::string FileName; // cmd line param
+    const std::string ExecName; // cmd line param
     const EOutputFormat OutputFormat;
-    TString ResultReportFileName;
+    std::string ResultReportFileName;
     std::optional<TTempFile> TmpReportFile;
-    std::map<TString, TTestSuite> Suites;
+    std::map<std::string, TTestSuite> Suites;
     THolder<TOutputCapturer> StdErrCapturer;
     THolder<TOutputCapturer> StdOutCapturer;
     TInstant StartCurrentTestTime;

@@ -6,7 +6,7 @@
 namespace NYdb {
 namespace NTable {
 
-TString EncodeQuery(const TString& text, bool reversible);
+std::string EncodeQuery(const std::string& text, bool reversible);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,22 +14,22 @@ class TDataQuery::TImpl {
     friend class TDataQuery;
 
 public:
-    TImpl(const TSession& session, const TString& text, bool keepText, const TString& id, bool allowMigration);
+    TImpl(const TSession& session, const std::string& text, bool keepText, const std::string& id, bool allowMigration);
 
-    TImpl(const TSession& session, const TString& text, bool keepText, const TString& id, bool allowMigration,
-        const ::google::protobuf::Map<TString, Ydb::Type>& types);
+    TImpl(const TSession& session, const std::string& text, bool keepText, const std::string& id, bool allowMigration,
+        const ::google::protobuf::Map<std::string, Ydb::Type>& types);
 
-    const TString& GetId() const;
-    const ::google::protobuf::Map<TString, Ydb::Type>& GetParameterTypes() const;
-    const TString& GetTextHash() const;
-    const std::optional<TString>& GetText() const;
+    const std::string& GetId() const;
+    const ::google::protobuf::Map<std::string, Ydb::Type>& GetParameterTypes() const;
+    const std::string& GetTextHash() const;
+    const std::optional<std::string>& GetText() const;
 
 private:
     NTable::TSession Session_;
-    TString Id_;
-    ::google::protobuf::Map<TString, Ydb::Type> ParameterTypes_;
-    TString TextHash_;
-    std::optional<TString> Text_;
+    std::string Id_;
+    ::google::protobuf::Map<std::string, Ydb::Type> ParameterTypes_;
+    std::string TextHash_;
+    std::optional<std::string> Text_;
 };
 
 } // namespace NTable

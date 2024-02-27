@@ -1,5 +1,7 @@
 #include "ydb_yson_value.h"
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <client/ydb_value/value.h>
 #include <client/ydb_result/result.h>
 
@@ -86,7 +88,7 @@ static void PrimitiveValueToYson(EPrimitiveType type, TValueParser& parser, NYso
             writer.OnStringScalar(parser.GetDyNumber());
             break;
         default:
-            ThrowFatalError(TStringBuilder() << "Unsupported primitive type: " << type);
+            ThrowFatalError(NUtils::TYdbStringBuilder() << "Unsupported primitive type: " << type);
     }
 }
 
@@ -212,7 +214,7 @@ static void FormatValueYsonInternal(TValueParser& parser, NYson::TYsonWriter& wr
             break;
 
         default:
-            ThrowFatalError(TStringBuilder() << "Unsupported type kind: " << parser.GetKind());
+            ThrowFatalError(NUtils::TYdbStringBuilder() << "Unsupported type kind: " << parser.GetKind());
     }
 }
 
@@ -222,7 +224,7 @@ void FormatValueYson(const TValue& value, NYson::TYsonWriter& writer)
     FormatValueYsonInternal(parser, writer);
 }
 
-TString FormatValueYson(const TValue& value, NYson::EYsonFormat ysonFormat)
+std::string FormatValueYson(const TValue& value, NYson::EYsonFormat ysonFormat)
 {
     TStringStream out;
     NYson::TYsonWriter writer(&out, ysonFormat, ::NYson::EYsonType::Node, true);
@@ -252,7 +254,7 @@ void FormatResultSetYson(const TResultSet& result, NYson::TYsonWriter& writer)
     writer.OnEndList();
 }
 
-TString FormatResultSetYson(const TResultSet& result, NYson::EYsonFormat ysonFormat)
+std::string FormatResultSetYson(const TResultSet& result, NYson::EYsonFormat ysonFormat)
 {
     TStringStream out;
     NYson::TYsonWriter writer(&out, ysonFormat, ::NYson::EYsonType::Node, true);

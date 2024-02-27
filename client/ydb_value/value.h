@@ -20,7 +20,7 @@ public:
     TType(const Ydb::Type& typeProto);
     TType(Ydb::Type&& typeProto);
 
-    TString ToString() const;
+    std::string ToString() const;
     void Out(IOutputStream& o) const;
 
     const Ydb::Type& GetProto() const;
@@ -69,14 +69,14 @@ struct TDecimalType {
 };
 
 struct TPgType {
-    TString TypeName;
-    TString TypeModifier;
+    std::string TypeName;
+    std::string TypeModifier;
 
     ui32 Oid = 0;
     i16 Typlen = 0;
     i32 Typmod = 0;
 
-    TPgType(const TString& typeName, const TString& typeModifier = {})
+    TPgType(const std::string& typeName, const std::string& typeModifier = {})
         : TypeName(typeName)
         , TypeModifier(typeModifier)
     {}
@@ -126,7 +126,7 @@ public:
     // Struct
     void OpenStruct();
     bool TryNextMember();
-    const TString& GetMemberName();
+    const std::string& GetMemberName();
     void CloseStruct();
 
     // Tuple
@@ -147,7 +147,7 @@ public:
 
     // Tagged
     void OpenTagged();
-    const TString& GetTag();
+    const std::string& GetTag();
     void CloseTagged();
 
 private:
@@ -157,7 +157,7 @@ private:
 
 bool TypesEqual(const TType& t1, const TType& t2);
 
-TString FormatType(const TType& type);
+std::string FormatType(const TType& type);
 
 //! Used to create arbitrary type.
 //! To create complex type, corresponding scope should be opened by Begin*/End* calls
@@ -186,8 +186,8 @@ public:
 
     // Struct
     TTypeBuilder& BeginStruct();
-    TTypeBuilder& AddMember(const TString& memberName);
-    TTypeBuilder& AddMember(const TString& memberName, const TType& memberType);
+    TTypeBuilder& AddMember(const std::string& memberName);
+    TTypeBuilder& AddMember(const std::string& memberName, const TType& memberType);
     TTypeBuilder& EndStruct();
 
     // Tuple
@@ -205,9 +205,9 @@ public:
     TTypeBuilder& EndDict();
 
     // Tagged
-    TTypeBuilder& BeginTagged(const TString& tag);
+    TTypeBuilder& BeginTagged(const std::string& tag);
     TTypeBuilder& EndTagged();
-    TTypeBuilder& Tagged(const TString& tag, const TType& itemType);
+    TTypeBuilder& Tagged(const std::string& tag, const TType& itemType);
 
     TType Build();
 
@@ -217,9 +217,9 @@ private:
 };
 
 struct TDecimalValue {
-    TString ToString() const;
+    std::string ToString() const;
     TDecimalValue(const Ydb::Value& decimalValueProto, const TDecimalType& decimalType);
-    TDecimalValue(const TString& decimalString, ui8 precision = 22, ui8 scale = 9);
+    TDecimalValue(const std::string& decimalString, ui8 precision = 22, ui8 scale = 9);
 
     TDecimalType DecimalType_;
     ui64 Low_;
@@ -234,20 +234,20 @@ struct TPgValue {
     };
 
     TPgValue(const Ydb::Value& pgValueProto, const TPgType& pgType);
-    TPgValue(EPgValueKind kind, const TString& content, const TPgType& pgType);
+    TPgValue(EPgValueKind kind, const std::string& content, const TPgType& pgType);
     bool IsNull() const;
     bool IsText() const;
 
     TPgType PgType_;
     EPgValueKind Kind_ = VK_NULL;
-    TString Content_;
+    std::string Content_;
 };
 
 struct TUuidValue {
-    TString ToString() const;
+    std::string ToString() const;
     TUuidValue(ui64 low_128, ui64 high_128);
     TUuidValue(const Ydb::Value& uuidValueProto);
-    TUuidValue(const TString& uuidString);
+    TUuidValue(const std::string& uuidString);
 
     union {
         char Bytes[16];
@@ -300,18 +300,18 @@ public:
     TInstant GetDatetime() const;
     TInstant GetTimestamp() const;
     i64 GetInterval() const;
-    const TString& GetTzDate() const;
-    const TString& GetTzDatetime() const;
-    const TString& GetTzTimestamp() const;
-    const TString& GetString() const;
-    const TString& GetUtf8() const;
-    const TString& GetYson() const;
-    const TString& GetJson() const;
+    const std::string& GetTzDate() const;
+    const std::string& GetTzDatetime() const;
+    const std::string& GetTzTimestamp() const;
+    const std::string& GetString() const;
+    const std::string& GetUtf8() const;
+    const std::string& GetYson() const;
+    const std::string& GetJson() const;
     TDecimalValue GetDecimal() const;
     TPgValue GetPg() const;
     TUuidValue GetUuid() const;
-    const TString& GetJsonDocument() const;
-    const TString& GetDyNumber() const;
+    const std::string& GetJsonDocument() const;
+    const std::string& GetDyNumber() const;
 
     std::optional<bool> GetOptionalBool() const;
     std::optional<i8> GetOptionalInt8() const;
@@ -328,17 +328,17 @@ public:
     std::optional<TInstant> GetOptionalDatetime() const;
     std::optional<TInstant> GetOptionalTimestamp() const;
     std::optional<i64> GetOptionalInterval() const;
-    std::optional<TString> GetOptionalTzDate() const;
-    std::optional<TString> GetOptionalTzDatetime() const;
-    std::optional<TString> GetOptionalTzTimestamp() const;
-    std::optional<TString> GetOptionalString() const;
-    std::optional<TString> GetOptionalUtf8() const;
-    std::optional<TString> GetOptionalYson() const;
-    std::optional<TString> GetOptionalJson() const;
+    std::optional<std::string> GetOptionalTzDate() const;
+    std::optional<std::string> GetOptionalTzDatetime() const;
+    std::optional<std::string> GetOptionalTzTimestamp() const;
+    std::optional<std::string> GetOptionalString() const;
+    std::optional<std::string> GetOptionalUtf8() const;
+    std::optional<std::string> GetOptionalYson() const;
+    std::optional<std::string> GetOptionalJson() const;
     std::optional<TDecimalValue> GetOptionalDecimal() const;
     std::optional<TUuidValue> GetOptionalUuid() const;
-    std::optional<TString> GetOptionalJsonDocument() const;
-    std::optional<TString> GetOptionalDyNumber() const;
+    std::optional<std::string> GetOptionalJsonDocument() const;
+    std::optional<std::string> GetOptionalDyNumber() const;
 
     // Optional
     void OpenOptional();
@@ -353,7 +353,7 @@ public:
     // Struct
     void OpenStruct();
     bool TryNextMember();
-    const TString& GetMemberName() const;
+    const std::string& GetMemberName() const;
     void CloseStruct();
 
     // Tuple
@@ -374,7 +374,7 @@ public:
 
     // Tagged
     void OpenTagged();
-    const TString& GetTag() const;
+    const std::string& GetTag() const;
     void CloseTagged();
 
 private:
@@ -406,18 +406,18 @@ public:
     TDerived& Datetime(const TInstant& value);
     TDerived& Timestamp(const TInstant& value);
     TDerived& Interval(i64 value);
-    TDerived& TzDate(const TString& value);
-    TDerived& TzDatetime(const TString& value);
-    TDerived& TzTimestamp(const TString& value);
-    TDerived& String(const TString& value);
-    TDerived& Utf8(const TString& value);
-    TDerived& Yson(const TString& value);
-    TDerived& Json(const TString& value);
+    TDerived& TzDate(const std::string& value);
+    TDerived& TzDatetime(const std::string& value);
+    TDerived& TzTimestamp(const std::string& value);
+    TDerived& String(const std::string& value);
+    TDerived& Utf8(const std::string& value);
+    TDerived& Yson(const std::string& value);
+    TDerived& Json(const std::string& value);
     TDerived& Decimal(const TDecimalValue& value);
     TDerived& Pg(const TPgValue& value);
     TDerived& Uuid(const TUuidValue& value);
-    TDerived& JsonDocument(const TString& value);
-    TDerived& DyNumber(const TString& value);
+    TDerived& JsonDocument(const std::string& value);
+    TDerived& DyNumber(const std::string& value);
 
     TDerived& OptionalBool(const std::optional<bool>& value);
     TDerived& OptionalInt8(const std::optional<i8>& value);
@@ -434,16 +434,16 @@ public:
     TDerived& OptionalDatetime(const std::optional<TInstant>& value);
     TDerived& OptionalTimestamp(const std::optional<TInstant>& value);
     TDerived& OptionalInterval(const std::optional<i64>& value);
-    TDerived& OptionalTzDate(const std::optional<TString>& value);
-    TDerived& OptionalTzDatetime(const std::optional<TString>& value);
-    TDerived& OptionalTzTimestamp(const std::optional<TString>& value);
-    TDerived& OptionalString(const std::optional<TString>& value);
-    TDerived& OptionalUtf8(const std::optional<TString>& value);
-    TDerived& OptionalYson(const std::optional<TString>& value);
-    TDerived& OptionalJson(const std::optional<TString>& value);
+    TDerived& OptionalTzDate(const std::optional<std::string>& value);
+    TDerived& OptionalTzDatetime(const std::optional<std::string>& value);
+    TDerived& OptionalTzTimestamp(const std::optional<std::string>& value);
+    TDerived& OptionalString(const std::optional<std::string>& value);
+    TDerived& OptionalUtf8(const std::optional<std::string>& value);
+    TDerived& OptionalYson(const std::optional<std::string>& value);
+    TDerived& OptionalJson(const std::optional<std::string>& value);
     TDerived& OptionalUuid(const std::optional<TUuidValue>& value);
-    TDerived& OptionalJsonDocument(const std::optional<TString>& value);
-    TDerived& OptionalDyNumber(const std::optional<TString>& value);
+    TDerived& OptionalJsonDocument(const std::optional<std::string>& value);
+    TDerived& OptionalDyNumber(const std::optional<std::string>& value);
 
     // Optional
     TDerived& BeginOptional();
@@ -463,9 +463,9 @@ public:
 
     // Struct
     TDerived& BeginStruct();
-    TDerived& AddMember(const TString& memberName);
-    TDerived& AddMember(const TString& memberName, const TValue& memberValue);
-    TDerived& AddMember(const TString& memberName, TValue&& memberValue);
+    TDerived& AddMember(const std::string& memberName);
+    TDerived& AddMember(const std::string& memberName, const TValue& memberValue);
+    TDerived& AddMember(const std::string& memberName, TValue&& memberValue);
     TDerived& EndStruct();
 
     // Tuple
@@ -486,7 +486,7 @@ public:
     TDerived& EmptyDict();
 
     // Tagged
-    TDerived& BeginTagged(const TString& tag);
+    TDerived& BeginTagged(const std::string& tag);
     TDerived& EndTagged();
 
 protected:

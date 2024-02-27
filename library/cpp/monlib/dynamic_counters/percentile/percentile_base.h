@@ -25,8 +25,8 @@ struct TPercentileBase : public TThrRefBase {
         }
     }
 
-    void Initialize(const TIntrusivePtr<NMonitoring::TDynamicCounters> &counters, TString group, TString subgroup,
-            TString name, const std::vector<float> &thresholds,
+    void Initialize(const TIntrusivePtr<NMonitoring::TDynamicCounters> &counters, std::string group, std::string subgroup,
+            std::string name, const std::vector<float> &thresholds,
             TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public) {
         auto subCounters = counters->GetSubgroup(group, subgroup)->GetSubgroup("sensor", name);
         Initialize(subCounters, thresholds, visibility);

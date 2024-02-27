@@ -38,7 +38,7 @@ Y_CPU_BENCHMARK(AllocPromiseUI64, iface) {
 }
 
 Y_CPU_BENCHMARK(AllocPromiseStroka, iface) {
-    TestAllocPromise<TString>(iface);
+    TestAllocPromise<std::string>(iface);
 }
 
 Y_CPU_BENCHMARK(SetPromiseUI64, iface) {
@@ -46,5 +46,5 @@ Y_CPU_BENCHMARK(SetPromiseUI64, iface) {
 }
 
 Y_CPU_BENCHMARK(SetPromiseStroka, iface) {
-    TestSetPromise<TString>(iface, "test test test");
+    TestSetPromise<std::string>(iface, "test test test");
 }

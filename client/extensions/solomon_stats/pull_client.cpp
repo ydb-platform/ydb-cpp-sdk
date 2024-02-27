@@ -2,12 +2,12 @@
 
 namespace NSolomonStatExtension {
 
-TSolomonStatPullExtension::TParams::TParams(const TString& host
+TSolomonStatPullExtension::TParams::TParams(const std::string& host
     , ui16 port
-    , const TString& project
-    , const TString& service
-    , const TString& cluster
-    , const std::vector<std::pair<TString, TString>>& labels)
+    , const std::string& project
+    , const std::string& service
+    , const std::string& cluster
+    , const std::vector<std::pair<std::string, std::string>>& labels)
     : Host_(host), Port_(port), Labels_()
 {
     Labels_.Add("project", project);
@@ -23,7 +23,7 @@ NMonitoring::TLabels TSolomonStatPullExtension::TParams::GetLabels() const {
 }
 
 
-TSolomonStatPullExtension::TSolomonStatPage::TSolomonStatPage(const TString& title, const TString& path, IApi* api)
+TSolomonStatPullExtension::TSolomonStatPage::TSolomonStatPage(const std::string& title, const std::string& path, IApi* api)
     : NMonitoring::IMonPage(title, path), Api_(api)
     { }
 

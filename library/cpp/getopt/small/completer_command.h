@@ -4,8 +4,8 @@
 
 namespace NLastGetopt {
     /// Create an option that generates completion.
-    TOpt MakeCompletionOpt(const TOpts* opts, TString command, TString optName = "completion");
+    TOpt MakeCompletionOpt(const TOpts* opts, std::string command, std::string optName = "completion");
 
     /// Create a mode that generates completion.
-    THolder<TMainClassArgs> MakeCompletionMod(const TModChooser* modChooser, TString command, TString modName = "completion");
+    THolder<TMainClassArgs> MakeCompletionMod(const TModChooser* modChooser, std::string command, std::string modName = "completion");
 }

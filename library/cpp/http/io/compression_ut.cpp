@@ -8,14 +8,14 @@
 #include <util/generic/hash_set.h>
 
 Y_UNIT_TEST_SUITE(THttpCompressionTest) {
-    static const TString DATA = "I'm a teapot";
+    static const std::string DATA = "I'm a teapot";
 
     Y_UNIT_TEST(TestGetBestCodecs) {
         UNIT_ASSERT(TCompressionCodecFactory::Instance().GetBestCodecs().size() > 0);
     }
 
     Y_UNIT_TEST(TestEncoder) {
-        TStringStream buffer;
+        std::stringStream buffer;
 
         {
             auto encoder = TCompressionCodecFactory::Instance().FindEncoder("gzip");
@@ -30,7 +30,7 @@ Y_UNIT_TEST_SUITE(THttpCompressionTest) {
     }
 
     Y_UNIT_TEST(TestDecoder) {
-        TStringStream buffer;
+        std::stringStream buffer;
 
         {
             TZLibCompress compressor(TZLibCompress::TParams(&buffer).SetType(ZLib::GZip));
@@ -45,9 +45,9 @@ Y_UNIT_TEST_SUITE(THttpCompressionTest) {
     }
 
     Y_UNIT_TEST(TestChooseBestCompressionScheme) {
-        THashSet<TString> accepted;
+        THashSet<std::string> accepted;
 
-        auto checkAccepted = [&accepted](const TString& v) {
+        auto checkAccepted = [&accepted](const std::string& v) {
             return accepted.contains(v);
         };
 

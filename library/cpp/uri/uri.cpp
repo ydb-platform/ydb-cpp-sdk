@@ -6,7 +6,7 @@
 #include <util/system/yassert.h>
 
 namespace NUri {
-    TState::EParsed TUri::CheckHost(const TStringBuf& host) {
+    TState::EParsed TUri::CheckHost(const std::string_view& host) {
         if (host.empty())
             return ParsedOK;
 
@@ -55,7 +55,7 @@ namespace NUri {
     }
 
     /********************************************************/
-    TUri::TUri(const TStringBuf& host, ui16 port, const TStringBuf& path, const TStringBuf& query, const TStringBuf& scheme, unsigned defaultPort, const TStringBuf& hashbang)
+    TUri::TUri(const std::string_view& host, ui16 port, const std::string_view& path, const std::string_view& query, const std::string_view& scheme, unsigned defaultPort, const std::string_view& hashbang)
         : FieldsSet(0)
         , Port(port)
         , DefaultPort(0)
@@ -73,7 +73,7 @@ namespace NUri {
         char sport[6]; // enough for ui16
         if (0 != port) {
             const size_t len = ToString(port, sport, sizeof(sport));
-            FldSet(FieldPort, TStringBuf(sport, len));
+            FldSet(FieldPort, std::string_view(sport, len));
         }
 
         FldTrySet(FieldHost, host);
@@ -86,7 +86,7 @@ namespace NUri {
 
     /********************************************************/
     bool TUri::FldSetImpl(
-        EField field, TStringBuf value, bool strconst, bool nocopy) {
+        EField field, std::string_view value, bool strconst, bool nocopy) {
         if (!FldIsValid(field))
             return false;
 
@@ -104,7 +104,7 @@ namespace NUri {
                 break;
         }
 
-        if (!value.IsInited()) {
+        if (value.data() == nullptr) {
             FldClr(field);
             return false;
         }
@@ -124,13 +124,13 @@ namespace NUri {
     }
 
     /********************************************************/
-    bool TUri::FldTryCpy(EField field, const TStringBuf& value) {
+    bool TUri::FldTryCpy(EField field, const std::string_view& value) {
         if (!FldIsDirty(field)) {
             do {
                 if (!FldIsSet(field))
                     break;
 
-                TStringBuf& fld = Fields[field];
+                std::string_view& fld = Fields[field];
                 if (fld.length() < value.length())
                     break;
 
@@ -140,7 +140,7 @@ namespace NUri {
 
                 memcpy(oldV, value.data(), value.length());
                 oldV[value.length()] = 0;
-                fld.Trunc(value.length());
+                fld.substr(value.length());
                 return false;
             } while (false);
 
@@ -172,9 +172,9 @@ namespace NUri {
                     continue;
 
                 const char* beg = out.Buf();
-                const TStringBuf& val = Fields[fld];
+                const std::string_view& val = Fields[fld];
                 out << val;
-                FldSetNoDirty(fld, TStringBuf(beg, val.length()));
+                FldSetNoDirty(fld, std::string_view(beg, val.length()));
                 out << '\0';
             }
             Buffer = std::move(newbuf);
@@ -191,7 +191,7 @@ namespace NUri {
             // ... and the scheme requires a path...
             if (GetSchemeInfo().FldReq & FlagPath)
                 // ... set path
-                FldSetNoDirty(FieldPath, TStringBuf("/"));
+                FldSetNoDirty(FieldPath, std::string_view("/"));
     }
 
     /********************************************************/
@@ -202,16 +202,16 @@ namespace NUri {
         if (!base.IsValidGlobal())
             return;
 
-        const TStringBuf& selfscheme = GetField(FieldScheme);
+        const std::string_view& selfscheme = GetField(FieldScheme);
         // basescheme is present since IsValidGlobal() succeeded
-        const TStringBuf& basescheme = base.GetField(FieldScheme);
-        const bool noscheme = !selfscheme.IsInited();
+        const std::string_view& basescheme = base.GetField(FieldScheme);
+        const bool noscheme = selfscheme.data() == nullptr;
         if (!noscheme && !EqualNoCase(selfscheme, basescheme))
             return;
 
         const ui32 cleanFields = ~FieldsDirty;
         do {
-            static constexpr TStringBuf rootPath = "/";
+            static constexpr std::string_view rootPath = "/";
 
             if (noscheme) {
                 if (!basescheme.empty()) {
@@ -245,20 +245,20 @@ namespace NUri {
             if (IsValidAbs())
                 break;
 
-            TStringBuf p0 = base.GetField(FieldPath);
-            if (!p0.IsInited())
+            std::string_view p0 = base.GetField(FieldPath);
+            if (p0.data() == nullptr)
                 p0 = rootPath;
 
-            TStringBuf p1 = GetField(FieldPath);
-            if (!p1.IsInited()) {
+            std::string_view p1 = GetField(FieldPath);
+            if (p1.data() == nullptr) {
                 if (p0.data() != rootPath.data())
                     FldSet(FieldPath, p0);
                 else
                     FldSetNoDirty(FieldPath, rootPath);
                 break;
             }
-            if (p1 && '/' == p1[0])
-                p1.Skip(1); // p0 will have one
+            if (!p1.empty() && '/' == p1[0])
+                p1.remove_prefix(1); // p0 will have one
 
             bool pathop = true;
 
@@ -278,7 +278,7 @@ namespace NUri {
             }
 
             // Needs immediate forced rewrite because of TTempBuf
-            FldSetNoDirty(FieldPath, TStringBuf(beg, end));
+            FldSetNoDirty(FieldPath, std::string_view(beg, end));
             RewriteImpl();
         } while (false);
 
@@ -291,12 +291,12 @@ namespace NUri {
 
     /********************************************************/
     TUri::TLinkType TUri::Normalize(const TUri& base,
-                                    const TStringBuf& link, const TStringBuf& codebase, ui64 careFlags, ECharset enc) {
+                                    const std::string_view& link, const std::string_view& codebase, ui64 careFlags, ECharset enc) {
         // parse URL
         if (ParsedOK != ParseImpl(link, careFlags, 0, SchemeEmpty, enc))
             return LinkIsBad;
 
-        const TStringBuf& host = GetHost();
+        const std::string_view& host = GetHost();
 
         // merge with base URL
         // taken either from _BASE_ property or from optional argument
@@ -340,8 +340,8 @@ namespace NUri {
         ui32 opt = 1;
         for (int fld = 0; opt <= flags && fld < FieldAllMAX; ++fld, opt <<= 1) {
             if (opt & flags) {
-                const TStringBuf& v = Fields[fld];
-                if (v.IsInited()) {
+                const std::string_view& v = Fields[fld];
+                if (v.data() != nullptr) {
                     if (opt & FlagAuth)
                         len += 3 * v.length() + 1;
                     else
@@ -354,7 +354,7 @@ namespace NUri {
     }
 
     IOutputStream& TUri::PrintImpl(IOutputStream& out, int flags) const {
-        TStringBuf v;
+        std::string_view v;
 
         const int wantFlags = flags; // save the original
         flags &= FieldsSet;          // can't print what we don't have
@@ -367,18 +367,18 @@ namespace NUri {
                 out << v << ':';
         }
 
-        TStringBuf host;
+        std::string_view host;
         if (flags & FlagHost) {
             const EField fldhost =
                 flags & FlagHostAscii ? FieldHostAscii : FieldHost;
             host = Fields[fldhost];
         }
 
-        TStringBuf port;
+        std::string_view port;
         if ((flags & FlagPort) && 0 != Port && Port != DefaultPort)
             port = Fields[FieldPort];
 
-        if (host) {
+        if (!host.empty()) {
             if (wantFlags & FlagScheme)
                 out << "//";
 
@@ -391,7 +391,7 @@ namespace NUri {
 
                 if (flags & FlagPass) {
                     v = Fields[FieldPass];
-                    if (v.IsInited()) {
+                    if (v.data() != nullptr) {
                         out << ':';
                         TEncoder::EncodeAll(out, v);
                     }
@@ -402,35 +402,35 @@ namespace NUri {
 
             out << host;
 
-            if (port)
+            if (!port.empty())
                 out << ':';
         }
-        if (port)
+        if (!port.empty())
             out << port;
 
         if (flags & FlagPath) {
             v = Fields[FieldPath];
             // for relative, empty path is not the same as missing
             if (v.empty() && 0 == (flags & FlagHost))
-                v = TStringBuf(".");
+                v = std::string_view(".");
             out << v;
         }
 
         if (flags & FlagQuery) {
             v = Fields[FieldQuery];
-            if (v.IsInited())
+            if (v.data() != nullptr)
                 out << '?' << v;
         }
 
         if (flags & FlagFrag) {
             v = Fields[FieldFrag];
-            if (v.IsInited())
+            if (v.data() != nullptr)
                 out << '#' << v;
         }
 
         if (flags & FlagHashBang) {
             v = Fields[FieldHashBang];
-            if (v.IsInited())
+            if (v.data() != nullptr)
                 out << '#' << '!' << v;
         }
 
@@ -439,8 +439,8 @@ namespace NUri {
 
     /********************************************************/
     int TUri::CompareField(EField fld, const TUri& url) const {
-        const TStringBuf& v0 = GetField(fld);
-        const TStringBuf& v1 = url.GetField(fld);
+        const std::string_view& v0 = GetField(fld);
+        const std::string_view& v1 = url.GetField(fld);
         switch (fld) {
             case FieldScheme:
             case FieldHost:

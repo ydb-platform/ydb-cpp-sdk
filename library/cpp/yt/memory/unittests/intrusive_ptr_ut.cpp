@@ -392,7 +392,7 @@ TEST(TIntrusivePtrTest, UnspecifiedBoolType)
 
 TEST(TIntrusivePtrTest, ObjectIsNotDestroyedPrematurely)
 {
-    TStringStream output;
+    std::stringStream output;
     New<TObjectWithSelfPointers>(&output);
 
     // TObject... appends symbols to the output; see definitions.
@@ -451,7 +451,7 @@ void TestIntrusivePtrBehavior()
 {
     using TMyPtr = TIntrusivePtr<T>;
 
-    TStringStream output;
+    std::stringStream output;
     {
         TMyPtr ptr(New<T>(&output));
         {

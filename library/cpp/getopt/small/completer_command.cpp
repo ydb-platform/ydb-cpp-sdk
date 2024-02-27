@@ -5,12 +5,11 @@
 #include "wrap.h"
 
 #include <library/cpp/colorizer/colors.h>
-
-#include <util/string/subst.h>
+#include <library/cpp/string_utils/misc/misc.h>
 
 namespace NLastGetopt {
-    TString MakeInfo(TStringBuf command, TStringBuf flag) {
-        TString info = (
+    std::string MakeInfo(std::string_view command, std::string_view flag) {
+        std::string info = (
             "This command generates shell script with completion function and prints it to `stdout`, "
             "allowing one to re-direct the output to the file of their choosing. "
             "Where you place the file will depend on which shell and operating system you are using."
@@ -87,7 +86,7 @@ namespace NLastGetopt {
         return NComp::Choice({{"zsh"}, {"bash"}});
     }
 
-    TOpt MakeCompletionOpt(const TOpts* opts, TString command, TString name) {
+    TOpt MakeCompletionOpt(const TOpts* opts, std::string command, std::string name) {
         return TOpt()
             .AddLongName(name)
             .Help("generate tab completion script for zsh or bash")
@@ -96,7 +95,7 @@ namespace NLastGetopt {
             .CompletionArgHelp("shell syntax for completion script")
             .IfPresentDisableCompletion()
             .Completer(ShellChoiceCompleter())
-            .Handler1T<TString>([opts, command, name](TStringBuf shell) {
+            .Handler1T<std::string>([opts, command, name](std::string_view shell) {
                 if (shell.empty()) {
                     Cerr << Wrap(80, MakeInfo(command, "--" + name)) << Endl;
                 } else if (shell == "bash") {
@@ -104,7 +103,7 @@ namespace NLastGetopt {
                 } else if (shell == "zsh") {
                     TZshCompletionGenerator(opts).Generate(command, Cout);
                 } else {
-                    Cerr << "Unknown shell name " << TString{shell}.Quote() << Endl;
+                    Cerr << "Unknown shell name " << NUtils::Quote(shell) << Endl;
                     exit(1);
                 }
                 exit(0);
@@ -113,7 +112,7 @@ namespace NLastGetopt {
 
     class TCompleterMode: public TMainClassArgs {
     public:
-        TCompleterMode(const TModChooser* modChooser, TString command, TString modName)
+        TCompleterMode(const TModChooser* modChooser, std::string command, std::string modName)
             : Command_(std::move(command))
             , Modes_(modChooser)
             , ModName_(std::move(modName))
@@ -138,14 +137,14 @@ namespace NLastGetopt {
 
         int DoRun(NLastGetopt::TOptsParseResult&& parsedOptions) override {
             auto arg = parsedOptions.GetFreeArgs()[0];
-            arg.to_lower();
+            NUtils::ToLower(arg);
 
             if (arg == "bash") {
                 TBashCompletionGenerator(Modes_).Generate(Command_, Cout);
             } else if (arg == "zsh") {
                 TZshCompletionGenerator(Modes_).Generate(Command_, Cout);
             } else {
-                Cerr << "Unknown shell name " << arg.Quote() << Endl;
+                Cerr << "Unknown shell name " << NUtils::Quote(arg) << Endl;
                 parsedOptions.PrintUsage();
                 return 1;
             }
@@ -154,12 +153,12 @@ namespace NLastGetopt {
         }
 
     private:
-        TString Command_;
+        std::string Command_;
         const TModChooser* Modes_;
-        TString ModName_;
+        std::string ModName_;
     };
 
-    THolder<TMainClassArgs> MakeCompletionMod(const TModChooser* modChooser, TString command, TString modName) {
+    THolder<TMainClassArgs> MakeCompletionMod(const TModChooser* modChooser, std::string command, std::string modName) {
         return MakeHolder<TCompleterMode>(modChooser, std::move(command), std::move(modName));
     }
 }

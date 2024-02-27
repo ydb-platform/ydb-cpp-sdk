@@ -125,7 +125,7 @@ private:
 private:
     TContExecutor& Executor_;
 
-    // TODO(velavokr): allow name storage owning (for generated names backed by TString)
+    // TODO(velavokr): allow name storage owning (for generated names backed by std::string)
     const char* Name_ = nullptr;
 
     NCoro::TTrampoline Trampoline_;

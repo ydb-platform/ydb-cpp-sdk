@@ -1,7 +1,7 @@
 #include "last_getopt_easy_setup.h"
 
 namespace NLastGetopt {
-    TEasySetup::TEasySetup(const TStringBuf& optstring)
+    TEasySetup::TEasySetup(const std::string_view& optstring)
         : TOpts(optstring)
     {
         AddHelpOption();

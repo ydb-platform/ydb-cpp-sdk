@@ -4,12 +4,12 @@ using namespace NYdb;
 using namespace NYdb::NTopic;
 using namespace NYdb::NTopic::NTests;
 
-TTopicSdkTestSetup::TTopicSdkTestSetup(const TString& testCaseName, const NKikimr::Tests::TServerSettings& settings, bool createTopic)
+TTopicSdkTestSetup::TTopicSdkTestSetup(const std::string& testCaseName, const NKikimr::Tests::TServerSettings& settings, bool createTopic)
     : Database("/Root")
     , Server(settings, false)
 {
-    Log.SetFormatter([testCaseName](ELogPriority priority, TStringBuf message) {
-        return TStringBuilder() << TInstant::Now() << " :" << testCaseName << " " << priority << ": " << message << Endl;
+    Log.SetFormatter([testCaseName](ELogPriority priority, std::string_view message) {
+        return TYdbStringBuilder() << TInstant::Now() << " :" << testCaseName << " " << priority << ": " << message << Endl;
     });
 
     Server.StartServer(true, GetDatabase());
@@ -22,7 +22,7 @@ TTopicSdkTestSetup::TTopicSdkTestSetup(const TString& testCaseName, const NKikim
     }
 }
 
-void TTopicSdkTestSetup::CreateTopic(const TString& path, const TString& consumer, size_t partitionCount)
+void TTopicSdkTestSetup::CreateTopic(const std::string& path, const std::string& consumer, size_t partitionCount)
 {
     TTopicClient client(MakeDriver());
 
@@ -39,19 +39,19 @@ void TTopicSdkTestSetup::CreateTopic(const TString& path, const TString& consume
     Server.WaitInit(path);
 }
 
-TString TTopicSdkTestSetup::GetEndpoint() const {
+std::string TTopicSdkTestSetup::GetEndpoint() const {
     return "localhost:" + ToString(Server.GrpcPort);
 }
 
-TString TTopicSdkTestSetup::GetTopicPath(const TString& name) const {
+std::string TTopicSdkTestSetup::GetTopicPath(const std::string& name) const {
     return GetTopicParent() + "/" + name;
 }
 
-TString TTopicSdkTestSetup::GetTopicParent() const {
+std::string TTopicSdkTestSetup::GetTopicParent() const {
     return GetDatabase();
 }
 
-TString TTopicSdkTestSetup::GetDatabase() const {
+std::string TTopicSdkTestSetup::GetDatabase() const {
     return Database;
 }
 

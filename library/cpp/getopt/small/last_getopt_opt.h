@@ -3,16 +3,11 @@
 #include "completer.h"
 #include "last_getopt_handlers.h"
 
-#include <util/string/split.h>
 #include <util/generic/hash_set.h>
-#include <util/generic/ptr.h>
-#include <util/generic/string.h>
 
-#include <util/string/cast.h>
 #include <util/string/join.h>
 
 #include <optional>
-#include <stdarg.h>
 
 namespace NLastGetopt {
     enum EHasArg {
@@ -45,22 +40,22 @@ namespace NLastGetopt {
     class TOpt {
     public:
         typedef std::vector<char> TShortNames;
-        typedef std::vector<TString> TLongNames;
+        typedef std::vector<std::string> TLongNames;
 
     protected:
         TShortNames Chars_;
         TLongNames LongNames_;
 
     private:
-        typedef std::optional<TString> TdOptVal;
+        typedef std::optional<std::string> TdOptVal;
         typedef std::vector<TSimpleSharedPtr<IOptHandler>> TOptHandlers;
 
     public:
         bool Hidden_ = false;       // is visible in help
-        TString ArgTitle_;          // the name of argument in help output
-        TString Help_;              // the help string
-        TString CompletionHelp_;    // the help string that's used in completion script, a shorter version of Help_
-        TString CompletionArgHelp_; // the description of argument in completion script
+        std::string ArgTitle_;          // the name of argument in help output
+        std::string Help_;              // the help string
+        std::string CompletionHelp_;    // the help string that's used in completion script, a shorter version of Help_
+        std::string CompletionArgHelp_; // the description of argument in completion script
 
         EHasArg HasArg_ = DEFAULT_HAS_ARG; // the argument parsing politics
         bool Required_ = false;            // option existence politics
@@ -81,7 +76,7 @@ namespace NLastGetopt {
         TdOptVal OptionalValue_;
         TdOptVal DefaultValue_;
         TOptHandlers Handlers_;
-        THashSet<TString> Choices_;
+        THashSet<std::string> Choices_;
 
     public:
         /**
@@ -95,21 +90,21 @@ namespace NLastGetopt {
          *  @param name            string to check
          *  @param c               if given, the first bad charecter will be saved in c
          */
-        static bool IsAllowedLongName(const TString& name, unsigned char* c = nullptr);
+        static bool IsAllowedLongName(const std::string& name, unsigned char* c = nullptr);
 
         /**
          *  @return one of the expected representations of the option.
          *  If the option has short names, will return "-<char>"
          *  Otherwise will return "--<long name>"
          */
-        TString ToShortString() const;
+        std::string ToShortString() const;
 
         /**
          *  check if given string is one of the long names
          *
          *  @param name               string to check
          */
-        bool NameIs(const TString& name) const;
+        bool NameIs(const std::string& name) const;
 
         /**
          *  check if given char is one of the short names
@@ -122,7 +117,7 @@ namespace NLastGetopt {
          *  If string has long names - will return one of them
          *  Otherwise will throw
          */
-        TString GetName() const;
+        std::string GetName() const;
 
         /**
          *  adds short alias for the option
@@ -147,7 +142,7 @@ namespace NLastGetopt {
          *
          *  @return self
          */
-        TOpt& AddLongName(const TString& name);
+        TOpt& AddLongName(const std::string& name);
 
         /**
          *  return all long names of the option
@@ -189,7 +184,7 @@ namespace NLastGetopt {
         /**
          *  @returns argument title
          */
-        TString GetArgTitle() const {
+        std::string GetArgTitle() const {
             return ArgTitle_;
         }
 
@@ -199,7 +194,7 @@ namespace NLastGetopt {
          *  @param title      the new name of argument in help output
          *  @return self
          */
-        TOpt& RequiredArgument(const TString& title = "") {
+        TOpt& RequiredArgument(const std::string& title = "") {
             ArgTitle_ = title;
             return HasArg(REQUIRED_ARGUMENT);
         }
@@ -220,7 +215,7 @@ namespace NLastGetopt {
          *  @param title      the new name of argument in help output
          *  @return self
          */
-        TOpt& OptionalArgument(const TString& title = "") {
+        TOpt& OptionalArgument(const std::string& title = "") {
             ArgTitle_ = title;
             return HasArg(OPTIONAL_ARGUMENT);
         }
@@ -235,7 +230,7 @@ namespace NLastGetopt {
          *  @param title      the new name of argument in help output
          *  @return self
          */
-        TOpt& OptionalValue(const TString& val, const TString& title = "") {
+        TOpt& OptionalValue(const std::string& val, const std::string& title = "") {
             OptionalValue_ = val;
             return OptionalArgument(title);
         }
@@ -251,7 +246,7 @@ namespace NLastGetopt {
          *  @return optional value
          *  throws exception if optional value wasn't set
          */
-        const TString& GetOptionalValue() const {
+        const std::string& GetOptionalValue() const {
             return *OptionalValue_;
         }
 
@@ -276,7 +271,7 @@ namespace NLastGetopt {
          *  @return default value
          *  throws exception if <default value> wasn't set
          */
-        const TString& GetDefaultValue() const {
+        const std::string& GetDefaultValue() const {
             return *DefaultValue_;
         }
 
@@ -388,7 +383,7 @@ namespace NLastGetopt {
          * See more on completion descriptions codestyle:
          * https://github.com/zsh-users/zsh/blob/master/Etc/completion-style-guide#L43
          */
-        TOpt& Help(const TString& help) {
+        TOpt& Help(const std::string& help) {
             Help_ = help;
             return *this;
         }
@@ -396,11 +391,11 @@ namespace NLastGetopt {
         /**
          * Get help string.
          */
-        const TString& GetHelp() const {
+        const std::string& GetHelp() const {
             return Help_;
         }
 
-        TString GetChoicesHelp() const {
+        std::string GetChoicesHelp() const {
             return JoinSeq(", ", Choices_);
         }
 
@@ -421,7 +416,7 @@ namespace NLastGetopt {
          * --timeout -t  -- specify query timeout
          * ```
          */
-        TOpt& CompletionHelp(const TString& help) {
+        TOpt& CompletionHelp(const std::string& help) {
             CompletionHelp_ = help;
             return *this;
         }
@@ -429,8 +424,8 @@ namespace NLastGetopt {
         /**
          * Get help string that appears when argument completer lists available options.
          */
-        const TString& GetCompletionHelp() const {
-            return CompletionHelp_ ? CompletionHelp_ : Help_;
+        const std::string& GetCompletionHelp() const {
+            return !CompletionHelp_.empty() ? CompletionHelp_ : Help_;
         }
 
         /**
@@ -446,7 +441,7 @@ namespace NLastGetopt {
          * 50     100     250     500     1000
          * ```
          */
-        TOpt& CompletionArgHelp(const TString& help) {
+        TOpt& CompletionArgHelp(const std::string& help) {
             CompletionArgHelp_ = help;
             return *this;
         }
@@ -454,8 +449,8 @@ namespace NLastGetopt {
         /**
          *  @return argument help string for use in completion script.
          */
-        const TString& GetCompletionArgHelp() const {
-            return CompletionArgHelp_ ? CompletionArgHelp_ : ArgTitle_;
+        const std::string& GetCompletionArgHelp() const {
+            return !CompletionArgHelp_.empty() ? CompletionArgHelp_ : ArgTitle_;
         }
 
         /**
@@ -527,7 +522,7 @@ namespace NLastGetopt {
         /**
          * Like `IfPresentDisableCompletionFor(char c)`, but for long options.
          */
-        TOpt& IfPresentDisableCompletionFor(const TString& name) {
+        TOpt& IfPresentDisableCompletionFor(const std::string& name) {
             DisableCompletionForLongName_.push_back(name);
             return *this;
         }
@@ -618,7 +613,7 @@ namespace NLastGetopt {
         }
 
         // Stores FromString<T>(arg) in *target
-        // T maybe anything with FromString<T>(const TStringBuf&) defined
+        // T maybe anything with FromString<T>(const std::string_view&) defined
         template <typename TpVal, typename T>
         TOpt& StoreResultT(T* target) {
             return Handler1T<TpVal>(NPrivate::TStoreResultFunctor<T, TpVal>(target));
@@ -719,16 +714,16 @@ namespace NLastGetopt {
             return Handler1T<typename Container::value_type>([target](auto&& value) { target->insert(std::forward<decltype(value)>(value)); });
         }
 
-        // Emplaces TString arg to *target for each argument
+        // Emplaces std::string arg to *target for each argument
         template <typename T>
         TOpt& EmplaceTo(std::vector<T>* target) {
-            return Handler1T<TString>([target](TString arg) { target->emplace_back(std::move(arg)); } );
+            return Handler1T<std::string>([target](std::string arg) { target->emplace_back(std::move(arg)); } );
         }
 
-        // Emplaces TString arg to *target for each argument
+        // Emplaces std::string arg to *target for each argument
         template <class Container>
         TOpt& EmplaceTo(Container* target) {
-            return Handler1T<TString>([target](TString arg) { target->emplace_back(std::move(arg)); } );
+            return Handler1T<std::string>([target](std::string arg) { target->emplace_back(std::move(arg)); } );
         }
 
         template <class Container>
@@ -763,9 +758,9 @@ namespace NLastGetopt {
                 });
         }
 
-        TOpt& Choices(std::vector<TString> choices) {
+        TOpt& Choices(std::vector<std::string> choices) {
             return Choices(
-                THashSet<TString>{
+                THashSet<std::string>{
                     std::make_move_iterator(choices.begin()),
                     std::make_move_iterator(choices.end())
                 });
@@ -773,7 +768,7 @@ namespace NLastGetopt {
 
         TOpt& ChoicesWithCompletion(std::vector<NComp::TChoice> choices) {
             Completer(NComp::Choice(choices));
-            THashSet<TString> choicesSet;
+            THashSet<std::string> choicesSet;
             choicesSet.reserve(choices.size());
             for (const auto& choice : choices) {
                 choicesSet.insert(choice.Choice);
@@ -792,16 +787,16 @@ namespace NLastGetopt {
      */
     struct TFreeArgSpec {
         TFreeArgSpec() = default;
-        TFreeArgSpec(const TString& title, const TString& help = TString(), bool optional = false)
+        TFreeArgSpec(const std::string& title, const std::string& help = std::string(), bool optional = false)
             : Title_(title)
             , Help_(help)
             , Optional_(optional)
         {
         }
 
-        TString Title_;
-        TString Help_;
-        TString CompletionArgHelp_;
+        std::string Title_;
+        std::string Help_;
+        std::string CompletionArgHelp_;
 
         bool Optional_ = false;
         NComp::ICompleterPtr Completer_ = nullptr;
@@ -816,7 +811,7 @@ namespace NLastGetopt {
         /**
          * Set argument title.
          */
-        TFreeArgSpec& Title(TString title) {
+        TFreeArgSpec& Title(std::string title) {
             Title_ = std::move(title);
             return *this;
         }
@@ -824,8 +819,8 @@ namespace NLastGetopt {
         /**
          * Get argument title. If title is empty, returns a default one.
          */
-        TStringBuf GetTitle(TStringBuf defaultTitle) const {
-            return Title_ ? TStringBuf(Title_) : defaultTitle;
+        std::string_view GetTitle(std::string_view defaultTitle) const {
+            return !Title_.empty() ? std::string_view(Title_) : defaultTitle;
         }
 
         /**
@@ -835,7 +830,7 @@ namespace NLastGetopt {
          *
          * See `TOpt::Help` function for more on how `Help` and `CompletionArgHelp` differ one from another.
          */
-        TFreeArgSpec& Help(TString help) {
+        TFreeArgSpec& Help(std::string help) {
             Help_ = std::move(help);
             return *this;
         }
@@ -843,14 +838,14 @@ namespace NLastGetopt {
         /**
          * Get help string that appears with `--help`.
          */
-        TStringBuf GetHelp() const {
+        std::string_view GetHelp() const {
             return Help_;
         }
 
         /**
          * Set help string that appears when completer suggests values fot this argument.
          */
-        TFreeArgSpec& CompletionArgHelp(TString completionArgHelp) {
+        TFreeArgSpec& CompletionArgHelp(std::string completionArgHelp) {
             CompletionArgHelp_ = std::move(completionArgHelp);
             return *this;
         }
@@ -858,8 +853,8 @@ namespace NLastGetopt {
         /**
          * Get help string that appears when completer suggests values fot this argument.
          */
-        TStringBuf GetCompletionArgHelp(TStringBuf defaultTitle) const {
-            return CompletionArgHelp_ ? TStringBuf(CompletionArgHelp_) : GetTitle(defaultTitle);
+        std::string_view GetCompletionArgHelp(std::string_view defaultTitle) const {
+            return !CompletionArgHelp_.empty() ? std::string_view(CompletionArgHelp_) : GetTitle(defaultTitle);
         }
 
         /**

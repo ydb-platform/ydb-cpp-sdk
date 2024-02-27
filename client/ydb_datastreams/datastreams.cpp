@@ -61,8 +61,8 @@ namespace NYdb::NDataStreams::V1 {
             return CallImpl<TProtoService, TProtoRequest, TProtoResponse, TProtoResult>(settings, grpcCall, [](TProtoRequest&) {});
         }
 
-        TAsyncCreateStreamResult CreateStream(const TString &path, TCreateStreamSettings settings) {
-            if (settings.RetentionPeriodHours_.has_value() && settings.RetentionStorageMegabytes_.has_value()) {
+        TAsyncCreateStreamResult CreateStream(const std::string &path, TCreateStreamSettings settings) {
+            if (settings.RetentionPeriodHours_.has_value() && settings.RetentionStorageMegabytes_.has_value() ) {
                 return NThreading::MakeFuture(TProtoResultWrapper<Ydb::DataStreams::V1::CreateStreamResult>(
                     NYdb::TPlainStatus(NYdb::EStatus::BAD_REQUEST, "both retention types can not be set"),
                     std::make_unique<Ydb::DataStreams::V1::CreateStreamResult>()));
@@ -110,7 +110,7 @@ namespace NYdb::NDataStreams::V1 {
                     Ydb::DataStreams::V1::DescribeStreamResult>(settings, &Ydb::DataStreams::V1::DataStreamsService::Stub::AsyncDescribeStream);
         }
 
-        TAsyncListShardsResult ListShards(const TString &path,
+        TAsyncListShardsResult ListShards(const std::string &path,
             const Ydb::DataStreams::V1::ShardFilter& shardFilter,
             TListShardsSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
@@ -127,7 +127,7 @@ namespace NYdb::NDataStreams::V1 {
                     });
         }
 
-        TAsyncPutRecordsResult PutRecords(const TString& path, const std::vector<TDataRecord>& records, TPutRecordsSettings settings) {
+        TAsyncPutRecordsResult PutRecords(const std::string& path, const std::vector<TDataRecord>& records, TPutRecordsSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
                     Ydb::DataStreams::V1::PutRecordsRequest,
                     Ydb::DataStreams::V1::PutRecordsResponse,
@@ -143,7 +143,7 @@ namespace NYdb::NDataStreams::V1 {
                                                             });
         }
 
-        TAsyncGetRecordsResult GetRecords(const TString& shardIterator, TGetRecordsSettings settings) {
+        TAsyncGetRecordsResult GetRecords(const std::string& shardIterator, TGetRecordsSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
                     Ydb::DataStreams::V1::GetRecordsRequest,
                     Ydb::DataStreams::V1::GetRecordsResponse,
@@ -154,7 +154,7 @@ namespace NYdb::NDataStreams::V1 {
                         });
         }
 
-        TAsyncGetShardIteratorResult GetShardIterator(const TString& path, const TString& shardId,
+        TAsyncGetShardIteratorResult GetShardIterator(const std::string& path, const std::string& shardId,
                                                       Ydb::DataStreams::V1::ShardIteratorType shardIteratorType,
                                                       TGetShardIteratorSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
@@ -184,7 +184,7 @@ namespace NYdb::NDataStreams::V1 {
                     Ydb::DataStreams::V1::DescribeLimitsResult>(settings, &Ydb::DataStreams::V1::DataStreamsService::Stub::AsyncDescribeLimits);
         }
 
-        TAsyncDescribeStreamSummaryResult DescribeStreamSummary(const TString& path, TDescribeStreamSummarySettings settings) {
+        TAsyncDescribeStreamSummaryResult DescribeStreamSummary(const std::string& path, TDescribeStreamSummarySettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
                     Ydb::DataStreams::V1::DescribeStreamSummaryRequest,
                     Ydb::DataStreams::V1::DescribeStreamSummaryResponse,
@@ -194,7 +194,7 @@ namespace NYdb::NDataStreams::V1 {
                                                                        });
         }
 
-        TAsyncDecreaseStreamRetentionPeriodResult DecreaseStreamRetentionPeriod(const TString& path, TDecreaseStreamRetentionPeriodSettings settings) {
+        TAsyncDecreaseStreamRetentionPeriodResult DecreaseStreamRetentionPeriod(const std::string& path, TDecreaseStreamRetentionPeriodSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
                     Ydb::DataStreams::V1::DecreaseStreamRetentionPeriodRequest,
                     Ydb::DataStreams::V1::DecreaseStreamRetentionPeriodResponse,
@@ -206,7 +206,7 @@ namespace NYdb::NDataStreams::V1 {
 
         }
 
-        TAsyncIncreaseStreamRetentionPeriodResult IncreaseStreamRetentionPeriod(const TString& path, TIncreaseStreamRetentionPeriodSettings settings) {
+        TAsyncIncreaseStreamRetentionPeriodResult IncreaseStreamRetentionPeriod(const std::string& path, TIncreaseStreamRetentionPeriodSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
                     Ydb::DataStreams::V1::IncreaseStreamRetentionPeriodRequest,
                     Ydb::DataStreams::V1::IncreaseStreamRetentionPeriodResponse,
@@ -218,7 +218,7 @@ namespace NYdb::NDataStreams::V1 {
 
         }
 
-        TAsyncUpdateShardCountResult UpdateShardCount(const TString& path, TUpdateShardCountSettings settings) {
+        TAsyncUpdateShardCountResult UpdateShardCount(const std::string& path, TUpdateShardCountSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
                     Ydb::DataStreams::V1::UpdateShardCountRequest,
                     Ydb::DataStreams::V1::UpdateShardCountResponse,
@@ -229,7 +229,7 @@ namespace NYdb::NDataStreams::V1 {
                                                                   });
         }
 
-        TAsyncUpdateStreamModeResult UpdateStreamMode(const TString& path, TUpdateStreamModeSettings settings) {
+        TAsyncUpdateStreamModeResult UpdateStreamMode(const std::string& path, TUpdateStreamModeSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
                     Ydb::DataStreams::V1::UpdateStreamModeRequest,
                     Ydb::DataStreams::V1::UpdateStreamModeResponse,
@@ -243,7 +243,7 @@ namespace NYdb::NDataStreams::V1 {
                                                                         });
         }
 
-        TAsyncRegisterStreamConsumerResult RegisterStreamConsumer(const TString& path, const TString& consumer_name, TRegisterStreamConsumerSettings settings) {
+        TAsyncRegisterStreamConsumerResult RegisterStreamConsumer(const std::string& path, const std::string& consumer_name, TRegisterStreamConsumerSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
                     Ydb::DataStreams::V1::RegisterStreamConsumerRequest,
                     Ydb::DataStreams::V1::RegisterStreamConsumerResponse,
@@ -254,7 +254,7 @@ namespace NYdb::NDataStreams::V1 {
                     });
         }
 
-        TAsyncDeregisterStreamConsumerResult DeregisterStreamConsumer(const TString& path, const TString& consumer_name, TDeregisterStreamConsumerSettings settings) {
+        TAsyncDeregisterStreamConsumerResult DeregisterStreamConsumer(const std::string& path, const std::string& consumer_name, TDeregisterStreamConsumerSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
                     Ydb::DataStreams::V1::DeregisterStreamConsumerRequest,
                     Ydb::DataStreams::V1::DeregisterStreamConsumerResponse,
@@ -272,7 +272,7 @@ namespace NYdb::NDataStreams::V1 {
                     Ydb::DataStreams::V1::DescribeStreamConsumerResult>(settings, &Ydb::DataStreams::V1::DataStreamsService::Stub::AsyncDescribeStreamConsumer);
         }
 
-        TAsyncListStreamConsumersResult ListStreamConsumers(const TString& path, TListStreamConsumersSettings settings) {
+        TAsyncListStreamConsumersResult ListStreamConsumers(const std::string& path, TListStreamConsumersSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
                     Ydb::DataStreams::V1::ListStreamConsumersRequest,
                     Ydb::DataStreams::V1::ListStreamConsumersResponse,
@@ -346,7 +346,7 @@ namespace NYdb::NDataStreams::V1 {
                     Ydb::DataStreams::V1::StopStreamEncryptionResult>(settings, &Ydb::DataStreams::V1::DataStreamsService::Stub::AsyncStopStreamEncryption);
         }
 
-        TAsyncUpdateStreamResult UpdateStream(const TString& streamName, TUpdateStreamSettings settings) {
+        TAsyncUpdateStreamResult UpdateStream(const std::string& streamName, TUpdateStreamSettings settings) {
             if (settings.RetentionPeriodHours_.has_value() && settings.RetentionStorageMegabytes_.has_value()) {
                 return NThreading::MakeFuture(TProtoResultWrapper<Ydb::DataStreams::V1::UpdateStreamResult>(
                     NYdb::TPlainStatus(NYdb::EStatus::BAD_REQUEST, "both retention types can not be set"),
@@ -375,7 +375,7 @@ namespace NYdb::NDataStreams::V1 {
                         });
         }
 
-        TAsyncDeleteStreamResult DeleteStream(const TString &path, TDeleteStreamSettings settings) {
+        TAsyncDeleteStreamResult DeleteStream(const std::string &path, TDeleteStreamSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
                     Ydb::DataStreams::V1::DeleteStreamRequest,
                     Ydb::DataStreams::V1::DeleteStreamResponse,
@@ -387,7 +387,7 @@ namespace NYdb::NDataStreams::V1 {
                         });
         }
 
-        TAsyncDescribeStreamResult DescribeStream(const TString &path, TDescribeStreamSettings settings) {
+        TAsyncDescribeStreamResult DescribeStream(const std::string &path, TDescribeStreamSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
                     Ydb::DataStreams::V1::DescribeStreamRequest,
                     Ydb::DataStreams::V1::DescribeStreamResponse,
@@ -399,7 +399,7 @@ namespace NYdb::NDataStreams::V1 {
                                                               });
         }
 
-        TAsyncPutRecordResult PutRecord(const TString &path, const TDataRecord& record, TPutRecordSettings settings) {
+        TAsyncPutRecordResult PutRecord(const std::string &path, const TDataRecord& record, TPutRecordSettings settings) {
             return CallImpl<Ydb::DataStreams::V1::DataStreamsService,
                     Ydb::DataStreams::V1::PutRecordRequest,
                     Ydb::DataStreams::V1::PutRecordResponse,
@@ -430,19 +430,19 @@ namespace NYdb::NDataStreams::V1 {
         return Impl_->DiscoveryCompleted();
     }
 
-    TAsyncCreateStreamResult TDataStreamsClient::CreateStream(const TString& path, TCreateStreamSettings settings) {
+    TAsyncCreateStreamResult TDataStreamsClient::CreateStream(const std::string& path, TCreateStreamSettings settings) {
         return Impl_->CreateStream(path, settings);
     }
 
-    TAsyncDeleteStreamResult TDataStreamsClient::DeleteStream(const TString& path, TDeleteStreamSettings settings) {
+    TAsyncDeleteStreamResult TDataStreamsClient::DeleteStream(const std::string& path, TDeleteStreamSettings settings) {
         return Impl_->DeleteStream(path, settings);
     }
 
-    TAsyncDescribeStreamResult TDataStreamsClient::DescribeStream(const TString& path, TDescribeStreamSettings settings) {
+    TAsyncDescribeStreamResult TDataStreamsClient::DescribeStream(const std::string& path, TDescribeStreamSettings settings) {
         return Impl_->DescribeStream(path, settings);
     }
 
-    TAsyncPutRecordResult TDataStreamsClient::PutRecord(const TString& path, const TDataRecord& record, TPutRecordSettings settings) {
+    TAsyncPutRecordResult TDataStreamsClient::PutRecord(const std::string& path, const TDataRecord& record, TPutRecordSettings settings) {
         return Impl_->PutRecord(path, record, settings);
     }
 
@@ -450,21 +450,21 @@ namespace NYdb::NDataStreams::V1 {
         return Impl_->ListStreams(settings);
     }
 
-    TAsyncListShardsResult TDataStreamsClient::ListShards(const TString& path,
+    TAsyncListShardsResult TDataStreamsClient::ListShards(const std::string& path,
                                                           const Ydb::DataStreams::V1::ShardFilter& shardFilter,
                                                           TListShardsSettings settings) {
         return Impl_->ListShards(path, shardFilter, settings);
     }
 
-    TAsyncPutRecordsResult TDataStreamsClient::PutRecords(const TString& path, const std::vector<TDataRecord>& records, TPutRecordsSettings settings) {
+    TAsyncPutRecordsResult TDataStreamsClient::PutRecords(const std::string& path, const std::vector<TDataRecord>& records, TPutRecordsSettings settings) {
         return Impl_->PutRecords(path, records, settings);
     }
 
-    TAsyncGetRecordsResult TDataStreamsClient::GetRecords(const TString& shardIterator, TGetRecordsSettings settings) {
+    TAsyncGetRecordsResult TDataStreamsClient::GetRecords(const std::string& shardIterator, TGetRecordsSettings settings) {
         return Impl_->GetRecords(shardIterator, settings);
     }
 
-    TAsyncGetShardIteratorResult TDataStreamsClient::GetShardIterator(const TString& path, const TString& shardId, Ydb::DataStreams::V1::ShardIteratorType shardIteratorType, TGetShardIteratorSettings settings) {
+    TAsyncGetShardIteratorResult TDataStreamsClient::GetShardIterator(const std::string& path, const std::string& shardId, Ydb::DataStreams::V1::ShardIteratorType shardIteratorType, TGetShardIteratorSettings settings) {
         return Impl_->GetShardIterator(path, shardId, shardIteratorType, settings);
     }
 
@@ -476,31 +476,31 @@ namespace NYdb::NDataStreams::V1 {
         return Impl_->DescribeLimits(settings);
     }
 
-    TAsyncDescribeStreamSummaryResult TDataStreamsClient::DescribeStreamSummary(const TString& path, TDescribeStreamSummarySettings settings) {
+    TAsyncDescribeStreamSummaryResult TDataStreamsClient::DescribeStreamSummary(const std::string& path, TDescribeStreamSummarySettings settings) {
         return Impl_->DescribeStreamSummary(path, settings);
     }
 
-    TAsyncDecreaseStreamRetentionPeriodResult TDataStreamsClient::DecreaseStreamRetentionPeriod(const TString& path, TDecreaseStreamRetentionPeriodSettings settings) {
+    TAsyncDecreaseStreamRetentionPeriodResult TDataStreamsClient::DecreaseStreamRetentionPeriod(const std::string& path, TDecreaseStreamRetentionPeriodSettings settings) {
         return Impl_->DecreaseStreamRetentionPeriod(path, settings);
     }
 
-    TAsyncIncreaseStreamRetentionPeriodResult TDataStreamsClient::IncreaseStreamRetentionPeriod(const TString& path, TIncreaseStreamRetentionPeriodSettings settings) {
+    TAsyncIncreaseStreamRetentionPeriodResult TDataStreamsClient::IncreaseStreamRetentionPeriod(const std::string& path, TIncreaseStreamRetentionPeriodSettings settings) {
         return Impl_->IncreaseStreamRetentionPeriod(path, settings);
     }
 
-    TAsyncUpdateShardCountResult TDataStreamsClient::UpdateShardCount(const TString& path, TUpdateShardCountSettings settings) {
+    TAsyncUpdateShardCountResult TDataStreamsClient::UpdateShardCount(const std::string& path, TUpdateShardCountSettings settings) {
         return Impl_->UpdateShardCount(path, settings);
     }
 
-    TAsyncUpdateStreamModeResult TDataStreamsClient::UpdateStreamMode(const TString& path, TUpdateStreamModeSettings settings) {
+    TAsyncUpdateStreamModeResult TDataStreamsClient::UpdateStreamMode(const std::string& path, TUpdateStreamModeSettings settings) {
         return Impl_->UpdateStreamMode(path, settings);
     }
 
-    TAsyncRegisterStreamConsumerResult TDataStreamsClient::RegisterStreamConsumer(const TString& path, const TString& consumer_name, const TRegisterStreamConsumerSettings settings) {
+    TAsyncRegisterStreamConsumerResult TDataStreamsClient::RegisterStreamConsumer(const std::string& path, const std::string& consumer_name, const TRegisterStreamConsumerSettings settings) {
         return Impl_->RegisterStreamConsumer(path, consumer_name, settings);
     }
 
-    TAsyncDeregisterStreamConsumerResult TDataStreamsClient::DeregisterStreamConsumer(const TString& path, const TString& consumer_name, TDeregisterStreamConsumerSettings settings) {
+    TAsyncDeregisterStreamConsumerResult TDataStreamsClient::DeregisterStreamConsumer(const std::string& path, const std::string& consumer_name, TDeregisterStreamConsumerSettings settings) {
         return Impl_->DeregisterStreamConsumer(path, consumer_name, settings);
     }
 
@@ -508,7 +508,7 @@ namespace NYdb::NDataStreams::V1 {
         return Impl_->DescribeStreamConsumer(settings);
     }
 
-    TAsyncListStreamConsumersResult TDataStreamsClient::ListStreamConsumers(const TString& path, TListStreamConsumersSettings settings) {
+    TAsyncListStreamConsumersResult TDataStreamsClient::ListStreamConsumers(const std::string& path, TListStreamConsumersSettings settings) {
         return Impl_->ListStreamConsumers(path, settings);
     }
 
@@ -548,7 +548,7 @@ namespace NYdb::NDataStreams::V1 {
         return Impl_->StopStreamEncryption(settings);
     }
 
-    TAsyncUpdateStreamResult TDataStreamsClient::UpdateStream(const TString& streamName, TUpdateStreamSettings settings) {
+    TAsyncUpdateStreamResult TDataStreamsClient::UpdateStream(const std::string& streamName, TUpdateStreamSettings settings) {
         return Impl_->UpdateStream(streamName, settings);
     }
 

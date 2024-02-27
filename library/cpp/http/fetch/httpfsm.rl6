@@ -89,7 +89,7 @@ action set_request_uri {
         if (!request_hd->request_uri.empty()) {
             return -2;
         }
-        request_hd->request_uri =TStringBuf(buf, buflen);
+        request_hd->request_uri =std::string_view(buf, buflen);
     }
 }
 action set_http_method {
@@ -253,7 +253,7 @@ action set_location {
         buflen --;
     }
     if (hd && buflen < FETCHER_URL_MAX) {
-        hd->location = TStringBuf(buf, buflen);
+        hd->location = std::string_view(buf, buflen);
     }
 }
 
@@ -304,7 +304,7 @@ x_robots_tag = "x-robots-tag"i def >{ AcceptingXRobots = true; } x_robots_value 
 ################# rel_canonical ###############
 action set_canonical {
     if (hd && buflen < FETCHER_URL_MAX) {
-        hd->rel_canonical = TStringBuf(buf, buflen);
+        hd->rel_canonical = std::string_view(buf, buflen);
     }
 }
 

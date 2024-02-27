@@ -9,7 +9,7 @@ IMonHttpRequest::~IMonHttpRequest() {
 TMonService2HttpRequest::~TMonService2HttpRequest() {
 }
 
-TString TMonService2HttpRequest::GetServiceTitle() const {
+std::string TMonService2HttpRequest::GetServiceTitle() const {
     return MonService->GetTitle();
 }
 
@@ -21,15 +21,15 @@ HTTP_METHOD TMonService2HttpRequest::GetMethod() const {
     return HttpRequest->GetMethod();
 }
 
-TStringBuf TMonService2HttpRequest::GetPathInfo() const {
+std::string_view TMonService2HttpRequest::GetPathInfo() const {
     return PathInfo;
 }
 
-TStringBuf TMonService2HttpRequest::GetPath() const {
+std::string_view TMonService2HttpRequest::GetPath() const {
     return HttpRequest->GetPath();
 }
 
-TStringBuf TMonService2HttpRequest::GetUri() const {
+std::string_view TMonService2HttpRequest::GetUri() const {
     return HttpRequest->GetURI();
 }
 
@@ -41,25 +41,25 @@ const TCgiParameters& TMonService2HttpRequest::GetPostParams() const {
     return HttpRequest->GetPostParams();
 }
 
-TStringBuf TMonService2HttpRequest::GetHeader(TStringBuf name) const {
+std::string_view TMonService2HttpRequest::GetHeader(std::string_view name) const {
     const THttpHeaders& headers = HttpRequest->GetHeaders();
     const THttpInputHeader* header = headers.FindHeader(name);
     if (header != nullptr) {
         return header->Value();
     }
-    return TStringBuf();
+    return std::string_view();
 }
 
 const THttpHeaders& TMonService2HttpRequest::GetHeaders() const {
     return HttpRequest->GetHeaders();
 }
 
-TString TMonService2HttpRequest::GetRemoteAddr() const {
+std::string TMonService2HttpRequest::GetRemoteAddr() const {
     return HttpRequest->GetRemoteAddr();
 }
 
-TStringBuf TMonService2HttpRequest::GetCookie(TStringBuf name) const {
-    TStringBuf cookie = GetHeader("Cookie");
+std::string_view TMonService2HttpRequest::GetCookie(std::string_view name) const {
+    std::string_view cookie = GetHeader("Cookie");
     size_t size = cookie.size();
     size_t start = 0;
     while (start < size) {
@@ -67,7 +67,7 @@ TStringBuf TMonService2HttpRequest::GetCookie(TStringBuf name) const {
         auto pair = cookie.substr(start, semicolon - start);
         if (!pair.empty()) {
             size_t equal = pair.find('=');
-            if (equal != TStringBuf::npos) {
+            if (equal != std::string_view::npos) {
                 auto cookieName = pair.substr(0, equal);
                 if (cookieName == name) {
                     size_t valueStart = equal + 1;
@@ -81,5 +81,5 @@ TStringBuf TMonService2HttpRequest::GetCookie(TStringBuf name) const {
             }
         }
     }
-    return TStringBuf();
+    return std::string_view();
 }

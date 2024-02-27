@@ -100,7 +100,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/generic/queue.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/refcount.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/scope.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/serialized_enum.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/set.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/singleton.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/size_literals.cpp

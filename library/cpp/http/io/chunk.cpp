@@ -2,18 +2,14 @@
 
 #include "headers.h"
 
-#include <util/string/cast.h>
-#include <util/generic/utility.h>
-#include <util/generic/yexception.h>
-
-static inline size_t ParseHex(const TString& s) {
+static inline size_t ParseHex(const std::string& s) {
     if (s.empty()) {
         ythrow yexception() << "can not parse chunk length(empty string)";
     }
 
     size_t ret = 0;
 
-    for (TString::const_iterator c = s.begin(); c != s.end(); ++c) {
+    for (std::string::const_iterator c = s.begin(); c != s.end(); ++c) {
         const char ch = *c;
 
         if (ch >= '0' && ch <= '9') {
@@ -111,7 +107,7 @@ private:
     }
 
     inline bool ProceedToNextChunk() {
-        TString len(Slave_->ReadLine());
+        std::string len(Slave_->ReadLine());
 
         if (len.empty()) {
             /*

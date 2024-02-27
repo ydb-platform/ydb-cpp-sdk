@@ -1,8 +1,6 @@
 #pragma once
 
-#include <util/system/defaults.h>
-#include <util/generic/strbuf.h>
-#include <util/generic/string.h>
+#include <string>
 
 /* @return Size of the buffer required to decode Base64 encoded data of size `len`.
  */
@@ -23,18 +21,18 @@ constexpr size_t Base64DecodeBufSize(const size_t len) noexcept {
  */
 size_t Base64Decode(void* dst, const char* b, const char* e);
 
-inline TStringBuf Base64Decode(const TStringBuf src, void* dst) {
-    return TStringBuf(static_cast<const char*>(dst), Base64Decode(dst, src.begin(), src.end()));
+inline std::string_view Base64Decode(const std::string_view src, void* dst) {
+    return std::string_view(static_cast<const char*>(dst), Base64Decode(dst, src.begin(), src.end()));
 }
 
-inline void Base64Decode(const TStringBuf src, TString& dst) {
-    dst.ReserveAndResize(Base64DecodeBufSize(src.size()));
+inline void Base64Decode(const std::string_view src, std::string& dst) {
+    dst.resize(Base64DecodeBufSize(src.size()));
     dst.resize(Base64Decode(src, dst.begin()).size());
 }
 
 //WARNING: can process not whole input silently, use Base64StrictDecode instead of this function
-inline TString Base64Decode(const TStringBuf s) {
-    TString ret;
+inline std::string Base64Decode(const std::string_view s) {
+    std::string ret;
     Base64Decode(s, ret);
     return ret;
 }
@@ -61,18 +59,18 @@ size_t Base64StrictDecode(void* dst, const char* b, const char* e);
 /// @param dst an pointer to allocated memory
 ///            for writing result.
 ///
-/// @return Returns dst wrapped into TStringBuf.
+/// @return Returns dst wrapped into std::string_view.
 ///
-inline TStringBuf Base64StrictDecode(const TStringBuf src, void* dst) {
-    return TStringBuf(static_cast<const char*>(dst), Base64StrictDecode(dst, src.begin(), src.end()));
+inline std::string_view Base64StrictDecode(const std::string_view src, void* dst) {
+    return std::string_view(static_cast<const char*>(dst), Base64StrictDecode(dst, src.begin(), src.end()));
 }
 
 ///
 /// @param src a base64 encoded string.
 /// @param dst a decoded string.
 ///
-inline void Base64StrictDecode(const TStringBuf src, TString& dst) {
-    dst.ReserveAndResize(Base64DecodeBufSize(src.size()));
+inline void Base64StrictDecode(const std::string_view src, std::string& dst) {
+    dst.resize(Base64DecodeBufSize(src.size()));
     dst.resize(Base64StrictDecode(src, dst.begin()).size());
 }
 
@@ -81,16 +79,16 @@ inline void Base64StrictDecode(const TStringBuf src, TString& dst) {
 ///
 /// @returns a decoded string.
 ///
-inline TString Base64StrictDecode(const TStringBuf src) {
-    TString ret;
+inline std::string Base64StrictDecode(const std::string_view src) {
+    std::string ret;
     Base64StrictDecode(src, ret);
     return ret;
 }
 /// @}
 
 /// Works with strings which length is not divisible by 4.
-TString Base64DecodeUneven(const TStringBuf s);
-size_t Base64DecodeUneven(void* dst, const TStringBuf s);
+std::string Base64DecodeUneven(const std::string_view s);
+size_t Base64DecodeUneven(void* dst, const std::string_view s);
 
 //encode
 constexpr size_t Base64EncodeBufSize(const size_t len) noexcept {
@@ -110,47 +108,47 @@ char* Base64EncodeUrl(char* outstr, const unsigned char* instr, size_t len);
 ///
 char* Base64EncodeUrlNoPadding(char* outstr, const unsigned char* instr, size_t len);
 
-inline TStringBuf Base64Encode(const TStringBuf src, void* output) {
-    return TStringBuf(static_cast<const char*>(output), Base64Encode(static_cast<char*>(output), reinterpret_cast<const unsigned char*>(src.data()), src.size()));
+inline std::string_view Base64Encode(const std::string_view src, void* output) {
+    return std::string_view(static_cast<const char*>(output), Base64Encode(static_cast<char*>(output), reinterpret_cast<const unsigned char*>(src.data()), src.size()));
 }
 
-inline TStringBuf Base64EncodeUrl(const TStringBuf src, void* output) {
-    return TStringBuf(static_cast<const char*>(output), Base64EncodeUrl(static_cast<char*>(output), reinterpret_cast<const unsigned char*>(src.data()), src.size()));
+inline std::string_view Base64EncodeUrl(const std::string_view src, void* output) {
+    return std::string_view(static_cast<const char*>(output), Base64EncodeUrl(static_cast<char*>(output), reinterpret_cast<const unsigned char*>(src.data()), src.size()));
 }
 
-inline TStringBuf Base64EncodeUrlNoPadding(const TStringBuf src, void* output) {
-    return TStringBuf(static_cast<const char*>(output), Base64EncodeUrlNoPadding(static_cast<char*>(output), reinterpret_cast<const unsigned char*>(src.data()), src.size()));
+inline std::string_view Base64EncodeUrlNoPadding(const std::string_view src, void* output) {
+    return std::string_view(static_cast<const char*>(output), Base64EncodeUrlNoPadding(static_cast<char*>(output), reinterpret_cast<const unsigned char*>(src.data()), src.size()));
 }
 
-inline void Base64Encode(const TStringBuf src, TString& dst) {
-    dst.ReserveAndResize(Base64EncodeBufSize(src.size()));
+inline void Base64Encode(const std::string_view src, std::string& dst) {
+    dst.resize(Base64EncodeBufSize(src.size()));
     dst.resize(Base64Encode(src, dst.begin()).size());
 }
 
-inline void Base64EncodeUrl(const TStringBuf src, TString& dst) {
-    dst.ReserveAndResize(Base64EncodeBufSize(src.size()));
+inline void Base64EncodeUrl(const std::string_view src, std::string& dst) {
+    dst.resize(Base64EncodeBufSize(src.size()));
     dst.resize(Base64EncodeUrl(src, dst.begin()).size());
 }
 
-inline void Base64EncodeUrlNoPadding(const TStringBuf src, TString& dst) {
-    dst.ReserveAndResize(Base64EncodeBufSize(src.size()));
+inline void Base64EncodeUrlNoPadding(const std::string_view src, std::string& dst) {
+    dst.resize(Base64EncodeBufSize(src.size()));
     dst.resize(Base64EncodeUrlNoPadding(src, dst.begin()).size());
 }
 
-inline TString Base64Encode(const TStringBuf s) {
-    TString ret;
+inline std::string Base64Encode(const std::string_view s) {
+    std::string ret;
     Base64Encode(s, ret);
     return ret;
 }
 
-inline TString Base64EncodeUrl(const TStringBuf s) {
-    TString ret;
+inline std::string Base64EncodeUrl(const std::string_view s) {
+    std::string ret;
     Base64EncodeUrl(s, ret);
     return ret;
 }
 
-inline TString Base64EncodeUrlNoPadding(const TStringBuf s) {
-    TString ret;
+inline std::string Base64EncodeUrlNoPadding(const std::string_view s) {
+    std::string ret;
     Base64EncodeUrlNoPadding(s, ret);
     return ret;
 }

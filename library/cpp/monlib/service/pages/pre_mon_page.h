@@ -4,8 +4,8 @@
 
 namespace NMonitoring {
     struct TPreMonPage: public THtmlMonPage {
-        TPreMonPage(const TString& path,
-                    const TString& title = TString(),
+        TPreMonPage(const std::string& path,
+                    const std::string& title = std::string(),
                     bool preTag = true,
                     bool outputTableSorterJsCss = false)
             : THtmlMonPage(path, title, outputTableSorterJsCss)

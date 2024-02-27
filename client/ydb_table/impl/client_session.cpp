@@ -6,13 +6,13 @@
 namespace NYdb {
 namespace NTable {
 
-TSession::TImpl::TImpl(const TString& sessionId, const TString& endpoint, bool useQueryCache, ui32 queryCacheSize, bool isOwnedBySessionPool)
+TSession::TImpl::TImpl(const std::string& sessionId, const std::string& endpoint, bool useQueryCache, ui32 queryCacheSize, bool isOwnedBySessionPool)
     : TKqpSessionCommon(sessionId, endpoint, isOwnedBySessionPool)
     , UseQueryCache_(useQueryCache)
     , QueryCache_(queryCacheSize)
 {}
 
-void TSession::TImpl::InvalidateQueryInCache(const TString& key) {
+void TSession::TImpl::InvalidateQueryInCache(const std::string& key) {
     if (!UseQueryCache_) {
         return;
     }
@@ -35,7 +35,7 @@ void TSession::TImpl::InvalidateQueryCache() {
     }
 }
 
-std::optional<TSession::TImpl::TDataQueryInfo> TSession::TImpl::GetQueryFromCache(const TString& query, bool allowMigration) {
+std::optional<TSession::TImpl::TDataQueryInfo> TSession::TImpl::GetQueryFromCache(const std::string& query, bool allowMigration) {
     if (!UseQueryCache_) {
         return {};
     }
@@ -75,7 +75,7 @@ void TSession::TImpl::AddQueryToCache(const TDataQuery& query) {
     }
 }
 
-const TLRUCache<TString, TSession::TImpl::TDataQueryInfo>& TSession::TImpl::GetQueryCacheUnsafe() const {
+const TLRUCache<std::string, TSession::TImpl::TDataQueryInfo>& TSession::TImpl::GetQueryCacheUnsafe() const {
     return QueryCache_;
 }
 

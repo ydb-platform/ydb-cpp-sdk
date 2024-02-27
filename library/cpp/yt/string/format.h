@@ -33,7 +33,7 @@ namespace NYT {
  *
  *  The following argument types are supported:
  *
- *  Strings (including |const char*|, |TStringBuf|, and |TString|) and chars:
+ *  Strings (including |const char*|, |std::string_view|, and |std::string|) and chars:
  *  Emitted as is. Fast.
  *
  *  Numerics and pointers:
@@ -57,12 +57,12 @@ namespace NYT {
 template <size_t Length, class... TArgs>
 void Format(TStringBuilderBase* builder, const char (&format)[Length], TArgs&&... args);
 template <class... TArgs>
-void Format(TStringBuilderBase* builder, TStringBuf format, TArgs&&... args);
+void Format(TStringBuilderBase* builder, std::string_view format, TArgs&&... args);
 
 template <size_t Length, class... TArgs>
-TString Format(const char (&format)[Length], TArgs&&... args);
+std::string Format(const char (&format)[Length], TArgs&&... args);
 template <class... TArgs>
-TString Format(TStringBuf format, TArgs&&... args);
+std::string Format(std::string_view format, TArgs&&... args);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -114,7 +114,7 @@ template <class... TArgs>
 void FormatValue(
     TStringBuilderBase* builder,
     const TLazyMultiValueFormatter<TArgs...>& value,
-    TStringBuf /*format*/);
+    std::string_view /*format*/);
 
 //! A wrapper for a bunch of values that formats them lazily on demand.
 /*!
@@ -129,20 +129,20 @@ class TLazyMultiValueFormatter
     : private TNonCopyable
 {
 public:
-    TLazyMultiValueFormatter(TStringBuf format, TArgs&&... args);
+    TLazyMultiValueFormatter(std::string_view format, TArgs&&... args);
 
     friend void FormatValue<>(
         TStringBuilderBase* builder,
         const TLazyMultiValueFormatter& value,
-        TStringBuf /*format*/);
+        std::string_view /*format*/);
 
 private:
-    const TStringBuf Format_;
+    const std::string_view Format_;
     const std::tuple<TArgs...> Args_;
 };
 
 template <class ... Args>
-auto MakeLazyMultiValueFormatter(TStringBuf format, Args&&... args);
+auto MakeLazyMultiValueFormatter(std::string_view format, Args&&... args);
 
 ////////////////////////////////////////////////////////////////////////////////
 

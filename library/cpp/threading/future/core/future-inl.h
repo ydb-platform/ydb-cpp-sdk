@@ -16,7 +16,7 @@ namespace NThreading {
 
         ////////////////////////////////////////////////////////////////////////////////
 
-        [[noreturn]] void ThrowFutureException(TStringBuf message, const TSourceLocation& source);
+        [[noreturn]] void ThrowFutureException(std::string_view message, const TSourceLocation& source);
 
         enum class TError {
             Error
@@ -824,7 +824,7 @@ namespace NThreading {
     }
 
     template <typename T>
-    inline void TPromise<T>::SetException(const TString& e) {
+    inline void TPromise<T>::SetException(const std::string& e) {
         EnsureInitialized();
         State->SetException(std::make_exception_ptr(yexception() << e));
     }
@@ -904,7 +904,7 @@ namespace NThreading {
         return State && State->HasException();
     }
 
-    inline void TPromise<void>::SetException(const TString& e) {
+    inline void TPromise<void>::SetException(const std::string& e) {
         EnsureInitialized();
         State->SetException(std::make_exception_ptr(yexception() << e));
     }

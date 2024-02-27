@@ -20,8 +20,8 @@ class TClientImplCommon
 public:
     TClientImplCommon(
         std::shared_ptr<TGRpcConnectionsImpl>&& connections,
-        const std::optional<TString>& database,
-        const std::optional<TString>& discoveryEndpoint,
+        const std::optional<std::string>& database,
+        const std::optional<std::string>& discoveryEndpoint,
         const std::optional<EDiscoveryMode>& discoveryMode,
         const std::optional<TSslCredentials>& sslCredentials,
         const std::optional<std::shared_ptr<ICredentialsProviderFactory>>& credentialsProviderFactory)

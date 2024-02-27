@@ -14,7 +14,7 @@ namespace NYson {
 
         ~TStatelessLexer();
 
-        size_t GetToken(const TStringBuf& data, TToken* token);
+        size_t GetToken(const std::string_view& data, TToken* token);
 
     private:
         class TImpl;

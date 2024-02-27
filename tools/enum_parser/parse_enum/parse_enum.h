@@ -2,21 +2,19 @@
 
 #include <optional>
 
-#include <util/stream/output.h>
-#include <util/stream/input.h>
-#include <util/stream/mem.h>
 #include <util/string/strip.h>
-#include <util/generic/string.h>
-#include <util/generic/vector.h>
+
+#include <string>
+#include <vector>
 
 class TEnumParser {
 public:
 
     struct TItem {
-        std::optional<TString> Value;
-        TString CppName;
-        std::vector<TString> Aliases;
-        TString CommentText;
+        std::optional<std::string> Value;
+        std::string CppName;
+        std::vector<std::string> Aliases;
+        std::string CommentText;
 
         void Clear() {
             *this = TItem();
@@ -33,11 +31,11 @@ public:
     // vector is to preserve declaration order
     typedef std::vector<TItem> TItems;
 
-    typedef std::vector<TString> TScope;
+    typedef std::vector<std::string> TScope;
 
     struct TEnum {
         TItems Items;
-        TString CppName;
+        std::string CppName;
         TScope Scope;
         // enum or enum class
         bool EnumClass = false;
@@ -55,7 +53,7 @@ public:
     TEnums Enums;
 
     /// Parse enums from file containing C++ code
-    TEnumParser(const TString& fileName);
+    TEnumParser(const std::string& fileName);
 
     /// Parse enums from memory buffer containing C++ code
     TEnumParser(const char* data, size_t length);
@@ -63,9 +61,9 @@ public:
     /// Parse enums from input stream
     TEnumParser(IInputStream& in);
 
-    static TString ScopeStr(const TScope& scope) {
-        TString result;
-        for (const TString& name : scope) {
+    static std::string ScopeStr(const TScope& scope) {
+        std::string result;
+        for (const std::string& name : scope) {
             result += name;
             result += "::";
         }
@@ -75,5 +73,5 @@ public:
 private:
     void Parse(const char* data, size_t length);
 protected:
-    TString SourceFileName;
+    std::string SourceFileName;
 };

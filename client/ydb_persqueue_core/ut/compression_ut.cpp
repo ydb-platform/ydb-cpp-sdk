@@ -3,20 +3,20 @@
 namespace NYdb::NPersQueue::NTests {
 
 Y_UNIT_TEST_SUITE(Compression) {
-    std::vector<TString> GetTestMessages(ECodec codec = ECodec::RAW) {
-        static const std::vector<THashMap<ECodec, TString>> TEST_MESSAGES = {
+    std::vector<std::string> GetTestMessages(ECodec codec = ECodec::RAW) {
+        static const std::vector<THashMap<ECodec, std::string>> TEST_MESSAGES = {
             {
                 {ECodec::RAW, "Alice and Bob"},
-                {ECodec::GZIP, TString("\x1F\x8B\x08\x0\x0\x0\x0\x0\x0\x3\x73\xCC\xC9\x4C\x4E\x55\x48\xCC\x4B\x51\x70\xCA\x4F\x2\x0\x2C\xE7\x84\x5D\x0D\x0\x0\x0", 33)},
-                {ECodec::ZSTD, TString("\x28\xB5\x2F\xFD\x0\x58\x69\x0\x0\x41\x6C\x69\x63\x65\x20\x61\x6E\x64\x20\x42\x6F\x62", 22)}
+                {ECodec::GZIP, std::string("\x1F\x8B\x08\x0\x0\x0\x0\x0\x0\x3\x73\xCC\xC9\x4C\x4E\x55\x48\xCC\x4B\x51\x70\xCA\x4F\x2\x0\x2C\xE7\x84\x5D\x0D\x0\x0\x0", 33)},
+                {ECodec::ZSTD, std::string("\x28\xB5\x2F\xFD\x0\x58\x69\x0\x0\x41\x6C\x69\x63\x65\x20\x61\x6E\x64\x20\x42\x6F\x62", 22)}
             },
             {
                 {ECodec::RAW, "Yandex.Cloud"},
-                {ECodec::GZIP, TString("\x1F\x8B\x8\x0\x0\x0\x0\x0\x0\x3\x8B\x4C\xCC\x4B\x49\xAD\xD0\x73\xCE\xC9\x2F\x4D\x1\x0\x79\x91\x69\xCA\xC\x0\x0\x0", 32)},
-                {ECodec::ZSTD, TString("\x28\xB5\x2F\xFD\x0\x58\x61\x0\x0\x59\x61\x6E\x64\x65\x78\x2E\x43\x6C\x6F\x75\x64", 21)}
+                {ECodec::GZIP, std::string("\x1F\x8B\x8\x0\x0\x0\x0\x0\x0\x3\x8B\x4C\xCC\x4B\x49\xAD\xD0\x73\xCE\xC9\x2F\x4D\x1\x0\x79\x91\x69\xCA\xC\x0\x0\x0", 32)},
+                {ECodec::ZSTD, std::string("\x28\xB5\x2F\xFD\x0\x58\x61\x0\x0\x59\x61\x6E\x64\x65\x78\x2E\x43\x6C\x6F\x75\x64", 21)}
             }
         };
-        std::vector<TString> messages;
+        std::vector<std::string> messages;
         for (auto& m : TEST_MESSAGES) {
             messages.push_back(m.at(codec));
         }
@@ -33,7 +33,7 @@ Y_UNIT_TEST_SUITE(Compression) {
         }
 
         Ydb::PersQueue::V1::AlterTopicRequest request;
-        request.set_path(TStringBuilder() << "/Root/PQ/rt3.dc1--" << setup.GetTestTopic());
+        request.set_path(TYdbStringBuilder() << "/Root/PQ/rt3.dc1--" << setup.GetTestTopic());
         auto props = request.mutable_settings();
         props->set_partitions_count(1);
         props->set_supported_format(Ydb::PersQueue::V1::TopicSettings::FORMAT_BASE);
@@ -59,7 +59,7 @@ Y_UNIT_TEST_SUITE(Compression) {
         UNIT_ASSERT_VALUES_EQUAL(response.operation().status(), Ydb::StatusIds::SUCCESS);
     }
 
-    void Write(TPersQueueYdbSdkTestSetup& setup, const std::vector<TString>& messages, ECodec codec) {
+    void Write(TPersQueueYdbSdkTestSetup& setup, const std::vector<std::string>& messages, ECodec codec) {
         auto& client = setup.GetPersQueueClient();
         TWriteSessionSettings writeSettings = setup.GetWriteSessionSettings();
         writeSettings.Codec(codec);
@@ -74,7 +74,7 @@ Y_UNIT_TEST_SUITE(Compression) {
 
     void Read(
         TPersQueueYdbSdkTestSetup& setup,
-        const std::vector<TString> messages,
+        const std::vector<std::string> messages,
         const std::vector<ECodec> codecs,
         bool decompress
     ) {
@@ -141,8 +141,8 @@ Y_UNIT_TEST_SUITE(Compression) {
         AlterTopic(setup); // add zstd support
 
         auto messages = GetTestMessages();
-        std::vector<TString> originalMessages;
-        std::vector<TString> targetMessages;
+        std::vector<std::string> originalMessages;
+        std::vector<std::string> targetMessages;
         std::vector<ECodec> targetCodecs;
 
         auto addToTarget = [&](ECodec codec) {

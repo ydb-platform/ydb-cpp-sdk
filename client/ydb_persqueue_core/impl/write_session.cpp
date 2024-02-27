@@ -43,12 +43,12 @@ NThreading::TFuture<void> TWriteSession::WaitEvent() {
     return TryGetImpl()->EventsQueue->WaitEvent();
 }
 
-void TWriteSession::WriteEncoded(TContinuationToken&& token, TStringBuf data, ECodec codec, ui32 originalSize,
+void TWriteSession::WriteEncoded(TContinuationToken&& token, std::string_view data, ECodec codec, ui32 originalSize,
                                  std::optional<ui64> seqNo, std::optional<TInstant> createTimestamp) {
     TryGetImpl()->WriteInternal(std::move(token), data, codec, originalSize, seqNo, createTimestamp);
 }
 
-void TWriteSession::Write(TContinuationToken&& token, TStringBuf data, std::optional<ui64> seqNo,
+void TWriteSession::Write(TContinuationToken&& token, std::string_view data, std::optional<ui64> seqNo,
                           std::optional<TInstant> createTimestamp) {
     TryGetImpl()->WriteInternal(std::move(token), data, {}, 0, seqNo, createTimestamp);
 }
@@ -96,7 +96,7 @@ ui64 TSimpleBlockingWriteSession::GetInitSeqNo() {
 }
 
 bool TSimpleBlockingWriteSession::Write(
-        TStringBuf data, std::optional<ui64> seqNo, std::optional<TInstant> createTimestamp, const TDuration& blockTimeout
+        std::string_view data, std::optional<ui64> seqNo, std::optional<TInstant> createTimestamp, const TDuration& blockTimeout
 ) {
     auto continuationToken = WaitForToken(blockTimeout);
     if (continuationToken.has_value()) {

@@ -60,7 +60,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
         };
 
     public:
-        inline TTestHttpServer(const TString& res)
+        inline TTestHttpServer(const std::string& res)
             : Res_(res)
         {
         }
@@ -74,7 +74,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
         }
 
     private:
-        TString Res_;
+        std::string Res_;
         size_t LastRequestSentSize_ = 0;
     };
 
@@ -83,7 +83,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
     }
 
     Y_UNIT_TEST(TestHttpInput) {
-        TString res = "I'm a teapot";
+        std::string res = "I'm a teapot";
         TPortManager pm;
         const ui16 port = pm.GetPort();
 
@@ -106,7 +106,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
             output.EnableKeepAlive(true);
             output.EnableCompression(true);
 
-            TString r;
+            std::string r;
             r += "GET / HTTP/1.1";
             r += "\r\n";
             r += "Host: yandex.lo";
@@ -129,7 +129,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
     }
 
     Y_UNIT_TEST(TestHttpInputDelete) {
-        TString res = "I'm a teapot";
+        std::string res = "I'm a teapot";
         TPortManager pm;
         const ui16 port = pm.GetPort();
 
@@ -152,7 +152,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
             output.EnableKeepAlive(true);
             output.EnableCompression(true);
 
-            TString r;
+            std::string r;
             r += "DELETE / HTTP/1.1";
             r += "\r\n";
             r += "Host: yandex.lo";
@@ -180,64 +180,64 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
 
     Y_UNIT_TEST(TestKeepAlive) {
         {
-            TString s = "GET / HTTP/1.0\r\n\r\n";
-            TStringInput si(s);
+            std::string s = "GET / HTTP/1.0\r\n\r\n";
+            std::stringInput si(s);
             THttpInput in(&si);
             UNIT_ASSERT(!in.IsKeepAlive());
         }
 
         {
-            TString s = "GET / HTTP/1.0\r\nConnection: keep-alive\r\n\r\n";
-            TStringInput si(s);
+            std::string s = "GET / HTTP/1.0\r\nConnection: keep-alive\r\n\r\n";
+            std::stringInput si(s);
             THttpInput in(&si);
             UNIT_ASSERT(in.IsKeepAlive());
         }
 
         {
-            TString s = "GET / HTTP/1.1\r\n\r\n";
-            TStringInput si(s);
+            std::string s = "GET / HTTP/1.1\r\n\r\n";
+            std::stringInput si(s);
             THttpInput in(&si);
             UNIT_ASSERT(in.IsKeepAlive());
         }
 
         {
-            TString s = "GET / HTTP/1.1\r\nConnection: close\r\n\r\n";
-            TStringInput si(s);
+            std::string s = "GET / HTTP/1.1\r\nConnection: close\r\n\r\n";
+            std::stringInput si(s);
             THttpInput in(&si);
             UNIT_ASSERT(!in.IsKeepAlive());
         }
 
         {
-            TString s = "HTTP/1.0 200 Ok\r\n\r\n";
-            TStringInput si(s);
+            std::string s = "HTTP/1.0 200 Ok\r\n\r\n";
+            std::stringInput si(s);
             THttpInput in(&si);
             UNIT_ASSERT(!in.IsKeepAlive());
         }
 
         {
-            TString s = "HTTP/1.0 200 Ok\r\nConnection: keep-alive\r\n\r\n";
-            TStringInput si(s);
+            std::string s = "HTTP/1.0 200 Ok\r\nConnection: keep-alive\r\n\r\n";
+            std::stringInput si(s);
             THttpInput in(&si);
             UNIT_ASSERT(in.IsKeepAlive());
         }
 
         {
-            TString s = "HTTP/1.1 200 Ok\r\n\r\n";
-            TStringInput si(s);
+            std::string s = "HTTP/1.1 200 Ok\r\n\r\n";
+            std::stringInput si(s);
             THttpInput in(&si);
             UNIT_ASSERT(in.IsKeepAlive());
         }
 
         {
-            TString s = "HTTP/1.1 200 Ok\r\nConnection: close\r\n\r\n";
-            TStringInput si(s);
+            std::string s = "HTTP/1.1 200 Ok\r\nConnection: close\r\n\r\n";
+            std::stringInput si(s);
             THttpInput in(&si);
             UNIT_ASSERT(!in.IsKeepAlive());
         }
     }
 
     Y_UNIT_TEST(TestMinRequest) {
-        TString res = "qqqqqq";
+        std::string res = "qqqqqq";
         TPortManager pm;
         const ui16 port = pm.GetPort();
 
@@ -263,7 +263,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
     }
 
     Y_UNIT_TEST(TestResponseWithBlanks) {
-        TString res = "qqqqqq\r\n\r\nsdasdsad\r\n";
+        std::string res = "qqqqqq\r\n\r\nsdasdsad\r\n";
         TPortManager pm;
         const ui16 port = pm.GetPort();
 
@@ -282,14 +282,14 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
         THttpInput input(&si);
         unsigned httpCode = ParseHttpRetCode(input.FirstLine());
         UNIT_ASSERT_VALUES_EQUAL(httpCode, 200u);
-        TString reply = input.ReadAll();
+        std::string reply = input.ReadAll();
         UNIT_ASSERT_VALUES_EQUAL(reply, res);
         server.Stop();
     }
 
     Y_UNIT_TEST(TestOutputFlush) {
-        TString str;
-        TStringOutput strOut(str);
+        std::string str;
+        std::stringOutput strOut(str);
         TBufferedOutput bufOut(&strOut, 8192);
         THttpOutput httpOut(&bufOut);
 
@@ -308,10 +308,10 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
     }
 
     Y_UNIT_TEST(TestOutputPostFlush) {
-        TString str;
-        TString checkStr;
-        TStringOutput strOut(str);
-        TStringOutput checkOut(checkStr);
+        std::string str;
+        std::string checkStr;
+        std::stringOutput strOut(str);
+        std::stringOutput checkOut(checkStr);
         TBufferedOutput bufOut(&strOut, 8192);
         TTeeOutput teeOut(&bufOut, &checkOut);
         THttpOutput httpOut(&teeOut);
@@ -332,9 +332,9 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
         UNIT_ASSERT_VALUES_EQUAL(checkStr.size(), str.size());
     }
 
-    TString MakeHttpOutputBody(const char* body, bool encodingEnabled) {
-        TString str;
-        TStringOutput strOut(str);
+    std::string MakeHttpOutputBody(const char* body, bool encodingEnabled) {
+        std::string str;
+        std::stringOutput strOut(str);
         {
             TBufferedOutput bufOut(&strOut, 8192);
             THttpOutput httpOut(&bufOut);
@@ -353,13 +353,13 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
         }
         const char* bodyDelimiter = "\r\n\r\n";
         size_t bodyPos = str.find(bodyDelimiter);
-        UNIT_ASSERT(bodyPos != TString::npos);
+        UNIT_ASSERT(bodyPos != std::string::npos);
         return str.substr(bodyPos + strlen(bodyDelimiter));
     }
 
-    TString SimulateBodyEncoding(const char* body) {
-        TString bodyStr;
-        TStringOutput bodyOut(bodyStr);
+    std::string SimulateBodyEncoding(const char* body) {
+        std::string bodyStr;
+        std::stringOutput bodyOut(bodyStr);
         TChunkedOutput chunkOut(&bodyOut);
         TZLibCompress comprOut(&chunkOut, ZLib::GZip);
         comprOut << body;
@@ -373,8 +373,8 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
     }
 
     Y_UNIT_TEST(TestOutputFinish) {
-        TString str;
-        TStringOutput strOut(str);
+        std::string str;
+        std::stringOutput strOut(str);
         TBufferedOutput bufOut(&strOut, 8192);
         THttpOutput httpOut(&bufOut);
 
@@ -399,31 +399,31 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
         const char* headerLine3 = "\tAccept-Language";
         const char* headerLine4 = "Content-Length: 18";
 
-        TString endLine("\r\n");
-        TString r;
+        std::string endLine("\r\n");
+        std::string r;
         r += headerLine0 + endLine;
         r += headerLine1 + endLine;
         r += headerLine2 + endLine;
         r += headerLine3 + endLine;
         r += headerLine4 + endLine + endLine;
         r += "<html>Hello</html>";
-        TStringInput stringInput(r);
+        std::stringInput stringInput(r);
         THttpInput input(&stringInput);
 
         const THttpHeaders& httpHeaders = input.Headers();
         UNIT_ASSERT_VALUES_EQUAL(httpHeaders.Count(), 3u);
 
         THttpHeaders::TConstIterator it = httpHeaders.Begin();
-        UNIT_ASSERT_VALUES_EQUAL(it->ToString(), TString(headerLine1));
-        UNIT_ASSERT_VALUES_EQUAL((++it)->ToString(), TString::Join(headerLine2, headerLine3));
-        UNIT_ASSERT_VALUES_EQUAL((++it)->ToString(), TString(headerLine4));
+        UNIT_ASSERT_VALUES_EQUAL(it->ToString(), std::string(headerLine1));
+        UNIT_ASSERT_VALUES_EQUAL((++it)->ToString(), std::string::Join(headerLine2, headerLine3));
+        UNIT_ASSERT_VALUES_EQUAL((++it)->ToString(), std::string(headerLine4));
     }
 
     Y_UNIT_TEST(ContentLengthRemoval) {
         TMemoryInput request("GET / HTTP/1.1\r\nAccept-Encoding: gzip\r\n\r\n");
         THttpInput i(&request);
-        TString result;
-        TStringOutput out(result);
+        std::string result;
+        std::stringOutput out(result);
         THttpOutput httpOut(&out, &i);
 
         httpOut.EnableKeepAlive(true);
@@ -443,11 +443,11 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
 
     Y_UNIT_TEST(CodecsPriority) {
         TMemoryInput request("GET / HTTP/1.1\r\nAccept-Encoding: gzip, br\r\n\r\n");
-        std::vector<TStringBuf> codecs = {"br", "gzip"};
+        std::vector<std::string_view> codecs = {"br", "gzip"};
 
         THttpInput i(&request);
-        TString result;
-        TStringOutput out(result);
+        std::string result;
+        std::stringOutput out(result);
         THttpOutput httpOut(&out, &i);
 
         httpOut.EnableKeepAlive(true);
@@ -466,11 +466,11 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
 
     Y_UNIT_TEST(CodecsPriority2) {
         TMemoryInput request("GET / HTTP/1.1\r\nAccept-Encoding: gzip, br\r\n\r\n");
-        std::vector<TStringBuf> codecs = {"gzip", "br"};
+        std::vector<std::string_view> codecs = {"gzip", "br"};
 
         THttpInput i(&request);
-        TString result;
-        TStringOutput out(result);
+        std::string result;
+        std::stringOutput out(result);
         THttpOutput httpOut(&out, &i);
 
         httpOut.EnableKeepAlive(true);
@@ -538,7 +538,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
     }
 
     Y_UNIT_TEST(RequestWithoutContentLength) {
-        TStringStream request;
+        std::stringStream request;
         {
             THttpOutput httpOutput(&request);
             httpOutput << "POST / HTTP/1.1\r\n"
@@ -547,7 +547,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
             httpOutput << "GGLOL";
         }
         {
-            TStringInput input(request.Str());
+            std::stringInput input(request.Str());
             THttpInput httpInput(&input);
             bool chunkedOrHasContentLength = false;
             for (const auto& header : httpInput.Headers()) {
@@ -567,13 +567,13 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
 
     Y_UNIT_TEST(TestInputHasContent) {
         {
-            TStringStream request;
+            std::stringStream request;
             request << "POST / HTTP/1.1\r\n"
                        "Host: yandex.ru\r\n"
                        "\r\n";
             request << "HTTPDATA";
 
-            TStringInput input(request.Str());
+            std::stringInput input(request.Str());
             THttpInput httpInput(&input);
 
             UNIT_ASSERT(!httpInput.HasContent());
@@ -581,14 +581,14 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
         }
 
         {
-            TStringStream request;
+            std::stringStream request;
             request << "POST / HTTP/1.1\r\n"
                        "Host: yandex.ru\r\n"
                        "Content-Length: 8"
                        "\r\n\r\n";
             request << "HTTPDATA";
 
-            TStringInput input(request.Str());
+            std::stringInput input(request.Str());
             THttpInput httpInput(&input);
 
             UNIT_ASSERT(httpInput.HasContent());
@@ -596,14 +596,14 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
         }
 
         {
-            TStringStream request;
+            std::stringStream request;
             request << "POST / HTTP/1.1\r\n"
                        "Host: yandex.ru\r\n"
                        "Transfer-Encoding: chunked"
                        "\r\n\r\n";
             request << "8\r\nHTTPDATA\r\n0\r\n";
 
-            TStringInput input(request.Str());
+            std::stringInput input(request.Str());
             THttpInput httpInput(&input);
 
             UNIT_ASSERT(httpInput.HasContent());
@@ -634,7 +634,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
             }
 
         private:
-            TString Data_{TStringBuf("HEAD / HTTP/1.1\r\nHost: yandex.ru\r\n\r\n")};
+            std::string Data_{std::string_view("HEAD / HTTP/1.1\r\nHost: yandex.ru\r\n\r\n")};
             size_t Pos_{0};
             bool Eof_{false};
         };
@@ -646,34 +646,34 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
     }
 
     Y_UNIT_TEST(TestHttpOutputResponseToHeadRequestNoZeroChunk) {
-        TStringStream request;
+        std::stringStream request;
         request << "HEAD / HTTP/1.1\r\n"
                    "Host: yandex.ru\r\n"
                    "Connection: Keep-Alive\r\n"
                    "\r\n";
 
-        TStringInput input(request.Str());
+        std::stringInput input(request.Str());
         THttpInput httpInput(&input);
 
-        TStringStream outBuf;
+        std::stringStream outBuf;
         THttpOutput out(&outBuf, &httpInput);
         out.EnableKeepAlive(true);
         out << "HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\n\r\n";
         out << "";
         out.Finish();
-        TString result = outBuf.Str();
-        UNIT_ASSERT(!result.Contains(TStringBuf("0\r\n")));
+        std::string result = outBuf.Str();
+        UNIT_ASSERT(!result.Contains(std::string_view("0\r\n")));
     }
 
     Y_UNIT_TEST(TestHttpOutputDisableCompressionHeader) {
         TMemoryInput request("GET / HTTP/1.1\r\nAccept-Encoding: gzip\r\n\r\n");
-        const TString data = "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq";
+        const std::string data = "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq";
 
         THttpInput httpInput(&request);
-        TString result;
+        std::string result;
 
         {
-            TStringOutput output(result);
+            std::stringOutput output(result);
             THttpOutput httpOutput(&output, &httpInput);
             httpOutput.EnableCompressionHeader(false);
             httpOutput << "HTTP/1.1 200 OK\r\n"
@@ -686,7 +686,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
         UNIT_ASSERT(result.Contains(data));
     }
 
-    size_t DoTestHttpOutputSize(const TString& res, bool enableCompession) {
+    size_t DoTestHttpOutputSize(const std::string& res, bool enableCompession) {
         TTestHttpServer serverImpl(res);
         TPortManager pm;
 
@@ -725,7 +725,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
     }
 
     Y_UNIT_TEST(TestHttpOutputSize) {
-        TString res = "qqqqqq";
+        std::string res = "qqqqqq";
         UNIT_ASSERT_VALUES_EQUAL(res.size(), DoTestHttpOutputSize(res, false));
         UNIT_ASSERT_VALUES_UNEQUAL(res.size(), DoTestHttpOutputSize(res, true));
     }

@@ -30,10 +30,10 @@ TEST(TConvertTest, Basic)
     Check<ui8>(13);
     Check<ui32>(13);
     Check<ui64>(13);
-    Check<TString>("");
-    Check<TString>("hello");
-    Check<TStringBuf, TString>("hello");
-    Check<const char*, TString>("hello");
+    Check<std::string>("");
+    Check<std::string>("hello");
+    Check<std::string_view, std::string>("hello");
+    Check<const char*, std::string>("hello");
     Check<float>(3.14);
     Check<double>(3.14);
     Check<bool>(true);
@@ -64,11 +64,11 @@ TEST(TConvertTest, OutOfRange)
 TEST(TConvertTest, MalformedValues)
 {
     EXPECT_THROW_MESSAGE_HAS_SUBSTR(
-        ConvertFromYsonString<TInstant>(ConvertToYsonString(TStringBuf("sometime"))),
+        ConvertFromYsonString<TInstant>(ConvertToYsonString(std::string_view("sometime"))),
         TYsonLiteralParseException,
         "Error parsing \"instant\" value");
     EXPECT_THROW_MESSAGE_HAS_SUBSTR(
-        ConvertFromYsonString<TGuid>(ConvertToYsonString(TStringBuf("1-2-3-g"))),
+        ConvertFromYsonString<TGuid>(ConvertToYsonString(std::string_view("1-2-3-g"))),
         TYsonLiteralParseException,
         "Error parsing \"guid\" value");
 }

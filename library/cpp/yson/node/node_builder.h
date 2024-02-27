@@ -18,7 +18,7 @@ class TNodeBuilder
 public:
     TNodeBuilder(TNode* node);
 
-    void OnStringScalar(TStringBuf) override;
+    void OnStringScalar(std::string_view) override;
     void OnInt64Scalar(i64) override;
     void OnUint64Scalar(ui64) override;
     void OnDoubleScalar(double) override;
@@ -30,7 +30,7 @@ public:
     void OnEndList() override;
     void OnBeginMap() override;
     void OnBeginMap(ui64 reserveSize);
-    void OnKeyedItem(TStringBuf) override;
+    void OnKeyedItem(std::string_view) override;
     void OnEndMap() override;
     void OnBeginAttributes() override;
     void OnEndAttributes() override;

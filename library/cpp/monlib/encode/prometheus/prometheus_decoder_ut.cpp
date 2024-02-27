@@ -36,7 +36,7 @@ using namespace NMonitoring;
 
 Y_UNIT_TEST_SUITE(TPrometheusDecoderTest) {
 
-    NProto::TSingleSamplesList Decode(TStringBuf data) {
+    NProto::TSingleSamplesList Decode(std::string_view data) {
         NProto::TSingleSamplesList samples;
         {
             IMetricEncoderPtr e = EncoderProtobuf(&samples);

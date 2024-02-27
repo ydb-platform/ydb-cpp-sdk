@@ -19,7 +19,7 @@ struct THttpHeaderParser {
         return execute((unsigned char*)inBuf, (int)len);
     }
 
-    int Execute(TStringBuf str) {
+    int Execute(std::string_view str) {
         return Execute(str.data(), str.size());
     }
 

@@ -2,6 +2,6 @@
 
 #include <util/string/escape.h>
 
-TStringBuf UnescapeJsonUnicode(TStringBuf data, char* scratch) {
-    return TStringBuf(scratch, UnescapeC(data.data(), data.size(), scratch));
+std::string_view UnescapeJsonUnicode(std::string_view data, char* scratch) {
+    return std::string_view(scratch, UnescapeC(data.data(), data.size(), scratch));
 }

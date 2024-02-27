@@ -35,7 +35,7 @@ NThreading::TFuture<void> TWriteSession::WaitEvent() {
     return TryGetImpl()->EventsQueue->WaitEvent();
 }
 
-void TWriteSession::WriteEncoded(TContinuationToken&& token, TStringBuf data, ECodec codec, ui32 originalSize,
+void TWriteSession::WriteEncoded(TContinuationToken&& token, std::string_view data, ECodec codec, ui32 originalSize,
                                  std::optional<ui64> seqNo, std::optional<TInstant> createTimestamp) {
     auto message = TWriteMessage::CompressedMessage(std::move(data), codec, originalSize);
     if (seqNo.has_value())
@@ -50,7 +50,7 @@ void TWriteSession::WriteEncoded(TContinuationToken&& token, TWriteMessage&& mes
     TryGetImpl()->WriteInternal(std::move(token), std::move(message));
 }
 
-void TWriteSession::Write(TContinuationToken&& token, TStringBuf data, std::optional<ui64> seqNo,
+void TWriteSession::Write(TContinuationToken&& token, std::string_view data, std::optional<ui64> seqNo,
                           std::optional<TInstant> createTimestamp) {
     TWriteMessage message{std::move(data)};
     if (seqNo.has_value())
@@ -107,7 +107,7 @@ ui64 TSimpleBlockingWriteSession::GetInitSeqNo() {
 }
 
 bool TSimpleBlockingWriteSession::Write(
-        TStringBuf data, std::optional<ui64> seqNo, std::optional<TInstant> createTimestamp, const TDuration& blockTimeout
+        std::string_view data, std::optional<ui64> seqNo, std::optional<TInstant> createTimestamp, const TDuration& blockTimeout
 ) {
     auto message = TWriteMessage(std::move(data))
         .SeqNo(seqNo)

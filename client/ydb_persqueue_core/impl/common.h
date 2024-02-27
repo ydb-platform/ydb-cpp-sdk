@@ -16,9 +16,9 @@ ERetryErrorClass GetRetryErrorClassV2(EStatus status);
 
 void Cancel(NYdbGrpc::IQueueClientContextPtr& context);
 
-NYql::TIssues MakeIssueWithSubIssues(const TString& description, const NYql::TIssues& subissues);
+NYql::TIssues MakeIssueWithSubIssues(const std::string& description, const NYql::TIssues& subissues);
 
-TString IssuesSingleLineString(const NYql::TIssues& issues);
+std::string IssuesSingleLineString(const NYql::TIssues& issues);
 
 template <typename TReadSessionEvent>
 size_t CalcDataSize(const typename TReadSessionEvent::TEvent& event) {
@@ -69,7 +69,7 @@ TPlainStatus MakeErrorFromProto(const TMessage& serverMessage) {
 // and endpoint that was given us by the cluster discovery service
 // and gives endpoint for the current LB cluster.
 // For examples see tests.
-TString ApplyClusterEndpoint(TStringBuf driverEndpoint, const TString& clusterDiscoveryEndpoint);
+std::string ApplyClusterEndpoint(std::string_view driverEndpoint, const std::string& clusterDiscoveryEndpoint);
 
 // Factory for IStreamRequestReadWriteProcessor
 // It is created in order to separate grpc transport logic from

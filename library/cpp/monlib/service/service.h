@@ -21,10 +21,10 @@ namespace NMonitoring {
         virtual const char* GetPath() const = 0;
         virtual const TCgiParameters& GetParams() const = 0;
         virtual const TCgiParameters& GetPostParams() const = 0;
-        virtual TStringBuf GetPostContent() const = 0;
+        virtual std::string_view GetPostContent() const = 0;
         virtual HTTP_METHOD GetMethod() const = 0;
         virtual const THttpHeaders& GetHeaders() const = 0;
-        virtual TString GetRemoteAddr() const = 0;
+        virtual std::string GetRemoteAddr() const = 0;
     };
     // first param - output stream to write result to
     // second param - URL of request
@@ -33,7 +33,7 @@ namespace NMonitoring {
     class TCoHttpServer: private TContListener::ICallBack {
     public:
         // initialize and schedule coroutines for execution
-        TCoHttpServer(TContExecutor& executor, const TString& bindAddr, TIpPort port, THandler handler);
+        TCoHttpServer(TContExecutor& executor, const std::string& bindAddr, TIpPort port, THandler handler);
         void Start();
         void Stop();
 
@@ -54,7 +54,7 @@ namespace NMonitoring {
         TContExecutor& Executor;
         TContListener Listener;
         THandler Handler;
-        TString BindAddr;
+        std::string BindAddr;
         TIpPort Port;
     };
 

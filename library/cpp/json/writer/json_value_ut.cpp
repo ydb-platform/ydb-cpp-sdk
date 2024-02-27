@@ -258,7 +258,7 @@ Y_UNIT_TEST_SUITE(TJsonValueTest) {
             UNIT_ASSERT(lhs.GetValueByPath("l/a/c", result, '/'));
             UNIT_ASSERT(result.GetStringRobust() == "{\"e\":\"f\"}");
 
-            // faster TStringBuf version
+            // faster std::string_view version
             UNIT_ASSERT_EQUAL(*lhs.GetValueByPath("l", '/'), last);
             UNIT_ASSERT_EQUAL(*lhs.GetValueByPath("l/a", '/'), second);
             UNIT_ASSERT_EQUAL(*lhs.GetValueByPath("l/a/c", '/'), first);
@@ -608,7 +608,7 @@ Y_UNIT_TEST_SUITE(TJsonValueTest) {
     }
 
     Y_UNIT_TEST(GetIntegerRobustBignumStringTest) {
-        TString value = "1626862681464633683";
+        std::string value = "1626862681464633683";
         TJsonValue json(value);
         UNIT_ASSERT_VALUES_EQUAL(json.GetUIntegerRobust(), FromString<ui64>(value));
         UNIT_ASSERT_VALUES_EQUAL(json.GetIntegerRobust(), FromString<i64>(value));
@@ -624,9 +624,9 @@ Y_UNIT_TEST_SUITE(TJsonValueTest) {
 
         const char* longTestString =
             "Testing TJsonValue& operator=(TJsonValue&&) subpart self moving "
-            "after TJsonValue was constrcuted from TString&&.";
+            "after TJsonValue was constrcuted from std::string&&.";
 
-        json["hello"] = TString{longTestString};
+        json["hello"] = std::string{longTestString};
         json = std::move(json["hello"]);
         UNIT_ASSERT_VALUES_EQUAL(json.GetString(), longTestString);
     }

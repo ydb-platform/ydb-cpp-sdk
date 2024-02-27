@@ -12,7 +12,7 @@
 
 namespace NUri {
 
-    static const TStringBuf ESCAPED_FRAGMENT(TStringBuf("_escaped_fragment_="));
+    static const std::string_view ESCAPED_FRAGMENT(std::string_view("_escaped_fragment_="));
 
     TMallocPtr<char> TUri::IDNToAscii(const wchar32* idna) {
         // XXX: don't use punycode_encode directly as it doesn't include
@@ -25,7 +25,7 @@ namespace NUri {
         return buf;
     }
 
-    TMallocPtr<char> TUri::IDNToAscii(const TStringBuf& host, ECharset enc) {
+    TMallocPtr<char> TUri::IDNToAscii(const std::string_view& host, ECharset enc) {
         TTempBuf buf(sizeof(wchar32) * (1 + host.length()));
         wchar32* wbuf = reinterpret_cast<wchar32*>(buf.Data());
 
@@ -35,8 +35,8 @@ namespace NUri {
         return IDNToAscii(wbuf);
     }
 
-    TStringBuf TUri::HostToAscii(TStringBuf host, TMallocPtr<char>& buf, bool hasExtended, bool allowIDN, ECharset enc) {
-        TStringBuf outHost; // store the result here before returning it, to get RVO
+    std::string_view TUri::HostToAscii(std::string_view host, TMallocPtr<char>& buf, bool hasExtended, bool allowIDN, ECharset enc) {
+        std::string_view outHost; // store the result here before returning it, to get RVO
 
         size_t buflen = 0;
 
@@ -53,7 +53,7 @@ namespace NUri {
             if (RECODE_OK != Recode(enc, CODES_UTF8, host.data(), buf.Get(), host.length(), buflen, nrd, nwr)) {
                 return outHost;
             }
-            host = TStringBuf(buf.Get(), nwr);
+            host = std::string_view(buf.Get(), nwr);
         }
 
         // percent-decode
@@ -107,14 +107,14 @@ namespace NUri {
         return outHost;
     }
 
-    TStringBuf TUri::HostToAscii(const TStringBuf& host, TMallocPtr<char>& buf, bool allowIDN, ECharset enc) {
+    std::string_view TUri::HostToAscii(const std::string_view& host, TMallocPtr<char>& buf, bool allowIDN, ECharset enc) {
         // find what we have
         ui64 haveFlags = 0;
         for (size_t i = 0; i != host.length(); ++i) {
             haveFlags |= TEncoder::GetFlags(host[i]).FeatFlags;
         }
         // interested in encoded characters or (if IDN is allowed) extended ascii
-        TStringBuf outHost;
+        std::string_view outHost;
         const bool haveExtended = haveFlags & FeatureEncodeExtendedASCII;
 
         if (!haveExtended || allowIDN) {
@@ -127,7 +127,7 @@ namespace NUri {
         return outHost;
     }
 
-    static inline bool AppendField(TMemoryWriteBuffer& out, TField::EField field, const TStringBuf& value, ui64 flags) {
+    static inline bool AppendField(TMemoryWriteBuffer& out, TField::EField field, const std::string_view& value, ui64 flags) {
         if (value.empty()) {
             return false;
         }
@@ -141,8 +141,8 @@ namespace NUri {
 
     class THashBangModifier {
     public:
-        TStringBuf HashBang;
-        TStringBuf Query;
+        std::string_view HashBang;
+        std::string_view Query;
 
         bool FromFragmentToHashBang = false;
         bool FromQueryToFragment = false;
@@ -155,7 +155,7 @@ namespace NUri {
             if (fragment.IsSet()) {
                 HashBang = fragment.Get();
                 if (!HashBang.empty() && '!' == HashBang[0]) {
-                    HashBang.Skip(1); // remove !
+                    HashBang.remove_prefix(1); // remove !
                     return true;
                 }
             }
@@ -165,9 +165,9 @@ namespace NUri {
         bool ParseHashBangFromQuery(const TParser& parser) {
             const TSection& query = parser.Get(TField::FieldQuery);
             if (query.IsSet()) {
-                query.Get().RSplit('&', Query, HashBang);
-                if (HashBang.StartsWith(ESCAPED_FRAGMENT)) {
-                    HashBang.Skip(ESCAPED_FRAGMENT.length());
+                NUtils::RSplit(query.Get(), Query, HashBang, '&');
+                if (HashBang.starts_with(ESCAPED_FRAGMENT)) {
+                    HashBang.remove_prefix(ESCAPED_FRAGMENT.length());
                     return true;
                 }
             }
@@ -287,13 +287,13 @@ namespace NUri {
         // process non-ASCII host for punycode
 
         TMallocPtr<char> hostPtr;
-        TStringBuf hostAsciiBuf;
+        std::string_view hostAsciiBuf;
         bool inHostNonAsciiChars = false;
 
         const TSection& host = parser.Get(FieldHost);
         if (host.IsSet() && !FldIsSet(FieldHost)) {
             const bool allowIDN = (flags & FeatureAllowHostIDN);
-            const TStringBuf hostBuf = host.Get();
+            const std::string_view hostBuf = host.Get();
 
             // if we know we have and allow extended-ASCII chars, no need to check further
             if (allowIDN && (host.GetFlagsAllPlaintext() & FeatureEncodeExtendedASCII)) {
@@ -378,7 +378,7 @@ namespace NUri {
                 Y_ASSERT(beg >= out.Beg());
                 out.SetPos(end);
             }
-            FldSetNoDirty(field, TStringBuf(beg, end));
+            FldSetNoDirty(field, std::string_view(beg, end));
             out << '\0';
 
             // special character case
@@ -395,7 +395,7 @@ namespace NUri {
             char* beg = out.Buf();
             out << hostAsciiBuf;
             auto field = convertIDN ? FieldHost : FieldHostAscii;
-            FldSetNoDirty(field, TStringBuf(beg, out.Buf()));
+            FldSetNoDirty(field, std::string_view(beg, out.Buf()));
             out << '\0';
         }
 
@@ -412,7 +412,7 @@ namespace NUri {
             CheckMissingFields();
         }
 
-        const TStringBuf& port = GetField(FieldPort);
+        const std::string_view& port = GetField(FieldPort);
         if (!port.empty() && !TryFromString<ui16>(port, Port)) {
             return ParsedBadPort;
         }
@@ -436,7 +436,7 @@ namespace NUri {
         return status;
     }
 
-    TState::EParsed TUri::ParseImpl(const TStringBuf& url, const TParseFlags& flags, ui32 maxlen, TScheme::EKind defaultScheme, ECharset enc) {
+    TState::EParsed TUri::ParseImpl(const std::string_view& url, const TParseFlags& flags, ui32 maxlen, TScheme::EKind defaultScheme, ECharset enc) {
         Clear();
 
         if (url.empty()) {
@@ -450,7 +450,7 @@ namespace NUri {
         return AssignImpl(parser, defaultScheme);
     }
 
-    TState::EParsed TUri::Parse(const TStringBuf& url, const TParseFlags& flags, const TStringBuf& url_base, ui32 maxlen, ECharset enc) {
+    TState::EParsed TUri::Parse(const std::string_view& url, const TParseFlags& flags, const std::string_view& url_base, ui32 maxlen, ECharset enc) {
         const TParseFlags parseFlags = url_base.empty() ? flags : flags.Exclude(FeatureNoRelPath);
         TState::EParsed status = ParseImpl(url, parseFlags, maxlen, SchemeEmpty, enc);
 
@@ -469,7 +469,7 @@ namespace NUri {
         return status;
     }
 
-    TState::EParsed TUri::Parse(const TStringBuf& url, const TUri& base, const TParseFlags& flags, ui32 maxlen, ECharset enc) {
+    TState::EParsed TUri::Parse(const std::string_view& url, const TUri& base, const TParseFlags& flags, ui32 maxlen, ECharset enc) {
         const TState::EParsed status = ParseImpl(url, flags, maxlen, SchemeEmpty, enc);
         if (ParsedOK != status) {
             return status;
@@ -481,7 +481,7 @@ namespace NUri {
         return status;
     }
 
-    TState::EParsed TUri::ParseAbsUri(const TStringBuf& url, const TParseFlags& flags, ui32 maxlen, TScheme::EKind defaultScheme, ECharset enc) {
+    TState::EParsed TUri::ParseAbsUri(const std::string_view& url, const TParseFlags& flags, ui32 maxlen, TScheme::EKind defaultScheme, ECharset enc) {
         const TState::EParsed status = ParseImpl(url, flags | FeatureNoRelPath, maxlen, defaultScheme, enc);
 
         if (ParsedOK != status) {

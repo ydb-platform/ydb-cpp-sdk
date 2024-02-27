@@ -8,7 +8,7 @@ using namespace NLastGetopt;
 
 namespace {
     struct TOptsNoDefault: public TOpts {
-        TOptsNoDefault(const TStringBuf& optstring = TStringBuf())
+        TOptsNoDefault(const std::string_view& optstring = std::string_view())
             : TOpts(optstring)
         {
         }

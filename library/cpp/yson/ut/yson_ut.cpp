@@ -9,11 +9,11 @@ using namespace NYson;
 
 TEST(TTestYson, YT_17658)
 {
-   const auto data = TStringBuf{"\x01\xcc\xcc\xcc\xcc\xcc\xcc\xcc\xcc\xcc"};
+   const auto data = std::string_view{"\x01\xcc\xcc\xcc\xcc\xcc\xcc\xcc\xcc\xcc"};
 
     auto input = TMemoryInput{data};
 
-    TStringStream out;
+    std::stringStream out;
     {
         TYsonWriter writer(&out, EYsonFormat::Text);
         EXPECT_THROW(ParseYsonStringBuffer(data, &writer), std::exception);

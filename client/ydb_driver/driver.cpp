@@ -29,12 +29,12 @@ using namespace NThreading;
 
 class TDriverConfig::TImpl : public IConnectionsParams {
 public:
-    TStringType GetEndpoint() const override { return Endpoint; }
+    std::string GetEndpoint() const override { return Endpoint; }
     size_t GetNetworkThreadsNum() const override { return NetworkThreadsNum; }
     size_t GetClientThreadsNum() const override { return ClientThreadsNum; }
     size_t GetMaxQueuedResponses() const override { return MaxQueuedResponses; }
     TSslCredentials GetSslCredentials() const override { return SslCredentials; }
-    TStringType GetDatabase() const override { return Database; }
+    std::string GetDatabase() const override { return Database; }
     std::shared_ptr<ICredentialsProviderFactory> GetCredentialsProviderFactory() const override { return CredentialsProviderFactory; }
     EDiscoveryMode GetDiscoveryMode() const override { return DiscoveryMode; }
     size_t GetMaxQueuedRequests() const override { return MaxQueuedRequests; }
@@ -50,12 +50,12 @@ public:
     ui64 GetMaxMessageSize() const override { return MaxMessageSize; }
     const TLog& GetLog() const override { return Log; }
 
-    TStringType Endpoint;
+    std::string Endpoint;
     size_t NetworkThreadsNum = 2;
     size_t ClientThreadsNum = 0;
     size_t MaxQueuedResponses = 0;
     TSslCredentials SslCredentials;
-    TStringType Database;
+    std::string Database;
     std::shared_ptr<ICredentialsProviderFactory> CredentialsProviderFactory = CreateInsecureCredentialsProviderFactory();
     EDiscoveryMode DiscoveryMode = EDiscoveryMode::Sync;
     size_t MaxQueuedRequests = 100;
@@ -67,7 +67,7 @@ public:
             TCP_KEEPALIVE_INTERVAL
         };
     bool DrainOnDtors = true;
-    TBalancingSettings BalancingSettings = TBalancingSettings{EBalancingPolicy::UsePreferableLocation, TStringType()};
+    TBalancingSettings BalancingSettings = TBalancingSettings{EBalancingPolicy::UsePreferableLocation, std::string()};
     TDuration GRpcKeepAliveTimeout;
     bool GRpcKeepAlivePermitWithoutCalls = false;
     TDuration SocketIdleTimeout = TDuration::Minutes(6);
@@ -78,7 +78,7 @@ public:
     TLog Log; // Null by default.
 };
 
-TDriverConfig::TDriverConfig(const TStringType& connectionString)
+TDriverConfig::TDriverConfig(const std::string& connectionString)
     : Impl_(new TImpl) {
         if (connectionString != ""){
             auto connectionInfo = ParseConnectionString(connectionString);
@@ -88,7 +88,7 @@ TDriverConfig::TDriverConfig(const TStringType& connectionString)
         }
 }
 
-TDriverConfig& TDriverConfig::SetEndpoint(const TStringType& endpoint) {
+TDriverConfig& TDriverConfig::SetEndpoint(const std::string& endpoint) {
     Impl_->Endpoint = endpoint;
     return *this;
 }
@@ -108,23 +108,23 @@ TDriverConfig& TDriverConfig::SetMaxClientQueueSize(size_t sz) {
     return *this;
 }
 
-TDriverConfig& TDriverConfig::UseSecureConnection(const TStringType& cert) {
+TDriverConfig& TDriverConfig::UseSecureConnection(const std::string& cert) {
     Impl_->SslCredentials.IsEnabled = true;
     Impl_->SslCredentials.CaCert = cert;
     return *this;
 }
 
-TDriverConfig& TDriverConfig::UseClientCertificate(const TStringType& clientCert, const TStringType& clientPrivateKey) {
+TDriverConfig& TDriverConfig::UseClientCertificate(const std::string& clientCert, const std::string& clientPrivateKey) {
     Impl_->SslCredentials.Cert = clientCert;
     Impl_->SslCredentials.PrivateKey = clientPrivateKey;
     return *this;
 }
 
-TDriverConfig& TDriverConfig::SetAuthToken(const TStringType& token) {
+TDriverConfig& TDriverConfig::SetAuthToken(const std::string& token) {
     return SetCredentialsProviderFactory(CreateOAuthCredentialsProviderFactory(token));
 }
 
-TDriverConfig& TDriverConfig::SetDatabase(const TStringType& database) {
+TDriverConfig& TDriverConfig::SetDatabase(const std::string& database) {
     Impl_->Database = database;
     Impl_->Log.SetFormatter(GetPrefixLogFormatter(GetDatabaseLogPrefix(Impl_->Database)));
     return *this;
@@ -163,7 +163,7 @@ TDriverConfig& TDriverConfig::SetDrainOnDtors(bool allowed) {
     return *this;
 }
 
-TDriverConfig& TDriverConfig::SetBalancingPolicy(EBalancingPolicy policy, const TStringType& params) {
+TDriverConfig& TDriverConfig::SetBalancingPolicy(EBalancingPolicy policy, const std::string& params) {
     Impl_->BalancingSettings = TBalancingSettings{policy, params};
     return *this;
 }

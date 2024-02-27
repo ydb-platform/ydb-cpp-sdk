@@ -4,8 +4,8 @@
 
 namespace NMonitoring {
     struct THtmlMonPage: public IMonPage {
-        THtmlMonPage(const TString& path,
-                     const TString& title = TString(),
+        THtmlMonPage(const std::string& path,
+                     const std::string& title = std::string(),
                      bool outputTableSorterJsCss = false)
             : IMonPage(path, title)
             , OutputTableSorterJsCss(outputTableSorterJsCss)

@@ -6,11 +6,11 @@ namespace NYdb::NPersQueue {
 
 TReadSessionEvent::TDataReceivedEvent::TMessageInformation::TMessageInformation(
     ui64 offset,
-    TString messageGroupId,
+    std::string messageGroupId,
     ui64 seqNo,
     TInstant createTime,
     TInstant writeTime,
-    TString ip,
+    std::string ip,
     TWriteSessionMeta::TPtr meta,
     ui64 uncompressedSize
 )
@@ -24,7 +24,7 @@ TReadSessionEvent::TDataReceivedEvent::TMessageInformation::TMessageInformation(
     , UncompressedSize(uncompressedSize)
 {}
 
-static void DebugStringImpl(const TReadSessionEvent::TDataReceivedEvent::TMessageInformation& info, TStringBuilder& ret) {
+static void DebugStringImpl(const TReadSessionEvent::TDataReceivedEvent::TMessageInformation& info, NUtils::TYdbStringBuilder& ret) {
     ret << " Information: {"
         << " Offset: " << info.Offset
         << " SeqNo: " << info.SeqNo
@@ -43,8 +43,8 @@ static void DebugStringImpl(const TReadSessionEvent::TDataReceivedEvent::TMessag
 }
 
 template <class TSerializeInformationFunc>
-static void DebugStringImpl(TStringBuilder& ret,
-                               const TString& name,
+static void DebugStringImpl(NUtils::TYdbStringBuilder& ret,
+                               const std::string& name,
                                const TReadSessionEvent::TDataReceivedEvent::IMessage& msg,
                                bool printData,
                                TSerializeInformationFunc serializeInformationFunc,
@@ -52,7 +52,7 @@ static void DebugStringImpl(TStringBuilder& ret,
 {
     ret << name << " {";
     try {
-        const TString& data = msg.GetData();
+        const std::string& data = msg.GetData();
         if (printData) {
             ret << " Data: \"" << data << "\"";
         } else {
@@ -73,7 +73,7 @@ static void DebugStringImpl(TStringBuilder& ret,
     ret << " }";
 }
 
-const TString& TReadSessionEvent::TDataReceivedEvent::IMessage::GetData() const {
+const std::string& TReadSessionEvent::TDataReceivedEvent::IMessage::GetData() const {
     return Data;
 }
 
@@ -81,31 +81,31 @@ const TPartitionStream::TPtr& TReadSessionEvent::TDataReceivedEvent::IMessage::G
     return PartitionStream;
 }
 
-const TString& TReadSessionEvent::TDataReceivedEvent::IMessage::GetPartitionKey() const {
+const std::string& TReadSessionEvent::TDataReceivedEvent::IMessage::GetPartitionKey() const {
     return PartitionKey;
 }
 
-const TString TReadSessionEvent::TDataReceivedEvent::IMessage::GetExplicitHash() const {
+const std::string TReadSessionEvent::TDataReceivedEvent::IMessage::GetExplicitHash() const {
     return ExplicitHash;
 }
 
-TString TReadSessionEvent::TDataReceivedEvent::IMessage::DebugString(bool printData) const {
-    TStringBuilder ret;
+std::string TReadSessionEvent::TDataReceivedEvent::IMessage::DebugString(bool printData) const {
+    NUtils::TYdbStringBuilder ret;
     DebugString(ret, printData);
     return std::move(ret);
 }
 
-TReadSessionEvent::TDataReceivedEvent::IMessage::IMessage(const TString& data,
+TReadSessionEvent::TDataReceivedEvent::IMessage::IMessage(const std::string& data,
                                                           TPartitionStream::TPtr partitionStream,
-                                                          const TString& partitionKey,
-                                                          const TString& explicitHash)
+                                                          const std::string& partitionKey,
+                                                          const std::string& explicitHash)
     : Data(data)
     , PartitionStream(partitionStream)
     , PartitionKey(partitionKey)
     , ExplicitHash(explicitHash)
 {}
 
-const TString& TReadSessionEvent::TDataReceivedEvent::TMessage::GetData() const {
+const std::string& TReadSessionEvent::TDataReceivedEvent::TMessage::GetData() const {
     if (DecompressionException) {
         std::rethrow_exception(DecompressionException);
     }
@@ -120,7 +120,7 @@ ui64 TReadSessionEvent::TDataReceivedEvent::TMessage::GetOffset() const {
     return Information.Offset;
 }
 
-const TString& TReadSessionEvent::TDataReceivedEvent::TMessage::GetMessageGroupId() const {
+const std::string& TReadSessionEvent::TDataReceivedEvent::TMessage::GetMessageGroupId() const {
     return Information.MessageGroupId;
 }
 
@@ -136,7 +136,7 @@ TInstant TReadSessionEvent::TDataReceivedEvent::TMessage::GetWriteTime() const {
     return Information.WriteTime;
 }
 
-const TString& TReadSessionEvent::TDataReceivedEvent::TMessage::GetIp() const {
+const std::string& TReadSessionEvent::TDataReceivedEvent::TMessage::GetIp() const {
     return Information.Ip;
 }
 
@@ -144,18 +144,18 @@ const TWriteSessionMeta::TPtr& TReadSessionEvent::TDataReceivedEvent::TMessage::
     return Information.Meta;
 }
 
-void TReadSessionEvent::TDataReceivedEvent::TMessage::DebugString(TStringBuilder& ret, bool printData) const {
-    DebugStringImpl(ret, "Message", *this, printData, [this](TStringBuilder& ret) {
+void TReadSessionEvent::TDataReceivedEvent::TMessage::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const {
+    DebugStringImpl(ret, "Message", *this, printData, [this](NUtils::TYdbStringBuilder& ret) {
         DebugStringImpl(this->Information, ret);
     });
 }
 
-TReadSessionEvent::TDataReceivedEvent::TMessage::TMessage(const TString& data,
+TReadSessionEvent::TDataReceivedEvent::TMessage::TMessage(const std::string& data,
                                                           std::exception_ptr decompressionException,
                                                           const TMessageInformation& information,
                                                           TPartitionStream::TPtr partitionStream,
-                                                          const TString& partitionKey,
-                                                          const TString& explicitHash)
+                                                          const std::string& partitionKey,
+                                                          const std::string& explicitHash)
     : IMessage(data, partitionStream, partitionKey, explicitHash)
     , DecompressionException(std::move(decompressionException))
     , Information(information)
@@ -178,7 +178,7 @@ ui64 TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::GetOffset(ui64 i
     return Information.at(index).Offset;
 }
 
-const TString& TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::GetMessageGroupId(ui64 index) const {
+const std::string& TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::GetMessageGroupId(ui64 index) const {
     return Information.at(index).MessageGroupId;
 }
 
@@ -194,7 +194,7 @@ TInstant TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::GetWriteTime
     return Information.at(index).WriteTime;
 }
 
-const TString& TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::GetIp(ui64 index) const {
+const std::string& TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::GetIp(ui64 index) const {
     return Information.at(index).Ip;
 }
 
@@ -206,13 +206,13 @@ ui64 TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::GetUncompressedS
     return Information.at(index).UncompressedSize;
 }
 
-void TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::DebugString(TStringBuilder& ret, bool printData) const {
+void TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const {
     DebugStringImpl(
         ret,
         "CompressedMessage",
         *this,
         printData,
-        [this](TStringBuilder& ret) {
+        [this](NUtils::TYdbStringBuilder& ret) {
             for (auto& info : this->Information) {
                 DebugStringImpl(info, ret);
             }
@@ -222,11 +222,11 @@ void TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::DebugString(TStr
 }
 
 TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::TCompressedMessage(ECodec codec,
-                                                                              const TString& data,
+                                                                              const std::string& data,
                                                                               const std::vector<TMessageInformation>& information,
                                                                               TPartitionStream::TPtr partitionStream,
-                                                                              const TString& partitionKey,
-                                                                              const TString& explicitHash)
+                                                                              const std::string& partitionKey,
+                                                                              const std::string& explicitHash)
     : IMessage(data, partitionStream, partitionKey, explicitHash)
     , Codec(codec)
     , Information(information)

@@ -56,7 +56,7 @@ public:
         TSimpleIntrusivePtr<TIterImpl> Impl_;
     };
 
-    TGetOpt(int argc, const char* const* argv, const TString& format);
+    TGetOpt(int argc, const char* const* argv, const std::string& format);
 
     inline TIterator Begin() const {
         return TIterator(this);

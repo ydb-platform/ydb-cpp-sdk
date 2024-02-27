@@ -10,9 +10,9 @@
 
 namespace NYdb::NPersQueue {
 
-inline const TString& GetCodecId(const ECodec codec) {
-    static THashMap<ECodec, TString> idByCodec{
-        {ECodec::RAW, TString(1, '\0')},
+inline const std::string& GetCodecId(const ECodec codec) {
+    static THashMap<ECodec, std::string> idByCodec{
+        {ECodec::RAW, std::string(1, '\0')},
         {ECodec::GZIP, "\1"},
         {ECodec::LZOP, "\2"},
         {ECodec::ZSTD, "\3"}
@@ -180,10 +180,10 @@ private:
     struct TMessage {
         ui64 Id;
         TInstant CreatedAt;
-        TStringBuf DataRef;
+        std::string_view DataRef;
         std::optional<ECodec> Codec;
         ui32 OriginalSize; // only for coded messages
-        TMessage(ui64 id, const TInstant& createdAt, TStringBuf data, std::optional<ECodec> codec = {}, ui32 originalSize = 0)
+        TMessage(ui64 id, const TInstant& createdAt, std::string_view data, std::optional<ECodec> codec = {}, ui32 originalSize = 0)
             : Id(id)
             , CreatedAt(createdAt)
             , DataRef(data)
@@ -199,7 +199,7 @@ private:
         TInstant StartedAt = TInstant::Zero();
         bool Acquired = false;
         bool FlushRequested = false;
-        void Add(ui64 id, const TInstant& createdAt, TStringBuf data, std::optional<ECodec> codec, ui32 originalSize) {
+        void Add(ui64 id, const TInstant& createdAt, std::string_view data, std::optional<ECodec> codec, ui32 originalSize) {
             if (StartedAt == TInstant::Zero())
                 StartedAt = TInstant::Now();
             CurrentSize += codec ? originalSize : data.size();
@@ -216,7 +216,7 @@ private:
                 return false;
             auto currSize = Data.size();
             Data.Append(Messages.back().DataRef.data(), Messages.back().DataRef.size());
-            Messages.back().DataRef = TStringBuf(Data.data() + currSize, Data.size() - currSize);
+            Messages.back().DataRef = std::string_view(Data.data() + currSize, Data.size() - currSize);
             Acquired = true;
             return true;
         }
@@ -241,8 +241,8 @@ private:
         size_t PartNumber = 0;
         size_t OriginalSize = 0;
         size_t OriginalMemoryUsage = 0;
-        TString CodecID = GetCodecId(ECodec::RAW);
-        mutable std::vector<TStringBuf> OriginalDataRefs;
+        std::string CodecID = GetCodecId(ECodec::RAW);
+        mutable std::vector<std::string_view> OriginalDataRefs;
         mutable TBuffer Data;
         bool Compressed = false;
         mutable bool Valid = true;
@@ -312,10 +312,10 @@ public:
                                                   std::optional<size_t> maxEventsCount = std::nullopt);
     NThreading::TFuture<ui64> GetInitSeqNo();
 
-    void Write(TContinuationToken&& continuationToken, TStringBuf data,
+    void Write(TContinuationToken&& continuationToken, std::string_view data,
                std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt);
 
-    void WriteEncoded(TContinuationToken&& continuationToken, TStringBuf data, ECodec codec, ui32 originalSize,
+    void WriteEncoded(TContinuationToken&& continuationToken, std::string_view data, ECodec codec, ui32 originalSize,
                std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt);
 
 
@@ -334,11 +334,11 @@ public:
 
 private:
 
-    TStringBuilder LogPrefix() const;
+    NUtils::TYdbStringBuilder LogPrefix() const;
 
     void UpdateTokenIfNeededImpl();
 
-    void WriteInternal(TContinuationToken&& continuationToken, TStringBuf data, std::optional<ECodec> codec, ui32 originalSize,
+    void WriteInternal(TContinuationToken&& continuationToken, std::string_view data, std::optional<ECodec> codec, ui32 originalSize,
                std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt);
 
     void FlushWriteIfRequiredImpl();
@@ -353,7 +353,7 @@ private:
     void OnConnectTimeout(const NYdbGrpc::IQueueClientContextPtr& connectTimeoutContext);
     void ResetForRetryImpl();
     THandleResult RestartImpl(const TPlainStatus& status);
-    void DoConnect(const TDuration& delay, const TString& endpoint);
+    void DoConnect(const TDuration& delay, const std::string& endpoint);
     void InitImpl();
     void ReadFromProcessor(); // Assumes that we're under lock.
     void WriteToProcessorImpl(TClientMessage&& req); // Assumes that we're under lock.
@@ -365,7 +365,7 @@ private:
     void OnCompressed(TBlock&& block, bool isSyncCompression=false);
     TMemoryUsageChange OnCompressedImpl(TBlock&& block);
 
-    //TString GetDebugIdentity() const;
+    //std::string GetDebugIdentity() const;
     Ydb::PersQueue::V1::StreamingWriteClientMessage GetInitClientMessage();
     bool CleanupOnAcknowledged(ui64 id);
     bool IsReadyToSendNextImpl();
@@ -376,7 +376,7 @@ private:
     void SendImpl();
     void AbortImpl();
     void CloseImpl(EStatus statusCode, NYql::TIssues&& issues);
-    void CloseImpl(EStatus statusCode, const TString& message);
+    void CloseImpl(EStatus statusCode, const std::string& message);
     void CloseImpl(TPlainStatus&& status);
 
     void OnErrorResolved() {
@@ -391,13 +391,13 @@ private:
     TWriteSessionSettings Settings;
     std::shared_ptr<TPersQueueClient::TImpl> Client;
     std::shared_ptr<TGRpcConnectionsImpl> Connections;
-    TString TargetCluster;
-    TString InitialCluster;
-    TString CurrentCluster;
-    TString PreferredClusterByCDS;
+    std::string TargetCluster;
+    std::string InitialCluster;
+    std::string CurrentCluster;
+    std::string PreferredClusterByCDS;
     std::shared_ptr<IWriteSessionConnectionProcessorFactory> ConnectionFactory;
     TDbDriverStatePtr DbDriverState;
-    TStringType PrevToken;
+    std::string PrevToken;
     bool UpdateTokenInProgress = false;
     TInstant LastTokenUpdate = TInstant::Zero();
     std::shared_ptr<TWriteSessionEventsQueue> EventsQueue;
@@ -412,7 +412,7 @@ private:
     IRetryPolicy::IRetryState::TPtr RetryState; // Current retry state (if now we are (re)connecting).
     std::shared_ptr<TServerMessage> ServerMessage; // Server message to write server response to.
 
-    TString SessionId;
+    std::string SessionId;
     IExecutor::TPtr Executor;
     IExecutor::TPtr CompressionExecutor;
     size_t MemoryUsage = 0; //!< Estimated amount of memory used
@@ -435,7 +435,7 @@ private:
     ui32 PartitionId = 0;
     ui64 NextId = 0;
     ui64 MinUnsentId = 1;
-    std::map<TString, ui64> InitSeqNo;
+    std::map<std::string, ui64> InitSeqNo;
     std::optional<bool> AutoSeqNoMode;
     bool ValidateSeqNoMode = false;
 
@@ -447,7 +447,7 @@ private:
     TWriterCounters::TPtr Counters;
     TDuration WakeupInterval;
 
-    TString StateStr;
+    std::string StateStr;
 
 protected:
     ui64 MessagesAcquired = 0;

@@ -69,24 +69,24 @@ public:
 public:
     TQueryClient(const TDriver& driver, const TClientSettings& settings = TClientSettings());
 
-    TAsyncExecuteQueryResult ExecuteQuery(const TString& query, const TTxControl& txControl,
+    TAsyncExecuteQueryResult ExecuteQuery(const std::string& query, const TTxControl& txControl,
         const TExecuteQuerySettings& settings = TExecuteQuerySettings());
 
-    TAsyncExecuteQueryResult ExecuteQuery(const TString& query, const TTxControl& txControl,
+    TAsyncExecuteQueryResult ExecuteQuery(const std::string& query, const TTxControl& txControl,
         const TParams& params, const TExecuteQuerySettings& settings = TExecuteQuerySettings());
 
-    TAsyncExecuteQueryIterator StreamExecuteQuery(const TString& query, const TTxControl& txControl,
+    TAsyncExecuteQueryIterator StreamExecuteQuery(const std::string& query, const TTxControl& txControl,
         const TExecuteQuerySettings& settings = TExecuteQuerySettings());
 
-    TAsyncExecuteQueryIterator StreamExecuteQuery(const TString& query, const TTxControl& txControl,
+    TAsyncExecuteQueryIterator StreamExecuteQuery(const std::string& query, const TTxControl& txControl,
         const TParams& params, const TExecuteQuerySettings& settings = TExecuteQuerySettings());
 
     TAsyncExecuteQueryResult RetryQuery(TQueryFunc&& queryFunc, TRetryOperationSettings settings = TRetryOperationSettings());
 
-    TAsyncExecuteQueryResult RetryQuery(const TString& query, const TTxControl& txControl,
+    TAsyncExecuteQueryResult RetryQuery(const std::string& query, const TTxControl& txControl,
         TDuration timeout, bool isIndempotent);
 
-    NThreading::TFuture<TScriptExecutionOperation> ExecuteScript(const TString& script,
+    NThreading::TFuture<TScriptExecutionOperation> ExecuteScript(const std::string& script,
         const TExecuteScriptSettings& settings = TExecuteScriptSettings());
 
     TAsyncFetchScriptResultsResult FetchScriptResults(const NKikimr::NOperationId::TOperationId& operationId, int64_t resultSetIndex,
@@ -113,18 +113,18 @@ class TSession {
     friend class TQueryClient;
     friend class TTransaction;
 public:
-    const TString& GetId() const;
+    const std::string& GetId() const;
 
-    TAsyncExecuteQueryResult ExecuteQuery(const TString& query, const TTxControl& txControl,
+    TAsyncExecuteQueryResult ExecuteQuery(const std::string& query, const TTxControl& txControl,
         const TExecuteQuerySettings& settings = TExecuteQuerySettings());
 
-    TAsyncExecuteQueryResult ExecuteQuery(const TString& query, const TTxControl& txControl,
+    TAsyncExecuteQueryResult ExecuteQuery(const std::string& query, const TTxControl& txControl,
         const TParams& params, const TExecuteQuerySettings& settings = TExecuteQuerySettings());
 
-    TAsyncExecuteQueryIterator StreamExecuteQuery(const TString& query, const TTxControl& txControl,
+    TAsyncExecuteQueryIterator StreamExecuteQuery(const std::string& query, const TTxControl& txControl,
         const TExecuteQuerySettings& settings = TExecuteQuerySettings());
 
-    TAsyncExecuteQueryIterator StreamExecuteQuery(const TString& query, const TTxControl& txControl,
+    TAsyncExecuteQueryIterator StreamExecuteQuery(const std::string& query, const TTxControl& txControl,
         const TParams& params, const TExecuteQuerySettings& settings = TExecuteQuerySettings());
 
     TAsyncBeginTransactionResult BeginTransaction(const TTxSettings& txSettings,
@@ -153,7 +153,7 @@ class TTransaction {
     friend class TQueryClient;
     friend class TExecuteQueryIterator::TReaderImpl;
 public:
-    const TString& GetId() const {
+    const std::string& GetId() const {
         return TxId_;
     }
 
@@ -169,10 +169,10 @@ public:
     }
 
 private:
-    TTransaction(const TSession& session, const TString& txId);
+    TTransaction(const TSession& session, const std::string& txId);
 
     TSession Session_;
-    TString TxId_;
+    std::string TxId_;
 };
 
 class TBeginTransactionResult : public TStatus {

@@ -2,14 +2,13 @@
 
 #include <client/impl/ydb_endpoints/endpoints.h>
 #include <client/impl/ydb_internal/internal_header.h>
-#include <client/impl/ydb_internal/common/type_switcher.h>
 
 namespace NYdb {
 
 struct TRpcRequestSettings {
-    TStringType TraceId;
-    TStringType RequestType;
-    std::vector<std::pair<TStringType, TStringType>> Header;
+    std::string TraceId;
+    std::string RequestType;
+    std::vector<std::pair<std::string, std::string>> Header;
     TEndpointKey PreferredEndpoint = {};
     enum class TEndpointPolicy {
         UsePreferredEndpointOptionally, // Try to use the preferred endpoint

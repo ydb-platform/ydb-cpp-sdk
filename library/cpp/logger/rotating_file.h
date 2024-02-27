@@ -7,8 +7,8 @@
 
 class TRotatingFileLogBackend: public TLogBackend {
 public:
-    TRotatingFileLogBackend(const TString& preRotatePath, const TString& postRotatePath, const ui64 maxSizeBytes);
-    TRotatingFileLogBackend(const TString& path, const ui64 maxSizeBytes, const ui32 rotatedFilesCount);
+    TRotatingFileLogBackend(const std::string& preRotatePath, const std::string& postRotatePath, const ui64 maxSizeBytes);
+    TRotatingFileLogBackend(const std::string& path, const ui64 maxSizeBytes, const ui32 rotatedFilesCount);
     ~TRotatingFileLogBackend() override;
 
     void WriteData(const TLogRecord& rec) override;

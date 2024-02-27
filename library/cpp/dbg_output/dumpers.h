@@ -147,7 +147,7 @@ struct TDumper<THashMultiSet<T, H, P, A>>: public TAssocDumper {
 
 //strings
 template <>
-struct TDumper<TString>: public TStrDumper {
+struct TDumper<std::string>: public TStrDumper {
 };
 
 template <>

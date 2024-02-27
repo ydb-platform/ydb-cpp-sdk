@@ -4,7 +4,7 @@
 
 namespace NYdb {
 
-TString GetRootCertificate() {
+std::string GetRootCertificate() {
     return NResource::Find("ydb_root_ca.pem");
 }
 

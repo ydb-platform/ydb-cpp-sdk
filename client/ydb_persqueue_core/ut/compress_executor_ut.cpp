@@ -55,12 +55,12 @@ Y_UNIT_TEST_SUITE(CompressExecutor) {
         }
         UNIT_ASSERT(!waitEventFuture.HasValue());
 
-        TStringBuilder msgBuilder;
+        TYdbStringBuilder msgBuilder;
         while (msgBuilder.size() < 100_KB) {
             msgBuilder << "0123456789abcdefghijk";
         }
         const ui64 COMPRESSED_SIZE = 305;
-        TString message = TString(msgBuilder);
+        std::string message = std::string(msgBuilder);
         ui64 seqNo = 1;
         auto doWrite = [&] {
             writer->Write(std::move(*continueToken), message, seqNo);

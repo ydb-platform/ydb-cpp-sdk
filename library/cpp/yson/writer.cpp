@@ -109,16 +109,16 @@ namespace NYson {
             }
         }
 
-        TString FloatToStringWithNanInf(double value) {
+        std::string FloatToStringWithNanInf(double value) {
             if (std::isfinite(value)) {
                 return ::ToString(value);
             }
 
-            static const TStringBuf nanLiteral = "%nan";
-            static const TStringBuf infLiteral = "%inf";
-            static const TStringBuf negativeInfLiteral = "%-inf";
+            static const std::string_view nanLiteral = "%nan";
+            static const std::string_view infLiteral = "%inf";
+            static const std::string_view negativeInfLiteral = "%-inf";
 
-            TStringBuf str;
+            std::string_view str;
             if (std::isnan(value)) {
                 str = nanLiteral;
             } else if (value > 0) {
@@ -126,7 +126,7 @@ namespace NYson {
             } else {
                 str = negativeInfLiteral;
             }
-            return TString(str.data(), str.size());
+            return std::string(str.data(), str.size());
         }
 
     }
@@ -202,7 +202,7 @@ namespace NYson {
         BeforeFirstItem = false;
     }
 
-    void TYsonWriter::WriteStringScalar(const TStringBuf& value) {
+    void TYsonWriter::WriteStringScalar(const std::string_view& value) {
         if (Format == EYsonFormat::Binary) {
             Stream->Write(NDetail::StringMarker);
             WriteVarInt32(Stream, static_cast<i32>(value.length()));
@@ -214,7 +214,7 @@ namespace NYson {
         }
     }
 
-    void TYsonWriter::OnStringScalar(TStringBuf value) {
+    void TYsonWriter::OnStringScalar(std::string_view value) {
         WriteStringScalar(value);
         EndNode();
     }
@@ -247,7 +247,7 @@ namespace NYson {
         } else {
             auto str = FloatToStringWithNanInf(value);
             Stream->Write(str);
-            if (str.find('.') == TString::npos && str.find('e') == TString::npos && std::isfinite(value)) {
+            if (str.find('.') == std::string::npos && str.find('e') == std::string::npos && std::isfinite(value)) {
                 Stream->Write(".");
             }
         }
@@ -285,7 +285,7 @@ namespace NYson {
         BeginCollection(BeginMapToken);
     }
 
-    void TYsonWriter::OnKeyedItem(TStringBuf key) {
+    void TYsonWriter::OnKeyedItem(std::string_view key) {
         CollectionItem(KeyedItemSeparatorToken);
 
         WriteStringScalar(key);
@@ -317,7 +317,7 @@ namespace NYson {
         }
     }
 
-    void TYsonWriter::OnRaw(TStringBuf yson, EYsonType type) {
+    void TYsonWriter::OnRaw(std::string_view yson, EYsonType type) {
         if (EnableRaw) {
             Stream->Write(yson);
             BeforeFirstItem = false;

@@ -253,7 +253,7 @@ size_t Base64Decode(void* dst, const char* b, const char* e) {
     return outLen;
 }
 
-size_t Base64DecodeUneven(void* dst, const TStringBuf s) {
+size_t Base64DecodeUneven(void* dst, const std::string_view s) {
     const size_t tailSize = s.length() % 4;
     if (tailSize == 0) {
         return Base64Decode(dst, s.begin(), s.end());
@@ -268,9 +268,9 @@ size_t Base64DecodeUneven(void* dst, const TStringBuf s) {
     return decodedEven + decodedTail;
 }
 
-TString Base64DecodeUneven(const TStringBuf s) {
-    TString ret;
-    ret.ReserveAndResize(Base64DecodeBufSize(s.size()));
+std::string Base64DecodeUneven(const std::string_view s) {
+    std::string ret;
+    ret.resize(Base64DecodeBufSize(s.size()));
     size_t size = Base64DecodeUneven(const_cast<char*>(ret.data()), s);
     ret.resize(size);
     return ret;

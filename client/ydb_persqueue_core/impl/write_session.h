@@ -38,10 +38,10 @@ public:
                                                   std::optional<size_t> maxEventsCount = std::nullopt) override;
     NThreading::TFuture<ui64> GetInitSeqNo() override;
 
-    void Write(TContinuationToken&& continuationToken, TStringBuf data,
+    void Write(TContinuationToken&& continuationToken, std::string_view data,
                std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) override;
 
-    void WriteEncoded(TContinuationToken&& continuationToken, TStringBuf data, ECodec codec, ui32 originalSize,
+    void WriteEncoded(TContinuationToken&& continuationToken, std::string_view data, ECodec codec, ui32 originalSize,
                std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) override;
 
 
@@ -77,7 +77,7 @@ public:
             std::shared_ptr<TGRpcConnectionsImpl> connections,
             TDbDriverStatePtr dbDriverState);
 
-    bool Write(TStringBuf data, std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt,
+    bool Write(std::string_view data, std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt,
                const TDuration& blockTimeout = TDuration::Max()) override;
 
     ui64 GetInitSeqNo() override;

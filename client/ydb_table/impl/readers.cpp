@@ -9,7 +9,7 @@ namespace NTable {
 using namespace NThreading;
 
 
-TTablePartIterator::TReaderImpl::TReaderImpl(TStreamProcessorPtr streamProcessor, const TString& endpoint)
+TTablePartIterator::TReaderImpl::TReaderImpl(TStreamProcessorPtr streamProcessor, const std::string& endpoint)
     : StreamProcessor_(streamProcessor)
     , Finished_(false)
     , Endpoint_(endpoint)
@@ -53,7 +53,7 @@ TAsyncSimpleStreamPart<TResultSet> TTablePartIterator::TReaderImpl::ReadNext(std
 
 
 
-TScanQueryPartIterator::TReaderImpl::TReaderImpl(TStreamProcessorPtr streamProcessor, const TString& endpoint)
+TScanQueryPartIterator::TReaderImpl::TReaderImpl(TStreamProcessorPtr streamProcessor, const std::string& endpoint)
     : StreamProcessor_(streamProcessor)
     , Finished_(false)
     , Endpoint_(endpoint)
@@ -82,7 +82,7 @@ TAsyncScanQueryPart TScanQueryPartIterator::TReaderImpl::ReadNext(std::shared_pt
             TPlainStatus plainStatus{clientStatus, std::move(issues), self->Endpoint_, {}};
             TStatus status{std::move(plainStatus)};
             std::optional<TQueryStats> queryStats;
-            std::optional<TString> diagnostics;
+            std::optional<std::string> diagnostics;
 
             if (self->Response_.result().has_query_stats()) {
                 queryStats = TQueryStats(self->Response_.result().query_stats());

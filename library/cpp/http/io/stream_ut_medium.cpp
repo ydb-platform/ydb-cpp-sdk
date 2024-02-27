@@ -4,21 +4,21 @@
 
 Y_UNIT_TEST_SUITE(THttpTestMedium) {
     Y_UNIT_TEST(TestCodings2) {
-        TStringBuf data = "aaaaaaaaaaaaaaaaaaaaaaa";
+        std::string_view data = "aaaaaaaaaaaaaaaaaaaaaaa";
 
         for (auto codec : SupportedCodings()) {
-            if (codec == TStringBuf("z-zlib-0")) {
+            if (codec == std::string_view("z-zlib-0")) {
                 continue;
             }
 
-            if (codec == TStringBuf("z-null")) {
+            if (codec == std::string_view("z-null")) {
                 continue;
             }
 
-            TString s;
+            std::string s;
 
             {
-                TStringOutput so(s);
+                std::stringOutput so(s);
                 THttpOutput ho(&so);
                 TBufferedOutput bo(&ho, 10000);
 
@@ -33,7 +33,7 @@ Y_UNIT_TEST_SUITE(THttpTestMedium) {
 
             try {
                 UNIT_ASSERT(s.size() > 10);
-                UNIT_ASSERT(s.find(data) == TString::npos);
+                UNIT_ASSERT(s.find(data) == std::string::npos);
             } catch (...) {
                 Cerr << codec << " " << s << Endl;
 
@@ -41,7 +41,7 @@ Y_UNIT_TEST_SUITE(THttpTestMedium) {
             }
 
             {
-                TStringInput si(s);
+                std::stringInput si(s);
                 THttpInput hi(&si);
 
                 auto res = hi.ReadAll();

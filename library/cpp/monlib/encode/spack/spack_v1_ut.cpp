@@ -25,7 +25,7 @@ using namespace NMonitoring;
         }                                                                 \
     } while (0)
 
-void AssertLabelEqual(const NProto::TLabel& l, TStringBuf name, TStringBuf value) {
+void AssertLabelEqual(const NProto::TLabel& l, std::string_view name, std::string_view value) {
     UNIT_ASSERT_STRINGS_EQUAL(l.GetName(), name);
     UNIT_ASSERT_STRINGS_EQUAL(l.GetValue(), value);
 }

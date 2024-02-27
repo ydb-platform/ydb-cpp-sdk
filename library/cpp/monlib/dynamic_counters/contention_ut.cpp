@@ -28,18 +28,18 @@ Y_UNIT_TEST_SUITE(TDynamicCountersContentionTest) {
                 Thread.Join();
             }
 
-            void OnCounter(const TString& /*labelName*/, const TString& /*labelValue*/, const TCounterForPtr* /*counter*/) override {
+            void OnCounter(const std::string& /*labelName*/, const std::string& /*labelValue*/, const TCounterForPtr* /*counter*/) override {
                 Ev.Signal();
                 Response.Wait();
             }
 
-            void OnHistogram(const TString& /*labelName*/, const TString& /*labelValue*/, IHistogramSnapshotPtr /*snapshot*/, bool /*derivative*/) override {
+            void OnHistogram(const std::string& /*labelName*/, const std::string& /*labelValue*/, IHistogramSnapshotPtr /*snapshot*/, bool /*derivative*/) override {
             }
 
-            void OnGroupBegin(const TString& /*labelName*/, const TString& /*labelValue*/, const TDynamicCounters* /*group*/) override {
+            void OnGroupBegin(const std::string& /*labelName*/, const std::string& /*labelValue*/, const TDynamicCounters* /*group*/) override {
             }
 
-            void OnGroupEnd(const TString& /*labelName*/, const TString& /*labelValue*/, const TDynamicCounters* /*group*/) override {
+            void OnGroupEnd(const std::string& /*labelName*/, const std::string& /*labelValue*/, const TDynamicCounters* /*group*/) override {
             }
 
         private:

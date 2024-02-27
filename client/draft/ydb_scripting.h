@@ -85,14 +85,14 @@ private:
 
 class TExplainYqlResult : public TStatus {
 public:
-    TExplainYqlResult(TStatus&& status, const ::google::protobuf::Map<TString, Ydb::Type>&& types, TString&& plan);
+    TExplainYqlResult(TStatus&& status, const ::google::protobuf::Map<std::string, Ydb::Type>&& types, std::string&& plan);
 
-    std::map<TString, TType> GetParameterTypes() const;
-    const TString& GetPlan() const;
+    std::map<std::string, TType> GetParameterTypes() const;
+    const std::string& GetPlan() const;
 
 private:
-    ::google::protobuf::Map<TString, Ydb::Type> ParameterTypes_;
-    TString Plan_;
+    ::google::protobuf::Map<std::string, Ydb::Type> ParameterTypes_;
+    std::string Plan_;
 };
 
 using TAsyncExecuteYqlResult = NThreading::TFuture<TExecuteYqlResult>;
@@ -127,25 +127,25 @@ public:
     //! Returns new params builder
     TParamsBuilder GetParamsBuilder();
 
-    TAsyncExecuteYqlResult ExecuteYqlScript(const TString& script,
+    TAsyncExecuteYqlResult ExecuteYqlScript(const std::string& script,
         const TExecuteYqlRequestSettings& settings = TExecuteYqlRequestSettings());
 
-    TAsyncExecuteYqlResult ExecuteYqlScript(const TString& script, const TParams& params,
+    TAsyncExecuteYqlResult ExecuteYqlScript(const std::string& script, const TParams& params,
         const TExecuteYqlRequestSettings& settings = TExecuteYqlRequestSettings());
 
-    TAsyncExecuteYqlResult ExecuteYqlScript(const TString& script, TParams&& params,
+    TAsyncExecuteYqlResult ExecuteYqlScript(const std::string& script, TParams&& params,
         const TExecuteYqlRequestSettings& settings = TExecuteYqlRequestSettings());
 
-    TAsyncYqlResultPartIterator StreamExecuteYqlScript(const TString& script,
+    TAsyncYqlResultPartIterator StreamExecuteYqlScript(const std::string& script,
         const TExecuteYqlRequestSettings& settings = TExecuteYqlRequestSettings());
 
-    TAsyncYqlResultPartIterator StreamExecuteYqlScript(const TString& script, const TParams& params,
+    TAsyncYqlResultPartIterator StreamExecuteYqlScript(const std::string& script, const TParams& params,
         const TExecuteYqlRequestSettings& settings = TExecuteYqlRequestSettings());
 
-    TAsyncYqlResultPartIterator StreamExecuteYqlScript(const TString& script, TParams&& params,
+    TAsyncYqlResultPartIterator StreamExecuteYqlScript(const std::string& script, TParams&& params,
         const TExecuteYqlRequestSettings& settings = TExecuteYqlRequestSettings());
 
-    TAsyncExplainYqlResult ExplainYqlScript(const TString& script,
+    TAsyncExplainYqlResult ExplainYqlScript(const std::string& script,
         const TExplainYqlRequestSettings& settings = TExplainYqlRequestSettings());
 
 private:

@@ -16,6 +16,6 @@ extern const char* YDB_CLIENT_CAPABILITIES;
 extern const char* YDB_SESSION_CLOSE;
 extern const char* YDB_CLIENT_CAPABILITY_SESSION_BALANCER;
 
-TString GetSdkSemver();
+std::string GetSdkSemver();
 
 } // namespace NYdb

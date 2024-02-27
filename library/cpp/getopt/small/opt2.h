@@ -1,7 +1,8 @@
 #pragma once
 
 #include <util/system/defaults.h>
-#include <util/generic/string.h>
+
+#include <string>
 #include <vector>
 
 // simplified options parser
@@ -31,8 +32,8 @@ struct Opt2Param {
     bool IsRequired;
     bool MultipleUse;
     const char* DefValue;
-    TString DefValueStr;
-    TString HelpUsage;
+    std::string DefValueStr;
+    std::string HelpUsage;
     std::vector<const char*> ActualValue;
     const char* LongOptName;
     Opt2Param()
@@ -87,7 +88,7 @@ public:
     const char* Arg(char opt, const char* helpUsage) {
         return Arg(opt, helpUsage, nullptr, true);
     }
-    const char* Arg(char opt, const char* helpUsage, TString defValue, bool required = false);
+    const char* Arg(char opt, const char* helpUsage, std::string defValue, bool required = false);
 
     // Options with parameters that can be specified several times
     const std::vector<const char*>& MArg(char opt, const char* helpUsage);
@@ -122,7 +123,7 @@ private:
     char OptionMissingArg;
     char OptionWrongArg;
     char RequiredOptionMissing;
-    std::vector<TString> UserErrorMessages;
+    std::vector<std::string> UserErrorMessages;
 
 protected:
     int Argc;
@@ -130,7 +131,7 @@ protected:
     int MinArgs, MaxArgs;
     ui8 SpecsMap[256];
     std::vector<Opt2Param> Specs;
-    TString alias_copy;
+    std::string alias_copy;
     void EatArgv(const char* optspec, const char* long_alias);
     void Clear();
     Opt2Param& GetInternal(char opt, const char* defValue, const char* helpUsage, bool required);

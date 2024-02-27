@@ -59,15 +59,15 @@ std::pair<NThreading::TFuture<TEndpointUpdateResult>, bool> TEndpointPool::Updat
                     }
                 }
 
-                TStringType sslTargetNameOverride = endpoint.ssl_target_name_override();
-                auto getIpSslTargetNameOverride = [&]() -> TStringType {
+                std::string sslTargetNameOverride = endpoint.ssl_target_name_override();
+                auto getIpSslTargetNameOverride = [&]() -> std::string {
                     if (!sslTargetNameOverride.empty()) {
                         return sslTargetNameOverride;
                     }
                     if (endpoint.ssl()) {
                         return endpoint.address();
                     }
-                    return TStringType();
+                    return std::string();
                 };
 
                 bool addDefault = true;
@@ -75,7 +75,7 @@ std::pair<NThreading::TFuture<TEndpointUpdateResult>, bool> TEndpointPool::Updat
                     if (addr.empty()) {
                         continue;
                     }
-                    TStringBuilder endpointBuilder;
+                    NUtils::TYdbStringBuilder endpointBuilder;
                     endpointBuilder << "ipv6:";
                     if (addr[0] != '[') {
                         endpointBuilder << "[";
@@ -85,7 +85,7 @@ std::pair<NThreading::TFuture<TEndpointUpdateResult>, bool> TEndpointPool::Updat
                         endpointBuilder << "]";
                     }
                     endpointBuilder << ":" << endpoint.port();
-                    TStringType endpointString = std::move(endpointBuilder);
+                    std::string endpointString = std::move(endpointBuilder);
                     records.emplace_back(std::move(endpointString), loadFactor, getIpSslTargetNameOverride(), nodeId);
                     addDefault = false;
                 }
@@ -93,8 +93,8 @@ std::pair<NThreading::TFuture<TEndpointUpdateResult>, bool> TEndpointPool::Updat
                     if (addr.empty()) {
                         continue;
                     }
-                    TStringType endpointString =
-                        TStringBuilder()
+                    std::string endpointString =
+                        NUtils::TYdbStringBuilder()
                             << "ipv4:"
                             << addr
                             << ":"
@@ -103,8 +103,8 @@ std::pair<NThreading::TFuture<TEndpointUpdateResult>, bool> TEndpointPool::Updat
                     addDefault = false;
                 }
                 if (addDefault) {
-                    TStringType endpointString =
-                        TStringBuilder()
+                    std::string endpointString =
+                        NUtils::TYdbStringBuilder()
                             << endpoint.address()
                             << ":"
                             << endpoint.port();

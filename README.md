@@ -8,6 +8,7 @@
 - ninja 1.10+
 - ragel
 - yasm
+- protoc
 
 ## Runtime Requirements
 
@@ -17,7 +18,9 @@
 ## Install dependencies
 
 ```bash
-sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm
+sudo apt-get -y update
+sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
+  protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh
@@ -69,5 +72,5 @@ cmake -G Ninja -DCMAKE_BUILD_TYPE=Release \
 
 ```bash
 cd build
-ninja client/all examples/all
+ninja
 ```

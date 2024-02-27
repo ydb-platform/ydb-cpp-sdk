@@ -43,23 +43,23 @@ namespace NMonitoring {
 
     class IMonPage: public TAtomicRefCount<IMonPage> {
     public:
-        const TString Path;
-        const TString Title;
+        const std::string Path;
+        const std::string Title;
         const IMonPage* Parent = nullptr;
 
     public:
-        IMonPage(const TString& path, const TString& title = TString());
+        IMonPage(const std::string& path, const std::string& title = std::string());
 
         virtual ~IMonPage() {
         }
 
         void OutputNavBar(IOutputStream& out);
 
-        virtual const TString& GetPath() const {
+        virtual const std::string& GetPath() const {
             return Path;
         }
 
-        virtual const TString& GetTitle() const {
+        virtual const std::string& GetTitle() const {
             return Title;
         }
 

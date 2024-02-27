@@ -63,7 +63,7 @@ struct TEnumTraitsWithKnownDomain<T, true>
 {
     static constexpr int GetDomainSize();
 
-    static constexpr const std::array<TStringBuf, GetDomainSize()>& GetDomainNames();
+    static constexpr const std::array<std::string_view, GetDomainSize()>& GetDomainNames();
     static constexpr const std::array<T, GetDomainSize()>& GetDomainValues();
 
     // For non-bit enums only.
@@ -86,13 +86,13 @@ struct TEnumTraits<T, true>
     static constexpr bool IsStringSerializableEnum = TEnumTraitsImpl<T>::IsStringSerializableEnum;
     static constexpr bool IsMonotonic = TEnumTraitsImpl<T>::IsMonotonic;
 
-    static TStringBuf GetTypeName();
+    static std::string_view GetTypeName();
 
-    static std::optional<TStringBuf> FindLiteralByValue(T value);
-    static std::optional<T> FindValueByLiteral(TStringBuf literal);
+    static std::optional<std::string_view> FindLiteralByValue(T value);
+    static std::optional<T> FindValueByLiteral(std::string_view literal);
 
-    static TString ToString(T value);
-    static T FromString(TStringBuf literal);
+    static std::string ToString(T value);
+    static T FromString(std::string_view literal);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

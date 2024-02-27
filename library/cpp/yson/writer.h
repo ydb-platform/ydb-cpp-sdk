@@ -31,7 +31,7 @@ namespace NYson {
             EYsonType type = ::NYson::EYsonType::Node,
             bool enableRaw = false);
 
-        void OnStringScalar(TStringBuf value) override;
+        void OnStringScalar(std::string_view value) override;
         void OnInt64Scalar(i64 value) override;
         void OnUint64Scalar(ui64 value) override;
         void OnDoubleScalar(double value) override;
@@ -43,13 +43,13 @@ namespace NYson {
         void OnEndList() override;
 
         void OnBeginMap() override;
-        void OnKeyedItem(TStringBuf key) override;
+        void OnKeyedItem(std::string_view key) override;
         void OnEndMap() override;
 
         void OnBeginAttributes() override;
         void OnEndAttributes() override;
 
-        void OnRaw(TStringBuf yson, EYsonType type = ::NYson::EYsonType::Node) override;
+        void OnRaw(std::string_view yson, EYsonType type = ::NYson::EYsonType::Node) override;
 
         TState State() const;
         void Reset(const TState& state);
@@ -66,7 +66,7 @@ namespace NYson {
         static const int IndentSize = 4;
 
         void WriteIndent();
-        void WriteStringScalar(const TStringBuf& value);
+        void WriteStringScalar(const std::string_view& value);
 
         void BeginCollection(ETokenType beginToken);
         void CollectionItem(ETokenType separatorToken);

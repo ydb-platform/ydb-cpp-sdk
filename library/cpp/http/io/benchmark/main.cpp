@@ -17,7 +17,7 @@ void FindHeaderFirstMatch(benchmark::State& state) {
 void FindHeaderNoMatchSameSize(benchmark::State& state) {
     THttpHeaders headers;
     for (char c = 'a'; c <= 'z'; ++c) {
-        headers.AddHeader(TString::Join(c, "aaa"), "some value");
+        headers.AddHeader(std::string::Join(c, "aaa"), "some value");
     }
     Y_ENSURE(!headers.FindHeader("Host"));
     for (auto _ : state) {
@@ -51,7 +51,7 @@ void FindHeaderNoMatchDifferentSizesCommonPrefix(benchmark::State& state) {
 }
 
 void FindHeaderMoreRealisticUseCase(benchmark::State& state) {
-    TString requestHeaders(R"(Host: yandex.ru
+    std::string requestHeaders(R"(Host: yandex.ru
 User-Agent: Mozilla/5.0 ...
 Accept: */*
 Accept-Language: en-US,en;q=0.5
@@ -65,7 +65,7 @@ Sec-Fetch-Dest: empty
 Sec-Fetch-Mode: no-cors
 Sec-Fetch-Site: cross-site
 TE: trailers)");
-    TStringInput stream(requestHeaders);
+    std::stringInput stream(requestHeaders);
     THttpHeaders headers(&stream);
     Y_ENSURE(headers.FindHeader("Content-Type"));
     for (auto _ : state) {

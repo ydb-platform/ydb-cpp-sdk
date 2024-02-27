@@ -1,6 +1,7 @@
 #include "counters.h"
 
 #include <library/cpp/monlib/service/pages/templates.h>
+#include <library/cpp/string_builder/string_builder.h>
 
 #include <util/generic/cast.h>
 
@@ -44,7 +45,7 @@ namespace {
     }
 }
 
-static constexpr TStringBuf INDENT = "    ";
+static constexpr std::string_view INDENT = "    ";
 
 TDynamicCounters::TDynamicCounters(EVisibility vis)
 {
@@ -54,59 +55,59 @@ TDynamicCounters::TDynamicCounters(EVisibility vis)
 TDynamicCounters::~TDynamicCounters() {
 }
 
-TDynamicCounters::TCounterPtr TDynamicCounters::GetExpiringCounter(const TString& value, bool derivative, EVisibility vis) {
+TDynamicCounters::TCounterPtr TDynamicCounters::GetExpiringCounter(const std::string& value, bool derivative, EVisibility vis) {
     return GetExpiringNamedCounter("sensor", value, derivative, vis);
 }
 
-TDynamicCounters::TCounterPtr TDynamicCounters::GetExpiringNamedCounter(const TString& name, const TString& value, bool derivative, EVisibility vis) {
+TDynamicCounters::TCounterPtr TDynamicCounters::GetExpiringNamedCounter(const std::string& name, const std::string& value, bool derivative, EVisibility vis) {
     return AsCounterRef(GetNamedCounterImpl<true, TExpiringCounter>(name, value, derivative, vis));
 }
 
-TDynamicCounters::TCounterPtr TDynamicCounters::GetCounter(const TString& value, bool derivative, EVisibility vis) {
+TDynamicCounters::TCounterPtr TDynamicCounters::GetCounter(const std::string& value, bool derivative, EVisibility vis) {
     return GetNamedCounter("sensor", value, derivative, vis);
 }
 
-TDynamicCounters::TCounterPtr TDynamicCounters::GetNamedCounter(const TString& name, const TString& value, bool derivative, EVisibility vis) {
+TDynamicCounters::TCounterPtr TDynamicCounters::GetNamedCounter(const std::string& name, const std::string& value, bool derivative, EVisibility vis) {
     return AsCounterRef(GetNamedCounterImpl<false, TCounterForPtr>(name, value, derivative, vis));
 }
 
-THistogramPtr TDynamicCounters::GetHistogram(const TString& value, IHistogramCollectorPtr collector, bool derivative, EVisibility vis) {
+THistogramPtr TDynamicCounters::GetHistogram(const std::string& value, IHistogramCollectorPtr collector, bool derivative, EVisibility vis) {
     return GetNamedHistogram("sensor", value, std::move(collector), derivative, vis);
 }
 
-THistogramPtr TDynamicCounters::GetNamedHistogram(const TString& name, const TString& value, IHistogramCollectorPtr collector, bool derivative, EVisibility vis) {
+THistogramPtr TDynamicCounters::GetNamedHistogram(const std::string& name, const std::string& value, IHistogramCollectorPtr collector, bool derivative, EVisibility vis) {
     return AsHistogramRef(GetNamedCounterImpl<false, THistogramCounter>(name, value, std::move(collector), derivative, vis));
 }
 
-THistogramPtr TDynamicCounters::GetExpiringHistogram(const TString& value, IHistogramCollectorPtr collector, bool derivative, EVisibility vis) {
+THistogramPtr TDynamicCounters::GetExpiringHistogram(const std::string& value, IHistogramCollectorPtr collector, bool derivative, EVisibility vis) {
     return GetExpiringNamedHistogram("sensor", value, std::move(collector), derivative, vis);
 }
 
-THistogramPtr TDynamicCounters::GetExpiringNamedHistogram(const TString& name, const TString& value, IHistogramCollectorPtr collector, bool derivative, EVisibility vis) {
+THistogramPtr TDynamicCounters::GetExpiringNamedHistogram(const std::string& name, const std::string& value, IHistogramCollectorPtr collector, bool derivative, EVisibility vis) {
     return AsHistogramRef(GetNamedCounterImpl<true, TExpiringHistogramCounter>(name, value, std::move(collector), derivative, vis));
 }
 
-TDynamicCounters::TCounterPtr TDynamicCounters::FindCounter(const TString& value) const {
+TDynamicCounters::TCounterPtr TDynamicCounters::FindCounter(const std::string& value) const {
     return FindNamedCounter("sensor", value);
 }
 
-TDynamicCounters::TCounterPtr TDynamicCounters::FindNamedCounter(const TString& name, const TString& value) const {
+TDynamicCounters::TCounterPtr TDynamicCounters::FindNamedCounter(const std::string& name, const std::string& value) const {
     return AsCounterRef(FindNamedCounterImpl<TCounterForPtr>(name, value));
 }
 
-THistogramPtr TDynamicCounters::FindHistogram(const TString& value) const {
+THistogramPtr TDynamicCounters::FindHistogram(const std::string& value) const {
     return FindNamedHistogram("sensor", value);
 }
 
-THistogramPtr TDynamicCounters::FindNamedHistogram(const TString& name,const TString& value) const {
+THistogramPtr TDynamicCounters::FindNamedHistogram(const std::string& name,const std::string& value) const {
     return AsHistogramRef(FindNamedCounterImpl<THistogramCounter>(name, value));
 }
 
-void TDynamicCounters::RemoveCounter(const TString &value) {
+void TDynamicCounters::RemoveCounter(const std::string &value) {
     RemoveNamedCounter("sensor", value);
 }
 
-bool TDynamicCounters::RemoveNamedCounter(const TString& name, const TString &value) {
+bool TDynamicCounters::RemoveNamedCounter(const std::string& name, const std::string &value) {
     auto g = LockForUpdate("RemoveNamedCounter", name, value);
     if (const auto it = Counters.find({name, value}); it != Counters.end() && AsCounter(it->second)) {
         Counters.erase(it);
@@ -114,7 +115,7 @@ bool TDynamicCounters::RemoveNamedCounter(const TString& name, const TString &va
     return Counters.empty();
 }
 
-void TDynamicCounters::RemoveSubgroupChain(const std::vector<std::pair<TString, TString>>& chain) {
+void TDynamicCounters::RemoveSubgroupChain(const std::vector<std::pair<std::string, std::string>>& chain) {
     std::vector<TIntrusivePtr<TDynamicCounters>> basePointers;
     basePointers.push_back(this);
     for (size_t i = 0; i < chain.size() - 1; ++i) {
@@ -126,7 +127,7 @@ void TDynamicCounters::RemoveSubgroupChain(const std::vector<std::pair<TString, 
     for (size_t i = chain.size(); i-- && basePointers[i]->RemoveSubgroup(chain[i].first, chain[i].second); ) {}
 }
 
-TIntrusivePtr<TDynamicCounters> TDynamicCounters::GetSubgroup(const TString& name, const TString& value) {
+TIntrusivePtr<TDynamicCounters> TDynamicCounters::GetSubgroup(const std::string& name, const std::string& value) {
     auto res = FindSubgroup(name, value);
     if (!res) {
         auto g = LockForUpdate("GetSubgroup", name, value);
@@ -141,13 +142,13 @@ TIntrusivePtr<TDynamicCounters> TDynamicCounters::GetSubgroup(const TString& nam
     return res;
 }
 
-TIntrusivePtr<TDynamicCounters> TDynamicCounters::FindSubgroup(const TString& name, const TString& value) const {
+TIntrusivePtr<TDynamicCounters> TDynamicCounters::FindSubgroup(const std::string& name, const std::string& value) const {
     TReadGuard g(Lock);
     const auto it = Counters.find({name, value});
     return it != Counters.end() ? AsDynamicCounters(it->second) : nullptr;
 }
 
-bool TDynamicCounters::RemoveSubgroup(const TString& name, const TString& value) {
+bool TDynamicCounters::RemoveSubgroup(const std::string& name, const std::string& value) {
     auto g = LockForUpdate("RemoveSubgroup", name, value);
     if (const auto it = Counters.find({name, value}); it != Counters.end() && AsDynamicCounters(it->second)) {
         Counters.erase(it);
@@ -155,14 +156,14 @@ bool TDynamicCounters::RemoveSubgroup(const TString& name, const TString& value)
     return Counters.empty();
 }
 
-void TDynamicCounters::ReplaceSubgroup(const TString& name, const TString& value, TIntrusivePtr<TDynamicCounters> subgroup) {
+void TDynamicCounters::ReplaceSubgroup(const std::string& name, const std::string& value, TIntrusivePtr<TDynamicCounters> subgroup) {
     auto g = LockForUpdate("ReplaceSubgroup", name, value);
     const auto it = Counters.find({name, value});
     Y_ABORT_UNLESS(it != Counters.end() && AsDynamicCounters(it->second));
     it->second = std::move(subgroup);
 }
 
-void TDynamicCounters::MergeWithSubgroup(const TString& name, const TString& value) {
+void TDynamicCounters::MergeWithSubgroup(const std::string& name, const std::string& value) {
     auto g = LockForUpdate("MergeWithSubgroup", name, value);
     auto it = Counters.find({name, value});
     Y_ABORT_UNLESS(it != Counters.end());
@@ -186,14 +187,14 @@ void TDynamicCounters::ResetCounters(bool derivOnly) {
     }
 }
 
-void TDynamicCounters::RegisterCountable(const TString& name, const TString& value, TCountablePtr countable) {
+void TDynamicCounters::RegisterCountable(const std::string& name, const std::string& value, TCountablePtr countable) {
     Y_ABORT_UNLESS(countable);
     auto g = LockForUpdate("RegisterCountable", name, value);
     const bool inserted = Counters.emplace(TChildId(name, value), std::move(countable)).second;
     Y_ABORT_UNLESS(inserted);
 }
 
-void TDynamicCounters::RegisterSubgroup(const TString& name, const TString& value, TIntrusivePtr<TDynamicCounters> subgroup) {
+void TDynamicCounters::RegisterSubgroup(const std::string& name, const std::string& value, TIntrusivePtr<TDynamicCounters> subgroup) {
     RegisterCountable(name, value, subgroup);
 }
 
@@ -205,7 +206,7 @@ void TDynamicCounters::OutputHtml(IOutputStream& os) const {
     }
 }
 
-void TDynamicCounters::EnumerateSubgroups(const std::function<void(const TString& name, const TString& value)>& output) const {
+void TDynamicCounters::EnumerateSubgroups(const std::function<void(const std::string& name, const std::string& value)>& output) const {
     TReadGuard g(Lock);
     for (const auto& [key, value] : Counters) {
         if (AsDynamicCounters(value)) {
@@ -214,7 +215,7 @@ void TDynamicCounters::EnumerateSubgroups(const std::function<void(const TString
     }
 }
 
-void TDynamicCounters::OutputPlainText(IOutputStream& os, const TString& indent) const {
+void TDynamicCounters::OutputPlainText(IOutputStream& os, const std::string& indent) const {
     auto snap = ReadSnapshot();
     // mark private records in plain text output
     auto outputVisibilityMarker = [] (EVisibility vis) {
@@ -237,10 +238,10 @@ void TDynamicCounters::OutputPlainText(IOutputStream& os, const TString& indent)
 
             auto snapshot = histogram->Snapshot();
             for (ui32 i = 0, count = snapshot->Count(); i < count; i++) {
-                os << indent << INDENT << TStringBuf("bin=");
+                os << indent << INDENT << std::string_view("bin=");
                 TBucketBound bound = snapshot->UpperBound(i);
                 if (bound == Max<TBucketBound>()) {
-                    os << TStringBuf("inf");
+                    os << std::string_view("inf");
                 } else {
                    os << bound;
                 }
@@ -253,12 +254,12 @@ void TDynamicCounters::OutputPlainText(IOutputStream& os, const TString& indent)
         if (const auto subgroup = AsDynamicCounters(value)) {
             os << "\n";
             os << indent << key.LabelName << "=" << key.LabelValue << ":\n";
-            subgroup->OutputPlainText(os, indent + INDENT);
+            subgroup->OutputPlainText(os, NUtils::TYdbStringBuilder() << indent << INDENT);
         }
     }
 }
 
-void TDynamicCounters::Accept(const TString& labelName, const TString& labelValue, ICountableConsumer& consumer) const {
+void TDynamicCounters::Accept(const std::string& labelName, const std::string& labelValue, ICountableConsumer& consumer) const {
     if (!IsVisible(Visibility(), consumer.Visibility())) {
         return;
     }
@@ -291,7 +292,7 @@ void TDynamicCounters::RemoveExpired() const {
 }
 
 template <bool expiring, class TCounterType, class... TArgs>
-TDynamicCounters::TCountablePtr TDynamicCounters::GetNamedCounterImpl(const TString& name, const TString& value, TArgs&&... args) {
+TDynamicCounters::TCountablePtr TDynamicCounters::GetNamedCounterImpl(const std::string& name, const std::string& value, TArgs&&... args) {
     {
         TReadGuard g(Lock);
         auto it = Counters.find({name, value});
@@ -314,7 +315,7 @@ TDynamicCounters::TCountablePtr TDynamicCounters::GetNamedCounterImpl(const TStr
 }
 
 template <class TCounterType>
-TDynamicCounters::TCountablePtr TDynamicCounters::FindNamedCounterImpl(const TString& name, const TString& value) const {
+TDynamicCounters::TCountablePtr TDynamicCounters::FindNamedCounterImpl(const std::string& name, const std::string& value) const {
     TReadGuard g(Lock);
     auto it = Counters.find({name, value});
     return it != Counters.end() ? it->second : nullptr;

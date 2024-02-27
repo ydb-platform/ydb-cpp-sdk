@@ -3,6 +3,7 @@
 #include "grpc_common.h"
 
 #include <library/cpp/deprecated/atomic/atomic.h>
+#include <library/cpp/string_builder/string_builder.h>
 
 #include <util/thread/factory.h>
 #include <util/string/builder.h>
@@ -128,24 +129,24 @@ public:
 
 // Represents grpc status and error message string
 struct TGrpcStatus {
-    TString Msg;
-    TString Details;
+    std::string Msg;
+    std::string Details;
     int GRpcStatusCode;
     bool InternalError;
-    std::multimap<TString, TString> ServerTrailingMetadata;
+    std::multimap<std::string, std::string> ServerTrailingMetadata;
 
     TGrpcStatus()
         : GRpcStatusCode(grpc::StatusCode::OK)
         , InternalError(false)
     { }
 
-    TGrpcStatus(TString msg, int statusCode, bool internalError)
+    TGrpcStatus(std::string msg, int statusCode, bool internalError)
         : Msg(std::move(msg))
         , GRpcStatusCode(statusCode)
         , InternalError(internalError)
     { }
 
-    TGrpcStatus(grpc::StatusCode status, TString msg, TString details = {})
+    TGrpcStatus(grpc::StatusCode status, std::string msg, std::string details = {})
         : Msg(std::move(msg))
         , Details(std::move(details))
         , GRpcStatusCode(status)
@@ -153,18 +154,18 @@ struct TGrpcStatus {
     { }
 
     TGrpcStatus(const grpc::Status& status)
-        : TGrpcStatus(status.error_code(), TString(status.error_message()), TString(status.error_details()))
+        : TGrpcStatus(status.error_code(), std::string(status.error_message()), std::string(status.error_details()))
     { }
 
     TGrpcStatus& operator=(const grpc::Status& status) {
-        Msg = TString(status.error_message());
-        Details = TString(status.error_details());
+        Msg = std::string(status.error_message());
+        Details = std::string(status.error_details());
         GRpcStatusCode = status.error_code();
         InternalError = false;
         return *this;
     }
 
-    static TGrpcStatus Internal(TString msg) {
+    static TGrpcStatus Internal(std::string msg) {
         return { std::move(msg), -1, true };
     }
 
@@ -172,8 +173,8 @@ struct TGrpcStatus {
         return !InternalError && GRpcStatusCode == grpc::StatusCode::OK;
     }
 
-    TStringBuilder ToDebugString() const {
-        TStringBuilder ret;
+    NUtils::TYdbStringBuilder ToDebugString() const {
+        NUtils::TYdbStringBuilder ret;
         ret << "gRpcStatusCode: " << GRpcStatusCode;
         if(!Ok())
             ret << ", Msg: " << Msg << ", Details: " << Details << ", InternalError: " << InternalError;
@@ -196,7 +197,7 @@ using TAdvancedResponseCallback = std::function<void (const grpc::ClientContext&
 // Call associated metadata
 struct TCallMeta {
     std::shared_ptr<grpc::CallCredentials> CallCredentials;
-    std::vector<std::pair<TString, TString>> Aux;
+    std::vector<std::pair<std::string, std::string>> Aux;
     std::variant<TDuration, TInstant> Timeout; // timeout as duration from now or time point in future
 };
 
@@ -223,11 +224,11 @@ protected:
         }
     }
 
-    void GetInitialMetadata(std::unordered_multimap<TString, TString>* metadata) {
+    void GetInitialMetadata(std::unordered_multimap<std::string, std::string>* metadata) {
         for (const auto& [key, value] : Context.GetServerInitialMetadata()) {
             metadata->emplace(
-                TString(key.begin(), key.end()),
-                TString(value.begin(), value.end())
+                std::string(key.begin(), key.end()),
+                std::string(value.begin(), value.end())
             );
         }
     }
@@ -416,7 +417,7 @@ public:
     /**
      * Scheduled initial server metadata read from the stream
      */
-    virtual void ReadInitialMetadata(std::unordered_multimap<TString, TString>* metadata, TReadCallback callback) = 0;
+    virtual void ReadInitialMetadata(std::unordered_multimap<std::string, std::string>* metadata, TReadCallback callback) = 0;
 
     /**
      * Scheduled response read from the stream
@@ -523,17 +524,17 @@ public:
     TChannelPool(const TTcpKeepAliveSettings& tcpKeepAliveSettings, const TDuration& expireTime = TDuration::Minutes(6));
     //Allows to CreateStub from TStubsHolder under lock
     //The callback will be called just during GetStubsHolderLocked call
-    void GetStubsHolderLocked(const TString& channelId, const TGRpcClientConfig& config, std::function<void(TStubsHolder&)> cb);
-    void DeleteChannel(const TString& channelId);
+    void GetStubsHolderLocked(const std::string& channelId, const TGRpcClientConfig& config, std::function<void(TStubsHolder&)> cb);
+    void DeleteChannel(const std::string& channelId);
     void DeleteExpiredStubsHolders();
 private:
     std::shared_mutex RWMutex_;
-    std::unordered_map<TString, TStubsHolder> Pool_;
-    std::multimap<TInstant, TString> LastUsedQueue_;
+    std::unordered_map<std::string, TStubsHolder> Pool_;
+    std::multimap<TInstant, std::string> LastUsedQueue_;
     TTcpKeepAliveSettings TcpKeepAliveSettings_;
     TDuration ExpireTime_;
     TDuration UpdateReUseTime_;
-    void EraseFromQueueByTime(const TInstant& lastUseTime, const TString& channelId);
+    void EraseFromQueueByTime(const TInstant& lastUseTime, const std::string& channelId);
 };
 
 template<class TResponse>
@@ -576,7 +577,7 @@ public:
         }
     }
 
-    void ReadInitialMetadata(std::unordered_multimap<TString, TString>* metadata, TReadCallback callback) override {
+    void ReadInitialMetadata(std::unordered_multimap<std::string, std::string>* metadata, TReadCallback callback) override {
         TGrpcStatus status;
 
         {
@@ -706,7 +707,7 @@ private:
     void OnReadDone(bool ok) {
         TGrpcStatus status;
         TReadCallback callback;
-        std::unordered_multimap<TString, TString>* initialMetadata = nullptr;
+        std::unordered_multimap<std::string, std::string>* initialMetadata = nullptr;
 
         {
             std::unique_lock<std::mutex> guard(Mutex);
@@ -812,8 +813,8 @@ private:
                 status = TGrpcStatus(grpc::StatusCode::OUT_OF_RANGE, "Read EOF");
                 for (const auto& [name, value] : Context.GetServerTrailingMetadata()) {
                     status.ServerTrailingMetadata.emplace(
-                        TString(name.begin(), name.end()),
-                        TString(value.begin(), value.end()));
+                        std::string(name.begin(), name.end()),
+                        std::string(value.begin(), value.end()));
                 }
             }
             readCallback(std::move(status));
@@ -833,7 +834,7 @@ private:
     TReadCallback ReadCallback;
     TReadCallback FinishCallback;
     std::vector<TReadCallback> FinishedCallbacks;
-    std::unordered_multimap<TString, TString>* InitialMetadata = nullptr;
+    std::unordered_multimap<std::string, std::string>* InitialMetadata = nullptr;
     bool Started = false;
     bool HasInitialMetadata = false;
     bool ReadActive = false;
@@ -909,7 +910,7 @@ public:
         }
     }
 
-    void ReadInitialMetadata(std::unordered_multimap<TString, TString>* metadata, TReadCallback callback) override {
+    void ReadInitialMetadata(std::unordered_multimap<std::string, std::string>* metadata, TReadCallback callback) override {
         TGrpcStatus status;
 
         {
@@ -1067,7 +1068,7 @@ private:
     void OnReadDone(bool ok) {
         TGrpcStatus status;
         TReadCallback callback;
-        std::unordered_multimap<TString, TString>* initialMetadata = nullptr;
+        std::unordered_multimap<std::string, std::string>* initialMetadata = nullptr;
 
         {
             std::unique_lock<std::mutex> guard(Mutex);
@@ -1213,8 +1214,8 @@ private:
                 status = TGrpcStatus(grpc::StatusCode::OUT_OF_RANGE, "Read EOF");
                 for (const auto& [name, value] : Context.GetServerTrailingMetadata()) {
                     status.ServerTrailingMetadata.emplace(
-                        TString(name.begin(), name.end()),
-                        TString(value.begin(), value.end()));
+                        std::string(name.begin(), name.end()),
+                        std::string(value.begin(), value.end()));
                 }
             }
             readCallback(std::move(status));
@@ -1246,7 +1247,7 @@ private:
     std::vector<TReadCallback> FinishedCallbacks;
     std::deque<TWriteItem> WriteQueue;
     TWriteCallback WriteCallback;
-    std::unordered_multimap<TString, TString>* InitialMetadata = nullptr;
+    std::unordered_multimap<std::string, std::string>* InitialMetadata = nullptr;
     bool Started = false;
     bool HasInitialMetadata = false;
     bool ReadActive = false;

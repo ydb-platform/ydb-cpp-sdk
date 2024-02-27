@@ -20,13 +20,13 @@ using namespace NYdb::NPersQueue::NTests;
 namespace NYdb::NTopic::NTests {
 
     Y_UNIT_TEST_SUITE(LocalPartition) {
-        std::shared_ptr<TTopicSdkTestSetup> CreateSetup(const TString& testCaseName, ui32 nodeCount = 1) {
+        std::shared_ptr<TTopicSdkTestSetup> CreateSetup(const std::string& testCaseName, ui32 nodeCount = 1) {
             NKikimr::Tests::TServerSettings settings = TTopicSdkTestSetup::MakeServerSettings();
             settings.SetNodeCount(nodeCount);
             return std::make_shared<TTopicSdkTestSetup>(testCaseName, settings);
         }
 
-        NYdb::TDriverConfig CreateConfig(const TTopicSdkTestSetup& setup, TString discoveryAddr)
+        NYdb::TDriverConfig CreateConfig(const TTopicSdkTestSetup& setup, std::string discoveryAddr)
         {
             NYdb::TDriverConfig config = setup.MakeDriverConfig();
             config.SetEndpoint(discoveryAddr);
@@ -90,7 +90,7 @@ namespace NYdb::NTopic::NTests {
         }
 
         template <class TService>
-        std::unique_ptr<grpc::Server> StartGrpcServer(const TString& address, TService& service) {
+        std::unique_ptr<grpc::Server> StartGrpcServer(const std::string& address, TService& service) {
             grpc::ServerBuilder builder;
             builder.AddListeningPort(address, grpc::InsecureServerCredentials());
             builder.RegisterService(&service);
@@ -102,7 +102,7 @@ namespace NYdb::NTopic::NTests {
             TMockDiscoveryService()
             {
                 ui16 discoveryPort = TPortManager().GetPort();
-                DiscoveryAddr = TStringBuilder() << "0.0.0.0:" << discoveryPort;
+                DiscoveryAddr = TYdbStringBuilder() << "0.0.0.0:" << discoveryPort;
                 Cerr << "==== TMockDiscovery server started on port " << discoveryPort << Endl;
                 Server = ::NYdb::NTopic::NTests::NTestSuiteLocalPartition::StartGrpcServer(DiscoveryAddr, *this);
             }
@@ -123,14 +123,14 @@ namespace NYdb::NTopic::NTests {
                 if (nodeCount > 0)
                 {
                     Ydb::Discovery::EndpointInfo* endpoint = MockResults.add_endpoints();
-                    endpoint->set_address(TStringBuilder() << "localhost");
+                    endpoint->set_address(TYdbStringBuilder() << "localhost");
                     endpoint->set_port(port);
                     endpoint->set_node_id(firstNodeId);
                 }
                 if (nodeCount > 1)
                 {
                     Ydb::Discovery::EndpointInfo* endpoint = MockResults.add_endpoints();
-                    endpoint->set_address(TStringBuilder() << "ip6-localhost"); // name should be different
+                    endpoint->set_address(TYdbStringBuilder() << "ip6-localhost"); // name should be different
                     endpoint->set_port(port);
                     endpoint->set_node_id(firstNodeId + 1);
                 }
@@ -167,7 +167,7 @@ namespace NYdb::NTopic::NTests {
                 return grpc::Status::OK;
             }
 
-            TString GetDiscoveryAddr() const {
+            std::string GetDiscoveryAddr() const {
                 return DiscoveryAddr;
             }
 
@@ -177,14 +177,14 @@ namespace NYdb::NTopic::NTests {
 
         private:
             Ydb::Discovery::ListEndpointsResult MockResults;
-            TString DiscoveryAddr = 0;
+            std::string DiscoveryAddr = 0;
             std::unique_ptr<grpc::Server> Server;
             TAdaptiveLock Lock;
 
             TDuration Delay = {};
         };
 
-        auto Start(TString testCaseName, std::shared_ptr<TMockDiscoveryService> mockDiscoveryService = {})
+        auto Start(std::string testCaseName, std::shared_ptr<TMockDiscoveryService> mockDiscoveryService = {})
         {
             struct Result {
                 std::shared_ptr<TTopicSdkTestSetup> Setup;

@@ -24,8 +24,8 @@ public:
     using TDbInfo = Ydb::FederationDiscovery::DatabaseInfo;
 
     TStatus Status;
-    TString ControlPlaneEndpoint;
-    TString SelfLocation;
+    std::string ControlPlaneEndpoint;
+    std::string SelfLocation;
     std::vector<std::shared_ptr<TDbInfo>> DbInfos;
 
 public:

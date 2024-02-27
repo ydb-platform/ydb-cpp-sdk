@@ -1,36 +1,33 @@
 #include "headers.h"
 #include "stream.h"
 
-#include <util/generic/strbuf.h>
-#include <util/generic/yexception.h>
-#include <util/stream/output.h>
-#include <util/string/ascii.h>
-#include <util/string/cast.h>
+#include <library/cpp/string_utils/misc/misc.h>
+#include <library/cpp/string_utils/stream/stream.h>
 #include <util/string/strip.h>
 
-static inline TStringBuf Trim(const char* b, const char* e) noexcept {
-    return StripString(TStringBuf(b, e));
+static inline std::string_view Trim(const char* b, const char* e) noexcept {
+    return StripString(std::string_view(b, e));
 }
 
-static inline bool HeaderNameEqual(TStringBuf headerName, TStringBuf expectedName) noexcept {
+static inline bool HeaderNameEqual(std::string_view headerName, std::string_view expectedName) noexcept {
     // Most headers names have distinct sizes.
     // Size comparison adds small overhead if all headers have the same size (~4% or lower with size = 4),
     // but significantly speeds up the case where sizes are different (~4.5x for expectedName.size() = 4 and headerName.size() = 5)
     return headerName.size() == expectedName.size() && AsciiCompareIgnoreCase(headerName, expectedName) == 0;
 }
 
-THttpInputHeader::THttpInputHeader(const TStringBuf header) {
+THttpInputHeader::THttpInputHeader(const std::string_view header) {
     size_t pos = header.find(':');
 
-    if (pos == TString::npos) {
-        ythrow THttpParseException() << "can not parse http header(" << TString{header}.Quote() << ")";
+    if (pos == std::string::npos) {
+        ythrow THttpParseException() << "can not parse http header(" << NUtils::Quote(header) << ")";
     }
 
-    Name_ = TString(header.cbegin(), header.cbegin() + pos);
+    Name_ = std::string(header.cbegin(), header.cbegin() + pos);
     Value_ = ::ToString(Trim(header.cbegin() + pos + 1, header.cend()));
 }
 
-THttpInputHeader::THttpInputHeader(TString name, TString value)
+THttpInputHeader::THttpInputHeader(std::string name, std::string value)
     : Name_(std::move(name))
     , Value_(std::move(value))
 {
@@ -50,12 +47,12 @@ void THttpInputHeader::OutTo(IOutputStream* stream) const {
 }
 
 THttpHeaders::THttpHeaders(IInputStream* stream) {
-    TString header;
-    TString line;
+    std::string header;
+    std::string line;
 
-    bool rdOk = stream->ReadLine(header);
+    bool rdOk = NUtils::ReadLine(*stream, header);
     while (rdOk && !header.empty()) {
-        rdOk = stream->ReadLine(line);
+        rdOk = NUtils::ReadLine(*stream, line);
 
         if (rdOk && ((line[0] == ' ') || (line[0] == '\t'))) {
             header += line;
@@ -66,11 +63,11 @@ THttpHeaders::THttpHeaders(IInputStream* stream) {
     }
 }
 
-bool THttpHeaders::HasHeader(const TStringBuf header) const {
+bool THttpHeaders::HasHeader(const std::string_view header) const {
     return FindHeader(header);
 }
 
-const THttpInputHeader* THttpHeaders::FindHeader(const TStringBuf header) const {
+const THttpInputHeader* THttpHeaders::FindHeader(const std::string_view header) const {
     for (const auto& hdr : Headers_) {
         if (HeaderNameEqual(hdr.Name(), header)) {
             return &hdr;
@@ -79,7 +76,7 @@ const THttpInputHeader* THttpHeaders::FindHeader(const TStringBuf header) const 
     return nullptr;
 }
 
-void THttpHeaders::RemoveHeader(const TStringBuf header) {
+void THttpHeaders::RemoveHeader(const std::string_view header) {
     for (auto h = Headers_.begin(); h != Headers_.end(); ++h) {
         if (HeaderNameEqual(h->Name(), header)) {
             Headers_.erase(h);
@@ -89,7 +86,7 @@ void THttpHeaders::RemoveHeader(const TStringBuf header) {
 }
 
 void THttpHeaders::AddOrReplaceHeader(const THttpInputHeader& header) {
-    TStringBuf name = header.Name();
+    std::string_view name = header.Name();
     for (auto& hdr : Headers_) {
         if (HeaderNameEqual(hdr.Name(), name)) {
             hdr = header;

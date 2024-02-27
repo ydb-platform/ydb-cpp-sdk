@@ -37,7 +37,7 @@ namespace {
         }
 
         // From database name to result
-        THashMap<TString, Ydb::Discovery::ListEndpointsResult> MockResults;
+        THashMap<std::string, Ydb::Discovery::ListEndpointsResult> MockResults;
     };
 
     class TMockCoordinationService : public Ydb::Coordination::V1::CoordinationService::Service {
@@ -97,7 +97,7 @@ namespace {
     };
 
     template<class TService>
-    std::unique_ptr<grpc::Server> StartGrpcServer(const TString& address, TService& service) {
+    std::unique_ptr<grpc::Server> StartGrpcServer(const std::string& address, TService& service) {
         grpc::ServerBuilder builder;
         builder.AddListeningPort(address, grpc::InsecureServerCredentials());
         builder.RegisterService(&service);
@@ -134,11 +134,11 @@ Y_UNIT_TEST_SUITE(Coordination) {
 
         // Start our mock discovery service
         ui16 discoveryPort = pm.GetPort();
-        TString discoveryAddr = TStringBuilder() << "0.0.0.0:" << discoveryPort;
+        std::string discoveryAddr = TYdbStringBuilder() << "0.0.0.0:" << discoveryPort;
         auto discoveryServer = StartGrpcServer(discoveryAddr, discoveryService);
 
         auto config = TDriverConfig()
-            .SetEndpoint(TStringBuilder() << "localhost:" << discoveryPort)
+            .SetEndpoint(TYdbStringBuilder() << "localhost:" << discoveryPort)
             .SetDatabase("/Root/My/DB");
         TDriver driver(config);
         TClient client(driver);
@@ -168,7 +168,7 @@ Y_UNIT_TEST_SUITE(Coordination) {
         TMockCoordinationService coordinationService;
         ui16 coordinationPort = pm.GetPort();
         auto coordinationServer = StartGrpcServer(
-                TStringBuilder() << "0.0.0.0:" << coordinationPort,
+                TYdbStringBuilder() << "0.0.0.0:" << coordinationPort,
                 coordinationService);
 
         // Fill a fake discovery service
@@ -183,12 +183,12 @@ Y_UNIT_TEST_SUITE(Coordination) {
         // Start a fake discovery service
         ui16 discoveryPort = pm.GetPort();
         auto discoveryServer = StartGrpcServer(
-                TStringBuilder() << "0.0.0.0:" << discoveryPort,
+                TYdbStringBuilder() << "0.0.0.0:" << discoveryPort,
                 discoveryService);
 
         // Create a driver and a client
         auto config = TDriverConfig()
-            .SetEndpoint(TStringBuilder() << "localhost:" << discoveryPort)
+            .SetEndpoint(TYdbStringBuilder() << "localhost:" << discoveryPort)
             .SetDatabase("/Root/My/DB");
         TDriver driver(config);
         TClient client(driver);
@@ -232,7 +232,7 @@ Y_UNIT_TEST_SUITE(Coordination) {
         TMockCoordinationService coordinationService;
         ui16 coordinationPort = pm.GetPort();
         auto coordinationServer = StartGrpcServer(
-                TStringBuilder() << "0.0.0.0:" << coordinationPort,
+                TYdbStringBuilder() << "0.0.0.0:" << coordinationPort,
                 coordinationService);
 
         // Fill a fake discovery service
@@ -247,12 +247,12 @@ Y_UNIT_TEST_SUITE(Coordination) {
         // Start a fake discovery service
         ui16 discoveryPort = pm.GetPort();
         auto discoveryServer = StartGrpcServer(
-                TStringBuilder() << "0.0.0.0:" << discoveryPort,
+                TYdbStringBuilder() << "0.0.0.0:" << discoveryPort,
                 discoveryService);
 
         // Create a driver and a client
         auto config = TDriverConfig()
-            .SetEndpoint(TStringBuilder() << "localhost:" << discoveryPort)
+            .SetEndpoint(TYdbStringBuilder() << "localhost:" << discoveryPort)
             .SetDatabase("/Root/My/DB");
         std::optional<TDriver> driver(std::in_place, config);
         std::optional<TClient> client(std::in_place, *driver);

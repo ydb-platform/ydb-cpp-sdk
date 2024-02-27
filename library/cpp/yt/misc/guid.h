@@ -68,17 +68,17 @@ struct TGuid
     //! Creates a new instance.
     static TGuid Create();
 
-    //! Parses guid from TStringBuf, throws an exception if something went wrong.
-    static TGuid FromString(TStringBuf str);
+    //! Parses guid from std::string_view, throws an exception if something went wrong.
+    static TGuid FromString(std::string_view str);
 
-    //! Parses guid from TStringBuf, returns |true| if everything was ok.
-    static bool FromString(TStringBuf str, TGuid* guid);
+    //! Parses guid from std::string_view, returns |true| if everything was ok.
+    static bool FromString(std::string_view str, TGuid* guid);
 
     //! Same as FromString, but expects exactly 32 hex digits without dashes.
-    static TGuid FromStringHex32(TStringBuf str);
+    static TGuid FromStringHex32(std::string_view str);
 
     //! Same as TryFromString, but expects exactly 32 hex digits without dashes.
-    static bool FromStringHex32(TStringBuf str, TGuid* guid);
+    static bool FromStringHex32(std::string_view str, TGuid* guid);
 };
 
 bool operator == (TGuid lhs, TGuid rhs) noexcept;
@@ -91,12 +91,12 @@ char* WriteGuidToBuffer(char* ptr, TGuid value);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//! Enables TGuid-to-TStringBuf conversion without allocation.
+//! Enables TGuid-to-std::string_view conversion without allocation.
 class TFormattableGuid
 {
 public:
     explicit TFormattableGuid(TGuid guid);
-    TStringBuf ToStringBuf() const;
+    std::string_view ToStringBuf() const;
 
 private:
     std::array<char, MaxGuidStringSize> Buffer_;

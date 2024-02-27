@@ -54,21 +54,21 @@ public:
     i64 GetActiveSessionsLimit() const;
     i64 GetCurrentPoolSize() const;
     TAsyncCreateSessionResult CreateSession(const TCreateSessionSettings& settings, bool standalone,
-        TString preferredLocation = TString());
+        std::string preferredLocation = std::string());
     TAsyncKeepAliveResult KeepAlive(const TSession::TImpl* session, const TKeepAliveSettings& settings);
 
     TFuture<TStatus> CreateTable(Ydb::Table::CreateTableRequest&& request, const TCreateTableSettings& settings);
     TFuture<TStatus> AlterTable(Ydb::Table::AlterTableRequest&& request, const TAlterTableSettings& settings);
     TAsyncOperation AlterTableLong(Ydb::Table::AlterTableRequest&& request, const TAlterTableSettings& settings);
-    TFuture<TStatus> CopyTable(const TString& sessionId, const TString& src, const TString& dst,
+    TFuture<TStatus> CopyTable(const std::string& sessionId, const std::string& src, const std::string& dst,
         const TCopyTableSettings& settings);
     TFuture<TStatus> CopyTables(Ydb::Table::CopyTablesRequest&& request, const TCopyTablesSettings& settings);
     TFuture<TStatus> RenameTables(Ydb::Table::RenameTablesRequest&& request, const TRenameTablesSettings& settings);
-    TFuture<TStatus> DropTable(const TString& sessionId, const TString& path, const TDropTableSettings& settings);
-    TAsyncDescribeTableResult DescribeTable(const TString& sessionId, const TString& path, const TDescribeTableSettings& settings);
+    TFuture<TStatus> DropTable(const std::string& sessionId, const std::string& path, const TDropTableSettings& settings);
+    TAsyncDescribeTableResult DescribeTable(const std::string& sessionId, const std::string& path, const TDescribeTableSettings& settings);
 
     template<typename TParamsType>
-    TAsyncDataQueryResult ExecuteDataQuery(TSession& session, const TString& query, const TTxControl& txControl,
+    TAsyncDataQueryResult ExecuteDataQuery(TSession& session, const std::string& query, const TTxControl& txControl,
         TParamsType params, const TExecDataQuerySettings& settings) {
         auto maybeQuery = session.SessionImpl_->GetQueryFromCache(query, Settings_.AllowRequestMigration_);
         if (maybeQuery) {
@@ -87,7 +87,7 @@ public:
     TAsyncDataQueryResult ExecuteDataQuery(TSession& session, const TDataQuery& dataQuery, const TTxControl& txControl,
         TParamsType params, const TExecDataQuerySettings& settings,
         bool fromCache) {
-        TString queryKey = dataQuery.Impl_->GetTextHash();
+        std::string queryKey = dataQuery.Impl_->GetTextHash();
         auto cb = [queryKey](const TDataQueryResult& result, TKqpSessionCommon& session) {
             if (result.GetStatus() == EStatus::NOT_FOUND) {
                 static_cast<TSession::TImpl&>(session).InvalidateQueryInCache(queryKey);
@@ -102,9 +102,9 @@ public:
             cb);
     }
 
-    TAsyncPrepareQueryResult PrepareDataQuery(const TSession& session, const TString& query,
+    TAsyncPrepareQueryResult PrepareDataQuery(const TSession& session, const std::string& query,
         const TPrepareDataQuerySettings& settings);
-    TAsyncStatus ExecuteSchemeQuery(const TString& sessionId, const TString& query,
+    TAsyncStatus ExecuteSchemeQuery(const std::string& sessionId, const std::string& query,
         const TExecSchemeQuerySettings& settings);
 
     TAsyncBeginTransactionResult BeginTransaction(const TSession& session, const TTxSettings& txSettings,
@@ -114,16 +114,16 @@ public:
     TAsyncStatus RollbackTransaction(const TSession& session, const TTransaction& tx,
         const TRollbackTxSettings& settings);
 
-    TAsyncExplainDataQueryResult ExplainDataQuery(const TSession& session, const TString& query,
+    TAsyncExplainDataQueryResult ExplainDataQuery(const TSession& session, const std::string& query,
         const TExplainDataQuerySettings& settings);
 
     static void SetTypedValue(Ydb::TypedValue* protoValue, const TValue& value);
 
     NThreading::TFuture<std::pair<TPlainStatus, TReadTableStreamProcessorPtr>> ReadTable(
-        const TString& sessionId,
-        const TString& path,
+        const std::string& sessionId,
+        const std::string& path,
         const TReadTableSettings& settings);
-    TAsyncReadRowsResult ReadRows(const TString& path, TValue&& keys, const std::vector<TString>& columns, const TReadRowsSettings& settings);
+    TAsyncReadRowsResult ReadRows(const std::string& path, TValue&& keys, const std::vector<std::string>& columns, const TReadRowsSettings& settings);
 
     TAsyncStatus Close(const TKqpSessionCommon* sessionImpl, const TCloseSessionSettings& settings);
     TAsyncStatus CloseInternal(const TKqpSessionCommon* sessionImpl);
@@ -134,15 +134,15 @@ public:
 
     void SetStatCollector(const NSdkStats::TStatCollector::TClientStatCollector& collector);
 
-    TAsyncBulkUpsertResult BulkUpsert(const TString& table, TValue&& rows, const TBulkUpsertSettings& settings);
-    TAsyncBulkUpsertResult BulkUpsert(const TString& table, EDataFormat format,
-        const TString& data, const TString& schema, const TBulkUpsertSettings& settings);
+    TAsyncBulkUpsertResult BulkUpsert(const std::string& table, TValue&& rows, const TBulkUpsertSettings& settings);
+    TAsyncBulkUpsertResult BulkUpsert(const std::string& table, EDataFormat format,
+        const std::string& data, const std::string& schema, const TBulkUpsertSettings& settings);
 
-    TFuture<std::pair<TPlainStatus, TScanQueryProcessorPtr>> StreamExecuteScanQueryInternal(const TString& query,
-        const ::google::protobuf::Map<TString, Ydb::TypedValue>* params,
+    TFuture<std::pair<TPlainStatus, TScanQueryProcessorPtr>> StreamExecuteScanQueryInternal(const std::string& query,
+        const ::google::protobuf::Map<std::string, Ydb::TypedValue>* params,
         const TStreamExecScanQuerySettings& settings);
-    TAsyncScanQueryPartIterator StreamExecuteScanQuery(const TString& query,
-        const ::google::protobuf::Map<TString, Ydb::TypedValue>* params,
+    TAsyncScanQueryPartIterator StreamExecuteScanQuery(const std::string& query,
+        const ::google::protobuf::Map<std::string, Ydb::TypedValue>* params,
         const TStreamExecScanQuerySettings& settings);
     void CollectRetryStatAsync(EStatus status);
     void CollectRetryStatSync(EStatus status);
@@ -152,22 +152,22 @@ public:
 
 private:
     static void SetParams(
-        ::google::protobuf::Map<TString, Ydb::TypedValue>* params,
+        ::google::protobuf::Map<std::string, Ydb::TypedValue>* params,
         Ydb::Table::ExecuteDataQueryRequest* request);
 
     static void SetParams(
-        const ::google::protobuf::Map<TString, Ydb::TypedValue>& params,
+        const ::google::protobuf::Map<std::string, Ydb::TypedValue>& params,
         Ydb::Table::ExecuteDataQueryRequest* request);
 
     static void CollectParams(
-        ::google::protobuf::Map<TString, Ydb::TypedValue>* params,
+        ::google::protobuf::Map<std::string, Ydb::TypedValue>* params,
         NSdkStats::TAtomicHistogram<::NMonitoring::THistogram> histgoram);
 
     static void CollectParams(
-        const ::google::protobuf::Map<TString, Ydb::TypedValue>& params,
+        const ::google::protobuf::Map<std::string, Ydb::TypedValue>& params,
         NSdkStats::TAtomicHistogram<::NMonitoring::THistogram> histgoram);
 
-    static void CollectQuerySize(const TString& query, NSdkStats::TAtomicHistogram<::NMonitoring::THistogram>& querySizeHistogram);
+    static void CollectQuerySize(const std::string& query, NSdkStats::TAtomicHistogram<::NMonitoring::THistogram>& querySizeHistogram);
 
     static void CollectQuerySize(const TDataQuery&, NSdkStats::TAtomicHistogram<::NMonitoring::THistogram>&);
 
@@ -220,7 +220,7 @@ private:
                     Ydb::Table::ExecuteQueryResult result;
                     any->UnpackTo(&result);
 
-                    for (size_t i = 0; i < result.result_setsSize(); i++) {
+                    for (size_t i = 0; i < result.result_sets_size(); i++) {
                         res.push_back(TResultSet(*result.mutable_result_sets(i)));
                     }
 
@@ -267,19 +267,19 @@ private:
 
     static void SetTxSettings(const TTxSettings& txSettings, Ydb::Table::TransactionSettings* proto);
 
-    static void SetQuery(const TString& queryText, Ydb::Table::Query* query);
+    static void SetQuery(const std::string& queryText, Ydb::Table::Query* query);
 
     static void SetQuery(const TDataQuery& queryData, Ydb::Table::Query* query);
 
-    static void SetQueryCachePolicy(const TString&, const TExecDataQuerySettings& settings,
+    static void SetQueryCachePolicy(const std::string&, const TExecDataQuerySettings& settings,
         Ydb::Table::QueryCachePolicy* queryCachePolicy);
 
     static void SetQueryCachePolicy(const TDataQuery&, const TExecDataQuerySettings& settings,
         Ydb::Table::QueryCachePolicy* queryCachePolicy);
 
-    static std::optional<TString> GetQueryText(const TString& queryText);
+    static std::optional<std::string> GetQueryText(const std::string& queryText);
 
-    static std::optional<TString> GetQueryText(const TDataQuery& queryData);
+    static std::optional<std::string> GetQueryText(const TDataQuery& queryData);
 
 public:
     NSdkStats::TAtomicCounter<::NMonitoring::TRate> CacheMissCounter;

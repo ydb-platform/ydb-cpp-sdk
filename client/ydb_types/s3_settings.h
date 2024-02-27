@@ -18,11 +18,11 @@ template <typename TDerived>
 struct TS3Settings {
     using TSelf = TDerived;
 
-    FLUENT_SETTING(TString, Endpoint);
+    FLUENT_SETTING(std::string, Endpoint);
     FLUENT_SETTING_DEFAULT(ES3Scheme, Scheme, ES3Scheme::HTTPS);
-    FLUENT_SETTING(TString, Bucket);
-    FLUENT_SETTING(TString, AccessKey);
-    FLUENT_SETTING(TString, SecretKey);
+    FLUENT_SETTING(std::string, Bucket);
+    FLUENT_SETTING(std::string, AccessKey);
+    FLUENT_SETTING(std::string, SecretKey);
 };
 
 } // namespace NYdb

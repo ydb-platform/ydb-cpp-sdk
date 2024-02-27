@@ -4,9 +4,6 @@
 #include <util/datetime/base.h>
 
 namespace NKikimr {
-    TString MaskTicket(TStringBuf token);
-    TString MaskTicket(const TString& token);
-
     // copy-pasted from <robot/library/utils/time_convert.h>
     template<typename Rep, typename Period>
     constexpr ui64 ToMicroseconds(std::chrono::duration<Rep, Period> value) {

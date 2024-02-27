@@ -27,7 +27,7 @@ public:
     {
     }
 
-    THttpURL(const TStringBuf& host, ui16 port, const TStringBuf& path, const TStringBuf& query = TStringBuf(), const TStringBuf& scheme = "http", unsigned defaultPort = 0, const TStringBuf& hashbang = TStringBuf())
+    THttpURL(const std::string_view& host, ui16 port, const std::string_view& path, const std::string_view& query = std::string_view(), const std::string_view& scheme = "http", unsigned defaultPort = 0, const std::string_view& hashbang = std::string_view())
         : TUri(host, port, path, query, scheme, defaultPort, hashbang)
     {
     }
@@ -45,7 +45,7 @@ public: // use TUri::GetField() instead
     }
 
 public: // use TUriUpdate class so that Rewrite() is only called once
-    void Set(EField field, const TStringBuf& value) {
+    void Set(EField field, const std::string_view& value) {
         if (SetInMemory(field, value))
             Rewrite();
     }
@@ -59,7 +59,7 @@ public: // use TUriUpdate class so that Rewrite() is only called once
 public: // use TUri::FldXXX methods for better control
     // Partial quick set of the field, can be called for
     // multiple fields
-    bool SetInMemory(EField field, const TStringBuf& value) {
+    bool SetInMemory(EField field, const std::string_view& value) {
         return FldMemSet(field, value);
     }
 

@@ -12,10 +12,10 @@ namespace NYdb {
 template<typename TDerived>
 struct TRequestSettings {
     using TSelf = TDerived;
-    using THeader = std::vector<std::pair<TString, TString>>;
+    using THeader = std::vector<std::pair<std::string, std::string>>;
 
-    FLUENT_SETTING(TString, TraceId);
-    FLUENT_SETTING(TString, RequestType);
+    FLUENT_SETTING(std::string, TraceId);
+    FLUENT_SETTING(std::string, RequestType);
     FLUENT_SETTING(THeader, Header);
     FLUENT_SETTING(TDuration, ClientTimeout);
 

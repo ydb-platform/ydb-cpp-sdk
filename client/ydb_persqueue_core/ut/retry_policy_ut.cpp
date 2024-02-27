@@ -114,7 +114,7 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         setup1->Start();
         setup2.Start(false);
         Cerr << "=== Start session 1\n";
-        auto helper = MakeHolder<TYdbPqWriterTestHelper>("", nullptr, TString(), setup1);
+        auto helper = MakeHolder<TYdbPqWriterTestHelper>("", nullptr, std::string(), setup1);
         helper->Write(true);
         auto retryPolicy = helper->Policy;
         retryPolicy->Initialize();
@@ -160,8 +160,8 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         setup1->AddDataCenter("dc2", setup2, true);
         setup1->Start(true, false);
 
-        TString sourceId1 = SDKTestSetup::GetTestMessageGroupId() + "1";
-        TString sourceId2 = SDKTestSetup::GetTestMessageGroupId() + "2";
+        std::string sourceId1 = SDKTestSetup::GetTestMessageGroupId() + "1";
+        std::string sourceId2 = SDKTestSetup::GetTestMessageGroupId() + "2";
         auto writer1 = MakeHolder<TYdbPqWriterTestHelper>("", nullptr, "dc1", setup1, sourceId1 , true);
         auto writer2 = MakeHolder<TYdbPqWriterTestHelper>("", nullptr, "dc1", setup1, sourceId2, true);
 
@@ -187,8 +187,8 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         Cerr << "===Recreate writers\n";
 
         //! Re-create writers, kill previous sessions. New sessions will connect to dc2.
-        writer1 = MakeHolder<TYdbPqWriterTestHelper>("", nullptr, TString(), setup1, sourceId1, true);
-        writer2 = MakeHolder<TYdbPqWriterTestHelper>("", nullptr, TString(), setup1, sourceId2, true);
+        writer1 = MakeHolder<TYdbPqWriterTestHelper>("", nullptr, std::string(), setup1, sourceId1, true);
+        writer2 = MakeHolder<TYdbPqWriterTestHelper>("", nullptr, std::string(), setup1, sourceId2, true);
 
         //! Write some data and await confirmation - just to ensure sessions are started.
         Cerr << "===Write one message into every writer\n";
@@ -261,7 +261,7 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
 
         Cerr << "===Enable dc1\n";
         setup1->EnableDataCenter("dc1");
-        auto CheckSeqNo = [&] (const TString& dcName, ui64 expectedSeqNo) {
+        auto CheckSeqNo = [&] (const std::string& dcName, ui64 expectedSeqNo) {
             settings.PreferredCluster(dcName);
             settings.AllowFallbackToOtherClusters(false);
             settings.RetryPolicy(nullptr); //switch to default policy;
@@ -291,17 +291,17 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         auto readSession = client.CreateReadSession(setup1->GetReadSessionSettings());
 
         bool stop = false;
-        THashMap<TString, ui64> seqNoByClusterSrc1 = {
+        THashMap<std::string, ui64> seqNoByClusterSrc1 = {
                 {"dc1", 0},
                 {"dc2", 0}
         };
         auto SeqNoByClusterSrc2 = seqNoByClusterSrc1;
 
-        THashMap<TString, ui64> MsgCountByClusterSrc1 = {
+        THashMap<std::string, ui64> MsgCountByClusterSrc1 = {
                 {"dc1", 14},
                 {"dc2", 1}
         };
-        THashMap<TString, ui64> MsgCountByClusterSrc2 = {
+        THashMap<std::string, ui64> MsgCountByClusterSrc2 = {
                 {"dc1", 14},
                 {"dc2", 5}
         };
@@ -316,7 +316,7 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
                         Cerr << "===Data event\n";
                         auto& clusterName = event.GetPartitionStream()->GetCluster();
                         for (auto& message: event.GetMessages()) {
-                            TString sourceId = message.GetMessageGroupId();
+                            std::string sourceId = message.GetMessageGroupId();
                             ui32 seqNo = message.GetSeqNo();
                             if (sourceId == sourceId1) {
                                 UNIT_ASSERT_VALUES_EQUAL(seqNo, seqNoByClusterSrc1[clusterName] + 1);
@@ -390,7 +390,7 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         Cerr << NYdb::NPersQueue::DebugString(event) << "\n";
         UNIT_ASSERT(std::holds_alternative<TWriteSessionEvent::TReadyToAcceptEvent>(event));
         auto continueToken = std::move(std::get<TWriteSessionEvent::TReadyToAcceptEvent>(event).ContinuationToken);
-        TString message = "1234567890";
+        std::string message = "1234567890";
         ui64 seqNo = 0;
         setup->KickTablets();
         writer->Write(std::move(continueToken), message, ++seqNo);

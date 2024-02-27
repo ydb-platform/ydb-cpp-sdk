@@ -145,7 +145,7 @@ namespace NLastGetopt {
          *
          * @return                   ptr on result
          */
-        const TOptParseResult* FindLongOptParseResult(const TString& name, bool includeDefault = false) const;
+        const TOptParseResult* FindLongOptParseResult(const std::string& name, bool includeDefault = false) const;
 
         /**
          * Search for TOptParseResult that corresponds to given short name
@@ -160,7 +160,7 @@ namespace NLastGetopt {
         /**
          * @return argv[0]
          */
-        TString GetProgramName() const;
+        std::string GetProgramName() const;
 
         /**
          * Print usage string.
@@ -180,7 +180,7 @@ namespace NLastGetopt {
         /**
          * @return all fetched free arguments
          */
-        std::vector<TString> GetFreeArgs() const;
+        std::vector<std::string> GetFreeArgs() const;
 
         /**
          * @return true if given option exist in results of parsing
@@ -215,7 +215,7 @@ namespace NLastGetopt {
          * @param includeDefault     search in results obtained from default values
          *
          */
-        bool Has(const TString& name, bool includeDefault = false) const;
+        bool Has(const std::string& name, bool includeDefault = false) const;
 
         /**
          * @return nil terminated string on the last fetched argument of givne option
@@ -223,7 +223,7 @@ namespace NLastGetopt {
          * @param name               long name of required object
          * @param includeDefault     search in results obtained from default values
          */
-        const char* Get(const TString& name, bool includeDefault = true) const;
+        const char* Get(const std::string& name, bool includeDefault = true) const;
 
         /**
          * @return nil terminated string on the last fetched argument of givne option
@@ -232,7 +232,7 @@ namespace NLastGetopt {
          * @param name               long name of required object
          * @param defaultValue
          */
-        const char* GetOrElse(const TString& name, const char* defaultValue) const;
+        const char* GetOrElse(const std::string& name, const char* defaultValue) const;
 
         /**
          * @return true if given option exist in results of parsing

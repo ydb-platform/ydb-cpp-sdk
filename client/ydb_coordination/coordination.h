@@ -103,7 +103,7 @@ public:
     EConsistencyMode GetAttachConsistencyMode() const;
     ERateLimiterCountersMode GetRateLimiterCountersMode() const;
 
-    const TString& GetOwner() const;
+    const std::string& GetOwner() const;
     const std::vector<NScheme::TPermissions>& GetEffectivePermissions() const;
     const Ydb::Coordination::DescribeNodeResult& GetProto() const;
 
@@ -125,14 +125,14 @@ public:
     ui64 GetSessionId() const { return SessionId_; }
     TDuration GetTimeout() const { return Timeout_; }
     ui64 GetCount() const { return Count_; }
-    const TString& GetData() const { return Data_; }
+    const std::string& GetData() const { return Data_; }
 
 private:
     ui64 OrderId_;
     ui64 SessionId_;
     TDuration Timeout_;
     ui64 Count_;
-    TString Data_;
+    std::string Data_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -144,8 +144,8 @@ public:
 
     TSemaphoreDescription(const Ydb::Coordination::SemaphoreDescription& desc);
 
-    const TString& GetName() const { return Name_; }
-    const TString& GetData() const { return Data_; }
+    const std::string& GetName() const { return Name_; }
+    const std::string& GetData() const { return Data_; }
     ui64 GetCount() const { return Count_; }
     ui64 GetLimit() const { return Limit_; }
     const std::vector<TSemaphoreSession>& GetOwners() const { return Owners_; }
@@ -153,8 +153,8 @@ public:
     bool IsEphemeral() const { return IsEphemeral_; }
 
 private:
-    TString Name_;
-    TString Data_;
+    std::string Name_;
+    std::string Data_;
     ui64 Count_;
     ui64 Limit_;
     std::vector<TSemaphoreSession> Owners_;
@@ -225,7 +225,7 @@ struct TSessionSettings : public TRequestSettings<TSessionSettings> {
     using TStateCallback = std::function<void(ESessionState)>;
     using TStoppedCallback = std::function<void()>;
 
-    FLUENT_SETTING(TString, Description);
+    FLUENT_SETTING(std::string, Description);
 
     FLUENT_SETTING(TStateCallback, OnStateChanged);
 
@@ -248,7 +248,7 @@ struct TAcquireSemaphoreSettings {
     using TSelf = TAcquireSemaphoreSettings;
     using TAcceptedCallback = std::function<void()>;
 
-    FLUENT_SETTING(TString, Data);
+    FLUENT_SETTING(std::string, Data);
 
     FLUENT_SETTING(TAcceptedCallback, OnAccepted);
 
@@ -288,19 +288,19 @@ public:
 
     ~TClient();
 
-    TAsyncSessionResult StartSession(const TString& path,
+    TAsyncSessionResult StartSession(const std::string& path,
         const TSessionSettings& settings = TSessionSettings());
 
-    TAsyncStatus CreateNode(const TString& path,
+    TAsyncStatus CreateNode(const std::string& path,
         const TCreateNodeSettings& settings = TCreateNodeSettings());
 
-    TAsyncStatus AlterNode(const TString& path,
+    TAsyncStatus AlterNode(const std::string& path,
         const TAlterNodeSettings& settings = TAlterNodeSettings());
 
-    TAsyncStatus DropNode(const TString& path,
+    TAsyncStatus DropNode(const std::string& path,
         const TDropNodeSettings& settings = TDropNodeSettings());
 
-    TAsyncDescribeNodeResult DescribeNode(const TString& path,
+    TAsyncDescribeNodeResult DescribeNode(const std::string& path,
         const TDescribeNodeSettings& settings = TDescribeNodeSettings());
 
 private:
@@ -334,21 +334,21 @@ public:
 
     TAsyncResult<void> Reconnect();
 
-    TAsyncResult<bool> AcquireSemaphore(const TString& name,
+    TAsyncResult<bool> AcquireSemaphore(const std::string& name,
         const TAcquireSemaphoreSettings& settings);
 
-    TAsyncResult<bool> ReleaseSemaphore(const TString& name);
+    TAsyncResult<bool> ReleaseSemaphore(const std::string& name);
 
-    TAsyncDescribeSemaphoreResult DescribeSemaphore(const TString& name,
+    TAsyncDescribeSemaphoreResult DescribeSemaphore(const std::string& name,
         const TDescribeSemaphoreSettings& settings = TDescribeSemaphoreSettings());
 
-    TAsyncResult<void> CreateSemaphore(const TString& name,
-        ui64 limit, const TString& data = TString());
+    TAsyncResult<void> CreateSemaphore(const std::string& name,
+        ui64 limit, const std::string& data = std::string());
 
-    TAsyncResult<void> UpdateSemaphore(const TString& name,
-        const TString& data);
+    TAsyncResult<void> UpdateSemaphore(const std::string& name,
+        const std::string& data);
 
-    TAsyncResult<void> DeleteSemaphore(const TString& name,
+    TAsyncResult<void> DeleteSemaphore(const std::string& name,
         bool force = false);
 
 private:

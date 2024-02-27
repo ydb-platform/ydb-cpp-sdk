@@ -4,13 +4,12 @@
 #include <client/ydb_types/fluent_settings_helpers.h>
 #include <client/ydb_types/ydb.h>
 
-#include <client/impl/ydb_internal/common/type_switcher.h>
 #include <client/impl/ydb_internal/common/ssl_credentials.h>
 #include <functional>
 
 namespace NYdb {
 
-using TCertificateAndPrivateKey = std::pair<TStringType, TStringType>;
+using TCertificateAndPrivateKey = std::pair<std::string, std::string>;
 
 struct TCommonClientSettings {
     using TSelf = TCommonClientSettings;
@@ -23,11 +22,11 @@ struct TCommonClientSettings {
     //! always better to keep instance of client.
 
     //! Allows to override current database for client
-    FLUENT_SETTING_OPTIONAL(TStringType, Database);
+    FLUENT_SETTING_OPTIONAL(std::string, Database);
     //! Allows to override current discovery endpoint
-    FLUENT_SETTING_OPTIONAL(TStringType, DiscoveryEndpoint);
+    FLUENT_SETTING_OPTIONAL(std::string, DiscoveryEndpoint);
     //! Allows to override current token for client
-    TSelf& AuthToken(const std::optional<TStringType>& token);
+    TSelf& AuthToken(const std::optional<std::string>& token);
     //! Allows to override current credentials provider
     FLUENT_SETTING_OPTIONAL(std::shared_ptr<ICredentialsProviderFactory>, CredentialsProviderFactory);
     //! Allows to override discovery mode
@@ -47,7 +46,7 @@ struct TCommonClientSettingsBase : public TCommonClientSettings {
 
     COMMON_CLIENT_SETTINGS_TO_DERIVED(TStringType, Database);
     COMMON_CLIENT_SETTINGS_TO_DERIVED(TStringType, DiscoveryEndpoint);
-    COMMON_CLIENT_SETTINGS_TO_DERIVED(std::optional<TStringType>, AuthToken);
+    COMMON_CLIENT_SETTINGS_TO_DERIVED(std::optional<std::string>, AuthToken);
     COMMON_CLIENT_SETTINGS_TO_DERIVED(std::shared_ptr<ICredentialsProviderFactory>, CredentialsProviderFactory);
     COMMON_CLIENT_SETTINGS_TO_DERIVED(EDiscoveryMode, DiscoveryMode);
     COMMON_CLIENT_SETTINGS_TO_DERIVED(TSslCredentials, SslCredentials);
@@ -56,6 +55,6 @@ struct TCommonClientSettingsBase : public TCommonClientSettings {
 
 };
 
-TCommonClientSettings GetClientSettingsFromConnectionString(const TStringType& connectionString);
+TCommonClientSettings GetClientSettingsFromConnectionString(const std::string& connectionString);
 
 } // namespace NYdb

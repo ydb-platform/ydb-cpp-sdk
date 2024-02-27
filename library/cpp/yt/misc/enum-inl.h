@@ -5,6 +5,8 @@
 #include "enum.h"
 #endif
 
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <util/string/printf.h>
 #include <util/string/cast.h>
 
@@ -94,7 +96,7 @@ constexpr bool CheckDomainNames(const TNames& names)
             return DomainSize; \
         } \
         \
-        static constexpr std::array<TStringBuf, DomainSize> Names{{ \
+        static constexpr std::array<std::string_view, DomainSize> Names{{ \
             PP_FOR_EACH(ENUM__GET_DOMAIN_NAMES_ITEM, seq) \
         }}; \
         static_assert(::NYT::NDetail::CheckDomainNames(Names), \
@@ -106,13 +108,13 @@ constexpr bool CheckDomainNames(const TNames& names)
         [[maybe_unused]] static constexpr bool IsMonotonic = \
             ::NYT::NDetail::CheckValuesMonotonic(Values); \
         \
-        static TStringBuf GetTypeName() \
+        static std::string_view GetTypeName() \
         { \
-            static constexpr TStringBuf Result = PP_STRINGIZE(enumType); \
+            static constexpr std::string_view Result = PP_STRINGIZE(enumType); \
             return Result; \
         } \
         \
-        static const std::optional<TStringBuf> FindLiteralByValue(T value) \
+        static const std::optional<std::string_view> FindLiteralByValue(T value) \
         { \
             for (int i = 0; i < GetDomainSize(); ++i) { \
                 if (Values[i] == value) { \
@@ -122,7 +124,7 @@ constexpr bool CheckDomainNames(const TNames& names)
             return std::nullopt; \
         } \
         \
-        static std::optional<T> FindValueByLiteral(TStringBuf literal) \
+        static std::optional<T> FindValueByLiteral(std::string_view literal) \
         { \
             for (int i = 0; i < GetDomainSize(); ++i) { \
                 if (Names[i] == literal) { \
@@ -132,7 +134,7 @@ constexpr bool CheckDomainNames(const TNames& names)
             return std::nullopt; \
         } \
         \
-        static constexpr const std::array<TStringBuf, DomainSize>& GetDomainNames() \
+        static constexpr const std::array<std::string_view, DomainSize>& GetDomainNames() \
         { \
             return Names; \
         } \
@@ -176,13 +178,13 @@ constexpr bool CheckDomainNames(const TNames& names)
 #define ENUM__ITEM_SEQ_HAS_DOMAIN_NAME_3 PP_TRUE
 
 #define ENUM__GET_DOMAIN_NAMES_ITEM_SEQ_CUSTOM(seq) \
-    TStringBuf(PP_ELEMENT(seq, 2)),
+    std::string_view(PP_ELEMENT(seq, 2)),
 
 #define ENUM__GET_DOMAIN_NAMES_ITEM_SEQ_AUTO(seq) \
     ENUM__GET_DOMAIN_NAMES_ITEM_ATOMIC(PP_ELEMENT(seq, 0))
 
 #define ENUM__GET_DOMAIN_NAMES_ITEM_ATOMIC(item) \
-    TStringBuf(PP_STRINGIZE(item)),
+    std::string_view(PP_STRINGIZE(item)),
 
 #define ENUM__VALIDATE_UNIQUE(enumType) \
     static_assert(IsMonotonic || ::NYT::NDetail::CheckValuesUnique(Values), \
@@ -197,7 +199,7 @@ constexpr bool CheckDomainNames(const TNames& names)
     } \
     \
     using ::ToString; \
-    [[maybe_unused]] inline TString ToString(enumType value) \
+    [[maybe_unused]] inline std::string ToString(enumType value) \
     { \
         return ::NYT::TEnumTraits<enumType>::ToString(value); \
     }
@@ -211,7 +213,7 @@ constexpr int TEnumTraitsWithKnownDomain<T, true>::GetDomainSize()
 }
 
 template <class T>
-constexpr auto TEnumTraitsWithKnownDomain<T, true>::GetDomainNames() -> const std::array<TStringBuf, GetDomainSize()>&
+constexpr auto TEnumTraitsWithKnownDomain<T, true>::GetDomainNames() -> const std::array<std::string_view, GetDomainSize()>&
 {
     return TEnumTraitsImpl<T>::GetDomainNames();
 }
@@ -256,31 +258,31 @@ std::vector<T> TEnumTraitsWithKnownDomain<T, true>::Decompose(T value)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-TStringBuf TEnumTraits<T, true>::GetTypeName()
+std::string_view TEnumTraits<T, true>::GetTypeName()
 {
     return TEnumTraitsImpl<T>::GetTypeName();
 }
 
 template <class T>
-std::optional<T> TEnumTraits<T, true>::FindValueByLiteral(TStringBuf literal)
+std::optional<T> TEnumTraits<T, true>::FindValueByLiteral(std::string_view literal)
 {
     return TEnumTraitsImpl<T>::FindValueByLiteral(literal);
 }
 
 template <class T>
-std::optional<TStringBuf> TEnumTraits<T, true>::FindLiteralByValue(T value)
+std::optional<std::string_view> TEnumTraits<T, true>::FindLiteralByValue(T value)
 {
     return TEnumTraitsImpl<T>::FindLiteralByValue(value);
 }
 
 template <class T>
-TString TEnumTraits<T, true>::ToString(T value)
+std::string TEnumTraits<T, true>::ToString(T value)
 {
     using ::ToString;
     if (auto optionalLiteral = TEnumTraits<T>::FindLiteralByValue(value)) {
         return ToString(*optionalLiteral);
     }
-    TString result;
+    std::string result;
     result = TEnumTraits<T>::GetTypeName();
     result += "(";
     result += ToString(ToUnderlying(value));
@@ -289,13 +291,13 @@ TString TEnumTraits<T, true>::ToString(T value)
 }
 
 template <class T>
-T TEnumTraits<T, true>::FromString(TStringBuf literal)
+T TEnumTraits<T, true>::FromString(std::string_view literal)
 {
     auto optionalValue = FindValueByLiteral(literal);
     if (!optionalValue) {
         throw ::NYT::TSimpleException(Sprintf("Error parsing %s value %s",
             GetTypeName().data(),
-            TString(literal).Quote().c_str()).c_str());
+            NUtils::Quote(literal).c_str()).c_str());
     }
     return *optionalValue;
 }

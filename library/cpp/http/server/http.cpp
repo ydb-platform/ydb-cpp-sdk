@@ -502,13 +502,13 @@ public:
 
 private:
     template <class TThreadPool_>
-    static THolder<IThreadPool> MakeThreadPool(IThreadFactory* factory, bool elastic, ICallBack* callback = nullptr, const TString& threadName = {}) {
+    static THolder<IThreadPool> MakeThreadPool(IThreadFactory* factory, bool elastic, ICallBack* callback = nullptr, const std::string& threadName = {}) {
         if (!factory) {
             factory = SystemThreadFactory();
         }
 
         THolder<IThreadPool> pool;
-        const auto params = IThreadPool::TParams().SetFactory(factory).SetThreadName(threadName);
+        const auto params = IThreadPool::TParams().SetFactory(factory).SetThreadName(threadName.c_str());
         if (callback) {
             pool = MakeHolder<TThreadPoolBinder<TThreadPool_, THttpServer::ICallBack>>(callback, params);
         } else {
@@ -784,7 +784,7 @@ void TClientRequest::ProcessFailRequest(int failstate) {
                 "\r\n"
                 "Service Unavailable\r\n";
 
-    TString url;
+    std::string url;
 
     if (!strnicmp(RequestString.data(), "GET ", 4)) {
         // Trying to extract url...

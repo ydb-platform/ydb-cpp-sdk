@@ -26,12 +26,12 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         UNIT_ASSERT_EQUAL_C(expectedCase, actualResponse.GetResponseCase(), "Got unexpected streaming message or error:\n" + actualResponse.DebugString());
     }
 
-    using TWriteCallable = std::function<TFuture<TWriteResult>(TString& data, ui64 sequenceNumber, TInstant createdAt)>;
+    using TWriteCallable = std::function<TFuture<TWriteResult>(std::string& data, ui64 sequenceNumber, TInstant createdAt)>;
 
     void WriteAndReadAndCommitRandomMessages(TPersQueueYdbSdkTestSetup* setup, TWriteCallable write, bool disableClusterDiscovery = false) {
         auto log = setup->GetLog();
         const TInstant start = TInstant::Now();
-        std::vector<TString> messages;
+        std::vector<std::string> messages;
         const ui32 messageCount = 5;
         ui32 totalSize = 0;
         std::queue<NThreading::TFuture<TWriteResult>> writeFutures;
@@ -73,7 +73,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             std::visit(TOverloaded {
                 [&](TReadSessionEvent::TDataReceivedEvent& event) {
                     for (auto& message: event.GetMessages()) {
-                        TString sourceId = message.GetMessageGroupId();
+                        std::string sourceId = message.GetMessageGroupId();
                         ui32 seqNo = message.GetSeqNo();
                         UNIT_ASSERT_VALUES_EQUAL(readMessageCount + 1, seqNo);
                         ++readMessageCount;
@@ -137,8 +137,8 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         auto& client = setup->GetPersQueueClient();
         auto session = client.CreateSimpleBlockingWriteSession(writeSettings);
-        TString messageBase = "message-";
-        std::vector<TString> sentMessages;
+        std::string messageBase = "message-";
+        std::vector<std::string> sentMessages;
 
         for (auto i = 0u; i < count; i++) {
             sentMessages.emplace_back(messageBase * (i+1) + ToString(i));
@@ -149,7 +149,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             auto sessionAdapter = TSimpleWriteSessionTestAdapter(
                     dynamic_cast<TSimpleBlockingWriteSession *>(session.get()));
             if (shouldCaptureData.Defined()) {
-                TStringBuilder msg;
+                TYdbStringBuilder msg;
                 msg << "Session has captured " << sessionAdapter.GetAcquiredMessagesCount()
                     << " messages, capturing was expected: " << *shouldCaptureData << Endl;
                 UNIT_ASSERT_VALUES_EQUAL_C(sessionAdapter.GetAcquiredMessagesCount() > 0, *shouldCaptureData, msg.c_str());
@@ -241,7 +241,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         TYDBClientEventLoop clientEventLoop{setup};
 
         TAutoEvent messagesWrittenToBuffer;
-        auto clientWrite = [&](TString& message, ui64 sequenceNumber, TInstant createdAt) {
+        auto clientWrite = [&](std::string& message, ui64 sequenceNumber, TInstant createdAt) {
             auto promise = NewPromise<TWriteResult>();
             //log << TLOG_INFO << "Enqueue message with sequence number " << sequenceNumber;
             clientEventLoop.MessageBuffer.Enqueue(TAcknowledgableMessage{message, sequenceNumber, createdAt, promise});
@@ -258,7 +258,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         TYDBClientEventLoop clientEventLoop{setup};
 
         TAutoEvent messagesWrittenToBuffer;
-        auto clientWrite = [&](TString& message, ui64 sequenceNumber, TInstant createdAt) {
+        auto clientWrite = [&](std::string& message, ui64 sequenceNumber, TInstant createdAt) {
             auto promise = NewPromise<TWriteResult>();
             //log << TLOG_INFO << "Enqueue message with sequence number " << sequenceNumber;
             clientEventLoop.MessageBuffer.Enqueue(TAcknowledgableMessage{message, sequenceNumber, createdAt, promise});
@@ -275,8 +275,8 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         auto settings = setup->GetWriteSessionSettings();
         auto simpleSession = client.CreateSimpleBlockingWriteSession(settings);
 
-        TString msg = "message";
-        auto clientWrite = [&](TString& message, ui64 seqNo, TInstant createdAt) {
+        std::string msg = "message";
+        auto clientWrite = [&](std::string& message, ui64 seqNo, TInstant createdAt) {
             auto promise = NewPromise<TWriteResult>();
             //log << TLOG_INFO << "Enqueue message with sequence number " << sequenceNumber;
             simpleSession->Write(message, seqNo, createdAt);
@@ -301,7 +301,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         settings.BatchFlushInterval(TDuration::Seconds(1000)); // Batch on size, not on time.
         settings.BatchFlushSizeBytes(batchSize);
         auto writer = client.CreateWriteSession(settings);
-        TString message = "message";
+        std::string message = "message";
         size_t totalSize = 0, seqNo = 0;
         while (totalSize < batchSize) {
             auto event = *writer->GetEvent(true);
@@ -321,10 +321,10 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         settings.BatchFlushInterval(TDuration::Seconds(1000)); // Batch on size, not on time.
         settings.BatchFlushSizeBytes(batchSize);
         auto writer = client.CreateWriteSession(settings);
-        TString message = "message";
-        TString packed;
+        std::string message = "message";
+        std::string packed;
         {
-            TStringOutput so(packed);
+            std::stringOutput so(packed);
             TZLibCompress oss(&so, ZLib::GZip, 6);
             oss << message;
         }
@@ -382,7 +382,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             std::visit(TOverloaded {
                 [&](TReadSessionEvent::TDataReceivedEvent& event) {
                     for (auto& message: event.GetMessages()) {
-                        TString sourceId = message.GetMessageGroupId();
+                        std::string sourceId = message.GetMessageGroupId();
                         ui32 seqNo = message.GetSeqNo();
                         UNIT_ASSERT_VALUES_EQUAL(readMessageCount + 1, seqNo);
                         ++readMessageCount;
@@ -424,7 +424,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         settings.BatchFlushSizeBytes(9999999999);
         settings.MaxMemoryUsage(99);
         auto writer = client.CreateWriteSession(settings);
-        TString message = "0123456789";
+        std::string message = "0123456789";
         auto seqNo = 10u;
 
         auto event = *writer->GetEvent(true);
@@ -449,7 +449,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
     public:
         TBrokenCredentialsProvider() {}
         virtual ~TBrokenCredentialsProvider() {}
-        TStringType GetAuthInfo() const {
+        std::string GetAuthInfo() const {
             ythrow yexception() << "exception during creation";
             return "";
         }
@@ -465,7 +465,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             return std::make_shared<TBrokenCredentialsProvider>();
         }
 
-        virtual TStringType GetClientIdentity() const {
+        virtual std::string GetClientIdentity() const {
             return "abacaba";
         }
     };

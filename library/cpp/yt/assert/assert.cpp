@@ -8,11 +8,11 @@ namespace NYT::NDetail {
 ////////////////////////////////////////////////////////////////////////////////
 
 Y_WEAK void AssertTrapImpl(
-    TStringBuf trapType,
-    TStringBuf expr,
-    TStringBuf file,
+    std::string_view trapType,
+    std::string_view expr,
+    std::string_view file,
     int line,
-    TStringBuf function)
+    std::string_view function)
 {
     // Map to Arcadia assert, poorly...
     ::NPrivate::Panic(

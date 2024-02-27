@@ -1,8 +1,7 @@
 #pragma once
 
 #include <util/datetime/base.h>
-#include <util/generic/string.h>
-
+#include <string>
 #include <memory>
 
 class TDuration;
@@ -24,9 +23,9 @@ public:
     explicit TExecStats(Ydb::TableStats::QueryStats&& proto);
     explicit TExecStats(const Ydb::TableStats::QueryStats& proto);
 
-    TString ToString(bool withPlan = false) const;
+    std::string ToString(bool withPlan = false) const;
 
-    std::optional<TString> GetPlan() const;
+    std::optional<std::string> GetPlan() const;
 
     TDuration GetTotalDuration() const;
     TDuration GetTotalCpuTime() const;

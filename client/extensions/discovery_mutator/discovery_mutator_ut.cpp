@@ -13,7 +13,7 @@ Y_UNIT_TEST_SUITE(DiscoveryMutator) {
     Y_UNIT_TEST(Simple) {
 
         std::unordered_set<std::string_view> dbs;
-        TString discoveryEndpont = "localhost:100";
+        std::string discoveryEndpont = "localhost:100";
 
         auto mutator = [&](Ydb::Discovery::ListEndpointsResult* proto, TStatus status, const IDiscoveryMutatorApi::TAuxInfo& aux) {
             UNIT_ASSERT_VALUES_EQUAL(discoveryEndpont, status.GetEndpoint());

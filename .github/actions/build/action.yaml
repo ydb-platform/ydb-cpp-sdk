@@ -20,5 +20,5 @@ runs:
         ccache -z
         export CCACHE_DIR=`~/.ccache`
         cd ../build
-        ninja examples/all client/all
+        ninja
         ccache -s

@@ -10,7 +10,7 @@ namespace {
     struct TBZipCodec: public TAddLengthCodec<TBZipCodec> {
         inline TBZipCodec(int level)
             : Level(level)
-            , MyName("bzip2-" + ToString(Level))
+            , MyName("bzip2-" + std::to_string(Level))
         {
         }
 
@@ -19,7 +19,7 @@ namespace {
             return in * 2 + 128;
         }
 
-        TStringBuf Name() const noexcept override {
+        std::string_view Name() const noexcept override {
             return MyName;
         }
 
@@ -47,7 +47,7 @@ namespace {
         }
 
         const int Level;
-        const TString MyName;
+        const std::string MyName;
     };
 
     struct TBZipRegistrar {

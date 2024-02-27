@@ -42,11 +42,11 @@ After creating NYdb::TDriver you need to add Solomon Monitoring extension. If yo
     NYdb::TDriver driver(config);
     try {
 
-        const TString host = ...    // use hostname without http://
+        const std::string host = ...    // use hostname without http://
         const ui64 port = ...
-        const TString project = ... // Solomon's project id
-        const TString service = ... // Solomon's service id
-        const TString cluster = ... // Solomon's cluster id
+        const std::string project = ... // Solomon's project id
+        const std::string service = ... // Solomon's service id
+        const std::string cluster = ... // Solomon's cluster id
         NSolomonStatExtension::TSolomonStatPullExtension::TParams params(host, port, project, service, cluster);
         driver.AddExtension<NSolomonStatExtension::TSolomonStatPullExtension>(params);
 

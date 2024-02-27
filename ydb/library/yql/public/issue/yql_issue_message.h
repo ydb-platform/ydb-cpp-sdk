@@ -18,7 +18,7 @@ template<typename TIssueMessage>
 void IssuesFromMessage(const ::google::protobuf::RepeatedPtrField<TIssueMessage>& message, TIssues& issues);
 
 template<typename TIssueMessage>
-TString IssuesFromMessageAsString(const ::google::protobuf::RepeatedPtrField<TIssueMessage>& message) {
+std::string IssuesFromMessageAsString(const ::google::protobuf::RepeatedPtrField<TIssueMessage>& message) {
     TIssues issues;
     IssuesFromMessage(message, issues);
     return issues.ToOneLineString();
@@ -31,7 +31,7 @@ void IssueToMessage(const TIssue& topIssue, TIssueMessage* message);
 template<typename TIssueMessage>
 void IssuesToMessage(const TIssues& issues, ::google::protobuf::RepeatedPtrField<TIssueMessage>* message);
 
-TString IssueToBinaryMessage(const TIssue& issue);
-TIssue IssueFromBinaryMessage(const TString& binaryMessage);
+std::string IssueToBinaryMessage(const TIssue& issue);
+TIssue IssueFromBinaryMessage(const std::string& binaryMessage);
 
 }

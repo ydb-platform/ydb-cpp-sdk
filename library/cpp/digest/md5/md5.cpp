@@ -47,9 +47,9 @@ char* MD5::File(const char* filename, char* buf) {
     return nullptr;
 }
 
-TString MD5::File(const TString& filename) {
-    TString buf;
-    buf.ReserveAndResize(MD5_HEX_DIGEST_LENGTH);
+std::string MD5::File(const std::string& filename) {
+    std::string buf;
+    buf.resize(MD5_HEX_DIGEST_LENGTH);
     auto result = MD5::File(filename.data(), buf.begin());
     if (result == nullptr) {
         buf.clear();
@@ -65,14 +65,14 @@ char* MD5::Data(const void* data, size_t len, char* buf) {
     return Data(MakeUnsignedArrayRef(data, len), buf);
 }
 
-TString MD5::Data(const TArrayRef<const ui8>& data) {
-    TString buf;
-    buf.ReserveAndResize(MD5_HEX_DIGEST_LENGTH);
+std::string MD5::Data(const TArrayRef<const ui8>& data) {
+    std::string buf;
+    buf.resize(MD5_HEX_DIGEST_LENGTH);
     Data(data, buf.begin());
     return buf;
 }
 
-TString MD5::Data(TStringBuf data) {
+std::string MD5::Data(std::string_view data) {
     return Data(MakeUnsignedArrayRef(data));
 }
 
@@ -212,21 +212,21 @@ ui64 MD5::EndHalfMix() {
     return res;
 }
 
-TString MD5::Calc(TStringBuf data) {
+std::string MD5::Calc(std::string_view data) {
     return Calc(MakeUnsignedArrayRef(data));
 }
 
-TString MD5::Calc(const TArrayRef<const ui8>& data) {
+std::string MD5::Calc(const TArrayRef<const ui8>& data) {
     return Data(data);
 }
 
-TString MD5::CalcRaw(TStringBuf data) {
+std::string MD5::CalcRaw(std::string_view data) {
     return CalcRaw(MakeUnsignedArrayRef(data));
 }
 
-TString MD5::CalcRaw(const TArrayRef<const ui8>& data) {
-    TString result;
-    result.ReserveAndResize(16);
+std::string MD5::CalcRaw(const TArrayRef<const ui8>& data) {
+    std::string result;
+    result.resize(16);
     MD5().Update(data).Final(reinterpret_cast<ui8*>(result.begin()));
     return result;
 }
@@ -235,7 +235,7 @@ ui64 MD5::CalcHalfMix(const char* data, size_t len) {
     return CalcHalfMix(MakeUnsignedArrayRef(data, len));
 }
 
-ui64 MD5::CalcHalfMix(TStringBuf data) {
+ui64 MD5::CalcHalfMix(std::string_view data) {
     return CalcHalfMix(MakeUnsignedArrayRef(data));
 }
 
@@ -243,7 +243,7 @@ ui64 MD5::CalcHalfMix(const TArrayRef<const ui8>& data) {
     return MD5().Update(data).EndHalfMix();
 }
 
-bool MD5::IsMD5(TStringBuf data) {
+bool MD5::IsMD5(std::string_view data) {
     return IsMD5(MakeUnsignedArrayRef(data));
 }
 

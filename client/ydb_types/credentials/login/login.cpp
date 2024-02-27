@@ -6,6 +6,7 @@
 #include <ydb/public/api/grpc/ydb_auth_v1.grpc.pb.h>
 #include <ydb/library/login/login.h>
 #include <ydb/library/security/util.h>
+
 #include <util/string/cast.h>
 
 namespace NYdb {
@@ -13,7 +14,7 @@ namespace NYdb {
 class TLoginCredentialsProvider : public ICredentialsProvider {
 public:
     TLoginCredentialsProvider(std::weak_ptr<ICoreFacility> facility, TLoginCredentialsParams params);
-    virtual TStringType GetAuthInfo() const override;
+    virtual std::string GetAuthInfo() const override;
     virtual bool IsValid() const override;
 
 private:
@@ -21,9 +22,9 @@ private:
     void RequestToken();
     bool IsOk() const;
     void ParseToken();
-    TString GetToken() const;
-    TString GetError() const;
-    TString GetTokenOrError() const;
+    std::string GetToken() const;
+    std::string GetError() const;
+    std::string GetTokenOrError() const;
 
     enum class EState {
         Empty,
@@ -38,8 +39,8 @@ private:
     std::condition_variable Notify_;
     std::atomic<ui64> TokenReceived_ = 1;
     std::atomic<ui64> TokenParsed_ = 0;
-    std::optional<TString> Token_;
-    std::optional<TString> Error_;
+    std::optional<std::string> Token_;
+    std::optional<std::string> Error_;
     TInstant TokenExpireAt_;
     TInstant TokenRequestAt_;
     TPlainStatus Status_;
@@ -80,7 +81,7 @@ bool TLoginCredentialsProvider::IsValid() const {
     return true;
 }
 
-TStringType TLoginCredentialsProvider::GetAuthInfo() const {
+std::string TLoginCredentialsProvider::GetAuthInfo() const {
     if (TokenParsed_ == TokenReceived_) {
         return GetTokenOrError();
     } else {
@@ -160,13 +161,13 @@ void TLoginCredentialsProvider::ParseToken() { // works under mutex
     }
 }
 
-TString TLoginCredentialsProvider::GetToken() const {
+std::string TLoginCredentialsProvider::GetToken() const {
     Ydb::Auth::LoginResult result;
     Response_.operation().result().UnpackTo(&result);
     return result.token();
 }
 
-TString TLoginCredentialsProvider::GetError() const {
+std::string TLoginCredentialsProvider::GetError() const {
     if (Status_.Ok()) {
         if (Response_.operation().issues_size() > 0) {
             return Response_.operation().issues(0).message();
@@ -174,7 +175,7 @@ TString TLoginCredentialsProvider::GetError() const {
             return Ydb::StatusIds_StatusCode_Name(Response_.operation().status());
         }
     } else {
-        TStringBuilder str;
+        NUtils::TYdbStringBuilder str;
         str << "Couldn't get token for provided credentials from " << Status_.Endpoint
             << " with status " << Status_.Status << ".";
         for (const auto& issue : Status_.Issues) {
@@ -184,7 +185,7 @@ TString TLoginCredentialsProvider::GetError() const {
     }
 }
 
-TString TLoginCredentialsProvider::GetTokenOrError() const {
+std::string TLoginCredentialsProvider::GetTokenOrError() const {
     if (Token_) {
         return Token_.value();
     }

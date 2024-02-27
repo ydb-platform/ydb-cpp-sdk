@@ -45,7 +45,7 @@ public:
     }
 
     void StartServer(bool doClientInit = true, std::optional<TString> databaseName = std::nullopt) {
-        Log.SetFormatter([](ELogPriority priority, TStringBuf message) {
+        Log.SetFormatter([](ELogPriority priority, std::string_view message) {
             return TStringBuilder() << TInstant::Now() << " " << priority << ": " << message << Endl;
         });
 
@@ -92,11 +92,11 @@ public:
         }
     }
 
-    void WaitInit(const TString& topic) {
+    void WaitInit(const std::string& topic) {
         AnnoyingClient->WaitTopicInit(topic);
     }
 
-    bool PrepareNetDataFile(const TString& content = "::1/128\tdc1") {
+    bool PrepareNetDataFile(const std::string& content = "::1/128\tdc1") {
         if (NetDataFile)
             return false;
         NetDataFile = MakeHolder<TTempFileHandle>();
@@ -106,7 +106,7 @@ public:
         return true;
     }
 
-    void UpdateDC(const TString& name, bool local, bool enabled) {
+    void UpdateDC(const std::string& name, bool local, bool enabled) {
         AnnoyingClient->UpdateDC(name, local, enabled);
     }
 
@@ -114,16 +114,16 @@ public:
         return CleverServer->GetDriver();
     }
 
-    void KillTopicPqrbTablet(const TString& topicPath) {
+    void KillTopicPqrbTablet(const std::string& topicPath) {
         KillTopicTablets(topicPath, true, false);
     }
 
-    void KillTopicPqTablets(const TString& topicPath) {
+    void KillTopicPqTablets(const std::string& topicPath) {
         KillTopicTablets(topicPath, false, true);
     }
 
 private:
-    void KillTopicTablets(const TString& topicPath, bool killPqrb, bool killPq) {
+    void KillTopicTablets(const std::string& topicPath, bool killPqrb, bool killPq) {
         auto describeResult = AnnoyingClient->Ls(topicPath);
         UNIT_ASSERT_C(describeResult->Record.GetPathDescription().HasPersQueueGroup(), describeResult->Record);
         auto persQueueGroup = describeResult->Record.GetPathDescription().GetPersQueueGroup();
@@ -149,7 +149,7 @@ private:
     }
 
 public:
-    TString TestCaseName;
+    std::string TestCaseName;
 
     TSimpleSharedPtr<TPortManager> PortManager;
     ui16 Port;

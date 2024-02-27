@@ -12,7 +12,7 @@
 #include <functional>
 #include <cstdarg>
 
-using TLogFormatter = std::function<TString(ELogPriority priority, TStringBuf)>;
+using TLogFormatter = std::function<std::string(ELogPriority priority, std::string_view)>;
 
 // Logging facilities interface.
 //
@@ -20,8 +20,8 @@ using TLogFormatter = std::function<TString(ELogPriority priority, TStringBuf)>;
 // TLog base;
 // ...
 // auto log = base;
-// log.SetFormatter([reqId](ELogPriority p, TStringBuf msg) {
-//     return TStringBuilder() << "reqid=" << reqId << "; " << msg;
+// log.SetFormatter([reqId](ELogPriority p, std::string_view msg) {
+//     return TYdbStringBuilder() << "reqid=" << reqId << "; " << msg;
 // });
 //
 // log.Write(TLOG_INFO, "begin");
@@ -35,7 +35,7 @@ public:
     // Construct empty logger all writes will be spilled.
     TLog();
     // Construct file logger.
-    TLog(const TString& fname, ELogPriority priority = LOG_MAX_PRIORITY);
+    TLog(const std::string& fname, ELogPriority priority = LOG_MAX_PRIORITY);
     // Construct any type of logger
     TLog(THolder<TLogBackend> backend);
 
@@ -63,7 +63,7 @@ public:
     // @param[in] priority          Message priority to use.
     // @param[in] message           Message to write.
     // @param[in] metaFlags         Message meta flags.
-    void Write(ELogPriority priority, TStringBuf message, TLogRecord::TMetaFlags metaFlags = {}) const;
+    void Write(ELogPriority priority, std::string_view message, TLogRecord::TMetaFlags metaFlags = {}) const;
     // Write message to the log using `DefaultPriority()`.
     void Write(const char* data, size_t len, TLogRecord::TMetaFlags metaFlags = {}) const;
     // Write message to the log, but pass the message in a c-style.
@@ -114,6 +114,6 @@ private:
     TLogFormatter Formatter_;
 };
 
-THolder<TLogBackend> CreateLogBackend(const TString& fname, ELogPriority priority = LOG_MAX_PRIORITY, bool threaded = false);
-THolder<TLogBackend> CreateFilteredOwningThreadedLogBackend(const TString& fname, ELogPriority priority = LOG_MAX_PRIORITY, size_t queueLen = 0);
-THolder<TOwningThreadedLogBackend> CreateOwningThreadedLogBackend(const TString& fname, size_t queueLen = 0);
+THolder<TLogBackend> CreateLogBackend(const std::string& fname, ELogPriority priority = LOG_MAX_PRIORITY, bool threaded = false);
+THolder<TLogBackend> CreateFilteredOwningThreadedLogBackend(const std::string& fname, ELogPriority priority = LOG_MAX_PRIORITY, size_t queueLen = 0);
+THolder<TOwningThreadedLogBackend> CreateOwningThreadedLogBackend(const std::string& fname, size_t queueLen = 0);

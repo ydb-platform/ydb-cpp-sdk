@@ -38,7 +38,7 @@ public:
     }
 
     //! Topic path.
-    const TString& GetTopicPath() const {
+    const std::string& GetTopicPath() const {
         return PartitionSession->GetTopicPath();
     }
 
@@ -47,15 +47,15 @@ public:
         return PartitionSession->GetPartitionId();
     }
 
-    const TString& GetDatabaseName() const {
+    const std::string& GetDatabaseName() const {
         return Db->name();
     }
 
-    const TString& GetDatabasePath() const {
+    const std::string& GetDatabasePath() const {
         return Db->path();
     }
 
-    const TString& GetDatabaseId() const {
+    const std::string& GetDatabaseId() const {
         return Db->id();
     }
 
@@ -220,7 +220,7 @@ private:
 };
 
 //! Event debug string.
-TString DebugString(const TReadSessionEvent::TEvent& event);
+std::string DebugString(const TReadSessionEvent::TEvent& event);
 
 
 //! Settings for federated write session.
@@ -229,7 +229,7 @@ struct TFederatedWriteSessionSettings : public NTopic::TWriteSessionSettings {
 
     //! Preferred database
     //! If specified database is unavailable, session will write to other database.
-    FLUENT_SETTING_OPTIONAL(TString, PreferredDatabase);
+    FLUENT_SETTING_OPTIONAL(std::string, PreferredDatabase);
 
     //! Write to other databases if there are problems with connection
     //! to the preferred one.
@@ -241,7 +241,7 @@ struct TFederatedWriteSessionSettings : public NTopic::TWriteSessionSettings {
     TFederatedWriteSessionSettings& operator=(const TFederatedWriteSessionSettings&) = default;
     TFederatedWriteSessionSettings& operator=(TFederatedWriteSessionSettings&&) = default;
 
-    TFederatedWriteSessionSettings(const TString& path, const TString& producerId, const TString& messageGroupId)
+    TFederatedWriteSessionSettings(const std::string& path, const std::string& producerId, const std::string& messageGroupId)
         : NTopic::TWriteSessionSettings(path, producerId, messageGroupId) {
     }
 
@@ -420,7 +420,7 @@ public:
     virtual NTopic::TReaderCounters::TPtr GetCounters() const = 0;
 
     //! Get unique identifier of read session.
-    virtual TString GetSessionId() const = 0;
+    virtual std::string GetSessionId() const = 0;
 
     virtual ~IFederatedReadSession() = default;
 };
@@ -466,22 +466,22 @@ namespace NYdb::NTopic {
 using namespace NFederatedTopic;
 
 template<>
-void TPrintable<TFederatedPartitionSession>::DebugString(TStringBuilder& res, bool) const;
+void TPrintable<TFederatedPartitionSession>::DebugString(NUtils::TYdbStringBuilder& res, bool) const;
 template<>
-void TPrintable<NFederatedTopic::TReadSessionEvent::TDataReceivedEvent>::DebugString(TStringBuilder& res, bool) const;
+void TPrintable<NFederatedTopic::TReadSessionEvent::TDataReceivedEvent>::DebugString(NUtils::TYdbStringBuilder& res, bool) const;
 template<>
-void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TDataReceivedEvent::TMessage>>::DebugString(TStringBuilder& res, bool) const;
+void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TDataReceivedEvent::TMessage>>::DebugString(NUtils::TYdbStringBuilder& res, bool) const;
 template<>
-void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TDataReceivedEvent::TCompressedMessage>>::DebugString(TStringBuilder& res, bool) const;
+void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TDataReceivedEvent::TCompressedMessage>>::DebugString(NUtils::TYdbStringBuilder& res, bool) const;
 template<>
-void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TCommitOffsetAcknowledgementEvent>>::DebugString(TStringBuilder& res, bool) const;
+void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TCommitOffsetAcknowledgementEvent>>::DebugString(NUtils::TYdbStringBuilder& res, bool) const;
 template<>
-void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TStartPartitionSessionEvent>>::DebugString(TStringBuilder& res, bool) const;
+void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TStartPartitionSessionEvent>>::DebugString(NUtils::TYdbStringBuilder& res, bool) const;
 template<>
-void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TStopPartitionSessionEvent>>::DebugString(TStringBuilder& res, bool) const;
+void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TStopPartitionSessionEvent>>::DebugString(NUtils::TYdbStringBuilder& res, bool) const;
 template<>
-void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TPartitionSessionStatusEvent>>::DebugString(TStringBuilder& res, bool) const;
+void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TPartitionSessionStatusEvent>>::DebugString(NUtils::TYdbStringBuilder& res, bool) const;
 template<>
-void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TPartitionSessionClosedEvent>>::DebugString(TStringBuilder& res, bool) const;
+void TPrintable<NFederatedTopic::TReadSessionEvent::TFederated<NFederatedTopic::TReadSessionEvent::TPartitionSessionClosedEvent>>::DebugString(NUtils::TYdbStringBuilder& res, bool) const;
 
 }

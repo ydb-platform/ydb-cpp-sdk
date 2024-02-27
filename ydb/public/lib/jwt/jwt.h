@@ -1,19 +1,18 @@
 #pragma once
 
-#include <client/impl/ydb_internal/common/type_switcher.h>
 #include <util/datetime/base.h>
 
 namespace NYdb {
 
 struct TJwtParams {
-    TStringType PrivKey;
-    TStringType PubKey;
-    TStringType AccountId;
-    TStringType KeyId;
+    std::string PrivKey;
+    std::string PubKey;
+    std::string AccountId;
+    std::string KeyId;
 };
 
-TJwtParams ParseJwtParams(const TStringType& jsonParamsStr);
-TStringType MakeSignedJwt(
+TJwtParams ParseJwtParams(const std::string& jsonParamsStr);
+std::string MakeSignedJwt(
     const TJwtParams& params,
     const TDuration& lifetime = TDuration::Hours(1)
 );

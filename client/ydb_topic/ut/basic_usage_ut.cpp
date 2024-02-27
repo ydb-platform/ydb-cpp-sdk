@@ -96,7 +96,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         TTopicSdkTestSetup setup(TEST_CASE_NAME);
 
         NYdb::TDriverConfig cfg;
-        cfg.SetEndpoint(TStringBuilder() << "invalid:" << setup.GetServer().GrpcPort);
+        cfg.SetEndpoint(TYdbStringBuilder() << "invalid:" << setup.GetServer().GrpcPort);
         cfg.SetDatabase("/Invalid");
         cfg.SetLog(CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG));
         auto driver = NYdb::TDriver(cfg);
@@ -118,7 +118,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         {
             auto settings = TTopicClientSettings()
                 .Database({"/Root"})
-                .DiscoveryEndpoint({TStringBuilder() << "localhost:" << setup.GetServer().GrpcPort});
+                .DiscoveryEndpoint({TYdbStringBuilder() << "localhost:" << setup.GetServer().GrpcPort});
 
             TTopicClient client(driver, settings);
 
@@ -263,8 +263,8 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         auto& client = setup->GetPersQueueClient();
         auto session = client.CreateSimpleBlockingWriteSession(writeSettings);
-        TString messageBase = "message----";
-        std::vector<TString> sentMessages;
+        std::string messageBase = "message----";
+        std::vector<std::string> sentMessages;
 
         for (auto i = 0u; i < count; i++) {
             // sentMessages.emplace_back(messageBase * (i+1) + ToString(i));
@@ -276,7 +276,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             auto sessionAdapter = NPersQueue::NTests::TSimpleWriteSessionTestAdapter(
                     dynamic_cast<NPersQueue::TSimpleBlockingWriteSession *>(session.get()));
             if (shouldCaptureData.Defined()) {
-                TStringBuilder msg;
+                TYdbStringBuilder msg;
                 msg << "Session has captured " << sessionAdapter.GetAcquiredMessagesCount()
                     << " messages, capturing was expected: " << *shouldCaptureData << Endl;
                 UNIT_ASSERT_VALUES_EQUAL_C(sessionAdapter.GetAcquiredMessagesCount() > 0, *shouldCaptureData, msg.c_str());
@@ -675,7 +675,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         auto client = setup.MakeClient();
         auto session = client.CreateSimpleBlockingWriteSession(writeSettings);
 
-        TString messageBase = "message----";
+        std::string messageBase = "message----";
 
         for (auto i = 0u; i < count; i++) {
             auto res = session->Write(messageBase);

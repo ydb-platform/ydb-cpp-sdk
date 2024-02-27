@@ -124,7 +124,7 @@ namespace NUri {
             return true;
         }
 
-        void Set(const TStringBuf& buf) {
+        void Set(const std::string_view& buf) {
             Enter(buf.data());
             Leave(buf.data() + buf.length());
         }
@@ -134,8 +134,8 @@ namespace NUri {
             return End;
         }
 
-        TStringBuf Get() const {
-            return TStringBuf(Beg, End);
+        std::string_view Get() const {
+            return std::string_view(Beg, End);
         }
 
         size_t Len() const {
@@ -172,12 +172,12 @@ namespace NUri {
         TSection Sections[TField::FieldUrlMAX];
         TScheme::EKind Scheme;
         const TParseFlags Flags;
-        const TStringBuf UriStr;
+        const std::string_view UriStr;
         TState::EParsed State;
         ECharset Enc;
 
     public:
-        TParser(const TParseFlags& flags, const TStringBuf& uri, ECharset enc = CODES_UTF8)
+        TParser(const TParseFlags& flags, const std::string_view& uri, ECharset enc = CODES_UTF8)
             : Scheme(TScheme::SchemeEmpty)
             , Flags(flags | TFeature::FeatureDecodeANY)
             , UriStr(uri)
@@ -238,11 +238,11 @@ namespace NUri {
             return PrintHead(ptr, func) << fld;
         }
 
-        IOutputStream& PrintTail(const TStringBuf& val) const {
+        IOutputStream& PrintTail(const std::string_view& val) const {
             return Cdbg << " [" << val << "]" << Endl;
         }
         IOutputStream& PrintTail(const char* beg, const char* end) const {
-            return PrintTail(TStringBuf(beg, end));
+            return PrintTail(std::string_view(beg, end));
         }
 #endif
 
@@ -254,7 +254,7 @@ namespace NUri {
             Sections[fld].Reset(pc);
         }
 
-        void storeSection(const TStringBuf& val, TField::EField fld) {
+        void storeSection(const std::string_view& val, TField::EField fld) {
 #ifdef DO_PRN
             PrintHead(val.data(), __FUNCTION__, fld);
             PrintTail(val);

@@ -43,9 +43,9 @@ bool DoWithRetryOnRetCode(std::function<bool()> func, TRetryOptions retryOptions
 }
 
 TRetryOptions MakeRetryOptions(const NRetry::TRetryOptionsPB& retryOptions) {
-    return TRetryOptions(retryOptions.GetMaxTries(),
-                         TDuration::MilliSeconds(retryOptions.GetInitialSleepMs()),
-                         TDuration::MilliSeconds(retryOptions.GetRandomDeltaMs()),
-                         TDuration::MilliSeconds(retryOptions.GetSleepIncrementMs()),
-                         TDuration::MilliSeconds(retryOptions.GetExponentalMultiplierMs()));
+    return TRetryOptions(retryOptions.maxtries(),
+                         TDuration::MilliSeconds(retryOptions.initialsleepms()),
+                         TDuration::MilliSeconds(retryOptions.randomdeltams()),
+                         TDuration::MilliSeconds(retryOptions.sleepincrementms()),
+                         TDuration::MilliSeconds(retryOptions.exponentalmultiplierms()));
 }

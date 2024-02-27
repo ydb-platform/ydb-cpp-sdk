@@ -4,10 +4,10 @@ namespace NMonitoring {
     ////////////////////////////////////////////////////////////////////////////////
     // TStringPoolBuilder
     ////////////////////////////////////////////////////////////////////////////////
-    const TStringPoolBuilder::TValue* TStringPoolBuilder::PutIfAbsent(TStringBuf str) {
+    const TStringPoolBuilder::TValue* TStringPoolBuilder::PutIfAbsent(std::string_view str) {
         Y_ENSURE(!IsBuilt_, "Cannot add more values after string has been built");
 
-        auto [it, isInserted] = StrMap_.try_emplace(str, Max<ui32>(), 0);
+        auto [it, isInserted] = StrMap_.try_emplace(std::string{str}, Max<ui32>(), 0);
         if (isInserted) {
             BytesSize_ += str.size();
             it->second.Index = StrVector_.size();
@@ -49,7 +49,7 @@ namespace NMonitoring {
         const char* end = begin + size;
         for (const char* p = begin; p != end; ++p) {
             if (*p == '\0') {
-                Index_.push_back(TStringBuf(begin, p));
+                Index_.push_back(std::string_view(begin, p));
                 begin = p + 1;
             }
         }

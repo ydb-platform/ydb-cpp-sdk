@@ -48,7 +48,7 @@ public:
     /// Возвращает первую строку ответа HTTP-сервера.
     /// @details Первая строка HTTP-сервера - строка состояния,
     /// содержащая три поля: версию HTTP, код состояния и описание.
-    const TString& FirstLine() const noexcept;
+    const std::string& FirstLine() const noexcept;
 
     /*
      * connection can be keep-alive
@@ -63,14 +63,14 @@ public:
      */
     /// Проверяет, поддерживается ли данный тип кодирования содержимого
     /// ответа HTTP-сервера.
-    bool AcceptEncoding(const TString& coding) const;
+    bool AcceptEncoding(const std::string& coding) const;
 
     /// Пытается определить наилучший тип кодирования ответа HTTP-сервера.
     /// @details Если ответ сервера говорит о том, что поддерживаются
     /// любые типы кодирования, выбирается gzip. В противном случае
     /// из списка типов кодирования выбирается лучший из поддерживаемых сервером.
-    TString BestCompressionScheme() const;
-    TString BestCompressionScheme(TArrayRef<const TStringBuf> codings) const;
+    std::string BestCompressionScheme() const;
+    std::string BestCompressionScheme(TArrayRef<const std::string_view> codings) const;
 
     /// Если заголовки содержат Content-Length, возвращает true и
     /// записывает значение из заголовка в value
@@ -109,7 +109,7 @@ public:
 
     /// Устанавливает режим, при котором сервер выдает ответ в упакованном виде.
     void EnableCompression(bool enable);
-    void EnableCompression(TArrayRef<const TStringBuf> schemas);
+    void EnableCompression(TArrayRef<const std::string_view> schemas);
 
     /// Устанавливает режим, при котором соединение с сервером не завершается
     /// после окончания транзакции.
@@ -150,7 +150,7 @@ public:
      * first line - response or request
      */
     /// Возвращает первую строку HTTP-запроса/ответа
-    const TString& FirstLine() const noexcept;
+    const std::string& FirstLine() const noexcept;
 
     /// Возвращает размер отправленных данных (без заголовков, с учётом сжатия, без
     /// учёта chunked transfer encoding)
@@ -167,11 +167,11 @@ private:
 };
 
 /// Возвращает код состояния из ответа сервера.
-unsigned ParseHttpRetCode(const TStringBuf& ret);
+unsigned ParseHttpRetCode(const std::string_view& ret);
 
 /// Отправляет HTTP-серверу запрос с минимумом необходимых заголовков.
-void SendMinimalHttpRequest(TSocket& s, const TStringBuf& host, const TStringBuf& request, const TStringBuf& agent = "YandexSomething/1.0", const TStringBuf& from = "webadmin@yandex.ru");
+void SendMinimalHttpRequest(TSocket& s, const std::string_view& host, const std::string_view& request, const std::string_view& agent = "YandexSomething/1.0", const std::string_view& from = "webadmin@yandex.ru");
 
-TArrayRef<const TStringBuf> SupportedCodings();
+TArrayRef<const std::string_view> SupportedCodings();
 
 /// @}

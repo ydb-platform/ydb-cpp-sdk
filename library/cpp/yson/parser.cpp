@@ -80,7 +80,7 @@ namespace NYson {
                   {
         }
 
-        void Parse(const TStringBuf& data, EYsonType type = ::NYson::EYsonType::Node) {
+        void Parse(const std::string_view& data, EYsonType type = ::NYson::EYsonType::Node) {
             Impl->Parse(data, type);
         }
     };
@@ -98,14 +98,14 @@ namespace NYson {
     TStatelessYsonParser::~TStatelessYsonParser() {
     }
 
-    void TStatelessYsonParser::Parse(const TStringBuf& data, EYsonType type) {
+    void TStatelessYsonParser::Parse(const std::string_view& data, EYsonType type) {
         Impl->Parse(data, type);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
 
     void ParseYsonStringBuffer(
-        const TStringBuf& buffer,
+        const std::string_view& buffer,
         NYT::NYson::IYsonConsumer* consumer,
         EYsonType type,
         bool enableLinePositionInfo,

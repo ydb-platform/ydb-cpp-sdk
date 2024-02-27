@@ -23,12 +23,12 @@ public:
 
     //! Constructs a non-null instance with given type and content.
     explicit TYsonStringBuf(
-        const TString& data,
+        const std::string& data,
         EYsonType type = EYsonType::Node);
 
     //! Constructs a non-null instance with given type and content.
     explicit TYsonStringBuf(
-        TStringBuf data,
+        std::string_view data,
         EYsonType type = EYsonType::Node);
 
     //! Constructs a non-null instance with given type and content
@@ -42,13 +42,13 @@ public:
     explicit operator bool() const;
 
     //! Returns the underlying YSON bytes. The instance must be non-null.
-    TStringBuf AsStringBuf() const;
+    std::string_view AsStringBuf() const;
 
     //! Returns type of YSON contained here. The instance must be non-null.
     EYsonType GetType() const;
 
 protected:
-    TStringBuf Data_;
+    std::string_view Data_;
     EYsonType Type_;
     bool Null_;
 };
@@ -57,7 +57,7 @@ protected:
 
 //! An owning version of TYsonStringBuf.
 /*!
- *  Internally captures the data either via TString or a polymorphic ref-counted holder.
+ *  Internally captures the data either via std::string or a polymorphic ref-counted holder.
  */
 class TYsonString
 {
@@ -69,16 +69,16 @@ public:
     //! Copies the data into a ref-counted payload.
     explicit TYsonString(const TYsonStringBuf& ysonStringBuf);
 
-    //! Constructs an instance from TStringBuf.
+    //! Constructs an instance from std::string_view.
     //! Copies the data into a ref-counted payload.
     explicit TYsonString(
-        TStringBuf data,
+        std::string_view data,
         EYsonType type = EYsonType::Node);
 
-    //! Constructs an instance from TString.
-    //! Zero-copy for CoW TString: retains the reference to TString in payload.
+    //! Constructs an instance from std::string.
+    //! Zero-copy for CoW std::string: retains the reference to std::string in payload.
     explicit TYsonString(
-        const TString& data,
+        const std::string& data,
         EYsonType type = EYsonType::Node);
 
     //! Constructs an instance from TSharedRef.
@@ -94,11 +94,11 @@ public:
     EYsonType GetType() const;
 
     //! Returns the non-owning data. The instance must be non-null.
-    TStringBuf AsStringBuf() const;
+    std::string_view AsStringBuf() const;
 
-    //! Returns the data represented by TString. The instance must be non-null.
-    //! Copies the data in case the payload is not TString.
-    TString ToString() const;
+    //! Returns the data represented by std::string. The instance must be non-null.
+    //! Copies the data in case the payload is not std::string.
+    std::string ToString() const;
 
     //! Returns the data represented by TSharedRef. The instance must be non-null.
     //! The data is never copied.
@@ -115,7 +115,7 @@ private:
     struct TNullPayload
     { };
 
-    std::variant<TNullPayload, TSharedRangeHolderPtr, TString> Payload_;
+    std::variant<TNullPayload, TSharedRangeHolderPtr, std::string> Payload_;
 
     const char* Begin_;
     ui64 Size_ : 56;
@@ -134,8 +134,8 @@ bool operator != (const TYsonString& lhs, const TYsonStringBuf& rhs);
 bool operator != (const TYsonStringBuf& lhs, const TYsonString& rhs);
 bool operator != (const TYsonStringBuf& lhs, const TYsonStringBuf& rhs);
 
-TString ToString(const TYsonString& yson);
-TString ToString(const TYsonStringBuf& yson);
+std::string ToString(const TYsonString& yson);
+std::string ToString(const TYsonStringBuf& yson);
 
 ////////////////////////////////////////////////////////////////////////////////
 

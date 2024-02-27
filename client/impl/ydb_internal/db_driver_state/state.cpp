@@ -17,8 +17,8 @@ constexpr TDuration ENDPOINT_UPDATE_PERIOD = TDuration::Minutes(1); // period to
 constexpr TDuration DISCOVERY_RECHECK_PERIOD = TDuration::Seconds(5); // period to run periodic discovery task
 
 TDbDriverState::TDbDriverState(
-    const TStringType& database,
-    const TStringType& discoveryEndpoint,
+    const std::string& database,
+    const std::string& discoveryEndpoint,
     EDiscoveryMode discoveryMode,
     const TSslCredentials& sslCredentials,
     IInternalClient* client
@@ -71,7 +71,7 @@ EBalancingPolicy TDbDriverState::GetBalancingPolicy() const {
     return EndpointPool.GetBalancingPolicy();
 }
 
-TStringType TDbDriverState::GetEndpoint() const {
+std::string TDbDriverState::GetEndpoint() const {
     return EndpointPool.GetEndpoint(TEndpointKey()).Endpoint;
 }
 
@@ -131,13 +131,13 @@ TDbDriverStateTracker::TDbDriverStateTracker(IInternalClient* client)
 {}
 
 TDbDriverStatePtr TDbDriverStateTracker::GetDriverState(
-    TStringType database,
-    TStringType discoveryEndpoint,
+    std::string database,
+    std::string discoveryEndpoint,
     EDiscoveryMode discoveryMode,
     const TSslCredentials& sslCredentials,
     std::shared_ptr<ICredentialsProviderFactory> credentialsProviderFactory
 ) {
-    TStringType clientIdentity;
+    std::string clientIdentity;
     if (credentialsProviderFactory) {
         clientIdentity = credentialsProviderFactory->GetClientIdentity();
     }

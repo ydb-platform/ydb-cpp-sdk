@@ -6,6 +6,7 @@
 
 #include "format.h"
 
+#include <library/cpp/string_utils/misc/misc.h>
 #include <library/cpp/yt/exception/exception.h>
 
 #include <util/string/printf.h>
@@ -18,20 +19,20 @@ namespace NDetail {
 
 [[noreturn]]
 void ThrowMalformedEnumValueException(
-    TStringBuf typeName,
-    TStringBuf value);
+    std::string_view typeName,
+    std::string_view value);
 
 void FormatUnknownEnumValue(
     TStringBuilderBase* builder,
-    TStringBuf name,
+    std::string_view name,
     i64 value);
 
 } // namespace NDetail
 
 template <class T>
-std::optional<T> TryParseEnum(TStringBuf value)
+std::optional<T> TryParseEnum(std::string_view value)
 {
-    auto tryFromString = [] (TStringBuf value) -> std::optional<T> {
+    auto tryFromString = [] (std::string_view value) -> std::optional<T> {
         if (auto decodedValue = TryDecodeEnumValue(value)) {
             auto enumValue = TEnumTraits<T>::FindValueByLiteral(*decodedValue);
             return enumValue ? enumValue : TEnumTraits<T>::FindValueByLiteral(value);
@@ -43,15 +44,15 @@ std::optional<T> TryParseEnum(TStringBuf value)
                 TEnumTraits<T>::GetTypeName()));
         };
 
-        TStringBuf typeName;
-        auto isTypeNameCorrect = value.NextTok('(', typeName) && typeName == TEnumTraits<T>::GetTypeName();
+        std::string_view typeName;
+        auto isTypeNameCorrect = NUtils::NextTok(value, typeName, '(') && typeName == TEnumTraits<T>::GetTypeName();
         if (!isTypeNameCorrect) {
             reportError();
         }
 
-        TStringBuf enumValue;
+        std::string_view enumValue;
         std::underlying_type_t<T> underlyingValue = 0;
-        auto isEnumValueCorrect = value.NextTok(')', enumValue) && TryFromString(enumValue, underlyingValue);
+        auto isEnumValueCorrect = NUtils::NextTok(value, enumValue, ')') && TryFromString(enumValue, underlyingValue);
         if (!isEnumValueCorrect) {
             reportError();
         }
@@ -66,8 +67,8 @@ std::optional<T> TryParseEnum(TStringBuf value)
 
     if constexpr (TEnumTraits<T>::IsBitEnum) {
         T result{};
-        TStringBuf token;
-        while (value.NextTok('|', token)) {
+        std::string_view token;
+        while (NUtils::NextTok(value, token, '|')) {
             if (auto scalar = tryFromString(StripString(token))) {
                 result |= *scalar;
             } else {
@@ -81,7 +82,7 @@ std::optional<T> TryParseEnum(TStringBuf value)
 }
 
 template <class T>
-T ParseEnum(TStringBuf value)
+T ParseEnum(std::string_view value)
 {
     if (auto optionalResult = TryParseEnum<T>(value)) {
         return *optionalResult;
@@ -118,7 +119,7 @@ void FormatEnum(TStringBuilderBase* builder, T value, bool lowerCase)
         for (auto scalarValue : TEnumTraits<T>::GetDomainValues()) {
             if (Any(value & scalarValue)) {
                 if (!first) {
-                    builder->AppendString(TStringBuf(" | "));
+                    builder->AppendString(std::string_view(" | "));
                 }
                 first = false;
                 formatScalarValue(scalarValue);
@@ -130,7 +131,7 @@ void FormatEnum(TStringBuilderBase* builder, T value, bool lowerCase)
 }
 
 template <class T>
-TString FormatEnum(T value)
+std::string FormatEnum(T value)
 {
     TStringBuilder builder;
     FormatEnum(&builder, value, /*lowerCase*/ true);

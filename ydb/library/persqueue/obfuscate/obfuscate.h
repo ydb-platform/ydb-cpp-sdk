@@ -1,9 +1,9 @@
 #pragma once
 
-#include <util/generic/fwd.h>
+#include <string>
 
 namespace NPersQueue {
 
-TString ObfuscateString(TString str);
+std::string ObfuscateString(std::string str);
 
 } // namespace NPersQueue

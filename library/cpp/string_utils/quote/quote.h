@@ -1,7 +1,6 @@
 #pragma once
 
-#include <util/generic/strbuf.h>
-#include <util/generic/string.h>
+#include <string>
 
 //CGIEscape*:
 // ' ' converted to '+',
@@ -10,17 +9,17 @@
 // Returns pointer to the end of the result string
 char* CGIEscape(char* to, const char* from);
 char* CGIEscape(char* to, const char* from, size_t len);
-inline char* CGIEscape(char* to, const TStringBuf from) {
+inline char* CGIEscape(char* to, const std::string_view from) {
     return CGIEscape(to, from.data(), from.size());
 }
-void CGIEscape(TString& url);
-TString CGIEscapeRet(const TStringBuf url);
-TString& AppendCgiEscaped(const TStringBuf value, TString& to);
+void CGIEscape(std::string& url);
+std::string CGIEscapeRet(const std::string_view url);
+std::string& AppendCgiEscaped(const std::string_view value, std::string& to);
 
-inline TStringBuf CgiEscapeBuf(char* to, const TStringBuf from) {
-    return TStringBuf(to, CGIEscape(to, from.data(), from.size()));
+inline std::string_view CgiEscapeBuf(char* to, const std::string_view from) {
+    return std::string_view(to, CGIEscape(to, from.data(), from.size()));
 }
-inline TStringBuf CgiEscape(void* tmp, const TStringBuf s) {
+inline std::string_view CgiEscape(void* tmp, const std::string_view s) {
     return CgiEscapeBuf(static_cast<char*>(tmp), s);
 }
 
@@ -30,37 +29,37 @@ inline TStringBuf CgiEscape(void* tmp, const TStringBuf s) {
 // If pointer returned, then this is pointer to the end of the result string.
 char* CGIUnescape(char* to, const char* from);
 char* CGIUnescape(char* to, const char* from, size_t len);
-void CGIUnescape(TString& url);
-TString CGIUnescapeRet(const TStringBuf from);
+void CGIUnescape(std::string& url);
+std::string CGIUnescapeRet(const std::string_view from);
 
-inline TStringBuf CgiUnescapeBuf(char* to, const TStringBuf from) {
-    return TStringBuf(to, CGIUnescape(to, from.data(), from.size()));
+inline std::string_view CgiUnescapeBuf(char* to, const std::string_view from) {
+    return std::string_view(to, CGIUnescape(to, from.data(), from.size()));
 }
-inline TStringBuf CgiUnescape(void* tmp, const TStringBuf s) {
+inline std::string_view CgiUnescape(void* tmp, const std::string_view s) {
     return CgiUnescapeBuf(static_cast<char*>(tmp), s);
 }
 
 //Quote:
 // Is like CGIEscape, also skips encoding of user-supplied 'safe' characters.
 char* Quote(char* to, const char* from, const char* safe = "/");
-char* Quote(char* to, const TStringBuf s, const char* safe = "/");
-void Quote(TString& url, const char* safe = "/");
+char* Quote(char* to, const std::string_view s, const char* safe = "/");
+void Quote(std::string& url, const char* safe = "/");
 
 //UrlEscape:
 // Can't be used for cgi parameters ('&' character is not escaped)!
 // escapes only '%' not followed by two hex-digits or if forceEscape set to ture,
 // and chars outside [32, 126] range.
-// Can't handle '\0'-chars in TString.
+// Can't handle '\0'-chars in std::string.
 char* UrlEscape(char* to, const char* from, bool forceEscape = false);
-void UrlEscape(TString& url, bool forceEscape = false);
-TString UrlEscapeRet(const TStringBuf from, bool forceEscape = false);
+void UrlEscape(std::string& url, bool forceEscape = false);
+std::string UrlEscapeRet(const std::string_view from, bool forceEscape = false);
 
 //UrlUnescape:
 // '+' is NOT converted to space!
 // %xx converted to bytes, other characters are copied unchanged.
-char* UrlUnescape(char* to, TStringBuf from);
-void UrlUnescape(TString& url);
-TString UrlUnescapeRet(const TStringBuf from);
+char* UrlUnescape(char* to, std::string_view from);
+void UrlUnescape(std::string& url);
+std::string UrlUnescapeRet(const std::string_view from);
 
 //*BufLen: how much characters you should allocate for 'char* to' buffers.
 constexpr size_t CgiEscapeBufLen(const size_t len) noexcept {

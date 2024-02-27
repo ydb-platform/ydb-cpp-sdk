@@ -8,7 +8,7 @@
 
 namespace NYdb::NQuery {
 
-TSession::TImpl::TImpl(TStreamProcessorPtr ptr, const TString& sessionId, const TString& endpoint)
+TSession::TImpl::TImpl(TStreamProcessorPtr ptr, const std::string& sessionId, const std::string& endpoint)
     : TKqpSessionCommon(sessionId, endpoint, true)
     , StreamProcessor_(ptr)
 {

@@ -25,7 +25,7 @@ bool TJsonCallbacks::OnDouble(double) {
     return true;
 }
 
-bool TJsonCallbacks::OnString(const TStringBuf&) {
+bool TJsonCallbacks::OnString(const std::string_view&) {
     return true;
 }
 
@@ -33,7 +33,7 @@ bool TJsonCallbacks::OnOpenMap() {
     return true;
 }
 
-bool TJsonCallbacks::OnMapKey(const TStringBuf&) {
+bool TJsonCallbacks::OnMapKey(const std::string_view&) {
     return true;
 }
 
@@ -49,11 +49,11 @@ bool TJsonCallbacks::OnCloseArray() {
     return true;
 }
 
-bool TJsonCallbacks::OnStringNoCopy(const TStringBuf& s) {
+bool TJsonCallbacks::OnStringNoCopy(const std::string_view& s) {
     return OnString(s);
 }
 
-bool TJsonCallbacks::OnMapKeyNoCopy(const TStringBuf& s) {
+bool TJsonCallbacks::OnMapKeyNoCopy(const std::string_view& s) {
     return OnMapKey(s);
 }
 
@@ -61,7 +61,7 @@ bool TJsonCallbacks::OnEnd() {
     return true;
 }
 
-void TJsonCallbacks::OnError(size_t off, TStringBuf reason) {
+void TJsonCallbacks::OnError(size_t off, std::string_view reason) {
     HaveErrors = true;
     if (ThrowException) {
         ythrow TJsonException() << "JSON error at offset " << off << " (" << reason << ")";

@@ -1,9 +1,8 @@
 #include "json_writer.h"
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/charset/utf8.h>
-#include <util/generic/algorithm.h>
-#include <util/string/cast.h>
-#include <util/system/yassert.h>
 
 namespace NJson {
     TJsonWriter::TJsonWriter(IOutputStream* out, bool formatOutput, bool sortkeys, bool validateUtf8)
@@ -68,14 +67,14 @@ namespace NJson {
         Buf.EndList();
     }
 
-    void TJsonWriter::Write(const TStringBuf& value) {
+    void TJsonWriter::Write(const std::string_view& value) {
         if (ValidateUtf8 && !IsUtf(value))
             throw yexception() << "JSON writer: invalid UTF-8";
         if (Buf.KeyExpected()) {
             Buf.WriteKey(value);
         } else {
             if (DontEscapeStrings) {
-                Buf.UnsafeWriteValue(TString("\"") + value + '"');
+                Buf.UnsafeWriteValue(NUtils::TYdbStringBuilder() << "\"" << value << '"');
             } else {
                 Buf.WriteString(value);
             }
@@ -108,7 +107,7 @@ namespace NJson {
 
     namespace {
         struct TLessStrPtr {
-            bool operator()(const TString* a, const TString* b) const {
+            bool operator()(const std::string* a, const std::string* b) const {
                 return *a < *b;
             }
         };
@@ -122,13 +121,13 @@ namespace NJson {
         Buf.WriteJsonValue(&v, SortKeys, FloatToStringMode, DoubleNDigits);
     }
 
-    TString WriteJson(const TJsonValue* value, bool formatOutput, bool sortkeys, bool validateUtf8) {
+    std::string WriteJson(const TJsonValue* value, bool formatOutput, bool sortkeys, bool validateUtf8) {
         TStringStream ss;
         WriteJson(&ss, value, formatOutput, sortkeys, validateUtf8);
         return ss.Str();
     }
 
-    TString WriteJson(const TJsonValue& value, bool formatOutput, bool sortkeys, bool validateUtf8) {
+    std::string WriteJson(const TJsonValue& value, bool formatOutput, bool sortkeys, bool validateUtf8) {
         TStringStream ss;
         WriteJson(&ss, &value, formatOutput, sortkeys, validateUtf8);
         return ss.Str();

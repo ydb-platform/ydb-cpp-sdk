@@ -2,7 +2,6 @@
 
 #include <client/impl/ydb_endpoints/endpoints.h>
 #include <client/impl/ydb_internal/session_client/session_client.h>
-#include <client/impl/ydb_internal/common/type_switcher.h>
 
 #include <util/datetime/base.h>
 #include <util/system/spinlock.h>
@@ -12,11 +11,11 @@
 namespace NYdb {
 
 ////////////////////////////////////////////////////////////////////////////////
-ui64 GetNodeIdFromSession(const TStringType& sessionId);
+ui64 GetNodeIdFromSession(const std::string& sessionId);
 
 class TKqpSessionCommon : public TEndpointObj {
 public:
-    TKqpSessionCommon(const TStringType& sessionId, const TStringType& endpoint,
+    TKqpSessionCommon(const std::string& sessionId, const std::string& endpoint,
         bool isOwnedBySessionPool);
 
     enum EState {
@@ -30,7 +29,7 @@ public:
 public:
     ~TKqpSessionCommon();
 
-    const TStringType& GetId() const;
+    const std::string& GetId() const;
     const std::string& GetEndpoint() const;
     const TEndpointKey& GetEndpointKey() const;
     void MarkBroken();
@@ -41,7 +40,7 @@ public:
     EState GetState() const;
     void SetNeedUpdateActiveCounter(bool flag);
     bool NeedUpdateActiveCounter() const;
-    void InvalidateQueryInCache(const TStringType& key);
+    void InvalidateQueryInCache(const std::string& key);
     void InvalidateQueryCache();
     void ScheduleTimeToTouch(TDuration interval, bool updateTimeInPast);
     void ScheduleTimeToTouchFast(TDuration interval, bool updateTimeInPast);
@@ -59,7 +58,7 @@ protected:
     TAdaptiveLock Lock_;
 
 private:
-    const TStringType SessionId_;
+    const std::string SessionId_;
     const TEndpointKey EndpointKey_;
     const bool IsOwnedBySessionPool_;
 
