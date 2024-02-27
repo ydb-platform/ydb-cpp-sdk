@@ -64,7 +64,7 @@ TWriteSessionImpl::TWriteSessionImpl(
     }
     if (Settings.PreferredCluster_ && !Settings.AllowFallbackToOtherClusters_) {
         TargetCluster = *Settings.PreferredCluster_;
-        TargetCluster.to_lower();
+        NUtils::ToLower(TargetCluster);
     }
     if (Settings.Counters_.Defined()) {
         Counters = *Settings.Counters_;
@@ -183,7 +183,7 @@ void TWriteSessionImpl::DoCdsRequest(TDuration delay) {
 
             LOG_LAZY(DbDriverState->Log, TLOG_INFO, LogPrefix() << "Do schedule cds request after " << delay.MilliSeconds() << " ms\n");
             auto cdsRequestCall = [req_=std::move(req), extr=std::move(extractor), connections = std::shared_ptr<TGRpcConnectionsImpl>(Connections), dbState=DbDriverState, settings=Settings]() mutable {
-                LOG_LAZY(dbState->Log, TLOG_INFO, TYdbStringBuilder() << "MessageGroupId [" << settings.MessageGroupId_ << "] Running cds request ms\n");
+                LOG_LAZY(dbState->Log, TLOG_INFO, NUtils::TYdbStringBuilder() << "MessageGroupId [" << settings.MessageGroupId_ << "] Running cds request ms\n");
                 connections->RunDeferred<Ydb::PersQueue::V1::ClusterDiscoveryService,
                                         Ydb::PersQueue::ClusterDiscovery::DiscoverClustersRequest,
                                         Ydb::PersQueue::ClusterDiscovery::DiscoverClustersResponse>(
@@ -230,7 +230,7 @@ void TWriteSessionImpl::OnCdsResponse(
 
         for (const auto& clusterInfo : wsClusters.clusters()) {
             std::string normalizedName = clusterInfo.name();
-            normalizedName.to_lower();
+            NUtils::ToLower(normalizedName);
 
             if(isFirst) {
                 isFirst = false;
@@ -238,16 +238,16 @@ void TWriteSessionImpl::OnCdsResponse(
             }
 
             if (!clusterInfo.available()) {
-                if (TargetCluster && TargetCluster == normalizedName) {
+                if (!TargetCluster.empty() && TargetCluster == normalizedName) {
                     errorStatus = EStatus::UNAVAILABLE;
-                    issues.AddIssue(TYdbStringBuilder() << "Selected destination cluster: " << normalizedName
+                    issues.AddIssue(NUtils::TYdbStringBuilder() << "Selected destination cluster: " << normalizedName
                                                      << " is currently disabled");
                     break;
                 }
                 continue;
             }
             if (clusterInfo.endpoint().empty()) {
-                issues.AddIssue(TYdbStringBuilder() << "Unexpected reply from cluster discovery. Empty endpoint for cluster "
+                issues.AddIssue(NUtils::TYdbStringBuilder() << "Unexpected reply from cluster discovery. Empty endpoint for cluster "
                                                  << normalizedName);
             } else {
                 name = clusterInfo.name();
@@ -257,7 +257,7 @@ void TWriteSessionImpl::OnCdsResponse(
         }
         if (endpoint.empty()) {
             errorStatus = EStatus::GENERIC_ERROR;
-            issues.AddIssue(TYdbStringBuilder() << "Could not get valid endpoint from cluster discovery");
+            issues.AddIssue(NUtils::TYdbStringBuilder() << "Could not get valid endpoint from cluster discovery");
         }
     }
     if (issues) {
@@ -268,7 +268,7 @@ void TWriteSessionImpl::OnCdsResponse(
             return;
     }
     with_lock(Lock) {
-        if (!InitialCluster) {
+        if (InitialCluster.empty()) {
             InitialCluster = name;
         }
         CurrentCluster = name;
@@ -521,7 +521,7 @@ void TWriteSessionImpl::OnConnectTimeout(const NYdbGrpc::IQueueClientContextPtr&
         } else {
             return;
         }
-        TYdbStringBuilder description;
+        NUtils::TYdbStringBuilder description;
         description << "Failed to establish connection to server. Attempts done: " << ConnectionAttemptsDone;
         handleResult = RestartImpl(TPlainStatus(EStatus::TIMEOUT, description));
         if (handleResult.DoStop) {
@@ -560,7 +560,7 @@ void TWriteSessionImpl::OnConnect(
                 CloseImpl(
                         st.Status,
                         MakeIssueWithSubIssues(
-                                TYdbStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
+                                NUtils::TYdbStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
                                                  << "\". Attempts done: " << ConnectionAttemptsDone,
                                 st.Issues
                         )
@@ -700,12 +700,12 @@ void TWriteSessionImpl::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t co
     ProcessHandleResult(processResult.HandleResult);
 }
 
-TYdbStringBuilder TWriteSessionImpl::LogPrefix() const {
-    return TYdbStringBuilder() << "MessageGroupId [" << Settings.MessageGroupId_ << "] SessionId [" << SessionId << "] ";
+NUtils::TYdbStringBuilder TWriteSessionImpl::LogPrefix() const {
+    return NUtils::TYdbStringBuilder() << "MessageGroupId [" << Settings.MessageGroupId_ << "] SessionId [" << SessionId << "] ";
 }
 
 std::string TWriteSessionEvent::TAcksEvent::DebugString() const {
-    TYdbStringBuilder res;
+    NUtils::TYdbStringBuilder res;
     res << "AcksEvent:";
     for (auto& ack : Acks) {
         res << " { seqNo : " << ack.SeqNo << ", State : " << ack.State;
@@ -731,7 +731,7 @@ TWriteSessionImpl::TProcessSrvMessageResult TWriteSessionImpl::ProcessServerMess
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     TProcessSrvMessageResult result;
-    switch (ServerMessage->GetServerMessageCase()) {
+    switch (ServerMessage->server_message_case()) {
         case TServerMessage::SERVER_MESSAGE_NOT_SET: {
             SessionEstablished = false;
             result.HandleResult = OnErrorImpl({
@@ -1095,7 +1095,7 @@ bool TWriteSessionImpl::IsReadyToSendNextImpl() {
 }
 
 void TWriteSessionImpl::DumpState() {
-    TYdbStringBuilder s;
+    NUtils::TYdbStringBuilder s;
     s << "STATE:\n";
 
     auto omts = OriginalMessagesToSend;

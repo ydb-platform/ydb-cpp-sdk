@@ -28,7 +28,7 @@ IInputStream* CreateDecompressorStream(TInputStreamVariant& inputStreamStorage, 
 std::string Decompress(const Ydb::PersQueue::V1::MigrationStreamingReadServerMessage::DataBatch::MessageData& data) {
     TMemoryInput input(data.data().data(), data.data().size());
     std::string result;
-    std::stringOutput resultOutput(result);
+    NUtils::TStringOutput resultOutput(result);
     TInputStreamVariant inputStreamStorage;
     TransferData(CreateDecompressorStream(inputStreamStorage, data.codec(), &input), &resultOutput);
     return result;

@@ -704,7 +704,7 @@ public:
                     return this->PartitionSessionId;
                 }
             }();
-            ThrowFatalError(TYdbStringBuilder() << "Invalid offset range [" << startOffset << ", " << endOffset << ") : range must start from "
+            ThrowFatalError(NUtils::TYdbStringBuilder() << "Invalid offset range [" << startOffset << ", " << endOffset << ") : range must start from "
                                              << MaxCommittedOffset << " or has some offsets that are committed already. Partition stream id: -" << id << Endl);
             return false;
         }
@@ -1003,7 +1003,7 @@ public:
     void DumpStatisticsToLog(TLogElement& log);
     void UpdateMemoryUsageStatistics();
 
-    TYdbStringBuilder GetLogPrefix() const;
+    NUtils::TYdbStringBuilder GetLogPrefix() const;
 
     const TLog& GetLog() const {
         return Log;
@@ -1261,7 +1261,7 @@ public:
     void ClearAllEvents();
 
 private:
-    TYdbStringBuilder GetLogPrefix() const;
+    NUtils::TYdbStringBuilder GetLogPrefix() const;
 
     // Start
     bool ValidateSettings();

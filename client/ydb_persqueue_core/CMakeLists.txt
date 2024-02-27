@@ -1,4 +1,5 @@
 add_subdirectory(impl)
+# add_subdirectory(ut)
 
 get_built_tool_path(
   TOOL_enum_parser_bin

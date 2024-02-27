@@ -34,8 +34,8 @@ std::pair<ui64, ui64> GetMessageOffsetRange(const TReadSessionEvent::TDataReceiv
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TReadSession
 
-TYdbStringBuilder TReadSession::GetLogPrefix() const {
-     return TYdbStringBuilder() << GetDatabaseLogPrefix(DbDriverState->Database) << "[" << SessionId << "] ";
+NUtils::TYdbStringBuilder TReadSession::GetLogPrefix() const {
+     return NUtils::TYdbStringBuilder() << GetDatabaseLogPrefix(DbDriverState->Database) << "[" << SessionId << "] ";
 }
 
 TReadSession::TReadSession(const TReadSessionSettings& settings,
@@ -256,7 +256,7 @@ void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueu
         // Init ClusterSessions.
         if (static_cast<size_t>(result.read_sessions_clusters_size()) != Settings.Topics_.size()) {
             ++*Settings.Counters_->Errors;
-            AbortImpl(EStatus::INTERNAL_ERROR, TYdbStringBuilder() << "Unexpected reply from cluster discovery. Sizes of topics arrays don't match: "
+            AbortImpl(EStatus::INTERNAL_ERROR, NUtils::TYdbStringBuilder() << "Unexpected reply from cluster discovery. Sizes of topics arrays don't match: "
                       << result.read_sessions_clusters_size() << " vs " << Settings.Topics_.size(), deferred);
             return;
         }
@@ -265,7 +265,7 @@ void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueu
         if (explicitlySpecifiedClusters) {
             for (const std::string& cluster : Settings.Clusters_) {
                 std::string normalizedName = cluster;
-                normalizedName.to_lower();
+                NUtils::ToLower(normalizedName);
                 ClusterSessions.emplace(normalizedName, normalizedName);
             }
         }
@@ -277,7 +277,7 @@ void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueu
             const Ydb::PersQueue::ClusterDiscovery::ReadSessionClusters& readSessionClusters = result.read_sessions_clusters(topicIndex);
             for (const Ydb::PersQueue::ClusterDiscovery::ClusterInfo& cluster : readSessionClusters.clusters()) {
                 std::string normalizedName = cluster.name();
-                normalizedName.to_lower();
+                NUtils::ToLower(normalizedName);
                 THashMap<std::string, TClusterSessionInfo>::iterator clusterSessionInfoIter;
                 if (explicitlySpecifiedClusters) {
                     clusterSessionInfoIter = ClusterSessions.find(normalizedName);
@@ -289,16 +289,16 @@ void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueu
                 }
                 TClusterSessionInfo& clusterSessionInfo = clusterSessionInfoIter->second;
                 if (cluster.endpoint().empty()) {
-                    issues.AddIssue(TYdbStringBuilder() << "Unexpected reply from cluster discovery. Empty endpoint for cluster "
+                    issues.AddIssue(NUtils::TYdbStringBuilder() << "Unexpected reply from cluster discovery. Empty endpoint for cluster "
                                     << normalizedName);
                 }
                 auto fullEndpoint = ApplyClusterEndpoint(DbDriverState->DiscoveryEndpoint, cluster.endpoint());
-                if (clusterSessionInfo.ClusterEndpoint && clusterSessionInfo.ClusterEndpoint != fullEndpoint) {
-                    issues.AddIssue(TYdbStringBuilder() << "Unexpected reply from cluster discovery. Different endpoints for one cluster name. Cluster: "
+                if (!clusterSessionInfo.ClusterEndpoint.empty() && clusterSessionInfo.ClusterEndpoint != fullEndpoint) {
+                    issues.AddIssue(NUtils::TYdbStringBuilder() << "Unexpected reply from cluster discovery. Different endpoints for one cluster name. Cluster: "
                                     << normalizedName << ". \"" << clusterSessionInfo.ClusterEndpoint << "\" vs \""
                                     << fullEndpoint << "\"");
                 }
-                if (!clusterSessionInfo.ClusterEndpoint) {
+                if (clusterSessionInfo.ClusterEndpoint.empty()) {
                     clusterSessionInfo.ClusterEndpoint = fullEndpoint;
                 }
                 clusterSessionInfo.Topics.reserve(Settings.Topics_.size());
@@ -310,7 +310,7 @@ void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueu
         for (const auto& [cluster, clusterInfo] : ClusterSessions) {
             if (clusterInfo.Topics.empty()) { // If specified explicitly by user.
                 errorStatus = EStatus::BAD_REQUEST;
-                issues.AddIssue(TYdbStringBuilder() << "Unsupported cluster: " << cluster);
+                issues.AddIssue(NUtils::TYdbStringBuilder() << "Unsupported cluster: " << cluster);
             }
         }
 
@@ -423,7 +423,7 @@ bool TReadSession::Close(TDuration timeout) {
         }
 
         NYql::TIssues issues;
-        issues.AddIssue(TYdbStringBuilder() << "Session was closed after waiting " << timeout);
+        issues.AddIssue(NUtils::TYdbStringBuilder() << "Session was closed after waiting " << timeout);
         EventsQueue->Close(TSessionClosedEvent(EStatus::TIMEOUT, std::move(issues)), deferred);
     }
 
@@ -623,7 +623,7 @@ std::string DebugString(const TReadSessionEvent::TEvent& event) {
 }
 
 std::string TReadSessionEvent::TDataReceivedEvent::DebugString(bool printData) const {
-    TYdbStringBuilder ret;
+    NUtils::TYdbStringBuilder ret;
     ret << "DataReceived { PartitionStreamId: " << GetPartitionStream()->GetPartitionStreamId()
         << " PartitionId: " << GetPartitionStream()->GetPartitionId();
     for (const auto& message : Messages) {
@@ -639,14 +639,14 @@ std::string TReadSessionEvent::TDataReceivedEvent::DebugString(bool printData) c
 }
 
 std::string TReadSessionEvent::TCommitAcknowledgementEvent::DebugString() const {
-    return TYdbStringBuilder() << "CommitAcknowledgement { PartitionStreamId: " << GetPartitionStream()->GetPartitionStreamId()
+    return NUtils::TYdbStringBuilder() << "CommitAcknowledgement { PartitionStreamId: " << GetPartitionStream()->GetPartitionStreamId()
                             << " PartitionId: " << GetPartitionStream()->GetPartitionId()
                             << " CommittedOffset: " << GetCommittedOffset()
                             << " }";
 }
 
 std::string TReadSessionEvent::TCreatePartitionStreamEvent::DebugString() const {
-    return TYdbStringBuilder() << "CreatePartitionStream { PartitionStreamId: " << GetPartitionStream()->GetPartitionStreamId()
+    return NUtils::TYdbStringBuilder() << "CreatePartitionStream { PartitionStreamId: " << GetPartitionStream()->GetPartitionStreamId()
                             << " TopicPath: " << GetPartitionStream()->GetTopicPath()
                             << " Cluster: " << GetPartitionStream()->GetCluster()
                             << " PartitionId: " << GetPartitionStream()->GetPartitionId()
@@ -656,14 +656,14 @@ std::string TReadSessionEvent::TCreatePartitionStreamEvent::DebugString() const 
 }
 
 std::string TReadSessionEvent::TDestroyPartitionStreamEvent::DebugString() const {
-    return TYdbStringBuilder() << "DestroyPartitionStream { PartitionStreamId: " << GetPartitionStream()->GetPartitionStreamId()
+    return NUtils::TYdbStringBuilder() << "DestroyPartitionStream { PartitionStreamId: " << GetPartitionStream()->GetPartitionStreamId()
                             << " PartitionId: " << GetPartitionStream()->GetPartitionId()
                             << " CommittedOffset: " << GetCommittedOffset()
                             << " }";
 }
 
 std::string TReadSessionEvent::TPartitionStreamStatusEvent::DebugString() const {
-    return TYdbStringBuilder() << "PartitionStreamStatus { PartitionStreamId: " << GetPartitionStream()->GetPartitionStreamId()
+    return NUtils::TYdbStringBuilder() << "PartitionStreamStatus { PartitionStreamId: " << GetPartitionStream()->GetPartitionStreamId()
                             << " PartitionId: " << GetPartitionStream()->GetPartitionId()
                             << " CommittedOffset: " << GetCommittedOffset()
                             << " ReadOffset: " << GetReadOffset()
@@ -673,7 +673,7 @@ std::string TReadSessionEvent::TPartitionStreamStatusEvent::DebugString() const 
 }
 
 std::string TReadSessionEvent::TPartitionStreamClosedEvent::DebugString() const {
-    return TYdbStringBuilder() << "PartitionStreamClosed { PartitionStreamId: " << GetPartitionStream()->GetPartitionStreamId()
+    return NUtils::TYdbStringBuilder() << "PartitionStreamClosed { PartitionStreamId: " << GetPartitionStream()->GetPartitionStreamId()
                             << " PartitionId: " << GetPartitionStream()->GetPartitionId()
                             << " Reason: " << GetReason()
                             << " }";
@@ -681,7 +681,7 @@ std::string TReadSessionEvent::TPartitionStreamClosedEvent::DebugString() const 
 
 std::string TSessionClosedEvent::DebugString() const {
     return
-        TYdbStringBuilder() << "SessionClosed { Status: " << GetStatus()
+        NUtils::TYdbStringBuilder() << "SessionClosed { Status: " << GetStatus()
                          << " Issues: \"" << IssuesSingleLineString(GetIssues())
                          << "\" }";
 }
@@ -893,7 +893,7 @@ void TDeferredCommit::TImpl::Add(const TReadSessionEvent::TDataReceivedEvent::TM
 
 void TDeferredCommit::TImpl::Add(const TPartitionStream::TPtr& partitionStream, TDisjointIntervalTree<ui64>& offsetSet, ui64 startOffset, ui64 endOffset) {
     if (offsetSet.Intersects(startOffset, endOffset)) {
-        ThrowFatalError(TYdbStringBuilder() << "Commit set already has some offsets from half-interval ["
+        ThrowFatalError(NUtils::TYdbStringBuilder() << "Commit set already has some offsets from half-interval ["
                                          << startOffset << "; " << endOffset
                                          << ") for partition stream with id " << partitionStream->GetPartitionStreamId());
     } else {
@@ -910,7 +910,7 @@ void TDeferredCommit::TImpl::Add(const TPartitionStream::TPtr& partitionStream, 
     Y_ASSERT(partitionStream);
     auto& offsetSet = Offsets[partitionStream];
     if (offsetSet.Has(offset)) {
-        ThrowFatalError(TYdbStringBuilder() << "Commit set already has offset " << offset
+        ThrowFatalError(NUtils::TYdbStringBuilder() << "Commit set already has offset " << offset
                                          << " for partition stream with id " << partitionStream->GetPartitionStreamId());
     } else {
         offsetSet.Insert(offset);

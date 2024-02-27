@@ -115,7 +115,7 @@ private:
 
         if (logCounters) {
             LOG_LAZY(Log, TLOG_INFO,
-                TYdbStringBuilder() << Prefix << "Counters: {"
+                NUtils::TYdbStringBuilder() << Prefix << "Counters: {"
                 C(Errors)
                 C(CurrentSessionLifetimeMs)
                 C(BytesRead)

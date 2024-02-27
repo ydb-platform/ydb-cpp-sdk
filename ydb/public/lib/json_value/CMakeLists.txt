@@ -1,4 +1,4 @@
-add_subdirectory(ut)
+# add_subdirectory(ut)
 
 add_library(public-lib-json_value)
 

@@ -8,8 +8,8 @@
 
 namespace NUtils {
 
-void ToLower(std::string& str);
 std::string ToLower(const std::string& str);
+void ToLower(std::string& str);
 
 std::string ToTitle(const std::string& s);
 

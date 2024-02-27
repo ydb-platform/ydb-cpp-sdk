@@ -226,8 +226,8 @@ void TRawPartitionStreamEventQueue<UseMigrationProtocol>::DeleteNotReadyTail(TDe
 // TSingleClusterReadSessionImpl
 
 template<bool UseMigrationProtocol>
-TYdbStringBuilder TSingleClusterReadSessionImpl<UseMigrationProtocol>::GetLogPrefix() const {
-    return TYdbStringBuilder() << GetDatabaseLogPrefix(Database) << "[" << SessionId << "] [" << ClusterName << "] ";
+NUtils::TYdbStringBuilder TSingleClusterReadSessionImpl<UseMigrationProtocol>::GetLogPrefix() const {
+    return NUtils::TYdbStringBuilder() << GetDatabaseLogPrefix(Database) << "[" << SessionId << "] [" << ClusterName << "] ";
 }
 
 template<bool UseMigrationProtocol>
@@ -395,7 +395,7 @@ void TSingleClusterReadSessionImpl<UseMigrationProtocol>::OnConnectTimeout(const
     }
 
     ++*Settings.Counters_->Errors;
-    TYdbStringBuilder description;
+    NUtils::TYdbStringBuilder description;
     description << "Failed to establish connection to server. Attempts done: " << ConnectionAttemptsDone;
     if (!Reconnect(TPlainStatus(EStatus::TIMEOUT, description))) {
         AbortSession(EStatus::TIMEOUT, description);
@@ -433,7 +433,7 @@ void TSingleClusterReadSessionImpl<UseMigrationProtocol>::OnConnect(
         ++*Settings.Counters_->Errors;
         if (!Reconnect(st)) {
             AbortSession(
-                st.Status, MakeIssueWithSubIssues(TYdbStringBuilder() << "Failed to establish connection to server \""
+                st.Status, MakeIssueWithSubIssues(NUtils::TYdbStringBuilder() << "Failed to establish connection to server \""
                                                                    << st.Endpoint << "\" ( cluster " << ClusterName
                                                                    << "). Attempts done: " << ConnectionAttemptsDone,
                                                   st.Issues));
@@ -573,7 +573,7 @@ bool TSingleClusterReadSessionImpl<UseMigrationProtocol>::IsActualPartitionStrea
 
 template<bool UseMigrationProtocol>
 void TSingleClusterReadSessionImpl<UseMigrationProtocol>::ConfirmPartitionStreamCreate(const TPartitionStreamImpl<UseMigrationProtocol>* partitionStream, TMaybe<ui64> readOffset, TMaybe<ui64> commitOffset) {
-    TYdbStringBuilder commitOffsetLogStr;
+    NUtils::TYdbStringBuilder commitOffsetLogStr;
     if (commitOffset) {
         commitOffsetLogStr << ". Commit offset: " << *commitOffset;
     }
@@ -965,7 +965,7 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
         if (partitionStreamIt == PartitionStreams.end()) {
             ++*Settings.Counters_->Errors;
             BreakConnectionAndReconnectImpl(EStatus::INTERNAL_ERROR,
-                                            TYdbStringBuilder()
+                                            NUtils::TYdbStringBuilder()
                                                 << "Got unexpected partition stream data message. Topic: "
                                                 << partitionData.topic() << ". Partition: " << partitionData.partition()
                                                 << " AssignId: " << partitionData.cookie().assign_id(),
@@ -1003,7 +1003,7 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
         }
         if (firstOffset == std::numeric_limits<ui64>::max()) {
             BreakConnectionAndReconnectImpl(EStatus::INTERNAL_ERROR,
-                                            TYdbStringBuilder() << "Got empty data message. Topic: "
+                                            NUtils::TYdbStringBuilder() << "Got empty data message. Topic: "
                                                 << partitionData.topic()
                                                 << ". Partition: " << partitionData.partition()
                                                 << " message: " << msg,
@@ -1014,7 +1014,7 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
         partitionStream->SetFirstNotReadOffset(desiredOffset);
         if (!CookieMapping.AddMapping(cookie)) {
             BreakConnectionAndReconnectImpl(EStatus::INTERNAL_ERROR,
-                                            TYdbStringBuilder() << "Got unexpected data message. Topic: "
+                                            NUtils::TYdbStringBuilder() << "Got unexpected data message. Topic: "
                                                 << partitionData.topic()
                                                 << ". Partition: " << partitionData.partition()
                                                 << ". Cookie mapping already has such cookie",
@@ -1224,7 +1224,7 @@ inline void TSingleClusterReadSessionImpl<false>::OnReadDoneImpl(
         if (partitionStreamIt == PartitionStreams.end()) {
             ++*Settings.Counters_->Errors;
             BreakConnectionAndReconnectImpl(EStatus::INTERNAL_ERROR,
-                                            TYdbStringBuilder() << "Got unexpected partition stream data message. "
+                                            NUtils::TYdbStringBuilder() << "Got unexpected partition stream data message. "
                                             << "PartitionSessionId: " << partitionData.partition_session_id(),
                                             deferred);
             return;
@@ -1258,7 +1258,7 @@ inline void TSingleClusterReadSessionImpl<false>::OnReadDoneImpl(
         }
         if (firstOffset == std::numeric_limits<i64>::max()) {
             BreakConnectionAndReconnectImpl(EStatus::INTERNAL_ERROR,
-                                            TYdbStringBuilder() << "Got empty data message. "
+                                            NUtils::TYdbStringBuilder() << "Got empty data message. "
                                                 << "PartitionSessionId: " << partitionData.partition_session_id()
                                                 << " message: " << msg,
                                             deferred);
@@ -1726,7 +1726,7 @@ typename TSingleClusterReadSessionImpl<UseMigrationProtocol>::TPartitionCookieMa
         UncommittedOffsetToCookie.erase(cookieIt);
         return cookie;
     } else {
-        ThrowFatalError(TYdbStringBuilder() << "Invalid offset " << offset << ". Partition stream id: " << partitionStreamId << Endl);
+        ThrowFatalError(NUtils::TYdbStringBuilder() << "Invalid offset " << offset << ". Partition stream id: " << partitionStreamId << Endl);
     }
     // If offset wasn't found, there might be already hard released partition.
     // This situation is OK.
@@ -2472,7 +2472,7 @@ void TDataDecompressionEvent<UseMigrationProtocol>::TakeData(TIntrusivePtr<TPart
     // Clear data to free internal session's memory.
     messageData.clear_data();
 
-    LOG_LAZY(partitionStream->GetLog(), TLOG_DEBUG, TYdbStringBuilder()
+    LOG_LAZY(partitionStream->GetLog(), TLOG_DEBUG, NUtils::TYdbStringBuilder()
                                         << "Take Data. Partition " << partitionStream->GetPartitionId()
                                         << ". Read: {" << Batch << ", " << Message << "} ("
                                         << minOffset << "-" << maxOffset << ")");
@@ -2590,7 +2590,7 @@ void TDataDecompressionInfo<UseMigrationProtocol>::TDecompressionTask::operator(
         }
     }
     if (auto session = Parent->CbContext->LockShared()) {
-        LOG_LAZY(session->GetLog(), TLOG_DEBUG, TYdbStringBuilder() << "Decompression task done. Partition/PartitionSessionId: "
+        LOG_LAZY(session->GetLog(), TLOG_DEBUG, NUtils::TYdbStringBuilder() << "Decompression task done. Partition/PartitionSessionId: "
                                                                  << partition_id << " (" << minOffset << "-"
                                                                  << maxOffset << ")");
     }

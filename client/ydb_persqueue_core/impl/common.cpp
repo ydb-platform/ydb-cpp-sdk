@@ -76,9 +76,9 @@ NYql::TIssues MakeIssueWithSubIssues(const std::string& description, const NYql:
 }
 
 static std::string_view SplitPort(std::string_view endpoint) {
-    for (int i = endpoint.Size() - 1; i >= 0; --i) {
+    for (int i = endpoint.size() - 1; i >= 0; --i) {
         if (endpoint[i] == ':') {
-            return endpoint.SubString(i + 1, std::string_view::npos);
+            return endpoint.substr(i + 1, std::string_view::npos);
         }
         if (!IsDigit(endpoint[i])) {
             return std::string_view(); // empty
@@ -89,20 +89,20 @@ static std::string_view SplitPort(std::string_view endpoint) {
 
 std::string ApplyClusterEndpoint(std::string_view driverEndpoint, const std::string& clusterDiscoveryEndpoint) {
     const std::string_view clusterDiscoveryPort = SplitPort(clusterDiscoveryEndpoint);
-    if (!clusterDiscoveryPort.Empty()) {
+    if (!clusterDiscoveryPort.empty()) {
         return clusterDiscoveryEndpoint;
     }
 
     const std::string_view driverPort = SplitPort(driverEndpoint);
-    if (driverPort.Empty()) {
+    if (driverPort.empty()) {
         return clusterDiscoveryEndpoint;
     }
 
     const bool hasColon = clusterDiscoveryEndpoint.find(':') != std::string::npos;
     if (hasColon) {
-        return TYdbStringBuilder() << '[' << clusterDiscoveryEndpoint << "]:" << driverPort;
+        return NUtils::TYdbStringBuilder() << '[' << clusterDiscoveryEndpoint << "]:" << driverPort;
     } else {
-        return TYdbStringBuilder() << clusterDiscoveryEndpoint << ':' << driverPort;
+        return NUtils::TYdbStringBuilder() << clusterDiscoveryEndpoint << ':' << driverPort;
     }
 }
 
