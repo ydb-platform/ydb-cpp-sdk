@@ -4,6 +4,10 @@ description: Install required packages
 runs:
   using: "composite"
   steps:
+    - name: Update package lists
+      shell: bash
+      run: sudo apt-get update
+      
     - name: Install dependencies
       shell: bash
       run: |
