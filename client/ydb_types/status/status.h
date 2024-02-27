@@ -1,7 +1,6 @@
 #pragma once
 
 #include <client/ydb_types/fatal_error_handlers/handlers.h>
-#include <client/impl/ydb_internal/common/type_switcher.h>
 #include <client/ydb_types/ydb.h>
 
 #include <ydb/library/yql/public/issue/yql_issue.h>

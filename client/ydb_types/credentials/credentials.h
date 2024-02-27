@@ -1,8 +1,9 @@
 #pragma once
 
-#include <client/impl/ydb_internal/common/type_switcher.h>
+#include <util/system/compiler.h>
 
 #include <memory>
+#include <string>
 
 namespace NYdb {
 

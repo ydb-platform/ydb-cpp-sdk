@@ -1,13 +1,10 @@
 #pragma once
 
 #include <client/ydb_types/status_codes.h>
-#include <client/impl/ydb_internal/common/type_switcher.h>
 
 #include <ydb/library/grpc/client/grpc_client_low.h>
 #include <library/cpp/monlib/metrics/metric_registry.h>
 #include <library/cpp/monlib/metrics/histogram_collector.h>
-
-#include <util/string/builder.h>
 
 #include <atomic>
 #include <memory>
@@ -207,16 +204,16 @@ public:
 
         void IncSyncRetryOperation(const EStatus& status) {
             if (auto registry = MetricRegistry_.Get()) {
-                std::string statusName = TYdbStringBuilder() << status;
-                std::string sensor = TYdbStringBuilder() << "RetryOperation/" << UnderscoreToUpperCamel(statusName);
+                std::string statusName = NUtils::TYdbStringBuilder() << status;
+                std::string sensor = NUtils::TYdbStringBuilder() << "RetryOperation/" << UnderscoreToUpperCamel(statusName);
                 registry->Rate({ {"database", Database_}, {"sensor", sensor} })->Inc();
             }
         }
 
         void IncAsyncRetryOperation(const EStatus& status) {
             if (auto registry = MetricRegistry_.Get()) {
-                std::string statusName = TYdbStringBuilder() << status;
-                std::string sensor = TYdbStringBuilder() << "RetryOperation/" << UnderscoreToUpperCamel(statusName);
+                std::string statusName = NUtils::TYdbStringBuilder() << status;
+                std::string sensor = NUtils::TYdbStringBuilder() << "RetryOperation/" << UnderscoreToUpperCamel(statusName);
                 registry->Rate({ {"database", Database_}, {"sensor", sensor} })->Inc();
             }
         }

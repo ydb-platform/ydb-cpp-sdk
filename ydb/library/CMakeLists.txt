@@ -9,7 +9,7 @@
 add_subdirectory(grpc)
 add_subdirectory(login)
 add_subdirectory(persqueue)
-# add_subdirectory(security)
+add_subdirectory(security)
 add_subdirectory(uuid)
 add_subdirectory(yql)
 add_subdirectory(yverify_stream)

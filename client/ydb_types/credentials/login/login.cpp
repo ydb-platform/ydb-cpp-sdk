@@ -5,6 +5,7 @@
 #include <client/ydb_types/core_facility/core_facility.h>
 #include <ydb/public/api/grpc/ydb_auth_v1.grpc.pb.h>
 #include <ydb/library/login/login.h>
+#include <ydb/library/security/util.h>
 
 #include <util/string/cast.h>
 
@@ -174,7 +175,7 @@ std::string TLoginCredentialsProvider::GetError() const {
             return Ydb::StatusIds_StatusCode_Name(Response_.operation().status());
         }
     } else {
-        TYdbStringBuilder str;
+        NUtils::TYdbStringBuilder str;
         str << "Couldn't get token for provided credentials from " << Status_.Endpoint
             << " with status " << Status_.Status << ".";
         for (const auto& issue : Status_.Issues) {

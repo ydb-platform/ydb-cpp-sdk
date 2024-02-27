@@ -1,6 +1,9 @@
 #define INCLUDE_YDB_INTERNAL_H
 #include "helpers.h"
 #include <client/ydb_types/fatal_error_handlers/handlers.h>
+
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/string/builder.h>
 
 namespace NYdb {
@@ -89,7 +92,7 @@ bool TypesEqual(const Ydb::Type& t1, const Ydb::Type& t2) {
                     }
                     return true;
                 default:
-                    ThrowFatalError(TYdbStringBuilder() << "Unexpected Variant type case " << static_cast<int>(t1.type_case()));
+                    ThrowFatalError(NUtils::TYdbStringBuilder() << "Unexpected Variant type case " << static_cast<int>(t1.type_case()));
                     return false;
             }
             return false;
@@ -103,7 +106,7 @@ bool TypesEqual(const Ydb::Type& t1, const Ydb::Type& t2) {
         case Ydb::Type::kEmptyDictType:
             return true;
         default:
-            ThrowFatalError(TYdbStringBuilder() << "Unexpected type case " << static_cast<int>(t1.type_case()));
+            ThrowFatalError(NUtils::TYdbStringBuilder() << "Unexpected type case " << static_cast<int>(t1.type_case()));
             return false;
     }
 }

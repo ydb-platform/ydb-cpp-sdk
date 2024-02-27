@@ -2,6 +2,8 @@
 
 #include <client/impl/ydb_internal/internal_header.h>
 
+#include <util/system/types.h>
+
 namespace NYdb {
 
 constexpr ui64 TCP_KEEPALIVE_IDLE = 30; // The time the connection needs to remain idle

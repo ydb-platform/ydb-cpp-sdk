@@ -75,7 +75,7 @@ std::pair<NThreading::TFuture<TEndpointUpdateResult>, bool> TEndpointPool::Updat
                     if (addr.empty()) {
                         continue;
                     }
-                    TYdbStringBuilder endpointBuilder;
+                    NUtils::TYdbStringBuilder endpointBuilder;
                     endpointBuilder << "ipv6:";
                     if (addr[0] != '[') {
                         endpointBuilder << "[";
@@ -94,7 +94,7 @@ std::pair<NThreading::TFuture<TEndpointUpdateResult>, bool> TEndpointPool::Updat
                         continue;
                     }
                     std::string endpointString =
-                        TYdbStringBuilder()
+                        NUtils::TYdbStringBuilder()
                             << "ipv4:"
                             << addr
                             << ":"
@@ -104,7 +104,7 @@ std::pair<NThreading::TFuture<TEndpointUpdateResult>, bool> TEndpointPool::Updat
                 }
                 if (addDefault) {
                     std::string endpointString =
-                        TYdbStringBuilder()
+                        NUtils::TYdbStringBuilder()
                             << endpoint.address()
                             << ":"
                             << endpoint.port();

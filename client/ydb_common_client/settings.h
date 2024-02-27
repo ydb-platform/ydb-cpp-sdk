@@ -4,7 +4,6 @@
 #include <client/ydb_types/fluent_settings_helpers.h>
 #include <client/ydb_types/ydb.h>
 
-#include <client/impl/ydb_internal/common/type_switcher.h>
 #include <client/impl/ydb_internal/common/ssl_credentials.h>
 #include <functional>
 

@@ -1,6 +1,8 @@
 #define INCLUDE_YDB_INTERNAL_H
 #include "log.h"
 
+#include <library/cpp/string_builder/string_builder.h>
+
 #include <util/datetime/base.h>
 #include <util/string/builder.h>
 
@@ -30,8 +32,8 @@ TLogFormatter GetPrefixLogFormatter(const std::string& prefix) {
         constexpr size_t endlLen = 1;
 
         const std::string_view priorityString = LogPriorityToString(priority);
-        TYdbStringBuilder result;
-        const size_t toReserve = prefix.size() + message.Size() + timeLen + endlLen + priorityString.Size();
+        NUtils::TYdbStringBuilder result;
+        const size_t toReserve = prefix.size() + message.size() + timeLen + endlLen + priorityString.size();
         result.reserve(toReserve);
 
         result << TInstant::Now() << priorityString << prefix << message << Endl;

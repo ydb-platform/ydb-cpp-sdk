@@ -1,7 +1,6 @@
 #pragma once
 
 #include <client/impl/ydb_internal/internal_header.h>
-#include <client/impl/ydb_internal/common/type_switcher.h>
 
 #include <library/cpp/logger/log.h>
 

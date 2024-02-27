@@ -7,7 +7,6 @@
 #include "params.h"
 
 #include <ydb/public/api/grpc/ydb_discovery_v1.grpc.pb.h>
-#include <client/impl/ydb_internal/common/string_helpers.h>
 #include <client/impl/ydb_internal/db_driver_state/state.h>
 #include <client/impl/ydb_internal/rpc_request_settings/settings.h>
 #include <client/impl/ydb_internal/thread_pool/pool.h>
@@ -189,7 +188,7 @@ public:
                             nullptr,
                             TPlainStatus(
                                 EStatus::CLIENT_UNAUTHENTICATED,
-                                TYdbStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
+                                NUtils::TYdbStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
                             )
                         );
                         return;
@@ -422,7 +421,7 @@ public:
                         responseCb(
                             TPlainStatus(
                                 EStatus::CLIENT_UNAUTHENTICATED,
-                                TYdbStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
+                                NUtils::TYdbStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
                             ),
                             nullptr
                         );
@@ -518,7 +517,7 @@ public:
                         connectedCallback(
                             TPlainStatus(
                                 EStatus::CLIENT_UNAUTHENTICATED,
-                                TYdbStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
+                                NUtils::TYdbStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
                             ),
                             nullptr
                         );
@@ -583,7 +582,7 @@ public:
 #ifndef YDB_GRPC_BYPASS_CHANNEL_POOL
     void DeleteChannels(const std::vector<std::string>& endpoints) override {
         for (const auto& endpoint : endpoints) {
-            ChannelPool_.DeleteChannel(ToStringType(endpoint));
+            ChannelPool_.DeleteChannel(endpoint);
         }
     }
 #endif
@@ -608,7 +607,7 @@ private:
         std::tie(serviceConnection, endpoint) = GetServiceConnection<TService>(dbState, preferredEndpoint, endpointPolicy);
         if (!serviceConnection) {
             if (dbState->DiscoveryMode == EDiscoveryMode::Sync) {
-                std::stringStream errString;
+                TStringStream errString;
                 errString << "Endpoint list is empty for database " << dbState->Database;
                 errString << ", cluster endpoint " << dbState->DiscoveryEndpoint;
                 TPlainStatus discoveryStatus;

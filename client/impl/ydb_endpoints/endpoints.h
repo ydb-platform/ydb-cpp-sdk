@@ -6,7 +6,6 @@
 #include <vector>
 #include <string>
 #include <client/impl/ydb_stats/stats.h>
-#include <client/impl/ydb_internal/common/type_switcher.h>
 
 namespace NYdb {
 

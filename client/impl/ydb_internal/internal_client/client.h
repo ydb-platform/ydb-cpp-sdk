@@ -2,8 +2,6 @@
 
 #include <client/impl/ydb_internal/internal_header.h>
 
-#include <client/impl/ydb_internal/common/type_switcher.h>
-
 #include <client/impl/ydb_internal/common/types.h>
 #include <client/ydb_types/ydb.h>
 #include <client/ydb_types/core_facility/core_facility.h>

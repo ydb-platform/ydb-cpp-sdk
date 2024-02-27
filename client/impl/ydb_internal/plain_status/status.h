@@ -1,7 +1,7 @@
 #pragma once
 
 #include <client/impl/ydb_internal/internal_header.h>
-#include <client/impl/ydb_internal/common/type_switcher.h>
+
 #include <client/ydb_types/status_codes.h>
 
 #include <ydb/public/api/protos/ydb_operation.pb.h>
@@ -64,8 +64,8 @@ struct TPlainStatus {
         return TRANSPORT_STATUSES_FIRST <= status && status <= TRANSPORT_STATUSES_LAST;
     }
 
-    TYdbStringBuilder ToDebugString() const {
-        TYdbStringBuilder ret;
+    NUtils::TYdbStringBuilder ToDebugString() const {
+        NUtils::TYdbStringBuilder ret;
         ret << "Status: " << Status;
         if(!Ok())
             ret << ", Description: " << SubstGlobalCopy(Issues.ToString(), '\n', ' ');

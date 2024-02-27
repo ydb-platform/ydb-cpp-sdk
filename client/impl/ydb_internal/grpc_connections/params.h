@@ -1,7 +1,11 @@
 #pragma once
 
+#include <library/cpp/logger/log.h>
+
 #include <client/impl/ydb_internal/internal_header.h>
+#include <client/impl/ydb_internal/common/types.h>
 #include <client/impl/ydb_internal/common/ssl_credentials.h>
+#include <client/ydb_types/credentials/credentials.h>
 
 namespace NYdb {
 

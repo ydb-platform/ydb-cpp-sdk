@@ -2,7 +2,6 @@
 
 #include <client/impl/ydb_endpoints/endpoints.h>
 #include <client/impl/ydb_internal/internal_header.h>
-#include <client/impl/ydb_internal/common/type_switcher.h>
 
 namespace NYdb {
 

@@ -2,7 +2,6 @@
 
 #include <client/impl/ydb_endpoints/endpoints.h>
 #include <client/impl/ydb_internal/session_client/session_client.h>
-#include <client/impl/ydb_internal/common/type_switcher.h>
 
 #include <util/datetime/base.h>
 #include <util/system/spinlock.h>
