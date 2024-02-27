@@ -2,7 +2,7 @@
 
 #include <client/ydb_value/value.h>
 
-#include <util/generic/string.h>
+#include <string>
 
 namespace Ydb {
     class ResultSet;

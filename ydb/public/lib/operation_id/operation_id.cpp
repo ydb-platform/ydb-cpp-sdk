@@ -148,7 +148,7 @@ TOperationId::TOperationId(const std::string &string, bool allowEmpty) {
     }
 }
 
-Ydb::TOperationId& TOperationId::GetProto() {
+const Ydb::TOperationId& TOperationId::GetProto() const {
     return Proto_;
 }
 

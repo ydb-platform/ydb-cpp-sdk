@@ -19,7 +19,7 @@ using namespace Ydb::Import;
 /// Common
 namespace {
 
-TInstant ProtoTimestampToInstant(const NProtoBuf::Timestamp& timestamp) {
+TInstant ProtoTimestampToInstant(const google::protobuf::Timestamp& timestamp) {
     ui64 us = timestamp.seconds() * 1000000;
     us += timestamp.nanos() / 1000;
     return TInstant::MicroSeconds(us);

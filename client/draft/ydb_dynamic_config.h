@@ -7,7 +7,6 @@
 #include <client/ydb_types/request_settings.h>
 #include <client/ydb_driver/driver.h>
 
-#include <util/generic/string.h>
 #include <util/generic/set.h>
 #include <util/system/types.h>
 

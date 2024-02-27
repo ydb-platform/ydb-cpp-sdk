@@ -24,7 +24,7 @@ using namespace Ydb::Export;
 /// Common
 namespace {
 
-TInstant ProtoTimestampToInstant(const NProtoBuf::Timestamp& timestamp) {
+TInstant ProtoTimestampToInstant(const google::protobuf::Timestamp& timestamp) {
     ui64 us = timestamp.seconds() * 1000000;
     us += timestamp.nanos() / 1000;
     return TInstant::MicroSeconds(us);
@@ -97,7 +97,7 @@ TExportToS3Response::TExportToS3Response(TStatus&& status, Ydb::Operations::Oper
     Metadata_.Settings.Description(metadata.settings().description());
     Metadata_.Settings.NumberOfRetries(metadata.settings().number_of_retries());
 
-    if (metadata.settings().compression()) {
+    if (!metadata.settings().compression().empty()) {
         Metadata_.Settings.Compression(metadata.settings().compression());
     }
 

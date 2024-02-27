@@ -23,6 +23,8 @@
 #include <google/protobuf/util/time_util.h>
 
 #include <library/cpp/cache/cache.h>
+#include <library/cpp/string_utils/misc/misc.h>
+#include <library/cpp/string_utils/string_output/string_output.h>
 
 #include <util/generic/map.h>
 #include <util/random/random.h>
@@ -239,7 +241,7 @@ struct TTableStats {
     TInstant CreationTime;
 };
 
-static TInstant ProtobufTimestampToTInstant(const NProtoBuf::Timestamp& timestamp) {
+static TInstant ProtobufTimestampToTInstant(const google::protobuf::Timestamp& timestamp) {
     ui64 lastModificationUs = timestamp.seconds() * 1000000;
     lastModificationUs += timestamp.nanos() / 1000;
     return TInstant::MicroSeconds(lastModificationUs);
@@ -272,14 +274,14 @@ class TTableDescription::TImpl {
         }
 
         // indexes
-        Indexes_.reserve(proto.indexesSize());
+        Indexes_.reserve(proto.indexes_size());
         for (const auto& index : proto.indexes()) {
             Indexes_.emplace_back(TProtoAccessor::FromProto(index));
         }
 
         if constexpr (std::is_same_v<TProto, Ydb::Table::DescribeTableResult>) {
             // changefeeds
-            Changefeeds_.reserve(proto.changefeedsSize());
+            Changefeeds_.reserve(proto.changefeeds_size());
             for (const auto& changefeed : proto.changefeeds()) {
                 Changefeeds_.emplace_back(TProtoAccessor::FromProto(changefeed));
             }
@@ -405,7 +407,7 @@ public:
     TImpl(const Ydb::Table::CreateTableRequest& request, TCreateTableRequestTag)
         : TImpl(request)
     {
-        if (request.compaction_policy()) {
+        if (!request.compaction_policy().empty()) {
             SetCompactionPolicy(request.compaction_policy());
         }
 
@@ -909,7 +911,7 @@ void TTableDescription::SerializeTo(Ydb::Table::CreateTableRequest& request) con
         (*request.mutable_attributes())[key] = value;
     }
 
-    if (Impl_->GetCompactionPolicy()) {
+    if (!Impl_->GetCompactionPolicy().empty()) {
         request.set_compaction_policy(Impl_->GetCompactionPolicy());
     }
 
@@ -920,7 +922,7 @@ void TTableDescription::SerializeTo(Ydb::Table::CreateTableRequest& request) con
     if (const auto& partitionAtKeys = Impl_->GetPartitionAtKeys()) {
         auto* borders = request.mutable_partition_at_keys();
         for (const auto& splitPoint : partitionAtKeys->SplitPoints_) {
-            auto* border = borders->Addsplit_points();
+            auto* border = borders->add_split_points();
             border->mutable_type()->CopyFrom(TProtoAccessor::GetProto(splitPoint.GetType()));
             border->mutable_value()->CopyFrom(TProtoAccessor::GetProto(splitPoint));
         }
@@ -1475,7 +1477,7 @@ static void ConvertCreateTableSettingsToProto(const TCreateTableSettings& settin
         if (policy.ExplicitPartitions_) {
             auto* borders = proto->mutable_partitioning_policy()->mutable_explicit_partitions();
             for (const auto& splitPoint : policy.ExplicitPartitions_->SplitPoints_) {
-                auto* border = borders->Addsplit_points();
+                auto* border = borders->add_split_points();
                 border->mutable_type()->CopyFrom(TProtoAccessor::GetProto(splitPoint.GetType()));
                 border->mutable_value()->CopyFrom(TProtoAccessor::GetProto(splitPoint));
             }
@@ -1560,7 +1562,7 @@ TSession::TSession(std::shared_ptr<TTableClient::TImpl> client, const std::strin
             isOwnedBySessionPool),
         TSession::TImpl::GetSmartDeleter(client))
 {
-    if (endpointId) {
+    if (!endpointId.empty()) {
         Client_->LinkObjToEndpoint(SessionImpl_->GetEndpointKey(), SessionImpl_.get(), Client_.get());
     }
 }
@@ -1667,7 +1669,7 @@ static Ydb::Table::AlterTableRequest MakeAlterTableProtoRequest(
         (*request.mutable_alter_attributes())[key] = value;
     }
 
-    if (settings.SetCompactionPolicy_) {
+    if (!settings.SetCompactionPolicy_.empty()) {
         request.set_set_compaction_policy(settings.SetCompactionPolicy_);
     }
 
@@ -2293,7 +2295,7 @@ void TIndexDescription::SerializeTo(Ydb::Table::TableIndex& proto) const {
 
 std::string TIndexDescription::ToString() const {
     std::string result;
-    std::stringOutput out(result);
+    NUtils::TStringOutput out(result);
     Out(out);
     return result;
 }
@@ -2544,7 +2546,7 @@ void TChangefeedDescription::SerializeTo(Ydb::Table::Changefeed& proto) const {
 
 std::string TChangefeedDescription::ToString() const {
     std::string result;
-    std::stringOutput out(result);
+    NUtils::TStringOutput out(result);
     Out(out);
     return result;
 }
@@ -2563,7 +2565,7 @@ void TChangefeedDescription::Out(IOutputStream& o) const {
         o << ", retention_period: " << *RetentionPeriod_;
     }
 
-    if (AwsRegion_) {
+    if (!AwsRegion_.empty()) {
         o << ", aws_region: " << AwsRegion_;
     }
 
@@ -2646,13 +2648,13 @@ void TValueSinceUnixEpochModeSettings::Out(IOutputStream& out, EUnit unit) {
 
 std::string TValueSinceUnixEpochModeSettings::ToString(EUnit unit) {
     std::string result;
-    std::stringOutput out(result);
+    NUtils::TStringOutput out(result);
     Out(out, unit);
     return result;
 }
 
 TValueSinceUnixEpochModeSettings::EUnit TValueSinceUnixEpochModeSettings::UnitFromString(const std::string& value) {
-    const auto norm = to_lower(value);
+    const auto norm = NUtils::ToLower(value);
 
     if (norm == "s" || norm == "sec" || norm == "seconds") {
         return EUnit::Seconds;

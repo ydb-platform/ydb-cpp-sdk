@@ -15,7 +15,7 @@ public:
     explicit TOperationId(const std::string& string, bool allowEmpty = false);
     const std::vector<const std::string*>& GetValue(const std::string& key) const;
     std::string GetSubKind() const;
-    Ydb::TOperationId& GetProto();
+    const Ydb::TOperationId& GetProto() const;
 
 private:
     Ydb::TOperationId Proto_;

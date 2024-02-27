@@ -220,7 +220,7 @@ private:
                     Ydb::Table::ExecuteQueryResult result;
                     any->UnpackTo(&result);
 
-                    for (size_t i = 0; i < result.result_setsSize(); i++) {
+                    for (size_t i = 0; i < result.result_sets_size(); i++) {
                         res.push_back(TResultSet(*result.mutable_result_sets(i)));
                     }
 

@@ -66,7 +66,7 @@ NThreading::TFuture<void> TTableClient::TImpl::Drain() {
     SessionPool_.Drain(drainer, true);
     std::vector<TAsyncStatus> closeResults;
     for (auto& s : sessions) {
-        if (s->GetId()) {
+        if (!s->GetId().empty()) {
             closeResults.push_back(CloseInternal(s.get()));
         }
     }
@@ -107,7 +107,7 @@ void TTableClient::TImpl::StartPeriodicSessionPoolTask() {
                 TSession::TImpl::GetSmartDeleter(strongClient)
             ));
 
-        Y_ABORT_UNLESS(session.GetId());
+        Y_ABORT_UNLESS(!session.GetId().empty());
 
         const auto sessionPoolSettings = session.Client_->Settings_.SessionPoolSettings_;
         const auto spentTime = session.SessionImpl_->GetTimeToTouchFast() - session.SessionImpl_->GetTimeInPastFast();
@@ -898,7 +898,7 @@ void TTableClient::TImpl::DeleteSession(TKqpSessionCommon* sessionImpl) {
         SessionPool_.DecrementActiveCounter();
     }
 
-    if (sessionImpl->GetId()) {
+    if (!sessionImpl->GetId().empty()) {
         CloseInternal(sessionImpl);
         DbDriverState_->StatCollector.DecSessionsOnHost(sessionImpl->GetEndpoint());
     }

@@ -61,7 +61,7 @@ std::string GenerateProtectionKey(size_t size) {
     std::string key;
     if (size > 0) {
         key.resize(size);
-        EntropyPool().Read(key.Detach(), size);
+        EntropyPool().Read(key.data(), size);
     }
     return key;
 }
@@ -165,11 +165,11 @@ TSemaphoreDescription::TSemaphoreDescription(
     Data_ = desc.data();
     Count_ = desc.count();
     Limit_ = desc.limit();
-    Owners_.reserve(desc.ownersSize());
+    Owners_.reserve(desc.owners_size());
     for (const auto& owner : desc.owners()) {
         Owners_.emplace_back(owner);
     }
-    Waiters_.reserve(desc.waitersSize());
+    Waiters_.reserve(desc.waiters_size());
     for (const auto& waiter : desc.waiters()) {
         Waiters_.emplace_back(waiter);
     }
@@ -666,7 +666,7 @@ private:
 private:
     TPlainStatus MakePlainStatus(
         Ydb::StatusIds::StatusCode protoStatus,
-        const NProtoBuf::RepeatedPtrField<Ydb::Issue::IssueMessage>& protoIssues) const
+        const google::protobuf::RepeatedPtrField<Ydb::Issue::IssueMessage>& protoIssues) const
     {
         NYql::TIssues issues;
         NYql::IssuesFromMessage(protoIssues, issues);

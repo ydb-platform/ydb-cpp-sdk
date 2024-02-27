@@ -182,7 +182,10 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
                     resultSet.mutable_columns()->CopyFrom(inRsProto.columns());
                 }
 
-                resultSet.mutable_rows()->Add(inRsProto.rows().begin(), inRsProto.rows().end());
+                resultSet.mutable_rows()->Reserve(resultSet.mutable_rows()->size() + inRsProto.rows_size());
+                for (const auto& row : inRsProto.rows()) {
+                    *resultSet.mutable_rows()->Add() = row;
+                }
             }
 
             if (const auto& st = part.GetStats()) {

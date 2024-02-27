@@ -5,8 +5,10 @@
 #include <ydb/public/api/protos/ydb_common.pb.h>
 #include <ydb/public/api/protos/ydb_value.pb.h>
 
-#include <util/generic/map.h>
-#include <util/string/builder.h>
+#include <library/cpp/string_builder/string_builder.h>
+#include <library/cpp/string_utils/string_output/string_output.h>
+
+#include <util/generic/mapfindptr.h>
 
 #include <google/protobuf/text_format.h>
 
@@ -14,7 +16,7 @@ namespace NYdb {
 
 std::string TColumn::ToString() const {
     std::string result;
-    std::stringOutput out(result);
+    NUtils::TStringOutput out(result);
     Out(out);
     return result;
 }
@@ -120,7 +122,7 @@ public:
         auto& row = ResultSet_.GetProto().rows()[RowIndex_];
 
         if (static_cast<size_t>(row.items_size()) != ColumnsCount()) {
-            FatalError(TYdbStringBuilder() << "Corrupted data: row " << RowIndex_ << " contains " << row.items_size() << " column(s), but metadata contains " << ColumnsCount() << " column(s)");
+            FatalError(NUtils::TYdbStringBuilder() << "Corrupted data: row " << RowIndex_ << " contains " << row.items_size() << " column(s), but metadata contains " << ColumnsCount() << " column(s)");
         }
 
         for (size_t i = 0; i < ColumnsCount(); ++i) {
@@ -138,7 +140,7 @@ public:
 
     TValueParser& ColumnParser(size_t columnIndex) {
         if (columnIndex >= ColumnParsers.size()) {
-            FatalError(TYdbStringBuilder() << "Column index out of bounds: " << columnIndex);
+            FatalError(NUtils::TYdbStringBuilder() << "Column index out of bounds: " << columnIndex);
         }
 
         return ColumnParsers[columnIndex];
@@ -147,7 +149,7 @@ public:
     TValueParser& ColumnParser(const std::string& columnName) {
         auto idx = MapFindPtr(ColumnIndexMap, columnName);
         if (!idx) {
-            FatalError(TYdbStringBuilder() << "Unknown column: " << columnName);
+            FatalError(NUtils::TYdbStringBuilder() << "Unknown column: " << columnName);
         }
 
         return ColumnParser(*idx);
@@ -155,11 +157,11 @@ public:
 
     TValue GetValue(size_t columnIndex) const {
         if (columnIndex >= ColumnParsers.size()) {
-            FatalError(TYdbStringBuilder() << "Column index out of bounds: " << columnIndex);
+            FatalError(NUtils::TYdbStringBuilder() << "Column index out of bounds: " << columnIndex);
         }
 
         if (RowIndex_ == 0) {
-            FatalError(TYdbStringBuilder() << "Row position is undefined");
+            FatalError(NUtils::TYdbStringBuilder() << "Row position is undefined");
         }
 
         const auto& row = ResultSet_.GetProto().rows()[RowIndex_ - 1];
@@ -171,7 +173,7 @@ public:
     TValue GetValue(const std::string& columnName) const {
         auto idx = MapFindPtr(ColumnIndexMap, columnName);
         if (!idx) {
-            FatalError(TYdbStringBuilder() << "Unknown column: " << columnName);
+            FatalError(NUtils::TYdbStringBuilder() << "Unknown column: " << columnName);
         }
 
         return GetValue(*idx);
@@ -179,7 +181,7 @@ public:
 
 private:
     void FatalError(const std::string& msg) const {
-        ThrowFatalError(TYdbStringBuilder() << "TResultSetParser: " << msg);
+        ThrowFatalError(NUtils::TYdbStringBuilder() << "TResultSetParser: " << msg);
     }
 
 private:

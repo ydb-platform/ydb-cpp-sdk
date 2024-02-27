@@ -87,7 +87,7 @@ public:
                         {
                             std::move(status),
                             TYqlPartialResult(
-                                self->Response_.result().Getresult_set_index(),
+                                self->Response_.result().result_set_index(),
                                 TResultSet(std::move(*self->Response_.mutable_result()->mutable_result_set()))
                             ),
                             queryStats
@@ -169,7 +169,7 @@ public:
                     Ydb::Scripting::ExecuteYqlResult result;
                     any->UnpackTo(&result);
 
-                    for (size_t i = 0; i < result.result_setsSize(); i++) {
+                    for (size_t i = 0; i < result.result_sets_size(); i++) {
                         res.push_back(TResultSet(*result.mutable_result_sets(i)));
                     }
 

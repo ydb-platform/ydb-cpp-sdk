@@ -2,7 +2,8 @@
 
 #include <util/datetime/base.h>
 #include <util/generic/maybe.h>
-#include <util/generic/string.h>
+
+#include <string>
 
 #include <memory>
 

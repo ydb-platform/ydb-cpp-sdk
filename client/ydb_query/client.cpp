@@ -120,7 +120,7 @@ public:
 
     TAsyncFetchScriptResultsResult FetchScriptResults(const NKikimr::NOperationId::TOperationId& operationId, int64_t resultSetIndex, const TFetchScriptResultsSettings& settings) {
         auto request = MakeRequest<Ydb::Query::FetchScriptResultsRequest>();
-        request.set_operation_id(NKikimr::NOperationId::ProtoToString(operationId));
+        request.set_operation_id(NKikimr::NOperationId::ProtoToString(operationId.GetProto()));
         request.set_result_set_index(resultSetIndex);
         return FetchScriptResultsImpl(std::move(request), settings);
     }
@@ -241,7 +241,7 @@ public:
 
     TAsyncFetchScriptResultsResult FetchScriptResultsImpl(Ydb::Query::FetchScriptResultsRequest&& request, const TFetchScriptResultsSettings& settings) {
         using namespace Ydb::Query;
-        if (settings.FetchToken_) {
+        if (!settings.FetchToken_.empty()) {
             request.set_fetch_token(settings.FetchToken_);
         }
         request.set_rows_limit(settings.RowsLimit_);
