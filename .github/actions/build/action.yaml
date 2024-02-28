@@ -18,8 +18,8 @@ runs:
       shell: bash
       run: |
         ccache -z
+        cd ../build
         export CCACHE_BASEDIR=`realpath ..`
         export CCACHE_DIR=~/.ccache
-        cd ../build
         ninja
         ccache -s
