@@ -9,11 +9,11 @@
 
 alignas(32) const char NULL_STRING_REPR[128] = {0};
 
-std::ostream& operator<<(std::ostream& os, const TString& s) {
+std::ostream& operator<<(std::ostream& os, const std::string& s) {
     return os.write(s.data(), s.size());
 }
 
-std::istream& operator>>(std::istream& is, TString& s) {
+std::istream& operator>>(std::istream& is, std::string& s) {
     return is >> s.MutRef();
 }
 
@@ -38,7 +38,7 @@ bool TBasicString<char, std::char_traits<char>>::to_title(size_t pos, size_t n) 
 
 template <>
 TUtf16String&
-TBasicString<wchar16, std::char_traits<wchar16>>::AppendAscii(const ::TStringBuf& s) {
+TBasicString<wchar16, std::char_traits<wchar16>>::AppendAscii(const ::std::string_view& s) {
     ReserveAndResize(size() + s.size());
 
     auto dst = begin() + size() - s.size();
@@ -52,7 +52,7 @@ TBasicString<wchar16, std::char_traits<wchar16>>::AppendAscii(const ::TStringBuf
 
 template <>
 TUtf16String&
-TBasicString<wchar16, std::char_traits<wchar16>>::AppendUtf8(const ::TStringBuf& s) {
+TBasicString<wchar16, std::char_traits<wchar16>>::AppendUtf8(const ::std::string_view& s) {
     size_t oldSize = size();
     ReserveAndResize(size() + s.size() * 4);
     size_t written = 0;
@@ -82,7 +82,7 @@ bool TBasicString<wchar16, std::char_traits<wchar16>>::to_title(size_t pos, size
 
 template <>
 TUtf32String&
-TBasicString<wchar32, std::char_traits<wchar32>>::AppendAscii(const ::TStringBuf& s) {
+TBasicString<wchar32, std::char_traits<wchar32>>::AppendAscii(const ::std::string_view& s) {
     ReserveAndResize(size() + s.size());
 
     auto dst = begin() + size() - s.size();
@@ -96,7 +96,7 @@ TBasicString<wchar32, std::char_traits<wchar32>>::AppendAscii(const ::TStringBuf
 
 template <>
 TBasicString<char, std::char_traits<char>>&
-TBasicString<char, std::char_traits<char>>::AppendUtf16(const ::TWtringBuf& s) {
+TBasicString<char, std::char_traits<char>>::AppendUtf16(const ::std::u16string_view& s) {
     const size_t oldSize = size();
     ReserveAndResize(size() + WideToUTF8BufferSize(s.size()));
 
@@ -110,7 +110,7 @@ TBasicString<char, std::char_traits<char>>::AppendUtf16(const ::TWtringBuf& s) {
 
 template <>
 TUtf32String&
-TBasicString<wchar32, std::char_traits<wchar32>>::AppendUtf8(const ::TStringBuf& s) {
+TBasicString<wchar32, std::char_traits<wchar32>>::AppendUtf8(const ::std::string_view& s) {
     size_t oldSize = size();
     ReserveAndResize(size() + s.size() * 4);
     size_t written = 0;
@@ -125,7 +125,7 @@ TBasicString<wchar32, std::char_traits<wchar32>>::AppendUtf8(const ::TStringBuf&
 
 template <>
 TUtf32String&
-TBasicString<wchar32, std::char_traits<wchar32>>::AppendUtf16(const ::TWtringBuf& s) {
+TBasicString<wchar32, std::char_traits<wchar32>>::AppendUtf16(const ::std::u16string_view& s) {
     size_t oldSize = size();
     ReserveAndResize(size() + s.size() * 2);
 

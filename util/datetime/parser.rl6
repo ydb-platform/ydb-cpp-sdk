@@ -457,23 +457,23 @@ template<class TParser, class TResult, bool ThrowExceptionOnFailure = true>
 static inline TResult ParseUnsafe(const char* input, size_t len) {
     TResult r = Parse<TParser, TResult>(input, len, TResult::Max());
     if (ThrowExceptionOnFailure && r == TResult::Max())
-        ythrow TDateTimeParseException() << "error in datetime parsing. Input data: " << TStringBuf(input, len);
+        ythrow TDateTimeParseException() << "error in datetime parsing. Input data: " << std::string_view(input, len);
     return r;
 }
 
-TInstant TInstant::ParseIso8601Deprecated(const TStringBuf input) {
+TInstant TInstant::ParseIso8601Deprecated(const std::string_view input) {
     return ParseUnsafe<TIso8601DateTimeParserDeprecated, TInstant>(input.data(), input.size());
 }
 
-TInstant TInstant::ParseRfc822Deprecated(const TStringBuf input) {
+TInstant TInstant::ParseRfc822Deprecated(const std::string_view input) {
     return ParseUnsafe<TRfc822DateTimeParserDeprecated, TInstant>(input.data(), input.size());
 }
 
-TInstant TInstant::ParseHttpDeprecated(const TStringBuf input) {
+TInstant TInstant::ParseHttpDeprecated(const std::string_view input) {
     return ParseUnsafe<THttpDateTimeParserDeprecated, TInstant>(input.data(), input.size());
 }
 
-TInstant TInstant::ParseX509ValidityDeprecated(const TStringBuf input) {
+TInstant TInstant::ParseX509ValidityDeprecated(const std::string_view input) {
     switch (input.size()) {
     case 13:
         return ParseUnsafe<TX509ValidityDateTimeParserDeprecated, TInstant>(input.data(), 13);
@@ -484,7 +484,7 @@ TInstant TInstant::ParseX509ValidityDeprecated(const TStringBuf input) {
     }
 }
 
-bool TInstant::TryParseIso8601Deprecated(const TStringBuf input, TInstant& instant) {
+bool TInstant::TryParseIso8601Deprecated(const std::string_view input, TInstant& instant) {
     const auto parsed = ParseUnsafe<TIso8601DateTimeParserDeprecated, TInstant, false>(input.data(), input.size());
     if (TInstant::Max() == parsed) {
         return false;
@@ -493,7 +493,7 @@ bool TInstant::TryParseIso8601Deprecated(const TStringBuf input, TInstant& insta
     return true;
 }
 
-bool TInstant::TryParseRfc822Deprecated(const TStringBuf input, TInstant& instant) {
+bool TInstant::TryParseRfc822Deprecated(const std::string_view input, TInstant& instant) {
     const auto parsed = ParseUnsafe<TRfc822DateTimeParserDeprecated, TInstant, false>(input.data(), input.size());
     if (TInstant::Max() == parsed) {
         return false;
@@ -502,7 +502,7 @@ bool TInstant::TryParseRfc822Deprecated(const TStringBuf input, TInstant& instan
     return true;
 }
 
-bool TInstant::TryParseHttpDeprecated(const TStringBuf input, TInstant& instant) {
+bool TInstant::TryParseHttpDeprecated(const std::string_view input, TInstant& instant) {
     const auto parsed = ParseUnsafe<THttpDateTimeParserDeprecated, TInstant, false>(input.data(), input.size());
     if (TInstant::Max() == parsed) {
         return false;
@@ -511,7 +511,7 @@ bool TInstant::TryParseHttpDeprecated(const TStringBuf input, TInstant& instant)
     return true;
 }
 
-bool TInstant::TryParseX509Deprecated(const TStringBuf input, TInstant& instant) {
+bool TInstant::TryParseX509Deprecated(const std::string_view input, TInstant& instant) {
     TInstant parsed;
     switch (input.size()) {
         case 13:
@@ -530,19 +530,19 @@ bool TInstant::TryParseX509Deprecated(const TStringBuf input, TInstant& instant)
     return true;
 }
 
-TInstant TInstant::ParseIso8601(const TStringBuf input) {
+TInstant TInstant::ParseIso8601(const std::string_view input) {
     return ParseUnsafe<TIso8601DateTimeParser, TInstant>(input.data(), input.size());
 }
 
-TInstant TInstant::ParseRfc822(const TStringBuf input) {
+TInstant TInstant::ParseRfc822(const std::string_view input) {
     return ParseUnsafe<TRfc822DateTimeParser, TInstant>(input.data(), input.size());
 }
 
-TInstant TInstant::ParseHttp(const TStringBuf input) {
+TInstant TInstant::ParseHttp(const std::string_view input) {
     return ParseUnsafe<THttpDateTimeParser, TInstant>(input.data(), input.size());
 }
 
-TInstant TInstant::ParseX509Validity(const TStringBuf input) {
+TInstant TInstant::ParseX509Validity(const std::string_view input) {
     switch (input.size()) {
     case 13:
         return ParseUnsafe<TX509ValidityDateTimeParser, TInstant>(input.data(), 13);
@@ -553,7 +553,7 @@ TInstant TInstant::ParseX509Validity(const TStringBuf input) {
     }
 }
 
-bool TInstant::TryParseIso8601(const TStringBuf input, TInstant& instant) {
+bool TInstant::TryParseIso8601(const std::string_view input, TInstant& instant) {
     const auto parsed = ParseUnsafe<TIso8601DateTimeParser, TInstant, false>(input.data(), input.size());
     if (TInstant::Max() == parsed) {
         return false;
@@ -562,7 +562,7 @@ bool TInstant::TryParseIso8601(const TStringBuf input, TInstant& instant) {
     return true;
 }
 
-bool TInstant::TryParseRfc822(const TStringBuf input, TInstant& instant) {
+bool TInstant::TryParseRfc822(const std::string_view input, TInstant& instant) {
     const auto parsed = ParseUnsafe<TRfc822DateTimeParser, TInstant, false>(input.data(), input.size());
     if (TInstant::Max() == parsed) {
         return false;
@@ -571,7 +571,7 @@ bool TInstant::TryParseRfc822(const TStringBuf input, TInstant& instant) {
     return true;
 }
 
-bool TInstant::TryParseHttp(const TStringBuf input, TInstant& instant) {
+bool TInstant::TryParseHttp(const std::string_view input, TInstant& instant) {
     const auto parsed = ParseUnsafe<THttpDateTimeParser, TInstant, false>(input.data(), input.size());
     if (TInstant::Max() == parsed) {
         return false;
@@ -580,7 +580,7 @@ bool TInstant::TryParseHttp(const TStringBuf input, TInstant& instant) {
     return true;
 }
 
-bool TInstant::TryParseX509(const TStringBuf input, TInstant& instant) {
+bool TInstant::TryParseX509(const std::string_view input, TInstant& instant) {
     TInstant parsed;
     switch (input.size()) {
         case 13:
@@ -789,7 +789,7 @@ TDuration TDurationParser::GetResult(TDuration defaultValue) const {
     return TDuration::MicroSeconds(us);
 }
 
-bool TDuration::TryParse(const TStringBuf input, TDuration& result) {
+bool TDuration::TryParse(const std::string_view input, TDuration& result) {
     TDuration r = ::Parse<TDurationParser, TDuration>(input.data(), input.size(), TDuration::Max());
     if (r == TDuration::Max())
         return false;
@@ -797,6 +797,6 @@ bool TDuration::TryParse(const TStringBuf input, TDuration& result) {
     return true;
 }
 
-TDuration TDuration::Parse(const TStringBuf input) {
+TDuration TDuration::Parse(const std::string_view input) {
     return ParseUnsafe<TDurationParser, TDuration>(input.data(), input.size());
 }

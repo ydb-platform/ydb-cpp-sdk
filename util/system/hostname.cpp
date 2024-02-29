@@ -29,7 +29,7 @@ namespace {
             HostName = hostNameBuf.Data();
         }
 
-        TString HostName;
+        std::string HostName;
     };
 
     struct TFQDNHostNameHolder {
@@ -79,11 +79,11 @@ namespace {
 #endif
         }
 
-        TString FQDNHostName;
+        std::string FQDNHostName;
     };
 }
 
-const TString& HostName() {
+const std::string& HostName() {
     return (Singleton<THostNameHolder>())->HostName;
 }
 
@@ -91,7 +91,7 @@ const char* GetHostName() {
     return HostName().data();
 }
 
-const TString& FQDNHostName() {
+const std::string& FQDNHostName() {
     return (Singleton<TFQDNHostNameHolder>())->FQDNHostName;
 }
 
@@ -99,8 +99,8 @@ const char* GetFQDNHostName() {
     return FQDNHostName().data();
 }
 
-bool IsFQDN(const TString& name) {
-    TString absName = name;
+bool IsFQDN(const std::string& name) {
+    std::string absName = name;
     if (!absName.EndsWith('.')) {
         absName.append(".");
     }

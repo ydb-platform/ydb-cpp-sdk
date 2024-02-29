@@ -15,7 +15,7 @@
 #include <util/system/fstat.h>
 #include <util/folder/path.h>
 
-bool NFs::Remove(const TString& path) {
+bool NFs::Remove(const std::string& path) {
 #if defined(_win_)
     return NFsPrivate::WinRemove(path);
 #else
@@ -23,8 +23,8 @@ bool NFs::Remove(const TString& path) {
 #endif
 }
 
-void NFs::RemoveRecursive(const TString& path) {
-    static const TStringBuf errStr = "error while removing ";
+void NFs::RemoveRecursive(const std::string& path) {
+    static const std::string_view errStr = "error while removing ";
 
     if (!NFs::Exists(path)) {
         return;
@@ -52,7 +52,7 @@ void NFs::RemoveRecursive(const TString& path) {
     }
 }
 
-bool NFs::MakeDirectory(const TString& path, EFilePermissions mode) {
+bool NFs::MakeDirectory(const std::string& path, EFilePermissions mode) {
 #if defined(_win_)
     Y_UNUSED(mode);
     return NFsPrivate::WinMakeDirectory(path);
@@ -61,7 +61,7 @@ bool NFs::MakeDirectory(const TString& path, EFilePermissions mode) {
 #endif
 }
 
-bool NFs::MakeDirectoryRecursive(const TString& path, EFilePermissions mode, bool alwaysCreate) {
+bool NFs::MakeDirectoryRecursive(const std::string& path, EFilePermissions mode, bool alwaysCreate) {
     if (NFs::Exists(path) && TFileStat(path).IsDir()) {
         if (alwaysCreate) {
             ythrow TIoException() << "path " << path << " already exists"
@@ -83,7 +83,7 @@ bool NFs::MakeDirectoryRecursive(const TString& path, EFilePermissions mode, boo
     }
 }
 
-bool NFs::Rename(const TString& oldPath, const TString& newPath) {
+bool NFs::Rename(const std::string& oldPath, const std::string& newPath) {
 #if defined(_win_)
     return NFsPrivate::WinRename(oldPath, newPath);
 #else
@@ -91,13 +91,13 @@ bool NFs::Rename(const TString& oldPath, const TString& newPath) {
 #endif
 }
 
-void NFs::HardLinkOrCopy(const TString& existingPath, const TString& newPath) {
+void NFs::HardLinkOrCopy(const std::string& existingPath, const std::string& newPath) {
     if (!NFs::HardLink(existingPath, newPath)) {
         Copy(existingPath, newPath);
     }
 }
 
-bool NFs::HardLink(const TString& existingPath, const TString& newPath) {
+bool NFs::HardLink(const std::string& existingPath, const std::string& newPath) {
 #if defined(_win_)
     return NFsPrivate::WinHardLink(existingPath, newPath);
 #elif defined(_unix_)
@@ -105,7 +105,7 @@ bool NFs::HardLink(const TString& existingPath, const TString& newPath) {
 #endif
 }
 
-bool NFs::SymLink(const TString& targetPath, const TString& linkPath) {
+bool NFs::SymLink(const std::string& targetPath, const std::string& linkPath) {
 #if defined(_win_)
     return NFsPrivate::WinSymLink(targetPath, linkPath);
 #elif defined(_unix_)
@@ -113,7 +113,7 @@ bool NFs::SymLink(const TString& targetPath, const TString& linkPath) {
 #endif
 }
 
-TString NFs::ReadLink(const TString& path) {
+std::string NFs::ReadLink(const std::string& path) {
 #if defined(_win_)
     return NFsPrivate::WinReadLink(path);
 #elif defined(_unix_)
@@ -131,21 +131,21 @@ TString NFs::ReadLink(const TString& path) {
 #endif
 }
 
-void NFs::Cat(const TString& dstPath, const TString& srcPath) {
+void NFs::Cat(const std::string& dstPath, const std::string& srcPath) {
     TUnbufferedFileInput src(srcPath);
     TUnbufferedFileOutput dst(TFile(dstPath, ForAppend | WrOnly | Seq));
 
     TransferData(&src, &dst);
 }
 
-void NFs::Copy(const TString& existingPath, const TString& newPath) {
+void NFs::Copy(const std::string& existingPath, const std::string& newPath) {
     TUnbufferedFileInput src(existingPath);
     TUnbufferedFileOutput dst(TFile(newPath, CreateAlways | WrOnly | Seq));
 
     TransferData(&src, &dst);
 }
 
-bool NFs::Exists(const TString& path) {
+bool NFs::Exists(const std::string& path) {
 #if defined(_win_)
     return NFsPrivate::WinExists(path);
 #elif defined(_unix_)
@@ -153,7 +153,7 @@ bool NFs::Exists(const TString& path) {
 #endif
 }
 
-TString NFs::CurrentWorkingDirectory() {
+std::string NFs::CurrentWorkingDirectory() {
 #if defined(_win_)
     return NFsPrivate::WinCurrentWorkingDirectory();
 #elif defined(_unix_)
@@ -166,7 +166,7 @@ TString NFs::CurrentWorkingDirectory() {
 #endif
 }
 
-void NFs::SetCurrentWorkingDirectory(const TString& path) {
+void NFs::SetCurrentWorkingDirectory(const std::string& path) {
 #ifdef _win_
     bool ok = NFsPrivate::WinSetCurrentWorkingDirectory(path);
 #else

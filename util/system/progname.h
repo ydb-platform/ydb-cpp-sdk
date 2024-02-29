@@ -10,4 +10,4 @@ void SetProgramName(const char* argv0);
     } while (0)
 
 /// guaranted return the same immutable instance of TString
-const TString& GetProgramName();
+const std::string& GetProgramName();

@@ -52,10 +52,10 @@ void PrintTo(const TBasicString<TCharType, TCharTraits>& value, std::ostream* st
     *stream << value.Quote().c_str();
 }
 
-template <typename TCharType, typename TCharTraits>
-void PrintTo(TBasicStringBuf<TCharType, TCharTraits> value, std::ostream* stream) {
-    *stream << TBasicString<TCharType, TCharTraits>{value}.Quote().c_str();
-}
+// template <typename TCharType, typename TCharTraits>
+// void PrintTo(TBasicStringBuf<TCharType, TCharTraits> value, std::ostream* stream) {
+//     *stream << TBasicString<TCharType, TCharTraits>{value}.Quote().c_str();
+// }
 
 template <typename T, typename P>
 void PrintTo(const std::optional<T, P>& value, std::ostream* stream) {

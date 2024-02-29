@@ -5,12 +5,12 @@
 #include <util/system/defaults.h>
 
 template <class TConsumer, class TDelim, typename TChr>
-static inline void DoSplit2(TConsumer& c, TDelim& d, const TBasicStringBuf<TChr> str, int) {
+static inline void DoSplit2(TConsumer& c, TDelim& d, const std::basic_string_view<TChr> str, int) {
     SplitString(str.data(), str.data() + str.size(), d, c);
 }
 
 template <class TConsumer, class TDelim, typename TChr>
-static inline void DoSplit1(TConsumer& cc, TDelim& d, const TBasicStringBuf<TChr> str, int opts) {
+static inline void DoSplit1(TConsumer& cc, TDelim& d, const std::basic_string_view<TChr> str, int opts) {
     if (opts & KEEP_EMPTY_TOKENS) {
         DoSplit2(cc, d, str, opts);
     } else {
@@ -21,8 +21,8 @@ static inline void DoSplit1(TConsumer& cc, TDelim& d, const TBasicStringBuf<TChr
 }
 
 template <class C, class TDelim, typename TChr>
-static inline void DoSplit0(C* res, const TBasicStringBuf<TChr> str, TDelim& d, size_t maxFields, int options) {
-    using TStringType = std::conditional_t<std::is_same<TChr, wchar16>::value, TUtf16String, TString>;
+static inline void DoSplit0(C* res, const std::basic_string_view<TChr> str, TDelim& d, size_t maxFields, int options) {
+    using TStringType = std::conditional_t<std::is_same<TChr, wchar16>::value, TUtf16String, std::string>;
     res->clear();
 
     if (!str.data()) {
@@ -46,8 +46,8 @@ static inline void DoSplit0(C* res, const TBasicStringBuf<TChr> str, TDelim& d, 
 }
 
 template <typename TChr>
-static void SplitStringImplT(std::vector<std::conditional_t<std::is_same<TChr, wchar16>::value, TUtf16String, TString>>* res,
-                             const TBasicStringBuf<TChr> str, const TChr* delim, size_t maxFields, int options) {
+static void SplitStringImplT(std::vector<std::conditional_t<std::is_same<TChr, wchar16>::value, TUtf16String, std::string>>* res,
+                             const std::basic_string_view<TChr> str, const TChr* delim, size_t maxFields, int options) {
     if (!*delim) {
         return;
     }
@@ -63,27 +63,27 @@ static void SplitStringImplT(std::vector<std::conditional_t<std::is_same<TChr, w
     }
 }
 
-void ::NPrivate::SplitStringImpl(std::vector<TString>* res, const char* ptr, const char* delim, size_t maxFields, int options) {
-    return SplitStringImplT<char>(res, TStringBuf(ptr), delim, maxFields, options);
+void ::NPrivate::SplitStringImpl(std::vector<std::string>* res, const char* ptr, const char* delim, size_t maxFields, int options) {
+    return SplitStringImplT<char>(res, std::string_view(ptr), delim, maxFields, options);
 }
 
-void ::NPrivate::SplitStringImpl(std::vector<TString>* res, const char* ptr, size_t len, const char* delim, size_t maxFields, int options) {
-    return SplitStringImplT<char>(res, TStringBuf(ptr, len), delim, maxFields, options);
+void ::NPrivate::SplitStringImpl(std::vector<std::string>* res, const char* ptr, size_t len, const char* delim, size_t maxFields, int options) {
+    return SplitStringImplT<char>(res, std::string_view(ptr, len), delim, maxFields, options);
 }
 
 void ::NPrivate::SplitStringImpl(std::vector<TUtf16String>* res, const wchar16* ptr, const wchar16* delimiter, size_t maxFields, int options) {
-    return SplitStringImplT<wchar16>(res, TWtringBuf(ptr), delimiter, maxFields, options);
+    return SplitStringImplT<wchar16>(res, std::u16string_view(ptr), delimiter, maxFields, options);
 }
 
 void ::NPrivate::SplitStringImpl(std::vector<TUtf16String>* res, const wchar16* ptr, size_t len, const wchar16* delimiter, size_t maxFields, int options) {
-    return SplitStringImplT<wchar16>(res, TWtringBuf(ptr, len), delimiter, maxFields, options);
+    return SplitStringImplT<wchar16>(res, std::u16string_view(ptr, len), delimiter, maxFields, options);
 }
 
-TUtf16String JoinStrings(const std::vector<TUtf16String>& v, const TWtringBuf delim) {
+TUtf16String JoinStrings(const std::vector<TUtf16String>& v, const std::u16string_view delim) {
     return JoinStrings(v.begin(), v.end(), delim);
 }
 
-TUtf16String JoinStrings(const std::vector<TUtf16String>& v, size_t index, size_t count, const TWtringBuf delim) {
+TUtf16String JoinStrings(const std::vector<TUtf16String>& v, size_t index, size_t count, const std::u16string_view delim) {
     const size_t f = Min(index, v.size());
     const size_t l = f + Min(count, v.size() - f);
 

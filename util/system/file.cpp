@@ -8,6 +8,7 @@
 #include <array>
 #include <filesystem>
 
+#include <util/string/escape.h>
 #include <util/string/util.h>
 #include <util/string/cast.h>
 #include <util/string/builder.h>
@@ -158,7 +159,7 @@ TFileHandle::TFileHandle(const std::filesystem::path& path, EOpenMode oMode) noe
     }
 }
 
-TFileHandle::TFileHandle(const TString& fName, EOpenMode oMode) noexcept
+TFileHandle::TFileHandle(const std::string& fName, EOpenMode oMode) noexcept
     : TFileHandle{
           // clang-format: off
           std::filesystem::path(
@@ -303,9 +304,9 @@ TFileHandle::TFileHandle(const std::filesystem::path& path, EOpenMode oMode) noe
     }
 }
 
-TFileHandle::TFileHandle(const TString& fName, EOpenMode oMode) noexcept
+TFileHandle::TFileHandle(const std::string& fName, EOpenMode oMode) noexcept
     : TFileHandle{
-          std::filesystem::path(fName.ConstRef()),
+          std::filesystem::path(fName),
           oMode,
       }
 {
@@ -315,7 +316,7 @@ TFileHandle::TFileHandle(const TString& fName, EOpenMode oMode) noexcept
 #endif
 
 TFileHandle::TFileHandle(const char* fName, EOpenMode oMode) noexcept
-    : TFileHandle(TString(fName), oMode)
+    : TFileHandle(std::string(fName), oMode)
 {
 }
 
@@ -827,7 +828,7 @@ bool TFileHandle::FlushCache(i64 offset, i64 length, bool wait) noexcept {
 #endif
 }
 
-TString DecodeOpenMode(ui32 mode0) {
+std::string DecodeOpenMode(ui32 mode0) {
     ui32 mode = mode0;
 
     TStringBuilder r;
@@ -835,10 +836,10 @@ TString DecodeOpenMode(ui32 mode0) {
 #define F(flag)                   \
     if ((mode & flag) == flag) {  \
         mode &= ~flag;            \
-        if (r) {                  \
-            r << TStringBuf("|"); \
+        if (!r.empty()) {                  \
+            r << std::string_view("|"); \
         }                         \
-        r << TStringBuf(#flag);   \
+        r << std::string_view(#flag);   \
     }
 
     F(RdWr)
@@ -879,14 +880,14 @@ TString DecodeOpenMode(ui32 mode0) {
 #undef F
 
     if (mode != 0) {
-        if (r) {
-            r << TStringBuf("|");
+        if (!r.empty()) {
+            r << std::string_view("|");
         }
 
         r << Hex(mode);
     }
 
-    if (!r) {
+    if (r.empty()) {
         return "0";
     }
 
@@ -895,7 +896,7 @@ TString DecodeOpenMode(ui32 mode0) {
 
 class TFile::TImpl: public TAtomicRefCount<TImpl> {
 public:
-    inline TImpl(FHANDLE fd, const TString& fname = TString())
+    inline TImpl(FHANDLE fd, const std::string& fname = std::string())
         : Handle_(fd)
         , FileName_(fname)
     {
@@ -906,16 +907,16 @@ public:
         , FileName_(fName)
     {
         if (!Handle_.IsOpen()) {
-            ythrow TFileError() << "can't open " << FileName_.Quote() << " with mode " << DecodeOpenMode(oMode) << " (" << Hex(oMode.ToBaseType()) << ")";
+            ythrow TFileError() << "can't open " << NQuote::Quote(FileName_) << " with mode " << DecodeOpenMode(oMode) << " (" << Hex(oMode.ToBaseType()) << ")";
         }
     }
 
-    inline TImpl(const TString& fName, EOpenMode oMode)
+    inline TImpl(const std::string& fName, EOpenMode oMode)
         : Handle_(fName, oMode)
         , FileName_(fName)
     {
         if (!Handle_.IsOpen()) {
-            ythrow TFileError() << "can't open " << FileName_.Quote() << " with mode " << DecodeOpenMode(oMode) << " (" << Hex(oMode.ToBaseType()) << ")";
+            ythrow TFileError() << "can't open " << NQuote::Quote(FileName_) << " with mode " << DecodeOpenMode(oMode) << " (" << Hex(oMode.ToBaseType()) << ")";
         }
     }
 
@@ -924,7 +925,7 @@ public:
         , FileName_(path.string())
     {
         if (!Handle_.IsOpen()) {
-            ythrow TFileError() << "can't open " << FileName_.Quote() << " with mode " << DecodeOpenMode(oMode) << " (" << Hex(oMode.ToBaseType()) << ")";
+            ythrow TFileError() << "can't open " << NQuote::Quote(FileName_) << " with mode " << DecodeOpenMode(oMode) << " (" << Hex(oMode.ToBaseType()) << ")";
         }
     }
 
@@ -932,15 +933,15 @@ public:
 
     inline void Close() {
         if (!Handle_.Close()) {
-            ythrow TFileError() << "can't close " << FileName_.Quote();
+            ythrow TFileError() << "can't close " << NQuote::Quote(FileName_);
         }
     }
 
-    const TString& GetName() const noexcept {
+    const std::string& GetName() const noexcept {
         return FileName_;
     }
 
-    void SetName(const TString& newName) {
+    void SetName(const std::string& newName) {
         FileName_ = newName;
     }
 
@@ -951,51 +952,51 @@ public:
     i64 Seek(i64 offset, SeekDir origin) {
         i64 pos = Handle_.Seek(offset, origin);
         if (pos == -1L) {
-            ythrow TFileError() << "can't seek " << offset << " bytes in " << FileName_.Quote();
+            ythrow TFileError() << "can't seek " << offset << " bytes in " << NQuote::Quote(FileName_);
         }
         return pos;
     }
 
     void Resize(i64 length) {
         if (!Handle_.Resize(length)) {
-            ythrow TFileError() << "can't resize " << FileName_.Quote() << " to size " << length;
+            ythrow TFileError() << "can't resize " << NQuote::Quote(FileName_) << " to size " << length;
         }
     }
 
     void Reserve(i64 length) {
         if (!Handle_.Reserve(length)) {
-            ythrow TFileError() << "can't reserve " << length << " for file " << FileName_.Quote();
+            ythrow TFileError() << "can't reserve " << length << " for file " << NQuote::Quote(FileName_);
         }
     }
 
     void FallocateNoResize(i64 length) {
         if (!Handle_.FallocateNoResize(length)) {
-            ythrow TFileError() << "can't allocate " << length << "bytes of space for file " << FileName_.Quote();
+            ythrow TFileError() << "can't allocate " << length << "bytes of space for file " << NQuote::Quote(FileName_);
         }
     }
 
     void ShrinkToFit() {
         if (!Handle_.ShrinkToFit()) {
-            ythrow TFileError() << "can't shrink " << FileName_.Quote() << " to logical size";
+            ythrow TFileError() << "can't shrink " << NQuote::Quote(FileName_) << " to logical size";
         }
     }
 
     void Flush() {
         if (!Handle_.Flush()) {
-            ythrow TFileError() << "can't flush " << FileName_.Quote();
+            ythrow TFileError() << "can't flush " << NQuote::Quote(FileName_);
         }
     }
 
     void FlushData() {
         if (!Handle_.FlushData()) {
-            ythrow TFileError() << "can't flush data " << FileName_.Quote();
+            ythrow TFileError() << "can't flush data " << NQuote::Quote(FileName_);
         }
     }
 
     TFile Duplicate() const {
         TFileHandle dupH(Handle_.Duplicate());
         if (!dupH.IsOpen()) {
-            ythrow TFileError() << "can't duplicate the handle of " << FileName_.Quote();
+            ythrow TFileError() << "can't duplicate the handle of " << NQuote::Quote(FileName_);
         }
         TFile res(dupH);
         dupH.Release();
@@ -1016,7 +1017,7 @@ public:
         const i32 reallyRead = RawRead(buf, numBytes);
 
         if (reallyRead < 0) {
-            ythrow TFileError() << "can not read data from " << FileName_.Quote();
+            ythrow TFileError() << "can not read data from " << NQuote::Quote(FileName_);
         }
 
         return reallyRead;
@@ -1042,7 +1043,7 @@ public:
 
     void Load(void* buf, size_t len) {
         if (Read(buf, len) != len) {
-            ythrow TFileError() << "can't read " << len << " bytes from " << FileName_.Quote();
+            ythrow TFileError() << "can't read " << len << " bytes from " << NQuote::Quote(FileName_);
         }
     }
 
@@ -1059,7 +1060,7 @@ public:
             const i32 reallyWritten = Handle_.Write(buf, toWrite);
 
             if (reallyWritten < 0) {
-                ythrow TFileError() << "can't write " << toWrite << " bytes to " << FileName_.Quote();
+                ythrow TFileError() << "can't write " << toWrite << " bytes to " << NQuote::Quote(FileName_);
             }
 
             buf += reallyWritten;
@@ -1075,7 +1076,7 @@ public:
             const i32 reallyRead = RawPread(buf, toRead, offset);
 
             if (reallyRead < 0) {
-                ythrow TFileError() << "can not read data from " << FileName_.Quote();
+                ythrow TFileError() << "can not read data from " << NQuote::Quote(FileName_);
             }
 
             if (reallyRead == 0) {
@@ -1097,7 +1098,7 @@ public:
 
     void Pload(void* buf, size_t len, i64 offset) const {
         if (Pread(buf, len, offset) != len) {
-            ythrow TFileError() << "can't read " << len << " bytes at offset " << offset << " from " << FileName_.Quote();
+            ythrow TFileError() << "can't read " << len << " bytes at offset " << offset << " from " << NQuote::Quote(FileName_);
         }
     }
 
@@ -1109,7 +1110,7 @@ public:
             const i32 reallyWritten = Handle_.Pwrite(buf, toWrite, offset);
 
             if (reallyWritten < 0) {
-                ythrow TFileError() << "can't write " << toWrite << " bytes to " << FileName_.Quote();
+                ythrow TFileError() << "can't write " << toWrite << " bytes to " << NQuote::Quote(FileName_);
             }
 
             buf += reallyWritten;
@@ -1120,13 +1121,13 @@ public:
 
     void Flock(int op) {
         if (0 != Handle_.Flock(op)) {
-            ythrow TFileError() << "can't flock " << FileName_.Quote();
+            ythrow TFileError() << "can't flock " << NQuote::Quote(FileName_);
         }
     }
 
     void SetDirect() {
         if (!Handle_.SetDirect()) {
-            ythrow TFileError() << "can't set direct mode for " << FileName_.Quote();
+            ythrow TFileError() << "can't set direct mode for " << NQuote::Quote(FileName_);
         }
     }
 
@@ -1148,13 +1149,13 @@ public:
 
     void FlushCache(i64 offset, i64 length, bool wait) {
         if (!Handle_.FlushCache(offset, length, wait)) {
-            ythrow TFileError() << "can't flush data " << FileName_.Quote();
+            ythrow TFileError() << "can't flush data " << NQuote::Quote(FileName_);
         }
     }
 
 private:
     TFileHandle Handle_;
-    TString FileName_;
+    std::string FileName_;
 };
 
 TFile::TFile()
@@ -1167,7 +1168,7 @@ TFile::TFile(FHANDLE fd)
 {
 }
 
-TFile::TFile(FHANDLE fd, const TString& name)
+TFile::TFile(FHANDLE fd, const std::string& name)
     : Impl_(new TImpl(fd, name))
 {
 }
@@ -1177,7 +1178,7 @@ TFile::TFile(const char* fName, EOpenMode oMode)
 {
 }
 
-TFile::TFile(const TString& fName, EOpenMode oMode)
+TFile::TFile(const std::string& fName, EOpenMode oMode)
     : Impl_(new TImpl(fName, oMode))
 {
 }
@@ -1193,7 +1194,7 @@ void TFile::Close() {
     Impl_->Close();
 }
 
-const TString& TFile::GetName() const noexcept {
+const std::string& TFile::GetName() const noexcept {
     return Impl_->GetName();
 }
 
@@ -1317,12 +1318,12 @@ void TFile::LinkTo(const TFile& f) const {
     }
 }
 
-TFile TFile::Temporary(const TString& prefix) {
+TFile TFile::Temporary(const std::string& prefix) {
     //TODO - handle impossible case of name collision
     return TFile(prefix + ToString(MicroSeconds()) + "-" + ToString(RandomNumber<ui64>()), CreateNew | RdWr | Seq | Temp | Transient);
 }
 
-TFile TFile::ForAppend(const TString& path) {
+TFile TFile::ForAppend(const std::string& path) {
     return TFile(path, OpenAlways | WrOnly | Seq | ::ForAppend);
 }
 

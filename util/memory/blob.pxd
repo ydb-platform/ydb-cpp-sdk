@@ -27,13 +27,13 @@ cdef extern from "util/memory/blob.h" nogil:
         TBlob Copy(const void* data, size_t length) except +
 
         @staticmethod
-        TBlob FromFile(const TString& path) except +
+        TBlob FromFile(const std::string& path) except +
 
         @staticmethod
-        TBlob PrechargedFromFile(const TString& path) except +
+        TBlob PrechargedFromFile(const std::string& path) except +
 
         @staticmethod
-        TBlob FromString(const TString& s) except +
+        TBlob FromString(const std::string& s) except +
 
         ui8& operator[](size_t) const
         TBlob& operator=(TBlob&)

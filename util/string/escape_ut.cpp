@@ -9,10 +9,10 @@ using namespace std::string_view_literals;
 
 namespace {
     struct TExample {
-        TString Expected;
-        TString Source;
+        std::string Expected;
+        std::string Source;
 
-        TExample(const TStringBuf expected, const TStringBuf source)
+        TExample(const std::string_view expected, const std::string_view source)
             : Expected{expected}
             , Source{source}
         {
@@ -49,10 +49,10 @@ static const TExample CommonTestData[] = {
 Y_UNIT_TEST_SUITE(TEscapeCTest) {
     Y_UNIT_TEST(TestStrokaEscapeC) {
         for (const auto& e : CommonTestData) {
-            TString expected(e.Expected);
-            TString source(e.Source);
-            TString actual(EscapeC(e.Source));
-            TString actual2(UnescapeC(e.Expected));
+            std::string expected(e.Expected);
+            std::string source(e.Source);
+            std::string actual(EscapeC(e.Source));
+            std::string actual2(UnescapeC(e.Expected));
 
             UNIT_ASSERT_VALUES_EQUAL(e.Expected, actual);
             UNIT_ASSERT_VALUES_EQUAL(e.Source, actual2);
@@ -137,7 +137,7 @@ Y_UNIT_TEST_SUITE(TEscapeCTest) {
         for (const auto& x : CommonTestData) {
             char* end = UnescapeC(x.Expected.data(), x.Expected.size(), buf);
 
-            UNIT_ASSERT_VALUES_EQUAL(x.Source, TStringBuf(buf, end));
+            UNIT_ASSERT_VALUES_EQUAL(x.Source, std::string_view(buf, end));
         }
     }
 

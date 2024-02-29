@@ -25,17 +25,17 @@ public:
      * up to the user to make sure that the string doesn't get destroyed while
      * this stream is in use.
      *
-     * For reading data from `TStringBuf`s, see `TMemoryInput` (`util/stream/mem.h`).
+     * For reading data from `std::string_view`s, see `TMemoryInput` (`util/stream/mem.h`).
      *
      * @param s                         String to read from.
      */
-    inline TStringInput(const TString& s) noexcept
+    inline TStringInput(const std::string& s) noexcept
         : S_(&s)
         , Pos_(0)
     {
     }
 
-    TStringInput(const TString&&) = delete;
+    TStringInput(const std::string&&) = delete;
 
     ~TStringInput() override;
 
@@ -52,7 +52,7 @@ protected:
     void DoUndo(size_t len) override;
 
 private:
-    const TString* S_;
+    const std::string* S_;
     size_t Pos_;
 
     friend class TStringStream;
@@ -73,7 +73,7 @@ public:
      *
      * @param s                         String to append to.
      */
-    inline TStringOutput(TString& s) noexcept
+    inline TStringOutput(std::string& s) noexcept
         : S_(&s)
     {
     }
@@ -101,14 +101,14 @@ protected:
     void DoWriteC(char c) override;
 
 private:
-    TString* S_;
+    std::string* S_;
 };
 
 /**
  * String input/output stream, similar to `std::stringstream`.
  */
-class TStringStream: private TEmbedPolicy<TString>, public TStringInput, public TStringOutput {
-    using TEmbeddedString = TEmbedPolicy<TString>;
+class TStringStream: private TEmbedPolicy<std::string>, public TStringInput, public TStringOutput {
+    using TEmbeddedString = TEmbedPolicy<std::string>;
 
 public:
     inline TStringStream()
@@ -118,7 +118,7 @@ public:
     {
     }
 
-    inline TStringStream(const TString& string)
+    inline TStringStream(const std::string& string)
         : TEmbeddedString(string)
         , TStringInput(*TEmbeddedString::Ptr())
         , TStringOutput(*TEmbeddedString::Ptr())
@@ -152,14 +152,14 @@ public:
     /**
      * @returns                         String that this stream is writing into.
      */
-    inline TString& Str() noexcept {
+    inline std::string& Str() noexcept {
         return *Ptr();
     }
 
     /**
      * @returns                         String that this stream is writing into.
      */
-    inline const TString& Str() const noexcept {
+    inline const std::string& Str() const noexcept {
         return *Ptr();
     }
 

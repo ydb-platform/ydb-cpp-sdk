@@ -9,6 +9,7 @@
 #include <util/generic/string.h>
 #include <util/generic/yexception.h>
 #include <util/memory/tempbuf.h>
+#include <util/string/escape.h>
 #include <util/system/compiler.h>
 #include <util/system/cpu_id.h>
 #include <util/system/yassert.h>
@@ -24,8 +25,8 @@ class TTempArray;
 using TCharTemp = TTempArray<wchar16>;
 
 namespace NDetail {
-    inline TString InStringMsg(const char* s, size_t len) {
-        return (len <= 50) ? " in string " + TString(s, len).Quote() : TString();
+    inline std::string InStringMsg(const char* s, size_t len) {
+        return (len <= 50) ? " in string \"" + EscapeC(std::string(s, len)) + "\"" : std::string();
     }
 
     template <bool isPointer>
@@ -347,7 +348,7 @@ inline bool UTF8ToWide(const char* text, size_t len, TCharType* dest, size_t& wr
 }
 
 template <bool robust>
-inline TWtringBuf UTF8ToWide(const TStringBuf src, TUtf16String& dst) {
+inline std::u16string_view UTF8ToWide(const std::string_view src, TUtf16String& dst) {
     dst.ReserveAndResize(src.size());
     size_t written = 0;
     UTF8ToWideImpl<robust>(src.data(), src.size(), dst.begin(), written);
@@ -357,7 +358,7 @@ inline TWtringBuf UTF8ToWide(const TStringBuf src, TUtf16String& dst) {
 
 //! if not robust will stop at first error position
 template <bool robust>
-inline TUtf32StringBuf UTF8ToUTF32(const TStringBuf src, TUtf32String& dst) {
+inline std::u32string_view UTF8ToUTF32(const std::string_view src, TUtf32String& dst) {
     dst.ReserveAndResize(src.size());
     size_t written = 0;
     UTF8ToWideImpl<robust>(src.data(), src.size(), dst.begin(), written);
@@ -365,7 +366,7 @@ inline TUtf32StringBuf UTF8ToUTF32(const TStringBuf src, TUtf32String& dst) {
     return dst;
 }
 
-inline TWtringBuf UTF8ToWide(const TStringBuf src, TUtf16String& dst) {
+inline std::u16string_view UTF8ToWide(const std::string_view src, TUtf16String& dst) {
     return UTF8ToWide<false>(src, dst);
 }
 
@@ -374,18 +375,18 @@ inline TUtf16String UTF8ToWide(const char* text, size_t len) {
 }
 
 template <bool robust>
-inline TUtf16String UTF8ToWide(const TStringBuf s) {
+inline TUtf16String UTF8ToWide(const std::string_view s) {
     return UTF8ToWide<robust>(s.data(), s.size());
 }
 
 template <bool robust>
-inline TUtf32String UTF8ToUTF32(const TStringBuf s) {
+inline TUtf32String UTF8ToUTF32(const std::string_view s) {
     TUtf32String r;
     UTF8ToUTF32<robust>(s, r);
     return r;
 }
 
-inline TUtf16String UTF8ToWide(const TStringBuf s) {
+inline TUtf16String UTF8ToWide(const std::string_view s) {
     return UTF8ToWide<false>(s.data(), s.size());
 }
 
@@ -410,38 +411,38 @@ constexpr size_t WideToUTF8BufferSize(const size_t inputStringSize) noexcept {
     return inputStringSize * 4; // * 4 because the conversion functions can convert unicode character into maximum 4 bytes of UTF8
 }
 
-inline TStringBuf WideToUTF8(const TWtringBuf src, TString& dst) {
-    dst.ReserveAndResize(WideToUTF8BufferSize(src.size()));
+inline std::string_view WideToUTF8(const std::u16string_view src, std::string& dst) {
+    dst.resize(WideToUTF8BufferSize(src.size()));
     size_t written = 0;
     WideToUTF8(src.data(), src.size(), dst.begin(), written);
     Y_ASSERT(dst.size() >= written);
-    dst.remove(written);
+    dst.erase(written);
     return dst;
 }
 
-inline TString WideToUTF8(const wchar16* text, size_t len) {
-    TString s = TString::Uninitialized(WideToUTF8BufferSize(len));
+inline std::string WideToUTF8(const wchar16* text, size_t len) {
+    std::string s(WideToUTF8BufferSize(len), '\0');
     size_t written = 0;
     WideToUTF8(text, len, s.begin(), written);
     Y_ASSERT(s.size() >= written);
-    s.remove(written);
+    s.erase(written);
     return s;
 }
 
-inline TString WideToUTF8(const wchar32* text, size_t len) {
-    TString s = TString::Uninitialized(WideToUTF8BufferSize(len));
+inline std::string WideToUTF8(const wchar32* text, size_t len) {
+    std::string s(WideToUTF8BufferSize(len), '\0');
     size_t written = 0;
     WideToUTF8(text, len, s.begin(), written);
     Y_ASSERT(s.size() >= written);
-    s.remove(written);
+    s.erase(written);
     return s;
 }
 
-inline TString WideToUTF8(const TWtringBuf w) {
+inline std::string WideToUTF8(const std::u16string_view w) {
     return WideToUTF8(w.data(), w.size());
 }
 
-inline TString WideToUTF8(const TUtf32StringBuf w) {
+inline std::string WideToUTF8(const std::u32string_view w) {
     return WideToUTF8(w.data(), w.size());
 }
 
@@ -631,7 +632,7 @@ inline void Copy(const TChar1* first, size_t len, TChar2* result) {
 template <typename TStringType, typename TChar>
 inline TStringType CopyTo(const TChar* first, const TChar* last) {
     Y_ASSERT(first <= last);
-    TStringType str = TStringType::Uninitialized(last - first);
+    TStringType str(last - first, '\0');
     Copy(first, last, str.begin());
     return str;
 }
@@ -643,17 +644,17 @@ inline TStringType CopyTo(const TChar* s, size_t n) {
     return str;
 }
 
-inline TString WideToASCII(const TWtringBuf w) {
+inline std::string WideToASCII(const std::u16string_view w) {
     Y_ASSERT(IsStringASCII(w.begin(), w.end()));
-    return CopyTo<TString>(w.begin(), w.end());
+    return CopyTo<std::string>(w.begin(), w.end());
 }
 
-inline TUtf16String ASCIIToWide(const TStringBuf s) {
+inline TUtf16String ASCIIToWide(const std::string_view s) {
     Y_ASSERT(IsStringASCII(s.begin(), s.end()));
     return CopyTo<TUtf16String>(s.begin(), s.end());
 }
 
-inline TUtf32String ASCIIToUTF32(const TStringBuf s) {
+inline TUtf32String ASCIIToUTF32(const std::string_view s) {
     Y_ASSERT(IsStringASCII(s.begin(), s.end()));
     return CopyTo<TUtf32String>(s.begin(), s.end());
 }
@@ -674,7 +675,7 @@ inline bool IsSpace(const wchar16* s, size_t n) {
 }
 
 //! returns @c true if string contains whitespace characters only
-inline bool IsSpace(const TWtringBuf s) {
+inline bool IsSpace(const std::u16string_view s) {
     return IsSpace(s.data(), s.length());
 }
 
@@ -685,15 +686,15 @@ void Collapse(TUtf16String& w);
 size_t Collapse(wchar16* s, size_t n);
 
 //! Removes leading whitespace characters
-TWtringBuf StripLeft(const TWtringBuf text) noexcept Y_WARN_UNUSED_RESULT;
+std::u16string_view StripLeft(const std::u16string_view text) noexcept Y_WARN_UNUSED_RESULT;
 void StripLeft(TUtf16String& text);
 
 //! Removes trailing whitespace characters
-TWtringBuf StripRight(const TWtringBuf text) noexcept Y_WARN_UNUSED_RESULT;
+std::u16string_view StripRight(const std::u16string_view text) noexcept Y_WARN_UNUSED_RESULT;
 void StripRight(TUtf16String& text);
 
 //! Removes leading and trailing whitespace characters
-TWtringBuf Strip(const TWtringBuf text) noexcept Y_WARN_UNUSED_RESULT;
+std::u16string_view Strip(const std::u16string_view text) noexcept Y_WARN_UNUSED_RESULT;
 void Strip(TUtf16String& text);
 
 /* Check if given word is lowercase/uppercase. Will return false if string contains any
@@ -703,13 +704,13 @@ void Strip(TUtf16String& text);
  * return false because of the space in the middle of the string. Empty string is also considered
  * lowercase.
  */
-bool IsLowerWord(const TWtringBuf text) noexcept;
-bool IsUpperWord(const TWtringBuf text) noexcept;
+bool IsLowerWord(const std::u16string_view text) noexcept;
+bool IsUpperWord(const std::u16string_view text) noexcept;
 
 /* Will check if given word starts with capital letter and the rest of the word is lowercase. Will
  * return `false` for empty string. See also `IsLowerWord`.
  */
-bool IsTitleWord(const TWtringBuf text) noexcept;
+bool IsTitleWord(const std::u16string_view text) noexcept;
 
 /* Check if given string is lowercase/uppercase. Will return `true` if all alphabetic symbols are
  * in proper case, all other symbols are ignored. It is expected that `text` is a correct UTF-16
@@ -720,8 +721,8 @@ bool IsTitleWord(const TWtringBuf text) noexcept;
  *
  * NOTE: for any case where `IsLowerWord` returns `true` `IsLower` will also return `true`.
  */
-bool IsLower(const TWtringBuf text) noexcept;
-bool IsUpper(const TWtringBuf text) noexcept;
+bool IsLower(const std::u16string_view text) noexcept;
+bool IsUpper(const std::u16string_view text) noexcept;
 
 /* Lowercase/uppercase given string inplace. Any alphabetic symbol will be converted to a proper
  * case, the rest of the symbols will be kept the same. It is expected that `text` is a correct
@@ -769,7 +770,7 @@ bool ToTitle(TUtf32String& /*text*/, size_t /*pos*/ = 0, size_t /*count*/ = TUtf
  *
  * NOTE: [text, text+length) and [out, out+length) should not interleave.
  *
- * TODO(yazevnul): replace these functions with `bool(const TWtringBuf, const TArrayRef<wchar16>)`
+ * TODO(yazevnul): replace these functions with `bool(const std::u16string_view, const TArrayRef<wchar16>)`
  * overload.
  */
 bool ToLower(const wchar16* text, size_t length, wchar16* out) noexcept;
@@ -799,13 +800,13 @@ TUtf16String ToLowerRet(TUtf16String text, size_t pos = 0, size_t count = TUtf16
 TUtf16String ToUpperRet(TUtf16String text, size_t pos = 0, size_t count = TUtf16String::npos) Y_WARN_UNUSED_RESULT;
 TUtf16String ToTitleRet(TUtf16String text, size_t pos = 0, size_t count = TUtf16String::npos) Y_WARN_UNUSED_RESULT;
 
-TUtf16String ToLowerRet(const TWtringBuf text, size_t pos = 0, size_t count = TWtringBuf::npos) Y_WARN_UNUSED_RESULT;
-TUtf16String ToUpperRet(const TWtringBuf text, size_t pos = 0, size_t count = TWtringBuf::npos) Y_WARN_UNUSED_RESULT;
-TUtf16String ToTitleRet(const TWtringBuf text, size_t pos = 0, size_t count = TWtringBuf::npos) Y_WARN_UNUSED_RESULT;
+TUtf16String ToLowerRet(const std::u16string_view text, size_t pos = 0, size_t count = std::u16string_view::npos) Y_WARN_UNUSED_RESULT;
+TUtf16String ToUpperRet(const std::u16string_view text, size_t pos = 0, size_t count = std::u16string_view::npos) Y_WARN_UNUSED_RESULT;
+TUtf16String ToTitleRet(const std::u16string_view text, size_t pos = 0, size_t count = std::u16string_view::npos) Y_WARN_UNUSED_RESULT;
 
-TUtf32String ToLowerRet(const TUtf32StringBuf text, size_t pos = 0, size_t count = TWtringBuf::npos) Y_WARN_UNUSED_RESULT;
-TUtf32String ToUpperRet(const TUtf32StringBuf text, size_t pos = 0, size_t count = TWtringBuf::npos) Y_WARN_UNUSED_RESULT;
-TUtf32String ToTitleRet(const TUtf32StringBuf text, size_t pos = 0, size_t count = TWtringBuf::npos) Y_WARN_UNUSED_RESULT;
+TUtf32String ToLowerRet(const std::u32string_view text, size_t pos = 0, size_t count = std::u32string_view::npos) Y_WARN_UNUSED_RESULT;
+TUtf32String ToUpperRet(const std::u32string_view text, size_t pos = 0, size_t count = std::u32string_view::npos) Y_WARN_UNUSED_RESULT;
+TUtf32String ToTitleRet(const std::u32string_view text, size_t pos = 0, size_t count = std::u32string_view::npos) Y_WARN_UNUSED_RESULT;
 
 //! replaces the '<', '>' and '&' characters in string with '&lt;', '&gt;' and '&amp;' respectively
 // insertBr=true - replace '\r' and '\n' with "<BR>"
@@ -815,7 +816,7 @@ void EscapeHtmlChars(TUtf16String& str);
 //! returns number of characters in range. Handle surrogate pairs as one character.
 inline size_t CountWideChars(const wchar16* b, const wchar16* e) {
     size_t count = 0;
-    Y_ENSURE(b <= e, TStringBuf("invalid iterators"));
+    Y_ENSURE(b <= e, "invalid iterators");
     while (b < e) {
         b = SkipSymbol(b, e);
         ++count;
@@ -823,13 +824,13 @@ inline size_t CountWideChars(const wchar16* b, const wchar16* e) {
     return count;
 }
 
-inline size_t CountWideChars(const TWtringBuf str) {
+inline size_t CountWideChars(const std::u16string_view str) {
     return CountWideChars(str.begin(), str.end());
 }
 
 //! checks whether the range is valid UTF-16 sequence
 inline bool IsValidUTF16(const wchar16* b, const wchar16* e) {
-    Y_ENSURE(b <= e, TStringBuf("invalid iterators"));
+    Y_ENSURE(b <= e, "invalid iterators");
     while (b < e) {
         wchar32 symbol = ReadSymbolAndAdvance(b, e);
         if (symbol == BROKEN_RUNE)
@@ -838,6 +839,6 @@ inline bool IsValidUTF16(const wchar16* b, const wchar16* e) {
     return true;
 }
 
-inline bool IsValidUTF16(const TWtringBuf str) {
+inline bool IsValidUTF16(const std::u16string_view str) {
     return IsValidUTF16(str.begin(), str.end());
 }

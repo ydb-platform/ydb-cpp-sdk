@@ -9,14 +9,14 @@
 #include <util/random/easy.h>
 
 namespace {
-    inline void LowerCaseHex(TString& s) {
+    inline void LowerCaseHex(std::string& s) {
         for (auto&& c : s) {
             c = AsciiToLower(c);
         }
     }
 }
 
-TString TGUID::AsGuidString() const {
+std::string TGUID::AsGuidString() const {
     TStringBuilder s;
     s.reserve(50);
     s << Hex(dw[0], 0) << '-' << Hex(dw[1], 0) << '-' << Hex(dw[2], 0) << '-' << Hex(dw[3], 0);
@@ -24,7 +24,7 @@ TString TGUID::AsGuidString() const {
     return std::move(s);
 }
 
-TString TGUID::AsUuidString() const {
+std::string TGUID::AsUuidString() const {
     TStringBuilder s;
     s.reserve(50);
     s << Hex(dw[0], HF_FULL) << '-';
@@ -65,11 +65,11 @@ TGUID TGUID::CreateTimebased() {
     return result;
 }
 
-TString GetGuidAsString(const TGUID& g) {
+std::string GetGuidAsString(const TGUID& g) {
     return g.AsGuidString();
 }
 
-TString CreateGuidAsString() {
+std::string CreateGuidAsString() {
     return TGUID::Create().AsGuidString();
 }
 
@@ -87,7 +87,7 @@ static bool GetDigit(const char c, ui32& digit) {
     return true;
 }
 
-bool GetGuid(const TStringBuf s, TGUID& result) {
+bool GetGuid(const std::string_view s, TGUID& result) {
     size_t partId = 0;
     ui64 partValue = 0;
     bool isEmptyPart = true;
@@ -129,7 +129,7 @@ bool GetGuid(const TStringBuf s, TGUID& result) {
 
 // Parses GUID from s and checks that it's valid.
 // In case of error returns TGUID().
-TGUID GetGuid(const TStringBuf s) {
+TGUID GetGuid(const std::string_view s) {
     TGUID result;
 
     if (GetGuid(s, result)) {
@@ -139,7 +139,7 @@ TGUID GetGuid(const TStringBuf s) {
     return TGUID();
 }
 
-bool GetUuid(const TStringBuf s, TGUID& result) {
+bool GetUuid(const std::string_view s, TGUID& result) {
     if (s.size() != 36) {
         return false;
     }
@@ -175,7 +175,7 @@ bool GetUuid(const TStringBuf s, TGUID& result) {
 
 // Parses GUID from uuid and checks that it's valid.
 // In case of error returns TGUID().
-TGUID GetUuid(const TStringBuf s) {
+TGUID GetUuid(const std::string_view s) {
     TGUID result;
 
     if (GetUuid(s, result)) {

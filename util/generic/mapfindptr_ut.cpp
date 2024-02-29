@@ -8,7 +8,7 @@
 #include "mapfindptr.h"
 
 Y_UNIT_TEST_SUITE(TMapFindPtrTest) {
-    struct TTestMap: std::map<int, TString>, TMapOps<TTestMap> {};
+    struct TTestMap: std::map<int, std::string>, TMapOps<TTestMap> {};
 
     Y_UNIT_TEST(TestDerivedClass) {
         TTestMap a;
@@ -19,7 +19,7 @@ Y_UNIT_TEST_SUITE(TMapFindPtrTest) {
         UNIT_ASSERT_EQUAL(a.FindPtr(0), nullptr);
 
         //test mutation
-        if (TString* p = a.FindPtr(42)) {
+        if (std::string* p = a.FindPtr(42)) {
             *p = "dog";
         }
         UNIT_ASSERT(a.FindPtr(42));
@@ -39,8 +39,8 @@ Y_UNIT_TEST_SUITE(TMapFindPtrTest) {
 
         m[TString("x")] = 2;
 
-        UNIT_ASSERT(m.FindPtr(TStringBuf("x")));
-        UNIT_ASSERT_EQUAL(*m.FindPtr(TStringBuf("x")), 2);
+        UNIT_ASSERT(m.FindPtr(std::string_view("x")));
+        UNIT_ASSERT_EQUAL(*m.FindPtr(std::string_view("x")), 2);
     }
 
     Y_UNIT_TEST(TestValue) {
@@ -58,8 +58,8 @@ Y_UNIT_TEST_SUITE(TMapFindPtrTest) {
 
         a[1] = "lol";
 
-        const TString str123 = "123";
-        TString str1234 = "1234";
+        const std::string str123 = "123";
+        std::string str1234 = "1234";
 
         UNIT_ASSERT_VALUES_EQUAL(a.ValueRef(1, str123), "lol");
         UNIT_ASSERT_VALUES_EQUAL(a.ValueRef(2, str123), "123");

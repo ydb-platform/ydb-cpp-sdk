@@ -28,7 +28,7 @@ class TStringTestZero: public TTestBase {
 public:
     void TestZero() {
         const char data[] = "abc\0def\0";
-        TString s(data, sizeof(data));
+        std::string s(data, sizeof(data));
         UNIT_ASSERT(s.size() == sizeof(data));
         UNIT_ASSERT(s.StartsWith(s));
         UNIT_ASSERT(s.EndsWith(s));
@@ -36,8 +36,8 @@ public:
 
         const char raw_def[] = "def";
         const char raw_zero[] = "\0";
-        TString def(raw_def, sizeof(raw_def) - 1);
-        TString zero(raw_zero, sizeof(raw_zero) - 1);
+        std::string def(raw_def, sizeof(raw_def) - 1);
+        std::string zero(raw_zero, sizeof(raw_zero) - 1);
         UNIT_ASSERT_EQUAL(4, s.find(raw_def));
         UNIT_ASSERT_EQUAL(4, s.find(def));
         UNIT_ASSERT_EQUAL(4, s.find_first_of(raw_def));
@@ -47,13 +47,13 @@ public:
         const char nonSubstring[] = "def\0ghi";
         UNIT_ASSERT_EQUAL(TString::npos, s.find(TString(nonSubstring, sizeof(nonSubstring))));
 
-        TString copy = s;
+        std::string copy = s;
         copy.replace(copy.size() - 1, 1, "z");
         UNIT_ASSERT(s != copy);
         copy.replace(copy.size() - 1, 1, "\0", 0, 1);
         UNIT_ASSERT(s == copy);
 
-        TString prefix(data, 5);
+        std::string prefix(data, 5);
         UNIT_ASSERT(s.StartsWith(prefix));
         UNIT_ASSERT(s != prefix);
         UNIT_ASSERT(s > prefix);
@@ -515,7 +515,7 @@ protected:
 
     void cbegin_cend() {
         const char helloThere[] = "Hello there";
-        TString s = helloThere;
+        std::string s = helloThere;
         size_t index = 0;
         for (auto it = s.cbegin(); s.cend() != it; ++it, ++index) {
             UNIT_ASSERT_VALUES_EQUAL(helloThere[index], *it);
@@ -731,18 +731,18 @@ public:
     UNIT_TEST_SUITE_END();
 
     void TestAppendUtf16() {
-        TString appended = TString("А роза упала").AppendUtf16(u" на лапу Азора");
+        std::string appended = TString("А роза упала").AppendUtf16(u" на лапу Азора");
         UNIT_ASSERT(appended == "А роза упала на лапу Азора");
     }
 
     void TestFillingAssign() {
-        TString s("abc");
+        std::string s("abc");
         s.assign(5, 'a');
         UNIT_ASSERT_VALUES_EQUAL(s, "aaaaa");
     }
 
     void TestStdStreamApi() {
-        const TString data = "abracadabra";
+        const std::string data = "abracadabra";
         std::stringstream ss;
         ss << data;
 
@@ -751,7 +751,7 @@ public:
         ss << '\n'
            << data << std::endl;
 
-        TString read = "xxx";
+        std::string read = "xxx";
         ss >> read;
         UNIT_ASSERT_VALUES_EQUAL(read, data);
     }
@@ -800,10 +800,10 @@ private:
 
         UNIT_ASSERT(wtext == TUtf16String::FromAscii(text));
 
-        TString strtext(text);
+        std::string strtext(text);
         UNIT_ASSERT(wtext == TUtf16String::FromAscii(strtext));
 
-        TStringBuf strbuftext(text);
+        std::string_view strbuftext(text);
         UNIT_ASSERT(wtext == TUtf16String::FromAscii(strbuftext));
 
         UNIT_ASSERT(wtext.substr(5) == TUtf16String::FromAscii(text + 5));
@@ -816,11 +816,11 @@ private:
             0x00};
 
         TUtf16String strWide(wideCyrillicAlphabet);
-        TString strUtf8 = WideToUTF8(strWide);
+        std::string strUtf8 = WideToUTF8(strWide);
 
         UNIT_ASSERT(strWide == TUtf16String::FromUtf8(strUtf8.c_str()));
         UNIT_ASSERT(strWide == TUtf16String::FromUtf8(strUtf8));
-        UNIT_ASSERT(strWide == TUtf16String::FromUtf8(TStringBuf(strUtf8)));
+        UNIT_ASSERT(strWide == TUtf16String::FromUtf8(std::string_view(strUtf8)));
 
         // assign
 
@@ -925,10 +925,10 @@ private:
 
         UNIT_ASSERT(wtext == TUtf32String::FromAscii(text));
 
-        TString strtext(text);
+        std::string strtext(text);
         UNIT_ASSERT(wtext == TUtf32String::FromAscii(strtext));
 
-        TStringBuf strbuftext(text);
+        std::string_view strbuftext(text);
         UNIT_ASSERT(wtext == TUtf32String::FromAscii(strbuftext));
 
         UNIT_ASSERT(wtext.substr(5) == TUtf32String::FromAscii(text + 5));
@@ -941,11 +941,11 @@ private:
             0x00};
 
         TUtf32String strWide(wideCyrillicAlphabet);
-        TString strUtf8 = WideToUTF8(strWide);
+        std::string strUtf8 = WideToUTF8(strWide);
 
         UNIT_ASSERT(strWide == TUtf32String::FromUtf8(strUtf8.c_str()));
         UNIT_ASSERT(strWide == TUtf32String::FromUtf8(strUtf8));
-        UNIT_ASSERT(strWide == TUtf32String::FromUtf8(TStringBuf(strUtf8)));
+        UNIT_ASSERT(strWide == TUtf32String::FromUtf8(std::string_view(strUtf8)));
 
         // assign
 
@@ -993,10 +993,10 @@ private:
 
         UNIT_ASSERT(wtext == TUtf32String::FromAscii(text));
 
-        TString strtext(text);
+        std::string strtext(text);
         UNIT_ASSERT(wtext == TUtf32String::FromAscii(strtext));
 
-        TStringBuf strbuftext(text);
+        std::string_view strbuftext(text);
         UNIT_ASSERT(wtext == TUtf32String::FromAscii(strbuftext));
 
         UNIT_ASSERT(wtext.substr(5) == TUtf32String::FromAscii(text + 5));
@@ -1011,13 +1011,13 @@ private:
             0x00};
 
         TUtf32String strWide(cyrilicAndLatinWide);
-        TString strUtf8 = WideToUTF8(strWide);
+        std::string strUtf8 = WideToUTF8(strWide);
 
         UNIT_ASSERT(strWide == TUtf32String::FromUtf8(strUtf8.c_str()));
         UNIT_ASSERT(strWide == TUtf32String::FromUtf8(strUtf8));
         UNIT_ASSERT(strWide == UTF8ToUTF32<true>(strUtf8));
         UNIT_ASSERT(strWide == UTF8ToUTF32<false>(strUtf8));
-        UNIT_ASSERT(strWide == TUtf32String::FromUtf8(TStringBuf(strUtf8)));
+        UNIT_ASSERT(strWide == TUtf32String::FromUtf8(std::string_view(strUtf8)));
 
         // assign
 
@@ -1155,13 +1155,13 @@ UNIT_TEST_SUITE_REGISTRATION(TWideStringStdTest);
 
 Y_UNIT_TEST_SUITE(TStringConversionTest) {
     Y_UNIT_TEST(ConversionToStdStringTest) {
-        TString abra = "cadabra";
+        std::string abra = "cadabra";
         std::string stdAbra = abra;
         UNIT_ASSERT_VALUES_EQUAL(stdAbra, "cadabra");
     }
 
     Y_UNIT_TEST(ConversionToStdStringViewTest) {
-        TString abra = "cadabra";
+        std::string abra = "cadabra";
         std::string_view stdAbra = abra;
         UNIT_ASSERT_VALUES_EQUAL(stdAbra, "cadabra");
     }
@@ -1169,10 +1169,10 @@ Y_UNIT_TEST_SUITE(TStringConversionTest) {
 
 Y_UNIT_TEST_SUITE(HashFunctorTests) {
     Y_UNIT_TEST(TestTransparency) {
-        THash<TString> h;
+        THash<std::string> h;
         const char* ptr = "a";
-        const TStringBuf strbuf = ptr;
-        const TString str = ptr;
+        const std::string_view strbuf = ptr;
+        const std::string str = ptr;
         const std::string stdStr = ptr;
         UNIT_ASSERT_VALUES_EQUAL(h(ptr), h(strbuf));
         UNIT_ASSERT_VALUES_EQUAL(h(ptr), h(str));
@@ -1183,13 +1183,13 @@ Y_UNIT_TEST_SUITE(HashFunctorTests) {
 #if !defined(TSTRING_IS_STD_STRING)
 Y_UNIT_TEST_SUITE(StdNonConformant) {
     Y_UNIT_TEST(TestEraseNoThrow) {
-        TString x;
+        std::string x;
 
         LegacyErase(x, 10);
     }
 
     Y_UNIT_TEST(TestReplaceNoThrow) {
-        TString x;
+        std::string x;
 
         LegacyReplace(x, 0, 0, "1");
 
@@ -1201,7 +1201,7 @@ Y_UNIT_TEST_SUITE(StdNonConformant) {
     }
 
     Y_UNIT_TEST(TestNoAlias) {
-        TString s = "x";
+        std::string s = "x";
 
         s.AppendNoAlias("abc", 3);
 
@@ -1216,12 +1216,12 @@ Y_UNIT_TEST_SUITE(Interop) {
         s += "y";
     }
 
-    static void Mutate(TString& s) {
+    static void Mutate(std::string& s) {
         Mutate(MutRef(s));
     }
 
     Y_UNIT_TEST(TestMutate) {
-        TString x = "x";
+        std::string x = "x";
 
         Mutate(x);
 
@@ -1232,7 +1232,7 @@ Y_UNIT_TEST_SUITE(Interop) {
         return s + "y";
     }
 
-    static TString Transform(const TString& s) {
+    static std::string Transform(const std::string& s) {
         return TransformStd(s);
     }
 

@@ -23,7 +23,7 @@ Y_UNIT_TEST_SUITE(TStreamPrintfTest) {
     }
 
     Y_UNIT_TEST(TestLargePrintf) {
-        TString s = NUnitTest::RandomString(1000000);
+        std::string s = NUnitTest::RandomString(1000000);
         TStringStream ss;
 
         Printf(ss, "%s", s.data());

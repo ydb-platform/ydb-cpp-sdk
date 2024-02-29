@@ -277,7 +277,7 @@ void TBackTrace::PrintTo(IOutputStream& out) const {
     FormatBackTraceFn(&out, Data, Size);
 }
 
-TString TBackTrace::PrintToString() const {
+std::string TBackTrace::PrintToString() const {
     TStringStream ss;
     PrintTo(ss);
     return ss.Str();

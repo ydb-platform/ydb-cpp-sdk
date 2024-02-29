@@ -13,8 +13,8 @@
     #include <Windows.h>
 #endif
 
-static TString ModeToString(const EProtectMemory mode) {
-    TString strMode;
+static std::string ModeToString(const EProtectMemory mode) {
+    std::string strMode;
     if (mode == PM_NONE) {
         return "PM_NONE";
     }

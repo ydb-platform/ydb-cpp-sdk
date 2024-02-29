@@ -38,7 +38,7 @@ private:
 
     inline void TestCollectionIndependancy() {
         std::vector<char> testVec = {'a', 'b', 'c'};
-        TString testStroka = "abc";
+        std::string testStroka = "abc";
         UNIT_ASSERT_EQUAL(TRangeHash<>()(testVec), TRangeHash<>()(testStroka));
     }
 };

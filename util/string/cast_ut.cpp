@@ -43,12 +43,12 @@
 template <class A>
 struct TRet {
     template <int base>
-    inline A IntFromStringForCheck(const TString& str) {
+    inline A IntFromStringForCheck(const std::string& str) {
         return IntFromString<A, base>(str);
     }
 
     template <int base>
-    inline bool TryIntFromStringForCheck(const TString& str, A& result) {
+    inline bool TryIntFromStringForCheck(const std::string& str, A& result) {
         return TryIntFromString<base>(str, result);
     }
 
@@ -126,7 +126,7 @@ inline TRet<A> F() {
 
 #if 0
 template <class T>
-inline void CheckConvertToBuffer(const T& value, const size_t size, const TString& canonValue) {
+inline void CheckConvertToBuffer(const T& value, const size_t size, const std::string& canonValue) {
     const size_t maxSize = 256;
     char buffer[maxSize];
     const char magic = 0x7F;
@@ -143,8 +143,8 @@ inline void CheckConvertToBuffer(const T& value, const size_t size, const TStrin
         // check that no bytes after length was trashed
         for (size_t i = length; i < maxSize; ++i)
             UNIT_ASSERT_VALUES_EQUAL(buffer[i], magic);
-        TStringBuf result(buffer, length);
-        UNIT_ASSERT_VALUES_EQUAL(result, TStringBuf(canonValue));
+        std::string_view result(buffer, length);
+        UNIT_ASSERT_VALUES_EQUAL(result, std::string_view(canonValue));
     }
 }
 #endif
@@ -321,8 +321,8 @@ Y_UNIT_TEST_SUITE(TCastTest) {
     }
 
     Y_UNIT_TEST(TestFromStringStringBuf) {
-        TString a = "xyz";
-        TStringBuf b = FromString<TStringBuf>(a);
+        std::string a = "xyz";
+        std::string_view b = FromString<std::string_view>(a);
         UNIT_ASSERT_VALUES_EQUAL(a, b);
         UNIT_ASSERT_VALUES_EQUAL((void*)a.data(), (void*)b.data());
     }
@@ -344,7 +344,7 @@ Y_UNIT_TEST_SUITE(TCastTest) {
         CheckConvertToBuffer<ui64>(1005000000000000ull, 32, "1005000000000000");
         CheckConvertToBuffer<ui64>(1005000000000000ull, 3, "1005000000000000");
 
-        // TString longNumber = TString("1.") + TString(1 << 20, '1');
+        // std::string longNumber = TString("1.") + TString(1 << 20, '1');
         // UNIT_ASSERT_EXCEPTION(FromString<double>(longNumber), yexception);
     }
 #endif
@@ -360,7 +360,7 @@ Y_UNIT_TEST_SUITE(TCastTest) {
         UNIT_ASSERT_VALUES_EQUAL(TryFromString(uw, uv), true);
         UNIT_ASSERT_VALUES_EQUAL(uv, 21474836470ull);
 
-        TWtringBuf bw(uw.data(), uw.size());
+        std::u16string_view bw(uw.data(), uw.size());
         uv = 0;
         UNIT_ASSERT_VALUES_EQUAL(TryFromString(uw, uv), true);
         UNIT_ASSERT_VALUES_EQUAL(uv, 21474836470ull);
@@ -375,7 +375,7 @@ Y_UNIT_TEST_SUITE(TCastTest) {
         size_t res = 0;
         const size_t def1 = 42;
 
-        TString s1("100500");
+        std::string s1("100500");
         UNIT_ASSERT_VALUES_EQUAL(TryFromStringWithDefault(s1, res, def1), true);
         UNIT_ASSERT_VALUES_EQUAL(res, 100500);
 
@@ -390,7 +390,7 @@ Y_UNIT_TEST_SUITE(TCastTest) {
         UNIT_ASSERT_VALUES_EQUAL(FromStringWithDefault<size_t>(s1), 100500);
         UNIT_ASSERT_VALUES_EQUAL(FromStringWithDefault("100500", def1), 100500);
 
-        TString s2("100q500");
+        std::string s2("100q500");
         UNIT_ASSERT_VALUES_EQUAL(TryFromStringWithDefault(s2, res), false);
         UNIT_ASSERT_VALUES_EQUAL(res, size_t());
 
@@ -452,13 +452,13 @@ Y_UNIT_TEST_SUITE(TCastTest) {
     Y_UNIT_TEST(TestAutoDetectType) {
         UNIT_ASSERT_DOUBLES_EQUAL((float)FromString("0.0001"), 0.0001, EPS);
         UNIT_ASSERT_DOUBLES_EQUAL((double)FromString("0.0015", sizeof("0.0015") - 2), 0.001, EPS);
-        UNIT_ASSERT_DOUBLES_EQUAL((long double)FromString(TStringBuf("0.0001")), 0.0001, EPS);
+        UNIT_ASSERT_DOUBLES_EQUAL((long double)FromString(std::string_view("0.0001")), 0.0001, EPS);
         UNIT_ASSERT_DOUBLES_EQUAL((float)FromString(TString("10E-5")), 10E-5, EPS);
         UNIT_ASSERT_VALUES_EQUAL((bool)FromString("da"), true);
         UNIT_ASSERT_VALUES_EQUAL((bool)FromString("no"), false);
         UNIT_ASSERT_VALUES_EQUAL((short)FromString(u"9000"), 9000);
         UNIT_ASSERT_VALUES_EQUAL((int)FromString(u"-100500"), -100500);
-        UNIT_ASSERT_VALUES_EQUAL((unsigned long long)FromString(TWtringBuf(u"42", 1)), 4);
+        UNIT_ASSERT_VALUES_EQUAL((unsigned long long)FromString(std::u16string_view(u"42", 1)), 4);
         int integer = FromString("125");
         ui16 wideCharacterCode = FromString(u"125");
         UNIT_ASSERT_VALUES_EQUAL(integer, wideCharacterCode);
@@ -474,38 +474,38 @@ Y_UNIT_TEST_SUITE(TCastTest) {
 
     Y_UNIT_TEST(TryStringBuf) {
         {
-            constexpr TStringBuf hello = "hello";
-            TStringBuf out;
+            constexpr std::string_view hello = "hello";
+            std::string_view out;
             UNIT_ASSERT(TryFromString(hello, out));
             UNIT_ASSERT_VALUES_EQUAL(hello, out);
         }
         {
-            constexpr TStringBuf empty = "";
-            TStringBuf out;
+            constexpr std::string_view empty = "";
+            std::string_view out;
             UNIT_ASSERT(TryFromString(empty, out));
             UNIT_ASSERT_VALUES_EQUAL(empty, out);
         }
         {
-            constexpr TStringBuf empty;
-            TStringBuf out;
+            constexpr std::string_view empty;
+            std::string_view out;
             UNIT_ASSERT(TryFromString(empty, out));
             UNIT_ASSERT_VALUES_EQUAL(empty, out);
         }
         {
             const auto hello = u"hello";
-            TWtringBuf out;
+            std::u16string_view out;
             UNIT_ASSERT(TryFromString(hello, out));
             UNIT_ASSERT_VALUES_EQUAL(hello, out);
         }
         {
             const TUtf16String empty;
-            TWtringBuf out;
+            std::u16string_view out;
             UNIT_ASSERT(TryFromString(empty, out));
             UNIT_ASSERT_VALUES_EQUAL(empty, out);
         }
         {
-            constexpr TWtringBuf empty;
-            TWtringBuf out;
+            constexpr std::u16string_view empty;
+            std::u16string_view out;
             UNIT_ASSERT(TryFromString(empty, out));
             UNIT_ASSERT_VALUES_EQUAL(empty, out);
         }
@@ -563,30 +563,30 @@ Y_UNIT_TEST_SUITE(TCastTest) {
     }
 
     Y_UNIT_TEST(TestTIntStringBuf) {
-        static_assert(TStringBuf(TIntStringBuf(111)) == TStringBuf("111"));
-        static_assert(TStringBuf(TIntStringBuf(-111)) == TStringBuf("-111"));
-        UNIT_ASSERT_VALUES_EQUAL(TStringBuf(TIntStringBuf(0)), "0"sv);
-        UNIT_ASSERT_VALUES_EQUAL(TStringBuf(TIntStringBuf(1111)), "1111"sv);
-        UNIT_ASSERT_VALUES_EQUAL(TStringBuf(TIntStringBuf(-1)), "-1"sv);
-        UNIT_ASSERT_VALUES_EQUAL(TStringBuf(TIntStringBuf(-1111)), "-1111"sv);
+        static_assert(std::string_view(TIntStringBuf(111)) == std::string_view("111"));
+        static_assert(std::string_view(TIntStringBuf(-111)) == std::string_view("-111"));
+        UNIT_ASSERT_VALUES_EQUAL(std::string_view(TIntStringBuf(0)), "0"sv);
+        UNIT_ASSERT_VALUES_EQUAL(std::string_view(TIntStringBuf(1111)), "1111"sv);
+        UNIT_ASSERT_VALUES_EQUAL(std::string_view(TIntStringBuf(-1)), "-1"sv);
+        UNIT_ASSERT_VALUES_EQUAL(std::string_view(TIntStringBuf(-1111)), "-1111"sv);
 
         constexpr auto v = TIntStringBuf(-1111);
-        UNIT_ASSERT_VALUES_EQUAL(TStringBuf(v), TStringBuf(ToString(-1111)));
-        UNIT_ASSERT_VALUES_EQUAL(TStringBuf(TIntStringBuf<ui16>(65535)), TStringBuf("65535"));
-        UNIT_ASSERT_VALUES_EQUAL(TStringBuf(TIntStringBuf<i16>(32767)), TStringBuf("32767"));
-        UNIT_ASSERT_VALUES_EQUAL(TStringBuf(TIntStringBuf<i32>(-32768)), TStringBuf("-32768"));
+        UNIT_ASSERT_VALUES_EQUAL(std::string_view(v), std::string_view(ToString(-1111)));
+        UNIT_ASSERT_VALUES_EQUAL(std::string_view(TIntStringBuf<ui16>(65535)), std::string_view("65535"));
+        UNIT_ASSERT_VALUES_EQUAL(std::string_view(TIntStringBuf<i16>(32767)), std::string_view("32767"));
+        UNIT_ASSERT_VALUES_EQUAL(std::string_view(TIntStringBuf<i32>(-32768)), std::string_view("-32768"));
 
-        UNIT_ASSERT_VALUES_EQUAL(TStringBuf(TIntStringBuf<i8, 2>(127)), TStringBuf("1111111"));
-        UNIT_ASSERT_VALUES_EQUAL(TStringBuf(TIntStringBuf<i8, 2>(-128)), TStringBuf("-10000000"));
+        UNIT_ASSERT_VALUES_EQUAL(std::string_view(TIntStringBuf<i8, 2>(127)), std::string_view("1111111"));
+        UNIT_ASSERT_VALUES_EQUAL(std::string_view(TIntStringBuf<i8, 2>(-128)), std::string_view("-10000000"));
     }
 
     Y_UNIT_TEST(TestTrivial) {
         UNIT_ASSERT_VALUES_EQUAL(ToString(ToString(ToString("abc"))), TString("abc"));
 
         // May cause compilation error:
-        // const TString& ref = ToString(TString{"foo"});
+        // const std::string& ref = ToString(TString{"foo"});
 
-        const TString ok = ToString(TString{"foo"});
+        const std::string ok = ToString(TString{"foo"});
         UNIT_ASSERT_VALUES_EQUAL(ok, "foo");
         UNIT_ASSERT_VALUES_EQUAL(ToString(ToString(ok)), "foo");
     }

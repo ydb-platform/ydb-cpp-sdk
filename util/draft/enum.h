@@ -37,8 +37,8 @@ const V* FindEnumFromStringImpl(const char* key, const std::pair<const char*, V>
 }
 
 template <class K, class V>
-TString PrintEnumItemsImpl(const std::pair<K, V>* entries, size_t arraySize) {
-    TString result;
+std::string PrintEnumItemsImpl(const std::pair<K, V>* entries, size_t arraySize) {
+    std::string result;
     TStringOutput out(result);
     for (size_t i = 0; i < arraySize; i++)
         out << (i ? ", " : "") << "'" << entries[i].first << "'";
@@ -47,8 +47,8 @@ TString PrintEnumItemsImpl(const std::pair<K, V>* entries, size_t arraySize) {
 
 // special version for const char*
 template <class V>
-TString PrintEnumItemsImpl(const std::pair<const char*, V>* entries, size_t arraySize) {
-    TString result;
+std::string PrintEnumItemsImpl(const std::pair<const char*, V>* entries, size_t arraySize) {
+    std::string result;
     TStringOutput out(result);
     for (size_t i = 0; i < arraySize; i++)
         out << (i ? ", " : "") << "'" << (entries[i].first ? entries[i].first : "<null>") << "'";
@@ -91,7 +91,7 @@ inline void SetEnumFlagsForEmptySpec(B& flags, bool allIfEmpty) {
 
 // all set by default
 template <class E, size_t N, size_t B>
-inline void SetEnumFlags(const std::pair<const char*, E> (&str2Enum)[N], TStringBuf optSpec,
+inline void SetEnumFlags(const std::pair<const char*, E> (&str2Enum)[N], std::string_view optSpec,
                          std::bitset<B>& flags, bool allIfEmpty = true) {
     if (optSpec.empty()) {
         SetEnumFlagsForEmptySpec(flags, allIfEmpty);
@@ -105,7 +105,7 @@ inline void SetEnumFlags(const std::pair<const char*, E> (&str2Enum)[N], TString
 }
 
 template <class E, size_t B>
-inline void SetEnumFlags(const std::pair<const char*, E>* str2Enum, TStringBuf optSpec,
+inline void SetEnumFlags(const std::pair<const char*, E>* str2Enum, std::string_view optSpec,
                          std::bitset<B>& flags, const size_t size,
                          bool allIfEmpty = true) {
     if (optSpec.empty()) {
@@ -121,7 +121,7 @@ inline void SetEnumFlags(const std::pair<const char*, E>* str2Enum, TStringBuf o
 
 // for enums generated with GENERATE_ENUM_SERIALIZATION
 template <class E, size_t B>
-inline void SetEnumFlags(TStringBuf optSpec, std::bitset<B>& flags, bool allIfEmpty = true) {
+inline void SetEnumFlags(std::string_view optSpec, std::bitset<B>& flags, bool allIfEmpty = true) {
     if (optSpec.empty()) {
         SetEnumFlagsForEmptySpec(flags, allIfEmpty);
     } else {

@@ -1,5 +1,7 @@
 #include "pathsplit.h"
 
+#include <library/cpp/string_utils/helpers/helpers.h>
+
 #include <util/stream/output.h>
 #include <util/generic/yexception.h>
 
@@ -14,9 +16,9 @@ static inline size_t ToReserve(const T& t) {
     return ret;
 }
 
-void TPathSplitTraitsUnix::DoParseFirstPart(const TStringBuf part) {
-    if (part == TStringBuf(".")) {
-        push_back(TStringBuf("."));
+void TPathSplitTraitsUnix::DoParseFirstPart(const std::string_view part) {
+    if (part == ".") {
+        push_back(".");
 
         return;
     }
@@ -28,24 +30,24 @@ void TPathSplitTraitsUnix::DoParseFirstPart(const TStringBuf part) {
     DoParsePart(part);
 }
 
-void TPathSplitTraitsUnix::DoParsePart(const TStringBuf part0) {
+void TPathSplitTraitsUnix::DoParsePart(const std::string_view part0) {
     DoAppendHint(part0.size() / 8);
 
-    TStringBuf next(part0);
-    TStringBuf part;
+    std::string_view next(part0);
+    std::string_view part;
 
-    while (TStringBuf(next).TrySplit('/', part, next)) {
+    while (NUtils::TrySplit(next, part, next, '/')) {
         AppendComponent(part);
     }
 
     AppendComponent(next);
 }
 
-void TPathSplitTraitsWindows::DoParseFirstPart(const TStringBuf part0) {
-    TStringBuf part(part0);
+void TPathSplitTraitsWindows::DoParseFirstPart(const std::string_view part0) {
+    std::string_view part(part0);
 
-    if (part == TStringBuf(".")) {
-        push_back(TStringBuf("."));
+    if (part == ".") {
+        push_back(".");
 
         return;
     }
@@ -54,19 +56,19 @@ void TPathSplitTraitsWindows::DoParseFirstPart(const TStringBuf part0) {
         IsAbsolute = true;
 
         if (part.size() > 1 && part[1] == ':') {
-            Drive = part.SubStr(0, 2);
-            part = part.SubStr(2);
+            Drive = part.substr(0, 2);
+            part = part.substr(2);
         }
     }
 
     DoParsePart(part);
 }
 
-void TPathSplitTraitsWindows::DoParsePart(const TStringBuf part0) {
+void TPathSplitTraitsWindows::DoParsePart(const std::string_view part0) {
     DoAppendHint(part0.size() / 8);
 
     size_t pos = 0;
-    TStringBuf part(part0);
+    std::string_view part(part0);
 
     while (pos < part.size()) {
         while (pos < part.size() && this->IsPathSep(part[pos])) {
@@ -79,12 +81,12 @@ void TPathSplitTraitsWindows::DoParsePart(const TStringBuf part0) {
             ++pos;
         }
 
-        AppendComponent(TStringBuf(begin, part.data() + pos));
+        AppendComponent(std::string_view(begin, part.data() + pos));
     }
 }
 
-TString TPathSplitStore::DoReconstruct(const TStringBuf slash) const {
-    TString r;
+std::string TPathSplitStore::DoReconstruct(const std::string_view slash) const {
+    std::string r;
 
     r.reserve(ToReserve(*this));
 
@@ -104,10 +106,10 @@ TString TPathSplitStore::DoReconstruct(const TStringBuf slash) const {
     return r;
 }
 
-void TPathSplitStore::AppendComponent(const TStringBuf comp) {
-    if (!comp || comp == TStringBuf(".")) {
+void TPathSplitStore::AppendComponent(const std::string_view comp) {
+    if (comp.empty() || comp == ".") {
         // ignore
-    } else if (comp == TStringBuf("..") && !empty() && back() != TStringBuf("..")) {
+    } else if (comp == ".." && !empty() && back() != "..") {
         pop_back();
     } else {
         // push back first .. also
@@ -115,8 +117,8 @@ void TPathSplitStore::AppendComponent(const TStringBuf comp) {
     }
 }
 
-TStringBuf TPathSplitStore::Extension() const {
-    return size() > 0 ? CutExtension(back()) : TStringBuf();
+std::string_view TPathSplitStore::Extension() const {
+    return size() > 0 ? CutExtension(back()) : std::string_view();
 }
 
 template <>
@@ -124,7 +126,7 @@ void Out<TPathSplit>(IOutputStream& o, const TPathSplit& ps) {
     o << ps.Reconstruct();
 }
 
-TString JoinPaths(const TPathSplit& p1, const TPathSplit& p2) {
+std::string JoinPaths(const TPathSplit& p1, const TPathSplit& p2) {
     if (p2.IsAbsolute) {
         ythrow yexception() << "can not join " << p1 << " and " << p2;
     }
@@ -132,14 +134,14 @@ TString JoinPaths(const TPathSplit& p1, const TPathSplit& p2) {
     return TPathSplit(p1).AppendMany(p2.begin(), p2.end()).Reconstruct();
 }
 
-TStringBuf CutExtension(const TStringBuf fileName) {
+std::string_view CutExtension(const std::string_view fileName) {
     if (fileName.empty()) {
         return fileName;
     }
 
-    TStringBuf name;
-    TStringBuf extension;
-    fileName.RSplit('.', name, extension);
+    std::string_view name;
+    std::string_view extension;
+    NUtils::RSplit(fileName, name, extension, '.');
     if (name.empty()) {
         // dot at a start or not found
         return name;

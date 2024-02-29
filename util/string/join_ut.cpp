@@ -9,7 +9,7 @@ struct TCustomData {
     std::vector<int> Ints;
 };
 
-TString ToString(const TCustomData& d) {
+std::string ToString(const TCustomData& d) {
     return JoinSeq("__", d.Ints);
 }
 
@@ -19,7 +19,7 @@ Y_UNIT_TEST_SUITE(JoinStringTest) {
         UNIT_ASSERT_EQUAL(Join(", ", 10, 11.1, "foobar"), "10, 11.1, foobar");
         UNIT_ASSERT_EQUAL(Join(", ", 10, 11.1, TString("foobar")), "10, 11.1, foobar");
 
-        UNIT_ASSERT_EQUAL(Join('#', 0, "a", "foobar", -1.4, TStringBuf("aaa")), "0#a#foobar#-1.4#aaa");
+        UNIT_ASSERT_EQUAL(Join('#', 0, "a", "foobar", -1.4, std::string_view("aaa")), "0#a#foobar#-1.4#aaa");
         UNIT_ASSERT_EQUAL(Join("", "", ""), "");
         UNIT_ASSERT_EQUAL(Join("", "a", "b", "c"), "abc");
         UNIT_ASSERT_EQUAL(Join("", "a", "b", "", "c"), "abc");
@@ -43,8 +43,8 @@ Y_UNIT_TEST_SUITE(JoinStringTest) {
         static const char* const result = "1 22 333";
         static const char* const v[] = {"1", "22", "333"};
         std::vector<const char*> vchar(v, v + sizeof(v) / sizeof(v[0]));
-        std::vector<TStringBuf> vbuf(v, v + sizeof(v) / sizeof(v[0]));
-        std::vector<TString> vstring(v, v + sizeof(v) / sizeof(v[0]));
+        std::vector<std::string_view> vbuf(v, v + sizeof(v) / sizeof(v[0]));
+        std::vector<std::string> vstring(v, v + sizeof(v) / sizeof(v[0]));
 
         // ranges
         UNIT_ASSERT_EQUAL(JoinRange(" ", v, v + 3), result);
@@ -121,8 +121,8 @@ Y_UNIT_TEST_SUITE(JoinStringTest) {
         // initializer lists with explicit types
         UNIT_ASSERT_EQUAL(JoinSeq(" ", std::initializer_list<const char*>{v[0], v[1], v[2]}), result);
         UNIT_ASSERT_EQUAL(JoinSeq(" ", std::initializer_list<const char*>{vchar[0], vchar[1], vchar[2]}), result);
-        UNIT_ASSERT_EQUAL(JoinSeq(" ", std::initializer_list<TStringBuf>{vbuf[0], vbuf[1], vbuf[2]}), result);
-        UNIT_ASSERT_EQUAL(JoinSeq(" ", std::initializer_list<TString>{vstring[0], vstring[1], vstring[2]}), result);
+        UNIT_ASSERT_EQUAL(JoinSeq(" ", std::initializer_list<std::string_view>{vbuf[0], vbuf[1], vbuf[2]}), result);
+        UNIT_ASSERT_EQUAL(JoinSeq(" ", std::initializer_list<std::string>{vstring[0], vstring[1], vstring[2]}), result);
         {
             TStringStream stream;
             stream << MakeRangeJoiner(" ", std::initializer_list<const char*>{v[0], v[1], v[2]});
@@ -135,12 +135,12 @@ Y_UNIT_TEST_SUITE(JoinStringTest) {
         }
         {
             TStringStream stream;
-            stream << MakeRangeJoiner(" ", std::initializer_list<TStringBuf>{vbuf[0], vbuf[1], vbuf[2]});
+            stream << MakeRangeJoiner(" ", std::initializer_list<std::string_view>{vbuf[0], vbuf[1], vbuf[2]});
             UNIT_ASSERT_EQUAL(stream.Str(), result);
         }
         {
             TStringStream stream;
-            stream << MakeRangeJoiner(" ", std::initializer_list<TString>{vstring[0], vstring[1], vstring[2]});
+            stream << MakeRangeJoiner(" ", std::initializer_list<std::string>{vstring[0], vstring[1], vstring[2]});
             UNIT_ASSERT_EQUAL(stream.Str(), result);
         }
 

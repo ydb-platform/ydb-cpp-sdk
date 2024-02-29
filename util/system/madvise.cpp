@@ -28,13 +28,13 @@ namespace {
 
 #if defined(_win_)
         if (!VirtualFree((LPVOID)begin, size, flag)) {
-            TString err(LastSystemErrorText());
+            std::string err(LastSystemErrorText());
             ythrow yexception() << "VirtualFree(" << begin << ", " << size << ", " << flag << ")"
                                 << " returned error: " << err;
         }
 #else
         if (-1 == madvise(begin, size, flag)) {
-            TString err(LastSystemErrorText());
+            std::string err(LastSystemErrorText());
             ythrow yexception() << "madvise(" << begin << ", " << size << ", " << flag << ")"
                                 << " returned error: " << err;
         }

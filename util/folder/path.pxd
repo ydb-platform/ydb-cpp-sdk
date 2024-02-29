@@ -1,4 +1,4 @@
-from util.generic.string cimport TString, TStringBuf
+from util.generic.string cimport TString, std::string_view
 from util.generic.vector cimport TVector
 
 
@@ -6,8 +6,8 @@ from util.generic.vector cimport TVector
 cdef extern from "util/folder/path.h" nogil:
     cdef cppclass TFsPath:
         TFsPath() except +
-        TFsPath(const TString&) except +
-        TFsPath(const TStringBuf) except +
+        TFsPath(const std::string&) except +
+        TFsPath(const std::string_view) except +
         TFsPath(const char*) except +
 
         void CheckDefined() except +
@@ -30,10 +30,10 @@ cdef extern from "util/folder/path.h" nogil:
 
         TFsPath& Fix() except +
 
-        const TString& GetPath() const
-        TString GetName() const
+        const std::string& GetPath() const
+        std::string GetName() const
 
-        TString GetExtension() const
+        std::string GetExtension() const
 
         bint IsAbsolute() const
         bint IsRelative() const
@@ -47,10 +47,10 @@ cdef extern from "util/folder/path.h" nogil:
 
         TFsPath Parent() const
 
-        TString Basename() const
-        TString Dirname() const
+        std::string Basename() const
+        std::string Dirname() const
 
-        TFsPath Child(const TString&) except +
+        TFsPath Child(const std::string&) except +
 
         void MkDir() except +
         void MkDir(const int) except +
@@ -60,7 +60,7 @@ cdef extern from "util/folder/path.h" nogil:
         void List(TVector[TFsPath]&) except +
         void ListNames(TVector[TString]&) except +
 
-        bint Contains(const TString&) const
+        bint Contains(const std::string&) const
 
         void DeleteIfExists() except +
         void ForceDelete() except +
@@ -74,12 +74,12 @@ cdef extern from "util/folder/path.h" nogil:
         bint IsSymlink() const
         void CheckExists() except +
 
-        void RenameTo(const TString&) except +
+        void RenameTo(const std::string&) except +
         void RenameTo(const char*) except +
         void RenameTo(const TFsPath&) except +
-        void ForceRenameTo(const TString&) except +
+        void ForceRenameTo(const std::string&) except +
 
-        void CopyTo(const TString&, bint) except +
+        void CopyTo(const std::string&, bint) except +
 
         void Touch() except +
 

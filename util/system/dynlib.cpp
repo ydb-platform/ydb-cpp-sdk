@@ -25,7 +25,7 @@ using HINSTANCE = void*;
     #define DLLSYM(hndl, name) dlsym(hndl, name)
 #endif
 
-inline TString DLLERR() {
+inline std::string DLLERR() {
 #ifdef _unix_
     return dlerror();
 #endif
@@ -38,7 +38,7 @@ inline TString DLLERR() {
         return "DLLERR() unknown error";
     while (cnt && isspace(msg[cnt - 1]))
         --cnt;
-    TString err(msg, 0, cnt);
+    std::string err(msg, 0, cnt);
     LocalFree(msg);
     return err;
 #endif
@@ -99,7 +99,7 @@ private:
 TDynamicLibrary::TDynamicLibrary() noexcept {
 }
 
-TDynamicLibrary::TDynamicLibrary(const TString& path, int flags) {
+TDynamicLibrary::TDynamicLibrary(const std::string& path, int flags) {
     Open(path.data(), flags);
 }
 

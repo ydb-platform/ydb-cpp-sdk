@@ -28,7 +28,7 @@ public:
         size_t StackSize;
         void* StackPointer;
         // See comments for `SetCurrentThreadName`
-        TString Name = GetProgramName();
+        std::string Name = GetProgramName();
 
         inline TParams()
             : Proc(nullptr)
@@ -54,7 +54,7 @@ public:
         {
         }
 
-        inline TParams& SetName(const TString& name) noexcept {
+        inline TParams& SetName(const std::string& name) noexcept {
             Name = name;
 
             return *this;
@@ -120,7 +120,7 @@ public:
     static void SetCurrentThreadName(const char* name);
 
     // NOTE: Will return empty string where CanGetCurrentThreadName() returns false.
-    static TString CurrentThreadName();
+    static std::string CurrentThreadName();
 
     // NOTE: Depends on a platform version.
     // Will return true for Darwin, Linux or fresh Windows 10.

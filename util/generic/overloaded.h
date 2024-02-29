@@ -5,11 +5,11 @@
  *
  * Typically used with lambdas to construct type-matching visitors for e.g. std::variant:
  * ```
- * std::variant<int, void*, TString> var;
+ * std::variant<int, void*, std::string> var;
  * Visit(TOverloaded{
  *     [](int val) { Cerr << "int: " << val; },
  *     [](void* val) { Cerr << "ptr: " << val; },
- *     [](const TString& val) { Cerr << "str: " << val; },
+ *     [](const std::string& val) { Cerr << "str: " << val; },
  * }, var);
  * ```
  *

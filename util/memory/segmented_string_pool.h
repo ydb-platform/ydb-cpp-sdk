@@ -171,7 +171,7 @@ public:
         rv[len] = 0;
         return rv;
     }
-    char* Append(const TStringBuf s) {
+    char* Append(const std::string_view s) {
         return append(s.data(), s.size());
     }
     void align_4() {

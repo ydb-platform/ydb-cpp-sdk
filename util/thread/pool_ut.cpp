@@ -178,9 +178,9 @@ Y_UNIT_TEST_SUITE(TThreadPoolTest) {
         queue.Stop();
     }
 
-    void TestFixedThreadName(IThreadPool& pool, const TString& expectedName) {
+    void TestFixedThreadName(IThreadPool& pool, const std::string& expectedName) {
         pool.Start(1);
-        TString name;
+        std::string name;
         pool.SafeAddFunc([&name]() {
             name = TThread::CurrentThreadName();
         });
@@ -192,7 +192,7 @@ Y_UNIT_TEST_SUITE(TThreadPoolTest) {
     }
 
     Y_UNIT_TEST(TestFixedThreadName) {
-        const TString expectedName = "HelloWorld";
+        const std::string expectedName = "HelloWorld";
         {
             TThreadPool pool(TThreadPool::TParams().SetBlocking(true).SetCatching(false).SetThreadName(expectedName));
             TestFixedThreadName(pool, expectedName);
@@ -203,12 +203,12 @@ Y_UNIT_TEST_SUITE(TThreadPoolTest) {
         }
     }
 
-    void TestEnumeratedThreadName(IThreadPool& pool, const THashSet<TString>& expectedNames) {
+    void TestEnumeratedThreadName(IThreadPool& pool, const THashSet<std::string>& expectedNames) {
         pool.Start(expectedNames.size());
         TMutex lock;
         TCondVar allReady;
         size_t readyCount = 0;
-        THashSet<TString> names;
+        THashSet<std::string> names;
         for (size_t i = 0; i < expectedNames.size(); ++i) {
             pool.SafeAddFunc([&]() {
                 with_lock (lock) {
@@ -230,8 +230,8 @@ Y_UNIT_TEST_SUITE(TThreadPoolTest) {
     }
 
     Y_UNIT_TEST(TestEnumeratedThreadName) {
-        const TString namePrefix = "HelloWorld";
-        const THashSet<TString> expectedNames = {
+        const std::string namePrefix = "HelloWorld";
+        const THashSet<std::string> expectedNames = {
             "HelloWorld0",
             "HelloWorld1",
             "HelloWorld2",

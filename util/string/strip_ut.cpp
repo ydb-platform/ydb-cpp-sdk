@@ -6,10 +6,10 @@
 
 Y_UNIT_TEST_SUITE(TStripStringTest) {
     struct TStripTest {
-        TStringBuf Str;
-        TStringBuf StripLeftRes;
-        TStringBuf StripRightRes;
-        TStringBuf StripRes;
+        std::string_view Str;
+        std::string_view StripLeftRes;
+        std::string_view StripRightRes;
+        std::string_view StripRes;
     };
     static constexpr TStripTest StripTests[] = {
         {"  012  ", "012  ", "  012", "012"},
@@ -28,9 +28,9 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
 
     Y_UNIT_TEST(TestStrip) {
         for (const auto& test : StripTests) {
-            TString inputStr(test.Str);
+            std::string inputStr(test.Str);
 
-            TString s;
+            std::string s;
             Strip(inputStr, s);
             UNIT_ASSERT_EQUAL(s, test.StripRes);
 
@@ -38,7 +38,7 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
             UNIT_ASSERT_EQUAL(StripStringLeft(inputStr), test.StripLeftRes);
             UNIT_ASSERT_EQUAL(StripStringRight(inputStr), test.StripRightRes);
 
-            TStringBuf inputStrBuf(test.Str);
+            std::string_view inputStrBuf(test.Str);
             UNIT_ASSERT_EQUAL(StripString(inputStrBuf), test.StripRes);
             UNIT_ASSERT_EQUAL(StripStringLeft(inputStrBuf), test.StripLeftRes);
             UNIT_ASSERT_EQUAL(StripStringRight(inputStrBuf), test.StripRightRes);
@@ -47,7 +47,7 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
 
     Y_UNIT_TEST(TestStripInPlace) {
         for (const auto& test : StripTests) {
-            TString str(test.Str);
+            std::string str(test.Str);
             Y_ASSERT(str.IsDetached() || str.empty()); // prerequisite of the test; check that we don't try to modify shared COW-string in-place by accident
             const void* stringPtrPrior = str.data();
             StripInPlace(str);
@@ -102,22 +102,22 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
     }
 
     Y_UNIT_TEST(TestNullStringStrip) {
-        TStringBuf nullString(nullptr, nullptr);
+        std::string_view nullString(nullptr, nullptr);
         UNIT_ASSERT_EQUAL(
             StripString(nullString),
             TString());
     }
 
     Y_UNIT_TEST(TestWtrokaStrip) {
-        UNIT_ASSERT_EQUAL(StripString(TWtringBuf(u" abc ")), u"abc");
-        UNIT_ASSERT_EQUAL(StripStringLeft(TWtringBuf(u" abc ")), u"abc ");
-        UNIT_ASSERT_EQUAL(StripStringRight(TWtringBuf(u" abc ")), u" abc");
+        UNIT_ASSERT_EQUAL(StripString(std::u16string_view(u" abc ")), u"abc");
+        UNIT_ASSERT_EQUAL(StripStringLeft(std::u16string_view(u" abc ")), u"abc ");
+        UNIT_ASSERT_EQUAL(StripStringRight(std::u16string_view(u" abc ")), u" abc");
     }
 
     Y_UNIT_TEST(TestWtrokaCustomStrip) {
         UNIT_ASSERT_EQUAL(
             StripString(
-                TWtringBuf(u"/abc/"),
+                std::u16string_view(u"/abc/"),
                 EqualsStripAdapter(u'/')),
             u"abc");
     }
@@ -157,14 +157,14 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
     }
 
     Y_UNIT_TEST(TestCollapse) {
-        TString s;
+        std::string s;
         Collapse(TString("  123    456  "), s);
         UNIT_ASSERT(s == " 123 456 ");
         Collapse(TString("  123    456  "), s, 10);
         UNIT_ASSERT(s == " 123 456  ");
 
         s = TString(" a b c ");
-        TString s2 = s;
+        std::string s2 = s;
         CollapseInPlace(s2);
 
         UNIT_ASSERT(s == s2);
@@ -174,9 +174,9 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
     }
 
     Y_UNIT_TEST(TestCollapseText) {
-        TString abs1("Very long description string written in unknown language.");
-        TString abs2(abs1);
-        TString abs3(abs1);
+        std::string abs1("Very long description string written in unknown language.");
+        std::string abs2(abs1);
+        std::string abs3(abs1);
         CollapseText(abs1, 204);
         CollapseText(abs2, 54);
         CollapseText(abs3, 49);

@@ -3,6 +3,8 @@
 #include "nice.h"
 #include "sigset.h"
 
+#include <library/cpp/string_utils/helpers/helpers.h>
+
 #include <util/folder/dirut.h>
 #include <util/generic/algorithm.h>
 #include <util/generic/buffer.h>
@@ -189,10 +191,10 @@ using REALPIPEHANDLE = PIPEHANDLE;
 class TShellCommand::TImpl
     : public TAtomicRefCount<TShellCommand::TImpl> {
 private:
-    TString Command;
-    std::list<TString> Arguments;
+    std::string Command;
+    std::list<std::string> Arguments;
     TShellCommandOptions Options_;
-    TString WorkDir;
+    std::string WorkDir;
 
     TShellCommandOptions::EHandleMode InputMode = TShellCommandOptions::HANDLE_STREAM;
 
@@ -202,9 +204,9 @@ private:
     bool TerminateFlag = false;
 
     std::optional<int> ExitCode;
-    TString CollectedOutput;
-    TString CollectedError;
-    TString InternalError;
+    std::string CollectedOutput;
+    std::string CollectedError;
+    std::string InternalError;
     TMutex TerminateMutex;
     TFileHandle InputHandle;
     TFileHandle OutputHandle;
@@ -253,7 +255,7 @@ private:
         IOutputStream* OutputStream;
         IInputStream* InputStream;
         std::atomic<bool>* ShouldClosePipe;
-        TString InternalError;
+        std::string InternalError;
     };
 
 #if defined(_unix_)
@@ -263,7 +265,7 @@ private:
 #endif
 
 public:
-    inline TImpl(const TStringBuf cmd, const std::list<TString>& args, const TShellCommandOptions& options, const TString& workdir)
+    inline TImpl(const std::string_view cmd, const std::list<std::string>& args, const TShellCommandOptions& options, const std::string& workdir)
         : Command(ToString(cmd))
         , Arguments(args)
         , Options_(options)
@@ -296,28 +298,28 @@ public:
 #endif
     }
 
-    inline void AppendArgument(const TStringBuf argument) {
+    inline void AppendArgument(const std::string_view argument) {
         if (ExecutionStatus.load(std::memory_order_acquire) == SHELL_RUNNING) {
             ythrow yexception() << "You cannot change command parameters while process is running";
         }
         Arguments.push_back(ToString(argument));
     }
 
-    inline const TString& GetOutput() const {
+    inline const std::string& GetOutput() const {
         if (ExecutionStatus.load(std::memory_order_acquire) == SHELL_RUNNING) {
             ythrow yexception() << "You cannot retrieve output while process is running.";
         }
         return CollectedOutput;
     }
 
-    inline const TString& GetError() const {
+    inline const std::string& GetError() const {
         if (ExecutionStatus.load(std::memory_order_acquire) == SHELL_RUNNING) {
             ythrow yexception() << "You cannot retrieve output while process is running.";
         }
         return CollectedError;
     }
 
-    inline const TString& GetInternalError() const {
+    inline const std::string& GetInternalError() const {
         if (ExecutionStatus.load(std::memory_order_acquire) != SHELL_INTERNAL_ERROR) {
             ythrow yexception() << "Internal error hasn't occured so can't be retrieved.";
         }
@@ -475,7 +477,7 @@ public:
         return nullptr;
     }
 
-    TString GetQuotedCommand() const;
+    std::string GetQuotedCommand() const;
 };
 
 #if defined(_win_)
@@ -521,10 +523,10 @@ void TShellCommand::TImpl::StartProcess(TShellCommand::TImpl::TPipes& pipes) {
     }
 
     PROCESS_INFORMATION process_info;
-    // TString cmd = "cmd /U" + TUtf16String can be used to read unicode messages from cmd
+    // std::string cmd = "cmd /U" + TUtf16String can be used to read unicode messages from cmd
     // /A - ansi charset /Q - echo off, /C - command, /Q - special quotes
-    TString qcmd = GetQuotedCommand();
-    TString cmd = Options_.UseShell ? "cmd /A /Q /S /C \"" + qcmd + "\"" : qcmd;
+    std::string qcmd = GetQuotedCommand();
+    std::string cmd = Options_.UseShell ? "cmd /A /Q /S /C \"" + qcmd + "\"" : qcmd;
     // winapi can modify command text, copy it
 
     Y_ENSURE_EX(cmd.size() < MAX_COMMAND_LINE, yexception() << "Command is too long (length=" << cmd.size() << ")");
@@ -540,7 +542,7 @@ void TShellCommand::TImpl::StartProcess(TShellCommand::TImpl::TPipes& pipes) {
     }
 
     void* lpEnvironment = nullptr;
-    TString env;
+    std::string env;
     if (!Options_.Environment.empty()) {
         for (auto e = Options_.Environment.begin(); e != Options_.Environment.end(); ++e) {
             env += e->first + '=' + e->second + '\0';
@@ -593,10 +595,10 @@ void TShellCommand::TImpl::StartProcess(TShellCommand::TImpl::TPipes& pipes) {
 }
 #endif
 
-void ShellQuoteArg(TString& dst, TStringBuf argument) {
+void ShellQuoteArg(std::string& dst, std::string_view argument) {
     dst.append("\"");
-    TStringBuf l, r;
-    while (argument.TrySplit('"', l, r)) {
+    std::string_view l, r;
+    while (NUtils::TrySplit(argument, l, r, '"')) {
         dst.append(l);
         dst.append("\\\"");
         argument = r;
@@ -605,20 +607,20 @@ void ShellQuoteArg(TString& dst, TStringBuf argument) {
     dst.append("\"");
 }
 
-void ShellQuoteArgSp(TString& dst, TStringBuf argument) {
-    dst.append(' ');
+void ShellQuoteArgSp(std::string& dst, std::string_view argument) {
+    dst.append(" ");
     ShellQuoteArg(dst, argument);
 }
 
-bool ArgNeedsQuotes(TStringBuf arg) noexcept {
+bool ArgNeedsQuotes(std::string_view arg) noexcept {
     if (arg.empty()) {
         return true;
     }
-    return arg.find_first_of(" \"\'\t&()*<>\\`^|") != TString::npos;
+    return arg.find_first_of(" \"\'\t&()*<>\\`^|") != std::string::npos;
 }
 
-TString TShellCommand::TImpl::GetQuotedCommand() const {
-    TString quoted = Command; /// @todo command itself should be quoted too
+std::string TShellCommand::TImpl::GetQuotedCommand() const {
+    std::string quoted = Command; /// @todo command itself should be quoted too
     for (const auto& argument : Arguments) {
         // Don't add unnecessary quotes. It's especially important for the windows with a 32k command line length limit.
         if (Options_.QuoteArguments && ArgNeedsQuotes(argument)) {
@@ -722,7 +724,7 @@ void TShellCommand::TImpl::OnFork(TPipes& pipes, sigset_t oldmask, char* const* 
 #endif
 
 void TShellCommand::TImpl::Run() {
-    Y_ENSURE(ExecutionStatus.load(std::memory_order_acquire) != SHELL_RUNNING, TStringBuf("Process is already running"));
+    Y_ENSURE(ExecutionStatus.load(std::memory_order_acquire) != SHELL_RUNNING, std::string_view("Process is already running"));
     // Prepare I/O streams
     CollectedOutput.clear();
     CollectedError.clear();
@@ -749,7 +751,7 @@ void TShellCommand::TImpl::Run() {
     }
 
     /* arguments holders */
-    TString shellArg;
+    std::string shellArg;
     std::vector<char*> qargv;
     /*
       Following "const_cast"s are safe:
@@ -773,7 +775,7 @@ void TShellCommand::TImpl::Run() {
 
     qargv.push_back(nullptr);
 
-    std::vector<TString> envHolder;
+    std::vector<std::string> envHolder;
     std::vector<char*> envp;
     if (!Options_.Environment.empty()) {
         for (auto& env : Options_.Environment) {
@@ -1087,33 +1089,33 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
     TerminateIsRequired(pi);
 }
 
-TShellCommand::TShellCommand(const TStringBuf cmd, const std::list<TString>& args, const TShellCommandOptions& options,
-                             const TString& workdir)
+TShellCommand::TShellCommand(const std::string_view cmd, const std::list<std::string>& args, const TShellCommandOptions& options,
+                             const std::string& workdir)
     : Impl(new TImpl(cmd, args, options, workdir))
 {
 }
 
-TShellCommand::TShellCommand(const TStringBuf cmd, const TShellCommandOptions& options, const TString& workdir)
-    : Impl(new TImpl(cmd, std::list<TString>(), options, workdir))
+TShellCommand::TShellCommand(const std::string_view cmd, const TShellCommandOptions& options, const std::string& workdir)
+    : Impl(new TImpl(cmd, std::list<std::string>(), options, workdir))
 {
 }
 
 TShellCommand::~TShellCommand() = default;
 
-TShellCommand& TShellCommand::operator<<(const TStringBuf argument) {
+TShellCommand& TShellCommand::operator<<(const std::string_view argument) {
     Impl->AppendArgument(argument);
     return *this;
 }
 
-const TString& TShellCommand::GetOutput() const {
+const std::string& TShellCommand::GetOutput() const {
     return Impl->GetOutput();
 }
 
-const TString& TShellCommand::GetError() const {
+const std::string& TShellCommand::GetError() const {
     return Impl->GetError();
 }
 
-const TString& TShellCommand::GetInternalError() const {
+const std::string& TShellCommand::GetInternalError() const {
     return Impl->GetInternalError();
 }
 
@@ -1161,6 +1163,6 @@ TShellCommand& TShellCommand::CloseInput() {
     return *this;
 }
 
-TString TShellCommand::GetQuotedCommand() const {
+std::string TShellCommand::GetQuotedCommand() const {
     return Impl->GetQuotedCommand();
 }

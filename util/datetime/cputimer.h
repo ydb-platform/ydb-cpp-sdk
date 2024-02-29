@@ -12,7 +12,7 @@ private:
     TStringStream Message_;
 
 public:
-    TTimer(const TStringBuf message = TStringBuf(" took: "));
+    TTimer(const std::string_view message = " took: ");
     ~TTimer();
 };
 
@@ -76,7 +76,7 @@ public:
     ui64 GetCycleCount() const;
 };
 
-TString FormatCycles(ui64 cycles);
+std::string FormatCycles(ui64 cycles);
 
 class TFormattedPrecisionTimer {
 private:
@@ -113,14 +113,14 @@ public:
 
 class TTimeLogger {
 private:
-    TString Message;
+    std::string Message;
     bool Verbose;
     bool OK;
     time_t Begin;
     ui64 BeginCycles;
 
 public:
-    TTimeLogger(const TString& message, bool verbose = true);
+    TTimeLogger(const std::string& message, bool verbose = true);
     ~TTimeLogger();
 
     void SetOK();

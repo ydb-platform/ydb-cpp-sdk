@@ -91,13 +91,8 @@ static void WriteString(IOutputStream& o, const wchar32* w, size_t n) {
 }
 
 template <>
-void Out<TString>(IOutputStream& o, const TString& p) {
-    o.Write(p.data(), p.size());
-}
-
-template <>
 void Out<std::string>(IOutputStream& o, const std::string& p) {
-    o.Write(p.data(), p.length());
+    o.Write(p.data(), p.size());
 }
 
 template <>
@@ -118,21 +113,6 @@ void Out<std::u32string_view>(IOutputStream& o, const std::u32string_view& p) {
 template <>
 void Out<std::filesystem::path>(IOutputStream& o, const std::filesystem::path& p) {
     o.Write(p.string());
-}
-
-template <>
-void Out<TStringBuf>(IOutputStream& o, const TStringBuf& p) {
-    o.Write(p.data(), p.length());
-}
-
-template <>
-void Out<TWtringBuf>(IOutputStream& o, const TWtringBuf& p) {
-    WriteString(o, p.data(), p.length());
-}
-
-template <>
-void Out<TUtf32StringBuf>(IOutputStream& o, const TUtf32StringBuf& p) {
-    WriteString(o, p.data(), p.length());
 }
 
 template <>
@@ -216,10 +196,6 @@ void Out<typename std::vector<bool>::reference>(IOutputStream& o, const std::vec
 #endif
 
 #ifndef TSTRING_IS_STD_STRING
-template <>
-void Out<TBasicCharRef<TString>>(IOutputStream& o, const TBasicCharRef<TString>& c) {
-    o << static_cast<char>(c);
-}
 
 template <>
 void Out<TBasicCharRef<TUtf16String>>(IOutputStream& o, const TBasicCharRef<TUtf16String>& c) {
@@ -246,7 +222,7 @@ using TNullPtr = decltype(nullptr);
 
 template <>
 void Out<TNullPtr>(IOutputStream& o, TTypeTraits<TNullPtr>::TFuncParam) {
-    o << TStringBuf("nullptr");
+    o << std::string_view("nullptr");
 }
 
 #define DEF_OPTIONAL(TYPE)                                                               \
@@ -263,8 +239,7 @@ DEF_OPTIONAL(ui32);
 DEF_OPTIONAL(i64);
 DEF_OPTIONAL(ui64);
 DEF_OPTIONAL(std::string);
-DEF_OPTIONAL(TString);
-DEF_OPTIONAL(TStringBuf);
+DEF_OPTIONAL(std::string_view);
 
 #if defined(_android_)
 namespace {

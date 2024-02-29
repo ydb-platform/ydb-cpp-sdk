@@ -11,9 +11,9 @@
     #include <unistd.h>
 #endif
 
-TString GetUsername() {
+std::string GetUsername() {
     for (const auto& var : {"LOGNAME", "USER", "LNAME", "USERNAME"}) {
-        TString val = GetEnv(var);
+        std::string val = GetEnv(var);
         if (val) {
             return val;
         }
@@ -39,7 +39,7 @@ TString GetUsername() {
             return TString(pwd->pw_name);
         }
 
-        ythrow TSystemError() << TStringBuf(" getpwuid failed");
+        ythrow TSystemError() << std::string_view(" getpwuid failed");
 #else
         passwd pwd;
         passwd* tmpPwd;

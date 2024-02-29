@@ -10,17 +10,17 @@
 #include <util/system/fs.h>
 
 struct TFsPath::TSplit: public TAtomicRefCount<TSplit>, public TPathSplit {
-    inline TSplit(const TStringBuf path)
+    inline TSplit(const std::string_view path)
         : TPathSplit(path)
     {
     }
-    inline TSplit(const TString& path, const TSimpleIntrusivePtr<TSplit>& thatSplit, const TString::char_type* thatPathData) {
+    inline TSplit(const std::string& path, const TSimpleIntrusivePtr<TSplit>& thatSplit, const TString::char_type* thatPathData) {
         for (const auto& thatPart : *thatSplit) {
             emplace_back(path.data() + (thatPart.data() - thatPathData), thatPart.size());
         }
 
         if (!thatSplit->Drive.empty()) {
-            Drive = TStringBuf(path.data() + (thatSplit->Drive.data() - thatPathData), thatSplit->Drive.size());
+            Drive = std::string_view(path.data() + (thatSplit->Drive.data() - thatPathData), thatSplit->Drive.size());
         }
 
         IsAbsolute = thatSplit->IsAbsolute;
@@ -29,7 +29,7 @@ struct TFsPath::TSplit: public TAtomicRefCount<TSplit>, public TPathSplit {
 
 void TFsPath::CheckDefined() const {
     if (!IsDefined()) {
-        ythrow TIoException() << TStringBuf("must be defined");
+        ythrow TIoException() << "must be defined";
     }
 }
 
@@ -101,7 +101,7 @@ TFsPath TFsPath::RelativePath(const TFsPath& root) const {
     if (cnt == 0 && !absboth) {
         ythrow TIoException() << "No common parts in " << *this << " and " << root;
     }
-    TString r;
+    std::string r;
     for (size_t i = 0; i < rsplit.size() - cnt; i++) {
         r += i == 0 ? ".." : "/..";
     }
@@ -151,7 +151,7 @@ TFsPath& TFsPath::Fix() {
     return *this;
 }
 
-TString TFsPath::GetName() const {
+std::string TFsPath::GetName() const {
     if (!IsDefined()) {
         return TString();
     }
@@ -174,7 +174,7 @@ TString TFsPath::GetName() const {
     }
 }
 
-TString TFsPath::GetExtension() const {
+std::string TFsPath::GetExtension() const {
     return TString(GetSplit().Extension());
 }
 
@@ -198,20 +198,20 @@ TFsPath::TSplit& TFsPath::GetSplit() const {
     return *Split_;
 }
 
-static Y_FORCE_INLINE void VerifyPath(const TStringBuf path) {
-    Y_ABORT_UNLESS(!path.Contains('\0'), "wrong format of TFsPath: %s", EscapeC(path).c_str());
+static Y_FORCE_INLINE void VerifyPath(const std::string_view path) {
+    Y_ABORT_UNLESS(!path.contains('\0'), "wrong format of TFsPath: %s", EscapeC(path).c_str());
 }
 
 TFsPath::TFsPath() {
 }
 
-TFsPath::TFsPath(const TString& path)
+TFsPath::TFsPath(const std::string& path)
     : Path_(path)
 {
     VerifyPath(Path_);
 }
 
-TFsPath::TFsPath(const TStringBuf path)
+TFsPath::TFsPath(const std::string_view path)
     : Path_(ToString(path))
 {
     VerifyPath(Path_);
@@ -260,7 +260,7 @@ TFsPath& TFsPath::operator=(TFsPath&& that) {
     return *this;
 }
 
-TFsPath TFsPath::Child(const TString& name) const {
+TFsPath TFsPath::Child(const std::string& name) const {
     if (!name) {
         ythrow TIoException() << "child name must not be empty";
     }
@@ -278,7 +278,7 @@ struct TClosedir {
     }
 };
 
-void TFsPath::ListNames(std::vector<TString>& children) const {
+void TFsPath::ListNames(std::vector<std::string>& children) const {
     CheckDefined();
     THolder<DIR, TClosedir> dir(opendir(this->c_str()));
     if (!dir) {
@@ -300,7 +300,7 @@ void TFsPath::ListNames(std::vector<TString>& children) const {
         if (ok == nullptr) {
             return;
         }
-        TString name(de.d_name);
+        std::string name(de.d_name);
         if (name == "." || name == "..") {
             continue;
         }
@@ -308,7 +308,7 @@ void TFsPath::ListNames(std::vector<TString>& children) const {
     }
 }
 
-bool TFsPath::Contains(const TString& component) const {
+bool TFsPath::Contains(const std::string& component) const {
     if (!IsDefined()) {
         return false;
     }
@@ -326,14 +326,14 @@ bool TFsPath::Contains(const TString& component) const {
 }
 
 void TFsPath::List(std::vector<TFsPath>& files) const {
-    std::vector<TString> names;
+    std::vector<std::string> names;
     ListNames(names);
     for (auto& name : names) {
         files.push_back(Child(name));
     }
 }
 
-void TFsPath::RenameTo(const TString& newPath) const {
+void TFsPath::RenameTo(const std::string& newPath) const {
     CheckDefined();
     if (!newPath) {
         ythrow TIoException() << "bad new file name";
@@ -472,7 +472,7 @@ void TFsPath::ForceDelete() const {
     }
 }
 
-void TFsPath::CopyTo(const TString& newPath, bool force) const {
+void TFsPath::CopyTo(const std::string& newPath, bool force) const {
     if (IsDirectory()) {
         if (force) {
             TFsPath(newPath).MkDirs();
@@ -499,7 +499,7 @@ void TFsPath::CopyTo(const TString& newPath, bool force) const {
     }
 }
 
-void TFsPath::ForceRenameTo(const TString& newPath) const {
+void TFsPath::ForceRenameTo(const std::string& newPath) const {
     try {
         RenameTo(newPath);
     } catch (const TIoSystemError& /* error */) {
@@ -523,13 +523,13 @@ void Out<TFsPath>(IOutputStream& os, const TFsPath& f) {
 
 template <>
 TFsPath FromStringImpl<TFsPath>(const char* s, size_t len) {
-    return TFsPath{TStringBuf{s, len}};
+    return TFsPath{std::string_view{s, len}};
 }
 
 template <>
 bool TryFromStringImpl(const char* s, size_t len, TFsPath& result) {
     try {
-        result = TStringBuf{s, len};
+        result = std::string_view{s, len};
         return true;
     } catch (std::exception&) {
         return false;

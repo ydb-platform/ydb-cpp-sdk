@@ -2,9 +2,9 @@
 
 #include "recode_result.h"
 
-#include <util/generic/strbuf.h>
 #include <util/generic/string.h>
 #include <util/generic/yexception.h>
+#include <util/string/escape.h>
 #include <util/system/defaults.h>
 #include <util/system/yassert.h>
 
@@ -131,10 +131,10 @@ inline bool GetNumberOfUTF8Chars(const char* text, size_t len, size_t& number) {
     return res;
 }
 
-inline size_t GetNumberOfUTF8Chars(TStringBuf text) {
+inline size_t GetNumberOfUTF8Chars(std::string_view text) {
     size_t number;
     if (!GetNumberOfUTF8Chars(text.data(), text.size(), number)) {
-        ythrow yexception() << "GetNumberOfUTF8Chars failed on invalid utf-8 " << TString(text.substr(0, 50)).Quote();
+        ythrow yexception() << "GetNumberOfUTF8Chars failed on invalid utf-8 \"" << EscapeC(std::string(text.substr(0, 50))) << "\"";
     }
     return number;
 }
@@ -388,7 +388,7 @@ inline void WriteUTF8Char(wchar32 rune, size_t& rune_len, unsigned char* s) {
     }
 }
 
-TStringBuf SubstrUTF8(const TStringBuf str, size_t pos, size_t len);
+std::string_view SubstrUTF8(const std::string_view str, size_t pos, size_t len);
 
 enum EUTF8Detect {
     NotUTF8,
@@ -398,7 +398,7 @@ enum EUTF8Detect {
 
 EUTF8Detect UTF8Detect(const char* s, size_t len);
 
-inline EUTF8Detect UTF8Detect(const TStringBuf input) {
+inline EUTF8Detect UTF8Detect(const std::string_view input) {
     return UTF8Detect(input.data(), input.size());
 }
 
@@ -406,26 +406,25 @@ inline bool IsUtf(const char* input, size_t len) {
     return UTF8Detect(input, len) != NotUTF8;
 }
 
-inline bool IsUtf(const TStringBuf input) {
+inline bool IsUtf(const std::string_view input) {
     return IsUtf(input.data(), input.size());
 }
 
 //! returns true, if result is not the same as input, and put it in newString
 //! returns false, if result is unmodified
-bool ToLowerUTF8Impl(const char* beg, size_t n, TString& newString);
+bool ToLowerUTF8Impl(const char* beg, size_t n, std::string& newString);
 
-TString ToLowerUTF8(const TString& s);
-TString ToLowerUTF8(TStringBuf s);
-TString ToLowerUTF8(const char* s);
+std::string ToLowerUTF8(std::string_view s);
+std::string ToLowerUTF8(const char* s);
 
-inline TString ToLowerUTF8(const std::string& s) {
-    return ToLowerUTF8(TStringBuf(s));
+inline std::string ToLowerUTF8(const std::string& s) {
+    return ToLowerUTF8(std::string_view(s));
 }
 
 //! returns true, if result is not the same as input, and put it in newString
 //! returns false, if result is unmodified
-bool ToUpperUTF8Impl(const char* beg, size_t n, TString& newString);
+bool ToUpperUTF8Impl(const char* beg, size_t n, std::string& newString);
 
-TString ToUpperUTF8(const TString& s);
-TString ToUpperUTF8(TStringBuf s);
-TString ToUpperUTF8(const char* s);
+std::string ToUpperUTF8(const std::string& s);
+std::string ToUpperUTF8(std::string_view s);
+std::string ToUpperUTF8(const char* s);

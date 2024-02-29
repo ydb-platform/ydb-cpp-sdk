@@ -10,29 +10,29 @@ namespace testing {
      * When matching `const std::string_view&`, implicitly convert other strings and string views to `Eq` matchers.
      */
     template <typename T, typename TT>
-    class Matcher<const TBasicStringBuf<T, TT>&>: public internal::MatcherBase<const TBasicStringBuf<T, TT>&> {
+    class Matcher<const std::basic_string_view<T, TT>&>: public internal::MatcherBase<const std::basic_string_view<T, TT>&> {
     public:
         Matcher() {
         }
 
-        explicit Matcher(const MatcherInterface<const TBasicStringBuf<T, TT>&>* impl)
-            : internal::MatcherBase<const TBasicStringBuf<T, TT>&>(impl) {
+        explicit Matcher(const MatcherInterface<const std::basic_string_view<T, TT>&>* impl)
+            : internal::MatcherBase<const std::basic_string_view<T, TT>&>(impl) {
         }
 
         template <typename M, typename = typename std::remove_reference<M>::type::is_gtest_matcher>
         Matcher(M&& m)
-            : internal::MatcherBase<const TBasicStringBuf<T, TT>&>(std::forward<M>(m)) {
+            : internal::MatcherBase<const std::basic_string_view<T, TT>&>(std::forward<M>(m)) {
         }
 
         Matcher(const TBasicString<T, TT>& s) {
-            *this = Eq(TBasicStringBuf<T, TT>(s));
+            *this = Eq(std::basic_string_view<T, TT>(s));
         }
 
         Matcher(const T* s) {
-            *this = Eq(TBasicStringBuf<T, TT>(s));
+            *this = Eq(std::basic_string_view<T, TT>(s));
         }
 
-        Matcher(TBasicStringBuf<T, TT> s) {
+        Matcher(std::basic_string_view<T, TT> s) {
             *this = Eq(s);
         }
     };
@@ -41,22 +41,22 @@ namespace testing {
      * When matching `TBasicBuf`, implicitly convert other strings and string views to `Eq` matchers.
      */
     template <typename T, typename TT>
-    class Matcher<TBasicStringBuf<T, TT>>: public internal::MatcherBase<TBasicStringBuf<T, TT>> {
+    class Matcher<std::basic_string_view<T, TT>>: public internal::MatcherBase<std::basic_string_view<T, TT>> {
     public:
         Matcher() {
         }
 
-        explicit Matcher(const MatcherInterface <TBasicStringBuf<T, TT>>* impl)
-            : internal::MatcherBase<TBasicStringBuf<T, TT>>(impl) {
+        explicit Matcher(const MatcherInterface <std::basic_string_view<T, TT>>* impl)
+            : internal::MatcherBase<std::basic_string_view<T, TT>>(impl) {
         }
 
-        explicit Matcher(const MatcherInterface<const TBasicStringBuf<T, TT>&>* impl)
-            : internal::MatcherBase<TBasicStringBuf<T, TT>>(impl) {
+        explicit Matcher(const MatcherInterface<const std::basic_string_view<T, TT>&>* impl)
+            : internal::MatcherBase<std::basic_string_view<T, TT>>(impl) {
         }
 
         template <typename M, typename = typename std::remove_reference<M>::type::is_gtest_matcher>
         Matcher(M&& m)
-            : internal::MatcherBase<TBasicStringBuf<T, TT>>(std::forward<M>(m)) {
+            : internal::MatcherBase<std::basic_string_view<T, TT>>(std::forward<M>(m)) {
         }
 
         Matcher(const TBasicString<T, TT>& s) {
@@ -67,7 +67,7 @@ namespace testing {
             *this = Eq(TBasicString<T, TT>(s));
         }
 
-        Matcher(TBasicStringBuf<T, TT> s) {
+        Matcher(std::basic_string_view<T, TT> s) {
             *this = Eq(s);
         }
     };

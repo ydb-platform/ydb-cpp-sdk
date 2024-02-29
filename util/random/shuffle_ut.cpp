@@ -9,7 +9,7 @@
 Y_UNIT_TEST_SUITE(TRandUtilsTest) {
     template <typename... A>
     static void TestRange(A&&... args) {
-        TString s0, s1;
+        std::string s0, s1;
         ShuffleRange(s1, args...);
         s1 = "0";
         ShuffleRange(s1, args...);
@@ -23,7 +23,7 @@ Y_UNIT_TEST_SUITE(TRandUtilsTest) {
 
     template <typename... A>
     static void TestIter(A&&... args) {
-        TString s0, s1;
+        std::string s0, s1;
 
         auto f = [&]() {
             auto b = s1.begin();
@@ -47,7 +47,7 @@ Y_UNIT_TEST_SUITE(TRandUtilsTest) {
 
     template <typename... A>
     static void TestIterPartial(A&&... args) {
-        TString s0, s1;
+        std::string s0, s1;
 
         auto f = [&](int shuffledSize) {
             auto b = s1.begin();

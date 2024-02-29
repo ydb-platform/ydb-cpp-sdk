@@ -4,7 +4,7 @@
 
 Y_UNIT_TEST_SUITE(TProgramNameTest) {
     Y_UNIT_TEST(TestIt) {
-        TString progName = GetProgramName();
+        std::string progName = GetProgramName();
 
         try {
             UNIT_ASSERT(

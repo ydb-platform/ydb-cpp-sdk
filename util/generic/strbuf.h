@@ -264,7 +264,7 @@ public:
     // a result of string find()/rfind()/find_first() or other similiar functions,
     // returning either position within string length [0..size()) or npos.
     // For all other @pos values (out of string index range) the behaviour isn't well defined
-    // For example, for TStringBuf s("abc"):
+    // For example, for std::string_view s("abc"):
     // s.TrySplitOn(s.find('z'), ...) is false, but s.TrySplitOn(100500, ...) is true.
 
     bool TrySplitOn(size_t pos, TdSelf& l, TdSelf& r, size_t len = 1) const noexcept {
@@ -535,9 +535,3 @@ private:
         }
     }
 };
-
-std::ostream& operator<<(std::ostream& os, TStringBuf buf);
-
-constexpr TStringBuf operator""_sb(const char* str, size_t len) {
-    return TStringBuf{str, len};
-}

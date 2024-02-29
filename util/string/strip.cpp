@@ -3,7 +3,7 @@
 
 #include <util/string/reverse.h>
 
-void CollapseText(const TString& from, TString& to, size_t maxLen) {
+void CollapseText(const std::string& from, std::string& to, size_t maxLen) {
     Collapse(from, to, maxLen);
     StripInPlace(to);
     if (to.size() >= maxLen) {

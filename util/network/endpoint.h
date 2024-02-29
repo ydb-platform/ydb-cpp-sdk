@@ -32,7 +32,7 @@ public:
         return Addr_->Addr()->sa_family == AF_UNIX;
     }
 
-    inline TString IpToString() const {
+    inline std::string IpToString() const {
         return NAddr::PrintHost(*Addr_);
     }
 

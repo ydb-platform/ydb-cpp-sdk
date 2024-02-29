@@ -1,7 +1,6 @@
 #pragma once
 
 #include <util/generic/string.h>
-#include <util/generic/strbuf.h>
 
 template <class TChar>
 TBasicString<TChar>& EscapeCImpl(const TChar* str, size_t len, TBasicString<TChar>&);
@@ -24,7 +23,7 @@ static inline TBasicString<TChar> EscapeC(const TChar* str, size_t len) {
 }
 
 template <typename TChar>
-static inline TBasicString<TChar> EscapeC(const TBasicStringBuf<TChar>& str) {
+static inline TBasicString<TChar> EscapeC(const std::basic_string_view<TChar>& str) {
     return EscapeC(str.data(), str.size());
 }
 
@@ -49,18 +48,18 @@ static inline TBasicString<TChar> EscapeC(const TChar* str) {
     return EscapeC(str, std::char_traits<TChar>::length(str));
 }
 
-TString& EscapeC(const TStringBuf str, TString& res);
-TUtf16String& EscapeC(const TWtringBuf str, TUtf16String& res);
+std::string& EscapeC(const std::string_view str, std::string& res);
+TUtf16String& EscapeC(const std::u16string_view str, TUtf16String& res);
 
 // these two need to be methods, because of TBasicString::Quote implementation
-TString EscapeC(const TString& str);
+std::string EscapeC(const std::string& str);
 TUtf16String EscapeC(const TUtf16String& str);
 
-TString& UnescapeC(const TStringBuf str, TString& res);
-TUtf16String& UnescapeC(const TWtringBuf str, TUtf16String& res);
+std::string& UnescapeC(const std::string_view str, std::string& res);
+TUtf16String& UnescapeC(const std::u16string_view str, TUtf16String& res);
 
-TString UnescapeC(const TStringBuf str);
-TUtf16String UnescapeC(const TWtringBuf wtr);
+std::string UnescapeC(const std::string_view str);
+TUtf16String UnescapeC(const std::u16string_view wtr);
 
 /// Returns number of chars in escape sequence.
 ///   - 0, if begin >= end
@@ -68,3 +67,7 @@ TUtf16String UnescapeC(const TWtringBuf wtr);
 ///   - at least 2 (including '\'), if [begin, end) starts with an escaped symbol
 template <class TChar>
 size_t UnescapeCCharLen(const TChar* begin, const TChar* end);
+
+namespace NQuote {
+std::string Quote(std::string_view s);
+}

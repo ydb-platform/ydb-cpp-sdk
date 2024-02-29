@@ -187,11 +187,11 @@ void THashTest::TestHMap1() {
     UNIT_ASSERT(m.contains('z'));
 
     UNIT_ASSERT(m.count('z') == 1);
-    auto p = m.insert(std::pair<const char, TString>('c', TString("100")));
+    auto p = m.insert(std::pair<const char, std::string>('c', TString("100")));
 
     UNIT_ASSERT(p.second);
 
-    p = m.insert(std::pair<const char, TString>('c', TString("100")));
+    p = m.insert(std::pair<const char, std::string>('c', TString("100")));
     UNIT_ASSERT(!p.second);
 
     // Some iterators compare check, really compile time checks
@@ -610,7 +610,7 @@ void THashTest::TestHMSetEmplace() {
 }
 
 void THashTest::TestInsertErase() {
-    using hmap = THashMap<TString, size_t, THash<TString>, TEqualTo<TString>>;
+    using hmap = THashMap<TString, size_t, THash<std::string>, TEqualTo<std::string>>;
     using val_type = hmap::value_type;
 
     {
@@ -640,10 +640,10 @@ void THashTest::TestInsertErase() {
 
 namespace {
     struct TItem: public TSimpleRefCount<TItem> {
-        const TString Key;
-        const TString Value;
+        const std::string Key;
+        const std::string Value;
 
-        TItem(const TString& key, const TString& value)
+        TItem(const std::string& key, const std::string& value)
             : Key(key)
             , Value(value)
         {
@@ -653,7 +653,7 @@ namespace {
     using TItemPtr = TIntrusivePtr<TItem>;
 
     struct TSelectKey {
-        const TString& operator()(const TItemPtr& item) const {
+        const std::string& operator()(const TItemPtr& item) const {
             return item->Key;
         }
     };
@@ -661,18 +661,18 @@ namespace {
     using TItemMapBase = THashTable<
         TItemPtr,
         TString,
-        THash<TString>,
+        THash<std::string>,
         TSelectKey,
-        TEqualTo<TString>,
+        TEqualTo<std::string>,
         std::allocator<TItemPtr>>;
 
     struct TItemMap: public TItemMapBase {
         TItemMap()
-            : TItemMapBase(1, THash<TString>(), TEqualTo<TString>())
+            : TItemMapBase(1, THash<std::string>(), TEqualTo<std::string>())
         {
         }
 
-        TItem& Add(const TString& key, const TString& value) {
+        TItem& Add(const std::string& key, const std::string& value) {
             insert_ctx ins;
             iterator it = find_i(key, ins);
             if (it == end()) {
@@ -1185,9 +1185,9 @@ void THashTest::TestAt() {
 
     TEST_AT_THROWN_EXCEPTION(TString, TString, TString, "111", "111");
     TEST_AT_THROWN_EXCEPTION(TString, TString, const TString, "111", "111");
-    TEST_AT_THROWN_EXCEPTION(TString, TString, TStringBuf, "111", "111");
-    TEST_AT_THROWN_EXCEPTION(TString, TString, const TStringBuf, "111", "111");
-    TEST_AT_THROWN_EXCEPTION(TStringBuf, TStringBuf, const char*, "111", "111");
+    TEST_AT_THROWN_EXCEPTION(TString, TString, std::string_view, "111", "111");
+    TEST_AT_THROWN_EXCEPTION(TString, TString, const std::string_view, "111", "111");
+    TEST_AT_THROWN_EXCEPTION(std::string_view, std::string_view, const char*, "111", "111");
     TEST_AT_THROWN_EXCEPTION(int, int, short, 11, "11");
     TEST_AT_THROWN_EXCEPTION(int, int, int, -1, "-1");
     TEST_AT_THROWN_EXCEPTION(int, int, long, 111, "111");
@@ -1199,35 +1199,35 @@ void THashTest::TestAt() {
 
     char key[] = {11, 12, 0, 1, 2, 11, 0};
     TEST_AT_THROWN_EXCEPTION(TString, TString, char*, key, "\\x0B\\x0C");
-    TEST_AT_THROWN_EXCEPTION(TString, TString, TStringBuf, TStringBuf(key, sizeof(key) - 1), "\\x0B\\x0C\\0\\1\\2\\x0B");
+    TEST_AT_THROWN_EXCEPTION(TString, TString, std::string_view, std::string_view(key, sizeof(key) - 1), "\\x0B\\x0C\\0\\1\\2\\x0B");
 
 #undef TEST_AT_THROWN_EXCEPTION
 }
 
 void THashTest::TestHMapInitializerList() {
-    THashMap<TString, TString> h1 = {{"foo", "bar"}, {"bar", "baz"}, {"baz", "qux"}};
-    THashMap<TString, TString> h2;
-    h2.insert(std::pair<TString, TString>("foo", "bar"));
-    h2.insert(std::pair<TString, TString>("bar", "baz"));
-    h2.insert(std::pair<TString, TString>("baz", "qux"));
+    THashMap<TString, std::string> h1 = {{"foo", "bar"}, {"bar", "baz"}, {"baz", "qux"}};
+    THashMap<TString, std::string> h2;
+    h2.insert(std::pair<TString, std::string>("foo", "bar"));
+    h2.insert(std::pair<TString, std::string>("bar", "baz"));
+    h2.insert(std::pair<TString, std::string>("baz", "qux"));
     UNIT_ASSERT_EQUAL(h1, h2);
 }
 
 void THashTest::TestHMMapInitializerList() {
-    THashMultiMap<TString, TString> h1 = {
+    THashMultiMap<TString, std::string> h1 = {
         {"foo", "bar"},
         {"foo", "baz"},
         {"baz", "qux"}};
-    THashMultiMap<TString, TString> h2;
-    h2.insert(std::pair<TString, TString>("foo", "bar"));
-    h2.insert(std::pair<TString, TString>("foo", "baz"));
-    h2.insert(std::pair<TString, TString>("baz", "qux"));
+    THashMultiMap<TString, std::string> h2;
+    h2.insert(std::pair<TString, std::string>("foo", "bar"));
+    h2.insert(std::pair<TString, std::string>("foo", "baz"));
+    h2.insert(std::pair<TString, std::string>("baz", "qux"));
     UNIT_ASSERT_EQUAL(h1, h2);
 }
 
 void THashTest::TestHSetInitializerList() {
-    THashSet<TString> h1 = {"foo", "bar", "baz"};
-    THashSet<TString> h2;
+    THashSet<std::string> h1 = {"foo", "bar", "baz"};
+    THashSet<std::string> h2;
     h2.insert("foo");
     h2.insert("bar");
     h2.insert("baz");
@@ -1235,8 +1235,8 @@ void THashTest::TestHSetInitializerList() {
 }
 
 void THashTest::TestHMSetInitializerList() {
-    THashMultiSet<TString> h1 = {"foo", "foo", "bar", "baz"};
-    THashMultiSet<TString> h2;
+    THashMultiSet<std::string> h1 = {"foo", "foo", "bar", "baz"};
+    THashMultiSet<std::string> h2;
     h2.insert("foo");
     h2.insert("foo");
     h2.insert("bar");
@@ -1331,6 +1331,6 @@ void THashTest::TestStringHash() {
     const size_t expected = ComputeHash(TString("hehe"));
     UNIT_ASSERT_VALUES_EQUAL(ComputeHash("hehe"), expected);              // char[5]
     UNIT_ASSERT_VALUES_EQUAL(ComputeHash("hehe"sv), expected);            // std::string_view
-    UNIT_ASSERT_VALUES_EQUAL(ComputeHash(TStringBuf("hehe")), expected);  // TStringBuf
+    UNIT_ASSERT_VALUES_EQUAL(ComputeHash(std::string_view("hehe")), expected);  // std::string_view
     UNIT_ASSERT_VALUES_EQUAL(ComputeHash<const char*>("hehe"), expected); // const char*
 }

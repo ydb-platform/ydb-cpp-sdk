@@ -68,7 +68,7 @@ void TFsTest::TestCreateRemove() {
     UNIT_ASSERT(!NFs::MakeDirectoryRecursive(file1 / "subdir1" / "subdir2", NFs::FP_COMMON_FILE, false));
     UNIT_ASSERT(!NFs::MakeDirectoryRecursive(file1, NFs::FP_COMMON_FILE, false));
 
-    TString longUtf8Name = "";
+    std::string longUtf8Name = "";
     while (longUtf8Name.size() < 255) {
         longUtf8Name = longUtf8Name + "fф";
     }
@@ -189,7 +189,7 @@ void TFsTest::TestHardlink() {
     RunHardlinkTest("tempfile_абвг", "hardlinkfile_абвг"); //utf-8 names
 }
 
-static void RunSymLinkTest(TString fileLocalName, TString symLinkName) {
+static void RunSymLinkTest(std::string fileLocalName, std::string symLinkName) {
     // if previous running was failed
     TFsPath subDir = "tempsubdir";
     TFsPath srcFile = subDir / fileLocalName;
@@ -309,7 +309,7 @@ void TFsTest::TestEnsureExists() {
     UNIT_ASSERT_EXCEPTION(NFs::EnsureExists(nonExists), TFileError);
 
     TStringBuilder expected;
-    TString got;
+    std::string got;
     try {
         NFs::EnsureExists(nonExists);
         expected << __LOCATION__;

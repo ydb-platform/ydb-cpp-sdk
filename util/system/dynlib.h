@@ -23,7 +23,7 @@
 class TDynamicLibrary {
 public:
     TDynamicLibrary() noexcept;
-    TDynamicLibrary(const TString& path, int flags = DEFAULT_DLLOPEN_FLAGS);
+    TDynamicLibrary(const std::string& path, int flags = DEFAULT_DLLOPEN_FLAGS);
     ~TDynamicLibrary();
 
     void Open(const char* path, int flags = DEFAULT_DLLOPEN_FLAGS);
@@ -44,8 +44,8 @@ class TExternalSymbol {
 private:
     TLib* PLib;
     TDynamicLibrary* DLib;
-    TString lname;
-    TString vname;
+    std::string lname;
+    std::string vname;
 
 public:
     TExternalSymbol() noexcept {
@@ -104,10 +104,10 @@ public:
     TLib* Symbol() const noexcept {
         return PLib;
     }
-    const TString& LibName() const noexcept {
+    const std::string& LibName() const noexcept {
         return lname;
     }
-    const TString& VtblName() const noexcept {
+    const std::string& VtblName() const noexcept {
         return vname;
     }
     bool IsStatic() const noexcept {

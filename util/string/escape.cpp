@@ -174,7 +174,7 @@ TBasicString<TChar>& EscapeCImpl(const TChar* str, size_t len, TBasicString<TCha
     return r;
 }
 
-template TString& EscapeCImpl<TString::TChar>(const TString::TChar* str, size_t len, TString& r);
+template std::string& EscapeCImpl<std::string::value_type>(const std::string::value_type* str, size_t len, std::string& r);
 template TUtf16String& EscapeCImpl<TUtf16String::TChar>(const TUtf16String::TChar* str, size_t len, TUtf16String& r);
 
 namespace {
@@ -336,6 +336,11 @@ TBasicString<TChar>& UnescapeCImpl(const TChar* p, size_t sz, TBasicString<TChar
 }
 
 template <class TChar>
+std::basic_string<TChar>& UnescapeCImpl(const TChar* p, size_t sz, std::basic_string<TChar>& res) {
+    return DoUnescapeC(p, sz, res);
+}
+
+template <class TChar>
 TChar* UnescapeC(const TChar* str, size_t len, TChar* buf) {
     struct TUnboundedString {
         void append(TChar ch) noexcept {
@@ -358,7 +363,7 @@ TChar* UnescapeC(const TChar* str, size_t len, TChar* buf) {
     return DoUnescapeC(str, len, bufbuf).P;
 }
 
-template TString& UnescapeCImpl<TString::TChar>(const TString::TChar* str, size_t len, TString& r);
+template std::string& UnescapeCImpl<std::string::value_type>(const std::string::value_type* str, size_t len, std::string& r);
 template TUtf16String& UnescapeCImpl<TUtf16String::TChar>(const TUtf16String::TChar* str, size_t len, TUtf16String& r);
 
 template char* UnescapeC<char>(const char* str, size_t len, char* buf);
@@ -400,15 +405,15 @@ size_t UnescapeCCharLen(const TChar* begin, const TChar* end) {
 template size_t UnescapeCCharLen<char>(const char* begin, const char* end);
 template size_t UnescapeCCharLen<TUtf16String::TChar>(const TUtf16String::TChar* begin, const TUtf16String::TChar* end);
 
-TString& EscapeC(const TStringBuf str, TString& s) {
+std::string& EscapeC(const std::string_view str, std::string& s) {
     return EscapeC(str.data(), str.size(), s);
 }
 
-TUtf16String& EscapeC(const TWtringBuf str, TUtf16String& w) {
+TUtf16String& EscapeC(const std::u16string_view str, TUtf16String& w) {
     return EscapeC(str.data(), str.size(), w);
 }
 
-TString EscapeC(const TString& str) {
+std::string EscapeC(const std::string& str) {
     return EscapeC(str.data(), str.size());
 }
 
@@ -416,18 +421,22 @@ TUtf16String EscapeC(const TUtf16String& str) {
     return EscapeC(str.data(), str.size());
 }
 
-TString& UnescapeC(const TStringBuf str, TString& s) {
+std::string& UnescapeC(const std::string_view str, std::string& s) {
     return UnescapeC(str.data(), str.size(), s);
 }
 
-TUtf16String& UnescapeC(const TWtringBuf str, TUtf16String& w) {
+TUtf16String& UnescapeC(const std::u16string_view str, TUtf16String& w) {
     return UnescapeC(str.data(), str.size(), w);
 }
 
-TString UnescapeC(const TStringBuf str) {
+std::string UnescapeC(const std::string_view str) {
     return UnescapeC(str.data(), str.size());
 }
 
-TUtf16String UnescapeC(const TWtringBuf str) {
+TUtf16String UnescapeC(const std::u16string_view str) {
     return UnescapeC(str.data(), str.size());
+}
+
+std::string NQuote::Quote(std::string_view s) {
+    return "\"" + EscapeC(s) + "\"";
 }

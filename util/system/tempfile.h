@@ -8,7 +8,7 @@
 
 class TTempFile {
 public:
-    inline TTempFile(const TString& fname)
+    inline TTempFile(const std::string& fname)
         : Name_(fname)
     {
     }
@@ -17,21 +17,21 @@ public:
         NFs::Remove(Name());
     }
 
-    inline const TString& Name() const noexcept {
+    inline const std::string& Name() const noexcept {
         return Name_;
     }
 
 private:
-    const TString Name_;
+    const std::string Name_;
 };
 
 class TTempFileHandle: public TTempFile, public TFile {
 public:
     TTempFileHandle();
-    TTempFileHandle(const TString& fname);
+    TTempFileHandle(const std::string& fname);
 
-    static TTempFileHandle InCurrentDir(const TString& filePrefix = "yandex", const TString& extension = "tmp");
-    static TTempFileHandle InDir(const TFsPath& dirPath, const TString& filePrefix = "yandex", const TString& extension = "tmp");
+    static TTempFileHandle InCurrentDir(const std::string& filePrefix = "yandex", const std::string& extension = "tmp");
+    static TTempFileHandle InDir(const TFsPath& dirPath, const std::string& filePrefix = "yandex", const std::string& extension = "tmp");
 
 private:
     TFile CreateFile() const;
@@ -47,4 +47,4 @@ private:
  * Returned filepath has such format: dir/prefixXXXXXX.extension or dir/prefixXXXXXX
  * But win32: dir/preXXXX.tmp (prefix is up to 3 characters, extension is always tmp).
  */
-TString MakeTempName(const char* wrkDir = nullptr, const char* prefix = "yandex", const char* extension = "tmp");
+std::string MakeTempName(const char* wrkDir = nullptr, const char* prefix = "yandex", const char* extension = "tmp");

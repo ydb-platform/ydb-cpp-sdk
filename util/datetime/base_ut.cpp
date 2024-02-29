@@ -57,7 +57,7 @@ Y_UNIT_TEST_SUITE(TestSprintDate) {
         char buf[DATE_BUF_LEN];
         DateToString(buf, t);
 
-        TString expectedDate = "99991101";
+        std::string expectedDate = "99991101";
 
         UNIT_ASSERT_VALUES_EQUAL(expectedDate, ToString(buf));
     }
@@ -79,7 +79,7 @@ Y_UNIT_TEST_SUITE(TestSprintDate) {
         char buf[DATE_BUF_LEN];
         DateToString(buf, t);
 
-        const TString expectedDate = TString("00001101");
+        const std::string expectedDate = TString("00001101");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedDate, ToString(buf));
     }
@@ -92,7 +92,7 @@ Y_UNIT_TEST_SUITE(TestSprintDate) {
         char buf[DATE_BUF_LEN];
         DateToString(buf, t);
 
-        const TString expectedDate = TString("00990101");
+        const std::string expectedDate = TString("00990101");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedDate, ToString(buf));
     }
@@ -102,7 +102,7 @@ Y_UNIT_TEST_SUITE(TestSprintDate) {
         char buf[DATE_BUF_LEN];
         DateToString(buf, timestamp);
 
-        const TString expectedDate = TString("19700101");
+        const std::string expectedDate = TString("19700101");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedDate, ToString(buf));
     }
@@ -112,14 +112,14 @@ Y_UNIT_TEST_SUITE(TestSprintDate) {
         char buf[DATE_BUF_LEN];
         DateToString(buf, timestamp);
 
-        const TString expectedDate = TString("20180427");
+        const std::string expectedDate = TString("20180427");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedDate, ToString(buf));
     }
     Y_UNIT_TEST(FromTimestampAsTString) {
         const time_t timestamp = 1524817858;
 
-        const TString expectedDate = TString("20180427");
+        const std::string expectedDate = TString("20180427");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedDate, DateToString(timestamp));
     }
@@ -129,7 +129,7 @@ Y_UNIT_TEST_SUITE(TestSprintDate) {
         t.tm_mday = 1;
         t.tm_mon = 0;
 
-        TString expectedYear = TString("0099");
+        std::string expectedYear = TString("0099");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedYear, YearToString(t));
     }
@@ -144,7 +144,7 @@ Y_UNIT_TEST_SUITE(TestSprintDate) {
     Y_UNIT_TEST(YearToStringAsTimestamp) {
         const time_t timestamp = 1524817858;
 
-        const TString expectedYear = TString("2018");
+        const std::string expectedYear = TString("2018");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedYear, YearToString(timestamp));
     }
@@ -161,7 +161,7 @@ Y_UNIT_TEST_SUITE(TDateTimeTest) {
             OldDate8601(buf1, t);
             sprint_date8601(buf2, t);
 
-            UNIT_ASSERT_VALUES_EQUAL(TStringBuf(buf1), TStringBuf(buf2));
+            UNIT_ASSERT_VALUES_EQUAL(std::string_view(buf1), std::string_view(buf2));
         }
     }
 
@@ -177,7 +177,7 @@ Y_UNIT_TEST_SUITE(TDateTimeTest) {
             a.tm_yday == b.tm_yday);
     }
 
-    static inline TString Str(const struct tm& a) {
+    static inline std::string Str(const struct tm& a) {
         return TStringBuilder() << "("
                                 << a.tm_sec << ", "
                                 << a.tm_min << ", "
@@ -495,8 +495,8 @@ Y_UNIT_TEST_SUITE(DateTimeTest) {
     }
 
     Y_UNIT_TEST(TestNoexceptConstruction) {
-        UNIT_ASSERT_EXCEPTION(TDuration::MilliSeconds(FromString(TStringBuf("not a number"))), yexception);
-        UNIT_ASSERT_EXCEPTION(TDuration::Seconds(FromString(TStringBuf("not a number"))), yexception);
+        UNIT_ASSERT_EXCEPTION(TDuration::MilliSeconds(FromString(std::string_view("not a number"))), yexception);
+        UNIT_ASSERT_EXCEPTION(TDuration::Seconds(FromString(std::string_view("not a number"))), yexception);
     }
 
     Y_UNIT_TEST(TestFromValueForTDuration) {

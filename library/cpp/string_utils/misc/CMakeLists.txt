@@ -5,7 +5,7 @@ target_link_libraries(cpp-string_utils-misc PUBLIC
   yutil
   cpp-string_utils-escape
   cpp-string_builder
-  yutil
+  cpp-string_utils-helpers
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)

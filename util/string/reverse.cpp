@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-void ReverseInPlace(TString& string) {
+void ReverseInPlace(std::string& string) {
     auto* begin = string.begin();
     std::reverse(begin, begin + string.size());
 }

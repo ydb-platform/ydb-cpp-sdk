@@ -32,7 +32,7 @@ Y_PURE_FUNCTION
 size_t GetHttpPrefixSize(const std::string_view url, bool ignorehttps = false) noexcept;
 
 Y_PURE_FUNCTION
-size_t GetHttpPrefixSize(const TWtringBuf url, bool ignorehttps = false) noexcept;
+size_t GetHttpPrefixSize(const std::u16string_view url, bool ignorehttps = false) noexcept;
 
 /** BEWARE of std::string_view! You can not use operator ~ or c_str() like in std::string
     !!!!!!!!!!!! */
@@ -51,7 +51,7 @@ Y_PURE_FUNCTION
 std::string_view CutHttpPrefix(const std::string_view url, bool ignorehttps = false) noexcept;
 
 Y_PURE_FUNCTION
-TWtringBuf CutHttpPrefix(const TWtringBuf url, bool ignorehttps = false) noexcept;
+std::u16string_view CutHttpPrefix(const std::u16string_view url, bool ignorehttps = false) noexcept;
 
 Y_PURE_FUNCTION
 std::string_view CutSchemePrefix(const std::string_view url) noexcept;

@@ -8,7 +8,7 @@
 #include <util/string/split.h>
 
 using TCaseInsensitiveString = TBasicString<char, TCaseInsensitiveCharTraits>;
-using TCaseInsensitiveStringBuf = TBasicStringBuf<char, TCaseInsensitiveCharTraits>;
+using TCaseInsensitiveStringBuf = std::basic_string_view<char, TCaseInsensitiveCharTraits>;
 
 template <>
 struct THash<TCaseInsensitiveStringBuf> {

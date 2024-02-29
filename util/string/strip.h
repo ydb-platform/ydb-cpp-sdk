@@ -183,12 +183,12 @@ template <class T, class TStripCriterion>
 }
 
 /// Copies the given string removing leading and trailing spaces.
-static inline bool Strip(const TString& from, TString& to) {
+static inline bool Strip(const std::string& from, std::string& to) {
     return StripString(from, to);
 }
 
 /// Removes leading and trailing spaces from the string.
-inline TString& StripInPlace(TString& s) {
+inline std::string& StripInPlace(std::string& s) {
     Strip(s, s);
     return s;
 }
@@ -199,8 +199,8 @@ inline void StripInPlace(T& s) {
 }
 
 /// Returns a copy of the given string with removed leading and trailing spaces.
-[[nodiscard]] inline TString Strip(const TString& s) {
-    TString ret = s;
+[[nodiscard]] inline std::string Strip(const std::string& s) {
+    std::string ret = s;
     Strip(ret, ret);
     return ret;
 }
@@ -271,12 +271,12 @@ template <class TStringType>
     return ret;
 }
 
-void CollapseText(const TString& from, TString& to, size_t maxLen);
+void CollapseText(const std::string& from, std::string& to, size_t maxLen);
 
 /// The same as Collapse() + truncates the string to maxLen.
 /// @details An ellipsis is inserted at the end of the truncated line.
-inline void CollapseText(TString& s, size_t maxLen) {
-    TString to;
+inline void CollapseText(std::string& s, size_t maxLen) {
+    std::string to;
     CollapseText(s, to, maxLen);
     s = to;
 }

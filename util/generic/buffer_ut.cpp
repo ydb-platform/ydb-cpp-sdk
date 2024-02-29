@@ -21,7 +21,7 @@ Y_UNIT_TEST_SUITE(TBufferTest) {
         const char data[] = "1234567890qwertyuiop";
 
         TBuffer buf(13);
-        TString str;
+        std::string str;
 
         for (size_t i = 0; i < 10; ++i) {
             for (size_t j = 0; j < sizeof(data) - 1; ++j) {
@@ -91,11 +91,11 @@ Y_UNIT_TEST_SUITE(TBufferTest) {
 
         buf.Append('a');
         UNIT_ASSERT_EQUAL(buf.Capacity(), 256);
-        TString tmp1 = "abcdef";
+        std::string tmp1 = "abcdef";
         buf.Append(tmp1.data(), tmp1.size());
         UNIT_ASSERT_EQUAL(buf.Capacity(), 256);
 
-        TString tmp2 = "30498290sfokdsflj2308w";
+        std::string tmp2 = "30498290sfokdsflj2308w";
         buf.Resize(1020);
         buf.Append(tmp2.data(), tmp2.size());
         UNIT_ASSERT_EQUAL(buf.Capacity(), 2048);
@@ -104,7 +104,7 @@ Y_UNIT_TEST_SUITE(TBufferTest) {
     Y_UNIT_TEST(TestShrinkToFit) {
         TBuffer buf;
 
-        TString content = "some text";
+        std::string content = "some text";
         buf.Append(content.data(), content.size());
         UNIT_ASSERT_EQUAL(buf.Size(), 9);
         UNIT_ASSERT_EQUAL(buf.Capacity(), 16);

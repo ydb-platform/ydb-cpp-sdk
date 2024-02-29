@@ -6,7 +6,7 @@
 
 Y_UNIT_TEST_SUITE(StdOstreamFormattingTest) {
     template <typename T>
-    TString ToStringViaOstream(T baseNumber) {
+    std::string ToStringViaOstream(T baseNumber) {
         std::stringstream ss;
         ss << baseNumber;
         return ss.str();

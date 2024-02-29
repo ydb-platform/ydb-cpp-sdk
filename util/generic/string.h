@@ -516,15 +516,15 @@ public:
      *    Certain invocations of this method will result in link-time error.
      *    You are free to implement corresponding methods in string.cpp if you need them.
      */
-    static TBasicString FromAscii(const ::TStringBuf& s) {
+    static TBasicString FromAscii(const ::std::string_view& s) {
         return TBasicString().AppendAscii(s);
     }
 
-    static TBasicString FromUtf8(const ::TStringBuf& s) {
+    static TBasicString FromUtf8(const ::std::string_view& s) {
         return TBasicString().AppendUtf8(s);
     }
 
-    static TBasicString FromUtf16(const ::TWtringBuf& s) {
+    static TBasicString FromUtf16(const ::std::u16string_view& s) {
         return TBasicString().AppendUtf16(s);
     }
 
@@ -661,17 +661,17 @@ public:
      *    Certain invocations of this method will result in link-time error.
      *    You are free to implement corresponding methods in string.cpp if you need them.
      */
-    auto AssignAscii(const ::TStringBuf& s) {
+    auto AssignAscii(const ::std::string_view& s) {
         clear();
         return AppendAscii(s);
     }
 
-    auto AssignUtf8(const ::TStringBuf& s) {
+    auto AssignUtf8(const ::std::string_view& s) {
         clear();
         return AppendUtf8(s);
     }
 
-    auto AssignUtf16(const ::TWtringBuf& s) {
+    auto AssignUtf16(const ::std::u16string_view& s) {
         clear();
         return AppendUtf16(s);
     }
@@ -796,11 +796,11 @@ public:
      *    Certain invocations of this method will result in link-time error.
      *    You are free to implement corresponding methods in string.cpp if you need them.
      */
-    TBasicString& AppendAscii(const ::TStringBuf& s);
+    TBasicString& AppendAscii(const ::std::string_view& s);
 
-    TBasicString& AppendUtf8(const ::TStringBuf& s);
+    TBasicString& AppendUtf8(const ::std::string_view& s);
 
-    TBasicString& AppendUtf16(const ::TWtringBuf& s);
+    TBasicString& AppendUtf16(const ::std::u16string_view& s);
 
     inline void push_back(TCharType c) {
         // TODO
@@ -1198,8 +1198,8 @@ public:
     }
 };
 
-std::ostream& operator<<(std::ostream&, const TString&);
-std::istream& operator>>(std::istream&, TString&);
+std::ostream& operator<<(std::ostream&, const std::string&);
+std::istream& operator>>(std::istream&, std::string&);
 
 template <typename TCharType, typename TTraits>
 TBasicString<TCharType> to_lower(const TBasicString<TCharType, TTraits>& s) {
@@ -1220,17 +1220,6 @@ TBasicString<TCharType> to_title(const TBasicString<TCharType, TTraits>& s) {
     TBasicString<TCharType> ret(s);
     ret.to_title();
     return ret;
-}
-
-namespace std {
-    template <>
-    struct hash<TString> {
-        using argument_type = TString;
-        using result_type = size_t;
-        inline result_type operator()(argument_type const& s) const noexcept {
-            return NHashPrivate::ComputeStringHash(s.data(), s.size());
-        }
-    };
 }
 
 #undef Y_NOEXCEPT

@@ -46,38 +46,38 @@ inline ui64 Hash128to64(const uint128& x) {
 
 namespace NPrivateCityHash {
     template <class TStringType>
-    inline TStringBuf GetBufFromStr(const TStringType& str) {
+    inline std::string_view GetBufFromStr(const TStringType& str) {
         static_assert(std::is_integral<std::remove_reference_t<decltype(*str.data())>>::value, "invalid type passed to hash function");
-        return TStringBuf(reinterpret_cast<const char*>(str.data()), (str.size()) * sizeof(*str.data()));
+        return std::string_view(reinterpret_cast<const char*>(str.data()), (str.size()) * sizeof(*str.data()));
     }
 }
 
 template <class TStringType>
 inline ui64 CityHash64(const TStringType& str) {
-    TStringBuf buf = NPrivateCityHash::GetBufFromStr(str);
+    std::string_view buf = NPrivateCityHash::GetBufFromStr(str);
     return CityHash64(buf.data(), buf.size());
 }
 
 template <class TStringType>
 inline ui64 CityHash64WithSeeds(const TStringType& str, ui64 seed0, ui64 seed1) {
-    TStringBuf buf = NPrivateCityHash::GetBufFromStr(str);
+    std::string_view buf = NPrivateCityHash::GetBufFromStr(str);
     return CityHash64WithSeeds(buf.data(), buf.size(), seed0, seed1);
 }
 
 template <class TStringType>
 inline ui64 CityHash64WithSeed(const TStringType& str, ui64 seed) {
-    TStringBuf buf = NPrivateCityHash::GetBufFromStr(str);
+    std::string_view buf = NPrivateCityHash::GetBufFromStr(str);
     return CityHash64WithSeed(buf.data(), buf.size(), seed);
 }
 
 template <class TStringType>
 inline uint128 CityHash128(const TStringType& str) {
-    TStringBuf buf = NPrivateCityHash::GetBufFromStr(str);
+    std::string_view buf = NPrivateCityHash::GetBufFromStr(str);
     return CityHash128(buf.data(), buf.size());
 }
 
 template <class TStringType>
 inline uint128 CityHash128WithSeed(const TStringType& str, uint128 seed) {
-    TStringBuf buf = NPrivateCityHash::GetBufFromStr(str);
+    std::string_view buf = NPrivateCityHash::GetBufFromStr(str);
     return CityHash128WithSeed(buf.data(), buf.size(), seed);
 }

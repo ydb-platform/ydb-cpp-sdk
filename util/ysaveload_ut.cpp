@@ -51,11 +51,11 @@ class TSaveLoadTest: public TTestBase {
             ::SaveLoad(s, Str);
         }
 
-        TString Str;
+        std::string Str;
     };
 
     struct TNewNewStyleHelper {
-        TString Str;
+        std::string Str;
         ui32 Int;
 
         Y_SAVELOAD_DEFINE(Str, Int);
@@ -67,7 +67,7 @@ class TSaveLoadTest: public TTestBase {
 
 private:
     inline void TestNewNewStyle() {
-        TString ss;
+        std::string ss;
 
         {
             TNewNewStyleHelper h;
@@ -92,7 +92,7 @@ private:
     }
 
     inline void TestNewStyle() {
-        TString ss;
+        std::string ss;
 
         {
             TNewStyleSaveHelper sh;
@@ -160,7 +160,7 @@ private:
         }
 
         {
-            TString val("123456");
+            std::string val("123456");
 
             Save(&S_, val);
         }
@@ -299,7 +299,7 @@ private:
         }
 
         {
-            TString val;
+            std::string val;
 
             Load(&S_, val);
             UNIT_ASSERT_EQUAL(val, "123456");
@@ -458,7 +458,7 @@ private:
     void TestOptional() {
         TestOptionalImpl(std::optional<ui64>(42ull));
         TestOptionalImpl(std::optional<bool>(true));
-        TestOptionalImpl(std::optional<TString>("abacaba"));
+        TestOptionalImpl(std::optional<std::string>("abacaba"));
         TestOptionalImpl(std::optional<ui64>(std::nullopt));
     }
 
@@ -484,12 +484,12 @@ private:
 
     void TestInheritNonVirtualClass() {
         struct TBaseNonVirtual {
-            TString Str1;
+            std::string Str1;
             Y_SAVELOAD_DEFINE(Str1);
         };
         struct TDerivedNonVirtual: TBaseNonVirtual {
-            TString Str2;
-            TString Str3;
+            std::string Str2;
+            std::string Str3;
             Y_SAVELOAD_DEFINE(TNonVirtualSaver<TBaseNonVirtual>{this}, Str2, Str3);
         };
         TestInheritClassImpl<TDerivedNonVirtual>();
@@ -501,12 +501,12 @@ private:
             virtual void Load(IInputStream* in) = 0;
         };
         struct TBaseVirtual: IInterface {
-            TString Str1;
+            std::string Str1;
             Y_SAVELOAD_DEFINE_OVERRIDE(Str1);
         };
         struct TDerivedVirtual: TBaseVirtual {
-            TString Str2;
-            TString Str3;
+            std::string Str2;
+            std::string Str3;
             Y_SAVELOAD_DEFINE_OVERRIDE(TNonVirtualSaver<TBaseVirtual>{this}, Str2, Str3);
         };
         TestInheritClassImpl<TDerivedVirtual>();

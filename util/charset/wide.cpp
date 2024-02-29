@@ -39,7 +39,7 @@ size_t Collapse(wchar16* s, size_t n) {
     return CollapseImpl(s, n, IsWhitespace);
 }
 
-TWtringBuf StripLeft(const TWtringBuf text) noexcept {
+std::u16string_view StripLeft(const std::u16string_view text) noexcept {
     const auto* p = text.data();
     const auto* const pe = text.data() + text.size();
 
@@ -50,7 +50,7 @@ TWtringBuf StripLeft(const TWtringBuf text) noexcept {
 }
 
 void StripLeft(TUtf16String& text) {
-    const auto stripped = StripLeft(TWtringBuf(text));
+    const auto stripped = StripLeft(std::u16string_view(text));
     if (stripped.size() == text.size()) {
         return;
     }
@@ -58,8 +58,8 @@ void StripLeft(TUtf16String& text) {
     text = stripped;
 }
 
-TWtringBuf StripRight(const TWtringBuf text) noexcept {
-    if (!text) {
+std::u16string_view StripRight(const std::u16string_view text) noexcept {
+    if (text.empty()) {
         return {};
     }
 
@@ -73,7 +73,7 @@ TWtringBuf StripRight(const TWtringBuf text) noexcept {
 }
 
 void StripRight(TUtf16String& text) {
-    const auto stripped = StripRight(TWtringBuf(text));
+    const auto stripped = StripRight(std::u16string_view(text));
     if (stripped.size() == text.size()) {
         return;
     }
@@ -81,7 +81,7 @@ void StripRight(TUtf16String& text) {
     text.resize(stripped.size());
 }
 
-TWtringBuf Strip(const TWtringBuf text) noexcept {
+std::u16string_view Strip(const std::u16string_view text) noexcept {
     return StripRight(StripLeft(text));
 }
 
@@ -91,7 +91,7 @@ void Strip(TUtf16String& text) {
 }
 
 template <typename T>
-static bool IsReductionOnSymbolsTrue(const TWtringBuf text, T&& f) {
+static bool IsReductionOnSymbolsTrue(const std::u16string_view text, T&& f) {
     const auto* p = text.data();
     const auto* const pe = text.data() + text.length();
     while (p != pe) {
@@ -104,15 +104,15 @@ static bool IsReductionOnSymbolsTrue(const TWtringBuf text, T&& f) {
     return true;
 }
 
-bool IsLowerWord(const TWtringBuf text) noexcept {
+bool IsLowerWord(const std::u16string_view text) noexcept {
     return IsReductionOnSymbolsTrue(text, [](const wchar32 s) { return IsLower(s); });
 }
 
-bool IsUpperWord(const TWtringBuf text) noexcept {
+bool IsUpperWord(const std::u16string_view text) noexcept {
     return IsReductionOnSymbolsTrue(text, [](const wchar32 s) { return IsUpper(s); });
 }
 
-bool IsLower(const TWtringBuf text) noexcept {
+bool IsLower(const std::u16string_view text) noexcept {
     return IsReductionOnSymbolsTrue(text, [](const wchar32 s) {
         if (IsAlpha(s)) {
             return IsLower(s);
@@ -121,7 +121,7 @@ bool IsLower(const TWtringBuf text) noexcept {
     });
 }
 
-bool IsUpper(const TWtringBuf text) noexcept {
+bool IsUpper(const std::u16string_view text) noexcept {
     return IsReductionOnSymbolsTrue(text, [](const wchar32 s) {
         if (IsAlpha(s)) {
             return IsUpper(s);
@@ -130,8 +130,8 @@ bool IsUpper(const TWtringBuf text) noexcept {
     });
 }
 
-bool IsTitleWord(const TWtringBuf text) noexcept {
-    if (!text) {
+bool IsTitleWord(const std::u16string_view text) noexcept {
+    if (text.empty()) {
         return false;
     }
 
@@ -490,7 +490,7 @@ bool ToTitle(wchar32* text, size_t length) noexcept {
 }
 
 template <typename F>
-static TUtf16String ToSmthRet(const TWtringBuf text, size_t pos, size_t count, F&& f) {
+static TUtf16String ToSmthRet(const std::u16string_view text, size_t pos, size_t count, F&& f) {
     pos = pos < text.size() ? pos : text.size();
     count = count < text.size() - pos ? count : text.size() - pos;
 
@@ -511,7 +511,7 @@ static TUtf16String ToSmthRet(const TWtringBuf text, size_t pos, size_t count, F
 }
 
 template <typename F>
-static TUtf32String ToSmthRet(const TUtf32StringBuf text, size_t pos, size_t count, F&& f) {
+static TUtf32String ToSmthRet(const std::u32string_view text, size_t pos, size_t count, F&& f) {
     pos = pos < text.size() ? pos : text.size();
     count = count < text.size() - pos ? count : text.size() - pos;
 
@@ -531,37 +531,37 @@ static TUtf32String ToSmthRet(const TUtf32StringBuf text, size_t pos, size_t cou
     return res;
 }
 
-TUtf16String ToLowerRet(const TWtringBuf text, size_t pos, size_t count) {
+TUtf16String ToLowerRet(const std::u16string_view text, size_t pos, size_t count) {
     return ToSmthRet(text, pos, count, [](const wchar16* theText, size_t length, wchar16* out) {
         ToLower(theText, length, out);
     });
 }
 
-TUtf16String ToUpperRet(const TWtringBuf text, size_t pos, size_t count) {
+TUtf16String ToUpperRet(const std::u16string_view text, size_t pos, size_t count) {
     return ToSmthRet(text, pos, count, [](const wchar16* theText, size_t length, wchar16* out) {
         ToUpper(theText, length, out);
     });
 }
 
-TUtf16String ToTitleRet(const TWtringBuf text, size_t pos, size_t count) {
+TUtf16String ToTitleRet(const std::u16string_view text, size_t pos, size_t count) {
     return ToSmthRet(text, pos, count, [](const wchar16* theText, size_t length, wchar16* out) {
         ToTitle(theText, length, out);
     });
 }
 
-TUtf32String ToLowerRet(const TUtf32StringBuf text, size_t pos, size_t count) {
+TUtf32String ToLowerRet(const std::u32string_view text, size_t pos, size_t count) {
     return ToSmthRet(text, pos, count, [](const wchar32* theText, size_t length, wchar32* out) {
         ToLower(theText, length, out);
     });
 }
 
-TUtf32String ToUpperRet(const TUtf32StringBuf text, size_t pos, size_t count) {
+TUtf32String ToUpperRet(const std::u32string_view text, size_t pos, size_t count) {
     return ToSmthRet(text, pos, count, [](const wchar32* theText, size_t length, wchar32* out) {
         ToUpper(theText, length, out);
     });
 }
 
-TUtf32String ToTitleRet(const TUtf32StringBuf text, size_t pos, size_t count) {
+TUtf32String ToTitleRet(const std::u32string_view text, size_t pos, size_t count) {
     return ToSmthRet(text, pos, count, [](const wchar32* theText, size_t length, wchar32* out) {
         ToTitle(theText, length, out);
     });

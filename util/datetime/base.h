@@ -82,16 +82,16 @@ constexpr long TVdiff(timeval r1, timeval r2) {
     return (1000000 * (r2.tv_sec - r1.tv_sec) + (r2.tv_usec - r1.tv_usec));
 }
 
-TString Strftime(const char* format, const struct tm* tm);
+std::string Strftime(const char* format, const struct tm* tm);
 
 // Use functions below instead of sprint_date (check IGNIETFERRO-892 for details)
 void DateToString(char* buf, const struct tm& theTm);
 void DateToString(char* buf, time_t when, long* sec = nullptr);
-TString DateToString(const struct tm& theTm);
-TString DateToString(time_t when, long* sec = nullptr);
+std::string DateToString(const struct tm& theTm);
+std::string DateToString(time_t when, long* sec = nullptr);
 // Year in format "YYYY", throws an exception if year not in range [0, 9999]
-TString YearToString(const struct tm& theTm);
-TString YearToString(time_t when);
+std::string YearToString(const struct tm& theTm);
+std::string YearToString(time_t when);
 
 template <class S>
 class TTimeBase {
@@ -308,9 +308,9 @@ public:
     }
 
     /// parses strings like 10s, 15ms, 15.05s, 20us, or just 25 (s). See parser_ut.cpp for details
-    static TDuration Parse(const TStringBuf input);
+    static TDuration Parse(const std::string_view input);
 
-    static bool TryParse(const TStringBuf input, TDuration& result);
+    static bool TryParse(const std::string_view input, TDuration& result);
 
     // note global Out method is defined for TDuration, so it could be written to IOutputStream as text
 
@@ -334,7 +334,7 @@ public:
         return (*this = (*this / t));
     }
 
-    TString ToString() const;
+    std::string ToString() const;
 };
 
 Y_DECLARE_PODTYPE(TDuration);
@@ -449,21 +449,21 @@ public:
      * @returns An ISO 8601 formatted string, e.g. '2015-11-21T23:30:27.991669Z'.
      * @note Global Out method is defined to TInstant, so it can be written as text to IOutputStream.
      */
-    TString ToString() const;
+    std::string ToString() const;
 
     /**
      * Formats the instant using the UTC time zone.
      *
      * @returns An RFC822 formatted string, e.g. 'Sun, 06 Nov 1994 08:49:37 GMT'.
      */
-    TString ToRfc822String() const;
+    std::string ToRfc822String() const;
 
     /**
      * Formats the instant using the UTC time zone, with second precision.
      *
      * @returns An ISO 8601 formatted string, e.g. '2015-11-21T23:30:27Z'.
      */
-    TString ToStringUpToSeconds() const;
+    std::string ToStringUpToSeconds() const;
 
     /**
      * Formats the instant using the system time zone, with microsecond precision.
@@ -471,7 +471,7 @@ public:
      * @returns An ISO 8601 / RFC 3339 formatted string,
      * e.g. '2015-11-22T04:30:27.991669+05:00'.
      */
-    TString ToIsoStringLocal() const;
+    std::string ToIsoStringLocal() const;
 
     /**
      * Formats the instant using the system time zone, with microsecond precision.
@@ -479,14 +479,14 @@ public:
      * @returns A semi-ISO 8601 formatted string with timezone without colon,
      * e.g. '2015-11-22T04:30:27.991669+0500'.
      */
-    TString ToStringLocal() const;
+    std::string ToStringLocal() const;
 
     /**
      * Formats the instant using the system time zone.
      *
      * @returns An RFC822 formatted string, e.g. 'Sun, 06 Nov 1994 08:49:37 MSK'.
      */
-    TString ToRfc822StringLocal() const;
+    std::string ToRfc822StringLocal() const;
 
     /**
      * Formats the instant using the system time zone, with second precision.
@@ -494,7 +494,7 @@ public:
      * @returns An ISO 8601 / RFC 3339 formatted string,
      * e.g. '2015-11-22T04:30:27+05:00'.
      */
-    TString ToIsoStringLocalUpToSeconds() const;
+    std::string ToIsoStringLocalUpToSeconds() const;
 
     /**
      * Formats the instant using the system time zone, with second precision.
@@ -502,49 +502,49 @@ public:
      * @returns A semi-ISO 8601 formatted string with timezone without colon,
      * e.g. '2015-11-22T04:30:27+0500'.
      */
-    TString ToStringLocalUpToSeconds() const;
+    std::string ToStringLocalUpToSeconds() const;
 
-    TString FormatLocalTime(const char* format) const noexcept;
-    TString FormatGmTime(const char* format) const noexcept;
+    std::string FormatLocalTime(const char* format) const noexcept;
+    std::string FormatGmTime(const char* format) const noexcept;
 
     /// See #TryParseIso8601.
-    static TInstant ParseIso8601(TStringBuf);
+    static TInstant ParseIso8601(std::string_view);
     /// See #TryParseRfc822.
-    static TInstant ParseRfc822(TStringBuf);
+    static TInstant ParseRfc822(std::string_view);
     /// See #TryParseHttp.
-    static TInstant ParseHttp(TStringBuf);
+    static TInstant ParseHttp(std::string_view);
     /// See #TryParseX509.
-    static TInstant ParseX509Validity(TStringBuf);
+    static TInstant ParseX509Validity(std::string_view);
 
     /// ISO 8601 Representation of Dates and Times
     ///
     /// @link https://www.iso.org/standard/40874.html Description of format.
-    static bool TryParseIso8601(TStringBuf input, TInstant& instant);
+    static bool TryParseIso8601(std::string_view input, TInstant& instant);
 
     /// RFC 822 Date and Time specification
     ///
     /// @link https://tools.ietf.org/html/rfc822#section-5 Description of format.
-    static bool TryParseRfc822(TStringBuf input, TInstant& instant);
+    static bool TryParseRfc822(std::string_view input, TInstant& instant);
 
     /// RFC 2616 3.3.1 Full Date
     ///
     /// @link https://tools.ietf.org/html/rfc2616#section-3.3.1 Description of format.
-    static bool TryParseHttp(TStringBuf input, TInstant& instant);
+    static bool TryParseHttp(std::string_view input, TInstant& instant);
 
     /// X.509 certificate validity time (see rfc5280 4.1.2.5.*)
     ///
     /// @link https://tools.ietf.org/html/rfc5280#section-4.1.2.5 Description of format.
-    static bool TryParseX509(TStringBuf input, TInstant& instant);
+    static bool TryParseX509(std::string_view input, TInstant& instant);
 
-    static TInstant ParseIso8601Deprecated(TStringBuf);
-    static TInstant ParseRfc822Deprecated(TStringBuf);
-    static TInstant ParseHttpDeprecated(TStringBuf);
-    static TInstant ParseX509ValidityDeprecated(TStringBuf);
+    static TInstant ParseIso8601Deprecated(std::string_view);
+    static TInstant ParseRfc822Deprecated(std::string_view);
+    static TInstant ParseHttpDeprecated(std::string_view);
+    static TInstant ParseX509ValidityDeprecated(std::string_view);
 
-    static bool TryParseIso8601Deprecated(TStringBuf input, TInstant& instant);
-    static bool TryParseRfc822Deprecated(TStringBuf input, TInstant& instant);
-    static bool TryParseHttpDeprecated(TStringBuf input, TInstant& instant);
-    static bool TryParseX509Deprecated(TStringBuf input, TInstant& instant);
+    static bool TryParseIso8601Deprecated(std::string_view input, TInstant& instant);
+    static bool TryParseRfc822Deprecated(std::string_view input, TInstant& instant);
+    static bool TryParseHttpDeprecated(std::string_view input, TInstant& instant);
+    static bool TryParseX509Deprecated(std::string_view input, TInstant& instant);
 
     template <class T>
     inline TInstant& operator+=(const T& t) noexcept {

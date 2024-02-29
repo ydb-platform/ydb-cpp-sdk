@@ -57,7 +57,7 @@ static inline void SavePodType(IOutputStream* rh, const T& t) {
 }
 
 namespace NPrivate {
-    [[noreturn]] void ThrowLoadEOFException(size_t typeSize, size_t realSize, TStringBuf structName);
+    [[noreturn]] void ThrowLoadEOFException(size_t typeSize, size_t realSize, std::string_view structName);
     [[noreturn]] void ThrowUnexpectedVariantTagException(ui8 tagIndex);
 }
 
@@ -66,7 +66,7 @@ static inline void LoadPodType(IInputStream* rh, T& t) {
     const size_t res = rh->Load(&t, sizeof(T));
 
     if (Y_UNLIKELY(res != sizeof(T))) {
-        ::NPrivate::ThrowLoadEOFException(sizeof(T), res, TStringBuf("pod type"));
+        ::NPrivate::ThrowLoadEOFException(sizeof(T), res, "pod type");
     }
 }
 
@@ -81,7 +81,7 @@ static inline void LoadPodArray(IInputStream* rh, T* arr, size_t count) {
     const size_t res = rh->Load(arr, len);
 
     if (Y_UNLIKELY(res != len)) {
-        ::NPrivate::ThrowLoadEOFException(len, res, TStringBuf("pod array"));
+        ::NPrivate::ThrowLoadEOFException(len, res, "pod array");
     }
 }
 
@@ -357,7 +357,7 @@ class TSerializer<std::list<T, A>>: public TVectorSerializer<std::list<T, A>> {
 };
 
 template <>
-class TSerializer<TString>: public TVectorSerializer<TString> {
+class TSerializer<std::string>: public TVectorSerializer<std::string> {
 };
 
 template <>

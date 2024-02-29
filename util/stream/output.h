@@ -30,7 +30,7 @@ public:
         {
         }
 
-        inline TPart(const TStringBuf s) noexcept
+        inline TPart(const std::string_view s) noexcept
             : buf(s.data())
             , len(s.size())
         {
@@ -79,7 +79,7 @@ public:
      *
      * @param st                        String to write.
      */
-    inline void Write(const TStringBuf st) {
+    inline void Write(const std::string_view st) {
         Write(st.data(), st.size());
     }
 

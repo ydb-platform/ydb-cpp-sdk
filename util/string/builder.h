@@ -5,7 +5,7 @@
 #include <util/generic/string.h>
 
 namespace NPrivateStringBuilder {
-    class TStringBuilder: public TString {
+    class TStringBuilder: public std::string {
     public:
         inline TStringBuilder()
             : Out(*this)

@@ -46,7 +46,7 @@ void TSockTest::TestSock() {
     TSocket s(addr);
     TSocketOutput so(s);
     TSocketInput si(s);
-    const TStringBuf req = "GET / HTTP/1.1\r\nHost: yandex.ru\r\n\r\n";
+    const std::string_view req = "GET / HTTP/1.1\r\nHost: yandex.ru\r\n\r\n";
 
     so.Write(req.data(), req.size());
 
@@ -63,7 +63,7 @@ void TSockTest::TestTimeout() {
     }
     int realTimeout = (int)(millisec() - startTime);
     if (realTimeout > timeout + 2000) {
-        TString err = TStringBuilder() << "Timeout exceeded: " << realTimeout << " ms (expected " << timeout << " ms)";
+        std::string err = TStringBuilder() << "Timeout exceeded: " << realTimeout << " ms (expected " << timeout << " ms)";
         UNIT_FAIL(err);
     }
 }
@@ -74,7 +74,7 @@ void TSockTest::TestConnectionRefused() {
 }
 
 void TSockTest::TestNetworkResolutionError() {
-    TString errMsg;
+    std::string errMsg;
     try {
         TNetworkAddress addr("", 0);
     } catch (const TNetworkResolutionError& e) {
@@ -86,7 +86,7 @@ void TSockTest::TestNetworkResolutionError() {
     }
 
     int expectedErr = EAI_NONAME;
-    TString expectedErrMsg = gai_strerror(expectedErr);
+    std::string expectedErrMsg = gai_strerror(expectedErr);
     if (errMsg.find(expectedErrMsg) == TString::npos) {
         UNIT_FAIL("TNetworkResolutionError contains\nInvalid msg: " + errMsg + "\nExpected msg: " + expectedErrMsg + "\n");
     }
@@ -94,11 +94,11 @@ void TSockTest::TestNetworkResolutionError() {
 
 void TSockTest::TestNetworkResolutionErrorMessage() {
 #ifdef _unix_
-    auto str = [](int code) -> TString {
+    auto str = [](int code) -> std::string {
         return TNetworkResolutionError(code).what();
     };
 
-    auto expected = [](int code) -> TString {
+    auto expected = [](int code) -> std::string {
         return gai_strerror(code);
     };
 
@@ -189,7 +189,7 @@ void TSockTest::TestReusePortAvailCheck() {
 #if defined _linux_
     utsname sysInfo;
     Y_ABORT_UNLESS(!uname(&sysInfo), "Error while call uname: %s", LastSystemErrorText());
-    TStringBuf release(sysInfo.release);
+    std::string_view release(sysInfo.release);
     release = release.substr(0, release.find_first_not_of(".0123456789"));
     int v1 = FromString<int>(release.NextTok('.'));
     int v2 = FromString<int>(release.NextTok('.'));

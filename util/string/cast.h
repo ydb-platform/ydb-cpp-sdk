@@ -52,16 +52,16 @@ size_t FloatToString(float t, char* buf, size_t len, EFloatToStringMode mode = P
 size_t FloatToString(double t, char* buf, size_t len, EFloatToStringMode mode = PREC_AUTO, int ndigits = 0);
 
 template <typename T>
-inline TString FloatToString(const T& t, EFloatToStringMode mode = PREC_AUTO, int ndigits = 0) {
+inline std::string FloatToString(const T& t, EFloatToStringMode mode = PREC_AUTO, int ndigits = 0) {
     char buf[512]; // Max<double>() with mode = PREC_POINT_DIGITS has 309 digits before the decimal point
     size_t count = FloatToString(t, buf, sizeof(buf), mode, ndigits);
-    return TString(buf, count);
+    return std::string(buf, count);
 }
 
 namespace NPrivate {
     template <class T, bool isSimple>
     struct TToString {
-        static inline TString Cvt(const T& t) {
+        static inline std::string Cvt(const T& t) {
             char buf[512];
 
             return TString(buf, ToString<T>(t, buf, sizeof(buf)));
@@ -70,8 +70,8 @@ namespace NPrivate {
 
     template <class T>
     struct TToString<T, false> {
-        static inline TString Cvt(const T& t) {
-            TString s;
+        static inline std::string Cvt(const T& t) {
+            std::string s;
             TStringOutput o(s);
             o << t;
             return s;
@@ -83,25 +83,25 @@ namespace NPrivate {
  * some clever implementations...
  */
 template <class T>
-inline TString ToString(const T& t) {
+inline std::string ToString(const T& t) {
     using TR = std::remove_cv_t<T>;
 
     return ::NPrivate::TToString<TR, std::is_arithmetic<TR>::value>::Cvt((const TR&)t);
 }
 
-inline const TString& ToString(const TString& s Y_LIFETIME_BOUND) noexcept {
+inline const std::string& ToString(const std::string& s Y_LIFETIME_BOUND) noexcept {
     return s;
 }
 
-inline TString&& ToString(TString&& s Y_LIFETIME_BOUND) noexcept {
+inline std::string&& ToString(std::string&& s Y_LIFETIME_BOUND) noexcept {
     return std::move(s);
 }
 
-inline TString ToString(const char* s) {
+inline std::string ToString(const char* s) {
     return s;
 }
 
-inline TString ToString(char* s) {
+inline std::string ToString(char* s) {
     return s;
 }
 
@@ -153,12 +153,7 @@ inline T FromString(const TChar* data) {
 }
 
 template <class T>
-inline T FromString(const TStringBuf& s) {
-    return ::FromString<T>(s.data(), s.size());
-}
-
-template <class T>
-inline T FromString(const TString& s) {
+inline T FromString(const std::string_view& s) {
     return ::FromString<T>(s.data(), s.size());
 }
 
@@ -168,13 +163,13 @@ inline T FromString(const std::string& s) {
 }
 
 template <>
-inline TString FromString<TString>(const TString& s) {
+inline std::string FromString<std::string>(const std::string& s) {
     return s;
 }
 
 template <class T>
-inline T FromString(const TWtringBuf& s) {
-    return ::FromString<T, typename TWtringBuf::char_type>(s.data(), s.size());
+inline T FromString(const std::u16string_view& s) {
+    return ::FromString<T, typename std::u16string_view::value_type>(s.data(), s.size());
 }
 
 template <class T>
@@ -248,12 +243,7 @@ inline bool TryFromString(const TChar* data, const size_t len, T& result, const 
 }
 
 template <class T>
-inline bool TryFromString(const TStringBuf& s, T& result) {
-    return TryFromString<T>(s.data(), s.size(), result);
-}
-
-template <class T>
-inline bool TryFromString(const TString& s, T& result) {
+inline bool TryFromString(const std::string_view& s, T& result) {
     return TryFromString<T>(s.data(), s.size(), result);
 }
 
@@ -263,7 +253,7 @@ inline bool TryFromString(const std::string& s, T& result) {
 }
 
 template <class T>
-inline bool TryFromString(const TWtringBuf& s, T& result) {
+inline bool TryFromString(const std::u16string_view& s, T& result) {
     return TryFromString<T>(s.data(), s.size(), result);
 }
 
@@ -273,7 +263,7 @@ inline bool TryFromString(const TUtf16String& s, T& result) {
 }
 
 template <class T, class TChar>
-inline std::optional<T> TryFromString(TBasicStringBuf<TChar> s) {
+inline std::optional<T> TryFromString(std::basic_string_view<TChar> s) {
     std::optional<T> result{std::in_place};
     if (!TryFromString<T>(s, *result)) {
         result.reset();
@@ -284,22 +274,17 @@ inline std::optional<T> TryFromString(TBasicStringBuf<TChar> s) {
 
 template <class T, class TChar>
 inline std::optional<T> TryFromString(const TChar* data) {
-    return TryFromString<T>(TBasicStringBuf<TChar>(data));
-}
-
-template <class T>
-inline std::optional<T> TryFromString(const TString& s) {
-    return TryFromString<T>(TStringBuf(s));
+    return TryFromString<T>(std::basic_string_view<TChar>(data));
 }
 
 template <class T>
 inline std::optional<T> TryFromString(const std::string& s) {
-    return TryFromString<T>(TStringBuf(s));
+    return TryFromString<T>(std::string_view(s));
 }
 
 template <class T>
 inline std::optional<T> TryFromString(const TUtf16String& s) {
-    return TryFromString<T>(TWtringBuf(s));
+    return TryFromString<T>(std::u16string_view(s));
 }
 
 template <class T, class TStringType>
@@ -309,7 +294,7 @@ inline bool TryFromStringWithDefault(const TStringType& s, T& result, const T& d
 
 template <class T>
 inline bool TryFromStringWithDefault(const char* s, T& result, const T& def) {
-    return TryFromStringWithDefault<T>(TStringBuf(s), result, def);
+    return TryFromStringWithDefault<T>(std::string_view(s), result, def);
 }
 
 template <class T, class TStringType>
@@ -332,7 +317,7 @@ inline T FromStringWithDefault(const TStringType& s, const T& def) {
 
 template <class T>
 inline T FromStringWithDefault(const char* s, const T& def) {
-    return FromStringWithDefault<T>(TStringBuf(s), def);
+    return FromStringWithDefault<T>(std::string_view(s), def);
 }
 
 template <class T, class TStringType>
@@ -347,7 +332,7 @@ template <int base, class T>
 size_t IntToString(T t, char* buf, size_t len);
 
 template <int base, class T>
-inline TString IntToString(T t) {
+inline std::string IntToString(T t) {
     static_assert(std::is_arithmetic<std::remove_cv_t<T>>::value, "expect std::is_arithmetic<std::remove_cv_t<T>>::value");
 
     char buf[256];
@@ -376,15 +361,15 @@ inline TInt IntFromString(const TStringType& str) {
     return IntFromString<TInt, base>(str.data(), str.size());
 }
 
-static inline TString ToString(const TStringBuf str) {
-    return TString(str);
+static inline std::string ToString(const std::string_view str) {
+    return std::string(str);
 }
 
-static inline TUtf16String ToWtring(const TWtringBuf wtr) {
+static inline TUtf16String ToWtring(const std::u16string_view wtr) {
     return TUtf16String(wtr);
 }
 
-static inline TUtf32String ToUtf32String(const TUtf32StringBuf wtr) {
+static inline TUtf32String ToUtf32String(const std::u32string_view wtr) {
     return TUtf32String(wtr);
 }
 
@@ -427,14 +412,14 @@ public:
 #endif
     }
 
-    constexpr operator TStringBuf() const noexcept {
-        return TStringBuf(Buf_, Size_);
+    constexpr operator std::string_view() const noexcept {
+        return std::string_view(Buf_, Size_);
     }
 
     constexpr static ui32 Convert(T t, TChar* buf, size_t bufLen) {
         bufLen = std::min<size_t>(bufferSize, bufLen);
         if (std::is_signed<T>::value && t < 0) {
-            Y_ENSURE(bufLen >= 2, TStringBuf("not enough room in buffer"));
+            Y_ENSURE(bufLen >= 2, std::string_view("not enough room in buffer"));
             buf[0] = '-';
             const auto mt = std::make_unsigned_t<T>(-(t + 1)) + std::make_unsigned_t<T>(1);
             return ConvertUnsigned(mt, &buf[1], bufLen - 1) + 1;
@@ -445,7 +430,7 @@ public:
 
 private:
     constexpr static ui32 ConvertUnsigned(typename std::make_unsigned<T>::type t, TChar* buf, ui32 bufLen) {
-        Y_ENSURE(bufLen, TStringBuf("zero length"));
+        Y_ENSURE(bufLen, std::string_view("zero length"));
 
         if (t == 0) {
             *buf = '0';
@@ -465,7 +450,7 @@ private:
             ++l;
             t = v;
         }
-        Y_ENSURE(!t, TStringBuf("not enough room in buffer"));
+        Y_ENSURE(!t, std::string_view("not enough room in buffer"));
         if (buf != be) {
             for (ui32 i = 0; i < l; ++i) {
                 *buf = *be;

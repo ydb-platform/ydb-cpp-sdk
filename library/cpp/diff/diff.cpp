@@ -51,7 +51,7 @@ struct TCollection<char>: public TCollectionImpl<char> {
 
 template <>
 struct TCollection<wchar16>: public TCollectionImpl<wchar16> {
-    TCollection(const TWtringBuf& str, const TUtf16String& delims) {
+    TCollection(const std::u16string_view& str, const TUtf16String& delims) {
         TSetDelimiter<const wchar16> set(delims.data());
         TKeepDelimiters<TCollection<wchar16>> c(this);
         SplitString(str.begin(), str.end(), set, c);
@@ -72,7 +72,7 @@ size_t NDiff::InlineDiff(std::vector<TChunk<char>>& chunks, const std::string_vi
     return dist;
 }
 
-size_t NDiff::InlineDiff(std::vector<TChunk<wchar16>>& chunks, const TWtringBuf& left, const TWtringBuf& right, const TUtf16String& delims) {
+size_t NDiff::InlineDiff(std::vector<TChunk<wchar16>>& chunks, const std::u16string_view& left, const std::u16string_view& right, const TUtf16String& delims) {
     if (delims.empty()) {
         return InlineDiff<wchar16>(chunks, TConstArrayRef<wchar16>(left.data(), left.size()), TConstArrayRef<wchar16>(right.data(), right.size()));
     }

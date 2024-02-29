@@ -25,10 +25,10 @@ static inline void GenOne(const TString& data, const TString& key, IOutputStream
 
         const char ch = c[i];
 
-        out << "0x" << TStringBuf(buf, HexEncode(&ch, 1, buf)) << ", ";
+        out << "0x" << std::string_view(buf, HexEncode(&ch, 1, buf)) << ", ";
     }
 
-    out << "\n};\n\nstatic const NResource::TRegHelper REG_" << name << "(\"" << key << "\", TStringBuf((const char*)" << name << ", sizeof(" << name << ")));\n";
+    out << "\n};\n\nstatic const NResource::TRegHelper REG_" << name << "(\"" << key << "\", std::string_view((const char*)" << name << ", sizeof(" << name << ")));\n";
 }
 
 int main(int argc, char** argv) {

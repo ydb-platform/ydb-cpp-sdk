@@ -90,7 +90,7 @@ size_t GetHttpPrefixSize(const std::string_view url, bool ignorehttps) noexcept 
     return GetHttpPrefixSizeImpl<char>(url.data(), TKnownSize(url.size()), ignorehttps);
 }
 
-size_t GetHttpPrefixSize(const TWtringBuf url, bool ignorehttps) noexcept {
+size_t GetHttpPrefixSize(const std::u16string_view url, bool ignorehttps) noexcept {
     return GetHttpPrefixSizeImpl<wchar16>(url.data(), TKnownSize(url.size()), ignorehttps);
 }
 
@@ -98,7 +98,7 @@ std::string_view CutHttpPrefix(const std::string_view url, bool ignorehttps) noe
     return CutHttpPrefixImpl(url, ignorehttps);
 }
 
-TWtringBuf CutHttpPrefix(const TWtringBuf url, bool ignorehttps) noexcept {
+std::u16string_view CutHttpPrefix(const std::u16string_view url, bool ignorehttps) noexcept {
     return CutHttpPrefixImpl(url, ignorehttps);
 }
 

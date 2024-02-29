@@ -98,14 +98,14 @@ Y_UNIT_TEST_SUITE(TLazyValueTestSuite) {
         {
         }
 
-        const TString& GetData() const {
+        const std::string& GetData() const {
             return *Data_;
         }
 
     private:
-        TLazyValue<TString> Data_;
+        TLazyValue<std::string> Data_;
 
-        TString ParseData() {
+        std::string ParseData() {
             CountParseDataCalled++;
             return "hi";
         }

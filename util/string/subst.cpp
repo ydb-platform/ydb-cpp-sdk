@@ -43,7 +43,7 @@ static bool IsIntersect(const T& a, const U& b) noexcept {
  * Uses two separate implementations (inplace for shrink and append for grow case)
  * See IGNIETFERRO-394
  **/
-template <class TStringType, typename TStringViewType = TBasicStringBuf<typename TStringType::value_type>>
+template <class TStringType, typename TStringViewType = std::basic_string_view<typename TStringType::value_type>>
 static inline size_t SubstGlobalImpl(TStringType& s, const TStringViewType from, const TStringViewType to, size_t fromPos = 0) {
     if (from.empty()) {
         return 0;
@@ -157,30 +157,30 @@ static_assert(sizeof(wchar32) == sizeof(char32_t), "");
 static_assert(std::is_unsigned<wchar16>::value == std::is_unsigned<char16_t>::value, "");
 static_assert(std::is_unsigned<wchar32>::value == std::is_unsigned<char32_t>::value, "");
 
-size_t SubstGlobal(TString& text, const TStringBuf what, const TStringBuf with, size_t from) {
+size_t SubstGlobal(std::string& text, const std::string_view what, const std::string_view with, size_t from) {
     return SubstGlobalImpl(text, what, with, from);
 }
 
-size_t SubstGlobal(std::string& text, const TStringBuf what, const TStringBuf with, size_t from) {
+size_t SubstGlobal(std::string& text, const std::string_view what, const std::string_view with, size_t from) {
     return SubstGlobalImpl(text, what, with, from);
 }
 
-size_t SubstGlobal(TUtf16String& text, const TWtringBuf what, const TWtringBuf with, size_t from) {
+size_t SubstGlobal(TUtf16String& text, const std::u16string_view what, const std::u16string_view with, size_t from) {
     return SubstGlobalImpl(text, what, with, from);
 }
 
-size_t SubstGlobal(TUtf32String& text, const TUtf32StringBuf what, const TUtf32StringBuf with, size_t from) {
+size_t SubstGlobal(TUtf32String& text, const std::u32string_view what, const std::u32string_view with, size_t from) {
     return SubstGlobalImpl(text, what, with, from);
 }
 
-size_t SubstGlobal(std::u16string& text, const TWtringBuf what, const TWtringBuf with, size_t from) {
+size_t SubstGlobal(std::u16string& text, const std::u16string_view what, const std::u16string_view with, size_t from) {
     return SubstGlobalImpl(text,
                            std::u16string_view(reinterpret_cast<const char16_t*>(what.data()), what.size()),
                            std::u16string_view(reinterpret_cast<const char16_t*>(with.data()), with.size()),
                            from);
 }
 
-size_t SubstGlobal(TString& text, char what, char with, size_t from) {
+size_t SubstGlobal(std::string& text, char what, char with, size_t from) {
     return SubstCharGlobalImpl(text, what, with, from);
 }
 

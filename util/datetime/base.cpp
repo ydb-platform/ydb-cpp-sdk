@@ -8,7 +8,7 @@
 #include <util/generic/string.h>
 #include <util/generic/yexception.h>
 
-TString Strftime(const char* format, const struct tm* tm) {
+std::string Strftime(const char* format, const struct tm* tm) {
     size_t size = Max<size_t>(strlen(format) * 2 + 1, 107);
     for (;;) {
         TTempBuf buf(size);
@@ -22,12 +22,12 @@ TString Strftime(const char* format, const struct tm* tm) {
 
 template <>
 TDuration FromStringImpl<TDuration, char>(const char* s, size_t len) {
-    return TDuration::Parse(TStringBuf(s, len));
+    return TDuration::Parse(std::string_view(s, len));
 }
 
 template <>
 bool TryFromStringImpl<TDuration, char>(const char* s, size_t len, TDuration& result) {
-    return TDuration::TryParse(TStringBuf(s, len), result);
+    return TDuration::TryParse(std::string_view(s, len), result);
 }
 
 namespace {
@@ -145,7 +145,7 @@ void Out<TInstant>(IOutputStream& os, TTypeTraits<TInstant>::TFuncParam instant)
     auto len = FormatDate8601(buf, sizeof(buf), instant.TimeT());
 
     // shouldn't happen due to current implementation of FormatDate8601() and GmTimeR()
-    Y_ENSURE(len, TStringBuf("Out<TInstant>: year does not fit into an integer"));
+    Y_ENSURE(len, "Out<TInstant>: year does not fit into an integer");
 
     os.Write(buf, len - 1 /* 'Z' */);
     WriteMicroSecondsToStream(os, instant.MicroSecondsOfSecond());
@@ -172,19 +172,19 @@ void Out<::NPrivate::TPrintableLocalTime<true, true>>(IOutputStream& os, TTypeTr
     WritePrintableLocalTimeToStream(os, localTime);
 }
 
-TString TDuration::ToString() const {
+std::string TDuration::ToString() const {
     return ::ToString(*this);
 }
 
-TString TInstant::ToString() const {
+std::string TInstant::ToString() const {
     return ::ToString(*this);
 }
 
-TString TInstant::ToRfc822String() const {
+std::string TInstant::ToRfc822String() const {
     return FormatGmTime("%a, %d %b %Y %H:%M:%S GMT");
 }
 
-TString TInstant::ToStringUpToSeconds() const {
+std::string TInstant::ToStringUpToSeconds() const {
     char buf[64];
     auto len = FormatDate8601(buf, sizeof(buf), TimeT());
     if (!len) {
@@ -193,33 +193,33 @@ TString TInstant::ToStringUpToSeconds() const {
     return TString(buf, len);
 }
 
-TString TInstant::ToIsoStringLocal() const {
+std::string TInstant::ToIsoStringLocal() const {
     return ::ToString(FormatIsoLocal(*this));
 }
 
-TString TInstant::ToStringLocal() const {
+std::string TInstant::ToStringLocal() const {
     return ::ToString(FormatLocal(*this));
 }
 
-TString TInstant::ToRfc822StringLocal() const {
+std::string TInstant::ToRfc822StringLocal() const {
     return FormatLocalTime("%a, %d %b %Y %H:%M:%S %Z");
 }
 
-TString TInstant::ToIsoStringLocalUpToSeconds() const {
+std::string TInstant::ToIsoStringLocalUpToSeconds() const {
     return ::ToString(FormatIsoLocalUpToSeconds(*this));
 }
 
-TString TInstant::ToStringLocalUpToSeconds() const {
+std::string TInstant::ToStringLocalUpToSeconds() const {
     return ::ToString(FormatLocalUpToSeconds(*this));
 }
 
-TString TInstant::FormatLocalTime(const char* format) const noexcept {
+std::string TInstant::FormatLocalTime(const char* format) const noexcept {
     struct tm theTm;
     LocalTime(&theTm);
     return Strftime(format, &theTm);
 }
 
-TString TInstant::FormatGmTime(const char* format) const noexcept {
+std::string TInstant::FormatGmTime(const char* format) const noexcept {
     struct tm theTm;
     GmTime(&theTm);
     return Strftime(format, &theTm);
@@ -272,26 +272,26 @@ void DateToString(char* buf, time_t when, long* sec) {
     }
 }
 
-TString DateToString(const struct tm& theTm) {
+std::string DateToString(const struct tm& theTm) {
     char buf[DATE_BUF_LEN];
     DateToString(buf, theTm);
     return buf;
 }
 
-TString DateToString(time_t when, long* sec) {
+std::string DateToString(time_t when, long* sec) {
     char buf[DATE_BUF_LEN];
     DateToString(buf, when, sec);
     return buf;
 }
 
-TString YearToString(const struct tm& theTm) {
+std::string YearToString(const struct tm& theTm) {
     Y_ENSURE(0 <= theTm.tm_year + 1900 && theTm.tm_year + 1900 <= 9999, "invalid year " + ToString(theTm.tm_year + 1900) + ", year should be in range [0, 9999]");
     char buf[16];
     sprintf(buf, "%04d", theTm.tm_year + 1900);
     return buf;
 }
 
-TString YearToString(time_t when) {
+std::string YearToString(time_t when) {
     struct tm theTm;
     localtime_r(&when, &theTm);
 

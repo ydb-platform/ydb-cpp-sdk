@@ -62,7 +62,7 @@ public:
         }
     };
 
-    inline TDirIterator(const TString& path, const TOptions& options = TOptions())
+    inline TDirIterator(const std::string& path, const TOptions& options = TOptions())
         : Options_(options)
         , Path_(path)
     {
@@ -103,7 +103,7 @@ public:
 
 private:
     TOptions Options_;
-    TString Path_;
+    std::string Path_;
     char* Trees_[2];
     THolder<FTS, TFtsDestroy> FileTree_;
 };

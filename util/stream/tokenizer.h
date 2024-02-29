@@ -76,8 +76,8 @@ public:
             return this;
         }
 
-        inline TStringBuf operator*() noexcept {
-            return TStringBuf{Data_, Len_};
+        inline std::string_view operator*() noexcept {
+            return std::string_view{Data_, Len_};
         }
 
     private:

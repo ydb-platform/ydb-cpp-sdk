@@ -7,7 +7,7 @@
 
 class TPipeBase::TImpl {
 public:
-    inline TImpl(const TString& command, const char* mode)
+    inline TImpl(const std::string& command, const char* mode)
         : Pipe_(nullptr)
     {
 #ifndef _freebsd_
@@ -31,14 +31,14 @@ public:
     FILE* Pipe_;
 };
 
-TPipeBase::TPipeBase(const TString& command, const char* mode)
+TPipeBase::TPipeBase(const std::string& command, const char* mode)
     : Impl_(new TImpl(command, mode))
 {
 }
 
 TPipeBase::~TPipeBase() = default;
 
-TPipeInput::TPipeInput(const TString& command)
+TPipeInput::TPipeInput(const std::string& command)
     : TPipeBase(command, "r")
 {
 }
@@ -61,7 +61,7 @@ size_t TPipeInput::DoRead(void* buf, size_t len) {
     return bytesRead;
 }
 
-TPipeOutput::TPipeOutput(const TString& command)
+TPipeOutput::TPipeOutput(const std::string& command)
     : TPipeBase(command, "w")
 {
 }

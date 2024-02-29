@@ -6,7 +6,7 @@
 
 namespace NAddr {
     struct TNetworkInterface {
-        TString Name;
+        std::string Name;
         IRemoteAddrRef Address;
         IRemoteAddrRef Mask;
     };

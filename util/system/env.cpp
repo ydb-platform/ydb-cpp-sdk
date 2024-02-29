@@ -21,7 +21,7 @@
  *  - https://a.yandex-team.ru/review/108892/details
  */
 
-TString GetEnv(const TString& key, const TString& def) {
+std::string GetEnv(const std::string& key, const std::string& def) {
 #ifdef _win_
     size_t len = GetEnvironmentVariableA(key.data(), nullptr, 0);
 
@@ -49,7 +49,7 @@ TString GetEnv(const TString& key, const TString& def) {
 #endif
 }
 
-void SetEnv(const TString& key, const TString& value) {
+void SetEnv(const std::string& key, const std::string& value) {
     bool isOk = false;
     int errorCode = 0;
 #ifdef _win_

@@ -80,7 +80,7 @@ namespace {
         return TUtf16String(text, len);
     }
 
-    TString CreateUTF8Text() {
+    std::string CreateUTF8Text() {
         char text[] = {
             '\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x0a', '\x0b', '\x0c', '\x0d', '\x0e', '\x0f',
             '\x10', '\x11', '\x12', '\x13', '\x14', '\x15', '\x16', '\x17', '\x18', '\x19', '\x1a', '\x1b', '\x1c', '\x1d', '\x1e', '\x1f',
@@ -112,7 +112,7 @@ namespace {
 
     //! use this function to dump UTF8 text into a file in case of any changes
     //    void DumpUTF8Text() {
-    //        TString s = WideToUTF8(UnicodeText);
+    //        std::string s = WideToUTF8(UnicodeText);
     //        std::ofstream f("utf8.txt");
     //        f << std::hex;
     //        for (int i = 0; i < (int)s.size(); ++i) {
@@ -166,7 +166,7 @@ class TConversionTest: public TTestBase {
 private:
     //! @note every of the text can have zeros in the middle
     const TUtf16String UnicodeText_;
-    const TString Utf8Text_;
+    const std::string Utf8Text_;
 
 private:
     UNIT_TEST_SUITE(TConversionTest);
@@ -517,7 +517,7 @@ static void TestSurrogates(const char* str, const wchar16* wide, size_t wideSize
     UNIT_ASSERT(w.size() == wideSize);
     UNIT_ASSERT(!memcmp(w.c_str(), wide, wideSize));
 
-    TString s = WideToUTF8(w);
+    std::string s = WideToUTF8(w);
 
     UNIT_ASSERT(s == str);
 }
@@ -573,7 +573,7 @@ void TConversionTest::TestUTF8ToWide() {
 }
 
 void TConversionTest::TestWideToUTF8() {
-    TString s = WideToUTF8(UnicodeText_);
+    std::string s = WideToUTF8(UnicodeText_);
     size_t len = 0;
     for (TUtf16String::const_iterator i = UnicodeText_.begin(), ie = UnicodeText_.end(); i != ie; ++i) {
         len += UTF8RuneLenByUCS(*i);
@@ -607,7 +607,7 @@ void TConversionTest::TestGetNumOfUTF8Chars() {
 }
 
 void TConversionTest::TestSubstrUTF8() {
-    TStringBuf utextBuf(utext, sizeof(utext));
+    std::string_view utextBuf(utext, sizeof(utext));
     UNIT_ASSERT(SubstrUTF8(utextBuf, 0, 2) == utextBuf.substr(0, 4));
     UNIT_ASSERT(SubstrUTF8(utextBuf, 1, 1) == utextBuf.substr(2, 2));
     UNIT_ASSERT(SubstrUTF8(utextBuf, 1, 2) == utextBuf.substr(2, 4));
@@ -922,7 +922,7 @@ public:
         wchar16 upperCase[n];
         std::copy(wideCyrillicAlphabet, wideCyrillicAlphabet + n, upperCase);
         ToLower(upperCase, n);
-        UNIT_ASSERT(TWtringBuf(upperCase, n) == TWtringBuf(wideCyrillicAlphabet + n, n));
+        UNIT_ASSERT(std::u16string_view(upperCase, n) == std::u16string_view(wideCyrillicAlphabet + n, n));
     }
 
     void TestToUpper() {
@@ -930,7 +930,7 @@ public:
         wchar16 lowerCase[n];
         std::copy(wideCyrillicAlphabet + n, wideCyrillicAlphabet + n * 2, lowerCase);
         ToUpper(lowerCase, n);
-        UNIT_ASSERT(TWtringBuf(lowerCase, n) == TWtringBuf(wideCyrillicAlphabet, n));
+        UNIT_ASSERT(std::u16string_view(lowerCase, n) == std::u16string_view(wideCyrillicAlphabet, n));
     }
 
     void TestWideString() {
@@ -986,11 +986,11 @@ public:
         static wchar16 str3[] = {'h', 'e', 'l', 'l', 'o', 0xD842, '!', 0};
         static wchar16 str4[] = {'h', 'e', 'l', 'l', 'o', 0xDEAD, 0xD842, '!', 0};
         static wchar16 str5[] = {'h', 'e', 'l', 'l', 'o', 0xD842, 0xDEAD, 0xDEAD, '!', 0};
-        UNIT_ASSERT(IsValidUTF16(TWtringBuf(str1)));
-        UNIT_ASSERT(IsValidUTF16(TWtringBuf(str2)));
-        UNIT_ASSERT(!IsValidUTF16(TWtringBuf(str3)));
-        UNIT_ASSERT(!IsValidUTF16(TWtringBuf(str4)));
-        UNIT_ASSERT(!IsValidUTF16(TWtringBuf(str5)));
+        UNIT_ASSERT(IsValidUTF16(std::u16string_view(str1)));
+        UNIT_ASSERT(IsValidUTF16(std::u16string_view(str2)));
+        UNIT_ASSERT(!IsValidUTF16(std::u16string_view(str3)));
+        UNIT_ASSERT(!IsValidUTF16(std::u16string_view(str4)));
+        UNIT_ASSERT(!IsValidUTF16(std::u16string_view(str5)));
     }
 
     void TestIsStringASCII() {
@@ -1042,7 +1042,7 @@ public:
     }
 
     void TestIsLowerWordStr() {
-        UNIT_ASSERT(IsLowerWord(TWtringBuf()));
+        UNIT_ASSERT(IsLowerWord(std::u16string_view()));
         UNIT_ASSERT(IsLowerWord(UTF8ToWide("")));
         UNIT_ASSERT(IsLowerWord(UTF8ToWide("test")));
         UNIT_ASSERT(IsLowerWord(UTF8ToWide("тест"))); // "тест" is "test" in russian (cyrrilic)
@@ -1059,7 +1059,7 @@ public:
     }
 
     void TestIsUpperWordStr() {
-        UNIT_ASSERT(IsUpperWord(TWtringBuf()));
+        UNIT_ASSERT(IsUpperWord(std::u16string_view()));
         UNIT_ASSERT(IsUpperWord(UTF8ToWide("")));
         UNIT_ASSERT(IsUpperWord(UTF8ToWide("TEST")));
         UNIT_ASSERT(IsUpperWord(UTF8ToWide("ТЕСТ")));
@@ -1076,7 +1076,7 @@ public:
     }
 
     void TestIsTitleStr() {
-        UNIT_ASSERT(!IsTitleWord(TWtringBuf()));
+        UNIT_ASSERT(!IsTitleWord(std::u16string_view()));
         UNIT_ASSERT(!IsTitleWord(UTF8ToWide("")));
         UNIT_ASSERT(!IsTitleWord(UTF8ToWide("t")));
         UNIT_ASSERT(!IsTitleWord(UTF8ToWide("й")));
@@ -1097,7 +1097,7 @@ public:
     }
 
     void TestIsLowerStr() {
-        UNIT_ASSERT(IsLower(TWtringBuf()));
+        UNIT_ASSERT(IsLower(std::u16string_view()));
         UNIT_ASSERT(IsLower(UTF8ToWide("")));
         UNIT_ASSERT(IsLower(UTF8ToWide("test")));
         UNIT_ASSERT(IsLower(UTF8ToWide("тест"))); // "тест" is "test" in russian (cyrrilic)
@@ -1114,7 +1114,7 @@ public:
     }
 
     void TestIsUpperStr() {
-        UNIT_ASSERT(IsUpper(TWtringBuf()));
+        UNIT_ASSERT(IsUpper(std::u16string_view()));
         UNIT_ASSERT(IsUpper(UTF8ToWide("")));
         UNIT_ASSERT(IsUpper(UTF8ToWide("TEST")));
         UNIT_ASSERT(IsUpper(UTF8ToWide("ТЕСТ")));
@@ -1167,7 +1167,7 @@ public:
             UNIT_ASSERT(writableCopy == lower);
 
             UNIT_ASSERT(ToLowerRet(copy) == lower);
-            UNIT_ASSERT(ToLowerRet(TWtringBuf(copy)) == lower);
+            UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
         {
             TUtf16String s = UTF8ToWide("");
@@ -1188,7 +1188,7 @@ public:
             UNIT_ASSERT(writableCopy == lower);
 
             UNIT_ASSERT(ToLowerRet(copy) == lower);
-            UNIT_ASSERT(ToLowerRet(TWtringBuf(copy)) == lower);
+            UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
         {
             TUtf16String s;
@@ -1202,7 +1202,7 @@ public:
 #endif
 
             UNIT_ASSERT(ToLowerRet(copy, 100500) == lower);
-            UNIT_ASSERT(ToLowerRet(TWtringBuf(copy), 100500) == lower);
+            UNIT_ASSERT(ToLowerRet(std::u16string_view(copy), 100500) == lower);
         }
         {
             TUtf16String s;
@@ -1216,7 +1216,7 @@ public:
 #endif
 
             UNIT_ASSERT(ToLowerRet(copy, 100500, 1111) == lower);
-            UNIT_ASSERT(ToLowerRet(TWtringBuf(copy), 100500, 1111) == lower);
+            UNIT_ASSERT(ToLowerRet(std::u16string_view(copy), 100500, 1111) == lower);
         }
         {
             auto s = UTF8ToWide("Й");
@@ -1234,7 +1234,7 @@ public:
             UNIT_ASSERT(writableCopy == lower);
 
             UNIT_ASSERT(ToLowerRet(copy) == lower);
-            UNIT_ASSERT(ToLowerRet(TWtringBuf(copy)) == lower);
+            UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
         {
             auto s = UTF8ToWide("й");
@@ -1255,7 +1255,7 @@ public:
             UNIT_ASSERT(writableCopy == lower);
 
             UNIT_ASSERT(ToLowerRet(copy) == lower);
-            UNIT_ASSERT(ToLowerRet(TWtringBuf(copy)) == lower);
+            UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
         {
             auto s = UTF8ToWide("тест");
@@ -1276,7 +1276,7 @@ public:
             UNIT_ASSERT(writableCopy == lower);
 
             UNIT_ASSERT(ToLowerRet(copy) == lower);
-            UNIT_ASSERT(ToLowerRet(TWtringBuf(copy)) == lower);
+            UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
         {
             auto s = UTF8ToWide("Тест");
@@ -1294,7 +1294,7 @@ public:
             UNIT_ASSERT(writableCopy == lower);
 
             UNIT_ASSERT(ToLowerRet(copy) == lower);
-            UNIT_ASSERT(ToLowerRet(TWtringBuf(copy)) == lower);
+            UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
         {
             TUtf16String s = UTF8ToWide("тЕст");
@@ -1305,7 +1305,7 @@ public:
             UNIT_ASSERT(s == UTF8ToWide("тест"));
 
             UNIT_ASSERT(ToLowerRet(copy) == lower);
-            UNIT_ASSERT(ToLowerRet(TWtringBuf(copy)) == lower);
+            UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
         {
             auto s = UTF8ToWide("тЕст");
@@ -1319,7 +1319,7 @@ public:
 #endif
 
             UNIT_ASSERT(ToLowerRet(copy, 2) == lower);
-            UNIT_ASSERT(ToLowerRet(TWtringBuf(copy), 2) == lower);
+            UNIT_ASSERT(ToLowerRet(std::u16string_view(copy), 2) == lower);
         }
         {
             auto s = UTF8ToWide("теСт");
@@ -1330,7 +1330,7 @@ public:
             UNIT_ASSERT(s == lower);
 
             UNIT_ASSERT(ToLowerRet(copy, 2) == lower);
-            UNIT_ASSERT(ToLowerRet(TWtringBuf(copy), 2) == lower);
+            UNIT_ASSERT(ToLowerRet(std::u16string_view(copy), 2) == lower);
         }
         {
             auto s = UTF8ToWide("теСт");
@@ -1344,7 +1344,7 @@ public:
 #endif
 
             UNIT_ASSERT(ToLowerRet(copy, 3, 1) == lower);
-            UNIT_ASSERT(ToLowerRet(TWtringBuf(copy), 3, 1) == lower);
+            UNIT_ASSERT(ToLowerRet(std::u16string_view(copy), 3, 1) == lower);
         }
         {
             auto s = UTF8ToWide("теСт");
@@ -1358,7 +1358,7 @@ public:
 #endif
 
             UNIT_ASSERT(ToLowerRet(copy, 3, 100500) == lower);
-            UNIT_ASSERT(ToLowerRet(TWtringBuf(copy), 3, 100500) == lower);
+            UNIT_ASSERT(ToLowerRet(std::u16string_view(copy), 3, 100500) == lower);
         }
     }
 
@@ -1382,7 +1382,7 @@ public:
             UNIT_ASSERT(writableCopy == upper);
 
             UNIT_ASSERT(ToUpperRet(copy) == upper);
-            UNIT_ASSERT(ToUpperRet(TWtringBuf(copy)) == upper);
+            UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
         {
             auto s = UTF8ToWide("");
@@ -1403,7 +1403,7 @@ public:
             UNIT_ASSERT(writableCopy == upper);
 
             UNIT_ASSERT(ToUpperRet(copy) == upper);
-            UNIT_ASSERT(ToUpperRet(TWtringBuf(copy)) == upper);
+            UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
         {
             TUtf16String s;
@@ -1424,7 +1424,7 @@ public:
             UNIT_ASSERT(writableCopy == upper);
 
             UNIT_ASSERT(ToUpperRet(copy, 100500) == upper);
-            UNIT_ASSERT(ToUpperRet(TWtringBuf(copy), 100500) == upper);
+            UNIT_ASSERT(ToUpperRet(std::u16string_view(copy), 100500) == upper);
         }
         {
             TUtf16String s;
@@ -1438,7 +1438,7 @@ public:
 #endif
 
             UNIT_ASSERT(ToUpperRet(copy, 100500, 1111) == upper);
-            UNIT_ASSERT(ToUpperRet(TWtringBuf(copy), 100500, 1111) == upper);
+            UNIT_ASSERT(ToUpperRet(std::u16string_view(copy), 100500, 1111) == upper);
         }
         {
             auto s = UTF8ToWide("й");
@@ -1456,7 +1456,7 @@ public:
             UNIT_ASSERT(writableCopy == upper);
 
             UNIT_ASSERT(ToUpperRet(copy) == upper);
-            UNIT_ASSERT(ToUpperRet(TWtringBuf(copy)) == upper);
+            UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
         {
             auto s = UTF8ToWide("Й");
@@ -1477,7 +1477,7 @@ public:
             UNIT_ASSERT(writableCopy == upper);
 
             UNIT_ASSERT(ToUpperRet(copy) == upper);
-            UNIT_ASSERT(ToUpperRet(TWtringBuf(copy)) == upper);
+            UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
         {
             auto s = UTF8ToWide("тест");
@@ -1495,7 +1495,7 @@ public:
             UNIT_ASSERT(writableCopy == upper);
 
             UNIT_ASSERT(ToUpperRet(copy) == upper);
-            UNIT_ASSERT(ToUpperRet(TWtringBuf(copy)) == upper);
+            UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
         {
             auto s = UTF8ToWide("Тест");
@@ -1513,7 +1513,7 @@ public:
             UNIT_ASSERT(writableCopy == upper);
 
             UNIT_ASSERT(ToUpperRet(copy) == upper);
-            UNIT_ASSERT(ToUpperRet(TWtringBuf(copy)) == upper);
+            UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
         {
             auto s = UTF8ToWide("тЕст");
@@ -1531,7 +1531,7 @@ public:
             UNIT_ASSERT(writableCopy == upper);
 
             UNIT_ASSERT(ToUpperRet(copy) == upper);
-            UNIT_ASSERT(ToUpperRet(TWtringBuf(copy)) == upper);
+            UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
         {
             auto s = UTF8ToWide("тЕст");
@@ -1542,7 +1542,7 @@ public:
             UNIT_ASSERT(s == upper);
 
             UNIT_ASSERT(ToUpperRet(copy, 2) == upper);
-            UNIT_ASSERT(ToUpperRet(TWtringBuf(copy), 2) == upper);
+            UNIT_ASSERT(ToUpperRet(std::u16string_view(copy), 2) == upper);
         }
         {
             auto s = UTF8ToWide("теСт");
@@ -1553,7 +1553,7 @@ public:
             UNIT_ASSERT(s == upper);
 
             UNIT_ASSERT(ToUpperRet(copy, 2) == upper);
-            UNIT_ASSERT(ToUpperRet(TWtringBuf(copy), 2) == upper);
+            UNIT_ASSERT(ToUpperRet(std::u16string_view(copy), 2) == upper);
         }
         {
             auto s = UTF8ToWide("теСт");
@@ -1564,7 +1564,7 @@ public:
             UNIT_ASSERT(s == upper);
 
             UNIT_ASSERT(ToUpperRet(copy, 3, 1) == upper);
-            UNIT_ASSERT(ToUpperRet(TWtringBuf(copy), 3, 1) == upper);
+            UNIT_ASSERT(ToUpperRet(std::u16string_view(copy), 3, 1) == upper);
         }
         {
             auto s = UTF8ToWide("теСт");
@@ -1575,7 +1575,7 @@ public:
             UNIT_ASSERT(s == upper);
 
             UNIT_ASSERT(ToUpperRet(copy, 3, 100500) == upper);
-            UNIT_ASSERT(ToUpperRet(TWtringBuf(copy), 3, 100500) == upper);
+            UNIT_ASSERT(ToUpperRet(std::u16string_view(copy), 3, 100500) == upper);
         }
     }
 
@@ -1599,7 +1599,7 @@ public:
             UNIT_ASSERT(writableCopy == title);
 
             UNIT_ASSERT(ToTitleRet(copy) == title);
-            UNIT_ASSERT(ToTitleRet(TWtringBuf(copy)) == title);
+            UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
         {
             auto s = UTF8ToWide("");
@@ -1620,7 +1620,7 @@ public:
             UNIT_ASSERT(writableCopy == title);
 
             UNIT_ASSERT(ToTitleRet(copy) == title);
-            UNIT_ASSERT(ToTitleRet(TWtringBuf(copy)) == title);
+            UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
         {
             TUtf16String s;
@@ -1634,7 +1634,7 @@ public:
 #endif
 
             UNIT_ASSERT(ToTitleRet(copy) == title);
-            UNIT_ASSERT(ToTitleRet(TWtringBuf(copy)) == title);
+            UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
         {
             TUtf16String s;
@@ -1648,7 +1648,7 @@ public:
 #endif
 
             UNIT_ASSERT(ToTitleRet(copy) == title);
-            UNIT_ASSERT(ToTitleRet(TWtringBuf(copy)) == title);
+            UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
         {
             auto s = UTF8ToWide("й");
@@ -1666,7 +1666,7 @@ public:
             UNIT_ASSERT(writableCopy == title);
 
             UNIT_ASSERT(ToTitleRet(copy) == title);
-            UNIT_ASSERT(ToTitleRet(TWtringBuf(copy)) == title);
+            UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
         {
             auto s = UTF8ToWide("Й");
@@ -1687,7 +1687,7 @@ public:
             UNIT_ASSERT(writableCopy == title);
 
             UNIT_ASSERT(ToTitleRet(copy) == title);
-            UNIT_ASSERT(ToTitleRet(TWtringBuf(copy)) == title);
+            UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
         {
             auto s = UTF8ToWide("тест");
@@ -1705,7 +1705,7 @@ public:
             UNIT_ASSERT(writableCopy == title);
 
             UNIT_ASSERT(ToTitleRet(copy) == title);
-            UNIT_ASSERT(ToTitleRet(TWtringBuf(copy)) == title);
+            UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
         {
             auto s = UTF8ToWide("Тест");
@@ -1726,7 +1726,7 @@ public:
             UNIT_ASSERT(writableCopy == title);
 
             UNIT_ASSERT(ToTitleRet(copy) == title);
-            UNIT_ASSERT(ToTitleRet(TWtringBuf(copy)) == title);
+            UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
         {
             auto s = UTF8ToWide("тЕст");
@@ -1744,7 +1744,7 @@ public:
             UNIT_ASSERT(writableCopy == title);
 
             UNIT_ASSERT(ToTitleRet(copy) == title);
-            UNIT_ASSERT(ToTitleRet(TWtringBuf(copy)) == title);
+            UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
         {
             auto s = UTF8ToWide("тЕст");
@@ -1755,7 +1755,7 @@ public:
             UNIT_ASSERT(s == title);
 
             UNIT_ASSERT(ToTitleRet(copy, 2) == title);
-            UNIT_ASSERT(ToTitleRet(TWtringBuf(copy), 2) == title);
+            UNIT_ASSERT(ToTitleRet(std::u16string_view(copy), 2) == title);
         }
         {
             auto s = UTF8ToWide("теСт");
@@ -1769,7 +1769,7 @@ public:
 #endif
 
             UNIT_ASSERT(ToTitleRet(copy, 2) == title);
-            UNIT_ASSERT(ToTitleRet(TWtringBuf(copy), 2) == title);
+            UNIT_ASSERT(ToTitleRet(std::u16string_view(copy), 2) == title);
         }
         {
             auto s = UTF8ToWide("теСт");
@@ -1780,7 +1780,7 @@ public:
             UNIT_ASSERT(s == title);
 
             UNIT_ASSERT(ToTitleRet(copy, 3, 1) == title);
-            UNIT_ASSERT(ToTitleRet(TWtringBuf(copy), 3, 1) == title);
+            UNIT_ASSERT(ToTitleRet(std::u16string_view(copy), 3, 1) == title);
         }
         {
             auto s = UTF8ToWide("теСт");
@@ -1791,7 +1791,7 @@ public:
             UNIT_ASSERT(s == title);
 
             UNIT_ASSERT(ToTitleRet(copy, 3, 100500) == title);
-            UNIT_ASSERT(ToTitleRet(TWtringBuf(copy), 3, 100500) == title);
+            UNIT_ASSERT(ToTitleRet(std::u16string_view(copy), 3, 100500) == title);
         }
     }
 };

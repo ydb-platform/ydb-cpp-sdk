@@ -17,7 +17,7 @@ static void Touch(const TFsPath& path) {
     file.Write("1115", 4);
 }
 
-static LPCWSTR UTF8ToWCHAR(const TStringBuf str, TUtf16String& wstr) {
+static LPCWSTR UTF8ToWCHAR(const std::string_view str, TUtf16String& wstr) {
     wstr.resize(str.size());
     size_t written = 0;
     if (!UTF8ToWide(str.data(), str.size(), wstr.begin(), written))
@@ -40,7 +40,7 @@ Y_UNIT_TEST_SUITE(TFsWinTest) {
         UNIT_ASSERT(NFsPrivate::WinExists(file1));
         {
             TUtf16String wstr;
-            LPCWSTR wname = UTF8ToWCHAR(static_cast<const TString&>(file1), wstr);
+            LPCWSTR wname = UTF8ToWCHAR(static_cast<const std::string&>(file1), wstr);
             UNIT_ASSERT(wname);
             WIN32_FILE_ATTRIBUTE_DATA fad;
             fad.dwFileAttributes = FILE_ATTRIBUTE_READONLY;
@@ -59,7 +59,7 @@ Y_UNIT_TEST_SUITE(TFsWinTest) {
         UNIT_ASSERT(TFileStat(dir1).IsDir());
         {
             TUtf16String wstr;
-            LPCWSTR wname = UTF8ToWCHAR(static_cast<const TString&>(dir1), wstr);
+            LPCWSTR wname = UTF8ToWCHAR(static_cast<const std::string&>(dir1), wstr);
             UNIT_ASSERT(wname);
             WIN32_FILE_ATTRIBUTE_DATA fad;
             fad.dwFileAttributes = FILE_ATTRIBUTE_READONLY;

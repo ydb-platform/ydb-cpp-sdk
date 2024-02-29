@@ -34,8 +34,8 @@ class TestHashSet(unittest.TestCase):
         self.assertTrue(tmp.insert("one").second)
         self.assertFalse(tmp.insert("one").second)
         self.assertTrue(tmp.insert("two").second)
-        cdef TString one = "one"
-        cdef TString two = "two"
+        cdef std::string one = "one"
+        cdef std::string two = "two"
         self.assertEqual(tmp.erase(one), 1)
         self.assertEqual(tmp.erase(two), 1)
         self.assertEqual(tmp.size(), 0)

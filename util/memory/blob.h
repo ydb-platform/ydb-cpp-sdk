@@ -136,8 +136,8 @@ public:
         return (const unsigned char*)Data();
     }
 
-    inline TStringBuf AsStringBuf() const noexcept {
-        return TStringBuf(AsCharPtr(), size());
+    inline std::string_view AsStringBuf() const noexcept {
+        return std::string_view(AsCharPtr(), size());
     }
 
     /// Drops the data array.
@@ -201,10 +201,10 @@ public:
     static TBlob NoCopy(const void* data, size_t length);
 
     /// Creates a blob with a single-threaded (non atomic) refcounter. It maps the file on the path as data.
-    static TBlob FromFileSingleThreaded(const TString& path, EMappingMode);
+    static TBlob FromFileSingleThreaded(const std::string& path, EMappingMode);
 
     /// Creates a blob with a multi-threaded (atomic) refcounter. It maps the file on the path as data.
-    static TBlob FromFile(const TString& path, EMappingMode);
+    static TBlob FromFile(const std::string& path, EMappingMode);
 
     /// Creates a blob with a single-threaded (non atomic) refcounter. It maps the file on the path as data.
     static TBlob FromFileSingleThreaded(const TFile& file, EMappingMode);
@@ -213,10 +213,10 @@ public:
     static TBlob FromFile(const TFile& file, EMappingMode);
 
     /// Creates a blob with a single-threaded (non atomic) refcounter. It maps the file on the path as data.
-    static TBlob FromFileSingleThreaded(const TString& path);
+    static TBlob FromFileSingleThreaded(const std::string& path);
 
     /// Creates a blob with a multi-threaded (atomic) refcounter. It maps the file on the path as data.
-    static TBlob FromFile(const TString& path);
+    static TBlob FromFile(const std::string& path);
 
     /// Creates a blob with a single-threaded (non atomic) refcounter. It maps the file on the path as data.
     static TBlob FromFileSingleThreaded(const TFile& file);
@@ -227,10 +227,10 @@ public:
     // TODO: drop Precharged* functions.
 
     /// Creates a precharged blob with a single-threaded (non atomic) refcounter. It maps the file on the path as data.
-    static TBlob PrechargedFromFileSingleThreaded(const TString& path);
+    static TBlob PrechargedFromFileSingleThreaded(const std::string& path);
 
     /// Creates a precharged blob with a multi-threaded (atomic) refcounter. It maps the file on the path as data.
-    static TBlob PrechargedFromFile(const TString& path);
+    static TBlob PrechargedFromFile(const std::string& path);
 
     /// Creates a precharged blob with a single-threaded (non atomic) refcounter. It maps the file content as data.
     static TBlob PrechargedFromFileSingleThreaded(const TFile& file);
@@ -239,10 +239,10 @@ public:
     static TBlob PrechargedFromFile(const TFile& file);
 
     /// Creates a locked blob with a single-threaded (non atomic) refcounter. It maps the file on the path as data.
-    static TBlob LockedFromFileSingleThreaded(const TString& path);
+    static TBlob LockedFromFileSingleThreaded(const std::string& path);
 
     /// Creates a locked blob with a multi-threaded (atomic) refcounter. It maps the file on the path as data.
-    static TBlob LockedFromFile(const TString& path);
+    static TBlob LockedFromFile(const std::string& path);
 
     /// Creates a locked blob with a single-threaded (non atomic) refcounter. It maps the file content as data.
     static TBlob LockedFromFileSingleThreaded(const TFile& file);
@@ -263,10 +263,10 @@ public:
     static TBlob FromMemoryMap(const TMemoryMap& map, ui64 offset, size_t length);
 
     /// Creates a blob with a single-threaded (non atomic) refcounter. Dynamically allocates memory and copies data from the file on the path using pread().
-    static TBlob FromFileContentSingleThreaded(const TString& path);
+    static TBlob FromFileContentSingleThreaded(const std::string& path);
 
     /// Creates a blob with a multi-threaded (atomic) refcounter. Dynamically allocates memory and copies data from the file on the path using pread().
-    static TBlob FromFileContent(const TString& path);
+    static TBlob FromFileContent(const std::string& path);
 
     /// Creates a blob with a single-threaded (non atomic) refcounter. Dynamically allocates memory and copies data from the file using pread().
     static TBlob FromFileContentSingleThreaded(const TFile& file);
@@ -294,17 +294,17 @@ public:
     /// @details The input object becomes empty.
     static TBlob FromBuffer(TBuffer& in);
 
-    /// Creates a blob from TString with a single-threaded (non atomic) refcounter.
-    static TBlob FromStringSingleThreaded(const TString& s);
+    /// Creates a blob from std::string with a single-threaded (non atomic) refcounter.
+    static TBlob FromStringSingleThreaded(const std::string& s);
 
-    /// Creates a blob from TString with a single-threaded (non atomic) refcounter. Doesn't copy its content.
-    static TBlob FromStringSingleThreaded(TString&& s);
+    /// Creates a blob from std::string with a single-threaded (non atomic) refcounter. Doesn't copy its content.
+    static TBlob FromStringSingleThreaded(std::string&& s);
 
-    /// Creates a blob from TString with a multi-threaded (atomic) refcounter.
-    static TBlob FromString(const TString& s);
+    /// Creates a blob from std::string with a multi-threaded (atomic) refcounter.
+    static TBlob FromString(const std::string& s);
 
-    /// Creates a blob from TString with a multi-threaded (atomic) refcounter. Doesn't copy its content.
-    static TBlob FromString(TString&& s);
+    /// Creates a blob from std::string with a multi-threaded (atomic) refcounter. Doesn't copy its content.
+    static TBlob FromString(std::string&& s);
 
 private:
     inline void Ref() noexcept {

@@ -32,7 +32,7 @@ public:
         Stream_.Reserve(100);
     }
 
-    TString Str() const {
+    std::string Str() const {
         with_lock (Lock_) {
             return Stream_.Str();
         }
@@ -60,7 +60,7 @@ private:
 
 Y_UNIT_TEST_SUITE(TShellQuoteTest) {
     Y_UNIT_TEST(TestQuoteArg) {
-        TString cmd;
+        std::string cmd;
         ShellQuoteArg(cmd, "/pr f/krev/prev.exe");
         ShellQuoteArgSp(cmd, "-DVal=\"W Quotes\"");
         ShellQuoteArgSp(cmd, "-DVal=W Space");
@@ -169,8 +169,8 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
     }
     Y_UNIT_TEST(TestQuotes) {
         TShellCommandOptions options;
-        TString input = TString("a\"a a");
-        TString output;
+        std::string input = TString("a\"a a");
+        std::string output;
         TStringOutput outputStream(output);
         options.SetOutputStream(&outputStream);
         TShellCommand cmd("echo", options);
@@ -201,7 +201,7 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
     // 'type con' and 'copy con con' want real console, not stdin, use sort
     Y_UNIT_TEST(TestInput) {
         TShellCommandOptions options;
-        TString input = (TString("a") * 2000).append(NL) * textSize;
+        std::string input = (TString("a") * 2000).append(NL) * textSize;
         TStringInput inputStream(input);
         options.SetInputStream(&inputStream);
         TShellCommand cmd(catCommand, options);
@@ -211,10 +211,10 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
     }
     Y_UNIT_TEST(TestOutput) {
         TShellCommandOptions options;
-        TString input = (TString("a") * 2000).append(NL) * textSize;
+        std::string input = (TString("a") * 2000).append(NL) * textSize;
         TStringInput inputStream(input);
         options.SetInputStream(&inputStream);
-        TString output;
+        std::string output;
         TStringOutput outputStream(output);
         options.SetOutputStream(&outputStream);
         TShellCommand cmd(catCommand, options);
@@ -296,7 +296,7 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
 #if !defined(_win_)
     // this ut is unix-only, port to win using %TEMP%
     Y_UNIT_TEST(TestInterrupt) {
-        TString tmpfile = TString("shellcommand_ut.interrupt.") + ToString(RandomNumber<ui32>());
+        std::string tmpfile = TString("shellcommand_ut.interrupt.") + ToString(RandomNumber<ui32>());
 
         TShellCommandOptions options;
         options.SetAsync(true);
@@ -326,7 +326,7 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
         rc = SigProcMask(SIG_SETMASK, &newmask, &oldmask);
         UNIT_ASSERT(rc == 0);
 
-        TString tmpfile = TString("shellcommand_ut.interrupt.") + ToString(RandomNumber<ui32>());
+        std::string tmpfile = TString("shellcommand_ut.interrupt.") + ToString(RandomNumber<ui32>());
 
         TShellCommandOptions options;
         options.SetAsync(true);
@@ -380,7 +380,7 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
     }
 #endif
     Y_UNIT_TEST(TestInternalError) {
-        TString input = (TString("a") * 2000).append("\n");
+        std::string input = (TString("a") * 2000).append("\n");
         TStringInput inputStream(input);
         TMemoryOutput outputStream(nullptr, 0);
         TShellCommandOptions options;
@@ -397,8 +397,8 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
         options.SetOutputStream(&stream);
         options.SetUseShell(true);
 
-        TString input = TString(7000, 'a');
-        TString command = TStringBuilder{} << "echo " << input;
+        std::string input = TString(7000, 'a');
+        std::string command = TStringBuilder{} << "echo " << input;
         TShellCommand cmd(command, options);
         cmd.Run().Wait();
 
@@ -410,8 +410,8 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
         options.SetErrorStream(&stream);
         options.SetUseShell(true);
 
-        TString input = TString(7000, 'a');
-        TString command = TStringBuilder{} << "echo " << input << ">&2";
+        std::string input = TString(7000, 'a');
+        std::string command = TStringBuilder{} << "echo " << input << ">&2";
         TShellCommand cmd(command, options);
         cmd.Run().Wait();
 
@@ -439,13 +439,13 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
         TShellCommandOptions options;
         options.SetAsync(true);
         options.PipeOutput();
-        constexpr TStringBuf firstMessage = "first message";
-        constexpr TStringBuf secondMessage = "second message";
-        const TString command = TStringBuilder() << "echo '" << firstMessage << "' && sleep 10 && echo '" << secondMessage << "'";
+        constexpr std::string_view firstMessage = "first message";
+        constexpr std::string_view secondMessage = "second message";
+        const std::string command = TStringBuilder() << "echo '" << firstMessage << "' && sleep 10 && echo '" << secondMessage << "'";
         TShellCommand cmd(command, options);
         cmd.Run();
         TUnbufferedFileInput cmdOutput(TFile(cmd.GetOutputHandle().Release()));
-        TString firstLineOutput, secondLineOutput;
+        std::string firstLineOutput, secondLineOutput;
         {
             Sleep(TDuration::Seconds(5));
             firstLineOutput = cmdOutput.ReadLine();
@@ -465,11 +465,11 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
         UNIT_ASSERT(options.ErrorMode == TShellCommandOptions::HANDLE_STREAM);
     }
     Y_UNIT_TEST(TestForkCallback) {
-        TString tmpFile = TString("shellcommand_ut.test_for_callback.txt");
+        std::string tmpFile = TString("shellcommand_ut.test_for_callback.txt");
         TFsPath cwd(::NFs::CurrentWorkingDirectory());
-        const TString tmpFilePath = cwd.Child(tmpFile);
+        const std::string tmpFilePath = cwd.Child(tmpFile);
 
-        const TString text = "test output";
+        const std::string text = "test output";
         auto afterForkCallback = [&tmpFilePath, &text]() -> void {
             TFixedBufferFileOutput out(tmpFilePath);
             out << text;
@@ -478,14 +478,14 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
         TShellCommandOptions options;
         options.SetFuncAfterFork(afterForkCallback);
 
-        const TString command = "ls";
+        const std::string command = "ls";
         TShellCommand cmd(command, options);
         cmd.Run();
 
         UNIT_ASSERT(NFs::Exists(tmpFilePath));
 
         TUnbufferedFileInput fileOutput(tmpFilePath);
-        TString firstLine = fileOutput.ReadLine();
+        std::string firstLine = fileOutput.ReadLine();
 
         UNIT_ASSERT_VALUES_EQUAL(firstLine, text);
     }

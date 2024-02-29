@@ -3,6 +3,8 @@
 #include "strspn.h"
 #include "cast.h"
 
+#include <library/cpp/string_utils/helpers/helpers.h>
+
 #include <util/generic/algorithm.h>
 #include <util/generic/fwd.h>
 #include <util/generic/iterator.h>
@@ -307,7 +309,7 @@ struct TContainerConvertingConsumer {
 
     template <class I>
     inline bool Consume(I* b, I* d, I* /*e*/) {
-        TConsumerBackInserter<T>::DoInsert(C, FromString<typename T::value_type>(TStringBuf(b, d)));
+        TConsumerBackInserter<T>::DoInsert(C, FromString<typename T::value_type>(std::string_view(b, d)));
 
         return true;
     }
@@ -411,30 +413,30 @@ static inline void Split(char* buf, char ch, T* res) {
 /// Old good slow split function.
 /// Field delimter is any number of symbols specified in delim (no empty strings in res vector)
 /// @return number of elements created
-size_t Split(const char* in, const char* delim, std::vector<TString>& res);
-size_t Split(const TString& in, const TString& delim, std::vector<TString>& res);
+size_t Split(const char* in, const char* delim, std::vector<std::string>& res);
+size_t Split(const std::string& in, const std::string& delim, std::vector<std::string>& res);
 
-/// Old split reimplemented for TStringBuf using the new code
+/// Old split reimplemented for std::string_view using the new code
 /// Note that delim can be constructed from char* automatically (it is not cheap though)
-inline size_t Split(const TStringBuf s, const TSetDelimiter<const char>& delim, std::vector<TStringBuf>& res) {
+inline size_t Split(const std::string_view s, const TSetDelimiter<const char>& delim, std::vector<std::string_view>& res) {
     res.clear();
-    TContainerConsumer<std::vector<TStringBuf>> res1(&res);
-    TSkipEmptyTokens<TContainerConsumer<std::vector<TStringBuf>>> consumer(&res1);
+    TContainerConsumer<std::vector<std::string_view>> res1(&res);
+    TSkipEmptyTokens<TContainerConsumer<std::vector<std::string_view>>> consumer(&res1);
     SplitString(s.data(), s.data() + s.size(), delim, consumer);
     return res.size();
 }
 
 template <class P, class D>
-void GetNext(TStringBuf& s, D delim, P& param) {
-    TStringBuf next = s.NextTok(delim);
-    Y_ENSURE(next.IsInited(), TStringBuf("Split: number of fields less than number of Split output arguments"));
+void GetNext(std::string_view& s, D delim, P& param) {
+    std::string_view next = NUtils::NextTok(s, delim);
+    Y_ENSURE(next.data() != nullptr, std::string_view("Split: number of fields less than number of Split output arguments"));
     param = FromString<P>(next);
 }
 
 template <class P, class D>
-void GetNext(TStringBuf& s, D delim, std::optional<P>& param) {
-    TStringBuf next = s.NextTok(delim);
-    if (next.IsInited()) {
+void GetNext(std::string_view& s, D delim, std::optional<P>& param) {
+    std::string_view next = NUtils::NextTok(s, delim);
+    if (next.data() != nullptr) {
         param = FromString<P>(next);
     } else {
         param.reset();
@@ -442,16 +444,16 @@ void GetNext(TStringBuf& s, D delim, std::optional<P>& param) {
 }
 
 // example:
-// Split(TStringBuf("Sherlock,2014,36.6"), ',', name, year, temperature);
+// Split(std::string_view("Sherlock,2014,36.6"), ',', name, year, temperature);
 template <class D, class P1, class P2>
-void Split(TStringBuf s, D delim, P1& p1, P2& p2) {
+void Split(std::string_view s, D delim, P1& p1, P2& p2) {
     GetNext(s, delim, p1);
     GetNext(s, delim, p2);
-    Y_ENSURE(!s.IsInited(), TStringBuf("Split: number of fields more than number of Split output arguments"));
+    Y_ENSURE(s.data() == nullptr, std::string_view("Split: number of fields more than number of Split output arguments"));
 }
 
 template <class D, class P1, class P2, class... Other>
-void Split(TStringBuf s, D delim, P1& p1, P2& p2, Other&... other) {
+void Split(std::string_view s, D delim, P1& p1, P2& p2, Other&... other) {
     GetNext(s, delim, p1);
     Split(s, delim, p2, other...);
 }
@@ -464,18 +466,18 @@ void Split(TStringBuf s, D delim, P1& p1, P2& p2, Other&... other) {
  *
  * Some examples:
  * \code
- * std::vector<TStringBuf> values = StringSplitter("1\t2\t3").Split('\t');
+ * std::vector<std::string_view> values = StringSplitter("1\t2\t3").Split('\t');
  *
- * for(TStringBuf part: StringSplitter("1::2::::3").SplitByString("::").SkipEmpty()) {
+ * for(std::string_view part: StringSplitter("1::2::::3").SplitByString("::").SkipEmpty()) {
  *     Cerr << part;
  * }
  *
- * std::vector<TString> firstTwoValues = StringSplitter("1\t2\t3").Split('\t').Take(2);
+ * std::vector<std::string> firstTwoValues = StringSplitter("1\t2\t3").Split('\t').Take(2);
  * \endcode
  *
  * Use `Collect` or `AddTo` to store split results into an existing container:
  * \code
- * std::vector<TStringBuf> values = {"0"};
+ * std::vector<std::string_view> values = {"0"};
  * StringSplitter("1\t2\t3").Split('\t').AddTo(&values);
  * \endcode
  * Note that `Collect` clears target container, while `AddTo` just inserts values.
@@ -603,7 +605,7 @@ namespace NStringSplitPrivate {
     struct TStringBufOfImpl {
         using type = std::conditional_t<
             THasData<String>::value,
-            TBasicStringBuf<typename String::value_type>,
+            std::basic_string_view<typename String::value_type>,
             TIteratorRange<typename String::const_iterator>>;
     };
 
@@ -1047,17 +1049,17 @@ auto StringSplitter(Iterator begin, Iterator end) {
 
 template <class Char>
 auto StringSplitter(const Char* begin, const Char* end) {
-    return ::NStringSplitPrivate::MakeStringSplitter(TBasicStringBuf<Char>(begin, end));
+    return ::NStringSplitPrivate::MakeStringSplitter(std::basic_string_view<Char>(begin, end));
 }
 
 template <class Char>
 auto StringSplitter(const Char* begin, size_t len) {
-    return ::NStringSplitPrivate::MakeStringSplitter(TBasicStringBuf<Char>(begin, len));
+    return ::NStringSplitPrivate::MakeStringSplitter(std::basic_string_view<Char>(begin, len));
 }
 
 template <class Char>
 auto StringSplitter(const Char* str) {
-    return ::NStringSplitPrivate::MakeStringSplitter(TBasicStringBuf<Char>(str));
+    return ::NStringSplitPrivate::MakeStringSplitter(std::basic_string_view<Char>(str));
 }
 
 template <class String, std::enable_if_t<!std::is_pointer<std::remove_reference_t<String>>::value, int> = 0>

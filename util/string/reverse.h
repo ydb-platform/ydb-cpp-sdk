@@ -2,7 +2,7 @@
 
 #include <util/generic/fwd.h>
 
-void ReverseInPlace(TString& string);
+void ReverseInPlace(std::string& string);
 
 /** NB. UTF-16 is variable-length encoding because of the surrogate pairs.
  * This function takes this into account and treats a surrogate pair as a single symbol.

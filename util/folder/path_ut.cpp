@@ -26,19 +26,19 @@ namespace {
         TFsPath Path_;
 
     public:
-        TTestDirectory(const TString& name);
+        TTestDirectory(const std::string& name);
         ~TTestDirectory();
 
         TFsPath GetFsPath() const {
             return Path_;
         }
 
-        TFsPath Child(const TString& name) const {
+        TFsPath Child(const std::string& name) const {
             return Path_.Child(name);
         }
     };
 
-    TTestDirectory::TTestDirectory(const TString& name) {
+    TTestDirectory::TTestDirectory(const std::string& name) {
         Y_ABORT_UNLESS(name.length() > 0, "have to specify name");
         Y_ABORT_UNLESS(name.find('.') == TString::npos, "must be simple name");
         Y_ABORT_UNLESS(name.find('/') == TString::npos, "must be simple name");
@@ -235,11 +235,11 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
         dir.Child("c").MkDir();
         dir.Child("d").Touch();
 
-        std::vector<TString> children;
+        std::vector<std::string> children;
         dir.ListNames(children);
         std::sort(children.begin(), children.end());
 
-        std::vector<TString> expected;
+        std::vector<std::string> expected;
         expected.push_back("a");
         expected.push_back("b");
         expected.push_back("c");
@@ -430,16 +430,16 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
         TTempDir tempDir;
         TFsPath tempDirPath(tempDir());
 
-        const TString originDir = tempDirPath.Child("origin");
+        const std::string originDir = tempDirPath.Child("origin");
         MakePathIfNotExist(originDir.c_str());
 
-        const TString originFile = TFsPath(originDir).Child("data");
+        const std::string originFile = TFsPath(originDir).Child("data");
         {
             TFixedBufferFileOutput out(originFile);
             out << "data111!!!";
         }
 
-        const TString link = tempDirPath.Child("origin_symlink");
+        const std::string link = tempDirPath.Child("origin_symlink");
         NFs::SymLink(originDir, link);
 
         TFsPath(link).ForceDelete();
@@ -453,16 +453,16 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
         TTempDir tempDir;
         TFsPath tempDirPath(tempDir());
 
-        const TString originDir = tempDirPath.Child("origin");
+        const std::string originDir = tempDirPath.Child("origin");
         MakePathIfNotExist(originDir.c_str());
 
-        const TString originFile = TFsPath(originDir).Child("data");
+        const std::string originFile = TFsPath(originDir).Child("data");
         {
             TFixedBufferFileOutput out(originFile);
             out << "data111!!!";
         }
 
-        const TString link = tempDirPath.Child("origin_symlink");
+        const std::string link = tempDirPath.Child("origin_symlink");
         NFs::SymLink(originFile, link);
 
         TFsPath(link).ForceDelete();
@@ -476,19 +476,19 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
         TTempDir tempDir;
         TFsPath tempDirPath(tempDir());
 
-        const TString symlinkedDir = tempDirPath.Child("to_remove");
+        const std::string symlinkedDir = tempDirPath.Child("to_remove");
         MakePathIfNotExist(symlinkedDir.c_str());
 
-        const TString originDir = tempDirPath.Child("origin");
+        const std::string originDir = tempDirPath.Child("origin");
         MakePathIfNotExist(originDir.c_str());
 
-        const TString originFile = TFsPath(originDir).Child("data");
+        const std::string originFile = TFsPath(originDir).Child("data");
         {
             TFixedBufferFileOutput out(originFile);
             out << "data111!!!";
         }
 
-        const TString symlinkedFile = TFsPath(symlinkedDir).Child("origin_symlink");
+        const std::string symlinkedFile = TFsPath(symlinkedDir).Child("origin_symlink");
         NFs::SymLink(originDir, symlinkedFile);
 
         TFsPath(symlinkedDir).ForceDelete();
@@ -503,19 +503,19 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
         TTempDir tempDir;
         TFsPath tempDirPath(tempDir());
 
-        const TString symlinkedDir = tempDirPath.Child("to_remove");
+        const std::string symlinkedDir = tempDirPath.Child("to_remove");
         MakePathIfNotExist(symlinkedDir.c_str());
 
-        const TString originDir = tempDirPath.Child("origin");
+        const std::string originDir = tempDirPath.Child("origin");
         MakePathIfNotExist(originDir.c_str());
 
-        const TString originFile = TFsPath(originDir).Child("data");
+        const std::string originFile = TFsPath(originDir).Child("data");
         {
             TFixedBufferFileOutput out(originFile);
             out << "data111!!!";
         }
 
-        const TString symlinkedFile = TFsPath(symlinkedDir).Child("origin_symlink");
+        const std::string symlinkedFile = TFsPath(symlinkedDir).Child("origin_symlink");
         NFs::SymLink(originFile, symlinkedFile);
 
         TFsPath(symlinkedDir).ForceDelete();
@@ -834,9 +834,9 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
 #ifdef TSTRING_IS_STD_STRING
     Y_UNIT_TEST(TestCopySplitSSO) {
         // Summary length of path must be less minimal SSO length 19 bytes
-        constexpr TStringBuf A("a");
-        constexpr TStringBuf B("b");
-        constexpr TStringBuf C("c");
+        constexpr std::string_view A("a");
+        constexpr std::string_view B("b");
+        constexpr std::string_view C("c");
         for (auto constructorType = 0; constructorType < 2; ++constructorType) {
             TFsPath path1 = TFsPath(A) / TFsPath(B);
             const auto& split1 = path1.PathSplit();
@@ -853,7 +853,7 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
             const auto& split2 = path2.PathSplit();
             path1 = TFsPath(C); // invalidate previous Path_ in path1
             const auto& newsplit1 = path1.PathSplit();
-            // Check that split of path1 was overwrited (invalidate previous TStringBuf)
+            // Check that split of path1 was overwrited (invalidate previous std::string_view)
             UNIT_ASSERT_VALUES_EQUAL(newsplit1.size(), 1);
             UNIT_ASSERT_VALUES_EQUAL(newsplit1.at(0), C);
             // Check split of path2 without segfault
@@ -866,9 +866,9 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
 
     Y_UNIT_TEST(TestCopySplitNoneSSO) {
         // Lenght of directory name must overhead SSO length 19-23 bytes
-        const TString DIR_A = TString("Dir") + TString(32, 'A');
-        const TString DIR_B = TString("Dir") + TString(64, 'B');
-        const TString DIR_C = TString("Dir") + TString(128, 'C');
+        const std::string DIR_A = TString("Dir") + TString(32, 'A');
+        const std::string DIR_B = TString("Dir") + TString(64, 'B');
+        const std::string DIR_C = TString("Dir") + TString(128, 'C');
         for (auto constructorType = 0; constructorType < 2; ++constructorType) {
             TFsPath path1 = TFsPath(DIR_A) / TFsPath(DIR_B);
             auto& split1 = path1.PathSplit();
@@ -885,7 +885,7 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
             const auto& split2 = path2.PathSplit();
             path1 = TFsPath(DIR_C); // invalidate previous Path_ in path1
             const auto& newsplit1 = path1.PathSplit();
-            // Check that split of path1 was overwrited (invalidate previous TStringBuf)
+            // Check that split of path1 was overwrited (invalidate previous std::string_view)
             UNIT_ASSERT_VALUES_EQUAL(newsplit1.size(), 1);
             UNIT_ASSERT_VALUES_EQUAL(newsplit1.at(0), DIR_C);
             // Check split of path2 without segfault

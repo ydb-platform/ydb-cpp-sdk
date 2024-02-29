@@ -22,7 +22,7 @@
 #include "fs.h"
 
 #if defined(_freebsd_)
-static inline bool GoodPath(const TString& path) {
+static inline bool GoodPath(const std::string& path) {
     return path.find('/') != TString::npos;
 }
 
@@ -41,7 +41,7 @@ static inline int FreeBSDSysCtl(int* mib, size_t mibSize, TTempBuf& res) {
     return errno;
 }
 
-static inline TString FreeBSDGetExecPath() {
+static inline std::string FreeBSDGetExecPath() {
     int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
     TTempBuf buf;
     int r = FreeBSDSysCtl(mib, Y_ARRAY_SIZE(mib), buf);
@@ -53,14 +53,14 @@ static inline TString FreeBSDGetExecPath() {
          * See:
          * https://www.freebsd.org/cgi/man.cgi?query=procfs&sektion=5&format=html
          */
-        TString path("/proc/curproc/file");
+        std::string path("/proc/curproc/file");
         return NFs::ReadLink(path);
     } else {
         return TString();
     }
 }
 
-static inline TString FreeBSDGetArgv0() {
+static inline std::string FreeBSDGetArgv0() {
     int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_ARGS, getpid()};
     TTempBuf buf;
     int r = FreeBSDSysCtl(mib, Y_ARRAY_SIZE(mib), buf);
@@ -73,7 +73,7 @@ static inline TString FreeBSDGetArgv0() {
     }
 }
 
-static inline bool FreeBSDGuessExecPath(const TString& guessPath, TString& execPath) {
+static inline bool FreeBSDGuessExecPath(const std::string& guessPath, std::string& execPath) {
     if (NFs::Exists(guessPath)) {
         // now it should work for real
         execPath = FreeBSDGetExecPath();
@@ -84,13 +84,13 @@ static inline bool FreeBSDGuessExecPath(const TString& guessPath, TString& execP
     return false;
 }
 
-static inline bool FreeBSDGuessExecBasePath(const TString& guessBasePath, TString& execPath) {
+static inline bool FreeBSDGuessExecBasePath(const std::string& guessBasePath, std::string& execPath) {
     return FreeBSDGuessExecPath(TString(guessBasePath) + "/" + getprogname(), execPath);
 }
 
 #endif
 
-static TString GetExecPathImpl() {
+static std::string GetExecPathImpl() {
 #if defined(_solaris_)
     return execname();
 #elif defined(_darwin_)
@@ -118,11 +118,11 @@ static TString GetExecPathImpl() {
         }
     }
 #elif defined(_linux_) || defined(_cygwin_)
-    TString path("/proc/self/exe");
+    std::string path("/proc/self/exe");
     return NFs::ReadLink(path);
 // TODO(yoda): check if the filename ends with " (deleted)"
 #elif defined(_freebsd_)
-    TString execPath = FreeBSDGetExecPath();
+    std::string execPath = FreeBSDGetExecPath();
     if (GoodPath(execPath)) {
         return execPath;
     }
@@ -145,7 +145,7 @@ static TString GetExecPathImpl() {
 #endif
 }
 
-static bool GetPersistentExecPathImpl(TString& to) {
+static bool GetPersistentExecPathImpl(std::string& to) {
 #if defined(_solaris_)
     to = TString("/proc/self/object/a.out");
     return true;
@@ -175,15 +175,15 @@ namespace {
             return SingletonWithPriority<TExecPathsHolder, 1>();
         }
 
-        TString ExecPath;
-        TString PersistentExecPath;
+        std::string ExecPath;
+        std::string PersistentExecPath;
     };
 }
 
-const TString& GetExecPath() {
+const std::string& GetExecPath() {
     return TExecPathsHolder::Instance()->ExecPath;
 }
 
-const TString& GetPersistentExecPath() {
+const std::string& GetPersistentExecPath() {
     return TExecPathsHolder::Instance()->PersistentExecPath;
 }
