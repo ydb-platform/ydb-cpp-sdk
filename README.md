@@ -1,4 +1,4 @@
-# WARNING: THIS IS SUPER MEGA EXTRA ALPHA VERSION OF DATABASE/SQL DRIVER FOR YDB!!!
+# WARNING: THIS IS SUPER MEGA EXTRA ALPHA VERSION OF C++ DRIVER FOR YDB!!!
 # Don't use it in production environment!
 
 If you ok with this warning, then...
