@@ -155,7 +155,7 @@ public:
      * @returns                         Total number of characters read from the stream.
      *                                  A return value of zero signals end of stream.
      */
-    size_t ReadLine(TUtf16String& w);
+    size_t ReadLine(std::u16string& w);
 
     /**
      * Skips some data from the stream without reading / copying it. Note that

@@ -53,7 +53,7 @@ namespace {
         {0x01C5, 0x10428, 0x10429, 0x10447, 0x10441, 0x1C03, 0x00A0, 0x10428, 0x1043D, 0x10437}, // title
     };
 
-    TUtf16String CreateUnicodeText() {
+    std::u16string CreateUnicodeText() {
         const int len = 256;
         wchar16 text[len] = {
             0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 0x00 - 0x0F
@@ -77,7 +77,7 @@ namespace {
                 text[i] = static_cast<wchar16>(i + 0x0350); // 0x0410 - 0x044F
             }
         }
-        return TUtf16String(text, len);
+        return std::u16string(text, len);
     }
 
     std::string CreateUTF8Text() {
@@ -107,7 +107,7 @@ namespace {
             '\xd0', '\xbf', '\xd1', '\x80', '\xd1', '\x81', '\xd1', '\x82', '\xd1', '\x83', '\xd1', '\x84', '\xd1', '\x85', '\xd1', '\x86',
             '\xd1', '\x87', '\xd1', '\x88', '\xd1', '\x89', '\xd1', '\x8a', '\xd1', '\x8b', '\xd1', '\x8c', '\xd1', '\x8d', '\xd1', '\x8e',
             '\xd1', '\x8f'};
-        return TString(text, Y_ARRAY_SIZE(text));
+        return std::string(text, Y_ARRAY_SIZE(text));
     }
 
     //! use this function to dump UTF8 text into a file in case of any changes
@@ -165,7 +165,7 @@ namespace {
 class TConversionTest: public TTestBase {
 private:
     //! @note every of the text can have zeros in the middle
-    const TUtf16String UnicodeText_;
+    const std::u16string UnicodeText_;
     const std::string Utf8Text_;
 
 private:
@@ -512,7 +512,7 @@ void TConversionTest::TestWriteUTF8Char() {
 }
 
 static void TestSurrogates(const char* str, const wchar16* wide, size_t wideSize) {
-    TUtf16String w = UTF8ToWide(str);
+    std::u16string w = UTF8ToWide(str);
 
     UNIT_ASSERT(w.size() == wideSize);
     UNIT_ASSERT(!memcmp(w.c_str(), wide, wideSize));
@@ -523,7 +523,7 @@ static void TestSurrogates(const char* str, const wchar16* wide, size_t wideSize
 }
 
 void TConversionTest::TestUTF8ToWide() {
-    TUtf16String w = UTF8ToWide(Utf8Text_);
+    std::u16string w = UTF8ToWide(Utf8Text_);
 
     UNIT_ASSERT(w.size() == 256);
     UNIT_ASSERT(w.size() == UnicodeText_.size());
@@ -568,14 +568,14 @@ void TConversionTest::TestUTF8ToWide() {
 
     UNIT_ASSERT_VALUES_EQUAL(WideToUTF8(UTF8ToWide(WideToUTF8(UTF8ToWide<true>(
                                  "m\xFB\xB2\xA5\xAA\xAFyeuse.sexwebcamz.com")))),
-                             TString(
+                             std::string(
                                  "m\xEF\xBF\xBD\xEF\xBF\xBD\xEF\xBF\xBD\xEF\xBF\xBD\xEF\xBF\xBDyeuse.sexwebcamz.com"));
 }
 
 void TConversionTest::TestWideToUTF8() {
     std::string s = WideToUTF8(UnicodeText_);
     size_t len = 0;
-    for (TUtf16String::const_iterator i = UnicodeText_.begin(), ie = UnicodeText_.end(); i != ie; ++i) {
+    for (std::u16string::const_iterator i = UnicodeText_.begin(), ie = UnicodeText_.end(); i != ie; ++i) {
         len += UTF8RuneLenByUCS(*i);
     }
 
@@ -628,7 +628,7 @@ void TConversionTest::TestUnicodeCase() {
 }
 
 void TConversionTest::TestUnicodeDetails() {
-    TUtf16String temp;
+    std::u16string temp;
     for (wchar32 i = 0; i != NUnicode::UnicodeInstancesLimit(); ++i) {
         temp.clear();
         WriteSymbol(i, temp);
@@ -661,12 +661,12 @@ class TWideUtilTest: public TTestBase {
 
 public:
     void TestCollapse() {
-        TUtf16String s;
+        std::u16string s;
         s.append(ws, Y_ARRAY_SIZE(ws)).append(3, 'a').append(ws, Y_ARRAY_SIZE(ws)).append(3, 'b').append(ws, Y_ARRAY_SIZE(ws));
         Collapse(s);
         UNIT_ASSERT(s == ASCIIToWide(" aaa bbb "));
         {
-            const TUtf16String w(ASCIIToWide(" a b c "));
+            const std::u16string w(ASCIIToWide(" a b c "));
             s = w;
             Collapse(s);
             UNIT_ASSERT(s == w);
@@ -694,7 +694,7 @@ public:
         Collapse(s);
         UNIT_ASSERT(s == ASCIIToWide("1 23 "));
         {
-            const TUtf16String w = ASCIIToWide(" ");
+            const std::u16string w = ASCIIToWide(" ");
             s = w;
             Collapse(s);
             UNIT_ASSERT(s == w);
@@ -716,11 +716,11 @@ public:
 
         s.clear();
         Collapse(s);
-        UNIT_ASSERT(s == TUtf16String());
+        UNIT_ASSERT(s == std::u16string());
     }
 
     void TestCollapseBuffer() {
-        TUtf16String s;
+        std::u16string s;
         s.append(ws, Y_ARRAY_SIZE(ws)).append(3, 'a').append(ws, Y_ARRAY_SIZE(ws)).append(3, 'b').append(ws, Y_ARRAY_SIZE(ws));
         size_t n = Collapse(s.begin(), s.size());
         s.resize(n);
@@ -784,28 +784,28 @@ public:
         s.clear();
         n = Collapse(s.begin(), s.size());
         UNIT_ASSERT(n == 0);
-        UNIT_ASSERT(s == TUtf16String());
+        UNIT_ASSERT(s == std::u16string());
     }
 
     void TestStrip() {
-        TUtf16String s;
+        std::u16string s;
 
         Strip(s);
-        UNIT_ASSERT(s == TUtf16String());
+        UNIT_ASSERT(s == std::u16string());
         StripLeft(s);
-        UNIT_ASSERT(s == TUtf16String());
+        UNIT_ASSERT(s == std::u16string());
         StripRight(s);
-        UNIT_ASSERT(s == TUtf16String());
+        UNIT_ASSERT(s == std::u16string());
 
         s = ASCIIToWide(" \t\r\n");
         Strip(s);
-        UNIT_ASSERT(s == TUtf16String());
+        UNIT_ASSERT(s == std::u16string());
         s = ASCIIToWide(" \t\r\n");
         StripLeft(s);
-        UNIT_ASSERT(s == TUtf16String());
+        UNIT_ASSERT(s == std::u16string());
         s = ASCIIToWide(" \t\r\n");
         StripRight(s);
-        UNIT_ASSERT(s == TUtf16String());
+        UNIT_ASSERT(s == std::u16string());
 
         s = ASCIIToWide("\t\f\va \r\n");
         Strip(s);
@@ -827,7 +827,7 @@ public:
         StripRight(s);
         UNIT_ASSERT(s == ASCIIToWide("\r\na\r\nb\t\tc"));
 
-        const TUtf16String w(ASCIIToWide("a  b"));
+        const std::u16string w(ASCIIToWide("a  b"));
         s = w;
         Strip(s);
         UNIT_ASSERT(s == w);
@@ -849,25 +849,25 @@ public:
     }
 
     void TestIsSpace() {
-        UNIT_ASSERT(!IsSpace(TUtf16String()));
+        UNIT_ASSERT(!IsSpace(std::u16string()));
 
         UNIT_ASSERT(IsSpace(ws, Y_ARRAY_SIZE(ws)));
 
-        TUtf16String w;
-        w.assign(ws, Y_ARRAY_SIZE(ws)).append(TUtf16String(1, '!'));
+        std::u16string w;
+        w.assign(ws, Y_ARRAY_SIZE(ws)).append(std::u16string(1, '!'));
         UNIT_ASSERT(!IsSpace(w.c_str(), w.size()));
 
-        w.assign(TUtf16String(1, '_')).append(ws, Y_ARRAY_SIZE(ws));
+        w.assign(std::u16string(1, '_')).append(ws, Y_ARRAY_SIZE(ws));
         UNIT_ASSERT(!IsSpace(w.c_str(), w.size()));
 
-        w.assign(ws, Y_ARRAY_SIZE(ws)).append(TUtf16String(1, '$')).append(ws, Y_ARRAY_SIZE(ws));
+        w.assign(ws, Y_ARRAY_SIZE(ws)).append(std::u16string(1, '$')).append(ws, Y_ARRAY_SIZE(ws));
         UNIT_ASSERT(!IsSpace(w.c_str(), w.size()));
     }
 
     void TestEscapeHtmlChars() {
         // characters from the first half of the ASCII table
         for (wchar16 c = 1; c < 0x7F; ++c) {
-            TUtf16String w(1, c);
+            std::u16string w(1, c);
             EscapeHtmlChars<false>(w);
 
             switch (c) {
@@ -884,13 +884,13 @@ public:
                     UNIT_ASSERT(w == ASCIIToWide("&quot;"));
                     break;
                 default:
-                    UNIT_ASSERT(w == TUtf16String(1, c));
+                    UNIT_ASSERT(w == std::u16string(1, c));
                     break;
             }
         }
 
         for (wchar16 c = 1; c < 0x7F; ++c) {
-            TUtf16String w(1, c);
+            std::u16string w(1, c);
             EscapeHtmlChars<true>(w);
 
             switch (c) {
@@ -911,7 +911,7 @@ public:
                     UNIT_ASSERT(w == ASCIIToWide("<BR>"));
                     break;
                 default:
-                    UNIT_ASSERT(w == TUtf16String(1, c));
+                    UNIT_ASSERT(w == std::u16string(1, c));
                     break;
             }
         }
@@ -934,11 +934,11 @@ public:
     }
 
     void TestWideString() {
-        const TUtf16String original = UTF32ToWide(WideStringTestData[0], CaseTestDataSize);
-        const TUtf16String lower = UTF32ToWide(WideStringTestData[1], CaseTestDataSize);
-        const TUtf16String upper = UTF32ToWide(WideStringTestData[2], CaseTestDataSize);
-        const TUtf16String title = UTF32ToWide(WideStringTestData[3], CaseTestDataSize);
-        TUtf16String temp;
+        const std::u16string original = UTF32ToWide(WideStringTestData[0], CaseTestDataSize);
+        const std::u16string lower = UTF32ToWide(WideStringTestData[1], CaseTestDataSize);
+        const std::u16string upper = UTF32ToWide(WideStringTestData[2], CaseTestDataSize);
+        const std::u16string title = UTF32ToWide(WideStringTestData[3], CaseTestDataSize);
+        std::u16string temp;
 
         temp = original;
         temp.to_lower();
@@ -966,7 +966,7 @@ public:
 
         std::vector<wchar32> buffer(WideStringTestData[0], WideStringTestData[0] + CaseTestDataSize);
         std::reverse(buffer.begin(), buffer.end());
-        const TUtf16String reversed = UTF32ToWide(buffer.data(), buffer.size());
+        const std::u16string reversed = UTF32ToWide(buffer.data(), buffer.size());
 
         temp = original;
         ReverseInPlace(temp);
@@ -975,7 +975,7 @@ public:
 
     void TestCountWideChars() {
         UNIT_ASSERT_EQUAL(CountWideChars(UTF8ToWide("привет!")), 7);
-        TUtf16String wideStr = UTF8ToWide("\xf0\x9f\x92\xb8привет!");
+        std::u16string wideStr = UTF8ToWide("\xf0\x9f\x92\xb8привет!");
         UNIT_ASSERT_EQUAL(wideStr.size(), 9);
         UNIT_ASSERT_EQUAL(CountWideChars(wideStr), 8);
     }
@@ -1134,25 +1134,25 @@ public:
         // In these test and test for `ToUpper` and `ToTitle` we are checking that string keep
         // pointing to the same piece of memory we are doing it the following way:
         //
-        // TUtf16String s = ...
+        // std::u16string s = ...
         // const auto copy = s;
         // ...
         // UNIT_ASSERT(s.data() == copy.data())
         //
-        // It saves us a couple lines (we are reusing `copy` later) and if one day `TString` will
+        // It saves us a couple lines (we are reusing `copy` later) and if one day `std::string` will
         // become non-refcounted we'll need to rewrite it to something like:
         //
-        // TUtf16String s = ...
+        // std::u16string s = ...
         // const auto* const data = s.data();
         // const auto length = s.length();
         // ...
         // UNIT_ASSERT(s.data() == data);
         // UNIT_ASSERT(s.length() == length);
         {
-            TUtf16String s;
+            std::u16string s;
             auto writableCopy = s;
             const auto copy = s;
-            const TUtf16String lower;
+            const std::u16string lower;
 
             UNIT_ASSERT(!ToLower(s));
             UNIT_ASSERT(s == lower);
@@ -1170,10 +1170,10 @@ public:
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
         {
-            TUtf16String s = UTF8ToWide("");
+            std::u16string s = UTF8ToWide("");
             auto writableCopy = s;
             const auto copy = s;
-            const TUtf16String lower;
+            const std::u16string lower;
 
             UNIT_ASSERT(!ToLower(s));
             UNIT_ASSERT(s == lower);
@@ -1191,9 +1191,9 @@ public:
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
         {
-            TUtf16String s;
+            std::u16string s;
             const auto copy = s;
-            const TUtf16String lower;
+            const std::u16string lower;
 
             UNIT_ASSERT(!ToLower(s, 100500));
             UNIT_ASSERT(s == lower);
@@ -1205,9 +1205,9 @@ public:
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy), 100500) == lower);
         }
         {
-            TUtf16String s;
+            std::u16string s;
             const auto copy = s;
-            const TUtf16String lower;
+            const std::u16string lower;
 
             UNIT_ASSERT(!ToLower(s, 100500, 1111));
             UNIT_ASSERT(s == lower);
@@ -1297,7 +1297,7 @@ public:
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
         {
-            TUtf16String s = UTF8ToWide("тЕст");
+            std::u16string s = UTF8ToWide("тЕст");
             const auto copy = s;
             const auto lower = UTF8ToWide("тест");
 
@@ -1364,10 +1364,10 @@ public:
 
     void TestToUpperStr() {
         {
-            TUtf16String s;
+            std::u16string s;
             auto writableCopy = s;
             const auto copy = s;
-            const TUtf16String upper;
+            const std::u16string upper;
 
             UNIT_ASSERT(!ToUpper(s));
             UNIT_ASSERT(s == upper);
@@ -1388,7 +1388,7 @@ public:
             auto s = UTF8ToWide("");
             auto writableCopy = s;
             const auto copy = s;
-            const TUtf16String upper;
+            const std::u16string upper;
 
             UNIT_ASSERT(!ToUpper(s));
             UNIT_ASSERT(s == upper);
@@ -1406,10 +1406,10 @@ public:
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
         {
-            TUtf16String s;
+            std::u16string s;
             auto writableCopy = s;
             const auto copy = s;
-            const TUtf16String upper;
+            const std::u16string upper;
 
             UNIT_ASSERT(!ToUpper(s, 100500));
             UNIT_ASSERT(s == upper);
@@ -1427,9 +1427,9 @@ public:
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy), 100500) == upper);
         }
         {
-            TUtf16String s;
+            std::u16string s;
             const auto copy = s;
-            const TUtf16String upper;
+            const std::u16string upper;
 
             UNIT_ASSERT(!ToUpper(s, 100500, 1111));
             UNIT_ASSERT(s == upper);
@@ -1581,10 +1581,10 @@ public:
 
     void TestToTitleStr() {
         {
-            TUtf16String s;
+            std::u16string s;
             auto writableCopy = s;
             const auto copy = s;
-            const TUtf16String title;
+            const std::u16string title;
 
             UNIT_ASSERT(!ToTitle(s));
             UNIT_ASSERT(s == title);
@@ -1605,7 +1605,7 @@ public:
             auto s = UTF8ToWide("");
             auto writableCopy = s;
             const auto copy = s;
-            const TUtf16String title;
+            const std::u16string title;
 
             UNIT_ASSERT(!ToTitle(s));
             UNIT_ASSERT(s == title);
@@ -1623,9 +1623,9 @@ public:
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
         {
-            TUtf16String s;
+            std::u16string s;
             const auto copy = s;
-            const TUtf16String title;
+            const std::u16string title;
 
             UNIT_ASSERT(!ToTitle(s, 100500));
             UNIT_ASSERT(s == title);
@@ -1637,9 +1637,9 @@ public:
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
         {
-            TUtf16String s;
+            std::u16string s;
             const auto copy = s;
-            const TUtf16String title;
+            const std::u16string title;
 
             UNIT_ASSERT(!ToTitle(s, 100500, 1111));
             UNIT_ASSERT(s == title);

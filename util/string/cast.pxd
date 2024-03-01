@@ -1,5 +1,3 @@
-from util.generic.string cimport TString
-
 from libcpp cimport bool as bool_t
 
 cdef extern from "<util/string/cast.h>" nogil:

@@ -1,7 +1,7 @@
 # cython: c_string_type=str, c_string_encoding=utf8
 
 from util.folder.path cimport TFsPath
-from util.generic.string cimport TString, std::string_view
+from util.generic.string cimport std::string, std::string_view
 from util.generic.vector cimport TVector
 
 import unittest
@@ -231,7 +231,7 @@ class TestPath(unittest.TestCase):
         TFsPath("test_list/c").Touch()
 
         cdef TVector[TFsPath] files
-        cdef TVector[TString] names
+        cdef TVector[std::string] names
 
         dir.List(files)
         dir.ListNames(names)

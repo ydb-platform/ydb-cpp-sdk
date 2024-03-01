@@ -322,14 +322,14 @@ inline size_t UTF8ToWideImpl(const char* text, size_t len, TCharType* dest, size
 }
 
 template <bool robust>
-inline TUtf16String UTF8ToWide(const char* text, size_t len) {
-    TUtf16String w = TUtf16String::Uninitialized(len);
+inline std::u16string UTF8ToWide(const char* text, size_t len) {
+    std::u16string w(len, '\0');
     size_t written;
     size_t pos = UTF8ToWideImpl<robust>(text, len, w.begin(), written);
     if (pos != len)
         ythrow yexception() << "failed to decode UTF-8 string at pos " << pos << ::NDetail::InStringMsg(text, len);
     Y_ASSERT(w.size() >= written);
-    w.remove(written);
+    w.erase(written);
     return w;
 }
 
@@ -348,8 +348,8 @@ inline bool UTF8ToWide(const char* text, size_t len, TCharType* dest, size_t& wr
 }
 
 template <bool robust>
-inline std::u16string_view UTF8ToWide(const std::string_view src, TUtf16String& dst) {
-    dst.ReserveAndResize(src.size());
+inline std::u16string_view UTF8ToWide(const std::string_view src, std::u16string& dst) {
+    dst.resize(src.size());
     size_t written = 0;
     UTF8ToWideImpl<robust>(src.data(), src.size(), dst.begin(), written);
     dst.resize(written);
@@ -358,35 +358,35 @@ inline std::u16string_view UTF8ToWide(const std::string_view src, TUtf16String& 
 
 //! if not robust will stop at first error position
 template <bool robust>
-inline std::u32string_view UTF8ToUTF32(const std::string_view src, TUtf32String& dst) {
-    dst.ReserveAndResize(src.size());
+inline std::u32string_view UTF8ToUTF32(const std::string_view src, std::u32string& dst) {
+    dst.resize(src.size());
     size_t written = 0;
     UTF8ToWideImpl<robust>(src.data(), src.size(), dst.begin(), written);
     dst.resize(written);
     return dst;
 }
 
-inline std::u16string_view UTF8ToWide(const std::string_view src, TUtf16String& dst) {
+inline std::u16string_view UTF8ToWide(const std::string_view src, std::u16string& dst) {
     return UTF8ToWide<false>(src, dst);
 }
 
-inline TUtf16String UTF8ToWide(const char* text, size_t len) {
+inline std::u16string UTF8ToWide(const char* text, size_t len) {
     return UTF8ToWide<false>(text, len);
 }
 
 template <bool robust>
-inline TUtf16String UTF8ToWide(const std::string_view s) {
+inline std::u16string UTF8ToWide(const std::string_view s) {
     return UTF8ToWide<robust>(s.data(), s.size());
 }
 
 template <bool robust>
-inline TUtf32String UTF8ToUTF32(const std::string_view s) {
-    TUtf32String r;
+inline std::u32string UTF8ToUTF32(const std::string_view s) {
+    std::u32string r;
     UTF8ToUTF32<robust>(s, r);
     return r;
 }
 
-inline TUtf16String UTF8ToWide(const std::string_view s) {
+inline std::u16string UTF8ToWide(const std::string_view s) {
     return UTF8ToWide<false>(s.data(), s.size());
 }
 
@@ -446,8 +446,8 @@ inline std::string WideToUTF8(const std::u32string_view w) {
     return WideToUTF8(w.data(), w.size());
 }
 
-inline TUtf16String UTF32ToWide(const wchar32* begin, size_t len) {
-    TUtf16String res;
+inline std::u16string UTF32ToWide(const wchar32* begin, size_t len) {
+    std::u16string res;
     res.reserve(len);
 
     const wchar32* end = begin + len;
@@ -649,14 +649,14 @@ inline std::string WideToASCII(const std::u16string_view w) {
     return CopyTo<std::string>(w.begin(), w.end());
 }
 
-inline TUtf16String ASCIIToWide(const std::string_view s) {
+inline std::u16string ASCIIToWide(const std::string_view s) {
     Y_ASSERT(IsStringASCII(s.begin(), s.end()));
-    return CopyTo<TUtf16String>(s.begin(), s.end());
+    return CopyTo<std::u16string>(s.begin(), s.end());
 }
 
-inline TUtf32String ASCIIToUTF32(const std::string_view s) {
+inline std::u32string ASCIIToUTF32(const std::string_view s) {
     Y_ASSERT(IsStringASCII(s.begin(), s.end()));
-    return CopyTo<TUtf32String>(s.begin(), s.end());
+    return CopyTo<std::u32string>(s.begin(), s.end());
 }
 
 //! returns @c true if string contains whitespace characters only
@@ -680,22 +680,22 @@ inline bool IsSpace(const std::u16string_view s) {
 }
 
 //! replaces multiple sequential whitespace characters with a single space character
-void Collapse(TUtf16String& w);
+void Collapse(std::u16string& w);
 
 //! @return new length
 size_t Collapse(wchar16* s, size_t n);
 
 //! Removes leading whitespace characters
 std::u16string_view StripLeft(const std::u16string_view text) noexcept Y_WARN_UNUSED_RESULT;
-void StripLeft(TUtf16String& text);
+void StripLeft(std::u16string& text);
 
 //! Removes trailing whitespace characters
 std::u16string_view StripRight(const std::u16string_view text) noexcept Y_WARN_UNUSED_RESULT;
-void StripRight(TUtf16String& text);
+void StripRight(std::u16string& text);
 
 //! Removes leading and trailing whitespace characters
 std::u16string_view Strip(const std::u16string_view text) noexcept Y_WARN_UNUSED_RESULT;
-void Strip(TUtf16String& text);
+void Strip(std::u16string& text);
 
 /* Check if given word is lowercase/uppercase. Will return false if string contains any
  * non-alphabetical symbols. It is expected that `text` is a correct UTF-16 string.
@@ -737,8 +737,8 @@ bool IsUpper(const std::u16string_view text) noexcept;
  *
  * NOTE: `pos` and `count` are measured in `wchar16`, not in codepoints.
  */
-bool ToLower(TUtf16String& text, size_t pos = 0, size_t count = TUtf16String::npos);
-bool ToUpper(TUtf16String& text, size_t pos = 0, size_t count = TUtf16String::npos);
+bool ToLower(std::u16string& text, size_t pos = 0, size_t count = std::u16string::npos);
+bool ToUpper(std::u16string& text, size_t pos = 0, size_t count = std::u16string::npos);
 
 /* Lowercase/uppercase given string inplace. Any alphabetic symbol will be converted to a proper
  * case, the rest of the symbols will be kept the same. It is expected that `text` is a correct
@@ -753,16 +753,16 @@ bool ToUpper(TUtf16String& text, size_t pos = 0, size_t count = TUtf16String::np
  *
  * NOTE: `pos` and `count` are measured in `wchar16`, not in codepoints.
  */
-bool ToLower(TUtf32String& /*text*/, size_t /*pos*/ = 0, size_t /*count*/ = TUtf16String::npos);
-bool ToUpper(TUtf32String& /*text*/, size_t /*pos*/ = 0, size_t /*count*/ = TUtf16String::npos);
+bool ToLower(std::u32string& /*text*/, size_t /*pos*/ = 0, size_t /*count*/ = std::u16string::npos);
+bool ToUpper(std::u32string& /*text*/, size_t /*pos*/ = 0, size_t /*count*/ = std::u16string::npos);
 
 /* Titlecase first symbol and lowercase the rest, see `ToLower` for more details.
  */
-bool ToTitle(TUtf16String& text, size_t pos = 0, size_t count = TUtf16String::npos);
+bool ToTitle(std::u16string& text, size_t pos = 0, size_t count = std::u16string::npos);
 
 /* Titlecase first symbol and lowercase the rest, see `ToLower` for more details.
  */
-bool ToTitle(TUtf32String& /*text*/, size_t /*pos*/ = 0, size_t /*count*/ = TUtf16String::npos);
+bool ToTitle(std::u32string& /*text*/, size_t /*pos*/ = 0, size_t /*count*/ = std::u16string::npos);
 
 /* @param text      Pointer to the string to modify
  * @param length    Length of the string to modify
@@ -796,22 +796,22 @@ bool ToTitle(wchar32* text, size_t length) noexcept;
 
 /* Convenience wrappers for `ToLower`, `ToUpper` and `ToTitle`.
  */
-TUtf16String ToLowerRet(TUtf16String text, size_t pos = 0, size_t count = TUtf16String::npos) Y_WARN_UNUSED_RESULT;
-TUtf16String ToUpperRet(TUtf16String text, size_t pos = 0, size_t count = TUtf16String::npos) Y_WARN_UNUSED_RESULT;
-TUtf16String ToTitleRet(TUtf16String text, size_t pos = 0, size_t count = TUtf16String::npos) Y_WARN_UNUSED_RESULT;
+std::u16string ToLowerRet(std::u16string text, size_t pos = 0, size_t count = std::u16string::npos) Y_WARN_UNUSED_RESULT;
+std::u16string ToUpperRet(std::u16string text, size_t pos = 0, size_t count = std::u16string::npos) Y_WARN_UNUSED_RESULT;
+std::u16string ToTitleRet(std::u16string text, size_t pos = 0, size_t count = std::u16string::npos) Y_WARN_UNUSED_RESULT;
 
-TUtf16String ToLowerRet(const std::u16string_view text, size_t pos = 0, size_t count = std::u16string_view::npos) Y_WARN_UNUSED_RESULT;
-TUtf16String ToUpperRet(const std::u16string_view text, size_t pos = 0, size_t count = std::u16string_view::npos) Y_WARN_UNUSED_RESULT;
-TUtf16String ToTitleRet(const std::u16string_view text, size_t pos = 0, size_t count = std::u16string_view::npos) Y_WARN_UNUSED_RESULT;
+std::u16string ToLowerRet(const std::u16string_view text, size_t pos = 0, size_t count = std::u16string_view::npos) Y_WARN_UNUSED_RESULT;
+std::u16string ToUpperRet(const std::u16string_view text, size_t pos = 0, size_t count = std::u16string_view::npos) Y_WARN_UNUSED_RESULT;
+std::u16string ToTitleRet(const std::u16string_view text, size_t pos = 0, size_t count = std::u16string_view::npos) Y_WARN_UNUSED_RESULT;
 
-TUtf32String ToLowerRet(const std::u32string_view text, size_t pos = 0, size_t count = std::u32string_view::npos) Y_WARN_UNUSED_RESULT;
-TUtf32String ToUpperRet(const std::u32string_view text, size_t pos = 0, size_t count = std::u32string_view::npos) Y_WARN_UNUSED_RESULT;
-TUtf32String ToTitleRet(const std::u32string_view text, size_t pos = 0, size_t count = std::u32string_view::npos) Y_WARN_UNUSED_RESULT;
+std::u32string ToLowerRet(const std::u32string_view text, size_t pos = 0, size_t count = std::u32string_view::npos) Y_WARN_UNUSED_RESULT;
+std::u32string ToUpperRet(const std::u32string_view text, size_t pos = 0, size_t count = std::u32string_view::npos) Y_WARN_UNUSED_RESULT;
+std::u32string ToTitleRet(const std::u32string_view text, size_t pos = 0, size_t count = std::u32string_view::npos) Y_WARN_UNUSED_RESULT;
 
 //! replaces the '<', '>' and '&' characters in string with '&lt;', '&gt;' and '&amp;' respectively
 // insertBr=true - replace '\r' and '\n' with "<BR>"
 template <bool insertBr>
-void EscapeHtmlChars(TUtf16String& str);
+void EscapeHtmlChars(std::u16string& str);
 
 //! returns number of characters in range. Handle surrogate pairs as one character.
 inline size_t CountWideChars(const wchar16* b, const wchar16* e) {

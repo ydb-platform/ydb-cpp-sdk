@@ -214,7 +214,7 @@ private:
         }
 
         {
-            THashMultiMap<TString, int> mm;
+            THashMultiMap<std::string, int> mm;
 
             mm.insert({"one", 1});
             mm.insert({"two", 2});
@@ -320,9 +320,9 @@ private:
             Load(&S_, vec, pool);
 
             UNIT_ASSERT_EQUAL(vec.size(), 3);
-            UNIT_ASSERT_EQUAL(vec[0], TString("1"));
-            UNIT_ASSERT_EQUAL(vec[1], TString("123"));
-            UNIT_ASSERT_EQUAL(vec[2], TString("4567"));
+            UNIT_ASSERT_EQUAL(vec[0], std::string("1"));
+            UNIT_ASSERT_EQUAL(vec[1], std::string("123"));
+            UNIT_ASSERT_EQUAL(vec[2], std::string("4567"));
         }
 
         {
@@ -364,7 +364,7 @@ private:
         }
 
         {
-            THashMultiMap<TString, int> mm;
+            THashMultiMap<std::string, int> mm;
 
             Load(&S_, mm);
 
@@ -405,7 +405,7 @@ private:
     void TestTuple() {
         TBufferStream s;
 
-        using TTuple = std::tuple<int, TString, unsigned int>;
+        using TTuple = std::tuple<int, std::string, unsigned int>;
         const TTuple toSave{-10, "qwerty", 15};
         Save(&s, toSave);
 
@@ -428,13 +428,13 @@ private:
     }
 
     void TestVariant() {
-        std::variant<int, bool, TString, std::vector<char>> v(1);
+        std::variant<int, bool, std::string, std::vector<char>> v(1);
         TestVariantImpl(v, 42);
         TestVariantImpl(v, true);
-        TestVariantImpl(v, TString("foo"));
+        TestVariantImpl(v, std::string("foo"));
         TestVariantImpl(v, std::vector<char>{'b', 'a', 'r'});
 
-        v = TString("baz");
+        v = std::string("baz");
         TBufferStream s;
         ::Save(&s, v);
 

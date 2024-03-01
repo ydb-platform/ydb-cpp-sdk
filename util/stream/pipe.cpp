@@ -1,6 +1,7 @@
 #include "pipe.h"
 
 #include <util/generic/yexception.h>
+#include <util/string/escape.h>
 
 #include <cstdio>
 #include <cerrno>
@@ -17,7 +18,7 @@ public:
 #endif
         Pipe_ = ::popen(command.data(), mode);
         if (Pipe_ == nullptr) {
-            ythrow TSystemError() << "failed to open pipe: " << command.Quote();
+            ythrow TSystemError() << "failed to open pipe: " << NQuote::Quote(command);
         }
     }
 

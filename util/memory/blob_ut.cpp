@@ -32,14 +32,14 @@ Y_UNIT_TEST_SUITE(TBlobTest) {
         TMemoryInput mi(s.data(), s.size());
         TBlob b = TBlob::FromStreamSingleThreaded(mi);
 
-        UNIT_ASSERT_EQUAL(TString((const char*)b.Data(), b.Length()), s);
+        UNIT_ASSERT_EQUAL(std::string((const char*)b.Data(), b.Length()), s);
     }
 
     Y_UNIT_TEST(TestFromString) {
         std::string s("dsfkjhgsadftusadtf");
         TBlob b(TBlob::FromString(s));
 
-        UNIT_ASSERT_EQUAL(TString((const char*)b.Data(), b.Size()), s);
+        UNIT_ASSERT_EQUAL(std::string((const char*)b.Data(), b.Size()), s);
         const auto expectedRef = TArrayRef<const ui8>{(ui8*)s.data(), s.size()};
         UNIT_ASSERT_EQUAL(TArrayRef<const ui8>{b}, expectedRef);
     }

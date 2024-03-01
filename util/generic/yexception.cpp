@@ -1,6 +1,9 @@
 #include "bt_exception.h"
 #include "yexception.h"
 
+#include <library/cpp/string_utils/helpers/helpers.h>
+
+#include <util/stream/str.h>
 #include <util/system/backtrace.h>
 #include <util/system/type_name.h>
 
@@ -31,7 +34,7 @@ std::string CurrentExceptionMessage() {
             const TBackTrace* bt = e.BackTrace();
 
             if (bt) {
-                return TString::Join(bt->PrintToString(), std::string_view("\n"), FormatExc(e));
+                return NUtils::Join(bt->PrintToString(), std::string_view("\n"), FormatExc(e));
             }
 
             return FormatExc(e);

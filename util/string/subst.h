@@ -3,6 +3,7 @@
 #include <util/generic/fwd.h>
 
 #include <stlfwd>
+#include <string>
 #include <string_view>
 
 /* Replace all occurences of substring `what` with string `with` starting from position `from`.
@@ -15,9 +16,8 @@
  * @return          Number of replacements occured.
  */
 size_t SubstGlobal(std::string& text, std::string_view what, std::string_view with, size_t from = 0);
-size_t SubstGlobal(TUtf16String& text, std::u16string_view what, std::u16string_view with, size_t from = 0);
 size_t SubstGlobal(std::u16string& text, std::u16string_view what, std::u16string_view with, size_t from = 0);
-size_t SubstGlobal(TUtf32String& text, std::u32string_view what, std::u32string_view with, size_t from = 0);
+size_t SubstGlobal(std::u32string& text, std::u32string_view what, std::u32string_view with, size_t from = 0);
 
 /* Replace all occurences of character `what` with character `with` starting from position `from`.
  *
@@ -29,9 +29,8 @@ size_t SubstGlobal(TUtf32String& text, std::u32string_view what, std::u32string_
  * @return          Number of replacements occured.
  */
 size_t SubstGlobal(std::string& text, char what, char with, size_t from = 0);
-size_t SubstGlobal(TUtf16String& text, wchar16 what, wchar16 with, size_t from = 0);
 size_t SubstGlobal(std::u16string& text, wchar16 what, wchar16 with, size_t from = 0);
-size_t SubstGlobal(TUtf32String& text, wchar32 what, wchar32 with, size_t from = 0);
+size_t SubstGlobal(std::u32string& text, wchar32 what, wchar32 with, size_t from = 0);
 
 // TODO(yazevnul):
 // - rename `SubstGlobal` to `ReplaceAll` for convenience

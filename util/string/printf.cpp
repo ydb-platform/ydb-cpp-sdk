@@ -4,7 +4,7 @@
 #include <util/stream/str.h>
 
 int vsprintf(std::string& s, const char* c, va_list params) {
-    TStringOutput so(s.remove());
+    TStringOutput so(s.erase());
 
     return Printf(so, c, params);
 }

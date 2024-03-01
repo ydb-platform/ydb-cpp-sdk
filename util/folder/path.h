@@ -29,11 +29,6 @@ public:
     TFsPath(const std::string_view path);
     TFsPath(const char* path);
 
-    TFsPath(const std::string& path)
-        : TFsPath(std::string_view(path))
-    {
-    }
-
     TFsPath(const TFsPath& that);
     TFsPath(TFsPath&& that);
 

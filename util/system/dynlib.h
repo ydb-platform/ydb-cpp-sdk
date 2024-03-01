@@ -98,8 +98,8 @@ public:
         delete DLib;
         DLib = 0;
         PLib = 0;
-        lname.remove();
-        vname.remove();
+        lname.erase();
+        vname.erase();
     }
     TLib* Symbol() const noexcept {
         return PLib;

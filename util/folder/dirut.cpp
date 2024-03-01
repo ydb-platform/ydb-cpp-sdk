@@ -12,11 +12,11 @@
 #include <util/system/yassert.h>
 
 void SlashFolderLocal(std::string& folder) {
-    if (!folder)
+    if (folder.empty())
         return;
 #ifdef _win32_
     size_t pos;
-    while ((pos = folder.find('/')) != TString::npos)
+    while ((pos = folder.find('/')) != std::string::npos)
         folder.replace(pos, 1, LOCSLASH_S);
 #endif
     if (folder[folder.size() - 1] != LOCSLASH_C)
@@ -30,8 +30,8 @@ bool correctpath(std::string& folder) {
 }
 
 bool resolvepath(std::string& folder, const std::string& home) {
-    Y_ASSERT(home && home.at(0) == '/');
-    if (!folder) {
+    Y_ASSERT(!home.empty() && home.at(0) == '/');
+    if (folder.empty()) {
         return false;
     }
     // may be from windows
@@ -455,11 +455,11 @@ bool IsDir(const std::string& path) {
 
 std::string GetHomeDir() {
     std::string s(getenv("HOME"));
-    if (!s) {
+    if (s.empty()) {
 #ifndef _win32_
         passwd* pw = nullptr;
         s = getenv("USER");
-        if (s)
+        if (!s.empty())
             pw = getpwnam(s.data());
         else
             pw = getpwuid(getuid());
@@ -512,7 +512,7 @@ std::string GetSystemTempDir() {
     if (!size) {
         ythrow TSystemError() << "failed to get system temporary directory";
     }
-    return TString(buffer, size);
+    return std::string(buffer, size);
 #else
     const char* var = "TMPDIR";
     const char* def = "/tmp";
@@ -615,7 +615,7 @@ std::string ResolvePath(const char* path, bool isDir) {
 std::string StripFileComponent(const std::string& fileName) {
     std::string dir = IsDir(fileName) ? fileName : GetDirName(fileName);
     if (!dir.empty() && dir.back() != GetDirectorySeparator()) {
-        dir.append(GetDirectorySeparator());
+        dir.push_back(GetDirectorySeparator());
     }
     return dir;
 }

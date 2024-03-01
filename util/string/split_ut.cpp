@@ -104,7 +104,7 @@ void TestLimitingConsumerOnString(std::vector<std::string>& good, const char* st
     SplitString(str, delim, limits);
     Cmp(good, test);
     UNIT_ASSERT_EQUAL(good, test);
-    UNIT_ASSERT_EQUAL(TString(limits.Last), TString(last)); // Quite unobvious behaviour. Why the last token is not added to slave consumer?
+    UNIT_ASSERT_EQUAL(std::string(limits.Last), std::string(last)); // Quite unobvious behaviour. Why the last token is not added to slave consumer?
 }
 
 void TestLimitingConsumerOnRange(std::vector<std::string>& good, const char* b, const char* e, const char* d, size_t n, const char* last) {
@@ -115,7 +115,7 @@ void TestLimitingConsumerOnRange(std::vector<std::string>& good, const char* b, 
     SplitString(b, e, delim, limits);
     Cmp(good, test);
     UNIT_ASSERT_EQUAL(good, test);
-    UNIT_ASSERT_EQUAL(TString(limits.Last), TString(last));
+    UNIT_ASSERT_EQUAL(std::string(limits.Last), std::string(last));
 }
 
 Y_UNIT_TEST_SUITE(SplitStringTest) {
@@ -130,9 +130,9 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     }
 
     Y_UNIT_TEST(TestWideSingleDelimiter) {
-        TUtf16String data(u"qw ab  qwabcab");
-        TUtf16String canonic[] = {u"qw", u"ab", TUtf16String(), u"qwabcab"};
-        std::vector<TUtf16String> good(canonic, canonic + 4);
+        std::u16string data(u"qw ab  qwabcab");
+        std::u16string canonic[] = {u"qw", u"ab", std::u16string(), u"qwabcab"};
+        std::vector<std::u16string> good(canonic, canonic + 4);
         TCharDelimiter<const wchar16> delim(' ');
 
         TestDelimiterOnString<TContainerConsumer>(good, data.data(), delim);
@@ -187,10 +187,10 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     }
 
     Y_UNIT_TEST(TestWideStringDelimiter) {
-        TUtf16String data(u"qw ab qwababcab");
-        TUtf16String canonic[] = {u"qw ", u" qw", TUtf16String(), u"c", TUtf16String()};
-        std::vector<TUtf16String> good(canonic, canonic + 5);
-        TUtf16String wideDelim(u"ab");
+        std::u16string data(u"qw ab qwababcab");
+        std::u16string canonic[] = {u"qw ", u" qw", std::u16string(), u"c", std::u16string()};
+        std::vector<std::u16string> good(canonic, canonic + 5);
+        std::u16string wideDelim(u"ab");
         TStringDelimiter<const wchar16> delim(wideDelim.data());
 
         TestDelimiterOnString<TContainerConsumer>(good, data.data(), delim);
@@ -208,29 +208,29 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     }
 
     Y_UNIT_TEST(TestWideSetDelimiter) {
-        TUtf16String data(u"qw ab qwababccab");
-        TUtf16String canonic[] = {u"q", u" ab q", u"abab", TUtf16String(), u"ab"};
-        std::vector<TUtf16String> good(canonic, canonic + 5);
-        TUtf16String wideDelim(u"wc");
+        std::u16string data(u"qw ab qwababccab");
+        std::u16string canonic[] = {u"q", u" ab q", u"abab", std::u16string(), u"ab"};
+        std::vector<std::u16string> good(canonic, canonic + 5);
+        std::u16string wideDelim(u"wc");
         TSetDelimiter<const wchar16> delim(wideDelim.data());
 
         TestDelimiterOnString<TContainerConsumer>(good, data.data(), delim);
     }
 
     Y_UNIT_TEST(TestWideSetDelimiterRange) {
-        TUtf16String data(u"qw ab qwababccab");
-        TUtf16String canonic[] = {u"q", u" ab q", u"abab", TUtf16String(), u"ab"};
-        std::vector<TUtf16String> good(1);
-        TUtf16String wideDelim(u"wc");
+        std::u16string data(u"qw ab qwababccab");
+        std::u16string canonic[] = {u"q", u" ab q", u"abab", std::u16string(), u"ab"};
+        std::vector<std::u16string> good(1);
+        std::u16string wideDelim(u"wc");
         TSetDelimiter<const wchar16> delim(wideDelim.data());
 
-        std::vector<TUtf16String> test;
-        TContainerConsumer<std::vector<TUtf16String>> consumer(&test);
+        std::vector<std::u16string> test;
+        TContainerConsumer<std::vector<std::u16string>> consumer(&test);
         SplitString(data.data(), data.data(), delim, consumer); // Empty string is still inserted into consumer
         Cmp(good, test);
 
         good.assign(canonic, canonic + 4);
-        good.push_back(TUtf16String());
+        good.push_back(std::u16string());
         test.clear();
         SplitString(data.data(), data.end() - 2, delim, consumer);
         Cmp(good, test);
@@ -463,7 +463,7 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     }
 
     Y_UNIT_TEST(TestCompile) {
-        (void)StringSplitter(TString());
+        (void)StringSplitter(std::string());
         (void)StringSplitter(std::string_view());
         (void)StringSplitter("", 0);
     }
@@ -492,7 +492,7 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
         std::vector<std::string> expected = {"1", "2", "3"};
         std::vector<std::string> actual;
         auto func = [&actual](const std::basic_string_view<char>& token) {
-            actual.push_back(TString(token));
+            actual.push_back(std::string(token));
         };
         StringSplitter("1 2 3").Split(' ').Consume(func);
         UNIT_ASSERT_VALUES_EQUAL(expected, actual);
@@ -505,7 +505,7 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
             if (token == "3") {
                 return false;
             }
-            actual.push_back(TString(token));
+            actual.push_back(std::string(token));
             return true;
         };
         bool completed = StringSplitter("1 2 3 4 5").Split(' ').Consume(func);
@@ -594,7 +594,7 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     Y_UNIT_TEST(TestOwningSplit1) {
         int sum = 0;
 
-        for (const auto& it : StringSplitter(TString("1,2,3")).Split(',')) {
+        for (const auto& it : StringSplitter(std::string("1,2,3")).Split(',')) {
             sum += FromString<int>(it.Token());
         }
 
@@ -654,7 +654,7 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
             UNIT_ASSERT_VALUES_EQUAL(elem, actual1[num++]);
         }
 
-        std::vector<TUtf16String> actual2 = {u"привет,", u"как", u"дела"};
+        std::vector<std::u16string> actual2 = {u"привет,", u"как", u"дела"};
         num = 0;
         for (std::u16string_view elem : StringSplitter(u"привет, как дела").Split(wchar16(' '))) {
             UNIT_ASSERT_VALUES_EQUAL(elem, actual2[num++]);

@@ -91,16 +91,16 @@ std::string TPathSplitStore::DoReconstruct(const std::string_view slash) const {
     r.reserve(ToReserve(*this));
 
     if (IsAbsolute) {
-        r.AppendNoAlias(Drive);
-        r.AppendNoAlias(slash);
+        r.append(Drive);
+        r.append(slash);
     }
 
     for (auto i = begin(); i != end(); ++i) {
         if (i != begin()) {
-            r.AppendNoAlias(slash);
+            r.append(slash);
         }
 
-        r.AppendNoAlias(*i);
+        r.append(*i);
     }
 
     return r;

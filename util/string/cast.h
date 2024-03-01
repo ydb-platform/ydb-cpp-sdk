@@ -1,5 +1,7 @@
 #pragma once
 
+#include <library/cpp/string_utils/helpers/helpers.h>
+
 #include <util/system/defaults.h>
 #include <util/stream/str.h>
 #include <util/generic/string.h>
@@ -64,7 +66,7 @@ namespace NPrivate {
         static inline std::string Cvt(const T& t) {
             char buf[512];
 
-            return TString(buf, ToString<T>(t, buf, sizeof(buf)));
+            return std::string(buf, ToString<T>(t, buf, sizeof(buf)));
         }
     };
 
@@ -109,15 +111,15 @@ inline std::string ToString(char* s) {
  * Wrapper for wide strings.
  */
 template <class T>
-inline TUtf16String ToWtring(const T& t) {
-    return TUtf16String::FromAscii(ToString(t));
+inline std::u16string ToWtring(const T& t) {
+    return NUtils::FromAscii(ToString(t));
 }
 
-inline const TUtf16String& ToWtring(const TUtf16String& w Y_LIFETIME_BOUND) noexcept {
+inline const std::u16string& ToWtring(const std::u16string& w Y_LIFETIME_BOUND) noexcept {
     return w;
 }
 
-inline TUtf16String&& ToWtring(TUtf16String&& w Y_LIFETIME_BOUND) noexcept {
+inline std::u16string&& ToWtring(std::u16string&& w Y_LIFETIME_BOUND) noexcept {
     return std::move(w);
 }
 
@@ -173,7 +175,7 @@ inline T FromString(const std::u16string_view& s) {
 }
 
 template <class T>
-inline T FromString(const TUtf16String& s) {
+inline T FromString(const std::u16string& s) {
     return ::FromString<T, wchar16>(s.data(), s.size());
 }
 
@@ -258,7 +260,7 @@ inline bool TryFromString(const std::u16string_view& s, T& result) {
 }
 
 template <class T>
-inline bool TryFromString(const TUtf16String& s, T& result) {
+inline bool TryFromString(const std::u16string& s, T& result) {
     return TryFromString<T>(s.data(), s.size(), result);
 }
 
@@ -283,7 +285,7 @@ inline std::optional<T> TryFromString(const std::string& s) {
 }
 
 template <class T>
-inline std::optional<T> TryFromString(const TUtf16String& s) {
+inline std::optional<T> TryFromString(const std::u16string& s) {
     return TryFromString<T>(std::u16string_view(s));
 }
 
@@ -337,7 +339,7 @@ inline std::string IntToString(T t) {
 
     char buf[256];
 
-    return TString(buf, IntToString<base>(t, buf, sizeof(buf)));
+    return std::string(buf, IntToString<base>(t, buf, sizeof(buf)));
 }
 
 template <int base, class TInt, class TChar>
@@ -365,12 +367,12 @@ static inline std::string ToString(const std::string_view str) {
     return std::string(str);
 }
 
-static inline TUtf16String ToWtring(const std::u16string_view wtr) {
-    return TUtf16String(wtr);
+static inline std::u16string ToWtring(const std::u16string_view wtr) {
+    return std::u16string(wtr);
 }
 
-static inline TUtf32String ToUtf32String(const std::u32string_view wtr) {
-    return TUtf32String(wtr);
+static inline std::u32string ToUtf32String(const std::u32string_view wtr) {
+    return std::u32string(wtr);
 }
 
 template <typename T, unsigned radix = 10, class TChar = char>

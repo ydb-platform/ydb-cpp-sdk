@@ -390,7 +390,7 @@ TEnumParser::TEnumParser(IInputStream& in) {
 void TEnumParser::Parse(const char* dataIn, size_t lengthIn) {
     TMemoryInput mi(dataIn, lengthIn);
 
-    TString line;
+    std::string line;
     std::string result;
 
     while (mi.ReadLine(line)) {

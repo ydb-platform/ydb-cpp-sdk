@@ -16,7 +16,7 @@
  * @note        Calls to `GetEnv` and `SetEnv` from different threads must be synchronized.
  * @see         SetEnv
  */
-std::string GetEnv(const std::string& key, const std::string& def = TString());
+std::string GetEnv(const std::string& key, const std::string& def = std::string());
 
 /**
  * Add or change environment variable provided by the host environment.

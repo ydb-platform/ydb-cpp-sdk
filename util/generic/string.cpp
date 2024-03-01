@@ -9,14 +9,6 @@
 
 alignas(32) const char NULL_STRING_REPR[128] = {0};
 
-std::ostream& operator<<(std::ostream& os, const std::string& s) {
-    return os.write(s.data(), s.size());
-}
-
-std::istream& operator>>(std::istream& is, std::string& s) {
-    return is >> s.MutRef();
-}
-
 template <>
 bool TBasicString<char, std::char_traits<char>>::to_lower(size_t pos, size_t n) {
     return Transform([](size_t, char c) { return AsciiToLower(c); }, pos, n);
@@ -37,7 +29,7 @@ bool TBasicString<char, std::char_traits<char>>::to_title(size_t pos, size_t n) 
 }
 
 template <>
-TUtf16String&
+TBasicString<wchar16, std::char_traits<wchar16>>&
 TBasicString<wchar16, std::char_traits<wchar16>>::AppendAscii(const ::std::string_view& s) {
     ReserveAndResize(size() + s.size());
 
@@ -51,7 +43,7 @@ TBasicString<wchar16, std::char_traits<wchar16>>::AppendAscii(const ::std::strin
 }
 
 template <>
-TUtf16String&
+TBasicString<wchar16, std::char_traits<wchar16>>&
 TBasicString<wchar16, std::char_traits<wchar16>>::AppendUtf8(const ::std::string_view& s) {
     size_t oldSize = size();
     ReserveAndResize(size() + s.size() * 4);
@@ -81,7 +73,7 @@ bool TBasicString<wchar16, std::char_traits<wchar16>>::to_title(size_t pos, size
 }
 
 template <>
-TUtf32String&
+TBasicString<wchar32, std::char_traits<wchar32>>&
 TBasicString<wchar32, std::char_traits<wchar32>>::AppendAscii(const ::std::string_view& s) {
     ReserveAndResize(size() + s.size());
 
@@ -109,7 +101,7 @@ TBasicString<char, std::char_traits<char>>::AppendUtf16(const ::std::u16string_v
 }
 
 template <>
-TUtf32String&
+TBasicString<wchar32, std::char_traits<wchar32>>&
 TBasicString<wchar32, std::char_traits<wchar32>>::AppendUtf8(const ::std::string_view& s) {
     size_t oldSize = size();
     ReserveAndResize(size() + s.size() * 4);
@@ -124,7 +116,7 @@ TBasicString<wchar32, std::char_traits<wchar32>>::AppendUtf8(const ::std::string
 }
 
 template <>
-TUtf32String&
+TBasicString<wchar32, std::char_traits<wchar32>>&
 TBasicString<wchar32, std::char_traits<wchar32>>::AppendUtf16(const ::std::u16string_view& s) {
     size_t oldSize = size();
     ReserveAndResize(size() + s.size() * 2);

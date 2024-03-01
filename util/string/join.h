@@ -21,24 +21,24 @@
 
 template <typename TCharType, typename T>
 inline std::enable_if_t<!std::is_arithmetic<std::remove_cv_t<T>>::value, void>
-AppendToString(TBasicString<TCharType>& dst, const T& t) {
+AppendToString(std::basic_string<TCharType>& dst, const T& t) {
     dst.AppendNoAlias(ToString(t));
 }
 
 template <typename TCharType, typename T>
 inline std::enable_if_t<std::is_arithmetic<std::remove_cv_t<T>>::value, void>
-AppendToString(TBasicString<TCharType>& dst, const T& t) {
+AppendToString(std::basic_string<TCharType>& dst, const T& t) {
     char buf[512];
     dst.append(buf, ToString<std::remove_cv_t<T>>(t, buf, sizeof(buf)));
 }
 
 template <typename TCharType>
-inline void AppendToString(TBasicString<TCharType>& dst, const TCharType* t) {
+inline void AppendToString(std::basic_string<TCharType>& dst, const TCharType* t) {
     dst.append(t);
 }
 
 template <typename TCharType>
-inline void AppendToString(TBasicString<TCharType>& dst, std::basic_string_view<TCharType> t) {
+inline void AppendToString(std::basic_string<TCharType>& dst, std::basic_string_view<TCharType> t) {
     dst.append(t);
 }
 
@@ -76,11 +76,11 @@ namespace NPrivate {
 }
 
 template <typename TCharType>
-inline void AppendJoinNoReserve(TBasicString<TCharType>&, std::basic_string_view<TCharType>) {
+inline void AppendJoinNoReserve(std::basic_string<TCharType>&, std::basic_string_view<TCharType>) {
 }
 
 template <typename TCharType, typename TFirst, typename... TRest>
-inline void AppendJoinNoReserve(TBasicString<TCharType>& dst, std::basic_string_view<TCharType> delim, const TFirst& f, const TRest&... r) {
+inline void AppendJoinNoReserve(std::basic_string<TCharType>& dst, std::basic_string_view<TCharType> delim, const TFirst& f, const TRest&... r) {
     AppendToString(dst, delim);
     AppendToString(dst, f);
     AppendJoinNoReserve(dst, delim, r...);
@@ -112,8 +112,8 @@ inline std::string Join(char cdelim, const TValues&... v) {
 
 namespace NPrivate {
     template <typename TCharType, typename TIter>
-    inline TBasicString<TCharType> JoinRange(std::basic_string_view<TCharType> delim, const TIter beg, const TIter end) {
-        TBasicString<TCharType> out;
+    inline std::basic_string<TCharType> JoinRange(std::basic_string_view<TCharType> delim, const TIter beg, const TIter end) {
+        std::basic_string<TCharType> out;
         if (beg != end) {
             size_t total = ::NPrivate::GetLength(*beg);
             for (TIter pos = beg; ++pos != end;) {
@@ -146,42 +146,42 @@ std::string JoinRange(char delim, const TIter beg, const TIter end) {
 }
 
 template <typename TIter>
-TUtf16String JoinRange(std::u16string_view delim, const TIter beg, const TIter end) {
+std::u16string JoinRange(std::u16string_view delim, const TIter beg, const TIter end) {
     return ::NPrivate::JoinRange<wchar16>(delim, beg, end);
 }
 
 template <typename TIter>
-TUtf16String JoinRange(wchar16 delim, const TIter beg, const TIter end) {
+std::u16string JoinRange(wchar16 delim, const TIter beg, const TIter end) {
     std::u16string_view delimBuf(&delim, 1);
     return ::NPrivate::JoinRange<wchar16>(delimBuf, beg, end);
 }
 
 template <typename TIter>
-TUtf32String JoinRange(std::u32string_view delim, const TIter beg, const TIter end) {
+std::u32string JoinRange(std::u32string_view delim, const TIter beg, const TIter end) {
     return ::NPrivate::JoinRange<wchar32>(delim, beg, end);
 }
 
 template <typename TIter>
-TUtf32String JoinRange(wchar32 delim, const TIter beg, const TIter end) {
+std::u32string JoinRange(wchar32 delim, const TIter beg, const TIter end) {
     std::u32string_view delimBuf(&delim, 1);
     return ::NPrivate::JoinRange<wchar32>(delimBuf, beg, end);
 }
 
 template <typename TCharType, typename TContainer>
-inline TBasicString<TCharType> JoinSeq(std::basic_string_view<TCharType> delim, const TContainer& data) {
+inline std::basic_string<TCharType> JoinSeq(std::basic_string_view<TCharType> delim, const TContainer& data) {
     using std::begin;
     using std::end;
     return JoinRange(delim, begin(data), end(data));
 }
 
 template <typename TCharType, typename TContainer>
-inline TBasicString<TCharType> JoinSeq(const TCharType* delim, const TContainer& data) {
+inline std::basic_string<TCharType> JoinSeq(const TCharType* delim, const TContainer& data) {
     std::basic_string_view<TCharType> delimBuf = delim;
     return JoinSeq(delimBuf, data);
 }
 
 template <typename TCharType, typename TContainer>
-inline TBasicString<TCharType> JoinSeq(const TBasicString<TCharType>& delim, const TContainer& data) {
+inline std::basic_string<TCharType> JoinSeq(const std::basic_string<TCharType>& delim, const TContainer& data) {
     std::basic_string_view<TCharType> delimBuf = delim;
     return JoinSeq(delimBuf, data);
 }
@@ -191,7 +191,7 @@ inline std::enable_if_t<
     std::is_same_v<TCharType, char> ||
         std::is_same_v<TCharType, char16_t> ||
         std::is_same_v<TCharType, char32_t>,
-    TBasicString<TCharType>>
+    std::basic_string<TCharType>>
 JoinSeq(TCharType delim, const TContainer& data) {
     std::basic_string_view<TCharType> delimBuf(&delim, 1);
     return JoinSeq(delimBuf, data);
@@ -241,7 +241,7 @@ constexpr auto MakeRangeJoiner(std::string_view delim, const std::initializer_li
     return MakeRangeJoiner(delim, std::cbegin(data), std::cend(data));
 }
 
-/* We force (std::initializer_list<std::string_view>) input type for (TString) and (const char*) types because:
+/* We force (std::initializer_list<std::string_view>) input type for (std::string) and (const char*) types because:
  * # When (std::initializer_list<std::string>) is used, std::string objects are copied into the initializer_list object.
  *   Storing std::string_views instead is faster, even with COW-enabled strings.
  * # For (const char*) we calculate length only once and store it in std::string_view. Otherwise strlen scan would be executed

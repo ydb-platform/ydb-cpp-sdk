@@ -68,7 +68,7 @@ private:
         }
 
         inline int Type(const std::string& path) {
-            THashMap<TString, TPath>::const_iterator it = Srch_.find(path);
+            THashMap<std::string, TPath>::const_iterator it = Srch_.find(path);
 
             UNIT_ASSERT(it != Srch_.end());
 
@@ -87,7 +87,7 @@ private:
 
     private:
         std::vector<TPath> Paths_;
-        THashMap<TString, TPath> Srch_;
+        THashMap<std::string, TPath> Srch_;
     };
 
     inline void TestLocal() {

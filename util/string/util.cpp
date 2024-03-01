@@ -56,13 +56,13 @@ size_t Tr::FindFirstChangePosition(const std::string& str) const {
         }
     }
 
-    return TString::npos;
+    return std::string::npos;
 }
 
 void Tr::Do(std::string& str) const {
     const size_t changePosition = FindFirstChangePosition(str);
 
-    if (changePosition == TString::npos) {
+    if (changePosition == std::string::npos) {
         return;
     }
 

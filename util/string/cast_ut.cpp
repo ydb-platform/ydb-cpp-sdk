@@ -317,7 +317,7 @@ Y_UNIT_TEST_SUITE(TCastTest) {
     }
 
     Y_UNIT_TEST(TestLiteral) {
-        UNIT_ASSERT_VALUES_EQUAL(ToString("abc"), TString("abc"));
+        UNIT_ASSERT_VALUES_EQUAL(ToString("abc"), std::string("abc"));
     }
 
     Y_UNIT_TEST(TestFromStringStringBuf) {
@@ -344,19 +344,19 @@ Y_UNIT_TEST_SUITE(TCastTest) {
         CheckConvertToBuffer<ui64>(1005000000000000ull, 32, "1005000000000000");
         CheckConvertToBuffer<ui64>(1005000000000000ull, 3, "1005000000000000");
 
-        // std::string longNumber = TString("1.") + TString(1 << 20, '1');
+        // std::string longNumber = std::string("1.") + std::string(1 << 20, '1');
         // UNIT_ASSERT_EXCEPTION(FromString<double>(longNumber), yexception);
     }
 #endif
 
     Y_UNIT_TEST(TestWide) {
-        TUtf16String iw = u"-100500";
+        std::u16string iw = u"-100500";
         int iv = 0;
         UNIT_ASSERT_VALUES_EQUAL(TryFromString(iw, iv), true);
         UNIT_ASSERT_VALUES_EQUAL(iv, -100500);
 
         ui64 uv = 0;
-        TUtf16String uw = u"21474836470";
+        std::u16string uw = u"21474836470";
         UNIT_ASSERT_VALUES_EQUAL(TryFromString(uw, uv), true);
         UNIT_ASSERT_VALUES_EQUAL(uv, 21474836470ull);
 
@@ -413,7 +413,7 @@ Y_UNIT_TEST_SUITE(TCastTest) {
         int res2 = 0;
         const int def2 = -6;
 
-        TUtf16String s3 = u"-100500";
+        std::u16string s3 = u"-100500";
         UNIT_ASSERT_VALUES_EQUAL(TryFromStringWithDefault(s3, res2, def2), true);
         UNIT_ASSERT_VALUES_EQUAL(res2, -100500);
 
@@ -424,7 +424,7 @@ Y_UNIT_TEST_SUITE(TCastTest) {
         UNIT_ASSERT_VALUES_EQUAL(FromStringWithDefault(s3, def2), -100500);
         UNIT_ASSERT_VALUES_EQUAL(FromStringWithDefault<size_t>(s3), size_t());
 
-        TUtf16String s4 = u"-f100500";
+        std::u16string s4 = u"-f100500";
         UNIT_ASSERT_VALUES_EQUAL(TryFromStringWithDefault(s4, res2, def2), false);
         UNIT_ASSERT_VALUES_EQUAL(res2, def2);
 
@@ -453,7 +453,7 @@ Y_UNIT_TEST_SUITE(TCastTest) {
         UNIT_ASSERT_DOUBLES_EQUAL((float)FromString("0.0001"), 0.0001, EPS);
         UNIT_ASSERT_DOUBLES_EQUAL((double)FromString("0.0015", sizeof("0.0015") - 2), 0.001, EPS);
         UNIT_ASSERT_DOUBLES_EQUAL((long double)FromString(std::string_view("0.0001")), 0.0001, EPS);
-        UNIT_ASSERT_DOUBLES_EQUAL((float)FromString(TString("10E-5")), 10E-5, EPS);
+        UNIT_ASSERT_DOUBLES_EQUAL((float)FromString(std::string("10E-5")), 10E-5, EPS);
         UNIT_ASSERT_VALUES_EQUAL((bool)FromString("da"), true);
         UNIT_ASSERT_VALUES_EQUAL((bool)FromString("no"), false);
         UNIT_ASSERT_VALUES_EQUAL((short)FromString(u"9000"), 9000);
@@ -498,7 +498,7 @@ Y_UNIT_TEST_SUITE(TCastTest) {
             UNIT_ASSERT_VALUES_EQUAL(hello, out);
         }
         {
-            const TUtf16String empty;
+            const std::u16string empty;
             std::u16string_view out;
             UNIT_ASSERT(TryFromString(empty, out));
             UNIT_ASSERT_VALUES_EQUAL(empty, out);
@@ -581,12 +581,12 @@ Y_UNIT_TEST_SUITE(TCastTest) {
     }
 
     Y_UNIT_TEST(TestTrivial) {
-        UNIT_ASSERT_VALUES_EQUAL(ToString(ToString(ToString("abc"))), TString("abc"));
+        UNIT_ASSERT_VALUES_EQUAL(ToString(ToString(ToString("abc"))), std::string("abc"));
 
         // May cause compilation error:
-        // const std::string& ref = ToString(TString{"foo"});
+        // const std::string& ref = ToString(std::string{"foo"});
 
-        const std::string ok = ToString(TString{"foo"});
+        const std::string ok = ToString(syd::string{"foo"});
         UNIT_ASSERT_VALUES_EQUAL(ok, "foo");
         UNIT_ASSERT_VALUES_EQUAL(ToString(ToString(ok)), "foo");
     }

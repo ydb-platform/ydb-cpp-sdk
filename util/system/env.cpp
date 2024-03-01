@@ -29,7 +29,7 @@ std::string GetEnv(const std::string& key, const std::string& def) {
         if (GetLastError() == ERROR_ENVVAR_NOT_FOUND) {
             return def;
         }
-        return TString{};
+        return std::string{};
     }
 
     std::vector<char> buffer(len);
@@ -42,10 +42,10 @@ std::string GetEnv(const std::string& key, const std::string& def) {
         }
     } while (len > bufferSize);
 
-    return TString(buffer.data(), len);
+    return std::string(buffer.data(), len);
 #else
     const char* env = getenv(key.data());
-    return env ? TString(env) : def;
+    return env ? std::string(env) : def;
 #endif
 }
 

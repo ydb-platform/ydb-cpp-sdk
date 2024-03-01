@@ -152,7 +152,7 @@ void Out<NColorizer::EAnsiCode>(IOutputStream& os, TTypeTraits<NColorizer::EAnsi
 }
 
 bool TColors::CalcIsTTY(FILE* file) {
-    if (GetEnv("ENFORCE_TTY")) {
+    if (!GetEnv("ENFORCE_TTY").empty()) {
         return true;
     }
 

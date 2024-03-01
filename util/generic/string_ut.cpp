@@ -14,12 +14,6 @@
 #include <algorithm>
 #include <stdexcept>
 
-#ifdef TSTRING_IS_STD_STRING
-static_assert(sizeof(TString) == sizeof(std::string), "expect sizeof(TString) == sizeof(std::string)");
-#else
-static_assert(sizeof(TString) == sizeof(const char*), "expect sizeof(TString) == sizeof(const char*)");
-#endif
-
 class TStringTestZero: public TTestBase {
     UNIT_TEST_SUITE(TStringTestZero);
     UNIT_TEST(TestZero);
@@ -45,7 +39,7 @@ public:
         UNIT_ASSERT_EQUAL(7, s.find_first_not_of(def, 4));
 
         const char nonSubstring[] = "def\0ghi";
-        UNIT_ASSERT_EQUAL(TString::npos, s.find(TString(nonSubstring, sizeof(nonSubstring))));
+        UNIT_ASSERT_EQUAL(TString::npos, s.find(std::string(nonSubstring, sizeof(nonSubstring))));
 
         std::string copy = s;
         copy.replace(copy.size() - 1, 1, "z");
@@ -58,7 +52,7 @@ public:
         UNIT_ASSERT(s != prefix);
         UNIT_ASSERT(s > prefix);
         UNIT_ASSERT(s > s.data());
-        UNIT_ASSERT(s == TString(s.data(), s.size()));
+        UNIT_ASSERT(s == std::string(s.data(), s.size()));
         UNIT_ASSERT(data < s);
 
         s.remove(5);
@@ -697,7 +691,7 @@ protected:
 #endif
 }; // TStringStdTestImpl
 
-class TStringTest: public TTestBase, private TStringTestImpl<TString, TTestData<char>> {
+class TStringTest: public TTestBase, private TStringTestImpl<std::string, TTestData<char>> {
 public:
     UNIT_TEST_SUITE(TStringTest);
     UNIT_TEST(TestMaxSize);
@@ -731,7 +725,7 @@ public:
     UNIT_TEST_SUITE_END();
 
     void TestAppendUtf16() {
-        std::string appended = TString("А роза упала").AppendUtf16(u" на лапу Азора");
+        std::string appended = std::string("А роза упала").AppendUtf16(u" на лапу Азора");
         UNIT_ASSERT(appended == "А роза упала на лапу Азора");
     }
 
@@ -759,7 +753,7 @@ public:
 
 UNIT_TEST_SUITE_REGISTRATION(TStringTest);
 
-class TWideStringTest: public TTestBase, private TStringTestImpl<TUtf16String, TTestData<wchar16>> {
+class TWideStringTest: public TTestBase, private TStringTestImpl<std::u16string, TTestData<wchar16>> {
 public:
     UNIT_TEST_SUITE(TWideStringTest);
     UNIT_TEST(TestConstructors);
@@ -792,21 +786,21 @@ public:
 
 private:
     void TestDecodingMethods() {
-        UNIT_ASSERT(TUtf16String::FromAscii("").empty());
-        UNIT_ASSERT(TUtf16String::FromAscii("abc") == ASCIIToWide("abc"));
+        UNIT_ASSERT(std::u16string::FromAscii("").empty());
+        UNIT_ASSERT(std::u16string::FromAscii("abc") == ASCIIToWide("abc"));
 
         const char* text = "123kx83abcd ej)#$%ddja&%J&";
-        TUtf16String wtext = ASCIIToWide(text);
+        std::u16string wtext = ASCIIToWide(text);
 
-        UNIT_ASSERT(wtext == TUtf16String::FromAscii(text));
+        UNIT_ASSERT(wtext == std::u16string::FromAscii(text));
 
         std::string strtext(text);
-        UNIT_ASSERT(wtext == TUtf16String::FromAscii(strtext));
+        UNIT_ASSERT(wtext == std::u16string::FromAscii(strtext));
 
         std::string_view strbuftext(text);
-        UNIT_ASSERT(wtext == TUtf16String::FromAscii(strbuftext));
+        UNIT_ASSERT(wtext == std::u16string::FromAscii(strbuftext));
 
-        UNIT_ASSERT(wtext.substr(5) == TUtf16String::FromAscii(text + 5));
+        UNIT_ASSERT(wtext.substr(5) == std::u16string::FromAscii(text + 5));
 
         const wchar16 wideCyrillicAlphabet[] = {
             0x0410, 0x0411, 0x0412, 0x0413, 0x0414, 0x0415, 0x0416, 0x0417, 0x0418, 0x0419, 0x041A, 0x041B, 0x041C, 0x041D, 0x041E, 0x041F,
@@ -815,16 +809,16 @@ private:
             0x0440, 0x0441, 0x0442, 0x0443, 0x0444, 0x0445, 0x0446, 0x0447, 0x0448, 0x0449, 0x044A, 0x044B, 0x044C, 0x044D, 0x044E, 0x044F,
             0x00};
 
-        TUtf16String strWide(wideCyrillicAlphabet);
+        std::u16string strWide(wideCyrillicAlphabet);
         std::string strUtf8 = WideToUTF8(strWide);
 
-        UNIT_ASSERT(strWide == TUtf16String::FromUtf8(strUtf8.c_str()));
-        UNIT_ASSERT(strWide == TUtf16String::FromUtf8(strUtf8));
-        UNIT_ASSERT(strWide == TUtf16String::FromUtf8(std::string_view(strUtf8)));
+        UNIT_ASSERT(strWide == std::u16string::FromUtf8(strUtf8.c_str()));
+        UNIT_ASSERT(strWide == std::u16string::FromUtf8(strUtf8));
+        UNIT_ASSERT(strWide == std::u16string::FromUtf8(std::string_view(strUtf8)));
 
         // assign
 
-        TUtf16String s1;
+        std::u16string s1;
         s1.AssignAscii("1234");
         UNIT_ASSERT(s1 == ASCIIToWide("1234"));
 
@@ -836,8 +830,8 @@ private:
 
         // append
 
-        TUtf16String s2;
-        TUtf16String testAppend = strWide;
+        std::u16string s2;
+        std::u16string testAppend = strWide;
         s2.AppendUtf8(strUtf8);
         UNIT_ASSERT(testAppend == s2);
 
@@ -859,12 +853,12 @@ private:
     }
 
     void TestLetOperator() {
-        TUtf16String str;
+        std::u16string str;
 
         str = wchar16('X');
-        UNIT_ASSERT(str == TUtf16String::FromAscii("X"));
+        UNIT_ASSERT(str == std::u16string::FromAscii("X"));
 
-        const TUtf16String hello = TUtf16String::FromAscii("hello");
+        const std::u16string hello = std::u16string::FromAscii("hello");
         str = hello.data();
         UNIT_ASSERT(str == hello);
 
@@ -873,19 +867,19 @@ private:
     }
 
     void TestStringLiterals() {
-        TUtf16String s1 = u"hello";
-        UNIT_ASSERT_VALUES_EQUAL(s1, TUtf16String::FromAscii("hello"));
+        std::u16string s1 = u"hello";
+        UNIT_ASSERT_VALUES_EQUAL(s1, std::u16string::FromAscii("hello"));
 
-        TUtf16String s2 = u"привет";
-        UNIT_ASSERT_VALUES_EQUAL(s2, TUtf16String::FromUtf8("привет"));
+        std::u16string s2 = u"привет";
+        UNIT_ASSERT_VALUES_EQUAL(s2, std::u16string::FromUtf8("привет"));
     }
 };
 
 UNIT_TEST_SUITE_REGISTRATION(TWideStringTest);
 
-class TUtf32StringTest: public TTestBase, private TStringTestImpl<TUtf32String, TTestData<wchar32>> {
+class std::u32stringTest: public TTestBase, private TStringTestImpl<std::u32string, TTestData<wchar32>> {
 public:
-    UNIT_TEST_SUITE(TUtf32StringTest);
+    UNIT_TEST_SUITE(std::u32stringTest);
     UNIT_TEST(TestConstructors);
     UNIT_TEST(TestReplace);
 #ifndef TSTRING_IS_STD_STRING
@@ -917,21 +911,21 @@ public:
 
 private:
     void TestDecodingMethods() {
-        UNIT_ASSERT(TUtf32String::FromAscii("").empty());
-        UNIT_ASSERT(TUtf32String::FromAscii("abc") == ASCIIToUTF32("abc"));
+        UNIT_ASSERT(std::u32string::FromAscii("").empty());
+        UNIT_ASSERT(std::u32string::FromAscii("abc") == ASCIIToUTF32("abc"));
 
         const char* text = "123kx83abcd ej)#$%ddja&%J&";
-        TUtf32String wtext = ASCIIToUTF32(text);
+        std::u32string wtext = ASCIIToUTF32(text);
 
-        UNIT_ASSERT(wtext == TUtf32String::FromAscii(text));
+        UNIT_ASSERT(wtext == std::u32string::FromAscii(text));
 
         std::string strtext(text);
-        UNIT_ASSERT(wtext == TUtf32String::FromAscii(strtext));
+        UNIT_ASSERT(wtext == std::u32string::FromAscii(strtext));
 
         std::string_view strbuftext(text);
-        UNIT_ASSERT(wtext == TUtf32String::FromAscii(strbuftext));
+        UNIT_ASSERT(wtext == std::u32string::FromAscii(strbuftext));
 
-        UNIT_ASSERT(wtext.substr(5) == TUtf32String::FromAscii(text + 5));
+        UNIT_ASSERT(wtext.substr(5) == std::u32string::FromAscii(text + 5));
 
         const wchar32 wideCyrillicAlphabet[] = {
             0x0410, 0x0411, 0x0412, 0x0413, 0x0414, 0x0415, 0x0416, 0x0417, 0x0418, 0x0419, 0x041A, 0x041B, 0x041C, 0x041D, 0x041E, 0x041F,
@@ -940,16 +934,16 @@ private:
             0x0440, 0x0441, 0x0442, 0x0443, 0x0444, 0x0445, 0x0446, 0x0447, 0x0448, 0x0449, 0x044A, 0x044B, 0x044C, 0x044D, 0x044E, 0x044F,
             0x00};
 
-        TUtf32String strWide(wideCyrillicAlphabet);
+        std::u32string strWide(wideCyrillicAlphabet);
         std::string strUtf8 = WideToUTF8(strWide);
 
-        UNIT_ASSERT(strWide == TUtf32String::FromUtf8(strUtf8.c_str()));
-        UNIT_ASSERT(strWide == TUtf32String::FromUtf8(strUtf8));
-        UNIT_ASSERT(strWide == TUtf32String::FromUtf8(std::string_view(strUtf8)));
+        UNIT_ASSERT(strWide == std::u32string::FromUtf8(strUtf8.c_str()));
+        UNIT_ASSERT(strWide == std::u32string::FromUtf8(strUtf8));
+        UNIT_ASSERT(strWide == std::u32string::FromUtf8(std::string_view(strUtf8)));
 
         // assign
 
-        TUtf32String s1;
+        std::u32string s1;
         s1.AssignAscii("1234");
         UNIT_ASSERT(s1 == ASCIIToUTF32("1234"));
 
@@ -961,8 +955,8 @@ private:
 
         // append
 
-        TUtf32String s2;
-        TUtf32String testAppend = strWide;
+        std::u32string s2;
+        std::u32string testAppend = strWide;
         s2.AppendUtf8(strUtf8);
         UNIT_ASSERT(testAppend == s2);
 
@@ -985,21 +979,21 @@ private:
     }
 
     void TestDecodingMethodsMixedStr() {
-        UNIT_ASSERT(TUtf32String::FromAscii("").empty());
-        UNIT_ASSERT(TUtf32String::FromAscii("abc") == ASCIIToUTF32("abc"));
+        UNIT_ASSERT(std::u32string::FromAscii("").empty());
+        UNIT_ASSERT(std::u32string::FromAscii("abc") == ASCIIToUTF32("abc"));
 
         const char* text = "123kx83abcd ej)#$%ddja&%J&";
-        TUtf32String wtext = ASCIIToUTF32(text);
+        std::u32string wtext = ASCIIToUTF32(text);
 
-        UNIT_ASSERT(wtext == TUtf32String::FromAscii(text));
+        UNIT_ASSERT(wtext == std::u32string::FromAscii(text));
 
         std::string strtext(text);
-        UNIT_ASSERT(wtext == TUtf32String::FromAscii(strtext));
+        UNIT_ASSERT(wtext == std::u32string::FromAscii(strtext));
 
         std::string_view strbuftext(text);
-        UNIT_ASSERT(wtext == TUtf32String::FromAscii(strbuftext));
+        UNIT_ASSERT(wtext == std::u32string::FromAscii(strbuftext));
 
-        UNIT_ASSERT(wtext.substr(5) == TUtf32String::FromAscii(text + 5));
+        UNIT_ASSERT(wtext.substr(5) == std::u32string::FromAscii(text + 5));
 
         const wchar32 cyrilicAndLatinWide[] = {
             0x0410, 0x0411, 0x0412, 0x0413, 0x0414, 0x0415, 0x0416, 0x0417, 0x0418, 0x0419, 0x041A, 0x041B, 0x041C, 0x041D, 0x041E, 0x041F,
@@ -1010,18 +1004,18 @@ private:
             wchar32('z'),
             0x00};
 
-        TUtf32String strWide(cyrilicAndLatinWide);
+        std::u32string strWide(cyrilicAndLatinWide);
         std::string strUtf8 = WideToUTF8(strWide);
 
-        UNIT_ASSERT(strWide == TUtf32String::FromUtf8(strUtf8.c_str()));
-        UNIT_ASSERT(strWide == TUtf32String::FromUtf8(strUtf8));
+        UNIT_ASSERT(strWide == std::u32string::FromUtf8(strUtf8.c_str()));
+        UNIT_ASSERT(strWide == std::u32string::FromUtf8(strUtf8));
         UNIT_ASSERT(strWide == UTF8ToUTF32<true>(strUtf8));
         UNIT_ASSERT(strWide == UTF8ToUTF32<false>(strUtf8));
-        UNIT_ASSERT(strWide == TUtf32String::FromUtf8(std::string_view(strUtf8)));
+        UNIT_ASSERT(strWide == std::u32string::FromUtf8(std::string_view(strUtf8)));
 
         // assign
 
-        TUtf32String s1;
+        std::u32string s1;
         s1.AssignAscii("1234");
         UNIT_ASSERT(s1 == ASCIIToUTF32("1234"));
 
@@ -1033,8 +1027,8 @@ private:
 
         // append
 
-        TUtf32String s2;
-        TUtf32String testAppend = strWide;
+        std::u32string s2;
+        std::u32string testAppend = strWide;
         s2.AppendUtf16(UTF8ToWide(strUtf8));
         UNIT_ASSERT(testAppend == s2);
 
@@ -1057,12 +1051,12 @@ private:
     }
 
     void TestLetOperator() {
-        TUtf32String str;
+        std::u32string str;
 
         str = wchar32('X');
-        UNIT_ASSERT(str == TUtf32String::FromAscii("X"));
+        UNIT_ASSERT(str == std::u32string::FromAscii("X"));
 
-        const TUtf32String hello = TUtf32String::FromAscii("hello");
+        const std::u32string hello = std::u32string::FromAscii("hello");
         str = hello.data();
         UNIT_ASSERT(str == hello);
 
@@ -1071,17 +1065,17 @@ private:
     }
 
     void TestStringLiterals() {
-        TUtf32String s1 = U"hello";
-        UNIT_ASSERT_VALUES_EQUAL(s1, TUtf32String::FromAscii("hello"));
+        std::u32string s1 = U"hello";
+        UNIT_ASSERT_VALUES_EQUAL(s1, std::u32string::FromAscii("hello"));
 
-        TUtf32String s2 = U"привет";
-        UNIT_ASSERT_VALUES_EQUAL(s2, TUtf32String::FromUtf8("привет"));
+        std::u32string s2 = U"привет";
+        UNIT_ASSERT_VALUES_EQUAL(s2, std::u32string::FromUtf8("привет"));
     }
 };
 
-UNIT_TEST_SUITE_REGISTRATION(TUtf32StringTest);
+UNIT_TEST_SUITE_REGISTRATION(std::u32stringTest);
 
-class TStringStdTest: public TTestBase, private TStringStdTestImpl<TString, TTestData<char>> {
+class TStringStdTest: public TTestBase, private TStringStdTestImpl<std::string, TTestData<char>> {
 public:
     UNIT_TEST_SUITE(TStringStdTest);
     UNIT_TEST(Constructor);
@@ -1117,7 +1111,7 @@ public:
 
 UNIT_TEST_SUITE_REGISTRATION(TStringStdTest);
 
-class TWideStringStdTest: public TTestBase, private TStringStdTestImpl<TUtf16String, TTestData<wchar16>> {
+class TWideStringStdTest: public TTestBase, private TStringStdTestImpl<std::u16string, TTestData<wchar16>> {
 public:
     UNIT_TEST_SUITE(TWideStringStdTest);
     UNIT_TEST(Constructor);
@@ -1206,7 +1200,7 @@ Y_UNIT_TEST_SUITE(StdNonConformant) {
         s.AppendNoAlias("abc", 3);
 
         UNIT_ASSERT_VALUES_EQUAL(s, "xabc");
-        UNIT_ASSERT_VALUES_EQUAL(TString(s.c_str()), "xabc");
+        UNIT_ASSERT_VALUES_EQUAL(std::string(s.c_str()), "xabc");
     }
 }
 #endif
@@ -1237,10 +1231,10 @@ Y_UNIT_TEST_SUITE(Interop) {
     }
 
     Y_UNIT_TEST(TestTransform) {
-        UNIT_ASSERT_VALUES_EQUAL(Transform(TString("x")), "xy");
+        UNIT_ASSERT_VALUES_EQUAL(Transform(std::string("x")), "xy");
     }
 
     Y_UNIT_TEST(TestTemp) {
-        UNIT_ASSERT_VALUES_EQUAL("x" + ConstRef(TString("y")), "xy");
+        UNIT_ASSERT_VALUES_EQUAL("x" + ConstRef(std::string("y")), "xy");
     }
 }

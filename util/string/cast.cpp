@@ -257,7 +257,7 @@ namespace {
     [[noreturn]] static Y_NO_INLINE void ThrowParseError(EParseStatus status, const TChar* data, size_t len, const TChar* pos) {
         Y_ASSERT(status != PS_OK);
 
-        typedef TBasicString<TChar> TStringType;
+        typedef std::basic_string<TChar> TStringType;
 
         switch (status) {
             case PS_EMPTY_STRING:
@@ -267,9 +267,9 @@ namespace {
             case PS_MINUS_STRING:
                 ythrow TFromStringException() << std::string_view("Cannot parse string \"-\" as number. ");
             case PS_BAD_SYMBOL:
-                ythrow TFromStringException() << std::string_view("Unexpected symbol \"") << EscapeC(*pos) << std::string_view("\" at pos ") << (pos - data) << std::string_view(" in string ") << TStringType(data, len).Quote() << std::string_view(". ");
+                ythrow TFromStringException() << std::string_view("Unexpected symbol \"") << EscapeC(*pos) << std::string_view("\" at pos ") << (pos - data) << std::string_view(" in string ") << NQuote::Quote(TStringType(data, len)) << std::string_view(". ");
             case PS_OVERFLOW:
-                ythrow TFromStringException() << std::string_view("Integer overflow in string ") << TStringType(data, len).Quote() << std::string_view(". ");
+                ythrow TFromStringException() << std::string_view("Integer overflow in string ") << NQuote::Quote(TStringType(data, len)) << std::string_view(". ");
             default:
                 ythrow yexception() << std::string_view("Unknown error code in string converter. ");
         }
@@ -449,11 +449,6 @@ bool FromStringImpl<bool>(const char* data, size_t len) {
 }
 
 template <>
-std::string FromStringImpl<std::string>(const char* data, size_t len) {
-    return TString(data, len);
-}
-
-template <>
 std::string_view FromStringImpl<std::string_view>(const char* data, size_t len) {
     return std::string_view(data, len);
 }
@@ -469,8 +464,8 @@ std::filesystem::path FromStringImpl<std::filesystem::path>(const char* data, si
 }
 
 template <>
-TUtf16String FromStringImpl<TUtf16String>(const wchar16* data, size_t len) {
-    return TUtf16String(data, len);
+std::u16string FromStringImpl<std::u16string>(const wchar16* data, size_t len) {
+    return std::u16string(data, len);
 }
 
 template <>
@@ -487,12 +482,6 @@ bool TryFromStringImpl<std::string_view>(const char* data, size_t len, std::stri
 
 template <>
 bool TryFromStringImpl<std::string>(const char* data, size_t len, std::string& result) {
-    result = TString(data, len);
-    return true;
-}
-
-template <>
-bool TryFromStringImpl<std::string>(const char* data, size_t len, std::string& result) {
     result.assign(data, len);
     return true;
 }
@@ -504,8 +493,8 @@ bool TryFromStringImpl<std::u16string_view>(const wchar16* data, size_t len, std
 }
 
 template <>
-bool TryFromStringImpl<TUtf16String>(const wchar16* data, size_t len, TUtf16String& result) {
-    result = TUtf16String(data, len);
+bool TryFromStringImpl<std::u16string>(const wchar16* data, size_t len, std::u16string& result) {
+    result = std::u16string(data, len);
     return true;
 }
 

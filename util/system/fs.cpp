@@ -8,6 +8,7 @@
     #include <errno.h>
 #endif
 
+#include <util/string/escape.h>
 #include <util/generic/yexception.h>
 #include <util/memory/tempbuf.h>
 #include <util/stream/file.h>
@@ -124,7 +125,7 @@ std::string NFs::ReadLink(const std::string& path) {
             ythrow yexception() << "can't read link " << path << ", errno = " << errno;
         }
         if (r < (ssize_t)buf.Size()) {
-            return TString(buf.Data(), r);
+            return std::string(buf.Data(), r);
         }
         buf = TTempBuf(buf.Size() * 2);
     }
@@ -173,6 +174,6 @@ void NFs::SetCurrentWorkingDirectory(const std::string& path) {
     bool ok = !chdir(path.data());
 #endif
     if (!ok) {
-        ythrow TSystemError() << "failed to change directory to " << path.Quote();
+        ythrow TSystemError() << "failed to change directory to " << NQuote::Quote(path);
     }
 }

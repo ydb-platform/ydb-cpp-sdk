@@ -13,7 +13,7 @@ namespace NPrivateStringBuilder {
         }
 
         TStringBuilder(TStringBuilder&& rhs) noexcept
-            : TString(std::move(rhs))
+            : std::string(std::move(rhs))
             , Out(*this)
         {
         }

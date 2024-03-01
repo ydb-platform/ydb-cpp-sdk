@@ -26,7 +26,7 @@ inline void RemoveIfLast(T& s, int c) {
 inline void addIfNotLast(std::string& s, int lastCh) {
     size_t len = s.length();
     if (!len || s[len - 1] != lastCh) {
-        s.append(char(lastCh));
+        s.push_back(char(lastCh));
     }
 }
 
@@ -35,7 +35,7 @@ inline void addIfNotLast(std::string& s, int lastCh) {
 /// @todo ?? Define, when to apply the function. Is in use several times for URLs parsing.
 inline void addIfAbsent(std::string& s, char lastCh1, char lastCh2) {
     size_t pos = s.find(lastCh2);
-    if (pos == TString::npos) {
+    if (pos == std::string::npos) {
         //s.append((char)lastCh1);
         addIfNotLast(s, lastCh1);
     } else if (pos < s.length() - 1) {
@@ -183,7 +183,7 @@ private:
 
 // Removes all occurrences of given character from string
 template <typename TStringType>
-void RemoveAll(TStringType& str, typename TStringType::char_type ch) {
+void RemoveAll(TStringType& str, typename TStringType::value_type ch) {
     size_t pos = str.find(ch); // 'find' to avoid cloning of string in 'TString.begin()'
     if (pos == TStringType::npos)
         return;

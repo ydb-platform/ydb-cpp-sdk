@@ -107,7 +107,7 @@ private:
 template <class TStringType>
 class TBasicCharRef {
 public:
-    using TChar = typename TStringType::TChar;
+    using TChar = typename TStringType::value_type;
 
     TBasicCharRef(TStringType& s, size_t pos)
         : S_(s)
@@ -1197,9 +1197,6 @@ public:
         return changed;
     }
 };
-
-std::ostream& operator<<(std::ostream&, const std::string&);
-std::istream& operator>>(std::istream&, std::string&);
 
 template <typename TCharType, typename TTraits>
 TBasicString<TCharType> to_lower(const TBasicString<TCharType, TTraits>& s) {

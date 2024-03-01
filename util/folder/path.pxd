@@ -1,4 +1,4 @@
-from util.generic.string cimport TString, std::string_view
+from util.generic.string cimport std::string, std::string_view
 from util.generic.vector cimport TVector
 
 
@@ -58,7 +58,7 @@ cdef extern from "util/folder/path.h" nogil:
         void MkDirs(const int) except +
 
         void List(TVector[TFsPath]&) except +
-        void ListNames(TVector[TString]&) except +
+        void ListNames(TVector[std::string]&) except +
 
         bint Contains(const std::string&) const
 

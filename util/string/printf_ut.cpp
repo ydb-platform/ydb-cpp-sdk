@@ -2,21 +2,21 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-Y_UNIT_TEST_SUITE(TStringPrintf) {
+Y_UNIT_TEST_SUITE(StringPrintf) {
     Y_UNIT_TEST(TestSprintf) {
         std::string s;
         int len = sprintf(s, "Hello %s", "world");
-        UNIT_ASSERT_EQUAL(s, TString("Hello world"));
+        UNIT_ASSERT_EQUAL(s, std::string("Hello world"));
         UNIT_ASSERT_EQUAL(len, 11);
     }
 
     Y_UNIT_TEST(TestFcat) {
         std::string s;
         int len = sprintf(s, "Hello %s", "world");
-        UNIT_ASSERT_EQUAL(s, TString("Hello world"));
+        UNIT_ASSERT_EQUAL(s, std::string("Hello world"));
         UNIT_ASSERT_EQUAL(len, 11);
         len = fcat(s, " qwqw%s", "as");
-        UNIT_ASSERT_EQUAL(s, TString("Hello world qwqwas"));
+        UNIT_ASSERT_EQUAL(s, std::string("Hello world qwqwas"));
         UNIT_ASSERT_EQUAL(len, 7);
     }
 

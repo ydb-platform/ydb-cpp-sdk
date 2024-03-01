@@ -41,8 +41,8 @@ Y_UNIT_TEST_SUITE(TIsIn) {
     }
 
     Y_UNIT_TEST(IsInTest) {
-        TestIsInWithCont<THashMap<TString, std::string>>(std::make_pair("found", "1"));
-        TestIsInWithCont<THashMultiMap<TString, std::string>>(std::make_pair("found", "1"));
+        TestIsInWithCont<THashMap<std::string, std::string>>(std::make_pair("found", "1"));
+        TestIsInWithCont<THashMultiMap<std::string, std::string>>(std::make_pair("found", "1"));
 
         TestIsInWithCont<TSet<std::string>>("found");
         TestIsInWithCont<TMultiSet<std::string>>("found");
@@ -85,7 +85,7 @@ Y_UNIT_TEST_SUITE(TIsIn) {
         UNIT_ASSERT(IsIn({abc, def}, def)); // direct pointer comparison
         UNIT_ASSERT(!IsIn({std::string_view("abc"), std::string_view("def")}, std::string_view("ghi")));
         UNIT_ASSERT(!IsIn({"abc", "def"}, std::string_view("ghi")));
-        UNIT_ASSERT(!IsIn({"abc", "def"}, TString("ghi")));
+        UNIT_ASSERT(!IsIn({"abc", "def"}, std::string("ghi")));
 
         const std::string_view str = "abc////";
 
@@ -107,7 +107,7 @@ Y_UNIT_TEST_SUITE(TIsIn) {
         const std::string array[] = {"a", "b", "d"};
 
         UNIT_ASSERT(IsIn(array, "a"));
-        UNIT_ASSERT(IsIn(array, TString("b")));
+        UNIT_ASSERT(IsIn(array, std::string("b")));
         UNIT_ASSERT(!IsIn(array, "c"));
         UNIT_ASSERT(IsIn(array, std::string_view("d")));
     }

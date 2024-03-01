@@ -26,7 +26,7 @@ Y_UNIT_TEST_SUITE(IRemoteAddr_ToString) {
         UNIT_ASSERT(it != address.End());
         UNIT_ASSERT(it->ai_family == AF_INET6);
         std::string toString = ToString((const IRemoteAddr&)TAddrInfo(&*it));
-        UNIT_ASSERT_VALUES_EQUAL(TString("[::1]:22"), toString);
+        UNIT_ASSERT_VALUES_EQUAL(std::string("[::1]:22"), toString);
     }
 
     Y_UNIT_TEST(Loopback) {

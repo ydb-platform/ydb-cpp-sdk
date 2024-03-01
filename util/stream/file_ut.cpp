@@ -38,7 +38,7 @@ Y_UNIT_TEST_SUITE(TFileTest) {
         {
             TUnbufferedFileInput input(TmpFileName);
             std::string s = input.ReadAll();
-            UNIT_ASSERT_VALUES_EQUAL(s, TString::Join(TmpFileContents, TmpFileContents));
+            UNIT_ASSERT_VALUES_EQUAL(s, TUtils::Join(TmpFileContents, TmpFileContents));
         }
     }
 

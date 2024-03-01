@@ -54,7 +54,7 @@ void TFsTest::TestCreateRemove() {
     UNIT_ASSERT_EXCEPTION(NFs::MakeDirectoryRecursive(subdir1, NFs::FP_COMMON_FILE, true), TIoException);
 
     TFsPath file1 = dir1 / "f1.txt";
-    TFsPath file2 = subdir1 + TString("_f2.txt");
+    TFsPath file2 = subdir1 + std::string("_f2.txt");
     TFsPath file3 = subdir1 / "f2.txt";
     Touch(file1);
     Touch(file2);
@@ -220,8 +220,8 @@ static void RunSymLinkTest(std::string fileLocalName, std::string symLinkName) {
     UNIT_ASSERT(NFs::SymLink(subDir, linkD1));
     UNIT_ASSERT(NFs::SymLink("../dir2", linkD2));
     UNIT_ASSERT(NFs::SymLink("../dir3", dangling));
-    UNIT_ASSERT_STRINGS_EQUAL(NFs::ReadLink(linkD2), TString("..") + LOCSLASH_S "dir2");
-    UNIT_ASSERT_STRINGS_EQUAL(NFs::ReadLink(dangling), TString("..") + LOCSLASH_S "dir3");
+    UNIT_ASSERT_STRINGS_EQUAL(NFs::ReadLink(linkD2), std::string("..") + LOCSLASH_S "dir2");
+    UNIT_ASSERT_STRINGS_EQUAL(NFs::ReadLink(dangling), std::string("..") + LOCSLASH_S "dir3");
     {
         TFile file(linkD1 / fileLocalName, OpenExisting | RdOnly);
         UNIT_ASSERT_VALUES_EQUAL(file.GetLength(), 7);

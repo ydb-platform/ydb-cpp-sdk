@@ -142,4 +142,39 @@ std::string_view Before(std::string_view src, char c) {
     return TrySplit(src, l, r, c) ? l : src;
 }
 
+size_t SumLength() noexcept {
+    return 0;
+}
+
+void CopyAll(char*) noexcept {
+}
+
+template <>
+std::u16string FromAscii(const ::std::string_view& s) {
+    std::u16string res;
+    res.resize(s.size());
+
+    auto dst = res.begin();
+
+    for (const char* src = s.data(); dst != res.end(); ++dst, ++src) {
+        *dst = static_cast<char16_t>(*src);
+    }
+
+    return res;
+}
+
+template <>
+std::u32string FromAscii(const ::std::string_view& s) {
+    std::u32string res;
+    res.resize(s.size());
+
+    auto dst = res.begin();
+
+    for (const char* src = s.data(); dst != res.end(); ++dst, ++src) {
+        *dst = static_cast<char32_t>(*src);
+    }
+
+    return res;
+}
+
 }

@@ -14,7 +14,7 @@ struct TFsPath::TSplit: public TAtomicRefCount<TSplit>, public TPathSplit {
         : TPathSplit(path)
     {
     }
-    inline TSplit(const std::string& path, const TSimpleIntrusivePtr<TSplit>& thatSplit, const TString::char_type* thatPathData) {
+    inline TSplit(const std::string& path, const TSimpleIntrusivePtr<TSplit>& thatSplit, const std::string::value_type* thatPathData) {
         for (const auto& thatPart : *thatSplit) {
             emplace_back(path.data() + (thatPart.data() - thatPathData), thatPart.size());
         }
@@ -153,14 +153,14 @@ TFsPath& TFsPath::Fix() {
 
 std::string TFsPath::GetName() const {
     if (!IsDefined()) {
-        return TString();
+        return std::string();
     }
 
     const TSplit& split = GetSplit();
 
     if (split.size() > 0) {
         if (split.back() != "..") {
-            return TString(split.back());
+            return std::string(split.back());
         } else {
             // cannot just drop last component, because path itself may be a symlink
             return RealPath().GetName();
@@ -175,7 +175,7 @@ std::string TFsPath::GetName() const {
 }
 
 std::string TFsPath::GetExtension() const {
-    return TString(GetSplit().Extension());
+    return std::string(GetSplit().Extension());
 }
 
 bool TFsPath::IsAbsolute() const {
@@ -261,7 +261,7 @@ TFsPath& TFsPath::operator=(TFsPath&& that) {
 }
 
 TFsPath TFsPath::Child(const std::string& name) const {
-    if (!name) {
+    if (name.empty()) {
         ythrow TIoException() << "child name must not be empty";
     }
 
@@ -335,7 +335,7 @@ void TFsPath::List(std::vector<TFsPath>& files) const {
 
 void TFsPath::RenameTo(const std::string& newPath) const {
     CheckDefined();
-    if (!newPath) {
+    if (newPath.empty()) {
         ythrow TIoException() << "bad new file name";
     }
     if (!NFs::Rename(Path_, newPath)) {
@@ -344,7 +344,7 @@ void TFsPath::RenameTo(const std::string& newPath) const {
 }
 
 void TFsPath::RenameTo(const char* newPath) const {
-    RenameTo(TString(newPath));
+    RenameTo(std::string(newPath));
 }
 
 void TFsPath::RenameTo(const TFsPath& newPath) const {

@@ -6,8 +6,8 @@
 
 Y_UNIT_TEST_SUITE(TStringSubst) {
     static const size_t MIN_FROM_CTX = 4;
-    static const std::vector<std::string> ALL_FROM{TString("F"), TString("FF")};
-    static const std::vector<std::string> ALL_TO{TString(""), TString("T"), TString("TT"), TString("TTT")};
+    static const std::vector<std::string> ALL_FROM{std::string("F"), std::string("FF")};
+    static const std::vector<std::string> ALL_TO{std::string(""), std::string("T"), std::string("TT"), std::string("TTT")};
 
     static void AssertSubstGlobal(const std::string& sFrom, const std::string& sTo, const std::string& from, const std::string& to, const size_t fromPos, const size_t numSubst) {
         std::string s = sFrom;
@@ -49,8 +49,8 @@ Y_UNIT_TEST_SUITE(TStringSubst) {
                 for (size_t fromPos = 0; fromPos <= sz - fromSz; ++fromPos) {
                     for (size_t fromBeg = 0; fromBeg < fromPos; ++fromBeg) {
                         const auto parts = {
-                            TString{fromBeg, '.'},
-                            TString{sz - fromSz - fromBeg, '.'}};
+                            std::string(fromBeg, '.'),
+                            std::string(sz - fromSz - fromBeg, '.')};
                         std::string s = JoinSeq(from, parts);
                         for (const auto& to : ALL_TO) {
                             AssertSubstGlobal(s, s, from, to, fromPos, 0);
@@ -123,61 +123,61 @@ Y_UNIT_TEST_SUITE(TStringSubst) {
         std::string s;
         s = "aaa";
         SubstGlobal(s, "a", "bb");
-        UNIT_ASSERT_EQUAL(s, TString("bbbbbb"));
+        UNIT_ASSERT_EQUAL(s, std::string("bbbbbb"));
         s = "aaa";
         SubstGlobal(s, "a", "b");
-        UNIT_ASSERT_EQUAL(s, TString("bbb"));
+        UNIT_ASSERT_EQUAL(s, std::string("bbb"));
         s = "aaa";
         SubstGlobal(s, "a", "");
-        UNIT_ASSERT_EQUAL(s, TString(""));
+        UNIT_ASSERT_EQUAL(s, std::string(""));
         s = "abcdefbcbcdfb";
         SubstGlobal(s, "bc", "bbc", 2);
-        UNIT_ASSERT_EQUAL(s, TString("abcdefbbcbbcdfb"));
+        UNIT_ASSERT_EQUAL(s, std::string("abcdefbbcbbcdfb"));
         s = "Москва ~ Париж";
         SubstGlobal(s, " ~ ", " ");
-        UNIT_ASSERT_EQUAL(s, TString("Москва Париж"));
+        UNIT_ASSERT_EQUAL(s, std::string("Москва Париж"));
     }
 
     Y_UNIT_TEST(TestSubstGlobalOldRet) {
         const std::string s1 = "aaa";
         const std::string s2 = SubstGlobalCopy(s1, "a", "bb");
-        UNIT_ASSERT_EQUAL(s2, TString("bbbbbb"));
+        UNIT_ASSERT_EQUAL(s2, std::string("bbbbbb"));
 
         const std::string s3 = "aaa";
         const std::string s4 = SubstGlobalCopy(s3, "a", "b");
-        UNIT_ASSERT_EQUAL(s4, TString("bbb"));
+        UNIT_ASSERT_EQUAL(s4, std::string("bbb"));
 
         const std::string s5 = "aaa";
         const std::string s6 = SubstGlobalCopy(s5, "a", "");
-        UNIT_ASSERT_EQUAL(s6, TString(""));
+        UNIT_ASSERT_EQUAL(s6, std::string(""));
 
         const std::string s7 = "abcdefbcbcdfb";
         const std::string s8 = SubstGlobalCopy(s7, "bc", "bbc", 2);
-        UNIT_ASSERT_EQUAL(s8, TString("abcdefbbcbbcdfb"));
+        UNIT_ASSERT_EQUAL(s8, std::string("abcdefbbcbbcdfb"));
 
         const std::string s9 = "Москва ~ Париж";
         const std::string s10 = SubstGlobalCopy(s9, " ~ ", " ");
-        UNIT_ASSERT_EQUAL(s10, TString("Москва Париж"));
+        UNIT_ASSERT_EQUAL(s10, std::string("Москва Париж"));
     }
 
     Y_UNIT_TEST(TestSubstCharGlobal) {
-        TUtf16String w = u"abcdabcd";
+        std::u16string w = u"abcdabcd";
         SubstGlobal(w, wchar16('b'), wchar16('B'), 3);
         UNIT_ASSERT_EQUAL(w, u"abcdaBcd");
 
         std::string s = "aaa";
         SubstGlobal(s, 'a', 'b', 1);
-        UNIT_ASSERT_EQUAL(s, TString("abb"));
+        UNIT_ASSERT_EQUAL(s, std::string("abb"));
     }
 
     Y_UNIT_TEST(TestSubstCharGlobalRet) {
-        const TUtf16String w1 = u"abcdabcd";
-        const TUtf16String w2 = SubstGlobalCopy(w1, wchar16('b'), wchar16('B'), 3);
+        const std::u16string w1 = u"abcdabcd";
+        const std::u16string w2 = SubstGlobalCopy(w1, wchar16('b'), wchar16('B'), 3);
         UNIT_ASSERT_EQUAL(w2, u"abcdaBcd");
 
         const std::string s1 = "aaa";
         const std::string s2 = SubstGlobalCopy(s1, 'a', 'b', 1);
-        UNIT_ASSERT_EQUAL(s2, TString("abb"));
+        UNIT_ASSERT_EQUAL(s2, std::string("abb"));
     }
 
     Y_UNIT_TEST(TestSubstStdString) {

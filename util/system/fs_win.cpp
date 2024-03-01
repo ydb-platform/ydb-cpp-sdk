@@ -9,7 +9,7 @@
 #include <winioctl.h>
 
 namespace NFsPrivate {
-    static LPCWSTR UTF8ToWCHAR(const std::string_view str, TUtf16String& wstr) {
+    static LPCWSTR UTF8ToWCHAR(const std::string_view str, std::u16string& wstr) {
         wstr.resize(str.size());
         size_t written = 0;
         if (!UTF8ToWide(str.data(), str.size(), wstr.begin(), written))
@@ -26,7 +26,7 @@ namespace NFsPrivate {
     }
 
     HANDLE CreateFileWithUtf8Name(const std::string_view fName, ui32 accessMode, ui32 shareMode, ui32 createMode, ui32 attributes, bool inheritHandle) {
-        TUtf16String wstr;
+        std::u16string wstr;
         LPCWSTR wname = UTF8ToWCHAR(fName, wstr);
         if (!wname) {
             ::SetLastError(ERROR_INVALID_NAME);
@@ -40,7 +40,7 @@ namespace NFsPrivate {
     }
 
     bool WinRename(const std::string& oldPath, const std::string& newPath) {
-        TUtf16String op, np;
+        std::u16string op, np;
         LPCWSTR opPtr = UTF8ToWCHAR(oldPath, op);
         LPCWSTR npPtr = UTF8ToWCHAR(newPath, np);
         if (!opPtr || !npPtr) {
@@ -52,7 +52,7 @@ namespace NFsPrivate {
     }
 
     bool WinRemove(const std::string& path) {
-        TUtf16String wstr;
+        std::u16string wstr;
         LPCWSTR wname = UTF8ToWCHAR(path, wstr);
         if (!wname) {
             ::SetLastError(ERROR_INVALID_NAME);
@@ -76,12 +76,12 @@ namespace NFsPrivate {
         std::string tName(targetName);
         {
             size_t pos;
-            while ((pos = tName.find('/')) != TString::npos)
+            while ((pos = tName.find('/')) != std::string::npos)
                 tName.replace(pos, 1, LOCSLASH_S);
         }
-        TUtf16String tstr;
+        std::u16string tstr;
         LPCWSTR wname = UTF8ToWCHAR(tName, tstr);
-        TUtf16String lstr;
+        std::u16string lstr;
         LPCWSTR lname = UTF8ToWCHAR(linkName, lstr);
 
         // we can't create a dangling link to a dir in this way
@@ -95,8 +95,8 @@ namespace NFsPrivate {
 
                 if (linkDir) {
                     std::string fullTarget(tName);
-                    resolvepath(fullTarget, TString{linkDir});
-                    TUtf16String fullTargetW;
+                    resolvepath(fullTarget, std::string{linkDir});
+                    std::u16string fullTargetW;
                     LPCWSTR ptrFullTarget = UTF8ToWCHAR(fullTarget, fullTargetW);
                     attr = ::GetFileAttributesW(ptrFullTarget);
                 }
@@ -106,7 +106,7 @@ namespace NFsPrivate {
     }
 
     bool WinHardLink(const std::string& existingPath, const std::string& newPath) {
-        TUtf16String ep, np;
+        std::u16string ep, np;
         LPCWSTR epPtr = UTF8ToWCHAR(existingPath, ep);
         LPCWSTR npPtr = UTF8ToWCHAR(newPath, np);
         if (!epPtr || !npPtr) {
@@ -118,7 +118,7 @@ namespace NFsPrivate {
     }
 
     bool WinExists(const std::string& path) {
-        TUtf16String buf;
+        std::u16string buf;
         LPCWSTR ptr = UTF8ToWCHAR(path, buf);
         return ::GetFileAttributesW(ptr) != INVALID_FILE_ATTRIBUTES;
     }
@@ -133,7 +133,7 @@ namespace NFsPrivate {
     }
 
     bool WinSetCurrentWorkingDirectory(const std::string& path) {
-        TUtf16String wstr;
+        std::u16string wstr;
         LPCWSTR wname = UTF8ToWCHAR(path, wstr);
         if (!wname) {
             ::SetLastError(ERROR_INVALID_NAME);
@@ -143,7 +143,7 @@ namespace NFsPrivate {
     }
 
     bool WinMakeDirectory(const std::string& path) {
-        TUtf16String buf;
+        std::u16string buf;
         LPCWSTR ptr = UTF8ToWCHAR(path, buf);
         return CreateDirectoryW(ptr, (LPSECURITY_ATTRIBUTES) nullptr);
     }
@@ -223,7 +223,7 @@ namespace NFsPrivate {
             return WideToUTF8(str, len);
         }
         //this reparse point is unsupported in arcadia
-        return TString();
+        return std::string();
     }
 
     ULONG WinReadReparseTag(HANDLE h) {

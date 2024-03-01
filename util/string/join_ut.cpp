@@ -17,7 +17,7 @@ Y_UNIT_TEST_SUITE(JoinStringTest) {
     Y_UNIT_TEST(ScalarItems) {
         UNIT_ASSERT_EQUAL(Join(',', 10, 11.1, "foobar"), "10,11.1,foobar");
         UNIT_ASSERT_EQUAL(Join(", ", 10, 11.1, "foobar"), "10, 11.1, foobar");
-        UNIT_ASSERT_EQUAL(Join(", ", 10, 11.1, TString("foobar")), "10, 11.1, foobar");
+        UNIT_ASSERT_EQUAL(Join(", ", 10, 11.1, std::string("foobar")), "10, 11.1, foobar");
 
         UNIT_ASSERT_EQUAL(Join('#', 0, "a", "foobar", -1.4, std::string_view("aaa")), "0#a#foobar#-1.4#aaa");
         UNIT_ASSERT_EQUAL(Join("", "", ""), "");

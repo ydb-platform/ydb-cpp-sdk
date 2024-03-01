@@ -42,7 +42,7 @@ Y_UNIT_TEST_SUITE(TUtfUtilTest) {
                         k /= N;
                     }
 
-                    TUtf16String tmp = UTF8ToWide(s);
+                    std::u16string tmp = UTF8ToWide(s);
                     tmp.to_lower();
 
                     UNIT_ASSERT_VALUES_EQUAL(ToLowerUTF8(s), WideToUTF8(tmp));
@@ -82,7 +82,7 @@ Y_UNIT_TEST_SUITE(TUtfUtilTest) {
                         k /= N;
                     }
 
-                    TUtf16String tmp = UTF8ToWide(s);
+                    std::u16string tmp = UTF8ToWide(s);
                     tmp.to_upper();
 
                     UNIT_ASSERT_VALUES_EQUAL(ToUpperUTF8(s), WideToUTF8(tmp));
@@ -113,8 +113,8 @@ Y_UNIT_TEST_SUITE(TUtfUtilTest) {
         TFileInput in(ArcadiaSourceRoot() + std::string_view("/util/charset/ut/utf8/test1.txt"));
 
         std::string text = in.ReadAll();
-        TUtf16String wtextSSE = UTF8ToWide(text);
-        TUtf16String wtextScalar = TUtf16String::Uninitialized(text.size());
+        std::u16string wtextSSE = UTF8ToWide(text);
+        std::u16string wtextScalar = std::u16string::Uninitialized(text.size());
         const unsigned char* textBegin = reinterpret_cast<const unsigned char*>(text.c_str());
         wchar16* wtextBegin = wtextScalar.begin();
         ::NDetail::UTF8ToWideImplScalar<false>(textBegin, textBegin + text.size(), wtextBegin);

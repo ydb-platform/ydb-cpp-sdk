@@ -17,20 +17,20 @@ cdef extern from "<util/generic/string.h>" nogil:
     size_t npos "TString::npos"
 
     # Inheritance is bogus, but it's safe to assume std::string is-a std::string_view via implicit cast
-    cdef cppclass TString(std::string_view):
-        TString() except +
-        TString(std::string&) except +
-        TString(_std_string&) except +
-        TString(std::string&, size_t, size_t) except +
-        TString(char*) except +
-        TString(char*, size_t) except +
-        TString(char*, size_t, size_t) except +
+    cdef cppclass std::string(std::string_view):
+        std::string() except +
+        std::string(std::string&) except +
+        std::string(_std_string&) except +
+        std::string(std::string&, size_t, size_t) except +
+        std::string(char*) except +
+        std::string(char*, size_t) except +
+        std::string(char*, size_t, size_t) except +
         # as a std::string formed by a repetition of character c, n times.
-        TString(size_t, char) except +
-        TString(char*, char*) except +
-        TString(std::string_view&) except +
-        TString(std::string_view&, std::string_view&) except +
-        TString(std::string_view&, std::string_view&, std::string_view&) except +
+        std::string(size_t, char) except +
+        std::string(char*, char*) except +
+        std::string(std::string_view&) except +
+        std::string(std::string_view&, std::string_view&) except +
+        std::string(std::string_view&, std::string_view&, std::string_view&) except +
 
         const char* c_str()
         size_t max_size()

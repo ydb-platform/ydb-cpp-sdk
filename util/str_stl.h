@@ -86,7 +86,7 @@ struct hash<std::string>: ::NHashPrivate::TStringHash<char> {
 };
 
 template <>
-struct hash<TUtf16String>: ::NHashPrivate::TStringHash<wchar16> {
+struct hash<std::u16string>: ::NHashPrivate::TStringHash<wchar16> {
 };
 
 template <>
@@ -94,7 +94,7 @@ struct THash<std::u16string_view>: ::NHashPrivate::TStringHash<wchar16> {
 };
 
 template <>
-struct hash<TUtf32String>: ::NHashPrivate::TStringHash<wchar32> {
+struct hash<std::u32string>: ::NHashPrivate::TStringHash<wchar32> {
 };
 
 template <>
@@ -191,12 +191,12 @@ struct TEqualTo<std::string>: public TEqualTo<std::string_view> {
 };
 
 template <>
-struct TEqualTo<TUtf16String>: public TEqualTo<std::u16string_view> {
+struct TEqualTo<std::u16string>: public TEqualTo<std::u16string_view> {
     using is_transparent = void;
 };
 
 template <>
-struct TEqualTo<TUtf32String>: public TEqualTo<std::u32string_view> {
+struct TEqualTo<std::u32string>: public TEqualTo<std::u32string_view> {
     using is_transparent = void;
 };
 
@@ -232,12 +232,12 @@ struct TLess: public std::less<T> {
 };
 
 template <>
-struct TLess<TUtf16String>: public TLess<std::u16string_view> {
+struct TLess<std::u16string>: public TLess<std::u16string_view> {
     using is_transparent = void;
 };
 
 template <>
-struct TLess<TUtf32String>: public TLess<std::u32string_view> {
+struct TLess<std::u32string>: public TLess<std::u32string_view> {
     using is_transparent = void;
 };
 
@@ -246,11 +246,11 @@ struct TGreater: public std::greater<T> {
 };
 
 template <>
-struct TGreater<TUtf16String>: public TGreater<std::u16string_view> {
+struct TGreater<std::u16string>: public TGreater<std::u16string_view> {
     using is_transparent = void;
 };
 
 template <>
-struct TGreater<TUtf32String>: public TGreater<std::u32string_view> {
+struct TGreater<std::u32string>: public TGreater<std::u32string_view> {
     using is_transparent = void;
 };

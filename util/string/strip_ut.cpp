@@ -54,7 +54,7 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
             const void* stringPtrAfter = str.data();
             UNIT_ASSERT_VALUES_EQUAL(str, test.StripRes);
             if (!test.Str.empty()) {
-                UNIT_ASSERT_EQUAL_C(stringPtrPrior, stringPtrAfter, TString(test.Str).Quote()); // StripInPlace should reuse buffer of original string
+                UNIT_ASSERT_EQUAL_C(stringPtrPrior, stringPtrAfter, std::string(test.Str).Quote()); // StripInPlace should reuse buffer of original string
             }
         }
     }
@@ -73,7 +73,7 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
 
         for (auto test : tests) {
             UNIT_ASSERT_EQUAL(
-                StripString(TString(test.Str), EqualsStripAdapter('/')),
+                StripString(std::string(test.Str), EqualsStripAdapter('/')),
                 test.Result);
         };
     }
@@ -93,10 +93,10 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
 
         for (const auto& test : tests) {
             UNIT_ASSERT_EQUAL(
-                StripStringLeft(TString(test.Str), EqualsStripAdapter('/')),
+                StripStringLeft(std::string(test.Str), EqualsStripAdapter('/')),
                 test.ResultLeft);
             UNIT_ASSERT_EQUAL(
-                StripStringRight(TString(test.Str), EqualsStripAdapter('/')),
+                StripStringRight(std::string(test.Str), EqualsStripAdapter('/')),
                 test.ResultRight);
         };
     }
@@ -105,7 +105,7 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
         std::string_view nullString(nullptr, nullptr);
         UNIT_ASSERT_EQUAL(
             StripString(nullString),
-            TString());
+            std::string());
     }
 
     Y_UNIT_TEST(TestWtrokaStrip) {
@@ -123,14 +123,14 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
     }
 
     Y_UNIT_TEST(TestCollapseUtf32) {
-        TUtf32String s;
+        std::u32string s;
         Collapse(UTF8ToUTF32<true>("  123    456  "), s, IsWhitespace);
         UNIT_ASSERT(s == UTF8ToUTF32<true>(" 123 456 "));
         Collapse(UTF8ToUTF32<true>("  123    456  "), s, IsWhitespace, 10);
         UNIT_ASSERT(s == UTF8ToUTF32<true>(" 123 456  "));
 
         s = UTF8ToUTF32<true>(" a b c ");
-        TUtf32String s2 = s;
+        std::u32string s2 = s;
         CollapseInPlace(s2, IsWhitespace);
 
         UNIT_ASSERT(s == s2);
@@ -140,14 +140,14 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
     }
 
     Y_UNIT_TEST(TestCollapseUtf16) {
-        TUtf16String s;
+        std::u16string s;
         Collapse(UTF8ToWide<true>("  123    456  "), s);
         UNIT_ASSERT(s == UTF8ToWide<true>(" 123 456 "));
         Collapse(UTF8ToWide<true>("  123    456  "), s, 10);
         UNIT_ASSERT(s == UTF8ToWide<true>(" 123 456  "));
 
         s = UTF8ToWide<true>(" a b c ");
-        TUtf16String s2 = s;
+        std::u16string s2 = s;
         CollapseInPlace(s2);
 
         UNIT_ASSERT(s == s2);
@@ -158,12 +158,12 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
 
     Y_UNIT_TEST(TestCollapse) {
         std::string s;
-        Collapse(TString("  123    456  "), s);
+        Collapse(std::string("  123    456  "), s);
         UNIT_ASSERT(s == " 123 456 ");
-        Collapse(TString("  123    456  "), s, 10);
+        Collapse(std::string("  123    456  "), s, 10);
         UNIT_ASSERT(s == " 123 456  ");
 
-        s = TString(" a b c ");
+        s = std::string(" a b c ");
         std::string s2 = s;
         CollapseInPlace(s2);
 

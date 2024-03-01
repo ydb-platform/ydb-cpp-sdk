@@ -94,7 +94,7 @@ struct TSockAddrLocal: public ISockAddr {
     }
 
     std::string ToString() const {
-        return TString(Path);
+        return std::string(Path);
     }
 
     TFsPath ToPath() const {
@@ -197,7 +197,7 @@ struct TSockAddrLocal: public sockaddr_un, public ISockAddr {
     }
 
     std::string ToString() const override {
-        return TString(sun_path);
+        return std::string(sun_path);
     }
 
     TFsPath ToPath() const {
@@ -345,7 +345,7 @@ struct TSockAddrInet6: public sockaddr_in6, public ISockAddr {
     std::string GetIp() const noexcept {
         char ip6[INET6_ADDRSTRLEN];
         inet_ntop(AF_INET6, (void*)&sin6_addr, ip6, INET6_ADDRSTRLEN);
-        return TString(ip6);
+        return std::string(ip6);
     }
 
     TIpPort GetPort() const noexcept {

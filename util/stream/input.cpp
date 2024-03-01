@@ -88,7 +88,7 @@ size_t IInputStream::ReadLine(std::string& st) {
     return ret;
 }
 
-size_t IInputStream::ReadLine(TUtf16String& w) {
+size_t IInputStream::ReadLine(std::u16string& w) {
     std::string s;
     size_t result = ReadLine(s);
 
@@ -207,9 +207,9 @@ namespace {
                 return 0;
             }
 
-            st.AssignNoAlias(B_, r);
+            st.assign(B_, r);
 
-            if (st && st.back() == ch) {
+            if (!st.empty() && st.back() == ch) {
                 st.pop_back();
             }
 
@@ -284,7 +284,7 @@ void In<std::string>(IInputStream& i, std::string& s) {
 }
 
 template <>
-void In<TUtf16String>(IInputStream& i, TUtf16String& w) {
+void In<std::u16string>(IInputStream& i, std::u16string& w) {
     std::string s;
     ReadUpToDelimiter(i, s);
 

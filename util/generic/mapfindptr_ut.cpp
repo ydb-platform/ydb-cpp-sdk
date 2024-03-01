@@ -35,9 +35,9 @@ Y_UNIT_TEST_SUITE(TMapFindPtrTest) {
     }
 
     Y_UNIT_TEST(TestTemplateFind) {
-        THashMap<TString, int> m;
+        THashMap<std::string, int> m;
 
-        m[TString("x")] = 2;
+        m[std::string("x")] = 2;
 
         UNIT_ASSERT(m.FindPtr(std::string_view("x")));
         UNIT_ASSERT_EQUAL(*m.FindPtr(std::string_view("x")), 2);

@@ -28,7 +28,7 @@ Y_UNIT_TEST_SUITE(TDirectIOTests) {
 
         // filling file
         // TEMPLATE|TEMPLATE|TEMPLATE|...
-        const auto fileName = TString("test.file");
+        const auto fileName = std::string("test.file");
         auto&& directIOBuffer = TDirectIOBufferedFile{fileName, RdWr | CreateAlways | mode};
         {
             auto&& output = TRandomAccessFileOutput{directIOBuffer};

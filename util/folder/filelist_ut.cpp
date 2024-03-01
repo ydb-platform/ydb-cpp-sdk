@@ -41,14 +41,14 @@ void TFileListTest::TestPrefix() {
     TFileList fileList;
     {
         fileList.Fill(tempDir().data(), "good_file", SORT);
-        UNIT_ASSERT_EQUAL(TString(fileList.Next()), "good_file1");
-        UNIT_ASSERT_EQUAL(TString(fileList.Next()), "good_file2");
+        UNIT_ASSERT_EQUAL(std::string(fileList.Next()), "good_file1");
+        UNIT_ASSERT_EQUAL(std::string(fileList.Next()), "good_file2");
         UNIT_ASSERT_EQUAL(fileList.Next(), nullptr);
     }
     {
         fileList.Fill(tempDir().data(), "bad_file", SORT);
-        UNIT_ASSERT_EQUAL(TString(fileList.Next()), "bad_file1");
-        UNIT_ASSERT_EQUAL(TString(fileList.Next()), "bad_file2");
+        UNIT_ASSERT_EQUAL(std::string(fileList.Next()), "bad_file1");
+        UNIT_ASSERT_EQUAL(std::string(fileList.Next()), "bad_file2");
         UNIT_ASSERT_EQUAL(fileList.Next(), nullptr);
     }
 }

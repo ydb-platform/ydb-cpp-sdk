@@ -120,7 +120,7 @@ protected:
 UNIT_TEST_SUITE_REGISTRATION(THashTest);
 
 void THashTest::TestHMapConstructorsAndAssignments() {
-    using container = THashMap<TString, int>;
+    using container = THashMap<std::string, int>;
 
     container c1;
     c1["one"] = 1;
@@ -171,7 +171,7 @@ void THashTest::TestHMapConstructorsAndAssignments() {
 }
 
 void THashTest::TestHMap1() {
-    using maptype = THashMap<char, TString, THash<char>, TEqualTo<char>>;
+    using maptype = THashMap<char, std::string, THash<char>, TEqualTo<char>>;
     maptype m;
     // Store mappings between roman numerals and decimals.
     m['l'] = "50";
@@ -187,11 +187,11 @@ void THashTest::TestHMap1() {
     UNIT_ASSERT(m.contains('z'));
 
     UNIT_ASSERT(m.count('z') == 1);
-    auto p = m.insert(std::pair<const char, std::string>('c', TString("100")));
+    auto p = m.insert(std::pair<const char, std::string>('c', std::string("100")));
 
     UNIT_ASSERT(p.second);
 
-    p = m.insert(std::pair<const char, std::string>('c', TString("100")));
+    p = m.insert(std::pair<const char, std::string>('c', std::string("100")));
     UNIT_ASSERT(!p.second);
 
     // Some iterators compare check, really compile time checks
@@ -208,7 +208,7 @@ void THashTest::TestHMap1() {
 }
 
 void THashTest::TestHMapEqualityOperator() {
-    using container = THashMap<TString, int>;
+    using container = THashMap<std::string, int>;
 
     container base;
     base["one"] = 1;
@@ -231,7 +231,7 @@ void THashTest::TestHMapEqualityOperator() {
 }
 
 void THashTest::TestHMMapEqualityOperator() {
-    using container = THashMultiMap<TString, int>;
+    using container = THashMultiMap<std::string, int>;
     using value = container::value_type;
 
     container base;
@@ -266,7 +266,7 @@ void THashTest::TestHMMapEqualityOperator() {
 }
 
 void THashTest::TestHMMapConstructorsAndAssignments() {
-    using container = THashMultiMap<TString, int>;
+    using container = THashMultiMap<std::string, int>;
 
     container c1;
     c1.insert(container::value_type("one", 1));
@@ -610,7 +610,7 @@ void THashTest::TestHMSetEmplace() {
 }
 
 void THashTest::TestInsertErase() {
-    using hmap = THashMap<TString, size_t, THash<std::string>, TEqualTo<std::string>>;
+    using hmap = THashMap<std::string, size_t, THash<std::string>, TEqualTo<std::string>>;
     using val_type = hmap::value_type;
 
     {
@@ -660,7 +660,7 @@ namespace {
 
     using TItemMapBase = THashTable<
         TItemPtr,
-        TString,
+        std::string,
         THash<std::string>,
         TSelectKey,
         TEqualTo<std::string>,
@@ -1183,10 +1183,10 @@ void THashTest::TestAt() {
         }                                                                                                                                                  \
     }
 
-    TEST_AT_THROWN_EXCEPTION(TString, TString, TString, "111", "111");
-    TEST_AT_THROWN_EXCEPTION(TString, TString, const TString, "111", "111");
-    TEST_AT_THROWN_EXCEPTION(TString, TString, std::string_view, "111", "111");
-    TEST_AT_THROWN_EXCEPTION(TString, TString, const std::string_view, "111", "111");
+    TEST_AT_THROWN_EXCEPTION(std::string, std::string, std::string, "111", "111");
+    TEST_AT_THROWN_EXCEPTION(std::string, std::string, const std::string, "111", "111");
+    TEST_AT_THROWN_EXCEPTION(std::string, std::string, std::string_view, "111", "111");
+    TEST_AT_THROWN_EXCEPTION(std::string, std::string, const std::string_view, "111", "111");
     TEST_AT_THROWN_EXCEPTION(std::string_view, std::string_view, const char*, "111", "111");
     TEST_AT_THROWN_EXCEPTION(int, int, short, 11, "11");
     TEST_AT_THROWN_EXCEPTION(int, int, int, -1, "-1");
@@ -1198,30 +1198,30 @@ void THashTest::TestAt() {
     TEST_AT_THROWN_EXCEPTION(int, int, unsigned long long, 1000000000000ll, "1000000000000");
 
     char key[] = {11, 12, 0, 1, 2, 11, 0};
-    TEST_AT_THROWN_EXCEPTION(TString, TString, char*, key, "\\x0B\\x0C");
-    TEST_AT_THROWN_EXCEPTION(TString, TString, std::string_view, std::string_view(key, sizeof(key) - 1), "\\x0B\\x0C\\0\\1\\2\\x0B");
+    TEST_AT_THROWN_EXCEPTION(std::string, std::string, char*, key, "\\x0B\\x0C");
+    TEST_AT_THROWN_EXCEPTION(std::string, std::string, std::string_view, std::string_view(key, sizeof(key) - 1), "\\x0B\\x0C\\0\\1\\2\\x0B");
 
 #undef TEST_AT_THROWN_EXCEPTION
 }
 
 void THashTest::TestHMapInitializerList() {
-    THashMap<TString, std::string> h1 = {{"foo", "bar"}, {"bar", "baz"}, {"baz", "qux"}};
-    THashMap<TString, std::string> h2;
-    h2.insert(std::pair<TString, std::string>("foo", "bar"));
-    h2.insert(std::pair<TString, std::string>("bar", "baz"));
-    h2.insert(std::pair<TString, std::string>("baz", "qux"));
+    THashMap<std::string, std::string> h1 = {{"foo", "bar"}, {"bar", "baz"}, {"baz", "qux"}};
+    THashMap<std::string, std::string> h2;
+    h2.insert(std::pair<std::string, std::string>("foo", "bar"));
+    h2.insert(std::pair<std::string, std::string>("bar", "baz"));
+    h2.insert(std::pair<std::string, std::string>("baz", "qux"));
     UNIT_ASSERT_EQUAL(h1, h2);
 }
 
 void THashTest::TestHMMapInitializerList() {
-    THashMultiMap<TString, std::string> h1 = {
+    THashMultiMap<std::string, std::string> h1 = {
         {"foo", "bar"},
         {"foo", "baz"},
         {"baz", "qux"}};
-    THashMultiMap<TString, std::string> h2;
-    h2.insert(std::pair<TString, std::string>("foo", "bar"));
-    h2.insert(std::pair<TString, std::string>("foo", "baz"));
-    h2.insert(std::pair<TString, std::string>("baz", "qux"));
+    THashMultiMap<std::string, std::string> h2;
+    h2.insert(std::pair<std::string, std::string>("foo", "bar"));
+    h2.insert(std::pair<std::string, std::string>("foo", "baz"));
+    h2.insert(std::pair<std::string, std::string>("baz", "qux"));
     UNIT_ASSERT_EQUAL(h1, h2);
 }
 
@@ -1328,7 +1328,7 @@ void THashTest::TestTupleHash() {
 
 void THashTest::TestStringHash() {
     // Make sure that different THash<> variants behave in the same way
-    const size_t expected = ComputeHash(TString("hehe"));
+    const size_t expected = ComputeHash(std::string("hehe"));
     UNIT_ASSERT_VALUES_EQUAL(ComputeHash("hehe"), expected);              // char[5]
     UNIT_ASSERT_VALUES_EQUAL(ComputeHash("hehe"sv), expected);            // std::string_view
     UNIT_ASSERT_VALUES_EQUAL(ComputeHash(std::string_view("hehe")), expected);  // std::string_view

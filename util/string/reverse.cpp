@@ -11,7 +11,7 @@ void ReverseInPlace(std::string& string) {
     std::reverse(begin, begin + string.size());
 }
 
-void ReverseInPlace(TUtf16String& string) {
+void ReverseInPlace(std::u16string& string) {
     auto* begin = string.begin();
     const auto len = string.size();
     auto* end = begin + string.size();
@@ -27,7 +27,7 @@ void ReverseInPlace(TUtf16String& string) {
     std::copy(buffer.begin(), buffer.end(), begin);
 }
 
-void ReverseInPlace(TUtf32String& string) {
+void ReverseInPlace(std::u32string& string) {
     auto* begin = string.begin();
     std::reverse(begin, begin + string.size());
 }

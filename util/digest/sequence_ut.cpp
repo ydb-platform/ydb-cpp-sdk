@@ -15,7 +15,7 @@ class TRangeHashTest: public TTestBase {
 private:
     inline void TestStrokaInt() {
         const size_t canonicalHash = static_cast<size_t>(ULL(12727184940294366172));
-        UNIT_ASSERT_EQUAL(canonicalHash, TRangeHash<>()(TString("12345")));
+        UNIT_ASSERT_EQUAL(canonicalHash, TRangeHash<>()(std::string("12345")));
     }
 
     inline void TestIntVector() {
@@ -32,7 +32,7 @@ private:
 
     inline void TestMap() {
         const size_t canonicalHash = static_cast<size_t>(ULL(4415387926488545605));
-        std::map<TString, int> testMap{{"foo", 123}, {"bar", 456}};
+        std::map<std::string, int> testMap{{"foo", 123}, {"bar", 456}};
         UNIT_ASSERT_EQUAL(canonicalHash, TRangeHash<>()(testMap));
     }
 

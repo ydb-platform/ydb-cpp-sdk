@@ -22,9 +22,9 @@ namespace NPrivate {
     void SplitStringImpl(std::vector<std::string>* res, const char* ptr, size_t len,
                          const char* delimiter, size_t maxFields, int options);
 
-    void SplitStringImpl(std::vector<TUtf16String>* res, const wchar16* ptr,
+    void SplitStringImpl(std::vector<std::u16string>* res, const wchar16* ptr,
                          const wchar16* delimiter, size_t maxFields, int options);
-    void SplitStringImpl(std::vector<TUtf16String>* res, const wchar16* ptr, size_t len,
+    void SplitStringImpl(std::vector<std::u16string>* res, const wchar16* ptr, size_t len,
                          const wchar16* delimiter, size_t maxFields, int options);
 
     template <typename C>
@@ -32,12 +32,12 @@ namespace NPrivate {
 
     template <>
     struct TStringDeducer<char> {
-        using type = TString;
+        using type = std::string;
     };
 
     template <>
     struct TStringDeducer<wchar16> {
-        using type = TUtf16String;
+        using type = std::u16string;
     };
 }
 
@@ -69,7 +69,7 @@ SplitString(const typename ::NPrivate::TStringDeducer<C>::type& str, const C* de
 template <class TIter>
 inline std::string JoinStrings(TIter begin, TIter end, const std::string_view delim) {
     if (begin == end)
-        return TString();
+        return std::string();
 
     std::string result = ToString(*begin);
 
@@ -82,11 +82,11 @@ inline std::string JoinStrings(TIter begin, TIter end, const std::string_view de
 }
 
 template <class TIter>
-inline TUtf16String JoinStrings(TIter begin, TIter end, const std::u16string_view delim) {
+inline std::u16string JoinStrings(TIter begin, TIter end, const std::u16string_view delim) {
     if (begin == end)
-        return TUtf16String();
+        return std::u16string();
 
-    TUtf16String result = ToWtring(*begin);
+    std::u16string result = ToWtring(*begin);
 
     for (++begin; begin != end; ++begin) {
         result.append(delim);
@@ -117,8 +117,8 @@ inline std::string JoinVectorIntoString(const std::vector<T>& v, size_t index, s
     return JoinStrings(v.begin() + index, v.begin() + index + count, delim);
 }
 
-TUtf16String JoinStrings(const std::vector<TUtf16String>& v, const std::u16string_view delim);
-TUtf16String JoinStrings(const std::vector<TUtf16String>& v, size_t index, size_t count, const std::u16string_view delim);
+std::u16string JoinStrings(const std::vector<std::u16string>& v, const std::u16string_view delim);
+std::u16string JoinStrings(const std::vector<std::u16string>& v, size_t index, size_t count, const std::u16string_view delim);
 
 //! Converts vector of strings to vector of type T variables
 template <typename T, typename TStringType>

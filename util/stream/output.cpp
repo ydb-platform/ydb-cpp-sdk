@@ -134,12 +134,12 @@ void Out<const wchar32*>(IOutputStream& o, const wchar32* w) {
 }
 
 template <>
-void Out<TUtf16String>(IOutputStream& o, const TUtf16String& w) {
+void Out<std::u16string>(IOutputStream& o, const std::u16string& w) {
     WriteString(o, w.c_str(), w.size());
 }
 
 template <>
-void Out<TUtf32String>(IOutputStream& o, const TUtf32String& w) {
+void Out<std::u32string>(IOutputStream& o, const std::u32string& w) {
     WriteString(o, w.c_str(), w.size());
 }
 
@@ -198,12 +198,12 @@ void Out<typename std::vector<bool>::reference>(IOutputStream& o, const std::vec
 #ifndef TSTRING_IS_STD_STRING
 
 template <>
-void Out<TBasicCharRef<TUtf16String>>(IOutputStream& o, const TBasicCharRef<TUtf16String>& c) {
+void Out<TBasicCharRef<std::u16string>>(IOutputStream& o, const TBasicCharRef<std::u16string>& c) {
     o << static_cast<wchar16>(c);
 }
 
 template <>
-void Out<TBasicCharRef<TUtf32String>>(IOutputStream& o, const TBasicCharRef<TUtf32String>& c) {
+void Out<TBasicCharRef<std::u32string>>(IOutputStream& o, const TBasicCharRef<std::u32string>& c) {
     o << static_cast<wchar32>(c);
 }
 #endif

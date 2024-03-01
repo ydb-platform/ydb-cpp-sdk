@@ -14,7 +14,7 @@ std::string Strftime(const char* format, const struct tm* tm) {
         TTempBuf buf(size);
         int r = strftime(buf.Data(), buf.Size(), format, tm);
         if (r != 0) {
-            return TString(buf.Data(), r);
+            return std::string(buf.Data(), r);
         }
         size *= 2;
     }
@@ -190,7 +190,7 @@ std::string TInstant::ToStringUpToSeconds() const {
     if (!len) {
         ythrow yexception() << "TInstant::ToStringUpToSeconds: year does not fit into an integer";
     }
-    return TString(buf, len);
+    return std::string(buf, len);
 }
 
 std::string TInstant::ToIsoStringLocal() const {

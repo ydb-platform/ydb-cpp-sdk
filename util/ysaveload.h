@@ -361,7 +361,7 @@ class TSerializer<std::string>: public TVectorSerializer<std::string> {
 };
 
 template <>
-class TSerializer<TUtf16String>: public TVectorSerializer<TUtf16String> {
+class TSerializer<std::u16string>: public TVectorSerializer<std::u16string> {
 };
 
 template <class TChar>

@@ -302,7 +302,7 @@ Y_UNIT_TEST_SUITE(TFileMapTest) {
             UNIT_ASSERT(0);                                                  // should not go here
         } catch (yexception& exc) {
             std::string text = exc.what(); // exception should contain failed file name
-            UNIT_ASSERT(text.find(TMemoryMapCommon::UnknownFileName()) != TString::npos);
+            UNIT_ASSERT(text.find(TMemoryMapCommon::UnknownFileName()) != std::string::npos);
             fclose(f);
         }
 
@@ -313,7 +313,7 @@ Y_UNIT_TEST_SUITE(TFileMapTest) {
             UNIT_ASSERT(0);                                                  // should not go here
         } catch (yexception& exc) {
             std::string text = exc.what(); // exception should contain failed file name
-            UNIT_ASSERT(text.find(FileName_) != TString::npos);
+            UNIT_ASSERT(text.find(FileName_) != std::string::npos);
         }
         NFs::Remove(FileName_);
     }

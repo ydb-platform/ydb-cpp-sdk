@@ -232,7 +232,7 @@ bool CollapseImpl(const TStringType& from, TStringType& to, size_t maxLen, const
         if (isWhitespace(to[i]) && (to[i] != ' ' || isWhitespace(to[i + 1]))) {
             size_t tailSize = maxLen - i;
             size_t newTailSize = CollapseImpl(to.begin() + i, tailSize, isWhitespace);
-            to.remove(i + newTailSize, tailSize - newTailSize);
+            to.erase(i + newTailSize, tailSize - newTailSize);
             return true;
         }
     }

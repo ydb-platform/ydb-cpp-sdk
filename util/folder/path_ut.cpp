@@ -40,9 +40,9 @@ namespace {
 
     TTestDirectory::TTestDirectory(const std::string& name) {
         Y_ABORT_UNLESS(name.length() > 0, "have to specify name");
-        Y_ABORT_UNLESS(name.find('.') == TString::npos, "must be simple name");
-        Y_ABORT_UNLESS(name.find('/') == TString::npos, "must be simple name");
-        Y_ABORT_UNLESS(name.find('\\') == TString::npos, "must be simple name");
+        Y_ABORT_UNLESS(name.find('.') == std::string::npos, "must be simple name");
+        Y_ABORT_UNLESS(name.find('/') == std::string::npos, "must be simple name");
+        Y_ABORT_UNLESS(name.find('\\') == std::string::npos, "must be simple name");
         Path_ = TFsPath(name);
 
         Path_.ForceDelete();
@@ -119,13 +119,13 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
 
     Y_UNIT_TEST(GetName) {
         TTestDirectory d("GetName");
-        UNIT_ASSERT_VALUES_EQUAL(TString("dfgh"), d.Child("dfgh").GetName());
+        UNIT_ASSERT_VALUES_EQUAL(std::string("dfgh"), d.Child("dfgh").GetName());
 
         // check does not fail
         TFsPath(".").GetName();
 
 #ifdef _unix_
-        UNIT_ASSERT_VALUES_EQUAL(TString("/"), TFsPath("/").GetName());
+        UNIT_ASSERT_VALUES_EQUAL(std::string("/"), TFsPath("/").GetName());
 #endif
     }
 
@@ -192,7 +192,7 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
 
     Y_UNIT_TEST(TestSlashesAndBasename) {
         TFsPath p("/db/BASE/primus121-025-1380131338//");
-        UNIT_ASSERT_VALUES_EQUAL(p.Basename(), TString("primus121-025-1380131338"));
+        UNIT_ASSERT_VALUES_EQUAL(p.Basename(), std::string("primus121-025-1380131338"));
         TFsPath testP = p / "test";
 #ifdef _win_
         UNIT_ASSERT_VALUES_EQUAL(testP.GetPath(), "\\db\\BASE\\primus121-025-1380131338\\test");
@@ -205,10 +205,10 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
         TFsPath p("\\db\\BASE\\primus121-025-1380131338\\\\");
         TFsPath testP = p / "test";
 #ifdef _win_
-        UNIT_ASSERT_VALUES_EQUAL(p.Basename(), TString("primus121-025-1380131338"));
+        UNIT_ASSERT_VALUES_EQUAL(p.Basename(), std::string("primus121-025-1380131338"));
         UNIT_ASSERT_VALUES_EQUAL(testP.GetPath(), "\\db\\BASE\\primus121-025-1380131338\\test");
 #else
-        UNIT_ASSERT_VALUES_EQUAL(p.Basename(), TString("\\db\\BASE\\primus121-025-1380131338\\\\"));
+        UNIT_ASSERT_VALUES_EQUAL(p.Basename(), std::string("\\db\\BASE\\primus121-025-1380131338\\\\"));
         UNIT_ASSERT_VALUES_EQUAL(testP.GetPath(), "\\db\\BASE\\primus121-025-1380131338\\\\/test");
 #endif
     }
@@ -217,10 +217,10 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
         TFsPath p("C:\\db\\BASE\\primus121-025-1380131338\\\\");
         TFsPath testP = p / "test";
 #ifdef _win_
-        UNIT_ASSERT_VALUES_EQUAL(p.Basename(), TString("primus121-025-1380131338"));
+        UNIT_ASSERT_VALUES_EQUAL(p.Basename(), std::string("primus121-025-1380131338"));
         UNIT_ASSERT_VALUES_EQUAL(testP.GetPath(), "C:\\db\\BASE\\primus121-025-1380131338\\test");
 #else
-        UNIT_ASSERT_VALUES_EQUAL(p.Basename(), TString("C:\\db\\BASE\\primus121-025-1380131338\\\\"));
+        UNIT_ASSERT_VALUES_EQUAL(p.Basename(), std::string("C:\\db\\BASE\\primus121-025-1380131338\\\\"));
         UNIT_ASSERT_VALUES_EQUAL(testP.GetPath(), "C:\\db\\BASE\\primus121-025-1380131338\\\\/test");
 #endif
     }
@@ -351,12 +351,12 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
 
         UNIT_ASSERT_VALUES_EQUAL(TFsPath() / TFsPath(), TFsPath());
 #ifdef _win_
-        UNIT_ASSERT_VALUES_EQUAL(TFsPath("a\\b"), TFsPath() / TString("a\\b"));
+        UNIT_ASSERT_VALUES_EQUAL(TFsPath("a\\b"), TFsPath() / std::string("a\\b"));
         UNIT_ASSERT_VALUES_EQUAL(TFsPath("a\\b"), "a\\b" / TFsPath());
         UNIT_ASSERT_VALUES_EQUAL(TFsPath("\\a\\b"), TFsPath() / "\\a\\b");
         UNIT_ASSERT_VALUES_EQUAL(TFsPath("\\a\\b"), "\\a\\b" / TFsPath());
 #else
-        UNIT_ASSERT_VALUES_EQUAL(TFsPath("a/b"), TFsPath() / TString("a/b"));
+        UNIT_ASSERT_VALUES_EQUAL(TFsPath("a/b"), TFsPath() / std::string("a/b"));
         UNIT_ASSERT_VALUES_EQUAL(TFsPath("a/b"), "a/b" / TFsPath());
         UNIT_ASSERT_VALUES_EQUAL(TFsPath("/a/b"), TFsPath() / "/a/b");
         UNIT_ASSERT_VALUES_EQUAL(TFsPath("/a/b"), "/a/b" / TFsPath());
@@ -866,9 +866,9 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
 
     Y_UNIT_TEST(TestCopySplitNoneSSO) {
         // Lenght of directory name must overhead SSO length 19-23 bytes
-        const std::string DIR_A = TString("Dir") + TString(32, 'A');
-        const std::string DIR_B = TString("Dir") + TString(64, 'B');
-        const std::string DIR_C = TString("Dir") + TString(128, 'C');
+        const std::string DIR_A = std::string("Dir") + std::string(32, 'A');
+        const std::string DIR_B = std::string("Dir") + std::string(64, 'B');
+        const std::string DIR_C = std::string("Dir") + std::string(128, 'C');
         for (auto constructorType = 0; constructorType < 2; ++constructorType) {
             TFsPath path1 = TFsPath(DIR_A) / TFsPath(DIR_B);
             auto& split1 = path1.PathSplit();

@@ -11,6 +11,6 @@ void ReverseInPlace(std::string& string);
  * will become
  * E [C D] B A
  */
-void ReverseInPlace(TUtf16String& string);
+void ReverseInPlace(std::u16string& string);
 
-void ReverseInPlace(TUtf32String& string);
+void ReverseInPlace(std::u32string& string);

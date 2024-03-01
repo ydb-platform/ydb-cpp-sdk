@@ -36,7 +36,7 @@ public:
         with_lock (Lock_) {
             return Stream_.Str();
         }
-        return TString(); // line for compiler
+        return std::string(); // line for compiler
     }
 
 protected:
@@ -169,7 +169,7 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
     }
     Y_UNIT_TEST(TestQuotes) {
         TShellCommandOptions options;
-        std::string input = TString("a\"a a");
+        std::string input = std::string("a\"a a");
         std::string output;
         TStringOutput outputStream(output);
         options.SetOutputStream(&outputStream);
@@ -201,7 +201,7 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
     // 'type con' and 'copy con con' want real console, not stdin, use sort
     Y_UNIT_TEST(TestInput) {
         TShellCommandOptions options;
-        std::string input = (TString("a") * 2000).append(NL) * textSize;
+        std::string input = (std::string("a") * 2000).append(NL) * textSize;
         TStringInput inputStream(input);
         options.SetInputStream(&inputStream);
         TShellCommand cmd(catCommand, options);
@@ -211,7 +211,7 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
     }
     Y_UNIT_TEST(TestOutput) {
         TShellCommandOptions options;
-        std::string input = (TString("a") * 2000).append(NL) * textSize;
+        std::string input = (std::string("a") * 2000).append(NL) * textSize;
         TStringInput inputStream(input);
         options.SetInputStream(&inputStream);
         std::string output;
@@ -296,7 +296,7 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
 #if !defined(_win_)
     // this ut is unix-only, port to win using %TEMP%
     Y_UNIT_TEST(TestInterrupt) {
-        std::string tmpfile = TString("shellcommand_ut.interrupt.") + ToString(RandomNumber<ui32>());
+        std::string tmpfile = std::string("shellcommand_ut.interrupt.") + ToString(RandomNumber<ui32>());
 
         TShellCommandOptions options;
         options.SetAsync(true);
@@ -326,7 +326,7 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
         rc = SigProcMask(SIG_SETMASK, &newmask, &oldmask);
         UNIT_ASSERT(rc == 0);
 
-        std::string tmpfile = TString("shellcommand_ut.interrupt.") + ToString(RandomNumber<ui32>());
+        std::string tmpfile = std::string("shellcommand_ut.interrupt.") + ToString(RandomNumber<ui32>());
 
         TShellCommandOptions options;
         options.SetAsync(true);
@@ -380,7 +380,7 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
     }
 #endif
     Y_UNIT_TEST(TestInternalError) {
-        std::string input = (TString("a") * 2000).append("\n");
+        std::string input = (std::string("a") * 2000).append("\n");
         TStringInput inputStream(input);
         TMemoryOutput outputStream(nullptr, 0);
         TShellCommandOptions options;
@@ -397,7 +397,7 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
         options.SetOutputStream(&stream);
         options.SetUseShell(true);
 
-        std::string input = TString(7000, 'a');
+        std::string input = std::string(7000, 'a');
         std::string command = TStringBuilder{} << "echo " << input;
         TShellCommand cmd(command, options);
         cmd.Run().Wait();
@@ -410,7 +410,7 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
         options.SetErrorStream(&stream);
         options.SetUseShell(true);
 
-        std::string input = TString(7000, 'a');
+        std::string input = std::string(7000, 'a');
         std::string command = TStringBuilder{} << "echo " << input << ">&2";
         TShellCommand cmd(command, options);
         cmd.Run().Wait();
@@ -465,7 +465,7 @@ Y_UNIT_TEST_SUITE(TShellCommandTest) {
         UNIT_ASSERT(options.ErrorMode == TShellCommandOptions::HANDLE_STREAM);
     }
     Y_UNIT_TEST(TestForkCallback) {
-        std::string tmpFile = TString("shellcommand_ut.test_for_callback.txt");
+        std::string tmpFile = std::string("shellcommand_ut.test_for_callback.txt");
         TFsPath cwd(::NFs::CurrentWorkingDirectory());
         const std::string tmpFilePath = cwd.Child(tmpFile);
 

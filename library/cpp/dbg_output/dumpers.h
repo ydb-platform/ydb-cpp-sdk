@@ -155,10 +155,6 @@ struct TDumper<const char*>: public TStrDumper {
 };
 
 template <>
-struct TDumper<TUtf16String>: public TStrDumper {
-};
-
-template <>
 struct TDumper<const wchar16*>: public TStrDumper {
 };
 

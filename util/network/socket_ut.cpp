@@ -87,7 +87,7 @@ void TSockTest::TestNetworkResolutionError() {
 
     int expectedErr = EAI_NONAME;
     std::string expectedErrMsg = gai_strerror(expectedErr);
-    if (errMsg.find(expectedErrMsg) == TString::npos) {
+    if (errMsg.find(expectedErrMsg) == std::string::npos) {
         UNIT_FAIL("TNetworkResolutionError contains\nInvalid msg: " + errMsg + "\nExpected msg: " + expectedErrMsg + "\n");
     }
 }

@@ -161,41 +161,22 @@ size_t SubstGlobal(std::string& text, const std::string_view what, const std::st
     return SubstGlobalImpl(text, what, with, from);
 }
 
-size_t SubstGlobal(std::string& text, const std::string_view what, const std::string_view with, size_t from) {
-    return SubstGlobalImpl(text, what, with, from);
-}
-
-size_t SubstGlobal(TUtf16String& text, const std::u16string_view what, const std::u16string_view with, size_t from) {
-    return SubstGlobalImpl(text, what, with, from);
-}
-
-size_t SubstGlobal(TUtf32String& text, const std::u32string_view what, const std::u32string_view with, size_t from) {
-    return SubstGlobalImpl(text, what, with, from);
-}
-
 size_t SubstGlobal(std::u16string& text, const std::u16string_view what, const std::u16string_view with, size_t from) {
-    return SubstGlobalImpl(text,
-                           std::u16string_view(reinterpret_cast<const char16_t*>(what.data()), what.size()),
-                           std::u16string_view(reinterpret_cast<const char16_t*>(with.data()), with.size()),
-                           from);
+    return SubstGlobalImpl(text, what, with, from);
+}
+
+size_t SubstGlobal(std::u32string& text, const std::u32string_view what, const std::u32string_view with, size_t from) {
+    return SubstGlobalImpl(text, what, with, from);
 }
 
 size_t SubstGlobal(std::string& text, char what, char with, size_t from) {
     return SubstCharGlobalImpl(text, what, with, from);
-}
-
-size_t SubstGlobal(std::string& text, char what, char with, size_t from) {
-    return SubstCharGlobalImpl(text, what, with, from);
-}
-
-size_t SubstGlobal(TUtf16String& text, wchar16 what, wchar16 with, size_t from) {
-    return SubstCharGlobalImpl(text, (char16_t)what, (char16_t)with, from);
 }
 
 size_t SubstGlobal(std::u16string& text, wchar16 what, wchar16 with, size_t from) {
     return SubstCharGlobalImpl(text, (char16_t)what, (char16_t)with, from);
 }
 
-size_t SubstGlobal(TUtf32String& text, wchar32 what, wchar32 with, size_t from) {
+size_t SubstGlobal(std::u32string& text, wchar32 what, wchar32 with, size_t from) {
     return SubstCharGlobalImpl(text, (char32_t)what, (char32_t)with, from);
 }

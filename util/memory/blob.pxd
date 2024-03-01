@@ -1,6 +1,5 @@
 from libcpp cimport bool as bool_t
 
-from util.generic.string cimport TString
 from util.system.types cimport ui8
 
 

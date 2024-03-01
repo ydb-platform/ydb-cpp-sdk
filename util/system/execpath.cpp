@@ -23,7 +23,7 @@
 
 #if defined(_freebsd_)
 static inline bool GoodPath(const std::string& path) {
-    return path.find('/') != TString::npos;
+    return path.find('/') != std::string::npos;
 }
 
 static inline int FreeBSDSysCtl(int* mib, size_t mibSize, TTempBuf& res) {
@@ -46,7 +46,7 @@ static inline std::string FreeBSDGetExecPath() {
     TTempBuf buf;
     int r = FreeBSDSysCtl(mib, Y_ARRAY_SIZE(mib), buf);
     if (r == 0) {
-        return TString(buf.Data(), buf.Filled() - 1);
+        return std::string(buf.Data(), buf.Filled() - 1);
     } else if (r == ENOTSUP) { // older FreeBSD version
         /*
          * BSD analogue for /proc/self is /proc/curproc.
@@ -56,7 +56,7 @@ static inline std::string FreeBSDGetExecPath() {
         std::string path("/proc/curproc/file");
         return NFs::ReadLink(path);
     } else {
-        return TString();
+        return std::string();
     }
 }
 
@@ -65,9 +65,9 @@ static inline std::string FreeBSDGetArgv0() {
     TTempBuf buf;
     int r = FreeBSDSysCtl(mib, Y_ARRAY_SIZE(mib), buf);
     if (r == 0) {
-        return TString(buf.Data());
+        return std::string(buf.Data());
     } else if (r == ENOTSUP) {
-        return TString();
+        return std::string();
     } else {
         ythrow yexception() << "FreeBSDGetArgv0() failed: " << LastSystemErrorText();
     }
@@ -85,7 +85,7 @@ static inline bool FreeBSDGuessExecPath(const std::string& guessPath, std::strin
 }
 
 static inline bool FreeBSDGuessExecBasePath(const std::string& guessBasePath, std::string& execPath) {
-    return FreeBSDGuessExecPath(TString(guessBasePath) + "/" + getprogname(), execPath);
+    return FreeBSDGuessExecPath(std::string(guessBasePath) + "/" + getprogname(), execPath);
 }
 
 #endif
@@ -147,13 +147,13 @@ static std::string GetExecPathImpl() {
 
 static bool GetPersistentExecPathImpl(std::string& to) {
 #if defined(_solaris_)
-    to = TString("/proc/self/object/a.out");
+    to = std::string("/proc/self/object/a.out");
     return true;
 #elif defined(_linux_) || defined(_cygwin_)
-    to = TString("/proc/self/exe");
+    to = std::string("/proc/self/exe");
     return true;
 #elif defined(_freebsd_)
-    to = TString("/proc/curproc/file");
+    to = std::string("/proc/curproc/file");
     return true;
 #else // defined(_win_) || defined(_darwin_)  or unknown
     Y_UNUSED(to);

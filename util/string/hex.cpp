@@ -47,7 +47,7 @@ void* HexDecode(const void* in, size_t len, void* ptr) {
 std::string HexEncode(const void* in, size_t len) {
     std::string ret;
 
-    ret.ReserveAndResize(len << 1);
+    ret.resize(len << 1);
     HexEncode(in, len, ret.begin());
 
     return ret;
@@ -56,7 +56,7 @@ std::string HexEncode(const void* in, size_t len) {
 std::string HexDecode(const void* in, size_t len) {
     std::string ret;
 
-    ret.ReserveAndResize(len >> 1);
+    ret.resize(len >> 1);
     HexDecode(in, len, ret.begin());
 
     return ret;

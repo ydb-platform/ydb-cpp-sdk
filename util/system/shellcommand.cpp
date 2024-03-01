@@ -523,7 +523,7 @@ void TShellCommand::TImpl::StartProcess(TShellCommand::TImpl::TPipes& pipes) {
     }
 
     PROCESS_INFORMATION process_info;
-    // std::string cmd = "cmd /U" + TUtf16String can be used to read unicode messages from cmd
+    // std::string cmd = "cmd /U" + std::u16string can be used to read unicode messages from cmd
     // /A - ansi charset /Q - echo off, /C - command, /Q - special quotes
     std::string qcmd = GetQuotedCommand();
     std::string cmd = Options_.UseShell ? "cmd /A /Q /S /C \"" + qcmd + "\"" : qcmd;

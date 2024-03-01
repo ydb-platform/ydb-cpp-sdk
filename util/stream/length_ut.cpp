@@ -41,7 +41,7 @@ Y_UNIT_TEST_SUITE(TestLengthIO) {
         l1.Write('1');
         UNIT_ASSERT_VALUES_EQUAL(l1.Counter(), 1);
 
-        l1.Write(TString("abcd"));
+        l1.Write(std::string("abcd"));
         UNIT_ASSERT_VALUES_EQUAL(l1.Counter(), 5);
 
         std::string buf("aaa");

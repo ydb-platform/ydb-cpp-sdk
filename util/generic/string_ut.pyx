@@ -1,7 +1,7 @@
 # cython: c_string_type=str, c_string_encoding=utf8
 
 from libcpp.string cimport string as std_string
-from util.generic.string cimport TString, npos
+from util.generic.string cimport std::string, npos
 
 import pytest
 import unittest
@@ -16,39 +16,39 @@ class TestStroka(unittest.TestCase):
 
 
     def test_ctor1(self):
-        cdef std::string tmp = TString()
-        cdef std::string tmp2 = TString(tmp)
+        cdef std::string tmp = std::string()
+        cdef std::string tmp2 = std::string(tmp)
         self.assertEqual(tmp2, "")
 
     def test_ctor2(self):
         cdef std_string tmp = b"hello"
-        cdef std::string tmp2 = TString(tmp)
+        cdef std::string tmp2 = std::string(tmp)
         self.assertEqual(tmp2, "hello")
 
     def test_ctor3(self):
         cdef std::string tmp = b"hello"
-        cdef std::string tmp2 = TString(tmp, 0, 4)
+        cdef std::string tmp2 = std::string(tmp, 0, 4)
         self.assertEqual(tmp2, "hell")
 
     def test_ctor4(self):
-        cdef std::string tmp = TString(<char*>b"hello")
+        cdef std::string tmp = std::string(<char*>b"hello")
         self.assertEqual(tmp, "hello")
 
     def test_ctor5(self):
-        cdef std::string tmp = TString(<char*>b"hello", 4)
+        cdef std::string tmp = std::string(<char*>b"hello", 4)
         self.assertEqual(tmp, "hell")
 
     def test_ctor6(self):
-        cdef std::string tmp = TString(<char*>b"hello", 1, 3)
+        cdef std::string tmp = std::string(<char*>b"hello", 1, 3)
         self.assertEqual(tmp, "ell")
 
     def test_ctor7(self):
-        cdef std::string tmp = TString(3, <char>'x')
+        cdef std::string tmp = std::string(3, <char>'x')
         self.assertEqual(tmp, "xxx")
 
     def test_ctor8(self):
         cdef bytes tmp = b"hello"
-        cdef std::string tmp2 = TString(<char*>tmp, <char*>tmp + 4)
+        cdef std::string tmp2 = std::string(<char*>tmp, <char*>tmp + 4)
         self.assertEqual(tmp2, "hell")
 
     def test_compare(self):
@@ -75,7 +75,7 @@ class TestStroka(unittest.TestCase):
         self.assertEqual(tmp2, "hello")
 
     def test_operator_plus(self):
-        cdef std::string tmp = TString(b"hello ") + TString(b"world")
+        cdef std::string tmp = std::string(b"hello ") + std::string(b"world")
         self.assertEqual(tmp, "hello world")
 
     def test_c_str(self):

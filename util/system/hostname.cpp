@@ -1,3 +1,5 @@
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <util/memory/tempbuf.h>
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>
@@ -74,7 +76,7 @@ namespace {
                 ythrow TSystemError() << "can not get FQDN (return code is " << res << ", hostname is \"" << buf << "\")";
             }
             FQDNHostName = ais->ai_canonname;
-            FQDNHostName.to_lower();
+            NUtils::ToLower(FQDNHostName);
             freeaddrinfo(ais);
 #endif
         }
@@ -101,7 +103,7 @@ const char* GetFQDNHostName() {
 
 bool IsFQDN(const std::string& name) {
     std::string absName = name;
-    if (!absName.EndsWith('.')) {
+    if (!absName.ends_with('.')) {
         absName.append(".");
     }
 

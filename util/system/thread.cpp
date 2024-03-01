@@ -64,7 +64,7 @@ namespace {
 
     inline void SetThrName(const TParams& p) {
         try {
-            if (p.Name) {
+            if (!p.Name.empty()) {
                 TThread::SetCurrentThreadName(p.Name.data());
             }
         } catch (...) {

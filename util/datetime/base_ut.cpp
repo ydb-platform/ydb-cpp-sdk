@@ -79,7 +79,7 @@ Y_UNIT_TEST_SUITE(TestSprintDate) {
         char buf[DATE_BUF_LEN];
         DateToString(buf, t);
 
-        const std::string expectedDate = TString("00001101");
+        const std::string expectedDate = std::string("00001101");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedDate, ToString(buf));
     }
@@ -92,7 +92,7 @@ Y_UNIT_TEST_SUITE(TestSprintDate) {
         char buf[DATE_BUF_LEN];
         DateToString(buf, t);
 
-        const std::string expectedDate = TString("00990101");
+        const std::string expectedDate = std::string("00990101");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedDate, ToString(buf));
     }
@@ -102,7 +102,7 @@ Y_UNIT_TEST_SUITE(TestSprintDate) {
         char buf[DATE_BUF_LEN];
         DateToString(buf, timestamp);
 
-        const std::string expectedDate = TString("19700101");
+        const std::string expectedDate = std::string("19700101");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedDate, ToString(buf));
     }
@@ -112,14 +112,14 @@ Y_UNIT_TEST_SUITE(TestSprintDate) {
         char buf[DATE_BUF_LEN];
         DateToString(buf, timestamp);
 
-        const std::string expectedDate = TString("20180427");
+        const std::string expectedDate = std::string("20180427");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedDate, ToString(buf));
     }
-    Y_UNIT_TEST(FromTimestampAsTString) {
+    Y_UNIT_TEST(FromTimestampAsString) {
         const time_t timestamp = 1524817858;
 
-        const std::string expectedDate = TString("20180427");
+        const std::string expectedDate = std::string("20180427");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedDate, DateToString(timestamp));
     }
@@ -129,7 +129,7 @@ Y_UNIT_TEST_SUITE(TestSprintDate) {
         t.tm_mday = 1;
         t.tm_mon = 0;
 
-        std::string expectedYear = TString("0099");
+        std::string expectedYear = std::string("0099");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedYear, YearToString(t));
     }
@@ -144,7 +144,7 @@ Y_UNIT_TEST_SUITE(TestSprintDate) {
     Y_UNIT_TEST(YearToStringAsTimestamp) {
         const time_t timestamp = 1524817858;
 
-        const std::string expectedYear = TString("2018");
+        const std::string expectedYear = std::string("2018");
 
         UNIT_ASSERT_VALUES_EQUAL(expectedYear, YearToString(timestamp));
     }
@@ -411,15 +411,15 @@ Y_UNIT_TEST_SUITE(DateTimeTest) {
     }
 
     Y_UNIT_TEST(TestInstantToString) {
-        UNIT_ASSERT_VALUES_EQUAL(TString("2009-08-06T15:19:06.023455Z"), ToString(TInstant::Seconds(1249571946) + TDuration::MicroSeconds(23455)));
-        UNIT_ASSERT_VALUES_EQUAL(TString("2022-08-23T13:04:43.023455Z"), ToString(TInstant::Seconds(1661259883) + TDuration::MicroSeconds(23455)));
-        UNIT_ASSERT_VALUES_EQUAL(TString("2122-11-23T15:12:26.023455Z"), ToString(TInstant::Seconds(4824889946) + TDuration::MicroSeconds(23455)));
-        UNIT_ASSERT_VALUES_EQUAL(TString("2009-08-06T15:19:06.023455Z"), (TInstant::Seconds(1249571946) + TDuration::MicroSeconds(23455)).ToString());
-        UNIT_ASSERT_VALUES_EQUAL(TString("2009-08-06T15:19:06Z"), (TInstant::Seconds(1249571946) + TDuration::MicroSeconds(23455)).ToStringUpToSeconds());
+        UNIT_ASSERT_VALUES_EQUAL(std::string("2009-08-06T15:19:06.023455Z"), ToString(TInstant::Seconds(1249571946) + TDuration::MicroSeconds(23455)));
+        UNIT_ASSERT_VALUES_EQUAL(std::string("2022-08-23T13:04:43.023455Z"), ToString(TInstant::Seconds(1661259883) + TDuration::MicroSeconds(23455)));
+        UNIT_ASSERT_VALUES_EQUAL(std::string("2122-11-23T15:12:26.023455Z"), ToString(TInstant::Seconds(4824889946) + TDuration::MicroSeconds(23455)));
+        UNIT_ASSERT_VALUES_EQUAL(std::string("2009-08-06T15:19:06.023455Z"), (TInstant::Seconds(1249571946) + TDuration::MicroSeconds(23455)).ToString());
+        UNIT_ASSERT_VALUES_EQUAL(std::string("2009-08-06T15:19:06Z"), (TInstant::Seconds(1249571946) + TDuration::MicroSeconds(23455)).ToStringUpToSeconds());
     }
 
     Y_UNIT_TEST(TestInstantToRfc822String) {
-        UNIT_ASSERT_VALUES_EQUAL(TString("Thu, 06 Aug 2009 15:19:06 GMT"), (TInstant::Seconds(1249571946) + TDuration::MicroSeconds(23455)).ToRfc822String());
+        UNIT_ASSERT_VALUES_EQUAL(std::string("Thu, 06 Aug 2009 15:19:06 GMT"), (TInstant::Seconds(1249571946) + TDuration::MicroSeconds(23455)).ToRfc822String());
     }
 
     Y_UNIT_TEST(TestInstantMath) {

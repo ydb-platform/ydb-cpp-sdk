@@ -61,7 +61,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
     struct TStrokaNoCopy: std::string {
     public:
         TStrokaNoCopy(const char* p)
-            : TString(p)
+            : std::string(p)
         {
         }
 
@@ -83,12 +83,12 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         UNIT_ASSERT_VALUES_EQUAL(CountOf(0x61, 'a', 'b', 'c', 0x61ll), 2);
 
         // std::string and const char *
-        UNIT_ASSERT_VALUES_EQUAL(CountOf(TString("xyz"), "123", "poi"), 0);
-        UNIT_ASSERT_VALUES_EQUAL(CountOf(TString("xyz"), "123", "poi", "xyz"), 1);
+        UNIT_ASSERT_VALUES_EQUAL(CountOf(std::string("xyz"), "123", "poi"), 0);
+        UNIT_ASSERT_VALUES_EQUAL(CountOf(std::string("xyz"), "123", "poi", "xyz"), 1);
 
         // std::string and std::string_view
-        UNIT_ASSERT_VALUES_EQUAL(CountOf(TString("xyz"), std::string_view("123"), std::string_view("poi")), 0);
-        UNIT_ASSERT_VALUES_EQUAL(CountOf(TString("xyz"), std::string_view("123"), std::string_view("poi"),
+        UNIT_ASSERT_VALUES_EQUAL(CountOf(std::string("xyz"), std::string_view("123"), std::string_view("poi")), 0);
+        UNIT_ASSERT_VALUES_EQUAL(CountOf(std::string("xyz"), std::string_view("123"), std::string_view("poi"),
                                          std::string_view("xyz")),
                                  1);
 
@@ -96,10 +96,10 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         UNIT_ASSERT_VALUES_EQUAL(CountOf(std::string_view("xyz"), "123", "poi"), 0);
         UNIT_ASSERT_VALUES_EQUAL(CountOf(std::string_view("xyz"), "123", "poi", "xyz"), 1);
 
-        // std::string_view and TString
-        UNIT_ASSERT_VALUES_EQUAL(CountOf(std::string_view("xyz"), TString("123"), TString("poi")), 0);
-        UNIT_ASSERT_VALUES_EQUAL(CountOf(std::string_view("xyz"), TString("123"), TString("poi"),
-                                         TString("xyz")),
+        // std::string_view and std::string
+        UNIT_ASSERT_VALUES_EQUAL(CountOf(std::string_view("xyz"), std::string("123"), std::string("poi")), 0);
+        UNIT_ASSERT_VALUES_EQUAL(CountOf(std::string_view("xyz"), std::string("123"), std::string("poi"),
+                                         std::string("xyz")),
                                  1);
     }
 
@@ -663,9 +663,9 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         UNIT_ASSERT_EQUAL(p1.first, 5);
         UNIT_ASSERT_EQUAL(p1.second, 12);
 
-        std::pair<TString, std::string> p2 = MinMax(TString("test"), TString("data"));
-        UNIT_ASSERT_EQUAL(p2.first, TString("data"));
-        UNIT_ASSERT_EQUAL(p2.second, TString("test"));
+        std::pair<std::string, std::string> p2 = MinMax(std::string("test"), std::string("data"));
+        UNIT_ASSERT_EQUAL(p2.first, std::string("data"));
+        UNIT_ASSERT_EQUAL(p2.second, std::string("test"));
     }
 
     Y_UNIT_TEST(TestMaxElementBy) {
@@ -792,7 +792,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
             UNIT_ASSERT(AllOf(std::make_tuple(1, 2), pred));
         }
         {
-            auto ts = std::make_tuple(TString{"foo"}, TString{"bar"});
+            auto ts = std::make_tuple(std::string{"foo"}, std::string{"bar"});
             auto pred = [](auto s) { return s.size() == 3; };
             UNIT_ASSERT_VALUES_EQUAL(AllOf(ts, pred), AllOf(ts, pred));
         }
@@ -806,7 +806,7 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         UNIT_ASSERT(!AnyOf(std::make_tuple(1, 2), pred));
         UNIT_ASSERT(!AnyOf(std::make_tuple(1, 2), pred));
         {
-            auto ts = std::make_tuple(TString{"f"}, TString{"bar"});
+            auto ts = std::make_tuple(std::string{"f"}, std::string{"bar"});
             auto pred = [](auto s) { return s.size() == 3; };
             UNIT_ASSERT_VALUES_EQUAL(AnyOf(ts, pred), AnyOf(ts, pred));
         }
@@ -901,6 +901,6 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
 
     Y_UNIT_TEST(AccumulateWithBinOp) {
         std::vector<int> v = {1, 2, 777};
-        UNIT_ASSERT_VALUES_EQUAL(TString("begin;1;2;777"), Accumulate(v, TString("begin"), [](auto&& a, auto& b) { return a + ";" + ToString(b); }));
+        UNIT_ASSERT_VALUES_EQUAL(std::string("begin;1;2;777"), Accumulate(v, std::string("begin"), [](auto&& a, auto& b) { return a + ";" + ToString(b); }));
     }
 }

@@ -14,7 +14,7 @@ Y_UNIT_TEST_SUITE(TBufferTest) {
         buf.Resize(6);
         buf.EraseBack(2);
 
-        UNIT_ASSERT_EQUAL(TString(buf.data(), buf.size()), "1234");
+        UNIT_ASSERT_EQUAL(std::string(buf.data(), buf.size()), "1234");
     }
 
     Y_UNIT_TEST(TestAppend) {
@@ -32,7 +32,7 @@ Y_UNIT_TEST_SUITE(TBufferTest) {
             }
         }
 
-        UNIT_ASSERT_EQUAL(TString(buf.data(), buf.size()), str);
+        UNIT_ASSERT_EQUAL(std::string(buf.data(), buf.size()), str);
     }
 
     Y_UNIT_TEST(TestReset) {
@@ -62,10 +62,10 @@ Y_UNIT_TEST_SUITE(TBufferTest) {
 
         buf.Resize(9);
         memcpy(buf.data(), content, 9);
-        UNIT_ASSERT_VALUES_EQUAL(TString(buf.data(), buf.size()), "some text");
+        UNIT_ASSERT_VALUES_EQUAL(std::string(buf.data(), buf.size()), "some text");
 
         buf.Resize(4);
-        UNIT_ASSERT_VALUES_EQUAL(TString(buf.data(), buf.size()), "some");
+        UNIT_ASSERT_VALUES_EQUAL(std::string(buf.data(), buf.size()), "some");
     }
 
     Y_UNIT_TEST(TestReserve) {
@@ -112,7 +112,7 @@ Y_UNIT_TEST_SUITE(TBufferTest) {
         buf.ShrinkToFit();
         UNIT_ASSERT_EQUAL(buf.Size(), 9);
         UNIT_ASSERT_EQUAL(buf.Capacity(), 9);
-        UNIT_ASSERT_EQUAL(TString(buf.data(), buf.size()), content);
+        UNIT_ASSERT_EQUAL(std::string(buf.data(), buf.size()), content);
 
         const size_t MB = 1024 * 1024;
         buf.Resize(MB);
@@ -134,13 +134,13 @@ Y_UNIT_TEST(TestAlignUp) {
     buf.AlignUp(4, '!');
 
     UNIT_ASSERT(buf.Size() % 4 == 0);
-    UNIT_ASSERT_VALUES_EQUAL(TString(~buf, +buf), "some text!!!");
+    UNIT_ASSERT_VALUES_EQUAL(std::string(~buf, +buf), "some text!!!");
 
     char addContent[] = "1234";
     buf.Append(addContent, sizeof(addContent));
     buf.AlignUp(4, 'X');
     UNIT_ASSERT(buf.Size() % 4 == 0);
-    UNIT_ASSERT_VALUES_EQUAL(TString(~buf, +buf), "some text!!!1234");
+    UNIT_ASSERT_VALUES_EQUAL(std::string(~buf, +buf), "some text!!!1234");
 }
 #endif
 
@@ -184,10 +184,10 @@ Y_UNIT_TEST(TestSpeed) {
         buf.Append("Some ", 5);
         buf.Fill('!', 5);
         buf.Append(" text.", 6);
-        UNIT_ASSERT_VALUES_EQUAL(TString(buf.data(), buf.size()), "Some !!!!! text.");
+        UNIT_ASSERT_VALUES_EQUAL(std::string(buf.data(), buf.size()), "Some !!!!! text.");
 
         buf.Chop(5, 6);
-        UNIT_ASSERT_VALUES_EQUAL(TString(buf.data(), buf.size()), "Some text.");
+        UNIT_ASSERT_VALUES_EQUAL(std::string(buf.data(), buf.size()), "Some text.");
     }
 
     Y_UNIT_TEST(TestComparison) {

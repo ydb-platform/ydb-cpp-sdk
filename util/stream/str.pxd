@@ -1,5 +1,5 @@
 from util.generic.ptr cimport THolder
-from util.generic.string cimport TString, std::string_view
+from util.generic.string cimport std::string, std::string_view
 from util.stream.output cimport IOutputStream
 
 

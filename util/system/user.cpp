@@ -14,7 +14,7 @@
 std::string GetUsername() {
     for (const auto& var : {"LOGNAME", "USER", "LNAME", "USERNAME"}) {
         std::string val = GetEnv(var);
-        if (val) {
+        if (!val.empty()) {
             return val;
         }
     }
@@ -30,13 +30,13 @@ std::string GetUsername() {
             else
                 ythrow TSystemError(err) << " GetUserName failed";
         } else {
-            return TString(nameBuf.Data(), (size_t)(len - 1));
+            return std::string(nameBuf.Data(), (size_t)(len - 1));
         }
 #elif defined(_bionic_)
         const passwd* pwd = getpwuid(geteuid());
 
         if (pwd) {
-            return TString(pwd->pw_name);
+            return std::string(pwd->pw_name);
         }
 
         ythrow TSystemError() << std::string_view(" getpwuid failed");
@@ -45,7 +45,7 @@ std::string GetUsername() {
         passwd* tmpPwd;
         int err = getpwuid_r(geteuid(), &pwd, nameBuf.Data(), nameBuf.Size(), &tmpPwd);
         if (err == 0 && tmpPwd) {
-            return TString(pwd.pw_name);
+            return std::string(pwd.pw_name);
         } else if (err == ERANGE) {
             nameBuf = TTempBuf(nameBuf.Size() * 2);
         } else {

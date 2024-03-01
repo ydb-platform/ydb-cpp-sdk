@@ -58,7 +58,7 @@ void TStreamsTest::TestIStreamOperators() {
     std::string l1;
     std::string l2;
     std::string l3;
-    TUtf16String w1;
+    std::u16string w1;
     std::string l4;
     ui16 i1;
     i16 i2;
@@ -417,7 +417,7 @@ void TStreamsTest::TestStrokaInput() {
 void TStreamsTest::TestWtrokaInput() {
     const std::string s(Text);
     TStringInput is(s);
-    TUtf16String w;
+    std::u16string w;
     size_t i = 0;
 
     while (is.ReadLine(w)) {
@@ -434,7 +434,7 @@ void TStreamsTest::TestWtrokaOutput() {
     const size_t n = sizeof(Expected) / sizeof(Expected[0]);
 
     for (size_t i = 0; i < n; ++i) {
-        TUtf16String w = UTF8ToWide(Expected[i]);
+        std::u16string w = UTF8ToWide(Expected[i]);
 
         os << w;
 
@@ -480,7 +480,7 @@ void TStreamsTest::TestWchar32Output() {
 
 void TStreamsTest::TestUtf16StingOutputByChars() {
     std::string s = "\xd1\x87\xd0\xb8\xd1\x81\xd1\x82\xd0\xb8\xd1\x87\xd0\xb8\xd1\x81\xd1\x82\xd0\xb8";
-    TUtf16String w = UTF8ToWide(s);
+    std::u16string w = UTF8ToWide(s);
 
     UNIT_ASSERT_VALUES_EQUAL(w.size(), 10);
 
