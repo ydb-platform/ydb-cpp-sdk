@@ -421,7 +421,7 @@ public:
      *
      * @return exit code
      */
-    TMaybe<int> GetExitCode() const;
+    std::optional<int> GetExitCode() const;
 
     /**
      * @brief get id of underlying process

@@ -82,7 +82,7 @@ static void CreateTables(TTableClient client, const TString& path) {
 
 //! Describe existing table.
 static void DescribeTable(TTableClient client, const TString& path, const TString& name) {
-    TMaybe<TTableDescription> desc;
+    std::optional<TTableDescription> desc;
 
     ThrowOnError(client.RetryOperationSync([path, name, &desc](TSession session) {
         auto result = session.DescribeTable(JoinPath(path, name)).GetValueSync();
@@ -164,7 +164,7 @@ static TStatus FillTableDataTransaction(TSession session, const TString& path) {
 
 //! Shows basic usage of YDB data queries and transactions.
 static TStatus SelectSimpleTransaction(TSession session, const TString& path,
-    TMaybe<TResultSet>& resultSet)
+    std::optional<TResultSet>& resultSet)
 {
     auto query = Sprintf(R"(
         PRAGMA TablePathPrefix("%s");
@@ -207,7 +207,7 @@ static TStatus UpsertSimpleTransaction(TSession session, const TString& path) {
 
 //! Shows usage of parameters in data queries.
 static TStatus SelectWithParamsTransaction(TSession session, const TString& path,
-    ui64 seriesId, ui64 seasonId, TMaybe<TResultSet>& resultSet)
+    ui64 seriesId, ui64 seasonId, std::optional<TResultSet>& resultSet)
 {
     auto query = Sprintf(R"(
         --!syntax_v1
@@ -247,7 +247,7 @@ static TStatus SelectWithParamsTransaction(TSession session, const TString& path
 
 //! Shows usage of prepared queries.
 static TStatus PreparedSelectTransaction(TSession session, const TString& path,
-    ui64 seriesId, ui64 seasonId, ui64 episodeId, TMaybe<TResultSet>& resultSet)
+    ui64 seriesId, ui64 seasonId, ui64 episodeId, std::optional<TResultSet>& resultSet)
 {
     // Once prepared, query data is stored in the session and identified by QueryId.
     // Local query cache is used to keep track of queries, prepared in current session.
@@ -300,7 +300,7 @@ static TStatus PreparedSelectTransaction(TSession session, const TString& path,
 
 //! Shows usage of transactions consisting of multiple data queries with client logic between them.
 static TStatus MultiStepTransaction(TSession session, const TString& path, ui64 seriesId, ui64 seasonId,
-    TMaybe<TResultSet>& resultSet)
+    std::optional<TResultSet>& resultSet)
 {
     auto query1 = Sprintf(R"(
         --!syntax_v1
@@ -433,7 +433,7 @@ static TStatus ExplicitTclTransaction(TSession session, const TString& path, con
 ///////////////////////////////////////////////////////////////////////////////
 
 void SelectSimple(TTableClient client, const TString& path) {
-    TMaybe<TResultSet> resultSet;
+    std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
         return SelectSimpleTransaction(session, path, resultSet);
     }));
@@ -455,7 +455,7 @@ void UpsertSimple(TTableClient client, const TString& path) {
 }
 
 void SelectWithParams(TTableClient client, const TString& path) {
-    TMaybe<TResultSet> resultSet;
+    std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
         return SelectWithParamsTransaction(session, path, 2, 3, resultSet);
     }));
@@ -470,7 +470,7 @@ void SelectWithParams(TTableClient client, const TString& path) {
 }
 
 void PreparedSelect(TTableClient client, const TString& path, ui32 seriesId, ui32 seasonId, ui32 episodeId) {
-    TMaybe<TResultSet> resultSet;
+    std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, seriesId, seasonId, episodeId, &resultSet](TSession session) {
         return PreparedSelectTransaction(session, path, seriesId, seasonId, episodeId, resultSet);
     }));
@@ -487,7 +487,7 @@ void PreparedSelect(TTableClient client, const TString& path, ui32 seriesId, ui3
 }
 
 void MultiStep(TTableClient client, const TString& path) {
-    TMaybe<TResultSet> resultSet;
+    std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
         return MultiStepTransaction(session, path, 2, 5, resultSet);
     }));

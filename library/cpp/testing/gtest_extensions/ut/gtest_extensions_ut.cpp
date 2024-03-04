@@ -242,9 +242,9 @@ TEST(PrettyPrinters, String) {
 }
 
 TEST(PrettyPrinters, Maybe) {
-    EXPECT_EQ(GtestPrint(TMaybe<std::string>("hello world")), "\"hello world\"");
-    EXPECT_EQ(GtestPrint(TMaybe<std::string>()), "nothing");
-    EXPECT_EQ(GtestPrint(Nothing()), "nothing");
+    EXPECT_EQ(GtestPrint(std::optional<std::string>("hello world")), "\"hello world\"");
+    EXPECT_EQ(GtestPrint(std::optional<std::string>()), "nothing");
+    EXPECT_EQ(GtestPrint(std::nullopt), "nothing");
 }
 
 struct T1 {

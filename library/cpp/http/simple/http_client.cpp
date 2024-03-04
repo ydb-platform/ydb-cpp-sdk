@@ -63,7 +63,7 @@ TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::DoRequestRaw(const std::st
 }
 
 void TKeepAliveHttpClient::DisableVerificationForHttps() {
-    HttpsVerification.Clear();
+    HttpsVerification.reset();
     Connection.Reset();
 }
 
@@ -221,8 +221,8 @@ namespace NPrivate {
                                      TDuration sockTimeout,
                                      TDuration connTimeout,
                                      bool isHttps,
-                                     const TMaybe<TOpenSslClientIO::TOptions::TClientCert>& clientCert,
-                                     const TMaybe<TOpenSslClientIO::TOptions::TVerifyCert>& verifyCert)
+                                     const std::optional<TOpenSslClientIO::TOptions::TClientCert>& clientCert,
+                                     const std::optional<TOpenSslClientIO::TOptions::TVerifyCert>& verifyCert)
         : Addr(Resolve(host, port))
         , Socket(Connect(Addr, sockTimeout, connTimeout, host, port))
         , SocketIn(Socket)

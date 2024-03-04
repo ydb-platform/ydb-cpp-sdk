@@ -15,7 +15,7 @@ class TChunkedInput: public IInputStream {
 public:
     /// Если передан указатель на trailers, то туда будут записаны HTTP trailer'ы (возможно пустые),
     /// которые идут после чанков.
-    TChunkedInput(IInputStream* slave, TMaybe<THttpHeaders>* trailers = nullptr);
+    TChunkedInput(IInputStream* slave, std::optional<THttpHeaders>* trailers = nullptr);
     ~TChunkedInput() override;
 
 private:

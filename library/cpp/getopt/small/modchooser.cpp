@@ -331,12 +331,12 @@ int TMainClassArgs::Run(int argc, const char** argv) {
 }
 
 const NLastGetopt::TOpts& TMainClassArgs::GetOptions() {
-    if (Opts_.Empty()) {
+    if (!(Opts_.has_value())) {
         Opts_ = NLastGetopt::TOpts();
-        RegisterOptions(Opts_.GetRef());
+        RegisterOptions(Opts_.value());
     }
 
-    return Opts_.GetRef();
+    return Opts_.value();
 }
 
 void TMainClassArgs::RegisterOptions(NLastGetopt::TOpts& opts) {
@@ -357,12 +357,12 @@ int TMainClassModes::Run(int argc, const char** argv) {
 }
 
 const TModChooser& TMainClassModes::GetSubModes() {
-    if (Modes_.Empty()) {
-        Modes_.ConstructInPlace();
-        RegisterModes(Modes_.GetRef());
+    if (!(Modes_.has_value())) {
+        Modes_.emplace();
+        RegisterModes(Modes_.value());
     }
 
-    return Modes_.GetRef();
+    return Modes_.value();
 }
 
 void TMainClassModes::RegisterModes(TModChooser& modes) {

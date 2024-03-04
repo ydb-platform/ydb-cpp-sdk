@@ -45,7 +45,7 @@ public:
     bool Empty() const;
 
     std::map<std::string, TValue> GetValues() const;
-    TMaybe<TValue> GetValue(const std::string& name) const;
+    std::optional<TValue> GetValue(const std::string& name) const;
 
 private:
     TParams(::google::protobuf::Map<std::string, Ydb::TypedValue>&& protoMap);

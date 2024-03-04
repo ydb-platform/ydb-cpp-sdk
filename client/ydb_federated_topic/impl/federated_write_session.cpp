@@ -53,7 +53,7 @@ void TFederatedWriteSession::Start() {
 
 void TFederatedWriteSession::OpenSubSessionImpl(std::shared_ptr<TDbInfo> db) {
     if (Subsession) {
-        PendingToken.Clear();
+        PendingToken.reset();
         Subsession->Close(TDuration::Zero());
     }
     NTopic::TTopicClientSettings clientSettings = SubClientSetttings;
@@ -67,7 +67,7 @@ void TFederatedWriteSession::OpenSubSessionImpl(std::shared_ptr<TDbInfo> db) {
         .ReadyToAcceptHander([self = shared_from_this()](NTopic::TWriteSessionEvent::TReadyToAcceptEvent& ev){
             TDeferredWrite deferred(self->Subsession);
             with_lock(self->Lock) {
-                Y_ABORT_UNLESS(self->PendingToken.Empty());
+                Y_ABORT_UNLESS(!(self->PendingToken.has_value()));
                 self->PendingToken = std::move(ev.ContinuationToken);
                 self->PrepareDeferredWrite(deferred);
             }
@@ -198,25 +198,25 @@ NThreading::TFuture<void> TFederatedWriteSession::WaitEvent() {
     return ClientEventsQueue->WaitEvent();
 }
 
-std::vector<NTopic::TWriteSessionEvent::TEvent> TFederatedWriteSession::GetEvents(bool block, TMaybe<size_t> maxEventsCount) {
+std::vector<NTopic::TWriteSessionEvent::TEvent> TFederatedWriteSession::GetEvents(bool block, std::optional<size_t> maxEventsCount) {
     return ClientEventsQueue->GetEvents(block, maxEventsCount);
 }
 
-TMaybe<NTopic::TWriteSessionEvent::TEvent> TFederatedWriteSession::GetEvent(bool block) {
+std::optional<NTopic::TWriteSessionEvent::TEvent> TFederatedWriteSession::GetEvent(bool block) {
     auto events = GetEvents(block, 1);
-    return events.empty() ? Nothing() : TMaybe<NTopic::TWriteSessionEvent::TEvent>{std::move(events.front())};
+    return events.empty() ? std::nullopt : std::optional<NTopic::TWriteSessionEvent::TEvent>{std::move(events.front())};
 }
 
 NThreading::TFuture<ui64> TFederatedWriteSession::GetInitSeqNo() {
     return NThreading::MakeFuture<ui64>(0u);
 }
 
-void TFederatedWriteSession::Write(NTopic::TContinuationToken&& token, std::string_view data, TMaybe<ui64> seqNo,
-                                   TMaybe<TInstant> createTimestamp) {
+void TFederatedWriteSession::Write(NTopic::TContinuationToken&& token, std::string_view data, std::optional<ui64> seqNo,
+                                   std::optional<TInstant> createTimestamp) {
     NTopic::TWriteMessage message{std::move(data)};
-    if (seqNo.Defined())
+    if (seqNo.has_value())
         message.SeqNo(*seqNo);
-    if (createTimestamp.Defined())
+    if (createTimestamp.has_value())
         message.CreateTimestamp(*createTimestamp);
     return WriteInternal(std::move(token), std::move(message));
 }
@@ -226,11 +226,11 @@ void TFederatedWriteSession::Write(NTopic::TContinuationToken&& token, NTopic::T
 }
 
 void TFederatedWriteSession::WriteEncoded(NTopic::TContinuationToken&& token, std::string_view data, NTopic::ECodec codec,
-                                          ui32 originalSize, TMaybe<ui64> seqNo, TMaybe<TInstant> createTimestamp) {
+                                          ui32 originalSize, std::optional<ui64> seqNo, std::optional<TInstant> createTimestamp) {
     auto message = NTopic::TWriteMessage::CompressedMessage(std::move(data), codec, originalSize);
-    if (seqNo.Defined())
+    if (seqNo.has_value())
         message.SeqNo(*seqNo);
-    if (createTimestamp.Defined())
+    if (createTimestamp.has_value())
         message.CreateTimestamp(*createTimestamp);
     return WriteInternal(std::move(token), std::move(message));
 }
@@ -241,7 +241,7 @@ void TFederatedWriteSession::WriteEncoded(NTopic::TContinuationToken&& token, NT
 
 void TFederatedWriteSession::WriteInternal(NTopic::TContinuationToken&&, NTopic::TWriteMessage&& message) {
     ClientHasToken = false;
-    if (!message.CreateTimestamp_.Defined()) {
+    if (!message.CreateTimestamp_.has_value()) {
         message.CreateTimestamp_ = TInstant::Now();
     }
 
@@ -262,17 +262,17 @@ void TFederatedWriteSession::WriteInternal(NTopic::TContinuationToken&&, NTopic:
 }
 
 bool TFederatedWriteSession::PrepareDeferredWrite(TDeferredWrite& deferred) {
-    if (PendingToken.Empty()) {
+    if (!(PendingToken.has_value())) {
         return false;
     }
     if (OriginalMessagesToPassDown.empty()) {
         return false;
     }
     OriginalMessagesToGetAck.push_back(OriginalMessagesToPassDown.front());
-    deferred.Token.ConstructInPlace(std::move(*PendingToken));
-    deferred.Message.ConstructInPlace(std::move(OriginalMessagesToPassDown.front()));
+    deferred.Token.emplace(std::move(*PendingToken));
+    deferred.Message.emplace(std::move(OriginalMessagesToPassDown.front()));
     OriginalMessagesToPassDown.pop_front();
-    PendingToken.Clear();
+    PendingToken.reset();
     return true;
 }
 

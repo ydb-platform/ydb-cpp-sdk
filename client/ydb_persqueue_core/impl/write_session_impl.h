@@ -46,8 +46,8 @@ public:
         waiter.Signal(); // Does nothing if waiter is empty.
     }
 
-    TMaybe<TEvent> GetEvent(bool block = false) {
-        TMaybe<TEventInfo> eventInfo;
+    std::optional<TEvent> GetEvent(bool block = false) {
+        std::optional<TEventInfo> eventInfo;
         {
             std::lock_guard<std::mutex> guard(Mutex);
             if (block) {
@@ -56,28 +56,28 @@ public:
             if (HasEventsImpl()) {
                 eventInfo = GetEventImpl();
             } else {
-                return Nothing();
+                return std::nullopt;
             }
         }
         eventInfo->OnUserRetrievedEvent();
         return std::move(eventInfo->Event);
     }
 
-    std::vector<TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing()) {
+    std::vector<TEvent> GetEvents(bool block = false, std::optional<size_t> maxEventsCount = std::nullopt) {
         std::vector<TEventInfo> eventInfos;
         {
             std::lock_guard<std::mutex> guard(Mutex);
             if (block) {
                 WaitEventsImpl();
             }
-            eventInfos.reserve(Min(Events.size() + CloseEvent.Defined(), maxEventsCount ? *maxEventsCount : std::numeric_limits<size_t>::max()));
+            eventInfos.reserve(Min(Events.size() + CloseEvent.has_value(), maxEventsCount.has_value() ? *maxEventsCount : std::numeric_limits<size_t>::max()));
             while (!Events.empty()) {
                 eventInfos.emplace_back(GetEventImpl());
-                if (maxEventsCount && eventInfos.size() >= *maxEventsCount) {
+                if (maxEventsCount.has_value() && eventInfos.size() >= *maxEventsCount) {
                     break;
                 }
             }
-            if (CloseEvent && Events.empty() && (!maxEventsCount || eventInfos.size() < *maxEventsCount)) {
+            if (CloseEvent && Events.empty() && (!(maxEventsCount.has_value()) || eventInfos.size() < *maxEventsCount)) {
                 eventInfos.push_back({*CloseEvent});
             }
         }
@@ -181,9 +181,9 @@ private:
         ui64 Id;
         TInstant CreatedAt;
         std::string_view DataRef;
-        TMaybe<ECodec> Codec;
+        std::optional<ECodec> Codec;
         ui32 OriginalSize; // only for coded messages
-        TMessage(ui64 id, const TInstant& createdAt, std::string_view data, TMaybe<ECodec> codec = {}, ui32 originalSize = 0)
+        TMessage(ui64 id, const TInstant& createdAt, std::string_view data, std::optional<ECodec> codec = {}, ui32 originalSize = 0)
             : Id(id)
             , CreatedAt(createdAt)
             , DataRef(data)
@@ -199,7 +199,7 @@ private:
         TInstant StartedAt = TInstant::Zero();
         bool Acquired = false;
         bool FlushRequested = false;
-        void Add(ui64 id, const TInstant& createdAt, std::string_view data, TMaybe<ECodec> codec, ui32 originalSize) {
+        void Add(ui64 id, const TInstant& createdAt, std::string_view data, std::optional<ECodec> codec, ui32 originalSize) {
             if (StartedAt == TInstant::Zero())
                 StartedAt = TInstant::Now();
             CurrentSize += codec ? originalSize : data.size();
@@ -208,7 +208,7 @@ private:
         }
 
         bool HasCodec() const {
-            return Messages.empty() ? false : Messages.front().Codec.Defined();
+            return Messages.empty() ? false : Messages.front().Codec.has_value();
         }
 
         bool Acquire() {
@@ -294,7 +294,7 @@ private:
     };
     struct TProcessSrvMessageResult {
         THandleResult HandleResult;
-        TMaybe<ui64> InitSeqNo;
+        std::optional<ui64> InitSeqNo;
         std::vector<TWriteSessionEvent::TEvent> Events;
         bool Ok = true;
     };
@@ -307,16 +307,16 @@ public:
             std::shared_ptr<TGRpcConnectionsImpl> connections,
             TDbDriverStatePtr dbDriverState);
 
-    TMaybe<TWriteSessionEvent::TEvent> GetEvent(bool block = false);
+    std::optional<TWriteSessionEvent::TEvent> GetEvent(bool block = false);
     std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false,
-                                                  TMaybe<size_t> maxEventsCount = Nothing());
+                                                  std::optional<size_t> maxEventsCount = std::nullopt);
     NThreading::TFuture<ui64> GetInitSeqNo();
 
     void Write(TContinuationToken&& continuationToken, std::string_view data,
-               TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing());
+               std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt);
 
     void WriteEncoded(TContinuationToken&& continuationToken, std::string_view data, ECodec codec, ui32 originalSize,
-               TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing());
+               std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt);
 
 
     NThreading::TFuture<void> WaitEvent();
@@ -338,8 +338,8 @@ private:
 
     void UpdateTokenIfNeededImpl();
 
-    void WriteInternal(TContinuationToken&& continuationToken, std::string_view data, TMaybe<ECodec> codec, ui32 originalSize,
-               TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing());
+    void WriteInternal(TContinuationToken&& continuationToken, std::string_view data, std::optional<ECodec> codec, ui32 originalSize,
+               std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt);
 
     void FlushWriteIfRequiredImpl();
     size_t WriteBatchImpl();
@@ -370,7 +370,7 @@ private:
     bool CleanupOnAcknowledged(ui64 id);
     bool IsReadyToSendNextImpl();
     void DumpState();
-    ui64 GetNextIdImpl(const TMaybe<ui64>& seqNo);
+    ui64 GetNextIdImpl(const std::optional<ui64>& seqNo);
     ui64 GetSeqNoImpl(ui64 id);
     ui64 GetIdImpl(ui64 seqNo);
     void SendImpl();
@@ -436,7 +436,7 @@ private:
     ui64 NextId = 0;
     ui64 MinUnsentId = 1;
     std::map<std::string, ui64> InitSeqNo;
-    TMaybe<bool> AutoSeqNoMode;
+    std::optional<bool> AutoSeqNoMode;
     bool ValidateSeqNoMode = false;
 
     NThreading::TPromise<ui64> InitSeqNoPromise;

@@ -86,11 +86,11 @@ struct TTxControl {
         return TTxControl();
     }
 
-    const TMaybe<std::string> TxId_;
-    const TMaybe<TTxSettings> TxSettings_;
+    const std::optional<std::string> TxId_;
+    const std::optional<TTxSettings> TxSettings_;
     FLUENT_SETTING_FLAG(CommitTx);
 
-    bool HasTx() const { return TxId_.Defined() || TxSettings_.Defined(); }
+    bool HasTx() const { return TxId_.has_value() || TxSettings_.has_value(); }
 
 private:
     TTxControl() {}

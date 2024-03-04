@@ -87,8 +87,8 @@ struct TNodeDescription::TImpl {
         Proto_ = desc;
     }
 
-    TMaybe<TDuration> SelfCheckPeriod_;
-    TMaybe<TDuration> SessionGracePeriod_;
+    std::optional<TDuration> SelfCheckPeriod_;
+    std::optional<TDuration> SessionGracePeriod_;
     EConsistencyMode ReadConsistencyMode_;
     EConsistencyMode AttachConsistencyMode_;
     ERateLimiterCountersMode RateLimiterCountersMode_;
@@ -102,11 +102,11 @@ TNodeDescription::TNodeDescription(
     : Impl_(new TImpl(desc))
 { }
 
-const TMaybe<TDuration>& TNodeDescription::GetSelfCheckPeriod() const {
+const std::optional<TDuration>& TNodeDescription::GetSelfCheckPeriod() const {
     return Impl_->SelfCheckPeriod_;
 }
 
-const TMaybe<TDuration>& TNodeDescription::GetSessionGracePeriod() const {
+const std::optional<TDuration>& TNodeDescription::GetSessionGracePeriod() const {
     return Impl_->SessionGracePeriod_;
 }
 
@@ -733,7 +733,7 @@ private:
         Y_ABORT_UNLESS(ConnectionState == EConnectionState::ATTACHING);
         SessionState = ESessionState::ATTACHED;
         ConnectionState = EConnectionState::CONNECTED;
-        SessionExpireDeadline.Clear();
+        SessionExpireDeadline.reset();
         SessionReconnectDelay = TDuration::Zero();
         if (ClosedPromise.Initialized()) {
             // Send the delayed close request, will fail if cancelled
@@ -1777,7 +1777,7 @@ private:
 
     // Reconnection uses sleep between attempts
     IQueueClientContextPtr SleepContext;
-    TMaybe<TInstant> SessionExpireDeadline;
+    std::optional<TInstant> SessionExpireDeadline;
     TDuration SessionReconnectDelay = TDuration::Zero();
 
     IProcessor::TPtr Processor;

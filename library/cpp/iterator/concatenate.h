@@ -32,8 +32,8 @@ namespace NPrivate {
                 friend struct TConcatenatorWithIndex<I...>;
 
                 // important, that it is a static function, compiler better optimizes such code
-                template <std::size_t index = 0, typename TMaybeConstIteratorState>
-                static TValue GetCurrentValue(std::size_t position, TMaybeConstIteratorState& iterators) {
+                template <std::size_t index = 0, typename OptConstIteratorState>
+                static TValue GetCurrentValue(std::size_t position, OptConstIteratorState& iterators) {
                     if constexpr (index >= sizeof...(TContainers)) {
                         // never happened when use of iterator is correct
                         return *std::get<0>(iterators);

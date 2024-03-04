@@ -267,8 +267,8 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(ConvenientSplitTestWithMaybe) {
         TString data("abc 42");
         TString str;
-        TMaybe<double> num2 = 1;
-        TMaybe<double> maybe = 1;
+        std::optional<double> num2 = 1;
+        std::optional<double> maybe = 1;
 
         Split(data, ' ', str, num2, maybe);
 
@@ -289,7 +289,7 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(ConvenientSplitTestMaybeExceptions) {
         TString data("abc 22 33");
         TString s1, s2;
-        TMaybe<TString> m1, m2;
+        std::optional<TString> m1, m2;
 
         UNIT_ASSERT_EXCEPTION(Split(data, ' ', s1, m1), yexception);
         UNIT_ASSERT_EXCEPTION(Split(data, ' ', m1, m2), yexception);

@@ -22,14 +22,14 @@ public:
     const std::string& GetId() const;
     const ::google::protobuf::Map<std::string, Ydb::Type>& GetParameterTypes() const;
     const std::string& GetTextHash() const;
-    const TMaybe<std::string>& GetText() const;
+    const std::optional<std::string>& GetText() const;
 
 private:
     NTable::TSession Session_;
     std::string Id_;
     ::google::protobuf::Map<std::string, Ydb::Type> ParameterTypes_;
     std::string TextHash_;
-    TMaybe<std::string> Text_;
+    std::optional<std::string> Text_;
 };
 
 } // namespace NTable

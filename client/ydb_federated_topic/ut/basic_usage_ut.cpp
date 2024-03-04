@@ -56,7 +56,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         Cerr << "Session was created" << Endl;
 
         ReadSession->WaitEvent().Wait(TDuration::Seconds(1));
-        TMaybe<NYdb::NFederatedTopic::TReadSessionEvent::TEvent> event = ReadSession->GetEvent(false);
+        std::optional<NYdb::NFederatedTopic::TReadSessionEvent::TEvent> event = ReadSession->GetEvent(false);
         Y_ASSERT(!event);
 
         auto fdsRequest = fdsMock.GetNextPendingRequest();
@@ -97,7 +97,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         for (size_t i = 0; i < partitionsCount; ++i) {
             ReadSession->WaitEvent().Wait();
             // Get event
-            TMaybe<NYdb::NFederatedTopic::TReadSessionEvent::TEvent> event = ReadSession->GetEvent(true/*block - will block if no event received yet*/);
+            std::optional<NYdb::NFederatedTopic::TReadSessionEvent::TEvent> event = ReadSession->GetEvent(true/*block - will block if no event received yet*/);
             Cerr << "Got new read session event: " << DebugString(*event) << Endl;
 
             auto* startPartitionSessionEvent = std::get_if<NYdb::NFederatedTopic::TReadSessionEvent::TStartPartitionSessionEvent>(&*event);
@@ -411,7 +411,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         Cerr << "Session was created" << Endl;
 
         ReadSession->WaitEvent().Wait(TDuration::Seconds(1));
-        TMaybe<NYdb::NFederatedTopic::TReadSessionEvent::TEvent> event = ReadSession->GetEvent(false);
+        std::optional<NYdb::NFederatedTopic::TReadSessionEvent::TEvent> event = ReadSession->GetEvent(false);
         Y_ASSERT(event);
         Cerr << "Got new read session event: " << DebugString(*event) << Endl;
 

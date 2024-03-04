@@ -66,7 +66,7 @@ const Ydb::Table::StorageSettings& TStorageSettings::GetProto() const {
     return Impl_->Proto_;
 }
 
-TMaybe<std::string> TStorageSettings::GetTabletCommitLog0() const {
+std::optional<std::string> TStorageSettings::GetTabletCommitLog0() const {
     if (GetProto().has_tablet_commit_log0()) {
         return GetProto().tablet_commit_log0().media();
     } else {
@@ -74,7 +74,7 @@ TMaybe<std::string> TStorageSettings::GetTabletCommitLog0() const {
     }
 }
 
-TMaybe<std::string> TStorageSettings::GetTabletCommitLog1() const {
+std::optional<std::string> TStorageSettings::GetTabletCommitLog1() const {
     if (GetProto().has_tablet_commit_log1()) {
         return GetProto().tablet_commit_log1().media();
     } else {
@@ -82,7 +82,7 @@ TMaybe<std::string> TStorageSettings::GetTabletCommitLog1() const {
     }
 }
 
-TMaybe<std::string> TStorageSettings::GetExternal() const {
+std::optional<std::string> TStorageSettings::GetExternal() const {
     if (GetProto().has_external()) {
         return GetProto().external().media();
     } else {
@@ -90,7 +90,7 @@ TMaybe<std::string> TStorageSettings::GetExternal() const {
     }
 }
 
-TMaybe<bool> TStorageSettings::GetStoreExternalBlobs() const {
+std::optional<bool> TStorageSettings::GetStoreExternalBlobs() const {
     switch (GetProto().store_external_blobs()) {
         case Ydb::FeatureFlag::ENABLED:
             return true;
@@ -125,7 +125,7 @@ const std::string& TColumnFamilyDescription::GetName() const {
     return GetProto().name();
 }
 
-TMaybe<std::string> TColumnFamilyDescription::GetData() const {
+std::optional<std::string> TColumnFamilyDescription::GetData() const {
     if (GetProto().has_data()) {
         return GetProto().data().media();
     } else {
@@ -133,7 +133,7 @@ TMaybe<std::string> TColumnFamilyDescription::GetData() const {
     }
 }
 
-TMaybe<EColumnFamilyCompression> TColumnFamilyDescription::GetCompression() const {
+std::optional<EColumnFamilyCompression> TColumnFamilyDescription::GetCompression() const {
     switch (GetProto().compression()) {
         case Ydb::Table::ColumnFamily::COMPRESSION_NONE:
             return EColumnFamilyCompression::None;
@@ -144,7 +144,7 @@ TMaybe<EColumnFamilyCompression> TColumnFamilyDescription::GetCompression() cons
     }
 }
 
-TMaybe<bool> TColumnFamilyDescription::GetKeepInMemory() const {
+std::optional<bool> TColumnFamilyDescription::GetKeepInMemory() const {
     switch (GetProto().keep_in_memory()) {
         case Ydb::FeatureFlag::ENABLED:
             return true;
@@ -197,7 +197,7 @@ const Ydb::Table::PartitioningSettings& TPartitioningSettings::GetProto() const 
     return Impl_->Proto_;
 }
 
-TMaybe<bool> TPartitioningSettings::GetPartitioningBySize() const {
+std::optional<bool> TPartitioningSettings::GetPartitioningBySize() const {
     switch (GetProto().partitioning_by_size()) {
     case Ydb::FeatureFlag::ENABLED:
         return true;
@@ -208,7 +208,7 @@ TMaybe<bool> TPartitioningSettings::GetPartitioningBySize() const {
     }
 }
 
-TMaybe<bool> TPartitioningSettings::GetPartitioningByLoad() const {
+std::optional<bool> TPartitioningSettings::GetPartitioningByLoad() const {
     switch (GetProto().partitioning_by_load()) {
     case Ydb::FeatureFlag::ENABLED:
         return true;
@@ -369,11 +369,11 @@ public:
         PermissionToSchemeEntry(Proto_.self().permissions(), &Permissions_);
         PermissionToSchemeEntry(Proto_.self().effective_permissions(), &EffectivePermissions_);
 
-        TMaybe<TValue> leftValue;
+        std::optional<TValue> leftValue;
         for (const auto& bound : Proto_.shard_key_bounds()) {
-            TMaybe<TKeyBound> fromBound = leftValue
+            std::optional<TKeyBound> fromBound = leftValue
                 ? TKeyBound::Inclusive(*leftValue)
-                : TMaybe<TKeyBound>();
+                : std::optional<TKeyBound>();
 
             TValue value(TType(bound.type()), bound.value());
             const TKeyBound& toBound = TKeyBound::Exclusive(value);
@@ -397,8 +397,8 @@ public:
 
         if (describeSettings.WithKeyShardBoundary_) {
             Ranges_.emplace_back(TKeyRange(
-                leftValue ? TKeyBound::Inclusive(*leftValue) : TMaybe<TKeyBound>(),
-                TMaybe<TKeyBound>()));
+                leftValue ? TKeyBound::Inclusive(*leftValue) : std::optional<TKeyBound>(),
+                std::optional<TKeyBound>()));
         }
     }
 
@@ -532,11 +532,11 @@ public:
         return Changefeeds_;
     }
 
-    const TMaybe<TTtlSettings>& GetTtlSettings() const {
+    const std::optional<TTtlSettings>& GetTtlSettings() const {
         return TtlSettings_;
     }
 
-    const TMaybe<std::string>& GetTiering() const {
+    const std::optional<std::string>& GetTiering() const {
         return Tiering_;
     }
 
@@ -588,11 +588,11 @@ public:
         return CompactionPolicy_;
     }
 
-    const TMaybe<ui64>& GetUniformPartitions() const {
+    const std::optional<ui64>& GetUniformPartitions() const {
         return UniformPartitions_;
     }
 
-    const TMaybe<TExplicitPartitions>& GetPartitionAtKeys() const {
+    const std::optional<TExplicitPartitions>& GetPartitionAtKeys() const {
         return PartitionAtKeys_;
     }
 
@@ -604,11 +604,11 @@ public:
         return PartitioningSettings_;
     }
 
-    TMaybe<bool> GetKeyBloomFilter() const {
+    std::optional<bool> GetKeyBloomFilter() const {
         return KeyBloomFilter_;
     }
 
-    const TMaybe<TReadReplicasSettings>& GetReadReplicasSettings() const {
+    const std::optional<TReadReplicasSettings>& GetReadReplicasSettings() const {
         return ReadReplicasSettings_;
     }
 
@@ -619,8 +619,8 @@ private:
     std::vector<TTableColumn> Columns_;
     std::vector<TIndexDescription> Indexes_;
     std::vector<TChangefeedDescription> Changefeeds_;
-    TMaybe<TTtlSettings> TtlSettings_;
-    TMaybe<std::string> Tiering_;
+    std::optional<TTtlSettings> TtlSettings_;
+    std::optional<std::string> Tiering_;
     std::string Owner_;
     std::vector<NScheme::TPermissions> Permissions_;
     std::vector<NScheme::TPermissions> EffectivePermissions_;
@@ -630,11 +630,11 @@ private:
     std::vector<TColumnFamilyDescription> ColumnFamilies_;
     THashMap<std::string, std::string> Attributes_;
     std::string CompactionPolicy_;
-    TMaybe<ui64> UniformPartitions_;
-    TMaybe<TExplicitPartitions> PartitionAtKeys_;
+    std::optional<ui64> UniformPartitions_;
+    std::optional<TExplicitPartitions> PartitionAtKeys_;
     TPartitioningSettings PartitioningSettings_;
-    TMaybe<bool> KeyBloomFilter_;
-    TMaybe<TReadReplicasSettings> ReadReplicasSettings_;
+    std::optional<bool> KeyBloomFilter_;
+    std::optional<TReadReplicasSettings> ReadReplicasSettings_;
     bool HasStorageSettings_ = false;
     bool HasPartitioningSettings_ = false;
     EStoreType StoreType_ = EStoreType::Row;
@@ -683,11 +683,11 @@ std::vector<TChangefeedDescription> TTableDescription::GetChangefeedDescriptions
     return Impl_->GetChangefeedDescriptions();
 }
 
-TMaybe<TTtlSettings> TTableDescription::GetTtlSettings() const {
+std::optional<TTtlSettings> TTableDescription::GetTtlSettings() const {
     return Impl_->GetTtlSettings();
 }
 
-TMaybe<std::string> TTableDescription::GetTiering() const {
+std::optional<std::string> TTableDescription::GetTiering() const {
     return Impl_->GetTiering();
 }
 
@@ -855,11 +855,11 @@ const TPartitioningSettings& TTableDescription::GetPartitioningSettings() const 
     return Impl_->GetPartitioningSettings();
 }
 
-TMaybe<bool> TTableDescription::GetKeyBloomFilter() const {
+std::optional<bool> TTableDescription::GetKeyBloomFilter() const {
     return Impl_->GetKeyBloomFilter();
 }
 
-TMaybe<TReadReplicasSettings> TTableDescription::GetReadReplicasSettings() const {
+std::optional<TReadReplicasSettings> TTableDescription::GetReadReplicasSettings() const {
     return Impl_->GetReadReplicasSettings();
 }
 
@@ -916,7 +916,7 @@ void TTableDescription::SerializeTo(Ydb::Table::CreateTableRequest& request) con
     }
 
     if (const auto& uniformPartitions = Impl_->GetUniformPartitions()) {
-        request.set_uniform_partitions(uniformPartitions.GetRef());
+        request.set_uniform_partitions(uniformPartitions.value());
     }
 
     if (const auto& partitionAtKeys = Impl_->GetPartitionAtKeys()) {
@@ -935,7 +935,7 @@ void TTableDescription::SerializeTo(Ydb::Table::CreateTableRequest& request) con
     }
 
     if (auto keyBloomFilter = Impl_->GetKeyBloomFilter()) {
-        if (keyBloomFilter.GetRef()) {
+        if (keyBloomFilter.value()) {
             request.set_key_bloom_filter(Ydb::FeatureFlag::ENABLED);
         } else {
             request.set_key_bloom_filter(Ydb::FeatureFlag::DISABLED);
@@ -1455,24 +1455,24 @@ TAsyncScanQueryPartIterator TTableClient::StreamExecuteScanQuery(const std::stri
 
 static void ConvertCreateTableSettingsToProto(const TCreateTableSettings& settings, Ydb::Table::TableProfile* proto) {
     if (settings.PresetName_) {
-        proto->set_preset_name(settings.PresetName_.GetRef());
+        proto->set_preset_name(settings.PresetName_.value());
     }
     if (settings.ExecutionPolicy_) {
-        proto->mutable_execution_policy()->set_preset_name(settings.ExecutionPolicy_.GetRef());
+        proto->mutable_execution_policy()->set_preset_name(settings.ExecutionPolicy_.value());
     }
     if (settings.CompactionPolicy_) {
-        proto->mutable_compaction_policy()->set_preset_name(settings.CompactionPolicy_.GetRef());
+        proto->mutable_compaction_policy()->set_preset_name(settings.CompactionPolicy_.value());
     }
     if (settings.PartitioningPolicy_) {
-        const auto& policy = settings.PartitioningPolicy_.GetRef();
+        const auto& policy = settings.PartitioningPolicy_.value();
         if (policy.PresetName_) {
-            proto->mutable_partitioning_policy()->set_preset_name(policy.PresetName_.GetRef());
+            proto->mutable_partitioning_policy()->set_preset_name(policy.PresetName_.value());
         }
         if (policy.AutoPartitioning_) {
-            proto->mutable_partitioning_policy()->set_auto_partitioning(static_cast<Ydb::Table::PartitioningPolicy_AutoPartitioningPolicy>(policy.AutoPartitioning_.GetRef()));
+            proto->mutable_partitioning_policy()->set_auto_partitioning(static_cast<Ydb::Table::PartitioningPolicy_AutoPartitioningPolicy>(policy.AutoPartitioning_.value()));
         }
         if (policy.UniformPartitions_) {
-            proto->mutable_partitioning_policy()->set_uniform_partitions(policy.UniformPartitions_.GetRef());
+            proto->mutable_partitioning_policy()->set_uniform_partitions(policy.UniformPartitions_.value());
         }
         if (policy.ExplicitPartitions_) {
             auto* borders = proto->mutable_partitioning_policy()->mutable_explicit_partitions();
@@ -1484,65 +1484,65 @@ static void ConvertCreateTableSettingsToProto(const TCreateTableSettings& settin
         }
     }
     if (settings.StoragePolicy_) {
-        const auto& policy = settings.StoragePolicy_.GetRef();
+        const auto& policy = settings.StoragePolicy_.value();
         if (policy.PresetName_) {
-            proto->mutable_storage_policy()->set_preset_name(policy.PresetName_.GetRef());
+            proto->mutable_storage_policy()->set_preset_name(policy.PresetName_.value());
         }
         if (policy.SysLog_) {
-            proto->mutable_storage_policy()->mutable_syslog()->set_media(policy.SysLog_.GetRef());
+            proto->mutable_storage_policy()->mutable_syslog()->set_media(policy.SysLog_.value());
         }
         if (policy.Log_) {
-            proto->mutable_storage_policy()->mutable_log()->set_media(policy.Log_.GetRef());
+            proto->mutable_storage_policy()->mutable_log()->set_media(policy.Log_.value());
         }
         if (policy.Data_) {
-            proto->mutable_storage_policy()->mutable_data()->set_media(policy.Data_.GetRef());
+            proto->mutable_storage_policy()->mutable_data()->set_media(policy.Data_.value());
         }
         if (policy.External_) {
-            proto->mutable_storage_policy()->mutable_external()->set_media(policy.External_.GetRef());
+            proto->mutable_storage_policy()->mutable_external()->set_media(policy.External_.value());
         }
         for (const auto& familyPolicy : policy.ColumnFamilies_) {
             auto* familyProto = proto->mutable_storage_policy()->add_column_families();
             if (familyPolicy.Name_) {
-                familyProto->set_name(familyPolicy.Name_.GetRef());
+                
             }
             if (familyPolicy.Data_) {
-                familyProto->mutable_data()->set_media(familyPolicy.Data_.GetRef());
+                familyProto->mutable_data()->set_media(familyPolicy.Data_.value());
             }
             if (familyPolicy.External_) {
-                familyProto->mutable_external()->set_media(familyPolicy.External_.GetRef());
+                familyProto->mutable_external()->set_media(familyPolicy.External_.value());
             }
             if (familyPolicy.KeepInMemory_) {
                 familyProto->set_keep_in_memory(
-                    familyPolicy.KeepInMemory_.GetRef()
+                    familyPolicy.KeepInMemory_.value()
                     ? Ydb::FeatureFlag_Status::FeatureFlag_Status_ENABLED
                     : Ydb::FeatureFlag_Status::FeatureFlag_Status_DISABLED
                 );
             }
             if (familyPolicy.Compressed_) {
-                familyProto->set_compression(familyPolicy.Compressed_.GetRef()
+                familyProto->set_compression(familyPolicy.Compressed_.value()
                     ? Ydb::Table::ColumnFamilyPolicy::COMPRESSED
                     : Ydb::Table::ColumnFamilyPolicy::UNCOMPRESSED);
             }
         }
     }
     if (settings.ReplicationPolicy_) {
-        const auto& policy = settings.ReplicationPolicy_.GetRef();
+        const auto& policy = settings.ReplicationPolicy_.value();
         if (policy.PresetName_) {
-            proto->mutable_replication_policy()->set_preset_name(policy.PresetName_.GetRef());
+            proto->mutable_replication_policy()->set_preset_name(policy.PresetName_.value());
         }
         if (policy.ReplicasCount_) {
-            proto->mutable_replication_policy()->set_replicas_count(policy.ReplicasCount_.GetRef());
+            proto->mutable_replication_policy()->set_replicas_count(policy.ReplicasCount_.value());
         }
         if (policy.CreatePerAvailabilityZone_) {
             proto->mutable_replication_policy()->set_create_per_availability_zone(
-                policy.CreatePerAvailabilityZone_.GetRef()
+                policy.CreatePerAvailabilityZone_.value()
                 ? Ydb::FeatureFlag_Status::FeatureFlag_Status_ENABLED
                 : Ydb::FeatureFlag_Status::FeatureFlag_Status_DISABLED
             );
         }
         if (policy.AllowPromotion_) {
             proto->mutable_replication_policy()->set_allow_promotion(
-                policy.AllowPromotion_.GetRef()
+                policy.AllowPromotion_.value()
                 ? Ydb::FeatureFlag_Status::FeatureFlag_Status_ENABLED
                 : Ydb::FeatureFlag_Status::FeatureFlag_Status_DISABLED
             );
@@ -1677,13 +1677,13 @@ static Ydb::Table::AlterTableRequest MakeAlterTableProtoRequest(
         request.mutable_alter_partitioning_settings()->CopyFrom(settings.AlterPartitioningSettings_->GetProto());
     }
 
-    if (settings.SetKeyBloomFilter_.Defined()) {
+    if (settings.SetKeyBloomFilter_.has_value()) {
         request.set_set_key_bloom_filter(
-            settings.SetKeyBloomFilter_.GetRef() ? Ydb::FeatureFlag::ENABLED : Ydb::FeatureFlag::DISABLED);
+            settings.SetKeyBloomFilter_.value() ? Ydb::FeatureFlag::ENABLED : Ydb::FeatureFlag::DISABLED);
     }
 
-    if (settings.SetReadReplicasSettings_.Defined()) {
-        const auto& replSettings = settings.SetReadReplicasSettings_.GetRef();
+    if (settings.SetReadReplicasSettings_.has_value()) {
+        const auto& replSettings = settings.SetReadReplicasSettings_.value();
         switch (replSettings.GetMode()) {
         case TReadReplicasSettings::EMode::PerAz:
             request.mutable_set_read_replicas_settings()->set_per_az_read_replicas_count(
@@ -1943,7 +1943,7 @@ const std::string& TDataQuery::GetId() const {
     return Impl_->GetId();
 }
 
-const TMaybe<std::string>& TDataQuery::GetText() const {
+const std::optional<std::string>& TDataQuery::GetText() const {
     return Impl_->GetText();
 }
 
@@ -2074,7 +2074,7 @@ TTableDescription TDescribeTableResult::GetTableDescription() const {
 ////////////////////////////////////////////////////////////////////////////////
 
 TDataQueryResult::TDataQueryResult(TStatus&& status, std::vector<TResultSet>&& resultSets,
-    const TMaybe<TTransaction>& transaction, const TMaybe<TDataQuery>& dataQuery, bool fromCache, const TMaybe<TQueryStats> &queryStats)
+    const std::optional<TTransaction>& transaction, const std::optional<TDataQuery>& dataQuery, bool fromCache, const std::optional<TQueryStats> &queryStats)
     : TStatus(std::move(status))
     , Transaction_(transaction)
     , ResultSets_(std::move(resultSets))
@@ -2099,11 +2099,11 @@ TResultSetParser TDataQueryResult::GetResultSetParser(size_t resultIndex) const 
     return TResultSetParser(GetResultSet(resultIndex));
 }
 
-TMaybe<TTransaction> TDataQueryResult::GetTransaction() const {
+std::optional<TTransaction> TDataQueryResult::GetTransaction() const {
     return Transaction_;
 }
 
-TMaybe<TDataQuery> TDataQueryResult::GetQuery() const {
+std::optional<TDataQuery> TDataQueryResult::GetQuery() const {
     return DataQuery_;
 }
 
@@ -2111,13 +2111,13 @@ bool TDataQueryResult::IsQueryFromCache() const {
     return FromCache_;
 }
 
-const TMaybe<TQueryStats>& TDataQueryResult::GetStats() const {
+const std::optional<TQueryStats>& TDataQueryResult::GetStats() const {
     return QueryStats_;
 }
 
 const std::string TDataQueryResult::GetQueryPlan() const {
-    if (QueryStats_.Defined()) {
-        return NYdb::TProtoAccessor::GetProto(*QueryStats_.Get()).query_plan();
+    if (QueryStats_.has_value()) {
+        return NYdb::TProtoAccessor::GetProto(*QueryStats_).query_plan();
     } else {
         return "";
     }
@@ -2137,12 +2137,12 @@ const TTransaction& TBeginTransactionResult::GetTransaction() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TCommitTransactionResult::TCommitTransactionResult(TStatus&& status, const TMaybe<TQueryStats>& queryStats)
+TCommitTransactionResult::TCommitTransactionResult(TStatus&& status, const std::optional<TQueryStats>& queryStats)
     : TStatus(std::move(status))
     , QueryStats_(queryStats)
 {}
 
-const TMaybe<TQueryStats>& TCommitTransactionResult::GetStats() const {
+const std::optional<TQueryStats>& TCommitTransactionResult::GetStats() const {
     return QueryStats_;
 }
 
@@ -2751,12 +2751,12 @@ public:
         AlterTtlSettings_ = TAlterTtlSettings::Set(settings);
     }
 
-    const TMaybe<TAlterTtlSettings>& GetAlterTtlSettings() const {
+    const std::optional<TAlterTtlSettings>& GetAlterTtlSettings() const {
         return AlterTtlSettings_;
     }
 
 private:
-    TMaybe<TAlterTtlSettings> AlterTtlSettings_;
+    std::optional<TAlterTtlSettings> AlterTtlSettings_;
 };
 
 TAlterTtlSettingsBuilder::TAlterTtlSettingsBuilder(TAlterTableSettings& parent)
@@ -2795,28 +2795,28 @@ class TAlterTableSettings::TImpl {
 public:
     TImpl() { }
 
-    void SetAlterTtlSettings(const TMaybe<TAlterTtlSettings>& value) {
+    void SetAlterTtlSettings(const std::optional<TAlterTtlSettings>& value) {
         AlterTtlSettings_ = value;
     }
 
-    const TMaybe<TAlterTtlSettings>& GetAlterTtlSettings() const {
+    const std::optional<TAlterTtlSettings>& GetAlterTtlSettings() const {
         return AlterTtlSettings_;
     }
 
 private:
-    TMaybe<TAlterTtlSettings> AlterTtlSettings_;
+    std::optional<TAlterTtlSettings> AlterTtlSettings_;
 };
 
 TAlterTableSettings::TAlterTableSettings()
     : Impl_(std::make_shared<TImpl>())
 { }
 
-TAlterTableSettings& TAlterTableSettings::AlterTtlSettings(const TMaybe<TAlterTtlSettings>& value) {
+TAlterTableSettings& TAlterTableSettings::AlterTtlSettings(const std::optional<TAlterTtlSettings>& value) {
     Impl_->SetAlterTtlSettings(value);
     return *this;
 }
 
-const TMaybe<TAlterTtlSettings>& TAlterTableSettings::GetAlterTtlSettings() const {
+const std::optional<TAlterTtlSettings>& TAlterTableSettings::GetAlterTtlSettings() const {
     return Impl_->GetAlterTtlSettings();
 }
 

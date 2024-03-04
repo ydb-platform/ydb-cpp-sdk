@@ -123,15 +123,15 @@ struct TDescribeTopicResult : public TStatus {
         // attributes
         GETTER(bool, AllowUnauthenticatedWrite);
         GETTER(bool, AllowUnauthenticatedRead);
-        GETTER(TMaybe<ui32>, PartitionsPerTablet);
-        GETTER(TMaybe<ui32>, AbcId);
-        GETTER(TMaybe<std::string>, AbcSlug);
-        GETTER(TMaybe<std::string>, FederationAccount);
+        GETTER(std::optional<ui32>, PartitionsPerTablet);
+        GETTER(std::optional<ui32>, AbcId);
+        GETTER(std::optional<std::string>, AbcSlug);
+        GETTER(std::optional<std::string>, FederationAccount);
 
         const std::vector<TReadRule>& ReadRules() const {
             return ReadRules_;
         }
-        GETTER(TMaybe<TRemoteMirrorRule>, RemoteMirrorRule);
+        GETTER(std::optional<TRemoteMirrorRule>, RemoteMirrorRule);
 
 
 #undef GETTER
@@ -146,13 +146,13 @@ struct TDescribeTopicResult : public TStatus {
         ui64 MaxPartitionWriteBurst_;
         bool ClientWriteDisabled_;
         std::vector<TReadRule> ReadRules_;
-        TMaybe<TRemoteMirrorRule> RemoteMirrorRule_;
+        std::optional<TRemoteMirrorRule> RemoteMirrorRule_;
         // attributes
         bool AllowUnauthenticatedRead_;
         bool AllowUnauthenticatedWrite_;
-        TMaybe<ui32> PartitionsPerTablet_;
-        TMaybe<ui32> AbcId_;
-        TMaybe<std::string> AbcSlug_;
+        std::optional<ui32> PartitionsPerTablet_;
+        std::optional<ui32> AbcId_;
+        std::optional<std::string> AbcSlug_;
         std::string FederationAccount_;
     };
 
@@ -280,7 +280,7 @@ struct TTopicSettings : public TOperationRequestSettings<TDerived> {
             ReadRules_.back().SetSettings(readRule);
         }
         if (settings.RemoteMirrorRule()) {
-            RemoteMirrorRule_ = TRemoteMirrorRuleSettings().SetSettings(settings.RemoteMirrorRule().GetRef());
+            RemoteMirrorRule_ = TRemoteMirrorRuleSettings().SetSettings(settings.RemoteMirrorRule().value());
         }
         return static_cast<TDerived&>(*this);
     }
@@ -769,7 +769,7 @@ struct TReadSessionEvent {
         //! Confirm partition stream creation.
         //! This signals that user is ready to receive data from this partition stream.
         //! If maybe is empty then no rewinding
-        void Confirm(TMaybe<ui64> readOffset = Nothing(), TMaybe<ui64> commitOffset = Nothing());
+        void Confirm(std::optional<ui64> readOffset = std::nullopt, std::optional<ui64> commitOffset = std::nullopt);
 
         std::string DebugString() const;
 
@@ -1008,7 +1008,7 @@ struct TWriteSessionEvent {
         ui64 SeqNo;
         EEventState State;
         //! Filled only for EES_WRITTEN. Empty for ALREADY and DISCARDED.
-        TMaybe<TWrittenMessageDetails> Details;
+        std::optional<TWrittenMessageDetails> Details;
         //! Write stats from server. See TWriteStat. nullptr for DISCARDED event.
         TWriteStat::TPtr Stat;
 
@@ -1367,7 +1367,7 @@ public:
     //! Write single message. Blocks for up to blockTimeout if inflight is full or memoryUsage is exceeded;
     //! return - true if write succeeded, false if message was not enqueued for write within blockTimeout.
     //! no Ack is provided.
-    virtual bool Write(std::string_view data, TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing(),
+    virtual bool Write(std::string_view data, std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt,
                        const TDuration& blockTimeout = TDuration::Max()) = 0;
 
     //! Blocks till SeqNo is discovered from server. Returns 0 in case of failure on init.
@@ -1395,25 +1395,25 @@ public:
     virtual NThreading::TFuture<void> WaitEvent() = 0;
 
     //! Wait and return next event. Use WaitEvent() for non-blocking wait.
-    virtual TMaybe<TWriteSessionEvent::TEvent> GetEvent(bool block = false) = 0;
+    virtual std::optional<TWriteSessionEvent::TEvent> GetEvent(bool block = false) = 0;
 
     //! Get several events in one call.
     //! If blocking = false, instantly returns up to maxEventsCount available events.
     //! If blocking = true, blocks till maxEventsCount events are available.
     //! If maxEventsCount is unset, write session decides the count to return itself.
-    virtual std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing()) = 0;
+    virtual std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false, std::optional<size_t> maxEventsCount = std::nullopt) = 0;
 
     //! Future that is set when initial SeqNo is available.
     virtual NThreading::TFuture<ui64> GetInitSeqNo() = 0;
 
     //! Write single message.
     //! continuationToken - a token earlier provided to client with ReadyToAccept event.
-    virtual void Write(TContinuationToken&& continuationToken, std::string_view data, TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) = 0;
+    virtual void Write(TContinuationToken&& continuationToken, std::string_view data, std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) = 0;
 
     //! Write single message that is already coded by codec. Codec from settings does not apply to this message.
     //! continuationToken - a token earlier provided to client with ReadyToAccept event.
     //! originalSize - size of unpacked message
-    virtual void WriteEncoded(TContinuationToken&& continuationToken, std::string_view data, ECodec codec, ui32 originalSize, TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) = 0;
+    virtual void WriteEncoded(TContinuationToken&& continuationToken, std::string_view data, ECodec codec, ui32 originalSize, std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) = 0;
 
 
     //! Wait for all writes to complete (no more that closeTimeout()), than close. Empty maybe - means infinite timeout.
@@ -1443,10 +1443,10 @@ public:
     //!
     //! If maxEventsCount is not specified,
     //! read session chooses event batch size automatically.
-    virtual std::vector<TReadSessionEvent::TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing(), size_t maxByteSize = std::numeric_limits<size_t>::max()) = 0;
+    virtual std::vector<TReadSessionEvent::TEvent> GetEvents(bool block = false, std::optional<size_t> maxEventsCount = std::nullopt, size_t maxByteSize = std::numeric_limits<size_t>::max()) = 0;
 
     //! Get single event.
-    virtual TMaybe<TReadSessionEvent::TEvent> GetEvent(bool block = false, size_t maxByteSize = std::numeric_limits<size_t>::max()) = 0;
+    virtual std::optional<TReadSessionEvent::TEvent> GetEvent(bool block = false, size_t maxByteSize = std::numeric_limits<size_t>::max()) = 0;
 
     //! Add topic to session, in other words, start reading new topic.
     // virtual void AddTopic(const TTopicReadSettings& topicReadSettings) = 0; // Not implemented yet.

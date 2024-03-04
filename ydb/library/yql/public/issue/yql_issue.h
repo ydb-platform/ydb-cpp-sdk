@@ -345,7 +345,7 @@ public:
 };
 
 TIssue ExceptionToIssue(const std::exception& e, const TPosition& pos = TPosition());
-TMaybe<TPosition> TryParseTerminationMessage(std::string_view& message);
+std::optional<TPosition> TryParseTerminationMessage(std::string_view& message);
 
 } // namespace NYql
 

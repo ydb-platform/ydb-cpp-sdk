@@ -1750,111 +1750,111 @@ TPgValue TValueParser::GetPg() const {
 
 #define RET_OPT_VALUE(Type, Name) \
     Impl_->OpenOptional(); \
-    auto value = Impl_->IsNull() ? TMaybe<Type>() : Impl_->Get##Name(); \
+    auto value = Impl_->IsNull() ? std::optional<Type>() : Impl_->Get##Name(); \
     Impl_->CloseOptional(); \
     return value;
 
-TMaybe<bool> TValueParser::GetOptionalBool() const {
+std::optional<bool> TValueParser::GetOptionalBool() const {
     RET_OPT_VALUE(bool, Bool);
 }
 
-TMaybe<i8> TValueParser::GetOptionalInt8() const {
+std::optional<i8> TValueParser::GetOptionalInt8() const {
     RET_OPT_VALUE(i8, Int8);
 }
 
-TMaybe<ui8> TValueParser::GetOptionalUint8() const {
+std::optional<ui8> TValueParser::GetOptionalUint8() const {
     RET_OPT_VALUE(ui8, Uint8);
 }
 
-TMaybe<i16> TValueParser::GetOptionalInt16() const {
+std::optional<i16> TValueParser::GetOptionalInt16() const {
     RET_OPT_VALUE(i16, Int16);
 }
 
-TMaybe<ui16> TValueParser::GetOptionalUint16() const {
+std::optional<ui16> TValueParser::GetOptionalUint16() const {
     RET_OPT_VALUE(ui16, Uint16);
 }
 
-TMaybe<i32> TValueParser::GetOptionalInt32() const {
+std::optional<i32> TValueParser::GetOptionalInt32() const {
     RET_OPT_VALUE(i32, Int32);
 }
 
-TMaybe<ui32> TValueParser::GetOptionalUint32() const {
+std::optional<ui32> TValueParser::GetOptionalUint32() const {
     RET_OPT_VALUE(ui32, Uint32);
 }
 
-TMaybe<i64> TValueParser::GetOptionalInt64() const {
+std::optional<i64> TValueParser::GetOptionalInt64() const {
     RET_OPT_VALUE(i64, Int64);
 }
 
-TMaybe<ui64> TValueParser::GetOptionalUint64() const {
+std::optional<ui64> TValueParser::GetOptionalUint64() const {
     RET_OPT_VALUE(ui64, Uint64);
 }
 
-TMaybe<float> TValueParser::GetOptionalFloat() const {
+std::optional<float> TValueParser::GetOptionalFloat() const {
     RET_OPT_VALUE(float, Float);
 }
 
-TMaybe<double> TValueParser::GetOptionalDouble() const {
+std::optional<double> TValueParser::GetOptionalDouble() const {
     RET_OPT_VALUE(double, Double);
 }
 
-TMaybe<TInstant> TValueParser::GetOptionalDate() const {
+std::optional<TInstant> TValueParser::GetOptionalDate() const {
     RET_OPT_VALUE(TInstant, Date);
 }
 
-TMaybe<TInstant> TValueParser::GetOptionalDatetime() const {
+std::optional<TInstant> TValueParser::GetOptionalDatetime() const {
     RET_OPT_VALUE(TInstant, Datetime);
 }
 
-TMaybe<TInstant> TValueParser::GetOptionalTimestamp() const {
+std::optional<TInstant> TValueParser::GetOptionalTimestamp() const {
     RET_OPT_VALUE(TInstant, Timestamp);
 }
 
-TMaybe<i64> TValueParser::GetOptionalInterval() const {
+std::optional<i64> TValueParser::GetOptionalInterval() const {
     RET_OPT_VALUE(i64, Interval);
 }
 
-TMaybe<std::string> TValueParser::GetOptionalTzDate() const {
+std::optional<std::string> TValueParser::GetOptionalTzDate() const {
     RET_OPT_VALUE(std::string, TzDate);
 }
 
-TMaybe<std::string> TValueParser::GetOptionalTzDatetime() const {
+std::optional<std::string> TValueParser::GetOptionalTzDatetime() const {
     RET_OPT_VALUE(std::string, TzDatetime);
 }
 
-TMaybe<std::string> TValueParser::GetOptionalTzTimestamp() const {
+std::optional<std::string> TValueParser::GetOptionalTzTimestamp() const {
     RET_OPT_VALUE(std::string, TzTimestamp);
 }
 
-TMaybe<std::string> TValueParser::GetOptionalString() const {
+std::optional<std::string> TValueParser::GetOptionalString() const {
     RET_OPT_VALUE(std::string, String);
 }
 
-TMaybe<std::string> TValueParser::GetOptionalUtf8() const {
+std::optional<std::string> TValueParser::GetOptionalUtf8() const {
     RET_OPT_VALUE(std::string, Utf8);
 }
 
-TMaybe<std::string> TValueParser::GetOptionalYson() const {
+std::optional<std::string> TValueParser::GetOptionalYson() const {
     RET_OPT_VALUE(std::string, Yson);
 }
 
-TMaybe<std::string> TValueParser::GetOptionalJson() const {
+std::optional<std::string> TValueParser::GetOptionalJson() const {
     RET_OPT_VALUE(std::string, Json);
 }
 
-TMaybe<TUuidValue> TValueParser::GetOptionalUuid() const {
+std::optional<TUuidValue> TValueParser::GetOptionalUuid() const {
     RET_OPT_VALUE(TUuidValue, Uuid);
 }
 
-TMaybe<std::string> TValueParser::GetOptionalJsonDocument() const {
+std::optional<std::string> TValueParser::GetOptionalJsonDocument() const {
     RET_OPT_VALUE(std::string, JsonDocument);
 }
 
-TMaybe<std::string> TValueParser::GetOptionalDyNumber() const {
+std::optional<std::string> TValueParser::GetOptionalDyNumber() const {
     RET_OPT_VALUE(std::string, DyNumber);
 }
 
-TMaybe<TDecimalValue> TValueParser::GetOptionalDecimal() const {
+std::optional<TDecimalValue> TValueParser::GetOptionalDecimal() const {
     RET_OPT_VALUE(TDecimalValue, Decimal);
 }
 
@@ -2913,127 +2913,127 @@ TDerived& TValueBuilderBase<TDerived>::Pg(const TPgValue& value) {
     return static_cast<TDerived&>(*this);
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalBool(const TMaybe<bool>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalBool(const std::optional<bool>& value) {
     SET_OPT_VALUE_MAYBE(Bool);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalInt8(const TMaybe<i8>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalInt8(const std::optional<i8>& value) {
     SET_OPT_VALUE_MAYBE(Int8);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalUint8(const TMaybe<ui8>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalUint8(const std::optional<ui8>& value) {
     SET_OPT_VALUE_MAYBE(Uint8);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalInt16(const TMaybe<i16>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalInt16(const std::optional<i16>& value) {
     SET_OPT_VALUE_MAYBE(Int16);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalUint16(const TMaybe<ui16>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalUint16(const std::optional<ui16>& value) {
     SET_OPT_VALUE_MAYBE(Uint16);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalInt32(const TMaybe<i32>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalInt32(const std::optional<i32>& value) {
     SET_OPT_VALUE_MAYBE(Int32);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalUint32(const TMaybe<ui32>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalUint32(const std::optional<ui32>& value) {
     SET_OPT_VALUE_MAYBE(Uint32);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalInt64(const TMaybe<i64>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalInt64(const std::optional<i64>& value) {
     SET_OPT_VALUE_MAYBE(Int64);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalUint64(const TMaybe<ui64>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalUint64(const std::optional<ui64>& value) {
     SET_OPT_VALUE_MAYBE(Uint64);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalFloat(const TMaybe<float>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalFloat(const std::optional<float>& value) {
     SET_OPT_VALUE_MAYBE(Float);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalDouble(const TMaybe<double>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalDouble(const std::optional<double>& value) {
     SET_OPT_VALUE_MAYBE(Double);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalDate(const TMaybe<TInstant>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalDate(const std::optional<TInstant>& value) {
     SET_OPT_VALUE_MAYBE(Date);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalDatetime(const TMaybe<TInstant>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalDatetime(const std::optional<TInstant>& value) {
     SET_OPT_VALUE_MAYBE(Datetime);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalTimestamp(const TMaybe<TInstant>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalTimestamp(const std::optional<TInstant>& value) {
     SET_OPT_VALUE_MAYBE(Timestamp);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalInterval(const TMaybe<i64>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalInterval(const std::optional<i64>& value) {
     SET_OPT_VALUE_MAYBE(Interval);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalTzDate(const TMaybe<std::string>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalTzDate(const std::optional<std::string>& value) {
     SET_OPT_VALUE_MAYBE(TzDate);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalTzDatetime(const TMaybe<std::string>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalTzDatetime(const std::optional<std::string>& value) {
     SET_OPT_VALUE_MAYBE(TzDatetime);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalTzTimestamp(const TMaybe<std::string>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalTzTimestamp(const std::optional<std::string>& value) {
     SET_OPT_VALUE_MAYBE(TzTimestamp);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalString(const TMaybe<std::string>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalString(const std::optional<std::string>& value) {
     SET_OPT_VALUE_MAYBE(String);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalUtf8(const TMaybe<std::string>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalUtf8(const std::optional<std::string>& value) {
     SET_OPT_VALUE_MAYBE(Utf8);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalYson(const TMaybe<std::string>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalYson(const std::optional<std::string>& value) {
     SET_OPT_VALUE_MAYBE(Yson);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalJson(const TMaybe<std::string>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalJson(const std::optional<std::string>& value) {
     SET_OPT_VALUE_MAYBE(Json);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalUuid(const TMaybe<TUuidValue>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalUuid(const std::optional<TUuidValue>& value) {
     SET_OPT_VALUE_MAYBE(Uuid);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalJsonDocument(const TMaybe<std::string>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalJsonDocument(const std::optional<std::string>& value) {
     SET_OPT_VALUE_MAYBE(JsonDocument);
 }
 
 template<typename TDerived>
-TDerived& TValueBuilderBase<TDerived>::OptionalDyNumber(const TMaybe<std::string>& value) {
+TDerived& TValueBuilderBase<TDerived>::OptionalDyNumber(const std::optional<std::string>& value) {
     SET_OPT_VALUE_MAYBE(DyNumber);
 }
 

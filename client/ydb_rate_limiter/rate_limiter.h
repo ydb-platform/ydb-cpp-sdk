@@ -95,31 +95,31 @@ struct TDescribeResourceResult : public TStatus {
         THierarchicalDrrProps(const Ydb::RateLimiter::HierarchicalDrrSettings&);
 
         // Resource consumption speed limit.
-        TMaybe<double> GetMaxUnitsPerSecond() const {
+        std::optional<double> GetMaxUnitsPerSecond() const {
             return MaxUnitsPerSecond_;
         }
 
         // Maximum burst size of resource consumption across the whole cluster
         // divided by max_units_per_second.
-        TMaybe<double> GetMaxBurstSizeCoefficient() const {
+        std::optional<double> GetMaxBurstSizeCoefficient() const {
             return MaxBurstSizeCoefficient_;
         }
 
         // Prefetch in local bucket up to PrefetchCoefficient*MaxUnitsPerSecond units (full size).
-        TMaybe<double> GetPrefetchCoefficient() const {
+        std::optional<double> GetPrefetchCoefficient() const {
             return PrefetchCoefficient_;
         }
 
         // Prefetching starts if there is less than PrefetchWatermark fraction of full local bucket left.
-        TMaybe<double> GetPrefetchWatermark() const {
+        std::optional<double> GetPrefetchWatermark() const {
             return PrefetchWatermark_;
         }
 
     private:
-        TMaybe<double> MaxUnitsPerSecond_;
-        TMaybe<double> MaxBurstSizeCoefficient_;
-        TMaybe<double> PrefetchCoefficient_;
-        TMaybe<double> PrefetchWatermark_;
+        std::optional<double> MaxUnitsPerSecond_;
+        std::optional<double> MaxBurstSizeCoefficient_;
+        std::optional<double> PrefetchCoefficient_;
+        std::optional<double> PrefetchWatermark_;
     };
 
     TDescribeResourceResult(TStatus status, const Ydb::RateLimiter::DescribeResourceResult& result);

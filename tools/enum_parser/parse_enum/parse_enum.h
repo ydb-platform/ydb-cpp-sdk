@@ -10,7 +10,7 @@ class TEnumParser {
 public:
 
     struct TItem {
-        TMaybe<std::string> Value;
+        std::optional<std::string> Value;
         std::string CppName;
         std::vector<std::string> Aliases;
         std::string CommentText;

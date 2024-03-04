@@ -53,8 +53,8 @@ TWriteSessionImpl::TWriteSessionImpl(
     , PrevToken(DbDriverState->CredentialsProvider ? DbDriverState->CredentialsProvider->GetAuthInfo() : "")
     , InitSeqNoPromise(NThreading::NewPromise<ui64>())
     , WakeupInterval(
-            Settings.BatchFlushInterval_.GetOrElse(TDuration::Zero()) ?
-                std::min(Settings.BatchFlushInterval_.GetOrElse(TDuration::Seconds(1)) / 5, TDuration::MilliSeconds(100))
+            Settings.BatchFlushInterval_.value_or(TDuration::Zero()) ?
+                std::min(Settings.BatchFlushInterval_.value_or(TDuration::Seconds(1)) / 5, TDuration::MilliSeconds(100))
                 :
                 TDuration::MilliSeconds(100)
     )
@@ -66,7 +66,7 @@ TWriteSessionImpl::TWriteSessionImpl(
         TargetCluster = *Settings.PreferredCluster_;
         NUtils::ToLower(TargetCluster);
     }
-    if (Settings.Counters_.Defined()) {
+    if (Settings.Counters_.has_value()) {
         Counters = *Settings.Counters_;
     } else {
         Counters = MakeIntrusive<TWriterCounters>(new ::NMonitoring::TDynamicCounters());
@@ -120,7 +120,7 @@ TWriteSessionImpl::THandleResult TWriteSessionImpl::RestartImpl(const TPlainStat
             << ". Description: " << IssuesSingleLineString(status.Issues)
     );
     SessionEstablished = false;
-    TMaybe<TDuration> nextDelay = TDuration::Zero();
+    std::optional<TDuration> nextDelay = TDuration::Zero();
     if (!RetryState) {
         RetryState = Settings.RetryPolicy_->CreateRetryState();
     }
@@ -176,9 +176,9 @@ void TWriteSessionImpl::DoCdsRequest(TDuration delay) {
             auto* params = req.add_write_sessions();
             params->set_topic(Settings.Path_);
             params->set_source_id(Settings.MessageGroupId_);
-            if (Settings.PartitionGroupId_.Defined())
+            if (Settings.PartitionGroupId_.has_value())
                 params->set_partition_group(*Settings.PartitionGroupId_);
-            if (Settings.PreferredCluster_.Defined())
+            if (Settings.PreferredCluster_.has_value())
                 params->set_preferred_cluster_name(*Settings.PreferredCluster_);
 
             LOG_LAZY(DbDriverState->Log, TLOG_INFO, LogPrefix() << "Do schedule cds request after " << delay.MilliSeconds() << " ms\n");
@@ -291,7 +291,7 @@ void TWriteSessionImpl::InitWriter() { // No Lock, very initial start - no race 
 // Client method
 NThreading::TFuture<ui64> TWriteSessionImpl::GetInitSeqNo() {
     if (Settings.ValidateSeqNo_) {
-        if (AutoSeqNoMode.Defined() && *AutoSeqNoMode) {
+        if (AutoSeqNoMode.has_value() && *AutoSeqNoMode) {
             LOG_LAZY(DbDriverState->Log, TLOG_ERR, LogPrefix() << "Cannot call GetInitSeqNo in Auto SeqNo mode");
             ThrowFatalError("Cannot call GetInitSeqNo in Auto SeqNo mode");
         }
@@ -306,36 +306,36 @@ std::string DebugString(const TWriteSessionEvent::TEvent& event) {
 }
 
 // Client method
-TMaybe<TWriteSessionEvent::TEvent> TWriteSessionImpl::GetEvent(bool block) {
+std::optional<TWriteSessionEvent::TEvent> TWriteSessionImpl::GetEvent(bool block) {
     return EventsQueue->GetEvent(block);
 }
 
 // Client method
-std::vector<TWriteSessionEvent::TEvent> TWriteSessionImpl::GetEvents(bool block, TMaybe<size_t> maxEventsCount) {
+std::vector<TWriteSessionEvent::TEvent> TWriteSessionImpl::GetEvents(bool block, std::optional<size_t> maxEventsCount) {
     return EventsQueue->GetEvents(block, maxEventsCount);
 }
 
 ui64 TWriteSessionImpl::GetIdImpl(ui64 seqNo) {
-    Y_ABORT_UNLESS(AutoSeqNoMode.Defined());
+    Y_ABORT_UNLESS(AutoSeqNoMode.has_value());
     Y_ABORT_UNLESS(!*AutoSeqNoMode || InitSeqNo.contains(CurrentCluster) && seqNo > InitSeqNo[CurrentCluster]);
     return *AutoSeqNoMode ? seqNo - InitSeqNo[CurrentCluster] : seqNo;
 }
 
 ui64 TWriteSessionImpl::GetSeqNoImpl(ui64 id) {
-    Y_ABORT_UNLESS(AutoSeqNoMode.Defined());
+    Y_ABORT_UNLESS(AutoSeqNoMode.has_value());
     return *AutoSeqNoMode ? id + InitSeqNo[CurrentCluster] : id;
 
 }
 
-ui64 TWriteSessionImpl::GetNextIdImpl(const TMaybe<ui64>& seqNo) {
+ui64 TWriteSessionImpl::GetNextIdImpl(const std::optional<ui64>& seqNo) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     ui64 id = ++NextId;
 
-    if (!AutoSeqNoMode.Defined()) {
-        AutoSeqNoMode = !seqNo.Defined();
+    if (!AutoSeqNoMode.has_value()) {
+        AutoSeqNoMode = !seqNo.has_value();
     }
-    if (seqNo.Defined()) {
+    if (seqNo.has_value()) {
         if (*AutoSeqNoMode) {
             LOG_LAZY(DbDriverState->Log,
                 TLOG_ERR,
@@ -380,9 +380,9 @@ NThreading::TFuture<void> TWriteSessionImpl::WaitEvent() {
 
 // Client method.
 void TWriteSessionImpl::WriteInternal(
-            TContinuationToken&&, std::string_view data, TMaybe<ECodec> codec, ui32 originalSize, TMaybe<ui64> seqNo, TMaybe<TInstant> createTimestamp
+            TContinuationToken&&, std::string_view data, std::optional<ECodec> codec, ui32 originalSize, std::optional<ui64> seqNo, std::optional<TInstant> createTimestamp
         ) {
-    TInstant createdAtValue = createTimestamp.Defined() ? *createTimestamp : TInstant::Now();
+    TInstant createdAtValue = createTimestamp.has_value() ? *createTimestamp : TInstant::Now();
     bool readyToAccept = false;
     size_t bufferSize = data.size();
     with_lock(Lock) {
@@ -398,13 +398,13 @@ void TWriteSessionImpl::WriteInternal(
 
 // Client method.
 void TWriteSessionImpl::WriteEncoded(
-            TContinuationToken&& token, std::string_view data, ECodec codec, ui32 originalSize, TMaybe<ui64> seqNo, TMaybe<TInstant> createTimestamp
+            TContinuationToken&& token, std::string_view data, ECodec codec, ui32 originalSize, std::optional<ui64> seqNo, std::optional<TInstant> createTimestamp
         ) {
     WriteInternal(std::move(token), data, codec, originalSize, seqNo, createTimestamp);
 }
 
 void TWriteSessionImpl::Write(
-            TContinuationToken&& token, std::string_view data, TMaybe<ui64> seqNo, TMaybe<TInstant> createTimestamp
+            TContinuationToken&& token, std::string_view data, std::optional<ui64> seqNo, std::optional<TInstant> createTimestamp
         ) {
     WriteInternal(std::move(token), data, {}, 0, seqNo, createTimestamp);
 }
@@ -670,7 +670,7 @@ void TWriteSessionImpl::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t co
                 errorStatus = MakeErrorFromProto(*ServerMessage);
             } else {
                 processResult = ProcessServerMessageImpl();
-                needSetValue = !InitSeqNoSetDone && processResult.InitSeqNo.Defined() && (InitSeqNoSetDone = true);
+                needSetValue = !InitSeqNoSetDone && processResult.InitSeqNo.has_value() && (InitSeqNoSetDone = true);
                 if (errorStatus.Ok() && processResult.Ok) {
                     doRead = true;
                 }
@@ -997,8 +997,8 @@ void TWriteSessionImpl::FlushWriteIfRequiredImpl() {
 
     if (!CurrentBatch.Empty() && !CurrentBatch.FlushRequested) {
         MessagesAcquired += static_cast<ui64>(CurrentBatch.Acquire());
-        if (TInstant::Now() - CurrentBatch.StartedAt >= Settings.BatchFlushInterval_.GetOrElse(TDuration::Zero())
-            || CurrentBatch.CurrentSize >= Settings.BatchFlushSizeBytes_.GetOrElse(0)
+        if (TInstant::Now() - CurrentBatch.StartedAt >= Settings.BatchFlushInterval_.value_or(TDuration::Zero())
+            || CurrentBatch.CurrentSize >= Settings.BatchFlushSizeBytes_.value_or(0)
             || CurrentBatch.CurrentSize >= MaxBlockSize
             || CurrentBatch.Messages.size() >= MaxBlockMessageCount
             || CurrentBatch.HasCodec()
@@ -1041,7 +1041,7 @@ size_t TWriteSessionImpl::WriteBatchImpl() {
             block.OriginalSize += datum.size();
             block.OriginalMemoryUsage = CurrentBatch.Data.size();
             block.OriginalDataRefs.emplace_back(datum);
-            if (CurrentBatch.Messages[i].Codec.Defined()) {
+            if (CurrentBatch.Messages[i].Codec.has_value()) {
                 Y_ABORT_UNLESS(CurrentBatch.Messages.size() == 1);
                 block.CodecID = GetCodecId(*CurrentBatch.Messages[i].Codec);
                 block.OriginalSize = CurrentBatch.Messages[i].OriginalSize;

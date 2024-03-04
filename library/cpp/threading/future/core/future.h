@@ -118,7 +118,7 @@ namespace NThreading {
         //! If the future is initialized returns the future state identifier. Otherwise returns an empty optional
         /** The state identifier is guaranteed to be unique during the future state lifetime and could be reused after its death
         **/
-        TMaybe<TFutureStateId> StateId() const noexcept;
+        std::optional<TFutureStateId> StateId() const noexcept;
 
         void EnsureInitialized() const;
     };
@@ -178,7 +178,7 @@ namespace NThreading {
         //! If the future is initialized returns the future state identifier. Otherwise returns an empty optional
         /** The state identifier is guaranteed to be unique during the future state lifetime and could be reused after its death
         **/
-        TMaybe<TFutureStateId> StateId() const noexcept;
+        std::optional<TFutureStateId> StateId() const noexcept;
 
         void EnsureInitialized() const;
     };

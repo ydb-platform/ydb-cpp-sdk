@@ -40,7 +40,7 @@ public:
     }
 
 private:
-    mutable TMaybe<T> ValueHolder;
+    mutable std::optional<T> ValueHolder;
     TInitializer Initializer;
 };
 

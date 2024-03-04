@@ -28,7 +28,7 @@ public:
 
     std::string ToString(bool withPlan = false) const;
 
-    TMaybe<std::string> GetPlan() const;
+    std::optional<std::string> GetPlan() const;
 
     TDuration GetTotalDuration() const;
     TDuration GetTotalCpuTime() const;

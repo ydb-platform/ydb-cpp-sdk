@@ -83,7 +83,7 @@ public:
     void AddHeader(const std::string& name, const std::string& value);
 
 private:
-    mutable TMaybe<std::string> Addr_;
+    mutable std::optional<std::string> Addr_;
     std::string Host_;
     std::string Port_;
     std::string Path_;

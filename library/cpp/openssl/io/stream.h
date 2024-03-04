@@ -20,8 +20,8 @@ public:
             std::string PrivateKeyPassword_;
         };
 
-        TMaybe<TVerifyCert> VerifyCert_;
-        TMaybe<TClientCert> ClientCert_;
+        std::optional<TVerifyCert> VerifyCert_;
+        std::optional<TClientCert> ClientCert_;
         // TODO - keys, cyphers, etc
     };
 

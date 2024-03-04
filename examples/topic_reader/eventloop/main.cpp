@@ -89,7 +89,7 @@ int main(int argc, const char* argv[]) {
         //    Cerr << ...;
         // });
         // Get event
-        TMaybe<NYdb::NTopic::TReadSessionEvent::TEvent> event = ReadSession->GetEvent(true/*block - will block if no event received yet*/);
+        std::optional<NYdb::NTopic::TReadSessionEvent::TEvent> event = ReadSession->GetEvent(true/*block - will block if no event received yet*/);
         Cerr << "Got new read session event: " << DebugString(*event) << Endl;
 
         if (auto* dataEvent = std::get_if<NYdb::NTopic::TReadSessionEvent::TDataReceivedEvent>(&*event)) {
