@@ -26,11 +26,10 @@
 #include <library/cpp/string_utils/misc/misc.h>
 #include <library/cpp/string_utils/string_output/string_output.h>
 
-#include <util/generic/map.h>
 #include <util/random/random.h>
 #include <util/string/join.h>
 
-#include <unordered_map>
+#include <map>
 
 namespace NYdb {
 namespace NTable {

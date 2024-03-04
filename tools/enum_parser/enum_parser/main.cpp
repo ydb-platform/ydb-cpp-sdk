@@ -32,7 +32,7 @@ void WriteHeader(const std::string& headerName, IOutputStream& out, IOutputStrea
     out << "#include <util/generic/singleton.h>\n";
     out << "#include <string>\n";
     out << "#include <util/generic/vector.h>\n";
-    out << "#include <util/generic/map.h>\n";
+    out << "#include <map>\n";
     out << "#include <util/string/cast.h>\n";
     out << "#include <util/stream/output.h>\n\n";
 
