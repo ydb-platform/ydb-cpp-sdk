@@ -1,13 +1,15 @@
 #pragma once
 
+#include <contrib/libs/libc_compat/string.h>
+
 #include <util/memory/alloc.h>
 #include <util/digest/numeric.h>
-#include <util/generic/string.h>
+#include <util/generic/fwd.h>
 #include <util/generic/string_hash.h>
-#include <util/generic/strbuf.h>
 #include <util/generic/typetraits.h>
 
 #include <functional>
+#include <string>
 #include <typeindex>
 #include <utility>
 
@@ -81,21 +83,21 @@ template <>
 struct THash<std::string_view>: ::NHashPrivate::TStringHash<char> {
 };
 
-template <>
-struct hash<std::string>: ::NHashPrivate::TStringHash<char> {
-};
+// template <>
+// struct hash<std::string>: ::NHashPrivate::TStringHash<char> {
+// };
 
-template <>
-struct hash<std::u16string>: ::NHashPrivate::TStringHash<wchar16> {
-};
+// template <>
+// struct hash<std::u16string>: ::NHashPrivate::TStringHash<wchar16> {
+// };
 
 template <>
 struct THash<std::u16string_view>: ::NHashPrivate::TStringHash<wchar16> {
 };
 
-template <>
-struct hash<std::u32string>: ::NHashPrivate::TStringHash<wchar32> {
-};
+// template <>
+// struct hash<std::u32string>: ::NHashPrivate::TStringHash<wchar32> {
+// };
 
 template <>
 struct THash<std::u32string_view>: ::NHashPrivate::TStringHash<wchar32> {

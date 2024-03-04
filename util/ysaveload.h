@@ -1,14 +1,14 @@
 #pragma once
 
 #include <util/generic/fwd.h>
-#include <util/generic/strbuf.h>
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
 #include <util/generic/typetraits.h>
 #include <util/generic/algorithm.h>
 #include <util/stream/output.h>
 #include <util/stream/input.h>
 #include <util/system/compiler.h>
+
+#include <string>
 
 #ifndef __NVCC__
     // cuda is compiled in C++14 mode at the time

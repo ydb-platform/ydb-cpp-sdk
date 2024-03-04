@@ -10,6 +10,8 @@
 #include <util/generic/noncopyable.h>
 #include <functional>
 
+#include <string>
+
 class TDuration;
 
 struct IObjectInQueue {

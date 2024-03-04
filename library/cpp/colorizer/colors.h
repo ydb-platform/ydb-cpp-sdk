@@ -2,8 +2,10 @@
 
 #include "fwd.h"
 
-#include <util/generic/string.h>
-#include <util/generic/strbuf.h>
+#include <util/system/defaults.h>
+
+#include <string>
+#include <string_view>
 
 #include <cstdio>
 

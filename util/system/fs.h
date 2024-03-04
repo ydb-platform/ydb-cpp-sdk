@@ -1,8 +1,9 @@
 #pragma once
 
 #include <util/generic/flags.h>
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
+
+#include <string>
 
 namespace NFs {
     enum EFilePermission {

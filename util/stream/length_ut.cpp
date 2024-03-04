@@ -2,7 +2,6 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/string.h>
 
 Y_UNIT_TEST_SUITE(TestLengthIO) {
     Y_UNIT_TEST(TestLengthLimitedInput) {

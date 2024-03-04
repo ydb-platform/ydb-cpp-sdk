@@ -6,6 +6,9 @@
 #include <util/generic/ptr.h>
 #include <util/generic/iterator.h>
 #include <util/generic/yexception.h>
+#include <util/generic/ylimits.h>
+
+#include <string>
 
 /// Note this magic API traverses directory hierarchy
 

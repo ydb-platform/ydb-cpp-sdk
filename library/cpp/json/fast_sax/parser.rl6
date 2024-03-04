@@ -4,7 +4,7 @@
 
 #include <util/string/cast.h>
 #include <util/generic/buffer.h>
-#include <util/generic/strbuf.h>
+#include <string_view>
 #include <util/generic/ymath.h>
 
 namespace NJson {

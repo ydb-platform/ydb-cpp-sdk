@@ -10,7 +10,6 @@
 #include "win_undef.h"
 #include <util/charset/wide.h>
 #include <util/folder/path.h>
-#include <util/generic/string.h>
 
 static void Touch(const TFsPath& path) {
     TFile file(path, CreateAlways | WrOnly);

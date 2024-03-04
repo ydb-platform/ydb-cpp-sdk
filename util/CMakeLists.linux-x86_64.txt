@@ -109,9 +109,7 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/generic/size_literals.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/stack.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/store_policy.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/strbuf.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/strfcpy.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/string.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/typelist.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/typetraits.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/utility.cpp

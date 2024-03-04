@@ -15,7 +15,6 @@
 
 #include <contrib/libs/double-conversion/double-conversion/double-conversion.h>
 
-#include <util/generic/string.h>
 #include <util/system/yassert.h>
 #include <util/generic/yexception.h>
 #include <util/generic/typetraits.h>

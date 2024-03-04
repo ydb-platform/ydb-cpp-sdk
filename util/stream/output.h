@@ -4,10 +4,9 @@
 #include "labeled.h"
 
 #include <util/generic/noncopyable.h>
-#include <util/generic/string.h>
-#include <util/generic/strbuf.h>
 #include <util/generic/typetraits.h>
 
+#include <string_view>
 #include <type_traits>
 
 /**

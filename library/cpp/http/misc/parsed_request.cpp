@@ -2,6 +2,7 @@
 
 #include <library/cpp/string_utils/misc/misc.h>
 
+#include <util/string/escape.h>
 #include <util/string/strip.h>
 #include <util/generic/yexception.h>
 #include <util/string/cast.h>
@@ -19,11 +20,11 @@ TParsedHttpRequest::TParsedHttpRequest(const std::string_view& str) {
     std::string_view tmp;
 
     if (!NUtils::TrySplit(StripLeft(str), Method, tmp, ' ')) {
-        ythrow yexception() << "bad request(" << ToString(str).Quote() << ")";
+        ythrow yexception() << "bad request(" << NQuote::Quote(str) << ")";
     }
 
     if (!NUtils::TrySplit(StripLeft(tmp), Request, Proto, ' ')) {
-        ythrow yexception() << "bad request(" << ToString(str).Quote() << ")";
+        ythrow yexception() << "bad request(" << NQuote::Quote(str) << ")";
     }
 
     Proto = StripLeft(Proto);

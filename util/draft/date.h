@@ -2,10 +2,10 @@
 
 #include <util/stream/output.h>
 #include <util/stream/input.h>
-#include <util/generic/string.h>
 #include <util/datetime/constants.h>
 
 #include <ctime>
+#include <string>
 
 // XXX: uses system calls for trivial things. may be very slow therefore.
 

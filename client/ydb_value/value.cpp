@@ -468,6 +468,7 @@ void TTypeParser::CloseTagged() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void FormatTypeInternal(TTypeParser& parser, IOutputStream& out) {
+    using namespace std::literals;
     switch (parser.GetKind()) {
         case TTypeParser::ETypeKind::Primitive:
             out << parser.GetPrimitive();

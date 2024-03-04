@@ -1,7 +1,6 @@
 #pragma once
 
 #include <library/cpp/string_utils/helpers/helpers.h>
-#include <util/generic/string.h>
 
 template <class TChar>
 std::basic_string<TChar>& EscapeCImpl(const TChar* str, size_t len, std::basic_string<TChar>&);

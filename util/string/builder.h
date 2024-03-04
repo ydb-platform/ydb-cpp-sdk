@@ -2,7 +2,6 @@
 
 #include <util/stream/str.h>
 #include <utility>
-#include <util/generic/string.h>
 
 namespace NPrivateStringBuilder {
     class TStringBuilder: public std::string {

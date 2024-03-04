@@ -5,8 +5,9 @@
 
 #include <util/system/error.h>
 #include <util/system/byteorder.h>
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
+
+#include <string>
 
 /// IPv4 address in network format
 using TIpHost = ui32;

@@ -2,7 +2,6 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/string.h>
 
 // This version of string output stream is written here only
 // for testing IZeroCopyOutput implementation of DoWrite.

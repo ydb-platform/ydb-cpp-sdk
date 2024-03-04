@@ -1,7 +1,6 @@
 #include <library/cpp/testing/unittest/registar.h>
 
 #include <util/generic/array_size.h>
-#include <util/generic/strbuf.h>
 
 #include "mem.h"
 #include "null.h"

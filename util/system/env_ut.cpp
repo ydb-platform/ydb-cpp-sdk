@@ -1,6 +1,5 @@
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/string.h>
 #include "env.h"
 
 Y_UNIT_TEST_SUITE(EnvTest) {

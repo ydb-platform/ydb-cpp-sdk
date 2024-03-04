@@ -2,7 +2,7 @@
 
 #include "src_root.h"
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 struct TSourceLocation {
     constexpr TSourceLocation(const std::string_view f, int l) noexcept

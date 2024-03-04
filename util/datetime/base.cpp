@@ -5,7 +5,6 @@
 #include <util/stream/mem.h>
 #include <util/system/compat.h>
 #include <util/memory/tempbuf.h>
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
 
 std::string Strftime(const char* format, const struct tm* tm) {

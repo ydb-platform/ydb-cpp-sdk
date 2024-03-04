@@ -2,7 +2,6 @@
 
 #include "recode_result.h"
 
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
 #include <util/string/escape.h>
 #include <util/system/defaults.h>

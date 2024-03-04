@@ -1,6 +1,5 @@
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/string.h>
 #include <util/generic/array_size.h>
 
 #include "buffered.h"

@@ -4,7 +4,6 @@
 
 #include <util/generic/buffer.h>
 #include <util/generic/mem_copy.h>
-#include <util/generic/strbuf.h>
 #include <util/system/compiler.h>
 #include <util/system/yassert.h>
 

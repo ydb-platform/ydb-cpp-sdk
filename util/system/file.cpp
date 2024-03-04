@@ -19,7 +19,6 @@
 #include <util/random/random.h>
 
 #include <util/generic/size_literals.h>
-#include <util/generic/string.h>
 #include <util/generic/ylimits.h>
 #include <util/generic/yexception.h>
 

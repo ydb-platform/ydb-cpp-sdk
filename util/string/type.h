@@ -1,6 +1,5 @@
 #pragma once
 
-#include <util/generic/strbuf.h>
 
 Y_PURE_FUNCTION bool IsSpace(const char* s, size_t len) noexcept;
 

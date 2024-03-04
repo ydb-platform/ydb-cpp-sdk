@@ -2,7 +2,7 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/string.h>
+#include <string>
 #include <util/charset/wide.h>
 
 using namespace std::string_view_literals;

@@ -2,7 +2,6 @@
 #include "printf.h"
 #include "str.h"
 
-#include <util/generic/string.h>
 
 #include <library/cpp/testing/unittest/registar.h>
 

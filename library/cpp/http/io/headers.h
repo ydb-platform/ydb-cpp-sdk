@@ -2,8 +2,8 @@
 
 #include <library/cpp/string_builder/string_builder.h>
 
-#include <util/generic/string.h>
-#include <util/generic/strbuf.h>
+#include <string>
+#include <string_view>
 #include <util/generic/deque.h>
 
 #include <util/string/cast.h>

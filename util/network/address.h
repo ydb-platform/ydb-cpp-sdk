@@ -4,7 +4,6 @@
 #include "socket.h"
 
 #include <util/generic/ptr.h>
-#include <util/generic/string.h>
 #include <util/network/sock.h>
 
 namespace NAddr {

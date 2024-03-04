@@ -11,6 +11,22 @@
 #include <util/system/maxlen.h>
 #include <util/system/yassert.h>
 
+namespace NStringPrivate {
+    template <class TCharType>
+    size_t GetStringLengthWithLimit(const TCharType* s, size_t maxlen) {
+        Y_ASSERT(s);
+        size_t i = 0;
+        for (; i != maxlen && s[i]; ++i)
+            ;
+        return i;
+    }
+
+    inline size_t GetStringLengthWithLimit(const char* s, size_t maxlen) {
+        Y_ASSERT(s);
+        return strnlen(s, maxlen);
+    }
+}
+
 void SlashFolderLocal(std::string& folder) {
     if (folder.empty())
         return;

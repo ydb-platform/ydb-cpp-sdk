@@ -1,7 +1,7 @@
 #pragma once
 
-#include <util/generic/string.h>
-#include <util/generic/strbuf.h>
+#include <string>
+#include <string_view>
 #include <util/generic/variant.h>
 #include <util/stream/output.h>
 #include <util/stream/str.h>

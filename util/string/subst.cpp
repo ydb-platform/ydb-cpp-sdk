@@ -1,7 +1,5 @@
 #include "subst.h"
 
-#include <util/generic/strbuf.h>
-#include <util/generic/string.h>
 #include <util/system/compiler.h>
 
 #include <string>

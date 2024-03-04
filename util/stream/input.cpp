@@ -4,7 +4,6 @@
 
 #include <util/charset/wide.h>
 #include <util/memory/tempbuf.h>
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
 #include <util/generic/singleton.h>
 #include <util/string/cast.h>

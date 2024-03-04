@@ -3,7 +3,7 @@
 #include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/string/cast.h>
-#include <util/generic/string.h>
+#include <string>
 
 #include <util/generic/utility.h>
 #include <util/generic/yexception.h>

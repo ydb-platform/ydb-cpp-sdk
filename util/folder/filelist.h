@@ -1,9 +1,9 @@
 #pragma once
 
 #include <util/generic/buffer.h>
-#include <util/generic/string.h>
-#include <util/generic/strbuf.h>
 #include <util/generic/flags.h>
+
+#include <string>
 
 class TFileEntitiesList {
 public:

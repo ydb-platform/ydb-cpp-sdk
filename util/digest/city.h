@@ -1,8 +1,8 @@
 #pragma once
 
 #include <util/generic/utility.h>
-#include <util/generic/strbuf.h>
 
+#include <string_view>
 #include <utility>
 
 // NOTE: These functions provide CityHash 1.0 implementation whose results are *different* from

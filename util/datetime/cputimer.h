@@ -3,7 +3,6 @@
 #include "base.h"
 
 #include <util/system/rusage.h>
-#include <util/generic/string.h>
 #include <util/stream/str.h>
 
 class TTimer {

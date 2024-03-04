@@ -7,8 +7,6 @@
 #include <algorithm>
 
 #include <util/system/defaults.h>
-#include <util/generic/string.h>
-#include <util/generic/strbuf.h>
 
 /// @addtogroup Strings_Miscellaneous
 /// @{

@@ -6,7 +6,6 @@
 #include "hash_set.h"
 #include "is_in.h"
 #include "set.h"
-#include "strbuf.h"
 #include "string.h"
 
 Y_UNIT_TEST_SUITE(TIsIn) {

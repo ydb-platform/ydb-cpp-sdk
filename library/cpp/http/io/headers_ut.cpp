@@ -1,6 +1,6 @@
 #include <util/generic/set.h>
-#include <util/generic/string.h>
-#include <util/generic/strbuf.h>
+#include <string>
+#include <string_view>
 #include <utility>
 
 #include <library/cpp/http/io/headers.h>

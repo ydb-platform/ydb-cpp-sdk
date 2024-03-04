@@ -1,6 +1,5 @@
 #pragma once
 
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
 #include <util/system/yassert.h>
 

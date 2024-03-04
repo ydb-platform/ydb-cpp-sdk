@@ -83,7 +83,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <util/generic/string.h>
+#include <string>
 
 namespace snappy {
 

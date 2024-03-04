@@ -6,7 +6,7 @@
 #include <ydb/library/grpc/common/constants.h>
 #include <util/datetime/base.h>
 #include <unordered_map>
-#include <util/generic/string.h>
+#include <string>
 
 namespace NYdbGrpc {
 

@@ -4,7 +4,6 @@
 #include "file.h"
 
 #include <util/folder/path.h>
-#include <util/generic/string.h>
 
 class TTempFile {
 public:

@@ -5,6 +5,8 @@
 #include <util/generic/yexception.h>
 #include <util/generic/buffer.h>
 
+#include <string>
+
 class TBufferedInput::TImpl: public TAdditionalStorage<TImpl> {
 public:
     inline TImpl(IInputStream* slave)

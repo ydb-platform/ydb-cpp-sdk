@@ -1,6 +1,5 @@
 #pragma once
 
-#include <util/generic/string.h>
 #include <util/generic/typetraits.h>
 #include <util/string/cast.h>
 #include "cast.h"
@@ -22,7 +21,7 @@
 template <typename TCharType, typename T>
 inline std::enable_if_t<!std::is_arithmetic<std::remove_cv_t<T>>::value, void>
 AppendToString(std::basic_string<TCharType>& dst, const T& t) {
-    dst.AppendNoAlias(ToString(t));
+    dst.append(ToString(t));
 }
 
 template <typename TCharType, typename T>

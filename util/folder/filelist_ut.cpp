@@ -5,7 +5,6 @@
 #include <library/cpp/testing/unittest/registar.h>
 
 #include <util/system/file.h>
-#include <util/generic/string.h>
 
 class TFileListTest: public TTestBase {
     UNIT_TEST_SUITE(TFileListTest);

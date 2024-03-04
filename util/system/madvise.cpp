@@ -4,6 +4,8 @@
 
 #include <util/generic/yexception.h>
 
+#include <string>
+
 #if defined(_win_)
     #include <util/system/winint.h>
 #else

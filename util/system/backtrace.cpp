@@ -5,7 +5,6 @@
 #include <util/stream/output.h>
 #include <util/stream/format.h>
 #include <util/generic/array_ref.h>
-#include <util/generic/string.h>
 
 #ifdef _win_
     #include "mutex.h"

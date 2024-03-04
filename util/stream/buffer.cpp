@@ -1,6 +1,8 @@
 #include "buffer.h"
 #include <util/generic/buffer.h>
 
+#include <string>
+
 class TBufferOutput::TImpl {
 public:
     inline TImpl(TBuffer& buf)

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <util/generic/ptr.h>
-#include <util/generic/string.h>
 
 namespace NPrivate {
 

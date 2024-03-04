@@ -208,7 +208,7 @@ std::optional<std::string> RoundToNearestValidUtf8(const std::string_view& str, 
 
 std::optional<std::string> NextValidUtf8(const std::string_view& str) {
     Y_ENSURE(IsUtf8(str));
-    TUtf32String wide = UTF8ToUTF32<false>(str);
+    auto wide = UTF8ToUTF32<false>(str);
     bool incremented = false;
     size_t toDrop = 0;
     for (auto it = wide.rbegin(); it != wide.rend(); ++it) {

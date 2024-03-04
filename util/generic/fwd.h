@@ -4,12 +4,6 @@
 
 #include <stlfwd>
 
-template <typename TCharType, typename TTraits = std::char_traits<TCharType>>
-class TBasicString;
-
-template <typename TCharType, typename TTraits = std::char_traits<TCharType>>
-class TBasicStringBuf;
-
 //misc
 class TBuffer;
 

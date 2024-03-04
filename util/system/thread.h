@@ -5,7 +5,8 @@
 /// @see SystemThreadFactory()
 
 #include <util/generic/ptr.h>
-#include <util/generic/string.h>
+
+#include <string>
 
 #include "defaults.h"
 #include "progname.h"

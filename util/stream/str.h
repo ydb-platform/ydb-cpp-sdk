@@ -3,9 +3,10 @@
 #include "zerocopy.h"
 #include "zerocopy_output.h"
 
-#include <util/generic/string.h>
 #include <util/generic/noncopyable.h>
 #include <util/generic/store_policy.h>
+
+#include <string>
 
 /**
  * @addtogroup Streams_Strings

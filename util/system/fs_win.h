@@ -3,8 +3,6 @@
 #include "winint.h"
 #include "defaults.h"
 
-#include <util/generic/strbuf.h>
-#include <util/generic/string.h>
 
 namespace NFsPrivate {
     bool WinRename(const std::string& oldPath, const std::string& newPath);

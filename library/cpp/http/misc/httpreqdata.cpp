@@ -28,6 +28,7 @@ TBaseServerRequestData::TBaseServerRequestData(std::string_view qs, SOCKET s)
 }
 
 void TBaseServerRequestData::AppendQueryString(std::string_view str) {
+    using namespace std::literals;
     if (Y_UNLIKELY(!Query_.empty())) {
         std::string_view separator = !Query_.ends_with('&') && !str.starts_with('&') ? "&"sv : ""sv;
         ModifiedQueryString_ = NUtils::TYdbStringBuilder() << Query_ << separator << str;
@@ -107,6 +108,7 @@ std::string_view TBaseServerRequestData::Environment(std::string_view key) const
 }
 
 const std::string& TBaseServerRequestData::GetCurPage() const {
+    using namespace std::literals;
     if (CurPage_.empty() && !Host_.empty()) {
         std::array<std::string_view, 7> fragments;
         auto fragmentIt = fragments.begin();

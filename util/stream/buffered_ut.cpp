@@ -2,7 +2,6 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/string.h>
 #include <util/random/mersenne.h>
 
 Y_UNIT_TEST_SUITE(TestBufferedIO) {

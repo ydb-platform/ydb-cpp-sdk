@@ -3,7 +3,6 @@
 #include "zerocopy.h"
 #include "zerocopy_output.h"
 
-#include <util/generic/strbuf.h>
 
 /**
  * @addtogroup Streams_Memory

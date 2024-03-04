@@ -195,19 +195,6 @@ void Out<typename std::vector<bool>::reference>(IOutputStream& o, const std::vec
 }
 #endif
 
-#ifndef TSTRING_IS_STD_STRING
-
-template <>
-void Out<TBasicCharRef<std::u16string>>(IOutputStream& o, const TBasicCharRef<std::u16string>& c) {
-    o << static_cast<wchar16>(c);
-}
-
-template <>
-void Out<TBasicCharRef<std::u32string>>(IOutputStream& o, const TBasicCharRef<std::u32string>& c) {
-    o << static_cast<wchar32>(c);
-}
-#endif
-
 template <>
 void Out<const void*>(IOutputStream& o, const void* t) {
     o << Hex(size_t(t));

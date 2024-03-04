@@ -3,7 +3,6 @@
 #include <library/cpp/testing/unittest/registar.h>
 
 #include <util/generic/hash_set.h>
-#include <util/generic/strbuf.h>
 
 Y_UNIT_TEST_SUITE(TEndpointTest) {
     Y_UNIT_TEST(TestSimple) {

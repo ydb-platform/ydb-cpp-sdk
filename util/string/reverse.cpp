@@ -1,6 +1,5 @@
 #include "reverse.h"
 
-#include <util/generic/string.h>
 #include <util/generic/vector.h>
 #include <util/charset/wide_specific.h>
 

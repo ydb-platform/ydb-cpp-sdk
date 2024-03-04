@@ -1,7 +1,7 @@
 #pragma once
 
 #include <util/generic/fwd.h>
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 namespace NUrl {
 

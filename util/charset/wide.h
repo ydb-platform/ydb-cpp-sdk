@@ -6,7 +6,6 @@
 #include "wide_specific.h"
 
 #include <util/generic/algorithm.h>
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
 #include <util/memory/tempbuf.h>
 #include <util/string/escape.h>

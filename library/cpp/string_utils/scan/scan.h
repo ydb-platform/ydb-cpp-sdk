@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 template <bool addAll, char sep, char sepKeyVal, class F>
 static inline void ScanKeyValue(std::string_view s, F&& f) {

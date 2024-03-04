@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
     out << "#include <library/cpp/resource/registry.h>\n\n";
 
     while (*argv) {
-        if ("-"sv == *argv) {
+        if (std::string_view{"-"} == *argv) {
             std::vector<std::string> items = StringSplitter(std::string(*(argv + 1))).Split('=').Limit(2).ToList<std::string>();
             GenOne(items[1], items[0], out);
         } else {

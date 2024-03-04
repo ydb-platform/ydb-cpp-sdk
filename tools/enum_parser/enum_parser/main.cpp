@@ -16,7 +16,7 @@
 #include <util/string/cast.h>
 #include <util/string/join.h>
 #include <util/string/subst.h>
-#include <util/generic/string.h>
+#include <string>
 
 #include <util/generic/ptr.h>
 #include <util/generic/yexception.h>
@@ -30,7 +30,7 @@ void WriteHeader(const std::string& headerName, IOutputStream& out, IOutputStrea
     out << "#include <tools/enum_parser/enum_parser/stdlib_deps.h>\n\n";
     out << "#include <util/generic/typetraits.h>\n";
     out << "#include <util/generic/singleton.h>\n";
-    out << "#include <util/generic/string.h>\n";
+    out << "#include <string>\n";
     out << "#include <util/generic/vector.h>\n";
     out << "#include <util/generic/map.h>\n";
     out << "#include <util/string/cast.h>\n";
@@ -168,7 +168,7 @@ void GenerateEnum(
 
     std::string nsName = "N" + cName + "Private";
 
-    out << "namespace { namespace " << nsName << " {\n";
+    out << "namespace {\n" "using namespace std::literals;\n" "namespace " << nsName << " {\n";
 
     std::vector<std::string> nameInitializerPairs;
     std::vector<std::pair<std::string, std::string>> valueInitializerPairsUnsorted;  // data, sort_key

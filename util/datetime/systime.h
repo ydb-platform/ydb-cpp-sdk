@@ -1,9 +1,9 @@
 #pragma once
 
 #include <util/system/platform.h>
-#include <util/generic/string.h>
 
 #include <ctime>
+#include <string>
 
 // timegm and gmtime_r versions that don't need access to filesystem or a big stack
 time_t TimeGM(const struct tm* t);

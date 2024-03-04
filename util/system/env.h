@@ -1,6 +1,5 @@
 #pragma once
 
-#include <util/generic/string.h>
 
 /**
  * Search the environment list provided by the host environment for associated variable.

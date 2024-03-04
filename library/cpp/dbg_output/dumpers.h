@@ -3,8 +3,8 @@
 #include "engine.h"
 
 #include <util/generic/fwd.h>
-#include <util/generic/strbuf.h>
-#include <util/generic/string.h>
+#include <string_view>
+#include <string>
 
 #include <map>
 
