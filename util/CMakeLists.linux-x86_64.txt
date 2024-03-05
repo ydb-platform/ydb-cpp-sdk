@@ -93,7 +93,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/generic/iterator.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/iterator_range.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/lazy_value.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/list.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/mapfindptr.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/mem_copy.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/noncopyable.cpp

@@ -6,7 +6,6 @@
 #include <util/stream/buffer.h>
 #include <util/memory/blob.h>
 
-#include <util/generic/list.h>
 #include <util/generic/hash_multi_map.h>
 #include <util/generic/deque.h>
 
