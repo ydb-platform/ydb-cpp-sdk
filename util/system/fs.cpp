@@ -174,6 +174,6 @@ void NFs::SetCurrentWorkingDirectory(const std::string& path) {
     bool ok = !chdir(path.data());
 #endif
     if (!ok) {
-        ythrow TSystemError() << "failed to change directory to " << NQuote::Quote(path);
+        ythrow TSystemError() << "failed to change directory to " << NUtils::Quote(path);
     }
 }

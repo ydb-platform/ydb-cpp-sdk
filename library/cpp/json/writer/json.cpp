@@ -1,7 +1,7 @@
 #include "json.h"
 
 #include <library/cpp/json/json_value.h>
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <util/string/cast.h>
 #include <util/string/strspn.h>
@@ -493,7 +493,7 @@ namespace NJsonWriter {
         if (callback.empty()) {
             return buf.Str();
         } else {
-            return NUtils::TYdbStringBuilder() << callback << "(" << buf.Str() << ")";
+            return TStringBuilder() << callback << "(" << buf.Str() << ")";
         }
     }
 

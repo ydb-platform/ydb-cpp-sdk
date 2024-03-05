@@ -12,7 +12,6 @@ target_link_libraries(ydb-library-login PUBLIC
   library-cpp-json
   cpp-string_utils-base64
   library-login-protos
-  cpp-string_builder
 )
 
 target_sources(ydb-library-login PRIVATE

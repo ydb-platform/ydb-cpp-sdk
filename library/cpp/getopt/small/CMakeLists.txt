@@ -5,7 +5,6 @@ target_link_libraries(cpp-getopt-small PUBLIC
   yutil
   library-cpp-colorizer
   cpp-string_utils-misc
-  cpp-string_builder
   cpp-string_utils-string_output
 )
 

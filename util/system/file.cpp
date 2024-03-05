@@ -906,7 +906,7 @@ public:
         , FileName_(fName)
     {
         if (!Handle_.IsOpen()) {
-            ythrow TFileError() << "can't open " << NQuote::Quote(FileName_) << " with mode " << DecodeOpenMode(oMode) << " (" << Hex(oMode.ToBaseType()) << ")";
+            ythrow TFileError() << "can't open " << NUtils::Quote(FileName_) << " with mode " << DecodeOpenMode(oMode) << " (" << Hex(oMode.ToBaseType()) << ")";
         }
     }
 
@@ -915,7 +915,7 @@ public:
         , FileName_(fName)
     {
         if (!Handle_.IsOpen()) {
-            ythrow TFileError() << "can't open " << NQuote::Quote(FileName_) << " with mode " << DecodeOpenMode(oMode) << " (" << Hex(oMode.ToBaseType()) << ")";
+            ythrow TFileError() << "can't open " << NUtils::Quote(FileName_) << " with mode " << DecodeOpenMode(oMode) << " (" << Hex(oMode.ToBaseType()) << ")";
         }
     }
 
@@ -924,7 +924,7 @@ public:
         , FileName_(path.string())
     {
         if (!Handle_.IsOpen()) {
-            ythrow TFileError() << "can't open " << NQuote::Quote(FileName_) << " with mode " << DecodeOpenMode(oMode) << " (" << Hex(oMode.ToBaseType()) << ")";
+            ythrow TFileError() << "can't open " << NUtils::Quote(FileName_) << " with mode " << DecodeOpenMode(oMode) << " (" << Hex(oMode.ToBaseType()) << ")";
         }
     }
 
@@ -932,7 +932,7 @@ public:
 
     inline void Close() {
         if (!Handle_.Close()) {
-            ythrow TFileError() << "can't close " << NQuote::Quote(FileName_);
+            ythrow TFileError() << "can't close " << NUtils::Quote(FileName_);
         }
     }
 
@@ -951,51 +951,51 @@ public:
     i64 Seek(i64 offset, SeekDir origin) {
         i64 pos = Handle_.Seek(offset, origin);
         if (pos == -1L) {
-            ythrow TFileError() << "can't seek " << offset << " bytes in " << NQuote::Quote(FileName_);
+            ythrow TFileError() << "can't seek " << offset << " bytes in " << NUtils::Quote(FileName_);
         }
         return pos;
     }
 
     void Resize(i64 length) {
         if (!Handle_.Resize(length)) {
-            ythrow TFileError() << "can't resize " << NQuote::Quote(FileName_) << " to size " << length;
+            ythrow TFileError() << "can't resize " << NUtils::Quote(FileName_) << " to size " << length;
         }
     }
 
     void Reserve(i64 length) {
         if (!Handle_.Reserve(length)) {
-            ythrow TFileError() << "can't reserve " << length << " for file " << NQuote::Quote(FileName_);
+            ythrow TFileError() << "can't reserve " << length << " for file " << NUtils::Quote(FileName_);
         }
     }
 
     void FallocateNoResize(i64 length) {
         if (!Handle_.FallocateNoResize(length)) {
-            ythrow TFileError() << "can't allocate " << length << "bytes of space for file " << NQuote::Quote(FileName_);
+            ythrow TFileError() << "can't allocate " << length << "bytes of space for file " << NUtils::Quote(FileName_);
         }
     }
 
     void ShrinkToFit() {
         if (!Handle_.ShrinkToFit()) {
-            ythrow TFileError() << "can't shrink " << NQuote::Quote(FileName_) << " to logical size";
+            ythrow TFileError() << "can't shrink " << NUtils::Quote(FileName_) << " to logical size";
         }
     }
 
     void Flush() {
         if (!Handle_.Flush()) {
-            ythrow TFileError() << "can't flush " << NQuote::Quote(FileName_);
+            ythrow TFileError() << "can't flush " << NUtils::Quote(FileName_);
         }
     }
 
     void FlushData() {
         if (!Handle_.FlushData()) {
-            ythrow TFileError() << "can't flush data " << NQuote::Quote(FileName_);
+            ythrow TFileError() << "can't flush data " << NUtils::Quote(FileName_);
         }
     }
 
     TFile Duplicate() const {
         TFileHandle dupH(Handle_.Duplicate());
         if (!dupH.IsOpen()) {
-            ythrow TFileError() << "can't duplicate the handle of " << NQuote::Quote(FileName_);
+            ythrow TFileError() << "can't duplicate the handle of " << NUtils::Quote(FileName_);
         }
         TFile res(dupH);
         dupH.Release();
@@ -1016,7 +1016,7 @@ public:
         const i32 reallyRead = RawRead(buf, numBytes);
 
         if (reallyRead < 0) {
-            ythrow TFileError() << "can not read data from " << NQuote::Quote(FileName_);
+            ythrow TFileError() << "can not read data from " << NUtils::Quote(FileName_);
         }
 
         return reallyRead;
@@ -1042,7 +1042,7 @@ public:
 
     void Load(void* buf, size_t len) {
         if (Read(buf, len) != len) {
-            ythrow TFileError() << "can't read " << len << " bytes from " << NQuote::Quote(FileName_);
+            ythrow TFileError() << "can't read " << len << " bytes from " << NUtils::Quote(FileName_);
         }
     }
 
@@ -1059,7 +1059,7 @@ public:
             const i32 reallyWritten = Handle_.Write(buf, toWrite);
 
             if (reallyWritten < 0) {
-                ythrow TFileError() << "can't write " << toWrite << " bytes to " << NQuote::Quote(FileName_);
+                ythrow TFileError() << "can't write " << toWrite << " bytes to " << NUtils::Quote(FileName_);
             }
 
             buf += reallyWritten;
@@ -1075,7 +1075,7 @@ public:
             const i32 reallyRead = RawPread(buf, toRead, offset);
 
             if (reallyRead < 0) {
-                ythrow TFileError() << "can not read data from " << NQuote::Quote(FileName_);
+                ythrow TFileError() << "can not read data from " << NUtils::Quote(FileName_);
             }
 
             if (reallyRead == 0) {
@@ -1097,7 +1097,7 @@ public:
 
     void Pload(void* buf, size_t len, i64 offset) const {
         if (Pread(buf, len, offset) != len) {
-            ythrow TFileError() << "can't read " << len << " bytes at offset " << offset << " from " << NQuote::Quote(FileName_);
+            ythrow TFileError() << "can't read " << len << " bytes at offset " << offset << " from " << NUtils::Quote(FileName_);
         }
     }
 
@@ -1109,7 +1109,7 @@ public:
             const i32 reallyWritten = Handle_.Pwrite(buf, toWrite, offset);
 
             if (reallyWritten < 0) {
-                ythrow TFileError() << "can't write " << toWrite << " bytes to " << NQuote::Quote(FileName_);
+                ythrow TFileError() << "can't write " << toWrite << " bytes to " << NUtils::Quote(FileName_);
             }
 
             buf += reallyWritten;
@@ -1120,13 +1120,13 @@ public:
 
     void Flock(int op) {
         if (0 != Handle_.Flock(op)) {
-            ythrow TFileError() << "can't flock " << NQuote::Quote(FileName_);
+            ythrow TFileError() << "can't flock " << NUtils::Quote(FileName_);
         }
     }
 
     void SetDirect() {
         if (!Handle_.SetDirect()) {
-            ythrow TFileError() << "can't set direct mode for " << NQuote::Quote(FileName_);
+            ythrow TFileError() << "can't set direct mode for " << NUtils::Quote(FileName_);
         }
     }
 
@@ -1148,7 +1148,7 @@ public:
 
     void FlushCache(i64 offset, i64 length, bool wait) {
         if (!Handle_.FlushCache(offset, length, wait)) {
-            ythrow TFileError() << "can't flush data " << NQuote::Quote(FileName_);
+            ythrow TFileError() << "can't flush data " << NUtils::Quote(FileName_);
         }
     }
 

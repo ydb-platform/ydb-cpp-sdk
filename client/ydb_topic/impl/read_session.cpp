@@ -305,7 +305,7 @@ bool TReadSession::Close(TDuration timeout) {
         session->Abort();
 
         NYql::TIssues issues;
-        issues.AddIssue(NUtils::TYdbStringBuilder() << "Session was closed after waiting " << timeout);
+        issues.AddIssue(TStringBuilder() << "Session was closed after waiting " << timeout);
         EventsQueue->Close(TSessionClosedEvent(EStatus::TIMEOUT, std::move(issues)), deferred);
     }
 
@@ -319,8 +319,8 @@ void TReadSession::ClearAllEvents() {
     EventsQueue->ClearAllEvents();
 }
 
-NUtils::TYdbStringBuilder TReadSession::GetLogPrefix() const {
-     return NUtils::TYdbStringBuilder() << GetDatabaseLogPrefix(DbDriverState->Database) << "[" << SessionId << "] ";
+TStringBuilder TReadSession::GetLogPrefix() const {
+     return TStringBuilder() << GetDatabaseLogPrefix(DbDriverState->Database) << "[" << SessionId << "] ";
 }
 
 void TReadSession::MakeCountersIfNeeded() {

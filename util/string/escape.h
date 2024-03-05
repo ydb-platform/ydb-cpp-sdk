@@ -68,7 +68,7 @@ std::u16string UnescapeC(const std::u16string_view wtr);
 template <class TChar>
 size_t UnescapeCCharLen(const TChar* begin, const TChar* end);
 
-namespace NQuote {
+namespace NUtils {
 
 template <class TChar>
 std::basic_string<TChar> GetQuoteLiteral();

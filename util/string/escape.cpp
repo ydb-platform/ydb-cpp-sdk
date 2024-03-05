@@ -431,17 +431,21 @@ std::u16string UnescapeC(const std::u16string_view str) {
     return UnescapeC(str.data(), str.size());
 }
 
+namespace NUtils {
+
 template <>
-std::string NQuote::GetQuoteLiteral() {
+std::string GetQuoteLiteral() {
     return "\"";
 }
 
 template <>
-std::u16string NQuote::GetQuoteLiteral() {
+std::u16string GetQuoteLiteral() {
     return u"\"";
 }
 
 template <>
-std::u32string NQuote::GetQuoteLiteral() {
+std::u32string GetQuoteLiteral() {
     return U"\"";
+}
+
 }

@@ -6,11 +6,8 @@
 #include <util/string/cast.h>
 
 #include <optional>
-#include <string>
 
 namespace NUtils {
-
-std::string Quote(std::string_view s);
 
 template <class TContainer, class T>
 bool ContainerTransform(TContainer& str, T&& f, size_t pos = 0, size_t n = TContainer::npos) {

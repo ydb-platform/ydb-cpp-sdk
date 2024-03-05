@@ -1,19 +1,13 @@
-add_library(cpp-string_utils-misc)
+add_library(cpp-string_utils-misc INTERFACE)
 
-target_link_libraries(cpp-string_utils-misc PUBLIC
+target_link_libraries(cpp-string_utils-misc INTERFACE
   contrib-libs-cxxsupp
   yutil
-  cpp-string_utils-escape
-  cpp-string_builder
   cpp-string_utils-helpers
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-string_utils-misc PUBLIC
+  target_link_libraries(cpp-string_utils-misc INTERFACE
     contrib-libs-linux-headers
   )
 endif()
-
-target_sources(cpp-string_utils-misc PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/string_utils/misc/misc.cpp
-)

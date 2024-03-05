@@ -10,7 +10,6 @@ target_link_libraries(cpp-client-ydb_result PUBLIC
   cpp-client-ydb_value
   cpp-client-ydb_proto
   cpp-string_utils-string_output
-  cpp-string_builder
 )
 target_sources(cpp-client-ydb_result PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_result/proto_accessor.cpp

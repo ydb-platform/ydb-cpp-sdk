@@ -1,7 +1,7 @@
 #include "httpreqdata.h"
 
 #include <library/cpp/case_insensitive_string/case_insensitive_string.h>
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 #include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/stream/mem.h>
@@ -31,7 +31,7 @@ void TBaseServerRequestData::AppendQueryString(std::string_view str) {
     using namespace std::literals;
     if (Y_UNLIKELY(!Query_.empty())) {
         std::string_view separator = !Query_.ends_with('&') && !str.starts_with('&') ? "&"sv : ""sv;
-        ModifiedQueryString_ = NUtils::TYdbStringBuilder() << Query_ << separator << str;
+        ModifiedQueryString_ = TStringBuilder() << Query_ << separator << str;
      } else {
         ModifiedQueryString_ = str;
      }
@@ -74,7 +74,7 @@ std::string TBaseServerRequestData::HeaderByIndex(size_t n) const noexcept {
 
     const auto& [key, value] = *std::next(HeadersIn_.begin(), n);
 
-    return NUtils::TYdbStringBuilder() << key << ": " << value;
+    return TStringBuilder() << key << ": " << value;
 }
 
 std::string_view TBaseServerRequestData::Environment(std::string_view key) const {

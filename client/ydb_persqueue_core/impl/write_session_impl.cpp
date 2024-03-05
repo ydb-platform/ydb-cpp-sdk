@@ -183,7 +183,7 @@ void TWriteSessionImpl::DoCdsRequest(TDuration delay) {
 
             LOG_LAZY(DbDriverState->Log, TLOG_INFO, LogPrefix() << "Do schedule cds request after " << delay.MilliSeconds() << " ms\n");
             auto cdsRequestCall = [req_=std::move(req), extr=std::move(extractor), connections = std::shared_ptr<TGRpcConnectionsImpl>(Connections), dbState=DbDriverState, settings=Settings]() mutable {
-                LOG_LAZY(dbState->Log, TLOG_INFO, NUtils::TYdbStringBuilder() << "MessageGroupId [" << settings.MessageGroupId_ << "] Running cds request ms\n");
+                LOG_LAZY(dbState->Log, TLOG_INFO, TStringBuilder() << "MessageGroupId [" << settings.MessageGroupId_ << "] Running cds request ms\n");
                 connections->RunDeferred<Ydb::PersQueue::V1::ClusterDiscoveryService,
                                         Ydb::PersQueue::ClusterDiscovery::DiscoverClustersRequest,
                                         Ydb::PersQueue::ClusterDiscovery::DiscoverClustersResponse>(
@@ -240,14 +240,14 @@ void TWriteSessionImpl::OnCdsResponse(
             if (!clusterInfo.available()) {
                 if (!TargetCluster.empty() && TargetCluster == normalizedName) {
                     errorStatus = EStatus::UNAVAILABLE;
-                    issues.AddIssue(NUtils::TYdbStringBuilder() << "Selected destination cluster: " << normalizedName
+                    issues.AddIssue(TStringBuilder() << "Selected destination cluster: " << normalizedName
                                                      << " is currently disabled");
                     break;
                 }
                 continue;
             }
             if (clusterInfo.endpoint().empty()) {
-                issues.AddIssue(NUtils::TYdbStringBuilder() << "Unexpected reply from cluster discovery. Empty endpoint for cluster "
+                issues.AddIssue(TStringBuilder() << "Unexpected reply from cluster discovery. Empty endpoint for cluster "
                                                  << normalizedName);
             } else {
                 name = clusterInfo.name();
@@ -257,7 +257,7 @@ void TWriteSessionImpl::OnCdsResponse(
         }
         if (endpoint.empty()) {
             errorStatus = EStatus::GENERIC_ERROR;
-            issues.AddIssue(NUtils::TYdbStringBuilder() << "Could not get valid endpoint from cluster discovery");
+            issues.AddIssue(TStringBuilder() << "Could not get valid endpoint from cluster discovery");
         }
     }
     if (issues) {
@@ -521,7 +521,7 @@ void TWriteSessionImpl::OnConnectTimeout(const NYdbGrpc::IQueueClientContextPtr&
         } else {
             return;
         }
-        NUtils::TYdbStringBuilder description;
+        TStringBuilder description;
         description << "Failed to establish connection to server. Attempts done: " << ConnectionAttemptsDone;
         handleResult = RestartImpl(TPlainStatus(EStatus::TIMEOUT, description));
         if (handleResult.DoStop) {
@@ -560,7 +560,7 @@ void TWriteSessionImpl::OnConnect(
                 CloseImpl(
                         st.Status,
                         MakeIssueWithSubIssues(
-                                NUtils::TYdbStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
+                                TStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
                                                  << "\". Attempts done: " << ConnectionAttemptsDone,
                                 st.Issues
                         )
@@ -700,12 +700,12 @@ void TWriteSessionImpl::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t co
     ProcessHandleResult(processResult.HandleResult);
 }
 
-NUtils::TYdbStringBuilder TWriteSessionImpl::LogPrefix() const {
-    return NUtils::TYdbStringBuilder() << "MessageGroupId [" << Settings.MessageGroupId_ << "] SessionId [" << SessionId << "] ";
+TStringBuilder TWriteSessionImpl::LogPrefix() const {
+    return TStringBuilder() << "MessageGroupId [" << Settings.MessageGroupId_ << "] SessionId [" << SessionId << "] ";
 }
 
 std::string TWriteSessionEvent::TAcksEvent::DebugString() const {
-    NUtils::TYdbStringBuilder res;
+    TStringBuilder res;
     res << "AcksEvent:";
     for (auto& ack : Acks) {
         res << " { seqNo : " << ack.SeqNo << ", State : " << ack.State;
@@ -1095,7 +1095,7 @@ bool TWriteSessionImpl::IsReadyToSendNextImpl() {
 }
 
 void TWriteSessionImpl::DumpState() {
-    NUtils::TYdbStringBuilder s;
+    TStringBuilder s;
     s << "STATE:\n";
 
     auto omts = OriginalMessagesToSend;

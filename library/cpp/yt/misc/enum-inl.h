@@ -5,8 +5,7 @@
 #include "enum.h"
 #endif
 
-#include <library/cpp/string_utils/misc/misc.h>
-
+#include <util/string/escape.h>
 #include <util/string/printf.h>
 #include <util/string/cast.h>
 
@@ -297,7 +296,7 @@ T TEnumTraits<T, true>::FromString(std::string_view literal)
     if (!optionalValue) {
         throw ::NYT::TSimpleException(Sprintf("Error parsing %s value %s",
             GetTypeName().data(),
-            NUtils::Quote(literal).c_str()).c_str());
+            NUtils::Quote(literal)));
     }
     return *optionalValue;
 }

@@ -266,9 +266,9 @@ namespace {
             case PS_MINUS_STRING:
                 ythrow TFromStringException() << std::string_view("Cannot parse string \"-\" as number. ");
             case PS_BAD_SYMBOL:
-                ythrow TFromStringException() << std::string_view("Unexpected symbol \"") << EscapeC(*pos) << std::string_view("\" at pos ") << (pos - data) << std::string_view(" in string ") << NQuote::Quote(TStringType(data, len)) << std::string_view(". ");
+                ythrow TFromStringException() << std::string_view("Unexpected symbol \"") << EscapeC(*pos) << std::string_view("\" at pos ") << (pos - data) << std::string_view(" in string ") << NUtils::Quote(TStringType(data, len)) << std::string_view(". ");
             case PS_OVERFLOW:
-                ythrow TFromStringException() << std::string_view("Integer overflow in string ") << NQuote::Quote(TStringType(data, len)) << std::string_view(". ");
+                ythrow TFromStringException() << std::string_view("Integer overflow in string ") << NUtils::Quote(TStringType(data, len)) << std::string_view(". ");
             default:
                 ythrow yexception() << std::string_view("Unknown error code in string converter. ");
         }

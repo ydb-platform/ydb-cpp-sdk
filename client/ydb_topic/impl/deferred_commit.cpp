@@ -77,7 +77,7 @@ void TDeferredCommit::TImpl::Add(const TReadSessionEvent::TDataReceivedEvent::TM
 
 void TDeferredCommit::TImpl::Add(const TPartitionSession::TPtr& partitionStream, TDisjointIntervalTree<ui64>& offsetSet, ui64 startOffset, ui64 endOffset) {
     if (offsetSet.Intersects(startOffset, endOffset)) {
-        ThrowFatalError(NUtils::TYdbStringBuilder() << "Commit set already has some offsets from half-interval ["
+        ThrowFatalError(TStringBuilder() << "Commit set already has some offsets from half-interval ["
                                          << startOffset << "; " << endOffset
                                          << ") for partition stream with id " << partitionStream->GetPartitionSessionId());
     } else {
@@ -94,7 +94,7 @@ void TDeferredCommit::TImpl::Add(const TPartitionSession::TPtr& partitionStream,
     Y_ASSERT(partitionStream);
     auto& offsetSet = Offsets[partitionStream];
     if (offsetSet.Has(offset)) {
-        ThrowFatalError(NUtils::TYdbStringBuilder() << "Commit set already has offset " << offset
+        ThrowFatalError(TStringBuilder() << "Commit set already has offset " << offset
                                          << " for partition stream with id " << partitionStream->GetPartitionSessionId());
     } else {
         offsetSet.Insert(offset);

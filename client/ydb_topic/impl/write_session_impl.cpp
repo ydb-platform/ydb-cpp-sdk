@@ -541,7 +541,7 @@ void TWriteSessionImpl::OnConnectTimeout(const NYdbGrpc::IQueueClientContextPtr&
         } else {
             return;
         }
-        NUtils::TYdbStringBuilder description;
+        TStringBuilder description;
         description << "Failed to establish connection to server. Attempts done: " << ConnectionAttemptsDone;
         handleResult = RestartImpl(TPlainStatus(EStatus::TIMEOUT, description));
         if (handleResult.DoStop) {
@@ -580,7 +580,7 @@ void TWriteSessionImpl::OnConnect(
                 CloseImpl(
                         st.Status,
                         NPersQueue::MakeIssueWithSubIssues(
-                                NUtils::TYdbStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
+                                TStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
                                                  << "\". Attempts done: " << ConnectionAttemptsDone,
                                 st.Issues
                         )
@@ -737,8 +737,8 @@ void TWriteSessionImpl::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t co
     ProcessHandleResult(processResult.HandleResult);
 }
 
-NUtils::TYdbStringBuilder TWriteSessionImpl::LogPrefix() const {
-    NUtils::TYdbStringBuilder ret;
+TStringBuilder TWriteSessionImpl::LogPrefix() const {
+    TStringBuilder ret;
     ret << " SessionId [" << SessionId << "] ";
 
     if (Settings.PartitionId_.has_value()) {
@@ -753,7 +753,7 @@ NUtils::TYdbStringBuilder TWriteSessionImpl::LogPrefix() const {
 }
 
 template<>
-void TPrintable<TWriteSessionEvent::TAcksEvent>::DebugString(NUtils::TYdbStringBuilder& res, bool) const {
+void TPrintable<TWriteSessionEvent::TAcksEvent>::DebugString(TStringBuilder& res, bool) const {
     const auto* self = static_cast<const TWriteSessionEvent::TAcksEvent*>(this);
     res << "AcksEvent:";
     for (auto& ack : self->Acks) {
@@ -774,7 +774,7 @@ void TPrintable<TWriteSessionEvent::TAcksEvent>::DebugString(NUtils::TYdbStringB
 }
 
 template<>
-void TPrintable<TWriteSessionEvent::TReadyToAcceptEvent>::DebugString(NUtils::TYdbStringBuilder& res, bool) const {
+void TPrintable<TWriteSessionEvent::TReadyToAcceptEvent>::DebugString(TStringBuilder& res, bool) const {
     res << "ReadyToAcceptEvent";
 }
 

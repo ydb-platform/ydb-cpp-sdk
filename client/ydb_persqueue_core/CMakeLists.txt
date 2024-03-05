@@ -21,7 +21,6 @@ target_link_libraries(cpp-client-ydb_persqueue_core PUBLIC
   api-grpc
   api-grpc-draft
   api-protos
-  cpp-string_builder
 )
 
 generate_enum_serilization(cpp-client-ydb_persqueue_core

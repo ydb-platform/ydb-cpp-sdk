@@ -5,6 +5,7 @@
 #include "last_getopt_parse_result.h"
 
 #include <util/generic/function.h>
+#include <util/string/escape.h>
 #include <util/string/split.h>
 
 /// see some documentation in

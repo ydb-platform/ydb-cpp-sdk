@@ -437,7 +437,7 @@ namespace NLastGetopt {
                 size_t lastLineLength = 0;
                 bool helpHasParagraphs = false;
                 if (!help.empty()) {
-                    os << Wrap(Wrap_, help, NUtils::TYdbStringBuilder() << SPad << leftPadding << " ", &lastLineLength, &helpHasParagraphs);
+                    os << Wrap(Wrap_, help, TStringBuilder() << SPad << leftPadding << " ", &lastLineLength, &helpHasParagraphs);
                 }
 
                 auto choicesHelp = opt->GetChoicesHelp();

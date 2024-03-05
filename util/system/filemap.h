@@ -279,7 +279,7 @@ private:
         DataHolder_->Map(0, DataHolder_->Length());
         if (DataHolder_->Length() % sizeof(T)) {
             Term();
-            ythrow yexception() << "Incorrect size of file " << NQuote::Quote(fileName);
+            ythrow yexception() << "Incorrect size of file " << NUtils::Quote(fileName);
         }
         Ptr_ = (const T*)DataHolder_->Ptr();
         Size_ = DataHolder_->Length() / sizeof(T);

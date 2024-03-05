@@ -1,9 +1,9 @@
 #include "parse_enum.h"
 
 #include <library/cpp/cppparser/parser.h>
-#include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/stream/file.h>
+#include <util/string/escape.h>
 
 /**
  * Parse C-style strings inside multiline comments

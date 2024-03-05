@@ -1,6 +1,6 @@
 #include "url.h"
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 #include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/string/cast.h>
@@ -349,7 +349,7 @@ std::string AddSchemePrefix(const std::string& url, std::string_view scheme) {
         return url;
     }
 
-    return NUtils::TYdbStringBuilder() << scheme << std::string_view("://") << url;
+    return TStringBuilder() << scheme << std::string_view("://") << url;
 }
 
 #define X(c) (c >= 'A' ? ((c & 0xdf) - 'A') + 10 : (c - '0'))

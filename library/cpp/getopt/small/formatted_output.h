@@ -1,6 +1,6 @@
 #pragma once
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <vector>
 
@@ -19,13 +19,13 @@ namespace NLastGetopt {
         IndentGuard Indent();
 
         /// Append a new indented line to the stream.
-        NUtils::TYdbStringBuilder& Line();
+        TStringBuilder& Line();
 
         /// Collect all lines into a stream.
         void Print(IOutputStream& out);
 
     private:
         int IndentLevel_ = 0;
-        std::vector<std::pair<int, NUtils::TYdbStringBuilder>> Lines_;
+        std::vector<std::pair<int, TStringBuilder>> Lines_;
     };
 }

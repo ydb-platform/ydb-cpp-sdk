@@ -1,6 +1,6 @@
 #include <contrib/libs/jwt-cpp/include/jwt-cpp/jwt.h>
 #include <library/cpp/digest/argonish/argon2.h>
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 #include <library/cpp/string_utils/base64/base64.h>
 #include <library/cpp/json/json_value.h>
 #include <library/cpp/json/json_reader.h>
@@ -164,7 +164,7 @@ TLoginProvider::TBasicResponse TLoginProvider::AddGroupMembership(const TAddGrou
     TSidRecord& group = itGroupModify->second;
 
     if (group.Members.count(request.Member)) {
-        response.Notice = NUtils::TYdbStringBuilder() << "Role \"" << request.Member << "\" is already a member of role \"" << group.Name << "\"";
+        response.Notice = TStringBuilder() << "Role \"" << request.Member << "\" is already a member of role \"" << group.Name << "\"";
     } else {
         group.Members.insert(request.Member);
     }
@@ -186,7 +186,7 @@ TLoginProvider::TBasicResponse TLoginProvider::RemoveGroupMembership(const TRemo
     TSidRecord& group = itGroupModify->second;
 
     if (!group.Members.count(request.Member)) {
-        response.Warning = NUtils::TYdbStringBuilder() << "Role \"" << request.Member << "\" is not a member of role \"" << group.Name << "\"";
+        response.Warning = TStringBuilder() << "Role \"" << request.Member << "\" is not a member of role \"" << group.Name << "\"";
     } else {
         group.Members.erase(request.Member);
     }

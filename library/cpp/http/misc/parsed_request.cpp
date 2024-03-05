@@ -20,11 +20,11 @@ TParsedHttpRequest::TParsedHttpRequest(const std::string_view& str) {
     std::string_view tmp;
 
     if (!NUtils::TrySplit(StripLeft(str), Method, tmp, ' ')) {
-        ythrow yexception() << "bad request(" << NQuote::Quote(str) << ")";
+        ythrow yexception() << "bad request(" << NUtils::Quote(str) << ")";
     }
 
     if (!NUtils::TrySplit(StripLeft(tmp), Request, Proto, ' ')) {
-        ythrow yexception() << "bad request(" << NQuote::Quote(str) << ")";
+        ythrow yexception() << "bad request(" << NUtils::Quote(str) << ")";
     }
 
     Proto = StripLeft(Proto);

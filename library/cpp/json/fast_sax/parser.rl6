@@ -1,6 +1,6 @@
 #include <library/cpp/json/fast_sax/unescape.h>
 #include <library/cpp/json/fast_sax/parser.h>
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <util/string/cast.h>
 #include <util/generic/buffer.h>
@@ -59,7 +59,7 @@ struct TParserCtx {
         if (token.empty()) {
             Hndl.OnError(off, reason);
         } else {
-            Hndl.OnError(off, NUtils::TYdbStringBuilder() << reason << " at token: '" << token << "'");
+            Hndl.OnError(off, TStringBuilder() << reason << " at token: '" << token << "'");
         }
 
         return false;

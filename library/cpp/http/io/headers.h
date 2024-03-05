@@ -1,6 +1,6 @@
 #pragma once
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <string>
 #include <string_view>
@@ -43,7 +43,7 @@ public:
 
     /// Возвращает строку "имя параметра: значение".
     inline std::string ToString() const {
-        return NUtils::TYdbStringBuilder() << Name_ << ": " << Value_;
+        return TStringBuilder() << Name_ << ": " << Value_;
     }
 
 private:

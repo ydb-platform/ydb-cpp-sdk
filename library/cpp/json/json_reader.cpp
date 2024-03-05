@@ -6,7 +6,7 @@
 #include <contrib/libs/rapidjson/include/rapidjson/error/error.h>
 #include <contrib/libs/rapidjson/include/rapidjson/reader.h>
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <util/generic/stack.h>
 #include <util/system/yassert.h>
@@ -14,7 +14,7 @@
 namespace NJson {
     namespace {
         std::string PrintError(const rapidjson::ParseResult& result) {
-            return NUtils::TYdbStringBuilder() << "Offset: " << result.Offset()
+            return TStringBuilder() << "Offset: " << result.Offset()
                                     << ", Code: " << (int)result.Code()
                                     << ", Error: " << GetParseError_En(result.Code());
         }

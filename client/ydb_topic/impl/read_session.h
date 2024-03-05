@@ -43,7 +43,7 @@ public:
     void ClearAllEvents();
 
 private:
-    NUtils::TYdbStringBuilder GetLogPrefix() const;
+    TStringBuilder GetLogPrefix() const;
 
     // Start
     bool ValidateSettings();

@@ -6,7 +6,7 @@
 #include <library/cpp/monlib/dynamic_counters/counters.h>
 #include <library/cpp/logger/log.h>
 #include <library/cpp/retry/retry_policy.h>
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <util/datetime/base.h>
 #include <util/generic/hash.h>
@@ -547,7 +547,7 @@ struct TReadSessionEvent {
             virtual void Commit() = 0;
 
             std::string DebugString(bool printData = false) const;
-            virtual void DebugString(NUtils::TYdbStringBuilder& ret, bool printData = false) const = 0;
+            virtual void DebugString(TStringBuilder& ret, bool printData = false) const = 0;
 
             IMessage(const std::string& data,
                      TPartitionStream::TPtr partitionStream,
@@ -603,7 +603,7 @@ struct TReadSessionEvent {
             void Commit() override;
 
             using IMessage::DebugString;
-            void DebugString(NUtils::TYdbStringBuilder& ret, bool printData = false) const override;
+            void DebugString(TStringBuilder& ret, bool printData = false) const override;
 
         private:
             std::exception_ptr DecompressionException;
@@ -653,7 +653,7 @@ struct TReadSessionEvent {
             void Commit() override;
 
             using IMessage::DebugString;
-            void DebugString(NUtils::TYdbStringBuilder& ret, bool printData = false) const override;
+            void DebugString(TStringBuilder& ret, bool printData = false) const override;
 
         private:
             ECodec Codec;

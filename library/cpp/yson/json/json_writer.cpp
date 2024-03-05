@@ -1,7 +1,7 @@
 #include "json_writer.h"
 
 #include <library/cpp/json/json_writer.h>
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 namespace NYT {
     ////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +177,7 @@ namespace NYT {
     void TJsonWriter::OnKeyedItem(std::string_view name) {
         if (IsWriteAllowed()) {
             if (IsSpecialJsonKey(name)) {
-                WriteStringScalar(NUtils::TYdbStringBuilder() << "$" << name);
+                WriteStringScalar(TStringBuilder() << "$" << name);
             } else {
                 WriteStringScalar(name);
             }

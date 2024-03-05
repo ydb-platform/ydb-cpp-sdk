@@ -18,7 +18,7 @@ public:
 #endif
         Pipe_ = ::popen(command.data(), mode);
         if (Pipe_ == nullptr) {
-            ythrow TSystemError() << "failed to open pipe: " << NQuote::Quote(command);
+            ythrow TSystemError() << "failed to open pipe: " << NUtils::Quote(command);
         }
     }
 

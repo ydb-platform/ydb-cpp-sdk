@@ -8,6 +8,7 @@
 #include <util/generic/deque.h>
 #include <util/generic/singleton.h>
 #include <util/system/env.h>
+#include <util/string/escape.h>
 
 using namespace NResource;
 using namespace NBlockCodecs;

@@ -2,7 +2,7 @@
 #include <library/cpp/blockcodecs/core/common.h>
 #include <library/cpp/blockcodecs/core/register.h>
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <contrib/libs/zstd06/common/zstd.h>
 #include <contrib/libs/zstd06/common/zstd_static.h>
@@ -13,7 +13,7 @@ namespace {
     struct TZStd06Codec: public TAddLengthCodec<TZStd06Codec> {
         inline TZStd06Codec(unsigned level)
             : Level(level)
-            , MyName(NUtils::TYdbStringBuilder() << std::string_view("zstd06_") << std::to_string(Level))
+            , MyName(TStringBuilder() << std::string_view("zstd06_") << std::to_string(Level))
         {
         }
 

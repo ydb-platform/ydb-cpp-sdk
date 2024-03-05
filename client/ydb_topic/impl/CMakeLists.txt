@@ -15,7 +15,6 @@ target_link_libraries(client-ydb_topic-impl PUBLIC
   cpp-client-ydb_driver
   client-ydb_persqueue_core-impl
   cpp-client-ydb_proto
-  cpp-string_builder
 )
 
 target_sources(client-ydb_topic-impl PRIVATE

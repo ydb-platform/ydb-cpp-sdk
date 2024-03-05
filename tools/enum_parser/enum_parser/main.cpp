@@ -126,7 +126,7 @@ static inline void CloseArray(TStringStream& out) {
 }
 
 static std::string WrapStringBuf(const std::string_view str) {
-    return NUtils::TYdbStringBuilder() << "\"" << str << "\"sv";
+    return TStringBuilder() << "\"" << str << "\"sv";
 }
 
 void GenerateEnum(

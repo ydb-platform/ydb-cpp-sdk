@@ -157,7 +157,7 @@ private:
             if (!status.Ok()) {
                 TDuration sleepDuration;
                 with_lock(Lock_) {
-                    LastRequestError_ = NUtils::TYdbStringBuilder()
+                    LastRequestError_ = TStringBuilder()
                         << "Last request error was at " << TInstant::Now()
                         << ". GrpcStatusCode: " << status.GRpcStatusCode
                         << " Message: \"" << status.Msg
