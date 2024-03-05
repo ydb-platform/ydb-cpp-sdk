@@ -4,11 +4,11 @@
 #include <util/system/yassert.h>
 #include <util/system/defaults.h>
 #include <util/generic/noncopyable.h>
-#include <util/generic/vector.h>
 
 #include <memory>
 #include <cstdio>
 #include <cstdlib>
+#include <vector>
 
 /*
  * Non-reallocated storage for the objects of POD type

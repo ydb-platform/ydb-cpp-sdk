@@ -6,7 +6,6 @@
     #include <pthread.h>
 #endif
 
-#include <util/generic/vector.h>
 #include <util/generic/intrlist.h>
 #include <util/generic/yexception.h>
 #include <util/generic/ylimits.h>

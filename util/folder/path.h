@@ -4,7 +4,6 @@
 #include "pathsplit.h"
 
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
 #include <util/string/cast.h>
 #include <util/system/fstat.h>
 #include <util/system/platform.h>

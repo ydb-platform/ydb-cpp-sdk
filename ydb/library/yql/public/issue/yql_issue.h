@@ -2,7 +2,7 @@
 
 #include <util/system/types.h>
 #include <util/generic/hash.h>
-#include <util/generic/vector.h>
+#include <vector>
 #include <string>
 #include <string_view>
 #include <util/generic/ptr.h>

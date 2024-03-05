@@ -2,7 +2,7 @@
 
 #include "address.h"
 
-#include <util/generic/vector.h>
+#include <vector>
 
 namespace NAddr {
     struct TNetworkInterface {

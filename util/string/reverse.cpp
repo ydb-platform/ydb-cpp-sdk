@@ -1,9 +1,9 @@
 #include "reverse.h"
 
-#include <util/generic/vector.h>
 #include <util/charset/wide_specific.h>
 
 #include <algorithm>
+#include <vector>
 
 void ReverseInPlace(std::string& string) {
     auto* begin = string.begin();

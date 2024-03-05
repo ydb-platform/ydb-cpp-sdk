@@ -143,7 +143,7 @@ std::string NUnitTest::GetResetTag() {
 }
 
 std::string NUnitTest::ColoredDiff(std::string_view s1, std::string_view s2, const std::string& delims, bool reverse) {
-    std::stringStream res;
+    TStringStream res;
     std::vector<NDiff::TChunk<char>> chunks;
     NDiff::InlineDiff(chunks, s1, s2, delims);
     if (NUnitTest::ShouldColorizeDiff) {

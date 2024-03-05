@@ -7,7 +7,6 @@
 #include <util/system/defaults.h>
 #include <util/generic/ylimits.h>
 #include <util/generic/utility.h>
-#include <util/generic/vector.h>
 #include <util/generic/yexception.h>
 #include <util/datetime/base.h>
 

@@ -4,7 +4,7 @@
 
 #include <util/generic/hash.h>
 #include <string>
-#include <util/generic/vector.h>
+#include <vector>
 
 namespace NKikimr {
 namespace NOperationId {

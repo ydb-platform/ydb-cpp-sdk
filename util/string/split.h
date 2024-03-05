@@ -11,7 +11,6 @@
 #include <util/generic/iterator_range.h>
 #include <util/generic/store_policy.h>
 #include <util/generic/typetraits.h>
-#include <util/generic/vector.h>
 #include <util/generic/ylimits.h>
 #include <util/system/compat.h>
 #include <util/system/defaults.h>

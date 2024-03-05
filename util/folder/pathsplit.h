@@ -1,7 +1,8 @@
 #pragma once
 
-#include <util/generic/vector.h>
 #include <util/string/ascii.h>
+
+#include <vector>
 
 //do not own any data
 struct TPathSplitStore: public std::vector<std::string_view> {

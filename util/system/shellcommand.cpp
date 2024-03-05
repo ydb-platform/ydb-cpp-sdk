@@ -8,7 +8,6 @@
 #include <util/folder/dirut.h>
 #include <util/generic/algorithm.h>
 #include <util/generic/buffer.h>
-#include <util/generic/vector.h>
 #include <util/generic/yexception.h>
 #include <util/memory/tempbuf.h>
 #include <util/network/socket.h>

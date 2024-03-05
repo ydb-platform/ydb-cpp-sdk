@@ -1,10 +1,11 @@
 #pragma once
 
+#include <util/memory/alloc.h>
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
 #include <util/generic/yexception.h>
 
 #include <iterator>
+#include <vector>
 
 namespace NPagedVector {
     template <class T, ui32 PageSize = 1u << 20u, class A = std::allocator<T>>
@@ -147,11 +148,11 @@ namespace std {
 namespace NPagedVector {
     //2-level radix tree
     template <class T, ui32 PageSize, class A>
-    class TPagedVector: TVector<TSimpleSharedPtr<TVector<T, A>>, A> {
+    class TPagedVector: private std::vector<TSimpleSharedPtr<std::vector<T, A>>, TReboundAllocator<A, T>> {
         static_assert(PageSize, "expect PageSize");
 
-        typedef TVector<T, A> TPage;
-        typedef TVector<TSimpleSharedPtr<TPage>, A> TPages;
+        typedef std::vector<T, A> TPage;
+        typedef std::vector<TSimpleSharedPtr<TPage>, TReboundAllocator<A, T>> TPages;
         typedef TPagedVector<T, PageSize, A> TSelf;
 
     public:
@@ -355,11 +356,11 @@ namespace NPagedVector {
         }
 
         reference front() {
-            return TPages::front()->front();
+            return *((*TPages::begin())->begin());
         }
 
         const_reference front() const {
-            return TPages::front()->front();
+            return *((*TPages::cbegin())->cbegin());
         }
 
         reference back() {
