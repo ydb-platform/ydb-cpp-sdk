@@ -1,8 +1,8 @@
 #include "wrap.h"
 
 #include <library/cpp/colorizer/colors.h>
-#include <library/cpp/string_utils/string_output/string_output.h>
 
+#include <util/stream/str.h>
 #include <util/charset/utf8.h>
 
 namespace NLastGetopt {
@@ -20,7 +20,7 @@ namespace NLastGetopt {
         }
 
         std::string res;
-        auto os = NUtils::TStringOutput(res);
+        auto os = TStringOutput(res);
 
         const char* spaceBegin = text.begin();
         const char* wordBegin = text.begin();

@@ -5,8 +5,7 @@ target_link_libraries(cpp-getopt-small PUBLIC
   yutil
   library-cpp-colorizer
   cpp-string_utils-misc
-  cpp-string_utils-string_output
-)
+  )
 
 target_sources(cpp-getopt-small PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/getopt/small/completer.cpp

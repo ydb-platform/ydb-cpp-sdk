@@ -6,7 +6,6 @@
 #include <ydb/public/api/protos/ydb_value.pb.h>
 
 #include <util/string/builder.h>
-#include <library/cpp/string_utils/string_output/string_output.h>
 
 #include <util/generic/mapfindptr.h>
 
@@ -16,7 +15,7 @@ namespace NYdb {
 
 std::string TColumn::ToString() const {
     std::string result;
-    NUtils::TStringOutput out(result);
+    TStringOutput out(result);
     Out(out);
     return result;
 }

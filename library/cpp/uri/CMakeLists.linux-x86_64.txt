@@ -13,8 +13,7 @@ target_link_libraries(library-cpp-uri PUBLIC
   yutil
   IDN::IDN
   library-cpp-charset
-  cpp-string_utils-string_output
-)
+  )
 target_sources(library-cpp-uri PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/uri/assign.cpp
   ${CMAKE_SOURCE_DIR}/library/cpp/uri/common.cpp
