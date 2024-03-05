@@ -2,11 +2,12 @@
 
 #include <util/system/defaults.h>
 #include <util/stream/str.h>
-#include <util/generic/maybe.h>
 #include <util/generic/string.h>
 #include <util/generic/strbuf.h>
 #include <util/generic/typetraits.h>
 #include <util/generic/yexception.h>
+
+#include <optional>
 
 /*
  * specialized for all arithmetic types
@@ -273,7 +274,7 @@ inline bool TryFromString(const TUtf16String& s, T& result) {
 
 template <class T, class TChar>
 inline std::optional<T> TryFromString(TBasicStringBuf<TChar> s) {
-    std::optional<T> result{NMaybe::TInPlace{}};
+    std::optional<T> result{std::in_place};
     if (!TryFromString<T>(s, *result)) {
         result.reset();
     }

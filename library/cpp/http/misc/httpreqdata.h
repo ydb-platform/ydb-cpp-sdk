@@ -10,8 +10,6 @@
 #include <util/system/yassert.h>
 #include <util/datetime/base.h>
 
-#include <util/generic/maybe.h>
-
 using THttpHeadersContainer = THashMap<std::string, std::string, TCIOps, TCIOps>;
 
 class TBaseServerRequestData {

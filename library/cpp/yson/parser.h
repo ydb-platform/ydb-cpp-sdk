@@ -2,7 +2,6 @@
 
 #include "public.h"
 
-#include <util/generic/maybe.h>
 #include <util/generic/ptr.h>
 
 class IInputStream;

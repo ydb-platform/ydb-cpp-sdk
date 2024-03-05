@@ -2,8 +2,6 @@
 
 #include <client/ydb_driver/driver.h>
 
-#include <util/generic/maybe.h>
-
 namespace Ydb {
 namespace Coordination {
     class DescribeNodeResult;

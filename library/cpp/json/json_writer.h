@@ -8,7 +8,6 @@
 
 #include <util/stream/output.h>
 #include <util/generic/hash.h>
-#include <util/generic/maybe.h>
 
 #include <string>
 
@@ -150,7 +149,7 @@ namespace NJson {
             }
         }
 
-        void WriteOptional(const std::string_view&, const TNothing&) {
+        void WriteOptional(const std::string_view&, const std::nullopt_t&) {
             // nothing to do
         }
 

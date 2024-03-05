@@ -5,7 +5,6 @@
 #include <util/digest/multi.h>
 #include <util/digest/sequence.h>
 #include <util/generic/algorithm.h>
-#include <util/generic/maybe.h>
 
 #include <util/stream/output.h>
 #include <util/string/builder.h>

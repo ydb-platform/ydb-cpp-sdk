@@ -1,7 +1,6 @@
 #include "registar.h"
 
 #include <util/datetime/base.h>
-#include <util/generic/maybe.h>
 #include <util/system/tempfile.h>
 
 #include <optional>

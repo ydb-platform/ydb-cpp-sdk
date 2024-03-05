@@ -13,7 +13,6 @@
 
 #include <util/generic/buffer.h>
 #include <util/generic/hash_set.h>
-#include <util/generic/maybe.h>
 
 static inline char* AllocateFromPool(TMemoryPool& pool, size_t len) {
     return (char*)pool.Allocate(len);

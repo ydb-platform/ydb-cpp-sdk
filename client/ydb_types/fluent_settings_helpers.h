@@ -1,7 +1,5 @@
 #pragma once
 
-#include <util/generic/maybe.h>
-
 #define FLUENT_SETTING(type, name) \
     type name##_; \
     TSelf& name(const type& value) { \

@@ -1,9 +1,10 @@
 #pragma once
 
-#include <util/generic/maybe.h>
 #include <util/generic/ptr.h>
 #include <util/stream/input.h>
 #include <util/stream/output.h>
+
+#include <optional>
 
 class TOpenSslClientIO: public IInputStream, public IOutputStream {
 public:

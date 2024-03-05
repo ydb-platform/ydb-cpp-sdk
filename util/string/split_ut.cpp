@@ -5,7 +5,6 @@
 #include <util/stream/output.h>
 #include <util/charset/wide.h>
 #include <util/datetime/cputimer.h>
-#include <util/generic/maybe.h>
 
 #include <string>
 #include <string_view>
@@ -286,7 +285,7 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
         UNIT_ASSERT_EXCEPTION(Split(data, ' ', s1, s2, s3, s4), yexception);
     }
 
-    Y_UNIT_TEST(ConvenientSplitTestMaybeExceptions) {
+    Y_UNIT_TEST(ConvenientSplitTestOptionalExceptions) {
         TString data("abc 22 33");
         TString s1, s2;
         std::optional<TString> m1, m2;

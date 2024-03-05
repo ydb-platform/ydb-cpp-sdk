@@ -1,8 +1,9 @@
 #pragma once
 
+#include <util/stream/output.h>
 #include <util/string/strip.h>
-#include <util/generic/maybe.h>
 
+#include <optional>
 #include <string>
 #include <vector>
 

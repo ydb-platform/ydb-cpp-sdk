@@ -1,8 +1,11 @@
 #pragma once
 
+#include <util/stream/input.h>
 #include <util/stream/output.h>
-#include <util/generic/maybe.h>
+#include <util/generic/algorithm.h>
 #include <util/generic/ptr.h>
+
+#include <optional>
 
 class THttpHeaders;
 

@@ -4,8 +4,6 @@
 #include <client/ydb_retry/retry.h>
 #include <client/ydb_types/status/status.h>
 
-#include <util/generic/maybe.h>
-
 namespace NYdb::NRetry::Sync {
 
 template <typename TClient, typename TStatusType>

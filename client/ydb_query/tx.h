@@ -4,6 +4,8 @@
 
 #include <client/ydb_types/fluent_settings_helpers.h>
 
+#include <util/stream/output.h>
+
 namespace NYdb::NQuery {
 
 struct TTxOnlineSettings {
