@@ -122,7 +122,7 @@ namespace NLCS {
 
                         if (lit == lastindex.end()) {
                             lastindex.push_back(std::make_pair(x, cover.size()));
-                            cover.emplace_back(nullptr);
+                            cover.emplace_back();
                             cover.back().push_back(x);
                         } else {
                             *lit = std::make_pair(x, lit->second);

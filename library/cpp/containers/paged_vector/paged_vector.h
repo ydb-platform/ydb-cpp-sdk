@@ -147,12 +147,15 @@ namespace std {
 
 namespace NPagedVector {
     //2-level radix tree
+    template <class T, class A>
+    using TPagedVectorBase = std::vector<T, TReboundAllocator<A, T>>;
+
     template <class T, ui32 PageSize, class A>
-    class TPagedVector: private std::vector<TSimpleSharedPtr<std::vector<T, A>>, TReboundAllocator<A, T>> {
+    class TPagedVector: private TPagedVectorBase<TSimpleSharedPtr<TPagedVectorBase<T, A>>, A> {
         static_assert(PageSize, "expect PageSize");
 
-        typedef std::vector<T, A> TPage;
-        typedef std::vector<TSimpleSharedPtr<TPage>, TReboundAllocator<A, T>> TPages;
+        typedef TPagedVectorBase<T, A> TPage;
+        typedef TPagedVectorBase<TSimpleSharedPtr<TPage>, A> TPages;
         typedef TPagedVector<T, PageSize, A> TSelf;
 
     public:
@@ -237,7 +240,7 @@ namespace NPagedVector {
         }
 
         void AllocateNewPage() {
-            TPages::push_back(new TPage());
+            TPages::push_back(MakeSimpleShared<TPage>());
             CurrentPage().reserve(PageSize);
         }
 
