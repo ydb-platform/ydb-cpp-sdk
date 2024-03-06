@@ -7,6 +7,9 @@
 #include <util/generic/string.h>
 #include <util/network/sock.h>
 
+#include <memory>
+
+
 namespace NAddr {
     class IRemoteAddr {
     public:
@@ -16,7 +19,7 @@ namespace NAddr {
         virtual socklen_t Len() const = 0;
     };
 
-    using IRemoteAddrPtr = THolder<IRemoteAddr>;
+    using IRemoteAddrPtr = std::unique_ptr<IRemoteAddr>;
     using IRemoteAddrRef = TAtomicSharedPtr<NAddr::IRemoteAddr>;
 
     IRemoteAddrPtr GetSockAddr(SOCKET s);

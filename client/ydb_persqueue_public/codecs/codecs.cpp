@@ -52,14 +52,14 @@ public:
     }
 };
 
-THolder<IOutputStream> CreateCoder(ECodec codec, TBuffer& result, int quality) {
+std::unique_ptr<IOutputStream> CreateCoder(ECodec codec, TBuffer& result, int quality) {
     switch (codec) {
         case ECodec::GZIP:
-            return MakeHolder<TZLibToStringCompressor>(result, ZLib::GZip, quality >= 0 ? quality : 6);
+            return std::make_unique<TZLibToStringCompressor>(result, ZLib::GZip, quality >= 0 ? quality : 6);
         case ECodec::LZOP:
             throw yexception() << "LZO codec is disabled";
         case ECodec::ZSTD:
-            return MakeHolder<TZstdToStringCompressor>(result, quality);
+            return std::make_unique<TZstdToStringCompressor>(result, quality);
         default:
             Y_ABORT("NOT IMPLEMENTED CODEC TYPE");
     }

@@ -12,6 +12,6 @@ namespace NMonitoring {
         virtual void Close() = 0;
     };
 
-    using IMetricEncoderPtr = THolder<IMetricEncoder>;
+    using IMetricEncoderPtr = std::unique_ptr<IMetricEncoder>;
 
 }

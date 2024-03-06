@@ -45,7 +45,7 @@ namespace NCoro::NStack {
         virtual void DoFreeStack(NDetails::TStack& stack) noexcept = 0;
     };
 
-    THolder<IAllocator> GetAllocator(TMaybe<TPoolAllocatorSettings> poolSettings, EGuard guardType);
+    std::unique_ptr<IAllocator> GetAllocator(TMaybe<TPoolAllocatorSettings> poolSettings, EGuard guardType);
 
 }
 

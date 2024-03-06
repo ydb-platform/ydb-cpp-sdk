@@ -75,7 +75,7 @@ namespace {
     class TSysLogInstance: public TLog {
     public:
         inline TSysLogInstance()
-            : TLog(MakeHolder<TStreamLogBackend>(&Cnull))
+            : TLog(std::make_unique<TStreamLogBackend>(&Cnull))
         {
         }
     };

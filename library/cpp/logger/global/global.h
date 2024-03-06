@@ -6,8 +6,8 @@
 // ATTENTION! MUST CALL DoInitGlobalLog BEFORE USAGE
 
 bool GlobalLogInitialized();
-void DoInitGlobalLog(const std::string& logType, const int logLevel, const bool rotation, const bool startAsDaemon, THolder<ILoggerFormatter> formatter = {}, bool threaded = false);
-void DoInitGlobalLog(THolder<TLogBackend> backend, THolder<ILoggerFormatter> formatter = {});
+void DoInitGlobalLog(const std::string& logType, const int logLevel, const bool rotation, const bool startAsDaemon, std::unique_ptr<ILoggerFormatter> formatter = {}, bool threaded = false);
+void DoInitGlobalLog(std::unique_ptr<TLogBackend> backend, std::unique_ptr<ILoggerFormatter> formatter = {});
 
 inline void InitGlobalLog2Null() {
     DoInitGlobalLog("null", TLOG_EMERG, false, false);
@@ -24,7 +24,7 @@ public:
     {
     }
 
-    TGlobalLog(THolder<TLogBackend> backend)
+    TGlobalLog(std::unique_ptr<TLogBackend> backend)
         : TLog(std::move(backend))
     {
     }
@@ -40,7 +40,7 @@ public:
     {
     }
 
-    TNullLog(THolder<TLogBackend> backend)
+    TNullLog(std::unique_ptr<TLogBackend> backend)
         : TLog(std::move(backend))
     {
     }

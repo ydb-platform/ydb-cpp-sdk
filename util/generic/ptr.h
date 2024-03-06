@@ -7,6 +7,7 @@
 #include "typetraits.h"
 #include "singleton.h"
 
+#include <memory>
 #include <type_traits>
 #include <utility>
 
@@ -819,7 +820,7 @@ public:
     }
 
     template <class TT, class = TGuardConversion<T, TT>>
-    inline TSharedPtr(THolder<TT>&& t) {
+    inline TSharedPtr(std::unique_ptr<TT>&& t) {
         Init(t);
     }
 
@@ -934,6 +935,11 @@ private:
     inline void Init(X& t) {
         C_ = !!t ? new C(1) : nullptr;
         T_ = t.Release();
+    }
+    template <class X>
+    inline void Init(std::unique_ptr<X>& t) {
+        C_ = !!t ? new C(1) : nullptr;
+        T_ = t.release();
     }
 
     inline void Ref() noexcept {

@@ -291,7 +291,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
             auto encoder = buffered ? BufferedEncoderCloudJson(&out, 2) : EncoderCloudJson(&out, 2);
             const std::string expectedMessage = TYdbStringBuilder()
                 << "metric type '" << metricType << "' is not supported by cloud json format";
-            UNIT_ASSERT_EXCEPTION_CONTAINS_C(emit(encoder.Get(), metricType), yexception, expectedMessage,
+            UNIT_ASSERT_EXCEPTION_CONTAINS_C(emit(encoder.get(), metricType), yexception, expectedMessage,
                                              std::string("buffered: ") + ToString(buffered));
         };
 
@@ -564,7 +564,7 @@ Y_UNIT_TEST_SUITE(TJsonTest) {
 
         std::stringStream Stream_;
         auto encoder = BufferedEncoderJson(&Stream_, 4);
-        DecodeJson(testJson, encoder.Get());
+        DecodeJson(testJson, encoder.get());
 
         encoder->Close();
 

@@ -1121,7 +1121,7 @@ public:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl;
+    std::unique_ptr<TImpl> Impl;
 };
 
 //! Events debug strings.

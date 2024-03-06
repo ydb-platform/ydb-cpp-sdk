@@ -1,8 +1,8 @@
 #include "rotating_file_creator.h"
 #include "rotating_file.h"
 
-THolder<TLogBackend> TRotatingFileLogBackendCreator::DoCreateLogBackend() const {
-    return MakeHolder<TRotatingFileLogBackend>(Path, MaxSizeBytes, RotatedFilesCount);
+std::unique_ptr<TLogBackend> TRotatingFileLogBackendCreator::DoCreateLogBackend() const {
+    return std::make_unique<TRotatingFileLogBackend>(Path, MaxSizeBytes, RotatedFilesCount);
 }
 
 

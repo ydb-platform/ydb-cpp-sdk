@@ -13,7 +13,7 @@ protected:
     virtual void DoToJson(NJson::TJsonValue& value) const override;
 
 private:
-    virtual THolder<TLogBackend> DoCreateLogBackend() const override;
+    virtual std::unique_ptr<TLogBackend> DoCreateLogBackend() const override;
     std::string Ident;
     TSysLogBackend::EFacility Facility = TSysLogBackend::TSYSLOG_LOCAL0;
     int Flags = 0;

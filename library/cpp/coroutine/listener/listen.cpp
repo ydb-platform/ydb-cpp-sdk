@@ -112,7 +112,7 @@ private:
         }
 
         inline const IRemoteAddr* Addr() const noexcept {
-            return Addr_.Get();
+            return Addr_.get();
         }
 
         inline void Stop() noexcept {
@@ -234,10 +234,10 @@ public:
 
         switch (sa.Sa->sa_family) {
             case AF_INET:
-                L_.PushBack(new TOneSocketListener(this, MakeHolder<TIPv4Addr>(*sa.In)));
+                L_.PushBack(new TOneSocketListener(this, std::make_unique<TIPv4Addr>(*sa.In)));
                 break;
             case AF_INET6:
-                L_.PushBack(new TOneSocketListener(this, MakeHolder<TIPv6Addr>(*sa.In6)));
+                L_.PushBack(new TOneSocketListener(this, std::make_unique<TIPv6Addr>(*sa.In6)));
                 break;
             default:
                 ythrow yexception() << std::string_view("unknown protocol");
@@ -245,12 +245,12 @@ public:
     }
 
     inline void Bind(const TIpAddress& addr) {
-        L_.PushBack(new TOneSocketListener(this, MakeHolder<TIPv4Addr>(addr)));
+        L_.PushBack(new TOneSocketListener(this, std::make_unique<TIPv4Addr>(addr)));
     }
 
     inline void Bind(const TNetworkAddress& addr) {
         for (TNetworkAddress::TIterator it = addr.Begin(); it != addr.End(); ++it) {
-            L_.PushBack(new TOneSocketListener(this, MakeHolder<TStoredAddrInfo>(&*it, addr)));
+            L_.PushBack(new TOneSocketListener(this, std::make_unique<TStoredAddrInfo>(&*it, addr)));
         }
     }
 
@@ -316,7 +316,7 @@ void TContListener::Bind(const TNetworkAddress& addr) {
 }
 
 void TContListener::Stop() noexcept {
-    Impl_.Destroy();
+    Impl_.release();
 }
 
 void TContListener::StopListenAddr(const IRemoteAddr& addr) {

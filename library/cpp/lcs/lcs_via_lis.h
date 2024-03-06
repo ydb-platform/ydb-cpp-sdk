@@ -17,7 +17,7 @@ namespace NLCS {
         typedef NPagedVector::TPagedVector<TSubsequence, 4096> TCover;
 
         TMemoryPool Pool;
-        THolder<TEncounterIndex> Encounters;
+        std::unique_ptr<TEncounterIndex> Encounters;
         TLastIndex LastIndex;
         TCover Cover;
 
@@ -30,9 +30,9 @@ namespace NLCS {
         }
 
         void Reset() {
-            Encounters.Reset(nullptr);
+            Encounters.reset(nullptr);
             Pool.Clear();
-            Encounters.Reset(new TEncounterIndex(&Pool));
+            Encounters.reset(new TEncounterIndex(&Pool));
             LastIndex.clear();
             Cover.clear();
             ResultBuffer.clear();
@@ -61,11 +61,11 @@ namespace NLCS {
         size_t MakeLCS(TSequence s1, TSequence s2, TResult* res = nullptr, TLCSCtx<TVal>* ctx = nullptr) {
             typedef TLCSCtx<TVal> TCtx;
 
-            THolder<TCtx> ctxhld;
+            std::unique_ptr<TCtx> ctxhld;
 
             if (!ctx) {
-                ctxhld.Reset(new TCtx());
-                ctx = ctxhld.Get();
+                ctxhld.reset(new TCtx());
+                ctx = ctxhld.get();
             } else {
                 ctx->Reset();
             }

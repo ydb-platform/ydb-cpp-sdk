@@ -1,8 +1,8 @@
 #include "null_creator.h"
 #include "null.h"
 
-THolder<TLogBackend> TNullLogBackendCreator::DoCreateLogBackend() const {
-    return MakeHolder<TNullLogBackend>();
+std::unique_ptr<TLogBackend> TNullLogBackendCreator::DoCreateLogBackend() const {
+    return std::make_unique<TNullLogBackend>();
 }
 
 ILogBackendCreator::TFactory::TRegistrator<TNullLogBackendCreator> TNullLogBackendCreator::RegistrarDevNull("/dev/null");

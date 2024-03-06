@@ -83,13 +83,13 @@ void TModChooser::AddMode(const std::string& mode, const TMainFunctionRawPtrV fu
 }
 
 void TModChooser::AddMode(const std::string& mode, const TMainFunctionPtr func, const std::string& description, bool hidden, bool noCompletion) {
-    Wrappers.push_back(MakeHolder<PtrWrapper>(func));
-    AddMode(mode, Wrappers.back().Get(), description, hidden, noCompletion);
+    Wrappers.push_back(std::make_unique<PtrWrapper>(func));
+    AddMode(mode, Wrappers.back().get(), description, hidden, noCompletion);
 }
 
 void TModChooser::AddMode(const std::string& mode, const TMainFunctionPtrV func, const std::string& description, bool hidden, bool noCompletion) {
-    Wrappers.push_back(MakeHolder<PtrvWrapper>(func));
-    AddMode(mode, Wrappers.back().Get(), description, hidden, noCompletion);
+    Wrappers.push_back(std::make_unique<PtrvWrapper>(func));
+    AddMode(mode, Wrappers.back().get(), description, hidden, noCompletion);
 }
 
 void TModChooser::AddMode(const std::string& mode, TMainClass* func, const std::string& description, bool hidden, bool noCompletion) {
@@ -97,16 +97,16 @@ void TModChooser::AddMode(const std::string& mode, TMainClass* func, const std::
         ythrow yexception() << "TMode '" << mode << "' already exists in TModChooser.";
     }
 
-    Modes[mode] = UnsortedModes.emplace_back(MakeHolder<TMode>(mode, func, description, hidden, noCompletion)).Get();
+    Modes[mode] = UnsortedModes.emplace_back(std::make_unique<TMode>(mode, func, description, hidden, noCompletion)).get();
 }
 
 void TModChooser::AddMode(const std::string& mode, TMainClassV* func, const std::string& description, bool hidden, bool noCompletion) {
-    Wrappers.push_back(MakeHolder<ClassWrapper>(func));
-    AddMode(mode, Wrappers.back().Get(), description, hidden, noCompletion);
+    Wrappers.push_back(std::make_unique<ClassWrapper>(func));
+    AddMode(mode, Wrappers.back().get(), description, hidden, noCompletion);
 }
 
 void TModChooser::AddGroupModeDescription(const std::string& description, bool hidden, bool noCompletion) {
-    UnsortedModes.push_back(MakeHolder<TMode>(std::string(), nullptr, description.data(), hidden, noCompletion));
+    UnsortedModes.push_back(std::make_unique<TMode>(std::string(), nullptr, description.data(), hidden, noCompletion));
 }
 
 void TModChooser::SetDefaultMode(const std::string& mode) {
@@ -153,7 +153,7 @@ void TModChooser::DisableSvnRevisionOption() {
 void TModChooser::AddCompletions(std::string progName, const std::string& name, bool hidden, bool noCompletion) {
     if (CompletionsGenerator == nullptr) {
         CompletionsGenerator = NLastGetopt::MakeCompletionMod(this, std::move(progName), name);
-        AddMode(name, CompletionsGenerator.Get(), "generate autocompletion files", hidden, noCompletion);
+        AddMode(name, CompletionsGenerator.get(), "generate autocompletion files", hidden, noCompletion);
     }
 }
 

@@ -134,10 +134,10 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
 
         std::string Execute() {
             TSocket* s = nullptr;
-            THolder<TSocket> singleReqSocket;
+            std::unique_ptr<TSocket> singleReqSocket;
             if (KeepAliveConnection) {
                 if (!KeepAlivedSocket) {
-                    KeepAlivedSocket = MakeHolder<TSocket>(TNetworkAddress("localhost", Port), TDuration::Seconds(10));
+                    KeepAlivedSocket = std::make_unique<TSocket>(TNetworkAddress("localhost", Port), TDuration::Seconds(10));
                 }
                 s = KeepAlivedSocket.Get();
             } else {
@@ -253,7 +253,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         std::string ContentEncoding;
         std::string Content;
         bool KeepAliveConnection = false;
-        THolder<TSocket> KeepAlivedSocket;
+        std::unique_ptr<TSocket> KeepAlivedSocket;
         bool EnableResponseEncoding = false;
         std::string Hdr;
         bool Expect100Continue = false;
@@ -347,9 +347,9 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         const ui16 port = pm.GetPort();
 
         TEchoServer serverImpl(res);
-        std::vector<THolder<THttpServer>> servers;
+        std::vector<std::unique_ptr<THttpServer>> servers;
         for (ui32 i = 0; i < 10; i++) {
-            servers.push_back(MakeHolder<THttpServer>(&serverImpl, THttpServer::TOptions(port).EnableReusePort(true)));
+            servers.push_back(std::make_unique<THttpServer>(&serverImpl, THttpServer::TOptions(port).EnableReusePort(true)));
         }
 
         for (ui32 testRun = 0; testRun < 3; testRun++) {
@@ -711,7 +711,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
                 UNIT_ASSERT(server.Lock.TryAcquire());
 
                 std::atomic<size_t> threadsFinished = 0;
-                std::vector<THolder<IThreadFactory::IThread>> threads;
+                std::vector<std::unique_ptr<IThreadFactory::IThread>> threads;
                 auto func = [port, keepAlive, &threadsFinished]() {
                     try {
                         TTestRequest r(port);
@@ -833,7 +833,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
             Stop();
         }
     private:
-        std::vector<THolder<IThreadFactory::IThread>> Threads_;
+        std::vector<std::unique_ptr<IThreadFactory::IThread>> Threads_;
         std::atomic<bool> Stopped_ = false;
         std::vector<TCounters> Counters_;
     };

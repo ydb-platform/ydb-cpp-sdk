@@ -29,16 +29,16 @@ namespace NLoggingImpl {
             {
             }
 
-            THolder<T> Instance;
+            std::unique_ptr<T> Instance;
         };
 
     public:
         inline static bool Usage() {
-            return SingletonWithPriority<TPtr, SingletonPriority>()->Instance.Get();
+            return SingletonWithPriority<TPtr, SingletonPriority>()->Instance.get();
         }
 
         inline static T* Get() {
-            return SingletonWithPriority<TPtr, SingletonPriority>()->Instance.Get();
+            return SingletonWithPriority<TPtr, SingletonPriority>()->Instance.get();
         }
 
         inline static void Set(T* v) {

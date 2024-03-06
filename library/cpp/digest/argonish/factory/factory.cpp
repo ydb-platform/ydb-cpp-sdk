@@ -43,20 +43,20 @@ namespace NArgonish {
             QuickTest_();
     }
 
-    THolder<IArgon2Base> TArgon2Factory::Create(EInstructionSet instructionSet, EArgon2Type atype, ui32 tcost,
+    std::unique_ptr<IArgon2Base> TArgon2Factory::Create(EInstructionSet instructionSet, EArgon2Type atype, ui32 tcost,
                                                 ui32 mcost, ui32 threads, const ui8* key, ui32 keylen) const {
         switch (instructionSet) {
             case EInstructionSet::REF:
-                return MakeHolder<TArgon2ProxyREF>(atype, tcost, mcost, threads, key, keylen);
+                return std::make_unique<TArgon2ProxyREF>(atype, tcost, mcost, threads, key, keylen);
 #if !defined(_arm64_)
             case EInstructionSet::SSE2:
-                return MakeHolder<TArgon2ProxySSE2>(atype, tcost, mcost, threads, key, keylen);
+                return std::make_unique<TArgon2ProxySSE2>(atype, tcost, mcost, threads, key, keylen);
             case EInstructionSet::SSSE3:
-                return MakeHolder<TArgon2ProxySSSE3>(atype, tcost, mcost, threads, key, keylen);
+                return std::make_unique<TArgon2ProxySSSE3>(atype, tcost, mcost, threads, key, keylen);
             case EInstructionSet::SSE41:
-                return MakeHolder<TArgon2ProxySSSE3>(atype, tcost, mcost, threads, key, keylen);
+                return std::make_unique<TArgon2ProxySSSE3>(atype, tcost, mcost, threads, key, keylen);
             case EInstructionSet::AVX2:
-                return MakeHolder<TArgon2ProxyAVX2>(atype, tcost, mcost, threads, key, keylen);
+                return std::make_unique<TArgon2ProxyAVX2>(atype, tcost, mcost, threads, key, keylen);
 #endif
         }
 
@@ -64,7 +64,7 @@ namespace NArgonish {
         ythrow yexception() << "Invalid instruction set value";
     }
 
-    THolder<IArgon2Base> TArgon2Factory::Create(EArgon2Type atype, ui32 tcost, ui32 mcost, ui32 threads,
+    std::unique_ptr<IArgon2Base> TArgon2Factory::Create(EArgon2Type atype, ui32 tcost, ui32 mcost, ui32 threads,
                                                 const ui8* key, ui32 keylen) const {
         return Create(InstructionSet_, atype, tcost, mcost, threads, key, keylen);
     }
@@ -92,7 +92,7 @@ namespace NArgonish {
 
         ui8 hash_result[32] = {0};
         for (ui32 atype = (ui32)EArgon2Type::Argon2d; atype <= (ui32)EArgon2Type::Argon2id; ++atype) {
-            auto argon2d = MakeHolder<TArgon2ProxyREF>((EArgon2Type)atype, 1U, 1024U, 1U);
+            auto argon2d = std::make_unique<TArgon2ProxyREF>((EArgon2Type)atype, 1U, 1024U, 1U);
             argon2d->Hash(password, sizeof(password), salt, sizeof(salt), hash_result, sizeof(hash_result));
             if (memcmp(test_result[atype], hash_result, sizeof(hash_result)) != 0)
                 ythrow yexception() << "Argon2: Runtime test failed for reference implementation";
@@ -100,7 +100,7 @@ namespace NArgonish {
 #if !defined(_arm64_)
         if (InstructionSet_ >= EInstructionSet::SSE2) {
             for (ui32 atype = (ui32)EArgon2Type::Argon2d; atype <= (ui32)EArgon2Type::Argon2id; ++atype) {
-                auto argon2d = MakeHolder<TArgon2ProxySSE2>((EArgon2Type)atype, 1U, 1024U, 1U);
+                auto argon2d = std::make_unique<TArgon2ProxySSE2>((EArgon2Type)atype, 1U, 1024U, 1U);
                 argon2d->Hash(password, sizeof(password), salt, sizeof(salt), hash_result, sizeof(hash_result));
                 if (memcmp(test_result[atype], hash_result, sizeof(hash_result)) != 0)
                     ythrow yexception() << "Argon2: Runtime test failed for SSE2 implementation";
@@ -109,7 +109,7 @@ namespace NArgonish {
 
         if (InstructionSet_ >= EInstructionSet::SSSE3) {
             for (ui32 atype = (ui32)EArgon2Type::Argon2d; atype <= (ui32)EArgon2Type::Argon2id; ++atype) {
-                auto argon2d = MakeHolder<TArgon2ProxySSSE3>((EArgon2Type)atype, 1U, 1024U, 1U);
+                auto argon2d = std::make_unique<TArgon2ProxySSSE3>((EArgon2Type)atype, 1U, 1024U, 1U);
                 argon2d->Hash(password, sizeof(password), salt, sizeof(salt), hash_result, sizeof(hash_result));
                 if (memcmp(test_result[atype], hash_result, sizeof(hash_result)) != 0)
                     ythrow yexception() << "Argon2: Runtime test failed for SSSE3 implementation";
@@ -118,7 +118,7 @@ namespace NArgonish {
 
         if (InstructionSet_ >= EInstructionSet::SSE41) {
             for (ui32 atype = (ui32)EArgon2Type::Argon2d; atype <= (ui32)EArgon2Type::Argon2id; ++atype) {
-                auto argon2d = MakeHolder<TArgon2ProxySSE41>((EArgon2Type)atype, 1U, 1024U, 1U);
+                auto argon2d = std::make_unique<TArgon2ProxySSE41>((EArgon2Type)atype, 1U, 1024U, 1U);
                 argon2d->Hash(password, sizeof(password), salt, sizeof(salt), hash_result, sizeof(hash_result));
                 if (memcmp(test_result[atype], hash_result, sizeof(hash_result)) != 0)
                     ythrow yexception() << "Argon2: Runtime test failed for SSE41 implementation";
@@ -127,7 +127,7 @@ namespace NArgonish {
 
         if (InstructionSet_ >= EInstructionSet::AVX2) {
             for (ui32 atype = (ui32)EArgon2Type::Argon2d; atype <= (ui32)EArgon2Type::Argon2id; ++atype) {
-                auto argon2d = MakeHolder<TArgon2ProxyAVX2>((EArgon2Type)atype, 1U, 1024U, 1U);
+                auto argon2d = std::make_unique<TArgon2ProxyAVX2>((EArgon2Type)atype, 1U, 1024U, 1U);
                 argon2d->Hash(password, sizeof(password), salt, sizeof(salt), hash_result, sizeof(hash_result));
                 if (memcmp(test_result[atype], hash_result, sizeof(hash_result)) != 0)
                     ythrow yexception() << "Argon2: Runtime test failed for AVX2 implementation";
@@ -142,20 +142,20 @@ namespace NArgonish {
             QuickTest_();
     }
 
-    THolder<IBlake2Base> TBlake2BFactory::Create(EInstructionSet instructionSet, size_t outlen, const ui8* key,
+    std::unique_ptr<IBlake2Base> TBlake2BFactory::Create(EInstructionSet instructionSet, size_t outlen, const ui8* key,
                                                  size_t keylen) const {
         switch (instructionSet) {
             case EInstructionSet::REF:
-                return MakeHolder<TBlake2BProxyREF>(outlen, key, keylen);
+                return std::make_unique<TBlake2BProxyREF>(outlen, key, keylen);
 #if !defined(_arm64_)
             case EInstructionSet::SSE2:
-                return MakeHolder<TBlake2BProxySSE2>(outlen, key, keylen);
+                return std::make_unique<TBlake2BProxySSE2>(outlen, key, keylen);
             case EInstructionSet::SSSE3:
-                return MakeHolder<TBlake2BProxySSSE3>(outlen, key, keylen);
+                return std::make_unique<TBlake2BProxySSSE3>(outlen, key, keylen);
             case EInstructionSet::SSE41:
-                return MakeHolder<TBlake2BProxySSE41>(outlen, key, keylen);
+                return std::make_unique<TBlake2BProxySSE41>(outlen, key, keylen);
             case EInstructionSet::AVX2:
-                return MakeHolder<TBlake2BProxyAVX2>(outlen, key, keylen);
+                return std::make_unique<TBlake2BProxyAVX2>(outlen, key, keylen);
 #endif
         }
 
@@ -163,7 +163,7 @@ namespace NArgonish {
         ythrow yexception() << "Invalid instruction set";
     }
 
-    THolder<IBlake2Base> TBlake2BFactory::Create(size_t outlen, const ui8* key, size_t keylen) const {
+    std::unique_ptr<IBlake2Base> TBlake2BFactory::Create(size_t outlen, const ui8* key, size_t keylen) const {
         return Create(InstructionSet_, outlen, key, keylen);
     }
 
@@ -179,7 +179,7 @@ namespace NArgonish {
 
         ui8 hash_val[16];
         if (InstructionSet_ >= EInstructionSet::REF) {
-            auto blake2 = MakeHolder<TBlake2BProxyREF>(16U);
+            auto blake2 = std::make_unique<TBlake2BProxyREF>(16U);
             blake2->Update(test_str, 3);
             blake2->Final(hash_val, 16);
             if (memcmp(test_result, hash_val, 16) != 0)
@@ -187,7 +187,7 @@ namespace NArgonish {
         }
 #if !defined(_arm64_)
         if (InstructionSet_ >= EInstructionSet::SSE2) {
-            auto blake2 = MakeHolder<TBlake2BProxySSE2>(16U);
+            auto blake2 = std::make_unique<TBlake2BProxySSE2>(16U);
             blake2->Update(test_str, 3);
             blake2->Final(hash_val, 16);
             if (memcmp(test_result, hash_val, 16) != 0)
@@ -195,7 +195,7 @@ namespace NArgonish {
         }
 
         if (InstructionSet_ >= EInstructionSet::SSSE3) {
-            auto blake2 = MakeHolder<TBlake2BProxySSSE3>(16U);
+            auto blake2 = std::make_unique<TBlake2BProxySSSE3>(16U);
             blake2->Update(test_str, 3);
             blake2->Final(hash_val, 16);
             if (memcmp(test_result, hash_val, 16) != 0)
@@ -203,7 +203,7 @@ namespace NArgonish {
         }
 
         if (InstructionSet_ >= EInstructionSet::SSE41) {
-            auto blake2 = MakeHolder<TBlake2BProxySSE41>(16U);
+            auto blake2 = std::make_unique<TBlake2BProxySSE41>(16U);
             blake2->Update(test_str, 3);
             blake2->Final(hash_val, 16);
             if (memcmp(test_result, hash_val, 16) != 0)
@@ -211,7 +211,7 @@ namespace NArgonish {
         }
 
         if (InstructionSet_ >= EInstructionSet::AVX2) {
-            auto blake2 = MakeHolder<TBlake2BProxyAVX2>(16U);
+            auto blake2 = std::make_unique<TBlake2BProxyAVX2>(16U);
             blake2->Update(test_str, 3);
             blake2->Final(hash_val, 16);
             if (memcmp(test_result, hash_val, 16) != 0)

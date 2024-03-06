@@ -113,11 +113,11 @@ namespace NCoro {
             if (!ret) {
                 ret = TRef(new (&Pool_) TValue());
             }
-            return ret.Get();
+            return ret.get();
         }
 
     private:
-        using TRef = THolder<TValue>;
+        using TRef = std::unique_ptr<TValue>;
         typename TValue::TPool Pool_;
         TSocketMap<TRef> Lst_;
     };
@@ -135,7 +135,7 @@ namespace NCoro {
         {
         }
 
-        explicit TContPoller(THolder<IPollerFace> poller)
+        explicit TContPoller(std::unique_ptr<IPollerFace> poller)
             : P_(std::move(poller))
         {}
 
@@ -188,7 +188,7 @@ namespace NCoro {
 
     private:
         TBigArray<TPollEventList> Lists_;
-        THolder<IPollerFace> P_;
+        std::unique_ptr<IPollerFace> P_;
     };
 
 

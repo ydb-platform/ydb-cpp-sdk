@@ -6,7 +6,7 @@ using namespace NAddr;
 
 Y_UNIT_TEST_SUITE(IRemoteAddr_ToString) {
     Y_UNIT_TEST(Raw) {
-        THolder<TOpaqueAddr> opaque(new TOpaqueAddr);
+        std::unique_ptr<TOpaqueAddr> opaque(new TOpaqueAddr);
         IRemoteAddr* addr = opaque.Get();
 
         TString s = ToString(*addr);
