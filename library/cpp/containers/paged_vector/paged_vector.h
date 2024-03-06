@@ -1,7 +1,7 @@
 #pragma once
 
 #include <util/memory/alloc.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/yexception.h>
 
 #include <iterator>

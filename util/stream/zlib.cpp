@@ -345,6 +345,9 @@ void TZLibCompress::Init(const TParams& params) {
 void TZLibCompress::TDestruct::operator() (TImpl* impl) {
     delete impl;
 }
+void TZLibCompress::TDestruct::operator() (TImpl* impl) {
+    delete impl;
+}
 
 TZLibCompress::~TZLibCompress() {
     try {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/ptr.h>
+
 #include <string>
 #include <util/stream/output.h>
 

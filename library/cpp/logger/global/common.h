@@ -4,7 +4,7 @@
 
 #include <util/folder/path.h>
 #include <util/generic/singleton.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/yexception.h>
 #include <util/string/printf.h>
 #include <util/system/src_location.h>

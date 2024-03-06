@@ -4,7 +4,7 @@
 #include "stack_common.h"
 
 #include <util/generic/noncopyable.h>
-#include <util/generic/ptr.h>
+
 
 #include <cstdint>
 #include <optional>

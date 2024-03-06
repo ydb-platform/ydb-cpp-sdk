@@ -2,7 +2,7 @@
 
 #include <util/generic/buffer.h>
 #include <util/generic/cast.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/scope.h>
 #include <util/generic/size_literals.h>
 #include <util/stream/format.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/ptr.h>
+
 #include <util/stream/input.h>
 #include <util/stream/output.h>
 

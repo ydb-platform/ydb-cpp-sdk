@@ -3,7 +3,7 @@
 #include "fts.h"
 
 #include <util/system/error.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/iterator.h>
 #include <util/generic/yexception.h>
 #include <util/generic/ylimits.h>
@@ -17,6 +17,7 @@ class TDirIterator: public TInputRangeAdaptor<TDirIterator> {
         inline void operator()(FTS* f) noexcept {
             yfts_close(f);
         }
+        void operator() (FTS* f) noexcept;
     };
 
 public:

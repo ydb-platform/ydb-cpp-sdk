@@ -7,7 +7,7 @@
 
 #include "defaults.h"
 #include "file.h"
-#include <util/generic/ptr.h>
+
 #include <util/network/pair.h>
 #include <util/generic/noncopyable.h>
 

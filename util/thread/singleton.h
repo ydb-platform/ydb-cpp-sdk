@@ -3,8 +3,6 @@
 #include <util/system/tls.h>
 #include <util/generic/singleton.h>
 
-#include <cstddef>
-
 namespace NPrivate {
     template <class T, size_t Priority>
     struct TFastThreadSingletonHelper {

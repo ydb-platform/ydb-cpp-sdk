@@ -4,12 +4,11 @@
 /// If you need threads, use thread pool functionality in <util/thread/factory.h>
 /// @see SystemThreadFactory()
 
-#include <util/generic/ptr.h>
-
-#include <string>
-
 #include "defaults.h"
 #include "progname.h"
+
+#include <memory>
+#include <string>
 
 bool SetHighestThreadPriority();
 bool SetLowestThreadPriority();

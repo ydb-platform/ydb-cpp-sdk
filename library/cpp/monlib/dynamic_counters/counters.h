@@ -7,7 +7,7 @@
 #include <library/cpp/containers/stack_vector/stack_vec.h>
 
 #include <util/generic/cast.h>
-#include <util/generic/ptr.h>
+
 #include <util/string/cast.h>
 #include <util/system/rwlock.h>
 

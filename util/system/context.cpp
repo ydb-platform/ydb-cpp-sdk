@@ -319,7 +319,7 @@ TContMachineContext::~TContMachineContext() {
 }
 
 void TContMachineContext::SwitchTo(TContMachineContext* next) noexcept {
-    Impl_->SwitchTo(next->Impl_.Get());
+    Impl_->SwitchTo(next->Impl_.get());
 }
 #endif
 

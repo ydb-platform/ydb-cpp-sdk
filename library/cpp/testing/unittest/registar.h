@@ -5,7 +5,7 @@
 #include <util/generic/bt_exception.h>
 #include <util/generic/hash.h>
 #include <util/generic/intrlist.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/scope.h>
 #include <util/generic/set.h>
 #include <util/generic/typetraits.h>
@@ -927,8 +927,8 @@ public:                       \
         };                                                                                                              \
         class TCurrentTest: public T {                                                                                  \
         private:                                                                                                        \
-            typedef std::function<std::unique_ptr<NUnitTest::TBaseTestCase>()> TTestCaseFactory;                                \
-            typedef std::vector<TTestCaseFactory> TTests;                                                                   \
+            typedef std::function<std::unique_ptr<NUnitTest::TBaseTestCase>()> TTestCaseFactory;                        \
+            typedef std::vector<TTestCaseFactory> TTests;                                                               \
                                                                                                                         \
             static TTests& Tests() {                                                                                    \
                 static TTests tests;                                                                                    \
@@ -936,10 +936,10 @@ public:                       \
             }                                                                                                           \
                                                                                                                         \
         public:                                                                                                         \
-            static std::string StaticName() {                                                                               \
+            static std::string StaticName() {                                                                           \
                 return #N;                                                                                              \
             }                                                                                                           \
-            virtual std::string Name() const noexcept {                                                                     \
+            virtual std::string Name() const noexcept {                                                                 \
                 return StaticName();                                                                                    \
             }                                                                                                           \
                                                                                                                         \
@@ -1015,7 +1015,7 @@ public:                       \
             ForceFork_ = FF;                                \
         }                                                   \
         static std::unique_ptr<NUnitTest::TBaseTestCase> Create() { \
-            return ::MakeHolder<TTestCase##N>();            \
+            return ::std::make_unique<TTestCase##N>();            \
         }                                                   \
         void Execute_(NUnitTest::TTestContext&) override;   \
     };                                                      \

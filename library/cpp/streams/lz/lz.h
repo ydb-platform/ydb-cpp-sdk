@@ -2,7 +2,7 @@
 
 #include <util/stream/output.h>
 #include <util/stream/input.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/yexception.h>
 
 #include <library/cpp/streams/lz/common/error.h>

@@ -4,7 +4,7 @@
 #include "thread.h"
 #include "thread.i"
 
-#include <util/generic/ptr.h>
+
 #include <util/generic/ymath.h>
 #include <util/generic/ylimits.h>
 #include <util/generic/yexception.h>

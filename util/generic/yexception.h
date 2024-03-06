@@ -15,7 +15,6 @@
 #include <util/system/platform.h>
 
 #include <exception>
-
 #include <cstdio>
 
 class TBackTrace;

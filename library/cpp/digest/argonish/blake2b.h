@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-#include <util/generic/ptr.h>
+#include <memory>
 
 namespace NArgonish {
     /**

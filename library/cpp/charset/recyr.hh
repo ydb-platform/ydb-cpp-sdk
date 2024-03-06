@@ -3,7 +3,7 @@
 #include <cstdlib>
 
 #include <util/charset/recode_result.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/yexception.h>
 
 #include "codepage.h"

@@ -1,5 +1,5 @@
 #pragma once
-#include <util/generic/ptr.h>
+
 #include <util/generic/size_literals.h>
 #include <library/cpp/threading/chunk_queue/queue.h>
 #include <util/generic/overloaded.h>

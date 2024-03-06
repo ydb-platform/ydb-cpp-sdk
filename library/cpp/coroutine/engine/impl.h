@@ -11,7 +11,7 @@
 #include <library/cpp/containers/intrusive_rb_tree/rb_tree.h>
 
 #include <util/system/error.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/intrlist.h>
 #include <util/datetime/base.h>
 #include <util/generic/function.h>

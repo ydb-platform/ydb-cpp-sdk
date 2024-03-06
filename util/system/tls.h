@@ -2,7 +2,6 @@
 
 #include "defaults.h"
 
-#include <util/generic/ptr.h>
 #include <util/generic/noncopyable.h>
 
 #include <new>
@@ -267,11 +266,7 @@ namespace NTls {
             T* val = static_cast<T*>(Key_.Get());
 
             if (!val) {
-                auto deleter = [](void const * data ) {
-                int const * p = static_cast<int const*>(data);
-                delete p;
-            };
-                std::unique_ptr<void, decltype(deleter)> mem(::operator new(sizeof(T)), deleter);
+                std::unique_ptr<void, Deleter> mem(::operator new(sizeof(T)));
                 std::unique_ptr<T> newval(Constructor_->Construct(mem.get()));
 
                 Y_UNUSED(mem.release());
@@ -284,16 +279,19 @@ namespace NTls {
 
     private:
         static void Dtor(void* ptr) {
-            auto deleter = [](void const * data ) {
-                int const * p = static_cast<int const*>(data);
-                delete p;
-            };
 
-            std::unique_ptr<void, decltype(deleter)> mem(ptr, deleter);
+            std::unique_ptr<void, Deleter> mem(ptr);
 
             ((T*)ptr)->~T();
             ::NPrivate::FillWithTrash(ptr, sizeof(T));
         }
+
+        struct Deleter {
+            void operator() (void const * data) {
+                int const * p = static_cast<int const*>(data);
+                delete p;
+            }
+        };
 
     private:
         std::unique_ptr<TConstructor> Constructor_;

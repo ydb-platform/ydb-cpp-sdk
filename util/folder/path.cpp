@@ -276,6 +276,10 @@ struct TClosedir {
             }
         }
     }
+
+    void operator() (DIR* dir) {
+        Destroy(dir);
+    }
 };
 
 void TFsPath::ListNames(std::vector<std::string>& children) const {

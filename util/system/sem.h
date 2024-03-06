@@ -2,7 +2,7 @@
 
 #include "defaults.h"
 
-#include <util/generic/ptr.h>
+
 
 //named sempahore
 class TSemaphore {

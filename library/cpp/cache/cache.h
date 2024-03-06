@@ -1,7 +1,6 @@
 #pragma once
 
 #include <util/generic/algorithm.h>
-#include <util/generic/ptr.h>
 #include <util/generic/intrlist.h>
 #include <util/generic/hash_set.h>
 #include <util/generic/yexception.h>

@@ -2,7 +2,7 @@
 
 #include <util/datetime/base.h>
 #include <util/generic/noncopyable.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/typetraits.h>
 
 #include <util/generic/ylimits.h>

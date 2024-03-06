@@ -18,7 +18,7 @@
 #include <util/string/subst.h>
 #include <string>
 
-#include <util/generic/ptr.h>
+
 #include <util/generic/yexception.h>
 #include <util/system/fs.h>
 #include <util/folder/path.h>
