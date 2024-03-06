@@ -1,8 +1,9 @@
 #pragma once
 
+#include <util/stream/output.h>
 #include <util/string/strip.h>
-#include <util/generic/maybe.h>
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -10,7 +11,7 @@ class TEnumParser {
 public:
 
     struct TItem {
-        TMaybe<std::string> Value;
+        std::optional<std::string> Value;
         std::string CppName;
         std::vector<std::string> Aliases;
         std::string CommentText;

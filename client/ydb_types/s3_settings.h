@@ -2,6 +2,8 @@
 
 #include "fluent_settings_helpers.h"
 
+#include <string>
+
 namespace NYdb {
 
 enum class ES3Scheme {

@@ -8,7 +8,6 @@
 
 #include <util/stream/output.h>
 #include <util/generic/hash.h>
-#include <util/generic/maybe.h>
 
 #include <string>
 
@@ -144,13 +143,13 @@ namespace NJson {
         }
 
         template <typename T>
-        void WriteOptional(const std::string_view& key, const TMaybe<T>& value) {
+        void WriteOptional(const std::string_view& key, const std::optional<T>& value) {
             if (value) {
                 Write(key, *value);
             }
         }
 
-        void WriteOptional(const std::string_view&, const TNothing&) {
+        void WriteOptional(const std::string_view&, const std::nullopt_t&) {
             // nothing to do
         }
 

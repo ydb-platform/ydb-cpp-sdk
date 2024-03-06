@@ -22,16 +22,16 @@ public:
         }
 
         void DoWrite() {
-            if (Token.Empty() && Message.Empty()) {
+            if (!Token.has_value() && !Message.has_value()) {
                 return;
             }
-            Y_ABORT_UNLESS(Token.Defined() && Message.Defined());
+            Y_ABORT_UNLESS(Token.has_value() && Message.has_value());
             return Writer->Write(std::move(*Token), std::move(*Message));
         }
 
         std::shared_ptr<NTopic::IWriteSession> Writer;
-        TMaybe<NTopic::TContinuationToken> Token;
-        TMaybe<NTopic::TWriteMessage> Message;
+        std::optional<NTopic::TContinuationToken> Token;
+        std::optional<NTopic::TWriteMessage> Message;
     };
 
     TFederatedWriteSession(const TFederatedWriteSessionSettings& settings,
@@ -42,8 +42,8 @@ public:
     ~TFederatedWriteSession() = default;
 
     NThreading::TFuture<void> WaitEvent() override;
-    TMaybe<NTopic::TWriteSessionEvent::TEvent> GetEvent(bool block) override;
-    std::vector<NTopic::TWriteSessionEvent::TEvent> GetEvents(bool block, TMaybe<size_t> maxEventsCount) override;
+    std::optional<NTopic::TWriteSessionEvent::TEvent> GetEvent(bool block) override;
+    std::vector<NTopic::TWriteSessionEvent::TEvent> GetEvents(bool block, std::optional<size_t> maxEventsCount) override;
 
     virtual NThreading::TFuture<ui64> GetInitSeqNo() override;
 
@@ -51,11 +51,11 @@ public:
 
     virtual void WriteEncoded(NTopic::TContinuationToken&& continuationToken, NTopic::TWriteMessage&& params) override;
 
-    virtual void Write(NTopic::TContinuationToken&&, std::string_view, TMaybe<ui64> seqNo = Nothing(),
-                       TMaybe<TInstant> createTimestamp = Nothing()) override;
+    virtual void Write(NTopic::TContinuationToken&&, std::string_view, std::optional<ui64> seqNo = std::nullopt,
+                       std::optional<TInstant> createTimestamp = std::nullopt) override;
 
     virtual void WriteEncoded(NTopic::TContinuationToken&&, std::string_view, NTopic::ECodec, ui32,
-                              TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) override;
+                              std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) override;
 
     bool Close(TDuration timeout) override;
 
@@ -97,7 +97,7 @@ private:
 
     std::shared_ptr<NTopic::TWriteSessionEventsQueue> ClientEventsQueue;
 
-    TMaybe<NTopic::TContinuationToken> PendingToken;  // from Subsession
+    std::optional<NTopic::TContinuationToken> PendingToken;  // from Subsession
     bool ClientHasToken = false;
     std::deque<NTopic::TWriteMessage> OriginalMessagesToPassDown;
     std::deque<NTopic::TWriteMessage> OriginalMessagesToGetAck;

@@ -1,7 +1,6 @@
 #include "registar.h"
 
 #include <util/datetime/base.h>
-#include <util/generic/maybe.h>
 #include <util/system/tempfile.h>
 
 #include <optional>
@@ -135,7 +134,7 @@ private:
     const std::string ExecName; // cmd line param
     const EOutputFormat OutputFormat;
     std::string ResultReportFileName;
-    TMaybe<TTempFile> TmpReportFile;
+    std::optional<TTempFile> TmpReportFile;
     std::map<std::string, TTestSuite> Suites;
     THolder<TOutputCapturer> StdErrCapturer;
     THolder<TOutputCapturer> StdOutCapturer;

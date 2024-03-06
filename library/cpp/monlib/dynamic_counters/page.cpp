@@ -14,7 +14,7 @@ namespace {
     currentCounters(nullptr);
 }
 
-TMaybe<EFormat> ParseFormat(std::string_view str) {
+std::optional<EFormat> ParseFormat(std::string_view str) {
     if (str == std::string_view("json")) {
         return EFormat::JSON;
     } else if (str == std::string_view("spack")) {
@@ -22,7 +22,7 @@ TMaybe<EFormat> ParseFormat(std::string_view str) {
     } else if (str == std::string_view("prometheus")) {
         return EFormat::PROMETHEUS;
     } else {
-        return Nothing();
+        return std::nullopt;
     }
 }
 
@@ -42,7 +42,7 @@ void TDynamicCountersPage::Output(NMonitoring::IMonHttpRequest& request) {
         .SkipEmpty()
         .Collect(&parts);
 
-    TMaybe<EFormat> format = !parts.empty() ? ParseFormat(parts.back()) : Nothing();
+    std::optional<EFormat> format = !parts.empty() ? ParseFormat(parts.back()) : std::nullopt;
     if (format) {
         parts.pop_back();
     }

@@ -297,7 +297,7 @@ TStartPartitionSessionEvent::TStartPartitionSessionEvent(TPartitionSession::TPtr
     , EndOffset(endOffset) {
 }
 
-void TStartPartitionSessionEvent::Confirm(TMaybe<ui64> readOffset, TMaybe<ui64> commitOffset) {
+void TStartPartitionSessionEvent::Confirm(std::optional<ui64> readOffset, std::optional<ui64> commitOffset) {
     if (PartitionSession) {
         static_cast<NPersQueue::TPartitionStreamImpl<false>*>(PartitionSession.Get())
             ->ConfirmCreate(readOffset, commitOffset);

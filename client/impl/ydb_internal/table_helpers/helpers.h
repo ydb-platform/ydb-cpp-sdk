@@ -7,8 +7,8 @@
 
 namespace NYdb {
 
-inline Ydb::Table::QueryStatsCollection::Mode GetStatsCollectionMode(TMaybe<NTable::ECollectQueryStatsMode> mode) {
-    if (mode) {
+inline Ydb::Table::QueryStatsCollection::Mode GetStatsCollectionMode(std::optional<NTable::ECollectQueryStatsMode> mode) {
+    if (mode.has_value()) {
         switch (*mode) {
             case NTable::ECollectQueryStatsMode::None:
                 return Ydb::Table::QueryStatsCollection::STATS_COLLECTION_NONE;

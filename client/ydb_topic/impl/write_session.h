@@ -28,16 +28,16 @@ public:
             std::shared_ptr<TGRpcConnectionsImpl> connections,
             TDbDriverStatePtr dbDriverState);
 
-    TMaybe<TWriteSessionEvent::TEvent> GetEvent(bool block = false) override;
+    std::optional<TWriteSessionEvent::TEvent> GetEvent(bool block = false) override;
     std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false,
-                                                  TMaybe<size_t> maxEventsCount = Nothing()) override;
+                                                  std::optional<size_t> maxEventsCount = std::nullopt) override;
     NThreading::TFuture<ui64> GetInitSeqNo() override;
 
     void Write(TContinuationToken&& continuationToken, std::string_view data,
-               TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) override;
+               std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) override;
 
     void WriteEncoded(TContinuationToken&& continuationToken, std::string_view data, ECodec codec, ui32 originalSize,
-               TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) override;
+               std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) override;
 
     void Write(TContinuationToken&& continuationToken, TWriteMessage&& message) override;
 
@@ -67,7 +67,7 @@ public:
             std::shared_ptr<TGRpcConnectionsImpl> connections,
             TDbDriverStatePtr dbDriverState);
 
-    bool Write(std::string_view data, TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing(),
+    bool Write(std::string_view data, std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt,
                const TDuration& blockTimeout = TDuration::Max()) override;
 
     bool Write(TWriteMessage&& message, const TDuration& blockTimeout = TDuration::Max()) override;
@@ -83,7 +83,7 @@ protected:
     std::shared_ptr<TWriteSession> Writer;
 
 private:
-    TMaybe<TContinuationToken> WaitForToken(const TDuration& timeout);
+    std::optional<TContinuationToken> WaitForToken(const TDuration& timeout);
     void HandleAck(TWriteSessionEvent::TAcksEvent&);
     void HandleReady(TWriteSessionEvent::TReadyToAcceptEvent&);
     void HandleClosed(const TSessionClosedEvent&);

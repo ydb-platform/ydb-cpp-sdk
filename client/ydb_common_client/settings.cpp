@@ -4,8 +4,8 @@
 
 namespace NYdb {
 
-TCommonClientSettings& TCommonClientSettings::AuthToken(const TMaybe<std::string>& token) {
-    return CredentialsProviderFactory(CreateOAuthCredentialsProviderFactory(token.GetRef()));
+TCommonClientSettings& TCommonClientSettings::AuthToken(const std::optional<std::string>& token) {
+    return CredentialsProviderFactory(CreateOAuthCredentialsProviderFactory(token.value()));
 }
 
 TCommonClientSettings GetClientSettingsFromConnectionString(const std::string& connectionString) {
