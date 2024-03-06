@@ -770,7 +770,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         std::shared_ptr<IReadSession> session =                         \
             setup.GetPersQueueClient().CreateReadSession(settings);     \
         session->WaitEvent().Wait();                                    \
-        std::optional<TReadSessionEvent::TEvent> event =                       \
+        std::optional<TReadSessionEvent::TEvent> event =                \
             session->GetEvent(true);                                    \
         UNIT_ASSERT(event);                                             \
         Cerr << DebugString(*event) << Endl;                            \

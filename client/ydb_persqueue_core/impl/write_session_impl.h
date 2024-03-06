@@ -77,7 +77,7 @@ public:
                     break;
                 }
             }
-            if (CloseEvent && Events.empty() && (!(maxEventsCount.has_value()) || eventInfos.size() < *maxEventsCount)) {
+            if (CloseEvent && Events.empty() && (!maxEventsCount.has_value() || eventInfos.size() < *maxEventsCount)) {
                 eventInfos.push_back({*CloseEvent});
             }
         }

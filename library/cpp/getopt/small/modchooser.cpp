@@ -357,7 +357,7 @@ int TMainClassModes::Run(int argc, const char** argv) {
 }
 
 const TModChooser& TMainClassModes::GetSubModes() {
-    if (!(Modes_.has_value())) {
+    if (!Modes_.has_value()) {
         Modes_.emplace();
         RegisterModes(Modes_.value());
     }
