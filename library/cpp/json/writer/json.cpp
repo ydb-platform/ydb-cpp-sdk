@@ -21,8 +21,8 @@ namespace NJsonWriter {
                  mode == HEM_RELAXED ||
                  mode == HEM_UNSAFE);
         if (!Stream) {
-            StringStream.Reset(new TStringStream);
-            Stream = StringStream.Get();
+            StringStream.reset(new TStringStream);
+            Stream = StringStream.get();
         }
 
         Stack.reserve(64); // should be enough for most cases

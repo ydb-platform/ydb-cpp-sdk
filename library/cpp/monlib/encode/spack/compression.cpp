@@ -348,32 +348,32 @@ namespace NMonitoring {
 
     }
 
-    THolder<IInputStream> CompressedInput(IInputStream* in, ECompression alg) {
+    std::unique_ptr<IInputStream> CompressedInput(IInputStream* in, ECompression alg) {
         switch (alg) {
             case ECompression::IDENTITY:
                 return nullptr;
             case ECompression::ZLIB:
-                return MakeHolder<TFramedDecompressStream<TZlibCodec, TAdler32>>(in);
+                return std::make_unique<TFramedDecompressStream<TZlibCodec, TAdler32>>(in);
             case ECompression::ZSTD:
-                return MakeHolder<TFramedDecompressStream<TZstdCodec, TXxHash32>>(in);
+                return std::make_unique<TFramedDecompressStream<TZstdCodec, TXxHash32>>(in);
             case ECompression::LZ4:
-                return MakeHolder<TFramedDecompressStream<TLz4Codec, TXxHash32>>(in);
+                return std::make_unique<TFramedDecompressStream<TLz4Codec, TXxHash32>>(in);
             case ECompression::UNKNOWN:
                 return nullptr;
         }
         Y_ABORT("invalid compression algorithm");
     }
 
-    THolder<IFramedCompressStream> CompressedOutput(IOutputStream* out, ECompression alg) {
+    std::unique_ptr<IFramedCompressStream> CompressedOutput(IOutputStream* out, ECompression alg) {
         switch (alg) {
             case ECompression::IDENTITY:
                 return nullptr;
             case ECompression::ZLIB:
-                return MakeHolder<TFramedCompressStream<TZlibCodec, TAdler32>>(out);
+                return std::make_unique<TFramedCompressStream<TZlibCodec, TAdler32>>(out);
             case ECompression::ZSTD:
-                return MakeHolder<TFramedCompressStream<TZstdCodec, TXxHash32>>(out);
+                return std::make_unique<TFramedCompressStream<TZstdCodec, TXxHash32>>(out);
             case ECompression::LZ4:
-                return MakeHolder<TFramedCompressStream<TLz4Codec, TXxHash32>>(out);
+                return std::make_unique<TFramedCompressStream<TLz4Codec, TXxHash32>>(out);
             case ECompression::UNKNOWN:
                 return nullptr;
         }

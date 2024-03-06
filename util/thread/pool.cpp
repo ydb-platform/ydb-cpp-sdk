@@ -607,20 +607,20 @@ TSimpleThreadPool::~TSimpleThreadPool() {
 }
 
 bool TSimpleThreadPool::Add(IObjectInQueue* obj) {
-    Y_ENSURE_EX(Slave_.Get(), TThreadPoolException() << TStringBuf("mtp queue not started"));
+    Y_ENSURE_EX(Slave_.get(), TThreadPoolException() << TStringBuf("mtp queue not started"));
 
     return Slave_->Add(obj);
 }
 
 void TSimpleThreadPool::Start(size_t thrnum, size_t maxque) {
-    THolder<IThreadPool> tmp;
+    std::unique_ptr<IThreadPool> tmp;
     TAdaptiveThreadPool* adaptive(nullptr);
 
     if (thrnum) {
-        tmp.Reset(new TThreadPoolBinder<TThreadPool, TSimpleThreadPool>(this, Params));
+        tmp.reset(new TThreadPoolBinder<TThreadPool, TSimpleThreadPool>(this, Params));
     } else {
         adaptive = new TThreadPoolBinder<TAdaptiveThreadPool, TSimpleThreadPool>(this, Params);
-        tmp.Reset(adaptive);
+        tmp.reset(adaptive);
     }
 
     tmp->Start(thrnum, maxque);
@@ -629,15 +629,15 @@ void TSimpleThreadPool::Start(size_t thrnum, size_t maxque) {
         adaptive->SetMaxIdleTime(TDuration::Seconds(100));
     }
 
-    Slave_.Swap(tmp);
+    Slave_.swap(tmp);
 }
 
 void TSimpleThreadPool::Stop() noexcept {
-    Slave_.Destroy();
+    Slave_.release();
 }
 
 size_t TSimpleThreadPool::Size() const noexcept {
-    if (Slave_.Get()) {
+    if (Slave_.get()) {
         return Slave_->Size();
     }
 
@@ -763,12 +763,12 @@ IThread* IThreadPool::DoCreate() {
     return new TPoolThread(this);
 }
 
-THolder<IThreadPool> CreateThreadPool(size_t threadsCount, size_t queueSizeLimit, const TThreadPoolParams& params) {
-    THolder<IThreadPool> queue;
+std::unique_ptr<IThreadPool> CreateThreadPool(size_t threadsCount, size_t queueSizeLimit, const TThreadPoolParams& params) {
+    std::unique_ptr<IThreadPool> queue;
     if (threadsCount > 1) {
-        queue.Reset(new TThreadPool(params));
+        queue.reset(new TThreadPool(params));
     } else {
-        queue.Reset(new TFakeThreadPool());
+        queue.reset(new TFakeThreadPool());
     }
     queue->Start(threadsCount, queueSizeLimit);
     return queue;

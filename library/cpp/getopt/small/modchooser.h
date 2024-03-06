@@ -127,7 +127,7 @@ public:
         std::vector<const TMode*> ret;
         ret.reserve(UnsortedModes.size());
         for (auto& mode : UnsortedModes) {
-            ret.push_back(mode.Get());
+            ret.push_back(mode.get());
         }
         return ret;
     }
@@ -144,7 +144,7 @@ private:
     std::string ModesHelpOption;
 
     //! Wrappers around all modes.
-    std::vector<THolder<TMainClass>> Wrappers;
+    std::vector<std::unique_ptr<TMainClass>> Wrappers;
 
     //! Modes
     std::map<std::string, TMode*> Modes;
@@ -167,10 +167,10 @@ private:
     std::string SeparationString;
 
     //! Unsorted list of options
-    std::vector<THolder<TMode>> UnsortedModes;
+    std::vector<std::unique_ptr<TMode>> UnsortedModes;
 
     //! Mode that generates completions
-    THolder<TMainClass> CompletionsGenerator;
+    std::unique_ptr<TMainClass> CompletionsGenerator;
 
     /*! Help message always output to StdErr
      *

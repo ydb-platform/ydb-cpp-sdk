@@ -12,7 +12,7 @@ extern "C" int LLVMFuzzerTestOneInput(const ui8* data, size_t size) {
     auto encoder = EncoderFake();
 
     try {
-        DecodeSpackV1(&min, encoder.Get());
+        DecodeSpackV1(&min, encoder.get());
     } catch (...) {
     }
 

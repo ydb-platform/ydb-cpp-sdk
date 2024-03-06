@@ -17,7 +17,7 @@ namespace NMonitoring {
         virtual void Reset() = 0;
     };
 
-    using IExpMovingAveragePtr = THolder<IExpMovingAverage>;
+    using IExpMovingAveragePtr = std::unique_ptr<IExpMovingAverage>;
 
     class TEwmaMeter {
     public:

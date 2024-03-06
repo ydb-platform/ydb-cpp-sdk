@@ -1,6 +1,6 @@
 #include "equeue.h"
 
-TElasticQueue::TElasticQueue(THolder<IThreadPool> slaveQueue)
+TElasticQueue::TElasticQueue(std::unique_ptr<IThreadPool> slaveQueue)
     : SlaveQueue_(std::move(slaveQueue))
 {
 }

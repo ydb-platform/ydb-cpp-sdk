@@ -18,10 +18,10 @@ struct TDumper<TAutoPtr<T, D>> {
 };
 
 template <class T, class D>
-struct TDumper<THolder<T, D>> {
+struct TDumper<std::unique_ptr<T, D>> {
     template <class S>
-    static inline void Dump(S& s, const THolder<T, D>& v) {
-        s << DumpRaw("THolder(") << v.Get() << DumpRaw(")");
+    static inline void Dump(S& s, const std::unique_ptr<T, D>& v) {
+        s << DumpRaw("std::unique_ptr(") << v.Get() << DumpRaw(")");
     }
 };
 

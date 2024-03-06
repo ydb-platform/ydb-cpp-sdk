@@ -329,7 +329,7 @@ public:
     size_t Size() const noexcept override;
 
 private:
-    THolder<IThreadPool> Slave_;
+    std::unique_ptr<IThreadPool> Slave_;
 };
 
 /**
@@ -377,8 +377,8 @@ private:
     TSlave* Slave_;
 };
 
-inline void Delete(THolder<IThreadPool> q) {
-    if (q.Get()) {
+inline void Delete(std::unique_ptr<IThreadPool> q) {
+    if (q.get()) {
         q->Stop();
     }
 }
@@ -387,4 +387,4 @@ inline void Delete(THolder<IThreadPool> q) {
  * Creates and starts TThreadPool if threadsCount > 1, or TFakeThreadPool otherwise
  * You could specify blocking and catching modes for TThreadPool only
  */
-THolder<IThreadPool> CreateThreadPool(size_t threadCount, size_t queueSizeLimit = 0, const IThreadPool::TParams& params = {});
+std::unique_ptr<IThreadPool> CreateThreadPool(size_t threadCount, size_t queueSizeLimit = 0, const IThreadPool::TParams& params = {});

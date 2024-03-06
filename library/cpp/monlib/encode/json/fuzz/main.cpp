@@ -8,7 +8,7 @@ extern "C" int LLVMFuzzerTestOneInput(const ui8* data, size_t size) {
     auto encoder = NMonitoring::EncoderFake();
 
     try {
-        NMonitoring::DecodeJson({reinterpret_cast<const char*>(data), size}, encoder.Get());
+        NMonitoring::DecodeJson({reinterpret_cast<const char*>(data), size}, encoder.get());
     } catch (...) {
     }
 

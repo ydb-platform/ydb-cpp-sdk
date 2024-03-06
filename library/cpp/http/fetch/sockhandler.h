@@ -81,7 +81,7 @@ public:
                     continue;
                 }
 
-                Socket.Reset(new TSocket(s.Release()));
+                Socket.reset(new TSocket(s.Release()));
                 Socket->SetSocketTimeout(timeout.Seconds(), timeout.MilliSecondsOfSecond());
                 Socket->SetZeroLinger();
                 Socket->SetKeepAlive(true);
@@ -97,11 +97,11 @@ public:
         if (!Socket)
             return;
         Socket->ShutDown(SHUT_RDWR);
-        Socket.Destroy();
+        Socket.release();
     }
 
     void SetSocket(SOCKET fd) {
-        Socket.Reset(new TSocket(fd));
+        Socket.reset(new TSocket(fd));
     }
 
     void shutdown() {
@@ -121,10 +121,10 @@ public:
         return Socket->Recv(buffer, buflen);
     }
 
-    THolder<TSocket> PickOutSocket() {
+    std::unique_ptr<TSocket> PickOutSocket() {
         return std::move(Socket);
     }
 
 protected:
-    THolder<TSocket> Socket;
+    std::unique_ptr<TSocket> Socket;
 };

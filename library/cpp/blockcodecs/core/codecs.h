@@ -72,7 +72,7 @@ namespace NBlockCodecs {
         size_t GetDecompressedLength(const TData& in) const;
     };
 
-    using TCodecPtr = THolder<ICodec>;
+    using TCodecPtr = std::unique_ptr<ICodec>;
 
     const ICodec* Codec(const std::string_view& name);
 

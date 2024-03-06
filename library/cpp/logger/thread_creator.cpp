@@ -1,12 +1,12 @@
 #include "thread_creator.h"
 #include "thread.h"
 
-TOwningThreadedLogBackendCreator::TOwningThreadedLogBackendCreator(THolder<ILogBackendCreator>&& slave)
+TOwningThreadedLogBackendCreator::TOwningThreadedLogBackendCreator(std::unique_ptr<ILogBackendCreator>&& slave)
     : Slave(std::move(slave))
 {}
 
-THolder<TLogBackend> TOwningThreadedLogBackendCreator::DoCreateLogBackend() const {
-    return MakeHolder<TOwningThreadedLogBackend>(Slave->CreateLogBackend().Release(), QueueLen, QueueOverflowCallback);
+std::unique_ptr<TLogBackend> TOwningThreadedLogBackendCreator::DoCreateLogBackend() const {
+    return std::make_unique<TOwningThreadedLogBackend>(Slave->CreateLogBackend().release(), QueueLen, QueueOverflowCallback);
 }
 
 bool TOwningThreadedLogBackendCreator::Init(const IInitContext& ctx) {

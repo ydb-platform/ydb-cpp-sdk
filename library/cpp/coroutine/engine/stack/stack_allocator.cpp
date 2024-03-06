@@ -3,21 +3,21 @@
 
 namespace NCoro::NStack {
 
-    THolder<IAllocator> GetAllocator(TMaybe<TPoolAllocatorSettings> poolSettings, EGuard guardType) {
-        THolder<IAllocator> allocator;
+    std::unique_ptr<IAllocator> GetAllocator(TMaybe<TPoolAllocatorSettings> poolSettings, EGuard guardType) {
+        std::unique_ptr<IAllocator> allocator;
         if (poolSettings) {
             if (guardType == EGuard::Canary) {
-                allocator = MakeHolder<TPoolAllocator<TCanaryGuard>>(*poolSettings);
+                allocator = std::make_unique<TPoolAllocator<TCanaryGuard>>(*poolSettings);
             } else {
                 Y_ASSERT(guardType == EGuard::Page);
-                allocator = MakeHolder<TPoolAllocator<TPageGuard>>(*poolSettings);
+                allocator = std::make_unique<TPoolAllocator<TPageGuard>>(*poolSettings);
             }
         } else {
             if (guardType == EGuard::Canary) {
-                allocator = MakeHolder<TSimpleAllocator<TCanaryGuard>>();
+                allocator = std::make_unique<TSimpleAllocator<TCanaryGuard>>();
             } else {
                 Y_ASSERT(guardType == EGuard::Page);
-                allocator = MakeHolder<TSimpleAllocator<TPageGuard>>();
+                allocator = std::make_unique<TSimpleAllocator<TPageGuard>>();
             }
         }
         return allocator;

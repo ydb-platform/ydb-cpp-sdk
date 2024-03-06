@@ -103,7 +103,7 @@ namespace NMonitoring {
                 // if compression enabled all below writes must go throught compressor
                 auto compressedOut = CompressedOutput(Out_, Compression_);
                 if (compressedOut) {
-                    Out_ = compressedOut.Get();
+                    Out_ = compressedOut.get();
                 }
 
                 // (2) write string pools
@@ -302,7 +302,7 @@ namespace NMonitoring {
         ECompression compression,
         EMetricsMergingMode mergingMode
     ) {
-        return MakeHolder<TEncoderSpackV1>(out, timePrecision, compression, mergingMode, SV1_01, "");
+        return std::make_unique<TEncoderSpackV1>(out, timePrecision, compression, mergingMode, SV1_01, "");
     }
 
     IMetricEncoderPtr EncoderSpackV12(
@@ -313,6 +313,6 @@ namespace NMonitoring {
         std::string_view metricNameLabel
     ) {
         Y_ENSURE(!metricNameLabel.empty(), "metricNameLabel can't be empty");
-        return MakeHolder<TEncoderSpackV1>(out, timePrecision, compression, mergingMode, SV1_02, metricNameLabel);
+        return std::make_unique<TEncoderSpackV1>(out, timePrecision, compression, mergingMode, SV1_02, metricNameLabel);
     }
 }

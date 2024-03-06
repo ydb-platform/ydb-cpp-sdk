@@ -421,7 +421,7 @@ namespace NMonitoring {
     }
 
     IMetricEncoderPtr EncoderPrometheus(IOutputStream* out, std::string_view metricNameLabel) {
-        return MakeHolder<TPrometheusEncoder>(out, metricNameLabel);
+        return std::make_unique<TPrometheusEncoder>(out, metricNameLabel);
     }
 
 } // namespace NMonitoring
