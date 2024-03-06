@@ -1,9 +1,10 @@
 #pragma once
 
-#include <util/generic/maybe.h>
 #include <util/generic/ptr.h>
 #include <util/stream/input.h>
 #include <util/stream/output.h>
+
+#include <optional>
 
 class TOpenSslClientIO: public IInputStream, public IOutputStream {
 public:
@@ -20,8 +21,8 @@ public:
             std::string PrivateKeyPassword_;
         };
 
-        TMaybe<TVerifyCert> VerifyCert_;
-        TMaybe<TClientCert> ClientCert_;
+        std::optional<TVerifyCert> VerifyCert_;
+        std::optional<TClientCert> ClientCert_;
         // TODO - keys, cyphers, etc
     };
 

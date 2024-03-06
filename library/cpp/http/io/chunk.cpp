@@ -46,14 +46,14 @@ static inline char* ToHex(size_t len, char* buf) {
 
 class TChunkedInput::TImpl {
 public:
-    inline TImpl(IInputStream* slave, TMaybe<THttpHeaders>* trailers)
+    inline TImpl(IInputStream* slave, std::optional<THttpHeaders>* trailers)
         : Slave_(slave)
         , Trailers_(trailers)
         , Pending_(0)
         , LastChunkReaded_(false)
     {
         if (Trailers_) {
-            Trailers_->Clear();
+            Trailers_->reset();
         }
     }
 
@@ -124,7 +124,7 @@ private:
         }
 
         if (Trailers_) {
-            Trailers_->ConstructInPlace(Slave_);
+            Trailers_->emplace(Slave_);
         }
         LastChunkReaded_ = true;
 
@@ -133,12 +133,12 @@ private:
 
 private:
     IInputStream* Slave_;
-    TMaybe<THttpHeaders>* Trailers_;
+    std::optional<THttpHeaders>* Trailers_;
     size_t Pending_;
     bool LastChunkReaded_;
 };
 
-TChunkedInput::TChunkedInput(IInputStream* slave, TMaybe<THttpHeaders>* trailers)
+TChunkedInput::TChunkedInput(IInputStream* slave, std::optional<THttpHeaders>* trailers)
     : Impl_(new TImpl(slave, trailers))
 {
 }

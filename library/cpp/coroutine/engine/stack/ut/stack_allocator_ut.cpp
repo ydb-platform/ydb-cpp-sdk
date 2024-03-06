@@ -19,7 +19,7 @@ namespace NCoro::NStack::Tests {
         EAllocator allocType;
         std::tie(guardType, allocType) = GetParam();
 
-        TMaybe<TPoolAllocatorSettings> poolSettings;
+        std::optional<TPoolAllocatorSettings> poolSettings;
         if (allocType == EAllocator::Pool) {
             poolSettings = TPoolAllocatorSettings{};
         }
@@ -69,13 +69,13 @@ namespace NCoro::NStack::Tests {
 
     template<>
     std::unique_ptr<IAllocator> GetAllocator<TPoolTag>(EGuard guardType) {
-        TMaybe<TPoolAllocatorSettings> poolSettings = TPoolAllocatorSettings{};
+        std::optional<TPoolAllocatorSettings> poolSettings = TPoolAllocatorSettings{};
         return GetAllocator(poolSettings, guardType);
     }
 
     template<>
     std::unique_ptr<IAllocator> GetAllocator<TSimpleTag>(EGuard guardType) {
-        TMaybe<TPoolAllocatorSettings> poolSettings;
+        std::optional<TPoolAllocatorSettings> poolSettings;
         return GetAllocator(poolSettings, guardType);
     }
 

@@ -10,18 +10,18 @@ namespace NScripting {
 class TExecuteYqlResult : public TStatus {
 public:
     TExecuteYqlResult(TStatus&& status, std::vector<TResultSet>&& resultSets,
-        const TMaybe<NTable::TQueryStats>& queryStats);
+        const std::optional<NTable::TQueryStats>& queryStats);
 
     const std::vector<TResultSet>& GetResultSets() const;
     TResultSet GetResultSet(size_t resultIndex) const;
 
     TResultSetParser GetResultSetParser(size_t resultIndex) const;
 
-    const TMaybe<NTable::TQueryStats>& GetStats() const;
+    const std::optional<NTable::TQueryStats>& GetStats() const;
 
 private:
     std::vector<TResultSet> ResultSets_;
-    TMaybe<NTable::TQueryStats> QueryStats_;
+    std::optional<NTable::TQueryStats> QueryStats_;
 };
 
 class TYqlPartialResult {
@@ -41,10 +41,10 @@ private:
 
 class TYqlResultPart : public TStreamPartStatus {
 public:
-    bool HasPartialResult() const { return PartialResult_.Defined(); }
+    bool HasPartialResult() const { return PartialResult_.has_value(); }
     const TYqlPartialResult& GetPartialResult() const { return *PartialResult_; }
 
-    bool HasQueryStats() const { return QueryStats_.Defined(); }
+    bool HasQueryStats() const { return QueryStats_.has_value(); }
     const NTable::TQueryStats& GetQueryStats() const { return *QueryStats_; }
     NTable::TQueryStats ExtractQueryStats() { return std::move(*QueryStats_); }
 
@@ -52,20 +52,20 @@ public:
         : TStreamPartStatus(std::move(status))
     {}
 
-    TYqlResultPart(TStatus&& status, const TMaybe<NTable::TQueryStats> &queryStats)
+    TYqlResultPart(TStatus&& status, const std::optional<NTable::TQueryStats> &queryStats)
         : TStreamPartStatus(std::move(status))
         , QueryStats_(queryStats)
     {}
 
-    TYqlResultPart(TStatus&& status, TYqlPartialResult&& partialResult, const TMaybe<NTable::TQueryStats> &queryStats)
+    TYqlResultPart(TStatus&& status, TYqlPartialResult&& partialResult, const std::optional<NTable::TQueryStats> &queryStats)
         : TStreamPartStatus(std::move(status))
         , PartialResult_(std::move(partialResult))
         , QueryStats_(queryStats)
     {}
 
 private:
-    TMaybe<TYqlPartialResult> PartialResult_;
-    TMaybe<NTable::TQueryStats> QueryStats_;
+    std::optional<TYqlPartialResult> PartialResult_;
+    std::optional<NTable::TQueryStats> QueryStats_;
 };
 
 using TAsyncYqlResultPart = NThreading::TFuture<TYqlResultPart>;

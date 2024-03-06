@@ -11,7 +11,6 @@
 
 #include <util/datetime/base.h>
 #include <util/generic/hash.h>
-#include <util/generic/maybe.h>
 #include <util/generic/ptr.h>
 #include <util/generic/size_literals.h>
 #include <util/thread/pool.h>
@@ -156,18 +155,18 @@ public:
     const std::vector<ui64> GetChildPartitionIds() const;
     const std::vector<ui64> GetParentPartitionIds() const;
 
-    const TMaybe<TPartitionStats>& GetPartitionStats() const;
-    const TMaybe<TPartitionConsumerStats>& GetPartitionConsumerStats() const;
-    const TMaybe<TPartitionLocation>& GetPartitionLocation() const;
+    const std::optional<TPartitionStats>& GetPartitionStats() const;
+    const std::optional<TPartitionConsumerStats>& GetPartitionConsumerStats() const;
+    const std::optional<TPartitionLocation>& GetPartitionLocation() const;
 
 private:
     ui64 PartitionId_;
     bool Active_;
     std::vector<ui64> ChildPartitionIds_;
     std::vector<ui64> ParentPartitionIds_;
-    TMaybe<TPartitionStats> PartitionStats_;
-    TMaybe<TPartitionConsumerStats> PartitionConsumerStats_;
-    TMaybe<TPartitionLocation> PartitionLocation_;
+    std::optional<TPartitionStats> PartitionStats_;
+    std::optional<TPartitionConsumerStats> PartitionConsumerStats_;
+    std::optional<TPartitionLocation> PartitionLocation_;
 };
 
 class TPartitioningSettings {
@@ -210,7 +209,7 @@ public:
 
     const TDuration& GetRetentionPeriod() const;
 
-    TMaybe<ui64> GetRetentionStorageMb() const;
+    std::optional<ui64> GetRetentionStorageMb() const;
 
     ui64 GetPartitionWriteSpeedBytesPerSecond() const;
 
@@ -234,7 +233,7 @@ private:
     std::vector<ECodec> SupportedCodecs_;
     TPartitioningSettings PartitioningSettings_;
     TDuration RetentionPeriod_;
-    TMaybe<ui64> RetentionStorageMb_;
+    std::optional<ui64> RetentionStorageMb_;
     ui64 PartitionWriteSpeedBytesPerSecond_;
     ui64 PartitionWriteBurstBytes_;
     EMeteringMode MeteringMode_;
@@ -999,7 +998,7 @@ struct TReadSessionEvent {
         //! Confirm partition session creation.
         //! This signals that user is ready to receive data from this partition session.
         //! If maybe is empty then no rewinding
-        void Confirm(TMaybe<ui64> readOffset = Nothing(), TMaybe<ui64> commitOffset = Nothing());
+        void Confirm(std::optional<ui64> readOffset = std::nullopt, std::optional<ui64> commitOffset = std::nullopt);
 
     private:
         ui64 CommittedOffset;
@@ -1236,7 +1235,7 @@ struct TWriteSessionEvent {
         ui64 SeqNo;
         EEventState State;
         //! Filled only for EES_WRITTEN. Empty for ALREADY and DISCARDED.
-        TMaybe<TWrittenMessageDetails> Details;
+        std::optional<TWrittenMessageDetails> Details;
         //! Write stats from server. See TWriteStat. nullptr for DISCARDED event.
         TWriteStat::TPtr Stat;
     };
@@ -1594,7 +1593,7 @@ public:
     }
 
     bool Compressed() const {
-        return Codec.Defined();
+        return Codec.has_value();
     }
 
     //! Message body.
@@ -1603,7 +1602,7 @@ public:
     //! Codec and original size for compressed message.
     //! Do not specify or change these options directly, use CompressedMessage()
     //! method to create an object for compressed message.
-    TMaybe<ECodec> Codec;
+    std::optional<ECodec> Codec;
     ui32 OriginalSize = 0;
 
     //! Message SeqNo, optional. If not provided SDK core will calculate SeqNo automatically.
@@ -1635,7 +1634,7 @@ public:
 
 
     //! Write single message. Deprecated method with only basic message options.
-    virtual bool Write(std::string_view data, TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing(),
+    virtual bool Write(std::string_view data, std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt,
                        const TDuration& blockTimeout = TDuration::Max()) = 0;
 
     //! Blocks till SeqNo is discovered from server. Returns 0 in case of failure on init.
@@ -1663,13 +1662,13 @@ public:
     virtual NThreading::TFuture<void> WaitEvent() = 0;
 
     //! Wait and return next event. Use WaitEvent() for non-blocking wait.
-    virtual TMaybe<TWriteSessionEvent::TEvent> GetEvent(bool block = false) = 0;
+    virtual std::optional<TWriteSessionEvent::TEvent> GetEvent(bool block = false) = 0;
 
     //! Get several events in one call.
     //! If blocking = false, instantly returns up to maxEventsCount available events.
     //! If blocking = true, blocks till maxEventsCount events are available.
     //! If maxEventsCount is unset, write session decides the count to return itself.
-    virtual std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing()) = 0;
+    virtual std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false, std::optional<size_t> maxEventsCount = std::nullopt) = 0;
 
     //! Future that is set when initial SeqNo is available.
     virtual NThreading::TFuture<ui64> GetInitSeqNo() = 0;
@@ -1679,8 +1678,8 @@ public:
     virtual void Write(TContinuationToken&& continuationToken, TWriteMessage&& message) = 0;
 
     //! Write single message. Old method with only basic message options.
-    virtual void Write(TContinuationToken&& continuationToken, std::string_view data, TMaybe<ui64> seqNo = Nothing(),
-                       TMaybe<TInstant> createTimestamp = Nothing()) = 0;
+    virtual void Write(TContinuationToken&& continuationToken, std::string_view data, std::optional<ui64> seqNo = std::nullopt,
+                       std::optional<TInstant> createTimestamp = std::nullopt) = 0;
 
     //! Write single message that is already coded by codec.
     //! continuationToken - a token earlier provided to client with ReadyToAccept event.
@@ -1688,7 +1687,7 @@ public:
 
     //! Write single message that is already compressed by codec. Old method with only basic message options.
     virtual void WriteEncoded(TContinuationToken&& continuationToken, std::string_view data, ECodec codec, ui32 originalSize,
-                              TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) = 0;
+                              std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) = 0;
 
 
     //! Wait for all writes to complete (no more that closeTimeout()), than close. Empty maybe - means infinite timeout.
@@ -1727,16 +1726,16 @@ public:
     //!
     //! If maxEventsCount is not specified,
     //! read session chooses event batch size automatically.
-    virtual std::vector<TReadSessionEvent::TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing(),
+    virtual std::vector<TReadSessionEvent::TEvent> GetEvents(bool block = false, std::optional<size_t> maxEventsCount = std::nullopt,
                                                          size_t maxByteSize = std::numeric_limits<size_t>::max()) = 0;
 
     virtual std::vector<TReadSessionEvent::TEvent> GetEvents(const TReadSessionGetEventSettings& settings) = 0;
 
     //! Get single event.
-    virtual TMaybe<TReadSessionEvent::TEvent> GetEvent(bool block = false,
+    virtual std::optional<TReadSessionEvent::TEvent> GetEvent(bool block = false,
                                                        size_t maxByteSize = std::numeric_limits<size_t>::max()) = 0;
 
-    virtual TMaybe<TReadSessionEvent::TEvent> GetEvent(const TReadSessionGetEventSettings& settings) = 0;
+    virtual std::optional<TReadSessionEvent::TEvent> GetEvent(const TReadSessionGetEventSettings& settings) = 0;
 
     //! Close read session.
     //! Waits for all commit acknowledgments to arrive.

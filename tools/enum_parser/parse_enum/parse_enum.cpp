@@ -56,7 +56,7 @@ public:
     void AddEnumItem() {
         if (CurrentItem.CppName.empty()) {
             // uninitialized element should have no value too
-            Y_ASSERT(!CurrentItem.Value.Defined());
+            Y_ASSERT(!CurrentItem.Value.has_value());
             return;
         }
 
