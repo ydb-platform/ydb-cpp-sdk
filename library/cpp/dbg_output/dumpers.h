@@ -18,7 +18,6 @@ struct TDumper<std::unique_ptr<T, D>> {
     }
 };
 
-
 template <class T, class Ops>
 struct TDumper<TIntrusivePtr<T, Ops>> {
     template <class S>
