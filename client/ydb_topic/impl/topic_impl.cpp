@@ -9,7 +9,7 @@
 namespace NYdb::NTopic {
 
 std::shared_ptr<IReadSession> TTopicClient::TImpl::CreateReadSession(const TReadSessionSettings& settings) {
-    TMaybe<TReadSessionSettings> maybeSettings;
+    std::optional<TReadSessionSettings> maybeSettings;
     if (!settings.DecompressionExecutor_ || !settings.EventHandlers_.HandlersExecutor_) {
         maybeSettings = settings;
         with_lock (Lock) {
@@ -21,7 +21,7 @@ std::shared_ptr<IReadSession> TTopicClient::TImpl::CreateReadSession(const TRead
             }
         }
     }
-    auto session = std::make_shared<TReadSession>(maybeSettings.GetOrElse(settings), shared_from_this(), Connections_, DbDriverState_);
+    auto session = std::make_shared<TReadSession>(maybeSettings.value_or(settings), shared_from_this(), Connections_, DbDriverState_);
     session->Start();
     return std::move(session);
 }
@@ -29,7 +29,7 @@ std::shared_ptr<IReadSession> TTopicClient::TImpl::CreateReadSession(const TRead
 std::shared_ptr<IWriteSession> TTopicClient::TImpl::CreateWriteSession(
         const TWriteSessionSettings& settings
 ) {
-    TMaybe<TWriteSessionSettings> maybeSettings;
+    std::optional<TWriteSessionSettings> maybeSettings;
     if (!settings.CompressionExecutor_ || !settings.EventHandlers_.HandlersExecutor_) {
         maybeSettings = settings;
         with_lock (Lock) {
@@ -42,7 +42,7 @@ std::shared_ptr<IWriteSession> TTopicClient::TImpl::CreateWriteSession(
         }
     }
     auto session = std::make_shared<TWriteSession>(
-            maybeSettings.GetOrElse(settings), shared_from_this(), Connections_, DbDriverState_
+            maybeSettings.value_or(settings), shared_from_this(), Connections_, DbDriverState_
     );
     session->Start(TDuration::Zero());
     return std::move(session);

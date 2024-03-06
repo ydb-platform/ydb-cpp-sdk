@@ -14,7 +14,6 @@
 #include <util/generic/ptr.h>
 #include <util/generic/intrlist.h>
 #include <util/datetime/base.h>
-#include <util/generic/maybe.h>
 #include <util/generic/function.h>
 
 
@@ -173,7 +172,7 @@ public:
         NCoro::IScheduleCallback* = nullptr,
         NCoro::IEnterPollerCallback* = nullptr,
         NCoro::NStack::EGuard stackGuard = NCoro::NStack::EGuard::Canary,
-        TMaybe<NCoro::NStack::TPoolAllocatorSettings> poolSettings = Nothing(),
+        std::optional<NCoro::NStack::TPoolAllocatorSettings> poolSettings = std::nullopt,
         NCoro::ITime* time = nullptr
     );
 
@@ -198,7 +197,7 @@ public:
     TCont* Create(
         Functor& f,
         const char* name,
-        TMaybe<ui32> customStackSize = Nothing()
+        std::optional<ui32> customStackSize = std::nullopt
     ) noexcept {
         return Create((TContFunc)ContHelperFunc<Functor>, (void*)&f, name, customStackSize);
     }
@@ -207,7 +206,7 @@ public:
     TCont* Create(
         T* obj,
         const char* name,
-        TMaybe<ui32> customStackSize = Nothing()
+        std::optional<ui32> customStackSize = std::nullopt
     ) noexcept {
         return Create(ContHelperMemberFunc<T, M>, obj, name, customStackSize);
     }
@@ -216,13 +215,13 @@ public:
         TContFunc func,
         void* arg,
         const char* name,
-        TMaybe<ui32> customStackSize = Nothing()
+        std::optional<ui32> customStackSize = std::nullopt
     ) noexcept;
 
     TCont* CreateOwned(
         NCoro::TTrampoline::TFunc func,
         const char* name,
-        TMaybe<ui32> customStackSize = Nothing()
+        std::optional<ui32> customStackSize = std::nullopt
     ) noexcept;
 
     NCoro::TContPoller* Poller() noexcept {

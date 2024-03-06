@@ -2,7 +2,6 @@
 
 #include <util/system/types.h>
 #include <util/generic/hash.h>
-#include <util/generic/maybe.h>
 #include <util/generic/vector.h>
 #include <util/generic/string.h>
 #include <util/generic/strbuf.h>
@@ -345,7 +344,7 @@ public:
 };
 
 TIssue ExceptionToIssue(const std::exception& e, const TPosition& pos = TPosition());
-TMaybe<TPosition> TryParseTerminationMessage(std::string_view& message);
+std::optional<TPosition> TryParseTerminationMessage(std::string_view& message);
 
 } // namespace NYql
 

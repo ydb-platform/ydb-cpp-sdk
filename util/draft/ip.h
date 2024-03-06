@@ -5,7 +5,6 @@
 #include <util/network/ip.h>
 
 #include <util/str_stl.h>
-#include <util/generic/maybe.h>
 #include <util/generic/variant.h>
 
 #ifdef _unix_
@@ -62,11 +61,11 @@ static inline TIp6 Ip6FromString(const char* ipStr) {
     return res;
 }
 
-static inline TMaybe<TIp6> TryParseIp6FromString(const char* ipStr) {
+static inline std::optional<TIp6> TryParseIp6FromString(const char* ipStr) {
     TIp6 res;
 
     if (inet_pton(AF_INET6, ipStr, &res.Data) == 0) {
-        return Nothing();
+        return std::nullopt;
     }
 
     return res;

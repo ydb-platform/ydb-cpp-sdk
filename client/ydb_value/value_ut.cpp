@@ -521,7 +521,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
         UNIT_ASSERT(parser.TryNextElement());
         UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalInt8(), -5);
         UNIT_ASSERT(parser.TryNextElement());
-        UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalDouble(), TMaybe<double>());
+        UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalDouble(), std::optional<double>());
         UNIT_ASSERT(parser.TryNextElement());
         UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalUint64(), (ui64)7);
         UNIT_ASSERT(parser.TryNextElement());

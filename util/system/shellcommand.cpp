@@ -201,7 +201,7 @@ private:
     TThread* WatchThread;
     bool TerminateFlag = false;
 
-    TMaybe<int> ExitCode;
+    std::optional<int> ExitCode;
     TString CollectedOutput;
     TString CollectedError;
     TString InternalError;
@@ -328,7 +328,7 @@ public:
         return static_cast<ECommandStatus>(ExecutionStatus.load(std::memory_order_acquire));
     }
 
-    inline TMaybe<int> GetExitCode() const {
+    inline std::optional<int> GetExitCode() const {
         return ExitCode;
     }
 
@@ -1028,7 +1028,7 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
         // Otherwise there is no way for input stream provider to discover
         // that process has exited and stream shouldn't wait for new data.
         bool cleanExit = false;
-        TMaybe<int> processExitCode;
+        std::optional<int> processExitCode;
 #if defined(_unix_)
         processExitCode = WEXITSTATUS(status);
         if (WIFEXITED(status) && processExitCode == 0) {
@@ -1121,7 +1121,7 @@ TShellCommand::ECommandStatus TShellCommand::GetStatus() const {
     return Impl->GetStatus();
 }
 
-TMaybe<int> TShellCommand::GetExitCode() const {
+std::optional<int> TShellCommand::GetExitCode() const {
     return Impl->GetExitCode();
 }
 

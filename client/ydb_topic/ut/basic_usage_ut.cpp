@@ -259,7 +259,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         writeSettings.CompressionExecutor(executor);
 
         ui64 count = 100u;
-        TMaybe<bool> shouldCaptureData = {true};
+        std::optional<bool> shouldCaptureData = {true};
 
         auto& client = setup->GetPersQueueClient();
         auto session = client.CreateSimpleBlockingWriteSession(writeSettings);

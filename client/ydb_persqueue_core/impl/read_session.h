@@ -166,7 +166,7 @@ private:
     std::vector<std::pair<typename IAExecutor<UseMigrationProtocol>::TPtr, typename IAExecutor<UseMigrationProtocol>::TFunction>> ExecutorsTasks;
 
     // Abort session.
-    TMaybe<TASessionClosedEvent<UseMigrationProtocol>> SessionClosedEvent;
+    std::optional<TASessionClosedEvent<UseMigrationProtocol>> SessionClosedEvent;
 
     // Waiters.
     std::vector<TWaiter> Waiters;
@@ -230,7 +230,7 @@ public:
         return ServerBytesSize;
     }
 
-    TMaybe<std::pair<size_t, size_t>> GetReadyThreshold() const {
+    std::optional<std::pair<size_t, size_t>> GetReadyThreshold() const {
         size_t readyCount = 0;
         std::pair<size_t, size_t> ret;
         for (auto i = ReadyThresholds.begin(), end = ReadyThresholds.end(); i != end; ++i) {
@@ -243,7 +243,7 @@ public:
             }
         }
         if (!readyCount) {
-            return Nothing();
+            return std::nullopt;
         }
         return ret;
     }
@@ -393,7 +393,7 @@ struct TReadSessionEventInfo {
     TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> PartitionStream;
     bool HasDataEvents = false;
     size_t EventsCount = 0;
-    TMaybe<TEvent> Event;
+    std::optional<TEvent> Event;
     TCallbackContextPtr<UseMigrationProtocol> CbContext;
 
     // Close event.
@@ -611,7 +611,7 @@ public:
     void Commit(ui64 startOffset, ui64 endOffset) /*override*/;
     void RequestStatus() override;
 
-    void ConfirmCreate(TMaybe<ui64> readOffset, TMaybe<ui64> commitOffset);
+    void ConfirmCreate(std::optional<ui64> readOffset, std::optional<ui64> commitOffset);
     void ConfirmDestroy();
 
     void StopReading() /*override*/;
@@ -766,10 +766,10 @@ public:
 
     std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent>
     GetEvents(bool block = false,
-              TMaybe<size_t> maxEventsCount = Nothing(),
+              std::optional<size_t> maxEventsCount = std::nullopt,
               size_t maxByteSize = std::numeric_limits<size_t>::max());
 
-    TMaybe<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent>
+    std::optional<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent>
     GetEvent(bool block = false,
              size_t maxByteSize = std::numeric_limits<size_t>::max());
 
@@ -960,7 +960,7 @@ public:
     }
 
     void Start();
-    void ConfirmPartitionStreamCreate(const TPartitionStreamImpl<UseMigrationProtocol>* partitionStream, TMaybe<ui64> readOffset, TMaybe<ui64> commitOffset);
+    void ConfirmPartitionStreamCreate(const TPartitionStreamImpl<UseMigrationProtocol>* partitionStream, std::optional<ui64> readOffset, std::optional<ui64> commitOffset);
     void ConfirmPartitionStreamDestroy(TPartitionStreamImpl<UseMigrationProtocol>* partitionStream);
     void RequestPartitionStreamStatus(const TPartitionStreamImpl<UseMigrationProtocol>* partitionStream);
     void Commit(const TPartitionStreamImpl<UseMigrationProtocol>* partitionStream, ui64 startOffset, ui64 endOffset);
@@ -1221,8 +1221,8 @@ public:
     void Start();
 
     NThreading::TFuture<void> WaitEvent() override;
-    std::vector<TReadSessionEvent::TEvent> GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize) override;
-    TMaybe<TReadSessionEvent::TEvent> GetEvent(bool block, size_t maxByteSize) override;
+    std::vector<TReadSessionEvent::TEvent> GetEvents(bool block, std::optional<size_t> maxEventsCount, size_t maxByteSize) override;
+    std::optional<TReadSessionEvent::TEvent> GetEvent(bool block, size_t maxByteSize) override;
 
     bool Close(TDuration timeout) override;
 
