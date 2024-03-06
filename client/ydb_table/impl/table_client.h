@@ -197,7 +197,7 @@ private:
         SetQueryCachePolicy(query, settings, request.mutable_query_cache_policy());
 
         auto promise = NewPromise<TDataQueryResult>();
-        bool keepInCache = settings.KeepInQueryCache_ && settings.KeepInQueryCache_.GetRef();
+        bool keepInCache = settings.KeepInQueryCache_ && settings.KeepInQueryCache_.value();
 
         // We don't want to delay call of TSession dtor, so we can't capture it by copy
         // otherwise we break session pool and other clients logic.
@@ -211,16 +211,16 @@ private:
         auto extractor = [promise, sessionPtr, query, fromCache, keepInCache]
             (google::protobuf::Any* any, TPlainStatus status) mutable {
                 std::vector<TResultSet> res;
-                TMaybe<TTransaction> tx;
-                TMaybe<TDataQuery> dataQuery;
-                TMaybe<TQueryStats> queryStats;
+                std::optional<TTransaction> tx;
+                std::optional<TDataQuery> dataQuery;
+                std::optional<TQueryStats> queryStats;
 
                 auto queryText = GetQueryText(query);
                 if (any) {
                     Ydb::Table::ExecuteQueryResult result;
                     any->UnpackTo(&result);
 
-                    for (size_t i = 0; i < result.result_sets_size(); i++) {
+                    for (size_t i = 0; i < static_cast<size_t>(result.result_sets_size()); i++) {
                         res.push_back(TResultSet(*result.mutable_result_sets(i)));
                     }
 
@@ -248,8 +248,8 @@ private:
                     std::move(res), tx, dataQuery, fromCache, queryStats);
 
                 delete sessionPtr;
-                tx.Clear();
-                dataQuery.Clear();
+                tx.reset();
+                dataQuery.reset();
                 promise.SetValue(std::move(dataQueryResult));
             };
 
@@ -277,9 +277,9 @@ private:
     static void SetQueryCachePolicy(const TDataQuery&, const TExecDataQuerySettings& settings,
         Ydb::Table::QueryCachePolicy* queryCachePolicy);
 
-    static TMaybe<std::string> GetQueryText(const std::string& queryText);
+    static std::optional<std::string> GetQueryText(const std::string& queryText);
 
-    static TMaybe<std::string> GetQueryText(const TDataQuery& queryData);
+    static std::optional<std::string> GetQueryText(const TDataQuery& queryData);
 
 public:
     NSdkStats::TAtomicCounter<::NMonitoring::TRate> CacheMissCounter;

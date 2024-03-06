@@ -90,7 +90,7 @@ void TPartitionStreamImpl<UseMigrationProtocol>::RequestStatus() {
 }
 
 template<bool UseMigrationProtocol>
-void TPartitionStreamImpl<UseMigrationProtocol>::ConfirmCreate(TMaybe<ui64> readOffset, TMaybe<ui64> commitOffset) {
+void TPartitionStreamImpl<UseMigrationProtocol>::ConfirmCreate(std::optional<ui64> readOffset, std::optional<ui64> commitOffset) {
     if (auto sessionShared = CbContext->LockShared()) {
         sessionShared->ConfirmPartitionStreamCreate(this, readOffset, commitOffset);
     }
@@ -295,7 +295,7 @@ bool TSingleClusterReadSessionImpl<UseMigrationProtocol>::Reconnect(const TPlain
             RetryState = Settings.RetryPolicy_->CreateRetryState();
         }
         if (!status.Ok()) {
-            TMaybe<TDuration> nextDelay = RetryState->GetNextRetryDelay(status.Status);
+            std::optional<TDuration> nextDelay = RetryState->GetNextRetryDelay(status.Status);
             if (!nextDelay) {
                 return false;
             }
@@ -572,7 +572,7 @@ bool TSingleClusterReadSessionImpl<UseMigrationProtocol>::IsActualPartitionStrea
 }
 
 template<bool UseMigrationProtocol>
-void TSingleClusterReadSessionImpl<UseMigrationProtocol>::ConfirmPartitionStreamCreate(const TPartitionStreamImpl<UseMigrationProtocol>* partitionStream, TMaybe<ui64> readOffset, TMaybe<ui64> commitOffset) {
+void TSingleClusterReadSessionImpl<UseMigrationProtocol>::ConfirmPartitionStreamCreate(const TPartitionStreamImpl<UseMigrationProtocol>* partitionStream, std::optional<ui64> readOffset, std::optional<ui64> commitOffset) {
     NUtils::TYdbStringBuilder commitOffsetLogStr;
     if (commitOffset) {
         commitOffsetLogStr << ". Commit offset: " << *commitOffset;
@@ -1694,7 +1694,7 @@ void TSingleClusterReadSessionImpl<UseMigrationProtocol>::UpdateMemoryUsageStati
 template<bool UseMigrationProtocol>
 bool TSingleClusterReadSessionImpl<UseMigrationProtocol>::GetRangesMode() const {
     if constexpr (UseMigrationProtocol) {
-        return Settings.RangesMode_.GetOrElse(RangesMode);
+        return Settings.RangesMode_.value_or(RangesMode);
     } else {
         return true;
     }
@@ -2012,7 +2012,7 @@ TReadSessionEventsQueue<UseMigrationProtocol>::GetEventImpl(size_t& maxByteSize,
             Y_ABORT("can't be here - got events in global queue, but nothing in partition queue");
         }
 
-        TMaybe<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent> event;
+        std::optional<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent> event;
         auto frontCbContext = front.CbContext;
         if (partitionStream->TopEvent().IsDataEvent()) {
             event = GetDataEventImpl(partitionStream, maxByteSize, accumulator);
@@ -2035,7 +2035,7 @@ TReadSessionEventsQueue<UseMigrationProtocol>::GetEventImpl(size_t& maxByteSize,
 
 template <bool UseMigrationProtocol>
 std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent>
-TReadSessionEventsQueue<UseMigrationProtocol>::GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize)
+TReadSessionEventsQueue<UseMigrationProtocol>::GetEvents(bool block, std::optional<size_t> maxEventsCount, size_t maxByteSize)
 {
     if (!maxByteSize) {
         ThrowFatalError("the maxByteSize value must be greater than 0");
@@ -2046,7 +2046,7 @@ TReadSessionEventsQueue<UseMigrationProtocol>::GetEvents(bool block, TMaybe<size
     TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol> accumulator;
 
     std::lock_guard<std::mutex> guard(TParent::Mutex);
-    eventInfos.reserve(Min(TParent::Events.size() + TParent::CloseEvent.Defined(), maxCount));
+    eventInfos.reserve(Min(TParent::Events.size() + TParent::CloseEvent.has_value(), maxCount));
     do {
         if (block) {
             TParent::WaitEventsImpl();
@@ -2073,14 +2073,14 @@ TReadSessionEventsQueue<UseMigrationProtocol>::GetEvents(bool block, TMaybe<size
 }
 
 template <bool UseMigrationProtocol>
-TMaybe<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent>
+std::optional<typename TAReadSessionEvent<UseMigrationProtocol>::TEvent>
 TReadSessionEventsQueue<UseMigrationProtocol>::GetEvent(bool block, size_t maxByteSize)
 {
     if (!maxByteSize) {
         ThrowFatalError("the maxByteSize value must be greater than 0");
     }
 
-    TMaybe<TReadSessionEventInfo<UseMigrationProtocol>> eventInfo;
+    std::optional<TReadSessionEventInfo<UseMigrationProtocol>> eventInfo;
     TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol> accumulator;
 
     std::lock_guard<std::mutex> guard(TParent::Mutex);
@@ -2101,7 +2101,7 @@ TReadSessionEventsQueue<UseMigrationProtocol>::GetEvent(bool block, size_t maxBy
         return std::move(eventInfo->Event);
     }
 
-    return Nothing();
+    return std::nullopt;
 }
 
 template <bool UseMigrationProtocol>
@@ -2480,7 +2480,7 @@ void TDataDecompressionEvent<UseMigrationProtocol>::TakeData(TIntrusivePtr<TPart
 
 template<bool UseMigrationProtocol>
 bool TDataDecompressionInfo<UseMigrationProtocol>::HasReadyUnreadData() const {
-    TMaybe<std::pair<size_t, size_t>> threshold = GetReadyThreshold();
+    std::optional<std::pair<size_t, size_t>> threshold = GetReadyThreshold();
     if (!threshold) {
         return false;
     }

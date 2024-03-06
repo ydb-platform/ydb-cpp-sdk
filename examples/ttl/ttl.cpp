@@ -92,7 +92,7 @@ static TStatus AddDocumentTransaction(TSession session, const TString& path,
 
 //! Reads document contents.
 static TStatus ReadDocumentTransaction(TSession session, const TString& path,
-    const TString& url, TMaybe<TResultSet>& resultSet)
+    const TString& url, std::optional<TResultSet>& resultSet)
 {
     auto query = Sprintf(R"(
         --!syntax_v1
@@ -125,7 +125,7 @@ static TStatus ReadDocumentTransaction(TSession session, const TString& path,
 
 //! Reads a batch of entries from expiration queue
 static TStatus ReadExpiredBatchTransaction(TSession session, const TString& path, const ui32 queue,
-    const ui64 timestamp, const ui64 prevTimestamp, const ui64 prevDocId, TMaybe<TResultSet>& resultSet)
+    const ui64 timestamp, const ui64 prevTimestamp, const ui64 prevDocId, std::optional<TResultSet>& resultSet)
 {
     auto query = Sprintf(R"(
         --!syntax_v1
@@ -226,7 +226,7 @@ void AddDocument(TTableClient client, const TString& path, const TString& url,
 
 void ReadDocument(TTableClient client, const TString& path, const TString& url) {
     Cout << "> ReadDocument \"" << url << "\":" << Endl;
-    TMaybe<TResultSet> resultSet;
+    std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, url, &resultSet] (TSession session) {
         return ReadDocumentTransaction(session, path, url, resultSet);
     }));
@@ -249,7 +249,7 @@ void DeleteExpired(TTableClient client, const TString& path, const ui32 queue, c
     ui64 lastTimestamp = 0;
     ui64 lastDocId = 0;
     while (!empty) {
-        TMaybe<TResultSet> resultSet;
+        std::optional<TResultSet> resultSet;
         ThrowOnError(client.RetryOperationSync([path, queue, timestamp, lastDocId, lastTimestamp, &resultSet] (TSession session) {
             return ReadExpiredBatchTransaction(session, path, queue, timestamp, lastTimestamp, lastDocId, resultSet);
         }));

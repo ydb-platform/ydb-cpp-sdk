@@ -153,11 +153,11 @@ TFuture<TImportFromS3Response> TImportClient::ImportFromS3(const TImportFromS3Se
     }
 
     if (settings.Description_) {
-        request.mutable_settings()->set_description(settings.Description_.GetRef());
+        request.mutable_settings()->set_description(settings.Description_.value());
     }
 
     if (settings.NumberOfRetries_) {
-        request.mutable_settings()->set_number_of_retries(settings.NumberOfRetries_.GetRef());
+        request.mutable_settings()->set_number_of_retries(settings.NumberOfRetries_.value());
     }
 
     return Impl_->ImportFromS3(std::move(request), settings);

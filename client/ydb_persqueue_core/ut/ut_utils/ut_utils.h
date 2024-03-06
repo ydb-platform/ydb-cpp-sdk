@@ -106,7 +106,7 @@ public:
                 writerConfig.PreferredCluster(preferredCluster);
             auto writer = setup->GetPersQueueClient().CreateWriteSession(writerConfig);
 
-            TMaybe<TContinuationToken> continueToken;
+            std::optional<TContinuationToken> continueToken;
             NThreading::TFuture<void> waitEventFuture = writer->WaitEvent();
             THashMap<ui64, NThreading::TPromise<::NPersQueue::TWriteResult>> ackPromiseBySequenceNumber;
             TDeque<NThreading::TPromise<::NPersQueue::TWriteResult>> ackPromiseQueue;
@@ -164,7 +164,7 @@ public:
                     }
                     Y_ABORT_UNLESS(continueToken);
 
-                    TMaybe<ui64> seqNo = Nothing();
+                    std::optional<ui64> seqNo = std::nullopt;
                     if (!AutoSeqNo) {
                         seqNo = acknowledgeableMessage.SequenceNumber;
                         Log << TLOG_INFO << "[" << sourceId << "] Write messages with sequence numbers "
@@ -176,7 +176,7 @@ public:
                             seqNo,
                             acknowledgeableMessage.CreatedAt
                     );
-                    continueToken = Nothing();
+                    continueToken = std::nullopt;
                 }
             }
             Log << TLOG_DEBUG << "Close writer (stop)";
@@ -200,7 +200,7 @@ struct TYdbPqTestRetryState : NYdb::NPersQueue::IRetryPolicy::IRetryState {
         , Delay(delay)
     {}
 
-    TMaybe<TDuration> GetNextRetryDelay(NYdb::EStatus) override {
+    std::optional<TDuration> GetNextRetryDelay(NYdb::EStatus) override {
         Cerr << "Test retry state: get retry delay\n";
         RetryDone();
         return Delay;
@@ -215,10 +215,10 @@ struct TYdbPqTestRetryState : NYdb::NPersQueue::IRetryPolicy::IRetryState {
 };
 struct TYdbPqNoRetryState : NYdb::NPersQueue::IRetryPolicy::IRetryState {
     TAtomic DelayCalled = 0;
-    TMaybe<TDuration> GetNextRetryDelay(NYdb::EStatus) override {
+    std::optional<TDuration> GetNextRetryDelay(NYdb::EStatus) override {
         auto res = AtomicSwap(&DelayCalled, 0);
         UNIT_ASSERT(!res);
-        return Nothing();
+        return std::nullopt;
     }
 };
 

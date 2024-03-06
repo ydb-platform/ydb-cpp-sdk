@@ -64,7 +64,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 //            AssertStreamingMessageCase(TReadResponse::kInit, isStarted.Response);
 
         ui32 readMessageCount = 0;
-        TMaybe<ui32> committedOffset;
+        std::optional<ui32> committedOffset;
         ui32 previousOffset = 0;
         bool closed = false;
         while ((readMessageCount < messageCount || committedOffset <= previousOffset) && !closed) {
@@ -131,7 +131,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
     void SimpleWriteAndValidateData(
             TPersQueueYdbSdkTestSetup* setup, TWriteSessionSettings& writeSettings, ui64 count,
-            TMaybe<bool> shouldCaptureData = Nothing()
+            std::optional<bool> shouldCaptureData = std::nullopt
     ) {
         std::shared_ptr<NYdb::NPersQueue::IReadSession> readSession;
 
@@ -148,7 +148,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         {
             auto sessionAdapter = TSimpleWriteSessionTestAdapter(
                     dynamic_cast<TSimpleBlockingWriteSession *>(session.get()));
-            if (shouldCaptureData.Defined()) {
+            if (shouldCaptureData.has_value()) {
                 TYdbStringBuilder msg;
                 msg << "Session has captured " << sessionAdapter.GetAcquiredMessagesCount()
                     << " messages, capturing was expected: " << *shouldCaptureData << Endl;

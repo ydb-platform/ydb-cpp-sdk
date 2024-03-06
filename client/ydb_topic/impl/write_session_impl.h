@@ -44,8 +44,8 @@ public:
         waiter.Signal(); // Does nothing if waiter is empty.
     }
 
-    TMaybe<TEvent> GetEvent(bool block = false) {
-        TMaybe<TEventInfo> eventInfo;
+    std::optional<TEvent> GetEvent(bool block = false) {
+        std::optional<TEventInfo> eventInfo;
         {
             std::lock_guard<std::mutex> guard(Mutex);
             if (block) {
@@ -54,21 +54,21 @@ public:
             if (HasEventsImpl()) {
                 eventInfo = GetEventImpl();
             } else {
-                return Nothing();
+                return std::nullopt;
             }
         }
         eventInfo->OnUserRetrievedEvent();
         return std::move(eventInfo->Event);
     }
 
-    std::vector<TEvent> GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing()) {
+    std::vector<TEvent> GetEvents(bool block = false, std::optional<size_t> maxEventsCount = std::nullopt) {
         std::vector<TEventInfo> eventInfos;
         {
             std::lock_guard<std::mutex> guard(Mutex);
             if (block) {
                 WaitEventsImpl();
             }
-            eventInfos.reserve(Min(Events.size() + CloseEvent.Defined(), maxEventsCount ? *maxEventsCount : std::numeric_limits<size_t>::max()));
+            eventInfos.reserve(Min(Events.size() + CloseEvent.has_value(), maxEventsCount ? *maxEventsCount : std::numeric_limits<size_t>::max()));
             while (!Events.empty()) {
                 eventInfos.emplace_back(GetEventImpl());
                 if (maxEventsCount && eventInfos.size() >= *maxEventsCount) {
@@ -172,12 +172,12 @@ private:
         ui64 Id;
         TInstant CreatedAt;
         std::string_view DataRef;
-        TMaybe<ECodec> Codec;
+        std::optional<ECodec> Codec;
         ui32 OriginalSize; // only for coded messages
         std::vector<std::pair<std::string, std::string>> MessageMeta;
         const NTable::TTransaction* Tx;
 
-        TMessage(ui64 id, const TInstant& createdAt, std::string_view data, TMaybe<ECodec> codec = {},
+        TMessage(ui64 id, const TInstant& createdAt, std::string_view data, std::optional<ECodec> codec = {},
                  ui32 originalSize = 0, const std::vector<std::pair<std::string, std::string>>& messageMeta = {},
                  const NTable::TTransaction* tx = nullptr)
             : Id(id)
@@ -198,7 +198,7 @@ private:
         bool Acquired = false;
         bool FlushRequested = false;
 
-        void Add(ui64 id, const TInstant& createdAt, std::string_view data, TMaybe<ECodec> codec, ui32 originalSize,
+        void Add(ui64 id, const TInstant& createdAt, std::string_view data, std::optional<ECodec> codec, ui32 originalSize,
                  const std::vector<std::pair<std::string, std::string>>& messageMeta,
                  const NTable::TTransaction* tx) {
             if (StartedAt == TInstant::Zero())
@@ -209,7 +209,7 @@ private:
         }
 
         bool HasCodec() const {
-            return Messages.empty() ? false : Messages.front().Codec.Defined();
+            return Messages.empty() ? false : Messages.front().Codec.has_value();
         }
 
         bool Acquire() {
@@ -310,7 +310,7 @@ private:
     };
     struct TProcessSrvMessageResult {
         THandleResult HandleResult;
-        TMaybe<ui64> InitSeqNo;
+        std::optional<ui64> InitSeqNo;
         std::vector<TWriteSessionEvent::TEvent> Events;
         bool Ok = true;
     };
@@ -328,15 +328,15 @@ public:
             std::shared_ptr<TGRpcConnectionsImpl> connections,
             TDbDriverStatePtr dbDriverState);
 
-    TMaybe<TWriteSessionEvent::TEvent> GetEvent(bool block = false);
+    std::optional<TWriteSessionEvent::TEvent> GetEvent(bool block = false);
     std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false,
-                                                  TMaybe<size_t> maxEventsCount = Nothing());
+                                                  std::optional<size_t> maxEventsCount = std::nullopt);
     NThreading::TFuture<ui64> GetInitSeqNo();
 
     void Write(TContinuationToken&& continuationToken, TWriteMessage&& message);
 
-    void Write(TContinuationToken&&, std::string_view, TMaybe<ui64> seqNo = Nothing(),
-               TMaybe<TInstant> createTimestamp = Nothing()) {
+    void Write(TContinuationToken&&, std::string_view, std::optional<ui64> seqNo = std::nullopt,
+               std::optional<TInstant> createTimestamp = std::nullopt) {
         Y_UNUSED(seqNo);
         Y_UNUSED(createTimestamp);
         Y_ABORT("Do not use this method");
@@ -345,7 +345,7 @@ public:
     void WriteEncoded(TContinuationToken&& continuationToken, TWriteMessage&& message);
 
     void WriteEncoded(TContinuationToken&&, std::string_view, ECodec, ui32,
-                      TMaybe<ui64> seqNo = Nothing(), TMaybe<TInstant> createTimestamp = Nothing()) {
+                      std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) {
         Y_UNUSED(seqNo);
         Y_UNUSED(createTimestamp);
         Y_ABORT("Do not use this method");
@@ -399,7 +399,7 @@ private:
     TClientMessage GetInitClientMessage();
     bool CleanupOnAcknowledged(ui64 id);
     bool IsReadyToSendNextImpl() const;
-    ui64 GetNextIdImpl(const TMaybe<ui64>& seqNo);
+    ui64 GetNextIdImpl(const std::optional<ui64>& seqNo);
     ui64 GetSeqNoImpl(ui64 id);
     ui64 GetIdImpl(ui64 seqNo);
     void SendImpl();
@@ -419,7 +419,7 @@ private:
     void ConnectToPreferredPartitionLocation(const TDuration& delay);
     void OnDescribePartition(const TStatus& status, const Ydb::Topic::DescribePartitionResult& proto, const NYdbGrpc::IQueueClientContextPtr& describePartitionContext);
 
-    TMaybe<TEndpointKey> GetPreferredEndpointImpl(ui32 partitionId, ui64 partitionNodeId);
+    std::optional<TEndpointKey> GetPreferredEndpointImpl(ui32 partitionId, ui64 partitionNodeId);
 
 private:
     TWriteSessionSettings Settings;
@@ -471,8 +471,8 @@ private:
     TPartitionLocation PreferredPartitionLocation = {};
     ui64 NextId = 0;
     ui64 MinUnsentId = 1;
-    TMaybe<ui64> InitSeqNo;
-    TMaybe<bool> AutoSeqNoMode;
+    std::optional<ui64> InitSeqNo;
+    std::optional<bool> AutoSeqNoMode;
     bool ValidateSeqNoMode = false;
 
     NThreading::TPromise<ui64> InitSeqNoPromise;

@@ -3,7 +3,6 @@
 #include "headers.h"
 
 #include <util/stream/output.h>
-#include <util/generic/maybe.h>
 #include <util/generic/ptr.h>
 #include <util/generic/string.h>
 #include <util/generic/strbuf.h>
@@ -41,7 +40,7 @@ public:
     /// Поток должен быть вычитан полностью прежде чем trailer'ы будут доступны.
     /// Пока поток не вычитан до конца возвращается Nothing.
     /// https://tools.ietf.org/html/rfc7230#section-4.1.2
-    const TMaybe<THttpHeaders>& Trailers() const noexcept;
+    const std::optional<THttpHeaders>& Trailers() const noexcept;
 
     /*
      * first line - response or request

@@ -5,7 +5,6 @@
 #include <util/stream/output.h>
 #include <util/charset/wide.h>
 #include <util/datetime/cputimer.h>
-#include <util/generic/maybe.h>
 
 #include <string>
 #include <string_view>
@@ -267,8 +266,8 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
     Y_UNIT_TEST(ConvenientSplitTestWithMaybe) {
         TString data("abc 42");
         TString str;
-        TMaybe<double> num2 = 1;
-        TMaybe<double> maybe = 1;
+        std::optional<double> num2 = 1;
+        std::optional<double> maybe = 1;
 
         Split(data, ' ', str, num2, maybe);
 
@@ -286,10 +285,10 @@ Y_UNIT_TEST_SUITE(SplitStringTest) {
         UNIT_ASSERT_EXCEPTION(Split(data, ' ', s1, s2, s3, s4), yexception);
     }
 
-    Y_UNIT_TEST(ConvenientSplitTestMaybeExceptions) {
+    Y_UNIT_TEST(ConvenientSplitTestOptionalExceptions) {
         TString data("abc 22 33");
         TString s1, s2;
-        TMaybe<TString> m1, m2;
+        std::optional<TString> m1, m2;
 
         UNIT_ASSERT_EXCEPTION(Split(data, ' ', s1, m1), yexception);
         UNIT_ASSERT_EXCEPTION(Split(data, ' ', m1, m2), yexception);

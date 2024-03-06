@@ -1,7 +1,5 @@
 #pragma once
 
-#include <util/generic/maybe.h>
-
 #define FLUENT_SETTING(type, name) \
     type name##_; \
     TSelf& name(const type& value) { \
@@ -10,8 +8,8 @@
     }
 
 #define FLUENT_SETTING_OPTIONAL(type, name) \
-    TMaybe<type> name##_; \
-    TSelf& name(const TMaybe<type>& value) { \
+    std::optional<type> name##_; \
+    TSelf& name(const std::optional<type>& value) { \
         name##_ = value; \
         return static_cast<TSelf&>(*this); \
     }
@@ -44,7 +42,7 @@
     }
 
 #define FLUENT_SETTING_OPTIONAL_VECTOR(type, name) \
-    TMaybe<std::vector<type>> name##_; \
+    std::optional<std::vector<type>> name##_; \
     TSelf& Append##name(const type& value) { \
         if (!name##_) name##_ = std::vector<type>{}; \
         name##_->push_back(value); \

@@ -295,7 +295,7 @@ namespace NYdb::NTopic::NTests {
 
                 // Event 1: start partition session
                 {
-                    TMaybe<TReadSessionEvent::TEvent> event = readSession->GetEvent(true);
+                    std::optional<TReadSessionEvent::TEvent> event = readSession->GetEvent(true);
                     UNIT_ASSERT(event);
                     auto startPartitionSession = std::get_if<TReadSessionEvent::TStartPartitionSessionEvent>(event.Get());
                     UNIT_ASSERT_C(startPartitionSession, DebugString(*event));
@@ -305,7 +305,7 @@ namespace NYdb::NTopic::NTests {
 
                 // Event 2: data received
                 {
-                    TMaybe<TReadSessionEvent::TEvent> event = readSession->GetEvent(true);
+                    std::optional<TReadSessionEvent::TEvent> event = readSession->GetEvent(true);
                     UNIT_ASSERT(event);
                     auto dataReceived = std::get_if<TReadSessionEvent::TDataReceivedEvent>(event.Get());
                     UNIT_ASSERT_C(dataReceived, DebugString(*event));
@@ -315,7 +315,7 @@ namespace NYdb::NTopic::NTests {
 
                 // Event 3: commit acknowledgement
                 {
-                    TMaybe<TReadSessionEvent::TEvent> event = readSession->GetEvent(true);
+                    std::optional<TReadSessionEvent::TEvent> event = readSession->GetEvent(true);
                     UNIT_ASSERT(event);
                     auto commitOffsetAck = std::get_if<TReadSessionEvent::TCommitOffsetAcknowledgementEvent>(event.Get());
 

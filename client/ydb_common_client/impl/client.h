@@ -20,11 +20,11 @@ class TClientImplCommon
 public:
     TClientImplCommon(
         std::shared_ptr<TGRpcConnectionsImpl>&& connections,
-        const TMaybe<std::string>& database,
-        const TMaybe<std::string>& discoveryEndpoint,
-        const TMaybe<EDiscoveryMode>& discoveryMode,
-        const TMaybe<TSslCredentials>& sslCredentials,
-        const TMaybe<std::shared_ptr<ICredentialsProviderFactory>>& credentialsProviderFactory)
+        const std::optional<std::string>& database,
+        const std::optional<std::string>& discoveryEndpoint,
+        const std::optional<EDiscoveryMode>& discoveryMode,
+        const std::optional<TSslCredentials>& sslCredentials,
+        const std::optional<std::shared_ptr<ICredentialsProviderFactory>>& credentialsProviderFactory)
         : Connections_(std::move(connections))
         , DbDriverState_(Connections_->GetDriverState(
             database, discoveryEndpoint, discoveryMode, sslCredentials, credentialsProviderFactory))

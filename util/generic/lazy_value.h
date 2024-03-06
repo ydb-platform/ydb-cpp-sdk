@@ -1,6 +1,5 @@
 #pragma once
 
-#include "maybe.h"
 #include "function.h"
 
 template <class T>
@@ -40,7 +39,7 @@ public:
     }
 
 private:
-    mutable TMaybe<T> ValueHolder;
+    mutable std::optional<T> ValueHolder;
     TInitializer Initializer;
 };
 

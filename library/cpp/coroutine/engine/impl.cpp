@@ -133,7 +133,7 @@ TContExecutor::TContExecutor(
     NCoro::IScheduleCallback* scheduleCallback,
     NCoro::IEnterPollerCallback* enterPollerCallback,
     NCoro::NStack::EGuard defaultGuard,
-    TMaybe<NCoro::NStack::TPoolAllocatorSettings> poolSettings,
+    std::optional<NCoro::NStack::TPoolAllocatorSettings> poolSettings,
     NCoro::ITime* time
 )
     : ScheduleCallback_(scheduleCallback)
@@ -243,7 +243,7 @@ TCont* TContExecutor::Create(
     TContFunc func,
     void* arg,
     const char* name,
-    TMaybe<ui32> customStackSize
+    std::optional<ui32> customStackSize
 ) noexcept {
     return CreateOwned([=](TCont* cont) {
         func(cont, arg);
@@ -253,7 +253,7 @@ TCont* TContExecutor::Create(
 TCont* TContExecutor::CreateOwned(
     NCoro::TTrampoline::TFunc func,
     const char* name,
-    TMaybe<ui32> customStackSize
+    std::optional<ui32> customStackSize
 ) noexcept {
     Allocated_ += 1;
     if (!customStackSize) {

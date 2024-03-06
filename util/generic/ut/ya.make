@@ -28,7 +28,6 @@ SRCS(
     generic/lazy_value_ut.cpp
     generic/map_ut.cpp
     generic/mapfindptr_ut.cpp
-    generic/maybe_ut.cpp
     generic/mem_copy_ut.cpp
     generic/objects_counter_ut.cpp
     generic/overloaded_ut.cpp

@@ -31,11 +31,11 @@ NThreading::TFuture<ui64> TWriteSession::GetInitSeqNo() {
     return TryGetImpl()->GetInitSeqNo();
 }
 
-TMaybe<TWriteSessionEvent::TEvent> TWriteSession::GetEvent(bool block) {
+std::optional<TWriteSessionEvent::TEvent> TWriteSession::GetEvent(bool block) {
     return TryGetImpl()->EventsQueue->GetEvent(block);
 }
 
-std::vector<TWriteSessionEvent::TEvent> TWriteSession::GetEvents(bool block, TMaybe<size_t> maxEventsCount) {
+std::vector<TWriteSessionEvent::TEvent> TWriteSession::GetEvents(bool block, std::optional<size_t> maxEventsCount) {
     return TryGetImpl()->EventsQueue->GetEvents(block, maxEventsCount);
 }
 
@@ -44,12 +44,12 @@ NThreading::TFuture<void> TWriteSession::WaitEvent() {
 }
 
 void TWriteSession::WriteEncoded(TContinuationToken&& token, std::string_view data, ECodec codec, ui32 originalSize,
-                                 TMaybe<ui64> seqNo, TMaybe<TInstant> createTimestamp) {
+                                 std::optional<ui64> seqNo, std::optional<TInstant> createTimestamp) {
     TryGetImpl()->WriteInternal(std::move(token), data, codec, originalSize, seqNo, createTimestamp);
 }
 
-void TWriteSession::Write(TContinuationToken&& token, std::string_view data, TMaybe<ui64> seqNo,
-                          TMaybe<TInstant> createTimestamp) {
+void TWriteSession::Write(TContinuationToken&& token, std::string_view data, std::optional<ui64> seqNo,
+                          std::optional<TInstant> createTimestamp) {
     TryGetImpl()->WriteInternal(std::move(token), data, {}, 0, seqNo, createTimestamp);
 }
 
@@ -96,45 +96,45 @@ ui64 TSimpleBlockingWriteSession::GetInitSeqNo() {
 }
 
 bool TSimpleBlockingWriteSession::Write(
-        std::string_view data, TMaybe<ui64> seqNo, TMaybe<TInstant> createTimestamp, const TDuration& blockTimeout
+        std::string_view data, std::optional<ui64> seqNo, std::optional<TInstant> createTimestamp, const TDuration& blockTimeout
 ) {
     auto continuationToken = WaitForToken(blockTimeout);
-    if (continuationToken.Defined()) {
+    if (continuationToken.has_value()) {
         Writer->Write(std::move(*continuationToken), std::move(data), seqNo, createTimestamp);
         return true;
     }
     return false;
 }
 
-TMaybe<TContinuationToken> TSimpleBlockingWriteSession::WaitForToken(const TDuration& timeout) {
+std::optional<TContinuationToken> TSimpleBlockingWriteSession::WaitForToken(const TDuration& timeout) {
     TInstant startTime = TInstant::Now();
     TDuration remainingTime = timeout;
 
-    TMaybe<TContinuationToken> token = Nothing();
+    std::optional<TContinuationToken> token = std::nullopt;
 
     while (IsAlive() && remainingTime > TDuration::Zero()) {
         Writer->WaitEvent().Wait(remainingTime);
 
         for (auto event : Writer->GetEvents()) {
             if (auto* readyEvent = std::get_if<TWriteSessionEvent::TReadyToAcceptEvent>(&event)) {
-                Y_ABORT_UNLESS(token.Empty());
+                Y_ABORT_UNLESS(!token.has_value());
                 token = std::move(readyEvent->ContinuationToken);
             } else if (auto* ackEvent = std::get_if<TWriteSessionEvent::TAcksEvent>(&event)) {
                 // discard
             } else if (auto* closeSessionEvent = std::get_if<TSessionClosedEvent>(&event)) {
                 Closed.store(true);
-                return Nothing();
+                return std::nullopt;
             }
         }
 
-        if (token.Defined()) {
+        if (token.has_value()) {
             return token;
         }
 
         remainingTime = timeout - (TInstant::Now() - startTime);
     }
 
-    return Nothing();
+    return std::nullopt;
 }
 
 TWriterCounters::TPtr TSimpleBlockingWriteSession::GetCounters() {

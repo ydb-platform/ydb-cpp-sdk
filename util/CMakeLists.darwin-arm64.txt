@@ -93,7 +93,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/generic/list.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/map.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/mapfindptr.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/maybe.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/mem_copy.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/noncopyable.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/object_counter.cpp

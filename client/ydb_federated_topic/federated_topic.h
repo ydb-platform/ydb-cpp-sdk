@@ -401,11 +401,11 @@ public:
     //! If maxEventsCount is not specified,
     //! read session chooses event batch size automatically.
     virtual std::vector<TReadSessionEvent::TEvent>
-    GetEvents(bool block = false, TMaybe<size_t> maxEventsCount = Nothing(),
+    GetEvents(bool block = false, std::optional<size_t> maxEventsCount = std::nullopt,
               size_t maxByteSize = std::numeric_limits<size_t>::max()) = 0;
 
     //! Get single event.
-    virtual TMaybe<TReadSessionEvent::TEvent>
+    virtual std::optional<TReadSessionEvent::TEvent>
     GetEvent(bool block = false, size_t maxByteSize = std::numeric_limits<size_t>::max()) = 0;
 
     //! Close read session.

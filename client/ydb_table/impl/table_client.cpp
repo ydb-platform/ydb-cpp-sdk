@@ -654,7 +654,7 @@ TAsyncCommitTransactionResult TTableClient::TImpl::CommitTransaction(const TSess
 
     auto extractor = [promise]
         (google::protobuf::Any* any, TPlainStatus status) mutable {
-            TMaybe<TQueryStats> queryStats;
+            std::optional<TQueryStats> queryStats;
             if (any) {
                 Ydb::Table::CommitTransactionResult result;
                 any->UnpackTo(&result);
@@ -748,20 +748,20 @@ NThreading::TFuture<std::pair<TPlainStatus, TTableClient::TImpl::TReadTableStrea
     request.set_path(path);
     request.set_ordered(settings.Ordered_);
     if (settings.RowLimit_) {
-        request.set_row_limit(settings.RowLimit_.GetRef());
+        request.set_row_limit(settings.RowLimit_.value());
     }
     for (const auto& col : settings.Columns_) {
         request.add_columns(col);
     }
     if (settings.UseSnapshot_) {
         request.set_use_snapshot(
-            settings.UseSnapshot_.GetRef()
+            settings.UseSnapshot_.value()
             ? Ydb::FeatureFlag::ENABLED
             : Ydb::FeatureFlag::DISABLED);
     }
 
     if (settings.From_) {
-        const auto& from = settings.From_.GetRef();
+        const auto& from = settings.From_.value();
         if (from.IsInclusive()) {
             SetTypedValue(request.mutable_key_range()->mutable_greater_or_equal(), from.GetValue());
         } else {
@@ -770,7 +770,7 @@ NThreading::TFuture<std::pair<TPlainStatus, TTableClient::TImpl::TReadTableStrea
     }
 
     if (settings.To_) {
-        const auto& to = settings.To_.GetRef();
+        const auto& to = settings.To_.value();
         if (to.IsInclusive()) {
             SetTypedValue(request.mutable_key_range()->mutable_less_or_equal(), to.GetValue());
         } else {
@@ -1135,19 +1135,19 @@ void TTableClient::TImpl::SetQuery(const TDataQuery& queryData, Ydb::Table::Quer
 void TTableClient::TImpl::SetQueryCachePolicy(const std::string&, const TExecDataQuerySettings& settings,
     Ydb::Table::QueryCachePolicy* queryCachePolicy)
 {
-    queryCachePolicy->set_keep_in_cache(settings.KeepInQueryCache_ ? settings.KeepInQueryCache_.GetRef() : false);
+    queryCachePolicy->set_keep_in_cache(settings.KeepInQueryCache_.value_or(false));
 }
 
 void TTableClient::TImpl::SetQueryCachePolicy(const TDataQuery&, const TExecDataQuerySettings& settings,
     Ydb::Table::QueryCachePolicy* queryCachePolicy) {
-    queryCachePolicy->set_keep_in_cache(settings.KeepInQueryCache_ ? settings.KeepInQueryCache_.GetRef() : true);
+    queryCachePolicy->set_keep_in_cache(settings.KeepInQueryCache_.value_or(true));
 }
 
-TMaybe<std::string> TTableClient::TImpl::GetQueryText(const std::string& queryText) {
+std::optional<std::string> TTableClient::TImpl::GetQueryText(const std::string& queryText) {
     return queryText;
 }
 
-TMaybe<std::string> TTableClient::TImpl::GetQueryText(const TDataQuery& queryData) {
+std::optional<std::string> TTableClient::TImpl::GetQueryText(const TDataQuery& queryData) {
     return queryData.GetText();
 }
 

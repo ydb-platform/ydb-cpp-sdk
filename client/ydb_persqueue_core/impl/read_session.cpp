@@ -44,7 +44,7 @@ TReadSession::TReadSession(const TReadSessionSettings& settings,
              TDbDriverStatePtr dbDriverState)
     : Settings(settings)
     , SessionId(CreateGuidAsString())
-    , Log(settings.Log_.GetOrElse(dbDriverState->Log))
+    , Log(settings.Log_.value_or(dbDriverState->Log))
     , Client(std::move(client))
     , Connections(std::move(connections))
     , DbDriverState(std::move(dbDriverState))
@@ -236,7 +236,7 @@ void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueu
             if (!ClusterDiscoveryRetryState) {
                 ClusterDiscoveryRetryState = Settings.RetryPolicy_->CreateRetryState();
             }
-            TMaybe<TDuration> retryDelay = ClusterDiscoveryRetryState->GetNextRetryDelay(status.GetStatus());
+            std::optional<TDuration> retryDelay = ClusterDiscoveryRetryState->GetNextRetryDelay(status.GetStatus());
             if (retryDelay) {
                 LOG_LAZY(Log,
                     TLOG_INFO,
@@ -489,7 +489,7 @@ NThreading::TFuture<void> TReadSession::WaitEvent() {
     return EventsQueue->WaitEvent();
 }
 
-std::vector<TReadSessionEvent::TEvent> TReadSession::GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize) {
+std::vector<TReadSessionEvent::TEvent> TReadSession::GetEvents(bool block, std::optional<size_t> maxEventsCount, size_t maxByteSize) {
     auto res = EventsQueue->GetEvents(block, maxEventsCount, maxByteSize);
     if (EventsQueue->IsClosed()) {
         Abort();
@@ -497,7 +497,7 @@ std::vector<TReadSessionEvent::TEvent> TReadSession::GetEvents(bool block, TMayb
     return res;
 }
 
-TMaybe<TReadSessionEvent::TEvent> TReadSession::GetEvent(bool block, size_t maxByteSize) {
+std::optional<TReadSessionEvent::TEvent> TReadSession::GetEvent(bool block, size_t maxByteSize) {
     auto res = EventsQueue->GetEvent(block, maxByteSize);
     if (EventsQueue->IsClosed()) {
         Abort();
@@ -565,7 +565,7 @@ TReadSessionEvent::TCreatePartitionStreamEvent::TCreatePartitionStreamEvent(TPar
 {
 }
 
-void TReadSessionEvent::TCreatePartitionStreamEvent::Confirm(TMaybe<ui64> readOffset, TMaybe<ui64> commitOffset) {
+void TReadSessionEvent::TCreatePartitionStreamEvent::Confirm(std::optional<ui64> readOffset, std::optional<ui64> commitOffset) {
     if (PartitionStream) {
         static_cast<TPartitionStreamImpl<true>*>(PartitionStream.Get())->ConfirmCreate(readOffset, commitOffset);
     }

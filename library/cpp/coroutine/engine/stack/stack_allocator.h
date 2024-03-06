@@ -3,12 +3,11 @@
 #include "stack.h"
 #include "stack_common.h"
 
-#include <util/generic/maybe.h>
 #include <util/generic/noncopyable.h>
 #include <util/generic/ptr.h>
 
 #include <cstdint>
-
+#include <optional>
 
 namespace NCoro::NStack {
 
@@ -45,7 +44,7 @@ namespace NCoro::NStack {
         virtual void DoFreeStack(NDetails::TStack& stack) noexcept = 0;
     };
 
-    std::unique_ptr<IAllocator> GetAllocator(TMaybe<TPoolAllocatorSettings> poolSettings, EGuard guardType);
+    std::unique_ptr<IAllocator> GetAllocator(std::optional<TPoolAllocatorSettings> poolSettings, EGuard guardType);
 
 }
 

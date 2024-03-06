@@ -2,7 +2,6 @@
 
 #include <util/generic/string.h>
 #include <util/generic/strbuf.h>
-#include <util/generic/maybe.h>
 #include <util/generic/variant.h>
 #include <util/stream/output.h>
 #include <util/stream/str.h>
@@ -59,9 +58,9 @@ void PrintTo(TBasicStringBuf<TCharType, TCharTraits> value, std::ostream* stream
 }
 
 template <typename T, typename P>
-void PrintTo(const TMaybe<T, P>& value, std::ostream* stream) {
-    if (value.Defined()) {
-        ::testing::internal::UniversalPrint(value.GetRef(), stream);
+void PrintTo(const std::optional<T, P>& value, std::ostream* stream) {
+    if (value.has_value()) {
+        ::testing::internal::UniversalPrint(value.value(), stream);
     } else {
         *stream << "nothing";
     }

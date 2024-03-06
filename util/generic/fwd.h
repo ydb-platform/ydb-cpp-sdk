@@ -145,14 +145,6 @@ using TArrayPtr = TAutoPtr<T, TDeleteArray>;
 template <typename T>
 using TMallocPtr = TAutoPtr<T, TFree>;
 
-//maybe
-namespace NMaybe {
-    struct TPolicyUndefinedExcept;
-}
-
-template <class T, class Policy = ::NMaybe::TPolicyUndefinedExcept>
-class TMaybe;
-
 struct TGUID;
 
 template <class T>

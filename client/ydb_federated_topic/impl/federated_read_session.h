@@ -33,7 +33,7 @@ public:
     ~TFederatedReadSessionImpl() = default;
 
     NThreading::TFuture<void> WaitEvent();
-    std::vector<TReadSessionEvent::TEvent> GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize);
+    std::vector<TReadSessionEvent::TEvent> GetEvents(bool block, std::optional<size_t> maxEventsCount, size_t maxByteSize);
 
     bool Close(TDuration timeout);
 
@@ -104,13 +104,13 @@ public:
         return TryGetImpl()->WaitEvent();
     }
 
-    std::vector<TReadSessionEvent::TEvent> GetEvents(bool block, TMaybe<size_t> maxEventsCount, size_t maxByteSize) override {
+    std::vector<TReadSessionEvent::TEvent> GetEvents(bool block, std::optional<size_t> maxEventsCount, size_t maxByteSize) override {
         return TryGetImpl()->GetEvents(block, maxEventsCount, maxByteSize);
     }
 
-    TMaybe<TReadSessionEvent::TEvent> GetEvent(bool block, size_t maxByteSize) override {
+    std::optional<TReadSessionEvent::TEvent> GetEvent(bool block, size_t maxByteSize) override {
     auto events = GetEvents(block, 1, maxByteSize);
-        return events.empty() ? Nothing() : TMaybe<TReadSessionEvent::TEvent>{std::move(events.front())};
+        return events.empty() ? std::nullopt : std::optional<TReadSessionEvent::TEvent>{std::move(events.front())};
     }
 
     bool Close(TDuration timeout) override {

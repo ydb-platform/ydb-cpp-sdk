@@ -81,8 +81,8 @@ TAsyncScanQueryPart TScanQueryPartIterator::TReaderImpl::ReadNext(std::shared_pt
             // TODO: Add headers for streaming calls.
             TPlainStatus plainStatus{clientStatus, std::move(issues), self->Endpoint_, {}};
             TStatus status{std::move(plainStatus)};
-            TMaybe<TQueryStats> queryStats;
-            TMaybe<std::string> diagnostics;
+            std::optional<TQueryStats> queryStats;
+            std::optional<std::string> diagnostics;
 
             if (self->Response_.result().has_query_stats()) {
                 queryStats = TQueryStats(self->Response_.result().query_stats());

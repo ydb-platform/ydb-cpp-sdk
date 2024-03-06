@@ -62,7 +62,7 @@ namespace NYdb::NDataStreams::V1 {
         }
 
         TAsyncCreateStreamResult CreateStream(const std::string &path, TCreateStreamSettings settings) {
-            if (settings.RetentionPeriodHours_.Defined() && settings.RetentionStorageMegabytes_.Defined()) {
+            if (settings.RetentionPeriodHours_.has_value() && settings.RetentionStorageMegabytes_.has_value()) {
                 return NThreading::MakeFuture(TProtoResultWrapper<Ydb::DataStreams::V1::CreateStreamResult>(
                     NYdb::TPlainStatus(NYdb::EStatus::BAD_REQUEST, "both retention types can not be set"),
                     std::make_unique<Ydb::DataStreams::V1::CreateStreamResult>()));
@@ -75,15 +75,15 @@ namespace NYdb::NDataStreams::V1 {
                         [&](Ydb::DataStreams::V1::CreateStreamRequest& req) {
                             req.set_stream_name(path);
                             req.set_shard_count(settings.ShardCount_);
-                            if (settings.RetentionStorageMegabytes_.Defined()) {
-                                req.set_retention_storage_megabytes(*settings.RetentionStorageMegabytes_.Get());
-                            } else if (settings.RetentionPeriodHours_.Defined()) {
-                                req.set_retention_period_hours(*settings.RetentionPeriodHours_.Get());
+                            if (settings.RetentionStorageMegabytes_.has_value()) {
+                                req.set_retention_storage_megabytes(*settings.RetentionStorageMegabytes_);
+                            } else if (settings.RetentionPeriodHours_.has_value()) {
+                                req.set_retention_period_hours(*settings.RetentionPeriodHours_);
                             } else {
                                 req.set_retention_period_hours(24);
                             }
                             req.set_write_quota_kb_per_sec(settings.WriteQuotaKbPerSec_);
-                            if (settings.StreamMode_.Defined()) {
+                            if (settings.StreamMode_.has_value()) {
                                 req.mutable_stream_mode_details()->set_stream_mode(
                                         *settings.StreamMode_ == ESM_PROVISIONED ? Ydb::DataStreams::V1::StreamMode::PROVISIONED
                                                                                 : Ydb::DataStreams::V1::StreamMode::ON_DEMAND);
@@ -347,7 +347,7 @@ namespace NYdb::NDataStreams::V1 {
         }
 
         TAsyncUpdateStreamResult UpdateStream(const std::string& streamName, TUpdateStreamSettings settings) {
-            if (settings.RetentionPeriodHours_.Defined() && settings.RetentionStorageMegabytes_.Defined()) {
+            if (settings.RetentionPeriodHours_.has_value() && settings.RetentionStorageMegabytes_.has_value()) {
                 return NThreading::MakeFuture(TProtoResultWrapper<Ydb::DataStreams::V1::UpdateStreamResult>(
                     NYdb::TPlainStatus(NYdb::EStatus::BAD_REQUEST, "both retention types can not be set"),
                     std::make_unique<Ydb::DataStreams::V1::UpdateStreamResult>()));
@@ -360,14 +360,14 @@ namespace NYdb::NDataStreams::V1 {
                         [&](Ydb::DataStreams::V1::UpdateStreamRequest& req) {
                             req.set_stream_name(streamName);
                             req.set_target_shard_count(settings.TargetShardCount_);
-                            if (settings.RetentionPeriodHours_.Defined()) {
-                                req.set_retention_period_hours(*settings.RetentionPeriodHours_.Get());
+                            if (settings.RetentionPeriodHours_.has_value()) {
+                                req.set_retention_period_hours(*settings.RetentionPeriodHours_);
                             }
-                            if (settings.RetentionStorageMegabytes_.Defined()) {
-                                req.set_retention_storage_megabytes(*settings.RetentionStorageMegabytes_.Get());
+                            if (settings.RetentionStorageMegabytes_.has_value()) {
+                                req.set_retention_storage_megabytes(*settings.RetentionStorageMegabytes_);
                             }
                             req.set_write_quota_kb_per_sec(settings.WriteQuotaKbPerSec_);
-                            if (settings.StreamMode_.Defined()) {
+                            if (settings.StreamMode_.has_value()) {
                                 req.mutable_stream_mode_details()->set_stream_mode(
                                         *settings.StreamMode_ == ESM_PROVISIONED ? Ydb::DataStreams::V1::StreamMode::PROVISIONED
                                                                                 : Ydb::DataStreams::V1::StreamMode::ON_DEMAND);

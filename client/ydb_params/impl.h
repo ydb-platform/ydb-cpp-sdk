@@ -10,7 +10,7 @@ public:
 
     bool Empty() const;
     std::map<std::string, TValue> GetValues() const;
-    TMaybe<TValue> GetValue(const std::string& name) const;
+    std::optional<TValue> GetValue(const std::string& name) const;
     ::google::protobuf::Map<std::string, Ydb::TypedValue>* GetProtoMapPtr();
     const ::google::protobuf::Map<std::string, Ydb::TypedValue>& GetProtoMap() const;
 

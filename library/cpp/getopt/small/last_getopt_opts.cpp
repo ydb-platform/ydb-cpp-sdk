@@ -6,6 +6,7 @@
 #include <library/cpp/colorizer/colors.h>
 #include <library/cpp/string_utils/misc/misc.h>
 
+#include <util/generic/algorithm.h>
 #include <util/stream/format.h>
 
 #include <stdlib.h>

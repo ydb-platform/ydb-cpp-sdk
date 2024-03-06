@@ -9,7 +9,6 @@
 #include <util/datetime/base.h>
 #include <util/generic/hash.h>
 #include <util/string/cast.h>
-#include <util/generic/maybe.h>
 #include <util/string/ascii.h>
 
 #include <cmath>
@@ -85,12 +84,12 @@ namespace NMonitoring {
             }
 
             void SetLabels(TLabelsMap&& labels) {
-                if (Labels_.Defined()) {
+                if (Labels_.has_value()) {
                     Y_ENSURE(Labels_ == labels,
                              "mixed labels in one histogram, prev: " << LabelsToStr(*Labels_) <<
                              ", current: " << LabelsToStr(labels));
                 } else {
-                    Labels_.ConstructInPlace(std::move(labels));
+                    Labels_.emplace(std::move(labels));
                 }
             }
 
@@ -135,7 +134,7 @@ namespace NMonitoring {
                 Y_ENSURE_EX(!Empty(), TPrometheusDecodeException() << "histogram cannot be empty");
                 Time_ = TInstant::Zero();
                 PrevBucket_ = ZERO_BUCKET;
-                Labels_.Clear();
+                Labels_.reset();
                 auto snapshot = ExplicitHistogramSnapshot(Bounds_, Values_, true);
 
                 Bounds_.clear();
@@ -146,7 +145,7 @@ namespace NMonitoring {
 
         private:
             std::string_view Name_;
-            TMaybe<TLabelsMap> Labels_;
+            std::optional<TLabelsMap> Labels_;
             TInstant Time_;
             TBucketBounds Bounds_;
             TBucketValues Values_;

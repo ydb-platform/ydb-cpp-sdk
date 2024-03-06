@@ -79,12 +79,12 @@ namespace NKikimr::NPersQueueTests {
         return TPersQueueClient(driver, clientSettings).CreateReadSession(TReadSessionSettings(settings).DisableClusterDiscovery(true));
     }
 
-    TMaybe<TReadSessionEvent::TDataReceivedEvent> GetNextMessageSkipAssignment(std::shared_ptr<IReadSession>& reader, TDuration timeout) {
+    std::optional<TReadSessionEvent::TDataReceivedEvent> GetNextMessageSkipAssignment(std::shared_ptr<IReadSession>& reader, TDuration timeout) {
         while (true) {
             auto future = reader->WaitEvent();
             future.Wait(timeout);
 
-            TMaybe<NYdb::NPersQueue::TReadSessionEvent::TEvent> event = reader->GetEvent(false, 1);
+            std::optional<NYdb::NPersQueue::TReadSessionEvent::TEvent> event = reader->GetEvent(false, 1);
             if (!event)
                 return {};
             if (auto dataEvent = std::get_if<NYdb::NPersQueue::TReadSessionEvent::TDataReceivedEvent>(&*event)) {

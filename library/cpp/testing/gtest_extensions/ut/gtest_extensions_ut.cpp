@@ -1,7 +1,6 @@
 #include <library/cpp/testing/gtest/gtest.h>
 
 #include <util/generic/string.h>
-#include <util/generic/maybe.h>
 #include <util/stream/output.h>
 #include <util/stream/str.h>
 
@@ -239,12 +238,6 @@ struct TThrowsOnMove {
 TEST(PrettyPrinters, String) {
     EXPECT_EQ(GtestPrint(std::string("hello world")), "\"hello world\"");
     EXPECT_EQ(GtestPrint(std::string_view("hello world")), "\"hello world\"");
-}
-
-TEST(PrettyPrinters, Maybe) {
-    EXPECT_EQ(GtestPrint(TMaybe<std::string>("hello world")), "\"hello world\"");
-    EXPECT_EQ(GtestPrint(TMaybe<std::string>()), "nothing");
-    EXPECT_EQ(GtestPrint(Nothing()), "nothing");
 }
 
 struct T1 {

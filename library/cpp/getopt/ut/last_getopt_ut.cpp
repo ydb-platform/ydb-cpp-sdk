@@ -456,8 +456,8 @@ Y_UNIT_TEST_SUITE(TLastGetoptTests) {
         TOptsNoDefault opts;
         std::string data;
         int number;
-        TMaybe<std::string> optionalString0, optionalString1;
-        TMaybe<int> optionalNumber0, optionalNumber1;
+        std::optional<std::string> optionalString0, optionalString1;
+        std::optional<int> optionalNumber0, optionalNumber1;
         opts.AddLongOption('d', "data").StoreResult(&data);
         opts.AddLongOption('n', "number").StoreResult(&number);
         opts.AddLongOption("optional-string-0").StoreResult(&optionalString0);

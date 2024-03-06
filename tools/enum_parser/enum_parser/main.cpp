@@ -20,7 +20,6 @@
 
 #include <util/generic/ptr.h>
 #include <util/generic/yexception.h>
-#include <util/generic/maybe.h>
 #include <util/system/fs.h>
 #include <util/folder/path.h>
 
@@ -70,10 +69,10 @@ void OutKey(IOutputStream& out, const std::string& key, const T& value, bool esc
     out << "\"" << key << "\": " << quoted << ",\n";
 }
 
-/// Simplifed JSON map encoder for TMaybe
-void OutKey(IOutputStream& out, const std::string& key, const TMaybe<std::string>& value) {
+/// Simplifed JSON map encoder for optional
+void OutKey(IOutputStream& out, const std::string& key, const std::optional<std::string>& value) {
     std::string quoted;
-    if (value) {
+    if (value.has_value()) {
         quoted = JsonQuote(ToString(*value));
     } else {
         quoted = "null";

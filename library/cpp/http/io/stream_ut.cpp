@@ -498,7 +498,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
             "Bar: baz\r\n"
             "\r\n");
         THttpInput i(&response);
-        TMaybe<THttpHeaders> trailers = i.Trailers();
+        std::optional<THttpHeaders> trailers = i.Trailers();
         UNIT_ASSERT(!trailers.Defined());
         i.ReadAll();
         trailers = i.Trailers();
@@ -516,7 +516,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
             "0\r\n"
             "\r\n");
         THttpInput i(&response);
-        TMaybe<THttpHeaders> trailers = i.Trailers();
+        std::optional<THttpHeaders> trailers = i.Trailers();
         UNIT_ASSERT(!trailers.Defined());
         i.ReadAll();
         trailers = i.Trailers();
@@ -530,7 +530,7 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
             "\r\n"
             "bar");
         THttpInput i(&response);
-        TMaybe<THttpHeaders> trailers = i.Trailers();
+        std::optional<THttpHeaders> trailers = i.Trailers();
         UNIT_ASSERT(!trailers.Defined());
         i.ReadAll();
         trailers = i.Trailers();

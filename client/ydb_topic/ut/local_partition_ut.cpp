@@ -64,7 +64,7 @@ namespace NYdb::NTopic::NTests {
 
             auto readSession = client.CreateReadSession(CreateReadSessionSettings());
 
-            TMaybe<TReadSessionEvent::TEvent> event = readSession->GetEvent(true);
+            std::optional<TReadSessionEvent::TEvent> event = readSession->GetEvent(true);
             UNIT_ASSERT(event);
             auto startPartitionSession = std::get_if<TReadSessionEvent::TStartPartitionSessionEvent>(event.Get());
             UNIT_ASSERT_C(startPartitionSession, DebugString(*event));

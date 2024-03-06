@@ -8,7 +8,7 @@
 
 namespace NYdb::NFederatedTopic::NTests {
 
-// ctor gets ---list of response--- tmaybe{response}
+// ctor gets ---list of response--- optional{response}
 // ListFederationDatabases gets 1 element under lock and respond. otherwise
 // create 2 queues, for requests and responses
 // getrequest() - put request and returns<request, promise<response>>

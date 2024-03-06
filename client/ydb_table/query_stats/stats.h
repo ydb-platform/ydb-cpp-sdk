@@ -2,8 +2,6 @@
 
 #include <client/ydb_query/stats.h>
 
-#include <util/generic/maybe.h>
-
 class TDuration;
 
 namespace Ydb {

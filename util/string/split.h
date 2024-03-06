@@ -432,12 +432,12 @@ void GetNext(TStringBuf& s, D delim, P& param) {
 }
 
 template <class P, class D>
-void GetNext(TStringBuf& s, D delim, TMaybe<P>& param) {
+void GetNext(TStringBuf& s, D delim, std::optional<P>& param) {
     TStringBuf next = s.NextTok(delim);
     if (next.IsInited()) {
         param = FromString<P>(next);
     } else {
-        param.Clear();
+        param.reset();
     }
 }
 

@@ -148,7 +148,7 @@ namespace NYson {
             }
 
         public:
-            TLexer(const TBlockStream& blockStream, TMaybe<ui64> memoryLimit)
+            TLexer(const TBlockStream& blockStream, std::optional<ui64> memoryLimit)
                 : TBase(blockStream, memoryLimit)
             {
             }
@@ -280,7 +280,7 @@ namespace NYson {
 
     public:
         TStatelesYsonLexerImpl()
-            : Lexer(TStringReader(), Nothing())
+            : Lexer(TStringReader(), std::nullopt)
         {
         }
 

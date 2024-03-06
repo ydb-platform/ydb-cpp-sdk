@@ -171,9 +171,9 @@ public:
         request.set_resource_path(resourcePath);
 
         if (settings.IsUsedAmount_) {
-            request.set_used(settings.Amount_.GetRef());
+            request.set_used(settings.Amount_.value());
         } else {
-            request.set_required(settings.Amount_.GetRef());
+            request.set_required(settings.Amount_.value());
         }
 
         return RunSimple<Ydb::RateLimiter::V1::RateLimiterService, Ydb::RateLimiter::AcquireResourceRequest, Ydb::RateLimiter::AcquireResourceResponse>(

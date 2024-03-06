@@ -150,7 +150,7 @@ TFuture<TExportToYtResponse> TExportClient::ExportToYt(const TExportToYtSettings
     auto request = MakeOperationRequest<ExportToYtRequest>(settings);
 
     request.mutable_settings()->set_host(settings.Host_);
-    request.mutable_settings()->set_port(settings.Port_.GetOrElse(80));
+    request.mutable_settings()->set_port(settings.Port_.value_or(80));
     request.mutable_settings()->set_token(settings.Token_);
 
     for (const auto& item : settings.Item_) {
@@ -160,11 +160,11 @@ TFuture<TExportToYtResponse> TExportClient::ExportToYt(const TExportToYtSettings
     }
 
     if (settings.Description_) {
-        request.mutable_settings()->set_description(settings.Description_.GetRef());
+        request.mutable_settings()->set_description(settings.Description_.value());
     }
 
     if (settings.NumberOfRetries_) {
-        request.mutable_settings()->set_number_of_retries(settings.NumberOfRetries_.GetRef());
+        request.mutable_settings()->set_number_of_retries(settings.NumberOfRetries_.value());
     }
 
     request.mutable_settings()->set_use_type_v3(settings.UseTypeV3_);
@@ -189,11 +189,11 @@ TFuture<TExportToS3Response> TExportClient::ExportToS3(const TExportToS3Settings
     }
 
     if (settings.Description_) {
-        request.mutable_settings()->set_description(settings.Description_.GetRef());
+        request.mutable_settings()->set_description(settings.Description_.value());
     }
 
     if (settings.NumberOfRetries_) {
-        request.mutable_settings()->set_number_of_retries(settings.NumberOfRetries_.GetRef());
+        request.mutable_settings()->set_number_of_retries(settings.NumberOfRetries_.value());
     }
 
     if (settings.Compression_) {

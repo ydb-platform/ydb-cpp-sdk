@@ -21,12 +21,12 @@ public:
 
     NThreading::TFuture<void> WaitEvent() override;
     std::vector<TReadSessionEvent::TEvent> GetEvents(bool block,
-                                                 TMaybe<size_t> maxEventsCount,
+                                                 std::optional<size_t> maxEventsCount,
                                                  size_t maxByteSize) override;
     std::vector<TReadSessionEvent::TEvent> GetEvents(const TReadSessionGetEventSettings& settings) override;
-    TMaybe<TReadSessionEvent::TEvent> GetEvent(bool block,
+    std::optional<TReadSessionEvent::TEvent> GetEvent(bool block,
                                                size_t maxByteSize) override;
-    TMaybe<TReadSessionEvent::TEvent> GetEvent(const TReadSessionGetEventSettings& settings) override;
+    std::optional<TReadSessionEvent::TEvent> GetEvent(const TReadSessionGetEventSettings& settings) override;
 
     bool Close(TDuration timeout) override;
 

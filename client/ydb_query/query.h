@@ -144,7 +144,7 @@ struct TFetchScriptResultsSettings : public TRequestSettings<TFetchScriptResults
 
 class TFetchScriptResultsResult : public TStatus {
 public:
-    bool HasResultSet() const { return ResultSet_.Defined(); }
+    bool HasResultSet() const { return ResultSet_.has_value(); }
     ui64 GetResultSetIndex() const { return ResultSetIndex_; }
     const TResultSet& GetResultSet() const { return *ResultSet_; }
     TResultSet ExtractResultSet() { return std::move(*ResultSet_); }
@@ -162,7 +162,7 @@ public:
     {}
 
 private:
-    TMaybe<TResultSet> ResultSet_;
+    std::optional<TResultSet> ResultSet_;
     i64 ResultSetIndex_ = 0;
     std::string NextFetchToken_;
 };

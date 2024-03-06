@@ -227,7 +227,7 @@ void TIssues::PrintWithProgramTo(
 TIssue ExceptionToIssue(const std::exception& e, const TPosition& pos) {
     std::string_view messageBuf = e.what();
     auto parsedPos = TryParseTerminationMessage(messageBuf);
-    auto issue = TIssue(parsedPos.GetOrElse(pos), messageBuf);
+    auto issue = TIssue(parsedPos.value_or(pos), messageBuf);
     const TErrorException* errorException = dynamic_cast<const TErrorException*>(&e);
     if (errorException) {
         issue.SetCode(errorException->GetCode(), ESeverity::TSeverityIds_ESeverityId_S_ERROR);
@@ -239,7 +239,7 @@ TIssue ExceptionToIssue(const std::exception& e, const TPosition& pos) {
 
 static constexpr std::string_view TerminationMessageMarker = "Terminate was called, reason(";
 
-TMaybe<TPosition> TryParseTerminationMessage(std::string_view& message) {
+std::optional<TPosition> TryParseTerminationMessage(std::string_view& message) {
     size_t len = 0;
     size_t startPos = message.find(TerminationMessageMarker);
     size_t endPos = 0;
@@ -272,7 +272,7 @@ TMaybe<TPosition> TryParseTerminationMessage(std::string_view& message) {
         }
     }
 
-    return Nothing();
+    return std::nullopt;
 }
 
 } // namspace NYql

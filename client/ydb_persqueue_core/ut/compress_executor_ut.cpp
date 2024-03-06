@@ -37,7 +37,7 @@ Y_UNIT_TEST_SUITE(CompressExecutor) {
 
         auto writer = setup->GetPersQueueClient().CreateWriteSession(config);
 
-        TMaybe<TContinuationToken> continueToken;
+        std::optional<TContinuationToken> continueToken;
         auto event = *writer->GetEvent(true);
         UNIT_ASSERT(std::holds_alternative<TWriteSessionEvent::TReadyToAcceptEvent>(event));
         continueToken = std::move(std::get<TWriteSessionEvent::TReadyToAcceptEvent>(event).ContinuationToken);

@@ -122,7 +122,7 @@ class TRetryWithSession : public TRetryContext<TClient, TAsyncStatusType> {
 
 private:
     TOperation Operation_;
-    TMaybe<TSession> Session_;
+    std::optional<TSession> Session_;
 
 public:
     explicit TRetryWithSession(
@@ -158,14 +158,14 @@ public:
 
 private:
     void Reset() override {
-        Session_.Clear();
+        Session_.reset();
     }
 
     TAsyncStatusType RunOperation() override {
         if constexpr (TFunctionArgs<TOperation>::Length == 1) {
-            return Operation_(this->Session_.GetRef());
+            return Operation_(this->Session_.value());
         } else {
-            return Operation_(this->Session_.GetRef(), this->GetRemainingTimeout());
+            return Operation_(this->Session_.value(), this->GetRemainingTimeout());
         }
     }
 };

@@ -112,7 +112,6 @@ JOIN_SRCS(
     generic/list.cpp
     generic/map.cpp
     generic/mapfindptr.cpp
-    generic/maybe.cpp
     generic/mem_copy.cpp
     generic/noncopyable.cpp
     generic/object_counter.cpp

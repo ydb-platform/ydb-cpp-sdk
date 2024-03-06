@@ -90,7 +90,7 @@ private:
         *Counters->CurrentSessionLifetimeMs = (TInstant::Now() - StartSessionTime).MilliSeconds();
 
         {
-            TMaybe<TLogElement> log;
+            std::optional<TLogElement> log;
             bool dumpHeader = true;
 
             for (auto& sessionCtx : SessionsContexts) {
@@ -98,7 +98,7 @@ private:
                     borrowedSession->UpdateMemoryUsageStatistics();
                     if (dumpSessionsStatistics) {
                         if (dumpHeader) {
-                            log.ConstructInPlace(&Log, TLOG_INFO);
+                            log.emplace(&Log, TLOG_INFO);
                             (*log) << "Read/commit by partition streams (cluster:topic:partition:stream-id:read-offset:committed-offset):";
                             dumpHeader = false;
                         }

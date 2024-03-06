@@ -2,8 +2,6 @@
 
 #include <client/ydb_driver/driver.h>
 
-#include <util/generic/maybe.h>
-
 namespace Ydb {
 namespace Coordination {
     class DescribeNodeResult;
@@ -99,8 +97,8 @@ class TNodeDescription {
 public:
     TNodeDescription(const Ydb::Coordination::DescribeNodeResult& desc);
 
-    const TMaybe<TDuration>& GetSelfCheckPeriod() const;
-    const TMaybe<TDuration>& GetSessionGracePeriod() const;
+    const std::optional<TDuration>& GetSelfCheckPeriod() const;
+    const std::optional<TDuration>& GetSessionGracePeriod() const;
     EConsistencyMode GetReadConsistencyMode() const;
     EConsistencyMode GetAttachConsistencyMode() const;
     ERateLimiterCountersMode GetRateLimiterCountersMode() const;

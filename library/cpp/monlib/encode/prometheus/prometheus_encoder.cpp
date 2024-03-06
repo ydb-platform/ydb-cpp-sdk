@@ -369,7 +369,7 @@ namespace NMonitoring {
                     MetricState_.Labels.Add(l.Name(), l.Value());
                 }
 
-                TMaybe<TLabel> nameLabel = MetricState_.Labels.Extract(MetricNameLabel_);
+                std::optional<TLabel> nameLabel = MetricState_.Labels.Extract(MetricNameLabel_);
                 Y_ENSURE(nameLabel,
                          "labels " << MetricState_.Labels <<
                          " does not contain label '" << MetricNameLabel_ << '\'');

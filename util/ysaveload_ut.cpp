@@ -13,7 +13,6 @@
 
 #include <util/generic/buffer.h>
 #include <util/generic/hash_set.h>
-#include <util/generic/maybe.h>
 
 static inline char* AllocateFromPool(TMemoryPool& pool, size_t len) {
     return (char*)pool.Allocate(len);
@@ -195,22 +194,22 @@ private:
         }
 
         {
-            TMaybe<size_t> h(10);
+            std::optional<size_t> h(10);
             Save(&S_, h);
         }
 
         {
-            TMaybe<size_t> h(20);
+            std::optional<size_t> h(20);
             Save(&S_, h);
         }
 
         {
-            TMaybe<size_t> h;
+            std::optional<size_t> h;
             Save(&S_, h);
         }
 
         {
-            TMaybe<size_t> h;
+            std::optional<size_t> h;
             Save(&S_, h);
         }
 
@@ -339,26 +338,26 @@ private:
         }
 
         {
-            TMaybe<size_t> h(5);
+            std::optional<size_t> h(5);
             Load(&S_, h);
             UNIT_ASSERT_EQUAL(*h, 10);
         }
 
         {
-            TMaybe<size_t> h;
+            std::optional<size_t> h;
             Load(&S_, h);
             UNIT_ASSERT_EQUAL(*h, 20);
         }
 
         {
-            TMaybe<size_t> h;
+            std::optional<size_t> h;
             UNIT_ASSERT(!h);
             Load(&S_, h);
             UNIT_ASSERT(!h);
         }
 
         {
-            TMaybe<size_t> h(7);
+            std::optional<size_t> h(7);
             UNIT_ASSERT(!!h);
             Load(&S_, h);
             UNIT_ASSERT(!h);

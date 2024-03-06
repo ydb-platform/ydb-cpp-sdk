@@ -265,18 +265,18 @@ void TGRpcConnectionsImpl::ScheduleCallback(
 }
 
 TDbDriverStatePtr TGRpcConnectionsImpl::GetDriverState(
-    const TMaybe<std::string>& database,
-    const TMaybe<std::string>& discoveryEndpoint,
-    const TMaybe<EDiscoveryMode>& discoveryMode,
-    const TMaybe<TSslCredentials>& sslCredentials,
-    const TMaybe<std::shared_ptr<ICredentialsProviderFactory>>& credentialsProviderFactory
+    const std::optional<std::string>& database,
+    const std::optional<std::string>& discoveryEndpoint,
+    const std::optional<EDiscoveryMode>& discoveryMode,
+    const std::optional<TSslCredentials>& sslCredentials,
+    const std::optional<std::shared_ptr<ICredentialsProviderFactory>>& credentialsProviderFactory
 ) {
     return StateTracker_.GetDriverState(
-        database ? database.GetRef() : DefaultDatabase_,
-        discoveryEndpoint ? discoveryEndpoint.GetRef() : DefaultDiscoveryEndpoint_,
-        discoveryMode ? discoveryMode.GetRef() : DefaultDiscoveryMode_,
-        sslCredentials ? sslCredentials.GetRef() : SslCredentials_,
-        credentialsProviderFactory ? credentialsProviderFactory.GetRef() : DefaultCredentialsProviderFactory_);
+        database.value_or(DefaultDatabase_),
+        discoveryEndpoint.value_or(DefaultDiscoveryEndpoint_),
+        discoveryMode.value_or(DefaultDiscoveryMode_),
+        sslCredentials.value_or(SslCredentials_),
+        credentialsProviderFactory.value_or(DefaultCredentialsProviderFactory_));
 }
 
 IQueueClientContextPtr TGRpcConnectionsImpl::CreateContext() {

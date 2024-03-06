@@ -75,11 +75,11 @@ public:
 
         if (settings.RemoteMirrorRule_) {
             auto rmr = props.mutable_remote_mirror_rule();
-            rmr->set_endpoint(settings.RemoteMirrorRule_.GetRef().Endpoint_);
-            rmr->set_topic_path(settings.RemoteMirrorRule_.GetRef().TopicPath_);
-            rmr->set_consumer_name(settings.RemoteMirrorRule_.GetRef().ConsumerName_);
-            rmr->set_starting_message_timestamp_ms(settings.RemoteMirrorRule_.GetRef().StartingMessageTimestamp_.MilliSeconds());
-            const auto& credentials = settings.RemoteMirrorRule_.GetRef().Credentials_;
+            rmr->set_endpoint(settings.RemoteMirrorRule_.value().Endpoint_);
+            rmr->set_topic_path(settings.RemoteMirrorRule_.value().TopicPath_);
+            rmr->set_consumer_name(settings.RemoteMirrorRule_.value().ConsumerName_);
+            rmr->set_starting_message_timestamp_ms(settings.RemoteMirrorRule_.value().StartingMessageTimestamp_.MilliSeconds());
+            const auto& credentials = settings.RemoteMirrorRule_.value().Credentials_;
             switch (credentials.GetMode()) {
                 case TCredentials::EMode::OAUTH_TOKEN: {
                     rmr->mutable_credentials()->set_oauth_token(credentials.GetOauthToken());
@@ -101,7 +101,7 @@ public:
                     ythrow yexception() << "unsupported credentials type for remote mirror rule";
                 }
             }
-            rmr->set_database(settings.RemoteMirrorRule_.GetRef().Database_);
+            rmr->set_database(settings.RemoteMirrorRule_.value().Database_);
         }
         return request;
     }

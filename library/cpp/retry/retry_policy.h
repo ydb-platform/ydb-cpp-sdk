@@ -1,6 +1,5 @@
 #pragma once
 #include <util/datetime/base.h>
-#include <util/generic/maybe.h>
 #include <util/generic/typetraits.h>
 #include <util/random/random.h>
 
@@ -40,7 +39,7 @@ struct IRetryPolicy {
 
         //! Calculate delay before next retry if next retry is allowed.
         //! Returns empty maybe if retry is not allowed anymore.
-        [[nodiscard]] virtual TMaybe<TDuration> GetNextRetryDelay(typename TTypeTraits<TArgs>::TFuncParam... args) = 0;
+        [[nodiscard]] virtual std::optional<TDuration> GetNextRetryDelay(typename TTypeTraits<TArgs>::TFuncParam... args) = 0;
     };
 
     virtual ~IRetryPolicy() = default;
@@ -80,8 +79,8 @@ struct TNoRetryPolicy : IRetryPolicy<TArgs...> {
     using IRetryState = typename IRetryPolicy<TArgs...>::IRetryState;
 
     struct TNoRetryState : IRetryState {
-        TMaybe<TDuration> GetNextRetryDelay(typename TTypeTraits<TArgs>::TFuncParam...) override {
-            return Nothing();
+        std::optional<TDuration> GetNextRetryDelay(typename TTypeTraits<TArgs>::TFuncParam...) override {
+            return std::nullopt;
         }
     };
 
@@ -122,10 +121,10 @@ struct TExponentialBackoffPolicy : IRetryPolicy<TArgs...> {
         {
         }
 
-        TMaybe<TDuration> GetNextRetryDelay(typename TTypeTraits<TArgs>::TFuncParam... args) override {
+        std::optional<TDuration> GetNextRetryDelay(typename TTypeTraits<TArgs>::TFuncParam... args) override {
             const ERetryErrorClass errorClass = RetryClassFunction(args...);
             if (errorClass == ERetryErrorClass::NoRetry || AttemptsDone >= MaxRetries || StartTime && TInstant::Now() - StartTime >= MaxTime) {
-                return Nothing();
+                return std::nullopt;
             }
 
             if (errorClass == ERetryErrorClass::LongRetry) {
@@ -211,10 +210,10 @@ struct TFixedIntervalPolicy : IRetryPolicy<TArgs...> {
         {
         }
 
-        TMaybe<TDuration> GetNextRetryDelay(typename TTypeTraits<TArgs>::TFuncParam... args) override {
+        std::optional<TDuration> GetNextRetryDelay(typename TTypeTraits<TArgs>::TFuncParam... args) override {
             const ERetryErrorClass errorClass = RetryClassFunction(args...);
             if (errorClass == ERetryErrorClass::NoRetry || AttemptsDone >= MaxRetries || StartTime && TInstant::Now() - StartTime >= MaxTime) {
-                return Nothing();
+                return std::nullopt;
             }
 
             const TDuration delay = NRetryDetails::RandomizeDelay(errorClass == ERetryErrorClass::LongRetry ? LongRetryDelay : Delay);
