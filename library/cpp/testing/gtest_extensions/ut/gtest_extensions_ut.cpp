@@ -1,8 +1,9 @@
 #include <library/cpp/testing/gtest/gtest.h>
 
-#include <string>
 #include <util/stream/output.h>
 #include <util/stream/str.h>
+
+#include <string>
 
 namespace {
     class IMock {
