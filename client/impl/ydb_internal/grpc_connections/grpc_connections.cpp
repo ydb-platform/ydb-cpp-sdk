@@ -272,11 +272,11 @@ TDbDriverStatePtr TGRpcConnectionsImpl::GetDriverState(
     const std::optional<std::shared_ptr<ICredentialsProviderFactory>>& credentialsProviderFactory
 ) {
     return StateTracker_.GetDriverState(
-        database.has_value() ? database.value() : DefaultDatabase_,
-        discoveryEndpoint.has_value() ? discoveryEndpoint.value() : DefaultDiscoveryEndpoint_,
-        discoveryMode.has_value() ? discoveryMode.value() : DefaultDiscoveryMode_,
-        sslCredentials.has_value() ? sslCredentials.value() : SslCredentials_,
-        credentialsProviderFactory.has_value() ? credentialsProviderFactory.value() : DefaultCredentialsProviderFactory_);
+        database.value_or(DefaultDatabase_),
+        discoveryEndpoint.value_or(DefaultDiscoveryEndpoint_),
+        discoveryMode.value_or(DefaultDiscoveryMode_),
+        sslCredentials.value_or(SslCredentials_),
+        credentialsProviderFactory.value_or(DefaultCredentialsProviderFactory_));
 }
 
 IQueueClientContextPtr TGRpcConnectionsImpl::CreateContext() {

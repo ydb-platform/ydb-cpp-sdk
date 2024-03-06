@@ -351,8 +351,8 @@ ui64 TWriteSessionImpl::GetNextIdImpl(const std::optional<ui64>& seqNo) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     ui64 id = ++NextId;
-    if (!(AutoSeqNoMode.has_value())) {
-        AutoSeqNoMode = !(seqNo.has_value());
+    if (!AutoSeqNoMode.has_value()) {
+        AutoSeqNoMode = !seqNo.has_value();
     }
     if (seqNo.has_value()) {
         if (!Settings.DeduplicationEnabled_.value_or(true)) {
@@ -802,7 +802,7 @@ TWriteSessionImpl::TProcessSrvMessageResult TWriteSessionImpl::ProcessServerMess
                 newLastSeqNo = 0;
             }
             result.InitSeqNo = newLastSeqNo;
-            if (!(InitSeqNo.has_value())) {
+            if (!InitSeqNo.has_value()) {
                 InitSeqNo = newLastSeqNo;
             }
 

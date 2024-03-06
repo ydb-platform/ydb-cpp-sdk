@@ -67,7 +67,7 @@ void TFederatedWriteSession::OpenSubSessionImpl(std::shared_ptr<TDbInfo> db) {
         .ReadyToAcceptHander([self = shared_from_this()](NTopic::TWriteSessionEvent::TReadyToAcceptEvent& ev){
             TDeferredWrite deferred(self->Subsession);
             with_lock(self->Lock) {
-                Y_ABORT_UNLESS(!(self->PendingToken.has_value()));
+                Y_ABORT_UNLESS(!self->PendingToken.has_value());
                 self->PendingToken = std::move(ev.ContinuationToken);
                 self->PrepareDeferredWrite(deferred);
             }
@@ -262,7 +262,7 @@ void TFederatedWriteSession::WriteInternal(NTopic::TContinuationToken&&, NTopic:
 }
 
 bool TFederatedWriteSession::PrepareDeferredWrite(TDeferredWrite& deferred) {
-    if (!(PendingToken.has_value())) {
+    if (!PendingToken.has_value()) {
         return false;
     }
     if (OriginalMessagesToPassDown.empty()) {

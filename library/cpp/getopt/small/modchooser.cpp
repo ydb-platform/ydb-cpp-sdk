@@ -331,7 +331,7 @@ int TMainClassArgs::Run(int argc, const char** argv) {
 }
 
 const NLastGetopt::TOpts& TMainClassArgs::GetOptions() {
-    if (!(Opts_.has_value())) {
+    if (!Opts_.has_value()) {
         Opts_ = NLastGetopt::TOpts();
         RegisterOptions(Opts_.value());
     }

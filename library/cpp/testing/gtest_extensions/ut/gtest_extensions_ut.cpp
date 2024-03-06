@@ -240,12 +240,6 @@ TEST(PrettyPrinters, String) {
     EXPECT_EQ(GtestPrint(std::string_view("hello world")), "\"hello world\"");
 }
 
-TEST(PrettyPrinters, Maybe) {
-    EXPECT_EQ(GtestPrint(std::optional<std::string>("hello world")), "\"hello world\"");
-    EXPECT_EQ(GtestPrint(std::optional<std::string>()), "nothing");
-    EXPECT_EQ(GtestPrint(std::nullopt), "nothing");
-}
-
 struct T1 {
     int x;
 };

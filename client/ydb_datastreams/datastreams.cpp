@@ -76,9 +76,9 @@ namespace NYdb::NDataStreams::V1 {
                             req.set_stream_name(path);
                             req.set_shard_count(settings.ShardCount_);
                             if (settings.RetentionStorageMegabytes_.has_value()) {
-                                req.set_retention_storage_megabytes(settings.RetentionStorageMegabytes_.value());
+                                req.set_retention_storage_megabytes(*settings.RetentionStorageMegabytes_);
                             } else if (settings.RetentionPeriodHours_.has_value()) {
-                                req.set_retention_period_hours(settings.RetentionPeriodHours_.value());
+                                req.set_retention_period_hours(*settings.RetentionPeriodHours_);
                             } else {
                                 req.set_retention_period_hours(24);
                             }
@@ -361,10 +361,10 @@ namespace NYdb::NDataStreams::V1 {
                             req.set_stream_name(streamName);
                             req.set_target_shard_count(settings.TargetShardCount_);
                             if (settings.RetentionPeriodHours_.has_value()) {
-                                req.set_retention_period_hours(settings.RetentionPeriodHours_.value());
+                                req.set_retention_period_hours(*settings.RetentionPeriodHours_);
                             }
                             if (settings.RetentionStorageMegabytes_.has_value()) {
-                                req.set_retention_storage_megabytes(settings.RetentionStorageMegabytes_.value());
+                                req.set_retention_storage_megabytes(*settings.RetentionStorageMegabytes_);
                             }
                             req.set_write_quota_kb_per_sec(settings.WriteQuotaKbPerSec_);
                             if (settings.StreamMode_.has_value()) {

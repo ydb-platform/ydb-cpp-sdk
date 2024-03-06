@@ -1135,12 +1135,12 @@ void TTableClient::TImpl::SetQuery(const TDataQuery& queryData, Ydb::Table::Quer
 void TTableClient::TImpl::SetQueryCachePolicy(const std::string&, const TExecDataQuerySettings& settings,
     Ydb::Table::QueryCachePolicy* queryCachePolicy)
 {
-    queryCachePolicy->set_keep_in_cache(settings.KeepInQueryCache_ ? settings.KeepInQueryCache_.value() : false);
+    queryCachePolicy->set_keep_in_cache(settings.KeepInQueryCache_.value_or(false));
 }
 
 void TTableClient::TImpl::SetQueryCachePolicy(const TDataQuery&, const TExecDataQuerySettings& settings,
     Ydb::Table::QueryCachePolicy* queryCachePolicy) {
-    queryCachePolicy->set_keep_in_cache(settings.KeepInQueryCache_ ? settings.KeepInQueryCache_.value() : true);
+    queryCachePolicy->set_keep_in_cache(settings.KeepInQueryCache_.value_or(true));
 }
 
 std::optional<std::string> TTableClient::TImpl::GetQueryText(const std::string& queryText) {

@@ -1503,7 +1503,7 @@ static void ConvertCreateTableSettingsToProto(const TCreateTableSettings& settin
         for (const auto& familyPolicy : policy.ColumnFamilies_) {
             auto* familyProto = proto->mutable_storage_policy()->add_column_families();
             if (familyPolicy.Name_) {
-                
+                familyProto->set_name(familyPolicy.Name_.value());
             }
             if (familyPolicy.Data_) {
                 familyProto->mutable_data()->set_media(familyPolicy.Data_.value());

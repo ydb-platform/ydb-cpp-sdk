@@ -382,7 +382,7 @@ NThreading::TFuture<void> TWriteSessionImpl::WaitEvent() {
 void TWriteSessionImpl::WriteInternal(
             TContinuationToken&&, std::string_view data, std::optional<ECodec> codec, ui32 originalSize, std::optional<ui64> seqNo, std::optional<TInstant> createTimestamp
         ) {
-    TInstant createdAtValue = createTimestamp.has_value() ? *createTimestamp : TInstant::Now();
+    TInstant createdAtValue = message.CreateTimestamp_.has_value() ? *message.CreateTimestamp_ : TInstant::Now();
     bool readyToAccept = false;
     size_t bufferSize = data.size();
     with_lock(Lock) {

@@ -22,7 +22,7 @@ public:
         }
 
         void DoWrite() {
-            if (!(Token.has_value()) && !(Message.has_value())) {
+            if (!Token.has_value() && !Message.has_value()) {
                 return;
             }
             Y_ABORT_UNLESS(Token.has_value() && Message.has_value());
