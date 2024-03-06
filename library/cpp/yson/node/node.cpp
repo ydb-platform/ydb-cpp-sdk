@@ -785,7 +785,7 @@ bool TNode::HasAttributes() const
 void TNode::ClearAttributes()
 {
     if (Attributes_) {
-        Attributes_.Destroy();
+        Attributes_.release();
     }
 }
 
@@ -845,7 +845,7 @@ void TNode::AssureList()
 
 void TNode::CreateAttributes()
 {
-    Attributes_ = MakeHolder<TNode>();
+    Attributes_ = std::make_unique<TNode>();
     Attributes_->Value_ = TMapType();
 }
 

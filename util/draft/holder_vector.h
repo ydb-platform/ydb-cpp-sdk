@@ -45,17 +45,13 @@ public:
         PushBack(t.release());
     }
 
-    void PushBack(THolder<T> t) {
-        PushBack(t.Release());
-    }
-
-    void Reset(size_t i, THolder<T> t) {
+    void Reset(size_t i, std::unique_ptr<T> t) {
         T* current = (*this)[i];
         if (current) {
-            Y_ASSERT(current != t.Get());
+            Y_ASSERT(current != t.get());
             D::Destroy(current);
         }
-        (*this)[i] = t.Release();
+        (*this)[i] = t.release();
     }
 
     void PopBack() {

@@ -23,7 +23,7 @@ struct TThreadPoolTest {
         }
 
         void Process(void*) override {
-            THolder<TTask> This(this);
+            std::unique_ptr<TTask> This(this);
 
             TGuard<TSpinLock> guard(Test->Lock);
             Test->R ^= Value;
@@ -117,7 +117,7 @@ Y_UNIT_TEST_SUITE(TThreadPoolTest) {
         q.Start(2);
         bool processed = false;
         bool destructed = false;
-        q.SafeAddAndOwn(MakeHolder<TThreadPoolTest::TOwnedTask>(processed, destructed));
+        q.SafeAddAndOwn(std::make_unique<TThreadPoolTest::TOwnedTask>(processed, destructed));
         q.Stop();
 
         UNIT_ASSERT_C(processed, "Not processed");

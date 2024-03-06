@@ -143,9 +143,9 @@ private:
     alignas(64) std::atomic<size_t> GuardCount_ = 0;
     alignas(64) std::atomic<size_t> QueueSize_ = 0;
 
-    std::vector<THolder<IThreadFactory::IThread>> Threads_;
+    std::vector<std::unique_ptr<IThreadFactory::IThread>> Threads_;
 
-    THolder<NThreading::TBoundedQueue<IObjectInQueue*>> Queue_;
+    std::unique_ptr<NThreading::TBoundedQueue<IObjectInQueue*>> Queue_;
     NYT::NThreading::TEventCount Event_;
 };
 

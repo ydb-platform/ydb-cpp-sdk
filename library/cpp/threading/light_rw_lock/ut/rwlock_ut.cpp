@@ -90,7 +90,7 @@ class TRWMutexTest: public TTestBase {
         }
 
         void Process(void*) override {
-            THolder<TThreadTask> This(this);
+            std::unique_ptr<TThreadTask> This(this);
 
             (this->*Func_)();
         }
@@ -189,7 +189,7 @@ private:
 
 #undef RUN_CYCLE
 private:
-    THolder<TSharedData> Data_;
+    std::unique_ptr<TSharedData> Data_;
     TThreadPool Q_;
 };
 

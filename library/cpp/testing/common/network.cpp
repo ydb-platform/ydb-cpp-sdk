@@ -31,7 +31,7 @@ namespace {
 
     class TPortGuard : public NTesting::IPort {
     public:
-        TPortGuard(ui16 port, THolder<TFileLock> lock)
+        TPortGuard(ui16 port, std::unique_ptr<TFileLock> lock)
             : Lock_(std::move(lock))
             , Port_(port)
         {
@@ -46,7 +46,7 @@ namespace {
         }
 
     private:
-        THolder<TFileLock> Lock_;
+        std::unique_ptr<TFileLock> Lock_;
         ui16 Port_;
     };
 
@@ -183,8 +183,8 @@ namespace {
         }
 
     private:
-        THolder<NTesting::IPort> TryAcquirePort(ui16 port) const {
-            auto lock = MakeHolder<TFileLock>(std::string(SyncDir_ / ::ToString(port)));
+        std::unique_ptr<NTesting::IPort> TryAcquirePort(ui16 port) const {
+            auto lock = std::make_unique<TFileLock>(std::string(SyncDir_ / ::ToString(port)));
             if (!lock->TryAcquire()) {
                 return nullptr;
             }
@@ -198,7 +198,7 @@ namespace {
                 Y_ABORT_UNLESS(EADDRINUSE == LastSystemError(), "unexpected error: %d, port: %d", LastSystemError(), port);
                 return nullptr;
             }
-            return MakeHolder<TPortGuard>(port, std::move(lock));
+            return std::make_unique<TPortGuard>(port, std::move(lock));
         }
 
     private:

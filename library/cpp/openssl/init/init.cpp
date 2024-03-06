@@ -27,7 +27,7 @@ namespace {
                 : Mutexes(CRYPTO_num_locks())
             {
                 for (auto& mpref : Mutexes) {
-                    mpref.Reset(new TMutex());
+                    mpref.reset(new TMutex());
                 }
             }
 
@@ -41,7 +41,7 @@ namespace {
                 }
             }
 
-            std::vector<TAutoPtr<TMutex>> Mutexes;
+            std::vector<std::unique_ptr<TMutex>> Mutexes;
         };
 
         inline TInitSsl() {

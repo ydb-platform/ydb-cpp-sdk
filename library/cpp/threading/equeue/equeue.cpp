@@ -35,7 +35,7 @@ public:
     }
 private:
     void Process(void *tsr) override {
-        THolder<TDecrementingWrapper> self(this);
+        std::unique_ptr<TDecrementingWrapper> self(this);
         RealObject_->Process(tsr);
     }
 private:
@@ -50,16 +50,16 @@ bool TElasticQueue::Add(IObjectInQueue* obj) {
         return false;
     }
 
-    THolder<TDecrementingWrapper> wrapper;
+    std::unique_ptr<TDecrementingWrapper> wrapper;
     try {
-        wrapper.Reset(new TDecrementingWrapper(obj, this));
+        wrapper.reset(new TDecrementingWrapper(obj, this));
     } catch (...) {
         AtomicDecrement(GuardCount_);
         throw;
     }
 
-    if (SlaveQueue_->Add(wrapper.Get())) {
-        Y_UNUSED(wrapper.Release());
+    if (SlaveQueue_->Add(wrapper.get())) {
+        Y_UNUSED(wrapper.release());
         return true;
     } else {
         return false;

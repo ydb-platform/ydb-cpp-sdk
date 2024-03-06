@@ -40,8 +40,8 @@ Y_UNIT_TEST_SUITE(TOutputStreamFormattingTest) {
             the test fails if compiled with g++44 in debug build
             (without optimizations), but performs correctly in release build.
         */
-        THolder<TStringStream> ss(new TStringStream);
-        THolder<int> ii(new int(0x1234567));
+        std::unique_ptr<TStringStream> ss(new TStringStream);
+        std::unique_ptr<int> ii(new int(0x1234567));
         (*ss) << Hex(*ii);
         UNIT_ASSERT_VALUES_EQUAL("0x01234567", ss->Str());
     }

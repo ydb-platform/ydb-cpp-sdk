@@ -3,6 +3,8 @@
 #include "common.h"
 #include "rty_formater.h"
 
+#include <memory>
+
 // ATTENTION! MUST CALL DoInitGlobalLog BEFORE USAGE
 
 bool GlobalLogInitialized();

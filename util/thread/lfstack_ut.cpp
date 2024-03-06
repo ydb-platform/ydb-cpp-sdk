@@ -221,9 +221,9 @@ Y_UNIT_TEST_SUITE(TLockFreeStackTests) {
     }
 
     Y_UNIT_TEST(MoveOnlyTest) {
-        TLockFreeStack<THolder<bool>> stack;
-        stack.Enqueue(MakeHolder<bool>(true));
-        THolder<bool> val;
+        TLockFreeStack<std::unique_ptr<bool>> stack;
+        stack.Enqueue(std::make_unique<bool>(true));
+        std::unique_ptr<bool> val;
         stack.Dequeue(&val);
         UNIT_ASSERT(val);
         UNIT_ASSERT_VALUES_EQUAL(true, *val);
@@ -313,10 +313,10 @@ Y_UNIT_TEST_SUITE(TLockFreeStackTests) {
     }
 
     struct TMoveTest {
-        using ValueType = THolder<int>;
+        using ValueType = std::unique_ptr<int>;
 
         static void Enqueue(TLockFreeStack<ValueType>& stack, size_t i) {
-            stack.Enqueue(MakeHolder<int>(static_cast<int>(i)));
+            stack.Enqueue(std::make_unique<int>(static_cast<int>(i)));
         }
 
         static void Dequeue(TLockFreeStack<ValueType>& stack) {

@@ -124,7 +124,7 @@ private:
     std::string_view GetFileExtension() const;
     void MakeReportFileName();
     void MakeTmpFileNameForForkedTests();
-    static void TransferFromCapturer(THolder<TJUnitProcessor::TOutputCapturer>& capturer, std::string& out, IOutputStream& outStream);
+    static void TransferFromCapturer(std::unique_ptr<TJUnitProcessor::TOutputCapturer>& capturer, std::string& out, IOutputStream& outStream);
 
     static void CaptureSignal(TJUnitProcessor* processor);
     static void UncaptureSignal();
@@ -137,8 +137,8 @@ private:
     std::string ResultReportFileName;
     TMaybe<TTempFile> TmpReportFile;
     std::map<std::string, TTestSuite> Suites;
-    THolder<TOutputCapturer> StdErrCapturer;
-    THolder<TOutputCapturer> StdOutCapturer;
+    std::unique_ptr<TOutputCapturer> StdErrCapturer;
+    std::unique_ptr<TOutputCapturer> StdOutCapturer;
     TInstant StartCurrentTestTime;
     void (*PrevAbortHandler)(int) = nullptr;
     void (*PrevSegvHandler)(int) = nullptr;

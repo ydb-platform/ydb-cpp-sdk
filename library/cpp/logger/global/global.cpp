@@ -3,7 +3,7 @@
 static void DoInitGlobalLog(std::unique_ptr<TGlobalLog> logger, std::unique_ptr<ILoggerFormatter> formatter) {
     TLoggerOperator<TGlobalLog>::Set(logger.release());
     if (!formatter) {
-        formatter.Reset(CreateRtyLoggerFormatter());
+        formatter.reset(CreateRtyLoggerFormatter());
     }
     TLoggerFormatterOperator::Set(formatter.release());
 }
@@ -19,7 +19,7 @@ void DoInitGlobalLog(const std::string& logType, const int logLevel, const bool 
 }
 
 void DoInitGlobalLog(std::unique_ptr<TLogBackend> backend, std::unique_ptr<ILoggerFormatter> formatter) {
-    DoInitGlobalLog(std::unique_ptr(new TGlobalLog(std::move(backend))), std::move(formatter));
+    DoInitGlobalLog(std::make_unique<TGlobalLog>(std::move(backend)), std::move(formatter));
 }
 
 bool GlobalLogInitialized() {

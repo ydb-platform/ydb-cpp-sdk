@@ -5,6 +5,8 @@
 #include <util/generic/ptr.h>
 #include <util/generic/noncopyable.h>
 
+#include <memory>
+
 // implementation of Opt class using last getopt
 
 /*

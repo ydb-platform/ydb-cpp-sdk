@@ -39,5 +39,5 @@ public:
 private:
     void DoFlush() override;
     void DoFinish() override;
-    THolder<TDirectIOBufferedFile> FileHolder;
+    std::unique_ptr<TDirectIOBufferedFile> FileHolder;
 };

@@ -42,7 +42,7 @@ namespace NLoggingImpl {
         }
 
         inline static void Set(T* v) {
-            SingletonWithPriority<TPtr, SingletonPriority>()->Instance.Reset(v);
+            SingletonWithPriority<TPtr, SingletonPriority>()->Instance.reset(v);
         }
     };
 
