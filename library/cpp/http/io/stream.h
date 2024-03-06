@@ -3,11 +3,11 @@
 #include "headers.h"
 
 #include <util/stream/output.h>
+#include <util/generic/yexception.h>
+#include <util/generic/array_ref.h>
 
 #include <string>
 #include <string_view>
-#include <util/generic/yexception.h>
-#include <util/generic/array_ref.h>
 
 class TSocket;
 

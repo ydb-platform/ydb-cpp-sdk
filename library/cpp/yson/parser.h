@@ -2,8 +2,6 @@
 
 #include "public.h"
 
-
-
 class IInputStream;
 
 namespace NYT::NYson {
