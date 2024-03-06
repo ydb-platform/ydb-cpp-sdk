@@ -7,6 +7,7 @@
 #include <util/generic/store_policy.h>
 
 #include <utility>
+
 /**
  * @addtogroup Streams_Buffered
  * @{

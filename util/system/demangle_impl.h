@@ -4,6 +4,8 @@
 
 #include <memory>
 
+#include <memory>
+
 namespace NPrivate {
 
     /*
