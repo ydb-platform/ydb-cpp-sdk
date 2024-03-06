@@ -147,6 +147,7 @@ public:
 
     /** To allow inline constructors. */
     struct TDestruct {
+        static void Destroy(TImpl* impl);
         void operator() (TImpl* impl);
     };
 
