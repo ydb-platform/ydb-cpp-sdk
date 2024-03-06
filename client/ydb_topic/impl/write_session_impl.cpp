@@ -401,7 +401,7 @@ NThreading::TFuture<void> TWriteSessionImpl::WaitEvent() {
 }
 
 void TWriteSessionImpl::WriteInternal(TContinuationToken&&, TWriteMessage&& message) {
-    TInstant createdAtValue = message.CreateTimestamp_.has_value() ? *message.CreateTimestamp_ : TInstant::Now();
+    TInstant createdAtValue = message.CreateTimestamp_.value_or(TInstant::Now());
     bool readyToAccept = false;
     size_t bufferSize = message.Data.size();
     with_lock(Lock) {

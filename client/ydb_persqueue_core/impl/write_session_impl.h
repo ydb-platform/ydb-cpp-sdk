@@ -70,7 +70,7 @@ public:
             if (block) {
                 WaitEventsImpl();
             }
-            eventInfos.reserve(Min(Events.size() + CloseEvent.has_value(), maxEventsCount.has_value() ? *maxEventsCount : std::numeric_limits<size_t>::max()));
+            eventInfos.reserve(Min(Events.size() + CloseEvent.has_value(), maxEventsCount.value_or(std::numeric_limits<size_t>::max())));
             while (!Events.empty()) {
                 eventInfos.emplace_back(GetEventImpl());
                 if (maxEventsCount.has_value() && eventInfos.size() >= *maxEventsCount) {
