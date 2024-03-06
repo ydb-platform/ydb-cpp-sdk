@@ -300,7 +300,7 @@ struct TContMachineContext::TImpl {
     }
 
     TAutoEvent Event;
-    THolder<TThread> Thread;
+    std::unique_ptr<TThread> Thread;
     ITrampoLine* TL;
     bool Finish;
 };

@@ -4,7 +4,6 @@
 #include "zerocopy_output.h"
 
 #include <utility>
-#include <util/generic/ptr.h>
 #include <util/generic/typetraits.h>
 #include <util/generic/store_policy.h>
 
@@ -45,7 +44,7 @@ protected:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
@@ -119,7 +118,7 @@ protected:
     void DoFinish() override;
 
 private:
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**

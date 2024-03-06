@@ -13,8 +13,8 @@ namespace NTesting {
         virtual ui16 Get() = 0;
     };
 
-    class TPortHolder : private THolder<IPort> {
-        using TBase = THolder<IPort>;
+    class TPortHolder : private std::unique_ptr<IPort> {
+        using TBase = std::unique_ptr<IPort>;
     public:
         using TBase::TBase;
         using TBase::Release;

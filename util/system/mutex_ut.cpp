@@ -38,7 +38,7 @@ class TMutexTest: public TTestBase {
         }
 
         void Process(void*) override {
-            THolder<TThreadTask> This(this);
+            std::unique_ptr<TThreadTask> This(this);
 
             (this->*Func_)();
         }

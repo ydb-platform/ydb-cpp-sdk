@@ -355,7 +355,7 @@ public:
 template <class T, class TCounter>
 class TAutoLockFreeQueue {
 public:
-    using TRef = THolder<T>;
+    using TRef = std::unique_ptr<T>;
 
     inline ~TAutoLockFreeQueue() {
         TRef tmp;

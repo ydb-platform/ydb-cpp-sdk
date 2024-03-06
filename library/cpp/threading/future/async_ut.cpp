@@ -36,7 +36,7 @@ Y_UNIT_TEST_SUITE(Async) {
     }
 
     Y_UNIT_TEST(WorksWithIMtpQueue) {
-        auto queue = MakeHolder<TThreadPool>();
+        auto queue = std::make_unique<TThreadPool>();
         queue->Start(1);
 
         auto future = NThreading::Async([]() { return 5; }, *queue);

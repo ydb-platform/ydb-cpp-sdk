@@ -8,6 +8,9 @@
 #include <util/string/vector.h>
 #include <util/string/split.h>
 
+
+#include <vector>
+
 using namespace NLastGetopt;
 
 namespace {

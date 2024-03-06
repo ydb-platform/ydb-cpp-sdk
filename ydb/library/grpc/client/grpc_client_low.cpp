@@ -419,7 +419,7 @@ void TGRpcClientLow::Init(size_t numWorkerThread) {
             auto* cq = CQS_.back().get();
             WorkerThreads_.emplace_back(SystemThreadFactory()->Run([cq]() {
                 PullEvents(cq);
-            }).Release());
+            }).release());
         }
     } else {
         CQS_.push_back(std::make_unique<grpc::CompletionQueue>());
@@ -427,7 +427,7 @@ void TGRpcClientLow::Init(size_t numWorkerThread) {
         for (size_t i = 0; i < numWorkerThread; i++) {
             WorkerThreads_.emplace_back(SystemThreadFactory()->Run([cq]() {
                 PullEvents(cq);
-            }).Release());
+            }).release());
         }
     }
 }
@@ -438,12 +438,12 @@ void TGRpcClientLow::AddWorkerThreadForTest() {
         auto* cq = CQS_.back().get();
         WorkerThreads_.emplace_back(SystemThreadFactory()->Run([cq]() {
             PullEvents(cq);
-        }).Release());
+        }).release());
     } else {
         auto* cq = CQS_.back().get();
         WorkerThreads_.emplace_back(SystemThreadFactory()->Run([cq]() {
             PullEvents(cq);
-        }).Release());
+        }).release());
     }
 }
 

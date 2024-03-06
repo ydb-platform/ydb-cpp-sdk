@@ -32,7 +32,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 class TBZipCompress: public IOutputStream {
@@ -47,7 +47,7 @@ private:
 
 public:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /** @} */

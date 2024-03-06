@@ -495,7 +495,7 @@ void TLzmaCompress::DoWrite(const void* buf, size_t len) {
 }
 
 void TLzmaCompress::DoFinish() {
-    THolder<TImpl> impl(Impl_.Release());
+    std::unique_ptr<TImpl> impl(Impl_.release());
 
     if (impl) {
         impl->Finish();

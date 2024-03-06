@@ -6,6 +6,7 @@
 #include <util/generic/noncopyable.h>
 
 #include <new>
+#include <memory>
 
 #if defined(_darwin_)
     #define Y_DISABLE_THRKEY_OPTIMIZATION
@@ -61,7 +62,7 @@
         //...later somewhere in cpp...
         TMyWriter*& writerRef = ThreadLocalWriter.Get();
         if (writerRef == nullptr) {
-            THolder<TMyWriter> threadLocalWriter( new TMyWriter(
+            std::unique_ptr<TMyWriter> threadLocalWriter( new TMyWriter(
                 *Session,
                 MinLogError,
                 MaxRps,
@@ -167,7 +168,7 @@ namespace NTls {
 
     private:
         class TImpl;
-        THolder<TImpl> Impl_;
+        std::unique_ptr<TImpl> Impl_;
     };
 
     struct TCleaner {
@@ -266,12 +267,16 @@ namespace NTls {
             T* val = static_cast<T*>(Key_.Get());
 
             if (!val) {
-                THolder<void> mem(::operator new(sizeof(T)));
-                THolder<T> newval(Constructor_->Construct(mem.Get()));
+                auto deleter = [](void const * data ) {
+                int const * p = static_cast<int const*>(data);
+                delete p;
+            };
+                std::unique_ptr<void, decltype(deleter)> mem(::operator new(sizeof(T)), deleter);
+                std::unique_ptr<T> newval(Constructor_->Construct(mem.get()));
 
-                Y_UNUSED(mem.Release());
-                Key_.Set((void*)newval.Get());
-                val = newval.Release();
+                Y_UNUSED(mem.release());
+                Key_.Set((void*)newval.get());
+                val = newval.release();
             }
 
             return val;
@@ -279,14 +284,19 @@ namespace NTls {
 
     private:
         static void Dtor(void* ptr) {
-            THolder<void> mem(ptr);
+            auto deleter = [](void const * data ) {
+                int const * p = static_cast<int const*>(data);
+                delete p;
+            };
+
+            std::unique_ptr<void, decltype(deleter)> mem(ptr, deleter);
 
             ((T*)ptr)->~T();
             ::NPrivate::FillWithTrash(ptr, sizeof(T));
         }
 
     private:
-        THolder<TConstructor> Constructor_;
+        std::unique_ptr<TConstructor> Constructor_;
         TKey Key_;
     };
 }

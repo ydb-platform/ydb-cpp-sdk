@@ -9,7 +9,9 @@
 #include <util/generic/ylimits.h>
 #include <util/generic/yexception.h>
 #include "yassert.h"
+
 #include <utility>
+#include <memory>
 
 #if defined(_linux_)
     #include <sys/prctl.h>
@@ -225,11 +227,11 @@ namespace {
             }
 
             {
-                TParams* holdP = P_.Release();
+                TParams* holdP = P_.release();
                 int err = pthread_create(&H_, pattrs, ThreadProxy, holdP);
                 if (err) {
                     H_ = {};
-                    P_.Reset(holdP);
+                    P_.reset(holdP);
                     PCHECK(err, "failed to create thread");
                 }
             }
@@ -237,7 +239,7 @@ namespace {
 
     private:
         static void* ThreadProxy(void* arg) {
-            THolder<TParams> p((TParams*)arg);
+            std::unique_ptr<TParams> p((TParams*)arg);
 
             SetThrName(*p);
 
@@ -245,7 +247,7 @@ namespace {
         }
 
     private:
-        THolder<TParams> P_;
+        std::unique_ptr<TParams> P_;
         pthread_t H_;
     };
 
@@ -254,8 +256,8 @@ namespace {
     using TThreadBase = TPosixThread;
 #endif
 
-    template <class T>
-    static inline typename T::TValueType* Impl(T& t, const char* op, bool check = true) {
+    template <typename T>
+    static inline T* Impl(std::unique_ptr<T>& t, const char* op, bool check = true) {
         if (!t) {
             ythrow yexception() << "can not " << op << " dead thread";
         }
@@ -266,13 +268,13 @@ namespace {
             ythrow yexception() << "can not " << op << " " << msg[check] << " thread";
         }
 
-        return t.Get();
+        return t.get();
     }
 }
 
 class TThread::TImpl: public TThreadBase {
 public:
-    inline TImpl(const TParams& params, THolder<TCallableBase> callable = {})
+    inline TImpl(const TParams& params, std::unique_ptr<TCallableBase> callable = {})
         : TThreadBase(params)
         , Callable_(std::move(callable))
     {
@@ -282,13 +284,13 @@ public:
         return ThreadIdHashFunction(SystemThreadId());
     }
 
-    static THolder<TImpl> Create(THolder<TCallableBase> callable) {
-        TParams params(TCallableBase::ThreadWorker, callable.Get());
-        return MakeHolder<TImpl>(std::move(params), std::move(callable));
+    static std::unique_ptr<TImpl> Create(std::unique_ptr<TCallableBase> callable) {
+        TParams params(TCallableBase::ThreadWorker, callable.get());
+        return std::make_unique<TImpl>(std::move(params), std::move(callable));
     }
 
 private:
-    THolder<TCallableBase> Callable_;
+    std::unique_ptr<TCallableBase> Callable_;
 };
 
 TThread::TThread(const TParams& p)
@@ -301,7 +303,7 @@ TThread::TThread(TThreadProc threadProc, void* param)
 {
 }
 
-TThread::TThread(TPrivateCtor, THolder<TCallableBase> callable)
+TThread::TThread(TPrivateCtor, std::unique_ptr<TCallableBase> callable)
     : Impl_(TImpl::Create(std::move(callable)))
 {
 }
@@ -318,7 +320,7 @@ void* TThread::Join() {
     if (Running()) {
         void* ret = Impl_->Join();
 
-        Impl_.Destroy();
+        Impl_.release();
 
         return ret;
     }
@@ -329,7 +331,7 @@ void* TThread::Join() {
 void TThread::Detach() {
     if (Running()) {
         Impl_->Detach();
-        Impl_.Destroy();
+        Impl_.release();
     }
 }
 

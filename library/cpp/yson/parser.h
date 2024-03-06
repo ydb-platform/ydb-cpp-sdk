@@ -29,7 +29,7 @@ namespace NYson {
 
     private:
         class TImpl;
-        THolder<TImpl> Impl;
+        std::unique_ptr<TImpl> Impl;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ namespace NYson {
 
     private:
         class TImpl;
-        THolder<TImpl> Impl;
+        std::unique_ptr<TImpl> Impl;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ namespace NYson {
 
     private:
         class TImpl;
-        THolder<TImpl> Impl;
+        std::unique_ptr<TImpl> Impl;
     };
 
     ////////////////////////////////////////////////////////////////////////////////

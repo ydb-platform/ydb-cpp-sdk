@@ -65,7 +65,7 @@ namespace NYT {
         void OnEndAttributes() override;
 
     private:
-        THolder<NJson::TJsonWriter> UnderlyingJsonWriter;
+        std::unique_ptr<NJson::TJsonWriter> UnderlyingJsonWriter;
         NJson::TJsonWriter* JsonWriter;
         IOutputStream* Output;
         ::NYson::EYsonType Type;

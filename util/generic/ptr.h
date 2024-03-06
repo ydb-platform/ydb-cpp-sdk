@@ -90,6 +90,11 @@ public:
 class TFree {
 public:
     template <class T>
+    inline void operator() (T* t) noexcept {
+        DoDestroy((void*)t);
+    }
+
+    template <class T>
     static inline void Destroy(T* t) noexcept {
         DoDestroy((void*)t);
     }

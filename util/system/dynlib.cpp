@@ -106,11 +106,11 @@ TDynamicLibrary::TDynamicLibrary(const TString& path, int flags) {
 TDynamicLibrary::~TDynamicLibrary() = default;
 
 void TDynamicLibrary::Open(const char* path, int flags) {
-    Impl_.Reset(TImpl::SafeCreate(path, flags));
+    Impl_.reset(TImpl::SafeCreate(path, flags));
 }
 
 void TDynamicLibrary::Close() noexcept {
-    Impl_.Destroy();
+    Impl_.release();
 }
 
 void* TDynamicLibrary::SymOptional(const char* name) noexcept {
@@ -130,7 +130,7 @@ void* TDynamicLibrary::Sym(const char* name) {
 }
 
 bool TDynamicLibrary::IsLoaded() const noexcept {
-    return (bool)Impl_.Get();
+    return (bool)Impl_.get();
 }
 
 void TDynamicLibrary::SetUnloadable(bool unloadable) {

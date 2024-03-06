@@ -12,9 +12,6 @@ std::unique_ptr<TLogBackend> TLogBackendCreatorUninitialized::DoCreateLogBackend
 void TLogBackendCreatorUninitialized::InitCustom(const std::string& type, ELogPriority priority, bool threaded) {
     if (type.empty()) {
         Slave = std::make_unique<TNullLogBackendCreator>();
-void TLogBackendCreatorUninitialized::InitCustom(const TString& type, ELogPriority priority, bool threaded) {
-    if (!type) {
-        Slave = std::make_unique<TNullLogBackendCreator>();
     } else if (TFactory::Has(type)) {
         Slave = TFactory::MakeHolder(type);
     } else {

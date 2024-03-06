@@ -48,7 +48,7 @@ public:
 
 private:
     class TPortManagerImpl;
-    THolder<TPortManagerImpl> Impl_;
+    std::unique_ptr<TPortManagerImpl> Impl_;
 };
 
 ui16 GetRandomPort();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "backend_creator.h"
+#include <memory>
 
 class TLogBackendCreatorUninitialized : public ILogBackendCreator {
 public:

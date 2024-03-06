@@ -67,7 +67,7 @@ TThreadFactoryHolder::TThreadFactoryHolder() noexcept
 class TThreadPool::TImpl: public TIntrusiveListItem<TImpl>, public IThreadFactory::IThreadAble {
     using TTsr = IThreadPool::TTsr;
     using TJobQueue = TFastQueue<IObjectInQueue*>;
-    using TThreadRef = THolder<IThreadFactory::IThread>;
+    using TThreadRef = std::unique_ptr<IThreadFactory::IThread>;
 
 public:
     inline TImpl(TThreadPool* parent, size_t thrnum, size_t maxqueue, const TParams& params)
@@ -201,7 +201,7 @@ private:
     }
 
     void DoExecute() override {
-        THolder<TTsr> tsr(new TTsr(Parent_));
+        std::unique_ptr<TTsr> tsr(new TTsr(Parent_));
 
         if (Namer) {
             Namer.SetCurrentThreadName();
@@ -216,7 +216,7 @@ private:
                 }
 
                 if (ShouldTerminate.load() && Queue.Empty()) {
-                    tsr.Destroy();
+                    tsr.release();
 
                     break;
                 }
@@ -321,7 +321,7 @@ private:
 TThreadPool::~TThreadPool() = default;
 
 size_t TThreadPool::Size() const noexcept {
-    if (!Impl_.Get()) {
+    if (!Impl_.get()) {
         return 0;
     }
 
@@ -329,7 +329,7 @@ size_t TThreadPool::Size() const noexcept {
 }
 
 size_t TThreadPool::GetThreadCountExpected() const noexcept {
-    if (!Impl_.Get()) {
+    if (!Impl_.get()) {
         return 0;
     }
 
@@ -337,7 +337,7 @@ size_t TThreadPool::GetThreadCountExpected() const noexcept {
 }
 
 size_t TThreadPool::GetThreadCountReal() const noexcept {
-    if (!Impl_.Get()) {
+    if (!Impl_.get()) {
         return 0;
     }
 
@@ -345,7 +345,7 @@ size_t TThreadPool::GetThreadCountReal() const noexcept {
 }
 
 size_t TThreadPool::GetMaxQueueSize() const noexcept {
-    if (!Impl_.Get()) {
+    if (!Impl_.get()) {
         return 0;
     }
 
@@ -353,7 +353,7 @@ size_t TThreadPool::GetMaxQueueSize() const noexcept {
 }
 
 bool TThreadPool::Add(IObjectInQueue* obj) {
-    Y_ENSURE_EX(Impl_.Get(), TThreadPoolException() << TStringBuf("mtp queue not started"));
+    Y_ENSURE_EX(Impl_.get(), TThreadPoolException() << TStringBuf("mtp queue not started"));
 
     if (Impl_->NeedRestart()) {
         Start(Impl_->GetThreadCountExpected(), Impl_->GetMaxQueueSize());
@@ -363,11 +363,11 @@ bool TThreadPool::Add(IObjectInQueue* obj) {
 }
 
 void TThreadPool::Start(size_t thrnum, size_t maxque) {
-    Impl_.Reset(new TImpl(this, thrnum, maxque, Params));
+    Impl_.reset(new TImpl(this, thrnum, maxque, Params));
 }
 
 void TThreadPool::Stop() noexcept {
-    Impl_.Destroy();
+    Impl_.release();
 }
 
 static std::atomic<long> MtpQueueCounter = 0;
@@ -388,7 +388,7 @@ public:
 
     private:
         void DoExecute() noexcept override {
-            THolder<TThread> This(this);
+            std::unique_ptr<TThread> This(this);
 
             if (Impl_->Namer) {
                 Impl_->Namer.SetCurrentThreadName();
@@ -418,7 +418,7 @@ public:
 
     private:
         TImpl* Impl_;
-        THolder<IThreadFactory::IThread> Thread_;
+        std::unique_ptr<IThreadFactory::IThread> Thread_;
     };
 
     inline TImpl(TAdaptiveThreadPool* parent, const TParams& params)
@@ -569,7 +569,7 @@ DEFINE_THREAD_POOL_CTORS(TSimpleThreadPool)
 TAdaptiveThreadPool::~TAdaptiveThreadPool() = default;
 
 bool TAdaptiveThreadPool::Add(IObjectInQueue* obj) {
-    Y_ENSURE_EX(Impl_.Get(), TThreadPoolException() << TStringBuf("mtp queue not started"));
+    Y_ENSURE_EX(Impl_.get(), TThreadPoolException() << TStringBuf("mtp queue not started"));
 
     Impl_->Add(obj);
 
@@ -577,15 +577,15 @@ bool TAdaptiveThreadPool::Add(IObjectInQueue* obj) {
 }
 
 void TAdaptiveThreadPool::Start(size_t, size_t) {
-    Impl_.Reset(new TImpl(this, Params));
+    Impl_.reset(new TImpl(this, Params));
 }
 
 void TAdaptiveThreadPool::Stop() noexcept {
-    Impl_.Destroy();
+    Impl_.release();
 }
 
 size_t TAdaptiveThreadPool::Size() const noexcept {
-    if (Impl_.Get()) {
+    if (Impl_.get()) {
         return Impl_->Size();
     }
 
@@ -593,7 +593,7 @@ size_t TAdaptiveThreadPool::Size() const noexcept {
 }
 
 void TAdaptiveThreadPool::SetMaxIdleTime(TDuration interval) {
-    Y_ENSURE_EX(Impl_.Get(), TThreadPoolException() << TStringBuf("mtp queue not started"));
+    Y_ENSURE_EX(Impl_.get(), TThreadPoolException() << TStringBuf("mtp queue not started"));
 
     Impl_->SetMaxIdleTime(interval);
 }
@@ -647,16 +647,16 @@ size_t TSimpleThreadPool::Size() const noexcept {
 namespace {
     class TOwnedObjectInQueue: public IObjectInQueue {
     private:
-        THolder<IObjectInQueue> Owned;
+        std::unique_ptr<IObjectInQueue> Owned;
 
     public:
-        TOwnedObjectInQueue(THolder<IObjectInQueue> owned)
+        TOwnedObjectInQueue(std::unique_ptr<IObjectInQueue> owned)
             : Owned(std::move(owned))
         {
         }
 
         void Process(void* data) override {
-            THolder<TOwnedObjectInQueue> self(this);
+            std::unique_ptr<TOwnedObjectInQueue> self(this);
             Owned->Process(data);
         }
     };
@@ -666,15 +666,15 @@ void IThreadPool::SafeAdd(IObjectInQueue* obj) {
     Y_ENSURE_EX(Add(obj), TThreadPoolException() << TStringBuf("can not add object to queue"));
 }
 
-void IThreadPool::SafeAddAndOwn(THolder<IObjectInQueue> obj) {
+void IThreadPool::SafeAddAndOwn(std::unique_ptr<IObjectInQueue> obj) {
     Y_ENSURE_EX(AddAndOwn(std::move(obj)), TThreadPoolException() << TStringBuf("can not add to queue and own"));
 }
 
-bool IThreadPool::AddAndOwn(THolder<IObjectInQueue> obj) {
-    auto owner = MakeHolder<TOwnedObjectInQueue>(std::move(obj));
-    bool added = Add(owner.Get());
+bool IThreadPool::AddAndOwn(std::unique_ptr<IObjectInQueue> obj) {
+    auto owner = std::make_unique<TOwnedObjectInQueue>(std::move(obj));
+    bool added = Add(owner.get());
     if (added) {
-        Y_UNUSED(owner.Release());
+        Y_UNUSED(owner.release());
     }
     return added;
 }

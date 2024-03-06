@@ -4,6 +4,7 @@
 #include <util/stream/input.h>
 #include <util/stream/output.h>
 
+
 /**
  * @addtogroup Streams_Archs
  * @{
@@ -27,7 +28,7 @@ private:
 
 public:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +48,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /** @} */

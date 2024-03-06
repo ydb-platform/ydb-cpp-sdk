@@ -21,7 +21,7 @@ Y_UNIT_TEST_SUITE(ScopeToolsTest) {
     }
 
     Y_UNIT_TEST(OnScopeExitMoveTest) {
-        THolder<int> i{new int{10}};
+        std::unique_ptr<int> i{new int{10}};
         int p = 0;
 
         {

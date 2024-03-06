@@ -35,7 +35,7 @@ public:
 
     void Init() { Ptr.Reset(new TEnumSerializationInitializer); }
 private:
-    THolder<TEnumSerializationInitializer> Ptr;
+    std::unique_ptr<TEnumSerializationInitializer> Ptr;
 };
 
 

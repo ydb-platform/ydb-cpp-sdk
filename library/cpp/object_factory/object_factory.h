@@ -128,7 +128,7 @@ namespace NObjectFactory {
 
         template <class... Args>
         static std::unique_ptr<TProduct> VerifiedConstruct(Args&&... args) {
-            auto result = MakeHolder(std::forward<Args>(args)...);
+            auto result = std::make_unique(std::forward<Args>(args)...);
             Y_ABORT_UNLESS(result, "Construct by factory failed");
             return result;
         }
