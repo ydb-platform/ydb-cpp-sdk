@@ -4,7 +4,7 @@
 #include <util/datetime/base.h>
 #include <util/generic/algorithm.h>
 
-#include <util/generic/ptr.h>
+
 #include <util/generic/singleton.h>
 
 #include <util/str_stl.h>

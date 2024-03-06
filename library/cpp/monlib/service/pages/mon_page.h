@@ -4,7 +4,7 @@
 #include <library/cpp/monlib/service/mon_service_http_request.h>
 
 #include <string>
-#include <util/generic/ptr.h>
+
 
 namespace NMonitoring {
     static const char HTTPOKTEXT[] = "HTTP/1.1 200 Ok\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";

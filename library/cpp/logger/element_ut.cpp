@@ -4,7 +4,7 @@
 
 #include <string>
 #include <util/stream/str.h>
-#include <util/generic/ptr.h>
+
 #include <utility>
 
 #include <library/cpp/testing/unittest/registar.h>

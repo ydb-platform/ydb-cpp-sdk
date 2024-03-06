@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 #include <string_view>
-#include <util/generic/ptr.h>
+
 #include <util/stream/output.h>
 #include <util/stream/str.h>
 #include <util/digest/numeric.h>

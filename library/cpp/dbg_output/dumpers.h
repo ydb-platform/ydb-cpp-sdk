@@ -14,9 +14,10 @@ template <class T, class D>
 struct TDumper<std::unique_ptr<T, D>> {
     template <class S>
     static inline void Dump(S& s, const std::unique_ptr<T, D>& v) {
-        s << DumpRaw("std::unique_ptr(") << v.Get() << DumpRaw(")");
+        s << DumpRaw("std::unique_ptr(") << v.get() << DumpRaw(")");
     }
 };
+
 
 template <class T, class Ops>
 struct TDumper<TIntrusivePtr<T, Ops>> {
@@ -30,7 +31,7 @@ template <class T>
 struct TDumper<std::shared_ptr<T>> {
     template <class S>
     static inline void Dump(S& s, const std::shared_ptr<T>& v) {
-        s << DumpRaw("std::shared_ptr(") << v.Get() << DumpRaw(")");
+        s << DumpRaw("std::shared_ptr(") << v.get() << DumpRaw(")");
     }
 };
 

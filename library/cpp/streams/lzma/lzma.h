@@ -4,7 +4,7 @@
 #include <util/stream/output.h>
 #include <util/stream/zerocopy.h>
 
-#include <util/generic/ptr.h>
+
 
 class TLzmaCompress: public IOutputStream {
 public:

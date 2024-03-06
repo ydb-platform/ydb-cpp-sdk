@@ -3,7 +3,7 @@
 #include <library/cpp/testing/common/env.h>
 
 #include <util/generic/noncopyable.h>
-#include <util/generic/ptr.h>
+
 #include <string>
 #include <util/network/sock.h>
 

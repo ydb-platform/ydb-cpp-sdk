@@ -3,7 +3,7 @@
 #include "ip.h"
 #include "socket.h"
 
-#include <util/generic/ptr.h>
+
 #include <util/network/sock.h>
 
 #include <memory>

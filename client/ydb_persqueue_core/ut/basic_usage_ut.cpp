@@ -4,7 +4,6 @@
 #include <library/cpp/threading/future/future.h>
 #include <library/cpp/threading/future/async.h>
 
-#include <util/generic/ptr.h>
 #include <util/generic/queue.h>
 #include <util/string/join.h>
 #include <util/system/event.h>

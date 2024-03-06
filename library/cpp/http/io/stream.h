@@ -3,7 +3,7 @@
 #include "headers.h"
 
 #include <util/stream/output.h>
-#include <util/generic/ptr.h>
+
 #include <string>
 #include <string_view>
 #include <util/generic/yexception.h>

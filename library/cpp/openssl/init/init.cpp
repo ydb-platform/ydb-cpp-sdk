@@ -1,7 +1,6 @@
 #include "init.h"
 
 #include <util/generic/singleton.h>
-#include <util/generic/ptr.h>
 #include <util/generic/buffer.h>
 
 #include <util/system/yassert.h>
@@ -16,6 +15,7 @@
 #include <openssl/rand.h>
 #include <openssl/conf.h>
 #include <openssl/crypto.h>
+
 #include <mutex>
 #include <vector>
 

@@ -14,7 +14,6 @@
 #include <openssl/tls1.h>
 #include <openssl/x509v3.h>
 
-
 using TOptions = TOpenSslClientIO::TOptions;
 
 namespace {

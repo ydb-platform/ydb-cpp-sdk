@@ -4,7 +4,7 @@
 #include <util/thread/pool.h>
 #include <util/system/event.h>
 #include <util/memory/addstorage.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/yexception.h>
 
 class TThreadedLogBackend::TImpl {

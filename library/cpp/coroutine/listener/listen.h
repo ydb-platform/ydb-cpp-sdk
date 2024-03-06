@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/ptr.h>
+
 #include <util/generic/ylimits.h>
 
 #include <memory>

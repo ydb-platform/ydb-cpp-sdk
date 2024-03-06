@@ -8,7 +8,7 @@
 #include <util/generic/serialized_enum.h>
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/ptr.h>
+
 #include <util/generic/singleton.h>
 
 

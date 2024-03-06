@@ -6,7 +6,7 @@
 #include <util/thread/pool.h>
 #include <library/cpp/http/io/stream.h>
 #include <util/memory/blob.h>
-#include <util/generic/ptr.h>
+
 
 #include <library/cpp/deprecated/atomic/atomic.h>
 

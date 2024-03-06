@@ -2,7 +2,7 @@
 
 #include <util/stream/input.h>
 #include <util/stream/output.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/yexception.h>
 
 #define BZIP_BUF_LEN (8 * 1024)
