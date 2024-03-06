@@ -98,6 +98,7 @@ public:
     static inline void Destroy(T* t) noexcept {
         DoDestroy((void*)t);
     }
+
 private:
     /*
      * we do not want dependancy on cstdlib here...
