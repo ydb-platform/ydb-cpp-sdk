@@ -17,15 +17,9 @@ namespace {
         void operator() (::ZSTD_CStream* p) noexcept {
             ::ZSTD_freeCStream(p);
         }
-        void operator() (::ZSTD_CStream* p) noexcept {
-            ::ZSTD_freeCStream(p);
-        }
     };
 
     struct DestroyZDStream {
-        void operator() (::ZSTD_DStream* p) noexcept {
-            ::ZSTD_freeDStream(p);
-        }
         void operator() (::ZSTD_DStream* p) noexcept {
             ::ZSTD_freeDStream(p);
         }

@@ -98,10 +98,7 @@ public:
     static inline void Destroy(T* t) noexcept {
         DoDestroy((void*)t);
     }
-    template <class T>
-    void operator() (T* t) noexcept {
-        DoDestroy((void*)t);
-    }
+
 private:
     /*
      * we do not want dependancy on cstdlib here...
