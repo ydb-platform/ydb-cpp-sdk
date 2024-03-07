@@ -105,16 +105,9 @@ void TWriteSessionImpl::Start(const TDuration& delay) {
     }
     Started = true;
 
-<<<<<<< HEAD
-    if (Settings.PartitionId_.has_value() && Settings.DirectWriteToPartition_)
-    {
-        with_lock (Lock) {
-            PreferredPartitionLocation = {};
-=======
-    if (Settings.PartitionId_.Defined() && Settings.DirectWriteToPartition_) {
+    if (Settings.PartitionId_.has_value() && Settings.DirectWriteToPartition_) {
         std::lock_guard guard(Lock);
         PreferredPartitionLocation = {};
->>>>>>> 7d6714383c (Replaced TCondVar, TMutex and TGuard)
 
         return ConnectToPreferredPartitionLocation(delay);
     } else {

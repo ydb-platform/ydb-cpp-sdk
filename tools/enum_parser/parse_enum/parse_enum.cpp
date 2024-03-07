@@ -2,6 +2,7 @@
 
 #include <library/cpp/cppparser/parser.h>
 
+#include <util/generic/yexception.h>
 #include <util/stream/file.h>
 #include <util/string/escape.h>
 

@@ -7,6 +7,7 @@
 #include <util/generic/typetraits.h>
 #include <util/generic/yexception.h>
 
+#include <algorithm>
 #include <optional>
 
 /*
