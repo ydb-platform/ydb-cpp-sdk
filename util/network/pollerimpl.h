@@ -3,7 +3,7 @@
 #include "socket.h"
 
 #include <util/system/error.h>
-#include <util/system/mutex.h>
+#include <util/system/fake_mutex.h>
 #include <util/system/defaults.h>
 #include <util/generic/ylimits.h>
 #include <util/generic/utility.h>

@@ -214,7 +214,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/system/atexit.cpp
   ${CMAKE_SOURCE_DIR}/util/system/backtrace.cpp
   ${CMAKE_SOURCE_DIR}/util/system/compat.cpp
-  ${CMAKE_SOURCE_DIR}/util/system/condvar.cpp
   ${CMAKE_SOURCE_DIR}/util/system/context.cpp
   ${CMAKE_SOURCE_DIR}/util/system/daemon.cpp
   ${CMAKE_SOURCE_DIR}/util/system/datetime.cpp
@@ -252,7 +251,7 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/system/mincore.cpp
   ${CMAKE_SOURCE_DIR}/util/system/mktemp.cpp
   ${CMAKE_SOURCE_DIR}/util/system/mlock.cpp
-  ${CMAKE_SOURCE_DIR}/util/system/mutex.cpp
+  ${CMAKE_SOURCE_DIR}/util/system/fake_mutex.cpp
   ${CMAKE_SOURCE_DIR}/util/system/nice.cpp
   ${CMAKE_SOURCE_DIR}/util/system/pipe.cpp
   ${CMAKE_SOURCE_DIR}/util/system/platform.cpp

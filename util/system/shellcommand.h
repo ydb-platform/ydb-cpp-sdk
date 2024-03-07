@@ -7,7 +7,6 @@
 #include "file.h"
 #include "getpid.h"
 #include "thread.h"
-#include "mutex.h"
 #include <sys/types.h>
 #include <list>
 #include <atomic>

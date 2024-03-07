@@ -7,7 +7,6 @@
 #include <util/network/address.h>
 #include <util/network/ip.h>
 #include <util/network/socket.h>
-#include <util/system/mutex.h>
 #include <util/system/yassert.h>
 
 #include <cerrno>
