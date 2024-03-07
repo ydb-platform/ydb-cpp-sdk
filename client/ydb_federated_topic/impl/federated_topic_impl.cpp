@@ -40,11 +40,10 @@ TFederatedTopicClient::TImpl::CreateWriteSession(const TFederatedWriteSessionSet
 }
 
 void TFederatedTopicClient::TImpl::InitObserver() {
-    with_lock(Lock) {
-        if (!Observer || Observer->IsStale()) {
-            Observer = std::make_shared<TFederatedDbObserver>(Connections, ClientSettings);
-            Observer->Start();
-        }
+    std::lock_guard guard(Lock);
+    if (!Observer || Observer->IsStale()) {
+        Observer = std::make_shared<TFederatedDbObserver>(Connections, ClientSettings);
+        Observer->Start();
     }
 }
 

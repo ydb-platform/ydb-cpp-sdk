@@ -146,11 +146,11 @@ private:
                 : ConstructorType(2)
             {
             }
-            TConstructorTest(const TString&, const TString&)
+            TConstructorTest(const std::string&, const std::string&)
                 : ConstructorType(3)
             {
             }
-            TConstructorTest(TString&&, TString&&)
+            TConstructorTest(std::string&&, std::string&&)
                 : ConstructorType(4)
             {
             }

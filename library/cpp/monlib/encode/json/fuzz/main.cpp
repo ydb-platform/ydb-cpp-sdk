@@ -1,7 +1,7 @@
 #include <library/cpp/monlib/encode/json/json.h>
 #include <library/cpp/monlib/encode/fake/fake.h>
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 
 extern "C" int LLVMFuzzerTestOneInput(const ui8* data, size_t size) {

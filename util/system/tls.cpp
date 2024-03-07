@@ -3,7 +3,6 @@
 #include <util/generic/hash.h>
 #include <util/generic/intrlist.h>
 #include <util/generic/singleton.h>
-#include <util/generic/vector.h>
 
 #include <atomic>
 
@@ -183,7 +182,7 @@ namespace {
     class TGenericTls: public TGenericTlsBase {
     public:
         virtual TPerThreadStorage* MyStorageSlow() {
-            auto lock = Guard(Lock_);
+            std::lock_guard guard(Lock_);
 
             {
                 TPTSRef& ret = Datas_[TThread::CurrentThreadId()];
@@ -197,9 +196,8 @@ namespace {
         }
 
         inline void Cleanup() noexcept {
-            with_lock (Lock_) {
-                Datas_.erase(TThread::CurrentThreadId());
-            }
+            std::lock_guard guard(Lock_);
+            Datas_.erase(TThread::CurrentThreadId());
         }
 
         static inline TGenericTls* Instance() {
@@ -208,7 +206,7 @@ namespace {
 
     private:
         using TPTSRef = std::unique_ptr<TPerThreadStorage>;
-        TMutex Lock_;
+        std::mutex Lock_;
         THashMap<TThread::TId, TPTSRef> Datas_;
     };
 }

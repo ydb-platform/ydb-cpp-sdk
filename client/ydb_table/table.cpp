@@ -24,13 +24,11 @@
 
 #include <library/cpp/cache/cache.h>
 #include <library/cpp/string_utils/misc/misc.h>
-#include <library/cpp/string_utils/string_output/string_output.h>
 
-#include <util/generic/map.h>
 #include <util/random/random.h>
 #include <util/string/join.h>
 
-#include <unordered_map>
+#include <map>
 
 namespace NYdb {
 namespace NTable {
@@ -2295,7 +2293,7 @@ void TIndexDescription::SerializeTo(Ydb::Table::TableIndex& proto) const {
 
 std::string TIndexDescription::ToString() const {
     std::string result;
-    NUtils::TStringOutput out(result);
+    TStringOutput out(result);
     Out(out);
     return result;
 }
@@ -2546,7 +2544,7 @@ void TChangefeedDescription::SerializeTo(Ydb::Table::Changefeed& proto) const {
 
 std::string TChangefeedDescription::ToString() const {
     std::string result;
-    NUtils::TStringOutput out(result);
+    TStringOutput out(result);
     Out(out);
     return result;
 }
@@ -2648,7 +2646,7 @@ void TValueSinceUnixEpochModeSettings::Out(IOutputStream& out, EUnit unit) {
 
 std::string TValueSinceUnixEpochModeSettings::ToString(EUnit unit) {
     std::string result;
-    NUtils::TStringOutput out(result);
+    TStringOutput out(result);
     Out(out, unit);
     return result;
 }

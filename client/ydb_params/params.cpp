@@ -5,7 +5,7 @@
 
 #include <client/ydb_types/fatal_error_handlers/handlers.h>
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 namespace NYdb {
 
@@ -76,7 +76,7 @@ public:
 
         if (HasTypeInfo()) {
             if (!TypesEqual(param->type(), value.GetType().GetProto())) {
-                FatalError(NUtils::TYdbStringBuilder() << "Type mismatch for parameter: " << name << ", expected: "
+                FatalError(TStringBuilder() << "Type mismatch for parameter: " << name << ", expected: "
                     << FormatType(TType(param->type())) << ", actual: " << FormatType(value.GetType()));
             }
         } else {
@@ -89,7 +89,7 @@ public:
     TParams Build() {
         for (auto& pair : ValueBuildersMap_) {
             if (!pair.second.Finished()) {
-                FatalError(NUtils::TYdbStringBuilder() << "Incomplete value for parameter: " << pair.first
+                FatalError(TStringBuilder() << "Incomplete value for parameter: " << pair.first
                     << ", call Build() on parameter value builder");
             }
         }
@@ -106,7 +106,7 @@ private:
         if (HasTypeInfo()) {
             auto it = ParamsMap_.find(name);
             if (it == ParamsMap_.end()) {
-                FatalError(NUtils::TYdbStringBuilder() << "Parameter not found: " << name);
+                FatalError(TStringBuilder() << "Parameter not found: " << name);
                 return nullptr;
             }
 
@@ -117,7 +117,7 @@ private:
     }
 
     void FatalError(const std::string& msg) const {
-        ThrowFatalError(NUtils::TYdbStringBuilder() << "TParamsBuilder: " << msg);
+        ThrowFatalError(TStringBuilder() << "TParamsBuilder: " << msg);
     }
 
 private:

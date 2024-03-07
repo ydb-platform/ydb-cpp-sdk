@@ -52,14 +52,14 @@ namespace NThreading {
             std::exception_ptr ExceptionInFlight;
 
             void TrySetException(std::exception_ptr eptr) noexcept {
-                TGuard lock{Mut};
+                std::lock_guard lock{Mut};
                 if (!ExceptionInFlight) {
                     ExceptionInFlight = std::move(eptr);
                 }
             }
 
             std::exception_ptr GetExceptionInFlight() const noexcept {
-                TGuard lock{Mut};
+                std::lock_guard lock{Mut};
                 return ExceptionInFlight;
             }
         };

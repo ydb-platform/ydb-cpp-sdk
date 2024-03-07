@@ -1,7 +1,7 @@
 # cython: c_string_type=str, c_string_encoding=utf8
 
 from util.generic.hash_set cimport THashSet
-from util.generic.string cimport TString
+from util.generic.string cimport std::string
 
 import pytest
 import unittest
@@ -30,24 +30,24 @@ class TestHashSet(unittest.TestCase):
         assert c1 == c2
 
     def test_insert_erase(self):
-        cdef THashSet[TString] tmp
+        cdef THashSet[std::string] tmp
         self.assertTrue(tmp.insert("one").second)
         self.assertFalse(tmp.insert("one").second)
         self.assertTrue(tmp.insert("two").second)
-        cdef TString one = "one"
-        cdef TString two = "two"
+        cdef std::string one = "one"
+        cdef std::string two = "two"
         self.assertEqual(tmp.erase(one), 1)
         self.assertEqual(tmp.erase(two), 1)
         self.assertEqual(tmp.size(), 0)
         self.assertTrue(tmp.empty())
 
     def test_iterators_and_find(self):
-        cdef THashSet[TString] tmp
+        cdef THashSet[std::string] tmp
         self.assertTrue(tmp.begin() == tmp.end())
         self.assertTrue(tmp.find("1") == tmp.end())
         tmp.insert("1")
         self.assertTrue(tmp.begin() != tmp.end())
-        cdef THashSet[TString].iterator it = tmp.find("1")
+        cdef THashSet[std::string].iterator it = tmp.find("1")
         self.assertTrue(it != tmp.end())
         self.assertEqual(deref(it), "1")
 

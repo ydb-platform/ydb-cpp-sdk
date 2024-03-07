@@ -1,7 +1,7 @@
 # cython: c_string_type=str, c_string_encoding=utf8
 
 from util.folder.path cimport TFsPath
-from util.generic.string cimport TString, TStringBuf
+from util.generic.string cimport std::string, std::string_view
 from util.generic.vector cimport TVector
 
 import unittest
@@ -17,13 +17,13 @@ class TestPath(unittest.TestCase):
         self.assertEqual(path.c_str(), "")
 
     def test_ctor2(self):
-        cdef TString str_path = "/a/b/c"
+        cdef std::string str_path = "/a/b/c"
         cdef TFsPath path = TFsPath(str_path)
         self.assertEqual(path.IsDefined(), True)
         self.assertEqual(path.c_str(), "/a/b/c")
 
     def test_ctor3(self):
-        cdef TStringBuf buf_path = "/a/b/c"
+        cdef std::string_view buf_path = "/a/b/c"
         cdef TFsPath path = TFsPath(buf_path)
         self.assertEqual(path.IsDefined(), True)
         self.assertEqual(path.c_str(), "/a/b/c")
@@ -231,7 +231,7 @@ class TestPath(unittest.TestCase):
         TFsPath("test_list/c").Touch()
 
         cdef TVector[TFsPath] files
-        cdef TVector[TString] names
+        cdef TVector[std::string] names
 
         dir.List(files)
         dir.ListNames(names)
@@ -313,7 +313,7 @@ class TestPath(unittest.TestCase):
         cdef TFsPath path = TFsPath("test_rename_a")
         path.Touch()
 
-        cdef TString path_str = "test_rename_b"
+        cdef std::string path_str = "test_rename_b"
         cdef TFsPath path_from_str = TFsPath(path_str)
         self.assertEqual(path.Exists(), True)
         self.assertEqual(path_from_str.Exists(), False)
@@ -343,7 +343,7 @@ class TestPath(unittest.TestCase):
             path_from_str.RenameTo("")
 
     def test_copy(self):
-        cdef TString dst = "test_copy_dst"
+        cdef std::string dst = "test_copy_dst"
         cdef TFsPath src_path = TFsPath("test_copy_src")
         cdef TFsPath dst_path = TFsPath(dst)
         self.assertEqual(src_path.Exists(), False)

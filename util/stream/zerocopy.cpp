@@ -34,7 +34,7 @@ size_t IZeroCopyInput::DoSkip(size_t len) {
 
 IZeroCopyInputFastReadTo::~IZeroCopyInputFastReadTo() = default;
 
-size_t IZeroCopyInputFastReadTo::DoReadTo(TString& st, char ch) {
+size_t IZeroCopyInputFastReadTo::DoReadTo(std::string& st, char ch) {
     const char* ptr;
     size_t len = Next(&ptr);
     if (!len) {

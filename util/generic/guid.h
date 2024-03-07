@@ -26,14 +26,14 @@ struct TGUID {
     }
 
     // xxxx-xxxx-xxxx-xxxx
-    TString AsGuidString() const;
+    std::string AsGuidString() const;
 
     /**
      * RFC4122 GUID, which described in
      * https://en.wikipedia.org/wiki/Universally_unique_identifier
      * xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
      **/
-    TString AsUuidString() const;
+    std::string AsUuidString() const;
 
     static TGUID Create();
 
@@ -66,14 +66,14 @@ struct THash<TGUID> {
 };
 
 void CreateGuid(TGUID* res);
-TString GetGuidAsString(const TGUID& g);
-TString CreateGuidAsString();
-TGUID GetGuid(TStringBuf s);
-bool GetGuid(TStringBuf s, TGUID& result);
+std::string GetGuidAsString(const TGUID& g);
+std::string CreateGuidAsString();
+TGUID GetGuid(std::string_view s);
+bool GetGuid(std::string_view s, TGUID& result);
 
 /**
  * Functions for correct parsing RFC4122 GUID, which described in
  * https://en.wikipedia.org/wiki/Universally_unique_identifier
  **/
-TGUID GetUuid(TStringBuf s);
-bool GetUuid(TStringBuf s, TGUID& result);
+TGUID GetUuid(std::string_view s);
+bool GetUuid(std::string_view s, TGUID& result);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 #include <util/generic/yexception.h>
 
 namespace NJson {

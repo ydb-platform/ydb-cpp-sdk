@@ -4,6 +4,8 @@
 #error "you should never include future-inl.h directly"
 #endif // INCLUDE_FUTURE_INL_H
 
+#include <mutex>
+
 namespace NThreading {
     namespace NImpl {
         ////////////////////////////////////////////////////////////////////////////////
@@ -47,6 +49,7 @@ namespace NThreading {
             };
 
             void AccessValue(TDuration timeout, int acquireState) const {
+                using namespace std::literals;
                 TAtomicBase state = AtomicGet(State);
                 if (Y_UNLIKELY(state == NotReady)) {
                     if (timeout == TDuration::Zero()) {
@@ -129,6 +132,7 @@ namespace NThreading {
 
             template <typename TT>
             void SetValue(TT&& value) {
+                using namespace std::literals;
                 bool success = TrySetValue(std::forward<TT>(value));
                 if (Y_UNLIKELY(!success)) {
                     ::NThreading::NImpl::ThrowFutureException("value already set"sv, __LOCATION__);
@@ -140,7 +144,8 @@ namespace NThreading {
                 TSystemEvent* readyEvent = nullptr;
                 TCallbackList<T> callbacks;
 
-                with_lock (StateLock) {
+                {
+                    std::lock_guard guard(StateLock);
                     TAtomicBase state = AtomicGet(State);
                     if (Y_UNLIKELY(state != NotReady)) {
                         return false;
@@ -169,6 +174,7 @@ namespace NThreading {
             }
 
             void SetException(std::exception_ptr e) {
+                using namespace std::literals;
                 bool success = TrySetException(std::move(e));
                 if (Y_UNLIKELY(!success)) {
                     ::NThreading::NImpl::ThrowFutureException("value already set"sv, __LOCATION__);
@@ -179,7 +185,8 @@ namespace NThreading {
                 TSystemEvent* readyEvent;
                 TCallbackList<T> callbacks;
 
-                with_lock (StateLock) {
+                {
+                    std::lock_guard guard(StateLock);
                     TAtomicBase state = AtomicGet(State);
                     if (Y_UNLIKELY(state != NotReady)) {
                         return false;
@@ -209,12 +216,11 @@ namespace NThreading {
 
             template <typename F>
             bool Subscribe(F&& func) {
-                with_lock (StateLock) {
-                    TAtomicBase state = AtomicGet(State);
-                    if (state == NotReady) {
-                        Callbacks.emplace_back(std::forward<F>(func));
-                        return true;
-                    }
+                std::lock_guard guard(StateLock);
+                TAtomicBase state = AtomicGet(State);
+                if (state == NotReady) {
+                    Callbacks.emplace_back(std::forward<F>(func));
+                    return true;
                 }
                 return false;
             }
@@ -230,7 +236,8 @@ namespace NThreading {
             bool Wait(TInstant deadline) const {
                 TSystemEvent* readyEvent = nullptr;
 
-                with_lock (StateLock) {
+                {
+                    std::lock_guard guard(const_cast<TAdaptiveLock&>(StateLock));
                     TAtomicBase state = AtomicGet(State);
                     if (state != NotReady) {
                         return true;
@@ -299,6 +306,7 @@ namespace NThreading {
             }
 
             void GetValue(TDuration timeout = TDuration::Zero()) const {
+                using namespace std::literals;
                 TAtomicBase state = AtomicGet(State);
                 if (Y_UNLIKELY(state == NotReady)) {
                     if (timeout == TDuration::Zero()) {
@@ -318,6 +326,7 @@ namespace NThreading {
             }
 
             void SetValue() {
+                using namespace std::literals;
                 bool success = TrySetValue();
                 if (Y_UNLIKELY(!success)) {
                     ::NThreading::NImpl::ThrowFutureException("value already set"sv, __LOCATION__);
@@ -328,7 +337,8 @@ namespace NThreading {
                 TSystemEvent* readyEvent = nullptr;
                 TCallbackList<void> callbacks;
 
-                with_lock (StateLock) {
+                {
+                    std::lock_guard guard(StateLock);
                     TAtomicBase state = AtomicGet(State);
                     if (Y_UNLIKELY(state != NotReady)) {
                         return false;
@@ -355,6 +365,7 @@ namespace NThreading {
             }
 
             void SetException(std::exception_ptr e) {
+                using namespace std::literals;
                 bool success = TrySetException(std::move(e));
                 if (Y_UNLIKELY(!success)) {
                     ::NThreading::NImpl::ThrowFutureException("value already set"sv, __LOCATION__);
@@ -365,7 +376,8 @@ namespace NThreading {
                 TSystemEvent* readyEvent = nullptr;
                 TCallbackList<void> callbacks;
 
-                with_lock (StateLock) {
+                {
+                    std::lock_guard guard(StateLock);
                     TAtomicBase state = AtomicGet(State);
                     if (Y_UNLIKELY(state != NotReady)) {
                         return false;
@@ -395,12 +407,11 @@ namespace NThreading {
 
             template <typename F>
             bool Subscribe(F&& func) {
-                with_lock (StateLock) {
-                    TAtomicBase state = AtomicGet(State);
-                    if (state == NotReady) {
-                        Callbacks.emplace_back(std::forward<F>(func));
-                        return true;
-                    }
+                std::lock_guard guard(StateLock);
+                TAtomicBase state = AtomicGet(State);
+                if (state == NotReady) {
+                    Callbacks.emplace_back(std::forward<F>(func));
+                    return true;
                 }
                 return false;
             }
@@ -416,7 +427,8 @@ namespace NThreading {
             bool Wait(TInstant deadline) const {
                 TSystemEvent* readyEvent = nullptr;
 
-                with_lock (StateLock) {
+                {
+                    std::lock_guard<TAdaptiveLock> guard(const_cast<TAdaptiveLock&>(StateLock));
                     TAtomicBase state = AtomicGet(State);
                     if (state != NotReady) {
                         return true;
@@ -645,11 +657,12 @@ namespace NThreading {
 
     template <typename T>
     inline std::optional<TFutureStateId> TFuture<T>::StateId() const noexcept {
-        return State != nullptr ? MakeMaybe<TFutureStateId>(*State) : std::nullopt;
+        return State != nullptr ? std::make_optional<TFutureStateId>(*State) : std::nullopt;
     }
 
     template <typename T>
     inline void TFuture<T>::EnsureInitialized() const {
+        using namespace std::literals;
         if (!State) {
             ::NThreading::NImpl::ThrowFutureException("state not initialized"sv, __LOCATION__);
         }
@@ -748,10 +761,11 @@ namespace NThreading {
     }
 
     inline std::optional<TFutureStateId> TFuture<void>::StateId() const noexcept {
-        return State != nullptr ? std::optional<TFutureStateId>(*State) : std::nullopt;
+        return State != nullptr ? std::make_optional<TFutureStateId>(*State) : std::nullopt;
     }
 
     inline void TFuture<void>::EnsureInitialized() const {
+        using namespace std::literals;
         if (!State) {
             ::NThreading::NImpl::ThrowFutureException("state not initialized"sv, __LOCATION__);
         }
@@ -859,6 +873,7 @@ namespace NThreading {
 
     template <typename T>
     inline void TPromise<T>::EnsureInitialized() const {
+        using namespace std::literals;
         if (!State) {
             ::NThreading::NImpl::ThrowFutureException("state not initialized"sv, __LOCATION__);
         }
@@ -933,6 +948,7 @@ namespace NThreading {
     }
 
     inline void TPromise<void>::EnsureInitialized() const {
+        using namespace std::literals;
         if (!State) {
             ::NThreading::NImpl::ThrowFutureException("state not initialized"sv, __LOCATION__);
         }

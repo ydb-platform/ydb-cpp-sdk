@@ -947,7 +947,7 @@ void TSocketOutput::DoWriteV(const TPart* parts, size_t count) {
 namespace {
     //https://bugzilla.mozilla.org/attachment.cgi?id=503263&action=diff
 
-    struct TLocalNames: public THashSet<TStringBuf> {
+    struct TLocalNames: public THashSet<std::string_view> {
         inline TLocalNames() {
             insert("localhost");
             insert("localhost.localdomain");
@@ -1004,7 +1004,7 @@ public:
     inline TImpl(const char* host, ui16 port, int flags)
         : Info_(nullptr, TAddrInfoDeleter{})
     {
-        const TString port_st(ToString(port));
+        const std::string port_st(ToString(port));
         struct addrinfo hints;
 
         memset(&hints, 0, sizeof(hints));
@@ -1069,12 +1069,12 @@ TNetworkAddress::TNetworkAddress(const TUnixSocketPath& unixSocketPath, int flag
 {
 }
 
-TNetworkAddress::TNetworkAddress(const TString& host, ui16 port, int flags)
+TNetworkAddress::TNetworkAddress(const std::string& host, ui16 port, int flags)
     : Impl_(new TImpl(host.data(), port, flags))
 {
 }
 
-TNetworkAddress::TNetworkAddress(const TString& host, ui16 port)
+TNetworkAddress::TNetworkAddress(const std::string& host, ui16 port)
     : Impl_(new TImpl(host.data(), port, 0))
 {
 }

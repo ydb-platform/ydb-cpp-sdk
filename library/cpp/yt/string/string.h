@@ -6,7 +6,7 @@
 
 #include <util/datetime/base.h>
 
-#include <util/generic/string.h>
+#include <string>
 
 #include <util/string/strip.h>
 

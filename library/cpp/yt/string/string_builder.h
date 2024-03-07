@@ -1,6 +1,8 @@
 #pragma once
 
-#include <util/generic/string.h>
+#include <util/generic/noncopyable.h>
+
+#include <string>
 
 namespace NYT {
 

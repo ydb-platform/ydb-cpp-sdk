@@ -24,11 +24,11 @@ static bool IsNumberT(const TStringType& s) noexcept {
     return std::all_of(s.begin(), s.end(), IsAsciiDigit<typename TStringType::value_type>);
 }
 
-bool IsNumber(const TStringBuf s) noexcept {
+bool IsNumber(const std::string_view s) noexcept {
     return IsNumberT(s);
 }
 
-bool IsNumber(const TWtringBuf s) noexcept {
+bool IsNumber(const std::u16string_view s) noexcept {
     return IsNumberT(s);
 }
 
@@ -41,17 +41,17 @@ static bool IsHexNumberT(const TStringType& s) noexcept {
     return std::all_of(s.begin(), s.end(), IsAsciiHex<typename TStringType::value_type>);
 }
 
-bool IsHexNumber(const TStringBuf s) noexcept {
+bool IsHexNumber(const std::string_view s) noexcept {
     return IsHexNumberT(s);
 }
 
-bool IsHexNumber(const TWtringBuf s) noexcept {
+bool IsHexNumber(const std::u16string_view s) noexcept {
     return IsHexNumberT(s);
 }
 
 namespace {
     template <size_t N>
-    bool IsCaseInsensitiveAnyOf(TStringBuf str, const std::array<TStringBuf, N>& options) {
+    bool IsCaseInsensitiveAnyOf(std::string_view str, const std::array<std::string_view, N>& options) {
         for (auto option : options) {
             if (str.size() == option.size() && ::strnicmp(str.data(), option.data(), str.size()) == 0) {
                 return true;
@@ -61,8 +61,8 @@ namespace {
     }
 } //anonymous namespace
 
-bool IsTrue(const TStringBuf v) noexcept {
-    static constexpr std::array<TStringBuf, 7> trueOptions{
+bool IsTrue(const std::string_view v) noexcept {
+    static constexpr std::array<std::string_view, 7> trueOptions{
         "true",
         "t",
         "yes",
@@ -73,8 +73,8 @@ bool IsTrue(const TStringBuf v) noexcept {
     return IsCaseInsensitiveAnyOf(v, trueOptions);
 }
 
-bool IsFalse(const TStringBuf v) noexcept {
-    static constexpr std::array<TStringBuf, 7> falseOptions{
+bool IsFalse(const std::string_view v) noexcept {
+    static constexpr std::array<std::string_view, 7> falseOptions{
         "false",
         "f",
         "no",

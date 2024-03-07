@@ -1,8 +1,8 @@
 #pragma once
 
 #include <util/generic/buffer.h>
-#include <util/generic/strbuf.h>
-#include <util/generic/string.h>
+#include <string_view>
+#include <string>
 #include <util/generic/typetraits.h>
 #include <util/generic/yexception.h>
 

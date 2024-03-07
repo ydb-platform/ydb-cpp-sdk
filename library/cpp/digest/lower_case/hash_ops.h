@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 // can be used for caseless hashes like: THashMap<std::string_view, T, TCIOps, TCIOps>
 

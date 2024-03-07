@@ -3,7 +3,6 @@
 #include "zerocopy.h"
 #include "zerocopy_output.h"
 
-#include <util/generic/strbuf.h>
 
 /**
  * @addtogroup Streams_Memory
@@ -26,10 +25,10 @@ public:
      * @param len                       Size of the memory block.
      */
     TMemoryInput(const void* buf, size_t len) noexcept;
-    TMemoryInput(TString&&) = delete;
-    explicit TMemoryInput(const TStringBuf buf) noexcept;
+    TMemoryInput(std::string&&) = delete;
+    explicit TMemoryInput(const std::string_view buf) noexcept;
     explicit TMemoryInput(const char* zstr)
-        : TMemoryInput(TStringBuf(zstr))
+        : TMemoryInput(std::string_view(zstr))
     {
     }
 
@@ -221,8 +220,8 @@ public:
      * @returns                         Data that has been written into this
      *                                  stream as a string.
      */
-    TStringBuf Str() const {
-        return TStringBuf(Beg(), Buf());
+    std::string_view Str() const {
+        return std::string_view(Beg(), Buf());
     }
 
     char* Beg() const {

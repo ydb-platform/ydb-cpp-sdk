@@ -7,7 +7,6 @@
 #include <util/generic/bitops.h>
 #include <util/generic/utility.h>
 #include <util/generic/intrlist.h>
-#include <util/generic/strbuf.h>
 #include <util/generic/singleton.h>
 
 #include <new>
@@ -219,17 +218,17 @@ public:
     }
 
     template <typename TChar>
-    inline TBasicStringBuf<TChar> AppendString(const TBasicStringBuf<TChar>& buf) {
-        return TBasicStringBuf<TChar>(Append(buf.data(), buf.size()), buf.size());
+    inline std::basic_string_view<TChar> AppendString(const std::basic_string_view<TChar>& buf) {
+        return std::basic_string_view<TChar>(Append(buf.data(), buf.size()), buf.size());
     }
 
     template <typename TChar>
-    inline TBasicStringBuf<TChar> AppendCString(const TBasicStringBuf<TChar>& buf) {
+    inline std::basic_string_view<TChar> AppendCString(const std::basic_string_view<TChar>& buf) {
         TChar* ret = static_cast<TChar*>(Allocate((buf.size() + 1) * sizeof(TChar)));
 
         std::char_traits<TChar>::copy(ret, buf.data(), buf.size());
         *(ret + buf.size()) = 0;
-        return TBasicStringBuf<TChar>(ret, buf.size());
+        return std::basic_string_view<TChar>(ret, buf.size());
     }
 
     inline size_t Available() const noexcept {

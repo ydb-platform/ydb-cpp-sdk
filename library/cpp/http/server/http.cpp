@@ -13,13 +13,13 @@
 #include <util/system/compat.h> // stricmp, strnicmp, strlwr, strupr, stpcpy
 #include <util/system/defaults.h>
 #include <util/system/event.h>
-#include <util/system/mutex.h>
 #include <util/system/pipe.h>
 #include <util/system/thread.h>
 #include <util/thread/factory.h>
 
 #include <cerrno>
 #include <cstring>
+#include <mutex>
 
 using namespace NAddr;
 
@@ -86,7 +86,7 @@ public:
         }
 
         inline void Add(TClientConnection* c) noexcept {
-            TGuard<TMutex> g(Mutex_);
+            std::lock_guard g(Mutex_);
 
             Conns_.PushBack(c);
             if (Options.OneShotPoll) {
@@ -104,7 +104,7 @@ public:
             TIntrusiveListWithAutoDelete<TClientConnection, TDelete> toDelete;
 
             {
-                TGuard<TMutex> g(Mutex_);
+                std::lock_guard g(Mutex_);
 
                 PendingDelete_.ForEach([&toDelete, threadNum](TClientConnection * conn) {
                     if (!(conn->CleanupState_.ThreadMask &= ~((ui64)1 << threadNum))) {
@@ -116,7 +116,7 @@ public:
 
 
         inline void Erase(TClientConnection* c, TInstant now) noexcept {
-            TGuard<TMutex> g(Mutex_);
+            std::lock_guard g(Mutex_);
             EraseUnsafe(c, /*removeFromPoller*/!Options.OneShotPoll);
             if (Options.ExpirationTimeout > TDuration::Zero()) {
                 TryRemovingUnsafe(now - Options.ExpirationTimeout);
@@ -124,13 +124,13 @@ public:
         }
 
         inline void Clear() noexcept {
-            TGuard<TMutex> g(Mutex_);
+            std::lock_guard g(Mutex_);
 
             Conns_.Clear();
         }
 
         inline bool RemoveOld(TInstant border) noexcept {
-            TGuard<TMutex> g(Mutex_);
+            std::lock_guard g(Mutex_);
             return TryRemovingUnsafe(border);
         }
 
@@ -162,7 +162,7 @@ public:
         }
 
     public:
-        TMutex Mutex_;
+        std::mutex Mutex_;
         TIntrusiveListWithAutoDelete<TClientConnection, TDelete> Conns_;
         TIntrusiveListWithAutoDelete<TClientConnection, TDelete> PendingDelete_;
         TSocketPoller* Poller_ = nullptr;
@@ -263,14 +263,14 @@ public:
 
     void Wait() {
         Cb_->OnWait();
-        TGuard<TMutex> g(StopMutex);
+        std::lock_guard g(StopMutex);
         JoinListenerThreads();
     }
 
     void Stop() {
         Shutdown();
 
-        TGuard<TMutex> g(StopMutex);
+        std::lock_guard g(StopMutex);
         JoinListenerThreads();
 
         while (ConnectionCount) {
@@ -498,7 +498,7 @@ public:
     ICallBack* Cb_ = nullptr;
     THttpServer* Parent_ = nullptr;
     TWakeupPollAble WakeupPollAble;
-    TMutex StopMutex;
+    std::mutex StopMutex;
 
 private:
     template <class TThreadPool_>

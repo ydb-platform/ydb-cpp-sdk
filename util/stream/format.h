@@ -4,7 +4,6 @@
 #include "output.h"
 
 #include <util/datetime/base.h>
-#include <util/generic/strbuf.h>
 #include <util/generic/flags.h>
 #include <util/memory/tempbuf.h>
 #include <util/string/cast.h>
@@ -125,18 +124,18 @@ namespace NFormatPrivate {
     template <typename TStream, typename T, size_t Base>
     TStream& ToStreamImpl(TStream& stream, const TBaseNumber<T, Base>& value) {
         char buf[8 * sizeof(T) + 1]; /* Add 1 for sign. */
-        TStringBuf str(buf, IntToString<Base>(value.Value, buf, sizeof(buf)));
+        std::string_view str(buf, IntToString<Base>(value.Value, buf, sizeof(buf)));
 
         if (str[0] == '-') {
             stream << '-';
-            str.Skip(1);
+            str.remove_prefix(1);
         }
 
         if (value.Flags & HF_ADDX) {
             if (Base == 16) {
-                stream << TStringBuf("0x");
+                stream << std::string_view("0x");
             } else if (Base == 2) {
-                stream << TStringBuf("0b");
+                stream << std::string_view("0b");
             }
         }
 
@@ -160,9 +159,9 @@ namespace NFormatPrivate {
 
     template <typename Char, size_t Base>
     struct TBaseText {
-        TBasicStringBuf<Char> Text;
+        std::basic_string_view<Char> Text;
 
-        inline TBaseText(const TBasicStringBuf<Char> text)
+        inline TBaseText(const std::basic_string_view<Char> text)
             : Text(text)
         {
         }
@@ -193,7 +192,7 @@ namespace NFormatPrivate {
     IOutputStream& operator<<(IOutputStream& o, const TFloatPrecision<T>& prec) {
         char buf[512];
         size_t count = FloatToString(prec.Value, buf, sizeof(buf), prec.Mode, prec.NDigits);
-        o << TStringBuf(buf, count);
+        o << std::string_view(buf, count);
         return o;
     }
 
@@ -355,14 +354,14 @@ static constexpr ::NFormatPrivate::TBaseNumber<T, 2> SBin(const T& value, const 
  *
  * Example usage:
  * @code
- * stream << HexText(TStringBuf("abcи"));  // Will output "61 62 63 D0 B8"
- * stream << HexText(TWtringBuf(u"abcи")); // Will output "0061 0062 0063 0438"
+ * stream << HexText(std::string_view("abcи"));  // Will output "61 62 63 D0 B8"
+ * stream << HexText(std::u16string_view(u"abcи")); // Will output "0061 0062 0063 0438"
  * @endcode
  *
  * @param value                         String to output.
  */
 template <typename TChar>
-static inline ::NFormatPrivate::TBaseText<TChar, 16> HexText(const TBasicStringBuf<TChar> value) {
+static inline ::NFormatPrivate::TBaseText<TChar, 16> HexText(const std::basic_string_view<TChar> value) {
     return ::NFormatPrivate::TBaseText<TChar, 16>(value);
 }
 
@@ -374,13 +373,13 @@ static inline ::NFormatPrivate::TBaseText<TChar, 16> HexText(const TBasicStringB
  *
  * Example usage:
  * @code
- * stream << BinText(TStringBuf("aaa"));  // Will output "01100001 01100001 01100001"
+ * stream << BinText(std::string_view("aaa"));  // Will output "01100001 01100001 01100001"
  * @endcode
  *
  * @param value                         String to output.
  */
 template <typename TChar>
-static inline ::NFormatPrivate::TBaseText<TChar, 2> BinText(const TBasicStringBuf<TChar> value) {
+static inline ::NFormatPrivate::TBaseText<TChar, 2> BinText(const std::basic_string_view<TChar> value) {
     return ::NFormatPrivate::TBaseText<TChar, 2>(value);
 }
 

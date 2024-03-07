@@ -2,11 +2,11 @@
 
 #include "address.h"
 
-#include <util/generic/vector.h>
+#include <vector>
 
 namespace NAddr {
     struct TNetworkInterface {
-        TString Name;
+        std::string Name;
         IRemoteAddrRef Address;
         IRemoteAddrRef Mask;
     };

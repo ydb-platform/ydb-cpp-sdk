@@ -6,7 +6,7 @@
 
 #include <library/cpp/yt/exception/exception.h>
 
-#include <util/generic/string.h>
+#include <string>
 
 #include <util/datetime/base.h>
 

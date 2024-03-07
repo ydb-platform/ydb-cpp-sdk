@@ -7,7 +7,7 @@
 #include <util/system/hi_lo.h>
 #include <util/system/yassert.h>
 #include <util/generic/hash.h>
-#include <util/generic/string.h>
+#include <string>
 
 #include <util/generic/hash_set.h>
 #include <util/generic/singleton.h>
@@ -61,7 +61,7 @@ char* CodePage::ToUpper(const char* b, char* to) const {
     return Apply(b, to, TCodePageData::rcdr_to_upper[CPEnum]);
 }
 
-int CodePage::stricmp(const char* dst, const char* src) const {
+int CodePage::Stricmp(const char* dst, const char* src) const {
     unsigned char f, l;
     do {
         f = ToLower(*dst++);
@@ -70,7 +70,7 @@ int CodePage::stricmp(const char* dst, const char* src) const {
     return f - l;
 }
 
-int CodePage::strnicmp(const char* dst, const char* src, size_t len) const {
+int CodePage::Strnicmp(const char* dst, const char* src, size_t len) const {
     unsigned char f, l;
     if (len) {
         do {

@@ -19,14 +19,14 @@ Y_UNIT_TEST_SUITE(TFileTest) {
 
         {
             TUnbufferedFileInput input(TmpFileName);
-            TString s = input.ReadAll();
+            std::string s = input.ReadAll();
             UNIT_ASSERT_VALUES_EQUAL(s, TmpFileContents);
         }
 
         {
             TUnbufferedFileInput input(TmpFileName);
             input.Skip(TmpFileSubstring - TmpFileContents);
-            TString s = input.ReadAll();
+            std::string s = input.ReadAll();
             UNIT_ASSERT_VALUES_EQUAL(s, "chivalrous plan");
         }
 
@@ -37,8 +37,8 @@ Y_UNIT_TEST_SUITE(TFileTest) {
 
         {
             TUnbufferedFileInput input(TmpFileName);
-            TString s = input.ReadAll();
-            UNIT_ASSERT_VALUES_EQUAL(s, TString::Join(TmpFileContents, TmpFileContents));
+            std::string s = input.ReadAll();
+            UNIT_ASSERT_VALUES_EQUAL(s, TUtils::Join(TmpFileContents, TmpFileContents));
         }
     }
 
@@ -52,7 +52,7 @@ Y_UNIT_TEST_SUITE(TFileTest) {
 
         {
             TMappedFileInput input(TmpFileName);
-            TString s = input.ReadAll();
+            std::string s = input.ReadAll();
             UNIT_ASSERT(s.empty());
         }
     }
@@ -65,7 +65,7 @@ Y_UNIT_TEST_SUITE(TFileTest) {
         TFileInput fileInput(readEnd);
         UNIT_ASSERT_VALUES_EQUAL(write(fds[1], "hello\n", 6), 6);
 
-        TString line;
+        std::string line;
         UNIT_ASSERT(fileInput.ReadLine(line));
         UNIT_ASSERT_STRINGS_EQUAL(line, "hello");
         close(fds[1]);

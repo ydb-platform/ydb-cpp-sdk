@@ -5,8 +5,9 @@
 
 #include <util/system/error.h>
 #include <util/system/byteorder.h>
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
+
+#include <string>
 
 /// IPv4 address in network format
 using TIpHost = ui32;
@@ -36,15 +37,15 @@ static inline char* IpToString(TIpHost ip, char* buf, size_t len) {
     return buf;
 }
 
-static inline TString IpToString(TIpHost ip) {
+static inline std::string IpToString(TIpHost ip) {
     char buf[INET_ADDRSTRLEN];
 
-    return TString(IpToString(ip, buf, sizeof(buf)));
+    return std::string(IpToString(ip, buf, sizeof(buf)));
 }
 
 static inline TIpHost ResolveHost(const char* data, size_t len) {
     TIpHost ret;
-    const TString s(data, len);
+    const std::string s(data, len);
 
     if (NResolver::GetHostIP(s.data(), &ret) != 0) {
         ythrow TSystemError(NResolver::GetDnsError()) << "can not resolve(" << s << ")";
@@ -69,7 +70,7 @@ struct TIpAddress: public sockaddr_in {
         Set(ip, port);
     }
 
-    inline TIpAddress(TStringBuf ip, TIpPort port) {
+    inline TIpAddress(std::string_view ip, TIpPort port) {
         Set(ResolveHost(ip.data(), ip.size()), port);
     }
 

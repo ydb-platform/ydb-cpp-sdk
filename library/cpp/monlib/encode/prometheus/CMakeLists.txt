@@ -5,7 +5,6 @@ target_link_libraries(monlib-encode-prometheus PUBLIC
   yutil
   cpp-monlib-encode
   monlib-encode-buffered
-  cpp-string_builder
 )
 
 target_sources(monlib-encode-prometheus PRIVATE

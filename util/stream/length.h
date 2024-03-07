@@ -59,7 +59,7 @@ public:
 private:
     size_t DoRead(void* buf, size_t len) override;
     size_t DoSkip(size_t len) override;
-    size_t DoReadTo(TString& st, char ch) override;
+    size_t DoReadTo(std::string& st, char ch) override;
     ui64 DoReadAll(IOutputStream& out) override;
 
 private:

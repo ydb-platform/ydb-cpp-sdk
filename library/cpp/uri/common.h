@@ -1,8 +1,10 @@
 #pragma once
 
+#include <contrib/libs/libc_compat/string.h>
+
 #include <util/stream/output.h>
 #include <util/system/compat.h>
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 namespace NUri {
     namespace NEncode {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <util/generic/algorithm.h>
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
 #include <util/generic/ymath.h>
 #include <util/datetime/base.h>
@@ -70,7 +69,7 @@ namespace NDatetime {
         // keeps the object consistent
         TSimpleTM& Add(EField f, i32 amount = 1);
 
-        TString ToString(const char* fmt = "%a, %d %b %Y %H:%M:%S %z") const;
+        std::string ToString(const char* fmt = "%a, %d %b %Y %H:%M:%S %z") const;
 
         TSimpleTM& ToUTC() {
             return *this = New(AsTimeT());
@@ -133,16 +132,16 @@ namespace NDatetime {
     };
 }
 
-inline TString date2str(const time_t date) {
+inline std::string date2str(const time_t date) {
     struct tm dateTm;
     memset(&dateTm, 0, sizeof(dateTm));
     localtime_r(&date, &dateTm);
     char buf[9];
     strftime(buf, sizeof(buf), "%Y%m%d", &dateTm);
-    return TString(buf);
+    return std::string(buf);
 }
 
-inline time_t str2date(const TString& dateStr) {
+inline time_t str2date(const std::string& dateStr) {
     struct tm dateTm;
     memset(&dateTm, 0, sizeof(tm));
     strptime(dateStr.data(), "%Y%m%d", &dateTm);

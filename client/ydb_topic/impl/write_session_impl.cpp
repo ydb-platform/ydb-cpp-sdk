@@ -97,23 +97,20 @@ void TWriteSessionImpl::Start(const TDuration& delay) {
 
     ++ConnectionAttemptsDone;
     if (!Started) {
-        with_lock(Lock) {
+        {
+            std::lock_guard guard(Lock);
             HandleWakeUpImpl();
         }
         InitWriter();
     }
     Started = true;
 
-    if (Settings.PartitionId_.has_value() && Settings.DirectWriteToPartition_)
-    {
-        with_lock (Lock) {
-            PreferredPartitionLocation = {};
+    if (Settings.PartitionId_.has_value() && Settings.DirectWriteToPartition_) {
+        std::lock_guard guard(Lock);
+        PreferredPartitionLocation = {};
 
-            return ConnectToPreferredPartitionLocation(delay);
-        }
-    }
-    else
-    {
+        return ConnectToPreferredPartitionLocation(delay);
+    } else {
         return Connect(delay);
     }
 }
@@ -210,7 +207,8 @@ void TWriteSessionImpl::OnDescribePartition(const TStatus& status, const Ydb::To
     std::string endpoint, name;
     THandleResult handleResult;
 
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (DescribePartitionContext == describePartitionContext) {
             DescribePartitionContext = nullptr;
         } else {
@@ -219,7 +217,8 @@ void TWriteSessionImpl::OnDescribePartition(const TStatus& status, const Ydb::To
     }
 
     if (!status.IsSuccess()) {
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             handleResult = OnErrorImpl({status.GetStatus(), NPersQueue::MakeIssueWithSubIssues("Failed to get partition location", status.GetIssues())});
         }
         ProcessHandleResult(handleResult);
@@ -228,7 +227,8 @@ void TWriteSessionImpl::OnDescribePartition(const TStatus& status, const Ydb::To
 
     const Ydb::Topic::DescribeTopicResult_PartitionInfo& partition = proto.partition();
     if (partition.partition_id() != Settings.PartitionId_ || !partition.has_partition_location() || partition.partition_location().node_id() == 0 || partition.partition_location().generation() == 0) {
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             handleResult = OnErrorImpl({EStatus::INTERNAL_ERROR, "Wrong partition location"});
         }
         ProcessHandleResult(handleResult);
@@ -236,19 +236,22 @@ void TWriteSessionImpl::OnDescribePartition(const TStatus& status, const Ydb::To
     }
 
     std::optional<TEndpointKey> preferredEndpoint;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         preferredEndpoint = GetPreferredEndpointImpl(*Settings.PartitionId_, partition.partition_location().node_id());
     }
 
     if (!preferredEndpoint.has_value()) {
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             handleResult = OnErrorImpl({EStatus::UNAVAILABLE, "Partition preferred endpoint is not found"});
         }
         ProcessHandleResult(handleResult);
         return;
     }
 
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         PreferredPartitionLocation = {*preferredEndpoint, partition.partition_location().generation()};
     }
 
@@ -404,7 +407,8 @@ void TWriteSessionImpl::WriteInternal(TContinuationToken&&, TWriteMessage&& mess
     TInstant createdAtValue = message.CreateTimestamp_.value_or(TInstant::Now());
     bool readyToAccept = false;
     size_t bufferSize = message.Data.size();
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         CurrentBatch.Add(
                 GetNextIdImpl(message.SeqNo_), createdAtValue, message.Data, message.Codec, message.OriginalSize,
                 message.MessageMeta_,
@@ -456,7 +460,8 @@ void TWriteSessionImpl::Connect(const TDuration& delay) {
     std::function<void(TPlainStatus&&, typename IProcessor::TPtr&&)> connectCallback;
     std::function<void(bool)> connectTimeoutCallback;
 
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (Aborting) {
             return;
         }
@@ -532,7 +537,8 @@ void TWriteSessionImpl::Connect(const TDuration& delay) {
 void TWriteSessionImpl::OnConnectTimeout(const NYdbGrpc::IQueueClientContextPtr& connectTimeoutContext) {
     LOG_LAZY(DbDriverState->Log, TLOG_ERR, LogPrefix() << "Write session: connect timeout");
     THandleResult handleResult;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (ConnectTimeoutContext == connectTimeoutContext) {
             NPersQueue::Cancel(ConnectContext);
             ConnectContext = nullptr;
@@ -541,7 +547,7 @@ void TWriteSessionImpl::OnConnectTimeout(const NYdbGrpc::IQueueClientContextPtr&
         } else {
             return;
         }
-        NUtils::TYdbStringBuilder description;
+        TStringBuilder description;
         description << "Failed to establish connection to server. Attempts done: " << ConnectionAttemptsDone;
         handleResult = RestartImpl(TPlainStatus(EStatus::TIMEOUT, description));
         if (handleResult.DoStop) {
@@ -559,7 +565,8 @@ void TWriteSessionImpl::OnConnect(
         TPlainStatus&& st, typename IProcessor::TPtr&& processor, const NYdbGrpc::IQueueClientContextPtr& connectContext
 ) {
     THandleResult handleResult;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (ConnectContext == connectContext) {
             NPersQueue::Cancel(ConnectTimeoutContext);
             ConnectContext = nullptr;
@@ -580,7 +587,7 @@ void TWriteSessionImpl::OnConnect(
                 CloseImpl(
                         st.Status,
                         NPersQueue::MakeIssueWithSubIssues(
-                                NUtils::TYdbStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
+                                TStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
                                                  << "\". Attempts done: " << ConnectionAttemptsDone,
                                 st.Issues
                         )
@@ -650,7 +657,8 @@ void TWriteSessionImpl::ReadFromProcessor() {
     IProcessor::TPtr prc;
     ui64 generation;
     std::function<void(NYdbGrpc::TGrpcStatus&&)> callback;
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (Aborting) {
             return;
         }
@@ -673,7 +681,8 @@ void TWriteSessionImpl::OnWriteDone(NYdbGrpc::TGrpcStatus&& status, size_t conne
     LOG_LAZY(DbDriverState->Log, TLOG_DEBUG, LogPrefix() << "Write session: OnWriteDone " << status.ToDebugString());
 
     THandleResult handleResult;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (connectionGeneration != ConnectionGeneration) {
             return; // Message from previous connection. Ignore.
         }
@@ -697,7 +706,8 @@ void TWriteSessionImpl::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t co
         errorStatus = TPlainStatus(std::move(grpcStatus));
     }
     bool doRead = false;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         UpdateTimedCountersImpl();
         if (connectionGeneration != ConnectionGeneration) {
             return; // Message from previous connection. Ignore.
@@ -717,7 +727,8 @@ void TWriteSessionImpl::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t co
     if (doRead)
         ReadFromProcessor();
 
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (!errorStatus.Ok()) {
             if (processResult.Ok) { // Otherwise, OnError was already called
                 processResult.HandleResult = RestartImpl(errorStatus);
@@ -737,8 +748,8 @@ void TWriteSessionImpl::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t co
     ProcessHandleResult(processResult.HandleResult);
 }
 
-NUtils::TYdbStringBuilder TWriteSessionImpl::LogPrefix() const {
-    NUtils::TYdbStringBuilder ret;
+TStringBuilder TWriteSessionImpl::LogPrefix() const {
+    TStringBuilder ret;
     ret << " SessionId [" << SessionId << "] ";
 
     if (Settings.PartitionId_.has_value()) {
@@ -753,7 +764,7 @@ NUtils::TYdbStringBuilder TWriteSessionImpl::LogPrefix() const {
 }
 
 template<>
-void TPrintable<TWriteSessionEvent::TAcksEvent>::DebugString(NUtils::TYdbStringBuilder& res, bool) const {
+void TPrintable<TWriteSessionEvent::TAcksEvent>::DebugString(TStringBuilder& res, bool) const {
     const auto* self = static_cast<const TWriteSessionEvent::TAcksEvent*>(this);
     res << "AcksEvent:";
     for (auto& ack : self->Acks) {
@@ -774,7 +785,7 @@ void TPrintable<TWriteSessionEvent::TAcksEvent>::DebugString(NUtils::TYdbStringB
 }
 
 template<>
-void TPrintable<TWriteSessionEvent::TReadyToAcceptEvent>::DebugString(NUtils::TYdbStringBuilder& res, bool) const {
+void TPrintable<TWriteSessionEvent::TReadyToAcceptEvent>::DebugString(TStringBuilder& res, bool) const {
     res << "ReadyToAcceptEvent";
 }
 
@@ -997,9 +1008,8 @@ void TWriteSessionImpl::CompressImpl(TBlock&& block_) {
 void TWriteSessionImpl::OnCompressed(TBlock&& block, bool isSyncCompression) {
     TMemoryUsageChange memoryUsage;
     if (!isSyncCompression) {
-        with_lock(Lock) {
-            memoryUsage = OnCompressedImpl(std::move(block));
-        }
+        std::lock_guard guard(Lock);
+        memoryUsage = OnCompressedImpl(std::move(block));
     } else {
         memoryUsage = OnCompressedImpl(std::move(block));
     }
@@ -1254,7 +1264,8 @@ bool TWriteSessionImpl::Close(TDuration closeTimeout) {
     bool ready = false;
     bool needSetSeqNoValue = false;
     while (remaining > TDuration::Zero()) {
-        with_lock(Lock) {
+        {
+            std::lock_guard guard(Lock);
             if (OriginalMessagesToSend.empty() && SentOriginalMessages.empty()) {
                 ready = true;
             }
@@ -1267,10 +1278,12 @@ bool TWriteSessionImpl::Close(TDuration closeTimeout) {
         remaining = closeTimeout - (TInstant::Now() - startTime);
         Sleep(Min(TDuration::MilliSeconds(100), remaining));
     }
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         ready = (OriginalMessagesToSend.empty() && SentOriginalMessages.empty()) && !AtomicGet(Aborting);
     }
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         CloseImpl(EStatus::SUCCESS, NYql::TIssues{});
         needSetSeqNoValue = !InitSeqNoSetDone && (InitSeqNoSetDone = true);
     }
@@ -1298,9 +1311,8 @@ void TWriteSessionImpl::HandleWakeUpImpl() {
             return;
         }
         if (auto self = cbContext->LockShared()) {
-            with_lock(self->Lock) {
-                self->HandleWakeUpImpl();
-            }
+            std::lock_guard guard(self->Lock);
+            self->HandleWakeUpImpl();
         }
     };
     if (TInstant::Now() - LastTokenUpdate > UPDATE_TOKEN_PERIOD) {
@@ -1398,7 +1410,8 @@ void TWriteSessionImpl::CloseImpl(TPlainStatus&& status) {
 TWriteSessionImpl::~TWriteSessionImpl() {
     LOG_LAZY(DbDriverState->Log, TLOG_DEBUG, LogPrefix() << "Write session: destroy");
     bool needClose = false;
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (!AtomicGet(Aborting)) {
             CloseImpl(EStatus::SUCCESS, NYql::TIssues{});
 

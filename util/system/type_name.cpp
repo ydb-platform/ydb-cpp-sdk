@@ -38,20 +38,20 @@ const char* NPrivate::TCppDemangler::Demangle(const char* name) {
 #endif
 }
 
-TString CppDemangle(const TString& name) {
+std::string CppDemangle(const std::string& name) {
     return NPrivate::TCppDemangler().Demangle(name.data());
 }
 
-TString TypeName(const std::type_info& typeInfo) {
-    TString demangled = CppDemangle(typeInfo.name()); // NOLINT(arcadia-typeid-name-restriction)
+std::string TypeName(const std::type_info& typeInfo) {
+    std::string demangled = CppDemangle(typeInfo.name()); // NOLINT(arcadia-typeid-name-restriction)
 #if defined(_linux_) || defined(_darwin_)
     SubstGlobal(demangled, STD_ABI_PREFIX, STD_PREFIX);
 #endif
     return demangled;
 }
 
-TString TypeName(const std::type_index& typeIndex) {
-    TString demangled = CppDemangle(typeIndex.name());
+std::string TypeName(const std::type_index& typeIndex) {
+    std::string demangled = CppDemangle(typeIndex.name());
 #if defined(_linux_) || defined(_darwin_)
     SubstGlobal(demangled, STD_ABI_PREFIX, STD_PREFIX);
 #endif

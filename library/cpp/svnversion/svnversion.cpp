@@ -6,7 +6,7 @@
 #include "svnversion.h"
 
 #include <library/cpp/string_utils/misc/misc.h>
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 extern "C" void PrintProgramSvnVersion() {
     puts(GetProgramSvnVersion());

@@ -4,7 +4,7 @@
 #include <client/ydb_table/table.h>
 
 #include <library/cpp/getopt/last_getopt.h>
-#include <util/generic/string.h>
+#include <string>
 #include <util/generic/yexception.h>
 #include <util/stream/output.h>
 #include <util/string/builder.h>

@@ -7,7 +7,6 @@
 
 #include <util/system/file.h>
 #include <util/system/tempfile.h>
-#include <util/generic/string.h>
 
 class TFtsTest: public TTestBase {
     UNIT_TEST_SUITE(TFtsTest);
@@ -93,7 +92,7 @@ public:
 // Test that detects memory leak in case of error in chdir in fts_build function.
 void TFtsTest::TestNoLeakChangingAccessToFolder() {
     TTempDirWithLostAccess tempDir;
-    TString tmpPath = tempDir();
+    std::string tmpPath = tempDir();
     if (tmpPath.EndsWith(LOCSLASH_S)) {
         tmpPath.resize(tmpPath.size() - 1);
     }

@@ -78,8 +78,6 @@ namespace snappy {
   // REQUIRES: "input[]" is not an alias of "*compressed".
   size_t Compress(const char* input, size_t input_length,
                   std::string* compressed);
-  size_t Compress(const char* input, size_t input_length,
-                  TString* compressed);
 
   // Same as `Compress` above but taking an `iovec` array as input. Note that
   // this function preprocesses the inputs to compute the sum of
@@ -96,8 +94,6 @@ namespace snappy {
   // returns false if the message is corrupted and could not be decompressed
   bool Uncompress(const char* compressed, size_t compressed_length,
                   std::string* uncompressed);
-  bool Uncompress(const char* compressed, size_t compressed_length,
-                  TString* uncompressed);
 
   // Decompresses "compressed" to "*uncompressed".
   //

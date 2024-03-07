@@ -34,7 +34,7 @@ private:
 
 class TBufferedFileOutputEx: public TRandomAccessFileOutput {
 public:
-    TBufferedFileOutputEx(const TString& path, EOpenMode oMode, size_t buflen = 1 << 17);
+    TBufferedFileOutputEx(const std::string& path, EOpenMode oMode, size_t buflen = 1 << 17);
 
 private:
     void DoFlush() override;

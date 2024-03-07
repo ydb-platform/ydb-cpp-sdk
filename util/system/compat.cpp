@@ -1,7 +1,6 @@
 #include "compat.h"
 #include "progname.h"
 
-#include <util/generic/string.h>
 
 #ifdef _win_
     #include "winint.h"

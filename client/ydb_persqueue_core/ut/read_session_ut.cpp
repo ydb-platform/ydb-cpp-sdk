@@ -102,9 +102,8 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         auto cb = std::move(ConnectedCallback);
         ConnectedCallback = nullptr;
         ConnectTimeoutCallback = nullptr;
-        with_lock (Lock) {
-            CallbackFutures.push(std::async(std::launch::async, std::move(cb), TPlainStatus(), processor));
-        }
+        std::lock_guard guard(Lock);
+        CallbackFutures.push(std::async(std::launch::async, std::move(cb), TPlainStatus(), processor));
     }
 
     void FailCreation(EStatus status = EStatus::INTERNAL_ERROR, const std::string& message = {}) { // Fail.
@@ -112,9 +111,8 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         auto cb = std::move(ConnectedCallback);
         ConnectedCallback = nullptr;
         ConnectTimeoutCallback = nullptr;
-        with_lock (Lock) {
-            CallbackFutures.push(std::async(std::launch::async, std::move(cb), TPlainStatus(status, message), nullptr));
-        }
+        std::lock_guard guard(Lock);
+        CallbackFutures.push(std::async(std::launch::async, std::move(cb), TPlainStatus(status, message), nullptr));
     }
 
     void Timeout() { // Timeout.
@@ -122,9 +120,8 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         auto cb = std::move(ConnectTimeoutCallback);
         ConnectedCallback = nullptr;
         ConnectTimeoutCallback = nullptr;
-        with_lock (Lock) {
-            CallbackFutures.push(std::async(std::launch::async, std::move(cb), true));
-        }
+        std::lock_guard guard(Lock);
+        CallbackFutures.push(std::async(std::launch::async, std::move(cb), true));
     }
 
     void CreateAndThenTimeout(typename IFactory::IProcessor::TPtr processor) {
@@ -136,9 +133,8 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         };
         ConnectedCallback = nullptr;
         ConnectTimeoutCallback = nullptr;
-        with_lock (Lock) {
-            CallbackFutures.push(std::async(std::launch::async, std::move(cb2)));
-        }
+        std::lock_guard guard(Lock);
+        CallbackFutures.push(std::async(std::launch::async, std::move(cb2)));
     }
 
     void FailAndThenTimeout(EStatus status = EStatus::INTERNAL_ERROR, const std::string& message = {}) {
@@ -150,9 +146,8 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         };
         ConnectedCallback = nullptr;
         ConnectTimeoutCallback = nullptr;
-        with_lock (Lock) {
-            CallbackFutures.push(std::async(std::launch::async, std::move(cb2)));
-        }
+        std::lock_guard guard(Lock);
+        CallbackFutures.push(std::async(std::launch::async, std::move(cb2)));
     }
 
     void TimeoutAndThenCreate(typename IFactory::IProcessor::TPtr processor) {
@@ -164,14 +159,14 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         };
         ConnectedCallback = nullptr;
         ConnectTimeoutCallback = nullptr;
-        with_lock (Lock) {
-            CallbackFutures.push(std::async(std::launch::async, std::move(cb2)));
-        }
+        std::lock_guard guard(Lock);
+        CallbackFutures.push(std::async(std::launch::async, std::move(cb2)));
     }
 
     void Wait() {
         std::queue<std::future<void>> futuresQueue;
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             CallbackFutures.swap(futuresQueue);
         }
         while (!futuresQueue.empty()) {
@@ -347,13 +342,12 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
     }
 
     void Read(Ydb::PersQueue::V1::MigrationStreamingReadServerMessage* response, TReadCallback callback) override {
-        with_lock (Lock) {
-            UNIT_ASSERT(!ActiveRead);
-            ActiveRead.Callback = std::move(callback);
-            ActiveRead.Dst = response;
-            if (!ReadResponses.empty()) {
-                StartProcessReadImpl();
-            }
+        std::lock_guard guard(Lock);
+        UNIT_ASSERT(!ActiveRead);
+        ActiveRead.Callback = std::move(callback);
+        ActiveRead.Dst = response;
+        if (!ReadResponses.empty()) {
+            StartProcessReadImpl();
         }
     }
 
@@ -393,7 +387,8 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
 
     void Wait() {
         std::queue<std::future<void>> callbackFutures;
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             CallbackFutures.swap(callbackFutures);
         }
 
@@ -404,19 +399,19 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
     }
 
     void Validate() {
-        with_lock (Lock) {
-            UNIT_ASSERT(ReadResponses.empty());
-            UNIT_ASSERT(CallbackFutures.empty());
+        std::lock_guard guard(Lock);
+        UNIT_ASSERT(ReadResponses.empty());
+        UNIT_ASSERT(CallbackFutures.empty());
 
-            ActiveRead = TClientReadInfo{};
-        }
+        ActiveRead = TClientReadInfo{};
     }
 
 
     void ProcessRead() {
         NYdbGrpc::TGrpcStatus status;
         TReadCallback callback;
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             *ActiveRead.Dst = ReadResponses.front().Response;
             ActiveRead.Dst = nullptr;
             status = std::move(ReadResponses.front().Status);
@@ -432,7 +427,8 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
 
     void AddServerResponse(TServerReadInfo result) {
         bool hasActiveRead = false;
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             ReadResponses.emplace(std::move(result));
             if (ActiveRead) {
                 hasActiveRead = true;
@@ -528,7 +524,8 @@ public:
     }
 
     void Post(TFunction&& f) override {
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             Cerr << "Post function" << Endl;
             ++TasksAdded;
             if (Functions.empty()) {
@@ -551,9 +548,8 @@ public:
     }
 
     size_t GetTasksAdded() {
-        with_lock (Lock) {
-            return TasksAdded;
-        }
+        std::lock_guard guard(Lock);
+        return TasksAdded;
     }
 
 private:

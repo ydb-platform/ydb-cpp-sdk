@@ -4,8 +4,8 @@
 
 #include <util/stream/output.h>
 #include <util/generic/ptr.h>
-#include <util/generic/string.h>
-#include <util/generic/strbuf.h>
+#include <string>
+#include <string_view>
 #include <util/generic/yexception.h>
 #include <util/generic/array_ref.h>
 

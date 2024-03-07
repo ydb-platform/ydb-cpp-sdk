@@ -6,10 +6,8 @@
 #include <util/stream/buffer.h>
 #include <util/memory/blob.h>
 
-#include <util/generic/list.h>
 #include <util/generic/hash_multi_map.h>
 #include <util/generic/deque.h>
-#include <util/generic/string.h>
 
 #include <util/generic/buffer.h>
 #include <util/generic/hash_set.h>
@@ -51,11 +49,11 @@ class TSaveLoadTest: public TTestBase {
             ::SaveLoad(s, Str);
         }
 
-        TString Str;
+        std::string Str;
     };
 
     struct TNewNewStyleHelper {
-        TString Str;
+        std::string Str;
         ui32 Int;
 
         Y_SAVELOAD_DEFINE(Str, Int);
@@ -67,7 +65,7 @@ class TSaveLoadTest: public TTestBase {
 
 private:
     inline void TestNewNewStyle() {
-        TString ss;
+        std::string ss;
 
         {
             TNewNewStyleHelper h;
@@ -92,7 +90,7 @@ private:
     }
 
     inline void TestNewStyle() {
-        TString ss;
+        std::string ss;
 
         {
             TNewStyleSaveHelper sh;
@@ -160,7 +158,7 @@ private:
         }
 
         {
-            TString val("123456");
+            std::string val("123456");
 
             Save(&S_, val);
         }
@@ -214,7 +212,7 @@ private:
         }
 
         {
-            THashMultiMap<TString, int> mm;
+            THashMultiMap<std::string, int> mm;
 
             mm.insert({"one", 1});
             mm.insert({"two", 2});
@@ -299,7 +297,7 @@ private:
         }
 
         {
-            TString val;
+            std::string val;
 
             Load(&S_, val);
             UNIT_ASSERT_EQUAL(val, "123456");
@@ -320,9 +318,9 @@ private:
             Load(&S_, vec, pool);
 
             UNIT_ASSERT_EQUAL(vec.size(), 3);
-            UNIT_ASSERT_EQUAL(vec[0], TString("1"));
-            UNIT_ASSERT_EQUAL(vec[1], TString("123"));
-            UNIT_ASSERT_EQUAL(vec[2], TString("4567"));
+            UNIT_ASSERT_EQUAL(vec[0], std::string("1"));
+            UNIT_ASSERT_EQUAL(vec[1], std::string("123"));
+            UNIT_ASSERT_EQUAL(vec[2], std::string("4567"));
         }
 
         {
@@ -364,7 +362,7 @@ private:
         }
 
         {
-            THashMultiMap<TString, int> mm;
+            THashMultiMap<std::string, int> mm;
 
             Load(&S_, mm);
 
@@ -405,7 +403,7 @@ private:
     void TestTuple() {
         TBufferStream s;
 
-        using TTuple = std::tuple<int, TString, unsigned int>;
+        using TTuple = std::tuple<int, std::string, unsigned int>;
         const TTuple toSave{-10, "qwerty", 15};
         Save(&s, toSave);
 
@@ -428,13 +426,13 @@ private:
     }
 
     void TestVariant() {
-        std::variant<int, bool, TString, std::vector<char>> v(1);
+        std::variant<int, bool, std::string, std::vector<char>> v(1);
         TestVariantImpl(v, 42);
         TestVariantImpl(v, true);
-        TestVariantImpl(v, TString("foo"));
+        TestVariantImpl(v, std::string("foo"));
         TestVariantImpl(v, std::vector<char>{'b', 'a', 'r'});
 
-        v = TString("baz");
+        v = std::string("baz");
         TBufferStream s;
         ::Save(&s, v);
 
@@ -458,7 +456,7 @@ private:
     void TestOptional() {
         TestOptionalImpl(std::optional<ui64>(42ull));
         TestOptionalImpl(std::optional<bool>(true));
-        TestOptionalImpl(std::optional<TString>("abacaba"));
+        TestOptionalImpl(std::optional<std::string>("abacaba"));
         TestOptionalImpl(std::optional<ui64>(std::nullopt));
     }
 
@@ -484,12 +482,12 @@ private:
 
     void TestInheritNonVirtualClass() {
         struct TBaseNonVirtual {
-            TString Str1;
+            std::string Str1;
             Y_SAVELOAD_DEFINE(Str1);
         };
         struct TDerivedNonVirtual: TBaseNonVirtual {
-            TString Str2;
-            TString Str3;
+            std::string Str2;
+            std::string Str3;
             Y_SAVELOAD_DEFINE(TNonVirtualSaver<TBaseNonVirtual>{this}, Str2, Str3);
         };
         TestInheritClassImpl<TDerivedNonVirtual>();
@@ -501,12 +499,12 @@ private:
             virtual void Load(IInputStream* in) = 0;
         };
         struct TBaseVirtual: IInterface {
-            TString Str1;
+            std::string Str1;
             Y_SAVELOAD_DEFINE_OVERRIDE(Str1);
         };
         struct TDerivedVirtual: TBaseVirtual {
-            TString Str2;
-            TString Str3;
+            std::string Str2;
+            std::string Str3;
             Y_SAVELOAD_DEFINE_OVERRIDE(TNonVirtualSaver<TBaseVirtual>{this}, Str2, Str3);
         };
         TestInheritClassImpl<TDerivedVirtual>();

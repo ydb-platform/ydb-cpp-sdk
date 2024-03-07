@@ -49,12 +49,12 @@ Y_UNIT_TEST_SUITE(TOutputStreamFormattingTest) {
     Y_UNIT_TEST(TestHexText) {
         {
             TStringStream ss;
-            ss << HexText(TStringBuf("abcи"));
+            ss << HexText(std::string_view("abcи"));
             UNIT_ASSERT_VALUES_EQUAL("61 62 63 D0 B8", ss.Str());
         }
         {
             TStringStream ss;
-            TUtf16String w = UTF8ToWide("abcи");
+            std::u16string w = UTF8ToWide("abcи");
             ss << HexText<wchar16>(w);
             UNIT_ASSERT_VALUES_EQUAL("0061 0062 0063 0438", ss.Str());
         }
@@ -76,9 +76,9 @@ Y_UNIT_TEST_SUITE(TOutputStreamFormattingTest) {
     }
 
     Y_UNIT_TEST(TestBinText) {
-        UNIT_ASSERT_VALUES_EQUAL(ToString(BinText(TStringBuf("\1"))), "00000001");
-        UNIT_ASSERT_VALUES_EQUAL(ToString(BinText(TStringBuf("\1\1"))), "00000001 00000001");
-        UNIT_ASSERT_VALUES_EQUAL(ToString(BinText(TStringBuf("aaa"))), "01100001 01100001 01100001");
+        UNIT_ASSERT_VALUES_EQUAL(ToString(BinText(std::string_view("\1"))), "00000001");
+        UNIT_ASSERT_VALUES_EQUAL(ToString(BinText(std::string_view("\1\1"))), "00000001 00000001");
+        UNIT_ASSERT_VALUES_EQUAL(ToString(BinText(std::string_view("aaa"))), "01100001 01100001 01100001");
     }
 
     Y_UNIT_TEST(TestPrec) {

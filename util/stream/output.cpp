@@ -11,8 +11,8 @@
 #if defined(_android_)
     #include <util/system/dynlib.h>
     #include <util/system/guard.h>
-    #include <util/system/mutex.h>
     #include <android/log.h>
+    #include <mutex>
 #endif
 
 #include <cerrno>
@@ -91,13 +91,8 @@ static void WriteString(IOutputStream& o, const wchar32* w, size_t n) {
 }
 
 template <>
-void Out<TString>(IOutputStream& o, const TString& p) {
-    o.Write(p.data(), p.size());
-}
-
-template <>
 void Out<std::string>(IOutputStream& o, const std::string& p) {
-    o.Write(p.data(), p.length());
+    o.Write(p.data(), p.size());
 }
 
 template <>
@@ -121,21 +116,6 @@ void Out<std::filesystem::path>(IOutputStream& o, const std::filesystem::path& p
 }
 
 template <>
-void Out<TStringBuf>(IOutputStream& o, const TStringBuf& p) {
-    o.Write(p.data(), p.length());
-}
-
-template <>
-void Out<TWtringBuf>(IOutputStream& o, const TWtringBuf& p) {
-    WriteString(o, p.data(), p.length());
-}
-
-template <>
-void Out<TUtf32StringBuf>(IOutputStream& o, const TUtf32StringBuf& p) {
-    WriteString(o, p.data(), p.length());
-}
-
-template <>
 void Out<const wchar16*>(IOutputStream& o, const wchar16* w) {
     if (w) {
         WriteString(o, w, std::char_traits<wchar16>::length(w));
@@ -154,12 +134,12 @@ void Out<const wchar32*>(IOutputStream& o, const wchar32* w) {
 }
 
 template <>
-void Out<TUtf16String>(IOutputStream& o, const TUtf16String& w) {
+void Out<std::u16string>(IOutputStream& o, const std::u16string& w) {
     WriteString(o, w.c_str(), w.size());
 }
 
 template <>
-void Out<TUtf32String>(IOutputStream& o, const TUtf32String& w) {
+void Out<std::u32string>(IOutputStream& o, const std::u32string& w) {
     WriteString(o, w.c_str(), w.size());
 }
 
@@ -215,23 +195,6 @@ void Out<typename std::vector<bool>::reference>(IOutputStream& o, const std::vec
 }
 #endif
 
-#ifndef TSTRING_IS_STD_STRING
-template <>
-void Out<TBasicCharRef<TString>>(IOutputStream& o, const TBasicCharRef<TString>& c) {
-    o << static_cast<char>(c);
-}
-
-template <>
-void Out<TBasicCharRef<TUtf16String>>(IOutputStream& o, const TBasicCharRef<TUtf16String>& c) {
-    o << static_cast<wchar16>(c);
-}
-
-template <>
-void Out<TBasicCharRef<TUtf32String>>(IOutputStream& o, const TBasicCharRef<TUtf32String>& c) {
-    o << static_cast<wchar32>(c);
-}
-#endif
-
 template <>
 void Out<const void*>(IOutputStream& o, const void* t) {
     o << Hex(size_t(t));
@@ -246,7 +209,7 @@ using TNullPtr = decltype(nullptr);
 
 template <>
 void Out<TNullPtr>(IOutputStream& o, TTypeTraits<TNullPtr>::TFuncParam) {
-    o << TStringBuf("nullptr");
+    o << std::string_view("nullptr");
 }
 
 #define DEF_OPTIONAL(TYPE)                                                               \
@@ -263,8 +226,7 @@ DEF_OPTIONAL(ui32);
 DEF_OPTIONAL(i64);
 DEF_OPTIONAL(ui64);
 DEF_OPTIONAL(std::string);
-DEF_OPTIONAL(TString);
-DEF_OPTIONAL(TStringBuf);
+DEF_OPTIONAL(std::string_view);
 
 #if defined(_android_)
 namespace {
@@ -294,22 +256,20 @@ namespace {
 
         private:
             virtual void DoWrite(const void* buf, size_t len) override {
-                with_lock (BufferMutex) {
-                    Buffer.Write(buf, len);
-                }
+                std::lock_guard guard(BufferMutex);
+                Buffer.Write(buf, len);
             }
 
             virtual void DoFlush() override {
-                with_lock (BufferMutex) {
-                    LogFuncPtr(ANDROID_LOG_DEBUG, GetTag(), Buffer.Data());
-                    Buffer.Clear();
-                }
+                std::lock_guard guard(BufferMutex);
+                LogFuncPtr(ANDROID_LOG_DEBUG, GetTag(), Buffer.Data());
+                Buffer.Clear();
             }
 
             virtual const char* GetTag() const = 0;
 
         private:
-            TMutex BufferMutex;
+            std::mutex BufferMutex;
             TStringStream Buffer;
             TLogFuncPtr LogFuncPtr;
         };

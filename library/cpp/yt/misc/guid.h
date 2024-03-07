@@ -1,11 +1,12 @@
 #pragma once
 
-#include <util/generic/string.h>
+#include <util/generic/fwd.h>
 #include <util/generic/typetraits.h>
 
 #include <library/cpp/yt/exception/exception.h>
 
 #include <array>
+#include <string>
 
 namespace NYT {
 

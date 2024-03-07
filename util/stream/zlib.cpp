@@ -79,7 +79,7 @@ namespace {
 
 class TZLibDecompress::TImpl: private TZLibCommon, public TChunkedZeroCopyInput {
 public:
-    inline TImpl(IZeroCopyInput* in, ZLib::StreamType type, TStringBuf dict)
+    inline TImpl(IZeroCopyInput* in, ZLib::StreamType type, std::string_view dict)
         : TChunkedZeroCopyInput(in)
         , Dict(dict)
     {
@@ -157,13 +157,13 @@ private:
     }
 
     bool AllowMultipleStreams_ = true;
-    TStringBuf Dict;
+    std::string_view Dict;
 };
 
 namespace {
     class TDecompressStream: public IZeroCopyInput, public TZLibDecompress::TImpl, public TAdditionalStorage<TDecompressStream> {
     public:
-        inline TDecompressStream(IInputStream* input, ZLib::StreamType type, TStringBuf dict)
+        inline TDecompressStream(IInputStream* input, ZLib::StreamType type, std::string_view dict)
             : TZLibDecompress::TImpl(this, type, dict)
             , Stream_(input)
         {
@@ -317,12 +317,12 @@ private:
     std::unique_ptr<gz_header> GZHeader_;
 };
 
-TZLibDecompress::TZLibDecompress(IZeroCopyInput* input, ZLib::StreamType type, TStringBuf dict)
+TZLibDecompress::TZLibDecompress(IZeroCopyInput* input, ZLib::StreamType type, std::string_view dict)
     : Impl_(new TZeroCopyDecompress(input, type, dict))
 {
 }
 
-TZLibDecompress::TZLibDecompress(IInputStream* input, ZLib::StreamType type, size_t buflen, TStringBuf dict)
+TZLibDecompress::TZLibDecompress(IInputStream* input, ZLib::StreamType type, size_t buflen, std::string_view dict)
     : Impl_(new (buflen) TDecompressStream(input, type, dict))
 {
 }

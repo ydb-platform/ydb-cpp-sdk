@@ -7,7 +7,7 @@
 #include <util/charset/recode_result.h>
 #include <util/charset/unidata.h> // all wchar32 functions
 #include <util/charset/utf8.h>
-#include <util/generic/string.h>
+#include <string>
 #include <util/generic/ylimits.h>
 #include <util/generic/yexception.h>
 #include <util/system/yassert.h>
@@ -71,8 +71,8 @@ struct CodePage {
     char* ToUpper(const char* begin, const char* end, char* to) const;
     char* ToUpper(const char* begin, char* to) const;
 
-    int stricmp(const char* s1, const char* s2) const;
-    int strnicmp(const char* s1, const char* s2, size_t len) const;
+    int Stricmp(const char* s1, const char* s2) const;
+    int Strnicmp(const char* s1, const char* s2, size_t len) const;
 
     inline unsigned char ToUpper(unsigned char ch) const;
     inline unsigned char ToLower(unsigned char ch) const;

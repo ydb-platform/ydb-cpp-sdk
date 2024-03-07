@@ -17,7 +17,7 @@ Y_UNIT_TEST_SUITE(TGuidTest) {
 
     struct TTest {
         TGUID G;
-        TString S;
+        std::string S;
     };
 
     Y_UNIT_TEST(Test1) {
@@ -121,7 +121,7 @@ Y_UNIT_TEST_SUITE(TGuidTest) {
     }
 
     Y_UNIT_TEST(TimeBased) {
-        TString guid = TGUID::CreateTimebased().AsUuidString();
+        std::string guid = TGUID::CreateTimebased().AsUuidString();
         UNIT_ASSERT(!guid.empty());
         UNIT_ASSERT_EQUAL(guid[14], '1');
     }

@@ -3,8 +3,8 @@
 #include <library/cpp/iterator/iterate_values.h>
 
 #include <util/generic/iterator_range.h>
-#include <util/generic/strbuf.h>
-#include <util/generic/string.h>
+#include <string_view>
+#include <string>
 
 #include <map>
 #include <initializer_list>

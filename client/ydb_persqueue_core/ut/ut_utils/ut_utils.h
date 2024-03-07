@@ -48,12 +48,11 @@ public:
     }
 
     NYdb::NPersQueue::TPersQueueClient& GetPersQueueClient() {
-        with_lock(Lock) {
-            if (!PersQueueClient) {
-                PersQueueClient = std::make_unique<NYdb::NPersQueue::TPersQueueClient>(GetDriver());
-            }
-            return *PersQueueClient;
+        std::lock_guard guard(Lock);
+        if (!PersQueueClient) {
+            PersQueueClient = std::make_unique<NYdb::NPersQueue::TPersQueueClient>(GetDriver());
         }
+        return *PersQueueClient;
     }
 
     NYdb::NPersQueue::TReadSessionSettings GetReadSessionSettings() {
@@ -255,18 +254,16 @@ struct TYdbPqTestRetryPolicy : IRetryPolicy {
         AtomicAdd(CurrentRetries, 1);
         auto expected = AtomicGet(RetriesExpected);
         if (expected > 0 && AtomicGet(CurrentRetries) >= expected) {
-            with_lock(Lock) {
-                RetryPromise.SetValue();
-            }
+            std::lock_guard guard(Lock);
+            RetryPromise.SetValue();
             AtomicSet(RetriesExpected, 0);
         }
     }
     void StateDestroyed() const {
         auto expected = AtomicSwap(&RepairExpected, 0);
         if (expected) {
-            with_lock(Lock) {
-                RepairPromise.SetValue();
-            }
+            std::lock_guard guard(Lock);
+            RepairPromise.SetValue();
         }
     }
     void ExpectBreakDown() {
@@ -287,9 +284,8 @@ struct TYdbPqTestRetryPolicy : IRetryPolicy {
 
     void WaitForRetries(ui64 retryCount, NThreading::TPromise<void>& promise) {
         AtomicSet(RetriesExpected, retryCount);
-        with_lock(Lock) {
-            RetryPromise = promise;
-        }
+        std::lock_guard guard(Lock);
+        RetryPromise = promise;
     }
     void WaitForRetriesSync(ui64 retryCount) {
         NThreading::TPromise<void> retriesPromise = NThreading::NewPromise();
@@ -300,9 +296,8 @@ struct TYdbPqTestRetryPolicy : IRetryPolicy {
 
     void WaitForRepair(NThreading::TPromise<void>& promise) {
         AtomicSet(RepairExpected, 1 );
-        with_lock(Lock) {
-            RepairPromise = promise;
-        }
+        std::lock_guard guard(Lock);
+        RepairPromise = promise;
     }
 
     void WaitForRepairSync() {
