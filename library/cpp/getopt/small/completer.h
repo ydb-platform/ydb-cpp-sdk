@@ -2,8 +2,6 @@
 
 #include "formatted_output.h"
 
-
-
 namespace NLastGetopt::NComp {
     class ICompleter;
 

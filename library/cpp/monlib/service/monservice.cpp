@@ -3,7 +3,6 @@
 #include <library/cpp/string_utils/base64/base64.h>
 #include <library/cpp/svnversion/svnversion.h>
 
-
 #include <util/system/hostname.h>
 
 #include <google/protobuf/text_format.h>

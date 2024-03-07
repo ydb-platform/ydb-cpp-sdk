@@ -761,7 +761,7 @@ namespace NThreading {
     }
 
     inline std::optional<TFutureStateId> TFuture<void>::StateId() const noexcept {
-        return State != nullptr ? std::optional<TFutureStateId>(*State) : std::nullopt;
+        return State != nullptr ? std::make_optional<TFutureStateId>(*State) : std::nullopt;
     }
 
     inline void TFuture<void>::EnsureInitialized() const {

@@ -577,7 +577,7 @@ bool TSingleClusterReadSessionImpl<UseMigrationProtocol>::IsActualPartitionStrea
 
 template<bool UseMigrationProtocol>
 void TSingleClusterReadSessionImpl<UseMigrationProtocol>::ConfirmPartitionStreamCreate(const TPartitionStreamImpl<UseMigrationProtocol>* partitionStream, std::optional<ui64> readOffset, std::optional<ui64> commitOffset) {
-    NUtils::TYdbStringBuilder commitOffsetLogStr;
+    TStringBuilder commitOffsetLogStr;
     if (commitOffset) {
         commitOffsetLogStr << ". Commit offset: " << *commitOffset;
     }
