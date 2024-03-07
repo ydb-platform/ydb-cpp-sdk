@@ -19,7 +19,7 @@ namespace {
     }
 }
 
-TFileLock::TFileLock(const TString& filename, const EFileLockType type)
+TFileLock::TFileLock(const std::string& filename, const EFileLockType type)
     : TFile(filename, OpenAlways | RdOnly)
     , Type(type)
 {

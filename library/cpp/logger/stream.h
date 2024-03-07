@@ -2,7 +2,7 @@
 
 #include "backend.h"
 
-#include <util/generic/string.h>
+#include <string>
 
 
 class IOutputStream;

@@ -6,7 +6,7 @@
 
 #include "enum.h"
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <util/string/cast.h>
 #include <util/string/printf.h>
@@ -63,12 +63,12 @@ std::string FormatInvalidCastValue(T value)
 
 inline std::string FormatInvalidCastValue(signed char value)
 {
-    return NUtils::TYdbStringBuilder() << "'" << value << "'";
+    return ::TStringBuilder() << "'" << value << "'";
 }
 
 inline std::string FormatInvalidCastValue(unsigned char value)
 {
-    return NUtils::TYdbStringBuilder() << "'" << value << "'";
+    return ::TStringBuilder() << "'" << value << "'";
 }
 
 #ifdef __cpp_char8_t

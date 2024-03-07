@@ -7,7 +7,7 @@
 #include <util/system/yield.h>
 #include <util/memory/blob.h>
 #include <util/stream/file.h>
-#include <util/generic/string.h>
+#include <string>
 
 
 class TLogTest: public TTestBase {

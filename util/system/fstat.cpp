@@ -167,7 +167,7 @@ TFileStat::TFileStat(const TFsPath& fileName, bool nofollow) {
     MakeFromFileName(fileName.GetPath().data(), nofollow);
 }
 
-TFileStat::TFileStat(const TString& fileName, bool nofollow) {
+TFileStat::TFileStat(const std::string& fileName, bool nofollow) {
     MakeFromFileName(fileName.data(), nofollow);
 }
 
@@ -253,6 +253,6 @@ i64 GetFileLength(const char* name) {
 #endif
 }
 
-i64 GetFileLength(const TString& name) {
+i64 GetFileLength(const std::string& name) {
     return GetFileLength(name.data());
 }

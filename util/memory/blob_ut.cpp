@@ -28,18 +28,18 @@ Y_UNIT_TEST_SUITE(TBlobTest) {
     }
 
     Y_UNIT_TEST(TestFromStream) {
-        TString s("sjklfgsdyutfuyas54fa78s5f89a6df790asdf7");
+        std::string s("sjklfgsdyutfuyas54fa78s5f89a6df790asdf7");
         TMemoryInput mi(s.data(), s.size());
         TBlob b = TBlob::FromStreamSingleThreaded(mi);
 
-        UNIT_ASSERT_EQUAL(TString((const char*)b.Data(), b.Length()), s);
+        UNIT_ASSERT_EQUAL(std::string((const char*)b.Data(), b.Length()), s);
     }
 
     Y_UNIT_TEST(TestFromString) {
-        TString s("dsfkjhgsadftusadtf");
+        std::string s("dsfkjhgsadftusadtf");
         TBlob b(TBlob::FromString(s));
 
-        UNIT_ASSERT_EQUAL(TString((const char*)b.Data(), b.Size()), s);
+        UNIT_ASSERT_EQUAL(std::string((const char*)b.Data(), b.Size()), s);
         const auto expectedRef = TArrayRef<const ui8>{(ui8*)s.data(), s.size()};
         UNIT_ASSERT_EQUAL(TArrayRef<const ui8>{b}, expectedRef);
     }
@@ -55,7 +55,7 @@ Y_UNIT_TEST_SUITE(TBlobTest) {
     }
 
     Y_UNIT_TEST(TestFromFile) {
-        TString path = "testfile";
+        std::string path = "testfile";
 
         TOFStream stream(path);
         stream.Write("1234", 4);
@@ -63,7 +63,7 @@ Y_UNIT_TEST_SUITE(TBlobTest) {
 
         auto testMode = [](TBlob blob) {
             UNIT_ASSERT_EQUAL(blob.Size(), 4);
-            UNIT_ASSERT_EQUAL(TStringBuf(static_cast<const char*>(blob.Data()), 4), "1234");
+            UNIT_ASSERT_EQUAL(std::string_view(static_cast<const char*>(blob.Data()), 4), "1234");
         };
 
         testMode(TBlob::FromFile(path));
@@ -72,7 +72,7 @@ Y_UNIT_TEST_SUITE(TBlobTest) {
     }
 
     Y_UNIT_TEST(TestEmptyLockedFiles) {
-        TString path = MakeTempName();
+        std::string path = MakeTempName();
         TFsPath(path).Touch();
         TBlob::LockedFromFile(path);
     }

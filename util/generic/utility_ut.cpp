@@ -24,7 +24,7 @@ private:
 };
 
 struct TUnorderedTag {
-    TStringBuf Tag;
+    std::string_view Tag;
 };
 
 static bool operator<(const TUnorderedTag, const TUnorderedTag) {

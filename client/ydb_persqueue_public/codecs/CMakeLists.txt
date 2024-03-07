@@ -9,8 +9,7 @@ target_link_libraries(client-ydb_persqueue_public-codecs PUBLIC
   api-grpc-draft
   api-grpc
   api-protos
-  cpp-string_utils-string_output
-)
+  )
 
 target_sources(client-ydb_persqueue_public-codecs PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_persqueue_public/codecs/codecs.cpp

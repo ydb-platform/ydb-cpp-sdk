@@ -64,7 +64,7 @@ namespace {
 
     inline void SetThrName(const TParams& p) {
         try {
-            if (p.Name) {
+            if (!p.Name.empty()) {
                 TThread::SetCurrentThreadName(p.Name.data());
             }
         } catch (...) {
@@ -176,7 +176,7 @@ namespace {
         {                                                   \
             const int err_ = x;                             \
             if (err_) {                                     \
-                ythrow TSystemError(err_) << TStringBuf(y); \
+                ythrow TSystemError(err_) << std::string_view(y); \
             }                                               \
         }
 
@@ -446,7 +446,7 @@ namespace {
             Y_ABORT_UNLESS(SUCCEEDED(hr), "SetThreadDescription failed");
         }
 
-        TString GetDescr() {
+        std::string GetDescr() {
             PWSTR wideName;
             auto hr = GetThreadDescription(GetCurrentThread(), &wideName);
             Y_ABORT_UNLESS(SUCCEEDED(hr), "GetThreadDescription failed");
@@ -490,7 +490,7 @@ void TThread::SetCurrentThreadName(const char* name) {
 #endif // OS
 }
 
-TString TThread::CurrentThreadName() {
+std::string TThread::CurrentThreadName() {
 #if defined(_freebsd_)
 // TODO: check pthread_get_name_np API availability
 #elif defined(_linux_)

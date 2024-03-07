@@ -10,6 +10,8 @@
 #include <util/generic/noncopyable.h>
 #include <functional>
 
+#include <string>
+
 class TDuration;
 
 struct IObjectInQueue {
@@ -84,7 +86,7 @@ struct TThreadPoolParams {
     bool Catching_ = true;
     bool Blocking_ = false;
     IThreadFactory* Factory_ = SystemThreadFactory();
-    TString ThreadName_;
+    std::string ThreadName_;
     bool EnumerateThreads_ = false;
 
     using TSelf = TThreadPoolParams;
@@ -97,7 +99,7 @@ struct TThreadPoolParams {
     {
     }
 
-    TThreadPoolParams(const TString& name) {
+    TThreadPoolParams(const std::string& name) {
         SetThreadName(name);
     }
 
@@ -120,13 +122,13 @@ struct TThreadPoolParams {
         return *this;
     }
 
-    TSelf& SetThreadName(const TString& name) {
+    TSelf& SetThreadName(const std::string& name) {
         ThreadName_ = name;
         EnumerateThreads_ = false;
         return *this;
     }
 
-    TSelf& SetThreadNamePrefix(const TString& prefix) {
+    TSelf& SetThreadNamePrefix(const std::string& prefix) {
         ThreadName_ = prefix;
         EnumerateThreads_ = true;
         return *this;
@@ -150,7 +152,7 @@ public:
 
     template <class T>
     void SafeAddFunc(T&& func) {
-        Y_ENSURE_EX(AddFunc(std::forward<T>(func)), TThreadPoolException() << TStringBuf("can not add function to queue"));
+        Y_ENSURE_EX(AddFunc(std::forward<T>(func)), TThreadPoolException() << "can not add function to queue");
     }
 
     void SafeAddAndOwn(THolder<IObjectInQueue> obj);

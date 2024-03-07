@@ -35,7 +35,7 @@ public:
     TBackTrace();
     void Capture();
     void PrintTo(IOutputStream&) const;
-    TString PrintToString() const;
+    std::string PrintToString() const;
     size_t size() const;
     const void* const* data() const;
     operator TBackTraceView() const;

@@ -25,7 +25,7 @@ void TIndexMonPage::Output(IMonHttpRequest& request) {
     TMonPagePtr found;
     // analogous to CGI PATH_INFO
     {
-        TGuard<TMutex> g(Mtx);
+        std::lock_guard g(Mtx);
         std::string_view pathTmp = request.GetPathInfo();
         for (;;) {
             if (TPagesByPath::iterator i = PagesByPath.find(pathTmp); i != PagesByPath.end()) {
@@ -51,7 +51,7 @@ void TIndexMonPage::Output(IMonHttpRequest& request) {
 }
 
 void TIndexMonPage::OutputIndex(IOutputStream& out, bool pathEndsWithSlash) {
-    TGuard<TMutex> g(Mtx);
+    std::lock_guard g(Mtx);
     for (auto& Page : Pages) {
         IMonPage* page = Page.Get();
         if (page->IsInIndex()) {
@@ -65,7 +65,7 @@ void TIndexMonPage::OutputIndex(IOutputStream& out, bool pathEndsWithSlash) {
 }
 
 void TIndexMonPage::Register(TMonPagePtr page) {
-    TGuard<TMutex> g(Mtx);
+    std::lock_guard g(Mtx);
     if (auto [it, inserted] = PagesByPath.try_emplace("/" + page->GetPath()); inserted) {
         // new unique page just inserted, insert it to the end
         it->second = Pages.insert(Pages.end(), page);
@@ -77,7 +77,7 @@ void TIndexMonPage::Register(TMonPagePtr page) {
 }
 
 TIndexMonPage* TIndexMonPage::RegisterIndexPage(const std::string& path, const std::string& title) {
-    TGuard<TMutex> g(Mtx);
+    std::lock_guard g(Mtx);
     TIndexMonPage* page = VerifyDynamicCast<TIndexMonPage*>(FindPage(path));
     if (page) {
         return page;
@@ -88,7 +88,7 @@ TIndexMonPage* TIndexMonPage::RegisterIndexPage(const std::string& path, const s
 }
 
 IMonPage* TIndexMonPage::FindPage(const std::string& relativePath) {
-    TGuard<TMutex> g(Mtx);
+    std::lock_guard g(Mtx);
 
     TPagesByPath::iterator i = PagesByPath.find("/" + relativePath);
     if (i == PagesByPath.end()) {
@@ -163,14 +163,14 @@ void TIndexMonPage::OutputBody(IMonHttpRequest& req) {
 }
 
 void TIndexMonPage::SortPages() {
-    TGuard<TMutex> g(Mtx);
+    std::lock_guard g(Mtx);
     Pages.sort([](const TMonPagePtr& a, const TMonPagePtr& b) {
         return AsciiCompareIgnoreCase(a->GetTitle(), b->GetTitle()) < 0;
     });
 }
 
 void TIndexMonPage::ClearPages() {
-    TGuard<TMutex> g(Mtx);
+    std::lock_guard g(Mtx);
     Pages.clear();
     PagesByPath.clear();
 }

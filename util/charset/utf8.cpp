@@ -19,7 +19,7 @@ namespace {
     }
 
     bool ConvertCaseUTF8Impl(ECaseConversion conversion, const char* beg, size_t n,
-                             TString& newString) {
+                             std::string& newString) {
         const unsigned char* p = (const unsigned char*)beg;
         const unsigned char* const end = p + n;
 
@@ -99,10 +99,10 @@ static const char* SkipUTF8Chars(const char* begin, const char* end, size_t numC
     return begin;
 }
 
-TStringBuf SubstrUTF8(const TStringBuf str, size_t pos, size_t len) {
+std::string_view SubstrUTF8(const std::string_view str, size_t pos, size_t len) {
     const char* start = SkipUTF8Chars(str.begin(), str.end(), pos);
     const char* end = SkipUTF8Chars(start, str.end(), len);
-    return TStringBuf(start, end - start);
+    return std::string_view(start, end - start);
 }
 
 EUTF8Detect UTF8Detect(const char* s, size_t len) {
@@ -129,42 +129,36 @@ EUTF8Detect UTF8Detect(const char* s, size_t len) {
     return res;
 }
 
-bool ToLowerUTF8Impl(const char* beg, size_t n, TString& newString) {
+bool ToLowerUTF8Impl(const char* beg, size_t n, std::string& newString) {
     return ConvertCaseUTF8Impl(ECaseConversion::ToLower, beg, n, newString);
 }
 
-TString ToLowerUTF8(const TString& s) {
-    TString newString;
+std::string ToLowerUTF8(std::string_view s) {
+    std::string newString;
     bool changed = ToLowerUTF8Impl(s.data(), s.size(), newString);
-    return changed ? newString : s;
+    return changed ? newString : std::string(s.data(), s.size());
 }
 
-TString ToLowerUTF8(TStringBuf s) {
-    TString newString;
-    bool changed = ToLowerUTF8Impl(s.data(), s.size(), newString);
-    return changed ? newString : TString(s.data(), s.size());
+std::string ToLowerUTF8(const char* s) {
+    return ToLowerUTF8(std::string_view(s));
 }
 
-TString ToLowerUTF8(const char* s) {
-    return ToLowerUTF8(TStringBuf(s));
-}
-
-bool ToUpperUTF8Impl(const char* beg, size_t n, TString& newString) {
+bool ToUpperUTF8Impl(const char* beg, size_t n, std::string& newString) {
     return ConvertCaseUTF8Impl(ECaseConversion::ToUpper, beg, n, newString);
 }
 
-TString ToUpperUTF8(const TString& s) {
-    TString newString;
+std::string ToUpperUTF8(const std::string& s) {
+    std::string newString;
     bool changed = ToUpperUTF8Impl(s.data(), s.size(), newString);
     return changed ? newString : s;
 }
 
-TString ToUpperUTF8(TStringBuf s) {
-    TString newString;
+std::string ToUpperUTF8(std::string_view s) {
+    std::string newString;
     bool changed = ToUpperUTF8Impl(s.data(), s.size(), newString);
-    return changed ? newString : TString(s.data(), s.size());
+    return changed ? newString : std::string(s.data(), s.size());
 }
 
-TString ToUpperUTF8(const char* s) {
-    return ToUpperUTF8(TStringBuf(s));
+std::string ToUpperUTF8(const char* s) {
+    return ToUpperUTF8(std::string_view(s));
 }

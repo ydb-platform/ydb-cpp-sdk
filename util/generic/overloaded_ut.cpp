@@ -40,7 +40,7 @@ Y_UNIT_TEST_SUITE(TOverloadedTest) {
 
     Y_UNIT_TEST(TupleTest) {
         std::tuple<int, double, bool, int> t{5, 3.14, true, 20};
-        TString res;
+        std::string res;
 
         ForEach(t, TOverloaded{
                        [&](int val) { res += "(int) " + ToString(val) + ' '; },

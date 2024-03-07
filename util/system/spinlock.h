@@ -85,7 +85,7 @@ public:
 
 /**
  * TAdaptiveLock almost always should be used instead of TSpinLock.
- * It also should be used instead of TMutex for short-term locks.
+ * It also should be used instead of std::mutex for short-term locks.
  * This usually means that the locked code should not use syscalls,
  * since almost every syscall:
  *   - might run unpredictably long and the waiting thread will waste a lot of CPU

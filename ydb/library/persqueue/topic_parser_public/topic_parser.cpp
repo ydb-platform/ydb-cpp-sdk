@@ -1,6 +1,6 @@
 #include "topic_parser.h"
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <util/folder/path.h>
 
@@ -63,7 +63,7 @@ std::string ConvertNewTopicName(const std::string& topic) {
     auto pos = t.rfind("/");
     if (pos == std::string::npos)
         return t;
-    NUtils::TYdbStringBuilder res;
+    TStringBuilder res;
     for (ui32 i = 0; i < pos; ++i) {
         if (t[i] == '/') res << '@';
         else res << t[i];
@@ -78,7 +78,7 @@ std::string ConvertOldTopicName(const std::string& topic) {
     auto pos = topic.rfind("--");
     if (pos == std::string::npos)
         return topic;
-    NUtils::TYdbStringBuilder res;
+    TStringBuilder res;
     for (ui32 i = 0; i < pos; ++i) {
         if (topic[i] == '@') res << '/';
         else res << topic[i];
@@ -93,7 +93,7 @@ std::string BuildFullTopicName(const std::string& topicPath, const std::string& 
 }
 
 std::string ConvertOldProducerName(const std::string& producer) {
-    NUtils::TYdbStringBuilder res;
+    TStringBuilder res;
     for (ui32 i = 0; i < producer.size(); ++i) {
         if (producer[i] == '@') res << "/";
         else res << producer[i];
@@ -112,7 +112,7 @@ std::string NormalizePath(const std::string& path) {
 
 
 std::string ConvertNewConsumerName(const std::string& consumer) {
-    NUtils::TYdbStringBuilder res;
+    TStringBuilder res;
     ui32 pos = 0;
     std::string c = NormalizePath(consumer);
     if (std::string_view{c}.starts_with("shared/"))
@@ -125,7 +125,7 @@ std::string ConvertNewConsumerName(const std::string& consumer) {
 }
 
 std::string ConvertNewProducerName(const std::string& producer) {
-    NUtils::TYdbStringBuilder res;
+    TStringBuilder res;
     for (ui32 i = 0; i < producer.size(); ++i) {
         if (producer[i] == '/') res  << "@";
         else res << producer[i];
@@ -135,7 +135,7 @@ std::string ConvertNewProducerName(const std::string& producer) {
 
 
 std::string ConvertOldConsumerName(const std::string& consumer) {
-    NUtils::TYdbStringBuilder res;
+    TStringBuilder res;
     bool shared = true;
     for (ui32 i = 0; i < consumer.size(); ++i) {
         if (consumer[i] == '@') {
@@ -146,7 +146,7 @@ std::string ConvertOldConsumerName(const std::string& consumer) {
         }
     }
     if (shared)
-        return NUtils::TYdbStringBuilder() << "shared/" << res;
+        return TStringBuilder() << "shared/" << res;
     return res;
 }
 

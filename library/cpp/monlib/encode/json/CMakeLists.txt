@@ -8,7 +8,6 @@ target_link_libraries(monlib-encode-json PUBLIC
   cpp-monlib-exception
   library-cpp-json
   cpp-json-writer
-  cpp-string_builder
 )
 
 target_sources(monlib-encode-json PRIVATE

@@ -23,7 +23,6 @@ target_link_libraries(cpp-client-ydb_topic PUBLIC
   api-grpc-draft
   api-protos
   cpp-client-ydb_table
-  cpp-string_builder
 )
 
 target_sources(cpp-client-ydb_topic PRIVATE

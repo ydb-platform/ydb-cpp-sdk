@@ -5,7 +5,6 @@ target_link_libraries(library-grpc-client PUBLIC
   yutil
   gRPC::grpc++
   cpp-deprecated-atomic
-  cpp-string_builder
 )
 
 target_sources(library-grpc-client PRIVATE

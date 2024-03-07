@@ -14,9 +14,9 @@
 
 extern "C" int mkstemps(char* path, int slen);
 
-TString MakeTempName(const char* wrkDir, const char* prefix, const char* extension) {
+std::string MakeTempName(const char* wrkDir, const char* prefix, const char* extension) {
 #ifndef _win32_
-    TString filePath;
+    std::string filePath;
 
     if (wrkDir && *wrkDir) {
         filePath += wrkDir;

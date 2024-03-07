@@ -5,6 +5,8 @@
 #include <util/generic/yexception.h>
 #include <util/generic/buffer.h>
 
+#include <string>
+
 class TBufferedInput::TImpl: public TAdditionalStorage<TImpl> {
 public:
     inline TImpl(IInputStream* slave)
@@ -62,10 +64,10 @@ public:
         return MemInput_.Skip(len);
     }
 
-    inline size_t ReadTo(TString& st, char to) {
+    inline size_t ReadTo(std::string& st, char to) {
         st.clear();
 
-        TString s_tmp;
+        std::string s_tmp;
 
         size_t ret = 0;
 
@@ -139,7 +141,7 @@ size_t TBufferedInput::DoNext(const void** ptr, size_t len) {
     return Impl_->Next(ptr, len);
 }
 
-size_t TBufferedInput::DoReadTo(TString& st, char ch) {
+size_t TBufferedInput::DoReadTo(std::string& st, char ch) {
     return Impl_->ReadTo(st, ch);
 }
 

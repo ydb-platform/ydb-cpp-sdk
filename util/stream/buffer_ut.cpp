@@ -25,7 +25,7 @@ Y_UNIT_TEST_SUITE(TBufferTest) {
         TBuffer buffer("1234567890", 10);
         TBufferInput input(buffer);
 
-        TString tmp;
+        std::string tmp;
         UNIT_ASSERT_VALUES_EQUAL(input.ReadTo(tmp, '3'), 3);
         UNIT_ASSERT_VALUES_EQUAL(tmp, "12");
 
@@ -36,7 +36,7 @@ Y_UNIT_TEST_SUITE(TBufferTest) {
     Y_UNIT_TEST(WriteViaNextAndUndo) {
         TBuffer buffer;
         TBufferOutput output(buffer);
-        TString str;
+        std::string str;
 
         for (size_t i = 0; i < 10000; ++i) {
             str.push_back('a' + (i % 20));

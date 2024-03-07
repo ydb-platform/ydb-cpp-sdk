@@ -37,11 +37,10 @@ public:
 
     std::optional<TManualRequest> GetNextPendingRequest() {
         std::optional<TManualRequest> result;
-        with_lock(Lock) {
-            if (!PendingRequests.empty()) {
-                result = PendingRequests.front();
-                PendingRequests.pop_front();
-            }
+        std::lock_guard guard(Lock);
+        if (!PendingRequests.empty()) {
+            result = PendingRequests.front();
+            PendingRequests.pop_front();
         }
         return result;
     }
@@ -54,7 +53,8 @@ public:
         auto p = NThreading::NewPromise<TGrpcResult>();
         auto f = p.GetFuture();
 
-        with_lock(Lock) {
+        {
+            std::lock_guard guard(Lock);
             PendingRequests.push_back({request, std::move(p)});
         }
 

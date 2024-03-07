@@ -25,10 +25,9 @@ public:
     }
 
     ~TImpl() {
-        with_lock(Lock) {
-            if (Observer) {
-                Observer->Stop();
-            }
+        std::lock_guard guard(Lock);
+        if (Observer) {
+            Observer->Stop();
         }
     }
 
@@ -39,9 +38,8 @@ public:
     std::shared_ptr<NTopic::IWriteSession> CreateWriteSession(const TFederatedWriteSessionSettings& settings);
 
     std::shared_ptr<TFederatedDbObserver> GetObserver() {
-        with_lock(Lock) {
-            return Observer;
-        }
+        std::lock_guard guard(Lock);
+        return Observer;
     }
 
     void InitObserver();

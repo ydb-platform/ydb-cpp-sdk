@@ -8,7 +8,7 @@ TUnbufferedFileInput::TUnbufferedFileInput(const char* path)
 {
 }
 
-TUnbufferedFileInput::TUnbufferedFileInput(const TString& path)
+TUnbufferedFileInput::TUnbufferedFileInput(const std::string& path)
     : TUnbufferedFileInput(TFile(path, OPEN_MODE))
 {
 }
@@ -54,7 +54,7 @@ TUnbufferedFileOutput::TUnbufferedFileOutput(const char* path)
 {
 }
 
-TUnbufferedFileOutput::TUnbufferedFileOutput(const TString& path)
+TUnbufferedFileOutput::TUnbufferedFileOutput(const std::string& path)
     : TUnbufferedFileOutput(TFile(path, OPEN_MODE))
 {
 }
@@ -101,7 +101,7 @@ TMappedFileInput::TMappedFileInput(const TFile& file)
     Reset(Impl_->Data(), Impl_->Size());
 }
 
-TMappedFileInput::TMappedFileInput(const TString& path)
+TMappedFileInput::TMappedFileInput(const std::string& path)
     : TMemoryInput(nullptr, 0)
     , Impl_(new TImpl(TFile(path, OpenExisting | RdOnly)))
 {

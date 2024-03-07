@@ -7,8 +7,7 @@ target_link_libraries(client-ydb_types-operation PUBLIC
   cpp-threading-future
   public-lib-operation_id
   cpp-client-ydb_types
-  cpp-string_utils-string_output
-)
+  )
 
 target_sources(client-ydb_types-operation PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_types/operation/operation.cpp

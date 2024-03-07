@@ -2,7 +2,7 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/string.h>
+#include <string>
 #include <util/string/builder.h>
 
 #include <array>

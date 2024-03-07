@@ -52,7 +52,8 @@ public:
     void Stop() {
         Y_ABORT_UNLESS(SelfContext);
 
-        with_lock(Lock) {
+        {
+            std::lock_guard guard(Lock);
             Stopping = true;
         }
 
@@ -62,24 +63,23 @@ public:
 
 private:
     void ScheduleDumpCountersToLog(size_t timeNumber = 0) {
-        with_lock(Lock) {
-            if (Stopping) {
-                return;
-            }
+        std::lock_guard guard(Lock);
+        if (Stopping) {
+            return;
+        }
 
-            DumpCountersContext = Connections->CreateContext();
-            if (DumpCountersContext) {
-                auto callback = [ctx = SelfContext, timeNumber](bool ok) {
-                    if (ok) {
-                        if (auto borrowedSelf = ctx->LockShared()) {
-                            borrowedSelf->DumpCountersToLog(timeNumber);
-                        }
+        DumpCountersContext = Connections->CreateContext();
+        if (DumpCountersContext) {
+            auto callback = [ctx = SelfContext, timeNumber](bool ok) {
+                if (ok) {
+                    if (auto borrowedSelf = ctx->LockShared()) {
+                        borrowedSelf->DumpCountersToLog(timeNumber);
                     }
-                };
-                Connections->ScheduleCallback(UPDATE_PERIOD,
-                                            std::move(callback),
-                                            DumpCountersContext);
-            }
+                }
+            };
+            Connections->ScheduleCallback(UPDATE_PERIOD,
+                                        std::move(callback),
+                                        DumpCountersContext);
         }
     }
 
@@ -115,7 +115,7 @@ private:
 
         if (logCounters) {
             LOG_LAZY(Log, TLOG_INFO,
-                NUtils::TYdbStringBuilder() << Prefix << "Counters: {"
+                TStringBuilder() << Prefix << "Counters: {"
                 C(Errors)
                 C(CurrentSessionLifetimeMs)
                 C(BytesRead)

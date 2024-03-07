@@ -18,7 +18,7 @@ TPlainStatus::TPlainStatus(
     if (grpcStatus.InternalError) {
         Status = EStatus::CLIENT_INTERNAL_ERROR;
         if (!grpcStatus.Msg.empty()) {
-            msg = NUtils::TYdbStringBuilder() << "Internal client error: " << grpcStatus.Msg;
+            msg = TStringBuilder() << "Internal client error: " << grpcStatus.Msg;
         } else {
             msg = "Unknown internal client error";
         }
@@ -49,7 +49,7 @@ TPlainStatus::TPlainStatus(
                 Status = EStatus::CLIENT_INTERNAL_ERROR;
                 break;
         }
-        msg = NUtils::TYdbStringBuilder() << "GRpc error: (" << grpcStatus.GRpcStatusCode << "): " << grpcStatus.Msg;
+        msg = TStringBuilder() << "GRpc error: (" << grpcStatus.GRpcStatusCode << "): " << grpcStatus.Msg;
     } else {
         Status = EStatus::SUCCESS;
     }

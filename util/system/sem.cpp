@@ -248,10 +248,10 @@ public:
     }
 };
 #else
-class TFastSemaphore::TImpl: public TString, public TSemaphoreImpl {
+class TFastSemaphore::TImpl: public std::string, public TSemaphoreImpl {
 public:
     inline TImpl(ui32 n)
-        : TString(ToString(RandomNumber<ui64>()))
+        : std::string(ToString(RandomNumber<ui64>()))
         , TSemaphoreImpl(c_str(), n)
     {
     }

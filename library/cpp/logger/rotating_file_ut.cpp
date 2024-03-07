@@ -1,7 +1,7 @@
 #include "rotating_file.h"
 #include "record.h"
 
-#include <util/generic/string.h>
+#include <string>
 #include <util/system/fstat.h>
 #include <util/system/fs.h>
 

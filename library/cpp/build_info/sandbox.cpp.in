@@ -1,7 +1,8 @@
 #include <library/cpp/build_info/sandbox.h>
 #include <library/cpp/string_utils/base64/base64.h>
-#include <util/generic/string.h>
+#include <util/generic/singleton.h>
 #include <util/string/subst.h>
+#include <string>
 
 extern "C" const char* GetSandboxTaskId() {
     return "@SANDBOX_TASK_ID@";

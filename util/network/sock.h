@@ -30,7 +30,7 @@ struct ISockAddr {
     virtual sockaddr* SockAddr() = 0;
     virtual const sockaddr* SockAddr() const = 0;
     // address in human readable form
-    virtual TString ToString() const = 0;
+    virtual std::string ToString() const = 0;
 
 protected:
     // below are the implemetation methods that can be called by T*Socket classes
@@ -77,7 +77,7 @@ struct TSockAddrLocal: public ISockAddr {
         strlcpy(Path, path, PathSize);
     }
 
-    inline void Set(TStringBuf path) noexcept {
+    inline void Set(std::string_view path) noexcept {
         Clear();
         in.sin_family = AF_INET;
         in.sin_addr.s_addr = IpFromString("127.0.0.1");
@@ -93,8 +93,8 @@ struct TSockAddrLocal: public ISockAddr {
         return (const struct sockaddr*)(&in);
     }
 
-    TString ToString() const {
-        return TString(Path);
+    std::string ToString() const {
+        return std::string(Path);
     }
 
     TFsPath ToPath() const {
@@ -156,7 +156,7 @@ struct TSockAddrLocal: public sockaddr_un, public ISockAddr {
         Clear();
     }
 
-    TSockAddrLocal(TStringBuf path) {
+    TSockAddrLocal(std::string_view path) {
         Set(path);
     }
 
@@ -182,7 +182,7 @@ struct TSockAddrLocal: public sockaddr_un, public ISockAddr {
         strlcpy(sun_path, path, sizeof(sun_path));
     }
 
-    inline void Set(TStringBuf path) noexcept {
+    inline void Set(std::string_view path) noexcept {
         Clear();
         sun_family = AF_UNIX;
         strlcpy(sun_path, path.data(), Min(sizeof(sun_path), path.size() + 1));
@@ -196,8 +196,8 @@ struct TSockAddrLocal: public sockaddr_un, public ISockAddr {
         return (const struct sockaddr*)(const struct sockaddr_un*)this;
     }
 
-    TString ToString() const override {
-        return TString(sun_path);
+    std::string ToString() const override {
+        return std::string(sun_path);
     }
 
     TFsPath ToPath() const {
@@ -259,7 +259,7 @@ struct TSockAddrInet: public sockaddr_in, public ISockAddr {
         return (const struct sockaddr*)(const struct sockaddr_in*)this;
     }
 
-    TString ToString() const override {
+    std::string ToString() const override {
         return IpToString(sin_addr.s_addr) + ":" + ::ToString(InetToHost(sin_port));
     }
 
@@ -325,7 +325,7 @@ struct TSockAddrInet6: public sockaddr_in6, public ISockAddr {
         return (const struct sockaddr*)(const struct sockaddr_in6*)this;
     }
 
-    TString ToString() const override {
+    std::string ToString() const override {
         return "[" + GetIp() + "]:" + ::ToString(InetToHost(sin6_port));
     }
 
@@ -342,10 +342,10 @@ struct TSockAddrInet6: public sockaddr_in6, public ISockAddr {
         return 0;
     }
 
-    TString GetIp() const noexcept {
+    std::string GetIp() const noexcept {
         char ip6[INET6_ADDRSTRLEN];
         inet_ntop(AF_INET6, (void*)&sin6_addr, ip6, INET6_ADDRSTRLEN);
-        return TString(ip6);
+        return std::string(ip6);
     }
 
     TIpPort GetPort() const noexcept {

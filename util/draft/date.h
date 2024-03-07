@@ -2,10 +2,10 @@
 
 #include <util/stream/output.h>
 #include <util/stream/input.h>
-#include <util/generic/string.h>
 #include <util/datetime/constants.h>
 
 #include <ctime>
+#include <string>
 
 // XXX: uses system calls for trivial things. may be very slow therefore.
 
@@ -28,9 +28,9 @@ public:
     }
 
     TDate(const char* yyyymmdd);
-    TDate(const TString& yyyymmdd);
+    TDate(const std::string& yyyymmdd);
     TDate(unsigned year, unsigned month, unsigned monthDay); // month from 01, monthDay from 01
-    TDate(const TString& date, const TString& format);
+    TDate(const std::string& date, const std::string& format);
 
     explicit TDate(time_t t);
 
@@ -40,7 +40,7 @@ public:
 
     time_t GetStartUTC() const;
 
-    TString ToStroka(const char* format = "%Y%m%d") const;
+    std::string ToStroka(const char* format = "%Y%m%d") const;
 
     TDate& operator++() {
         Timestamp = GetDateStart(Timestamp + 3 * (SECONDS_IN_DAY / 2));
@@ -117,7 +117,7 @@ inline int operator-(const TDate& left, const TDate& right) {
 }
 
 inline IInputStream& operator>>(IInputStream& left, TDate& right) {
-    TString stroka;
+    std::string stroka;
     left >> stroka;
     TDate date(stroka.c_str());
     right = date;

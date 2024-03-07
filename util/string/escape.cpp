@@ -149,7 +149,7 @@ namespace {
 }
 
 template <class TChar>
-TBasicString<TChar>& EscapeCImpl(const TChar* str, size_t len, TBasicString<TChar>& r) {
+std::basic_string<TChar>& EscapeCImpl(const TChar* str, size_t len, std::basic_string<TChar>& r) {
     using TEscapeUtil = ::TEscapeUtil<TChar>;
 
     TChar buffer[TEscapeUtil::ESCAPE_C_BUFFER_SIZE];
@@ -174,20 +174,19 @@ TBasicString<TChar>& EscapeCImpl(const TChar* str, size_t len, TBasicString<TCha
     return r;
 }
 
-template TString& EscapeCImpl<TString::TChar>(const TString::TChar* str, size_t len, TString& r);
-template TUtf16String& EscapeCImpl<TUtf16String::TChar>(const TUtf16String::TChar* str, size_t len, TUtf16String& r);
+template std::string& EscapeCImpl<std::string::value_type>(const std::string::value_type* str, size_t len, std::string& r);
+template std::u16string& EscapeCImpl<std::u16string::value_type>(const std::u16string::value_type* str, size_t len, std::u16string& r);
 
 namespace {
     template <class TStr>
     inline void AppendUnicode(TStr& s, wchar32 v) {
         char buf[10];
         size_t sz = 0;
-
         WriteUTF8Char(v, sz, (ui8*)buf);
-        s.AppendNoAlias(buf, sz);
+        s.append(buf, sz);
     }
 
-    inline void AppendUnicode(TUtf16String& s, wchar32 v) {
+    inline void AppendUnicode(std::u16string& s, wchar32 v) {
         WriteSymbol(v, s);
     }
 
@@ -240,28 +239,28 @@ static TStr& DoUnescapeC(const TChar* p, size_t sz, TStr& res) {
 
             switch (*p) {
                 default:
-                    res.append(*p);
+                    res.push_back(*p);
                     break;
                 case 'a':
-                    res.append('\a');
+                    res.push_back('\a');
                     break;
                 case 'b':
-                    res.append('\b');
+                    res.push_back('\b');
                     break;
                 case 'f':
-                    res.append('\f');
+                    res.push_back('\f');
                     break;
                 case 'n':
-                    res.append('\n');
+                    res.push_back('\n');
                     break;
                 case 'r':
-                    res.append('\r');
+                    res.push_back('\r');
                     break;
                 case 't':
-                    res.append('\t');
+                    res.push_back('\t');
                     break;
                 case 'v':
-                    res.append('\v');
+                    res.push_back('\v');
                     break;
                 case 'u': {
                     ui16 cp[2];
@@ -276,7 +275,7 @@ static TStr& DoUnescapeC(const TChar* p, size_t sz, TStr& res) {
                             p += 4;
                         }
                     } else {
-                        res.append(*p);
+                        res.push_back(*p);
                     }
 
                     break;
@@ -284,7 +283,7 @@ static TStr& DoUnescapeC(const TChar* p, size_t sz, TStr& res) {
 
                 case 'U':
                     if (CountHex<8>(p + 1, pe) != 8) {
-                        res.append(*p);
+                        res.push_back(*p);
                     } else {
                         AppendUnicode(res, IntFromString<ui32, 16>(p + 1, 8));
                         p += 8;
@@ -292,10 +291,10 @@ static TStr& DoUnescapeC(const TChar* p, size_t sz, TStr& res) {
                     break;
                 case 'x':
                     if (ui32 v = CountHex<2>(p + 1, pe)) {
-                        res.append((TChar)IntFromString<ui32, 16>(p + 1, v));
+                        res.push_back((TChar)IntFromString<ui32, 16>(p + 1, v));
                         p += v;
                     } else {
-                        res.append(*p);
+                        res.push_back(*p);
                     }
 
                     break;
@@ -304,7 +303,7 @@ static TStr& DoUnescapeC(const TChar* p, size_t sz, TStr& res) {
                 case '2':
                 case '3': {
                     ui32 v = CountOct<3>(p, pe); // v is always positive
-                    res.append((TChar)IntFromString<ui32, 8>(p, v));
+                    res.push_back((TChar)IntFromString<ui32, 8>(p, v));
                     p += v - 1;
                 } break;
                 case '4':
@@ -312,7 +311,7 @@ static TStr& DoUnescapeC(const TChar* p, size_t sz, TStr& res) {
                 case '6':
                 case '7': {
                     ui32 v = CountOct<2>(p, pe); // v is always positive
-                    res.append((TChar)IntFromString<ui32, 8>(p, v));
+                    res.push_back((TChar)IntFromString<ui32, 8>(p, v));
                     p += v - 1;
                 } break;
             }
@@ -331,24 +330,24 @@ static TStr& DoUnescapeC(const TChar* p, size_t sz, TStr& res) {
 }
 
 template <class TChar>
-TBasicString<TChar>& UnescapeCImpl(const TChar* p, size_t sz, TBasicString<TChar>& res) {
+std::basic_string<TChar>& UnescapeCImpl(const TChar* p, size_t sz, std::basic_string<TChar>& res) {
     return DoUnescapeC(p, sz, res);
 }
 
 template <class TChar>
 TChar* UnescapeC(const TChar* str, size_t len, TChar* buf) {
     struct TUnboundedString {
-        void append(TChar ch) noexcept {
+        void push_back(TChar ch) noexcept {
             *P++ = ch;
         }
 
         void append(const TChar* b, const TChar* e) noexcept {
             while (b != e) {
-                append(*b++);
+                push_back(*b++);
             }
         }
 
-        void AppendNoAlias(const TChar* s, size_t l) noexcept {
+        void append(const TChar* s, size_t l) noexcept {
             append(s, s + l);
         }
 
@@ -358,8 +357,8 @@ TChar* UnescapeC(const TChar* str, size_t len, TChar* buf) {
     return DoUnescapeC(str, len, bufbuf).P;
 }
 
-template TString& UnescapeCImpl<TString::TChar>(const TString::TChar* str, size_t len, TString& r);
-template TUtf16String& UnescapeCImpl<TUtf16String::TChar>(const TUtf16String::TChar* str, size_t len, TUtf16String& r);
+template std::string& UnescapeCImpl<std::string::value_type>(const std::string::value_type* str, size_t len, std::string& r);
+template std::u16string& UnescapeCImpl<std::u16string::value_type>(const std::u16string::value_type* str, size_t len, std::u16string& r);
 
 template char* UnescapeC<char>(const char* str, size_t len, char* buf);
 
@@ -398,36 +397,55 @@ size_t UnescapeCCharLen(const TChar* begin, const TChar* end) {
 }
 
 template size_t UnescapeCCharLen<char>(const char* begin, const char* end);
-template size_t UnescapeCCharLen<TUtf16String::TChar>(const TUtf16String::TChar* begin, const TUtf16String::TChar* end);
+template size_t UnescapeCCharLen<std::u16string::value_type>(const std::u16string::value_type* begin, const std::u16string::value_type* end);
 
-TString& EscapeC(const TStringBuf str, TString& s) {
+std::string& EscapeC(const std::string_view str, std::string& s) {
     return EscapeC(str.data(), str.size(), s);
 }
 
-TUtf16String& EscapeC(const TWtringBuf str, TUtf16String& w) {
+std::u16string& EscapeC(const std::u16string_view str, std::u16string& w) {
     return EscapeC(str.data(), str.size(), w);
 }
 
-TString EscapeC(const TString& str) {
+std::string EscapeC(const std::string& str) {
     return EscapeC(str.data(), str.size());
 }
 
-TUtf16String EscapeC(const TUtf16String& str) {
+std::u16string EscapeC(const std::u16string& str) {
     return EscapeC(str.data(), str.size());
 }
 
-TString& UnescapeC(const TStringBuf str, TString& s) {
+std::string& UnescapeC(const std::string_view str, std::string& s) {
     return UnescapeC(str.data(), str.size(), s);
 }
 
-TUtf16String& UnescapeC(const TWtringBuf str, TUtf16String& w) {
+std::u16string& UnescapeC(const std::u16string_view str, std::u16string& w) {
     return UnescapeC(str.data(), str.size(), w);
 }
 
-TString UnescapeC(const TStringBuf str) {
+std::string UnescapeC(const std::string_view str) {
     return UnescapeC(str.data(), str.size());
 }
 
-TUtf16String UnescapeC(const TWtringBuf str) {
+std::u16string UnescapeC(const std::u16string_view str) {
     return UnescapeC(str.data(), str.size());
+}
+
+namespace NUtils {
+
+template <>
+std::string GetQuoteLiteral() {
+    return "\"";
+}
+
+template <>
+std::u16string GetQuoteLiteral() {
+    return u"\"";
+}
+
+template <>
+std::u32string GetQuoteLiteral() {
+    return U"\"";
+}
+
 }

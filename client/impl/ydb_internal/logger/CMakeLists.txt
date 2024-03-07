@@ -4,7 +4,6 @@ target_link_libraries(impl-ydb_internal-logger PUBLIC
   contrib-libs-cxxsupp
   yutil
   library-cpp-logger
-  cpp-string_builder
 )
 
 target_sources(impl-ydb_internal-logger PRIVATE

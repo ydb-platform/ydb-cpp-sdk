@@ -1,7 +1,7 @@
 #include "json_value.h"
 #include "json.h"
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 #include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/generic/ymath.h>
@@ -892,11 +892,11 @@ namespace NJson {
 
         if (Type == JSON_MAP) {
             for (auto&& i : *Value.Map) {
-                i.second.DoScan(!path.empty() ? NUtils::TYdbStringBuilder() << path << "." << i.first : i.first, this, callback);
+                i.second.DoScan(!path.empty() ? TStringBuilder() << path << "." << i.first : i.first, this, callback);
             }
         } else if (Type == JSON_ARRAY) {
             for (ui32 i = 0; i < Value.Array->size(); ++i) {
-                (*Value.Array)[i].DoScan(NUtils::TYdbStringBuilder() << path << "[" << ToString(i) << "]", this, callback);
+                (*Value.Array)[i].DoScan(TStringBuilder() << path << "[" << ToString(i) << "]", this, callback);
             }
         }
     }

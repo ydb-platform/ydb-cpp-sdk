@@ -1,31 +1,31 @@
 #include "ci_string.h"
 
 int TCiString::compare(const TCiString& s1, const TCiString& s2, const CodePage& cp) {
-    return cp.stricmp(s1.data(), s2.data());
+    return cp.Stricmp(s1.data(), s2.data());
 }
 
 int TCiString::compare(const char* p, const TCiString& s2, const CodePage& cp) {
-    return cp.stricmp(p, s2.data());
+    return cp.Stricmp(p, s2.data());
 }
 
 int TCiString::compare(const TCiString& s1, const char* p, const CodePage& cp) {
-    return cp.stricmp(s1.data(), p);
+    return cp.Stricmp(s1.data(), p);
 }
 
 int TCiString::compare(const std::string_view& p1, const std::string_view& p2, const CodePage& cp) {
-    int rv = cp.strnicmp(p1.data(), p2.data(), Min(p1.size(), p2.size()));
+    int rv = cp.Strnicmp(p1.data(), p2.data(), Min(p1.size(), p2.size()));
     return rv ? rv : p1.size() < p2.size() ? -1 : p1.size() == p2.size() ? 0 : 1;
 }
 
 bool TCiString::is_prefix(const std::string_view& what, const std::string_view& of, const CodePage& cp) {
     size_t len = what.size();
-    return len <= of.size() && cp.strnicmp(what.data(), of.data(), len) == 0;
+    return len <= of.size() && cp.Strnicmp(what.data(), of.data(), len) == 0;
 }
 
 bool TCiString::is_suffix(const std::string_view& what, const std::string_view& of, const CodePage& cp) {
     size_t len = what.size();
     size_t slen = of.size();
-    return (len <= slen) && (0 == cp.strnicmp(what.data(), of.data() + slen - len, len));
+    return (len <= slen) && (0 == cp.Strnicmp(what.data(), of.data() + slen - len, len));
 }
 
 size_t TCiString::hashVal(const char* s, size_t len, const CodePage& cp) {

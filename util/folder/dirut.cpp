@@ -11,12 +11,28 @@
 #include <util/system/maxlen.h>
 #include <util/system/yassert.h>
 
-void SlashFolderLocal(TString& folder) {
-    if (!folder)
+namespace NStringPrivate {
+    template <class TCharType>
+    size_t GetStringLengthWithLimit(const TCharType* s, size_t maxlen) {
+        Y_ASSERT(s);
+        size_t i = 0;
+        for (; i != maxlen && s[i]; ++i)
+            ;
+        return i;
+    }
+
+    inline size_t GetStringLengthWithLimit(const char* s, size_t maxlen) {
+        Y_ASSERT(s);
+        return strnlen(s, maxlen);
+    }
+}
+
+void SlashFolderLocal(std::string& folder) {
+    if (folder.empty())
         return;
 #ifdef _win32_
     size_t pos;
-    while ((pos = folder.find('/')) != TString::npos)
+    while ((pos = folder.find('/')) != std::string::npos)
         folder.replace(pos, 1, LOCSLASH_S);
 #endif
     if (folder[folder.size() - 1] != LOCSLASH_C)
@@ -25,13 +41,13 @@ void SlashFolderLocal(TString& folder) {
 
 #ifndef _win32_
 
-bool correctpath(TString& folder) {
+bool correctpath(std::string& folder) {
     return resolvepath(folder, "/");
 }
 
-bool resolvepath(TString& folder, const TString& home) {
-    Y_ASSERT(home && home.at(0) == '/');
-    if (!folder) {
+bool resolvepath(std::string& folder, const std::string& home) {
+    Y_ASSERT(!home.empty() && home.at(0) == '/');
+    if (folder.empty()) {
         return false;
     }
     // may be from windows
@@ -348,7 +364,7 @@ int resolvepath(char* apath, const char* rpath, const char* cpath) {
     return correctpath(apath, tpath);
 }
 
-bool correctpath(TString& filename) {
+bool correctpath(std::string& filename) {
     char* ptr = (char*)alloca(filename.size() + 2);
     if (correctpath(ptr, filename.data())) {
         filename = ptr;
@@ -357,7 +373,7 @@ bool correctpath(TString& filename) {
     return false;
 }
 
-bool resolvepath(TString& folder, const TString& home) {
+bool resolvepath(std::string& folder, const std::string& home) {
     char* ptr = (char*)alloca(folder.size() + 3 + home.size());
     if (resolvepath(ptr, folder.data(), home.data())) {
         folder = ptr;
@@ -376,7 +392,7 @@ const char* GetDirectorySeparatorS() {
     return LOCSLASH_S;
 }
 
-void RemoveDirWithContents(TString dirName) {
+void RemoveDirWithContents(std::string dirName) {
     SlashFolderLocal(dirName);
 
     TDirIterator dir(dirName, TDirIterator::TOptions(FTS_NOSTAT));
@@ -402,7 +418,7 @@ int mkpath(char* path, int mode) {
 // Implementation of realpath in FreeBSD (version 9.0 and less) and GetFullPathName in Windows
 // did not require last component of the file name to exist (other implementations will fail
 // if it does not). Use RealLocation if that behaviour is required.
-TString RealPath(const TString& path) {
+std::string RealPath(const std::string& path) {
     TTempBuf result;
     Y_ASSERT(result.Size() > MAX_PATH); //TMP_BUF_LEN > MAX_PATH
 #ifdef _win_
@@ -414,10 +430,10 @@ TString RealPath(const TString& path) {
     return result.Data();
 }
 
-TString RealLocation(const TString& path) {
+std::string RealLocation(const std::string& path) {
     if (NFs::Exists(path))
         return RealPath(path);
-    TString dirpath = GetDirName(path);
+    std::string dirpath = GetDirName(path);
     if (NFs::Exists(dirpath))
         return RealPath(dirpath) + GetDirectorySeparatorS() + GetFileNameComponent(path.data());
     ythrow TFileError() << "RealLocation failed \"" << path << "\"";
@@ -426,7 +442,7 @@ TString RealLocation(const TString& path) {
 int MakeTempDir(char path[/*FILENAME_MAX*/], const char* prefix) {
     int ret;
 
-    TString sysTmp;
+    std::string sysTmp;
 
 #ifdef _win32_
     if (!prefix || *prefix == '/') {
@@ -449,17 +465,17 @@ int MakeTempDir(char path[/*FILENAME_MAX*/], const char* prefix) {
     return 0;
 }
 
-bool IsDir(const TString& path) {
+bool IsDir(const std::string& path) {
     return TFileStat(path).IsDir();
 }
 
-TString GetHomeDir() {
-    TString s(getenv("HOME"));
-    if (!s) {
+std::string GetHomeDir() {
+    std::string s(getenv("HOME"));
+    if (s.empty()) {
 #ifndef _win32_
         passwd* pw = nullptr;
         s = getenv("USER");
-        if (s)
+        if (!s.empty())
             pw = getpwnam(s.data());
         else
             pw = getpwuid(getuid());
@@ -505,14 +521,14 @@ const char* GetFileNameComponent(const char* f) {
     return f;
 }
 
-TString GetSystemTempDir() {
+std::string GetSystemTempDir() {
 #ifdef _win_
     char buffer[1024];
     DWORD size = GetTempPath(1024, buffer);
     if (!size) {
         ythrow TSystemError() << "failed to get system temporary directory";
     }
-    return TString(buffer, size);
+    return std::string(buffer, size);
 #else
     const char* var = "TMPDIR";
     const char* def = "/tmp";
@@ -522,11 +538,11 @@ TString GetSystemTempDir() {
 #endif
 }
 
-TString ResolveDir(const char* path) {
+std::string ResolveDir(const char* path) {
     return ResolvePath(path, true);
 }
 
-bool SafeResolveDir(const char* path, TString& result) {
+bool SafeResolveDir(const char* path, std::string& result) {
     try {
         result = ResolvePath(path, true);
         return true;
@@ -535,7 +551,7 @@ bool SafeResolveDir(const char* path, TString& result) {
     }
 }
 
-TString GetDirName(const TString& path) {
+std::string GetDirName(const std::string& path) {
     return TFsPath(path).Dirname();
 }
 
@@ -548,12 +564,12 @@ char* realpath(const char* pathname, char resolved_path[MAXPATHLEN]) {
 
 #endif
 
-TString GetBaseName(const TString& path) {
+std::string GetBaseName(const std::string& path) {
     return TFsPath(path).Basename();
 }
 
 static bool IsAbsolutePath(const char* str) {
-    return str && TPathSplitTraitsLocal::IsAbsolutePath(TStringBuf(str, NStringPrivate::GetStringLengthWithLimit(str, 3)));
+    return str && TPathSplitTraitsLocal::IsAbsolutePath(std::string_view(str, NStringPrivate::GetStringLengthWithLimit(str, 3)));
 }
 
 int ResolvePath(const char* rel, const char* abs, char res[/*MAXPATHLEN*/], bool isdir) {
@@ -601,21 +617,21 @@ int ResolvePath(const char* rel, const char* abs, char res[/*MAXPATHLEN*/], bool
     return 0;
 }
 
-TString ResolvePath(const char* rel, const char* abs, bool isdir) {
+std::string ResolvePath(const char* rel, const char* abs, bool isdir) {
     char buf[PATH_MAX];
     if (ResolvePath(rel, abs, buf, isdir))
         ythrow yexception() << "cannot resolve path: \"" << rel << "\"";
     return buf;
 }
 
-TString ResolvePath(const char* path, bool isDir) {
+std::string ResolvePath(const char* path, bool isDir) {
     return ResolvePath(path, nullptr, isDir);
 }
 
-TString StripFileComponent(const TString& fileName) {
-    TString dir = IsDir(fileName) ? fileName : GetDirName(fileName);
+std::string StripFileComponent(const std::string& fileName) {
+    std::string dir = IsDir(fileName) ? fileName : GetDirName(fileName);
     if (!dir.empty() && dir.back() != GetDirectorySeparator()) {
-        dir.append(GetDirectorySeparator());
+        dir.push_back(GetDirectorySeparator());
     }
     return dir;
 }

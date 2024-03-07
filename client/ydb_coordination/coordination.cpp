@@ -218,7 +218,8 @@ public:
             promise.SetValue(TSessionResult(std::move(status)));
             return;
         }
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             LocalContext = context;
             ConnectionState = EConnectionState::CONNECTING;
         }
@@ -229,18 +230,17 @@ public:
     }
 
     void Stop() {
-        with_lock (Lock) {
-            IsStopping = true;
-            if (!CurrentFailure) {
-                SetCurrentFailure(
-                    TPlainStatus(EStatus::CLIENT_CANCELLED, "Client is stopped"));
-            }
-            if (Processor) {
-                Processor->Cancel();
-            }
-            if (SleepContext) {
-                SleepContext->Cancel();
-            }
+        std::lock_guard guard(Lock);
+        IsStopping = true;
+        if (!CurrentFailure) {
+            SetCurrentFailure(
+                TPlainStatus(EStatus::CLIENT_CANCELLED, "Client is stopped"));
+        }
+        if (Processor) {
+            Processor->Cancel();
+        }
+        if (SleepContext) {
+            SleepContext->Cancel();
         }
     }
 
@@ -445,165 +445,154 @@ private:
 
 private:
     ESessionState DoGetSessionState() {
-        with_lock (Lock) {
-            return SessionState;
-        }
+        std::lock_guard guard(Lock);
+        return SessionState;
     }
 
     EConnectionState DoGetConnectionState() {
-        with_lock (Lock) {
-            return ConnectionState;
-        }
+        std::lock_guard guard(Lock);
+        return ConnectionState;
     }
 
     TAsyncResult<void> DoClose(bool isAbort) {
-        with_lock (Lock) {
-            if (!ClosedPromise.Initialized()) {
-                ClosedPromise = NewResultPromise<void>();
-                if (IsWriteAllowed()) {
-                    SendCloseRequest();
-                }
-            }
-            if (isAbort) {
-                // Move to the stopping state, but without cancelling the context
-                IsStopping = true;
-                if (!CurrentFailure) {
-                    SetCurrentFailure(
-                        TPlainStatus(EStatus::UNAVAILABLE, "Session is aborted"));
-                }
-                if (SleepContext) {
-                    SleepContext->Cancel();
-                }
-            }
-            return ClosedPromise;
-        }
-    }
-
-    TAsyncResult<void> DoPing() {
-        with_lock (Lock) {
-            if (IsClosed()) {
-                return MakeClosedResult<void>();
-            }
-            auto op = MakeHolder<TPingOp>();
-            auto future = op->Promise.GetFuture();
+        std::lock_guard guard(Lock);
+        if (!ClosedPromise.Initialized()) {
+            ClosedPromise = NewResultPromise<void>();
             if (IsWriteAllowed()) {
-                DoSendSimpleOp(std::move(op));
-            } else {
-                PendingRequests.emplace_back(std::move(op));
+                SendCloseRequest();
             }
-            return future;
         }
-    }
-
-    TAsyncResult<void> DoReconnect() {
-        with_lock (Lock) {
-            SessionReconnectDelay = TDuration::Zero();
-            if (Processor) {
-                Processor->Cancel();
+        if (isAbort) {
+            // Move to the stopping state, but without cancelling the context
+            IsStopping = true;
+            if (!CurrentFailure) {
+                SetCurrentFailure(
+                    TPlainStatus(EStatus::UNAVAILABLE, "Session is aborted"));
             }
             if (SleepContext) {
                 SleepContext->Cancel();
             }
-            if (IsClosed()) {
-                return MakeClosedResult<void>();
-            }
-            if (!ReconnectPromise.Initialized()) {
-                ReconnectPromise = NewResultPromise<void>();
-            }
-            return ReconnectPromise;
         }
+        return ClosedPromise;
+    }
+
+    TAsyncResult<void> DoPing() {
+        std::lock_guard guard(Lock);
+        if (IsClosed()) {
+            return MakeClosedResult<void>();
+        }
+        auto op = MakeHolder<TPingOp>();
+        auto future = op->Promise.GetFuture();
+        if (IsWriteAllowed()) {
+            DoSendSimpleOp(std::move(op));
+        } else {
+            PendingRequests.emplace_back(std::move(op));
+        }
+        return future;
+    }
+
+    TAsyncResult<void> DoReconnect() {
+        std::lock_guard guard(Lock);
+        SessionReconnectDelay = TDuration::Zero();
+        if (Processor) {
+            Processor->Cancel();
+        }
+        if (SleepContext) {
+            SleepContext->Cancel();
+        }
+        if (IsClosed()) {
+            return MakeClosedResult<void>();
+        }
+        if (!ReconnectPromise.Initialized()) {
+            ReconnectPromise = NewResultPromise<void>();
+        }
+        return ReconnectPromise;
     }
 
     TAsyncResult<bool> DoAcquireSemaphore(
             const std::string& name,
             const TAcquireSemaphoreSettings& settings)
         {
-        with_lock (Lock) {
-            if (IsClosed()) {
-                return MakeClosedResult<bool>();
-            }
-            auto op = MakeIntrusive<TSemaphoreAcquireOp>(settings);
-            DoSemaphoreEnqueueOp(name, op);
-            return op->Promise;
+        std::lock_guard guard(Lock);
+        if (IsClosed()) {
+            return MakeClosedResult<bool>();
         }
+        auto op = MakeIntrusive<TSemaphoreAcquireOp>(settings);
+        DoSemaphoreEnqueueOp(name, op);
+        return op->Promise;
     }
 
     TAsyncResult<bool> DoReleaseSemaphore(const std::string& name) {
-        with_lock (Lock) {
-            if (IsClosed()) {
-                return MakeClosedResult<bool>();
-            }
-            auto op = MakeIntrusive<TSemaphoreReleaseOp>();
-            DoSemaphoreEnqueueOp(name, op);
-            return op->Promise;
+        std::lock_guard guard(Lock);
+        if (IsClosed()) {
+            return MakeClosedResult<bool>();
         }
+        auto op = MakeIntrusive<TSemaphoreReleaseOp>();
+        DoSemaphoreEnqueueOp(name, op);
+        return op->Promise;
     }
 
     TAsyncDescribeSemaphoreResult DoDescribeSemaphore(
             const std::string& name,
             const TDescribeSemaphoreSettings& settings)
     {
-        with_lock (Lock) {
-            if (IsClosed()) {
-                return MakeClosedResult<TSemaphoreDescription>();
-            }
-            auto op = MakeHolder<TDescribeSemaphoreOp>(name, settings);
-            auto future = op->Promise.GetFuture();
-            if (IsWriteAllowed()) {
-                DoSendSimpleOp(std::move(op));
-            } else {
-                PendingRequests.emplace_back(std::move(op));
-            }
-            return future;
+        std::lock_guard guard(Lock);
+        if (IsClosed()) {
+            return MakeClosedResult<TSemaphoreDescription>();
         }
+        auto op = MakeHolder<TDescribeSemaphoreOp>(name, settings);
+        auto future = op->Promise.GetFuture();
+        if (IsWriteAllowed()) {
+            DoSendSimpleOp(std::move(op));
+        } else {
+            PendingRequests.emplace_back(std::move(op));
+        }
+        return future;
     }
 
     TAsyncResult<void> DoCreateSemaphore(const std::string& name, ui64 limit, const std::string& data) {
-        with_lock (Lock) {
-            if (IsClosed()) {
-                return MakeClosedResult<void>();
-            }
-            auto op = MakeHolder<TCreateSemaphoreOp>(name, limit, data);
-            auto future = op->Promise.GetFuture();
-            if (IsWriteAllowed()) {
-                DoSendSimpleOp(std::move(op));
-            } else {
-                PendingRequests.emplace_back(std::move(op));
-            }
-            return future;
+        std::lock_guard guard(Lock);
+        if (IsClosed()) {
+            return MakeClosedResult<void>();
         }
+        auto op = MakeHolder<TCreateSemaphoreOp>(name, limit, data);
+        auto future = op->Promise.GetFuture();
+        if (IsWriteAllowed()) {
+            DoSendSimpleOp(std::move(op));
+        } else {
+            PendingRequests.emplace_back(std::move(op));
+        }
+        return future;
     }
 
     TAsyncResult<void> DoUpdateSemaphore(const std::string& name, const std::string& data) {
-        with_lock (Lock) {
-            if (IsClosed()) {
-                return MakeClosedResult<void>();
-            }
-            auto op = MakeHolder<TUpdateSemaphoreOp>(name, data);
-            auto future = op->Promise.GetFuture();
-            if (IsWriteAllowed()) {
-                DoSendSimpleOp(std::move(op));
-            } else {
-                PendingRequests.emplace_back(std::move(op));
-            }
-            return future;
+        std::lock_guard guard(Lock);
+        if (IsClosed()) {
+            return MakeClosedResult<void>();
         }
+        auto op = MakeHolder<TUpdateSemaphoreOp>(name, data);
+        auto future = op->Promise.GetFuture();
+        if (IsWriteAllowed()) {
+            DoSendSimpleOp(std::move(op));
+        } else {
+            PendingRequests.emplace_back(std::move(op));
+        }
+        return future;
     }
 
     TAsyncResult<void> DoDeleteSemaphore(const std::string& name, bool force) {
-        with_lock (Lock) {
-            if (IsClosed()) {
-                return MakeClosedResult<void>();
-            }
-            auto op = MakeHolder<TDeleteSemaphoreOp>(name, force);
-            auto future = op->Promise.GetFuture();
-            if (IsWriteAllowed()) {
-                DoSendSimpleOp(std::move(op));
-            } else {
-                PendingRequests.emplace_back(std::move(op));
-            }
-            return future;
+        std::lock_guard guard(Lock);
+        if (IsClosed()) {
+            return MakeClosedResult<void>();
         }
+        auto op = MakeHolder<TDeleteSemaphoreOp>(name, force);
+        auto future = op->Promise.GetFuture();
+        if (IsWriteAllowed()) {
+            DoSendSimpleOp(std::move(op));
+        } else {
+            PendingRequests.emplace_back(std::move(op));
+        }
+        return future;
     }
 
     TDuration GetConnectTimeout() {
@@ -627,7 +616,8 @@ private:
         IQueueClientContextPtr prevConnectContext;
         IQueueClientContextPtr prevConnectTimeoutContext;
 
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             prevConnectContext = std::exchange(ConnectContext, connectContext);
             prevConnectTimeoutContext = std::exchange(ConnectTimeoutContext, connectTimeoutContext);
         }
@@ -889,7 +879,8 @@ private:
         TDeque<THolder<TSimpleOp>> failedSimpleOps;
         TResultPromise<void> closePromise;
 
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             Processor.Reset();
 
             Y_ABORT_UNLESS(LocalContext, "Processing event without a valid context");
@@ -1051,7 +1042,8 @@ private:
 
         TDuration sleepDuration;
         IQueueClientContextPtr sleepContext;
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             if (!IsStopping) {
                 // Session object still active, calculate sleep duration
                 sleepDuration = Min(SessionReconnectDelay, *SessionExpireDeadline - TInstant::Now());
@@ -1086,31 +1078,31 @@ private:
     void OnConnectTimeout(IQueueClientContextPtr context) {
         Y_ABORT_UNLESS(context, "Connection timeout context is unexpectedly empty");
 
-        with_lock (Lock) {
-            if (ConnectTimeoutContext != context) {
-                // Context changed or dropped, ignore
-                return;
-            }
+        std::lock_guard guard(Lock);
+        if (ConnectTimeoutContext != context) {
+            // Context changed or dropped, ignore
+            return;
+        }
 
-            ConnectTimeoutContext.reset();
+        ConnectTimeoutContext.reset();
 
-            // Timer succeeded and still current, cancel connection attempt
-            Y_ABORT_UNLESS(ConnectContext, "Connection context is unexpectedly empty");
-            ConnectContext->Cancel();
-            ConnectContext.reset();
+        // Timer succeeded and still current, cancel connection attempt
+        Y_ABORT_UNLESS(ConnectContext, "Connection context is unexpectedly empty");
+        ConnectContext->Cancel();
+        ConnectContext.reset();
 
-            SessionTimeout = true;
-            if (!CurrentFailure) {
-                SetCurrentFailure(
-                    TPlainStatus(EStatus::TIMEOUT, "Connection request timed out"));
-            }
+        SessionTimeout = true;
+        if (!CurrentFailure) {
+            SetCurrentFailure(
+                TPlainStatus(EStatus::TIMEOUT, "Connection request timed out"));
         }
     }
 
     void OnConnect(TPlainStatus plain, IProcessor::TPtr processor) {
         bool hadTimeout = false;
 
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             if (SessionTimeout) {
                 // OnConnectTimeout was called first
                 hadTimeout = true;
@@ -1143,7 +1135,8 @@ private:
         IQueueClientContextPtr timeoutContext;
 
         TResultPromise<void> reconnectPromise;
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             Processor = processor;
             ConnectionState = EConnectionState::ATTACHING;
             if (ReconnectPromise.Initialized()) {
@@ -1228,7 +1221,8 @@ private:
         IQueueClientContextPtr sessionSelfPingContext;
 
         bool detached = false;
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             if (SessionState == ESessionState::ATTACHED) {
                 SessionState = ESessionState::DETACHED;
                 detached = true;
@@ -1276,7 +1270,8 @@ private:
         }
 
         IProcessor::TPtr processor;
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             processor = Processor;
         }
         Y_ABORT_UNLESS(processor, "Processor is missing for some reason");
@@ -1313,7 +1308,8 @@ private:
         bool stopping;
         std::shared_ptr<IQueueClientContext> context;
 
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             sleepContext.swap(SleepContext);
             Y_ABORT_UNLESS(sleepContext, "Unexpected missing SleepContext in OnSleepFinished");
             if (!(stopping = IsStopping)) {
@@ -1341,7 +1337,8 @@ private:
     void OnSelfPingTimer(IQueueClientContextPtr context) {
         TInstant nextTimerTimestamp;
 
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             if (SessionSelfPingContext != context) {
                 // Context changed or dropped, ignore
                 return;
@@ -1414,7 +1411,8 @@ private:
                 const auto& source = Response->pong();
                 const ui64 reqId = source.opaque();
                 TResultPromise<void> replyPromise;
-                with_lock (Lock) {
+                {
+                    std::lock_guard guard(Lock);
                     if (auto* op = FindSentRequest<TPingOp>(reqId)) {
                         UpdateLastKnownGoodTimestampLocked(op->SendTimestamp);
                         replyPromise.Swap(op->Promise);
@@ -1431,7 +1429,8 @@ private:
                 auto plain = MakePlainStatus(source.status(), source.issues());
                 bool expired = false;
                 bool detached = false;
-                with_lock (Lock) {
+                {
+                    std::lock_guard guard(Lock);
                     if (plain.Status == EStatus::SESSION_EXPIRED ||
                         plain.Status == EStatus::UNAUTHORIZED ||
                         plain.Status == EStatus::NOT_FOUND)
@@ -1465,7 +1464,8 @@ private:
                 IQueueClientContextPtr sessionStartTimeoutContext;
                 IQueueClientContextPtr sessionSelfPingContext;
                 TInstant selfPingFirstTimestamp;
-                with_lock (Lock) {
+                {
+                    std::lock_guard guard(Lock);
                     // Remember session id for future reconnects
                     SessionId = source.session_id();
                     if (SessionPromise.Initialized()) {
@@ -1511,7 +1511,8 @@ private:
             }
             case TResponse::kSessionStopped: {
                 bool expired = false;
-                with_lock (Lock) {
+                {
+                    std::lock_guard guard(Lock);
                     IsStopping = true;
                     if (!ClosedPromise.Initialized()) {
                         ClosedPromise = NewResultPromise<void>();
@@ -1535,7 +1536,8 @@ private:
                 ui64 reqId = source.req_id();
                 TResultPromise<bool> supersededPromise;
                 std::function<void()> acceptedCallback;
-                with_lock (Lock) {
+                {
+                    std::lock_guard guard(Lock);
                     if (auto* state = SemaphoreByReqId.Value(reqId, nullptr)) {
                         auto op = state->LastSentOp;
                         Y_ABORT_UNLESS(op && op->ReqId == reqId && op->OpType == SEM_OP_ACQUIRE,
@@ -1571,7 +1573,8 @@ private:
                 auto plain = MakePlainStatus(source.status(), source.issues());
                 TResultPromise<bool> supersededPromise;
                 TResultPromise<bool> resultPromise;
-                with_lock (Lock) {
+                {
+                    std::lock_guard guard(Lock);
                     DoSemaphoreProcessResult(reqId, SEM_OP_ACQUIRE, plain.Status, &supersededPromise, &resultPromise);
                 }
                 if (supersededPromise.Initialized()) {
@@ -1589,7 +1592,8 @@ private:
                 auto plain = MakePlainStatus(source.status(), source.issues());
                 TResultPromise<bool> supersededPromise;
                 TResultPromise<bool> resultPromise;
-                with_lock (Lock) {
+                {
+                    std::lock_guard guard(Lock);
                     DoSemaphoreProcessResult(reqId, SEM_OP_RELEASE, plain.Status, &supersededPromise, &resultPromise);
                 }
                 if (supersededPromise.Initialized()) {
@@ -1606,7 +1610,8 @@ private:
                 const ui64 reqId = source.req_id();
                 auto plain = MakePlainStatus(source.status(), source.issues());
                 TPromise<TDescribeSemaphoreResult> resultPromise;
-                with_lock (Lock) {
+                {
+                    std::lock_guard guard(Lock);
                     if (auto* op = FindSentRequest<TDescribeSemaphoreOp>(reqId)) {
                         UpdateLastKnownGoodTimestampLocked(op->SendTimestamp);
                         resultPromise.Swap(op->Promise);
@@ -1628,7 +1633,8 @@ private:
                 const ui64 reqId = source.req_id();
                 std::function<void(bool)> callback;
                 bool triggered = false;
-                with_lock (Lock) {
+                {
+                    std::lock_guard guard(Lock);
                     if (auto* op = FindSentRequest<TDescribeSemaphoreOp>(reqId)) {
                         UpdateLastKnownGoodTimestampLocked(op->SendTimestamp);
                         callback.swap(op->Settings.OnChanged_);
@@ -1647,7 +1653,8 @@ private:
                 const ui64 reqId = source.req_id();
                 auto plain = MakePlainStatus(source.status(), source.issues());
                 TResultPromise<void> resultPromise;
-                with_lock (Lock) {
+                {
+                    std::lock_guard guard(Lock);
                     if (auto* op = FindSentRequest<TCreateSemaphoreOp>(reqId)) {
                         UpdateLastKnownGoodTimestampLocked(op->SendTimestamp);
                         resultPromise.Swap(op->Promise);
@@ -1664,7 +1671,8 @@ private:
                 const ui64 reqId = source.req_id();
                 auto plain = MakePlainStatus(source.status(), source.issues());
                 TResultPromise<void> resultPromise;
-                with_lock (Lock) {
+                {
+                    std::lock_guard guard(Lock);
                     if (auto* op = FindSentRequest<TUpdateSemaphoreOp>(reqId)) {
                         UpdateLastKnownGoodTimestampLocked(op->SendTimestamp);
                         resultPromise.Swap(op->Promise);
@@ -1681,7 +1689,8 @@ private:
                 const ui64 reqId = source.req_id();
                 auto plain = MakePlainStatus(source.status(), source.issues());
                 TResultPromise<void> resultPromise;
-                with_lock (Lock) {
+                {
+                    std::lock_guard guard(Lock);
                     if (auto* op = FindSentRequest<TDeleteSemaphoreOp>(reqId)) {
                         UpdateLastKnownGoodTimestampLocked(op->SendTimestamp);
                         resultPromise.Swap(op->Promise);
@@ -1707,25 +1716,24 @@ private:
     void OnSessionStartTimeout(IQueueClientContextPtr context) {
         Y_ABORT_UNLESS(context, "Unexpected empty timeout context");
 
-        with_lock (Lock) {
-            if (SessionStartTimeoutContext != context) {
-                // Context changed or dropped, ignore
-                return;
-            }
+        std::lock_guard guard(Lock);
+        if (SessionStartTimeoutContext != context) {
+            // Context changed or dropped, ignore
+            return;
+        }
 
-            SessionStartTimeoutContext.reset();
+        SessionStartTimeoutContext.reset();
 
-            // Mark session as timed out
-            SessionTimeout = true;
-            if (!CurrentFailure) {
-                SetCurrentFailure(
-                    TPlainStatus(EStatus::TIMEOUT, "Session start request timed out"));
-            }
+        // Mark session as timed out
+        SessionTimeout = true;
+        if (!CurrentFailure) {
+            SetCurrentFailure(
+                TPlainStatus(EStatus::TIMEOUT, "Session start request timed out"));
+        }
 
-            // We cannot report timeout until OnRead finishes with an error
-            if (Processor) {
-                Processor->Cancel();
-            }
+        // We cannot report timeout until OnRead finishes with an error
+        if (Processor) {
+            Processor->Cancel();
         }
     }
 

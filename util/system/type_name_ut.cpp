@@ -47,7 +47,7 @@ namespace NUtil::NTypeNameTest {
 
     class TFromThis {
     public:
-        TString GetTypeName() const {
+        std::string GetTypeName() const {
             return TypeName(*this);
         }
     };
@@ -78,10 +78,10 @@ Y_UNIT_TEST_SUITE(TypeName) {
     Y_UNIT_TEST(FromArcadiaTypes) {
 #ifdef _MSC_VER
         UNIT_ASSERT_VALUES_EQUAL(TypeName<yexception>(), "class yexception");
-        UNIT_ASSERT_VALUES_EQUAL(TypeName<TString>(), "class TBasicString<char,struct std::char_traits<char> >");
+        UNIT_ASSERT_VALUES_EQUAL(TypeName<std::string>(), "class std::basic_string<char,struct std::char_traits<char> >");
 #else
         UNIT_ASSERT_VALUES_EQUAL(TypeName<yexception>(), "yexception");
-        UNIT_ASSERT_VALUES_EQUAL(TypeName<TString>(), "TBasicString<char, std::char_traits<char> >");
+        UNIT_ASSERT_VALUES_EQUAL(TypeName<std::string>(), "std::basic_string<char, std::char_traits<char> >");
 #endif
     }
 

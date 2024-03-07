@@ -5,7 +5,6 @@ target_link_libraries(library-cpp-dbg_output PUBLIC
   yutil
   library-cpp-colorizer
   cpp-string_utils-misc
-  cpp-string_utils-escape
 )
 
 target_sources(library-cpp-dbg_output PRIVATE

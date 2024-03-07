@@ -19,8 +19,8 @@ namespace NLastGetopt {
         return IndentGuard(this);
     }
 
-    NUtils::TYdbStringBuilder& TFormattedOutput::Line() {
-        return Lines_.emplace_back(IndentLevel_, NUtils::TYdbStringBuilder()).second;
+    TStringBuilder& TFormattedOutput::Line() {
+        return Lines_.emplace_back(IndentLevel_, TStringBuilder()).second;
     }
 
     void TFormattedOutput::Print(IOutputStream& out) {

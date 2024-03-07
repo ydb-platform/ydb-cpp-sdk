@@ -4,7 +4,6 @@
 #include "socket.h"
 
 #include <util/generic/ptr.h>
-#include <util/generic/string.h>
 #include <util/network/sock.h>
 
 namespace NAddr {
@@ -23,8 +22,8 @@ namespace NAddr {
     IRemoteAddrPtr GetPeerAddr(SOCKET s);
     void PrintHost(IOutputStream& out, const IRemoteAddr& addr);
 
-    TString PrintHost(const IRemoteAddr& addr);
-    TString PrintHostAndPort(const IRemoteAddr& addr);
+    std::string PrintHost(const IRemoteAddr& addr);
+    std::string PrintHostAndPort(const IRemoteAddr& addr);
 
     bool IsLoopback(const IRemoteAddr& addr);
     bool IsSame(const IRemoteAddr& lhs, const IRemoteAddr& rhs);
@@ -137,7 +136,7 @@ namespace NAddr {
 
     class TUnixSocketAddr: public IRemoteAddr {
     public:
-        explicit TUnixSocketAddr(TStringBuf path);
+        explicit TUnixSocketAddr(std::string_view path);
 
         const sockaddr* Addr() const override;
 
