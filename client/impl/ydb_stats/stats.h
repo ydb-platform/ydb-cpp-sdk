@@ -204,16 +204,16 @@ public:
 
         void IncSyncRetryOperation(const EStatus& status) {
             if (auto registry = MetricRegistry_.Get()) {
-                std::string statusName = NUtils::TYdbStringBuilder() << status;
-                std::string sensor = NUtils::TYdbStringBuilder() << "RetryOperation/" << UnderscoreToUpperCamel(statusName);
+                std::string statusName = TStringBuilder() << status;
+                std::string sensor = TStringBuilder() << "RetryOperation/" << UnderscoreToUpperCamel(statusName);
                 registry->Rate({ {"database", Database_}, {"sensor", sensor} })->Inc();
             }
         }
 
         void IncAsyncRetryOperation(const EStatus& status) {
             if (auto registry = MetricRegistry_.Get()) {
-                std::string statusName = NUtils::TYdbStringBuilder() << status;
-                std::string sensor = NUtils::TYdbStringBuilder() << "RetryOperation/" << UnderscoreToUpperCamel(statusName);
+                std::string statusName = TStringBuilder() << status;
+                std::string sensor = TStringBuilder() << "RetryOperation/" << UnderscoreToUpperCamel(statusName);
                 registry->Rate({ {"database", Database_}, {"sensor", sensor} })->Inc();
             }
         }

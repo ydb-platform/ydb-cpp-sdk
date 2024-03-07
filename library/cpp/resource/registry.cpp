@@ -8,6 +8,7 @@
 #include <util/generic/deque.h>
 #include <util/generic/singleton.h>
 #include <util/system/env.h>
+#include <util/string/escape.h>
 
 using namespace NResource;
 using namespace NBlockCodecs;
@@ -61,7 +62,7 @@ namespace {
                 try {
                     *out = Decompress((*res)->second);
                 } catch (const yexception& e) {
-                    if (GetEnv("RESOURCE_DECOMPRESS_DIAG")) {
+                    if (!GetEnv("RESOURCE_DECOMPRESS_DIAG").empty()) {
                         Cerr << "Can't decompress resource " << key << Endl << e.what() << Endl;
                     }
                     throw e;
@@ -83,7 +84,7 @@ namespace {
                             it.first, Decompress(it.second->second)};
                         cb.OnMatch(res);
                     } catch (const yexception& e) {
-                        if (GetEnv("RESOURCE_DECOMPRESS_DIAG")) {
+                        if (!GetEnv("RESOURCE_DECOMPRESS_DIAG").empty()) {
                             Cerr << "Can't decompress resource " << it.first << Endl << e.what() << Endl;
                         }
                         throw e;

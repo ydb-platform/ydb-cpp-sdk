@@ -6,6 +6,7 @@
 #include <library/cpp/colorizer/colors.h>
 
 #include <util/folder/path.h>
+#include <util/string/escape.h>
 
 class PtrWrapper: public TMainClass {
 public:
@@ -249,7 +250,7 @@ size_t TModChooser::TMode::CalculateFullNameLen() const {
 }
 
 std::string TModChooser::TMode::FormatFullName(size_t pad) const {
-    NUtils::TYdbStringBuilder name;
+    TStringBuilder name;
     if (!Aliases.empty()) {
         name << "{";
     }

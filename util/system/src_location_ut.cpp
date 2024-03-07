@@ -4,7 +4,7 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-static inline TString GenLoc() {
+static inline std::string GenLoc() {
     return TStringBuilder() << __LOCATION__;
 }
 

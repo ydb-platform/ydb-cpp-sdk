@@ -23,7 +23,7 @@
 class TUnbufferedFileInput: public IInputStream {
 public:
     TUnbufferedFileInput(const char* path);
-    TUnbufferedFileInput(const TString& path);
+    TUnbufferedFileInput(const std::string& path);
     TUnbufferedFileInput(const std::filesystem::path& path);
     TUnbufferedFileInput(const TFile& file);
 
@@ -43,7 +43,7 @@ private:
 class TMappedFileInput: public TMemoryInput {
 public:
     TMappedFileInput(const TFile& file);
-    TMappedFileInput(const TString& path);
+    TMappedFileInput(const std::string& path);
     ~TMappedFileInput() override;
 
 private:
@@ -60,7 +60,7 @@ private:
 class TUnbufferedFileOutput: public IOutputStream {
 public:
     TUnbufferedFileOutput(const char* path);
-    TUnbufferedFileOutput(const TString& path);
+    TUnbufferedFileOutput(const std::string& path);
     TUnbufferedFileOutput(const std::filesystem::path& path);
     TUnbufferedFileOutput(const TFile& file);
     ~TUnbufferedFileOutput() override;

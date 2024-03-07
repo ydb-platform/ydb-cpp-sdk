@@ -2,4 +2,4 @@
 
 #include <util/generic/fwd.h>
 
-TString GetUsername();
+std::string GetUsername();

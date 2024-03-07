@@ -13,11 +13,11 @@ namespace {
         {
         }
 
-        TString ProgName;
+        std::string ProgName;
     };
 }
 
-const TString& GetProgramName() {
+const std::string& GetProgramName() {
     return Singleton<TProgramNameHolder>()->ProgName;
 }
 

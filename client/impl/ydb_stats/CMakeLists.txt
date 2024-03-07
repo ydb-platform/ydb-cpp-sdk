@@ -5,7 +5,6 @@ target_link_libraries(client-impl-ydb_stats PUBLIC
   yutil
   library-grpc-client
   cpp-monlib-metrics
-  cpp-string_builder
 )
 
 target_sources(client-impl-ydb_stats PRIVATE

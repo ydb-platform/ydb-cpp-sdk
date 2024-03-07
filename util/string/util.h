@@ -7,12 +7,10 @@
 #include <algorithm>
 
 #include <util/system/defaults.h>
-#include <util/generic/string.h>
-#include <util/generic/strbuf.h>
 
 /// @addtogroup Strings_Miscellaneous
 /// @{
-int a2i(const TString& s);
+int a2i(const std::string& s);
 
 /// Removes the last character if it is equal to c.
 template <class T>
@@ -23,19 +21,19 @@ inline void RemoveIfLast(T& s, int c) {
 }
 
 /// Adds lastCh symbol to the the of the string if it is not already there.
-inline void addIfNotLast(TString& s, int lastCh) {
+inline void addIfNotLast(std::string& s, int lastCh) {
     size_t len = s.length();
     if (!len || s[len - 1] != lastCh) {
-        s.append(char(lastCh));
+        s.push_back(char(lastCh));
     }
 }
 
 /// @details Finishes the string with lastCh1 if lastCh2 is not present in the string and lastCh1 is not already at the end of the string.
 /// Else, if lastCh2 is not equal to the symbol before the last, it finishes the string with lastCh2.
 /// @todo ?? Define, when to apply the function. Is in use several times for URLs parsing.
-inline void addIfAbsent(TString& s, char lastCh1, char lastCh2) {
+inline void addIfAbsent(std::string& s, char lastCh1, char lastCh2) {
     size_t pos = s.find(lastCh2);
-    if (pos == TString::npos) {
+    if (pos == std::string::npos) {
         //s.append((char)lastCh1);
         addIfNotLast(s, lastCh1);
     } else if (pos < s.length() - 1) {
@@ -173,17 +171,17 @@ public:
         for (size_t i = 0; i < l && s[i]; i++)
             s[i] = ConvertChar(s[i]);
     }
-    void Do(TString& str) const;
+    void Do(std::string& str) const;
 
 private:
     char Map[256];
 
-    size_t FindFirstChangePosition(const TString& str) const;
+    size_t FindFirstChangePosition(const std::string& str) const;
 };
 
 // Removes all occurrences of given character from string
 template <typename TStringType>
-void RemoveAll(TStringType& str, typename TStringType::char_type ch) {
+void RemoveAll(TStringType& str, typename TStringType::value_type ch) {
     size_t pos = str.find(ch); // 'find' to avoid cloning of string in 'TString.begin()'
     if (pos == TStringType::npos)
         return;

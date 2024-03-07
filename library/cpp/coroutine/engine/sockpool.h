@@ -5,7 +5,8 @@
 
 #include <util/network/address.h>
 #include <util/network/socket.h>
-#include <util/system/mutex.h>
+
+#include <mutex>
 
 extern void SetCommonSockOpts(SOCKET sock, const struct sockaddr* sa = nullptr);
 
@@ -158,7 +159,7 @@ public:
         TSockets toDelete;
 
         {
-            TGuard<TMutex> guard(Mutex_);
+            std::lock_guard guard(Mutex_);
 
             for (TSockets::TIterator it = Pool_.Begin(); it != Pool_.End();) {
                 if (it->LastTouch() < maxAge) {
@@ -195,7 +196,7 @@ public:
 
 private:
     TPooledSocket::TImpl* GetImpl() {
-        TGuard<TMutex> guard(Mutex_);
+        std::lock_guard guard(Mutex_);
 
         while (!Pool_.Empty()) {
             THolder<TPooledSocket::TImpl> ret(Pool_.PopFront());
@@ -208,7 +209,7 @@ private:
     }
 
     void Release(TPooledSocket::TImpl* impl) noexcept {
-        TGuard<TMutex> guard(Mutex_);
+        std::lock_guard guard(Mutex_);
 
         Pool_.PushFront(impl);
     }
@@ -219,7 +220,7 @@ private:
     TAddrRef Addr_;
     using TSockets = TIntrusiveListWithAutoDelete<TPooledSocket::TImpl, TDelete>;
     TSockets Pool_;
-    TMutex Mutex_;
+    std::mutex Mutex_;
 };
 
 inline void TPooledSocket::TImpl::ReturnToPool() noexcept {

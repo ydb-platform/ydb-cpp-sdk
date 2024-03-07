@@ -9,7 +9,7 @@
 #include <util/generic/utility.h>
 #include <util/generic/yexception.h>
 #include <util/generic/flags.h>
-#include <util/generic/string.h>
+#include <util/string/escape.h>
 
 #include <new>
 #include <cstdio>
@@ -64,19 +64,19 @@ struct TMemoryMapCommon {
      * Name that will be printed in exceptions if not specified.
      * Overridden by name obtained from `TFile` if it's not empty.
      */
-    static const TString& UnknownFileName();
+    static const std::string& UnknownFileName();
 };
 Y_DECLARE_OPERATORS_FOR_FLAGS(TMemoryMapCommon::EOpenMode);
 
 class TMemoryMap: public TMemoryMapCommon {
 public:
-    explicit TMemoryMap(const TString& name);
-    explicit TMemoryMap(const TString& name, EOpenMode om);
-    TMemoryMap(const TString& name, i64 length, EOpenMode om);
-    TMemoryMap(FILE* f, TString dbgName = UnknownFileName());
-    TMemoryMap(FILE* f, EOpenMode om, TString dbgName = UnknownFileName());
-    TMemoryMap(const TFile& file, const TString& dbgName = UnknownFileName());
-    TMemoryMap(const TFile& file, EOpenMode om, const TString& dbgName = UnknownFileName());
+    explicit TMemoryMap(const std::string& name);
+    explicit TMemoryMap(const std::string& name, EOpenMode om);
+    TMemoryMap(const std::string& name, i64 length, EOpenMode om);
+    TMemoryMap(FILE* f, std::string dbgName = UnknownFileName());
+    TMemoryMap(FILE* f, EOpenMode om, std::string dbgName = UnknownFileName());
+    TMemoryMap(const TFile& file, const std::string& dbgName = UnknownFileName());
+    TMemoryMap(const TFile& file, EOpenMode om, const std::string& dbgName = UnknownFileName());
 
     ~TMemoryMap();
 
@@ -109,11 +109,11 @@ private:
 class TFileMap: public TMemoryMapCommon {
 public:
     TFileMap(const TMemoryMap& map) noexcept;
-    TFileMap(const TString& name);
-    TFileMap(const TString& name, EOpenMode om);
-    TFileMap(const TString& name, i64 length, EOpenMode om);
-    TFileMap(FILE* f, EOpenMode om = oRdOnly, TString dbgName = UnknownFileName());
-    TFileMap(const TFile& file, EOpenMode om = oRdOnly, const TString& dbgName = UnknownFileName());
+    TFileMap(const std::string& name);
+    TFileMap(const std::string& name, EOpenMode om);
+    TFileMap(const std::string& name, i64 length, EOpenMode om);
+    TFileMap(FILE* f, EOpenMode om = oRdOnly, std::string dbgName = UnknownFileName());
+    TFileMap(const TFile& file, EOpenMode om = oRdOnly, const std::string& dbgName = UnknownFileName());
     TFileMap(const TFileMap& fm) noexcept;
 
     ~TFileMap();
@@ -275,11 +275,11 @@ public:
     }
 
 private:
-    void DoInit(const TString& fileName) {
+    void DoInit(const std::string& fileName) {
         DataHolder_->Map(0, DataHolder_->Length());
         if (DataHolder_->Length() % sizeof(T)) {
             Term();
-            ythrow yexception() << "Incorrect size of file " << fileName.Quote();
+            ythrow yexception() << "Incorrect size of file " << NUtils::Quote(fileName);
         }
         Ptr_ = (const T*)DataHolder_->Ptr();
         Size_ = DataHolder_->Length() / sizeof(T);

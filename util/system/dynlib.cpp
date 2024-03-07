@@ -1,9 +1,10 @@
 #include "dynlib.h"
 
 #include "guard.h"
-#include "mutex.h"
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>
+
+#include <mutex>
 
 #ifdef _win32_
     #include "winint.h"
@@ -25,7 +26,7 @@ using HINSTANCE = void*;
     #define DLLSYM(hndl, name) dlsym(hndl, name)
 #endif
 
-inline TString DLLERR() {
+inline std::string DLLERR() {
 #ifdef _unix_
     return dlerror();
 #endif
@@ -38,7 +39,7 @@ inline TString DLLERR() {
         return "DLLERR() unknown error";
     while (cnt && isspace(msg[cnt - 1]))
         --cnt;
-    TString err(msg, 0, cnt);
+    std::string err(msg, 0, cnt);
     LocalFree(msg);
     return err;
 #endif
@@ -57,12 +58,12 @@ private:
         }
     }
 
-    class TCreateMutex: public TMutex {
+    class TCreateMutex: public std::mutex {
     };
 
 public:
     static inline TImpl* SafeCreate(const char* path, int flags) {
-        auto guard = Guard(*Singleton<TCreateMutex>());
+        std::lock_guard guard(*Singleton<TCreateMutex>());
 
         return new TImpl(path, flags);
     }
@@ -99,7 +100,7 @@ private:
 TDynamicLibrary::TDynamicLibrary() noexcept {
 }
 
-TDynamicLibrary::TDynamicLibrary(const TString& path, int flags) {
+TDynamicLibrary::TDynamicLibrary(const std::string& path, int flags) {
     Open(path.data(), flags);
 }
 

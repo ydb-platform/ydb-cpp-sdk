@@ -4,7 +4,6 @@
 
 #include <util/generic/buffer.h>
 #include <util/generic/mem_copy.h>
-#include <util/generic/strbuf.h>
 #include <util/system/compiler.h>
 #include <util/system/yassert.h>
 
@@ -76,8 +75,8 @@ public:
             return this;
         }
 
-        inline TStringBuf operator*() noexcept {
-            return TStringBuf{Data_, Len_};
+        inline std::string_view operator*() noexcept {
+            return std::string_view{Data_, Len_};
         }
 
     private:

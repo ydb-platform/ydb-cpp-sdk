@@ -9,7 +9,7 @@
 #include <util/generic/algorithm.h>
 #include <util/random/mersenne.h>
 
-static TString JoinWithNewline(const std::vector<TString>& strings) {
+static std::string JoinWithNewline(const std::vector<std::string>& strings) {
     TStringStream ss;
     for (const auto& string : strings) {
         ss << string << "\n";
@@ -30,19 +30,19 @@ private:
     class TDirHier {
     public:
         struct TPath {
-            TString Path;
+            std::string Path;
             int Type;
         };
 
-        inline void AddFile(const TString& path) {
+        inline void AddFile(const std::string& path) {
             Add(path, 0);
         }
 
-        inline void AddDir(const TString& path) {
+        inline void AddDir(const std::string& path) {
             Add(path, 1);
         }
 
-        inline void Add(const TString& path, int type) {
+        inline void Add(const std::string& path, int type) {
             const TPath p = {
                 path, type};
 
@@ -67,15 +67,15 @@ private:
             Srch_[path.Path] = path;
         }
 
-        inline int Type(const TString& path) {
-            THashMap<TString, TPath>::const_iterator it = Srch_.find(path);
+        inline int Type(const std::string& path) {
+            THashMap<std::string, TPath>::const_iterator it = Srch_.find(path);
 
             UNIT_ASSERT(it != Srch_.end());
 
             return it->second.Type;
         }
 
-        inline bool Have(const TString& path, int type) {
+        inline bool Have(const std::string& path, int type) {
             return Type(path) == type;
         }
 
@@ -87,11 +87,11 @@ private:
 
     private:
         std::vector<TPath> Paths_;
-        THashMap<TString, TPath> Srch_;
+        THashMap<std::string, TPath> Srch_;
     };
 
     inline void TestLocal() {
-        TString dirname("." LOCSLASH_S);
+        std::string dirname("." LOCSLASH_S);
         TDirIterator d(dirname, FTS_NOCHDIR);
         for (auto it = d.begin(); it != d.end(); ++it) {
         }
@@ -100,26 +100,26 @@ private:
     inline void TestIt() {
         TDirHier hier;
 
-        const TString dir = "tmpdir";
+        const std::string dir = "tmpdir";
         const TDirHier::TPath path = {dir, 1};
 
         hier.Add(path);
 
         for (size_t i = 0; i < 10; ++i) {
-            const TString dir1 = dir + LOCSLASH_C + ToString(i);
+            const std::string dir1 = dir + LOCSLASH_C + ToString(i);
             const TDirHier::TPath path1 = {dir1, 1};
 
             hier.Add(path1);
 
             for (size_t j = 0; j < 10; ++j) {
-                const TString subdir2 = ToString(j);
-                const TString dir2 = dir1 + LOCSLASH_C + subdir2;
+                const std::string subdir2 = ToString(j);
+                const std::string dir2 = dir1 + LOCSLASH_C + subdir2;
                 const TDirHier::TPath path2 = {dir2, 1};
 
                 hier.Add(path2);
 
                 for (size_t k = 0; k < 3; ++k) {
-                    const TString file = dir2 + LOCSLASH_C + "file" + ToString(k);
+                    const std::string file = dir2 + LOCSLASH_C + "file" + ToString(k);
                     const TDirHier::TPath fpath = {file, 0};
 
                     hier.Add(fpath);
@@ -137,7 +137,7 @@ private:
     inline void TestSkip() {
         TDirHier hier;
 
-        const TString dir = "tmpdir";
+        const std::string dir = "tmpdir";
         const TDirHier::TPath path = {dir, 1};
 
         hier.Add(path);
@@ -150,10 +150,10 @@ private:
             TDirIterator di(dir);
 
             UNIT_ASSERT(di.Next());
-            UNIT_ASSERT_EQUAL(TStringBuf(di.Next()->fts_name), "dir1");
-            UNIT_ASSERT_EQUAL(TStringBuf(di.Next()->fts_name), "dir2");
-            UNIT_ASSERT_EQUAL(TStringBuf(di.Next()->fts_name), "dir2");
-            UNIT_ASSERT_EQUAL(TStringBuf(di.Next()->fts_name), "dir1");
+            UNIT_ASSERT_EQUAL(std::string_view(di.Next()->fts_name), "dir1");
+            UNIT_ASSERT_EQUAL(std::string_view(di.Next()->fts_name), "dir2");
+            UNIT_ASSERT_EQUAL(std::string_view(di.Next()->fts_name), "dir2");
+            UNIT_ASSERT_EQUAL(std::string_view(di.Next()->fts_name), "dir1");
             UNIT_ASSERT(di.Next());
             UNIT_ASSERT_EQUAL(di.Next(), nullptr);
         }
@@ -165,9 +165,9 @@ private:
 
             UNIT_ASSERT(di.Next());
             auto ent = di.Next();
-            UNIT_ASSERT_EQUAL(TStringBuf(ent->fts_name), "dir1");
+            UNIT_ASSERT_EQUAL(std::string_view(ent->fts_name), "dir1");
             di.Skip(ent);
-            UNIT_ASSERT_EQUAL(TStringBuf(di.Next()->fts_name), "dir1");
+            UNIT_ASSERT_EQUAL(std::string_view(di.Next()->fts_name), "dir1");
             UNIT_ASSERT(di.Next());
             UNIT_ASSERT_EQUAL(di.Next(), nullptr);
         }
@@ -175,24 +175,24 @@ private:
 
     inline void TestSort() {
         TDirHier dh;
-        const TString dir("tmpdir");
+        const std::string dir("tmpdir");
 
         //prepare fs
         {
             TMersenne<ui32> rnd;
-            const TString prefixes[] = {
+            const std::string prefixes[] = {
                 "a", "b", "xxx", "111", ""};
 
             dh.AddDir(dir);
 
             for (size_t i = 0; i < 100; ++i) {
-                const TString fname = dir + LOCSLASH_C + prefixes[i % Y_ARRAY_SIZE(prefixes)] + ToString(rnd.GenRand());
+                const std::string fname = dir + LOCSLASH_C + prefixes[i % Y_ARRAY_SIZE(prefixes)] + ToString(rnd.GenRand());
 
                 dh.AddFile(fname);
             }
         }
 
-        std::vector<TString> fnames;
+        std::vector<std::string> fnames;
 
         {
             TDirIterator d(dir, TDirIterator::TOptions().SetSortByName());
@@ -204,7 +204,7 @@ private:
             }
         }
 
-        std::vector<TString> sorted(fnames);
+        std::vector<std::string> sorted(fnames);
         Sort(sorted.begin(), sorted.end());
 
         UNIT_ASSERT_VALUES_EQUAL(JoinWithNewline(fnames), JoinWithNewline(sorted));

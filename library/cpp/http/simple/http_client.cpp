@@ -83,16 +83,16 @@ std::vector<IOutputStream::TPart> TKeepAliveHttpClient::FormRequest(std::string_
     std::vector<IOutputStream::TPart> parts;
 
     parts.reserve(16 + 4 * headers.size());
-    parts.push_back(TStringBuf(method));
-    parts.push_back(TStringBuf(" "));
-    parts.push_back(TStringBuf(relativeUrl));
-    parts.push_back(TStringBuf(" HTTP/1.1"));
+    parts.push_back(method);
+    parts.push_back(std::string_view(" "));
+    parts.push_back(relativeUrl);
+    parts.push_back(std::string_view(" HTTP/1.1"));
     parts.push_back(IOutputStream::TPart::CrLf());
-    parts.push_back(TStringBuf("Host: "));
-    parts.push_back(TStringBuf(Host));
+    parts.push_back(std::string_view("Host: "));
+    parts.push_back(std::string_view(Host));
     parts.push_back(IOutputStream::TPart::CrLf());
-    parts.push_back(TStringBuf("Content-Length: "));
-    parts.push_back(TStringBuf(contentLength));
+    parts.push_back(std::string_view("Content-Length: "));
+    parts.push_back(contentLength);
     parts.push_back(IOutputStream::TPart::CrLf());
 
     for (const auto& entry : headers) {

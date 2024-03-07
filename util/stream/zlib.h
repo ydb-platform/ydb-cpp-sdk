@@ -47,9 +47,9 @@ namespace ZLib {
  */
 class TZLibDecompress: public IInputStream {
 public:
-    TZLibDecompress(IZeroCopyInput* input, ZLib::StreamType type = ZLib::Auto, TStringBuf dict = {});
+    TZLibDecompress(IZeroCopyInput* input, ZLib::StreamType type = ZLib::Auto, std::string_view dict = {});
     TZLibDecompress(IInputStream* input, ZLib::StreamType type = ZLib::Auto, size_t buflen = ZLib::ZLIB_BUF_LEN,
-                    TStringBuf dict = {});
+                    std::string_view dict = {});
 
     /**
      * Allows/disallows multiple sequential compressed streams. Allowed by default.
@@ -104,7 +104,7 @@ public:
             return *this;
         }
 
-        inline TParams& SetDict(const TStringBuf dict) noexcept {
+        inline TParams& SetDict(const std::string_view dict) noexcept {
             Dict = dict;
 
             return *this;
@@ -114,7 +114,7 @@ public:
         ZLib::StreamType Type;
         size_t CompressionLevel;
         size_t BufLen;
-        TStringBuf Dict;
+        std::string_view Dict;
     };
 
     inline TZLibCompress(const TParams& params) {

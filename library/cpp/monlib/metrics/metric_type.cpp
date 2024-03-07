@@ -1,6 +1,6 @@
 #include "metric_type.h"
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 #include <util/generic/yexception.h>
 #include <util/stream/output.h>
 

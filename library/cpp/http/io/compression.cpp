@@ -4,7 +4,7 @@
 #include <library/cpp/streams/lz/lz.h>
 #endif
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 #include <library/cpp/string_utils/misc/misc.h>
 #include <library/cpp/streams/brotli/brotli.h>
 #include <library/cpp/streams/lzma/lzma.h>
@@ -56,7 +56,7 @@ TCompressionCodecFactory::TCompressionCodecFactory() {
         auto dec = [codec](auto s) {
             return MakeHolder<NBlockCodecs::TDecodedInput>(s, codec);
         };
-        std::string fullName = NUtils::TYdbStringBuilder() << "z-" << codecName;
+        std::string fullName = TStringBuilder() << "z-" << codecName;
         Add(fullName, dec, enc);
     }
 }

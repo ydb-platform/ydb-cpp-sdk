@@ -52,14 +52,14 @@ public:
 UNIT_TEST_SUITE_REGISTRATION(TStreamsTest);
 
 void TStreamsTest::TestIStreamOperators() {
-    TString data("first line\r\nsecond\t\xd1\x82\xd0\xb5\xd1\x81\xd1\x82 line\r\n 1 -4 59 4320000000009999999 c\n -1.5 1e-110");
+    std::string data("first line\r\nsecond\t\xd1\x82\xd0\xb5\xd1\x81\xd1\x82 line\r\n 1 -4 59 4320000000009999999 c\n -1.5 1e-110");
     TStringInput si(data);
 
-    TString l1;
-    TString l2;
-    TString l3;
-    TUtf16String w1;
-    TString l4;
+    std::string l1;
+    std::string l2;
+    std::string l3;
+    std::u16string w1;
+    std::string l4;
     ui16 i1;
     i16 i2;
     i32 i3;
@@ -119,7 +119,7 @@ void TStreamsTest::TestStringStream() {
 }
 
 void TStreamsTest::TestGenericRead() {
-    TString s("1234567890");
+    std::string s("1234567890");
     TStringInput si(s);
     char buf[1024];
 
@@ -130,7 +130,7 @@ void TStreamsTest::TestGenericRead() {
 }
 
 void TStreamsTest::TestGenericWrite() {
-    TString s;
+    std::string s;
     TStringOutput so(s);
 
     so.Write("123456", 6);
@@ -140,7 +140,7 @@ void TStreamsTest::TestGenericWrite() {
 }
 
 void TStreamsTest::TestReadLine() {
-    TString data("1234\r\n5678\nqw");
+    std::string data("1234\r\n5678\nqw");
     TStringInput si(data);
 
     UNIT_ASSERT_EQUAL(si.ReadLine(), "1234");
@@ -170,7 +170,7 @@ void TStreamsTest::TestMemoryStream() {
 
 class TMyStringOutput: public IOutputStream {
 public:
-    inline TMyStringOutput(TString& s, size_t buflen) noexcept
+    inline TMyStringOutput(std::string& s, size_t buflen) noexcept
         : S_(s)
         , BufLen_(buflen)
     {
@@ -184,7 +184,7 @@ public:
     }
 
     void DoWriteV(const TPart* p, size_t count) override {
-        TString s;
+        std::string s;
 
         for (size_t i = 0; i < count; ++i) {
             s.append((const char*)p[i].buf, p[i].len);
@@ -199,14 +199,14 @@ private:
 };
 
 void TStreamsTest::TestBufferedIO() {
-    TString s;
+    std::string s;
 
     {
         const size_t buflen = 7;
         TBuffered<TMyStringOutput> bo(buflen, s, buflen);
 
         for (size_t i = 0; i < 1000; ++i) {
-            TString str(" ");
+            std::string str(" ");
             str += ToString(i % 10);
 
             bo.Write(str.data(), str.size());
@@ -222,7 +222,7 @@ void TStreamsTest::TestBufferedIO() {
         TBuffered<TStringInput> bi(buflen, s);
 
         for (size_t i = 0; i < 1000; ++i) {
-            TString str(" ");
+            std::string str(" ");
             str += ToString(i % 10);
 
             char buf[3];
@@ -240,7 +240,7 @@ void TStreamsTest::TestBufferedIO() {
     {
         const size_t buflen = 13;
         TBuffered<TMyStringOutput> bo(buflen, s, buflen);
-        TString f = "1234567890";
+        std::string f = "1234567890";
 
         for (size_t i = 0; i < 10; ++i) {
             f += f;
@@ -256,7 +256,7 @@ void TStreamsTest::TestBufferedIO() {
 
 void TStreamsTest::TestBufferStream() {
     TBufferStream stream;
-    TString s = "test";
+    std::string s = "test";
 
     stream.Write(s.data(), s.size());
     char buf[5];
@@ -280,7 +280,7 @@ void TStreamsTest::TestBufferStream() {
 namespace {
     class TStringListInput: public IWalkInput {
     public:
-        TStringListInput(const std::vector<TString>& data)
+        TStringListInput(const std::vector<std::string>& data)
             : Data_(data)
             , Index_(0)
         {
@@ -292,14 +292,14 @@ namespace {
                 return 0;
             }
 
-            const TString& string = Data_[Index_++];
+            const std::string& string = Data_[Index_++];
 
             *ptr = string.data();
             return string.size();
         }
 
     private:
-        const std::vector<TString>& Data_;
+        const std::vector<std::string>& Data_;
         size_t Index_;
     };
 
@@ -331,7 +331,7 @@ namespace {
         "123",
         "\t\r "};
     void TestStreamReadTo1(IInputStream& input, const char* comment) {
-        TString tmp;
+        std::string tmp;
         input.ReadTo(tmp, 'c');
         UNIT_ASSERT_VALUES_EQUAL_C(tmp, "111a222b333", comment);
 
@@ -347,7 +347,7 @@ namespace {
     }
 
     void TestStreamReadTo2(IInputStream& input, const char* comment) {
-        TString s;
+        std::string s;
         size_t i = 0;
         while (input.ReadLine(s)) {
             UNIT_ASSERT_C(i < Y_ARRAY_SIZE(Expected), comment);
@@ -367,7 +367,7 @@ namespace {
     }
 
     void TestStrokaInput(IInputStream& input, const char* comment) {
-        TString line;
+        std::string line;
         ui32 i = 0;
         TInstant start = Now();
         while (input.ReadLine(line)) {
@@ -378,7 +378,7 @@ namespace {
     }
 
     template <class T>
-    void TestStreamReadTo(const TString& text, T test) {
+    void TestStreamReadTo(const std::string& text, T test) {
         TStringInput is(text);
         test(is, "TStringInput");
         TMemoryInput mi(text.data(), text.size());
@@ -389,7 +389,7 @@ namespace {
         TStringInput slave(text);
         TBufferedInput bdi(&slave);
         test(bdi, "TBufferedInput");
-        std::vector<TString> lst(1, text);
+        std::vector<std::string> lst(1, text);
         TStringListInput sli(lst);
         test(sli, "IWalkInput");
     }
@@ -399,13 +399,13 @@ void TStreamsTest::TestReadTo() {
     TestStreamReadTo("111a222b333c444d555e666f", TestStreamReadTo1);
     TestStreamReadTo(Text, TestStreamReadTo2);
     TestStreamReadTo("111a222b333c444d555e666f", TestStreamReadTo3);
-    TString withZero = "one";
+    std::string withZero = "one";
     withZero.append('\0').append("two").append('\0').append("three");
     TestStreamReadTo(withZero, TestStreamReadTo4);
 }
 
 void TStreamsTest::TestStrokaInput() {
-    TString s;
+    std::string s;
     for (ui32 i = 0; i < 100000; ++i) {
         std::vector<char> d(i % 1000, 'a');
         s.append(d.data(), d.size());
@@ -415,9 +415,9 @@ void TStreamsTest::TestStrokaInput() {
 }
 
 void TStreamsTest::TestWtrokaInput() {
-    const TString s(Text);
+    const std::string s(Text);
     TStringInput is(s);
-    TUtf16String w;
+    std::u16string w;
     size_t i = 0;
 
     while (is.ReadLine(w)) {
@@ -429,12 +429,12 @@ void TStreamsTest::TestWtrokaInput() {
 }
 
 void TStreamsTest::TestWtrokaOutput() {
-    TString s;
+    std::string s;
     TStringOutput os(s);
     const size_t n = sizeof(Expected) / sizeof(Expected[0]);
 
     for (size_t i = 0; i < n; ++i) {
-        TUtf16String w = UTF8ToWide(Expected[i]);
+        std::u16string w = UTF8ToWide(Expected[i]);
 
         os << w;
 
@@ -451,7 +451,7 @@ void TStreamsTest::TestWtrokaOutput() {
 }
 
 void TStreamsTest::TestWchar16Output() {
-    TString s;
+    std::string s;
     TStringOutput os(s);
     os << wchar16(97); // latin a
     os << u'\u044E';   // cyrillic ю
@@ -465,7 +465,7 @@ void TStreamsTest::TestWchar16Output() {
 }
 
 void TStreamsTest::TestWchar32Output() {
-    TString s;
+    std::string s;
     TStringOutput os(s);
     os << wchar32(97); // latin a
     os << U'\u044E';   // cyrillic ю
@@ -479,8 +479,8 @@ void TStreamsTest::TestWchar32Output() {
 }
 
 void TStreamsTest::TestUtf16StingOutputByChars() {
-    TString s = "\xd1\x87\xd0\xb8\xd1\x81\xd1\x82\xd0\xb8\xd1\x87\xd0\xb8\xd1\x81\xd1\x82\xd0\xb8";
-    TUtf16String w = UTF8ToWide(s);
+    std::string s = "\xd1\x87\xd0\xb8\xd1\x81\xd1\x82\xd0\xb8\xd1\x87\xd0\xb8\xd1\x81\xd1\x82\xd0\xb8";
+    std::u16string w = UTF8ToWide(s);
 
     UNIT_ASSERT_VALUES_EQUAL(w.size(), 10);
 

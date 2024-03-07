@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/string.h>
+#include <string>
 
 // Some functions for inverted url representation
 // No scheme cut-off, no 80th port normalization

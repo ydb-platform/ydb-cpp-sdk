@@ -1,9 +1,11 @@
 #pragma once
 
 #include <util/generic/fwd.h>
-#include <util/generic/map.h>
 
 #include <cstddef>
+#include <iterator>
+#include <map>
+#include <string_view>
 #include <type_traits>
 
 /*

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "bt_exception.h"
-#include "strbuf.h"
 #include "string.h"
 #include "utility.h"
 #include "va_args.h"
@@ -56,7 +55,7 @@ namespace NPrivateException {
             ZeroTerminate();
         }
 
-        TStringBuf AsStrBuf() const;
+        std::string_view AsStrBuf() const;
 
     private:
         void ZeroTerminate() noexcept;
@@ -75,7 +74,7 @@ namespace NPrivateException {
 
     template <class T>
     static inline T&& operator+(const TSourceLocation& sl, T&& t) {
-        return std::forward<T>(t << sl << TStringBuf(": "));
+        return std::forward<T>(t << sl << std::string_view(": "));
     }
 }
 
@@ -145,7 +144,7 @@ namespace NPrivate {
     /// exception message consists of single constant string
     struct TSimpleExceptionMessage {
         TSourceLocation Location;
-        TStringBuf Message;
+        std::string_view Message;
     };
 
     [[noreturn]] void ThrowYException(const TSimpleExceptionMessage& sm);
@@ -154,7 +153,7 @@ namespace NPrivate {
 
 void fputs(const std::exception& e, FILE* f = stderr);
 
-TString CurrentExceptionMessage();
+std::string CurrentExceptionMessage();
 
 /**
  * Formats current exception for logging purposes. Includes formatted backtrace if it is stored
@@ -165,7 +164,7 @@ TString CurrentExceptionMessage();
  * The lack of current exception prior to the invocation indicates logical bug in the client code.
  * Y_ABORT_UNLESS asserts the existence of exception, otherwise panic and abort.
  */
-TString FormatCurrentException();
+std::string FormatCurrentException();
 void FormatCurrentExceptionTo(IOutputStream& out);
 
 /*
@@ -185,7 +184,7 @@ bool UncaughtException() noexcept;
 
 std::string CurrentExceptionTypeName();
 
-TString FormatExc(const std::exception& exception);
+std::string FormatExc(const std::exception& exception);
 
 #define Y_THROW_UNLESS_EX(CONDITION, THROW_EXPRESSION) \
     do {                                               \
@@ -207,10 +206,10 @@ TString FormatExc(const std::exception& exception);
         }                                                                                                                   \
     } while (false)
 
-#define Y_ENSURE_IMPL_1(CONDITION) Y_ENSURE_SIMPLE(CONDITION, ::TStringBuf("Condition violated: `" Y_STRINGIZE(CONDITION) "'"), ::NPrivate::ThrowYException)
+#define Y_ENSURE_IMPL_1(CONDITION) Y_ENSURE_SIMPLE(CONDITION, ::std::string_view("Condition violated: `" Y_STRINGIZE(CONDITION) "'"), ::NPrivate::ThrowYException)
 #define Y_ENSURE_IMPL_2(CONDITION, MESSAGE) Y_ENSURE_EX(CONDITION, yexception() << MESSAGE)
 
-#define Y_ENSURE_BT_IMPL_1(CONDITION) Y_ENSURE_SIMPLE(CONDITION, ::TStringBuf("Condition violated: `" Y_STRINGIZE(CONDITION) "'"), ::NPrivate::ThrowYExceptionWithBacktrace)
+#define Y_ENSURE_BT_IMPL_1(CONDITION) Y_ENSURE_SIMPLE(CONDITION, ::std::string_view("Condition violated: `" Y_STRINGIZE(CONDITION) "'"), ::NPrivate::ThrowYExceptionWithBacktrace)
 #define Y_ENSURE_BT_IMPL_2(CONDITION, MESSAGE) Y_ENSURE_EX(CONDITION, TWithBackTrace<yexception>() << MESSAGE)
 
 /**

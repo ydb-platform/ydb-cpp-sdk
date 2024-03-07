@@ -100,9 +100,9 @@ std::string ApplyClusterEndpoint(std::string_view driverEndpoint, const std::str
 
     const bool hasColon = clusterDiscoveryEndpoint.find(':') != std::string::npos;
     if (hasColon) {
-        return NUtils::TYdbStringBuilder() << '[' << clusterDiscoveryEndpoint << "]:" << driverPort;
+        return TStringBuilder() << '[' << clusterDiscoveryEndpoint << "]:" << driverPort;
     } else {
-        return NUtils::TYdbStringBuilder() << clusterDiscoveryEndpoint << ':' << driverPort;
+        return TStringBuilder() << clusterDiscoveryEndpoint << ':' << driverPort;
     }
 }
 

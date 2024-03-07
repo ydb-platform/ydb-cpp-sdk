@@ -64,19 +64,19 @@ Y_UNIT_TEST_SUITE(TAsciiTest) {
 
     Y_UNIT_TEST(CompareTest) {
         UNIT_ASSERT(AsciiEqualsIgnoreCase("qqq", "qQq"));
-        UNIT_ASSERT(AsciiEqualsIgnoreCase("qqq", TStringBuf("qQq")));
-        TString qq = "qq";
-        TString qQ = "qQ";
+        UNIT_ASSERT(AsciiEqualsIgnoreCase("qqq", std::string_view("qQq")));
+        std::string qq = "qq";
+        std::string qQ = "qQ";
         UNIT_ASSERT(AsciiEqualsIgnoreCase(qq, qQ));
 
-        TString x = "qqqA";
-        TString y = "qQqB";
-        TString z = "qQnB";
-        TString zz = "qQqq";
-        TString zzz = "qQqqq";
-        TStringBuf xs = TStringBuf(x.data(), 3);
-        TStringBuf ys = TStringBuf(y.data(), 3);
-        TStringBuf zs = TStringBuf(z.data(), 3);
+        std::string x = "qqqA";
+        std::string y = "qQqB";
+        std::string z = "qQnB";
+        std::string zz = "qQqq";
+        std::string zzz = "qQqqq";
+        std::string_view xs = std::string_view(x.data(), 3);
+        std::string_view ys = std::string_view(y.data(), 3);
+        std::string_view zs = std::string_view(z.data(), 3);
         UNIT_ASSERT(AsciiCompareIgnoreCase(xs, ys) == 0);
         UNIT_ASSERT(AsciiCompareIgnoreCase(xs, zs) > 0);
         UNIT_ASSERT(AsciiCompareIgnoreCase(xs, zz) < 0);

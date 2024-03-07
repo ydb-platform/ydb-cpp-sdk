@@ -16,6 +16,8 @@
 #include <library/cpp/json/json_value.h>
 #include <library/cpp/json/json_writer.h>
 
+#include <mutex>
+
 std::string ArcadiaSourceRoot() {
     if (const auto& sourceRoot = NPrivate::GetTestEnv().SourceRoot) {
         return sourceRoot;
@@ -116,7 +118,7 @@ const std::string& GetGlobalResource(std::string_view name) {
 
 void AddEntryToCoreSearchFile(const std::string& filename, std::string_view cmd, int pid, const TFsPath& binaryPath = TFsPath(), const TFsPath& cwd = TFsPath()) {
     auto lock = TFileLock(filename);
-    TGuard<TFileLock> guard(lock);
+    std::lock_guard guard(lock);
 
     TOFStream output(TFile(filename, WrOnly | ForAppend | OpenAlways));
 

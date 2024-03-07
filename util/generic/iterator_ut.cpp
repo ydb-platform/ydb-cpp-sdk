@@ -38,23 +38,23 @@ Y_UNIT_TEST_SUITE(TInputRangeAdaptor) {
 
     class TUrlPart: public TInputRangeAdaptor<TUrlPart> {
     public:
-        TUrlPart(const TStringBuf& url)
+        TUrlPart(const std::string_view& url)
             : Url_(url)
         {
         }
 
-        NStlIterator::TProxy<TStringBuf> Next() {
+        NStlIterator::TProxy<std::string_view> Next() {
             return Url_.NextTok('/');
         }
 
     private:
-        TStringBuf Url_;
+        std::string_view Url_;
     };
 
     Y_UNIT_TEST(TUrlPart) {
-        const std::vector<TStringBuf> expected = {TStringBuf("yandex.ru"), TStringBuf("search?")};
+        const std::vector<std::string_view> expected = {std::string_view("yandex.ru"), std::string_view("search?")};
         auto expected_part = expected.begin();
-        for (const TStringBuf& part : TUrlPart(TStringBuf("yandex.ru/search?"))) {
+        for (const std::string_view& part : TUrlPart(std::string_view("yandex.ru/search?"))) {
             UNIT_ASSERT_VALUES_EQUAL(part, *expected_part);
             ++expected_part;
         }

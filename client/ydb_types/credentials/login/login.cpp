@@ -175,7 +175,7 @@ std::string TLoginCredentialsProvider::GetError() const {
             return Ydb::StatusIds_StatusCode_Name(Response_.operation().status());
         }
     } else {
-        NUtils::TYdbStringBuilder str;
+        TStringBuilder str;
         str << "Couldn't get token for provided credentials from " << Status_.Endpoint
             << " with status " << Status_.Status << ".";
         for (const auto& issue : Status_.Issues) {

@@ -4,7 +4,7 @@
 
 Y_UNIT_TEST_SUITE(TCityTest) {
     Y_UNIT_TEST(TestTemplatesCompiling) {
-        TStringBuf s;
+        std::string_view s;
         CityHash64(s);
         CityHash64WithSeed(s, 1);
         CityHash64WithSeeds(s, 1, 2);

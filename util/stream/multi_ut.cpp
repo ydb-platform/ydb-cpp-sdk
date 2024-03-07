@@ -7,23 +7,23 @@ Y_UNIT_TEST_SUITE(TestMultiInput) {
         TMemoryInput Input1;
         TMemoryInput Input2;
         TMultiInput MultiInput;
-        TTestCase(const TStringBuf in1, const TStringBuf in2)
+        TTestCase(const std::string_view in1, const std::string_view in2)
             : Input1(in1)
             , Input2(in2)
             , MultiInput(&Input1, &Input2)
         {
         }
         void TestReadToResult(char c, size_t expectedRetval,
-                              const TString& expectedValue,
-                              const TString& initValue = "") {
-            TString t = initValue;
+                              const std::string& expectedValue,
+                              const std::string& initValue = "") {
+            std::string t = initValue;
             UNIT_ASSERT_VALUES_EQUAL(MultiInput.ReadTo(t, c), expectedRetval);
             UNIT_ASSERT_VALUES_EQUAL(t, expectedValue);
         }
     };
 
     Y_UNIT_TEST(TestReadTo) {
-        TString t;
+        std::string t;
 
         TTestCase simpleCase("0123456789abc", "defghijk");
         simpleCase.TestReadToResult('7', 8, "0123456");

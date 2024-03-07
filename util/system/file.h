@@ -53,7 +53,7 @@ enum EOpenModeFlag {
 Y_DECLARE_FLAGS(EOpenMode, EOpenModeFlag);
 Y_DECLARE_OPERATORS_FOR_FLAGS(EOpenMode);
 
-TString DecodeOpenMode(ui32 openMode);
+std::string DecodeOpenMode(ui32 openMode);
 
 enum SeekDir {
     sSet = 0,
@@ -78,7 +78,7 @@ public:
     }
 
     TFileHandle(const char* fName, EOpenMode oMode) noexcept;
-    TFileHandle(const TString& fName, EOpenMode oMode) noexcept;
+    TFileHandle(const std::string& fName, EOpenMode oMode) noexcept;
     TFileHandle(const std::filesystem::path& path, EOpenMode oMode) noexcept;
 
     inline ~TFileHandle() {
@@ -152,15 +152,15 @@ public:
     TFile();
     /// Takes ownership of handle, so closes it when the last holder of descriptor dies.
     explicit TFile(FHANDLE fd);
-    TFile(FHANDLE fd, const TString& fname);
+    TFile(FHANDLE fd, const std::string& fname);
     TFile(const char* fName, EOpenMode oMode);
-    TFile(const TString& fName, EOpenMode oMode);
+    TFile(const std::string& fName, EOpenMode oMode);
     TFile(const std::filesystem::path& path, EOpenMode oMode);
     ~TFile();
 
     void Close();
 
-    const TString& GetName() const noexcept;
+    const std::string& GetName() const noexcept;
     i64 GetPosition() const noexcept;
     i64 GetLength() const noexcept;
     bool IsOpen() const noexcept;
@@ -216,8 +216,8 @@ public:
     //flush unwritten data in this range and optionally wait for completion
     void FlushCache(i64 offset = 0, i64 length = 0, bool wait = true);
 
-    static TFile Temporary(const TString& prefix);
-    static TFile ForAppend(const TString& path);
+    static TFile Temporary(const std::string& prefix);
+    static TFile ForAppend(const std::string& path);
 
 private:
     class TImpl;

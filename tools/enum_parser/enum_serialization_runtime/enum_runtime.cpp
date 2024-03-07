@@ -1,6 +1,6 @@
 #include "enum_runtime.h"
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <util/generic/algorithm.h>
 
@@ -187,13 +187,13 @@ namespace NEnumSerializationRuntime {
             if (!AllNames.empty()) {
                 AllNames += ", ";
             }
-            AllNames += NUtils::TYdbStringBuilder() << '\'' << it.second << '\'';
+            AllNames += TStringBuilder() << '\'' << it.second << '\'';
             AllValues.push_back(it.first);
         }
 
         AllCppNames.reserve(cppNamesInitializer.size());
         for (const auto& cn : cppNamesInitializer) {
-            AllCppNames.push_back(NUtils::TYdbStringBuilder() << enumInitData.CppNamesPrefix << cn);
+            AllCppNames.push_back(TStringBuilder() << enumInitData.CppNamesPrefix << cn);
         }
     }
 

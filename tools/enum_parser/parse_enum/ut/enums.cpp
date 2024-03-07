@@ -78,25 +78,25 @@ Y_UNIT_TEST_SUITE(TEnumGeneratorTest) {
 
     template<typename T>
     void CheckFromString(const TString& strValue, const T& value) {
-        UNIT_ASSERT_VALUES_EQUAL(static_cast<int>(FromString<T>(TStringBuf(strValue))), static_cast<int>(value));
+        UNIT_ASSERT_VALUES_EQUAL(static_cast<int>(FromString<T>(std::string_view(strValue))), static_cast<int>(value));
     }
 
     template<typename T>
     void CheckFromStringFail(const TString& strValue) {
-        UNIT_ASSERT_EXCEPTION(FromString<T>(TStringBuf(strValue)), yexception);
+        UNIT_ASSERT_EXCEPTION(FromString<T>(std::string_view(strValue)), yexception);
     }
 
     template<typename T>
     void CheckTryFromString(const TString& strValue, const T& value) {
         T x;
-        UNIT_ASSERT_VALUES_EQUAL(TryFromString(TStringBuf(strValue), x), true);
+        UNIT_ASSERT_VALUES_EQUAL(TryFromString(std::string_view(strValue), x), true);
         UNIT_ASSERT_VALUES_EQUAL(x, value);
     }
 
     template<typename T>
     void CheckTryFromStringFail(const TString& strValue) {
         T x = T(-666);
-        UNIT_ASSERT_VALUES_EQUAL(TryFromString(TStringBuf(strValue), x), false);
+        UNIT_ASSERT_VALUES_EQUAL(TryFromString(std::string_view(strValue), x), false);
         UNIT_ASSERT_VALUES_EQUAL(int(x), -666);
     }
 

@@ -1,10 +1,11 @@
 #pragma once
 
+#include <util/memory/alloc.h>
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
 #include <util/generic/yexception.h>
 
 #include <iterator>
+#include <vector>
 
 namespace NPagedVector {
     template <class T, ui32 PageSize = 1u << 20u, class A = std::allocator<T>>
@@ -146,12 +147,15 @@ namespace std {
 
 namespace NPagedVector {
     //2-level radix tree
+    template <class T, class A>
+    using TPagedVectorBase = std::vector<T, TReboundAllocator<A, T>>;
+
     template <class T, ui32 PageSize, class A>
-    class TPagedVector: TVector<TSimpleSharedPtr<TVector<T, A>>, A> {
+    class TPagedVector: private TPagedVectorBase<TSimpleSharedPtr<TPagedVectorBase<T, A>>, A> {
         static_assert(PageSize, "expect PageSize");
 
-        typedef TVector<T, A> TPage;
-        typedef TVector<TSimpleSharedPtr<TPage>, A> TPages;
+        typedef TPagedVectorBase<T, A> TPage;
+        typedef TPagedVectorBase<TSimpleSharedPtr<TPage>, A> TPages;
         typedef TPagedVector<T, PageSize, A> TSelf;
 
     public:
@@ -236,7 +240,7 @@ namespace NPagedVector {
         }
 
         void AllocateNewPage() {
-            TPages::push_back(new TPage());
+            TPages::push_back(MakeSimpleShared<TPage>());
             CurrentPage().reserve(PageSize);
         }
 
@@ -355,11 +359,11 @@ namespace NPagedVector {
         }
 
         reference front() {
-            return TPages::front()->front();
+            return *((*TPages::begin())->begin());
         }
 
         const_reference front() const {
-            return TPages::front()->front();
+            return *((*TPages::cbegin())->cbegin());
         }
 
         reference back() {

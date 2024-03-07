@@ -5,12 +5,12 @@
 #include <util/generic/yexception.h>
 #include <util/system/info.h>
 #include <library/cpp/deprecated/atomic/atomic.h>
-#include <util/system/condvar.h>
-#include <util/system/mutex.h>
 #include <util/stream/output.h>
 
 #include <functional>
 #include <cstdlib>
+#include <mutex>
+#include <condition_variable>
 
 class TMtpQueueHelper {
 public:
@@ -50,8 +50,8 @@ namespace NYmp {
 
         size_t threadCount = TMtpQueueHelper::Instance().GetThreadCount();
         IThreadPool* queue = TMtpQueueHelper::Instance().Get();
-        TCondVar cv;
-        TMutex mutex;
+        std::condition_variable cv;
+        std::mutex mutex;
         TAtomic counter = threadCount;
         std::exception_ptr err;
 
@@ -70,23 +70,22 @@ namespace NYmp {
                         currentChunkStart += chunkSize * threadCount;
                     }
                 } catch (...) {
-                    with_lock (mutex) {
-                        err = std::current_exception();
-                    }
+                    std::lock_guard guard(mutex);
+                    err = std::current_exception();
                 }
 
-                with_lock (mutex) {
-                    if (AtomicDecrement(counter) == 0) {
-                        //last one
-                        cv.Signal();
-                    }
+                std::lock_guard guard(mutex);
+                if (AtomicDecrement(counter) == 0) {
+                    //last one
+                    cv.notify_one();
                 }
             });
         }
 
-        with_lock (mutex) {
+        {
+            std::unique_lock lock(mutex);
             while (AtomicGet(counter) > 0) {
-                cv.WaitI(mutex);
+                cv.wait(lock);
             }
         }
 

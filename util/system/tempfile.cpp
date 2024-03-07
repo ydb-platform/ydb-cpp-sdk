@@ -6,17 +6,17 @@ TTempFileHandle::TTempFileHandle()
 {
 }
 
-TTempFileHandle::TTempFileHandle(const TString& fname)
+TTempFileHandle::TTempFileHandle(const std::string& fname)
     : TTempFile(fname)
     , TFile(CreateFile())
 {
 }
 
-TTempFileHandle TTempFileHandle::InCurrentDir(const TString& filePrefix, const TString& extension) {
+TTempFileHandle TTempFileHandle::InCurrentDir(const std::string& filePrefix, const std::string& extension) {
     return TTempFileHandle(MakeTempName(".", filePrefix.c_str(), extension.c_str()));
 }
 
-TTempFileHandle TTempFileHandle::InDir(const TFsPath& dirPath, const TString& filePrefix, const TString& extension) {
+TTempFileHandle TTempFileHandle::InDir(const TFsPath& dirPath, const std::string& filePrefix, const std::string& extension) {
     return TTempFileHandle(MakeTempName(dirPath.c_str(), filePrefix.c_str(), extension.c_str()));
 }
 

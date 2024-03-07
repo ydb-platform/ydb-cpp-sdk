@@ -97,7 +97,8 @@ void TWriteSessionImpl::Start(const TDuration& delay) {
 
     ++ConnectionAttemptsDone;
     if (!Started) {
-        with_lock(Lock) {
+        {
+            std::lock_guard guard(Lock);
             HandleWakeUpImpl();
         }
         InitWriter();
@@ -150,7 +151,8 @@ bool IsFederation(const std::string& endpoint) {
 
 void TWriteSessionImpl::DoCdsRequest(TDuration delay) {
     bool cdsRequestIsUnnecessary;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (AtomicGet(Aborting)) {
             return;
         }
@@ -183,7 +185,7 @@ void TWriteSessionImpl::DoCdsRequest(TDuration delay) {
 
             LOG_LAZY(DbDriverState->Log, TLOG_INFO, LogPrefix() << "Do schedule cds request after " << delay.MilliSeconds() << " ms\n");
             auto cdsRequestCall = [req_=std::move(req), extr=std::move(extractor), connections = std::shared_ptr<TGRpcConnectionsImpl>(Connections), dbState=DbDriverState, settings=Settings]() mutable {
-                LOG_LAZY(dbState->Log, TLOG_INFO, NUtils::TYdbStringBuilder() << "MessageGroupId [" << settings.MessageGroupId_ << "] Running cds request ms\n");
+                LOG_LAZY(dbState->Log, TLOG_INFO, TStringBuilder() << "MessageGroupId [" << settings.MessageGroupId_ << "] Running cds request ms\n");
                 connections->RunDeferred<Ydb::PersQueue::V1::ClusterDiscoveryService,
                                         Ydb::PersQueue::ClusterDiscovery::DiscoverClustersRequest,
                                         Ydb::PersQueue::ClusterDiscovery::DiscoverClustersResponse>(
@@ -212,7 +214,8 @@ void TWriteSessionImpl::OnCdsResponse(
     std::string endpoint, name;
     THandleResult handleResult;
     if (!status.IsSuccess()) {
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             handleResult = OnErrorImpl({
                     status.GetStatus(),
                     MakeIssueWithSubIssues("Failed to discover clusters", status.GetIssues())
@@ -224,7 +227,8 @@ void TWriteSessionImpl::OnCdsResponse(
 
     NYql::TIssues issues;
     EStatus errorStatus = EStatus::INTERNAL_ERROR;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         const Ydb::PersQueue::ClusterDiscovery::WriteSessionClusters& wsClusters = result.write_sessions_clusters(0);
         bool isFirst = true;
 
@@ -240,14 +244,14 @@ void TWriteSessionImpl::OnCdsResponse(
             if (!clusterInfo.available()) {
                 if (!TargetCluster.empty() && TargetCluster == normalizedName) {
                     errorStatus = EStatus::UNAVAILABLE;
-                    issues.AddIssue(NUtils::TYdbStringBuilder() << "Selected destination cluster: " << normalizedName
+                    issues.AddIssue(TStringBuilder() << "Selected destination cluster: " << normalizedName
                                                      << " is currently disabled");
                     break;
                 }
                 continue;
             }
             if (clusterInfo.endpoint().empty()) {
-                issues.AddIssue(NUtils::TYdbStringBuilder() << "Unexpected reply from cluster discovery. Empty endpoint for cluster "
+                issues.AddIssue(TStringBuilder() << "Unexpected reply from cluster discovery. Empty endpoint for cluster "
                                                  << normalizedName);
             } else {
                 name = clusterInfo.name();
@@ -257,17 +261,19 @@ void TWriteSessionImpl::OnCdsResponse(
         }
         if (endpoint.empty()) {
             errorStatus = EStatus::GENERIC_ERROR;
-            issues.AddIssue(NUtils::TYdbStringBuilder() << "Could not get valid endpoint from cluster discovery");
+            issues.AddIssue(TStringBuilder() << "Could not get valid endpoint from cluster discovery");
         }
     }
     if (issues) {
-        with_lock(Lock) {
+        {
+            std::lock_guard guard(Lock);
             handleResult = OnErrorImpl({errorStatus, std::move(issues)});
         }
         ProcessHandleResult(handleResult);
-            return;
+        return;
     }
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (InitialCluster.empty()) {
             InitialCluster = name;
         }
@@ -385,7 +391,8 @@ void TWriteSessionImpl::WriteInternal(
     TInstant createdAtValue = createTimestamp.value_or(TInstant::Now());
     bool readyToAccept = false;
     size_t bufferSize = data.size();
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         CurrentBatch.Add(GetNextIdImpl(seqNo), createdAtValue, data, codec, originalSize);
 
         FlushWriteIfRequiredImpl();
@@ -438,7 +445,8 @@ void TWriteSessionImpl::DoConnect(const TDuration& delay, const std::string& end
     std::function<void(TPlainStatus&&, typename IProcessor::TPtr&&)> connectCallback;
     std::function<void(bool)> connectTimeoutCallback;
 
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (Aborting) {
             return;
         }
@@ -512,7 +520,8 @@ void TWriteSessionImpl::DoConnect(const TDuration& delay, const std::string& end
 void TWriteSessionImpl::OnConnectTimeout(const NYdbGrpc::IQueueClientContextPtr& connectTimeoutContext) {
     LOG_LAZY(DbDriverState->Log, TLOG_ERR, LogPrefix() << "Write session: connect timeout");
     THandleResult handleResult;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (ConnectTimeoutContext == connectTimeoutContext) {
             Cancel(ConnectContext);
             ConnectContext = nullptr;
@@ -521,7 +530,7 @@ void TWriteSessionImpl::OnConnectTimeout(const NYdbGrpc::IQueueClientContextPtr&
         } else {
             return;
         }
-        NUtils::TYdbStringBuilder description;
+        TStringBuilder description;
         description << "Failed to establish connection to server. Attempts done: " << ConnectionAttemptsDone;
         handleResult = RestartImpl(TPlainStatus(EStatus::TIMEOUT, description));
         if (handleResult.DoStop) {
@@ -539,7 +548,8 @@ void TWriteSessionImpl::OnConnect(
         TPlainStatus&& st, typename IProcessor::TPtr&& processor, const NYdbGrpc::IQueueClientContextPtr& connectContext
 ) {
     THandleResult handleResult;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (ConnectContext == connectContext) {
             Cancel(ConnectTimeoutContext);
             ConnectContext = nullptr;
@@ -560,7 +570,7 @@ void TWriteSessionImpl::OnConnect(
                 CloseImpl(
                         st.Status,
                         MakeIssueWithSubIssues(
-                                NUtils::TYdbStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
+                                TStringBuilder() << "Failed to establish connection to server \"" << st.Endpoint
                                                  << "\". Attempts done: " << ConnectionAttemptsDone,
                                 st.Issues
                         )
@@ -617,7 +627,8 @@ void TWriteSessionImpl::ReadFromProcessor() {
     IProcessor::TPtr prc;
     ui64 generation;
     std::function<void(NYdbGrpc::TGrpcStatus&&)> callback;
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (Aborting) {
             return;
         }
@@ -638,7 +649,8 @@ void TWriteSessionImpl::ReadFromProcessor() {
 
 void TWriteSessionImpl::OnWriteDone(NYdbGrpc::TGrpcStatus&& status, size_t connectionGeneration) {
     THandleResult handleResult;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (connectionGeneration != ConnectionGeneration) {
             return; // Message from previous connection. Ignore.
         }
@@ -660,7 +672,8 @@ void TWriteSessionImpl::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t co
         errorStatus = TPlainStatus(std::move(grpcStatus));
     }
     bool doRead = false;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         UpdateTimedCountersImpl();
         if (connectionGeneration != ConnectionGeneration) {
             return; // Message from previous connection. Ignore.
@@ -680,7 +693,8 @@ void TWriteSessionImpl::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t co
     if (doRead)
         ReadFromProcessor();
 
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (!errorStatus.Ok()) {
             if (processResult.Ok) { // Otherwise, OnError was already called
                 processResult.HandleResult = RestartImpl(errorStatus);
@@ -700,12 +714,12 @@ void TWriteSessionImpl::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t co
     ProcessHandleResult(processResult.HandleResult);
 }
 
-NUtils::TYdbStringBuilder TWriteSessionImpl::LogPrefix() const {
-    return NUtils::TYdbStringBuilder() << "MessageGroupId [" << Settings.MessageGroupId_ << "] SessionId [" << SessionId << "] ";
+TStringBuilder TWriteSessionImpl::LogPrefix() const {
+    return TStringBuilder() << "MessageGroupId [" << Settings.MessageGroupId_ << "] SessionId [" << SessionId << "] ";
 }
 
 std::string TWriteSessionEvent::TAcksEvent::DebugString() const {
-    NUtils::TYdbStringBuilder res;
+    TStringBuilder res;
     res << "AcksEvent:";
     for (auto& ack : Acks) {
         res << " { seqNo : " << ack.SeqNo << ", State : " << ack.State;
@@ -936,9 +950,8 @@ void TWriteSessionImpl::CompressImpl(TBlock&& block_) {
 void TWriteSessionImpl::OnCompressed(TBlock&& block, bool isSyncCompression) {
     TMemoryUsageChange memoryUsage;
     if (!isSyncCompression) {
-        with_lock(Lock) {
-            memoryUsage = OnCompressedImpl(std::move(block));
-        }
+        std::lock_guard guard(Lock);
+        memoryUsage = OnCompressedImpl(std::move(block));
     } else {
         memoryUsage = OnCompressedImpl(std::move(block));
     }
@@ -1095,7 +1108,7 @@ bool TWriteSessionImpl::IsReadyToSendNextImpl() {
 }
 
 void TWriteSessionImpl::DumpState() {
-    NUtils::TYdbStringBuilder s;
+    TStringBuilder s;
     s << "STATE:\n";
 
     auto omts = OriginalMessagesToSend;
@@ -1246,7 +1259,8 @@ bool TWriteSessionImpl::Close(TDuration closeTimeout) {
     bool ready = false;
     bool needSetSeqNoValue = false;
     while (remaining > TDuration::Zero()) {
-        with_lock(Lock) {
+        {
+            std::lock_guard guard(Lock);
             if (OriginalMessagesToSend.empty() && SentOriginalMessages.empty()) {
                 ready = true;
             }
@@ -1259,10 +1273,12 @@ bool TWriteSessionImpl::Close(TDuration closeTimeout) {
         remaining = closeTimeout - (TInstant::Now() - startTime);
         Sleep(Min(TDuration::MilliSeconds(100), remaining));
     }
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         ready = (OriginalMessagesToSend.empty() && SentOriginalMessages.empty()) && !AtomicGet(Aborting);
     }
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         CloseImpl(EStatus::SUCCESS, NYql::TIssues{});
         needSetSeqNoValue = !InitSeqNoSetDone && (InitSeqNoSetDone = true);
     }
@@ -1295,9 +1311,8 @@ void TWriteSessionImpl::HandleWakeUpImpl() {
         }
 
         if (auto self = cbContext->LockShared()) {
-            with_lock(self->Lock) {
-                self->HandleWakeUpImpl();
-            }
+            std::lock_guard guard(self->Lock);
+            self->HandleWakeUpImpl();
         }
     };
 
@@ -1395,7 +1410,8 @@ void TWriteSessionImpl::CloseImpl(TPlainStatus&& status) {
 TWriteSessionImpl::~TWriteSessionImpl() {
     LOG_LAZY(DbDriverState->Log, TLOG_DEBUG, LogPrefix() << "Write session: destroy");
     bool needClose = false;
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (!AtomicGet(Aborting)) {
             CloseImpl(EStatus::SUCCESS, NYql::TIssues{});
 

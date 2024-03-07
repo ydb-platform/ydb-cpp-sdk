@@ -4,7 +4,7 @@
 #include <library/cpp/monlib/metrics/histogram_snapshot.h>
 #include <library/cpp/monlib/metrics/metric.h>
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <util/datetime/base.h>
 #include <util/generic/hash.h>
@@ -27,7 +27,7 @@ namespace NMonitoring {
         using TLabelsMap = THashMap<std::string, std::string>;
 
         std::string LabelsToStr(const TLabelsMap& labels) {
-            NUtils::TYdbStringBuilder sb;
+            TStringBuilder sb;
             auto it = labels.begin();
             auto end = labels.end();
 

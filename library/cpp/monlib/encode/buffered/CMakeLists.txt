@@ -5,7 +5,6 @@ target_link_libraries(monlib-encode-buffered PUBLIC
   yutil
   cpp-monlib-encode
   cpp-monlib-metrics
-  cpp-string_builder
 )
 
 target_sources(monlib-encode-buffered PRIVATE

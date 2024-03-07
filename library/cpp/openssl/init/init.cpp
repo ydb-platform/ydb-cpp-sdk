@@ -6,7 +6,6 @@
 #include <util/generic/buffer.h>
 
 #include <util/system/yassert.h>
-#include <util/system/mutex.h>
 #include <util/system/thread.h>
 
 #include <util/random/entropy.h>
@@ -18,6 +17,7 @@
 #include <openssl/rand.h>
 #include <openssl/conf.h>
 #include <openssl/crypto.h>
+#include <mutex>
 #include <vector>
 
 namespace {
@@ -27,7 +27,7 @@ namespace {
                 : Mutexes(CRYPTO_num_locks())
             {
                 for (auto& mpref : Mutexes) {
-                    mpref.Reset(new TMutex());
+                    mpref.Reset(new std::mutex());
                 }
             }
 
@@ -35,13 +35,13 @@ namespace {
                 auto& mutex = *Mutexes.at(n);
 
                 if (mode & CRYPTO_LOCK) {
-                    mutex.Acquire();
+                    mutex.lock();
                 } else {
-                    mutex.Release();
+                    mutex.unlock();
                 }
             }
 
-            std::vector<TAutoPtr<TMutex>> Mutexes;
+            std::vector<TAutoPtr<std::mutex>> Mutexes;
         };
 
         inline TInitSsl() {

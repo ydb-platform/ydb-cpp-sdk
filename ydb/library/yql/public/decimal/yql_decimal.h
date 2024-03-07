@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 #include "yql_wide_int.h"
 
 #include <type_traits>

@@ -1,7 +1,7 @@
 #include "guid.h"
 
+#include <util/generic/ylimits.h>
 #include <util/random/random.h>
-
 #include <util/string/printf.h>
 
 namespace NYT {

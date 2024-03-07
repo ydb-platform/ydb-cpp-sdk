@@ -10,7 +10,7 @@
 
 Y_UNIT_TEST_SUITE(TestFileStat) {
     Y_UNIT_TEST(FileTest) {
-        TString fileName = "f1.txt";
+        std::string fileName = "f1.txt";
         TFileStat oFs;
         {
             TFile file(fileName.data(), OpenAlways | WrOnly);
@@ -176,7 +176,7 @@ Y_UNIT_TEST_SUITE(TestFileStat) {
     }
 
     Y_UNIT_TEST(ChmodTest) {
-        const TString fileName = "m.txt";
+        const std::string fileName = "m.txt";
         TFile file(fileName.c_str(), OpenAlways | WrOnly);
         file.Write("1", 1);
         file.Close();

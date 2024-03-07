@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/string.h>
+#include <string.h>
 #include <library/cpp/logger/priority.h>
 
 struct TOptions {

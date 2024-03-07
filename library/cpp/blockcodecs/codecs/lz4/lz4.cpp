@@ -2,7 +2,7 @@
 #include <library/cpp/blockcodecs/core/common.h>
 #include <library/cpp/blockcodecs/core/register.h>
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <contrib/libs/lz4/lz4.h>
 #include <contrib/libs/lz4/lz4hc.h>
@@ -72,14 +72,14 @@ namespace {
     template <class TC, class TD>
     struct TLz4Codec: public TAddLengthCodec<TLz4Codec<TC, TD>>, public TLz4Base, public TC, public TD {
         inline TLz4Codec()
-            : MyName(NUtils::TYdbStringBuilder() << "lz4-" << TC::CPrefix() << "-" << TD::DPrefix())
+            : MyName(TStringBuilder() << "lz4-" << TC::CPrefix() << "-" << TD::DPrefix())
         {
         }
 
         template <class T>
         inline TLz4Codec(const T& t)
             : TC(t)
-            , MyName(NUtils::TYdbStringBuilder() << "lz4-" << TC::CPrefix() << "-" << TD::DPrefix())
+            , MyName(TStringBuilder() << "lz4-" << TC::CPrefix() << "-" << TD::DPrefix())
         {
         }
 
