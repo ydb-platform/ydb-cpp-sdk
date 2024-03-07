@@ -14,7 +14,6 @@ if (MSVC)
 else()
   set(flagPrefixSymbol "-")
   include(global_flags.compiler.gnu)
-  include(global_flags.linker.gnu)
 endif()
 
 if (CMAKE_SYSTEM_PROCESSOR MATCHES "^(i686|x86_64|AMD64)$")

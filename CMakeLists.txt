@@ -17,16 +17,10 @@ enable_testing()
 # Can't set it in cuda.cmake because of CMake policy subdirectory stack rules
 cmake_policy(SET CMP0104 OLD)
 
-include(cmake/antlr.cmake)
-include(cmake/archive.cmake)
-include(cmake/bison.cmake)
 include(cmake/common.cmake)
-include(cmake/fbs.cmake)
 include(cmake/global_flags.cmake)
-include(cmake/llvm-tools.cmake)
 include(cmake/masm.cmake)
 include(cmake/protobuf.cmake)
-include(cmake/shared_libs.cmake)
 include(cmake/global_vars.cmake)
 
 find_package(IDN REQUIRED)

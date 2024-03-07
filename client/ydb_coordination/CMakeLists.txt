@@ -10,8 +10,7 @@ get_built_tool_path(
 add_library(cpp-client-ydb_coordination)
 
 target_link_libraries(cpp-client-ydb_coordination PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   tools-enum_parser-enum_serialization_runtime
   api-grpc
@@ -37,6 +36,6 @@ generate_enum_serilization(cpp-client-ydb_coordination
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-client-ydb_coordination PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

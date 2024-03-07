@@ -9,6 +9,7 @@
 #include <util/generic/noncopyable.h>
 
 #include <cstdio>
+#include <filesystem>
 
 enum EOpenModeFlag {
     OpenExisting = 0,  // Opens a file. It fails if the file does not exist.

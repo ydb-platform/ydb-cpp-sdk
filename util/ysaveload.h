@@ -8,6 +8,10 @@
 #include <util/stream/input.h>
 #include <util/system/compiler.h>
 
+#include <deque>
+#include <list>
+#include <map>
+#include <set>
 #include <string>
 
 #ifndef __NVCC__

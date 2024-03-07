@@ -13,6 +13,7 @@
 #include <util/system/spinlock.h>
 
 #include <string_view>
+#include <optional>
 
 namespace NThreading {
     ////////////////////////////////////////////////////////////////////////////////

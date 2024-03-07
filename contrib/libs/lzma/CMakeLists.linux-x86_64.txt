@@ -31,7 +31,7 @@ target_include_directories(contrib-libs-lzma PRIVATE
   ${CMAKE_SOURCE_DIR}/contrib/libs/lzma/liblzma/simple
 )
 target_link_libraries(contrib-libs-lzma PUBLIC
-  contrib-libs-linux-headers
+  
 )
 target_sources(contrib-libs-lzma PRIVATE
   ${CMAKE_SOURCE_DIR}/contrib/libs/lzma/common/tuklib_cpucores.c

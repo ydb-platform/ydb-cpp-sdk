@@ -8,7 +8,6 @@ get_built_tool_path(
 
 add_library(library-cpp-logger)
 target_link_libraries(library-cpp-logger PUBLIC
-  contrib-libs-cxxsupp
   yutil
   tools-enum_parser-enum_serialization_runtime
   library-cpp-json
@@ -39,7 +38,6 @@ generate_enum_serilization(library-cpp-logger
 
 add_global_library_for(library-cpp-logger.global library-cpp-logger)
 target_link_libraries(library-cpp-logger.global PUBLIC
-  contrib-libs-cxxsupp
   yutil
   tools-enum_parser-enum_serialization_runtime
   library-cpp-json
@@ -59,9 +57,9 @@ target_sources(library-cpp-logger.global PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(library-cpp-logger PUBLIC
-    contrib-libs-linux-headers
+    
   )
   target_link_libraries(library-cpp-logger.global PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

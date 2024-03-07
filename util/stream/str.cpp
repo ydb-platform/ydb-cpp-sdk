@@ -26,7 +26,7 @@ size_t TStringOutput::DoNext(void** ptr) {
     }
     size_t previousSize = S_->size();
     S_->resize(S_->capacity());
-    *ptr = S_->begin() + previousSize;
+    *ptr = S_->data() + previousSize;
     return S_->size() - previousSize;
 }
 

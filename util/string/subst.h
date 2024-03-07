@@ -2,7 +2,6 @@
 
 #include <util/generic/fwd.h>
 
-#include <stlfwd>
 #include <string>
 #include <string_view>
 

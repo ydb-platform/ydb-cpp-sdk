@@ -1,6 +1,5 @@
 add_library(api-protos-annotations)
 target_link_libraries(api-protos-annotations PUBLIC
-  contrib-libs-cxxsupp
   yutil
   protobuf::libprotobuf
 )
@@ -21,6 +20,6 @@ target_proto_outs(api-protos-annotations
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(api-protos-annotations PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

@@ -3,7 +3,6 @@ add_subdirectory(impl)
 add_library(cpp-client-ydb_query)
 
 target_link_libraries(cpp-client-ydb_query PUBLIC
-  contrib-libs-cxxsupp
   yutil
   impl-ydb_internal-make_request
   impl-ydb_internal-kqp_session_common
@@ -25,6 +24,6 @@ target_sources(cpp-client-ydb_query PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-client-ydb_query PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

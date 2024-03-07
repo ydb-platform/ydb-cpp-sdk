@@ -1,7 +1,6 @@
 add_library(impl-ydb_internal-common)
 
 target_link_libraries(impl-ydb_internal-common PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-grpc-client
   yql-public-issue
@@ -14,6 +13,6 @@ target_sources(impl-ydb_internal-common PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(impl-ydb_internal-common PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

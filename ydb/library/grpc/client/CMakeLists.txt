@@ -1,7 +1,6 @@
 add_library(library-grpc-client)
 
 target_link_libraries(library-grpc-client PUBLIC
-  contrib-libs-cxxsupp
   yutil
   gRPC::grpc++
   cpp-deprecated-atomic
@@ -13,6 +12,6 @@ target_sources(library-grpc-client PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(library-grpc-client PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

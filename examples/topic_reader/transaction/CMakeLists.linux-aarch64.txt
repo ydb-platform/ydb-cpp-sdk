@@ -9,8 +9,7 @@
 
 add_executable(read_from_topic_in_transaction)
 target_link_libraries(read_from_topic_in_transaction PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   cpp-client-ydb_topic
   library-cpp-getopt

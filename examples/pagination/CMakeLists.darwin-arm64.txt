@@ -9,7 +9,6 @@
 
 add_executable(pagination)
 target_link_libraries(pagination PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-getopt
   cpp-client-ydb_table

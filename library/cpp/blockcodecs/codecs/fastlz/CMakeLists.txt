@@ -1,7 +1,6 @@
 add_library(blockcodecs-codecs-fastlz INTERFACE)
 
 target_link_libraries(blockcodecs-codecs-fastlz INTERFACE
-  contrib-libs-cxxsupp
   yutil
   contrib-libs-fastlz
   cpp-blockcodecs-core
@@ -10,7 +9,6 @@ target_link_libraries(blockcodecs-codecs-fastlz INTERFACE
 add_global_library_for(blockcodecs-codecs-fastlz.global blockcodecs-codecs-fastlz)
 
 target_link_libraries(blockcodecs-codecs-fastlz.global PUBLIC
-  contrib-libs-cxxsupp
   yutil
   contrib-libs-fastlz
   cpp-blockcodecs-core
@@ -22,9 +20,9 @@ target_sources(blockcodecs-codecs-fastlz.global PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(blockcodecs-codecs-fastlz INTERFACE
-    contrib-libs-linux-headers
+    
   )
   target_link_libraries(blockcodecs-codecs-fastlz.global PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

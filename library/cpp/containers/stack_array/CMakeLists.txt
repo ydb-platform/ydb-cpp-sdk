@@ -1,7 +1,6 @@
 add_library(cpp-containers-stack_array)
 
 target_link_libraries(cpp-containers-stack_array PUBLIC
-  contrib-libs-cxxsupp
   yutil
 )
 
@@ -12,6 +11,6 @@ target_sources(cpp-containers-stack_array PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-containers-stack_array PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

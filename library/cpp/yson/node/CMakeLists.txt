@@ -8,7 +8,6 @@ get_built_tool_path(
 add_library(cpp-yson-node)
 
 target_link_libraries(cpp-yson-node PUBLIC
-  contrib-libs-cxxsupp
   yutil
   tools-enum_parser-enum_serialization_runtime
   library-cpp-yson
@@ -31,6 +30,6 @@ generate_enum_serilization(cpp-yson-node
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-yson-node PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

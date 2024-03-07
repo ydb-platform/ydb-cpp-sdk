@@ -5,6 +5,8 @@
 #include "last_getopt_opts.h"
 #include "modchooser.h"
 
+#include <variant>
+
 namespace NLastGetopt {
     class TCompletionGenerator {
     public:

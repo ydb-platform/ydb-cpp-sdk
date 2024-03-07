@@ -1,7 +1,6 @@
 add_library(library-login-protos)
 
 target_link_libraries(library-login-protos PUBLIC
-  contrib-libs-cxxsupp
   yutil
   protobuf::libprotobuf
 )
@@ -24,6 +23,6 @@ target_proto_outs(library-login-protos
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(library-login-protos PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

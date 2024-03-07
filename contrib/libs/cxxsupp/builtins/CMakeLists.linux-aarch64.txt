@@ -12,7 +12,7 @@ target_compile_options(libs-cxxsupp-builtins PRIVATE
   $<IF:$<CXX_COMPILER_ID:MSVC>,,-Wno-everything>
 )
 target_link_libraries(libs-cxxsupp-builtins PUBLIC
-  contrib-libs-linux-headers
+  
 )
 target_sources(libs-cxxsupp-builtins PRIVATE
   ${CMAKE_SOURCE_DIR}/contrib/libs/cxxsupp/builtins/addtf3.c

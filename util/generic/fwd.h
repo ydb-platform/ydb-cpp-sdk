@@ -2,7 +2,8 @@
 
 #include <util/system/defaults.h>
 
-#include <stlfwd>
+#include <iosfwd>
+#include <vector>
 
 //misc
 class TBuffer;
