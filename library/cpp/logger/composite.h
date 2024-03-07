@@ -1,9 +1,6 @@
 #pragma once
 
 #include "backend.h"
-
-
-
 class TCompositeLogBackend: public TLogBackend {
 public:
     virtual void WriteData(const TLogRecord& rec) override;
