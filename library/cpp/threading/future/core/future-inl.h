@@ -4,6 +4,8 @@
 #error "you should never include future-inl.h directly"
 #endif // INCLUDE_FUTURE_INL_H
 
+#include <mutex>
+
 namespace NThreading {
     namespace NImpl {
         ////////////////////////////////////////////////////////////////////////////////
@@ -142,7 +144,8 @@ namespace NThreading {
                 TSystemEvent* readyEvent = nullptr;
                 TCallbackList<T> callbacks;
 
-                with_lock (StateLock) {
+                {
+                    std::lock_guard guard(StateLock);
                     TAtomicBase state = AtomicGet(State);
                     if (Y_UNLIKELY(state != NotReady)) {
                         return false;
@@ -182,7 +185,8 @@ namespace NThreading {
                 TSystemEvent* readyEvent;
                 TCallbackList<T> callbacks;
 
-                with_lock (StateLock) {
+                {
+                    std::lock_guard guard(StateLock);
                     TAtomicBase state = AtomicGet(State);
                     if (Y_UNLIKELY(state != NotReady)) {
                         return false;
@@ -212,12 +216,11 @@ namespace NThreading {
 
             template <typename F>
             bool Subscribe(F&& func) {
-                with_lock (StateLock) {
-                    TAtomicBase state = AtomicGet(State);
-                    if (state == NotReady) {
-                        Callbacks.emplace_back(std::forward<F>(func));
-                        return true;
-                    }
+                std::lock_guard guard(StateLock);
+                TAtomicBase state = AtomicGet(State);
+                if (state == NotReady) {
+                    Callbacks.emplace_back(std::forward<F>(func));
+                    return true;
                 }
                 return false;
             }
@@ -233,7 +236,8 @@ namespace NThreading {
             bool Wait(TInstant deadline) const {
                 TSystemEvent* readyEvent = nullptr;
 
-                with_lock (StateLock) {
+                {
+                    std::lock_guard guard(const_cast<TAdaptiveLock&>(StateLock));
                     TAtomicBase state = AtomicGet(State);
                     if (state != NotReady) {
                         return true;
@@ -333,7 +337,8 @@ namespace NThreading {
                 TSystemEvent* readyEvent = nullptr;
                 TCallbackList<void> callbacks;
 
-                with_lock (StateLock) {
+                {
+                    std::lock_guard guard(StateLock);
                     TAtomicBase state = AtomicGet(State);
                     if (Y_UNLIKELY(state != NotReady)) {
                         return false;
@@ -371,7 +376,8 @@ namespace NThreading {
                 TSystemEvent* readyEvent = nullptr;
                 TCallbackList<void> callbacks;
 
-                with_lock (StateLock) {
+                {
+                    std::lock_guard guard(StateLock);
                     TAtomicBase state = AtomicGet(State);
                     if (Y_UNLIKELY(state != NotReady)) {
                         return false;
@@ -401,12 +407,11 @@ namespace NThreading {
 
             template <typename F>
             bool Subscribe(F&& func) {
-                with_lock (StateLock) {
-                    TAtomicBase state = AtomicGet(State);
-                    if (state == NotReady) {
-                        Callbacks.emplace_back(std::forward<F>(func));
-                        return true;
-                    }
+                std::lock_guard guard(StateLock);
+                TAtomicBase state = AtomicGet(State);
+                if (state == NotReady) {
+                    Callbacks.emplace_back(std::forward<F>(func));
+                    return true;
                 }
                 return false;
             }
@@ -422,7 +427,8 @@ namespace NThreading {
             bool Wait(TInstant deadline) const {
                 TSystemEvent* readyEvent = nullptr;
 
-                with_lock (StateLock) {
+                {
+                    std::lock_guard<TAdaptiveLock> guard(const_cast<TAdaptiveLock&>(StateLock));
                     TAtomicBase state = AtomicGet(State);
                     if (state != NotReady) {
                         return true;

@@ -182,7 +182,7 @@ namespace {
     class TGenericTls: public TGenericTlsBase {
     public:
         virtual TPerThreadStorage* MyStorageSlow() {
-            auto lock = Guard(Lock_);
+            std::lock_guard guard(Lock_);
 
             {
                 TPTSRef& ret = Datas_[TThread::CurrentThreadId()];
@@ -196,9 +196,8 @@ namespace {
         }
 
         inline void Cleanup() noexcept {
-            with_lock (Lock_) {
-                Datas_.erase(TThread::CurrentThreadId());
-            }
+            std::lock_guard guard(Lock_);
+            Datas_.erase(TThread::CurrentThreadId());
         }
 
         static inline TGenericTls* Instance() {
@@ -207,7 +206,7 @@ namespace {
 
     private:
         using TPTSRef = THolder<TPerThreadStorage>;
-        TMutex Lock_;
+        std::mutex Lock_;
         THashMap<TThread::TId, TPTSRef> Datas_;
     };
 }

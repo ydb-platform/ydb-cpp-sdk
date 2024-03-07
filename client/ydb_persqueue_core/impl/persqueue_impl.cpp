@@ -8,13 +8,12 @@ std::shared_ptr<IReadSession> TPersQueueClient::TImpl::CreateReadSession(const T
     std::optional<TReadSessionSettings> maybeSettings;
     if (!settings.DecompressionExecutor_ || !settings.EventHandlers_.HandlersExecutor_) {
         maybeSettings = settings;
-        with_lock (Lock) {
-            if (!settings.DecompressionExecutor_) {
-                maybeSettings->DecompressionExecutor(Settings.DefaultCompressionExecutor_);
-            }
-            if (!settings.EventHandlers_.HandlersExecutor_) {
-                maybeSettings->EventHandlers_.HandlersExecutor(Settings.DefaultHandlersExecutor_);
-            }
+        std::lock_guard guard(Lock);
+        if (!settings.DecompressionExecutor_) {
+            maybeSettings->DecompressionExecutor(Settings.DefaultCompressionExecutor_);
+        }
+        if (!settings.EventHandlers_.HandlersExecutor_) {
+            maybeSettings->EventHandlers_.HandlersExecutor(Settings.DefaultHandlersExecutor_);
         }
     }
     auto session = std::make_shared<TReadSession>(maybeSettings.value_or(settings), shared_from_this(), Connections_, DbDriverState_);
@@ -28,13 +27,12 @@ std::shared_ptr<IWriteSession> TPersQueueClient::TImpl::CreateWriteSession(
     std::optional<TWriteSessionSettings> maybeSettings;
     if (!settings.CompressionExecutor_ || !settings.EventHandlers_.HandlersExecutor_) {
         maybeSettings = settings;
-        with_lock (Lock) {
-            if (!settings.CompressionExecutor_) {
-                maybeSettings->CompressionExecutor(Settings.DefaultCompressionExecutor_);
-            }
-            if (!settings.EventHandlers_.HandlersExecutor_) {
-                maybeSettings->EventHandlers_.HandlersExecutor(Settings.DefaultHandlersExecutor_);
-            }
+        std::lock_guard guard(Lock);
+        if (!settings.CompressionExecutor_) {
+            maybeSettings->CompressionExecutor(Settings.DefaultCompressionExecutor_);
+        }
+        if (!settings.EventHandlers_.HandlersExecutor_) {
+            maybeSettings->EventHandlers_.HandlersExecutor(Settings.DefaultHandlersExecutor_);
         }
     }
     auto session = std::make_shared<TWriteSession>(
@@ -48,7 +46,8 @@ std::shared_ptr<ISimpleBlockingWriteSession> TPersQueueClient::TImpl::CreateSimp
         const TWriteSessionSettings& settings
 ) {
     auto alteredSettings = settings;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         alteredSettings.EventHandlers_.HandlersExecutor(Settings.DefaultHandlersExecutor_);
         if (!settings.CompressionExecutor_) {
             alteredSettings.CompressionExecutor(Settings.DefaultCompressionExecutor_);
@@ -62,14 +61,13 @@ std::shared_ptr<ISimpleBlockingWriteSession> TPersQueueClient::TImpl::CreateSimp
 }
 
 std::shared_ptr<TPersQueueClient::TImpl> TPersQueueClient::TImpl::GetClientForEndpoint(const std::string& clusterEndoint) {
-    with_lock (Lock) {
-        Y_ABORT_UNLESS(CustomEndpoint.empty());
-        std::shared_ptr<TImpl>& client = Subclients[clusterEndoint];
-        if (!client) {
-            client = std::make_shared<TImpl>(clusterEndoint, Connections_, Settings);
-        }
-        return client;
+    std::lock_guard guard(Lock);
+    Y_ABORT_UNLESS(CustomEndpoint.empty());
+    std::shared_ptr<TImpl>& client = Subclients[clusterEndoint];
+    if (!client) {
+        client = std::make_shared<TImpl>(clusterEndoint, Connections_, Settings);
     }
+    return client;
 }
 
 std::shared_ptr<TPersQueueClient::TImpl::IReadSessionConnectionProcessorFactory> TPersQueueClient::TImpl::CreateReadSessionConnectionProcessorFactory() {

@@ -11,8 +11,8 @@
 #if defined(_android_)
     #include <util/system/dynlib.h>
     #include <util/system/guard.h>
-    #include <util/system/mutex.h>
     #include <android/log.h>
+    #include <mutex>
 #endif
 
 #include <cerrno>
@@ -256,22 +256,20 @@ namespace {
 
         private:
             virtual void DoWrite(const void* buf, size_t len) override {
-                with_lock (BufferMutex) {
-                    Buffer.Write(buf, len);
-                }
+                std::lock_guard guard(BufferMutex);
+                Buffer.Write(buf, len);
             }
 
             virtual void DoFlush() override {
-                with_lock (BufferMutex) {
-                    LogFuncPtr(ANDROID_LOG_DEBUG, GetTag(), Buffer.Data());
-                    Buffer.Clear();
-                }
+                std::lock_guard guard(BufferMutex);
+                LogFuncPtr(ANDROID_LOG_DEBUG, GetTag(), Buffer.Data());
+                Buffer.Clear();
             }
 
             virtual const char* GetTag() const = 0;
 
         private:
-            TMutex BufferMutex;
+            std::mutex BufferMutex;
             TStringStream Buffer;
             TLogFuncPtr LogFuncPtr;
         };

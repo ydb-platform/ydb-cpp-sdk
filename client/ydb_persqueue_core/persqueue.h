@@ -966,11 +966,10 @@ public:
     // This method is idempotent.
     // It can be called many times. Only the first one has effect.
     void Start() {
-        with_lock (StartLock) {
-            if (!Started) {
-                DoStart();
-                Started = true;
-            }
+        std::lock_guard guard(StartLock);
+        if (!Started) {
+            DoStart();
+            Started = true;
         }
     }
 

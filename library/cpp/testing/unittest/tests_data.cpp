@@ -4,7 +4,8 @@
 #include <library/cpp/testing/common/network.h>
 
 #include <util/system/env.h>
-#include <util/system/mutex.h>
+
+#include <mutex>
 
 class TPortManager::TPortManagerImpl {
 public:
@@ -22,7 +23,7 @@ public:
         TAtomicSharedPtr<NTesting::IPort> holder(NTesting::GetFreePort().Release());
         ReservePortForCurrentTest(holder);
 
-        TGuard<TMutex> g(Lock);
+        std::lock_guard g(Lock);
         ReservedPorts.push_back(holder);
         return holder->Get();
     }
@@ -43,7 +44,7 @@ public:
         Y_UNUSED(startPort);
         auto ports = NTesting::NLegacy::GetFreePortsRange(range);
         ui16 first = ports[0];
-        TGuard<TMutex> g(Lock);
+        std::lock_guard g(Lock);
         for (auto& port : ports) {
             ReservedPorts.emplace_back(port.Release());
             ReservePortForCurrentTest(ReservedPorts.back());
@@ -64,7 +65,7 @@ private:
     }
 
 private:
-    TMutex Lock;
+    std::mutex Lock;
     std::vector<TAtomicSharedPtr<NTesting::IPort>> ReservedPorts;
     const bool EnableReservePortsForCurrentTest;
     const bool DisableRandomPorts;

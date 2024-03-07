@@ -6,18 +6,18 @@
 template <class T>
 struct TCommonLockOps {
     static inline void Acquire(T* t) noexcept {
-        t->Acquire();
+        t->lock();
     }
 
     static inline void Release(T* t) noexcept {
-        t->Release();
+        t->unlock();
     }
 };
 
 template <class T>
 struct TTryLockOps: public TCommonLockOps<T> {
     static inline bool TryAcquire(T* t) noexcept {
-        return t->TryAcquire();
+        return t->try_lock();
     }
 };
 

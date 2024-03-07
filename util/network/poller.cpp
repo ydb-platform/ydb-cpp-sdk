@@ -3,9 +3,11 @@
 
 #include <util/memory/tempbuf.h>
 
+#include <mutex>
+
 namespace {
     struct TMutexLocking {
-        using TMyMutex = TMutex;
+        using TMyMutex = std::mutex;
     };
 }
 

@@ -9,7 +9,8 @@
 #include <gnutls/gnutls.h>
 #include <util/network/init.h>
 #include <util/network/socket.h>
-#include <util/system/mutex.h>
+
+#include <mutex>
 
 /********************************************************/
 // HTTPS handler is used as implementation of
@@ -40,7 +41,7 @@ static int gcry_pthread_mutex_init(void** priv) {
     int err = 0;
 
     try {
-        TMutex* lock = new TMutex;
+        std::mutex* lock = new std::mutex;
         *priv = lock;
     } catch (...) {
         err = -1;
@@ -50,19 +51,19 @@ static int gcry_pthread_mutex_init(void** priv) {
 }
 
 static int gcry_pthread_mutex_destroy(void** lock) {
-    delete static_cast<TMutex*>(*lock);
+    delete static_cast<std::mutex*>(*lock);
 
     return 0;
 }
 
 static int gcry_pthread_mutex_lock(void** lock) {
-    static_cast<TMutex*>(*lock)->Acquire();
+    static_cast<std::mutex*>(*lock)->lock();
 
     return 0;
 }
 
 static int gcry_pthread_mutex_unlock(void** lock) {
-    static_cast<TMutex*>(*lock)->Release();
+    static_cast<std::mutex*>(*lock)->unlock();
 
     return 0;
 }

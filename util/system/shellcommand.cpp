@@ -17,6 +17,7 @@
 #include <util/system/info.h>
 
 #include <errno.h>
+#include <mutex>
 
 #if defined(_unix_)
     #include <unistd.h>
@@ -206,7 +207,7 @@ private:
     std::string CollectedOutput;
     std::string CollectedError;
     std::string InternalError;
-    TMutex TerminateMutex;
+    std::mutex TerminateMutex;
     TFileHandle InputHandle;
     TFileHandle OutputHandle;
     TFileHandle ErrorHandle;
@@ -283,7 +284,8 @@ public:
 
     inline ~TImpl() {
         if (WatchThread) {
-            with_lock (TerminateMutex) {
+            {
+                std::lock_guard guard(TerminateMutex);
                 TerminateFlag = true;
             }
 
@@ -896,7 +898,8 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
 
         while (true) {
             {
-                with_lock (pi->Parent->TerminateMutex) {
+                {
+                    std::lock_guard guard(pi->Parent->TerminateMutex);
                     if (TerminateIsRequired(pi)) {
                         return;
                     }

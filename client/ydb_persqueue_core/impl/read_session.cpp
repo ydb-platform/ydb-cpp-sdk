@@ -127,7 +127,8 @@ bool TReadSession::ValidateSettings() {
 }
 
 void TReadSession::StartClusterDiscovery() {
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (Aborting) {
             return;
         }
@@ -167,7 +168,8 @@ void TReadSession::StartClusterDiscovery() {
 
 void TReadSession::ProceedWithoutClusterDiscovery() {
     TDeferredActions<true> deferred;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (Aborting) {
             return;
         }
@@ -226,7 +228,8 @@ void TReadSession::CreateClusterSessionsImpl(TDeferredActions<true>& deferred) {
 
 void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueue::ClusterDiscovery::DiscoverClustersResult& result) {
     TDeferredActions<true> deferred;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (Aborting) {
             return;
         }
@@ -369,7 +372,8 @@ bool TReadSession::Close(TDuration timeout) {
     };
 
     TDeferredActions<true> deferred;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (Closing || Aborting) {
             return false;
         }
@@ -427,9 +431,8 @@ bool TReadSession::Close(TDuration timeout) {
         EventsQueue->Close(TSessionClosedEvent(EStatus::TIMEOUT, std::move(issues)), deferred);
     }
 
-    with_lock (Lock) {
-        Aborting = true; // Set abort flag for doing nothing on destructor.
-    }
+    std::lock_guard guard(Lock);
+    Aborting = true; // Set abort flag for doing nothing on destructor.
     return result;
 }
 
@@ -476,9 +479,8 @@ void TReadSession::AbortImpl(EStatus statusCode, const std::string& message, TDe
 
 void TReadSession::Abort() {
     TDeferredActions<true> deferred;
-    with_lock (Lock) {
-        AbortImpl(EStatus::ABORTED, "Aborted", deferred);
-    }
+    std::lock_guard guard(Lock);
+    AbortImpl(EStatus::ABORTED, "Aborted", deferred);
 }
 
 void TReadSession::ClearAllEvents() {
@@ -507,14 +509,13 @@ std::optional<TReadSessionEvent::TEvent> TReadSession::GetEvent(bool block, size
 
 void TReadSession::StopReadingData() {
     LOG_LAZY(Log, TLOG_INFO, GetLogPrefix() << "Stop reading data");
-    with_lock (Lock) {
-        if (!DataReadingSuspended) {
-            DataReadingSuspended = true;
+    std::lock_guard guard(Lock);
+    if (!DataReadingSuspended) {
+        DataReadingSuspended = true;
 
-            for (auto& [cluster, sessionInfo] : ClusterSessions) {
-                if (sessionInfo.Session) {
-                    sessionInfo.Session->StopReadingData();
-                }
+        for (auto& [cluster, sessionInfo] : ClusterSessions) {
+            if (sessionInfo.Session) {
+                sessionInfo.Session->StopReadingData();
             }
         }
     }
@@ -522,14 +523,13 @@ void TReadSession::StopReadingData() {
 
 void TReadSession::ResumeReadingData() {
     LOG_LAZY(Log, TLOG_INFO, GetLogPrefix() << "Resume reading data");
-    with_lock (Lock) {
-        if (DataReadingSuspended) {
-            DataReadingSuspended = false;
+    std::lock_guard guard(Lock);
+    if (DataReadingSuspended) {
+        DataReadingSuspended = false;
 
-            for (auto& [cluster, sessionInfo] : ClusterSessions) {
-                if (sessionInfo.Session) {
-                    sessionInfo.Session->ResumeReadingData();
-                }
+        for (auto& [cluster, sessionInfo] : ClusterSessions) {
+            if (sessionInfo.Session) {
+                sessionInfo.Session->ResumeReadingData();
             }
         }
     }
@@ -547,12 +547,11 @@ void TReadSession::MakeCountersIfNeeded() {
 }
 
 void TReadSession::SetupCountersLogger() {
-    with_lock(Lock) {
-        CountersLogger = std::make_shared<TCountersLogger<true>>(Connections, CbContexts, Settings.Counters_, Log,
-                                                                 GetLogPrefix(), StartSessionTime);
-        DumpCountersContext = CountersLogger->MakeCallbackContext();
-        CountersLogger->Start();
-    }
+    std::lock_guard guard(Lock);
+    CountersLogger = std::make_shared<TCountersLogger<true>>(Connections, CbContexts, Settings.Counters_, Log,
+                                                                GetLogPrefix(), StartSessionTime);
+    DumpCountersContext = CountersLogger->MakeCallbackContext();
+    CountersLogger->Start();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -706,7 +705,8 @@ public:
     void OnDataReceived(TReadSessionEvent::TDataReceivedEvent& event) {
         Y_ASSERT(event.GetMessagesCount());
         TDeferredCommit deferredCommit;
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             auto& offsetSet = PartitionStreamToUncommittedOffsets[event.GetPartitionStream()->GetPartitionStreamId()];
             // Messages could contain holes in offset, but later commit ack will tell us right border.
             // So we can easily insert the whole interval with holes included.
@@ -725,49 +725,47 @@ public:
     }
 
     void OnCommitAcknowledgement(TReadSessionEvent::TCommitAcknowledgementEvent& event) {
-        with_lock (Lock) {
-            const ui64 partitionStreamId = event.GetPartitionStream()->GetPartitionStreamId();
-            auto& offsetSet = PartitionStreamToUncommittedOffsets[partitionStreamId];
-            if (offsetSet.EraseInterval(0, event.GetCommittedOffset() + 1)) { // Remove some offsets.
-                if (offsetSet.Empty()) { // No offsets left.
-                    auto unconfirmedDestroyIt = UnconfirmedDestroys.find(partitionStreamId);
-                    if (unconfirmedDestroyIt != UnconfirmedDestroys.end()) {
-                        // Confirm and forget about this partition stream.
-                        unconfirmedDestroyIt->second.Confirm();
-                        UnconfirmedDestroys.erase(unconfirmedDestroyIt);
-                        PartitionStreamToUncommittedOffsets.erase(partitionStreamId);
-                    }
+        std::lock_guard guard(Lock);
+        const ui64 partitionStreamId = event.GetPartitionStream()->GetPartitionStreamId();
+        auto& offsetSet = PartitionStreamToUncommittedOffsets[partitionStreamId];
+        if (offsetSet.EraseInterval(0, event.GetCommittedOffset() + 1)) { // Remove some offsets.
+            if (offsetSet.Empty()) { // No offsets left.
+                auto unconfirmedDestroyIt = UnconfirmedDestroys.find(partitionStreamId);
+                if (unconfirmedDestroyIt != UnconfirmedDestroys.end()) {
+                    // Confirm and forget about this partition stream.
+                    unconfirmedDestroyIt->second.Confirm();
+                    UnconfirmedDestroys.erase(unconfirmedDestroyIt);
+                    PartitionStreamToUncommittedOffsets.erase(partitionStreamId);
                 }
             }
         }
     }
 
     void OnCreatePartitionStream(TReadSessionEvent::TCreatePartitionStreamEvent& event) {
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             Y_ABORT_UNLESS(PartitionStreamToUncommittedOffsets[event.GetPartitionStream()->GetPartitionStreamId()].Empty());
         }
         event.Confirm();
     }
 
     void OnDestroyPartitionStream(TReadSessionEvent::TDestroyPartitionStreamEvent& event) {
-        with_lock (Lock) {
-            const ui64 partitionStreamId = event.GetPartitionStream()->GetPartitionStreamId();
-            Y_ABORT_UNLESS(UnconfirmedDestroys.find(partitionStreamId) == UnconfirmedDestroys.end());
-            if (PartitionStreamToUncommittedOffsets[partitionStreamId].Empty()) {
-                PartitionStreamToUncommittedOffsets.erase(partitionStreamId);
-                event.Confirm();
-            } else {
-                UnconfirmedDestroys.emplace(partitionStreamId, std::move(event));
-            }
+        std::lock_guard guard(Lock);
+        const ui64 partitionStreamId = event.GetPartitionStream()->GetPartitionStreamId();
+        Y_ABORT_UNLESS(UnconfirmedDestroys.find(partitionStreamId) == UnconfirmedDestroys.end());
+        if (PartitionStreamToUncommittedOffsets[partitionStreamId].Empty()) {
+            PartitionStreamToUncommittedOffsets.erase(partitionStreamId);
+            event.Confirm();
+        } else {
+            UnconfirmedDestroys.emplace(partitionStreamId, std::move(event));
         }
     }
 
     void OnPartitionStreamClosed(TReadSessionEvent::TPartitionStreamClosedEvent& event) {
-        with_lock (Lock) {
-            const ui64 partitionStreamId = event.GetPartitionStream()->GetPartitionStreamId();
-            PartitionStreamToUncommittedOffsets.erase(partitionStreamId);
-            UnconfirmedDestroys.erase(partitionStreamId);
-        }
+        std::lock_guard guard(Lock);
+        const ui64 partitionStreamId = event.GetPartitionStream()->GetPartitionStreamId();
+        PartitionStreamToUncommittedOffsets.erase(partitionStreamId);
+        UnconfirmedDestroys.erase(partitionStreamId);
     }
 
 private:

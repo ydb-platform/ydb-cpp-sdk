@@ -7,7 +7,7 @@
 #include <util/generic/array_ref.h>
 
 #ifdef _win_
-    #include "mutex.h"
+    #include <mutex>
 
     #ifndef OPTIONAL
         #define OPTIONAL
@@ -182,7 +182,7 @@ namespace {
         }
 
         TResolvedSymbol Resolve(void* sym, char* buf, size_t len) {
-            TGuard<TMutex> guard(Mutex);
+            std::lock_guard guard(Mutex);
 
             TResolvedSymbol ret = {
                 "??",
@@ -208,7 +208,7 @@ namespace {
             return ret;
         }
 
-        TMutex Mutex;
+        std::mutex Mutex;
         HMODULE Library;
         TSymInitializeFunc SymInitializeFunc;
         TSymCleanupFunc SymCleanupFunc;

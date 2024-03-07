@@ -12,13 +12,12 @@ std::shared_ptr<IReadSession> TTopicClient::TImpl::CreateReadSession(const TRead
     std::optional<TReadSessionSettings> maybeSettings;
     if (!settings.DecompressionExecutor_ || !settings.EventHandlers_.HandlersExecutor_) {
         maybeSettings = settings;
-        with_lock (Lock) {
-            if (!settings.DecompressionExecutor_) {
-                maybeSettings->DecompressionExecutor(Settings.DefaultCompressionExecutor_);
-            }
-            if (!settings.EventHandlers_.HandlersExecutor_) {
-                maybeSettings->EventHandlers_.HandlersExecutor(Settings.DefaultHandlersExecutor_);
-            }
+        std::lock_guard guard(Lock);
+        if (!settings.DecompressionExecutor_) {
+            maybeSettings->DecompressionExecutor(Settings.DefaultCompressionExecutor_);
+        }
+        if (!settings.EventHandlers_.HandlersExecutor_) {
+            maybeSettings->EventHandlers_.HandlersExecutor(Settings.DefaultHandlersExecutor_);
         }
     }
     auto session = std::make_shared<TReadSession>(maybeSettings.value_or(settings), shared_from_this(), Connections_, DbDriverState_);
@@ -32,13 +31,12 @@ std::shared_ptr<IWriteSession> TTopicClient::TImpl::CreateWriteSession(
     std::optional<TWriteSessionSettings> maybeSettings;
     if (!settings.CompressionExecutor_ || !settings.EventHandlers_.HandlersExecutor_) {
         maybeSettings = settings;
-        with_lock (Lock) {
-            if (!settings.CompressionExecutor_) {
-                maybeSettings->CompressionExecutor(Settings.DefaultCompressionExecutor_);
-            }
-            if (!settings.EventHandlers_.HandlersExecutor_) {
-                maybeSettings->EventHandlers_.HandlersExecutor(Settings.DefaultHandlersExecutor_);
-            }
+        std::lock_guard guard(Lock);
+        if (!settings.CompressionExecutor_) {
+            maybeSettings->CompressionExecutor(Settings.DefaultCompressionExecutor_);
+        }
+        if (!settings.EventHandlers_.HandlersExecutor_) {
+            maybeSettings->EventHandlers_.HandlersExecutor(Settings.DefaultHandlersExecutor_);
         }
     }
     auto session = std::make_shared<TWriteSession>(
@@ -52,7 +50,8 @@ std::shared_ptr<ISimpleBlockingWriteSession> TTopicClient::TImpl::CreateSimpleWr
         const TWriteSessionSettings& settings
 ) {
     auto alteredSettings = settings;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         alteredSettings.EventHandlers_.HandlersExecutor(Settings.DefaultHandlersExecutor_);
         if (!settings.CompressionExecutor_) {
             alteredSettings.CompressionExecutor(Settings.DefaultCompressionExecutor_);

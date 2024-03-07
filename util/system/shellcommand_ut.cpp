@@ -16,6 +16,8 @@
 #include <util/string/strip.h>
 #include <util/folder/tempdir.h>
 
+#include <mutex>
+
 #if defined(_win_)
     #define NL "\r\n"
 const char catCommand[] = "sort"; // not really cat but ok
@@ -33,24 +35,19 @@ public:
     }
 
     std::string Str() const {
-        with_lock (Lock_) {
-            return Stream_.Str();
-        }
-        return std::string(); // line for compiler
+        std::lock_guard guard(Lock_);
+        return Stream_.Str();
     }
 
 protected:
     size_t DoRead(void* buf, size_t len) override {
-        with_lock (Lock_) {
-            return Stream_.Read(buf, len);
-        }
-        return 0; // line for compiler
+        std::lock_guard guard(Lock_);
+        return Stream_.Read(buf, len);
     }
 
     void DoWrite(const void* buf, size_t len) override {
-        with_lock (Lock_) {
-            return Stream_.Write(buf, len);
-        }
+        std::lock_guard guard(Lock_);
+        return Stream_.Write(buf, len);
     }
 
 private:

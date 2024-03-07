@@ -55,7 +55,8 @@ void TReadSession::Start() {
     LOG_LAZY(Log, TLOG_INFO, GetLogPrefix() << "Starting read session");
 
     NPersQueue::TDeferredActions<false> deferred;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (Aborting) {
             return;
         }
@@ -248,7 +249,8 @@ bool TReadSession::Close(TDuration timeout) {
     LOG_LAZY(Log, TLOG_INFO, GetLogPrefix() << "Closing read session. Close timeout: " << timeout);
     // Log final counters.
     CountersLogger->Stop();
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (DumpCountersContext) {
             DumpCountersContext->Cancel();
         }
@@ -261,7 +263,8 @@ bool TReadSession::Close(TDuration timeout) {
     };
 
     NPersQueue::TDeferredActions<false> deferred;
-    with_lock (Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (Closing || Aborting) {
             return false;
         }
@@ -309,9 +312,8 @@ bool TReadSession::Close(TDuration timeout) {
         EventsQueue->Close(TSessionClosedEvent(EStatus::TIMEOUT, std::move(issues)), deferred);
     }
 
-    with_lock (Lock) {
-        Aborting = true; // Set abort flag for doing nothing on destructor.
-    }
+    std::lock_guard guard(Lock);
+    Aborting = true; // Set abort flag for doing nothing on destructor.
     return result;
 }
 
@@ -335,14 +337,13 @@ void TReadSession::MakeCountersIfNeeded() {
 }
 
 void TReadSession::SetupCountersLogger() {
-    with_lock(Lock) {
-        std::vector<NPersQueue::TCallbackContextPtr<false>> sessions{CbContext};
+    std::lock_guard guard(Lock);
+    std::vector<NPersQueue::TCallbackContextPtr<false>> sessions{CbContext};
 
-        CountersLogger = std::make_shared<NPersQueue::TCountersLogger<false>>(Connections, sessions, Settings.Counters_, Log,
-                                                                 GetLogPrefix(), StartSessionTime);
-        DumpCountersContext = CountersLogger->MakeCallbackContext();
-        CountersLogger->Start();
-    }
+    CountersLogger = std::make_shared<NPersQueue::TCountersLogger<false>>(Connections, sessions, Settings.Counters_, Log,
+                                                                GetLogPrefix(), StartSessionTime);
+    DumpCountersContext = CountersLogger->MakeCallbackContext();
+    CountersLogger->Start();
 }
 
 void TReadSession::AbortImpl(NPersQueue::TDeferredActions<false>&) {
@@ -390,9 +391,8 @@ void TReadSession::Abort(EStatus statusCode, const std::string& message) {
 
 void TReadSession::Abort(TSessionClosedEvent&& closeEvent) {
     NPersQueue::TDeferredActions<false> deferred;
-    with_lock (Lock) {
-        AbortImpl(std::move(closeEvent), deferred);
-    }
+    std::lock_guard guard(Lock);
+    AbortImpl(std::move(closeEvent), deferred);
 }
 
 }

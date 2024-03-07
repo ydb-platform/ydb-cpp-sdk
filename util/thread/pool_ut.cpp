@@ -5,8 +5,9 @@
 #include <util/random/fast.h>
 #include <util/system/spinlock.h>
 #include <util/system/thread.h>
-#include <util/system/mutex.h>
-#include <util/system/condvar.h>
+
+#include <mutex>
+#include <condition_variable>
 
 struct TThreadPoolTest {
     TSpinLock Lock;
@@ -205,22 +206,21 @@ Y_UNIT_TEST_SUITE(TThreadPoolTest) {
 
     void TestEnumeratedThreadName(IThreadPool& pool, const THashSet<std::string>& expectedNames) {
         pool.Start(expectedNames.size());
-        TMutex lock;
-        TCondVar allReady;
+        std::mutex lock;
+        std::condition_variable allReady;
         size_t readyCount = 0;
         THashSet<std::string> names;
         for (size_t i = 0; i < expectedNames.size(); ++i) {
             pool.SafeAddFunc([&]() {
-                with_lock (lock) {
-                    if (++readyCount == expectedNames.size()) {
-                        allReady.BroadCast();
-                    } else {
-                        while (readyCount != expectedNames.size()) {
-                            allReady.WaitI(lock);
-                        }
+                std::unique_lock ulock(lock);
+                if (++readyCount == expectedNames.size()) {
+                    allReady.notify_all();
+                } else {
+                    while (readyCount != expectedNames.size()) {
+                        allReady.wait(ulock);
                     }
-                    names.insert(TThread::CurrentThreadName());
                 }
+                names.insert(TThread::CurrentThreadName());
             });
         }
         pool.Stop();

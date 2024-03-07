@@ -1,9 +1,10 @@
 #include "dynlib.h"
 
 #include "guard.h"
-#include "mutex.h"
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>
+
+#include <mutex>
 
 #ifdef _win32_
     #include "winint.h"
@@ -57,12 +58,12 @@ private:
         }
     }
 
-    class TCreateMutex: public TMutex {
+    class TCreateMutex: public std::mutex {
     };
 
 public:
     static inline TImpl* SafeCreate(const char* path, int flags) {
-        auto guard = Guard(*Singleton<TCreateMutex>());
+        std::lock_guard guard(*Singleton<TCreateMutex>());
 
         return new TImpl(path, flags);
     }

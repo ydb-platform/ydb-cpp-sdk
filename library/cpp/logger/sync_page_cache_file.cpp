@@ -5,8 +5,9 @@
 #include <util/generic/yexception.h>
 #include <util/system/file.h>
 #include <util/system/info.h>
-#include <util/system/mutex.h>
 #include <util/system/align.h>
+
+#include <mutex>
 
 class TSyncPageCacheFileLogBackend::TImpl: public TNonCopyable {
 public:
@@ -102,7 +103,7 @@ private:
     }
 
 private:
-    TMutex Lock_;
+    std::mutex Lock_;
     TFile File_;
 
     const size_t MaxBufferSize_ = 0;

@@ -8,8 +8,9 @@
 #include <util/stream/output.h>
 #include <util/stream/zlib.h>
 #include <util/system/datetime.h>
-#include <util/system/mutex.h>
 #include <util/random/random.h>
+
+#include <mutex>
 
 Y_UNIT_TEST_SUITE(THttpServerTest) {
     class TEchoServer: public THttpServer::ICallBack {
@@ -73,10 +74,9 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
 
             bool DoReply(const TReplyParams& params) override {
                 ++Server->Replies;
-                with_lock (Server->Lock) {
-                    params.Output.Write("HTTP/1.0 201 Created\nX-Server: sleeping server\n\nZoooo");
-                    params.Output.Finish();
-                }
+                std::lock_guard guard(Server->Lock);
+                params.Output.Write("HTTP/1.0 201 Created\nX-Server: sleeping server\n\nZoooo");
+                params.Output.Finish();
                 return true;
             }
 
@@ -99,7 +99,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
             ++MaxConns;
         }
     public:
-        TMutex Lock;
+        std::mutex Lock;
 
         std::atomic<size_t> Replies;
         std::atomic<size_t> MaxConns;
@@ -708,7 +708,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
                 THttpServer srv(&server, options);
 
                 UNIT_ASSERT(srv.Start());
-                UNIT_ASSERT(server.Lock.TryAcquire());
+                UNIT_ASSERT(server.Lock.try_lock());
 
                 std::atomic<size_t> threadsFinished = 0;
                 std::vector<THolder<IThreadFactory::IThread>> threads;
@@ -737,7 +737,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
                     }
                 }
 
-                server.Lock.Release();
+                server.Lock.unlock();
 
                 for (auto&& thread : threads) {
                     thread->Join();
@@ -983,7 +983,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
 
     Y_UNIT_TEST(TestTTLExceed) {
         // Checks that one of request returns "TTL Exceed"
-        // First request waits for server.Lock.Release() for one threaded TSleepingServer
+        // First request waits for server.Lock.unlock() for one threaded TSleepingServer
         // So second request in queue should fail with TTL Exceed, because fist one lock thread pool for (ttl + 1) ms
         TPortManager portManager;
         const ui16 port = portManager.GetPort();
@@ -996,17 +996,16 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         THttpServer srv(&server, options);
 
         UNIT_ASSERT(srv.Start());
-        UNIT_ASSERT(server.Lock.TryAcquire());
+        UNIT_ASSERT(server.Lock.try_lock());
 
         THashSet<std::string> results;
-        TMutex resultLock;
+        std::mutex resultLock;
         auto func = [port, &resultLock, &results]() {
             try {
                 TTestRequest r(port);
                 std::string result = r.Execute();
-                with_lock(resultLock) {
-                    results.insert(result);
-                }
+                std::lock_guard guard(resultLock);
+                results.insert(result);
             } catch (...) {
             }
         };
@@ -1014,7 +1013,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         auto t1 = SystemThreadFactory()->Run(func);
         auto t2 = SystemThreadFactory()->Run(func);
         Sleep(TDuration::MilliSeconds(ttl + 1));
-        server.Lock.Release();
+        server.Lock.unlock();
         t1->Join();
         t2->Join();
         UNIT_ASSERT_EQUAL_C(results, (THashSet<std::string>({"Zoooo", "TTL Exceed"})), "Results is {" + ToString(results) + "}");

@@ -12,6 +12,8 @@
 #include <util/system/error.h>
 #include <util/string/cast.h>
 
+#include <mutex>
+
 bool NUnitTest::ShouldColorizeDiff = true;
 
 std::string NUnitTest::RandomString(size_t len, ui32 seed) {
@@ -326,9 +328,8 @@ void NUnitTest::TTestBase::AddError(const char* msg, TTestContext* context) {
 }
 
 void NUnitTest::TTestBase::RunAfterTest(std::function<void()> f) {
-    with_lock (AfterTestFunctionsLock_) {
-        AfterTestFunctions_.emplace_back(std::move(f));
-    }
+    std::lock_guard guard(AfterTestFunctionsLock_);
+    AfterTestFunctions_.emplace_back(std::move(f));
 }
 
 bool NUnitTest::TTestBase::CheckAccessTest(const char* test) {
@@ -382,7 +383,8 @@ void NUnitTest::TTestBase::AfterTest() {
     TearDown();
 
     std::vector<std::function<void()>> afterTestFunctions;
-    with_lock (AfterTestFunctionsLock_) {
+    {
+        std::lock_guard guard(AfterTestFunctionsLock_);
         afterTestFunctions.swap(AfterTestFunctions_);
     }
 
