@@ -29,7 +29,7 @@ public:
     }
 
     void WriteData(const TLogRecord& rec) {
-        TGuard guard{Lock_};
+        std::lock_guard guard{Lock_};
 
         Buffer_.Append(rec.Data, rec.Len);
         if (Buffer_.size() >= MaxBufferSize_) {
@@ -48,7 +48,7 @@ public:
     }
 
     void ReopenLog() {
-        TGuard guard{Lock_};
+        std::lock_guard guard{Lock_};
 
         Write();
         FlushSync(GuaranteedWrittenPtr_, WrittenPtr_);
