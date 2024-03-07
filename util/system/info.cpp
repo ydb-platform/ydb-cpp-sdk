@@ -51,7 +51,7 @@ In nanny - Runtime -> Instance spec -> Advanced settings -> Cgroupfs settings: M
 
 In deploy - Stage - Edit stage - Box - Cgroupfs settings: Mount mode = Read only
 */
-static inline double CgroupV1Cpus(const TString& cpuCfsQuotaUsPath, const TString& cfsPeriodUsPath) {
+static inline double CgroupV1Cpus(const std::string& cpuCfsQuotaUsPath, const std::string& cfsPeriodUsPath) {
     try {
         double q = FromString<int32_t>(StripString(TFileInput(cpuCfsQuotaUsPath).ReadAll()));
 
@@ -82,9 +82,9 @@ Which indicates that the group may consume up to $MAX in each $PERIOD duration.
 The "max" value could be either the string "max" or a number. In the first case
 our approximation doesn't work so we can bail out earlier.
 */
-static inline double CgroupV2Cpus(const TString& cpuMaxPath) {
+static inline double CgroupV2Cpus(const std::string& cpuMaxPath) {
     try {
-        std::vector<TString> cgroupCpuMax = StringSplitter(TFileInput(cpuMaxPath).ReadAll()).Split(' ').Take(2);
+        std::vector<std::string> cgroupCpuMax = StringSplitter(TFileInput(cpuMaxPath).ReadAll()).Split(' ').Take(2);
         double max = FromString<int32_t>(StripString(cgroupCpuMax[0]));
         double period = FromString<int32_t>(StripString(cgroupCpuMax[1]));
 
@@ -99,9 +99,9 @@ static inline double CgroupV2Cpus(const TString& cpuMaxPath) {
 }
 
 static inline double CgroupCpus() {
-    static const TString cpuMaxPath("/sys/fs/cgroup/cpu.max");
-    static const TString cpuCfsQuotaUsPath("/sys/fs/cgroup/cpu/cpu.cfs_quota_us");
-    static const TString cfsPeriodUsPath("/sys/fs/cgroup/cpu/cpu.cfs_period_us");
+    static const std::string cpuMaxPath("/sys/fs/cgroup/cpu.max");
+    static const std::string cpuCfsQuotaUsPath("/sys/fs/cgroup/cpu/cpu.cfs_quota_us");
+    static const std::string cfsPeriodUsPath("/sys/fs/cgroup/cpu/cpu.cfs_period_us");
 
     if (NFs::Exists(cpuMaxPath)) {
         auto cgroup2Cpus = CgroupV2Cpus(cpuMaxPath);

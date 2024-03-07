@@ -2,7 +2,7 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/string.h>
+#include <string>
 
 // Set this variable to true if you want to see failures
 /////////////////////////////////////////////////////////

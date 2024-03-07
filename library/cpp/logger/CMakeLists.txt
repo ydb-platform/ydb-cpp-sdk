@@ -13,7 +13,6 @@ target_link_libraries(library-cpp-logger PUBLIC
   tools-enum_parser-enum_serialization_runtime
   library-cpp-json
   cpp-deprecated-atomic
-  cpp-string_builder
 )
 target_sources(library-cpp-logger PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/logger/backend.cpp

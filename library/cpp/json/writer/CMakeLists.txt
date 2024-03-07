@@ -13,7 +13,6 @@ target_link_libraries(cpp-json-writer PUBLIC
   yutil
   cpp-json-common
   tools-enum_parser-enum_serialization_runtime
-  cpp-string_builder
   cpp-string_utils-misc
 )
 

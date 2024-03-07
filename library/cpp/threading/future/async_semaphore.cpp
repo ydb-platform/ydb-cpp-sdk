@@ -5,6 +5,8 @@
 
 #include <library/cpp/threading/cancellation/operation_cancelled_exception.h>
 
+#include <mutex>
+
 namespace NThreading {
 
 TAsyncSemaphore::TAsyncSemaphore(size_t count)
@@ -18,24 +20,24 @@ TAsyncSemaphore::TPtr TAsyncSemaphore::Make(size_t count) {
 }
 
 TFuture<TAsyncSemaphore::TPtr> TAsyncSemaphore::AcquireAsync() {
-    with_lock(Lock_) {
-        if (Cancelled_) {
-            return MakeErrorFuture<TPtr>(
-                std::make_exception_ptr(TOperationCancelledException()));
-        }
-        if (Count_) {
-            --Count_;
-            return MakeFuture<TAsyncSemaphore::TPtr>(this);
-        }
-        auto promise = NewPromise<TAsyncSemaphore::TPtr>();
-        Promises_.push_back(promise);
-        return promise.GetFuture();
+    std::lock_guard guard(Lock_);
+    if (Cancelled_) {
+        return MakeErrorFuture<TPtr>(
+            std::make_exception_ptr(TOperationCancelledException()));
     }
+    if (Count_) {
+        --Count_;
+        return MakeFuture<TAsyncSemaphore::TPtr>(this);
+    }
+    auto promise = NewPromise<TAsyncSemaphore::TPtr>();
+    Promises_.push_back(promise);
+    return promise.GetFuture();
 }
 
 void TAsyncSemaphore::Release() {
     TPromise<TPtr> promise;
-    with_lock(Lock_) {
+    {
+        std::lock_guard guard(Lock_);
         if (Cancelled_) {
             return;
         }
@@ -52,7 +54,8 @@ void TAsyncSemaphore::Release() {
 
 void TAsyncSemaphore::Cancel() {
     std::list<TPromise<TPtr>> promises;
-    with_lock(Lock_) {
+    {
+        std::lock_guard guard(Lock_);
         Cancelled_ = true;
         std::swap(Promises_, promises);
     }

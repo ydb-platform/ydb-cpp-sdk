@@ -22,9 +22,8 @@ TFederatedDbObserverImpl::~TFederatedDbObserverImpl() {
 }
 
 std::shared_ptr<TFederatedDbState> TFederatedDbObserverImpl::GetState() {
-    with_lock(Lock) {
-        return FederatedDbState;
-    }
+    std::lock_guard guard(Lock);
+    return FederatedDbState;
 }
 
 NThreading::TFuture<void> TFederatedDbObserverImpl::WaitForFirstState() {
@@ -32,17 +31,17 @@ NThreading::TFuture<void> TFederatedDbObserverImpl::WaitForFirstState() {
 }
 
 void TFederatedDbObserverImpl::Start() {
-    with_lock(Lock) {
-        if (Stopping) {
-            return;
-        }
-        ScheduleFederationDiscoveryImpl(TDuration::Zero());
+    std::lock_guard guard(Lock);
+    if (Stopping) {
+        return;
     }
+    ScheduleFederationDiscoveryImpl(TDuration::Zero());
 }
 
 void TFederatedDbObserverImpl::Stop() {
     NYdbGrpc::IQueueClientContextPtr ctx;
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         Stopping = true;
         ctx = std::exchange(FederationDiscoveryDelayContext, nullptr);
     }
@@ -53,9 +52,8 @@ void TFederatedDbObserverImpl::Stop() {
 
 // If observer is stale it will never update state again because of client retry policy
 bool TFederatedDbObserverImpl::IsStale() const {
-    with_lock(Lock) {
-        return PromiseToInitState.HasValue() && !FederatedDbState->Status.IsSuccess();
-    }
+    std::lock_guard guard(const_cast<TSpinLock&>(Lock));
+    return PromiseToInitState.HasValue() && !FederatedDbState->Status.IsSuccess();
 }
 
 Ydb::FederationDiscovery::ListFederationDatabasesRequest TFederatedDbObserverImpl::ComposeRequest() const {
@@ -100,12 +98,11 @@ void TFederatedDbObserverImpl::ScheduleFederationDiscoveryImpl(TDuration delay) 
     auto cb = [selfCtx = SelfContext](bool ok) {
         if (ok) {
             if (auto self = selfCtx->LockShared()) {
-                with_lock(self->Lock) {
-                    if (self->Stopping) {
-                        return;
-                    }
-                    self->RunFederationDiscoveryImpl();
+                std::lock_guard guard(self->Lock);
+                if (self->Stopping) {
+                    return;
                 }
+                self->RunFederationDiscoveryImpl();
             }
         }
     };
@@ -123,7 +120,8 @@ void TFederatedDbObserverImpl::ScheduleFederationDiscoveryImpl(TDuration delay) 
 }
 
 void TFederatedDbObserverImpl::OnFederationDiscovery(TStatus&& status, Ydb::FederationDiscovery::ListFederationDatabasesResult&& result) {
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (Stopping) {
             // TODO log something
             return;

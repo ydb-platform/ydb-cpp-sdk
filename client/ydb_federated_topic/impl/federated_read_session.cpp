@@ -72,13 +72,12 @@ void TFederatedReadSessionImpl::Start() {
     AsyncInit.Subscribe([selfCtx = SelfContext](const auto& f){
         Y_UNUSED(f);
         if (auto self = selfCtx->LockShared()) {
-            with_lock(self->Lock) {
-                if (self->Closing) {
-                    return;
-                }
-                self->FederationState = self->Observer->GetState();
-                self->OnFederatedStateUpdateImpl();
+            std::lock_guard guard(self->Lock);
+            if (self->Closing) {
+                return;
             }
+            self->FederationState = self->Observer->GetState();
+            self->OnFederatedStateUpdateImpl();
         }
     });
 }
@@ -114,14 +113,13 @@ NThreading::TFuture<void> TFederatedReadSessionImpl::WaitEvent() {
     return AsyncInit.Apply([selfCtx = SelfContext](const NThreading::TFuture<void>) {
         if (auto self = selfCtx->LockShared()) {
             std::vector<NThreading::TFuture<void>> waiters;
-            with_lock(self->Lock) {
-                if (self->Closing) {
-                    return NThreading::MakeFuture();
-                }
-                Y_ABORT_UNLESS(!self->SubSessions.empty(), "SubSessions empty in discovered state");
-                for (const auto& sub : self->SubSessions) {
-                    waiters.emplace_back(sub.Session->WaitEvent());
-                }
+            std::lock_guard guard(self->Lock);
+            if (self->Closing) {
+                return NThreading::MakeFuture();
+            }
+            Y_ABORT_UNLESS(!self->SubSessions.empty(), "SubSessions empty in discovered state");
+            for (const auto& sub : self->SubSessions) {
+                waiters.emplace_back(sub.Session->WaitEvent());
             }
             return NThreading::WaitAny(std::move(waiters));
         }
@@ -133,7 +131,8 @@ std::vector<TReadSessionEvent::TEvent> TFederatedReadSessionImpl::GetEvents(bool
     if (block) {
         WaitEvent().Wait();
     }
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         if (Closing) {
             // TODO correct conversion
             return {NTopic::TSessionClosedEvent(FederationState->Status.GetStatus(), {})};
@@ -147,7 +146,8 @@ std::vector<TReadSessionEvent::TEvent> TFederatedReadSessionImpl::GetEvents(bool
         }
     }
     std::vector<TReadSessionEvent::TEvent> result;
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         do {
             auto sub = SubSessions[SubsessionIndex];
             for (auto&& ev : sub.Session->GetEvents(false, maxEventsCount, maxByteSize)) {
@@ -165,16 +165,15 @@ void TFederatedReadSessionImpl::CloseImpl() {
 }
 
 bool TFederatedReadSessionImpl::Close(TDuration timeout) {
-    with_lock(Lock) {
-        Closing = true;
+    std::lock_guard guard(Lock);
+    Closing = true;
 
-        bool result = true;
-        for (const auto& sub : SubSessions) {
-            // TODO substract from user timeout
-            result = sub.Session->Close(timeout);
-        }
-        return result;
+    bool result = true;
+    for (const auto& sub : SubSessions) {
+        // TODO substract from user timeout
+        result = sub.Session->Close(timeout);
     }
+    return result;
 }
 
 }  // namespace NYdb::NFederatedTopic

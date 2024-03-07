@@ -3,7 +3,7 @@
 #include <util/stream/output.h>
 #include <util/string/escape.h>
 #include <util/memory/tempbuf.h>
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 namespace NEscJ {
     // almost copypaste from util/string/escape.h

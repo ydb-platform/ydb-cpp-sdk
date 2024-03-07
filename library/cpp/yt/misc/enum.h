@@ -2,7 +2,7 @@
 
 #include "preprocessor.h"
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 #include <array>
 #include <optional>

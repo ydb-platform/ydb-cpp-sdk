@@ -2,8 +2,8 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/strbuf.h>
-#include <util/generic/string.h>
+#include <string_view>
+#include <string>
 #include <util/string/builder.h>
 
 void TGMockTestEventListener::OnTestPartResult(const testing::TestPartResult& result) {

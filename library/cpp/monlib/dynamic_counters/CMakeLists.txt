@@ -12,7 +12,6 @@ target_link_libraries(cpp-monlib-dynamic_counters PUBLIC
   monlib-service-pages
   cpp-string_utils-quote
   cpp-threading-light_rw_lock
-  cpp-string_builder
 )
 
 target_sources(cpp-monlib-dynamic_counters PRIVATE

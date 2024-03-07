@@ -283,7 +283,7 @@ Y_UNIT_TEST_SUITE(TDateTimeParseTest) {
 
     Y_UNIT_TEST(TestIso8601BeforeEpoch) {
         TIso8601DateTimeParser p;
-        static constexpr TStringBuf timestamp = "0001-01-01T00:00:00Z";
+        static constexpr std::string_view timestamp = "0001-01-01T00:00:00Z";
         UNIT_ASSERT(p.ParsePart(timestamp.begin(), timestamp.size()));
         UNIT_ASSERT_VALUES_EQUAL(p.GetDateTimeFields().Year, 1);
     }
@@ -459,7 +459,7 @@ Y_UNIT_TEST_SUITE(TDateTimeParseTest) {
     }
 
     Y_UNIT_TEST(TestIso8601BigDate) {
-        std::vector<std::pair<TString, int>> dates{
+        std::vector<std::pair<std::string, int>> dates{
             {"2019-01-01", 17897},
 
             {"2037-01-01", 24472},
@@ -523,53 +523,53 @@ Y_UNIT_TEST_SUITE(TDateTimeParseTest) {
 
     Y_UNIT_TEST(TestTInstantTryParse) {
         {
-            const TStringBuf s = "2009-09-19 03:37:08.1+04:00";
+            const std::string_view s = "2009-09-19 03:37:08.1+04:00";
             const auto i = TInstant::ParseIso8601(s);
             TInstant iTry;
             UNIT_ASSERT(TInstant::TryParseIso8601(s, iTry));
             UNIT_ASSERT_VALUES_EQUAL(i, iTry);
         }
         {
-            const TStringBuf s = "2009-09aslkdjfkljasdjfl4:00";
+            const std::string_view s = "2009-09aslkdjfkljasdjfl4:00";
             TInstant iTry;
             UNIT_ASSERT_EXCEPTION(TInstant::ParseIso8601(s), TDateTimeParseException);
             UNIT_ASSERT(!TInstant::TryParseIso8601(s, iTry));
         }
         {
-            const TStringBuf s = "Wed, 14 Oct 2009 16:55:33 GMT";
+            const std::string_view s = "Wed, 14 Oct 2009 16:55:33 GMT";
             const auto i = TInstant::ParseRfc822(s);
             TInstant iTry;
             UNIT_ASSERT(TInstant::TryParseRfc822(s, iTry));
             UNIT_ASSERT_VALUES_EQUAL(i, iTry);
         }
         {
-            const TStringBuf s = "Wed, alsdjflkasjdfl:55:33 GMT";
+            const std::string_view s = "Wed, alsdjflkasjdfl:55:33 GMT";
             TInstant iTry;
             UNIT_ASSERT_EXCEPTION(TInstant::ParseRfc822(s), TDateTimeParseException);
             UNIT_ASSERT(!TInstant::TryParseRfc822(s, iTry));
         }
         {
-            const TStringBuf s = "20091014165533Z";
+            const std::string_view s = "20091014165533Z";
             const auto i = TInstant::ParseX509Validity(s);
             TInstant iTry;
             UNIT_ASSERT(TInstant::TryParseX509(s, iTry));
             UNIT_ASSERT_VALUES_EQUAL(i, iTry);
         }
         {
-            const TStringBuf s = "200asdfasdf533Z";
+            const std::string_view s = "200asdfasdf533Z";
             TInstant iTry;
             UNIT_ASSERT_EXCEPTION(TInstant::ParseX509Validity(s), TDateTimeParseException);
             UNIT_ASSERT(!TInstant::TryParseX509(s, iTry));
         }
         {
-            const TStringBuf s = "990104074212Z";
+            const std::string_view s = "990104074212Z";
             const auto i = TInstant::ParseX509Validity(s);
             TInstant iTry;
             UNIT_ASSERT(TInstant::TryParseX509(s, iTry));
             UNIT_ASSERT_VALUES_EQUAL(i, iTry);
         }
         {
-            const TStringBuf s = "9901asdf4212Z";
+            const std::string_view s = "9901asdf4212Z";
             TInstant iTry;
             UNIT_ASSERT_EXCEPTION(TInstant::ParseX509Validity(s), TDateTimeParseException);
             UNIT_ASSERT(!TInstant::TryParseX509(s, iTry));

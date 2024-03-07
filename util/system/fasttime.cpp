@@ -21,8 +21,7 @@ ui64 InterpolatedMicroSeconds() {
     #if defined(_musl_)
         #include <util/generic/hash.h>
         #include <util/generic/vector.h>
-        #include <util/generic/string.h>
-
+        
         #include <contrib/libs/linuxvdso/interface.h>
     #endif
 

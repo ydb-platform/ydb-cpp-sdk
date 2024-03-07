@@ -6,7 +6,6 @@
 #include "hash_set.h"
 #include "is_in.h"
 #include "set.h"
-#include "strbuf.h"
 #include "string.h"
 
 Y_UNIT_TEST_SUITE(TIsIn) {
@@ -41,16 +40,16 @@ Y_UNIT_TEST_SUITE(TIsIn) {
     }
 
     Y_UNIT_TEST(IsInTest) {
-        TestIsInWithCont<THashMap<TString, TString>>(std::make_pair("found", "1"));
-        TestIsInWithCont<THashMultiMap<TString, TString>>(std::make_pair("found", "1"));
+        TestIsInWithCont<THashMap<std::string, std::string>>(std::make_pair("found", "1"));
+        TestIsInWithCont<THashMultiMap<std::string, std::string>>(std::make_pair("found", "1"));
 
-        TestIsInWithCont<TSet<TString>>("found");
-        TestIsInWithCont<TMultiSet<TString>>("found");
-        TestIsInWithCont<THashSet<TString>>("found");
-        TestIsInWithCont<THashMultiSet<TString>>("found");
+        TestIsInWithCont<TSet<std::string>>("found");
+        TestIsInWithCont<TMultiSet<std::string>>("found");
+        TestIsInWithCont<THashSet<std::string>>("found");
+        TestIsInWithCont<THashMultiSet<std::string>>("found");
 
         // vector also compiles and works
-        std::vector<TString> v;
+        std::vector<std::string> v;
         v.push_back("found");
         UNIT_ASSERT(IsIn(v, "found"));
         UNIT_ASSERT(!IsIn(v, "not found"));
@@ -59,12 +58,12 @@ Y_UNIT_TEST_SUITE(TIsIn) {
         UNIT_ASSERT(IsIn(v.begin(), v.end(), "found"));
         UNIT_ASSERT(!IsIn(v.begin(), v.end(), "not found"));
 
-        // Works with TString (it has find, but find is not used)
-        TString s = "found";
+        // Works with std::string (it has find, but find is not used)
+        std::string s = "found";
         UNIT_ASSERT(IsIn(s, 'f'));
         UNIT_ASSERT(!IsIn(s, 'z'));
 
-        TStringBuf b = "found";
+        std::string_view b = "found";
         UNIT_ASSERT(IsIn(b, 'f'));
         UNIT_ASSERT(!IsIn(b, 'z'));
     }
@@ -79,36 +78,36 @@ Y_UNIT_TEST_SUITE(TIsIn) {
         UNIT_ASSERT(IsIn({6}, 6));
         UNIT_ASSERT(!IsIn({6}, 7));
         UNIT_ASSERT(!IsIn(std::initializer_list<int>(), 6));
-        UNIT_ASSERT(IsIn({TStringBuf("abc"), TStringBuf("def")}, TStringBuf("abc")));
-        UNIT_ASSERT(IsIn({TStringBuf("abc"), TStringBuf("def")}, TStringBuf("def")));
-        UNIT_ASSERT(IsIn({"abc", "def"}, TStringBuf("def")));
+        UNIT_ASSERT(IsIn({std::string_view("abc"), std::string_view("def")}, std::string_view("abc")));
+        UNIT_ASSERT(IsIn({std::string_view("abc"), std::string_view("def")}, std::string_view("def")));
+        UNIT_ASSERT(IsIn({"abc", "def"}, std::string_view("def")));
         UNIT_ASSERT(IsIn({abc, def}, def)); // direct pointer comparison
-        UNIT_ASSERT(!IsIn({TStringBuf("abc"), TStringBuf("def")}, TStringBuf("ghi")));
-        UNIT_ASSERT(!IsIn({"abc", "def"}, TStringBuf("ghi")));
-        UNIT_ASSERT(!IsIn({"abc", "def"}, TString("ghi")));
+        UNIT_ASSERT(!IsIn({std::string_view("abc"), std::string_view("def")}, std::string_view("ghi")));
+        UNIT_ASSERT(!IsIn({"abc", "def"}, std::string_view("ghi")));
+        UNIT_ASSERT(!IsIn({"abc", "def"}, std::string("ghi")));
 
-        const TStringBuf str = "abc////";
+        const std::string_view str = "abc////";
 
-        UNIT_ASSERT(IsIn({"abc", "def"}, TStringBuf{str.data(), 3}));
+        UNIT_ASSERT(IsIn({"abc", "def"}, std::string_view{str.data(), 3}));
     }
 
     Y_UNIT_TEST(ConfOfTest) {
         UNIT_ASSERT(IsIn({1, 2, 3}, 1));
         UNIT_ASSERT(!IsIn({1, 2, 3}, 4));
 
-        const TString b = "b";
+        const std::string b = "b";
 
         UNIT_ASSERT(!IsIn({"a", "b", "c"}, b.data())); // compares pointers by value. Whether it's good or not.
-        UNIT_ASSERT(IsIn(std::vector<TStringBuf>({"a", "b", "c"}), b.data()));
-        UNIT_ASSERT(IsIn(std::vector<TStringBuf>({"a", "b", "c"}), "b"));
+        UNIT_ASSERT(IsIn(std::vector<std::string_view>({"a", "b", "c"}), b.data()));
+        UNIT_ASSERT(IsIn(std::vector<std::string_view>({"a", "b", "c"}), "b"));
     }
 
     Y_UNIT_TEST(IsInArrayTest) {
-        const TString array[] = {"a", "b", "d"};
+        const std::string array[] = {"a", "b", "d"};
 
         UNIT_ASSERT(IsIn(array, "a"));
-        UNIT_ASSERT(IsIn(array, TString("b")));
+        UNIT_ASSERT(IsIn(array, std::string("b")));
         UNIT_ASSERT(!IsIn(array, "c"));
-        UNIT_ASSERT(IsIn(array, TStringBuf("d")));
+        UNIT_ASSERT(IsIn(array, std::string_view("d")));
     }
 }

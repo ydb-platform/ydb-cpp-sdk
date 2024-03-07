@@ -3,7 +3,6 @@
 #include <library/cpp/testing/unittest/registar.h>
 
 #include <util/generic/hash_set.h>
-#include <util/generic/strbuf.h>
 
 Y_UNIT_TEST_SUITE(TEndpointTest) {
     Y_UNIT_TEST(TestSimple) {
@@ -53,8 +52,8 @@ Y_UNIT_TEST_SUITE(TEndpointTest) {
         TEndpoint ep3(new NAddr::TAddrInfo(&*na3.Begin()));
 
         UNIT_ASSERT(ep3.IsIpV6());
-        UNIT_ASSERT(ep3.IpToString().StartsWith(TStringBuf("2a02:6b8:0:1410:")));
-        UNIT_ASSERT(ep3.IpToString().EndsWith(TStringBuf(":5f6c:f3c2")));
+        UNIT_ASSERT(ep3.IpToString().StartsWith(std::string_view("2a02:6b8:0:1410:")));
+        UNIT_ASSERT(ep3.IpToString().EndsWith(std::string_view(":5f6c:f3c2")));
         UNIT_ASSERT_VALUES_EQUAL(54321, ep3.Port());
 
         TNetworkAddress na4("2a02:6b8:0:1410:0::5f6c:f3c2", 1);
@@ -87,8 +86,8 @@ Y_UNIT_TEST_SUITE(TEndpointTest) {
     }
 
     Y_UNIT_TEST(TestEqual) {
-        const TString ip1 = "2a02:6b8:0:1410::5f6c:f3c2";
-        const TString ip2 = "2a02:6b8:0:1410::5f6c:f3c3";
+        const std::string ip1 = "2a02:6b8:0:1410::5f6c:f3c2";
+        const std::string ip2 = "2a02:6b8:0:1410::5f6c:f3c3";
 
         TNetworkAddress na1(ip1, 24242);
         TEndpoint ep1(new NAddr::TAddrInfo(&*na1.Begin()));

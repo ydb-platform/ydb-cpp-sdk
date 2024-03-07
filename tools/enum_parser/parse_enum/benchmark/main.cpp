@@ -17,13 +17,13 @@ namespace {
     }
 
     template <class TEnum>
-    std::vector<TStringBuf> SelectStrings(size_t count) {
-        std::vector<TStringBuf> strings;
+    std::vector<std::string_view> SelectStrings(size_t count) {
+        std::vector<std::string_view> strings;
         strings.reserve(GetEnumItemsCount<TEnum>());
         for (const auto& [_, s] : GetEnumNames<TEnum>()) {
             strings.push_back(s);
         }
-        SortBy(strings, [](const TStringBuf& s) { return THash<TStringBuf>()(s); });
+        SortBy(strings, [](const std::string_view& s) { return THash<std::string_view>()(s); });
         strings.crop(count);
         return strings;
     }

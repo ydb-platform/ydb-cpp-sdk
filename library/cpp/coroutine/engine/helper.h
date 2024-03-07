@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/string.h>
+#include <string>
 #include <util/datetime/base.h>
 
 namespace NCoro {

@@ -6,6 +6,7 @@
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>
 
+#include <algorithm>
 #include <map>
 
 namespace NObjectFactory {

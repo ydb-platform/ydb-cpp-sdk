@@ -5,7 +5,6 @@
 
 #include <util/system/pipe.h>
 #include <util/generic/ptr.h>
-#include <util/generic/string.h>
 
 /**
  * @addtogroup Streams_Pipes
@@ -24,7 +23,7 @@ protected:
      * @param mode                      Data transfer mode for the pipe. Use
      *                                  "r" for reading and "w" for writing.
      */
-    TPipeBase(const TString& command, const char* mode);
+    TPipeBase(const std::string& command, const char* mode);
     virtual ~TPipeBase();
 
 protected:
@@ -45,7 +44,7 @@ public:
      *
      * @param command                   Command line to start a process with.
      */
-    TPipeInput(const TString& command);
+    TPipeInput(const std::string& command);
 
 private:
     size_t DoRead(void* buf, size_t len) override;
@@ -64,7 +63,7 @@ public:
      *
      * @param command                   Command line to start a process with.
      */
-    TPipeOutput(const TString& command);
+    TPipeOutput(const std::string& command);
 
     /**
      * Waits for the process to terminate and throws an exception if it ended

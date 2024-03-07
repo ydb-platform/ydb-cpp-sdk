@@ -93,7 +93,7 @@ TBuffer::~TBuffer() {
     y_deallocate(Data_);
 }
 
-void TBuffer::AsString(TString& s) {
+void TBuffer::AsString(std::string& s) {
     s.assign(Data(), Size());
     Clear();
 }

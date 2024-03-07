@@ -1,23 +1,24 @@
 #include "backend.h"
 
-#include <util/system/mutex.h>
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>
+
+#include <mutex>
 
 namespace {
     class TGlobalLogsStorage {
     private:
         std::vector<TLogBackend*> Backends;
-        TMutex Mutex;
+        std::mutex Mutex;
 
     public:
         void Register(TLogBackend* backend) {
-            TGuard<TMutex> g(Mutex);
+            std::lock_guard g(Mutex);
             Backends.push_back(backend);
         }
 
         void UnRegister(TLogBackend* backend) {
-            TGuard<TMutex> g(Mutex);
+            std::lock_guard g(Mutex);
             for (ui32 i = 0; i < Backends.size(); ++i) {
                 if (Backends[i] == backend) {
                     Backends.erase(Backends.begin() + i);
@@ -28,7 +29,7 @@ namespace {
         }
 
         void Reopen(bool flush) {
-            TGuard<TMutex> g(Mutex);
+            std::lock_guard g(Mutex);
             for (auto& b : Backends) {
                 if (typeid(*b) == typeid(TLogBackend)) {
                     continue;

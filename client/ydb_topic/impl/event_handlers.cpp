@@ -20,7 +20,8 @@ public:
     void OnDataReceived(TReadSessionEvent::TDataReceivedEvent& event) {
         Y_ASSERT(event.GetMessagesCount());
         TDeferredCommit deferredCommit;
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             auto& offsetSet = PartitionStreamToUncommittedOffsets[event.GetPartitionSession()->GetPartitionSessionId()];
             // Messages could contain holes in offset, but later commit ack will tell us right border.
             // So we can easily insert the whole interval with holes included.
@@ -39,49 +40,47 @@ public:
     }
 
     void OnCommitAcknowledgement(TReadSessionEvent::TCommitOffsetAcknowledgementEvent& event) {
-        with_lock (Lock) {
-            const ui64 partitionStreamId = event.GetPartitionSession()->GetPartitionSessionId();
-            auto& offsetSet = PartitionStreamToUncommittedOffsets[partitionStreamId];
-            if (offsetSet.EraseInterval(0, event.GetCommittedOffset() + 1)) { // Remove some offsets.
-                if (offsetSet.Empty()) { // No offsets left.
-                    auto unconfirmedDestroyIt = UnconfirmedDestroys.find(partitionStreamId);
-                    if (unconfirmedDestroyIt != UnconfirmedDestroys.end()) {
-                        // Confirm and forget about this partition stream.
-                        unconfirmedDestroyIt->second.Confirm();
-                        UnconfirmedDestroys.erase(unconfirmedDestroyIt);
-                        PartitionStreamToUncommittedOffsets.erase(partitionStreamId);
-                    }
+        std::lock_guard guard(Lock);
+        const ui64 partitionStreamId = event.GetPartitionSession()->GetPartitionSessionId();
+        auto& offsetSet = PartitionStreamToUncommittedOffsets[partitionStreamId];
+        if (offsetSet.EraseInterval(0, event.GetCommittedOffset() + 1)) { // Remove some offsets.
+            if (offsetSet.Empty()) { // No offsets left.
+                auto unconfirmedDestroyIt = UnconfirmedDestroys.find(partitionStreamId);
+                if (unconfirmedDestroyIt != UnconfirmedDestroys.end()) {
+                    // Confirm and forget about this partition stream.
+                    unconfirmedDestroyIt->second.Confirm();
+                    UnconfirmedDestroys.erase(unconfirmedDestroyIt);
+                    PartitionStreamToUncommittedOffsets.erase(partitionStreamId);
                 }
             }
         }
     }
 
     void OnCreatePartitionStream(TReadSessionEvent::TStartPartitionSessionEvent& event) {
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             Y_ABORT_UNLESS(PartitionStreamToUncommittedOffsets[event.GetPartitionSession()->GetPartitionSessionId()].Empty());
         }
         event.Confirm();
     }
 
     void OnDestroyPartitionStream(TReadSessionEvent::TStopPartitionSessionEvent& event) {
-        with_lock (Lock) {
-            const ui64 partitionStreamId = event.GetPartitionSession()->GetPartitionSessionId();
-            Y_ABORT_UNLESS(UnconfirmedDestroys.find(partitionStreamId) == UnconfirmedDestroys.end());
-            if (PartitionStreamToUncommittedOffsets[partitionStreamId].Empty()) {
-                PartitionStreamToUncommittedOffsets.erase(partitionStreamId);
-                event.Confirm();
-            } else {
-                UnconfirmedDestroys.emplace(partitionStreamId, std::move(event));
-            }
+        std::lock_guard guard(Lock);
+        const ui64 partitionStreamId = event.GetPartitionSession()->GetPartitionSessionId();
+        Y_ABORT_UNLESS(UnconfirmedDestroys.find(partitionStreamId) == UnconfirmedDestroys.end());
+        if (PartitionStreamToUncommittedOffsets[partitionStreamId].Empty()) {
+            PartitionStreamToUncommittedOffsets.erase(partitionStreamId);
+            event.Confirm();
+        } else {
+            UnconfirmedDestroys.emplace(partitionStreamId, std::move(event));
         }
     }
 
     void OnPartitionStreamClosed(TReadSessionEvent::TPartitionSessionClosedEvent& event) {
-        with_lock (Lock) {
-            const ui64 partitionStreamId = event.GetPartitionSession()->GetPartitionSessionId();
-            PartitionStreamToUncommittedOffsets.erase(partitionStreamId);
-            UnconfirmedDestroys.erase(partitionStreamId);
-        }
+        std::lock_guard guard(Lock);
+        const ui64 partitionStreamId = event.GetPartitionSession()->GetPartitionSessionId();
+        PartitionStreamToUncommittedOffsets.erase(partitionStreamId);
+        UnconfirmedDestroys.erase(partitionStreamId);
     }
 
 private:

@@ -3,7 +3,7 @@
 #include <util/generic/fwd.h>
 
 // NOTE: This function has rare sporadic failures (throws exceptions) on FreeBSD. See REVIEW:54297
-const TString& GetExecPath();
+const std::string& GetExecPath();
 
 /**
  * Get openable path to the binary currently being executed.
@@ -14,4 +14,4 @@ const TString& GetExecPath();
  * On UNIX variants, utilizes the /proc FS. On Windows, equivalent to
  * GetExecPath.
  */
-const TString& GetPersistentExecPath();
+const std::string& GetPersistentExecPath();

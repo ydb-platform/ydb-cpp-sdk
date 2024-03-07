@@ -3,7 +3,7 @@
 #include "lciter.h"
 
 #include <util/digest/fnv.h>
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 template <class T>
 static inline T FnvCaseLess(const char* b, size_t l, T t = 0) noexcept {

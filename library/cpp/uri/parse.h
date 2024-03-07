@@ -7,7 +7,7 @@
 #include "common.h"
 
 #include <library/cpp/charset/doccodes.h>
-#include <util/generic/strbuf.h>
+#include <string_view>
 #include <util/stream/output.h>
 #include <util/string/cast.h>
 #include <util/system/yassert.h>

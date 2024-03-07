@@ -1,11 +1,7 @@
-#include "misc.h"
-
-#include <library/cpp/string_builder/string_builder.h>
-#include <library/cpp/string_utils/escape/escape.h>
+#include "helpers.h"
 
 namespace NUtils {
-
-namespace {
+    namespace {
     void DoSplit(std::string_view src, std::string_view& l, std::string_view& r, size_t pos, size_t len) {
         const auto right = src.substr(pos + len); // in case if (&l == &src)
         l = src.substr(0, pos);
@@ -31,10 +27,6 @@ std::string ToTitle(const std::string& s) {
         res[0] = std::toupper(res[0]);
     }
     return res;
-}
-
-std::string Quote(std::string_view s) {
-    return TYdbStringBuilder() << "\"" << EscapeC(s) << "\"";
 }
 
 void RemoveAll(std::string& str, char ch) {
@@ -148,6 +140,41 @@ std::string_view After(std::string_view src, char c) {
 std::string_view Before(std::string_view src, char c) {
     std::string_view l, r;
     return TrySplit(src, l, r, c) ? l : src;
+}
+
+size_t SumLength() noexcept {
+    return 0;
+}
+
+void CopyAll(char*) noexcept {
+}
+
+template <>
+std::u16string FromAscii(const ::std::string_view& s) {
+    std::u16string res;
+    res.resize(s.size());
+
+    auto dst = res.begin();
+
+    for (const char* src = s.data(); dst != res.end(); ++dst, ++src) {
+        *dst = static_cast<char16_t>(*src);
+    }
+
+    return res;
+}
+
+template <>
+std::u32string FromAscii(const ::std::string_view& s) {
+    std::u32string res;
+    res.resize(s.size());
+
+    auto dst = res.begin();
+
+    for (const char* src = s.data(); dst != res.end(); ++dst, ++src) {
+        *dst = static_cast<char32_t>(*src);
+    }
+
+    return res;
 }
 
 }

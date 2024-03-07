@@ -1,6 +1,6 @@
 #include "url.h"
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 #include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/string/cast.h>
@@ -90,7 +90,7 @@ size_t GetHttpPrefixSize(const std::string_view url, bool ignorehttps) noexcept 
     return GetHttpPrefixSizeImpl<char>(url.data(), TKnownSize(url.size()), ignorehttps);
 }
 
-size_t GetHttpPrefixSize(const TWtringBuf url, bool ignorehttps) noexcept {
+size_t GetHttpPrefixSize(const std::u16string_view url, bool ignorehttps) noexcept {
     return GetHttpPrefixSizeImpl<wchar16>(url.data(), TKnownSize(url.size()), ignorehttps);
 }
 
@@ -98,7 +98,7 @@ std::string_view CutHttpPrefix(const std::string_view url, bool ignorehttps) noe
     return CutHttpPrefixImpl(url, ignorehttps);
 }
 
-TWtringBuf CutHttpPrefix(const TWtringBuf url, bool ignorehttps) noexcept {
+std::u16string_view CutHttpPrefix(const std::u16string_view url, bool ignorehttps) noexcept {
     return CutHttpPrefixImpl(url, ignorehttps);
 }
 
@@ -349,7 +349,7 @@ std::string AddSchemePrefix(const std::string& url, std::string_view scheme) {
         return url;
     }
 
-    return NUtils::TYdbStringBuilder() << scheme << std::string_view("://") << url;
+    return TStringBuilder() << scheme << std::string_view("://") << url;
 }
 
 #define X(c) (c >= 'A' ? ((c & 0xdf) - 'A') + 10 : (c - '0'))

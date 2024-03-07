@@ -1,6 +1,6 @@
 #include "ydb_yson_value.h"
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <client/ydb_value/value.h>
 #include <client/ydb_result/result.h>
@@ -88,7 +88,7 @@ static void PrimitiveValueToYson(EPrimitiveType type, TValueParser& parser, NYso
             writer.OnStringScalar(parser.GetDyNumber());
             break;
         default:
-            ThrowFatalError(NUtils::TYdbStringBuilder() << "Unsupported primitive type: " << type);
+            ThrowFatalError(TStringBuilder() << "Unsupported primitive type: " << type);
     }
 }
 
@@ -214,7 +214,7 @@ static void FormatValueYsonInternal(TValueParser& parser, NYson::TYsonWriter& wr
             break;
 
         default:
-            ThrowFatalError(NUtils::TYdbStringBuilder() << "Unsupported type kind: " << parser.GetKind());
+            ThrowFatalError(TStringBuilder() << "Unsupported type kind: " << parser.GetKind());
     }
 }
 

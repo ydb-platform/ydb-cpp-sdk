@@ -1,7 +1,7 @@
 #include "counters.h"
 
 #include <library/cpp/monlib/service/pages/templates.h>
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <util/generic/cast.h>
 
@@ -254,7 +254,7 @@ void TDynamicCounters::OutputPlainText(IOutputStream& os, const std::string& ind
         if (const auto subgroup = AsDynamicCounters(value)) {
             os << "\n";
             os << indent << key.LabelName << "=" << key.LabelValue << ":\n";
-            subgroup->OutputPlainText(os, NUtils::TYdbStringBuilder() << indent << INDENT);
+            subgroup->OutputPlainText(os, TStringBuilder() << indent << INDENT);
         }
     }
 }

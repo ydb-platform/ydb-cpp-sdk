@@ -17,11 +17,10 @@ void TSession::TImpl::InvalidateQueryInCache(const std::string& key) {
         return;
     }
 
-    with_lock(Lock_) {
-        auto it = QueryCache_.Find(key);
-        if (it != QueryCache_.End()) {
-            QueryCache_.Erase(it);
-        }
+    std::lock_guard guard(Lock_);
+    auto it = QueryCache_.Find(key);
+    if (it != QueryCache_.End()) {
+        QueryCache_.Erase(it);
     }
 }
 
@@ -30,9 +29,8 @@ void TSession::TImpl::InvalidateQueryCache() {
         return;
     }
 
-    with_lock(Lock_) {
-        QueryCache_.Clear();
-    }
+    std::lock_guard guard(Lock_);
+    QueryCache_.Clear();
 }
 
 std::optional<TSession::TImpl::TDataQueryInfo> TSession::TImpl::GetQueryFromCache(const std::string& query, bool allowMigration) {
@@ -42,11 +40,10 @@ std::optional<TSession::TImpl::TDataQueryInfo> TSession::TImpl::GetQueryFromCach
 
     auto key = EncodeQuery(query, allowMigration);
 
-    with_lock(Lock_) {
-        auto it = QueryCache_.Find(key);
-        if (it != QueryCache_.End()) {
-            return *it;
-        }
+    std::lock_guard guard(Lock_);
+    auto it = QueryCache_.Find(key);
+    if (it != QueryCache_.End()) {
+        return *it;
     }
 
     return std::nullopt;
@@ -65,13 +62,12 @@ void TSession::TImpl::AddQueryToCache(const TDataQuery& query) {
     auto key = query.Impl_->GetTextHash();
     TDataQueryInfo queryInfo(id, query.Impl_->GetParameterTypes());
 
-    with_lock(Lock_) {
-        auto it = QueryCache_.Find(key);
-        if (it != QueryCache_.End()) {
-            *it = queryInfo;
-        } else {
-            QueryCache_.Insert(key, queryInfo);
-        }
+    std::lock_guard guard(Lock_);
+    auto it = QueryCache_.Find(key);
+    if (it != QueryCache_.End()) {
+        *it = queryInfo;
+    } else {
+        QueryCache_.Insert(key, queryInfo);
     }
 }
 

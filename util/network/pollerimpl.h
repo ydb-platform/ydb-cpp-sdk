@@ -3,13 +3,14 @@
 #include "socket.h"
 
 #include <util/system/error.h>
-#include <util/system/mutex.h>
+#include <util/system/fake_mutex.h>
 #include <util/system/defaults.h>
 #include <util/generic/ylimits.h>
 #include <util/generic/utility.h>
-#include <util/generic/vector.h>
 #include <util/generic/yexception.h>
 #include <util/datetime/base.h>
+
+#include <mutex>
 
 #if defined(_freebsd_) || defined(_darwin_)
     #define HAVE_KQUEUE_POLLER
@@ -433,7 +434,8 @@ public:
     }
 
     inline void SetImpl(void* data, SOCKET fd, int what) {
-        with_lock (CommandLock_) {
+        {
+            std::lock_guard guard(CommandLock_);
             Commands_.push_back(TCommand(fd, what, data));
         }
 
@@ -441,7 +443,8 @@ public:
     }
 
     inline void Remove(SOCKET fd) noexcept {
-        with_lock (CommandLock_) {
+        {
+            std::lock_guard guard(CommandLock_);
             Commands_.push_back(TCommand(fd, 0));
         }
 
@@ -481,7 +484,8 @@ public:
     }
 
     inline size_t WaitBase(TEvent* events, size_t len, int timeout) noexcept {
-        with_lock (CommandLock_) {
+        {
+            std::lock_guard guard(CommandLock_);
             for (auto command = Commands_.begin(); command != Commands_.end(); ++command) {
                 if (command->Filter_ != 0) {
                     Fds_.Set(command->Fd_, command->Cookie_, command->Filter_);

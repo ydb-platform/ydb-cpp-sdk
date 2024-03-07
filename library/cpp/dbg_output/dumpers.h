@@ -3,8 +3,8 @@
 #include "engine.h"
 
 #include <util/generic/fwd.h>
-#include <util/generic/strbuf.h>
-#include <util/generic/string.h>
+#include <string_view>
+#include <string>
 
 #include <memory>
 #include <map>
@@ -148,10 +148,6 @@ struct TDumper<const char*>: public TStrDumper {
 };
 
 template <>
-struct TDumper<TUtf16String>: public TStrDumper {
-};
-
-template <>
 struct TDumper<const wchar16*>: public TStrDumper {
 };
 
@@ -160,5 +156,5 @@ struct TDumper<std::basic_string<C, T, A>>: public TStrDumper {
 };
 
 template <class TChar>
-struct TDumper<TBasicStringBuf<TChar>>: public TStrDumper {
+struct TDumper<std::basic_string_view<TChar>>: public TStrDumper {
 };

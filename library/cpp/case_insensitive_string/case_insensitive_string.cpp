@@ -10,13 +10,3 @@ size_t THash<TCaseInsensitiveStringBuf>::operator()(TCaseInsensitiveStringBuf st
     }
     return hash.Value();
 }
-
-template <>
-void Out<TCaseInsensitiveString>(IOutputStream& o, const TCaseInsensitiveString& p) {
-    o.Write(p.data(), p.size());
-}
-
-template <>
-void Out<TCaseInsensitiveStringBuf>(IOutputStream& o, const TCaseInsensitiveStringBuf& p) {
-    o.Write(p.data(), p.size());
-}

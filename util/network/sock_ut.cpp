@@ -167,9 +167,9 @@ Y_UNIT_TEST_SUITE(TSocketTest) {
     }
 
     Y_UNIT_TEST(DetermingPath) {
-        const TString connectionString = "/var/run/some.sock http://localhost/endpoint";
+        const std::string connectionString = "/var/run/some.sock http://localhost/endpoint";
 
-        TStringBuf sockPath, endpoint;
+        std::string_view sockPath, endpoint;
         StringSplitter(connectionString).Split(' ').SkipEmpty().CollectInto(&sockPath, &endpoint);
 
         TSockAddrLocal sal;

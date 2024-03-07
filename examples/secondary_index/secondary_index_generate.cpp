@@ -26,7 +26,8 @@ public:
     }
 
     void Stop(bool rethrow = true) {
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             Stopped = true;
         }
         Wait(rethrow);
@@ -35,16 +36,16 @@ public:
     void Wait(bool rethrow = true) {
         Queue.Stop();
         if (rethrow) {
-            with_lock (Lock) {
-                if (Exception) {
-                    std::rethrow_exception(Exception);
-                }
+            std::lock_guard guard(Lock);
+            if (Exception) {
+                std::rethrow_exception(Exception);
             }
         }
     }
 
     bool Execute(std::function<void()> callback) {
-        with_lock (Lock) {
+        {
+            std::lock_guard guard(Lock);
             if (Stopped) {
                 if (Exception) {
                     std::rethrow_exception(Exception);
@@ -75,7 +76,8 @@ private:
 
         void Process(void*) override {
             std::unique_ptr<TTask> self(this);
-            with_lock (Owner->Lock) {
+            {
+                std::lock_guard guard(Owner->Lock);
                 if (Owner->Stopped) {
                     return;
                 }
@@ -84,11 +86,10 @@ private:
                 auto callback = std::move(Callback);
                 callback();
             } catch (...) {
-                with_lock (Owner->Lock) {
-                    if (!Owner->Stopped && !Owner->Exception) {
-                        Owner->Stopped = true;
-                        Owner->Exception = std::current_exception();
-                    }
+                std::lock_guard guard(Owner->Lock);
+                if (!Owner->Stopped && !Owner->Exception) {
+                    Owner->Stopped = true;
+                    Owner->Exception = std::current_exception();
                 }
             }
         }

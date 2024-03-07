@@ -3,10 +3,12 @@
 #include <library/cpp/string_utils/misc/misc.h>
 
 #include <util/string/cast.h>
-#include <util/generic/string.h>
+#include <util/string/escape.h>
 
 #include <util/generic/utility.h>
 #include <util/generic/yexception.h>
+
+#include <string>
 
 namespace NLastGetopt {
     class TOpt;

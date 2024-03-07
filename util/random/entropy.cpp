@@ -82,7 +82,7 @@ namespace {
                 {
                     ui32 store[12];
 
-                    out << TStringBuf(CpuBrand(store));
+                    out << std::string_view(CpuBrand(store));
                 }
 
                 out << NFs::CurrentWorkingDirectory();

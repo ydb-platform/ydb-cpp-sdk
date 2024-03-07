@@ -4,6 +4,7 @@
 #include <util/generic/ptr.h>
 
 #include <util/generic/yexception.h>
+#include <util/generic/ylimits.h>
 
 #include <cmath>
 #include <limits>

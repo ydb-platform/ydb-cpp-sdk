@@ -111,7 +111,7 @@ public:
             UNIT_ASSERT_EQUAL(file.GetPosition(), 3);
         }
 
-        const TString data = TUnbufferedFileInput(tmp.Name()).ReadAll();
+        const std::string data = TUnbufferedFileInput(tmp.Name()).ReadAll();
         UNIT_ASSERT_EQUAL(data.length(), 12);
         UNIT_ASSERT(data.StartsWith("12345"));
     }
@@ -120,7 +120,7 @@ public:
 UNIT_TEST_SUITE_REGISTRATION(TFileTest);
 
 void TFileTest::TestOpen() {
-    TString res;
+    std::string res;
     TFile f1;
 
     try {
@@ -254,7 +254,7 @@ void TFileTest::TestRawRead() {
         char buf[7];
         i32 reallyRead = file.RawRead(buf, 7);
         Y_ENSURE(0 <= reallyRead && reallyRead <= 7);
-        Y_ENSURE(TStringBuf(buf, reallyRead) == TStringBuf("1234567").Head(reallyRead));
+        Y_ENSURE(std::string_view(buf, reallyRead) == std::string_view("1234567").Head(reallyRead));
     }
 }
 
@@ -272,12 +272,12 @@ void TFileTest::TestRead() {
         TFile file(tmp.Name(), OpenExisting | RdOnly);
         char buf[7];
         Y_ENSURE(file.Read(buf, 7) == 7);
-        Y_ENSURE(TStringBuf(buf, 7) == "1234567");
+        Y_ENSURE(std::string_view(buf, 7) == "1234567");
 
         memset(buf, 0, sizeof(buf));
         file.Seek(0, sSet);
         Y_ENSURE(file.Read(buf, 123) == 7);
-        Y_ENSURE(TStringBuf(buf, 7) == "1234567");
+        Y_ENSURE(std::string_view(buf, 7) == "1234567");
     }
 }
 
@@ -296,12 +296,12 @@ void TFileTest::TestRawPread() {
         char buf[7];
         i32 reallyRead = file.RawPread(buf, 3, 1);
         Y_ENSURE(0 <= reallyRead && reallyRead <= 3);
-        Y_ENSURE(TStringBuf(buf, reallyRead) == TStringBuf("234").Head(reallyRead));
+        Y_ENSURE(std::string_view(buf, reallyRead) == std::string_view("234").Head(reallyRead));
 
         memset(buf, 0, sizeof(buf));
         reallyRead = file.RawPread(buf, 2, 5);
         Y_ENSURE(0 <= reallyRead && reallyRead <= 2);
-        Y_ENSURE(TStringBuf(buf, reallyRead) == TStringBuf("67").Head(reallyRead));
+        Y_ENSURE(std::string_view(buf, reallyRead) == std::string_view("67").Head(reallyRead));
     }
 }
 
@@ -319,11 +319,11 @@ void TFileTest::TestPread() {
         TFile file(tmp.Name(), OpenExisting | RdOnly);
         char buf[7];
         Y_ENSURE(file.Pread(buf, 3, 1) == 3);
-        Y_ENSURE(TStringBuf(buf, 3) == "234");
+        Y_ENSURE(std::string_view(buf, 3) == "234");
 
         memset(buf, 0, sizeof(buf));
         Y_ENSURE(file.Pread(buf, 2, 5) == 2);
-        Y_ENSURE(TStringBuf(buf, 2) == "67");
+        Y_ENSURE(std::string_view(buf, 2) == "67");
     }
 }
 

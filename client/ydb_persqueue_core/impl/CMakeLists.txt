@@ -13,7 +13,6 @@ target_link_libraries(client-ydb_persqueue_core-impl PUBLIC
   impl-ydb_internal-make_request
   client-ydb_common_client-impl
   cpp-client-ydb_driver
-  cpp-string_builder
   cpp-string_utils-misc
 )
 

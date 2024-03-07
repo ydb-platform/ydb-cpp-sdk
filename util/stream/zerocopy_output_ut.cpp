@@ -2,13 +2,12 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/string.h>
 
 // This version of string output stream is written here only
 // for testing IZeroCopyOutput implementation of DoWrite.
 class TSimpleStringOutput: public IZeroCopyOutput {
 public:
-    TSimpleStringOutput(TString& s) noexcept
+    TSimpleStringOutput(std::string& s) noexcept
         : S_(s)
     {
     }
@@ -29,14 +28,14 @@ private:
         S_.resize(S_.size() - len);
     }
 
-    TString& S_;
+    std::string& S_;
 };
 
 Y_UNIT_TEST_SUITE(TestZerocopyOutput) {
     Y_UNIT_TEST(Write) {
-        TString str;
+        std::string str;
         TSimpleStringOutput output(str);
-        TString result;
+        std::string result;
 
         for (size_t i = 0; i < 1000; ++i) {
             result.push_back('a' + (i % 20));

@@ -1,4 +1,4 @@
-#include <util/generic/string.h>
+#include <string>
 #include <util/string/type.h>
 
 bool CheckExceptionMessage(const char* msg, std::string& err) {

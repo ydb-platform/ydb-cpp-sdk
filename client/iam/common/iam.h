@@ -93,7 +93,8 @@ private:
         }
 
         void UpdateTicket(bool sync = false) {
-            with_lock(Lock_) {
+            {
+                std::lock_guard guard(Lock_);
                 if (NeedStop_ || RequestInflight_) {
                     return;
                 }
@@ -129,7 +130,8 @@ private:
         std::string GetTicket() {
             TInstant nextTicketUpdate;
             std::string ticket;
-            with_lock(Lock_) {
+            {
+                std::lock_guard guard(Lock_);
                 ticket = Ticket_;
                 nextTicketUpdate = NextTicketUpdate_;
                 if (ticket.empty())
@@ -142,7 +144,8 @@ private:
         }
 
         void Stop() {
-            with_lock(Lock_) {
+            {
+                std::lock_guard guard(Lock_);
                 if (NeedStop_) {
                     return;
                 }
@@ -156,8 +159,9 @@ private:
         void ProcessIamResponse(NYdbGrpc::TGrpcStatus&& status, TResponse&& result, bool sync) {
             if (!status.Ok()) {
                 TDuration sleepDuration;
-                with_lock(Lock_) {
-                    LastRequestError_ = NUtils::TYdbStringBuilder()
+                {
+                    std::lock_guard guard(Lock_);
+                    LastRequestError_ = TStringBuilder()
                         << "Last request error was at " << TInstant::Now()
                         << ". GrpcStatusCode: " << status.GRpcStatusCode
                         << " Message: \"" << status.Msg
@@ -173,19 +177,18 @@ private:
 
                 UpdateTicket(sync);
             } else {
-                with_lock(Lock_) {
-                    LastRequestError_ = "";
-                    Ticket_ = result.iam_token();
-                    RequestInflight_ = false;
-                    BackoffTimeout_ = BACKOFF_START;
+                std::lock_guard guard(Lock_);
+                LastRequestError_ = "";
+                Ticket_ = result.iam_token();
+                RequestInflight_ = false;
+                BackoffTimeout_ = BACKOFF_START;
 
-                    const auto now = Now();
-                    NextTicketUpdate_ = std::min(
-                        now + IamEndpoint_.RefreshPeriod,
-                        TInstant::Seconds(result.expires_at().seconds())
-                    ) - IamEndpoint_.RequestTimeout;
-                    NextTicketUpdate_ = std::max(NextTicketUpdate_, now + TDuration::MilliSeconds(100));
-                }
+                const auto now = Now();
+                NextTicketUpdate_ = std::min(
+                    now + IamEndpoint_.RefreshPeriod,
+                    TInstant::Seconds(result.expires_at().seconds())
+                ) - IamEndpoint_.RequestTimeout;
+                NextTicketUpdate_ = std::max(NextTicketUpdate_, now + TDuration::MilliSeconds(100));
             }
         }
 

@@ -43,7 +43,7 @@ extern const unsigned char NPrivate::ASCII_LOWER[256] = {
 };
 // clang-format on
 
-int AsciiCompareIgnoreCase(const TStringBuf s1, const TStringBuf s2) noexcept {
+int AsciiCompareIgnoreCase(const std::string_view s1, const std::string_view s2) noexcept {
     if (s1.size() <= s2.size()) {
         if (int cmp = strnicmp(s1.data(), s2.data(), s1.size())) {
             return cmp;

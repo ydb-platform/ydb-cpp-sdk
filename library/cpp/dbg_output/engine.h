@@ -2,6 +2,7 @@
 
 #include <util/stream/output.h>
 
+#include <string>
 #include <utility>
 
 template <class T>

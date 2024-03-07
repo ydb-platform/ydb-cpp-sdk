@@ -5,6 +5,8 @@
 #include <util/system/backtrace.h>
 #include <util/generic/yexception.h>
 
+#include <string>
+
 namespace {
     // Avoid infinite recursion if std::terminate is triggered anew by the
     // FancyTerminateHandler.

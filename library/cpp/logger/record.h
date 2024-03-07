@@ -2,7 +2,7 @@
 
 #include "priority.h"
 
-#include <util/generic/string.h>
+#include <string>
 #include <util/system/defaults.h>
 
 #include <utility>

@@ -7,8 +7,6 @@
 
 #include <util/datetime/base.h>
 #include <util/generic/singleton.h>
-#include <util/generic/strbuf.h>
-#include <util/generic/string.h>
 #include <util/stream/output.h>
 #include <util/stream/str.h>
 #include <util/string/printf.h>
@@ -35,7 +33,7 @@ namespace {
     };
 }
 namespace NPrivate {
-    [[noreturn]] Y_NO_INLINE void InternalPanicImpl(int line, const char* function, const char* expr, int, int, int, const TStringBuf file, const char* errorMessage, size_t errorMessageSize) noexcept;
+    [[noreturn]] Y_NO_INLINE void InternalPanicImpl(int line, const char* function, const char* expr, int, int, int, const std::string_view file, const char* errorMessage, size_t errorMessageSize) noexcept;
 }
 
 void ::NPrivate::Panic(const TStaticBuf& file, int line, const char* function, const char* expr, const char* format, ...) noexcept {
@@ -44,7 +42,7 @@ void ::NPrivate::Panic(const TStaticBuf& file, int line, const char* function, c
         // Otherwise stderr could contain multiple messages and stack traces shuffled
         auto guard = Guard(*Singleton<TPanicLockHolder>());
 
-        TString errorMsg;
+        std::string errorMsg;
         va_list args;
         va_start(args, format);
         // format has " " prefix to mute GCC warning on empty format
@@ -52,7 +50,7 @@ void ::NPrivate::Panic(const TStaticBuf& file, int line, const char* function, c
         va_end(args);
 
         constexpr int abiPlaceholder = 0;
-        ::NPrivate::InternalPanicImpl(line, function, expr, abiPlaceholder, abiPlaceholder, abiPlaceholder, file.As<TStringBuf>(), errorMsg.c_str(), errorMsg.size());
+        ::NPrivate::InternalPanicImpl(line, function, expr, abiPlaceholder, abiPlaceholder, abiPlaceholder, file.As<std::string_view>(), errorMsg.c_str(), errorMsg.size());
     } catch (...) {
         // ¯\_(ツ)_/¯
     }
@@ -61,11 +59,11 @@ void ::NPrivate::Panic(const TStaticBuf& file, int line, const char* function, c
 }
 
 namespace NPrivate {
-    [[noreturn]] Y_NO_INLINE void InternalPanicImpl(int line, const char* function, const char* expr, int, int, int, const TStringBuf file, const char* errorMessage, size_t errorMessageSize) noexcept try {
-        TStringBuf errorMsg{errorMessage, errorMessageSize};
-        const TString now = TInstant::Now().ToStringLocal();
+    [[noreturn]] Y_NO_INLINE void InternalPanicImpl(int line, const char* function, const char* expr, int, int, int, const std::string_view file, const char* errorMessage, size_t errorMessageSize) noexcept try {
+        std::string_view errorMsg{errorMessage, errorMessageSize};
+        const std::string now = TInstant::Now().ToStringLocal();
 
-        TString r;
+        std::string r;
         TStringOutput o(r);
         if (expr) {
             o << "VERIFY failed (" << now << "): " << errorMsg << Endl;

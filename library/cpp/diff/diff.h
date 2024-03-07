@@ -4,7 +4,7 @@
 
 #include <util/generic/algorithm.h>
 #include <util/generic/array_ref.h>
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 #include <util/stream/output.h>
 #include <util/string/split.h>
@@ -107,6 +107,6 @@ namespace NDiff {
     // Without delimiters calculates character-wise diff
     // With delimiters calculates token-wise diff
     size_t InlineDiff(std::vector<TChunk<char>>& chunks, const std::string_view& left, const std::string_view& right, const std::string& delims = std::string());
-    size_t InlineDiff(std::vector<TChunk<wchar16>>& chunks, const TWtringBuf& left, const TWtringBuf& right, const TUtf16String& delims = TUtf16String());
+    size_t InlineDiff(std::vector<TChunk<wchar16>>& chunks, const std::u16string_view& left, const std::u16string_view& right, const std::u16string& delims = std::u16string());
 
 }

@@ -13,7 +13,7 @@
     #include <util/system/winint.h>
 #endif
 
-TTimer::TTimer(const TStringBuf message) {
+TTimer::TTimer(const std::string_view message) {
     static const int SMALL_DURATION_CHAR_LENGTH = 9;                     // strlen("0.123456s")
     Message_.Reserve(message.length() + SMALL_DURATION_CHAR_LENGTH + 1); // +"\n"
     Message_ << message;
@@ -79,14 +79,14 @@ ui64 TPrecisionTimer::GetCycleCount() const {
     return ::GetCycleCount() - Start;
 }
 
-TString FormatCycles(ui64 cycles) {
+std::string FormatCycles(ui64 cycles) {
     ui64 milliseconds = cycles / GetCyclesPerMillisecond();
     ui32 ms = ui32(milliseconds % 1000);
     milliseconds /= 1000;
     ui32 secs = ui32(milliseconds % 60);
     milliseconds /= 60;
     ui32 mins = ui32(milliseconds);
-    TString result;
+    std::string result;
     sprintf(result, "%" PRIu32 " m %.2" PRIu32 " s %.3" PRIu32 " ms", mins, secs, ms);
     return result;
 }
@@ -116,7 +116,7 @@ TFuncTimer::~TFuncTimer() {
     Cerr << "leave " << Func_ << " -> " << (TInstant::Now() - Start_) << Endl;
 }
 
-TTimeLogger::TTimeLogger(const TString& message, bool verbose)
+TTimeLogger::TTimeLogger(const std::string& message, bool verbose)
     : Message(message)
     , Verbose(verbose)
     , OK(false)

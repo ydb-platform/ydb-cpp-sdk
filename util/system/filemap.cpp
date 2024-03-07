@@ -70,8 +70,8 @@ namespace {
 #define GRANULARITY (TSysInfo::Instance().GRANULARITY_)
 #define PAGE_SIZE (TSysInfo::Instance().PAGE_SIZE_)
 
-const TString& TMemoryMapCommon::UnknownFileName() {
-    static const TString unknownFileName = "Unknown_file_name";
+const std::string& TMemoryMapCommon::UnknownFileName() {
+    static const std::string unknownFileName = "Unknown_file_name";
     return unknownFileName;
 }
 
@@ -161,7 +161,7 @@ public:
         }
     }
 
-    inline TImpl(FILE* f, EOpenMode om, TString dbgName)
+    inline TImpl(FILE* f, EOpenMode om, std::string dbgName)
         : File_(Duplicate(f))
         , DbgName_(std::move(dbgName))
         , Length_(File_.GetLength())
@@ -171,7 +171,7 @@ public:
         CreateMapping();
     }
 
-    inline TImpl(const TString& name, EOpenMode om)
+    inline TImpl(const std::string& name, EOpenMode om)
         : File_(name, (om & oRdWr) ? OpenExisting | RdWr : OpenExisting | RdOnly)
         , DbgName_(name)
         , Length_(File_.GetLength())
@@ -181,7 +181,7 @@ public:
         CreateMapping();
     }
 
-    inline TImpl(const TString& name, i64 length, EOpenMode om)
+    inline TImpl(const std::string& name, i64 length, EOpenMode om)
         : File_(name, (om & oRdWr) ? OpenExisting | RdWr : OpenExisting | RdOnly)
         , DbgName_(name)
         , Length_(length)
@@ -196,9 +196,9 @@ public:
         CreateMapping();
     }
 
-    inline TImpl(const TFile& file, EOpenMode om, const TString& dbgName)
+    inline TImpl(const TFile& file, EOpenMode om, const std::string& dbgName)
         : File_(file)
-        , DbgName_(File_.GetName() ? File_.GetName() : dbgName)
+        , DbgName_(!File_.GetName().empty() ? File_.GetName() : dbgName)
         , Length_(File_.GetLength())
         , Mode_(om)
     {
@@ -325,7 +325,7 @@ public:
         return File_;
     }
 
-    inline TString GetDbgName() const {
+    inline std::string GetDbgName() const {
         return DbgName_;
     }
 
@@ -335,7 +335,7 @@ public:
 
 private:
     TFile File_;
-    TString DbgName_; // This string is never used to actually open a file, only in exceptions
+    std::string DbgName_; // This string is never used to actually open a file, only in exceptions
     i64 Length_;
     EOpenMode Mode_;
 
@@ -346,37 +346,37 @@ private:
 #endif
 };
 
-TMemoryMap::TMemoryMap(const TString& name)
+TMemoryMap::TMemoryMap(const std::string& name)
     : Impl_(new TImpl(name, EOpenModeFlag::oRdOnly))
 {
 }
 
-TMemoryMap::TMemoryMap(const TString& name, EOpenMode om)
+TMemoryMap::TMemoryMap(const std::string& name, EOpenMode om)
     : Impl_(new TImpl(name, om))
 {
 }
 
-TMemoryMap::TMemoryMap(const TString& name, i64 length, EOpenMode om)
+TMemoryMap::TMemoryMap(const std::string& name, i64 length, EOpenMode om)
     : Impl_(new TImpl(name, length, om))
 {
 }
 
-TMemoryMap::TMemoryMap(FILE* f, TString dbgName)
+TMemoryMap::TMemoryMap(FILE* f, std::string dbgName)
     : Impl_(new TImpl(f, EOpenModeFlag::oRdOnly, std::move(dbgName)))
 {
 }
 
-TMemoryMap::TMemoryMap(FILE* f, EOpenMode om, TString dbgName)
+TMemoryMap::TMemoryMap(FILE* f, EOpenMode om, std::string dbgName)
     : Impl_(new TImpl(f, om, std::move(dbgName)))
 {
 }
 
-TMemoryMap::TMemoryMap(const TFile& file, const TString& dbgName)
+TMemoryMap::TMemoryMap(const TFile& file, const std::string& dbgName)
     : Impl_(new TImpl(file, EOpenModeFlag::oRdOnly, dbgName))
 {
 }
 
-TMemoryMap::TMemoryMap(const TFile& file, EOpenMode om, const TString& dbgName)
+TMemoryMap::TMemoryMap(const TFile& file, EOpenMode om, const std::string& dbgName)
     : Impl_(new TImpl(file, om, dbgName))
 {
 }
@@ -444,27 +444,27 @@ TFileMap::TFileMap(const TMemoryMap& map) noexcept
 {
 }
 
-TFileMap::TFileMap(const TString& name)
+TFileMap::TFileMap(const std::string& name)
     : Map_(name)
 {
 }
 
-TFileMap::TFileMap(const TString& name, EOpenMode om)
+TFileMap::TFileMap(const std::string& name, EOpenMode om)
     : Map_(name, om)
 {
 }
 
-TFileMap::TFileMap(const TString& name, i64 length, EOpenMode om)
+TFileMap::TFileMap(const std::string& name, i64 length, EOpenMode om)
     : Map_(name, length, om)
 {
 }
 
-TFileMap::TFileMap(FILE* f, EOpenMode om, TString dbgName)
+TFileMap::TFileMap(FILE* f, EOpenMode om, std::string dbgName)
     : Map_(f, om, std::move(dbgName))
 {
 }
 
-TFileMap::TFileMap(const TFile& file, EOpenMode om, const TString& dbgName)
+TFileMap::TFileMap(const TFile& file, EOpenMode om, const std::string& dbgName)
     : Map_(file, om, dbgName)
 {
 }

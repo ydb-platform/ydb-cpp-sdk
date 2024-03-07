@@ -12,7 +12,6 @@ target_link_libraries(library-cpp-json PUBLIC
   cpp-json-fast_sax
   cpp-json-writer
   cpp-string_utils-relaxed_escaper
-  cpp-string_builder
 )
 
 target_sources(library-cpp-json PRIVATE

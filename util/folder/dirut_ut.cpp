@@ -3,7 +3,6 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/string.h>
 #include <util/memory/tempbuf.h>
 #include <util/stream/file.h>
 
@@ -16,15 +15,15 @@ Y_UNIT_TEST_SUITE(TDirutTest) {
         UNIT_ASSERT(IsDir(RealLocation(".")));
 
         TTempDir tempDir;
-        TString base = RealPath(tempDir());
+        std::string base = RealPath(tempDir());
         UNIT_ASSERT(!base.empty());
 
         if (base.back() == GetDirectorySeparator()) {
             base.pop_back();
         }
 
-        TString path;
-        TString pathNotNorm;
+        std::string path;
+        std::string pathNotNorm;
 
         path = base + GetDirectorySeparatorS() + "no_such_file";
         UNIT_ASSERT(NFs::Exists(GetDirName(path)));
@@ -57,7 +56,7 @@ Y_UNIT_TEST_SUITE(TDirutTest) {
     }
 
     void DoTest(const char* p, const char* base, const char* canon) {
-        TString path(p);
+        std::string path(p);
         UNIT_ASSERT(resolvepath(path, base));
         UNIT_ASSERT(path == canon);
     }
@@ -82,13 +81,13 @@ Y_UNIT_TEST_SUITE(TDirutTest) {
     Y_UNIT_TEST(TestResolvePathRelative) {
         TTempDir tempDir;
         TTempBuf tempBuf;
-        TString base = RealPath(tempDir());
+        std::string base = RealPath(tempDir());
         if (base.back() == GetDirectorySeparator()) {
             base.pop_back();
         }
 
         // File
-        TString path = base + GetDirectorySeparatorS() + "file";
+        std::string path = base + GetDirectorySeparatorS() + "file";
         {
             TFixedBufferFileOutput file(path);
         }
@@ -112,9 +111,9 @@ Y_UNIT_TEST_SUITE(TDirutTest) {
     }
 
     Y_UNIT_TEST(TestStripFileComponent) {
-        static const TString tmpDir = "tmp_dir_for_tests";
-        static const TString tmpSubDir = tmpDir + GetDirectorySeparatorS() + "subdir";
-        static const TString tmpFile = tmpDir + GetDirectorySeparatorS() + "file";
+        static const std::string tmpDir = "tmp_dir_for_tests";
+        static const std::string tmpSubDir = tmpDir + GetDirectorySeparatorS() + "subdir";
+        static const std::string tmpFile = tmpDir + GetDirectorySeparatorS() + "file";
 
         // creating tmp dir and subdirs
         MakeDirIfNotExist(tmpDir.data());

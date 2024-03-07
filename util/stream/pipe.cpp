@@ -1,13 +1,14 @@
 #include "pipe.h"
 
 #include <util/generic/yexception.h>
+#include <util/string/escape.h>
 
 #include <cstdio>
 #include <cerrno>
 
 class TPipeBase::TImpl {
 public:
-    inline TImpl(const TString& command, const char* mode)
+    inline TImpl(const std::string& command, const char* mode)
         : Pipe_(nullptr)
     {
 #ifndef _freebsd_
@@ -17,7 +18,7 @@ public:
 #endif
         Pipe_ = ::popen(command.data(), mode);
         if (Pipe_ == nullptr) {
-            ythrow TSystemError() << "failed to open pipe: " << command.Quote();
+            ythrow TSystemError() << "failed to open pipe: " << NUtils::Quote(command);
         }
     }
 
@@ -31,14 +32,14 @@ public:
     FILE* Pipe_;
 };
 
-TPipeBase::TPipeBase(const TString& command, const char* mode)
+TPipeBase::TPipeBase(const std::string& command, const char* mode)
     : Impl_(new TImpl(command, mode))
 {
 }
 
 TPipeBase::~TPipeBase() = default;
 
-TPipeInput::TPipeInput(const TString& command)
+TPipeInput::TPipeInput(const std::string& command)
     : TPipeBase(command, "r")
 {
 }
@@ -61,7 +62,7 @@ size_t TPipeInput::DoRead(void* buf, size_t len) {
     return bytesRead;
 }
 
-TPipeOutput::TPipeOutput(const TString& command)
+TPipeOutput::TPipeOutput(const std::string& command)
     : TPipeBase(command, "w")
 {
 }

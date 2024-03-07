@@ -36,7 +36,7 @@ static time_t ParseDate(const char* dateStr) {
 
 template <>
 TDate FromStringImpl<TDate>(const char* data, size_t len) {
-    return TDate(ParseDate(TString(data, len).data()));
+    return TDate(ParseDate(std::string(data, len).data()));
 }
 
 TDate::TDate(const char* yyyymmdd)
@@ -44,7 +44,7 @@ TDate::TDate(const char* yyyymmdd)
 {
 }
 
-TDate::TDate(const TString& yyyymmdd)
+TDate::TDate(const std::string& yyyymmdd)
     : Timestamp(GetDateStart(ParseDate(yyyymmdd.c_str())))
 {
 }
@@ -54,7 +54,7 @@ TDate::TDate(time_t ts)
 {
 }
 
-TDate::TDate(const TString& date, const TString& format)
+TDate::TDate(const std::string& date, const std::string& format)
     : Timestamp(GetDateStart(ParseDate(date.data(), format.data())))
 {
 }
@@ -82,7 +82,7 @@ time_t TDate::GetStartUTC() const {
     return TimeGM(&dateTm);
 }
 
-TString TDate::ToStroka(const char* format) const {
+std::string TDate::ToStroka(const char* format) const {
     tm dateTm;
     localtime_r(&Timestamp, &dateTm);
     return Strftime(format, &dateTm);

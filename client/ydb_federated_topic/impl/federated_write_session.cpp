@@ -37,17 +37,17 @@ TFederatedWriteSession::TFederatedWriteSession(const TFederatedWriteSessionSetti
 
 void TFederatedWriteSession::Start() {
     // TODO validate settings?
-    with_lock(Lock) {
+    {
+        std::lock_guard guard(Lock);
         ClientEventsQueue->PushEvent(NTopic::TWriteSessionEvent::TReadyToAcceptEvent{IssueContinuationToken()});
         ClientHasToken = true;
     }
 
     AsyncInit.Subscribe([self = shared_from_this()](const auto& f){
         Y_UNUSED(f);
-        with_lock(self->Lock) {
-            self->FederationState = self->Observer->GetState();
-            self->OnFederatedStateUpdateImpl();
-        }
+        std::lock_guard guard(self->Lock);
+        self->FederationState = self->Observer->GetState();
+        self->OnFederatedStateUpdateImpl();
     });
 }
 
@@ -66,7 +66,8 @@ void TFederatedWriteSession::OpenSubSessionImpl(std::shared_ptr<TDbInfo> db) {
         .HandlersExecutor(Settings.EventHandlers_.HandlersExecutor_)
         .ReadyToAcceptHander([self = shared_from_this()](NTopic::TWriteSessionEvent::TReadyToAcceptEvent& ev){
             TDeferredWrite deferred(self->Subsession);
-            with_lock(self->Lock) {
+            {
+                std::lock_guard guard(self->Lock);
                 Y_ABORT_UNLESS(!self->PendingToken.has_value());
                 self->PendingToken = std::move(ev.ContinuationToken);
                 self->PrepareDeferredWrite(deferred);
@@ -74,23 +75,21 @@ void TFederatedWriteSession::OpenSubSessionImpl(std::shared_ptr<TDbInfo> db) {
             deferred.DoWrite();
         })
         .AcksHandler([self = shared_from_this()](NTopic::TWriteSessionEvent::TAcksEvent& ev){
-            with_lock(self->Lock) {
-                Y_ABORT_UNLESS(ev.Acks.size() <= self->OriginalMessagesToGetAck.size());
-                for (size_t i = 0; i < ev.Acks.size(); ++i) {
-                    self->BufferFreeSpace += self->OriginalMessagesToGetAck.front().Data.size();
-                    self->OriginalMessagesToGetAck.pop_front();
-                }
-                self->ClientEventsQueue->PushEvent(std::move(ev));
-                if (self->BufferFreeSpace > 0 && !self->ClientHasToken) {
-                    self->ClientEventsQueue->PushEvent(NTopic::TWriteSessionEvent::TReadyToAcceptEvent{IssueContinuationToken()});
-                    self->ClientHasToken = true;
-                }
+            std::lock_guard guard(self->Lock);
+            Y_ABORT_UNLESS(ev.Acks.size() <= self->OriginalMessagesToGetAck.size());
+            for (size_t i = 0; i < ev.Acks.size(); ++i) {
+                self->BufferFreeSpace += self->OriginalMessagesToGetAck.front().Data.size();
+                self->OriginalMessagesToGetAck.pop_front();
+            }
+            self->ClientEventsQueue->PushEvent(std::move(ev));
+            if (self->BufferFreeSpace > 0 && !self->ClientHasToken) {
+                self->ClientEventsQueue->PushEvent(NTopic::TWriteSessionEvent::TReadyToAcceptEvent{IssueContinuationToken()});
+                self->ClientHasToken = true;
             }
         })
         .SessionClosedHandler([self = shared_from_this()](const NTopic::TSessionClosedEvent & ev){
-            with_lock(self->Lock) {
-                self->ClientEventsQueue->PushEvent(ev);
-            }
+            std::lock_guard guard(self->Lock);
+            self->ClientEventsQueue->PushEvent(ev);
         });
 
     NTopic::TWriteSessionSettings wsSettings = Settings;
@@ -173,13 +172,12 @@ void TFederatedWriteSession::ScheduleFederatedStateUpdateImpl(TDuration delay) {
     Y_ABORT_UNLESS(Lock.IsLocked());
     auto cb = [self = shared_from_this()](bool ok) {
         if (ok) {
-            with_lock(self->Lock) {
-                if (self->Closing) {
-                    return;
-                }
-                self->FederationState = self->Observer->GetState();
-                self->OnFederatedStateUpdateImpl();
+            std::lock_guard guard(self->Lock);
+            if (self->Closing) {
+                return;
             }
+            self->FederationState = self->Observer->GetState();
+            self->OnFederatedStateUpdateImpl();
         }
     };
 
@@ -247,7 +245,8 @@ void TFederatedWriteSession::WriteInternal(NTopic::TContinuationToken&&, NTopic:
 
     {
         TDeferredWrite deferred(Subsession);
-        with_lock(Lock) {
+        {
+            std::lock_guard guard(Lock);
             BufferFreeSpace -= message.Data.size();
             OriginalMessagesToPassDown.emplace_back(std::move(message));
 

@@ -36,7 +36,7 @@
  * int main() {
  *    Hi();         // void Hi()
  *    Do<int>();    // void Do() [T = int]
- *    Do<TString>(); // void Do() [T = TString]
+ *    Do<std::string>(); // void Do() [T = TString]
  * }
  * @endcode
  */

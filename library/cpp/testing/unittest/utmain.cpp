@@ -15,7 +15,7 @@
 #include <util/generic/hash.h>
 #include <util/generic/hash_set.h>
 #include <util/generic/scope.h>
-#include <util/generic/string.h>
+#include <string>
 #include <util/generic/yexception.h>
 
 #include <util/network/init.h>

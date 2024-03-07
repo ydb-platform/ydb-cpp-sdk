@@ -1,13 +1,15 @@
 #pragma once
 
+#include <contrib/libs/libc_compat/string.h>
+
 #include <util/memory/alloc.h>
 #include <util/digest/numeric.h>
-#include <util/generic/string.h>
+#include <util/generic/fwd.h>
 #include <util/generic/string_hash.h>
-#include <util/generic/strbuf.h>
 #include <util/generic/typetraits.h>
 
 #include <functional>
+#include <string>
 #include <typeindex>
 #include <utility>
 
@@ -22,9 +24,6 @@ namespace std {
     struct equal_to<const char*> {
         bool operator()(const char* x, const char* y) const {
             return strcmp(x, y) == 0;
-        }
-        bool operator()(const char* x, const TStringBuf y) const {
-            return strlen(x) == y.size() && memcmp(x, y.data(), y.size()) == 0;
         }
         using is_transparent = void;
     };
@@ -51,7 +50,7 @@ namespace NHashPrivate {
     struct TStringHash {
         using is_transparent = void;
 
-        inline size_t operator()(const TBasicStringBuf<C> s) const noexcept {
+        inline size_t operator()(const std::basic_string_view<C> s) const noexcept {
             return NHashPrivate::ComputeStringHash(s.data(), s.size());
         }
     };
@@ -81,31 +80,27 @@ struct hash<char[n]>: ::NHashPrivate::TStringHash<char> {
 };
 
 template <>
-struct THash<TStringBuf>: ::NHashPrivate::TStringHash<char> {
-};
-
-template <>
 struct THash<std::string_view>: ::NHashPrivate::TStringHash<char> {
 };
 
-template <>
-struct hash<TString>: ::NHashPrivate::TStringHash<char> {
-};
+// template <>
+// struct hash<std::string>: ::NHashPrivate::TStringHash<char> {
+// };
+
+// template <>
+// struct hash<std::u16string>: ::NHashPrivate::TStringHash<wchar16> {
+// };
 
 template <>
-struct hash<TUtf16String>: ::NHashPrivate::TStringHash<wchar16> {
+struct THash<std::u16string_view>: ::NHashPrivate::TStringHash<wchar16> {
 };
 
-template <>
-struct THash<TWtringBuf>: ::NHashPrivate::TStringHash<wchar16> {
-};
+// template <>
+// struct hash<std::u32string>: ::NHashPrivate::TStringHash<wchar32> {
+// };
 
 template <>
-struct hash<TUtf32String>: ::NHashPrivate::TStringHash<wchar32> {
-};
-
-template <>
-struct THash<TUtf32StringBuf>: ::NHashPrivate::TStringHash<wchar32> {
+struct THash<std::u32string_view>: ::NHashPrivate::TStringHash<wchar32> {
 };
 
 template <class C, class T, class A>
@@ -198,17 +193,12 @@ struct TEqualTo<std::string>: public TEqualTo<std::string_view> {
 };
 
 template <>
-struct TEqualTo<TString>: public TEqualTo<TStringBuf> {
+struct TEqualTo<std::u16string>: public TEqualTo<std::u16string_view> {
     using is_transparent = void;
 };
 
 template <>
-struct TEqualTo<TUtf16String>: public TEqualTo<TWtringBuf> {
-    using is_transparent = void;
-};
-
-template <>
-struct TEqualTo<TUtf32String>: public TEqualTo<TUtf32StringBuf> {
+struct TEqualTo<std::u32string>: public TEqualTo<std::u32string_view> {
     using is_transparent = void;
 };
 
@@ -233,15 +223,8 @@ struct TCIEqualTo<const char*> {
 };
 
 template <>
-struct TCIEqualTo<TStringBuf> {
-    inline bool operator()(const TStringBuf a, const TStringBuf b) const {
-        return a.size() == b.size() && strnicmp(a.data(), b.data(), a.size()) == 0;
-    }
-};
-
-template <>
-struct TCIEqualTo<TString> {
-    inline bool operator()(const TString& a, const TString& b) const {
+struct TCIEqualTo<std::string> {
+    inline bool operator()(const std::string& a, const std::string& b) const {
         return a.size() == b.size() && strnicmp(a.data(), b.data(), a.size()) == 0;
     }
 };
@@ -251,17 +234,12 @@ struct TLess: public std::less<T> {
 };
 
 template <>
-struct TLess<TString>: public TLess<TStringBuf> {
+struct TLess<std::u16string>: public TLess<std::u16string_view> {
     using is_transparent = void;
 };
 
 template <>
-struct TLess<TUtf16String>: public TLess<TWtringBuf> {
-    using is_transparent = void;
-};
-
-template <>
-struct TLess<TUtf32String>: public TLess<TUtf32StringBuf> {
+struct TLess<std::u32string>: public TLess<std::u32string_view> {
     using is_transparent = void;
 };
 
@@ -270,16 +248,11 @@ struct TGreater: public std::greater<T> {
 };
 
 template <>
-struct TGreater<TString>: public TGreater<TStringBuf> {
+struct TGreater<std::u16string>: public TGreater<std::u16string_view> {
     using is_transparent = void;
 };
 
 template <>
-struct TGreater<TUtf16String>: public TGreater<TWtringBuf> {
-    using is_transparent = void;
-};
-
-template <>
-struct TGreater<TUtf32String>: public TGreater<TUtf32StringBuf> {
+struct TGreater<std::u32string>: public TGreater<std::u32string_view> {
     using is_transparent = void;
 };

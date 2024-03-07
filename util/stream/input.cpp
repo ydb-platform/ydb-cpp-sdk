@@ -4,7 +4,6 @@
 
 #include <util/charset/wide.h>
 #include <util/memory/tempbuf.h>
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
 #include <util/generic/singleton.h>
 #include <util/string/cast.h>
@@ -17,7 +16,7 @@ IInputStream::IInputStream() noexcept = default;
 
 IInputStream::~IInputStream() = default;
 
-size_t IInputStream::DoReadTo(TString& st, char to) {
+size_t IInputStream::DoReadTo(std::string& st, char to) {
     char ch;
 
     if (!Read(&ch, 1)) {
@@ -78,7 +77,7 @@ void IInputStream::LoadOrFail(void* buf, size_t len) {
     }
 }
 
-size_t IInputStream::ReadLine(TString& st) {
+size_t IInputStream::ReadLine(std::string& st) {
     const size_t ret = ReadTo(st, '\n');
 
     if (ret && !st.empty() && st.back() == '\r') {
@@ -88,8 +87,8 @@ size_t IInputStream::ReadLine(TString& st) {
     return ret;
 }
 
-size_t IInputStream::ReadLine(TUtf16String& w) {
-    TString s;
+size_t IInputStream::ReadLine(std::u16string& w) {
+    std::string s;
     size_t result = ReadLine(s);
 
     if (result) {
@@ -99,8 +98,8 @@ size_t IInputStream::ReadLine(TUtf16String& w) {
     return result;
 }
 
-TString IInputStream::ReadLine() {
-    TString ret;
+std::string IInputStream::ReadLine() {
+    std::string ret;
 
     if (!ReadLine(ret)) {
         ythrow yexception() << "can not read line from stream";
@@ -109,8 +108,8 @@ TString IInputStream::ReadLine() {
     return ret;
 }
 
-TString IInputStream::ReadTo(char ch) {
-    TString ret;
+std::string IInputStream::ReadTo(char ch) {
+    std::string ret;
 
     if (!ReadTo(ret, ch)) {
         ythrow yexception() << "can not read from stream";
@@ -145,8 +144,8 @@ size_t IInputStream::DoSkip(size_t sz) {
     return total;
 }
 
-TString IInputStream::ReadAll() {
-    TString result;
+std::string IInputStream::ReadAll() {
+    std::string result;
     TStringOutput stream(result);
 
     DoReadAll(stream);
@@ -190,7 +189,7 @@ namespace {
             free(B_);
         }
 
-        size_t DoReadTo(TString& st, char ch) override {
+        size_t DoReadTo(std::string& st, char ch) override {
             auto&& guard = Guard(M_);
 
             (void)guard;
@@ -207,9 +206,9 @@ namespace {
                 return 0;
             }
 
-            st.AssignNoAlias(B_, r);
+            st.assign(B_, r);
 
-            if (st && st.back() == ch) {
+            if (!st.empty() && st.back() == ch) {
                 st.pop_back();
             }
 
@@ -227,7 +226,7 @@ namespace {
     using TGetLine = TGetLineBase;
     #else
     struct TGetLine: public TGetLineBase {
-        size_t DoReadTo(TString& st, char ch) override {
+        size_t DoReadTo(std::string& st, char ch) override {
             if (ch == '\n') {
                 size_t len = 0;
                 auto r = fgetln(F_, &len);
@@ -262,7 +261,7 @@ static inline bool IsStdDelimiter(char c) {
     return (c == '\0') || (c == ' ') || (c == '\r') || (c == '\n') || (c == '\t');
 }
 
-static void ReadUpToDelimiter(IInputStream& i, TString& s) {
+static void ReadUpToDelimiter(IInputStream& i, std::string& s) {
     char c;
     while (i.ReadChar(c)) { // skip delimiters
         if (!IsStdDelimiter(c)) {
@@ -278,14 +277,14 @@ static void ReadUpToDelimiter(IInputStream& i, TString& s) {
 // specialization for string-related stuff
 
 template <>
-void In<TString>(IInputStream& i, TString& s) {
+void In<std::string>(IInputStream& i, std::string& s) {
     s.resize(0);
     ReadUpToDelimiter(i, s);
 }
 
 template <>
-void In<TUtf16String>(IInputStream& i, TUtf16String& w) {
-    TString s;
+void In<std::u16string>(IInputStream& i, std::u16string& w) {
+    std::string s;
     ReadUpToDelimiter(i, s);
 
     if (s.empty()) {

@@ -14,14 +14,14 @@ Y_UNIT_TEST_SUITE(TestSingleton) {
     }
 
     struct TWithParams {
-        explicit TWithParams(const ui32 data1 = 0, const TString& data2 = TString())
+        explicit TWithParams(const ui32 data1 = 0, const std::string& data2 = std::string())
             : Data1(data1)
             , Data2(data2)
         {
         }
 
         ui32 Data1;
-        TString Data2;
+        std::string Data2;
     };
 
     Y_UNIT_TEST(TestConstructorParamsOrder) {

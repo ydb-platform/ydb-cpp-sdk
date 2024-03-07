@@ -47,7 +47,7 @@ public:
 
 private:
     // TODO logging
-    NUtils::TYdbStringBuilder GetLogPrefix() const;
+    TStringBuilder GetLogPrefix() const;
 
     void Start();
     bool ValidateSettings();

@@ -768,13 +768,13 @@ struct TCustomCounter: TSimpleCounter {
 
 void TPointerTest::TestRefCountedPtrsInHashSet() {
     // test common case
-    TestRefCountedPtrsInHashSetImpl<TString, TSimpleSharedPtr<TString>>();
-    TestRefCountedPtrsInHashSetImpl<TString, TAtomicSharedPtr<TString>>();
+    TestRefCountedPtrsInHashSetImpl<std::string, TSimpleSharedPtr<std::string>>();
+    TestRefCountedPtrsInHashSetImpl<std::string, TAtomicSharedPtr<std::string>>();
     TestRefCountedPtrsInHashSetImpl<A, TIntrusivePtr<A>>();
     TestRefCountedPtrsInHashSetImpl<A, TIntrusiveConstPtr<A>>();
 
     // test with custom ops
-    TestRefCountedPtrsInHashSetImpl<TString, TSharedPtr<TString, TCustomCounter, TCustomDeleter>>();
+    TestRefCountedPtrsInHashSetImpl<std::string, TSharedPtr<std::string, TCustomCounter, TCustomDeleter>>();
     TestRefCountedPtrsInHashSetImpl<A, TIntrusivePtr<A, TCustomIntrusivePtrOps>>();
     TestRefCountedPtrsInHashSetImpl<A, TIntrusiveConstPtr<A, TCustomIntrusivePtrOps>>();
 }

@@ -11,6 +11,7 @@
 #include <util/system/spinlock.h>
 #include <util/system/yassert.h>
 
+#include <mutex>
 #include <type_traits>
 #include <utility>
 
@@ -358,21 +359,18 @@ namespace NThreading {
 
         template <typename TT>
         void Enqueue(TT&& value) {
-            with_lock (WriteLock) {
-                Queue.Enqueue(std::forward<TT>(value));
-            }
+            std::lock_guard guard(WriteLock);
+            Queue.Enqueue(std::forward<TT>(value));
         }
 
         bool Dequeue(T& value) {
-            with_lock (ReadLock) {
-                return Queue.Dequeue(value);
-            }
+            std::lock_guard guard(ReadLock);
+            return Queue.Dequeue(value);
         }
 
         bool IsEmpty() {
-            with_lock (ReadLock) {
-                return Queue.IsEmpty();
-            }
+            std::lock_guard guard(ReadLock);
+            return Queue.IsEmpty();
         }
     };
 

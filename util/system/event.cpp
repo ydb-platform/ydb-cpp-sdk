@@ -1,8 +1,9 @@
 #include "defaults.h"
 
 #include "event.h"
-#include "mutex.h"
-#include "condvar.h"
+
+#include <condition_variable>
+#include <mutex>
 
 #ifdef _win_
     #include "winint.h"
@@ -54,14 +55,15 @@ public:
             return; // shortcut
         }
 
-        with_lock (Mutex) {
+        {
+            std::lock_guard guard(Mutex);
             Signaled.store(true, std::memory_order_release);
         }
 
         if (Manual) {
-            Cond.BroadCast();
+            Cond.notify_all();
         } else {
-            Cond.Signal();
+            Cond.notify_one();
         }
     }
 
@@ -76,18 +78,18 @@ public:
 
         bool resSignaled = true;
 
-        with_lock (Mutex) {
-            while (!Signaled.load(std::memory_order_acquire)) {
-                if (!Cond.WaitD(Mutex, deadLine)) {
-                    resSignaled = Signaled.load(std::memory_order_acquire); // timed out, but Signaled could have been set
+        std::unique_lock ulock(Mutex);
+        while (!Signaled.load(std::memory_order_acquire)) {
+            auto duration = std::chrono::microseconds(deadLine.MicroSeconds());
+            if (Cond.wait_until(ulock, std::chrono::time_point<std::chrono::steady_clock>(duration)) == std::cv_status::timeout) {
+                resSignaled = Signaled.load(std::memory_order_acquire); // timed out, but Signaled could have been set
 
-                    break;
-                }
+                break;
             }
+        }
 
-            if (!Manual) {
-                Signaled.store(false, std::memory_order_release);
-            }
+        if (!Manual) {
+            Signaled.store(false, std::memory_order_release);
         }
 
         return resSignaled;
@@ -98,8 +100,8 @@ private:
 #ifdef _win_
     HANDLE cond;
 #else
-    TCondVar Cond;
-    TMutex Mutex;
+    std::condition_variable Cond;
+    std::mutex Mutex;
     std::atomic<bool> Signaled = false;
     bool Manual;
 #endif

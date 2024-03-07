@@ -9,7 +9,6 @@ target_link_libraries(cpp-yt-misc PUBLIC
   yutil
   cpp-yt-exception
   tools-enum_parser-enum_serialization_runtime
-  cpp-string_builder
   cpp-string_utils-misc
 )
 

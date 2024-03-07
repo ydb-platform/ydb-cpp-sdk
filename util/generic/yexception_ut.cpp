@@ -112,7 +112,7 @@ private:
         try {
             Y_ENSURE_BT(4 > 6);
         } catch (...) {
-            const TString msg = CurrentExceptionMessage();
+            const std::string msg = CurrentExceptionMessage();
             UNIT_ASSERT(msg.Contains("4 > 6"));
             UNIT_ASSERT(msg.Contains("\n"));
             EnsureCurrentExceptionHasBackTrace<yexception>();
@@ -126,7 +126,7 @@ private:
             Y_ENSURE_BT(4 > 6, "custom "
                                    << "message");
         } catch (...) {
-            const TString msg = CurrentExceptionMessage();
+            const std::string msg = CurrentExceptionMessage();
             UNIT_ASSERT(!msg.Contains("4 > 6"));
             UNIT_ASSERT(msg.Contains("custom message"));
             UNIT_ASSERT(msg.Contains("\n"));
@@ -143,9 +143,9 @@ private:
             throw std::logic_error("some exception"); // is instance of std::exception
             UNIT_ASSERT(false);
         } catch (...) {
-            TString exceptionMessage = FormatCurrentException();
+            std::string exceptionMessage = FormatCurrentException();
             UNIT_ASSERT(exceptionMessage.Contains("(std::logic_error) some exception"));
-            std::vector<TString> backtraceStrs = StringSplitter(exceptionMessage).Split('\n');
+            std::vector<std::string> backtraceStrs = StringSplitter(exceptionMessage).Split('\n');
             UNIT_ASSERT(backtraceStrs.size() > 1);
         }
     }
@@ -166,7 +166,7 @@ private:
             Throw1DontMove();
             UNIT_ASSERT(false);
         } catch (...) {
-            TString expected = "Caught:\n"
+            std::string expected = "Caught:\n"
                                "(yexception) util/generic/yexception_ut.cpp:4: blabla\n"
                                "Failed to print backtrace: "
                                "(yexception) util/generic/yexception_ut.cpp:8: 1 qw 12.1";
@@ -176,7 +176,7 @@ private:
             throw std::logic_error("std exception");
             UNIT_ASSERT(false);
         } catch (...) {
-            TString expected = "Caught:\n"
+            std::string expected = "Caught:\n"
                                "(std::logic_error) std exception\n"
                                "Failed to print backtrace: "
                                "(yexception) util/generic/yexception_ut.cpp:8: 1 qw 12.1";
@@ -269,14 +269,14 @@ private:
             throw yexception() << 1 << " qw " << 12.1;
             UNIT_ASSERT(false);
         } catch (...) {
-            const TString err = CurrentExceptionMessage();
+            const std::string err = CurrentExceptionMessage();
 
             UNIT_ASSERT(err.Contains("1 qw 12.1"));
         }
     }
 
     static inline void CheckCurrentExceptionContains(const char* message) {
-        TString err = CurrentExceptionMessage();
+        std::string err = CurrentExceptionMessage();
         SubstGlobal(err, '\\', '/'); // remove backslashes from path in message
         UNIT_ASSERT(err.Contains(message));
     }
@@ -341,7 +341,7 @@ private:
     void TestMessageCrop() {
         TTempBuf tmp;
         size_t size = tmp.Size() * 1.5;
-        TString s;
+        std::string s;
         s.reserve(size);
         TMersenne<ui64> generator(42);
         for (int j = 0; j < 50; ++j) {
@@ -355,7 +355,7 @@ private:
     }
 
     void TestTIoSystemErrorSpecialMethods() {
-        TString testStr{"systemError"};
+        std::string testStr{"systemError"};
         TIoSystemError err;
         err << testStr;
         UNIT_ASSERT(err.AsStrBuf().Contains(testStr));

@@ -4,7 +4,6 @@ target_link_libraries(cpp-yson-json PUBLIC
   contrib-libs-cxxsupp
   yutil
   library-cpp-json
-  cpp-string_builder
 )
 
 target_sources(cpp-yson-json PRIVATE

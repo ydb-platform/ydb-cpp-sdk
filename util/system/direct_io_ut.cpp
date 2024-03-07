@@ -97,14 +97,14 @@ Y_UNIT_TEST_SUITE(TDirectIoErrorHandling) {
     Y_UNIT_TEST(WritingReadOnlyFileBufferFlushed) {
         // Note the absence of Direct
         TDirectIOBufferedFile file(FileName_, RdOnly | OpenAlways, 1);
-        TString buffer = "Hello";
+        std::string buffer = "Hello";
         UNIT_ASSERT_EXCEPTION(file.Write(buffer.data(), buffer.size()), TFileError);
         NFs::Remove(FileName_);
     }
 
     Y_UNIT_TEST(WritingReadOnlyFileAllInBuffer) {
         TDirectIOBufferedFile file(FileName_, RdOnly | Direct | Seq | OpenAlways, 1 << 15);
-        TString buffer = "Hello";
+        std::string buffer = "Hello";
 
         // Doesn't throw because of buffering.
         file.Write(buffer.data(), buffer.size());

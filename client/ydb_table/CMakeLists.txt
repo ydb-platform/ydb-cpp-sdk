@@ -28,8 +28,7 @@ target_link_libraries(cpp-client-ydb_table PUBLIC
   client-ydb_types-operation
   cpp-client-ydb_value
   cpp-string_utils-misc
-  cpp-string_utils-string_output
-)
+  )
 
 target_sources(cpp-client-ydb_table PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_table/table.cpp

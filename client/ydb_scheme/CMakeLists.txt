@@ -14,8 +14,7 @@ target_link_libraries(cpp-client-ydb_scheme PUBLIC
   impl-ydb_internal-make_request
   client-ydb_common_client-impl
   cpp-client-ydb_driver
-  cpp-string_utils-string_output
-)
+  )
 
 target_sources(cpp-client-ydb_scheme PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_scheme/scheme.cpp

@@ -1,66 +1,65 @@
 #pragma once
 
-#include <util/generic/string.h>
-#include <util/generic/strbuf.h>
+#include <library/cpp/string_utils/helpers/helpers.h>
 
 template <class TChar>
-TBasicString<TChar>& EscapeCImpl(const TChar* str, size_t len, TBasicString<TChar>&);
+std::basic_string<TChar>& EscapeCImpl(const TChar* str, size_t len, std::basic_string<TChar>&);
 
 template <class TChar>
-TBasicString<TChar>& UnescapeCImpl(const TChar* str, size_t len, TBasicString<TChar>&);
+std::basic_string<TChar>& UnescapeCImpl(const TChar* str, size_t len, std::basic_string<TChar>&);
 
 template <class TChar>
 TChar* UnescapeC(const TChar* str, size_t len, TChar* buf);
 
 template <typename TChar>
-static inline TBasicString<TChar>& EscapeC(const TChar* str, size_t len, TBasicString<TChar>& s) {
+static inline std::basic_string<TChar>& EscapeC(const TChar* str, size_t len, std::basic_string<TChar>& s) {
     return EscapeCImpl(str, len, s);
 }
 
 template <typename TChar>
-static inline TBasicString<TChar> EscapeC(const TChar* str, size_t len) {
-    TBasicString<TChar> s;
+static inline std::basic_string<TChar> EscapeC(const TChar* str, size_t len) {
+    std::basic_string<TChar> s;
     return EscapeC(str, len, s);
 }
 
 template <typename TChar>
-static inline TBasicString<TChar> EscapeC(const TBasicStringBuf<TChar>& str) {
+static inline std::basic_string<TChar> EscapeC(const std::basic_string_view<TChar>& str) {
     return EscapeC(str.data(), str.size());
 }
 
 template <typename TChar>
-static inline TBasicString<TChar>& UnescapeC(const TChar* str, size_t len, TBasicString<TChar>& s) {
+static inline std::basic_string<TChar>& UnescapeC(const TChar* str, size_t len, std::basic_string<TChar>& s) {
     return UnescapeCImpl(str, len, s);
 }
 
 template <typename TChar>
-static inline TBasicString<TChar> UnescapeC(const TChar* str, size_t len) {
-    TBasicString<TChar> s;
+static inline std::basic_string<TChar> UnescapeC(const TChar* str, size_t len) {
+    std::basic_string<TChar> s;
     return UnescapeCImpl(str, len, s);
 }
 
 template <typename TChar>
-static inline TBasicString<TChar> EscapeC(TChar ch) {
+static inline std::basic_string<TChar> EscapeC(TChar ch) {
     return EscapeC(&ch, 1);
 }
 
 template <typename TChar>
-static inline TBasicString<TChar> EscapeC(const TChar* str) {
+static inline std::basic_string<TChar> EscapeC(const TChar* str) {
     return EscapeC(str, std::char_traits<TChar>::length(str));
 }
 
-TString& EscapeC(const TStringBuf str, TString& res);
-TUtf16String& EscapeC(const TWtringBuf str, TUtf16String& res);
+std::string& EscapeC(const std::string_view str, std::string& res);
+std::u16string& EscapeC(const std::u16string_view str, std::u16string& res);
 
-// these two need to be methods, because of TBasicString::Quote implementation
-TString EscapeC(const TString& str);
-TUtf16String EscapeC(const TUtf16String& str);
+// these two need to be methods, because of std::basic_string::Quote implementation
+std::string EscapeC(const std::string& str);
+std::u16string EscapeC(const std::u16string& str);
 
-TString& UnescapeC(const TStringBuf str, TString& res);
-TUtf16String& UnescapeC(const TWtringBuf str, TUtf16String& res);
+std::string& UnescapeC(const std::string_view str, std::string& res);
+std::u16string& UnescapeC(const std::u16string_view str, std::u16string& res);
 
-TString UnescapeC(const TStringBuf str);
-TUtf16String UnescapeC(const TWtringBuf wtr);
+std::string UnescapeC(const std::string_view str);
+std::u16string UnescapeC(const std::u16string_view wtr);
 
 /// Returns number of chars in escape sequence.
 ///   - 0, if begin >= end
@@ -68,3 +67,20 @@ TUtf16String UnescapeC(const TWtringBuf wtr);
 ///   - at least 2 (including '\'), if [begin, end) starts with an escaped symbol
 template <class TChar>
 size_t UnescapeCCharLen(const TChar* begin, const TChar* end);
+
+namespace NUtils {
+
+template <class TChar>
+std::basic_string<TChar> GetQuoteLiteral();
+
+template <class TChar>
+std::basic_string<TChar> Quote(std::basic_string_view<TChar> s) {
+    return GetQuoteLiteral<TChar>() + EscapeC(s) + GetQuoteLiteral<TChar>();
+}
+
+template <class TChar>
+std::basic_string<TChar> Quote(const std::basic_string<TChar>& s) {
+    return Quote(std::basic_string_view<TChar>(s));
+}
+
+}

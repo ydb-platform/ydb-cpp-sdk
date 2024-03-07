@@ -141,7 +141,7 @@ Y_UNIT_TEST_SUITE(TBitOpsTest) {
 
         for (ui32 i = 0; i < 0x10000; ++i) {
             for (ui32 j = 0; j <= 32; ++j) {
-                UNIT_ASSERT_VALUES_EQUAL_C(i, ReverseBits(ReverseBits(i, j), j), (TString)(TStringBuilder() << i << " " << j));
+                UNIT_ASSERT_VALUES_EQUAL_C(i, ReverseBits(ReverseBits(i, j), j), (std::string)(TStringBuilder() << i << " " << j));
             }
         }
     }

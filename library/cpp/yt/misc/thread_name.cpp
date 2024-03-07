@@ -2,7 +2,7 @@
 
 #include <library/cpp/yt/misc/tls.h>
 
-#include <util/generic/string.h>
+#include <string>
 #include <util/system/thread.h>
 
 #include <algorithm>
@@ -35,7 +35,8 @@ TThreadName GetCurrentThreadName()
     auto& threadName = GetTlsRef(ThreadName);
 
     if (threadName.Length == 0) {
-        if (auto name = TThread::CurrentThreadName()) {
+        auto name = TThread::CurrentThreadName();
+        if (!name.empty()) {
             auto length = std::min<int>(TThreadName::BufferCapacity - 1, name.length());
             threadName.Length = length;
             ::memcpy(threadName.Buffer.data(), name.data(), length);

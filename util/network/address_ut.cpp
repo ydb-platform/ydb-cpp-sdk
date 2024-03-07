@@ -9,12 +9,12 @@ Y_UNIT_TEST_SUITE(IRemoteAddr_ToString) {
         std::unique_ptr<TOpaqueAddr> opaque(new TOpaqueAddr);
         IRemoteAddr* addr = opaque.Get();
 
-        TString s = ToString(*addr);
+        std::string s = ToString(*addr);
         UNIT_ASSERT_VALUES_EQUAL("(raw all zeros)", s);
 
         opaque->MutableAddr()->sa_data[10] = 17;
 
-        TString t = ToString(*addr);
+        std::string t = ToString(*addr);
 
         UNIT_ASSERT_C(t.StartsWith("(raw 0 0"), t);
         UNIT_ASSERT_C(t.EndsWith(')'), t);
@@ -25,8 +25,8 @@ Y_UNIT_TEST_SUITE(IRemoteAddr_ToString) {
         TNetworkAddress::TIterator it = address.Begin();
         UNIT_ASSERT(it != address.End());
         UNIT_ASSERT(it->ai_family == AF_INET6);
-        TString toString = ToString((const IRemoteAddr&)TAddrInfo(&*it));
-        UNIT_ASSERT_VALUES_EQUAL(TString("[::1]:22"), toString);
+        std::string toString = ToString((const IRemoteAddr&)TAddrInfo(&*it));
+        UNIT_ASSERT_VALUES_EQUAL(std::string("[::1]:22"), toString);
     }
 
     Y_UNIT_TEST(Loopback) {

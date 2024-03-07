@@ -9,6 +9,7 @@
 #include <util/generic/queue.h>
 
 #include <atomic>
+#include <mutex>
 #include <tuple>
 
 #include <cstdlib>
@@ -59,10 +60,9 @@ namespace {
         }
 
         inline void Register(TAtExitFunc func, void* ctx, size_t priority) {
-            with_lock (Lock_) {
-                Store_.push_back({func, ctx, priority, Store_.size()});
-                Items_.push(&Store_.back());
-            }
+            std::lock_guard guard(Lock_);
+            Store_.push_back({func, ctx, priority, Store_.size()});
+            Items_.push(&Store_.back());
         }
 
         inline bool FinishStarted() const {
@@ -92,15 +92,14 @@ namespace {
         if (TAtExit* const atExit = atExitPtr.load(std::memory_order_acquire)) {
             return atExit;
         }
-        with_lock (atExitLock) {
-            if (TAtExit* const atExit = atExitPtr.load()) {
-                return atExit;
-            }
-            atexit(OnExit);
-            TAtExit* const atExit = new (atExitMem) TAtExit;
-            atExitPtr.store(atExit, std::memory_order_release);
+        std::lock_guard guard(atExitLock);
+        if (TAtExit* const atExit = atExitPtr.load()) {
             return atExit;
         }
+        atexit(OnExit);
+        TAtExit* const atExit = new (atExitMem) TAtExit;
+        atExitPtr.store(atExit, std::memory_order_release);
+        return atExit;
     }
 }
 

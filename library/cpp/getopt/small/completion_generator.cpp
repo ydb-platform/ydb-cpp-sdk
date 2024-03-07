@@ -643,7 +643,7 @@ namespace NLastGetopt {
 #undef L
 
     std::string NEscaping::Q(std::string_view string) {
-        NUtils::TYdbStringBuilder out;
+        TStringBuilder out;
         // out.reserve(string.size());
         for (auto c: string) {
             switch (c) {
@@ -694,7 +694,7 @@ namespace NLastGetopt {
     }
 
     std::string NEscaping::C(std::string_view string) {
-        NUtils::TYdbStringBuilder out;
+        TStringBuilder out;
         // out.reserve(string.size() + 1);
         for (auto c: string) {
             switch (c) {
@@ -727,7 +727,7 @@ namespace NLastGetopt {
     }
 
     std::string NEscaping::S(std::string_view string) {
-        NUtils::TYdbStringBuilder out;
+        TStringBuilder out;
         // out.reserve(string.size() + 1);
         for (auto c: string) {
             switch (c) {
@@ -757,7 +757,7 @@ namespace NLastGetopt {
     }
 
     std::string NEscaping::B(std::string_view string) {
-        NUtils::TYdbStringBuilder out;
+        TStringBuilder out;
         // out.reserve(string.size() + 1);
         for (auto c: string) {
             switch (c) {

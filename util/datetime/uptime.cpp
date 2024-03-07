@@ -44,7 +44,7 @@ TDuration Uptime() {
     return TDuration::MilliSeconds(GetTickCount64());
 #elif defined(_linux_)
     TUnbufferedFileInput in("/proc/uptime");
-    TString uptimeStr = in.ReadLine();
+    std::string uptimeStr = in.ReadLine();
     double up, idle;
     if (sscanf(uptimeStr.data(), "%lf %lf", &up, &idle) < 2) {
         ythrow yexception() << "cannot read values from /proc/uptime";

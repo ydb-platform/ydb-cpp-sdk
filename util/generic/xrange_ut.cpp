@@ -158,7 +158,7 @@ Y_UNIT_TEST_SUITE(XRange) {
 
     template <class TRange>
     static void TestIteratorDifferenceImpl(TRange range, int a, int b, std::optional<int> step) {
-        auto fmtCase = [&]() -> TString { return TStringBuilder() << "xrange(" << a << ", " << b << (step ? ", " + ToString(*step) : TString{}) << ")"; };
+        auto fmtCase = [&]() -> std::string { return TStringBuilder() << "xrange(" << a << ", " << b << (step ? ", " + ToString(*step) : std::string{}) << ")"; };
         auto begin = std::begin(range);
         auto end = std::end(range);
         auto distance = end - begin;

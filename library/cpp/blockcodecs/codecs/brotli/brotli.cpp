@@ -2,7 +2,7 @@
 #include <library/cpp/blockcodecs/core/common.h>
 #include <library/cpp/blockcodecs/core/register.h>
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <contrib/libs/brotli/include/brotli/encode.h>
 #include <contrib/libs/brotli/include/brotli/decode.h>
@@ -17,7 +17,7 @@ namespace {
 
         inline TBrotliCodec(ui32 level)
             : Quality(level)
-            , MyName(NUtils::TYdbStringBuilder() << std::string_view("brotli_") << std::to_string(level))
+            , MyName(TStringBuilder() << std::string_view("brotli_") << std::to_string(level))
         {
         }
 

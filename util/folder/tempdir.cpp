@@ -21,7 +21,7 @@ TTempDir::TTempDir(const char* prefix, TCreationToken)
     TempDir = tempDir;
 }
 
-TTempDir::TTempDir(const TString& tempDir)
+TTempDir::TTempDir(const std::string& tempDir)
     : TempDir(tempDir)
     , Remove(true)
 {
@@ -29,7 +29,7 @@ TTempDir::TTempDir(const TString& tempDir)
     MakeDirIfNotExist(TempDir.c_str());
 }
 
-TTempDir TTempDir::NewTempDir(const TString& root) {
+TTempDir TTempDir::NewTempDir(const std::string& root) {
     return {root.c_str(), TCreationToken{}};
 }
 

@@ -4,7 +4,7 @@
 
 #include <util/system/defaults.h>
 
-void TFileEntitiesList::Fill(const TString& dirname, TStringBuf prefix, TStringBuf suffix, int depth, bool sort) {
+void TFileEntitiesList::Fill(const std::string& dirname, std::string_view prefix, std::string_view suffix, int depth, bool sort) {
     TDirIterator::TOptions opts;
     opts.SetMaxLevel(depth);
     if (sort) {
@@ -24,9 +24,9 @@ void TFileEntitiesList::Fill(const TString& dirname, TStringBuf prefix, TStringB
             continue;
         }
 
-        TStringBuf filename = file->fts_path + dirNameLength + 1;
+        std::string_view filename = file->fts_path + dirNameLength + 1;
 
-        if (filename.empty() || !filename.StartsWith(prefix) || !filename.EndsWith(suffix)) {
+        if (filename.empty() || !filename.starts_with(prefix) || !filename.ends_with(suffix)) {
             continue;
         }
 

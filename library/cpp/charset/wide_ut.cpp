@@ -244,7 +244,7 @@ void TConversionTest::TestRecodeIntoString() {
     TUtf16String sUnicode;
     sUnicode.reserve(YandexText.size() * 4);
     const wchar16* wdata = sUnicode.data();
-    TWtringBuf wres = NDetail::Recode<char>(YandexText, sUnicode, CODES_YANDEX);
+    std::u16string_view wres = NDetail::Recode<char>(YandexText, sUnicode, CODES_YANDEX);
     UNIT_ASSERT(sUnicode == UnicodeText); // same content
     UNIT_ASSERT(sUnicode.data() == wdata);      // reserved buffer reused
     UNIT_ASSERT(sUnicode.data() == wres.data());      // same buffer
@@ -402,13 +402,13 @@ void TConversionTest::TestUnicodeLimit() {
 }
 
 static void TestCanEncodeEmpty() {
-    TWtringBuf empty;
+    std::u16string_view empty;
     UNIT_ASSERT(CanBeEncoded(empty, CODES_WIN));
     UNIT_ASSERT(CanBeEncoded(empty, CODES_YANDEX));
     UNIT_ASSERT(CanBeEncoded(empty, CODES_UTF8));
 }
 
-static void TestCanEncodeEach(const TWtringBuf& text, ECharset encoding, bool expectedResult) {
+static void TestCanEncodeEach(const std::u16string_view& text, ECharset encoding, bool expectedResult) {
     // char by char
     for (size_t i = 0; i < text.size(); ++i) {
         if (CanBeEncoded(text.SubStr(i, 1), encoding) != expectedResult)

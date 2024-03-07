@@ -113,7 +113,7 @@ Y_UNIT_TEST_SUITE(TTypeTraitsTest) {
     }
 
     Y_UNIT_TEST(TestClass) {
-        UNIT_ASSERT(std::is_class<TString>::value);
+        UNIT_ASSERT(std::is_class<std::string>::value);
         UNIT_ASSERT(!std::is_class<ETestEnum>::value);
         UNIT_ASSERT(!std::is_class<int>::value);
         UNIT_ASSERT(!std::is_class<void*>::value);
@@ -461,9 +461,6 @@ static_assert(!TIsSpecializationOf<std::pair, std::vector<int>>::value, "");
 static_assert(TIsTemplateBaseOf<std::vector, std::vector<int>>::value);
 static_assert(TIsTemplateBaseOf<std::tuple, std::tuple<int, double, char>>::value);
 static_assert(TIsTemplateBaseOf<std::basic_string_view, std::wstring_view>::value);
-static_assert(TIsTemplateBaseOf<TBasicStringBuf, TWtringBuf>::value);
-static_assert(TIsTemplateBaseOf<std::basic_string_view, TUtf32StringBuf>::value);
-static_assert(TIsTemplateBaseOf<std::basic_string_view, TWtringBuf>::value);
 
 // test for TIsIterable
 static_assert(TIsIterable<std::vector<int>>::value, "");

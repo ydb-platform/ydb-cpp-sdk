@@ -2,7 +2,6 @@
 
 #include "fwd.h"
 #include "deque.h"
-#include "vector.h"
 #include "utility.h"
 
 #include <util/str_stl.h>

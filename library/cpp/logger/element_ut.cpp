@@ -2,7 +2,7 @@
 #include "element.h"
 #include "stream.h"
 
-#include <util/generic/string.h>
+#include <string>
 #include <util/stream/str.h>
 #include <util/generic/ptr.h>
 #include <utility>

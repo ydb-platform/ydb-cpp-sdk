@@ -15,7 +15,6 @@ target_link_libraries(cpp-http-misc PUBLIC
   library-cpp-cgiparam
   cpp-digest-lower_case
   cpp-string_utils-misc
-  cpp-string_builder
 )
 
 target_sources(cpp-http-misc PRIVATE

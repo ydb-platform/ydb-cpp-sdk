@@ -96,8 +96,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/generic/iterator.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/iterator_range.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/lazy_value.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/list.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/map.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/mapfindptr.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/mem_copy.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/noncopyable.cpp
@@ -112,15 +110,12 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/generic/size_literals.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/stack.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/store_policy.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/strbuf.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/strfcpy.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/string.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/typelist.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/typetraits.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/utility.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/va_args.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/variant.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/vector.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/xrange.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/yexception.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/ylimits.cpp
@@ -222,7 +217,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/system/atexit.cpp
   ${CMAKE_SOURCE_DIR}/util/system/backtrace.cpp
   ${CMAKE_SOURCE_DIR}/util/system/compat.cpp
-  ${CMAKE_SOURCE_DIR}/util/system/condvar.cpp
   ${CMAKE_SOURCE_DIR}/util/system/context.cpp
   ${CMAKE_SOURCE_DIR}/util/system/daemon.cpp
   ${CMAKE_SOURCE_DIR}/util/system/datetime.cpp
@@ -260,7 +254,7 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/system/mincore.cpp
   ${CMAKE_SOURCE_DIR}/util/system/mktemp.cpp
   ${CMAKE_SOURCE_DIR}/util/system/mlock.cpp
-  ${CMAKE_SOURCE_DIR}/util/system/mutex.cpp
+  ${CMAKE_SOURCE_DIR}/util/system/fake_mutex.cpp
   ${CMAKE_SOURCE_DIR}/util/system/nice.cpp
   ${CMAKE_SOURCE_DIR}/util/system/pipe.cpp
   ${CMAKE_SOURCE_DIR}/util/system/platform.cpp
@@ -293,8 +287,6 @@ target_joined_source(yutil
   all_thread.cpp
   ${CMAKE_SOURCE_DIR}/util/thread/factory.cpp
   ${CMAKE_SOURCE_DIR}/util/thread/fwd.cpp
-  ${CMAKE_SOURCE_DIR}/util/thread/lfqueue.cpp
-  ${CMAKE_SOURCE_DIR}/util/thread/lfstack.cpp
   ${CMAKE_SOURCE_DIR}/util/thread/pool.cpp
   ${CMAKE_SOURCE_DIR}/util/thread/singleton.cpp
 )

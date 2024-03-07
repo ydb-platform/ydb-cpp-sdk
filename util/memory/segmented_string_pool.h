@@ -4,12 +4,11 @@
 #include <util/system/yassert.h>
 #include <util/system/defaults.h>
 #include <util/generic/noncopyable.h>
-#include <util/generic/vector.h>
-#include <util/generic/strbuf.h>
 
 #include <memory>
 #include <cstdio>
 #include <cstdlib>
+#include <vector>
 
 /*
  * Non-reallocated storage for the objects of POD type
@@ -171,7 +170,7 @@ public:
         rv[len] = 0;
         return rv;
     }
-    char* Append(const TStringBuf s) {
+    char* Append(const std::string_view s) {
         return append(s.data(), s.size());
     }
     void align_4() {

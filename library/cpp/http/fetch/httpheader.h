@@ -2,11 +2,13 @@
 
 #include "exthttpcodes.h"
 
+#include <contrib/libs/libc_compat/string.h>
+
 #include <library/cpp/mime/types/mime.h>
 
 #include <util/system/defaults.h>
 #include <util/system/compat.h>
-#include <util/generic/string.h>
+#include <string>
 #include <util/generic/ylimits.h>
 #include <util/system/maxlen.h>
 

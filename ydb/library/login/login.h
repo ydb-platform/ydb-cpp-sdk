@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <vector>
 #include <deque>
-#include <util/generic/string.h>
+#include <string>
 #include <ydb/library/login/protos/login.pb.h>
 
 namespace NLogin {

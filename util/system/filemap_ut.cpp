@@ -301,8 +301,8 @@ Y_UNIT_TEST_SUITE(TFileMapTest) {
             mappedMem.Map(mappedMem.Length() / 2, mappedMem.Length() + 100); // overflow
             UNIT_ASSERT(0);                                                  // should not go here
         } catch (yexception& exc) {
-            TString text = exc.what(); // exception should contain failed file name
-            UNIT_ASSERT(text.find(TMemoryMapCommon::UnknownFileName()) != TString::npos);
+            std::string text = exc.what(); // exception should contain failed file name
+            UNIT_ASSERT(text.find(TMemoryMapCommon::UnknownFileName()) != std::string::npos);
             fclose(f);
         }
 
@@ -312,8 +312,8 @@ Y_UNIT_TEST_SUITE(TFileMapTest) {
             mappedMem.Map(mappedMem.Length() / 2, mappedMem.Length() + 100); // overflow
             UNIT_ASSERT(0);                                                  // should not go here
         } catch (yexception& exc) {
-            TString text = exc.what(); // exception should contain failed file name
-            UNIT_ASSERT(text.find(FileName_) != TString::npos);
+            std::string text = exc.what(); // exception should contain failed file name
+            UNIT_ASSERT(text.find(FileName_) != std::string::npos);
         }
         NFs::Remove(FileName_);
     }

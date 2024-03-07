@@ -1,5 +1,7 @@
 #include "str.h"
 
+#include <util/generic/bitops.h>
+
 static constexpr size_t MIN_BUFFER_GROW_SIZE = 16;
 
 TStringInput::~TStringInput() = default;
@@ -23,7 +25,7 @@ size_t TStringOutput::DoNext(void** ptr) {
         S_->reserve(FastClp2(S_->capacity() + MIN_BUFFER_GROW_SIZE));
     }
     size_t previousSize = S_->size();
-    ResizeUninitialized(*S_, S_->capacity());
+    S_->resize(S_->capacity());
     *ptr = S_->begin() + previousSize;
     return S_->size() - previousSize;
 }

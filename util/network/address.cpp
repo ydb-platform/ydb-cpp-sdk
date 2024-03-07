@@ -53,7 +53,7 @@ static inline void PrintAddr(IOutputStream& out, const IRemoteAddr& addr) {
         case AF_UNIX: {
             const sockaddr_un* sa = (const sockaddr_un*)a;
 
-            out << TStringBuf(sa->sun_path);
+            out << std::string_view(sa->sun_path);
 
             break;
         }
@@ -123,13 +123,13 @@ void NAddr::PrintHost(IOutputStream& out, const IRemoteAddr& addr) {
     PrintAddr<false>(out, addr);
 }
 
-TString NAddr::PrintHost(const IRemoteAddr& addr) {
+std::string NAddr::PrintHost(const IRemoteAddr& addr) {
     TStringStream ss;
     PrintAddr<false>(ss, addr);
     return ss.Str();
 }
 
-TString NAddr::PrintHostAndPort(const IRemoteAddr& addr) {
+std::string NAddr::PrintHostAndPort(const IRemoteAddr& addr) {
     TStringStream ss;
     PrintAddr<true>(ss, addr);
     return ss.Str();
@@ -208,8 +208,8 @@ socklen_t NAddr::SockAddrLength(const sockaddr* addr) {
     ythrow yexception() << "unsupported address family: " << addr->sa_family;
 }
 
-TUnixSocketAddr::TUnixSocketAddr(TStringBuf path) {
-    Y_ENSURE(path.Size() <= UNIX_PATH_LIMIT - 1,
+TUnixSocketAddr::TUnixSocketAddr(std::string_view path) {
+    Y_ENSURE(path.size() <= UNIX_PATH_LIMIT - 1,
              "Unix path \"" << path << "\" is longer than " << UNIX_PATH_LIMIT);
     SockAddr_.Set(path);
 }

@@ -1,23 +1,22 @@
 #pragma once
 
-#include <util/generic/string.h>
 #include <util/string/subst.h>
 
 #include <typeindex>
 #include <typeinfo>
 
 // Consider using TypeName function family.
-TString CppDemangle(const TString& name);
+std::string CppDemangle(const std::string& name);
 
 // TypeName function family return human readable type name.
 
-TString TypeName(const std::type_info& typeInfo);
-TString TypeName(const std::type_index& typeInfo);
+std::string TypeName(const std::type_info& typeInfo);
+std::string TypeName(const std::type_index& typeInfo);
 
 // Works for types known at compile-time
 // (thus, does not take any inheritance into account)
 template <class T>
-inline TString TypeName() {
+inline std::string TypeName() {
     return TypeName(typeid(T));
 }
 
@@ -25,6 +24,6 @@ inline TString TypeName() {
 // Also, distinguishes between T, T*, T const*, T volatile*, T const volatile*,
 // but not T and T const.
 template <class T>
-inline TString TypeName(const T& t) {
+inline std::string TypeName(const T& t) {
     return TypeName(typeid(t));
 }

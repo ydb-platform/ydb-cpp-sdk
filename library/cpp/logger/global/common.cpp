@@ -9,6 +9,7 @@ namespace NLoggingImpl {
     }
 
     std::string PrepareToOpenLog(std::string logType, const int logLevel, const bool rotation, const bool startAsDaemon) {
+        using namespace std::literals;
         Y_ENSURE(logLevel >= 0 && logLevel <= (int)LOG_MAX_PRIORITY, "Incorrect log level");
 
         if (rotation && TFsPath(logType).Exists()) {

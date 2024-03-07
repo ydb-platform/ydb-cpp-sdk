@@ -1,6 +1,5 @@
 #include "operation.h"
 
-#include <library/cpp/string_utils/string_output/string_output.h>
 
 #include <ydb/public/api/protos/ydb_operation.pb.h>
 #include <client/ydb_types/status/status.h>
@@ -68,7 +67,7 @@ const TStatus& TOperation::Status() const {
 
 std::string TOperation::ToString() const {
     std::string result;
-    NUtils::TStringOutput out(result);
+    TStringOutput out(result);
     Out(out);
     return result;
 }

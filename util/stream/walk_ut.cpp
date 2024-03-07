@@ -4,7 +4,7 @@
 
 class TStringListInput: public IWalkInput {
 public:
-    TStringListInput(const std::vector<TString>& data)
+    TStringListInput(const std::vector<std::string>& data)
         : Data_(data)
         , Index_(0)
     {
@@ -16,20 +16,20 @@ protected:
             return 0;
         }
 
-        const TString& string = Data_[Index_++];
+        const std::string& string = Data_[Index_++];
 
         *ptr = string.data();
         return string.size();
     }
 
 private:
-    const std::vector<TString>& Data_;
+    const std::vector<std::string>& Data_;
     size_t Index_;
 };
 
 Y_UNIT_TEST_SUITE(TWalkTest) {
     Y_UNIT_TEST(ReadTo) {
-        std::vector<TString> data;
+        std::vector<std::string> data;
         data.push_back("111a");
         data.push_back("222b");
         data.push_back("333c");
@@ -39,17 +39,17 @@ Y_UNIT_TEST_SUITE(TWalkTest) {
 
         TStringListInput input(data);
 
-        TString tmp1 = input.ReadTo('c');
+        std::string tmp1 = input.ReadTo('c');
         UNIT_ASSERT_VALUES_EQUAL(tmp1, "111a222b333");
 
         char tmp2;
         input.Read(&tmp2, 1);
         UNIT_ASSERT_VALUES_EQUAL(tmp2, '4');
 
-        TString tmp3 = input.ReadTo('6');
+        std::string tmp3 = input.ReadTo('6');
         UNIT_ASSERT_VALUES_EQUAL(tmp3, "44d555e");
 
-        TString tmp4 = input.ReadAll();
+        std::string tmp4 = input.ReadAll();
         UNIT_ASSERT_VALUES_EQUAL(tmp4, "66f");
     }
 }

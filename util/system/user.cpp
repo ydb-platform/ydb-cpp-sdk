@@ -11,10 +11,10 @@
     #include <unistd.h>
 #endif
 
-TString GetUsername() {
+std::string GetUsername() {
     for (const auto& var : {"LOGNAME", "USER", "LNAME", "USERNAME"}) {
-        TString val = GetEnv(var);
-        if (val) {
+        std::string val = GetEnv(var);
+        if (!val.empty()) {
             return val;
         }
     }
@@ -30,22 +30,22 @@ TString GetUsername() {
             else
                 ythrow TSystemError(err) << " GetUserName failed";
         } else {
-            return TString(nameBuf.Data(), (size_t)(len - 1));
+            return std::string(nameBuf.Data(), (size_t)(len - 1));
         }
 #elif defined(_bionic_)
         const passwd* pwd = getpwuid(geteuid());
 
         if (pwd) {
-            return TString(pwd->pw_name);
+            return std::string(pwd->pw_name);
         }
 
-        ythrow TSystemError() << TStringBuf(" getpwuid failed");
+        ythrow TSystemError() << std::string_view(" getpwuid failed");
 #else
         passwd pwd;
         passwd* tmpPwd;
         int err = getpwuid_r(geteuid(), &pwd, nameBuf.Data(), nameBuf.Size(), &tmpPwd);
         if (err == 0 && tmpPwd) {
-            return TString(pwd.pw_name);
+            return std::string(pwd.pw_name);
         } else if (err == ERANGE) {
             nameBuf = TTempBuf(nameBuf.Size() * 2);
         } else {

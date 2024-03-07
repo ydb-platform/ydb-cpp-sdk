@@ -5,10 +5,9 @@
 #include <util/stream/output.h>
 #include <util/stream/format.h>
 #include <util/generic/array_ref.h>
-#include <util/generic/string.h>
 
 #ifdef _win_
-    #include "mutex.h"
+    #include <mutex>
 
     #ifndef OPTIONAL
         #define OPTIONAL
@@ -183,7 +182,7 @@ namespace {
         }
 
         TResolvedSymbol Resolve(void* sym, char* buf, size_t len) {
-            TGuard<TMutex> guard(Mutex);
+            std::lock_guard guard(Mutex);
 
             TResolvedSymbol ret = {
                 "??",
@@ -209,7 +208,7 @@ namespace {
             return ret;
         }
 
-        TMutex Mutex;
+        std::mutex Mutex;
         HMODULE Library;
         TSymInitializeFunc SymInitializeFunc;
         TSymCleanupFunc SymCleanupFunc;
@@ -277,7 +276,7 @@ void TBackTrace::PrintTo(IOutputStream& out) const {
     FormatBackTraceFn(&out, Data, Size);
 }
 
-TString TBackTrace::PrintToString() const {
+std::string TBackTrace::PrintToString() const {
     TStringStream ss;
     PrintTo(ss);
     return ss.Str();

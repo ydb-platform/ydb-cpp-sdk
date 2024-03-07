@@ -1,14 +1,14 @@
 #pragma once
 
 #include <util/generic/fwd.h>
-#include <util/generic/strbuf.h>
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
 #include <util/generic/typetraits.h>
 #include <util/generic/algorithm.h>
 #include <util/stream/output.h>
 #include <util/stream/input.h>
 #include <util/system/compiler.h>
+
+#include <string>
 
 #ifndef __NVCC__
     // cuda is compiled in C++14 mode at the time
@@ -57,7 +57,7 @@ static inline void SavePodType(IOutputStream* rh, const T& t) {
 }
 
 namespace NPrivate {
-    [[noreturn]] void ThrowLoadEOFException(size_t typeSize, size_t realSize, TStringBuf structName);
+    [[noreturn]] void ThrowLoadEOFException(size_t typeSize, size_t realSize, std::string_view structName);
     [[noreturn]] void ThrowUnexpectedVariantTagException(ui8 tagIndex);
 }
 
@@ -66,7 +66,7 @@ static inline void LoadPodType(IInputStream* rh, T& t) {
     const size_t res = rh->Load(&t, sizeof(T));
 
     if (Y_UNLIKELY(res != sizeof(T))) {
-        ::NPrivate::ThrowLoadEOFException(sizeof(T), res, TStringBuf("pod type"));
+        ::NPrivate::ThrowLoadEOFException(sizeof(T), res, "pod type");
     }
 }
 
@@ -81,7 +81,7 @@ static inline void LoadPodArray(IInputStream* rh, T* arr, size_t count) {
     const size_t res = rh->Load(arr, len);
 
     if (Y_UNLIKELY(res != len)) {
-        ::NPrivate::ThrowLoadEOFException(len, res, TStringBuf("pod array"));
+        ::NPrivate::ThrowLoadEOFException(len, res, "pod array");
     }
 }
 
@@ -357,11 +357,11 @@ class TSerializer<std::list<T, A>>: public TVectorSerializer<std::list<T, A>> {
 };
 
 template <>
-class TSerializer<TString>: public TVectorSerializer<TString> {
+class TSerializer<std::string>: public TVectorSerializer<std::string> {
 };
 
 template <>
-class TSerializer<TUtf16String>: public TVectorSerializer<TUtf16String> {
+class TSerializer<std::u16string>: public TVectorSerializer<std::u16string> {
 };
 
 template <class TChar>

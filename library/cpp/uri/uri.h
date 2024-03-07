@@ -4,7 +4,8 @@
 #include "encode.h"
 
 #include <library/cpp/charset/doccodes.h>
-#include <library/cpp/string_utils/string_output/string_output.h>
+
+#include <util/stream/str.h>
 #include <util/generic/buffer.h>
 #include <util/generic/singleton.h>
 #include <util/stream/mem.h>
@@ -408,7 +409,7 @@ namespace NUri {
         void Print(std::string& str, int flags = FlagUrlFields) const {
             flags = PrintFlags(flags);
             str.reserve(str.length() + PrintSize(flags));
-            NUtils::TStringOutput out(str);
+            TStringOutput out(str);
             PrintImpl(out, flags);
         }
 

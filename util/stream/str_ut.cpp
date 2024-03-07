@@ -8,39 +8,39 @@ const T ReturnConstTemp();
 
 Y_UNIT_TEST_SUITE(TStringInputOutputTest) {
     Y_UNIT_TEST(Lvalue) {
-        TString str = "Hello, World!";
+        std::string str = "Hello, World!";
         TStringInput input(str);
 
-        TString result = input.ReadAll();
+        std::string result = input.ReadAll();
 
         UNIT_ASSERT_VALUES_EQUAL(result, str);
     }
 
     Y_UNIT_TEST(ConstRef) {
-        TString str = "Hello, World!";
-        const TString& r = str;
+        std::string str = "Hello, World!";
+        const std::string& r = str;
         TStringInput input(r);
 
-        TString result = input.ReadAll();
+        std::string result = input.ReadAll();
 
         UNIT_ASSERT_VALUES_EQUAL(result, str);
     }
 
     Y_UNIT_TEST(NonConstRef) {
-        TString str = "Hello, World!";
-        TString& r = str;
+        std::string str = "Hello, World!";
+        std::string& r = str;
         TStringInput input(r);
 
-        TString result = input.ReadAll();
+        std::string result = input.ReadAll();
 
         UNIT_ASSERT_VALUES_EQUAL(result, str);
     }
 
     Y_UNIT_TEST(Transfer) {
-        TString inputString = "some_string";
+        std::string inputString = "some_string";
         TStringInput input(inputString);
 
-        TString outputString;
+        std::string outputString;
         TStringOutput output(outputString);
 
         TransferData(&input, &output);
@@ -49,9 +49,9 @@ Y_UNIT_TEST_SUITE(TStringInputOutputTest) {
     }
 
     Y_UNIT_TEST(SkipReadAll) {
-        TString string0 = "All animals are equal, but some animals are more equal than others.";
+        std::string string0 = "All animals are equal, but some animals are more equal than others.";
 
-        TString string1;
+        std::string string1;
         for (size_t i = 1; i <= string0.size(); i++) {
             string1 += string0.substr(0, i);
         }
@@ -63,7 +63,7 @@ Y_UNIT_TEST_SUITE(TStringInputOutputTest) {
             left -= input0.Skip(left);
         }
 
-        TString string2 = input0.ReadAll();
+        std::string string2 = input0.ReadAll();
 
         UNIT_ASSERT_VALUES_EQUAL(string2, string1.substr(5));
     }
@@ -78,8 +78,8 @@ Y_UNIT_TEST_SUITE(TStringInputOutputTest) {
     }
 
     Y_UNIT_TEST(TestReadTo) {
-        TString s("0123456789abc");
-        TString t;
+        std::string s("0123456789abc");
+        std::string t;
 
         TStringInput in0(s);
         UNIT_ASSERT_VALUES_EQUAL(in0.ReadTo(t, '7'), 8);
@@ -89,9 +89,9 @@ Y_UNIT_TEST_SUITE(TStringInputOutputTest) {
     }
 
     Y_UNIT_TEST(WriteViaNextAndUndo) {
-        TString str1;
+        std::string str1;
         TStringOutput output(str1);
-        TString str2;
+        std::string str2;
 
         for (size_t i = 0; i < 10000; ++i) {
             str2.push_back('a' + (i % 20));
@@ -114,7 +114,7 @@ Y_UNIT_TEST_SUITE(TStringInputOutputTest) {
     }
 
     Y_UNIT_TEST(Write) {
-        TString str;
+        std::string str;
         TStringOutput output(str);
         output << "1"
                << "22"
@@ -130,7 +130,7 @@ Y_UNIT_TEST_SUITE(TStringInputOutputTest) {
     }
 
     Y_UNIT_TEST(WriteChars) {
-        TString str;
+        std::string str;
         TStringOutput output(str);
         output << '1' << '2' << '3' << '4' << '5' << '6' << '7' << '8' << '9' << '0';
 
@@ -138,7 +138,7 @@ Y_UNIT_TEST_SUITE(TStringInputOutputTest) {
     }
 
     Y_UNIT_TEST(MoveConstructor) {
-        TString str;
+        std::string str;
         TStringOutput output1(str);
         output1 << "foo";
 

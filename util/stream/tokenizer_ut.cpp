@@ -1,13 +1,12 @@
 #include <library/cpp/testing/unittest/registar.h>
 
 #include <util/generic/array_size.h>
-#include <util/generic/strbuf.h>
 
 #include "mem.h"
 #include "null.h"
 #include "tokenizer.h"
 
-static inline void CheckIfNullTerminated(const TStringBuf str) {
+static inline void CheckIfNullTerminated(const std::string_view str) {
     UNIT_ASSERT_VALUES_EQUAL('\0', *(str.data() + str.size()));
 }
 
@@ -17,7 +16,7 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
         auto&& tokenizer = TStreamTokenizer<TEol>{&input};
         auto tokensCount = size_t{};
         for (auto it = tokenizer.begin(); tokenizer.end() != it; ++it) {
-            CheckIfNullTerminated(TStringBuf{it->Data(), it->Length()});
+            CheckIfNullTerminated(std::string_view{it->Data(), it->Length()});
             ++tokensCount;
         }
         UNIT_ASSERT_VALUES_EQUAL(0, tokensCount);
@@ -30,7 +29,7 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
         auto&& tokenizer = TStreamTokenizer<TEol>{&input};
         auto tokensCount = size_t{};
         for (auto it = tokenizer.begin(); tokenizer.end() != it; ++it) {
-            CheckIfNullTerminated(TStringBuf{it->Data(), it->Length()});
+            CheckIfNullTerminated(std::string_view{it->Data(), it->Length()});
             UNIT_ASSERT_VALUES_EQUAL(0, it->Length());
             ++tokensCount;
         }
@@ -40,14 +39,14 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
     Y_UNIT_TEST(LastTokenendDoesntSatisfyPredicateTest) {
         const char data[] = "abc\ndef\nxxxxxx";
         const auto dataSize = Y_ARRAY_SIZE(data) - 1;
-        const TStringBuf tokens[] = {TStringBuf("abc"), TStringBuf("def"), TStringBuf("xxxxxx")};
+        const std::string_view tokens[] = {std::string_view("abc"), std::string_view("def"), std::string_view("xxxxxx")};
         const auto tokensSize = Y_ARRAY_SIZE(tokens);
         auto&& input = TMemoryInput{data, dataSize};
         auto&& tokenizer = TStreamTokenizer<TEol>{&input};
         auto tokensCount = size_t{};
         for (auto it = tokenizer.begin(); tokenizer.end() != it; ++it) {
             UNIT_ASSERT(tokensCount < tokensSize);
-            const auto token = TStringBuf{it->Data(), it->Length()};
+            const auto token = std::string_view{it->Data(), it->Length()};
             CheckIfNullTerminated(token);
             UNIT_ASSERT_VALUES_EQUAL(tokens[tokensCount], token);
             ++tokensCount;
@@ -58,14 +57,14 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
     Y_UNIT_TEST(FirstTokenIsEmptyTest) {
         const char data[] = "\ndef\nxxxxxx";
         const auto dataSize = Y_ARRAY_SIZE(data) - 1;
-        const TStringBuf tokens[] = {TStringBuf(), TStringBuf("def"), TStringBuf("xxxxxx")};
+        const std::string_view tokens[] = {std::string_view(), std::string_view("def"), std::string_view("xxxxxx")};
         const auto tokensSize = Y_ARRAY_SIZE(tokens);
         auto&& input = TMemoryInput{data, dataSize};
         auto&& tokenizer = TStreamTokenizer<TEol>{&input};
         auto tokensCount = size_t{};
         for (auto it = tokenizer.begin(); tokenizer.end() != it; ++it) {
             UNIT_ASSERT(tokensCount < tokensSize);
-            const auto token = TStringBuf{it->Data(), it->Length()};
+            const auto token = std::string_view{it->Data(), it->Length()};
             CheckIfNullTerminated(token);
             UNIT_ASSERT_VALUES_EQUAL(tokens[tokensCount], token);
             ++tokensCount;
@@ -80,7 +79,7 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
         auto&& tokenizer = TStreamTokenizer<TEol>{&input};
         auto tokensCount = size_t{};
         for (auto it = tokenizer.begin(); tokenizer.end() != it; ++it) {
-            const auto token = TStringBuf{it->Data(), it->Length()};
+            const auto token = std::string_view{it->Data(), it->Length()};
             CheckIfNullTerminated(token);
             UNIT_ASSERT_VALUES_EQUAL(data, token);
             ++tokensCount;
@@ -91,14 +90,14 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
     Y_UNIT_TEST(SimpleTest) {
         const char data[] = "qwerty\n1234567890\n";
         const auto dataSize = Y_ARRAY_SIZE(data) - 1;
-        const TStringBuf tokens[] = {TStringBuf("qwerty"), TStringBuf("1234567890")};
+        const std::string_view tokens[] = {std::string_view("qwerty"), std::string_view("1234567890")};
         const auto tokensSize = Y_ARRAY_SIZE(tokens);
         auto&& input = TMemoryInput{data, dataSize};
         auto&& tokenizer = TStreamTokenizer<TEol>{&input};
         auto tokensCount = size_t{};
         for (auto it = tokenizer.begin(); tokenizer.end() != it; ++it) {
             UNIT_ASSERT(tokensCount < tokensSize);
-            const auto token = TStringBuf{it->Data(), it->Length()};
+            const auto token = std::string_view{it->Data(), it->Length()};
             CheckIfNullTerminated(token);
             UNIT_ASSERT_VALUES_EQUAL(tokens[tokensCount], token);
             ++tokensCount;
@@ -115,14 +114,14 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
 
         const char data[] = "abc|def|xxxxxx";
         const auto dataSize = Y_ARRAY_SIZE(data) - 1;
-        const TStringBuf tokens[] = {TStringBuf("abc"), TStringBuf("def"), TStringBuf("xxxxxx")};
+        const std::string_view tokens[] = {std::string_view("abc"), std::string_view("def"), std::string_view("xxxxxx")};
         const auto tokensSize = Y_ARRAY_SIZE(tokens);
         auto&& input = TMemoryInput{data, dataSize};
         auto&& tokenizer = TStreamTokenizer<TIsVerticalBar>{&input};
         auto tokensCount = size_t{};
         for (auto it = tokenizer.begin(); tokenizer.end() != it; ++it) {
             UNIT_ASSERT(tokensCount < tokensSize);
-            const auto token = TStringBuf{it->Data(), it->Length()};
+            const auto token = std::string_view{it->Data(), it->Length()};
             CheckIfNullTerminated(token);
             UNIT_ASSERT_VALUES_EQUAL(tokens[tokensCount], token);
             ++tokensCount;
@@ -139,15 +138,15 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
 
         const char data[] = "abc|def|xxxxxx,abc|def|xxxxxx";
         const auto dataSize = Y_ARRAY_SIZE(data) - 1;
-        const TStringBuf tokens[] = {TStringBuf("abc"), TStringBuf("def"), TStringBuf("xxxxxx"),
-                                     TStringBuf("abc"), TStringBuf("def"), TStringBuf("xxxxxx")};
+        const std::string_view tokens[] = {std::string_view("abc"), std::string_view("def"), std::string_view("xxxxxx"),
+                                     std::string_view("abc"), std::string_view("def"), std::string_view("xxxxxx")};
         const auto tokensSize = Y_ARRAY_SIZE(tokens);
         auto&& input = TMemoryInput{data, dataSize};
         auto&& tokenizer = TStreamTokenizer<TIsVerticalBar>{&input};
         auto tokensCount = size_t{};
         for (auto it = tokenizer.begin(); tokenizer.end() != it; ++it) {
             UNIT_ASSERT(tokensCount < tokensSize);
-            const auto token = TStringBuf{it->Data(), it->Length()};
+            const auto token = std::string_view{it->Data(), it->Length()};
             CheckIfNullTerminated(token);
             UNIT_ASSERT_VALUES_EQUAL(tokens[tokensCount], token);
             ++tokensCount;
@@ -168,7 +167,7 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
         auto&& tokenizer = TStreamTokenizer<TAlwaysFalse>{&input};
         auto tokensCount = size_t{};
         for (auto it = tokenizer.begin(); tokenizer.end() != it; ++it) {
-            const auto token = TStringBuf{it->Data(), it->Length()};
+            const auto token = std::string_view{it->Data(), it->Length()};
             CheckIfNullTerminated(token);
             UNIT_ASSERT_VALUES_EQUAL(data, token);
             ++tokensCount;
@@ -189,7 +188,7 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
         auto&& tokenizer = TStreamTokenizer<TAlwaysTrue>{&input};
         auto tokensCount = size_t{};
         for (auto it = tokenizer.begin(); tokenizer.end() != it; ++it) {
-            CheckIfNullTerminated(TStringBuf{it->Data(), it->Length()});
+            CheckIfNullTerminated(std::string_view{it->Data(), it->Length()});
             UNIT_ASSERT_VALUES_EQUAL(0, it->Length());
             ++tokensCount;
         }
@@ -199,13 +198,13 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
     Y_UNIT_TEST(FirstTokenHasSizeOfTheBufferTest) {
         const char data[] = "xxxxx\nxx";
         const auto dataSize = Y_ARRAY_SIZE(data) - 1;
-        const TStringBuf tokens[] = {TStringBuf("xxxxx"), TStringBuf("xx")};
+        const std::string_view tokens[] = {std::string_view("xxxxx"), std::string_view("xx")};
         const auto tokensSize = Y_ARRAY_SIZE(tokens);
         auto&& input = TMemoryInput{data, dataSize};
         auto&& tokenizer = TStreamTokenizer<TEol>{&input, TEol{}, tokens[0].size()};
         auto tokensCount = size_t{};
         for (auto it = tokenizer.begin(); tokenizer.end() != it; ++it) {
-            const auto token = TStringBuf{it->Data(), it->Length()};
+            const auto token = std::string_view{it->Data(), it->Length()};
             CheckIfNullTerminated(token);
             UNIT_ASSERT_VALUES_EQUAL(tokens[tokensCount], token);
             ++tokensCount;
@@ -220,7 +219,7 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
         auto&& tokenizer = TStreamTokenizer<TEol>{&input, TEol{}, dataSize};
         auto tokensCount = size_t{};
         for (auto it = tokenizer.begin(); tokenizer.end() != it; ++it) {
-            const auto token = TStringBuf{it->Data(), it->Length()};
+            const auto token = std::string_view{it->Data(), it->Length()};
             CheckIfNullTerminated(token);
             UNIT_ASSERT_VALUES_EQUAL(data, token);
             ++tokensCount;
@@ -231,13 +230,13 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
     Y_UNIT_TEST(BufferSizeInitialSizeSmallerThanTokenTest) {
         const char data[] = "xxxxx\nxx";
         const auto dataSize = Y_ARRAY_SIZE(data) - 1;
-        const TStringBuf tokens[] = {TStringBuf("xxxxx"), TStringBuf("xx")};
+        const std::string_view tokens[] = {std::string_view("xxxxx"), std::string_view("xx")};
         const auto tokensSize = Y_ARRAY_SIZE(tokens);
         auto&& input = TMemoryInput{data, dataSize};
         auto&& tokenizer = TStreamTokenizer<TEol>{&input, TEol{}, 1};
         auto tokensCount = size_t{};
         for (auto it = tokenizer.begin(); tokenizer.end() != it; ++it) {
-            const auto token = TStringBuf{it->Data(), it->Length()};
+            const auto token = std::string_view{it->Data(), it->Length()};
             CheckIfNullTerminated(token);
             UNIT_ASSERT_VALUES_EQUAL(tokens[tokensCount], token);
             ++tokensCount;
@@ -248,7 +247,7 @@ Y_UNIT_TEST_SUITE(TStreamTokenizerTests) {
     Y_UNIT_TEST(RangeBasedForTest) {
         const char data[] = "abc\ndef\nxxxxxx";
         const auto dataSize = Y_ARRAY_SIZE(data) - 1;
-        const TStringBuf tokens[] = {TStringBuf("abc"), TStringBuf("def"), TStringBuf("xxxxxx")};
+        const std::string_view tokens[] = {std::string_view("abc"), std::string_view("def"), std::string_view("xxxxxx")};
         const auto tokensSize = Y_ARRAY_SIZE(tokens);
         auto&& input = TMemoryInput{data, dataSize};
         auto&& tokenizer = TStreamTokenizer<TEol>{&input};

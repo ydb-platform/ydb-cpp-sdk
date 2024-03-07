@@ -1,3 +1,5 @@
+#include <util/generic/fwd.h>
+
 #include <library/cpp/yt/misc/guid.h>
 
 #include "format.h"

@@ -1,6 +1,5 @@
 #include "env.h"
 
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
 
 #ifdef _win_
@@ -21,7 +20,7 @@
  *  - https://a.yandex-team.ru/review/108892/details
  */
 
-TString GetEnv(const TString& key, const TString& def) {
+std::string GetEnv(const std::string& key, const std::string& def) {
 #ifdef _win_
     size_t len = GetEnvironmentVariableA(key.data(), nullptr, 0);
 
@@ -29,7 +28,7 @@ TString GetEnv(const TString& key, const TString& def) {
         if (GetLastError() == ERROR_ENVVAR_NOT_FOUND) {
             return def;
         }
-        return TString{};
+        return std::string{};
     }
 
     std::vector<char> buffer(len);
@@ -42,14 +41,14 @@ TString GetEnv(const TString& key, const TString& def) {
         }
     } while (len > bufferSize);
 
-    return TString(buffer.data(), len);
+    return std::string(buffer.data(), len);
 #else
     const char* env = getenv(key.data());
-    return env ? TString(env) : def;
+    return env ? std::string(env) : def;
 #endif
 }
 
-void SetEnv(const TString& key, const TString& value) {
+void SetEnv(const std::string& key, const std::string& value) {
     bool isOk = false;
     int errorCode = 0;
 #ifdef _win_

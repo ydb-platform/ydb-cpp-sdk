@@ -6,7 +6,6 @@
     #include <pthread.h>
 #endif
 
-#include <util/generic/vector.h>
 #include <util/generic/intrlist.h>
 #include <util/generic/yexception.h>
 #include <util/generic/ylimits.h>
@@ -17,14 +16,15 @@
 #include <util/string/builder.h>
 
 #include <util/system/event.h>
-#include <util/system/mutex.h>
-#include <util/system/condvar.h>
 #include <util/system/thread.h>
 
 #include <util/datetime/base.h>
 
 #include "factory.h"
 #include "pool.h"
+
+#include <condition_variable>
+#include <mutex>
 
 namespace {
     class TThreadNamer {
@@ -48,12 +48,12 @@ namespace {
         }
 
     private:
-        void Set(const TString& name) {
+        void Set(const std::string& name) {
             TThread::SetCurrentThreadName(name.c_str());
         }
 
     private:
-        TString ThreadName;
+        std::string ThreadName;
         bool EnumerateThreads = false;
         std::atomic<ui64> Index{0};
     };
@@ -108,12 +108,13 @@ public:
             return true;
         }
 
-        with_lock (QueueMutex) {
+        {
+            std::unique_lock ulock(QueueMutex);
             while (MaxQueueSize > 0 && Queue.Size() >= MaxQueueSize && !ShouldTerminate.load()) {
                 if (!Blocking) {
                     return false;
                 }
-                QueuePopCond.Wait(QueueMutex);
+                QueuePopCond.wait(ulock);
             }
 
             if (ShouldTerminate.load()) {
@@ -123,7 +124,7 @@ public:
             Queue.Push(obj);
         }
 
-        QueuePushCond.Signal();
+        QueuePushCond.notify_one();
 
         return true;
     }
@@ -175,8 +176,9 @@ private:
     inline void Stop() {
         ShouldTerminate.store(true);
 
-        with_lock (QueueMutex) {
-            QueuePopCond.BroadCast();
+        {
+            std::lock_guard guard(QueueMutex);
+            QueuePopCond.notify_all();
         }
 
         if (!NeedRestart()) {
@@ -189,14 +191,14 @@ private:
     }
 
     inline void WaitForComplete() noexcept {
-        with_lock (StopMutex) {
-            while (ThreadCountReal) {
-                with_lock (QueueMutex) {
-                    QueuePushCond.Signal();
-                }
-
-                StopCond.Wait(StopMutex);
+        std::unique_lock ulock(StopMutex);
+        while (ThreadCountReal) {
+            {
+                std::lock_guard guard(QueueMutex);
+                QueuePushCond.notify_one();
             }
+
+            StopCond.wait(ulock);
         }
     }
 
@@ -210,9 +212,10 @@ private:
         while (true) {
             IObjectInQueue* job = nullptr;
 
-            with_lock (QueueMutex) {
+            {
+                std::unique_lock ulock(QueueMutex);
                 while (Queue.Empty() && !ShouldTerminate.load()) {
-                    QueuePushCond.Wait(QueueMutex);
+                    QueuePushCond.wait(ulock);
                 }
 
                 if (ShouldTerminate.load() && Queue.Empty()) {
@@ -224,7 +227,7 @@ private:
                 job = Queue.Pop();
             }
 
-            QueuePopCond.Signal();
+            QueuePopCond.notify_one();
 
             if (Catching) {
                 try {
@@ -248,7 +251,7 @@ private:
         auto guard = Guard(StopMutex);
 
         --ThreadCountReal;
-        StopCond.Signal();
+        StopCond.notify_one();
     }
 
 private:
@@ -256,11 +259,11 @@ private:
     const bool Blocking;
     const bool Catching;
     TThreadNamer Namer;
-    mutable TMutex QueueMutex;
-    mutable TMutex StopMutex;
-    TCondVar QueuePushCond;
-    TCondVar QueuePopCond;
-    TCondVar StopCond;
+    mutable std::mutex QueueMutex;
+    mutable std::mutex StopMutex;
+    std::condition_variable QueuePushCond;
+    std::condition_variable QueuePopCond;
+    std::condition_variable StopCond;
     TJobQueue Queue;
     std::vector<TThreadRef> Tharr;
     std::atomic<bool> ShouldTerminate;
@@ -305,7 +308,7 @@ private:
         }
 
         TIntrusiveList<TImpl> RegisteredObjects;
-        TMutex ActionMutex;
+        std::mutex ActionMutex;
 
     public:
         inline TAtforkQueueRestarter() {
@@ -353,7 +356,7 @@ size_t TThreadPool::GetMaxQueueSize() const noexcept {
 }
 
 bool TThreadPool::Add(IObjectInQueue* obj) {
-    Y_ENSURE_EX(Impl_.get(), TThreadPoolException() << TStringBuf("mtp queue not started"));
+    Y_ENSURE_EX(Impl_.get(), TThreadPoolException() << "mtp queue not started");
 
     if (Impl_->NeedRestart()) {
         Start(Impl_->GetThreadCountExpected(), Impl_->GetMaxQueueSize());
@@ -447,9 +450,10 @@ public:
     }
 
     inline void Add(IObjectInQueue* obj) {
-        with_lock (Mutex_) {
+        {
+            std::unique_lock ulock(Mutex_);
             while (Obj_ != nullptr) {
-                CondFree_.Wait(Mutex_);
+                CondFree_.wait(ulock);
             }
 
             if (Free_ == 0) {
@@ -458,19 +462,18 @@ public:
 
             Obj_ = obj;
 
-            Y_ENSURE_EX(!AllDone_, TThreadPoolException() << TStringBuf("adding to a stopped queue"));
+            Y_ENSURE_EX(!AllDone_, TThreadPoolException() << "adding to a stopped queue");
         }
 
-        CondReady_.Signal();
+        CondReady_.notify_one();
     }
 
     inline void AddThreads(size_t n) {
-        with_lock (Mutex_) {
-            while (n) {
-                AddThreadNoLock();
+        std::lock_guard guard(Mutex_);
+        while (n) {
+            AddThreadNoLock();
 
-                --n;
-            }
+            --n;
         }
     }
 
@@ -500,37 +503,38 @@ private:
     }
 
     inline void Stop() noexcept {
-        Mutex_.Acquire();
+        Mutex_.lock();
 
         AllDone_ = true;
 
         while (ThrCount_.load()) {
-            Mutex_.Release();
-            CondReady_.Signal();
-            Mutex_.Acquire();
+            Mutex_.unlock();
+            CondReady_.notify_one();
+            Mutex_.lock();
         }
 
-        Mutex_.Release();
+        Mutex_.unlock();
     }
 
     inline IObjectInQueue* WaitForJob() noexcept {
-        Mutex_.Acquire();
+        IObjectInQueue* ret;
+        {
+            std::unique_lock ulock(Mutex_);
+            ++Free_;
 
-        ++Free_;
-
-        while (!Obj_ && !AllDone_) {
-            if (!CondReady_.WaitT(Mutex_, IdleTime_)) {
-                break;
+            while (!Obj_ && !AllDone_) {
+                if (CondReady_.wait_for(ulock, std::chrono::microseconds(IdleTime_.MicroSeconds())) == std::cv_status::timeout) {
+                    break;
+                }
             }
+
+            ret = Obj_;
+            Obj_ = nullptr;
+
+            --Free_;
+
         }
-
-        IObjectInQueue* ret = Obj_;
-        Obj_ = nullptr;
-
-        --Free_;
-
-        Mutex_.Release();
-        CondFree_.Signal();
+        CondFree_.notify_one();
 
         return ret;
     }
@@ -540,9 +544,9 @@ private:
     const bool Catching;
     TThreadNamer Namer;
     std::atomic<size_t> ThrCount_;
-    TMutex Mutex_;
-    TCondVar CondReady_;
-    TCondVar CondFree_;
+    std::mutex Mutex_;
+    std::condition_variable CondReady_;
+    std::condition_variable CondFree_;
     bool AllDone_;
     IObjectInQueue* Obj_;
     size_t Free_;
@@ -569,7 +573,7 @@ DEFINE_THREAD_POOL_CTORS(TSimpleThreadPool)
 TAdaptiveThreadPool::~TAdaptiveThreadPool() = default;
 
 bool TAdaptiveThreadPool::Add(IObjectInQueue* obj) {
-    Y_ENSURE_EX(Impl_.get(), TThreadPoolException() << TStringBuf("mtp queue not started"));
+    Y_ENSURE_EX(Impl_.get(), TThreadPoolException() << "mtp queue not started");
 
     Impl_->Add(obj);
 
@@ -593,7 +597,7 @@ size_t TAdaptiveThreadPool::Size() const noexcept {
 }
 
 void TAdaptiveThreadPool::SetMaxIdleTime(TDuration interval) {
-    Y_ENSURE_EX(Impl_.get(), TThreadPoolException() << TStringBuf("mtp queue not started"));
+    Y_ENSURE_EX(Impl_.get(), TThreadPoolException() << "mtp queue not started");
 
     Impl_->SetMaxIdleTime(interval);
 }
@@ -607,7 +611,7 @@ TSimpleThreadPool::~TSimpleThreadPool() {
 }
 
 bool TSimpleThreadPool::Add(IObjectInQueue* obj) {
-    Y_ENSURE_EX(Slave_.get(), TThreadPoolException() << TStringBuf("mtp queue not started"));
+    Y_ENSURE_EX(Slave_.get(), TThreadPoolException() << "mtp queue not started");
 
     return Slave_->Add(obj);
 }
@@ -663,11 +667,11 @@ namespace {
 }
 
 void IThreadPool::SafeAdd(IObjectInQueue* obj) {
-    Y_ENSURE_EX(Add(obj), TThreadPoolException() << TStringBuf("can not add object to queue"));
+    Y_ENSURE_EX(Add(obj), TThreadPoolException() << "can not add object to queue");
 }
 
 void IThreadPool::SafeAddAndOwn(std::unique_ptr<IObjectInQueue> obj) {
-    Y_ENSURE_EX(AddAndOwn(std::move(obj)), TThreadPoolException() << TStringBuf("can not add to queue and own"));
+    Y_ENSURE_EX(AddAndOwn(std::move(obj)), TThreadPoolException() << "can not add to queue and own");
 }
 
 bool IThreadPool::AddAndOwn(std::unique_ptr<IObjectInQueue> obj) {

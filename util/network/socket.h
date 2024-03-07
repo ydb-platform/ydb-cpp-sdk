@@ -153,11 +153,11 @@ public:
 };
 
 struct TUnixSocketPath {
-    TString Path;
+    std::string Path;
 
     // Constructor for create unix domain socket path from string with path in filesystem
     // TUnixSocketPath("/tmp/unixsocket") -> "/tmp/unixsocket"
-    explicit TUnixSocketPath(const TString& path)
+    explicit TUnixSocketPath(const std::string& path)
         : Path(path)
     {
     }
@@ -213,8 +213,8 @@ public:
     };
 
     TNetworkAddress(ui16 port);
-    TNetworkAddress(const TString& host, ui16 port);
-    TNetworkAddress(const TString& host, ui16 port, int flags);
+    TNetworkAddress(const std::string& host, ui16 port);
+    TNetworkAddress(const std::string& host, ui16 port, int flags);
     TNetworkAddress(const TUnixSocketPath& unixSocketPath, int flags = 0);
     ~TNetworkAddress();
 

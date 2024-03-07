@@ -3,8 +3,8 @@
 #include <util/generic/fwd.h>
 
 const char* GetHostName();
-const TString& HostName();
+const std::string& HostName();
 
 const char* GetFQDNHostName();
-const TString& FQDNHostName();
-bool IsFQDN(const TString& name);
+const std::string& FQDNHostName();
+bool IsFQDN(const std::string& name);

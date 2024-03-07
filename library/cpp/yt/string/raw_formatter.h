@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <array>
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 namespace NYT {
 

@@ -1,6 +1,6 @@
 #include "json_writer.h"
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <util/charset/utf8.h>
 
@@ -74,7 +74,7 @@ namespace NJson {
             Buf.WriteKey(value);
         } else {
             if (DontEscapeStrings) {
-                Buf.UnsafeWriteValue(NUtils::TYdbStringBuilder() << "\"" << value << '"');
+                Buf.UnsafeWriteValue(TStringBuilder() << "\"" << value << '"');
             } else {
                 Buf.WriteString(value);
             }

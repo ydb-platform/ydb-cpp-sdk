@@ -198,10 +198,6 @@ namespace NMonitoring {
 
         TLabelsImpl() = default;
 
-        explicit TLabelsImpl(::NDetail::TReserveTag rt)
-            : Labels_(std::move(rt))
-        {}
-
         explicit TLabelsImpl(size_t count)
             : Labels_(count)
         {}

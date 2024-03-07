@@ -66,7 +66,7 @@ const TPartitionSession::TPtr& TReadSessionEvent::TPartitionSessionAccessor::Get
 }
 
 template<>
-void TPrintable<TPartitionSession>::DebugString(NUtils::TYdbStringBuilder& res, bool) const {
+void TPrintable<TPartitionSession>::DebugString(TStringBuilder& res, bool) const {
     const auto* self = static_cast<const TPartitionSession*>(this);
     res << " Partition session id: " << self->GetPartitionSessionId()
         << " Topic: \"" << self->GetTopicPath() << "\""
@@ -118,7 +118,7 @@ const TMessageMeta::TPtr& TMessageBase::GetMessageMeta() const {
 }
 
 template<>
-void TPrintable<TMessageBase>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const {
+void TPrintable<TMessageBase>::DebugString(TStringBuilder& ret, bool printData) const {
     const auto* self = static_cast<const TMessageBase*>(this);
     try {
         const std::string& data = self->GetData();
@@ -182,7 +182,7 @@ void TMessage::Commit() {
 }
 
 template<>
-void TPrintable<TMessage>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const {
+void TPrintable<TMessage>::DebugString(TStringBuilder& ret, bool printData) const {
     const auto* self = static_cast<const TMessage*>(this);
     ret << "Message {";
     static_cast<const TMessageBase*>(self)->DebugString(ret, printData);
@@ -216,7 +216,7 @@ void TCompressedMessage::Commit() {
 }
 
 template<>
-void TPrintable<TCompressedMessage>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const {
+void TPrintable<TCompressedMessage>::DebugString(TStringBuilder& ret, bool printData) const {
     const auto* self = static_cast<const TCompressedMessage*>(this);
     ret << "CompressedMessage {";
     static_cast<const TMessageBase*>(self)->DebugString(ret, printData);
@@ -251,7 +251,7 @@ void TDataReceivedEvent::Commit() {
 }
 
 template<>
-void TPrintable<TDataReceivedEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const {
+void TPrintable<TDataReceivedEvent>::DebugString(TStringBuilder& ret, bool printData) const {
     const auto* self = static_cast<const TDataReceivedEvent*>(this);
     ret << "DataReceived {";
     self->GetPartitionSession()->DebugString(ret);
@@ -279,7 +279,7 @@ TCommitOffsetAcknowledgementEvent::TCommitOffsetAcknowledgementEvent(TPartitionS
 }
 
 template<>
-void TPrintable<TCommitOffsetAcknowledgementEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool) const {
+void TPrintable<TCommitOffsetAcknowledgementEvent>::DebugString(TStringBuilder& ret, bool) const {
     const auto* self = static_cast<const TCommitOffsetAcknowledgementEvent*>(this);
     ret << "CommitAcknowledgement {";
     self->GetPartitionSession()->DebugString(ret);
@@ -305,7 +305,7 @@ void TStartPartitionSessionEvent::Confirm(std::optional<ui64> readOffset, std::o
 }
 
 template<>
-void TPrintable<TStartPartitionSessionEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool) const {
+void TPrintable<TStartPartitionSessionEvent>::DebugString(TStringBuilder& ret, bool) const {
     const auto* self = static_cast<const TStartPartitionSessionEvent*>(this);
     ret << "StartPartitionSession {";
     self->GetPartitionSession()->DebugString(ret);
@@ -329,7 +329,7 @@ void TStopPartitionSessionEvent::Confirm() {
 }
 
 template<>
-void TPrintable<TStopPartitionSessionEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool) const {
+void TPrintable<TStopPartitionSessionEvent>::DebugString(TStringBuilder& ret, bool) const {
     const auto* self = static_cast<const TStopPartitionSessionEvent*>(this);
     ret << "StopPartitionSession {";
     self->GetPartitionSession()->DebugString(ret);
@@ -351,7 +351,7 @@ TPartitionSessionStatusEvent::TPartitionSessionStatusEvent(TPartitionSession::TP
 }
 
 template<>
-void TPrintable<TPartitionSessionStatusEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool) const {
+void TPrintable<TPartitionSessionStatusEvent>::DebugString(TStringBuilder& ret, bool) const {
     const auto* self = static_cast<const TPartitionSessionStatusEvent*>(this);
     ret << "PartitionSessionStatus {";
     self->GetPartitionSession()->DebugString(ret);
@@ -372,7 +372,7 @@ TPartitionSessionClosedEvent::TPartitionSessionClosedEvent(TPartitionSession::TP
 }
 
 template<>
-void TPrintable<TPartitionSessionClosedEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool) const {
+void TPrintable<TPartitionSessionClosedEvent>::DebugString(TStringBuilder& ret, bool) const {
     const auto* self = static_cast<const TPartitionSessionClosedEvent*>(this);
     ret << "PartitionSessionClosed {";
     self->GetPartitionSession()->DebugString(ret);
@@ -384,7 +384,7 @@ void TPrintable<TPartitionSessionClosedEvent>::DebugString(NUtils::TYdbStringBui
 // NTopic::TSessionClosedEvent
 
 template<>
-void TPrintable<TSessionClosedEvent>::DebugString(NUtils::TYdbStringBuilder& ret, bool) const {
+void TPrintable<TSessionClosedEvent>::DebugString(TStringBuilder& ret, bool) const {
     const auto* self = static_cast<const TSessionClosedEvent*>(this);
     ret << "SessionClosed { Status: " << self->GetStatus()
         << " Issues: \"" << NPersQueue::IssuesSingleLineString(self->GetIssues())

@@ -32,7 +32,7 @@ char* HexEncode(const void* in, size_t len, char* out) {
 void* HexDecode(const void* in, size_t len, void* ptr) {
     const char* b = (const char*)in;
     const char* e = b + len;
-    Y_ENSURE(!(len & 1), TStringBuf("Odd buffer length passed to HexDecode"));
+    Y_ENSURE(!(len & 1), std::string_view("Odd buffer length passed to HexDecode"));
 
     char* out = (char*)ptr;
 
@@ -44,19 +44,19 @@ void* HexDecode(const void* in, size_t len, void* ptr) {
     return out;
 }
 
-TString HexEncode(const void* in, size_t len) {
-    TString ret;
+std::string HexEncode(const void* in, size_t len) {
+    std::string ret;
 
-    ret.ReserveAndResize(len << 1);
+    ret.resize(len << 1);
     HexEncode(in, len, ret.begin());
 
     return ret;
 }
 
-TString HexDecode(const void* in, size_t len) {
-    TString ret;
+std::string HexDecode(const void* in, size_t len) {
+    std::string ret;
 
-    ret.ReserveAndResize(len >> 1);
+    ret.resize(len >> 1);
     HexDecode(in, len, ret.begin());
 
     return ret;

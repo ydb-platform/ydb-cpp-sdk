@@ -188,7 +188,7 @@ public:
                             nullptr,
                             TPlainStatus(
                                 EStatus::CLIENT_UNAUTHENTICATED,
-                                NUtils::TYdbStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
+                                TStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
                             )
                         );
                         return;
@@ -421,7 +421,7 @@ public:
                         responseCb(
                             TPlainStatus(
                                 EStatus::CLIENT_UNAUTHENTICATED,
-                                NUtils::TYdbStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
+                                TStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
                             ),
                             nullptr
                         );
@@ -517,7 +517,7 @@ public:
                         connectedCallback(
                             TPlainStatus(
                                 EStatus::CLIENT_UNAUTHENTICATED,
-                                NUtils::TYdbStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
+                                TStringBuilder() << "Can't get Authentication info from CredentialsProvider. " << e.what()
                             ),
                             nullptr
                         );

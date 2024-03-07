@@ -3,7 +3,6 @@
 #include <util/system/defaults.h>
 #include <util/system/sysstat.h>
 #include <util/system/fs.h>
-#include <util/generic/string.h>
 #include <util/generic/yexception.h>
 
 #include <sys/types.h>
@@ -37,57 +36,57 @@ char* mkdtemp(char* path);
     #endif
 #endif
 
-bool IsDir(const TString& path);
+bool IsDir(const std::string& path);
 
 int mkpath(char* path, int mode = 0777);
 
-TString GetHomeDir();
+std::string GetHomeDir();
 
 void MakeDirIfNotExist(const char* path, int mode = 0777);
 
-inline void MakeDirIfNotExist(const TString& path, int mode = 0777) {
+inline void MakeDirIfNotExist(const std::string& path, int mode = 0777) {
     MakeDirIfNotExist(path.data(), mode);
 }
 
 /// Create path making parent directories as needed
 void MakePathIfNotExist(const char* path, int mode = 0777);
 
-void SlashFolderLocal(TString& folder);
-bool correctpath(TString& filename);
-bool resolvepath(TString& folder, const TString& home);
+void SlashFolderLocal(std::string& folder);
+bool correctpath(std::string& filename);
+bool resolvepath(std::string& folder, const std::string& home);
 
 char GetDirectorySeparator();
 const char* GetDirectorySeparatorS();
 
-void RemoveDirWithContents(TString dirName);
+void RemoveDirWithContents(std::string dirName);
 
 const char* GetFileNameComponent(const char* f);
 
-inline TString GetFileNameComponent(const TString& f) {
+inline std::string GetFileNameComponent(const std::string& f) {
     return GetFileNameComponent(f.data());
 }
 
 /// RealPath doesn't guarantee trailing separator to be stripped or left in place for directories.
-TString RealPath(const TString& path);     // throws
-TString RealLocation(const TString& path); /// throws; last file name component doesn't need to exist
+std::string RealPath(const std::string& path);     // throws
+std::string RealLocation(const std::string& path); /// throws; last file name component doesn't need to exist
 
-TString GetSystemTempDir();
+std::string GetSystemTempDir();
 
 int MakeTempDir(char path[/*FILENAME_MAX*/], const char* prefix);
 
 int ResolvePath(const char* rel, const char* abs, char res[/*FILENAME_MAX*/], bool isdir = false);
-TString ResolvePath(const char* rel, const char* abs, bool isdir = false);
-TString ResolvePath(const char* path, bool isDir = false);
+std::string ResolvePath(const char* rel, const char* abs, bool isdir = false);
+std::string ResolvePath(const char* path, bool isDir = false);
 
-TString ResolveDir(const char* path);
+std::string ResolveDir(const char* path);
 
-bool SafeResolveDir(const char* path, TString& result);
+bool SafeResolveDir(const char* path, std::string& result);
 
-TString GetDirName(const TString& path);
+std::string GetDirName(const std::string& path);
 
-TString GetBaseName(const TString& path);
+std::string GetBaseName(const std::string& path);
 
-TString StripFileComponent(const TString& fileName);
+std::string StripFileComponent(const std::string& fileName);
 
 class TExistenceChecker {
 public:

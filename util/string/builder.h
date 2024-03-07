@@ -2,10 +2,9 @@
 
 #include <util/stream/str.h>
 #include <utility>
-#include <util/generic/string.h>
 
 namespace NPrivateStringBuilder {
-    class TStringBuilder: public TString {
+    class TStringBuilder: public std::string {
     public:
         inline TStringBuilder()
             : Out(*this)
@@ -13,7 +12,7 @@ namespace NPrivateStringBuilder {
         }
 
         TStringBuilder(TStringBuilder&& rhs) noexcept
-            : TString(std::move(rhs))
+            : std::string(std::move(rhs))
             , Out(*this)
         {
         }

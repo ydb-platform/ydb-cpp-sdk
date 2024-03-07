@@ -21,7 +21,7 @@ public:
     }
 
     template <typename FuncType>
-    void ForInput(const TStringBuf text, const FuncType& func) {
+    void ForInput(const std::string_view text, const FuncType& func) {
         TFile tempFile(TFile::Temporary("input_ut"));
         tempFile.Write(text.data(), text.size());
         tempFile.FlushData();
@@ -70,7 +70,7 @@ protected:
 
 class TSimpleStringInput: public IInputStream {
 public:
-    TSimpleStringInput(const TString& string)
+    TSimpleStringInput(const std::string& string)
         : String_(string)
     {
     }
@@ -89,7 +89,7 @@ protected:
     }
 
 private:
-    TString String_;
+    std::string String_;
 };
 
 Y_UNIT_TEST_SUITE(TInputTest) {
@@ -108,7 +108,7 @@ Y_UNIT_TEST_SUITE(TInputTest) {
 
         TSimpleStringInput in("0123456789abc");
 
-        TString t;
+        std::string t;
         UNIT_ASSERT_VALUES_EQUAL(in.ReadTo(t, '7'), 8);
         UNIT_ASSERT_VALUES_EQUAL(t, "0123456");
         UNIT_ASSERT_VALUES_EQUAL(in.ReadTo(t, 'z'), 5);
@@ -120,7 +120,7 @@ Y_UNIT_TEST_SUITE(TInputTest) {
     Y_UNIT_TEST(TestReadLine) {
         TSimpleStringInput in("1\n22\n333");
 
-        TString t;
+        std::string t;
         UNIT_ASSERT_VALUES_EQUAL(in.ReadLine(t), 2);
         UNIT_ASSERT_VALUES_EQUAL(t, "1");
         UNIT_ASSERT_VALUES_EQUAL(in.ReadLine(t), 3);
@@ -132,7 +132,7 @@ Y_UNIT_TEST_SUITE(TInputTest) {
     }
 
     Y_UNIT_TEST(TestStdInReadTo) {
-        std::pair<std::pair<TStringBuf, char>, TStringBuf> testPairs[] = {
+        std::pair<std::pair<std::string_view, char>, std::string_view> testPairs[] = {
             {{"", '\n'}, ""},
             {{"\n", '\n'}, ""},
             {{"\n\t", '\t'}, "\n"},
@@ -142,13 +142,13 @@ Y_UNIT_TEST_SUITE(TInputTest) {
         TMockStdIn stdIn;
 
         for (const auto& testPair : testPairs) {
-            const TStringBuf text = testPair.first.first;
+            const std::string_view text = testPair.first.first;
             const char delim = testPair.first.second;
-            const TStringBuf expectedValue = testPair.second;
+            const std::string_view expectedValue = testPair.second;
 
             stdIn.ForInput(text,
                            [=] {
-                               TString value;
+                               std::string value;
                                Cin.ReadTo(value, delim);
                                UNIT_ASSERT_VALUES_EQUAL(value, expectedValue);
                            });

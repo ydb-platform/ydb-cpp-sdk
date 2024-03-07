@@ -6,7 +6,6 @@ target_link_libraries(impl-ydb_internal-plain_status PUBLIC
   protobuf::libprotobuf
   library-grpc-client
   yql-public-issue
-  cpp-string_builder
 )
 
 target_sources(impl-ydb_internal-plain_status PRIVATE

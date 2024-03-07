@@ -1,15 +1,12 @@
 #pragma once
 
 #include <util/generic/noncopyable.h>
-#include <util/generic/string.h>
 #include <util/generic/hash.h>
-#include <util/generic/strbuf.h>
 #include <util/stream/input.h>
 #include <util/stream/output.h>
 #include "file.h"
 #include "getpid.h"
 #include "thread.h"
-#include "mutex.h"
 #include <sys/types.h>
 #include <list>
 #include <atomic>
@@ -31,9 +28,9 @@ class TShellCommandOptions {
 
 public:
     struct TUserOptions {
-        TString Name;
+        std::string Name;
 #if defined(_win_)
-        TString Password;
+        std::string Password;
 #endif
 #if defined(_unix_)
         /**
@@ -335,7 +332,7 @@ public:
     IOutputStream* OutputStream;
     IOutputStream* ErrorStream;
     TUserOptions User;
-    THashMap<TString, TString> Environment;
+    THashMap<std::string, std::string> Environment;
     int Nice = 0;
 
     std::function<void()> FuncAfterFork = {};
@@ -367,9 +364,9 @@ public:
      * @param options execution options
      * @todo store entire options structure
      */
-    TShellCommand(const TStringBuf cmd, const std::list<TString>& args, const TShellCommandOptions& options = TShellCommandOptions(),
-                  const TString& workdir = TString());
-    TShellCommand(const TStringBuf cmd, const TShellCommandOptions& options = TShellCommandOptions(), const TString& workdir = TString());
+    TShellCommand(const std::string_view cmd, const std::list<std::string>& args, const TShellCommandOptions& options = TShellCommandOptions(),
+                  const std::string& workdir = std::string());
+    TShellCommand(const std::string_view cmd, const TShellCommandOptions& options = TShellCommandOptions(), const std::string& workdir = std::string());
     ~TShellCommand();
 
 public:
@@ -380,7 +377,7 @@ public:
      *
      * @return self
      */
-    TShellCommand& operator<<(const TStringBuf argument);
+    TShellCommand& operator<<(const std::string_view argument);
 
     /**
      * @brief return the collected output from the command.
@@ -388,7 +385,7 @@ public:
      *
      * @return collected output
      */
-    const TString& GetOutput() const;
+    const std::string& GetOutput() const;
 
     /**
      * @brief return the collected error output from the command.
@@ -396,7 +393,7 @@ public:
      *
      * @return collected error output
      */
-    const TString& GetError() const;
+    const std::string& GetError() const;
 
     /**
      * @brief return the internal error occured while watching
@@ -405,7 +402,7 @@ public:
      *
      * @return error text
      */
-    const TString& GetInternalError() const;
+    const std::string& GetInternalError() const;
 
     /**
      * @brief get current status of command execution
@@ -483,7 +480,7 @@ public:
     /**
      * @brief Get quoted command (for debug/view purposes only!)
      **/
-    TString GetQuotedCommand() const;
+    std::string GetQuotedCommand() const;
 
 private:
     class TImpl;
@@ -492,10 +489,10 @@ private:
 };
 
 /// Appends to dst: quoted arg
-void ShellQuoteArg(TString& dst, TStringBuf arg);
+void ShellQuoteArg(std::string& dst, std::string_view arg);
 
 /// Appends to dst: space, quoted arg
-void ShellQuoteArgSp(TString& dst, TStringBuf arg);
+void ShellQuoteArgSp(std::string& dst, std::string_view arg);
 
 /// Returns true if arg should be quoted
-bool ArgNeedsQuotes(TStringBuf arg) noexcept;
+bool ArgNeedsQuotes(std::string_view arg) noexcept;

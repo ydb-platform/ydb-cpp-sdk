@@ -4,7 +4,6 @@
 #include <util/datetime/base.h>
 #include <util/generic/algorithm.h>
 
-#include <util/generic/list.h>
 #include <util/generic/ptr.h>
 #include <util/generic/singleton.h>
 
@@ -18,6 +17,7 @@
 #include <util/system/spinlock.h>
 
 #include <map>
+#include <mutex>
 #include <array>
 
 namespace NMonitoring {
@@ -260,7 +260,7 @@ namespace NMonitoring {
 
     private:
         G* Add(const T& name) {
-            TGuard<TSpinLock> guard(AddMutex);
+            std::lock_guard guard(AddMutex);
             G* result = Groups->Find(name);
             if (result == nullptr) {
                 T* newName = new T(name);
@@ -294,7 +294,7 @@ namespace NMonitoring {
         }
 
         virtual ~TDeprecatedCounterGroups() {
-            TGuard<TSpinLock> guard(AddMutex);
+            std::lock_guard guard(AddMutex);
             Groups->Free();
             delete Groups;
             Groups = nullptr;

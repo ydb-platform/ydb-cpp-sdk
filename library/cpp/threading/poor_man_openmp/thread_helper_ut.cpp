@@ -2,7 +2,7 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/string.h>
+#include <string>
 #include <util/generic/yexception.h>
 
 Y_UNIT_TEST_SUITE(TestMP) {

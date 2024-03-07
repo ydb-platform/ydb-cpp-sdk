@@ -2,9 +2,9 @@
 
 #include <util/system/types.h>
 #include <util/generic/hash.h>
-#include <util/generic/vector.h>
-#include <util/generic/string.h>
-#include <util/generic/strbuf.h>
+#include <vector>
+#include <string>
+#include <string_view>
 #include <util/generic/ptr.h>
 #include <util/stream/output.h>
 #include <util/stream/str.h>

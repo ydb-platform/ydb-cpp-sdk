@@ -11,7 +11,6 @@ target_link_libraries(cpp-client-ydb_operation PUBLIC
   cpp-client-ydb_export
   cpp-client-ydb_import
   client-ydb_types-operation
-  cpp-string_builder
 )
 
 target_sources(cpp-client-ydb_operation PRIVATE

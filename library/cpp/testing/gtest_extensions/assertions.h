@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/string.h>
+#include <string>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

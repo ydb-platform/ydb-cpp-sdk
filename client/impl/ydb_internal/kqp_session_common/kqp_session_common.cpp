@@ -57,22 +57,20 @@ const TEndpointKey& TKqpSessionCommon::GetEndpointKey() const {
 
 // Can be called from interceptor, need lock
 void TKqpSessionCommon::MarkBroken() {
-    with_lock(Lock_) {
-        if (State_ == EState::S_ACTIVE) {
-            NeedUpdateActiveCounter_ = true;
-        }
-        State_ = EState::S_BROKEN;
+    std::lock_guard guard(Lock_);
+    if (State_ == EState::S_ACTIVE) {
+        NeedUpdateActiveCounter_ = true;
     }
+    State_ = EState::S_BROKEN;
 }
 
 void TKqpSessionCommon::MarkAsClosing() {
-    with_lock(Lock_) {
-        if (State_ == EState::S_ACTIVE) {
-            NeedUpdateActiveCounter_ = true;
-        }
-
-        State_ = EState::S_CLOSING;
+    std::lock_guard guard(Lock_);
+    if (State_ == EState::S_ACTIVE) {
+        NeedUpdateActiveCounter_ = true;
     }
+
+    State_ = EState::S_CLOSING;
 }
 
 void TKqpSessionCommon::MarkActive() {
@@ -91,9 +89,8 @@ bool TKqpSessionCommon::IsOwnedBySessionPool() const {
 
 TKqpSessionCommon::EState TKqpSessionCommon::GetState() const {
     // See comments in InjectSessionStatusInterception about lock
-    with_lock(Lock_) {
-        return State_;
-    }
+    std::lock_guard guard(const_cast<TAdaptiveLock&>(Lock_));
+    return State_;
 }
 
 void TKqpSessionCommon::SetNeedUpdateActiveCounter(bool flag) {
@@ -111,12 +108,11 @@ void TKqpSessionCommon::ScheduleTimeToTouch(TDuration interval,
     bool updateTimeInPast)
 {
     auto now = TInstant::Now();
-    with_lock(Lock_) {
-        if (updateTimeInPast) {
-             TimeInPast_ = now;
-        }
-        TimeToTouch_ = now + interval;
+    std::lock_guard guard(Lock_);
+    if (updateTimeInPast) {
+            TimeInPast_ = now;
     }
+    TimeToTouch_ = now + interval;
 }
 
 void TKqpSessionCommon::ScheduleTimeToTouchFast(TDuration interval,

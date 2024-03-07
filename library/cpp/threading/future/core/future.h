@@ -12,6 +12,8 @@
 #include <util/system/event.h>
 #include <util/system/spinlock.h>
 
+#include <string_view>
+
 namespace NThreading {
     ////////////////////////////////////////////////////////////////////////////////
 

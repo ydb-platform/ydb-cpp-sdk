@@ -1,6 +1,7 @@
 #include "mem_info.h"
 
-#include <util/generic/strbuf.h>
+#include <library/cpp/string_utils/helpers/helpers.h>
+
 #include <util/stream/file.h>
 #include <util/string/cast.h>
 #include <util/string/builder.h>
@@ -105,18 +106,18 @@ namespace NMemInfo {
     #endif
 
     #if defined(_linux_) || defined(_cygwin_)
-        TString path;
+        std::string path;
         if (!pid) {
             path = "/proc/self/statm";
         } else {
-            path = TStringBuilder() << TStringBuf("/proc/") << pid << TStringBuf("/statm");
+            path = TStringBuilder() << std::string_view("/proc/") << pid << std::string_view("/statm");
         }
-        const TString stats = TUnbufferedFileInput(path).ReadAll();
+        const std::string stats = TUnbufferedFileInput(path).ReadAll();
 
-        TStringBuf statsiter(stats);
+        std::string_view statsiter(stats);
 
-        result.VMS = FromString<ui64>(statsiter.NextTok(' ')) * pagesize;
-        result.RSS = FromString<ui64>(statsiter.NextTok(' ')) * pagesize;
+        result.VMS = FromString<ui64>(NUtils::NextTok(statsiter, ' ')) * pagesize;
+        result.RSS = FromString<ui64>(NUtils::NextTok(statsiter, ' ')) * pagesize;
 
         #if defined(_cygwin_)
         //cygwin not very accurate
@@ -132,7 +133,7 @@ namespace NMemInfo {
         errno = 0;
         if (sysctl((int*)mib, 4, &proc, &size, nullptr, 0) == -1) {
             int err = errno;
-            TString errtxt = LastSystemErrorText(err);
+            std::string errtxt = LastSystemErrorText(err);
             ythrow yexception() << "sysctl({CTL_KERN,KERN_PROC,KERN_PROC_PID,pid},4,proc,&size,NULL,0) returned -1, errno: " << err << " (" << errtxt << ")" << Endl;
         }
 
@@ -147,7 +148,7 @@ namespace NMemInfo {
 
         if (r != sizeof(taskInfo)) {
             int err = errno;
-            TString errtxt = LastSystemErrorText(err);
+            std::string errtxt = LastSystemErrorText(err);
             ythrow yexception() << "proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &taskInfo, sizeof(taskInfo)) returned " << r << ", errno: " << err << " (" << errtxt << ")" << Endl;
         }
         result.VMS = taskInfo.pti_virtual_size;
@@ -160,7 +161,7 @@ namespace NMemInfo {
         const int r = task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t)&taskInfo, &infoCount);
         if (r != KERN_SUCCESS) {
             int err = errno;
-            TString errtxt = LastSystemErrorText(err);
+            std::string errtxt = LastSystemErrorText(err);
             ythrow yexception() << "task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t)&info, &infoCount) returned" << r << ", errno: " << err << " (" << errtxt << ")" << Endl;
         }
         result.VMS = taskInfo.virtual_size;

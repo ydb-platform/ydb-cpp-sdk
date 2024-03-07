@@ -5,7 +5,6 @@ target_link_libraries(blockcodecs-codecs-legacy_zstd06 INTERFACE
   yutil
   contrib-libs-zstd06
   cpp-blockcodecs-core
-  cpp-string_builder
 )
 
 add_global_library_for(blockcodecs-codecs-legacy_zstd06.global blockcodecs-codecs-legacy_zstd06)
@@ -15,7 +14,6 @@ target_link_libraries(blockcodecs-codecs-legacy_zstd06.global PUBLIC
   yutil
   contrib-libs-zstd06
   cpp-blockcodecs-core
-  cpp-string_builder
 )
 
 target_sources(blockcodecs-codecs-legacy_zstd06.global PRIVATE

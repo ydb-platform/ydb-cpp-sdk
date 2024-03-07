@@ -7,6 +7,7 @@
 #include <iterator>
 #include <type_traits>
 #include <stlfwd>
+#include <string>
 
 #if _LIBCPP_STD_VER >= 17
 template <bool B>

@@ -367,7 +367,7 @@ public:
 
 private:
 
-    NUtils::TYdbStringBuilder LogPrefix() const;
+    TStringBuilder LogPrefix() const;
 
     void UpdateTokenIfNeededImpl();
 

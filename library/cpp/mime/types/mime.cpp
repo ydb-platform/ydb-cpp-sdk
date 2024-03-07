@@ -155,7 +155,7 @@ MimeTypes TMimeTypes::MimeByStr(const char* str) const {
 }
 
 MimeTypes TMimeTypes::MimeByStr(const std::string_view& str) const {
-    TRecordHash::const_iterator it = ContentTypes.find(str);
+    TRecordHash::const_iterator it = ContentTypes.find(str.data());
     if (it == ContentTypes.end())
         return MIME_UNKNOWN;
     return Records[it->second].Mime;

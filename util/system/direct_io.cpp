@@ -1,5 +1,7 @@
 #include "direct_io.h"
 
+#include <library/cpp/string_utils/helpers/helpers.h>
+
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>
 #include <util/system/info.h>
@@ -21,12 +23,12 @@ namespace {
 
             Y_ABORT_UNLESS(!uname(&sysInfo), "Error while call uname: %s", LastSystemErrorText());
 
-            TStringBuf release(sysInfo.release);
+            std::string_view release(sysInfo.release);
             release = release.substr(0, release.find_first_not_of(".0123456789"));
 
-            int v1 = FromString<int>(release.NextTok('.'));
-            int v2 = FromString<int>(release.NextTok('.'));
-            int v3 = FromString<int>(release.NextTok('.'));
+            int v1 = FromString<int>(NUtils::NextTok(release, '.'));
+            int v2 = FromString<int>(NUtils::NextTok(release, '.'));
+            int v3 = FromString<int>(NUtils::NextTok(release, '.'));
             int linuxVersionCode = KERNEL_VERSION(v1, v2, v3);
 
             if (linuxVersionCode < KERNEL_VERSION(2, 4, 10)) {
@@ -46,7 +48,7 @@ namespace {
     };
 }
 
-TDirectIOBufferedFile::TDirectIOBufferedFile(const TString& path, EOpenMode oMode, size_t buflen /*= 1 << 17*/)
+TDirectIOBufferedFile::TDirectIOBufferedFile(const std::string& path, EOpenMode oMode, size_t buflen /*= 1 << 17*/)
     : File(path, oMode)
     , Alignment(0)
     , DataLen(0)

@@ -2,7 +2,7 @@
 #include "reopen.h"
 
 #include <exception>
-#include <util/generic/string.h>
+#include <string>
 #include <util/generic/array_ref.h>
 
 #include <library/cpp/testing/unittest/registar.h>

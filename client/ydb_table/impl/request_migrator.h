@@ -6,7 +6,7 @@
 
 #include <library/cpp/threading/future/future.h>
 
-#include <util/generic/string.h>
+#include <string>
 
 #include <mutex>
 #include <memory>

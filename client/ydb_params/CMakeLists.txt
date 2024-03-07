@@ -8,7 +8,6 @@ target_link_libraries(cpp-client-ydb_params PUBLIC
   api-protos
   client-ydb_types-fatal_error_handlers
   cpp-client-ydb_value
-  cpp-string_builder
 )
 
 target_sources(cpp-client-ydb_params PRIVATE

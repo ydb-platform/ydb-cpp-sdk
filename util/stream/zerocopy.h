@@ -70,7 +70,7 @@ public:
     IZeroCopyInputFastReadTo& operator=(IZeroCopyInputFastReadTo&&) noexcept = default;
 
 protected:
-    size_t DoReadTo(TString& st, char ch) override;
+    size_t DoReadTo(std::string& st, char ch) override;
 
 private:
     /**

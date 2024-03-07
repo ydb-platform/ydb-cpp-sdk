@@ -3,10 +3,11 @@
 #include "mon_page.h"
 
 #include <list>
+#include <mutex>
 
 namespace NMonitoring {
     struct TIndexMonPage: public IMonPage {
-        TMutex Mtx;
+        std::mutex Mtx;
         using TPages = std::list<TMonPagePtr>;
         TPages Pages; // a list of pages to maintain specific order
         using TPagesByPath = THashMap<std::string, TPages::iterator>;

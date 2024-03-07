@@ -2,7 +2,7 @@
 
 #include "completion_generator.h"
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 #include <library/cpp/string_utils/misc/misc.h>
 
 using NLastGetopt::NEscaping::Q;
@@ -25,7 +25,7 @@ namespace NLastGetopt::NComp {
     }
 
     std::string_view TCompleterManager::GetCompleterID(const ICompleter* completer) {
-        return Queue_.emplace_back(NUtils::TYdbStringBuilder() << "_" << Command_ << "__completer_" << ++Id_, completer).first;
+        return Queue_.emplace_back(TStringBuilder() << "_" << Command_ << "__completer_" << ++Id_, completer).first;
     }
 
     void TCompleterManager::GenerateZsh(TFormattedOutput& out) {
@@ -131,7 +131,7 @@ namespace NLastGetopt::NComp {
     };
 
     ICompleterPtr Choice(std::vector<TChoice> choices) {
-        NUtils::TYdbStringBuilder bash;  
+        TStringBuilder bash;  
         bash << "COMPREPLY+=( $(compgen -W '";
         std::string_view sep = "";
         for (auto& choice : choices) {
@@ -140,7 +140,7 @@ namespace NLastGetopt::NComp {
         }
         bash << "' -- ${cur}) )";
 
-        NUtils::TYdbStringBuilder action;
+        TStringBuilder action;
         action << "((";
         for (auto& choice: choices) {
             action << " " << SS(choice.Choice);
@@ -153,7 +153,7 @@ namespace NLastGetopt::NComp {
     }
 
     std::string Compgen(std::string_view flags) {
-        return NUtils::TYdbStringBuilder() << "COMPREPLY+=( $(compgen " << flags << " -- ${cur}) )";
+        return TStringBuilder() << "COMPREPLY+=( $(compgen " << flags << " -- ${cur}) )";
     }
 
     ICompleterPtr Default() {

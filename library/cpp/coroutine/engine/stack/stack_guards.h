@@ -3,7 +3,7 @@
 #include "stack_common.h"
 
 #include <util/generic/array_ref.h>
-#include <util/generic/strbuf.h>
+#include <string_view>
 #include <util/system/protect.h>
 
 

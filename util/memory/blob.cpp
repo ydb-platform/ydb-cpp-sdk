@@ -6,7 +6,6 @@
 #include <util/system/mlock.h>
 #include <util/stream/buffer.h>
 #include <util/generic/ptr.h>
-#include <util/generic/string.h>
 #include <util/generic/buffer.h>
 #include <util/generic/ylimits.h>
 #include <util/generic/singleton.h>
@@ -72,12 +71,12 @@ class TStringBlobBase: public TBlob::TBase, public TRefCounted<TStringBlobBase<T
     using TRefBase = TRefCounted<TStringBlobBase, TCounter>;
 
 public:
-    inline TStringBlobBase(const TString& s)
+    inline TStringBlobBase(const std::string& s)
         : S_(s)
     {
     }
 
-    TStringBlobBase(TString&& s) noexcept
+    TStringBlobBase(std::string&& s) noexcept
         : S_(std::move(s))
     {
     }
@@ -92,12 +91,12 @@ public:
         TRefBase::UnRef();
     }
 
-    inline const TString& String() const noexcept {
+    inline const std::string& String() const noexcept {
         return S_;
     }
 
 private:
-    const TString S_;
+    const std::string S_;
 };
 
 template <class TCounter>
@@ -109,7 +108,7 @@ public:
         : Map_(map)
         , Mode_(mode)
     {
-        Y_ENSURE(Map_.IsOpen(), TStringBuf("memory map not open"));
+        Y_ENSURE(Map_.IsOpen(), std::string_view("memory map not open"));
 
         Map_.Map(offset, len);
 
@@ -220,11 +219,11 @@ static inline TBlob ConstructAsMap(const T& t, EMappingMode mode) {
     return ConstructFromMap<TCounter>(map, 0, static_cast<size_t>(toMap), mode);
 }
 
-TBlob TBlob::FromFileSingleThreaded(const TString& path, EMappingMode mode) {
+TBlob TBlob::FromFileSingleThreaded(const std::string& path, EMappingMode mode) {
     return ConstructAsMap<TSimpleCounter>(path, mode);
 }
 
-TBlob TBlob::FromFile(const TString& path, EMappingMode mode) {
+TBlob TBlob::FromFile(const std::string& path, EMappingMode mode) {
     return ConstructAsMap<TAtomicCounter>(path, mode);
 }
 
@@ -236,11 +235,11 @@ TBlob TBlob::FromFile(const TFile& file, EMappingMode mode) {
     return ConstructAsMap<TAtomicCounter>(file, mode);
 }
 
-TBlob TBlob::FromFileSingleThreaded(const TString& path) {
+TBlob TBlob::FromFileSingleThreaded(const std::string& path) {
     return ConstructAsMap<TSimpleCounter>(path, EMappingMode::Standard);
 }
 
-TBlob TBlob::FromFile(const TString& path) {
+TBlob TBlob::FromFile(const std::string& path) {
     return ConstructAsMap<TAtomicCounter>(path, EMappingMode::Standard);
 }
 
@@ -252,11 +251,11 @@ TBlob TBlob::FromFile(const TFile& file) {
     return ConstructAsMap<TAtomicCounter>(file, EMappingMode::Standard);
 }
 
-TBlob TBlob::PrechargedFromFileSingleThreaded(const TString& path) {
+TBlob TBlob::PrechargedFromFileSingleThreaded(const std::string& path) {
     return ConstructAsMap<TSimpleCounter>(path, EMappingMode::Precharged);
 }
 
-TBlob TBlob::PrechargedFromFile(const TString& path) {
+TBlob TBlob::PrechargedFromFile(const std::string& path) {
     return ConstructAsMap<TAtomicCounter>(path, EMappingMode::Precharged);
 }
 
@@ -268,11 +267,11 @@ TBlob TBlob::PrechargedFromFile(const TFile& file) {
     return ConstructAsMap<TAtomicCounter>(file, EMappingMode::Precharged);
 }
 
-TBlob TBlob::LockedFromFileSingleThreaded(const TString& path) {
+TBlob TBlob::LockedFromFileSingleThreaded(const std::string& path) {
     return ConstructAsMap<TSimpleCounter>(path, EMappingMode::Locked);
 }
 
-TBlob TBlob::LockedFromFile(const TString& path) {
+TBlob TBlob::LockedFromFile(const std::string& path) {
     return ConstructAsMap<TAtomicCounter>(path, EMappingMode::Locked);
 }
 
@@ -324,12 +323,12 @@ static inline TBlob ConstructFromFileContent(const TFile& file, ui64 offset, ui6
     return ReadFromFile<TCounter>(file, offset, static_cast<size_t>(length));
 }
 
-TBlob TBlob::FromFileContentSingleThreaded(const TString& path) {
+TBlob TBlob::FromFileContentSingleThreaded(const std::string& path) {
     TFile file(path, RdOnly);
     return ConstructFromFileContent<TSimpleCounter>(file, 0, file.GetLength());
 }
 
-TBlob TBlob::FromFileContent(const TString& path) {
+TBlob TBlob::FromFileContent(const std::string& path) {
     TFile file(path, RdOnly);
     return ConstructFromFileContent<TAtomicCounter>(file, 0, file.GetLength());
 }
@@ -401,18 +400,18 @@ TBlob ConstructFromString(S&& s) {
     return ret;
 }
 
-TBlob TBlob::FromStringSingleThreaded(const TString& s) {
+TBlob TBlob::FromStringSingleThreaded(const std::string& s) {
     return ConstructFromString<TSimpleCounter>(s);
 }
 
-TBlob TBlob::FromStringSingleThreaded(TString&& s) {
+TBlob TBlob::FromStringSingleThreaded(std::string&& s) {
     return ConstructFromString<TSimpleCounter>(std::move(s));
 }
 
-TBlob TBlob::FromString(const TString& s) {
+TBlob TBlob::FromString(const std::string& s) {
     return ConstructFromString<TAtomicCounter>(s);
 }
 
-TBlob TBlob::FromString(TString&& s) {
+TBlob TBlob::FromString(std::string&& s) {
     return ConstructFromString<TAtomicCounter>(std::move(s));
 }

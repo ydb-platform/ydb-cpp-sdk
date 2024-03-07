@@ -8,7 +8,7 @@
 
 #include <library/cpp/json/json_reader.h>
 
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <util/datetime/base.h>
 #include <util/string/cast.h>
@@ -494,7 +494,7 @@ private:
 #define PARSE_ENSURE(CONDITION, ...)                     \
 do {                                                 \
 if (Y_UNLIKELY(!(CONDITION))) {                  \
-    ErrorMsg_ = NUtils::TYdbStringBuilder() << __VA_ARGS__; \
+    ErrorMsg_ = TStringBuilder() << __VA_ARGS__; \
     return false;                                \
 }                                                \
 } while (false)
@@ -862,7 +862,7 @@ if (Y_UNLIKELY(!(CONDITION))) {                  \
                 } else if (key == std::string_view("memOnly")) {
                     // deprecated. Skip it without errors for backward compatibility
                 } else {
-                    ErrorMsg_ = NUtils::TYdbStringBuilder() << "unexpected key \"" << key << "\" in a metric schema";
+                    ErrorMsg_ = TStringBuilder() << "unexpected key \"" << key << "\" in a metric schema";
                     return false;
                 }
                 break;

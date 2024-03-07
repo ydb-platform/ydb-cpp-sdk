@@ -1,3 +1,5 @@
+#include <library/cpp/string_utils/misc/misc.h>
+
 #include <util/memory/tempbuf.h>
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>
@@ -29,7 +31,7 @@ namespace {
             HostName = hostNameBuf.Data();
         }
 
-        TString HostName;
+        std::string HostName;
     };
 
     struct TFQDNHostNameHolder {
@@ -74,16 +76,16 @@ namespace {
                 ythrow TSystemError() << "can not get FQDN (return code is " << res << ", hostname is \"" << buf << "\")";
             }
             FQDNHostName = ais->ai_canonname;
-            FQDNHostName.to_lower();
+            NUtils::ToLower(FQDNHostName);
             freeaddrinfo(ais);
 #endif
         }
 
-        TString FQDNHostName;
+        std::string FQDNHostName;
     };
 }
 
-const TString& HostName() {
+const std::string& HostName() {
     return (Singleton<THostNameHolder>())->HostName;
 }
 
@@ -91,7 +93,7 @@ const char* GetHostName() {
     return HostName().data();
 }
 
-const TString& FQDNHostName() {
+const std::string& FQDNHostName() {
     return (Singleton<TFQDNHostNameHolder>())->FQDNHostName;
 }
 
@@ -99,9 +101,9 @@ const char* GetFQDNHostName() {
     return FQDNHostName().data();
 }
 
-bool IsFQDN(const TString& name) {
-    TString absName = name;
-    if (!absName.EndsWith('.')) {
+bool IsFQDN(const std::string& name) {
+    std::string absName = name;
+    if (!absName.ends_with('.')) {
         absName.append(".");
     }
 

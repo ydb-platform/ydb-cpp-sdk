@@ -1,7 +1,6 @@
 #pragma once
 
 #include <util/generic/ptr.h>
-#include <util/generic/vector.h>
 #include <util/generic/noncopyable.h>
 
 template <class T, class D = TDelete>

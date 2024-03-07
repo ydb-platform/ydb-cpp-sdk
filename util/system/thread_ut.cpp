@@ -62,7 +62,7 @@ Y_UNIT_TEST_SUITE(TSysThreadTest) {
     }
 
     void* ThreadProc4(void*) {
-        const TString setName = "ThreadName";
+        const std::string setName = "ThreadName";
         TThread::SetCurrentThreadName(setName.data());
 
         const auto getName = TThread::CurrentThreadName();
@@ -88,7 +88,7 @@ Y_UNIT_TEST_SUITE(TSysThreadTest) {
     }
 
     void* ThreadProcParent(void*) {
-        const TString setName = "Parent";
+        const std::string setName = "Parent";
         TThread::SetCurrentThreadName(setName.data());
 
         TThread thread(&ThreadProcChild, nullptr);

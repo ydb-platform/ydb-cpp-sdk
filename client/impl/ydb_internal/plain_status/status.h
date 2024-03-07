@@ -64,8 +64,8 @@ struct TPlainStatus {
         return TRANSPORT_STATUSES_FIRST <= status && status <= TRANSPORT_STATUSES_LAST;
     }
 
-    NUtils::TYdbStringBuilder ToDebugString() const {
-        NUtils::TYdbStringBuilder ret;
+    TStringBuilder ToDebugString() const {
+        TStringBuilder ret;
         ret << "Status: " << Status;
         if(!Ok())
             ret << ", Description: " << SubstGlobalCopy(Issues.ToString(), '\n', ' ');

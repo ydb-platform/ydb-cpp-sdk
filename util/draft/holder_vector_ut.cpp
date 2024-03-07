@@ -60,8 +60,8 @@ Y_UNIT_TEST_SUITE(THolderVectorTest) {
     }
 
     Y_UNIT_TEST(TestUniquePtr) {
-        THolderVector<TString> v;
-        std::unique_ptr<TString> str(new TString("hello"));
+        THolderVector<std::string> v;
+        std::unique_ptr<std::string> str(new std::string("hello"));
         v.PushBack(std::move(str));
         UNIT_ASSERT(v.Size() == 1);
         UNIT_ASSERT(str.get() == nullptr);

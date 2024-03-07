@@ -1404,33 +1404,33 @@ void THashTable<V, K, HF, Ex, Eq, A>::copy_from_dynamic(const THashTable& ht) {
 
 namespace NPrivate {
     template <class Key>
-    inline TString MapKeyToString(const Key&) {
+    inline std::string MapKeyToString(const Key&) {
         return TypeName<Key>();
     }
 
-    TString MapKeyToString(TStringBuf key);
-    TString MapKeyToString(unsigned short key);
-    TString MapKeyToString(short key);
-    TString MapKeyToString(unsigned int key);
-    TString MapKeyToString(int key);
-    TString MapKeyToString(unsigned long key);
-    TString MapKeyToString(long key);
-    TString MapKeyToString(unsigned long long key);
-    TString MapKeyToString(long long key);
+    std::string MapKeyToString(std::string_view key);
+    std::string MapKeyToString(unsigned short key);
+    std::string MapKeyToString(short key);
+    std::string MapKeyToString(unsigned int key);
+    std::string MapKeyToString(int key);
+    std::string MapKeyToString(unsigned long key);
+    std::string MapKeyToString(long key);
+    std::string MapKeyToString(unsigned long long key);
+    std::string MapKeyToString(long long key);
 
-    inline TString MapKeyToString(const TString& key) {
-        return MapKeyToString(TStringBuf(key));
+    inline std::string MapKeyToString(const std::string& key) {
+        return MapKeyToString(std::string_view(key));
     }
 
-    inline TString MapKeyToString(const char* key) {
-        return MapKeyToString(TStringBuf(key));
+    inline std::string MapKeyToString(const char* key) {
+        return MapKeyToString(std::string_view(key));
     }
 
-    inline TString MapKeyToString(char* key) {
-        return MapKeyToString(TStringBuf(key));
+    inline std::string MapKeyToString(char* key) {
+        return MapKeyToString(std::string_view(key));
     }
 
-    [[noreturn]] void ThrowKeyNotFoundInHashTableException(const TStringBuf keyRepresentation);
+    [[noreturn]] void ThrowKeyNotFoundInHashTableException(const std::string_view keyRepresentation);
 }
 
 // Cannot name it just 'Hash' because it clashes with too many class members in the code.

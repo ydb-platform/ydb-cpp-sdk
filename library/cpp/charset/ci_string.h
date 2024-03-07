@@ -2,7 +2,7 @@
 
 #include "codepage.h"
 
-#include <util/generic/string.h>
+#include <string>
 #include <util/str_stl.h>
 
 // Same as std::string but uses CASE INSENSITIVE comparator and hash. Use with care.
@@ -256,17 +256,17 @@ struct TCIHash<std::string> {
 
 struct ci_less {
     inline bool operator()(const char* x, const char* y) const {
-        return csYandex.stricmp(x, y) < 0;
+        return csYandex.Stricmp(x, y) < 0;
     }
 };
 
 struct ci_equal_to {
     inline bool operator()(const char* x, const char* y) const {
-        return csYandex.stricmp(x, y) == 0;
+        return csYandex.Stricmp(x, y) == 0;
     }
     // this implementation is not suitable for strings with zero characters inside, sorry
     bool operator()(const std::string_view& x, const std::string_view& y) const {
-        return x.size() == y.size() && csYandex.strnicmp(x.data(), y.data(), y.size()) == 0;
+        return x.size() == y.size() && csYandex.Strnicmp(x.data(), y.data(), y.size()) == 0;
     }
 };
 

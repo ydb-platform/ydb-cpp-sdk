@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include <util/generic/string.h>
+#include <string>
 
 namespace NYT {
 

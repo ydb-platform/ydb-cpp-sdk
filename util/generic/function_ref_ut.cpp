@@ -130,7 +130,7 @@ Y_UNIT_TEST_SUITE(TestFunctionRef) {
         ref1 = [] { return 'a'; };
         ref1 = [] { return 124u; };
 
-        TFunctionRef<TStringBuf()> ref2{Greet};
+        TFunctionRef<std::string_view()> ref2{Greet};
     }
 
     Y_UNIT_TEST(StatelessLambdaLifetime) {

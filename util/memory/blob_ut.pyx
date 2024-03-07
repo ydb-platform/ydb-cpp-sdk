@@ -1,7 +1,6 @@
 # cython: c_string_type=str, c_string_encoding=utf8
 
 from libcpp.string cimport string as std_string
-from util.generic.string cimport TString
 from util.memory.blob cimport TBlob
 
 import pytest
@@ -52,7 +51,7 @@ class TestBlob(unittest.TestCase):
         self.assertEqual(tmp.IsNull(), False)
 
     def test_from_string(self):
-        cdef TBlob tmp = TBlob.FromString(TString("hello world"))
+        cdef TBlob tmp = TBlob.FromString(std::string("hello world"))
         self.assertEqual(tmp.Size(), 11)
         self.assertEqual(tmp.AsCharPtr()[:tmp.Size()], "hello world")
         self.assertEqual(tmp.Empty(), False)

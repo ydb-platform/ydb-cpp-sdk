@@ -8,8 +8,8 @@
 #endif
 
 #if defined(_win_) || defined(_darwin_)
-    #include "mutex.h"
-    #include "condvar.h"
+    #include <mutex>
+    #include <condition_variable>
 
 //darwin rwlocks not recursive
 class TRWMutex::TImpl {
@@ -28,10 +28,10 @@ public:
     void Release() noexcept;
 
 private:
-    TMutex Lock_;
+    std::mutex Lock_;
     int State_;
-    TCondVar ReadCond_;
-    TCondVar WriteCond_;
+    std::condition_variable ReadCond_;
+    std::condition_variable WriteCond_;
     int BlockedWriters_;
 };
 
@@ -47,98 +47,96 @@ TRWMutex::TImpl::~TImpl() {
 }
 
 void TRWMutex::TImpl::AcquireRead() noexcept {
-    with_lock (Lock_) {
+    {
+        std::unique_lock ulock(Lock_);
         while (BlockedWriters_ || State_ < 0) {
-            ReadCond_.Wait(Lock_);
+            ReadCond_.wait(ulock);
         }
 
         ++State_;
     }
 
-    ReadCond_.Signal();
+    ReadCond_.notify_one();
 }
 
 bool TRWMutex::TImpl::TryAcquireRead() noexcept {
-    with_lock (Lock_) {
-        if (BlockedWriters_ || State_ < 0) {
-            return false;
-        }
-
-        ++State_;
+    std::lock_guard guard(Lock_);
+    if (BlockedWriters_ || State_ < 0) {
+        return false;
     }
+
+    ++State_;
 
     return true;
 }
 
 void TRWMutex::TImpl::ReleaseRead() noexcept {
-    Lock_.Acquire();
+    Lock_.lock();
 
     if (--State_ > 0) {
-        Lock_.Release();
+        Lock_.unlock();
     } else if (BlockedWriters_) {
-        Lock_.Release();
-        WriteCond_.Signal();
+        Lock_.unlock();
+        WriteCond_.notify_one();
     } else {
-        Lock_.Release();
+        Lock_.unlock();
     }
 }
 
 void TRWMutex::TImpl::AcquireWrite() noexcept {
-    with_lock (Lock_) {
-        while (State_ != 0) {
-            ++BlockedWriters_;
-            WriteCond_.Wait(Lock_);
-            --BlockedWriters_;
-        }
-
-        State_ = -1;
+    std::unique_lock ulock(Lock_);
+    while (State_ != 0) {
+        ++BlockedWriters_;
+        WriteCond_.wait(ulock);
+        --BlockedWriters_;
     }
+
+    State_ = -1;
 }
 
 bool TRWMutex::TImpl::TryAcquireWrite() noexcept {
-    with_lock (Lock_) {
-        if (State_ != 0) {
-            return false;
-        }
-
-        State_ = -1;
+    std::lock_guard guard(Lock_);
+    if (State_ != 0) {
+        return false;
     }
+
+    State_ = -1;
 
     return true;
 }
 
 void TRWMutex::TImpl::ReleaseWrite() noexcept {
-    Lock_.Acquire();
+    Lock_.lock();
     State_ = 0;
 
     if (BlockedWriters_) {
-        Lock_.Release();
-        WriteCond_.Signal();
+        Lock_.unlock();
+        WriteCond_.notify_one();
     } else {
-        Lock_.Release();
-        ReadCond_.Signal();
+        Lock_.unlock();
+        ReadCond_.notify_one();
     }
 }
 
 void TRWMutex::TImpl::Release() noexcept {
-    Lock_.Acquire();
+    Lock_.lock();
 
     if (State_ > 0) {
         if (--State_ > 0) {
-            Lock_.Release();
+            Lock_.unlock();
         } else if (BlockedWriters_) {
-            Lock_.Release();
-            WriteCond_.Signal();
+            Lock_.unlock();
+            WriteCond_.notify_one();
         }
     } else {
         State_ = 0;
 
         if (BlockedWriters_) {
-            Lock_.Release();
-            WriteCond_.Signal();
+            Lock_.unlock();
+            WriteCond_.notify_one();
         } else {
-            Lock_.Release();
-            ReadCond_.Signal();
+            Lock_.unlock();
+            ReadCond_.notify_one();
         }
     }
 }

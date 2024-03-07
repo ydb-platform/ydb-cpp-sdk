@@ -31,7 +31,7 @@ namespace {
     }
 }
 
-void Collapse(TUtf16String& w) {
+void Collapse(std::u16string& w) {
     CollapseImpl(w, w, 0, IsWhitespace);
 }
 
@@ -39,7 +39,7 @@ size_t Collapse(wchar16* s, size_t n) {
     return CollapseImpl(s, n, IsWhitespace);
 }
 
-TWtringBuf StripLeft(const TWtringBuf text) noexcept {
+std::u16string_view StripLeft(const std::u16string_view text) noexcept {
     const auto* p = text.data();
     const auto* const pe = text.data() + text.size();
 
@@ -49,8 +49,8 @@ TWtringBuf StripLeft(const TWtringBuf text) noexcept {
     return {p, pe};
 }
 
-void StripLeft(TUtf16String& text) {
-    const auto stripped = StripLeft(TWtringBuf(text));
+void StripLeft(std::u16string& text) {
+    const auto stripped = StripLeft(std::u16string_view(text));
     if (stripped.size() == text.size()) {
         return;
     }
@@ -58,8 +58,8 @@ void StripLeft(TUtf16String& text) {
     text = stripped;
 }
 
-TWtringBuf StripRight(const TWtringBuf text) noexcept {
-    if (!text) {
+std::u16string_view StripRight(const std::u16string_view text) noexcept {
+    if (text.empty()) {
         return {};
     }
 
@@ -72,8 +72,8 @@ TWtringBuf StripRight(const TWtringBuf text) noexcept {
     return {pe + 1, p + 1};
 }
 
-void StripRight(TUtf16String& text) {
-    const auto stripped = StripRight(TWtringBuf(text));
+void StripRight(std::u16string& text) {
+    const auto stripped = StripRight(std::u16string_view(text));
     if (stripped.size() == text.size()) {
         return;
     }
@@ -81,17 +81,17 @@ void StripRight(TUtf16String& text) {
     text.resize(stripped.size());
 }
 
-TWtringBuf Strip(const TWtringBuf text) noexcept {
+std::u16string_view Strip(const std::u16string_view text) noexcept {
     return StripRight(StripLeft(text));
 }
 
-void Strip(TUtf16String& text) {
+void Strip(std::u16string& text) {
     StripLeft(text);
     StripRight(text);
 }
 
 template <typename T>
-static bool IsReductionOnSymbolsTrue(const TWtringBuf text, T&& f) {
+static bool IsReductionOnSymbolsTrue(const std::u16string_view text, T&& f) {
     const auto* p = text.data();
     const auto* const pe = text.data() + text.length();
     while (p != pe) {
@@ -104,15 +104,15 @@ static bool IsReductionOnSymbolsTrue(const TWtringBuf text, T&& f) {
     return true;
 }
 
-bool IsLowerWord(const TWtringBuf text) noexcept {
+bool IsLowerWord(const std::u16string_view text) noexcept {
     return IsReductionOnSymbolsTrue(text, [](const wchar32 s) { return IsLower(s); });
 }
 
-bool IsUpperWord(const TWtringBuf text) noexcept {
+bool IsUpperWord(const std::u16string_view text) noexcept {
     return IsReductionOnSymbolsTrue(text, [](const wchar32 s) { return IsUpper(s); });
 }
 
-bool IsLower(const TWtringBuf text) noexcept {
+bool IsLower(const std::u16string_view text) noexcept {
     return IsReductionOnSymbolsTrue(text, [](const wchar32 s) {
         if (IsAlpha(s)) {
             return IsLower(s);
@@ -121,7 +121,7 @@ bool IsLower(const TWtringBuf text) noexcept {
     });
 }
 
-bool IsUpper(const TWtringBuf text) noexcept {
+bool IsUpper(const std::u16string_view text) noexcept {
     return IsReductionOnSymbolsTrue(text, [](const wchar32 s) {
         if (IsAlpha(s)) {
             return IsUpper(s);
@@ -130,8 +130,8 @@ bool IsUpper(const TWtringBuf text) noexcept {
     });
 }
 
-bool IsTitleWord(const TWtringBuf text) noexcept {
-    if (!text) {
+bool IsTitleWord(const std::u16string_view text) noexcept {
+    if (text.empty()) {
         return false;
     }
 
@@ -189,18 +189,18 @@ template <class TStringType>
 static void DetachAndFixPointers(TStringType& text, typename TStringType::value_type*& p, const typename TStringType::value_type*& pe) {
     const auto pos = p - text.data();
     const auto count = pe - p;
-    p = text.Detach() + pos;
+    p = text.data() + pos;
     pe = p + count;
 }
 
 template <class TStringType, typename F>
 static bool ModifyStringSymbolwise(TStringType& text, size_t pos, size_t count, F&& f) {
-    // TODO(yazevnul): this is done for consistency with `TUtf16String::to_lower` and friends
+    // TODO(yazevnul): this is done for consistency with `std::u16string::to_lower` and friends
     // at r2914050, maybe worth replacing them with asserts. Also see the same code in `ToTitle`.
     pos = pos < text.size() ? pos : text.size();
     count = count < text.size() - pos ? count : text.size() - pos;
 
-    // TUtf16String is refcounted and it's `data` method return pointer to the constant memory.
+    // std::u16string is refcounted and it's `data` method return pointer to the constant memory.
     // To simplify the code we do a `const_cast`, though first write to the memory will be done only
     // after we call `Detach()` and get pointer to a writable piece of memory.
     auto* p = const_cast<typename TStringType::value_type*>(text.data() + pos);
@@ -215,28 +215,28 @@ static bool ModifyStringSymbolwise(TStringType& text, size_t pos, size_t count, 
     return false;
 }
 
-bool ToLower(TUtf16String& text, size_t pos, size_t count) {
+bool ToLower(std::u16string& text, size_t pos, size_t count) {
     const auto f = [](const wchar32 s) { return ToLower(s); };
     return ModifyStringSymbolwise(text, pos, count, f);
 }
 
-bool ToUpper(TUtf16String& text, size_t pos, size_t count) {
+bool ToUpper(std::u16string& text, size_t pos, size_t count) {
     const auto f = [](const wchar32 s) { return ToUpper(s); };
     return ModifyStringSymbolwise(text, pos, count, f);
 }
 
-bool ToLower(TUtf32String& text, size_t pos, size_t count) {
+bool ToLower(std::u32string& text, size_t pos, size_t count) {
     const auto f = [](const wchar32 s) { return ToLower(s); };
     return ModifyStringSymbolwise(text, pos, count, f);
 }
 
-bool ToUpper(TUtf32String& text, size_t pos, size_t count) {
+bool ToUpper(std::u32string& text, size_t pos, size_t count) {
     const auto f = [](const wchar32 s) { return ToUpper(s); };
     return ModifyStringSymbolwise(text, pos, count, f);
 }
 
-bool ToTitle(TUtf16String& text, size_t pos, size_t count) {
-    if (!text) {
+bool ToTitle(std::u16string& text, size_t pos, size_t count) {
+    if (text.empty()) {
         return false;
     }
 
@@ -266,8 +266,8 @@ bool ToTitle(TUtf16String& text, size_t pos, size_t count) {
     return false;
 }
 
-bool ToTitle(TUtf32String& text, size_t pos, size_t count) {
-    if (!text) {
+bool ToTitle(std::u32string& text, size_t pos, size_t count) {
+    if (text.empty()) {
         return false;
     }
 
@@ -297,32 +297,32 @@ bool ToTitle(TUtf32String& text, size_t pos, size_t count) {
     return false;
 }
 
-TUtf16String ToLowerRet(TUtf16String text, size_t pos, size_t count) {
+std::u16string ToLowerRet(std::u16string text, size_t pos, size_t count) {
     ToLower(text, pos, count);
     return text;
 }
 
-TUtf16String ToUpperRet(TUtf16String text, size_t pos, size_t count) {
+std::u16string ToUpperRet(std::u16string text, size_t pos, size_t count) {
     ToUpper(text, pos, count);
     return text;
 }
 
-TUtf16String ToTitleRet(TUtf16String text, size_t pos, size_t count) {
+std::u16string ToTitleRet(std::u16string text, size_t pos, size_t count) {
     ToTitle(text, pos, count);
     return text;
 }
 
-TUtf32String ToLowerRet(TUtf32String text, size_t pos, size_t count) {
+std::u32string ToLowerRet(std::u32string text, size_t pos, size_t count) {
     ToLower(text, pos, count);
     return text;
 }
 
-TUtf32String ToUpperRet(TUtf32String text, size_t pos, size_t count) {
+std::u32string ToUpperRet(std::u32string text, size_t pos, size_t count) {
     ToUpper(text, pos, count);
     return text;
 }
 
-TUtf32String ToTitleRet(TUtf32String text, size_t pos, size_t count) {
+std::u32string ToTitleRet(std::u32string text, size_t pos, size_t count) {
     ToTitle(text, pos, count);
     return text;
 }
@@ -490,12 +490,12 @@ bool ToTitle(wchar32* text, size_t length) noexcept {
 }
 
 template <typename F>
-static TUtf16String ToSmthRet(const TWtringBuf text, size_t pos, size_t count, F&& f) {
+static std::u16string ToSmthRet(const std::u16string_view text, size_t pos, size_t count, F&& f) {
     pos = pos < text.size() ? pos : text.size();
     count = count < text.size() - pos ? count : text.size() - pos;
 
-    auto res = TUtf16String::Uninitialized(text.size());
-    auto* const resBegin = res.Detach();
+    std::u16string res(text.size(), '\0');
+    auto* const resBegin = res.data();
 
     if (pos) {
         MemCopy(resBegin, text.data(), pos);
@@ -511,12 +511,12 @@ static TUtf16String ToSmthRet(const TWtringBuf text, size_t pos, size_t count, F
 }
 
 template <typename F>
-static TUtf32String ToSmthRet(const TUtf32StringBuf text, size_t pos, size_t count, F&& f) {
+static std::u32string ToSmthRet(const std::u32string_view text, size_t pos, size_t count, F&& f) {
     pos = pos < text.size() ? pos : text.size();
     count = count < text.size() - pos ? count : text.size() - pos;
 
-    auto res = TUtf32String::Uninitialized(text.size());
-    auto* const resBegin = res.Detach();
+    std::u32string res(text.size(), '\0');
+    auto* const resBegin = res.data();
 
     if (pos) {
         MemCopy(resBegin, text.data(), pos);
@@ -531,53 +531,53 @@ static TUtf32String ToSmthRet(const TUtf32StringBuf text, size_t pos, size_t cou
     return res;
 }
 
-TUtf16String ToLowerRet(const TWtringBuf text, size_t pos, size_t count) {
+std::u16string ToLowerRet(const std::u16string_view text, size_t pos, size_t count) {
     return ToSmthRet(text, pos, count, [](const wchar16* theText, size_t length, wchar16* out) {
         ToLower(theText, length, out);
     });
 }
 
-TUtf16String ToUpperRet(const TWtringBuf text, size_t pos, size_t count) {
+std::u16string ToUpperRet(const std::u16string_view text, size_t pos, size_t count) {
     return ToSmthRet(text, pos, count, [](const wchar16* theText, size_t length, wchar16* out) {
         ToUpper(theText, length, out);
     });
 }
 
-TUtf16String ToTitleRet(const TWtringBuf text, size_t pos, size_t count) {
+std::u16string ToTitleRet(const std::u16string_view text, size_t pos, size_t count) {
     return ToSmthRet(text, pos, count, [](const wchar16* theText, size_t length, wchar16* out) {
         ToTitle(theText, length, out);
     });
 }
 
-TUtf32String ToLowerRet(const TUtf32StringBuf text, size_t pos, size_t count) {
+std::u32string ToLowerRet(const std::u32string_view text, size_t pos, size_t count) {
     return ToSmthRet(text, pos, count, [](const wchar32* theText, size_t length, wchar32* out) {
         ToLower(theText, length, out);
     });
 }
 
-TUtf32String ToUpperRet(const TUtf32StringBuf text, size_t pos, size_t count) {
+std::u32string ToUpperRet(const std::u32string_view text, size_t pos, size_t count) {
     return ToSmthRet(text, pos, count, [](const wchar32* theText, size_t length, wchar32* out) {
         ToUpper(theText, length, out);
     });
 }
 
-TUtf32String ToTitleRet(const TUtf32StringBuf text, size_t pos, size_t count) {
+std::u32string ToTitleRet(const std::u32string_view text, size_t pos, size_t count) {
     return ToSmthRet(text, pos, count, [](const wchar32* theText, size_t length, wchar32* out) {
         ToTitle(theText, length, out);
     });
 }
 
 template <bool insertBr>
-void EscapeHtmlChars(TUtf16String& str) {
-    static const TUtf16String lt(LT, Y_ARRAY_SIZE(LT));
-    static const TUtf16String gt(GT, Y_ARRAY_SIZE(GT));
-    static const TUtf16String amp(AMP, Y_ARRAY_SIZE(AMP));
-    static const TUtf16String br(BR, Y_ARRAY_SIZE(BR));
-    static const TUtf16String quot(QUOT, Y_ARRAY_SIZE(QUOT));
+void EscapeHtmlChars(std::u16string& str) {
+    static const std::u16string lt(LT, Y_ARRAY_SIZE(LT));
+    static const std::u16string gt(GT, Y_ARRAY_SIZE(GT));
+    static const std::u16string amp(AMP, Y_ARRAY_SIZE(AMP));
+    static const std::u16string br(BR, Y_ARRAY_SIZE(BR));
+    static const std::u16string quot(QUOT, Y_ARRAY_SIZE(QUOT));
 
     size_t escapedLen = 0;
 
-    const TUtf16String& cs = str;
+    const std::u16string& cs = str;
 
     for (size_t i = 0; i < cs.size(); ++i)
         escapedLen += EscapedLen<insertBr>(cs[i]);
@@ -585,13 +585,13 @@ void EscapeHtmlChars(TUtf16String& str) {
     if (escapedLen == cs.size())
         return;
 
-    TUtf16String res;
+    std::u16string res;
     res.reserve(escapedLen);
 
     size_t start = 0;
 
     for (size_t i = 0; i < cs.size(); ++i) {
-        const TUtf16String* ent = nullptr;
+        const std::u16string* ent = nullptr;
         switch (cs[i]) {
             case '<':
                 ent = &lt;
@@ -622,5 +622,5 @@ void EscapeHtmlChars(TUtf16String& str) {
     res.swap(str);
 }
 
-template void EscapeHtmlChars<false>(TUtf16String& str);
-template void EscapeHtmlChars<true>(TUtf16String& str);
+template void EscapeHtmlChars<false>(std::u16string& str);
+template void EscapeHtmlChars<true>(std::u16string& str);

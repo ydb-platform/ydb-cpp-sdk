@@ -1,6 +1,6 @@
 #include <library/cpp/testing/gtest/gtest.h>
 
-#include <util/generic/string.h>
+#include <string>
 #include <util/stream/output.h>
 #include <util/stream/str.h>
 

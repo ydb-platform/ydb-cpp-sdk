@@ -3,7 +3,7 @@
 #include <util/system/compiler.h>
 #include <util/system/src_root.h>
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 namespace NYT {
 

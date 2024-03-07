@@ -11,7 +11,7 @@ enum class EFileLockType {
 
 class TFileLock: public TFile {
 public:
-    TFileLock(const TString& filename, const EFileLockType type = EFileLockType::Exclusive);
+    TFileLock(const std::string& filename, const EFileLockType type = EFileLockType::Exclusive);
 
     void Acquire();
     bool TryAcquire();

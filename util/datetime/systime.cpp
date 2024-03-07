@@ -262,7 +262,7 @@ struct tm* GmTimeR(const time_t* timer, struct tm* tmbuf) {
     return tmbuf;
 }
 
-TString CTimeR(const time_t* timer) {
+std::string CTimeR(const time_t* timer) {
     char sTime[32];
     sTime[0] = 0;
     ctime_r(timer, &sTime[0]);

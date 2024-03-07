@@ -10,7 +10,7 @@
 #include <ydb/public/api/protos/ydb_value.pb.h>
 
 #include <library/cpp/containers/stack_vector/stack_vec.h>
-#include <library/cpp/string_builder/string_builder.h>
+#include <util/string/builder.h>
 
 #include <ydb/library/yql/public/decimal/yql_decimal.h>
 #include <ydb/library/uuid/uuid.h>
@@ -24,7 +24,7 @@ namespace NYdb {
 static void CheckKind(TTypeParser::ETypeKind actual, TTypeParser::ETypeKind expected, const std::string& method)
 {
     if (expected != actual) {
-        ThrowFatalError(NUtils::TYdbStringBuilder() << method << "(): invalid state, expected type: "
+        ThrowFatalError(TStringBuilder() << method << "(): invalid state, expected type: "
             << expected << ", actual: " << actual);
     }
 }
@@ -65,7 +65,7 @@ static TTypeParser::ETypeKind GetKind(const Ydb::Type& type) {
             break;
     }
 
-    ThrowFatalError(NUtils::TYdbStringBuilder() << "Unexpected proto type kind: " << (ui32) type.type_case());
+    ThrowFatalError(TStringBuilder() << "Unexpected proto type kind: " << (ui32) type.type_case());
     return ETypeKind::Void;
 }
 
@@ -296,7 +296,7 @@ public:
                         break;
                     }
                     default: {
-                        FatalError(NUtils::TYdbStringBuilder() << "Unexpected variant type kind: " << variantType);
+                        FatalError(TStringBuilder() << "Unexpected variant type kind: " << variantType);
                         break;
                     }
                 }
@@ -311,7 +311,7 @@ public:
             }
 
             default:
-                FatalError(NUtils::TYdbStringBuilder() << "Unexpected type kind: " << GetKind());
+                FatalError(TStringBuilder() << "Unexpected type kind: " << GetKind());
                 break;
         }
 
@@ -342,7 +342,7 @@ private:
     }
 
     void FatalError(const std::string& msg) const {
-        ThrowFatalError(NUtils::TYdbStringBuilder() << "TTypeParser: " << msg);
+        ThrowFatalError(TStringBuilder() << "TTypeParser: " << msg);
     }
 
 private:
@@ -468,6 +468,7 @@ void TTypeParser::CloseTagged() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void FormatTypeInternal(TTypeParser& parser, IOutputStream& out) {
+    using namespace std::literals;
     switch (parser.GetKind()) {
         case TTypeParser::ETypeKind::Primitive:
             out << parser.GetPrimitive();
@@ -567,7 +568,7 @@ void FormatTypeInternal(TTypeParser& parser, IOutputStream& out) {
             break;
 
         default:
-            ThrowFatalError(NUtils::TYdbStringBuilder()
+            ThrowFatalError(TStringBuilder()
                 << "Unexpected type kind: " << parser.GetKind());
     }
 }
@@ -768,7 +769,7 @@ private:
     }
 
     void FatalError(const std::string& msg) const {
-        ThrowFatalError(NUtils::TYdbStringBuilder() << "TTypeBuilder: " << msg);
+        ThrowFatalError(TStringBuilder() << "TTypeBuilder: " << msg);
     }
 
     void CheckKind(ETypeKind kind, const std::string& method) {
@@ -1019,7 +1020,7 @@ TUuidValue::TUuidValue(const Ydb::Value& valueProto) {
 TUuidValue::TUuidValue(const std::string& uuidString) {
     ui16 dw[8];
     if (!NKikimr::NUuid::ParseUuidToArray(uuidString, dw, false)) {
-        ThrowFatalError(NUtils::TYdbStringBuilder() << "Unable to parse string as uuid");
+        ThrowFatalError(TStringBuilder() << "Unable to parse string as uuid");
     }
     static_assert(sizeof(dw) == sizeof(Buf_.Bytes));
     // TODO: check output on big-endian machines here and everywhere.
@@ -1301,7 +1302,7 @@ public:
                 return true;
             }
 
-            FatalError(NUtils::TYdbStringBuilder() << "Missing struct 'items' value at index: " << GetPathBack().Idx);
+            FatalError(TStringBuilder() << "Missing struct 'items' value at index: " << GetPathBack().Idx);
         }
 
         return false;
@@ -1327,7 +1328,7 @@ public:
                 return true;
             }
 
-            FatalError(NUtils::TYdbStringBuilder() << "Missing tuple 'items' value at index: " << GetPathBack().Idx);
+            FatalError(TStringBuilder() << "Missing tuple 'items' value at index: " << GetPathBack().Idx);
         }
 
         return false;
@@ -1378,7 +1379,7 @@ public:
         if (GetProto().value_case() == Ydb::Value::kNestedValue) {
             AddPath(EParseKind::Value, &GetProto().nested_value());
         } else {
-            FatalError(NUtils::TYdbStringBuilder() << "No nested value for variant type.");
+            FatalError(TStringBuilder() << "No nested value for variant type.");
         }
     }
 
@@ -1402,7 +1403,7 @@ public:
 private:
     const TProtoPosition& GetPathBack() const {
         if (Path_.empty()) {
-            FatalError(NUtils::TYdbStringBuilder() << "Bad parser state, no open value.");
+            FatalError(TStringBuilder() << "Bad parser state, no open value.");
         }
 
         return Path_.back();
@@ -1410,7 +1411,7 @@ private:
 
     void PopPath() {
         if (Path_.empty()) {
-            FatalError(NUtils::TYdbStringBuilder() << "Bad parser state, no open value.");
+            FatalError(TStringBuilder() << "Bad parser state, no open value.");
         }
 
         Path_.pop_back();
@@ -1419,7 +1420,7 @@ private:
     void AddPath(EParseKind kind, const google::protobuf::Message* message, i32 idx = -1) {
         if (!Path_.empty()) {
             if (Path_.back().Kind == EParseKind::Null) {
-                FatalError(NUtils::TYdbStringBuilder() << "Can't parse inside NULL value");
+                FatalError(TStringBuilder() << "Can't parse inside NULL value");
                 return;
             }
 
@@ -1429,13 +1430,13 @@ private:
 
                 case EParseKind::Pair:
                     if (kind != EParseKind::Value) {
-                        FatalError(NUtils::TYdbStringBuilder() << "Bad parser state, expected dict pair.");
+                        FatalError(TStringBuilder() << "Bad parser state, expected dict pair.");
                         return;
                     }
                     break;
 
                 default:
-                    FatalError(NUtils::TYdbStringBuilder() << "Bad parser state, no value to parse.");
+                    FatalError(TStringBuilder() << "Bad parser state, no value to parse.");
                     return;
             }
         }
@@ -1513,7 +1514,7 @@ private:
 
     void CheckTransportKind(Ydb::Value::ValueCase expectedCase) const {
         if (expectedCase != GetProto().value_case()) {
-            FatalError(NUtils::TYdbStringBuilder() << "Transport value case mismatch, requested: " << (ui32)expectedCase
+            FatalError(TStringBuilder() << "Transport value case mismatch, requested: " << (ui32)expectedCase
                 << ", actual: " << (ui32)GetProto().value_case());
         }
     }
@@ -1522,7 +1523,7 @@ private:
         CheckKind(ETypeKind::Primitive, "Get");
 
         if (primitiveType != TypeParser_.GetPrimitive()) {
-            FatalError(NUtils::TYdbStringBuilder() << "Type mismatch, requested: " << primitiveType
+            FatalError(TStringBuilder() << "Type mismatch, requested: " << primitiveType
                 << ", actual: " << TypeParser_.GetPrimitive());
         }
 
@@ -1544,7 +1545,7 @@ private:
 
     const Ydb::ValuePair& GetProtoPair() const {
         if (GetPathBack().Kind != EParseKind::Pair) {
-            FatalError(NUtils::TYdbStringBuilder() << "Bad parser state, expected dict pair");
+            FatalError(TStringBuilder() << "Bad parser state, expected dict pair");
         }
 
         return *static_cast<const Ydb::ValuePair*>(GetPathBack().Ptr);
@@ -1598,13 +1599,13 @@ private:
             case NYdb::EPrimitiveType::Uuid:
                 return Ydb::Value::kLow128;
             default:
-                FatalError(NUtils::TYdbStringBuilder() << "Unexpected primitive type: " << primitiveTypeId);
+                FatalError(TStringBuilder() << "Unexpected primitive type: " << primitiveTypeId);
                 return Ydb::Value::kBytesValue;
         }
     }
 
     void FatalError(const std::string& msg) const {
-        ThrowFatalError(NUtils::TYdbStringBuilder() << "TValueParser: " << msg);
+        ThrowFatalError(TStringBuilder() << "TValueParser: " << msg);
     }
 
 private:
@@ -2174,7 +2175,7 @@ public:
         TypeBuilder_.EndOptional();
 
         if (!PathTop().OptLevel) {
-            FatalError(NUtils::TYdbStringBuilder() << "No opened optional");
+            FatalError(TStringBuilder() << "No opened optional");
         }
 
         --PathTop().OptLevel;
@@ -2207,7 +2208,7 @@ public:
     void EmptyOptional() {
         BeginOptional();
         if (!CheckType()) {
-            FatalError(NUtils::TYdbStringBuilder() << "EmptyOptional: unknown item type");
+            FatalError(TStringBuilder() << "EmptyOptional: unknown item type");
             return;
         }
         NestEmptyOptional();
@@ -2272,7 +2273,7 @@ public:
     void EmptyList() {
         BeginList();
         if (!CheckType()) {
-            FatalError(NUtils::TYdbStringBuilder() << "EmptyList: unknown item type");
+            FatalError(TStringBuilder() << "EmptyList: unknown item type");
             return;
         }
         EndList();
@@ -2305,13 +2306,13 @@ public:
         } else {
             auto membersMap = StructsPathTop().MembersMap;
             if (!membersMap) {
-                FatalError(NUtils::TYdbStringBuilder() << "Missing struct members info.");
+                FatalError(TStringBuilder() << "Missing struct members info.");
                 return;
             }
 
             auto memberIndex = MapFindPtr(*membersMap, memberName);
             if (!memberIndex) {
-                FatalError(NUtils::TYdbStringBuilder() << "Struct member not found: " << memberName);
+                FatalError(TStringBuilder() << "Struct member not found: " << memberName);
                 return;
             }
 
@@ -2358,7 +2359,7 @@ public:
                 auto it = std::find_if(membersMap.begin(), membersMap.end(),
                     [index](const auto& pair) { return pair.second == index; });
 
-                FatalError(NUtils::TYdbStringBuilder() << "No value given for struct member: " << it->first);
+                FatalError(TStringBuilder() << "No value given for struct member: " << it->first);
             }
 
             PopStructsPath();
@@ -2382,7 +2383,7 @@ public:
             auto index = GetValue().items_size();
             auto tuple_size = GetType(1).tuple_type().elements_size();
             if (index >= tuple_size) {
-                FatalError(NUtils::TYdbStringBuilder() << "Tuple elements count mismatch, expected: "
+                FatalError(TStringBuilder() << "Tuple elements count mismatch, expected: "
                     << tuple_size << ", actual: " << index + 1);
                 return;
             }
@@ -2412,7 +2413,7 @@ public:
             auto expectedElements = GetType().tuple_type().elements_size();
             auto actualIElements = GetValue().items_size();
             if (expectedElements != actualIElements) {
-                FatalError(NUtils::TYdbStringBuilder() << "Tuple elements count mismatch, expected: " << expectedElements
+                FatalError(TStringBuilder() << "Tuple elements count mismatch, expected: " << expectedElements
                     << ", actual: " << actualIElements);
             }
         }
@@ -2502,13 +2503,13 @@ public:
 
         TypeBuilder_.DictKey();
         if (!CheckType()) {
-            FatalError(NUtils::TYdbStringBuilder() << "EmptyDict: unknown key type");
+            FatalError(TStringBuilder() << "EmptyDict: unknown key type");
             return;
         }
 
         TypeBuilder_.DictPayload();
         if (!CheckType()) {
-            FatalError(NUtils::TYdbStringBuilder() << "EmptyDict: unknown payload type");
+            FatalError(TStringBuilder() << "EmptyDict: unknown payload type");
             return;
         }
 
@@ -2586,7 +2587,7 @@ private:
 
         auto expectedKind = GetKind(GetType());
         if (expectedKind != kind) {
-            FatalError(NUtils::TYdbStringBuilder() << "Type mismatch, expected: " << expectedKind
+            FatalError(TStringBuilder() << "Type mismatch, expected: " << expectedKind
                 << ", actual: " << kind);
             return false;
         }
@@ -2600,7 +2601,7 @@ private:
         }
 
         if (!TypesEqual(GetType(), type.GetProto())) {
-            FatalError(NUtils::TYdbStringBuilder() << "Type mismatch, expected: " << FormatType(GetType())
+            FatalError(TStringBuilder() << "Type mismatch, expected: " << FormatType(GetType())
                 << ", actual: " << FormatType(type));
             return false;
         }
@@ -2615,7 +2616,7 @@ private:
 
         auto expectedType = EPrimitiveType(GetType().type_id());
         if (expectedType != type) {
-            FatalError(NUtils::TYdbStringBuilder() << "Primitive type mismatch, expected: " << expectedType
+            FatalError(TStringBuilder() << "Primitive type mismatch, expected: " << expectedType
                 << ", actual: " << type);
             return false;
         }
@@ -2633,12 +2634,12 @@ private:
 
     void CheckContainerKind(ETypeKind kind) {
         if (Path_.size() < 2) {
-            FatalError(NUtils::TYdbStringBuilder() << "No opened container");
+            FatalError(TStringBuilder() << "No opened container");
         }
 
         auto actualKind = GetKind(GetType(1));
         if (actualKind != kind) {
-            FatalError(NUtils::TYdbStringBuilder() << "Container type mismatch, expected: " << kind
+            FatalError(TStringBuilder() << "Container type mismatch, expected: " << kind
                 << ", actual: " << actualKind);
         }
     }
@@ -2695,7 +2696,7 @@ private:
     }
 
     void FatalError(const std::string& msg) const {
-        ThrowFatalError(NUtils::TYdbStringBuilder() << "TValueBuilder: " << msg);
+        ThrowFatalError(TStringBuilder() << "TValueBuilder: " << msg);
     }
 
 private:

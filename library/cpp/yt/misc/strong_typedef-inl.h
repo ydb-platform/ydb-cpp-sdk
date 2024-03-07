@@ -4,9 +4,12 @@
 #include "strong_typedef.h"
 #endif
 
+#include <util/stream/output.h>
+#include <util/str_stl.h>
+
 #include "wrapper_traits.h"
 
-#include <util/generic/strbuf.h>
+#include <string_view>
 
 #include <functional>
 

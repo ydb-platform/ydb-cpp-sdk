@@ -1,6 +1,9 @@
 #include "bt_exception.h"
 #include "yexception.h"
 
+#include <library/cpp/string_utils/helpers/helpers.h>
+
+#include <util/stream/str.h>
 #include <util/system/backtrace.h>
 #include <util/system/type_name.h>
 
@@ -16,13 +19,13 @@ static void FormatExceptionTo(IOutputStream& out, const std::exception& exceptio
     out << "(" << TypeName(exception) << ") " << exception.what();
 }
 
-TString FormatExc(const std::exception& exception) {
+std::string FormatExc(const std::exception& exception) {
     TStringStream out;
     FormatExceptionTo(out, exception);
     return out.Str();
 }
 
-TString CurrentExceptionMessage() {
+std::string CurrentExceptionMessage() {
     auto exceptionPtr = std::current_exception();
     if (exceptionPtr) {
         try {
@@ -31,7 +34,7 @@ TString CurrentExceptionMessage() {
             const TBackTrace* bt = e.BackTrace();
 
             if (bt) {
-                return TString::Join(bt->PrintToString(), TStringBuf("\n"), FormatExc(e));
+                return NUtils::Join(bt->PrintToString(), std::string_view("\n"), FormatExc(e));
             }
 
             return FormatExc(e);
@@ -86,7 +89,7 @@ void FormatCurrentExceptionTo(IOutputStream& out) {
     }
 }
 
-TString FormatCurrentException() {
+std::string FormatCurrentException() {
     TStringStream out;
     FormatCurrentExceptionTo(out);
     return out.Str();
@@ -119,21 +122,21 @@ std::string CurrentExceptionTypeName() {
 void TSystemError::Init() {
     yexception& exc = *this;
 
-    exc << TStringBuf("(");
-    exc << TStringBuf(LastSystemErrorText(Status_));
-    exc << TStringBuf(") ");
+    exc << std::string_view("(");
+    exc << std::string_view(LastSystemErrorText(Status_));
+    exc << std::string_view(") ");
 }
 
 NPrivateException::yexception::yexception() {
     ZeroTerminate();
 }
 
-TStringBuf NPrivateException::yexception::AsStrBuf() const {
+std::string_view NPrivateException::yexception::AsStrBuf() const {
     if (Buf_.Left()) {
-        return TStringBuf(Buf_.Data(), Buf_.Filled());
+        return std::string_view(Buf_.Data(), Buf_.Filled());
     }
 
-    return TStringBuf(Buf_.Data(), Buf_.Filled() - 1);
+    return std::string_view(Buf_.Data(), Buf_.Filled() - 1);
 }
 
 void NPrivateException::yexception::ZeroTerminate() noexcept {

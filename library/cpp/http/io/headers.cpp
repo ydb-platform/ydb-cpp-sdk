@@ -1,9 +1,9 @@
 #include "headers.h"
 #include "stream.h"
 
-#include <library/cpp/string_utils/misc/misc.h>
 #include <library/cpp/string_utils/stream/stream.h>
 #include <util/string/strip.h>
+#include <util/string/escape.h>
 
 static inline std::string_view Trim(const char* b, const char* e) noexcept {
     return StripString(std::string_view(b, e));

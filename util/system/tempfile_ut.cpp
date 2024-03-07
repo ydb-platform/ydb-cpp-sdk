@@ -10,7 +10,7 @@
 
 Y_UNIT_TEST_SUITE(TTempFileHandle) {
     Y_UNIT_TEST(Create) {
-        TString path;
+        std::string path;
         {
             TTempFileHandle tmp;
             path = tmp.Name();
@@ -23,20 +23,20 @@ Y_UNIT_TEST_SUITE(TTempFileHandle) {
 
     Y_UNIT_TEST(InCurrentDir) {
 #ifndef _win32_
-        static const TString TEST_PREFIX = "unique_prefix";
+        static const std::string TEST_PREFIX = "unique_prefix";
 #else
-        static const TString TEST_PREFIX = "uni";
+        static const std::string TEST_PREFIX = "uni";
 #endif
 
-        TString path;
+        std::string path;
         {
             TTempFileHandle tmp = TTempFileHandle::InCurrentDir(TEST_PREFIX);
             path = tmp.Name();
             UNIT_ASSERT(NFs::Exists(path));
 
-            std::vector<TString> names;
+            std::vector<std::string> names;
             TFsPath(".").ListNames(names);
-            bool containsFileWithPrefix = std::any_of(names.begin(), names.end(), [&](const TString& name) {
+            bool containsFileWithPrefix = std::any_of(names.begin(), names.end(), [&](const std::string& name) {
                 return name.Contains(TEST_PREFIX);
             });
             UNIT_ASSERT(containsFileWithPrefix);
@@ -45,7 +45,7 @@ Y_UNIT_TEST_SUITE(TTempFileHandle) {
     }
 
     Y_UNIT_TEST(UseExtensionWithoutDot) {
-        TString path;
+        std::string path;
         {
             TTempFileHandle tmp = TTempFileHandle::InCurrentDir("hello", "world");
             path = tmp.Name();
@@ -64,7 +64,7 @@ Y_UNIT_TEST_SUITE(TTempFileHandle) {
     }
 
     Y_UNIT_TEST(UseExtensionWithDot) {
-        TString path;
+        std::string path;
         {
             TTempFileHandle tmp = TTempFileHandle::InCurrentDir("lorem", ".ipsum");
             path = tmp.Name();
@@ -83,7 +83,7 @@ Y_UNIT_TEST_SUITE(TTempFileHandle) {
     }
 
     Y_UNIT_TEST(SafeDestructor) {
-        TString path;
+        std::string path;
         {
             path = MakeTempName();
             UNIT_ASSERT(NFs::Exists(path));
@@ -100,7 +100,7 @@ Y_UNIT_TEST_SUITE(TTempFileHandle) {
     }
 
     Y_UNIT_TEST(RemovesOpen) {
-        TString path;
+        std::string path;
         {
             TTempFileHandle tmp;
             path = tmp.Name();
@@ -119,7 +119,7 @@ Y_UNIT_TEST_SUITE(TTempFileHandle) {
 
 Y_UNIT_TEST_SUITE(MakeTempName) {
     Y_UNIT_TEST(Default) {
-        TString path;
+        std::string path;
         {
             TTempFile tmp(MakeTempName());
             path = tmp.Name();
@@ -138,7 +138,7 @@ Y_UNIT_TEST_SUITE(MakeTempName) {
     }
 
     Y_UNIT_TEST(UseNullptr) {
-        TString path;
+        std::string path;
         {
             TTempFile tmp(MakeTempName(nullptr, nullptr, nullptr));
             path = tmp.Name();

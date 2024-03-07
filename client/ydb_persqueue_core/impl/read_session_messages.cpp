@@ -24,7 +24,7 @@ TReadSessionEvent::TDataReceivedEvent::TMessageInformation::TMessageInformation(
     , UncompressedSize(uncompressedSize)
 {}
 
-static void DebugStringImpl(const TReadSessionEvent::TDataReceivedEvent::TMessageInformation& info, NUtils::TYdbStringBuilder& ret) {
+static void DebugStringImpl(const TReadSessionEvent::TDataReceivedEvent::TMessageInformation& info, TStringBuilder& ret) {
     ret << " Information: {"
         << " Offset: " << info.Offset
         << " SeqNo: " << info.SeqNo
@@ -43,7 +43,7 @@ static void DebugStringImpl(const TReadSessionEvent::TDataReceivedEvent::TMessag
 }
 
 template <class TSerializeInformationFunc>
-static void DebugStringImpl(NUtils::TYdbStringBuilder& ret,
+static void DebugStringImpl(TStringBuilder& ret,
                                const std::string& name,
                                const TReadSessionEvent::TDataReceivedEvent::IMessage& msg,
                                bool printData,
@@ -90,7 +90,7 @@ const std::string TReadSessionEvent::TDataReceivedEvent::IMessage::GetExplicitHa
 }
 
 std::string TReadSessionEvent::TDataReceivedEvent::IMessage::DebugString(bool printData) const {
-    NUtils::TYdbStringBuilder ret;
+    TStringBuilder ret;
     DebugString(ret, printData);
     return std::move(ret);
 }
@@ -144,8 +144,8 @@ const TWriteSessionMeta::TPtr& TReadSessionEvent::TDataReceivedEvent::TMessage::
     return Information.Meta;
 }
 
-void TReadSessionEvent::TDataReceivedEvent::TMessage::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const {
-    DebugStringImpl(ret, "Message", *this, printData, [this](NUtils::TYdbStringBuilder& ret) {
+void TReadSessionEvent::TDataReceivedEvent::TMessage::DebugString(TStringBuilder& ret, bool printData) const {
+    DebugStringImpl(ret, "Message", *this, printData, [this](TStringBuilder& ret) {
         DebugStringImpl(this->Information, ret);
     });
 }
@@ -206,13 +206,13 @@ ui64 TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::GetUncompressedS
     return Information.at(index).UncompressedSize;
 }
 
-void TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::DebugString(NUtils::TYdbStringBuilder& ret, bool printData) const {
+void TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::DebugString(TStringBuilder& ret, bool printData) const {
     DebugStringImpl(
         ret,
         "CompressedMessage",
         *this,
         printData,
-        [this](NUtils::TYdbStringBuilder& ret) {
+        [this](TStringBuilder& ret) {
             for (auto& info : this->Information) {
                 DebugStringImpl(info, ret);
             }

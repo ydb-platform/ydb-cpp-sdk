@@ -51,8 +51,8 @@ private:
 };
 
 Y_UNIT_TEST_SUITE(TZLibTest) {
-    static const TString DATA = "8s7d5vc6s5vc67sa4c65ascx6asd4xcv76adsfxv76s";
-    static const TString DATA2 = "cn8wk2bd9vb3vdfif83g1ks94bfiovtwv";
+    static const std::string DATA = "8s7d5vc6s5vc67sa4c65ascx6asd4xcv76adsfxv76s";
+    static const std::string DATA2 = "cn8wk2bd9vb3vdfif83g1ks94bfiovtwv";
 
     Y_UNIT_TEST(Compress) {
         TUnbufferedFileOutput o(ZDATA);
@@ -75,8 +75,8 @@ Y_UNIT_TEST_SUITE(TZLibTest) {
     }
 
     Y_UNIT_TEST(Dictionary) {
-        static constexpr TStringBuf data = "<html><body></body></html>";
-        static constexpr TStringBuf dict = "</<html><body>";
+        static constexpr std::string_view data = "<html><body></body></html>";
+        static constexpr std::string_view dict = "</<html><body>";
         for (auto type : {ZLib::Raw, ZLib::ZLib}) {
             TStringStream compressed;
             {
@@ -148,7 +148,7 @@ Y_UNIT_TEST_SUITE(TZLibTest) {
     }
 
     Y_UNIT_TEST(CompressFlush) {
-        TString data = "";
+        std::string data = "";
 
         for (size_t i = 0; i < 32; ++i) {
             TTempFile tmpFile(ZDATA);
@@ -195,10 +195,10 @@ Y_UNIT_TEST_SUITE(TZLibTest) {
 
     Y_UNIT_TEST(CompressFlushSmallBuffer) {
         for (size_t bufferSize = 16; bufferSize < 32; ++bufferSize) {
-            TString firstData = "";
+            std::string firstData = "";
 
             for (size_t firstDataSize = 0; firstDataSize < 16; ++firstDataSize) {
-                TString secondData = "";
+                std::string secondData = "";
 
                 for (size_t secondDataSize = 0; secondDataSize < 16; ++secondDataSize) {
                     TTempFile tmpFile(ZDATA);
