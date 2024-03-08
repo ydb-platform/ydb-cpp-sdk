@@ -14,9 +14,6 @@
 
 class TDirIterator: public TInputRangeAdaptor<TDirIterator> {
     struct TFtsDestroy {
-        inline void operator()(FTS* f) noexcept {
-            yfts_close(f);
-        }
         void operator() (FTS* f) noexcept;
     };
 

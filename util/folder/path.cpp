@@ -269,16 +269,12 @@ TFsPath TFsPath::Child(const std::string& name) const {
 }
 
 struct TClosedir {
-    void operator()(DIR* dir) {
+    void operator() (DIR* dir) {
         if (dir) {
             if (0 != closedir(dir)) {
                 ythrow TIoSystemError() << "failed to closedir";
             }
         }
-    }
-
-    void operator() (DIR* dir) {
-        Destroy(dir);
     }
 };
 
