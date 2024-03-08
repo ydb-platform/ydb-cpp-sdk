@@ -3,7 +3,6 @@
 #include <client/ydb_persqueue_core/persqueue.h>
 #include <client/ydb_common_client/impl/client.h>
 
-#include <util/generic/queue.h>
 #include <util/thread/pool.h>
 
 #include <queue>
@@ -470,7 +469,7 @@ private:
     IAsyncExecutor::TPtr Executor; //!< Wrapped executor that is actually doing the job
     bool Busy = false; //!< Set if some closure was scheduled for execution and did not finish yet
     std::mutex Mutex;
-    TQueue<TFunction> ExecutionQueue = {};
+    std::queue<TFunction> ExecutionQueue = {};
 
 public:
     TSerialExecutor(IAsyncExecutor::TPtr executor);
