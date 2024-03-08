@@ -1,5 +1,6 @@
 #pragma once
 
+#include <queue>
 #include <util/generic/fwd.h>
 #include <util/generic/yexception.h>
 #include <util/generic/typetraits.h>
@@ -604,24 +605,24 @@ class TSerializer<THashSet<T1, T2, T3, T4>>: public TSetSerializer<THashSet<T1, 
 };
 
 template <class T1, class T2>
-class TSerializer<TQueue<T1, T2>> {
+class TSerializer<std::queue<T1, T2>> {
 public:
-    static inline void Save(IOutputStream* rh, const TQueue<T1, T2>& v) {
-        ::Save(rh, v.Container());
+    static inline void Save(IOutputStream* rh, const std::queue<T1, T2>& v) {
+        ::Save(rh, v.c);
     }
-    static inline void Load(IInputStream* in, TQueue<T1, T2>& t) {
-        ::Load(in, t.Container());
+    static inline void Load(IInputStream* in, std::queue<T1, T2>& t) {
+        ::Load(in, t.c);
     }
 };
 
 template <class T1, class T2, class T3>
-class TSerializer<TPriorityQueue<T1, T2, T3>> {
+class TSerializer<std::priority_queue<T1, T2, T3>> {
 public:
-    static inline void Save(IOutputStream* rh, const TPriorityQueue<T1, T2, T3>& v) {
-        ::Save(rh, v.Container());
+    static inline void Save(IOutputStream* rh, const std::priority_queue<T1, T2, T3>& v) {
+        ::Save(rh, v.c);
     }
-    static inline void Load(IInputStream* in, TPriorityQueue<T1, T2, T3>& t) {
-        ::Load(in, t.Container());
+    static inline void Load(IInputStream* in, std::priority_queue<T1, T2, T3>& t) {
+        ::Load(in, t.c);
     }
 };
 

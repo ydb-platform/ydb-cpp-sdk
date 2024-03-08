@@ -99,7 +99,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/generic/object_counter.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/overloaded.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/ptr.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/queue.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/refcount.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/scope.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/set.cpp

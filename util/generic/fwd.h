@@ -44,12 +44,6 @@ class TVector;
 template <class T, class A = std::allocator<T>>
 class TDeque;
 
-template <class T, class S = TDeque<T>>
-class TQueue;
-
-template <class T, class S = std::vector<T>, class C = TLess<T>>
-class TPriorityQueue;
-
 template <class Key, class T, class HashFcn = THash<Key>, class EqualKey = TEqualTo<Key>, class Alloc = std::allocator<Key>>
 class THashMap;
 
