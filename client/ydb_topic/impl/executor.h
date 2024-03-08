@@ -3,7 +3,6 @@
 #include <client/ydb_topic/topic.h>
 #include <client/ydb_common_client/impl/client.h>
 
-#include <util/generic/queue.h>
 #include <util/thread/pool.h>
 
 
