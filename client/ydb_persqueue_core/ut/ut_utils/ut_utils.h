@@ -4,6 +4,7 @@
 #include <client/ydb_persqueue_core/ut/ut_utils/sdk_test_setup.h>
 #include <client/ydb_persqueue_core/impl/common.h>
 #include <client/ydb_persqueue_core/impl/write_session.h>
+#include <queue>
 
 using namespace NKikimr;
 using namespace NKikimr::NPersQueueTests;
@@ -387,7 +388,7 @@ private:
     TLockFreeQueue<TFunction> TasksQueue;
     std::shared_ptr<TLockFreeQueue<ui64>> ExecIdsQueue;
     THashMap<ui64, TFunction> Tasks;
-    TQueue<ui64> ExecIds;
+    std::queue<ui64> ExecIds;
     ui64 CurrentTaskId = 0;
     TThread Thread;
 

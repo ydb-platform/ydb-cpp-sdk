@@ -4,10 +4,10 @@
 #include "thread.h"
 #include "guard.h"
 
+#include <queue>
 #include <util/generic/ylimits.h>
 #include <util/generic/utility.h>
 #include <util/generic/deque.h>
-#include <util/generic/queue.h>
 
 #include <atomic>
 #include <mutex>
@@ -40,7 +40,7 @@ namespace {
 
             auto guard = Guard(Lock_);
 
-            while (Items_) {
+            while (!Items_.empty()) {
                 auto c = Items_.top();
 
                 Y_ASSERT(c);
@@ -73,7 +73,7 @@ namespace {
         TAdaptiveLock Lock_;
         std::atomic<bool> FinishStarted_;
         TDeque<TFunc> Store_;
-        TPriorityQueue<TFunc*, std::vector<TFunc*>, TCmp> Items_;
+        std::priority_queue<TFunc*, std::vector<TFunc*>, TCmp> Items_;
     };
 
     static TAdaptiveLock atExitLock;
