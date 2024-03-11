@@ -18,7 +18,7 @@ namespace NThreading {
     private:
         TFunctionObjectType Func_;
         TPromise<TResult> Result_;
-        THolder<IThreadFactory::IThread> Thread_;
+        std::unique_ptr<IThreadFactory::IThread> Thread_;
 
     public:
         inline TLegacyFuture(const TFunctionObjectType func, IThreadFactory* pool = SystemThreadFactory())

@@ -780,7 +780,7 @@ Y_UNIT_TEST_SUITE(TSpackTest) {
             {
                 auto input = TMemoryInput(expectedSerialized, Y_ARRAY_SIZE(expectedSerialized));
                 auto encoder = EncoderProtobuf(&samples);
-                DecodeSpackV1(&input, encoder.Get(), "s");
+                DecodeSpackV1(&input, encoder.get(), "s");
             }
 
             UNIT_ASSERT_VALUES_EQUAL(TInstant::MilliSeconds(samples.GetCommonTime()),

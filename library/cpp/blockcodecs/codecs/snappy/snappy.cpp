@@ -45,7 +45,7 @@ namespace {
 
     struct TSnappyRegistrar {
         TSnappyRegistrar() {
-            RegisterCodec(MakeHolder<TSnappyCodec>());
+            RegisterCodec(std::make_unique<TSnappyCodec>());
         }
     };
     const TSnappyRegistrar Registrar{};

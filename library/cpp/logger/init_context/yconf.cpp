@@ -8,11 +8,11 @@ bool TLogBackendCreatorInitContextYConf::GetValue(std::string_view name, std::st
     return Section.GetDirectives().GetValue(name, var);
 }
 
-std::vector<THolder<ILogBackendCreator::IInitContext>> TLogBackendCreatorInitContextYConf::GetChildren(std::string_view name) const {
-    std::vector<THolder<IInitContext>> result;
+std::vector<std::unique_ptr<ILogBackendCreator::IInitContext>> TLogBackendCreatorInitContextYConf::GetChildren(std::string_view name) const {
+    std::vector<std::unique_ptr<IInitContext>> result;
     auto children = Section.GetAllChildren();
     for (auto range = children.equal_range(TCiString(name)); range.first != range.second; ++range.first) {
-        result.emplace_back(MakeHolder<TLogBackendCreatorInitContextYConf>(*range.first->second));
+        result.emplace_back(std::make_unique<TLogBackendCreatorInitContextYConf>(*range.first->second));
     }
     return result;
 }

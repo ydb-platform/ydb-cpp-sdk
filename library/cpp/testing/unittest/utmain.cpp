@@ -127,7 +127,7 @@ public:
     }
 
 private:
-    TAutoPtr<TUnbufferedFileOutput> TraceFile;
+    std::unique_ptr<TUnbufferedFileOutput> TraceFile;
     std::string TraceFilePath;
     TInstant PrevTime;
     std::vector<std::string> ErrorMessages;
@@ -733,7 +733,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
 
         TColoredProcessor processor(GetExecPath());
         IOutputStream* listStream = &Cout;
-        THolder<IOutputStream> listFile;
+        std::unique_ptr<IOutputStream> listFile;
 
         enum EListType {
             DONT_LIST,
@@ -821,7 +821,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
                     traceProcessors.push_back(std::make_shared<TTraceWriterProcessor>(argv[i], OpenAlways | ForAppend));
                 } else if (strcmp(name, "--list-path") == 0) {
                     ++i;
-                    listFile = MakeHolder<TFixedBufferFileOutput>(argv[i]);
+                    listFile = std::make_unique<TFixedBufferFileOutput>(argv[i]);
                     listStream = listFile.Get();
                 } else if (strcmp(name, "--test-param") == 0) {
                     ++i;

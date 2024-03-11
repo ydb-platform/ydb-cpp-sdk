@@ -1,6 +1,5 @@
 #pragma once
 
-#include <util/generic/ptr.h>
 #include <util/stream/input.h>
 #include <util/stream/output.h>
 
@@ -36,7 +35,7 @@ private:
 
 private:
     struct TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 struct x509_store_st;
@@ -44,8 +43,9 @@ struct x509_store_st;
 namespace NPrivate {
     struct TSslDestroy {
         static void Destroy(x509_store_st* x509) noexcept;
+        void operator() (x509_store_st* x509) noexcept;
     };
 }
 
-using TOpenSslX509StorePtr = THolder<x509_store_st, NPrivate::TSslDestroy>;
+using TOpenSslX509StorePtr = std::unique_ptr<x509_store_st, NPrivate::TSslDestroy>;
 TOpenSslX509StorePtr GetBuiltinOpenSslX509Store();

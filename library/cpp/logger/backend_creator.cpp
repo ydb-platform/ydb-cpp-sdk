@@ -6,13 +6,13 @@
 #include <util/stream/output.h>
 
 
-THolder<TLogBackend> ILogBackendCreator::CreateLogBackend() const {
+std::unique_ptr<TLogBackend> ILogBackendCreator::CreateLogBackend() const {
     try {
         return DoCreateLogBackend();
     } catch(...) {
         Cdbg << "Warning: " << CurrentExceptionMessage() << ". Use stderr instead." << Endl;
     }
-    return MakeHolder<TStreamLogBackend>(&Cerr);
+    return std::make_unique<TStreamLogBackend>(&Cerr);
 }
 
 bool ILogBackendCreator::Init(const IInitContext& /*ctx*/) {
@@ -26,8 +26,8 @@ NJson::TJsonValue ILogBackendCreator::AsJson() const {
     return json;
 }
 
-THolder<ILogBackendCreator> ILogBackendCreator::Create(const IInitContext& ctx) {
-    auto res = MakeHolder<TLogBackendCreatorUninitialized>();
+std::unique_ptr<ILogBackendCreator> ILogBackendCreator::Create(const IInitContext& ctx) {
+    auto res = std::make_unique<TLogBackendCreatorUninitialized>();
     if(!res->Init(ctx)) {
         Cdbg << "Cannot init log backend creator";
         return nullptr;

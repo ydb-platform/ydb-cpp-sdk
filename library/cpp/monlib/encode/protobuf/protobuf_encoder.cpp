@@ -238,11 +238,11 @@ namespace NMonitoring {
     }
 
     IMetricEncoderPtr EncoderProtobuf(NProto::TSingleSamplesList* samples) {
-        return MakeHolder<TSingleSamplesEncoder>(samples);
+        return std::make_unique<TSingleSamplesEncoder>(samples);
     }
 
     IMetricEncoderPtr EncoderProtobuf(NProto::TMultiSamplesList* samples) {
-        return MakeHolder<TMultiSamplesEncoder>(samples);
+        return std::make_unique<TMultiSamplesEncoder>(samples);
     }
 
 }

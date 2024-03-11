@@ -12,7 +12,7 @@ protected:
     virtual void DoToJson(NJson::TJsonValue& value) const override;
 
 private:
-    virtual THolder<TLogBackend> DoCreateLogBackend() const override;
+    virtual std::unique_ptr<TLogBackend> DoCreateLogBackend() const override;
     ui64 MaxSizeBytes = Max<ui64>();
     ui64 RotatedFilesCount = Max<ui64>();
 };

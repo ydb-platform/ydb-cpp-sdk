@@ -177,7 +177,7 @@ namespace {
     };
 
     struct TDefaultTraits {
-        THolder<TEntropyPoolStream> EP;
+        std::unique_ptr<TEntropyPoolStream> EP;
         TSeedStream SS;
 
         inline TDefaultTraits() {
@@ -193,7 +193,7 @@ namespace {
         }
 
         inline void Reset() noexcept {
-            EP.Reset(new TEntropyPoolStream(THostEntropy()));
+            EP.reset(new TEntropyPoolStream(THostEntropy()));
         }
 
         static inline TDefaultTraits& Instance() {

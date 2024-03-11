@@ -3,14 +3,14 @@
 #include "priority.h"
 #include "record.h"
 #include "backend.h"
-#include <util/generic/ptr.h>
+
 
 class TFilteredLogBackend: public TLogBackend {
-    THolder<TLogBackend> Backend;
+    std::unique_ptr<TLogBackend> Backend;
     ELogPriority Level;
 
 public:
-    TFilteredLogBackend(THolder<TLogBackend>&& t, ELogPriority level = LOG_MAX_PRIORITY) noexcept
+    TFilteredLogBackend(std::unique_ptr<TLogBackend>&& t, ELogPriority level = LOG_MAX_PRIORITY) noexcept
         : Backend(std::move(t))
         , Level(level)
     {

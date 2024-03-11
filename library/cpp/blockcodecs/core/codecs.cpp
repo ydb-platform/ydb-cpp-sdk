@@ -51,7 +51,7 @@ namespace {
 
         inline void Add(TCodecPtr codec) {
             Codecs.push_back(std::move(codec));
-            Add(Codecs.back().Get());
+            Add(Codecs.back().get());
         }
 
         inline void Alias(std::string_view from, std::string_view to) {

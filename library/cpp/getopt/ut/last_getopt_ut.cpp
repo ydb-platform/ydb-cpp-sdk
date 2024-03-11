@@ -8,6 +8,9 @@
 #include <util/string/vector.h>
 #include <util/string/split.h>
 
+
+#include <vector>
+
 using namespace NLastGetopt;
 
 namespace {
@@ -36,11 +39,11 @@ struct TOptsParserTester {
     TOptsNoDefault Opts_;
     std::vector<const char*> Argv_;
 
-    THolder<TOptsParser> Parser_;
+    std::unique_ptr<TOptsParser> Parser_;
 
     void Initialize() {
         if (!Parser_)
-            Parser_.Reset(new TOptsParser(&Opts_, (int)Argv_.size(), Argv_.data()));
+            Parser_.reset(new TOptsParser(&Opts_, (int)Argv_.size(), Argv_.data()));
     }
 
     void Accept() {

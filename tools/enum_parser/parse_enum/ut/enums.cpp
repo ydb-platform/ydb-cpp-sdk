@@ -8,7 +8,7 @@
 #include <util/generic/serialized_enum.h>
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/ptr.h>
+
 #include <util/generic/singleton.h>
 
 
@@ -35,7 +35,7 @@ public:
 
     void Init() { Ptr.Reset(new TEnumSerializationInitializer); }
 private:
-    THolder<TEnumSerializationInitializer> Ptr;
+    std::unique_ptr<TEnumSerializationInitializer> Ptr;
 };
 
 

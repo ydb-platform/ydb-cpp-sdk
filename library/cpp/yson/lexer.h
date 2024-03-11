@@ -3,7 +3,7 @@
 #include "public.h"
 #include "token.h"
 
-#include <util/generic/ptr.h>
+
 
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ namespace NYson {
 
     private:
         class TImpl;
-        THolder<TImpl> Impl;
+        std::unique_ptr<TImpl> Impl;
     };
 
     ////////////////////////////////////////////////////////////////////////////////

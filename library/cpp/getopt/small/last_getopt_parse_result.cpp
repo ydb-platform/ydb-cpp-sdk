@@ -135,7 +135,7 @@ namespace NLastGetopt {
 
     void TOptsParseResult::Init(const TOpts* options, int argc, const char** argv) {
         try {
-            Parser_.Reset(new TOptsParser(options, argc, argv));
+            Parser_.reset(new TOptsParser(options, argc, argv));
             while (Parser_->Next()) {
                 TOptParseResult& r = OptParseResult();
                 r.AddValue(Parser_->CurValOrOpt().data());
@@ -163,7 +163,7 @@ namespace NLastGetopt {
 
     void TOptsParseResult::HandleError() const {
         Cerr << CurrentExceptionMessage() << Endl;
-        if (Parser_.Get()) { // parser initializing can fail (and we get here, see Init)
+        if (Parser_.get()) { // parser initializing can fail (and we get here, see Init)
             if (Parser_->Opts_->FindLongOption("help") != nullptr) {
                 Cerr << "Try '" << Parser_->ProgramName_ << " --help' for more information." << Endl;
             } else {

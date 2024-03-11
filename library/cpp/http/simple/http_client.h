@@ -111,7 +111,7 @@ private:
     const TDuration ConnectTimeout;
     const bool IsHttps;
 
-    THolder<NPrivate::THttpConnection> Connection;
+    std::unique_ptr<NPrivate::THttpConnection> Connection;
     bool IsClosingRequired;
     std::optional<TClientCert> ClientCertificate;
     std::optional<TVerifyCert> HttpsVerification;
@@ -209,13 +209,13 @@ namespace NPrivate {
         template <typename TContainer>
         void Write(const TContainer& request) {
             HttpOut->Write(request.data(), request.size());
-            HttpIn = Ssl ? MakeHolder<THttpInput>(Ssl.Get())
-                         : MakeHolder<THttpInput>(&SocketIn);
+            HttpIn = Ssl ? std::make_unique<THttpInput>(Ssl.get())
+                         : std::make_unique<THttpInput>(&SocketIn);
             HttpOut->Flush();
         }
 
         THttpInput* GetHttpInput() {
-            return HttpIn.Get();
+            return HttpIn.get();
         }
 
     private:
@@ -232,9 +232,9 @@ namespace NPrivate {
         TSocket Socket;
         TSocketInput SocketIn;
         TSocketOutput SocketOut;
-        THolder<TOpenSslClientIO> Ssl;
-        THolder<THttpInput> HttpIn;
-        THolder<THttpOutput> HttpOut;
+        std::unique_ptr<TOpenSslClientIO> Ssl;
+        std::unique_ptr<THttpInput> HttpIn;
+        std::unique_ptr<THttpOutput> HttpOut;
     };
 }
 
@@ -255,17 +255,17 @@ TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::DoRequestReliable(const T&
             }
             return code;
         } catch (const TSystemError& e) {
-            Connection.Reset();
+            Connection.reset();
             if (!couldRetry || e.Status() != EPIPE) {
                 throw;
             }
         } catch (const THttpReadException&) { // Actually old connection is already closed by server
-            Connection.Reset();
+            Connection.reset();
             if (!couldRetry) {
                 throw;
             }
         } catch (const std::exception&) {
-            Connection.Reset();
+            Connection.reset();
             throw;
         }
     }

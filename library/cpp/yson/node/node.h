@@ -278,7 +278,7 @@ private:
 
 private:
     TValue Value_;
-    THolder<TNode> Attributes_;
+    std::unique_ptr<TNode> Attributes_;
 
     friend bool operator==(const TNode& lhs, const TNode& rhs);
     friend bool operator!=(const TNode& lhs, const TNode& rhs);

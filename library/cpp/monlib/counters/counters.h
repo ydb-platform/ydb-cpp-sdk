@@ -3,8 +3,6 @@
 #include <list>
 #include <util/datetime/base.h>
 #include <util/generic/algorithm.h>
-
-#include <util/generic/ptr.h>
 #include <util/generic/singleton.h>
 
 #include <util/str_stl.h>
@@ -152,7 +150,7 @@ namespace NMonitoring {
         typedef std::map<T, G*> TGroups;
         typedef std::vector<T> TGroupsNames;
 
-        typedef THolder<TGroupsNames> TGroupsNamesPtr;
+        typedef std::unique_ptr<TGroupsNames> TGroupsNamesPtr;
 
     private:
         class TCollection {

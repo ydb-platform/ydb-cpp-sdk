@@ -18,25 +18,25 @@
 
 TCompressionCodecFactory::TCompressionCodecFactory() {
     auto gzip = [](auto s) {
-        return MakeHolder<TZLibDecompress>(s);
+        return std::make_unique<TZLibDecompress>(s);
     };
 
-    Add("gzip", gzip, [](auto s) { return MakeHolder<TZLibCompress>(s, ZLib::GZip); });
-    Add("deflate", gzip, [](auto s) { return MakeHolder<TZLibCompress>(s, ZLib::ZLib); });
-    Add("br", [](auto s) { return MakeHolder<TBrotliDecompress>(s); }, [](auto s) { return MakeHolder<TBrotliCompress>(s, 4); });
-    Add("x-gzip", gzip, [](auto s) { return MakeHolder<TZLibCompress>(s, ZLib::GZip); });
-    Add("x-deflate", gzip, [](auto s) { return MakeHolder<TZLibCompress>(s, ZLib::ZLib); });
+    Add("gzip", gzip, [](auto s) { return std::make_unique<TZLibCompress>(s, ZLib::GZip); });
+    Add("deflate", gzip, [](auto s) { return std::make_unique<TZLibCompress>(s, ZLib::ZLib); });
+    Add("br", [](auto s) { return std::make_unique<TBrotliDecompress>(s); }, [](auto s) { return std::make_unique<TBrotliCompress>(s, 4); });
+    Add("x-gzip", gzip, [](auto s) { return std::make_unique<TZLibCompress>(s, ZLib::GZip); });
+    Add("x-deflate", gzip, [](auto s) { return std::make_unique<TZLibCompress>(s, ZLib::ZLib); });
 
 #if defined(ENABLE_GPL)
     const ui16 bs = 32 * 1024;
 
-    Add("y-lzo", [](auto s) { return MakeHolder<TLzoDecompress>(s); }, [bs](auto s) { return MakeHolder<TLazy<TLzoCompress> >(s, bs); });
-    Add("y-lzf", [](auto s) { return MakeHolder<TLzfDecompress>(s); }, [bs](auto s) { return MakeHolder<TLazy<TLzfCompress> >(s, bs); });
-    Add("y-lzq", [](auto s) { return MakeHolder<TLzqDecompress>(s); }, [bs](auto s) { return MakeHolder<TLazy<TLzqCompress> >(s, bs); });
+    Add("y-lzo", [](auto s) { return std::make_unique<TLzoDecompress>(s); }, [bs](auto s) { return std::make_unique<TLazy<TLzoCompress> >(s, bs); });
+    Add("y-lzf", [](auto s) { return std::make_unique<TLzfDecompress>(s); }, [bs](auto s) { return std::make_unique<TLazy<TLzfCompress> >(s, bs); });
+    Add("y-lzq", [](auto s) { return std::make_unique<TLzqDecompress>(s); }, [bs](auto s) { return std::make_unique<TLazy<TLzqCompress> >(s, bs); });
 #endif
 
-    Add("y-bzip2", [](auto s) { return MakeHolder<TBZipDecompress>(s); }, [](auto s) { return MakeHolder<TBZipCompress>(s); });
-    Add("y-lzma", [](auto s) { return MakeHolder<TLzmaDecompress>(s); }, [](auto s) { return MakeHolder<TLzmaCompress>(s); });
+    Add("y-bzip2", [](auto s) { return std::make_unique<TBZipDecompress>(s); }, [](auto s) { return std::make_unique<TBZipCompress>(s); });
+    Add("y-lzma", [](auto s) { return std::make_unique<TLzmaDecompress>(s); }, [](auto s) { return std::make_unique<TLzmaCompress>(s); });
 
     for (auto codecName : NBlockCodecs::ListAllCodecs()) {
         if (codecName.starts_with("zstd06")) {
@@ -50,11 +50,11 @@ TCompressionCodecFactory::TCompressionCodecFactory() {
         auto codec = NBlockCodecs::Codec(codecName);
 
         auto enc = [codec](auto s) {
-            return MakeHolder<NBlockCodecs::TCodedOutput>(s, codec, 32 * 1024);
+            return std::make_unique<NBlockCodecs::TCodedOutput>(s, codec, 32 * 1024);
         };
 
         auto dec = [codec](auto s) {
-            return MakeHolder<NBlockCodecs::TDecodedInput>(s, codec);
+            return std::make_unique<NBlockCodecs::TDecodedInput>(s, codec);
         };
         std::string fullName = TStringBuilder() << "z-" << codecName;
         Add(fullName, dec, enc);

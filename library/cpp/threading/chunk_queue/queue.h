@@ -2,7 +2,7 @@
 
 #include <util/datetime/base.h>
 #include <util/generic/noncopyable.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/typetraits.h>
 
 #include <util/generic/ylimits.h>
@@ -521,21 +521,21 @@ namespace NThreading {
         TImpl Impl;
 
     public:
-        using TItem = TAutoPtr<T>;
+        using TItem = std::unique_ptr<T>;
 
         ~TAutoQueueBase() {
-            TAutoPtr<T> value;
+            std::unique_ptr<T> value;
             while (Dequeue(value)) {
                 // do nothing
             }
         }
 
-        void Enqueue(TAutoPtr<T> value) {
+        void Enqueue(std::unique_ptr<T> value) {
             Impl.Enqueue(value.Get());
             Y_UNUSED(value.Release());
         }
 
-        bool Dequeue(TAutoPtr<T>& value) {
+        bool Dequeue(std::unique_ptr<T>& value) {
             T* ptr = nullptr;
             if (Impl.Dequeue(ptr)) {
                 value.Reset(ptr);

@@ -2,8 +2,6 @@
 
 #include "defaults.h"
 
-#include <util/generic/ptr.h>
-
 #define Y_GET_FUNC(dll, name) FUNC_##name((dll).Sym(#name))
 #define Y_GET_FUNC_OPTIONAL(dll, name) FUNC_##name((dll).SymOptional(#name))
 
@@ -34,7 +32,7 @@ public:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 // a wrapper for a symbol

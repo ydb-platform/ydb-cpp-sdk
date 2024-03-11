@@ -3,7 +3,7 @@
 #include "backend.h"
 
 #include <util/generic/fwd.h>
-#include <util/generic/ptr.h>
+
 
 class TSyncPageCacheFileLogBackend final: public TLogBackend {
 public:
@@ -15,5 +15,5 @@ public:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
