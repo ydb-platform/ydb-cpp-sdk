@@ -18,6 +18,7 @@ target_link_libraries(cpp-client-ydb_value PUBLIC
   client-ydb_types-fatal_error_handlers
   yql-public-decimal
   ydb-library-uuid
+  proto_output
 )
 
 target_sources(cpp-client-ydb_value PRIVATE

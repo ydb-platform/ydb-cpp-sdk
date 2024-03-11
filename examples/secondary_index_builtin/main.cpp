@@ -7,9 +7,9 @@ using namespace NYdb;
 
 int main(int argc, char** argv) {
 
-    TString endpoint;
-    TString database;
-    TString command;
+    std::string endpoint;
+    std::string database;
+    std::string command;
 
     TOpts opts = TOpts::Default();
 

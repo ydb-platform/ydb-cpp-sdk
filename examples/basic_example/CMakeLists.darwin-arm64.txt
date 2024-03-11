@@ -25,7 +25,5 @@ target_sources(basic_example PRIVATE
   ${CMAKE_SOURCE_DIR}/examples/basic_example/basic_example_data.cpp
   ${CMAKE_SOURCE_DIR}/examples/basic_example/basic_example.cpp
 )
-target_allocator(basic_example
-  system_allocator
-)
+
 vcs_info(basic_example)

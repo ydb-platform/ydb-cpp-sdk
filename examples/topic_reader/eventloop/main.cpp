@@ -6,10 +6,10 @@
 #include <util/system/env.h>
 
 struct TOptions {
-    TString Endpoint;
-    TString Database;
-    TString TopicPath;
-    TString ConsumerName;
+    std::string Endpoint;
+    std::string Database;
+    std::string TopicPath;
+    std::string ConsumerName;
     bool CommitAfterProcessing = false;
     bool DisableClusterDiscovery = false;
     bool UseSecureConnection = false;

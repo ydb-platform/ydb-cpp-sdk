@@ -29,8 +29,4 @@ target_sources(ttl PRIVATE
   ${CMAKE_SOURCE_DIR}/examples/ttl/main.cpp
   ${CMAKE_SOURCE_DIR}/examples/ttl/ttl.cpp
 )
-target_allocator(ttl
-  cpp-malloc-tcmalloc
-  libs-tcmalloc-no_percpu_cache
-)
 vcs_info(ttl)

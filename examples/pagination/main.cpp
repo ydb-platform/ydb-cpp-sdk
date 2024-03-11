@@ -13,9 +13,9 @@ void StopHandler(int) {
 int main(int argc, char** argv) {
     TOpts opts = TOpts::Default();
 
-    TString endpoint;
-    TString database;
-    TString path;
+    std::string endpoint;
+    std::string database;
+    std::string path;
     opts.AddLongOption('e', "endpoint", "YDB endpoint").Required().RequiredArgument("HOST:PORT")
         .StoreResult(&endpoint);
     opts.AddLongOption('d', "database", "YDB database name").Required().RequiredArgument("PATH")

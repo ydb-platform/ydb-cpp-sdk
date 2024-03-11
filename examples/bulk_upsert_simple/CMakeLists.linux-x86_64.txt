@@ -28,8 +28,4 @@ target_link_options(bulk_upsert_simple PRIVATE
 target_sources(bulk_upsert_simple PRIVATE
   ${CMAKE_SOURCE_DIR}/examples/bulk_upsert_simple/main.cpp
 )
-target_allocator(bulk_upsert_simple
-  cpp-malloc-tcmalloc
-  libs-tcmalloc-no_percpu_cache
-)
 vcs_info(bulk_upsert_simple)

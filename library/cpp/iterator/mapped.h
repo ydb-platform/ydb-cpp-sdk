@@ -3,6 +3,7 @@
 #include <util/generic/iterator_range.h>
 #include <util/generic/store_policy.h>
 
+#include <functional>
 #include <iterator>
 
 

@@ -35,8 +35,4 @@ target_sources(secondary_index PRIVATE
   ${CMAKE_SOURCE_DIR}/examples/secondary_index/secondary_index_list.cpp
   ${CMAKE_SOURCE_DIR}/examples/secondary_index/secondary_index_update.cpp
 )
-target_allocator(secondary_index
-  cpp-malloc-tcmalloc
-  libs-tcmalloc-no_percpu_cache
-)
 vcs_info(secondary_index)

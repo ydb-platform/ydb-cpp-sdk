@@ -29,7 +29,4 @@ target_sources(pagination PRIVATE
   ${CMAKE_SOURCE_DIR}/examples/pagination/pagination_data.cpp
   ${CMAKE_SOURCE_DIR}/examples/pagination/pagination.cpp
 )
-target_allocator(pagination
-  cpp-malloc-jemalloc
-)
 vcs_info(pagination)

@@ -27,7 +27,7 @@ inline void PrintStatus(const TStatus& status) {
     status.GetIssues().PrintTo(Cerr);
 }
 
-inline TString JoinPath(const TString& basePath, const TString& path) {
+inline std::string JoinPath(const std::string& basePath, const std::string& path) {
     if (basePath.empty()) {
         return path;
     }
