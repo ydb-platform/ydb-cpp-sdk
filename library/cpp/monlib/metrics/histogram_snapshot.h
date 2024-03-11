@@ -1,7 +1,7 @@
 #pragma once
 
 #include <util/generic/array_ref.h>
-#include <util/generic/ptr.h>
+
 
 #include <util/generic/yexception.h>
 #include <util/generic/ylimits.h>

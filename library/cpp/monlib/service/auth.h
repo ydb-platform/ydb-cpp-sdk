@@ -44,5 +44,5 @@ namespace NMonitoring {
         virtual TAuthResult Check(const IHttpRequest& req) = 0;
     };
 
-    THolder<IAuthProvider> CreateFakeAuth();
+    std::unique_ptr<IAuthProvider> CreateFakeAuth();
 } // namespace NMonitoring

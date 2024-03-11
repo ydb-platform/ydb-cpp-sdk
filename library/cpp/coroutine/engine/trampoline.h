@@ -4,7 +4,7 @@
 #include "stack/stack.h"
 
 #include <util/generic/noncopyable.h>
-#include <util/generic/ptr.h>
+
 #include <util/system/context.h>
 #include <util/system/defaults.h>
 

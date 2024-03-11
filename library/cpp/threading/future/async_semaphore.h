@@ -3,7 +3,7 @@
 #include <library/cpp/threading/future/future.h>
 
 #include <util/system/spinlock.h>
-#include <util/generic/ptr.h>
+
 
 #include <list>
 #include <functional>

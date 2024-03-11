@@ -76,7 +76,7 @@ namespace {
 } // namespace
 
     TEwmaMeter::TEwmaMeter()
-        : Ewma_{MakeHolder<TFakeEwma>()}
+        : Ewma_{std::make_unique<TFakeEwma>()}
     {
     }
 
@@ -133,18 +133,18 @@ namespace {
     }
 
     IExpMovingAveragePtr OneMinuteEwma(IGauge* metric) {
-        return MakeHolder<TExpMovingAverage>(metric, ALPHA1, DEFAULT_INTERVAL);
+        return std::make_unique<TExpMovingAverage>(metric, ALPHA1, DEFAULT_INTERVAL);
     }
 
     IExpMovingAveragePtr FiveMinuteEwma(IGauge* metric) {
-        return MakeHolder<TExpMovingAverage>(metric, ALPHA5, DEFAULT_INTERVAL);
+        return std::make_unique<TExpMovingAverage>(metric, ALPHA5, DEFAULT_INTERVAL);
     }
 
     IExpMovingAveragePtr FiveteenMinuteEwma(IGauge* metric) {
-        return MakeHolder<TExpMovingAverage>(metric, ALPHA15, DEFAULT_INTERVAL);
+        return std::make_unique<TExpMovingAverage>(metric, ALPHA15, DEFAULT_INTERVAL);
     }
 
     IExpMovingAveragePtr CreateEwma(IGauge* metric, double alpha, TDuration interval) {
-        return MakeHolder<TExpMovingAverage>(metric, alpha, interval);
+        return std::make_unique<TExpMovingAverage>(metric, alpha, interval);
     }
 } // namespace NMonitoring

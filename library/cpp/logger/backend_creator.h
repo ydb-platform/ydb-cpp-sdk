@@ -4,7 +4,6 @@
 #include <library/cpp/object_factory/object_factory.h>
 #include <library/cpp/json/json_value.h>
 
-#include <util/generic/ptr.h>
 #include <util/string/cast.h>
 
 class ILogBackendCreator {
@@ -31,21 +30,21 @@ public:
 
         virtual ~IInitContext() = default;
         virtual bool GetValue(std::string_view name, std::string& var) const = 0;
-        virtual std::vector<THolder<IInitContext>> GetChildren(std::string_view name) const = 0;
+        virtual std::vector<std::unique_ptr<IInitContext>> GetChildren(std::string_view name) const = 0;
     };
 
 public:
     virtual ~ILogBackendCreator() = default;
-    THolder<TLogBackend> CreateLogBackend() const;
+    std::unique_ptr<TLogBackend> CreateLogBackend() const;
     virtual bool Init(const IInitContext& ctx);
 
     NJson::TJsonValue AsJson() const;
     virtual void ToJson(NJson::TJsonValue& value) const = 0;
 
-    static THolder<ILogBackendCreator> Create(const IInitContext& ctx);
+    static std::unique_ptr<ILogBackendCreator> Create(const IInitContext& ctx);
 
 private:
-    virtual THolder<TLogBackend> DoCreateLogBackend() const = 0;
+    virtual std::unique_ptr<TLogBackend> DoCreateLogBackend() const = 0;
 };
 
 class TLogBackendCreatorBase: public ILogBackendCreator {

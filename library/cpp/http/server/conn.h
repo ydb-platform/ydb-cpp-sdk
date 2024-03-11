@@ -1,7 +1,7 @@
 #pragma once
 
 #include <library/cpp/http/io/stream.h>
-#include <util/generic/ptr.h>
+
 
 class TSocket;
 
@@ -33,5 +33,5 @@ public:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };

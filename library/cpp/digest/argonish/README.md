@@ -56,14 +56,14 @@ uint32_t tcost = 1;  	/* one pass */
 uint32_t mcost = 32; 	/* in KB */
 uint32_t threads = 1;	/* one thread version */
 NArgonish::TArgon2Factory afactory;
-THolder<NArgonish::IArgon2Base> argon2 = afactory.Create(NArgonish::EArgon2Type::Argon2d, tcost, mcost, threads);
+std::unique_ptr<NArgonish::IArgon2Base> argon2 = afactory.Create(NArgonish::EArgon2Type::Argon2d, tcost, mcost, threads);
 argon2->Hash(input, insize, salt, saltsize, out, outlen);
 ...
 #include <library/cpp/digest/argonish/blake2b.h>
 ...
 NArgonish::TBlake2BFactory bfactory;
 uint32_t outlen = 32;
-THolder<NArgonish::IBlake2Base> blake2b = bfactory.Create(outlen);
+std::unique_ptr<NArgonish::IBlake2Base> blake2b = bfactory.Create(outlen);
 blake2b->Update(in, inlen);
 blake2b->Final(out, outlen);
 ```

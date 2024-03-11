@@ -365,12 +365,12 @@ private:
 };
 
 TEnumParser::TEnumParser(const std::string& fileName) {
-    THolder<IInputStream> hIn;
+    std::unique_ptr<IInputStream> hIn;
     IInputStream* in = nullptr;
     if (fileName != "-") {
         SourceFileName = fileName;
-        hIn.Reset(new TFileInput(fileName.c_str()));
-        in = hIn.Get();
+        hIn.reset(new TFileInput(fileName.c_str()));
+        in = hIn.get();
     } else {
         in = &Cin;
     }

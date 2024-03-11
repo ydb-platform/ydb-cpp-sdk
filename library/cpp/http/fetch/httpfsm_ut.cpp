@@ -2,7 +2,7 @@
 #include "library-htfetch_ut_hreflang_in.h"
 #include "library-htfetch_ut_hreflang_out.h"
 
-#include <util/generic/ptr.h>
+
 #include <library/cpp/charset/doccodes.h>
 #include <library/cpp/testing/unittest/registar.h>
 
@@ -33,7 +33,7 @@ class THttpHeaderParserTestSuite: public TTestBase {
     UNIT_TEST_SUITE_END();
 
 private:
-    THolder<THttpHeaderParser> httpHeaderParser;
+    std::unique_ptr<THttpHeaderParser> httpHeaderParser;
 
 private:
     void TestStart();

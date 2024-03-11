@@ -63,6 +63,6 @@ namespace NMonitoring {
         Y_ENSURE(base > 1.0, "base must be > 1.0, got: " << base);
         Y_ENSURE(scale >= 1.0, "scale must be >= 1.0, got: " << scale);
 
-        return MakeHolder<TExponentialHistogramCollector>(bucketsCount, base, scale);
+        return std::make_unique<TExponentialHistogramCollector>(bucketsCount, base, scale);
     }
 }

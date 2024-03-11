@@ -2,8 +2,10 @@
 
 #include "last_getopt.h"
 
-#include <util/generic/ptr.h>
+
 #include <util/generic/noncopyable.h>
+
+#include <memory>
 
 // implementation of Opt class using last getopt
 
@@ -71,8 +73,8 @@ public:
     };
 
 private:
-    THolder<NLastGetopt::TOpts> Opts_;
-    THolder<NLastGetopt::TOptsParser> OptsParser_;
+    std::unique_ptr<NLastGetopt::TOpts> Opts_;
+    std::unique_ptr<NLastGetopt::TOptsParser> OptsParser_;
     const Ion* Ions_;
     bool GotError_;
 

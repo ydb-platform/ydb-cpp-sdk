@@ -3,7 +3,9 @@
 
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>
+
 #include <utility>
+#include <memory>
 
 #include <util/thread/singleton.h>
 
@@ -56,7 +58,7 @@ namespace {
             return (((TTime)1000000) * (TTime)tv.tv_sec) + (TTime)tv.tv_usec;
         }
 
-        static inline THolder<TDynamicLibrary> OpenLibc() {
+        static inline std::unique_ptr<TDynamicLibrary> OpenLibc() {
             const char* libs[] = {
                 "/lib/libc.so.8",
                 "/lib/libc.so.7",
@@ -65,7 +67,7 @@ namespace {
 
             for (auto& lib : libs) {
                 try {
-                    return MakeHolder<TDynamicLibrary>(lib);
+                    return std::make_unique<TDynamicLibrary>(lib);
                 } catch (...) {
                     // ¯\_(ツ)_/¯
                 }
@@ -79,10 +81,10 @@ namespace {
                 Lib = OpenLibc();
             }
 
-            return Lib.Get();
+            return Lib.get();
         }
 
-        THolder<TDynamicLibrary> Lib;
+        std::unique_ptr<TDynamicLibrary> Lib;
         TFunc Func;
     };
 

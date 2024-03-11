@@ -12,7 +12,7 @@ protected:
     virtual void DoToJson(NJson::TJsonValue& value) const override;
 
 private:
-    virtual THolder<TLogBackend> DoCreateLogBackend() const override;
+    virtual std::unique_ptr<TLogBackend> DoCreateLogBackend() const override;
 };
 
 class TCoutLogBackendCreator : public TLogBackendCreatorBase {
@@ -24,5 +24,5 @@ protected:
     virtual void DoToJson(NJson::TJsonValue& value) const override;
 
 private:
-    virtual THolder<TLogBackend> DoCreateLogBackend() const override;
+    virtual std::unique_ptr<TLogBackend> DoCreateLogBackend() const override;
 };

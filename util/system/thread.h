@@ -4,12 +4,11 @@
 /// If you need threads, use thread pool functionality in <util/thread/factory.h>
 /// @see SystemThreadFactory()
 
-#include <util/generic/ptr.h>
-
-#include <string>
-
 #include "defaults.h"
 #include "progname.h"
+
+#include <memory>
+#include <string>
 
 bool SetHighestThreadPriority();
 bool SetLowestThreadPriority();
@@ -80,7 +79,7 @@ public:
     template <typename Callable>
     TThread(Callable&& callable)
         : TThread(TPrivateCtor{},
-                  MakeHolder<TCallableParams<Callable>>(std::forward<Callable>(callable)))
+                  std::make_unique<TCallableParams<Callable>>(std::forward<Callable>(callable)))
     {
     }
 
@@ -152,11 +151,11 @@ private:
         }
     };
 
-    TThread(TPrivateCtor, THolder<TCallableBase> callable);
+    TThread(TPrivateCtor, std::unique_ptr<TCallableBase> callable);
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 class ISimpleThread: public TThread {

@@ -65,7 +65,7 @@ namespace {
     struct TLzmaRegistrar {
         TLzmaRegistrar() {
             for (int i = 0; i < 10; ++i) {
-                RegisterCodec(MakeHolder<TLzmaCodec>(i));
+                RegisterCodec(std::make_unique<TLzmaCodec>(i));
             }
             RegisterAlias("lzma", "lzma-5");
         }
