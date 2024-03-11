@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/ptr.h>
+
 
 #include <library/cpp/monlib/metrics/metric_consumer.h>
 
@@ -12,6 +12,6 @@ namespace NMonitoring {
         virtual void Close() = 0;
     };
 
-    using IMetricEncoderPtr = THolder<IMetricEncoder>;
+    using IMetricEncoderPtr = std::unique_ptr<IMetricEncoder>;
 
 }

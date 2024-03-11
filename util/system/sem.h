@@ -2,7 +2,7 @@
 
 #include "defaults.h"
 
-#include <util/generic/ptr.h>
+
 
 //named sempahore
 class TSemaphore {
@@ -22,7 +22,7 @@ public:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 //unnamed semaphore, faster, than previous
@@ -37,5 +37,5 @@ public:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };

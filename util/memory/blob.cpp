@@ -5,7 +5,6 @@
 #include <util/system/filemap.h>
 #include <util/system/mlock.h>
 #include <util/stream/buffer.h>
-#include <util/generic/ptr.h>
 #include <util/generic/buffer.h>
 #include <util/generic/ylimits.h>
 #include <util/generic/singleton.h>
@@ -171,14 +170,14 @@ TBlob TBlob::DeepCopy() const {
 template <class TCounter>
 static inline TBlob CopyConstruct(const void* data, size_t len) {
     using Base = TDynamicBlobBase<TCounter>;
-    THolder<Base> base(new (len) Base);
+    std::unique_ptr<Base> base(new (len) Base);
 
     Y_ASSERT(base->Length() == len);
 
     memcpy(base->Data(), data, len);
 
-    TBlob ret(base->Data(), len, base.Get());
-    Y_UNUSED(base.Release());
+    TBlob ret(base->Data(), len, base.get());
+    Y_UNUSED(base.release());
 
     return ret;
 }
@@ -198,9 +197,9 @@ TBlob TBlob::NoCopy(const void* data, size_t length) {
 template <class TCounter>
 static inline TBlob ConstructFromMap(const TMemoryMap& map, ui64 offset, size_t length, EMappingMode mode) {
     using TBase = TMappedBlobBase<TCounter>;
-    THolder<TBase> base(new TBase(map, offset, length, mode));
-    TBlob ret(base->Data(), base->Length(), base.Get());
-    Y_UNUSED(base.Release());
+    std::unique_ptr<TBase> base(new TBase(map, offset, length, mode));
+    TBlob ret(base->Data(), base->Length(), base.get());
+    Y_UNUSED(base.release());
 
     return ret;
 }
@@ -302,14 +301,14 @@ TBlob TBlob::FromMemoryMap(const TMemoryMap& map, ui64 offset, size_t length) {
 template <class TCounter>
 static inline TBlob ReadFromFile(const TFile& file, ui64 offset, size_t length) {
     using TBase = TDynamicBlobBase<TCounter>;
-    THolder<TBase> base(new (length) TBase);
+    std::unique_ptr<TBase> base(new (length) TBase);
 
     Y_ASSERT(base->Length() == length);
 
     file.Pload(base->Data(), length, offset);
 
-    TBlob ret(base->Data(), length, base.Get());
-    Y_UNUSED(base.Release());
+    TBlob ret(base->Data(), length, base.get());
+    Y_UNUSED(base.release());
 
     return ret;
 }
@@ -352,10 +351,10 @@ TBlob TBlob::FromFileContent(const TFile& file, ui64 offset, size_t length) {
 template <class TCounter>
 static inline TBlob ConstructFromBuffer(TBuffer& in) {
     using TBase = TBufferBlobBase<TCounter>;
-    THolder<TBase> base(new TBase(in));
+    std::unique_ptr<TBase> base(new TBase(in));
 
-    TBlob ret(base->Buffer().Data(), base->Buffer().Size(), base.Get());
-    Y_UNUSED(base.Release());
+    TBlob ret(base->Buffer().Data(), base->Buffer().Size(), base.get());
+    Y_UNUSED(base.release());
 
     return ret;
 }
@@ -392,10 +391,10 @@ TBlob TBlob::FromBuffer(TBuffer& in) {
 template <class TCounter, class S>
 TBlob ConstructFromString(S&& s) {
     using TBase = TStringBlobBase<TCounter>;
-    auto base = MakeHolder<TBase>(std::forward<S>(s));
+    auto base = std::make_unique<TBase>(std::forward<S>(s));
 
-    TBlob ret(base->String().data(), base->String().size(), base.Get());
-    Y_UNUSED(base.Release());
+    TBlob ret(base->String().data(), base->String().size(), base.get());
+    Y_UNUSED(base.release());
 
     return ret;
 }

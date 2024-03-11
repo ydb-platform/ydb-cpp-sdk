@@ -3,7 +3,7 @@
 #include "zerocopy.h"
 #include "zerocopy_output.h"
 
-#include <util/generic/ptr.h>
+
 
 class TBuffer;
 
@@ -52,7 +52,7 @@ private:
     void DoWriteC(char c) override;
 
 private:
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**

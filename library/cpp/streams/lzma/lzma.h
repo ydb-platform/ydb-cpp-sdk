@@ -4,7 +4,7 @@
 #include <util/stream/output.h>
 #include <util/stream/zerocopy.h>
 
-#include <util/generic/ptr.h>
+
 
 class TLzmaCompress: public IOutputStream {
 public:
@@ -17,7 +17,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 class TLzmaDecompress: public IInputStream {
@@ -33,5 +33,5 @@ private:
     class TImpl;
     class TImplStream;
     class TImplZeroCopy;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };

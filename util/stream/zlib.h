@@ -6,7 +6,7 @@
 #include "buffered.h"
 
 #include <util/system/defaults.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/yexception.h>
 
 /**
@@ -69,7 +69,7 @@ protected:
 
 public:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
@@ -148,9 +148,10 @@ public:
     /** To allow inline constructors. */
     struct TDestruct {
         static void Destroy(TImpl* impl);
+        void operator() (TImpl* impl);
     };
 
-    THolder<TImpl, TDestruct> Impl_;
+    std::unique_ptr<TImpl, TDestruct> Impl_;
 };
 
 /**

@@ -128,15 +128,15 @@ namespace NObjectFactory {
         }
 
         template <class... Args>
-        static THolder<TProduct> VerifiedConstruct(Args&&... args) {
-            auto result = MakeHolder(std::forward<Args>(args)...);
+        static std::unique_ptr<TProduct> VerifiedConstruct(Args&&... args) {
+            auto result = std::make_unique(std::forward<Args>(args)...);
             Y_ABORT_UNLESS(result, "Construct by factory failed");
             return result;
         }
 
         template<class... Args>
-        static THolder<TProduct> MakeHolder(Args&&... args) {
-            return THolder<TProduct>(Construct(std::forward<Args>(args)...));
+        static std::unique_ptr<TProduct> MakeHolder(Args&&... args) {
+            return std::unique_ptr<TProduct>(Construct(std::forward<Args>(args)...));
         }
 
         static void GetRegisteredKeys(TSet<TKey>& keys) {
@@ -154,7 +154,7 @@ namespace NObjectFactory {
             TSet<TKey> registeredKeys(GetRegisteredKeys());
             TSet<TKey> fileredKeys;
             std::copy_if(registeredKeys.begin(), registeredKeys.end(), std::inserter(fileredKeys, fileredKeys.end()), [](const TKey& key) {
-                THolder<TProduct> objectHolder(Construct(key));
+                std::unique_ptr<TProduct> objectHolder(Construct(key));
                 return !!dynamic_cast<const TDerivedProduct*>(objectHolder.Get());
             });
             return fileredKeys;

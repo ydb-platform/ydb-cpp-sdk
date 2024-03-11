@@ -29,12 +29,12 @@
         virtual size_t GetMemorySize() const override;                                                                \
                                                                                                                       \
     protected:                                                                                                        \
-        THolder<IArgon2Base> argon2;                                                                                  \
+        std::unique_ptr<IArgon2Base> argon2;                                                                                  \
     };
 
 #define ARGON2_INSTANCE_DECL(IS_val, mcost_val, threads_val)                                     \
     if (mcost == mcost_val && threads == threads_val) {                                          \
-        argon2 = MakeHolder<TArgon2##IS_val<mcost_val, threads_val>>(atype, tcost, key, keylen); \
+        argon2 = std::make_unique<TArgon2##IS_val<mcost_val, threads_val>>(atype, tcost, key, keylen); \
         return;                                                                                  \
     }
 
@@ -159,7 +159,7 @@
         virtual void Final(void* out, size_t outlen) override;                          \
                                                                                         \
     protected:                                                                          \
-        THolder<IBlake2Base> blake2;                                                    \
+        std::unique_ptr<IBlake2Base> blake2;                                                    \
     };
 
 #define BLAKE2B_PROXY_CLASS_IMPL(IS)                                                      \
@@ -168,14 +168,14 @@
             ythrow yexception() << "outlen equals 0 or too long";                         \
                                                                                           \
         if (key == nullptr) {                                                             \
-            blake2 = MakeHolder<TBlake2B<EInstructionSet::IS>>(outlen);                   \
+            blake2 = std::make_unique<TBlake2B<EInstructionSet::IS>>(outlen);                   \
             return;                                                                       \
         }                                                                                 \
                                                                                           \
         if (!key || !keylen || keylen > BLAKE2B_KEYBYTES)                                 \
             ythrow yexception() << "key is null or too long";                             \
                                                                                           \
-        blake2 = MakeHolder<TBlake2B<EInstructionSet::IS>>(outlen, key, keylen);          \
+        blake2 = std::make_unique<TBlake2B<EInstructionSet::IS>>(outlen, key, keylen);          \
     }                                                                                     \
                                                                                           \
     void TBlake2BProxy##IS::Update(ui32 in) {                                             \

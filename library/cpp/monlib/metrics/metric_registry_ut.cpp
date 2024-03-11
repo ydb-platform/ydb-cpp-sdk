@@ -188,7 +188,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
         NProto::TSingleSamplesList samples;
         auto encoder = EncoderProtobuf(&samples);
         auto now = TInstant::Now();
-        registry.Accept(now, encoder.Get());
+        registry.Accept(now, encoder.get());
 
         UNIT_ASSERT_VALUES_EQUAL(samples.SamplesSize(), 2);
         UNIT_ASSERT_VALUES_EQUAL(samples.CommonLabelsSize(), 1);
@@ -246,7 +246,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
         std::stringStream ss;
         {
             auto encoder = EncoderJson(&ss, 2);
-            registry.Accept(TInstant::Zero(), encoder.Get());
+            registry.Accept(TInstant::Zero(), encoder.get());
         }
         ss << '\n';
 
@@ -287,7 +287,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
         std::stringStream ss;
         {
             auto encoder = EncoderJson(&ss, 2);
-            registry.Accept(TInstant::Zero(), encoder.Get());
+            registry.Accept(TInstant::Zero(), encoder.get());
         }
         ss << '\n';
 
@@ -307,7 +307,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
 
         std::stringStream os;
         auto encoder = EncoderJson(&os);
-        registry.Accept(TInstant::Zero(), encoder.Get());
+        registry.Accept(TInstant::Zero(), encoder.get());
 
         UNIT_ASSERT_STRINGS_EQUAL(os.Str(), expected);
     }
@@ -334,7 +334,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
             std::stringStream os;
             auto encoder = EncoderJson(&os);
             encoder->OnStreamBegin();
-            registry.Append(TInstant::Zero(), encoder.Get());
+            registry.Append(TInstant::Zero(), encoder.get());
             encoder->OnStreamEnd();
 
             UNIT_ASSERT_STRINGS_EQUAL(
@@ -346,7 +346,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
         {
             std::stringStream os;
             auto encoder = EncoderJson(&os);
-            registry.Accept(TInstant::Zero(), encoder.Get());
+            registry.Accept(TInstant::Zero(), encoder.get());
 
             UNIT_ASSERT_STRINGS_EQUAL(
                     os.Str(),
@@ -361,13 +361,13 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
 
         NProto::TSingleSamplesList samples;
         auto encoder = EncoderProtobuf(&samples);
-        registry.Accept(TInstant::Now(), encoder.Get());
+        registry.Accept(TInstant::Now(), encoder.get());
 
         UNIT_ASSERT(samples.SamplesSize() == 1);
 
         samples = {};
         registry.Clear();
-        registry.Accept(TInstant::Now(), encoder.Get());
+        registry.Accept(TInstant::Now(), encoder.get());
 
         UNIT_ASSERT(samples.SamplesSize() == 0);
     }
@@ -378,7 +378,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
 
         NProto::TSingleSamplesList samples;
         auto encoder = EncoderProtobuf(&samples);
-        registry.Accept(TInstant::Now(), encoder.Get());
+        registry.Accept(TInstant::Now(), encoder.get());
 
         UNIT_ASSERT(samples.CommonLabelsSize() == 0);
         UNIT_ASSERT(samples.SamplesSize() == 1);
@@ -387,7 +387,7 @@ Y_UNIT_TEST_SUITE(TMetricRegistryTest) {
         auto newRegistry = TMetricRegistry{{{"common", "label"}}};
         registry = std::move(newRegistry);
 
-        registry.Accept(TInstant::Now(), encoder.Get());
+        registry.Accept(TInstant::Now(), encoder.get());
 
         const auto& commonLabels = samples.GetCommonLabels();
 

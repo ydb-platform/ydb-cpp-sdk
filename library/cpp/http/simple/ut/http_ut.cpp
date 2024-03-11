@@ -422,13 +422,13 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
         TPortManager pm;
         ui16 port = pm.GetPort(80);
         NMock::TMockServer::TGenerator gen = []() { return new TPong; };
-        THolder<NMock::TMockServer> server = MakeHolder<NMock::TMockServer>(createOptions(port, true), gen);
+        std::unique_ptr<NMock::TMockServer> server = std::make_unique<NMock::TMockServer>(createOptions(port, true), gen);
 
         TKeepAliveHttpClient cl("localhost", port);
         UNIT_ASSERT_NO_EXCEPTION(cl.DoGet("/ping"));
 
         server.Reset();
-        server = MakeHolder<NMock::TMockServer>(createOptions(port, true), gen);
+        server = std::make_unique<NMock::TMockServer>(createOptions(port, true), gen);
         UNIT_ASSERT_NO_EXCEPTION(cl.DoGet("/ping"));
 
         TKeepAliveHttpClient cl2("localhost", port);

@@ -48,7 +48,15 @@ namespace {
             SSL_CTX_free(ctx);
         }
 
+        inline void operator() (ssl_ctx_st* ctx) noexcept {
+            SSL_CTX_free(ctx);
+        }
+
         static inline void Destroy(ssl_st* ssl) noexcept {
+            SSL_free(ssl);
+        }
+
+        inline void operator() (ssl_st* ssl) noexcept {
             SSL_free(ssl);
         }
 
@@ -56,13 +64,21 @@ namespace {
             BIO_free(bio);
         }
 
+        inline void operator() (bio_st* bio) noexcept {
+            BIO_free(bio);
+        }
+
         static inline void Destroy(x509_st* x509) noexcept {
+            X509_free(x509);
+        }
+
+        inline void operator() (x509_st* x509) noexcept {
             X509_free(x509);
         }
     };
 
     template <class T>
-    using TSslHolderPtr = THolder<T, TSslDestroy>;
+    using TSslHolderPtr = std::unique_ptr<T, TSslDestroy>;
 
     using TSslContextPtr = TSslHolderPtr<ssl_ctx_st>;
     using TSslPtr = TSslHolderPtr<ssl_st>;
@@ -76,10 +92,10 @@ namespace {
             ythrow TSslError() << "SSL_CTX_new";
         }
 
-        SSL_CTX_set_options(ctx.Get(), SSL_OP_NO_SSLv2);
-        SSL_CTX_set_options(ctx.Get(), SSL_OP_NO_SSLv3);
-        SSL_CTX_set_options(ctx.Get(), SSL_OP_MICROSOFT_SESS_ID_BUG);
-        SSL_CTX_set_options(ctx.Get(), SSL_OP_NETSCAPE_CHALLENGE_BUG);
+        SSL_CTX_set_options(ctx.get(), SSL_OP_NO_SSLv2);
+        SSL_CTX_set_options(ctx.get(), SSL_OP_NO_SSLv3);
+        SSL_CTX_set_options(ctx.get(), SSL_OP_MICROSOFT_SESS_ID_BUG);
+        SSL_CTX_set_options(ctx.get(), SSL_OP_NETSCAPE_CHALLENGE_BUG);
 
         return ctx;
     }
@@ -138,7 +154,7 @@ namespace {
                     ythrow yexception() << "both client certificate and private key are required";
                 }
                 if (!ClientCert_->PrivateKeyPassword_.empty()) {
-                    SSL_CTX_set_default_passwd_cb(ctx.Get(), [](char* buf, int size, int rwflag, void* userData) -> int {
+                    SSL_CTX_set_default_passwd_cb(ctx.get(), [](char* buf, int size, int rwflag, void* userData) -> int {
                         Y_UNUSED(rwflag);
                         auto io = static_cast<TSslIO*>(userData);
                         if (!io) {
@@ -149,15 +165,15 @@ namespace {
                         }
                         return io->ClientCert_->PrivateKeyPassword_.copy(buf, size, 0);
                     });
-                    SSL_CTX_set_default_passwd_cb_userdata(ctx.Get(), this);
+                    SSL_CTX_set_default_passwd_cb_userdata(ctx.get(), this);
                 }
-                if (1 != SSL_CTX_use_certificate_chain_file(ctx.Get(), ClientCert_->CertificateFile_.c_str())) {
+                if (1 != SSL_CTX_use_certificate_chain_file(ctx.get(), ClientCert_->CertificateFile_.c_str())) {
                     ythrow TSslError() << "SSL_CTX_use_certificate_chain_file";
                 }
-                if (1 != SSL_CTX_use_PrivateKey_file(ctx.Get(), ClientCert_->PrivateKeyFile_.c_str(), SSL_FILETYPE_PEM)) {
+                if (1 != SSL_CTX_use_PrivateKey_file(ctx.get(), ClientCert_->PrivateKeyFile_.c_str(), SSL_FILETYPE_PEM)) {
                     ythrow TSslError() << "SSL_CTX_use_PrivateKey_file";
                 }
-                if (1 != SSL_CTX_check_private_key(ctx.Get())) {
+                if (1 != SSL_CTX_check_private_key(ctx.get())) {
                     ythrow TSslError() << "SSL_CTX_check_private_key (client)";
                 }
             }
@@ -165,18 +181,18 @@ namespace {
         }
 
         inline TSslPtr ConstructSsl() {
-            TSslPtr ssl(SSL_new(Ctx.Get()));
+            TSslPtr ssl(SSL_new(Ctx.get()));
 
             if (!ssl) {
                 ythrow TSslError() << "SSL_new";
             }
 
             if (VerifyCert_) {
-                InitVerification(ssl.Get());
+                InitVerification(ssl.get());
             }
 
             BIO_up_ref(Io); // SSL_set_bio consumes only one reference if rbio and wbio are the same
-            SSL_set_bio(ssl.Get(), Io, Io);
+            SSL_set_bio(ssl.get(), Io, Io);
 
             return ssl;
         }
@@ -187,13 +203,13 @@ namespace {
             Y_ENSURE(X509_VERIFY_PARAM_set1_host(param, VerifyCert_->Hostname_.data(), VerifyCert_->Hostname_.size()));
             SSL_set_tlsext_host_name(ssl, VerifyCert_->Hostname_.data()); // TLS extenstion: SNI
 
-            SSL_CTX_set_cert_store(Ctx.Get(), GetBuiltinOpenSslX509Store().Release());
+            SSL_CTX_set_cert_store(Ctx.get(), GetBuiltinOpenSslX509Store().release());
 
-            Y_ENSURE_EX(1 == SSL_CTX_set_default_verify_paths(Ctx.Get()),
+            Y_ENSURE_EX(1 == SSL_CTX_set_default_verify_paths(Ctx.get()),
                         TSslError());
             // it is OK to ignore result of SSL_CTX_load_verify_locations():
             // Dir "/etc/ssl/certs/" may be missing
-            SSL_CTX_load_verify_locations(Ctx.Get(),
+            SSL_CTX_load_verify_locations(Ctx.get(),
                                           "/etc/ssl/certs/ca-certificates.crt",
                                           "/etc/ssl/certs/");
 
@@ -201,17 +217,17 @@ namespace {
         }
 
         inline void Connect() {
-            if (SSL_connect(Ssl.Get()) != 1) {
+            if (SSL_connect(Ssl.get()) != 1) {
                 ythrow TSslError() << "SSL_connect";
             }
         }
 
         inline void Finish() const {
-            SSL_shutdown(Ssl.Get());
+            SSL_shutdown(Ssl.get());
         }
 
         inline size_t Read(void* buf, size_t len) {
-            const int ret = SSL_read(Ssl.Get(), buf, len);
+            const int ret = SSL_read(Ssl.get(), buf, len);
 
             if (ret < 0) {
                 ythrow TSslError() << "SSL_read";
@@ -222,7 +238,7 @@ namespace {
 
         inline void Write(const char* buf, size_t len) {
             while (len) {
-                const int ret = SSL_write(Ssl.Get(), buf, len);
+                const int ret = SSL_write(Ssl.get(), buf, len);
 
                 if (ret < 0) {
                     ythrow TSslError() << "SSL_write";
@@ -275,6 +291,10 @@ namespace NPrivate {
     void TSslDestroy::Destroy(x509_store_st* x509) noexcept {
         X509_STORE_free(x509);
     }
+
+    void TSslDestroy::operator() (x509_store_st* x509) noexcept {
+        X509_STORE_free(x509);
+    }
 }
 
 class TBuiltinCerts {
@@ -286,7 +306,7 @@ public:
         Y_ENSURE_EX(cbio, TSslError() << "BIO_new_mem_buf");
 
         while (true) {
-            TX509Ptr cert(PEM_read_bio_X509(cbio.Get(), nullptr, nullptr, nullptr));
+            TX509Ptr cert(PEM_read_bio_X509(cbio.get(), nullptr, nullptr, nullptr));
             if (!cert) {
                 break;
             }
@@ -307,7 +327,7 @@ public:
         TOpenSslX509StorePtr store(X509_STORE_new());
 
         for (const TX509Ptr& c : Certs) {
-            if (0 == X509_STORE_add_cert(store.Get(), c.Get())) {
+            if (0 == X509_STORE_add_cert(store.get(), c.get())) {
                 int err = GetLastSslError();
                 if (ERR_GET_LIB(err) == ERR_LIB_X509 && ERR_GET_REASON(err) == X509_R_CERT_ALREADY_IN_HASH_TABLE) {
                     ERR_clear_error();

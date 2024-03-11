@@ -4,7 +4,6 @@
 #include "output.h"
 
 #include <util/system/pipe.h>
-#include <util/generic/ptr.h>
 
 /**
  * @addtogroup Streams_Pipes
@@ -28,7 +27,7 @@ protected:
 
 protected:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**

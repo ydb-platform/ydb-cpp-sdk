@@ -18,7 +18,6 @@
 #include <util/string/subst.h>
 #include <string>
 
-#include <util/generic/ptr.h>
 #include <util/generic/yexception.h>
 #include <util/system/fs.h>
 #include <util/folder/path.h>
@@ -444,24 +443,24 @@ int main(int argc, char** argv) {
         std::vector<std::string> freeArgs = res.GetFreeArgs();
         std::string inputFileName = freeArgs[0];
 
-        THolder<IOutputStream> hOut;
+        std::unique_ptr<IOutputStream> hOut;
         IOutputStream* out = &Cout;
 
-        THolder<IOutputStream> headerOut;
+        std::unique_ptr<IOutputStream> headerOut;
 
-        THolder<IOutputStream> jsonOut;
+        std::unique_ptr<IOutputStream> jsonOut;
 
         if (!outputFileName.empty()) {
             NFs::Remove(outputFileName.c_str());
-            hOut.Reset(new TFileOutput(outputFileName.c_str()));
-            out = hOut.Get();
+            hOut.reset(new TFileOutput(outputFileName.c_str()));
+            out = hOut.get();
 
             if (!outputHeaderFileName.empty()) {
-                headerOut.Reset(new TFileOutput(outputHeaderFileName.c_str()));
+                headerOut.reset(new TFileOutput(outputHeaderFileName.c_str()));
             }
 
             if (!outputJsonFileName.empty()) {
-                jsonOut.Reset(new TFileOutput(outputJsonFileName.c_str()));
+                jsonOut.reset(new TFileOutput(outputJsonFileName.c_str()));
             }
         }
 
@@ -472,7 +471,7 @@ int main(int argc, char** argv) {
         }
 
         TEnumParser parser(inputFileName);
-        WriteHeader(includePath, *out, headerOut.Get());
+        WriteHeader(includePath, *out, headerOut.get());
 
         TStringStream jEnums;
         OpenArray(jEnums);
@@ -484,7 +483,7 @@ int main(int argc, char** argv) {
             }
 
             TStringStream jEnum;
-            GenerateEnum(en, *out, &jEnum, headerOut.Get());
+            GenerateEnum(en, *out, &jEnum, headerOut.get());
             OutItem(jEnums, jEnum.Str(), false);
         }
         FinishItems(jEnums);

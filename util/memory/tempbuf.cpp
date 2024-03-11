@@ -116,7 +116,7 @@ namespace {
 
     class TTempBufManager {
         struct TDelete {
-            inline void operator()(TPerThreadedBuf* p) noexcept {
+            inline void operator() (TPerThreadedBuf* p) noexcept {
                 delete p;
             }
         };

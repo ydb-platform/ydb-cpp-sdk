@@ -21,7 +21,7 @@ namespace NCoro::NStack::Tests {
 
         void SetUp() override {
             ASSERT_TRUE(GetAlignedMemory(StackSizeInPages, RawMemory_, AlignedMemory_));
-            Stack_ = MakeHolder<NDetails::TStack>(RawMemory_, AlignedMemory_, StackSize_, "test_stack");
+            Stack_ = std::make_unique<NDetails::TStack>(RawMemory_, AlignedMemory_, StackSize_, "test_stack");
             Guard_.Protect(AlignedMemory_, StackSize_, false);
         }
 
@@ -37,7 +37,7 @@ namespace NCoro::NStack::Tests {
         const size_t StackSize_ = 0;
         char* RawMemory_ = nullptr;
         char* AlignedMemory_ = nullptr;
-        THolder<NDetails::TStack> Stack_;
+        std::unique_ptr<NDetails::TStack> Stack_;
     };
 
     typedef Types<TCanaryGuard, TPageGuard> Implementations;

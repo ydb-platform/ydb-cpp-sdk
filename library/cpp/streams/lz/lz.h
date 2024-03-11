@@ -2,7 +2,7 @@
 
 #include <util/stream/output.h>
 #include <util/stream/input.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/yexception.h>
 
 #include <library/cpp/streams/lz/common/error.h>
@@ -42,7 +42,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
@@ -58,7 +58,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
@@ -76,7 +76,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
@@ -92,7 +92,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
@@ -128,7 +128,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
@@ -144,7 +144,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /** @} */
@@ -159,10 +159,10 @@ private:
  * @param input                         Stream to decompress.
  * @return                              Decompressing proxy input stream.
  */
-TAutoPtr<IInputStream> OpenLzDecompressor(IInputStream* input);
-TAutoPtr<IInputStream> TryOpenLzDecompressor(IInputStream* input);
-TAutoPtr<IInputStream> TryOpenLzDecompressor(const std::string_view& signature, IInputStream* input);
+std::unique_ptr<IInputStream> OpenLzDecompressor(IInputStream* input);
+std::unique_ptr<IInputStream> TryOpenLzDecompressor(IInputStream* input);
+std::unique_ptr<IInputStream> TryOpenLzDecompressor(const std::string_view& signature, IInputStream* input);
 
-TAutoPtr<IInputStream> OpenOwnedLzDecompressor(TAutoPtr<IInputStream> input);
-TAutoPtr<IInputStream> TryOpenOwnedLzDecompressor(TAutoPtr<IInputStream> input);
-TAutoPtr<IInputStream> TryOpenOwnedLzDecompressor(const std::string_view& signature, TAutoPtr<IInputStream> input);
+std::unique_ptr<IInputStream> OpenOwnedLzDecompressor(std::unique_ptr<IInputStream> input);
+std::unique_ptr<IInputStream> TryOpenOwnedLzDecompressor(std::unique_ptr<IInputStream> input);
+std::unique_ptr<IInputStream> TryOpenOwnedLzDecompressor(const std::string_view& signature, std::unique_ptr<IInputStream> input);

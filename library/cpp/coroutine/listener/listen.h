@@ -1,7 +1,9 @@
 #pragma once
 
-#include <util/generic/ptr.h>
+
 #include <util/generic/ylimits.h>
+
+#include <memory>
 
 struct TIpAddress;
 class TContExecutor;
@@ -121,5 +123,5 @@ public:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };

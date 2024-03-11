@@ -2,6 +2,7 @@
 #include "yassert.h"
 #include "spinlock.h"
 #include "thread.h"
+#include "guard.h"
 
 #include <queue>
 #include <util/generic/ylimits.h>
@@ -11,7 +12,6 @@
 #include <atomic>
 #include <mutex>
 #include <tuple>
-
 #include <cstdlib>
 
 namespace {
@@ -24,7 +24,7 @@ namespace {
         };
 
         struct TCmp {
-            inline bool operator()(const TFunc* l, const TFunc* r) const noexcept {
+            inline bool operator() (const TFunc* l, const TFunc* r) const noexcept {
                 return std::tie(l->Priority, l->Number) < std::tie(r->Priority, r->Number);
             }
         };

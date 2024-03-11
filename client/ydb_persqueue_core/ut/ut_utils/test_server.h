@@ -51,12 +51,12 @@ public:
 
         PrepareNetDataFile();
 
-        CleverServer = MakeHolder<NKikimr::Tests::TServer>(ServerSettings);
+        CleverServer = std::make_unique<NKikimr::Tests::TServer>(ServerSettings);
         CleverServer->EnableGRpc(GrpcServerOptions);
 
         Log << TLOG_INFO << "TTestServer started on Port " << Port << " GrpcPort " << GrpcPort;
 
-        AnnoyingClient = MakeHolder<NKikimr::NPersQueueTests::TFlatMsgBusPQClient>(ServerSettings, GrpcPort, databaseName);
+        AnnoyingClient = std::make_unique<NKikimr::NPersQueueTests::TFlatMsgBusPQClient>(ServerSettings, GrpcPort, databaseName);
         if (doClientInit) {
             AnnoyingClient->FullInit();
             AnnoyingClient->CheckClustersList(CleverServer->GetRuntime());
@@ -99,7 +99,7 @@ public:
     bool PrepareNetDataFile(const std::string& content = "::1/128\tdc1") {
         if (NetDataFile)
             return false;
-        NetDataFile = MakeHolder<TTempFileHandle>();
+        NetDataFile = std::make_unique<TTempFileHandle>();
         NetDataFile->Write(content.Data(), content.Size());
         NetDataFile->FlushData();
         ServerSettings.NetClassifierConfig.SetNetDataFilePath(NetDataFile->Name());
@@ -155,14 +155,14 @@ public:
     ui16 Port;
     ui16 GrpcPort;
 
-    THolder<NKikimr::Tests::TServer> CleverServer;
+    std::unique_ptr<NKikimr::Tests::TServer> CleverServer;
     NKikimr::Tests::TServerSettings ServerSettings;
     NYdbGrpc::TServerOptions GrpcServerOptions;
-    THolder<TTempFileHandle> NetDataFile;
+    std::unique_ptr<TTempFileHandle> NetDataFile;
 
     TLog Log = CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG);
 
-    THolder<NKikimr::NPersQueueTests::TFlatMsgBusPQClient> AnnoyingClient;
+    std::unique_ptr<NKikimr::NPersQueueTests::TFlatMsgBusPQClient> AnnoyingClient;
 
 
     static const std::vector<NKikimrServices::EServiceKikimr> LOGGED_SERVICES;

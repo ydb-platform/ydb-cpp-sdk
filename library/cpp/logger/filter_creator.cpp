@@ -1,13 +1,13 @@
 #include "filter_creator.h"
 #include "filter.h"
 
-TFilteredBackendCreator::TFilteredBackendCreator(THolder<ILogBackendCreator> slave, ELogPriority priority)
+TFilteredBackendCreator::TFilteredBackendCreator(std::unique_ptr<ILogBackendCreator> slave, ELogPriority priority)
     : Slave(std::move(slave))
     , Priority(priority)
 {}
 
-THolder<TLogBackend> TFilteredBackendCreator::DoCreateLogBackend() const {
-    return MakeHolder<TFilteredLogBackend>(Slave->CreateLogBackend(), Priority);
+std::unique_ptr<TLogBackend> TFilteredBackendCreator::DoCreateLogBackend() const {
+    return std::make_unique<TFilteredLogBackend>(Slave->CreateLogBackend(), Priority);
 }
 
 bool TFilteredBackendCreator::Init(const IInitContext& ctx) {

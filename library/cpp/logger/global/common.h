@@ -4,7 +4,7 @@
 
 #include <util/folder/path.h>
 #include <util/generic/singleton.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/yexception.h>
 #include <util/string/printf.h>
 #include <util/system/src_location.h>
@@ -29,20 +29,20 @@ namespace NLoggingImpl {
             {
             }
 
-            THolder<T> Instance;
+            std::unique_ptr<T> Instance;
         };
 
     public:
         inline static bool Usage() {
-            return SingletonWithPriority<TPtr, SingletonPriority>()->Instance.Get();
+            return SingletonWithPriority<TPtr, SingletonPriority>()->Instance.get();
         }
 
         inline static T* Get() {
-            return SingletonWithPriority<TPtr, SingletonPriority>()->Instance.Get();
+            return SingletonWithPriority<TPtr, SingletonPriority>()->Instance.get();
         }
 
         inline static void Set(T* v) {
-            SingletonWithPriority<TPtr, SingletonPriority>()->Instance.Reset(v);
+            SingletonWithPriority<TPtr, SingletonPriority>()->Instance.reset(v);
         }
     };
 

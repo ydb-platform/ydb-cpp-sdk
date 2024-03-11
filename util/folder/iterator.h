@@ -3,7 +3,7 @@
 #include "fts.h"
 
 #include <util/system/error.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/iterator.h>
 #include <util/generic/yexception.h>
 #include <util/generic/ylimits.h>
@@ -14,9 +14,7 @@
 
 class TDirIterator: public TInputRangeAdaptor<TDirIterator> {
     struct TFtsDestroy {
-        static inline void Destroy(FTS* f) noexcept {
-            yfts_close(f);
-        }
+        void operator() (FTS* f) noexcept;
     };
 
 public:
@@ -73,7 +71,7 @@ public:
         Trees_[1] = nullptr;
 
         ClearLastSystemError();
-        FileTree_.Reset(yfts_open(Trees_, Options_.FtsOptions, Options_.Cmp));
+        FileTree_.reset(yfts_open(Trees_, Options_.FtsOptions, Options_.Cmp));
 
         const int err = LastSystemError();
 
@@ -83,11 +81,11 @@ public:
     }
 
     inline FTSENT* Next() {
-        FTSENT* ret = yfts_read(FileTree_.Get());
+        FTSENT* ret = yfts_read(FileTree_.get());
 
         if (ret) {
             if ((size_t)(ret->fts_level + 1) > Options_.MaxLevel) {
-                yfts_set(FileTree_.Get(), ret, FTS_SKIP);
+                yfts_set(FileTree_.get(), ret, FTS_SKIP);
             }
         } else {
             const int err = LastSystemError();
@@ -101,12 +99,12 @@ public:
     }
 
     inline void Skip(FTSENT* ent) {
-        yfts_set(FileTree_.Get(), ent, FTS_SKIP);
+        yfts_set(FileTree_.get(), ent, FTS_SKIP);
     }
 
 private:
     TOptions Options_;
     std::string Path_;
     char* Trees_[2];
-    THolder<FTS, TFtsDestroy> FileTree_;
+    std::unique_ptr<FTS, TFtsDestroy> FileTree_;
 };

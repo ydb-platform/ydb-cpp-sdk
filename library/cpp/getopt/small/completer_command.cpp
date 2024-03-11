@@ -158,7 +158,7 @@ namespace NLastGetopt {
         std::string ModName_;
     };
 
-    THolder<TMainClassArgs> MakeCompletionMod(const TModChooser* modChooser, std::string command, std::string modName) {
-        return MakeHolder<TCompleterMode>(modChooser, std::move(command), std::move(modName));
+    std::unique_ptr<TMainClassArgs> MakeCompletionMod(const TModChooser* modChooser, std::string command, std::string modName) {
+        return std::make_unique<TCompleterMode>(modChooser, std::move(command), std::move(modName));
     }
 }

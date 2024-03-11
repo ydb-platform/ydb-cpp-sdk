@@ -2,14 +2,14 @@
 
 #include <util/charset/recode_result.h>
 #include <util/charset/utf8.h>
-#include <util/generic/ptr.h>
-#include <string>
 #include <util/system/defaults.h>
 
 #include "codepage.h"
 #include "doccodes.h"
 #include "iconv.h"
 #include "wide.h"
+
+#include <string>
 
 namespace NCodepagePrivate {
     inline RECODE_RESULT _recodeCopy(const char* in, char* out, size_t in_size, size_t out_size, size_t& in_readed, size_t& out_writed) {

@@ -7,6 +7,7 @@
 #include "typetraits.h"
 #include "singleton.h"
 
+#include <memory>
 #include <type_traits>
 #include <utility>
 
@@ -89,10 +90,18 @@ public:
 class TFree {
 public:
     template <class T>
-    static inline void Destroy(T* t) noexcept {
+    inline void operator() (T* t) noexcept {
         DoDestroy((void*)t);
     }
 
+    template <class T>
+    static inline void Destroy(T* t) noexcept {
+        DoDestroy((void*)t);
+    }
+    template <class T>
+    void operator() (T* t) noexcept {
+        DoDestroy((void*)t);
+    }
 private:
     /*
      * we do not want dependancy on cstdlib here...
@@ -819,7 +828,7 @@ public:
     }
 
     template <class TT, class = TGuardConversion<T, TT>>
-    inline TSharedPtr(THolder<TT>&& t) {
+    inline TSharedPtr(std::unique_ptr<TT>&& t) {
         Init(t);
     }
 
@@ -934,6 +943,11 @@ private:
     inline void Init(X& t) {
         C_ = !!t ? new C(1) : nullptr;
         T_ = t.Release();
+    }
+    template <class X>
+    inline void Init(std::unique_ptr<X>& t) {
+        C_ = !!t ? new C(1) : nullptr;
+        T_ = t.release();
     }
 
     inline void Ref() noexcept {

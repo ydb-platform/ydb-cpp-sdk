@@ -1,8 +1,6 @@
 #include "init.h"
 
 #include <util/generic/singleton.h>
-
-#include <util/generic/ptr.h>
 #include <util/generic/buffer.h>
 
 #include <util/system/yassert.h>
@@ -17,6 +15,7 @@
 #include <openssl/rand.h>
 #include <openssl/conf.h>
 #include <openssl/crypto.h>
+
 #include <mutex>
 #include <vector>
 
@@ -27,7 +26,7 @@ namespace {
                 : Mutexes(CRYPTO_num_locks())
             {
                 for (auto& mpref : Mutexes) {
-                    mpref.Reset(new std::mutex());
+                    mpref.reset(new std::mutex());
                 }
             }
 
@@ -41,7 +40,7 @@ namespace {
                 }
             }
 
-            std::vector<TAutoPtr<std::mutex>> Mutexes;
+            std::vector<std::unique_ptr<std::mutex>> Mutexes;
         };
 
         inline TInitSsl() {
