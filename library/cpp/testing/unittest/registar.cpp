@@ -479,7 +479,7 @@ unsigned NUnitTest::TTestFactory::Execute() {
             continue;
         }
 
-        THolder<TTestBase> test(factory->ConstructTest());
+        std::unique_ptr<TTestBase> test(factory->ConstructTest());
 
 #ifdef _unix_ // on Windows RTTI causes memory leaks
         std::string type = test->TypeId();

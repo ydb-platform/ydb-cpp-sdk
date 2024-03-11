@@ -15,6 +15,7 @@
 #include <util/string/hex.h>
 
 #include <deque>
+#include <memory>
 
 #include "login.h"
 
@@ -22,7 +23,7 @@ namespace NLogin {
 
 struct TLoginProvider::TImpl {
 
-    THolder<NArgonish::IArgon2Base> ArgonHasher;
+    std::unique_ptr<NArgonish::IArgon2Base> ArgonHasher;
 
     TImpl() {
         ArgonHasher = Default<NArgonish::TArgon2Factory>().Create(

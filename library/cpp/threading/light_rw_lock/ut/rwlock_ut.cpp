@@ -1,6 +1,6 @@
 #include <library/cpp/threading/light_rw_lock/lightrwlock.h>
 #include <library/cpp/testing/unittest/registar.h>
-#include <util/generic/ptr.h>
+
 #include <util/random/random.h>
 #include <util/thread/pool.h>
 
@@ -90,7 +90,7 @@ class TRWMutexTest: public TTestBase {
         }
 
         void Process(void*) override {
-            THolder<TThreadTask> This(this);
+            std::unique_ptr<TThreadTask> This(this);
 
             (this->*Func_)();
         }
@@ -166,7 +166,7 @@ class TRWMutexTest: public TTestBase {
 
 private:
 #define RUN_CYCLE(what, count)                                                      \
-    Data_.Reset(MakeHolder<TSharedData>());                                         \
+    Data_.Reset(std::make_unique<TSharedData>());                                         \
     Q_.Start(count);                                                                \
     for (size_t i = 0; i < count; ++i) {                                            \
         UNIT_ASSERT(Q_.Add(new TThreadTask(&TThreadTask::what, *Data_, i, count))); \
@@ -189,7 +189,7 @@ private:
 
 #undef RUN_CYCLE
 private:
-    THolder<TSharedData> Data_;
+    std::unique_ptr<TSharedData> Data_;
     TThreadPool Q_;
 };
 

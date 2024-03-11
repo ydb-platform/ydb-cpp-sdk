@@ -10,7 +10,7 @@ extern "C" int LLVMFuzzerTestOneInput(const ui8* buf, size_t size) {
     try {
         std::string_view data(reinterpret_cast<const char*>(buf), size);
         auto encoder = EncoderFake();
-        DecodePrometheus(data, encoder.Get());
+        DecodePrometheus(data, encoder.get());
     } catch (...) {
     }
 

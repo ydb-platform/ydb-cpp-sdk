@@ -113,7 +113,7 @@ namespace NMonitoring {
 
         void operator()(TCont* c) {
             try {
-                THolder<TConnection> me(this);
+                std::unique_ptr<TConnection> me(this);
                 TContIO io(Socket, c);
                 THttpInput in(&io);
                 THttpOutput out(&io, &in);
@@ -156,9 +156,9 @@ namespace NMonitoring {
     }
 
     void TCoHttpServer::OnAcceptFull(const TAcceptFull& acc) {
-        THolder<TConnection> conn(new TConnection(acc, *this));
+        std::unique_ptr<TConnection> conn(new TConnection(acc, *this));
         Executor.Create(*conn, "client");
-        Y_UNUSED(conn.Release());
+        Y_UNUSED(conn.release());
     }
 
     void TCoHttpServer::OnError() {
@@ -195,7 +195,7 @@ namespace NMonitoring {
         }
 
         bool Reply(void*) override {
-            ServeRequest(Input(), Output(), NAddr::GetPeerAddr(Socket()).Get(), Parent.Handler);
+            ServeRequest(Input(), Output(), NAddr::GetPeerAddr(Socket()).get(), Parent.Handler);
             return true;
         }
 

@@ -12,7 +12,7 @@ class SDKTestSetup {
 protected:
     std::string TestCaseName;
 
-    THolder<TTempFileHandle> NetDataFile;
+    std::unique_ptr<TTempFileHandle> NetDataFile;
     THashMap<std::string, NKikimr::NPersQueueTests::TPQTestClusterInfo> DataCenters;
     std::string LocalDC = "dc1";
     TTestServer Server;
@@ -129,7 +129,7 @@ public:
     }
 
     void SetNetDataViaFile(const std::string& netDataTsv) {
-        NetDataFile = MakeHolder<TTempFileHandle>();
+        NetDataFile = std::make_unique<TTempFileHandle>();
         NetDataFile->Write(netDataTsv.Data(), netDataTsv.Size());
         NetDataFile->FlushData();
         Server.ServerSettings.NetClassifierConfig.SetNetDataFilePath(NetDataFile->Name());
@@ -149,7 +149,7 @@ public:
     }
 
     template <class TConsumerOrProducer>
-    void Start(const THolder<TConsumerOrProducer>& obj) {
+    void Start(const std::unique_ptr<TConsumerOrProducer>& obj) {
         auto startFuture = obj->Start();
         const auto& initResponse = startFuture.GetValueSync();
         UNIT_ASSERT_C(!initResponse.Response.HasError(), "Failed to start: " << initResponse.Response);

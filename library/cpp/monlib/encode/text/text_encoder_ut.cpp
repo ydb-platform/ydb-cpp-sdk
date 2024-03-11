@@ -11,7 +11,7 @@ Y_UNIT_TEST_SUITE(TTextText) {
     std::string EncodeToString(bool humanReadableTs, TFunc fn) {
         std::stringStream ss;
         IMetricEncoderPtr encoder = EncoderText(&ss, humanReadableTs);
-        fn(encoder.Get());
+        fn(encoder.get());
         return ss.Str();
     }
 

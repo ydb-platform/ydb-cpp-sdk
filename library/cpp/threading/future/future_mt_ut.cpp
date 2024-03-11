@@ -47,8 +47,8 @@ namespace {
         std::atomic<i64> Waiting_;
     };
 
-    THolder<TThreadPool> MakePool() {
-        auto pool = MakeHolder<TThreadPool>(TThreadPool::TParams{}.SetBlocking(false).SetCatching(false));
+    std::unique_ptr<TThreadPool> MakePool() {
+        auto pool = std::make_unique<TThreadPool>(TThreadPool::TParams{}.SetBlocking(false).SetCatching(false));
         pool->Start(8);
         return pool;
     }

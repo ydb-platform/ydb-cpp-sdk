@@ -4,7 +4,7 @@
 #include <util/system/context.h>
 #include <util/generic/cast.h>
 #include <util/memory/addstorage.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/intrlist.h>
 #include <util/generic/scope.h>
 
@@ -495,7 +495,7 @@ void TLzmaCompress::DoWrite(const void* buf, size_t len) {
 }
 
 void TLzmaCompress::DoFinish() {
-    THolder<TImpl> impl(Impl_.Release());
+    std::unique_ptr<TImpl> impl(Impl_.release());
 
     if (impl) {
         impl->Finish();

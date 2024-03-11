@@ -6,14 +6,14 @@
 Y_UNIT_TEST_SUITE(StorePolicy) {
     Y_UNIT_TEST(Compileability) {
         // construction
-        TAutoEmbedOrPtrPolicy<THolder<int>>(MakeHolder<int>(1));
+        TAutoEmbedOrPtrPolicy<std::unique_ptr<int>>(std::make_unique<int>(1));
         TAutoEmbedOrPtrPolicy<std::vector<int>>(std::vector<int>{1, 2, 3});
-        auto a = MakeHolder<int>(42);
-        TAutoEmbedOrPtrPolicy<THolder<int>&>{a};
+        auto a = std::make_unique<int>(42);
+        TAutoEmbedOrPtrPolicy<std::unique_ptr<int>&>{a};
 
         // const
-        (**TAutoEmbedOrPtrPolicy<THolder<int>>(MakeHolder<int>(1)).Ptr())++; // ok
-        (**TAutoEmbedOrPtrPolicy<THolder<int>&>(a).Ptr())++;                 // ok
+        (**TAutoEmbedOrPtrPolicy<std::unique_ptr<int>>(std::make_unique<int>(1)).Ptr())++; // ok
+        (**TAutoEmbedOrPtrPolicy<std::unique_ptr<int>&>(a).Ptr())++;                 // ok
 
         const std::vector<int> b = {0};
         auto bValue = (*TAutoEmbedOrPtrPolicy<const std::vector<int>&>(b).Ptr())[0]; // ok
@@ -74,7 +74,7 @@ Y_UNIT_TEST_SUITE(StorePolicy) {
 
         UNIT_ASSERT_VALUES_EQUAL(a.size(), 0);
 
-        THolder<int> b = MakeHolder<int>(42);
+        std::unique_ptr<int> b = std::make_unique<int>(42);
         FunctionTakingObjectDefaultObject(std::move(b), [](auto& holder) {
             static_assert(!std::is_copy_assignable<decltype(holder)>::value);
             UNIT_ASSERT_VALUES_EQUAL(**holder.Ptr(), 42);

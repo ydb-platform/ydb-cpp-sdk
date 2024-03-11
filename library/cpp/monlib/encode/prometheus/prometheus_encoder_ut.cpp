@@ -16,7 +16,7 @@ Y_UNIT_TEST_SUITE(TPrometheusEncoderTest) {
     std::string EncodeToString(TFunc fn) {
         std::stringStream ss;
         IMetricEncoderPtr encoder = EncoderPrometheus(&ss);
-        fn(encoder.Get());
+        fn(encoder.get());
         return ss.Str();
     }
 

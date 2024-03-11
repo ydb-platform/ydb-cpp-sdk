@@ -6,8 +6,6 @@
 
 #include "wait_policy.h"
 
-#include <util/generic/ptr.h>
-
 #include <library/cpp/threading/future/core/future.h>
 
 #include <util/system/spinlock.h>

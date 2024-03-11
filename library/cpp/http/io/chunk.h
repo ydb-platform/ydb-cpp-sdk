@@ -3,7 +3,7 @@
 #include <util/stream/input.h>
 #include <util/stream/output.h>
 #include <util/generic/algorithm.h>
-#include <util/generic/ptr.h>
+
 
 #include <optional>
 
@@ -27,7 +27,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /// Вывод данных порциями.
@@ -45,6 +45,6 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 /// @}

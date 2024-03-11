@@ -6,24 +6,18 @@
 #include <string_view>
 #include <string>
 
+#include <memory>
 #include <map>
 
 //smart pointers
 template <class T, class D>
-struct TDumper<TAutoPtr<T, D>> {
+struct TDumper<std::unique_ptr<T, D>> {
     template <class S>
-    static inline void Dump(S& s, const TAutoPtr<T, D>& v) {
-        s << DumpRaw("TAutoPtr(") << v.Get() << DumpRaw(")");
+    static inline void Dump(S& s, const std::unique_ptr<T, D>& v) {
+        s << DumpRaw("std::unique_ptr(") << v.get() << DumpRaw(")");
     }
 };
 
-template <class T, class D>
-struct TDumper<THolder<T, D>> {
-    template <class S>
-    static inline void Dump(S& s, const THolder<T, D>& v) {
-        s << DumpRaw("THolder(") << v.Get() << DumpRaw(")");
-    }
-};
 
 template <class T, class Ops>
 struct TDumper<TIntrusivePtr<T, Ops>> {
@@ -33,11 +27,11 @@ struct TDumper<TIntrusivePtr<T, Ops>> {
     }
 };
 
-template <class T, class C, class D>
-struct TDumper<TSharedPtr<T, C, D>> {
+template <class T>
+struct TDumper<std::shared_ptr<T>> {
     template <class S>
-    static inline void Dump(S& s, const TSharedPtr<T, C, D>& v) {
-        s << DumpRaw("TSharedPtr(") << v.Get() << DumpRaw(")");
+    static inline void Dump(S& s, const std::shared_ptr<T>& v) {
+        s << DumpRaw("std::shared_ptr(") << v.get() << DumpRaw(")");
     }
 };
 

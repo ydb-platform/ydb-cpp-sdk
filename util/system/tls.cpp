@@ -67,10 +67,10 @@ namespace {
                 TStoredValue*& ret = *ValuePtr((size_t)key->Key);
 
                 if (!ret) {
-                    THolder<TStoredValue> sv(new TStoredValue(key));
+                    std::unique_ptr<TStoredValue> sv(new TStoredValue(key));
 
-                    Storage_.PushFront(sv.Get());
-                    ret = sv.Release();
+                    Storage_.PushFront(sv.get());
+                    ret = sv.release();
                 }
 
                 return ret;
@@ -205,7 +205,7 @@ namespace {
         }
 
     private:
-        using TPTSRef = THolder<TPerThreadStorage>;
+        using TPTSRef = std::unique_ptr<TPerThreadStorage>;
         std::mutex Lock_;
         THashMap<TThread::TId, TPTSRef> Datas_;
     };

@@ -300,7 +300,7 @@ struct TContMachineContext::TImpl {
     }
 
     TAutoEvent Event;
-    THolder<TThread> Thread;
+    std::unique_ptr<TThread> Thread;
     ITrampoLine* TL;
     bool Finish;
 };
@@ -319,7 +319,7 @@ TContMachineContext::~TContMachineContext() {
 }
 
 void TContMachineContext::SwitchTo(TContMachineContext* next) noexcept {
-    Impl_->SwitchTo(next->Impl_.Get());
+    Impl_->SwitchTo(next->Impl_.get());
 }
 #endif
 

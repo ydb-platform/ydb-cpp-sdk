@@ -136,7 +136,7 @@ std::string NAddr::PrintHostAndPort(const IRemoteAddr& addr) {
 }
 
 IRemoteAddrPtr NAddr::GetSockAddr(SOCKET s) {
-    auto addr = MakeHolder<TOpaqueAddr>();
+    auto addr = std::make_unique<TOpaqueAddr>();
 
     if (getsockname(s, addr->MutableAddr(), addr->LenPtr()) < 0) {
         ythrow TSystemError() << "getsockname() failed";
@@ -146,7 +146,7 @@ IRemoteAddrPtr NAddr::GetSockAddr(SOCKET s) {
 }
 
 IRemoteAddrPtr NAddr::GetPeerAddr(SOCKET s) {
-    auto addr = MakeHolder<TOpaqueAddr>();
+    auto addr = std::make_unique<TOpaqueAddr>();
 
     if (getpeername(s, addr->MutableAddr(), addr->LenPtr()) < 0) {
         ythrow TSystemError() << "getpeername() failed";

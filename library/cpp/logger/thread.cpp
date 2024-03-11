@@ -4,7 +4,7 @@
 #include <util/thread/pool.h>
 #include <util/system/event.h>
 #include <util/memory/addstorage.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/yexception.h>
 
 class TThreadedLogBackend::TImpl {
@@ -22,7 +22,7 @@ class TThreadedLogBackend::TImpl {
 
     private:
         void Process(void* /*tsr*/) override {
-            THolder<TRec> This(this);
+            std::unique_ptr<TRec> This(this);
 
             Parent_->Slave_->WriteData(*this);
         }
@@ -70,10 +70,10 @@ public:
     }
 
     inline void WriteData(const TLogRecord& rec) {
-        THolder<TRec> obj(new (rec.Len) TRec(this, rec));
+        std::unique_ptr<TRec> obj(new (rec.Len) TRec(this, rec));
 
-        if (Queue_.Add(obj.Get())) {
-            Y_UNUSED(obj.Release());
+        if (Queue_.Add(obj.get())) {
+            Y_UNUSED(obj.release());
             return;
         }
 
@@ -150,14 +150,14 @@ size_t TThreadedLogBackend::QueueSize() const {
 }
 
 TOwningThreadedLogBackend::TOwningThreadedLogBackend(TLogBackend* slave)
-    : THolder<TLogBackend>(slave)
-    , TThreadedLogBackend(Get())
+    : std::unique_ptr<TLogBackend>(slave)
+    , TThreadedLogBackend(get())
 {
 }
 
 TOwningThreadedLogBackend::TOwningThreadedLogBackend(TLogBackend* slave, size_t queuelen, std::function<void()> queueOverflowCallback)
-    : THolder<TLogBackend>(slave)
-    , TThreadedLogBackend(Get(), queuelen, std::move(queueOverflowCallback))
+    : std::unique_ptr<TLogBackend>(slave)
+    , TThreadedLogBackend(get(), queuelen, std::move(queueOverflowCallback))
 {
 }
 

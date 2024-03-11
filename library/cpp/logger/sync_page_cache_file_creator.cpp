@@ -1,8 +1,8 @@
 #include "sync_page_cache_file_creator.h"
 #include "sync_page_cache_file.h"
 
-THolder<TLogBackend> TSyncPageCacheFileLogBackendCreator::DoCreateLogBackend() const {
-    return MakeHolder<TSyncPageCacheFileLogBackend>(Path, MaxBufferSize, MaxPendingCacheSize);
+std::unique_ptr<TLogBackend> TSyncPageCacheFileLogBackendCreator::DoCreateLogBackend() const {
+    return std::make_unique<TSyncPageCacheFileLogBackend>(Path, MaxBufferSize, MaxPendingCacheSize);
 }
 
 

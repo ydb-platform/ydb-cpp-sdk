@@ -8,8 +8,6 @@
 #include <client/ydb_retry/retry.h>
 #include <client/ydb_types/request_settings.h>
 
-#include <util/generic/ptr.h>
-
 namespace NYdb {
     class TProtoAccessor;
 

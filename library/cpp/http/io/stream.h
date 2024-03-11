@@ -3,11 +3,11 @@
 #include "headers.h"
 
 #include <util/stream/output.h>
-#include <util/generic/ptr.h>
-#include <string>
-#include <string_view>
 #include <util/generic/yexception.h>
 #include <util/generic/array_ref.h>
+
+#include <string>
+#include <string_view>
 
 class TSocket;
 
@@ -91,7 +91,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /// Передача запроса HTTP-серверу.
@@ -163,7 +163,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /// Возвращает код состояния из ответа сервера.

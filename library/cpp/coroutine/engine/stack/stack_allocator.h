@@ -4,7 +4,7 @@
 #include "stack_common.h"
 
 #include <util/generic/noncopyable.h>
-#include <util/generic/ptr.h>
+
 
 #include <cstdint>
 #include <optional>
@@ -44,7 +44,7 @@ namespace NCoro::NStack {
         virtual void DoFreeStack(NDetails::TStack& stack) noexcept = 0;
     };
 
-    THolder<IAllocator> GetAllocator(std::optional<TPoolAllocatorSettings> poolSettings, EGuard guardType);
+    std::unique_ptr<IAllocator> GetAllocator(std::optional<TPoolAllocatorSettings> poolSettings, EGuard guardType);
 
 }
 

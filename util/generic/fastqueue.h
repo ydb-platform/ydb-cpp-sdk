@@ -29,7 +29,7 @@ public:
     inline T Pop() {
         Y_ASSERT(!this->Empty());
 
-        THolder<THelper> tmp(Queue_.PopBack());
+        std::unique_ptr<THelper> tmp(Queue_.PopBack());
         --Size_;
 
         return tmp->Obj;

@@ -2,9 +2,10 @@
 
 #include "backend.h"
 
-#include <util/generic/ptr.h>
+
 
 #include <functional>
+#include <memory>
 
 class TThreadedLogBackend: public TLogBackend {
 public:
@@ -23,10 +24,10 @@ public:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
-class TOwningThreadedLogBackend: private THolder<TLogBackend>, public TThreadedLogBackend {
+class TOwningThreadedLogBackend: private std::unique_ptr<TLogBackend>, public TThreadedLogBackend {
 public:
     TOwningThreadedLogBackend(TLogBackend* slave);
     TOwningThreadedLogBackend(TLogBackend* slave, size_t queuelen, std::function<void()> queueOverflowCallback = {});

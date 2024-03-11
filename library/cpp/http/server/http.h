@@ -6,7 +6,7 @@
 #include <util/thread/pool.h>
 #include <library/cpp/http/io/stream.h>
 #include <util/memory/blob.h>
-#include <util/generic/ptr.h>
+
 
 #include <library/cpp/deprecated/atomic/atomic.h>
 
@@ -96,7 +96,7 @@ private:
     bool MaxRequestsReached() const;
 
 private:
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
@@ -148,8 +148,8 @@ public:
     std::string RequestString;
 
 private:
-    THolder<TClientConnection> Conn_;
-    THolder<THttpServerConn> HttpConn_;
+    std::unique_ptr<TClientConnection> Conn_;
+    std::unique_ptr<THttpServerConn> HttpConn_;
 };
 
 class TRequestReplier: public TClientRequest {

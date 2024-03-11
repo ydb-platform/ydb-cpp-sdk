@@ -3,10 +3,11 @@
 #include "fwd.h"
 #include "factory.h"
 
+#include <memory>
 #include <util/system/yassert.h>
 #include <util/system/defaults.h>
 #include <util/generic/yexception.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/noncopyable.h>
 #include <functional>
 
@@ -69,7 +70,7 @@ public:
     }
 
     void Process(void*) override {
-        THolder<TThrFuncObj> self(this);
+        std::unique_ptr<TThrFuncObj> self(this);
         Func();
     }
 
@@ -155,7 +156,7 @@ public:
         Y_ENSURE_EX(AddFunc(std::forward<T>(func)), TThreadPoolException() << "can not add function to queue");
     }
 
-    void SafeAddAndOwn(THolder<IObjectInQueue> obj);
+    void SafeAddAndOwn(std::unique_ptr<IObjectInQueue> obj);
 
     /**
      * Add object to queue, run obj->Proccess in other threads.
@@ -167,15 +168,15 @@ public:
 
     template <class T>
     Y_WARN_UNUSED_RESULT bool AddFunc(T&& func) {
-        THolder<IObjectInQueue> wrapper(MakeThrFuncObj(std::forward<T>(func)));
-        bool added = Add(wrapper.Get());
+        std::unique_ptr<IObjectInQueue> wrapper(MakeThrFuncObj(std::forward<T>(func)));
+        bool added = Add(wrapper.get());
         if (added) {
-            Y_UNUSED(wrapper.Release());
+            Y_UNUSED(wrapper.release());
         }
         return added;
     }
 
-    bool AddAndOwn(THolder<IObjectInQueue> obj) Y_WARN_UNUSED_RESULT;
+    bool AddAndOwn(std::unique_ptr<IObjectInQueue> obj) Y_WARN_UNUSED_RESULT;
     virtual void Start(size_t threadCount, size_t queueSizeLimit = 0) = 0;
     /** Wait for completion of all scheduled objects, and then exit */
     virtual void Stop() noexcept = 0;
@@ -285,7 +286,7 @@ public:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
@@ -312,7 +313,7 @@ public:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /** Behave like TThreadPool or TAdaptiveThreadPool, choosen by thrnum parameter of Start()  */
@@ -331,7 +332,7 @@ public:
     size_t Size() const noexcept override;
 
 private:
-    THolder<IThreadPool> Slave_;
+    std::unique_ptr<IThreadPool> Slave_;
 };
 
 /**
@@ -379,8 +380,8 @@ private:
     TSlave* Slave_;
 };
 
-inline void Delete(THolder<IThreadPool> q) {
-    if (q.Get()) {
+inline void Delete(std::unique_ptr<IThreadPool> q) {
+    if (q.get()) {
         q->Stop();
     }
 }
@@ -389,4 +390,4 @@ inline void Delete(THolder<IThreadPool> q) {
  * Creates and starts TThreadPool if threadsCount > 1, or TFakeThreadPool otherwise
  * You could specify blocking and catching modes for TThreadPool only
  */
-THolder<IThreadPool> CreateThreadPool(size_t threadCount, size_t queueSizeLimit = 0, const IThreadPool::TParams& params = {});
+std::unique_ptr<IThreadPool> CreateThreadPool(size_t threadCount, size_t queueSizeLimit = 0, const IThreadPool::TParams& params = {});

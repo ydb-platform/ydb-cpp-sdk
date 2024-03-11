@@ -5,7 +5,7 @@
 #include <util/generic/bt_exception.h>
 #include <util/generic/hash.h>
 #include <util/generic/intrlist.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/scope.h>
 #include <util/generic/set.h>
 #include <util/generic/typetraits.h>
@@ -921,14 +921,14 @@ public:                       \
 #define UNIT_TEST_SUITE_REGISTRATION(T) \
     static const ::NUnitTest::TTestBaseFactory<T> Y_GENERATE_UNIQUE_ID(UTREG_);
 
-#define Y_UNIT_TEST_SUITE_IMPL_F(N, T, F)                                                                          \
+#define Y_UNIT_TEST_SUITE_IMPL_F(N, T, F)                                                                               \
     namespace NTestSuite##N {                                                                                           \
         class TCurrentTestCase: public F {                                                                              \
         };                                                                                                              \
         class TCurrentTest: public T {                                                                                  \
         private:                                                                                                        \
-            typedef std::function<THolder<NUnitTest::TBaseTestCase>()> TTestCaseFactory;                                \
-            typedef std::vector<TTestCaseFactory> TTests;                                                                   \
+            typedef std::function<std::unique_ptr<NUnitTest::TBaseTestCase>()> TTestCaseFactory;                        \
+            typedef std::vector<TTestCaseFactory> TTests;                                                               \
                                                                                                                         \
             static TTests& Tests() {                                                                                    \
                 static TTests tests;                                                                                    \
@@ -936,17 +936,17 @@ public:                       \
             }                                                                                                           \
                                                                                                                         \
         public:                                                                                                         \
-            static std::string StaticName() {                                                                               \
+            static std::string StaticName() {                                                                           \
                 return #N;                                                                                              \
             }                                                                                                           \
-            virtual std::string Name() const noexcept {                                                                     \
+            virtual std::string Name() const noexcept {                                                                 \
                 return StaticName();                                                                                    \
             }                                                                                                           \
                                                                                                                         \
             static void AddTest(const char* name,                                                                       \
                 const std::function<void(NUnitTest::TTestContext&)>& body, bool forceFork)                              \
             {                                                                                                           \
-                Tests().emplace_back([=]{ return MakeHolder<NUnitTest::TBaseTestCase>(name, body, forceFork); });       \
+                Tests().emplace_back([=]{ return std::make_unique<NUnitTest::TBaseTestCase>(name, body, forceFork); });       \
             }                                                                                                           \
                                                                                                                         \
             static void AddTest(TTestCaseFactory testCaseFactory) {                                                     \
@@ -1007,27 +1007,27 @@ public:                       \
 #define Y_UNIT_TEST_SUITE_F(N, F) Y_UNIT_TEST_SUITE_IMPL_F(N, TTestBase, F)
 #define RUSAGE_UNIT_TEST_SUITE(N) Y_UNIT_TEST_SUITE_IMPL(N, NUnitTest::TRusageTest, ::NUnitTest::TBaseTestCase)
 
-#define Y_UNIT_TEST_IMPL_REGISTER(N, FF, F)            \
-    struct TTestCase##N : public F {                        \
-        TTestCase##N()                                      \
-        {                                                   \
-            Name_ = #N;                                     \
-            ForceFork_ = FF;                                \
-        }                                                   \
-        static THolder<NUnitTest::TBaseTestCase> Create() { \
-            return ::MakeHolder<TTestCase##N>();            \
-        }                                                   \
-        void Execute_(NUnitTest::TTestContext&) override;   \
-    };                                                      \
-    struct TTestRegistration##N {                           \
-        TTestRegistration##N() {                            \
-            TCurrentTest::AddTest(TTestCase##N::Create);    \
-        }                                                   \
-    };                                                      \
+#define Y_UNIT_TEST_IMPL_REGISTER(N, FF, F)                         \
+    struct TTestCase##N : public F {                                \
+        TTestCase##N()                                              \
+        {                                                           \
+            Name_ = #N;                                             \
+            ForceFork_ = FF;                                        \
+        }                                                           \
+        static std::unique_ptr<NUnitTest::TBaseTestCase> Create() { \
+            return ::std::make_unique<TTestCase##N>();              \
+        }                                                           \
+        void Execute_(NUnitTest::TTestContext&) override;           \
+    };                                                              \
+    struct TTestRegistration##N {                                   \
+        TTestRegistration##N() {                                    \
+            TCurrentTest::AddTest(TTestCase##N::Create);            \
+        }                                                           \
+    };                                                              \
     static const TTestRegistration##N testRegistration##N;
 
-#define Y_UNIT_TEST_IMPL(N, FF, F)      \
-    Y_UNIT_TEST_IMPL_REGISTER(N, FF, F) \
+#define Y_UNIT_TEST_IMPL(N, FF, F)                                  \
+    Y_UNIT_TEST_IMPL_REGISTER(N, FF, F)                             \
     void TTestCase##N::Execute_(NUnitTest::TTestContext& ut_context Y_DECLARE_UNUSED)
 
 #define Y_UNIT_TEST(N) Y_UNIT_TEST_IMPL(N, false, TCurrentTestCase)

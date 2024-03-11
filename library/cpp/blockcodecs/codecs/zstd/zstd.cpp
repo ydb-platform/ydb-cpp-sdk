@@ -52,7 +52,7 @@ namespace {
     struct TZStd08Registrar {
         TZStd08Registrar() {
             for (int i = 1; i <= ZSTD_maxCLevel(); ++i) {
-                RegisterCodec(MakeHolder<TZStd08Codec>(i));
+                RegisterCodec(std::make_unique<TZStd08Codec>(i));
                 RegisterAlias("zstd_" + std::to_string(i), "zstd08_" + std::to_string(i));
             }
         }

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-#include <string_view>
 #include <util/generic/variant.h>
 #include <util/stream/output.h>
 #include <util/stream/str.h>
@@ -9,6 +7,9 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+
+#include <string>
+#include <string_view>
 
 /**
  * Automatically define GTest pretty printer for type that can print itself to util's `IOutputStream`.

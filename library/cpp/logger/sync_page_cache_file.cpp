@@ -116,7 +116,7 @@ private:
 };
 
 TSyncPageCacheFileLogBackend::TSyncPageCacheFileLogBackend(const std::string& path, size_t maxBufferSize, size_t maxPengingCacheSize)
-    : Impl_(MakeHolder<TImpl>(path, maxBufferSize, maxPengingCacheSize))
+    : Impl_(std::make_unique<TImpl>(path, maxBufferSize, maxPengingCacheSize))
 {}
 
 TSyncPageCacheFileLogBackend::~TSyncPageCacheFileLogBackend() {

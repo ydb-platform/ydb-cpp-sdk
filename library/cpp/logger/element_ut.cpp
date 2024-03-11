@@ -4,7 +4,7 @@
 
 #include <string>
 #include <util/stream/str.h>
-#include <util/generic/ptr.h>
+
 #include <utility>
 
 #include <library/cpp/testing/unittest/registar.h>
@@ -25,14 +25,14 @@ UNIT_TEST_SUITE_REGISTRATION(TLogElementTest);
 
 void TLogElementTest::TestMoveCtor() {
     std::stringStream output;
-    TLog log(MakeHolder<TStreamLogBackend>(&output));
+    TLog log(std::make_unique<TStreamLogBackend>(&output));
 
-    THolder<TLogElement> src = MakeHolder<TLogElement>(&log);
+    std::unique_ptr<TLogElement> src = std::make_unique<TLogElement>(&log);
 
     std::string message = "Hello, World!";
     (*src) << message;
 
-    THolder<TLogElement> dst = MakeHolder<TLogElement>(std::move(*src));
+    std::unique_ptr<TLogElement> dst = std::make_unique<TLogElement>(std::move(*src));
 
     src.Destroy();
     UNIT_ASSERT(output.Str() == "");
@@ -43,9 +43,9 @@ void TLogElementTest::TestMoveCtor() {
 
 void TLogElementTest::TestWith() {
     std::stringStream output;
-    TLog log(MakeHolder<TStreamWithContextLogBackend>(&output));
+    TLog log(std::make_unique<TStreamWithContextLogBackend>(&output));
 
-    THolder<TLogElement> src = MakeHolder<TLogElement>(&log);
+    std::unique_ptr<TLogElement> src = std::make_unique<TLogElement>(&log);
 
     std::string message = "Hello, World!";
     (*src).With("Foo", "Bar").With("Foo", "Baz") << message;

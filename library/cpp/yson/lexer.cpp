@@ -2,14 +2,14 @@
 #include "lexer_detail.h"
 #include "token.h"
 
-#include <util/generic/ptr.h>
+
 
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////
 
     class TStatelessLexer::TImpl {
     private:
-        THolder<TStatelessYsonLexerImplBase> Impl;
+        std::unique_ptr<TStatelessYsonLexerImplBase> Impl;
 
     public:
         TImpl(bool enableLinePositionInfo = false)

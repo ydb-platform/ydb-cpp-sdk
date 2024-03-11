@@ -2,8 +2,6 @@
 
 #include "public.h"
 
-#include <util/generic/ptr.h>
-
 class IInputStream;
 
 namespace NYT::NYson {
@@ -28,7 +26,7 @@ namespace NYson {
 
     private:
         class TImpl;
-        THolder<TImpl> Impl;
+        std::unique_ptr<TImpl> Impl;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +44,7 @@ namespace NYson {
 
     private:
         class TImpl;
-        THolder<TImpl> Impl;
+        std::unique_ptr<TImpl> Impl;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +63,7 @@ namespace NYson {
 
     private:
         class TImpl;
-        THolder<TImpl> Impl;
+        std::unique_ptr<TImpl> Impl;
     };
 
     ////////////////////////////////////////////////////////////////////////////////

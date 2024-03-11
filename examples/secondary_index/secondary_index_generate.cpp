@@ -55,9 +55,9 @@ public:
             }
         }
 
-        THolder<TTask> task = MakeHolder<TTask>(this, std::move(callback));
-        if (Queue.Add(task.Get())) {
-            Y_UNUSED(task.Release());
+        std::unique_ptr<TTask> task = std::make_unique<TTask>(this, std::move(callback));
+        if (Queue.Add(task.get())) {
+            Y_UNUSED(task.release());
             return true;
         }
 
@@ -75,7 +75,7 @@ private:
         { }
 
         void Process(void*) override {
-            THolder<TTask> self(this);
+            std::unique_ptr<TTask> self(this);
             {
                 std::lock_guard guard(Owner->Lock);
                 if (Owner->Stopped) {

@@ -2,7 +2,7 @@
 
 #include <util/stream/input.h>
 #include <util/stream/output.h>
-#include <util/generic/ptr.h>
+
 #include <util/generic/yexception.h>
 
 #define BZIP_BUF_LEN (8 * 1024)
@@ -32,7 +32,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 class TBZipCompress: public IOutputStream {
@@ -47,7 +47,7 @@ private:
 
 public:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /** @} */

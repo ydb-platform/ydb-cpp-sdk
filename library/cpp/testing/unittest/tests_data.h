@@ -3,7 +3,7 @@
 #include <library/cpp/testing/common/env.h>
 
 #include <util/generic/noncopyable.h>
-#include <util/generic/ptr.h>
+
 #include <string>
 #include <util/network/sock.h>
 
@@ -48,7 +48,7 @@ public:
 
 private:
     class TPortManagerImpl;
-    THolder<TPortManagerImpl> Impl_;
+    std::unique_ptr<TPortManagerImpl> Impl_;
 };
 
 ui16 GetRandomPort();
