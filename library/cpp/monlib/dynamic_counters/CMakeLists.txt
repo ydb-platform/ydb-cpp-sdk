@@ -3,7 +3,6 @@ add_subdirectory(percentile)
 add_library(cpp-monlib-dynamic_counters)
 
 target_link_libraries(cpp-monlib-dynamic_counters PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-containers-stack_vector
   monlib-encode-json
@@ -23,6 +22,6 @@ target_sources(cpp-monlib-dynamic_counters PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-monlib-dynamic_counters PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

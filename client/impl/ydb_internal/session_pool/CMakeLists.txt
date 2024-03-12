@@ -1,8 +1,7 @@
 add_library(impl-ydb_internal-session_pool)
 
 target_link_libraries(impl-ydb_internal-session_pool PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   cpp-threading-future
   api-protos
@@ -17,6 +16,6 @@ target_sources(impl-ydb_internal-session_pool PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(impl-ydb_internal-session_pool PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

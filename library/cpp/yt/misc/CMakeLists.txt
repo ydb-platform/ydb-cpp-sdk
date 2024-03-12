@@ -5,7 +5,6 @@ target_compile_options(cpp-yt-misc PRIVATE
 )
 
 target_link_libraries(cpp-yt-misc PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-yt-exception
   tools-enum_parser-enum_serialization_runtime
@@ -21,6 +20,6 @@ target_sources(cpp-yt-misc PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-yt-misc PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

@@ -28,7 +28,7 @@ public:
         , Arg_(nullptr)
     {
         for (size_t i = 0; i < Args_.size(); ++i) {
-            ArgsPtrs_.Get()[i] = Args_[i].begin();
+            ArgsPtrs_.Get()[i] = Args_[i].data();
         }
 
         ArgsPtrs_.Get()[Args_.size()] = nullptr;

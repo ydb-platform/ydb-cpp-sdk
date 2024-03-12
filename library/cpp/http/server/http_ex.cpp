@@ -25,7 +25,7 @@ bool THttpClientRequestExtension::ProcessHeaders(TBaseServerRequestData& rd, TBl
         rd.AddHeader(header.first, header.second);
     }
 
-    char* s = RequestString.begin();
+    char* s = RequestString.data();
 
     enum EMethod {
         NotImplemented,

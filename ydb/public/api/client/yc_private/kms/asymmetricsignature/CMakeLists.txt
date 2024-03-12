@@ -3,7 +3,6 @@ set_property(TARGET yc_private-kms-asymmetricsignature PROPERTY
   PROTOC_EXTRA_OUTS .grpc.pb.cc .grpc.pb.h
 )
 target_link_libraries(yc_private-kms-asymmetricsignature PUBLIC
-  contrib-libs-cxxsupp
   yutil
   gRPC::grpc++
   protobuf::libprotobuf
@@ -28,6 +27,6 @@ target_proto_plugin(yc_private-kms-asymmetricsignature
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(yc_private-kms-asymmetricsignature PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

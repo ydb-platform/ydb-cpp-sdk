@@ -9,7 +9,6 @@
 #include <util/stream/output.h>
 #include <util/system/yassert.h>
 
-
 TCont::TJoinWait::TJoinWait(TCont& c) noexcept
     : Cont_(c)
 {}

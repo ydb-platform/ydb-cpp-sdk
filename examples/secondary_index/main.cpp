@@ -10,9 +10,9 @@ using namespace NYdb;
 int main(int argc, char** argv) {
     TOpts opts = TOpts::Default();
 
-    TString endpoint;
-    TString database;
-    TString prefix;
+    std::string endpoint;
+    std::string database;
+    std::string prefix;
 
     opts.AddLongOption('e', "endpoint", "YDB endpoint").Required().RequiredArgument("HOST:PORT")
         .StoreResult(&endpoint);

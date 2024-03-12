@@ -163,14 +163,14 @@ void CGIEscape(std::string& url) {
 std::string CGIEscapeRet(const std::string_view url) {
     std::string to;
     to.resize(CgiEscapeBufLen(url.size()));
-    to.resize(CGIEscape(to.begin(), url.data(), url.size()) - to.data());
+    to.resize(CGIEscape(to.data(), url.data(), url.size()) - to.data());
     return to;
 }
 
 std::string& AppendCgiEscaped(const std::string_view value, std::string& to) {
     const size_t origLength = to.length();
     to.resize(origLength + CgiEscapeBufLen(value.size()));
-    to.resize(CGIEscape(to.begin() + origLength, value.data(), value.size()) - to.data());
+    to.resize(CGIEscape(to.data() + origLength, value.data(), value.size()) - to.data());
     return to;
 }
 
@@ -224,7 +224,7 @@ void CGIUnescape(std::string& url) {
     if (url.empty()) {
         return;
     }
-    char* resBegin = url.begin();
+    char* resBegin = url.data();
     const char* resEnd = CGIUnescape(resBegin, resBegin, url.size());
     url.resize(resEnd - resBegin);
 }
@@ -232,7 +232,7 @@ void CGIUnescape(std::string& url) {
 std::string CGIUnescapeRet(const std::string_view from) {
     std::string to;
     to.resize(CgiUnescapeBufLen(from.size()));
-    to.resize(CGIUnescape(to.begin(), from.data(), from.size()) - to.data());
+    to.resize(CGIUnescape(to.data(), from.data(), from.size()) - to.data());
     return to;
 }
 
@@ -254,7 +254,7 @@ void UrlUnescape(std::string& url) {
     if (url.empty()) {
         return;
     }
-    char* resBegin = url.begin();
+    char* resBegin = url.data();
     const char* resEnd = UrlUnescape(resBegin, url);
     url.resize(resEnd - resBegin);
 }
@@ -262,7 +262,7 @@ void UrlUnescape(std::string& url) {
 std::string UrlUnescapeRet(const std::string_view from) {
     std::string to;
     to.resize(CgiUnescapeBufLen(from.size()));
-    to.resize(UrlUnescape(to.begin(), from) - to.data());
+    to.resize(UrlUnescape(to.data(), from) - to.data());
     return to;
 }
 
@@ -296,6 +296,6 @@ void UrlEscape(std::string& url, bool forceEscape) {
 std::string UrlEscapeRet(const std::string_view from, bool forceEscape) {
     std::string to;
     to.resize(CgiEscapeBufLen(from.size()));
-    to.resize(UrlEscape(to.begin(), from.begin(), forceEscape) - to.data());
+    to.resize(UrlEscape(to.data(), from.begin(), forceEscape) - to.data());
     return to;
 }

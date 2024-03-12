@@ -3,7 +3,6 @@
 add_library(cpp-client-ydb_result)
 
 target_link_libraries(cpp-client-ydb_result PUBLIC
-  contrib-libs-cxxsupp
   yutil
   api-protos
   client-ydb_types-fatal_error_handlers
@@ -17,6 +16,6 @@ target_sources(cpp-client-ydb_result PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-client-ydb_result PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

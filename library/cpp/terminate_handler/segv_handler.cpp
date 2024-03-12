@@ -3,6 +3,8 @@
 #include <util/stream/output.h>
 #include <util/system/backtrace.h>
 
+#include <string.h>
+
 #ifdef _unix_
 #include <signal.h>
 #include <errno.h>

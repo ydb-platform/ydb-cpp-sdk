@@ -9,7 +9,6 @@
 
 add_library(cpp-testing-gtest_extensions)
 target_link_libraries(cpp-testing-gtest_extensions PUBLIC
-  contrib-libs-cxxsupp
   yutil
   restricted-googletest-googlemock
   restricted-googletest-googletest

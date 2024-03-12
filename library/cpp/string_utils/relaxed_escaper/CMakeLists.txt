@@ -1,8 +1,7 @@
 add_library(cpp-string_utils-relaxed_escaper)
 
 target_link_libraries(cpp-string_utils-relaxed_escaper PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
 )
 
@@ -12,6 +11,6 @@ target_sources(cpp-string_utils-relaxed_escaper PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-string_utils-relaxed_escaper PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

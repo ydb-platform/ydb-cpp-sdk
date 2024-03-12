@@ -9,7 +9,6 @@
 
 add_library(util-draft)
 target_link_libraries(util-draft PUBLIC
-  contrib-libs-cxxsupp
 )
 target_sources(util-draft PRIVATE
   ${CMAKE_SOURCE_DIR}/util/draft/date.cpp

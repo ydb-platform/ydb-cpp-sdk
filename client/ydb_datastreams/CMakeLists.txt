@@ -1,8 +1,7 @@
 add_library(cpp-client-ydb_datastreams)
 
 target_link_libraries(cpp-client-ydb_datastreams PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   library-grpc-client
   cpp-string_utils-url
@@ -18,6 +17,6 @@ target_sources(cpp-client-ydb_datastreams PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-client-ydb_datastreams PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

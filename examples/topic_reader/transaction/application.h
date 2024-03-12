@@ -20,10 +20,10 @@ public:
 private:
     struct TRow {
         TRow() = default;
-        TRow(ui64 key, const TString& value);
+        TRow(ui64 key, const std::string& value);
 
         ui64 Key = 0;
-        TString Value;
+        std::string Value;
     };
 
     void CreateTopicReadSession(const TOptions& options);
@@ -45,5 +45,5 @@ private:
     std::optional<NYdb::NTable::TTransaction> Transaction;
     std::vector<NYdb::NTopic::TReadSessionEvent::TStopPartitionSessionEvent> PendingStopEvents;
     std::vector<TRow> Rows;
-    TString TablePath;
+    std::string TablePath;
 };

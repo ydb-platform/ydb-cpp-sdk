@@ -8,7 +8,6 @@ get_built_tool_path(
 add_library(cpp-coroutine-engine)
 
 target_link_libraries(cpp-coroutine-engine PUBLIC
-  contrib-libs-cxxsupp
   yutil
   tools-enum_parser-enum_serialization_runtime
   contrib-libs-libc_compat
@@ -46,6 +45,6 @@ generate_enum_serilization(cpp-coroutine-engine
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-coroutine-engine PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

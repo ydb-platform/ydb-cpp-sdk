@@ -1,7 +1,6 @@
 add_library(cpp-logger-global)
 
 target_link_libraries(cpp-logger-global PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-logger
 )
@@ -14,6 +13,6 @@ target_sources(cpp-logger-global PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-logger-global PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

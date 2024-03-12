@@ -3,7 +3,6 @@
 add_library(cpp-client-draft)
 
 target_link_libraries(cpp-client-draft PUBLIC
-  contrib-libs-cxxsupp
   yutil
   api-grpc-draft
   cpp-client-ydb_table
@@ -18,6 +17,6 @@ target_sources(cpp-client-draft PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-client-draft PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

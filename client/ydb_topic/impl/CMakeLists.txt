@@ -1,7 +1,6 @@
 add_library(client-ydb_topic-impl)
 
 target_link_libraries(client-ydb_topic-impl PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-grpc-client
   cpp-monlib-dynamic_counters
@@ -15,6 +14,7 @@ target_link_libraries(client-ydb_topic-impl PUBLIC
   cpp-client-ydb_driver
   client-ydb_persqueue_core-impl
   cpp-client-ydb_proto
+  proto_output
 )
 
 target_sources(client-ydb_topic-impl PRIVATE
@@ -32,6 +32,6 @@ target_sources(client-ydb_topic-impl PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(client-ydb_topic-impl PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

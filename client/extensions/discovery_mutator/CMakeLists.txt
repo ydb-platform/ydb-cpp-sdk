@@ -3,7 +3,6 @@
 add_library(client-extensions-discovery_mutator)
 
 target_link_libraries(client-extensions-discovery_mutator PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-client-ydb_extension
 )
@@ -14,6 +13,6 @@ target_sources(client-extensions-discovery_mutator PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(client-extensions-discovery_mutator PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

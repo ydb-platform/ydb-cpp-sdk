@@ -1,8 +1,7 @@
 add_library(client-ydb_topic-codecs)
 
 target_link_libraries(client-ydb_topic-codecs PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   cpp-streams-zstd
   public-issue-protos
@@ -17,6 +16,6 @@ target_sources(client-ydb_topic-codecs PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(client-ydb_topic-codecs PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()
