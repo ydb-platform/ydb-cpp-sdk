@@ -13,7 +13,6 @@ target_compile_options(contrib-libs-libc_compat PRIVATE
 )
 target_include_directories(contrib-libs-libc_compat PUBLIC
   ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/include/windows
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/reallocarray
 )
 target_sources(contrib-libs-libc_compat PRIVATE
   ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/memrchr.c
@@ -24,5 +23,4 @@ target_sources(contrib-libs-libc_compat PRIVATE
   ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/strcasestr.c
   ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/strsep.c
   ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/src/windows/sys/uio.c
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/reallocarray/reallocarray.c
 )
