@@ -1,7 +1,6 @@
 add_library(monlib-encode-spack)
 
 target_link_libraries(monlib-encode-spack PUBLIC
-  contrib-libs-cxxsupp
   yutil
   monlib-encode-buffered
   cpp-monlib-exception
@@ -20,6 +19,6 @@ target_sources(monlib-encode-spack PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(monlib-encode-spack PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

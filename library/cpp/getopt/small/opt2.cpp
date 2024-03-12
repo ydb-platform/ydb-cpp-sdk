@@ -56,7 +56,7 @@ void Opt2::EatArgv(const char* optspec, const char* long_alias) {
     long2short["help"] = '?';
     long_alias = long_alias ? long_alias : "";
     alias_copy = long_alias;
-    for (char* s = alias_copy.begin(); s && *s;) {
+    for (char* s = alias_copy.data(); s && *s;) {
         char* eq = strchr(s, '=');
         char* comma = strchr(s, ',');
         if (comma)
@@ -188,7 +188,7 @@ const char* Opt2::Arg(char opt, const char* help, std::string def, bool required
     if (!p.HasArg)
         ythrow yexception() << "Opt2::Arg called for '" << opt << "' which is an option without argument";
     p.DefValueStr = def;
-    p.DefValue = p.DefValueStr.begin();
+    p.DefValue = p.DefValueStr.data();
     return p.IsFound ? p.ActualValue.empty() ? nullptr : p.ActualValue.back() : p.DefValue;
 }
 

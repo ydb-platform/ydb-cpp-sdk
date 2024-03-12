@@ -1,7 +1,6 @@
 add_library(cpp-json-common)
 
 target_link_libraries(cpp-json-common PUBLIC
-  contrib-libs-cxxsupp
   yutil
 )
 
@@ -11,6 +10,6 @@ target_sources(cpp-json-common PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-json-common PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

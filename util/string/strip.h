@@ -86,9 +86,9 @@ struct TStripImpl {
 
         if (StripRange(b, e, criterion)) {
             if constexpr (::TIsTemplateBaseOf<std::basic_string_view, T>::value) {
-                to = T(b, e - b);
+                to = T(b, e);
             } else {
-                to.assign(b, e - b);
+                to.assign(b, e);
             }
 
             return true;
@@ -229,7 +229,7 @@ bool CollapseImpl(const TStringType& from, TStringType& to, size_t maxLen, const
     for (size_t i = 0; i < maxLen; ++i) {
         if (isWhitespace(to[i]) && (to[i] != ' ' || isWhitespace(to[i + 1]))) {
             size_t tailSize = maxLen - i;
-            size_t newTailSize = CollapseImpl(to.begin() + i, tailSize, isWhitespace);
+            size_t newTailSize = CollapseImpl(to.data() + i, tailSize, isWhitespace);
             to.erase(i + newTailSize, tailSize - newTailSize);
             return true;
         }

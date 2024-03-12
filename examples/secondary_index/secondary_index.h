@@ -18,8 +18,8 @@
 
 struct TSeries {
     ui64 SeriesId;
-    TString Title;
-    TString SeriesInfo;
+    std::string Title;
+    std::string SeriesInfo;
     TInstant ReleaseDate;
     ui64 Views;
 };
@@ -36,12 +36,12 @@ enum class ECmd {
     DELETE_SERIES,
 };
 
-TString GetCmdList();
+std::string GetCmdList();
 ECmd ParseCmd(const char* cmd);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TString JoinPath(const TString& prefix, const TString& path);
+std::string JoinPath(const std::string& prefix, const std::string& path);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -72,9 +72,9 @@ inline void ThrowOnError(NYdb::TStatus status) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int RunCreateTables(NYdb::TDriver& driver, const TString& prefix, int argc, char** argv);
-int RunDropTables(NYdb::TDriver& driver, const TString& prefix, int argc, char** argv);
-int RunUpdateViews(NYdb::TDriver& driver, const TString& prefix, int argc, char** argv);
-int RunListSeries(NYdb::TDriver& driver, const TString& prefix, int argc, char** argv);
-int RunGenerateSeries(NYdb::TDriver& driver, const TString& prefix, int argc, char** argv);
-int RunDeleteSeries(NYdb::TDriver& driver, const TString& prefix, int argc, char** argv);
+int RunCreateTables(NYdb::TDriver& driver, const std::string& prefix, int argc, char** argv);
+int RunDropTables(NYdb::TDriver& driver, const std::string& prefix, int argc, char** argv);
+int RunUpdateViews(NYdb::TDriver& driver, const std::string& prefix, int argc, char** argv);
+int RunListSeries(NYdb::TDriver& driver, const std::string& prefix, int argc, char** argv);
+int RunGenerateSeries(NYdb::TDriver& driver, const std::string& prefix, int argc, char** argv);
+int RunDeleteSeries(NYdb::TDriver& driver, const std::string& prefix, int argc, char** argv);

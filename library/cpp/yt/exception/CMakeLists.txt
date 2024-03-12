@@ -5,7 +5,6 @@ target_compile_options(cpp-yt-exception PRIVATE
 )
 
 target_link_libraries(cpp-yt-exception PUBLIC
-  contrib-libs-cxxsupp
   yutil
 )
 
@@ -15,6 +14,6 @@ target_sources(cpp-yt-exception PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-yt-exception PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

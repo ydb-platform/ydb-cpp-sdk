@@ -10,7 +10,6 @@ get_built_tool_path(
 add_library(yql-public-issue)
 
 target_link_libraries(yql-public-issue PUBLIC
-  contrib-libs-cxxsupp
   yutil
   protobuf::libprotobuf
   library-cpp-colorizer
@@ -29,6 +28,6 @@ target_sources(yql-public-issue PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(yql-public-issue PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

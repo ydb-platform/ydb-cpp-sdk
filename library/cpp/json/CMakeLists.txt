@@ -5,7 +5,6 @@ add_subdirectory(writer)
 add_library(library-cpp-json)
 
 target_link_libraries(library-cpp-json PUBLIC
-  contrib-libs-cxxsupp
   yutil
   contrib-libs-rapidjson
   cpp-json-common
@@ -24,6 +23,6 @@ target_sources(library-cpp-json PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(library-cpp-json PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

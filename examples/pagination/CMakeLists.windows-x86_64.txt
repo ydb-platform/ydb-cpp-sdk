@@ -9,7 +9,6 @@
 
 add_executable(pagination)
 target_link_libraries(pagination PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-cpuid_check
   library-cpp-getopt
@@ -19,8 +18,5 @@ target_sources(pagination PRIVATE
   ${CMAKE_SOURCE_DIR}/examples/pagination/main.cpp
   ${CMAKE_SOURCE_DIR}/examples/pagination/pagination_data.cpp
   ${CMAKE_SOURCE_DIR}/examples/pagination/pagination.cpp
-)
-target_allocator(pagination
-  system_allocator
 )
 vcs_info(pagination)

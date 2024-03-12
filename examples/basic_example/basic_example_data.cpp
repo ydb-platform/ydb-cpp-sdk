@@ -5,11 +5,11 @@ using namespace NYdb::NTable;
 
 struct TSeries {
     ui64 SeriesId;
-    TString Title;
+    std::string Title;
     TInstant ReleaseDate;
-    TString SeriesInfo;
+    std::string SeriesInfo;
 
-    TSeries(ui64 seriesId, const TString& title, const TInstant& releaseDate, const TString& seriesInfo)
+    TSeries(ui64 seriesId, const std::string& title, const TInstant& releaseDate, const std::string& seriesInfo)
         : SeriesId(seriesId)
         , Title(title)
         , ReleaseDate(releaseDate)
@@ -19,11 +19,11 @@ struct TSeries {
 struct TSeason {
     ui64 SeriesId;
     ui64 SeasonId;
-    TString Title;
+    std::string Title;
     TInstant FirstAired;
     TInstant LastAired;
 
-    TSeason(ui64 seriesId, ui64 seasonId, const TString& title, const TInstant& firstAired, const TInstant& lastAired)
+    TSeason(ui64 seriesId, ui64 seasonId, const std::string& title, const TInstant& firstAired, const TInstant& lastAired)
         : SeriesId(seriesId)
         , SeasonId(seasonId)
         , Title(title)
@@ -35,10 +35,10 @@ struct TEpisode {
     ui64 SeriesId;
     ui64 SeasonId;
     ui64 EpisodeId;
-    TString Title;
+    std::string Title;
     TInstant AirDate;
 
-    TEpisode(ui64 seriesId, ui64 seasonId, ui64 episodeId, const TString& title, const TInstant& airDate)
+    TEpisode(ui64 seriesId, ui64 seasonId, ui64 episodeId, const std::string& title, const TInstant& airDate)
         : SeriesId(seriesId)
         , SeasonId(seasonId)
         , EpisodeId(episodeId)

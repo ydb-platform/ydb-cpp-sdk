@@ -1,7 +1,6 @@
 add_library(monlib-encode-prometheus)
 
 target_link_libraries(monlib-encode-prometheus PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-monlib-encode
   monlib-encode-buffered
@@ -14,6 +13,6 @@ target_sources(monlib-encode-prometheus PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(monlib-encode-prometheus PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

@@ -9,8 +9,7 @@
 
 add_executable(pagination)
 target_link_libraries(pagination PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   library-cpp-getopt
   cpp-client-ydb_table
@@ -29,8 +28,5 @@ target_sources(pagination PRIVATE
   ${CMAKE_SOURCE_DIR}/examples/pagination/main.cpp
   ${CMAKE_SOURCE_DIR}/examples/pagination/pagination_data.cpp
   ${CMAKE_SOURCE_DIR}/examples/pagination/pagination.cpp
-)
-target_allocator(pagination
-  cpp-malloc-jemalloc
 )
 vcs_info(pagination)

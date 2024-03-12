@@ -3,6 +3,8 @@
 #include <util/generic/ptr.h>
 #include <util/generic/noncopyable.h>
 
+#include <memory>
+
 template <class T, class D = TDelete>
 class THolderVector: public std::vector<T*>, public TNonCopyable {
     using TBase = std::vector<T*>;

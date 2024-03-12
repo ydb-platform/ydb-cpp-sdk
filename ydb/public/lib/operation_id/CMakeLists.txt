@@ -4,7 +4,6 @@ add_subdirectory(protos)
 add_library(public-lib-operation_id)
 
 target_link_libraries(public-lib-operation_id PUBLIC
-  contrib-libs-cxxsupp
   yutil
   protobuf::libprotobuf
   library-cpp-cgiparam
@@ -18,6 +17,6 @@ target_sources(public-lib-operation_id PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(public-lib-operation_id PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

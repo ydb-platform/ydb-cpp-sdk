@@ -9,8 +9,7 @@
 
 add_library(monlib-encode-text)
 target_link_libraries(monlib-encode-text PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   cpp-monlib-encode
 )

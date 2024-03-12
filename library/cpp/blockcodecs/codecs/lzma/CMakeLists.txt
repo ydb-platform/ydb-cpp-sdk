@@ -1,7 +1,6 @@
 add_library(blockcodecs-codecs-lzma INTERFACE)
 
 target_link_libraries(blockcodecs-codecs-lzma INTERFACE
-  contrib-libs-cxxsupp
   yutil
   contrib-libs-lzmasdk
   cpp-blockcodecs-core
@@ -10,7 +9,6 @@ target_link_libraries(blockcodecs-codecs-lzma INTERFACE
 add_global_library_for(blockcodecs-codecs-lzma.global blockcodecs-codecs-lzma)
 
 target_link_libraries(blockcodecs-codecs-lzma.global PUBLIC
-  contrib-libs-cxxsupp
   yutil
   contrib-libs-lzmasdk
   cpp-blockcodecs-core
@@ -22,9 +20,9 @@ target_sources(blockcodecs-codecs-lzma.global PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(blockcodecs-codecs-lzma INTERFACE
-    contrib-libs-linux-headers
+    
   )
   target_link_libraries(blockcodecs-codecs-lzma.global PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

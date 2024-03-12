@@ -8,7 +8,6 @@ get_built_tool_path(
 add_library(cpp-http-misc)
 
 target_link_libraries(cpp-http-misc PUBLIC
-  contrib-libs-cxxsupp
   yutil
   tools-enum_parser-enum_serialization_runtime
   library-cpp-case_insensitive_string
@@ -32,6 +31,6 @@ generate_enum_serilization(cpp-http-misc
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-http-misc PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

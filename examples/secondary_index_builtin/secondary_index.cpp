@@ -21,7 +21,7 @@ TCommand Parse(const char * stringCmd) {
     return TCommand::NONE;
 }
 
-TString JoinPath(const TString& prefix, const TString& path) {
+std::string JoinPath(const std::string& prefix, const std::string& path) {
     if (prefix.empty()) {
         return path;
     }

@@ -13,7 +13,6 @@ get_built_tool_path(
 
 add_library(cpp-monlib-encode)
 target_link_libraries(cpp-monlib-encode PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-monlib-metrics
   tools-enum_parser-enum_serialization_runtime
@@ -34,6 +33,6 @@ generate_enum_serilization(cpp-monlib-encode
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-monlib-encode PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

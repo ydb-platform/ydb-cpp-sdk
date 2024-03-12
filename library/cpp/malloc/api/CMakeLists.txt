@@ -1,7 +1,6 @@
 add_library(cpp-malloc-api)
 
 target_link_libraries(cpp-malloc-api PUBLIC
-  contrib-libs-cxxsupp
 )
 
 target_sources(cpp-malloc-api PRIVATE
@@ -10,6 +9,6 @@ target_sources(cpp-malloc-api PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-malloc-api PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()
