@@ -8,6 +8,7 @@
 
 #include <util/system/sanitizers.h>
 
+#include <cstdlib>
 #include <limits>
 
 namespace NYT {
