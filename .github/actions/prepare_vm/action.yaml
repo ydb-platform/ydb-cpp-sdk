@@ -13,6 +13,7 @@ runs:
         wget https://apt.llvm.org/llvm.sh
         chmod u+x llvm.sh
         sudo ./llvm.sh 16
+        ln -s /usr/bin/clang++-16 /usr/bin/clang++
         wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
         tar -xvzf libiconv-1.15.tar.gz
         cd libiconv-1.15
