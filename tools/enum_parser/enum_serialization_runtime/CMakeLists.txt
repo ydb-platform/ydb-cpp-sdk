@@ -1,7 +1,6 @@
 add_library(tools-enum_parser-enum_serialization_runtime)
 
 target_link_libraries(tools-enum_parser-enum_serialization_runtime PUBLIC
-  contrib-libs-cxxsupp
   yutil
 )
 
@@ -14,6 +13,6 @@ target_sources(tools-enum_parser-enum_serialization_runtime PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(tools-enum_parser-enum_serialization_runtime PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

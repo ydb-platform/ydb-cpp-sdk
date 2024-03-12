@@ -9,7 +9,6 @@
 
 add_executable(ydb-library-security-ut)
 target_link_libraries(ydb-library-security-ut PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-cpuid_check
   cpp-testing-unittest_main

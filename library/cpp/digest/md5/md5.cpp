@@ -50,7 +50,7 @@ char* MD5::File(const char* filename, char* buf) {
 std::string MD5::File(const std::string& filename) {
     std::string buf;
     buf.resize(MD5_HEX_DIGEST_LENGTH);
-    auto result = MD5::File(filename.data(), buf.begin());
+    auto result = MD5::File(filename.data(), buf.data());
     if (result == nullptr) {
         buf.clear();
     }
@@ -68,7 +68,7 @@ char* MD5::Data(const void* data, size_t len, char* buf) {
 std::string MD5::Data(const TArrayRef<const ui8>& data) {
     std::string buf;
     buf.resize(MD5_HEX_DIGEST_LENGTH);
-    Data(data, buf.begin());
+    Data(data, buf.data());
     return buf;
 }
 
@@ -227,7 +227,7 @@ std::string MD5::CalcRaw(std::string_view data) {
 std::string MD5::CalcRaw(const TArrayRef<const ui8>& data) {
     std::string result;
     result.resize(16);
-    MD5().Update(data).Final(reinterpret_cast<ui8*>(result.begin()));
+    MD5().Update(data).Final(reinterpret_cast<ui8*>(result.data()));
     return result;
 }
 

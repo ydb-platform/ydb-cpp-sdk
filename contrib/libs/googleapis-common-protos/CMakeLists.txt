@@ -9,7 +9,6 @@ target_include_directories(contrib-libs-googleapis-common-protos PUBLIC
   ${CMAKE_BINARY_DIR}/contrib/libs/googleapis-common-protos
 )
 target_link_libraries(contrib-libs-googleapis-common-protos PUBLIC
-  contrib-libs-cxxsupp
   yutil
   gRPC::grpc++
   protobuf::libprotobuf
@@ -96,6 +95,6 @@ target_proto_plugin(contrib-libs-googleapis-common-protos
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(contrib-libs-googleapis-common-protos PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

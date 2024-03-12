@@ -3,8 +3,7 @@
 add_library(public-lib-json_value)
 
 target_link_libraries(public-lib-json_value PUBLIC
-    contrib-libs-cxxsupp
-    yutil
+      yutil
     cpp-json-writer
     cpp-string_utils-base64
     cpp-client-ydb_result
@@ -15,7 +14,7 @@ target_link_libraries(public-lib-json_value PUBLIC
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
     target_link_libraries(public-lib-json_value PUBLIC
-        contrib-libs-linux-headers
+        
     )
 endif()
 

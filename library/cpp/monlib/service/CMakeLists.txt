@@ -3,7 +3,6 @@ add_subdirectory(pages)
 add_library(cpp-monlib-service)
 
 target_link_libraries(cpp-monlib-service PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-string_utils-base64
   protobuf::libprotobuf
@@ -30,6 +29,6 @@ target_sources(cpp-monlib-service PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-monlib-service PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

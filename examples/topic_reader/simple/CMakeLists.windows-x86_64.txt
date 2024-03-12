@@ -9,7 +9,6 @@
 
 add_executable(simple_persqueue_reader)
 target_link_libraries(simple_persqueue_reader PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-cpuid_check
   cpp-client-ydb_topic
@@ -17,8 +16,5 @@ target_link_libraries(simple_persqueue_reader PUBLIC
 )
 target_sources(simple_persqueue_reader PRIVATE
   ${CMAKE_SOURCE_DIR}/examples/topic_reader/simple/main.cpp
-)
-target_allocator(simple_persqueue_reader
-  system_allocator
 )
 vcs_info(simple_persqueue_reader)

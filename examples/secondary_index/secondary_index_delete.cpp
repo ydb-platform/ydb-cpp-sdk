@@ -6,7 +6,7 @@ using namespace NYdb::NTable;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static TStatus DeleteSeries(TSession& session, const TString& prefix, ui64 seriesId, ui64& deletedCount) {
+static TStatus DeleteSeries(TSession& session, const std::string& prefix, ui64 seriesId, ui64& deletedCount) {
     auto queryText = Sprintf(R"(
         --!syntax_v1
         PRAGMA TablePathPrefix("%1$s");
@@ -58,7 +58,7 @@ static TStatus DeleteSeries(TSession& session, const TString& prefix, ui64 serie
     return result;
 }
 
-int RunDeleteSeries(TDriver& driver, const TString& prefix, int argc, char** argv) {
+int RunDeleteSeries(TDriver& driver, const std::string& prefix, int argc, char** argv) {
     TOpts opts = TOpts::Default();
 
     ui64 seriesId;

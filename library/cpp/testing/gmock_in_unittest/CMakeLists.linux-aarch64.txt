@@ -9,8 +9,7 @@
 
 add_library(cpp-testing-gmock_in_unittest)
 target_link_libraries(cpp-testing-gmock_in_unittest PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   restricted-googletest-googlemock
   restricted-googletest-googletest
@@ -23,8 +22,7 @@ target_sources(cpp-testing-gmock_in_unittest PRIVATE
 
 add_global_library_for(cpp-testing-gmock_in_unittest.global cpp-testing-gmock_in_unittest)
 target_link_libraries(cpp-testing-gmock_in_unittest.global PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   restricted-googletest-googlemock
   restricted-googletest-googletest

@@ -15,14 +15,12 @@ get_built_tool_path(
 
 add_library(certs INTERFACE)
 target_link_libraries(certs INTERFACE
-  contrib-libs-cxxsupp
   yutil
   library-cpp-resource
 )
 
 add_global_library_for(certs.global certs)
 target_link_libraries(certs.global PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-resource
 )

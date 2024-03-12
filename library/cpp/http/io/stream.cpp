@@ -253,9 +253,9 @@ private:
     inline void ForEach(std::string in, Functor& f) {
         NUtils::ToLower(in);
 
-        const char* b = in.begin();
+        const char* b = in.data();
         const char* c = b;
-        const char* e = in.end();
+        const char* e = in.data() + in.size();
 
         while (c != e) {
             if (*c == ',') {
@@ -677,8 +677,8 @@ private:
             /*
              * s not empty here
              */
-            const char* e = s.end() - 1;
-            const char* b = s.begin();
+            const char* e = s.data() + s.size() - 1;
+            const char* b = s.data();
             size_t mult = 1;
 
             while (e != b && *e != '/') {

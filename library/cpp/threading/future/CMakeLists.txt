@@ -1,7 +1,7 @@
 add_library(cpp-threading-future)
 
 target_link_libraries(cpp-threading-future PUBLIC
-  contrib-libs-cxxsupp
+  yutil
 )
 
 target_sources(cpp-threading-future PRIVATE
@@ -15,9 +15,3 @@ target_sources(cpp-threading-future PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/threading/future/wait/wait_group.cpp
   ${CMAKE_SOURCE_DIR}/library/cpp/threading/future/wait/wait_policy.cpp
 )
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-threading-future PUBLIC
-    contrib-libs-linux-headers
-  )
-endif()

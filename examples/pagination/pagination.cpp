@@ -27,7 +27,7 @@ static void PrintStatus(const TStatus& status) {
     status.GetIssues().PrintTo(Cerr);
 }
 
-static TString JoinPath(const TString& basePath, const TString& path) {
+static std::string JoinPath(const std::string& basePath, const std::string& path) {
     if (basePath.empty()) {
         return path;
     }
@@ -39,7 +39,7 @@ static TString JoinPath(const TString& basePath, const TString& path) {
 }
 
 //! Creates sample table with CrateTable API.
-static void CreateTable(TTableClient client, const TString& path) {
+static void CreateTable(TTableClient client, const std::string& path) {
     ThrowOnError(client.RetryOperationSync([path](TSession session) {
         auto schoolsDesc = TTableBuilder()
             .AddNullableColumn("city", EPrimitiveType::Utf8)
@@ -53,7 +53,7 @@ static void CreateTable(TTableClient client, const TString& path) {
 }
 
 //! Fills sample tables with data in single parameterized data query.
-static TStatus FillTableDataTransaction(TSession& session, const TString& path) {
+static TStatus FillTableDataTransaction(TSession& session, const std::string& path) {
     auto query = Sprintf(R"(
         --!syntax_v1
         PRAGMA TablePathPrefix("%s");
@@ -80,8 +80,8 @@ static TStatus FillTableDataTransaction(TSession& session, const TString& path) 
 }
 
 //! Shows usage of query paging.
-static TStatus SelectPagingTransaction(TSession& session, const TString& path,
-    ui64 pageLimit, const TString& lastCity, ui32 lastNumber, std::optional<TResultSet>& resultSet)
+static TStatus SelectPagingTransaction(TSession& session, const std::string& path,
+    ui64 pageLimit, const std::string& lastCity, ui32 lastNumber, std::optional<TResultSet>& resultSet)
 {
     auto query = Sprintf(R"(
         --!syntax_v1
@@ -137,7 +137,7 @@ static TStatus SelectPagingTransaction(TSession& session, const TString& path,
     return result;
 }
 
-bool SelectPaging(TTableClient client, const TString& path, ui64 pageLimit, TString& lastCity, ui32& lastNumber) {
+bool SelectPaging(TTableClient client, const std::string& path, ui64 pageLimit, std::string& lastCity, ui32& lastNumber) {
     std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, pageLimit, &lastCity, lastNumber, &resultSet](TSession session) {
         return SelectPagingTransaction(session, path, pageLimit, lastCity, lastNumber, resultSet);
@@ -149,14 +149,14 @@ bool SelectPaging(TTableClient client, const TString& path, ui64 pageLimit, TStr
         return false;
     }
     do {
-        lastCity = parser.ColumnParser("city").GetOptionalUtf8().GetRef();
-        lastNumber = parser.ColumnParser("number").GetOptionalUint32().GetRef();
+        lastCity = parser.ColumnParser("city").GetOptionalUtf8().value();
+        lastNumber = parser.ColumnParser("number").GetOptionalUint32().value();
         Cout << lastCity << ", Школа №" << lastNumber << ", Адрес: " << parser.ColumnParser("address").GetOptionalUtf8() << Endl;
     } while (parser.TryNextRow());
     return true;
 }
 
-bool Run(const TDriver& driver, const TString& path) {
+bool Run(const TDriver& driver, const std::string& path) {
     TTableClient client(driver);
 
     try {
@@ -167,7 +167,7 @@ bool Run(const TDriver& driver, const TString& path) {
         }));
 
         ui64 limit = 3;
-        TString lastCity;
+        std::string lastCity;
         ui32 lastNumber = 0;
         ui32 page = 0;
         bool pageNotEmpty = true;

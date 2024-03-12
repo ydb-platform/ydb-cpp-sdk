@@ -1,7 +1,6 @@
 add_library(impl-ydb_internal-db_driver_state)
 
 target_link_libraries(impl-ydb_internal-db_driver_state PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-string_utils-quote
   cpp-threading-future
@@ -19,6 +18,6 @@ target_sources(impl-ydb_internal-db_driver_state PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
 target_link_libraries(impl-ydb_internal-db_driver_state PUBLIC
-  contrib-libs-linux-headers
+  
 )
 endif()

@@ -4,7 +4,6 @@ add_subdirectory(protos)
 add_library(ydb-library-login)
 
 target_link_libraries(ydb-library-login PUBLIC
-  contrib-libs-cxxsupp
   yutil
   contrib-libs-jwt-cpp
   protobuf::libprotobuf
@@ -20,6 +19,6 @@ target_sources(ydb-library-login PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(ydb-library-login PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

@@ -8,8 +8,7 @@ get_built_tool_path(
 add_library(cpp-json-writer)
 
 target_link_libraries(cpp-json-writer PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   cpp-json-common
   tools-enum_parser-enum_serialization_runtime
@@ -29,6 +28,6 @@ generate_enum_serilization(cpp-json-writer
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-json-writer PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

@@ -67,7 +67,7 @@ public:
         : Options_(options)
         , Path_(path)
     {
-        Trees_[0] = Path_.begin();
+        Trees_[0] = Path_.data();
         Trees_[1] = nullptr;
 
         ClearLastSystemError();

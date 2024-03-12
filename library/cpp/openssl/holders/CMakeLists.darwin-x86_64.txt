@@ -9,7 +9,6 @@
 
 add_library(cpp-openssl-holders)
 target_link_libraries(cpp-openssl-holders PUBLIC
-  contrib-libs-cxxsupp
   yutil
   OpenSSL::SSL
 )

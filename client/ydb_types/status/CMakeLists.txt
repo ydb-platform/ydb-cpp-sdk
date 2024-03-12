@@ -1,7 +1,6 @@
 add_library(client-ydb_types-status)
 
 target_link_libraries(client-ydb_types-status PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-threading-future
   impl-ydb_internal-plain_status
@@ -16,6 +15,6 @@ target_sources(client-ydb_types-status PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(client-ydb_types-status PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

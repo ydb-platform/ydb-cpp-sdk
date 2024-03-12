@@ -1,7 +1,6 @@
 add_library(cpp-getopt-small)
 
 target_link_libraries(cpp-getopt-small PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-colorizer
   cpp-string_utils-misc
@@ -29,6 +28,6 @@ target_sources(cpp-getopt-small PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-getopt-small PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

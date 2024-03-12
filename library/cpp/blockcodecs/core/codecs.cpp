@@ -131,7 +131,7 @@ void ICodec::Encode(const TData& in, std::string& out) const {
     const size_t maxLen = MaxCompressedLength(in);
     out.resize(maxLen);
 
-    size_t actualLen = Compress(in, out.begin());
+    size_t actualLen = Compress(in, out.data());
     Y_ASSERT(actualLen <= maxLen);
     out.resize(actualLen);
 }
@@ -140,7 +140,7 @@ void ICodec::Decode(const TData& in, std::string& out) const {
     const size_t maxLen = GetDecompressedLength(in);
     out.resize(maxLen);
 
-    size_t actualLen = Decompress(in, out.begin());
+    size_t actualLen = Decompress(in, out.data());
     Y_ASSERT(actualLen <= maxLen);
     out.resize(actualLen);
 }

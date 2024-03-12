@@ -1,7 +1,6 @@
 add_library(client-ydb_types-operation)
 
 target_link_libraries(client-ydb_types-operation PUBLIC
-  contrib-libs-cxxsupp
   yutil
   protobuf::libprotobuf
   cpp-threading-future
@@ -15,6 +14,6 @@ target_sources(client-ydb_types-operation PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(client-ydb_types-operation PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

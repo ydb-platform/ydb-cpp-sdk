@@ -1,7 +1,6 @@
 add_library(library-cpp-resource)
 
 target_link_libraries(library-cpp-resource PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-blockcodecs-core
   blockcodecs-codecs-zstd
@@ -15,6 +14,6 @@ target_sources(library-cpp-resource PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(library-cpp-resource PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

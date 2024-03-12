@@ -13,7 +13,8 @@
     #include <arpa/inet.h>
 #endif // _unix_
 
-#include <string.h>
+#include <cstring>
+#include <optional>
 
 #ifndef INET6_ADDRSTRLEN
     #define INET6_ADDRSTRLEN 46

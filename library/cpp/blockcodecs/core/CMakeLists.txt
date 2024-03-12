@@ -1,7 +1,6 @@
 add_library(cpp-blockcodecs-core)
 
 target_link_libraries(cpp-blockcodecs-core PUBLIC
-  contrib-libs-cxxsupp
   yutil
 )
 
@@ -12,6 +11,6 @@ target_sources(cpp-blockcodecs-core PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-blockcodecs-core PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

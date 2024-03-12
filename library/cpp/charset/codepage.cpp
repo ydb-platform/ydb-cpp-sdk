@@ -377,7 +377,7 @@ ECharset EncodingHintByName(const char* encname) {
     // Do some normalization
     std::string enc(encname, lastpos - encname + 1);
     NUtils::ToLower(enc);
-    for (char* p = enc.begin(); p != enc.end(); ++p) {
+    for (char* p = enc.data(); p != enc.data() + enc.size(); ++p) {
         if (*p == ' ' || *p == '=' || *p == '_')
             *p = '-';
     }

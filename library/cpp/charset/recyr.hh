@@ -121,7 +121,7 @@ inline bool Recode(ECharset from, ECharset to, const std::string_view& in, std::
 
     size_t inRead = 0;
     size_t outWritten = 0;
-    const RECODE_RESULT res = Recode(from, to, in.data(), out.begin(), inSize, outSize, inRead, outWritten);
+    const RECODE_RESULT res = Recode(from, to, in.data(), out.data(), inSize, outSize, inRead, outWritten);
     Y_ENSURE(RECODE_OK == res, "Recode failed. ");
     if (outWritten > outSize)
         ythrow yexception() << "Recode overrun the buffer: size="
@@ -150,10 +150,10 @@ inline std::string RecodeToHTMLEntities(ECharset from, const std::string& in) {
     size_t outWritten, inRead;
     std::string out;
     out.resize(in.length() * (4 + 4));
-    res = NCodepagePrivate::_recodeToHTMLEntities(from, in.c_str(), out.begin(), in.length(), out.length(), inRead, outWritten);
+    res = NCodepagePrivate::_recodeToHTMLEntities(from, in.c_str(), out.data(), in.length(), out.length(), inRead, outWritten);
     if (res == RECODE_EOOUTPUT) { //input contains many 8-byte characters?
         out.resize(in.length() * (4 + 8));
-        res = NCodepagePrivate::_recodeToHTMLEntities(from, in.c_str(), out.begin(), in.length(), out.length(), inRead, outWritten);
+        res = NCodepagePrivate::_recodeToHTMLEntities(from, in.c_str(), out.data(), in.length(), out.length(), inRead, outWritten);
     }
     if (res != RECODE_OK) {
         ythrow yexception() << "Recode to HTML entities failed";

@@ -1,7 +1,6 @@
 add_library(cpp-http-server)
 
 target_link_libraries(cpp-http-server PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-http-misc
   cpp-http-io
@@ -19,6 +18,6 @@ target_sources(cpp-http-server PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-http-server PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

@@ -199,7 +199,7 @@ TFsPath::TSplit& TFsPath::GetSplit() const {
 }
 
 static Y_FORCE_INLINE void VerifyPath(const std::string_view path) {
-    Y_ABORT_UNLESS(!path.contains('\0'), "wrong format of TFsPath: %s", EscapeC(path).c_str());
+    Y_ABORT_UNLESS(path.find('\0') == std::string_view::npos, "wrong format of TFsPath: %s", EscapeC(path).c_str());
 }
 
 TFsPath::TFsPath() {
@@ -233,7 +233,7 @@ TFsPath::TFsPath(TFsPath&& that) {
 TFsPath& TFsPath::operator=(const TFsPath& that) {
     Path_ = that.Path_;
     if (that.Split_) {
-        Split_ = new TSplit(Path_, that.Split_, that.Path_.begin());
+        Split_ = new TSplit(Path_, that.Split_, that.Path_.data());
     } else {
         Split_ = nullptr;
     }
@@ -241,7 +241,6 @@ TFsPath& TFsPath::operator=(const TFsPath& that) {
 }
 
 TFsPath& TFsPath::operator=(TFsPath&& that) {
-#ifdef TSTRING_IS_STD_STRING
     const auto thatPathData = that.Path_.data();
     Path_ = std::move(that.Path_);
     if (that.Split_) {
@@ -253,10 +252,6 @@ TFsPath& TFsPath::operator=(TFsPath&& that) {
     } else {
         Split_ = nullptr;
     }
-#else
-    Path_ = std::move(that.Path_);
-    Split_ = std::move(that.Split_);
-#endif
     return *this;
 }
 

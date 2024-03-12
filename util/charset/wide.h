@@ -324,7 +324,7 @@ template <bool robust>
 inline std::u16string UTF8ToWide(const char* text, size_t len) {
     std::u16string w(len, '\0');
     size_t written;
-    size_t pos = UTF8ToWideImpl<robust>(text, len, w.begin(), written);
+    size_t pos = UTF8ToWideImpl<robust>(text, len, w.data(), written);
     if (pos != len)
         ythrow yexception() << "failed to decode UTF-8 string at pos " << pos << ::NDetail::InStringMsg(text, len);
     Y_ASSERT(w.size() >= written);
@@ -350,7 +350,7 @@ template <bool robust>
 inline std::u16string_view UTF8ToWide(const std::string_view src, std::u16string& dst) {
     dst.resize(src.size());
     size_t written = 0;
-    UTF8ToWideImpl<robust>(src.data(), src.size(), dst.begin(), written);
+    UTF8ToWideImpl<robust>(src.data(), src.size(), dst.data(), written);
     dst.resize(written);
     return dst;
 }
@@ -360,7 +360,7 @@ template <bool robust>
 inline std::u32string_view UTF8ToUTF32(const std::string_view src, std::u32string& dst) {
     dst.resize(src.size());
     size_t written = 0;
-    UTF8ToWideImpl<robust>(src.data(), src.size(), dst.begin(), written);
+    UTF8ToWideImpl<robust>(src.data(), src.size(), dst.data(), written);
     dst.resize(written);
     return dst;
 }
@@ -413,7 +413,7 @@ constexpr size_t WideToUTF8BufferSize(const size_t inputStringSize) noexcept {
 inline std::string_view WideToUTF8(const std::u16string_view src, std::string& dst) {
     dst.resize(WideToUTF8BufferSize(src.size()));
     size_t written = 0;
-    WideToUTF8(src.data(), src.size(), dst.begin(), written);
+    WideToUTF8(src.data(), src.size(), dst.data(), written);
     Y_ASSERT(dst.size() >= written);
     dst.erase(written);
     return dst;
@@ -422,7 +422,7 @@ inline std::string_view WideToUTF8(const std::u16string_view src, std::string& d
 inline std::string WideToUTF8(const wchar16* text, size_t len) {
     std::string s(WideToUTF8BufferSize(len), '\0');
     size_t written = 0;
-    WideToUTF8(text, len, s.begin(), written);
+    WideToUTF8(text, len, s.data(), written);
     Y_ASSERT(s.size() >= written);
     s.erase(written);
     return s;
@@ -431,7 +431,7 @@ inline std::string WideToUTF8(const wchar16* text, size_t len) {
 inline std::string WideToUTF8(const wchar32* text, size_t len) {
     std::string s(WideToUTF8BufferSize(len), '\0');
     size_t written = 0;
-    WideToUTF8(text, len, s.begin(), written);
+    WideToUTF8(text, len, s.data(), written);
     Y_ASSERT(s.size() >= written);
     s.erase(written);
     return s;

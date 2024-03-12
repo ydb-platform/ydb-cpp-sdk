@@ -9,7 +9,6 @@
 
 add_library(cpp-json-fast_sax)
 target_link_libraries(cpp-json-fast_sax PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-json-common
 )

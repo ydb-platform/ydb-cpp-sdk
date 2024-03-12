@@ -4,7 +4,6 @@ add_subdirectory(core)
 add_library(library-cpp-blockcodecs)
 
 target_link_libraries(library-cpp-blockcodecs PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-blockcodecs-core
   blockcodecs-codecs-brotli
@@ -22,9 +21,3 @@ target_sources(library-cpp-blockcodecs PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/blockcodecs/codecs.cpp
   ${CMAKE_SOURCE_DIR}/library/cpp/blockcodecs/stream.cpp
 )
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(library-cpp-blockcodecs PUBLIC
-    contrib-libs-linux-headers
-  )
-endif()

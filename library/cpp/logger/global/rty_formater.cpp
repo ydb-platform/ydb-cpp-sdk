@@ -40,7 +40,7 @@ namespace NLoggingImpl {
     TLocalTimeS::operator std::string() const {
         std::string res;
         res.reserve(LocalTimeSBufferSize);
-        res.resize(PrintLocalTimeS(Instant, res.begin(), res.begin() + res.capacity()));
+        res.resize(PrintLocalTimeS(Instant, res.data(), res.data() + res.capacity()));
         return res;
     }
 

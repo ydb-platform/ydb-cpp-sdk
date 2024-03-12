@@ -5,6 +5,8 @@
 #include <client/ydb_types/ydb.h>
 
 #include <client/impl/ydb_internal/common/ssl_credentials.h>
+
+#include <optional>
 #include <functional>
 
 namespace NYdb {

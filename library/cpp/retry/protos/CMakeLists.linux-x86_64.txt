@@ -9,8 +9,7 @@
 
 add_library(cpp-retry-protos)
 target_link_libraries(cpp-retry-protos PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   protobuf::libprotobuf
 )

@@ -16,6 +16,7 @@
 #include <util/datetime/base.h>
 #include <util/generic/function.h>
 
+#include <optional>
 
 #define EWAKEDUP 34567
 
