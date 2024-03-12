@@ -21,14 +21,6 @@ set(_GNU_COMMON_C_CXX_FLAGS "\
   -D__LONG_LONG_SUPPORTED \
 ")
 
-if (CMAKE_SYSTEM_NAME MATCHES "^(Android|Linux)$")
-  string(APPEND _GNU_COMMON_C_CXX_FLAGS " -D_GNU_SOURCE")
-endif()
-
-if (CMAKE_SYSTEM_NAME MATCHES "^(Darwin|Linux)$")
-  string(APPEND _GNU_COMMON_C_CXX_FLAGS " -DLIBCXX_BUILDING_LIBCXXRT")
-endif()
-
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   # Use .init_array instead of .ctors (default for old clang versions)
   # See: https://maskray.me/blog/2021-11-07-init-ctors-init-array
@@ -71,10 +63,6 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "^(i686|x86_64|AMD64)$")
       # https://reviews.llvm.org/rGc32d307a49f5255602e7543e64e6c38a7f536abc
       string(APPEND _GNU_COMMON_C_CXX_FLAGS " -mcx16")
     endif()
-  endif()
-
-  if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    string(APPEND _GNU_COMMON_C_CXX_FLAGS " -D_YNDX_LIBUNWIND_ENABLE_EXCEPTION_BACKTRACE")
   endif()
 elseif (ANDROID AND (CMAKE_ANDROID_ARCH_ABI STREQUAL "armeabi-v7a"))
   string(APPEND _GNU_COMMON_C_CXX_FLAGS " -mfloat-abi=softfp")

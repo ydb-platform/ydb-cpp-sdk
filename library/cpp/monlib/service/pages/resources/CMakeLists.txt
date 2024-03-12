@@ -8,7 +8,6 @@ get_built_tool_path(
 add_library(service-pages-resources INTERFACE)
 
 target_link_libraries(service-pages-resources INTERFACE
-  contrib-libs-cxxsupp
   yutil
   library-cpp-resource
   cpp-monlib-dynamic_counters
@@ -17,7 +16,6 @@ target_link_libraries(service-pages-resources INTERFACE
 add_global_library_for(service-pages-resources.global service-pages-resources)
 
 target_link_libraries(service-pages-resources.global PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-resource
   cpp-monlib-dynamic_counters
@@ -47,9 +45,9 @@ resources(service-pages-resources.global
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(service-pages-resources INTERFACE
-    contrib-libs-linux-headers
+    
   )
   target_link_libraries(service-pages-resources.global PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

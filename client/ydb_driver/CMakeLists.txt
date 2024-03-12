@@ -3,8 +3,7 @@
 add_library(cpp-client-ydb_driver)
 
 target_link_libraries(cpp-client-ydb_driver PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   impl-ydb_internal-common
   impl-ydb_internal-grpc_connections
@@ -19,6 +18,6 @@ target_sources(cpp-client-ydb_driver PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-client-ydb_driver PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

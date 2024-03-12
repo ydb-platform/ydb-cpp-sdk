@@ -17,7 +17,6 @@ target_include_directories(library-cpp-build_info PUBLIC
   ${CMAKE_BINARY_DIR}/library/cpp/build_info
 )
 target_link_libraries(library-cpp-build_info PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-string_utils-base64
 )
@@ -47,9 +46,3 @@ configure_file(
   ${CMAKE_SOURCE_DIR}/library/cpp/build_info/build_info.cpp.in
   ${CMAKE_BINARY_DIR}/library/cpp/build_info/build_info.cpp
 )
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(library-cpp-build_info PUBLIC
-    contrib-libs-linux-headers
-  )
-endif()

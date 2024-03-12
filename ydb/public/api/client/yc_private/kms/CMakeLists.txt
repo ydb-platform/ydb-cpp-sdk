@@ -6,7 +6,6 @@ set_property(TARGET client-yc_private-kms PROPERTY
   PROTOC_EXTRA_OUTS .grpc.pb.cc .grpc.pb.h
 )
 target_link_libraries(client-yc_private-kms PUBLIC
-  contrib-libs-cxxsupp
   yutil
   gRPC::grpc++
   yc_private-kms-asymmetricencryption
@@ -34,6 +33,6 @@ target_proto_plugin(client-yc_private-kms
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(client-yc_private-kms PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

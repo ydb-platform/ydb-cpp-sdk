@@ -27,7 +27,7 @@ inline std::string_view Base64Decode(const std::string_view src, void* dst) {
 
 inline void Base64Decode(const std::string_view src, std::string& dst) {
     dst.resize(Base64DecodeBufSize(src.size()));
-    dst.resize(Base64Decode(src, dst.begin()).size());
+    dst.resize(Base64Decode(src, dst.data()).size());
 }
 
 //WARNING: can process not whole input silently, use Base64StrictDecode instead of this function
@@ -71,7 +71,7 @@ inline std::string_view Base64StrictDecode(const std::string_view src, void* dst
 ///
 inline void Base64StrictDecode(const std::string_view src, std::string& dst) {
     dst.resize(Base64DecodeBufSize(src.size()));
-    dst.resize(Base64StrictDecode(src, dst.begin()).size());
+    dst.resize(Base64StrictDecode(src, dst.data()).size());
 }
 
 ///
@@ -122,17 +122,17 @@ inline std::string_view Base64EncodeUrlNoPadding(const std::string_view src, voi
 
 inline void Base64Encode(const std::string_view src, std::string& dst) {
     dst.resize(Base64EncodeBufSize(src.size()));
-    dst.resize(Base64Encode(src, dst.begin()).size());
+    dst.resize(Base64Encode(src, dst.data()).size());
 }
 
 inline void Base64EncodeUrl(const std::string_view src, std::string& dst) {
     dst.resize(Base64EncodeBufSize(src.size()));
-    dst.resize(Base64EncodeUrl(src, dst.begin()).size());
+    dst.resize(Base64EncodeUrl(src, dst.data()).size());
 }
 
 inline void Base64EncodeUrlNoPadding(const std::string_view src, std::string& dst) {
     dst.resize(Base64EncodeBufSize(src.size()));
-    dst.resize(Base64EncodeUrlNoPadding(src, dst.begin()).size());
+    dst.resize(Base64EncodeUrlNoPadding(src, dst.data()).size());
 }
 
 inline std::string Base64Encode(const std::string_view s) {

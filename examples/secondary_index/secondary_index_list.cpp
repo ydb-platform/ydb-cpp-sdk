@@ -23,7 +23,7 @@ static void ParseSeries(std::vector<TSeries>& results, TResultSetParser&& parser
 static TStatus ListByViews(
         std::vector<TSeries>& results,
         TSession& session,
-        const TString& prefix,
+        const std::string& prefix,
         ui64 limit,
         ui64 lastSeriesId,
         ui64 lastViews)
@@ -101,7 +101,7 @@ static TStatus ListByViews(
 static TStatus ListByViews(
         std::vector<TSeries>& results,
         TSession& session,
-        const TString& prefix,
+        const std::string& prefix,
         ui64 limit)
 {
     auto queryText = Sprintf(R"(
@@ -150,7 +150,7 @@ static TStatus ListByViews(
 static TStatus ListById(
         std::vector<TSeries>& results,
         TSession& session,
-        const TString& prefix,
+        const std::string& prefix,
         ui64 limit,
         ui64 lastSeriesId)
 {
@@ -198,7 +198,7 @@ static TStatus ListById(
 static TStatus ListById(
         std::vector<TSeries>& results,
         TSession& session,
-        const TString& prefix,
+        const std::string& prefix,
         ui64 limit)
 {
     auto queryText = Sprintf(R"(
@@ -237,7 +237,7 @@ static TStatus ListById(
     return result;
 }
 
-int RunListSeries(TDriver& driver, const TString& prefix, int argc, char** argv) {
+int RunListSeries(TDriver& driver, const std::string& prefix, int argc, char** argv) {
     TOpts opts = TOpts::Default();
 
     bool byViews = false;
@@ -274,7 +274,7 @@ int RunListSeries(TDriver& driver, const TString& prefix, int argc, char** argv)
     }));
 
     size_t rows = results.size() + 1;
-    std::vector<TString> columns[5];
+    std::vector<std::string> columns[5];
     for (size_t i = 0; i < 5; ++i) {
         columns[i].reserve(rows);
     }

@@ -1,7 +1,6 @@
 add_library(client-ydb_table-query_stats)
 
 target_link_libraries(client-ydb_table-query_stats PUBLIC
-  contrib-libs-cxxsupp
   yutil
   protobuf::libprotobuf
   api-protos
@@ -14,6 +13,6 @@ target_sources(client-ydb_table-query_stats PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(client-ydb_table-query_stats PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

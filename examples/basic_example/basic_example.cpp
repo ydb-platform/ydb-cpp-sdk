@@ -25,7 +25,7 @@ static void PrintStatus(const TStatus& status) {
     status.GetIssues().PrintTo(Cerr);
 }
 
-static TString JoinPath(const TString& basePath, const TString& path) {
+static std::string JoinPath(const std::string& basePath, const std::string& path) {
     if (basePath.empty()) {
         return path;
     }
@@ -39,7 +39,7 @@ static TString JoinPath(const TString& basePath, const TString& path) {
 ///////////////////////////////////////////////////////////////////////////////
 
 //! Creates sample tables with CrateTable API.
-static void CreateTables(TTableClient client, const TString& path) {
+static void CreateTables(TTableClient client, const std::string& path) {
     ThrowOnError(client.RetryOperationSync([path](TSession session) {
         auto seriesDesc = TTableBuilder()
             .AddNullableColumn("series_id", EPrimitiveType::Uint64)
@@ -81,7 +81,7 @@ static void CreateTables(TTableClient client, const TString& path) {
 }
 
 //! Describe existing table.
-static void DescribeTable(TTableClient client, const TString& path, const TString& name) {
+static void DescribeTable(TTableClient client, const std::string& path, const std::string& name) {
     std::optional<TTableDescription> desc;
 
     ThrowOnError(client.RetryOperationSync([path, name, &desc](TSession session) {
@@ -103,7 +103,7 @@ static void DescribeTable(TTableClient client, const TString& path, const TStrin
 ///////////////////////////////////////////////////////////////////////////////
 
 //! Fills sample tables with data in single parameterized data query.
-static TStatus FillTableDataTransaction(TSession session, const TString& path) {
+static TStatus FillTableDataTransaction(TSession session, const std::string& path) {
     auto query = Sprintf(R"(
         PRAGMA TablePathPrefix("%s");
 
@@ -163,7 +163,7 @@ static TStatus FillTableDataTransaction(TSession session, const TString& path) {
 }
 
 //! Shows basic usage of YDB data queries and transactions.
-static TStatus SelectSimpleTransaction(TSession session, const TString& path,
+static TStatus SelectSimpleTransaction(TSession session, const std::string& path,
     std::optional<TResultSet>& resultSet)
 {
     auto query = Sprintf(R"(
@@ -192,7 +192,7 @@ static TStatus SelectSimpleTransaction(TSession session, const TString& path,
 }
 
 //! Shows basic usage of mutating operations.
-static TStatus UpsertSimpleTransaction(TSession session, const TString& path) {
+static TStatus UpsertSimpleTransaction(TSession session, const std::string& path) {
     auto query = Sprintf(R"(
         --!syntax_v1
         PRAGMA TablePathPrefix("%s");
@@ -206,7 +206,7 @@ static TStatus UpsertSimpleTransaction(TSession session, const TString& path) {
 }
 
 //! Shows usage of parameters in data queries.
-static TStatus SelectWithParamsTransaction(TSession session, const TString& path,
+static TStatus SelectWithParamsTransaction(TSession session, const std::string& path,
     ui64 seriesId, ui64 seasonId, std::optional<TResultSet>& resultSet)
 {
     auto query = Sprintf(R"(
@@ -246,7 +246,7 @@ static TStatus SelectWithParamsTransaction(TSession session, const TString& path
 }
 
 //! Shows usage of prepared queries.
-static TStatus PreparedSelectTransaction(TSession session, const TString& path,
+static TStatus PreparedSelectTransaction(TSession session, const std::string& path,
     ui64 seriesId, ui64 seasonId, ui64 episodeId, std::optional<TResultSet>& resultSet)
 {
     // Once prepared, query data is stored in the session and identified by QueryId.
@@ -299,7 +299,7 @@ static TStatus PreparedSelectTransaction(TSession session, const TString& path,
 }
 
 //! Shows usage of transactions consisting of multiple data queries with client logic between them.
-static TStatus MultiStepTransaction(TSession session, const TString& path, ui64 seriesId, ui64 seasonId,
+static TStatus MultiStepTransaction(TSession session, const std::string& path, ui64 seriesId, ui64 seasonId,
     std::optional<TResultSet>& resultSet)
 {
     auto query1 = Sprintf(R"(
@@ -392,7 +392,7 @@ static TStatus MultiStepTransaction(TSession session, const TString& path, ui64 
 // Show usage of explicit Begin/Commit transaction control calls.
 // In most cases it's better to use transaction control settings in ExecuteDataQuery calls instead
 // to avoid additional hops to YDB cluster and allow more efficient execution of queries.
-static TStatus ExplicitTclTransaction(TSession session, const TString& path, const TInstant& airDate) {
+static TStatus ExplicitTclTransaction(TSession session, const std::string& path, const TInstant& airDate) {
     auto beginResult = session.BeginTransaction(TTxSettings::SerializableRW()).GetValueSync();
     if (!beginResult.IsSuccess()) {
         return beginResult;
@@ -432,7 +432,7 @@ static TStatus ExplicitTclTransaction(TSession session, const TString& path, con
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SelectSimple(TTableClient client, const TString& path) {
+void SelectSimple(TTableClient client, const std::string& path) {
     std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
         return SelectSimpleTransaction(session, path, resultSet);
@@ -448,13 +448,13 @@ void SelectSimple(TTableClient client, const TString& path) {
     }
 }
 
-void UpsertSimple(TTableClient client, const TString& path) {
+void UpsertSimple(TTableClient client, const std::string& path) {
     ThrowOnError(client.RetryOperationSync([path](TSession session) {
         return UpsertSimpleTransaction(session, path);
     }));
 }
 
-void SelectWithParams(TTableClient client, const TString& path) {
+void SelectWithParams(TTableClient client, const std::string& path) {
     std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
         return SelectWithParamsTransaction(session, path, 2, 3, resultSet);
@@ -469,7 +469,7 @@ void SelectWithParams(TTableClient client, const TString& path) {
     }
 }
 
-void PreparedSelect(TTableClient client, const TString& path, ui32 seriesId, ui32 seasonId, ui32 episodeId) {
+void PreparedSelect(TTableClient client, const std::string& path, ui32 seriesId, ui32 seasonId, ui32 episodeId) {
     std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, seriesId, seasonId, episodeId, &resultSet](TSession session) {
         return PreparedSelectTransaction(session, path, seriesId, seasonId, episodeId, resultSet);
@@ -486,7 +486,7 @@ void PreparedSelect(TTableClient client, const TString& path, ui32 seriesId, ui3
     }
 }
 
-void MultiStep(TTableClient client, const TString& path) {
+void MultiStep(TTableClient client, const std::string& path) {
     std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
         return MultiStepTransaction(session, path, 2, 5, resultSet);
@@ -505,13 +505,13 @@ void MultiStep(TTableClient client, const TString& path) {
     }
 }
 
-void ExplicitTcl(TTableClient client, const TString& path) {
+void ExplicitTcl(TTableClient client, const std::string& path) {
     ThrowOnError(client.RetryOperationSync([path](TSession session) {
         return ExplicitTclTransaction(session, path, TInstant::Now());
     }));
 }
 
-void ScanQuerySelect(TTableClient client, const TString& path) {
+void ScanQuerySelect(TTableClient client, const std::string& path) {
     auto query = Sprintf(R"(
         --!syntax_v1
         PRAGMA TablePathPrefix("%s");
@@ -571,7 +571,7 @@ void ScanQuerySelect(TTableClient client, const TString& path) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool Run(const TDriver& driver, const TString& path) {
+bool Run(const TDriver& driver, const std::string& path) {
     TTableClient client(driver);
 
     try {

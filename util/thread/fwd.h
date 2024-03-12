@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stlfwd>
+#include <functional>
 
 class IThreadFactory;
 

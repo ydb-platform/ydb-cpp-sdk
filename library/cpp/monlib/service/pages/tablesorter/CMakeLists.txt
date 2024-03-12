@@ -8,7 +8,6 @@ get_built_tool_path(
 add_library(service-pages-tablesorter INTERFACE)
 
 target_link_libraries(service-pages-tablesorter INTERFACE
-  contrib-libs-cxxsupp
   yutil
   library-cpp-resource
   cpp-monlib-dynamic_counters
@@ -17,7 +16,6 @@ target_link_libraries(service-pages-tablesorter INTERFACE
 add_global_library_for(service-pages-tablesorter.global service-pages-tablesorter)
 
 target_link_libraries(service-pages-tablesorter.global PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-resource
   cpp-monlib-dynamic_counters
@@ -39,9 +37,9 @@ resources(service-pages-tablesorter.global
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(service-pages-tablesorter INTERFACE
-    contrib-libs-linux-headers
+    
   )
   target_link_libraries(service-pages-tablesorter.global PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

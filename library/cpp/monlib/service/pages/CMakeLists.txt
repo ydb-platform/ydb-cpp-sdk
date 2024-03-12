@@ -4,7 +4,6 @@ add_subdirectory(tablesorter)
 add_library(monlib-service-pages)
 
 target_link_libraries(monlib-service-pages PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-build_info
   cpp-malloc-api
@@ -31,6 +30,6 @@ target_sources(monlib-service-pages PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(monlib-service-pages PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

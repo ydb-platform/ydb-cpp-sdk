@@ -9,7 +9,6 @@
 
 add_executable(ttl)
 target_link_libraries(ttl PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-getopt
   cpp-client-ydb_table
@@ -24,8 +23,5 @@ target_link_options(ttl PRIVATE
 target_sources(ttl PRIVATE
   ${CMAKE_SOURCE_DIR}/examples/ttl/main.cpp
   ${CMAKE_SOURCE_DIR}/examples/ttl/ttl.cpp
-)
-target_allocator(ttl
-  system_allocator
 )
 vcs_info(ttl)

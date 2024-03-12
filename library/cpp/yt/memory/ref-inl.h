@@ -88,7 +88,7 @@ Y_FORCE_INLINE TMutableRef TMutableRef::FromPod(T& data)
 Y_FORCE_INLINE TMutableRef TMutableRef::FromString(std::string& str)
 {
     // NB: begin() invokes CloneIfShared().
-    return TMutableRef(str.begin(), str.length());
+    return TMutableRef(str.data(), str.size());
 }
 
 Y_FORCE_INLINE TMutableRef TMutableRef::Slice(size_t startOffset, size_t endOffset) const

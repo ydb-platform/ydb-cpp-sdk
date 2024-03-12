@@ -1,7 +1,6 @@
 add_library(client-iam-common)
 
 target_link_libraries(client-iam-common PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-grpc-client
   cpp-http-simple
@@ -17,6 +16,6 @@ target_sources(client-iam-common PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(client-iam-common PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

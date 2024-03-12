@@ -81,7 +81,7 @@ TParams Build(const std::vector<TSeries>& seriesList, const std::vector<TUser>& 
     return paramsBuilder.Build();
 }
 
-static TStatus FillTable(TSession session, const TString& path) {
+static TStatus FillTable(TSession session, const std::string& path) {
 
     auto query = Sprintf(R"(
         --!syntax_v1
@@ -124,7 +124,7 @@ static TStatus FillTable(TSession session, const TString& path) {
                             .GetValueSync();
 }
 
-int Insert(NYdb::TDriver& driver, const TString& path) {
+int Insert(NYdb::TDriver& driver, const std::string& path) {
 
     TTableClient client(driver);
     ThrowOnError(client.RetryOperationSync([path] (TSession session) {

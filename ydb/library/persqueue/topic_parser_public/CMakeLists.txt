@@ -1,7 +1,6 @@
 add_library(library-persqueue-topic_parser_public)
 
 target_link_libraries(library-persqueue-topic_parser_public PUBLIC
-  contrib-libs-cxxsupp
   yutil
 )
 
@@ -11,6 +10,6 @@ target_sources(library-persqueue-topic_parser_public PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(library-persqueue-topic_parser_public PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

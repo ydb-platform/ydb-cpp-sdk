@@ -46,7 +46,7 @@ std::string_view TBaseServerRequestData::RemoteAddr() const {
     if (!Addr_) {
         auto& addr = Addr_.emplace();
         addr.resize(INET6_ADDRSTRLEN);
-        if (GetRemoteAddr(Socket_, addr.begin(), addr.size())) {
+        if (GetRemoteAddr(Socket_, addr.data(), addr.size())) {
             if (auto pos = addr.find('\0'); pos != std::string::npos) {
                 addr.resize(pos);
             }

@@ -13,11 +13,11 @@ Y_DECLARE_OUT_SPEC(, NYdb::TStatus, stream, value) {
 constexpr size_t BATCH_SIZE = 1000;
 
 struct TLogMessage {
-    TString App;
-    TString Host;
+    std::string App;
+    std::string Host;
     TInstant Timestamp;
     ui32 HttpCode;
-    TString Message;
+    std::string Message;
 };
 
 void GetLogBatch(ui64 logOffset, std::vector<TLogMessage>& logBatch) {
@@ -33,7 +33,7 @@ void GetLogBatch(ui64 logOffset, std::vector<TLogMessage>& logBatch) {
     }
 }
 
-bool WriteLogBatch(NYdb::NTable::TTableClient& tableClient, const TString& table, const std::vector<TLogMessage>& logBatch,
+bool WriteLogBatch(NYdb::NTable::TTableClient& tableClient, const std::string& table, const std::vector<TLogMessage>& logBatch,
                    const NYdb::NTable::TRetryOperationSettings& retrySettings)
 {
     NYdb::TValueBuilder rows;
@@ -65,7 +65,7 @@ bool WriteLogBatch(NYdb::NTable::TTableClient& tableClient, const TString& table
     return true;
 }
 
-bool CreateLogTable(NYdb::NTable::TTableClient& client, const TString& table) {
+bool CreateLogTable(NYdb::NTable::TTableClient& client, const std::string& table) {
     Cerr << "Create table " << table << "\n";
 
     NYdb::NTable::TRetryOperationSettings settings;
@@ -89,7 +89,7 @@ bool CreateLogTable(NYdb::NTable::TTableClient& client, const TString& table) {
     return true;
 }
 
-bool Run(const NYdb::TDriver &driver, const TString &table, ui32 batchCount) {
+bool Run(const NYdb::TDriver &driver, const std::string &table, ui32 batchCount) {
     NYdb::NTable::TTableClient client(driver);
     if (!CreateLogTable(client, table)) {
         return false;
@@ -113,7 +113,7 @@ bool Run(const NYdb::TDriver &driver, const TString &table, ui32 batchCount) {
     return true;
 }
 
-TString JoinPath(const TString& basePath, const TString& path) {
+std::string JoinPath(const std::string& basePath, const std::string& path) {
     if (basePath.empty()) {
         return path;
     }
@@ -129,9 +129,9 @@ int main(int argc, char** argv) {
 
     TOpts opts = TOpts::Default();
 
-    TString endpoint;
-    TString database;
-    TString table = "bulk_upsert_example";
+    std::string endpoint;
+    std::string database;
+    std::string table = "bulk_upsert_example";
     ui32 count = 1000;
 
     opts.AddLongOption('e', "endpoint", "YDB endpoint").Required().RequiredArgument("HOST:PORT")

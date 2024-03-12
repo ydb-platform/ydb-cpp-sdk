@@ -1,3 +1,5 @@
+#pragma once
+
 #include <util/generic/noncopyable.h>
 
 class TFakeMutex: public TNonCopyable {

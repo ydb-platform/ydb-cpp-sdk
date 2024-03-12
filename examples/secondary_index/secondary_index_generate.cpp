@@ -106,7 +106,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static TStatus InsertSeries(TSession& session, const TString& prefix, const TSeries& series) {
+static TStatus InsertSeries(TSession& session, const std::string& prefix, const TSeries& series) {
     auto queryText = Sprintf(R"(
         --!syntax_v1
         PRAGMA TablePathPrefix("%1$s");
@@ -161,7 +161,7 @@ static TStatus InsertSeries(TSession& session, const TString& prefix, const TSer
     return result;
 }
 
-int RunGenerateSeries(TDriver& driver, const TString& prefix, int argc, char** argv) {
+int RunGenerateSeries(TDriver& driver, const std::string& prefix, int argc, char** argv) {
     TOpts opts = TOpts::Default();
 
     ui64 seriesId = 1;

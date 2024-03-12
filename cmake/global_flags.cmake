@@ -1,6 +1,3 @@
-set(CMAKE_C_FLAGS "")
-set(CMAKE_CXX_FLAGS "")
-
 # workaround when old NDK toolchain that does not set CMAKE_ANDROID_NDK_VERSION is used
 # See for details: https://gitlab.kitware.com/cmake/cmake/-/issues/24386
 if(ANDROID_NDK_REVISION AND NOT CMAKE_ANDROID_NDK_VERSION)
@@ -14,7 +11,6 @@ if (MSVC)
 else()
   set(flagPrefixSymbol "-")
   include(global_flags.compiler.gnu)
-  include(global_flags.linker.gnu)
 endif()
 
 if (CMAKE_SYSTEM_PROCESSOR MATCHES "^(i686|x86_64|AMD64)$")

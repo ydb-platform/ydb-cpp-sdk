@@ -10,7 +10,6 @@ get_built_tool_path(
 add_library(cpp-client-ydb_value)
 
 target_link_libraries(cpp-client-ydb_value PUBLIC
-  contrib-libs-cxxsupp
   yutil
   tools-enum_parser-enum_serialization_runtime
   cpp-containers-stack_vector
@@ -19,6 +18,7 @@ target_link_libraries(cpp-client-ydb_value PUBLIC
   client-ydb_types-fatal_error_handlers
   yql-public-decimal
   ydb-library-uuid
+  proto_output
 )
 
 target_sources(cpp-client-ydb_value PRIVATE
@@ -33,6 +33,6 @@ generate_enum_serilization(cpp-client-ydb_value
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-client-ydb_value PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

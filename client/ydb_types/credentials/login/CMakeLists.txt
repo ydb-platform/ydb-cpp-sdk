@@ -1,7 +1,6 @@
 add_library(ydb_types-credentials-login)
 
 target_link_libraries(ydb_types-credentials-login PUBLIC
-  contrib-libs-cxxsupp
   yutil
   ydb-library-login
   ydb-library-security
@@ -17,6 +16,6 @@ target_sources(ydb_types-credentials-login PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(ydb_types-credentials-login PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

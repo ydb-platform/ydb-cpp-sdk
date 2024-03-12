@@ -1,7 +1,6 @@
 add_library(blockcodecs-codecs-bzip INTERFACE)
 
 target_link_libraries(blockcodecs-codecs-bzip INTERFACE
-  contrib-libs-cxxsupp
   yutil
   contrib-libs-libbz2
   cpp-blockcodecs-core
@@ -10,8 +9,7 @@ target_link_libraries(blockcodecs-codecs-bzip INTERFACE
 add_global_library_for(blockcodecs-codecs-bzip.global blockcodecs-codecs-bzip)
 
 target_link_libraries(blockcodecs-codecs-bzip.global PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   contrib-libs-libbz2
   cpp-blockcodecs-core
@@ -22,9 +20,9 @@ target_sources(blockcodecs-codecs-bzip.global PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(blockcodecs-codecs-bzip INTERFACE
-    contrib-libs-linux-headers
+    
   )
   target_link_libraries(blockcodecs-codecs-bzip.global PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

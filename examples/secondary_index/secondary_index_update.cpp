@@ -6,7 +6,7 @@ using namespace NYdb::NTable;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int RunUpdateViews(TDriver& driver, const TString& prefix, int argc, char** argv) {
+int RunUpdateViews(TDriver& driver, const std::string& prefix, int argc, char** argv) {
     TOpts opts = TOpts::Default();
 
     ui64 seriesId;
@@ -19,7 +19,7 @@ int RunUpdateViews(TDriver& driver, const TString& prefix, int argc, char** argv
 
     TOptsParseResult res(&opts, argc, argv);
 
-    TString queryText = Sprintf(R"(
+    std::string queryText = Sprintf(R"(
         --!syntax_v1
         PRAGMA TablePathPrefix("%1$s");
 

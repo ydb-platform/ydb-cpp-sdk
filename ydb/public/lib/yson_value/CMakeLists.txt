@@ -1,7 +1,6 @@
 add_library(public-lib-yson_value)
 target_link_libraries(public-lib-yson_value PUBLIC
-    contrib-libs-cxxsupp
-    yutil
+      yutil
     library-cpp-yson
     cpp-yson-node
     cpp-client-ydb_result
@@ -10,7 +9,7 @@ target_link_libraries(public-lib-yson_value PUBLIC
   )
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
     target_link_libraries(public-lib-json_value PUBLIC
-        contrib-libs-linux-headers
+        
     )
 endif()
 

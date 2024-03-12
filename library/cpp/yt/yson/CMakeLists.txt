@@ -5,7 +5,6 @@ target_compile_options(cpp-yt-yson PRIVATE
 )
 
 target_link_libraries(cpp-yt-yson PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-yt-yson_string
 )
@@ -16,6 +15,6 @@ target_sources(cpp-yt-yson PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-yt-yson PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

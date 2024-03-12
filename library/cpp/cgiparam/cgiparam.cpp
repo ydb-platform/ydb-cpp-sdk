@@ -103,7 +103,7 @@ static inline std::string DoUnescape(const std::string_view s) {
     std::string res;
 
     res.resize(CgiUnescapeBufLen(s.size()));
-    res.resize(CgiUnescape(res.begin(), s).size());
+    res.resize(CgiUnescape(res.data(), s).size());
 
     return res;
 }
@@ -162,7 +162,7 @@ std::string TCgiParameters::Print() const {
     std::string res;
 
     res.reserve(PrintSize());
-    const char* end = Print(res.begin());
+    const char* end = Print(res.data());
     res.resize(end - res.data());
 
     return res;
@@ -206,7 +206,7 @@ std::string TCgiParameters::QuotedPrint(const char* safe) const {
     std::string res;
     res.resize(PrintSize());
 
-    char* ptr = res.begin();
+    char* ptr = res.data();
     for (auto i = begin();;) {
         ptr = Quote(ptr, i->first, safe);
         *ptr++ = '=';
@@ -249,21 +249,21 @@ bool TCgiParameters::Has(const std::string_view name, const std::string_view val
 
 TQuickCgiParam::TQuickCgiParam(const std::string_view cgiParamStr) {
     UnescapeBuf.reserve(CgiUnescapeBufLen(cgiParamStr.size()));
-    char* buf = UnescapeBuf.begin();
+    char* buf = UnescapeBuf.data();
 
     auto f = [this, &buf](const std::string_view key, const std::string_view val) {
         std::string_view name = CgiUnescapeBuf(buf, key);
         buf += name.size() + 1;
         std::string_view value = CgiUnescapeBuf(buf, val);
         buf += value.size() + 1;
-        Y_ASSERT(buf <= UnescapeBuf.begin() + UnescapeBuf.capacity() + 1 /*trailing zero*/);
+        Y_ASSERT(buf <= UnescapeBuf.data() + UnescapeBuf.capacity() + 1 /*trailing zero*/);
         emplace(name, value);
     };
 
     DoScan<false>(cgiParamStr, f);
 
-    if (buf != UnescapeBuf.begin()) {
-        UnescapeBuf.resize(buf - UnescapeBuf.begin() - 1 /*trailing zero*/);
+    if (buf != UnescapeBuf.data()) {
+        UnescapeBuf.resize(buf - UnescapeBuf.data() - 1 /*trailing zero*/);
     }
 }
 

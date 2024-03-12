@@ -9,8 +9,7 @@
 
 add_library(cpp-testing-common)
 target_link_libraries(cpp-testing-common PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   library-cpp-json
 )

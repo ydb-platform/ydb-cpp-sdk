@@ -70,18 +70,12 @@ void FormatCurrentExceptionTo(IOutputStream& out) {
         return;
     }
 
-#ifdef _YNDX_LIBUNWIND_ENABLE_EXCEPTION_BACKTRACE
-    TBackTrace backtrace = TBackTrace::FromCurrentException();
-#endif
     try {
         std::rethrow_exception(exceptionPtr);
     } catch (const std::exception& e) {
         out << "Caught:\n";
         FormatExceptionTo(out, e);
         out << "\n";
-#ifdef _YNDX_LIBUNWIND_ENABLE_EXCEPTION_BACKTRACE
-        FormatBackTraceTo(out, backtrace);
-#endif
         return;
     } catch (...) {
         out << "unknown error\n";

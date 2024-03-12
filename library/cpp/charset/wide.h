@@ -141,7 +141,7 @@ namespace NDetail {
 
         static inline TResultChar* Reserve(TResult& dst, size_t len) {
             dst.resize(len);
-            return dst.begin();
+            return dst.data();
         }
 
         static inline void Truncate(TResult& dst, size_t len) {
@@ -222,7 +222,7 @@ inline std::string WideToChar(const wchar16* text, size_t len, ECharset enc) {
             return WideToUTF8(text, len);
 
         std::string s(len, '\0');
-        s.erase(WideToChar(text, len, s.begin(), enc));
+        s.erase(WideToChar(text, len, s.data(), enc));
 
         return s;
     }
@@ -231,7 +231,7 @@ inline std::string WideToChar(const wchar16* text, size_t len, ECharset enc) {
 
     size_t read = 0;
     size_t written = 0;
-    NICONVPrivate::RecodeFromUnicode(enc, text, s.begin(), len, s.size(), read, written);
+    NICONVPrivate::RecodeFromUnicode(enc, text, s.data(), len, s.size(), read, written);
     s.erase(written);
 
     return s;
@@ -239,7 +239,7 @@ inline std::string WideToChar(const wchar16* text, size_t len, ECharset enc) {
 
 inline std::u16string CharToWide(const char* text, size_t len, const CodePage& cp) {
     std::u16string w(len, wchar16());
-    CharToWide(text, len, w.begin(), cp);
+    CharToWide(text, len, w.data(), cp);
     return w;
 }
 
@@ -257,7 +257,7 @@ inline std::u16string CharToWide(const char* text, size_t len, ECharset enc) {
 
     size_t read = 0;
     size_t written = 0;
-    NICONVPrivate::RecodeToUnicode(enc, text, w.begin(), len, len, read, written);
+    NICONVPrivate::RecodeToUnicode(enc, text, w.data(), len, len, read, written);
     w.erase(written);
 
     return w;
@@ -270,10 +270,10 @@ inline std::u16string CharToWide(const char* text, size_t len, ECharset enc) {
 inline std::u16string UTF8ToWide(const char* text, size_t len, const CodePage& cp) {
     std::u16string w(len, wchar16());
     size_t written = 0;
-    if (UTF8ToWide(text, len, w.begin(), written))
+    if (UTF8ToWide(text, len, w.data(), written))
         w.erase(written);
     else
-        CharToWide(text, len, w.begin(), cp);
+        CharToWide(text, len, w.data(), cp);
     return w;
 }
 

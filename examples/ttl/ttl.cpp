@@ -12,7 +12,7 @@ constexpr ui32 DOC_TABLE_PARTITION_COUNT = 4;
 constexpr ui32 EXPIRATION_QUEUE_COUNT = 4;
 
 //! Creates Documents table and multiple ExpirationQueue tables
-static void CreateTables(TTableClient client, const TString& path) {
+static void CreateTables(TTableClient client, const std::string& path) {
     // Documents table stores the contents of web pages.
     // The table is partitioned by hash(Url) in order to evenly distribute the load.
     ThrowOnError(client.RetryOperationSync([path](TSession session) {
@@ -51,8 +51,8 @@ static void CreateTables(TTableClient client, const TString& path) {
 ///////////////////////////////////////////////////////////////////////////////
 
 //! Insert or replaces a document.
-static TStatus AddDocumentTransaction(TSession session, const TString& path,
-    const TString& url, const TString& html, ui64 timestamp)
+static TStatus AddDocumentTransaction(TSession session, const std::string& path,
+    const std::string& url, const std::string& html, ui64 timestamp)
 {
     // Add an entry to a random expiration queue in order to evenly distribute the load
     ui32 queue = rand() % EXPIRATION_QUEUE_COUNT;
@@ -91,8 +91,8 @@ static TStatus AddDocumentTransaction(TSession session, const TString& path,
 }
 
 //! Reads document contents.
-static TStatus ReadDocumentTransaction(TSession session, const TString& path,
-    const TString& url, std::optional<TResultSet>& resultSet)
+static TStatus ReadDocumentTransaction(TSession session, const std::string& path,
+    const std::string& url, std::optional<TResultSet>& resultSet)
 {
     auto query = Sprintf(R"(
         --!syntax_v1
@@ -124,7 +124,7 @@ static TStatus ReadDocumentTransaction(TSession session, const TString& path,
 }
 
 //! Reads a batch of entries from expiration queue
-static TStatus ReadExpiredBatchTransaction(TSession session, const TString& path, const ui32 queue,
+static TStatus ReadExpiredBatchTransaction(TSession session, const std::string& path, const ui32 queue,
     const ui64 timestamp, const ui64 prevTimestamp, const ui64 prevDocId, std::optional<TResultSet>& resultSet)
 {
     auto query = Sprintf(R"(
@@ -180,7 +180,7 @@ static TStatus ReadExpiredBatchTransaction(TSession session, const TString& path
 }
 
 //! Deletes an expired document
-static TStatus DeleteDocumentWithTimestamp(TSession session, const TString& path, const ui32 queue,
+static TStatus DeleteDocumentWithTimestamp(TSession session, const std::string& path, const ui32 queue,
     const ui64 docId, const ui64 timestamp)
 {
     auto query = Sprintf(R"(
@@ -211,8 +211,8 @@ static TStatus DeleteDocumentWithTimestamp(TSession session, const TString& path
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-void AddDocument(TTableClient client, const TString& path, const TString& url,
-    const TString& html, const ui64 timestamp)
+void AddDocument(TTableClient client, const std::string& path, const std::string& url,
+    const std::string& html, const ui64 timestamp)
 {
     Cout << "> AddDocument:" << Endl
          << " Url: " << url << Endl
@@ -224,7 +224,7 @@ void AddDocument(TTableClient client, const TString& path, const TString& url,
     Cout << Endl;
 }
 
-void ReadDocument(TTableClient client, const TString& path, const TString& url) {
+void ReadDocument(TTableClient client, const std::string& path, const std::string& url) {
     Cout << "> ReadDocument \"" << url << "\":" << Endl;
     std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, url, &resultSet] (TSession session) {
@@ -243,7 +243,7 @@ void ReadDocument(TTableClient client, const TString& path, const TString& url) 
     Cout << Endl;
 }
 
-void DeleteExpired(TTableClient client, const TString& path, const ui32 queue, const ui64 timestamp) {
+void DeleteExpired(TTableClient client, const std::string& path, const ui32 queue, const ui64 timestamp) {
     Cout << "> DeleteExpired from queue #" << queue << ":" << Endl;
     bool empty = false;
     ui64 lastTimestamp = 0;
@@ -271,7 +271,7 @@ void DeleteExpired(TTableClient client, const TString& path, const ui32 queue, c
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-bool Run(const TDriver& driver, const TString& path) {
+bool Run(const TDriver& driver, const std::string& path) {
     TTableClient client(driver);
 
     try {

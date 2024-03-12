@@ -1,7 +1,6 @@
 add_library(monlib-encode-json)
 
 target_link_libraries(monlib-encode-json PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-monlib-encode
   monlib-encode-buffered
@@ -17,6 +16,6 @@ target_sources(monlib-encode-json PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(monlib-encode-json PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

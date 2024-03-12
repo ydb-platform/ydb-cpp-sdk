@@ -9,7 +9,6 @@
 
 add_executable(ttl)
 target_link_libraries(ttl PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-cpuid_check
   library-cpp-getopt
@@ -18,8 +17,5 @@ target_link_libraries(ttl PUBLIC
 target_sources(ttl PRIVATE
   ${CMAKE_SOURCE_DIR}/examples/ttl/main.cpp
   ${CMAKE_SOURCE_DIR}/examples/ttl/ttl.cpp
-)
-target_allocator(ttl
-  system_allocator
 )
 vcs_info(ttl)

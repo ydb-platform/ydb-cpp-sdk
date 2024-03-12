@@ -9,8 +9,7 @@
 
 add_library(cpp-openssl-method)
 target_link_libraries(cpp-openssl-method PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   OpenSSL::SSL
   cpp-openssl-holders

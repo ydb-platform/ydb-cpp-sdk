@@ -12,6 +12,7 @@
 #include <grpc++/support/async_unary_call.h>
 
 #include <deque>
+#include <condition_variable>
 #include <typeindex>
 #include <typeinfo>
 #include <variant>

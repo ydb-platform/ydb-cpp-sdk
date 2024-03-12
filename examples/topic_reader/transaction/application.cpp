@@ -1,7 +1,7 @@
 #include "application.h"
 #include <util/system/env.h>
 
-TApplication::TRow::TRow(ui64 key, const TString& value) :
+TApplication::TRow::TRow(ui64 key, const std::string& value) :
     Key(key),
     Value(value)
 {
@@ -149,7 +149,7 @@ void TApplication::InsertRowsIntoTable()
 {
     Y_ABORT_UNLESS(Transaction);
 
-    TString query = "                                                            \
+    std::string query = "                                                            \
         DECLARE $rows AS List<Struct<                                            \
             id: Uint64,                                                          \
             value: String                                                        \

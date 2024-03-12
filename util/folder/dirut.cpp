@@ -51,7 +51,7 @@ bool resolvepath(std::string& folder, const std::string& home) {
         return false;
     }
     // may be from windows
-    char* ptr = folder.begin();
+    char* ptr = folder.data();
     while ((ptr = strchr(ptr, '\\')) != nullptr)
         *ptr = '/';
 

@@ -5,4 +5,4 @@
 
 NYdb::TParams GetTablesDataParams();
 
-bool Run(const NYdb::TDriver& driver, const TString& path);
+bool Run(const NYdb::TDriver& driver, const std::string& path);

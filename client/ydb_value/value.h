@@ -2,6 +2,7 @@
 
 #include <util/datetime/base.h>
 
+#include <optional>
 #include <memory>
 
 namespace Ydb {

@@ -4,7 +4,6 @@ set_property(TARGET client-yc_public-common PROPERTY
 )
 target_link_libraries(client-yc_public-common PUBLIC
   contrib-libs-googleapis-common-protos
-  contrib-libs-cxxsupp
   yutil
   gRPC::grpc++
   protobuf::libprotobuf
@@ -30,6 +29,6 @@ target_proto_plugin(client-yc_public-common
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(client-yc_public-common PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

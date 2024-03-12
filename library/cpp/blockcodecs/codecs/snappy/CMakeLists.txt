@@ -1,7 +1,6 @@
 add_library(blockcodecs-codecs-snappy INTERFACE)
 
 target_link_libraries(blockcodecs-codecs-snappy INTERFACE
-  contrib-libs-cxxsupp
   yutil
   contrib-libs-snappy
   cpp-blockcodecs-core
@@ -10,7 +9,6 @@ target_link_libraries(blockcodecs-codecs-snappy INTERFACE
 add_global_library_for(blockcodecs-codecs-snappy.global blockcodecs-codecs-snappy)
 
 target_link_libraries(blockcodecs-codecs-snappy.global PUBLIC
-  contrib-libs-cxxsupp
   yutil
   contrib-libs-snappy
   cpp-blockcodecs-core
@@ -22,9 +20,9 @@ target_sources(blockcodecs-codecs-snappy.global PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(blockcodecs-codecs-snappy INTERFACE
-    contrib-libs-linux-headers
+    
   )
   target_link_libraries(blockcodecs-codecs-snappy.global PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

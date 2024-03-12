@@ -1,7 +1,6 @@
 add_library(client-extensions-solomon_stats)
 
 target_link_libraries(client-extensions-solomon_stats PUBLIC
-  contrib-libs-cxxsupp
   yutil
   monlib-encode-json
   cpp-monlib-metrics
@@ -17,6 +16,6 @@ target_sources(client-extensions-solomon_stats PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(client-extensions-solomon_stats PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

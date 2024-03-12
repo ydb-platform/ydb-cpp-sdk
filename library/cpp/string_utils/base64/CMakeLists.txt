@@ -1,7 +1,6 @@
 add_library(cpp-string_utils-base64)
 
 target_link_libraries(cpp-string_utils-base64 PUBLIC
-  contrib-libs-cxxsupp
   yutil
   libs-base64-avx2
   libs-base64-ssse3
@@ -17,6 +16,6 @@ target_sources(cpp-string_utils-base64 PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-string_utils-base64 PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

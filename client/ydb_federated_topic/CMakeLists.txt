@@ -10,7 +10,6 @@ get_built_tool_path(
 add_library(cpp-client-ydb_federated_topic)
 
 target_link_libraries(cpp-client-ydb_federated_topic PUBLIC
-  contrib-libs-cxxsupp
   yutil
   tools-enum_parser-enum_serialization_runtime
   cpp-client-ydb_topic
@@ -25,6 +24,6 @@ generate_enum_serilization(cpp-client-ydb_federated_topic
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-client-ydb_federated_topic PUBLIC
-   contrib-libs-linux-headers
+   
   )
 endif()

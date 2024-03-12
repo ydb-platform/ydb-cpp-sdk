@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <string>
 
 // Some functions for inverted url representation
@@ -15,7 +16,7 @@ void UnTrspChars(const char* s, char* d);
 void InvertDomain(char* begin, char* end);
 
 inline std::string& InvertDomain(std::string& url) {
-    InvertDomain(url.begin(), url.begin() + url.size());
+    InvertDomain(url.data(), url.data() + url.size());
     return url;
 }
 
@@ -26,7 +27,7 @@ inline void InvertUrl(char* url) {
 }
 
 inline std::string& InvertUrl(std::string& url) {
-    InvertUrl(url.begin(), url.begin() + url.size());
+    InvertUrl(url.data(), url.data() + url.size());
     return url;
 }
 
@@ -37,6 +38,6 @@ inline void RevertUrl(char* url) {
 }
 
 inline std::string& RevertUrl(std::string& url) {
-    RevertUrl(url.begin(), url.begin() + url.size());
+    RevertUrl(url.data(), url.data() + url.size());
     return url;
 }

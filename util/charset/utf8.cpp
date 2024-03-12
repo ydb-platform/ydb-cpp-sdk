@@ -47,7 +47,7 @@ namespace {
         newString.resize(n);
 
         size_t written = (char*)p - beg;
-        char* writePtr = newString.begin();
+        char* writePtr = newString.data();
         memcpy(writePtr, beg, written);
         writePtr += written;
         size_t destSpace = n - written;
@@ -60,7 +60,7 @@ namespace {
                 SafeWriteUTF8Char(cNew, cNewLen, (unsigned char*)writePtr, destSpace)) {
                 destSpace += newString.size();
                 newString.resize(newString.size() * 2);
-                writePtr = newString.begin() + (newString.size() - destSpace);
+                writePtr = newString.data() + (newString.size() - destSpace);
                 continue;
             }
             destSpace -= cNewLen;

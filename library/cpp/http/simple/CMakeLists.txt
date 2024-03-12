@@ -1,7 +1,6 @@
 add_library(cpp-http-simple)
 
 target_link_libraries(cpp-http-simple PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-http-io
   cpp-openssl-io
@@ -15,6 +14,6 @@ target_sources(cpp-http-simple PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-http-simple PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

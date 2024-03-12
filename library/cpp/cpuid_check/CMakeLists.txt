@@ -1,14 +1,12 @@
 add_library(library-cpp-cpuid_check INTERFACE)
 
 target_link_libraries(library-cpp-cpuid_check INTERFACE
-  contrib-libs-cxxsupp
   yutil
 )
 
 add_global_library_for(library-cpp-cpuid_check.global library-cpp-cpuid_check)
 
 target_link_libraries(library-cpp-cpuid_check.global PUBLIC
-  contrib-libs-cxxsupp
   yutil
 )
 
@@ -18,9 +16,9 @@ target_sources(library-cpp-cpuid_check.global PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(library-cpp-cpuid_check INTERFACE
-    contrib-libs-linux-headers
+    
   )
   target_link_libraries(library-cpp-cpuid_check.global PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

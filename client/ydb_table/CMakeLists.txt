@@ -11,7 +11,6 @@ get_built_tool_path(
 add_library(cpp-client-ydb_table)
 
 target_link_libraries(cpp-client-ydb_table PUBLIC
-  contrib-libs-cxxsupp
   yutil
   tools-enum_parser-enum_serialization_runtime
   api-protos
@@ -43,6 +42,6 @@ generate_enum_serilization(cpp-client-ydb_table
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-client-ydb_table PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

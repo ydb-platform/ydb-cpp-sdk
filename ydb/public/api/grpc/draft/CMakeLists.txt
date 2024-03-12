@@ -3,7 +3,6 @@ set_property(TARGET api-grpc-draft PROPERTY
   PROTOC_EXTRA_OUTS .grpc.pb.cc .grpc.pb.h
 )
 target_link_libraries(api-grpc-draft PUBLIC
-  contrib-libs-cxxsupp
   yutil
   gRPC::grpc++
   api-protos
@@ -37,6 +36,6 @@ target_proto_plugin(api-grpc-draft
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(api-grpc-draft PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

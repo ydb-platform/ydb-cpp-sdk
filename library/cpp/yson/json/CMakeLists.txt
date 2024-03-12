@@ -1,7 +1,6 @@
 add_library(cpp-yson-json)
 
 target_link_libraries(cpp-yson-json PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-json
 )
@@ -13,6 +12,6 @@ target_sources(cpp-yson-json PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-yson-json PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

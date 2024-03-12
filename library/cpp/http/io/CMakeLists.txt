@@ -1,7 +1,6 @@
 add_library(cpp-http-io)
 
 target_link_libraries(cpp-http-io PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-blockcodecs
   cpp-streams-brotli
@@ -20,6 +19,6 @@ target_sources(cpp-http-io PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-http-io PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

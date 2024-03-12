@@ -7,7 +7,6 @@ get_built_tool_path(
 
 add_library(cpp-client-resources)
 target_link_libraries(cpp-client-resources PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-resource
 )
@@ -18,7 +17,6 @@ target_sources(cpp-client-resources PRIVATE
 
 add_global_library_for(cpp-client-resources.global cpp-client-resources)
 target_link_libraries(cpp-client-resources.global PUBLIC
-  contrib-libs-cxxsupp
   yutil
   library-cpp-resource
 )
@@ -37,9 +35,9 @@ resources(cpp-client-resources.global
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-client-resources PUBLIC
-    contrib-libs-linux-headers
+    
   )
   target_link_libraries(cpp-client-resources.global PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

@@ -1,7 +1,6 @@
 add_library(cpp-containers-stack_vector)
 
 target_link_libraries(cpp-containers-stack_vector PUBLIC
-  contrib-libs-cxxsupp
   yutil
 )
 
@@ -11,6 +10,6 @@ target_sources(cpp-containers-stack_vector PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-containers-stack_vector PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

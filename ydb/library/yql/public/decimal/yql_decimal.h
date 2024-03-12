@@ -3,6 +3,7 @@
 #include <string_view>
 #include "yql_wide_int.h"
 
+#include <cstring>
 #include <type_traits>
 #include <limits>
 

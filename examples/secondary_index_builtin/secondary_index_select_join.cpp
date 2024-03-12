@@ -6,8 +6,8 @@ using namespace NYdb;
 using namespace NYdb::NTable;
 using namespace NLastGetopt;
 
-TStatus SelectSeriesWithUserName(TSession session, const TString& path,
-            std::vector<TSeries>& selectResult, const TString& name) {
+TStatus SelectSeriesWithUserName(TSession session, const std::string& path,
+            std::vector<TSeries>& selectResult, const std::string& name) {
 
     auto queryText = Sprintf(R"(
         --!syntax_v1
@@ -44,11 +44,11 @@ TStatus SelectSeriesWithUserName(TSession session, const TString& path,
     return result;
 }
 
-int SelectJoin(TDriver& driver, const TString& path, int argc, char **argv) {
+int SelectJoin(TDriver& driver, const std::string& path, int argc, char **argv) {
 
     TOpts opts = TOpts::Default();
 
-    TString name;
+    std::string name;
     opts.AddLongOption("name", "User name").Required().RequiredArgument("TYPE")
         .StoreResult(&name);
 

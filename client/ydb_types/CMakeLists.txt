@@ -19,7 +19,6 @@ get_built_tool_path(
 add_library(cpp-client-ydb_types)
 
 target_link_libraries(cpp-client-ydb_types PUBLIC
-  contrib-libs-cxxsupp
   yutil
   protobuf::libprotobuf
   library-grpc-client
@@ -39,6 +38,6 @@ generate_enum_serilization(cpp-client-ydb_types
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-client-ydb_types PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

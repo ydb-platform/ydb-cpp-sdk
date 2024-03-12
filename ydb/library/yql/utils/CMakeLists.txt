@@ -1,7 +1,6 @@
 add_library(library-yql-utils)
 
 target_link_libraries(library-yql-utils PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-digest-md5
   cpp-string_utils-quote
@@ -15,6 +14,6 @@ target_sources(library-yql-utils PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(library-yql-utils PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

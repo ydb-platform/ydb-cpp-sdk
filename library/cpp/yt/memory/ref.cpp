@@ -378,7 +378,7 @@ std::string TSharedRefArray::ToString() const
         size += part.size();
     }
     result.resize(size);
-    char* ptr = result.begin();
+    char* ptr = result.data();
     for (const auto& part : *this) {
         size += part.size();
         ::memcpy(ptr, part.begin(), part.size());

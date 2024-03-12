@@ -15,10 +15,10 @@ void StopHandler(int) {
 int main(int argc, char** argv) {
     TOpts opts = TOpts::Default();
 
-    TString endpoint;
-    TString database;
-    TString path;
-    TString certPath;
+    std::string endpoint;
+    std::string database;
+    std::string path;
+    std::string certPath;
 
     opts.AddLongOption('e', "endpoint", "YDB endpoint").Required().RequiredArgument("HOST:PORT")
         .StoreResult(&endpoint);
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
         .SetAuthToken(GetEnv("YDB_TOKEN"));
 
     if (!certPath.empty()) {
-        TString cert = TFileInput(certPath).ReadAll();
+        std::string cert = TFileInput(certPath).ReadAll();
         driverConfig.UseSecureConnection(cert);
     }
 

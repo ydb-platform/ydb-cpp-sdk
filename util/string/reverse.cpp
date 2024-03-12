@@ -6,12 +6,12 @@
 #include <vector>
 
 void ReverseInPlace(std::string& string) {
-    auto* begin = string.begin();
+    auto* begin = string.data();
     std::reverse(begin, begin + string.size());
 }
 
 void ReverseInPlace(std::u16string& string) {
-    auto* begin = string.begin();
+    auto* begin = string.data();
     const auto len = string.size();
     auto* end = begin + string.size();
 
@@ -27,6 +27,6 @@ void ReverseInPlace(std::u16string& string) {
 }
 
 void ReverseInPlace(std::u32string& string) {
-    auto* begin = string.begin();
+    auto* begin = string.data();
     std::reverse(begin, begin + string.size());
 }

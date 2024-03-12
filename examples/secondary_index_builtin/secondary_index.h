@@ -26,9 +26,9 @@ enum class TCommand {
 
 struct TUser {
     ui64 UserId;
-    TString Name;
+    std::string Name;
     ui32 Age;
-    TUser(ui64 userId = 0, TString name = "", ui32 age = 0)
+    TUser(ui64 userId = 0, std::string name = "", ui32 age = 0)
         : UserId(userId)
         , Name(name)
         , Age(age) {}
@@ -36,14 +36,14 @@ struct TUser {
 
 struct TSeries {
     ui64 SeriesId;
-    TString Title;
+    std::string Title;
     TInstant ReleaseDate;
-    TString Info;
+    std::string Info;
     ui64 Views;
     ui64 UploadedUserId;
 
-    TSeries(ui64 seriesId = 0, TString title = "", TInstant releaseDate = TInstant::Days(0),
-            TString info = "", ui64 views = 0, ui64 uploadedUserId = 0)
+    TSeries(ui64 seriesId = 0, std::string title = "", TInstant releaseDate = TInstant::Days(0),
+            std::string info = "", ui64 views = 0, ui64 uploadedUserId = 0)
         : SeriesId(seriesId)
         , Title(title)
         , ReleaseDate(releaseDate)
@@ -76,14 +76,14 @@ inline void ThrowOnError(NYdb::TStatus status) {
     }
 }
 
-TString GetCommandsList();
+std::string GetCommandsList();
 TCommand Parse(const char *stringCmnd);
-TString JoinPath(const TString& prefix, const TString& path);
+std::string JoinPath(const std::string& prefix, const std::string& path);
 
 void ParseSelectSeries(std::vector<TSeries>& parseResult, TResultSetParser&& parser);
 
-int Create(NYdb::TDriver& driver, const TString& path);
-int Insert(NYdb::TDriver& driver, const TString& path);
-int Drop(NYdb::TDriver& driver, const TString& path);
-int SelectJoin(NYdb::TDriver& driver, const TString& path, int argc, char **argv);
-int Select(NYdb::TDriver& driver, const TString& path, int argc, char **argv);
+int Create(NYdb::TDriver& driver, const std::string& path);
+int Insert(NYdb::TDriver& driver, const std::string& path);
+int Drop(NYdb::TDriver& driver, const std::string& path);
+int SelectJoin(NYdb::TDriver& driver, const std::string& path, int argc, char **argv);
+int Select(NYdb::TDriver& driver, const std::string& path, int argc, char **argv);

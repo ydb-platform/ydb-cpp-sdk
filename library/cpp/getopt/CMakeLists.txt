@@ -2,7 +2,6 @@ add_subdirectory(small)
 
 add_library(library-cpp-getopt INTERFACE)
 target_link_libraries(library-cpp-getopt INTERFACE
-  contrib-libs-cxxsupp
   yutil
   cpp-getopt-small
   library-cpp-svnversion
@@ -11,7 +10,6 @@ target_link_libraries(library-cpp-getopt INTERFACE
 
 add_global_library_for(library-cpp-getopt.global library-cpp-getopt)
 target_link_libraries(library-cpp-getopt.global PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-getopt-small
   library-cpp-svnversion
@@ -23,9 +21,9 @@ target_sources(library-cpp-getopt.global PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(library-cpp-getopt INTERFACE
-    contrib-libs-linux-headers
+    
   )
   target_link_libraries(library-cpp-getopt.global PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

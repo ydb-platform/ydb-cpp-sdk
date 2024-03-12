@@ -4,11 +4,11 @@ using namespace NYdb;
 using namespace NYdb::NTable;
 
 struct TSchool {
-    TString City;
+    std::string City;
     ui32 Number;
-    TString Address;
+    std::string Address;
 
-    TSchool(const TString& city, ui32 number, const TString& address)
+    TSchool(const std::string& city, ui32 number, const std::string& address)
         : City(city)
         , Number(number)
         , Address(address) {}

@@ -4,6 +4,8 @@
 #include <util/random/random.h>
 #include <util/string/printf.h>
 
+#include <cstring>
+
 namespace NYT {
 
 ////////////////////////////////////////////////////////////////////////////////

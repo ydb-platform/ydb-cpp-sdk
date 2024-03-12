@@ -1,7 +1,6 @@
 add_library(client-ydb_query-impl)
 
 target_link_libraries(client-ydb_query-impl PUBLIC
-  contrib-libs-cxxsupp
   yutil
   api-grpc-draft
   api-protos
@@ -16,6 +15,6 @@ target_sources(client-ydb_query-impl PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(client-ydb_query-impl PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

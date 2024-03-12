@@ -9,8 +9,7 @@
 
 add_library(cpp-streams-zstd)
 target_link_libraries(cpp-streams-zstd PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
   contrib-libs-zstd
 )

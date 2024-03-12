@@ -6,6 +6,8 @@
 
 #include <util/stream/output.h>
 
+#include <optional>
+
 namespace NYdb::NQuery {
 
 struct TTxOnlineSettings {

@@ -9,7 +9,6 @@ get_built_tool_path(
 
 add_library(api-protos)
 target_link_libraries(api-protos PUBLIC
-  contrib-libs-cxxsupp
   yutil
   api-protos-annotations
   tools-enum_parser-enum_serialization_runtime
@@ -88,6 +87,6 @@ target_proto_plugin(api-protos
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(api-protos PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

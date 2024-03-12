@@ -2,7 +2,7 @@
 
 #include <util/folder/pathsplit.h>
 
-TString GetCmdList() {
+std::string GetCmdList() {
     return "create_tables, drop_tables, update_views, list, generate, delete";
 }
 
@@ -28,7 +28,7 @@ ECmd ParseCmd(const char* cmd) {
     return ECmd::NONE;
 }
 
-TString JoinPath(const TString& prefix, const TString& path) {
+std::string JoinPath(const std::string& prefix, const std::string& path) {
     if (prefix.empty()) {
         return path;
     }

@@ -1,7 +1,6 @@
 add_library(impl-ydb_internal-grpc_connections)
 
 target_link_libraries(impl-ydb_internal-grpc_connections PUBLIC
-  contrib-libs-cxxsupp
   yutil
   api-grpc
   api-protos
@@ -20,6 +19,6 @@ target_sources(impl-ydb_internal-grpc_connections PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(impl-ydb_internal-grpc_connections PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

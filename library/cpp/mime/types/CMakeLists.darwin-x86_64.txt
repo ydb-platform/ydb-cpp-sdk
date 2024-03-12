@@ -15,7 +15,6 @@ get_built_tool_path(
 
 add_library(cpp-mime-types)
 target_link_libraries(cpp-mime-types PUBLIC
-  contrib-libs-cxxsupp
   yutil
   tools-enum_parser-enum_serialization_runtime
 )

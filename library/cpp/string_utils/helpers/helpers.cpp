@@ -1,5 +1,7 @@
 #include "helpers.h"
 
+#include <algorithm>
+
 namespace NUtils {
     namespace {
     void DoSplit(std::string_view src, std::string_view& l, std::string_view& r, size_t pos, size_t len) {
@@ -35,7 +37,7 @@ void RemoveAll(std::string& str, char ch) {
         return;
 
     auto begin = str.begin();
-    auto end = begin + str.length();
+    auto end = begin + str.size();
     auto it = std::remove(begin + pos, end, ch);
     str.erase(it, end);
 }

@@ -16,7 +16,6 @@
 #include <util/system/defaults.h>
 
 #include <utility>
-#include <stlfwd>
 
 // NOTE: Check StringSplitter below to get more convenient split string interface.
 
@@ -661,8 +660,8 @@ namespace NStringSplitPrivate {
 
         TIterState(const String& string) noexcept
             : TStringBufType()
-            , DelimiterEnd_(std::begin(string))
-            , OriginEnd_(std::end(string))
+            , DelimiterEnd_(string.data())
+            , OriginEnd_(string.data() + string.size())
         {
         }
 

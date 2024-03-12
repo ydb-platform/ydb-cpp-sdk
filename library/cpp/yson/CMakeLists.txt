@@ -4,7 +4,6 @@ add_subdirectory(node)
 add_library(library-cpp-yson)
 
 target_link_libraries(library-cpp-yson PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-yt-misc
   cpp-yt-yson
@@ -22,6 +21,6 @@ target_sources(library-cpp-yson PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(library-cpp-yson PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

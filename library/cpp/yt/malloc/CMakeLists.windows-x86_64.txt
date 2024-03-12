@@ -9,7 +9,6 @@
 
 add_library(cpp-yt-malloc)
 target_link_libraries(cpp-yt-malloc PUBLIC
-  contrib-libs-cxxsupp
   yutil
 )
 target_sources(cpp-yt-malloc PRIVATE

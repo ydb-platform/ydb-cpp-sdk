@@ -9,8 +9,7 @@
 
 add_library(cpp-threading-light_rw_lock)
 target_link_libraries(cpp-threading-light_rw_lock PUBLIC
-  contrib-libs-linux-headers
-  contrib-libs-cxxsupp
+  
   yutil
 )
 target_sources(cpp-threading-light_rw_lock PRIVATE

@@ -1,7 +1,6 @@
 add_library(client-ydb_persqueue_core-impl)
 
 target_link_libraries(client-ydb_persqueue_core-impl PUBLIC
-  contrib-libs-cxxsupp
   yutil
   cpp-containers-disjoint_interval_tree
   library-grpc-client
@@ -28,6 +27,6 @@ target_sources(client-ydb_persqueue_core-impl PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" AND NOT HAVE_CUDA)
   target_link_libraries(client-ydb_persqueue_core-impl PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()

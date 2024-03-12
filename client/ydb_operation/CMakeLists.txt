@@ -1,7 +1,6 @@
 add_library(cpp-client-ydb_operation)
 
 target_link_libraries(cpp-client-ydb_operation PUBLIC
-  contrib-libs-cxxsupp
   yutil
   api-grpc
   public-lib-operation_id
@@ -19,6 +18,6 @@ target_sources(cpp-client-ydb_operation PRIVATE
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
   target_link_libraries(cpp-client-ydb_operation PUBLIC
-    contrib-libs-linux-headers
+    
   )
 endif()
