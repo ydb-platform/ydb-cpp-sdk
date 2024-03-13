@@ -19,7 +19,7 @@ struct TOptions {
         opts.AddHelpOption('h');
         opts.AddLongOption('e', "endpoint", "YDB endpoint").Required().RequiredArgument("HOST:PORT")
             .StoreResult(&Endpoint);
-        opts.AddLongOption('d', "database", "YDB database name").DefaultValue("/Root").RequiredArgument("PATH")
+        opts.AddLongOption('d', "database", "YDB database name").DefaultValue("/local").RequiredArgument("PATH")
             .StoreResult(&Database);
         opts.AddLongOption('t', "topic-path", "Topic path for reading").Required().RequiredArgument("PATH")
             .StoreResult(&TopicPath);
