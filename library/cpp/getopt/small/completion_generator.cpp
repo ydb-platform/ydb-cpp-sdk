@@ -3,6 +3,7 @@
 #include <util/generic/overloaded.h>
 
 #include "last_getopt_parse_result.h"
+#include <unordered_set>
 
 using NLastGetopt::NEscaping::Q;
 using NLastGetopt::NEscaping::QQ;
@@ -246,7 +247,7 @@ namespace NLastGetopt {
     void TZshCompletionGenerator::GenerateOptCompletion(TFormattedOutput& out, const TOpts& opts, const TOpt& opt, NComp::TCompleterManager& manager) {
         auto& line = L;
 
-        THashSet<std::string> disableOptions;
+        std::unordered_set<std::string> disableOptions;
         if (opt.DisableCompletionForOptions_) {
             disableOptions.insert("-");
         } else {

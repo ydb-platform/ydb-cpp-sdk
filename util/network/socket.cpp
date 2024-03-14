@@ -45,6 +45,7 @@
 
 #include <stddef.h>
 #include <sys/uio.h>
+#include <unordered_set>
 
 using namespace NAddr;
 
@@ -947,7 +948,7 @@ void TSocketOutput::DoWriteV(const TPart* parts, size_t count) {
 namespace {
     //https://bugzilla.mozilla.org/attachment.cgi?id=503263&action=diff
 
-    struct TLocalNames: public THashSet<std::string_view> {
+    struct TLocalNames: public std::unordered_set<std::string_view> {
         inline TLocalNames() {
             insert("localhost");
             insert("localhost.localdomain");

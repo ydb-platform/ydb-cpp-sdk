@@ -19,7 +19,7 @@ public:
                 bool start = true,
                 const std::vector<NKikimrServices::EServiceKikimr>& logServices = TTestServer::LOGGED_SERVICES,
                 NActors::NLog::EPriority logPriority = NActors::NLog::PRI_DEBUG,
-                std::optional<TSimpleSharedPtr<TPortManager>> portManager = std::nullopt)
+                TMaybe<TSimpleSharedPtr<TPortManager>> portManager = Nothing())
         : PortManager(portManager.GetOrElse(MakeSimpleShared<TPortManager>()))
         , Port(PortManager->GetPort(2134))
         , GrpcPort(PortManager->GetPort(2135))
@@ -44,7 +44,7 @@ public:
     {
     }
 
-    void StartServer(bool doClientInit = true, std::optional<std::string> databaseName = std::nullopt) {
+    void StartServer(bool doClientInit = true, TMaybe<std::string> databaseName = Nothing()) {
         Log.SetFormatter([](ELogPriority priority, std::string_view message) {
             return TYdbStringBuilder() << TInstant::Now() << " " << priority << ": " << message << Endl;
         });
@@ -136,7 +136,7 @@ private:
 
         if (killPq)
         {
-            THashSet<ui64> restartedTablets;
+            std::unordered_set<ui64> restartedTablets;
             for (const auto& p : persQueueGroup.GetPartitions())
                 if (restartedTablets.insert(p.GetTabletId()).second)
                 {
