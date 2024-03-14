@@ -4,13 +4,28 @@ on:
   push:
     branches:
       - main
-      - release-*
   pull_request:
+    branches:
+      - main
 
 jobs:
   main:
-    name: Build YDB C++ SDK
+    name: PR check for YDB C++ SDK
     runs-on: ubuntu-22.04
+    services:
+      ydb:
+        image: ydbplatform/local-ydb:latest
+        ports:
+          - 2135:2135
+          - 2136:2136
+          - 8765:8765
+        volumes:
+          - /tmp/ydb_certs:/ydb_certs
+        env:
+          YDB_LOCAL_SURVIVE_RESTART: true
+          YDB_USE_IN_MEMORY_PDISKS: true
+          YDB_TABLE_ENABLE_PREPARED_DDL: true
+        options: '-h localhost'
     steps:
     - name: Checkout PR
       uses: actions/checkout@v3
@@ -37,3 +52,8 @@ jobs:
           ubuntu-22.04-ccache-
     - name: Build
       uses: ./.github/actions/build
+    - name: Launch basic example
+      shell: bash
+      run: |
+        cd ../build
+        examples/basic_example/basic_example -e localhost:2136 -d /local
