@@ -16,8 +16,4 @@ target_sources(cpp-http-server PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/http/server/response.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-http-server PUBLIC
-    
-  )
-endif()
+

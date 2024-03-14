@@ -18,7 +18,7 @@ static TStatus DeleteSeries(TSession& session, const std::string& prefix, ui64 s
 
         $data = (
             SELECT series_id, ($maxUint64 - views) AS rev_views
-            FROM [series]
+            FROM series
             WHERE series_id = $seriesId
         );
 

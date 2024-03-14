@@ -29,8 +29,4 @@ generate_enum_serilization(cpp-http-misc
   library/cpp/http/misc/httpcodes.h
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-http-misc PUBLIC
-    
-  )
-endif()
+

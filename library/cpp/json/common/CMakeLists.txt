@@ -8,8 +8,4 @@ target_sources(cpp-json-common PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/json/common/defs.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-json-common PUBLIC
-    
-  )
-endif()
+

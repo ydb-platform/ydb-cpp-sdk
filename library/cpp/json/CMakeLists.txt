@@ -21,8 +21,4 @@ target_sources(library-cpp-json PRIVATE
 )
 
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(library-cpp-json PUBLIC
-    
-  )
-endif()
+

@@ -28,8 +28,4 @@ target_sources(monlib-service-pages PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/monlib/service/pages/registry_mon_page.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(monlib-service-pages PUBLIC
-    
-  )
-endif()
+

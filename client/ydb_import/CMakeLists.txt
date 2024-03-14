@@ -29,8 +29,4 @@ generate_enum_serilization(cpp-client-ydb_import
   client/ydb_import/import.h
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-client-ydb_import PUBLIC
-    
-  )
-endif()
+

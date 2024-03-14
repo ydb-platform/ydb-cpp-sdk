@@ -36,7 +36,7 @@ namespace NThreading {
 
         private:
             mutable TAtomic State;
-            TAdaptiveLock StateLock;
+            mutable TAdaptiveLock StateLock;
 
             TCallbackList<T> Callbacks;
             mutable THolder<TSystemEvent> ReadyEvent;
@@ -237,7 +237,7 @@ namespace NThreading {
                 TSystemEvent* readyEvent = nullptr;
 
                 {
-                    std::lock_guard guard(const_cast<TAdaptiveLock&>(StateLock));
+                    std::lock_guard guard{StateLock};
                     TAtomicBase state = AtomicGet(State);
                     if (state != NotReady) {
                         return true;
@@ -273,7 +273,7 @@ namespace NThreading {
 
         private:
             TAtomic State;
-            TAdaptiveLock StateLock;
+            mutable TAdaptiveLock StateLock;
 
             TCallbackList<void> Callbacks;
             mutable THolder<TSystemEvent> ReadyEvent;
@@ -428,7 +428,7 @@ namespace NThreading {
                 TSystemEvent* readyEvent = nullptr;
 
                 {
-                    std::lock_guard<TAdaptiveLock> guard(const_cast<TAdaptiveLock&>(StateLock));
+                    std::lock_guard guard{StateLock};
                     TAtomicBase state = AtomicGet(State);
                     if (state != NotReady) {
                         return true;

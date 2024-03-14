@@ -9,8 +9,4 @@ target_sources(cpp-blockcodecs-core PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/blockcodecs/core/stream.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-blockcodecs-core PUBLIC
-    
-  )
-endif()
+

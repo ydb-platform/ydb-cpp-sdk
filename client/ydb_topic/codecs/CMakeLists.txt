@@ -14,8 +14,4 @@ target_sources(client-ydb_topic-codecs PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_topic/codecs/codecs.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(client-ydb_topic-codecs PUBLIC
-    
-  )
-endif()
+

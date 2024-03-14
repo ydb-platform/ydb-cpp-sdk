@@ -18,8 +18,3 @@ target_proto_outs(lib-operation_id-protos
   --cpp_out=${CMAKE_BINARY_DIR}/
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(lib-operation_id-protos PUBLIC
-    
-  )
-endif()

@@ -25,8 +25,4 @@ target_proto_plugin(yc_private-kms-asymmetricsignature
   gRPC::grpc_cpp_plugin
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(yc_private-kms-asymmetricsignature PUBLIC
-    
-  )
-endif()
+

@@ -8,8 +8,3 @@ target_sources(cpp-string_utils-stream PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/string_utils/stream/stream.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-string_utils-stream PUBLIC
-    
-  )
-endif()

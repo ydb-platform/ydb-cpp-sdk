@@ -21,8 +21,4 @@ target_sources(cpp-yt-string PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/yt/string/format.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-yt-string PUBLIC
-    
-  )
-endif()
+

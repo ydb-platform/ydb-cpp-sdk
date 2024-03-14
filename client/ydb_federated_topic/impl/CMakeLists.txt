@@ -25,8 +25,4 @@ target_sources(client-ydb_federated_topic-impl PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_federated_topic/impl/federation_observer.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(client-ydb_federated_topic-impl PUBLIC
-    
-  )
-endif()
+

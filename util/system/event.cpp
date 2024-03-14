@@ -80,8 +80,9 @@ public:
 
         std::unique_lock ulock(Mutex);
         while (!Signaled.load(std::memory_order_acquire)) {
-            auto duration = std::chrono::microseconds(deadLine.MicroSeconds());
-            if (Cond.wait_until(ulock, std::chrono::time_point<std::chrono::steady_clock>(duration)) == std::cv_status::timeout) {
+            auto timeout = std::chrono::nanoseconds(std::min(deadLine.NanoSeconds(),
+                                                    static_cast<ui64>(std::chrono::nanoseconds::max().count())));
+            if (Cond.wait_until(ulock, std::chrono::time_point<std::chrono::system_clock>(timeout)) == std::cv_status::timeout) {
                 resSignaled = Signaled.load(std::memory_order_acquire); // timed out, but Signaled could have been set
 
                 break;
