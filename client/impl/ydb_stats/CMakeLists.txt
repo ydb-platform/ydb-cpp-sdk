@@ -10,8 +10,4 @@ target_sources(client-impl-ydb_stats PRIVATE
   ${CMAKE_SOURCE_DIR}/client/impl/ydb_stats/stats.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(client-impl-ydb_stats PUBLIC
-    
-  )
-endif()
+

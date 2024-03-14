@@ -38,8 +38,4 @@ generate_enum_serilization(cpp-monlib-metrics
   library/cpp/monlib/metrics/metric_value_type.h
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-monlib-metrics PUBLIC
-    
-  )
-endif()
+

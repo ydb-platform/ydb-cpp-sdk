@@ -15,8 +15,4 @@ target_sources(cpp-client-draft PRIVATE
   ${CMAKE_SOURCE_DIR}/client/draft/ydb_long_tx.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-client-draft PUBLIC
-    
-  )
-endif()
+

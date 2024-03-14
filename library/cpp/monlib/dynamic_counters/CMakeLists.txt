@@ -20,8 +20,4 @@ target_sources(cpp-monlib-dynamic_counters PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/monlib/dynamic_counters/page.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-monlib-dynamic_counters PUBLIC
-    
-  )
-endif()
+

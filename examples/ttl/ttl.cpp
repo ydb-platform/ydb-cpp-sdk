@@ -136,23 +136,23 @@ static TStatus ReadExpiredBatchTransaction(TSession session, const std::string& 
         DECLARE $prev_doc_id AS Uint64;
 
         $data = (
-            SELECT *
+            (SELECT *
             FROM expiration_queue_%u
             WHERE
                 `timestamp` <= $timestamp
                 AND
                 `timestamp` > $prev_timestamp
             ORDER BY `timestamp`, doc_id
-            LIMIT 100
+            LIMIT 100)
 
             UNION ALL
 
-            SELECT *
+            (SELECT *
             FROM expiration_queue_%u
             WHERE
                 `timestamp` = $prev_timestamp AND doc_id > $prev_doc_id
             ORDER BY `timestamp`, doc_id
-            LIMIT 100
+            LIMIT 100)
         );
 
         SELECT `timestamp`, doc_id

@@ -10,8 +10,4 @@ target_sources(cpp-yson-json PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/yson/json/yson2json_adapter.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-yson-json PUBLIC
-    
-  )
-endif()
+

@@ -16,9 +16,3 @@ target_link_libraries(ydb-library-login PUBLIC
 target_sources(ydb-library-login PRIVATE
   ${CMAKE_SOURCE_DIR}/ydb/library/login/login.cpp
 )
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(ydb-library-login PUBLIC
-    
-  )
-endif()

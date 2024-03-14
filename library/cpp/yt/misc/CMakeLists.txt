@@ -18,8 +18,4 @@ target_sources(cpp-yt-misc PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/yt/misc/variant.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-yt-misc PUBLIC
-    
-  )
-endif()
+

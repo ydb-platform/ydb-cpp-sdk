@@ -14,8 +14,4 @@ target_sources(cpp-string_utils-base64 PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/string_utils/base64/base64.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-string_utils-base64 PUBLIC
-    
-  )
-endif()
+

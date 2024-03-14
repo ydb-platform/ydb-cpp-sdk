@@ -14,8 +14,4 @@ target_sources(client-extensions-solomon_stats PRIVATE
   ${CMAKE_SOURCE_DIR}/client/extensions/solomon_stats/pull_connector.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(client-extensions-solomon_stats PUBLIC
-    
-  )
-endif()
+
