@@ -151,14 +151,6 @@ function(add_global_library_for TgtName MainName)
   endif()
 endfunction()
 
-function(copy_file From To)
-  add_custom_command(
-    OUTPUT ${To}
-    COMMAND ${CMAKE_COMMAND} -E copy ${From} ${To}
-    DEPENDS ${From}
-  )
-endfunction()
-
 function(vcs_info Tgt)
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vcs_info.json
@@ -203,47 +195,6 @@ function(resources Tgt Output)
     OUTPUT ${Output}
     COMMAND ${rescompiler_bin} ${Output} ${ResourcesList}
     DEPENDS ${RESOURCE_ARGS_INPUTS} ${rescompiler_dependency}
-  )
-endfunction()
-
-function(use_export_script Target ExportFile)
-  get_filename_component(OutName ${ExportFile} NAME)
-  set(OutPath ${CMAKE_CURRENT_BINARY_DIR}/gen_${OutName})
-
-  if (MSVC)
-    target_link_options(${Target} PRIVATE /DEF:${OutPath})
-    set(EXPORT_SCRIPT_FLAVOR msvc)
-  elseif(APPLE)
-    execute_process(
-      COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/build/scripts/export_script_gen.py ${ExportFile} - --format darwin
-      RESULT_VARIABLE _SCRIPT_RES
-      OUTPUT_VARIABLE _SCRIPT_FLAGS
-      ERROR_VARIABLE _SCRIPT_STDERR
-    )
-    if (NOT ${_SCRIPT_RES} EQUAL 0)
-      message(FATAL_ERROR "Failed to parse export symbols from ${ExportFile}:\n${_SCRIPT_STDERR}")
-      return()
-    endif()
-    separate_arguments(ParsedScriptFlags NATIVE_COMMAND ${_SCRIPT_FLAGS})
-    target_link_options(${Target} PRIVATE ${ParsedScriptFlags})
-    return()
-  else()
-    set(EXPORT_SCRIPT_FLAVOR gnu)
-    target_link_options(${Target} PRIVATE -Wl,--gc-sections -rdynamic -Wl,--version-script=${OutPath})
-  endif()
-
-  add_custom_command(
-    OUTPUT ${OutPath}
-    COMMAND
-      Python3::Interpreter ${CMAKE_SOURCE_DIR}/build/scripts/export_script_gen.py ${ExportFile} ${OutPath} --format ${EXPORT_SCRIPT_FLAVOR}
-    DEPENDS ${ExportFile} ${CMAKE_SOURCE_DIR}/build/scripts/export_script_gen.py
-  )
-  target_sources(${Target} PRIVATE ${OutPath})
-  set_property(SOURCE ${OutPath} PROPERTY
-    HEADER_FILE_ONLY On
-  )
-  set_property(TARGET ${Target} APPEND PROPERTY
-    LINK_DEPENDS ${OutPath}
   )
 endfunction()
 
@@ -304,13 +255,4 @@ function(set_yunittest_property)
   foreach(Idx RANGE ${LastIdx})
     set_property(TEST ${YUNITTEST_ARGS_TEST}_${Idx} PROPERTY ${YUNITTEST_ARGS_PROPERTY} ${YUNITTEST_ARGS_UNPARSED_ARGUMENTS})
   endforeach()
-endfunction()
-
-option(CUSTOM_ALLOCATORS "Enables use of per executable specified allocators. Can be turned off in order to use code instrumentation tooling relying on system allocator (sanitizers, heaptrack, ...)" On)
-function(target_allocator Tgt)
-  if (CUSTOM_ALLOCATORS)
-    target_link_libraries(${Tgt} PRIVATE ${ARGN})
-  else()
-    target_link_libraries(${Tgt} PRIVATE system_allocator)
-  endif()
 endfunction()
