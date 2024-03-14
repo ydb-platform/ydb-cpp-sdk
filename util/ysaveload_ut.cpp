@@ -184,7 +184,7 @@ private:
         }
 
         {
-            TDeque<ui16> deq;
+            std::deque<ui16> deq;
 
             deq.push_back(1);
             deq.push_back(2);
@@ -327,7 +327,7 @@ private:
         }
 
         {
-            TDeque<ui16> deq;
+            std::deque<ui16> deq;
 
             Load(&S_, deq);
 

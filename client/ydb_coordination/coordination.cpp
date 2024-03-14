@@ -1,5 +1,7 @@
 #include "coordination.h"
 
+#include <deque>
+
 #define INCLUDE_YDB_INTERNAL_H
 #include <client/impl/ydb_internal/make_request/make.h>
 #include <client/impl/ydb_internal/scheme_helpers/helpers.h>
@@ -309,7 +311,7 @@ private:
         TIntrusivePtr<TSemaphoreOp> LastSentOp;
         TIntrusivePtr<TSemaphoreOp> LastAckedOp;
         THashMap<ui64, TIntrusivePtr<TSemaphoreOp>> WaitingOps;
-        TDeque<TIntrusivePtr<TSemaphoreOp>> OpQueue;
+        std::deque<TIntrusivePtr<TSemaphoreOp>> OpQueue;
         bool Restoring = false;
 
         bool IsEmpty() const {
@@ -884,9 +886,9 @@ private:
         bool notifyExpired = false;
         TPromise<TSessionResult> sessionPromise;
         TResultPromise<void> reconnectPromise;
-        TDeque<TResultPromise<bool>> abortedSemaphoreOps;
-        TDeque<TResultPromise<bool>> failedSemaphoreOps;
-        TDeque<THolder<TSimpleOp>> failedSimpleOps;
+        std::deque<TResultPromise<bool>> abortedSemaphoreOps;
+        std::deque<TResultPromise<bool>> failedSemaphoreOps;
+        std::deque<THolder<TSimpleOp>> failedSimpleOps;
         TResultPromise<void> closePromise;
 
         with_lock (Lock) {
@@ -1019,7 +1021,7 @@ private:
             sessionPromise.SetValue(TSessionResult(status));
         }
 
-        if (abortedSemaphoreOps) {
+        if (!abortedSemaphoreOps.empty()) {
             auto aborted = MakeStatus(EStatus::ABORTED,
                 "Operation superseded by another request, true result has been lost");
             for (auto& promise : abortedSemaphoreOps) {
@@ -1757,7 +1759,7 @@ private:
 
     THashMap<std::string, TSemaphoreState> Semaphores;
     THashMap<ui64, TSemaphoreState*> SemaphoreByReqId;
-    TDeque<THolder<TSimpleOp>> PendingRequests;
+    std::deque<THolder<TSimpleOp>> PendingRequests;
     THashMap<ui64, THolder<TSimpleOp>> SentRequests;
     TResultPromise<void> ReconnectPromise;
 

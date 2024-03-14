@@ -100,7 +100,7 @@ namespace {
             return D_.at(idx).first;
         }
 
-        typedef TDeque<TDescriptor> TDescriptors;
+        typedef std::deque<TDescriptor> TDescriptors;
         TDescriptors D_;
     };
 }

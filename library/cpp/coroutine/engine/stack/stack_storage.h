@@ -1,5 +1,7 @@
 #pragma once
 
+#include <deque>
+
 #include "stack.h"
 
 #include <util/datetime/base.h>
@@ -30,8 +32,8 @@ namespace NCoro::NStack {
         void ReleaseMemory(char* alignedStackMemory, size_t pagesToKeep) noexcept;
 
     private:
-        TDeque<void*> Released_; //!< stacks memory with released RSS memory
-        TDeque<void*> Full_;     //!< stacks memory with RSS memory
+        std::deque<void*> Released_; //!< stacks memory with released RSS memory
+        std::deque<void*> Full_;     //!< stacks memory with RSS memory
         size_t StackSize_ = 0;
         size_t RssPagesToKeep_ = 0;
         const size_t ReleaseRate_ = 1;

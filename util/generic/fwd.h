@@ -3,6 +3,7 @@
 #include <util/system/defaults.h>
 
 #include <stlfwd>
+#include <deque>
 
 template <typename TCharType, typename TTraits = std::char_traits<TCharType>>
 class TBasicString;
@@ -55,10 +56,10 @@ class TRbTree;
 template <class T, class A = std::allocator<T>>
 class TVector;
 
-template <class T, class A = std::allocator<T>>
-class TDeque;
+//template <class T, class A = std::allocator<T>>
+//class TDeque;
 
-template <class T, class S = TDeque<T>>
+template <class T, class S = std::deque<T>>
 class TQueue;
 
 template <class T, class S = std::vector<T>, class C = TLess<T>>
@@ -85,7 +86,7 @@ class TSet;
 template <class K, class L = TLess<K>, class A = std::allocator<K>>
 class TMultiSet;
 
-template <class T, class S = TDeque<T>>
+template <class T, class S = std::deque<T>>
 class TStack;
 
 template <size_t BitCount, typename TChunkType = ui64>

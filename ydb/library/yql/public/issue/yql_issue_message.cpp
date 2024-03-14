@@ -9,6 +9,7 @@
 #include <util/string/join.h>
 
 #include <tuple>
+#include <deque>
 
 namespace NYql {
 
@@ -17,7 +18,7 @@ using namespace NIssue::NProto;
 template<typename TIssueMessage>
 TIssue IssueFromMessage(const TIssueMessage& issueMessage) {
     TIssue topIssue;
-    TDeque<std::pair<TIssue*, const TIssueMessage*>> queue;
+    std::deque<std::pair<TIssue*, const TIssueMessage*>> queue;
     queue.push_front(std::make_pair(&topIssue, &issueMessage));
     while (!queue.empty()) {
         TIssue& issue = *queue.back().first;
@@ -58,7 +59,7 @@ void IssuesFromMessage(const ::google::protobuf::RepeatedPtrField<TIssueMessage>
 
 template<typename TIssueMessage>
 void IssueToMessage(const TIssue& topIssue, TIssueMessage* issueMessage) {
-    TDeque<std::pair<const TIssue*, TIssueMessage*>> queue;
+    std::deque<std::pair<const TIssue*, TIssueMessage*>> queue;
     queue.push_front(std::make_pair(&topIssue, issueMessage));
     while (!queue.empty()) {
         const TIssue& issue = *queue.back().first;

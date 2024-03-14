@@ -59,7 +59,7 @@ namespace {
             Registry[Tmp.back()] = Registry[to];
         }
 
-        TDeque<std::string> Tmp;
+        std::deque<std::string> Tmp;
         TNullCodec Null;
         std::vector<TCodecPtr> Codecs;
         typedef THashMap<std::string_view, ICodec*> TRegistry;

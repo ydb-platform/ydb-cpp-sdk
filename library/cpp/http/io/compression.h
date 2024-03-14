@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stream.h"
+#include <deque>
 
 #include <util/generic/deque.h>
 #include <util/generic/hash.h>
@@ -44,7 +45,7 @@ private:
         TEncoderConstructor Encoder;
     };
 
-    TDeque<std::string> Strings_;
+    std::deque<std::string> Strings_;
     THashMap<std::string_view, TCodec> Codecs_;
     std::vector<std::string_view> BestCodecs_;
 };

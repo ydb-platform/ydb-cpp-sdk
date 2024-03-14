@@ -321,7 +321,7 @@ public:
     }
 
 private:
-    TDeque<TX509Ptr> Certs;
+    std::deque<TX509Ptr> Certs;
 };
 
 TOpenSslX509StorePtr GetBuiltinOpenSslX509Store() {

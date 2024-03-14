@@ -369,10 +369,6 @@ class TSerializer<std::basic_string<TChar>>: public TVectorSerializer<std::basic
 };
 
 template <class T, class A>
-class TSerializer<TDeque<T, A>>: public TVectorSerializer<TDeque<T, A>> {
-};
-
-template <class T, class A>
 class TSerializer<std::deque<T, A>>: public TVectorSerializer<std::deque<T, A>> {
 };
 

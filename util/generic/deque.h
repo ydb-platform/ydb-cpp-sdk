@@ -7,7 +7,7 @@
 #include <deque>
 #include <memory>
 #include <initializer_list>
-
+/*
 template <class T, class A>
 class TDeque: public std::deque<T, TReboundAllocator<A, T>> {
     using TBase = std::deque<T, TReboundAllocator<A, T>>;
@@ -22,4 +22,4 @@ public:
     inline explicit operator bool() const noexcept {
         return !this->empty();
     }
-};
+};*/

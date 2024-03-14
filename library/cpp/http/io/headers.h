@@ -1,5 +1,7 @@
 #pragma once
 
+#include <deque>
+
 #include <library/cpp/string_builder/string_builder.h>
 
 #include <util/generic/string.h>
@@ -53,7 +55,7 @@ private:
 
 /// Контейнер для хранения HTTP-заголовков
 class THttpHeaders {
-    using THeaders = TDeque<THttpInputHeader>;
+    using THeaders = std::deque<THttpInputHeader>;
 
 public:
     using TConstIterator = THeaders::const_iterator;

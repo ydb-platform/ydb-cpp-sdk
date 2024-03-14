@@ -9,7 +9,7 @@
 Y_UNIT_TEST_SUITE(TYQueueTest) {
     Y_UNIT_TEST(ConstructorsAndAssignments) {
         {
-            using container = TQueue<int>;
+            using container = std::deque<int>;
 
             container c1;
             UNIT_ASSERT(!c1);
@@ -74,7 +74,7 @@ Y_UNIT_TEST_SUITE(TYQueueTest) {
     }
 
     Y_UNIT_TEST(pqueue1) {
-        TPriorityQueue<int, TDeque<int>, TLess<int>> q;
+        TPriorityQueue<int, std::deque<int>, TLess<int>> q;
 
         q.push(42);
         q.push(101);
@@ -92,7 +92,7 @@ Y_UNIT_TEST_SUITE(TYQueueTest) {
     }
 
     Y_UNIT_TEST(pqueue2) {
-        using TPQueue = TPriorityQueue<int, TDeque<int>, TLess<int>>;
+        using TPQueue = TPriorityQueue<int, std::deque<int>, TLess<int>>;
         TPQueue q;
 
         {
@@ -118,7 +118,7 @@ Y_UNIT_TEST_SUITE(TYQueueTest) {
     }
 
     Y_UNIT_TEST(pqueue3) {
-        TPriorityQueue<int, TDeque<int>, TLess<int>> q;
+        TPriorityQueue<int, std::deque<int>, TLess<int>> q;
 
         q.push(42);
         q.push(101);
@@ -129,12 +129,12 @@ Y_UNIT_TEST_SUITE(TYQueueTest) {
     }
 
     Y_UNIT_TEST(pqueue4) {
-        TDeque<int> c;
+        std::deque<int> c;
         c.push_back(42);
         c.push_back(101);
         c.push_back(69);
 
-        TPriorityQueue<int, TDeque<int>, TLess<int>> q(TLess<int>(), std::move(c));
+        TPriorityQueue<int, std::deque<int>, TLess<int>> q(TLess<int>(), std::move(c));
 
         UNIT_ASSERT(c.empty());
 

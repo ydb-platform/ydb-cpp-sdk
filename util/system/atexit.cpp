@@ -10,6 +10,7 @@
 
 #include <atomic>
 #include <tuple>
+#include <deque>
 
 #include <cstdlib>
 
@@ -72,7 +73,7 @@ namespace {
     private:
         TAdaptiveLock Lock_;
         std::atomic<bool> FinishStarted_;
-        TDeque<TFunc> Store_;
+        std::deque<TFunc> Store_;
         TPriorityQueue<TFunc*, std::vector<TFunc*>, TCmp> Items_;
     };
 
