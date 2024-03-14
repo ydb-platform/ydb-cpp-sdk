@@ -1,12 +1,5 @@
 add_subdirectory(protos)
 
-get_built_tool_path(
-  TOOL_enum_parser_bin
-  TOOL_enum_parser_dependency
-  tools/enum_parser/enum_parser
-  enum_parser
-)
-
 add_library(yql-public-issue)
 
 target_link_libraries(yql-public-issue PUBLIC

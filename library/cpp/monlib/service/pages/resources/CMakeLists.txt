@@ -1,10 +1,3 @@
-get_built_tool_path(
-  TOOL_rescompiler_bin
-  TOOL_rescompiler_dependency
-  tools/rescompiler/bin
-  rescompiler
-)
-
 add_library(service-pages-resources INTERFACE)
 
 target_link_libraries(service-pages-resources INTERFACE

@@ -20,7 +20,6 @@ cmake_policy(SET CMP0104 OLD)
 
 include(cmake/common.cmake)
 include(cmake/global_flags.cmake)
-include(cmake/masm.cmake)
 include(cmake/protobuf.cmake)
 include(cmake/global_vars.cmake)
 

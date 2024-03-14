@@ -1,10 +1,4 @@
 add_subdirectory(global)
-get_built_tool_path(
-  TOOL_enum_parser_bin
-  TOOL_enum_parser_dependency
-  tools/enum_parser/enum_parser
-  enum_parser
-)
 
 add_library(library-cpp-logger)
 target_link_libraries(library-cpp-logger PUBLIC
