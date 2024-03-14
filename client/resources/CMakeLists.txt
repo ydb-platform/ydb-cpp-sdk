@@ -1,10 +1,3 @@
-get_built_tool_path(
-  TOOL_rescompiler_bin
-  TOOL_rescompiler_dependency
-  tools/rescompiler/bin
-  rescompiler
-)
-
 add_library(cpp-client-resources)
 target_link_libraries(cpp-client-resources PUBLIC
   yutil
