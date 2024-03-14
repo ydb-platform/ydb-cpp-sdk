@@ -26,8 +26,4 @@ target_sources(cpp-getopt-small PRIVATE
 )
 
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-getopt-small PUBLIC
-    
-  )
-endif()
+

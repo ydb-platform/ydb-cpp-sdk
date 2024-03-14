@@ -19,8 +19,4 @@ target_sources(library-cpp-yson PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/yson/writer.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(library-cpp-yson PUBLIC
-    
-  )
-endif()
+

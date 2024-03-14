@@ -17,8 +17,4 @@ target_sources(monlib-encode-spack PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/monlib/encode/spack/compression.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(monlib-encode-spack PUBLIC
-    
-  )
-endif()
+

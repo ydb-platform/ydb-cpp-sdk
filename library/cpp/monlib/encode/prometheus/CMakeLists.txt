@@ -11,8 +11,4 @@ target_sources(monlib-encode-prometheus PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/monlib/encode/prometheus/prometheus_encoder.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(monlib-encode-prometheus PUBLIC
-    
-  )
-endif()
+

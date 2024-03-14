@@ -43,8 +43,4 @@ generate_enum_serilization(cpp-coroutine-engine
   library/cpp/coroutine/engine/stack/stack_common.h
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-coroutine-engine PUBLIC
-    
-  )
-endif()
+

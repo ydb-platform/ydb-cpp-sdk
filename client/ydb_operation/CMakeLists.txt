@@ -16,8 +16,4 @@ target_sources(cpp-client-ydb_operation PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_operation/operation.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-client-ydb_operation PUBLIC
-    
-  )
-endif()
+

@@ -11,8 +11,4 @@ target_sources(client-extensions-discovery_mutator PRIVATE
   ${CMAKE_SOURCE_DIR}/client/extensions/discovery_mutator/discovery_mutator.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(client-extensions-discovery_mutator PUBLIC
-    
-  )
-endif()
+

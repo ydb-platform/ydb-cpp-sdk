@@ -9,8 +9,4 @@ target_sources(yql-public-decimal PRIVATE
   ${CMAKE_SOURCE_DIR}/ydb/library/yql/public/decimal/yql_decimal_serialize.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(yql-public-decimal PUBLIC
-    
-  )
-endif()
+

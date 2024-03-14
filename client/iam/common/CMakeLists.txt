@@ -14,8 +14,4 @@ target_sources(client-iam-common PRIVATE
   ${CMAKE_SOURCE_DIR}/client/iam/common/iam.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(client-iam-common PUBLIC
-    
-  )
-endif()
+

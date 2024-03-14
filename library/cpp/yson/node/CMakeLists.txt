@@ -28,8 +28,4 @@ generate_enum_serilization(cpp-yson-node
   library/cpp/yson/node/node.h
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-yson-node PUBLIC
-    
-  )
-endif()
+

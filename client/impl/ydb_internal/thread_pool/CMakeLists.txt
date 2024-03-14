@@ -8,8 +8,4 @@ target_sources(impl-ydb_internal-thread_pool PRIVATE
   ${CMAKE_SOURCE_DIR}/client/impl/ydb_internal/thread_pool/pool.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(impl-ydb_internal-thread_pool PUBLIC
-    
-  )
-endif()
+

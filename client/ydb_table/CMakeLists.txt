@@ -40,8 +40,4 @@ generate_enum_serilization(cpp-client-ydb_table
   client/ydb_table/table_enum.h
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-client-ydb_table PUBLIC
-    
-  )
-endif()
+

@@ -28,8 +28,4 @@ target_proto_plugin(client-yc_private-operation
   gRPC::grpc_cpp_plugin
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(client-yc_private-operation PUBLIC
-    
-  )
-endif()
+

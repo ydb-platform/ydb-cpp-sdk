@@ -26,8 +26,4 @@ target_sources(yql-public-issue PRIVATE
   ${CMAKE_SOURCE_DIR}/ydb/library/yql/public/issue/yql_issue_message.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(yql-public-issue PUBLIC
-    
-  )
-endif()
+

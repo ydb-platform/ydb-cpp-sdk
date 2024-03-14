@@ -26,8 +26,4 @@ generate_enum_serilization(cpp-json-writer
   library/cpp/json/writer/json_value.h
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-json-writer PUBLIC
-    
-  )
-endif()
+

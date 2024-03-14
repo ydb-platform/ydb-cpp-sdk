@@ -31,8 +31,4 @@ generate_enum_serilization(cpp-monlib-encode
   library/cpp/monlib/encode/encoder_state_enum.h
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-monlib-encode PUBLIC
-    
-  )
-endif()
+

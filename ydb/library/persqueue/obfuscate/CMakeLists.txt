@@ -7,9 +7,3 @@ target_link_libraries(library-persqueue-obfuscate PUBLIC
 target_sources(library-persqueue-obfuscate PRIVATE
   ${CMAKE_SOURCE_DIR}/ydb/library/persqueue/obfuscate/obfuscate.cpp
 )
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(library-persqueue-obfuscate PUBLIC
-    
-  )
-endif()
