@@ -107,7 +107,7 @@ def print_c(json_file, output_file, argv):
     """params:
     json file
     output file
-    $(SOURCE_ROOT)/build/scripts/c_templates/svn_interface.c"""
+    $(SOURCE_ROOT)/scripts/c_templates/svn_interface.c"""
     interface = argv[0]
 
     with open(interface) as c:

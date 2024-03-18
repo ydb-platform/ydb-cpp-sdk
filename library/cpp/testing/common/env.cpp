@@ -1,6 +1,6 @@
 #include "env.h"
 
-#include <build/scripts/c_templates/svnversion.h>
+#include <scripts/c_templates/svnversion.h>
 
 #include <util/folder/dirut.h>
 #include <util/folder/path.h>
