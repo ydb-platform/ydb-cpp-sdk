@@ -23,6 +23,7 @@ If you ok with this warning, then...
 - Iconv
 - IDN
 - rapidjson
+- zlib
 
 ## Runtime requirements
 
@@ -35,7 +36,7 @@ If you ok with this warning, then...
 sudo apt-get -y update
 sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
   protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
-  rapidjson-dev
+  rapidjson-dev zlib1g-dev
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh

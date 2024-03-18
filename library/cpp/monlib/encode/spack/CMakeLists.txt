@@ -6,7 +6,7 @@ target_link_libraries(monlib-encode-spack PUBLIC
   cpp-monlib-exception
   contrib-libs-lz4
   contrib-libs-xxhash
-  contrib-libs-zlib
+  ZLIB::ZLIB
   contrib-libs-zstd
 )
 

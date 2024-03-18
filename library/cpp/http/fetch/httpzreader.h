@@ -7,7 +7,7 @@
 #include <util/system/defaults.h>
 #include <util/generic/yexception.h>
 
-#include <contrib/libs/zlib/zlib.h>
+#include <zlib.h>
 
 #include <errno.h>
 
