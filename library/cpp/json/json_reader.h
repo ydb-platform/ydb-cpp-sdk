@@ -15,7 +15,7 @@ namespace NJson {
         // js-style comments (both // and /**/)
         bool AllowComments = false;
         bool DontValidateUtf8 = false;
-        bool AllowEscapedApostrophe = false;
+        //bool AllowEscapedApostrophe = false;
 
         ui64 MaxDepth = 0;
 
@@ -40,14 +40,14 @@ namespace NJson {
 
     bool ReadJson(IInputStream* in, TJsonCallbacks* callbacks);
     bool ReadJson(IInputStream* in, bool allowComments, TJsonCallbacks* callbacks);
-    bool ReadJson(IInputStream* in, bool allowComments, bool allowEscapedApostrophe, TJsonCallbacks* callbacks);
+    //bool ReadJson(IInputStream* in, bool allowComments, bool allowEscapedApostrophe, TJsonCallbacks* callbacks);
     bool ReadJson(IInputStream* in, const TJsonReaderConfig* config, TJsonCallbacks* callbacks);
 
     enum ReaderConfigFlags {
         ITERATIVE = 0b1000,
         COMMENTS = 0b0100,
         VALIDATE = 0b0010,
-        ESCAPE = 0b0001,
+        //ESCAPE = 0b0001,
     };
 
     inline bool ValidateJson(IInputStream* in, const TJsonReaderConfig* config, bool throwOnError = false) {
