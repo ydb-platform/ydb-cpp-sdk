@@ -15,17 +15,27 @@ If you ok with this warning, then...
 - yasm
 - protoc
 
-## Runtime Requirements
+## Library dependencies
 
-- libidn11-dev
-- libiconv
+- gRPC
+- protobuf
+- OpenSSL
+- Iconv
+- IDN
+- rapidjson
+
+## Runtime requirements
+
+- libidn11-dev (IDN)
+- libiconv (Iconv)
 
 ## Install dependencies
 
 ```bash
 sudo apt-get -y update
 sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
-  protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10
+  protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
+  rapidjson-dev
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh

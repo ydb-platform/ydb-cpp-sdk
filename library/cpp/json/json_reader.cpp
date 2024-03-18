@@ -2,9 +2,9 @@
 
 #include "rapidjson_helpers.h"
 
-#include <contrib/libs/rapidjson/include/rapidjson/error/en.h>
-#include <contrib/libs/rapidjson/include/rapidjson/error/error.h>
-#include <contrib/libs/rapidjson/include/rapidjson/reader.h>
+#include <rapidjson/error/en.h>
+#include <rapidjson/error/error.h>
+#include <rapidjson/reader.h>
 
 #include <util/string/builder.h>
 
@@ -345,9 +345,9 @@ namespace NJson {
                 rapidjsonFlags |= rapidjson::kParseValidateEncodingFlag;
             }
 
-            if (flags & ReaderConfigFlags::ESCAPE) {
-                rapidjsonFlags |= rapidjson::kParseEscapedApostropheFlag;
-            }
+            // if (flags & ReaderConfigFlags::ESCAPE) {
+            //     rapidjsonFlags |= rapidjson::kParseEscapedApostropheFlag;
+            // }
 
             return rapidjsonFlags;
         }
@@ -371,7 +371,7 @@ namespace NJson {
             TRY_EXTRACT_FLAG(ReaderConfigFlags::ITERATIVE);
             TRY_EXTRACT_FLAG(ReaderConfigFlags::COMMENTS);
             TRY_EXTRACT_FLAG(ReaderConfigFlags::VALIDATE);
-            TRY_EXTRACT_FLAG(ReaderConfigFlags::ESCAPE);
+            //TRY_EXTRACT_FLAG(ReaderConfigFlags::ESCAPE);
 
 #undef TRY_EXTRACT_FLAG
 
@@ -399,9 +399,9 @@ namespace NJson {
                 flags &= ~(ReaderConfigFlags::VALIDATE);
             }
 
-            if (config.AllowEscapedApostrophe) {
-                flags |= ReaderConfigFlags::ESCAPE;
-            }
+            // if (config.AllowEscapedApostrophe) {
+            //     flags |= ReaderConfigFlags::ESCAPE;
+            // }
 
             return ReadWithRuntimeFlags(flags, reader, is, handler);
         }
@@ -582,12 +582,12 @@ namespace NJson {
         return ReadJson(in, &config, cbs);
     }
 
-    bool ReadJson(IInputStream* in, bool allowComments, bool allowEscapedApostrophe, TJsonCallbacks* cbs) {
-        TJsonReaderConfig config;
-        config.AllowComments = allowComments;
-        config.AllowEscapedApostrophe = allowEscapedApostrophe;
-        return ReadJson(in, &config, cbs);
-    }
+    // bool ReadJson(IInputStream* in, bool allowComments, bool allowEscapedApostrophe, TJsonCallbacks* cbs) {
+    //     TJsonReaderConfig config;
+    //     config.AllowComments = allowComments;
+    //     config.AllowEscapedApostrophe = allowEscapedApostrophe;
+    //     return ReadJson(in, &config, cbs);
+    // }
 
     bool ReadJson(IInputStream* in, const TJsonReaderConfig* config, TJsonCallbacks* cbs) {
         TJsonCallbacksWrapper wrapper(*cbs);
