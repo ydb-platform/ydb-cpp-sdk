@@ -2,7 +2,7 @@ add_library(cpp-http-fetch)
 
 target_link_libraries(cpp-http-fetch PUBLIC
   yutil
-  contrib-libs-zlib
+  ZLIB::ZLIB
   library-cpp-charset
   cpp-digest-md5
   cpp-http-misc

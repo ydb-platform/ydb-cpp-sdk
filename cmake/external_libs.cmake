@@ -6,6 +6,7 @@ find_package(OpenSSL REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
 find_package(RapidJSON REQUIRED)
+find_package(ZLIB REQUIRED)
 
 # rapidjson
 add_library(ydb-sdk-rapidjson INTERFACE)
