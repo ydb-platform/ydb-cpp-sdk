@@ -30,8 +30,8 @@ function(target_ragel_lexers TgtName Key Src)
   endif()
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${OutPath}
-    COMMAND Python3::Interpreter ${CMAKE_SOURCE_DIR}/build/scripts/run_tool.py -- ${RAGEL_BIN} ${RAGEL_FLAGS} ${ARGN} -o ${CMAKE_CURRENT_BINARY_DIR}/${OutPath} ${Src}
-    DEPENDS ${CMAKE_SOURCE_DIR}/build/scripts/run_tool.py ${Src}
+    COMMAND Python3::Interpreter ${CMAKE_SOURCE_DIR}/scripts/run_tool.py -- ${RAGEL_BIN} ${RAGEL_FLAGS} ${ARGN} -o ${CMAKE_CURRENT_BINARY_DIR}/${OutPath} ${Src}
+    DEPENDS ${CMAKE_SOURCE_DIR}/scripts/run_tool.py ${Src}
     WORKING_DIRECTORY ${SrcDirPath}
   )
   target_sources(${TgtName} ${Key} ${CMAKE_CURRENT_BINARY_DIR}/${OutPath})
@@ -43,8 +43,8 @@ function(target_yasm_source TgtName Key Src)
   string(APPEND OutPath .o)
   add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${OutPath}
-      COMMAND Python3::Interpreter ${CMAKE_SOURCE_DIR}/build/scripts/run_tool.py -- ${YASM_BIN} ${YASM_FLAGS} ${ARGN} -o ${CMAKE_CURRENT_BINARY_DIR}/${OutPath} ${Src}
-    DEPENDS ${CMAKE_SOURCE_DIR}/build/scripts/run_tool.py ${Src}
+      COMMAND Python3::Interpreter ${CMAKE_SOURCE_DIR}/scripts/run_tool.py -- ${YASM_BIN} ${YASM_FLAGS} ${ARGN} -o ${CMAKE_CURRENT_BINARY_DIR}/${OutPath} ${Src}
+    DEPENDS ${CMAKE_SOURCE_DIR}/scripts/run_tool.py ${Src}
   )
   target_sources(${TgtName} ${Key} ${CMAKE_CURRENT_BINARY_DIR}/${OutPath})
 endfunction()
@@ -56,8 +56,8 @@ function(target_joined_source TgtName Out)
   endforeach()
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${Out}
-    COMMAND Python3::Interpreter ${CMAKE_SOURCE_DIR}/build/scripts/gen_join_srcs.py ${CMAKE_CURRENT_BINARY_DIR}/${Out} ${IncludesList}
-    DEPENDS ${CMAKE_SOURCE_DIR}/build/scripts/gen_join_srcs.py ${ARGN}
+    COMMAND Python3::Interpreter ${CMAKE_SOURCE_DIR}/scripts/gen_join_srcs.py ${CMAKE_CURRENT_BINARY_DIR}/${Out} ${IncludesList}
+    DEPENDS ${CMAKE_SOURCE_DIR}/scripts/gen_join_srcs.py ${ARGN}
   )
   target_sources(${TgtName} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${Out})
 endfunction()
@@ -154,14 +154,14 @@ endfunction()
 function(vcs_info Tgt)
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vcs_info.json
-    COMMAND Python3::Interpreter ${CMAKE_SOURCE_DIR}/build/scripts/generate_vcs_info.py ${CMAKE_CURRENT_BINARY_DIR}/vcs_info.json ${CMAKE_SOURCE_DIR}
-    DEPENDS ${CMAKE_SOURCE_DIR}/build/scripts/generate_vcs_info.py
+    COMMAND Python3::Interpreter ${CMAKE_SOURCE_DIR}/scripts/generate_vcs_info.py ${CMAKE_CURRENT_BINARY_DIR}/vcs_info.json ${CMAKE_SOURCE_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/scripts/generate_vcs_info.py
   )
 
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/__vcs_version__.c
-    COMMAND Python3::Interpreter ${CMAKE_SOURCE_DIR}/build/scripts/vcs_info.py ${CMAKE_CURRENT_BINARY_DIR}/vcs_info.json ${CMAKE_CURRENT_BINARY_DIR}/__vcs_version__.c ${CMAKE_SOURCE_DIR}/build/scripts/c_templates/svn_interface.c
-    DEPENDS ${CMAKE_SOURCE_DIR}/build/scripts/vcs_info.py ${CMAKE_SOURCE_DIR}/build/scripts/c_templates/svn_interface.c ${CMAKE_CURRENT_BINARY_DIR}/vcs_info.json
+    COMMAND Python3::Interpreter ${CMAKE_SOURCE_DIR}/scripts/vcs_info.py ${CMAKE_CURRENT_BINARY_DIR}/vcs_info.json ${CMAKE_CURRENT_BINARY_DIR}/__vcs_version__.c ${CMAKE_SOURCE_DIR}/scripts/c_templates/svn_interface.c
+    DEPENDS ${CMAKE_SOURCE_DIR}/scripts/vcs_info.py ${CMAKE_SOURCE_DIR}/scripts/c_templates/svn_interface.c ${CMAKE_CURRENT_BINARY_DIR}/vcs_info.json
   )
   target_sources(${Tgt} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/__vcs_version__.c)
 endfunction()
@@ -229,7 +229,7 @@ function(add_yunittest)
   math(EXPR LastIdx "${SPLIT_FACTOR} - 1")
   foreach(Idx RANGE ${LastIdx})
     add_test(NAME ${YUNITTEST_ARGS_NAME}_${Idx}
-      COMMAND Python3::Interpreter ${CMAKE_SOURCE_DIR}/build/scripts/split_unittest.py --split-factor ${SPLIT_FACTOR} ${FORK_MODE_ARG} --shard ${Idx}
+      COMMAND Python3::Interpreter ${CMAKE_SOURCE_DIR}/scripts/split_unittest.py --split-factor ${SPLIT_FACTOR} ${FORK_MODE_ARG} --shard ${Idx}
        $<TARGET_FILE:${YUNITTEST_ARGS_TEST_TARGET}> ${YUNITTEST_ARGS_TEST_ARG})
   endforeach()
 endfunction()

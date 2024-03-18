@@ -8,7 +8,7 @@ find_package(gRPC REQUIRED)
 
 # api-common-protos
 if (YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET)
-  set(api-common-protos ${YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET})
+  add_library(api-common-protos ALIAS ${YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET})
 else ()
   add_library(api-common-protos)
 

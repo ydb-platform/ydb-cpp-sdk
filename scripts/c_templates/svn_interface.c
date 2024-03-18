@@ -1,9 +1,9 @@
-// Used indirectly. See build/scripts/vcs_info.py
+// Used indirectly. See scripts/vcs_info.py
 // ya-bin dump vcs-info > vcs.json
-// python build/scripts/vcs_info.py vcs.json out.c build/scripts/c_templates/svn_interface.c <any_prefix>library/cpp/svnversion<any_suffix>
+// python scripts/vcs_info.py vcs.json out.c scripts/c_templates/svn_interface.c <any_prefix>library/cpp/svnversion<any_suffix>
 
 
-#include "build/scripts/c_templates/svnversion.h"
+#include "scripts/c_templates/svnversion.h"
 
 #define STR1(x) #x
 #define STR2(x) STR1(x)
