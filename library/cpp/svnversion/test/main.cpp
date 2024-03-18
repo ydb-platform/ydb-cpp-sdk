@@ -1,4 +1,4 @@
-#include <build/scripts/c_templates/svnversion.h>
+#include <scripts/c_templates/svnversion.h>
 #include <util/stream/str.h>
 #include <util/system/compiler.h>
 #include <util/stream/output.h>

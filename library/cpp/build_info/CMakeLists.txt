@@ -30,10 +30,10 @@ add_custom_command(
   OUTPUT
   ${CMAKE_BINARY_DIR}/library/cpp/build_info/buildinfo_data.h
   DEPENDS
-  ${CMAKE_SOURCE_DIR}/build/scripts/build_info_gen.py
+  ${CMAKE_SOURCE_DIR}/scripts/build_info_gen.py
   COMMAND
   Python3::Interpreter
-  ${CMAKE_SOURCE_DIR}/build/scripts/build_info_gen.py
+  ${CMAKE_SOURCE_DIR}/scripts/build_info_gen.py
   ${CMAKE_BINARY_DIR}/library/cpp/build_info/buildinfo_data.h
   \"${CMAKE_CXX_COMPILER}\"
   \"${CMAKE_CXX_FLAGS}\"
