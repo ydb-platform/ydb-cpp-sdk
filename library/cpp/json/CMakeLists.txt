@@ -6,7 +6,7 @@ add_library(library-cpp-json)
 
 target_link_libraries(library-cpp-json PUBLIC
   yutil
-  contrib-libs-rapidjson
+  ydb-sdk-rapidjson
   cpp-json-common
   cpp-json-fast_sax
   cpp-json-writer

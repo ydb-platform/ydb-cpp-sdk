@@ -5,6 +5,14 @@ find_package(Iconv REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
+find_package(RapidJSON REQUIRED)
+
+# rapidjson
+add_library(ydb-sdk-rapidjson INTERFACE)
+
+target_include_directories(ydb-sdk-rapidjson INTERFACE
+  ${RAPIDJSON_INCLUDE_DIRS}
+)
 
 # api-common-protos
 if (YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET)
