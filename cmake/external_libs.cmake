@@ -1,29 +1,10 @@
-option(USE_IDN "Search IDN library" ON)
-option(USE_ICONV "Search Iconv library" ON)
-option(USE_OPENSSL "Search OpenSSL library" ON)
-option(USE_PROTOBUF "Search Protobuf library" ON)
-option(USE_GRPC "Search gRPC library" ON)
 set(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET "" CACHE STRING "Name of cmake target preparing google common proto library")
 
-if (USE_IDN)
-  find_package(IDN REQUIRED)
-endif ()
-
-if (USE_ICONV)
-  find_package(Iconv REQUIRED)
-endif ()
-
-if (USE_OPENSSL)
-  find_package(OpenSSL REQUIRED)
-endif ()
-
-if (USE_PROTOBUF)
-  find_package(Protobuf REQUIRED)
-endif ()
-
-if (USE_GRPC)
-  find_package(gRPC REQUIRED)
-endif ()
+find_package(IDN REQUIRED)
+find_package(Iconv REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(Protobuf REQUIRED)
+find_package(gRPC REQUIRED)
 
 # api-common-protos
 if (YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET)
