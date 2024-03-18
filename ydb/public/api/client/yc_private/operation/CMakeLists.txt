@@ -3,8 +3,7 @@ set_property(TARGET client-yc_private-operation PROPERTY
   PROTOC_EXTRA_OUTS .grpc.pb.cc .grpc.pb.h
 )
 target_link_libraries(client-yc_private-operation PUBLIC
-  contrib-libs-googleapis-common-protos
-  
+  api-common-protos
   yutil
   gRPC::grpc++
   protobuf::libprotobuf
@@ -17,7 +16,7 @@ target_proto_addincls(client-yc_private-operation
   ${CMAKE_SOURCE_DIR}/
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/contrib/libs/googleapis-common-protos
+  ${CMAKE_SOURCE_DIR}/third_party/api-common-protos
   ${CMAKE_BINARY_DIR}
 )
 target_proto_outs(client-yc_private-operation

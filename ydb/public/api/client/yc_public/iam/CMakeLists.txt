@@ -3,7 +3,7 @@ set_property(TARGET client-yc_public-iam PROPERTY
   PROTOC_EXTRA_OUTS .grpc.pb.cc .grpc.pb.h
 )
 target_link_libraries(client-yc_public-iam PUBLIC
-  contrib-libs-googleapis-common-protos
+  api-common-protos
   yutil
   gRPC::grpc++
   client-yc_public-common
@@ -14,11 +14,9 @@ target_proto_messages(client-yc_public-iam PRIVATE
 )
 target_proto_addincls(client-yc_public-iam
   ./
-  ${CMAKE_SOURCE_DIR}/
-  ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/contrib/libs/googleapis-common-protos
   ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/third_party/api-common-protos
 )
 target_proto_outs(client-yc_public-iam
   --cpp_out=${CMAKE_BINARY_DIR}/

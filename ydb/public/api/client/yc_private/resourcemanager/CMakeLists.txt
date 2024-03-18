@@ -3,7 +3,7 @@ set_property(TARGET client-yc_private-resourcemanager PROPERTY
   PROTOC_EXTRA_OUTS .grpc.pb.cc .grpc.pb.h
 )
 target_link_libraries(client-yc_private-resourcemanager PUBLIC
-  contrib-libs-googleapis-common-protos
+  api-common-protos
   yutil
   gRPC::grpc++
   client-yc_private-operation
@@ -17,11 +17,9 @@ target_proto_messages(client-yc_private-resourcemanager PRIVATE
 )
 target_proto_addincls(client-yc_private-resourcemanager
   ./
-  ${CMAKE_SOURCE_DIR}/
-  ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/contrib/libs/googleapis-common-protos
   ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/third_party/api-common-protos
 )
 target_proto_outs(client-yc_private-resourcemanager
   --cpp_out=${CMAKE_BINARY_DIR}/
@@ -30,10 +28,3 @@ target_proto_plugin(client-yc_private-resourcemanager
   grpc_cpp
   gRPC::grpc_cpp_plugin
 )
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(client-yc_private-resourcemanager PUBLIC
-    contrib-libs-googleapis-common-protos
-    
-  )
-endif()
