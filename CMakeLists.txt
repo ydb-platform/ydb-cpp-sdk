@@ -23,11 +23,7 @@ include(cmake/global_flags.cmake)
 include(cmake/protobuf.cmake)
 include(cmake/global_vars.cmake)
 
-find_package(IDN REQUIRED)
-find_package(Iconv REQUIRED)
-find_package(OpenSSL REQUIRED)
-find_package(Protobuf REQUIRED)
-find_package(gRPC REQUIRED)
+include(cmake/external_libs.cmake)
 
 add_subdirectory(tools)
 add_subdirectory(contrib)

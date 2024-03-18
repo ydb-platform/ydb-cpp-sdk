@@ -36,21 +36,21 @@ function(target_proto_messages Tgt Scope)
     get_filename_component(OutputDir ${CMAKE_BINARY_DIR}/${protoRel} DIRECTORY)
     list(TRANSFORM ProtocExtraOutsSuf PREPEND ${OutputDir}/${OutputBase} OUTPUT_VARIABLE ProtocExtraOuts)
     add_custom_command(
-        OUTPUT
-          ${OutputDir}/${OutputBase}.pb.cc
-          ${OutputDir}/${OutputBase}.pb.h
-          ${ProtocExtraOuts}
-        COMMAND protobuf::protoc
-          ${COMMON_PROTOC_FLAGS}
-          "-I$<JOIN:$<TARGET_GENEX_EVAL:${Tgt},$<TARGET_PROPERTY:${Tgt},PROTO_ADDINCL>>,;-I>"
-          "$<JOIN:$<TARGET_GENEX_EVAL:${Tgt},$<TARGET_PROPERTY:${Tgt},PROTO_OUTS>>,;>"
-          "$<JOIN:$<TARGET_GENEX_EVAL:${Tgt},$<TARGET_PROPERTY:${Tgt},PROTOC_OPTS>>,;>"
-          "--experimental_allow_proto3_optional"
-          ${protoRel}
-        DEPENDS
-          ${proto}
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        COMMAND_EXPAND_LISTS
+      OUTPUT
+        ${OutputDir}/${OutputBase}.pb.cc
+        ${OutputDir}/${OutputBase}.pb.h
+        ${ProtocExtraOuts}
+      COMMAND protobuf::protoc
+        ${COMMON_PROTOC_FLAGS}
+        "-I$<JOIN:$<TARGET_GENEX_EVAL:${Tgt},$<TARGET_PROPERTY:${Tgt},PROTO_ADDINCL>>,;-I>"
+        "$<JOIN:$<TARGET_GENEX_EVAL:${Tgt},$<TARGET_PROPERTY:${Tgt},PROTO_OUTS>>,;>"
+        "$<JOIN:$<TARGET_GENEX_EVAL:${Tgt},$<TARGET_PROPERTY:${Tgt},PROTOC_OPTS>>,;>"
+        "--experimental_allow_proto3_optional"
+        ${protoRel}
+      DEPENDS
+        ${proto}
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      COMMAND_EXPAND_LISTS
     )
     target_sources(${Tgt} ${Scope}
       ${OutputDir}/${OutputBase}.pb.cc ${OutputDir}/${OutputBase}.pb.h
