@@ -39,7 +39,7 @@
 #ifndef XXH_INLINE_ALL
 #define XXH_INLINE_ALL
 #endif
-#include <contrib/libs/xxhash/xxhash.h>
+#include <xxhash.h>
 #include "benchzstd.h"
 #include "../lib/zstd_errors.h"
 

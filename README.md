@@ -24,6 +24,7 @@ If you ok with this warning, then...
 - IDN
 - rapidjson
 - zlib
+- xxHash
 
 ## Runtime requirements
 
@@ -36,7 +37,7 @@ If you ok with this warning, then...
 sudo apt-get -y update
 sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
   protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
-  rapidjson-dev zlib1g-dev
+  rapidjson-dev zlib1g-dev libxxhash-dev
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh
