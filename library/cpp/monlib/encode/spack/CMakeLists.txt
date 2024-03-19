@@ -5,9 +5,9 @@ target_link_libraries(monlib-encode-spack PUBLIC
   monlib-encode-buffered
   cpp-monlib-exception
   contrib-libs-lz4
-  contrib-libs-xxhash
+  xxHash::xxHash
   ZLIB::ZLIB
-  contrib-libs-zstd
+  ZSTD::ZSTD
 )
 
 target_sources(monlib-encode-spack PRIVATE
