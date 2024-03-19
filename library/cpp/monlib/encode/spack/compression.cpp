@@ -10,10 +10,10 @@
 #include <util/stream/walk.h>
 
 #include <contrib/libs/lz4/lz4.h>
-#include <contrib/libs/xxhash/xxhash.h>
+#include <xxhash.h>
 #include <zlib.h>
 #define ZSTD_STATIC_LINKING_ONLY
-#include <contrib/libs/zstd/include/zstd.h>
+#include <zstd.h>
 
 namespace NMonitoring {
     namespace {
