@@ -5,7 +5,7 @@
 #include <util/string/builder.h>
 
 #define ZSTD_STATIC_LINKING_ONLY
-#include <contrib/libs/zstd/include/zstd.h>
+#include <zstd.h>
 
 using namespace NBlockCodecs;
 

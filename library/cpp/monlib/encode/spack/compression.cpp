@@ -13,7 +13,7 @@
 #include <xxhash.h>
 #include <zlib.h>
 #define ZSTD_STATIC_LINKING_ONLY
-#include <contrib/libs/zstd/include/zstd.h>
+#include <zstd.h>
 
 namespace NMonitoring {
     namespace {

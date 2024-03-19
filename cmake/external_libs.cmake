@@ -8,6 +8,7 @@ find_package(gRPC REQUIRED)
 find_package(RapidJSON REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(xxHash REQUIRED)
+find_package(ZSTD REQUIRED)
 
 # rapidjson
 add_library(ydb-sdk-rapidjson INTERFACE)

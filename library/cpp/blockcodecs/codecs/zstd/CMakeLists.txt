@@ -2,7 +2,7 @@ add_library(blockcodecs-codecs-zstd INTERFACE)
 
 target_link_libraries(blockcodecs-codecs-zstd INTERFACE
   yutil
-  contrib-libs-zstd
+  ZSTD::ZSTD
   cpp-blockcodecs-core
 )
 
@@ -10,7 +10,7 @@ add_global_library_for(blockcodecs-codecs-zstd.global blockcodecs-codecs-zstd)
 
 target_link_libraries(blockcodecs-codecs-zstd.global PUBLIC
   yutil
-  contrib-libs-zstd
+  ZSTD::ZSTD
   cpp-blockcodecs-core
 )
 

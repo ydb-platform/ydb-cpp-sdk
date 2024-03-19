@@ -7,7 +7,7 @@ target_link_libraries(monlib-encode-spack PUBLIC
   contrib-libs-lz4
   xxHash::xxHash
   ZLIB::ZLIB
-  contrib-libs-zstd
+  ZSTD::ZSTD
 )
 
 target_sources(monlib-encode-spack PRIVATE
