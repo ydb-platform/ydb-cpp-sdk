@@ -26,6 +26,7 @@ If you ok with this warning, then...
 - xxhash
 - zlib
 - zstd
+- snappy 1.1.10+
 
 ## Runtime requirements
 
@@ -49,7 +50,14 @@ tar -xvzf libiconv-1.15.tar.gz
 cd libiconv-1.15
 ./configure --prefix=/usr/local
 sudo make
-sudo make install
+sudo make install && cd ..
+
+wget https://github.com/google/snappy/archive/refs/tags/1.1.10.tar.gz
+tar -xzvf 1.1.10.tar.gz
+cd snappy-1.1.10 && mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON \
+  -DSNAPPY_BUILD_TESTS=OFF -DSNAPPY_BUILD_BENCHMARKS=OFF ..
+sudo cmake --build . --target install && cd ../..
 ```
 
 ## Create the work directory
