@@ -1,12 +1,6 @@
 #include "base64.h"
 
-#include <contrib/libs/base64/avx2/libbase64.h>
-#include <contrib/libs/base64/ssse3/libbase64.h>
-#include <contrib/libs/base64/neon32/libbase64.h>
-#include <contrib/libs/base64/neon64/libbase64.h>
-#include <contrib/libs/base64/plain32/libbase64.h>
-#include <contrib/libs/base64/plain64/libbase64.h>
-
+#include <libbase64.h>
 #include <util/generic/yexception.h>
 #include <util/system/cpu_id.h>
 #include <util/system/platform.h>
@@ -15,8 +9,8 @@
 
 namespace {
     struct TImpl {
-        void (*Encode)(const char* src, size_t srclen, char* out, size_t* outlen);
-        int (*Decode)(const char* src, size_t srclen, char* out, size_t* outlen);
+        void (*Encode)(const char* src, size_t srclen, char* out, size_t* outlen, int flags);
+        int (*Decode)(const char* src, size_t srclen, char* out, size_t* outlen, int flags);
 
         TImpl() {
 #if defined(_arm32_)
@@ -38,9 +32,10 @@ namespace {
 # else
             const bool isWin = false;
 # endif
+            Encode = base64_encode;
+            Decode = base64_decode;
+            /*
             if (!isWin && NX86::HaveAVX() && NX86::HaveAVX2()) {
-                Encode = avx2_base64_encode;
-                Decode = avx2_base64_decode;
             } else if (NX86::HaveSSSE3()) {
                 Encode = ssse3_base64_encode;
                 Decode = ssse3_base64_decode;
@@ -61,7 +56,7 @@ namespace {
             } else {
                 // failed to find appropriate implementation
                 std::abort();
-            }
+            }*/
         }
     };
 
@@ -248,7 +243,7 @@ size_t Base64Decode(void* dst, const char* b, const char* e) {
     }
 
     size_t outLen;
-    IMPL.Decode(b, size, (char*)dst, &outLen);
+    IMPL.Decode(b, size, (char*)dst, &outLen, 0);
 
     return outLen;
 }
@@ -283,7 +278,7 @@ char* Base64Encode(char* outstr, const unsigned char* instr, size_t len) {
     }
 
     size_t outLen;
-    IMPL.Encode((char*)instr, len, outstr, &outLen);
+    IMPL.Encode((char*)instr, len, outstr, &outLen, 0);
 
     *(outstr + outLen) = '\0';
     return outstr + outLen;
