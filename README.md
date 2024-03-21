@@ -29,6 +29,7 @@ If you ok with this warning, then...
 - lz4
 - snappy 1.1.8+
 - base64
+- brotli
 
 ## Runtime requirements
 
@@ -41,7 +42,11 @@ If you ok with this warning, then...
 sudo apt-get -y update
 sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
   protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
+<<<<<<< HEAD
   rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev liblz4-dev
+=======
+  rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libbrotli-dev
+>>>>>>> 7ed3dede1d (Removed brotli from contrib)
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh

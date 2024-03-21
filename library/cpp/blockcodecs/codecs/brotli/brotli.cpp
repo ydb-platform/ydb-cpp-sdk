@@ -4,8 +4,8 @@
 
 #include <util/string/builder.h>
 
-#include <contrib/libs/brotli/include/brotli/encode.h>
-#include <contrib/libs/brotli/include/brotli/decode.h>
+#include <brotli/encode.h>
+#include <brotli/decode.h>
 
 #include <string_view>
 
