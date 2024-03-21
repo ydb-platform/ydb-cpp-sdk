@@ -23,6 +23,14 @@ runs:
         sudo make
         sudo make install
         cd ..
+        wget https://github.com/google/snappy/archive/refs/tags/1.1.10.tar.gz
+        tar -xzvf 1.1.10.tar.gz
+        cd snappy-1.1.10
+        mkdir build && cd build
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON \
+          -DSNAPPY_BUILD_TESTS=OFF -DSNAPPY_BUILD_BENCHMARKS=OFF ..
+        sudo cmake --build . --target install
+        cd ../..
         (V=4.8.1; curl -L https://github.com/ccache/ccache/releases/download/v${V}/ccache-${V}-linux-x86_64.tar.xz | \
         sudo tar -xJ -C /usr/local/bin/ --strip-components=1 --no-same-owner ccache-${V}-linux-x86_64/ccache)
         sudo rm -rf llvm.sh libiconv-1.15
