@@ -13,50 +13,8 @@ namespace {
         int (*Decode)(const char* src, size_t srclen, char* out, size_t* outlen, int flags);
 
         TImpl() {
-#if defined(_arm32_)
-            const bool haveNEON32 = true;
-#else
-            const bool haveNEON32 = false;
-#endif
-
-#if defined(_arm64_)
-            const bool haveNEON64 = true;
-#else
-            const bool haveNEON64 = false;
-#endif
-
-# ifdef _windows_
-            // msvc does something wrong in release-build, so we temprorary  disable this branch on windows
-            // https://developercommunity.visualstudio.com/content/problem/334085/release-build-has-made-wrong-optimizaion-in-base64.html
-            const bool isWin = true;
-# else
-            const bool isWin = false;
-# endif
             Encode = base64_encode;
             Decode = base64_decode;
-            /*
-            if (!isWin && NX86::HaveAVX() && NX86::HaveAVX2()) {
-            } else if (NX86::HaveSSSE3()) {
-                Encode = ssse3_base64_encode;
-                Decode = ssse3_base64_decode;
-            } else if (haveNEON64) {
-                Encode = neon64_base64_encode;
-                Decode = neon64_base64_decode;
-            } else if (haveNEON32) {
-                Encode = neon32_base64_encode;
-                Decode = neon32_base64_decode;
-            } else if (sizeof(void*) == 8) {
-                // running on a 64 bit platform
-                Encode = plain64_base64_encode;
-                Decode = plain64_base64_decode;
-            } else if (sizeof(void*) == 4) {
-                // running on a 32 bit platform (actually impossible in Arcadia)
-                Encode = plain32_base64_encode;
-                Decode = plain32_base64_decode;
-            } else {
-                // failed to find appropriate implementation
-                std::abort();
-            }*/
         }
     };
 
