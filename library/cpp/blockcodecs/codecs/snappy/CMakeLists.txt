@@ -2,7 +2,7 @@ add_library(blockcodecs-codecs-snappy INTERFACE)
 
 target_link_libraries(blockcodecs-codecs-snappy INTERFACE
   yutil
-  contrib-libs-snappy
+  Snappy::snappy
   cpp-blockcodecs-core
 )
 
@@ -10,7 +10,7 @@ add_global_library_for(blockcodecs-codecs-snappy.global blockcodecs-codecs-snapp
 
 target_link_libraries(blockcodecs-codecs-snappy.global PUBLIC
   yutil
-  contrib-libs-snappy
+  Snappy::snappy
   cpp-blockcodecs-core
 )
 
