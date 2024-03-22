@@ -26,7 +26,7 @@ If you ok with this warning, then...
 - xxhash
 - zlib
 - zstd
-- snappy 1.1.10+
+- snappy 1.1.8+
 
 ## Runtime requirements
 
@@ -39,7 +39,7 @@ If you ok with this warning, then...
 sudo apt-get -y update
 sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
   protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
-  rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev
+  rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh
@@ -50,14 +50,7 @@ tar -xvzf libiconv-1.15.tar.gz
 cd libiconv-1.15
 ./configure --prefix=/usr/local
 sudo make
-sudo make install && cd ..
-
-wget https://github.com/google/snappy/archive/refs/tags/1.1.10.tar.gz
-tar -xzvf 1.1.10.tar.gz
-cd snappy-1.1.10 && mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON \
-  -DSNAPPY_BUILD_TESTS=OFF -DSNAPPY_BUILD_BENCHMARKS=OFF ..
-sudo cmake --build . --target install && cd ../..
+sudo make install
 ```
 
 ## Create the work directory
