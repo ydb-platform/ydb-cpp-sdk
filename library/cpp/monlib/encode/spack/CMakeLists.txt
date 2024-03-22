@@ -4,7 +4,7 @@ target_link_libraries(monlib-encode-spack PUBLIC
   yutil
   monlib-encode-buffered
   cpp-monlib-exception
-  contrib-libs-lz4
+  LZ4::LZ4
   xxHash::xxHash
   ZLIB::ZLIB
   ZSTD::ZSTD
