@@ -9,7 +9,7 @@ find_package(RapidJSON REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(xxHash REQUIRED)
 find_package(ZSTD REQUIRED)
-find_package(Snappy 1.1.10 REQUIRED CONFIG)
+find_package(Snappy 1.1.8 REQUIRED CONFIG)
 
 # rapidjson
 add_library(ydb-sdk-rapidjson INTERFACE)
