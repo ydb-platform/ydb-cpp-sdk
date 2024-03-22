@@ -55,14 +55,15 @@ cd libiconv-1.15
 sudo make
 sudo make install
 
-git clone https://github.com/aklomp/base64.git
-cd base64
-mkdir build
+sudo wget https://github.com/aklomp/base64/archive/refs/tags/v0.5.2.tar.gz
+sudo tar -xvzf v0.5.2.tar.gz
+cd base64-0.5.2
+sudo mkdir build
 cd build
-cmake --build ..
-cmake --build . --target install
+sudo cmake ..
+sudo cmake --build . --target install
 cd ../../
-rm -r ./base64
+sudo rm -r ./base64-0.5.2
 ```
 
 ## Create the work directory
