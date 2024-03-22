@@ -9,7 +9,7 @@
 #include <util/stream/output.h>
 #include <util/stream/walk.h>
 
-#include <contrib/libs/lz4/lz4.h>
+#include <lz4.h>
 #include <xxhash.h>
 #include <zlib.h>
 #define ZSTD_STATIC_LINKING_ONLY
