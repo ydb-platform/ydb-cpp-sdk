@@ -11,8 +11,8 @@ add_library(cpp-testing-gmock_in_unittest)
 target_link_libraries(cpp-testing-gmock_in_unittest PUBLIC
   
   yutil
-  restricted-googletest-googlemock
-  restricted-googletest-googletest
+  GTest::gmock
+  GTest::gtest
   cpp-testing-gtest_extensions
   cpp-testing-unittest
 )
@@ -24,8 +24,8 @@ add_global_library_for(cpp-testing-gmock_in_unittest.global cpp-testing-gmock_in
 target_link_libraries(cpp-testing-gmock_in_unittest.global PUBLIC
   
   yutil
-  restricted-googletest-googlemock
-  restricted-googletest-googletest
+  GTest::gmock
+  GTest::gtest
   cpp-testing-gtest_extensions
   cpp-testing-unittest
 )

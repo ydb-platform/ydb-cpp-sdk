@@ -11,8 +11,8 @@ add_library(cpp-testing-gtest_extensions)
 target_link_libraries(cpp-testing-gtest_extensions PUBLIC
   
   yutil
-  restricted-googletest-googlemock
-  restricted-googletest-googletest
+  GTest::gmock
+  GTest::gtest
 )
 target_sources(cpp-testing-gtest_extensions PRIVATE
   ${CMAKE_SOURCE_DIR}/library/cpp/testing/gtest_extensions/assertions.cpp
