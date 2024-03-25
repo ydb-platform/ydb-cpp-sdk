@@ -7,23 +7,6 @@
 
 #include <cstdlib>
 
-namespace {
-    struct TImpl {
-        void (*Encode)(const char* src, size_t srclen, char* out, size_t* outlen, int flags);
-        int (*Decode)(const char* src, size_t srclen, char* out, size_t* outlen, int flags);
-
-        TImpl() {
-            Encode = base64_encode;
-            Decode = base64_decode;
-        }
-    };
-
-    const TImpl GetImpl() {
-        static const TImpl IMPL;
-        return IMPL;
-    }
-}
-
 static const char base64_etab_std[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const char base64_bkw[] = {
     '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',                // 0..15
@@ -193,7 +176,6 @@ size_t Base64StrictDecode(void* out, const char* b, const char* e) {
 }
 
 size_t Base64Decode(void* dst, const char* b, const char* e) {
-    static const TImpl IMPL = GetImpl();
     const auto size = e - b;
     Y_ENSURE(!(size % 4), "incorrect input length for base64 decode");
     if (Y_LIKELY(size < 8)) {
@@ -201,7 +183,7 @@ size_t Base64Decode(void* dst, const char* b, const char* e) {
     }
 
     size_t outLen;
-    IMPL.Decode(b, size, (char*)dst, &outLen, 0);
+    base64_encode(b, size, (char*)dst, &outLen, 0);
 
     return outLen;
 }
@@ -230,13 +212,12 @@ std::string Base64DecodeUneven(const std::string_view s) {
 }
 
 char* Base64Encode(char* outstr, const unsigned char* instr, size_t len) {
-    static const TImpl IMPL = GetImpl();
     if (Y_LIKELY(len < 8)) {
         return Base64EncodePlain(outstr, instr, len);
     }
 
     size_t outLen;
-    IMPL.Encode((char*)instr, len, outstr, &outLen, 0);
+    base64_encode((char*)instr, len, outstr, &outLen, 0);
 
     *(outstr + outLen) = '\0';
     return outstr + outLen;

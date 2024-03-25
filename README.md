@@ -28,7 +28,6 @@ If you ok with this warning, then...
 - zstd
 - lz4
 - snappy 1.1.8+
-
 - base64
 
 ## Runtime requirements
