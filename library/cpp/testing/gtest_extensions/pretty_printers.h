@@ -48,13 +48,13 @@
 
 
 template <typename TCharType, typename TCharTraits>
-void PrintTo(const TBasicString<TCharType, TCharTraits>& value, std::ostream* stream) {
+void PrintTo(const std::basic_string<TCharType, TCharTraits>& value, std::ostream* stream) {
     *stream << value.Quote().c_str();
 }
 
 // template <typename TCharType, typename TCharTraits>
-// void PrintTo(TBasicStringBuf<TCharType, TCharTraits> value, std::ostream* stream) {
-//     *stream << TBasicString<TCharType, TCharTraits>{value}.Quote().c_str();
+// void PrintTo(std::basic_string_view<TCharType, TCharTraits> value, std::ostream* stream) {
+//     *stream << std::basic_string<TCharType, TCharTraits>{value}.Quote().c_str();
 // }
 
 template <typename T, typename P>
