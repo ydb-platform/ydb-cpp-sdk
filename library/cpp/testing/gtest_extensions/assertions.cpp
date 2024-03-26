@@ -1,6 +1,7 @@
 #include "assertions.h"
 
 #include <util/string/builder.h>
+#include <util/string/escape.h>
 #include <util/string/split.h>
 #include <util/system/type_name.h>
 
@@ -8,7 +9,7 @@ namespace NGTest::NInternal {
     namespace {
         void FormatActual(const std::exception& err, const TBackTrace* bt, TYdbStringBuilder& out) {
             out << "an exception of type " << TypeName(err) << " "
-                << "with message " << std::string(err.what()).Quote() << ".";
+                << "with message " << NUtils::Quote(std::string(err.what())) << ".";
             if (bt) {
                 out << "\n   Trace: ";
                 for (auto& line: StringSplitter(bt->PrintToString()).Split('\n')) {
@@ -47,7 +48,7 @@ namespace NGTest::NInternal {
             out << " throws an exception of type " << type;
 
             if (!contains.empty()) {
-                out << " with message containing " << contains.Quote();
+                out << " with message containing " << NUtils::Quote(contains);
             }
 
             out << ".";

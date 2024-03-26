@@ -1,14 +1,16 @@
 #pragma once
 
-#include <string>
-#include <string_view>
 #include <util/generic/variant.h>
 #include <util/stream/output.h>
 #include <util/stream/str.h>
+#include <util/string/escape.h>
 #include <util/datetime/base.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+
+#include <string>
+#include <string_view>
 
 /**
  * Automatically define GTest pretty printer for type that can print itself to util's `IOutputStream`.
@@ -49,12 +51,12 @@
 
 template <typename TCharType, typename TCharTraits>
 void PrintTo(const std::basic_string<TCharType, TCharTraits>& value, std::ostream* stream) {
-    *stream << value.Quote().c_str();
+    *stream << NUtils::Quote(value).c_str();
 }
 
 // template <typename TCharType, typename TCharTraits>
 // void PrintTo(std::basic_string_view<TCharType, TCharTraits> value, std::ostream* stream) {
-//     *stream << std::basic_string<TCharType, TCharTraits>{value}.Quote().c_str();
+//     *stream << NUtils::Quote(std::basic_string<TCharType, TCharTraits>{value}).c_str();
 // }
 
 template <typename T>
