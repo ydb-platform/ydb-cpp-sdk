@@ -1,5 +1,6 @@
 #pragma once
 
+#include <util/system/compiler.h>
 
 Y_PURE_FUNCTION bool IsSpace(const char* s, size_t len) noexcept;
 
