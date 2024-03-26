@@ -19,7 +19,7 @@
 #include <mutex>
 
 std::string ArcadiaSourceRoot() {
-    if (const auto& sourceRoot = NPrivate::GetTestEnv().SourceRoot) {
+    if (const auto& sourceRoot = NPrivate::GetTestEnv().SourceRoot; !sourceRoot.empty()) {
         return sourceRoot;
     } else {
         return GetArcadiaSourcePath();
@@ -27,7 +27,7 @@ std::string ArcadiaSourceRoot() {
 }
 
 std::string BuildRoot() {
-    if (const auto& buildRoot = NPrivate::GetTestEnv().BuildRoot) {
+    if (const auto& buildRoot = NPrivate::GetTestEnv().BuildRoot; !buildRoot.empty()) {
         return buildRoot;
     } else {
         return GetArcadiaSourcePath();
@@ -44,7 +44,7 @@ std::string BinaryPath(std::string_view path) {
 
 std::string GetArcadiaTestsData() {
     std::string atdRoot = NPrivate::GetTestEnv().ArcadiaTestsDataDir;
-    if (atdRoot) {
+    if (!atdRoot.empty()) {
         return atdRoot;
     }
 
@@ -68,7 +68,7 @@ std::string GetArcadiaTestsData() {
 
 std::string GetWorkPath() {
     std::string workPath = NPrivate::GetTestEnv().WorkPath;
-    if (workPath) {
+    if (!workPath.empty()) {
         return workPath;
     }
 
@@ -140,14 +140,14 @@ void AddEntryToCoreSearchFile(const std::string& filename, std::string_view cmd,
 
 void WatchProcessCore(int pid, const TFsPath& binaryPath, const TFsPath& cwd) {
     auto& filename = NPrivate::GetTestEnv().CoreSearchFile;
-    if (filename) {
+    if (!filename.empty()) {
         AddEntryToCoreSearchFile(filename, "add", pid, binaryPath, cwd);
     }
 }
 
 void StopProcessCoreWatching(int pid) {
     auto& filename = NPrivate::GetTestEnv().CoreSearchFile;
-    if (filename) {
+    if (!filename.empty()) {
         AddEntryToCoreSearchFile(filename, "drop", pid);
     }
 }
@@ -177,7 +177,7 @@ namespace NPrivate {
         GlobalResources.clear();
 
         const std::string contextFilename = GetEnv("YA_TEST_CONTEXT_FILE");
-        if (contextFilename && TFsPath(contextFilename).Exists()) {
+        if (!contextFilename.empty() && TFsPath(contextFilename).Exists()) {
             NJson::TJsonValue context;
             NJson::ReadJsonTree(TFileInput(contextFilename).ReadAll(), &context);
 
@@ -259,31 +259,31 @@ namespace NPrivate {
             }
         }
 
-        if (!YtHddPath) {
+        if (YtHddPath.empty()) {
             YtHddPath = GetEnv("HDD_PATH");
         }
 
-        if (!SourceRoot) {
+        if (SourceRoot.empty()) {
             SourceRoot = GetEnv("ARCADIA_SOURCE_ROOT");
         }
 
-        if (!BuildRoot) {
+        if (BuildRoot.empty()) {
             BuildRoot = GetEnv("ARCADIA_BUILD_ROOT");
         }
 
-        if (!ArcadiaTestsDataDir) {
+        if (ArcadiaTestsDataDir.empty()) {
             ArcadiaTestsDataDir = GetEnv("ARCADIA_TESTS_DATA_DIR");
         }
 
-        if (!WorkPath) {
+        if (WorkPath.empty()) {
             WorkPath = GetEnv("TEST_WORK_PATH");
         }
 
-        if (!RamDrivePath) {
+        if (RamDrivePath.empty()) {
             RamDrivePath = GetEnv("YA_TEST_RAM_DRIVE_PATH");
         }
 
-        if (!TestOutputRamDrivePath) {
+        if (TestOutputRamDrivePath.empty()) {
             TestOutputRamDrivePath = GetEnv("YA_TEST_OUTPUT_RAM_DRIVE_PATH");
         }
 
