@@ -183,7 +183,7 @@ size_t Base64Decode(void* dst, const char* b, const char* e) {
     }
 
     size_t outLen;
-    base64_encode(b, size, (char*)dst, &outLen, 0);
+    base64_decode(b, size, (char*)dst, &outLen, 0);
 
     return outLen;
 }

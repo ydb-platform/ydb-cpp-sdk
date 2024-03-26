@@ -62,7 +62,7 @@ cd build
 sudo cmake ..
 sudo cmake --build . --target install
 cd ../../
-sudo rm -r ./base64-0.5.2
+
 ```
 
 ## Create the work directory

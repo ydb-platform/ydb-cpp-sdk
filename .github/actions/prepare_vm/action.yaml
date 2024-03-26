@@ -26,7 +26,7 @@ runs:
         (V=4.8.1; curl -L https://github.com/ccache/ccache/releases/download/v${V}/ccache-${V}-linux-x86_64.tar.xz | \
         sudo tar -xJ -C /usr/local/bin/ --strip-components=1 --no-same-owner ccache-${V}-linux-x86_64/ccache)
         sudo rm -rf llvm.sh libiconv-1.15
-        cd
+        cd ..
         sudo wget https://github.com/aklomp/base64/archive/refs/tags/v0.5.2.tar.gz
         sudo tar -xvzf v0.5.2.tar.gz
         cd base64-0.5.2

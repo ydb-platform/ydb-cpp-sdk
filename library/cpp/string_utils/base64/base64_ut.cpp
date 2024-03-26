@@ -1,6 +1,11 @@
 #include "base64.h"
 
-#include <libbase64.h>
+#include <contrib/libs/base64/avx2/libbase64.h>
+#include <contrib/libs/base64/neon32/libbase64.h>
+#include <contrib/libs/base64/neon64/libbase64.h>
+#include <contrib/libs/base64/plain32/libbase64.h>
+#include <contrib/libs/base64/plain64/libbase64.h>
+#include <contrib/libs/base64/ssse3/libbase64.h>
 
 #include <library/cpp/testing/unittest/registar.h>
 
