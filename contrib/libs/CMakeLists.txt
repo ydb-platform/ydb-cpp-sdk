@@ -1,4 +1,3 @@
-add_subdirectory(base64)
 add_subdirectory(brotli)
 add_subdirectory(double-conversion)
 add_subdirectory(fastlz)

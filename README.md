@@ -28,7 +28,7 @@ If you ok with this warning, then...
 - zstd
 - lz4
 - snappy 1.1.8+
-
+- base64
 
 ## Runtime requirements
 
@@ -53,6 +53,16 @@ cd libiconv-1.15
 ./configure --prefix=/usr/local
 sudo make
 sudo make install
+
+sudo wget https://github.com/aklomp/base64/archive/refs/tags/v0.5.2.tar.gz
+sudo tar -xvzf v0.5.2.tar.gz
+cd base64-0.5.2
+sudo mkdir build
+cd build
+sudo cmake ..
+sudo cmake --build . --target install
+cd ../../
+
 ```
 
 ## Create the work directory

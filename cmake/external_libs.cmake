@@ -11,6 +11,7 @@ find_package(xxHash REQUIRED)
 find_package(ZSTD REQUIRED)
 find_package(LZ4 REQUIRED)
 find_package(Snappy 1.1.8 REQUIRED CONFIG)
+find_package(base64 REQUIRED)
 
 # rapidjson
 add_library(ydb-sdk-rapidjson INTERFACE)
