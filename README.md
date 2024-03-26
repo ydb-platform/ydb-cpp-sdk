@@ -8,7 +8,7 @@ If you ok with this warning, then...
 ## Prerequisites
 
 - cmake 3.22+
-- llvm 16+
+- clang 16+
 - git 2.20+
 - ninja 1.10+
 - ragel
@@ -29,7 +29,7 @@ If you ok with this warning, then...
 - lz4
 - snappy 1.1.8+
 - base64
-- brotli
+- brotli 1.1.10+
 
 ## Runtime requirements
 
