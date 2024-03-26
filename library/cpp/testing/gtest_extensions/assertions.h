@@ -46,7 +46,7 @@ namespace NGTest::NInternal {
     std::string FormatErrorWrongException(const char* statement, const char* type);
     std::string FormatErrorWrongException(const char* statement, const char* type, std::string contains);
     std::string FormatErrorUnexpectedException(const char* statement);
-    bool ExceptionMessageContains(const std::exception& err, std::string contains);
+    bool ExceptionMessageContains(const std::exception& err, std::string_view contains);
 }
 
 #define _Y_GTEST_EXPECT_THROW_IMPL_(statement, expectedException, fail)                                             \

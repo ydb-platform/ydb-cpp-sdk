@@ -84,7 +84,7 @@ namespace NGTest::NInternal {
         return out;
     }
 
-    bool ExceptionMessageContains(const std::exception& err, std::string contains) {
+    bool ExceptionMessageContains(const std::exception& err, std::string_view contains) {
         return std::string_view(err.what()).find(contains) != std::string_view::npos;
     }
 }
