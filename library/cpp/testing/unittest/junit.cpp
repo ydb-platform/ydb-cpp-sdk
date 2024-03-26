@@ -138,7 +138,7 @@ struct TJUnitProcessor::TOutputCapturer {
                         std::string first;
                         first.resize(PART_LIMIT);
                         captured.Read((void*)first.data(), PART_LIMIT);
-                        size_t lastNewLine = first.find_last_of('\n');
+                        const auto lastNewLine = first.find_last_of('\n');
                         if (lastNewLine == std::string::npos) {
                             out << first << Endl;
                         } else {
@@ -154,7 +154,7 @@ struct TJUnitProcessor::TOutputCapturer {
                         last.resize(PART_LIMIT);
                         captured.Seek(-PART_LIMIT, sEnd);
                         captured.Read((void*)last.data(), PART_LIMIT);
-                        size_t newLine = last.find_first_of('\n');
+                        const auto newLine = last.find_first_of('\n');
                         if (newLine == std::string::npos) {
                             out << last << Endl;
                         } else {

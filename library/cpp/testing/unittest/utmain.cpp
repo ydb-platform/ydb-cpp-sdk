@@ -251,7 +251,7 @@ public:
     }
 
     inline void Disable(const char* name) {
-        size_t colon = std::string(name).find("::");
+        const auto colon = std::string(name).find("::");
         if (colon == std::string::npos) {
             DisabledSuites_.insert(name);
         } else {
@@ -261,7 +261,7 @@ public:
     }
 
     inline void Enable(const char* name) {
-        size_t colon = std::string(name).rfind("::");
+        const auto colon = std::string(name).rfind("::");
         if (colon == std::string::npos) {
             EnabledSuites_.insert(name);
             EnabledTests_.insert(std::string() + name + "::*");
@@ -540,7 +540,7 @@ private:
         cmd.Run();
 
         const std::string& err = cmd.GetError();
-        const size_t msgIndex = err.find(ForkCorrectExitMsg);
+        const auto msgIndex = err.find(ForkCorrectExitMsg);
 
         // everything is printed by parent process except test's result output ("good" or "fail")
         // which is printed by child. If there was no output - parent process prints default message.

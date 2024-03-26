@@ -56,7 +56,7 @@ std::string GetArcadiaTestsData() {
             return dataDir;
         }
 
-        size_t pos = path.find_last_of(pathsep);
+        auto pos = path.find_last_of(pathsep);
         if (pos == std::string::npos) {
             pos = 0;
         }
