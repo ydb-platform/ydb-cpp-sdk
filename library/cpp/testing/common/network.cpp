@@ -73,7 +73,7 @@ namespace {
     std::vector<std::pair<ui16, ui16>> GetPortRanges() {
         std::string givenRange = GetEnv("VALID_PORT_RANGE");
         std::vector<std::pair<ui16, ui16>> ranges;
-        if (givenRange.Contains(':')) {
+        if (givenRange.find(':') != std::string::npos) {
             auto res = StringSplitter(givenRange).Split(':').Limit(2).ToList<std::string>();
             ranges.emplace_back(FromString<ui16>(res.front()), FromString<ui16>(res.back()));
         } else {

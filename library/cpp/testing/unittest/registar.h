@@ -448,7 +448,7 @@ public:                       \
     do {                                                                                                                        \
         const std::string _a(A); /* NOLINT(performance-unnecessary-copy-initialization) */                                          \
         const std::string _b(B); /* NOLINT(performance-unnecessary-copy-initialization) */                                          \
-        if (!_a.Contains(_b)) {                                                                                                 \
+        if (_a.find(_b) == std::string::npos) {                                                                                                 \
             auto&& msg = Sprintf("\"%s\" does not contain \"%s\", %s", ToString(_a).data(), ToString(_b).data(), (::TYdbStringBuilder() << C).data()); \
             UNIT_FAIL_IMPL("strings contains assertion failed", msg);                                                           \
         }                                                                                                                       \
@@ -608,16 +608,16 @@ public:                       \
 // Same as UNIT_ASSERT_EXCEPTION_CONTAINS but prints additional string C when nothing was thrown
 #define UNIT_ASSERT_EXCEPTION_CONTAINS_C(A, E, substr, C)                   \
     do {                                                                    \
-        const std::string _substr{substr};                                      \
+        const std::string _substr{substr};                                  \
         UNIT_ASSERT_EXCEPTION_SATISFIES_C(A, E,                             \
             [&_substr](const E&){                                           \
                 if (!_substr.empty()) {                                     \
-                    auto cure = CurrentExceptionMessage() ; \
-                    UNIT_ASSERT_C(cure.Contains(_substr),                   \
+                    auto cure = CurrentExceptionMessage() ;                 \
+                    UNIT_ASSERT_C(cure.find(_substr) != std::string::npos,  \
                                   "Exception message does not contain \""   \
                                       << _substr << "\".\n"                 \
                                       << "Exception message: "              \
-                                      << cure);        \
+                                      << cure);                             \
                 }                                                           \
                 return true;                                                \
             },                                                              \
