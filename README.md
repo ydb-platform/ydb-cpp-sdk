@@ -42,32 +42,30 @@ If you ok with this warning, then...
 sudo apt-get -y update
 sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
   protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
-<<<<<<< HEAD
   rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev liblz4-dev
-=======
-  rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libbrotli-dev
->>>>>>> 7ed3dede1d (Removed brotli from contrib)
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh
-sudo ./llvm.sh 16
+./llvm.sh 16
 
 wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
-tar -xvzf libiconv-1.15.tar.gz
-cd libiconv-1.15
+tar -xvzf libiconv-1.15.tar.gz && cd libiconv-1.15
 ./configure --prefix=/usr/local
-sudo make
+make
 sudo make install
 
-sudo wget https://github.com/aklomp/base64/archive/refs/tags/v0.5.2.tar.gz
-sudo tar -xvzf v0.5.2.tar.gz
-cd base64-0.5.2
-sudo mkdir build
-cd build
-sudo cmake ..
-sudo cmake --build . --target install
-cd ../../
+wget https://github.com/aklomp/base64/archive/refs/tags/v0.5.2.tar.gz
+tar -xvzf v0.5.2.tar.gz && cd base64-0.5.2
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+sudo cmake --build . --config Release --target install
 
+wget https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz
+tar -xvzf v1.1.0.tar.gz
+cd brotli-1.1.0
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+sudo cmake --build . --config Release --target install
 ```
 
 ## Create the work directory
