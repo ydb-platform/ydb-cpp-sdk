@@ -57,8 +57,8 @@ void PrintTo(const std::basic_string<TCharType, TCharTraits>& value, std::ostrea
 //     *stream << std::basic_string<TCharType, TCharTraits>{value}.Quote().c_str();
 // }
 
-template <typename T, typename P>
-void PrintTo(const std::optional<T, P>& value, std::ostream* stream) {
+template <typename T>
+void PrintTo(const std::optional<T>& value, std::ostream* stream) {
     if (value.has_value()) {
         ::testing::internal::UniversalPrint(value.value(), stream);
     } else {
@@ -66,7 +66,7 @@ void PrintTo(const std::optional<T, P>& value, std::ostream* stream) {
     }
 }
 
-inline void PrintTo(TNothing /* value */, std::ostream* stream) {
+inline void PrintTo(std::nullopt_t /* value */, std::ostream* stream) {
     *stream << "nothing";
 }
 
