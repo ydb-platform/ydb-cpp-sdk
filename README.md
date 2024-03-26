@@ -46,7 +46,7 @@ sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-c
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh
-./llvm.sh 16
+sudo ./llvm.sh 16
 
 wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
 tar -xvzf libiconv-1.15.tar.gz && cd libiconv-1.15

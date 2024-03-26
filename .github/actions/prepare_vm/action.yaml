@@ -20,22 +20,21 @@ runs:
         tar -xvzf libiconv-1.15.tar.gz
         cd libiconv-1.15
         ./configure --prefix=/usr/local
-        sudo make
+        make
         sudo make install
         cd ..
         wget https://github.com/aklomp/base64/archive/refs/tags/v0.5.2.tar.gz
         tar -xvzf v0.5.2.tar.gz
         cd base64-0.5.2
-        sudo mkdir build
-        cd build
-        sudo cmake -DCMAKE_BUILD_TYPE=Debug ..
+        mkdir build && cd build
+        cmake -DCMAKE_BUILD_TYPE=Debug ..
         sudo cmake --build . --config Debug --target install
         cd ../../
         wget https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz
         tar -xvzf v1.1.0.tar.gz
         cd brotli-1.1.0
         mkdir build && cd build
-        sudo cmake -DCMAKE_BUILD_TYPE=Debug ..
+        cmake -DCMAKE_BUILD_TYPE=Debug ..
         sudo cmake --build . --config Debug --target install
         (V=4.8.1; curl -L https://github.com/ccache/ccache/releases/download/v${V}/ccache-${V}-linux-x86_64.tar.xz | \
         sudo tar -xJ -C /usr/local/bin/ --strip-components=1 --no-same-owner ccache-${V}-linux-x86_64/ccache)
