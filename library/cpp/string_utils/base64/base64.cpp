@@ -1,75 +1,11 @@
 #include "base64.h"
 
-#include <contrib/libs/base64/avx2/libbase64.h>
-#include <contrib/libs/base64/ssse3/libbase64.h>
-#include <contrib/libs/base64/neon32/libbase64.h>
-#include <contrib/libs/base64/neon64/libbase64.h>
-#include <contrib/libs/base64/plain32/libbase64.h>
-#include <contrib/libs/base64/plain64/libbase64.h>
-
+#include <libbase64.h>
 #include <util/generic/yexception.h>
 #include <util/system/cpu_id.h>
 #include <util/system/platform.h>
 
 #include <cstdlib>
-
-namespace {
-    struct TImpl {
-        void (*Encode)(const char* src, size_t srclen, char* out, size_t* outlen);
-        int (*Decode)(const char* src, size_t srclen, char* out, size_t* outlen);
-
-        TImpl() {
-#if defined(_arm32_)
-            const bool haveNEON32 = true;
-#else
-            const bool haveNEON32 = false;
-#endif
-
-#if defined(_arm64_)
-            const bool haveNEON64 = true;
-#else
-            const bool haveNEON64 = false;
-#endif
-
-# ifdef _windows_
-            // msvc does something wrong in release-build, so we temprorary  disable this branch on windows
-            // https://developercommunity.visualstudio.com/content/problem/334085/release-build-has-made-wrong-optimizaion-in-base64.html
-            const bool isWin = true;
-# else
-            const bool isWin = false;
-# endif
-            if (!isWin && NX86::HaveAVX() && NX86::HaveAVX2()) {
-                Encode = avx2_base64_encode;
-                Decode = avx2_base64_decode;
-            } else if (NX86::HaveSSSE3()) {
-                Encode = ssse3_base64_encode;
-                Decode = ssse3_base64_decode;
-            } else if (haveNEON64) {
-                Encode = neon64_base64_encode;
-                Decode = neon64_base64_decode;
-            } else if (haveNEON32) {
-                Encode = neon32_base64_encode;
-                Decode = neon32_base64_decode;
-            } else if (sizeof(void*) == 8) {
-                // running on a 64 bit platform
-                Encode = plain64_base64_encode;
-                Decode = plain64_base64_decode;
-            } else if (sizeof(void*) == 4) {
-                // running on a 32 bit platform (actually impossible in Arcadia)
-                Encode = plain32_base64_encode;
-                Decode = plain32_base64_decode;
-            } else {
-                // failed to find appropriate implementation
-                std::abort();
-            }
-        }
-    };
-
-    const TImpl GetImpl() {
-        static const TImpl IMPL;
-        return IMPL;
-    }
-}
 
 static const char base64_etab_std[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const char base64_bkw[] = {
@@ -240,7 +176,6 @@ size_t Base64StrictDecode(void* out, const char* b, const char* e) {
 }
 
 size_t Base64Decode(void* dst, const char* b, const char* e) {
-    static const TImpl IMPL = GetImpl();
     const auto size = e - b;
     Y_ENSURE(!(size % 4), "incorrect input length for base64 decode");
     if (Y_LIKELY(size < 8)) {
@@ -248,7 +183,7 @@ size_t Base64Decode(void* dst, const char* b, const char* e) {
     }
 
     size_t outLen;
-    IMPL.Decode(b, size, (char*)dst, &outLen);
+    base64_decode(b, size, (char*)dst, &outLen, 0);
 
     return outLen;
 }
@@ -277,13 +212,12 @@ std::string Base64DecodeUneven(const std::string_view s) {
 }
 
 char* Base64Encode(char* outstr, const unsigned char* instr, size_t len) {
-    static const TImpl IMPL = GetImpl();
     if (Y_LIKELY(len < 8)) {
         return Base64EncodePlain(outstr, instr, len);
     }
 
     size_t outLen;
-    IMPL.Encode((char*)instr, len, outstr, &outLen);
+    base64_encode((char*)instr, len, outstr, &outLen, 0);
 
     *(outstr + outLen) = '\0';
     return outstr + outLen;
