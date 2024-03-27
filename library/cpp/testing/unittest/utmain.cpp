@@ -766,7 +766,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
                 if ((xmlFormat = v.starts_with(xmlPrefix)) || v.starts_with(jsonPrefix)) {
                     std::string_view fileName = v;
                     const std::string_view prefix = xmlFormat ? xmlPrefix : jsonPrefix;
-                    fileName = fileName.SubString(prefix.size(), std::string_view::npos);
+                    fileName = fileName.substr(prefix.size());
                     const TJUnitProcessor::EOutputFormat format = xmlFormat ? TJUnitProcessor::EOutputFormat::Xml : TJUnitProcessor::EOutputFormat::Json;
                     NUnitTest::ShouldColorizeDiff = false;
                     traceProcessors.push_back(std::make_shared<TJUnitProcessor>(std::string(fileName),
