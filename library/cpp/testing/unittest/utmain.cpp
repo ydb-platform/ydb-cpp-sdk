@@ -283,9 +283,9 @@ public:
         TFileInput filtersStream(filename);
 
         while (filtersStream.ReadLine(filterLine)) {
-            if (filterLine.StartsWith("-")) {
+            if (filterLine.starts_with("-")) {
                 Disable(filterLine.c_str() + 1);
-            } else if(filterLine.StartsWith("+")) {
+            } else if(filterLine.starts_with("+")) {
                 Enable(filterLine.c_str() + 1);
             }
         }
@@ -763,7 +763,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
                 bool xmlFormat = false;
                 constexpr std::string_view xmlPrefix = "xml:";
                 constexpr std::string_view jsonPrefix = "json:";
-                if ((xmlFormat = v.StartsWith(xmlPrefix)) || v.StartsWith(jsonPrefix)) {
+                if ((xmlFormat = v.starts_with(xmlPrefix)) || v.starts_with(jsonPrefix)) {
                     std::string_view fileName = v;
                     const std::string_view prefix = xmlFormat ? xmlPrefix : jsonPrefix;
                     fileName = fileName.SubString(prefix.size(), std::string_view::npos);
@@ -839,7 +839,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
                     ++i;
                     std::string filename(argv[i]);
                     processor.FilterFromFile(filename);
-                } else if (std::string(name).StartsWith("--")) {
+                } else if (std::string(name).starts_with("--")) {
                     return DoUsage(argv[0]), 1;
                 } else if (*name == '-') {
                     processor.Disable(name + 1);
