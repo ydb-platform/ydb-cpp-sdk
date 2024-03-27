@@ -52,7 +52,7 @@ static std::string SanitizeString(std::string s) {
         if (!fixedSomeChars) {
             fixedSomeChars = true;
             escaped.reserve(s.size());
-            escaped.insert(escaped.end(), s.data(), reinterpret_cast<const char*>(i));
+            escaped.insert(escaped.end(), static_cast<const char*>(s.data()), reinterpret_cast<const char*>(i));
         }
         escaped.push_back('?');
     };
