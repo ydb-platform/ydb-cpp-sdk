@@ -85,7 +85,7 @@ struct TDiffColorizer {
     }
 
     std::string Special(std::string_view str) const {
-        return ToString(Colors.YellowColor()) + str;
+        return ToString(Colors.YellowColor()) += str;
     }
 
     std::string Common(TArrayRef<const char> str) const {
