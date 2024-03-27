@@ -13,7 +13,7 @@ target_sources(ttl PRIVATE
 
 vcs_info(ttl)
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(ttl PUBLIC
     library-cpp-cpuid_check
   )

@@ -1,6 +1,5 @@
 #include <library/cpp/svnversion/svnversion.h>
 #include <library/cpp/build_info/build_info.h>
-#include <library/cpp/malloc/api/malloc.h>
 
 #include "version_mon_page.h"
 
@@ -12,5 +11,4 @@ void TVersionMonPage::OutputText(IOutputStream& out, NMonitoring::IMonHttpReques
     if (!std::string_view{version}.ends_with("\n"))
         out << "\n";
     out << GetBuildInfo() << "\n\n";
-    out << "linked with malloc: " << NMalloc::MallocInfo().Name << "\n";
 }

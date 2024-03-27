@@ -6,7 +6,6 @@ add_library(monlib-service-pages)
 target_link_libraries(monlib-service-pages PUBLIC
   yutil
   library-cpp-build_info
-  cpp-malloc-api
   library-cpp-svnversion
   library-cpp-resource
   cpp-monlib-service

@@ -14,7 +14,7 @@ target_sources(basic_example PRIVATE
 
 vcs_info(basic_example)
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(basic_example PUBLIC
     library-cpp-cpuid_check
   )

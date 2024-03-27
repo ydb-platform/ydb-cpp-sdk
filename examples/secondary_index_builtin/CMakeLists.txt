@@ -18,7 +18,7 @@ target_sources(secondary_index_builtin PRIVATE
 
 vcs_info(secondary_index_builtin)
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(secondary_index_builtin PUBLIC
     library-cpp-cpuid_check
   )

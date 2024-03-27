@@ -10,8 +10,7 @@ class TOpenSslClientIO: public IInputStream, public IOutputStream {
 public:
     struct TOptions {
         struct TVerifyCert {
-            // Uses builtin certs.
-            // Also uses default CA path /etc/ssl/certs/ - can be provided with debian package: ca-certificates.deb.
+            // Uses default CA path /etc/ssl/certs/ - can be provided with debian package: ca-certificates.deb.
             // It can be expanded with ENV: SSL_CERT_DIR.
             std::string Hostname_;
         };
@@ -38,14 +37,3 @@ private:
     struct TImpl;
     THolder<TImpl> Impl_;
 };
-
-struct x509_store_st;
-
-namespace NPrivate {
-    struct TSslDestroy {
-        static void Destroy(x509_store_st* x509) noexcept;
-    };
-}
-
-using TOpenSslX509StorePtr = THolder<x509_store_st, NPrivate::TSslDestroy>;
-TOpenSslX509StorePtr GetBuiltinOpenSslX509Store();
