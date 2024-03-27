@@ -420,7 +420,7 @@ void TJUnitProcessor::SerializeToJson() {
                     json.BeginObject();
                     json.WriteKey("message"sv).WriteString(failure.Message);
                     json.WriteKey("type"sv).WriteString("ERROR"sv);
-                    if (failure.BackTrace) {
+                    if (!failure.BackTrace.empty()) {
                         json.WriteKey("backtrace"sv).WriteString(failure.BackTrace);
                     }
                     json.EndObject();

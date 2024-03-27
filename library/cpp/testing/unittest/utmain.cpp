@@ -216,12 +216,12 @@ private:
         } else {
             TStringBuilder msgs;
             for (const std::string& m : ErrorMessages) {
-                if (msgs) {
+                if (!msgs.empty()) {
                     msgs << "\n"sv;
                 }
                 msgs << m;
             }
-            if (msgs) {
+            if (!msgs.empty()) {
                 msgs << "\n"sv;
             }
             TraceSubtestFinished(descr->test->unit->name.data(), descr->test->name, "fail", msgs, descr->Context);
@@ -855,7 +855,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
         }
 
         if (!hasJUnitProcessor) {
-            if (std::string oo = GetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION)) {
+            if (std::string oo = GetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION); !oo.empty()) {
                 processJunitOption(oo);
             }
         }

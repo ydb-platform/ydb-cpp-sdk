@@ -18,14 +18,14 @@ void TGMockTestEventListener::OnTestPartResult(const testing::TestPartResult& re
             msg << result.file_name() << ":"sv;
         if (result.line_number() != -1)
             msg << result.line_number() << ":"sv;
-        if (summary) {
-            if (msg) {
+        if (!summary.empty()) {
+            if (!msg.empty()) {
                 msg << "\n"sv;
             }
             msg << summary;
         }
-        if (message && summary != message) {
-            if (msg) {
+        if (!message.empty() && summary != message) {
+            if (!msg.empty()) {
                 msg << "\n"sv;
             }
             msg << message;
