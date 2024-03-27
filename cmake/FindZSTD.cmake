@@ -6,11 +6,13 @@
 
 find_path(ZSTD_INCLUDE_DIR
   zstd.h
-  HINTS $ENV{ZSTD_ROOT}/include)
+  HINTS $ENV{ZSTD_ROOT}/include
+)
 
 find_library(ZSTD_LIBRARIES
   zstd
-  HINTS $ENV{ZSTD_ROOT}/lib)
+  HINTS $ENV{ZSTD_ROOT}/lib
+)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(ZSTD DEFAULT_MSG ZSTD_LIBRARIES ZSTD_INCLUDE_DIR)

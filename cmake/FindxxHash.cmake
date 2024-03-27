@@ -6,11 +6,13 @@
 
 find_path(xxHash_INCLUDE_DIR
   xxhash.h
-  HINTS $ENV{xxHash_ROOT}/include)
+  HINTS $ENV{xxHash_ROOT}/include
+)
 
 find_library(xxHash_LIBRARIES
   xxhash
-  HINTS $ENV{xxHash_ROOT}/lib)
+  HINTS $ENV{xxHash_ROOT}/lib
+)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(xxHash DEFAULT_MSG xxHash_LIBRARIES xxHash_INCLUDE_DIR)
