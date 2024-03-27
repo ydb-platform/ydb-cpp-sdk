@@ -2,7 +2,7 @@ add_executable(simple_persqueue_reader)
 
 target_link_libraries(simple_persqueue_reader PUBLIC
   yutil
-  cpp-client-ydb_topic
+  YDB-CPP-SDK::Topic
   library-cpp-getopt
 )
 
@@ -23,13 +23,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     -ldl
     -lrt
     -Wl,--no-as-needed
-    -fPIC
     -lpthread
   )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_link_options(simple_persqueue_reader PRIVATE
     -Wl,-platform_version,macos,11.0,11.0
-    -fPIC
     -framework
     CoreFoundation
   )

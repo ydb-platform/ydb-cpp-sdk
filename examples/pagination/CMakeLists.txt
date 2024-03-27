@@ -3,7 +3,7 @@ add_executable(pagination)
 target_link_libraries(pagination PUBLIC
   yutil
   library-cpp-getopt
-  cpp-client-ydb_table
+  YDB-CPP-SDK::Table
 )
 
 target_sources(pagination PRIVATE
@@ -25,13 +25,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     -ldl
     -lrt
     -Wl,--no-as-needed
-    -fPIC
     -lpthread
   )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_link_options(pagination PRIVATE
     -Wl,-platform_version,macos,11.0,11.0
-    -fPIC
     -framework
     CoreFoundation
   )

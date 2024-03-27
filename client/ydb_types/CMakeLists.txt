@@ -24,4 +24,4 @@ generate_enum_serilization(cpp-client-ydb_types
   client/ydb_types/status_codes.h
 )
 
-
+add_library(YDB-CPP-SDK::Types ALIAS cpp-client-ydb_types)

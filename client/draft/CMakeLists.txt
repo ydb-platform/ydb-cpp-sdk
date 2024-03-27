@@ -15,4 +15,4 @@ target_sources(cpp-client-draft PRIVATE
   ${CMAKE_SOURCE_DIR}/client/draft/ydb_long_tx.cpp
 )
 
-
+add_library(YDB-CPP-SDK::Draft ALIAS cpp-client-draft)
