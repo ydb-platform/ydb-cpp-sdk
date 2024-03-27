@@ -23,13 +23,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     -ldl
     -lrt
     -Wl,--no-as-needed
-    -fPIC
     -lpthread
   )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_link_options(persqueue_reader_eventloop PRIVATE
     -Wl,-platform_version,macos,11.0,11.0
-    -fPIC
     -framework
     CoreFoundation
   )
