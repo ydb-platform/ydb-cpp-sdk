@@ -16,4 +16,4 @@ target_sources(cpp-client-ydb_driver PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_driver/driver.cpp
 )
 
-
+add_library(YDB-CPP-SDK::Driver ALIAS cpp-client-ydb_driver)

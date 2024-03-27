@@ -15,8 +15,4 @@ generate_enum_serilization(cpp-client-ydb_federated_topic
   client/ydb_federated_topic/federated_topic.h
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-client-ydb_federated_topic PUBLIC
-   
-  )
-endif()
+add_library(YDB-CPP-SDK::FederatedTopic ALIAS cpp-client-ydb_federated_topic)

@@ -10,4 +10,4 @@ target_sources(cpp-client-ydb_extension PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_extension/extension.cpp
 )
 
-
+add_library(YDB-CPP-SDK::Extension ALIAS cpp-client-ydb_extension)

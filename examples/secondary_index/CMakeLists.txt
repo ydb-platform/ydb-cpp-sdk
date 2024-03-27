@@ -3,7 +3,7 @@ add_executable(secondary_index)
 target_link_libraries(secondary_index PUBLIC
   yutil
   library-cpp-getopt
-  cpp-client-ydb_table
+  YDB-CPP-SDK::Table
 )
 
 target_sources(secondary_index PRIVATE
@@ -30,13 +30,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     -ldl
     -lrt
     -Wl,--no-as-needed
-    -fPIC
     -lpthread
   )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_link_options(secondary_index PRIVATE
     -Wl,-platform_version,macos,11.0,11.0
-    -fPIC
     -framework
     CoreFoundation
   )

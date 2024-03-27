@@ -10,4 +10,4 @@ target_sources(cpp-client-iam_private PRIVATE
   ${CMAKE_SOURCE_DIR}/client/iam_private/iam.cpp
 )
 
-
+add_library(YDB-CPP-SDK::IamPrivate ALIAS cpp-client-iam_private)

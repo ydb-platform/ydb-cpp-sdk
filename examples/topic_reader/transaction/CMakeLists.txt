@@ -2,7 +2,7 @@ add_executable(read_from_topic_in_transaction)
 
 target_link_libraries(read_from_topic_in_transaction PUBLIC
   yutil
-  cpp-client-ydb_topic
+  YDB-CPP-SDK::Topic
   library-cpp-getopt
 )
 
@@ -25,13 +25,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     -ldl
     -lrt
     -Wl,--no-as-needed
-    -fPIC
     -lpthread
   )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_link_options(read_from_topic_in_transaction PRIVATE
     -Wl,-platform_version,macos,11.0,11.0
-    -fPIC
     -framework
     CoreFoundation
   )

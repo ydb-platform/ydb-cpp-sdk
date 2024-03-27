@@ -12,4 +12,4 @@ target_sources(cpp-client-ydb_common_client PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_common_client/settings.cpp
 )
 
-
+add_library(YDB-CPP-SDK::CommonClient ALIAS cpp-client-ydb_common_client)

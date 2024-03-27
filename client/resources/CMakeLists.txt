@@ -26,11 +26,4 @@ resources(cpp-client-resources.global
   ydb_root_ca.pem
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-  target_link_libraries(cpp-client-resources PUBLIC
-    
-  )
-  target_link_libraries(cpp-client-resources.global PUBLIC
-    
-  )
-endif()
+add_library(YDB-CPP-SDK::Resources ALIAS cpp-client-resources)

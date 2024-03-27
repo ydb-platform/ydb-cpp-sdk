@@ -16,4 +16,4 @@ target_sources(cpp-client-ydb_operation PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_operation/operation.cpp
 )
 
-
+add_library(YDB-CPP-SDK::Operation ALIAS cpp-client-ydb_operation)

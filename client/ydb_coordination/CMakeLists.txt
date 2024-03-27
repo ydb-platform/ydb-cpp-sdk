@@ -27,4 +27,4 @@ generate_enum_serilization(cpp-client-ydb_coordination
   client/ydb_coordination/coordination.h
 )
 
-
+add_library(YDB-CPP-SDK::Coordination ALIAS cpp-client-ydb_coordination)

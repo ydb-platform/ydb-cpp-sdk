@@ -27,4 +27,4 @@ generate_enum_serilization(cpp-client-ydb_topic
   client/ydb_topic/topic.h
 )
 
-
+add_library(YDB-CPP-SDK::Topic ALIAS cpp-client-ydb_topic)
