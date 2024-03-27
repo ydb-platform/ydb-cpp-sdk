@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 
 /**
  * Search the environment list provided by the host environment for associated variable.
