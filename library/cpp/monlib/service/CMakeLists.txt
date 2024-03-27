@@ -12,7 +12,6 @@ target_link_libraries(cpp-monlib-service PUBLIC
   cpp-http-server
   cpp-http-io
   library-cpp-logger
-  cpp-malloc-api
   library-cpp-svnversion
   library-cpp-uri
   library-cpp-cgiparam

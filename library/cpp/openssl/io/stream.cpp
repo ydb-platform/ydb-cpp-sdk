@@ -187,8 +187,6 @@ namespace {
             Y_ENSURE(X509_VERIFY_PARAM_set1_host(param, VerifyCert_->Hostname_.data(), VerifyCert_->Hostname_.size()));
             SSL_set_tlsext_host_name(ssl, VerifyCert_->Hostname_.data()); // TLS extenstion: SNI
 
-            SSL_CTX_set_cert_store(Ctx.Get(), GetBuiltinOpenSslX509Store().Release());
-
             Y_ENSURE_EX(1 == SSL_CTX_set_default_verify_paths(Ctx.Get()),
                         TSslError());
             // it is OK to ignore result of SSL_CTX_load_verify_locations():
@@ -269,61 +267,4 @@ void TOpenSslClientIO::DoWrite(const void* buf, size_t len) {
 
 size_t TOpenSslClientIO::DoRead(void* buf, size_t len) {
     return Impl_->Read(buf, len);
-}
-
-namespace NPrivate {
-    void TSslDestroy::Destroy(x509_store_st* x509) noexcept {
-        X509_STORE_free(x509);
-    }
-}
-
-class TBuiltinCerts {
-public:
-    TBuiltinCerts() {
-        std::string c = NResource::Find("/builtin/cacert");
-
-        TBioPtr cbio(BIO_new_mem_buf(c.data(), c.size()));
-        Y_ENSURE_EX(cbio, TSslError() << "BIO_new_mem_buf");
-
-        while (true) {
-            TX509Ptr cert(PEM_read_bio_X509(cbio.Get(), nullptr, nullptr, nullptr));
-            if (!cert) {
-                break;
-            }
-            Certs.push_back(std::move(cert));
-        }
-
-        int err = GetLastSslError();
-        if (!Certs.empty() && ERR_GET_LIB(err) == ERR_LIB_PEM && ERR_GET_REASON(err) == PEM_R_NO_START_LINE) {
-            ERR_clear_error();
-        } else {
-            ythrow TSslError() << "can't load provided bundle: " << ERR_reason_error_string(err);
-        }
-
-        Y_ENSURE_EX(!Certs.empty(), TSslError());
-    }
-
-    TOpenSslX509StorePtr GetX509Store() const {
-        TOpenSslX509StorePtr store(X509_STORE_new());
-
-        for (const TX509Ptr& c : Certs) {
-            if (0 == X509_STORE_add_cert(store.Get(), c.Get())) {
-                int err = GetLastSslError();
-                if (ERR_GET_LIB(err) == ERR_LIB_X509 && ERR_GET_REASON(err) == X509_R_CERT_ALREADY_IN_HASH_TABLE) {
-                    ERR_clear_error();
-                } else {
-                    ythrow TSslError() << "can't load provided bundle: " << ERR_reason_error_string(err);
-                }
-            }
-        }
-
-        return store;
-    }
-
-private:
-    TDeque<TX509Ptr> Certs;
-};
-
-TOpenSslX509StorePtr GetBuiltinOpenSslX509Store() {
-    return Singleton<TBuiltinCerts>()->GetX509Store();
 }
