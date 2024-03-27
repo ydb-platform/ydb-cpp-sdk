@@ -15,7 +15,6 @@
 #include <util/generic/hash.h>
 #include <util/generic/hash_set.h>
 #include <util/generic/scope.h>
-#include <string>
 #include <util/generic/yexception.h>
 
 #include <util/network/init.h>
@@ -32,6 +31,7 @@
 #include <util/system/shellcommand.h>
 
 #include <filesystem>
+#include <string>
 
 #if defined(_win_)
     #include <fcntl.h>
@@ -53,6 +53,9 @@
 const size_t MAX_COMMENT_MESSAGE_LENGTH = 1024 * 1024; // 1 MB
 
 using namespace NUnitTest;
+
+using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 class TNullTraceWriterProcessor: public ITestSuiteProcessor {
 };
@@ -174,7 +177,7 @@ private:
         return NUnitTest::GetFormatTag("bad") +
                std::string(message).substr(0, MAX_COMMENT_MESSAGE_LENGTH) +
                NUnitTest::GetResetTag() +
-               std::string("\n") +
+               "\n"s +
                NUnitTest::GetFormatTag("alt1") +
                std::string(backTrace).substr(0, MAX_COMMENT_MESSAGE_LENGTH) +
                NUnitTest::GetResetTag();
@@ -214,12 +217,12 @@ private:
             TYdbStringBuilder msgs;
             for (const std::string& m : ErrorMessages) {
                 if (msgs) {
-                    msgs << std::string_view("\n");
+                    msgs << "\n"sv;
                 }
                 msgs << m;
             }
             if (msgs) {
-                msgs << std::string_view("\n");
+                msgs << "\n"sv;
             }
             TraceSubtestFinished(descr->test->unit->name.data(), descr->test->name, "fail", msgs, descr->Context);
             ErrorMessages.clear();
@@ -264,13 +267,13 @@ public:
         const auto colon = std::string(name).rfind("::");
         if (colon == std::string::npos) {
             EnabledSuites_.insert(name);
-            EnabledTests_.insert(std::string() + name + "::*");
+            EnabledTests_.insert(""s + name + "::*");
         } else {
             std::string suite = std::string(name).substr(0, colon);
             EnabledSuites_.insert(suite);
             EnabledSuites_.insert(name);
             EnabledTests_.insert(name);
-            EnabledTests_.insert(std::string() + name + "::*");
+            EnabledTests_.insert(""s + name + "::*");
         }
     }
 
@@ -513,7 +516,7 @@ private:
             return true;
         }
 
-        if (EnabledTests_.find(std::string() + suite + "::*") != EnabledTests_.end()) {
+        if (EnabledTests_.find(""s + suite + "::*") != EnabledTests_.end()) {
             return true;
         }
 

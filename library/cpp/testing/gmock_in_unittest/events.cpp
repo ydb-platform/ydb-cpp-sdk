@@ -2,28 +2,31 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <string_view>
-#include <string>
 #include <util/string/builder.h>
 
+#include <string>
+#include <string_view>
+
 void TGMockTestEventListener::OnTestPartResult(const testing::TestPartResult& result) {
+    using namespace std::string_view_literals;
+
     if (result.failed()) {
         const std::string message = result.message();
         const std::string summary = result.summary();
         TYdbStringBuilder msg;
         if (result.file_name())
-            msg << result.file_name() << std::string_view(":");
+            msg << result.file_name() << ":"sv;
         if (result.line_number() != -1)
-            msg << result.line_number() << std::string_view(":");
+            msg << result.line_number() << ":"sv;
         if (summary) {
             if (msg) {
-                msg << std::string_view("\n");
+                msg << "\n"sv;
             }
             msg << summary;
         }
         if (message && summary != message) {
             if (msg) {
-                msg << std::string_view("\n");
+                msg << "\n"sv;
             }
             msg << message;
         }

@@ -1,5 +1,6 @@
-#include <string>
 #include <util/string/type.h>
+
+#include <string>
 
 bool CheckExceptionMessage(const char* msg, std::string& err) {
     static const char* badMsg[] = {

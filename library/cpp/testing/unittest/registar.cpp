@@ -14,6 +14,8 @@
 
 #include <mutex>
 
+using namespace std::string_literals;
+
 bool NUnitTest::ShouldColorizeDiff = true;
 
 std::string NUnitTest::RandomString(size_t len, ui32 seed) {
@@ -141,7 +143,7 @@ std::string NUnitTest::GetFormatTag(const char* name) {
 }
 
 std::string NUnitTest::GetResetTag() {
-    return std::string("[[rst]]");
+    return "[[rst]]"s;
 }
 
 std::string NUnitTest::ColoredDiff(std::string_view s1, std::string_view s2, const std::string& delims, bool reverse) {
@@ -324,7 +326,7 @@ void NUnitTest::TTestBase::AddError(const char* msg, const std::string& backtrac
 }
 
 void NUnitTest::TTestBase::AddError(const char* msg, TTestContext* context) {
-    AddError(msg, std::string(), context);
+    AddError(msg, ""s, context);
 }
 
 void NUnitTest::TTestBase::RunAfterTest(std::function<void()> f) {

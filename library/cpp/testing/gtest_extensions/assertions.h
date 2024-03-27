@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
-
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+
+#include <string>
 
 /**
  * Check that the given statement throws an exception of the given type,

@@ -4,6 +4,8 @@
 
 #include <string>
 
+using namespace std::string_literals;
+
 // Set this variable to true if you want to see failures
 /////////////////////////////////////////////////////////
 static const bool fail = false;
@@ -50,11 +52,11 @@ Y_UNIT_TEST_SUITE(TExampleGMockTest) {
 
     Y_UNIT_TEST(TReturnValuesTest) {
         TTestMock mock;
-        EXPECT_CALL(mock, Func2(std::string("1")))
+        EXPECT_CALL(mock, Func2("1"s))
             .WillOnce(Return(1))
             .WillRepeatedly(Return(42));
 
-        EXPECT_CALL(mock, Func2(std::string("hello")))
+        EXPECT_CALL(mock, Func2("hello"s))
             .WillOnce(Return(-1));
 
         UNIT_ASSERT_VALUES_EQUAL(mock.Func2("hello"), -1);

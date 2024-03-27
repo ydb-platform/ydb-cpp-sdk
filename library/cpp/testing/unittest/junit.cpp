@@ -24,7 +24,11 @@
 #include <io.h>
 #endif
 
+#include <string_view>
+
 namespace NUnitTest {
+
+using namespace std::string_view_literals;
 
 extern const std::string Y_UNITTEST_OUTPUT_CMDLINE_OPTION = "Y_UNITTEST_OUTPUT";
 extern const std::string Y_UNITTEST_TEST_FILTER_FILE_OPTION = "Y_UNITTEST_FILTER_FILE";
@@ -253,7 +257,7 @@ std::string_view TJUnitProcessor::GetFileExtension() const {
     case EOutputFormat::Json:
         return ".json"sv;
     }
-    return std::string_view();
+    return ""sv;
 }
 
 void TJUnitProcessor::MakeReportFileName() {
