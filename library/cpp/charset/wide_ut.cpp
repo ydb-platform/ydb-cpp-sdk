@@ -6,7 +6,6 @@
 
 #include <util/charset/utf8.h>
 #include <util/digest/numeric.h>
-#include <util/generic/hash_set.h>
 
 #include <algorithm>
 
@@ -244,7 +243,7 @@ void TConversionTest::TestRecodeIntoString() {
     TUtf16String sUnicode;
     sUnicode.reserve(YandexText.size() * 4);
     const wchar16* wdata = sUnicode.data();
-    std::u16string_view wres = NDetail::Recode<char>(YandexText, sUnicode, CODES_YANDEX);
+    TWtringBuf wres = NDetail::Recode<char>(YandexText, sUnicode, CODES_YANDEX);
     UNIT_ASSERT(sUnicode == UnicodeText); // same content
     UNIT_ASSERT(sUnicode.data() == wdata);      // reserved buffer reused
     UNIT_ASSERT(sUnicode.data() == wres.data());      // same buffer
@@ -350,7 +349,7 @@ void TConversionTest::TestRecode() {
         if (!SingleByteCodepage(enc))
             continue;
 
-        using THash = THashSet<char>;
+        using THash = std::unordered_set<char>;
         THash hash;
 
         for (int i = 0; i != 256; ++i) {
@@ -402,13 +401,13 @@ void TConversionTest::TestUnicodeLimit() {
 }
 
 static void TestCanEncodeEmpty() {
-    std::u16string_view empty;
+    TWtringBuf empty;
     UNIT_ASSERT(CanBeEncoded(empty, CODES_WIN));
     UNIT_ASSERT(CanBeEncoded(empty, CODES_YANDEX));
     UNIT_ASSERT(CanBeEncoded(empty, CODES_UTF8));
 }
 
-static void TestCanEncodeEach(const std::u16string_view& text, ECharset encoding, bool expectedResult) {
+static void TestCanEncodeEach(const TWtringBuf& text, ECharset encoding, bool expectedResult) {
     // char by char
     for (size_t i = 0; i < text.size(); ++i) {
         if (CanBeEncoded(text.SubStr(i, 1), encoding) != expectedResult)

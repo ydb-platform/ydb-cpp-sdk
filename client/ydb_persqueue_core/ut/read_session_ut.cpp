@@ -102,8 +102,9 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         auto cb = std::move(ConnectedCallback);
         ConnectedCallback = nullptr;
         ConnectTimeoutCallback = nullptr;
-        std::lock_guard guard(Lock);
-        CallbackFutures.push(std::async(std::launch::async, std::move(cb), TPlainStatus(), processor));
+        with_lock (Lock) {
+            CallbackFutures.push(std::async(std::launch::async, std::move(cb), TPlainStatus(), processor));
+        }
     }
 
     void FailCreation(EStatus status = EStatus::INTERNAL_ERROR, const std::string& message = {}) { // Fail.
@@ -111,8 +112,9 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         auto cb = std::move(ConnectedCallback);
         ConnectedCallback = nullptr;
         ConnectTimeoutCallback = nullptr;
-        std::lock_guard guard(Lock);
-        CallbackFutures.push(std::async(std::launch::async, std::move(cb), TPlainStatus(status, message), nullptr));
+        with_lock (Lock) {
+            CallbackFutures.push(std::async(std::launch::async, std::move(cb), TPlainStatus(status, message), nullptr));
+        }
     }
 
     void Timeout() { // Timeout.
@@ -120,8 +122,9 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         auto cb = std::move(ConnectTimeoutCallback);
         ConnectedCallback = nullptr;
         ConnectTimeoutCallback = nullptr;
-        std::lock_guard guard(Lock);
-        CallbackFutures.push(std::async(std::launch::async, std::move(cb), true));
+        with_lock (Lock) {
+            CallbackFutures.push(std::async(std::launch::async, std::move(cb), true));
+        }
     }
 
     void CreateAndThenTimeout(typename IFactory::IProcessor::TPtr processor) {
@@ -133,8 +136,9 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         };
         ConnectedCallback = nullptr;
         ConnectTimeoutCallback = nullptr;
-        std::lock_guard guard(Lock);
-        CallbackFutures.push(std::async(std::launch::async, std::move(cb2)));
+        with_lock (Lock) {
+            CallbackFutures.push(std::async(std::launch::async, std::move(cb2)));
+        }
     }
 
     void FailAndThenTimeout(EStatus status = EStatus::INTERNAL_ERROR, const std::string& message = {}) {
@@ -146,8 +150,9 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         };
         ConnectedCallback = nullptr;
         ConnectTimeoutCallback = nullptr;
-        std::lock_guard guard(Lock);
-        CallbackFutures.push(std::async(std::launch::async, std::move(cb2)));
+        with_lock (Lock) {
+            CallbackFutures.push(std::async(std::launch::async, std::move(cb2)));
+        }
     }
 
     void TimeoutAndThenCreate(typename IFactory::IProcessor::TPtr processor) {
@@ -159,14 +164,14 @@ struct TMockProcessorFactory : public ISessionConnectionProcessorFactory<TReques
         };
         ConnectedCallback = nullptr;
         ConnectTimeoutCallback = nullptr;
-        std::lock_guard guard(Lock);
-        CallbackFutures.push(std::async(std::launch::async, std::move(cb2)));
+        with_lock (Lock) {
+            CallbackFutures.push(std::async(std::launch::async, std::move(cb2)));
+        }
     }
 
     void Wait() {
         std::queue<std::future<void>> futuresQueue;
-        {
-            std::lock_guard guard(Lock);
+        with_lock (Lock) {
             CallbackFutures.swap(futuresQueue);
         }
         while (!futuresQueue.empty()) {
@@ -342,12 +347,13 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
     }
 
     void Read(Ydb::PersQueue::V1::MigrationStreamingReadServerMessage* response, TReadCallback callback) override {
-        std::lock_guard guard(Lock);
-        UNIT_ASSERT(!ActiveRead);
-        ActiveRead.Callback = std::move(callback);
-        ActiveRead.Dst = response;
-        if (!ReadResponses.empty()) {
-            StartProcessReadImpl();
+        with_lock (Lock) {
+            UNIT_ASSERT(!ActiveRead);
+            ActiveRead.Callback = std::move(callback);
+            ActiveRead.Dst = response;
+            if (!ReadResponses.empty()) {
+                StartProcessReadImpl();
+            }
         }
     }
 
@@ -387,8 +393,7 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
 
     void Wait() {
         std::queue<std::future<void>> callbackFutures;
-        {
-            std::lock_guard guard(Lock);
+        with_lock (Lock) {
             CallbackFutures.swap(callbackFutures);
         }
 
@@ -399,19 +404,19 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
     }
 
     void Validate() {
-        std::lock_guard guard(Lock);
-        UNIT_ASSERT(ReadResponses.empty());
-        UNIT_ASSERT(CallbackFutures.empty());
+        with_lock (Lock) {
+            UNIT_ASSERT(ReadResponses.empty());
+            UNIT_ASSERT(CallbackFutures.empty());
 
-        ActiveRead = TClientReadInfo{};
+            ActiveRead = TClientReadInfo{};
+        }
     }
 
 
     void ProcessRead() {
         NYdbGrpc::TGrpcStatus status;
         TReadCallback callback;
-        {
-            std::lock_guard guard(Lock);
+        with_lock (Lock) {
             *ActiveRead.Dst = ReadResponses.front().Response;
             ActiveRead.Dst = nullptr;
             status = std::move(ReadResponses.front().Status);
@@ -427,8 +432,7 @@ struct TMockReadSessionProcessor : public TMockProcessorFactory<Ydb::PersQueue::
 
     void AddServerResponse(TServerReadInfo result) {
         bool hasActiveRead = false;
-        {
-            std::lock_guard guard(Lock);
+        with_lock (Lock) {
             ReadResponses.emplace(std::move(result));
             if (ActiveRead) {
                 hasActiveRead = true;
@@ -524,8 +528,7 @@ public:
     }
 
     void Post(TFunction&& f) override {
-        {
-            std::lock_guard guard(Lock);
+        with_lock (Lock) {
             Cerr << "Post function" << Endl;
             ++TasksAdded;
             if (Functions.empty()) {
@@ -548,8 +551,9 @@ public:
     }
 
     size_t GetTasksAdded() {
-        std::lock_guard guard(Lock);
-        return TasksAdded;
+        with_lock (Lock) {
+            return TasksAdded;
+        }
     }
 
 private:
@@ -653,7 +657,7 @@ void TReadSessionImplTestSetup::SuccessfulInit(bool hasInitRequest) {
 
 TPartitionStream::TPtr TReadSessionImplTestSetup::CreatePartitionStream(const std::string& topic, const std::string& cluster, ui64 partition, ui64 assignId) {
     MockProcessor->AddServerResponse(TMockReadSessionProcessor::TServerReadInfo().CreatePartitionStream(topic, cluster, partition, assignId)); // Callback will be called.
-    std::optional<TReadSessionEvent::TEvent> event = EventsQueue->GetEvent(true);
+    TMaybe<TReadSessionEvent::TEvent> event = EventsQueue->GetEvent(true);
     UNIT_ASSERT(event);
     UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TCreatePartitionStreamEvent);
     auto& createEvent = std::get<TReadSessionEvent::TCreatePartitionStreamEvent>(*event);
@@ -664,7 +668,7 @@ TPartitionStream::TPtr TReadSessionImplTestSetup::CreatePartitionStream(const st
 }
 
 void TReadSessionImplTestSetup::AssertNoEvents() {
-    std::optional<TReadSessionEvent::TEvent> event = GetEventsQueue()->GetEvent(false);
+    TMaybe<TReadSessionEvent::TEvent> event = GetEventsQueue()->GetEvent(false);
     UNIT_ASSERT(!event);
 }
 
@@ -682,7 +686,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         TDeferredCommit dc;
         // Event 1: create partition stream.
         {
-            std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
+            TMaybe<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TCreatePartitionStreamEvent);
             std::get<TReadSessionEvent::TCreatePartitionStreamEvent>(*event).Confirm();
@@ -690,7 +694,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         }
         // Event 2: data.
         {
-            std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
+            TMaybe<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
             TReadSessionEvent::TDataReceivedEvent& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(*event);
@@ -706,7 +710,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         setup.WriteToTopic({"message3"});
         // Event 3: data.
         {
-            std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
+            TMaybe<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
             TReadSessionEvent::TDataReceivedEvent& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(*event);
@@ -727,14 +731,14 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
 
         // Event 4: commit ack.
         if (commit) {  // (commit && close) branch check is broken with current TReadSession::Close quick fix
-            std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(!close); // Event is expected to be already in queue if closed.
+            TMaybe<TReadSessionEvent::TEvent> event = session->GetEvent(!close); // Event is expected to be already in queue if closed.
             UNIT_ASSERT(event);
             Cerr << "commit ack or close event " << DebugString(*event) << Endl;
             UNIT_ASSERT(std::holds_alternative<TReadSessionEvent::TCommitAcknowledgementEvent>(*event) || std::holds_alternative<TSessionClosedEvent>(*event));
         }
 
         if (close && !commit) {
-            std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(false);
+            TMaybe<TReadSessionEvent::TEvent> event = session->GetEvent(false);
             UNIT_ASSERT(event);
             Cerr << "close event " << DebugString(*event) << Endl;
             UNIT_ASSERT(std::holds_alternative<TSessionClosedEvent>(*event));
@@ -766,7 +770,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         std::shared_ptr<IReadSession> session =                         \
             setup.GetPersQueueClient().CreateReadSession(settings);     \
         session->WaitEvent().Wait();                                    \
-        std::optional<TReadSessionEvent::TEvent> event =                \
+        TMaybe<TReadSessionEvent::TEvent> event =                       \
             session->GetEvent(true);                                    \
         UNIT_ASSERT(event);                                             \
         Cerr << DebugString(*event) << Endl;                            \
@@ -803,7 +807,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         // Set policy with max retries == 3.
         settings.RetryPolicy(NYdb::NPersQueue::IRetryPolicy::GetExponentialBackoffPolicy(TDuration::MilliSeconds(10), TDuration::MilliSeconds(10), TDuration::MilliSeconds(100), 3));
         std::shared_ptr<IReadSession> session = setup.GetPersQueueClient().CreateReadSession(settings);
-        std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
+        TMaybe<TReadSessionEvent::TEvent> event = session->GetEvent(true);
         UNIT_ASSERT(event);
         Cerr << DebugString(*event) << Endl;
         UNIT_ASSERT_EVENT_TYPE(*event, TSessionClosedEvent);
@@ -818,7 +822,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         // Success.
         {
             std::shared_ptr<IReadSession> session = setup.GetPersQueueClient().CreateReadSession(settings);
-            std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
+            TMaybe<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
             Cerr << DebugString(*event) << Endl;
             UNIT_ASSERT_NOT_EVENT_TYPE(*event, TSessionClosedEvent);
@@ -828,7 +832,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         {
             settings.AppendClusters("unknown_cluster");
             std::shared_ptr<IReadSession> session = setup.GetPersQueueClient().CreateReadSession(settings);
-            std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
+            TMaybe<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
             Cerr << DebugString(*event) << Endl;
             UNIT_ASSERT_EVENT_TYPE(*event, TSessionClosedEvent);
@@ -838,7 +842,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         {
             settings.ReadOriginal({"unknown_cluster"});
             std::shared_ptr<IReadSession> session = setup.GetPersQueueClient().CreateReadSession(settings);
-            std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
+            TMaybe<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
             Cerr << DebugString(*event) << Endl;
             UNIT_ASSERT_EVENT_TYPE(*event, TSessionClosedEvent);
@@ -852,7 +856,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
 
         // Event 1: create partition stream.
         {
-            std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
+            TMaybe<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TCreatePartitionStreamEvent);
             std::get<TReadSessionEvent::TCreatePartitionStreamEvent>(*event).Confirm();
@@ -860,8 +864,8 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         }
 
         // Event 2: receive data.
-        auto GetDataEvent = [&](const std::string& content) -> std::optional<TReadSessionEvent::TEvent> {
-            std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
+        auto GetDataEvent = [&](const std::string& content) -> TMaybe<TReadSessionEvent::TEvent> {
+            TMaybe<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
             TReadSessionEvent::TDataReceivedEvent& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(*event);
@@ -871,7 +875,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
             return event;
         };
 
-        std::optional<TReadSessionEvent::TEvent> dataEvents[2];
+        TMaybe<TReadSessionEvent::TEvent> dataEvents[2];
 
         dataEvents[0] = GetDataEvent("message1");
 
@@ -890,7 +894,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         // Commit and check that other events will come.
         for (int i = 0; i < 2; ++i) {
             std::get<TReadSessionEvent::TDataReceivedEvent>(*dataEvents[i]).Commit();
-            std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
+            TMaybe<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
             Y_ASSERT(std::holds_alternative<TReadSessionEvent::TCommitAcknowledgementEvent>(*event));
             Cerr << DebugString(*event) << Endl;
@@ -1034,7 +1038,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         class TTestRetryState : public NYdb::NPersQueue::IRetryPolicy::IRetryState {
             TDuration Delay;
 
-            std::optional<TDuration> GetNextRetryDelay(NYdb::EStatus) override {
+            TMaybe<TDuration> GetNextRetryDelay(NYdb::EStatus) override {
                 Delay += TDuration::Seconds(1);
                 return Delay;
             }
@@ -1137,7 +1141,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
 
         // Check destroy event.
         if (!forceful) {
-            std::optional<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
+            TMaybe<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDestroyPartitionStreamEvent);
             auto& destroyEvent = std::get<TReadSessionEvent::TDestroyPartitionStreamEvent>(*event);
@@ -1156,7 +1160,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
 
         // Check closed event.
         {
-            std::optional<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
+            TMaybe<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TPartitionStreamClosedEvent);
             auto& closedEvent = std::get<TReadSessionEvent::TPartitionStreamClosedEvent>(*event);
@@ -1191,7 +1195,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         }
 
         for (ui64 i = 1; i <= 2; ) {
-            std::optional<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
+            TMaybe<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
             auto& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(*event);
@@ -1217,7 +1221,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
 
         // Exception was passed during decompression.
         {
-            std::optional<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
+            TMaybe<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
             auto& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(*event);
@@ -1245,7 +1249,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
                                                .Batch("src_id")
                                                .CompressMessage(1, data, codec));
 
-        std::optional<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
+        TMaybe<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
         UNIT_ASSERT(event);
         UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
         auto& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(*event);
@@ -1320,8 +1324,8 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         Cerr << "Compressed message data size: " << compressedMessageData.size() << Endl;
         ui64 offset = 1;
         ui64 seqNo = 42;
-        THashSet<ui64> committedCookies;
-        THashSet<ui64> committedOffsets;
+        std::unordered_set<ui64> committedCookies;
+        std::unordered_set<ui64> committedOffsets;
         EXPECT_CALL(*setup.MockProcessor, OnCommitRequest(_))
             .WillRepeatedly(Invoke([&committedCookies, &committedOffsets](const Ydb::PersQueue::V1::MigrationStreamingReadClientMessage::Commit& req) {
                 for (const auto& commit : req.cookies()) {
@@ -1351,7 +1355,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         ui64 prevSeqNo = 41;
         for (size_t i = 0; i < batches; ++i) {
             Cerr << "Getting new event" << Endl;
-            std::optional<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true, batchLimit);
+            TMaybe<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true, batchLimit);
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
             Cerr << DebugString(*event) << Endl;
@@ -1531,7 +1535,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
 
         stream->RequestStatus();
 
-        std::optional<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
+        TMaybe<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
         UNIT_ASSERT(event);
         UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TPartitionStreamStatusEvent);
         auto& statusEvent = std::get<TReadSessionEvent::TPartitionStreamStatusEvent>(*event);
@@ -1582,7 +1586,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
             }));
 
         for (int i = 0; i < 2; ) {
-            std::optional<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
+            TMaybe<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
             TReadSessionEvent::TDataReceivedEvent& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(*event);
@@ -1607,7 +1611,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
                                                .Batch("src_id")
                                                .CompressMessage(1, "message1"));
 
-        std::optional<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
+        TMaybe<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
         UNIT_ASSERT(event);
         UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
         TReadSessionEvent::TDataReceivedEvent& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(*event);
@@ -1684,7 +1688,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
 
         setup.MockProcessor->AddServerResponse(TMockReadSessionProcessor::TServerReadInfo()
                                                .ForcefulReleasePartitionStream());
-        std::optional<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
+        TMaybe<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
         UNIT_ASSERT(event);
         UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TPartitionStreamClosedEvent);
         calledPromise.GetFuture().Wait();
@@ -1715,7 +1719,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
                                                .Batch("src_id")
                                                .CompressMessage(1, "message1"));
 
-        std::optional<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
+        TMaybe<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true);
         UNIT_ASSERT(event);
         UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
 
@@ -1767,7 +1771,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         TReadSessionImplTestSetup setup;
         auto dataReceived = std::make_shared<NThreading::TPromise<void>>(NThreading::NewPromise<void>());
         auto dataReceivedFuture = dataReceived->GetFuture();
-        std::shared_ptr<std::optional<TReadSessionEvent::TDataReceivedEvent>> dataReceivedEvent = std::make_shared<std::optional<TReadSessionEvent::TDataReceivedEvent>>();
+        std::shared_ptr<TMaybe<TReadSessionEvent::TDataReceivedEvent>> dataReceivedEvent = std::make_shared<TMaybe<TReadSessionEvent::TDataReceivedEvent>>();
         setup.Settings.EventHandlers_.SimpleDataHandlers([dataReceivedEvent,dataReceived](TReadSessionEvent::TDataReceivedEvent& event) mutable {
             *dataReceivedEvent = std::move(event);
             dataReceived->SetValue();
