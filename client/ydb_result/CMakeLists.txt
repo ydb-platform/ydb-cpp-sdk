@@ -14,4 +14,4 @@ target_sources(cpp-client-ydb_result PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_result/result.cpp
 )
 
-
+add_library(YDB-CPP-SDK::Result ALIAS cpp-client-ydb_result)

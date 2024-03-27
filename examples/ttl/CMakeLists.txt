@@ -3,7 +3,7 @@ add_executable(ttl)
 target_link_libraries(ttl PUBLIC
   yutil
   library-cpp-getopt
-  cpp-client-ydb_table
+  YDB-CPP-SDK::Table
 )
 
 target_sources(ttl PRIVATE

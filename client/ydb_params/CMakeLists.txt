@@ -14,4 +14,4 @@ target_sources(cpp-client-ydb_params PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_params/impl.cpp
 )
 
-
+add_library(YDB-CPP-SDK::Params ALIAS cpp-client-ydb_params)

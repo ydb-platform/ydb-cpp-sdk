@@ -3,7 +3,7 @@ add_executable(secondary_index)
 target_link_libraries(secondary_index PUBLIC
   yutil
   library-cpp-getopt
-  cpp-client-ydb_table
+  YDB-CPP-SDK::Table
 )
 
 target_sources(secondary_index PRIVATE

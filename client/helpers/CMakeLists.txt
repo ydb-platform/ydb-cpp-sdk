@@ -11,4 +11,4 @@ target_sources(cpp-client-helpers PRIVATE
   ${CMAKE_SOURCE_DIR}/client/helpers/helpers.cpp
 )
 
-
+add_library(YDB-CPP-SDK::Helpers ALIAS cpp-client-helpers)

@@ -22,4 +22,4 @@ target_sources(cpp-client-ydb_query PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_query/tx.cpp
 )
 
-
+add_library(YDB-CPP-SDK::Query ALIAS cpp-client-ydb_query)
