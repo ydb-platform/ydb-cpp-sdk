@@ -357,7 +357,7 @@ Y_UNIT_TEST_SUITE(TUnitTestMacroTest) {
         UNIT_ASSERT_TEST_FAILS(TTestException("abc").AssertExceptionContains<TTestException>("cba"));
         UNIT_ASSERT_TEST_FAILS(TTestException("abc").AssertExceptionContains<TTestException>("cba"sv));
         UNIT_ASSERT_TEST_FAILS(TTestException("abc").AssertExceptionContains<TTestException>("cba"s));
-        UNIT_ASSERT_TEST_FAILS(TTestException("abc").AssertExceptionContains<TTestException>(TYdbStringBuilder() << "cba"));
+        UNIT_ASSERT_TEST_FAILS(TTestException("abc").AssertExceptionContains<TTestException>(TStringBuilder() << "cba"));
 
         UNIT_ASSERT_TEST_FAILS(TTestException("abc", false).AssertExceptionContains<TTestException>("bc"));
 

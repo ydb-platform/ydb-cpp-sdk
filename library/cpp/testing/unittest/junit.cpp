@@ -132,7 +132,7 @@ struct TJUnitProcessor::TOutputCapturer {
             try {
                 constexpr size_t LIMIT = 10_KB;
                 constexpr size_t PART_LIMIT = 5_KB;
-                TYdbStringBuilder out;
+                TStringBuilder out;
                 if (static_cast<size_t>(len) <= LIMIT) {
                     out.resize(len);
                     captured.Read((void*)out.data(), len);
@@ -241,7 +241,7 @@ void TJUnitProcessor::OnFinish(const TFinish* descr) {
 }
 
 std::string TJUnitProcessor::BuildFileName(size_t index, const std::string_view extension) const {
-    TYdbStringBuilder result;
+    TStringBuilder result;
     result << FileName << ExecName;
     if (index > 0) {
         result << "-"sv << index;
@@ -312,7 +312,7 @@ void TJUnitProcessor::MakeTmpFileNameForForkedTests() {
     if (GetForkTests() && !GetIsForked()) {
         TmpReportFile.ConstructInPlace(MakeTempName());
         // Replace option for child processes
-        SetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION, TYdbStringBuilder() << "json:" << TmpReportFile->Name());
+        SetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION, TStringBuilder() << "json:" << TmpReportFile->Name());
     }
 }
 

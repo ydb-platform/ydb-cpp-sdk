@@ -13,7 +13,7 @@ void TGMockTestEventListener::OnTestPartResult(const testing::TestPartResult& re
     if (result.failed()) {
         const std::string message = result.message();
         const std::string summary = result.summary();
-        TYdbStringBuilder msg;
+        TStringBuilder msg;
         if (result.file_name())
             msg << result.file_name() << ":"sv;
         if (result.line_number() != -1)

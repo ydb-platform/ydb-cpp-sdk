@@ -160,7 +160,7 @@ std::string NUnitTest::ColoredDiff(std::string_view s1, std::string_view s2, con
 }
 
 static std::string MakeTestName(const NUnitTest::ITestSuiteProcessor::TTest& test) {
-    return TYdbStringBuilder() << test.unit->name << "::" << test.name;
+    return TStringBuilder() << test.unit->name << "::" << test.name;
 }
 
 static size_t CountTests(const std::map<std::string, size_t>& testErrors, bool succeeded) {

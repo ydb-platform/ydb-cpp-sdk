@@ -214,7 +214,7 @@ private:
         if (descr->Success) {
             TraceSubtestFinished(descr->test->unit->name.data(), descr->test->name, "good", "", descr->Context);
         } else {
-            TYdbStringBuilder msgs;
+            TStringBuilder msgs;
             for (const std::string& m : ErrorMessages) {
                 if (msgs) {
                     msgs << "\n"sv;
