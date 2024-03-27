@@ -11,8 +11,6 @@ target_proto_messages(encode-legacy_protobuf-protos PRIVATE
 
 target_proto_addincls(encode-legacy_protobuf-protos
   ./
-  ${CMAKE_SOURCE_DIR}/
-  ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_BINARY_DIR}
 )

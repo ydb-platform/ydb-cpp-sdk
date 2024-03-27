@@ -14,7 +14,7 @@ target_sources(read_from_topic_in_transaction PRIVATE
 
 vcs_info(read_from_topic_in_transaction)
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(read_from_topic_in_transaction PUBLIC
     library-cpp-cpuid_check
   )

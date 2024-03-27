@@ -12,7 +12,7 @@ target_sources(persqueue_reader_eventloop PRIVATE
 
 vcs_info(persqueue_reader_eventloop)
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(persqueue_reader_eventloop PUBLIC
     library-cpp-cpuid_check
   )
