@@ -1,5 +1,4 @@
 #include "user.h"
-#include "env.h"
 
 #include <util/generic/yexception.h>
 
@@ -13,7 +12,7 @@
 
 std::string GetUsername() {
     for (const auto& var : {"LOGNAME", "USER", "LNAME", "USERNAME"}) {
-        std::string val = GetEnv(var);
+        std::string val = std::getenv(var) ? std::getenv(var) : "";
         if (!val.empty()) {
             return val;
         }

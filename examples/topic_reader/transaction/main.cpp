@@ -3,8 +3,6 @@
 
 #include <client/ydb_driver/driver.h>
 
-#include <util/stream/output.h>
-
 #include <optional>
 
 std::optional<TApplication> App;

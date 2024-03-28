@@ -12,6 +12,7 @@ string(APPEND ${COMMON_C_CXX_FLAGS} "\
   -ffunction-sections \
   -fdata-sections \
   -Wall \
+  -Wunused \
   -Wextra \
   -Wno-parentheses \
   -Wno-implicit-const-int-float-conversion \

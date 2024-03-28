@@ -202,7 +202,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/system/defaults.c
   ${CMAKE_SOURCE_DIR}/util/system/direct_io.cpp
   ${CMAKE_SOURCE_DIR}/util/system/dynlib.cpp
-  ${CMAKE_SOURCE_DIR}/util/system/env.cpp
   ${CMAKE_SOURCE_DIR}/util/system/error.cpp
   ${CMAKE_SOURCE_DIR}/util/system/event.cpp
   ${CMAKE_SOURCE_DIR}/util/system/execpath.cpp

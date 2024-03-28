@@ -14,7 +14,6 @@
 #include <util/generic/utility.h>
 #include <util/generic/yexception.h>
 #include <util/stream/mem.h>
-#include <util/system/env.h>
 
 #include <variant>
 

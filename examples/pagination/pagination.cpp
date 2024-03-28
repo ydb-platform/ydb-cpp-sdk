@@ -1,7 +1,6 @@
 #include "pagination.h"
 
 #include <util/folder/pathsplit.h>
-#include <util/string/printf.h>
 
 using namespace NYdb;
 using namespace NYdb::NTable;
@@ -54,9 +53,9 @@ static void CreateTable(TTableClient client, const std::string& path) {
 
 //! Fills sample tables with data in single parameterized data query.
 static TStatus FillTableDataTransaction(TSession& session, const std::string& path) {
-    auto query = Sprintf(R"(
+    auto query = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $schoolsData AS List<Struct<
             city: Utf8,
@@ -69,7 +68,7 @@ static TStatus FillTableDataTransaction(TSession& session, const std::string& pa
             number,
             address
         FROM AS_TABLE($schoolsData);
-    )", path.c_str());
+    )", path);
 
     auto params = GetTablesDataParams();
 
@@ -83,9 +82,9 @@ static TStatus FillTableDataTransaction(TSession& session, const std::string& pa
 static TStatus SelectPagingTransaction(TSession& session, const std::string& path,
     ui64 pageLimit, const std::string& lastCity, ui32 lastNumber, std::optional<TResultSet>& resultSet)
 {
-    auto query = Sprintf(R"(
+    auto query = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $limit AS Uint64;
         DECLARE $lastCity AS Utf8;
@@ -111,7 +110,7 @@ static TStatus SelectPagingTransaction(TSession& session, const std::string& pat
 
         SELECT * FROM $union
         ORDER BY city, number LIMIT $limit;
-    )", path.c_str());
+    )", path);
 
     auto params = session.GetParamsBuilder()
         .AddParam("$limit")

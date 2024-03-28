@@ -2,9 +2,6 @@
 
 #include <library/cpp/getopt/last_getopt.h>
 
-#include <util/stream/output.h>
-#include <util/system/env.h>
-
 struct TOptions {
     std::string Endpoint;
     std::string Database;
@@ -57,7 +54,7 @@ int main(int argc, const char* argv[]) {
         .SetNetworkThreadsNum(2)
         .SetEndpoint(opts.Endpoint)
         .SetDatabase(opts.Database)
-        .SetAuthToken(GetEnv("YDB_TOKEN"))
+        .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "")
         .SetLog(CreateLogBackend("cerr"));
 
     if (opts.UseSecureConnection) {

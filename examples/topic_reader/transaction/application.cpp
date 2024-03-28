@@ -1,5 +1,4 @@
 #include "application.h"
-#include <util/system/env.h>
 
 TApplication::TRow::TRow(ui64 key, const std::string& value) :
     Key(key),
@@ -13,7 +12,7 @@ TApplication::TApplication(const TOptions& options)
         .SetNetworkThreadsNum(2)
         .SetEndpoint(options.Endpoint)
         .SetDatabase(options.Database)
-        .SetAuthToken(GetEnv("YDB_TOKEN"))
+        .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "")
         .SetLog(CreateLogBackend("cerr", Min(options.LogPriority, TLOG_RESOURCES)));
     if (options.UseSecureConnection) {
         config.UseSecureConnection();
