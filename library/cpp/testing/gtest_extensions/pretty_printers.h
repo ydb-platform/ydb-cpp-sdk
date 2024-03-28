@@ -43,7 +43,7 @@
 #define Y_GTEST_ARCADIA_PRINTER(T) \
     void PrintTo(const T& value, std::ostream* stream) {   \
         ::std::string ss;                \
-        ::std::stringOutput s{ss};       \
+        ::TStringOutput s{ss};       \
         s << value;                  \
         *stream << ss;               \
     }
