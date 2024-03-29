@@ -17,3 +17,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_SYSTEM_PROCESSOR STREQUAL 
 elseif (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64" AND NOT HAVE_CUDA)
   include(CMakeLists.windows-x86_64.txt)
 endif()
+
+# Unit tests
+add_subdirectory(example_ut)

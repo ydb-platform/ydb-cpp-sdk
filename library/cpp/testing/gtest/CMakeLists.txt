@@ -17,3 +17,6 @@ foreach(_suffix IN ITEMS "" "_main")
     ${CMAKE_CURRENT_SOURCE_DIR}/matchers.cpp
   )
 endforeach()
+
+# Unit tests
+add_subdirectory(ut)

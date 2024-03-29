@@ -19,3 +19,5 @@ elseif (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64" AND NOT HAVE_CUDA)
 endif()
 
 vcs_info(cpp-testing-common)
+
+add_subdirectory(ut)
