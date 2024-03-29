@@ -1,7 +1,5 @@
 #include "env.h"
 
-#include <scripts/c_templates/svnversion.h>
-
 #include <util/folder/dirut.h>
 #include <util/folder/path.h>
 #include <util/generic/singleton.h>
@@ -15,6 +13,7 @@
 #include <library/cpp/json/json_reader.h>
 #include <library/cpp/json/json_value.h>
 #include <library/cpp/json/json_writer.h>
+#include <library/cpp/svnversion/svnversion.h>
 
 #include <mutex>
 
