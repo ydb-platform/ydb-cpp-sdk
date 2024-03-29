@@ -8,8 +8,6 @@
 #include <util/stream/output.h>
 #include <util/stream/mem.h>
 #include <util/string/cast.h>
-#include <util/string/printf.h>
-
 namespace NDatetime {
     const ui32 MonthDays[2][12] = {
         {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}, //nleap
@@ -224,7 +222,7 @@ void In<TMonth>(IInputStream& in, TMonth& t) {
 
 template <>
 void Out<TMonth>(IOutputStream& o, const TMonth& t) {
-    o << t.Year << Sprintf("%.2hu", (ui16)(t.Month + 1));
+    o << t.Year << std::format("%.2hu", (ui16)(t.Month + 1));
 }
 
 template <>

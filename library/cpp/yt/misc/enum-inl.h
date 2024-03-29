@@ -6,12 +6,12 @@
 #endif
 
 #include <util/string/escape.h>
-#include <util/string/printf.h>
 #include <util/string/cast.h>
 
 #include <util/generic/cast.h>
 
 #include <algorithm>
+#include <format>
 #include <stdexcept>
 
 namespace NYT {
@@ -294,7 +294,7 @@ T TEnumTraits<T, true>::FromString(std::string_view literal)
 {
     auto optionalValue = FindValueByLiteral(literal);
     if (!optionalValue) {
-        throw ::NYT::TSimpleException(Sprintf("Error parsing %s value %s",
+        throw ::NYT::TSimpleException(std::format("Error parsing {} value {}",
             GetTypeName().data(),
             NUtils::Quote(literal)));
     }

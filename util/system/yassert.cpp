@@ -9,7 +9,6 @@
 #include <util/generic/singleton.h>
 #include <util/stream/output.h>
 #include <util/stream/str.h>
-#include <util/string/printf.h>
 
 #include <cstdlib>
 #include <stdarg.h>
@@ -43,10 +42,15 @@ void ::NPrivate::Panic(const TStaticBuf& file, int line, const char* function, c
         auto guard = Guard(*Singleton<TPanicLockHolder>());
 
         std::string errorMsg;
-        va_list args;
+        va_list args, args_copy;
         va_start(args, format);
+        va_copy(args_copy, args);
         // format has " " prefix to mute GCC warning on empty format
-        vsprintf(errorMsg, format[0] == ' ' ? format + 1 : format, args);
+        size_t len = std::vsprintf(nullptr, format[0] == ' ' ? format + 1 : format, args_copy);
+        va_end(args_copy);
+        errorMsg.resize(len + 1);
+        std::vsnprintf(errorMsg.data(), len + 1, format[0] == ' ' ? format + 1 : format, args);
+        errorMsg.resize(len);
         va_end(args);
 
         constexpr int abiPlaceholder = 0;

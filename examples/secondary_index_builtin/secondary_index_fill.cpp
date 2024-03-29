@@ -1,7 +1,6 @@
 #include "secondary_index.h"
 
 #include <util/random/random.h>
-#include <util/string/printf.h>
 
 using namespace NYdb;
 using namespace NYdb::NTable;
@@ -83,9 +82,9 @@ TParams Build(const std::vector<TSeries>& seriesList, const std::vector<TUser>& 
 
 static TStatus FillTable(TSession session, const std::string& path) {
 
-    auto query = Sprintf(R"(
+    auto query = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $seriesData AS List<Struct<
             series_id: Uint64,
@@ -116,11 +115,11 @@ static TStatus FillTable(TSession session, const std::string& path) {
             user_id,
             name,
             age
-        FROM AS_TABLE($usersData);)", path.c_str());
+        FROM AS_TABLE($usersData);)", path);
 
     TParams seriesParams = Build(GetSeries(), GetUsers());
     return session.ExecuteDataQuery(query,
-                            TTxControl::BeginTx(TTxSettings::SerializableRW()).CommitTx(),seriesParams)
+                            TTxControl::BeginTx(TTxSettings::SerializableRW()).CommitTx(), seriesParams)
                             .GetValueSync();
 }
 

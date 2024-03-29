@@ -2,7 +2,6 @@
 
 #include <library/cpp/getopt/last_getopt.h>
 
-#include <util/system/env.h>
 #include <util/folder/pathsplit.h>
 
 Y_DECLARE_OUT_SPEC(, NYdb::TStatus, stream, value) {
@@ -151,7 +150,7 @@ int main(int argc, char** argv) {
     auto driverConfig = NYdb::TDriverConfig()
         .SetEndpoint(endpoint)
         .SetDatabase(database)
-        .SetAuthToken(GetEnv("YDB_TOKEN"));
+        .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "");
 
     NYdb::TDriver driver(driverConfig);
 

@@ -1,7 +1,5 @@
 #include "secondary_index.h"
 
-#include <util/system/env.h>
-
 using namespace NLastGetopt;
 using namespace NYdb;
 
@@ -37,7 +35,7 @@ int main(int argc, char** argv) {
     auto config = TDriverConfig()
         .SetEndpoint(endpoint)
         .SetDatabase(database)
-        .SetAuthToken(GetEnv("YDB_TOKEN"));
+        .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "");
 
     TDriver driver(config);
 

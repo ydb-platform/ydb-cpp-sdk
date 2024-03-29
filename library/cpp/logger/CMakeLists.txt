@@ -1,5 +1,3 @@
-add_subdirectory(global)
-
 add_library(library-cpp-logger)
 target_link_libraries(library-cpp-logger PUBLIC
   yutil
