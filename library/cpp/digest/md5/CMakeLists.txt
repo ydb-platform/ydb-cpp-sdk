@@ -2,7 +2,7 @@ add_library(cpp-digest-md5)
 
 target_link_libraries(cpp-digest-md5 PUBLIC
   yutil
-  contrib-libs-nayuki_md5
+  nayuki_md5
   cpp-string_utils-base64
 )
 

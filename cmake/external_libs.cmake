@@ -16,17 +16,14 @@ find_package(base64 REQUIRED)
 find_package(Brotli 1.1.0 REQUIRED)
 find_package(GTest REQUIRED)
 find_package(double-conversion REQUIRED)
+find_package(nayuki_md5 REQUIRED)
 
-# RapidJSON
-if (YDB_SDK_USE_RAPID_JSON)
-  find_package(RapidJSON REQUIRED)
+# rapidjson
+add_library(ydb-sdk-rapidjson INTERFACE)
 
-  add_library(RapidJSON::RapidJSON INTERFACE IMPORTED)
-
-  target_include_directories(RapidJSON::RapidJSON INTERFACE
-    ${RAPIDJSON_INCLUDE_DIRS}
-  )
-endif ()
+target_include_directories(ydb-sdk-rapidjson INTERFACE
+  ${RAPIDJSON_INCLUDE_DIRS}
+)
 
 # api-common-protos
 if (YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET)
