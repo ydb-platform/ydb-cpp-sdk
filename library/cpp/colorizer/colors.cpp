@@ -2,7 +2,6 @@
 
 #include <util/stream/output.h>
 #include <util/generic/singleton.h>
-#include <util/system/env.h>
 
 #if defined(_unix_)
 #include <unistd.h>
@@ -152,7 +151,7 @@ void Out<NColorizer::EAnsiCode>(IOutputStream& os, TTypeTraits<NColorizer::EAnsi
 }
 
 bool TColors::CalcIsTTY(FILE* file) {
-    if (!GetEnv("ENFORCE_TTY").empty()) {
+    if (!std::string{std::getenv("ENFORCE_TTY") ? std::getenv("ENFORCE_TTY") : ""}.empty()) {
         return true;
     }
 

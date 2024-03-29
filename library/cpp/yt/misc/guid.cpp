@@ -2,9 +2,9 @@
 
 #include <util/generic/ylimits.h>
 #include <util/random/random.h>
-#include <util/string/printf.h>
 
 #include <cstring>
+#include <format>
 
 namespace NYT {
 
@@ -48,8 +48,7 @@ TGuid TGuid::FromString(std::string_view str)
 {
     TGuid guid;
     if (!FromString(str, &guid)) {
-        throw TSimpleException(Sprintf("Error parsing GUID \"%s\"",
-            std::string(str).c_str()));
+        throw TSimpleException(std::format("Error parsing GUID \"{}\"", str));
     }
     return guid;
 }
@@ -105,8 +104,7 @@ TGuid TGuid::FromStringHex32(std::string_view str)
 {
     TGuid guid;
     if (!FromStringHex32(str, &guid)) {
-        throw TSimpleException(Sprintf("Error parsing Hex32 GUID \"%s\"",
-            std::string(str).c_str()));
+        throw TSimpleException(std::format("Error parsing Hex32 GUID \"{}\"", str));
     }
     return guid;
 }

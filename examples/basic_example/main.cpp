@@ -2,8 +2,9 @@
 
 #include <library/cpp/getopt/last_getopt.h>
 
-#include <util/system/env.h>
 #include <util/stream/file.h>
+
+#include <cstdlib>
 
 using namespace NLastGetopt;
 using namespace NYdb;
@@ -41,7 +42,7 @@ int main(int argc, char** argv) {
     auto driverConfig = TDriverConfig()
         .SetEndpoint(endpoint)
         .SetDatabase(database)
-        .SetAuthToken(GetEnv("YDB_TOKEN"));
+        .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "");
 
     if (!certPath.empty()) {
         std::string cert = TFileInput(certPath).ReadAll();

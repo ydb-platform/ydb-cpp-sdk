@@ -9,8 +9,6 @@
 #include <library/cpp/string_utils/misc/misc.h>
 #include <library/cpp/yt/exception/exception.h>
 
-#include <util/string/printf.h>
-
 namespace NYT {
 
 ////////////////////////////////////////////////////////////////////////////////

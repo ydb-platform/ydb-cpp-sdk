@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string>
-
 #include <library/cpp/logger/priority.h>
+
+#include <string>
 
 struct TOptions {
     std::string Endpoint;

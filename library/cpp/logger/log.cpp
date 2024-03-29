@@ -5,7 +5,6 @@
 #include "stream.h"
 #include "thread.h"
 
-#include <util/stream/printf.h>
 #include <util/system/yassert.h>
 #include <util/generic/scope.h>
 
@@ -70,7 +69,14 @@ public:
 
         TPriorityLogStream ls(priority, this);
 
-        Printf(ls, format, args);
+        va_list args_copy;
+        va_copy(args_copy, args);
+        int len = std::vsprintf(nullptr, format, args_copy);
+        va_end(args_copy);
+        std::string tmp(len + 1, '\0');
+        std::vsnprintf(tmp.data(), len + 1, format, args);
+        tmp.resize(len);
+        ls << tmp;
     }
 
     inline void ResetBackend(THolder<TLogBackend> backend) noexcept {

@@ -9,9 +9,9 @@
 #include <util/string/builder.h>
 
 #include <util/string/cast.h>
-#include <util/string/printf.h>
 
 #include <concepts>
+#include <format>
 #include <type_traits>
 
 namespace NYT {
@@ -95,8 +95,8 @@ T CheckedIntegralCast(S value)
 {
     T result;
     if (!TryIntegralCast<T>(value, &result)) {
-        throw TSimpleException(Sprintf("Argument value %s is out of expected range",
-            NYT::NDetail::FormatInvalidCastValue(value).c_str()));
+        throw TSimpleException(std::format("Argument value {} is out of expected range",
+            NYT::NDetail::FormatInvalidCastValue(value)));
     }
     return result;
 }
@@ -121,7 +121,7 @@ T CheckedEnumCast(S value)
 {
     T result;
     if (!TryEnumCast<T>(value, &result)) {
-        throw TSimpleException(Sprintf("Invalid value %d of enum type %s",
+        throw TSimpleException(std::format("Invalid value {} of enum type {}",
             static_cast<int>(value),
             TEnumTraits<T>::GetTypeName().data()));
     }

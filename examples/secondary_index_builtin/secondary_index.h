@@ -8,7 +8,6 @@
 #include <util/generic/yexception.h>
 #include <util/stream/output.h>
 #include <util/string/builder.h>
-#include <util/string/printf.h>
 
 #define TABLE_USERS "users"
 #define TABLE_SERIES "series"

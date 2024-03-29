@@ -2,8 +2,6 @@
 
 #include <library/cpp/monlib/dynamic_counters/counters.h>
 
-#include <util/string/printf.h>
-
 namespace NMonitoring {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +19,7 @@ struct TPercentileBase : public TThrRefBase {
         Percentiles.reserve(thresholds.size());
         for (size_t i = 0; i < thresholds.size(); ++i) {
             Percentiles.emplace_back(thresholds[i],
-                counters->GetNamedCounter("percentile", Sprintf("%.1f", thresholds[i] * 100.f), false, visibility));
+                counters->GetNamedCounter("percentile", std::format("%.1f", thresholds[i] * 100.f), false, visibility));
         }
     }
 
