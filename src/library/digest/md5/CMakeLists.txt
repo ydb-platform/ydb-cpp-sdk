@@ -2,11 +2,7 @@ add_library(cpp-digest-md5)
 
 target_link_libraries(cpp-digest-md5 PUBLIC
   yutil
-<<<<<<< HEAD
   nayuki_md5
-=======
-  contrib-libs-nayuki_md5
->>>>>>> ed2145fb77 (Moved SDK code to src (#149))
   cpp-string_utils-base64
 )
 
