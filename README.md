@@ -79,6 +79,10 @@ tar -xvzf jwt-cpp-0.7.0.tar.gz && cd jwt-cpp-0.7.0
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 sudo cmake --build . --config Release --target install
+
+mkdir -p ~/nayuki_md5
+wget -O ~/nayuki_md5/nayuki_md5.c https://www.nayuki.io/res/fast-md5-hash-implementation-in-x86-assembly/md5.c
+export NAYUKI_MD5_ROOT=~/nayuki_md5/
 ```
 
 ## Create the work directory
