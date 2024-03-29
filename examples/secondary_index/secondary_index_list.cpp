@@ -28,9 +28,9 @@ static TStatus ListByViews(
         ui64 lastSeriesId,
         ui64 lastViews)
 {
-    auto queryText = Sprintf(R"(
+    auto queryText = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%1$s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $limit AS Uint64;
         DECLARE $lastSeriesId AS Uint64;
@@ -66,7 +66,7 @@ static TStatus ListByViews(
         FROM $filter AS t1
         INNER JOIN series AS t2 USING (series_id)
         ORDER BY views DESC, series_id ASC;
-    )", prefix.data());
+    )", prefix);
 
     auto prepareResult = session.PrepareDataQuery(queryText).ExtractValueSync();
     if (!prepareResult.IsSuccess()) {
@@ -104,9 +104,9 @@ static TStatus ListByViews(
         const std::string& prefix,
         ui64 limit)
 {
-    auto queryText = Sprintf(R"(
+    auto queryText = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%1$s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $limit AS Uint64;
 
@@ -121,7 +121,7 @@ static TStatus ListByViews(
         FROM $filter AS t1
         INNER JOIN series AS t2 USING (series_id)
         ORDER BY views DESC, series_id ASC;
-    )", prefix.data());
+    )", prefix);
 
     auto prepareResult = session.PrepareDataQuery(queryText).ExtractValueSync();
     if (!prepareResult.IsSuccess()) {
@@ -154,9 +154,9 @@ static TStatus ListById(
         ui64 limit,
         ui64 lastSeriesId)
 {
-    auto queryText = Sprintf(R"(
+    auto queryText = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%1$s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $limit AS Uint64;
         DECLARE $lastSeriesId AS Uint64;
@@ -166,7 +166,7 @@ static TStatus ListById(
         WHERE series_id > $lastSeriesId
         ORDER BY series_id
         LIMIT $limit;
-    )", prefix.data());
+    )", prefix);
 
     auto prepareResult = session.PrepareDataQuery(queryText).ExtractValueSync();
     if (!prepareResult.IsSuccess()) {
@@ -201,9 +201,9 @@ static TStatus ListById(
         const std::string& prefix,
         ui64 limit)
 {
-    auto queryText = Sprintf(R"(
+    auto queryText = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%1$s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $limit AS Uint64;
 
@@ -211,7 +211,7 @@ static TStatus ListById(
         FROM series
         ORDER BY series_id
         LIMIT $limit;
-    )", prefix.data());
+    )", prefix);
 
     auto prepareResult = session.PrepareDataQuery(queryText).ExtractValueSync();
     if (!prepareResult.IsSuccess()) {

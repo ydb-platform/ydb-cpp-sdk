@@ -14,7 +14,6 @@
 
 #include <util/string/builder.h>
 #include <util/string/cast.h>
-#include <util/string/printf.h>
 
 #include <util/system/defaults.h>
 #include <util/system/type_name.h>

@@ -5,12 +5,6 @@
 
 #include <library/cpp/getopt/last_getopt.h>
 
-#include <string>
-#include <util/generic/yexception.h>
-#include <util/stream/output.h>
-#include <util/string/builder.h>
-#include <util/string/printf.h>
-
 ////////////////////////////////////////////////////////////////////////////////
 
 #define TABLE_SERIES "series"

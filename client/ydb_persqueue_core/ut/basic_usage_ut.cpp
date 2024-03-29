@@ -11,6 +11,7 @@
 #include <util/stream/str.h>
 
 #include <atomic>
+#include <format>
 
 using namespace NThreading;
 using namespace NKikimr;
@@ -123,7 +124,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         UNIT_ASSERT_VALUES_EQUAL(previousOffset + 1, committedOffset);
         UNIT_ASSERT_VALUES_EQUAL(readMessageCount, messageCount);
-        log.Write(TLOG_INFO, Sprintf("Time took to write and read %u messages, %lu [MiB] in total is %lu [s]",
+        log.Write(TLOG_INFO, std::format("Time took to write and read {} messages, {} [MiB] in total is {} [s]",
                                      messageCount, (totalSize / 1_MB), (TInstant::Now() - start).Seconds()));
     }
 

@@ -2,8 +2,6 @@
 
 find_package(Python3 REQUIRED)
 
-add_compile_definitions(CATBOOST_OPENSOURCE=yes)
-
 # assumes ToolName is always both the binary and the target name
 function(get_built_tool_path OutBinPath SrcPath ToolName)
   set(${OutBinPath} "${CMAKE_BINARY_DIR}/${SrcPath}/${ToolName}${CMAKE_EXECUTABLE_SUFFIX}" PARENT_SCOPE)

@@ -107,9 +107,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 static TStatus InsertSeries(TSession& session, const std::string& prefix, const TSeries& series) {
-    auto queryText = Sprintf(R"(
+    auto queryText = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%1$s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $seriesId AS Uint64;
         DECLARE $title AS Utf8;
@@ -127,7 +127,7 @@ static TStatus InsertSeries(TSession& session, const std::string& prefix, const 
         -- Insert above already verified series_id is unique, so it is safe to use upsert
         UPSERT INTO series_rev_views (rev_views, series_id)
         VALUES ($revViews, $seriesId);
-    )", prefix.data());
+    )", prefix);
 
     auto prepareResult = session.PrepareDataQuery(queryText).ExtractValueSync();
     if (!prepareResult.IsSuccess()) {

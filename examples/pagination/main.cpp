@@ -1,7 +1,6 @@
 #include "pagination.h"
 
 #include <library/cpp/getopt/last_getopt.h>
-#include <util/system/env.h>
 
 using namespace NLastGetopt;
 using namespace NYdb;
@@ -35,7 +34,7 @@ int main(int argc, char** argv) {
     auto driverConfig = TDriverConfig()
         .SetEndpoint(endpoint)
         .SetDatabase(database)
-        .SetAuthToken(GetEnv("YDB_TOKEN"));
+        .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "");
     TDriver driver(driverConfig);
 
     if (!Run(driver, path)) {

@@ -5,7 +5,6 @@
 
 #include <util/generic/bt_exception.h>
 #include <util/random/fast.h>
-#include <util/string/printf.h>
 #include <util/system/backtrace.h>
 #include <util/system/guard.h>
 #include <util/system/tls.h>
