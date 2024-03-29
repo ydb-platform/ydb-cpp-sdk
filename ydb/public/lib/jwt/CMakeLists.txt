@@ -1,7 +1,7 @@
 add_library(public-lib-jwt)
 target_link_libraries(public-lib-jwt PUBLIC
       yutil
-    contrib-libs-jwt-cpp
+    jwt-cpp::jwt-cpp
     library-cpp-json
     impl-ydb_internal-common
 )
