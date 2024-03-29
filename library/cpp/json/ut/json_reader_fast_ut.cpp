@@ -4,7 +4,6 @@
 
 #include <library/cpp/string_utils/relaxed_escaper/relaxed_escaper.h>
 #include <util/string/cast.h>
-#include <util/string/printf.h>
 
 namespace NJson {
     namespace NTest {
@@ -59,7 +58,7 @@ namespace NJson {
                     default:
                         return "YOUFAILED";
                     case E_ERROR:
-                        return Sprintf("error: %s", Str.data());
+                        return std::format("error: {}", Str);
                     case E_DICT_OPEN:
                         return "{";
                     case E_DICT_CLOSE:
@@ -77,9 +76,9 @@ namespace NJson {
                     case E_FLT:
                         return ::ToString(DNum);
                     case E_STR:
-                        return Sprintf("%s", Str.data());
+                        return std::format("{}", Str);
                     case E_KEY:
-                        return Sprintf("key: %s", Str.data());
+                        return std::format("key: {}", Str);
                 }
             }
         };
@@ -152,10 +151,10 @@ namespace NJson {
                     UNIT_ASSERT_VALUES_EQUAL_C(e.size(), Events.size(), str);
 
                     for (ui32 i = 0, sz = e.size(); i < sz; ++i) {
-                        UNIT_ASSERT_VALUES_EQUAL_C((int)e[i].Type, (int)Events[i].Type, Sprintf("'%s' %u", str.data(), i));
-                        UNIT_ASSERT_VALUES_EQUAL_C(e[i].INum, Events[i].INum, Sprintf("'%s' %u", str.data(), i));
-                        UNIT_ASSERT_VALUES_EQUAL_C(e[i].DNum, Events[i].DNum, Sprintf("'%s' %u", str.data(), i));
-                        UNIT_ASSERT_VALUES_EQUAL_C(e[i].Str, Events[i].Str, Sprintf("'%s' %u", str.data(), i));
+                        UNIT_ASSERT_VALUES_EQUAL_C((int)e[i].Type, (int)Events[i].Type, std::format("'{}' {}", str, i));
+                        UNIT_ASSERT_VALUES_EQUAL_C(e[i].INum, Events[i].INum, std::format("'{}' {}", str, i));
+                        UNIT_ASSERT_VALUES_EQUAL_C(e[i].DNum, Events[i].DNum, std::format("'{}' {}", str, i));
+                        UNIT_ASSERT_VALUES_EQUAL_C(e[i].Str, Events[i].Str, std::format("'{}' {}", str, i));
                     }
                 } catch (const yexception&) {
                     Clog << "Exception at '" << str << "'" << Endl;
@@ -233,7 +232,7 @@ public:
 
         TTestHandler h;
         const bool res = ReadJsonFast(json, &h);
-        UNIT_ASSERT_VALUES_EQUAL_C(res, accept, Sprintf("%s (%s)", ToString(json).data(), h.Events.back().Str.data()));
+        UNIT_ASSERT_VALUES_EQUAL_C(res, accept, std::format("{} ({})", ToString(json), h.Events.back().Str));
         h.Assert(evs, ToString(json));
     }
 

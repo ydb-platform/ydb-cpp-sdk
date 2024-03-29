@@ -2,9 +2,10 @@
 
 #include <util/system/defaults.h>
 #include <util/system/hp_timer.h>
-#include <util/string/printf.h>
 #include <util/stream/output.h>
 #include <util/generic/singleton.h>
+
+#include <format>
 
 #if defined(_unix_)
     #include <unistd.h>
@@ -86,8 +87,7 @@ std::string FormatCycles(ui64 cycles) {
     ui32 secs = ui32(milliseconds % 60);
     milliseconds /= 60;
     ui32 mins = ui32(milliseconds);
-    std::string result;
-    sprintf(result, "%" PRIu32 " m %.2" PRIu32 " s %.3" PRIu32 " ms", mins, secs, ms);
+    std::string result = std::format("%" PRIu32 " m %.2" PRIu32 " s %.3" PRIu32 " ms", mins, secs, ms);
     return result;
 }
 

@@ -6,7 +6,6 @@
 #include <library/cpp/testing/unittest/registar.h>
 #include <library/cpp/testing/unittest/tests_data.h>
 
-#include <util/string/printf.h>
 #include <util/network/socket.h>
 #include <util/stream/file.h>
 #include <util/stream/output.h>

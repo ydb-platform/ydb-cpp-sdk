@@ -6,17 +6,30 @@
 #include <util/generic/scope.h>
 
 #include <util/system/compat.h>
-#include <util/stream/printf.h>
-#include <util/stream/output.h>
+
+#include <iostream>
+
+namespace {
+    void PrintWithFormat(std::ostream& out, const char* fmt, va_list args) {
+        va_list args_copy;
+        va_copy(args_copy, args);
+        int len = std::vsprintf(nullptr, fmt, args_copy);
+        va_end(args_copy);
+        std::string tmp(len + 1, '\0');
+        std::vsnprintf(tmp.data(), len + 1, fmt, args);
+        tmp.resize(len);
+        out << tmp;
+    }
+}
 
 void vwarnx(const char* fmt, va_list args) {
-    Cerr << GetProgramName() << ": ";
+    std::cerr << GetProgramName() << ": ";
 
     if (fmt) {
-        Printf(Cerr, fmt, args);
+        PrintWithFormat(std::cerr, fmt, args);
     }
 
-    Cerr << '\n';
+    std::cerr << '\n';
 }
 
 void vwarn(const char* fmt, va_list args) {
@@ -27,14 +40,14 @@ void vwarn(const char* fmt, va_list args) {
         errno = curErrNo;
     };
 
-    Cerr << GetProgramName() << ": ";
+    std::cerr << GetProgramName() << ": ";
 
     if (fmt) {
-        Printf(Cerr, fmt, args);
-        Cerr << ": ";
+        PrintWithFormat(std::cerr, fmt, args);
+        std::cerr << ": ";
     }
 
-    Cerr << curErrText << '\n';
+    std::cerr << curErrText << '\n';
 }
 
 void warn(const char* fmt, ...) {

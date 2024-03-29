@@ -162,7 +162,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/stream/null.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/output.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/pipe.cpp
-  ${CMAKE_SOURCE_DIR}/util/stream/printf.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/str.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/tee.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/tempbuf.cpp
@@ -181,7 +180,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/string/escape.cpp
   ${CMAKE_SOURCE_DIR}/util/string/hex.cpp
   ${CMAKE_SOURCE_DIR}/util/string/join.cpp
-  ${CMAKE_SOURCE_DIR}/util/string/printf.cpp
   ${CMAKE_SOURCE_DIR}/util/string/reverse.cpp
   ${CMAKE_SOURCE_DIR}/util/string/split.cpp
   ${CMAKE_SOURCE_DIR}/util/string/strip.cpp
