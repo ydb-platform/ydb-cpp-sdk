@@ -15,3 +15,4 @@ endif()
 target_sources(public-lib-jwt PRIVATE
     ${CMAKE_SOURCE_DIR}/ydb/public/lib/jwt/jwt.cpp
 )
+
