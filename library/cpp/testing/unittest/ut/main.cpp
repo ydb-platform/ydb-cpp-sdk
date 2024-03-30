@@ -4,7 +4,6 @@
 
 #include <util/generic/set.h>
 #include <util/network/sock.h>
-#include <util/system/env.h>
 #include <util/system/fs.h>
 
 TEST(GTest, Test1) {
