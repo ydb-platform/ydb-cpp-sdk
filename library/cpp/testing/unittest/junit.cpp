@@ -44,7 +44,7 @@ static bool IsAllowed(wchar32 c) {
         || c >= 0x10000 && c <= 0x10FFFF;
 }
 
-static std::string SanitizeString(std::string s) {
+static std::string SanitizeString(std::string_view s) {
     std::string escaped;
     bool fixedSomeChars = false;
     const unsigned char* i = reinterpret_cast<const unsigned char*>(s.data());
@@ -53,7 +53,7 @@ static std::string SanitizeString(std::string s) {
         if (!fixedSomeChars) {
             fixedSomeChars = true;
             escaped.reserve(s.size());
-            escaped.insert(escaped.end(), static_cast<const char*>(s.data()), reinterpret_cast<const char*>(i));
+            escaped.insert(escaped.end(), s.data(), reinterpret_cast<const char*>(i));
         }
         escaped.push_back('?');
     };
@@ -78,7 +78,7 @@ static std::string SanitizeString(std::string s) {
     if (fixedSomeChars) {
         return escaped;
     } else {
-        return s;
+        return std::string(s);
     }
 }
 
