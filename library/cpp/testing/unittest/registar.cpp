@@ -138,7 +138,7 @@ struct TTraceDiffFormatter {
 };
 
 std::string NUnitTest::GetFormatTag(const char* name) {
-    return Sprintf("[[%s]]", name);
+    return std::format("[[{}]]", name);
 }
 
 std::string NUnitTest::GetResetTag() {

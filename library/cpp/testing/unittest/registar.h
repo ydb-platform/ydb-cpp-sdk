@@ -24,6 +24,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <format>
 #include <functional>
 
 extern bool CheckExceptionMessage(const char*, std::string&);
@@ -397,7 +398,7 @@ public:                       \
             const auto _es = ToString((long double)(E));                                                       \
             const auto _as = ToString((long double)(A));                                                       \
             const auto _ds = ToString((long double)(D));                                                       \
-            auto&& failMsg = Sprintf("std::abs(%s - %s) > %s %s", _es.data(), _as.data(), _ds.data(), (::TStringBuilder() << C).data()); \
+            auto&& failMsg = std::format("std::abs({} - {}) > {} {}", _es.data(), _as.data(), _ds.data(), (::TStringBuilder() << C).data()); \
             UNIT_FAIL_IMPL("assertion failure", failMsg);                                                      \
         }                                                                                                      \
     } while (false)
@@ -411,19 +412,19 @@ public:                       \
         const auto _dd = (D);                                                                                                          \
         if (std::isnan((long double)_ed) && !std::isnan((long double)_ad)) {                                                           \
             const auto _as = ToString((long double)_ad);                                                                               \
-            auto&& failMsg = Sprintf("expected NaN, got %s %s", _as.data(), (::TStringBuilder() << C).data());                           \
+            auto&& failMsg = std::format("expected NaN, got {} {}", _as.data(), (::TStringBuilder() << C).data());                     \
             UNIT_FAIL_IMPL("assertion failure", failMsg);                                                                              \
         }                                                                                                                              \
         if (!std::isnan((long double)_ed) && std::isnan((long double)_ad)) {                                                           \
             const auto _es = ToString((long double)_ed);                                                                               \
-            auto&& failMsg = Sprintf("expected %s, got NaN %s", _es.data(), (::TStringBuilder() << C).data());                           \
+            auto&& failMsg = std::format("expected {}, got NaN {}", _es.data(), (::TStringBuilder() << C).data());                     \
             UNIT_FAIL_IMPL("assertion failure", failMsg);                                                                              \
         }                                                                                                                              \
         if (std::abs((_ed) - (_ad)) > (_dd)) {                                                                                         \
             const auto _es = ToString((long double)_ed);                                                                               \
             const auto _as = ToString((long double)_ad);                                                                               \
             const auto _ds = ToString((long double)_dd);                                                                               \
-            auto&& failMsg = Sprintf("std::abs(%s - %s) > %s %s", _es.data(), _as.data(), _ds.data(), (::TStringBuilder() << C).data()); \
+            auto&& failMsg = std::format("std::abs({} - {}) > {} {}", _es.data(), _as.data(), _ds.data(), (::TStringBuilder() << C).data()); \
             UNIT_FAIL_IMPL("assertion failure", failMsg);                                                                              \
         }                                                                                                                              \
     } while (false)
@@ -436,7 +437,7 @@ public:                       \
         const std::string _a(A); /* NOLINT(performance-unnecessary-copy-initialization) */                       \
         const std::string _b(B); /* NOLINT(performance-unnecessary-copy-initialization) */                       \
         if (_a != _b) {                                                                                      \
-            auto&& failMsg = Sprintf("%s != %s %s", ToString(_a).data(), ToString(_b).data(), (::TStringBuilder() << C).data()); \
+            auto&& failMsg = std::format("{} != {} {}", ToString(_a).data(), ToString(_b).data(), (::TStringBuilder() << C).data()); \
             UNIT_FAIL_IMPL("strings equal assertion failed", failMsg);                                       \
         }                                                                                                    \
     } while (false)
@@ -448,7 +449,7 @@ public:                       \
         const std::string _a(A); /* NOLINT(performance-unnecessary-copy-initialization) */                                          \
         const std::string _b(B); /* NOLINT(performance-unnecessary-copy-initialization) */                                          \
         if (_a.find(_b) == std::string::npos) {                                                                                                 \
-            auto&& msg = Sprintf("\"%s\" does not contain \"%s\", %s", ToString(_a).data(), ToString(_b).data(), (::TStringBuilder() << C).data()); \
+            auto&& msg = std::format("\"{}\" does not contain \"{}\", {}", ToString(_a).data(), ToString(_b).data(), (::TStringBuilder() << C).data()); \
             UNIT_FAIL_IMPL("strings contains assertion failed", msg);                                                           \
         }                                                                                                                       \
     } while (false)
@@ -460,7 +461,7 @@ public:                       \
         const std::string _a(A); /* NOLINT(performance-unnecessary-copy-initialization) */                                                         \
         const std::string _b(B); /* NOLINT(performance-unnecessary-copy-initialization) */                                                         \
         if (_a != _b) {                                                                                                                        \
-            UNIT_FAIL_IMPL("strings (" #A ") and (" #B ") are different", Sprintf("\n%s", ::NUnitTest::ColoredDiff(_a, _b, " \t\n.,:;'\"").data())); \
+            UNIT_FAIL_IMPL("strings (" #A ") and (" #B ") are different", std::format("\n{}", ::NUnitTest::ColoredDiff(_a, _b, " \t\n.,:;'\"").data())); \
         }                                                                                                                                      \
     } while (false)
 
@@ -470,7 +471,7 @@ public:                       \
         const std::string _a(A); /* NOLINT(performance-unnecessary-copy-initialization) */                   \
         const std::string _b(B); /* NOLINT(performance-unnecessary-copy-initialization) */                   \
         if (_a == _b) {                                                                                  \
-            auto&& msg = Sprintf("%s == %s %s", ToString(_a).data(), ToString(_b).data(), (::TStringBuilder() << C).data()); \
+            auto&& msg = std::format("{} == {} {}", ToString(_a).data(), ToString(_b).data(), (::TStringBuilder() << C).data()); \
             UNIT_FAIL_IMPL("strings unequal assertion failed", msg);                                     \
         }                                                                                                \
     } while (false)
@@ -481,7 +482,7 @@ public:                       \
 #define UNIT_ASSERT_C(A, C)                                                                             \
     do {                                                                                                \
         if (!(A)) {                                                                                     \
-            UNIT_FAIL_IMPL("assertion failed", Sprintf("(%s) %s", #A, (::TStringBuilder() << C).data())); \
+            UNIT_FAIL_IMPL("assertion failed", std::format("({}) {}", #A, (::TStringBuilder() << C).data())); \
         }                                                                                               \
     } while (false)
 
@@ -491,7 +492,7 @@ public:                       \
 #define UNIT_ASSERT_EQUAL_C(A, B, C)                                                                                  \
     do {                                                                                                              \
         if (!((A) == (B))) { /* NOLINT(readability-container-size-empty) */                                           \
-            UNIT_FAIL_IMPL("equal assertion failed", Sprintf("%s == %s %s", #A, #B, (::TStringBuilder() << C).data())); \
+            UNIT_FAIL_IMPL("equal assertion failed", std::format("{} == {} {}", #A, #B, (::TStringBuilder() << C).data())); \
         }                                                                                                             \
     } while (false)
 
@@ -500,7 +501,7 @@ public:                       \
 #define UNIT_ASSERT_UNEQUAL_C(A, B, C)                                                                                 \
     do {                                                                                                               \
         if ((A) == (B)) {  /* NOLINT(readability-container-size-empty) */                                              \
-            UNIT_FAIL_IMPL("unequal assertion failed", Sprintf("%s != %s %s", #A, #B, (::TStringBuilder() << C).data()));\
+            UNIT_FAIL_IMPL("unequal assertion failed", std::format("{} != {} {}", #A, #B, (::TStringBuilder() << C).data()));\
         }                                                                                                              \
     } while (false)
 
@@ -509,7 +510,7 @@ public:                       \
 #define UNIT_ASSERT_LT_C(A, B, C)                                                                                        \
     do {                                                                                                                 \
         if (!((A) < (B))) {                                                                                              \
-            UNIT_FAIL_IMPL("less-than assertion failed", Sprintf("%s < %s %s", #A, #B, (::TStringBuilder() << C).data())); \
+            UNIT_FAIL_IMPL("less-than assertion failed", std::format("{} < {} {}", #A, #B, (::TStringBuilder() << C).data())); \
         }                                                                                                                \
     } while (false)
 
@@ -518,7 +519,7 @@ public:                       \
 #define UNIT_ASSERT_LE_C(A, B, C)                                                                                             \
     do {                                                                                                                      \
         if (!((A) <= (B))) {                                                                                                  \
-            UNIT_FAIL_IMPL("less-or-equal assertion failed", Sprintf("%s <= %s %s", #A, #B, (::TStringBuilder() << C).data())); \
+            UNIT_FAIL_IMPL("less-or-equal assertion failed", std::format("{} <= {} {}", #A, #B, (::TStringBuilder() << C).data())); \
         }                                                                                                                     \
     } while (false)
 
@@ -527,7 +528,7 @@ public:                       \
 #define UNIT_ASSERT_GT_C(A, B, C)                                                                                           \
     do {                                                                                                                    \
         if (!((A) > (B))) {                                                                                                 \
-            UNIT_FAIL_IMPL("greater-than assertion failed", Sprintf("%s > %s %s", #A, #B, (::TStringBuilder() << C).data())); \
+            UNIT_FAIL_IMPL("greater-than assertion failed", std::format("{} > {} {}", #A, #B, (::TStringBuilder() << C).data())); \
         }                                                                                                                   \
     } while (false)
 
@@ -536,7 +537,7 @@ public:                       \
 #define UNIT_ASSERT_GE_C(A, B, C)                                                                        \
     do { \
         if (!((A) >= (B))) {                                                                                    \
-            UNIT_FAIL_IMPL("greater-or-equal assertion failed", Sprintf("%s >= %s %s", #A, #B, (::TStringBuilder() << C).data())); \
+            UNIT_FAIL_IMPL("greater-or-equal assertion failed", std::format("{} >= {} {}", #A, #B, (::TStringBuilder() << C).data())); \
         } \
     } while (false)
 
@@ -641,7 +642,7 @@ public:                       \
         catch (...) {                                           \
             UNIT_FAIL_IMPL(                                     \
                 "exception-free assertion failed",              \
-                Sprintf("%s throws %s\nException message: %s",  \
+                std::format("{} throws {}\nException message: {}",  \
                     #A, (::TStringBuilder() << C).data(),       \
                     CurrentExceptionMessage().data()));         \
             return decltype(A){};                               \
@@ -657,7 +658,7 @@ public:                       \
         } catch (const ::NUnitTest::TAssertException&) {                                                                                                                 \
             throw;                                                                                                                                                       \
         } catch (...) {                                                                                                                                                  \
-            UNIT_FAIL_IMPL("exception-free assertion failed", Sprintf("%s throws %s\nException message: %s", #A, (::TStringBuilder() << C).data(), CurrentExceptionMessage().data())); \
+            UNIT_FAIL_IMPL("exception-free assertion failed", std::format("{} throws {}\nException message: {}", #A, (::TStringBuilder() << C).data(), CurrentExceptionMessage().data())); \
         }                                                                                                                                                                \
     } while (false)
 
@@ -718,7 +719,7 @@ public:                       \
         std::string _bsInd;                                                                                                                \
         bool _usePlainDiff;                                                                                                            \
         if (!::NUnitTest::NPrivate::CompareAndMakeStrings(A, B, _as, _asInd, _bs, _bsInd, _usePlainDiff, EQflag)) {                    \
-            auto&& failMsg = Sprintf("(%s %s %s) failed: (%s %s %s) %s", #A, EQstr, #B, _as.data(), NEQstr, _bs.data(), (::TStringBuilder() << C).data()); \
+            auto&& failMsg = std::format("({} {} {}) failed: ({} {} {}) {}", #A, EQstr, #B, _as.data(), NEQstr, _bs.data(), (::TStringBuilder() << C).data()); \
             if (EQflag && !_usePlainDiff) {                                                                                            \
                 failMsg += ", with diff:\n";                                                                                           \
                 failMsg += ::NUnitTest::ColoredDiff(_asInd, _bsInd);                                                                   \

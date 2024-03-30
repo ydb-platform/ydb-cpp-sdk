@@ -33,6 +33,7 @@
 #include <util/system/shellcommand.h>
 
 #include <filesystem>
+#include <format>
 #include <string>
 
 #if defined(_win_)
@@ -407,14 +408,14 @@ private:
             return;
         }
 
-        const std::string err = Sprintf("[%sFAIL%s] %s::%s -> %s%s%s\n%s%s%s", LightRedColor().data(), OldColor().data(),
+        const std::string err = std::format("[{}FAIL{}] {}::{} -> {}{}{}\n{}{}{}", LightRedColor().data(), OldColor().data(),
                                     descr->test->unit->name.data(),
                                     descr->test->name,
                                     LightRedColor().data(), descr->msg, OldColor().data(), LightCyanColor().data(), descr->BackTrace.data(), OldColor().data());
         const TDuration test_duration = SaveTestDuration();
         if (ShowFails) {
             if (PrintTimes_) {
-                Fails.push_back(Sprintf("%s %s", test_duration.ToString().data(), err.data()));
+                Fails.push_back(std::format("{} {}", test_duration.ToString().data(), err.data()));
             } else {
                 Fails.push_back(err);
             }
@@ -531,7 +532,7 @@ private:
         }
 
         std::list<std::string> args(1, "--is-forked-internal");
-        args.push_back(Sprintf("+%s::%s", suite.data(), name));
+        args.push_back(std::format("+{}::{}", suite.data(), name));
 
         // stdin is ignored - unittest should not need them...
         TShellCommandOptions options;
