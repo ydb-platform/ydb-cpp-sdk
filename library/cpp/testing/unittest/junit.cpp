@@ -1,5 +1,7 @@
 #include "junit.h"
 
+#include <library/cpp/testing/common/env_var.h>
+
 #include <library/cpp/json/json_reader.h>
 #include <library/cpp/json/writer/json.h>
 #include <library/cpp/json/writer/json_value.h>
@@ -10,7 +12,6 @@
 #include <util/stream/file.h>
 #include <util/stream/input.h>
 #include <util/system/backtrace.h>
-#include <util/system/env.h>
 #include <util/system/file.h>
 #include <util/system/fs.h>
 #include <util/system/file.h>
@@ -312,7 +313,7 @@ void TJUnitProcessor::MakeTmpFileNameForForkedTests() {
     if (GetForkTests() && !GetIsForked()) {
         TmpReportFile.emplace(MakeTempName());
         // Replace option for child processes
-        SetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION, TStringBuilder() << "json:" << TmpReportFile->Name());
+        NUtils::SetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION, TStringBuilder() << "json:" << TmpReportFile->Name());
     }
 }
 

@@ -1,11 +1,12 @@
 #include "env.h"
 
+#include "env_var.h"
+
 #include <util/folder/dirut.h>
 #include <util/folder/path.h>
 #include <util/generic/singleton.h>
 #include <util/stream/file.h>
 #include <util/stream/fwd.h>
-#include <util/system/env.h>
 #include <util/system/file.h>
 #include <util/system/file_lock.h>
 #include <util/system/guard.h>
@@ -175,7 +176,7 @@ namespace NPrivate {
         TestParameters.clear();
         GlobalResources.clear();
 
-        const std::string contextFilename = GetEnv("YA_TEST_CONTEXT_FILE");
+        const std::string contextFilename = NUtils::GetEnv("YA_TEST_CONTEXT_FILE");
         if (!contextFilename.empty() && TFsPath(contextFilename).Exists()) {
             NJson::TJsonValue context;
             NJson::ReadJsonTree(TFileInput(contextFilename).ReadAll(), &context);
@@ -251,7 +252,7 @@ namespace NPrivate {
                     while (file.ReadLine(ljson) > 0) {
                         NJson::ReadJsonTree(ljson, &envVar);
                         for (const auto& entry : envVar.GetMap()) {
-                            SetEnv(entry.first, entry.second.GetStringSafe(""));
+                            NUtils::SetEnv(entry.first, entry.second.GetStringSafe(""));
                         }
                     }
                 }
@@ -259,34 +260,34 @@ namespace NPrivate {
         }
 
         if (YtHddPath.empty()) {
-            YtHddPath = GetEnv("HDD_PATH");
+            YtHddPath = NUtils::GetEnv("HDD_PATH");
         }
 
         if (SourceRoot.empty()) {
-            SourceRoot = GetEnv("ARCADIA_SOURCE_ROOT");
+            SourceRoot = NUtils::GetEnv("ARCADIA_SOURCE_ROOT");
         }
 
         if (BuildRoot.empty()) {
-            BuildRoot = GetEnv("ARCADIA_BUILD_ROOT");
+            BuildRoot = NUtils::GetEnv("ARCADIA_BUILD_ROOT");
         }
 
         if (ArcadiaTestsDataDir.empty()) {
-            ArcadiaTestsDataDir = GetEnv("ARCADIA_TESTS_DATA_DIR");
+            ArcadiaTestsDataDir = NUtils::GetEnv("ARCADIA_TESTS_DATA_DIR");
         }
 
         if (WorkPath.empty()) {
-            WorkPath = GetEnv("TEST_WORK_PATH");
+            WorkPath = NUtils::GetEnv("TEST_WORK_PATH");
         }
 
         if (RamDrivePath.empty()) {
-            RamDrivePath = GetEnv("YA_TEST_RAM_DRIVE_PATH");
+            RamDrivePath = NUtils::GetEnv("YA_TEST_RAM_DRIVE_PATH");
         }
 
         if (TestOutputRamDrivePath.empty()) {
-            TestOutputRamDrivePath = GetEnv("YA_TEST_OUTPUT_RAM_DRIVE_PATH");
+            TestOutputRamDrivePath = NUtils::GetEnv("YA_TEST_OUTPUT_RAM_DRIVE_PATH");
         }
 
-        const std::string fromEnv = GetEnv("YA_TEST_RUNNER");
+        const std::string fromEnv = NUtils::GetEnv("YA_TEST_RUNNER");
         IsRunningFromTest = (fromEnv == "1");
     }
 

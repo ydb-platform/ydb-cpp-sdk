@@ -7,7 +7,9 @@
 
 #include <library/cpp/json/writer/json.h>
 #include <library/cpp/json/writer/json_value.h>
+
 #include <library/cpp/testing/common/env.h>
+#include <library/cpp/testing/common/env_var.h>
 #include <library/cpp/testing/hook/hook.h>
 
 #include <util/datetime/base.h>
@@ -21,11 +23,11 @@
 
 #include <util/stream/file.h>
 #include <util/stream/output.h>
+
 #include <util/string/join.h>
 #include <util/string/util.h>
 
 #include <util/system/defaults.h>
-#include <util/system/env.h>
 #include <util/system/execpath.h>
 #include <util/system/valgrind.h>
 #include <util/system/shellcommand.h>
@@ -752,9 +754,9 @@ int NUnitTest::RunMain(int argc, char** argv) {
 
 
         // load filters from environment variable
-        std::string filterFn = GetEnv(Y_UNITTEST_TEST_FILTER_FILE_OPTION);
+        std::string filterFn = NUtils::GetEnv(Y_UNITTEST_TEST_FILTER_FILE_OPTION);
         if (!filterFn.empty()) {
-            processor.FilterFromFile(filterFn);
+            processor.FilterFromFile(std::move(filterFn));
         }
 
         auto processJunitOption = [&](const std::string_view& v) {
@@ -855,7 +857,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
         }
 
         if (!hasJUnitProcessor) {
-            if (std::string oo = GetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION); !oo.empty()) {
+            if (const std::string oo = NUtils::GetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION); !oo.empty()) {
                 processJunitOption(oo);
             }
         }
