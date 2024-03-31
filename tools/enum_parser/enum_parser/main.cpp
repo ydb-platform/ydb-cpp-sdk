@@ -33,6 +33,7 @@ void WriteHeader(const std::string& headerName, IOutputStream& out, IOutputStrea
     out << "#include <string>\n";
     out << "#include <vector>\n";
     out << "#include <map>\n";
+    out << "#include <span>\n";
     out << "#include <util/string/cast.h>\n";
     out << "#include <util/stream/output.h>\n\n";
 
@@ -222,7 +223,7 @@ void GenerateEnum(
 
     auto defineConstArray = [&out, payloadCache = std::map<std::pair<std::string, std::vector<std::string>>, std::string>()](const std::string_view indent, const std::string_view elementType, const std::string_view name, const std::vector<std::string>& items) mutable {
         if (items.empty()) { // ISO C++ forbids zero-size array
-            out << indent << "static constexpr const TArrayRef<const " << elementType << "> " << name << ";\n";
+            out << indent << "static constexpr const std::span<const " << elementType << "> " << name << ";\n";
         } else {
             // try to reuse one of the previous payload arrays
             const auto inserted = payloadCache.emplace(std::make_pair(elementType, items), ToString(name) + "_PAYLOAD");
@@ -234,7 +235,7 @@ void GenerateEnum(
                 }
                 out << indent << "};\n";
             }
-            out << indent << "static constexpr const TArrayRef<const " << elementType << "> " << name << "{" << payloadStorageName << "};\n";
+            out << indent << "static constexpr const std::span<const " << elementType << "> " << name << "{" << payloadStorageName << "};\n";
         }
         out << "\n";
     };
@@ -249,7 +250,7 @@ void GenerateEnum(
             out << "        " << it << ",\n";
         }
         out << "    }});\n";
-        out << "    " << "static constexpr const TArrayRef<const TNameBufsBase::TEnumStringPair> " << "NAMES_INITIALIZATION_PAIRS{NAMES_INITIALIZATION_PAIRS_PAYLOAD};\n\n";
+        out << "    " << "static constexpr const std::span<const TNameBufsBase::TEnumStringPair> " << "NAMES_INITIALIZATION_PAIRS{NAMES_INITIALIZATION_PAIRS_PAYLOAD};\n\n";
     }
     {
         StableSortBy(valueInitializerPairsUnsorted, [](const auto& pair) -> const std::string& { return pair.second; });

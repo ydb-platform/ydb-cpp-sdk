@@ -5,6 +5,8 @@
 #include <util/generic/deque.h>
 #include <util/generic/hash.h>
 
+#include <span>
+
 class TCompressionCodecFactory {
 public:
     using TDecoderConstructor = std::function<THolder<IInputStream>(IInputStream*)>;
@@ -32,7 +34,7 @@ public:
         return nullptr;
     }
 
-    inline TArrayRef<const std::string_view> GetBestCodecs() const {
+    inline std::span<const std::string_view> GetBestCodecs() const {
         return BestCodecs_;
     }
 
@@ -51,7 +53,7 @@ private:
 
 namespace NHttp {
     template <typename F>
-    std::string ChooseBestCompressionScheme(F accepted, TArrayRef<const std::string_view> available) {
+    std::string ChooseBestCompressionScheme(F accepted, std::span<const std::string_view> available) {
         if (available.empty()) {
             return "identity";
         }

@@ -20,7 +20,7 @@ namespace NThreading {
         }
 
         template <class WaitPolicy>
-        TFuture<void> WaitGeneric(TArrayRef<const TFuture<void>> futures) {
+        TFuture<void> WaitGeneric(std::span<const TFuture<void>> futures) {
             if (futures.empty()) {
                 return MakeFuture();
             }
@@ -47,7 +47,7 @@ namespace NThreading {
         return WaitGeneric<TWaitPolicy::TAll>(f1, f2);
     }
 
-    TFuture<void> WaitAll(TArrayRef<const TFuture<void>> futures) {
+    TFuture<void> WaitAll(std::span<const TFuture<void>> futures) {
         return WaitGeneric<TWaitPolicy::TAll>(futures);
     }
 
@@ -62,7 +62,7 @@ namespace NThreading {
         return WaitGeneric<TWaitPolicy::TExceptionOrAll>(f1, f2);
     }
 
-    TFuture<void> WaitExceptionOrAll(TArrayRef<const TFuture<void>> futures) {
+    TFuture<void> WaitExceptionOrAll(std::span<const TFuture<void>> futures) {
         return WaitGeneric<TWaitPolicy::TExceptionOrAll>(futures);
     }
 
@@ -76,7 +76,7 @@ namespace NThreading {
         return WaitGeneric<TWaitPolicy::TAny>(f1, f2);
     }
 
-    TFuture<void> WaitAny(TArrayRef<const TFuture<void>> futures) {
+    TFuture<void> WaitAny(std::span<const TFuture<void>> futures) {
         return WaitGeneric<TWaitPolicy::TAny>(futures);
     }
 }

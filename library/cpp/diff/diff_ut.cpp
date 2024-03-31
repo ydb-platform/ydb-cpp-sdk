@@ -12,15 +12,15 @@ struct TDiffTester {
         return str;
     }
 
-    std::string_view Common(const TConstArrayRef<const char>& str) const {
+    std::string_view Common(const TConstSpan<const char>& str) const {
         return std::string_view(str.begin(), str.end());
     }
 
-    std::string_view Left(const TConstArrayRef<const char>& str) const {
+    std::string_view Left(const TConstSpan<const char>& str) const {
         return std::string_view(str.begin(), str.end());
     }
 
-    std::string_view Right(const TConstArrayRef<const char>& str) const {
+    std::string_view Right(const TConstSpan<const char>& str) const {
         return std::string_view(str.begin(), str.end());
     }
 

@@ -34,7 +34,7 @@ TTrampoline::TTrampoline(NStack::IAllocator& allocator, ui32 stackSize, TFunc f,
         Cont_->Terminate();
     }
 
-    TArrayRef<char> TTrampoline::Stack() noexcept {
+    std::span<char> TTrampoline::Stack() noexcept {
         return Stack_.Get();
     }
 

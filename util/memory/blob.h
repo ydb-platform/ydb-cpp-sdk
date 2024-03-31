@@ -153,7 +153,6 @@ public:
     /// Returns a const reference to the data array.
     /// result type is const ui8* which is not consistent with Data method above
     /// but it's consistent with operator[], Begin and End methods below
-    /// Also it allows us to construct TArrayRef from TBlob
     inline const_pointer data() const noexcept {
         return static_cast<const_pointer>(Data());
     }

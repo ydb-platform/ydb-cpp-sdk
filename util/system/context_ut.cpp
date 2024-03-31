@@ -26,7 +26,7 @@ Y_UNIT_TEST_SUITE(TestContext) {
 
         auto& tw = w.emplace_back(&f);
 
-        return {&tw, TArrayRef(tw.Buf, sizeof(tw.Buf))};
+        return {&tw, std::span(tw.Buf, sizeof(tw.Buf))};
     }
 
     Y_UNIT_TEST(TestExceptionSafety) {

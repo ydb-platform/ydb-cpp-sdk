@@ -1,6 +1,5 @@
 #include "backtrace.h"
 
-#include <util/generic/array_ref.h>
 #include <library/cpp/testing/unittest/registar.h>
 
 #include <util/stream/output.h>

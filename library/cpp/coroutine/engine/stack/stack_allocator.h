@@ -6,6 +6,7 @@
 #include <util/generic/noncopyable.h>
 #include <util/generic/ptr.h>
 
+#include <span>
 #include <cstdint>
 #include <optional>
 
@@ -35,7 +36,7 @@ namespace NCoro::NStack {
         virtual TAllocatorStats GetStackStats() const noexcept = 0;
 
         // Stack helpers
-        virtual TArrayRef<char> GetStackWorkspace(void* stack, size_t size) noexcept = 0;
+        virtual std::span<char> GetStackWorkspace(void* stack, size_t size) noexcept = 0;
         virtual bool CheckStackOverflow(void* stack) const noexcept = 0;
         virtual bool CheckStackOverride(void* stack, size_t size) const noexcept = 0;
 
