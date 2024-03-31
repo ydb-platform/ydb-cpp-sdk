@@ -50,7 +50,6 @@ target_joined_source(yutil
   all_generic.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/adaptor.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/algorithm.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/array_ref.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/array_size.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/bitmap.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/bitops.cpp

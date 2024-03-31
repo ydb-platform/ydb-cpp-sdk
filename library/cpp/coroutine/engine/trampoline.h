@@ -1,5 +1,5 @@
 #pragma once
-
+#include <span>
 #include "stack/stack_common.h"
 #include "stack/stack.h"
 
@@ -32,7 +32,7 @@ namespace NCoro {
             TCont* cont
         ) noexcept;
 
-        TArrayRef<char> Stack() noexcept;
+        std::span<char> Stack() noexcept;
 
         TExceptionSafeContext* Context() noexcept {
             return &Ctx_;

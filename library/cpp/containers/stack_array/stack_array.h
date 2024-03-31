@@ -2,7 +2,7 @@
 
 #include "range_ops.h"
 
-#include <util/generic/array_ref.h>
+#include <span>
 #include <util/system/defaults.h> /* For alloca. */
 
 namespace NStackArray {
@@ -23,17 +23,20 @@ namespace NStackArray {
      * as those might be called from a loop, and then stack overflow is in the cards.
      */
     template <class T>
-    class TStackArray: public TArrayRef<T> {
+    class TStackArray {
     public:
         inline TStackArray(void* data, size_t len)
-            : TArrayRef<T>((T*)data, len)
+            : span_((T*)data, len)
         {
-            NRangeOps::InitializeRange(this->begin(), this->end());
+            NRangeOps::InitializeRange(span_.begin(), span_.end());
         }
 
         inline ~TStackArray() {
-            NRangeOps::DestroyRange(this->begin(), this->end());
+            NRangeOps::DestroyRange(span_.begin(), span_.end());
         }
+    private:
+        std::span<T> span_;
+
     };
 }
 

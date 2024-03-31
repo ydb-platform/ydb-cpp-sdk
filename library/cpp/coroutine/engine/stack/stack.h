@@ -1,6 +1,5 @@
 #pragma once
-
-#include <util/generic/array_ref.h>
+#include <span>
 #include <util/generic/fwd.h>
 #include <util/generic/noncopyable.h>
 
@@ -65,7 +64,7 @@ namespace NDetails {
             return Stack_.GetSize();
         }
 
-        TArrayRef<char> Get() noexcept;
+        std::span<char> Get() noexcept;
         bool LowerCanaryOk() const noexcept;
         bool UpperCanaryOk() const noexcept;
 

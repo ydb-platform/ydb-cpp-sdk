@@ -3,6 +3,7 @@
 #include "stack_utils.h"
 
 #include <util/generic/hash.h>
+#include <span>
 
 #ifdef _linux_
 #include <unistd.h>
@@ -16,7 +17,7 @@ namespace NCoro::NStack {
     public:
         explicit TPoolAllocator(const TPoolAllocatorSettings& settings);
 
-        TArrayRef<char> GetStackWorkspace(void* stack, size_t size) noexcept override {
+        std::span<char> GetStackWorkspace(void* stack, size_t size) noexcept override {
             return Guard_.GetWorkspace(stack, size);
         }
         bool CheckStackOverflow(void* stack) const noexcept override {
@@ -84,7 +85,7 @@ namespace NCoro::NStack {
     public:
         explicit TSimpleAllocator();
 
-        TArrayRef<char> GetStackWorkspace(void* stack, size_t size) noexcept override {
+        std::span<char> GetStackWorkspace(void* stack, size_t size) noexcept override {
             return Guard_.GetWorkspace(stack, size);
         }
         bool CheckStackOverflow(void* stack) const noexcept override {

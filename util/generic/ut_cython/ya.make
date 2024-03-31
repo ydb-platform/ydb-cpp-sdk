@@ -6,7 +6,6 @@ SRCDIR(util/generic)
 
 PY_SRCS(
     NAMESPACE util.generic
-    array_ref_ut.pyx
     deque_ut.pyx
     hash_set_ut.pyx
     hash_ut.pyx

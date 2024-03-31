@@ -6,6 +6,7 @@
 
 #include <list>
 #include <map>
+#include <span>
 #include <string>
 #include <string_view>
 
@@ -98,7 +99,7 @@ struct TDumper<std::vector<T, A>>: public TSeqDumper {
 };
 
 template <class T>
-struct TDumper<TArrayRef<T>>: public TSeqDumper {
+struct TDumper<std::span<T>>: public TSeqDumper {
 };
 
 template <class T, size_t N>

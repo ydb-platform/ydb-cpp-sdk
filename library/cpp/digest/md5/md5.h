@@ -1,6 +1,8 @@
 #pragma once
 
-#include <util/generic/array_ref.h>
+#include <util/system/defaults.h>
+
+#include <span>
 #include <string_view>
 
 class IInputStream;
@@ -14,14 +16,14 @@ public:
     void Init();
 
     inline MD5& Update(const void* data, size_t len) {
-        return Update(MakeArrayRef(static_cast<const ui8*>(data), len));
+        return Update(std::span(static_cast<const ui8*>(data), len));
     }
 
     inline MD5& Update(std::string_view data) {
         return Update(data.data(), data.size());
     }
 
-    inline MD5& Update(const TArrayRef<const ui8> data) {
+    inline MD5& Update(const std::span<const ui8> data) {
         UpdatePart(data);
         return *this;
     }
@@ -49,25 +51,25 @@ public:
     static std::string File(const std::string& filename);
 
     static char* Data(const void* data, size_t len, char* buf);
-    static char* Data(const TArrayRef<const ui8>& data, char* buf);
-    static std::string Data(const TArrayRef<const ui8>& data);
+    static char* Data(const std::span<const ui8>& data, char* buf);
+    static std::string Data(const std::span<const ui8>& data);
     static std::string Data(std::string_view data);
     static char* Stream(IInputStream* in, char* buf);
 
     static std::string Calc(std::string_view data);                     // 32-byte hex-encoded
-    static std::string Calc(const TArrayRef<const ui8>& data);    // 32-byte hex-encoded
+    static std::string Calc(const std::span<const ui8>& data);    // 32-byte hex-encoded
     static std::string CalcRaw(std::string_view data);                  // 16-byte raw
-    static std::string CalcRaw(const TArrayRef<const ui8>& data); // 16-byte raw
+    static std::string CalcRaw(const std::span<const ui8>& data); // 16-byte raw
 
     static ui64 CalcHalfMix(std::string_view data);
-    static ui64 CalcHalfMix(const TArrayRef<const ui8>& data);
+    static ui64 CalcHalfMix(const std::span<const ui8>& data);
     static ui64 CalcHalfMix(const char* data, size_t len);
 
     static bool IsMD5(std::string_view data);
-    static bool IsMD5(const TArrayRef<const ui8>& data);
+    static bool IsMD5(const std::span<const ui8>& data);
 
 private:
-    void UpdatePart(TArrayRef<const ui8> data);
+    void UpdatePart(std::span<const ui8> data);
 
 private:
     ui8 BufferSize;  /* size of buffer */

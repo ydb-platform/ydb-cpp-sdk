@@ -4,10 +4,10 @@
 
 #include <util/stream/output.h>
 #include <util/generic/ptr.h>
+#include <span>
 #include <string>
 #include <string_view>
 #include <util/generic/yexception.h>
-#include <util/generic/array_ref.h>
 
 class TSocket;
 
@@ -70,7 +70,7 @@ public:
     /// любые типы кодирования, выбирается gzip. В противном случае
     /// из списка типов кодирования выбирается лучший из поддерживаемых сервером.
     std::string BestCompressionScheme() const;
-    std::string BestCompressionScheme(TArrayRef<const std::string_view> codings) const;
+    std::string BestCompressionScheme(std::span<const std::string_view> codings) const;
 
     /// Если заголовки содержат Content-Length, возвращает true и
     /// записывает значение из заголовка в value
@@ -109,7 +109,7 @@ public:
 
     /// Устанавливает режим, при котором сервер выдает ответ в упакованном виде.
     void EnableCompression(bool enable);
-    void EnableCompression(TArrayRef<const std::string_view> schemas);
+    void EnableCompression(std::span<const std::string_view> schemas);
 
     /// Устанавливает режим, при котором соединение с сервером не завершается
     /// после окончания транзакции.
@@ -172,6 +172,6 @@ unsigned ParseHttpRetCode(const std::string_view& ret);
 /// Отправляет HTTP-серверу запрос с минимумом необходимых заголовков.
 void SendMinimalHttpRequest(TSocket& s, const std::string_view& host, const std::string_view& request, const std::string_view& agent = "YandexSomething/1.0", const std::string_view& from = "webadmin@yandex.ru");
 
-TArrayRef<const std::string_view> SupportedCodings();
+std::span<const std::string_view> SupportedCodings();
 
 /// @}

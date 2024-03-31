@@ -422,7 +422,7 @@ bool THttpInput::AcceptEncoding(const std::string& coding) const {
     return Impl_->AcceptEncoding(coding);
 }
 
-std::string THttpInput::BestCompressionScheme(TArrayRef<const std::string_view> codings) const {
+std::string THttpInput::BestCompressionScheme(std::span<const std::string_view> codings) const {
     return NHttp::ChooseBestCompressionScheme(
         [this](const std::string& coding) {
             return AcceptEncoding(coding);
@@ -578,7 +578,7 @@ public:
         return Headers_;
     }
 
-    inline void EnableCompression(TArrayRef<const std::string_view> schemas) {
+    inline void EnableCompression(std::span<const std::string_view> schemas) {
         ComprSchemas_ = schemas;
     }
 
@@ -860,7 +860,7 @@ private:
     THttpInput* Request_;
     size_t Version_;
 
-    TArrayRef<const std::string_view> ComprSchemas_;
+    std::span<const std::string_view> ComprSchemas_;
 
     bool KeepAliveEnabled_;
     bool BodyEncodingEnabled_;
@@ -908,12 +908,12 @@ void THttpOutput::EnableCompression(bool enable) {
     if (enable) {
         EnableCompression(TCompressionCodecFactory::Instance().GetBestCodecs());
     } else {
-        TArrayRef<std::string_view> codings;
+        std::span<std::string_view> codings;
         EnableCompression(codings);
     }
 }
 
-void THttpOutput::EnableCompression(TArrayRef<const std::string_view> schemas) {
+void THttpOutput::EnableCompression(std::span<const std::string_view> schemas) {
     Impl_->EnableCompression(schemas);
 }
 
@@ -995,6 +995,6 @@ void SendMinimalHttpRequest(TSocket& s, const std::string_view& host, const std:
     output.Finish();
 }
 
-TArrayRef<const std::string_view> SupportedCodings() {
+std::span<const std::string_view> SupportedCodings() {
     return TCompressionCodecFactory::Instance().GetBestCodecs();
 }
