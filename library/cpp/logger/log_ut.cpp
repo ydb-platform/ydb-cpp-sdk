@@ -153,7 +153,7 @@ void TLogTest::TestNoFlush() {
 }
 
 void TLogTest::TestFormat() {
-    std::stringStream data;
+    TStringStream data;
 
     {
         TLog log(THolder(new TStreamLogBackend(&data)));
@@ -167,7 +167,7 @@ void TLogTest::TestFormat() {
 }
 
 void TLogTest::TestWrite() {
-    std::stringStream data;
+    TStringStream data;
     std::string test;
 
     {

@@ -9,7 +9,7 @@ TTopicSdkTestSetup::TTopicSdkTestSetup(const std::string& testCaseName, const NK
     , Server(settings, false)
 {
     Log.SetFormatter([testCaseName](ELogPriority priority, std::string_view message) {
-        return TYdbStringBuilder() << TInstant::Now() << " :" << testCaseName << " " << priority << ": " << message << Endl;
+        return TStringBuilder() << TInstant::Now() << " :" << testCaseName << " " << priority << ": " << message << Endl;
     });
 
     Server.StartServer(true, GetDatabase());

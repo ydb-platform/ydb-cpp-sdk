@@ -9,6 +9,8 @@
 #include <util/stream/output.h>
 #include <util/system/yassert.h>
 
+#include <iostream>
+
 TCont::TJoinWait::TJoinWait(TCont& c) noexcept
     : Cont_(c)
 {}
@@ -355,7 +357,7 @@ void TContExecutor::RunScheduler() noexcept {
             }
         }
     } catch (...) {
-        TBackTrace::FromCurrentException().PrintTo(Cerr);
+        std::cerr << TBackTrace::FromCurrentException().PrintToString();
         Y_ABORT("Uncaught exception in the scheduler: %s", CurrentExceptionMessage().c_str());
     }
 }

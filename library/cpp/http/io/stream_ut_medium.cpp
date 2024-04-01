@@ -35,7 +35,7 @@ Y_UNIT_TEST_SUITE(THttpTestMedium) {
                 UNIT_ASSERT(s.size() > 10);
                 UNIT_ASSERT(s.find(data) == std::string::npos);
             } catch (...) {
-                Cerr << codec << " " << s << Endl;
+                std::cerr << codec << " " << s << std::endl;
 
                 throw;
             }

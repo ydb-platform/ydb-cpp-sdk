@@ -1,8 +1,9 @@
 #include <library/cpp/http/io/stream.h>
-#include <util/stream/output.h>
+
+#include <iostream>
 
 int main() {
     for (auto codec : SupportedCodings()) {
-        Cout << codec << Endl;
+        std::cout << codec << std::endl;
     }
 }
