@@ -99,7 +99,7 @@ namespace NLastGetopt {
         return Parser_->ProgramName_;
     }
 
-    void TOptsParseResult::PrintUsage(IOutputStream& os) const {
+    void TOptsParseResult::PrintUsage(std::ostream& os) const {
         Parser_->Opts_->PrintUsage(Parser_->ProgramName_, os);
     }
 

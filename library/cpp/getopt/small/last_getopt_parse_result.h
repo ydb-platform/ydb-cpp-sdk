@@ -165,7 +165,7 @@ namespace NLastGetopt {
         /**
          * Print usage string.
          */
-        void PrintUsage(IOutputStream& os = Cout) const;
+        void PrintUsage(std::ostream& os = std::cout) const;
 
         /**
          * @return position in [premuted argv] of the first free argument

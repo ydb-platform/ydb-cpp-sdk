@@ -99,9 +99,9 @@ namespace NLastGetopt {
                 if (shell.empty()) {
                     Cerr << Wrap(80, MakeInfo(command, "--" + name)) << Endl;
                 } else if (shell == "bash") {
-                    TBashCompletionGenerator(opts).Generate(command, Cout);
+                    TBashCompletionGenerator(opts).Generate(command, std::cout);
                 } else if (shell == "zsh") {
-                    TZshCompletionGenerator(opts).Generate(command, Cout);
+                    TZshCompletionGenerator(opts).Generate(command, std::cout);
                 } else {
                     Cerr << "Unknown shell name " << NUtils::Quote(shell) << Endl;
                     exit(1);
@@ -140,9 +140,9 @@ namespace NLastGetopt {
             NUtils::ToLower(arg);
 
             if (arg == "bash") {
-                TBashCompletionGenerator(Modes_).Generate(Command_, Cout);
+                TBashCompletionGenerator(Modes_).Generate(Command_, std::cout);
             } else if (arg == "zsh") {
-                TZshCompletionGenerator(Modes_).Generate(Command_, Cout);
+                TZshCompletionGenerator(Modes_).Generate(Command_, std::cout);
             } else {
                 Cerr << "Unknown shell name " << NUtils::Quote(arg) << Endl;
                 parsedOptions.PrintUsage();
