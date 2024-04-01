@@ -37,7 +37,7 @@ public:
 
     void InitOptions(ui32 nodeCount = NKikimr::NPersQueueTests::PQ_DEFAULT_NODE_COUNT) {
         Log.SetFormatter([testCaseName = TestCaseName](ELogPriority priority, std::string_view message) {
-            return TYdbStringBuilder() << TInstant::Now() << " :" << testCaseName << " " << priority << ": " << message << Endl;
+            return TStringBuilder() << TInstant::Now() << " :" << testCaseName << " " << priority << ": " << message << Endl;
         });
         Server.ServerSettings.SetNodeCount(nodeCount);
         Server.GrpcServerOptions.SetGRpcShutdownDeadline(TDuration::Max());

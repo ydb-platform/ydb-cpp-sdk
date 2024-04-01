@@ -5,6 +5,8 @@
 #include <library/cpp/string_utils/relaxed_escaper/relaxed_escaper.h>
 #include <util/string/cast.h>
 
+#include <iostream>
+
 namespace NJson {
     namespace NTest {
         enum ETestEvent {
@@ -157,9 +159,9 @@ namespace NJson {
                         UNIT_ASSERT_VALUES_EQUAL_C(e[i].Str, Events[i].Str, std::format("'{}' {}", str, i));
                     }
                 } catch (const yexception&) {
-                    Clog << "Exception at '" << str << "'" << Endl;
+                    std::cerr << "Exception at '" << str << "'" << std::endl;
                     for (const auto& event : Events) {
-                        Clog << event.ToString() << Endl;
+                        std::cerr << event.ToString() << std::endl;
                     }
 
                     throw;

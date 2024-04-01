@@ -18,7 +18,7 @@ Y_UNIT_TEST_SUITE(CompressExecutor) {
         UNIT_ASSERT(!f1.HasValue());
         UNIT_ASSERT(!f2.HasValue());
         queue->Enqueue(1);
-        Cerr << "Waiting for writes to complete.\n";
+        std::cerr << "Waiting for writes to complete.\n";
         f1.Wait();
         f2.Wait();
 
@@ -49,7 +49,7 @@ Y_UNIT_TEST_SUITE(CompressExecutor) {
                 Y_ABORT("ANother ready to accept!");
             }
             if(std::holds_alternative<TSessionClosedEvent>(event)) {
-                Cerr << "Session closed: " << std::get<TSessionClosedEvent>(event).DebugString() << "\n";
+                std::cerr << "Session closed: " << std::get<TSessionClosedEvent>(event).DebugString() << "\n";
                 Y_ABORT("");
             }
         }
@@ -77,7 +77,7 @@ Y_UNIT_TEST_SUITE(CompressExecutor) {
         event = *writer->GetEvent(true);
         UNIT_ASSERT(std::holds_alternative<TWriteSessionEvent::TAcksEvent>(event));
 
-        Cerr << "===Will now kick tablets\n";
+        std::cerr << "===Will now kick tablets\n";
         setup->KickTablets();
         retryPolicy->ExpectBreakDown();
         retryPolicy->WaitForRetriesSync(1);
@@ -92,7 +92,7 @@ Y_UNIT_TEST_SUITE(CompressExecutor) {
                 continueToken = std::move(std::get<TWriteSessionEvent::TReadyToAcceptEvent>(event).ContinuationToken);
             }
         }
-        Cerr << "============ UT - Wait event...\n";
+        std::cerr << "============ UT - Wait event...\n";
         waitEventFuture = writer->WaitEvent();
         waitEventFuture.Wait(TDuration::Seconds(3));
         UNIT_ASSERT(!waitEventFuture.HasValue());

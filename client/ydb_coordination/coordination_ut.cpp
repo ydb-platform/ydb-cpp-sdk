@@ -24,7 +24,7 @@ namespace {
         {
             Y_UNUSED(context);
 
-            Cerr << "ListEndpoints: " << request->ShortDebugString() << Endl;
+            std::cerr << "ListEndpoints: " << request->ShortDebugString() << std::endl;
 
             const auto* result = MockResults.FindPtr(request->database());
             Y_ABORT_UNLESS(result, "Mock service doesn't have a result for database '%s'", request->database().c_str());
@@ -50,7 +50,7 @@ namespace {
         {
             Y_UNUSED(context);
 
-            Cerr << "Session stream started" << Endl;
+            std::cerr << "Session stream started" << std::endl;
 
             Ydb::Coordination::SessionRequest request;
 
@@ -60,7 +60,7 @@ namespace {
                     // Disconnected before the request was sent
                     return grpc::Status::OK;
                 }
-                Cerr << "Session request: " << request.ShortDebugString() << Endl;
+                std::cerr << "Session request: " << request.ShortDebugString() << std::endl;
                 Y_ABORT_UNLESS(request.has_session_start(), "Expected session start");
                 auto& start = request.session_start();
                 uint64_t sessionId = start.session_id();
@@ -77,7 +77,7 @@ namespace {
 
             size_t pings_received = 0;
             while (stream->Read(&request)) {
-                Cerr << "Session request: " << request.ShortDebugString() << Endl;
+                std::cerr << "Session request: " << request.ShortDebugString() << std::endl;
                 Y_ABORT_UNLESS(request.has_ping(), "Only ping requests are supported");
                 if (++pings_received <= 2) {
                     // Only reply to the first 2 ping requests
@@ -152,7 +152,7 @@ Y_UNIT_TEST_SUITE(Coordination) {
         auto endTimestamp = TInstant::Now();
         auto elapsed = endTimestamp - startTimestamp;
 
-        Cerr << "Got: " << res.GetStatus() << ": " << res.GetIssues().ToString() << Endl;
+        std::cerr << "Got: " << res.GetStatus() << ": " << res.GetIssues().ToString() << std::endl;
 
         // Both connection and session timeout return EStatus::TIMEOUT
         UNIT_ASSERT_VALUES_EQUAL_C(res.GetStatus(), EStatus::TIMEOUT, res.GetIssues().ToString());
@@ -168,7 +168,7 @@ Y_UNIT_TEST_SUITE(Coordination) {
         TMockCoordinationService coordinationService;
         ui16 coordinationPort = pm.GetPort();
         auto coordinationServer = StartGrpcServer(
-                TYdbStringBuilder() << "0.0.0.0:" << coordinationPort,
+                TStringBuilder() << "0.0.0.0:" << coordinationPort,
                 coordinationService);
 
         // Fill a fake discovery service
@@ -197,7 +197,7 @@ Y_UNIT_TEST_SUITE(Coordination) {
         auto stoppedFuture = stoppedPromise.GetFuture();
         auto settings = TSessionSettings()
             .OnStateChanged([](auto state) {
-                Cerr << "Session state: " << state << Endl;
+                std::cerr << "Session state: " << state << std::endl;
             })
             .OnStopped([stoppedPromise]() mutable {
                 stoppedPromise.SetValue();
@@ -221,7 +221,7 @@ Y_UNIT_TEST_SUITE(Coordination) {
 
         // Check the last failure stored in a session
         auto res2 = session.Close().ExtractValueSync();
-        Cerr << "Close: " << res2.GetStatus() << ": " << res2.GetIssues().ToString() << Endl;
+        std::cerr << "Close: " << res2.GetStatus() << ": " << res2.GetIssues().ToString() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL_C(res2.GetStatus(), EStatus::TIMEOUT, res2.GetIssues().ToString());
     }
 
@@ -261,7 +261,7 @@ Y_UNIT_TEST_SUITE(Coordination) {
         auto stoppedFuture = stoppedPromise.GetFuture();
         auto settings = TSessionSettings()
             .OnStateChanged([](auto state) {
-                Cerr << "Session state: " << state << Endl;
+                std::cerr << "Session state: " << state << std::endl;
             })
             .OnStopped([stoppedPromise]() mutable {
                 stoppedPromise.SetValue();
@@ -288,7 +288,7 @@ Y_UNIT_TEST_SUITE(Coordination) {
 
         // Check the last failure stored in a session
         auto res2 = session.Close().ExtractValueSync();
-        Cerr << "Close: " << res2.GetStatus() << ": " << res2.GetIssues().ToString() << Endl;
+        std::cerr << "Close: " << res2.GetStatus() << ": " << res2.GetIssues().ToString() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL_C(res2.GetStatus(), EStatus::CLIENT_CANCELLED, res2.GetIssues().ToString());
     }
 

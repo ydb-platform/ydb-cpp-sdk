@@ -9,6 +9,7 @@
 #include <util/system/src_root.h>
 
 #include <fstream>
+#include <iostream>
 
 namespace {
     bool StartsWith(const char* str, const char* pre) {
@@ -87,10 +88,10 @@ namespace {
             // result in calling `fflush(stderr)`. However, there may be additional buffering logic
             // going on (custom `std::cerr.tie()`, for example), so just to be sure, we flush both of them.
             std::cout << std::flush;
-            Cout << marker << Flush;
+            std::cout << marker << std::flush;
 
             std::cerr << std::flush;
-            Cerr << marker << Flush;
+            std::cerr << marker << std::flush;
 
             auto ts = std::chrono::duration_cast<std::chrono::duration<double>>(
                 std::chrono::system_clock::now().time_since_epoch());
@@ -195,10 +196,10 @@ namespace {
             auto marker = Join("", "\n###subtest-finished:", testInfo.test_suite_name(), "::", testInfo.name(), "\n");
 
             std::cout << std::flush;
-            Cout << marker << Flush;
+            std::cout << marker << std::flush;
 
             std::cerr << std::flush;
-            Cerr << marker << Flush;
+            std::cerr << marker << std::flush;
 
             PrintTestStatus(testInfo, status, messages.str(), properties, ts);
         }
