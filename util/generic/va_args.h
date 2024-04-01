@@ -772,8 +772,8 @@
  * Example usage:
  *
  * @code{cpp}
- * #define I1(arg1) std::cout << Y_STRINGIZE(arg1) << std::endl;
- * #define I2(arg1, arg2) std::cout << Y_STRINGIZE(arg1) << ';' << Y_STRINGIZE(arg2) << std::endl;
+ * #define I1(arg1) Cout << Y_STRINGIZE(arg1) << Endl;
+ * #define I2(arg1, arg2) Cout << Y_STRINGIZE(arg1) << ';' << Y_STRINGIZE(arg2) << Endl;
  *
  * #define Y_PRINT(...) Y_PASS_VA_ARGS(Y_MACRO_IMPL_DISPATCHER_2(__VA_ARGS__, I2, I1)(__VA_ARGS__))
  * @endcode

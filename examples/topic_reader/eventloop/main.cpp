@@ -35,7 +35,7 @@ struct TOptions {
 std::shared_ptr<NYdb::NTopic::IReadSession> ReadSession;
 
 void StopHandler(int) {
-    std::cerr << "Stopping session" << std::endl;
+    Cerr << "Stopping session" << Endl;
     if (ReadSession) {
         ReadSession->Close(TDuration::Seconds(3));
     } else {
@@ -74,7 +74,7 @@ int main(int argc, const char* argv[]) {
 
     ReadSession = topicClient.CreateReadSession(settings);
 
-    std::cerr << "Session was created" << std::endl;
+    Cerr << "Session was created" << Endl;
 
     // [BEGIN read session process events]
     // Event loop
@@ -83,15 +83,15 @@ int main(int argc, const char* argv[]) {
         // Wait for next event or ten seconds
         future.Wait(TDuration::Seconds(10));
         // future.Subscribe([](){
-        //    std::cerr << ...;
+        //    Cerr << ...;
         // });
         // Get event
         std::optional<NYdb::NTopic::TReadSessionEvent::TEvent> event = ReadSession->GetEvent(true/*block - will block if no event received yet*/);
-        std::cerr << "Got new read session event: " << DebugString(*event) << std::endl;
+        Cerr << "Got new read session event: " << DebugString(*event) << Endl;
 
         if (auto* dataEvent = std::get_if<NYdb::NTopic::TReadSessionEvent::TDataReceivedEvent>(&*event)) {
             for (const auto& message : dataEvent->GetMessages()) {
-                std::cerr << "Data message: \"" << message.GetData() << "\"" << std::endl;
+                Cerr << "Data message: \"" << message.GetData() << "\"" << Endl;
             }
 
             if (opts.CommitAfterProcessing) {

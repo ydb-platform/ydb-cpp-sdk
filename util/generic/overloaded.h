@@ -7,9 +7,9 @@
  * ```
  * std::variant<int, void*, std::string> var;
  * Visit(TOverloaded{
- *     [](int val) { std::cerr << "int: " << val; },
- *     [](void* val) { std::cerr << "ptr: " << val; },
- *     [](const std::string& val) { std::cerr << "str: " << val; },
+ *     [](int val) { Cerr << "int: " << val; },
+ *     [](void* val) { Cerr << "ptr: " << val; },
+ *     [](const std::string& val) { Cerr << "str: " << val; },
  * }, var);
  * ```
  *
@@ -24,7 +24,7 @@
  * ```
  * std::variant<int, double, char> var;
  * Visit(TOverloaded{
- *     [](double val) { std::cerr << "dbl: " << val; },
+ *     [](double val) { Cerr << "dbl: " << val; },
  * }, var);
  * ```
  *
@@ -35,11 +35,11 @@
  * Visit([](auto&& val) {
  *     using T = std::decay_t<decltype(val)>;
  *     if constexpr (std::is_same_v<T, int>) {
- *         std::cerr << "int: " << val;
+ *         Cerr << "int: " << val;
  *     } else if constexpr (std::is_same_v<T, double>) {
- *         std::cerr << "dbl: " << val;
+ *         Cerr << "dbl: " << val;
  *     } else if constexpr (std::is_same_v<T, char>) {
- *         std::cerr << "chr: " << val;
+ *         Cerr << "chr: " << val;
  *     } else {
  *         static_assert(TDependentFalse<T>, "unexpected type");
  *     }

@@ -35,7 +35,7 @@ static void CreateSeriesIndexTable(TTableClient& client, const std::string& pref
 
 int RunCreateTables(TDriver& driver, const std::string& prefix, int argc, char**) {
     if (argc > 1) {
-        std::cerr << "Unexpected arguments after create_tables" << std::endl;
+        Cerr << "Unexpected arguments after create_tables" << Endl;
         return 1;
     }
 

@@ -61,7 +61,7 @@ public:
         f.Wait(TDuration::Seconds(35));
         if (f.HasValue()) {
             auto result = f.ExtractValueSync();
-            std::cerr << ">>> Ready to answer: " << (result.Status.ok() ? "ok" : "err") << std::endl;
+            Cerr << ">>> Ready to answer: " << (result.Status.ok() ? "ok" : "err") << Endl;
             *response = std::move(result.Response);
             return result.Status;
         }

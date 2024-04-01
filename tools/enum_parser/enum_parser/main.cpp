@@ -23,8 +23,6 @@
 #include <util/system/fs.h>
 #include <util/folder/path.h>
 
-#include <iostream>
-
 void WriteHeader(const std::string& headerName, IOutputStream& out, IOutputStream* headerOutPtr = nullptr) {
     out << "// This file was auto-generated. Do not edit!!!\n";
     out << "#include " << headerName << "\n";
@@ -454,16 +452,16 @@ int main(int argc, char** argv) {
         THolder<IOutputStream> jsonOut;
 
         if (!outputFileName.empty()) {
-            NFs::Remove(outputFileName);
-            hOut.Reset(new TFileOutput(outputFileName));
+            NFs::Remove(outputFileName.c_str());
+            hOut.Reset(new TFileOutput(outputFileName.c_str()));
             out = hOut.Get();
 
             if (!outputHeaderFileName.empty()) {
-                headerOut.Reset(new TFileOutput(outputHeaderFileName));
+                headerOut.Reset(new TFileOutput(outputHeaderFileName.c_str()));
             }
 
             if (!outputJsonFileName.empty()) {
-                jsonOut.Reset(new TFileOutput(outputJsonFileName));
+                jsonOut.Reset(new TFileOutput(outputJsonFileName.c_str()));
             }
         }
 
@@ -498,7 +496,7 @@ int main(int argc, char** argv) {
 
         return 0;
     } catch (...) {
-        std::cerr << CurrentExceptionMessage() << std::endl;
+        Cerr << CurrentExceptionMessage() << Endl;
     }
 
     return 1;

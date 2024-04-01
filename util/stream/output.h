@@ -273,6 +273,10 @@ namespace NPrivate {
  */
 #define Cerr (::NPrivate::StdErrStream())
 
+/**
+ * Standard log stream.
+ */
+#define Clog Cerr
 
 /**
  * End-of-line output manipulator, basically the same as `std::endl`.

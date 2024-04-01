@@ -211,18 +211,18 @@ static TStatus DeleteDocumentWithTimestamp(TSession session, const std::string& 
 void AddDocument(TTableClient client, const std::string& path, const std::string& url,
     const std::string& html, const ui64 timestamp)
 {
-    std::cout << "> AddDocument:" << std::endl
-         << " Url: " << url << std::endl
-         << " Timestamp: " << timestamp << std::endl;
+    Cout << "> AddDocument:" << Endl
+         << " Url: " << url << Endl
+         << " Timestamp: " << timestamp << Endl;
 
     ThrowOnError(client.RetryOperationSync([path, url, html, timestamp](TSession session) {
         return AddDocumentTransaction(session, path, url, html, timestamp);
     }));
-    std::cout << std::endl;
+    Cout << Endl;
 }
 
 void ReadDocument(TTableClient client, const std::string& path, const std::string& url) {
-    std::cout << "> ReadDocument \"" << url << "\":" << std::endl;
+    Cout << "> ReadDocument \"" << url << "\":" << Endl;
     std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, url, &resultSet] (TSession session) {
         return ReadDocumentTransaction(session, path, url, resultSet);
@@ -230,18 +230,18 @@ void ReadDocument(TTableClient client, const std::string& path, const std::strin
 
     TResultSetParser parser(*resultSet);
     if (parser.TryNextRow()) {
-        std::cout << " DocId: " << ToString(parser.ColumnParser("doc_id").GetOptionalUint64()) << std::endl
-            << " Url: " << ToString(parser.ColumnParser("url").GetOptionalUtf8()) << std::endl
-            << " Timestamp: " << ToString(parser.ColumnParser("timestamp").GetOptionalUint64()) << std::endl
-            << " Html: " << ToString(parser.ColumnParser("html").GetOptionalUtf8()) << std::endl;
+        Cout << " DocId: " << parser.ColumnParser("doc_id").GetOptionalUint64() << Endl
+            << " Url: " << parser.ColumnParser("url").GetOptionalUtf8() << Endl
+            << " Timestamp: " << parser.ColumnParser("timestamp").GetOptionalUint64() << Endl
+            << " Html: " << parser.ColumnParser("html").GetOptionalUtf8() << Endl;
     } else {
-        std::cout << " Not found" << std::endl;
+        Cout << " Not found" << Endl;
     }
-    std::cout << std::endl;
+    Cout << Endl;
 }
 
 void DeleteExpired(TTableClient client, const std::string& path, const ui32 queue, const ui64 timestamp) {
-    std::cout << "> DeleteExpired from queue #" << queue << ":" << std::endl;
+    Cout << "> DeleteExpired from queue #" << queue << ":" << Endl;
     bool empty = false;
     ui64 lastTimestamp = 0;
     ui64 lastDocId = 0;
@@ -257,14 +257,14 @@ void DeleteExpired(TTableClient client, const std::string& path, const ui32 queu
             empty = false;
             lastDocId  = *parser.ColumnParser("doc_id").GetOptionalUint64();
             lastTimestamp = *parser.ColumnParser("timestamp").GetOptionalUint64();
-            std::cout << " DocId: " << lastDocId << " Timestamp: " << lastTimestamp << std::endl;
+            Cout << " DocId: " << lastDocId << " Timestamp: " << lastTimestamp << Endl;
 
             ThrowOnError(client.RetryOperationSync([path, queue, lastDocId, lastTimestamp] (TSession session) {
                 return DeleteDocumentWithTimestamp(session, path, queue, lastDocId, lastTimestamp);
             }));
         }
     }
-    std::cout << std::endl;
+    Cout << Endl;
 }
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -311,7 +311,7 @@ bool Run(const TDriver& driver, const std::string& path) {
         ReadDocument(client, path, "https://ya.ru/");
     }
     catch (const TYdbErrorException& e) {
-        std::cerr << "Execution failed due to fatal error:" << std::endl;
+        Cerr << "Execution failed due to fatal error:" << Endl;
         PrintStatus(e.Status);
         return false;
     }

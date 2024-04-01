@@ -1,12 +1,10 @@
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <iostream>
-
 namespace NSubjectTests {
     class TAlwaysTearDownFixture : public NUnitTest::TBaseFixture {
     public:
         void TearDown(NUnitTest::TTestContext&) override {
-            std::cerr << Name_ << ": TearDown is ran" << std::endl;
+            Cerr << Name_ << ": TearDown is ran" << Endl;
         }
     };
 
@@ -17,7 +15,7 @@ namespace NSubjectTests {
         }
 
         void TearDown(NUnitTest::TTestContext&) override {
-            std::cerr << Name_ << ": TearDown is ran" << std::endl;
+            Cerr << Name_ << ": TearDown is ran" << Endl;
         }
     };
 

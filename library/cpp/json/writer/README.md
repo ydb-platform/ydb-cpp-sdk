@@ -10,7 +10,7 @@ Use it like this:
     json.BeginList()
         .WriteString("<script>")
         .EndList();
-    std::cout << json.Str(); // output: ["\u003Cscript\u003E"]
+    Cout << json.Str(); // output: ["\u003Cscript\u003E"]
 
 For compatibility with legacy formats where object keys
 are not quoted, use CompatWriteKeyWithoutQuotes:
@@ -20,4 +20,4 @@ are not quoted, use CompatWriteKeyWithoutQuotes:
         .CompatWriteKeyWithoutQuotes("r").WriteInt(1)
         .CompatWriteKeyWithoutQuotes("n").WriteInt(0)
     .EndObject();
-    std::cout << json.Str(); // output: {r:1,n:0}
+    Cout << json.Str(); // output: {r:1,n:0}

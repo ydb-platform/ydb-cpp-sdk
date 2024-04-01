@@ -9,7 +9,7 @@ std::optional<TApplication> App;
 
 void StopHandler(int)
 {
-    std::cout << "Stopping session" << std::endl;
+    Cout << "Stopping session" << Endl;
     if (App) {
         App->Stop();
     } else {
@@ -25,10 +25,10 @@ int main(int argc, const char* argv[])
     TOptions options(argc, argv);
 
     App.emplace(options);
-    std::cout << "Application initialized" << std::endl;
+    Cout << "Application initialized" << Endl;
 
     App->Run();
-    std::cout << "Event loop completed" << std::endl;
+    Cout << "Event loop completed" << Endl;
 
     App->Finalize();
 }

@@ -14,7 +14,7 @@
  * };
  *
  * // In your code:
- * std::cerr << "TMyClass instances in use: " << TMyClass::ObjectCount() << std::endl;
+ * Cerr << "TMyClass instances in use: " << TMyClass::ObjectCount() << Endl;
  * \endcode
  */
 template <class T>

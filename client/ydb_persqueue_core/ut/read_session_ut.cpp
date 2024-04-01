@@ -526,7 +526,7 @@ public:
     void Post(TFunction&& f) override {
         {
             std::lock_guard guard(Lock);
-            std::cerr << "Post function" << std::endl;
+            Cerr << "Post function" << Endl;
             ++TasksAdded;
             if (Functions.empty()) {
                 Functions.reserve(CycleCount);
@@ -686,7 +686,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TCreatePartitionStreamEvent);
             std::get<TReadSessionEvent::TCreatePartitionStreamEvent>(*event).Confirm();
-            std::cerr << "create event " << DebugString(*event) << std::endl;
+            Cerr << "create event " << DebugString(*event) << Endl;
         }
         // Event 2: data.
         {
@@ -698,7 +698,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
             for (auto& msg : dataEvent.GetMessages()) {
                 UNIT_ASSERT(msg.GetData() == "message1" || msg.GetData() == "message2");
             }
-            std::cerr << "data event " << DebugString(*event) << std::endl;
+            Cerr << "data event " << DebugString(*event) << Endl;
             if (commit) {
                 dc.Add(dataEvent);
             }
@@ -714,7 +714,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
             for (auto& msg : dataEvent.GetMessages()) {
                 UNIT_ASSERT(msg.GetData() == "message3");
             }
-            std::cerr << "data event " << DebugString(*event) << std::endl;
+            Cerr << "data event " << DebugString(*event) << Endl;
 
             dataEvent.Commit(); // Commit right now!
         }
@@ -729,14 +729,14 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         if (commit) {  // (commit && close) branch check is broken with current TReadSession::Close quick fix
             std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(!close); // Event is expected to be already in queue if closed.
             UNIT_ASSERT(event);
-            std::cerr << "commit ack or close event " << DebugString(*event) << std::endl;
+            Cerr << "commit ack or close event " << DebugString(*event) << Endl;
             UNIT_ASSERT(std::holds_alternative<TReadSessionEvent::TCommitAcknowledgementEvent>(*event) || std::holds_alternative<TSessionClosedEvent>(*event));
         }
 
         if (close && !commit) {
             std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(false);
             UNIT_ASSERT(event);
-            std::cerr << "close event " << DebugString(*event) << std::endl;
+            Cerr << "close event " << DebugString(*event) << Endl;
             UNIT_ASSERT(std::holds_alternative<TSessionClosedEvent>(*event));
             UNIT_ASSERT_STRING_CONTAINS(DebugString(*event), "Session was gracefully closed");
         }
@@ -769,7 +769,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         std::optional<TReadSessionEvent::TEvent> event =                \
             session->GetEvent(true);                                    \
         UNIT_ASSERT(event);                                             \
-        std::cerr << DebugString(*event) << std::endl;                            \
+        Cerr << DebugString(*event) << Endl;                            \
         UNIT_ASSERT_EVENT_TYPE(*event, TSessionClosedEvent);            \
         /**/
 
@@ -805,7 +805,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
         std::shared_ptr<IReadSession> session = setup.GetPersQueueClient().CreateReadSession(settings);
         std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
         UNIT_ASSERT(event);
-        std::cerr << DebugString(*event) << std::endl;
+        Cerr << DebugString(*event) << Endl;
         UNIT_ASSERT_EVENT_TYPE(*event, TSessionClosedEvent);
     }
 
@@ -820,7 +820,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
             std::shared_ptr<IReadSession> session = setup.GetPersQueueClient().CreateReadSession(settings);
             std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
-            std::cerr << DebugString(*event) << std::endl;
+            Cerr << DebugString(*event) << Endl;
             UNIT_ASSERT_NOT_EVENT_TYPE(*event, TSessionClosedEvent);
         }
 
@@ -830,7 +830,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
             std::shared_ptr<IReadSession> session = setup.GetPersQueueClient().CreateReadSession(settings);
             std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
-            std::cerr << DebugString(*event) << std::endl;
+            Cerr << DebugString(*event) << Endl;
             UNIT_ASSERT_EVENT_TYPE(*event, TSessionClosedEvent);
         }
 
@@ -840,7 +840,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
             std::shared_ptr<IReadSession> session = setup.GetPersQueueClient().CreateReadSession(settings);
             std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
-            std::cerr << DebugString(*event) << std::endl;
+            Cerr << DebugString(*event) << Endl;
             UNIT_ASSERT_EVENT_TYPE(*event, TSessionClosedEvent);
         }
     }
@@ -856,7 +856,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TCreatePartitionStreamEvent);
             std::get<TReadSessionEvent::TCreatePartitionStreamEvent>(*event).Confirm();
-            std::cerr << DebugString(*event) << std::endl;
+            Cerr << DebugString(*event) << Endl;
         }
 
         // Event 2: receive data.
@@ -867,7 +867,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
             TReadSessionEvent::TDataReceivedEvent& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(*event);
             UNIT_ASSERT_VALUES_EQUAL(dataEvent.GetMessages().size(), 1);
             UNIT_ASSERT_VALUES_EQUAL(dataEvent.GetMessages()[0].GetData(), content);
-            std::cerr << DebugString(*event) << std::endl;
+            Cerr << DebugString(*event) << Endl;
             return event;
         };
 
@@ -893,7 +893,7 @@ Y_UNIT_TEST_SUITE(PersQueueSdkReadSessionTest) {
             std::optional<TReadSessionEvent::TEvent> event = session->GetEvent(true);
             UNIT_ASSERT(event);
             Y_ASSERT(std::holds_alternative<TReadSessionEvent::TCommitAcknowledgementEvent>(*event));
-            std::cerr << DebugString(*event) << std::endl;
+            Cerr << DebugString(*event) << Endl;
         }
 
         auto eventFuture = session->WaitEvent();
@@ -1221,7 +1221,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
             auto& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(*event);
-            std::cerr << dataEvent.DebugString() << "\n";
+            Cerr << dataEvent.DebugString() << "\n";
             UNIT_ASSERT_VALUES_EQUAL(dataEvent.GetMessages().size(), 3);
             UNIT_ASSERT_EXCEPTION(dataEvent.GetMessages()[0].GetData(), TZLibDecompressorError);
             UNIT_ASSERT_VALUES_EQUAL(dataEvent.GetMessages()[1].GetData(), "message2");
@@ -1316,8 +1316,8 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
 
         const std::string messageData = GenerateMessageData(messageSize);
         const std::string compressedMessageData = Compress(messageData);
-        std::cerr << "Message data size: " << messageData.size() << std::endl;
-        std::cerr << "Compressed message data size: " << compressedMessageData.size() << std::endl;
+        Cerr << "Message data size: " << messageData.size() << Endl;
+        Cerr << "Compressed message data size: " << compressedMessageData.size() << Endl;
         ui64 offset = 1;
         ui64 seqNo = 42;
         THashSet<ui64> committedCookies;
@@ -1328,7 +1328,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
                     committedCookies.insert(commit.partition_cookie());
                 }
                 for (const auto& range : req.offset_ranges()) {
-                    std::cerr << "GOT RANGE " << range.start_offset() << " " << range.end_offset() << "\n";
+                    Cerr << "GOT RANGE " << range.start_offset() << " " << range.end_offset() << "\n";
                     for (ui64 i = range.start_offset(); i < range.end_offset(); ++i) {
                         committedOffsets.insert(i);
                     }
@@ -1350,11 +1350,11 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         ui64 prevOffset = 0;
         ui64 prevSeqNo = 41;
         for (size_t i = 0; i < batches; ++i) {
-            std::cerr << "Getting new event" << std::endl;
+            Cerr << "Getting new event" << Endl;
             std::optional<TReadSessionEvent::TEvent> event = setup.EventsQueue->GetEvent(true, batchLimit);
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
-            std::cerr << DebugString(*event) << std::endl;
+            Cerr << DebugString(*event) << Endl;
             auto& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(*event);
             UNIT_ASSERT_VALUES_EQUAL(dataEvent.GetMessages().size(), messagesInBatch);
             for (const auto& message : dataEvent.GetMessages()) {
@@ -1563,7 +1563,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         bool has2 = false;
         EXPECT_CALL(*setup.MockProcessor, OnCommitRequest(_))
             .WillRepeatedly(Invoke([&](const Ydb::PersQueue::V1::MigrationStreamingReadClientMessage::Commit& req) {
-                std::cerr << "Got commit req " << req << "\n";
+                Cerr << "Got commit req " << req << "\n";
                 for (const auto& commit : req.cookies()) {
                     if (commit.partition_cookie() == 1) {
                         has1 = true;
@@ -1574,7 +1574,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
                     }
                 }
                 for (const auto& range : req.offset_ranges()) {
-                    std::cerr << "RANGE " << range.start_offset() << " " << range.end_offset() << "\n";
+                    Cerr << "RANGE " << range.start_offset() << " " << range.end_offset() << "\n";
                     if (range.start_offset() == 10 && range.end_offset() == 12) has1 = true;
                     else if (range.start_offset() == 0 && range.end_offset() == 10) has2 = true;
                     else UNIT_ASSERT(false);
@@ -1586,7 +1586,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
             UNIT_ASSERT(event);
             UNIT_ASSERT_EVENT_TYPE(*event, TReadSessionEvent::TDataReceivedEvent);
             TReadSessionEvent::TDataReceivedEvent& dataEvent = std::get<TReadSessionEvent::TDataReceivedEvent>(*event);
-            std::cerr << "got data event: " << dataEvent.DebugString() << "\n";
+            Cerr << "got data event: " << dataEvent.DebugString() << "\n";
             dataEvent.Commit();
 
             i += dataEvent.GetMessagesCount();
@@ -1628,7 +1628,7 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         settings.EventHandlers_.SimpleDataHandlers([&](TReadSessionEvent::TDataReceivedEvent& event) {
             for (auto& message: event.GetMessages()) {
                 ++time;
-                std::cerr << "GOT MESSAGE: " << message.DebugString(true) << "\n";
+                Cerr << "GOT MESSAGE: " << message.DebugString(true) << "\n";
                 UNIT_ASSERT_VALUES_EQUAL(message.GetData(), TYdbStringBuilder() << "message" << time);
                 if (time == 3) {
                     calledPromise.SetValue();

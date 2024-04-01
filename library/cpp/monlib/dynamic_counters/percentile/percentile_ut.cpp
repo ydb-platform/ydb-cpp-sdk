@@ -3,8 +3,6 @@
 #include <library/cpp/testing/unittest/registar.h>
 #include <util/datetime/cputimer.h>
 
-#include <iostream>
-
 using namespace NMonitoring;
 
 Y_UNIT_TEST_SUITE(PercentileTest) {
@@ -12,14 +10,14 @@ Y_UNIT_TEST_SUITE(PercentileTest) {
 template<size_t A, size_t B, size_t B_BEGIN>
 void PrintSizeAndLimit() {
     using TPerc = TPercentileTrackerLg<A, B, 15>;
-    std::cout << "TPercentileTrackerLg<" << A << ", " << B << ", 15>"
+    Cout << "TPercentileTrackerLg<" << A << ", " << B << ", 15>"
         << "; sizeof# " << LeftPad(HumanReadableSize(sizeof(TPerc), SF_BYTES), 7)
         << "; max_granularity# " << LeftPad(HumanReadableSize(TPerc::MAX_GRANULARITY, SF_QUANTITY), 5)
-        << "; limit# " << LeftPad(HumanReadableSize(TPerc::TRACKER_LIMIT , SF_QUANTITY), 5) << std::endl;
+        << "; limit# " << LeftPad(HumanReadableSize(TPerc::TRACKER_LIMIT , SF_QUANTITY), 5) << Endl;
     if constexpr (B > 1) {
         PrintSizeAndLimit<A, B - 1, B_BEGIN>();
     } else if constexpr (A > 1) {
-        std::cout << std::endl;
+        Cout << Endl;
         PrintSizeAndLimit<A - 1, B_BEGIN, B_BEGIN>();
     }
 }

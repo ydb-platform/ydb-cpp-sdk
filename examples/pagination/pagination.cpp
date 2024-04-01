@@ -22,8 +22,8 @@ static void ThrowOnError(const TStatus& status) {
 }
 
 static void PrintStatus(const TStatus& status) {
-    std::cerr << "Status: " << ToString(status.GetStatus()) << std::endl;
-    std::cerr << status.GetIssues().ToString();
+    Cerr << "Status: " << status.GetStatus() << Endl;
+    status.GetIssues().PrintTo(Cerr);
 }
 
 static std::string JoinPath(const std::string& basePath, const std::string& path) {
@@ -150,7 +150,7 @@ bool SelectPaging(TTableClient client, const std::string& path, ui64 pageLimit, 
     do {
         lastCity = parser.ColumnParser("city").GetOptionalUtf8().value();
         lastNumber = parser.ColumnParser("number").GetOptionalUint32().value();
-        std::cout << lastCity << ", Школа №" << lastNumber << ", Адрес: " << ToString(parser.ColumnParser("address").GetOptionalUtf8()) << std::endl;
+        Cout << lastCity << ", Школа №" << lastNumber << ", Адрес: " << parser.ColumnParser("address").GetOptionalUtf8() << Endl;
     } while (parser.TryNextRow());
     return true;
 }
@@ -171,17 +171,17 @@ bool Run(const TDriver& driver, const std::string& path) {
         ui32 page = 0;
         bool pageNotEmpty = true;
 
-        std::cout << "> Pagination, Limit=" << limit << std::endl;
+        Cout << "> Pagination, Limit=" << limit << Endl;
 
         // show first MaxPages=10 pages:
         while (pageNotEmpty && page <= MaxPages) {
             ++page;
-            std::cout << "> Page " << page << ":" << std::endl;
+            Cout << "> Page " << page << ":" << Endl;
             pageNotEmpty = SelectPaging(client, path, limit, lastCity, lastNumber);
         }
     }
     catch (const TYdbErrorException& e) {
-        std::cerr << "Execution failed due to fatal error:" << std::endl;
+        Cerr << "Execution failed due to fatal error:" << Endl;
         PrintStatus(e.Status);
         return false;
     }

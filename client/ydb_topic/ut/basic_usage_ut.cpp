@@ -78,7 +78,7 @@ void WriteAndReadToEndWithRestarts(TReadSessionSettings readSettings, TWriteSess
         [&]
         (TReadSessionEvent::TDataReceivedEvent& ev) mutable {
         AtomicSet(lastOffset, ev.GetMessages().back().GetOffset());
-        std::cerr << ">>> TEST: last offset = " << lastOffset << std::endl;
+        Cerr << ">>> TEST: last offset = " << lastOffset << Endl;
     });
 
     ReadSession = topicClient.CreateReadSession(readSettings);
@@ -143,24 +143,24 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
                         .Path(TEST_TOPIC)
                         .ProducerId(TEST_MESSAGE_GROUP_ID)
                         .MessageGroupId(TEST_MESSAGE_GROUP_ID);
-            std::cerr << ">>> open write session " << i << std::endl;
+            Cerr << ">>> open write session " << i << Endl;
             auto writeSession = client.CreateSimpleBlockingWriteSession(writeSettings);
             UNIT_ASSERT(writeSession->Write("message_using_MessageGroupId"));
-            std::cerr << ">>> write session " << i << " message written" << std::endl;
+            Cerr << ">>> write session " << i << " message written" << Endl;
             writeSession->Close();
-            std::cerr << ">>> write session " << i << " closed" << std::endl;
+            Cerr << ">>> write session " << i << " closed" << Endl;
         }
         {
             auto writeSettings = TWriteSessionSettings()
                         .Path(TEST_TOPIC)
                         .ProducerId(TEST_MESSAGE_GROUP_ID)
                         .PartitionId(0);
-            std::cerr << ">>> open write session 100" << std::endl;
+            Cerr << ">>> open write session 100" << Endl;
             auto writeSession = client.CreateSimpleBlockingWriteSession(writeSettings);
             UNIT_ASSERT(writeSession->Write("message_using_PartitionId"));
-            std::cerr << ">>> write session 100 message written" << std::endl;
+            Cerr << ">>> write session 100 message written" << Endl;
             writeSession->Close();
-            std::cerr << ">>> write session 100 closed" << std::endl;
+            Cerr << ">>> write session 100 closed" << Endl;
         }
 
         {
@@ -278,7 +278,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             if (shouldCaptureData.Defined()) {
                 TYdbStringBuilder msg;
                 msg << "Session has captured " << sessionAdapter.GetAcquiredMessagesCount()
-                    << " messages, capturing was expected: " << *shouldCaptureData << std::endl;
+                    << " messages, capturing was expected: " << *shouldCaptureData << Endl;
                 UNIT_ASSERT_VALUES_EQUAL_C(sessionAdapter.GetAcquiredMessagesCount() > 0, *shouldCaptureData, msg.c_str());
             }
         }
@@ -296,7 +296,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             .MaxMemoryUsageBytes(1_MB)
             .AppendTopics(setup->GetTestTopic());
 
-        std::cerr << "Session was created" << std::endl;
+        Cerr << "Session was created" << Endl;
 
         NThreading::TPromise<void> checkedPromise = NThreading::NewPromise<void>();
         auto totalReceived = 0u;
@@ -405,7 +405,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
                 writeSession->Close(TDuration::Seconds(10));
             }
             promiseToWrite.SetValue();
-            std::cerr << ">>>TEST: write promise set " << std::endl;
+            Cerr << ">>>TEST: write promise set " << Endl;
 
             {
                 NThreading::TPromise<void> promise = NThreading::NewPromise<void>();
@@ -415,7 +415,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
                     [promise = std::move(promise)](TReadSessionEvent::TDataReceivedEvent& ev) mutable {
                     ev.Commit();
                     promise.SetValue();
-                    std::cerr << ">>>TEST: get read event " << std::endl;
+                    Cerr << ">>>TEST: get read event " << Endl;
                 });
 
                 auto readSession = topicClient.CreateReadSession(readSettings);
@@ -423,7 +423,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
                 readSession->Close(TDuration::Seconds(10));
             }
             promiseToRead.SetValue();
-            std::cerr << ">>>TEST: read promise set " << std::endl;
+            Cerr << ">>>TEST: read promise set " << Endl;
         });
 
 
@@ -444,31 +444,31 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         auto RunTasks = [&](auto e, const std::vector<size_t>& tasks) {
             size_t n = tasks.size();
-            std::cerr << ">>>TEST in RunTasks: before WaitPlannedTasks" << std::endl;
+            Cerr << ">>>TEST in RunTasks: before WaitPlannedTasks" << Endl;
             WaitPlannedTasks(e, n);
-            std::cerr << ">>>TEST in RunTasks: before WaitExecutedTasks" << std::endl;
+            Cerr << ">>>TEST in RunTasks: before WaitExecutedTasks" << Endl;
             size_t completed = e->GetExecutedCount();
             e->StartFuncs(tasks);
             WaitExecutedTasks(e, completed + n);
         };
 
         UNIT_ASSERT(!futureWrite.HasValue());
-        std::cerr << ">>>TEST: future write has no value " << std::endl;
+        Cerr << ">>>TEST: future write has no value " << Endl;
         RunTasks(stepByStepExecutor, {0});
         futureWrite.GetValueSync();
         UNIT_ASSERT(futureWrite.HasValue());
-        std::cerr << ">>>TEST: future write has value " << std::endl;
+        Cerr << ">>>TEST: future write has value " << Endl;
 
         UNIT_ASSERT(!futureRead.HasValue());
-        std::cerr << ">>>TEST: future read has no value " << std::endl;
+        Cerr << ">>>TEST: future read has no value " << Endl;
         RunTasks(stepByStepExecutor, {1});
         futureRead.GetValueSync();
         UNIT_ASSERT(futureRead.HasValue());
-        std::cerr << ">>>TEST: future read has value " << std::endl;
+        Cerr << ">>>TEST: future read has value " << Endl;
 
         f.get();
 
-        std::cerr << ">>> TEST: gracefully closed" << std::endl;
+        Cerr << ">>> TEST: gracefully closed" << Endl;
     }
 
     Y_UNIT_TEST(SessionNotDestroyedWhileUserEventHandlingInFlight) {
@@ -516,7 +516,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             // {
             //     std::shared_ptr<TContinuationToken> token;
             //     writeSettings.EventHandlers_.CommonHandler([token](TWriteSessionEvent::TEvent& event){
-            //         std::cerr << ">>>TEST: in CommonHandler " << std::endl;
+            //         Cerr << ">>>TEST: in CommonHandler " << Endl;
 
             //         if (std::holds_alternative<TWriteSessionEvent::TReadyToAcceptEvent>(event)) {
             //             *token = std::move(std::get<TWriteSessionEvent::TReadyToAcceptEvent>(event).ContinuationToken);
@@ -531,7 +531,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             //     writeSession->Close(TDuration::Seconds(10));
             // }
             // promiseToWrite.SetValue();
-            // std::cerr << ">>>TEST: write promise set " << std::endl;
+            // Cerr << ">>>TEST: write promise set " << Endl;
 
             {
                 NThreading::TPromise<void> promise = NThreading::NewPromise<void>();
@@ -539,7 +539,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
                 readSettings.EventHandlers_.SimpleDataHandlers(
                     [promise = std::move(promise)](TReadSessionEvent::TDataReceivedEvent& ev) mutable {
-                    std::cerr << ">>>TEST: in SimpleDataHandlers " << std::endl;
+                    Cerr << ">>>TEST: in SimpleDataHandlers " << Endl;
                     ev.Commit();
                     promise.SetValue();
                 });
@@ -549,7 +549,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
                 readSession->Close(TDuration::Seconds(10));
             }
             promiseToRead.SetValue();
-            std::cerr << ">>>TEST: read promise set " << std::endl;
+            Cerr << ">>>TEST: read promise set " << Endl;
         });
 
 
@@ -570,9 +570,9 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         auto RunTasks = [&](auto e, const std::vector<size_t>& tasks) {
             size_t n = tasks.size();
-            std::cerr << ">>>TEST in RunTasks: before WaitPlannedTasks" << std::endl;
+            Cerr << ">>>TEST in RunTasks: before WaitPlannedTasks" << Endl;
             WaitPlannedTasks(e, n);
-            std::cerr << ">>>TEST in RunTasks: before WaitExecutedTasks" << std::endl;
+            Cerr << ">>>TEST in RunTasks: before WaitExecutedTasks" << Endl;
             size_t completed = e->GetExecutedCount();
             e->StartFuncs(tasks);
             WaitExecutedTasks(e, completed + n);
@@ -580,25 +580,25 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         // RunTasks(stepByStepExecutor, {0});
         // UNIT_ASSERT(!futureWrite.HasValue());
-        // std::cerr << ">>>TEST: future write has no value " << std::endl;
+        // Cerr << ">>>TEST: future write has no value " << Endl;
         // RunTasks(stepByStepExecutor, {1});
         // futureWrite.GetValueSync();
         // UNIT_ASSERT(futureWrite.HasValue());
-        // std::cerr << ">>>TEST: future write has value " << std::endl;
+        // Cerr << ">>>TEST: future write has value " << Endl;
 
         UNIT_ASSERT(!futureRead.HasValue());
-        std::cerr << ">>>TEST: future read has no value " << std::endl;
+        Cerr << ">>>TEST: future read has no value " << Endl;
         // 0: TStartPartitionSessionEvent
         RunTasks(stepByStepExecutor, {0});
         // 1: TDataReceivedEvent
         RunTasks(stepByStepExecutor, {1});
         futureRead.GetValueSync();
         UNIT_ASSERT(futureRead.HasValue());
-        std::cerr << ">>>TEST: future read has value " << std::endl;
+        Cerr << ">>>TEST: future read has value " << Endl;
 
         f.get();
 
-        std::cerr << ">>> TEST: gracefully closed" << std::endl;
+        Cerr << ">>> TEST: gracefully closed" << Endl;
     }
 
     Y_UNIT_TEST(ReadSessionCorrectClose) {
@@ -640,11 +640,11 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         readSettings.EventHandlers_.SimpleDataHandlers(
             []
             (NYdb::NTopic::TReadSessionEvent::TDataReceivedEvent& ev) mutable {
-                std::cerr << ">>> Got TDataReceivedEvent" << std::endl;
+                Cerr << ">>> Got TDataReceivedEvent" << Endl;
                 ev.Commit();
         });
 
-        std::cerr << ">>> TEST: Create session" << std::endl;
+        Cerr << ">>> TEST: Create session" << Endl;
 
         ReadSession = topicClient.CreateReadSession(readSettings);
 
@@ -652,7 +652,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         ReadSession->Close();
         ReadSession = nullptr;
-        std::cerr << ">>> TEST: Session gracefully closed" << std::endl;
+        Cerr << ">>> TEST: Session gracefully closed" << Endl;
 
         Sleep(TDuration::Seconds(5));
 
