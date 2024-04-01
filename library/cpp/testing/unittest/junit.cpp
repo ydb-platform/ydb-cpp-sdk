@@ -25,8 +25,6 @@
 #include <io.h>
 #endif
 
-#include <fstream>
-#include <iostream>
 #include <string_view>
 
 namespace NUnitTest {
