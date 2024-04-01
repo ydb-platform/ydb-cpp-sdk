@@ -51,12 +51,12 @@
 
 template <typename TCharType, typename TCharTraits>
 void PrintTo(const std::basic_string<TCharType, TCharTraits>& value, std::ostream* stream) {
-    *stream << NUtils::Quote(value).c_str();
+    *stream << NUtils::Quote(value);
 }
 
 // template <typename TCharType, typename TCharTraits>
 // void PrintTo(std::basic_string_view<TCharType, TCharTraits> value, std::ostream* stream) {
-//     *stream << NUtils::Quote(std::basic_string<TCharType, TCharTraits>{value}).c_str();
+//     *stream << NUtils::Quote(std::basic_string<TCharType, TCharTraits>{value});
 // }
 
 template <typename T>
