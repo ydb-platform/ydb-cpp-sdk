@@ -42,10 +42,6 @@
 #include <string>
 #include <iostream>
 
-#include <format>
-#include <string>
-#include <iostream>
-
 #if defined(_win_)
     #include <fcntl.h>
     #include <io.h>
