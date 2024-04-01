@@ -38,7 +38,7 @@ If you ok with this warning, then...
 - libidn11-dev (IDN)
 - libiconv (Iconv)
 
-## Testing requirements
+## Testing
 
 - gtest
 - gmock
