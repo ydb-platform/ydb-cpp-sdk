@@ -133,7 +133,7 @@ struct TJUnitProcessor::TOutputCapturer {
             try {
                 constexpr size_t LIMIT = 10_KB;
                 constexpr size_t PART_LIMIT = 5_KB;
-                TYdbStringBuilder out;
+                TStringBuilder out;
                 if (static_cast<size_t>(len) <= LIMIT) {
                     out.resize(len);
                     captured.Read((void*)out.data(), len);
