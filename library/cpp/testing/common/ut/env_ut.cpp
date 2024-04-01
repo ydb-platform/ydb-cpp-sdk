@@ -4,7 +4,6 @@
 
 #include <util/folder/dirut.h>
 #include <util/stream/file.h>
-#include <util/system/env.h>
 #include <util/system/execpath.h>
 #include <util/system/fs.h>
 

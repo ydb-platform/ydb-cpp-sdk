@@ -1,5 +1,7 @@
 #include "junit.h"
 
+#include <library/cpp/testing/common/env_var.h>
+
 #include <library/cpp/json/json_reader.h>
 #include <library/cpp/json/writer/json.h>
 #include <library/cpp/json/writer/json_value.h>
@@ -10,7 +12,6 @@
 #include <util/stream/file.h>
 #include <util/stream/input.h>
 #include <util/system/backtrace.h>
-#include <util/system/env.h>
 #include <util/system/file.h>
 #include <util/system/fs.h>
 #include <util/system/file.h>
@@ -24,7 +25,11 @@
 #include <io.h>
 #endif
 
+#include <string_view>
+
 namespace NUnitTest {
+
+using namespace std::string_view_literals;
 
 extern const std::string Y_UNITTEST_OUTPUT_CMDLINE_OPTION = "Y_UNITTEST_OUTPUT";
 extern const std::string Y_UNITTEST_TEST_FILTER_FILE_OPTION = "Y_UNITTEST_FILTER_FILE";
@@ -39,7 +44,7 @@ static bool IsAllowed(wchar32 c) {
         || c >= 0x10000 && c <= 0x10FFFF;
 }
 
-static std::string SanitizeString(std::string s) {
+static std::string SanitizeString(std::string_view s) {
     std::string escaped;
     bool fixedSomeChars = false;
     const unsigned char* i = reinterpret_cast<const unsigned char*>(s.data());
@@ -73,7 +78,7 @@ static std::string SanitizeString(std::string s) {
     if (fixedSomeChars) {
         return escaped;
     } else {
-        return s;
+        return std::string(s);
     }
 }
 
@@ -128,7 +133,7 @@ struct TJUnitProcessor::TOutputCapturer {
             try {
                 constexpr size_t LIMIT = 10_KB;
                 constexpr size_t PART_LIMIT = 5_KB;
-                TYdbStringBuilder out;
+                TStringBuilder out;
                 if (static_cast<size_t>(len) <= LIMIT) {
                     out.resize(len);
                     captured.Read((void*)out.data(), len);
@@ -138,7 +143,7 @@ struct TJUnitProcessor::TOutputCapturer {
                         std::string first;
                         first.resize(PART_LIMIT);
                         captured.Read((void*)first.data(), PART_LIMIT);
-                        size_t lastNewLine = first.find_last_of('\n');
+                        const auto lastNewLine = first.find_last_of('\n');
                         if (lastNewLine == std::string::npos) {
                             out << first << Endl;
                         } else {
@@ -154,7 +159,7 @@ struct TJUnitProcessor::TOutputCapturer {
                         last.resize(PART_LIMIT);
                         captured.Seek(-PART_LIMIT, sEnd);
                         captured.Read((void*)last.data(), PART_LIMIT);
-                        size_t newLine = last.find_first_of('\n');
+                        const auto newLine = last.find_first_of('\n');
                         if (newLine == std::string::npos) {
                             out << last << Endl;
                         } else {
@@ -237,7 +242,7 @@ void TJUnitProcessor::OnFinish(const TFinish* descr) {
 }
 
 std::string TJUnitProcessor::BuildFileName(size_t index, const std::string_view extension) const {
-    TYdbStringBuilder result;
+    TStringBuilder result;
     result << FileName << ExecName;
     if (index > 0) {
         result << "-"sv << index;
@@ -253,7 +258,7 @@ std::string_view TJUnitProcessor::GetFileExtension() const {
     case EOutputFormat::Json:
         return ".json"sv;
     }
-    return std::string_view();
+    return ""sv;
 }
 
 void TJUnitProcessor::MakeReportFileName() {
@@ -306,9 +311,9 @@ void TJUnitProcessor::SetForkTestsParams(bool forkTests, bool isForked) {
 
 void TJUnitProcessor::MakeTmpFileNameForForkedTests() {
     if (GetForkTests() && !GetIsForked()) {
-        TmpReportFile.ConstructInPlace(MakeTempName());
+        TmpReportFile.emplace(MakeTempName());
         // Replace option for child processes
-        SetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION, TYdbStringBuilder() << "json:" << TmpReportFile->Name());
+        NUtils::SetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION, TStringBuilder() << "json:" << TmpReportFile->Name());
     }
 }
 
@@ -416,7 +421,7 @@ void TJUnitProcessor::SerializeToJson() {
                     json.BeginObject();
                     json.WriteKey("message"sv).WriteString(failure.Message);
                     json.WriteKey("type"sv).WriteString("ERROR"sv);
-                    if (failure.BackTrace) {
+                    if (!failure.BackTrace.empty()) {
                         json.WriteKey("backtrace"sv).WriteString(failure.BackTrace);
                     }
                     json.EndObject();

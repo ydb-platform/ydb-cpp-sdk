@@ -1,5 +1,8 @@
 #include <library/cpp/testing/unittest/registar.h>
 
+using namespace std::string_literals;
+using namespace std::string_view_literals;
+
 Y_UNIT_TEST_SUITE(TUnitTestMacroTest) {
     Y_UNIT_TEST(Assert) {
         auto unitAssert = [] {
@@ -40,12 +43,12 @@ Y_UNIT_TEST_SUITE(TUnitTestMacroTest) {
             UNIT_ASSERT_STRINGS_EQUAL(s1, s2);
         };
         UNIT_ASSERT_TEST_FAILS(stringsEqual("q", "w"));
-        UNIT_ASSERT_TEST_FAILS(stringsEqual("q", std::string("w")));
-        UNIT_ASSERT_TEST_FAILS(stringsEqual(std::string("q"), "w"));
-        UNIT_ASSERT_TEST_FAILS(stringsEqual(std::string("a"), std::string("b")));
-        UNIT_ASSERT_TEST_FAILS(stringsEqual(std::string("a"), std::string_view("b")));
-        UNIT_ASSERT_TEST_FAILS(stringsEqual("a", std::string_view("b")));
-        UNIT_ASSERT_TEST_FAILS(stringsEqual(std::string_view("a"), "b"));
+        UNIT_ASSERT_TEST_FAILS(stringsEqual("q", "w"s));
+        UNIT_ASSERT_TEST_FAILS(stringsEqual("q"s, "w"));
+        UNIT_ASSERT_TEST_FAILS(stringsEqual("a"s, "b"s));
+        UNIT_ASSERT_TEST_FAILS(stringsEqual("a"s, "b"sv));
+        UNIT_ASSERT_TEST_FAILS(stringsEqual("a", "b"sv));
+        UNIT_ASSERT_TEST_FAILS(stringsEqual("a"sv, "b"));
 
         std::string empty;
         std::string_view emptyBuf;
@@ -84,32 +87,32 @@ Y_UNIT_TEST_SUITE(TUnitTestMacroTest) {
         };
         UNIT_ASSERT_TEST_FAILS(stringsUnequal("1", "1"));
         UNIT_ASSERT_TEST_FAILS(stringsUnequal("", ""));
-        UNIT_ASSERT_TEST_FAILS(stringsUnequal("42", std::string("42")));
-        UNIT_ASSERT_TEST_FAILS(stringsUnequal(std::string("4"), "4"));
-        UNIT_ASSERT_TEST_FAILS(stringsUnequal("d", std::string_view("d")));
-        UNIT_ASSERT_TEST_FAILS(stringsUnequal(std::string_view("yandex"), "yandex"));
-        UNIT_ASSERT_TEST_FAILS(stringsUnequal(std::string_view("index"), std::string("index")));
-        UNIT_ASSERT_TEST_FAILS(stringsUnequal(std::string("diff"), std::string_view("diff")));
+        UNIT_ASSERT_TEST_FAILS(stringsUnequal("42", "42"s));
+        UNIT_ASSERT_TEST_FAILS(stringsUnequal("4"s, "4"));
+        UNIT_ASSERT_TEST_FAILS(stringsUnequal("d", "d"sv));
+        UNIT_ASSERT_TEST_FAILS(stringsUnequal("yandex"sv, "yandex"));
+        UNIT_ASSERT_TEST_FAILS(stringsUnequal("index"sv, "index"s));
+        UNIT_ASSERT_TEST_FAILS(stringsUnequal("diff"s, "diff"sv));
 
         UNIT_ASSERT_STRINGS_UNEQUAL("1", "2");
         UNIT_ASSERT_STRINGS_UNEQUAL("", "3");
-        UNIT_ASSERT_STRINGS_UNEQUAL("green", std::string_view("red"));
-        UNIT_ASSERT_STRINGS_UNEQUAL(std::string_view("solomon"), "golovan");
-        UNIT_ASSERT_STRINGS_UNEQUAL("d", std::string("f"));
-        UNIT_ASSERT_STRINGS_UNEQUAL(std::string("yandex"), "index");
-        UNIT_ASSERT_STRINGS_UNEQUAL(std::string("mail"), std::string_view("yandex"));
-        UNIT_ASSERT_STRINGS_UNEQUAL(std::string_view("C++"), std::string("python"));
+        UNIT_ASSERT_STRINGS_UNEQUAL("green", "red"sv);
+        UNIT_ASSERT_STRINGS_UNEQUAL("solomon"sv, "golovan");
+        UNIT_ASSERT_STRINGS_UNEQUAL("d", "f"s);
+        UNIT_ASSERT_STRINGS_UNEQUAL("yandex"s, "index");
+        UNIT_ASSERT_STRINGS_UNEQUAL("mail"s, "yandex"sv);
+        UNIT_ASSERT_STRINGS_UNEQUAL("C++"sv, "python"s);
     }
 
     Y_UNIT_TEST(Equal) {
         auto equal = [](auto v1, auto v2) {
             UNIT_ASSERT_EQUAL(v1, v2);
         };
-        UNIT_ASSERT_TEST_FAILS(equal("1", std::string("2")));
+        UNIT_ASSERT_TEST_FAILS(equal("1", "2"s));
         UNIT_ASSERT_TEST_FAILS(equal(1, 2));
         UNIT_ASSERT_TEST_FAILS(equal(42ul, static_cast<unsigned short>(24)));
 
-        UNIT_ASSERT_EQUAL("abc", std::string("abc"));
+        UNIT_ASSERT_EQUAL("abc", "abc"s);
         UNIT_ASSERT_EQUAL(12l, 12);
         UNIT_ASSERT_EQUAL(55, 55);
     }
@@ -118,11 +121,11 @@ Y_UNIT_TEST_SUITE(TUnitTestMacroTest) {
         auto unequal = [](auto v1, auto v2) {
             UNIT_ASSERT_UNEQUAL(v1, v2);
         };
-        UNIT_ASSERT_TEST_FAILS(unequal("x", std::string("x")));
+        UNIT_ASSERT_TEST_FAILS(unequal("x", "x"s));
         UNIT_ASSERT_TEST_FAILS(unequal(1, 1));
         UNIT_ASSERT_TEST_FAILS(unequal(static_cast<unsigned short>(42), 42ul));
 
-        UNIT_ASSERT_UNEQUAL("abc", std::string("cba"));
+        UNIT_ASSERT_UNEQUAL("abc", "cba"s);
         UNIT_ASSERT_UNEQUAL(12l, 10);
         UNIT_ASSERT_UNEQUAL(33, 50);
     }
@@ -133,23 +136,23 @@ Y_UNIT_TEST_SUITE(TUnitTestMacroTest) {
         };
 
         // less than
-        UNIT_ASSERT_LT(std::string_view("1"), "2");
-        UNIT_ASSERT_LT("2", std::string("3"));
-        UNIT_ASSERT_LT("abc", std::string("azz"));
+        UNIT_ASSERT_LT("1"sv, "2");
+        UNIT_ASSERT_LT("2", "3"s);
+        UNIT_ASSERT_LT("abc", "azz"s);
         UNIT_ASSERT_LT(2, 4);
         UNIT_ASSERT_LT(42ul, static_cast<unsigned short>(48));
 
         // equals
-        UNIT_ASSERT_TEST_FAILS(lt(std::string_view("2"), "2"));
-        UNIT_ASSERT_TEST_FAILS(lt("2", std::string("2")));
-        UNIT_ASSERT_TEST_FAILS(lt("abc", std::string("abc")));
+        UNIT_ASSERT_TEST_FAILS(lt("2"sv, "2"));
+        UNIT_ASSERT_TEST_FAILS(lt("2", "2"s));
+        UNIT_ASSERT_TEST_FAILS(lt("abc", "abc"s));
         UNIT_ASSERT_TEST_FAILS(lt(2, 2));
         UNIT_ASSERT_TEST_FAILS(lt(42ul, static_cast<unsigned short>(42)));
 
         // greater than
-        UNIT_ASSERT_TEST_FAILS(lt(std::string_view("2"), "1"));
-        UNIT_ASSERT_TEST_FAILS(lt("3", std::string("2")));
-        UNIT_ASSERT_TEST_FAILS(lt("azz", std::string("abc")));
+        UNIT_ASSERT_TEST_FAILS(lt("2"sv, "1"));
+        UNIT_ASSERT_TEST_FAILS(lt("3", "2"s));
+        UNIT_ASSERT_TEST_FAILS(lt("azz", "abc"s));
         UNIT_ASSERT_TEST_FAILS(lt(5, 2));
         UNIT_ASSERT_TEST_FAILS(lt(100ul, static_cast<unsigned short>(42)));
     }
@@ -160,23 +163,23 @@ Y_UNIT_TEST_SUITE(TUnitTestMacroTest) {
         };
 
         // less than
-        UNIT_ASSERT_LE(std::string_view("1"), "2");
-        UNIT_ASSERT_LE("2", std::string("3"));
-        UNIT_ASSERT_LE("abc", std::string("azz"));
+        UNIT_ASSERT_LE("1"sv, "2");
+        UNIT_ASSERT_LE("2", "3"s);
+        UNIT_ASSERT_LE("abc", "azz"s);
         UNIT_ASSERT_LE(2, 4);
         UNIT_ASSERT_LE(42ul, static_cast<unsigned short>(48));
 
         // equals
-        UNIT_ASSERT_LE(std::string_view("2"), "2");
-        UNIT_ASSERT_LE("2", std::string("2"));
-        UNIT_ASSERT_LE("abc", std::string("abc"));
+        UNIT_ASSERT_LE("2"sv, "2");
+        UNIT_ASSERT_LE("2", "2"s);
+        UNIT_ASSERT_LE("abc", "abc"s);
         UNIT_ASSERT_LE(2, 2);
         UNIT_ASSERT_LE(42ul, static_cast<unsigned short>(42));
 
         // greater than
-        UNIT_ASSERT_TEST_FAILS(le(std::string_view("2"), "1"));
-        UNIT_ASSERT_TEST_FAILS(le("3", std::string("2")));
-        UNIT_ASSERT_TEST_FAILS(le("azz", std::string("abc")));
+        UNIT_ASSERT_TEST_FAILS(le("2"sv, "1"));
+        UNIT_ASSERT_TEST_FAILS(le("3", "2"s));
+        UNIT_ASSERT_TEST_FAILS(le("azz", "abc"s));
         UNIT_ASSERT_TEST_FAILS(le(5, 2));
         UNIT_ASSERT_TEST_FAILS(le(100ul, static_cast<unsigned short>(42)));
     }
@@ -187,23 +190,23 @@ Y_UNIT_TEST_SUITE(TUnitTestMacroTest) {
         };
 
         // less than
-        UNIT_ASSERT_TEST_FAILS(gt(std::string_view("1"), "2"));
-        UNIT_ASSERT_TEST_FAILS(gt("2", std::string("3")));
-        UNIT_ASSERT_TEST_FAILS(gt("abc", std::string("azz")));
+        UNIT_ASSERT_TEST_FAILS(gt("1"sv, "2"));
+        UNIT_ASSERT_TEST_FAILS(gt("2", "3"s));
+        UNIT_ASSERT_TEST_FAILS(gt("abc", "azz"s));
         UNIT_ASSERT_TEST_FAILS(gt(2, 4));
         UNIT_ASSERT_TEST_FAILS(gt(42ul, static_cast<unsigned short>(48)));
 
         // equals
-        UNIT_ASSERT_TEST_FAILS(gt(std::string_view("2"), "2"));
-        UNIT_ASSERT_TEST_FAILS(gt("2", std::string("2")));
-        UNIT_ASSERT_TEST_FAILS(gt("abc", std::string("abc")));
+        UNIT_ASSERT_TEST_FAILS(gt("2"sv, "2"));
+        UNIT_ASSERT_TEST_FAILS(gt("2", "2"s));
+        UNIT_ASSERT_TEST_FAILS(gt("abc", "abc"s));
         UNIT_ASSERT_TEST_FAILS(gt(2, 2));
         UNIT_ASSERT_TEST_FAILS(gt(42ul, static_cast<unsigned short>(42)));
 
         // greater than
-        UNIT_ASSERT_GT(std::string_view("2"), "1");
-        UNIT_ASSERT_GT("3", std::string("2"));
-        UNIT_ASSERT_GT("azz", std::string("abc"));
+        UNIT_ASSERT_GT("2"sv, "1");
+        UNIT_ASSERT_GT("3", "2"s);
+        UNIT_ASSERT_GT("azz", "abc"s);
         UNIT_ASSERT_GT(5, 2);
         UNIT_ASSERT_GT(100ul, static_cast<unsigned short>(42));
     }
@@ -214,23 +217,23 @@ Y_UNIT_TEST_SUITE(TUnitTestMacroTest) {
         };
 
         // less than
-        UNIT_ASSERT_TEST_FAILS(ge(std::string_view("1"), "2"));
-        UNIT_ASSERT_TEST_FAILS(ge("2", std::string("3")));
-        UNIT_ASSERT_TEST_FAILS(ge("abc", std::string("azz")));
+        UNIT_ASSERT_TEST_FAILS(ge("1"sv, "2"));
+        UNIT_ASSERT_TEST_FAILS(ge("2", "3"s));
+        UNIT_ASSERT_TEST_FAILS(ge("abc", "azz"s));
         UNIT_ASSERT_TEST_FAILS(ge(2, 4));
         UNIT_ASSERT_TEST_FAILS(ge(42ul, static_cast<unsigned short>(48)));
 
         // equals
-        UNIT_ASSERT_GE(std::string_view("2"), "2");
-        UNIT_ASSERT_GE("2", std::string("2"));
-        UNIT_ASSERT_GE("abc", std::string("abc"));
+        UNIT_ASSERT_GE("2"sv, "2");
+        UNIT_ASSERT_GE("2", "2"s);
+        UNIT_ASSERT_GE("abc", "abc"s);
         UNIT_ASSERT_GE(2, 2);
         UNIT_ASSERT_GE(42ul, static_cast<unsigned short>(42));
 
         // greater than
-        UNIT_ASSERT_GE(std::string_view("2"), "1");
-        UNIT_ASSERT_GE("3", std::string("2"));
-        UNIT_ASSERT_GE("azz", std::string("abc"));
+        UNIT_ASSERT_GE("2"sv, "1");
+        UNIT_ASSERT_GE("3", "2"s);
+        UNIT_ASSERT_GE("azz", "abc"s);
         UNIT_ASSERT_GE(5, 2);
         UNIT_ASSERT_GE(100ul, static_cast<unsigned short>(42));
     }
@@ -242,7 +245,7 @@ Y_UNIT_TEST_SUITE(TUnitTestMacroTest) {
         UNIT_ASSERT_TEST_FAILS(valuesEqual(1, 2));
         UNIT_ASSERT_TEST_FAILS(valuesEqual(1l, static_cast<short>(2)));
 
-        UNIT_ASSERT_VALUES_EQUAL("yandex", std::string("yandex"));
+        UNIT_ASSERT_VALUES_EQUAL("yandex", "yandex"s);
         UNIT_ASSERT_VALUES_EQUAL(1.0, 1.0);
     }
 
@@ -352,9 +355,9 @@ Y_UNIT_TEST_SUITE(TUnitTestMacroTest) {
 
     Y_UNIT_TEST(ExceptionContains) {
         UNIT_ASSERT_TEST_FAILS(TTestException("abc").AssertExceptionContains<TTestException>("cba"));
-        UNIT_ASSERT_TEST_FAILS(TTestException("abc").AssertExceptionContains<TTestException>(std::string_view("cba")));
-        UNIT_ASSERT_TEST_FAILS(TTestException("abc").AssertExceptionContains<TTestException>(std::string("cba")));
-        UNIT_ASSERT_TEST_FAILS(TTestException("abc").AssertExceptionContains<TTestException>(TYdbStringBuilder() << "cba"));
+        UNIT_ASSERT_TEST_FAILS(TTestException("abc").AssertExceptionContains<TTestException>("cba"sv));
+        UNIT_ASSERT_TEST_FAILS(TTestException("abc").AssertExceptionContains<TTestException>("cba"s));
+        UNIT_ASSERT_TEST_FAILS(TTestException("abc").AssertExceptionContains<TTestException>(TStringBuilder() << "cba"));
 
         UNIT_ASSERT_TEST_FAILS(TTestException("abc", false).AssertExceptionContains<TTestException>("bc"));
 

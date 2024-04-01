@@ -36,13 +36,19 @@ If you ok with this warning, then...
 - libidn11-dev (IDN)
 - libiconv (Iconv)
 
+## Testing
+
+- gtest
+- gmock
+
 ## Install dependencies
 
 ```bash
 sudo apt-get -y update
 sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
   protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
-  rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev liblz4-dev
+  rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev liblz4-dev \
+  libgtest-dev libgmock-dev
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh

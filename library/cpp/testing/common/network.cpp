@@ -1,5 +1,7 @@
 #include "network.h"
 
+#include "env_var.h"
+
 #include <util/folder/dirut.h>
 #include <util/folder/path.h>
 #include <util/generic/singleton.h>
@@ -11,7 +13,6 @@
 #include <util/random/random.h>
 #include <util/stream/file.h>
 #include <util/string/split.h>
-#include <util/system/env.h>
 #include <util/system/error.h>
 #include <util/system/file_lock.h>
 #include <util/system/fs.h>
@@ -71,9 +72,9 @@ namespace {
     }
 
     std::vector<std::pair<ui16, ui16>> GetPortRanges() {
-        std::string givenRange = GetEnv("VALID_PORT_RANGE");
+        const std::string givenRange = NUtils::GetEnv("VALID_PORT_RANGE");
         std::vector<std::pair<ui16, ui16>> ranges;
-        if (givenRange.Contains(':')) {
+        if (givenRange.find(':') != std::string::npos) {
             auto res = StringSplitter(givenRange).Split(':').Limit(2).ToList<std::string>();
             ranges.emplace_back(FromString<ui16>(res.front()), FromString<ui16>(res.back()));
         } else {
@@ -101,7 +102,7 @@ namespace {
         }
 
         void InitFromEnv() {
-            SyncDir_ = TFsPath(GetEnv("PORT_SYNC_PATH"));
+            SyncDir_ = TFsPath(NUtils::GetEnv("PORT_SYNC_PATH"));
             if (!SyncDir_.IsDefined()) {
                 SyncDir_ = TFsPath(GetSystemTempDir()) / "testing_port_locks";
             }
@@ -115,7 +116,7 @@ namespace {
             }
             Y_ABORT_UNLESS(0 != TotalCount_);
 
-            DisableRandomPorts_ = !GetEnv("NO_RANDOM_PORTS").empty();
+            DisableRandomPorts_ = !NUtils::GetEnv("NO_RANDOM_PORTS").empty();
         }
 
         NTesting::TPortHolder GetFreePort() const {
