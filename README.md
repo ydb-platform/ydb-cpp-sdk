@@ -30,6 +30,7 @@ If you ok with this warning, then...
 - snappy 1.1.8+
 - base64
 - brotli 1.1.10+
+- FastLZ
 
 ## Runtime requirements
 
@@ -69,6 +70,12 @@ sudo cmake --build . --config Release --target install
 wget https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz
 tar -xvzf v1.1.0.tar.gz
 cd brotli-1.1.0
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+sudo cmake --build . --config Release --target install
+
+wget https://github.com/ariya/FastLZ/archive/refs/heads/master.tar.gz -O FastLZ-master.tar.gz
+tar -xzvf FastLZ-master.tar.gz && cd FastLZ-master
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 sudo cmake --build . --config Release --target install
