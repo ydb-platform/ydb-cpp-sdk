@@ -1,9 +1,8 @@
 #include "tests_data.h"
 #include "registar.h"
 
+#include <library/cpp/testing/common/env_var.h>
 #include <library/cpp/testing/common/network.h>
-
-#include <util/system/env.h>
 
 #include <mutex>
 
@@ -11,7 +10,7 @@ class TPortManager::TPortManagerImpl {
 public:
     TPortManagerImpl(bool reservePortsForCurrentTest)
         : EnableReservePortsForCurrentTest(reservePortsForCurrentTest)
-        , DisableRandomPorts(!GetEnv("NO_RANDOM_PORTS").empty())
+        , DisableRandomPorts(!NUtils::GetEnv("NO_RANDOM_PORTS").empty())
     {
     }
 

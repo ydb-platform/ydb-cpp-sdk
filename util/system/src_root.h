@@ -27,6 +27,14 @@ namespace NPrivate {
         unsigned Len;
     };
 
+#if !defined(ARCADIA_ROOT) && defined(ARCADIA_ROOT_CMAKE_HELPER)
+#define ARCADIA_ROOT ARCADIA_ROOT_CMAKE_HELPER
+#endif
+
+#if !defined(ARCADIA_BUILD_ROOT) && defined(ARCADIA_BUILD_ROOT_CMAKE_HELPER)
+#define ARCADIA_BUILD_ROOT ARCADIA_BUILD_ROOT_CMAKE_HELPER
+#endif
+
 #define STATIC_BUF(x) ::NPrivate::TStaticBuf(x, sizeof(x) - 1)
 
     constexpr TStaticBuf ArcRoot = STATIC_BUF(Y_STRINGIZE(ARCADIA_ROOT));

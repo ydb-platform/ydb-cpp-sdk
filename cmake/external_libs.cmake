@@ -13,6 +13,7 @@ find_package(LZ4 REQUIRED)
 find_package(Snappy 1.1.8 REQUIRED)
 find_package(base64 REQUIRED)
 find_package(Brotli 1.1.0 REQUIRED)
+find_package(GTest REQUIRED)
 
 # RapidJSON
 if (YDB_SDK_USE_RAPID_JSON)

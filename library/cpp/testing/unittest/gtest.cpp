@@ -17,7 +17,7 @@ namespace {
         }
 
         std::string TypeId() const override {
-            return TypeName(*this) + "-" + MyName;
+            return (TypeName(*this) += '-') += MyName;
         }
 
         std::string Name() const noexcept override {
