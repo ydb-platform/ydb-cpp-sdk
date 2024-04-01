@@ -39,7 +39,7 @@ namespace {
         // other functions are not really called by THttpParser
         void CheckDocPart(const void* buf, size_t len, THttpHeader* /* header */) {
             std::string s(static_cast<const char*>(buf), len);
-            Cout << "State = " << static_cast<TTestHttpParser*>(this)->GetState() << ", CheckDocPart(" << s.Quote() << ")\n";
+            std::cout << "State = " << static_cast<TTestHttpParser*>(this)->GetState() << ", CheckDocPart(" << s.Quote() << ")\n";
             Body_ += s;
         }
     };
@@ -138,7 +138,7 @@ Y_UNIT_TEST_SUITE(TestHttpParser) {
         for (size_t i = 0; i < blob.size(); ++i) {
             const std::string_view d{blob, i, 1};
             parser.Parse((void*)d.data(), d.size());
-            Cout << std::string(d).Quote() << " -> " << parser.GetState() << Endl;
+            std::cout << std::string(d).Quote() << " -> " << parser.GetState() << std::endl;
         }
         AssertPipelineClen(parser, hdr);
         UNIT_ASSERT_EQUAL(parser.Body(), "OK\r\n");
@@ -213,7 +213,7 @@ Y_UNIT_TEST_SUITE(TestHttpParser) {
         for (size_t i = 0; i < blob.size(); ++i) {
             const std::string_view d{blob, i, 1};
             parser.Parse((void*)d.data(), d.size());
-            Cout << std::string(d).Quote() << " -> " << parser.GetState() << Endl;
+            std::cout << std::string(d).Quote() << " -> " << parser.GetState() << std::endl;
             if (blob.size() / 2 - 1 <= i) // last \n sets EOF
                 UNIT_ASSERT_EQUAL(parser.GetState(), parser.hp_eof);
         }

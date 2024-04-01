@@ -32,6 +32,7 @@
 #include <util/system/shellcommand.h>
 
 #include <filesystem>
+#include <iostream>
 
 #if defined(_win_)
     #include <fcntl.h>
@@ -163,11 +164,11 @@ private:
 
         PrevTime = now;
         std::string marker = Join("", "\n###subtest-finished:", className, "::", subtestName, "\n");
-        Cout << marker;
-        Cout.Flush();
-        Cerr << comment;
-        Cerr << marker;
-        Cerr.Flush();
+        std::cout << marker;
+        std::cout.Flush();
+        std::cerr << comment;
+        std::cerr << marker;
+        std::cerr.Flush();
     }
 
     virtual std::string BuildComment(const char* message, const char* backTrace) {
@@ -186,10 +187,10 @@ private:
         event.InsertValue("subtest", test->name);
         Trace("subtest-started", event);
         std::string marker = Join("", "\n###subtest-started:", test->unit->name, "::", test->name, "\n");
-        Cout << marker;
-        Cout.Flush();
-        Cerr << marker;
-        Cerr.Flush();
+        std::cout << marker;
+        std::cout.flush();
+        std::cerr << marker;
+        std::cerr.flush();
     }
 
     void OnUnitStart(const TUnit* unit) override {
@@ -455,7 +456,7 @@ private:
             return;
         }
 
-        Cerr << d << "\n";
+        std::cerr << d.ToString() << "\n";
     }
 
     void OnEnd() override {
@@ -547,8 +548,8 @@ private:
         ForkExitedCorrectly = msgIndex != std::string::npos;
 
         // TODO: stderr output is always printed after stdout
-        Cout.Write(cmd.GetOutput());
-        Cerr.Write(err.c_str(), Min(msgIndex, err.size()));
+        std::cout << cmd.GetOutput();
+        std::cerr.write(err.c_str(), Min(msgIndex, err.size()));
 
         // do not use default case, so gcc will warn if new element in enum will be added
         switch (cmd.GetStatus()) {
@@ -670,20 +671,21 @@ static int DoList(bool verbose, IOutputStream& stream) {
 }
 
 static int DoUsage(const char* progname) {
-    Cout << "Usage: " << progname << " [options] [[+|-]test]...\n\n"
-         << "Options:\n"
-         << "  -h, --help            print this help message\n"
-         << "  -l, --list            print a list of available tests\n"
-         << "  -A --list-verbose        print a list of available subtests\n"
-         << "  --print-before-test   print each test name before running it\n"
-         << "  --print-before-suite  print each test suite name before running it\n"
-         << "  --show-fails          print a list of all failed tests at the end\n"
-         << "  --dont-show-fails     do not print a list of all failed tests at the end\n"
-         << "  --print-times         print wall clock duration of each test\n"
-         << "  --fork-tests          run each test in a separate process\n"
-         << "  --trace-path          path to the trace file to be generated\n"
-         << "  --trace-path-append   path to the trace file to be appended\n"
-         << "  --filter-file         path to the test filters ([+|-]test) file (" << Y_UNITTEST_TEST_FILTER_FILE_OPTION << ")\n";
+    std::cout << "Usage: " << progname << " [options] [[+|-]test]...\n\n"
+              << "Options:\n"
+              << "  -h, --help            print this help message\n"
+              << "  -l, --list            print a list of available tests\n"
+              << "  -A --list-verbose        print a list of available subtests\n"
+              << "  --print-before-test   print each test name before running it\n"
+              << "  --print-before-suite  print each test suite name before running it\n"
+              << "  --show-fails          print a list of all failed tests at the end\n"
+              << "  --dont-show-fails     do not print a list of all failed tests at the end\n"
+              << "  --print-times         print wall clock duration of each test\n"
+              << "  --fork-tests          run each test in a separate process\n"
+              << "  --trace-path          path to the trace file to be generated\n"
+              << "  --trace-path-append   path to the trace file to be appended\n"
+              << "  --filter-file         path to the test filters ([+|-]test) file (" 
+              << Y_UNITTEST_TEST_FILTER_FILE_OPTION << ")\n";
     return 0;
 }
 
@@ -871,7 +873,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
         for (;;) {
             ret = TTestFactory::Instance().Execute();
             if (!processor.GetIsForked() && ret && processor.GetPrintSummary()) {
-                Cerr << "SOME TESTS FAILED!!!!" << Endl;
+                std::cerr << "SOME TESTS FAILED!!!!" << std::endl;
             }
 
             if (0 != ret || !processor.IsLoop()) {
@@ -881,7 +883,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
         return ret;
 #ifndef UT_SKIP_EXCEPTIONS
     } catch (...) {
-        Cerr << "caught exception in test suite(" << CurrentExceptionMessage() << ")" << Endl;
+        std::cerr << "caught exception in test suite(" << CurrentExceptionMessage() << ")" << std::endl;
     }
 #endif
 

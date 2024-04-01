@@ -11,9 +11,9 @@
 #include <utility>
 
 /*
- * Cout << DbgDump(any) << Endl;
- * Cout << DbgDumpDeep(any) << Endl;
- * Cout << DbgDump(any).SetIndent(true) << Endl;
+ * std::cout << DbgDump(any) << std::endl;
+ * std::cout << DbgDumpDeep(any) << std::endl;
+ * std::cout << DbgDump(any).SetIndent(true) << std::endl;
  *
  * specialize TDumper<your type> for extending dumper
  */

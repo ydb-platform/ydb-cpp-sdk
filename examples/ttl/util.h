@@ -25,8 +25,8 @@ inline void ThrowOnError(const TStatus& status) {
 }
 
 inline void PrintStatus(const TStatus& status) {
-    Cerr << "Status: " << status.GetStatus() << Endl;
-    status.GetIssues().PrintTo(Cerr);
+    std::cerr << "Status: " << ToString(status.GetStatus()) << std::endl;
+    std::cerr << status.GetIssues().ToString();
 }
 
 inline std::string JoinPath(const std::string& basePath, const std::string& path) {

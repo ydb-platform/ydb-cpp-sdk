@@ -9,7 +9,8 @@
 #include <util/generic/algorithm.h>
 #include <util/stream/format.h>
 
-#include <stdlib.h>
+#include <cstdlib>
+#include <iostream>
 
 namespace NLastGetoptPrivate {
     std::string& VersionString() {
@@ -26,12 +27,12 @@ namespace NLastGetopt {
     static const std::string_view SPad = "  ";
 
     void PrintVersionAndExit(const TOptsParser*) {
-        Cout << (!NLastGetoptPrivate::VersionString().empty() ? NLastGetoptPrivate::VersionString() : "program version: not linked with library/cpp/getopt") << Endl;
+        std::cout << (!NLastGetoptPrivate::VersionString().empty() ? NLastGetoptPrivate::VersionString() : "program version: not linked with library/cpp/getopt") << std::endl;
         exit(NLastGetoptPrivate::VersionString().empty());
     }
 
     void PrintShortVersionAndExit(const std::string& appName) {
-        Cout << appName << " version " << (!NLastGetoptPrivate::ShortVersionString().empty() ? NLastGetoptPrivate::ShortVersionString() : "not linked with library/cpp/getopt") << Endl;
+        std::cout << appName << " version " << (!NLastGetoptPrivate::ShortVersionString().empty() ? NLastGetoptPrivate::ShortVersionString() : "not linked with library/cpp/getopt") << std::endl;
         exit(NLastGetoptPrivate::ShortVersionString().empty());
     }
 

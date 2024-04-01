@@ -68,7 +68,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         ui32 previousOffset = 0;
         bool closed = false;
         while ((readMessageCount < messageCount || committedOffset <= previousOffset) && !closed) {
-            Cerr << "Get event on client\n";
+            std::cerr << "Get event on client\n";
             auto event = *readSession->GetEvent(true);
             std::visit(TOverloaded {
                 [&](TReadSessionEvent::TDataReceivedEvent& event) {
@@ -149,7 +149,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             auto sessionAdapter = TSimpleWriteSessionTestAdapter(
                     dynamic_cast<TSimpleBlockingWriteSession *>(session.get()));
             if (shouldCaptureData.has_value()) {
-                TYdbStringBuilder msg;
+                TStringBuilder msg;
                 msg << "Session has captured " << sessionAdapter.GetAcquiredMessagesCount()
                     << " messages, capturing was expected: " << *shouldCaptureData << Endl;
                 UNIT_ASSERT_VALUES_EQUAL_C(sessionAdapter.GetAcquiredMessagesCount() > 0, *shouldCaptureData, msg.c_str());
@@ -329,7 +329,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             oss << message;
         }
 
-        Cerr << message << " " << packed << "\n";
+        std::cerr << message << " " << packed << "\n";
 
         {
             auto event = *writer->GetEvent(true);
@@ -364,7 +364,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
                 }
                 ++tokens;
             }
-            Cerr << "GOT EVENT " << acks << " " << tokens << "\n";
+            std::cerr << "GOT EVENT " << acks << " " << tokens << "\n";
 
         }
         UNIT_ASSERT(!writer->WaitEvent().Wait(TDuration::Seconds(5)));
@@ -377,7 +377,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         );
         ui32 readMessageCount = 0;
         while (readMessageCount < 4) {
-            Cerr << "Get event on client\n";
+            std::cerr << "Get event on client\n";
             auto event = *readSession->GetEvent(true);
             std::visit(TOverloaded {
                 [&](TReadSessionEvent::TDataReceivedEvent& event) {
@@ -481,7 +481,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
                 .RetryPolicy(IRetryPolicy::GetNoRetryPolicy());
         std::shared_ptr<IReadSession> readSession = client.CreateReadSession(settings);
 
-        Cerr << "Get event on client\n";
+        std::cerr << "Get event on client\n";
         auto event = *readSession->GetEvent(true);
         std::visit(TOverloaded {
                 [&](TReadSessionEvent::TDataReceivedEvent&) {
@@ -505,7 +505,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
                     UNIT_FAIL("Test does not support lock sessions yet");
                 },
                 [&](TSessionClosedEvent& event) {
-                    Cerr << "Got close event: " << event.DebugString();
+                    std::cerr << "Got close event: " << event.DebugString();
                 }
 
             }, event);

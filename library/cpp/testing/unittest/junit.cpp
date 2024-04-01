@@ -17,6 +17,8 @@
 #include <util/system/fstat.h>
 #include <util/system/tempfile.h>
 
+#include <iostream>
+
 #include <stdio.h>
 #include <signal.h>
 
@@ -128,7 +130,7 @@ struct TJUnitProcessor::TOutputCapturer {
             try {
                 constexpr size_t LIMIT = 10_KB;
                 constexpr size_t PART_LIMIT = 5_KB;
-                TYdbStringBuilder out;
+                TStringBuilder out;
                 if (static_cast<size_t>(len) <= LIMIT) {
                     out.resize(len);
                     captured.Read((void*)out.data(), len);
@@ -167,7 +169,7 @@ struct TJUnitProcessor::TOutputCapturer {
                 }
                 return std::move(out);
             } catch (const std::exception& ex) {
-                Cerr << "Failed to read from captured output: " << ex.what() << Endl;
+                std::cerr << "Failed to read from captured output: " << ex.what() << std::endl;
             }
         }
         return {};
@@ -289,7 +291,7 @@ void TJUnitProcessor::MakeReportFileName() {
     }
 
     if (ResultReportFileName.empty()) {
-        Cerr << "Could not find a vacant file name to write report for path " << FileName << ", maximum number of reports: " << MaxReps << Endl;
+        std::cerr << "Could not find a vacant file name to write report for path " << FileName << ", maximum number of reports: " << MaxReps << std::endl;
         Y_ABORT("Cannot write report");
     }
 }
@@ -646,7 +648,7 @@ void TJUnitProcessor::MergeSubprocessReport() {
     {
         const i64 len = GetFileLength(TmpReportFile->Name());
         if (len < 0) {
-            Cerr << "Failed to get length of the output file for subprocess" << Endl;
+            std::cerr << "Failed to get length of the output file for subprocess" << std::endl;
             return;
         }
         if (len == 0) {
@@ -663,66 +665,66 @@ void TJUnitProcessor::MergeSubprocessReport() {
     {
         TFileInput in(TmpReportFile->Name());
         if (!NJson::ReadJsonTree(&in, &testsReportJson)) {
-            Cerr << "Failed to read json report for subprocess" << Endl;
+            std::cerr << "Failed to read json report for subprocess" << std::endl;
             return;
         }
     }
 
     if (!testsReportJson.IsMap()) {
-        Cerr << "Invalid subprocess report format: report is not a map" << Endl;
+        std::cerr << "Invalid subprocess report format: report is not a map" << std::endl;
         return;
     }
 
     const NJson::TJsonValue* testSuitesJson = nullptr;
     if (!testsReportJson.GetValuePointer("testsuites"sv, &testSuitesJson)) {
         // no tests for some reason
-        Cerr << "No tests found in subprocess report" << Endl;
+        std::cerr << "No tests found in subprocess report" << std::endl;
         return;
     }
 
     if (!testSuitesJson->IsArray()) {
-        Cerr << "Invalid subprocess report format: testsuites is not an array" << Endl;
+        std::cerr << "Invalid subprocess report format: testsuites is not an array" << std::endl;
         return;
     }
 
     for (const NJson::TJsonValue& suiteJson : testSuitesJson->GetArray()) {
         if (!suiteJson.IsMap()) {
-            Cerr << "Invalid subprocess report format: suite is not a map" << Endl;
+            std::cerr << "Invalid subprocess report format: suite is not a map" << std::endl;
             continue;
         }
         const NJson::TJsonValue* suiteIdJson = nullptr;
         if (!suiteJson.GetValuePointer("id"sv, &suiteIdJson)) {
-            Cerr << "Invalid subprocess report format: suite does not have id" << Endl;
+            std::cerr << "Invalid subprocess report format: suite does not have id" << std::endl;
             continue;
         }
 
         const std::string& suiteId = suiteIdJson->GetString();
         if (suiteId.empty()) {
-            Cerr << "Invalid subprocess report format: suite has empty id" << Endl;
+            std::cerr << "Invalid subprocess report format: suite has empty id" << std::endl;
             continue;
         }
 
         TTestSuite& suiteInfo = Suites[suiteId];
         const NJson::TJsonValue* testCasesJson = nullptr;
         if (!suiteJson.GetValuePointer("testcases"sv, &testCasesJson)) {
-            Cerr << "No test cases found in suite \"" << suiteId << "\"" << Endl;
+            std::cerr << "No test cases found in suite \"" << suiteId << "\"" << std::endl;
             continue;
         }
         if (!testCasesJson->IsArray()) {
-            Cerr << "Invalid subprocess report format: testcases value is not an array" << Endl;
+            std::cerr << "Invalid subprocess report format: testcases value is not an array" << std::endl;
             continue;
         }
 
         for (const NJson::TJsonValue& testCaseJson : testCasesJson->GetArray()) {
             const NJson::TJsonValue* testCaseIdJson = nullptr;
             if (!testCaseJson.GetValuePointer("id"sv, &testCaseIdJson)) {
-                Cerr << "Invalid subprocess report format: test case does not have id" << Endl;
+                std::cerr << "Invalid subprocess report format: test case does not have id" << std::endl;
                 continue;
             }
 
             const std::string& testCaseId = testCaseIdJson->GetString();
             if (testCaseId.empty()) {
-                Cerr << "Invalid subprocess report format: test case has empty id" << Endl;
+                std::cerr << "Invalid subprocess report format: test case has empty id" << std::endl;
                 continue;
             }
 
@@ -749,7 +751,7 @@ void TJUnitProcessor::MergeSubprocessReport() {
             }
 
             if (!failuresJson->IsArray()) {
-                Cerr << "Invalid subprocess report format: failures is not an array" << Endl;
+                std::cerr << "Invalid subprocess report format: failures is not an array" << std::endl;
                 continue;
             }
 

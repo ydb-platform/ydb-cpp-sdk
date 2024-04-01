@@ -29,7 +29,7 @@ namespace {
         {
             Y_UNUSED(context);
 
-            Cerr << "ListEndpoints: " << request->ShortDebugString() << Endl;
+            std::cerr << "ListEndpoints: " << request->ShortDebugString() << std::endl;
 
             const auto* result = MockResults.FindPtr(request->database());
             Y_ABORT_UNLESS(result, "Mock service doesn't have a result for database '%s'", request->database().c_str());
@@ -54,7 +54,7 @@ namespace {
         {
             Y_UNUSED(context);
 
-            Cerr << "CreateSession: " << request->ShortDebugString() << Endl;
+            std::cerr << "CreateSession: " << request->ShortDebugString() << std::endl;
 
             Ydb::Table::CreateSessionResult result;
             result.set_session_id("my-session-id");
