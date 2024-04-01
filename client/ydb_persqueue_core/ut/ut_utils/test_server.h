@@ -46,7 +46,7 @@ public:
 
     void StartServer(bool doClientInit = true, std::optional<std::string> databaseName = std::nullopt) {
         Log.SetFormatter([](ELogPriority priority, std::string_view message) {
-            return TStringBuilder() << TInstant::Now() << " " << priority << ": " << message << Endl;
+            return TYdbStringBuilder() << TInstant::Now() << " " << priority << ": " << message << Endl;
         });
 
         PrepareNetDataFile();

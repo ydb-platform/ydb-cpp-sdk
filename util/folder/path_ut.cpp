@@ -618,7 +618,7 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
                 Chmod(Name_.c_str(), MODE0777);
                 SetAcl((PACL)Acl_.Get(), GRANT_ACCESS);
             } catch (const yexception& ex) {
-                std::cerr << "~TWinFileDenyAccessScope failed: " << ex.AsStrBuf() << std::endl;
+                Cerr << "~TWinFileDenyAccessScope failed: " << ex.AsStrBuf() << Endl;
             }
         }
 

@@ -58,14 +58,14 @@ bool WriteLogBatch(NYdb::NTable::TTableClient& tableClient, const std::string& t
     auto status = tableClient.RetryOperationSync(bulkUpsertOperation, retrySettings);
 
     if (!status.IsSuccess()) {
-        std::cerr << std::endl << "Write failed with status: " << ToString((const NYdb::TStatus&)status) << std::endl;
+        Cerr << Endl << "Write failed with status: " << (const NYdb::TStatus&)status << Endl;
         return false;
     }
     return true;
 }
 
 bool CreateLogTable(NYdb::NTable::TTableClient& client, const std::string& table) {
-    std::cerr << "Create table " << table << "\n";
+    Cerr << "Create table " << table << "\n";
 
     NYdb::NTable::TRetryOperationSettings settings;
     auto status = client.RetryOperationSync([&table](NYdb::NTable::TSession session) {
@@ -82,7 +82,7 @@ bool CreateLogTable(NYdb::NTable::TTableClient& client, const std::string& table
         }, settings);
 
     if (!status.IsSuccess()) {
-        std::cerr << "Create table failed with status: " << ToString(status) << std::endl;
+        Cerr << "Create table failed with status: " << status << Endl;
         return false;
     }
     return true;
@@ -105,10 +105,10 @@ bool Run(const NYdb::TDriver &driver, const std::string &table, ui32 batchCount)
         if (!WriteLogBatch(client, table, logBatch, writeRetrySettings)) {
             return false;
         }
-        std::cerr << ".";
+        Cerr << ".";
     }
 
-    std::cerr << std::endl << "Done." << std::endl;
+    Cerr << Endl << "Done." << Endl;
     return true;
 }
 

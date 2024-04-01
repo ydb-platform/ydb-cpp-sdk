@@ -831,10 +831,10 @@ bool TWriteSessionImpl::CleanupOnAcknowledged(ui64 id) {
     LOG_LAZY(DbDriverState->Log, TLOG_DEBUG, LogPrefix() << "Write session: acknoledged message " << id);
     UpdateTimedCountersImpl();
     if (SentOriginalMessages.empty() || SentOriginalMessages.front().Id != id){
-        std::cerr << "State before restart was:\n" << StateStr << "\n\n";
+        Cerr << "State before restart was:\n" << StateStr << "\n\n";
         DumpState();
-        std::cerr << "State on ack with id " << id << " is:\n";
-        std::cerr << StateStr << "\n\n";
+        Cerr << "State on ack with id " << id << " is:\n";
+        Cerr << StateStr << "\n\n";
         Y_ABORT("got unknown ack");
     }
 
@@ -1098,9 +1098,9 @@ bool TWriteSessionImpl::IsReadyToSendNextImpl() {
     Y_ABORT_UNLESS(!OriginalMessagesToSend.empty(), "There are packed messages but no original messages");
     if (OriginalMessagesToSend.front().Id > PackedMessagesToSend.top().Offset) {
 
-        std::cerr << " State before restart was:\n" << StateStr << "\n\n";
+        Cerr << " State before restart was:\n" << StateStr << "\n\n";
         DumpState();
-        std::cerr << " State after restart is:\n" << StateStr << "\n\n";
+        Cerr << " State after restart is:\n" << StateStr << "\n\n";
         Y_ABORT("Lost original message(s)");
     }
 

@@ -1,8 +1,6 @@
 #include <library/cpp/testing/gtest/gtest.h>
 #include <library/cpp/testing/hook/hook.h>
 
-#include <iostream>
-
 static int HookOrder = 0;
 static int PreInitHook1 = 0;
 static int PreInitHook2 = 0;
@@ -29,12 +27,12 @@ Y_TEST_HOOK_BEFORE_RUN(PreRun2) {
 
 Y_TEST_HOOK_AFTER_RUN(PostRun1) {
     PostRunHook1 = ++HookOrder;
-    std::cerr << "PostRunHook1" << std::endl;
+    Cerr << "PostRunHook1" << Endl;
 }
 
 Y_TEST_HOOK_AFTER_RUN(PostRun2) {
     PostRunHook2 = ++HookOrder;
-    std::cerr << "PostRunHook2" << std::endl;
+    Cerr << "PostRunHook2" << Endl;
 }
 
 TEST(Gtest, HookOrder) {

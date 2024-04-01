@@ -35,7 +35,7 @@ struct TOptions {
 std::shared_ptr<NYdb::NTopic::IReadSession> ReadSession;
 
 void StopHandler(int) {
-    std::cerr << "Stopping session" << std::endl;
+    Cerr << "Stopping session" << Endl;
     if (ReadSession) {
         ReadSession->Close(TDuration::Seconds(3));
     } else {
@@ -80,13 +80,13 @@ int main(int argc, const char* argv[]) {
     // settings.SetSimpleDataHandlers(
     settings.EventHandlers_.SimpleDataHandlers(
             [](NYdb::NTopic::TReadSessionEvent::TDataReceivedEvent& event) {
-            std::cerr << "Data event " << DebugString(event);
+            Cerr << "Data event " << DebugString(event);
         }, opts.CommitAfterProcessing);
 
     ReadSession = topicClient.CreateReadSession(settings);
     // [END Create read session]
 
-    std::cerr << "Session was created" << std::endl;
+    Cerr << "Session was created" << Endl;
 
     // Wait SessionClosed event.
     ReadSession->GetEvent(/*block = */true);

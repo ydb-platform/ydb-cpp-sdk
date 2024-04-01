@@ -634,11 +634,11 @@ namespace NCoroTestFastPathWake {
             UNIT_ASSERT_VALUES_EQUAL(res.Checked(), 0);
             state.IoSleepRunning = false;
         } catch (const NUnitTest::TAssertException& ex) {
-            std::cerr << ex.AsStrBuf() << std::endl;
-            ex.BackTrace()->PrintTo(std::cerr);
+            Cerr << ex.AsStrBuf() << Endl;
+            ex.BackTrace()->PrintTo(Cerr);
             throw;
         } catch (...) {
-            std::cerr << CurrentExceptionMessage() << std::endl;
+            Cerr << CurrentExceptionMessage() << Endl;
             throw;
         }
     }
@@ -697,11 +697,11 @@ namespace NCoroTestFastPathWake {
             // Check everything has ended sooner than the timeout
             UNIT_ASSERT(TInstant::Now() - start < TDuration::Seconds(1));
         } catch (const NUnitTest::TAssertException& ex) {
-            std::cerr << ex.AsStrBuf() << std::endl;
-            ex.BackTrace()->PrintTo(std::cerr);
+            Cerr << ex.AsStrBuf() << Endl;
+            ex.BackTrace()->PrintTo(Cerr);
             throw;
         } catch (...) {
-            std::cerr << CurrentExceptionMessage() << std::endl;
+            Cerr << CurrentExceptionMessage() << Endl;
             throw;
         }
     }

@@ -8,8 +8,6 @@
 #include <util/folder/path.h>
 #include <util/string/escape.h>
 
-#include <iostream>
-
 class PtrWrapper: public TMainClass {
 public:
     explicit PtrWrapper(const TMainFunctionPtr& main)
@@ -196,7 +194,7 @@ int TModChooser::Run(const int argc, const char** argv) const {
     }
 
     if (modeIter == Modes.end()) {
-        std::cerr << "Unknown mode " << NUtils::Quote(modeName) << "." << std::endl;
+        Cerr << "Unknown mode " << NUtils::Quote(modeName) << "." << Endl;
         PrintHelp(argv[0], true);
         return 1;
     }
@@ -278,12 +276,12 @@ std::string TModChooser::TMode::FormatFullName(size_t pad) const {
 
 void TModChooser::PrintHelp(const std::string& progName, bool toStdErr) const {
     auto baseName = TFsPath(progName).Basename();
-    auto& out = toStdErr ? std::cerr : std::cout;
+    auto& out = toStdErr ? Cerr : Cout;
     const auto& colors = toStdErr ? NColorizer::StdErr() : NColorizer::StdOut();
-    out << Description << std::endl << std::endl;
-    out << colors.BoldColor() << "Usage" << colors.OldColor() << ": " << baseName << " MODE [MODE_OPTIONS]" << std::endl;
-    out << std::endl;
-    out << colors.BoldColor() << "Modes" << colors.OldColor() << ":" << std::endl;
+    out << Description << Endl << Endl;
+    out << colors.BoldColor() << "Usage" << colors.OldColor() << ": " << baseName << " MODE [MODE_OPTIONS]" << Endl;
+    out << Endl;
+    out << colors.BoldColor() << "Modes" << colors.OldColor() << ":" << Endl;
     size_t maxModeLen = 0;
     for (const auto& [name, mode] : Modes) {
         if (name != mode->Name)
@@ -295,10 +293,10 @@ void TModChooser::PrintHelp(const std::string& progName, bool toStdErr) const {
         for (const auto& unsortedMode : UnsortedModes)
             if (!unsortedMode->Hidden) {
                 if (unsortedMode->Name.size()) {
-                    out << "  " << unsortedMode->FormatFullName(maxModeLen + 4) << unsortedMode->Description << std::endl;
+                    out << "  " << unsortedMode->FormatFullName(maxModeLen + 4) << unsortedMode->Description << Endl;
                 } else {
-                    out << SeparationString << std::endl;
-                    out << unsortedMode->Description << std::endl;
+                    out << SeparationString << Endl;
+                    out << unsortedMode->Description << Endl;
                 }
             }
     } else {
@@ -307,17 +305,17 @@ void TModChooser::PrintHelp(const std::string& progName, bool toStdErr) const {
                 continue;  // this is an alias
 
             if (!mode.second->Hidden) {
-                out << "  " << mode.second->FormatFullName(maxModeLen + 4) << mode.second->Description << std::endl;
+                out << "  " << mode.second->FormatFullName(maxModeLen + 4) << mode.second->Description << Endl;
             }
         }
     }
 
-    out << std::endl;
-    out << "To get help for specific mode type '" << baseName << " MODE " << ModesHelpOption << "'" << std::endl;
+    out << Endl;
+    out << "To get help for specific mode type '" << baseName << " MODE " << ModesHelpOption << "'" << Endl;
     if (VersionHandler)
-        out << "To print program version type '" << baseName << " --version'" << std::endl;
+        out << "To print program version type '" << baseName << " --version'" << Endl;
     if (!SvnRevisionOptionDisabled) {
-        out << "To print svn revision type '" << baseName << " --svnrevision'" << std::endl;
+        out << "To print svn revision type '" << baseName << " --svnrevision'" << Endl;
     }
 }
 

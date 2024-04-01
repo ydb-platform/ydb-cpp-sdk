@@ -5,7 +5,6 @@
 #include <util/system/backtrace.h>
 #include <util/generic/yexception.h>
 
-#include <iostream>
 #include <string>
 
 namespace {
@@ -18,7 +17,7 @@ namespace {
             case 1:
                 break;
             case 2:
-                std::cerr << "FancyTerminateHandler called recursively" << std::endl;
+                Cerr << "FancyTerminateHandler called recursively" << Endl;
                 [[fallthrough]];
             default:
                 abort();
@@ -26,12 +25,12 @@ namespace {
         }
 
         if (std::current_exception()) {
-            std::cerr << "Uncaught exception: " << CurrentExceptionMessage() << '\n';
+            Cerr << "Uncaught exception: " << CurrentExceptionMessage() << '\n';
         } else {
-            std::cerr << "Terminate for unknown reason (no current exception)\n";
+            Cerr << "Terminate for unknown reason (no current exception)\n";
         }
         PrintBackTrace();
-        std::cerr.flush();
+        Cerr.Flush();
         abort();
     }
 

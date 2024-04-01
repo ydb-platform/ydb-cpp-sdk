@@ -47,9 +47,9 @@ protected:
 
     void LogRetry(const TStatus& status) {
         if (Settings_.Verbose_) {
-            std::cerr << "Previous query attempt was finished with unsuccessful status "
-                << ToString(status.GetStatus()) << ": " << status.GetIssues().ToString(true) << std::endl;
-            std::cerr << "Sending retry attempt " << RetryNumber_ << " of " << Settings_.MaxRetries_ << std::endl;
+            Cerr << "Previous query attempt was finished with unsuccessful status "
+                << status.GetStatus() << ": " << status.GetIssues().ToString(true) << Endl;
+            Cerr << "Sending retry attempt " << RetryNumber_ << " of " << Settings_.MaxRetries_ << Endl;
         }
     }
 

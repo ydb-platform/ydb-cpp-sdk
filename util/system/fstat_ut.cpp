@@ -66,19 +66,19 @@ Y_UNIT_TEST_SUITE(TestFileStat) {
     // Symlinks require additional privileges on windows.
     // Skip test if we are not allowed to create one.
     // Wine returns true from NFs::SymLink, but actually does nothing
-    #define SAFE_SYMLINK(target, link)                                                          \
-        do {                                                                                    \
-            auto res = NFs::SymLink(target, link);                                              \
-            if (!res) {                                                                         \
-                auto err = LastSystemError();                                                   \
-                std::cerr << "can't create symlink: " << LastSystemErrorText(err) << std::endl; \
-                UNIT_ASSERT(err == ERROR_PRIVILEGE_NOT_HELD);                                   \
-                return;                                                                         \
-            }                                                                                   \
-            if (!NFs::Exists(link) && IsWine()) {                                               \
-                std::cerr << "wine does not support symlinks" << std::endl;                     \
-                return;                                                                         \
-            }                                                                                   \
+    #define SAFE_SYMLINK(target, link)                                                \
+        do {                                                                          \
+            auto res = NFs::SymLink(target, link);                                    \
+            if (!res) {                                                               \
+                auto err = LastSystemError();                                         \
+                Cerr << "can't create symlink: " << LastSystemErrorText(err) << Endl; \
+                UNIT_ASSERT(err == ERROR_PRIVILEGE_NOT_HELD);                         \
+                return;                                                               \
+            }                                                                         \
+            if (!NFs::Exists(link) && IsWine()) {                                     \
+                Cerr << "wine does not support symlinks" << Endl;                     \
+                return;                                                               \
+            }                                                                         \
         } while (false)
 
     bool IsWine() {

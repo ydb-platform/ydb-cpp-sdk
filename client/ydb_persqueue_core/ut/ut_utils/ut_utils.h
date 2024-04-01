@@ -201,7 +201,7 @@ struct TYdbPqTestRetryState : NYdb::NPersQueue::IRetryPolicy::IRetryState {
     {}
 
     std::optional<TDuration> GetNextRetryDelay(NYdb::EStatus) override {
-        std::cerr << "Test retry state: get retry delay\n";
+        Cerr << "Test retry state: get retry delay\n";
         RetryDone();
         return Delay;
     }
@@ -226,17 +226,17 @@ struct TYdbPqTestRetryPolicy : IRetryPolicy {
     TYdbPqTestRetryPolicy(const TDuration& delay = TDuration::MilliSeconds(2000))
         : Delay(delay)
     {
-        std::cerr << "====TYdbPqTestRetryPolicy()\n";
+        Cerr << "====TYdbPqTestRetryPolicy()\n";
     }
 
     IRetryState::TPtr CreateRetryState() const override {
-        std::cerr << "====CreateRetryState\n";
+        Cerr << "====CreateRetryState\n";
         if (AtomicSwap(&OnFatalBreakDown, 0)) {
             return std::make_unique<TYdbPqNoRetryState>();
         }
         if (AtomicGet(Initialized_))
         {
-            std::cerr << "====CreateRetryState Initialized\n";
+            Cerr << "====CreateRetryState Initialized\n";
             auto res = AtomicSwap(&OnBreakDown, 0);
             UNIT_ASSERT(res);
             for (size_t i = 0; i < 100; i++) {
@@ -269,7 +269,7 @@ struct TYdbPqTestRetryPolicy : IRetryPolicy {
     }
     void ExpectBreakDown() {
         // Either TYdbPqTestRetryPolicy() or Initialize() should be called beforehand in order to set OnBreakDown=0
-        std::cerr << "====ExpectBreakDown\n";
+        Cerr << "====ExpectBreakDown\n";
         for (size_t i = 0; i < 100; i++) {
             if (AtomicGet(OnBreakDown) == 0)
                 break;
@@ -335,13 +335,13 @@ public:
                 TFunction f;
                 while (TasksQueue.Dequeue(&f)) {
                     ++CurrentTaskId;
-                    std::cerr << "Enqueue task with id " << CurrentTaskId << Endl;
+                    Cerr << "Enqueue task with id " << CurrentTaskId << Endl;
                     Tasks[CurrentTaskId] = f;
                 }
                 ui64 id = 0;
                 while (ExecIdsQueue->Dequeue(&id)) {
                     ExecIds.push(id);
-                    std::cerr << "Got ok to execute task with id " << id << Endl;
+                    Cerr << "Got ok to execute task with id " << id << Endl;
 
                 }
                 while (!ExecIds.empty()) {
@@ -349,15 +349,15 @@ public:
                     auto iter = Tasks.find(id);
                     if (iter == Tasks.end())
                         break;
-                    std::cerr << "Executing compression of " << id << Endl;
+                    Cerr << "Executing compression of " << id << Endl;
                     ExecIds.pop();
                     try {
                         (iter->second)();
                     } catch (...) {
-                        std::cerr << "Failed on compression call: " << CurrentExceptionMessage() << Endl;
+                        Cerr << "Failed on compression call: " << CurrentExceptionMessage() << Endl;
                         Y_ABORT();
                     }
-                    std::cerr << "Compression of " << id << " Done\n";
+                    Cerr << "Compression of " << id << " Done\n";
                     Tasks.erase(iter);
                 }
 

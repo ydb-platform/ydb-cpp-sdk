@@ -3,8 +3,6 @@
 #include "event.h"
 #include "thread.h"
 
-#include <iostream>
-
 #include <cstdlib> //for abort()
 
 #if defined(_win_)
@@ -39,7 +37,7 @@ void ITrampoLine::DoRunNaked() {
     try {
         DoRun();
     } catch (...) {
-        std::cerr << "Uncaught exception in coroutine: " << CurrentExceptionMessage() << "\n";
+        Cerr << "Uncaught exception in coroutine: " << CurrentExceptionMessage() << "\n";
     }
 
     abort();

@@ -49,20 +49,20 @@ void EnableGRpcTracing() {
 //     }
 //     bool SetOption(int fd) {
 //         if (!SetOption(fd, SOL_SOCKET, SO_KEEPALIVE, 1)) {
-//             std::cerr << std::format("Failed to set SO_KEEPALIVE option: {}", strerror(errno)) << std::endl;
+//             Cerr << std::format("Failed to set SO_KEEPALIVE option: {}", strerror(errno)) << Endl;
 //             return false;
 //         }
 // #ifdef _linux_
 //         if (Idle_ && !SetOption(fd, IPPROTO_TCP, TCP_KEEPIDLE, Idle_)) {
-//             std::cerr << std::format("Failed to set TCP_KEEPIDLE option: {}", strerror(errno)) << std::endl;
+//             Cerr << std::format("Failed to set TCP_KEEPIDLE option: {}", strerror(errno)) << Endl;
 //             return false;
 //         }
 //         if (Count_ && !SetOption(fd, IPPROTO_TCP, TCP_KEEPCNT, Count_)) {
-//             std::cerr << std::format("Failed to set TCP_KEEPCNT option: {}", strerror(errno)) << std::endl;
+//             Cerr << std::format("Failed to set TCP_KEEPCNT option: {}", strerror(errno)) << Endl;
 //             return false;
 //         }
 //         if (Interval_ && !SetOption(fd, IPPROTO_TCP, TCP_KEEPINTVL, Interval_)) {
-//             std::cerr << std::format("Failed to set TCP_KEEPINTVL option: {}", strerror(errno)) << std::endl;
+//             Cerr << std::format("Failed to set TCP_KEEPINTVL option: {}", strerror(errno)) << Endl;
 //             return false;
 //         }
 // #endif

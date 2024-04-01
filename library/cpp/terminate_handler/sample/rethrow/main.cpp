@@ -9,7 +9,7 @@ void Foo() {
     try {
         Bar();
     } catch (...) {
-        std::cerr << "caught; rethrowing\n";
+        Cerr << "caught; rethrowing\n";
         throw;
     }
 }

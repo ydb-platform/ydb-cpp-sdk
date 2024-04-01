@@ -55,8 +55,8 @@ int Select(TDriver& driver, const std::string& path, int argc, char **argv) {
     }));
 
     for (auto& item: selectResult) {
-        std::cout << item.SeriesId << ' ' << item.Title << ' ' << item.Info << ' '
-            << item.ReleaseDate.ToString() <<  ' ' << item.Views << ' ' << item.UploadedUserId << std::endl;
+        Cout << item.SeriesId << ' ' << item.Title << ' ' << item.Info << ' '
+            << item.ReleaseDate <<  ' ' << item.Views << ' ' << item.UploadedUserId <<  Endl;
     }
 
     return 0;

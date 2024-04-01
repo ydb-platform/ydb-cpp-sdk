@@ -1,7 +1,5 @@
 #include "last_getopt_parse_result.h"
 
-#include <iostream>
-
 namespace NLastGetopt {
     const TOptParseResult* TOptsParseResult::FindParseResult(const TdVec& vec, const TOpt* opt) {
         for (const auto& r : vec) {
@@ -164,10 +162,10 @@ namespace NLastGetopt {
     }
 
     void TOptsParseResult::HandleError() const {
-        std::cerr << CurrentExceptionMessage() << std::endl;
+        Cerr << CurrentExceptionMessage() << Endl;
         if (Parser_.Get()) { // parser initializing can fail (and we get here, see Init)
             if (Parser_->Opts_->FindLongOption("help") != nullptr) {
-                std::cerr << "Try '" << Parser_->ProgramName_ << " --help' for more information." << std::endl;
+                Cerr << "Try '" << Parser_->ProgramName_ << " --help' for more information." << Endl;
             } else {
                 PrintUsage();
             }

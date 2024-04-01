@@ -297,27 +297,27 @@ int RunListSeries(TDriver& driver, const std::string& prefix, int argc, char** a
         }
     }
     auto printLine = [&]() {
-        std::cout << '+';
+        Cout << '+';
         for (size_t i = 0; i < 5; ++i) {
             for (size_t k = 0; k < widths[i]; ++k) {
-                std::cout << '-';
+                Cout << '-';
             }
-            std::cout << '+';
+            Cout << '+';
         }
-        std::cout << std::endl;
+        Cout << Endl;
     };
     auto printRow = [&](size_t row) {
-        std::cout << '|';
+        Cout << '|';
         for (size_t i = 0; i < 5; ++i) {
-            std::cout << ' ' << columns[i][row];
+            Cout << ' ' << columns[i][row];
             size_t printed = 1 + GetNumberOfUTF8Chars(columns[i][row]);
             while (printed < widths[i]) {
-                std::cout << ' ';
+                Cout << ' ';
                 ++printed;
             }
-            std::cout << '|';
+            Cout << '|';
         }
-        std::cout << std::endl;
+        Cout << Endl;
     };
 
     printLine();

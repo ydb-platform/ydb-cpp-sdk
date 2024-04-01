@@ -202,6 +202,6 @@ int RunGenerateSeries(TDriver& driver, const std::string& prefix, int argc, char
     }
 
     executor.Wait();
-    std::cout << "Generated " << generated << " new series" << std::endl;
+    Cout << "Generated " << generated << " new series" << Endl;
     return 0;
 }

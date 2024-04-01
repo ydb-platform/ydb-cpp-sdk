@@ -51,7 +51,7 @@ namespace NYdb::NTopic::NTests {
 
         void WriteMessage(TTopicClient& client)
         {
-            std::cerr << "=== Write message" << std::endl;
+            Cerr << "=== Write message" << Endl;
 
             auto writeSession = client.CreateSimpleBlockingWriteSession(CreateWriteSessionSettings());
             UNIT_ASSERT(writeSession->Write("message"));
@@ -60,7 +60,7 @@ namespace NYdb::NTopic::NTests {
 
         void ReadMessage(TTopicClient& client, ui64 expectedCommitedOffset = 1)
         {
-            std::cerr << "=== Read message" << std::endl;
+            Cerr << "=== Read message" << Endl;
 
             auto readSession = client.CreateReadSession(CreateReadSessionSettings());
 
@@ -103,13 +103,13 @@ namespace NYdb::NTopic::NTests {
             {
                 ui16 discoveryPort = TPortManager().GetPort();
                 DiscoveryAddr = TYdbStringBuilder() << "0.0.0.0:" << discoveryPort;
-                std::cerr << "==== TMockDiscovery server started on port " << discoveryPort << std::endl;
+                Cerr << "==== TMockDiscovery server started on port " << discoveryPort << Endl;
                 Server = ::NYdb::NTopic::NTests::NTestSuiteLocalPartition::StartGrpcServer(DiscoveryAddr, *this);
             }
 
             void SetGoodEndpoints(TTopicSdkTestSetup& setup)
             {
-                std::cerr << "=== TMockDiscovery set good endpoint nodes " << std::endl;
+                Cerr << "=== TMockDiscovery set good endpoint nodes " << Endl;
                 SetEndpoints(setup.GetRuntime().GetNodeId(0), setup.GetRuntime().GetNodeCount(), setup.GetServer().GrpcPort);
             }
 
@@ -117,7 +117,7 @@ namespace NYdb::NTopic::NTests {
             {
                 std::lock_guard lock(Lock);
 
-                std::cerr << "==== TMockDiscovery add endpoints, firstNodeId " << firstNodeId << ", nodeCount " << nodeCount << ", port " << port << std::endl;
+                Cerr << "==== TMockDiscovery add endpoints, firstNodeId " << firstNodeId << ", nodeCount " << nodeCount << ", port " << port << Endl;
 
                 MockResults.clear_endpoints();
                 if (nodeCount > 0)
@@ -146,7 +146,7 @@ namespace NYdb::NTopic::NTests {
 
                 if (Delay)
                 {
-                    std::cerr << "==== Delay " << Delay << " before ListEndpoints request" << std::endl;
+                    Cerr << "==== Delay " << Delay << " before ListEndpoints request" << Endl;
                     TInstant start = TInstant::Now();
                     while (start + Delay < TInstant::Now())
                     {
@@ -156,14 +156,14 @@ namespace NYdb::NTopic::NTests {
                     }
                 }
 
-                std::cerr << "==== ListEndpoints request: " << request->ShortDebugString() << std::endl;
+                Cerr << "==== ListEndpoints request: " << request->ShortDebugString() << Endl;
 
                 auto* op = response->mutable_operation();
                 op->set_ready(true);
                 op->set_status(Ydb::StatusIds::SUCCESS);
                 op->mutable_result()->PackFrom(MockResults);
 
-                std::cerr << "==== ListEndpoints response: " << response->ShortDebugString() << std::endl;
+                Cerr << "==== ListEndpoints response: " << response->ShortDebugString() << Endl;
                 return grpc::Status::OK;
             }
 
@@ -218,7 +218,7 @@ namespace NYdb::NTopic::NTests {
             auto [setup, client, discovery] = Start(TEST_CASE_NAME);
 
             for (size_t i = 1; i <= 10; ++i) {
-                std::cerr << "=== Restart attempt " << i << std::endl;
+                Cerr << "=== Restart attempt " << i << Endl;
                 setup->GetServer().KillTopicPqTablets(setup->GetTopicPath());
                 WriteMessage(*client);
                 ReadMessage(*client, i);
@@ -242,23 +242,23 @@ namespace NYdb::NTopic::NTests {
             retryPolicy->Initialize();
             retryPolicy->ExpectBreakDown();
 
-            std::cerr << "=== Create write session\n";
+            Cerr << "=== Create write session\n";
             TTopicClient client(TDriver(CreateConfig(*setup, discovery.GetDiscoveryAddr())));
             auto writeSession = client.CreateWriteSession(writeSettings);
 
-            std::cerr << "=== Wait for retries\n";
+            Cerr << "=== Wait for retries\n";
             retryPolicy->WaitForRetriesSync(3);
 
-            std::cerr << "=== Alter partition count\n";
+            Cerr << "=== Alter partition count\n";
             TAlterTopicSettings alterSettings;
             alterSettings.AlterPartitioningSettings(2, 2);
             auto alterResult = client.AlterTopic(setup->GetTopicPath(), alterSettings).GetValueSync();
             UNIT_ASSERT_VALUES_EQUAL_C(alterResult.GetStatus(), NYdb::EStatus::SUCCESS, alterResult.GetIssues().ToString());
 
-            std::cerr << "=== Wait for repair\n";
+            Cerr << "=== Wait for repair\n";
             retryPolicy->WaitForRepairSync();
 
-            std::cerr << "=== Close write session\n";
+            Cerr << "=== Close write session\n";
             writeSession->Close();
         }
 
@@ -276,19 +276,19 @@ namespace NYdb::NTopic::NTests {
             retryPolicy->Initialize();
             retryPolicy->ExpectBreakDown();
 
-            std::cerr << "=== Create write session\n";
+            Cerr << "=== Create write session\n";
             TTopicClient client(TDriver(CreateConfig(*setup, discovery.GetDiscoveryAddr())));
             auto writeSession = client.CreateWriteSession(writeSettings);
 
-            std::cerr << "=== Wait for retries\n";
+            Cerr << "=== Wait for retries\n";
             retryPolicy->WaitForRetriesSync(3);
 
             discovery.SetGoodEndpoints(*setup);
 
-            std::cerr << "=== Wait for repair\n";
+            Cerr << "=== Wait for repair\n";
             retryPolicy->WaitForRepairSync();
 
-            std::cerr << "=== Close write session\n";
+            Cerr << "=== Close write session\n";
             writeSession->Close();
         }
 
@@ -306,19 +306,19 @@ namespace NYdb::NTopic::NTests {
             retryPolicy->Initialize();
             retryPolicy->ExpectBreakDown();
 
-            std::cerr << "=== Create write session\n";
+            Cerr << "=== Create write session\n";
             TTopicClient client(TDriver(CreateConfig(*setup, discovery.GetDiscoveryAddr())));
             auto writeSession = client.CreateWriteSession(writeSettings);
 
-            std::cerr << "=== Wait for retries\n";
+            Cerr << "=== Wait for retries\n";
             retryPolicy->WaitForRetriesSync(3);
 
             discovery.SetGoodEndpoints(*setup);
 
-            std::cerr << "=== Wait for repair\n";
+            Cerr << "=== Wait for repair\n";
             retryPolicy->WaitForRepairSync();
 
-            std::cerr << "=== Close write session\n";
+            Cerr << "=== Close write session\n";
             writeSession->Close();
         }
 
@@ -336,11 +336,11 @@ namespace NYdb::NTopic::NTests {
             retryPolicy->Initialize();
             retryPolicy->ExpectBreakDown();
 
-            std::cerr << "=== Create write session\n";
+            Cerr << "=== Create write session\n";
             TTopicClient client(TDriver(CreateConfig(*setup, discovery.GetDiscoveryAddr())));
             auto writeSession = client.CreateWriteSession(writeSettings);
 
-            std::cerr << "=== Close write session\n";
+            Cerr << "=== Close write session\n";
             writeSession->Close();
         }
 
@@ -351,11 +351,11 @@ namespace NYdb::NTopic::NTests {
             discovery.SetGoodEndpoints(*setup);
             discovery.SetDelay(TDuration::Days(1));
 
-            std::cerr << "=== Create write session\n";
+            Cerr << "=== Create write session\n";
             TTopicClient client(TDriver(CreateConfig(*setup, discovery.GetDiscoveryAddr())));
             auto writeSession = client.CreateWriteSession(CreateWriteSessionSettings());
 
-            std::cerr << "=== Close write session\n";
+            Cerr << "=== Close write session\n";
             writeSession->Close();
         }
     }

@@ -6,7 +6,6 @@
 #include <util/generic/singleton.h>
 
 #include <format>
-#include <iostream>
 
 #if defined(_unix_)
     #include <unistd.h>
@@ -26,7 +25,7 @@ TTimer::TTimer(const std::string_view message) {
 TTimer::~TTimer() {
     const TDuration duration = TInstant::Now() - Start_;
     Message_ << duration << "\n";
-    std::cerr << Message_.Str();
+    Cerr << Message_.Str();
 }
 
 static ui64 ManuallySetCyclesPerSecond = 0;
@@ -110,11 +109,11 @@ TFuncTimer::TFuncTimer(const char* func)
     : Start_(TInstant::Now())
     , Func_(func)
 {
-    std::cerr << "enter " << Func_ << std::endl;
+    Cerr << "enter " << Func_ << Endl;
 }
 
 TFuncTimer::~TFuncTimer() {
-    std::cerr << "leave " << Func_ << " -> " << (TInstant::Now() - Start_).ToString() << std::endl;
+    Cerr << "leave " << Func_ << " -> " << (TInstant::Now() - Start_) << Endl;
 }
 
 TTimeLogger::TTimeLogger(const std::string& message, bool verbose)

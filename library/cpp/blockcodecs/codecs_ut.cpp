@@ -59,7 +59,7 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
                     d.AsString(res);
                     UNIT_ASSERT_EQUAL(NBlockCodecs::TData(res), NBlockCodecs::TData(data));
                 } catch (...) {
-                    std::cerr << c->Name() << "(" << res.Quote() << ")(" << std::string{NBlockCodecs::TData(data)}.Quote() << ")" << std::endl;
+                    Cerr << c->Name() << "(" << res.Quote() << ")(" << std::string{NBlockCodecs::TData(data)}.Quote() << ")" << Endl;
 
                     throw;
                 }
@@ -183,7 +183,7 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
             try {
                 UNIT_ASSERT_EQUAL(resNew, res);
             } catch (...) {
-                std::cerr << c->Name() << std::endl;
+                Cerr << c->Name() << Endl;
 
                 throw;
             }
