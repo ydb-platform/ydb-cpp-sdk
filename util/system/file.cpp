@@ -1352,7 +1352,7 @@ TFile Duplicate(int fd) {
 
     FHANDLE dupHandle;
     if (!::DuplicateHandle(GetCurrentProcess(), handle, GetCurrentProcess(), &dupHandle, 0, TRUE, DUPLICATE_SAME_ACCESS)) {
-        ythrow TFileError() << "can not duplicate file descriptor " << LastSystemError() << std::endl;
+        ythrow TFileError() << "can not duplicate file descriptor " << LastSystemError() << Endl;
     }
 
     return TFile(dupHandle);

@@ -366,8 +366,8 @@ Y_UNIT_TEST_SUITE(TSpackTest) {
         e->OnStreamEnd();
         e->Close();
 
-        // std::cout << "encoded: " << HexEncode(buffer.Data(), buffer.Size()) << std::endl;
-        // std::cout << "size: " << buffer.Size() << std::endl;
+        // Cout << "encoded: " << HexEncode(buffer.Data(), buffer.Size()) << Endl;
+        // Cout << "size: " << buffer.Size() << Endl;
 
         UNIT_ASSERT_VALUES_EQUAL(buffer.Size(), expectedSize);
 

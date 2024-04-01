@@ -108,7 +108,7 @@ void TMathTest::TestClp2() {
                 ret += FastClp2(i);
             }
 
-            std::cerr << ret << std::endl;
+            Cerr << ret << Endl;
         }
 
         {
@@ -119,7 +119,7 @@ void TMathTest::TestClp2() {
                 ret += SlowClp2(i);
             }
 
-            std::cerr << ret << std::endl;
+            Cerr << ret << Endl;
         }
     }
 }

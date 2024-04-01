@@ -14,8 +14,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include <iostream>
-
 #ifdef CLANG_COVERAGE
 extern "C" {
     // __llvm_profile_write_file may not be provided if the executable target uses NO_CLANG_COVERAGE() macro and
@@ -82,13 +80,13 @@ namespace NPrivate {
         } else {
             o << "  " << function << "() failed" << Endl;
         }
-        std::cerr << r << std::flush;
+        Cerr << r << Flush;
 #ifndef WITH_VALGRIND
         PrintBackTrace();
 #endif
 #ifdef CLANG_COVERAGE
         if (__llvm_profile_write_file()) {
-            std::cerr << "Failed to dump clang coverage" << std::endl;
+            Cerr << "Failed to dump clang coverage" << Endl;
         }
 #endif
         abort();

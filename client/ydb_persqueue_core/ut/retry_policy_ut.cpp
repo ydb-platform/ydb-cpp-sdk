@@ -19,9 +19,9 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         auto doBreakDown = [&] () {
             helper.Policy->ExpectBreakDown();
             NThreading::TPromise<void> retriesPromise = NThreading::NewPromise();
-            std::cerr << "WAIT for retries...\n";
+            Cerr << "WAIT for retries...\n";
             helper.Policy->WaitForRetries(30, retriesPromise);
-            std::cerr << "KICK tablets\n";
+            Cerr << "KICK tablets\n";
             helper.Setup->KickTablets();
 
             auto f1 = helper.Write(false);
@@ -29,19 +29,19 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
 
             auto retriesFuture = retriesPromise.GetFuture();
             retriesFuture.Wait();
-            std::cerr << "WAIT for retries done\n";
+            Cerr << "WAIT for retries done\n";
 
             NThreading::TPromise<void> repairPromise = NThreading::NewPromise();
             auto repairFuture = repairPromise.GetFuture();
             helper.Policy->WaitForRepair(repairPromise);
 
 
-            std::cerr << "ALLOW tablets\n";
+            Cerr << "ALLOW tablets\n";
             helper.Setup->AllowTablets();
 
-            std::cerr << "WAIT for repair\n";
+            Cerr << "WAIT for repair\n";
             repairFuture.Wait();
-            std::cerr << "REPAIR done\n";
+            Cerr << "REPAIR done\n";
             f1.Wait();
             f2.Wait();
             helper.Write(true);
@@ -82,29 +82,29 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         retryPolicy->ExpectBreakDown();
 
         auto& client = setup1->GetPersQueueClient();
-        std::cerr << "=== Create write session \n";
+        Cerr << "=== Create write session \n";
         auto writer = client.CreateWriteSession(settings);
 
         NThreading::TPromise<void> retriesPromise = NThreading::NewPromise();
         auto retriesFuture = retriesPromise.GetFuture();
         retryPolicy->WaitForRetries(3, retriesPromise);
-        std::cerr << "=== Wait retries\n";
+        Cerr << "=== Wait retries\n";
         retriesFuture.Wait();
 
-        std::cerr << "=== Enable dc2\n";
+        Cerr << "=== Enable dc2\n";
         setup1->EnableDataCenter("dc2");
 
         NThreading::TPromise<void> repairPromise = NThreading::NewPromise();
         auto repairFuture = repairPromise.GetFuture();
         retryPolicy->WaitForRepair(repairPromise);
-        std::cerr << "=== Wait for repair\n";
+        Cerr << "=== Wait for repair\n";
         repairFuture.Wait();
-        std::cerr << "=== Close writer\n";
+        Cerr << "=== Close writer\n";
         writer->Close();
     }
 
     Y_UNIT_TEST(TWriteSession_SwitchBackToLocalCluster) {
-        std::cerr << "====Start test\n";
+        Cerr << "====Start test\n";
 
         auto setup1 = std::make_shared<TPersQueueYdbSdkTestSetup>(TEST_CASE_NAME, false);
         SDKTestSetup setup2("SwitchBackToLocalCluster", false);
@@ -113,14 +113,14 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         setup1->AddDataCenter("dc2", setup2, true);
         setup1->Start();
         setup2.Start(false);
-        std::cerr << "=== Start session 1\n";
+        Cerr << "=== Start session 1\n";
         auto helper = MakeHolder<TYdbPqWriterTestHelper>("", nullptr, std::string(), setup1);
         helper->Write(true);
         auto retryPolicy = helper->Policy;
         retryPolicy->Initialize();
 
         auto waitForReconnect = [&](bool enable) {
-            std::cerr << "=== Expect breakdown\n";
+            Cerr << "=== Expect breakdown\n";
             retryPolicy->ExpectBreakDown();
 
             NThreading::TPromise<void> retriesPromise = NThreading::NewPromise();
@@ -132,11 +132,11 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
             retryPolicy->WaitForRepair(repairPromise);
 
             if (enable) {
-                std::cerr << "===Enabled DC1\n";
+                Cerr << "===Enabled DC1\n";
                 setup1->EnableDataCenter("dc1");
                 setup2.EnableDataCenter("dc1");
             } else {
-                std::cerr << "===Disabled DC1\n";
+                Cerr << "===Disabled DC1\n";
                 setup1->DisableDataCenter("dc1");
                 setup2.DisableDataCenter("dc1");
             }
@@ -145,9 +145,9 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
             retriesFuture.Wait();
             repairFuture.Wait();
         };
-        std::cerr << "===Wait for 1st reconnect\n";
+        Cerr << "===Wait for 1st reconnect\n";
         waitForReconnect(false);
-        std::cerr << "===Wait for 2nd reconnect\n";
+        Cerr << "===Wait for 2nd reconnect\n";
         waitForReconnect(true);
     }
 
@@ -169,14 +169,14 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         auto& client = setup1->GetPersQueueClient();
 
         //! Fill data in dc1 1 with SeqNo = 1..10 for 2 different SrcId
-        std::cerr << "===Write 10 messages into every writer\n";
+        Cerr << "===Write 10 messages into every writer\n";
         for (auto i = 0; i != 10; i++) {
             writer1->Write(true); // 1
             writer2->Write(true); // 1
         }
-        std::cerr << "===Messages were written\n";
+        Cerr << "===Messages were written\n";
 
-        std::cerr << "===Disable dc1\n";
+        Cerr << "===Disable dc1\n";
         //! Leave only dc2 available
         writer1->Policy->ExpectBreakDown();
         writer2->Policy->ExpectBreakDown();
@@ -184,17 +184,17 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         writer1->Policy->WaitForRetriesSync(1);
         writer2->Policy->WaitForRetriesSync(1);
 
-        std::cerr << "===Recreate writers\n";
+        Cerr << "===Recreate writers\n";
 
         //! Re-create writers, kill previous sessions. New sessions will connect to dc2.
         writer1 = MakeHolder<TYdbPqWriterTestHelper>("", nullptr, std::string(), setup1, sourceId1, true);
         writer2 = MakeHolder<TYdbPqWriterTestHelper>("", nullptr, std::string(), setup1, sourceId2, true);
 
         //! Write some data and await confirmation - just to ensure sessions are started.
-        std::cerr << "===Write one message into every writer\n";
+        Cerr << "===Write one message into every writer\n";
         writer1->Write(true);
         writer2->Write(true);
-        std::cerr << "===Messages were written\n";
+        Cerr << "===Messages were written\n";
 
         //! Leave no available DCs
         writer1->Policy->ExpectBreakDown();
@@ -202,14 +202,14 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         writer1->Policy->Initialize();
         writer2->Policy->Initialize();
 
-        std::cerr << "===Disable dc2\n";
+        Cerr << "===Disable dc2\n";
         setup1->DisableDataCenter("dc2");
-        std::cerr << "===Wait for retries after initial dc2 shutdown\n";
+        Cerr << "===Wait for retries after initial dc2 shutdown\n";
         writer1->Policy->WaitForRetriesSync(1);
         writer2->Policy->WaitForRetriesSync(1);
 
         //! Put some data inflight. It cannot be written now, but SeqNo will be assigned.
-        std::cerr << "===Write four async message into every writer\n";
+        Cerr << "===Write four async message into every writer\n";
         for (auto i = 0; i != 3; i++) {
             writer1->Write(false);
             writer2->Write(false);
@@ -220,46 +220,46 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         //! Enable DC1. Now writers gonna write collected data to DC1 having LastSeqNo = 10
         //! (because of data written in the very beginning), and inflight data has SeqNo assigned = 2..5,
         //! so the SeqNo shift takes place.
-        std::cerr << "===Enable dc2\n";
+        Cerr << "===Enable dc2\n";
         setup1->EnableDataCenter("dc1");
 
-        std::cerr << "===Wait for writes to complete\n";
+        Cerr << "===Wait for writes to complete\n";
         f1.Wait();
         f2.Wait();
-        std::cerr << "===Messages were written\n";
+        Cerr << "===Messages were written\n";
 
         //! Writer1 is not used any more.
         writer1->EventLoop->AllowStop();
         writer1 = nullptr;
 
-        std::cerr << "===Writer 1 closed\n";
+        Cerr << "===Writer 1 closed\n";
         writer2->Policy->ExpectBreakDown();
         writer2->Policy->Initialize();
 
         //! For the second writer, do switchback to dc2.
-        std::cerr << "===Disable dc1\n";
+        Cerr << "===Disable dc1\n";
         setup1->DisableDataCenter("dc1");
-        std::cerr << "===Wait for retries after dc1 shutdown\n";
+        Cerr << "===Wait for retries after dc1 shutdown\n";
         writer2->Policy->WaitForRetriesSync(1);
 
         //! Put some data inflight again;
-        std::cerr << "===Write four async messages into writer2\n";
+        Cerr << "===Write four async messages into writer2\n";
         for (auto i = 0; i != 3; i++) {
             writer2->Write(false);
         }
         f2 = writer2->Write(false);
 
-        std::cerr << "===Enable dc2\n";
+        Cerr << "===Enable dc2\n";
         setup1->EnableDataCenter("dc2");
 
         f2.Wait();
-        std::cerr << "===Messages were written\n";
+        Cerr << "===Messages were written\n";
 
         writer2->EventLoop->AllowStop();
         writer2->Policy->ExpectBreakDown();
         writer2 = nullptr;
 
-        std::cerr << "===Enable dc1\n";
+        Cerr << "===Enable dc1\n";
         setup1->EnableDataCenter("dc1");
         auto CheckSeqNo = [&] (const std::string& dcName, ui64 expectedSeqNo) {
             settings.PreferredCluster(dcName);
@@ -274,17 +274,17 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         //!check SeqNo in both DC. For writer1 We expect 14 messages in DC1
         //! (10 written initially + 4 written after reconnect) and 1 message in DC2 (only initial message).
         settings.MessageGroupId(sourceId1);
-        std::cerr << "===Check SeqNo writer1, dc2\n";
+        Cerr << "===Check SeqNo writer1, dc2\n";
         CheckSeqNo("dc2", 1);
-        std::cerr << "===Check SeqNo writer1, dc1\n";
+        Cerr << "===Check SeqNo writer1, dc1\n";
         CheckSeqNo("dc1", 14);
 
         //! Check SeqNo for writer 2; Expect to have 6 messages on DC2 with MaxSeqNo = 6;
         settings.MessageGroupId(sourceId2);
-        std::cerr << "===Check SeqNo writer2 dc1\n";
+        Cerr << "===Check SeqNo writer2 dc1\n";
         CheckSeqNo("dc1", 14);
         //! DC2 has no shift in SeqNo since 5 messages were written to dc 1.
-        std::cerr << "===Check SeqNo writer2 dc2\n";
+        Cerr << "===Check SeqNo writer2 dc2\n";
         CheckSeqNo("dc2", 9);
 
 
@@ -309,11 +309,11 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         ui32 clustersPendingSrc2 = 2;
 
         while (!stop && (clustersPendingSrc2 || clustersPendingSrc1)) {
-            std::cerr << "===Get event on client\n";
+            Cerr << "===Get event on client\n";
             auto event = *readSession->GetEvent(true);
             std::visit(TOverloaded {
                     [&](TReadSessionEvent::TDataReceivedEvent& event) {
-                        std::cerr << "===Data event\n";
+                        Cerr << "===Data event\n";
                         auto& clusterName = event.GetPartitionStream()->GetCluster();
                         for (auto& message: event.GetMessages()) {
                             std::string sourceId = message.GetMessageGroupId();
@@ -361,15 +361,15 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
                         event.Confirm();
                     },
                     [&](TReadSessionEvent::TPartitionStreamStatusEvent&) {
-                        std::cerr << "===Status event\n";
+                        Cerr << "===Status event\n";
                         UNIT_FAIL("Test does not support lock sessions yet");
                     },
                     [&](TReadSessionEvent::TPartitionStreamClosedEvent&) {
-                        std::cerr << "===Stream closed event\n";
+                        Cerr << "===Stream closed event\n";
                         UNIT_FAIL("Test does not support lock sessions yet");
                     },
                     [&](TSessionClosedEvent& event) {
-                        std::cerr << "===Got close event: " << event.DebugString();
+                        Cerr << "===Got close event: " << event.DebugString();
                         stop = true;
                     }
 
@@ -387,7 +387,7 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         auto& client = setup->GetPersQueueClient();
         auto writer = client.CreateWriteSession(settings);
         auto event = *writer->GetEvent(true);
-        std::cerr << NYdb::NPersQueue::DebugString(event) << "\n";
+        Cerr << NYdb::NPersQueue::DebugString(event) << "\n";
         UNIT_ASSERT(std::holds_alternative<TWriteSessionEvent::TReadyToAcceptEvent>(event));
         auto continueToken = std::move(std::get<TWriteSessionEvent::TReadyToAcceptEvent>(event).ContinuationToken);
         std::string message = "1234567890";
@@ -398,7 +398,7 @@ Y_UNIT_TEST_SUITE(RetryPolicy) {
         retryPolicy->WaitForRetriesSync(3);
         while (seqNo < 10) {
             auto event = *writer->GetEvent(true);
-            std::cerr << NYdb::NPersQueue::DebugString(event) << "\n";
+            Cerr << NYdb::NPersQueue::DebugString(event) << "\n";
             UNIT_ASSERT(std::holds_alternative<TWriteSessionEvent::TReadyToAcceptEvent>(event));
             writer->Write(
                     std::move(std::get<TWriteSessionEvent::TReadyToAcceptEvent>(event).ContinuationToken),

@@ -10,20 +10,20 @@ extern "C" int LLVMFuzzerTestOneInput(const ui8* data, size_t size) {
         NJson::TJsonValue value;
         NJson::ReadJsonFastTree(json, &value, true);
     } catch (...) {
-        //std::cout << json << " -> " << CurrentExceptionMessage() << std::endl;
+        //Cout << json << " -> " << CurrentExceptionMessage() << Endl;
     }
 
     try {
         NJson::TJsonCallbacks cb;
         NJson::ReadJsonFast(json, &cb);
     } catch (...) {
-        //std::cout << json << " -> " << CurrentExceptionMessage() << std::endl;
+        //Cout << json << " -> " << CurrentExceptionMessage() << Endl;
     }
 
     try {
         NJson::ValidateJson(json);
     } catch (...) {
-        //std::cout << json << " -> " << CurrentExceptionMessage() << std::endl;
+        //Cout << json << " -> " << CurrentExceptionMessage() << Endl;
     }
 
     return 0;

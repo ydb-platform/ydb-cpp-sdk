@@ -39,7 +39,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         // Create topic client.
         NYdb::TDriverConfig cfg;
-        cfg.SetEndpoint(TStringBuilder() << "localhost:" << newServicePort);
+        cfg.SetEndpoint(TYdbStringBuilder() << "localhost:" << newServicePort);
         cfg.SetDatabase("/Root");
         cfg.SetLog(CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG));
         NYdb::TDriver driver(cfg);
@@ -53,7 +53,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             .AppendTopics(setup->GetTestTopic());
 
         ReadSession = topicClient.CreateReadSession(readSettings);
-        std::cerr << "Session was created" << std::endl;
+        Cerr << "Session was created" << Endl;
 
         ReadSession->WaitEvent().Wait(TDuration::Seconds(1));
         std::optional<NYdb::NFederatedTopic::TReadSessionEvent::TEvent> event = ReadSession->GetEvent(false);
@@ -98,7 +98,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             ReadSession->WaitEvent().Wait();
             // Get event
             std::optional<NYdb::NFederatedTopic::TReadSessionEvent::TEvent> event = ReadSession->GetEvent(true/*block - will block if no event received yet*/);
-            std::cerr << "Got new read session event: " << DebugString(*event) << std::endl;
+            Cerr << "Got new read session event: " << DebugString(*event) << Endl;
 
             auto* startPartitionSessionEvent = std::get_if<NYdb::NFederatedTopic::TReadSessionEvent::TStartPartitionSessionEvent>(&*event);
             Y_ASSERT(startPartitionSessionEvent);
@@ -135,19 +135,19 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             .MaxMemoryUsageBytes(1_MB)
             .AppendTopics(setup->GetTestTopic());
 
-        std::cerr << "Before ReadSession was created" << std::endl;
+        Cerr << "Before ReadSession was created" << Endl;
         ReadSession = topicClient.CreateReadSession(readSettings);
-        std::cerr << "Session was created" << std::endl;
+        Cerr << "Session was created" << Endl;
 
         auto f = ReadSession->WaitEvent();
-        std::cerr << "Returned from WaitEvent" << std::endl;
+        Cerr << "Returned from WaitEvent" << Endl;
         // observer asyncInit should respect client/session timeouts
         UNIT_ASSERT(!f.Wait(TDuration::Seconds(1)));
 
-        std::cerr << "Session blocked successfully" << std::endl;
+        Cerr << "Session blocked successfully" << Endl;
 
         UNIT_ASSERT(ReadSession->Close(TDuration::MilliSeconds(10)));
-        std::cerr << "Session closed gracefully" << std::endl;
+        Cerr << "Session closed gracefully" << Endl;
     }
 
     Y_UNIT_TEST(RetryDiscoveryWithCancel) {
@@ -231,7 +231,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             .AppendTopics(setup->GetTestTopic());
 
         ReadSession = topicClient.CreateReadSession(readSettings);
-        std::cerr << "Session was created" << std::endl;
+        Cerr << "Session was created" << Endl;
 
         Sleep(TDuration::MilliSeconds(50));
 
@@ -296,7 +296,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             UNIT_ASSERT(!events.empty());
 
             for (auto& e : events) {
-                std::cerr << ">>> Got event: " << DebugString(e) << std::endl;
+                Cerr << ">>> Got event: " << DebugString(e) << Endl;
                 if (auto* dataEvent = std::get_if<TReadSessionEvent::TDataReceivedEvent>(&e)) {
                     dataEvent->Commit();
                 } else if (auto* startPartitionSessionEvent = std::get_if<TReadSessionEvent::TStartPartitionSessionEvent>(&e)) {
@@ -343,7 +343,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             .AppendTopics(setup->GetTestTopic());
 
         ReadSession = topicClient.CreateReadSession(readSettings);
-        std::cerr << "Session was created" << std::endl;
+        Cerr << "Session was created" << Endl;
 
         ReadSession->WaitEvent().Wait(TDuration::Seconds(1));
         auto event = ReadSession->GetEvent(false);
@@ -363,11 +363,11 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         ReadSession->WaitEvent().Wait();
         event = ReadSession->GetEvent(false);
         UNIT_ASSERT(event.Defined());
-        std::cerr << ">>> Got event: " << DebugString(*event) << std::endl;
+        Cerr << ">>> Got event: " << DebugString(*event) << Endl;
         UNIT_ASSERT(std::holds_alternative<NTopic::TSessionClosedEvent>(*event));
 
         auto ReadSession2 = topicClient.CreateReadSession(readSettings);
-        std::cerr << "Session2 was created" << std::endl;
+        Cerr << "Session2 was created" << Endl;
 
         ReadSession2->WaitEvent().Wait(TDuration::Seconds(1));
         event = ReadSession2->GetEvent(false);
@@ -384,10 +384,10 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         event = ReadSession2->GetEvent(true);
         UNIT_ASSERT(event.Defined());
-        std::cerr << ">>> Got event: " << DebugString(*event) << std::endl;
+        Cerr << ">>> Got event: " << DebugString(*event) << Endl;
         UNIT_ASSERT(std::holds_alternative<TReadSessionEvent::TStartPartitionSessionEvent>(*event));
 
-        // std::cerr << ">>> Got event: " << DebugString(*event) << std::endl;
+        // Cerr << ">>> Got event: " << DebugString(*event) << Endl;
         // UNIT_ASSERT(std::holds_alternative<NTopic::TSessionClosedEvent>(*event));
     }
 
@@ -408,12 +408,12 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             .AppendTopics(setup->GetTestTopic());
 
         ReadSession = topicClient.CreateReadSession(readSettings);
-        std::cerr << "Session was created" << std::endl;
+        Cerr << "Session was created" << Endl;
 
         ReadSession->WaitEvent().Wait(TDuration::Seconds(1));
         std::optional<NYdb::NFederatedTopic::TReadSessionEvent::TEvent> event = ReadSession->GetEvent(false);
         Y_ASSERT(event);
-        std::cerr << "Got new read session event: " << DebugString(*event) << std::endl;
+        Cerr << "Got new read session event: " << DebugString(*event) << Endl;
 
         auto* startPartitionSessionEvent = std::get_if<NYdb::NFederatedTopic::TReadSessionEvent::TStartPartitionSessionEvent>(&*event);
         Y_ASSERT(startPartitionSessionEvent);
@@ -471,7 +471,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             .AppendTopics(setup->GetTestTopic());
 
         readSettings.FederatedEventHandlers_.SimpleDataHandlers([&](TReadSessionEvent::TDataReceivedEvent& ev) mutable {
-            std::cerr << ">>> event from dataHandler: " << DebugString(ev) << std::endl;
+            Cerr << ">>> event from dataHandler: " << DebugString(ev) << Endl;
             Y_VERIFY_S(AtomicGet(check) != 0, "check is false");
             auto& messages = ev.GetMessages();
             for (size_t i = 0u; i < messages.size(); ++i) {
@@ -484,7 +484,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         });
 
         ReadSession = topicClient.CreateReadSession(readSettings);
-        std::cerr << ">>> Session was created" << std::endl;
+        Cerr << ">>> Session was created" << Endl;
 
         Sleep(TDuration::MilliSeconds(50));
 
@@ -548,12 +548,12 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
             .MessageGroupId("src_id");
 
         WriteSession = topicClient.CreateWriteSession(writeSettings);
-        std::cerr << "Session was created" << std::endl;
+        Cerr << "Session was created" << Endl;
 
         WriteSession->WaitEvent().Wait(TDuration::Seconds(1));
         auto event = WriteSession->GetEvent(false);
         Y_ASSERT(event);
-        std::cerr << "Got new read session event: " << DebugString(*event) << std::endl;
+        Cerr << "Got new read session event: " << DebugString(*event) << Endl;
         auto* readyToAcceptEvent = std::get_if<NYdb::NTopic::TWriteSessionEvent::TReadyToAcceptEvent>(&*event);
         Y_ASSERT(readyToAcceptEvent);
         WriteSession->Write(std::move(readyToAcceptEvent->ContinuationToken), NTopic::TWriteMessage("hello"));
@@ -561,7 +561,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         WriteSession->WaitEvent().Wait(TDuration::Seconds(1));
         event = WriteSession->GetEvent(false);
         Y_ASSERT(event);
-        std::cerr << "Got new read session event: " << DebugString(*event) << std::endl;
+        Cerr << "Got new read session event: " << DebugString(*event) << Endl;
 
         readyToAcceptEvent = std::get_if<NYdb::NTopic::TWriteSessionEvent::TReadyToAcceptEvent>(&*event);
         Y_ASSERT(readyToAcceptEvent);
@@ -579,7 +579,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         WriteSession->WaitEvent().Wait(TDuration::Seconds(1));
         event = WriteSession->GetEvent(false);
         Y_ASSERT(event);
-        std::cerr << "Got new read session event: " << DebugString(*event) << std::endl;
+        Cerr << "Got new read session event: " << DebugString(*event) << Endl;
 
         auto* acksEvent = std::get_if<NYdb::NTopic::TWriteSessionEvent::TAcksEvent>(&*event);
         Y_ASSERT(acksEvent);

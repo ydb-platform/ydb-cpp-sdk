@@ -55,7 +55,7 @@ Y_UNIT_TEST_SUITE(Compression) {
         UNIT_ASSERT(status.ok());
         Ydb::PersQueue::V1::AlterTopicResult result;
         response.operation().result().UnpackTo(&result);
-        std::cerr << "Alter topic response: " << response << "\nAlter result: " << result << "\n";
+        Cerr << "Alter topic response: " << response << "\nAlter result: " << result << "\n";
         UNIT_ASSERT_VALUES_EQUAL(response.operation().status(), Ydb::StatusIds::SUCCESS);
     }
 
@@ -78,14 +78,14 @@ Y_UNIT_TEST_SUITE(Compression) {
         const std::vector<ECodec> codecs,
         bool decompress
     ) {
-        std::cerr << std::endl << "Start read" << std::endl << std::endl;
+        Cerr << Endl << "Start read" << Endl << Endl;
         auto readSettings = setup.GetReadSessionSettings();
         readSettings.Decompress(decompress);
         NThreading::TPromise<void> checkedPromise = NThreading::NewPromise<void>();
         auto totalReceived = 0u;
         readSettings.EventHandlers_.SimpleDataHandlers(
             [&](const NYdb::NPersQueue::TReadSessionEvent::TDataReceivedEvent& ev) {
-                std::cerr << std::endl << std::endl << std::endl << "Got messages" << std::endl << std::endl;
+                Cerr << Endl << Endl << Endl << "Got messages" << Endl << Endl;
                 if (decompress) {
                     UNIT_ASSERT_NO_EXCEPTION(ev.GetMessages());
                     UNIT_ASSERT_EXCEPTION(ev.GetCompressedMessages(), yexception);
@@ -102,7 +102,7 @@ Y_UNIT_TEST_SUITE(Compression) {
                         ++totalReceived;
                     }
                 }
-                std::cerr << std::endl << "totalReceived: " << totalReceived << " wait: " << messages.size() << std::endl << std::endl;
+                Cerr << Endl << "totalReceived: " << totalReceived << " wait: " << messages.size() << Endl << Endl;
                 if (totalReceived == messages.size())
                     checkedPromise.SetValue();
             }

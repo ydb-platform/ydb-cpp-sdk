@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 
     ECmd cmd = ParseCmd(*argv);
     if (cmd == ECmd::NONE) {
-        std::cerr << "Unsupported command '" << *argv << "'" << std::endl;
+        Cerr << "Unsupported command '" << *argv << "'" << Endl;
         return 1;
     }
 
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
                 return RunDeleteSeries(driver, prefix, argc, argv);
         }
     } catch (const TYdbErrorException& e) {
-        std::cerr << "Execution failed: " << ToString(e) << std::endl;
+        Cerr << "Execution failed: " << e << Endl;
         return 1;
     }
 

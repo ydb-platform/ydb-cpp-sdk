@@ -465,7 +465,7 @@ void Split(std::string_view s, D delim, P1& p1, P2& p2, Other&... other) {
  * std::vector<std::string_view> values = StringSplitter("1\t2\t3").Split('\t');
  *
  * for(std::string_view part: StringSplitter("1::2::::3").SplitByString("::").SkipEmpty()) {
- *     std::cerr << part;
+ *     Cerr << part;
  * }
  *
  * std::vector<std::string> firstTwoValues = StringSplitter("1\t2\t3").Split('\t').Take(2);

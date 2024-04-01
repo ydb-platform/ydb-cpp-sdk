@@ -4,8 +4,6 @@
 
 #include <ctype.h>
 
-#include <iostream>
-
 using namespace NLastGetopt;
 
 namespace {
@@ -85,7 +83,7 @@ int Opt::Get(int* longOptionIndex) {
     } catch (const NLastGetopt::TException&) {
         GotError_ = true;
         if (Err)
-            std::cerr << CurrentExceptionMessage() << std::endl;
+            Cerr << CurrentExceptionMessage() << Endl;
         return '?';
     }
 }

@@ -5,8 +5,6 @@
 #include <util/string/builder.h>
 #include <library/cpp/string_utils/misc/misc.h>
 
-#include <iostream>
-
 using NLastGetopt::NEscaping::Q;
 using NLastGetopt::NEscaping::QQ;
 using NLastGetopt::NEscaping::C;
@@ -265,7 +263,7 @@ namespace NLastGetopt::NComp {
     }
 
     void TCustomCompleter::AddCompletion(std::string_view completion) {
-        std::cout << completion << std::endl;  // this was easy =)
+        Cout << completion << Endl;  // this was easy =)
         // TODO: support option descriptions and messages
     }
 
@@ -277,12 +275,12 @@ namespace NLastGetopt::NComp {
         }
 
         if (!root.empty()) {
-            std::cout << root << Sep_ << std::endl;
+            Cout << root << Sep_ << Endl;
         } else {
-            std::cout << std::endl;
+            Cout << Endl;
         }
 
-        std::cout << Sep_ << std::endl;
+        Cout << Sep_ << Endl;
 
         GenerateCompletionParts(argc, argv, curIdx, cur, prefix, suffix, root);
     }

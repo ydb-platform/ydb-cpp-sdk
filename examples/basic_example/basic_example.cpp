@@ -22,8 +22,8 @@ static void ThrowOnError(const TStatus& status) {
 }
 
 static void PrintStatus(const TStatus& status) {
-    std::cerr << "Status: " << ToString(status.GetStatus()) << std::endl;
-    std::cerr << status.GetIssues().ToString();
+    Cerr << "Status: " << status.GetStatus() << Endl;
+    status.GetIssues().PrintTo(Cerr);
 }
 
 static std::string JoinPath(const std::string& basePath, const std::string& path) {
@@ -95,9 +95,9 @@ static void DescribeTable(TTableClient client, const std::string& path, const st
         return result;
     }));
 
-    std::cout << "> Describe table: " << name << std::endl;
+    Cout << "> Describe table: " << name << Endl;
     for (auto& column : desc->GetColumns()) {
-        std::cout << "Column, name: " << column.Name << ", type: " << FormatType(column.Type) << std::endl;
+        Cout << "Column, name: " << column.Name << ", type: " << FormatType(column.Type) << Endl;
     }
 }
 
@@ -272,7 +272,7 @@ static TStatus PreparedSelectTransaction(TSession session, const std::string& pa
     }
 
     if (!prepareResult.IsQueryFromCache()) {
-        std::cerr << "+Finished preparing query: PreparedSelectTransaction" << std::endl;
+        Cerr << "+Finished preparing query: PreparedSelectTransaction" << Endl;
     }
 
     auto dataQuery = prepareResult.GetQuery();
@@ -441,11 +441,11 @@ void SelectSimple(TTableClient client, const std::string& path) {
 
     TResultSetParser parser(*resultSet);
     if (parser.TryNextRow()) {
-        std::cout << "> SelectSimple:" << std::endl << "Series"
-            << ", Id: " << ToString(parser.ColumnParser("series_id").GetOptionalUint64())
-            << ", Title: " << ToString(parser.ColumnParser("title").GetOptionalUtf8())
-            << ", Release date: " << ToString(parser.ColumnParser("release_date").GetOptionalString())
-            << std::endl;
+        Cout << "> SelectSimple:" << Endl << "Series"
+            << ", Id: " << parser.ColumnParser("series_id").GetOptionalUint64()
+            << ", Title: " << parser.ColumnParser("title").GetOptionalUtf8()
+            << ", Release date: " << parser.ColumnParser("release_date").GetOptionalString()
+            << Endl;
     }
 }
 
@@ -463,10 +463,10 @@ void SelectWithParams(TTableClient client, const std::string& path) {
 
     TResultSetParser parser(*resultSet);
     if (parser.TryNextRow()) {
-        std::cout << "> SelectWithParams:" << std::endl << "Season"
-            << ", Title: " << ToString(parser.ColumnParser("season_title").GetOptionalUtf8())
-            << ", Series title: " << ToString(parser.ColumnParser("series_title").GetOptionalUtf8())
-            << std::endl;
+        Cout << "> SelectWithParams:" << Endl << "Season"
+            << ", Title: " << parser.ColumnParser("season_title").GetOptionalUtf8()
+            << ", Series title: " << parser.ColumnParser("series_title").GetOptionalUtf8()
+            << Endl;
     }
 }
 
@@ -480,10 +480,10 @@ void PreparedSelect(TTableClient client, const std::string& path, ui32 seriesId,
     if (parser.TryNextRow()) {
         auto airDate = TInstant::Days(*parser.ColumnParser("air_date").GetOptionalUint64());
 
-        std::cout << "> PreparedSelect:" << std::endl << "Episode " << ToString(parser.ColumnParser("episode_id").GetOptionalUint64())
-            << ", Title: " << ToString(parser.ColumnParser("title").GetOptionalUtf8())
+        Cout << "> PreparedSelect:" << Endl << "Episode " << parser.ColumnParser("episode_id").GetOptionalUint64()
+            << ", Title: " << parser.ColumnParser("title").GetOptionalUtf8()
             << ", Air date: " << airDate.FormatLocalTime("%a %b %d, %Y")
-            << std::endl;
+            << Endl;
     }
 }
 
@@ -494,15 +494,15 @@ void MultiStep(TTableClient client, const std::string& path) {
     }));
 
     TResultSetParser parser(*resultSet);
-    std::cout << "> MultiStep:" << std::endl;
+    Cout << "> MultiStep:" << Endl;
     while (parser.TryNextRow()) {
         auto airDate = TInstant::Days(*parser.ColumnParser("air_date").GetOptionalUint64());
 
-        std::cout << "Episode " << ToString(parser.ColumnParser("episode_id").GetOptionalUint64())
-            << ", Season: " << ToString(parser.ColumnParser("season_id").GetOptionalUint64())
-            << ", Title: " << ToString(parser.ColumnParser("title").GetOptionalUtf8())
+        Cout << "Episode " << parser.ColumnParser("episode_id").GetOptionalUint64()
+            << ", Season: " << parser.ColumnParser("season_id").GetOptionalUint64()
+            << ", Title: " << parser.ColumnParser("title").GetOptionalUtf8()
             << ", Air date: " << airDate.FormatLocalTime("%a %b %d, %Y")
-            << std::endl;
+            << Endl;
     }
 }
 
@@ -536,19 +536,19 @@ void ScanQuerySelect(TTableClient client, const std::string& path) {
     auto result = client.StreamExecuteScanQuery(query, parameters).GetValueSync();
 
     if (!result.IsSuccess()) {
-        std::cerr << "ScanQuery execution failure: " << result.GetIssues().ToString() << std::endl;
+        Cerr << "ScanQuery execution failure: " << result.GetIssues().ToString() << Endl;
         return;
     }
 
     bool eos = false;
-    std::cout << "> ScanQuerySelect:" << std::endl;
+    Cout << "> ScanQuerySelect:" << Endl;
     while (!eos) {
         auto streamPart = result.ReadNext().ExtractValueSync();
 
         if (!streamPart.IsSuccess()) {
             eos = true;
             if (!streamPart.EOS()) {
-                std::cerr << "ScanQuery execution failure: " << streamPart.GetIssues().ToString() << std::endl;
+                Cerr << "ScanQuery execution failure: " << streamPart.GetIssues().ToString() << Endl;
             }
             continue;
         }
@@ -559,12 +559,12 @@ void ScanQuerySelect(TTableClient client, const std::string& path) {
 
             TResultSetParser parser(rs);
             while (parser.TryNextRow()) {
-                std::cout << "Season"
-                     << ", SeriesId: " << ToString(parser.ColumnParser("series_id").GetOptionalUint64())
-                     << ", SeasonId: " << ToString(parser.ColumnParser("season_id").GetOptionalUint64())
-                     << ", Title: " << ToString(parser.ColumnParser("title").GetOptionalUtf8())
-                     << ", Air date: " << ToString(parser.ColumnParser("first_aired").GetOptionalString())
-                     << std::endl;
+                Cout << "Season"
+                     << ", SeriesId: " << parser.ColumnParser("series_id").GetOptionalUint64()
+                     << ", SeasonId: " << parser.ColumnParser("season_id").GetOptionalUint64()
+                     << ", Title: " << parser.ColumnParser("title").GetOptionalUtf8()
+                     << ", Air date: " << parser.ColumnParser("first_aired").GetOptionalString()
+                     << Endl;
             }
         }
     }
@@ -601,7 +601,7 @@ bool Run(const TDriver& driver, const std::string& path) {
         ScanQuerySelect(client, path);
     }
     catch (const TYdbErrorException& e) {
-        std::cerr << "Execution failed due to fatal error:" << std::endl;
+        Cerr << "Execution failed due to fatal error:" << Endl;
         PrintStatus(e.Status);
         return false;
     }

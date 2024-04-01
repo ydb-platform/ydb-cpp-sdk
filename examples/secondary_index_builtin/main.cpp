@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     TCommand cmd = Parse(command.c_str());
 
     if (cmd == TCommand::NONE) {
-        std::cerr << "Unsupported command: " << command << std::endl;
+        Cerr << "Unsupported command: " << command << Endl;
         return 1;
     }
 
@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
         }
 
     } catch (const TYdbErrorException& e) {
-        std::cerr << "Execution failed: " << ToString(e) << std::endl;
+        Cerr << "Execution failed: " << e << Endl;
         return 1;
     }
 }

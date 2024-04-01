@@ -4,8 +4,6 @@
 
 #include <util/folder/dirut.h>
 
-#include <iostream>
-
 Y_UNIT_TEST_SUITE(TExecPathTest) {
     Y_UNIT_TEST(TestIt) {
         std::string execPath = GetExecPath();
@@ -15,7 +13,7 @@ Y_UNIT_TEST_SUITE(TExecPathTest) {
             UNIT_ASSERT(NFs::Exists(execPath));
             UNIT_ASSERT(NFs::Exists(persistentExecPath));
         } catch (...) {
-            std::cerr << execPath << std::endl;
+            Cerr << execPath << Endl;
 
             throw;
         }

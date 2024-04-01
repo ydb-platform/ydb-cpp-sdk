@@ -6,7 +6,6 @@
 #include <util/charset/wide.h>
 #include <util/datetime/cputimer.h>
 
-#include <iostream>
 #include <string>
 #include <string_view>
 
@@ -28,7 +27,7 @@ inline void Cmp(const T1& t1, const T2& t2) {
         UNIT_ASSERT_EQUAL(t1.size(), t2.size());
     } catch (...) {
         Print(t1);
-        std::cerr << "---------------" << std::endl;
+        Cerr << "---------------" << Endl;
         Print(t2);
 
         throw;
@@ -41,7 +40,7 @@ inline void Cmp(const T1& t1, const T2& t2) {
         try {
             UNIT_ASSERT_EQUAL(*i, *j);
         } catch (...) {
-            std::cerr << "(" << *i << ")->(" << *j << ")" << std::endl;
+            Cerr << "(" << *i << ")->(" << *j << ")" << Endl;
 
             throw;
         }
@@ -51,7 +50,7 @@ inline void Cmp(const T1& t1, const T2& t2) {
 template <class T>
 inline void Print(const T& t) {
     for (typename T::const_iterator i = t.begin(); i != t.end(); ++i) {
-        std::cerr << *i << std::endl;
+        Cerr << *i << Endl;
     }
 }
 

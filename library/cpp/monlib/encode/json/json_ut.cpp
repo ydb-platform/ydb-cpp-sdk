@@ -42,7 +42,7 @@ namespace {
 
         if (diff.size() > 0) {
             for (auto&& l : diff) {
-                std::cerr << l << std::endl;
+                Cerr << l << Endl;
             }
 
             UNIT_FAIL("Labels don't match");
