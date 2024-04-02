@@ -39,10 +39,6 @@ TCompressionCodecFactory::TCompressionCodecFactory() {
     Add("y-lzma", [](auto s) { return MakeHolder<TLzmaDecompress>(s); }, [](auto s) { return MakeHolder<TLzmaCompress>(s); });
 
     for (auto codecName : NBlockCodecs::ListAllCodecs()) {
-        if (codecName.starts_with("zstd06")) {
-            continue;
-        }
-
         if (codecName.starts_with("zstd08")) {
             continue;
         }

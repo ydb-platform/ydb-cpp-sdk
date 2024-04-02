@@ -9,7 +9,6 @@
 add_subdirectory(brotli)
 add_subdirectory(bzip)
 add_subdirectory(fastlz)
-add_subdirectory(legacy_zstd06)
 add_subdirectory(lz4)
 add_subdirectory(lzma)
 add_subdirectory(snappy)
