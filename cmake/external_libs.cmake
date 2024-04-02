@@ -9,6 +9,7 @@ find_package(RapidJSON REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(xxHash REQUIRED)
 find_package(ZSTD REQUIRED)
+find_package(BZip2 REQUIRED)
 
 # rapidjson
 add_library(ydb-sdk-rapidjson INTERFACE)
