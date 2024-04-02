@@ -4,11 +4,6 @@
 
 #include <util/folder/pathsplit.h>
 
-Y_DECLARE_OUT_SPEC(, NYdb::TStatus, stream, value) {
-    stream << "Status: " << value.GetStatus() << Endl;
-    value.GetIssues().PrintTo(stream);
-}
-
 constexpr size_t BATCH_SIZE = 1000;
 
 struct TLogMessage {
@@ -58,7 +53,7 @@ bool WriteLogBatch(NYdb::NTable::TTableClient& tableClient, const std::string& t
     auto status = tableClient.RetryOperationSync(bulkUpsertOperation, retrySettings);
 
     if (!status.IsSuccess()) {
-        Cerr << Endl << "Write failed with status: " << (const NYdb::TStatus&)status << Endl;
+        std::cerr << std::endl << "Write failed with status: " << (const NYdb::TStatus&)status << std::endl;
         return false;
     }
     return true;
@@ -108,7 +103,7 @@ bool Run(const NYdb::TDriver &driver, const std::string &table, ui32 batchCount)
         Cerr << ".";
     }
 
-    Cerr << Endl << "Done." << Endl;
+    std::cerr << std::endl << "Done." << std::endl;
     return true;
 }
 

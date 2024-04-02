@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
         }
 
     } catch (const TYdbErrorException& e) {
-        Cerr << "Execution failed: " << e << Endl;
+        std::cerr << "Execution failed: " << e << std::endl;
         return 1;
     }
 }

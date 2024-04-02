@@ -91,20 +91,6 @@ std::string FormatCycles(ui64 cycles) {
     return result;
 }
 
-TFormattedPrecisionTimer::TFormattedPrecisionTimer(const char* message, IOutputStream* out)
-    : Message(message)
-    , Out(out)
-{
-    Start = GetCycleCount();
-}
-
-TFormattedPrecisionTimer::~TFormattedPrecisionTimer() {
-    const ui64 end = GetCycleCount();
-    const ui64 diff = end - Start;
-
-    *Out << Message << ": " << diff << " ticks " << FormatCycles(diff) << Endl;
-}
-
 TFuncTimer::TFuncTimer(const char* func)
     : Start_(TInstant::Now())
     , Func_(func)

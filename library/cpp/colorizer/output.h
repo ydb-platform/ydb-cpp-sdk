@@ -43,3 +43,5 @@ namespace NColorizer {
 
 #undef DEF
 }
+
+std::ostream& operator<<(std::ostream& o, const NColorizer::TColorHandle& h);

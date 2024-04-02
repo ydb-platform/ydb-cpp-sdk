@@ -37,7 +37,7 @@ Y_UNIT_TEST_SUITE(Https) {
                 client.DoGet("/ping");
                 break;
             } catch (const std::exception& e) {
-                Cout << "== failed to connect to new server: " << e.what() << Endl;
+                std::cout << "== failed to connect to new server: " << e.what() << std::endl;
                 Sleep(TDuration::MilliSeconds(1));
             }
         }

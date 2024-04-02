@@ -501,7 +501,7 @@ Y_UNIT_TEST_SUITE(TestHttpChunkParser) {
         for (size_t n = 0; n < states.size(); n++) {
             const std::string_view d{blob, n, 1};
             int code = parser.Execute(d.data(), d.size());
-            Cout << std::string(d).Quote() << " " << code << Endl;
+            std::cout << std::string(d).Quote() << " " << code << std::endl;
             UNIT_ASSERT_EQUAL(code, states[n]);
         }
         return parser;

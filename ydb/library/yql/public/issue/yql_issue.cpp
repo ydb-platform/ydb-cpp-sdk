@@ -65,7 +65,7 @@ TTextWalker& TTextWalker::Advance(char c) {
     return *this;
 }
 
-void TIssue::PrintTo(IOutputStream& out, bool oneLine) const {
+void TIssue::PrintTo(std::ostream& out, bool oneLine) const {
     out << Range() << ": " << SeverityToString(GetSeverity()) << ": ";
     if (oneLine) {
         std::string message = StripString(Message);
@@ -118,10 +118,10 @@ void WalkThroughIssues(const TIssue& topIssue, bool leafOnly, std::function<void
 
 namespace {
 
-Y_NO_INLINE void Indent(IOutputStream& out, ui32 indentation) {
+Y_NO_INLINE void Indent(std::ostream& out, ui32 indentation) {
     char* whitespaces = reinterpret_cast<char*>(alloca(indentation));
     memset(whitespaces, ' ', indentation);
-    out.Write(whitespaces, indentation);
+    out.write(whitespaces, indentation);
 }
 
 void ProgramLinesWithErrors(
@@ -156,7 +156,7 @@ void ProgramLinesWithErrors(
 
 } // namspace
 
-void TIssues::PrintTo(IOutputStream& out, bool oneLine) const
+void TIssues::PrintTo(std::ostream& out, bool oneLine) const
 {
     if (oneLine) {
         bool printWithSpace = false;
@@ -185,14 +185,14 @@ void TIssues::PrintTo(IOutputStream& out, bool oneLine) const
             WalkThroughIssues(topIssue, false, [&](const TIssue& issue, ui16 level) {
                 auto shift = level * 4;
                 Indent(out, shift);
-                out << issue << Endl;
+                out << issue << std::endl;
             });
         }
     }
 }
 
 void TIssues::PrintWithProgramTo(
-        IOutputStream& out,
+        std::ostream& out,
         const std::string& programFilename,
         const std::string& programText) const
 {
@@ -219,7 +219,7 @@ void TIssues::PrintWithProgramTo(
                 }
                 out << '^';
             }
-            out << Endl;
+            out << std::endl;
         });
     }
 }
@@ -277,29 +277,29 @@ std::optional<TPosition> TryParseTerminationMessage(std::string_view& message) {
 
 } // namspace NYql
 
-template <>
-void Out<NYql::TPosition>(IOutputStream& out, const NYql::TPosition& pos) {
+std::ostream& operator<<(std::ostream& out, const NYql::TPosition& pos) {
     out << (!pos.File.empty() ? pos.File : "<main>");
     if (pos) {
         out << ":" << pos.Row << ':' << pos.Column;
     }
+    return out;
 }
 
-template<>
-void Out<NYql::TRange>(IOutputStream & out, const NYql::TRange & range) {
+std::ostream& operator<<(std::ostream& out, const NYql::TRange& range) {
     if (range.IsRange()) {
         out << '[' << range.Position << '-' << range.EndPosition << ']';
     } else {
         out << range.Position;
     }
+    return out;
 }
 
-template <>
-void Out<NYql::TIssue>(IOutputStream& out, const NYql::TIssue& error) {
+std::ostream& operator<<(std::ostream& out, const NYql::TIssue& error) {
     error.PrintTo(out);
+    return out;
 }
 
-template <>
-void Out<NYql::TIssues>(IOutputStream& out, const NYql::TIssues& error) {
+std::ostream& operator<<(std::ostream& out, const NYql::TIssues& error) {
     error.PrintTo(out);
+    return out;
 }

@@ -3,6 +3,6 @@
 
 int main() {
     for (auto codec : SupportedCodings()) {
-        Cout << codec << Endl;
+        std::cout << codec << std::endl;
     }
 }

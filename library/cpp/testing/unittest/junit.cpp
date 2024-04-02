@@ -25,6 +25,8 @@
 #include <io.h>
 #endif
 
+#include <fstream>
+#include <iostream>
 #include <string_view>
 
 namespace NUnitTest {
@@ -213,12 +215,12 @@ void TJUnitProcessor::OnError(const TError* descr) {
     }
 }
 
-void TJUnitProcessor::TransferFromCapturer(THolder<TJUnitProcessor::TOutputCapturer>& capturer, std::string& out, IOutputStream& outStream) {
+void TJUnitProcessor::TransferFromCapturer(THolder<TJUnitProcessor::TOutputCapturer>& capturer, std::string& out, std::ostream& outStream) {
     if (capturer) {
         capturer->Uncapture();
         {
-            TFileInput fileStream(capturer->GetTmpFileName());
-            TransferData(&fileStream, &outStream);
+            std::ifstream fileStream(capturer->GetTmpFileName());
+            outStream << fileStream.rdbuf();
             out = SanitizeString(capturer->GetCapturedString());
         }
         capturer = nullptr;
@@ -233,8 +235,8 @@ void TJUnitProcessor::OnFinish(const TFinish* descr) {
             testCase->DurationSecods = (TInstant::Now() - StartCurrentTestTime).SecondsFloat();
         }
         StartCurrentTestTime = TInstant::Zero();
-        TransferFromCapturer(StdOutCapturer, testCase->StdOut, Cout);
-        TransferFromCapturer(StdErrCapturer, testCase->StdErr, Cerr);
+        TransferFromCapturer(StdOutCapturer, testCase->StdOut, std::cout);
+        TransferFromCapturer(StdErrCapturer, testCase->StdErr, std::cerr);
     } else {
         MergeSubprocessReport();
     }
