@@ -83,7 +83,7 @@ int Opt::Get(int* longOptionIndex) {
     } catch (const NLastGetopt::TException&) {
         GotError_ = true;
         if (Err)
-            Cerr << CurrentExceptionMessage() << Endl;
+            std::cerr << CurrentExceptionMessage() << std::endl;
         return '?';
     }
 }

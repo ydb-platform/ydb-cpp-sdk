@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 
     ECmd cmd = ParseCmd(*argv);
     if (cmd == ECmd::NONE) {
-        Cerr << "Unsupported command '" << *argv << "'" << Endl;
+        std::cerr << "Unsupported command '" << *argv << "'" << std::endl;
         return 1;
     }
 

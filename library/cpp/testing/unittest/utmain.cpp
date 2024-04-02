@@ -463,7 +463,7 @@ private:
             return;
         }
 
-        Cerr << d << "\n";
+        std::cerr << d.ToString() << "\n";
     }
 
     void OnEnd() override {

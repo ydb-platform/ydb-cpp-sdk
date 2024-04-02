@@ -83,7 +83,7 @@ namespace {
             // (this happens when test binary uses both `Cout` and `std::cout`).
             auto marker = Join("", "\n###subtest-started:", testInfo.test_suite_name(), "::", testInfo.name(), "\n");
 
-            // Theoretically, we don't need to flush both `Cerr` and `std::cerr` here because both ultimately
+            // Theoretically, we don't need to flush both `std::cerr` and `std::cerr` here because both ultimately
             // result in calling `fflush(stderr)`. However, there may be additional buffering logic
             // going on (custom `std::cerr.tie()`, for example), so just to be sure, we flush both of them.
             std::cout << marker << std::flush;

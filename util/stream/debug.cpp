@@ -17,7 +17,7 @@ void TDebugOutput::DoWrite(const void* buf, size_t len) {
 namespace {
     struct TDbgSelector {
         inline TDbgSelector() {
-            char* dbg = getenv("DBGOUT");
+            char* dbg = std::getenv("DBGOUT");
             if (dbg) {
                 Out = &Cerr;
                 try {

@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     TCommand cmd = Parse(command.c_str());
 
     if (cmd == TCommand::NONE) {
-        Cerr << "Unsupported command: " << command << Endl;
+        std::cerr << "Unsupported command: " << command << std::endl;
         return 1;
     }
 

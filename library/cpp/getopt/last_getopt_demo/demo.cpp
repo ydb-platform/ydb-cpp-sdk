@@ -59,7 +59,7 @@ protected:
             .IfPresentDisableCompletion()
             .NoArgument()
             .Handler([]() {
-                Cerr << "last_getopt_demo 1.0.0" << Endl;
+                std::cerr << "last_getopt_demo 1.0.0" << std::endl;
                 exit(0);
             });
 
@@ -208,28 +208,28 @@ protected:
 
         std::string method = ExplicitMethod_ ? ExplicitMethod_ : ImplicitMethod_;
 
-        Cerr << ST_LIGHT << "Settings:" << RESET << Endl;
-        Cerr << GREEN << "  Background: " << RESET << Background_ << Endl;
-        Cerr << GREEN << "  Timeout: " << RESET << Timeout_ << Endl;
-        Cerr << GREEN << "  Method: " << RESET << method.Quote() << Endl;
-        Cerr << GREEN << "  UserAgent: " << RESET << UserAgent_.Quote() << Endl;
-        Cerr << GREEN << "  PostData: " << RESET << (PostData_ ? PostData_->Quote() : "Nothing") << Endl;
-        Cerr << GREEN << "  PostFile: " << RESET << (PostFile_ ? PostFile_->Quote() : "Nothing") << Endl;
+        std::cerr << ST_LIGHT << "Settings:" << RESET << std::endl;
+        std::cerr << GREEN << "  Background: " << RESET << Background_ << std::endl;
+        std::cerr << GREEN << "  Timeout: " << RESET << Timeout_ << std::endl;
+        std::cerr << GREEN << "  Method: " << RESET << method.Quote() << std::endl;
+        std::cerr << GREEN << "  UserAgent: " << RESET << UserAgent_.Quote() << std::endl;
+        std::cerr << GREEN << "  PostData: " << RESET << (PostData_ ? PostData_->Quote() : "Nothing") << std::endl;
+        std::cerr << GREEN << "  PostFile: " << RESET << (PostFile_ ? PostFile_->Quote() : "Nothing") << std::endl;
 
-        Cerr << ST_LIGHT << "Headers:" << RESET << Endl;
+        std::cerr << ST_LIGHT << "Headers:" << RESET << std::endl;
         for (auto& header : Headers_) {
-            Cerr << "  " << header.Quote() << Endl;
+            std::cerr << "  " << header.Quote() << std::endl;
         }
         if (!Headers_) {
-            Cerr << GREEN << "  no headers" << RESET << Endl;
+            std::cerr << GREEN << "  no headers" << RESET << std::endl;
         }
 
-        Cerr << ST_LIGHT << "Will download the following URLs:" << RESET << Endl;
+        std::cerr << ST_LIGHT << "Will download the following URLs:" << RESET << std::endl;
         for (auto& arg : parsedOptions.GetFreeArgs()) {
-            Cerr << "  " << arg.Quote() << Endl;
+            std::cerr << "  " << arg.Quote() << std::endl;
         }
         if (!parsedOptions.GetFreeArgs()) {
-            Cerr << "  no urls" << Endl;
+            std::cerr << "  no urls" << std::endl;
         }
         return 0;
     }

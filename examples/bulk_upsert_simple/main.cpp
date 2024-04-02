@@ -60,7 +60,7 @@ bool WriteLogBatch(NYdb::NTable::TTableClient& tableClient, const std::string& t
 }
 
 bool CreateLogTable(NYdb::NTable::TTableClient& client, const std::string& table) {
-    Cerr << "Create table " << table << "\n";
+    std::cerr << "Create table " << table << "\n";
 
     NYdb::NTable::TRetryOperationSettings settings;
     auto status = client.RetryOperationSync([&table](NYdb::NTable::TSession session) {
@@ -77,7 +77,7 @@ bool CreateLogTable(NYdb::NTable::TTableClient& client, const std::string& table
         }, settings);
 
     if (!status.IsSuccess()) {
-        Cerr << "Create table failed with status: " << status << Endl;
+        std::cerr << "Create table failed with status: " << status << std::endl;
         return false;
     }
     return true;
@@ -100,7 +100,7 @@ bool Run(const NYdb::TDriver &driver, const std::string &table, ui32 batchCount)
         if (!WriteLogBatch(client, table, logBatch, writeRetrySettings)) {
             return false;
         }
-        Cerr << ".";
+        std::cerr << ".";
     }
 
     std::cerr << std::endl << "Done." << std::endl;
