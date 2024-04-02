@@ -19,9 +19,9 @@ int RunUpdateViews(TDriver& driver, const std::string& prefix, int argc, char** 
 
     TOptsParseResult res(&opts, argc, argv);
 
-    std::string queryText = Sprintf(R"(
+    std::string queryText = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%1$s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $seriesId AS Uint64;
         DECLARE $newViews AS Uint64;
@@ -46,7 +46,7 @@ int RunUpdateViews(TDriver& driver, const std::string& prefix, int argc, char** 
         SELECT $newRevViews AS rev_views, series_id FROM $data;
 
         SELECT COUNT(*) AS cnt FROM $data;
-    )", prefix.data());
+    )", prefix);
 
     ui64 updatedCount = 0;
 

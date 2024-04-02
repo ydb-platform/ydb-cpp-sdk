@@ -1,7 +1,6 @@
 #include "token.h"
 
 #include <util/string/vector.h>
-#include <util/string/printf.h>
 
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////

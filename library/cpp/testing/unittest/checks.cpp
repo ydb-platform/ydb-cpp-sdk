@@ -1,5 +1,7 @@
-#include <string>
 #include <util/string/type.h>
+
+#include <cstring>
+#include <string>
 
 bool CheckExceptionMessage(const char* msg, std::string& err) {
     static const char* badMsg[] = {
@@ -21,7 +23,7 @@ bool CheckExceptionMessage(const char* msg, std::string& err) {
     }
 
     for (auto& i : badMsg) {
-        if (strstr(msg, i) != nullptr) {
+        if (std::strstr(msg, i) != nullptr) {
             err = "Invalid error message: " + std::string(msg);
             return false;
         }

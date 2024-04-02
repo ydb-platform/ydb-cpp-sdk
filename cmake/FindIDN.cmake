@@ -6,11 +6,13 @@
 
 find_path(IDN_INCLUDE_DIR
   idna.h
-  HINTS $ENV{IDN_ROOT}/include)
+  HINTS $ENV{IDN_ROOT}/include
+)
 
 find_library(IDN_LIBRARIES
   idn
-  HINTS $ENV{IDN_ROOT}/lib)
+  HINTS $ENV{IDN_ROOT}/lib
+)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(IDN DEFAULT_MSG IDN_LIBRARIES IDN_INCLUDE_DIR)

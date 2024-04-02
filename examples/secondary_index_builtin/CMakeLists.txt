@@ -3,7 +3,7 @@ add_executable(secondary_index_builtin)
 target_link_libraries(secondary_index_builtin PUBLIC
   yutil
   library-cpp-getopt
-  cpp-client-ydb_table
+  YDB-CPP-SDK::Table
 )
 
 target_sources(secondary_index_builtin PRIVATE
@@ -18,7 +18,7 @@ target_sources(secondary_index_builtin PRIVATE
 
 vcs_info(secondary_index_builtin)
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(secondary_index_builtin PUBLIC
     library-cpp-cpuid_check
   )
@@ -29,13 +29,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     -ldl
     -lrt
     -Wl,--no-as-needed
-    -fPIC
     -lpthread
   )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_link_options(secondary_index_builtin PRIVATE
     -Wl,-platform_version,macos,11.0,11.0
-    -fPIC
     -framework
     CoreFoundation
   )

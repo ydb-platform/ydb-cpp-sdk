@@ -1,9 +1,6 @@
 #include "ttl.h"
 #include "util.h"
 
-#include <util/folder/pathsplit.h>
-#include <util/string/printf.h>
-
 using namespace NExample;
 using namespace NYdb;
 using namespace NYdb::NTable;
@@ -42,7 +39,7 @@ static void CreateTables(TTableClient client, const std::string& path) {
                 .SetPrimaryKeyColumns({"timestamp", "doc_id"})
                 .Build();
 
-            return session.CreateTable(JoinPath(path, Sprintf("expiration_queue_%" PRIu32, i)),
+            return session.CreateTable(JoinPath(path, std::format("expiration_queue_{}", i)),
                 std::move(expirationDesc)).GetValueSync();
         }));
     }
@@ -57,9 +54,9 @@ static TStatus AddDocumentTransaction(TSession session, const std::string& path,
     // Add an entry to a random expiration queue in order to evenly distribute the load
     ui32 queue = rand() % EXPIRATION_QUEUE_COUNT;
 
-    auto query = Sprintf(R"(
+    auto query = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $url AS Utf8;
         DECLARE $html AS Utf8;
@@ -72,11 +69,11 @@ static TStatus AddDocumentTransaction(TSession session, const std::string& path,
         VALUES
             ($doc_id, $url, $html, $timestamp);
 
-        REPLACE INTO expiration_queue_%u
+        REPLACE INTO expiration_queue_{}
             (`timestamp`, doc_id)
         VALUES
             ($timestamp, $doc_id);
-    )", path.c_str(), queue);
+    )", path, queue);
 
     auto params = session.GetParamsBuilder()
         .AddParam("$url").Utf8(url).Build()
@@ -94,9 +91,9 @@ static TStatus AddDocumentTransaction(TSession session, const std::string& path,
 static TStatus ReadDocumentTransaction(TSession session, const std::string& path,
     const std::string& url, std::optional<TResultSet>& resultSet)
 {
-    auto query = Sprintf(R"(
+    auto query = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $url AS Utf8;
 
@@ -105,7 +102,7 @@ static TStatus ReadDocumentTransaction(TSession session, const std::string& path
         SELECT doc_id, url, html, `timestamp`
         FROM documents
         WHERE doc_id = $doc_id;
-    )", path.c_str());
+    )", path);
 
     auto params = session.GetParamsBuilder()
         .AddParam("$url").Utf8(url).Build()
@@ -127,9 +124,9 @@ static TStatus ReadDocumentTransaction(TSession session, const std::string& path
 static TStatus ReadExpiredBatchTransaction(TSession session, const std::string& path, const ui32 queue,
     const ui64 timestamp, const ui64 prevTimestamp, const ui64 prevDocId, std::optional<TResultSet>& resultSet)
 {
-    auto query = Sprintf(R"(
+    auto query = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{0}");
 
         DECLARE $timestamp AS Uint64;
         DECLARE $prev_timestamp AS Uint64;
@@ -137,7 +134,7 @@ static TStatus ReadExpiredBatchTransaction(TSession session, const std::string& 
 
         $data = (
             (SELECT *
-            FROM expiration_queue_%u
+            FROM expiration_queue_{1}
             WHERE
                 `timestamp` <= $timestamp
                 AND
@@ -148,7 +145,7 @@ static TStatus ReadExpiredBatchTransaction(TSession session, const std::string& 
             UNION ALL
 
             (SELECT *
-            FROM expiration_queue_%u
+            FROM expiration_queue_{1}
             WHERE
                 `timestamp` = $prev_timestamp AND doc_id > $prev_doc_id
             ORDER BY `timestamp`, doc_id
@@ -159,7 +156,7 @@ static TStatus ReadExpiredBatchTransaction(TSession session, const std::string& 
         FROM $data
         ORDER BY `timestamp`, doc_id
         LIMIT 100;
-    )", path.c_str(), queue, queue);
+    )", path, queue);
 
     auto params = session.GetParamsBuilder()
         .AddParam("$timestamp").Uint64(timestamp).Build()
@@ -183,9 +180,9 @@ static TStatus ReadExpiredBatchTransaction(TSession session, const std::string& 
 static TStatus DeleteDocumentWithTimestamp(TSession session, const std::string& path, const ui32 queue,
     const ui64 docId, const ui64 timestamp)
 {
-    auto query = Sprintf(R"(
+    auto query = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $doc_id AS Uint64;
         DECLARE $timestamp AS Uint64;
@@ -193,9 +190,9 @@ static TStatus DeleteDocumentWithTimestamp(TSession session, const std::string& 
         DELETE FROM documents
         WHERE doc_id = $doc_id AND `timestamp` = $timestamp;
 
-        DELETE FROM expiration_queue_%u
+        DELETE FROM expiration_queue_{}
         WHERE `timestamp` = $timestamp AND doc_id = $doc_id;
-    )", path.c_str(), queue);
+    )", path, queue);
 
     auto params = session.GetParamsBuilder()
         .AddParam("$doc_id").Uint64(docId).Build()

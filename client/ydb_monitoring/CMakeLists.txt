@@ -19,4 +19,4 @@ generate_enum_serilization(cpp-client-ydb_monitoring
   client/ydb_monitoring/monitoring.h
 )
 
-
+add_library(YDB-CPP-SDK::Monitoring ALIAS cpp-client-ydb_monitoring)

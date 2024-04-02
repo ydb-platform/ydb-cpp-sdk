@@ -134,7 +134,7 @@ Y_UNIT_TEST_SUITE(SimpleHttp) {
         ui16 port = pm.GetPort(80);
         NMock::TMockServer server(createOptions(port, false), []() { return new TPong; });
 
-        TSimpleHttpClient cl("localhost", port);
+         cl("localhost", port);
         UNIT_ASSERT_VALUES_EQUAL(0, server.GetClientCount());
 
         {

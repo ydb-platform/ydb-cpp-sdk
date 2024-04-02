@@ -1,22 +1,31 @@
 set(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET "" CACHE STRING "Name of cmake target preparing google common proto library")
+option(YDB_SDK_USE_RAPID_JSON "" ON)
 
 find_package(IDN REQUIRED)
 find_package(Iconv REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
-find_package(RapidJSON REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(xxHash REQUIRED)
 find_package(ZSTD REQUIRED)
 find_package(BZip2 REQUIRED)
+find_package(LZ4 REQUIRED)
+find_package(Snappy 1.1.8 REQUIRED)
+find_package(base64 REQUIRED)
+find_package(Brotli 1.1.0 REQUIRED)
+find_package(GTest REQUIRED)
 
-# rapidjson
-add_library(ydb-sdk-rapidjson INTERFACE)
+# RapidJSON
+if (YDB_SDK_USE_RAPID_JSON)
+  find_package(RapidJSON REQUIRED)
 
-target_include_directories(ydb-sdk-rapidjson INTERFACE
-  ${RAPIDJSON_INCLUDE_DIRS}
-)
+  add_library(RapidJSON::RapidJSON INTERFACE IMPORTED)
+
+  target_include_directories(RapidJSON::RapidJSON INTERFACE
+    ${RAPIDJSON_INCLUDE_DIRS}
+  )
+endif ()
 
 # api-common-protos
 if (YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET)

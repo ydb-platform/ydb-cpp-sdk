@@ -2,7 +2,6 @@ add_library(cpp-openssl-io)
 
 target_link_libraries(cpp-openssl-io PUBLIC
   yutil
-  certs
   OpenSSL::SSL
   cpp-openssl-init
   cpp-openssl-method

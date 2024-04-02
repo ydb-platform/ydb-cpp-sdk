@@ -1,7 +1,5 @@
 #include "secondary_index.h"
 
-#include <util/string/printf.h>
-
 using namespace NYdb;
 using namespace NYdb::NTable;
 using namespace NLastGetopt;
@@ -9,9 +7,9 @@ using namespace NLastGetopt;
 TStatus SelectSeriesWithUserName(TSession session, const std::string& path,
             std::vector<TSeries>& selectResult, const std::string& name) {
 
-    auto queryText = Sprintf(R"(
+    auto queryText = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $userName AS Utf8;
 
@@ -20,7 +18,7 @@ TStatus SelectSeriesWithUserName(TSession session, const std::string& path,
         INNER JOIN `users` VIEW name_index AS t2
         ON t1.uploaded_user_id == t2.user_id
         WHERE t2.name == $userName;
-    )", path.c_str());
+    )", path);
 
     auto prepareResult = session.PrepareDataQuery(queryText).ExtractValueSync();
     if (!prepareResult.IsSuccess()) {

@@ -2,12 +2,7 @@ add_library(cpp-string_utils-base64)
 
 target_link_libraries(cpp-string_utils-base64 PUBLIC
   yutil
-  libs-base64-avx2
-  libs-base64-ssse3
-  libs-base64-neon32
-  libs-base64-neon64
-  libs-base64-plain32
-  libs-base64-plain64
+  aklomp::base64
 )
 
 target_sources(cpp-string_utils-base64 PRIVATE

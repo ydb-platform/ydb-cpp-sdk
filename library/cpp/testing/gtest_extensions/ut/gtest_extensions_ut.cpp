@@ -1,8 +1,12 @@
 #include <library/cpp/testing/gtest/gtest.h>
 
-#include <string>
 #include <util/stream/output.h>
 #include <util/stream/str.h>
+
+#include <string>
+
+using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 namespace {
     class IMock {
@@ -236,8 +240,8 @@ struct TThrowsOnMove {
 };
 
 TEST(PrettyPrinters, String) {
-    EXPECT_EQ(GtestPrint(std::string("hello world")), "\"hello world\"");
-    EXPECT_EQ(GtestPrint(std::string_view("hello world")), "\"hello world\"");
+    EXPECT_EQ(GtestPrint("hello world"s), "\"hello world\"");
+    EXPECT_EQ(GtestPrint("hello world"sv), "\"hello world\"");
 }
 
 struct T1 {

@@ -4,7 +4,6 @@
 #include <util/memory/smallobj.h>
 #include <util/generic/intrlist.h>
 #include <util/generic/singleton.h>
-#include <util/system/env.h>
 #include <util/string/cast.h>
 
 namespace {
@@ -312,7 +311,7 @@ namespace {
 
     struct TUserPoller: public std::string {
         TUserPoller()
-            : std::string(GetEnv("USER_POLLER"))
+            : std::string(std::getenv("USER_POLLER") ? std::getenv("USER_POLLER") : "")
         {
         }
     };

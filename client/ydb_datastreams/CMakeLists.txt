@@ -15,4 +15,4 @@ target_sources(cpp-client-ydb_datastreams PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_datastreams/datastreams.cpp
 )
 
-
+add_library(YDB-CPP-SDK::Datastreams ALIAS cpp-client-ydb_datastreams)

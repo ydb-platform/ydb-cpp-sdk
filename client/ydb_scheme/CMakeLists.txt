@@ -18,4 +18,4 @@ generate_enum_serilization(cpp-client-ydb_scheme
   client/ydb_scheme/scheme.h
 )
 
-
+add_library(YDB-CPP-SDK::Scheme ALIAS cpp-client-ydb_scheme)

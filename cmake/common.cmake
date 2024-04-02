@@ -2,23 +2,10 @@
 
 find_package(Python3 REQUIRED)
 
-add_compile_definitions(CATBOOST_OPENSOURCE=yes)
-
 # assumes ToolName is always both the binary and the target name
-function(get_built_tool_path OutBinPath OutDependency SrcPath ToolName)
-  if (CMAKE_GENERATOR MATCHES "Visual.Studio.*")
-    set(BinPath "${TOOLS_ROOT}/${SrcPath}/\$(Configuration)/${ToolName}${CMAKE_EXECUTABLE_SUFFIX}")
-  else()
-    set(BinPath "${TOOLS_ROOT}/${SrcPath}/${ToolName}${CMAKE_EXECUTABLE_SUFFIX}")
-  endif()
-  set(${OutBinPath} ${BinPath} PARENT_SCOPE)
-  if (CMAKE_CROSSCOMPILING)
-    set(${OutDependency} ${BinPath} PARENT_SCOPE)
-  else()
-    set(${OutDependency} ${ToolName} PARENT_SCOPE)
-  endif()
+function(get_built_tool_path OutBinPath SrcPath ToolName)
+  set(${OutBinPath} "${CMAKE_BINARY_DIR}/${SrcPath}/${ToolName}${CMAKE_EXECUTABLE_SUFFIX}" PARENT_SCOPE)
 endfunction()
-
 
 function(target_ragel_lexers TgtName Key Src)
   SET(RAGEL_BIN ragel${CMAKE_EXECUTABLE_SUFFIX})
@@ -112,7 +99,7 @@ function(generate_enum_serilization Tgt Input)
     ${ARGN}
   )
 
-  get_built_tool_path(enum_parser_bin enum_parser_dependency tools/enum_parser/enum_parser enum_parser)
+  get_built_tool_path(enum_parser_bin tools/enum_parser/enum_parser enum_parser)
 
   get_filename_component(BaseName ${Input} NAME)
   add_custom_command(
@@ -122,7 +109,7 @@ function(generate_enum_serilization Tgt Input)
       ${Input}
       --include-path ${ENUM_SERIALIZATION_ARGS_INCLUDE_HEADERS}
       --output ${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_serialized.cpp
-    DEPENDS ${Input} ${enum_parser_dependency}
+    DEPENDS ${Input} ${enum_parser_bin}
   )
   target_sources(${Tgt} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_serialized.cpp)
 endfunction()
@@ -189,12 +176,12 @@ function(resources Tgt Output)
     list(APPEND ResourcesList ${Key})
   endforeach()
 
-  get_built_tool_path(rescompiler_bin rescompiler_dependency tools/rescompiler/bin rescompiler)
+  get_built_tool_path(rescompiler_bin tools/rescompiler/bin rescompiler)
 
   add_custom_command(
     OUTPUT ${Output}
     COMMAND ${rescompiler_bin} ${Output} ${ResourcesList}
-    DEPENDS ${RESOURCE_ARGS_INPUTS} ${rescompiler_dependency}
+    DEPENDS ${RESOURCE_ARGS_INPUTS} ${rescompiler_bin}
   )
 endfunction()
 

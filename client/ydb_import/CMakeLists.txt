@@ -22,4 +22,4 @@ generate_enum_serilization(cpp-client-ydb_import
   client/ydb_import/import.h
 )
 
-
+add_library(YDB-CPP-SDK::Import ALIAS cpp-client-ydb_import)

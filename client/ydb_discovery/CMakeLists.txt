@@ -10,8 +10,4 @@ target_sources(cpp-client-ydb_discovery PRIVATE
   ${CMAKE_SOURCE_DIR}/client/ydb_discovery/discovery.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
-target_link_libraries(cpp-client-ydb_discovery PUBLIC
-  
-)
-endif()
+add_library(YDB-CPP-SDK::Discovery ALIAS cpp-client-ydb_discovery)

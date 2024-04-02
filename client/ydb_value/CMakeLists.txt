@@ -24,4 +24,4 @@ generate_enum_serilization(cpp-client-ydb_value
   client/ydb_value/value.h
 )
 
-
+add_library(YDB-CPP-SDK::Value ALIAS cpp-client-ydb_value)

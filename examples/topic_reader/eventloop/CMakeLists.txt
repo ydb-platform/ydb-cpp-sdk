@@ -2,7 +2,7 @@ add_executable(persqueue_reader_eventloop)
 
 target_link_libraries(persqueue_reader_eventloop PUBLIC
   yutil
-  cpp-client-ydb_topic
+  YDB-CPP-SDK::Topic
   library-cpp-getopt
 )
 
@@ -12,7 +12,7 @@ target_sources(persqueue_reader_eventloop PRIVATE
 
 vcs_info(persqueue_reader_eventloop)
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(persqueue_reader_eventloop PUBLIC
     library-cpp-cpuid_check
   )
@@ -23,13 +23,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     -ldl
     -lrt
     -Wl,--no-as-needed
-    -fPIC
     -lpthread
   )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_link_options(persqueue_reader_eventloop PRIVATE
     -Wl,-platform_version,macos,11.0,11.0
-    -fPIC
     -framework
     CoreFoundation
   )

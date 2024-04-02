@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string>
-
 #include <gmock/gmock.h>
+
+#include <string>
 
 namespace NGTest {
     namespace NDetail {

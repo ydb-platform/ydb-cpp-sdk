@@ -2,7 +2,7 @@ add_executable(read_from_topic_in_transaction)
 
 target_link_libraries(read_from_topic_in_transaction PUBLIC
   yutil
-  cpp-client-ydb_topic
+  YDB-CPP-SDK::Topic
   library-cpp-getopt
 )
 
@@ -14,7 +14,7 @@ target_sources(read_from_topic_in_transaction PRIVATE
 
 vcs_info(read_from_topic_in_transaction)
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(read_from_topic_in_transaction PUBLIC
     library-cpp-cpuid_check
   )
@@ -25,13 +25,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     -ldl
     -lrt
     -Wl,--no-as-needed
-    -fPIC
     -lpthread
   )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_link_options(read_from_topic_in_transaction PRIVATE
     -Wl,-platform_version,macos,11.0,11.0
-    -fPIC
     -framework
     CoreFoundation
   )
