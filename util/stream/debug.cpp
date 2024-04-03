@@ -38,7 +38,3 @@ struct TSingletonTraits<TDbgSelector> {
 std::ostream& StdDbgStream() noexcept {
     return *(Singleton<TDbgSelector>()->Out);
 }
-
-int StdDbgLevel() noexcept {
-    return Singleton<TDbgSelector>()->Level;
-}

@@ -11,10 +11,10 @@
 #include <util/generic/yexception.h>
 #include <util/memory/tempbuf.h>
 #include <util/network/socket.h>
-#include <util/stream/pipe.h>
 #include <util/stream/str.h>
 #include <util/string/cast.h>
 #include <util/system/info.h>
+#include <util/system/pipe.h>
 
 #include <errno.h>
 #include <iostream>

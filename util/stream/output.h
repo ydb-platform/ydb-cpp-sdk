@@ -1,7 +1,6 @@
 #pragma once
 
 #include "fwd.h"
-#include "labeled.h"
 
 #include <util/generic/noncopyable.h>
 #include <util/generic/typetraits.h>
