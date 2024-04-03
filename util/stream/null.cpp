@@ -2,8 +2,12 @@
 
 #include <util/generic/singleton.h>
 
-TNullIO& NPrivate::StdNullStream() noexcept {
+TNullIO& NPrivate::UtilNullStream() noexcept {
     return *SingletonWithPriority<TNullIO, 4>();
+}
+
+std::iostream& NPrivate::StdNullStream() noexcept {
+    return *SingletonWithPriority<TStdNullStream, 4>();
 }
 
 TNullInput::TNullInput() noexcept {
@@ -34,3 +38,15 @@ TNullIO::TNullIO() noexcept {
 }
 
 TNullIO::~TNullIO() = default;
+
+int TStdNullStream::TBuf::overflow(int c) {
+    return c;
+}
+
+int TStdNullStream::TBuf::underflow() {
+    return traits_type::eof();
+}
+
+int TStdNullStream::TBuf::uflow() {
+    return traits_type::eof();
+}
