@@ -3,7 +3,7 @@
 #include <util/memory/addstorage.h>
 #include <util/generic/scope.h>
 
-#include <contrib/libs/libbz2/bzlib.h>
+#include <bzlib.h>
 
 class TBZipDecompress::TImpl: public TAdditionalStorage<TImpl> {
 public:
