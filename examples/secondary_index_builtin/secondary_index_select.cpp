@@ -1,22 +1,20 @@
 #include "secondary_index.h"
 
-#include <util/string/printf.h>
-
 using namespace NYdb;
 using namespace NYdb::NTable;
 using namespace NLastGetopt;
 
 TStatus SelectSeriesWithViews(TSession session, const std::string& path, std::vector<TSeries>& selectResult, ui64 minViews) {
-    auto queryText = Sprintf(R"(
+    auto queryText = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $minViews AS Uint64;
 
         SELECT series_id, title, info, release_date, views, uploaded_user_id
         FROM `series` VIEW views_index
         WHERE views >= $minViews
-    )", path.c_str());
+    )", path);
 
     auto prepareResult = session.PrepareDataQuery(queryText).ExtractValueSync();
     if (!prepareResult.IsSuccess()) {

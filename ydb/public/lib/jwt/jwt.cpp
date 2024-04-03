@@ -1,8 +1,4 @@
 #include </usr/local/include/jwt-cpp/jwt.h>
-<<<<<<< HEAD
-
-=======
->>>>>>> 29cb7bd7a9f021e5b5e55b656c3d7bb7c6f8e6c8
 
 #include "jwt.h"
 

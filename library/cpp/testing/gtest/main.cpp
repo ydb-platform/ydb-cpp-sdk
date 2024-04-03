@@ -26,7 +26,7 @@ namespace {
     }
 
     std::pair<std::string_view, std::string_view> ParseName(std::string_view name) {
-        auto pos = name.find("::");
+        const auto pos = name.find("::");
         if (pos == std::string_view::npos) {
             return {name, "*"};
         } else {
@@ -35,7 +35,7 @@ namespace {
     }
 
     std::pair<std::string_view, std::string_view> ParseParam(std::string_view param) {
-        auto pos = param.find("=");
+        const auto pos = param.find("=");
         if (pos == std::string_view::npos) {
             return {param, ""};
         } else {

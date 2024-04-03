@@ -20,7 +20,6 @@
 #include <util/generic/utility.h>
 #include <util/generic/yexception.h>
 #include <util/stream/mem.h>
-#include <util/system/env.h>
 
 #include <utility>
 #include <variant>
@@ -41,7 +40,7 @@ namespace NYdb::NTopic::NCompressionDetails {
 
 namespace NYdb::NPersQueue {
 
-static const bool RangesMode = !GetEnv("PQ_OFFSET_RANGES_MODE").empty();
+static const bool RangesMode = !std::string{std::getenv("PQ_OFFSET_RANGES_MODE") ? std::getenv("PQ_OFFSET_RANGES_MODE") : ""}.empty();
 
 template <typename TReaderCounters>
 void MakeCountersNotNull(TReaderCounters& counters);

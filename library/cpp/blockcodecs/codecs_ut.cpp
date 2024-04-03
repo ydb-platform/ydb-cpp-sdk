@@ -313,10 +313,6 @@ Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
 
             "zlib,zlib-0,zlib-1,zlib-2,zlib-3,zlib-4,zlib-5,zlib-6,zlib-7,zlib-8,zlib-9,"
 
-            "zstd06_1,zstd06_10,zstd06_11,zstd06_12,zstd06_13,zstd06_14,zstd06_15,zstd06_16,zstd06_17,zstd06_18,"
-            "zstd06_19,zstd06_2,zstd06_20,zstd06_21,zstd06_22,zstd06_3,zstd06_4,zstd06_5,zstd06_6,zstd06_7,zstd06_8,"
-            "zstd06_9,"
-
             "zstd08_1,zstd08_10,zstd08_11,zstd08_12,zstd08_13,zstd08_14,zstd08_15,zstd08_16,zstd08_17,zstd08_18,"
             "zstd08_19,zstd08_2,zstd08_20,zstd08_21,zstd08_22,zstd08_3,zstd08_4,zstd08_5,zstd08_6,zstd08_7,zstd08_8,"
             "zstd08_9,zstd_1,zstd_10,zstd_11,zstd_12,zstd_13,zstd_14,zstd_15,zstd_16,zstd_17,zstd_18,zstd_19,zstd_2,"

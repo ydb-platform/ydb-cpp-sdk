@@ -39,12 +39,12 @@ private:
     void CheckLCSString(std::string_view s1, std::string_view s2, std::string_view reflcs) {
         std::string lcs;
         size_t len = NLCS::MakeLCS<char>(s1, s2, &lcs);
-        const char* comment = Sprintf("%s & %s = %s", s1.data(), s2.data(), reflcs.data()).c_str();
+        auto comment = std::format("{} & {} = {}", s1, s2, reflcs);
 
-        UNIT_ASSERT_VALUES_EQUAL_C(Length(s1, s2), len, comment);
-        UNIT_ASSERT_VALUES_EQUAL_C(lcs.size(), len, comment);
-        UNIT_ASSERT_VALUES_EQUAL_C(NLCS::MeasureLCS<char>(s1, s2), len, comment);
-        UNIT_ASSERT_VALUES_EQUAL_C(reflcs, std::string_view(lcs), comment);
+        UNIT_ASSERT_VALUES_EQUAL_C(Length(s1, s2), len, comment.c_str());
+        UNIT_ASSERT_VALUES_EQUAL_C(lcs.size(), len, comment.c_str());
+        UNIT_ASSERT_VALUES_EQUAL_C(NLCS::MeasureLCS<char>(s1, s2), len, comment.c_str());
+        UNIT_ASSERT_VALUES_EQUAL_C(reflcs, std::string_view(lcs), comment.c_str());
     }
 
     void LCSTest() {

@@ -3,7 +3,6 @@
 #include <util/string/builder.h>
 #include <library/cpp/string_utils/base64/base64.h>
 #include <util/string/builder.h>
-#include <util/string/printf.h>
 #include <library/cpp/json/json_reader.h>
 
 namespace NYdb {
@@ -48,7 +47,7 @@ namespace NYdb {
                     Buffer.push_back('n');
                 } else if (c < '\x20' || c > '\x7E') {
                     SwitchToNonAscii(str);
-                    std::string tmp = Sprintf("\\u%04X", c);
+                    std::string tmp = std::format("\\u%04X", c);
                     for (unsigned char c : tmp) {
                         Buffer.push_back(c);
                     }

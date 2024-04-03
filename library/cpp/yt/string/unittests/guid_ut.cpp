@@ -5,6 +5,8 @@
 
 #include <util/string/hex.h>
 
+#include <format>
+
 namespace NYT {
 namespace {
 
@@ -14,7 +16,7 @@ static_assert(TFormatTraits<TGuid>::HasCustomFormatValue);
 
 std::string CanonicalToString(TGuid value)
 {
-   return Sprintf("%x-%x-%x-%x",
+   return std::format("%x-%x-%x-%x",
         value.Parts32[3],
         value.Parts32[2],
         value.Parts32[1],

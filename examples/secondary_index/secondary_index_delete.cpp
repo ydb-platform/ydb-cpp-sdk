@@ -7,9 +7,9 @@ using namespace NYdb::NTable;
 ////////////////////////////////////////////////////////////////////////////////
 
 static TStatus DeleteSeries(TSession& session, const std::string& prefix, ui64 seriesId, ui64& deletedCount) {
-    auto queryText = Sprintf(R"(
+    auto queryText = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%1$s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $seriesId AS Uint64;
 
@@ -29,7 +29,7 @@ static TStatus DeleteSeries(TSession& session, const std::string& prefix, ui64 s
         ON SELECT rev_views, series_id FROM $data;
 
         SELECT COUNT(*) AS cnt FROM $data;
-    )", prefix.data());
+    )", prefix);
 
     auto prepareResult = session.PrepareDataQuery(queryText).ExtractValueSync();
     if (!prepareResult.IsSuccess()) {

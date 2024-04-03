@@ -5,7 +5,6 @@
 
 #include <util/generic/bt_exception.h>
 #include <util/random/fast.h>
-#include <util/string/printf.h>
 #include <util/system/backtrace.h>
 #include <util/system/guard.h>
 #include <util/system/tls.h>
@@ -13,6 +12,8 @@
 #include <util/string/cast.h>
 
 #include <mutex>
+
+using namespace std::string_literals;
 
 bool NUnitTest::ShouldColorizeDiff = true;
 
@@ -83,7 +84,7 @@ struct TDiffColorizer {
     }
 
     std::string Special(std::string_view str) const {
-        return ToString(Colors.YellowColor()) + str;
+        return ToString(Colors.YellowColor()) += str;
     }
 
     std::string Common(TArrayRef<const char> str) const {
@@ -137,11 +138,11 @@ struct TTraceDiffFormatter {
 };
 
 std::string NUnitTest::GetFormatTag(const char* name) {
-    return Sprintf("[[%s]]", name);
+    return std::format("[[{}]]", name);
 }
 
 std::string NUnitTest::GetResetTag() {
-    return std::string("[[rst]]");
+    return "[[rst]]"s;
 }
 
 std::string NUnitTest::ColoredDiff(std::string_view s1, std::string_view s2, const std::string& delims, bool reverse) {
@@ -158,7 +159,7 @@ std::string NUnitTest::ColoredDiff(std::string_view s1, std::string_view s2, con
 }
 
 static std::string MakeTestName(const NUnitTest::ITestSuiteProcessor::TTest& test) {
-    return TYdbStringBuilder() << test.unit->name << "::" << test.name;
+    return TStringBuilder() << test.unit->name << "::" << test.name;
 }
 
 static size_t CountTests(const std::map<std::string, size_t>& testErrors, bool succeeded) {
@@ -324,7 +325,7 @@ void NUnitTest::TTestBase::AddError(const char* msg, const std::string& backtrac
 }
 
 void NUnitTest::TTestBase::AddError(const char* msg, TTestContext* context) {
-    AddError(msg, std::string(), context);
+    AddError(msg, ""s, context);
 }
 
 void NUnitTest::TTestBase::RunAfterTest(std::function<void()> f) {

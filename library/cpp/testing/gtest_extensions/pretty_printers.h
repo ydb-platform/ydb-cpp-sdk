@@ -1,14 +1,16 @@
 #pragma once
 
-#include <string>
-#include <string_view>
 #include <util/generic/variant.h>
 #include <util/stream/output.h>
 #include <util/stream/str.h>
+#include <util/string/escape.h>
 #include <util/datetime/base.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+
+#include <string>
+#include <string_view>
 
 /**
  * Automatically define GTest pretty printer for type that can print itself to util's `IOutputStream`.
@@ -41,24 +43,24 @@
 #define Y_GTEST_ARCADIA_PRINTER(T) \
     void PrintTo(const T& value, std::ostream* stream) {   \
         ::std::string ss;                \
-        ::std::stringOutput s{ss};       \
+        ::TStringOutput s{ss};       \
         s << value;                  \
         *stream << ss;               \
     }
 
 
 template <typename TCharType, typename TCharTraits>
-void PrintTo(const TBasicString<TCharType, TCharTraits>& value, std::ostream* stream) {
-    *stream << value.Quote().c_str();
+void PrintTo(const std::basic_string<TCharType, TCharTraits>& value, std::ostream* stream) {
+    *stream << NUtils::Quote(value);
 }
 
 // template <typename TCharType, typename TCharTraits>
-// void PrintTo(TBasicStringBuf<TCharType, TCharTraits> value, std::ostream* stream) {
-//     *stream << TBasicString<TCharType, TCharTraits>{value}.Quote().c_str();
+// void PrintTo(std::basic_string_view<TCharType, TCharTraits> value, std::ostream* stream) {
+//     *stream << NUtils::Quote(std::basic_string<TCharType, TCharTraits>{value});
 // }
 
-template <typename T, typename P>
-void PrintTo(const std::optional<T, P>& value, std::ostream* stream) {
+template <typename T>
+void PrintTo(const std::optional<T>& value, std::ostream* stream) {
     if (value.has_value()) {
         ::testing::internal::UniversalPrint(value.value(), stream);
     } else {
@@ -66,7 +68,7 @@ void PrintTo(const std::optional<T, P>& value, std::ostream* stream) {
     }
 }
 
-inline void PrintTo(TNothing /* value */, std::ostream* stream) {
+inline void PrintTo(std::nullopt_t /* value */, std::ostream* stream) {
     *stream << "nothing";
 }
 

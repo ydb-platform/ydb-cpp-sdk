@@ -162,7 +162,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/stream/null.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/output.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/pipe.cpp
-  ${CMAKE_SOURCE_DIR}/util/stream/printf.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/str.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/tee.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/tempbuf.cpp
@@ -181,7 +180,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/string/escape.cpp
   ${CMAKE_SOURCE_DIR}/util/string/hex.cpp
   ${CMAKE_SOURCE_DIR}/util/string/join.cpp
-  ${CMAKE_SOURCE_DIR}/util/string/printf.cpp
   ${CMAKE_SOURCE_DIR}/util/string/reverse.cpp
   ${CMAKE_SOURCE_DIR}/util/string/split.cpp
   ${CMAKE_SOURCE_DIR}/util/string/strip.cpp
@@ -202,7 +200,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/system/defaults.c
   ${CMAKE_SOURCE_DIR}/util/system/direct_io.cpp
   ${CMAKE_SOURCE_DIR}/util/system/dynlib.cpp
-  ${CMAKE_SOURCE_DIR}/util/system/env.cpp
   ${CMAKE_SOURCE_DIR}/util/system/error.cpp
   ${CMAKE_SOURCE_DIR}/util/system/event.cpp
   ${CMAKE_SOURCE_DIR}/util/system/execpath.cpp
@@ -321,3 +318,8 @@ elseif (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64" AND NOT HAVE_CUDA)
     -CT0
   )
 endif()
+
+target_compile_definitions(yutil PUBLIC
+  ARCADIA_ROOT_CMAKE_HELPER=${CMAKE_SOURCE_DIR}
+  ARCADIA_BUILD_ROOT_CMAKE_HELPER=${CMAKE_BINARY_DIR}
+)

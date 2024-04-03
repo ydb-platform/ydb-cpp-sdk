@@ -10,14 +10,12 @@ find_package(ZLIB REQUIRED)
 find_package(xxHash REQUIRED)
 find_package(ZSTD REQUIRED)
 find_package(LZ4 REQUIRED)
-<<<<<<< HEAD
 find_package(Snappy 1.1.8 REQUIRED)
 find_package(base64 REQUIRED)
 find_package(Brotli 1.1.0 REQUIRED)
-=======
-find_package(Snappy 1.1.8 REQUIRED CONFIG)
->>>>>>> 29cb7bd7a9f021e5b5e55b656c3d7bb7c6f8e6c8
 find_package(jwt-cpp REQUIRED)
+find_package(GTest REQUIRED)
+
 
 # RapidJSON
 if (YDB_SDK_USE_RAPID_JSON)

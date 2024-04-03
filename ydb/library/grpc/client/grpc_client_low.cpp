@@ -3,7 +3,6 @@
 
 #include <library/cpp/containers/stack_vector/stack_vec.h>
 
-#include <util/string/printf.h>
 #include <util/system/thread.h>
 #include <util/random/random.h>
 
@@ -50,20 +49,20 @@ void EnableGRpcTracing() {
 //     }
 //     bool SetOption(int fd) {
 //         if (!SetOption(fd, SOL_SOCKET, SO_KEEPALIVE, 1)) {
-//             Cerr << Sprintf("Failed to set SO_KEEPALIVE option: %s", strerror(errno)) << Endl;
+//             Cerr << std::format("Failed to set SO_KEEPALIVE option: {}", strerror(errno)) << Endl;
 //             return false;
 //         }
 // #ifdef _linux_
 //         if (Idle_ && !SetOption(fd, IPPROTO_TCP, TCP_KEEPIDLE, Idle_)) {
-//             Cerr << Sprintf("Failed to set TCP_KEEPIDLE option: %s", strerror(errno)) << Endl;
+//             Cerr << std::format("Failed to set TCP_KEEPIDLE option: {}", strerror(errno)) << Endl;
 //             return false;
 //         }
 //         if (Count_ && !SetOption(fd, IPPROTO_TCP, TCP_KEEPCNT, Count_)) {
-//             Cerr << Sprintf("Failed to set TCP_KEEPCNT option: %s", strerror(errno)) << Endl;
+//             Cerr << std::format("Failed to set TCP_KEEPCNT option: {}", strerror(errno)) << Endl;
 //             return false;
 //         }
 //         if (Interval_ && !SetOption(fd, IPPROTO_TCP, TCP_KEEPINTVL, Interval_)) {
-//             Cerr << Sprintf("Failed to set TCP_KEEPINTVL option: %s", strerror(errno)) << Endl;
+//             Cerr << std::format("Failed to set TCP_KEEPINTVL option: {}", strerror(errno)) << Endl;
 //             return false;
 //         }
 // #endif

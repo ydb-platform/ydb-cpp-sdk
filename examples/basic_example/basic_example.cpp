@@ -1,7 +1,8 @@
 #include "basic_example.h"
 
 #include <util/folder/pathsplit.h>
-#include <util/string/printf.h>
+
+#include <format>
 
 using namespace NYdb;
 using namespace NYdb::NTable;
@@ -104,8 +105,8 @@ static void DescribeTable(TTableClient client, const std::string& path, const st
 
 //! Fills sample tables with data in single parameterized data query.
 static TStatus FillTableDataTransaction(TSession session, const std::string& path) {
-    auto query = Sprintf(R"(
-        PRAGMA TablePathPrefix("%s");
+    auto query = std::format(R"(
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $seriesData AS List<Struct<
             series_id: Uint64,
@@ -152,7 +153,7 @@ static TStatus FillTableDataTransaction(TSession session, const std::string& pat
             title,
             CAST(air_date AS Uint16) AS air_date
         FROM AS_TABLE($episodesData);
-    )", path.c_str());
+    )", path);
 
     auto params = GetTablesDataParams();
 
@@ -166,13 +167,13 @@ static TStatus FillTableDataTransaction(TSession session, const std::string& pat
 static TStatus SelectSimpleTransaction(TSession session, const std::string& path,
     std::optional<TResultSet>& resultSet)
 {
-    auto query = Sprintf(R"(
-        PRAGMA TablePathPrefix("%s");
+    auto query = std::format(R"(
+        PRAGMA TablePathPrefix("{}");
 
         SELECT series_id, title, CAST(CAST(release_date AS Date) AS String) AS release_date
         FROM series
         WHERE series_id = 1;
-    )", path.c_str());
+    )", path);
 
     auto txControl =
         // Begin new transaction with SerializableRW mode
@@ -193,13 +194,13 @@ static TStatus SelectSimpleTransaction(TSession session, const std::string& path
 
 //! Shows basic usage of mutating operations.
 static TStatus UpsertSimpleTransaction(TSession session, const std::string& path) {
-    auto query = Sprintf(R"(
+    auto query = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         UPSERT INTO episodes (series_id, season_id, episode_id, title) VALUES
             (2, 6, 1, "TBD");
-    )", path.c_str());
+    )", path);
 
     return session.ExecuteDataQuery(query,
         TTxControl::BeginTx(TTxSettings::SerializableRW()).CommitTx()).GetValueSync();
@@ -209,9 +210,9 @@ static TStatus UpsertSimpleTransaction(TSession session, const std::string& path
 static TStatus SelectWithParamsTransaction(TSession session, const std::string& path,
     ui64 seriesId, ui64 seasonId, std::optional<TResultSet>& resultSet)
 {
-    auto query = Sprintf(R"(
+    auto query = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $seriesId AS Uint64;
         DECLARE $seasonId AS Uint64;
@@ -221,7 +222,7 @@ static TStatus SelectWithParamsTransaction(TSession session, const std::string& 
         INNER JOIN series AS sr
         ON sa.series_id = sr.series_id
         WHERE sa.series_id = $seriesId AND sa.season_id = $seasonId;
-    )", path.c_str());
+    )", path);
 
     // Type of parameter values should be exactly the same as in DECLARE statements.
     auto params = session.GetParamsBuilder()
@@ -251,9 +252,9 @@ static TStatus PreparedSelectTransaction(TSession session, const std::string& pa
 {
     // Once prepared, query data is stored in the session and identified by QueryId.
     // Local query cache is used to keep track of queries, prepared in current session.
-    auto query = Sprintf(R"(
+    auto query = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $seriesId AS Uint64;
         DECLARE $seasonId AS Uint64;
@@ -262,7 +263,7 @@ static TStatus PreparedSelectTransaction(TSession session, const std::string& pa
         SELECT *
         FROM episodes
         WHERE series_id = $seriesId AND season_id = $seasonId AND episode_id = $episodeId;
-    )", path.c_str());
+    )", path);
 
     // Prepare query or get result from query cache
     auto prepareResult = session.PrepareDataQuery(query).GetValueSync();
@@ -302,16 +303,16 @@ static TStatus PreparedSelectTransaction(TSession session, const std::string& pa
 static TStatus MultiStepTransaction(TSession session, const std::string& path, ui64 seriesId, ui64 seasonId,
     std::optional<TResultSet>& resultSet)
 {
-    auto query1 = Sprintf(R"(
+    auto query1 = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $seriesId AS Uint64;
         DECLARE $seasonId AS Uint64;
 
         SELECT first_aired AS from_date FROM seasons
         WHERE series_id = $seriesId AND season_id = $seasonId;
-    )", path.c_str());
+    )", path);
 
     auto params1 = session.GetParamsBuilder()
         .AddParam("$seriesId")
@@ -350,9 +351,9 @@ static TStatus MultiStepTransaction(TSession session, const std::string& path, u
     TInstant toDate = userFunc(fromDate);
 
     // Construct next query based on the results of client logic
-    auto query2 = Sprintf(R"(
+    auto query2 = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $seriesId AS Uint64;
         DECLARE $fromDate AS Uint64;
@@ -360,7 +361,7 @@ static TStatus MultiStepTransaction(TSession session, const std::string& path, u
 
         SELECT season_id, episode_id, title, air_date FROM episodes
         WHERE series_id = $seriesId AND air_date >= $fromDate AND air_date <= $toDate;
-    )", path.c_str());
+    )", path);
 
     auto params2 = session.GetParamsBuilder()
         .AddParam("$seriesId")
@@ -401,14 +402,14 @@ static TStatus ExplicitTclTransaction(TSession session, const std::string& path,
     // Get newly created transaction id
     auto tx = beginResult.GetTransaction();
 
-    auto query = Sprintf(R"(
+    auto query = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $airDate AS Date;
 
         UPDATE episodes SET air_date = CAST($airDate AS Uint16) WHERE title = "TBD";
-    )", path.c_str());
+    )", path);
 
     auto params = session.GetParamsBuilder()
         .AddParam("$airDate")
@@ -512,16 +513,16 @@ void ExplicitTcl(TTableClient client, const std::string& path) {
 }
 
 void ScanQuerySelect(TTableClient client, const std::string& path) {
-    auto query = Sprintf(R"(
+    auto query = std::format(R"(
         --!syntax_v1
-        PRAGMA TablePathPrefix("%s");
+        PRAGMA TablePathPrefix("{}");
 
         DECLARE $series AS List<UInt64>;
 
         SELECT series_id, season_id, title, CAST(CAST(first_aired AS Date) AS String) AS first_aired
         FROM seasons
         WHERE series_id IN $series
-    )", path.c_str());
+    )", path);
 
     auto parameters = TParamsBuilder()
         .AddParam("$series")
