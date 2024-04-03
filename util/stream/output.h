@@ -258,14 +258,8 @@ static inline IOutputStream& operator<<(IOutputStream& o, wchar32* t) {
 }
 
 namespace NPrivate {
-    IOutputStream& StdOutStream() noexcept;
     IOutputStream& StdErrStream() noexcept;
 }
-
-/**
- * Standard output stream.
- */
-#define Cout (::NPrivate::StdOutStream())
 
 /**
  * Standard error stream.
@@ -278,13 +272,6 @@ namespace NPrivate {
  */
 static inline void Endl(IOutputStream& o) {
     (o << '\n').Flush();
-}
-
-/**
- * Flushing stream manipulator, basically the same as `std::flush`.
- */
-static inline void Flush(IOutputStream& o) {
-    o.Flush();
 }
 
 /*
