@@ -2,16 +2,15 @@ add_library(blockcodecs-codecs-bzip INTERFACE)
 
 target_link_libraries(blockcodecs-codecs-bzip INTERFACE
   yutil
-  contrib-libs-libbz2
+  BZip2::BZip2
   cpp-blockcodecs-core
 )
 
 add_global_library_for(blockcodecs-codecs-bzip.global blockcodecs-codecs-bzip)
 
 target_link_libraries(blockcodecs-codecs-bzip.global PUBLIC
-  
   yutil
-  contrib-libs-libbz2
+  BZip2::BZip2
   cpp-blockcodecs-core
 )
 target_sources(blockcodecs-codecs-bzip.global PRIVATE
