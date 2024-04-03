@@ -81,8 +81,6 @@ class TBuffered;
 template <class TSlave>
 class TAdaptivelyBuffered;
 
-class TDebugOutput;
-
 class TRandomAccessFileInput;
 class TRandomAccessFileOutput;
 class TBufferedFileOutputEx;

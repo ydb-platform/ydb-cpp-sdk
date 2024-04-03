@@ -11,7 +11,7 @@ THolder<TLogBackend> ILogBackendCreator::CreateLogBackend() const {
     try {
         return DoCreateLogBackend();
     } catch(...) {
-        Cdbg << "Warning: " << CurrentExceptionMessage() << ". Use stderr instead." << Endl;
+        Cdbg << "Warning: " << CurrentExceptionMessage() << ". Use stderr instead." << std::endl;
     }
     return MakeHolder<TStreamLogBackend>(&std::cerr);
 }

@@ -8,30 +8,24 @@
 #include <cstdio>
 #include <cstdlib>
 
-void TDebugOutput::DoWrite(const void* buf, size_t len) {
-    if (len != fwrite(buf, 1, len, stderr)) {
-        ythrow yexception() << "write failed(" << LastSystemErrorText() << ")";
-    }
-}
-
 namespace {
     struct TDbgSelector {
         inline TDbgSelector() {
             char* dbg = std::getenv("DBGOUT");
             if (dbg) {
-                Out = &Cerr;
+                Out = &std::cerr;
                 try {
                     Level = FromString(dbg);
                 } catch (const yexception&) {
                     Level = 0;
                 }
             } else {
-                Out = &Cnull;
+                Out = &std_cnull;
                 Level = 0;
             }
         }
 
-        IOutputStream* Out;
+        std::ostream* Out;
         int Level;
     };
 }
@@ -41,7 +35,7 @@ struct TSingletonTraits<TDbgSelector> {
     static constexpr size_t Priority = 8;
 };
 
-IOutputStream& StdDbgStream() noexcept {
+std::ostream& StdDbgStream() noexcept {
     return *(Singleton<TDbgSelector>()->Out);
 }
 

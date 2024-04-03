@@ -1,32 +1,12 @@
 #pragma once
 
-#include "output.h"
-
-/**
- * @addtogroup Streams
- * @{
- */
-
-/**
- * Debug output stream. Writes into `stderr`.
- */
-class TDebugOutput: public IOutputStream {
-public:
-    inline TDebugOutput() noexcept = default;
-    ~TDebugOutput() override = default;
-
-    TDebugOutput(TDebugOutput&&) noexcept = default;
-    TDebugOutput& operator=(TDebugOutput&&) noexcept = default;
-
-private:
-    void DoWrite(const void* buf, size_t len) override;
-};
+#include <ostream>
 
 /**
  * @returns                             Standard debug stream.
  * @see Cdbg
  */
-IOutputStream& StdDbgStream() noexcept;
+std::ostream& StdDbgStream() noexcept;
 
 /**
  * This function returns the current debug level as set via `DBGOUT` environment

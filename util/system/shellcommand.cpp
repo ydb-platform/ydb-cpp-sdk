@@ -1085,7 +1085,7 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
         if (input) {
             pi->InputFd.Close();
         }
-        Cdbg << "shell command internal error: " << pi->Parent->InternalError << Endl;
+        Cdbg << "shell command internal error: " << pi->Parent->InternalError << std::endl;
     }
     // Now we can safely delete process info struct and other data
     pi->Parent->TerminateFlag = true;
