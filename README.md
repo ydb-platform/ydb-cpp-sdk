@@ -80,9 +80,9 @@ mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 sudo cmake --build . --config Release --target install
 
-mkdir -p ~/nayuki_md5
-wget -O ~/nayuki_md5/nayuki_md5.c https://www.nayuki.io/res/fast-md5-hash-implementation-in-x86-assembly/md5.c
-export NAYUKI_MD5_ROOT=~/nayuki_md5/
+mkdir ~/nayuki_md5/ && cd ~/nayuki_md5/
+wget -O nayuki_md5.c https://www.nayuki.io/res/fast-md5-hash-implementation-in-x86-assembly/md5.c
+touch nayuki_md5.h
 ```
 
 ## Create the work directory
