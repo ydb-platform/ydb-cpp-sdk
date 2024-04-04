@@ -123,7 +123,7 @@ private:
     std::string_view GetFileExtension() const;
     void MakeReportFileName();
     void MakeTmpFileNameForForkedTests();
-    static void TransferFromCapturer(THolder<TJUnitProcessor::TOutputCapturer>& capturer, std::string& out, IOutputStream& outStream);
+    static void TransferFromCapturer(THolder<TJUnitProcessor::TOutputCapturer>& capturer, std::string& out, std::ostream& outStream);
 
     static void CaptureSignal(TJUnitProcessor* processor);
     static void UncaptureSignal();

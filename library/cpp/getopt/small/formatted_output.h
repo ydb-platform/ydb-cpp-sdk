@@ -22,7 +22,7 @@ namespace NLastGetopt {
         TStringBuilder& Line();
 
         /// Collect all lines into a stream.
-        void Print(IOutputStream& out);
+        void Print(std::ostream& out);
 
     private:
         int IndentLevel_ = 0;

@@ -18,7 +18,7 @@ Y_UNIT_TEST_SUITE(THttpTestMedium) {
             std::string s;
 
             {
-                std::stringOutput so(s);
+                TStringOutput so(s);
                 THttpOutput ho(&so);
                 TBufferedOutput bo(&ho, 10000);
 
@@ -35,13 +35,13 @@ Y_UNIT_TEST_SUITE(THttpTestMedium) {
                 UNIT_ASSERT(s.size() > 10);
                 UNIT_ASSERT(s.find(data) == std::string::npos);
             } catch (...) {
-                Cerr << codec << " " << s << Endl;
+                std::cerr << codec << " " << s << std::endl;
 
                 throw;
             }
 
             {
-                std::stringInput si(s);
+                TStringInput si(s);
                 THttpInput hi(&si);
 
                 auto res = hi.ReadAll();
