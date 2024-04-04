@@ -25,12 +25,12 @@
  *
  * @code
  * void Hi() {
- *     Cout << Y_FUNC_SIGNATURE << Endl;
+ *     std::cout << Y_FUNC_SIGNATURE << std::endl;
  * }
 
  * template <typename T>
  * void Do() {
- *     Cout << Y_FUNC_SIGNATURE << Endl;
+ *     std::cout << Y_FUNC_SIGNATURE << std::endl;
  * }
 
  * int main() {

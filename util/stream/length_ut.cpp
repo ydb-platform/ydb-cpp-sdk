@@ -12,40 +12,4 @@ Y_UNIT_TEST_SUITE(TestLengthIO) {
         UNIT_ASSERT_VALUES_EQUAL(l1.Load(buf, 3), 2);
         UNIT_ASSERT_VALUES_EQUAL(l1.Read(buf, 1), 0);
     }
-
-    Y_UNIT_TEST(TestCountingInput) {
-        char buf[16];
-
-        TStringStream s1("abc\ndef\n");
-        TCountingInput l1(&s1);
-
-        std::string s;
-        l1.ReadLine(s);
-        UNIT_ASSERT_VALUES_EQUAL(l1.Counter(), 4);
-
-        l1.Load(buf, 1);
-        UNIT_ASSERT_VALUES_EQUAL(l1.Counter(), 5);
-
-        l1.Skip(1);
-        UNIT_ASSERT_VALUES_EQUAL(l1.Counter(), 6);
-
-        l1.ReadLine(s);
-        UNIT_ASSERT_VALUES_EQUAL(l1.Counter(), 8);
-    }
-
-    Y_UNIT_TEST(TestCountingOutput) {
-        TStringStream s1;
-        TCountingOutput l1(&s1);
-
-        l1.Write('1');
-        UNIT_ASSERT_VALUES_EQUAL(l1.Counter(), 1);
-
-        l1.Write(std::string("abcd"));
-        UNIT_ASSERT_VALUES_EQUAL(l1.Counter(), 5);
-
-        std::string buf("aaa");
-        IOutputStream::TPart parts[] = {{buf.data(), buf.size()}, {buf.data(), buf.size()}, {buf.data(), buf.size()}};
-        l1.Write(parts, 3);
-        UNIT_ASSERT_VALUES_EQUAL(l1.Counter(), 14);
-    }
 }

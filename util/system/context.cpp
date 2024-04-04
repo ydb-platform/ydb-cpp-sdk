@@ -4,6 +4,7 @@
 #include "thread.h"
 
 #include <cstdlib> //for abort()
+#include <iostream>
 
 #if defined(_win_)
     #include "winint.h"
@@ -37,7 +38,7 @@ void ITrampoLine::DoRunNaked() {
     try {
         DoRun();
     } catch (...) {
-        Cerr << "Uncaught exception in coroutine: " << CurrentExceptionMessage() << "\n";
+        std::cerr << "Uncaught exception in coroutine: " << CurrentExceptionMessage() << "\n";
     }
 
     abort();

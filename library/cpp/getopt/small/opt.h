@@ -106,7 +106,7 @@ public:
     int GetArgC() const;
     const char** GetArgV() const;
 
-    void DummyHelp(IOutputStream& os = Cerr);
+    void DummyHelp(std::ostream& os = std::cerr);
 };
 
 // call before getopt. returns non-negative int, removing it from arguments (not found: -1)

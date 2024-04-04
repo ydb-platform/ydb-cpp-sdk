@@ -1,8 +1,10 @@
 #include "stream_creator.h"
 #include "stream.h"
 
+#include <iostream>
+
 THolder<TLogBackend> TCerrLogBackendCreator::DoCreateLogBackend() const {
-    return MakeHolder<TStreamLogBackend>(&Cerr);
+    return MakeHolder<TStreamLogBackend>(&std::cerr);
 }
 
 
@@ -18,7 +20,7 @@ ILogBackendCreator::TFactory::TRegistrator<TCerrLogBackendCreator> TCerrLogBacke
 
 
 THolder<TLogBackend> TCoutLogBackendCreator::DoCreateLogBackend() const {
-    return MakeHolder<TStreamLogBackend>(&Cout);
+    return MakeHolder<TStreamLogBackend>(&std::cout);
 }
 
 

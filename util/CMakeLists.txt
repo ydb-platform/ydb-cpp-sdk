@@ -144,29 +144,22 @@ target_joined_source(yutil
 )
 target_joined_source(yutil
   all_stream.cpp
-  ${CMAKE_SOURCE_DIR}/util/stream/aligned.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/buffer.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/buffered.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/debug.cpp
-  ${CMAKE_SOURCE_DIR}/util/stream/direct_io.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/file.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/format.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/fwd.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/hex.cpp
-  ${CMAKE_SOURCE_DIR}/util/stream/holder.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/input.cpp
-  ${CMAKE_SOURCE_DIR}/util/stream/labeled.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/length.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/mem.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/multi.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/null.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/output.cpp
-  ${CMAKE_SOURCE_DIR}/util/stream/pipe.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/str.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/tee.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/tempbuf.cpp
-  ${CMAKE_SOURCE_DIR}/util/stream/tokenizer.cpp
-  ${CMAKE_SOURCE_DIR}/util/stream/trace.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/walk.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/zerocopy.cpp
   ${CMAKE_SOURCE_DIR}/util/stream/zerocopy_output.cpp
