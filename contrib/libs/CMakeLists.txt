@@ -1,4 +1,3 @@
-add_subdirectory(double-conversion)
 add_subdirectory(fastlz)
 add_subdirectory(jwt-cpp)
 add_subdirectory(libc_compat)

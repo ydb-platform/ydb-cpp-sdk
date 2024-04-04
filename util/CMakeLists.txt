@@ -8,7 +8,7 @@ target_compile_options(yutil PRIVATE
 target_link_libraries(yutil PUBLIC
   util-charset
   ZLIB::ZLIB
-  contrib-libs-double-conversion
+  double-conversion::double-conversion
   contrib-libs-libc_compat
   cpp-string_utils-helpers
 )
