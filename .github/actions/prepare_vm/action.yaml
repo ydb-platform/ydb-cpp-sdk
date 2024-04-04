@@ -37,6 +37,9 @@ runs:
         mkdir build && cd build
         cmake -DCMAKE_BUILD_TYPE=Release ..
         sudo cmake --build . --config Release --target install
+        mkdir ~/nayuki_md5/ && cd ~/nayuki_md5/
+        wget -O nayuki_md5.c https://www.nayuki.io/res/fast-md5-hash-implementation-in-x86-assembly/md5.c
+        touch nayuki_md5.h
         (V=4.8.1; curl -L https://github.com/ccache/ccache/releases/download/v${V}/ccache-${V}-linux-x86_64.tar.xz | \
         sudo tar -xJ -C /usr/local/bin/ --strip-components=1 --no-same-owner ccache-${V}-linux-x86_64/ccache)
         cd ../../
