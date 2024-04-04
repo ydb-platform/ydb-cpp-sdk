@@ -18,12 +18,16 @@ find_package(GTest REQUIRED)
 find_package(double-conversion REQUIRED)
 find_package(nayuki_md5 REQUIRED)
 
-# rapidjson
-add_library(ydb-sdk-rapidjson INTERFACE)
+# RapidJSON
+if (YDB_SDK_USE_RAPID_JSON)
+  find_package(RapidJSON REQUIRED)
 
-target_include_directories(ydb-sdk-rapidjson INTERFACE
-  ${RAPIDJSON_INCLUDE_DIRS}
-)
+  add_library(RapidJSON::RapidJSON INTERFACE IMPORTED)
+
+  target_include_directories(RapidJSON::RapidJSON INTERFACE
+    ${RAPIDJSON_INCLUDE_DIRS}
+  )
+endif ()
 
 # api-common-protos
 if (YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET)
