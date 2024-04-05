@@ -55,7 +55,7 @@ Y_UNIT_TEST_SUITE(CompressExecutor) {
         }
         UNIT_ASSERT(!waitEventFuture.HasValue());
 
-        TYdbStringBuilder msgBuilder;
+        TStringBuilder msgBuilder;
         while (msgBuilder.size() < 100_KB) {
             msgBuilder << "0123456789abcdefghijk";
         }

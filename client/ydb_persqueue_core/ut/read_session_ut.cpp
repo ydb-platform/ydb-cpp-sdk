@@ -38,7 +38,7 @@ std::string Compress(const std::string& sourceData, Ydb::PersQueue::V1::Codec co
     }
 
     std::string compressed;
-    std::stringOutput out(compressed);
+    TStringOutput out(compressed);
     THolder<IOutputStream> coder;
     switch (codec) {
     case Ydb::PersQueue::V1::CODEC_GZIP:

@@ -36,7 +36,7 @@ If you ok with this warning, then...
 - libidn11-dev (IDN)
 - libiconv (Iconv)
 
-## Testing
+## Testing requirements
 
 - gtest
 - gmock
@@ -119,4 +119,11 @@ cmake -G Ninja -DCMAKE_BUILD_TYPE=Release \
 ```bash
 cd build
 ninja
+```
+
+## Test
+
+```bash
+cd ../build/tests
+ctest -j32 --timeout 1200 --output-on-failure
 ```

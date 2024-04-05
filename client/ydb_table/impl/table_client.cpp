@@ -149,7 +149,7 @@ void TTableClient::TImpl::StartPeriodicSessionPoolTask() {
         );
     };
 
-    std::weak_ptr<TTableClient::TImpl> weak = shared_from_this();
+    std::weak_ptr<TTableClient::TImpl> weak = weak_from_this();
     Connections_->AddPeriodicTask(
         SessionPool_.CreatePeriodicTask(
             weak,
