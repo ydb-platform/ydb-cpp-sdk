@@ -11,6 +11,7 @@
 #include <util/stream/str.h>
 
 #include <cstdlib>
+#include <iostream>
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -80,13 +81,13 @@ namespace NPrivate {
         } else {
             o << "  " << function << "() failed" << Endl;
         }
-        Cerr << r << Flush;
+        std::cerr << r << std::flush;
 #ifndef WITH_VALGRIND
         PrintBackTrace();
 #endif
 #ifdef CLANG_COVERAGE
         if (__llvm_profile_write_file()) {
-            Cerr << "Failed to dump clang coverage" << Endl;
+            std::cerr << "Failed to dump clang coverage" << std::endl;
         }
 #endif
         abort();

@@ -5,14 +5,15 @@
 #include <util/stream/debug.h>
 #include <util/stream/output.h>
 
+#include <iostream>
 
 THolder<TLogBackend> ILogBackendCreator::CreateLogBackend() const {
     try {
         return DoCreateLogBackend();
     } catch(...) {
-        Cdbg << "Warning: " << CurrentExceptionMessage() << ". Use stderr instead." << Endl;
+        Cdbg << "Warning: " << CurrentExceptionMessage() << ". Use stderr instead." << std::endl;
     }
-    return MakeHolder<TStreamLogBackend>(&Cerr);
+    return MakeHolder<TStreamLogBackend>(&std::cerr);
 }
 
 bool ILogBackendCreator::Init(const IInitContext& /*ctx*/) {

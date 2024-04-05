@@ -29,7 +29,7 @@ namespace {
         {
             Y_UNUSED(context);
 
-            Cerr << "ListEndpoints: " << request->ShortDebugString() << Endl;
+            std::cerr << "ListEndpoints: " << request->ShortDebugString() << std::endl;
 
             const auto* result = MockResults.FindPtr(request->database());
             Y_ABORT_UNLESS(result, "Mock service doesn't have a result for database '%s'", request->database().c_str());
@@ -54,7 +54,7 @@ namespace {
         {
             Y_UNUSED(context);
 
-            Cerr << "CreateSession: " << request->ShortDebugString() << Endl;
+            std::cerr << "CreateSession: " << request->ShortDebugString() << std::endl;
 
             Ydb::Table::CreateSessionResult result;
             result.set_session_id("my-session-id");
@@ -127,9 +127,9 @@ Y_UNIT_TEST_SUITE(CppGrpcClientSimpleTest) {
         };
 
         std::vector<std::string> InvalidTokens = {
-            std::string('\t'),
-            std::string('\n'),
-            std::string('\r')
+            std::string("\t"),
+            std::string("\n"),
+            std::string("\r")
         };
         for (auto& t : InvalidTokens) {
             UNIT_ASSERT_EQUAL(checkToken(t), EStatus::CLIENT_UNAUTHENTICATED);
@@ -151,7 +151,7 @@ Y_UNIT_TEST_SUITE(CppGrpcClientSimpleTest) {
         TMockTableService tableService;
         ui16 tablePort = pm.GetPort();
         auto tableServer = StartGrpcServer(
-                TYdbStringBuilder() << "127.0.0.1:" << tablePort,
+                TStringBuilder() << "127.0.0.1:" << tablePort,
                 tableService);
 
         // Start our mock discovery service
@@ -165,12 +165,12 @@ Y_UNIT_TEST_SUITE(CppGrpcClientSimpleTest) {
         }
         ui16 discoveryPort = pm.GetPort();
         auto discoveryServer = StartGrpcServer(
-                TYdbStringBuilder() << "0.0.0.0:" << discoveryPort,
+                TStringBuilder() << "0.0.0.0:" << discoveryPort,
                 discoveryService);
 
         auto driver = TDriver(
             TDriverConfig()
-                .SetEndpoint(TYdbStringBuilder() << "localhost:" << discoveryPort)
+                .SetEndpoint(TStringBuilder() << "localhost:" << discoveryPort)
                 .SetDatabase("/Root/My/DB"));
         auto client = NTable::TTableClient(driver);
         auto sessionFuture = client.CreateSession();

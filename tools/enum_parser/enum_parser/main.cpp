@@ -23,7 +23,9 @@
 #include <util/system/fs.h>
 #include <util/folder/path.h>
 
-void WriteHeader(const std::string& headerName, IOutputStream& out, IOutputStream* headerOutPtr = nullptr) {
+#include <fstream>
+
+void WriteHeader(const std::string& headerName, std::ostream& out, std::ostream* headerOutPtr = nullptr) {
     out << "// This file was auto-generated. Do not edit!!!\n";
     out << "#include " << headerName << "\n";
     out << "#include <tools/enum_parser/enum_serialization_runtime/enum_runtime.h>\n\n";
@@ -132,9 +134,9 @@ static std::string WrapStringBuf(const std::string_view str) {
 
 void GenerateEnum(
     const TEnumParser::TEnum& en,
-    IOutputStream& out,
+    std::ostream& out,
     IOutputStream* jsonEnumOut = nullptr,
-    IOutputStream* headerOutPtr = nullptr
+    std::ostream* headerOutPtr = nullptr
 ) {
     TStringStream jEnum;
     OpenMap(jEnum);
@@ -445,24 +447,24 @@ int main(int argc, char** argv) {
         std::vector<std::string> freeArgs = res.GetFreeArgs();
         std::string inputFileName = freeArgs[0];
 
-        THolder<IOutputStream> hOut;
-        IOutputStream* out = &Cout;
+        THolder<std::ostream> hOut;
+        std::ostream* out = &std::cout;
 
-        THolder<IOutputStream> headerOut;
+        THolder<std::ostream> headerOut;
 
-        THolder<IOutputStream> jsonOut;
+        THolder<std::ostream> jsonOut;
 
         if (!outputFileName.empty()) {
             NFs::Remove(outputFileName.c_str());
-            hOut.Reset(new TFileOutput(outputFileName.c_str()));
+            hOut.Reset(new std::ofstream(outputFileName));
             out = hOut.Get();
 
             if (!outputHeaderFileName.empty()) {
-                headerOut.Reset(new TFileOutput(outputHeaderFileName.c_str()));
+                headerOut.Reset(new std::ofstream(outputHeaderFileName));
             }
 
             if (!outputJsonFileName.empty()) {
-                jsonOut.Reset(new TFileOutput(outputJsonFileName.c_str()));
+                jsonOut.Reset(new std::ofstream(outputJsonFileName));
             }
         }
 
@@ -492,12 +494,12 @@ int main(int argc, char** argv) {
         CloseArray(jEnums);
 
         if (jsonOut) {
-            *jsonOut << jEnums.Str() << Endl;
+            *jsonOut << jEnums.Str() << std::endl;
         }
 
         return 0;
     } catch (...) {
-        Cerr << CurrentExceptionMessage() << Endl;
+        std::cerr << CurrentExceptionMessage() << std::endl;
     }
 
     return 1;

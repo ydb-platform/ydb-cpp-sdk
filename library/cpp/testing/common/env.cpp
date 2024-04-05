@@ -1,13 +1,12 @@
 #include "env.h"
 
-#include <scripts/c_templates/svnversion.h>
+#include "env_var.h"
 
 #include <util/folder/dirut.h>
 #include <util/folder/path.h>
 #include <util/generic/singleton.h>
 #include <util/stream/file.h>
 #include <util/stream/fwd.h>
-#include <util/system/env.h>
 #include <util/system/file.h>
 #include <util/system/file_lock.h>
 #include <util/system/guard.h>
@@ -15,11 +14,12 @@
 #include <library/cpp/json/json_reader.h>
 #include <library/cpp/json/json_value.h>
 #include <library/cpp/json/json_writer.h>
+#include <library/cpp/svnversion/svnversion.h>
 
 #include <mutex>
 
 std::string ArcadiaSourceRoot() {
-    if (const auto& sourceRoot = NPrivate::GetTestEnv().SourceRoot) {
+    if (const auto& sourceRoot = NPrivate::GetTestEnv().SourceRoot; !sourceRoot.empty()) {
         return sourceRoot;
     } else {
         return GetArcadiaSourcePath();
@@ -27,7 +27,7 @@ std::string ArcadiaSourceRoot() {
 }
 
 std::string BuildRoot() {
-    if (const auto& buildRoot = NPrivate::GetTestEnv().BuildRoot) {
+    if (const auto& buildRoot = NPrivate::GetTestEnv().BuildRoot; !buildRoot.empty()) {
         return buildRoot;
     } else {
         return GetArcadiaSourcePath();
@@ -44,7 +44,7 @@ std::string BinaryPath(std::string_view path) {
 
 std::string GetArcadiaTestsData() {
     std::string atdRoot = NPrivate::GetTestEnv().ArcadiaTestsDataDir;
-    if (atdRoot) {
+    if (!atdRoot.empty()) {
         return atdRoot;
     }
 
@@ -56,7 +56,7 @@ std::string GetArcadiaTestsData() {
             return dataDir;
         }
 
-        size_t pos = path.find_last_of(pathsep);
+        auto pos = path.find_last_of(pathsep);
         if (pos == std::string::npos) {
             pos = 0;
         }
@@ -68,7 +68,7 @@ std::string GetArcadiaTestsData() {
 
 std::string GetWorkPath() {
     std::string workPath = NPrivate::GetTestEnv().WorkPath;
-    if (workPath) {
+    if (!workPath.empty()) {
         return workPath;
     }
 
@@ -140,14 +140,14 @@ void AddEntryToCoreSearchFile(const std::string& filename, std::string_view cmd,
 
 void WatchProcessCore(int pid, const TFsPath& binaryPath, const TFsPath& cwd) {
     auto& filename = NPrivate::GetTestEnv().CoreSearchFile;
-    if (filename) {
+    if (!filename.empty()) {
         AddEntryToCoreSearchFile(filename, "add", pid, binaryPath, cwd);
     }
 }
 
 void StopProcessCoreWatching(int pid) {
     auto& filename = NPrivate::GetTestEnv().CoreSearchFile;
-    if (filename) {
+    if (!filename.empty()) {
         AddEntryToCoreSearchFile(filename, "drop", pid);
     }
 }
@@ -176,8 +176,8 @@ namespace NPrivate {
         TestParameters.clear();
         GlobalResources.clear();
 
-        const std::string contextFilename = GetEnv("YA_TEST_CONTEXT_FILE");
-        if (contextFilename && TFsPath(contextFilename).Exists()) {
+        const std::string contextFilename = NUtils::GetEnv("YA_TEST_CONTEXT_FILE");
+        if (!contextFilename.empty() && TFsPath(contextFilename).Exists()) {
             NJson::TJsonValue context;
             NJson::ReadJsonTree(TFileInput(contextFilename).ReadAll(), &context);
 
@@ -252,42 +252,42 @@ namespace NPrivate {
                     while (file.ReadLine(ljson) > 0) {
                         NJson::ReadJsonTree(ljson, &envVar);
                         for (const auto& entry : envVar.GetMap()) {
-                            SetEnv(entry.first, entry.second.GetStringSafe(""));
+                            NUtils::SetEnv(entry.first, entry.second.GetStringSafe(""));
                         }
                     }
                 }
             }
         }
 
-        if (!YtHddPath) {
-            YtHddPath = GetEnv("HDD_PATH");
+        if (YtHddPath.empty()) {
+            YtHddPath = NUtils::GetEnv("HDD_PATH");
         }
 
-        if (!SourceRoot) {
-            SourceRoot = GetEnv("ARCADIA_SOURCE_ROOT");
+        if (SourceRoot.empty()) {
+            SourceRoot = NUtils::GetEnv("ARCADIA_SOURCE_ROOT");
         }
 
-        if (!BuildRoot) {
-            BuildRoot = GetEnv("ARCADIA_BUILD_ROOT");
+        if (BuildRoot.empty()) {
+            BuildRoot = NUtils::GetEnv("ARCADIA_BUILD_ROOT");
         }
 
-        if (!ArcadiaTestsDataDir) {
-            ArcadiaTestsDataDir = GetEnv("ARCADIA_TESTS_DATA_DIR");
+        if (ArcadiaTestsDataDir.empty()) {
+            ArcadiaTestsDataDir = NUtils::GetEnv("ARCADIA_TESTS_DATA_DIR");
         }
 
-        if (!WorkPath) {
-            WorkPath = GetEnv("TEST_WORK_PATH");
+        if (WorkPath.empty()) {
+            WorkPath = NUtils::GetEnv("TEST_WORK_PATH");
         }
 
-        if (!RamDrivePath) {
-            RamDrivePath = GetEnv("YA_TEST_RAM_DRIVE_PATH");
+        if (RamDrivePath.empty()) {
+            RamDrivePath = NUtils::GetEnv("YA_TEST_RAM_DRIVE_PATH");
         }
 
-        if (!TestOutputRamDrivePath) {
-            TestOutputRamDrivePath = GetEnv("YA_TEST_OUTPUT_RAM_DRIVE_PATH");
+        if (TestOutputRamDrivePath.empty()) {
+            TestOutputRamDrivePath = NUtils::GetEnv("YA_TEST_OUTPUT_RAM_DRIVE_PATH");
         }
 
-        const std::string fromEnv = GetEnv("YA_TEST_RUNNER");
+        const std::string fromEnv = NUtils::GetEnv("YA_TEST_RUNNER");
         IsRunningFromTest = (fromEnv == "1");
     }
 

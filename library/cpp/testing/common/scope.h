@@ -1,9 +1,9 @@
 #pragma once
 
+#include "env_var.h"
+
+#include <cstdlib>
 #include <string>
-
-#include <util/system/env.h>
-
 #include <utility>
 #include <vector>
 
@@ -12,9 +12,9 @@ namespace NTesting {
     // @note if there was no env variable with given name, it will be set to empty string upon destruction IGNIETFERRO-1486
     struct TScopedEnvironment {
         TScopedEnvironment(const std::string& name, const std::string& value)
-            : PreviousState{1, {name, ::GetEnv(name)}}
+            : PreviousState{1, {name, NUtils::GetEnv(name)}}
         {
-            ::SetEnv(name, value);
+            NUtils::SetEnv(name, value);
         }
 
         TScopedEnvironment(const std::vector<std::pair<std::string, std::string>>& vars)
@@ -22,14 +22,14 @@ namespace NTesting {
         {
             PreviousState.reserve(vars.size());
             for (const auto& [k, v] : vars) {
-                PreviousState.emplace_back(k, ::GetEnv(k));
-                ::SetEnv(k, v);
+                PreviousState.emplace_back(k, NUtils::GetEnv(k));
+                NUtils::SetEnv(k, v);
             }
         }
 
         ~TScopedEnvironment() {
             for (const auto& [k, v] : PreviousState) {
-                ::SetEnv(k, v);
+                NUtils::SetEnv(k, v);
             }
         }
 

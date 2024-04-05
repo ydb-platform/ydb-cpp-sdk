@@ -5,8 +5,10 @@
 
 #include <util/stream/output.h>
 
+#include <ostream>
 
-TStreamLogBackend::TStreamLogBackend(IOutputStream* slave)
+
+TStreamLogBackend::TStreamLogBackend(std::ostream* slave)
     : Slave_(slave)
 {
 }
@@ -15,13 +17,13 @@ TStreamLogBackend::~TStreamLogBackend() {
 }
 
 void TStreamLogBackend::WriteData(const TLogRecord& rec) {
-    Slave_->Write(rec.Data, rec.Len);
+    Slave_->write(rec.Data, rec.Len);
 }
 
 void TStreamLogBackend::ReopenLog() {
 }
 
-TStreamWithContextLogBackend::TStreamWithContextLogBackend(IOutputStream* slave)
+TStreamWithContextLogBackend::TStreamWithContextLogBackend(std::ostream* slave)
     : Slave_(slave)
 {
 }
@@ -30,11 +32,13 @@ TStreamWithContextLogBackend::~TStreamWithContextLogBackend() {
 }
 
 void TStreamWithContextLogBackend::WriteData(const TLogRecord& rec) {
-    Slave_->Write(rec.Data, rec.Len);
-    Slave_->Write(DELIMITER);
+    Slave_->write(rec.Data, rec.Len);
+    Slave_->write(DELIMITER.data(), DELIMITER.size());
     for (const auto& [key, value] : rec.MetaFlags) {
-        Slave_->Write(TStringBuilder() << key << "=" << value);
-        Slave_->Write(DELIMITER);
+        TStringBuilder builder;
+        builder << key << "=" << value;
+        Slave_->write(builder.c_str(), builder.size());
+        Slave_->write(DELIMITER.data(), DELIMITER.size());
     }
 }
 

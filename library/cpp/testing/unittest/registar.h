@@ -25,6 +25,7 @@
 #include <cmath>
 #include <span>
 #include <cstdio>
+#include <format>
 #include <functional>
 
 extern bool CheckExceptionMessage(const char*, std::string&);
@@ -40,7 +41,9 @@ namespace NUnitTest {
     }
 
     extern bool ShouldColorizeDiff;
-    std::string ColoredDiff(std::string_view s1, std::string_view s2, const std::string& delims = std::string(), bool reverse = false);
+    std::string ColoredDiff(std::string_view s1, std::string_view s2,
+                            const std::string& delims = std::string(),
+                            bool reverse = false);
     std::string GetFormatTag(const char* name);
     std::string GetResetTag();
 
@@ -134,12 +137,16 @@ namespace NUnitTest {
         // Should execute a test whitin suite?
         virtual bool CheckAccessTest(std::string /*suite*/, const char* /*name*/);
 
-        virtual void Run(std::function<void()> f, const std::string& /*suite*/, const char* /*name*/, bool /*forceFork*/);
+        virtual void Run(std::function<void()> f,
+                         const std::string& /*suite*/,
+                         const char* /*name*/,
+                         bool /*forceFork*/);
 
         // This process is forked for current test
         virtual bool GetIsForked() const;
 
-        // --fork-tests is set (warning: this may be false, but never the less test will be forked if called inside UNIT_FORKED_TEST)
+        // --fork-tests is set (warning: this may be false,
+        // but never the less test will be forked if called inside UNIT_FORKED_TEST)
         virtual bool GetForkTests() const;
 
         virtual void SetForkTestsParams(bool forkTests, bool isForked);
@@ -209,11 +216,14 @@ namespace NUnitTest {
 
         virtual void GlobalSuiteTearDown() {}
 
-        void AddError(const char* msg, const std::string& backtrace = std::string(), TTestContext* context = nullptr);
+        void AddError(const char* msg,
+                      const std::string& backtrace = std::string(),
+                      TTestContext* context = nullptr);
 
         void AddError(const char* msg, TTestContext* context);
 
-        void RunAfterTest(std::function<void()> f); // function like atexit to run after current unit test
+        // function like atexit to run after current unit test
+        void RunAfterTest(std::function<void()> f);
 
     protected:
         bool CheckAccessTest(const char* test);
@@ -256,32 +266,32 @@ namespace NUnitTest {
         std::vector<std::function<void()>> AfterTestFunctions_;
     };
 
-#define UNIT_TEST_SUITE(N)                           \
-    typedef N TThisUnitTestSuite;                    \
-                                                     \
-public:                                              \
+#define UNIT_TEST_SUITE(N)                               \
+    typedef N TThisUnitTestSuite;                        \
+                                                         \
+public:                                                  \
     static std::string StaticName() noexcept {           \
         return std::string(#N);                          \
-    }                                                \
-                                                     \
-private:                                             \
+    }                                                    \
+                                                         \
+private:                                                 \
     virtual std::string Name() const noexcept override { \
-        return this->StaticName();                   \
-    }                                                \
-                                                     \
-    virtual void Execute() override {                \
+        return this->StaticName();                       \
+    }                                                    \
+                                                         \
+    virtual void Execute() override {                    \
         this->AtStart();
 
 #define UNIT_TEST_SUITE_DEMANGLE(N)                        \
     typedef N TThisUnitTestSuite;                          \
                                                            \
 public:                                                    \
-    static std::string StaticName() noexcept {                 \
-        return TypeName<N>(); \
+    static std::string StaticName() noexcept {             \
+        return TypeName<N>();                              \
     }                                                      \
                                                            \
 private:                                                   \
-    virtual std::string Name() const noexcept override {       \
+    virtual std::string Name() const noexcept override {   \
         return this->StaticName();                         \
     }                                                      \
                                                            \
@@ -289,8 +299,12 @@ private:                                                   \
         this->AtStart();
 
 #ifndef UT_SKIP_EXCEPTIONS
-#define CATCH_REACTION(FN, e, context) this->AddError(("(" + TypeName(e) + ") " + e.what()).data(), context)
-#define CATCH_REACTION_BT(FN, e, context) this->AddError(("(" + TypeName(e) + ") " + e.what()).data(), (e.BackTrace() ? e.BackTrace()->PrintToString() : std::string()), context)
+#define CATCH_REACTION(FN, e, context) \
+    this->AddError(("(" + TypeName(e) + ") " + e.what()).data(), context)
+#define CATCH_REACTION_BT(FN, e, context)                                            \
+    this->AddError(("(" + TypeName(e) + ") " + e.what()).data(),                     \
+                   (e.BackTrace() ? e.BackTrace()->PrintToString() : std::string()), \
+                   context)
 #else
 #define CATCH_REACTION(FN, e, context) throw
 #define CATCH_REACTION_BT(FN, e, context) throw
@@ -336,29 +350,31 @@ private:                                                   \
 
 #define UNIT_FORKED_TEST(F) UNIT_TEST_IMPL(F, true)
 
-#define UNIT_TEST_EXCEPTION(F, E)                                                                                      \
-    /* main process with "--fork-tests" flag treats exceptions as errors - it's result of forked test run */           \
-    if (this->GetForkTests() && !this->GetIsForked()) {                                                                \
-        UNIT_TEST_IMPL(F, false);                                                                                      \
-        /* forked process (or main without "--fork-tests") treats some exceptions as success - it's exception test! */ \
-    } else {                                                                                                           \
-        NUnitTest::TTestContext context(this->TTestBase::Processor());                                                 \
-        if (this->CheckAccessTest((#F))) {                                                                             \
-            try {                                                                                                      \
-                UNIT_TEST_RUN(F, false, context)                                                                       \
-                this->AddError("exception expected", &context);                                                        \
-            } catch (const ::NUnitTest::TAssertException&) {                                                           \
-            } catch (const E& e) {                                                                                     \
-                std::string err;                                                                                           \
-                if (!CheckExceptionMessage(e.what(), err))                                                             \
-                    this->AddError(err.c_str(), &context);                                                             \
-            } catch (const std::exception& e) {                                                                        \
-                this->AddError(e.what(), &context);                                                                    \
-            } catch (...) {                                                                                            \
-                this->AddError("non-std exception!", &context);                                                        \
-            }                                                                                                          \
-            this->Finish((#F), &context);                                                                              \
-        }                                                                                                              \
+#define UNIT_TEST_EXCEPTION(F, E)                                           \
+    /* main process with "--fork-tests" flag treats exceptions as errors */ \
+    /* - it's result of forked test run                                  */ \
+    if (this->GetForkTests() && !this->GetIsForked()) {                     \
+        UNIT_TEST_IMPL(F, false);                                           \
+        /* forked process (or main without "--fork-tests") treats */        \
+        /* some exceptions as success - it's exception test!      */        \
+    } else {                                                                \
+        NUnitTest::TTestContext context(this->TTestBase::Processor());      \
+        if (this->CheckAccessTest((#F))) {                                  \
+            try {                                                           \
+                UNIT_TEST_RUN(F, false, context)                            \
+                this->AddError("exception expected", &context);             \
+            } catch (const ::NUnitTest::TAssertException&) {                \
+            } catch (const E& e) {                                          \
+                std::string err;                                            \
+                if (!CheckExceptionMessage(e.what(), err))                  \
+                    this->AddError(err.c_str(), &context);                  \
+            } catch (const std::exception& e) {                             \
+                this->AddError(e.what(), &context);                         \
+            } catch (...) {                                                 \
+                this->AddError("non-std exception!", &context);             \
+            }                                                               \
+            this->Finish((#F), &context);                                   \
+        }                                                                   \
     }
 
 #define UNIT_TEST_SUITE_END() \
@@ -368,177 +384,236 @@ private:                                                   \
 public:                       \
     /*for ; after macros*/ void sub##F()
 
-#define UNIT_FAIL_IMPL(R, M)                                                                                                                     \
-    do {                                                                                                                                         \
-        ::NUnitTest::NPrivate::RaiseError(R, ::TYdbStringBuilder() << R << " at " << __LOCATION__ << ", " << __PRETTY_FUNCTION__ << ": " << M, true); \
+#define UNIT_FAIL_IMPL(R, M)                                           \
+    do {                                                               \
+        ::NUnitTest::NPrivate::RaiseError(                             \
+            R,                                                         \
+            ::TStringBuilder() << R << " at " << __LOCATION__ << ", "  \
+                               << __PRETTY_FUNCTION__ << ": " << M,    \
+            true                                                       \
+        );                                                             \
     } while (false)
 
-#define UNIT_FAIL_NONFATAL_IMPL(R, M)                                                                                                             \
-    do {                                                                                                                                          \
-        ::NUnitTest::NPrivate::RaiseError(R, ::TYdbStringBuilder() << R << " at " << __LOCATION__ << ", " << __PRETTY_FUNCTION__ << ": " << M, false); \
+#define UNIT_FAIL_NONFATAL_IMPL(R, M)                                  \
+    do {                                                               \
+        ::NUnitTest::NPrivate::RaiseError(                             \
+            R,                                                         \
+            ::TStringBuilder() << R << " at " << __LOCATION__ << ", "  \
+                               << __PRETTY_FUNCTION__ << ": " << M,    \
+            false                                                      \
+        );                                                             \
     } while (false)
 
 #define UNIT_FAIL(M) UNIT_FAIL_IMPL("forced failure", M)
 #define UNIT_FAIL_NONFATAL(M) UNIT_FAIL_NONFATAL_IMPL("forced failure", M)
 
 //types
-#define UNIT_ASSERT_TYPES_EQUAL(A, B)                                                                                                                                  \
-    do {                                                                                                                                                               \
-        if (!std::is_same<A, B>::value) {                                                                                                                              \
-            UNIT_FAIL_IMPL("types equal assertion failed", (::TYdbStringBuilder() << #A << " (" << TypeName<A>() << ") != " << #B << " (" << TypeName<B>() << ")").data()); \
-        }                                                                                                                                                              \
+#define UNIT_ASSERT_TYPES_EQUAL(A, B)                                                          \
+    do {                                                                                       \
+        if (!std::is_same<A, B>::value) {                                                      \
+            UNIT_FAIL_IMPL("types equal assertion failed",                                     \
+                           (::TStringBuilder() << #A << " (" << TypeName<A>()                  \
+                                               << ") != "                                      \
+                                               << #B << " (" << TypeName<B>() << ")").data()); \
+        }                                                                                      \
     } while (false)
 
 //doubles
-// UNIT_ASSERT_DOUBLES_EQUAL_DEPRECATED* macros do not handle NaNs correctly (see IGNIETFERRO-1419) and are for backward compatibility
-// only. Consider switching to regular UNIT_ASSERT_DOUBLES_EQUAL* macros if you're still using the deprecated version.
-#define UNIT_ASSERT_DOUBLES_EQUAL_DEPRECATED_C(E, A, D, C)                                                     \
-    do {                                                                                                       \
-        if (std::abs((E) - (A)) > (D)) {                                                                       \
-            const auto _es = ToString((long double)(E));                                                       \
-            const auto _as = ToString((long double)(A));                                                       \
-            const auto _ds = ToString((long double)(D));                                                       \
-            auto&& failMsg = Sprintf("std::abs(%s - %s) > %s %s", _es.data(), _as.data(), _ds.data(), (::TYdbStringBuilder() << C).data()); \
-            UNIT_FAIL_IMPL("assertion failure", failMsg);                                                      \
-        }                                                                                                      \
+// UNIT_ASSERT_DOUBLES_EQUAL_DEPRECATED* macros do not handle NaNs correctly
+// (see IGNIETFERRO-1419) and are for backward compatibility only.
+// Consider switching to regular UNIT_ASSERT_DOUBLES_EQUAL* macros
+// if you're still using the deprecated version.
+#define UNIT_ASSERT_DOUBLES_EQUAL_DEPRECATED_C(E, A, D, C) \
+    do {                                                   \
+        if (std::abs((E) - (A)) > (D)) {                   \
+            const auto _es = ToString((long double)(E));   \
+            const auto _as = ToString((long double)(A));   \
+            const auto _ds = ToString((long double)(D));   \
+            auto&& failMsg = std::format(                  \
+                "std::abs({} - {}) > {} {}",               \
+                _es.data(), _as.data(), _ds.data(),        \
+                (::TStringBuilder() << C).data());         \
+            UNIT_FAIL_IMPL("assertion failure", failMsg);  \
+        }                                                  \
     } while (false)
 
-#define UNIT_ASSERT_DOUBLES_EQUAL_DEPRECATED(E, A, D) UNIT_ASSERT_DOUBLES_EQUAL_DEPRECATED_C(E, A, D, "")
+#define UNIT_ASSERT_DOUBLES_EQUAL_DEPRECATED(E, A, D)   \
+    UNIT_ASSERT_DOUBLES_EQUAL_DEPRECATED_C(E, A, D, "")
 
-#define UNIT_ASSERT_DOUBLES_EQUAL_C(E, A, D, C)                                                                                        \
-    do {                                                                                                                               \
-        const auto _ed = (E);                                                                                                          \
-        const auto _ad = (A);                                                                                                          \
-        const auto _dd = (D);                                                                                                          \
-        if (std::isnan((long double)_ed) && !std::isnan((long double)_ad)) {                                                           \
-            const auto _as = ToString((long double)_ad);                                                                               \
-            auto&& failMsg = Sprintf("expected NaN, got %s %s", _as.data(), (::TYdbStringBuilder() << C).data());                           \
-            UNIT_FAIL_IMPL("assertion failure", failMsg);                                                                              \
-        }                                                                                                                              \
-        if (!std::isnan((long double)_ed) && std::isnan((long double)_ad)) {                                                           \
-            const auto _es = ToString((long double)_ed);                                                                               \
-            auto&& failMsg = Sprintf("expected %s, got NaN %s", _es.data(), (::TYdbStringBuilder() << C).data());                           \
-            UNIT_FAIL_IMPL("assertion failure", failMsg);                                                                              \
-        }                                                                                                                              \
-        if (std::abs((_ed) - (_ad)) > (_dd)) {                                                                                         \
-            const auto _es = ToString((long double)_ed);                                                                               \
-            const auto _as = ToString((long double)_ad);                                                                               \
-            const auto _ds = ToString((long double)_dd);                                                                               \
-            auto&& failMsg = Sprintf("std::abs(%s - %s) > %s %s", _es.data(), _as.data(), _ds.data(), (::TYdbStringBuilder() << C).data()); \
-            UNIT_FAIL_IMPL("assertion failure", failMsg);                                                                              \
-        }                                                                                                                              \
+#define UNIT_ASSERT_DOUBLES_EQUAL_C(E, A, D, C)                               \
+    do {                                                                      \
+        const auto _ed = (E);                                                 \
+        const auto _ad = (A);                                                 \
+        const auto _dd = (D);                                                 \
+        if (std::isnan((long double)_ed) && !std::isnan((long double)_ad)) {  \
+            const auto _as = ToString((long double)_ad);                      \
+            auto&& failMsg = std::format(                                     \
+                "expected NaN, got {} {}",                                    \
+                _as.data(),                                                   \
+                (::TStringBuilder() << C).data());                            \
+            UNIT_FAIL_IMPL("assertion failure", failMsg);                     \
+        }                                                                     \
+        if (!std::isnan((long double)_ed) && std::isnan((long double)_ad)) {  \
+            const auto _es = ToString((long double)_ed);                      \
+            auto&& failMsg = std::format(                                     \
+                "expected {}, got NaN {}",                                    \
+                _es.data(),                                                   \
+                (::TStringBuilder() << C).data());                            \
+            UNIT_FAIL_IMPL("assertion failure", failMsg);                     \
+        }                                                                     \
+        if (std::abs((_ed) - (_ad)) > (_dd)) {                                \
+            const auto _es = ToString((long double)_ed);                      \
+            const auto _as = ToString((long double)_ad);                      \
+            const auto _ds = ToString((long double)_dd);                      \
+            auto&& failMsg = std::format(                                     \
+                "std::abs({} - {}) > {} {}",                                  \
+                _es.data(), _as.data(), _ds.data(),                           \
+                (::TStringBuilder() << C).data());                            \
+            UNIT_FAIL_IMPL("assertion failure", failMsg);                     \
+        }                                                                     \
     } while (false)
 
 #define UNIT_ASSERT_DOUBLES_EQUAL(E, A, D) UNIT_ASSERT_DOUBLES_EQUAL_C(E, A, D, "")
 
 //strings
-#define UNIT_ASSERT_STRINGS_EQUAL_C(A, B, C)                                                                 \
-    do {                                                                                                     \
-        const std::string _a(A); /* NOLINT(performance-unnecessary-copy-initialization) */                       \
-        const std::string _b(B); /* NOLINT(performance-unnecessary-copy-initialization) */                       \
-        if (_a != _b) {                                                                                      \
-            auto&& failMsg = Sprintf("%s != %s %s", ToString(_a).data(), ToString(_b).data(), (::TYdbStringBuilder() << C).data()); \
-            UNIT_FAIL_IMPL("strings equal assertion failed", failMsg);                                       \
-        }                                                                                                    \
+#define UNIT_ASSERT_STRINGS_EQUAL_C(A, B, C)                                               \
+    do {                                                                                   \
+        const std::string _a(A); /* NOLINT(performance-unnecessary-copy-initialization) */ \
+        const std::string _b(B); /* NOLINT(performance-unnecessary-copy-initialization) */ \
+        if (_a != _b) {                                                                    \
+            auto&& failMsg = std::format(                                                  \
+                "{} != {} {}",                                                             \
+                ToString(_a).data(), ToString(_b).data(),                                  \
+                (::TStringBuilder() << C).data());                                         \
+            UNIT_FAIL_IMPL("strings equal assertion failed", failMsg);                     \
+        }                                                                                  \
     } while (false)
 
 #define UNIT_ASSERT_STRINGS_EQUAL(A, B) UNIT_ASSERT_STRINGS_EQUAL_C(A, B, "")
 
-#define UNIT_ASSERT_STRING_CONTAINS_C(A, B, C)                                                                                  \
-    do {                                                                                                                        \
-        const std::string _a(A); /* NOLINT(performance-unnecessary-copy-initialization) */                                          \
-        const std::string _b(B); /* NOLINT(performance-unnecessary-copy-initialization) */                                          \
-        if (!_a.Contains(_b)) {                                                                                                 \
-            auto&& msg = Sprintf("\"%s\" does not contain \"%s\", %s", ToString(_a).data(), ToString(_b).data(), (::TYdbStringBuilder() << C).data()); \
-            UNIT_FAIL_IMPL("strings contains assertion failed", msg);                                                           \
-        }                                                                                                                       \
+#define UNIT_ASSERT_STRING_CONTAINS_C(A, B, C)                                             \
+    do {                                                                                   \
+        const std::string _a(A); /* NOLINT(performance-unnecessary-copy-initialization) */ \
+        const std::string _b(B); /* NOLINT(performance-unnecessary-copy-initialization) */ \
+        if (_a.find(_b) == std::string::npos) {                                            \
+            auto&& msg = std::format(                                                      \
+                "\"{}\" does not contain \"{}\", {}",                                      \
+                ToString(_a).data(), ToString(_b).data(),                                  \
+                (::TStringBuilder() << C).data());                                         \
+            UNIT_FAIL_IMPL("strings contains assertion failed", msg);                      \
+        }                                                                                  \
     } while (false)
 
 #define UNIT_ASSERT_STRING_CONTAINS(A, B) UNIT_ASSERT_STRING_CONTAINS_C(A, B, "")
 
-#define UNIT_ASSERT_NO_DIFF(A, B)                                                                                                              \
-    do {                                                                                                                                       \
-        const std::string _a(A); /* NOLINT(performance-unnecessary-copy-initialization) */                                                         \
-        const std::string _b(B); /* NOLINT(performance-unnecessary-copy-initialization) */                                                         \
-        if (_a != _b) {                                                                                                                        \
-            UNIT_FAIL_IMPL("strings (" #A ") and (" #B ") are different", Sprintf("\n%s", ::NUnitTest::ColoredDiff(_a, _b, " \t\n.,:;'\"").data())); \
-        }                                                                                                                                      \
+#define UNIT_ASSERT_NO_DIFF(A, B)                                                                 \
+    do {                                                                                          \
+        const std::string _a(A); /* NOLINT(performance-unnecessary-copy-initialization) */        \
+        const std::string _b(B); /* NOLINT(performance-unnecessary-copy-initialization) */        \
+        if (_a != _b) {                                                                           \
+            UNIT_FAIL_IMPL("strings (" #A ") and (" #B ") are different",                         \
+                           std::format("\n{}",                                                    \
+                                       ::NUnitTest::ColoredDiff(_a, _b, " \t\n.,:;'\"").data())); \
+        }                                                                                         \
     } while (false)
 
 //strings
-#define UNIT_ASSERT_STRINGS_UNEQUAL_C(A, B, C)                                                           \
-    do {                                                                                                 \
-        const std::string _a(A); /* NOLINT(performance-unnecessary-copy-initialization) */                   \
-        const std::string _b(B); /* NOLINT(performance-unnecessary-copy-initialization) */                   \
-        if (_a == _b) {                                                                                  \
-            auto&& msg = Sprintf("%s == %s %s", ToString(_a).data(), ToString(_b).data(), (::TYdbStringBuilder() << C).data()); \
-            UNIT_FAIL_IMPL("strings unequal assertion failed", msg);                                     \
-        }                                                                                                \
+#define UNIT_ASSERT_STRINGS_UNEQUAL_C(A, B, C)                                              \
+    do {                                                                                    \
+        const std::string _a(A); /* NOLINT(performance-unnecessary-copy-initialization) */  \
+        const std::string _b(B); /* NOLINT(performance-unnecessary-copy-initialization) */  \
+        if (_a == _b) {                                                                     \
+            auto&& msg = std::format(                                                       \
+                "{} == {} {}",                                                              \
+                ToString(_a).data(), ToString(_b).data(),                                   \
+                (::TStringBuilder() << C).data());                                          \
+            UNIT_FAIL_IMPL("strings unequal assertion failed", msg);                        \
+        }                                                                                   \
     } while (false)
 
 #define UNIT_ASSERT_STRINGS_UNEQUAL(A, B) UNIT_ASSERT_STRINGS_UNEQUAL_C(A, B, "")
 
 //bool
-#define UNIT_ASSERT_C(A, C)                                                                             \
-    do {                                                                                                \
-        if (!(A)) {                                                                                     \
-            UNIT_FAIL_IMPL("assertion failed", Sprintf("(%s) %s", #A, (::TYdbStringBuilder() << C).data())); \
-        }                                                                                               \
+#define UNIT_ASSERT_C(A, C)                                                    \
+    do {                                                                       \
+        if (!(A)) {                                                            \
+            UNIT_FAIL_IMPL("assertion failed",                                 \
+                           std::format("({}) {}",                              \
+                                       #A, (::TStringBuilder() << C).data())); \
+        }                                                                      \
     } while (false)
 
 #define UNIT_ASSERT(A) UNIT_ASSERT_C(A, "")
 
 //general
-#define UNIT_ASSERT_EQUAL_C(A, B, C)                                                                                  \
-    do {                                                                                                              \
-        if (!((A) == (B))) { /* NOLINT(readability-container-size-empty) */                                           \
-            UNIT_FAIL_IMPL("equal assertion failed", Sprintf("%s == %s %s", #A, #B, (::TYdbStringBuilder() << C).data())); \
-        }                                                                                                             \
+#define UNIT_ASSERT_EQUAL_C(A, B, C)                                        \
+    do {                                                                    \
+        if (!((A) == (B))) { /* NOLINT(readability-container-size-empty) */ \
+            UNIT_FAIL_IMPL("equal assertion failed",                        \
+                           std::format("{} == {} {}",                       \
+                                       #A, #B,                              \
+                                       (::TStringBuilder() << C).data()));  \
+        }                                                                   \
     } while (false)
 
 #define UNIT_ASSERT_EQUAL(A, B) UNIT_ASSERT_EQUAL_C(A, B, "")
 
-#define UNIT_ASSERT_UNEQUAL_C(A, B, C)                                                                                 \
-    do {                                                                                                               \
-        if ((A) == (B)) {  /* NOLINT(readability-container-size-empty) */                                              \
-            UNIT_FAIL_IMPL("unequal assertion failed", Sprintf("%s != %s %s", #A, #B, (::TYdbStringBuilder() << C).data()));\
-        }                                                                                                              \
+#define UNIT_ASSERT_UNEQUAL_C(A, B, C)                                     \
+    do {                                                                   \
+        if ((A) == (B)) {  /* NOLINT(readability-container-size-empty) */  \
+            UNIT_FAIL_IMPL("unequal assertion failed",                     \
+                           std::format("{} != {} {}",                      \
+                                       #A, #B,                             \
+                                       (::TStringBuilder() << C).data())); \
+        }                                                                  \
     } while (false)
 
 #define UNIT_ASSERT_UNEQUAL(A, B) UNIT_ASSERT_UNEQUAL_C(A, B, "")
 
-#define UNIT_ASSERT_LT_C(A, B, C)                                                                                        \
-    do {                                                                                                                 \
-        if (!((A) < (B))) {                                                                                              \
-            UNIT_FAIL_IMPL("less-than assertion failed", Sprintf("%s < %s %s", #A, #B, (::TYdbStringBuilder() << C).data())); \
-        }                                                                                                                \
+#define UNIT_ASSERT_LT_C(A, B, C)                                          \
+    do {                                                                   \
+        if (!((A) < (B))) {                                                \
+            UNIT_FAIL_IMPL("less-than assertion failed",                   \
+                           std::format("{} < {} {}",                       \
+                                       #A, #B,                             \
+                                       (::TStringBuilder() << C).data())); \
+        }                                                                  \
     } while (false)
 
 #define UNIT_ASSERT_LT(A, B) UNIT_ASSERT_LT_C(A, B, "")
 
-#define UNIT_ASSERT_LE_C(A, B, C)                                                                                             \
-    do {                                                                                                                      \
-        if (!((A) <= (B))) {                                                                                                  \
-            UNIT_FAIL_IMPL("less-or-equal assertion failed", Sprintf("%s <= %s %s", #A, #B, (::TYdbStringBuilder() << C).data())); \
-        }                                                                                                                     \
+#define UNIT_ASSERT_LE_C(A, B, C)                                          \
+    do {                                                                   \
+        if (!((A) <= (B))) {                                               \
+            UNIT_FAIL_IMPL("less-or-equal assertion failed",               \
+                           std::format("{} <= {} {}",                      \
+                                       #A, #B,                             \
+                                       (::TStringBuilder() << C).data())); \
+        }                                                                  \
     } while (false)
 
 #define UNIT_ASSERT_LE(A, B) UNIT_ASSERT_LE_C(A, B, "")
 
-#define UNIT_ASSERT_GT_C(A, B, C)                                                                                           \
-    do {                                                                                                                    \
-        if (!((A) > (B))) {                                                                                                 \
-            UNIT_FAIL_IMPL("greater-than assertion failed", Sprintf("%s > %s %s", #A, #B, (::TYdbStringBuilder() << C).data())); \
-        }                                                                                                                   \
+#define UNIT_ASSERT_GT_C(A, B, C)                                          \
+    do {                                                                   \
+        if (!((A) > (B))) {                                                \
+            UNIT_FAIL_IMPL("greater-than assertion failed",                \
+                           std::format("{} > {} {}",                       \
+                                       #A, #B,                             \
+                                       (::TStringBuilder() << C).data())); \
+        }                                                                  \
     } while (false)
 
 #define UNIT_ASSERT_GT(A, B) UNIT_ASSERT_GT_C(A, B, "")
 
-#define UNIT_ASSERT_GE_C(A, B, C)                                                                        \
-    do { \
-        if (!((A) >= (B))) {                                                                                    \
-            UNIT_FAIL_IMPL("greater-or-equal assertion failed", Sprintf("%s >= %s %s", #A, #B, (::TYdbStringBuilder() << C).data())); \
-        } \
+#define UNIT_ASSERT_GE_C(A, B, C)                                          \
+    do {                                                                   \
+        if (!((A) >= (B))) {                                               \
+            UNIT_FAIL_IMPL("greater-or-equal assertion failed",            \
+                           std::format("{} >= {} {}",                      \
+                                       #A, #B,                             \
+                                       (::TStringBuilder() << C).data())); \
+        }                                                                  \
     } while (false)
 
 #define UNIT_ASSERT_GE(A, B) UNIT_ASSERT_GE_C(A, B, "")
@@ -568,36 +643,39 @@ public:                       \
         }                                                                                        \
     } while (false)
 
-#define UNIT_CHECK_GENERATED_NO_EXCEPTION(A, E) UNIT_CHECK_GENERATED_NO_EXCEPTION_C(A, E, "and exception message is:\n" << CurrentExceptionMessage())
+#define UNIT_CHECK_GENERATED_NO_EXCEPTION(A, E) \
+    UNIT_CHECK_GENERATED_NO_EXCEPTION_C(A, E, "and exception message is:\n" << CurrentExceptionMessage())
 
-// Same as UNIT_ASSERT_EXCEPTION_SATISFIES but prints additional string C when nothing was thrown
-#define UNIT_ASSERT_EXCEPTION_SATISFIES_C(A, E, pred, C)   \
-    do {                                                                        \
-        bool _thrown = false;                                                   \
-        try {                                                                   \
-            (void)(A);                                                          \
-        } catch (const ::NUnitTest::TAssertException&) {                        \
-            throw;                                                              \
-        } catch (const E& e) {                                                  \
-            _thrown = true;                                                     \
-            UNIT_ASSERT_C(pred(e), "Exception does not satisfy predicate '"     \
-                                << #pred << "'");                               \
-        } catch (...) {                                                         \
-            _thrown = true;                                                     \
-            UNIT_FAIL_IMPL("exception assertion failed",                        \
-                           #A << " did not throw " << #E                        \
-                              << ", but threw other exception "                 \
-                              << "with message:\n"                              \
-                              << CurrentExceptionMessage());                    \
-        }                                                                       \
-        if (!_thrown) {                                                         \
-            UNIT_FAIL_IMPL("exception assertion failed",                        \
-                           #A << " did not throw any exception"                 \
-                              << " (expected " << #E << ") " << C);             \
-        }                                                                       \
+// Same as UNIT_ASSERT_EXCEPTION_SATISFIES but prints additional string C
+// when nothing was thrown
+#define UNIT_ASSERT_EXCEPTION_SATISFIES_C(A, E, pred, C)                    \
+    do {                                                                    \
+        bool _thrown = false;                                               \
+        try {                                                               \
+            (void)(A);                                                      \
+        } catch (const ::NUnitTest::TAssertException&) {                    \
+            throw;                                                          \
+        } catch (const E& e) {                                              \
+            _thrown = true;                                                 \
+            UNIT_ASSERT_C(pred(e), "Exception does not satisfy predicate '" \
+                                << #pred << "'");                           \
+        } catch (...) {                                                     \
+            _thrown = true;                                                 \
+            UNIT_FAIL_IMPL("exception assertion failed",                    \
+                           #A << " did not throw " << #E                    \
+                              << ", but threw other exception "             \
+                              << "with message:\n"                          \
+                              << CurrentExceptionMessage());                \
+        }                                                                   \
+        if (!_thrown) {                                                     \
+            UNIT_FAIL_IMPL("exception assertion failed",                    \
+                           #A << " did not throw any exception"             \
+                              << " (expected " << #E << ") " << C);         \
+        }                                                                   \
     } while (false)
 
-// Assert that a specific exception is thrown and satisfies predicate pred(e), where e is the exception instance.
+// Assert that a specific exception is thrown and satisfies predicate pred(e),
+// where e is the exception instance.
 // Example:
 //      UNIT_ASSERT_EXCEPTION_SATISFIES(MakeRequest(invalidData), TError,
 //          [](const TError& e){ return e.Status == HTTP_BAD_REQUEST; })
@@ -605,19 +683,20 @@ public:                       \
 #define UNIT_ASSERT_EXCEPTION_SATISFIES(A, E, pred) \
     UNIT_ASSERT_EXCEPTION_SATISFIES_C(A, E, pred, "")
 
-// Same as UNIT_ASSERT_EXCEPTION_CONTAINS but prints additional string C when nothing was thrown
+// Same as UNIT_ASSERT_EXCEPTION_CONTAINS but prints additional string C
+// when nothing was thrown
 #define UNIT_ASSERT_EXCEPTION_CONTAINS_C(A, E, substr, C)                   \
     do {                                                                    \
-        const std::string _substr{substr};                                      \
+        const std::string _substr{substr};                                  \
         UNIT_ASSERT_EXCEPTION_SATISFIES_C(A, E,                             \
             [&_substr](const E&){                                           \
                 if (!_substr.empty()) {                                     \
-                    auto cure = CurrentExceptionMessage() ; \
-                    UNIT_ASSERT_C(cure.Contains(_substr),                   \
+                    auto cure = CurrentExceptionMessage() ;                 \
+                    UNIT_ASSERT_C(cure.find(_substr) != std::string::npos,  \
                                   "Exception message does not contain \""   \
                                       << _substr << "\".\n"                 \
                                       << "Exception message: "              \
-                                      << cure);        \
+                                      << cure);                             \
                 }                                                           \
                 return true;                                                \
             },                                                              \
@@ -629,37 +708,42 @@ public:                       \
     UNIT_ASSERT_EXCEPTION_CONTAINS_C(A, E, substr, "")
 
 // Same as UNIT_ASSERT_EXCEPTION but prints additional string C when nothing was thrown
-#define UNIT_ASSERT_EXCEPTION_C(A, E, C) UNIT_ASSERT_EXCEPTION_SATISFIES_C(A, E, [](const E&){ return true; }, C)
+#define UNIT_ASSERT_EXCEPTION_C(A, E, C) \
+    UNIT_ASSERT_EXCEPTION_SATISFIES_C(A, E, [](const E&){ return true; }, C)
 
 // Assert that a specific exception is thrown
 #define UNIT_ASSERT_EXCEPTION(A, E) UNIT_ASSERT_EXCEPTION_C(A, E, "")
 
-#define UNIT_ASSERT_NO_EXCEPTION_RESULT_C(A, C)                 \
-    [&] () mutable -> decltype(A) {                             \
-        static_assert(!std::is_void_v<decltype(A)>);            \
-        try { return (A); }                                     \
-        catch (const ::NUnitTest::TAssertException&) { throw; } \
-        catch (...) {                                           \
-            UNIT_FAIL_IMPL(                                     \
-                "exception-free assertion failed",              \
-                Sprintf("%s throws %s\nException message: %s",  \
-                    #A, (::TYdbStringBuilder() << C).data(),       \
-                    CurrentExceptionMessage().data()));         \
-            return decltype(A){};                               \
-        }                                                       \
+#define UNIT_ASSERT_NO_EXCEPTION_RESULT_C(A, C)                     \
+    [&] () mutable -> decltype(A) {                                 \
+        static_assert(!std::is_void_v<decltype(A)>);                \
+        try { return (A); }                                         \
+        catch (const ::NUnitTest::TAssertException&) { throw; }     \
+        catch (...) {                                               \
+            UNIT_FAIL_IMPL(                                         \
+                "exception-free assertion failed",                  \
+                std::format("{} throws {}\nException message: {}",  \
+                    #A, (::TStringBuilder() << C).data(),           \
+                    CurrentExceptionMessage().data()));             \
+            return decltype(A){};                                   \
+        }                                                           \
     }()
 
 #define UNIT_ASSERT_NO_EXCEPTION_RESULT(A) UNIT_ASSERT_NO_EXCEPTION_RESULT_C(A, "")
 
-#define UNIT_ASSERT_NO_EXCEPTION_C(A, C)                                                                                                                                 \
-    do {                                                                                                                                                                 \
-        try {                                                                                                                                                            \
-            (void)(A);                                                                                                                                                   \
-        } catch (const ::NUnitTest::TAssertException&) {                                                                                                                 \
-            throw;                                                                                                                                                       \
-        } catch (...) {                                                                                                                                                  \
-            UNIT_FAIL_IMPL("exception-free assertion failed", Sprintf("%s throws %s\nException message: %s", #A, (::TYdbStringBuilder() << C).data(), CurrentExceptionMessage().data())); \
-        }                                                                                                                                                                \
+#define UNIT_ASSERT_NO_EXCEPTION_C(A, C)                                      \
+    do {                                                                      \
+        try {                                                                 \
+            (void)(A);                                                        \
+        } catch (const ::NUnitTest::TAssertException&) {                      \
+            throw;                                                            \
+        } catch (...) {                                                       \
+            UNIT_FAIL_IMPL("exception-free assertion failed",                 \
+                           std::format("{} throws {}\nException message: {}", \
+                                       #A,                                    \
+                                       (::TStringBuilder() << C).data(),      \
+                                       CurrentExceptionMessage().data()));    \
+        }                                                                     \
     } while (false)
 
 #define UNIT_ASSERT_NO_EXCEPTION(A) UNIT_ASSERT_NO_EXCEPTION_C(A, "")
@@ -680,7 +764,9 @@ public:                       \
         };
 
         template <class T, class U>
-        using TCompareValues = TCompareValuesImpl<T, U, std::is_integral<T>::value && std::is_integral<U>::value>;
+        using TCompareValues =
+            TCompareValuesImpl<T, U,
+                               std::is_integral<T>::value && std::is_integral<U>::value>;
 
         template <typename T, typename U>
         static inline bool CompareEqual(const T& a, const U& b) {
@@ -691,9 +777,14 @@ public:                       \
             return 0 == strcmp(a, b);
         }
 
-        // helper method to avoid double evaluation of A and B expressions in UNIT_ASSERT_VALUES_EQUAL_C
+        // helper method to avoid double evaluation of A and B expressions
+        // in UNIT_ASSERT_VALUES_EQUAL_C
         template <typename T, typename U>
-        static inline bool CompareAndMakeStrings(const T& a, const U& b, std::string& as, std::string& asInd, std::string& bs, std::string& bsInd, bool& usePlainDiff, bool want) {
+        static inline bool CompareAndMakeStrings(
+                const T& a, const U& b,
+                std::string& as, std::string& asInd,
+                std::string& bs, std::string& bsInd,
+                bool& usePlainDiff, bool want) {
             const bool have = CompareEqual(a, b);
             usePlainDiff = std::is_integral<T>::value && std::is_integral<U>::value;
 
@@ -701,31 +792,36 @@ public:                       \
                 return true;
             }
 
-            as = ::TYdbStringBuilder() << ::DbgDump(a);
-            bs = ::TYdbStringBuilder() << ::DbgDump(b);
-            asInd = ::TYdbStringBuilder() << ::DbgDump(a).SetIndent(true);
-            bsInd = ::TYdbStringBuilder() << ::DbgDump(b).SetIndent(true);
+            as = ::TStringBuilder() << ::DbgDump(a);
+            bs = ::TStringBuilder() << ::DbgDump(b);
+            asInd = ::TStringBuilder() << ::DbgDump(a).SetIndent(true);
+            bsInd = ::TStringBuilder() << ::DbgDump(b).SetIndent(true);
 
             return false;
         }
     }
 
 //values
-#define UNIT_ASSERT_VALUES_EQUAL_IMPL(A, B, C, EQflag, EQstr, NEQstr)                                                                  \
-    do {                                                                                                                               \
-        std::string _as;                                                                                                                   \
-        std::string _bs;                                                                                                                   \
-        std::string _asInd;                                                                                                                \
-        std::string _bsInd;                                                                                                                \
-        bool _usePlainDiff;                                                                                                            \
-        if (!::NUnitTest::NPrivate::CompareAndMakeStrings(A, B, _as, _asInd, _bs, _bsInd, _usePlainDiff, EQflag)) {                    \
-            auto&& failMsg = Sprintf("(%s %s %s) failed: (%s %s %s) %s", #A, EQstr, #B, _as.data(), NEQstr, _bs.data(), (::TYdbStringBuilder() << C).data()); \
-            if (EQflag && !_usePlainDiff) {                                                                                            \
-                failMsg += ", with diff:\n";                                                                                           \
-                failMsg += ::NUnitTest::ColoredDiff(_asInd, _bsInd);                                                                   \
-            }                                                                                                                          \
-            UNIT_FAIL_IMPL("assertion failed", failMsg);                                                                               \
-        }                                                                                                                              \
+#define UNIT_ASSERT_VALUES_EQUAL_IMPL(A, B, C, EQflag, EQstr, NEQstr)      \
+    do {                                                                   \
+        std::string _as;                                                   \
+        std::string _bs;                                                   \
+        std::string _asInd;                                                \
+        std::string _bsInd;                                                \
+        bool _usePlainDiff;                                                \
+        if (!::NUnitTest::NPrivate::CompareAndMakeStrings(                 \
+                A, B, _as, _asInd, _bs, _bsInd, _usePlainDiff, EQflag)) {  \
+            auto&& failMsg = std::format(                                  \
+                "({} {} {}) failed: ({} {} {}) {}",                        \
+                #A, EQstr, #B,                                             \
+                _as.data(), NEQstr, _bs.data(),                            \
+                (::TStringBuilder() << C).data());                         \
+            if (EQflag && !_usePlainDiff) {                                \
+                failMsg += ", with diff:\n";                               \
+                failMsg += ::NUnitTest::ColoredDiff(_asInd, _bsInd);       \
+            }                                                              \
+            UNIT_FAIL_IMPL("assertion failed", failMsg);                   \
+        }                                                                  \
     } while (false)
 
 #define UNIT_ASSERT_VALUES_EQUAL_C(A, B, C) \
@@ -921,93 +1017,97 @@ public:                       \
 #define UNIT_TEST_SUITE_REGISTRATION(T) \
     static const ::NUnitTest::TTestBaseFactory<T> Y_GENERATE_UNIQUE_ID(UTREG_);
 
-#define Y_UNIT_TEST_SUITE_IMPL_F(N, T, F)                                                                          \
-    namespace NTestSuite##N {                                                                                           \
-        class TCurrentTestCase: public F {                                                                              \
-        };                                                                                                              \
-        class TCurrentTest: public T {                                                                                  \
-        private:                                                                                                        \
-            typedef std::function<THolder<NUnitTest::TBaseTestCase>()> TTestCaseFactory;                                \
-            typedef std::vector<TTestCaseFactory> TTests;                                                                   \
-                                                                                                                        \
-            static TTests& Tests() {                                                                                    \
-                static TTests tests;                                                                                    \
-                return tests;                                                                                           \
-            }                                                                                                           \
-                                                                                                                        \
-        public:                                                                                                         \
-            static std::string StaticName() {                                                                               \
-                return #N;                                                                                              \
-            }                                                                                                           \
-            virtual std::string Name() const noexcept {                                                                     \
-                return StaticName();                                                                                    \
-            }                                                                                                           \
-                                                                                                                        \
-            static void AddTest(const char* name,                                                                       \
-                const std::function<void(NUnitTest::TTestContext&)>& body, bool forceFork)                              \
-            {                                                                                                           \
-                Tests().emplace_back([=]{ return MakeHolder<NUnitTest::TBaseTestCase>(name, body, forceFork); });       \
-            }                                                                                                           \
-                                                                                                                        \
-            static void AddTest(TTestCaseFactory testCaseFactory) {                                                     \
-                Tests().push_back(std::move(testCaseFactory));                                                          \
-            }                                                                                                           \
-                                                                                                                        \
-            virtual void Execute() {                                                                                    \
-                this->AtStart();                                                                                        \
-                this->GlobalSuiteSetUp();                                                                               \
-                for (TTests::iterator it = Tests().begin(), ie = Tests().end(); it != ie; ++it) {                       \
-                    const auto i = (*it)();                                                                             \
-                    if (!this->CheckAccessTest(i->Name_)) {                                                             \
-                        continue;                                                                                       \
-                    }                                                                                                   \
-                    NUnitTest::TTestContext context(this->TTestBase::Processor());                                      \
-                    try {                                                                                               \
-                        this->BeforeTest(i->Name_);                                                                     \
-                        {                                                                                               \
-                            TCleanUp cleaner(this);                                                                     \
-                            auto testCase = [this, &i, &context] {                                                      \
-                                Y_DEFER {                                                                               \
-                                    try {                                                                               \
-                                        i->TearDown(context);                                                           \
-                                    } catch (const ::NUnitTest::TAssertException&) {                                    \
-                                    } catch (const yexception& e) {                                                     \
-                                        CATCH_REACTION_BT(i->Name_, e, &context);                                       \
-                                    } catch (const std::exception& e) {                                                 \
-                                        CATCH_REACTION(i->Name_, e, &context);                                          \
-                                    } catch (...) {                                                                     \
-                                        this->AddError("non-std exception!", &context);                                 \
-                                    }                                                                                   \
-                                };                                                                                      \
-                                i->SetUp(context);                                                                      \
-                                i->Execute_(context);                                                                   \
-                            };                                                                                          \
-                            this->T::Run(testCase, StaticName(), i->Name_, i->ForceFork_);                              \
-                        }                                                                                               \
-                    } catch (const ::NUnitTest::TAssertException&) {                                                    \
-                    } catch (const yexception& e) {                                                                     \
-                        CATCH_REACTION_BT(i->Name_, e, &context);                                                       \
-                    } catch (const std::exception& e) {                                                                 \
-                        CATCH_REACTION(i->Name_, e, &context);                                                          \
-                    } catch (...) {                                                                                     \
-                        this->AddError("non-std exception!", &context);                                                 \
-                    }                                                                                                   \
-                    this->Finish(i->Name_, &context);                                                                   \
-                }                                                                                                       \
-                this->GlobalSuiteTearDown();                                                                            \
-                this->AtEnd();                                                                                          \
-            }                                                                                                           \
-        };                                                                                                              \
-        UNIT_TEST_SUITE_REGISTRATION(TCurrentTest)                                                                      \
-    }                                                                                                                   \
+#define Y_UNIT_TEST_SUITE_IMPL_F(N, T, F)                                                          \
+    namespace NTestSuite##N {                                                                      \
+        class TCurrentTestCase: public F {                                                         \
+        };                                                                                         \
+        class TCurrentTest: public T {                                                             \
+        private:                                                                                   \
+            typedef std::function<THolder<NUnitTest::TBaseTestCase>()> TTestCaseFactory;           \
+            typedef std::vector<TTestCaseFactory> TTests;                                          \
+                                                                                                   \
+            static TTests& Tests() {                                                               \
+                static TTests tests;                                                               \
+                return tests;                                                                      \
+            }                                                                                      \
+                                                                                                   \
+        public:                                                                                    \
+            static std::string StaticName() {                                                      \
+                return #N;                                                                         \
+            }                                                                                      \
+            virtual std::string Name() const noexcept {                                            \
+                return StaticName();                                                               \
+            }                                                                                      \
+                                                                                                   \
+            static void AddTest(const char* name,                                                  \
+                const std::function<void(NUnitTest::TTestContext&)>& body, bool forceFork)         \
+            {                                                                                      \
+                Tests().emplace_back([=] {                                                         \
+                    return MakeHolder<NUnitTest::TBaseTestCase>(name, body, forceFork);            \
+                });                                                                                \
+            }                                                                                      \
+                                                                                                   \
+            static void AddTest(TTestCaseFactory testCaseFactory) {                                \
+                Tests().push_back(std::move(testCaseFactory));                                     \
+            }                                                                                      \
+                                                                                                   \
+            virtual void Execute() {                                                               \
+                this->AtStart();                                                                   \
+                this->GlobalSuiteSetUp();                                                          \
+                for (TTests::iterator it = Tests().begin(), ie = Tests().end(); it != ie; ++it) {  \
+                    const auto i = (*it)();                                                        \
+                    if (!this->CheckAccessTest(i->Name_)) {                                        \
+                        continue;                                                                  \
+                    }                                                                              \
+                    NUnitTest::TTestContext context(this->TTestBase::Processor());                 \
+                    try {                                                                          \
+                        this->BeforeTest(i->Name_);                                                \
+                        {                                                                          \
+                            TCleanUp cleaner(this);                                                \
+                            auto testCase = [this, &i, &context] {                                 \
+                                Y_DEFER {                                                          \
+                                    try {                                                          \
+                                        i->TearDown(context);                                      \
+                                    } catch (const ::NUnitTest::TAssertException&) {               \
+                                    } catch (const yexception& e) {                                \
+                                        CATCH_REACTION_BT(i->Name_, e, &context);                  \
+                                    } catch (const std::exception& e) {                            \
+                                        CATCH_REACTION(i->Name_, e, &context);                     \
+                                    } catch (...) {                                                \
+                                        this->AddError("non-std exception!", &context);            \
+                                    }                                                              \
+                                };                                                                 \
+                                i->SetUp(context);                                                 \
+                                i->Execute_(context);                                              \
+                            };                                                                     \
+                            this->T::Run(testCase, StaticName(), i->Name_, i->ForceFork_);         \
+                        }                                                                          \
+                    } catch (const ::NUnitTest::TAssertException&) {                               \
+                    } catch (const yexception& e) {                                                \
+                        CATCH_REACTION_BT(i->Name_, e, &context);                                  \
+                    } catch (const std::exception& e) {                                            \
+                        CATCH_REACTION(i->Name_, e, &context);                                     \
+                    } catch (...) {                                                                \
+                        this->AddError("non-std exception!", &context);                            \
+                    }                                                                              \
+                    this->Finish(i->Name_, &context);                                              \
+                }                                                                                  \
+                this->GlobalSuiteTearDown();                                                       \
+                this->AtEnd();                                                                     \
+            }                                                                                      \
+        };                                                                                         \
+        UNIT_TEST_SUITE_REGISTRATION(TCurrentTest)                                                 \
+    }                                                                                              \
     namespace NTestSuite##N
 
-#define Y_UNIT_TEST_SUITE_IMPL(N, T) Y_UNIT_TEST_SUITE_IMPL_F(N, T, ::NUnitTest::TBaseTestCase)
+#define Y_UNIT_TEST_SUITE_IMPL(N, T) \
+    Y_UNIT_TEST_SUITE_IMPL_F(N, T, ::NUnitTest::TBaseTestCase)
 #define Y_UNIT_TEST_SUITE(N) Y_UNIT_TEST_SUITE_IMPL(N, TTestBase)
 #define Y_UNIT_TEST_SUITE_F(N, F) Y_UNIT_TEST_SUITE_IMPL_F(N, TTestBase, F)
-#define RUSAGE_UNIT_TEST_SUITE(N) Y_UNIT_TEST_SUITE_IMPL(N, NUnitTest::TRusageTest, ::NUnitTest::TBaseTestCase)
+#define RUSAGE_UNIT_TEST_SUITE(N) \
+    Y_UNIT_TEST_SUITE_IMPL(N, NUnitTest::TRusageTest, ::NUnitTest::TBaseTestCase)
 
-#define Y_UNIT_TEST_IMPL_REGISTER(N, FF, F)            \
+#define Y_UNIT_TEST_IMPL_REGISTER(N, FF, F)                 \
     struct TTestCase##N : public F {                        \
         TTestCase##N()                                      \
         {                                                   \
