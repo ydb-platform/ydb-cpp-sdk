@@ -18,8 +18,8 @@ jobs:
       ydb:
         image: ydbplatform/local-ydb:latest
         ports:
-          - 2135:2135
-          - 2136:2136
+          - 10000:2135
+          - 10001:2136
           - 8765:8765
         volumes:
           - /tmp/ydb_certs:/ydb_certs
@@ -66,7 +66,7 @@ jobs:
       shell: bash
       run: |
         cd ../build
-        examples/basic_example/basic_example -e localhost:2136 -d /local -p /local/basic
-        examples/bulk_upsert_simple/bulk_upsert_simple -e localhost:2136 -d /local -p /local/bulk
-        examples/pagination/pagination -e localhost:2136 -d /local -p /local/pagination
-        examples/ttl/ttl -e localhost:2136 -d /local -p /local/ttl
+        examples/basic_example/basic_example -e localhost:10001 -d /local -p /local/basic
+        examples/bulk_upsert_simple/bulk_upsert_simple -e localhost:10001 -d /local -p /local/bulk
+        examples/pagination/pagination -e localhost:10001 -d /local -p /local/pagination
+        examples/ttl/ttl -e localhost:10001 -d /local -p /local/ttl
