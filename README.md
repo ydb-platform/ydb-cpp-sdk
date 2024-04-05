@@ -72,6 +72,12 @@ cd brotli-1.1.0
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 sudo cmake --build . --config Release --target install
+
+wget https://github.com/Thalhammer/jwt-cpp/archive/refs/tags/v0.7.0.tar.gz
+tar -xvzf v0.7.0.tar.gz && cd jwt-cpp-0.7.0
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+sudo cmake --build . --config Release --target install
 ```
 
 ## Create the work directory
