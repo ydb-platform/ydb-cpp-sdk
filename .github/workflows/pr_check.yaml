@@ -1,4 +1,4 @@
-name: Build and Test with jwt-cpp and PR-check
+name: PR-check
 
 on:
   push:
@@ -9,27 +9,6 @@ on:
       - main
 
 jobs:
-  build-and-test:
-    name: Build and Test with jwt-cpp
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Download and extract jwt-cpp
-        run: |
-          wget https://github.com/Thalhammer/jwt-cpp/archive/refs/tags/v0.7.0.tar.gz
-          tar -xvzf v0.7.0.tar.gz && cd jwt-cpp-0.7.0
-
-      - name: Configure and install jwt-cpp
-        run: |
-          mkdir build && cd build
-          cmake -DCMAKE_BUILD_TYPE=Release ..
-          sudo cmake --build . --config Release --target install
-
-      - name: Build and run tests
-        run: ./.github/actions/build
-
   main:
     name: PR check for YDB C++ SDK
     runs-on: ubuntu-22.04
@@ -84,3 +63,6 @@ jobs:
           examples/bulk_upsert_simple/bulk_upsert_simple -e localhost:2136 -d /local -p /local/bulk
           examples/pagination/pagination -e localhost:2136 -d /local -p /local/pagination
           examples/ttl/ttl -e localhost:2136 -d /local -p /local/ttl
+
+
+        
