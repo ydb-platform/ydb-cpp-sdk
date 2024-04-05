@@ -1,4 +1,4 @@
-#include </usr/local/include/jwt-cpp/jwt.h>
+#include <jwt-cpp/jwt.h>
 #include <library/cpp/digest/argonish/argon2.h>
 #include <util/string/builder.h>
 #include <library/cpp/string_utils/base64/base64.h>

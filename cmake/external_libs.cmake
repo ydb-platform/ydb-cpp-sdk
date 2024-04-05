@@ -17,7 +17,6 @@ find_package(Brotli 1.1.0 REQUIRED)
 find_package(jwt-cpp REQUIRED)
 find_package(GTest REQUIRED)
 
-
 # RapidJSON
 if (YDB_SDK_USE_RAPID_JSON)
   find_package(RapidJSON REQUIRED)
@@ -76,5 +75,3 @@ else ()
     gRPC::grpc_cpp_plugin
   )
 endif ()
-
-

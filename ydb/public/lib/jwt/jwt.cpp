@@ -1,4 +1,4 @@
-#include </usr/local/include/jwt-cpp/jwt.h>
+#include <jwt-cpp/jwt.h>
 
 #include "jwt.h"
 
