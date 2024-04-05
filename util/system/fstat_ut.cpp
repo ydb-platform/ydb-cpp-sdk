@@ -71,12 +71,12 @@ Y_UNIT_TEST_SUITE(TestFileStat) {
             auto res = NFs::SymLink(target, link);                                    \
             if (!res) {                                                               \
                 auto err = LastSystemError();                                         \
-                Cerr << "can't create symlink: " << LastSystemErrorText(err) << Endl; \
+                std::cerr << "can't create symlink: " << LastSystemErrorText(err) << std::endl; \
                 UNIT_ASSERT(err == ERROR_PRIVILEGE_NOT_HELD);                         \
                 return;                                                               \
             }                                                                         \
             if (!NFs::Exists(link) && IsWine()) {                                     \
-                Cerr << "wine does not support symlinks" << Endl;                     \
+                std::cerr << "wine does not support symlinks" << std::endl;                     \
                 return;                                                               \
             }                                                                         \
         } while (false)

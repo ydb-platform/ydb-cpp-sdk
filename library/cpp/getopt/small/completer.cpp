@@ -263,7 +263,7 @@ namespace NLastGetopt::NComp {
     }
 
     void TCustomCompleter::AddCompletion(std::string_view completion) {
-        Cout << completion << Endl;  // this was easy =)
+        std::cout << completion << std::endl;  // this was easy =)
         // TODO: support option descriptions and messages
     }
 
@@ -275,12 +275,12 @@ namespace NLastGetopt::NComp {
         }
 
         if (!root.empty()) {
-            Cout << root << Sep_ << Endl;
+            std::cout << root << Sep_ << std::endl;
         } else {
-            Cout << Endl;
+            std::cout << std::endl;
         }
 
-        Cout << Sep_ << Endl;
+        std::cout << Sep_ << std::endl;
 
         GenerateCompletionParts(argc, argv, curIdx, cur, prefix, suffix, root);
     }

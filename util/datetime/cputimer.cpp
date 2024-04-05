@@ -6,6 +6,7 @@
 #include <util/generic/singleton.h>
 
 #include <format>
+#include <iostream>
 
 #if defined(_unix_)
     #include <unistd.h>
@@ -25,7 +26,7 @@ TTimer::TTimer(const std::string_view message) {
 TTimer::~TTimer() {
     const TDuration duration = TInstant::Now() - Start_;
     Message_ << duration << "\n";
-    Cerr << Message_.Str();
+    std::cerr << Message_.Str();
 }
 
 static ui64 ManuallySetCyclesPerSecond = 0;
@@ -91,29 +92,15 @@ std::string FormatCycles(ui64 cycles) {
     return result;
 }
 
-TFormattedPrecisionTimer::TFormattedPrecisionTimer(const char* message, IOutputStream* out)
-    : Message(message)
-    , Out(out)
-{
-    Start = GetCycleCount();
-}
-
-TFormattedPrecisionTimer::~TFormattedPrecisionTimer() {
-    const ui64 end = GetCycleCount();
-    const ui64 diff = end - Start;
-
-    *Out << Message << ": " << diff << " ticks " << FormatCycles(diff) << Endl;
-}
-
 TFuncTimer::TFuncTimer(const char* func)
     : Start_(TInstant::Now())
     , Func_(func)
 {
-    Cerr << "enter " << Func_ << Endl;
+    std::cerr << "enter " << Func_ << std::endl;
 }
 
 TFuncTimer::~TFuncTimer() {
-    Cerr << "leave " << Func_ << " -> " << (TInstant::Now() - Start_) << Endl;
+    std::cerr << "leave " << Func_ << " -> " << (TInstant::Now() - Start_).ToString() << std::endl;
 }
 
 TTimeLogger::TTimeLogger(const std::string& message, bool verbose)

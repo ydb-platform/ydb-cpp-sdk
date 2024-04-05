@@ -33,10 +33,10 @@
 #include <util/system/shellcommand.h>
 
 #include <filesystem>
-
 #include <format>
-#include <string>
+#include <fstream>
 #include <iostream>
+#include <string>
 
 #if defined(_win_)
     #include <fcntl.h>
@@ -171,11 +171,11 @@ private:
 
         PrevTime = now;
         std::string marker = Join("", "\n###subtest-finished:", className, "::", subtestName, "\n");
-        Cout << marker;
-        Cout.Flush();
-        Cerr << comment;
-        Cerr << marker;
-        Cerr.Flush();
+        std::cout << marker;
+        std::cout.flush();
+        std::cerr << comment;
+        std::cerr << marker;
+        std::cerr.flush();
     }
 
     virtual std::string BuildComment(const char* message, const char* backTrace) {
@@ -194,10 +194,10 @@ private:
         event.InsertValue("subtest", test->name);
         Trace("subtest-started", event);
         std::string marker = Join("", "\n###subtest-started:", test->unit->name, "::", test->name, "\n");
-        Cout << marker;
-        Cout.Flush();
-        Cerr << marker;
-        Cerr.Flush();
+        std::cout << marker;
+        std::cout.flush();
+        std::cerr << marker;
+        std::cerr.flush();
     }
 
     void OnUnitStart(const TUnit* unit) override {
@@ -463,7 +463,7 @@ private:
             return;
         }
 
-        Cerr << d << "\n";
+        std::cerr << d.ToString() << "\n";
     }
 
     void OnEnd() override {
@@ -555,8 +555,8 @@ private:
         ForkExitedCorrectly = msgIndex != std::string::npos;
 
         // TODO: stderr output is always printed after stdout
-        Cout.Write(cmd.GetOutput());
-        Cerr.Write(err.c_str(), Min(msgIndex, err.size()));
+        std::cout << cmd.GetOutput();
+        std::cerr.write(err.c_str(), Min(msgIndex, err.size()));
 
         // do not use default case, so gcc will warn if new element in enum will be added
         switch (cmd.GetStatus()) {
@@ -609,7 +609,7 @@ const char* const TColoredProcessor::ForkCorrectExitMsg = "--END--";
 
 class TEnumeratingProcessor: public ITestSuiteProcessor {
 public:
-    TEnumeratingProcessor(bool verbose, IOutputStream& stream) noexcept
+    TEnumeratingProcessor(bool verbose, std::ostream& stream) noexcept
         : Verbose_(verbose)
         , Stream_(stream)
     {
@@ -634,7 +634,7 @@ public:
 
 private:
     bool Verbose_;
-    IOutputStream& Stream_;
+    std::ostream& Stream_;
 };
 
 #ifdef _win_
@@ -670,7 +670,7 @@ private:
 static const TWinEnvironment Instance;
 #endif // _win_
 
-static int DoList(bool verbose, IOutputStream& stream) {
+static int DoList(bool verbose, std::ostream& stream) {
     TEnumeratingProcessor eproc(verbose, stream);
     TTestFactory::Instance().SetProcessor(&eproc);
     TTestFactory::Instance().Execute();
@@ -678,7 +678,7 @@ static int DoList(bool verbose, IOutputStream& stream) {
 }
 
 static int DoUsage(const char* progname) {
-    Cout << "Usage: " << progname << " [options] [[+|-]test]...\n\n"
+    std::cout << "Usage: " << progname << " [options] [[+|-]test]...\n\n"
          << "Options:\n"
          << "  -h, --help            print this help message\n"
          << "  -l, --list            print a list of available tests\n"
@@ -740,8 +740,8 @@ int NUnitTest::RunMain(int argc, char** argv) {
         };
 
         TColoredProcessor processor(GetExecPath());
-        IOutputStream* listStream = &Cout;
-        THolder<IOutputStream> listFile;
+        std::ostream* listStream = &std::cout;
+        std::unique_ptr<std::ostream> listFile;
 
         enum EListType {
             DONT_LIST,
@@ -829,8 +829,8 @@ int NUnitTest::RunMain(int argc, char** argv) {
                     traceProcessors.push_back(std::make_shared<TTraceWriterProcessor>(argv[i], OpenAlways | ForAppend));
                 } else if (strcmp(name, "--list-path") == 0) {
                     ++i;
-                    listFile = MakeHolder<TFixedBufferFileOutput>(argv[i]);
-                    listStream = listFile.Get();
+                    listFile = std::make_unique<std::ofstream>(argv[i]);
+                    listStream = listFile.get();
                 } else if (strcmp(name, "--test-param") == 0) {
                     ++i;
                     std::string param(argv[i]);
@@ -879,7 +879,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
         for (;;) {
             ret = TTestFactory::Instance().Execute();
             if (!processor.GetIsForked() && ret && processor.GetPrintSummary()) {
-                Cerr << "SOME TESTS FAILED!!!!" << Endl;
+                std::cerr << "SOME TESTS FAILED!!!!" << std::endl;
             }
 
             if (0 != ret || !processor.IsLoop()) {
@@ -889,7 +889,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
         return ret;
 #ifndef UT_SKIP_EXCEPTIONS
     } catch (...) {
-        Cerr << "caught exception in test suite(" << CurrentExceptionMessage() << ")" << Endl;
+        std::cerr << "caught exception in test suite(" << CurrentExceptionMessage() << ")" << std::endl;
     }
 #endif
 

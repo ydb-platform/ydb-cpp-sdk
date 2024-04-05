@@ -366,16 +366,6 @@ namespace {
             ~TStdErr() override = default;
         };
 
-        struct TStdOut: public TStdOutput {
-            inline TStdOut()
-                : TStdOutput(stdout)
-            {
-            }
-
-            ~TStdOut() override = default;
-        };
-
-        TStdOut Out;
         TStdErr Err;
 
         static inline TStdIOStreams& Instance() {
@@ -391,15 +381,6 @@ IOutputStream& NPrivate::StdErrStream() noexcept {
     }
 #endif
     return TStdIOStreams::Instance().Err;
-}
-
-IOutputStream& NPrivate::StdOutStream() noexcept {
-#if defined(_android_)
-    if (TAndroidStdIOStreams::Enabled) {
-        return TAndroidStdIOStreams::Instance().Out;
-    }
-#endif
-    return TStdIOStreams::Instance().Out;
 }
 
 void RedirectStdioToAndroidLog(bool redirect) {

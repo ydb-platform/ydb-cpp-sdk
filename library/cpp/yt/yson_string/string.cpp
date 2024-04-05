@@ -91,25 +91,11 @@ TYsonString::TYsonString(
     : TYsonString(TYsonStringBuf(data, type))
 { }
 
-#ifdef TSTRING_IS_STD_STRING
 TYsonString::TYsonString(
     const std::string& data,
     EYsonType type)
     : TYsonString(TYsonStringBuf(data, type))
 { }
-#else
-TYsonString::TYsonString(
-    const std::string& data,
-    EYsonType type)
-{
-    // NOTE: CoW std::string implementation is assumed
-    // Moving the payload MUST NOT invalidate its internal pointers
-    Payload_ = data;
-    Begin_ = data.data();
-    Size_ = data.length();
-    Type_ = type;
-}
-#endif
 
 TYsonString::TYsonString(
     const TSharedRef& data,

@@ -60,7 +60,7 @@ int SelectJoin(TDriver& driver, const std::string& path, int argc, char **argv) 
     }));
 
     for (auto& item : selectResult) {
-        Cout << item.SeriesId << ' ' << item.Title << Endl;
+        std::cout << item.SeriesId << ' ' << item.Title << std::endl;
     }
 
     return 0;

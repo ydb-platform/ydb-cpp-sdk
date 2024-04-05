@@ -94,7 +94,6 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
         TNetworkAddress addr("localhost", port);
         TSocket s(addr);
 
-        //TDebugOutput dbg;
         TNullOutput dbg;
 
         {
@@ -140,7 +139,6 @@ Y_UNIT_TEST_SUITE(THttpStreamTest) {
         TNetworkAddress addr("localhost", port);
         TSocket s(addr);
 
-        //TDebugOutput dbg;
         TNullOutput dbg;
 
         {

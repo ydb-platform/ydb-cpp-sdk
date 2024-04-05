@@ -77,17 +77,6 @@ public:
 
 std::string FormatCycles(ui64 cycles);
 
-class TFormattedPrecisionTimer {
-private:
-    ui64 Start;
-    const char* Message;
-    IOutputStream* Out;
-
-public:
-    TFormattedPrecisionTimer(const char* message = "took ", IOutputStream* out = &Cout);
-    ~TFormattedPrecisionTimer();
-};
-
 class TFuncTimer {
 public:
     TFuncTimer(const char* func);

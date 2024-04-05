@@ -27,6 +27,7 @@ public:
     float GetConsumedRu() const;
 
     friend IOutputStream& operator<<(IOutputStream& out, const TStatus& st);
+    friend std::ostream& operator<<(std::ostream& out, const TStatus& st);
 
 protected:
     void CheckStatusOk(const std::string& str) const;

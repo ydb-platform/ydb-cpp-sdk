@@ -14,7 +14,7 @@ static void DropTable(TTableClient& client, const std::string& path) {
 
 int RunDropTables(TDriver& driver, const std::string& prefix, int argc, char**) {
     if (argc > 1) {
-        Cerr << "Unexpected arguments after drop_tables" << Endl;
+        std::cerr << "Unexpected arguments after drop_tables" << std::endl;
         return 1;
     }
 
