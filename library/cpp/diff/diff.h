@@ -10,22 +10,18 @@
 #include <util/stream/output.h>
 #include <util/string/split.h>
 
-template <typename T>
-using TConstSpan = std::span<const T>;
 
 namespace NDiff {
     template <typename T>
     struct TChunk {
 
-
-
-        TConstSpan<T> Left;
-        TConstSpan<T> Right;
-        TConstSpan<T> Common;
+        std::span<const T> Left;
+        std::span<const T> Right;
+        std::span<const T> Common;
 
         TChunk() = default;
 
-        TChunk(const TConstSpan<T>& left, const TConstSpan<T>& right, const TConstSpan<T>& common)
+        TChunk(const std::span<const T>& left, const std::span<const T>& right, const std::span<const T>& common)
             : Left(left)
             , Right(right)
             , Common(common)
@@ -34,9 +30,9 @@ namespace NDiff {
     };
 
     template <typename T>
-    size_t InlineDiff(std::vector<TChunk<T>>& chunks, const TConstSpan<T>& left, const TConstSpan<T>& right) {
-        TConstSpan<T> s1(left);
-        TConstSpan<T> s2(right);
+    size_t InlineDiff(std::vector<TChunk<T>>& chunks, const std::span<const T>& left, const std::span<const T>& right) {
+        std::span<const T> s1(left);
+        std::span<const T> s2(right);
 
         bool swapped = false;
         if (s1.size() < s2.size()) {
@@ -63,7 +59,7 @@ namespace NDiff {
         size_t dist = s1.size() - lcs.size();
 
         const size_t n = ctx.ResultBuffer.size();
-        for (size_t i = 0; i <= n && (e1 != (s1.data() + s1.size()) || e2 != (s2.data() + s2.size()));) {
+        for (size_t i = 0; i <= n && (e1 != s1.data() + s1.size() || e2 != s2.data() + s2.size());) {
             if (i < n) {
                 // Common character exists
                 // LCS is marked against positions in s2
@@ -83,10 +79,10 @@ namespace NDiff {
                 e2 = s2.data() + s2.size();
             }
 
-            TChunk<T> chunk(TConstSpan<T>(d1, c1), TConstSpan<T>(d2, c2), TConstSpan<T>(c1, e1));
+            TChunk<T> chunk(std::span<const T>(d1, c1), std::span<const T>(d2, c2), std::span<const T>(c1, e1));
             if (swapped) {
                 DoSwap(chunk.Left, chunk.Right);
-                chunk.Common = TConstSpan<T>(c2, e2);
+                chunk.Common = std::span<const T>(c2, e2);
             }
             chunks.push_back(chunk);
 

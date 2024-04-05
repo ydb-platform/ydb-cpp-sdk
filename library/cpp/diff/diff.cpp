@@ -7,20 +7,20 @@
 
 template <typename T>
 struct TCollectionImpl {
-    std::vector<TConstSpan<T>> Words;
+    std::vector<std::span<const T>> Words;
     std::vector<ui64> Keys;
 
     inline bool Consume(const T* b, const T* e, const T*) {
         if (b < e) {
-            Words.push_back(TConstSpan<T>(b, e));
+            Words.push_back(std::span<const T>(b, e));
             Keys.push_back(FnvHash<ui64>((const char*)b, (e - b) * sizeof(T)));
         }
         return true;
     }
 
-    TConstSpan<T> Remap(const TConstSpan<ui64>& keys) const {
+    std::span<const T> Remap(const std::span<const ui64>& keys) const {
         if (keys.empty()) {
-            return TConstSpan<T>();
+            return std::span<const T>();
         }
         auto firstWordPos = std::distance(Keys.data(), keys.data());
         auto lastWordPos = std::distance(Keys.data(), keys.data() + keys.size()) - 1;
@@ -28,11 +28,11 @@ struct TCollectionImpl {
         Y_ASSERT(lastWordPos >= firstWordPos);
         Y_ASSERT(static_cast<size_t>(lastWordPos) < Words.size());
 
-        return TConstSpan<T>(Words[firstWordPos].begin(), Words[lastWordPos].end());
+        return std::span<const T>(Words[firstWordPos].begin(), Words[lastWordPos].end());
     }
 
-    TConstSpan<ui64> GetKeys() const {
-        return TConstSpan<ui64>(Keys);
+    std::span<const ui64> GetKeys() const {
+        return std::span<const ui64>(Keys);
     }
 };
 
@@ -60,7 +60,7 @@ struct TCollection<wchar16>: public TCollectionImpl<wchar16> {
 
 size_t NDiff::InlineDiff(std::vector<TChunk<char>>& chunks, const std::string_view& left, const std::string_view& right, const std::string& delims) {
     if (delims.empty()) {
-        return InlineDiff<char>(chunks, TConstSpan<char>(left.data(), left.size()), TConstSpan<char>(right.data(), right.size()));
+        return InlineDiff<char>(chunks, std::span<const char>(left.data(), left.size()), std::span<const char>(right.data(), right.size()));
     }
     TCollection<char> c1(left, delims);
     TCollection<char> c2(right, delims);
@@ -74,7 +74,7 @@ size_t NDiff::InlineDiff(std::vector<TChunk<char>>& chunks, const std::string_vi
 
 size_t NDiff::InlineDiff(std::vector<TChunk<wchar16>>& chunks, const std::u16string_view& left, const std::u16string_view& right, const std::u16string& delims) {
     if (delims.empty()) {
-        return InlineDiff<wchar16>(chunks, TConstSpan<wchar16>(left.data(), left.size()), TConstSpan<wchar16>(right.data(), right.size()));
+        return InlineDiff<wchar16>(chunks, std::span<const wchar16>(left.data(), left.size()), std::span<const wchar16>(right.data(), right.size()));
     }
     TCollection<wchar16> c1(left, delims);
     TCollection<wchar16> c2(right, delims);
