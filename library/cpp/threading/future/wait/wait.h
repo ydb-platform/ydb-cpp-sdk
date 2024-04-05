@@ -2,7 +2,7 @@
 
 #include "fwd.h"
 
-#include<span>
+#include <span>
 
 #include <library/cpp/threading/future/core/future.h>
 #include <library/cpp/threading/future/wait/wait_group.h>
