@@ -40,7 +40,7 @@ public:
     NYdb::TDriver& GetDriver() {
         if (!Driver) {
             NYdb::TDriverConfig cfg;
-            cfg.SetEndpoint(TYdbStringBuilder() << "localhost:" << Server.GrpcPort);
+            cfg.SetEndpoint(TStringBuilder() << "localhost:" << Server.GrpcPort);
             cfg.SetDatabase("/Root");
             cfg.SetLog(CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG));
             Driver = MakeHolder<NYdb::TDriver>(cfg);
