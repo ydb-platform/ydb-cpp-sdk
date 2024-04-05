@@ -7,7 +7,9 @@
 
 #include <library/cpp/json/writer/json.h>
 #include <library/cpp/json/writer/json_value.h>
+
 #include <library/cpp/testing/common/env.h>
+#include <library/cpp/testing/common/env_var.h>
 #include <library/cpp/testing/hook/hook.h>
 
 #include <util/datetime/base.h>
@@ -15,23 +17,26 @@
 #include <util/generic/hash.h>
 #include <util/generic/hash_set.h>
 #include <util/generic/scope.h>
-#include <string>
 #include <util/generic/yexception.h>
 
 #include <util/network/init.h>
 
 #include <util/stream/file.h>
 #include <util/stream/output.h>
+
 #include <util/string/join.h>
 #include <util/string/util.h>
 
 #include <util/system/defaults.h>
-#include <util/system/env.h>
 #include <util/system/execpath.h>
 #include <util/system/valgrind.h>
 #include <util/system/shellcommand.h>
 
 #include <filesystem>
+#include <format>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 #if defined(_win_)
     #include <fcntl.h>
@@ -53,6 +58,9 @@
 const size_t MAX_COMMENT_MESSAGE_LENGTH = 1024 * 1024; // 1 MB
 
 using namespace NUnitTest;
+
+using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 class TNullTraceWriterProcessor: public ITestSuiteProcessor {
 };
@@ -163,18 +171,18 @@ private:
 
         PrevTime = now;
         std::string marker = Join("", "\n###subtest-finished:", className, "::", subtestName, "\n");
-        Cout << marker;
-        Cout.Flush();
-        Cerr << comment;
-        Cerr << marker;
-        Cerr.Flush();
+        std::cout << marker;
+        std::cout.flush();
+        std::cerr << comment;
+        std::cerr << marker;
+        std::cerr.flush();
     }
 
     virtual std::string BuildComment(const char* message, const char* backTrace) {
         return NUnitTest::GetFormatTag("bad") +
                std::string(message).substr(0, MAX_COMMENT_MESSAGE_LENGTH) +
                NUnitTest::GetResetTag() +
-               std::string("\n") +
+               "\n"s +
                NUnitTest::GetFormatTag("alt1") +
                std::string(backTrace).substr(0, MAX_COMMENT_MESSAGE_LENGTH) +
                NUnitTest::GetResetTag();
@@ -186,10 +194,10 @@ private:
         event.InsertValue("subtest", test->name);
         Trace("subtest-started", event);
         std::string marker = Join("", "\n###subtest-started:", test->unit->name, "::", test->name, "\n");
-        Cout << marker;
-        Cout.Flush();
-        Cerr << marker;
-        Cerr.Flush();
+        std::cout << marker;
+        std::cout.flush();
+        std::cerr << marker;
+        std::cerr.flush();
     }
 
     void OnUnitStart(const TUnit* unit) override {
@@ -211,15 +219,15 @@ private:
         if (descr->Success) {
             TraceSubtestFinished(descr->test->unit->name.data(), descr->test->name, "good", "", descr->Context);
         } else {
-            TYdbStringBuilder msgs;
+            TStringBuilder msgs;
             for (const std::string& m : ErrorMessages) {
-                if (msgs) {
-                    msgs << std::string_view("\n");
+                if (!msgs.empty()) {
+                    msgs << "\n"sv;
                 }
                 msgs << m;
             }
-            if (msgs) {
-                msgs << std::string_view("\n");
+            if (!msgs.empty()) {
+                msgs << "\n"sv;
             }
             TraceSubtestFinished(descr->test->unit->name.data(), descr->test->name, "fail", msgs, descr->Context);
             ErrorMessages.clear();
@@ -251,7 +259,7 @@ public:
     }
 
     inline void Disable(const char* name) {
-        size_t colon = std::string(name).find("::");
+        const auto colon = std::string(name).find("::");
         if (colon == std::string::npos) {
             DisabledSuites_.insert(name);
         } else {
@@ -261,16 +269,16 @@ public:
     }
 
     inline void Enable(const char* name) {
-        size_t colon = std::string(name).rfind("::");
+        const auto colon = std::string(name).rfind("::");
         if (colon == std::string::npos) {
             EnabledSuites_.insert(name);
-            EnabledTests_.insert(std::string() + name + "::*");
+            EnabledTests_.insert(""s + name + "::*");
         } else {
             std::string suite = std::string(name).substr(0, colon);
             EnabledSuites_.insert(suite);
             EnabledSuites_.insert(name);
             EnabledTests_.insert(name);
-            EnabledTests_.insert(std::string() + name + "::*");
+            EnabledTests_.insert(""s + name + "::*");
         }
     }
 
@@ -280,9 +288,9 @@ public:
         TFileInput filtersStream(filename);
 
         while (filtersStream.ReadLine(filterLine)) {
-            if (filterLine.StartsWith("-")) {
+            if (filterLine.starts_with("-")) {
                 Disable(filterLine.c_str() + 1);
-            } else if(filterLine.StartsWith("+")) {
+            } else if(filterLine.starts_with("+")) {
                 Enable(filterLine.c_str() + 1);
             }
         }
@@ -402,14 +410,14 @@ private:
             return;
         }
 
-        const std::string err = Sprintf("[%sFAIL%s] %s::%s -> %s%s%s\n%s%s%s", LightRedColor().data(), OldColor().data(),
+        const std::string err = std::format("[{}FAIL{}] {}::{} -> {}{}{}\n{}{}{}", LightRedColor().data(), OldColor().data(),
                                     descr->test->unit->name.data(),
                                     descr->test->name,
                                     LightRedColor().data(), descr->msg, OldColor().data(), LightCyanColor().data(), descr->BackTrace.data(), OldColor().data());
         const TDuration test_duration = SaveTestDuration();
         if (ShowFails) {
             if (PrintTimes_) {
-                Fails.push_back(Sprintf("%s %s", test_duration.ToString().data(), err.data()));
+                Fails.push_back(std::format("{} {}", test_duration.ToString().data(), err.data()));
             } else {
                 Fails.push_back(err);
             }
@@ -455,7 +463,7 @@ private:
             return;
         }
 
-        Cerr << d << "\n";
+        std::cerr << d.ToString() << "\n";
     }
 
     void OnEnd() override {
@@ -513,7 +521,7 @@ private:
             return true;
         }
 
-        if (EnabledTests_.find(std::string() + suite + "::*") != EnabledTests_.end()) {
+        if (EnabledTests_.find(""s + suite + "::*") != EnabledTests_.end()) {
             return true;
         }
 
@@ -526,7 +534,7 @@ private:
         }
 
         std::list<std::string> args(1, "--is-forked-internal");
-        args.push_back(Sprintf("+%s::%s", suite.data(), name));
+        args.push_back(std::format("+{}::{}", suite.data(), name));
 
         // stdin is ignored - unittest should not need them...
         TShellCommandOptions options;
@@ -540,15 +548,15 @@ private:
         cmd.Run();
 
         const std::string& err = cmd.GetError();
-        const size_t msgIndex = err.find(ForkCorrectExitMsg);
+        const auto msgIndex = err.find(ForkCorrectExitMsg);
 
         // everything is printed by parent process except test's result output ("good" or "fail")
         // which is printed by child. If there was no output - parent process prints default message.
         ForkExitedCorrectly = msgIndex != std::string::npos;
 
         // TODO: stderr output is always printed after stdout
-        Cout.Write(cmd.GetOutput());
-        Cerr.Write(err.c_str(), Min(msgIndex, err.size()));
+        std::cout << cmd.GetOutput();
+        std::cerr.write(err.c_str(), Min(msgIndex, err.size()));
 
         // do not use default case, so gcc will warn if new element in enum will be added
         switch (cmd.GetStatus()) {
@@ -601,7 +609,7 @@ const char* const TColoredProcessor::ForkCorrectExitMsg = "--END--";
 
 class TEnumeratingProcessor: public ITestSuiteProcessor {
 public:
-    TEnumeratingProcessor(bool verbose, IOutputStream& stream) noexcept
+    TEnumeratingProcessor(bool verbose, std::ostream& stream) noexcept
         : Verbose_(verbose)
         , Stream_(stream)
     {
@@ -626,7 +634,7 @@ public:
 
 private:
     bool Verbose_;
-    IOutputStream& Stream_;
+    std::ostream& Stream_;
 };
 
 #ifdef _win_
@@ -662,7 +670,7 @@ private:
 static const TWinEnvironment Instance;
 #endif // _win_
 
-static int DoList(bool verbose, IOutputStream& stream) {
+static int DoList(bool verbose, std::ostream& stream) {
     TEnumeratingProcessor eproc(verbose, stream);
     TTestFactory::Instance().SetProcessor(&eproc);
     TTestFactory::Instance().Execute();
@@ -670,7 +678,7 @@ static int DoList(bool verbose, IOutputStream& stream) {
 }
 
 static int DoUsage(const char* progname) {
-    Cout << "Usage: " << progname << " [options] [[+|-]test]...\n\n"
+    std::cout << "Usage: " << progname << " [options] [[+|-]test]...\n\n"
          << "Options:\n"
          << "  -h, --help            print this help message\n"
          << "  -l, --list            print a list of available tests\n"
@@ -732,8 +740,8 @@ int NUnitTest::RunMain(int argc, char** argv) {
         };
 
         TColoredProcessor processor(GetExecPath());
-        IOutputStream* listStream = &Cout;
-        THolder<IOutputStream> listFile;
+        std::ostream* listStream = &std::cout;
+        std::unique_ptr<std::ostream> listFile;
 
         enum EListType {
             DONT_LIST,
@@ -749,9 +757,9 @@ int NUnitTest::RunMain(int argc, char** argv) {
 
 
         // load filters from environment variable
-        std::string filterFn = GetEnv(Y_UNITTEST_TEST_FILTER_FILE_OPTION);
+        std::string filterFn = NUtils::GetEnv(Y_UNITTEST_TEST_FILTER_FILE_OPTION);
         if (!filterFn.empty()) {
-            processor.FilterFromFile(filterFn);
+            processor.FilterFromFile(std::move(filterFn));
         }
 
         auto processJunitOption = [&](const std::string_view& v) {
@@ -760,10 +768,10 @@ int NUnitTest::RunMain(int argc, char** argv) {
                 bool xmlFormat = false;
                 constexpr std::string_view xmlPrefix = "xml:";
                 constexpr std::string_view jsonPrefix = "json:";
-                if ((xmlFormat = v.StartsWith(xmlPrefix)) || v.StartsWith(jsonPrefix)) {
+                if ((xmlFormat = v.starts_with(xmlPrefix)) || v.starts_with(jsonPrefix)) {
                     std::string_view fileName = v;
                     const std::string_view prefix = xmlFormat ? xmlPrefix : jsonPrefix;
-                    fileName = fileName.SubString(prefix.size(), std::string_view::npos);
+                    fileName = fileName.substr(prefix.size());
                     const TJUnitProcessor::EOutputFormat format = xmlFormat ? TJUnitProcessor::EOutputFormat::Xml : TJUnitProcessor::EOutputFormat::Json;
                     NUnitTest::ShouldColorizeDiff = false;
                     traceProcessors.push_back(std::make_shared<TJUnitProcessor>(std::string(fileName),
@@ -821,8 +829,8 @@ int NUnitTest::RunMain(int argc, char** argv) {
                     traceProcessors.push_back(std::make_shared<TTraceWriterProcessor>(argv[i], OpenAlways | ForAppend));
                 } else if (strcmp(name, "--list-path") == 0) {
                     ++i;
-                    listFile = MakeHolder<TFixedBufferFileOutput>(argv[i]);
-                    listStream = listFile.Get();
+                    listFile = std::make_unique<std::ofstream>(argv[i]);
+                    listStream = listFile.get();
                 } else if (strcmp(name, "--test-param") == 0) {
                     ++i;
                     std::string param(argv[i]);
@@ -836,7 +844,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
                     ++i;
                     std::string filename(argv[i]);
                     processor.FilterFromFile(filename);
-                } else if (std::string(name).StartsWith("--")) {
+                } else if (std::string(name).starts_with("--")) {
                     return DoUsage(argv[0]), 1;
                 } else if (*name == '-') {
                     processor.Disable(name + 1);
@@ -852,7 +860,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
         }
 
         if (!hasJUnitProcessor) {
-            if (std::string oo = GetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION)) {
+            if (const std::string oo = NUtils::GetEnv(Y_UNITTEST_OUTPUT_CMDLINE_OPTION); !oo.empty()) {
                 processJunitOption(oo);
             }
         }
@@ -871,7 +879,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
         for (;;) {
             ret = TTestFactory::Instance().Execute();
             if (!processor.GetIsForked() && ret && processor.GetPrintSummary()) {
-                Cerr << "SOME TESTS FAILED!!!!" << Endl;
+                std::cerr << "SOME TESTS FAILED!!!!" << std::endl;
             }
 
             if (0 != ret || !processor.IsLoop()) {
@@ -881,7 +889,7 @@ int NUnitTest::RunMain(int argc, char** argv) {
         return ret;
 #ifndef UT_SKIP_EXCEPTIONS
     } catch (...) {
-        Cerr << "caught exception in test suite(" << CurrentExceptionMessage() << ")" << Endl;
+        std::cerr << "caught exception in test suite(" << CurrentExceptionMessage() << ")" << std::endl;
     }
 #endif
 

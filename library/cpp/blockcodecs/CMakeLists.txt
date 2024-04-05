@@ -9,7 +9,6 @@ target_link_libraries(library-cpp-blockcodecs PUBLIC
   blockcodecs-codecs-brotli
   blockcodecs-codecs-bzip
   blockcodecs-codecs-fastlz
-  blockcodecs-codecs-legacy_zstd06
   blockcodecs-codecs-lz4
   blockcodecs-codecs-lzma
   blockcodecs-codecs-snappy

@@ -389,7 +389,7 @@ bool TGRpcConnectionsImpl::StartStatCollecting(NMonitoring::IMetricRegistry* sen
         if (auto ptr = dynamic_cast<NMonitoring::TMetricRegistry*>(sensorsRegistry)) {
             MetricRegistryPtr_ = ptr;
         } else {
-            Cerr << "Unknown IMetricRegistry impl" << Endl;
+            std::cerr << "Unknown IMetricRegistry impl" << std::endl;
             return false;
         }
     }

@@ -1,8 +1,5 @@
-add_subdirectory(double-conversion)
 add_subdirectory(fastlz)
 add_subdirectory(jwt-cpp)
-add_subdirectory(libbz2)
 add_subdirectory(libc_compat)
 add_subdirectory(lzmasdk)
 add_subdirectory(nayuki_md5)
-add_subdirectory(zstd06)

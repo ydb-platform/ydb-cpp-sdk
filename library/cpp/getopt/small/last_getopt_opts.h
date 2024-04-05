@@ -2,9 +2,10 @@
 
 #include "last_getopt_opt.h"
 
-#include <map>
 #include <library/cpp/colorizer/fwd.h>
 
+#include <iostream>
+#include <map>
 
 namespace NLastGetopt {
     enum EArgPermutation {
@@ -602,7 +603,7 @@ namespace NLastGetopt {
          * @param os           destination stream
          * @param colors       colorizer
          */
-        void PrintUsage(const std::string_view& program, IOutputStream& os, const NColorizer::TColors& colors) const;
+        void PrintUsage(const std::string_view& program, std::ostream& os, const NColorizer::TColors& colors) const;
 
         /**
          * Print usage string
@@ -610,7 +611,7 @@ namespace NLastGetopt {
          * @param program      prefix of result (path to the program)
          * @param os           destination stream
          */
-        void PrintUsage(const std::string_view& program, IOutputStream& os = Cout) const;
+        void PrintUsage(const std::string_view& program, std::ostream& os = std::cout) const;
 
         /**
          * Get list of options in order of definition.
@@ -639,7 +640,7 @@ namespace NLastGetopt {
          * @param os         destination stream
          * @param colors     colorizer
          */
-        void PrintCmdLine(const std::string_view& program, IOutputStream& os, const NColorizer::TColors& colors) const;
+        void PrintCmdLine(const std::string_view& program, std::ostream& os, const NColorizer::TColors& colors) const;
 
         /**
          * Print usage helper
@@ -647,7 +648,7 @@ namespace NLastGetopt {
          * @param os         destination stream
          * @param colors     colorizer
          */
-        void PrintFreeArgsDesc(IOutputStream& os, const NColorizer::TColors& colors) const;
+        void PrintFreeArgsDesc(std::ostream& os, const NColorizer::TColors& colors) const;
     };
 
 }

@@ -24,7 +24,7 @@ public:
 UNIT_TEST_SUITE_REGISTRATION(TLogElementTest);
 
 void TLogElementTest::TestMoveCtor() {
-    std::stringStream output;
+    std::stringstream output;
     TLog log(MakeHolder<TStreamLogBackend>(&output));
 
     THolder<TLogElement> src = MakeHolder<TLogElement>(&log);
@@ -35,14 +35,14 @@ void TLogElementTest::TestMoveCtor() {
     THolder<TLogElement> dst = MakeHolder<TLogElement>(std::move(*src));
 
     src.Destroy();
-    UNIT_ASSERT(output.Str() == "");
+    UNIT_ASSERT(output.str() == "");
 
     dst.Destroy();
-    UNIT_ASSERT(output.Str() == message);
+    UNIT_ASSERT(output.str() == message);
 }
 
 void TLogElementTest::TestWith() {
-    std::stringStream output;
+    std::stringstream output;
     TLog log(MakeHolder<TStreamWithContextLogBackend>(&output));
 
     THolder<TLogElement> src = MakeHolder<TLogElement>(&log);
@@ -51,5 +51,5 @@ void TLogElementTest::TestWith() {
     (*src).With("Foo", "Bar").With("Foo", "Baz") << message;
 
     src.Destroy();
-    UNIT_ASSERT(output.Str() == "Hello, World!; Foo=Bar; Foo=Baz; ");
+    UNIT_ASSERT(output.str() == "Hello, World!; Foo=Bar; Foo=Baz; ");
 }

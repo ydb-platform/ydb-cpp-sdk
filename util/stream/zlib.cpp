@@ -375,5 +375,3 @@ void TZLibCompress::DoFinish() {
         impl->Finish();
     }
 }
-
-TBufferedZLibDecompress::~TBufferedZLibDecompress() = default;

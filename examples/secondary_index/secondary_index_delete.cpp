@@ -74,6 +74,6 @@ int RunDeleteSeries(TDriver& driver, const std::string& prefix, int argc, char**
         return DeleteSeries(session, prefix, seriesId, deletedCount);
     }));
 
-    Cout << "Deleted " << deletedCount << " rows" << Endl;
+    std::cout << "Deleted " << deletedCount << " rows" << std::endl;
     return 0;
 }

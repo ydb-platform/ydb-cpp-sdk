@@ -11,12 +11,13 @@
 #include <util/generic/yexception.h>
 #include <util/memory/tempbuf.h>
 #include <util/network/socket.h>
-#include <util/stream/pipe.h>
 #include <util/stream/str.h>
 #include <util/string/cast.h>
 #include <util/system/info.h>
+#include <util/system/pipe.h>
 
 #include <errno.h>
+#include <iostream>
 #include <mutex>
 
 #if defined(_unix_)
@@ -592,7 +593,7 @@ void TShellCommand::TImpl::StartProcess(TShellCommand::TImpl::TPipes& pipes) {
     }
     Pid = process_info.hProcess;
     CloseHandle(process_info.hThread);
-    DBG(Cerr << "created process id " << Pid << " in dir: " << cwd << ", cmd: " << cmdcopy.Data() << Endl);
+    DBG(std::cerr << "created process id " << Pid << " in dir: " << cwd << ", cmd: " << cmdcopy.Data() << std::endl);
 }
 #endif
 
@@ -712,12 +713,12 @@ void TShellCommand::TImpl::OnFork(TPipes& pipes, sigset_t oldmask, char* const* 
         } else {
             execve(argv[0], argv, envp);
         }
-        Cerr << "Process was not created: " << LastSystemErrorText() << Endl;
+        std::cerr << "Process was not created: " << LastSystemErrorText() << std::endl;
     } catch (const std::exception& error) {
-        Cerr << "Process was not created: " << error.what() << Endl;
+        std::cerr << "Process was not created: " << error.what() << std::endl;
     } catch (...) {
-        Cerr << "Process was not created: "
-             << "unknown error" << Endl;
+        std::cerr << "Process was not created: "
+             << "unknown error" << std::endl;
     }
 
     _exit(-1);
@@ -912,7 +913,7 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
                     WaitForSingleObject(pi->Parent->Pid /* process_info.hProcess */, pi->Parent->Options_.PollDelayMs /* ms */);
                 Y_UNUSED(status);
 #endif
-                // DBG(Cerr << "wait result: " << waitPidResult << Endl);
+                // DBG(std::cerr << "wait result: " << waitPidResult << std::endl);
                 if (waitPidResult != WAIT_PROCEED) {
                     break;
                 }
@@ -924,15 +925,15 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
             bool haveErr = false;
 
             if (!input && pi->InputFd.IsOpen()) {
-                DBG(Cerr << "closing input stream..." << Endl);
+                DBG(std::cerr << "closing input stream..." << std::endl);
                 pi->InputFd.Close();
             }
             if (!output && pi->OutputFd.IsOpen()) {
-                DBG(Cerr << "closing output stream..." << Endl);
+                DBG(std::cerr << "closing output stream..." << std::endl);
                 pi->OutputFd.Close();
             }
             if (!error && pi->ErrorFd.IsOpen()) {
-                DBG(Cerr << "closing error stream..." << Endl);
+                DBG(std::cerr << "closing error stream..." << std::endl);
                 pi->ErrorFd.Close();
             }
 
@@ -957,9 +958,9 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
             }
 
             res = PollD(fds, 3, TInstant::Now() + TDuration::MilliSeconds(pi->Parent->Options_.PollDelayMs));
-            // DBG(Cerr << "poll result: " << res << Endl);
+            // DBG(std::cerr << "poll result: " << res << std::endl);
             if (-res == ETIMEDOUT || res == 0) {
-                // DBG(Cerr << "poll again..." << Endl);
+                // DBG(std::cerr << "poll again..." << std::endl);
                 continue;
             }
             if (res < 0) {
@@ -984,7 +985,7 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
 
             if (haveOut) {
                 bytes = pi->OutputFd.Read(buffer.Data(), buffer.Capacity());
-                DBG(Cerr << "transferred " << bytes << " bytes of output" << Endl);
+                DBG(std::cerr << "transferred " << bytes << " bytes of output" << std::endl);
                 if (bytes > 0) {
                     output->Write(buffer.Data(), bytes);
                 } else {
@@ -993,7 +994,7 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
             }
             if (haveErr) {
                 bytes = pi->ErrorFd.Read(buffer.Data(), buffer.Capacity());
-                DBG(Cerr << "transferred " << bytes << " bytes of error" << Endl);
+                DBG(std::cerr << "transferred " << bytes << " bytes of error" << std::endl);
                 if (bytes > 0) {
                     error->Write(buffer.Data(), bytes);
                 } else {
@@ -1021,11 +1022,11 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
                     input = nullptr;
                 }
 
-                DBG(Cerr << "transferred " << bytes << " bytes of input" << Endl);
+                DBG(std::cerr << "transferred " << bytes << " bytes of input" << std::endl);
             }
 #endif
         }
-        DBG(Cerr << "process finished" << Endl);
+        DBG(std::cerr << "process finished" << std::endl);
 
         // What's the reason of process exit.
         // We need to set exit code before waiting for input thread
@@ -1049,7 +1050,7 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
             if (exitCode == 0)
                 cleanExit = true;
             processExitCode = static_cast<int>(exitCode);
-            DBG(Cerr << "exit code: " << exitCode << Endl);
+            DBG(std::cerr << "exit code: " << exitCode << std::endl);
         }
 #endif
         pi->Parent->ExitCode = processExitCode;
@@ -1069,11 +1070,11 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
 #else
         // Now let's read remaining stdout/stderr
         while (output && (bytes = pi->OutputFd.Read(buffer.Data(), buffer.Capacity())) > 0) {
-            DBG(Cerr << bytes << " more bytes of output: " << Endl);
+            DBG(std::cerr << bytes << " more bytes of output: " << std::endl);
             output->Write(buffer.Data(), bytes);
         }
         while (error && (bytes = pi->ErrorFd.Read(buffer.Data(), buffer.Capacity())) > 0) {
-            DBG(Cerr << bytes << " more bytes of error" << Endl);
+            DBG(std::cerr << bytes << " more bytes of error" << std::endl);
             error->Write(buffer.Data(), bytes);
         }
 #endif
@@ -1084,7 +1085,7 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
         if (input) {
             pi->InputFd.Close();
         }
-        Cdbg << "shell command internal error: " << pi->Parent->InternalError << Endl;
+        Cdbg << "shell command internal error: " << pi->Parent->InternalError << std::endl;
     }
     // Now we can safely delete process info struct and other data
     pi->Parent->TerminateFlag = true;

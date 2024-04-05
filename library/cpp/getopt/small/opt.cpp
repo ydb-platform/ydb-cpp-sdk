@@ -83,12 +83,12 @@ int Opt::Get(int* longOptionIndex) {
     } catch (const NLastGetopt::TException&) {
         GotError_ = true;
         if (Err)
-            Cerr << CurrentExceptionMessage() << Endl;
+            std::cerr << CurrentExceptionMessage() << std::endl;
         return '?';
     }
 }
 
-void Opt::DummyHelp(IOutputStream& os) {
+void Opt::DummyHelp(std::ostream& os) {
     Opts_->PrintUsage(GetProgramName(), os);
 }
 
