@@ -1,5 +1,3 @@
-# add_subdirectory(ut)
-
 add_library(cpp-client-draft)
 
 target_link_libraries(cpp-client-draft PUBLIC

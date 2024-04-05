@@ -227,6 +227,11 @@ DEF_OPTIONAL(i64);
 DEF_OPTIONAL(ui64);
 DEF_OPTIONAL(std::string);
 DEF_OPTIONAL(std::string_view);
+DEF_OPTIONAL(std::u16string);
+DEF_OPTIONAL(std::u16string_view);
+DEF_OPTIONAL(double);
+DEF_OPTIONAL(unsigned char);
+DEF_OPTIONAL(signed char);
 
 #if defined(_android_)
 namespace {
