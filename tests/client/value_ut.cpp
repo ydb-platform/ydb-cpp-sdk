@@ -1,5 +1,6 @@
+#include "value.h"
+
 #include <ydb/public/api/protos/ydb_value.pb.h>
-#include <client/ydb_value/value.h>
 #include <client/ydb_types/exceptions/exceptions.h>
 #include <ydb/public/lib/json_value/ydb_json_value.h>
 #include <ydb/public/lib/yson_value/ydb_yson_value.h>
@@ -7,7 +8,6 @@
 #include <library/cpp/testing/unittest/registar.h>
 #include <library/cpp/testing/unittest/tests_data.h>
 
-#include <google/protobuf/messagext.h>
 #include <google/protobuf/text_format.h>
 
 namespace NYdb {
@@ -61,7 +61,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
         )";
 
         Ydb::Type protoType;
-        NProtoBuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
+        google::protobuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
 
         UNIT_ASSERT_NO_DIFF(FormatType(protoType),
             R"(Struct<'Member1':Uint32,'Member2':List<String>,'Member3':Tuple<Utf8?,Decimal(8,13),Void>>)");
@@ -87,7 +87,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
         )";
 
         Ydb::Type protoType;
-        NProtoBuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
+        google::protobuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
 
         UNIT_ASSERT_NO_DIFF(FormatType(protoType),
             R"(Dict<Uint32,Struct<'Member1':Date>>)");
@@ -104,7 +104,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
         )";
 
         Ydb::Type protoType;
-        NProtoBuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
+        google::protobuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
 
         UNIT_ASSERT_NO_DIFF(FormatType(protoType),
             R"(Tagged<String,'my_tag'>)");
@@ -287,10 +287,10 @@ Y_UNIT_TEST_SUITE(YdbValue) {
         )";
 
         Ydb::Type protoType;
-        NProtoBuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
+        google::protobuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
 
         Ydb::Value protoValue;
-        NProtoBuf::TextFormat::ParseFromString(protoValueStr, &protoValue);
+        google::protobuf::TextFormat::ParseFromString(protoValueStr, &protoValue);
 
         TValue value(TType(protoType), protoValue);
 
@@ -341,10 +341,10 @@ Y_UNIT_TEST_SUITE(YdbValue) {
         )";
 
         Ydb::Type protoType;
-        NProtoBuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
+        google::protobuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
 
         Ydb::Value protoValue;
-        NProtoBuf::TextFormat::ParseFromString(protoValueStr, &protoValue);
+        google::protobuf::TextFormat::ParseFromString(protoValueStr, &protoValue);
 
         TValue value(TType(protoType), protoValue);
 
@@ -428,10 +428,10 @@ Y_UNIT_TEST_SUITE(YdbValue) {
         )";
 
         Ydb::Type protoType;
-        NProtoBuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
+        google::protobuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
 
         Ydb::Value protoValue;
-        NProtoBuf::TextFormat::ParseFromString(protoValueStr, &protoValue);
+        google::protobuf::TextFormat::ParseFromString(protoValueStr, &protoValue);
 
         TValue value(TType(protoType), protoValue);
 
@@ -507,10 +507,10 @@ Y_UNIT_TEST_SUITE(YdbValue) {
         )";
 
         Ydb::Type protoType;
-        NProtoBuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
+        google::protobuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
 
         Ydb::Value protoValue;
-        NProtoBuf::TextFormat::ParseFromString(protoValueStr, &protoValue);
+        google::protobuf::TextFormat::ParseFromString(protoValueStr, &protoValue);
 
         TValue value(TType(protoType), protoValue);
         TValueParser parser(value);
@@ -782,7 +782,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             "}\n";
 
         std::string protoValueStr;
-        NProtoBuf::TextFormat::PrintToString(value.GetProto(), &protoValueStr);
+        google::protobuf::TextFormat::PrintToString(value.GetProto(), &protoValueStr);
         UNIT_ASSERT_NO_DIFF(protoValueStr, expectedProtoValueStr);
     }
 
@@ -844,7 +844,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             "}\n";
 
         std::string protoValueStr;
-        NProtoBuf::TextFormat::PrintToString(value.GetProto(), &protoValueStr);
+        google::protobuf::TextFormat::PrintToString(value.GetProto(), &protoValueStr);
         UNIT_ASSERT_NO_DIFF(protoValueStr, expectedProtoValueStr);
     }
 

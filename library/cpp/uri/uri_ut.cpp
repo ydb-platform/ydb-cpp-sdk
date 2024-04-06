@@ -833,13 +833,13 @@ namespace NUri {
             {
                 uri.Parse("http://srv.net:9100/print", TFeature::FeaturesRecommended);
                 std::string s = uri.PrintS(TUri::FlagPort);
-                Cdbg << uri.PrintS() << ',' << uri.PrintS(TUri::FlagPort) << Endl;
+                Cdbg << uri.PrintS() << ',' << uri.PrintS(TUri::FlagPort) << std::endl;
                 UNIT_ASSERT_VALUES_EQUAL(9100, FromString<ui32>(s));
             }
             {
                 uri.Parse("http://srv.net:80/print", TFeature::FeaturesRecommended);
                 std::string s = uri.PrintS(TUri::FlagPort);
-                Cdbg << uri.PrintS() << ',' << uri.PrintS(TUri::FlagPort) << Endl;
+                Cdbg << uri.PrintS() << ',' << uri.PrintS(TUri::FlagPort) << std::endl;
                 UNIT_ASSERT(s.Empty());
             }
         }

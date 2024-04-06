@@ -1,7 +1,6 @@
 #pragma once
 
 #include "fwd.h"
-#include "labeled.h"
 
 #include <util/generic/noncopyable.h>
 #include <util/generic/typetraits.h>
@@ -259,37 +258,20 @@ static inline IOutputStream& operator<<(IOutputStream& o, wchar32* t) {
 }
 
 namespace NPrivate {
-    IOutputStream& StdOutStream() noexcept;
     IOutputStream& StdErrStream() noexcept;
 }
-
-/**
- * Standard output stream.
- */
-#define Cout (::NPrivate::StdOutStream())
 
 /**
  * Standard error stream.
  */
 #define Cerr (::NPrivate::StdErrStream())
 
-/**
- * Standard log stream.
- */
-#define Clog Cerr
 
 /**
  * End-of-line output manipulator, basically the same as `std::endl`.
  */
 static inline void Endl(IOutputStream& o) {
     (o << '\n').Flush();
-}
-
-/**
- * Flushing stream manipulator, basically the same as `std::flush`.
- */
-static inline void Flush(IOutputStream& o) {
-    o.Flush();
 }
 
 /*

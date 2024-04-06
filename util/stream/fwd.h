@@ -12,8 +12,6 @@ class IZeroCopyOutput;
 using TStreamManipulator = void (*)(IOutputStream&);
 
 class TLengthLimitedInput;
-class TCountingInput;
-class TCountingOutput;
 
 class TMemoryInput;
 class TMemoryOutput;
@@ -40,13 +38,6 @@ class TTeeOutput;
 
 class TTempBufOutput;
 
-struct TEol;
-
-template <typename TEndOfToken>
-class TStreamTokenizer;
-
-enum ETraceLevel: ui8;
-
 class IWalkInput;
 
 struct TZLibError;
@@ -59,12 +50,6 @@ namespace ZLib {
 
 class TZLibDecompress;
 class TZLibCompress;
-class TBufferedZLibDecompress;
-
-using TZDecompress = TBufferedZLibDecompress;
-
-class TAlignedInput;
-class TAlignedOutput;
 
 class TBufferInput;
 class TBufferOutput;
@@ -81,14 +66,7 @@ class TBuffered;
 template <class TSlave>
 class TAdaptivelyBuffered;
 
-class TDebugOutput;
-
-class TRandomAccessFileInput;
-class TRandomAccessFileOutput;
-class TBufferedFileOutputEx;
-
 class TUnbufferedFileInput;
-class TMappedFileInput;
 class TUnbufferedFileOutput;
 
 class TFileInput;

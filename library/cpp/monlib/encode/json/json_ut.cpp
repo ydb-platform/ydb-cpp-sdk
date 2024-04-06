@@ -10,6 +10,7 @@
 #include <util/stream/str.h>
 #include <util/string/builder.h>
 
+#include <iostream>
 #include <limits>
 
 using namespace NMonitoring;
@@ -42,7 +43,7 @@ namespace {
 
         if (diff.size() > 0) {
             for (auto&& l : diff) {
-                Cerr << l << Endl;
+                std::cerr << l << std::endl;
             }
 
             UNIT_FAIL("Labels don't match");

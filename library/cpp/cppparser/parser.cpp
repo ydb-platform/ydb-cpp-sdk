@@ -106,8 +106,8 @@ private:
             }
 
 #if DEBUG_ME
-            Cerr << "char: " << ch << Endl;
-            Cerr << "state before: " << (unsigned int)State_ << Endl;
+            std::cerr << "char: " << ch << std::endl;
+            std::cerr << "state before: " << (unsigned int)State_ << std::endl;
 #endif
 
         retry:
@@ -348,7 +348,7 @@ private:
             }
 
 #if DEBUG_ME
-            Cerr << "state after: " << (unsigned int)State_ << Endl;
+            std::cerr << "state after: " << (unsigned int)State_ << std::endl;
 #endif
 
             ++data;
