@@ -76,9 +76,8 @@ else ()
 endif ()
 
 # FastLZ
-add_library(FastLZ STATIC 
+add_library(FastLZ 
     ${CMAKE_SOURCE_DIR}/third_party/FastLZ/fastlz.c
-    ${CMAKE_SOURCE_DIR}/third_party/FastLZ/fastlz.h
 )
 
 target_include_directories(FastLZ PUBLIC ${CMAKE_SOURCE_DIR}/third_party/FastLZ)
