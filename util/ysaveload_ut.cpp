@@ -10,7 +10,6 @@
 #include <util/generic/deque.h>
 
 #include <util/generic/buffer.h>
-#include <util/generic/hash_set.h>
 
 static inline char* AllocateFromPool(TMemoryPool& pool, size_t len) {
     return (char*)pool.Allocate(len);
@@ -278,7 +277,7 @@ private:
             UNIT_ASSERT_EQUAL(multimap.find((ui16)1)->second, 2);
             UNIT_ASSERT_EQUAL(multimap.find((ui16)3)->second, 6);
 
-            THashSet<ui32> values;
+            std::unordered_set<ui32> values;
             auto range = multimap.equal_range((ui16)2);
             for (auto i = range.first; i != range.second; ++i) {
                 values.insert(i->second);

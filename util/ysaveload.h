@@ -14,6 +14,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <unordered_set>
 
 #ifndef __NVCC__
     // cuda is compiled in C++14 mode at the time
@@ -528,8 +529,8 @@ public:
 };
 
 template <class T1, class T2, class T3, class T4, class TValue>
-class TSetSerializerInserter<THashSet<T1, T2, T3, T4>, TValue, false>: public TSetSerializerInserterBase<THashSet<T1, T2, T3, T4>, TValue> {
-    using TSetType = THashSet<T1, T2, T3, T4>;
+class TSetSerializerInserter<std::unordered_set<T1, T2, T3, T4>, TValue, false>: public TSetSerializerInserterBase<std::unordered_set<T1, T2, T3, T4>, TValue> {
+    using TSetType = std::unordered_set<T1, T2, T3, T4>;
     using TBase = TSetSerializerInserterBase<TSetType, TValue>;
 
 public:
@@ -605,7 +606,7 @@ class TSerializer<std::set<K, C, A>>: public TSetSerializer<std::set<K, C, A>, t
 };
 
 template <class T1, class T2, class T3, class T4>
-class TSerializer<THashSet<T1, T2, T3, T4>>: public TSetSerializer<THashSet<T1, T2, T3, T4>, false> {
+class TSerializer<std::unordered_set<T1, T2, T3, T4>>: public TSetSerializer<std::unordered_set<T1, T2, T3, T4>, false> {
 };
 
 template <class T1, class T2>

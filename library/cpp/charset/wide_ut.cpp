@@ -6,9 +6,9 @@
 
 #include <util/charset/utf8.h>
 #include <util/digest/numeric.h>
-#include <util/generic/hash_set.h>
 
 #include <algorithm>
+#include <unordered_set>
 
 namespace {
     //! three UTF8 encoded russian letters (A, B, V)
@@ -350,7 +350,7 @@ void TConversionTest::TestRecode() {
         if (!SingleByteCodepage(enc))
             continue;
 
-        using THash = THashSet<char>;
+        using THash = std::unordered_set<char>;
         THash hash;
 
         for (int i = 0; i != 256; ++i) {

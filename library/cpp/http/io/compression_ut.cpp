@@ -5,7 +5,7 @@
 #include <library/cpp/testing/unittest/tests_data.h>
 
 #include <util/stream/zlib.h>
-#include <util/generic/hash_set.h>
+#include <unordered_set>
 
 Y_UNIT_TEST_SUITE(THttpCompressionTest) {
     static const std::string DATA = "I'm a teapot";
@@ -45,7 +45,7 @@ Y_UNIT_TEST_SUITE(THttpCompressionTest) {
     }
 
     Y_UNIT_TEST(TestChooseBestCompressionScheme) {
-        THashSet<std::string> accepted;
+        std::unordered_set<std::string> accepted;
 
         auto checkAccepted = [&accepted](const std::string& v) {
             return accepted.contains(v);

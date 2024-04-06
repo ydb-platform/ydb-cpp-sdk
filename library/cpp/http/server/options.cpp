@@ -4,8 +4,8 @@
 #include <util/digest/numeric.h>
 #include <util/network/ip.h>
 #include <util/network/socket.h>
-#include <util/generic/hash_set.h>
 #include <util/generic/yexception.h>
+#include <unordered_set>
 
 using TAddr = THttpServerOptions::TAddr;
 
@@ -22,7 +22,7 @@ static inline TNetworkAddress ToNetworkAddr(const std::string& address, ui16 por
 }
 
 void THttpServerOptions::BindAddresses(TBindAddresses& ret) const {
-    THashSet<std::string> check;
+    std::unordered_set<std::string> check;
 
     for (auto addr : BindSockaddr) {
         if (!addr.Port) {

@@ -3,9 +3,9 @@
 #include <util/generic/algorithm.h>
 #include <util/generic/ptr.h>
 #include <util/generic/intrlist.h>
-#include <util/generic/hash_set.h>
 #include <util/generic/yexception.h>
 #include <utility>
+#include <unordered_set>
 
 template <class TValue>
 struct TUniformSizeProvider {
@@ -67,6 +67,7 @@ public:
         TValue Value;
 
         struct THash {
+            using is_transparent = void;
             size_t operator()(const TItem& item) const {
                 return ::THash<TKey>()(item.Key);
             }
@@ -76,6 +77,7 @@ public:
         };
 
         struct TEqualTo {
+            using is_transparent = void;
             bool operator()(const TItem& lhs, const TItem& rhs) const {
                 return lhs.Key == rhs.Key;
             }
@@ -203,6 +205,7 @@ public:
         size_t Counter;
 
         struct THash {
+            using is_transparent = void;
             size_t operator()(const TItem& item) const {
                 return ::THash<TKey>()(item.Key);
             }
@@ -212,6 +215,7 @@ public:
         };
 
         struct TEqualTo {
+            using is_transparent = void;
             bool operator()(const TItem& lhs, const TItem& rhs) const {
                 return lhs.Key == rhs.Key;
             }
@@ -332,7 +336,9 @@ public:
         TValue Value;
         TWeight Weight;
 
+
         struct THash {
+            using is_transparent = void;
             size_t operator()(const TItem& item) const {
                 return ::THash<TKey>()(item.Key);
             }
@@ -341,7 +347,8 @@ public:
             }
         };
 
-        struct TEqualTo {
+        struct TEqualTo {    
+            using is_transparent = void;       
             bool operator()(const TItem& lhs, const TItem& rhs) const {
                 return lhs.Key == rhs.Key;
             }
@@ -446,17 +453,17 @@ private:
 
 private:
     std::vector<TItem*> Heap;
-    THashSet<TItem*> Removed;
+    std::unordered_set<TItem*> Removed;
 
     size_t Size;
     size_t MaxSize;
 };
 
-template <typename TKey, typename TValue, typename TListType, typename TDeleter, typename TAllocator = std::allocator<void>>
+template <typename TKey, typename TValue, typename TListType, typename TDeleter, typename TAllocator = std::allocator<typename TListType::TItem>>
 class TCache {
     typedef typename TListType::TItem TItem;
     typedef typename TItem::THash THash;
-    typedef THashMultiSet<TItem, THash, typename TItem::TEqualTo, TAllocator> TIndex;
+    typedef std::unordered_multiset<TItem, THash, typename TItem::TEqualTo, TAllocator> TIndex;
     typedef typename TIndex::iterator TIndexIterator;
     typedef typename TIndex::const_iterator TIndexConstIterator;
 
@@ -657,7 +664,7 @@ public:
         Index.reserve(hint);
     }
 
-    typedef typename TIndex::node_allocator_type TNodeAllocatorType;
+    typedef typename std::allocator_traits<typename TIndex::allocator_type>::template rebind_alloc<typename TIndex::value_type> TNodeAllocatorType;
     TNodeAllocatorType& GetNodeAllocator() {
         return Index.GetNodeAllocator();
     }
@@ -691,7 +698,7 @@ struct TNoopDelete {
     }
 };
 
-template <typename TKey, typename TValue, typename TDeleter = TNoopDelete, class TSizeProvider = TUniformSizeProvider<TValue>, typename TAllocator = std::allocator<void>>
+template <typename TKey, typename TValue, typename TDeleter = TNoopDelete, class TSizeProvider = TUniformSizeProvider<TValue>, typename TAllocator = std::allocator<typename TLRUList<TKey, TValue, TSizeProvider>::TItem>>
 class TLRUCache: public TCache<TKey, TValue, TLRUList<TKey, TValue, TSizeProvider>, TDeleter, TAllocator> {
     using TListType = TLRUList<TKey, TValue, TSizeProvider>;
     typedef TCache<TKey, TValue, TListType, TDeleter, TAllocator> TBase;

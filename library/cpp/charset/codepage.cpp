@@ -9,12 +9,12 @@
 #include <util/generic/hash.h>
 #include <string>
 
-#include <util/generic/hash_set.h>
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>
 #include <util/memory/pool.h>
 
 #include <cstring>
+#include <unordered_set>
 
 #include <ctype.h>
 
@@ -202,7 +202,7 @@ ECharset CharsetByNameOrDie(std::string_view name) {
 }
 
 namespace {
-    class THashSetType: public THashSet<std::string> {
+    class THashSetType: public std::unordered_set<std::string> {
     public:
         inline void Add(const std::string& s) {
             insert(s);

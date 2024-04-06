@@ -246,7 +246,7 @@ namespace NLastGetopt {
     void TZshCompletionGenerator::GenerateOptCompletion(TFormattedOutput& out, const TOpts& opts, const TOpt& opt, NComp::TCompleterManager& manager) {
         auto& line = L;
 
-        THashSet<std::string> disableOptions;
+        std::unordered_set<std::string> disableOptions;
         if (opt.DisableCompletionForOptions_) {
             disableOptions.insert("-");
         } else {

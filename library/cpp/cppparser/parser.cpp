@@ -1,7 +1,7 @@
 #include <util/generic/hash.h>
 #include <util/string/cast.h>
-#include <util/generic/hash_set.h>
 #include <util/generic/yexception.h>
+#include <unordered_set>
 
 #include "parser.h"
 
@@ -558,7 +558,7 @@ void TCppSimpleSax::DoCode(const TText& text) {
 }
 
 class TCppFullSax::TImpl {
-    typedef THashSet<std::string> TKeyWords;
+    typedef std::unordered_set<std::string> TKeyWords;
 
     class TRegExp {
     public:

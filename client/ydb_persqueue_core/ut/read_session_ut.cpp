@@ -1320,8 +1320,8 @@ Y_UNIT_TEST_SUITE(ReadSessionImplTest) {
         Cerr << "Compressed message data size: " << compressedMessageData.size() << Endl;
         ui64 offset = 1;
         ui64 seqNo = 42;
-        THashSet<ui64> committedCookies;
-        THashSet<ui64> committedOffsets;
+        std::unordered_set<ui64> committedCookies;
+        std::unordered_set<ui64> committedOffsets;
         EXPECT_CALL(*setup.MockProcessor, OnCommitRequest(_))
             .WillRepeatedly(Invoke([&committedCookies, &committedOffsets](const Ydb::PersQueue::V1::MigrationStreamingReadClientMessage::Commit& req) {
                 for (const auto& commit : req.cookies()) {

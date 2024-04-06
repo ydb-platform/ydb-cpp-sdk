@@ -204,12 +204,12 @@ Y_UNIT_TEST_SUITE(TThreadPoolTest) {
         }
     }
 
-    void TestEnumeratedThreadName(IThreadPool& pool, const THashSet<std::string>& expectedNames) {
+    void TestEnumeratedThreadName(IThreadPool& pool, const std::unordered_set<std::string>& expectedNames) {
         pool.Start(expectedNames.size());
         std::mutex lock;
         std::condition_variable allReady;
         size_t readyCount = 0;
-        THashSet<std::string> names;
+        std::unordered_set<std::string> names;
         for (size_t i = 0; i < expectedNames.size(); ++i) {
             pool.SafeAddFunc([&]() {
                 std::unique_lock ulock(lock);
@@ -231,7 +231,7 @@ Y_UNIT_TEST_SUITE(TThreadPoolTest) {
 
     Y_UNIT_TEST(TestEnumeratedThreadName) {
         const std::string namePrefix = "HelloWorld";
-        const THashSet<std::string> expectedNames = {
+        const std::unordered_set<std::string> expectedNames = {
             "HelloWorld0",
             "HelloWorld1",
             "HelloWorld2",

@@ -3,7 +3,6 @@
 #include "algorithm.h"
 #include "hash.h"
 #include "hash_multi_map.h"
-#include "hash_set.h"
 #include "is_in.h"
 #include "set.h"
 #include "string.h"
@@ -45,8 +44,8 @@ Y_UNIT_TEST_SUITE(TIsIn) {
 
         TestIsInWithCont<TSet<std::string>>("found");
         TestIsInWithCont<TMultiSet<std::string>>("found");
-        TestIsInWithCont<THashSet<std::string>>("found");
-        TestIsInWithCont<THashMultiSet<std::string>>("found");
+        TestIsInWithCont<std::unordered_set<std::string>>("found");
+        TestIsInWithCont<std::unordered_multiset<std::string>>("found");
 
         // vector also compiles and works
         std::vector<std::string> v;

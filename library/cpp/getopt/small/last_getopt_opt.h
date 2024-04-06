@@ -3,10 +3,15 @@
 #include "completer.h"
 #include "last_getopt_handlers.h"
 
-#include <util/generic/hash_set.h>
+#include <util/generic/mapfindptr.h>
 #include <util/string/join.h>
+#include <util/string/subst.h>
+//#include <util/generic/hash_set.h>
 
 #include <optional>
+#include <unordered_set>
+#include <utility>
+#include <algorithm>
 
 namespace NLastGetopt {
     enum EHasArg {
@@ -75,7 +80,7 @@ namespace NLastGetopt {
         TdOptVal OptionalValue_;
         TdOptVal DefaultValue_;
         TOptHandlers Handlers_;
-        THashSet<std::string> Choices_;
+        std::unordered_set<std::string> Choices_;
 
     public:
         /**
@@ -703,7 +708,7 @@ namespace NLastGetopt {
 
         // Appends FromString<T>(arg) to *target for each argument
         template <typename T>
-        TOpt& InsertTo(THashSet<T>* target) {
+        TOpt& InsertTo(std::unordered_set<T>* target) {
             return Handler1T<T>([target](auto&& value) { target->insert(std::forward<decltype(value)>(value)); });
         }
 
@@ -742,11 +747,11 @@ namespace NLastGetopt {
 
         template <typename TIterator>
         TOpt& Choices(TIterator begin, TIterator end) {
-            return Choices(THashSet<typename TIterator::value_type>{begin, end});
+            return Choices(std::unordered_set<typename TIterator::value_type>{begin, end});
         }
 
         template <typename TValue>
-        TOpt& Choices(THashSet<TValue> choices) {
+        TOpt& Choices(std::unordered_set<TValue> choices) {
             Choices_ = std::move(choices);
             return Handler1T<TValue>(
                 [this] (const TValue& arg) {
@@ -759,7 +764,7 @@ namespace NLastGetopt {
 
         TOpt& Choices(std::vector<std::string> choices) {
             return Choices(
-                THashSet<std::string>{
+                std::unordered_set<std::string>{
                     std::make_move_iterator(choices.begin()),
                     std::make_move_iterator(choices.end())
                 });
@@ -767,7 +772,7 @@ namespace NLastGetopt {
 
         TOpt& ChoicesWithCompletion(std::vector<NComp::TChoice> choices) {
             Completer(NComp::Choice(choices));
-            THashSet<std::string> choicesSet;
+            std::unordered_set<std::string> choicesSet;
             choicesSet.reserve(choices.size());
             for (const auto& choice : choices) {
                 choicesSet.insert(choice.Choice);
