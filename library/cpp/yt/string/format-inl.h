@@ -17,6 +17,7 @@
 
 #include <cctype>
 #include <optional>
+#include <unordered_set>
 
 namespace NYT {
 
@@ -353,21 +354,21 @@ struct TValueFormatter<std::multimap<K, V>>
     }
 };
 
-// THashSet
+// std::unordered_set
 template <class T>
-struct TValueFormatter<THashSet<T>>
+struct TValueFormatter<std::unordered_set<T>>
 {
-    static void Do(TStringBuilderBase* builder, const THashSet<T>& collection, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const std::unordered_set<T>& collection, std::string_view /*format*/)
     {
         FormatRange(builder, collection, TDefaultFormatter());
     }
 };
 
-// THashMultiSet
+// std::unordered_multiset
 template <class T>
-struct TValueFormatter<THashMultiSet<T>>
+struct TValueFormatter<std::unordered_multiset<T>>
 {
-    static void Do(TStringBuilderBase* builder, const THashMultiSet<T>& collection, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const std::unordered_multiset<T>& collection, std::string_view /*format*/)
     {
         FormatRange(builder, collection, TDefaultFormatter());
     }

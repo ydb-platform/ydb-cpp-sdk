@@ -1,6 +1,5 @@
 #include "auth.h"
 
-#include <util/generic/hash_set.h>
 
 
 namespace NMonitoring {

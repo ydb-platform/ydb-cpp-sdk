@@ -136,7 +136,7 @@ private:
 
         if (killPq)
         {
-            THashSet<ui64> restartedTablets;
+            std::unordered_set<ui64> restartedTablets;
             for (const auto& p : persQueueGroup.GetPartitions())
                 if (restartedTablets.insert(p.GetTabletId()).second)
                 {

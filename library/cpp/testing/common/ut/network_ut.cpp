@@ -1,7 +1,6 @@
 #include <library/cpp/testing/common/network.h>
 #include <library/cpp/testing/common/scope.h>
 
-#include <util/generic/hash_set.h>
 
 #include <util/folder/dirut.h>
 #include <util/folder/path.h>
@@ -23,7 +22,7 @@ TEST(NetworkTest, FreePort) {
         ports.push_back(NTesting::GetFreePort());
     }
 
-    THashSet<ui16> uniqPorts;
+    std::unordered_set<ui16> uniqPorts;
     for (auto& port : ports) {
         const std::string guardPath = TmpDir.Path() / ToString(static_cast<ui16>(port));
         EXPECT_TRUE(NFs::Exists(guardPath));

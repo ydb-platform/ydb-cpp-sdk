@@ -3,7 +3,7 @@
 namespace NYdb::NPersQueue::NTests {
 
 void WaitMessagesAcked(std::shared_ptr<IWriteSession> writer, ui64 startSeqNo, ui64 endSeqNo) {
-    THashSet<ui64> ackedSeqNo;
+    std::unordered_set<ui64> ackedSeqNo;
     while (ackedSeqNo.size() < endSeqNo - startSeqNo + 1) {
         auto event = *writer->GetEvent(true);
         if (std::holds_alternative<TWriteSessionEvent::TReadyToAcceptEvent>(event)) {

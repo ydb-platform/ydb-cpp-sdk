@@ -7,8 +7,8 @@
 
 #include <util/stream/format.h>
 #include <util/system/type_name.h>
-#include <util/generic/hash_set.h>
 #include <utility>
+#include <unordered_set>
 
 /*
  * Cout << DbgDump(any) << Endl;
@@ -59,7 +59,7 @@ namespace NPrivate {
                 }
             }
 
-            THashSet<size_t> Visited;
+            std::unordered_set<size_t> Visited;
         };
     };
 
