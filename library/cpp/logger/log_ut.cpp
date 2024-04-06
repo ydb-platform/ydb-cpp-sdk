@@ -153,7 +153,7 @@ void TLogTest::TestNoFlush() {
 }
 
 void TLogTest::TestFormat() {
-    std::stringStream data;
+    std::stringstream data;
 
     {
         TLog log(THolder(new TStreamLogBackend(&data)));
@@ -163,11 +163,11 @@ void TLogTest::TestFormat() {
             << "1234" << 1234 << " " << 12.3 << 'q' << Endl;
     }
 
-    UNIT_ASSERT_EQUAL(data.Str(), "qw 12341234 12.3q\n");
+    UNIT_ASSERT_EQUAL(data.str(), "qw 12341234 12.3q\n");
 }
 
 void TLogTest::TestWrite() {
-    std::stringStream data;
+    std::stringstream data;
     std::string test;
 
     {
@@ -181,7 +181,7 @@ void TLogTest::TestWrite() {
         }
     }
 
-    UNIT_ASSERT_EQUAL(data.Str(), test);
+    UNIT_ASSERT_EQUAL(data.str(), test);
 }
 
 void TLogTest::TestMetaFlags() {

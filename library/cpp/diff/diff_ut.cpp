@@ -53,7 +53,7 @@ Y_UNIT_TEST_SUITE(DiffTokens) {
         TDiffTester tester;
 
         tester.Test("aaa", "aaa");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "aaa");
     }
 
@@ -61,11 +61,11 @@ Y_UNIT_TEST_SUITE(DiffTokens) {
         TDiffTester tester;
 
         tester.Test("aaa", "bbb");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "(aaa|bbb)");
 
         tester.Test("aaa", "bbbb");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "(aaa|bbbb)");
     }
 
@@ -73,19 +73,19 @@ Y_UNIT_TEST_SUITE(DiffTokens) {
         TDiffTester tester;
 
         tester.Test("aaa", "abb", "");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "a(aa|bb)");
 
         tester.Test("aac", "abc", "");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "a(a|b)c");
 
         tester.Test("123", "133", "");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "1(2|3)3");
 
         tester.Test("[1, 2, 3]", "[1, 3, 3]", "");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "[1, (2|3), 3]");
     }
 
@@ -93,7 +93,7 @@ Y_UNIT_TEST_SUITE(DiffTokens) {
         TDiffTester tester;
 
         tester.Test("abcde", "accfg");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "(abcde|accfg)");
     }
 
@@ -103,7 +103,7 @@ Y_UNIT_TEST_SUITE(DiffTokens) {
         std::string_view str("aaa bbb");
         tester.Test(str, str);
 
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "aaa bbb");
     }
 
@@ -111,11 +111,11 @@ Y_UNIT_TEST_SUITE(DiffTokens) {
         TDiffTester tester;
 
         tester.Test("aaa bbb", "ccc ddd");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "(aaa|ccc) (bbb|ddd)");
 
         tester.Test("aaa bbb", "c d");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "(aaa|c) (bbb|d)");
     }
 
@@ -123,11 +123,11 @@ Y_UNIT_TEST_SUITE(DiffTokens) {
         TDiffTester tester;
 
         tester.Test("aaa ccd", "abb cce");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "(aaa|abb) (ccd|cce)");
 
         tester.Test("aac cbb", "aa bb");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "(aac|aa) (cbb|bb)");
     }
 
@@ -135,19 +135,19 @@ Y_UNIT_TEST_SUITE(DiffTokens) {
         TDiffTester tester;
 
         tester.Test("aaa bbb", "bbb aaa");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "(|bbb )aaa( bbb|)");
 
         tester.Test("aaa bbb", " bbb aaa");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "(aaa|) bbb(| aaa)");
 
         tester.Test(" aaa bbb ", " bbb aaa ");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "(| bbb) aaa (bbb |)");
 
         tester.Test("aaa bb", " bbb aa");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "(aaa|) (bb|bbb aa)");
     }
 
@@ -155,19 +155,19 @@ Y_UNIT_TEST_SUITE(DiffTokens) {
         TDiffTester tester;
 
         tester.Test("aaa bbb", "aaa");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "aaa( bbb|)");
 
         tester.Test("aaa bbb", "aaa ");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "aaa (bbb|)");
 
         tester.Test("aaa bbb", " bbb");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "(aaa|) bbb");
 
         tester.Test("aaa bbb", "bbb");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "(aaa |)bbb");
     }
 
@@ -175,11 +175,11 @@ Y_UNIT_TEST_SUITE(DiffTokens) {
         TDiffTester tester;
 
         tester.Test("aaa\nabc\nbbb", "aaa\nacc\nbbb");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "aaa\n(abc|acc)\nbbb");
 
         tester.Test("aaa\nabc\nbbb", "aaa\nac\nbbb");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "aaa\n(abc|ac)\nbbb");
     }
 
@@ -187,11 +187,11 @@ Y_UNIT_TEST_SUITE(DiffTokens) {
         TDiffTester tester;
 
         tester.Test("aaa bbb", "aaa\tbbb");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "aaa( |\t)bbb");
 
         tester.Test(" aaa\tbbb\n", "\taaa\nbbb ");
-        //~ Cerr << tester.Result() << Endl;
+        //~ std::cerr << tester.Result() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(tester.Result(), "( |\t)aaa(\t|\n)bbb(\n| )");
     }
 }

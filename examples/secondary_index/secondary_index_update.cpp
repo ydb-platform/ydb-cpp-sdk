@@ -82,6 +82,6 @@ int RunUpdateViews(TDriver& driver, const std::string& prefix, int argc, char** 
         return result;
     }));
 
-    Cout << "Updated " << updatedCount << " rows" << Endl;
+    std::cout << "Updated " << updatedCount << " rows" << std::endl;
     return 0;
 }

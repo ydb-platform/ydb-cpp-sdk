@@ -239,7 +239,7 @@ namespace NUri {
         }
 
         IOutputStream& PrintTail(const std::string_view& val) const {
-            return Cdbg << " [" << val << "]" << Endl;
+            return Cdbg << " [" << val << "]" << std::endl;
         }
         IOutputStream& PrintTail(const char* beg, const char* end) const {
             return PrintTail(std::string_view(beg, end));

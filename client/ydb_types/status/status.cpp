@@ -73,9 +73,15 @@ float TStatus::GetConsumedRu() const {
 }
 
 IOutputStream& operator<<(IOutputStream& out, const TStatus& st) {
-    out << "Status: " << st.GetStatus() << Endl;
+    std::stringstream buf;
+    buf << st;
+    return out << buf.str();
+}
+
+std::ostream& operator<<(std::ostream& out, const TStatus& st) {
+    out << "Status: " << ToString(st.GetStatus()) << std::endl;
     if (st.GetIssues()) {
-        out << "Issues: " << Endl;
+        out << "Issues: " << std::endl;
         st.GetIssues().PrintTo(out);
     }
     return out;

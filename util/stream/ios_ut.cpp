@@ -373,7 +373,7 @@ namespace {
         while (input.ReadLine(line)) {
             ++i;
         }
-        Cout << comment << ":" << (Now() - start).SecondsFloat() << Endl;
+        std::cout << comment << ":" << (Now() - start).SecondsFloat() << std::endl;
         UNIT_ASSERT_VALUES_EQUAL(i, 100000);
     }
 

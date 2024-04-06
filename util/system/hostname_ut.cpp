@@ -2,6 +2,8 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
+#include <iostream>
+
 Y_UNIT_TEST_SUITE(THostNameTest) {
     Y_UNIT_TEST(Test1) {
         UNIT_ASSERT(*GetHostName() != '?');
@@ -17,7 +19,7 @@ Y_UNIT_TEST_SUITE(THostNameTest) {
         try {
             UNIT_ASSERT(IsFQDN(x));
         } catch (...) {
-            Cerr << x << Endl;
+            std::cerr << x << std::endl;
 
             throw;
         }

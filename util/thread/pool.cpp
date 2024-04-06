@@ -234,7 +234,7 @@ private:
                     try {
                         job->Process(*tsr);
                     } catch (...) {
-                        Cdbg << "[mtp queue] " << CurrentExceptionMessage() << Endl;
+                        Cdbg << "[mtp queue] " << CurrentExceptionMessage() << std::endl;
                     }
                 } catch (...) {
                     // ¯\_(ツ)_/¯
@@ -407,7 +407,7 @@ public:
                             try {
                                 obj->Process(tsr);
                             } catch (...) {
-                                Cdbg << Impl_->Name() << " " << CurrentExceptionMessage() << Endl;
+                                Cdbg << Impl_->Name() << " " << CurrentExceptionMessage() << std::endl;
                             }
                         } catch (...) {
                             // ¯\_(ツ)_/¯

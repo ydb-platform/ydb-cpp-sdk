@@ -96,7 +96,7 @@ Y_UNIT_TEST_SUITE(JsonWriter) {
         UNIT_ASSERT_EXCEPTION(w.Str(), NJsonWriter::TError);
     }
     Y_UNIT_TEST(ForeignStreamValue) {
-        std::stringStream ss;
+        TStringStream ss;
         NJsonWriter::TBuf w(NJsonWriter::HEM_DONT_ESCAPE_HTML, &ss);
         w.WriteInt(1543);
         UNIT_ASSERT_STRINGS_EQUAL(ss.Str(), "1543");

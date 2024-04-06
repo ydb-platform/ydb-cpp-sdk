@@ -227,6 +227,11 @@ DEF_OPTIONAL(i64);
 DEF_OPTIONAL(ui64);
 DEF_OPTIONAL(std::string);
 DEF_OPTIONAL(std::string_view);
+DEF_OPTIONAL(std::u16string);
+DEF_OPTIONAL(std::u16string_view);
+DEF_OPTIONAL(double);
+DEF_OPTIONAL(unsigned char);
+DEF_OPTIONAL(signed char);
 
 #if defined(_android_)
 namespace {
@@ -366,16 +371,6 @@ namespace {
             ~TStdErr() override = default;
         };
 
-        struct TStdOut: public TStdOutput {
-            inline TStdOut()
-                : TStdOutput(stdout)
-            {
-            }
-
-            ~TStdOut() override = default;
-        };
-
-        TStdOut Out;
         TStdErr Err;
 
         static inline TStdIOStreams& Instance() {
@@ -391,15 +386,6 @@ IOutputStream& NPrivate::StdErrStream() noexcept {
     }
 #endif
     return TStdIOStreams::Instance().Err;
-}
-
-IOutputStream& NPrivate::StdOutStream() noexcept {
-#if defined(_android_)
-    if (TAndroidStdIOStreams::Enabled) {
-        return TAndroidStdIOStreams::Instance().Out;
-    }
-#endif
-    return TStdIOStreams::Instance().Out;
 }
 
 void RedirectStdioToAndroidLog(bool redirect) {

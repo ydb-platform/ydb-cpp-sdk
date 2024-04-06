@@ -2,7 +2,6 @@ add_library(cpp-yt-memory)
 
 target_link_libraries(cpp-yt-memory PUBLIC
   yutil
-  cpp-sanitizer-include
   cpp-yt-assert
   cpp-yt-misc
   cpp-yt-malloc

@@ -618,7 +618,7 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
                 Chmod(Name_.c_str(), MODE0777);
                 SetAcl((PACL)Acl_.Get(), GRANT_ACCESS);
             } catch (const yexception& ex) {
-                Cerr << "~TWinFileDenyAccessScope failed: " << ex.AsStrBuf() << Endl;
+                std::cerr << "~TWinFileDenyAccessScope failed: " << ex.AsStrBuf() << std::endl;
             }
         }
 
@@ -831,7 +831,6 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
         UNIT_ASSERT_VALUES_EQUAL(path1.PathSplit().at(1), "file_in_folder_2");
     }
 
-#ifdef TSTRING_IS_STD_STRING
     Y_UNIT_TEST(TestCopySplitSSO) {
         // Summary length of path must be less minimal SSO length 19 bytes
         constexpr std::string_view A("a");
@@ -862,7 +861,6 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
             UNIT_ASSERT_VALUES_EQUAL(split2.at(1), B);
         }
     }
-#endif
 
     Y_UNIT_TEST(TestCopySplitNoneSSO) {
         // Lenght of directory name must overhead SSO length 19-23 bytes

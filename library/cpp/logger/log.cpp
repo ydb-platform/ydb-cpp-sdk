@@ -8,6 +8,8 @@
 #include <util/system/yassert.h>
 #include <util/generic/scope.h>
 
+#include <iostream>
+
 THolder<TLogBackend> CreateLogBackend(const std::string& fname, ELogPriority priority, bool threaded) {
     TLogBackendCreatorUninitialized creator;
     creator.InitCustom(fname, priority, threaded);
@@ -211,7 +213,7 @@ bool TLog::OpenLog(const char* path, ELogPriority lp) {
     if (path) {
         ResetBackend(CreateLogBackend(path, lp));
     } else {
-        ResetBackend(MakeHolder<TStreamLogBackend>(&Cerr));
+        ResetBackend(MakeHolder<TStreamLogBackend>(&std::cerr));
     }
 
     return true;

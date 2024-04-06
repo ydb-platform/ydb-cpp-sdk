@@ -9,6 +9,8 @@
 #include <util/generic/singleton.h>
 #include <util/string/escape.h>
 
+#include <iostream>
+
 using namespace NResource;
 using namespace NBlockCodecs;
 
@@ -62,7 +64,7 @@ namespace {
                     *out = Decompress((*res)->second);
                 } catch (const yexception& e) {
                     if (!std::string{std::getenv("RESOURCE_DECOMPRESS_DIAG") ? std::getenv("RESOURCE_DECOMPRESS_DIAG") : ""}.empty()) {
-                        Cerr << "Can't decompress resource " << key << Endl << e.what() << Endl;
+                        std::cerr << "Can't decompress resource " << key << std::endl << e.what() << std::endl;
                     }
                     throw e;
                 }
@@ -84,7 +86,7 @@ namespace {
                         cb.OnMatch(res);
                     } catch (const yexception& e) {
                         if (!std::string{getenv("RESOURCE_DECOMPRESS_DIAG")}.empty()) {
-                            Cerr << "Can't decompress resource " << it.first << Endl << e.what() << Endl;
+                            std::cerr << "Can't decompress resource " << it.first << std::endl << e.what() << std::endl;
                         }
                         throw e;
                     }

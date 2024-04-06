@@ -78,7 +78,7 @@ Y_UNIT_TEST_SUITE(TestCpuId) {
     Y_UNIT_TEST(TestCpuBrand) {
         ui32 store[12];
 
-        //Cout << CpuBrand(store) << Endl;;
+        // std::cout << CpuBrand(store) << std::endl;
 
         UNIT_ASSERT(strlen(CpuBrand(store)) > 0);
     }

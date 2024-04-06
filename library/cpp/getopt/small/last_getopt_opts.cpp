@@ -26,12 +26,12 @@ namespace NLastGetopt {
     static const std::string_view SPad = "  ";
 
     void PrintVersionAndExit(const TOptsParser*) {
-        Cout << (!NLastGetoptPrivate::VersionString().empty() ? NLastGetoptPrivate::VersionString() : "program version: not linked with library/cpp/getopt") << Endl;
+        std::cout << (!NLastGetoptPrivate::VersionString().empty() ? NLastGetoptPrivate::VersionString() : "program version: not linked with library/cpp/getopt") << std::endl;
         exit(NLastGetoptPrivate::VersionString().empty());
     }
 
     void PrintShortVersionAndExit(const std::string& appName) {
-        Cout << appName << " version " << (!NLastGetoptPrivate::ShortVersionString().empty() ? NLastGetoptPrivate::ShortVersionString() : "not linked with library/cpp/getopt") << Endl;
+        std::cout << appName << " version " << (!NLastGetoptPrivate::ShortVersionString().empty() ? NLastGetoptPrivate::ShortVersionString() : "not linked with library/cpp/getopt") << std::endl;
         exit(NLastGetoptPrivate::ShortVersionString().empty());
     }
 
@@ -323,7 +323,7 @@ namespace NLastGetopt {
         return result.Str();
     }
 
-    void TOpts::PrintCmdLine(const std::string_view& program, IOutputStream& os, const NColorizer::TColors& colors) const {
+    void TOpts::PrintCmdLine(const std::string_view& program, std::ostream& os, const NColorizer::TColors& colors) const {
         os << colors.BoldColor() << "Usage" << colors.OldColor() << ": ";
         if (!CustomUsage.empty()) {
             os << CustomUsage;
@@ -331,7 +331,7 @@ namespace NLastGetopt {
             os << program << " ";
         }
         if (!CustomCmdLineDescr.empty()) {
-            os << CustomCmdLineDescr << Endl;
+            os << CustomCmdLineDescr << std::endl;
             return;
         }
         os << "[OPTIONS]";
@@ -361,11 +361,11 @@ namespace NLastGetopt {
             os << " [" << TrailingArgSpec_.GetTitle(DefaultFreeArgTitle_) << "]...";
         }
 
-        os << Endl;
+        os << std::endl;
     }
 
-    void TOpts::PrintUsage(const std::string_view& program, IOutputStream& osIn, const NColorizer::TColors& colors) const {
-        TStringStream os;
+    void TOpts::PrintUsage(const std::string_view& program, std::ostream& osIn, const NColorizer::TColors& colors) const {
+        std::stringstream os;
 
         if (!Title.empty())
             os << Title << "\n\n";
@@ -404,14 +404,14 @@ namespace NLastGetopt {
             if (requiredOptionsSection) {
                 if (requiredOptionsCount == 0)
                     continue;
-                os << Endl << colors.BoldColor() << "Required parameters" << colors.OldColor() << ":" << Endl;
+                os << std::endl << colors.BoldColor() << "Required parameters" << colors.OldColor() << ":" << std::endl;
             } else {
                 if (requiredOptionsCount == Opts_.size())
                     continue;
                 if (requiredOptionsCount == 0)
-                    os << Endl << colors.BoldColor() << "Options" << colors.OldColor() << ":" << Endl;
+                    os << std::endl << colors.BoldColor() << "Options" << colors.OldColor() << ":" << std::endl;
                 else
-                    os << Endl << colors.BoldColor() << "Optional parameters" << colors.OldColor() << ":" << Endl; // optional options would be a tautology
+                    os << std::endl << colors.BoldColor() << "Optional parameters" << colors.OldColor() << ":" << std::endl; // optional options would be a tautology
             }
 
             for (size_t i = 0; i < Opts_.size(); i++) {
@@ -423,7 +423,7 @@ namespace NLastGetopt {
                     continue;
 
                 if (leftColumnSizes[i] > leftWidth && !opt->GetHelp().empty()) {
-                    os << SPad << leftColumn[i] << Endl << SPad << leftPadding << ' ';
+                    os << SPad << leftColumn[i] << std::endl << SPad << leftPadding << ' ';
                 } else {
                     os << SPad << leftColumn[i] << ' ';
                     if (leftColumnSizes[i] < leftWidth)
@@ -443,7 +443,7 @@ namespace NLastGetopt {
                 auto choicesHelp = opt->GetChoicesHelp();
                 if (!choicesHelp.empty()) {
                     if (!help.empty()) {
-                        os << Endl << SPad << leftPadding << " ";
+                        os << std::endl << SPad << leftPadding << " ";
                     }
                     os << "(values: " << choicesHelp << ")";
                 }
@@ -451,14 +451,14 @@ namespace NLastGetopt {
                 if (opt->HasDefaultValue()) {
                     auto quotedDef = QuoteForHelp(opt->GetDefaultValue());
                     if (helpHasParagraphs) {
-                        os << Endl << Endl << SPad << leftPadding << " ";
+                        os << std::endl << std::endl << SPad << leftPadding << " ";
                         os << "Default: " << colors.CyanColor() << quotedDef << colors.OldColor() << ".";
                     } else if (help.ends_with('.')) {
-                        os << Endl << SPad << leftPadding << " ";
+                        os << std::endl << SPad << leftPadding << " ";
                         os << "Default: " << colors.CyanColor() << quotedDef << colors.OldColor() << ".";
                     } else if (!help.empty()) {
                         if (SPad.size() + leftWidth + 1 + lastLineLength + 12 + quotedDef.size() > Wrap_) {
-                            os << Endl << SPad << leftPadding << " ";
+                            os << std::endl << SPad << leftPadding << " ";
                         } else {
                             os << " ";
                         }
@@ -468,10 +468,10 @@ namespace NLastGetopt {
                     }
                 }
 
-                os << Endl;
+                os << std::endl;
 
                 if (helpHasParagraphs) {
-                    os << Endl;
+                    os << std::endl;
                 }
             }
         }
@@ -479,19 +479,19 @@ namespace NLastGetopt {
         PrintFreeArgsDesc(os, colors);
 
         for (auto& [heading, text] : Sections) {
-            os << Endl << colors.BoldColor() << heading << colors.OldColor() << ":" << Endl;
+            os << std::endl << colors.BoldColor() << heading << colors.OldColor() << ":" << std::endl;
 
-            os << SPad << Wrap(Wrap_, text, SPad) << Endl;
+            os << SPad << Wrap(Wrap_, text, SPad) << std::endl;
         }
 
-        osIn << os.Str();
+        osIn << os.str();
     }
 
-    void TOpts::PrintUsage(const std::string_view& program, IOutputStream& os) const {
+    void TOpts::PrintUsage(const std::string_view& program, std::ostream& os) const {
         PrintUsage(program, os, NColorizer::AutoColors(os));
     }
 
-    void TOpts::PrintFreeArgsDesc(IOutputStream& os, const NColorizer::TColors& colors) const {
+    void TOpts::PrintFreeArgsDesc(std::ostream& os, const NColorizer::TColors& colors) const {
         if (0 == FreeArgsMax_)
             return;
 
@@ -505,7 +505,7 @@ namespace NLastGetopt {
         }
 
         leftFreeWidth = Min(leftFreeWidth, size_t(30));
-        os << Endl << colors.BoldColor() << "Free args" << colors.OldColor() << ":";
+        os << std::endl << colors.BoldColor() << "Free args" << colors.OldColor() << ":";
 
         os << " min: " << colors.GreenColor() << FreeArgsMin_ << colors.OldColor() << ",";
         os << " max: " << colors.GreenColor();
@@ -514,7 +514,7 @@ namespace NLastGetopt {
         } else {
             os << "unlimited";
         }
-        os << colors.OldColor() << Endl;
+        os << colors.OldColor() << std::endl;
 
         const size_t limit = FreeArgSpecs_.empty() ? 0 : FreeArgSpecs_.rbegin()->first;
         for (size_t i = 0; i <= limit; ++i) {
@@ -524,8 +524,8 @@ namespace NLastGetopt {
             auto help = FreeArgSpecs_.at(i).GetHelp();
             if (!help.empty()) {
                 auto title = GetFreeArgTitle(i);
-                os << SPad << colors.GreenColor() << RightPad(title, leftFreeWidth, ' ') << colors.OldColor()
-                   << SPad << help << Endl;
+                os << SPad << colors.GreenColor() << ToString(RightPad(title, leftFreeWidth, ' ')) << colors.OldColor()
+                   << SPad << help << std::endl;
             }
         }
 
@@ -533,8 +533,8 @@ namespace NLastGetopt {
             auto title = TrailingArgSpec_.GetTitle(DefaultFreeArgTitle_);
             auto help = TrailingArgSpec_.GetHelp();
             if (!help.empty()) {
-                os << SPad << colors.GreenColor() << RightPad(title, leftFreeWidth, ' ') << colors.OldColor()
-                   << SPad << help << Endl;
+                os << SPad << colors.GreenColor() << ToString(RightPad(title, leftFreeWidth, ' ')) << colors.OldColor()
+                   << SPad << help << std::endl;
             }
         }
     }

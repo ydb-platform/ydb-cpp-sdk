@@ -135,7 +135,7 @@ namespace NUri {
             if (section.IsSet())
                 Cdbg << ' ' << TField::EField(idx) << "=[" << section.Get() << ']';
         }
-        Cdbg << Endl;
+        Cdbg << std::endl;
 #endif
 
         if (!ok) {

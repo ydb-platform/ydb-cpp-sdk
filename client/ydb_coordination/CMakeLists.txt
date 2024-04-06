@@ -1,9 +1,6 @@
-#add_subdirectory(ut)
-
 add_library(cpp-client-ydb_coordination)
 
 target_link_libraries(cpp-client-ydb_coordination PUBLIC
-  
   yutil
   tools-enum_parser-enum_serialization_runtime
   api-grpc

@@ -15,7 +15,7 @@ DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::String(const std::string_view& s) {
     }
 }
 
-DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::String(const std::wstring_view& s) {
+DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::String(const std::u16string_view& s) {
     Raw("w");
     String(ToString(s));
 }

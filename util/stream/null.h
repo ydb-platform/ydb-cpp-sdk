@@ -3,6 +3,8 @@
 #include "zerocopy.h"
 #include "output.h"
 
+#include <iostream>
+
 /**
  * @addtogroup Streams
  * @{
@@ -49,13 +51,33 @@ public:
     ~TNullIO() override;
 };
 
+class TStdNullStream : public std::iostream {
+    class TBuf : public std::streambuf {
+    public:
+        virtual int overflow(int c) override;
+        virtual int underflow() override;
+        virtual int uflow() override;
+    };
+
+public:
+    explicit TStdNullStream()
+        : std::iostream{&Buf_} {
+    }
+
+private:
+    TStdNullStream::TBuf Buf_;
+}; 
+
 namespace NPrivate {
-    TNullIO& StdNullStream() noexcept;
+    TNullIO& UtilNullStream() noexcept;
+    std::iostream& StdNullStream() noexcept;
 }
 
 /**
  * Standard null stream.
  */
-#define Cnull (::NPrivate::StdNullStream())
+#define Cnull (::NPrivate::UtilNullStream())
+
+#define std_cnull (::NPrivate::StdNullStream())
 
 /** @} */

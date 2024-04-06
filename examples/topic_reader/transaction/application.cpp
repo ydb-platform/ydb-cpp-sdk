@@ -37,7 +37,7 @@ void TApplication::CreateTopicReadSession(const TOptions& options)
 
     ReadSession = TopicClient->CreateReadSession(settings);
 
-    Cout << "Topic session was created" << Endl;
+    std::cout << "Topic session was created" << std::endl;
 }
 
 void TApplication::CreateTableSession()
@@ -48,7 +48,7 @@ void TApplication::CreateTableSession()
 
     TableSession = result.GetSession();
 
-    Cout << "Table session was created" << Endl;
+    std::cout << "Table session was created" << std::endl;
 }
 
 void TApplication::Run()
@@ -120,7 +120,7 @@ void TApplication::CommitTransaction()
 
     auto result = Transaction->Commit(settings).GetValueSync();
 
-    Cout << "Commit: " << static_cast<NYdb::TStatus&>(result) << Endl;
+    std::cout << "Commit: " << static_cast<NYdb::TStatus&>(result) << std::endl;
 }
 
 void TApplication::TryCommitTransaction()

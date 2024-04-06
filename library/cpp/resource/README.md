@@ -18,7 +18,7 @@ END()
 ```cpp
 #include <library/cpp/resource/resource.h>
 int main() {
-        Cout << NResource::Find("/key/in/program/1") << Endl;
-        Cout << NResource::Find("/key2") << Endl;
+        std::cout << NResource::Find("/key/in/program/1") << std::endl;
+        std::cout << NResource::Find("/key2") << std::endl;
 }
 ```

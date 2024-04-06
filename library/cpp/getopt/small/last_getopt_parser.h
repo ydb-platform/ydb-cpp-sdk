@@ -3,7 +3,9 @@
 #include "last_getopt_opts.h"
 
 #include <library/cpp/colorizer/fwd.h>
+
 #include <list>
+#include <iostream>
 
 namespace NLastGetopt {
     /**
@@ -145,8 +147,8 @@ namespace NLastGetopt {
             return ProgramName_;
         }
 
-        void PrintUsage(IOutputStream& os = Cout) const;
+        void PrintUsage(std::ostream& os = std::cout) const;
 
-        void PrintUsage(IOutputStream& os, const NColorizer::TColors& colors) const;
+        void PrintUsage(std::ostream& os, const NColorizer::TColors& colors) const;
     };
 } //namespace NLastGetopt

@@ -42,8 +42,7 @@ namespace ZLib {
  *
  * Please don't use `TZLibDecompress` if you read text data from stream using
  * `ReadLine`, it is VERY slow (approx 10 times slower, according to synthetic
- * benchmark). For fast buffered ZLib stream reading use `TBufferedZLibDecompress`
- * aka `TZDecompress`.
+ * benchmark).
  */
 class TZLibDecompress: public IInputStream {
 public:
@@ -152,22 +151,3 @@ public:
 
     THolder<TImpl, TDestruct> Impl_;
 };
-
-/**
- * Buffered ZLib decompressing stream.
- *
- * Supports efficient `ReadLine` calls and similar "reading in small pieces"
- * usage patterns.
- */
-class TBufferedZLibDecompress: public TBuffered<TZLibDecompress> {
-public:
-    template <class T>
-    inline TBufferedZLibDecompress(T* in, ZLib::StreamType type = ZLib::Auto, size_t buf = 1 << 13)
-        : TBuffered<TZLibDecompress>(buf, in, type)
-    {
-    }
-
-    ~TBufferedZLibDecompress() override;
-};
-
-/** @} */

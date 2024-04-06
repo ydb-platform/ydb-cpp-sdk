@@ -7,7 +7,9 @@ on:
   pull_request:
     branches:
       - main
-
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 jobs:
   main:
     name: PR check for YDB C++ SDK
@@ -55,6 +57,11 @@ jobs:
           ubuntu-22.04-ccache-
     - name: Build
       uses: ./.github/actions/build
+    - name: Test
+      shell: bash
+      run: |
+        cd ../build/tests
+        ctest -j32 --timeout 1200 --output-on-failure
     - name: Launch basic example
       shell: bash
       run: |

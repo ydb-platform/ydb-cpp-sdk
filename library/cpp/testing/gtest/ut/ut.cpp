@@ -27,12 +27,12 @@ Y_TEST_HOOK_BEFORE_RUN(PreRun2) {
 
 Y_TEST_HOOK_AFTER_RUN(PostRun1) {
     PostRunHook1 = ++HookOrder;
-    Cerr << "PostRunHook1" << Endl;
+    std::cerr << "PostRunHook1" << std::endl;
 }
 
 Y_TEST_HOOK_AFTER_RUN(PostRun2) {
     PostRunHook2 = ++HookOrder;
-    Cerr << "PostRunHook2" << Endl;
+    std::cerr << "PostRunHook2" << std::endl;
 }
 
 TEST(Gtest, HookOrder) {

@@ -1,5 +1,7 @@
 #include "topic_sdk_test_setup.h"
 
+#include <iostream>
+
 using namespace NYdb;
 using namespace NYdb::NTopic;
 using namespace NYdb::NTopic::NTests;
@@ -9,7 +11,7 @@ TTopicSdkTestSetup::TTopicSdkTestSetup(const std::string& testCaseName, const NK
     , Server(settings, false)
 {
     Log.SetFormatter([testCaseName](ELogPriority priority, std::string_view message) {
-        return TYdbStringBuilder() << TInstant::Now() << " :" << testCaseName << " " << priority << ": " << message << Endl;
+        return TStringBuilder() << TInstant::Now() << " :" << testCaseName << " " << priority << ": " << message << Endl;
     });
 
     Server.StartServer(true, GetDatabase());
@@ -73,7 +75,7 @@ TDriverConfig TTopicSdkTestSetup::MakeDriverConfig() const
     config.SetEndpoint(GetEndpoint());
     config.SetDatabase(GetDatabase());
     config.SetAuthToken("root@builtin");
-    config.SetLog(MakeHolder<TStreamLogBackend>(&Cerr));
+    config.SetLog(MakeHolder<TStreamLogBackend>(&std::cerr));
     return config;
 }
 

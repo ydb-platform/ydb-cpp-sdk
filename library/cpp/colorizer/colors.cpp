@@ -3,6 +3,8 @@
 #include <util/stream/output.h>
 #include <util/generic/singleton.h>
 
+#include <iostream>
+
 #if defined(_unix_)
 #include <unistd.h>
 #endif
@@ -143,11 +145,11 @@ std::string ToString(NColorizer::EAnsiCode x) {
     return std::string(ToStringBufC(x));
 }
 
-template<>
-void Out<NColorizer::EAnsiCode>(IOutputStream& os, TTypeTraits<NColorizer::EAnsiCode>::TFuncParam x) {
+std::ostream& operator<<(std::ostream& os, NColorizer::EAnsiCode x) {
     if (AutoColors(os).IsTTY()) {
         os << ToStringBufC(x);
     }
+    return os;
 }
 
 bool TColors::CalcIsTTY(FILE* file) {
@@ -449,11 +451,11 @@ TColors& NColorizer::StdOut() {
     return *Singleton<TStdOutColors>();
 }
 
-TColors& NColorizer::AutoColors(IOutputStream& os) {
-    if (&os == &Cerr) {
+TColors& NColorizer::AutoColors(std::ostream& os) {
+    if (&os == &std::cerr) {
         return StdErr();
     }
-    if (&os == &Cout) {
+    if (&os == &std::cout) {
         return StdOut();
     }
     return *Singleton<TDisabledColors>();

@@ -7,6 +7,8 @@
 
 #include <util/system/shellcommand.h>
 
+#include <iostream>
+
 Y_UNIT_TEST_SUITE(Https) {
     using TShellCommandPtr = std::unique_ptr<TShellCommand>;
 
@@ -14,7 +16,7 @@ Y_UNIT_TEST_SUITE(Https) {
         const std::string data = ArcadiaSourceRoot() + "/library/cpp/http/simple/ut/https_server";
 
         const std::string command =
-            TYdbStringBuilder()
+            TStringBuilder()
             << BuildRoot() << "/library/cpp/http/simple/ut/https_server/https_server"
             << " --port " << port
             << " --keyfile " << data << "/http_server.key"
@@ -37,7 +39,7 @@ Y_UNIT_TEST_SUITE(Https) {
                 client.DoGet("/ping");
                 break;
             } catch (const std::exception& e) {
-                Cout << "== failed to connect to new server: " << e.what() << Endl;
+                std::cout << "== failed to connect to new server: " << e.what() << std::endl;
                 Sleep(TDuration::MilliSeconds(1));
             }
         }
@@ -46,7 +48,7 @@ Y_UNIT_TEST_SUITE(Https) {
     }
 
     static void get(TKeepAliveHttpClient & client) {
-        std::stringStream out;
+        TStringStream out;
         ui32 code = 0;
 
         UNIT_ASSERT_NO_EXCEPTION(code = client.DoGet("/ping", &out));
@@ -75,7 +77,7 @@ Y_UNIT_TEST_SUITE(Https) {
     }
 
     static void get(TSimpleHttpClient & client) {
-        std::stringStream out;
+        TStringStream out;
 
         UNIT_ASSERT_NO_EXCEPTION_C(client.DoGet("/ping", &out), out.Str());
         UNIT_ASSERT_VALUES_EQUAL(out.Str(), "pong.my");

@@ -39,20 +39,6 @@ private:
 };
 
 /**
- * Memory-mapped file input stream.
- */
-class TMappedFileInput: public TMemoryInput {
-public:
-    TMappedFileInput(const TFile& file);
-    TMappedFileInput(const std::string& path);
-    ~TMappedFileInput() override;
-
-private:
-    class TImpl;
-    THolder<TImpl> Impl_;
-};
-
-/**
  * File output stream.
  *
  * Note that the output is unbuffered, thus writing in many small chunks is

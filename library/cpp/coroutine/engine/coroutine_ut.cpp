@@ -13,6 +13,8 @@
 #include <util/generic/xrange.h>
 #include <util/generic/serialized_enum.h>
 
+#include <iostream>
+
 // TODO (velavokr): BALANCER-1345 add more tests on pollers
 
 class TCoroTest: public TTestBase {
@@ -512,7 +514,7 @@ namespace NCoroWaitWakeLivelockBug {
     struct TSubState {
         TSubState(TState& parent, ui32 self)
             : Parent(parent)
-            , Name(TYdbStringBuilder() << "Sub" << self)
+            , Name(TStringBuilder() << "Sub" << self)
             , Self(self)
         {
             UNIT_ASSERT(self < 2);
@@ -600,7 +602,7 @@ namespace NCoroTestFastPathWake {
     struct TSubState {
         TSubState(TState& parent, ui32 self)
             : Parent(parent)
-            , Name(TYdbStringBuilder() << "Sub" << self)
+            , Name(TStringBuilder() << "Sub" << self)
         {}
 
         TState& Parent;
@@ -634,11 +636,11 @@ namespace NCoroTestFastPathWake {
             UNIT_ASSERT_VALUES_EQUAL(res.Checked(), 0);
             state.IoSleepRunning = false;
         } catch (const NUnitTest::TAssertException& ex) {
-            Cerr << ex.AsStrBuf() << Endl;
-            ex.BackTrace()->PrintTo(Cerr);
+            std::cerr << ex.AsStrBuf() << std::endl;
+            ex.BackTrace()->PrintTo(std::cerr);
             throw;
         } catch (...) {
-            Cerr << CurrentExceptionMessage() << Endl;
+            std::cerr << CurrentExceptionMessage() << std::endl;
             throw;
         }
     }
@@ -697,11 +699,11 @@ namespace NCoroTestFastPathWake {
             // Check everything has ended sooner than the timeout
             UNIT_ASSERT(TInstant::Now() - start < TDuration::Seconds(1));
         } catch (const NUnitTest::TAssertException& ex) {
-            Cerr << ex.AsStrBuf() << Endl;
-            ex.BackTrace()->PrintTo(Cerr);
+            std::cerr << ex.AsStrBuf() << std::endl;
+            ex.BackTrace()->PrintTo(std::cerr);
             throw;
         } catch (...) {
-            Cerr << CurrentExceptionMessage() << Endl;
+            std::cerr << CurrentExceptionMessage() << std::endl;
             throw;
         }
     }
@@ -952,7 +954,7 @@ void TCoroTest::TestPollEngines() {
 }
 
 void TCoroTest::TestPause() {
-    TContExecutor executor{1024*1024, IPollerFace::Default(), nullptr, nullptr, NCoro::NStack::EGuard::Canary, Nothing()};
+    TContExecutor executor{1024*1024, IPollerFace::Default(), nullptr, nullptr, NCoro::NStack::EGuard::Canary, std::nullopt};
 
     int i = 0;
     executor.CreateOwned([&](TCont*) {
@@ -1002,7 +1004,7 @@ void TCoroTest::TestOverrideTime() {
     };
 
     TTime time;
-    TContExecutor executor{1024*1024, IPollerFace::Default(), nullptr, nullptr, NCoro::NStack::EGuard::Canary, Nothing(), &time};
+    TContExecutor executor{1024*1024, IPollerFace::Default(), nullptr, nullptr, NCoro::NStack::EGuard::Canary, std::nullopt, &time};
 
     executor.CreateOwned([&](TCont* cont) {
         UNIT_ASSERT_EQUAL(cont->Executor()->Now(), TInstant::Zero());

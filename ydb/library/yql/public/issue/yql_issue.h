@@ -1,17 +1,16 @@
 #pragma once
 
+#include "yql_issue_id.h"
+
 #include <util/system/types.h>
 #include <util/generic/hash.h>
-#include <vector>
-#include <string>
-#include <string_view>
-#include <util/generic/ptr.h>
-#include <util/stream/output.h>
-#include <util/stream/str.h>
 #include <util/digest/numeric.h>
 #include <google/protobuf/message.h>
 
-#include "yql_issue_id.h"
+#include <vector>
+#include <sstream>
+#include <string>
+#include <string_view>
 
 namespace NYql {
 
@@ -136,7 +135,7 @@ public:
     }
 
     inline TRange Range() const {
-        return{ Position, EndPosition };
+        return {Position, EndPosition};
     }
 
     template <typename T>
@@ -196,12 +195,12 @@ public:
         return Children_;
     }
 
-    void PrintTo(IOutputStream& out, bool oneLine = false) const;
+    void PrintTo(std::ostream& out, bool oneLine = false) const;
 
     std::string ToString(bool oneLine = false) const {
-        TStringStream out;
+        std::stringstream out;
         PrintTo(out, oneLine);
-        return out.Str();
+        return out.str();
     }
 
     // Unsafe method. Doesn't call SanitizeNonAscii(Message)
@@ -304,16 +303,16 @@ public:
         return Issues_.size();
     }
 
-    void PrintTo(IOutputStream& out, bool oneLine = false) const;
+    void PrintTo(std::ostream& out, bool oneLine = false) const;
     void PrintWithProgramTo(
-            IOutputStream& out,
+            std::ostream& out,
             const std::string& programFilename,
             const std::string& programText) const;
 
     inline std::string ToString(bool oneLine = false) const {
-        TStringStream out;
+        std::stringstream out;
         PrintTo(out, oneLine);
-        return out.Str();
+        return out.str();
     }
 
     std::string ToOneLineString() const {
@@ -348,14 +347,10 @@ std::optional<TPosition> TryParseTerminationMessage(std::string_view& message);
 
 } // namespace NYql
 
-template <>
-void Out<NYql::TPosition>(IOutputStream& out, const NYql::TPosition& pos);
-
-template <>
-void Out<NYql::TRange>(IOutputStream& out, const NYql::TRange& pos);
-
-template <>
-void Out<NYql::TIssue>(IOutputStream& out, const NYql::TIssue& error);
+std::ostream& operator<<(std::ostream& out, const NYql::TPosition& pos);
+std::ostream& operator<<(std::ostream& out, const NYql::TRange& range);
+std::ostream& operator<<(std::ostream& out, const NYql::TIssue& error);
+std::ostream& operator<<(std::ostream& out, const NYql::TIssues& error);
 
 template <>
 struct THash<NYql::TIssue> {

@@ -30,7 +30,7 @@ namespace NLastGetopt {
         Y_ABORT_UNLESS(opts != nullptr);
     }
 
-    void TZshCompletionGenerator::Generate(std::string_view command, IOutputStream& stream) {
+    void TZshCompletionGenerator::Generate(std::string_view command, std::ostream& stream) {
         TFormattedOutput out;
         NComp::TCompleterManager manager{command};
 
@@ -370,7 +370,7 @@ namespace NLastGetopt {
         line << "' \\";
     }
 
-    void TBashCompletionGenerator::Generate(std::string_view command, IOutputStream& stream) {
+    void TBashCompletionGenerator::Generate(std::string_view command, std::ostream& stream) {
         TFormattedOutput out;
         NComp::TCompleterManager manager{command};
 

@@ -8,8 +8,10 @@
 #include "getpid.h"
 #include "thread.h"
 #include <sys/types.h>
-#include <list>
+
 #include <atomic>
+#include <optional>
+#include <list>
 
 class TShellCommandOptions {
     class TCopyableAtomicBool: public std::atomic<bool> {

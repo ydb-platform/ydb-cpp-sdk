@@ -139,8 +139,8 @@ TEST_P(TFreeListStressTest, Stress)
         worker.join();
     }
 
-    Cerr << "Put: " << put.load() << Endl;
-    Cerr << "Extracted: " << extracted.load() << Endl;
+    std::cerr << "Put: " << put.load() << std::endl;
+    std::cerr << "Extracted: " << extracted.load() << std::endl;
     EXPECT_EQ(put.load(), extracted.load());
 }
 

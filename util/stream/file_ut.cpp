@@ -42,21 +42,6 @@ Y_UNIT_TEST_SUITE(TFileTest) {
         }
     }
 
-    Y_UNIT_TEST(EmptyMapTest) {
-        TTempFile tmp(TmpFileName);
-
-        {
-            TUnbufferedFileOutput output(TmpFileName);
-            /* Write nothing. */
-        }
-
-        {
-            TMappedFileInput input(TmpFileName);
-            std::string s = input.ReadAll();
-            UNIT_ASSERT(s.empty());
-        }
-    }
-
 #ifdef _unix_
     Y_UNIT_TEST(PipeReadLineTest) {
         int fds[2];

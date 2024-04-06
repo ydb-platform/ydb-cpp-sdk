@@ -57,10 +57,10 @@ public:
         : Status(std::move(status))
     { }
 
-    friend IOutputStream& operator<<(IOutputStream& out, const TYdbErrorException&  e) {
-        out << "Status:" << e.Status.GetStatus();
+    friend std::ostream& operator<<(std::ostream& out, const TYdbErrorException&  e) {
+        out << "Status:" << ToString(e.Status.GetStatus());
         if (e.Status.GetIssues()) {
-            out << Endl;
+            out << std::endl;
             e.Status.GetIssues().PrintTo(out);
         }
         return out;

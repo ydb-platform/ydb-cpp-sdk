@@ -83,29 +83,3 @@ void TUnbufferedFileOutput::DoFlush() {
         File_.Flush();
     }
 }
-
-class TMappedFileInput::TImpl: public TBlob {
-public:
-    inline TImpl(const TFile& file)
-        : TBlob(TBlob::FromFile(file))
-    {
-    }
-
-    inline ~TImpl() = default;
-};
-
-TMappedFileInput::TMappedFileInput(const TFile& file)
-    : TMemoryInput(nullptr, 0)
-    , Impl_(new TImpl(file))
-{
-    Reset(Impl_->Data(), Impl_->Size());
-}
-
-TMappedFileInput::TMappedFileInput(const std::string& path)
-    : TMemoryInput(nullptr, 0)
-    , Impl_(new TImpl(TFile(path, OpenExisting | RdOnly)))
-{
-    Reset(Impl_->Data(), Impl_->Size());
-}
-
-TMappedFileInput::~TMappedFileInput() = default;

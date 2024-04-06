@@ -8,6 +8,8 @@
 #include <util/string/vector.h>
 #include <util/string/split.h>
 
+#include <iostream>
+
 using namespace NResource;
 
 static inline void GenOne(const std::string& data, const std::string& key, IOutputStream& out) {
@@ -33,7 +35,7 @@ static inline void GenOne(const std::string& data, const std::string& key, IOutp
 
 int main(int argc, char** argv) {
     if ((argc < 4) || (argc % 2)) {
-        Cerr << "usage: " << argv[0] << " outfile [infile path]+ [- key=value]+" << Endl;
+        std::cerr << "usage: " << argv[0] << " outfile [infile path]+ [- key=value]+" << std::endl;
 
         return 1;
     }

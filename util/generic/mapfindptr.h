@@ -8,7 +8,7 @@
 /** MapFindPtr usage:
 
 if (T* value = MapFindPtr(myMap, someKey) {
-    Cout << *value;
+    std::cout << *value;
 }
 
 */

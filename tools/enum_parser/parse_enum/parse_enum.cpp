@@ -6,6 +6,8 @@
 #include <util/stream/file.h>
 #include <util/string/escape.h>
 
+#include <iostream>
+
 /**
  * Parse C-style strings inside multiline comments
  **/
@@ -323,7 +325,7 @@ public:
 
     // Some debug stuff goes here
     static void PrintScope(const TScope& scope) {
-        Cerr << "Current scope: " << TEnumParser::ScopeStr(scope) << Endl;
+        std::cerr << "Current scope: " << TEnumParser::ScopeStr(scope) << std::endl;
     }
 
     void PrintScope() {
@@ -331,14 +333,14 @@ public:
     }
 
     void PrintEnum(const TEnum& en) {
-        Cerr << "Enum within scope " << NUtils::Quote(TEnumParser::ScopeStr(en.Scope)) << Endl;
+        std::cerr << "Enum within scope " << NUtils::Quote(TEnumParser::ScopeStr(en.Scope)) << std::endl;
         for (const auto& item : en.Items) {
-            Cerr << "    " << item.CppName;
+            std::cerr << "    " << item.CppName;
             if (item.Value)
-                Cerr << " = " << *item.Value;
-            Cerr << Endl;
+                std::cerr << " = " << *item.Value;
+            std::cerr << std::endl;
             for (const auto& value : item.Aliases) {
-                Cerr << "        " << value << Endl;
+                std::cerr << "        " << value << std::endl;
             }
         }
     }

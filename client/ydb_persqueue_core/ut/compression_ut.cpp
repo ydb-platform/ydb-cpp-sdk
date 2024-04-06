@@ -33,7 +33,7 @@ Y_UNIT_TEST_SUITE(Compression) {
         }
 
         Ydb::PersQueue::V1::AlterTopicRequest request;
-        request.set_path(TYdbStringBuilder() << "/Root/PQ/rt3.dc1--" << setup.GetTestTopic());
+        request.set_path(TStringBuilder() << "/Root/PQ/rt3.dc1--" << setup.GetTestTopic());
         auto props = request.mutable_settings();
         props->set_partitions_count(1);
         props->set_supported_format(Ydb::PersQueue::V1::TopicSettings::FORMAT_BASE);
@@ -55,7 +55,7 @@ Y_UNIT_TEST_SUITE(Compression) {
         UNIT_ASSERT(status.ok());
         Ydb::PersQueue::V1::AlterTopicResult result;
         response.operation().result().UnpackTo(&result);
-        Cerr << "Alter topic response: " << response << "\nAlter result: " << result << "\n";
+        std::cerr << "Alter topic response: " << response << "\nAlter result: " << result << "\n";
         UNIT_ASSERT_VALUES_EQUAL(response.operation().status(), Ydb::StatusIds::SUCCESS);
     }
 
@@ -78,14 +78,14 @@ Y_UNIT_TEST_SUITE(Compression) {
         const std::vector<ECodec> codecs,
         bool decompress
     ) {
-        Cerr << Endl << "Start read" << Endl << Endl;
+        std::cerr << std::endl << "Start read" << std::endl << std::endl;
         auto readSettings = setup.GetReadSessionSettings();
         readSettings.Decompress(decompress);
         NThreading::TPromise<void> checkedPromise = NThreading::NewPromise<void>();
         auto totalReceived = 0u;
         readSettings.EventHandlers_.SimpleDataHandlers(
             [&](const NYdb::NPersQueue::TReadSessionEvent::TDataReceivedEvent& ev) {
-                Cerr << Endl << Endl << Endl << "Got messages" << Endl << Endl;
+                std::cerr << std::endl << std::endl << std::endl << "Got messages" << std::endl << std::endl;
                 if (decompress) {
                     UNIT_ASSERT_NO_EXCEPTION(ev.GetMessages());
                     UNIT_ASSERT_EXCEPTION(ev.GetCompressedMessages(), yexception);
@@ -102,7 +102,7 @@ Y_UNIT_TEST_SUITE(Compression) {
                         ++totalReceived;
                     }
                 }
-                Cerr << Endl << "totalReceived: " << totalReceived << " wait: " << messages.size() << Endl << Endl;
+                std::cerr << std::endl << "totalReceived: " << totalReceived << " wait: " << messages.size() << std::endl << std::endl;
                 if (totalReceived == messages.size())
                     checkedPromise.SetValue();
             }

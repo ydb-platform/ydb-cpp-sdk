@@ -15,7 +15,7 @@ namespace NLastGetopt {
         virtual ~TCompletionGenerator() = default;
 
     public:
-        virtual void Generate(std::string_view command, IOutputStream& stream) = 0;
+        virtual void Generate(std::string_view command, std::ostream& stream) = 0;
 
     protected:
         std::variant<const TModChooser*, const TOpts*> Options_;
@@ -26,7 +26,7 @@ namespace NLastGetopt {
         using TCompletionGenerator::TCompletionGenerator;
 
     public:
-        void Generate(std::string_view command, IOutputStream& stream) override;
+        void Generate(std::string_view command, std::ostream& stream) override;
 
     private:
         static void GenerateModesCompletion(TFormattedOutput& out, const TModChooser& chooser, NComp::TCompleterManager& manager);
@@ -40,7 +40,7 @@ namespace NLastGetopt {
         using TCompletionGenerator::TCompletionGenerator;
 
     public:
-        void Generate(std::string_view command, IOutputStream& stream) override;
+        void Generate(std::string_view command, std::ostream& stream) override;
 
     private:
         static void GenerateModesCompletion(TFormattedOutput& out, const TModChooser& chooser, NComp::TCompleterManager& manager, size_t level);

@@ -1,5 +1,3 @@
-#add_subdirectory(ut)
-
 add_library(client-impl-ydb_endpoints)
 
 target_link_libraries(client-impl-ydb_endpoints PUBLIC

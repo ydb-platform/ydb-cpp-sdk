@@ -60,7 +60,7 @@ Y_UNIT_TEST_SUITE(OperationIdTest) {
             auto result = FormatPreparedQueryIdCompat(PreparedQueryId);
             x += result.size();
         }
-        Cerr << x << Endl;
+        std::cerr << x << std::endl;
     }
 
     Y_UNIT_TEST(PreparedQueryIdDecodePerf) {
@@ -73,7 +73,7 @@ Y_UNIT_TEST_SUITE(OperationIdTest) {
             UNIT_ASSERT_VALUES_EQUAL(PreparedQueryId, decodedString);
             x += decodedString.size();
         }
-        Cerr << x << Endl;
+        std::cerr << x << std::endl;
     }
 
     Y_UNIT_TEST(PreparedQueryIdOldFormatterPerf) {
@@ -85,7 +85,7 @@ Y_UNIT_TEST_SUITE(OperationIdTest) {
             auto result = ProtoToString(opId);
             x += result.size();
         }
-        Cerr << x << Endl;
+        std::cerr << x << std::endl;
     }
 #endif
     Y_UNIT_TEST(ConvertKindAndValues) {
