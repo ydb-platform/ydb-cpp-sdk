@@ -9,6 +9,7 @@
 #include <util/system/fs.h>
 
 #include <library/cpp/testing/gtest/gtest.h>
+#include <unordered_set>
 
 static TTempDir TmpDir;
 

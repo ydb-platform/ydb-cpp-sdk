@@ -12,6 +12,7 @@
 #include <unordered_set>
 #include <utility>
 #include <algorithm>
+#include <functional>
 
 namespace NLastGetopt {
     enum EHasArg {
