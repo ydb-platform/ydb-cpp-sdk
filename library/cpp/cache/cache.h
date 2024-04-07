@@ -336,7 +336,6 @@ public:
         TValue Value;
         TWeight Weight;
 
-
         struct THash {
             using is_transparent = void;
             size_t operator()(const TItem& item) const {
