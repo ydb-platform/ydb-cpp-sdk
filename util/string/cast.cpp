@@ -13,7 +13,7 @@
 #include <util/string/cast.h>
 #include <util/string/escape.h>
 
-#include <contrib/libs/double-conversion/double-conversion/double-conversion.h>
+#include <double-conversion.h>
 
 #include <util/system/yassert.h>
 #include <util/generic/yexception.h>
