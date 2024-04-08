@@ -72,7 +72,7 @@ namespace {
     private:
         TAdaptiveLock Lock_;
         std::atomic<bool> FinishStarted_;
-        TDeque<TFunc> Store_;
+        std::deque<TFunc> Store_;
         std::priority_queue<TFunc*, std::vector<TFunc*>, TCmp> Items_;
     };
 

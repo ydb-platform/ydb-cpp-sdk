@@ -5,6 +5,7 @@
 #include <util/generic/deque.h>
 #include <util/generic/hash.h>
 
+
 class TCompressionCodecFactory {
 public:
     using TDecoderConstructor = std::function<THolder<IInputStream>(IInputStream*)>;
@@ -44,7 +45,7 @@ private:
         TEncoderConstructor Encoder;
     };
 
-    TDeque<std::string> Strings_;
+    std::deque<std::string> Strings_;
     THashMap<std::string_view, TCodec> Codecs_;
     std::vector<std::string_view> BestCodecs_;
 };

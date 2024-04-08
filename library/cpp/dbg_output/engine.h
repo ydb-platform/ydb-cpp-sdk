@@ -4,6 +4,7 @@
 
 #include <string>
 #include <utility>
+#include <deque>
 
 template <class T>
 struct TDumper {

@@ -35,7 +35,7 @@ namespace NJson {
 
     public:
         typedef THashMap<std::string, TJsonValue> TMapType;
-        typedef TDeque<TJsonValue> TArray;
+        typedef std::deque<TJsonValue> TArray;
 
         TJsonValue() noexcept = default;
         TJsonValue(EJsonValueType type);

@@ -53,7 +53,7 @@ private:
 
 /// Контейнер для хранения HTTP-заголовков
 class THttpHeaders {
-    using THeaders = TDeque<THttpInputHeader>;
+    using THeaders = std::deque<THttpInputHeader>;
 
 public:
     using TConstIterator = THeaders::const_iterator;

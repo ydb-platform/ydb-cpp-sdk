@@ -74,8 +74,8 @@ Y_UNIT_TEST_SUITE(TestSerializedEnum) {
         const std::vector<ETestEnum> typedValues = {ETestEnum::One, ETestEnum::Two, ETestEnum::Three, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Eleven, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Zero, ETestEnum::Two};
         UNIT_ASSERT_EQUAL(typedValues, view.Materialize());
 
-        const TDeque<ETestEnum> typedValuesDeque{typedValues.begin(), typedValues.end()};
-        UNIT_ASSERT_EQUAL(typedValuesDeque, view.Materialize<TDeque>());
+        const std::deque<ETestEnum> typedValuesDeque{typedValues.begin(), typedValues.end()};
+        UNIT_ASSERT_EQUAL(typedValuesDeque, view.Materialize<std::deque>());
     }
 
     Y_UNIT_TEST(MappedDictView) {
