@@ -75,3 +75,10 @@ else ()
     gRPC::grpc_cpp_plugin
   )
 endif ()
+
+# FastLZ
+add_library(FastLZ 
+    ${CMAKE_SOURCE_DIR}/third_party/FastLZ/fastlz.c
+)
+
+target_include_directories(FastLZ PUBLIC ${CMAKE_SOURCE_DIR}/third_party/FastLZ)

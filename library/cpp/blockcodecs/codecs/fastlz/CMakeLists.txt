@@ -2,7 +2,7 @@ add_library(blockcodecs-codecs-fastlz INTERFACE)
 
 target_link_libraries(blockcodecs-codecs-fastlz INTERFACE
   yutil
-  contrib-libs-fastlz
+  FastLZ
   cpp-blockcodecs-core
 )
 
@@ -10,7 +10,7 @@ add_global_library_for(blockcodecs-codecs-fastlz.global blockcodecs-codecs-fastl
 
 target_link_libraries(blockcodecs-codecs-fastlz.global PUBLIC
   yutil
-  contrib-libs-fastlz
+  FastLZ
   cpp-blockcodecs-core
 )
 
