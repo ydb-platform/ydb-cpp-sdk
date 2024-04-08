@@ -15,11 +15,11 @@ target_link_libraries(service-pages-tablesorter.global PUBLIC
 )
 
 target_sources(service-pages-tablesorter.global PRIVATE
-  ${CMAKE_BINARY_DIR}/library/cpp/monlib/service/pages/tablesorter/0c255888afcc3e2adc5fd360ee152bac.cpp
+  ${YDB_SDK_BINARY_DIR}/library/cpp/monlib/service/pages/tablesorter/0c255888afcc3e2adc5fd360ee152bac.cpp
 )
 
 resources(service-pages-tablesorter.global
-  ${CMAKE_BINARY_DIR}/library/cpp/monlib/service/pages/tablesorter/0c255888afcc3e2adc5fd360ee152bac.cpp
+  ${YDB_SDK_BINARY_DIR}/library/cpp/monlib/service/pages/tablesorter/0c255888afcc3e2adc5fd360ee152bac.cpp
   INPUTS
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/pages/tablesorter/resources/jquery.tablesorter.css
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/pages/tablesorter/resources/jquery.tablesorter.js

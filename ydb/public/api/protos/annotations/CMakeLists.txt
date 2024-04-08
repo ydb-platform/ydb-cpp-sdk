@@ -10,12 +10,12 @@ target_proto_messages(api-protos-annotations PRIVATE
 target_proto_addincls(api-protos-annotations
   ./
   ${YDB_SDK_SOURCE_DIR}/
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
   ${YDB_SDK_SOURCE_DIR}
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
 )
 target_proto_outs(api-protos-annotations
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 
 

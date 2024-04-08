@@ -14,7 +14,7 @@ set(
 
 add_library(library-cpp-build_info)
 target_include_directories(library-cpp-build_info PUBLIC
-  ${CMAKE_BINARY_DIR}/library/cpp/build_info
+  ${YDB_SDK_BINARY_DIR}/library/cpp/build_info
 )
 target_link_libraries(library-cpp-build_info PUBLIC
   yutil
@@ -22,27 +22,27 @@ target_link_libraries(library-cpp-build_info PUBLIC
 )
 target_sources(library-cpp-build_info PRIVATE
   ${YDB_SDK_SOURCE_DIR}/library/cpp/build_info/build_info_static.cpp
-  ${CMAKE_BINARY_DIR}/library/cpp/build_info/buildinfo_data.h
-  ${CMAKE_BINARY_DIR}/library/cpp/build_info/sandbox.cpp
-  ${CMAKE_BINARY_DIR}/library/cpp/build_info/build_info.cpp
+  ${YDB_SDK_BINARY_DIR}/library/cpp/build_info/buildinfo_data.h
+  ${YDB_SDK_BINARY_DIR}/library/cpp/build_info/sandbox.cpp
+  ${YDB_SDK_BINARY_DIR}/library/cpp/build_info/build_info.cpp
 )
 add_custom_command(
   OUTPUT
-  ${CMAKE_BINARY_DIR}/library/cpp/build_info/buildinfo_data.h
+  ${YDB_SDK_BINARY_DIR}/library/cpp/build_info/buildinfo_data.h
   DEPENDS
   ${YDB_SDK_SOURCE_DIR}/scripts/build_info_gen.py
   COMMAND
   Python3::Interpreter
   ${YDB_SDK_SOURCE_DIR}/scripts/build_info_gen.py
-  ${CMAKE_BINARY_DIR}/library/cpp/build_info/buildinfo_data.h
+  ${YDB_SDK_BINARY_DIR}/library/cpp/build_info/buildinfo_data.h
   \"${CMAKE_CXX_COMPILER}\"
   \"${CMAKE_CXX_FLAGS}\"
 )
 configure_file(
   ${YDB_SDK_SOURCE_DIR}/library/cpp/build_info/sandbox.cpp.in
-  ${CMAKE_BINARY_DIR}/library/cpp/build_info/sandbox.cpp
+  ${YDB_SDK_BINARY_DIR}/library/cpp/build_info/sandbox.cpp
 )
 configure_file(
   ${YDB_SDK_SOURCE_DIR}/library/cpp/build_info/build_info.cpp.in
-  ${CMAKE_BINARY_DIR}/library/cpp/build_info/build_info.cpp
+  ${YDB_SDK_BINARY_DIR}/library/cpp/build_info/build_info.cpp
 )

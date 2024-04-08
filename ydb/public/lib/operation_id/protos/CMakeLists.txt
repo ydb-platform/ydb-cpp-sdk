@@ -10,11 +10,11 @@ target_proto_messages(lib-operation_id-protos PRIVATE
 target_proto_addincls(lib-operation_id-protos
   ./
   ${YDB_SDK_SOURCE_DIR}/
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
   ${YDB_SDK_SOURCE_DIR}
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
 )
 target_proto_outs(lib-operation_id-protos
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 

@@ -14,7 +14,7 @@ function(add_yunittest)
 
   if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/run_testpack")
     add_test(NAME ${YUNITTEST_ARGS_NAME} COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/run_testpack" ${YUNITTEST_ARGS_TEST_ARG})
-    set_property(TEST ${YUNITTEST_ARGS_NAME} PROPERTY ENVIRONMENT "source_root=${YDB_SDK_SOURCE_DIR};build_root=${CMAKE_BINARY_DIR};test_split_factor=${SPLIT_FACTOR};test_split_type=${SPLIT_TYPE}")
+    set_property(TEST ${YUNITTEST_ARGS_NAME} PROPERTY ENVIRONMENT "source_root=${YDB_SDK_SOURCE_DIR};build_root=${YDB_SDK_BINARY_DIR};test_split_factor=${SPLIT_FACTOR};test_split_type=${SPLIT_TYPE}")
     return()
   endif()
 

@@ -14,10 +14,10 @@ target_link_libraries(service-pages-resources.global PUBLIC
   cpp-monlib-dynamic_counters
 )
 target_sources(service-pages-resources.global PRIVATE
-  ${CMAKE_BINARY_DIR}/library/cpp/monlib/service/pages/resources/ff1cb2429e1fce561e9b0ed0d5522c37.cpp
+  ${YDB_SDK_BINARY_DIR}/library/cpp/monlib/service/pages/resources/ff1cb2429e1fce561e9b0ed0d5522c37.cpp
 )
 resources(service-pages-resources.global
-  ${CMAKE_BINARY_DIR}/library/cpp/monlib/service/pages/resources/ff1cb2429e1fce561e9b0ed0d5522c37.cpp
+  ${YDB_SDK_BINARY_DIR}/library/cpp/monlib/service/pages/resources/ff1cb2429e1fce561e9b0ed0d5522c37.cpp
   INPUTS
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/css/bootstrap.min.css
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/fonts/glyphicons-halflings-regular.eot

@@ -12,11 +12,11 @@ target_proto_messages(encode-legacy_protobuf-protos PRIVATE
 target_proto_addincls(encode-legacy_protobuf-protos
   ./
   ${YDB_SDK_SOURCE_DIR}
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
 )
 
 target_proto_outs(encode-legacy_protobuf-protos
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 
 

@@ -24,11 +24,11 @@ target_proto_messages(client-yc_private-iam PRIVATE
 target_proto_addincls(client-yc_private-iam
   ./
   ${YDB_SDK_SOURCE_DIR}/
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
   ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos
 )
 target_proto_outs(client-yc_private-iam
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 target_proto_plugin(client-yc_private-iam
   grpc_cpp

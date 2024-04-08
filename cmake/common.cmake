@@ -4,7 +4,7 @@ find_package(Python3 REQUIRED)
 
 # assumes ToolName is always both the binary and the target name
 function(get_built_tool_path OutBinPath SrcPath ToolName)
-  set(${OutBinPath} "${CMAKE_BINARY_DIR}/${SrcPath}/${ToolName}${CMAKE_EXECUTABLE_SUFFIX}" PARENT_SCOPE)
+  set(${OutBinPath} "${YDB_SDK_BINARY_DIR}/${SrcPath}/${ToolName}${CMAKE_EXECUTABLE_SUFFIX}" PARENT_SCOPE)
 endfunction()
 
 function(target_ragel_lexers TgtName Key Src)
@@ -65,7 +65,7 @@ function(target_sources_custom TgtName CompileOutSuffix)
     get_filename_component(SrcDir ${SrcRealPath} DIRECTORY)
     get_filename_component(SrcName ${SrcRealPath} NAME_WLE)
     get_filename_component(SrcExt ${SrcRealPath} LAST_EXT)
-    set(SrcCopy "${CMAKE_BINARY_DIR}/${SrcDir}/${SrcName}${CompileOutSuffix}${SrcExt}")
+    set(SrcCopy "${YDB_SDK_BINARY_DIR}/${SrcDir}/${SrcName}${CompileOutSuffix}${SrcExt}")
     add_custom_command(
       OUTPUT ${SrcCopy}
       COMMAND ${CMAKE_COMMAND} -E copy ${Src} ${SrcCopy}

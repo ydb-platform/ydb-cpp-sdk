@@ -44,7 +44,7 @@ else ()
   )
 
   target_include_directories(api-common-protos PUBLIC
-    ${CMAKE_BINARY_DIR}/third_party/api-common-protos
+    ${YDB_SDK_BINARY_DIR}/third_party/api-common-protos
   )
 
   target_link_libraries(api-common-protos PUBLIC
@@ -62,13 +62,13 @@ else ()
 
   target_proto_addincls(api-common-protos
     ./third_party/api-common-protos
-    ${CMAKE_BINARY_DIR}
+    ${YDB_SDK_BINARY_DIR}
     ${YDB_SDK_SOURCE_DIR}
     ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos
   )
 
   target_proto_outs(api-common-protos
-    --cpp_out=${CMAKE_BINARY_DIR}/third_party/api-common-protos
+    --cpp_out=${YDB_SDK_BINARY_DIR}/third_party/api-common-protos
   )
 
   target_proto_plugin(api-common-protos

@@ -9,9 +9,10 @@ set(YDB_MAX_LINK_JOBS 5 CACHE STRING "Maximum parallel link jobs for Ninja gener
 set_property(GLOBAL PROPERTY JOB_POOLS link_jobs=${YDB_MAX_LINK_JOBS})
 set(CMAKE_JOB_POOL_LINK link_jobs)
 set(YDB_SDK_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(YDB_SDK_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR} ${YDB_SDK_SOURCE_DIR}/cmake)
-include_directories(${YDB_SDK_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+list(APPEND CMAKE_MODULE_PATH ${YDB_SDK_BINARY_DIR} ${YDB_SDK_SOURCE_DIR}/cmake)
+include_directories(${YDB_SDK_SOURCE_DIR} ${YDB_SDK_BINARY_DIR})
 list(APPEND CMAKE_CTEST_ARGUMENTS "--output-on-failure")
 enable_testing()
 

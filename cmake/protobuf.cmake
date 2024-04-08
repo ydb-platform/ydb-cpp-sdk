@@ -2,7 +2,7 @@ include(common)
 
 function(target_proto_plugin Tgt Name PluginTarget)
   set_property(TARGET ${Tgt} APPEND PROPERTY
-    PROTOC_OPTS --${Name}_out=${CMAKE_BINARY_DIR}/$<TARGET_PROPERTY:${Tgt},PROTO_NAMESPACE> --plugin=protoc-gen-${Name}=$<TARGET_FILE:${PluginTarget}>
+    PROTOC_OPTS --${Name}_out=${YDB_SDK_BINARY_DIR}/$<TARGET_PROPERTY:${Tgt},PROTO_NAMESPACE> --plugin=protoc-gen-${Name}=$<TARGET_FILE:${PluginTarget}>
   )
   set_property(TARGET ${Tgt} APPEND PROPERTY
     PROTOC_DEPS ${PluginTarget}
@@ -25,15 +25,15 @@ function(target_proto_messages Tgt Scope)
 
   get_property(ProtocExtraOutsSuf TARGET ${Tgt} PROPERTY PROTOC_EXTRA_OUTS)
   foreach(proto ${ARGN})
-    if(proto MATCHES ${CMAKE_BINARY_DIR})
-      file(RELATIVE_PATH protoRel ${CMAKE_BINARY_DIR} ${proto})
+    if(proto MATCHES ${YDB_SDK_BINARY_DIR})
+      file(RELATIVE_PATH protoRel ${YDB_SDK_BINARY_DIR} ${proto})
     elseif (proto MATCHES ${YDB_SDK_SOURCE_DIR})
       file(RELATIVE_PATH protoRel ${YDB_SDK_SOURCE_DIR} ${proto})
     else()
       set(protoRel ${proto})
     endif()
     get_filename_component(OutputBase ${protoRel} NAME_WLE)
-    get_filename_component(OutputDir ${CMAKE_BINARY_DIR}/${protoRel} DIRECTORY)
+    get_filename_component(OutputDir ${YDB_SDK_BINARY_DIR}/${protoRel} DIRECTORY)
     list(TRANSFORM ProtocExtraOutsSuf PREPEND ${OutputDir}/${OutputBase} OUTPUT_VARIABLE ProtocExtraOuts)
     add_custom_command(
       OUTPUT

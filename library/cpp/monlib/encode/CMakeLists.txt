@@ -20,7 +20,7 @@ target_sources(cpp-monlib-encode PRIVATE
 generate_enum_serilization(cpp-monlib-encode
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/encode/encoder_state_enum.h
   GEN_HEADER
-  ${CMAKE_BINARY_DIR}/library/cpp/monlib/encode/encoder_state_enum.h_serialized.h
+  ${YDB_SDK_BINARY_DIR}/library/cpp/monlib/encode/encoder_state_enum.h_serialized.h
   INCLUDE_HEADERS
   library/cpp/monlib/encode/encoder_state_enum.h
 )

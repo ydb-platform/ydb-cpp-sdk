@@ -13,13 +13,13 @@ target_proto_messages(public-issue-protos PRIVATE
 target_proto_addincls(public-issue-protos
   ./
   ${YDB_SDK_SOURCE_DIR}/
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
   ${YDB_SDK_SOURCE_DIR}
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
 )
 
 target_proto_outs(public-issue-protos
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 
 

@@ -22,12 +22,12 @@ target_proto_messages(api-grpc-draft PRIVATE
 target_proto_addincls(api-grpc-draft
   ./
   ${YDB_SDK_SOURCE_DIR}/
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
   ${YDB_SDK_SOURCE_DIR}
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
 )
 target_proto_outs(api-grpc-draft
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 target_proto_plugin(api-grpc-draft
   grpc_cpp

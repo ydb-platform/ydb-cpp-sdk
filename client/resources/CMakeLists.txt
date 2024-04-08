@@ -14,10 +14,10 @@ target_link_libraries(cpp-client-resources.global PUBLIC
   library-cpp-resource
 )
 target_sources(cpp-client-resources.global PRIVATE
-  ${CMAKE_BINARY_DIR}/client/resources/6ed212bf45019efe2a5e72b6d5ed50fb.cpp
+  ${YDB_SDK_BINARY_DIR}/client/resources/6ed212bf45019efe2a5e72b6d5ed50fb.cpp
 )
 resources(cpp-client-resources.global
-  ${CMAKE_BINARY_DIR}/client/resources/6ed212bf45019efe2a5e72b6d5ed50fb.cpp
+  ${YDB_SDK_BINARY_DIR}/client/resources/6ed212bf45019efe2a5e72b6d5ed50fb.cpp
   INPUTS
   ${YDB_SDK_SOURCE_DIR}/client/resources/ydb_sdk_version.txt
   ${YDB_SDK_SOURCE_DIR}/client/resources/ydb_root_ca.pem

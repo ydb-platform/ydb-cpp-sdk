@@ -26,7 +26,7 @@ target_sources(cpp-monlib-metrics PRIVATE
 generate_enum_serilization(cpp-monlib-metrics
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/metrics/metric_value_type.h
   GEN_HEADER
-  ${CMAKE_BINARY_DIR}/library/cpp/monlib/metrics/metric_value_type.h_serialized.h
+  ${YDB_SDK_BINARY_DIR}/library/cpp/monlib/metrics/metric_value_type.h_serialized.h
   INCLUDE_HEADERS
   library/cpp/monlib/metrics/metric_value_type.h
 )

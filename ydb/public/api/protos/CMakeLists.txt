@@ -44,34 +44,34 @@ target_proto_messages(api-protos PRIVATE
   ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_keyvalue.proto
 )
 generate_enum_serilization(api-protos
-  ${CMAKE_BINARY_DIR}/ydb/public/api/protos/draft/persqueue_common.pb.h
+  ${YDB_SDK_BINARY_DIR}/ydb/public/api/protos/draft/persqueue_common.pb.h
   INCLUDE_HEADERS
   ydb/public/api/protos/draft/persqueue_common.pb.h
 )
 generate_enum_serilization(api-protos
-  ${CMAKE_BINARY_DIR}/ydb/public/api/protos/ydb_persqueue_cluster_discovery.pb.h
+  ${YDB_SDK_BINARY_DIR}/ydb/public/api/protos/ydb_persqueue_cluster_discovery.pb.h
   INCLUDE_HEADERS
   ydb/public/api/protos/ydb_persqueue_cluster_discovery.pb.h
 )
 generate_enum_serilization(api-protos
-  ${CMAKE_BINARY_DIR}/ydb/public/api/protos/draft/datastreams.pb.h
+  ${YDB_SDK_BINARY_DIR}/ydb/public/api/protos/draft/datastreams.pb.h
   INCLUDE_HEADERS
   ydb/public/api/protos/draft/datastreams.pb.h
 )
 generate_enum_serilization(api-protos
-  ${CMAKE_BINARY_DIR}/ydb/public/api/protos/ydb_topic.pb.h
+  ${YDB_SDK_BINARY_DIR}/ydb/public/api/protos/ydb_topic.pb.h
   INCLUDE_HEADERS
   ydb/public/api/protos/ydb_topic.pb.h
 )
 target_proto_addincls(api-protos
   ./
   ${YDB_SDK_SOURCE_DIR}/
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
   ${YDB_SDK_SOURCE_DIR}
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
 )
 target_proto_outs(api-protos
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 target_proto_plugin(api-protos
   grpc_cpp

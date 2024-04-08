@@ -19,12 +19,12 @@ target_proto_messages(client-yc_private-kms PRIVATE
 target_proto_addincls(client-yc_private-kms
   ./
   ${YDB_SDK_SOURCE_DIR}/
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
   ${YDB_SDK_SOURCE_DIR}
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
 )
 target_proto_outs(client-yc_private-kms
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 target_proto_plugin(client-yc_private-kms
   grpc_cpp

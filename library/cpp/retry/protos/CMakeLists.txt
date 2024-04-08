@@ -12,10 +12,10 @@ target_proto_messages(cpp-retry-protos PRIVATE
 target_proto_addincls(cpp-retry-protos
   ./
   ${YDB_SDK_SOURCE_DIR}
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_BINARY_DIR}
 )
 
 target_proto_outs(cpp-retry-protos
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 

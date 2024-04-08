@@ -18,7 +18,7 @@ target_proto_addincls(client-yc_private-servicecontrol
   ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos
 )
 target_proto_outs(client-yc_private-servicecontrol
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 target_proto_plugin(client-yc_private-servicecontrol
   grpc_cpp
