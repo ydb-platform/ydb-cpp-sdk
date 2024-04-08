@@ -2,7 +2,7 @@
 #include <library/cpp/blockcodecs/core/common.h>
 #include <library/cpp/blockcodecs/core/register.h>
 
-#include <contrib/libs/fastlz/fastlz.h>
+#include <fastlz.h>
 
 using namespace NBlockCodecs;
 
