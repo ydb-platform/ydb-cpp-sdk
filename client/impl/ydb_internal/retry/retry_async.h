@@ -18,7 +18,7 @@ protected:
 
 public:
     TAsyncStatusType Execute() {
-        this->RetryTimer_.Reset();
+        this->RetryStartTime_ = TInstant::Now();
         this->Retry();
         return this->Promise_.GetFuture();
     }

@@ -1,5 +1,4 @@
 add_subdirectory(charset)
-add_subdirectory(draft)
 
 add_library(yutil)
 target_compile_options(yutil PRIVATE
