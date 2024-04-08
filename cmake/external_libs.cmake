@@ -16,6 +16,7 @@ find_package(base64 REQUIRED)
 find_package(Brotli 1.1.0 REQUIRED)
 find_package(jwt-cpp REQUIRED)
 find_package(GTest REQUIRED)
+find_package(double-conversion REQUIRED)
 
 # RapidJSON
 if (YDB_SDK_USE_RAPID_JSON)

@@ -13,6 +13,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
       if: github.event.pull_request.head.sha == ''
+      with:
+        submodules: true
     - name: Install dependencies
       uses: ./.github/actions/prepare_vm
     - name: Prepare ccache timestamp

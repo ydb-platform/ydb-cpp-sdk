@@ -13,7 +13,7 @@ protected:
 
 public:
     TStatusType Execute() {
-        this->RetryTimer_.Reset();
+        this->RetryStartTime_ = TInstant::Now();
         TStatusType status = Retry(); // first attempt
         for (this->RetryNumber_ = 0; this->RetryNumber_ <= this->Settings_.MaxRetries_;) {
             auto nextStep = this->GetNextStep(status);
