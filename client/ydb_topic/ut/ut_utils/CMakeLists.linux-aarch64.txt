@@ -24,6 +24,6 @@ target_link_libraries(ydb_topic-ut-ut_utils PUBLIC
   cpp-client-ydb_table
 )
 target_sources(ydb_topic-ut-ut_utils PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/ut/ut_utils/managed_executor.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/ut/ut_utils/topic_sdk_test_setup.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/ut/ut_utils/managed_executor.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/ut/ut_utils/topic_sdk_test_setup.cpp
 )

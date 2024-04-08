@@ -27,8 +27,8 @@ function(target_proto_messages Tgt Scope)
   foreach(proto ${ARGN})
     if(proto MATCHES ${CMAKE_BINARY_DIR})
       file(RELATIVE_PATH protoRel ${CMAKE_BINARY_DIR} ${proto})
-    elseif (proto MATCHES ${CMAKE_SOURCE_DIR})
-      file(RELATIVE_PATH protoRel ${CMAKE_SOURCE_DIR} ${proto})
+    elseif (proto MATCHES ${YDB_SDK_SOURCE_DIR})
+      file(RELATIVE_PATH protoRel ${YDB_SDK_SOURCE_DIR} ${proto})
     else()
       set(protoRel ${proto})
     endif()
@@ -49,7 +49,7 @@ function(target_proto_messages Tgt Scope)
         ${protoRel}
       DEPENDS
         ${proto}
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      WORKING_DIRECTORY ${YDB_SDK_SOURCE_DIR}
       COMMAND_EXPAND_LISTS
     )
     target_sources(${Tgt} ${Scope}

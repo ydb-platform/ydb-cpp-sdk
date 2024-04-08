@@ -15,10 +15,10 @@ target_link_libraries(cpp-yt-string PUBLIC
 )
 
 target_sources(cpp-yt-string PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/yt/string/enum.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yt/string/guid.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yt/string/string.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yt/string/format.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yt/string/enum.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yt/string/guid.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yt/string/string.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yt/string/format.cpp
 )
 
 

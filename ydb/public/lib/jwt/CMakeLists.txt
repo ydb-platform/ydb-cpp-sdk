@@ -13,6 +13,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
 endif()
 
 target_sources(public-lib-jwt PRIVATE
-    ${CMAKE_SOURCE_DIR}/ydb/public/lib/jwt/jwt.cpp
+    ${YDB_SDK_SOURCE_DIR}/ydb/public/lib/jwt/jwt.cpp
 )
 

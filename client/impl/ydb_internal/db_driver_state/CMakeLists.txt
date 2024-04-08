@@ -11,9 +11,9 @@ target_link_libraries(impl-ydb_internal-db_driver_state PUBLIC
 )
 
 target_sources(impl-ydb_internal-db_driver_state PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_internal/db_driver_state/authenticator.cpp
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_internal/db_driver_state/endpoint_pool.cpp
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_internal/db_driver_state/state.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/db_driver_state/authenticator.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/db_driver_state/endpoint_pool.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/db_driver_state/state.cpp
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)

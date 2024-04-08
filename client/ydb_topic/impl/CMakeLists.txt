@@ -18,16 +18,16 @@ target_link_libraries(client-ydb_topic-impl PUBLIC
 )
 
 target_sources(client-ydb_topic-impl PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/impl/executor.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/impl/read_session_event.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/impl/counters.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/impl/deferred_commit.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/impl/event_handlers.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/impl/read_session.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/impl/write_session.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/impl/write_session_impl.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/impl/topic_impl.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/impl/topic.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/impl/executor.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/impl/read_session_event.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/impl/counters.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/impl/deferred_commit.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/impl/event_handlers.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/impl/read_session.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/impl/write_session.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/impl/write_session_impl.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/impl/topic_impl.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/impl/topic.cpp
 )
 
 

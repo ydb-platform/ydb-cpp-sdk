@@ -11,7 +11,7 @@ target_link_libraries(client-iam-common PUBLIC
 )
 
 target_sources(client-iam-common PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/iam/common/iam.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/iam/common/iam.cpp
 )
 
 

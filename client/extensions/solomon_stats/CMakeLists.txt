@@ -10,8 +10,8 @@ target_link_libraries(client-extensions-solomon_stats PUBLIC
 )
 
 target_sources(client-extensions-solomon_stats PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/extensions/solomon_stats/pull_client.cpp
-  ${CMAKE_SOURCE_DIR}/client/extensions/solomon_stats/pull_connector.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/extensions/solomon_stats/pull_client.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/extensions/solomon_stats/pull_connector.cpp
 )
 
 add_library(YDB-CPP-SDK::SolomonStats ALIAS client-extensions-solomon_stats)

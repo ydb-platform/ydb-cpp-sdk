@@ -16,7 +16,7 @@ target_link_libraries(cpp-client-ydb_persqueue_core PUBLIC
 )
 
 generate_enum_serilization(cpp-client-ydb_persqueue_core
-  ${CMAKE_SOURCE_DIR}/client/ydb_persqueue_core/persqueue.h
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_persqueue_core/persqueue.h
   INCLUDE_HEADERS
   client/ydb_persqueue_core/persqueue.h
 )

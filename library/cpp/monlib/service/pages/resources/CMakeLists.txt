@@ -19,13 +19,13 @@ target_sources(service-pages-resources.global PRIVATE
 resources(service-pages-resources.global
   ${CMAKE_BINARY_DIR}/library/cpp/monlib/service/pages/resources/ff1cb2429e1fce561e9b0ed0d5522c37.cpp
   INPUTS
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/css/bootstrap.min.css
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/fonts/glyphicons-halflings-regular.eot
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/fonts/glyphicons-halflings-regular.svg
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/fonts/glyphicons-halflings-regular.ttf
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/fonts/glyphicons-halflings-regular.woff
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/js/bootstrap.min.js
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/js/jquery.min.js
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/css/bootstrap.min.css
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/fonts/glyphicons-halflings-regular.eot
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/fonts/glyphicons-halflings-regular.svg
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/fonts/glyphicons-halflings-regular.ttf
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/fonts/glyphicons-halflings-regular.woff
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/js/bootstrap.min.js
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/pages/resources/static/js/jquery.min.js
   KEYS
   static/css/bootstrap.min.css
   static/fonts/glyphicons-halflings-regular.eot

@@ -7,7 +7,7 @@ target_link_libraries(client-impl-ydb_stats PUBLIC
 )
 
 target_sources(client-impl-ydb_stats PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_stats/stats.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_stats/stats.cpp
 )
 
 

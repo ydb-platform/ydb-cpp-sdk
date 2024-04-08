@@ -12,11 +12,11 @@ target_link_libraries(client-ydb_table-impl PUBLIC
 )
 
 target_sources(client-ydb_table-impl PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_table/impl/client_session.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_table/impl/data_query.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_table/impl/readers.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_table/impl/request_migrator.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_table/impl/table_client.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_table/impl/client_session.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_table/impl/data_query.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_table/impl/readers.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_table/impl/request_migrator.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_table/impl/table_client.cpp
 )
 
 

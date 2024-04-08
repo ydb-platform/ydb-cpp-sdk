@@ -11,15 +11,15 @@ target_link_libraries(client-yc_private-resourcemanager PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(client-yc_private-resourcemanager PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/client/yc_private/resourcemanager/folder.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/client/yc_private/resourcemanager/transitional/folder_service.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/client/yc_private/resourcemanager/folder_service.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/resourcemanager/folder.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/resourcemanager/transitional/folder_service.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/resourcemanager/folder_service.proto
 )
 target_proto_addincls(client-yc_private-resourcemanager
   ./
-  ${CMAKE_SOURCE_DIR}
+  ${YDB_SDK_SOURCE_DIR}
   ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/third_party/api-common-protos
+  ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos
 )
 target_proto_outs(client-yc_private-resourcemanager
   --cpp_out=${CMAKE_BINARY_DIR}/

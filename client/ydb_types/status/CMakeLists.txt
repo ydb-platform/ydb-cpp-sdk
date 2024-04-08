@@ -10,7 +10,7 @@ target_link_libraries(client-ydb_types-status PUBLIC
 )
 
 target_sources(client-ydb_types-status PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_types/status/status.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_types/status/status.cpp
 )
 
 

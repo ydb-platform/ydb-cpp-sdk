@@ -9,7 +9,7 @@ target_link_libraries(cpp-http-simple PUBLIC
 )
 
 target_sources(cpp-http-simple PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/simple/http_client.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/simple/http_client.cpp
 )
 
 

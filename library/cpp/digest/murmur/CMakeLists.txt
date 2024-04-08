@@ -5,5 +5,5 @@ target_link_libraries(cpp-digest-murmur PUBLIC
 )
 
 target_sources(cpp-digest-murmur PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/digest/murmur/murmur.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/digest/murmur/murmur.cpp
 )

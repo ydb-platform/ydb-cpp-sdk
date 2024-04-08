@@ -7,9 +7,9 @@ target_link_libraries(read_from_topic_in_transaction PUBLIC
 )
 
 target_sources(read_from_topic_in_transaction PRIVATE
-  ${CMAKE_SOURCE_DIR}/examples/topic_reader/transaction/application.cpp
-  ${CMAKE_SOURCE_DIR}/examples/topic_reader/transaction/main.cpp
-  ${CMAKE_SOURCE_DIR}/examples/topic_reader/transaction/options.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/topic_reader/transaction/application.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/topic_reader/transaction/main.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/topic_reader/transaction/options.cpp
 )
 
 vcs_info(read_from_topic_in_transaction)

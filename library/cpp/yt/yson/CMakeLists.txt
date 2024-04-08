@@ -10,7 +10,7 @@ target_link_libraries(cpp-yt-yson PUBLIC
 )
 
 target_sources(cpp-yt-yson PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/yt/yson/consumer.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yt/yson/consumer.cpp
 )
 
 

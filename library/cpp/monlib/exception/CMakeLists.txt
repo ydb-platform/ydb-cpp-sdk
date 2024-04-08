@@ -5,7 +5,7 @@ target_link_libraries(cpp-monlib-exception PUBLIC
 )
 
 target_sources(cpp-monlib-exception PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/exception/exception.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/exception/exception.cpp
 )
 
 

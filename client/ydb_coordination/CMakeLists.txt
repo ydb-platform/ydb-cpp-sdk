@@ -14,12 +14,12 @@ target_link_libraries(cpp-client-ydb_coordination PUBLIC
 )
 
 target_sources(cpp-client-ydb_coordination PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_coordination/coordination.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_coordination/proto_accessor.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_coordination/coordination.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_coordination/proto_accessor.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_coordination
-  ${CMAKE_SOURCE_DIR}/client/ydb_coordination/coordination.h
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_coordination/coordination.h
   INCLUDE_HEADERS
   client/ydb_coordination/coordination.h
 )

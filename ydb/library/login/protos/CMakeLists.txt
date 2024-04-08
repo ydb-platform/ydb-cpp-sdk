@@ -6,14 +6,14 @@ target_link_libraries(library-login-protos PUBLIC
 )
 
 target_proto_messages(library-login-protos PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/library/login/protos/login.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/library/login/protos/login.proto
 )
 
 target_proto_addincls(library-login-protos
   ./
-  ${CMAKE_SOURCE_DIR}/
+  ${YDB_SDK_SOURCE_DIR}/
   ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}
+  ${YDB_SDK_SOURCE_DIR}
   ${CMAKE_BINARY_DIR}
 )
 

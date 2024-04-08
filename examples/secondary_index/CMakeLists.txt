@@ -7,14 +7,14 @@ target_link_libraries(secondary_index PUBLIC
 )
 
 target_sources(secondary_index PRIVATE
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index/main.cpp
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index/secondary_index.cpp
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index/secondary_index_create.cpp
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index/secondary_index_delete.cpp
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index/secondary_index_drop.cpp
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index/secondary_index_generate.cpp
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index/secondary_index_list.cpp
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index/secondary_index_update.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index/main.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index/secondary_index.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index/secondary_index_create.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index/secondary_index_delete.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index/secondary_index_drop.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index/secondary_index_generate.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index/secondary_index_list.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index/secondary_index_update.cpp
 )
 
 vcs_info(secondary_index)

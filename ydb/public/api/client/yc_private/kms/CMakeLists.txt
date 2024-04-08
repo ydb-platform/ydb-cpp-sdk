@@ -13,14 +13,14 @@ target_link_libraries(client-yc_private-kms PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(client-yc_private-kms PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/client/yc_private/kms/symmetric_crypto_service.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/client/yc_private/kms/symmetric_key.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/kms/symmetric_crypto_service.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/kms/symmetric_key.proto
 )
 target_proto_addincls(client-yc_private-kms
   ./
-  ${CMAKE_SOURCE_DIR}/
+  ${YDB_SDK_SOURCE_DIR}/
   ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}
+  ${YDB_SDK_SOURCE_DIR}
   ${CMAKE_BINARY_DIR}
 )
 target_proto_outs(client-yc_private-kms

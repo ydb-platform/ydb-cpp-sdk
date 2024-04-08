@@ -7,9 +7,9 @@ target_link_libraries(pagination PUBLIC
 )
 
 target_sources(pagination PRIVATE
-  ${CMAKE_SOURCE_DIR}/examples/pagination/main.cpp
-  ${CMAKE_SOURCE_DIR}/examples/pagination/pagination_data.cpp
-  ${CMAKE_SOURCE_DIR}/examples/pagination/pagination.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/pagination/main.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/pagination/pagination_data.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/pagination/pagination.cpp
 )
 
 vcs_info(pagination)

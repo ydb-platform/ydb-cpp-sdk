@@ -4,8 +4,8 @@ target_link_libraries(cpp-client-resources PUBLIC
   library-cpp-resource
 )
 target_sources(cpp-client-resources PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/resources/ydb_resources.cpp
-  ${CMAKE_SOURCE_DIR}/client/resources/ydb_ca.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/resources/ydb_resources.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/resources/ydb_ca.cpp
 )
 
 add_global_library_for(cpp-client-resources.global cpp-client-resources)
@@ -19,8 +19,8 @@ target_sources(cpp-client-resources.global PRIVATE
 resources(cpp-client-resources.global
   ${CMAKE_BINARY_DIR}/client/resources/6ed212bf45019efe2a5e72b6d5ed50fb.cpp
   INPUTS
-  ${CMAKE_SOURCE_DIR}/client/resources/ydb_sdk_version.txt
-  ${CMAKE_SOURCE_DIR}/client/resources/ydb_root_ca.pem
+  ${YDB_SDK_SOURCE_DIR}/client/resources/ydb_sdk_version.txt
+  ${YDB_SDK_SOURCE_DIR}/client/resources/ydb_root_ca.pem
   KEYS
   ydb_sdk_version.txt
   ydb_root_ca.pem

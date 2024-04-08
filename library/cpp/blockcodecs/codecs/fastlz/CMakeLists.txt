@@ -15,7 +15,7 @@ target_link_libraries(blockcodecs-codecs-fastlz.global PUBLIC
 )
 
 target_sources(blockcodecs-codecs-fastlz.global PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/blockcodecs/codecs/fastlz/fastlz.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/codecs/fastlz/fastlz.cpp
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)

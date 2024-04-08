@@ -6,5 +6,5 @@ target_link_libraries(cpp-streams-bzip2 PUBLIC
 )
 
 target_sources(cpp-streams-bzip2 PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/streams/bzip2/bzip2.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/streams/bzip2/bzip2.cpp
 )

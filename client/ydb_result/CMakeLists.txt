@@ -9,8 +9,8 @@ target_link_libraries(cpp-client-ydb_result PUBLIC
 )
 
 target_sources(cpp-client-ydb_result PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_result/proto_accessor.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_result/result.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_result/proto_accessor.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_result/result.cpp
 )
 
 add_library(YDB-CPP-SDK::Result ALIAS cpp-client-ydb_result)

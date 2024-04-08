@@ -7,7 +7,7 @@ target_link_libraries(impl-ydb_internal-value_helpers PUBLIC
 )
 
 target_sources(impl-ydb_internal-value_helpers PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_internal/value_helpers/helpers.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/value_helpers/helpers.cpp
 )
 
 

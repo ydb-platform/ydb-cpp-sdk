@@ -11,7 +11,7 @@ target_link_libraries(client-ydb_topic-codecs PUBLIC
 )
 
 target_sources(client-ydb_topic-codecs PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/codecs/codecs.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/codecs/codecs.cpp
 )
 
 

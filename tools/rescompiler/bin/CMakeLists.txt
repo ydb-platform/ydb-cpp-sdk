@@ -6,7 +6,7 @@ target_link_libraries(rescompiler PUBLIC
 )
 
 target_sources(rescompiler PRIVATE
-  ${CMAKE_SOURCE_DIR}/tools/rescompiler/main.cpp
+  ${YDB_SDK_SOURCE_DIR}/tools/rescompiler/main.cpp
 )
 
 vcs_info(rescompiler)

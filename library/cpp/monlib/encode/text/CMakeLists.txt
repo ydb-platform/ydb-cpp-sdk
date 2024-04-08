@@ -6,5 +6,5 @@ target_link_libraries(monlib-encode-text PUBLIC
 )
 
 target_sources(monlib-encode-text PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/encode/text/text_encoder.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/encode/text/text_encoder.cpp
 )

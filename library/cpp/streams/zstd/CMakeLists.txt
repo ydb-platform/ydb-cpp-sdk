@@ -4,5 +4,5 @@ target_link_libraries(cpp-streams-zstd PUBLIC
   ZSTD::ZSTD
 )
 target_sources(cpp-streams-zstd PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/streams/zstd/zstd.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/streams/zstd/zstd.cpp
 )

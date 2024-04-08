@@ -9,7 +9,7 @@ target_link_libraries(cpp-client-iam PUBLIC
 )
 
 target_sources(cpp-client-iam PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/iam/iam.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/iam/iam.cpp
 )
 
 add_library(YDB-CPP-SDK::Iam ALIAS cpp-client-iam)

@@ -8,7 +8,7 @@ target_link_libraries(impl-ydb_internal-kqp_session_common PUBLIC
 )
 
 target_sources(impl-ydb_internal-kqp_session_common PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_internal/kqp_session_common/kqp_session_common.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/kqp_session_common/kqp_session_common.cpp
 )
 
 

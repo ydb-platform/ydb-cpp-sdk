@@ -12,7 +12,7 @@ target_link_libraries(cpp-client-ydb_proto PUBLIC
 )
 
 target_sources(cpp-client-ydb_proto PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_proto/accessor.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_proto/accessor.cpp
 )
 
 add_library(YDB-CPP-SDK::Proto ALIAS cpp-client-ydb_proto)

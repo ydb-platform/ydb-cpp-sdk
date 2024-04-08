@@ -7,7 +7,7 @@ target_link_libraries(simple_persqueue_reader PUBLIC
 )
 
 target_sources(simple_persqueue_reader PRIVATE
-  ${CMAKE_SOURCE_DIR}/examples/topic_reader/simple/main.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/topic_reader/simple/main.cpp
 )
 
 vcs_info(simple_persqueue_reader)

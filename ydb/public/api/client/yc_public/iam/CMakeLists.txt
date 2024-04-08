@@ -10,13 +10,13 @@ target_link_libraries(client-yc_public-iam PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(client-yc_public-iam PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/client/yc_public/iam/iam_token_service.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_public/iam/iam_token_service.proto
 )
 target_proto_addincls(client-yc_public-iam
   ./
-  ${CMAKE_SOURCE_DIR}
+  ${YDB_SDK_SOURCE_DIR}
   ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/third_party/api-common-protos
+  ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos
 )
 target_proto_outs(client-yc_public-iam
   --cpp_out=${CMAKE_BINARY_DIR}/

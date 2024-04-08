@@ -7,6 +7,6 @@ target_link_libraries(proto_output PUBLIC
 )
 
 target_sources(proto_output PRIVATE
-    ${CMAKE_SOURCE_DIR}/ydb/public/api/proto_output/proto_output.cpp
+    ${YDB_SDK_SOURCE_DIR}/ydb/public/api/proto_output/proto_output.cpp
 )
 

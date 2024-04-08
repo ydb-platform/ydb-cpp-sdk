@@ -7,7 +7,7 @@ target_link_libraries(library-cpp-dbg_output PUBLIC
 )
 
 target_sources(library-cpp-dbg_output PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/dbg_output/dump.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/dbg_output/dumpers.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/dbg_output/engine.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/dbg_output/dump.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/dbg_output/dumpers.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/dbg_output/engine.cpp
 )

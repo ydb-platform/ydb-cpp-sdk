@@ -8,13 +8,13 @@ target_link_libraries(yc_private-compute-inner PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(yc_private-compute-inner PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/client/yc_private/compute/inner/disk_service.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/compute/inner/disk_service.proto
 )
 target_proto_addincls(yc_private-compute-inner
   ./
-  ${CMAKE_SOURCE_DIR}/
+  ${YDB_SDK_SOURCE_DIR}/
   ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}
+  ${YDB_SDK_SOURCE_DIR}
   ${CMAKE_BINARY_DIR}
 )
 target_proto_outs(yc_private-compute-inner
