@@ -35,12 +35,13 @@ class TRetryContextBase : TNonCopyable {
 protected:
     TRetryOperationSettings Settings_;
     ui32 RetryNumber_;
-    TSimpleTimer RetryTimer_;
+    TInstant RetryStartTime_;
 
 protected:
     TRetryContextBase(const TRetryOperationSettings& settings)
         : Settings_(settings)
         , RetryNumber_(0)
+        , RetryStartTime_(TInstant::Now())
     {}
 
     virtual void Reset() {}
@@ -60,7 +61,7 @@ protected:
         if (RetryNumber_ >= Settings_.MaxRetries_) {
             return NextStep::Finish;
         }
-        if (RetryTimer_.Get() >= Settings_.MaxTimeout_) {
+        if (TInstant::Now() - RetryStartTime_ >= Settings_.MaxTimeout_) {
             return NextStep::Finish;
         }
         switch (status.GetStatus()) {
@@ -107,7 +108,7 @@ protected:
     }
 
     TDuration GetRemainingTimeout() {
-        return Settings_.MaxTimeout_ - RetryTimer_.Get();
+        return Settings_.MaxTimeout_ - (TInstant::Now() - RetryStartTime_);
     }
 };
 
