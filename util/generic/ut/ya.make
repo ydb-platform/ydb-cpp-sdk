@@ -7,7 +7,6 @@ FORK_TESTS()
 SRCS(
     generic/adaptor_ut.cpp
     generic/algorithm_ut.cpp
-    generic/array_ref_ut.cpp
     generic/array_size_ut.cpp
     generic/bitmap_ut.cpp
     generic/bitops_ut.cpp

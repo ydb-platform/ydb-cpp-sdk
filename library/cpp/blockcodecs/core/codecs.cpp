@@ -13,7 +13,6 @@
 #include <util/generic/cast.h>
 #include <util/generic/deque.h>
 #include <util/generic/buffer.h>
-#include <util/generic/array_ref.h>
 #include <util/generic/singleton.h>
 #include <util/generic/algorithm.h>
 #include <util/generic/mem_copy.h>

@@ -167,9 +167,9 @@ namespace NEnumSerializationRuntime {
     TEnumDescriptionBase<TEnumRepresentationType>::TEnumDescriptionBase(const TInitializationData& enumInitData)
         : ClassName(enumInitData.ClassName)
     {
-        const TArrayRef<const TEnumStringPair>& namesInitializer = enumInitData.NamesInitializer;
-        const TArrayRef<const TEnumStringPair>& valuesInitializer = enumInitData.ValuesInitializer;
-        const TArrayRef<const std::string_view>& cppNamesInitializer = enumInitData.CppNamesInitializer;
+        const std::span<const TEnumStringPair>& namesInitializer = enumInitData.NamesInitializer;
+        const std::span<const TEnumStringPair>& valuesInitializer = enumInitData.ValuesInitializer;
+        const std::span<const std::string_view>& cppNamesInitializer = enumInitData.CppNamesInitializer;
 
         std::map<TRepresentationType, std::string> mapValueToName;
         std::map<std::string_view, TRepresentationType> mapNameToValue;

@@ -3,8 +3,9 @@
 #include <library/cpp/lcs/lcs_via_lis.h>
 
 #include <util/generic/algorithm.h>
-#include <util/generic/array_ref.h>
+
 #include <string_view>
+#include <span>
 
 #include <util/stream/output.h>
 #include <util/string/split.h>
@@ -12,13 +13,13 @@
 namespace NDiff {
     template <typename T>
     struct TChunk {
-        TConstArrayRef<T> Left;
-        TConstArrayRef<T> Right;
-        TConstArrayRef<T> Common;
+        std::span<const T> Left;
+        std::span<const T> Right;
+        std::span<const T> Common;
 
         TChunk() = default;
 
-        TChunk(const TConstArrayRef<T>& left, const TConstArrayRef<T>& right, const TConstArrayRef<T>& common)
+        TChunk(const std::span<const T>& left, const std::span<const T>& right, const std::span<const T>& common)
             : Left(left)
             , Right(right)
             , Common(common)
@@ -27,9 +28,9 @@ namespace NDiff {
     };
 
     template <typename T>
-    size_t InlineDiff(std::vector<TChunk<T>>& chunks, const TConstArrayRef<T>& left, const TConstArrayRef<T>& right) {
-        TConstArrayRef<T> s1(left);
-        TConstArrayRef<T> s2(right);
+    size_t InlineDiff(std::vector<TChunk<T>>& chunks, const std::span<const T>& left, const std::span<const T>& right) {
+        std::span<const T> s1(left);
+        std::span<const T> s2(right);
 
         bool swapped = false;
         if (s1.size() < s2.size()) {
@@ -46,40 +47,40 @@ namespace NDiff {
         // Start points of current common and diff parts
         const T* c1 = nullptr;
         const T* c2 = nullptr;
-        const T* d1 = s1.begin();
-        const T* d2 = s2.begin();
+        const T* d1 = s1.data();
+        const T* d2 = s2.data();
 
         // End points of current common parts
-        const T* e1 = s1.begin();
-        const T* e2 = s2.begin();
+        const T* e1 = s1.data();
+        const T* e2 = s2.data();
 
         size_t dist = s1.size() - lcs.size();
 
         const size_t n = ctx.ResultBuffer.size();
-        for (size_t i = 0; i <= n && (e1 != s1.end() || e2 != s2.end());) {
+        for (size_t i = 0; i <= n && (e1 != s1.data() + s1.size() || e2 != s2.data() + s2.size());) {
             if (i < n) {
                 // Common character exists
                 // LCS is marked against positions in s2
                 // Save the beginning of common part in s2
-                c2 = s2.begin() + ctx.ResultBuffer[i];
+                c2 = s2.data() + ctx.ResultBuffer[i];
                 // Find the beginning of common part in s1
-                c1 = Find(e1, s1.end(), *c2);
+                c1 = Find(e1, s1.data() + s1.size(), *c2);
                 // Follow common substring
                 for (e1 = c1, e2 = c2; i < n && *e1 == *e2; ++e1, ++e2) {
                     ++i;
                 }
             } else {
                 // No common character, common part is empty
-                c1 = s1.end();
-                c2 = s2.end();
-                e1 = s1.end();
-                e2 = s2.end();
+                c1 = s1.data() + s1.size();
+                c2 = s2.data() + s2.size();
+                e1 = s1.data() + s1.size();
+                e2 = s2.data() + s2.size();
             }
 
-            TChunk<T> chunk(TConstArrayRef<T>(d1, c1), TConstArrayRef<T>(d2, c2), TConstArrayRef<T>(c1, e1));
+            TChunk<T> chunk(std::span<const T>(d1, c1), std::span<const T>(d2, c2), std::span<const T>(c1, e1));
             if (swapped) {
                 DoSwap(chunk.Left, chunk.Right);
-                chunk.Common = TConstArrayRef<T>(c2, e2);
+                chunk.Common = std::span<const T>(c2, e2);
             }
             chunks.push_back(chunk);
 

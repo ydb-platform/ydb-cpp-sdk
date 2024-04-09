@@ -52,7 +52,7 @@ namespace NDetails {
         Allocator_.FreeStack(Stack_);
     }
 
-    TArrayRef<char> TStackHolder::Get() noexcept {
+    std::span<char> TStackHolder::Get() noexcept {
         return Allocator_.GetStackWorkspace(Stack_.GetAlignedMemory(), Stack_.GetSize());
     }
 

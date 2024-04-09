@@ -1,7 +1,7 @@
 #pragma once
 
 #include <util/system/defaults.h>
-#include <util/generic/array_ref.h>
+#include <span>
 
 /*
  * murmur2 from http://murmurhash.googlepages.com/
@@ -46,7 +46,7 @@ struct TMurmurHash {
     }
 
     template <typename ElementType>
-    TOut operator()(const TArrayRef<ElementType>& data) const noexcept {
+    TOut operator()(const std::span<ElementType>& data) const noexcept {
         return operator()(data.data(), data.size() * sizeof(ElementType));
     }
 };
