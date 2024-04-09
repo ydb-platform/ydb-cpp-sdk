@@ -5,7 +5,7 @@
 #include "compiler.h"
 #include "sanitizers.h"
 
-#include <util/generic/array_ref.h>
+#include <span>
 #include <util/generic/utility.h>
 #include <util/generic/yexception.h>
 
@@ -60,7 +60,7 @@ struct ITrampoLine {
 
 struct TContClosure {
     ITrampoLine* TrampoLine;
-    TArrayRef<char> Stack;
+    std::span<char> Stack;
     const char* ContName = nullptr;
 };
 

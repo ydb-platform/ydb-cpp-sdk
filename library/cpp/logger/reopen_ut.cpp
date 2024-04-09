@@ -3,7 +3,6 @@
 
 #include <exception>
 #include <string>
-#include <util/generic/array_ref.h>
 
 #include <library/cpp/testing/unittest/registar.h>
 #include <library/cpp/testing/unittest/tests_data.h>

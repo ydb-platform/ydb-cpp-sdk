@@ -9,5 +9,4 @@
 add_subdirectory(disjoint_interval_tree)
 add_subdirectory(intrusive_rb_tree)
 add_subdirectory(paged_vector)
-add_subdirectory(stack_array)
 add_subdirectory(stack_vector)

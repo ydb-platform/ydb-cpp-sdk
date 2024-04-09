@@ -1,7 +1,9 @@
 #pragma once
 
 #include <util/generic/algorithm.h>
-#include <util/generic/array_ref.h>
+#include <util/stream/input.h>
+#include <util/generic/yexception.h>
+#include <span>
 #include <array>
 #include <functional>
 
@@ -20,7 +22,7 @@ namespace NEnumSerializationRuntime {
     };
 
     template <typename TEnumRepresentationType>
-    constexpr ESortOrder GetKeyFieldSortOrder(const TArrayRef<const TEnumStringPair<TEnumRepresentationType>> initializer) {
+    constexpr ESortOrder GetKeyFieldSortOrder(const std::span<const TEnumStringPair<TEnumRepresentationType>> initializer) {
         if (initializer.empty()) {
             return ESortOrder::DirectMapping;
         }
@@ -51,7 +53,7 @@ namespace NEnumSerializationRuntime {
     }
 
     template <typename TEnumRepresentationType>
-    constexpr ESortOrder GetNameFieldSortOrder(const TArrayRef<const TEnumStringPair<TEnumRepresentationType>> initializer) {
+    constexpr ESortOrder GetNameFieldSortOrder(const std::span<const TEnumStringPair<TEnumRepresentationType>> initializer) {
         if (initializer.empty()) {
             return ESortOrder::DirectMapping;
         }

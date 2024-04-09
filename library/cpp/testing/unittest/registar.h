@@ -23,6 +23,7 @@
 #include <util/system/rusage.h>
 
 #include <cmath>
+#include <span>
 #include <cstdio>
 #include <format>
 #include <functional>

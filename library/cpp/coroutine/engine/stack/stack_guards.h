@@ -2,8 +2,9 @@
 
 #include "stack_common.h"
 
-#include <util/generic/array_ref.h>
+#include <util/generic/yexception.h>
 #include <string_view>
+#include <span>
 #include <util/system/protect.h>
 
 
@@ -25,7 +26,7 @@ namespace NCoro::NStack {
         static constexpr size_t GetPageAlignedSize() { return AlignedSize_; }
 
         //! Get stack memory between guard sections
-        static TArrayRef<char> GetWorkspace(void* stack, size_t size) noexcept {
+        static std::span<char> GetWorkspace(void* stack, size_t size) noexcept {
             Y_ASSERT( !((size_t)stack & PageSizeMask) );
             Y_ASSERT( !(size & PageSizeMask) );
             Y_ASSERT(size > Canary.size());
@@ -85,7 +86,7 @@ namespace NCoro::NStack {
         //! Size of page-aligned guard section in bytes
         static constexpr size_t GetPageAlignedSize() { return PageSize; }
 
-        static TArrayRef<char> GetWorkspace(void* stack, size_t size) noexcept {
+        static std::span<char> GetWorkspace(void* stack, size_t size) noexcept {
             Y_ASSERT( !((size_t)stack & PageSizeMask) );
             Y_ASSERT( !(size & PageSizeMask) );
             Y_ASSERT(size > PageSize);

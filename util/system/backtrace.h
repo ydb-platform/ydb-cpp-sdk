@@ -2,6 +2,7 @@
 
 #include <util/generic/fwd.h>
 #include <util/system/defaults.h>
+#include <span>
 
 class IOutputStream;
 
@@ -23,7 +24,7 @@ using TFormatBackTraceFn = void (*)(IOutputStream*, void* const* backtrace, size
 TFormatBackTraceFn SetFormatBackTraceFn(TFormatBackTraceFn f);
 TFormatBackTraceFn GetFormatBackTraceFn();
 
-using TBackTraceView = TArrayRef<void* const>;
+using TBackTraceView = std::span<void* const>;
 
 class TBackTrace {
 private:

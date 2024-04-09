@@ -55,7 +55,7 @@ extern "C" int __mysetjmp(__myjmp_buf env) __attribute__((__returns_twice__));
 namespace {
     class TStackType {
     public:
-        inline TStackType(TArrayRef<char> range) noexcept
+        inline TStackType(std::span<char> range) noexcept
     #if defined(STACK_GROW_DOWN)
             : Data_(range.data() + range.size())
     #else
