@@ -5,7 +5,6 @@
 #include <library/cpp/testing/common/probe.h>
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/hash_set.h>
 #include <util/generic/is_in.h>
 #include <util/system/thread.h>
 
@@ -741,7 +740,7 @@ void TPointerTest::TestComparison() {
 
 template <class T, class TRefCountedPtr>
 void TPointerTest::TestRefCountedPtrsInHashSetImpl() {
-    THashSet<TRefCountedPtr> hashSet;
+    std::unordered_set<TRefCountedPtr> hashSet;
     TRefCountedPtr p1(new T());
     UNIT_ASSERT(!IsIn(hashSet, p1));
     UNIT_ASSERT(hashSet.insert(p1).second);

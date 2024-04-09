@@ -2,7 +2,7 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/hash_set.h>
+#include <unordered_set>
 
 Y_UNIT_TEST_SUITE(TEndpointTest) {
     Y_UNIT_TEST(TestSimple) {
@@ -63,7 +63,7 @@ Y_UNIT_TEST_SUITE(TEndpointTest) {
 
         ep3_.SetPort(54321);
 
-        THashSet<TEndpoint> he;
+        std::unordered_set<TEndpoint> he;
 
         he.insert(ep0);
         he.insert(ep1);

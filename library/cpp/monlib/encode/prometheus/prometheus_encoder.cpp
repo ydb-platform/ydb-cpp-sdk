@@ -7,7 +7,7 @@
 #include <library/cpp/monlib/metrics/metric_value.h>
 
 #include <util/string/cast.h>
-#include <util/generic/hash_set.h>
+#include <unordered_set>
 
 
 namespace NMonitoring {
@@ -191,7 +191,7 @@ namespace NMonitoring {
 
         private:
             IOutputStream* Out_;
-            THashSet<std::string> WrittenTypes_;
+            std::unordered_set<std::string> WrittenTypes_;
             char TmpBuf_[512]; // used to convert doubles to strings
         };
 

@@ -970,7 +970,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
 
     }
 
-    inline std::string ToString(const THashSet<std::string>& hs) {
+    inline std::string ToString(const std::unordered_set<std::string>& hs) {
         std::string res = "";
         for (auto s : hs) {
             if (res) {
@@ -998,7 +998,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         UNIT_ASSERT(srv.Start());
         UNIT_ASSERT(server.Lock.try_lock());
 
-        THashSet<std::string> results;
+        std::unordered_set<std::string> results;
         std::mutex resultLock;
         auto func = [port, &resultLock, &results]() {
             try {
@@ -1016,6 +1016,6 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         server.Lock.unlock();
         t1->Join();
         t2->Join();
-        UNIT_ASSERT_EQUAL_C(results, (THashSet<std::string>({"Zoooo", "TTL Exceed"})), "Results is {" + ToString(results) + "}");
+        UNIT_ASSERT_EQUAL_C(results, (std::unordered_set<std::string>({"Zoooo", "TTL Exceed"})), "Results is {" + ToString(results) + "}");
     }
 }
