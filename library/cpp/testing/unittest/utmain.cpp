@@ -15,7 +15,6 @@
 #include <util/datetime/base.h>
 
 #include <util/generic/hash.h>
-#include <util/generic/hash_set.h>
 #include <util/generic/scope.h>
 #include <util/generic/yexception.h>
 
@@ -593,10 +592,10 @@ private:
     bool PrintAfterSuite_;
     bool PrintTimes_;
     bool PrintSummary_;
-    THashSet<std::string> DisabledSuites_;
-    THashSet<std::string> EnabledSuites_;
-    THashSet<std::string> DisabledTests_;
-    THashSet<std::string> EnabledTests_;
+    std::unordered_set<std::string> DisabledSuites_;
+    std::unordered_set<std::string> EnabledSuites_;
+    std::unordered_set<std::string> DisabledTests_;
+    std::unordered_set<std::string> EnabledTests_;
     TInstant PrevTime_;
     bool ShowFails;
     std::vector<std::string> Fails;

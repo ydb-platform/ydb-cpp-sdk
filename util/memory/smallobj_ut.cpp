@@ -2,7 +2,6 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/hash_set.h>
 
 class TSmallObjAllocTest: public TTestBase {
     struct TClass: public TObjectFromPool<TClass> {
@@ -61,7 +60,7 @@ private:
 
     inline void TestAllocate() {
         TClass::TPool pool(TDefaultAllocator::Instance());
-        THashSet<TClass*> alloced;
+        std::unordered_set<TClass*> alloced;
 
         for (size_t i = 0; i < 10000; ++i) {
             TClass* c = new (&pool) TClass;

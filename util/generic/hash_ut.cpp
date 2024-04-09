@@ -1,7 +1,6 @@
 #include "hash.h"
 #include "hash_multi_map.h"
 #include "vector.h"
-#include "hash_set.h"
 
 #include <library/cpp/testing/common/probe.h>
 #include <library/cpp/testing/unittest/registar.h>
