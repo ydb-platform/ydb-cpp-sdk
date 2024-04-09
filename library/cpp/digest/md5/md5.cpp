@@ -27,12 +27,12 @@ namespace {
         MD5* M_;
     };
 
-    inline TArrayRef<const ui8> MakeUnsignedArrayRef(const void* data, const size_t size) {
-        return MakeArrayRef(static_cast<const ui8*>(data), size);
+    inline std::span<const ui8> MakeUnsignedSpan(const void* data, const size_t size) {
+        return std::span(static_cast<const ui8*>(data), size);
     }
 
-    inline TArrayRef<const ui8> MakeUnsignedArrayRef(const TArrayRef<const char>& data) {
-        return MakeUnsignedArrayRef(data.data(), data.size());
+    inline std::span<const ui8> MakeUnsignedSpan(const std::span<const char>& data) {
+        return MakeUnsignedSpan(data.data(), data.size());
     }
 }
 
@@ -57,15 +57,15 @@ std::string MD5::File(const std::string& filename) {
     return buf;
 }
 
-char* MD5::Data(const TArrayRef<const ui8>& data, char* buf) {
+char* MD5::Data(const std::span<const ui8>& data, char* buf) {
     return MD5().Update(data).End(buf);
 }
 
 char* MD5::Data(const void* data, size_t len, char* buf) {
-    return Data(MakeUnsignedArrayRef(data, len), buf);
+    return Data(MakeUnsignedSpan(data, len), buf);
 }
 
-std::string MD5::Data(const TArrayRef<const ui8>& data) {
+std::string MD5::Data(const std::span<const ui8>& data) {
     std::string buf;
     buf.resize(MD5_HEX_DIGEST_LENGTH);
     Data(data, buf.data());
@@ -73,7 +73,7 @@ std::string MD5::Data(const TArrayRef<const ui8>& data) {
 }
 
 std::string MD5::Data(std::string_view data) {
-    return Data(MakeUnsignedArrayRef(data));
+    return Data(MakeUnsignedSpan(data));
 }
 
 char* MD5::Stream(IInputStream* in, char* buf) {
@@ -111,7 +111,7 @@ void MD5::Init() {
  * context.
  */
 
-void MD5::UpdatePart(TArrayRef<const ui8> data) {
+void MD5::UpdatePart(std::span<const ui8> data) {
     /* Count input bytes */
     StreamSize += data.size();
     if (BufferSize > 0) {
@@ -120,7 +120,7 @@ void MD5::UpdatePart(TArrayRef<const ui8> data) {
         const ui8 partLen = data.size() >= freeBufferSize ? freeBufferSize : data.size();
         memcpy(&Buffer[BufferSize], data.data(), partLen);
         BufferSize += partLen;
-        data = data.Slice(partLen);
+        data = data.subspan(partLen);
         if (BufferSize == MD5_BLOCK_LENGTH) {
             /* Buffer is full and ready for hashing */
             md5_compress(State, Buffer);
@@ -130,7 +130,7 @@ void MD5::UpdatePart(TArrayRef<const ui8> data) {
     /* Processing input by chanks */
     while (data.size() >= MD5_BLOCK_LENGTH) {
         md5_compress(State, data.data());
-        data = data.Slice(MD5_BLOCK_LENGTH);
+        data = data.subspan(MD5_BLOCK_LENGTH);
     }
     /* Save remaining input in buffer */
     memcpy(Buffer, data.data(), data.size());
@@ -213,18 +213,18 @@ ui64 MD5::EndHalfMix() {
 }
 
 std::string MD5::Calc(std::string_view data) {
-    return Calc(MakeUnsignedArrayRef(data));
+    return Calc(MakeUnsignedSpan(data));
 }
 
-std::string MD5::Calc(const TArrayRef<const ui8>& data) {
+std::string MD5::Calc(const std::span<const ui8>& data) {
     return Data(data);
 }
 
 std::string MD5::CalcRaw(std::string_view data) {
-    return CalcRaw(MakeUnsignedArrayRef(data));
+    return CalcRaw(MakeUnsignedSpan(data));
 }
 
-std::string MD5::CalcRaw(const TArrayRef<const ui8>& data) {
+std::string MD5::CalcRaw(const std::span<const ui8>& data) {
     std::string result;
     result.resize(16);
     MD5().Update(data).Final(reinterpret_cast<ui8*>(result.data()));
@@ -232,22 +232,22 @@ std::string MD5::CalcRaw(const TArrayRef<const ui8>& data) {
 }
 
 ui64 MD5::CalcHalfMix(const char* data, size_t len) {
-    return CalcHalfMix(MakeUnsignedArrayRef(data, len));
+    return CalcHalfMix(MakeUnsignedSpan(data, len));
 }
 
 ui64 MD5::CalcHalfMix(std::string_view data) {
-    return CalcHalfMix(MakeUnsignedArrayRef(data));
+    return CalcHalfMix(MakeUnsignedSpan(data));
 }
 
-ui64 MD5::CalcHalfMix(const TArrayRef<const ui8>& data) {
+ui64 MD5::CalcHalfMix(const std::span<const ui8>& data) {
     return MD5().Update(data).EndHalfMix();
 }
 
 bool MD5::IsMD5(std::string_view data) {
-    return IsMD5(MakeUnsignedArrayRef(data));
+    return IsMD5(MakeUnsignedSpan(data));
 }
 
-bool MD5::IsMD5(const TArrayRef<const ui8>& data) {
+bool MD5::IsMD5(const std::span<const ui8>& data) {
     if (data.size() != 32) {
         return false;
     }

@@ -87,15 +87,15 @@ struct TDiffColorizer {
         return ToString(Colors.YellowColor()) += str;
     }
 
-    std::string Common(TArrayRef<const char> str) const {
+    std::string Common(std::span<const char> str) const {
         return ToString(Colors.OldColor()) + std::string(str.begin(), str.end());
     }
 
-    std::string Left(TArrayRef<const char> str) const {
+    std::string Left(std::span<const char> str) const {
         return ToString(GetLeftColor()) + std::string(str.begin(), str.end());
     }
 
-    std::string Right(TArrayRef<const char> str) const {
+    std::string Right(std::span<const char> str) const {
         return ToString(GetRightColor()) + std::string(str.begin(), str.end());
     }
 
@@ -120,17 +120,17 @@ struct TTraceDiffFormatter {
         return ToString(str);
     }
 
-    std::string Common(TArrayRef<const char> str) const {
+    std::string Common(std::span<const char> str) const {
         return std::string(str.begin(), str.end());
     }
 
-    std::string Left(TArrayRef<const char> str) const {
+    std::string Left(std::span<const char> str) const {
         return NUnitTest::GetFormatTag("good") +
                std::string(str.begin(), str.end()) +
                NUnitTest::GetResetTag();
     }
 
-    std::string Right(TArrayRef<const char> str) const {
+    std::string Right(std::span<const char> str) const {
         return NUnitTest::GetFormatTag("bad") +
                std::string(str.begin(), str.end()) +
                NUnitTest::GetResetTag();

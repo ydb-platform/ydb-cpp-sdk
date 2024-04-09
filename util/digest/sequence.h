@@ -2,7 +2,8 @@
 
 #include "numeric.h"
 #include <util/generic/hash.h>
-#include <util/generic/array_ref.h>
+
+#include <span>
 
 template <typename ElementHash = void>
 class TRangeHash {
@@ -42,7 +43,7 @@ public:
     }
 
     template <typename ElementType>
-    auto operator()(const TArrayRef<ElementType>& data) const {
+    auto operator()(const std::span<ElementType>& data) const {
         return TBase<ElementType>()(data);
     }
 };

@@ -50,11 +50,11 @@ void MadviseSequentialAccess(const void* begin, size_t size) {
 #endif
 }
 
-void MadviseSequentialAccess(TArrayRef<const char> data) {
+void MadviseSequentialAccess(std::span<const char> data) {
     MadviseSequentialAccess(data.data(), data.size());
 }
 
-void MadviseSequentialAccess(TArrayRef<const ui8> data) {
+void MadviseSequentialAccess(std::span<const ui8> data) {
     MadviseSequentialAccess(data.data(), data.size());
 }
 
@@ -64,11 +64,11 @@ void MadviseRandomAccess(const void* begin, size_t size) {
 #endif
 }
 
-void MadviseRandomAccess(TArrayRef<const char> data) {
+void MadviseRandomAccess(std::span<const char> data) {
     MadviseRandomAccess(data.data(), data.size());
 }
 
-void MadviseRandomAccess(TArrayRef<const ui8> data) {
+void MadviseRandomAccess(std::span<const ui8> data) {
     MadviseRandomAccess(data.data(), data.size());
 }
 
@@ -82,11 +82,11 @@ void MadviseEvict(const void* begin, size_t size) {
 #endif
 }
 
-void MadviseEvict(TArrayRef<const char> data) {
+void MadviseEvict(std::span<const char> data) {
     MadviseEvict(data.data(), data.size());
 }
 
-void MadviseEvict(TArrayRef<const ui8> data) {
+void MadviseEvict(std::span<const ui8> data) {
     MadviseEvict(data.data(), data.size());
 }
 
@@ -101,11 +101,11 @@ void MadviseExcludeFromCoreDump(const void* begin, size_t size) {
 #endif
 }
 
-void MadviseExcludeFromCoreDump(TArrayRef<const char> data) {
+void MadviseExcludeFromCoreDump(std::span<const char> data) {
     MadviseExcludeFromCoreDump(data.data(), data.size());
 }
 
-void MadviseExcludeFromCoreDump(TArrayRef<const ui8> data) {
+void MadviseExcludeFromCoreDump(std::span<const ui8> data) {
     MadviseExcludeFromCoreDump(data.data(), data.size());
 }
 
@@ -118,10 +118,10 @@ void MadviseIncludeIntoCoreDump(const void* begin, size_t size) {
 #endif
 }
 
-void MadviseIncludeIntoCoreDump(TArrayRef<const char> data) {
+void MadviseIncludeIntoCoreDump(std::span<const char> data) {
     MadviseIncludeIntoCoreDump(data.data(), data.size());
 }
 
-void MadviseIncludeIntoCoreDump(TArrayRef<const ui8> data) {
+void MadviseIncludeIntoCoreDump(std::span<const ui8> data) {
     MadviseIncludeIntoCoreDump(data.data(), data.size());
 }

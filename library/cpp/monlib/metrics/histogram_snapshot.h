@@ -1,11 +1,11 @@
 #pragma once
 
-#include <util/generic/array_ref.h>
 #include <util/generic/ptr.h>
 
 #include <util/generic/yexception.h>
 #include <util/generic/ylimits.h>
 
+#include <span>
 #include <cmath>
 #include <limits>
 #include <vector>
@@ -204,7 +204,7 @@ namespace NMonitoring {
     static_assert(alignof(TExplicitHistogramSnapshot) == alignof(TBucket),
                   "mismatched alingments of THistogramSnapshot and TBucket");
 
-    IHistogramSnapshotPtr ExplicitHistogramSnapshot(TConstArrayRef<TBucketBound> bounds, TConstArrayRef<TBucketValue> values, bool shrinkBuckets = false);
+    IHistogramSnapshotPtr ExplicitHistogramSnapshot(std::span<const TBucketBound> bounds, std::span<const TBucketValue> values, bool shrinkBuckets = false);
 
 } // namespace NMonitoring
 

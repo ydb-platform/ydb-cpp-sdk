@@ -4,7 +4,7 @@
 #include "ordered_pairs.h"
 #include "serialized_enum.h"
 
-#include <util/generic/array_ref.h>
+#include <span>
 
 #include <utility>
 
@@ -18,9 +18,9 @@ namespace NEnumSerializationRuntime {
 
         /// Refers initialization data stored in constexpr-friendly format
         struct TInitializationData {
-            const TArrayRef<const TEnumStringPair> NamesInitializer;
-            const TArrayRef<const TEnumStringPair> ValuesInitializer;
-            const TArrayRef<const std::string_view> CppNamesInitializer;
+            const std::span<const TEnumStringPair> NamesInitializer;
+            const std::span<const TEnumStringPair> ValuesInitializer;
+            const std::span<const std::string_view> CppNamesInitializer;
             const std::string_view CppNamesPrefix;
             const std::string_view ClassName;
         };

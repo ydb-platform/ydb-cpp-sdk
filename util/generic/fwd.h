@@ -112,9 +112,3 @@ template <typename T>
 using TMallocPtr = TAutoPtr<T, TFree>;
 
 struct TGUID;
-
-template <class T>
-class TArrayRef;
-
-template <class T>
-using TConstArrayRef = TArrayRef<const T>;
