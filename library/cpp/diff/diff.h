@@ -10,11 +10,9 @@
 #include <util/stream/output.h>
 #include <util/string/split.h>
 
-
 namespace NDiff {
     template <typename T>
     struct TChunk {
-
         std::span<const T> Left;
         std::span<const T> Right;
         std::span<const T> Common;
@@ -64,7 +62,7 @@ namespace NDiff {
                 // Common character exists
                 // LCS is marked against positions in s2
                 // Save the beginning of common part in s2
-                c2 = s2.data() + ctx.ResultBuffer[i]; 
+                c2 = s2.data() + ctx.ResultBuffer[i];
                 // Find the beginning of common part in s1
                 c1 = Find(e1, s1.data() + s1.size(), *c2);
                 // Follow common substring
