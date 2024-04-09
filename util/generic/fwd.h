@@ -45,9 +45,6 @@ class THashMap;
 template <class Key, class T, class HashFcn = THash<Key>, class EqualKey = TEqualTo<Key>, class Alloc = std::allocator<Key>>
 class THashMultiMap;
 
-template <class T, class A = std::allocator<T>>
-class TList;
-
 template <class K, class L = TLess<K>, class A = std::allocator<K>>
 class TSet;
 
