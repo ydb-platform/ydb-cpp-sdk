@@ -26,6 +26,8 @@
 #endif
 
 #include <string_view>
+#include <fstream>
+#include <iostream>
 
 namespace NUnitTest {
 
