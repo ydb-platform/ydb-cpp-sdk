@@ -18,7 +18,7 @@
 
 #include <util/string/strip.h>
 
-#include <util/generic/hash_set.h>
+#include <unordered_set>
 
 #define HEADERCMP(header, str) \
     case sizeof(str) - 1:      \
@@ -129,7 +129,7 @@ namespace {
 }
 
 class THttpInput::TImpl {
-    typedef THashSet<std::string> TAcceptCodings;
+    typedef std::unordered_set<std::string> TAcceptCodings;
 
 public:
     inline TImpl(IInputStream* slave)

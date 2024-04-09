@@ -50,7 +50,7 @@ namespace NLastGetopt {
         std::string_view CurrentValue_; // the value of the last met argument (corresponding to CurrentOpt_)
 
     private:
-        typedef THashSet<const TOpt*> TdOptSet;
+        typedef std::unordered_set<const TOpt*> TdOptSet;
         TdOptSet OptsSeen_; //the set of options that have been met during parsing
 
         std::list<const TOpt*> OptsDefault_;

@@ -6,6 +6,7 @@
 
 #include <util/system/defaults.h>
 #include <util/system/byteorder.h>
+#include <unordered_set>
 
 #if defined(_unix_)
     #include <netdb.h>
@@ -41,7 +42,6 @@
 #include <util/system/error.h>
 #include <util/memory/tempbuf.h>
 #include <util/generic/singleton.h>
-#include <util/generic/hash_set.h>
 
 #include <stddef.h>
 #include <sys/uio.h>
@@ -947,7 +947,7 @@ void TSocketOutput::DoWriteV(const TPart* parts, size_t count) {
 namespace {
     //https://bugzilla.mozilla.org/attachment.cgi?id=503263&action=diff
 
-    struct TLocalNames: public THashSet<std::string_view> {
+    struct TLocalNames: public std::unordered_set<std::string_view> {
         inline TLocalNames() {
             insert("localhost");
             insert("localhost.localdomain");

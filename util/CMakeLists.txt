@@ -68,7 +68,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/generic/hash_multi_map.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/hash_table.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/hash_primes.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/hash_set.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/hide_ptr.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/intrlist.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/is_in.cpp
