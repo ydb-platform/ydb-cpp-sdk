@@ -47,7 +47,7 @@ namespace NYdb {
                     Buffer.push_back('n');
                 } else if (c < '\x20' || c > '\x7E') {
                     SwitchToNonAscii(str);
-                    std::string tmp = std::format("\\u%04X", c);
+                    std::string tmp = std::format("\\u{:04X}", c);
                     for (unsigned char c : tmp) {
                         Buffer.push_back(c);
                     }
@@ -890,6 +890,12 @@ TValue JsonToYdbValue(const NJson::TJsonValue& jsonValue, const TType& type, EBi
     converter.Convert();
 
     return builder.Build();
+}
+
+std::string encode(std::string_view str) {
+    TUtf8Transcoder coder;
+    std::string res{coder.Encode(str)};
+    return res;
 }
 
 } // namespace NYdb

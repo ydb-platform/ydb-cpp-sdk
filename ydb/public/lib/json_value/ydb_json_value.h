@@ -39,4 +39,6 @@ std::string FormatResultSetJson(const TResultSet& result, EBinaryStringEncoding 
 TValue JsonToYdbValue(const std::string& jsonString, const TType& type, EBinaryStringEncoding encoding);
 TValue JsonToYdbValue(const NJson::TJsonValue& jsonValue, const TType& type, EBinaryStringEncoding encoding);
 
+std::string encode(std::string_view str);
+
 } // namespace NYdb

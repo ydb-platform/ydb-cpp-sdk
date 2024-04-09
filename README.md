@@ -125,6 +125,6 @@ ninja
 ## Test
 
 ```bash
-cd ../build/tests
+cd build
 ctest -j32 --timeout 1200 --output-on-failure
 ```
