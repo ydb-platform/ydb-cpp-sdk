@@ -11,7 +11,6 @@
 #include <util/system/unaligned_mem.h>
 #include <util/generic/hash.h>
 #include <util/generic/cast.h>
-#include <util/generic/deque.h>
 #include <util/generic/buffer.h>
 #include <util/generic/array_ref.h>
 #include <util/generic/singleton.h>

@@ -2,7 +2,6 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/deque.h>
 #include <util/generic/typelist.h>
 #include <util/generic/vector.h>
 

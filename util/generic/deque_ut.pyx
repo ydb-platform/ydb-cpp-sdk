@@ -1,4 +1,4 @@
-from libcpp.deque cimport deque
+/*from libcpp.deque cimport deque
 from util.generic.deque cimport TDeque
 
 import pytest
@@ -63,4 +63,4 @@ class TestDeque(unittest.TestCase):
         self.assertTrue(tmp1 <= tmp3)
 
         self.assertTrue(tmp3 > tmp1)
-        self.assertTrue(tmp3 >= tmp1)
+        self.assertTrue(tmp3 >= tmp1)*/

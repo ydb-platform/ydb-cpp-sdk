@@ -3,7 +3,6 @@
 #include "stack.h"
 
 #include <util/datetime/base.h>
-#include <util/generic/deque.h>
 
 
 class TCont;

@@ -2,9 +2,7 @@
 
 #include "stream.h"
 
-#include <util/generic/deque.h>
 #include <util/generic/hash.h>
-
 
 class TCompressionCodecFactory {
 public:

@@ -2,7 +2,6 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/deque.h>
 #include <util/generic/yexception.h>
 
 Y_UNIT_TEST_SUITE(TestContext) {

@@ -1,4 +1,4 @@
-#include "deque.h"
+/*#include "deque.h"
 
 #include <library/cpp/testing/unittest/registar.h>
 
@@ -243,3 +243,4 @@ void TDequeTest::TestErase() {
     dint.erase(dint.end() - 2, dint.end());
     UNIT_ASSERT(*it == 4);
 }
+*/

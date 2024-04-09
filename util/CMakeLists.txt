@@ -57,7 +57,6 @@ target_joined_source(yutil
   ${CMAKE_SOURCE_DIR}/util/generic/bt_exception.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/buffer.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/cast.cpp
-  ${CMAKE_SOURCE_DIR}/util/generic/deque.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/explicit_type.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/fastqueue.cpp
   ${CMAKE_SOURCE_DIR}/util/generic/flags.cpp

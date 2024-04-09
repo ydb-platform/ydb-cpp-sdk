@@ -4,7 +4,6 @@
 
 #include <string>
 #include <string_view>
-#include <util/generic/deque.h>
 
 #include <util/string/cast.h>
 

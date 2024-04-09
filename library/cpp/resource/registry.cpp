@@ -5,7 +5,6 @@
 
 #include <util/system/yassert.h>
 #include <util/generic/hash.h>
-#include <util/generic/deque.h>
 #include <util/generic/singleton.h>
 #include <util/string/escape.h>
 

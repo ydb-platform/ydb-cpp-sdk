@@ -6,7 +6,6 @@
 #include <queue>
 #include <util/generic/ylimits.h>
 #include <util/generic/utility.h>
-#include <util/generic/deque.h>
 
 #include <atomic>
 #include <mutex>

@@ -4,7 +4,6 @@
 
 #include <util/generic/hash.h>
 
-#include <util/generic/deque.h>
 #include <util/generic/utility.h>
 #include <util/generic/yexception.h>
 

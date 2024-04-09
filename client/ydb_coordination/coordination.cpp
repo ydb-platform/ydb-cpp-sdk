@@ -8,7 +8,6 @@
 #include <ydb/public/api/grpc/ydb_coordination_v1.grpc.pb.h>
 #include <client/ydb_common_client/impl/client.h>
 
-#include <util/generic/deque.h>
 #include <util/random/entropy.h>
 
 namespace NYdb {
