@@ -11,17 +11,17 @@ Y_UNIT_TEST_SUITE(OperationIdTest) {
 
     Y_UNIT_TEST(ConvertKindOnly) {
         Ydb::TOperationId proto;
-        proto.SetKind(Ydb::TOperationId::OPERATION_DDL);
+        proto.set_kind(Ydb::TOperationId::OPERATION_DDL);
         auto str = ProtoToString(proto);
         UNIT_ASSERT_EQUAL(str, "ydb://operation/1");
         auto newProto = TOperationId(str);
-        UNIT_ASSERT_EQUAL(newProto.GetKind(), proto.GetKind());
-        UNIT_ASSERT_EQUAL(newProto.DataSize(), 0);
+        UNIT_ASSERT_EQUAL(newProto.GetProto().kind(), proto.kind());
+        UNIT_ASSERT_EQUAL(newProto.GetProto().data_size(), 0);
     }
 
     Y_UNIT_TEST(PreparedQueryIdCompatibleFormatter) {
         Ydb::TOperationId opId;
-        opId.SetKind(Ydb::TOperationId::PREPARED_QUERY_ID);
+        opId.set_kind(Ydb::TOperationId::PREPARED_QUERY_ID);
         AddOptionalValue(opId, "id", PreparedQueryId);
         auto result = ProtoToString(opId);
         UNIT_ASSERT_VALUES_EQUAL(FormatPreparedQueryIdCompat(PreparedQueryId), result);
@@ -90,31 +90,33 @@ Y_UNIT_TEST_SUITE(OperationIdTest) {
 #endif
     Y_UNIT_TEST(ConvertKindAndValues) {
         Ydb::TOperationId proto;
-        proto.SetKind(Ydb::TOperationId::OPERATION_DDL);
+        proto.set_kind(Ydb::TOperationId::OPERATION_DDL);
         {
-            auto data = proto.AddData();
-            data->SetKey("key1");
-            data->SetValue("value1");
+            auto data = proto.add_data();
+            data->set_key("key1");
+            data->set_value("value1");
         }
         {
-            auto data = proto.AddData();
-            data->SetKey("txId");
-            data->SetValue("42");
+            auto data = proto.add_data();
+            data->set_key("txId");
+            data->set_value("42");
         }
         auto str = ProtoToString(proto);
         UNIT_ASSERT_EQUAL(str, "ydb://operation/1?key1=value1&txId=42");
         auto newProto = TOperationId(str);
-        UNIT_ASSERT_EQUAL(newProto.GetKind(), proto.GetKind());
-        UNIT_ASSERT_EQUAL(newProto.DataSize(), 2);
+        UNIT_ASSERT_EQUAL(newProto.GetProto().kind(), proto.kind());
+        std::cerr << newProto.GetProto().data_size() << std::endl;
+        std::cerr << proto.data_size() << std::endl;
+        UNIT_ASSERT_EQUAL(newProto.GetProto().data_size(), 2);
         {
-            auto data = newProto.GetData(0);
-            UNIT_ASSERT_EQUAL(data.GetKey(), "key1");
-            UNIT_ASSERT_EQUAL(data.GetValue(), "value1");
+            auto data = newProto.GetProto().data(0);
+            UNIT_ASSERT_EQUAL(data.key(), "key1");
+            UNIT_ASSERT_EQUAL(data.value(), "value1");
         }
         {
-            auto data = newProto.GetData(1);
-            UNIT_ASSERT_EQUAL(data.GetKey(), "txId");
-            UNIT_ASSERT_EQUAL(data.GetValue(), "42");
+            auto data = newProto.GetProto().data(1);
+            UNIT_ASSERT_EQUAL(data.key(), "txId");
+            UNIT_ASSERT_EQUAL(data.value(), "42");
         }
     }
 }
