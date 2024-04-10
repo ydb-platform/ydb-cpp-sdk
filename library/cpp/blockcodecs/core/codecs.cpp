@@ -11,7 +11,6 @@
 #include <util/system/unaligned_mem.h>
 #include <util/generic/hash.h>
 #include <util/generic/cast.h>
-#include <util/generic/deque.h>
 #include <util/generic/buffer.h>
 #include <util/generic/singleton.h>
 #include <util/generic/algorithm.h>
@@ -58,7 +57,7 @@ namespace {
             Registry[Tmp.back()] = Registry[to];
         }
 
-        TDeque<std::string> Tmp;
+        std::deque<std::string> Tmp;
         TNullCodec Null;
         std::vector<TCodecPtr> Codecs;
         typedef THashMap<std::string_view, ICodec*> TRegistry;

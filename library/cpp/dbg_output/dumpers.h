@@ -108,7 +108,7 @@ struct TDumper<std::array<T, N>>: public TSeqDumper {
 };
 
 template <class T, class A>
-struct TDumper<TDeque<T, A>>: public TSeqDumper {
+struct TDumper<std::deque<T, A>>: public TSeqDumper {
 };
 
 template <class T, class A>

@@ -2,7 +2,6 @@
 
 #include <library/cpp/testing/unittest/registar.h>
 
-#include <util/generic/deque.h>
 #include <util/generic/yexception.h>
 
 Y_UNIT_TEST_SUITE(TestContext) {
@@ -22,7 +21,7 @@ Y_UNIT_TEST_SUITE(TestContext) {
             char Buf[1000000];
         };
 
-        static TDeque<TW> w;
+        static std::deque<TW> w;
 
         auto& tw = w.emplace_back(&f);
 

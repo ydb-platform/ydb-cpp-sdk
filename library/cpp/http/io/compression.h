@@ -2,7 +2,6 @@
 
 #include "stream.h"
 
-#include <util/generic/deque.h>
 #include <util/generic/hash.h>
 
 #include <span>
@@ -46,7 +45,7 @@ private:
         TEncoderConstructor Encoder;
     };
 
-    TDeque<std::string> Strings_;
+    std::deque<std::string> Strings_;
     THashMap<std::string_view, TCodec> Codecs_;
     std::vector<std::string_view> BestCodecs_;
 };
