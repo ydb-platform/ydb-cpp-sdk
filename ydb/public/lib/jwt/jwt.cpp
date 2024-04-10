@@ -1,4 +1,4 @@
-#include <contrib/libs/jwt-cpp/include/jwt-cpp/jwt.h>
+#include <jwt-cpp/jwt.h>
 
 #include "jwt.h"
 
