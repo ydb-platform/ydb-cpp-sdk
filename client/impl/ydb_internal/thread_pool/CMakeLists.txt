@@ -5,7 +5,7 @@ target_link_libraries(impl-ydb_internal-thread_pool PUBLIC
 )
 
 target_sources(impl-ydb_internal-thread_pool PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_internal/thread_pool/pool.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/thread_pool/pool.cpp
 )
 
 

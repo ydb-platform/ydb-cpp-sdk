@@ -7,5 +7,5 @@ target_link_libraries(internal-proxies-ref PUBLIC
 )
 
 target_sources(internal-proxies-ref PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/digest/argonish/internal/proxies/ref/proxy_ref.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/digest/argonish/internal/proxies/ref/proxy_ref.cpp
 )

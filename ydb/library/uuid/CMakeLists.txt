@@ -5,5 +5,5 @@ target_link_libraries(ydb-library-uuid PUBLIC
 )
 
 target_sources(ydb-library-uuid PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/library/uuid/uuid.cpp
+  ${YDB_SDK_SOURCE_DIR}/ydb/library/uuid/uuid.cpp
 )

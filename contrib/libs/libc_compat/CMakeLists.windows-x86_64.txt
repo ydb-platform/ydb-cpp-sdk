@@ -12,15 +12,15 @@ target_compile_options(contrib-libs-libc_compat PRIVATE
   $<IF:$<CXX_COMPILER_ID:MSVC>,,-Wno-everything>
 )
 target_include_directories(contrib-libs-libc_compat PUBLIC
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/include/windows
+  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/include/windows
 )
 target_sources(contrib-libs-libc_compat PRIVATE
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/memrchr.c
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/explicit_bzero.c
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/stpcpy.c
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/strlcat.c
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/strlcpy.c
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/strcasestr.c
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/strsep.c
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/src/windows/sys/uio.c
+  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/memrchr.c
+  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/explicit_bzero.c
+  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/stpcpy.c
+  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/strlcat.c
+  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/strlcpy.c
+  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/strcasestr.c
+  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/strsep.c
+  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/src/windows/sys/uio.c
 )

@@ -15,7 +15,7 @@ target_link_libraries(blockcodecs-codecs-snappy.global PUBLIC
 )
 
 target_sources(blockcodecs-codecs-snappy.global PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/blockcodecs/codecs/snappy/snappy.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/codecs/snappy/snappy.cpp
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)

@@ -16,13 +16,13 @@ target_link_libraries(client-ydb_persqueue_core-impl PUBLIC
 )
 
 target_sources(client-ydb_persqueue_core-impl PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_persqueue_core/impl/read_session_messages.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_persqueue_core/impl/common.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_persqueue_core/impl/write_session.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_persqueue_core/impl/write_session_impl.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_persqueue_core/impl/read_session.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_persqueue_core/impl/persqueue.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_persqueue_core/impl/persqueue_impl.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_persqueue_core/impl/read_session_messages.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_persqueue_core/impl/common.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_persqueue_core/impl/write_session.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_persqueue_core/impl/write_session_impl.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_persqueue_core/impl/read_session.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_persqueue_core/impl/persqueue.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_persqueue_core/impl/persqueue_impl.cpp
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" AND NOT HAVE_CUDA)

@@ -7,7 +7,7 @@ target_link_libraries(bulk_upsert_simple PUBLIC
 )
 
 target_sources(bulk_upsert_simple PRIVATE
-  ${CMAKE_SOURCE_DIR}/examples/bulk_upsert_simple/main.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/bulk_upsert_simple/main.cpp
 )
 
 vcs_info(bulk_upsert_simple)

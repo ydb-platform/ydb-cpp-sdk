@@ -9,7 +9,7 @@ target_link_libraries(library-yql-utils PUBLIC
 )
 
 target_sources(library-yql-utils PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/library/yql/utils/utf8.cpp
+  ${YDB_SDK_SOURCE_DIR}/ydb/library/yql/utils/utf8.cpp
 )
 
 

@@ -7,6 +7,6 @@ target_link_libraries(library-cpp-retry PUBLIC
 )
 
 target_sources(library-cpp-retry PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/retry/retry.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/retry/utils.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/retry/retry.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/retry/utils.cpp
 )

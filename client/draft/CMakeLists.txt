@@ -8,9 +8,9 @@ target_link_libraries(cpp-client-draft PUBLIC
   cpp-client-ydb_value
 )
 target_sources(cpp-client-draft PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/draft/ydb_dynamic_config.cpp
-  ${CMAKE_SOURCE_DIR}/client/draft/ydb_scripting.cpp
-  ${CMAKE_SOURCE_DIR}/client/draft/ydb_long_tx.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/draft/ydb_dynamic_config.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/draft/ydb_scripting.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/draft/ydb_long_tx.cpp
 )
 
 add_library(YDB-CPP-SDK::Draft ALIAS cpp-client-draft)

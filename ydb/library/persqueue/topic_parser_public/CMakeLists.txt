@@ -5,5 +5,5 @@ target_link_libraries(library-persqueue-topic_parser_public PUBLIC
 )
 
 target_sources(library-persqueue-topic_parser_public PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/library/persqueue/topic_parser_public/topic_parser.cpp
+  ${YDB_SDK_SOURCE_DIR}/ydb/library/persqueue/topic_parser_public/topic_parser.cpp
 )

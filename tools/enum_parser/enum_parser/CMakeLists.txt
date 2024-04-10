@@ -7,7 +7,7 @@ target_link_libraries(enum_parser PUBLIC
 )
 
 target_sources(enum_parser PRIVATE
-  ${CMAKE_SOURCE_DIR}/tools/enum_parser/enum_parser/main.cpp
+  ${YDB_SDK_SOURCE_DIR}/tools/enum_parser/enum_parser/main.cpp
 )
 
 vcs_info(enum_parser)

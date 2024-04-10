@@ -11,10 +11,10 @@ target_link_libraries(cpp-http-io PUBLIC
 )
 
 target_sources(cpp-http-io PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/io/chunk.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/io/compression.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/io/headers.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/io/stream.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/io/chunk.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/io/compression.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/io/headers.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/io/stream.cpp
 )
 
 

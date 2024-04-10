@@ -9,7 +9,7 @@ target_link_libraries(client-ydb_types-operation PUBLIC
   )
 
 target_sources(client-ydb_types-operation PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_types/operation/operation.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_types/operation/operation.cpp
 )
 
 

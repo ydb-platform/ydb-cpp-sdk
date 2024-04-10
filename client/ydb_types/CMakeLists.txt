@@ -14,12 +14,12 @@ target_link_libraries(cpp-client-ydb_types PUBLIC
   tools-enum_parser-enum_serialization_runtime
 )
 generate_enum_serilization(cpp-client-ydb_types
-  ${CMAKE_SOURCE_DIR}/client/ydb_types/s3_settings.h
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_types/s3_settings.h
   INCLUDE_HEADERS
   client/ydb_types/s3_settings.h
 )
 generate_enum_serilization(cpp-client-ydb_types
-  ${CMAKE_SOURCE_DIR}/client/ydb_types/status_codes.h
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_types/status_codes.h
   INCLUDE_HEADERS
   client/ydb_types/status_codes.h
 )

@@ -7,8 +7,8 @@ target_link_libraries(ttl PUBLIC
 )
 
 target_sources(ttl PRIVATE
-  ${CMAKE_SOURCE_DIR}/examples/ttl/main.cpp
-  ${CMAKE_SOURCE_DIR}/examples/ttl/ttl.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/ttl/main.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/ttl/ttl.cpp
 )
 
 vcs_info(ttl)

@@ -5,6 +5,6 @@ target_link_libraries(library-cpp-colorizer PUBLIC
 )
 
 target_sources(library-cpp-colorizer PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/colorizer/colors.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/colorizer/output.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/colorizer/colors.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/colorizer/output.cpp
 )

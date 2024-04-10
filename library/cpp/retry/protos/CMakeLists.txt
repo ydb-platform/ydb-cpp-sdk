@@ -6,16 +6,16 @@ target_link_libraries(cpp-retry-protos PUBLIC
 )
 
 target_proto_messages(cpp-retry-protos PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/retry/protos/retry_options.proto
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/retry/protos/retry_options.proto
 )
 
 target_proto_addincls(cpp-retry-protos
   ./
-  ${CMAKE_SOURCE_DIR}
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_SOURCE_DIR}
+  ${YDB_SDK_BINARY_DIR}
 )
 
 target_proto_outs(cpp-retry-protos
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 

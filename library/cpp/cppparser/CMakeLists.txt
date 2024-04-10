@@ -5,7 +5,7 @@ target_link_libraries(library-cpp-cppparser PUBLIC
 )
 
 target_sources(library-cpp-cppparser PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/cppparser/parser.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/cppparser/parser.cpp
 )
 
 

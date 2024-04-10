@@ -6,5 +6,5 @@ target_link_libraries(cpp-threading-poor_man_openmp PUBLIC
 )
 
 target_sources(cpp-threading-poor_man_openmp PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/threading/poor_man_openmp/thread_helper.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/threading/poor_man_openmp/thread_helper.cpp
 )
