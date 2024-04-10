@@ -4,6 +4,7 @@
 
 #include <iosfwd>
 #include <vector>
+#include <deque>
 
 //misc
 class TBuffer;
@@ -36,8 +37,8 @@ template <class TValue, class TCmp>
 class TRbTree;
 
 //containers
-template <class T, class A = std::allocator<T>>
-class TDeque;
+//template <class T, class A = std::allocator<T>>
+//class TDeque;
 
 template <class Key, class T, class HashFcn = THash<Key>, class EqualKey = TEqualTo<Key>, class Alloc = std::allocator<Key>>
 class THashMap;
@@ -51,7 +52,7 @@ class TSet;
 template <class K, class L = TLess<K>, class A = std::allocator<K>>
 class TMultiSet;
 
-template <class T, class S = TDeque<T>>
+template <class T, class S = std::deque<T>>
 class TStack;
 
 template <size_t BitCount, typename TChunkType = ui64>

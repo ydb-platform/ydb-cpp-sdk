@@ -4,7 +4,6 @@
 
 #include <string>
 #include <string_view>
-#include <util/generic/deque.h>
 
 #include <util/string/cast.h>
 
@@ -53,7 +52,7 @@ private:
 
 /// Контейнер для хранения HTTP-заголовков
 class THttpHeaders {
-    using THeaders = TDeque<THttpInputHeader>;
+    using THeaders = std::deque<THttpInputHeader>;
 
 public:
     using TConstIterator = THeaders::const_iterator;

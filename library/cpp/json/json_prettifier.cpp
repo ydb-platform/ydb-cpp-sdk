@@ -1,6 +1,5 @@
 #include "json_prettifier.h"
 
-#include <util/generic/deque.h>
 #include <util/generic/algorithm.h>
 #include <util/memory/pool.h>
 #include <util/stream/str.h>

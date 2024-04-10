@@ -4,7 +4,6 @@
 
 #include <util/generic/hash.h>
 
-#include <util/generic/deque.h>
 #include <util/generic/utility.h>
 #include <util/generic/yexception.h>
 
@@ -35,7 +34,7 @@ namespace NJson {
 
     public:
         typedef THashMap<std::string, TJsonValue> TMapType;
-        typedef TDeque<TJsonValue> TArray;
+        typedef std::deque<TJsonValue> TArray;
 
         TJsonValue() noexcept = default;
         TJsonValue(EJsonValueType type);

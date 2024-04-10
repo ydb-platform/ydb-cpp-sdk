@@ -1,6 +1,5 @@
 #include "stream.h"
 
-#include <util/generic/deque.h>
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>
 
