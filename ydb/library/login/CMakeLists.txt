@@ -5,7 +5,7 @@ add_library(ydb-library-login)
 
 target_link_libraries(ydb-library-login PUBLIC
   yutil
-  contrib-libs-jwt-cpp
+  jwt-cpp::jwt-cpp
   protobuf::libprotobuf
   cpp-digest-argonish
   library-cpp-json
@@ -16,3 +16,4 @@ target_link_libraries(ydb-library-login PUBLIC
 target_sources(ydb-library-login PRIVATE
   ${CMAKE_SOURCE_DIR}/ydb/library/login/login.cpp
 )
+
