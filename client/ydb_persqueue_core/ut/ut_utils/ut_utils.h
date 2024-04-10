@@ -109,7 +109,7 @@ public:
             std::optional<TContinuationToken> continueToken;
             NThreading::TFuture<void> waitEventFuture = writer->WaitEvent();
             THashMap<ui64, NThreading::TPromise<::NPersQueue::TWriteResult>> ackPromiseBySequenceNumber;
-            TDeque<NThreading::TPromise<::NPersQueue::TWriteResult>> ackPromiseQueue;
+            std::deque<NThreading::TPromise<::NPersQueue::TWriteResult>> ackPromiseQueue;
             while (!MustStop) {
                 if (!continueToken) {
                     Log << TLOG_INFO << "Wait for writer event";

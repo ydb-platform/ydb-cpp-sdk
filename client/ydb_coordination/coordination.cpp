@@ -8,7 +8,6 @@
 #include <ydb/public/api/grpc/ydb_coordination_v1.grpc.pb.h>
 #include <client/ydb_common_client/impl/client.h>
 
-#include <util/generic/deque.h>
 #include <util/random/entropy.h>
 
 namespace NYdb {
@@ -309,7 +308,7 @@ private:
         TIntrusivePtr<TSemaphoreOp> LastSentOp;
         TIntrusivePtr<TSemaphoreOp> LastAckedOp;
         THashMap<ui64, TIntrusivePtr<TSemaphoreOp>> WaitingOps;
-        TDeque<TIntrusivePtr<TSemaphoreOp>> OpQueue;
+        std::deque<TIntrusivePtr<TSemaphoreOp>> OpQueue;
         bool Restoring = false;
 
         bool IsEmpty() const {
@@ -874,9 +873,9 @@ private:
         bool notifyExpired = false;
         TPromise<TSessionResult> sessionPromise;
         TResultPromise<void> reconnectPromise;
-        TDeque<TResultPromise<bool>> abortedSemaphoreOps;
-        TDeque<TResultPromise<bool>> failedSemaphoreOps;
-        TDeque<THolder<TSimpleOp>> failedSimpleOps;
+        std::deque<TResultPromise<bool>> abortedSemaphoreOps;
+        std::deque<TResultPromise<bool>> failedSemaphoreOps;
+        std::deque<THolder<TSimpleOp>> failedSimpleOps;
         TResultPromise<void> closePromise;
 
         {
@@ -1010,7 +1009,7 @@ private:
             sessionPromise.SetValue(TSessionResult(status));
         }
 
-        if (abortedSemaphoreOps) {
+        if (!abortedSemaphoreOps.empty()) {
             auto aborted = MakeStatus(EStatus::ABORTED,
                 "Operation superseded by another request, true result has been lost");
             for (auto& promise : abortedSemaphoreOps) {
@@ -1765,7 +1764,7 @@ private:
 
     THashMap<std::string, TSemaphoreState> Semaphores;
     THashMap<ui64, TSemaphoreState*> SemaphoreByReqId;
-    TDeque<THolder<TSimpleOp>> PendingRequests;
+    std::deque<THolder<TSimpleOp>> PendingRequests;
     THashMap<ui64, THolder<TSimpleOp>> SentRequests;
     TResultPromise<void> ReconnectPromise;
 
