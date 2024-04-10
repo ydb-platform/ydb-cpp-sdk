@@ -6,7 +6,7 @@ target_link_libraries(cpp-string_utils-url PUBLIC
 )
 
 target_sources(cpp-string_utils-url PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/string_utils/url/url.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/string_utils/url/url.cpp
 )
 
 

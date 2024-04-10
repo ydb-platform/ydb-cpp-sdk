@@ -13,11 +13,11 @@ target_link_libraries(cpp-client-ydb_import PUBLIC
 )
 
 target_sources(cpp-client-ydb_import PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_import/import.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_import/import.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_import
-  ${CMAKE_SOURCE_DIR}/client/ydb_import/import.h
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_import/import.h
   INCLUDE_HEADERS
   client/ydb_import/import.h
 )

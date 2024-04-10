@@ -12,11 +12,11 @@ target_link_libraries(cpp-client-ydb_export PUBLIC
 )
 
 target_sources(cpp-client-ydb_export PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_export/export.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_export/export.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_export
-  ${CMAKE_SOURCE_DIR}/client/ydb_export/export.h
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_export/export.h
   INCLUDE_HEADERS
   client/ydb_export/export.h
 )

@@ -9,7 +9,7 @@ target_link_libraries(cpp-yt-exception PUBLIC
 )
 
 target_sources(cpp-yt-exception PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/yt/exception/exception.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yt/exception/exception.cpp
 )
 
 

@@ -62,21 +62,20 @@ tar -xvzf libiconv-1.15.tar.gz && cd libiconv-1.15
 make
 sudo make install
 
-wget https://github.com/aklomp/base64/archive/refs/tags/v0.5.2.tar.gz
-tar -xvzf v0.5.2.tar.gz && cd base64-0.5.2
+wget -O base64-0.5.2.tar.gz https://github.com/aklomp/base64/archive/refs/tags/v0.5.2.tar.gz
+tar -xvzf base64-0.5.2.tar.gz && cd base64-0.5.2
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 sudo cmake --build . --config Release --target install
 
-wget https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz
-tar -xvzf v1.1.0.tar.gz
-cd brotli-1.1.0
+wget -O brotli-1.1.0.tar.gz https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz
+tar -xvzf brotli-1.1.0.tar.gz && cd brotli-1.1.0
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 sudo cmake --build . --config Release --target install
 
 wget -O jwt-cpp-0.7.0.tar.gz https://github.com/Thalhammer/jwt-cpp/archive/refs/tags/v0.7.0.tar.gz
-tar -xvzf jwt-cpp-0.7.0 && cd jwt-cpp-0.7.0
+tar -xvzf jwt-cpp-0.7.0.tar.gz jwt-cpp-0.7.0
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 sudo cmake --build . --config Release --target install

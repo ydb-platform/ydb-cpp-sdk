@@ -6,7 +6,7 @@ target_link_libraries(cpp-string_utils-base64 PUBLIC
 )
 
 target_sources(cpp-string_utils-base64 PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/string_utils/base64/base64.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/string_utils/base64/base64.cpp
 )
 
 

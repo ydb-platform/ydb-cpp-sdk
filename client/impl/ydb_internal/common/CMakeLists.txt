@@ -7,8 +7,8 @@ target_link_libraries(impl-ydb_internal-common PUBLIC
 )
 
 target_sources(impl-ydb_internal-common PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_internal/common/parser.cpp
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_internal/common/getenv.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/common/parser.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/common/getenv.cpp
 )
 
 

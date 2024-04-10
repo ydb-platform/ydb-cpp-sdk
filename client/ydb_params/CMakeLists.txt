@@ -8,8 +8,8 @@ target_link_libraries(cpp-client-ydb_params PUBLIC
 )
 
 target_sources(cpp-client-ydb_params PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_params/params.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_params/impl.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_params/params.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_params/impl.cpp
 )
 
 add_library(YDB-CPP-SDK::Params ALIAS cpp-client-ydb_params)

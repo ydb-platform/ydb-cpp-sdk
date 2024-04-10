@@ -14,10 +14,10 @@ target_link_libraries(library-cpp-json PUBLIC
 )
 
 target_sources(library-cpp-json PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/json/json_writer.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/json/json_reader.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/json/json_prettifier.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/json/rapidjson_helpers.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/json/json_writer.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/json/json_reader.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/json/json_prettifier.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/json/rapidjson_helpers.cpp
 )
 
 

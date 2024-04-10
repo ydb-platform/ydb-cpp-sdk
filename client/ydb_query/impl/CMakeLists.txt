@@ -9,8 +9,8 @@ target_link_libraries(client-ydb_query-impl PUBLIC
 )
 
 target_sources(client-ydb_query-impl PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_query/impl/exec_query.cpp
-  ${CMAKE_SOURCE_DIR}/client/ydb_query/impl/client_session.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_query/impl/exec_query.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_query/impl/client_session.cpp
 )
 
 

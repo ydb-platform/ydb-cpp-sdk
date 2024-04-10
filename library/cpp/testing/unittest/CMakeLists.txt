@@ -10,13 +10,13 @@ target_link_libraries(cpp-testing-unittest PUBLIC
   cpp-testing-hook
 )
 target_sources(cpp-testing-unittest PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/testing/unittest/gtest.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/testing/unittest/checks.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/testing/unittest/junit.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/testing/unittest/plugin.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/testing/unittest/registar.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/testing/unittest/tests_data.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/testing/unittest/utmain.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/testing/unittest/gtest.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/testing/unittest/checks.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/testing/unittest/junit.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/testing/unittest/plugin.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/testing/unittest/registar.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/testing/unittest/tests_data.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/testing/unittest/utmain.cpp
 )
 
 # Unit tests

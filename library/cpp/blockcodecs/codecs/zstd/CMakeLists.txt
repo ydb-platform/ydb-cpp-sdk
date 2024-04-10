@@ -15,7 +15,7 @@ target_link_libraries(blockcodecs-codecs-zstd.global PUBLIC
 )
 
 target_sources(blockcodecs-codecs-zstd.global PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/blockcodecs/codecs/zstd/zstd.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/codecs/zstd/zstd.cpp
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)

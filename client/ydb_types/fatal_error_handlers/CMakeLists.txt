@@ -6,7 +6,7 @@ target_link_libraries(client-ydb_types-fatal_error_handlers PUBLIC
 )
 
 target_sources(client-ydb_types-fatal_error_handlers PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_types/fatal_error_handlers/handlers.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_types/fatal_error_handlers/handlers.cpp
 )
 
 

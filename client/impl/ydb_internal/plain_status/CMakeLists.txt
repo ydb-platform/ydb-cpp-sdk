@@ -8,7 +8,7 @@ target_link_libraries(impl-ydb_internal-plain_status PUBLIC
 )
 
 target_sources(impl-ydb_internal-plain_status PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_internal/plain_status/status.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/plain_status/status.cpp
 )
 
 

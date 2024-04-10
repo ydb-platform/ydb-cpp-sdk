@@ -13,8 +13,8 @@ target_link_libraries(impl-ydb_internal-grpc_connections PUBLIC
 )
 
 target_sources(impl-ydb_internal-grpc_connections PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_internal/grpc_connections/actions.cpp
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_internal/grpc_connections/grpc_connections.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/grpc_connections/actions.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/grpc_connections/grpc_connections.cpp
 )
 
 

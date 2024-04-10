@@ -6,5 +6,5 @@ target_link_libraries(library-cpp-lcs PUBLIC
 )
 
 target_sources(library-cpp-lcs PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/lcs/lcs_via_lis.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/lcs/lcs_via_lis.cpp
 )

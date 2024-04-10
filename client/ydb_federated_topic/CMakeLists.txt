@@ -10,7 +10,7 @@ target_link_libraries(cpp-client-ydb_federated_topic PUBLIC
 )
 
 generate_enum_serilization(cpp-client-ydb_federated_topic
-  ${CMAKE_SOURCE_DIR}/client/ydb_federated_topic/federated_topic.h
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_federated_topic/federated_topic.h
   INCLUDE_HEADERS
   client/ydb_federated_topic/federated_topic.h
 )

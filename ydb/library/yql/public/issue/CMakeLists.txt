@@ -15,8 +15,8 @@ target_link_libraries(yql-public-issue PUBLIC
 )
 
 target_sources(yql-public-issue PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/library/yql/public/issue/yql_issue.cpp
-  ${CMAKE_SOURCE_DIR}/ydb/library/yql/public/issue/yql_issue_message.cpp
+  ${YDB_SDK_SOURCE_DIR}/ydb/library/yql/public/issue/yql_issue.cpp
+  ${YDB_SDK_SOURCE_DIR}/ydb/library/yql/public/issue/yql_issue_message.cpp
 )
 
 

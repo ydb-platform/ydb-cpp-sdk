@@ -5,7 +5,7 @@ target_link_libraries(cpp-yt-malloc PUBLIC
 )
 
 target_sources(cpp-yt-malloc PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/yt/malloc/malloc.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yt/malloc/malloc.cpp
 )
 
 if (NOT (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64"))

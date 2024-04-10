@@ -8,15 +8,15 @@ target_link_libraries(cpp-yson-node PUBLIC
 )
 
 target_sources(cpp-yson-node PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/node/node.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/node/node_io.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/node/node_builder.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/node/node_visitor.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/node/serialize.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/node/node.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/node/node_io.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/node/node_builder.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/node/node_visitor.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/node/serialize.cpp
 )
 
 generate_enum_serilization(cpp-yson-node
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/node/node.h
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/node/node.h
   INCLUDE_HEADERS
   library/cpp/yson/node/node.h
 )

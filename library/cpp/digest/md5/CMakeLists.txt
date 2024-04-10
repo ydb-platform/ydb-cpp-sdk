@@ -7,5 +7,5 @@ target_link_libraries(cpp-digest-md5 PUBLIC
 )
 
 target_sources(cpp-digest-md5 PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/digest/md5/md5.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/digest/md5/md5.cpp
 )

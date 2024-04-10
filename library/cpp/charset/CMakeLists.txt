@@ -9,7 +9,7 @@ target_link_libraries(library-cpp-charset PUBLIC
 )
 
 target_sources(library-cpp-charset PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/charset/decodeunknownplane.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/charset/wide.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/charset/iconv.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/charset/decodeunknownplane.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/charset/wide.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/charset/iconv.cpp
 )

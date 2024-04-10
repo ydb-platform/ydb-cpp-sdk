@@ -7,5 +7,5 @@ target_link_libraries(library-grpc-client PUBLIC
 )
 
 target_sources(library-grpc-client PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/library/grpc/client/grpc_client_low.cpp
+  ${YDB_SDK_SOURCE_DIR}/ydb/library/grpc/client/grpc_client_low.cpp
 )

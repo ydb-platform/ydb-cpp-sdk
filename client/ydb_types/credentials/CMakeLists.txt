@@ -11,7 +11,7 @@ target_link_libraries(client-ydb_types-credentials PUBLIC
 )
 
 target_sources(client-ydb_types-credentials PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_types/credentials/credentials.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_types/credentials/credentials.cpp
 )
 
 

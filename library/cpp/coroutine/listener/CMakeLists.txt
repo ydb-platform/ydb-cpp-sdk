@@ -6,5 +6,5 @@ target_link_libraries(cpp-coroutine-listener PUBLIC
 )
 
 target_sources(cpp-coroutine-listener PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/coroutine/listener/listen.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/coroutine/listener/listen.cpp
 )
