@@ -133,7 +133,7 @@ namespace NUri {
         for (int idx = 0; idx < TField::FieldUrlMAX; ++idx) {
             const TSection& section = Sections[idx];
             if (section.IsSet())
-                Cdbg << ' ' << TField::EField(idx) << "=[" << section.Get() << ']';
+                Cdbg << ' ' << ToString(TField::EField(idx)) << "=[" << section.Get() << ']';
         }
         Cdbg << std::endl;
 #endif

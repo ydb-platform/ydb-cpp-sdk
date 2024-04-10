@@ -105,8 +105,6 @@ Y_UNIT_TEST_SUITE(OperationIdTest) {
         UNIT_ASSERT_EQUAL(str, "ydb://operation/1?key1=value1&txId=42");
         auto newProto = TOperationId(str);
         UNIT_ASSERT_EQUAL(newProto.GetProto().kind(), proto.kind());
-        std::cerr << newProto.GetProto().data_size() << std::endl;
-        std::cerr << proto.data_size() << std::endl;
         UNIT_ASSERT_EQUAL(newProto.GetProto().data_size(), 2);
         {
             auto data = newProto.GetProto().data(0);
