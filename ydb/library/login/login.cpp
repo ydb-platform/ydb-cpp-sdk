@@ -1,4 +1,4 @@
-#include <contrib/libs/jwt-cpp/include/jwt-cpp/jwt.h>
+#include <jwt-cpp/jwt.h>
 #include <library/cpp/digest/argonish/argon2.h>
 #include <util/string/builder.h>
 #include <library/cpp/string_utils/base64/base64.h>
@@ -402,7 +402,7 @@ TLoginProvider::TValidateTokenResponse TLoginProvider::ValidateToken(const TVali
             response.ExpiresAt = decoded_token.get_expires_at();
             if (decoded_token.has_payload_claim(GROUPS_CLAIM_NAME)) {
                 const jwt::claim& groups = decoded_token.get_payload_claim(GROUPS_CLAIM_NAME);
-                if (groups.get_type() == jwt::claim::type::array) {
+                if (groups.get_type() == jwt::json::type::array) {
                     const picojson::array& array = groups.as_array();
                     std::vector<std::string> groups;
                     groups.resize(array.size());
@@ -414,7 +414,7 @@ TLoginProvider::TValidateTokenResponse TLoginProvider::ValidateToken(const TVali
             }
             if (decoded_token.has_payload_claim(EXTERNAL_AUTH_CLAIM_NAME)) {
                 const jwt::claim& externalAuthClaim = decoded_token.get_payload_claim(EXTERNAL_AUTH_CLAIM_NAME);
-                if (externalAuthClaim.get_type() == jwt::claim::type::string) {
+                if (externalAuthClaim.get_type() == jwt::json::type::string) {
                     response.ExternalAuth = externalAuthClaim.as_string();
                 }
             } else if (!Sids.empty()) {
@@ -436,7 +436,7 @@ TLoginProvider::TValidateTokenResponse TLoginProvider::ValidateToken(const TVali
                 response.Error = "Key not found";
             }
         }
-    } catch (const jwt::token_verification_exception& e) {
+    } catch (const jwt::error::token_verification_exception& e) {
         response.Error = e.what(); // invalid token signature
     } catch (const std::invalid_argument& e) {
         response.Error = "Token is not in correct format";
