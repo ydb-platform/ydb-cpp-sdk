@@ -10,17 +10,17 @@ target_link_libraries(client-yc_public-logging PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(client-yc_public-logging PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/client/yc_public/logging/log_entry.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/client/yc_public/logging/log_ingestion_service.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/client/yc_public/logging/log_resource.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_public/logging/log_entry.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_public/logging/log_ingestion_service.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_public/logging/log_resource.proto
 )
 target_proto_addincls(client-yc_public-logging
   ./
-  ${CMAKE_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/third_party/api-common-protos
+  ${YDB_SDK_SOURCE_DIR}
+  ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos
 )
 target_proto_outs(client-yc_public-logging
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 target_proto_plugin(client-yc_public-logging
   grpc_cpp

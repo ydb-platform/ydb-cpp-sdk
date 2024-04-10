@@ -7,7 +7,7 @@ target_link_libraries(persqueue_reader_eventloop PUBLIC
 )
 
 target_sources(persqueue_reader_eventloop PRIVATE
-  ${CMAKE_SOURCE_DIR}/examples/topic_reader/eventloop/main.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/topic_reader/eventloop/main.cpp
 )
 
 vcs_info(persqueue_reader_eventloop)

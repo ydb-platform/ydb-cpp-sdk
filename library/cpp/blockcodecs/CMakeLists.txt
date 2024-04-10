@@ -17,6 +17,6 @@ target_link_libraries(library-cpp-blockcodecs PUBLIC
 )
 
 target_sources(library-cpp-blockcodecs PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/blockcodecs/codecs.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/blockcodecs/stream.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/codecs.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/stream.cpp
 )

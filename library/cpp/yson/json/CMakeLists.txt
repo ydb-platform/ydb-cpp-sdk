@@ -6,8 +6,8 @@ target_link_libraries(cpp-yson-json PUBLIC
 )
 
 target_sources(cpp-yson-json PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/json/json_writer.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/json/yson2json_adapter.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/json/json_writer.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/json/yson2json_adapter.cpp
 )
 
 

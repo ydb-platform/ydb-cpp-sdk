@@ -11,7 +11,7 @@ target_link_libraries(impl-ydb_internal-session_pool PUBLIC
 )
 
 target_sources(impl-ydb_internal-session_pool PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_internal/session_pool/session_pool.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/session_pool/session_pool.cpp
 )
 
 

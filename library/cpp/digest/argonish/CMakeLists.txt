@@ -13,5 +13,5 @@ target_link_libraries(cpp-digest-argonish PUBLIC
 )
 
 target_sources(cpp-digest-argonish PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/digest/argonish/factory/factory.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/digest/argonish/factory/factory.cpp
 )

@@ -13,11 +13,11 @@ target_link_libraries(cpp-client-ydb_value PUBLIC
 )
 
 target_sources(cpp-client-ydb_value PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_value/value.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_value/value.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_value
-  ${CMAKE_SOURCE_DIR}/client/ydb_value/value.h
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_value/value.h
   INCLUDE_HEADERS
   client/ydb_value/value.h
 )

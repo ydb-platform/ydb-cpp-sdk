@@ -7,9 +7,9 @@ target_link_libraries(basic_example PUBLIC
 )
 
 target_sources(basic_example PRIVATE
-  ${CMAKE_SOURCE_DIR}/examples/basic_example/main.cpp
-  ${CMAKE_SOURCE_DIR}/examples/basic_example/basic_example_data.cpp
-  ${CMAKE_SOURCE_DIR}/examples/basic_example/basic_example.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/basic_example/main.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/basic_example/basic_example_data.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/basic_example/basic_example.cpp
 )
 
 vcs_info(basic_example)

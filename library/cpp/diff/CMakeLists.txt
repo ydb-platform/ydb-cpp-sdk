@@ -6,5 +6,5 @@ target_link_libraries(library-cpp-diff PUBLIC
 )
 
 target_sources(library-cpp-diff PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/diff/diff.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/diff/diff.cpp
 )

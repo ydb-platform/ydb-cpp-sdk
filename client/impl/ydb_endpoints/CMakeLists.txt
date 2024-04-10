@@ -7,7 +7,7 @@ target_link_libraries(client-impl-ydb_endpoints PUBLIC
 )
 
 target_sources(client-impl-ydb_endpoints PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/impl/ydb_endpoints/endpoints.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_endpoints/endpoints.cpp
 )
 
 

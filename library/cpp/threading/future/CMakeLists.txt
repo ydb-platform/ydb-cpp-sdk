@@ -5,13 +5,13 @@ target_link_libraries(cpp-threading-future PUBLIC
 )
 
 target_sources(cpp-threading-future PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/threading/future/async_semaphore.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/threading/future/async.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/threading/future/core/future.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/threading/future/core/fwd.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/threading/future/fwd.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/threading/future/wait/fwd.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/threading/future/wait/wait.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/threading/future/wait/wait_group.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/threading/future/wait/wait_policy.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/threading/future/async_semaphore.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/threading/future/async.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/threading/future/core/future.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/threading/future/core/fwd.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/threading/future/fwd.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/threading/future/wait/fwd.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/threading/future/wait/wait.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/threading/future/wait/wait_group.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/threading/future/wait/wait_policy.cpp
 )

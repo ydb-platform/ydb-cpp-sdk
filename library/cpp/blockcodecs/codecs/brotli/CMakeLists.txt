@@ -17,5 +17,5 @@ target_link_libraries(blockcodecs-codecs-brotli.global PUBLIC
 )
 
 target_sources(blockcodecs-codecs-brotli.global PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/blockcodecs/codecs/brotli/brotli.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/codecs/brotli/brotli.cpp
 )

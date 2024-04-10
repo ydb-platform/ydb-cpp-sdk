@@ -8,70 +8,70 @@ target_link_libraries(api-protos PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(api-protos PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/draft/datastreams.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/draft/fq.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/draft/persqueue_common.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/draft/persqueue_error_codes.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/draft/ydb_long_tx.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/draft/ydb_maintenance.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/draft/ydb_logstore.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/draft/ydb_dynamic_config.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_federation_discovery.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/persqueue_error_codes_v1.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_auth.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_persqueue_v1.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_persqueue_cluster_discovery.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_clickhouse_internal.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_cms.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_common.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_coordination.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_discovery.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_export.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_formats.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_import.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_issue_message.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_monitoring.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_operation.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_query_stats.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_query.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_rate_limiter.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_scheme.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_scripting.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_status_codes.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_table.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_topic.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_value.proto
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/protos/ydb_keyvalue.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/draft/datastreams.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/draft/fq.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/draft/persqueue_common.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/draft/persqueue_error_codes.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/draft/ydb_long_tx.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/draft/ydb_maintenance.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/draft/ydb_logstore.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/draft/ydb_dynamic_config.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_federation_discovery.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/persqueue_error_codes_v1.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_auth.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_persqueue_v1.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_persqueue_cluster_discovery.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_clickhouse_internal.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_cms.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_common.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_coordination.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_discovery.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_export.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_formats.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_import.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_issue_message.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_monitoring.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_operation.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_query_stats.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_query.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_rate_limiter.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_scheme.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_scripting.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_status_codes.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_table.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_topic.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_value.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/protos/ydb_keyvalue.proto
 )
 generate_enum_serilization(api-protos
-  ${CMAKE_BINARY_DIR}/ydb/public/api/protos/draft/persqueue_common.pb.h
+  ${YDB_SDK_BINARY_DIR}/ydb/public/api/protos/draft/persqueue_common.pb.h
   INCLUDE_HEADERS
   ydb/public/api/protos/draft/persqueue_common.pb.h
 )
 generate_enum_serilization(api-protos
-  ${CMAKE_BINARY_DIR}/ydb/public/api/protos/ydb_persqueue_cluster_discovery.pb.h
+  ${YDB_SDK_BINARY_DIR}/ydb/public/api/protos/ydb_persqueue_cluster_discovery.pb.h
   INCLUDE_HEADERS
   ydb/public/api/protos/ydb_persqueue_cluster_discovery.pb.h
 )
 generate_enum_serilization(api-protos
-  ${CMAKE_BINARY_DIR}/ydb/public/api/protos/draft/datastreams.pb.h
+  ${YDB_SDK_BINARY_DIR}/ydb/public/api/protos/draft/datastreams.pb.h
   INCLUDE_HEADERS
   ydb/public/api/protos/draft/datastreams.pb.h
 )
 generate_enum_serilization(api-protos
-  ${CMAKE_BINARY_DIR}/ydb/public/api/protos/ydb_topic.pb.h
+  ${YDB_SDK_BINARY_DIR}/ydb/public/api/protos/ydb_topic.pb.h
   INCLUDE_HEADERS
   ydb/public/api/protos/ydb_topic.pb.h
 )
 target_proto_addincls(api-protos
   ./
-  ${CMAKE_SOURCE_DIR}/
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_SOURCE_DIR}/
+  ${YDB_SDK_BINARY_DIR}
+  ${YDB_SDK_SOURCE_DIR}
+  ${YDB_SDK_BINARY_DIR}
 )
 target_proto_outs(api-protos
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 target_proto_plugin(api-protos
   grpc_cpp

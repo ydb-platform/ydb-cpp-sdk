@@ -9,11 +9,11 @@ target_link_libraries(cpp-http-server PUBLIC
 )
 
 target_sources(cpp-http-server PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/server/conn.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/server/http.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/server/http_ex.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/server/options.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/server/response.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/server/conn.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/server/http.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/server/http_ex.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/server/options.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/server/response.cpp
 )
 
 

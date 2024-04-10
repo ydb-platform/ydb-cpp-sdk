@@ -8,7 +8,7 @@ target_link_libraries(cpp-client-ydb_rate_limiter PUBLIC
 )
 
 target_sources(cpp-client-ydb_rate_limiter PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_rate_limiter/rate_limiter.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_rate_limiter/rate_limiter.cpp
 )
 
 add_library(YDB-CPP-SDK::RateLimiter ALIAS cpp-client-ydb_rate_limiter)

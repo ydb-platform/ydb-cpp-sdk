@@ -8,5 +8,5 @@ target_link_libraries(library-cpp-cgiparam PUBLIC
 )
 
 target_sources(library-cpp-cgiparam PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/cgiparam/cgiparam.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/cgiparam/cgiparam.cpp
 )

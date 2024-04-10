@@ -7,8 +7,8 @@ target_link_libraries(monlib-encode-buffered PUBLIC
 )
 
 target_sources(monlib-encode-buffered PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/encode/buffered/buffered_encoder_base.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/encode/buffered/string_pool.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/encode/buffered/buffered_encoder_base.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/encode/buffered/string_pool.cpp
 )
 
 

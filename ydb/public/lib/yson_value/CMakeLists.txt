@@ -14,5 +14,5 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)
 endif()
 
 target_sources(public-lib-yson_value PRIVATE
-    ${CMAKE_SOURCE_DIR}/ydb/public/lib/yson_value/ydb_yson_value.cpp
+    ${YDB_SDK_SOURCE_DIR}/ydb/public/lib/yson_value/ydb_yson_value.cpp
 )

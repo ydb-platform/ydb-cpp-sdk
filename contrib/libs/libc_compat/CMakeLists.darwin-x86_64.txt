@@ -12,7 +12,7 @@ target_compile_options(contrib-libs-libc_compat PRIVATE
   $<IF:$<CXX_COMPILER_ID:MSVC>,,-Wno-everything>
 )
 target_sources(contrib-libs-libc_compat PRIVATE
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/string.c
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/memrchr.c
-  ${CMAKE_SOURCE_DIR}/contrib/libs/libc_compat/explicit_bzero.c
+  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/string.c
+  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/memrchr.c
+  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/explicit_bzero.c
 )

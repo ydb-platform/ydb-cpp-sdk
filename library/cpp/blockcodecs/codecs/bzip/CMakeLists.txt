@@ -14,7 +14,7 @@ target_link_libraries(blockcodecs-codecs-bzip.global PUBLIC
   cpp-blockcodecs-core
 )
 target_sources(blockcodecs-codecs-bzip.global PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/blockcodecs/codecs/bzip/bzip.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/codecs/bzip/bzip.cpp
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)

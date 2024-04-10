@@ -6,17 +6,17 @@ target_link_libraries(encode-legacy_protobuf-protos PUBLIC
 )
 
 target_proto_messages(encode-legacy_protobuf-protos PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/encode/legacy_protobuf/protos/metric_meta.proto
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/encode/legacy_protobuf/protos/metric_meta.proto
 )
 
 target_proto_addincls(encode-legacy_protobuf-protos
   ./
-  ${CMAKE_SOURCE_DIR}
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_SOURCE_DIR}
+  ${YDB_SDK_BINARY_DIR}
 )
 
 target_proto_outs(encode-legacy_protobuf-protos
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 
 

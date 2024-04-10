@@ -5,8 +5,8 @@ target_link_libraries(yql-public-decimal PUBLIC
 )
 
 target_sources(yql-public-decimal PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/library/yql/public/decimal/yql_decimal.cpp
-  ${CMAKE_SOURCE_DIR}/ydb/library/yql/public/decimal/yql_decimal_serialize.cpp
+  ${YDB_SDK_SOURCE_DIR}/ydb/library/yql/public/decimal/yql_decimal.cpp
+  ${YDB_SDK_SOURCE_DIR}/ydb/library/yql/public/decimal/yql_decimal_serialize.cpp
 )
 
 

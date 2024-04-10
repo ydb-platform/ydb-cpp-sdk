@@ -14,10 +14,10 @@ target_link_libraries(cpp-monlib-dynamic_counters PUBLIC
 )
 
 target_sources(cpp-monlib-dynamic_counters PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/dynamic_counters/counters.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/dynamic_counters/encode.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/dynamic_counters/golovan_page.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/dynamic_counters/page.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/dynamic_counters/counters.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/dynamic_counters/encode.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/dynamic_counters/golovan_page.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/dynamic_counters/page.cpp
 )
 
 

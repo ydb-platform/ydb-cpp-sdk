@@ -10,13 +10,13 @@ target_link_libraries(library-cpp-yson PUBLIC
 )
 
 target_sources(library-cpp-yson PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/consumer.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/lexer.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/parser.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/token.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/tokenizer.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/varint.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/yson/writer.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/consumer.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/lexer.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/parser.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/token.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/tokenizer.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/varint.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yson/writer.cpp
 )
 
 

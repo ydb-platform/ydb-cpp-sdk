@@ -7,5 +7,5 @@ target_link_libraries(cpp-openssl-method PUBLIC
 )
 
 target_sources(cpp-openssl-method PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/openssl/method/io.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/openssl/method/io.cpp
 )

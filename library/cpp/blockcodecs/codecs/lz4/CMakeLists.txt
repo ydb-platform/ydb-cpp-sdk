@@ -15,7 +15,7 @@ target_link_libraries(blockcodecs-codecs-lz4.global PUBLIC
 )
 
 target_sources(blockcodecs-codecs-lz4.global PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/blockcodecs/codecs/lz4/lz4.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/codecs/lz4/lz4.cpp
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT HAVE_CUDA)

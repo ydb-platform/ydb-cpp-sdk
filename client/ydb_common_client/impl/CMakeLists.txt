@@ -6,7 +6,7 @@ target_link_libraries(client-ydb_common_client-impl PUBLIC
 )
 
 target_sources(client-ydb_common_client-impl PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_common_client/impl/client.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_common_client/impl/client.cpp
 )
 
 

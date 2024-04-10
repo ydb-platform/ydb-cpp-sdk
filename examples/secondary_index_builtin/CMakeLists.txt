@@ -7,13 +7,13 @@ target_link_libraries(secondary_index_builtin PUBLIC
 )
 
 target_sources(secondary_index_builtin PRIVATE
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index_builtin/main.cpp
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index_builtin/secondary_index.cpp
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index_builtin/secondary_index_create.cpp
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index_builtin/secondary_index_fill.cpp
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index_builtin/secondary_index_select.cpp
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index_builtin/secondary_index_drop.cpp
-  ${CMAKE_SOURCE_DIR}/examples/secondary_index_builtin/secondary_index_select_join.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index_builtin/main.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index_builtin/secondary_index.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index_builtin/secondary_index_create.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index_builtin/secondary_index_fill.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index_builtin/secondary_index_select.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index_builtin/secondary_index_drop.cpp
+  ${YDB_SDK_SOURCE_DIR}/examples/secondary_index_builtin/secondary_index_select_join.cpp
 )
 
 vcs_info(secondary_index_builtin)

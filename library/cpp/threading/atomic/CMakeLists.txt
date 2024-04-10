@@ -6,5 +6,5 @@ target_link_libraries(cpp-threading-atomic PUBLIC
 )
 
 target_sources(cpp-threading-atomic PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/threading/atomic/bool.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/threading/atomic/bool.cpp
 )

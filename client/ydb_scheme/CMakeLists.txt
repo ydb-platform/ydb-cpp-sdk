@@ -9,11 +9,11 @@ target_link_libraries(cpp-client-ydb_scheme PUBLIC
   )
 
 target_sources(cpp-client-ydb_scheme PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_scheme/scheme.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_scheme/scheme.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_scheme
-  ${CMAKE_SOURCE_DIR}/client/ydb_scheme/scheme.h
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_scheme/scheme.h
   INCLUDE_HEADERS
   client/ydb_scheme/scheme.h
 )

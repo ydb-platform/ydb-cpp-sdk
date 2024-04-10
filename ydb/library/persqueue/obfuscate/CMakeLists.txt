@@ -5,5 +5,5 @@ target_link_libraries(library-persqueue-obfuscate PUBLIC
 )
 
 target_sources(library-persqueue-obfuscate PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/library/persqueue/obfuscate/obfuscate.cpp
+  ${YDB_SDK_SOURCE_DIR}/ydb/library/persqueue/obfuscate/obfuscate.cpp
 )

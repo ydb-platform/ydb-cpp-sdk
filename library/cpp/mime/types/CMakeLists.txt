@@ -6,11 +6,11 @@ target_link_libraries(cpp-mime-types PUBLIC
 )
 
 target_sources(cpp-mime-types PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/mime/types/mime.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/mime/types/mime.cpp
 )
 
 generate_enum_serilization(cpp-mime-types
-  ${CMAKE_SOURCE_DIR}/library/cpp/mime/types/mime.h
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/mime/types/mime.h
   INCLUDE_HEADERS
   library/cpp/mime/types/mime.h
 )

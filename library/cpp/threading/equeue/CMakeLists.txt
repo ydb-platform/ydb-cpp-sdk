@@ -6,5 +6,5 @@ target_link_libraries(cpp-threading-equeue PUBLIC
 )
 
 target_sources(cpp-threading-equeue PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/threading/equeue/equeue.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/threading/equeue/equeue.cpp
 )

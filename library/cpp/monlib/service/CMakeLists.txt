@@ -18,11 +18,11 @@ target_link_libraries(cpp-monlib-service PUBLIC
 )
 
 target_sources(cpp-monlib-service PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/service/monservice.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/service/mon_service_http_request.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/service/service.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/service/format.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/monlib/service/auth.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/monservice.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/mon_service_http_request.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/service.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/format.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/auth.cpp
 )
 
 

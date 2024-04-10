@@ -10,14 +10,14 @@ target_link_libraries(cpp-http-misc PUBLIC
 )
 
 target_sources(cpp-http-misc PRIVATE
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/misc/httpcodes.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/misc/httpdate.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/misc/httpreqdata.cpp
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/misc/parsed_request.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/misc/httpcodes.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/misc/httpdate.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/misc/httpreqdata.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/misc/parsed_request.cpp
 )
 
 generate_enum_serilization(cpp-http-misc
-  ${CMAKE_SOURCE_DIR}/library/cpp/http/misc/httpcodes.h
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/http/misc/httpcodes.h
   INCLUDE_HEADERS
   library/cpp/http/misc/httpcodes.h
 )

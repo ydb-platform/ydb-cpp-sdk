@@ -9,18 +9,18 @@ target_link_libraries(client-yc_private-operation PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(client-yc_private-operation PRIVATE
-  ${CMAKE_SOURCE_DIR}/ydb/public/api/client/yc_private/operation/operation.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/operation/operation.proto
 )
 target_proto_addincls(client-yc_private-operation
   ./
-  ${CMAKE_SOURCE_DIR}/
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/third_party/api-common-protos
-  ${CMAKE_BINARY_DIR}
+  ${YDB_SDK_SOURCE_DIR}/
+  ${YDB_SDK_BINARY_DIR}
+  ${YDB_SDK_SOURCE_DIR}
+  ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos
+  ${YDB_SDK_BINARY_DIR}
 )
 target_proto_outs(client-yc_private-operation
-  --cpp_out=${CMAKE_BINARY_DIR}/
+  --cpp_out=${YDB_SDK_BINARY_DIR}/
 )
 target_proto_plugin(client-yc_private-operation
   grpc_cpp

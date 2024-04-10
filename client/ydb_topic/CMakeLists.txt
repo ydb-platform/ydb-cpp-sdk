@@ -18,11 +18,11 @@ target_link_libraries(cpp-client-ydb_topic PUBLIC
 )
 
 target_sources(cpp-client-ydb_topic PRIVATE
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/proto_accessor.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/proto_accessor.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_topic
-  ${CMAKE_SOURCE_DIR}/client/ydb_topic/topic.h
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/topic.h
   INCLUDE_HEADERS
   client/ydb_topic/topic.h
 )
