@@ -23,7 +23,10 @@ target_link_libraries(cpp-client-ydb_table PUBLIC
 )
 
 target_sources(cpp-client-ydb_table PRIVATE
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/table/CMakeLists.txt
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 <<<<<<< HEAD:src/client/table/CMakeLists.txt
   table.cpp
   proto_accessor.cpp
@@ -38,7 +41,11 @@ generate_enum_serilization(cpp-client-ydb_table
 
 generate_enum_serilization(cpp-client-ydb_table
   ${YDB_SDK_SOURCE_DIR}/client/ydb_table/table_enum.h
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_table/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_table/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/client/table/table_enum.h
 ========

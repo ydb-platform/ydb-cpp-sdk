@@ -12,22 +12,33 @@ target_link_libraries(cpp-http-io PUBLIC
 
 target_sources(cpp-http-io PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/http/io/CMakeLists.txt
 =======
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+<<<<<<< HEAD:src/library/http/io/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
   ${YDB_SDK_SOURCE_DIR}/src/library/http/io/chunk.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/http/io/compression.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/http/io/headers.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/http/io/stream.cpp
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
   ${YDB_SDK_SOURCE_DIR}/library/cpp/http/io/chunk.cpp
   ${YDB_SDK_SOURCE_DIR}/library/cpp/http/io/compression.cpp
   ${YDB_SDK_SOURCE_DIR}/library/cpp/http/io/headers.cpp
   ${YDB_SDK_SOURCE_DIR}/library/cpp/http/io/stream.cpp
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/http/io/CMakeLists.txt
 =======
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/http/io/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 )
 
 

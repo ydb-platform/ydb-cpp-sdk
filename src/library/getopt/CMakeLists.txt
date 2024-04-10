@@ -17,14 +17,21 @@ target_link_libraries(library-cpp-getopt.global PUBLIC
 )
 target_sources(library-cpp-getopt.global PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 <<<<<<< HEAD:src/library/getopt/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/getopt/print.cpp
 =======
   ${YDB_SDK_SOURCE_DIR}/library/cpp/getopt/print.cpp
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/getopt/CMakeLists.txt
 =======
   ${YDB_SDK_SOURCE_DIR}/src/library/getopt/print.cpp
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/getopt/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")

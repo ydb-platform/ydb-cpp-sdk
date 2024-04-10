@@ -6,14 +6,21 @@ target_link_libraries(cpp-containers-paged_vector PUBLIC
 
 target_sources(cpp-containers-paged_vector PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 <<<<<<< HEAD:src/library/containers/paged_vector/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/containers/paged_vector/paged_vector.cpp
 =======
   ${YDB_SDK_SOURCE_DIR}/library/cpp/containers/paged_vector/paged_vector.cpp
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/containers/paged_vector/CMakeLists.txt
 =======
   ${YDB_SDK_SOURCE_DIR}/src/library/containers/paged_vector/paged_vector.cpp
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/containers/paged_vector/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 )
 
 

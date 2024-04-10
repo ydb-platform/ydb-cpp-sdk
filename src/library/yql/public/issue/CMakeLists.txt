@@ -16,17 +16,24 @@ target_link_libraries(yql-public-issue PUBLIC
 
 target_sources(yql-public-issue PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 <<<<<<< HEAD:src/library/yql/public/issue/CMakeLists.txt
   yql_issue.cpp
   yql_issue_message.cpp
 =======
   ${YDB_SDK_SOURCE_DIR}/ydb/library/yql/public/issue/yql_issue.cpp
   ${YDB_SDK_SOURCE_DIR}/ydb/library/yql/public/issue/yql_issue_message.cpp
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/library/yql/public/issue/CMakeLists.txt
 =======
   yql_issue.cpp
   yql_issue_message.cpp
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/library/yql/public/issue/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 )
 
 

@@ -14,7 +14,10 @@ target_link_libraries(cpp-client-ydb_coordination PUBLIC
 )
 
 target_sources(cpp-client-ydb_coordination PRIVATE
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/coordination/CMakeLists.txt
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 <<<<<<< HEAD:src/client/coordination/CMakeLists.txt
   coordination.cpp
   proto_accessor.cpp
@@ -29,7 +32,11 @@ generate_enum_serilization(cpp-client-ydb_coordination
 
 generate_enum_serilization(cpp-client-ydb_coordination
   ${YDB_SDK_SOURCE_DIR}/client/ydb_coordination/coordination.h
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_coordination/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_coordination/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/client/coordination/coordination.h
 ========

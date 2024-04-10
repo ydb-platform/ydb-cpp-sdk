@@ -6,15 +6,22 @@ target_link_libraries(library-cpp-colorizer PUBLIC
 
 target_sources(library-cpp-colorizer PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 <<<<<<< HEAD:src/library/colorizer/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/colorizer/colors.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/colorizer/output.cpp
 =======
   ${YDB_SDK_SOURCE_DIR}/library/cpp/colorizer/colors.cpp
   ${YDB_SDK_SOURCE_DIR}/library/cpp/colorizer/output.cpp
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/colorizer/CMakeLists.txt
 =======
   ${YDB_SDK_SOURCE_DIR}/src/library/colorizer/colors.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/colorizer/output.cpp
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/colorizer/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 )

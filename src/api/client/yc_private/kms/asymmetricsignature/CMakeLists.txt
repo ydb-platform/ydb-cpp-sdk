@@ -9,6 +9,9 @@ target_link_libraries(yc_private-kms-asymmetricsignature PUBLIC
 )
 target_proto_messages(yc_private-kms-asymmetricsignature PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 <<<<<<< HEAD:src/api/client/yc_private/kms/asymmetricsignature/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/kms/asymmetricsignature/asymmetric_signature_key.proto
 )
@@ -21,6 +24,7 @@ target_proto_addincls(yc_private-kms-asymmetricsignature
   ./
   ${YDB_SDK_SOURCE_DIR}/
   ${YDB_SDK_BINARY_DIR}
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/public/api/client/yc_private/kms/asymmetricsignature/CMakeLists.txt
 =======
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/kms/asymmetricsignature/asymmetric_signature_key.proto
@@ -28,6 +32,9 @@ target_proto_addincls(yc_private-kms-asymmetricsignature
 target_proto_addincls(yc_private-kms-asymmetricsignature
   ./
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/public/api/client/yc_private/kms/asymmetricsignature/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
   ${YDB_SDK_SOURCE_DIR}
   ${YDB_SDK_BINARY_DIR}
 )

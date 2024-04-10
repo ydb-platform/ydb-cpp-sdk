@@ -10,6 +10,9 @@ target_link_libraries(cpp-json-writer PUBLIC
 
 target_sources(cpp-json-writer PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 <<<<<<< HEAD:src/library/json/writer/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/json/writer/json_value.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/json/writer/json.cpp
@@ -24,7 +27,11 @@ generate_enum_serilization(cpp-json-writer
 
 generate_enum_serilization(cpp-json-writer
   ${YDB_SDK_SOURCE_DIR}/library/cpp/json/writer/json_value.h
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/json/writer/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/json/writer/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/library/json/writer/json_value.h
 =======

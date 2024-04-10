@@ -13,7 +13,10 @@ target_link_libraries(cpp-client-ydb_value PUBLIC
 )
 
 target_sources(cpp-client-ydb_value PRIVATE
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/value/CMakeLists.txt
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 <<<<<<< HEAD:src/client/value/CMakeLists.txt
   value.cpp
 )
@@ -26,7 +29,11 @@ generate_enum_serilization(cpp-client-ydb_value
 
 generate_enum_serilization(cpp-client-ydb_value
   ${YDB_SDK_SOURCE_DIR}/client/ydb_value/value.h
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_value/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_value/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/client/value/value.h
 ========

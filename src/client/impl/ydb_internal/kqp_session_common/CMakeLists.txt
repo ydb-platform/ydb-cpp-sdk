@@ -9,14 +9,21 @@ target_link_libraries(impl-ydb_internal-kqp_session_common PUBLIC
 
 target_sources(impl-ydb_internal-kqp_session_common PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 <<<<<<< HEAD:src/client/impl/ydb_internal/kqp_session_common/CMakeLists.txt
   kqp_session_common.cpp
 =======
   ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/kqp_session_common/kqp_session_common.cpp
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/impl/ydb_internal/kqp_session_common/CMakeLists.txt
 =======
   kqp_session_common.cpp
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/impl/ydb_internal/kqp_session_common/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 )
 
 

@@ -10,7 +10,10 @@ target_link_libraries(cpp-client-ydb_monitoring PUBLIC
 )
 
 target_sources(cpp-client-ydb_monitoring PRIVATE
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/monitoring/CMakeLists.txt
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 <<<<<<< HEAD:src/client/monitoring/CMakeLists.txt
   monitoring.cpp
 )
@@ -23,7 +26,11 @@ generate_enum_serilization(cpp-client-ydb_monitoring
 
 generate_enum_serilization(cpp-client-ydb_monitoring
   ${YDB_SDK_SOURCE_DIR}/client/ydb_monitoring/monitoring.h
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_monitoring/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_monitoring/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/client/monitoring/monitoring.h
 ========

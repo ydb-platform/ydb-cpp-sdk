@@ -16,6 +16,9 @@ target_link_libraries(service-pages-tablesorter.global PUBLIC
 
 target_sources(service-pages-tablesorter.global PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 <<<<<<< HEAD:src/library/monlib/service/pages/tablesorter/CMakeLists.txt
   ${YDB_SDK_BINARY_DIR}/src/library/monlib/service/pages/tablesorter/0c255888afcc3e2adc5fd360ee152bac.cpp
 )
@@ -27,6 +30,7 @@ resources(service-pages-tablesorter.global
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/pages/tablesorter/resources/jquery.tablesorter.js
 =======
   ${YDB_SDK_BINARY_DIR}/library/cpp/monlib/service/pages/tablesorter/0c255888afcc3e2adc5fd360ee152bac.cpp
+<<<<<<< HEAD
 =======
   ${YDB_SDK_BINARY_DIR}/src/library/monlib/service/pages/tablesorter/0c255888afcc3e2adc5fd360ee152bac.cpp
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
@@ -43,6 +47,16 @@ resources(service-pages-tablesorter.global
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/pages/tablesorter/resources/jquery.tablesorter.css
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/pages/tablesorter/resources/jquery.tablesorter.js
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+)
+
+resources(service-pages-tablesorter.global
+  ${YDB_SDK_BINARY_DIR}/library/cpp/monlib/service/pages/tablesorter/0c255888afcc3e2adc5fd360ee152bac.cpp
+  INPUTS
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/pages/tablesorter/resources/jquery.tablesorter.css
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/pages/tablesorter/resources/jquery.tablesorter.js
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/monlib/service/pages/tablesorter/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
   KEYS
   jquery.tablesorter.css
   jquery.tablesorter.js

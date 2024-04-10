@@ -16,23 +16,34 @@ target_link_libraries(cpp-client-ydb_query PUBLIC
 )
 
 target_sources(cpp-client-ydb_query PRIVATE
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/query/CMakeLists.txt
 <<<<<<< HEAD:src/client/query/CMakeLists.txt
 ========
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_query/CMakeLists.txt
+=======
+<<<<<<< HEAD:src/client/query/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
   client.cpp
   query.cpp
   stats.cpp
   tx.cpp
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/query/CMakeLists.txt
+=======
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
   ${YDB_SDK_SOURCE_DIR}/client/ydb_query/client.cpp
   ${YDB_SDK_SOURCE_DIR}/client/ydb_query/query.cpp
   ${YDB_SDK_SOURCE_DIR}/client/ydb_query/stats.cpp
   ${YDB_SDK_SOURCE_DIR}/client/ydb_query/tx.cpp
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_query/CMakeLists.txt
 ========
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_query/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_query/CMakeLists.txt
+>>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 )
 
 add_library(YDB-CPP-SDK::Query ALIAS cpp-client-ydb_query)
