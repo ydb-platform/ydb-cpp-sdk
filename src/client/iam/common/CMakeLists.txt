@@ -11,7 +11,11 @@ target_link_libraries(client-iam-common PUBLIC
 )
 
 target_sources(client-iam-common PRIVATE
+<<<<<<< HEAD:src/client/iam/common/CMakeLists.txt
   iam.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/iam/common/iam.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/iam/common/CMakeLists.txt
 )
 
 

@@ -15,7 +15,11 @@ target_link_libraries(blockcodecs-codecs-snappy.global PUBLIC
 )
 
 target_sources(blockcodecs-codecs-snappy.global PRIVATE
+<<<<<<< HEAD:src/library/blockcodecs/codecs/snappy/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/snappy/snappy.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/codecs/snappy/snappy.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/blockcodecs/codecs/snappy/CMakeLists.txt
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")

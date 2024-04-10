@@ -10,7 +10,11 @@ target_link_libraries(client-yc_public-iam PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(client-yc_public-iam PRIVATE
+<<<<<<< HEAD:src/api/client/yc_public/iam/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/iam/iam_token_service.proto
+=======
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_public/iam/iam_token_service.proto
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/public/api/client/yc_public/iam/CMakeLists.txt
 )
 target_proto_addincls(client-yc_public-iam
   ./

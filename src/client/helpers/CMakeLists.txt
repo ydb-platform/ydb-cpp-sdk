@@ -8,7 +8,11 @@ target_link_libraries(cpp-client-helpers PUBLIC
 )
 
 target_sources(cpp-client-helpers PRIVATE
+<<<<<<< HEAD:src/client/helpers/CMakeLists.txt
   helpers.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/helpers/helpers.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/helpers/CMakeLists.txt
 )
 
 add_library(YDB-CPP-SDK::Helpers ALIAS cpp-client-helpers)

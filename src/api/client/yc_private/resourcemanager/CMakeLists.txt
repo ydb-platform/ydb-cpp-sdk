@@ -11,9 +11,15 @@ target_link_libraries(client-yc_private-resourcemanager PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(client-yc_private-resourcemanager PRIVATE
+<<<<<<< HEAD:src/api/client/yc_private/resourcemanager/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/resourcemanager/folder.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/resourcemanager/transitional/folder_service.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/resourcemanager/folder_service.proto
+=======
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/resourcemanager/folder.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/resourcemanager/transitional/folder_service.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/resourcemanager/folder_service.proto
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/public/api/client/yc_private/resourcemanager/CMakeLists.txt
 )
 target_proto_addincls(client-yc_private-resourcemanager
   ./

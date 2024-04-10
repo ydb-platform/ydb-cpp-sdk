@@ -7,7 +7,11 @@ target_link_libraries(cpp-client-ydb_extension PUBLIC
 )
 
 target_sources(cpp-client-ydb_extension PRIVATE
+<<<<<<< HEAD:src/client/ydb_extension/CMakeLists.txt
   extension.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_extension/extension.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_extension/CMakeLists.txt
 )
 
 add_library(YDB-CPP-SDK::Extension ALIAS cpp-client-ydb_extension)

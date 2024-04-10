@@ -10,7 +10,11 @@ target_link_libraries(cpp-yt-yson PUBLIC
 )
 
 target_sources(cpp-yt-yson PRIVATE
+<<<<<<< HEAD:src/library/yt/yson/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/yt/yson/consumer.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yt/yson/consumer.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/yt/yson/CMakeLists.txt
 )
 
 

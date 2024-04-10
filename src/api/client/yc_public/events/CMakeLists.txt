@@ -10,9 +10,15 @@ target_link_libraries(client-yc_public-events PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(client-yc_public-events PRIVATE
+<<<<<<< HEAD:src/api/client/yc_public/events/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/events/options.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/events/common.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/events/yq.proto
+=======
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_public/events/options.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_public/events/common.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_public/events/yq.proto
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/public/api/client/yc_public/events/CMakeLists.txt
 )
 target_proto_addincls(client-yc_public-events
   ./

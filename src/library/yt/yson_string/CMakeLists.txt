@@ -11,8 +11,13 @@ target_link_libraries(cpp-yt-yson_string PUBLIC
 )
 
 target_sources(cpp-yt-yson_string PRIVATE
+<<<<<<< HEAD:src/library/yt/yson_string/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/yt/yson_string/convert.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/yt/yson_string/string.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yt/yson_string/convert.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/yt/yson_string/string.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/yt/yson_string/CMakeLists.txt
 )
 
 if (NOT (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64"))

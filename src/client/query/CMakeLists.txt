@@ -16,10 +16,17 @@ target_link_libraries(cpp-client-ydb_query PUBLIC
 )
 
 target_sources(cpp-client-ydb_query PRIVATE
+<<<<<<< HEAD:src/client/query/CMakeLists.txt
   client.cpp
   query.cpp
   stats.cpp
   tx.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_query/client.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_query/query.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_query/stats.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_query/tx.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_query/CMakeLists.txt
 )
 
 add_library(YDB-CPP-SDK::Query ALIAS cpp-client-ydb_query)

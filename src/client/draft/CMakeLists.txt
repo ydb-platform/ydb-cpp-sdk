@@ -9,9 +9,15 @@ target_link_libraries(cpp-client-draft PUBLIC
 )
 
 target_sources(cpp-client-draft PRIVATE
+<<<<<<< HEAD:src/client/draft/CMakeLists.txt
   ydb_dynamic_config.cpp
   ydb_scripting.cpp
   ydb_long_tx.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/draft/ydb_dynamic_config.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/draft/ydb_scripting.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/draft/ydb_long_tx.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/draft/CMakeLists.txt
 )
 
 add_library(YDB-CPP-SDK::Draft ALIAS cpp-client-draft)

@@ -7,8 +7,13 @@ target_link_libraries(impl-ydb_internal-common PUBLIC
 )
 
 target_sources(impl-ydb_internal-common PRIVATE
+<<<<<<< HEAD:src/client/impl/ydb_internal/common/CMakeLists.txt
   parser.cpp
   getenv.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/common/parser.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/common/getenv.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/impl/ydb_internal/common/CMakeLists.txt
 )
 
 

@@ -7,7 +7,11 @@ target_link_libraries(client-impl-ydb_stats PUBLIC
 )
 
 target_sources(client-impl-ydb_stats PRIVATE
+<<<<<<< HEAD:src/client/impl/ydb_stats/CMakeLists.txt
   stats.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_stats/stats.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/impl/ydb_stats/CMakeLists.txt
 )
 
 

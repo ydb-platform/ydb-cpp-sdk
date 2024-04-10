@@ -10,9 +10,15 @@ target_link_libraries(client-yc_public-logging PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(client-yc_public-logging PRIVATE
+<<<<<<< HEAD:src/api/client/yc_public/logging/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/logging/log_entry.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/logging/log_ingestion_service.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/logging/log_resource.proto
+=======
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_public/logging/log_entry.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_public/logging/log_ingestion_service.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_public/logging/log_resource.proto
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/public/api/client/yc_public/logging/CMakeLists.txt
 )
 target_proto_addincls(client-yc_public-logging
   ./

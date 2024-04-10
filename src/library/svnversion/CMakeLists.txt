@@ -6,8 +6,13 @@ target_link_libraries(library-cpp-svnversion PUBLIC
 )
 
 target_sources(library-cpp-svnversion PRIVATE
+<<<<<<< HEAD:src/library/svnversion/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/svnversion/svnversion.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/svnversion/svn_interface.c
+=======
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/svnversion/svnversion.cpp
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/svnversion/svn_interface.c
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/svnversion/CMakeLists.txt
 )
 
 

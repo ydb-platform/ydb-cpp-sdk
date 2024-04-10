@@ -6,7 +6,11 @@ target_link_libraries(client-ydb_types-fatal_error_handlers PUBLIC
 )
 
 target_sources(client-ydb_types-fatal_error_handlers PRIVATE
+<<<<<<< HEAD:src/client/types/fatal_error_handlers/CMakeLists.txt
   handlers.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_types/fatal_error_handlers/handlers.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_types/fatal_error_handlers/CMakeLists.txt
 )
 
 

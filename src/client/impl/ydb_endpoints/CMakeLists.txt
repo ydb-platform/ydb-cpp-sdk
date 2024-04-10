@@ -7,7 +7,11 @@ target_link_libraries(client-impl-ydb_endpoints PUBLIC
 )
 
 target_sources(client-impl-ydb_endpoints PRIVATE
+<<<<<<< HEAD:src/client/impl/ydb_endpoints/CMakeLists.txt
   endpoints.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_endpoints/endpoints.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/impl/ydb_endpoints/CMakeLists.txt
 )
 
 

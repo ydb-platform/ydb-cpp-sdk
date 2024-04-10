@@ -5,7 +5,11 @@ target_link_libraries(library-cpp-cppparser PUBLIC
 )
 
 target_sources(library-cpp-cppparser PRIVATE
+<<<<<<< HEAD:src/library/cppparser/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/cppparser/parser.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/cppparser/parser.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/cppparser/CMakeLists.txt
 )
 
 

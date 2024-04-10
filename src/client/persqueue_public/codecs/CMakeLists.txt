@@ -10,7 +10,11 @@ target_link_libraries(client-ydb_persqueue_public-codecs PUBLIC
 )
 
 target_sources(client-ydb_persqueue_public-codecs PRIVATE
+<<<<<<< HEAD:src/client/persqueue_public/codecs/CMakeLists.txt
   codecs.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_persqueue_public/codecs/codecs.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_persqueue_public/codecs/CMakeLists.txt
 )
 
 

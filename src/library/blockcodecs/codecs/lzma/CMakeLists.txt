@@ -15,7 +15,11 @@ target_link_libraries(blockcodecs-codecs-lzma.global PUBLIC
 )
 
 target_sources(blockcodecs-codecs-lzma.global PRIVATE
+<<<<<<< HEAD:src/library/blockcodecs/codecs/lzma/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/lzma/lzma.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/codecs/lzma/lzma.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/blockcodecs/codecs/lzma/CMakeLists.txt
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")

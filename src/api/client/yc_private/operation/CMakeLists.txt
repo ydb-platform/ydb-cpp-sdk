@@ -9,6 +9,7 @@ target_link_libraries(client-yc_private-operation PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(client-yc_private-operation PRIVATE
+<<<<<<< HEAD:src/api/client/yc_private/operation/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/operation/operation.proto
 )
 target_proto_addincls(client-yc_private-operation
@@ -16,6 +17,17 @@ target_proto_addincls(client-yc_private-operation
   ${YDB_SDK_SOURCE_DIR}
   ${YDB_SDK_BINARY_DIR}
   ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos
+=======
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/operation/operation.proto
+)
+target_proto_addincls(client-yc_private-operation
+  ./
+  ${YDB_SDK_SOURCE_DIR}/
+  ${YDB_SDK_BINARY_DIR}
+  ${YDB_SDK_SOURCE_DIR}
+  ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos
+  ${YDB_SDK_BINARY_DIR}
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/public/api/client/yc_private/operation/CMakeLists.txt
 )
 target_proto_outs(client-yc_private-operation
   --cpp_out=${YDB_SDK_BINARY_DIR}/

@@ -11,7 +11,11 @@ target_link_libraries(cpp-client-ydb_datastreams PUBLIC
 )
 
 target_sources(cpp-client-ydb_datastreams PRIVATE
+<<<<<<< HEAD:src/client/datastreams/CMakeLists.txt
   datastreams.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_datastreams/datastreams.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_datastreams/CMakeLists.txt
 )
 
 add_library(YDB-CPP-SDK::Datastreams ALIAS cpp-client-ydb_datastreams)

@@ -12,11 +12,19 @@ target_link_libraries(cpp-client-ydb_export PUBLIC
 )
 
 target_sources(cpp-client-ydb_export PRIVATE
+<<<<<<< HEAD:src/client/export/CMakeLists.txt
   export.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_export
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/export/export.h
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_export/export.cpp
+)
+
+generate_enum_serilization(cpp-client-ydb_export
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_export/export.h
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_export/CMakeLists.txt
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/client/export/export.h
 )

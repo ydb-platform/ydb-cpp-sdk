@@ -15,7 +15,11 @@ target_link_libraries(blockcodecs-codecs-lz4.global PUBLIC
 )
 
 target_sources(blockcodecs-codecs-lz4.global PRIVATE
+<<<<<<< HEAD:src/library/blockcodecs/codecs/lz4/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/lz4/lz4.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/codecs/lz4/lz4.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/blockcodecs/codecs/lz4/CMakeLists.txt
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")

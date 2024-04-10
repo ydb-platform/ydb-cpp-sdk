@@ -6,5 +6,9 @@ target_link_libraries(library-cpp-lcs PUBLIC
 )
 
 target_sources(library-cpp-lcs PRIVATE
+<<<<<<< HEAD:src/library/lcs/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/lcs/lcs_via_lis.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/lcs/lcs_via_lis.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/lcs/CMakeLists.txt
 )

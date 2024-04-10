@@ -13,11 +13,21 @@ target_link_libraries(client-yc_private-kms PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(client-yc_private-kms PRIVATE
+<<<<<<< HEAD:src/api/client/yc_private/kms/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/kms/symmetric_crypto_service.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/kms/symmetric_key.proto
 )
 target_proto_addincls(client-yc_private-kms
   ./
+=======
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/kms/symmetric_crypto_service.proto
+  ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/kms/symmetric_key.proto
+)
+target_proto_addincls(client-yc_private-kms
+  ./
+  ${YDB_SDK_SOURCE_DIR}/
+  ${YDB_SDK_BINARY_DIR}
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/public/api/client/yc_private/kms/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}
   ${YDB_SDK_BINARY_DIR}
 )

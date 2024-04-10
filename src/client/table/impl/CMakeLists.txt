@@ -12,11 +12,19 @@ target_link_libraries(client-ydb_table-impl PUBLIC
 )
 
 target_sources(client-ydb_table-impl PRIVATE
+<<<<<<< HEAD:src/client/table/impl/CMakeLists.txt
   client_session.cpp
   data_query.cpp
   readers.cpp
   request_migrator.cpp
   table_client.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_table/impl/client_session.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_table/impl/data_query.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_table/impl/readers.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_table/impl/request_migrator.cpp
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_table/impl/table_client.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_table/impl/CMakeLists.txt
 )
 
 

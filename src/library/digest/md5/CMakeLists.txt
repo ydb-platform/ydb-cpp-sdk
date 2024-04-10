@@ -7,5 +7,9 @@ target_link_libraries(cpp-digest-md5 PUBLIC
 )
 
 target_sources(cpp-digest-md5 PRIVATE
+<<<<<<< HEAD:src/library/digest/md5/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/digest/md5/md5.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/digest/md5/md5.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/digest/md5/CMakeLists.txt
 )

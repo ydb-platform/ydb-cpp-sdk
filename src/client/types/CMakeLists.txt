@@ -15,13 +15,21 @@ target_link_libraries(cpp-client-ydb_types PUBLIC
 )
 
 generate_enum_serilization(cpp-client-ydb_types
+<<<<<<< HEAD:src/client/types/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/types/s3_settings.h
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_types/s3_settings.h
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_types/CMakeLists.txt
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/client/types/s3_settings.h
 )
 
 generate_enum_serilization(cpp-client-ydb_types
+<<<<<<< HEAD:src/client/types/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/types/status_codes.h
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_types/status_codes.h
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_types/CMakeLists.txt
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/client/types/status_codes.h
 )

@@ -1,4 +1,9 @@
 add_ydb_test(NAME client-ydb_coordination-ut
+<<<<<<< HEAD
+=======
+  INCLUDE_DIRS
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_coordination
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
   SOURCES
   coordination_ut.cpp
   LINK_LIBRARIES
@@ -9,6 +14,11 @@ add_ydb_test(NAME client-ydb_coordination-ut
 )
 
 add_ydb_test(NAME client-extensions-discovery_mutator-ut
+<<<<<<< HEAD
+=======
+  INCLUDE_DIRS
+  ${YDB_SDK_SOURCE_DIR}/client/extensions/discovery_mutator
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
   SOURCES
   discovery_mutator_ut.cpp
   LINK_LIBRARIES
@@ -19,6 +29,11 @@ add_ydb_test(NAME client-extensions-discovery_mutator-ut
 )
 
 add_ydb_test(NAME client-ydb_driver-ut
+<<<<<<< HEAD
+=======
+  INCLUDE_DIRS
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_driver
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
   SOURCES
   driver_ut.cpp
   LINK_LIBRARIES
@@ -30,7 +45,11 @@ add_ydb_test(NAME client-ydb_driver-ut
 
 add_ydb_test(NAME client-impl-ydb_endpoints-ut
   INCLUDE_DIRS
+<<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/src/client/impl/ydb_endpoints
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_endpoints
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
   SOURCES
   endpoints_ut.cpp
   LINK_LIBRARIES
@@ -40,6 +59,11 @@ add_ydb_test(NAME client-impl-ydb_endpoints-ut
 )
 
 add_ydb_test(NAME client-ydb_params-ut
+<<<<<<< HEAD
+=======
+  INCLUDE_DIRS
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_params
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
   SOURCES
   params_ut.cpp
   LINK_LIBRARIES
@@ -50,6 +74,11 @@ add_ydb_test(NAME client-ydb_params-ut
 )
 
 add_ydb_test(NAME client-ydb_result-ut
+<<<<<<< HEAD
+=======
+  INCLUDE_DIRS
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_result
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
   SOURCES
   result_ut.cpp
   LINK_LIBRARIES
@@ -60,6 +89,11 @@ add_ydb_test(NAME client-ydb_result-ut
 )
 
 add_ydb_test(NAME client-ydb_value-ut
+<<<<<<< HEAD
+=======
+  INCLUDE_DIRS
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_value
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
   SOURCES
   value_ut.cpp
   LINK_LIBRARIES
@@ -72,6 +106,11 @@ add_ydb_test(NAME client-ydb_value-ut
 )
 
 add_ydb_test(NAME client-draft-ut
+<<<<<<< HEAD
+=======
+  INCLUDE_DIRS
+  ${YDB_SDK_SOURCE_DIR}/client/draft
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
   SOURCES
   ydb_scripting_response_headers_ut.cpp
   LINK_LIBRARIES

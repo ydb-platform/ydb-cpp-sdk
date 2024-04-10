@@ -10,7 +10,11 @@ target_link_libraries(client-ydb_types-status PUBLIC
 )
 
 target_sources(client-ydb_types-status PRIVATE
+<<<<<<< HEAD:src/client/types/status/CMakeLists.txt
   status.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_types/status/status.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_types/status/CMakeLists.txt
 )
 
 

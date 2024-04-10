@@ -9,7 +9,11 @@ target_link_libraries(internal-proxies-sse41 PUBLIC
 target_sources_custom(internal-proxies-sse41
   .sse41
   SRCS
+<<<<<<< HEAD:src/library/digest/argonish/internal/proxies/sse41/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/digest/argonish/internal/proxies/sse41/proxy_sse41.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/library/cpp/digest/argonish/internal/proxies/sse41/proxy_sse41.cpp
+>>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/digest/argonish/internal/proxies/sse41/CMakeLists.txt
   CUSTOM_FLAGS
   -msse4.1
 )
