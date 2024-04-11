@@ -1,6 +1,6 @@
 #include "ut_utils/topic_sdk_test_setup.h"
 
-#include <ydb/library/persqueue/topic_parser_public/topic_parser.h>
+#include <src/library/persqueue/topic_parser_public/topic_parser.h>
 #include <src/client/ydb_topic/topic.h>
 #include <src/client/ydb_persqueue_core/persqueue.h>
 #include <src/client/ydb_persqueue_core/impl/common.h>

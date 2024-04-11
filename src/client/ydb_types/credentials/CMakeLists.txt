@@ -4,7 +4,7 @@ add_library(client-ydb_types-credentials)
 
 target_link_libraries(client-ydb_types-credentials PUBLIC
   yutil
-  ydb-library-login
+  library-login
   api-grpc
   client-ydb_types-status
   yql-public-issue

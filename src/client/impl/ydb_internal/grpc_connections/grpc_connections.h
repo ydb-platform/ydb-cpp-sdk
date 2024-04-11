@@ -13,7 +13,7 @@
 #include <src/client/resources/ydb_resources.h>
 #include <src/client/ydb_extension/extension.h>
 
-#include <ydb/library/yql/public/issue/yql_issue_message.h>
+#include <src/library/yql/public/issue/yql_issue_message.h>
 
 namespace NYdb {
 

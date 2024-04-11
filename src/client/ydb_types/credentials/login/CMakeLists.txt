@@ -2,8 +2,8 @@ add_library(ydb_types-credentials-login)
 
 target_link_libraries(ydb_types-credentials-login PUBLIC
   yutil
-  ydb-library-login
-  ydb-library-security
+  library-login
+  library-security
   api-grpc
   client-ydb_types-status
   impl-ydb_internal-grpc_connections

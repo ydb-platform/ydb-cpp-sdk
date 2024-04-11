@@ -12,8 +12,8 @@
 #include <library/cpp/containers/stack_vector/stack_vec.h>
 #include <util/string/builder.h>
 
-#include <ydb/library/yql/public/decimal/yql_decimal.h>
-#include <ydb/library/uuid/uuid.h>
+#include <src/library/yql/public/decimal/yql_decimal.h>
+#include <src/library/uuid/uuid.h>
 
 #include <util/generic/mapfindptr.h>
 #include <util/generic/bitmap.h>

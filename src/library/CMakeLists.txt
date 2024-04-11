@@ -1,2 +1,8 @@
+add_subdirectory(grpc)
 add_subdirectory(jwt)
+add_subdirectory(login)
 add_subdirectory(operation_id)
+add_subdirectory(persqueue)
+add_subdirectory(security)
+add_subdirectory(uuid)
+add_subdirectory(yql)

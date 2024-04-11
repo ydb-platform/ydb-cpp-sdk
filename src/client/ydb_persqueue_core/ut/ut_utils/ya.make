@@ -11,11 +11,11 @@ SRCS(
 )
 
 PEERDIR(
-    ydb/library/grpc/server
+    src/library/grpc/server
     library/cpp/testing/unittest
     library/cpp/threading/chunk_queue
     ydb/core/testlib/default
-    ydb/library/persqueue/topic_parser_public
+    src/library/persqueue/topic_parser_public
     client/ydb_driver
     client/ydb_persqueue_core
     client/ydb_persqueue_public

@@ -5,9 +5,9 @@
 #include <src/client/ydb_types/status_codes.h>
 #include <src/client/ydb_types/ydb.h>
 
-#include <ydb/library/yql/public/issue/yql_issue.h>
+#include <src/library/yql/public/issue/yql_issue.h>
 
-#include <ydb/library/grpc/client/grpc_client_low.h>
+#include <src/library/grpc/client/grpc_client_low.h>
 
 
 namespace NYdb {

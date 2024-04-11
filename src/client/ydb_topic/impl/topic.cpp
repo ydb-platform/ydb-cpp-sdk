@@ -4,7 +4,7 @@
 #include <src/client/impl/ydb_internal/scheme_helpers/helpers.h>
 #include <src/client/ydb_persqueue_core/impl/common.h>
 
-#include <ydb/library/persqueue/obfuscate/obfuscate.h>
+#include <src/library/persqueue/obfuscate/obfuscate.h>
 
 #include <util/random/random.h>
 #include <util/string/cast.h>

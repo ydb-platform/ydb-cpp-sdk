@@ -8,7 +8,7 @@ target_link_libraries(cpp-client-ydb_value PUBLIC
   impl-ydb_internal-value_helpers
   client-ydb_types-fatal_error_handlers
   yql-public-decimal
-  ydb-library-uuid
+  library-uuid
   proto_output
 )
 

@@ -2,7 +2,7 @@
 #include <ydb/core/testlib/test_pq_client.h>
 #include <src/client/ydb_persqueue_core/persqueue.h>
 
-#include <ydb/library/grpc/server/grpc_server.h>
+#include <src/library/grpc/server/grpc_server.h>
 
 #include <library/cpp/testing/unittest/registar.h>
 #include <library/cpp/testing/unittest/tests_data.h>

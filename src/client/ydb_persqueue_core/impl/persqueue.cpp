@@ -3,7 +3,7 @@
 #include <src/client/ydb_persqueue_core/impl/persqueue_impl.h>
 #include <src/client/ydb_persqueue_core/impl/read_session.h>
 
-#include <ydb/library/persqueue/obfuscate/obfuscate.h>
+#include <src/library/persqueue/obfuscate/obfuscate.h>
 
 #include <util/random/random.h>
 #include <util/string/cast.h>

@@ -4,8 +4,8 @@
 #include <src/client/impl/ydb_internal/grpc_connections/grpc_connections.h>
 #include <src/client/ydb_types/core_facility/core_facility.h>
 #include <ydb/public/api/grpc/ydb_auth_v1.grpc.pb.h>
-#include <ydb/library/login/login.h>
-#include <ydb/library/security/util.h>
+#include <src/library/login/login.h>
+#include <src/library/security/util.h>
 
 #include <util/string/cast.h>
 

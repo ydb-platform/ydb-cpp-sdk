@@ -3,7 +3,7 @@
 #include <src/client/ydb_types/fatal_error_handlers/handlers.h>
 #include <src/client/ydb_types/ydb.h>
 
-#include <ydb/library/yql/public/issue/yql_issue.h>
+#include <src/library/yql/public/issue/yql_issue.h>
 
 #include <library/cpp/threading/future/future.h>
 

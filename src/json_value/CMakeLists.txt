@@ -6,7 +6,7 @@ target_link_libraries(public-lib-json_value PUBLIC
   cpp-string_utils-base64
   cpp-client-ydb_result
   cpp-client-ydb_value
-  ydb-library-uuid
+  library-uuid
 )
 
 target_sources(public-lib-json_value PRIVATE

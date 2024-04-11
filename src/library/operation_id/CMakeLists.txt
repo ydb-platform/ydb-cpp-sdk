@@ -1,5 +1,4 @@
 add_subdirectory(protos)
-add_subdirectory(ut)
 
 add_library(library-operation_id)
 
