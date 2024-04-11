@@ -212,17 +212,17 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
 
     namespace {
         std::string GenerateBinaryString() {
-            std::stringStream str;
+            TStringBuilder str;
             for (ui8 i = 0; i < 255; ++i) {
                 str << static_cast<unsigned char>(i);
             }
             str << static_cast<unsigned char>(0xff);
-            return str.Str();
+            return str;
         }
     }
 
     Y_UNIT_TEST(BinaryStringAsciiFollowedByNonAscii) {
-        std::string binaryString = TYdbStringBuilder() << "abc" << static_cast<unsigned char>(0xff)
+        std::string binaryString = TStringBuilder() << "abc" << static_cast<unsigned char>(0xff)
             << static_cast<unsigned char>(0xfe);
         TValue value = TValueBuilder()
             .String(binaryString)
@@ -245,7 +245,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
             .String(binaryString)
             .Build();
         std::string jsonString = FormatValueJson(value, EBinaryStringEncoding::Unicode);
-        TYdbStringBuilder from0To255Utf8;
+        TStringBuilder from0To255Utf8;
         from0To255Utf8 << "\"";
         from0To255Utf8 <<
             R"(\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000B\f\r\u000E\u000F)"
@@ -345,7 +345,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
                 errorMessage = e.what();
             }
             catch (std::exception& e) {
-                UNIT_FAIL(TYdbStringBuilder() << "Uncaught exception: " << e.what());
+                UNIT_FAIL(TStringBuilder() << "Uncaught exception: " << e.what());
             }
             return errorMessage;
         }
@@ -445,7 +445,7 @@ Y_UNIT_TEST_SUITE(JsonValueTest) {
 
         UNIT_ASSERT_NO_DIFF(
             jsonString,
-            TYdbStringBuilder() << '"' << utf8Str << '"'
+            TStringBuilder() << '"' << utf8Str << '"'
         );
         TValue resultValue = JsonToYdbValue(jsonString, value.GetType(), EBinaryStringEncoding::Unicode);
         UNIT_ASSERT_NO_DIFF(

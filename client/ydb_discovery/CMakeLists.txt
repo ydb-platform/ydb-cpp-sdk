@@ -1,5 +1,9 @@
 add_library(cpp-client-ydb_discovery)
 
+target_compile_options(cpp-client-ydb_discovery PRIVATE
+  -Wno-deprecated
+)
+
 target_link_libraries(cpp-client-ydb_discovery PUBLIC
   yutil
   client-ydb_common_client-impl

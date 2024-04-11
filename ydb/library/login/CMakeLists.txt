@@ -1,5 +1,5 @@
 add_subdirectory(protos)
-# add_subdirectory(ut)
+add_subdirectory(ut)
 
 add_library(ydb-library-login)
 

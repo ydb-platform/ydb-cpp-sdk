@@ -30,6 +30,7 @@ add_subdirectory(terminate_handler)
 add_subdirectory(testing)
 add_subdirectory(threading)
 add_subdirectory(uri)
+add_subdirectory(unicode_normalization)
 add_subdirectory(yson)
 add_subdirectory(yt)
 

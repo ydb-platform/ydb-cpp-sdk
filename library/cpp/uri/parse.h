@@ -226,22 +226,22 @@ namespace NUri {
         const char* PctBegin;
 
 #ifdef DO_PRN
-        IOutputStream& PrintAddr(const char* ptr) const {
+        std::ostream& PrintAddr(const char* ptr) const {
             return Cdbg << "[" << IntToString<16>(ui64(ptr)) << "] ";
         }
 
-        IOutputStream& PrintHead(const char* ptr, const char* func) const {
+        std::ostream& PrintHead(const char* ptr, const char* func) const {
             return PrintAddr(ptr) << func << " ";
         }
 
-        IOutputStream& PrintHead(const char* ptr, const char* func, const TField::EField& fld) const {
-            return PrintHead(ptr, func) << fld;
+        std::ostream& PrintHead(const char* ptr, const char* func, const TField::EField& fld) const {
+            return PrintHead(ptr, func) << ToString(fld);
         }
 
-        IOutputStream& PrintTail(const std::string_view& val) const {
+        std::ostream& PrintTail(const std::string_view& val) const {
             return Cdbg << " [" << val << "]" << std::endl;
         }
-        IOutputStream& PrintTail(const char* beg, const char* end) const {
+        std::ostream& PrintTail(const char* beg, const char* end) const {
             return PrintTail(std::string_view(beg, end));
         }
 #endif
