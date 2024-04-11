@@ -4,7 +4,7 @@ target_link_libraries(client-ydb_types-operation PUBLIC
   yutil
   protobuf::libprotobuf
   cpp-threading-future
-  public-lib-operation_id
+  library-operation_id
   cpp-client-ydb_types
 )
 

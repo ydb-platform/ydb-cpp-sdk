@@ -3,7 +3,7 @@ add_library(cpp-client-ydb_operation)
 target_link_libraries(cpp-client-ydb_operation PUBLIC
   yutil
   api-grpc
-  public-lib-operation_id
+  library-operation_id
   cpp-client-ydb_query
   client-ydb_common_client-impl
   cpp-client-ydb_driver

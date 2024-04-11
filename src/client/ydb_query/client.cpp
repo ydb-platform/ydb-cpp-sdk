@@ -11,7 +11,7 @@
 #include <src/client/impl/ydb_internal/session_pool/session_pool.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <ydb/public/lib/operation_id/operation_id.h>
+#include <src/library/operation_id/operation_id.h>
 #include <src/client/ydb_common_client/impl/client.h>
 #include <src/client/ydb_query/impl/exec_query.h>
 #include <src/client/ydb_retry/retry.h>

@@ -11,7 +11,7 @@
 #include <src/client/ydb_table/table.h>
 
 #include <ydb/public/api/grpc/ydb_operation_v1.grpc.pb.h>
-#include <ydb/public/lib/operation_id/operation_id.h>
+#include <src/library/operation_id/operation_id.h>
 #include <src/client/ydb_common_client/impl/client.h>
 
 namespace NYdb {

@@ -5,7 +5,7 @@ target_link_libraries(cpp-client-ydb_datastreams PUBLIC
   library-grpc-client
   cpp-string_utils-url
   api-grpc-draft
-  public-lib-operation_id
+  library-operation_id
   impl-ydb_internal-make_request
   cpp-client-ydb_driver
 )

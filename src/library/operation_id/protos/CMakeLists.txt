@@ -1,16 +1,13 @@
 add_library(lib-operation_id-protos)
 target_link_libraries(lib-operation_id-protos PUBLIC
-  
   yutil
   protobuf::libprotobuf
 )
 target_proto_messages(lib-operation_id-protos PRIVATE
-  ${YDB_SDK_SOURCE_DIR}/ydb/public/lib/operation_id/protos/operation_id.proto
+  ${YDB_SDK_SOURCE_DIR}/src/library/operation_id/protos/operation_id.proto
 )
 target_proto_addincls(lib-operation_id-protos
   ./
-  ${YDB_SDK_SOURCE_DIR}/
-  ${YDB_SDK_BINARY_DIR}
   ${YDB_SDK_SOURCE_DIR}
   ${YDB_SDK_BINARY_DIR}
 )

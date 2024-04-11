@@ -1,4 +1,5 @@
 add_subdirectory(api)
 add_subdirectory(client)
 add_subdirectory(json_value)
+add_subdirectory(library)
 add_subdirectory(yson_value)

@@ -6,7 +6,7 @@ target_link_libraries(client-iam-common PUBLIC
   cpp-http-simple
   library-cpp-json
   cpp-threading-atomic
-  public-lib-jwt
+  library-jwt
   client-ydb_types-credentials
 )
 
