@@ -513,7 +513,7 @@ public:                       \
         if (_a != _b) {                                                                           \
             UNIT_FAIL_IMPL("strings (" #A ") and (" #B ") are different",                         \
                            std::format("\n{}",                                                    \
-                                       ::NUnitTest::ColoredDiff(_a, _b, " \t\n.,:;'\"").data())); \
+                                       ::NUnitTest::ColoredDiff(_a, _b, " \t\n.,:;'\""))); \
         }                                                                                         \
     } while (false)
 

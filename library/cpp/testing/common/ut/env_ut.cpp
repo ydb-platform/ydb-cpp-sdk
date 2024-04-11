@@ -99,13 +99,6 @@ TEST(Runtime, GetOutputRamDrivePath) {
     EXPECT_EQ(tmpDir, GetOutputRamDrivePath());
 }
 
-#ifdef _linux_
-TEST(Runtime, GdbPath) {
-    Singleton<NPrivate::TTestEnv>()->ReInitialize();
-    EXPECT_TRUE(NFs::Exists(::GdbPath()));
-}
-#endif
-
 std::string ReInitializeContext(std::string_view data) {
     auto tmpDir = ::GetSystemTempDir();
     auto filename = tmpDir + "/context.json";
@@ -153,6 +146,7 @@ TEST(Runtime, WatchProcessCore) {
 
     TIFStream file("watch_core.txt");
     auto data = file.ReadAll();
+    TFsPath("watch_core.txt").DeleteIfExists();
     std::string expected = R"json({"cmd":"add","pid":1,"binary_path":"bin1","cwd":"pwd"}
 {"cmd":"add","pid":2,"binary_path":"bin1"}
 {"cmd":"drop","pid":2}

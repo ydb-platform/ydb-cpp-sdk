@@ -47,7 +47,7 @@ namespace NYdb {
                     Buffer.push_back('n');
                 } else if (c < '\x20' || c > '\x7E') {
                     SwitchToNonAscii(str);
-                    std::string tmp = std::format("\\u%04X", c);
+                    std::string tmp = std::format("\\u{:04X}", c);
                     for (unsigned char c : tmp) {
                         Buffer.push_back(c);
                     }

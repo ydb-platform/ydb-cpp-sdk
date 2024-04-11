@@ -1,4 +1,5 @@
 add_subdirectory(protos)
+add_subdirectory(ut)
 
 add_library(yql-public-issue)
 
