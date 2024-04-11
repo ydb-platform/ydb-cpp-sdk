@@ -15,7 +15,7 @@ Y_UNIT_TEST_SUITE(Login) {
         request1.User = "user1";
         request1.Password = "password1";
         auto response1 = provider.CreateUser(request1);
-        UNIT_ASSERT(!response1.Error);
+        UNIT_ASSERT(response1.Error.empty());
         TLoginProvider::TLoginUserRequest request2;
         request2.User = request1.User;
         request2.Password = request1.Password;
@@ -35,7 +35,7 @@ Y_UNIT_TEST_SUITE(Login) {
         request1.User = "user1";
         request1.Password = "password1";
         auto response1 = provider.CreateUser(request1);
-        UNIT_ASSERT(!response1.Error);
+        UNIT_ASSERT(response1.Error.empty());
         TLoginProvider::TLoginUserRequest request2;
         request2.User = request1.User;
         request2.Password = "wrong password";
@@ -50,7 +50,7 @@ Y_UNIT_TEST_SUITE(Login) {
         request1.User = "user1";
         request1.Password = "password1";
         auto response1 = provider.CreateUser(request1);
-        UNIT_ASSERT(!response1.Error);
+        UNIT_ASSERT(response1.Error.empty());
         TLoginProvider::TLoginUserRequest request2;
         request2.User = "wrong user";
         request2.Password = request1.Password;
@@ -66,7 +66,7 @@ Y_UNIT_TEST_SUITE(Login) {
         request1.User = "user1";
         request1.Password = "password1";
         auto response1 = provider.CreateUser(request1);
-        UNIT_ASSERT(!response1.Error);
+        UNIT_ASSERT(response1.Error.empty());
         TLoginProvider::TLoginUserRequest request2;
         request2.User = request1.User;
         request2.Password = request1.Password;
@@ -85,11 +85,11 @@ Y_UNIT_TEST_SUITE(Login) {
         provider.RotateKeys();
         {
             auto response1 = provider.CreateUser({.User = "user1"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto response1 = provider.CreateGroup({.Group = "group1"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto response1 = provider.CreateGroup({.Group = "group1"});
@@ -97,39 +97,39 @@ Y_UNIT_TEST_SUITE(Login) {
         }
         {
             auto response1 = provider.CreateGroup({.Group = "group2"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto response1 = provider.CreateGroup({.Group = "group3"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto response1 = provider.CreateGroup({.Group = "group4"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto response1 = provider.CreateGroup({.Group = "group5"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto response1 = provider.AddGroupMembership({.Group = "group1", .Member = "group2"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto response1 = provider.AddGroupMembership({.Group = "group1", .Member = "group3"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto response1 = provider.AddGroupMembership({.Group = "group2", .Member = "group4"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto response1 = provider.AddGroupMembership({.Group = "group3", .Member = "group5"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto response1 = provider.AddGroupMembership({.Group = "group4", .Member = "user1"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto groups = provider.GetGroupsMembership("user1");
@@ -140,7 +140,7 @@ Y_UNIT_TEST_SUITE(Login) {
         }
         {
             auto response1 = provider.AddGroupMembership({.Group = "group5", .Member = "user1"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto groups = provider.GetGroupsMembership("user1");
@@ -153,7 +153,7 @@ Y_UNIT_TEST_SUITE(Login) {
         }
         {
             auto response1 = provider.RenameGroup({.Group = "group3", .NewName = "group33"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
 
             auto sids = provider.Sids;
             UNIT_ASSERT(sids.size() == 6);
@@ -188,17 +188,17 @@ Y_UNIT_TEST_SUITE(Login) {
         }
         {
             auto response1 = provider.AddGroupMembership({.Group = "group2", .Member = {"group4"}});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
             UNIT_ASSERT(response1.Notice == "Role \"group4\" is already a member of role \"group2\"");
         }
         {
             auto response1 = provider.RemoveGroupMembership({.Group = "group2", .Member = {"group4"}});
-            UNIT_ASSERT(!response1.Error);
-            UNIT_ASSERT(!response1.Warning);
+            UNIT_ASSERT(response1.Error.empty());
+            UNIT_ASSERT(response1.Warning.empty());
         }
         {
             auto response1 = provider.RemoveGroupMembership({.Group = "group2", .Member = {"group4"}});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
             UNIT_ASSERT(response1.Warning == "Role \"group4\" is not a member of role \"group2\"");
         }
         {
@@ -211,7 +211,7 @@ Y_UNIT_TEST_SUITE(Login) {
         }
         {
             auto response1 = provider.RemoveUser({.User = "user1"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto groups = provider.GetGroupsMembership("user1");
@@ -225,21 +225,21 @@ Y_UNIT_TEST_SUITE(Login) {
         provider.RotateKeys();
         {
             auto response1 = provider.CreateUser({.User = "user1", .Password = "password1"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto response1 = provider.CreateGroup({.Group = "group1"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto response1 = provider.AddGroupMembership({.Group = "group1", .Member = "user1"});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
         }
         {
             auto response1 = provider.LoginUser({.User = "user1", .Password = "password1", .Options = {.WithUserGroups = true}});
-            UNIT_ASSERT(!response1.Error);
+            UNIT_ASSERT(response1.Error.empty());
             auto response2 = provider.ValidateToken({.Token = response1.Token});
-            UNIT_ASSERT(!response2.Error);
+            UNIT_ASSERT(response1.Error.empty());
             UNIT_ASSERT(response2.Groups);
             UNIT_ASSERT(response2.Groups.value().size() == 1);
             UNIT_ASSERT(response2.Groups.value()[0] == "group1");
@@ -254,7 +254,7 @@ Y_UNIT_TEST_SUITE(Login) {
         request1.User = "user1";
         request1.Password = "password1";
         auto response1 = provider.CreateUser(request1);
-        UNIT_ASSERT(!response1.Error);
+        UNIT_ASSERT(response1.Error.empty());
         {
             TLoginProvider::TLoginUserRequest request2;
             request2.User = "external_user";

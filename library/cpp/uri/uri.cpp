@@ -1,5 +1,4 @@
 #include "uri.h"
-#include "parse.h"
 
 #include <util/string/cast.h>
 #include <util/string/util.h>
@@ -140,7 +139,7 @@ namespace NUri {
 
                 memcpy(oldV, value.data(), value.length());
                 oldV[value.length()] = 0;
-                fld.substr(value.length());
+                fld = fld.substr(0, value.length());
                 return false;
             } while (false);
 

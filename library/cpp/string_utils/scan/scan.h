@@ -1,5 +1,7 @@
 #pragma once
 
+#include <library/cpp/string_utils/helpers/helpers.h>
+
 #include <string_view>
 
 template <bool addAll, char sep, char sepKeyVal, class F>
@@ -7,25 +9,13 @@ static inline void ScanKeyValue(std::string_view s, F&& f) {
     std::string_view key, val;
 
     while (!s.empty()) {
-        auto splitPos = s.find(sep);
-        val = s.substr(0, splitPos);
-        if (splitPos == std::string_view::npos) {
-            s = {};
-        } else {
-            s = s.substr(splitPos + 1);
-        }
+        val = NUtils::NextTok(s, sep);
 
         if (val.empty()) {
             continue; // && case
         }
 
-        splitPos = s.find(sepKeyVal);
-        key = s.substr(0, splitPos);
-        if (splitPos == std::string_view::npos) {
-            val = {};
-        } else {
-            val = val.substr(splitPos + 1);
-        }
+        key = NUtils::NextTok(val, sepKeyVal);
 
         if (addAll || val.data() != nullptr) {
             f(key, val); // includes empty keys
