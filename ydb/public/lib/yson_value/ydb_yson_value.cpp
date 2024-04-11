@@ -2,8 +2,8 @@
 
 #include <util/string/builder.h>
 
-#include <client/ydb_value/value.h>
-#include <client/ydb_result/result.h>
+#include <src/client/ydb_value/value.h>
+#include <src/client/ydb_result/result.h>
 
 #include <util/string/builder.h>
 

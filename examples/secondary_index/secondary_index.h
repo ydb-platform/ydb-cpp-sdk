@@ -1,7 +1,7 @@
 #pragma once
 
-#include <client/ydb_driver/driver.h>
-#include <client/ydb_table/table.h>
+#include <src/client/ydb_driver/driver.h>
+#include <src/client/ydb_table/table.h>
 
 #include <library/cpp/getopt/last_getopt.h>
 

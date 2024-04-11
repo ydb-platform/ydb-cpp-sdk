@@ -1,4 +1,4 @@
-#include <client/ydb_topic/topic.h>
+#include <src/client/ydb_topic/topic.h>
 
 #include <library/cpp/getopt/last_getopt.h>
 

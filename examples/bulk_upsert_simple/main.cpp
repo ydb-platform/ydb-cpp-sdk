@@ -1,4 +1,4 @@
-#include <client/ydb_table/table.h>
+#include <src/client/ydb_table/table.h>
 
 #include <library/cpp/getopt/last_getopt.h>
 

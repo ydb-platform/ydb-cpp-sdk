@@ -1,4 +1,4 @@
-#include <client/ydb_coordination/coordination.h>
+#include <coordination.h>
 
 #include <ydb/public/api/grpc/ydb_coordination_v1.grpc.pb.h>
 #include <ydb/public/api/grpc/ydb_discovery_v1.grpc.pb.h>

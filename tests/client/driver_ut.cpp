@@ -1,5 +1,5 @@
-#include <client/ydb_table/table.h>
-#include <client/ydb_types/exceptions/exceptions.h>
+#include <src/client/ydb_table/table.h>
+#include <src/client/ydb_types/exceptions/exceptions.h>
 
 #include <ydb/public/api/grpc/ydb_discovery_v1.grpc.pb.h>
 #include <ydb/public/api/grpc/ydb_table_v1.grpc.pb.h>

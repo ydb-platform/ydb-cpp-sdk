@@ -1,5 +1,6 @@
+#include <params.h>
+
 #include <ydb/public/lib/yson_value/ydb_yson_value.h>
-#include <client/ydb_params/params.h>
 
 #include <library/cpp/testing/unittest/registar.h>
 #include <library/cpp/testing/unittest/tests_data.h>

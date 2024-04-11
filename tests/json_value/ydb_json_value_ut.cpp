@@ -2,8 +2,8 @@
 
 #include <library/cpp/testing/unittest/tests_data.h>
 #include <library/cpp/testing/unittest/registar.h>
-#include <client/ydb_types/exceptions/exceptions.h>
-#include <client/ydb_proto/accessor.h>
+#include <src/client/ydb_types/exceptions/exceptions.h>
+#include <src/client/ydb_proto/accessor.h>
 #include <library/cpp/json/json_reader.h>
 
 namespace NYdb {
