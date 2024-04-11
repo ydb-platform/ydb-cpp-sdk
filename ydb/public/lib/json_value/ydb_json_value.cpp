@@ -892,10 +892,4 @@ TValue JsonToYdbValue(const NJson::TJsonValue& jsonValue, const TType& type, EBi
     return builder.Build();
 }
 
-std::string encode(std::string_view str) {
-    TUtf8Transcoder coder;
-    std::string res{coder.Encode(str)};
-    return res;
-}
-
 } // namespace NYdb
