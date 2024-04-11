@@ -54,7 +54,7 @@ add_ydb_test(NAME client-ydb_params-ut
   yutil
   cpp-testing-unittest_main
   YDB-CPP-SDK::Params
-  public-lib-yson_value
+  YDB-CPP-SDK::YsonValue
 )
 
 add_ydb_test(NAME client-ydb_result-ut
@@ -78,8 +78,8 @@ add_ydb_test(NAME client-ydb_value-ut
   yutil
   cpp-testing-unittest_main
   YDB-CPP-SDK::Value
-  public-lib-json_value
-  public-lib-yson_value
+  YDB-CPP-SDK::JsonValue
+  YDB-CPP-SDK::YsonValue
   YDB-CPP-SDK::Params
 )
 
