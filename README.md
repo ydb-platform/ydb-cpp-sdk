@@ -30,7 +30,7 @@ If you ok with this warning, then...
 - snappy 1.1.8+
 - base64
 - brotli 1.1.10+
-- libdouble-conversion-dev
+- double-conversion
 - jwt-cpp
 
 ## Runtime requirements
