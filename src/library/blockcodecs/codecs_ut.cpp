@@ -3,9 +3,9 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/stream/str.h>
-#include <util/string/join.h>
-#include <util/digest/multi.h>
+#include <src/util/stream/str.h>
+#include <src/util/string/join.h>
+#include <src/util/digest/multi.h>
 
 Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
     using namespace NBlockCodecs;

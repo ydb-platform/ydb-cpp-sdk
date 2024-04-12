@@ -5,7 +5,7 @@
 #include <src/library/json/common/defs.h>
 #include <src/library/json/fast_sax/parser.h>
 
-#include <util/stream/mem.h>
+#include <src/util/stream/mem.h>
 
 namespace NJson {
     struct TJsonReaderConfig {

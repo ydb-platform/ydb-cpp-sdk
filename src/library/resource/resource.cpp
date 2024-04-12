@@ -2,8 +2,8 @@
 #include "resource.h"
 #include "registry.h"
 
-#include <util/generic/yexception.h>
-#include <util/generic/xrange.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/generic/xrange.h>
 
 using namespace NResource;
 

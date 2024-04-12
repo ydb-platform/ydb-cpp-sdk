@@ -4,11 +4,11 @@
 #include <src/library/threading/future/future.h>
 #include <src/library/threading/future/async.h>
 
-#include <util/generic/ptr.h>
-#include <util/string/join.h>
-#include <util/system/event.h>
-#include <util/stream/zlib.h>
-#include <util/stream/str.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/string/join.h>
+#include <src/util/system/event.h>
+#include <src/util/stream/zlib.h>
+#include <src/util/stream/str.h>
 
 #include <atomic>
 #include <format>

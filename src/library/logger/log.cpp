@@ -5,8 +5,8 @@
 #include "stream.h"
 #include "thread.h"
 
-#include <util/system/yassert.h>
-#include <util/generic/scope.h>
+#include <src/util/system/yassert.h>
+#include <src/util/generic/scope.h>
 
 #include <iostream>
 

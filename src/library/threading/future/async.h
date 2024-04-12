@@ -2,8 +2,8 @@
 
 #include "future.h"
 
-#include <util/generic/function.h>
-#include <util/thread/pool.h>
+#include <src/util/generic/function.h>
+#include <src/util/thread/pool.h>
 
 namespace NThreading {
     /**

@@ -3,7 +3,7 @@
 #include "codepage.h"
 
 #include <string>
-#include <util/str_stl.h>
+#include <src/util/str_stl.h>
 
 // Same as std::string but uses CASE INSENSITIVE comparator and hash. Use with care.
 class TCiString: public std::string {

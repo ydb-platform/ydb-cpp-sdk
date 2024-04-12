@@ -1,7 +1,7 @@
 #include "uri_ut.h"
 #include <src/library/charset/recyr.hh>
 #include <src/library/html/entity/htmlentity.h>
-#include <util/system/maxlen.h>
+#include <src/util/system/maxlen.h>
 
 namespace NUri {
     namespace {

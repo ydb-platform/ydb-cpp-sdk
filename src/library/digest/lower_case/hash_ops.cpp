@@ -2,7 +2,7 @@
 #include "lciter.h"
 #include "hash_ops.h"
 
-#include <util/generic/algorithm.h>
+#include <src/util/generic/algorithm.h>
 
 size_t TCIOps::operator()(const std::string_view& s) const noexcept {
     return FnvCaseLess(s, (size_t)0xBEE);

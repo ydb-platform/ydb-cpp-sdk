@@ -2,9 +2,9 @@
 
 #include <src/library/testing/common/env.h>
 
-#include <util/generic/noncopyable.h>
-#include <util/generic/ptr.h>
-#include <util/network/sock.h>
+#include <src/util/generic/noncopyable.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/network/sock.h>
 
 #include <string>
 

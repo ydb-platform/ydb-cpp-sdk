@@ -4,12 +4,12 @@
 #include <src/library/monlib/metrics/histogram_snapshot.h>
 #include <src/library/monlib/metrics/metric.h>
 
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
-#include <util/datetime/base.h>
-#include <util/generic/hash.h>
-#include <util/string/cast.h>
-#include <util/string/ascii.h>
+#include <src/util/datetime/base.h>
+#include <src/util/generic/hash.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/ascii.h>
 
 #include <cmath>
 

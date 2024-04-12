@@ -3,7 +3,7 @@
 #include <src/library/string_utils/misc/misc.h>
 #include <src/library/colorizer/colors.h>
 
-#include <util/string/escape.h>
+#include <src/util/string/escape.h>
 
 namespace NLastGetopt {
     void TOptsParser::Init(const TOpts* opts, int argc, const char* argv[]) {

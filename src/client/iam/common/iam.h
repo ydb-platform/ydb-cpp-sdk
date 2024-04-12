@@ -8,11 +8,11 @@
 #include <src/library/json/json_reader.h>
 
 #include <src/library/jwt/jwt.h>
-#include <util/datetime/base.h>
+#include <src/util/datetime/base.h>
 
-#include <util/system/spinlock.h>
-#include <util/stream/file.h>
-#include <util/string/builder.h>
+#include <src/util/system/spinlock.h>
+#include <src/util/stream/file.h>
+#include <src/util/string/builder.h>
 
 namespace NYdb {
 

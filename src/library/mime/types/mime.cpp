@@ -1,7 +1,7 @@
 #include "mime.h"
 
-#include <util/system/defaults.h>
-#include <util/generic/hash.h>
+#include <src/util/system/defaults.h>
+#include <src/util/generic/hash.h>
 
 #include <cctype>
 

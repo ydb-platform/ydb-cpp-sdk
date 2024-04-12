@@ -1,10 +1,10 @@
 #pragma once
 
-#include <util/generic/buffer.h>
+#include <src/util/generic/buffer.h>
 #include <string_view>
 #include <string>
-#include <util/generic/typetraits.h>
-#include <util/generic/yexception.h>
+#include <src/util/generic/typetraits.h>
+#include <src/util/generic/yexception.h>
 
 namespace NBlockCodecs {
     struct TData: public std::string_view {

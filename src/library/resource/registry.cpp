@@ -3,10 +3,10 @@
 #include <src/library/blockcodecs/core/codecs.h>
 #include <src/library/string_utils/misc/misc.h>
 
-#include <util/system/yassert.h>
-#include <util/generic/hash.h>
-#include <util/generic/singleton.h>
-#include <util/string/escape.h>
+#include <src/util/system/yassert.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/string/escape.h>
 
 #include <iostream>
 

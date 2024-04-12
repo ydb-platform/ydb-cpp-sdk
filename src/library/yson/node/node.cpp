@@ -4,8 +4,8 @@
 
 #include <src/library/yson/writer.h>
 
-#include <util/generic/overloaded.h>
-#include <util/string/escape.h>
+#include <src/util/generic/overloaded.h>
+#include <src/util/string/escape.h>
 
 #include <iostream>
 

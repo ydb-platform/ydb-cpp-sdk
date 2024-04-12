@@ -1,4 +1,4 @@
-#include <util/stream/input.h>
+#include <src/util/stream/input.h>
 
 namespace NUtils {
 

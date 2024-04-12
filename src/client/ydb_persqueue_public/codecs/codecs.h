@@ -1,5 +1,5 @@
 #pragma once
-#include <util/stream/output.h>
+#include <src/util/stream/output.h>
 #include <src/api/protos/ydb_persqueue_v1.pb.h>
 #include <src/client/ydb_persqueue_core/persqueue.h>
 #include <src/client/ydb_topic/topic.h>

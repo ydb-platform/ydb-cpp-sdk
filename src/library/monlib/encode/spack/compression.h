@@ -2,8 +2,8 @@
 
 #include "spack_v1.h"
 
-#include <util/stream/input.h>
-#include <util/stream/output.h>
+#include <src/util/stream/input.h>
+#include <src/util/stream/output.h>
 
 namespace NMonitoring {
 

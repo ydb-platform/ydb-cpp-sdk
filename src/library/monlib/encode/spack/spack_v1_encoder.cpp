@@ -4,9 +4,9 @@
 
 #include <src/library/monlib/encode/buffered/buffered_encoder_base.h>
 
-#include <util/generic/cast.h>
-#include <util/datetime/base.h>
-#include <util/string/builder.h>
+#include <src/util/generic/cast.h>
+#include <src/util/datetime/base.h>
+#include <src/util/string/builder.h>
 
 #ifndef _little_endian_
 #error Unsupported platform

@@ -4,8 +4,8 @@
 #include "httpparser.h"
 #include "http_digest.h"
 
-#include <util/system/compat.h>
-#include <util/network/ip.h>
+#include <src/util/system/compat.h>
+#include <src/util/network/ip.h>
 #include <src/library/uri/http_url.h>
 #include <src/library/http/misc/httpcodes.h>
 

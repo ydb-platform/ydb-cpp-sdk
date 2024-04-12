@@ -1,9 +1,9 @@
 #include "base64.h"
 
 #include <libbase64.h>
-#include <util/generic/yexception.h>
-#include <util/system/cpu_id.h>
-#include <util/system/platform.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/system/cpu_id.h>
+#include <src/util/system/platform.h>
 
 #include <cstdlib>
 

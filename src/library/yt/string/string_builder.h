@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/noncopyable.h>
+#include <src/util/generic/noncopyable.h>
 
 #include <string>
 

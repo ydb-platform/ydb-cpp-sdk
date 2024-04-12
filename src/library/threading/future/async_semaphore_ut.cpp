@@ -4,9 +4,9 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/threading/cancellation/operation_cancelled_exception.h>
 
-#include <util/generic/scope.h>
+#include <src/util/generic/scope.h>
 
-#include <util/thread/pool.h>
+#include <src/util/thread/pool.h>
 
 using namespace NThreading;
 

@@ -1,11 +1,11 @@
 #include "env_var.h"
 
-#include <util/generic/yexception.h>
+#include <src/util/generic/yexception.h>
 
-#include <util/system/platform.h>
+#include <src/util/system/platform.h>
 
 #if defined(_win_)
-    #include <util/system/wininit.h>
+    #include <src/util/system/wininit.h>
 #else
     #include <cerrno>
 #endif

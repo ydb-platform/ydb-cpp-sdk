@@ -1,7 +1,7 @@
 #pragma once
 
-#include <util/stream/input.h>
-#include <util/system/yassert.h>
+#include <src/util/stream/input.h>
+#include <src/util/system/yassert.h>
 
 #include <string_view>
 

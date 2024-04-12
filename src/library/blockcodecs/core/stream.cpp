@@ -1,13 +1,13 @@
 #include "stream.h"
 #include "codecs.h"
 
-#include <util/digest/murmur.h>
-#include <util/generic/scope.h>
-#include <util/generic/cast.h>
-#include <util/generic/hash.h>
-#include <util/generic/singleton.h>
-#include <util/stream/mem.h>
-#include <util/ysaveload.h>
+#include <src/util/digest/murmur.h>
+#include <src/util/generic/scope.h>
+#include <src/util/generic/cast.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/stream/mem.h>
+#include <src/util/ysaveload.h>
 
 using namespace NBlockCodecs;
 

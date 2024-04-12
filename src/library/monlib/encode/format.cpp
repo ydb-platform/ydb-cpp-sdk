@@ -2,11 +2,11 @@
 
 #include <src/library/string_utils/misc/misc.h>
 
-#include <util/string/ascii.h>
-#include <util/string/split.h>
-#include <util/string/strip.h>
-#include <util/stream/output.h>
-#include <util/string/cast.h>
+#include <src/util/string/ascii.h>
+#include <src/util/string/split.h>
+#include <src/util/string/strip.h>
+#include <src/util/stream/output.h>
+#include <src/util/string/cast.h>
 
 namespace NMonitoring {
     static ECompression CompressionFromHeader(std::string_view value) {

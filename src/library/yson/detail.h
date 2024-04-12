@@ -3,10 +3,10 @@
 #include "public.h"
 #include "zigzag.h"
 
-#include <util/generic/buffer.h>
-#include <util/string/escape.h>
-#include <util/string/cast.h>
-#include <util/stream/input.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/string/escape.h>
+#include <src/util/string/cast.h>
+#include <src/util/stream/input.h>
 
 namespace NYson {
     namespace NDetail {

@@ -2,9 +2,9 @@
 
 #include <cstdlib>
 
-#include <util/charset/recode_result.h>
-#include <util/generic/ptr.h>
-#include <util/generic/yexception.h>
+#include <src/util/charset/recode_result.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/yexception.h>
 
 #include "codepage.h"
 #include "doccodes.h"

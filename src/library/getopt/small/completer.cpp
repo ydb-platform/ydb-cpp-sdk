@@ -2,7 +2,7 @@
 
 #include "completion_generator.h"
 
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 #include <src/library/string_utils/misc/misc.h>
 
 using NLastGetopt::NEscaping::Q;

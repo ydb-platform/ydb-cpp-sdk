@@ -1,7 +1,7 @@
 #include "engine.h"
 
-#include <util/string/cast.h>
-#include <util/string/escape.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/escape.h>
 
 #if !defined(DBGDUMP_INLINE_IF_INCLUDED)
 #define DBGDUMP_INLINE_IF_INCLUDED

@@ -2,7 +2,7 @@
 #include "codepage.h"
 #include "recyr.hh"
 
-#include <util/system/hi_lo.h>
+#include <src/util/system/hi_lo.h>
 
 
 template <typename TxChar>

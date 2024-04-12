@@ -4,8 +4,8 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/charset/utf8.h>
-#include <util/system/yassert.h>
+#include <src/util/charset/utf8.h>
+#include <src/util/system/yassert.h>
 
 class TRecyr_intTest: public TTestBase {
 private:

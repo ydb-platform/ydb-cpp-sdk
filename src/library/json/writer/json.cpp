@@ -1,11 +1,11 @@
 #include "json.h"
 
 #include <src/library/json/json_value.h>
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
-#include <util/string/cast.h>
-#include <util/string/strspn.h>
-#include <util/generic/ymath.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/strspn.h>
+#include <src/util/generic/ymath.h>
 
 namespace NJsonWriter {
     TBuf::TBuf(EHtmlEscapeMode mode, IOutputStream* stream)

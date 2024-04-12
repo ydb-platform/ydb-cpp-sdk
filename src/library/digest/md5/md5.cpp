@@ -2,9 +2,9 @@
 
 #include <src/library/string_utils/base64/base64.h>
 
-#include <util/stream/input.h>
-#include <util/stream/file.h>
-#include <util/string/hex.h>
+#include <src/util/stream/input.h>
+#include <src/util/stream/file.h>
+#include <src/util/string/hex.h>
 
 #include <contrib/libs/nayuki_md5/md5.h>
 

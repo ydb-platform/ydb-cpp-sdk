@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/generic/ptr.h>
+#include <src/util/generic/ptr.h>
 
 using namespace NMonitoring;
 

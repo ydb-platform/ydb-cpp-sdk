@@ -5,7 +5,7 @@
 
 #include <src/client/ydb_types/fatal_error_handlers/handlers.h>
 
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
 namespace NYdb {
 

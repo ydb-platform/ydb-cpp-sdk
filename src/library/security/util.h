@@ -1,7 +1,7 @@
 #pragma once
 
-#include <util/generic/fwd.h>
-#include <util/datetime/base.h>
+#include <src/util/generic/fwd.h>
+#include <src/util/datetime/base.h>
 
 namespace NKikimr {
     // copy-pasted from <robot/library/utils/time_convert.h>

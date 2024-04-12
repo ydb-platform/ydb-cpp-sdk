@@ -1,15 +1,15 @@
 #include "init.h"
 
-#include <util/generic/singleton.h>
+#include <src/util/generic/singleton.h>
 
-#include <util/generic/ptr.h>
-#include <util/generic/buffer.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/buffer.h>
 
-#include <util/system/yassert.h>
-#include <util/system/thread.h>
+#include <src/util/system/yassert.h>
+#include <src/util/system/thread.h>
 
-#include <util/random/entropy.h>
-#include <util/stream/input.h>
+#include <src/util/random/entropy.h>
+#include <src/util/stream/input.h>
 
 #include <openssl/bio.h>
 #include <openssl/ssl.h>

@@ -2,7 +2,7 @@
 
 #include "public.h"
 
-#include <util/generic/ptr.h>
+#include <src/util/generic/ptr.h>
 
 class IInputStream;
 

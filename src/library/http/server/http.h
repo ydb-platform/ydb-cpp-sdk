@@ -3,10 +3,10 @@
 #include "conn.h"
 #include "options.h"
 
-#include <util/thread/pool.h>
+#include <src/util/thread/pool.h>
 #include <src/library/http/io/stream.h>
-#include <util/memory/blob.h>
-#include <util/generic/ptr.h>
+#include <src/util/memory/blob.h>
+#include <src/util/generic/ptr.h>
 
 #include <src/library/deprecated/atomic/atomic.h>
 

@@ -1,11 +1,11 @@
 #include "thread.h"
 #include "record.h"
 
-#include <util/thread/pool.h>
-#include <util/system/event.h>
-#include <util/memory/addstorage.h>
-#include <util/generic/ptr.h>
-#include <util/generic/yexception.h>
+#include <src/util/thread/pool.h>
+#include <src/util/system/event.h>
+#include <src/util/memory/addstorage.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/yexception.h>
 
 class TThreadedLogBackend::TImpl {
     class TRec: public IObjectInQueue, public TAdditionalStorage<TRec>, public TLogRecord {

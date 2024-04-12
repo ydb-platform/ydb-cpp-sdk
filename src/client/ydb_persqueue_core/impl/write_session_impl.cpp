@@ -4,9 +4,9 @@
 #include <src/client/ydb_persqueue_core/persqueue.h>
 #include <src/library/string_utils/url/url.h>
 
-#include <util/generic/store_policy.h>
-#include <util/generic/utility.h>
-#include <util/stream/buffer.h>
+#include <src/util/generic/store_policy.h>
+#include <src/util/generic/utility.h>
+#include <src/util/stream/buffer.h>
 
 
 namespace NYdb::NPersQueue {

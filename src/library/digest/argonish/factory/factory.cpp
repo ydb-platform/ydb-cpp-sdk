@@ -12,8 +12,8 @@
 #include <src/library/digest/argonish/internal/proxies/avx2/proxy_avx2.h>
 #endif
 
-#include <util/system/cpu_id.h>
-#include <util/generic/yexception.h>
+#include <src/util/system/cpu_id.h>
+#include <src/util/generic/yexception.h>
 
 namespace NArgonish {
     static EInstructionSet GetBestSet() {

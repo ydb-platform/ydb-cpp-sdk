@@ -1,9 +1,9 @@
 #include "assertions.h"
 
-#include <util/string/builder.h>
-#include <util/string/escape.h>
-#include <util/string/split.h>
-#include <util/system/type_name.h>
+#include <src/util/string/builder.h>
+#include <src/util/string/escape.h>
+#include <src/util/string/split.h>
+#include <src/util/system/type_name.h>
 
 namespace NGTest::NInternal {
     namespace {

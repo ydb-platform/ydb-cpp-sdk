@@ -1,10 +1,10 @@
 #pragma once
 
-#include <util/stream/walk.h>
-#include <util/stream/input.h>
-#include <util/stream/output.h>
-#include <util/stream/zerocopy.h>
-#include <util/generic/buffer.h>
+#include <src/util/stream/walk.h>
+#include <src/util/stream/input.h>
+#include <src/util/stream/output.h>
+#include <src/util/stream/zerocopy.h>
+#include <src/util/generic/buffer.h>
 
 namespace NBlockCodecs {
     struct ICodec;

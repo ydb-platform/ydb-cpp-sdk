@@ -2,9 +2,9 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/random/fast.h>
-#include <util/stream/null.h>
-#include <util/stream/str.h>
+#include <src/util/random/fast.h>
+#include <src/util/stream/null.h>
+#include <src/util/stream/str.h>
 
 Y_UNIT_TEST_SUITE(TZstdTestSuite) {
     std::string Compress(std::string data, int quality = -1) {

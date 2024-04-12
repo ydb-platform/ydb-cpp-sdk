@@ -4,9 +4,9 @@
 
 #include <src/library/yt/memory/ref.h>
 
-#include <util/stream/zerocopy_output.h>
+#include <src/util/stream/zerocopy_output.h>
 
-#include <util/generic/size_literals.h>
+#include <src/util/generic/size_literals.h>
 
 namespace NYT {
 

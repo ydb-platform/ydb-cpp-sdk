@@ -3,7 +3,7 @@
 #include "labels.h"
 #include "metric.h"
 
-#include <util/system/rwlock.h>
+#include <src/util/system/rwlock.h>
 
 #include <src/library/threading/light_rw_lock/lightrwlock.h>
 

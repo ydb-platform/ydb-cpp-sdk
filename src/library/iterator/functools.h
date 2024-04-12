@@ -7,8 +7,8 @@
 #include "mapped.h"
 #include "zip.h"
 
-#include <util/generic/adaptor.h>
-#include <util/generic/xrange.h>
+#include <src/util/generic/adaptor.h>
+#include <src/util/generic/xrange.h>
 
 #include <tuple>
 #include <algorithm>

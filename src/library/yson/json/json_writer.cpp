@@ -1,7 +1,7 @@
 #include "json_writer.h"
 
 #include <src/library/json/json_writer.h>
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
 namespace NYT {
     ////////////////////////////////////////////////////////////////////////////////

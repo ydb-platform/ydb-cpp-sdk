@@ -1,7 +1,7 @@
 #pragma once
 
-#include <util/folder/path.h>
-#include <util/system/src_location.h>
+#include <src/util/folder/path.h>
+#include <src/util/system/src_location.h>
 
 #include <string>
 #include <string_view>

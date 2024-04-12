@@ -4,8 +4,8 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/charset/utf8.h>
-#include <util/digest/numeric.h>
+#include <src/util/charset/utf8.h>
+#include <src/util/digest/numeric.h>
 
 #include <algorithm>
 #include <unordered_set>

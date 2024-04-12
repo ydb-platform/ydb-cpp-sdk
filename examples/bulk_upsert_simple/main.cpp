@@ -2,7 +2,7 @@
 
 #include <src/library/getopt/last_getopt.h>
 
-#include <util/folder/pathsplit.h>
+#include <src/util/folder/pathsplit.h>
 
 constexpr size_t BATCH_SIZE = 1000;
 

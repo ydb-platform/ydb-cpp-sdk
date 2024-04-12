@@ -2,8 +2,8 @@
 
 #include <src/library/colorizer/colors.h>
 
-#include <util/stream/str.h>
-#include <util/charset/utf8.h>
+#include <src/util/stream/str.h>
+#include <src/util/charset/utf8.h>
 
 namespace NLastGetopt {
     std::string Wrap(ui32 width, std::string_view text, std::string_view indent, size_t* lastLineLen, bool* hasParagraphs) {

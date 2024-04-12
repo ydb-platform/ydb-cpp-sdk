@@ -4,7 +4,7 @@
 
 #include <src/library/json/json_reader.h>
 
-#include <util/generic/stack.h>
+#include <src/util/generic/stack.h>
 
 namespace NYT {
     class TYson2JsonCallbacksAdapter

@@ -3,7 +3,7 @@
 #include <src/client/ydb_driver/driver.h>
 #include <src/client/ydb_types/operation/operation.h>
 
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
 namespace NYdb {
 namespace NOperation {

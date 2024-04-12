@@ -2,8 +2,8 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/system/fs.h>
-#include <util/stream/file.h>
+#include <src/util/system/fs.h>
+#include <src/util/stream/file.h>
 
 Y_UNIT_TEST_SUITE(TMD5Test) {
     Y_UNIT_TEST(TestMD5) {

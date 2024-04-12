@@ -2,12 +2,12 @@
 
 #include "decomposition_table.h"
 
-#include <util/charset/unidata.h>
-#include <util/charset/wide.h>
-#include <util/generic/hash.h>
-#include <util/generic/algorithm.h>
-#include <util/generic/singleton.h>
-#include <util/generic/noncopyable.h>
+#include <src/util/charset/unidata.h>
+#include <src/util/charset/wide.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/algorithm.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/noncopyable.h>
 #include <utility>
 
 namespace NUnicode {
@@ -243,7 +243,7 @@ namespace NUnicode {
             }
         }
 
-        static inline void Write(const TBuffer::const_iterator& begin, const TBuffer::const_iterator& end, std::u32string& out) {  // because WriteSymbol from util/charset/wide.h works wrong in this case
+        static inline void Write(const TBuffer::const_iterator& begin, const TBuffer::const_iterator& end, std::u32string& out) {  // because WriteSymbol from src/util/charset/wide.h works wrong in this case
             for (TBuffer::const_iterator i = begin; i != end; ++i) {
                 out += i->first;
             }

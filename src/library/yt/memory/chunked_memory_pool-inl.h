@@ -8,7 +8,7 @@
 
 #include <src/library/yt/malloc/malloc.h>
 
-#include <util/system/align.h>
+#include <src/util/system/align.h>
 
 namespace NYT {
 

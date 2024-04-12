@@ -13,9 +13,9 @@
 
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 
-#include <util/digest/numeric.h>
-#include <util/generic/hash.h>
-#include <util/generic/hash_multi_map.h>
+#include <src/util/digest/numeric.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/hash_multi_map.h>
 
 #include <atomic>
 #include <deque>

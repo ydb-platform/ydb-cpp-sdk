@@ -2,15 +2,15 @@
 
 #include <src/library/logger/all.h>
 
-#include <util/generic/buffer.h>
+#include <src/util/generic/buffer.h>
 
-#include <util/network/address.h>
-#include <util/network/ip.h>
-#include <util/network/socket.h>
-#include <util/system/yassert.h>
+#include <src/util/network/address.h>
+#include <src/util/network/ip.h>
+#include <src/util/network/socket.h>
+#include <src/util/system/yassert.h>
 
 #include <cerrno>
-#include <util/generic/noncopyable.h>
+#include <src/util/generic/noncopyable.h>
 
 class TAddrList: public std::vector<NAddr::IRemoteAddrRef> {
 private:

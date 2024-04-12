@@ -2,7 +2,7 @@
 
 #include "atomic.h"
 
-#include <util/generic/typetraits.h>
+#include <src/util/generic/typetraits.h>
 
 template <typename T>
 inline TAtomic* AsAtomicPtr(T volatile* target) {

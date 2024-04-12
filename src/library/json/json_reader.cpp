@@ -6,10 +6,10 @@
 #include <rapidjson/error/error.h>
 #include <rapidjson/reader.h>
 
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
-#include <util/generic/stack.h>
-#include <util/system/yassert.h>
+#include <src/util/generic/stack.h>
+#include <src/util/system/yassert.h>
 
 namespace NJson {
     namespace {

@@ -2,7 +2,7 @@
 
 #include <benchmark/benchmark.h>
 
-#include <util/stream/str.h>
+#include <src/util/stream/str.h>
 
 void FindHeaderFirstMatch(benchmark::State& state) {
     THttpHeaders headers;

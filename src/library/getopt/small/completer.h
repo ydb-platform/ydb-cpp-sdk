@@ -2,7 +2,7 @@
 
 #include "formatted_output.h"
 
-#include <util/generic/ptr.h>
+#include <src/util/generic/ptr.h>
 
 namespace NLastGetopt::NComp {
     class ICompleter;

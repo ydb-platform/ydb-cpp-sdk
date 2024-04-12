@@ -2,7 +2,7 @@
 
 #include <src/library/threading/future/core/future.h>
 
-#include <util/generic/ptr.h>
+#include <src/util/generic/ptr.h>
 
 namespace NThreading {
     namespace NWaitGroup::NImpl {

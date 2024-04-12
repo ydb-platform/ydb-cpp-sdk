@@ -1,15 +1,15 @@
 #pragma once
 
-#include <util/datetime/base.h>
-#include <util/generic/noncopyable.h>
-#include <util/generic/ptr.h>
-#include <util/generic/typetraits.h>
+#include <src/util/datetime/base.h>
+#include <src/util/generic/noncopyable.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/typetraits.h>
 
-#include <util/generic/ylimits.h>
+#include <src/util/generic/ylimits.h>
 #include <src/library/deprecated/atomic/atomic.h>
-#include <util/system/guard.h>
-#include <util/system/spinlock.h>
-#include <util/system/yassert.h>
+#include <src/util/system/guard.h>
+#include <src/util/system/spinlock.h>
+#include <src/util/system/yassert.h>
 
 #include <mutex>
 #include <type_traits>

@@ -5,7 +5,7 @@
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 #include <src/client/ydb_proto/accessor.h>
 
-#include <util/random/random.h>
+#include <src/util/random/random.h>
 
 #include "client_session.h"
 #include "data_query.h"

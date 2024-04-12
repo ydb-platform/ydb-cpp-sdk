@@ -5,7 +5,7 @@
 #include "arcadia_enum.h"
 #endif
 
-#include <util/system/type_name.h>
+#include <src/util/system/type_name.h>
 
 namespace NYT::NDetail {
 

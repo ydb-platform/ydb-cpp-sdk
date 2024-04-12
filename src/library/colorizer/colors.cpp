@@ -1,7 +1,7 @@
 #include "colors.h"
 
-#include <util/stream/output.h>
-#include <util/generic/singleton.h>
+#include <src/util/stream/output.h>
+#include <src/util/generic/singleton.h>
 
 #include <iostream>
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <util/system/defaults.h>
+#include <src/util/system/defaults.h>
 
-#include <util/stream/input.h>
-#include <util/stream/output.h>
+#include <src/util/stream/input.h>
+#include <src/util/stream/output.h>
 
 namespace NYT {
 

@@ -1,8 +1,8 @@
 #include "impl.h"
 #include "network.h"
 
-#include <util/generic/scope.h>
-#include <util/generic/xrange.h>
+#include <src/util/generic/scope.h>
+#include <src/util/generic/xrange.h>
 
 #include <sys/uio.h>
 

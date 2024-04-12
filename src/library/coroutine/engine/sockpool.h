@@ -3,8 +3,8 @@
 #include "impl.h"
 #include "network.h"
 
-#include <util/network/address.h>
-#include <util/network/socket.h>
+#include <src/util/network/address.h>
+#include <src/util/network/socket.h>
 
 #include <mutex>
 

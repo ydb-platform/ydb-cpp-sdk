@@ -2,8 +2,8 @@
 
 #include "common.h"
 
-#include <util/generic/ptr.h>
-#include <util/system/defaults.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/system/defaults.h>
 
 namespace NArgonish {
     /**

@@ -5,7 +5,7 @@
 #endif
 #undef ATOMIC_INTRUSIVE_PTR_INL_H_
 
-#include <util/system/spinlock.h>
+#include <src/util/system/spinlock.h>
 
 namespace NYT {
 

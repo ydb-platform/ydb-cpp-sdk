@@ -1,6 +1,6 @@
-#include <util/generic/hash.h>
-#include <util/string/cast.h>
-#include <util/generic/yexception.h>
+#include <src/util/generic/hash.h>
+#include <src/util/string/cast.h>
+#include <src/util/generic/yexception.h>
 #include <unordered_set>
 
 #include "parser.h"

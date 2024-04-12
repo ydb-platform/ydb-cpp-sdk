@@ -3,7 +3,7 @@
 #include <src/library/monlib/metrics/metric_registry.h>
 #include <src/library/string_utils/quote/quote.h>
 
-#include <util/random/random.h>
+#include <src/util/random/random.h>
 
 #include <set>
 #include <unordered_set>

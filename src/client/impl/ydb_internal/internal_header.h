@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/system/compiler.h>
+#include <src/util/system/compiler.h>
 
 #if !defined(INCLUDE_YDB_INTERNAL_H)
 #error "you are trying to use internal ydb header"

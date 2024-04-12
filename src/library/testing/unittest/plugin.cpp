@@ -1,7 +1,7 @@
 #include "plugin.h"
 
-#include <util/generic/singleton.h>
-#include <util/generic/utility.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/utility.h>
 #include <vector>
 
 namespace NUnitTest::NPlugin {

@@ -4,7 +4,7 @@
 #include <src/client/ydb_topic/impl/topic_impl.h>
 
 #include <src/library/threading/future/future.h>
-#include <util/generic/guid.h>
+#include <src/util/generic/guid.h>
 
 namespace NYdb::NFederatedTopic {
 

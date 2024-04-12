@@ -1,6 +1,6 @@
 #include "metric_consumer.h"
 
-#include <util/system/yassert.h>
+#include <src/util/system/yassert.h>
 
 namespace NMonitoring {
     void IMetricConsumer::OnLabel(ui32 name, ui32 value) {

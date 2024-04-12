@@ -6,7 +6,7 @@
 #include <src/client/impl/ydb_internal/logger/log.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <util/generic/guid.h>
+#include <src/util/generic/guid.h>
 
 namespace NYdb::NTopic {
 

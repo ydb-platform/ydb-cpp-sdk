@@ -3,7 +3,7 @@
 #include <src/library/monlib/encode/encoder.h>
 #include <src/library/monlib/encode/format.h>
 
-#include <util/generic/yexception.h>
+#include <src/util/generic/yexception.h>
 
 
 namespace NMonitoring {

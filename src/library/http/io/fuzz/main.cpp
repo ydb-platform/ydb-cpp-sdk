@@ -1,7 +1,7 @@
 #include <src/library/http/io/stream.h>
 
 
-#include <util/stream/mem.h>
+#include <src/util/stream/mem.h>
 
 extern "C" int LLVMFuzzerTestOneInput(const ui8* data, size_t size) {
     TMemoryInput mi(data, size);

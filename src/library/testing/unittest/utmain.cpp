@@ -12,24 +12,24 @@
 #include <src/library/testing/common/env_var.h>
 #include <src/library/testing/hook/hook.h>
 
-#include <util/datetime/base.h>
+#include <src/util/datetime/base.h>
 
-#include <util/generic/hash.h>
-#include <util/generic/scope.h>
-#include <util/generic/yexception.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/scope.h>
+#include <src/util/generic/yexception.h>
 
-#include <util/network/init.h>
+#include <src/util/network/init.h>
 
-#include <util/stream/file.h>
-#include <util/stream/output.h>
+#include <src/util/stream/file.h>
+#include <src/util/stream/output.h>
 
-#include <util/string/join.h>
-#include <util/string/util.h>
+#include <src/util/string/join.h>
+#include <src/util/string/util.h>
 
-#include <util/system/defaults.h>
-#include <util/system/execpath.h>
-#include <util/system/valgrind.h>
-#include <util/system/shellcommand.h>
+#include <src/util/system/defaults.h>
+#include <src/util/system/execpath.h>
+#include <src/util/system/valgrind.h>
+#include <src/util/system/shellcommand.h>
 
 #include <filesystem>
 #include <format>

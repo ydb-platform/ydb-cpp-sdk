@@ -1,8 +1,8 @@
 #include "varint.h"
 
-#include <util/generic/yexception.h>
-#include <util/stream/input.h>
-#include <util/stream/output.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/stream/input.h>
+#include <src/util/stream/output.h>
 
 namespace NMonitoring {
     ui32 WriteVarUInt32(IOutputStream* output, ui32 value) {

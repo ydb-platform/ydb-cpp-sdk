@@ -7,8 +7,8 @@
 
 #include "registar.h"
 
-#include <util/generic/ymath.h>
-#include <util/generic/ylimits.h>
+#include <src/util/generic/ymath.h>
+#include <src/util/generic/ylimits.h>
 
 namespace NUnitTest {
     namespace NPrivate {
@@ -90,7 +90,7 @@ namespace testing {
 #define EXPECT_DOUBLE_EQ_TOLERANCE(A, B, tolerance) UNIT_ASSERT_C(fabs((A) - (B)) < tolerance * std::numeric_limits<decltype(A)>::epsilon(), std::string("\n") + ToString(A) + " <> " + ToString(B))
 #define EXPECT_DOUBLE_EQ(A, B) EXPECT_DOUBLE_EQ_TOLERANCE(A, B, 4.0)
 
-//conflicts with util/system/defaults.h
+//conflicts with src/util/system/defaults.h
 #undef EXPECT_TRUE
 #define EXPECT_TRUE(X) UNIT_ASSERT(X)
 #undef EXPECT_FALSE

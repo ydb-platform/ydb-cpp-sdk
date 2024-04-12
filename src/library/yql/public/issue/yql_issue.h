@@ -2,9 +2,9 @@
 
 #include "yql_issue_id.h"
 
-#include <util/system/types.h>
-#include <util/generic/hash.h>
-#include <util/digest/numeric.h>
+#include <src/util/system/types.h>
+#include <src/util/generic/hash.h>
+#include <src/util/digest/numeric.h>
 #include <google/protobuf/message.h>
 
 #include <vector>

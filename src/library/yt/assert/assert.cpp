@@ -1,7 +1,7 @@
 #include "assert.h"
 
-#include <util/system/yassert.h>
-#include <util/system/compiler.h>
+#include <src/util/system/yassert.h>
+#include <src/util/system/compiler.h>
 
 namespace NYT::NDetail {
 

@@ -1,9 +1,9 @@
-#include <util/stream/output.h>
-#include <util/stream/null.h>
-#include <util/system/yassert.h>
-#include <util/system/defaults.h>
-#include <util/generic/singleton.h>
-#include <util/generic/utility.h>
+#include <src/util/stream/output.h>
+#include <src/util/stream/null.h>
+#include <src/util/system/yassert.h>
+#include <src/util/system/defaults.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/utility.h>
 
 #if defined(_unix_)
 #include <syslog.h>

@@ -2,13 +2,13 @@
 
 #include <src/library/string_utils/misc/misc.h>
 
-#include <util/digest/multi.h>
-#include <util/digest/sequence.h>
-#include <util/generic/algorithm.h>
+#include <src/util/digest/multi.h>
+#include <src/util/digest/sequence.h>
+#include <src/util/generic/algorithm.h>
 
-#include <util/stream/output.h>
-#include <util/string/builder.h>
-#include <util/string/strip.h>
+#include <src/util/stream/output.h>
+#include <src/util/string/builder.h>
+#include <src/util/string/strip.h>
 
 #include <optional>
 #include <type_traits>

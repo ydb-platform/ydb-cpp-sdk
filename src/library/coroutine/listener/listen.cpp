@@ -3,10 +3,10 @@
 #include <src/library/coroutine/engine/impl.h>
 #include <src/library/coroutine/engine/network.h>
 
-#include <util/network/ip.h>
-#include <util/network/address.h>
-#include <util/generic/ylimits.h>
-#include <util/generic/intrlist.h>
+#include <src/util/network/ip.h>
+#include <src/util/network/address.h>
+#include <src/util/generic/ylimits.h>
+#include <src/util/generic/intrlist.h>
 
 using namespace NAddr;
 

@@ -3,7 +3,7 @@
 #include <src/library/string_utils/scan/scan.h>
 #include <src/library/string_utils/quote/quote.h>
 
-#include <util/generic/singleton.h>
+#include <src/util/generic/singleton.h>
 
 #include <string>
 

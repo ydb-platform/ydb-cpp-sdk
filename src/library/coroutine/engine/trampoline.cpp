@@ -3,13 +3,13 @@
 
 #include "stack/stack_allocator.h"
 
-#include <util/system/info.h>
-#include <util/system/protect.h>
-#include <util/system/valgrind.h>
-#include <util/system/yassert.h>
+#include <src/util/system/info.h>
+#include <src/util/system/protect.h>
+#include <src/util/system/valgrind.h>
+#include <src/util/system/yassert.h>
 
 #include <cstdlib>
-#include <util/stream/format.h>
+#include <src/util/stream/format.h>
 
 
 namespace NCoro {

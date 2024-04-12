@@ -11,7 +11,7 @@
 #include <src/library/testing/gmock_in_unittest/gmock.h>
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/stream/zlib.h>
+#include <src/util/stream/zlib.h>
 
 #include <future>
 

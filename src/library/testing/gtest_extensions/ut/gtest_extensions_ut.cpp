@@ -1,7 +1,7 @@
 #include <src/library/testing/gtest/gtest.h>
 
-#include <util/stream/output.h>
-#include <util/stream/str.h>
+#include <src/util/stream/output.h>
+#include <src/util/stream/str.h>
 
 #include <string>
 

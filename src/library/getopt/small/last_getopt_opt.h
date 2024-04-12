@@ -3,9 +3,9 @@
 #include "completer.h"
 #include "last_getopt_handlers.h"
 
-#include <util/generic/mapfindptr.h>
-#include <util/string/join.h>
-#include <util/string/subst.h>
+#include <src/util/generic/mapfindptr.h>
+#include <src/util/string/join.h>
+#include <src/util/string/subst.h>
 
 #include <optional>
 #include <unordered_set>

@@ -1,19 +1,19 @@
 #include "url.h"
 
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 #include <src/library/string_utils/misc/misc.h>
 
-#include <util/string/cast.h>
-#include <util/string/util.h>
-#include <util/string/cstriter.h>
-#include <util/string/ascii.h>
-#include <util/string/strip.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/util.h>
+#include <src/util/string/cstriter.h>
+#include <src/util/string/ascii.h>
+#include <src/util/string/strip.h>
 
-#include <util/charset/unidata.h> // for ToLower
-#include <util/system/defaults.h>
-#include <util/generic/algorithm.h>
-#include <util/generic/yexception.h>
-#include <util/generic/singleton.h>
+#include <src/util/charset/unidata.h> // for ToLower
+#include <src/util/system/defaults.h>
+#include <src/util/generic/algorithm.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/generic/singleton.h>
 
 #include <cstdlib>
 

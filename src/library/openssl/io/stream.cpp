@@ -1,7 +1,7 @@
 #include "stream.h"
 
-#include <util/generic/singleton.h>
-#include <util/generic/yexception.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/yexception.h>
 
 #include <src/library/openssl/init/init.h>
 #include <src/library/openssl/method/io.h>

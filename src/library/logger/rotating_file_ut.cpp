@@ -2,8 +2,8 @@
 #include "record.h"
 
 #include <string>
-#include <util/system/fstat.h>
-#include <util/system/fs.h>
+#include <src/util/system/fstat.h>
+#include <src/util/system/fs.h>
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>

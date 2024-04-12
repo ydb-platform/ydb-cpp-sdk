@@ -3,7 +3,7 @@
 #include "encoder_state_enum.h"
 
 #include <tools/enum_parser/enum_serialization_runtime/serialized_enum.h>
-#include <util/generic/yexception.h>
+#include <src/util/generic/yexception.h>
 
 
 namespace NMonitoring {

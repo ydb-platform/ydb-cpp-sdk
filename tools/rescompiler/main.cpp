@@ -1,12 +1,12 @@
 #include <src/library/resource/registry.h>
 
-#include <util/stream/output.h>
-#include <util/stream/file.h>
-#include <util/digest/city.h>
-#include <util/string/cast.h>
-#include <util/string/hex.h>
-#include <util/string/vector.h>
-#include <util/string/split.h>
+#include <src/util/stream/output.h>
+#include <src/util/stream/file.h>
+#include <src/util/digest/city.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/hex.h>
+#include <src/util/string/vector.h>
+#include <src/util/string/split.h>
 
 #include <iostream>
 

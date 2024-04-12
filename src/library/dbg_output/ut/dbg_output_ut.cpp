@@ -1,10 +1,10 @@
 #include <src/library/dbg_output/dump.h>
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/stream/str.h>
-#include <util/string/builder.h>
-#include <util/string/escape.h>
-#include <util/generic/map.h>
+#include <src/util/stream/str.h>
+#include <src/util/string/builder.h>
+#include <src/util/string/escape.h>
+#include <src/util/generic/map.h>
 
 namespace {
     struct TX {

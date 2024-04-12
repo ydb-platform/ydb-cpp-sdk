@@ -1,12 +1,12 @@
 #include "lzma.h"
 
-#include <util/stream/mem.h>
-#include <util/system/context.h>
-#include <util/generic/cast.h>
-#include <util/memory/addstorage.h>
-#include <util/generic/ptr.h>
-#include <util/generic/intrlist.h>
-#include <util/generic/scope.h>
+#include <src/util/stream/mem.h>
+#include <src/util/system/context.h>
+#include <src/util/generic/cast.h>
+#include <src/util/memory/addstorage.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/intrlist.h>
+#include <src/util/generic/scope.h>
 
 extern "C" {
 #include <contrib/libs/lzmasdk/LzmaEnc.h>

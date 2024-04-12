@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-#include <util/stream/output.h>
+#include <src/util/stream/output.h>
 
 namespace NUri {
     namespace NEncode {

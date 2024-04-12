@@ -10,7 +10,7 @@
 #include <src/client/impl/ydb_internal/common/parser.h>
 #include <src/client/impl/ydb_internal/common/getenv.h>
 #include <src/client/impl/ydb_internal/common/ssl_credentials.h>
-#include <util/stream/file.h>
+#include <src/util/stream/file.h>
 #include <src/client/resources/ydb_ca.h>
 
 namespace NYdb {

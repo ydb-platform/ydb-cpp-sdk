@@ -3,19 +3,19 @@
 
 #include <src/library/threading/equeue/equeue.h>
 
-#include <util/generic/buffer.h>
-#include <util/generic/intrlist.h>
-#include <util/generic/yexception.h>
-#include <util/network/address.h>
-#include <util/network/socket.h>
-#include <util/network/poller.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/generic/intrlist.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/network/address.h>
+#include <src/util/network/socket.h>
+#include <src/util/network/poller.h>
 #include <src/library/deprecated/atomic/atomic.h>
-#include <util/system/compat.h> // stricmp, strnicmp, strlwr, strupr, stpcpy
-#include <util/system/defaults.h>
-#include <util/system/event.h>
-#include <util/system/pipe.h>
-#include <util/system/thread.h>
-#include <util/thread/factory.h>
+#include <src/util/system/compat.h> // stricmp, strnicmp, strlwr, strupr, stpcpy
+#include <src/util/system/defaults.h>
+#include <src/util/system/event.h>
+#include <src/util/system/pipe.h>
+#include <src/util/system/thread.h>
+#include <src/util/thread/factory.h>
 
 #include <cerrno>
 #include <cstring>

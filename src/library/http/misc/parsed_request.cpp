@@ -2,10 +2,10 @@
 
 #include <src/library/string_utils/misc/misc.h>
 
-#include <util/string/escape.h>
-#include <util/string/strip.h>
-#include <util/generic/yexception.h>
-#include <util/string/cast.h>
+#include <src/util/string/escape.h>
+#include <src/util/string/strip.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/string/cast.h>
 
 static inline std::string_view StripLeft(const std::string_view& s) noexcept {
     const char* b = s.begin();

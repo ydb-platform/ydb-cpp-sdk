@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/library/yt/misc/enum.h>
-#include <util/generic/yexception.h>
+#include <src/util/generic/yexception.h>
 
 #include <src/library/yt/yson_string/public.h>
 #include <src/library/yt/yson/public.h>

@@ -1,5 +1,5 @@
 #include <src/library/http/io/stream.h>
-#include <util/stream/output.h>
+#include <src/util/stream/output.h>
 
 int main() {
     for (auto codec : SupportedCodings()) {

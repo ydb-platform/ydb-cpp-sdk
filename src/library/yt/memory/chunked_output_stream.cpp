@@ -1,6 +1,6 @@
 #include "chunked_output_stream.h"
 
-#include <util/system/sanitizers.h>
+#include <src/util/system/sanitizers.h>
 
 namespace NYT {
 

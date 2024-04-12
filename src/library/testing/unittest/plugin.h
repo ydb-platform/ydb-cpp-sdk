@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/generic/ptr.h>
+#include <src/util/generic/ptr.h>
 
 namespace NUnitTest {
     // Plugins are deprecated, please use Y_TEST_HOOK_* from src/library/hook/hook.h

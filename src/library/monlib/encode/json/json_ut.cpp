@@ -7,8 +7,8 @@
 #include <src/library/resource/resource.h>
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/stream/str.h>
-#include <util/string/builder.h>
+#include <src/util/stream/str.h>
+#include <src/util/string/builder.h>
 
 #include <iostream>
 #include <limits>

@@ -2,7 +2,7 @@
 
 #include <src/library/getopt/last_getopt.h>
 
-#include <util/stream/file.h>
+#include <src/util/stream/file.h>
 
 #include <cstdlib>
 

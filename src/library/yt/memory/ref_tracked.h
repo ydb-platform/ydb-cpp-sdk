@@ -4,7 +4,7 @@
 #include <src/library/yt/misc/source_location.h>
 #include <src/library/yt/misc/strong_typedef.h>
 
-#include <util/system/defaults.h>
+#include <src/util/system/defaults.h>
 
 #include <atomic>
 #include <typeinfo>

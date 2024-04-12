@@ -2,8 +2,8 @@
 
 #include <src/library/threading/future/future.h>
 
-#include <util/system/spinlock.h>
-#include <util/generic/ptr.h>
+#include <src/util/system/spinlock.h>
+#include <src/util/generic/ptr.h>
 
 #include <list>
 #include <functional>

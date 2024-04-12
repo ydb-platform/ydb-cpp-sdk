@@ -6,7 +6,7 @@
 
 #include <src/library/yt/assert/assert.h>
 
-#include <util/system/compiler.h>
+#include <src/util/system/compiler.h>
 
 namespace NYT {
 

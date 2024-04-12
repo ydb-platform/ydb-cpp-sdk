@@ -6,8 +6,8 @@
 #include <src/library/colorizer/colors.h>
 #include <src/library/string_utils/misc/misc.h>
 
-#include <util/generic/algorithm.h>
-#include <util/stream/format.h>
+#include <src/util/generic/algorithm.h>
+#include <src/util/stream/format.h>
 
 #include <stdlib.h>
 

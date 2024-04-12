@@ -2,9 +2,9 @@
 
 #include "log_histogram_snapshot.h"
 
-#include <util/generic/algorithm.h>
-#include <util/generic/utility.h>
-#include <util/generic/yexception.h>
+#include <src/util/generic/algorithm.h>
+#include <src/util/generic/utility.h>
+#include <src/util/generic/yexception.h>
 
 #include <mutex>
 #include <cmath>

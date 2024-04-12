@@ -1,7 +1,7 @@
 #include "zstd.h"
 
-#include <util/generic/buffer.h>
-#include <util/generic/yexception.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/generic/yexception.h>
 
 #define ZSTD_STATIC_LINKING_ONLY
 #include <zstd.h>

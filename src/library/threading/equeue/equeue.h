@@ -1,8 +1,8 @@
 #pragma once
 
-#include <util/thread/pool.h>
+#include <src/util/thread/pool.h>
 #include <src/library/deprecated/atomic/atomic.h>
-#include <util/generic/ptr.h>
+#include <src/util/generic/ptr.h>
 
 //actual queue limit will be (maxQueueSize - numBusyThreads) or 0
 class TElasticQueue: public IThreadPool {

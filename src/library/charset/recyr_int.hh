@@ -1,10 +1,10 @@
 #pragma once
 
-#include <util/charset/recode_result.h>
-#include <util/charset/utf8.h>
-#include <util/generic/ptr.h>
+#include <src/util/charset/recode_result.h>
+#include <src/util/charset/utf8.h>
+#include <src/util/generic/ptr.h>
 #include <string>
-#include <util/system/defaults.h>
+#include <src/util/system/defaults.h>
 
 #include "codepage.h"
 #include "doccodes.h"

@@ -3,7 +3,7 @@
 #include <src/client/ydb_persqueue_core/persqueue.h>
 #include <src/client/ydb_common_client/impl/client.h>
 
-#include <util/thread/pool.h>
+#include <src/util/thread/pool.h>
 
 #include <queue>
 #include <condition_variable>

@@ -6,11 +6,11 @@
 #include <src/library/http/fetch/httpfsm.h>
 #include <src/library/uri/http_url.h>
 
-#include <util/generic/buffer.h>
-#include <util/stream/str.h>
-#include <util/stream/buffer.h>
-#include <util/stream/zerocopy.h>
-#include <util/string/vector.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/stream/str.h>
+#include <src/util/stream/buffer.h>
+#include <src/util/stream/zerocopy.h>
+#include <src/util/string/vector.h>
 
 namespace NMonitoring {
     class THttpClient: public IHttpRequest {

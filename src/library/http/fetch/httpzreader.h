@@ -4,8 +4,8 @@
 #include "httpparser.h"
 #include "exthttpcodes.h"
 
-#include <util/system/defaults.h>
-#include <util/generic/yexception.h>
+#include <src/util/system/defaults.h>
+#include <src/util/generic/yexception.h>
 
 #include <zlib.h>
 

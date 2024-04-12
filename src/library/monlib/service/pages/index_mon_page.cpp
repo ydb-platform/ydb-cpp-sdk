@@ -1,7 +1,7 @@
 #include "index_mon_page.h"
 
-#include <util/generic/cast.h>
-#include <util/string/ascii.h>
+#include <src/util/generic/cast.h>
+#include <src/util/string/ascii.h>
 
 using namespace NMonitoring;
 

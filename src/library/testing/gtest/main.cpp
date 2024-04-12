@@ -4,9 +4,9 @@
 #include <src/library/string_utils/relaxed_escaper/relaxed_escaper.h>
 #include <src/library/testing/common/env.h>
 #include <src/library/testing/hook/hook.h>
-#include <util/generic/scope.h>
-#include <util/string/join.h>
-#include <util/system/src_root.h>
+#include <src/util/generic/scope.h>
+#include <src/util/string/join.h>
+#include <src/util/system/src_root.h>
 
 #include <fstream>
 

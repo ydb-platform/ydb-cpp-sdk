@@ -4,8 +4,8 @@
 #include "record.h"
 
 
-#include <util/string/cast.h>
-#include <util/stream/tempbuf.h>
+#include <src/util/string/cast.h>
+#include <src/util/stream/tempbuf.h>
 
 
 class TLog;

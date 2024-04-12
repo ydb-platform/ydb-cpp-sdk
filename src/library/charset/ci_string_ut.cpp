@@ -1,7 +1,7 @@
 #include "ci_string.h"
 
-#include <util/generic/hash.h>
-#include <util/generic/string_ut.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/string_ut.h>
 
 class TCaseStringTest: public TTestBase, private TStringTestImpl<TCiString, TTestData<char>> {
 public:

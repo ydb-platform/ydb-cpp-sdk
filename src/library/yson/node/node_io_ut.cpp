@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/stream/mem.h>
+#include <src/util/stream/mem.h>
 
 using namespace NYson;
 

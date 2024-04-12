@@ -3,7 +3,7 @@
 #include <src/library/yt/string/guid.h>
 #include <src/library/yt/string/format.h>
 
-#include <util/string/hex.h>
+#include <src/util/string/hex.h>
 
 #include <format>
 

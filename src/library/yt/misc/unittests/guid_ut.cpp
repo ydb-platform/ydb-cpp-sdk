@@ -2,7 +2,7 @@
 
 #include <src/library/yt/misc/guid.h>
 
-#include <util/generic//algorithm.h>
+#include <src/util/generic//algorithm.h>
 
 namespace NYT {
 namespace {

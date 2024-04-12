@@ -1,8 +1,8 @@
 #pragma once
 
-#include <util/generic/ptr.h>
-#include <util/stream/input.h>
-#include <util/stream/output.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/stream/input.h>
+#include <src/util/stream/output.h>
 
 /**
  * @addtogroup Streams_Archs

@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/stream/input.h>
+#include <src/util/stream/input.h>
 
 using namespace NJson;
 

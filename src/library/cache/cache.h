@@ -1,9 +1,9 @@
 #pragma once
 
-#include <util/generic/algorithm.h>
-#include <util/generic/ptr.h>
-#include <util/generic/intrlist.h>
-#include <util/generic/yexception.h>
+#include <src/util/generic/algorithm.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/intrlist.h>
+#include <src/util/generic/yexception.h>
 #include <utility>
 #include <unordered_set>
 

@@ -4,14 +4,14 @@
 
 #include <src/library/string_utils/misc/misc.h>
 
-#include <util/charset/recode_result.h>
-#include <util/charset/unidata.h> // all wchar32 functions
-#include <util/charset/utf8.h>
+#include <src/util/charset/recode_result.h>
+#include <src/util/charset/unidata.h> // all wchar32 functions
+#include <src/util/charset/utf8.h>
 #include <string>
-#include <util/generic/ylimits.h>
-#include <util/generic/yexception.h>
-#include <util/system/yassert.h>
-#include <util/system/defaults.h>
+#include <src/util/generic/ylimits.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/system/yassert.h>
+#include <src/util/system/defaults.h>
 
 struct CodePage;
 struct Recoder;

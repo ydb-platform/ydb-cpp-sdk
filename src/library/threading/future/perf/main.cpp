@@ -2,7 +2,7 @@
 #include <src/library/threading/future/future.h>
 
 #include <string>
-#include <util/generic/xrange.h>
+#include <src/util/generic/xrange.h>
 
 using namespace NThreading;
 

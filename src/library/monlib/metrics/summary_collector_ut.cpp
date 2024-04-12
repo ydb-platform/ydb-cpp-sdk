@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/random/random.h>
+#include <src/util/random/random.h>
 
 #include <numeric>
 #include <algorithm>

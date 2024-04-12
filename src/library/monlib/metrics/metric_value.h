@@ -5,11 +5,11 @@
 #include "summary_collector.h"
 #include "log_histogram_snapshot.h"
 
-#include <util/datetime/base.h>
-#include <util/generic/algorithm.h>
+#include <src/util/datetime/base.h>
+#include <src/util/generic/algorithm.h>
 
-#include <util/generic/cast.h>
-#include <util/generic/ymath.h>
+#include <src/util/generic/cast.h>
+#include <src/util/generic/ymath.h>
 
 namespace NMonitoring {
     namespace NPrivate {

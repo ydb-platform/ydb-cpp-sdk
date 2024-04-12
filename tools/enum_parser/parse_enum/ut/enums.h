@@ -1,8 +1,8 @@
 #pragma once
 // Sample file for parse_enum unittests
 
-#include <util/generic/fwd.h>
-#include <util/system/compiler.h>
+#include <src/util/generic/fwd.h>
+#include <src/util/system/compiler.h>
 
 // Test template declarations
 template<class T>

@@ -4,12 +4,12 @@
 #include "last_getopt_easy_setup.h"
 #include "last_getopt_parse_result.h"
 
-#include <util/generic/function.h>
-#include <util/string/escape.h>
-#include <util/string/split.h>
+#include <src/util/generic/function.h>
+#include <src/util/string/escape.h>
+#include <src/util/string/split.h>
 
 /// see some documentation in
-/// https://wiki.yandex-team.ru/development/poisk/arcadia/util/lastgetopt/
+/// https://wiki.yandex-team.ru/development/poisk/arcadia/src/util/lastgetopt/
 /// https://wiki.yandex-team.ru/development/poisk/arcadia/library/getopt/
 /// see examples in src/library/getopt/last_getopt_demo
 

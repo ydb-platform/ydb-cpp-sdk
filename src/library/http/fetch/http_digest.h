@@ -2,7 +2,7 @@
 
 #include "httpheader.h"
 
-#include <util/system/compat.h>
+#include <src/util/system/compat.h>
 #include <src/library/http/misc/httpcodes.h>
 
 class httpDigestHandler {

@@ -2,7 +2,7 @@
 
 #include <src/client/impl/ydb_internal/internal_header.h>
 
-#include <util/system/types.h>
+#include <src/util/system/types.h>
 
 namespace NYdb {
 

@@ -3,8 +3,8 @@
 #include "format.h"
 #include "parser_detail.h"
 
-#include <util/stream/input.h>
-#include <util/generic/buffer.h>
+#include <src/util/stream/input.h>
+#include <src/util/generic/buffer.h>
 
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////

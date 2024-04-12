@@ -2,10 +2,10 @@
 
 #include "http_client_options.h"
 
-#include <util/datetime/base.h>
-#include <util/generic/hash.h>
-#include <util/generic/yexception.h>
-#include <util/network/socket.h>
+#include <src/util/datetime/base.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/network/socket.h>
 
 #include <src/library/http/io/stream.h>
 #include <src/library/http/misc/httpcodes.h>

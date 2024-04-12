@@ -5,9 +5,9 @@
 #include <src/api/protos/ydb_common.pb.h>
 #include <src/api/protos/ydb_value.pb.h>
 
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
-#include <util/generic/mapfindptr.h>
+#include <src/util/generic/mapfindptr.h>
 
 #include <google/protobuf/text_format.h>
 

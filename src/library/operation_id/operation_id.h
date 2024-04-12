@@ -2,7 +2,7 @@
 
 #include <src/library/operation_id/protos/operation_id.pb.h>
 
-#include <util/generic/hash.h>
+#include <src/util/generic/hash.h>
 #include <string>
 #include <vector>
 

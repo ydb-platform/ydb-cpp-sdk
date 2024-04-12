@@ -1,9 +1,9 @@
 #include "io.h"
 
-#include <util/generic/singleton.h>
-#include <util/generic/yexception.h>
-#include <util/system/compiler.h>
-#include <util/system/yassert.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/system/compiler.h>
+#include <src/util/system/yassert.h>
 
 namespace {
     using NOpenSSL::TAbstractIO;

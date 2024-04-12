@@ -6,14 +6,14 @@
 #include "varint.h"
 #include "zigzag.h"
 
-#include <util/string/cast.h>
+#include <src/util/string/cast.h>
 
 #include <cmath>
 
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////
 
-    // Copied from <util/string/escape.cpp>
+    // Copied from <src/util/string/escape.cpp>
     namespace {
         inline char HexDigit(char value) {
             Y_ASSERT(value < 16);

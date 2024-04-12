@@ -6,12 +6,12 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>
 
-#include <util/network/socket.h>
-#include <util/stream/file.h>
-#include <util/stream/output.h>
-#include <util/stream/tee.h>
-#include <util/stream/zlib.h>
-#include <util/stream/null.h>
+#include <src/util/network/socket.h>
+#include <src/util/stream/file.h>
+#include <src/util/stream/output.h>
+#include <src/util/stream/tee.h>
+#include <src/util/stream/zlib.h>
+#include <src/util/stream/null.h>
 
 Y_UNIT_TEST_SUITE(THttpStreamTest) {
     class TTestHttpServer: public THttpServer::ICallBack {

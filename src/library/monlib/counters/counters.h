@@ -1,20 +1,20 @@
 #pragma once
 
 #include <list>
-#include <util/datetime/base.h>
-#include <util/generic/algorithm.h>
+#include <src/util/datetime/base.h>
+#include <src/util/generic/algorithm.h>
 
-#include <util/generic/ptr.h>
-#include <util/generic/singleton.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/singleton.h>
 
-#include <util/str_stl.h>
-#include <util/stream/output.h>
-#include <util/string/util.h>
+#include <src/util/str_stl.h>
+#include <src/util/stream/output.h>
+#include <src/util/string/util.h>
 #include <src/library/deprecated/atomic/atomic.h>
-#include <util/system/defaults.h>
-#include <util/system/guard.h>
-#include <util/system/sem.h>
-#include <util/system/spinlock.h>
+#include <src/util/system/defaults.h>
+#include <src/util/system/guard.h>
+#include <src/util/system/sem.h>
+#include <src/util/system/spinlock.h>
 
 #include <map>
 #include <mutex>

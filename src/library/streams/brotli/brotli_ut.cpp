@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/random/fast.h>
+#include <src/util/random/fast.h>
 
 Y_UNIT_TEST_SUITE(TBrotliTestSuite) {
     std::string Compress(std::string data) {

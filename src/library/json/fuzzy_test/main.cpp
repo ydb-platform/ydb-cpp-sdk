@@ -1,7 +1,7 @@
 #include <src/library/json/json_reader.h>
 
-#include <util/random/random.h>
-#include <util/stream/str.h>
+#include <src/util/random/random.h>
+#include <src/util/stream/str.h>
 
 extern "C" int LLVMFuzzerTestOneInput(const ui8* data, size_t size) {
     const auto json = std::string((const char*)data, size);

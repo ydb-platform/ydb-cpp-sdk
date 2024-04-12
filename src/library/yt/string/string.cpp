@@ -3,9 +3,9 @@
 
 #include <src/library/yt/assert/assert.h>
 
-#include <util/generic/hash.h>
+#include <src/util/generic/hash.h>
 
-#include <util/string/ascii.h>
+#include <src/util/string/ascii.h>
 
 namespace NYT {
 

@@ -1,10 +1,10 @@
 #define INCLUDE_YDB_INTERNAL_H
 #include "log.h"
 
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
-#include <util/datetime/base.h>
-#include <util/string/builder.h>
+#include <src/util/datetime/base.h>
+#include <src/util/string/builder.h>
 
 namespace NYdb {
 

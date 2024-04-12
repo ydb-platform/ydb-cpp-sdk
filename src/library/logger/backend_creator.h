@@ -4,8 +4,8 @@
 #include <src/library/object_factory/object_factory.h>
 #include <src/library/json/json_value.h>
 
-#include <util/generic/ptr.h>
-#include <util/string/cast.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/string/cast.h>
 
 class ILogBackendCreator {
 public:

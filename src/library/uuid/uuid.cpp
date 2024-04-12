@@ -1,6 +1,6 @@
 #include "uuid.h"
 
-#include <util/stream/str.h>
+#include <src/util/stream/str.h>
 
 namespace NKikimr {
 namespace NUuid {

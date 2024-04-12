@@ -1,8 +1,8 @@
 #include "metric_type.h"
 
 #include <string_view>
-#include <util/generic/yexception.h>
-#include <util/stream/output.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/stream/output.h>
 
 namespace NMonitoring {
     std::string_view MetricTypeToStr(EMetricType type) {

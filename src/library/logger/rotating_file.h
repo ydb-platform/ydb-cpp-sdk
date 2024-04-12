@@ -2,8 +2,8 @@
 
 #include "backend.h"
 
-#include <util/generic/fwd.h>
-#include <util/generic/ptr.h>
+#include <src/util/generic/fwd.h>
+#include <src/util/generic/ptr.h>
 
 class TRotatingFileLogBackend: public TLogBackend {
 public:

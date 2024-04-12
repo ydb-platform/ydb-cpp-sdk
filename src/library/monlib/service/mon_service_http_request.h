@@ -2,7 +2,7 @@
 
 #include "service.h"
 
-#include <util/stream/output.h>
+#include <src/util/stream/output.h>
 
 namespace NMonitoring {
     class TMonService2;

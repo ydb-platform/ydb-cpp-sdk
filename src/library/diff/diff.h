@@ -2,13 +2,13 @@
 
 #include <src/library/lcs/lcs_via_lis.h>
 
-#include <util/generic/algorithm.h>
+#include <src/util/generic/algorithm.h>
 
 #include <string_view>
 #include <span>
 
-#include <util/stream/output.h>
-#include <util/string/split.h>
+#include <src/util/stream/output.h>
+#include <src/util/string/split.h>
 
 namespace NDiff {
     template <typename T>

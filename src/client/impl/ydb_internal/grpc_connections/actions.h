@@ -9,7 +9,7 @@
 
 #include <src/library/grpc/client/grpc_client_low.h>
 
-#include <util/thread/pool.h>
+#include <src/util/thread/pool.h>
 
 #include <grpc++/alarm.h>
 

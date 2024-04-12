@@ -2,7 +2,7 @@
 
 #include "yql_issue.h"
 
-#include <util/generic/ylimits.h>
+#include <src/util/generic/ylimits.h>
 
 namespace NYql {
 

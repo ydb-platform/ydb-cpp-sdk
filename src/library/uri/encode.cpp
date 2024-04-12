@@ -1,6 +1,6 @@
 #include "encode.h"
 
-#include <util/generic/singleton.h>
+#include <src/util/generic/singleton.h>
 
 namespace NUri {
     namespace NEncode {

@@ -3,10 +3,10 @@
 #include <src/library/colorizer/colors.h>
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/generic/array_size.h>
-#include <util/string/subst.h>
-#include <util/string/vector.h>
-#include <util/string/split.h>
+#include <src/util/generic/array_size.h>
+#include <src/util/string/subst.h>
+#include <src/util/string/vector.h>
+#include <src/util/string/split.h>
 
 using namespace NLastGetopt;
 

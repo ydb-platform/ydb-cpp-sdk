@@ -1,7 +1,7 @@
 #include "stack_utils.h"
 
-#include <util/generic/scope.h>
-#include <util/system/yassert.h>
+#include <src/util/generic/scope.h>
+#include <src/util/system/yassert.h>
 
 #ifdef _linux_
 #include <sys/mman.h>

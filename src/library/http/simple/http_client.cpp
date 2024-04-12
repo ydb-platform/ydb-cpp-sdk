@@ -3,8 +3,8 @@
 #include <src/library/string_utils/url/url.h>
 #include <src/library/uri/http_url.h>
 
-#include <util/string/join.h>
-#include <util/string/split.h>
+#include <src/util/string/join.h>
+#include <src/util/string/split.h>
 
 TKeepAliveHttpClient::TKeepAliveHttpClient(const std::string& host,
                                            ui32 port,

@@ -6,8 +6,8 @@
 
 #include <src/library/json/writer/json.h>
 
-#include <util/stream/output.h>
-#include <util/generic/hash.h>
+#include <src/util/stream/output.h>
+#include <src/util/generic/hash.h>
 
 #include <string>
 

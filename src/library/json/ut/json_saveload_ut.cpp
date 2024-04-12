@@ -1,9 +1,9 @@
 #include <src/library/json/json_value.h>
 
 #include <src/library/testing/unittest/registar.h>
-#include <util/stream/buffer.h>
-#include <util/generic/buffer.h>
-#include <util/ysaveload.h>
+#include <src/util/stream/buffer.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/ysaveload.h>
 
 Y_UNIT_TEST_SUITE(JsonSaveLoad) {
     Y_UNIT_TEST(Serialize) {

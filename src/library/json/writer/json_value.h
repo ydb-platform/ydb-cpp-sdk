@@ -2,10 +2,10 @@
 
 #include <src/library/json/common/defs.h>
 
-#include <util/generic/hash.h>
+#include <src/util/generic/hash.h>
 
-#include <util/generic/utility.h>
-#include <util/generic/yexception.h>
+#include <src/util/generic/utility.h>
+#include <src/util/generic/yexception.h>
 
 namespace NJson {
     enum EJsonValueType {
@@ -178,10 +178,10 @@ namespace NJson {
 
         void Swap(TJsonValue& rhs) noexcept;
 
-        // save using util/ysaveload.h serialization (not to JSON stream)
+        // save using src/util/ysaveload.h serialization (not to JSON stream)
         void Save(IOutputStream* s) const;
 
-        // load using util/ysaveload.h serialization (not as JSON stream)
+        // load using src/util/ysaveload.h serialization (not as JSON stream)
         void Load(IInputStream* s);
 
         static const TJsonValue UNDEFINED;

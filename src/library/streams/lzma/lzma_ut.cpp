@@ -2,9 +2,9 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/stream/mem.h>
-#include <util/random/fast.h>
-#include <util/random/random.h>
+#include <src/util/stream/mem.h>
+#include <src/util/random/fast.h>
+#include <src/util/random/random.h>
 
 class TStrokaByOneByte: public IZeroCopyInput {
 public:

@@ -1,7 +1,7 @@
 #include "diff.h"
 
-#include <util/generic/hash.h>
-#include <util/digest/fnv.h>
+#include <src/util/generic/hash.h>
+#include <src/util/digest/fnv.h>
 
 #include <iterator>
 

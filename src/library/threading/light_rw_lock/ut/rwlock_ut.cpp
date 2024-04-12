@@ -1,8 +1,8 @@
 #include <src/library/threading/light_rw_lock/lightrwlock.h>
 #include <src/library/testing/unittest/registar.h>
-#include <util/generic/ptr.h>
-#include <util/random/random.h>
-#include <util/thread/pool.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/random/random.h>
+#include <src/util/thread/pool.h>
 
 class TRWMutexTest: public TTestBase {
     UNIT_TEST_SUITE(TRWMutexTest);

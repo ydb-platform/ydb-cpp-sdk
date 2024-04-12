@@ -1,10 +1,10 @@
 #include "histogram_collector.h"
 #include "atomics_array.h"
 
-#include <util/generic/algorithm.h>
+#include <src/util/generic/algorithm.h>
 
-#include <util/generic/yexception.h>
-#include <util/generic/ylimits.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/generic/ylimits.h>
 
 #include <cmath>
 

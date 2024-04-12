@@ -1,6 +1,6 @@
 #include "opt.h"
 
-#include <util/system/progname.h>
+#include <src/util/system/progname.h>
 
 #include <ctype.h>
 

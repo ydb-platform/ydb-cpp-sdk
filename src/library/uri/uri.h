@@ -5,11 +5,11 @@
 
 #include <src/library/charset/doccodes.h>
 
-#include <util/stream/str.h>
-#include <util/generic/buffer.h>
-#include <util/generic/singleton.h>
-#include <util/stream/mem.h>
-#include <util/system/yassert.h>
+#include <src/util/stream/str.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/stream/mem.h>
+#include <src/util/system/yassert.h>
 
 #include <cstdlib>
 

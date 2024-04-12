@@ -2,9 +2,9 @@
 
 #include <src/library/testing/common/env.h>
 
-#include <util/folder/path.h>
-#include <util/stream/file.h>
-#include <util/system/fs.h>
+#include <src/util/folder/path.h>
+#include <src/util/stream/file.h>
+#include <src/util/system/fs.h>
 
 bool NGTest::NDetail::MatchOrUpdateGolden(std::string_view actualContent, const std::string& goldenFilename) {
     if (!GetTestParam("GTEST_UPDATE_GOLDEN").empty()) {

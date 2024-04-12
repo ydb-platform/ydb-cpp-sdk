@@ -9,8 +9,8 @@
 #include <atomic>
 #include <mutex>
 
-#include <util/system/compiler.h>
-#include <util/system/sanitizers.h>
+#include <src/util/system/compiler.h>
+#include <src/util/system/sanitizers.h>
 
 namespace NYT {
 

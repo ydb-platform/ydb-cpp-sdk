@@ -4,7 +4,7 @@
 #include "token.h"
 #include "consumer.h"
 
-#include <util/generic/noncopyable.h>
+#include <src/util/generic/noncopyable.h>
 
 class IOutputStream;
 class IZeroCopyInput;

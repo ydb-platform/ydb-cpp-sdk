@@ -7,8 +7,8 @@
 
 #include <gcrypt.h>
 #include <gnutls/gnutls.h>
-#include <util/network/init.h>
-#include <util/network/socket.h>
+#include <src/util/network/init.h>
+#include <src/util/network/socket.h>
 
 #include <mutex>
 

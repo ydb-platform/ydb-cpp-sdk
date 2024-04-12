@@ -1,9 +1,9 @@
 #include <src/library/colorizer/colors.h>
 
 #include <src/library/testing/unittest/registar.h>
-#include <util/stream/str.h>
+#include <src/util/stream/str.h>
 
-#include <util/string/escape.h>
+#include <src/util/string/escape.h>
 
 Y_UNIT_TEST_SUITE(ColorizerTest) {
     Y_UNIT_TEST(BasicTest) {

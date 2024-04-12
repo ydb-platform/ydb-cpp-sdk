@@ -4,8 +4,8 @@
 #include <src/library/monlib/metrics/labels.h>
 #include <src/library/monlib/metrics/metric_value.h>
 
-#include <util/datetime/base.h>
-#include <util/stream/format.h>
+#include <src/util/datetime/base.h>
+#include <src/util/stream/format.h>
 
 namespace NMonitoring {
     namespace {

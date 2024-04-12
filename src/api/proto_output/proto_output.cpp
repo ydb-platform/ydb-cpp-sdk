@@ -1,4 +1,4 @@
-#include <util/stream/output.h>
+#include <src/util/stream/output.h>
 
 #include <src/api/protos/ydb_value.pb.h>
 #include <src/api/protos/ydb_topic.pb.h>

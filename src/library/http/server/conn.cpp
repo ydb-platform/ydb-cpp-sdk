@@ -1,7 +1,7 @@
 #include "conn.h"
 
-#include <util/network/socket.h>
-#include <util/stream/buffered.h>
+#include <src/util/network/socket.h>
+#include <src/util/stream/buffered.h>
 
 class THttpServerConn::TImpl {
 public:

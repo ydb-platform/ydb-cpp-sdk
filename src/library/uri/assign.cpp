@@ -4,11 +4,11 @@
 #include <idna.h>
 
 #include <src/library/charset/recyr.hh>
-#include <util/charset/wide.h>
-#include <util/memory/tempbuf.h>
-#include <util/string/cast.h>
-#include <util/system/yassert.h>
-#include <util/system/sys_alloc.h>
+#include <src/util/charset/wide.h>
+#include <src/util/memory/tempbuf.h>
+#include <src/util/string/cast.h>
+#include <src/util/system/yassert.h>
+#include <src/util/system/sys_alloc.h>
 
 namespace NUri {
 

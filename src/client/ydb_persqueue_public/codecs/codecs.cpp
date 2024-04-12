@@ -1,7 +1,7 @@
 #include <src/library/streams/zstd/zstd.h>
-#include <util/stream/buffer.h>
-#include <util/stream/zlib.h>
-#include <util/stream/mem.h>
+#include <src/util/stream/buffer.h>
+#include <src/util/stream/zlib.h>
+#include <src/util/stream/mem.h>
 
 #include "codecs.h"
 

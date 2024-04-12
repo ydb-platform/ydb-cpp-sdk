@@ -7,7 +7,7 @@
 #include <src/client/ydb_persqueue_core/persqueue.h>
 #include <src/client/ydb_persqueue_core/impl/callback_context.h>
 
-#include <util/generic/buffer.h>
+#include <src/util/generic/buffer.h>
 
 
 namespace NYdb::NPersQueue {

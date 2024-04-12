@@ -9,11 +9,11 @@
 #undef INCLUDE_YDB_INTERNAL_H
 
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
-#include <util/generic/guid.h>
-#include <util/generic/size_literals.h>
-#include <util/generic/utility.h>
-#include <util/generic/yexception.h>
-#include <util/stream/mem.h>
+#include <src/util/generic/guid.h>
+#include <src/util/generic/size_literals.h>
+#include <src/util/generic/utility.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/stream/mem.h>
 
 #include <variant>
 

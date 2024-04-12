@@ -11,7 +11,7 @@
 
 #include <array>
 
-#include <util/stream/mem.h>
+#include <src/util/stream/mem.h>
 
 namespace NYT::NYson {
 

@@ -1,7 +1,7 @@
 #include "case_insensitive_char_traits.h"
 #include "case_insensitive_string.h"
 
-#include <util/string/escape.h>
+#include <src/util/string/escape.h>
 
 int TCaseInsensitiveCharTraits::compare(const char* s1, const char* s2, std::size_t n) {
     while (n-- != 0) {

@@ -1,7 +1,7 @@
 #include "malloc.h"
 
-#include <util/system/compiler.h>
-#include <util/system/platform.h>
+#include <src/util/system/compiler.h>
+#include <src/util/system/platform.h>
 
 #include <stdlib.h>
 

@@ -4,7 +4,7 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>
 
-#include <util/stream/zlib.h>
+#include <src/util/stream/zlib.h>
 #include <unordered_set>
 
 Y_UNIT_TEST_SUITE(THttpCompressionTest) {

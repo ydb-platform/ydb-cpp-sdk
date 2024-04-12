@@ -3,7 +3,7 @@
 #include "codepage.h"
 #include "iconv.h"
 
-#include <util/charset/wide.h>
+#include <src/util/charset/wide.h>
 #include <string>
 
 //! converts text from unicode to yandex codepage

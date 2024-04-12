@@ -2,19 +2,19 @@
 
 #include "codecs.h"
 
-#include <util/ysaveload.h>
-#include <util/stream/null.h>
-#include <util/stream/mem.h>
-#include <util/string/cast.h>
-#include <util/string/join.h>
-#include <util/system/align.h>
-#include <util/system/unaligned_mem.h>
-#include <util/generic/hash.h>
-#include <util/generic/cast.h>
-#include <util/generic/buffer.h>
-#include <util/generic/singleton.h>
-#include <util/generic/algorithm.h>
-#include <util/generic/mem_copy.h>
+#include <src/util/ysaveload.h>
+#include <src/util/stream/null.h>
+#include <src/util/stream/mem.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/join.h>
+#include <src/util/system/align.h>
+#include <src/util/system/unaligned_mem.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/cast.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/algorithm.h>
+#include <src/util/generic/mem_copy.h>
 
 namespace NBlockCodecs {
     struct TDecompressError: public TDataError {

@@ -1,6 +1,6 @@
 #include "utf8.h"
 
-#include <util/charset/wide.h>
+#include <src/util/charset/wide.h>
 
 #include <ctype.h>
 #include <vector>

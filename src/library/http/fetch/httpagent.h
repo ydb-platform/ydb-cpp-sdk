@@ -5,12 +5,12 @@
 #include <cstdlib>
 
 #include <src/library/uri/http_url.h>
-#include <util/datetime/base.h>
-#include <util/network/hostip.h>
-#include <util/network/ip.h>
-#include <util/network/sock.h>
-#include <util/generic/scope.h>
-#include <util/generic/utility.h>
+#include <src/util/datetime/base.h>
+#include <src/util/network/hostip.h>
+#include <src/util/network/ip.h>
+#include <src/util/network/sock.h>
+#include <src/util/generic/scope.h>
+#include <src/util/generic/utility.h>
 
 #include "exthttpcodes.h"
 #include "sockhandler.h"

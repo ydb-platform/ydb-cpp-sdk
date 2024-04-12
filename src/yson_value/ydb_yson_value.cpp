@@ -1,11 +1,11 @@
 #include "ydb_yson_value.h"
 
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
 #include <src/client/ydb_value/value.h>
 #include <src/client/ydb_result/result.h>
 
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
 namespace NYdb {
 

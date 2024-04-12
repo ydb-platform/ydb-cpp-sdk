@@ -1,8 +1,8 @@
 #include "http_ex.h"
 
-#include <util/generic/buffer.h>
-#include <util/generic/cast.h>
-#include <util/stream/null.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/generic/cast.h>
+#include <src/util/stream/null.h>
 
 bool THttpClientRequestExtension::Parse(char* req, TBaseServerRequestData& rd) {
     rd.SetSocket(Socket());

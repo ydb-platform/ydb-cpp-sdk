@@ -7,10 +7,10 @@
 
 #include <google/protobuf/util/time_util.h>
 
-#include <util/generic/store_policy.h>
-#include <util/generic/utility.h>
-#include <util/stream/buffer.h>
-#include <util/generic/guid.h>
+#include <src/util/generic/store_policy.h>
+#include <src/util/generic/utility.h>
+#include <src/util/stream/buffer.h>
+#include <src/util/generic/guid.h>
 
 
 namespace NYdb::NTopic {

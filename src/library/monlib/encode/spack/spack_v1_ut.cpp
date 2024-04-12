@@ -6,9 +6,9 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/generic/buffer.h>
-#include <util/stream/buffer.h>
-#include <util/string/hex.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/stream/buffer.h>
+#include <src/util/string/hex.h>
 
 #include <utility>
 

@@ -7,8 +7,8 @@
 #include <src/library/monlib/encode/protobuf/protos/samples.pb.h>
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/generic/buffer.h>
-#include <util/stream/buffer.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/stream/buffer.h>
 
 namespace NMonitoring {
     struct TTestData: public TDynamicCounters {

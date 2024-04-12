@@ -1,10 +1,10 @@
 #pragma once
 
-#include <util/generic/variant.h>
-#include <util/stream/output.h>
-#include <util/stream/str.h>
-#include <util/string/escape.h>
-#include <util/datetime/base.h>
+#include <src/util/generic/variant.h>
+#include <src/util/stream/output.h>
+#include <src/util/stream/str.h>
+#include <src/util/string/escape.h>
+#include <src/util/datetime/base.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

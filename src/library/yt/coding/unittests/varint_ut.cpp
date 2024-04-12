@@ -2,9 +2,9 @@
 
 #include <src/library/yt/coding/varint.h>
 
-#include <util/random/random.h>
+#include <src/util/random/random.h>
 
-#include <util/string/escape.h>
+#include <src/util/string/escape.h>
 
 #include <tuple>
 

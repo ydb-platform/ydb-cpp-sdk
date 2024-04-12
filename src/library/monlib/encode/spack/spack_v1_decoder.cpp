@@ -7,10 +7,10 @@
 #include <src/library/monlib/metrics/histogram_collector.h>
 #include <src/library/monlib/metrics/metric.h>
 
-#include <util/generic/yexception.h>
-#include <util/generic/buffer.h>
-#include <util/generic/size_literals.h>
-#include <util/stream/format.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/generic/size_literals.h>
+#include <src/util/stream/format.h>
 
 #ifndef _little_endian_
 #error Unsupported platform

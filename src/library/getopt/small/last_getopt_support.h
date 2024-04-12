@@ -2,11 +2,11 @@
 
 #include <src/library/string_utils/misc/misc.h>
 
-#include <util/string/cast.h>
-#include <util/string/escape.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/escape.h>
 
-#include <util/generic/utility.h>
-#include <util/generic/yexception.h>
+#include <src/util/generic/utility.h>
+#include <src/util/generic/yexception.h>
 
 #include <string>
 

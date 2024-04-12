@@ -1,6 +1,6 @@
 #include "obfuscate.h"
 
-#include <util/generic/utility.h>
+#include <src/util/generic/utility.h>
 
 namespace NPersQueue {
 

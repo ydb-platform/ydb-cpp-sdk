@@ -3,7 +3,7 @@
 #include <src/library/yt/misc/tls.h>
 
 #include <string>
-#include <util/system/thread.h>
+#include <src/util/system/thread.h>
 
 #include <algorithm>
 #include <cstring>

@@ -1,8 +1,8 @@
 #pragma once
-#include <util/generic/ptr.h>
-#include <util/generic/size_literals.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/size_literals.h>
 #include <src/library/threading/chunk_queue/queue.h>
-#include <util/generic/overloaded.h>
+#include <src/util/generic/overloaded.h>
 #include <src/library/testing/unittest/registar.h>
 
 #include "sdk_test_setup.h"

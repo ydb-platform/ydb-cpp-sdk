@@ -2,7 +2,7 @@
 
 #include "ref_counted.h"
 
-#include <util/generic/hash.h>
+#include <src/util/generic/hash.h>
 
 namespace NYT {
 

@@ -1,13 +1,13 @@
 #include "compression.h"
 
-#include <util/generic/buffer.h>
-#include <util/generic/cast.h>
-#include <util/generic/ptr.h>
-#include <util/generic/scope.h>
-#include <util/generic/size_literals.h>
-#include <util/stream/format.h>
-#include <util/stream/output.h>
-#include <util/stream/walk.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/generic/cast.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/scope.h>
+#include <src/util/generic/size_literals.h>
+#include <src/util/stream/format.h>
+#include <src/util/stream/output.h>
+#include <src/util/stream/walk.h>
 
 #include <lz4.h>
 #include <xxhash.h>

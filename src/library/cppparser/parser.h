@@ -1,8 +1,8 @@
 #pragma once
 
-#include <util/generic/ptr.h>
+#include <src/util/generic/ptr.h>
 #include <string>
-#include <util/stream/output.h>
+#include <src/util/stream/output.h>
 
 class TCppSaxParser: public IOutputStream {
 public:

@@ -3,8 +3,8 @@
 
 #include <src/library/containers/stack_vector/stack_vec.h>
 
-#include <util/system/thread.h>
-#include <util/random/random.h>
+#include <src/util/system/thread.h>
+#include <src/util/random/random.h>
 
 #if !defined(_WIN32) && !defined(_WIN64)
 #include <sys/types.h>

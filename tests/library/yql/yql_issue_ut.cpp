@@ -8,9 +8,9 @@
 
 #include <src/library/unicode_normalization/normalization.h>
 
-#include <util/charset/utf8.h>
-#include <util/charset/wide.h>
-#include <util/string/builder.h>
+#include <src/util/charset/utf8.h>
+#include <src/util/charset/wide.h>
+#include <src/util/string/builder.h>
 
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>

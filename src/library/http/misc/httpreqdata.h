@@ -2,13 +2,13 @@
 
 #include <src/library/digest/lower_case/hash_ops.h>
 
-#include <util/system/defaults.h>
+#include <src/util/system/defaults.h>
 #include <src/library/cgiparam/cgiparam.h>
-#include <util/network/address.h>
-#include <util/network/socket.h>
-#include <util/generic/hash.h>
-#include <util/system/yassert.h>
-#include <util/datetime/base.h>
+#include <src/util/network/address.h>
+#include <src/util/network/socket.h>
+#include <src/util/generic/hash.h>
+#include <src/util/system/yassert.h>
+#include <src/util/datetime/base.h>
 
 using THttpHeadersContainer = THashMap<std::string, std::string, TCIOps, TCIOps>;
 

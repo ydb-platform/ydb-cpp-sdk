@@ -3,9 +3,9 @@
 #include <src/library/yql/public/issue/protos/issue_message.pb.h>
 #include <src/api/protos/ydb_issue_message.pb.h>
 
-#include <util/generic/yexception.h>
-#include <util/stream/output.h>
-#include <util/string/join.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/stream/output.h>
+#include <src/util/string/join.h>
 
 #include <tuple>
 

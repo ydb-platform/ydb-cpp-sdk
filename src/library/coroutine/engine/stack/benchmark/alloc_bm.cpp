@@ -1,7 +1,7 @@
 #include <benchmark/benchmark.h>
 
 
-#include <util/system/yassert.h>
+#include <src/util/system/yassert.h>
 
 #include <src/library/coroutine/engine/stack/stack_allocator.h>
 #include <src/library/coroutine/engine/stack/stack_guards.h>

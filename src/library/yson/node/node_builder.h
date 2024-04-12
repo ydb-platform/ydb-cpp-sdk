@@ -6,7 +6,7 @@
 
 #include <src/library/yson/consumer.h>
 
-#include <util/generic/stack.h>
+#include <src/util/generic/stack.h>
 
 namespace NYT {
 

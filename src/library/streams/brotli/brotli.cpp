@@ -3,8 +3,8 @@
 #include <brotli/decode.h>
 #include <brotli/encode.h>
 
-#include <util/generic/yexception.h>
-#include <util/memory/addstorage.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/memory/addstorage.h>
 
 namespace {
     struct TAllocator {

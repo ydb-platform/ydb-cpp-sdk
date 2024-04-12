@@ -1,8 +1,8 @@
 #include "json_writer.h"
 
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
-#include <util/charset/utf8.h>
+#include <src/util/charset/utf8.h>
 
 namespace NJson {
     TJsonWriter::TJsonWriter(IOutputStream* out, bool formatOutput, bool sortkeys, bool validateUtf8)

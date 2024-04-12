@@ -1,11 +1,11 @@
 #pragma once
 
-#include <util/thread/pool.h>
-#include <util/generic/utility.h>
-#include <util/generic/yexception.h>
-#include <util/system/info.h>
+#include <src/util/thread/pool.h>
+#include <src/util/generic/utility.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/system/info.h>
 #include <src/library/deprecated/atomic/atomic.h>
-#include <util/stream/output.h>
+#include <src/util/stream/output.h>
 
 #include <functional>
 #include <cstdlib>

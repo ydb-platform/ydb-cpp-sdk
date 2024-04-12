@@ -1,17 +1,17 @@
 #include "ci_string.h"
 #include "codepage.h"
 
-#include <util/string/cast.h>
-#include <util/string/subst.h>
-#include <util/string/util.h>
-#include <util/system/hi_lo.h>
-#include <util/system/yassert.h>
-#include <util/generic/hash.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/subst.h>
+#include <src/util/string/util.h>
+#include <src/util/system/hi_lo.h>
+#include <src/util/system/yassert.h>
+#include <src/util/generic/hash.h>
 #include <string>
 
-#include <util/generic/singleton.h>
-#include <util/generic/yexception.h>
-#include <util/memory/pool.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/memory/pool.h>
 
 #include <cstring>
 #include <unordered_set>

@@ -10,8 +10,8 @@
 #include <src/client/ydb_table/query_stats/stats.h>
 #include <src/client/ydb_types/operation/operation.h>
 
-#include <util/generic/hash.h>
-#include <util/generic/variant.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/variant.h>
 
 namespace Ydb {
 namespace Table {

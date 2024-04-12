@@ -1,6 +1,6 @@
 #include "log_histogram_snapshot.h"
 
-#include <util/stream/output.h>
+#include <src/util/stream/output.h>
 
 #include <iostream>
 

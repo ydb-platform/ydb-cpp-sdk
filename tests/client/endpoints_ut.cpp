@@ -4,8 +4,8 @@
 #include <src/library/testing/unittest/tests_data.h>
 #include <src/library/threading/future/core/future.h>
 
-#include <util/system/thread.h>
-#include <util/random/random.h>
+#include <src/util/system/thread.h>
+#include <src/util/random/random.h>
 
 #include <unordered_set>
 

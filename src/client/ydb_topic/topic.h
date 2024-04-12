@@ -7,13 +7,13 @@
 #include <src/library/monlib/dynamic_counters/counters.h>
 #include <src/library/logger/log.h>
 #include <src/library/retry/retry_policy.h>
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
-#include <util/datetime/base.h>
-#include <util/generic/hash.h>
-#include <util/generic/ptr.h>
-#include <util/generic/size_literals.h>
-#include <util/thread/pool.h>
+#include <src/util/datetime/base.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/size_literals.h>
+#include <src/util/thread/pool.h>
 
 #include <exception>
 #include <variant>

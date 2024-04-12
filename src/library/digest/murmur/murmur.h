@@ -1,7 +1,7 @@
 #pragma once
 
-#include <util/system/defaults.h>
-#include <util/system/unaligned_mem.h>
+#include <src/util/system/defaults.h>
+#include <src/util/system/unaligned_mem.h>
 
 /*
  * https://sites.google.com/site/murmurhash/

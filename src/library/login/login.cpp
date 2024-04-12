@@ -1,6 +1,6 @@
 #include <jwt-cpp/jwt.h>
 #include <src/library/digest/argonish/argon2.h>
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 #include <src/library/string_utils/base64/base64.h>
 #include <src/library/json/json_value.h>
 #include <src/library/json/json_reader.h>
@@ -9,10 +9,10 @@
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 
-#include <util/generic/singleton.h>
-#include <util/string/builder.h>
-#include <util/string/cast.h>
-#include <util/string/hex.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/string/builder.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/hex.h>
 
 #include <deque>
 

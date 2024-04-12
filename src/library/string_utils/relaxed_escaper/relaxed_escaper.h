@@ -1,12 +1,12 @@
 #pragma once
 
-#include <util/stream/output.h>
-#include <util/string/escape.h>
-#include <util/memory/tempbuf.h>
+#include <src/util/stream/output.h>
+#include <src/util/string/escape.h>
+#include <src/util/memory/tempbuf.h>
 #include <string_view>
 
 namespace NEscJ {
-    // almost copypaste from util/string/escape.h
+    // almost copypaste from src/util/string/escape.h
     // todo: move there (note difference in IsPrintable and handling of string)
 
     inline char HexDigit(char value) {

@@ -2,11 +2,11 @@
 
 #include <src/library/containers/paged_vector/paged_vector.h>
 
-#include <util/generic/ptr.h>
-#include <util/generic/hash.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/hash.h>
 
-#include <util/generic/algorithm.h>
-#include <util/memory/pool.h>
+#include <src/util/generic/algorithm.h>
+#include <src/util/memory/pool.h>
 
 namespace NLCS {
     template <typename TVal>

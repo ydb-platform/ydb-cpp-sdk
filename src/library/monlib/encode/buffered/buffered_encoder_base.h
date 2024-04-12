@@ -7,8 +7,8 @@
 #include <src/library/monlib/encode/format.h>
 #include <src/library/monlib/metrics/metric_value.h>
 
-#include <util/datetime/base.h>
-#include <util/digest/numeric.h>
+#include <src/util/datetime/base.h>
+#include <src/util/digest/numeric.h>
 
 
 namespace NMonitoring {

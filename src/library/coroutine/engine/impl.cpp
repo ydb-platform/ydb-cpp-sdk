@@ -3,11 +3,11 @@
 #include "stack/stack_allocator.h"
 #include "stack/stack_guards.h"
 
-#include <util/generic/scope.h>
-#include <util/thread/singleton.h>
-#include <util/stream/format.h>
-#include <util/stream/output.h>
-#include <util/system/yassert.h>
+#include <src/util/generic/scope.h>
+#include <src/util/thread/singleton.h>
+#include <src/util/stream/format.h>
+#include <src/util/stream/output.h>
+#include <src/util/system/yassert.h>
 
 TCont::TJoinWait::TJoinWait(TCont& c) noexcept
     : Cont_(c)

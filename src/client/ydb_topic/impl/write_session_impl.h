@@ -6,7 +6,7 @@
 #include <src/client/ydb_persqueue_core/impl/callback_context.h>
 #include <src/client/ydb_topic/topic.h>
 
-#include <util/generic/buffer.h>
+#include <src/util/generic/buffer.h>
 
 
 namespace NYdb::NTopic {

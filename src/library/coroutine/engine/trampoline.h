@@ -3,10 +3,10 @@
 #include "stack/stack_common.h"
 #include "stack/stack.h"
 
-#include <util/generic/noncopyable.h>
-#include <util/generic/ptr.h>
-#include <util/system/context.h>
-#include <util/system/defaults.h>
+#include <src/util/generic/noncopyable.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/system/context.h>
+#include <src/util/system/defaults.h>
 
 #if !defined(STACK_GROW_DOWN)
 #   error "unsupported"

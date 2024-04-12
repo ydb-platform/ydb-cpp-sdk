@@ -5,8 +5,8 @@
 #include "auto.h"
 #include "colorscheme.h"
 
-#include <util/stream/format.h>
-#include <util/system/type_name.h>
+#include <src/util/stream/format.h>
+#include <src/util/system/type_name.h>
 #include <utility>
 #include <unordered_set>
 

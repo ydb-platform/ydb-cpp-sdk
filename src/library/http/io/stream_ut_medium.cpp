@@ -1,6 +1,6 @@
 #include "stream.h"
 #include <src/library/testing/unittest/registar.h>
-#include <util/stream/zlib.h>
+#include <src/util/stream/zlib.h>
 
 Y_UNIT_TEST_SUITE(THttpTestMedium) {
     Y_UNIT_TEST(TestCodings2) {

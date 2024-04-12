@@ -11,8 +11,8 @@
 #include <src/client/ydb_common_client/impl/client.h>
 #include <src/client/ydb_federated_topic/federated_topic.h>
 
-#include <util/system/spinlock.h>
-#include <util/generic/hash.h>
+#include <src/util/system/spinlock.h>
+#include <src/util/generic/hash.h>
 
 #include <deque>
 #include <memory>

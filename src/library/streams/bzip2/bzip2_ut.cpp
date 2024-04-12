@@ -2,8 +2,8 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/stream/file.h>
-#include <util/system/tempfile.h>
+#include <src/util/stream/file.h>
+#include <src/util/system/tempfile.h>
 
 #define ZDATA "./zdata"
 

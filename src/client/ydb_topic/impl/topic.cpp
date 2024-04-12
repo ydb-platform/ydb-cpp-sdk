@@ -6,9 +6,9 @@
 
 #include <src/library/persqueue/obfuscate/obfuscate.h>
 
-#include <util/random/random.h>
-#include <util/string/cast.h>
-#include <util/string/subst.h>
+#include <src/util/random/random.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/subst.h>
 
 namespace NYdb::NTopic {
 

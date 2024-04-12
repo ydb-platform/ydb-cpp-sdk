@@ -1,5 +1,5 @@
 #include "lightrwlock.h"
-#include <util/system/spinlock.h>
+#include <src/util/system/spinlock.h>
 
 #if defined(_linux_) && !defined(_tsan_enabled_)
 

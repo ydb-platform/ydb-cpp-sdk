@@ -1,9 +1,9 @@
 #include "json_prettifier.h"
 
-#include <util/generic/algorithm.h>
-#include <util/memory/pool.h>
-#include <util/stream/str.h>
-#include <util/string/util.h>
+#include <src/util/generic/algorithm.h>
+#include <src/util/memory/pool.h>
+#include <src/util/stream/str.h>
+#include <src/util/string/util.h>
 
 #include <src/library/string_utils/relaxed_escaper/relaxed_escaper.h>
 

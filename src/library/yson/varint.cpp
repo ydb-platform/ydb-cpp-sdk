@@ -2,8 +2,8 @@
 
 #include "zigzag.h"
 
-#include <util/generic/yexception.h>
-#include <util/generic/ylimits.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/generic/ylimits.h>
 
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////

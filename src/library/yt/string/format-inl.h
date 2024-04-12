@@ -13,7 +13,7 @@
 
 #include <src/library/yt/misc/enum.h>
 
-#include <util/system/platform.h>
+#include <src/util/system/platform.h>
 
 #include <cctype>
 #include <optional>

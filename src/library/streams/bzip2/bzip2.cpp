@@ -1,7 +1,7 @@
 #include "bzip2.h"
 
-#include <util/memory/addstorage.h>
-#include <util/generic/scope.h>
+#include <src/util/memory/addstorage.h>
+#include <src/util/generic/scope.h>
 
 #include <bzlib.h>
 

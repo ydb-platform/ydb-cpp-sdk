@@ -3,8 +3,8 @@
 #include "stream.h"
 
 #include <string>
-#include <util/stream/str.h>
-#include <util/generic/ptr.h>
+#include <src/util/stream/str.h>
+#include <src/util/generic/ptr.h>
 #include <utility>
 
 #include <src/library/testing/unittest/registar.h>

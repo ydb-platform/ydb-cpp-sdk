@@ -5,10 +5,10 @@
 
 #include <src/library/containers/intrusive_rb_tree/rb_tree.h>
 
-#include <util/datetime/base.h>
-#include <util/memory/pool.h>
-#include <util/memory/smallobj.h>
-#include <util/network/init.h>
+#include <src/util/datetime/base.h>
+#include <src/util/memory/pool.h>
+#include <src/util/memory/smallobj.h>
+#include <src/util/network/init.h>
 
 #include <cerrno>
 

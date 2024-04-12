@@ -8,7 +8,7 @@
 #include <src/api/grpc/ydb_coordination_v1.grpc.pb.h>
 #include <src/client/ydb_common_client/impl/client.h>
 
-#include <util/random/entropy.h>
+#include <src/util/random/entropy.h>
 
 namespace NYdb {
 namespace NCoordination {

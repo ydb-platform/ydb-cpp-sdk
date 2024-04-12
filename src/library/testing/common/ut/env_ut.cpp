@@ -2,10 +2,10 @@
 #include <src/library/testing/common/scope.h>
 #include <src/library/testing/gtest/gtest.h>
 
-#include <util/folder/dirut.h>
-#include <util/stream/file.h>
-#include <util/system/execpath.h>
-#include <util/system/fs.h>
+#include <src/util/folder/dirut.h>
+#include <src/util/stream/file.h>
+#include <src/util/system/execpath.h>
+#include <src/util/system/fs.h>
 
 
 TEST(Runtime, ArcadiaSourceRoot) {

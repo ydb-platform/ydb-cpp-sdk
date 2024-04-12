@@ -1,6 +1,6 @@
 #include "common.h"
 
-#include <util/generic/singleton.h>
+#include <src/util/generic/singleton.h>
 
 #include <map>
 

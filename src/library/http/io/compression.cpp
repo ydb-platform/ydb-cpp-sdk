@@ -4,7 +4,7 @@
 #include <src/library/streams/lz/lz.h>
 #endif
 
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 #include <src/library/string_utils/misc/misc.h>
 #include <src/library/streams/brotli/brotli.h>
 #include <src/library/streams/lzma/lzma.h>
@@ -13,7 +13,7 @@
 #include <src/library/blockcodecs/stream.h>
 #include <src/library/blockcodecs/codecs.h>
 
-#include <util/stream/zlib.h>
+#include <src/util/stream/zlib.h>
 
 
 TCompressionCodecFactory::TCompressionCodecFactory() {

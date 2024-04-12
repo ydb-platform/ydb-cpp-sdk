@@ -4,8 +4,8 @@
 
 #include <string_view>
 #include <string>
-#include <util/generic/hash.h>
-#include <util/string/split.h>
+#include <src/util/generic/hash.h>
+#include <src/util/string/split.h>
 
 using TCaseInsensitiveString = std::basic_string<char, TCaseInsensitiveCharTraits>;
 using TCaseInsensitiveStringBuf = std::basic_string_view<char, TCaseInsensitiveCharTraits>;

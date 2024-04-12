@@ -2,8 +2,8 @@
 
 #include <src/client/ydb_table/table.h>
 
-#include <util/folder/pathsplit.h>
-#include <util/generic/yexception.h>
+#include <src/util/folder/pathsplit.h>
+#include <src/util/generic/yexception.h>
 
 namespace NExample {
 

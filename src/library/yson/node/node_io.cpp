@@ -11,10 +11,10 @@
 #include <src/library/json/json_reader.h>
 #include <src/library/json/json_value.h>
 
-#include <util/stream/input.h>
-#include <util/stream/output.h>
-#include <util/stream/str.h>
-#include <util/stream/mem.h>
+#include <src/util/stream/input.h>
+#include <src/util/stream/output.h>
+#include <src/util/stream/str.h>
+#include <src/util/stream/mem.h>
 
 namespace NYT {
 

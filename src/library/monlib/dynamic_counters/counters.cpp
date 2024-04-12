@@ -1,9 +1,9 @@
 #include "counters.h"
 
 #include <src/library/monlib/service/pages/templates.h>
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
-#include <util/generic/cast.h>
+#include <src/util/generic/cast.h>
 
 using namespace NMonitoring;
 

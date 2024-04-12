@@ -1,7 +1,7 @@
 #include <src/library/json/json_writer.h>
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/stream/str.h>
+#include <src/util/stream/str.h>
 
 using namespace NJson;
 

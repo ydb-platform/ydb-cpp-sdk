@@ -3,8 +3,8 @@
 #include <src/library/string_utils/base64/base64.h>
 #include <src/library/svnversion/svnversion.h>
 
-#include <util/generic/ptr.h>
-#include <util/system/hostname.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/system/hostname.h>
 
 #include <google/protobuf/text_format.h>
 

@@ -23,7 +23,6 @@ include(cmake/testing.cmake)
 
 add_subdirectory(tools)
 add_subdirectory(contrib)
-add_subdirectory(util)
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(tests)

@@ -2,10 +2,10 @@
 
 #include "stack_common.h"
 
-#include <util/generic/yexception.h>
+#include <src/util/generic/yexception.h>
 #include <string_view>
 #include <span>
-#include <util/system/protect.h>
+#include <src/util/system/protect.h>
 
 
 namespace NCoro::NStack {

@@ -6,11 +6,11 @@
 
 #include <src/library/mime/types/mime.h>
 
-#include <util/system/defaults.h>
-#include <util/system/compat.h>
+#include <src/util/system/defaults.h>
+#include <src/util/system/compat.h>
 #include <string>
-#include <util/generic/ylimits.h>
-#include <util/system/maxlen.h>
+#include <src/util/generic/ylimits.h>
+#include <src/util/system/maxlen.h>
 
 #include <ctime>
 #include <cstdio>

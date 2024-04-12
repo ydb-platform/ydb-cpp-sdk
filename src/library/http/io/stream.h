@@ -2,12 +2,12 @@
 
 #include "headers.h"
 
-#include <util/stream/output.h>
-#include <util/generic/ptr.h>
+#include <src/util/stream/output.h>
+#include <src/util/generic/ptr.h>
 #include <span>
 #include <string>
 #include <string_view>
-#include <util/generic/yexception.h>
+#include <src/util/generic/yexception.h>
 
 class TSocket;
 

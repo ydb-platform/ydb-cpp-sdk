@@ -1,5 +1,5 @@
-#include <util/generic/utility.h>
-#include <util/string/util.h>
+#include <src/util/generic/utility.h>
+#include <src/util/string/util.h>
 #include <src/library/testing/unittest/registar.h>
 #include "lcs_via_lis.h"
 

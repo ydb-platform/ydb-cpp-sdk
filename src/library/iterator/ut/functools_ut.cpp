@@ -3,8 +3,8 @@
 #include <src/library/testing/gtest/gtest.h>
 
 
-#include <util/generic/xrange.h>
-#include <util/generic/adaptor.h>
+#include <src/util/generic/xrange.h>
+#include <src/util/generic/adaptor.h>
 
 #include <set>
 

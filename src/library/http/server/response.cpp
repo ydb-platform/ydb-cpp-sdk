@@ -1,6 +1,6 @@
 #include "response.h"
 
-#include <util/stream/mem.h>
+#include <src/util/stream/mem.h>
 
 THttpResponse& THttpResponse::AddMultipleHeaders(const THttpHeaders& headers) {
     for (THttpHeaders::TConstIterator i = headers.Begin(); i != headers.End(); ++i) {

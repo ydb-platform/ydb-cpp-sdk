@@ -1,6 +1,6 @@
 #include "output.h"
 
-#include <util/stream/output.h>
+#include <src/util/stream/output.h>
 
 using namespace NColorizer;
 

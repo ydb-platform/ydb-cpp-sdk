@@ -1,6 +1,6 @@
 #include "case_insensitive_string.h"
 
-#include <util/generic/string_ut.h>
+#include <src/util/generic/string_ut.h>
 
 class TCaseInsensitiveStringTest : public TTestBase, private TStringTestImpl<TCaseInsensitiveString, TTestData<char>> {
 public:

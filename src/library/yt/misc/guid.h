@@ -1,7 +1,7 @@
 #pragma once
 
-#include <util/generic/fwd.h>
-#include <util/generic/typetraits.h>
+#include <src/util/generic/fwd.h>
+#include <src/util/generic/typetraits.h>
 
 #include <src/library/yt/exception/exception.h>
 

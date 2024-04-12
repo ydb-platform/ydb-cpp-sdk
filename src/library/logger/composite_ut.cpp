@@ -3,8 +3,8 @@
 #include <src/library/logger/init_context/yconf.h>
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/yconf/patcher/unstrict_config.h>
-#include <util/stream/file.h>
-#include <util/system/fs.h>
+#include <src/util/stream/file.h>
+#include <src/util/system/fs.h>
 
 Y_UNIT_TEST_SUITE(TCompositeLogTest)
 {

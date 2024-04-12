@@ -1,9 +1,9 @@
 #pragma once
 
-#include <util/stream/input.h>
-#include <util/stream/output.h>
-#include <util/generic/ptr.h>
-#include <util/generic/yexception.h>
+#include <src/util/stream/input.h>
+#include <src/util/stream/output.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/yexception.h>
 
 #define BZIP_BUF_LEN (8 * 1024)
 #define BZIP_COMPRESSION_LEVEL 6

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <util/system/rwlock.h>
-#include <util/system/sanitizers.h>
+#include <src/util/system/rwlock.h>
+#include <src/util/system/sanitizers.h>
 
 // TLightRWLock and TSAN are not friends...
 

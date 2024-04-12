@@ -1,11 +1,11 @@
 #include <src/library/json/fast_sax/unescape.h>
 #include <src/library/json/fast_sax/parser.h>
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
-#include <util/string/cast.h>
-#include <util/generic/buffer.h>
+#include <src/util/string/cast.h>
+#include <src/util/generic/buffer.h>
 #include <string_view>
-#include <util/generic/ymath.h>
+#include <src/util/generic/ymath.h>
 
 namespace NJson {
 

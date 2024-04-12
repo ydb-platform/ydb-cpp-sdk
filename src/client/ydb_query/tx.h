@@ -4,7 +4,7 @@
 
 #include <src/client/ydb_types/fluent_settings_helpers.h>
 
-#include <util/stream/output.h>
+#include <src/util/stream/output.h>
 
 #include <optional>
 

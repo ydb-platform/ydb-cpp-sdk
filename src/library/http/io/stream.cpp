@@ -6,17 +6,17 @@
 #include <src/library/string_utils/misc/misc.h>
 #include <src/library/string_utils/stream/stream.h>
 
-#include <util/stream/buffered.h>
-#include <util/stream/length.h>
-#include <util/stream/multi.h>
-#include <util/stream/null.h>
-#include <util/stream/tee.h>
+#include <src/util/stream/buffered.h>
+#include <src/util/stream/length.h>
+#include <src/util/stream/multi.h>
+#include <src/util/stream/null.h>
+#include <src/util/stream/tee.h>
 
-#include <util/system/yassert.h>
+#include <src/util/system/yassert.h>
 
-#include <util/network/socket.h>
+#include <src/util/network/socket.h>
 
-#include <util/string/strip.h>
+#include <src/util/string/strip.h>
 
 #include <unordered_set>
 

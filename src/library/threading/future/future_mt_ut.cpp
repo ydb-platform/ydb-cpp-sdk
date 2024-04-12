@@ -2,9 +2,9 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/generic/noncopyable.h>
-#include <util/generic/xrange.h>
-#include <util/thread/pool.h>
+#include <src/util/generic/noncopyable.h>
+#include <src/util/generic/xrange.h>
+#include <src/util/thread/pool.h>
 
 #include <atomic>
 #include <exception>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string_view>
-#include <util/generic/yexception.h>
+#include <src/util/generic/yexception.h>
 
 namespace NJson {
     class TJsonException: public yexception {

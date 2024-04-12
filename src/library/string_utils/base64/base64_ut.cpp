@@ -10,9 +10,9 @@
 #include <src/library/testing/unittest/registar.h>
 
 
-#include <util/random/fast.h>
-#include <util/system/cpu_id.h>
-#include <util/system/platform.h>
+#include <src/util/random/fast.h>
+#include <src/util/system/cpu_id.h>
+#include <src/util/system/platform.h>
 
 #include <array>
 

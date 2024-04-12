@@ -2,9 +2,9 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>
 
-#include <util/generic/set.h>
-#include <util/network/sock.h>
-#include <util/system/fs.h>
+#include <src/util/generic/set.h>
+#include <src/util/network/sock.h>
+#include <src/util/system/fs.h>
 
 TEST(GTest, Test1) {
     UNIT_ASSERT_EQUAL(1, 1);

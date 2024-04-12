@@ -1,7 +1,7 @@
 #include "labels.h"
 
-#include <util/stream/output.h>
-#include <util/string/split.h>
+#include <src/util/stream/output.h>
+#include <src/util/string/split.h>
 
 static void OutputLabels(IOutputStream& out, const NMonitoring::ILabels& labels) {
     size_t i = 0;

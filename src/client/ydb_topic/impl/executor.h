@@ -3,7 +3,7 @@
 #include <src/client/ydb_topic/topic.h>
 #include <src/client/ydb_common_client/impl/client.h>
 
-#include <util/thread/pool.h>
+#include <src/util/thread/pool.h>
 
 
 namespace NYdb::NTopic {

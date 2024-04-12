@@ -1,9 +1,9 @@
 #include "stream.h"
 #include "record.h"
 
-#include <util/string/builder.h>
+#include <src/util/string/builder.h>
 
-#include <util/stream/output.h>
+#include <src/util/stream/output.h>
 
 #include <ostream>
 

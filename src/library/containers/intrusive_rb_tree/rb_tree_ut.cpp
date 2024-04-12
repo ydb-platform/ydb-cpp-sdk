@@ -2,9 +2,9 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <util/random/fast.h>
-#include <util/random/easy.h>
-#include <util/random/shuffle.h>
+#include <src/util/random/fast.h>
+#include <src/util/random/easy.h>
+#include <src/util/random/shuffle.h>
 
 class TRedBlackTreeTest: public TTestBase {
     struct TCmp {

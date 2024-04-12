@@ -2,8 +2,8 @@
 
 #include <contrib/libs/libc_compat/string.h>
 
-#include <util/stream/output.h>
-#include <util/system/compat.h>
+#include <src/util/stream/output.h>
+#include <src/util/system/compat.h>
 #include <string_view>
 
 namespace NUri {

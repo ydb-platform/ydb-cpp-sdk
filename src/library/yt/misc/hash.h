@@ -1,8 +1,8 @@
 #pragma once
 
-#include <util/generic/hash.h>
+#include <src/util/generic/hash.h>
 
-#include <util/random/random.h>
+#include <src/util/random/random.h>
 
 namespace NYT {
 

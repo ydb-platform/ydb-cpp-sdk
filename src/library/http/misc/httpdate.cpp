@@ -26,7 +26,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 * SUCH DAMAGE.
 */
-#include <util/system/defaults.h>
+#include <src/util/system/defaults.h>
 
 #include <sys/types.h>
 #include <cctype>
@@ -35,10 +35,10 @@
 #include <cstring>
 #include <ctime>
 
-#include <util/system/compat.h>   /* stricmp */
-#include <util/system/yassert.h>
+#include <src/util/system/compat.h>   /* stricmp */
+#include <src/util/system/yassert.h>
 #include "httpdate.h"
-#include <util/datetime/base.h>
+#include <src/util/datetime/base.h>
 
 static const char *wkdays[] = {
     "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"

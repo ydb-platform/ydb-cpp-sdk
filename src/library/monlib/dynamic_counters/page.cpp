@@ -4,8 +4,8 @@
 #include <src/library/monlib/service/pages/templates.h>
 #include <src/library/string_utils/quote/quote.h>
 
-#include <util/string/split.h>
-#include <util/system/tls.h>
+#include <src/util/string/split.h>
+#include <src/util/system/tls.h>
 
 using namespace NMonitoring;
 

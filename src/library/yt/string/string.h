@@ -4,11 +4,11 @@
 
 #include <src/library/yt/exception/exception.h>
 
-#include <util/datetime/base.h>
+#include <src/util/datetime/base.h>
 
 #include <string>
 
-#include <util/string/strip.h>
+#include <src/util/string/strip.h>
 
 #include <vector>
 #include <set>

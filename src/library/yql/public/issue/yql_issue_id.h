@@ -10,10 +10,10 @@
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/message.h>
 
-#include <util/generic/hash.h>
-#include <util/generic/singleton.h>
-#include <util/generic/yexception.h>
-#include <util/string/subst.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/string/subst.h>
 
 #ifdef _win_
 #ifdef GetMessage

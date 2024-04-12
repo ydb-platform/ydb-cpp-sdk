@@ -6,13 +6,13 @@
 #include <src/library/colorizer/output.h>
 #include <src/library/string_utils/misc/misc.h>
 
-#include <util/charset/utf8.h>
-#include <util/string/ascii.h>
-#include <util/string/split.h>
-#include <util/string/strip.h>
-#include <util/string/subst.h>
-#include <util/system/compiler.h>
-#include <util/generic/stack.h>
+#include <src/util/charset/utf8.h>
+#include <src/util/string/ascii.h>
+#include <src/util/string/split.h>
+#include <src/util/string/strip.h>
+#include <src/util/string/subst.h>
+#include <src/util/system/compiler.h>
+#include <src/util/generic/stack.h>
 #include <cstdlib>
 
 

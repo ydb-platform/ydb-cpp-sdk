@@ -1,7 +1,7 @@
 #pragma once
 #include <span>
-#include <util/generic/fwd.h>
-#include <util/generic/noncopyable.h>
+#include <src/util/generic/fwd.h>
+#include <src/util/generic/noncopyable.h>
 
 #include <cstdint>
 

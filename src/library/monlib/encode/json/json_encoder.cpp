@@ -9,8 +9,8 @@
 
 #include <src/library/json/writer/json.h>
 
-#include <util/charset/utf8.h>
-#include <util/generic/algorithm.h>
+#include <src/util/charset/utf8.h>
+#include <src/util/generic/algorithm.h>
 
 namespace NMonitoring {
     namespace {

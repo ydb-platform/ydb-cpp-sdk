@@ -1,7 +1,7 @@
 #include <src/library/getopt/opt.h>
 
 #include <src/library/testing/unittest/registar.h>
-#include <util/string/vector.h>
+#include <src/util/string/vector.h>
 
 Y_UNIT_TEST_SUITE(OptTest) {
     Y_UNIT_TEST(TestSimple) {

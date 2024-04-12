@@ -2,9 +2,9 @@
 
 #include <contrib/libs/libc_compat/string.h>
 
-#include <util/generic/utility.h>
-#include <util/string/util.h>
-#include <util/system/yassert.h>
+#include <src/util/generic/utility.h>
+#include <src/util/string/util.h>
+#include <src/util/system/yassert.h>
 
 /********************************************************/
 /********************************************************/

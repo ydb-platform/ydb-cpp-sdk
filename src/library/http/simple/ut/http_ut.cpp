@@ -6,8 +6,8 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>
 
-#include <util/system/event.h>
-#include <util/system/thread.h>
+#include <src/util/system/event.h>
+#include <src/util/system/thread.h>
 
 #include <thread>
 

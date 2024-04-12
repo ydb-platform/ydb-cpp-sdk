@@ -5,8 +5,8 @@
 #include <src/library/cgiparam/cgiparam.h>
 #include <src/library/uri/uri.h>
 
-#include <util/generic/yexception.h>
-#include <util/string/cast.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/string/cast.h>
 
 namespace NKikimr {
 namespace NOperationId {

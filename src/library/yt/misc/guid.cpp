@@ -1,7 +1,7 @@
 #include "guid.h"
 
-#include <util/generic/ylimits.h>
-#include <util/random/random.h>
+#include <src/util/generic/ylimits.h>
+#include <src/util/random/random.h>
 
 #include <cstring>
 #include <format>

@@ -25,8 +25,8 @@
 #include <src/library/cache/cache.h>
 #include <src/library/string_utils/misc/misc.h>
 
-#include <util/random/random.h>
-#include <util/string/join.h>
+#include <src/util/random/random.h>
+#include <src/util/string/join.h>
 
 #include <map>
 
