@@ -1,6 +1,6 @@
 #pragma once
 
-#include <library/cpp/logger/priority.h>
+#include <src/library/logger/priority.h>
 
 #include <string>
 

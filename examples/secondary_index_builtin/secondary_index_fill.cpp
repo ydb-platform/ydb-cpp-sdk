@@ -1,6 +1,6 @@
 #include "secondary_index.h"
 
-#include <util/random/random.h>
+#include <src/util/random/random.h>
 
 using namespace NYdb;
 using namespace NYdb::NTable;

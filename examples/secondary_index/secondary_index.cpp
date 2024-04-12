@@ -1,6 +1,6 @@
 #include "secondary_index.h"
 
-#include <util/folder/pathsplit.h>
+#include <src/util/folder/pathsplit.h>
 
 std::string GetCmdList() {
     return "create_tables, drop_tables, update_views, list, generate, delete";
