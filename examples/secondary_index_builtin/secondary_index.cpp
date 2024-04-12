@@ -1,6 +1,6 @@
 #include "secondary_index.h"
 
-#include <util/folder/pathsplit.h>
+#include <src/util/folder/pathsplit.h>
 
 TCommand Parse(const char * stringCmd) {
 

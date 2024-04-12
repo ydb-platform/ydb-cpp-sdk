@@ -1,9 +1,9 @@
 #include "serialized_enum.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
-#include <util/generic/typelist.h>
-#include <util/generic/vector.h>
+#include <src/util/generic/typelist.h>
+#include <src/util/generic/vector.h>
 
 #include <map>
 
