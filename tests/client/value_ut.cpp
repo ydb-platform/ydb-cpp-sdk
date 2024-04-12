@@ -5,8 +5,8 @@
 #include <src/json_value/ydb_json_value.h>
 #include <src/yson_value/ydb_yson_value.h>
 
-#include <library/cpp/testing/unittest/registar.h>
-#include <library/cpp/testing/unittest/tests_data.h>
+#include <src/library/testing/unittest/registar.h>
+#include <src/library/testing/unittest/tests_data.h>
 
 #include <google/protobuf/text_format.h>
 

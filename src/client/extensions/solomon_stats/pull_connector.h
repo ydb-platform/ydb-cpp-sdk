@@ -2,7 +2,7 @@
 
 #include <src/client/ydb_extension/extension.h>
 
-#include <library/cpp/monlib/metrics/metric_registry.h>
+#include <src/library/monlib/metrics/metric_registry.h>
 
 #include <util/generic/ptr.h>
 

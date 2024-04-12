@@ -1,6 +1,6 @@
 #pragma once
 
-#include <library/cpp/string_utils/helpers/helpers.h>
+#include <src/library/string_utils/helpers/helpers.h>
 
 #include <util/system/defaults.h>
 #include <util/stream/str.h>

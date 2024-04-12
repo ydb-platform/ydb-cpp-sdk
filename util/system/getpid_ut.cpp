@@ -1,6 +1,6 @@
 #include "getpid.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 class TGetPidTest: public TTestBase {
     UNIT_TEST_SUITE(TGetPidTest);

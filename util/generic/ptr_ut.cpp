@@ -2,8 +2,8 @@
 #include "vector.h"
 #include "noncopyable.h"
 
-#include <library/cpp/testing/common/probe.h>
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/common/probe.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include <util/generic/is_in.h>
 #include <util/system/thread.h>

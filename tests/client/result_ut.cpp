@@ -3,8 +3,8 @@
 #include <src/api/protos/ydb_value.pb.h>
 #include <src/client/ydb_types/exceptions/exceptions.h>
 
-#include <library/cpp/testing/unittest/registar.h>
-#include <library/cpp/testing/unittest/tests_data.h>
+#include <src/library/testing/unittest/registar.h>
+#include <src/library/testing/unittest/tests_data.h>
 
 #include <google/protobuf/text_format.h>
 

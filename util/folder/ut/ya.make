@@ -12,7 +12,7 @@ SRCS(
 )
 
 PEERDIR(
-    library/cpp/threading/future
+    src/library/threading/future
 )
 
 INCLUDE(${ARCADIA_ROOT}/util/tests/ya_util_tests.inc)

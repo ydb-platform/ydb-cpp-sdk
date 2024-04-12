@@ -6,8 +6,8 @@
 #include <src/client/ydb_types/ydb.h>
 #include <src/client/ydb_types/core_facility/core_facility.h>
 
-#include <library/cpp/threading/future/future.h>
-#include <library/cpp/logger/log.h>
+#include <src/library/threading/future/future.h>
+#include <src/library/logger/log.h>
 
 namespace NMonitoring {
     class IMetricRegistry;

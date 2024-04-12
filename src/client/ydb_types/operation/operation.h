@@ -2,7 +2,7 @@
 
 #include <src/library/operation_id/operation_id.h>
 
-#include <library/cpp/threading/future/future.h>
+#include <src/library/threading/future/future.h>
 
 #include <google/protobuf/stubs/status.h>
 #include <google/protobuf/util/json_util.h>

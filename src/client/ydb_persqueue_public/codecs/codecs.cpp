@@ -1,4 +1,4 @@
-#include <library/cpp/streams/zstd/zstd.h>
+#include <src/library/streams/zstd/zstd.h>
 #include <util/stream/buffer.h>
 #include <util/stream/zlib.h>
 #include <util/stream/mem.h>

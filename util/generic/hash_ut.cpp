@@ -2,8 +2,8 @@
 #include "hash_multi_map.h"
 #include "vector.h"
 
-#include <library/cpp/testing/common/probe.h>
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/common/probe.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include <utility>
 #include <util/str_stl.h>

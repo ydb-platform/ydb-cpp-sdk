@@ -2,7 +2,7 @@
 
 #include "grpc_common.h"
 
-#include <library/cpp/deprecated/atomic/atomic.h>
+#include <src/library/deprecated/atomic/atomic.h>
 #include <util/string/builder.h>
 
 #include <util/thread/factory.h>

@@ -1,4 +1,4 @@
-#include <library/cpp/testing/benchmark/bench.h>
+#include <src/library/testing/benchmark/bench.h>
 
 #include <util/draft/datetime.h>
 

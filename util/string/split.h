@@ -3,7 +3,7 @@
 #include "strspn.h"
 #include "cast.h"
 
-#include <library/cpp/string_utils/helpers/helpers.h>
+#include <src/library/string_utils/helpers/helpers.h>
 
 #include <util/generic/algorithm.h>
 #include <util/generic/fwd.h>

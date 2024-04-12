@@ -4,9 +4,9 @@
 #include <src/client/ydb_table/table.h>
 #include <src/client/ydb_persqueue_core/ut/ut_utils/ut_utils.h>
 
-#include <library/cpp/logger/stream.h>
+#include <src/library/logger/stream.h>
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 namespace NYdb::NTopic::NTests {
 

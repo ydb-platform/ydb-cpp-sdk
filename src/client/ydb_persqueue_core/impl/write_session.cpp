@@ -3,7 +3,7 @@
 #include <src/client/ydb_persqueue_core/persqueue.h>
 #include <src/client/ydb_persqueue_core/impl/log_lazy.h>
 
-#include <library/cpp/string_utils/url/url.h>
+#include <src/library/string_utils/url/url.h>
 
 #include <util/generic/store_policy.h>
 #include <util/generic/utility.h>

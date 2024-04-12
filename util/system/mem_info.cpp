@@ -1,6 +1,6 @@
 #include "mem_info.h"
 
-#include <library/cpp/string_utils/helpers/helpers.h>
+#include <src/library/string_utils/helpers/helpers.h>
 
 #include <util/stream/file.h>
 #include <util/string/cast.h>

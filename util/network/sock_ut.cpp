@@ -1,7 +1,7 @@
 #include "sock.h"
 
-#include <library/cpp/testing/unittest/registar.h>
-#include <library/cpp/threading/future/legacy_future.h>
+#include <src/library/testing/unittest/registar.h>
+#include <src/library/threading/future/legacy_future.h>
 
 #include <util/string/split.h>
 #include <util/system/fs.h>

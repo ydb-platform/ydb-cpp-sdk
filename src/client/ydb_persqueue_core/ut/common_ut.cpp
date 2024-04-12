@@ -1,6 +1,6 @@
 #include <src/client/ydb_persqueue_core/impl/common.h>
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 using NYdb::NPersQueue::ApplyClusterEndpoint;
 

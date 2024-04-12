@@ -1,7 +1,7 @@
 #include "fs.h"
 #include "fs_win.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include "fileapi.h"
 

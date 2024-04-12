@@ -2,7 +2,7 @@
 
 #include "jwt.h"
 
-#include <library/cpp/json/json_reader.h>
+#include <src/library/json/json_reader.h>
 #include <util/string/builder.h>
 
 namespace NYdb {

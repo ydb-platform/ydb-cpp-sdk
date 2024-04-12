@@ -2,8 +2,8 @@
 
 #include <src/library/yql/public/issue/protos/issue_severity.pb.h>
 
-#include <library/cpp/resource/resource.h>
-#include <library/cpp/string_utils/misc/misc.h>
+#include <src/library/resource/resource.h>
+#include <src/library/string_utils/misc/misc.h>
 
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/repeated_field.h>

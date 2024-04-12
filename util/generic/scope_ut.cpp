@@ -1,7 +1,7 @@
 #include "scope.h"
 
 #include <util/generic/ptr.h>
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 Y_UNIT_TEST_SUITE(ScopeToolsTest) {
     Y_UNIT_TEST(OnScopeExitTest) {

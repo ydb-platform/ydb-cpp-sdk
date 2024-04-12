@@ -1,6 +1,6 @@
 #include "util.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 class TStrUtilTest: public TTestBase {
     UNIT_TEST_SUITE(TStrUtilTest);

@@ -1,6 +1,6 @@
 #include "direct_io.h"
 
-#include <library/cpp/string_utils/helpers/helpers.h>
+#include <src/library/string_utils/helpers/helpers.h>
 
 #include <util/generic/singleton.h>
 #include <util/generic/yexception.h>

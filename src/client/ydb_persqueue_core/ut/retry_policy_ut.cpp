@@ -1,7 +1,7 @@
 #include <src/client/ydb_persqueue_core/ut/ut_utils/ut_utils.h>
 
-#include <library/cpp/threading/future/future.h>
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/threading/future/future.h>
+#include <src/library/testing/unittest/registar.h>
 
 
 using namespace NThreading;

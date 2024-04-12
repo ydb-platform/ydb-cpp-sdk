@@ -1,5 +1,5 @@
 #include <tools/enum_parser/parse_enum/benchmark/enum.h_serialized.h>
-#include <library/cpp/testing/benchmark/bench.h>
+#include <src/library/testing/benchmark/bench.h>
 #include <util/generic/algorithm.h>
 #include <util/generic/vector.h>
 #include <util/generic/xrange.h>

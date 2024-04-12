@@ -1,6 +1,6 @@
 #include <src/client/iam/common/iam.h>
 
-#include <library/cpp/http/simple/http_client.h>
+#include <src/library/http/simple/http_client.h>
 
 using namespace NYdbGrpc;
 

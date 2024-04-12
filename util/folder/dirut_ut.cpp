@@ -1,7 +1,7 @@
 #include "dirut.h"
 #include "tempdir.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include <util/memory/tempbuf.h>
 #include <util/stream/file.h>

@@ -1,7 +1,7 @@
 
 #include "murmur.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 class TMurmurHashTest: public TTestBase {
     UNIT_TEST_SUITE(TMurmurHashTest);

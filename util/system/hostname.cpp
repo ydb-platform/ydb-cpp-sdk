@@ -1,4 +1,4 @@
-#include <library/cpp/string_utils/misc/misc.h>
+#include <src/library/string_utils/misc/misc.h>
 
 #include <util/memory/tempbuf.h>
 #include <util/generic/singleton.h>

@@ -1,10 +1,10 @@
 #include <jwt-cpp/jwt.h>
-#include <library/cpp/digest/argonish/argon2.h>
+#include <src/library/digest/argonish/argon2.h>
 #include <util/string/builder.h>
-#include <library/cpp/string_utils/base64/base64.h>
-#include <library/cpp/json/json_value.h>
-#include <library/cpp/json/json_reader.h>
-#include <library/cpp/json/json_writer.h>
+#include <src/library/string_utils/base64/base64.h>
+#include <src/library/json/json_value.h>
+#include <src/library/json/json_reader.h>
+#include <src/library/json/json_writer.h>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/rand.h>

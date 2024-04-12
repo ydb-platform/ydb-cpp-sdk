@@ -1,6 +1,6 @@
 #include "function_ref.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 Y_UNIT_TEST_SUITE(TestFunctionRef) {
     template <typename Signature>

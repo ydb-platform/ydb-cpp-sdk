@@ -1,7 +1,7 @@
 #include "cast.h"
 #include "ylimits.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include <util/system/valgrind.h>
 

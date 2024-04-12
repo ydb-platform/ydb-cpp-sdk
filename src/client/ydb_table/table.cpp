@@ -22,8 +22,8 @@
 
 #include <google/protobuf/util/time_util.h>
 
-#include <library/cpp/cache/cache.h>
-#include <library/cpp/string_utils/misc/misc.h>
+#include <src/library/cache/cache.h>
+#include <src/library/string_utils/misc/misc.h>
 
 #include <util/random/random.h>
 #include <util/string/join.h>

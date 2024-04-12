@@ -1,6 +1,6 @@
 #include "zerocopy_output.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 
 // This version of string output stream is written here only

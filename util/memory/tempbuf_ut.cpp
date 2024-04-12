@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 class TTempBufTest: public TTestBase {
     UNIT_TEST_SUITE(TTempBufTest);

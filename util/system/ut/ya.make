@@ -21,7 +21,7 @@ IF (OS_DARWIN)
 ENDIF()
 
 PEERDIR(
-    library/cpp/testing/benchmark
+    src/library/testing/benchmark
 )
 
 SRCS(

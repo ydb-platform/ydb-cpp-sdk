@@ -9,7 +9,7 @@
 #include <src/client/ydb_types/request_settings.h>
 #include <src/client/ydb_types/status/status.h>
 
-#include <library/cpp/threading/future/future.h>
+#include <src/library/threading/future/future.h>
 
 #include <variant>
 

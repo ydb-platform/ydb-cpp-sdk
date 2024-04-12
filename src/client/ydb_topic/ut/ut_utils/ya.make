@@ -9,8 +9,8 @@ SRCS(
 
 PEERDIR(
     src/library/grpc/server
-    library/cpp/testing/unittest
-    library/cpp/threading/chunk_queue
+    src/library/testing/unittest
+    src/library/threading/chunk_queue
     ydb/core/testlib/default
     src/library/persqueue/topic_parser_public
     client/ydb_driver

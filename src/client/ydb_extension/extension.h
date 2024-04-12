@@ -2,7 +2,7 @@
 
 #include <src/client/ydb_driver/driver.h>
 
-#include <library/cpp/monlib/metrics/metric_registry.h>
+#include <src/library/monlib/metrics/metric_registry.h>
 
 namespace Ydb {
 namespace Discovery {

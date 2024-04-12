@@ -1,6 +1,6 @@
 #include "sequence.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 #include <util/generic/vector.h>
 
 class TRangeHashTest: public TTestBase {

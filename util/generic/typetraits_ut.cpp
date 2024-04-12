@@ -1,6 +1,6 @@
 #include "typetraits.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include <vector>
 #include <tuple>

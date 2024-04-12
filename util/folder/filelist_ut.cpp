@@ -2,7 +2,7 @@
 #include "filelist.h"
 #include "tempdir.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include <util/system/file.h>
 

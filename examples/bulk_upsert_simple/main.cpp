@@ -1,6 +1,6 @@
 #include <src/client/ydb_table/table.h>
 
-#include <library/cpp/getopt/last_getopt.h>
+#include <src/library/getopt/last_getopt.h>
 
 #include <util/folder/pathsplit.h>
 

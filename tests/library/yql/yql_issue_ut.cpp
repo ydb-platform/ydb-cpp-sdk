@@ -1,12 +1,12 @@
 #include "yql_issue.h"
 #include "yql_issue_message.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 #include <src/library/yql/public/issue/protos/issue_message.pb.h>
 #include <src/library/yql/public/issue/yql_issue_message.h>
 #include <src/api/protos/ydb_issue_message.pb.h>
 
-#include <library/cpp/unicode_normalization/normalization.h>
+#include <src/library/unicode_normalization/normalization.h>
 
 #include <util/charset/utf8.h>
 #include <util/charset/wide.h>

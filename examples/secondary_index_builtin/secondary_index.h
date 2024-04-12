@@ -3,7 +3,7 @@
 #include <src/client/ydb_driver/driver.h>
 #include <src/client/ydb_table/table.h>
 
-#include <library/cpp/getopt/last_getopt.h>
+#include <src/library/getopt/last_getopt.h>
 #include <string>
 #include <util/generic/yexception.h>
 #include <util/stream/output.h>

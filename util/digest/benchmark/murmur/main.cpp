@@ -1,4 +1,4 @@
-#include <library/cpp/testing/gbenchmark/benchmark.h>
+#include <src/library/testing/gbenchmark/benchmark.h>
 
 #include <util/digest/murmur.h>
 #include <util/system/types.h>

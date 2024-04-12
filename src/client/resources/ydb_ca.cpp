@@ -1,4 +1,4 @@
-#include <library/cpp/resource/resource.h>
+#include <src/library/resource/resource.h>
 
 #include "ydb_ca.h"
 

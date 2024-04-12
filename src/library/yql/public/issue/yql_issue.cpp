@@ -3,8 +3,8 @@
 
 #include <src/library/yql/utils/utf8.h>
 
-#include <library/cpp/colorizer/output.h>
-#include <library/cpp/string_utils/misc/misc.h>
+#include <src/library/colorizer/output.h>
+#include <src/library/string_utils/misc/misc.h>
 
 #include <util/charset/utf8.h>
 #include <util/string/ascii.h>

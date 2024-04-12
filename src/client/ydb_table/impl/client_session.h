@@ -7,7 +7,7 @@
 
 #include <src/api/protos/ydb_table.pb.h>
 
-#include <library/cpp/cache/cache.h>
+#include <src/library/cache/cache.h>
 
 #include <util/datetime/base.h>
 

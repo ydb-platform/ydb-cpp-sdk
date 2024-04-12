@@ -5,7 +5,7 @@
 
 #include <src/library/yql/public/issue/yql_issue.h>
 
-#include <library/cpp/threading/future/future.h>
+#include <src/library/threading/future/future.h>
 
 namespace NYdb {
 

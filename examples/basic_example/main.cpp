@@ -1,6 +1,6 @@
 #include "basic_example.h"
 
-#include <library/cpp/getopt/last_getopt.h>
+#include <src/library/getopt/last_getopt.h>
 
 #include <util/stream/file.h>
 

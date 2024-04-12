@@ -1,6 +1,6 @@
 #include <src/client/ydb_topic/topic.h>
 
-#include <library/cpp/containers/disjoint_interval_tree/disjoint_interval_tree.h>
+#include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 
 namespace NYdb::NTopic {
 

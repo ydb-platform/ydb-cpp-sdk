@@ -5,7 +5,7 @@
 #include <src/client/impl/ydb_internal/common/ssl_credentials.h>
 #include <src/client/impl/ydb_internal/logger/log.h>
 
-#include <library/cpp/string_utils/quote/quote.h>
+#include <src/library/string_utils/quote/quote.h>
 
 #include <thread>
 #include <unordered_map>

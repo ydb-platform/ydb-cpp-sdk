@@ -8,7 +8,7 @@
 #include <src/client/impl/ydb_internal/logger/log.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <library/cpp/containers/disjoint_interval_tree/disjoint_interval_tree.h>
+#include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 #include <util/generic/guid.h>
 #include <util/generic/size_literals.h>
 #include <util/generic/utility.h>

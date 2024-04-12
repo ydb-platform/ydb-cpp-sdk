@@ -1,6 +1,6 @@
 #include "cast.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include <util/charset/wide.h>
 #include <util/system/defaults.h>

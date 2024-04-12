@@ -4,7 +4,7 @@
 #include <src/client/ydb_types/fluent_settings_helpers.h>
 #include <src/client/ydb_types/status/status.h>
 
-#include <library/cpp/threading/future/core/fwd.h>
+#include <src/library/threading/future/core/fwd.h>
 #include <util/datetime/base.h>
 #include <util/datetime/cputimer.h>
 #include <util/generic/ptr.h>

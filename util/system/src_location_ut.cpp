@@ -2,7 +2,7 @@
 
 #include <util/string/builder.h>
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 static inline std::string GenLoc() {
     return TStringBuilder() << __LOCATION__;

@@ -1,6 +1,6 @@
 #include "blob.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include <util/system/tempfile.h>
 #include <util/folder/path.h>

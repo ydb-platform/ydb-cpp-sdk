@@ -7,9 +7,9 @@
 #include <src/client/ydb_persqueue_core/persqueue.h>
 #include <src/client/ydb_persqueue_core/impl/read_session.h>
 
-#include <library/cpp/streams/zstd/zstd.h>
-#include <library/cpp/testing/gmock_in_unittest/gmock.h>
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/streams/zstd/zstd.h>
+#include <src/library/testing/gmock_in_unittest/gmock.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include <util/stream/zlib.h>
 

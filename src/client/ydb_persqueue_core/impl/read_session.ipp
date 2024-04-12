@@ -14,7 +14,7 @@
 
 #include <google/protobuf/util/time_util.h>
 
-#include <library/cpp/containers/disjoint_interval_tree/disjoint_interval_tree.h>
+#include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 #include <util/generic/guid.h>
 #include <util/generic/size_literals.h>
 #include <util/generic/utility.h>

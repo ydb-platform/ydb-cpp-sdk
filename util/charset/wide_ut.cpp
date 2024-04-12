@@ -1,7 +1,7 @@
 #include "utf8.h"
 #include "wide.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include <util/string/reverse.h>
 

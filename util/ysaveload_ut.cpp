@@ -1,6 +1,6 @@
 #include "ysaveload.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include <util/memory/pool.h>
 #include <util/stream/buffer.h>

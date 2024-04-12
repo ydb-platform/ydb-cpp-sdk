@@ -291,7 +291,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     ${YDB_SDK_SOURCE_DIR}/util/system/valgrind.cpp
     ${YDB_SDK_SOURCE_DIR}/util/system/mktemp_system.cpp
   )
-elseif (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64" AND NOT HAVE_CUDA)
+elseif (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_sources(yutil PRIVATE
     ${YDB_SDK_SOURCE_DIR}/util/datetime/strptime.cpp
     ${YDB_SDK_SOURCE_DIR}/util/folder/lstat_win.c

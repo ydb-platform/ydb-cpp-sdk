@@ -1,6 +1,6 @@
 #include "pathsplit.h"
 
-#include <library/cpp/string_utils/helpers/helpers.h>
+#include <src/library/string_utils/helpers/helpers.h>
 
 #include <util/stream/output.h>
 #include <util/generic/yexception.h>

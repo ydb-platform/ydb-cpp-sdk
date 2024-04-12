@@ -1,9 +1,9 @@
 #include "ydb_json_value.h"
 
 #include <util/string/builder.h>
-#include <library/cpp/string_utils/base64/base64.h>
+#include <src/library/string_utils/base64/base64.h>
 #include <util/string/builder.h>
-#include <library/cpp/json/json_reader.h>
+#include <src/library/json/json_reader.h>
 
 namespace NYdb {
 

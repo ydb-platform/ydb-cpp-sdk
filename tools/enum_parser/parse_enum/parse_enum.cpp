@@ -1,6 +1,6 @@
 #include "parse_enum.h"
 
-#include <library/cpp/cppparser/parser.h>
+#include <src/library/cppparser/parser.h>
 
 #include <util/generic/yexception.h>
 #include <util/stream/file.h>

@@ -5,7 +5,7 @@ REQUIREMENTS(network:full)
 SUBSCRIBER(g:util-subscribers)
 
 PEERDIR(
-    library/cpp/threading/future
+    src/library/threading/future
 )
 
 SRCS(

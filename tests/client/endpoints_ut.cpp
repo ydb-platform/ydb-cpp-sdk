@@ -1,8 +1,8 @@
 #include <endpoints.h>
 
-#include <library/cpp/testing/unittest/registar.h>
-#include <library/cpp/testing/unittest/tests_data.h>
-#include <library/cpp/threading/future/core/future.h>
+#include <src/library/testing/unittest/registar.h>
+#include <src/library/testing/unittest/tests_data.h>
+#include <src/library/threading/future/core/future.h>
 
 #include <util/system/thread.h>
 #include <util/random/random.h>

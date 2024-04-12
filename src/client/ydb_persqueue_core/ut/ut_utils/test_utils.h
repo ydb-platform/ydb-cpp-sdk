@@ -1,9 +1,9 @@
 #pragma once
 #include <util/generic/ptr.h>
 #include <util/generic/size_literals.h>
-#include <library/cpp/threading/chunk_queue/queue.h>
+#include <src/library/threading/chunk_queue/queue.h>
 #include <util/generic/overloaded.h>
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include "sdk_test_setup.h"
 

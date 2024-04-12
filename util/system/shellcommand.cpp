@@ -3,7 +3,7 @@
 #include "nice.h"
 #include "sigset.h"
 
-#include <library/cpp/string_utils/helpers/helpers.h>
+#include <src/library/string_utils/helpers/helpers.h>
 
 #include <util/folder/dirut.h>
 #include <util/generic/algorithm.h>

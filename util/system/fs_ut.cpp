@@ -1,6 +1,6 @@
 #include "fs.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include "file.h"
 #include "fstat.h"

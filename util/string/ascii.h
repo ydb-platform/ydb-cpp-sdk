@@ -148,7 +148,7 @@ inline ::NPrivate::TDereferenced<T> AsciiToUpper(T c) noexcept {
 
 /**
  * ASCII case-insensitive string comparison (for proper UTF8 strings
- * case-insensitive comparison consider using @c library/cpp/charset).
+ * case-insensitive comparison consider using @c src/library/charset).
  *
  * BUGS: Currently will NOT work properly with strings that contain
  * 0-terminator character inside. See IGNIETFERRO-1641 for details.
@@ -161,7 +161,7 @@ static inline bool AsciiEqualsIgnoreCase(const char* s1, const char* s2) noexcep
 
 /**
  * ASCII case-insensitive string comparison (for proper UTF8 strings
- * case-insensitive comparison consider using @c library/cpp/charset).
+ * case-insensitive comparison consider using @c src/library/charset).
  *
  * BUGS: Currently will NOT work properly with strings that contain
  * 0-terminator character inside. See IGNIETFERRO-1641 for details.
@@ -180,7 +180,7 @@ static inline bool AsciiEqualsIgnoreCase(const std::string_view s1, const std::s
 
 /**
  * ASCII case-insensitive string comparison (for proper UTF8 strings
- * case-insensitive comparison consider using @c library/cpp/charset).
+ * case-insensitive comparison consider using @c src/library/charset).
  *
  * BUGS: Currently will NOT work properly with strings that contain
  * 0-terminator character inside. See IGNIETFERRO-1641 for details.
@@ -195,7 +195,7 @@ static inline int AsciiCompareIgnoreCase(const char* s1, const char* s2) noexcep
 
 /**
  * ASCII case-insensitive string comparison (for proper UTF8 strings
- * case-insensitive comparison consider using @c library/cpp/charset).
+ * case-insensitive comparison consider using @c src/library/charset).
  *
  * BUGS: Currently will NOT work properly with strings that contain
  * 0-terminator character inside. See IGNIETFERRO-1641 for details.
@@ -210,7 +210,7 @@ Y_PURE_FUNCTION int AsciiCompareIgnoreCase(const std::string_view s1, const std:
 
 /**
  * ASCII case-sensitive string comparison (for proper UTF8 strings
- * case-sensitive comparison consider using @c library/cpp/charset).
+ * case-sensitive comparison consider using @c src/library/charset).
  *
  * BUGS: Currently will NOT work properly with strings that contain
  * 0-terminator character inside. See IGNIETFERRO-1641 for details.
@@ -223,7 +223,7 @@ static inline bool AsciiHasPrefix(const std::string_view s1, const std::string_v
 
 /**
  * ASCII case-insensitive string comparison (for proper UTF8 strings
- * case-insensitive comparison consider using @c library/cpp/charset).
+ * case-insensitive comparison consider using @c src/library/charset).
  *
  * @return                              true iff @c s2 are case-insensitively prefix of @c s1.
  */
@@ -233,7 +233,7 @@ static inline bool AsciiHasPrefixIgnoreCase(const std::string_view s1, const std
 
 /**
  * ASCII case-insensitive string comparison (for proper UTF8 strings
- * case-insensitive comparison consider using @c library/cpp/charset).
+ * case-insensitive comparison consider using @c src/library/charset).
  *
  * @return                              true iff @c s2 are case-insensitively suffix of @c s1.
  */

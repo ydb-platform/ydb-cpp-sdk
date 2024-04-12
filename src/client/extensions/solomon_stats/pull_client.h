@@ -2,12 +2,12 @@
 
 #include <src/client/ydb_extension/extension.h>
 
-#include <library/cpp/http/server/response.h>
-#include <library/cpp/monlib/metrics/metric_consumer.h>
-#include <library/cpp/monlib/encode/json/json.h>
-#include <library/cpp/monlib/metrics/metric_registry.h>
-#include <library/cpp/monlib/service/pages/mon_page.h>
-#include <library/cpp/monlib/service/monservice.h>
+#include <src/library/http/server/response.h>
+#include <src/library/monlib/metrics/metric_consumer.h>
+#include <src/library/monlib/encode/json/json.h>
+#include <src/library/monlib/metrics/metric_registry.h>
+#include <src/library/monlib/service/pages/mon_page.h>
+#include <src/library/monlib/service/monservice.h>
 
 namespace NSolomonStatExtension {
 

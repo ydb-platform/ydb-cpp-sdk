@@ -1,6 +1,6 @@
 #pragma once
 
-#include <library/cpp/threading/future/core/future.h>
+#include <src/library/threading/future/core/future.h>
 #include <util/system/guard.h>
 #include <util/system/spinlock.h>
 

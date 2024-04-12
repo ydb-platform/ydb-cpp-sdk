@@ -1,6 +1,6 @@
 #include "format.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 #include <util/charset/wide.h>
 
 Y_UNIT_TEST_SUITE(TOutputStreamFormattingTest) {

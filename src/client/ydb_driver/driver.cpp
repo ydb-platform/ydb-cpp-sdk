@@ -6,7 +6,7 @@
 #include <src/client/impl/ydb_internal/logger/log.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <library/cpp/logger/log.h>
+#include <src/library/logger/log.h>
 #include <src/client/impl/ydb_internal/common/parser.h>
 #include <src/client/impl/ydb_internal/common/getenv.h>
 #include <src/client/impl/ydb_internal/common/ssl_credentials.h>

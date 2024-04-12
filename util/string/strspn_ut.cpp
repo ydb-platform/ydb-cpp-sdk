@@ -1,6 +1,6 @@
 #include "strspn.h"
 
-#include <library/cpp/testing/unittest/registar.h>
+#include <src/library/testing/unittest/registar.h>
 
 Y_UNIT_TEST_SUITE(TStrSpnTest) {
     Y_UNIT_TEST(FindFirstOf) {

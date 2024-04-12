@@ -12,7 +12,7 @@ ENDIF()
 FORK_SUBTESTS()
 
 PEERDIR(
-    library/cpp/testing/gmock_in_unittest
+    src/library/testing/gmock_in_unittest
     ydb/core/testlib/default
     ydb/public/lib/json_value
     ydb/public/lib/yson_value

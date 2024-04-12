@@ -3,9 +3,9 @@
 #include <src/client/ydb_driver/driver.h>
 #include <src/client/ydb_types/exceptions/exceptions.h>
 
-#include <library/cpp/monlib/dynamic_counters/counters.h>
-#include <library/cpp/logger/log.h>
-#include <library/cpp/retry/retry_policy.h>
+#include <src/library/monlib/dynamic_counters/counters.h>
+#include <src/library/logger/log.h>
+#include <src/library/retry/retry_policy.h>
 #include <util/string/builder.h>
 
 #include <util/datetime/base.h>

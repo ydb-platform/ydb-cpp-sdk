@@ -4,7 +4,7 @@
 #include <src/client/ydb_value/value.h>
 #include <src/client/ydb_types/fatal_error_handlers/handlers.h>
 
-#include <library/cpp/json/writer/json.h>
+#include <src/library/json/writer/json.h>
 
 namespace NYdb {
 

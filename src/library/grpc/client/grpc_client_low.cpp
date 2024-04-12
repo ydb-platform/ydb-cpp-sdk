@@ -1,7 +1,7 @@
 #include "grpc_client_low.h"
 #include <grpc/support/log.h>
 
-#include <library/cpp/containers/stack_vector/stack_vec.h>
+#include <src/library/containers/stack_vector/stack_vec.h>
 
 #include <util/system/thread.h>
 #include <util/random/random.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <library/cpp/logger/log.h>
+#include <src/library/logger/log.h>
 
 #include <src/client/impl/ydb_internal/internal_header.h>
 #include <src/client/impl/ydb_internal/common/types.h>
