@@ -1,6 +1,10 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
+=======
+#include <src/library/deprecated/atomic/atomic.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NAtomic {
     class TBool {

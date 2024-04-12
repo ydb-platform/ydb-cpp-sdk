@@ -6,8 +6,13 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <utility>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/str_stl.h>
 #include <ydb-cpp-sdk/util/digest/multi.h>
+=======
+#include <src/util/str_stl.h>
+#include <src/util/digest/multi.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 static const char star = 42;
 

@@ -1,6 +1,10 @@
 #include "text.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/metrics/histogram_collector.h>
+=======
+#include <src/library/monlib/metrics/histogram_collector.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/testing/unittest/registar.h>
 

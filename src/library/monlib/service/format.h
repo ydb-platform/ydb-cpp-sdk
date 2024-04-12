@@ -1,10 +1,18 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/encode/format.h>
 
 #include <ydb-cpp-sdk/util/string/ascii.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
+=======
+#include <src/library/monlib/encode/format.h>
+
+#include <src/util/string/ascii.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/generic/typetraits.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NMonitoring {
     namespace NPrivate {

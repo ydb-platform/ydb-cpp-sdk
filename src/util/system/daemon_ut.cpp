@@ -3,7 +3,11 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/network/pair.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/network/socket.h>
+=======
+#include <src/util/network/socket.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/pipe.h>
 
 Y_UNIT_TEST_SUITE(TDaemonTest) {

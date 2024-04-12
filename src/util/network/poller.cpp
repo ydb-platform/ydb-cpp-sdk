@@ -1,7 +1,11 @@
 #include "poller.h"
 #include "pollerimpl.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
+=======
+#include <src/util/memory/tempbuf.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <mutex>
 

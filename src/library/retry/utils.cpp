@@ -1,6 +1,10 @@
 #include "utils.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/random/random.h>
+=======
+#include <src/util/random/random.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 TDuration NRetryPrivate::AddRandomDelta(TDuration maxDelta) {
     if (maxDelta == TDuration::Zero()) {

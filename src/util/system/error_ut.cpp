@@ -2,7 +2,11 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
+=======
+#include <src/util/generic/ylimits.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #ifdef _win_
     #include "winint.h"

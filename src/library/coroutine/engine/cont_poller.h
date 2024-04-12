@@ -5,10 +5,17 @@
 
 #include <src/library/containers/intrusive_rb_tree/rb_tree.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <src/util/memory/pool.h>
 #include <src/util/memory/smallobj.h>
 #include <ydb-cpp-sdk/util/network/init.h>
+=======
+#include <src/util/datetime/base.h>
+#include <src/util/memory/pool.h>
+#include <src/util/memory/smallobj.h>
+#include <src/util/network/init.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <cerrno>
 

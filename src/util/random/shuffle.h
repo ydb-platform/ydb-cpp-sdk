@@ -3,8 +3,13 @@
 #include "fast.h"
 #include "entropy.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/generic/utility.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 // some kind of https://en.wikipedia.org/wiki/Fisher–Yates_shuffle#The_modern_algorithm
 

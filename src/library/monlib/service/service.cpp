@@ -1,6 +1,7 @@
 #include <ydb-cpp-sdk/library/monlib/service/service.h>
 
 #include <src/library/coroutine/engine/sockpool.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/http/io/stream.h>
 #include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 #include <src/library/http/fetch/httpfsm.h>
@@ -11,6 +12,17 @@
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <src/util/stream/buffer.h>
 #include <ydb-cpp-sdk/util/stream/zerocopy.h>
+=======
+#include <src/library/http/io/stream.h>
+#include <src/library/http/fetch/httpheader.h>
+#include <src/library/http/fetch/httpfsm.h>
+#include <src/library/uri/http_url.h>
+
+#include <src/util/generic/buffer.h>
+#include <src/util/stream/str.h>
+#include <src/util/stream/buffer.h>
+#include <src/util/stream/zerocopy.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/string/vector.h>
 
 namespace NMonitoring {

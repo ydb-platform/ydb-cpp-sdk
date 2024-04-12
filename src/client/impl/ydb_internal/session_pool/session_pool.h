@@ -1,7 +1,11 @@
 #pragma once
 
 #include <src/client/impl/ydb_internal/kqp_session_common/kqp_session_common.h>
+<<<<<<< HEAD
 #include <src/client/types/core_facility/core_facility.h>
+=======
+#include <src/client/ydb_types/core_facility/core_facility.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 
 namespace NYdb {

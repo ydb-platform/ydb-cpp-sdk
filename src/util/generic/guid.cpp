@@ -1,12 +1,19 @@
 #include "guid.h"
 #include "string.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 
 #include <ydb-cpp-sdk/util/string/ascii.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <src/util/stream/format.h>
 #include <ydb-cpp-sdk/util/system/unaligned_mem.h>
+=======
+#include <src/util/string/ascii.h>
+#include <src/util/string/builder.h>
+#include <src/util/stream/format.h>
+#include <src/util/system/unaligned_mem.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/random/easy.h>
 
 namespace {

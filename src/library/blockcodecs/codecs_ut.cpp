@@ -3,9 +3,15 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <src/util/string/join.h>
 #include <ydb-cpp-sdk/util/digest/multi.h>
+=======
+#include <src/util/stream/str.h>
+#include <src/util/string/join.h>
+#include <src/util/digest/multi.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
     using namespace NBlockCodecs;

@@ -3,6 +3,7 @@
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include "mapfindptr.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/memory/alloc.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/type_name.h>
@@ -11,6 +12,16 @@
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
+=======
+#include <src/util/memory/alloc.h>
+#include <src/util/system/compiler.h>
+#include <src/util/system/type_name.h>
+#include <src/util/system/yassert.h>
+#include <src/util/str_stl.h>
+#include "yexception.h"
+#include "typetraits.h"
+#include "utility.h"
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <algorithm>
 #include <initializer_list>

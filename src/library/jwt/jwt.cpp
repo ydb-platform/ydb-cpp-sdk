@@ -2,8 +2,13 @@
 
 #include <ydb-cpp-sdk/library/jwt/jwt.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
+=======
+#include <src/library/json/json_reader.h>
+#include <src/util/string/builder.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

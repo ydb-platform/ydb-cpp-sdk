@@ -1,6 +1,11 @@
 #pragma once
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/types.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/system/types.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <cctype>
 #include <cstring>

@@ -4,7 +4,11 @@
 #include "common_ops.h"
 
 #include <src/util/generic/bitops.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/platform.h>
+=======
+#include <src/util/system/platform.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 // based on http://www.pcg-random.org/. See T*FastRng* family below.
 

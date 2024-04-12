@@ -2,7 +2,11 @@
 #include <src/library/blockcodecs/core/common.h>
 #include <src/library/blockcodecs/core/register.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
+=======
+#include <src/util/string/builder.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <lz4.h>
 #include <lz4hc.h>

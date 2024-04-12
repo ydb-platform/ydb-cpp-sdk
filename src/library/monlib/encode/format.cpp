@@ -1,5 +1,6 @@
 #include <ydb-cpp-sdk/library/monlib/encode/format.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <ydb-cpp-sdk/util/string/ascii.h>
@@ -7,6 +8,15 @@
 #include <ydb-cpp-sdk/util/string/strip.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include <src/library/string_utils/misc/misc.h>
+
+#include <src/util/string/ascii.h>
+#include <src/util/string/split.h>
+#include <src/util/string/strip.h>
+#include <src/util/stream/output.h>
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NMonitoring {
     static ECompression CompressionFromHeader(std::string_view value) {

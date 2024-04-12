@@ -1,7 +1,12 @@
 #include "engine.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
+=======
+#include <src/util/string/cast.h>
+#include <src/util/string/escape.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #if !defined(DBGDUMP_INLINE_IF_INCLUDED)
 #define DBGDUMP_INLINE_IF_INCLUDED

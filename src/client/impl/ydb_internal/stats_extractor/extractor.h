@@ -4,9 +4,15 @@
 
 #include <src/client/impl/ydb_internal/internal_client/client.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/ydb_extension/extension.h>
 
 #include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
+=======
+#include <src/client/ydb_extension/extension.h>
+
+#include <src/library/monlib/metrics/metric_registry.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

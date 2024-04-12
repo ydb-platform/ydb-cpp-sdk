@@ -5,7 +5,11 @@
 
 #include <src/util/generic/mapfindptr.h>
 #include <src/util/string/join.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/subst.h>
+=======
+#include <src/util/string/subst.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <optional>
 #include <unordered_set>

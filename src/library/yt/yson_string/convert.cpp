@@ -11,7 +11,11 @@
 
 #include <array>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/mem.h>
+=======
+#include <src/util/stream/mem.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYT::NYson {
 

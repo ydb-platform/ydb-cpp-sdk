@@ -1,8 +1,14 @@
 #include <src/library/threading/light_rw_lock/lightrwlock.h>
 #include <src/library/testing/unittest/registar.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/random/random.h>
 #include <ydb-cpp-sdk/util/thread/pool.h>
+=======
+#include <src/util/generic/ptr.h>
+#include <src/util/random/random.h>
+#include <src/util/thread/pool.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 class TRWMutexTest: public TTestBase {
     UNIT_TEST_SUITE(TRWMutexTest);

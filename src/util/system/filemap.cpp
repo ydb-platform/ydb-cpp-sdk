@@ -3,8 +3,13 @@
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include "hi_lo.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+=======
+#include <src/util/generic/yexception.h>
+#include <src/util/generic/singleton.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #if defined(_win_)
     #include "winint.h"
@@ -29,7 +34,11 @@
     #error todo
 #endif
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/utility.h>
+=======
+#include <src/util/generic/utility.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/sanitizers.h>
 #include "filemap.h"
 

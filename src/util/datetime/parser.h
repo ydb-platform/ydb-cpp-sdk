@@ -1,6 +1,10 @@
 #pragma once
 
+<<<<<<< HEAD
 // probably you do not need to include this file directly, use "ydb-cpp-sdk/util/datetime/base.h"
+=======
+// probably you do not need to include this file directly, use "src/util/datetime/base.h"
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
 

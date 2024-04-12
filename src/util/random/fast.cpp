@@ -1,6 +1,10 @@
 #include "fast.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/input.h>
+=======
+#include <src/util/stream/input.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 static inline ui32 FixSeq(ui32 seq1, ui32 seq2) noexcept {
     const ui32 mask = (~(ui32)(0)) >> 1;

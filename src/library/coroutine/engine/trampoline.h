@@ -3,10 +3,17 @@
 #include "stack/stack_common.h"
 #include "stack/stack.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/system/context.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
+=======
+#include <src/util/generic/noncopyable.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/system/context.h>
+#include <src/util/system/defaults.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #if !defined(STACK_GROW_DOWN)
 #   error "unsupported"

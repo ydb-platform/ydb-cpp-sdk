@@ -1,8 +1,14 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/types.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+=======
+#include "types.h"
+#include "compiler.h"
+#include <src/util/generic/singleton.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #define Y_CPU_ID_ENUMERATE(F) \
     F(SSE)                    \

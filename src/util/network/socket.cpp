@@ -4,8 +4,13 @@
 #include "pollerimpl.h"
 #include "iovec.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/byteorder.h>
+=======
+#include <src/util/system/defaults.h>
+#include <src/util/system/byteorder.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <unordered_set>
 
 #if defined(_unix_)
@@ -31,6 +36,7 @@
     #include <ws2tcpip.h>
     #include <wspiapi.h>
 
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/system/compat.h>
 #endif
 
@@ -42,6 +48,19 @@
 #include <ydb-cpp-sdk/util/system/error.h>
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+=======
+    #include <src/util/system/compat.h>
+#endif
+
+#include <src/util/generic/ylimits.h>
+
+#include <src/util/string/cast.h>
+#include <src/util/stream/mem.h>
+#include <src/util/system/datetime.h>
+#include <src/util/system/error.h>
+#include <src/util/memory/tempbuf.h>
+#include <src/util/generic/singleton.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <stddef.h>
 #include <sys/uio.h>

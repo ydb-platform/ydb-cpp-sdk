@@ -5,7 +5,11 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/charset/utf8.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/digest/numeric.h>
+=======
+#include <src/util/digest/numeric.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <algorithm>
 #include <unordered_set>

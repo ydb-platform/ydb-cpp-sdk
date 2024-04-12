@@ -6,7 +6,11 @@
 #include "mlock.h"
 #include "tempfile.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
+=======
+#include <src/util/generic/size_literals.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 Y_UNIT_TEST_SUITE(MincoreSuite) {
     static const char* FileName_("./mappped_file");

@@ -1,6 +1,10 @@
 #include "node_visitor.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
+=======
+#include <src/util/generic/algorithm.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYT {
 

@@ -5,6 +5,7 @@
 
 #include <src/library/yson/json/json_writer.h>
 #include <src/library/yson/parser.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/yson/writer.h>
 #include <src/library/yson/json/yson2json_adapter.h>
 
@@ -15,6 +16,18 @@
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
+=======
+#include <src/library/yson/writer.h>
+#include <src/library/yson/json/yson2json_adapter.h>
+
+#include <src/library/json/json_reader.h>
+#include <src/library/json/json_value.h>
+
+#include <src/util/stream/input.h>
+#include <src/util/stream/output.h>
+#include <src/util/stream/str.h>
+#include <src/util/stream/mem.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYT {
 

@@ -1,7 +1,12 @@
 #include "quote.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/string/ascii.h>
+=======
+#include <src/util/memory/tempbuf.h>
+#include <src/util/string/ascii.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/string/cstriter.h>
 
 /* note: (x & 0xdf) makes x upper case */

@@ -2,8 +2,13 @@
 
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/str_stl.h>
 #include <ydb-cpp-sdk/util/memory/alloc.h>
+=======
+#include <src/util/str_stl.h>
+#include <src/util/memory/alloc.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <initializer_list>
 #include <memory>

@@ -1,9 +1,16 @@
 #include "pathsplit.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/library/string_utils/helpers/helpers.h>
+
+#include <src/util/stream/output.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 template <class T>
 static inline size_t ToReserve(const T& t) {

@@ -4,11 +4,19 @@
 
 #include <src/library/yt/misc/guid.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/yt/exception/exception.h>
 
 #include <string>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
+=======
+#include <src/library/yt/exception/exception.h>
+
+#include <string>
+
+#include <src/util/datetime/base.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYT::NYson {
 

@@ -1,10 +1,18 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/guard.h>
 #include <ydb-cpp-sdk/util/system/rwlock.h>
 #include <src/util/generic/set.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/system/guard.h>
+#include <src/util/system/rwlock.h>
+#include <src/util/generic/set.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <algorithm>
 #include <map>

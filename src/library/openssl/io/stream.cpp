@@ -1,11 +1,20 @@
 #include "stream.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <src/library/openssl/init/init.h>
 #include <src/library/openssl/method/io.h>
 #include <ydb-cpp-sdk/library/resource/resource.h>
+=======
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/yexception.h>
+
+#include <src/library/openssl/init/init.h>
+#include <src/library/openssl/method/io.h>
+#include <src/library/resource/resource.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <openssl/bio.h>
 #include <openssl/ssl.h>

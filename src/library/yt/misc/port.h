@@ -1,6 +1,10 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/platform.h>
+=======
+#include <src/util/system/platform.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 // Check platform bitness.
 #if !defined(_64_)

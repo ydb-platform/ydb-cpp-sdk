@@ -1,11 +1,19 @@
 #include <ydb-cpp-sdk/library/logger/thread.h>
 #include <ydb-cpp-sdk/library/logger/record.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/thread/pool.h>
 #include <ydb-cpp-sdk/util/system/event.h>
 #include <src/util/memory/addstorage.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/thread/pool.h>
+#include <src/util/system/event.h>
+#include <src/util/memory/addstorage.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 class TThreadedLogBackend::TImpl {
     class TRec: public IObjectInQueue, public TAdditionalStorage<TRec>, public TLogRecord {

@@ -1,8 +1,13 @@
 #include <ydb-cpp-sdk/util/network/socket.h>
 #include <ydb-cpp-sdk/util/network/hostip.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/byteorder.h>
+=======
+#include <src/util/system/defaults.h>
+#include <src/util/system/byteorder.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #if defined(_unix_) || defined(_cygwin_)
     #include <netdb.h>

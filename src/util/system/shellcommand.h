@@ -1,10 +1,18 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/file.h>
+=======
+#include <src/util/generic/noncopyable.h>
+#include <src/util/generic/hash.h>
+#include <src/util/stream/input.h>
+#include <src/util/stream/output.h>
+#include "file.h"
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include "getpid.h"
 #include "thread.h"
 #include <sys/types.h>

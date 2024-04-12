@@ -2,7 +2,11 @@
 
 #include "align.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/file.h>
+=======
+#include "file.h"
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/generic/buffer.h>
 
 // Supports Linux Direct-IO:

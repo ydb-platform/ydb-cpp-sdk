@@ -2,7 +2,11 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/mem.h>
+=======
+#include <src/util/stream/mem.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 using namespace NYson;
 

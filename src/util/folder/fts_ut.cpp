@@ -5,7 +5,11 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/threading/future/async.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/file.h>
+=======
+#include <src/util/system/file.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/tempfile.h>
 
 class TFtsTest: public TTestBase {

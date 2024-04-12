@@ -2,6 +2,7 @@
 
 #include <src/library/testing/common/env_var.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 #include <ydb-cpp-sdk/library/json/writer/json.h>
 #include <ydb-cpp-sdk/library/json/writer/json_value.h>
@@ -15,6 +16,21 @@
 #include <ydb-cpp-sdk/util/system/file.h>
 #include <src/util/system/fs.h>
 #include <ydb-cpp-sdk/util/system/file.h>
+=======
+#include <src/library/json/json_reader.h>
+#include <src/library/json/writer/json.h>
+#include <src/library/json/writer/json_value.h>
+
+#include <src/util/charset/utf8.h>
+#include <src/util/generic/scope.h>
+#include <src/util/generic/size_literals.h>
+#include <src/util/stream/file.h>
+#include <src/util/stream/input.h>
+#include <src/util/system/backtrace.h>
+#include <src/util/system/file.h>
+#include <src/util/system/fs.h>
+#include <src/util/system/file.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/fstat.h>
 #include <src/util/system/tempfile.h>
 

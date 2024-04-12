@@ -1,6 +1,10 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
+=======
+#include <src/util/system/defaults.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #define FNV32INIT 2166136261U
 #define FNV32PRIME 16777619U

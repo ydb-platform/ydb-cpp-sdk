@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/json_reader.h>
+=======
+#include <src/library/json/json_reader.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/library/json/json_prettifier.h>
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/library/string_utils/relaxed_escaper/relaxed_escaper.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <iostream>
 

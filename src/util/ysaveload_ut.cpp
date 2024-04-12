@@ -4,7 +4,11 @@
 
 #include <src/util/memory/pool.h>
 #include <src/util/stream/buffer.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/memory/blob.h>
+=======
+#include <src/util/memory/blob.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/util/generic/hash_multi_map.h>
 

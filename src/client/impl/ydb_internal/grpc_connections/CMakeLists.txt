@@ -13,6 +13,7 @@ target_link_libraries(impl-ydb_internal-grpc_connections PUBLIC
 )
 
 target_sources(impl-ydb_internal-grpc_connections PRIVATE
+<<<<<<< HEAD
 <<<<<<< HEAD:src/client/impl/ydb_internal/grpc_connections/CMakeLists.txt
   actions.cpp
   grpc_connections.cpp
@@ -20,4 +21,8 @@ target_sources(impl-ydb_internal-grpc_connections PRIVATE
   ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/grpc_connections/actions.cpp
   ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_internal/grpc_connections/grpc_connections.cpp
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/impl/ydb_internal/grpc_connections/CMakeLists.txt
+=======
+  actions.cpp
+  grpc_connections.cpp
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 )

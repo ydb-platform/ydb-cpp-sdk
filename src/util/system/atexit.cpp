@@ -4,8 +4,13 @@
 #include "thread.h"
 
 #include <queue>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
+=======
+#include <src/util/generic/ylimits.h>
+#include <src/util/generic/utility.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <atomic>
 #include <mutex>

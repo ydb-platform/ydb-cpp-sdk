@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/retry/retry.h>
 #include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
@@ -9,6 +10,17 @@
 #include <src/util/datetime/cputimer.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/system/types.h>
+=======
+#include <src/client/ydb_retry/retry.h>
+#include <src/client/ydb_types/fluent_settings_helpers.h>
+#include <src/client/ydb_types/status/status.h>
+
+#include <src/library/threading/future/core/fwd.h>
+#include <src/util/datetime/base.h>
+#include <src/util/datetime/cputimer.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/system/types.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <functional>
 #include <memory>

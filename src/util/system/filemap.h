@@ -4,12 +4,21 @@
 #include "align.h"
 #include <ydb-cpp-sdk/util/system/yassert.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/flags.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
+=======
+#include <src/util/generic/noncopyable.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/utility.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/generic/flags.h>
+#include <src/util/string/escape.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <new>
 #include <cstdio>

@@ -3,8 +3,13 @@
 #include <src/client/impl/ydb_endpoints/endpoints.h>
 #include <src/client/impl/ydb_internal/session_client/session_client.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/system/spinlock.h>
+=======
+#include <src/util/datetime/base.h>
+#include <src/util/system/spinlock.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <functional>
 

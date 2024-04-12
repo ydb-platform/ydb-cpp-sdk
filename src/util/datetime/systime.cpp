@@ -1,7 +1,12 @@
 #include <ydb-cpp-sdk/util/datetime/systime.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
+=======
+#include <src/util/system/yassert.h>
+#include <src/util/system/defaults.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #ifdef _win_
 

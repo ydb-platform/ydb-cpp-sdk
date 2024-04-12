@@ -1,8 +1,13 @@
 #include "file.h"
 #include <ydb-cpp-sdk/library/logger/record.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/file.h>
 #include <ydb-cpp-sdk/util/system/rwlock.h>
+=======
+#include <src/util/system/file.h>
+#include <src/util/system/rwlock.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 /*
  * file log

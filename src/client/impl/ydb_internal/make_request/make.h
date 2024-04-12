@@ -3,7 +3,11 @@
 #include <src/client/impl/ydb_internal/internal_header.h>
 #include <src/api/protos/ydb_common.pb.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/datetime/base.h>
+=======
+#include <src/util/datetime/base.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <google/protobuf/duration.pb.h>
 

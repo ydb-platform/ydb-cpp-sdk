@@ -1,12 +1,20 @@
 #include "registry_mon_page.h"
 
 #include <src/library/monlib/encode/text/text.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
+=======
+#include <src/library/monlib/encode/json/json.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/library/monlib/encode/prometheus/prometheus.h>
 #include <src/library/monlib/encode/spack/spack_v1.h>
 #include <src/library/monlib/service/format.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
+=======
+#include <src/library/string_utils/misc/misc.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NMonitoring {
     void TMetricRegistryPage::Output(NMonitoring::IMonHttpRequest& request) {

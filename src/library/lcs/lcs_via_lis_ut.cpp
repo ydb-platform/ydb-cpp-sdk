@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/utility.h>
+=======
+#include <src/util/generic/utility.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/string/util.h>
 #include <src/library/testing/unittest/registar.h>
 #include "lcs_via_lis.h"

@@ -1,7 +1,12 @@
 #include <ydb-cpp-sdk/library/logger/backend.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <mutex>
 

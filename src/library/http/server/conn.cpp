@@ -1,6 +1,10 @@
 #include <ydb-cpp-sdk/library/http/server/conn.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/network/socket.h>
+=======
+#include <src/util/network/socket.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/stream/buffered.h>
 
 class THttpServerConn::TImpl {

@@ -3,9 +3,15 @@
 #include <src/library/coroutine/engine/impl.h>
 #include <src/library/coroutine/engine/network.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/network/ip.h>
 #include <ydb-cpp-sdk/util/network/address.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
+=======
+#include <src/util/network/ip.h>
+#include <src/util/network/address.h>
+#include <src/util/generic/ylimits.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/generic/intrlist.h>
 
 using namespace NAddr;

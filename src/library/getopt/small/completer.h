@@ -2,7 +2,11 @@
 
 #include "formatted_output.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ptr.h>
+=======
+#include <src/util/generic/ptr.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NLastGetopt::NComp {
     class ICompleter;

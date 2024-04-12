@@ -1,7 +1,11 @@
 #pragma once
 
 #include <src/util/folder/path.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/src_location.h>
+=======
+#include <src/util/system/src_location.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <string>
 #include <string_view>

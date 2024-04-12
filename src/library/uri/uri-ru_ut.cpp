@@ -1,7 +1,11 @@
 #include "uri_ut.h"
 #include <src/library/charset/recyr.hh>
 #include <src/library/html/entity/htmlentity.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/maxlen.h>
+=======
+#include <src/util/system/maxlen.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NUri {
     namespace {

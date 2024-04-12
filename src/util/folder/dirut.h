@@ -1,9 +1,16 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/sysstat.h>
 #include <src/util/system/fs.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/system/defaults.h>
+#include <src/util/system/sysstat.h>
+#include <src/util/system/fs.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <sys/types.h>
 
@@ -11,7 +18,11 @@
 #include <cstdlib>
 
 #ifdef _win32_
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/system/winint.h>
+=======
+    #include <src/util/system/winint.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
     #include <direct.h>
     #include <malloc.h>
     #include <time.h>

@@ -7,6 +7,7 @@ target_link_libraries(cpp-monlib-metrics PUBLIC
 )
 
 target_sources(cpp-monlib-metrics PRIVATE
+<<<<<<< HEAD
   ewma.cpp
   fake.cpp
   histogram_collector_explicit.cpp
@@ -20,6 +21,22 @@ target_sources(cpp-monlib-metrics PRIVATE
   metric_type.cpp
   metric_value.cpp
   summary_snapshot.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/ewma.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/fake.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/histogram_collector_explicit.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/histogram_collector_exponential.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/histogram_collector_linear.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/histogram_snapshot.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/log_histogram_snapshot.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/labels.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/metric_registry.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/metric_consumer.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/metric_type.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/metric_value.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/summary_collector.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/summary_snapshot.cpp
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 )
 
 generate_enum_serilization(cpp-monlib-metrics

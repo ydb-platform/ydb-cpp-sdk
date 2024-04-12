@@ -3,7 +3,11 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/thread/pool.h>
+=======
+#include <src/util/thread/pool.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 struct TTestGuard: public TTestBase {
     UNIT_TEST_SUITE(TTestGuard);

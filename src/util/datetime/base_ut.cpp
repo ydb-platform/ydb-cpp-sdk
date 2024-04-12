@@ -2,6 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <src/util/generic/ymath.h>
@@ -9,6 +10,15 @@
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/random/random.h>
+=======
+#include <src/util/generic/utility.h>
+#include <src/util/generic/ylimits.h>
+#include <src/util/generic/ymath.h>
+#include <src/util/string/cast.h>
+#include <src/util/stream/output.h>
+#include <src/util/system/compat.h>
+#include <src/util/random/random.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <climits>
 

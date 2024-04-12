@@ -1,9 +1,15 @@
 #pragma once
 
 #include <src/util/stream/walk.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/zerocopy.h>
+=======
+#include <src/util/stream/input.h>
+#include <src/util/stream/output.h>
+#include <src/util/stream/zerocopy.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/generic/buffer.h>
 
 namespace NBlockCodecs {

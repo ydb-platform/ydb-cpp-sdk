@@ -4,10 +4,17 @@
 #include <src/client/impl/ydb_internal/plain_status/status.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
 
 #include <ydb-cpp-sdk/util/random/random.h>
+=======
+#include <src/client/resources/ydb_resources.h>
+#include <src/client/ydb_types/operation/operation.h>
+
+#include <src/util/random/random.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb {
 namespace NSessionPool {

@@ -1,7 +1,11 @@
 #include "zstd.h"
 
 #include <src/util/generic/buffer.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #define ZSTD_STATIC_LINKING_ONLY
 #include <zstd.h>

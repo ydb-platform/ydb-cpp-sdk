@@ -2,9 +2,15 @@
 
 #include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/service/pages/mon_page.h>
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
+=======
+#include <src/library/monlib/service/pages/mon_page.h>
+
+#include <src/util/generic/ptr.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <functional>
 

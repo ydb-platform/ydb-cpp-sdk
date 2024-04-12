@@ -1,7 +1,12 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/system/fhandle.h>
+=======
+#include <src/util/generic/fwd.h>
+#include <src/util/system/fhandle.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 class TFile;
 class TFsPath;

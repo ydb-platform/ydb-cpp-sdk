@@ -8,8 +8,13 @@
 #include <src/util/generic/serialized_enum.h>
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+=======
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/singleton.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 
 void FunctionUsingEFwdEnum(EFwdEnum) {

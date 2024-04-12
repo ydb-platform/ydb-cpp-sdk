@@ -1,5 +1,9 @@
 #include <src/util/charset/wide.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/types.h>
+=======
+#include <src/util/system/types.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #ifdef SSE41_STUB
 
@@ -12,7 +16,11 @@ namespace NDetail {
 
 #else
 
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/system/compiler.h>
+=======
+    #include <src/util/system/compiler.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
     #include <cstring>
     #include <emmintrin.h>

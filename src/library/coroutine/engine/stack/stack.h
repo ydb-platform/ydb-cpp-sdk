@@ -1,7 +1,12 @@
 #pragma once
 #include <span>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
+=======
+#include <src/util/generic/fwd.h>
+#include <src/util/generic/noncopyable.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <cstdint>
 

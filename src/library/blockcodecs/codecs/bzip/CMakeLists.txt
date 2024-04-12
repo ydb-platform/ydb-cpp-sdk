@@ -14,11 +14,15 @@ target_link_libraries(blockcodecs-codecs-bzip.global PUBLIC
   cpp-blockcodecs-core
 )
 target_sources(blockcodecs-codecs-bzip.global PRIVATE
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/blockcodecs/codecs/bzip/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/bzip/bzip.cpp
 =======
   ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/codecs/bzip/bzip.cpp
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/blockcodecs/codecs/bzip/CMakeLists.txt
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/bzip/bzip.cpp
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")

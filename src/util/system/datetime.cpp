@@ -2,7 +2,11 @@
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include "cpu_id.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/datetime/systime.h>
+=======
+#include <src/util/datetime/systime.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <ctime>
 #include <cerrno>

@@ -3,10 +3,17 @@
 
 #include <src/library/monlib/encode/encoder_state.h>
 #include <src/library/monlib/encode/buffered/string_pool.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/metrics/labels.h>
 #include <src/library/monlib/metrics/metric_value.h>
 
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include <src/library/monlib/metrics/labels.h>
+#include <src/library/monlib/metrics/metric_value.h>
+
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <unordered_set>
 
 

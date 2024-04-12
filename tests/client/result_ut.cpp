@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/result/result.h>
 
 #include <src/api/protos/ydb_value.pb.h>
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
+=======
+#include <result.h>
+
+#include <src/api/protos/ydb_value.pb.h>
+#include <src/client/ydb_types/exceptions/exceptions.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>

@@ -1,6 +1,7 @@
 #include "ci_string.h"
 #include "codepage.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/subst.h>
 #include <src/util/string/util.h>
@@ -11,6 +12,18 @@
 
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/string/cast.h>
+#include <src/util/string/subst.h>
+#include <src/util/string/util.h>
+#include <src/util/system/hi_lo.h>
+#include <src/util/system/yassert.h>
+#include <src/util/generic/hash.h>
+#include <string>
+
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/memory/pool.h>
 
 #include <cstring>

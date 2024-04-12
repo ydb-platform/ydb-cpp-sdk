@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 #include <src/library/testing/unittest/registar.h>
 #include <ydb-cpp-sdk/util/system/event.h>
+=======
+#include "counters.h"
+#include <src/library/testing/unittest/registar.h>
+#include <src/util/system/event.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/thread.h>
 
 using namespace NMonitoring;

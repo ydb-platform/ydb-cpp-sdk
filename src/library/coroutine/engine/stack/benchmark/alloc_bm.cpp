@@ -1,7 +1,11 @@
 #include <benchmark/benchmark.h>
 
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/coroutine/engine/stack/stack_allocator.h>
 #include <src/library/coroutine/engine/stack/stack_guards.h>

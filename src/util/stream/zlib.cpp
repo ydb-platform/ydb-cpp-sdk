@@ -2,7 +2,11 @@
 
 #include <src/util/memory/addstorage.h>
 #include <src/util/generic/scope.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/utility.h>
+=======
+#include <src/util/generic/utility.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <zlib.h>
 

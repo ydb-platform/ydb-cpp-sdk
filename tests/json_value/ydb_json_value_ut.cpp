@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/json_value/ydb_json_value.h>
 
 #include <src/library/testing/unittest/tests_data.h>
@@ -5,6 +6,15 @@
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 #include <ydb-cpp-sdk/library/json/json_reader.h>
+=======
+#include <src/json_value/ydb_json_value.h>
+
+#include <src/library/testing/unittest/tests_data.h>
+#include <src/library/testing/unittest/registar.h>
+#include <src/client/ydb_types/exceptions/exceptions.h>
+#include <src/client/ydb_proto/accessor.h>
+#include <src/library/json/json_reader.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

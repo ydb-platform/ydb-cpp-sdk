@@ -1,7 +1,12 @@
 #define INCLUDE_YDB_INTERNAL_H
 #include "state.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
+=======
+#include <src/client/ydb_types/credentials/credentials.h>
+#include <src/client/impl/ydb_internal/common/ssl_credentials.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/client/impl/ydb_internal/logger/log.h>
 
 #include <src/library/string_utils/quote/quote.h>

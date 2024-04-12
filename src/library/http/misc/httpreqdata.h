@@ -2,6 +2,7 @@
 
 #include <src/library/digest/lower_case/hash_ops.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
 #include <ydb-cpp-sdk/util/network/address.h>
@@ -9,6 +10,15 @@
 #include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
+=======
+#include <src/util/system/defaults.h>
+#include <src/library/cgiparam/cgiparam.h>
+#include <src/util/network/address.h>
+#include <src/util/network/socket.h>
+#include <src/util/generic/hash.h>
+#include <src/util/system/yassert.h>
+#include <src/util/datetime/base.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 using THttpHeadersContainer = THashMap<std::string, std::string, TCIOps, TCIOps>;
 

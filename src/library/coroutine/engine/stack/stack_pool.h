@@ -3,8 +3,13 @@
 #include "stack.h"
 #include "stack_common.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
+=======
+#include <src/util/generic/noncopyable.h>
+#include <src/util/generic/ptr.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 
 

@@ -13,6 +13,7 @@ target_link_libraries(cpp-monlib-encode PUBLIC
   cpp-string_utils-misc
 )
 target_sources(cpp-monlib-encode PRIVATE
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/monlib/encode/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/encode/encoder.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/encode/encoder_state.cpp
@@ -26,12 +27,21 @@ generate_enum_serilization(cpp-monlib-encode
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/encode/encoder.cpp
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/encode/encoder_state.cpp
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/encode/format.cpp
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/encode/encoder.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/encode/encoder_state.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/encode/format.cpp
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 )
 generate_enum_serilization(cpp-monlib-encode
-  ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/encode/encoder_state_enum.h
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/encode/encoder_state_enum.h
   GEN_HEADER
+<<<<<<< HEAD
   ${YDB_SDK_BINARY_DIR}/library/cpp/monlib/encode/encoder_state_enum.h_serialized.h
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/monlib/encode/CMakeLists.txt
+=======
+  ${YDB_SDK_BINARY_DIR}/src/library/monlib/encode/encoder_state_enum.h_serialized.h
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
   INCLUDE_HEADERS
   src/library/monlib/encode/encoder_state_enum.h
 )

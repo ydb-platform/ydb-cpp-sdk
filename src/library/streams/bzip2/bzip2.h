@@ -1,9 +1,16 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/stream/input.h>
+#include <src/util/stream/output.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #define BZIP_BUF_LEN (8 * 1024)
 #define BZIP_COMPRESSION_LEVEL 6

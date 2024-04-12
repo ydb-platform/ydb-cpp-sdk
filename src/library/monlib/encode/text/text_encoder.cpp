@@ -1,10 +1,17 @@
 #include "text.h"
 
 #include <src/library/monlib/encode/encoder_state.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/metrics/labels.h>
 #include <src/library/monlib/metrics/metric_value.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
+=======
+#include <src/library/monlib/metrics/labels.h>
+#include <src/library/monlib/metrics/metric_value.h>
+
+#include <src/util/datetime/base.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/stream/format.h>
 
 namespace NMonitoring {

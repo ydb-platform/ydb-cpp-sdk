@@ -42,8 +42,13 @@
     #include <src/util/folder/dirut.h>
 #endif
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/random/random.h>
 #include <ydb-cpp-sdk/util/system/sysstat.h>
+=======
+#include <src/util/random/random.h>
+#include "sysstat.h"
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 static const unsigned char padchar[] =
     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

@@ -5,7 +5,11 @@
 
 #include <src/util/generic/scope.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/compat.h>
+=======
+#include <src/util/system/compat.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <iostream>
 

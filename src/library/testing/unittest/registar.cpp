@@ -3,6 +3,7 @@
 #include <src/library/diff/diff.h>
 #include <src/library/colorizer/colors.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/bt_exception.h>
 #include <src/util/random/fast.h>
 #include <ydb-cpp-sdk/util/system/backtrace.h>
@@ -10,6 +11,15 @@
 #include <src/util/system/tls.h>
 #include <ydb-cpp-sdk/util/system/error.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include <src/util/generic/bt_exception.h>
+#include <src/util/random/fast.h>
+#include <src/util/system/backtrace.h>
+#include <src/util/system/guard.h>
+#include <src/util/system/tls.h>
+#include <src/util/system/error.h>
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <mutex>
 

@@ -3,9 +3,15 @@
 #include "httpfsm.h"
 #include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/mime/types/mime.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
+=======
+#include <src/library/mime/types/mime.h>
+#include <src/util/system/yassert.h>
+#include <src/library/http/misc/httpcodes.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 template <size_t headermax = 100 << 10, size_t bodymax = 1 << 20>
 struct TFakeCheck {

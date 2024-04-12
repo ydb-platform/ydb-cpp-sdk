@@ -1,7 +1,12 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
+=======
+#include "yassert.h"
+#include "defaults.h"
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/generic/bitops.h>
 
 template <class T>

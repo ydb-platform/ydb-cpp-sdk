@@ -3,7 +3,11 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
+=======
+#include <src/util/memory/tempbuf.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/stream/file.h>
 
 Y_UNIT_TEST_SUITE(TDirutTest) {

@@ -6,7 +6,11 @@
 #include <src/library/testing/hook/hook.h>
 #include <src/util/generic/scope.h>
 #include <src/util/string/join.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/src_root.h>
+=======
+#include <src/util/system/src_root.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <fstream>
 

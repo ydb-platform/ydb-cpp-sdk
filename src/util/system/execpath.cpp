@@ -4,7 +4,11 @@
     #include <stdlib.h>
 #elif defined(_darwin_)
     #include <mach-o/dyld.h>
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/generic/function.h>
+=======
+    #include <src/util/generic/function.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #elif defined(_win_)
     #include "winint.h"
     #include <io.h>
@@ -16,7 +20,11 @@
     #include <unistd.h>
 #endif
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+=======
+#include <src/util/generic/singleton.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include "execpath.h"
 #include "fs.h"

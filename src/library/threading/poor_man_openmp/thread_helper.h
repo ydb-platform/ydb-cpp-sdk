@@ -1,11 +1,20 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/thread/pool.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/util/system/info.h>
 #include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
+=======
+#include <src/util/thread/pool.h>
+#include <src/util/generic/utility.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/system/info.h>
+#include <src/library/deprecated/atomic/atomic.h>
+#include <src/util/stream/output.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <functional>
 #include <cstdlib>

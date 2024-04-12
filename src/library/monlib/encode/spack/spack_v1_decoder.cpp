@@ -4,12 +4,21 @@
 
 #include <src/library/monlib/encode/buffered/string_pool.h>
 #include <src/library/monlib/exception/exception.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/metrics/histogram_collector.h>
 #include <ydb-cpp-sdk/library/monlib/metrics/metric.h>
 
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/util/generic/buffer.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
+=======
+#include <src/library/monlib/metrics/histogram_collector.h>
+#include <src/library/monlib/metrics/metric.h>
+
+#include <src/util/generic/yexception.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/generic/size_literals.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/stream/format.h>
 
 #ifndef _little_endian_

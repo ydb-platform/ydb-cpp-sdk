@@ -3,7 +3,11 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
+=======
+#include <src/util/stream/output.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/datetime/cputimer.h>
 
 #include <limits>

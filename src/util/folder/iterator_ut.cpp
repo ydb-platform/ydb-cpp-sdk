@@ -4,9 +4,15 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/system/fs.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/file.h>
 #include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
+=======
+#include <src/util/system/file.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/algorithm.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/random/mersenne.h>
 
 static std::string JoinWithNewline(const std::vector<std::string>& strings) {

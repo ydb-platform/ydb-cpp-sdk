@@ -2,7 +2,11 @@
 
 #include <src/library/colorizer/colors.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/str.h>
+=======
+#include <src/util/stream/str.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/charset/utf8.h>
 
 namespace NLastGetopt {

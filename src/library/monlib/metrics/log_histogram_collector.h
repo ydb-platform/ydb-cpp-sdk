@@ -2,10 +2,16 @@
 
 #include <ydb-cpp-sdk/library/monlib/metrics/log_histogram_snapshot.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
+=======
+#include <src/util/generic/algorithm.h>
+#include <src/util/generic/utility.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <mutex>
 #include <cmath>

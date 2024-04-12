@@ -7,10 +7,17 @@
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/str_stl.h>
 #include <ydb-cpp-sdk/util/ysaveload.h>
+=======
+#include <src/util/system/yassert.h>
+#include <src/util/system/defaults.h>
+#include <src/util/str_stl.h>
+#include <src/util/ysaveload.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NBitMapPrivate {
     // Returns number of bits set; result is in most significatnt byte

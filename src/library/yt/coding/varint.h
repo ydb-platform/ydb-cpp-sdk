@@ -1,9 +1,16 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
 #include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
+=======
+#include <src/util/system/defaults.h>
+
+#include <src/util/stream/input.h>
+#include <src/util/stream/output.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYT {
 

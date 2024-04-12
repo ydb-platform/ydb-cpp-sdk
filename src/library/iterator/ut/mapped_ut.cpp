@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/iterator/mapped.h>
+=======
+#include <src/library/iterator/mapped.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/testing/gtest/gtest.h>
 

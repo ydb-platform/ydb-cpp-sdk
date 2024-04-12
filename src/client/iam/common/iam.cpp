@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/iam/common/iam.h>
+=======
+#include <src/client/iam/common/iam.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/http/simple/http_client.h>
 

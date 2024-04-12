@@ -1,7 +1,12 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/yson/public.h>
 #include <ydb-cpp-sdk/library/yson/consumer.h>
+=======
+#include <src/library/yson/public.h>
+#include <src/library/yson/consumer.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/json/json_writer.h>
 

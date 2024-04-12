@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/resource/resource.h>
+=======
+#include <src/library/resource/resource.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 

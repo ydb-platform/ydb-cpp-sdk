@@ -5,7 +5,11 @@
 #endif
 #undef ATOMIC_INTRUSIVE_PTR_INL_H_
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/spinlock.h>
+=======
+#include <src/util/system/spinlock.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYT {
 

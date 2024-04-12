@@ -2,7 +2,11 @@
 
 #include <src/library/string_utils/base64/base64.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/input.h>
+=======
+#include <src/util/stream/input.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/stream/file.h>
 #include <src/util/string/hex.h>
 

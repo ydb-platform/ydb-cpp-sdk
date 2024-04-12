@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/iterator/iterate_values.h>
 
 #include <src/library/testing/gtest/gtest.h>
 
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
+=======
+#include <src/library/iterator/iterate_values.h>
+
+#include <src/library/testing/gtest/gtest.h>
+
+#include <src/util/generic/algorithm.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <map>
 #include <unordered_map>

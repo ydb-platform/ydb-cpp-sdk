@@ -5,8 +5,13 @@
 #include <src/util/system/getpid.h>
 #include <src/util/thread/singleton.h>
 #include <src/util/stream/multi.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/mem.h>
 #include <ydb-cpp-sdk/util/digest/numeric.h>
+=======
+#include <src/util/stream/mem.h>
+#include <src/util/digest/numeric.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace {
     struct TProcStream {

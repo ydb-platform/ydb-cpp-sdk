@@ -1,6 +1,10 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
+=======
+#include <src/library/monlib/dynamic_counters/counters.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NMonitoring {
 

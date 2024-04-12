@@ -1,11 +1,20 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/logger/log.h>
 
 #include <src/client/impl/ydb_internal/internal_header.h>
 #include <src/client/impl/ydb_internal/common/types.h>
 #include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
+=======
+#include <src/library/logger/log.h>
+
+#include <src/client/impl/ydb_internal/internal_header.h>
+#include <src/client/impl/ydb_internal/common/types.h>
+#include <src/client/impl/ydb_internal/common/ssl_credentials.h>
+#include <src/client/ydb_types/credentials/credentials.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

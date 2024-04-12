@@ -4,7 +4,11 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/containers/absl_flat_hash/flat_hash_set.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/str_stl.h>
+=======
+#include <src/util/str_stl.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 Y_UNIT_TEST_SUITE(StringHashFunctorTests) {
     Y_UNIT_TEST(TestTransparencyWithUnorderedSet) {

@@ -1,7 +1,12 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/unaligned_mem.h>
+=======
+#include <src/util/system/defaults.h>
+#include <src/util/system/unaligned_mem.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 /*
  * https://sites.google.com/site/murmurhash/

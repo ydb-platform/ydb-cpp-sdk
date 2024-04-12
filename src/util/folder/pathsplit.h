@@ -1,6 +1,10 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/ascii.h>
+=======
+#include <src/util/string/ascii.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <vector>
 

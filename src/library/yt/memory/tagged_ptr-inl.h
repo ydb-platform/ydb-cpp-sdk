@@ -6,7 +6,11 @@
 
 #include <src/library/yt/assert/assert.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/compiler.h>
+=======
+#include <src/util/system/compiler.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYT {
 

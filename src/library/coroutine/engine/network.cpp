@@ -2,7 +2,11 @@
 #include "network.h"
 
 #include <src/util/generic/scope.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/xrange.h>
+=======
+#include <src/util/generic/xrange.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <sys/uio.h>
 

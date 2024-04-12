@@ -1,7 +1,11 @@
 #include "stack_utils.h"
 
 #include <src/util/generic/scope.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #ifdef _linux_
 #include <sys/mman.h>

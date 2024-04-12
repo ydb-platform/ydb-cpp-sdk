@@ -1,9 +1,15 @@
 #include <ydb-cpp-sdk/client/value/value.h>
 
 #include <src/api/protos/ydb_value.pb.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 #include <ydb-cpp-sdk/json_value/ydb_json_value.h>
 #include <ydb-cpp-sdk/yson_value/ydb_yson_value.h>
+=======
+#include <src/client/ydb_types/exceptions/exceptions.h>
+#include <src/json_value/ydb_json_value.h>
+#include <src/yson_value/ydb_yson_value.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>

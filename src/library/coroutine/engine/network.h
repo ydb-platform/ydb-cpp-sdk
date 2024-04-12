@@ -2,11 +2,19 @@
 
 #include "iostatus.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/network/init.h>
 #include <src/util/network/iovec.h>
 #include <src/util/network/nonblock.h>
 #include <ydb-cpp-sdk/util/network/socket.h>
+=======
+#include <src/util/datetime/base.h>
+#include <src/util/network/init.h>
+#include <src/util/network/iovec.h>
+#include <src/util/network/nonblock.h>
+#include <src/util/network/socket.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 class TCont;
 

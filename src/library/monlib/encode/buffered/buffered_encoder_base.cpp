@@ -1,9 +1,16 @@
 #include "buffered_encoder_base.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <src/util/string/join.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
+=======
+#include <src/util/string/builder.h>
+
+#include <src/util/string/join.h>
+#include <src/util/string/builder.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NMonitoring {
 

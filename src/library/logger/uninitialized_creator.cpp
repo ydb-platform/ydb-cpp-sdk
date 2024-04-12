@@ -3,7 +3,11 @@
 #include "thread_creator.h"
 #include "file_creator.h"
 #include "null_creator.h"
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 THolder<TLogBackend> TLogBackendCreatorUninitialized::DoCreateLogBackend() const {
     return Slave->CreateLogBackend();

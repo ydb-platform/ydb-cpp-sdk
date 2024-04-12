@@ -12,7 +12,11 @@
 
 #include <src/util/random/fast.h>
 #include <src/util/system/cpu_id.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/platform.h>
+=======
+#include <src/util/system/platform.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <array>
 

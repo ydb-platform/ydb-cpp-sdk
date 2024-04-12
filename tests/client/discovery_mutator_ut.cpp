@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/extensions/discovery_mutator/discovery_mutator.h>
 
 #include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>
 #include <ydb-cpp-sdk/client/ydb_extension/extension.h>
 #include <ydb-cpp-sdk/client/table/table.h>
+=======
+#include <discovery_mutator.h>
+
+#include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>
+#include <src/client/ydb_extension/extension.h>
+#include <src/client/ydb_table/table.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>

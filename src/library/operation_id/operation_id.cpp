@@ -2,11 +2,19 @@
 
 #include <google/protobuf/message.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
 #include <src/library/uri/uri.h>
 
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include <src/library/cgiparam/cgiparam.h>
+#include <src/library/uri/uri.h>
+
+#include <src/util/generic/yexception.h>
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NKikimr {
 namespace NOperationId {

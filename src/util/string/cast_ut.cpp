@@ -3,7 +3,11 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/charset/wide.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
+=======
+#include <src/util/system/defaults.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <limits>
 

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/coordination/coordination.h>
+=======
+#include <coordination.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/api/grpc/ydb_coordination_v1.grpc.pb.h>
 #include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>

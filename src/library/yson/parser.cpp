@@ -3,7 +3,11 @@
 #include "format.h"
 #include "parser_detail.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/input.h>
+=======
+#include <src/util/stream/input.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/generic/buffer.h>
 
 namespace NYson {

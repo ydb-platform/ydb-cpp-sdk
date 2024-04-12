@@ -2,8 +2,13 @@
 
 #include <contrib/libs/libc_compat/string.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
+=======
+#include <src/util/stream/output.h>
+#include <src/util/system/compat.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <string_view>
 
 namespace NUri {

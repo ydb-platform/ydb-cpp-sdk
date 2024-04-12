@@ -1,7 +1,12 @@
 #include <ydb-cpp-sdk/util/network/init.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+=======
+#include <src/util/system/defaults.h>
+#include <src/util/generic/singleton.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace {
     class TNetworkInit {

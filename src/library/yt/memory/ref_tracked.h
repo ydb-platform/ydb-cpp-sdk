@@ -4,7 +4,11 @@
 #include <src/library/yt/misc/source_location.h>
 #include <src/library/yt/misc/strong_typedef.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
+=======
+#include <src/util/system/defaults.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <atomic>
 #include <typeinfo>

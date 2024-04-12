@@ -8,6 +8,7 @@ target_link_libraries(yc_private-compute-inner PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(yc_private-compute-inner PRIVATE
+<<<<<<< HEAD
 <<<<<<< HEAD:src/api/client/yc_private/compute/inner/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/compute/inner/disk_service.proto
 )
@@ -21,6 +22,12 @@ target_proto_addincls(yc_private-compute-inner
   ${YDB_SDK_SOURCE_DIR}/
   ${YDB_SDK_BINARY_DIR}
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/public/api/client/yc_private/compute/inner/CMakeLists.txt
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/compute/inner/disk_service.proto
+)
+target_proto_addincls(yc_private-compute-inner
+  ./
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
   ${YDB_SDK_SOURCE_DIR}
   ${YDB_SDK_BINARY_DIR}
 )

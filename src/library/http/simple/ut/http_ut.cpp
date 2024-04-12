@@ -1,12 +1,20 @@
 #include <src/library/http/simple/http_client.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/http/server/response.h>
+=======
+#include <src/library/http/server/response.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/testing/mock_server/server.h>
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/event.h>
+=======
+#include <src/util/system/event.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/thread.h>
 
 #include <thread>

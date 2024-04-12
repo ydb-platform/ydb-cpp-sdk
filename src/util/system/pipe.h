@@ -5,11 +5,19 @@
     #pragma GCC diagnostic ignored "-Warray-bounds" //need because of bug in gcc4.9.2
 #endif
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/file.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/network/pair.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
+=======
+#include "defaults.h"
+#include "file.h"
+#include <src/util/generic/ptr.h>
+#include <src/util/network/pair.h>
+#include <src/util/generic/noncopyable.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 using PIPEHANDLE = SOCKET;
 #define INVALID_PIPEHANDLE INVALID_SOCKET

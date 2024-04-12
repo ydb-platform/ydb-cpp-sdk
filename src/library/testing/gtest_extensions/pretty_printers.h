@@ -1,10 +1,17 @@
 #pragma once
 
 #include <src/util/generic/variant.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
+=======
+#include <src/util/stream/output.h>
+#include <src/util/stream/str.h>
+#include <src/util/string/escape.h>
+#include <src/util/datetime/base.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

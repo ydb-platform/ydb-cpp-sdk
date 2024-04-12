@@ -5,13 +5,19 @@
 
 #include <src/library/colorizer/colors.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/writer/json.h>
 #include <ydb-cpp-sdk/library/json/writer/json_value.h>
+=======
+#include <src/library/json/writer/json.h>
+#include <src/library/json/writer/json_value.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/testing/common/env.h>
 #include <src/library/testing/common/env_var.h>
 #include <src/library/testing/hook/hook.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
 #include <src/util/generic/hash.h>
@@ -22,11 +28,27 @@
 
 #include <src/util/stream/file.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
+=======
+#include <src/util/datetime/base.h>
+
+#include <src/util/generic/hash.h>
+#include <src/util/generic/scope.h>
+#include <src/util/generic/yexception.h>
+
+#include <src/util/network/init.h>
+
+#include <src/util/stream/file.h>
+#include <src/util/stream/output.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/util/string/join.h>
 #include <src/util/string/util.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
+=======
+#include <src/util/system/defaults.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/execpath.h>
 #include <src/util/system/valgrind.h>
 #include <src/util/system/shellcommand.h>

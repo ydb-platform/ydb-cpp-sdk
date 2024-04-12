@@ -3,8 +3,13 @@
 #include <src/util/generic/buffer.h>
 #include <string_view>
 #include <string>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/generic/typetraits.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NBlockCodecs {
     struct TData: public std::string_view {

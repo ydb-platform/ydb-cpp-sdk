@@ -2,16 +2,27 @@
 
 #include "doccodes.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
+=======
+#include <src/library/string_utils/misc/misc.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/util/charset/recode_result.h>
 #include <src/util/charset/unidata.h> // all wchar32 functions
 #include <src/util/charset/utf8.h>
 #include <string>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
+=======
+#include <src/util/generic/ylimits.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/system/yassert.h>
+#include <src/util/system/defaults.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 struct CodePage;
 struct Recoder;

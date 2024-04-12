@@ -1,7 +1,11 @@
 #pragma once
 
 #include <src/client/impl/ydb_internal/internal_header.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
+=======
+#include <src/client/impl/ydb_internal/common/ssl_credentials.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include "actions.h"
 #include "params.h"
@@ -10,8 +14,13 @@
 #include <src/client/impl/ydb_internal/db_driver_state/state.h>
 #include <src/client/impl/ydb_internal/rpc_request_settings/settings.h>
 #include <src/client/impl/ydb_internal/thread_pool/pool.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 #include <ydb-cpp-sdk/client/ydb_extension/extension.h>
+=======
+#include <src/client/resources/ydb_resources.h>
+#include <src/client/ydb_extension/extension.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/yql/public/issue/yql_issue_message.h>
 

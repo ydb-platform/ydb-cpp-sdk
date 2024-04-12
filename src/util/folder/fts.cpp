@@ -33,11 +33,19 @@
  * $OpenBSD: fts.c,v 1.22 1999/10/03 19:22:22 millert Exp $
  */
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/error.h>
+=======
+#include <src/util/memory/tempbuf.h>
+#include <src/util/system/compat.h>
+#include <src/util/system/compiler.h>
+#include <src/util/system/defaults.h>
+#include <src/util/system/error.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <stdlib.h>
 #ifndef _win_

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/str.h>
+=======
+#include <src/util/stream/str.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <ydb-cpp-sdk/util/network/address.h>
 

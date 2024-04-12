@@ -2,9 +2,15 @@
 
 #include <src/library/cppparser/parser.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/util/stream/file.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
+=======
+#include <src/util/generic/yexception.h>
+#include <src/util/stream/file.h>
+#include <src/util/string/escape.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <iostream>
 

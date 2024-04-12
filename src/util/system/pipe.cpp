@@ -1,6 +1,10 @@
 #include "pipe.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 ssize_t TPipeHandle::Read(void* buffer, size_t byteCount) const noexcept {
 #ifdef _win_

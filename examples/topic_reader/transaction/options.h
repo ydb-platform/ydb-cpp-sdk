@@ -1,6 +1,10 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/logger/priority.h>
+=======
+#include <src/library/logger/priority.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <string>
 

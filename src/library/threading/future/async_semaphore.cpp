@@ -1,7 +1,12 @@
 #include "async_semaphore.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/guard.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/system/guard.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/threading/cancellation/operation_cancelled_exception.h>
 

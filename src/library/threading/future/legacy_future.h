@@ -2,7 +2,11 @@
 
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/thread/factory.h>
+=======
+#include <src/util/thread/factory.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <functional>
 

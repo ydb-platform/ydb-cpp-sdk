@@ -1,7 +1,11 @@
 #define INCLUDE_YDB_INTERNAL_H
 #include "authenticator.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
+=======
+#include <src/client/resources/ydb_resources.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

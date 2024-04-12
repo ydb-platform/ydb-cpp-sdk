@@ -1,6 +1,7 @@
 #include <ydb-cpp-sdk/util/memory/blob.h>
 #include "addstorage.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <src/util/system/filemap.h>
 #include <src/util/system/mlock.h>
@@ -10,6 +11,17 @@
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/system/yassert.h>
+#include <src/util/system/filemap.h>
+#include <src/util/system/mlock.h>
+#include <src/util/stream/buffer.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/generic/ylimits.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 template <class TCounter>
 class TDynamicBlobBase: public TBlob::TBase,

@@ -2,7 +2,11 @@
 
 #include "string.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/yt/misc/enum.h>
+=======
+#include <src/library/yt/misc/enum.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <optional>
 

@@ -4,7 +4,11 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/file.h>
+=======
+#include <src/util/system/file.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 class TFileListTest: public TTestBase {
     UNIT_TEST_SUITE(TFileListTest);

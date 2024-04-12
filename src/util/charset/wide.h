@@ -5,6 +5,7 @@
 #include "utf8.h"
 #include "wide_specific.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
@@ -12,6 +13,15 @@
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/system/cpu_id.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/generic/algorithm.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/memory/tempbuf.h>
+#include <src/util/string/escape.h>
+#include <src/util/system/compiler.h>
+#include <src/util/system/cpu_id.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <cstring>
 

@@ -1,9 +1,16 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/intrlist.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/generic/algorithm.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/intrlist.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <utility>
 #include <unordered_set>
 

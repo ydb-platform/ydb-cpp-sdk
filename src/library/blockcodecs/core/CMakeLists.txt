@@ -5,6 +5,7 @@ target_link_libraries(cpp-blockcodecs-core PUBLIC
 )
 
 target_sources(cpp-blockcodecs-core PRIVATE
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/blockcodecs/core/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/core/codecs.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/core/stream.cpp
@@ -12,6 +13,10 @@ target_sources(cpp-blockcodecs-core PRIVATE
   ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/core/codecs.cpp
   ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/core/stream.cpp
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/blockcodecs/core/CMakeLists.txt
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/core/codecs.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/core/stream.cpp
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 )
 
 

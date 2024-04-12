@@ -7,9 +7,13 @@ target_link_libraries(internal-proxies-ref PUBLIC
 )
 
 target_sources(internal-proxies-ref PRIVATE
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/digest/argonish/internal/proxies/ref/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/digest/argonish/internal/proxies/ref/proxy_ref.cpp
 =======
   ${YDB_SDK_SOURCE_DIR}/library/cpp/digest/argonish/internal/proxies/ref/proxy_ref.cpp
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/digest/argonish/internal/proxies/ref/CMakeLists.txt
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/digest/argonish/internal/proxies/ref/proxy_ref.cpp
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 )

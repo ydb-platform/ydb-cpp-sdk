@@ -4,9 +4,15 @@
 #include <ydb-cpp-sdk/util/stream/zerocopy_output.h>
 
 #include <utility>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/generic/store_policy.h>
+=======
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/typetraits.h>
+#include <src/util/generic/store_policy.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 /**
  * @addtogroup Streams_Buffered

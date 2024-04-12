@@ -2,9 +2,15 @@
 
 #include <src/library/yt/coding/varint.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/random/random.h>
 
 #include <ydb-cpp-sdk/util/string/escape.h>
+=======
+#include <src/util/random/random.h>
+
+#include <src/util/string/escape.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <tuple>
 

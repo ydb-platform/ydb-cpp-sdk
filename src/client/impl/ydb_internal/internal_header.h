@@ -1,6 +1,10 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/compiler.h>
+=======
+#include <src/util/system/compiler.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #if !defined(INCLUDE_YDB_INTERNAL_H)
 #error "you are trying to use internal ydb header"

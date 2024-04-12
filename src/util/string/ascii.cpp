@@ -1,7 +1,12 @@
 #include <ydb-cpp-sdk/util/string/ascii.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
+=======
+#include <src/util/system/yassert.h>
+#include <src/util/system/compat.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 // clang-format off
 extern const unsigned char NPrivate::ASCII_CLASS[256] = {

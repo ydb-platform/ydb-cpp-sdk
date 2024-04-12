@@ -2,15 +2,26 @@
 #include "condvar.h"
 #include "network.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <src/library/testing/unittest/registar.h>
 
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include <src/library/deprecated/atomic/atomic.h>
+#include <src/library/testing/unittest/registar.h>
+
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/pipe.h>
 #include <src/util/system/env.h>
 #include <src/util/system/info.h>
 #include <src/util/system/thread.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/xrange.h>
+=======
+#include <src/util/generic/xrange.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/generic/serialized_enum.h>
 
 #include <iostream>

@@ -6,8 +6,13 @@
 
 #include "format.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 #include <ydb-cpp-sdk/library/yt/exception/exception.h>
+=======
+#include <src/library/string_utils/misc/misc.h>
+#include <src/library/yt/exception/exception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYT {
 

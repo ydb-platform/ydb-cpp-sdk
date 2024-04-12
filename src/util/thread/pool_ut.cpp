@@ -3,7 +3,11 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/random/fast.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/spinlock.h>
+=======
+#include <src/util/system/spinlock.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/thread.h>
 
 #include <mutex>

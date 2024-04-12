@@ -2,8 +2,13 @@
 
 #include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/encode/encoder.h>
 #include <ydb-cpp-sdk/library/monlib/encode/format.h>
+=======
+#include <src/library/monlib/encode/encoder.h>
+#include <src/library/monlib/encode/format.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NMonitoring {
 

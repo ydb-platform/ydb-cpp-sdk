@@ -1,11 +1,20 @@
 #include "encode.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/encode/encoder.h>
 #include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
 #include <src/library/monlib/encode/spack/spack_v1.h>
 #include <src/library/monlib/encode/prometheus/prometheus.h>
 
 #include <ydb-cpp-sdk/util/stream/str.h>
+=======
+#include <src/library/monlib/encode/encoder.h>
+#include <src/library/monlib/encode/json/json.h>
+#include <src/library/monlib/encode/spack/spack_v1.h>
+#include <src/library/monlib/encode/prometheus/prometheus.h>
+
+#include <src/util/stream/str.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NMonitoring {
     namespace {

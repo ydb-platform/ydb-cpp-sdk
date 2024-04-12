@@ -1,6 +1,10 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
+=======
+#include <src/library/string_utils/helpers/helpers.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <string_view>
 

@@ -1,7 +1,11 @@
 #include "wide.h"
 
 #include <src/util/generic/mem_copy.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/strip.h>
+=======
+#include <src/util/string/strip.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace {
     //! the constants are not zero-terminated

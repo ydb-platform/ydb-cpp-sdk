@@ -38,11 +38,19 @@ union semun arg;
 #endif
 
 #include <src/util/digest/city.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/random/fast.h>
 
 #if !defined(_unix_) || defined(_darwin_)
     #include <ydb-cpp-sdk/util/random/random.h>
+=======
+#include <src/util/string/cast.h>
+#include <src/util/random/fast.h>
+
+#if !defined(_unix_) || defined(_darwin_)
+    #include <src/util/random/random.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #endif
 
 namespace {

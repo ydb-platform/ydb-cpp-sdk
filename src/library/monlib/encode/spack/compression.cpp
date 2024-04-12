@@ -1,12 +1,21 @@
 #include "compression.h"
 
 #include <src/util/generic/buffer.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/cast.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/scope.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <src/util/stream/format.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
+=======
+#include <src/util/generic/cast.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/scope.h>
+#include <src/util/generic/size_literals.h>
+#include <src/util/stream/format.h>
+#include <src/util/stream/output.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/stream/walk.h>
 
 #include <lz4.h>

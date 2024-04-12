@@ -1,6 +1,10 @@
 #include "opt.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/progname.h>
+=======
+#include <src/util/system/progname.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <ctype.h>
 

@@ -3,12 +3,21 @@
 #include <ydb-cpp-sdk/util/stream/str.h>
 
 #include <src/util/charset/wide.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/system/spinlock.h>
+=======
+#include <src/util/memory/tempbuf.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/string/cast.h>
+#include <src/util/system/compat.h>
+#include <src/util/system/spinlock.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <cstdlib>
 

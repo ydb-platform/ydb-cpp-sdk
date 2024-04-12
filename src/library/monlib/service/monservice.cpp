@@ -3,7 +3,11 @@
 #include <src/library/string_utils/base64/base64.h>
 #include <src/library/svnversion/svnversion.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ptr.h>
+=======
+#include <src/util/generic/ptr.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/hostname.h>
 
 #include <google/protobuf/text_format.h>

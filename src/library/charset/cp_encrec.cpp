@@ -1,6 +1,10 @@
 #include "codepage.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
+=======
+#include <src/util/stream/output.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 void Encoder::Tr(const wchar32* in, char* out, size_t len) const {
     while (len--)

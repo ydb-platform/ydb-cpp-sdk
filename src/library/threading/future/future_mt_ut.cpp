@@ -2,9 +2,15 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/generic/xrange.h>
 #include <ydb-cpp-sdk/util/thread/pool.h>
+=======
+#include <src/util/generic/noncopyable.h>
+#include <src/util/generic/xrange.h>
+#include <src/util/thread/pool.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <atomic>
 #include <exception>

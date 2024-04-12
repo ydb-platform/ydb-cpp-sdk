@@ -2,7 +2,11 @@
 
 #include "ref.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/zerocopy.h>
+=======
+#include <src/util/stream/zerocopy.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYT {
 

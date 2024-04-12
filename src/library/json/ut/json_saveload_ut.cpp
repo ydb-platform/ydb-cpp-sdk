@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/json_value.h>
+=======
+#include <src/library/json/json_value.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/util/stream/buffer.h>
 #include <src/util/generic/buffer.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/ysaveload.h>
+=======
+#include <src/util/ysaveload.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 Y_UNIT_TEST_SUITE(JsonSaveLoad) {
     Y_UNIT_TEST(Serialize) {

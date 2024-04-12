@@ -6,8 +6,13 @@
 #include <src/util/generic/scope.h>
 #include <src/util/thread/singleton.h>
 #include <src/util/stream/format.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/stream/output.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 TCont::TJoinWait::TJoinWait(TCont& c) noexcept
     : Cont_(c)

@@ -1,10 +1,14 @@
 add_library(cpp-testing-gtest_extensions)
+<<<<<<< HEAD
 
+=======
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 target_link_libraries(cpp-testing-gtest_extensions PUBLIC
   yutil
   GTest::gmock
   GTest::gtest
 )
+<<<<<<< HEAD
 
 target_sources(cpp-testing-gtest_extensions PRIVATE
   assertions.cpp
@@ -13,3 +17,15 @@ target_sources(cpp-testing-gtest_extensions PRIVATE
   pretty_printers.cpp
   probe.cpp
 )
+=======
+target_sources(cpp-testing-gtest_extensions PRIVATE
+  ${YDB_SDK_SOURCE_DIR}/src/library/testing/gtest_extensions/assertions.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/testing/gtest_extensions/gtest_extensions.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/testing/gtest_extensions/matchers.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/testing/gtest_extensions/pretty_printers.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/testing/gtest_extensions/probe.cpp
+)
+
+# Unit tests
+add_subdirectory(ut)
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))

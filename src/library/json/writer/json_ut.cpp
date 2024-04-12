@@ -2,7 +2,11 @@
 #include <src/util/system/sanitizers.h>
 
 #include "json.h"
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/json_value.h>
+=======
+#include <src/library/json/json_value.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <limits>
 

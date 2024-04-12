@@ -1,7 +1,12 @@
 #include <ydb-cpp-sdk/library/monlib/service/pages/index_mon_page.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/cast.h>
 #include <ydb-cpp-sdk/util/string/ascii.h>
+=======
+#include <src/util/generic/cast.h>
+#include <src/util/string/ascii.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 using namespace NMonitoring;
 

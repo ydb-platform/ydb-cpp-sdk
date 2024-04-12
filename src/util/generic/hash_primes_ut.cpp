@@ -3,7 +3,11 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/generic/vector.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
+=======
+#include <src/util/string/builder.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/random/fast.h>
 
 Y_UNIT_TEST_SUITE(TestHashPrimes) {

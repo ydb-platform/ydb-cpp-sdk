@@ -5,9 +5,15 @@
 #include <src/util/charset/unidata.h>
 #include <src/util/charset/wide.h>
 #include <src/util/generic/hash.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
+=======
+#include <src/util/generic/algorithm.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/noncopyable.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <utility>
 
 namespace NUnicode {

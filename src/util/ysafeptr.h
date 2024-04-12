@@ -1,9 +1,15 @@
 #pragma once
 
 #include <stddef.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
+=======
+#include <src/util/system/compiler.h>
+#include <src/util/system/yassert.h>
+#include <src/util/system/defaults.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/tls.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +28,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if defined(_MSC_VER) && defined(_DEBUG)
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/system/winint.h>
+=======
+    #include <src/util/system/winint.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
     #define CHECK_YPTR2
 #endif
 

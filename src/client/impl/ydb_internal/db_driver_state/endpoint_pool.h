@@ -7,7 +7,11 @@
 #include <src/client/impl/ydb_internal/plain_status/status.h>
 #include <src/client/impl/ydb_endpoints/endpoints.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/threading/future/future.h>
+=======
+#include <src/library/threading/future/future.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <mutex>
 

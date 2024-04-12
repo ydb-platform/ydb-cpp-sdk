@@ -2,9 +2,15 @@
 
 #include <src/util/charset/recode_result.h>
 #include <src/util/charset/utf8.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <string>
 #include <ydb-cpp-sdk/util/system/defaults.h>
+=======
+#include <src/util/generic/ptr.h>
+#include <string>
+#include <src/util/system/defaults.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include "codepage.h"
 #include "doccodes.h"

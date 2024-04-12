@@ -1,10 +1,18 @@
 #define INCLUDE_YDB_INTERNAL_H
 #include "helpers.h"
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <ydb-cpp-sdk/util/string/builder.h>
+=======
+#include <src/client/ydb_types/fatal_error_handlers/handlers.h>
+
+#include <src/util/string/builder.h>
+
+#include <src/util/string/builder.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

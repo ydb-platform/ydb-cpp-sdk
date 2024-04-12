@@ -3,8 +3,13 @@
 #include "stream.h"
 
 #include <string>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
+=======
+#include <src/util/stream/str.h>
+#include <src/util/generic/ptr.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <utility>
 
 #include <src/library/testing/unittest/registar.h>

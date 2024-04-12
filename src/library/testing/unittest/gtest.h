@@ -8,7 +8,11 @@
 #include "registar.h"
 
 #include <src/util/generic/ymath.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
+=======
+#include <src/util/generic/ylimits.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NUnitTest {
     namespace NPrivate {

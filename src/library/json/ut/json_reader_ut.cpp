@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 #include <src/library/json/json_writer.h>
 
 #include <src/library/testing/unittest/registar.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
+=======
+#include <src/library/json/json_reader.h>
+#include <src/library/json/json_writer.h>
+
+#include <src/library/testing/unittest/registar.h>
+#include <src/util/stream/str.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 using namespace NJson;
 

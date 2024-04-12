@@ -2,6 +2,7 @@
 
 #include "codecs.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/ysaveload.h>
 #include <src/util/stream/null.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
@@ -14,6 +15,20 @@
 #include <src/util/generic/buffer.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
+=======
+#include <src/util/ysaveload.h>
+#include <src/util/stream/null.h>
+#include <src/util/stream/mem.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/join.h>
+#include <src/util/system/align.h>
+#include <src/util/system/unaligned_mem.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/cast.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/algorithm.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/generic/mem_copy.h>
 
 namespace NBlockCodecs {

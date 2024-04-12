@@ -2,7 +2,11 @@
 #include "lciter.h"
 #include "hash_ops.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
+=======
+#include <src/util/generic/algorithm.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 size_t TCIOps::operator()(const std::string_view& s) const noexcept {
     return FnvCaseLess(s, (size_t)0xBEE);

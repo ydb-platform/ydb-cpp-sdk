@@ -2,10 +2,17 @@
 
 #include <ydb-cpp-sdk/util/generic/utility.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <src/util/system/align.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/generic/fwd.h>
+#include <src/util/system/align.h>
+#include <src/util/system/compiler.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <cstring>
 

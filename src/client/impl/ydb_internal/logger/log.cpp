@@ -1,10 +1,17 @@
 #define INCLUDE_YDB_INTERNAL_H
 #include "log.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
+=======
+#include <src/util/string/builder.h>
+
+#include <src/util/datetime/base.h>
+#include <src/util/string/builder.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

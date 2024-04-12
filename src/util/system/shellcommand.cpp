@@ -3,6 +3,7 @@
 #include "nice.h"
 #include "sigset.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <src/util/folder/dirut.h>
@@ -13,6 +14,18 @@
 #include <ydb-cpp-sdk/util/network/socket.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include <src/library/string_utils/helpers/helpers.h>
+
+#include <src/util/folder/dirut.h>
+#include <src/util/generic/algorithm.h>
+#include <src/util/generic/buffer.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/memory/tempbuf.h>
+#include <src/util/network/socket.h>
+#include <src/util/stream/str.h>
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/info.h>
 #include <src/util/system/pipe.h>
 

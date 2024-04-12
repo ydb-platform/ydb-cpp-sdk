@@ -1,6 +1,7 @@
 #include <ydb-cpp-sdk/library/json/writer/json_value.h>
 #include <ydb-cpp-sdk/library/json/writer/json.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
@@ -15,6 +16,22 @@
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/ysaveload.h>
 #include <ydb-cpp-sdk/util/generic/bt_exception.h>
+=======
+#include <src/util/string/builder.h>
+#include <src/library/string_utils/misc/misc.h>
+
+#include <src/util/generic/ymath.h>
+#include <src/util/generic/ylimits.h>
+#include <src/util/generic/utility.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/stream/output.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/type.h>
+#include <src/util/string/vector.h>
+#include <src/util/system/yassert.h>
+#include <src/util/ysaveload.h>
+#include <src/util/generic/bt_exception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 static bool
 AreJsonMapsEqual(const NJson::TJsonValue& lhs, const NJson::TJsonValue& rhs) {

@@ -2,7 +2,11 @@
 
 #include <src/client/impl/ydb_internal/retry/retry.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/function.h>
+=======
+#include <src/util/generic/function.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb::NRetry::Async {
 

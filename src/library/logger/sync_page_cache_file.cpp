@@ -2,8 +2,13 @@
 #include <ydb-cpp-sdk/library/logger/record.h>
 
 #include <src/util/generic/buffer.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/file.h>
+=======
+#include <src/util/generic/yexception.h>
+#include <src/util/system/file.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/info.h>
 #include <src/util/system/align.h>
 

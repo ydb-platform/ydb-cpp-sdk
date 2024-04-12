@@ -2,8 +2,13 @@
 
 #include "completion_generator.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
+=======
+#include <src/util/string/builder.h>
+#include <src/library/string_utils/misc/misc.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 using NLastGetopt::NEscaping::Q;
 using NLastGetopt::NEscaping::QQ;

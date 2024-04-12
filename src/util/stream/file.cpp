@@ -1,7 +1,12 @@
 #include "file.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/memory/blob.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/memory/blob.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 TUnbufferedFileInput::TUnbufferedFileInput(const char* path)
     : TUnbufferedFileInput(TFile(path, OPEN_MODE))

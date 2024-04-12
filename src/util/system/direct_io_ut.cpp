@@ -1,9 +1,16 @@
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/util/system/fs.h>
 #include <src/util/system/tempfile.h>
 #include <ydb-cpp-sdk/util/random/random.h>
+=======
+#include <src/util/generic/yexception.h>
+#include <src/util/system/fs.h>
+#include <src/util/system/tempfile.h>
+#include <src/util/random/random.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include "direct_io.h"
 

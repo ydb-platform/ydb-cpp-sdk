@@ -8,14 +8,22 @@
 #include <array>
 #include <filesystem>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <src/util/string/util.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
+=======
+#include <src/util/string/escape.h>
+#include <src/util/string/util.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/builder.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/util/stream/hex.h>
 #include <src/util/stream/format.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/random/random.h>
 
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
@@ -23,6 +31,15 @@
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
+=======
+#include <src/util/random/random.h>
+
+#include <src/util/generic/size_literals.h>
+#include <src/util/generic/ylimits.h>
+#include <src/util/generic/yexception.h>
+
+#include <src/util/datetime/base.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <errno.h>
 

@@ -1,6 +1,10 @@
 #include <ydb-cpp-sdk/client/draft/ydb_dynamic_config.h>
 
+<<<<<<< HEAD
 #include <src/client/common_client/impl/client.h>
+=======
+#include <src/client/ydb_common_client/impl/client.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/client/impl/ydb_internal/make_request/make.h>
 
 namespace NYdb::NDynamicConfig {

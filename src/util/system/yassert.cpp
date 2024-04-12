@@ -5,10 +5,17 @@
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 #include <ydb-cpp-sdk/util/system/src_root.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
+=======
+#include <src/util/datetime/base.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/stream/output.h>
+#include <src/util/stream/str.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <cstdlib>
 #include <iostream>

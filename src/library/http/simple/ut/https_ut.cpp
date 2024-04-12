@@ -1,6 +1,10 @@
 #include <src/library/http/simple/http_client.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/http/server/response.h>
+=======
+#include <src/library/http/server/response.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>

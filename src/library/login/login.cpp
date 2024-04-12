@@ -1,17 +1,30 @@
 #include <jwt-cpp/jwt.h>
 #include <src/library/digest/argonish/argon2.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <src/library/string_utils/base64/base64.h>
 #include <ydb-cpp-sdk/library/json/json_value.h>
 #include <ydb-cpp-sdk/library/json/json_reader.h>
+=======
+#include <src/util/string/builder.h>
+#include <src/library/string_utils/base64/base64.h>
+#include <src/library/json/json_value.h>
+#include <src/library/json/json_reader.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/library/json/json_writer.h>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include <src/util/generic/singleton.h>
+#include <src/util/string/builder.h>
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/string/hex.h>
 
 #include <deque>

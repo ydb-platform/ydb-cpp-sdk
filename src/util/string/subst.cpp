@@ -1,6 +1,10 @@
 #include <ydb-cpp-sdk/util/string/subst.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/compiler.h>
+=======
+#include <src/util/system/compiler.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <string>
 #include <type_traits>

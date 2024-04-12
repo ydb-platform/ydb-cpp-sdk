@@ -3,8 +3,13 @@
 #include <src/library/yql/public/issue/protos/issue_message.pb.h>
 #include <src/api/protos/ydb_issue_message.pb.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
+=======
+#include <src/util/generic/yexception.h>
+#include <src/util/stream/output.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/string/join.h>
 
 #include <tuple>

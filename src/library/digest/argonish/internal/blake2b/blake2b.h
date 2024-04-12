@@ -1,7 +1,12 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
+=======
+#include <src/util/generic/yexception.h>
+#include <src/util/system/compiler.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/library/digest/argonish/blake2b.h>
 
 namespace NArgonish {

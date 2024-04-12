@@ -7,7 +7,11 @@
 
 #include <src/api/grpc/ydb_scripting_v1.grpc.pb.h>
 #include <src/api/protos/ydb_scripting.pb.h>
+<<<<<<< HEAD
 #include <src/client/common_client/impl/client.h>
+=======
+#include <src/client/ydb_common_client/impl/client.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb {
 namespace NScripting {

@@ -1,8 +1,14 @@
 #include "varint.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
+=======
+#include <src/util/generic/yexception.h>
+#include <src/util/stream/input.h>
+#include <src/util/stream/output.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NMonitoring {
     ui32 WriteVarUInt32(IOutputStream* output, ui32 value) {

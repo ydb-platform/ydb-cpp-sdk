@@ -2,10 +2,17 @@
 
 #include "recode_result.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/generic/yexception.h>
+#include <src/util/string/escape.h>
+#include <src/util/system/defaults.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 extern const wchar32 BROKEN_RUNE;
 

@@ -1,8 +1,14 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/system/file.h>
+=======
+#include <src/util/generic/fwd.h>
+#include <src/util/generic/noncopyable.h>
+#include <src/util/system/file.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 enum class EFileLockType {
     Exclusive,

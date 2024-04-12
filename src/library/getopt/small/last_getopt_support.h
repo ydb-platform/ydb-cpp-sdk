@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <ydb-cpp-sdk/util/string/cast.h>
@@ -7,6 +8,15 @@
 
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/library/string_utils/misc/misc.h>
+
+#include <src/util/string/cast.h>
+#include <src/util/string/escape.h>
+
+#include <src/util/generic/utility.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <string>
 

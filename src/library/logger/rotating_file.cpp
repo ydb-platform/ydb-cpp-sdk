@@ -2,6 +2,7 @@
 #include "file.h"
 #include <ydb-cpp-sdk/library/logger/record.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <ydb-cpp-sdk/util/string/builder.h>
@@ -9,6 +10,15 @@
 #include <ydb-cpp-sdk/util/system/rwlock.h>
 #include <src/util/system/fs.h>
 #include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
+=======
+#include <src/util/string/builder.h>
+
+#include <src/util/string/builder.h>
+#include <src/util/system/fstat.h>
+#include <src/util/system/rwlock.h>
+#include <src/util/system/fs.h>
+#include <src/library/deprecated/atomic/atomic.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 /*
  * rotating file log

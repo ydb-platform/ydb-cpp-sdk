@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/draft/ydb_scripting.h>
+=======
+#include <ydb_scripting.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 #include <src/api/grpc/ydb_scripting_v1.grpc.pb.h>

@@ -1,8 +1,14 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/generic/algorithm.h>
+#include <src/util/stream/input.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <span>
 #include <array>
 #include <functional>

@@ -2,8 +2,13 @@
 
 #include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
+=======
+#include <src/util/system/compat.h>
+#include <src/library/http/misc/httpcodes.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 class httpDigestHandler {
 protected:

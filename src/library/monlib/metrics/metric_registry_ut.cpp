@@ -1,12 +1,21 @@
 #include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
 
 #include <src/library/monlib/encode/protobuf/protobuf.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
 #include <ydb-cpp-sdk/library/resource/resource.h>
 
 #include <src/library/testing/unittest/registar.h>
 
 #include <ydb-cpp-sdk/util/stream/str.h>
+=======
+#include <src/library/monlib/encode/json/json.h>
+#include <src/library/resource/resource.h>
+
+#include <src/library/testing/unittest/registar.h>
+
+#include <src/util/stream/str.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 using namespace NMonitoring;
 

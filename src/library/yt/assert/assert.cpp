@@ -1,7 +1,12 @@
 #include "assert.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
+=======
+#include <src/util/system/yassert.h>
+#include <src/util/system/compiler.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYT::NDetail {
 

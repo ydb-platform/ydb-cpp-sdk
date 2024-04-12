@@ -1,7 +1,11 @@
 #include <ydb-cpp-sdk/util/thread/factory.h>
 
 #include <src/util/system/thread.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+=======
+#include <src/util/generic/singleton.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 using IThread = IThreadFactory::IThread;
 

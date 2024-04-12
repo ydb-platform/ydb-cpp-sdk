@@ -1,11 +1,19 @@
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include "addstorage.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/generic/intrlist.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/system/yassert.h>
+#include <src/util/system/defaults.h>
+#include <src/util/generic/intrlist.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <utility>
 #include <src/util/thread/singleton.h>
 

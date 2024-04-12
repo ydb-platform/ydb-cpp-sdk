@@ -4,6 +4,7 @@
 
 #include <src/util/folder/dirut.h>
 #include <src/util/folder/path.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/stream/file.h>
 #include <ydb-cpp-sdk/util/stream/fwd.h>
@@ -13,6 +14,17 @@
 
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 #include <ydb-cpp-sdk/library/json/json_value.h>
+=======
+#include <src/util/generic/singleton.h>
+#include <src/util/stream/file.h>
+#include <src/util/stream/fwd.h>
+#include <src/util/system/file.h>
+#include <src/util/system/file_lock.h>
+#include <src/util/system/guard.h>
+
+#include <src/library/json/json_reader.h>
+#include <src/library/json/json_value.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/library/json/json_writer.h>
 #include <src/library/svnversion/svnversion.h>
 

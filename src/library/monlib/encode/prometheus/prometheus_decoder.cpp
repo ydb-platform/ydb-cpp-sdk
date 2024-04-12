@@ -1,6 +1,7 @@
 #include "prometheus.h"
 #include "prometheus_model.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/metrics/histogram_snapshot.h>
 #include <ydb-cpp-sdk/library/monlib/metrics/metric.h>
 
@@ -10,6 +11,17 @@
 #include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/ascii.h>
+=======
+#include <src/library/monlib/metrics/histogram_snapshot.h>
+#include <src/library/monlib/metrics/metric.h>
+
+#include <src/util/string/builder.h>
+
+#include <src/util/datetime/base.h>
+#include <src/util/generic/hash.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/ascii.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <cmath>
 

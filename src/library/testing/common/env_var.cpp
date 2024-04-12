@@ -1,8 +1,14 @@
 #include "env_var.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <ydb-cpp-sdk/util/system/platform.h>
+=======
+#include <src/util/generic/yexception.h>
+
+#include <src/util/system/platform.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #if defined(_win_)
     #include <src/util/system/wininit.h>

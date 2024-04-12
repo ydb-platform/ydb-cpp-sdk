@@ -2,8 +2,12 @@
 #include <ydb-cpp-sdk/util/stream/output.h>
 
 #include <src/util/generic/ymath.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/system/datetime.h>
+=======
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NFormatPrivate {
     static inline i64 Round(double value) {

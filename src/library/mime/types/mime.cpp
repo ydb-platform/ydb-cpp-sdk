@@ -1,6 +1,10 @@
 #include <ydb-cpp-sdk/library/mime/types/mime.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
+=======
+#include <src/util/system/defaults.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/generic/hash.h>
 
 #include <cctype>

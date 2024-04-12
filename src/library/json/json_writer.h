@@ -4,9 +4,15 @@
 
 #include <ydb-cpp-sdk/library/json/json_value.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/writer/json.h>
 
 #include <ydb-cpp-sdk/util/stream/output.h>
+=======
+#include <src/library/json/writer/json.h>
+
+#include <src/util/stream/output.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/generic/hash.h>
 
 #include <string>

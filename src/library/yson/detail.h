@@ -4,9 +4,15 @@
 #include "zigzag.h"
 
 #include <src/util/generic/buffer.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/stream/input.h>
+=======
+#include <src/util/string/escape.h>
+#include <src/util/string/cast.h>
+#include <src/util/stream/input.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYson {
     namespace NDetail {

@@ -1,9 +1,16 @@
 #include "endpoints.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
 #include <src/library/string_utils/quote/quote.h>
 
 #include <ydb-cpp-sdk/util/random/random.h>
+=======
+#include <src/library/monlib/metrics/metric_registry.h>
+#include <src/library/string_utils/quote/quote.h>
+
+#include <src/util/random/random.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <set>
 #include <unordered_set>

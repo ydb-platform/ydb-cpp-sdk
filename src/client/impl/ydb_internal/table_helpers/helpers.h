@@ -3,7 +3,11 @@
 #include <src/client/impl/ydb_internal/internal_header.h>
 
 #include <src/api/protos/ydb_table.pb.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/table/query_stats/stats.h>
+=======
+#include <src/client/ydb_table/query_stats/stats.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

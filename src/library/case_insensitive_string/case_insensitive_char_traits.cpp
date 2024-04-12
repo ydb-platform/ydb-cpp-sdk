@@ -1,7 +1,11 @@
 #include "case_insensitive_char_traits.h"
 #include "case_insensitive_string.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/escape.h>
+=======
+#include <src/util/string/escape.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 int TCaseInsensitiveCharTraits::compare(const char* s1, const char* s2, std::size_t n) {
     while (n-- != 0) {

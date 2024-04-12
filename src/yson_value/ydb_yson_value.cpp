@@ -1,11 +1,20 @@
 #include <ydb-cpp-sdk/yson_value/ydb_yson_value.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <ydb-cpp-sdk/client/value/value.h>
 #include <ydb-cpp-sdk/client/result/result.h>
 
 #include <ydb-cpp-sdk/util/string/builder.h>
+=======
+#include <src/util/string/builder.h>
+
+#include <src/client/ydb_value/value.h>
+#include <src/client/ydb_result/result.h>
+
+#include <src/util/string/builder.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

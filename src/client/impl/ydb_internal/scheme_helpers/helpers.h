@@ -1,6 +1,10 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/scheme/scheme.h>
+=======
+#include <src/client/ydb_scheme/scheme.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <vector>
 
 namespace NYdb {

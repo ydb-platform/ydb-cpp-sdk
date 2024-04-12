@@ -7,9 +7,15 @@
 #include <src/client/impl/ydb_internal/db_driver_state/state.h>
 #include <src/client/impl/ydb_internal/plain_status/status.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
 
 #include <ydb-cpp-sdk/util/thread/pool.h>
+=======
+#include <src/library/grpc/client/grpc_client_low.h>
+
+#include <src/util/thread/pool.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <grpc++/alarm.h>
 

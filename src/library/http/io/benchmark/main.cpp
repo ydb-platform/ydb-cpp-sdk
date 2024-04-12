@@ -2,7 +2,11 @@
 
 #include <benchmark/benchmark.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/str.h>
+=======
+#include <src/util/stream/str.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 void FindHeaderFirstMatch(benchmark::State& state) {
     THttpHeaders headers;

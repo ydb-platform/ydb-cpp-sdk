@@ -54,7 +54,11 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/compat.h>
+=======
+#include <src/util/system/compat.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include "systime.h"
 #ifdef _win32_
     #ifndef lint

@@ -5,9 +5,15 @@
 
 #include <src/library/charset/recyr.hh>
 #include <src/util/charset/wide.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/memory/tempbuf.h>
+#include <src/util/string/cast.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/sys_alloc.h>
 
 namespace NUri {

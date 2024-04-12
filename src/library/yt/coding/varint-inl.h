@@ -6,7 +6,11 @@
 
 #include "zig_zag.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/yt/exception/exception.h>
+=======
+#include <src/library/yt/exception/exception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <array>
 

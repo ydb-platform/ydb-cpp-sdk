@@ -1,7 +1,11 @@
 #include "http_ex.h"
 
 #include <src/util/generic/buffer.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/cast.h>
+=======
+#include <src/util/generic/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/stream/null.h>
 
 bool THttpClientRequestExtension::Parse(char* req, TBaseServerRequestData& rd) {

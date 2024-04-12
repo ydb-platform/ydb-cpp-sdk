@@ -18,12 +18,16 @@ target_link_libraries(cpp-monlib-service PUBLIC
 )
 
 target_sources(cpp-monlib-service PRIVATE
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/monlib/service/CMakeLists.txt
+=======
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/monservice.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/mon_service_http_request.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/service.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/format.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/auth.cpp
+<<<<<<< HEAD
 =======
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/monservice.cpp
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/mon_service_http_request.cpp
@@ -31,6 +35,8 @@ target_sources(cpp-monlib-service PRIVATE
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/format.cpp
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/service/auth.cpp
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/monlib/service/CMakeLists.txt
+=======
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 )
 
 

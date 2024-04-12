@@ -4,8 +4,13 @@
 #include <src/library/streams/lz/lz.h>
 #endif
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
+=======
+#include <src/util/string/builder.h>
+#include <src/library/string_utils/misc/misc.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/library/streams/brotli/brotli.h>
 #include <src/library/streams/lzma/lzma.h>
 #include <src/library/streams/bzip2/bzip2.h>

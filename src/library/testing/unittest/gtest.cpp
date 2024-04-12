@@ -1,7 +1,11 @@
 #include "gtest.h"
 #include "simple.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/type_name.h>
+=======
+#include <src/util/system/type_name.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 using namespace NUnitTest;
 using namespace NUnitTest::NPrivate;

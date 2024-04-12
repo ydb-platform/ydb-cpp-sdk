@@ -1,7 +1,12 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/src_root.h>
+=======
+#include <src/util/system/compiler.h>
+#include <src/util/system/src_root.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <string_view>
 

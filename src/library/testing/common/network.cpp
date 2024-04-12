@@ -4,6 +4,7 @@
 
 #include <src/util/folder/dirut.h>
 #include <src/util/folder/path.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 
@@ -14,6 +15,18 @@
 #include <src/util/stream/file.h>
 #include <src/util/string/split.h>
 #include <ydb-cpp-sdk/util/system/error.h>
+=======
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/utility.h>
+
+#include <src/util/generic/ylimits.h>
+#include <src/util/network/address.h>
+#include <src/util/network/sock.h>
+#include <src/util/random/random.h>
+#include <src/util/stream/file.h>
+#include <src/util/string/split.h>
+#include <src/util/system/error.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/file_lock.h>
 #include <src/util/system/fs.h>
 

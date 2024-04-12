@@ -1,8 +1,13 @@
 #pragma once
 
 #include <src/client/impl/ydb_internal/retry/retry.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/retry/retry.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
+=======
+#include <src/client/ydb_retry/retry.h>
+#include <src/client/ydb_types/status/status.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb::NRetry::Sync {
 

@@ -2,7 +2,11 @@
 #include <ydb-cpp-sdk/util/system/progname.h>
 
 #include <src/util/folder/dirut.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+=======
+#include <src/util/generic/singleton.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 static const char* Argv0;
 

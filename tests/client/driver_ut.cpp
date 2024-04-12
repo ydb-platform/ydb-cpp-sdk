@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/table/table.h>
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
+=======
+#include <src/client/ydb_table/table.h>
+#include <src/client/ydb_types/exceptions/exceptions.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>

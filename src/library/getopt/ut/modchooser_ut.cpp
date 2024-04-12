@@ -2,7 +2,11 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/str.h>
+=======
+#include <src/util/stream/str.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 void ValidateArgcArgv(int argc, const char** argv) {
     UNIT_ASSERT_EQUAL(argc, 1);

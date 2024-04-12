@@ -3,11 +3,19 @@
 #include <ydb-cpp-sdk/util/memory/alloc.h>
 
 #include <src/util/system/align.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <src/util/generic/bitops.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <src/util/generic/intrlist.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+=======
+#include <src/util/system/yassert.h>
+#include <src/util/generic/bitops.h>
+#include <src/util/generic/utility.h>
+#include <src/util/generic/intrlist.h>
+#include <src/util/generic/singleton.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <new>
 #include <string>

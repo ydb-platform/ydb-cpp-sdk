@@ -2,8 +2,13 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/fwd.h>
+=======
+#include <src/util/generic/yexception.h>
+#include <src/util/generic/fwd.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <stdexcept>
 #include <string>

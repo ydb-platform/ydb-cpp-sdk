@@ -17,9 +17,15 @@ target_sources(cpp-http-misc PRIVATE
 )
 
 generate_enum_serilization(cpp-http-misc
+<<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/library/http/misc/httpcodes.h
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/library/http/misc/httpcodes.h
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/http/misc/httpcodes.h
+  INCLUDE_HEADERS
+  src/library/http/misc/httpcodes.h
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 )
 
 

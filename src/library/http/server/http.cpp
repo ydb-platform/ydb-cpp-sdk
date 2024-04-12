@@ -5,6 +5,7 @@
 
 #include <src/util/generic/buffer.h>
 #include <src/util/generic/intrlist.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/network/address.h>
 #include <ydb-cpp-sdk/util/network/socket.h>
@@ -16,6 +17,19 @@
 #include <src/util/system/pipe.h>
 #include <src/util/system/thread.h>
 #include <ydb-cpp-sdk/util/thread/factory.h>
+=======
+#include <src/util/generic/yexception.h>
+#include <src/util/network/address.h>
+#include <src/util/network/socket.h>
+#include <src/util/network/poller.h>
+#include <src/library/deprecated/atomic/atomic.h>
+#include <src/util/system/compat.h> // stricmp, strnicmp, strlwr, strupr, stpcpy
+#include <src/util/system/defaults.h>
+#include <src/util/system/event.h>
+#include <src/util/system/pipe.h>
+#include <src/util/system/thread.h>
+#include <src/util/thread/factory.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <cerrno>
 #include <cstring>

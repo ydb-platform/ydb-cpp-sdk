@@ -4,10 +4,17 @@
 #include "httpparser.h"
 #include "http_digest.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/network/ip.h>
 #include <src/library/uri/http_url.h>
 #include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
+=======
+#include <src/util/system/compat.h>
+#include <src/util/network/ip.h>
+#include <src/library/uri/http_url.h>
+#include <src/library/http/misc/httpcodes.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 /********************************************************/
 // Section 1: socket handlers

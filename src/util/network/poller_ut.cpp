@@ -1,5 +1,9 @@
 #include <src/library/testing/unittest/registar.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/error.h>
+=======
+#include <src/util/system/error.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include "pair.h"
 #include "poller.h"

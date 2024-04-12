@@ -15,11 +15,15 @@ target_link_libraries(blockcodecs-codecs-zstd.global PUBLIC
 )
 
 target_sources(blockcodecs-codecs-zstd.global PRIVATE
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/blockcodecs/codecs/zstd/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/zstd/zstd.cpp
 =======
   ${YDB_SDK_SOURCE_DIR}/library/cpp/blockcodecs/codecs/zstd/zstd.cpp
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/blockcodecs/codecs/zstd/CMakeLists.txt
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/zstd/zstd.cpp
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")

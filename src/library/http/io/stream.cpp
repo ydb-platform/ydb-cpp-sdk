@@ -3,7 +3,11 @@
 #include "compression.h"
 #include "chunk.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
+=======
+#include <src/library/string_utils/misc/misc.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/library/string_utils/stream/stream.h>
 
 #include <src/util/stream/buffered.h>
@@ -12,11 +16,19 @@
 #include <src/util/stream/null.h>
 #include <src/util/stream/tee.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <ydb-cpp-sdk/util/network/socket.h>
 
 #include <ydb-cpp-sdk/util/string/strip.h>
+=======
+#include <src/util/system/yassert.h>
+
+#include <src/util/network/socket.h>
+
+#include <src/util/string/strip.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <unordered_set>
 

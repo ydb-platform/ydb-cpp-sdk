@@ -1,16 +1,28 @@
 #include <ydb-cpp-sdk/util/stream/output.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include "format.h"
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/string/cast.h>
+#include "format.h"
+#include <src/util/memory/tempbuf.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/charset/utf8.h>
 #include <src/util/charset/wide.h>
 
 #if defined(_android_)
     #include <src/util/system/dynlib.h>
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/system/guard.h>
+=======
+    #include <src/util/system/guard.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
     #include <android/log.h>
     #include <mutex>
 #endif

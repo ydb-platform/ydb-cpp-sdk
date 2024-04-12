@@ -2,10 +2,17 @@
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/threading/future/core/future.h>
 
 #include <src/util/system/thread.h>
 #include <ydb-cpp-sdk/util/random/random.h>
+=======
+#include <src/library/threading/future/core/future.h>
+
+#include <src/util/system/thread.h>
+#include <src/util/random/random.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <unordered_set>
 

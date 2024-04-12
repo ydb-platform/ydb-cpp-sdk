@@ -1,7 +1,12 @@
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/atexit.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+=======
+#include "atexit.h"
+#include <src/util/generic/singleton.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <errno.h>
 

@@ -2,7 +2,11 @@
 
 #include "codepage.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
+=======
+#include <src/util/generic/noncopyable.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 // WARNING: Do not use this functions - use functions from wide.h or recyr.hh instead.
 

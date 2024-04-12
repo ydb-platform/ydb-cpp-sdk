@@ -6,9 +6,15 @@
 #include <cstring>
 
 #if defined(_win_)
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/string/strip.h>
     #include <ydb-cpp-sdk/util/network/socket.h>
     #include <ydb-cpp-sdk/util/generic/singleton.h>
+=======
+    #include <src/util/string/strip.h>
+    #include <src/util/network/socket.h>
+    #include <src/util/generic/singleton.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
     #include "winint.h"
 #endif
 

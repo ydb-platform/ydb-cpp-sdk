@@ -1,7 +1,12 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/iterator_range.h>
 #include <ydb-cpp-sdk/util/generic/store_policy.h>
+=======
+#include <src/util/generic/iterator_range.h>
+#include <src/util/generic/store_policy.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <iterator>
 
 

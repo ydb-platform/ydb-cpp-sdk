@@ -6,10 +6,17 @@
 #include <rapidjson/error/error.h>
 #include <rapidjson/reader.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <src/util/generic/stack.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/string/builder.h>
+
+#include <src/util/generic/stack.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NJson {
     namespace {

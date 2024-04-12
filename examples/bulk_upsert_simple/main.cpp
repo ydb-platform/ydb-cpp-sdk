@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/table/table.h>
+=======
+#include <src/client/ydb_table/table.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <src/library/getopt/last_getopt.h>
 

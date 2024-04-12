@@ -1,10 +1,18 @@
 #include <tools/enum_parser/parse_enum/benchmark/enum.h_serialized.h>
 #include <src/library/testing/benchmark/bench.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/generic/vector.h>
 #include <ydb-cpp-sdk/util/generic/xrange.h>
 #include <src/util/stream/null.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include <src/util/generic/algorithm.h>
+#include <src/util/generic/vector.h>
+#include <src/util/generic/xrange.h>
+#include <src/util/stream/null.h>
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace {
 

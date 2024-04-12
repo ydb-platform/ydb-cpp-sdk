@@ -1,8 +1,13 @@
 #pragma once
 // Sample file for parse_enum unittests
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
+=======
+#include <src/util/generic/fwd.h>
+#include <src/util/system/compiler.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 // Test template declarations
 template<class T>

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/resource/resource.h>
+=======
+#include <src/library/resource/resource.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/library/testing/unittest/registar.h>
 
 #include <tools/enum_parser/parse_enum/parse_enum.h>

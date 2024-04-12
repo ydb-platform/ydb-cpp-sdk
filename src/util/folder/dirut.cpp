@@ -5,11 +5,19 @@
 #include "pathsplit.h"
 #include "path.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/system/fs.h>
 #include <ydb-cpp-sdk/util/system/maxlen.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/generic/yexception.h>
+#include <src/util/system/compiler.h>
+#include <src/util/system/fs.h>
+#include <src/util/system/maxlen.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NStringPrivate {
     template <class TCharType>

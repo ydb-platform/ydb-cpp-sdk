@@ -4,11 +4,19 @@
 #include "thread.h"
 #include "thread.i"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/ymath.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/ymath.h>
+#include <src/util/generic/ylimits.h>
+#include <src/util/generic/yexception.h>
+#include "yassert.h"
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <utility>
 
 #if defined(_linux_)

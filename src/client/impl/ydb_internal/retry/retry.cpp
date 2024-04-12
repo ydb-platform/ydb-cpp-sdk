@@ -1,7 +1,13 @@
 #include "retry.h"
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/random/random.h>
 #include <ydb-cpp-sdk/client/retry/retry.h>
 #include <src/client/common_client/impl/iface.h>
+=======
+#include <src/util/random/random.h>
+#include <src/client/ydb_retry/retry.h>
+#include <src/client/ydb_common_client/impl/iface.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <cmath>
 

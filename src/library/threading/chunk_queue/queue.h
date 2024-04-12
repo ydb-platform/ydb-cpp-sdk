@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
@@ -11,6 +12,18 @@
 #include <ydb-cpp-sdk/util/system/guard.h>
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/datetime/base.h>
+#include <src/util/generic/noncopyable.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/typetraits.h>
+
+#include <src/util/generic/ylimits.h>
+#include <src/library/deprecated/atomic/atomic.h>
+#include <src/util/system/guard.h>
+#include <src/util/system/spinlock.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <mutex>
 #include <type_traits>

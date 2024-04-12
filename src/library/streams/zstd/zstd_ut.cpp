@@ -4,7 +4,11 @@
 
 #include <src/util/random/fast.h>
 #include <src/util/stream/null.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/str.h>
+=======
+#include <src/util/stream/str.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 Y_UNIT_TEST_SUITE(TZstdTestSuite) {
     std::string Compress(std::string data, int quality = -1) {

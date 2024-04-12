@@ -5,7 +5,11 @@
 #include "arcadia_enum.h"
 #endif
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/type_name.h>
+=======
+#include <src/util/system/type_name.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYT::NDetail {
 

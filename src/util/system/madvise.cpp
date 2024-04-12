@@ -2,12 +2,20 @@
 #include "align.h"
 #include "info.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <string>
 
 #if defined(_win_)
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/system/winint.h>
+=======
+    #include <src/util/system/winint.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #else
     #include <sys/mman.h>
 #endif

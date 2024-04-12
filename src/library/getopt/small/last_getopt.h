@@ -4,8 +4,13 @@
 #include "last_getopt_easy_setup.h"
 #include "last_getopt_parse_result.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/function.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
+=======
+#include <src/util/generic/function.h>
+#include <src/util/string/escape.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/string/split.h>
 
 /// see some documentation in

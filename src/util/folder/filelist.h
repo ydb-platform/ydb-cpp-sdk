@@ -1,7 +1,11 @@
 #pragma once
 
 #include <src/util/generic/buffer.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/flags.h>
+=======
+#include <src/util/generic/flags.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <string>
 

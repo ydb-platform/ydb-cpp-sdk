@@ -1,7 +1,12 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/types.h>
+=======
+#include <src/util/system/compiler.h>
+#include <src/util/system/types.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #if defined(_MSC_VER) && defined(_M_X64)
     #include <intrin.h>

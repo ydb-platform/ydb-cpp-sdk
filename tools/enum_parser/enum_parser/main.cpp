@@ -1,10 +1,16 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/writer/json_value.h>
 #include <ydb-cpp-sdk/library/json/writer/json.h>
+=======
+#include <src/library/json/writer/json_value.h>
+#include <src/library/json/writer/json.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/library/getopt/small/last_getopt.h>
 
 #include <tools/enum_parser/parse_enum/parse_enum.h>
 
 #include <src/util/stream/file.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
@@ -20,6 +26,23 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+=======
+#include <src/util/stream/output.h>
+#include <src/util/stream/input.h>
+#include <src/util/stream/mem.h>
+
+#include <src/util/charset/wide.h>
+#include <src/util/string/builder.h>
+#include <src/util/string/escape.h>
+#include <src/util/string/strip.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/join.h>
+#include <src/util/string/subst.h>
+#include <string>
+
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/yexception.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/system/fs.h>
 #include <src/util/folder/path.h>
 
@@ -30,14 +53,24 @@ void WriteHeader(const std::string& headerName, std::ostream& out, std::ostream*
     out << "#include " << headerName << "\n";
     out << "#include <tools/enum_parser/enum_serialization_runtime/enum_runtime.h>\n\n";
     out << "#include <tools/enum_parser/enum_parser/stdlib_deps.h>\n\n";
+<<<<<<< HEAD
     out << "#include <ydb-cpp-sdk/util/generic/typetraits.h>\n";
     out << "#include <ydb-cpp-sdk/util/generic/singleton.h>\n";
+=======
+    out << "#include <src/util/generic/typetraits.h>\n";
+    out << "#include <src/util/generic/singleton.h>\n";
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
     out << "#include <string>\n";
     out << "#include <vector>\n";
     out << "#include <map>\n";
     out << "#include <span>\n";
+<<<<<<< HEAD
     out << "#include <ydb-cpp-sdk/util/string/cast.h>\n";
     out << "#include <ydb-cpp-sdk/util/stream/output.h>\n\n";
+=======
+    out << "#include <src/util/string/cast.h>\n";
+    out << "#include <src/util/stream/output.h>\n\n";
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
     if (headerOutPtr) {
         auto& outHeader = *headerOutPtr;

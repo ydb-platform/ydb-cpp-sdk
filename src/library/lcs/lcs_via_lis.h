@@ -2,10 +2,17 @@
 
 #include <src/library/containers/paged_vector/paged_vector.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/hash.h>
 
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
+=======
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/hash.h>
+
+#include <src/util/generic/algorithm.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/memory/pool.h>
 
 namespace NLCS {

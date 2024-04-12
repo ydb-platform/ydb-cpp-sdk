@@ -1,7 +1,12 @@
 #include "colors.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+=======
+#include <src/util/stream/output.h>
+#include <src/util/generic/singleton.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <iostream>
 

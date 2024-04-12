@@ -9,6 +9,7 @@ target_link_libraries(client-yc_private-servicecontrol PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(client-yc_private-servicecontrol PRIVATE
+<<<<<<< HEAD
 <<<<<<< HEAD:src/api/client/yc_private/servicecontrol/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/servicecontrol/access_service.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/servicecontrol/resource.proto
@@ -16,6 +17,10 @@ target_proto_messages(client-yc_private-servicecontrol PRIVATE
   ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/servicecontrol/access_service.proto
   ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/servicecontrol/resource.proto
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/public/api/client/yc_private/servicecontrol/CMakeLists.txt
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/servicecontrol/access_service.proto
+  ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/servicecontrol/resource.proto
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 )
 target_proto_addincls(client-yc_private-servicecontrol
   ./

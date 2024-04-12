@@ -1,8 +1,14 @@
 #include "uri.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/string/util.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/string/cast.h>
+#include <src/util/string/util.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NUri {
     TState::EParsed TUri::CheckHost(const std::string_view& host) {

@@ -8,9 +8,15 @@
 
 #include <src/library/charset/doccodes.h>
 #include <string_view>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/stream/output.h>
+#include <src/util/string/cast.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NUri {
     class TParser;

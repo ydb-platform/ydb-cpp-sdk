@@ -1,10 +1,18 @@
 #include "lzma.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/mem.h>
 #include <src/util/system/context.h>
 #include <ydb-cpp-sdk/util/generic/cast.h>
 #include <src/util/memory/addstorage.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
+=======
+#include <src/util/stream/mem.h>
+#include <src/util/system/context.h>
+#include <src/util/generic/cast.h>
+#include <src/util/memory/addstorage.h>
+#include <src/util/generic/ptr.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/generic/intrlist.h>
 #include <src/util/generic/scope.h>
 

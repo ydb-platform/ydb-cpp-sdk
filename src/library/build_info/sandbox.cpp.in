@@ -1,7 +1,12 @@
 #include <src/library/build_info/sandbox.h>
 #include <src/library/string_utils/base64/base64.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/string/subst.h>
+=======
+#include <src/util/generic/singleton.h>
+#include <src/util/string/subst.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <string>
 
 extern "C" const char* GetSandboxTaskId() {

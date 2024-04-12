@@ -3,7 +3,11 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/ysaveload.h>
+=======
+#include <src/util/ysaveload.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 using namespace NYT;
 

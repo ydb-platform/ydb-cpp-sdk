@@ -3,8 +3,13 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/event.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
+=======
+#include <src/util/system/event.h>
+#include <src/util/datetime/base.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 
 Y_UNIT_TEST_SUITE(TElasticQueueTest) {

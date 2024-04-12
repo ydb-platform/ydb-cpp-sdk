@@ -1,7 +1,12 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/logger/backend.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
+=======
+#include "backend.h"
+#include <src/util/generic/ptr.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 
 class TCompositeLogBackend: public TLogBackend {

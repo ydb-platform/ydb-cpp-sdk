@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
+=======
+#include <src/util/system/defaults.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #if defined(_freebsd_) && !defined(__LONG_LONG_SUPPORTED)
     #define __LONG_LONG_SUPPORTED
@@ -10,6 +14,7 @@
 #include <string>
 
 #include <src/util/string/type.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 
@@ -21,6 +26,19 @@
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
+=======
+#include <src/util/string/cast.h>
+#include <src/util/string/escape.h>
+
+#include <double-conversion.h>
+
+#include <src/util/system/yassert.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/generic/typetraits.h>
+#include <src/util/generic/ylimits.h>
+#include <src/util/generic/singleton.h>
+#include <src/util/generic/utility.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 using double_conversion::DoubleToStringConverter;
 using double_conversion::StringBuilder;

@@ -9,11 +9,15 @@ target_link_libraries(client-yc_public-common PUBLIC
   protobuf::libprotobuf
 )
 target_proto_messages(client-yc_public-common PRIVATE
+<<<<<<< HEAD
 <<<<<<< HEAD:src/api/client/yc_public/common/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/common/validation.proto
 =======
   ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_public/common/validation.proto
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/public/api/client/yc_public/common/CMakeLists.txt
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/common/validation.proto
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 )
 target_proto_addincls(client-yc_public-common
   ./

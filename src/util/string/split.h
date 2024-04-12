@@ -3,6 +3,7 @@
 #include "strspn.h"
 #include <ydb-cpp-sdk/util/string/cast.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
@@ -14,6 +15,19 @@
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
+=======
+#include <src/library/string_utils/helpers/helpers.h>
+
+#include <src/util/generic/algorithm.h>
+#include <src/util/generic/fwd.h>
+#include <src/util/generic/iterator.h>
+#include <src/util/generic/iterator_range.h>
+#include <src/util/generic/store_policy.h>
+#include <src/util/generic/typetraits.h>
+#include <src/util/generic/ylimits.h>
+#include <src/util/system/compat.h>
+#include <src/util/system/defaults.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <utility>
 

@@ -1,11 +1,20 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/logger/backend.h>
 #include <src/library/object_factory/object_factory.h>
 #include <ydb-cpp-sdk/library/json/json_value.h>
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include "backend.h"
+#include <src/library/object_factory/object_factory.h>
+#include <src/library/json/json_value.h>
+
+#include <src/util/generic/ptr.h>
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 class ILogBackendCreator {
 public:

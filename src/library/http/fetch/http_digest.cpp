@@ -1,8 +1,13 @@
 #include "http_digest.h"
 
 #include <src/library/digest/md5/md5.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
+=======
+#include <src/util/stream/output.h>
+#include <src/util/stream/str.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 /************************************************************/
 /************************************************************/

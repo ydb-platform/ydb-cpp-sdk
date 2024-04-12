@@ -3,7 +3,11 @@
 #include "codepage.h"
 
 #include <string>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/str_stl.h>
+=======
+#include <src/util/str_stl.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 // Same as std::string but uses CASE INSENSITIVE comparator and hash. Use with care.
 class TCiString: public std::string {

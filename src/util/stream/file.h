@@ -6,7 +6,11 @@
 #include "buffered.h"
 #include <ydb-cpp-sdk/util/stream/mem.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/file.h>
+=======
+#include <src/util/system/file.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <utility>
 

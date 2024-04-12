@@ -3,6 +3,7 @@
 
 #include <src/library/monlib/encode/buffered/buffered_encoder_base.h>
 #include <src/library/monlib/encode/encoder_state.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/metrics/metric.h>
 #include <src/library/monlib/metrics/metric_value.h>
 #include <ydb-cpp-sdk/library/monlib/metrics/labels.h>
@@ -11,6 +12,16 @@
 
 #include <src/util/charset/utf8.h>
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
+=======
+#include <src/library/monlib/metrics/metric.h>
+#include <src/library/monlib/metrics/metric_value.h>
+#include <src/library/monlib/metrics/labels.h>
+
+#include <src/library/json/writer/json.h>
+
+#include <src/util/charset/utf8.h>
+#include <src/util/generic/algorithm.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NMonitoring {
     namespace {

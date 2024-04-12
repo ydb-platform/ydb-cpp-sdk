@@ -4,7 +4,11 @@
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
+<<<<<<< HEAD
 #include <src/client/common_client/impl/client.h>
+=======
+#include <src/client/ydb_common_client/impl/client.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NYdb {
 namespace NLongTx {

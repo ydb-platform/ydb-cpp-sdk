@@ -6,8 +6,13 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
+=======
+#include <src/util/string/cast.h>
+#include <src/util/memory/tempbuf.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/charset/wide.h>
 
 #include <string>

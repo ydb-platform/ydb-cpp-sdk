@@ -1,9 +1,15 @@
 #include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 
 #include <src/library/monlib/service/pages/templates.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <ydb-cpp-sdk/util/generic/cast.h>
+=======
+#include <src/util/string/builder.h>
+
+#include <src/util/generic/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 using namespace NMonitoring;
 

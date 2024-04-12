@@ -5,12 +5,25 @@
 #include <ydb-cpp-sdk/library/monlib/metrics/labels.h>
 #include <src/library/monlib/metrics/metric_value.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include <src/library/monlib/exception/exception.h>
+#include <src/library/monlib/metrics/labels.h>
+#include <src/library/monlib/metrics/metric_value.h>
+
+#include <src/library/json/json_reader.h>
+
+#include <src/util/string/builder.h>
+
+#include <src/util/datetime/base.h>
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <limits>
 

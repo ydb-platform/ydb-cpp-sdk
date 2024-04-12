@@ -1,7 +1,12 @@
 #include "hp_timer.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+=======
+#include <src/util/generic/algorithm.h>
+#include <src/util/generic/singleton.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/util/datetime/cputimer.h>
 
 using namespace NHPTimer;

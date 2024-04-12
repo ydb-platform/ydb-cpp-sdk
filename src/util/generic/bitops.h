@@ -3,8 +3,13 @@
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/typelist.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+=======
+#include <src/util/system/compiler.h>
+#include <src/util/system/yassert.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #ifdef _MSC_VER
     #include <intrin.h>

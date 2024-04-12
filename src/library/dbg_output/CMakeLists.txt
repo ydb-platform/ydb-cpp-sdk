@@ -7,6 +7,7 @@ target_link_libraries(library-cpp-dbg_output PUBLIC
 )
 
 target_sources(library-cpp-dbg_output PRIVATE
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/dbg_output/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/dbg_output/dump.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/dbg_output/dumpers.cpp
@@ -16,4 +17,9 @@ target_sources(library-cpp-dbg_output PRIVATE
   ${YDB_SDK_SOURCE_DIR}/library/cpp/dbg_output/dumpers.cpp
   ${YDB_SDK_SOURCE_DIR}/library/cpp/dbg_output/engine.cpp
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/dbg_output/CMakeLists.txt
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/dbg_output/dump.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/dbg_output/dumpers.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/dbg_output/engine.cpp
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 )

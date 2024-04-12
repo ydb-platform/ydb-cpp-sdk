@@ -11,9 +11,15 @@
 
 #include <src/library/yt/small_containers/compact_vector.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/yt/misc/enum.h>
 
 #include <ydb-cpp-sdk/util/system/platform.h>
+=======
+#include <src/library/yt/misc/enum.h>
+
+#include <src/util/system/platform.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <cctype>
 #include <optional>

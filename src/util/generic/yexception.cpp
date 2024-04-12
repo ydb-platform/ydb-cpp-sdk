@@ -1,11 +1,19 @@
 #include <ydb-cpp-sdk/util/generic/bt_exception.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/system/backtrace.h>
 #include <ydb-cpp-sdk/util/system/type_name.h>
+=======
+#include <src/library/string_utils/helpers/helpers.h>
+
+#include <src/util/stream/str.h>
+#include <src/util/system/backtrace.h>
+#include <src/util/system/type_name.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #if defined(_linux_) || defined(_android_) || defined(_darwin_)
     #include <cxxabi.h>

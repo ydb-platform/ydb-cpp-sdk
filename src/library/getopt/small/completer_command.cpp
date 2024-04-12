@@ -5,7 +5,11 @@
 #include "wrap.h"
 
 #include <src/library/colorizer/colors.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
+=======
+#include <src/library/string_utils/misc/misc.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 namespace NLastGetopt {
     std::string MakeInfo(std::string_view command, std::string_view flag) {

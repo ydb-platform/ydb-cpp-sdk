@@ -3,7 +3,11 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/generic/variant.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
+=======
+#include <src/util/generic/algorithm.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <tuple>
 

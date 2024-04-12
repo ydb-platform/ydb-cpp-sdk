@@ -2,7 +2,11 @@
 #include <tools/enum_parser/parse_enum/benchmark_build/lib/enum_enormous.h_serialized.h>
 #include <src/library/testing/unittest/registar.h>
 #include <src/util/generic/serialized_enum.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 
 namespace {

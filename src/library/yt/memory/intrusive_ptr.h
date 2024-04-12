@@ -3,7 +3,11 @@
 #include "ref_counted.h"
 
 #include <src/util/generic/hash.h>
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/utility.h>
+=======
+#include <src/util/generic/utility.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 #include <utility>
 #include <type_traits>

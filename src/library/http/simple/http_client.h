@@ -2,6 +2,7 @@
 
 #include "http_client_options.h"
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
@@ -9,6 +10,15 @@
 
 #include <ydb-cpp-sdk/library/http/io/stream.h>
 #include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
+=======
+#include <src/util/datetime/base.h>
+#include <src/util/generic/hash.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/network/socket.h>
+
+#include <src/library/http/io/stream.h>
+#include <src/library/http/misc/httpcodes.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 #include <src/library/openssl/io/stream.h>
 
 class TNetworkAddress;

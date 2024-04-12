@@ -2,7 +2,11 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
+=======
+#include <src/util/string/cast.h>
+>>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 
 Y_UNIT_TEST_SUITE(TestHttpResponse) {
     Y_UNIT_TEST(TestCodeOnly) {
