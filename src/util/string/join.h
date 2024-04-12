@@ -7,7 +7,11 @@
 #include <src/util/generic/typetraits.h>
 #include <src/util/string/cast.h>
 #include "cast.h"
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 /*
  * Default implementation of AppendToString uses a temporary std::string object which is inefficient. You can overload it

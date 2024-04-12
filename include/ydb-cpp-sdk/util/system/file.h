@@ -13,7 +13,11 @@
 #include <src/util/generic/fwd.h>
 #include <src/util/generic/ptr.h>
 #include <src/util/generic/noncopyable.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/system/file.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/system/file.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <cstdio>
 #include <filesystem>

@@ -11,7 +11,11 @@
 
 #include <src/util/thread/factory.h>
 #include <src/util/string/builder.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/grpc/client/grpc_client_low.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/grpc/client/grpc_client_low.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <grpc++/grpc++.h>
 #include <grpc++/support/async_stream.h>
 #include <grpc++/support/async_unary_call.h>

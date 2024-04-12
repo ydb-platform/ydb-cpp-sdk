@@ -10,7 +10,11 @@
 
 #include <src/util/generic/yexception.h>
 #include <src/util/generic/ylimits.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/monlib/metrics/histogram_snapshot.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/monlib/metrics/histogram_snapshot.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <span>
 #include <cmath>

@@ -16,7 +16,11 @@
 
 #include <src/util/generic/set.h>
 #include <src/util/system/types.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/draft/ydb_dynamic_config.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/draft/ydb_dynamic_config.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <memory>
 

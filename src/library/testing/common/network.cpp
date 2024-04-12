@@ -26,7 +26,11 @@
 #include <src/util/stream/file.h>
 #include <src/util/string/split.h>
 #include <src/util/system/error.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/system/file_lock.h>
 #include <src/util/system/fs.h>
 

@@ -13,7 +13,11 @@
 #include <src/util/stream/str.h>
 #include <src/util/system/backtrace.h>
 #include <src/util/system/type_name.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #if defined(_linux_) || defined(_android_) || defined(_darwin_)
     #include <cxxabi.h>

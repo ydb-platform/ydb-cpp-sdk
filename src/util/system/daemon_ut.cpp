@@ -7,7 +7,11 @@
 #include <ydb-cpp-sdk/util/network/socket.h>
 =======
 #include <src/util/network/socket.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/system/pipe.h>
 
 Y_UNIT_TEST_SUITE(TDaemonTest) {

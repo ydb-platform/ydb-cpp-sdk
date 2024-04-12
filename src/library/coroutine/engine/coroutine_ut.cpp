@@ -12,7 +12,11 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/string/cast.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/system/pipe.h>
 #include <src/util/system/env.h>
 #include <src/util/system/info.h>
@@ -21,7 +25,11 @@
 #include <ydb-cpp-sdk/util/generic/xrange.h>
 =======
 #include <src/util/generic/xrange.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/generic/serialized_enum.h>
 
 #include <iostream>

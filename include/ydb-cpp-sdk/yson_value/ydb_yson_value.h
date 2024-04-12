@@ -16,7 +16,11 @@
 #include <src/library/yson/node/node_io.h>
 
 #include <src/library/yson/writer.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/yson_value/ydb_yson_value.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/yson_value/ydb_yson_value.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

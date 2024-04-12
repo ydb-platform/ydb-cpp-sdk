@@ -12,9 +12,13 @@ target_link_libraries(cpp-client-ydb_datastreams PUBLIC
 
 target_sources(cpp-client-ydb_datastreams PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/datastreams/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+<<<<<<<< HEAD:src/client/datastreams/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/client/datastreams/CMakeLists.txt
   datastreams.cpp
 =======
@@ -26,7 +30,13 @@ target_sources(cpp-client-ydb_datastreams PRIVATE
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_datastreams/CMakeLists.txt
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_datastreams/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+========
+  datastreams.cpp
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_datastreams/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 add_library(YDB-CPP-SDK::Datastreams ALIAS cpp-client-ydb_datastreams)

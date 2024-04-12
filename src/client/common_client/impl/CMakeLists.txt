@@ -7,9 +7,13 @@ target_link_libraries(client-ydb_common_client-impl PUBLIC
 
 target_sources(client-ydb_common_client-impl PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/common_client/impl/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+<<<<<<<< HEAD:src/client/common_client/impl/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/client/common_client/impl/CMakeLists.txt
   client.cpp
 =======
@@ -21,7 +25,13 @@ target_sources(client-ydb_common_client-impl PRIVATE
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_common_client/impl/CMakeLists.txt
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_common_client/impl/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+========
+  client.cpp
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_common_client/impl/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 

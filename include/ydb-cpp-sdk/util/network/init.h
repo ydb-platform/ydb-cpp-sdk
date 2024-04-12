@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/util/system/error.h>
 ========
 #include <src/util/system/error.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/network/init.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/network/init.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #if defined(_unix_)
     #include <fcntl.h>
@@ -33,7 +37,11 @@ using SOCKET = int;
     #include <ydb-cpp-sdk/util/system/winint.h>
 ========
     #include <src/util/system/winint.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/network/init.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/network/init.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
     #include <io.h>
     #include <winsock2.h>
     #include <ws2tcpip.h>

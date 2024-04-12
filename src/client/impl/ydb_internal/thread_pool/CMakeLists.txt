@@ -7,8 +7,11 @@ target_link_libraries(impl-ydb_internal-thread_pool PUBLIC
 target_sources(impl-ydb_internal-thread_pool PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/client/impl/ydb_internal/thread_pool/CMakeLists.txt
   pool.cpp
 =======
@@ -20,5 +23,11 @@ target_sources(impl-ydb_internal-thread_pool PRIVATE
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/impl/ydb_internal/thread_pool/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+  pool.cpp
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )

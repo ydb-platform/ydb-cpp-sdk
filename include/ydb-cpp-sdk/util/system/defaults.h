@@ -125,7 +125,11 @@ constexpr bool Y_IS_DEBUG_BUILD = true;
     #include <ydb-cpp-sdk/util/generic/array_size.h>
 ========
     #include <src/util/generic/array_size.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/system/defaults.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/system/defaults.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #else
     #undef Y_ARRAY_SIZE
     #define Y_ARRAY_SIZE(arr) \

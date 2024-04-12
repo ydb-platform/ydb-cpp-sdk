@@ -2,7 +2,11 @@ add_library(cpp-testing-unittest)
 <<<<<<< HEAD
 
 =======
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 target_link_libraries(cpp-testing-unittest PUBLIC
   yutil
   library-cpp-colorizer
@@ -38,4 +42,8 @@ target_sources(cpp-testing-unittest PRIVATE
 # Unit tests
 add_subdirectory(fat)
 add_subdirectory(ut)
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))

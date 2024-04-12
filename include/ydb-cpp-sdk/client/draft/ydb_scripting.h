@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/client/table/table.h>
 ========
 #include <src/client/ydb_table/table.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/draft/ydb_scripting.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/draft/ydb_scripting.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/api/protos/ydb_value.pb.h>
 #include <src/api/protos/ydb_query.pb.h>
 

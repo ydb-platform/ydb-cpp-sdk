@@ -11,7 +11,11 @@
 =======
 #include <src/util/stream/output.h>
 #include <src/util/stream/mem.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/stream/zlib.h>
 #include <src/util/stream/buffer.h>
 
@@ -21,7 +25,11 @@
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 =======
 #include <src/util/system/spinlock.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/system/thread.h>
 #include <src/util/system/execpath.h>
 #include <src/util/system/datetime.h>
@@ -40,7 +48,11 @@
 
 #include <src/util/generic/buffer.h>
 #include <src/util/generic/singleton.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <src/util/digest/murmur.h>
 #include <src/util/digest/city.h>
@@ -49,7 +61,11 @@
 #include <ydb-cpp-sdk/util/ysaveload.h>
 =======
 #include <src/util/ysaveload.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace {
     inline void Permute(char* buf, size_t len, ui32 seed) noexcept {

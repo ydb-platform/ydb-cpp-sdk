@@ -14,7 +14,11 @@
 #include <src/client/ydb_proto/accessor.h>
 
 #include <src/util/random/random.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_table/impl/readers.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/impl/readers.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include "client_session.h"
 #include "data_query.h"

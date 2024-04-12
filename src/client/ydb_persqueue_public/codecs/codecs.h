@@ -9,7 +9,11 @@
 #include <src/api/protos/ydb_persqueue_v1.pb.h>
 #include <src/client/ydb_persqueue_core/persqueue.h>
 #include <src/client/ydb_topic/topic.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_persqueue_public/codecs/codecs.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_public/codecs/codecs.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 
 namespace NYdb::NPersQueue {

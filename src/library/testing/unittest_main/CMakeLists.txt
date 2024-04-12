@@ -30,4 +30,8 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_SYSTEM_PROCESSOR STREQUAL 
 elseif (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   include(CMakeLists.windows-x86_64.txt)
 endif()
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))

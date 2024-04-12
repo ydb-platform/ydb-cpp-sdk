@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/util/system/defaults.h>
 =======
 #include <src/util/system/defaults.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #if defined(_unix_)
     #include <pthread.h>
@@ -37,7 +41,11 @@
 #include <src/util/system/thread.h>
 
 #include <src/util/datetime/base.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <ydb-cpp-sdk/util/thread/factory.h>
 #include <ydb-cpp-sdk/util/thread/pool.h>

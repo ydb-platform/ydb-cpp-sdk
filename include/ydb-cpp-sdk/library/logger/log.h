@@ -11,7 +11,11 @@
 ========
 #include <src/util/generic/fwd.h>
 #include <src/util/generic/ptr.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/logger/log.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/logger/log.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <functional>
 #include <cstdarg>

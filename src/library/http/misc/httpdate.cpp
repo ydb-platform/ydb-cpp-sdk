@@ -30,7 +30,11 @@
 #include <ydb-cpp-sdk/util/system/defaults.h>
 =======
 #include <src/util/system/defaults.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <sys/types.h>
 #include <cctype>
@@ -49,7 +53,11 @@
 #include <src/util/system/yassert.h>
 #include "httpdate.h"
 #include <src/util/datetime/base.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 static const char *wkdays[] = {
     "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"

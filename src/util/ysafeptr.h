@@ -9,7 +9,11 @@
 #include <src/util/system/compiler.h>
 #include <src/util/system/yassert.h>
 #include <src/util/system/defaults.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/system/tls.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +36,11 @@
     #include <ydb-cpp-sdk/util/system/winint.h>
 =======
     #include <src/util/system/winint.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
     #define CHECK_YPTR2
 #endif
 

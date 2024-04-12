@@ -36,7 +36,11 @@ target_sources(cpp-monlib-metrics PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/metric_value.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/summary_collector.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/summary_snapshot.cpp
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 generate_enum_serilization(cpp-monlib-metrics

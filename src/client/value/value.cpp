@@ -20,7 +20,11 @@
 
 #include <src/library/containers/stack_vector/stack_vec.h>
 #include <src/util/string/builder.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_value/value.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_value/value.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <src/library/yql/public/decimal/yql_decimal.h>
 #include <src/library/uuid/uuid.h>
@@ -31,7 +35,11 @@
 #include <ydb-cpp-sdk/util/string/builder.h>
 ========
 #include <src/util/string/builder.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_value/value.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_value/value.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

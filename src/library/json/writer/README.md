@@ -7,7 +7,11 @@ Use it like this:
     #include <ydb-cpp-sdk/library/json/writer/json.h>
 =======
     #include <src/library/json/writer/json.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
     ...
 
     NJsonWriter::TBuf json;

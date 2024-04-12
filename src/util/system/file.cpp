@@ -18,7 +18,11 @@
 #include <src/util/string/util.h>
 #include <src/util/string/cast.h>
 #include <src/util/string/builder.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <src/util/stream/hex.h>
 #include <src/util/stream/format.h>
@@ -39,7 +43,11 @@
 #include <src/util/generic/yexception.h>
 
 #include <src/util/datetime/base.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <errno.h>
 

@@ -8,7 +8,11 @@
     #include <ydb-cpp-sdk/util/generic/function.h>
 =======
     #include <src/util/generic/function.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #elif defined(_win_)
     #include "winint.h"
     #include <io.h>
@@ -24,7 +28,11 @@
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 =======
 #include <src/util/generic/singleton.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include "execpath.h"
 #include "fs.h"

@@ -6,7 +6,11 @@
 ========
 #include <src/util/stream/output.h>
 #include <src/util/stream/str.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/testing/gtest_extensions/ut/gtest_extensions_ut.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/testing/gtest_extensions/ut/gtest_extensions_ut.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <string>
 

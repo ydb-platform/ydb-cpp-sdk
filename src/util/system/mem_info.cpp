@@ -12,7 +12,11 @@
 #include <src/util/stream/file.h>
 #include <src/util/string/cast.h>
 #include <src/util/string/builder.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include "error.h"
 #include "info.h"
 
@@ -32,7 +36,11 @@
     #include <ydb-cpp-sdk/util/generic/ptr.h>
 =======
     #include <src/util/generic/ptr.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 using NTSTATUS = LONG;
     #define STATUS_INFO_LENGTH_MISMATCH 0xC0000004

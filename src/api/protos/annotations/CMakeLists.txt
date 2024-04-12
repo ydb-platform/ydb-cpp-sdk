@@ -6,8 +6,11 @@ target_link_libraries(api-protos-annotations PUBLIC
 target_proto_messages(api-protos-annotations PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/api/protos/annotations/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/annotations/sensitive.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/annotations/validation.proto
@@ -33,7 +36,17 @@ target_proto_addincls(api-protos-annotations
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/public/api/protos/annotations/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/api/protos/annotations/sensitive.proto
+  ${YDB_SDK_SOURCE_DIR}/src/api/protos/annotations/validation.proto
+)
+target_proto_addincls(api-protos-annotations
+  ./
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   ${YDB_SDK_SOURCE_DIR}
   ${YDB_SDK_BINARY_DIR}
 )

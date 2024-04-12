@@ -15,7 +15,11 @@
 #include <src/util/generic/yexception.h>
 #include <src/util/system/event.h>
 #include <src/util/system/spinlock.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/threading/future/core/future.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/threading/future/core/future.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <string_view>
 #include <optional>

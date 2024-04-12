@@ -6,7 +6,11 @@
 =======
 #include <src/util/stream/output.h>
 #include <src/util/system/defaults.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #define WITH_SCOPED(var, value) WITH_SCOPED_I(var, value, Y_GENERATE_UNIQUE_ID(WITH_SCOPED_LABEL_))
 

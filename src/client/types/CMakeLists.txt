@@ -16,9 +16,13 @@ target_link_libraries(cpp-client-ydb_types PUBLIC
 
 generate_enum_serilization(cpp-client-ydb_types
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/types/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+<<<<<<<< HEAD:src/client/types/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/client/types/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/types/s3_settings.h
 =======
@@ -54,7 +58,11 @@ generate_enum_serilization(cpp-client-ydb_types
   ${YDB_SDK_SOURCE_DIR}/src/client/ydb_types/status_codes.h
   INCLUDE_HEADERS
   src/client/ydb_types/status_codes.h
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_types/CMakeLists.txt
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 add_library(YDB-CPP-SDK::Types ALIAS cpp-client-ydb_types)

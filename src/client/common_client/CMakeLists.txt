@@ -10,9 +10,13 @@ target_link_libraries(cpp-client-ydb_common_client PUBLIC
 
 target_sources(cpp-client-ydb_common_client PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/common_client/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+<<<<<<<< HEAD:src/client/common_client/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/client/common_client/CMakeLists.txt
   settings.cpp
 =======
@@ -24,7 +28,13 @@ target_sources(cpp-client-ydb_common_client PRIVATE
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_common_client/CMakeLists.txt
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_common_client/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+========
+  settings.cpp
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_common_client/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 add_library(YDB-CPP-SDK::CommonClient ALIAS cpp-client-ydb_common_client)

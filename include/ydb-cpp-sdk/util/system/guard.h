@@ -6,7 +6,11 @@
 ========
 #include <src/util/generic/noncopyable.h>
 #include <src/util/system/defaults.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/system/guard.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/system/guard.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 template <class T>
 struct TCommonLockOps {

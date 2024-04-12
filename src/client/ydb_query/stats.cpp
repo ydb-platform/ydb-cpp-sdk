@@ -6,7 +6,11 @@
 #include <ydb-cpp-sdk/util/datetime/base.h>
 ========
 #include <src/util/datetime/base.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_query/stats.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/stats.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <google/protobuf/text_format.h>
 

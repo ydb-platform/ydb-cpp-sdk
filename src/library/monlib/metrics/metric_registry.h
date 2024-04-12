@@ -10,7 +10,11 @@
 
 #include <src/library/threading/light_rw_lock/lightrwlock.h>
 
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/monlib/metrics/metric_registry.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/monlib/metrics/metric_registry.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NMonitoring {
     class IMetricFactory {

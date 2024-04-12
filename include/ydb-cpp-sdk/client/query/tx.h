@@ -10,7 +10,11 @@
 #include <src/client/ydb_types/fluent_settings_helpers.h>
 
 #include <src/util/stream/output.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_query/tx.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/tx.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <optional>
 

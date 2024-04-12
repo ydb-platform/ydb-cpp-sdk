@@ -6,7 +6,11 @@
 #include <ydb-cpp-sdk/util/system/compiler.h>
 ========
 #include <src/util/system/compiler.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/generic/utility.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/utility.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <cstring>
 

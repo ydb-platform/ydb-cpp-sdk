@@ -13,7 +13,11 @@
 #include <src/util/string/builder.h>
 #include <src/util/stream/format.h>
 #include <src/util/system/unaligned_mem.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/random/easy.h>
 
 namespace {

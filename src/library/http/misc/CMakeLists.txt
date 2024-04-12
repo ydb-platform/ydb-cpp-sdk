@@ -25,7 +25,11 @@ generate_enum_serilization(cpp-http-misc
   ${YDB_SDK_SOURCE_DIR}/src/library/http/misc/httpcodes.h
   INCLUDE_HEADERS
   src/library/http/misc/httpcodes.h
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 

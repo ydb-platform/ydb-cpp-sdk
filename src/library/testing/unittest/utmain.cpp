@@ -11,7 +11,11 @@
 =======
 #include <src/library/json/writer/json.h>
 #include <src/library/json/writer/json_value.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <src/library/testing/common/env.h>
 #include <src/library/testing/common/env_var.h>
@@ -39,7 +43,11 @@
 
 #include <src/util/stream/file.h>
 #include <src/util/stream/output.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <src/util/string/join.h>
 #include <src/util/string/util.h>
@@ -48,7 +56,11 @@
 #include <ydb-cpp-sdk/util/system/defaults.h>
 =======
 #include <src/util/system/defaults.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/system/execpath.h>
 #include <src/util/system/valgrind.h>
 #include <src/util/system/shellcommand.h>

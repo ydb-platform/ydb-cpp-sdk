@@ -12,7 +12,11 @@
 #include <src/library/json/fast_sax/parser.h>
 
 #include <src/util/stream/mem.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/json/json_reader.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/json/json_reader.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NJson {
     struct TJsonReaderConfig {

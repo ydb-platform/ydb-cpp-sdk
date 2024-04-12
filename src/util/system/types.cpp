@@ -6,7 +6,11 @@
 =======
 #include <src/util/generic/typetraits.h>
 #include <src/util/generic/typelist.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 static_assert(sizeof(ui8) == 1, "incorrect ui8 type");
 static_assert(sizeof(ui16) == 2, "incorrect ui16 type");

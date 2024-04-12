@@ -12,7 +12,11 @@
 #include <ydb-cpp-sdk/util/system/defaults.h>
 ========
 #include <src/util/system/defaults.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/generic/va_args.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/va_args.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 /**
  * Triggers another level of macro expansion, use whenever passing __VA_ARGS__ to another macro.

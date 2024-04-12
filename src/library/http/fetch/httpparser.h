@@ -11,7 +11,11 @@
 #include <src/library/mime/types/mime.h>
 #include <src/util/system/yassert.h>
 #include <src/library/http/misc/httpcodes.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 template <size_t headermax = 100 << 10, size_t bodymax = 1 << 20>
 struct TFakeCheck {

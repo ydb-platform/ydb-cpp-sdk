@@ -10,7 +10,11 @@
 #include <src/util/system/types.h>
 #include <src/util/generic/typetraits.h>
 #include <src/util/generic/fwd.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/generic/flags.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/flags.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 class IOutputStream;
 namespace NPrivate {

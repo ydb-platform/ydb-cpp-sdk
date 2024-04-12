@@ -8,7 +8,11 @@
 #include <utility>
 ========
 #include <src/util/system/backtrace.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/generic/bt_exception.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/bt_exception.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 template <class T>
 class TWithBackTrace: public T {

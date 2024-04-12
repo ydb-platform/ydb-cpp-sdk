@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/client/topic/topic.h>
 ========
 #include <src/client/ydb_topic/topic.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/federated_topic.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/federated_topic.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <src/api/protos/ydb_federation_discovery.pb.h>
 

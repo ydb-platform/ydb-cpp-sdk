@@ -10,9 +10,13 @@ target_link_libraries(cpp-client-ydb_result PUBLIC
 
 target_sources(cpp-client-ydb_result PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/result/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+<<<<<<<< HEAD:src/client/result/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/client/result/CMakeLists.txt
   proto_accessor.cpp
   result.cpp
@@ -27,7 +31,14 @@ target_sources(cpp-client-ydb_result PRIVATE
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_result/CMakeLists.txt
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_result/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+========
+  proto_accessor.cpp
+  result.cpp
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_result/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 add_library(YDB-CPP-SDK::Result ALIAS cpp-client-ydb_result)

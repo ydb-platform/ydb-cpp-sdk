@@ -6,7 +6,11 @@
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 ========
 #include <src/util/generic/ptr.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/logger/thread.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/logger/thread.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <functional>
 

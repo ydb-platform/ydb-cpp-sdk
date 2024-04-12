@@ -15,7 +15,11 @@
 #include <src/client/ydb_types/request_settings.h>
 
 #include <src/util/generic/ptr.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_query/client.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/client.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb {
     class TProtoAccessor;

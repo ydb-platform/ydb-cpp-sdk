@@ -45,7 +45,11 @@ TEST(Runtime, BinaryPath) {
     EXPECT_TRUE(TFsPath(BinaryPath("tests/library/testing/common")).Exists());
 ========
     EXPECT_TRUE(TFsPath(BinaryPath("src/library/testing/common/ut")).Exists());
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/testing/common/ut/env_ut.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/testing/common/ut/env_ut.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 }
 
 TEST(Runtime, GetArcadiaTestsData) {

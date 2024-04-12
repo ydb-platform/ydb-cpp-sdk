@@ -19,7 +19,11 @@
 
 #if defined(_win_) || defined(_cygwin_)
     #include <src/util/system/file.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/network/sock.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/network/sock.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #else
     #include <sys/un.h>
     #include <sys/stat.h>

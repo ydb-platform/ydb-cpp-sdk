@@ -6,7 +6,11 @@
 ========
 #include <src/client/ydb_types/fluent_settings_helpers.h>
 #include <src/util/datetime/base.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_retry/retry.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_retry/retry.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb::NRetry {
 

@@ -29,7 +29,11 @@ generate_enum_serilization(cpp-http-fetch
   ${YDB_SDK_SOURCE_DIR}/src/library/http/fetch/httpheader.h
   INCLUDE_HEADERS
   src/library/http/fetch/httpheader.h
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 target_ragel_lexers(cpp-http-fetch

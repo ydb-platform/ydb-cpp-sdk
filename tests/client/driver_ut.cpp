@@ -4,7 +4,11 @@
 =======
 #include <src/client/ydb_table/table.h>
 #include <src/client/ydb_types/exceptions/exceptions.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>

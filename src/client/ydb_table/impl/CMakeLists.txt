@@ -15,7 +15,11 @@ target_sources(client-ydb_table-impl PRIVATE
 <<<<<<<< HEAD:src/client/table/impl/CMakeLists.txt
 <<<<<<< HEAD:src/client/table/impl/CMakeLists.txt
 ========
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_table/impl/CMakeLists.txt
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/impl/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   client_session.cpp
   data_query.cpp
   readers.cpp
@@ -28,9 +32,15 @@ target_sources(client-ydb_table-impl PRIVATE
   ${YDB_SDK_SOURCE_DIR}/client/ydb_table/impl/readers.cpp
   ${YDB_SDK_SOURCE_DIR}/client/ydb_table/impl/request_migrator.cpp
   ${YDB_SDK_SOURCE_DIR}/client/ydb_table/impl/table_client.cpp
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_table/impl/CMakeLists.txt
 ========
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_table/impl/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_table/impl/CMakeLists.txt
+========
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/impl/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 

@@ -8,7 +8,11 @@
 #include <src/util/system/compiler.h>
 #include <src/util/system/cpu_id.h>
 #include <src/util/system/platform.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #define Y_CPU_ID_ENUMERATE_STARTUP_CHECKS(F) \
     F(SSE42)                                 \

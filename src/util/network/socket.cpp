@@ -10,7 +10,11 @@
 =======
 #include <src/util/system/defaults.h>
 #include <src/util/system/byteorder.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <unordered_set>
 
 #if defined(_unix_)
@@ -60,7 +64,11 @@
 #include <src/util/system/error.h>
 #include <src/util/memory/tempbuf.h>
 #include <src/util/generic/singleton.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <stddef.h>
 #include <sys/uio.h>

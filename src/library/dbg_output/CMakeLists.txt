@@ -9,8 +9,11 @@ target_link_libraries(library-cpp-dbg_output PUBLIC
 target_sources(library-cpp-dbg_output PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/library/dbg_output/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/dbg_output/dump.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/dbg_output/dumpers.cpp
@@ -28,5 +31,13 @@ target_sources(library-cpp-dbg_output PRIVATE
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/dbg_output/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/dbg_output/dump.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/dbg_output/dumpers.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/dbg_output/engine.cpp
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )

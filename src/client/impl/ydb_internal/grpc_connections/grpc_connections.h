@@ -5,7 +5,11 @@
 #include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
 =======
 #include <src/client/impl/ydb_internal/common/ssl_credentials.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include "actions.h"
 #include "params.h"
@@ -20,7 +24,11 @@
 =======
 #include <src/client/resources/ydb_resources.h>
 #include <src/client/ydb_extension/extension.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <src/library/yql/public/issue/yql_issue_message.h>
 

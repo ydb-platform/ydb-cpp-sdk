@@ -9,8 +9,11 @@ target_link_libraries(library-grpc-client PUBLIC
 target_sources(library-grpc-client PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/library/grpc/client/CMakeLists.txt
   grpc_client_low.cpp
 =======
@@ -22,5 +25,11 @@ target_sources(library-grpc-client PRIVATE
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/library/grpc/client/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+  grpc_client_low.cpp
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )

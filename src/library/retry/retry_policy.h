@@ -8,7 +8,11 @@
 #include <src/util/datetime/base.h>
 #include <src/util/generic/typetraits.h>
 #include <src/util/random/random.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/retry/retry_policy.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/retry/retry_policy.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <functional>
 #include <limits>

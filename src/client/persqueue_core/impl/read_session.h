@@ -26,7 +26,11 @@
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 
 #include <src/util/digest/numeric.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/read_session.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/read_session.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/generic/hash.h>
 #include <src/util/generic/hash_multi_map.h>
 

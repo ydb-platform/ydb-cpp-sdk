@@ -7,7 +7,11 @@
 #include <ydb-cpp-sdk/util/system/platform.h>
 ========
 #include <src/util/system/platform.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/system/win_undef.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/system/win_undef.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #if defined(_win_)
     #undef GetFreeSpace

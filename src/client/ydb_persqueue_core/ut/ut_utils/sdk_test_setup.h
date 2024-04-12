@@ -5,7 +5,11 @@
 #include <ydb-cpp-sdk/library/logger/log.h>
 ========
 #include <src/library/logger/log.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/ut/ut_utils/sdk_test_setup.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/ut/ut_utils/sdk_test_setup.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/system/tempfile.h>
 
 #define TEST_CASE_NAME (this->Name_)

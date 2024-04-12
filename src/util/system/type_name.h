@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/util/string/subst.h>
 ========
 #include <src/util/string/subst.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/system/type_name.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/system/type_name.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <typeindex>
 #include <typeinfo>

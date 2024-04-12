@@ -3,7 +3,11 @@
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/proto/accessor.h
 ========
 #include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_proto/accessor.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_proto/accessor.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/api/protos/ydb_coordination.pb.h>
 #include <src/api/protos/ydb_export.pb.h>
 #include <src/api/protos/ydb_import.pb.h>
@@ -27,7 +31,11 @@
 #include <src/client/ydb_persqueue_public/persqueue.h>
 #include <src/client/ydb_table/table.h>
 #include <src/client/ydb_topic/topic.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_proto/accessor.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_proto/accessor.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

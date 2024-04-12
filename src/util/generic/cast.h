@@ -13,7 +13,11 @@
 #include <src/util/system/type_name.h>
 #include <src/util/system/unaligned_mem.h>
 #include <src/util/system/yassert.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/generic/cast.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/cast.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <cstdlib>
 

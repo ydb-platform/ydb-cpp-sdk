@@ -8,7 +8,11 @@
 #include "typetraits.h"
 #include "utility.h"
 #include <src/util/system/yassert.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/generic/xrange.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/xrange.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <iterator>
 
 /** @file

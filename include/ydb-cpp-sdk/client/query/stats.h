@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/util/datetime/base.h>
 ========
 #include <src/util/datetime/base.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_query/stats.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/stats.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <memory>
 #include <optional>

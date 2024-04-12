@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/client/driver/driver.h>
 ========
 #include <src/client/ydb_driver/driver.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_rate_limiter/rate_limiter.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_rate_limiter/rate_limiter.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace Ydb::RateLimiter {
 class DescribeResourceResult;

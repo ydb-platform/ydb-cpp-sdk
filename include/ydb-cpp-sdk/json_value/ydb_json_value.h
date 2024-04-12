@@ -12,7 +12,11 @@
 #include <src/client/ydb_types/fatal_error_handlers/handlers.h>
 
 #include <src/library/json/writer/json.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/json_value/ydb_json_value.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/json_value/ydb_json_value.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

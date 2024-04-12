@@ -10,7 +10,11 @@
 #include <src/util/system/sysstat.h>
 #include <src/util/system/fs.h>
 #include <src/util/generic/yexception.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <sys/types.h>
 
@@ -22,7 +26,11 @@
     #include <ydb-cpp-sdk/util/system/winint.h>
 =======
     #include <src/util/system/winint.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
     #include <direct.h>
     #include <malloc.h>
     #include <time.h>

@@ -12,7 +12,11 @@
 #include <src/client/ydb_persqueue_core/impl/write_session.h>
 
 #include <src/client/ydb_topic/impl/write_session.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/impl/federated_write_session.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/impl/federated_write_session.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <deque>
 

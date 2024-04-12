@@ -11,8 +11,11 @@ target_link_libraries(cpp-client-iam PUBLIC
 target_sources(cpp-client-iam PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/client/iam/CMakeLists.txt
   iam.cpp
 =======
@@ -24,7 +27,13 @@ target_sources(cpp-client-iam PRIVATE
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/iam/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+  iam.cpp
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 add_library(YDB-CPP-SDK::Iam ALIAS cpp-client-iam)

@@ -16,20 +16,29 @@ target_link_libraries(cpp-monlib-dynamic_counters PUBLIC
 target_sources(cpp-monlib-dynamic_counters PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/monlib/dynamic_counters/CMakeLists.txt
 =======
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 <<<<<<< HEAD:src/library/monlib/dynamic_counters/CMakeLists.txt
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+<<<<<<< HEAD:src/library/monlib/dynamic_counters/CMakeLists.txt
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/dynamic_counters/counters.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/dynamic_counters/encode.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/dynamic_counters/golovan_page.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/dynamic_counters/page.cpp
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 =======
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/dynamic_counters/counters.cpp
   ${YDB_SDK_SOURCE_DIR}/library/cpp/monlib/dynamic_counters/encode.cpp
@@ -41,7 +50,12 @@ target_sources(cpp-monlib-dynamic_counters PRIVATE
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/monlib/dynamic_counters/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 

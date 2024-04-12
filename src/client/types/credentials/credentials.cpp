@@ -4,7 +4,11 @@
 ========
 #include "credentials.h"
 #include <src/util/string/cast.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_types/credentials/credentials.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/credentials/credentials.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

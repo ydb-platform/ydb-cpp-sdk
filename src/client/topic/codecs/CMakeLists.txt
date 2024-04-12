@@ -11,9 +11,13 @@ target_link_libraries(client-ydb_topic-codecs PUBLIC
 
 target_sources(client-ydb_topic-codecs PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/topic/codecs/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+<<<<<<<< HEAD:src/client/topic/codecs/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/client/topic/codecs/CMakeLists.txt
   codecs.cpp
 =======
@@ -25,7 +29,13 @@ target_sources(client-ydb_topic-codecs PRIVATE
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_topic/codecs/CMakeLists.txt
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_topic/codecs/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+========
+  codecs.cpp
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/codecs/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 

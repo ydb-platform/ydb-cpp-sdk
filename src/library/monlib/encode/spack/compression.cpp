@@ -15,7 +15,11 @@
 #include <src/util/generic/size_literals.h>
 #include <src/util/stream/format.h>
 #include <src/util/stream/output.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/stream/walk.h>
 
 #include <lz4.h>

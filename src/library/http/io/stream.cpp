@@ -7,7 +7,11 @@
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 =======
 #include <src/library/string_utils/misc/misc.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/library/string_utils/stream/stream.h>
 
 #include <src/util/stream/buffered.h>
@@ -28,7 +32,11 @@
 #include <src/util/network/socket.h>
 
 #include <src/util/string/strip.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <unordered_set>
 

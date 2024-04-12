@@ -4,7 +4,11 @@
 =======
 #include <src/library/json/writer/json_value.h>
 #include <src/library/json/writer/json.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/library/getopt/small/last_getopt.h>
 
 #include <tools/enum_parser/parse_enum/parse_enum.h>
@@ -42,7 +46,11 @@
 
 #include <src/util/generic/ptr.h>
 #include <src/util/generic/yexception.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/system/fs.h>
 #include <src/util/folder/path.h>
 
@@ -59,7 +67,11 @@ void WriteHeader(const std::string& headerName, std::ostream& out, std::ostream*
 =======
     out << "#include <src/util/generic/typetraits.h>\n";
     out << "#include <src/util/generic/singleton.h>\n";
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
     out << "#include <string>\n";
     out << "#include <vector>\n";
     out << "#include <map>\n";
@@ -70,7 +82,11 @@ void WriteHeader(const std::string& headerName, std::ostream& out, std::ostream*
 =======
     out << "#include <src/util/string/cast.h>\n";
     out << "#include <src/util/stream/output.h>\n\n";
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
     if (headerOutPtr) {
         auto& outHeader = *headerOutPtr;

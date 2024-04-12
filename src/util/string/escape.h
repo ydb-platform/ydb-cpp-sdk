@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 ========
 #include <src/library/string_utils/helpers/helpers.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/string/escape.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/string/escape.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 template <class TChar>
 std::basic_string<TChar>& EscapeCImpl(const TChar* str, size_t len, std::basic_string<TChar>&);

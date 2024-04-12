@@ -6,7 +6,11 @@
 #include <ydb-cpp-sdk/util/generic/flags.h>
 =======
 #include <src/util/generic/flags.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 //on some systems (not win, freebd, linux, but darwin (Mac OS X)
 //multiple mlock calls on the same address range

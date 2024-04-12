@@ -11,8 +11,11 @@ target_link_libraries(library-cpp-charset PUBLIC
 target_sources(library-cpp-charset PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/library/charset/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/charset/decodeunknownplane.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/charset/wide.cpp
@@ -30,5 +33,13 @@ target_sources(library-cpp-charset PRIVATE
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/charset/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/charset/decodeunknownplane.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/charset/wide.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/library/charset/iconv.cpp
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )

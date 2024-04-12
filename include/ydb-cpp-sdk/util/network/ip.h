@@ -11,7 +11,11 @@
 #include <src/util/system/error.h>
 #include <src/util/system/byteorder.h>
 #include <src/util/generic/yexception.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/network/ip.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/network/ip.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <string>
 

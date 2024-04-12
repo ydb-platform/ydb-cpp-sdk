@@ -12,7 +12,11 @@
 #include <src/client/ydb_query/tx.h>
 #include <src/client/impl/ydb_internal/grpc_connections/grpc_connections.h>
 #include <src/client/ydb_params/params.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_query/impl/exec_query.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/impl/exec_query.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb::NQuery {
 

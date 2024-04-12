@@ -16,7 +16,11 @@
 
 #include <src/util/generic/store_policy.h>
 #include <src/util/generic/utility.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/write_session.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/write_session.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/stream/buffer.h>
 
 

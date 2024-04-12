@@ -10,7 +10,11 @@
 
 #include <src/util/generic/singleton.h>
 #include <src/util/generic/yexception.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/system/info.h>
 #include "align.h"
 
@@ -19,7 +23,11 @@
     #include <ydb-cpp-sdk/util/string/cast.h>
 =======
     #include <src/util/string/cast.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
     #include <linux/version.h>
     #include <sys/utsname.h>
 #endif

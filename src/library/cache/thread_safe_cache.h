@@ -10,7 +10,11 @@
 #include <src/util/generic/singleton.h>
 #include <src/util/generic/ylimits.h>
 #include <src/util/system/rwlock.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NPrivate {
     // We are interested in getters promotion policy _here_ because of Read-Write-Lock optimizations.

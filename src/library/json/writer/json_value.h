@@ -14,7 +14,11 @@
 
 #include <src/util/generic/utility.h>
 #include <src/util/generic/yexception.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/json/writer/json_value.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/json/writer/json_value.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NJson {
     enum EJsonValueType {

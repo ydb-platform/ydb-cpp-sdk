@@ -9,7 +9,11 @@
 #include <ydb-cpp-sdk/util/network/sock.h>
 ========
 #include <src/util/network/sock.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/testing/common/ut/network_ut.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/testing/common/ut/network_ut.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/system/fs.h>
 
 #include <src/library/testing/gtest/gtest.h>

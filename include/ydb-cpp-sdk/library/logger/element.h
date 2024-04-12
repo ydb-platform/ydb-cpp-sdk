@@ -10,7 +10,11 @@
 ========
 #include <src/util/string/cast.h>
 #include <src/util/stream/tempbuf.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/logger/element.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/logger/element.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 
 class TLog;

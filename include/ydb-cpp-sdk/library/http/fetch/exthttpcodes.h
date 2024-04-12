@@ -6,7 +6,11 @@
 ========
 #include <src/util/system/defaults.h>
 #include <src/library/http/misc/httpcodes.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/http/fetch/exthttpcodes.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/http/fetch/exthttpcodes.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 enum ExtHttpCodes {
     // Custom

@@ -5,7 +5,11 @@
 #include <ydb-cpp-sdk/util/stream/mem.h>
 ========
 #include <src/util/stream/mem.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_topic/codecs/codecs.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/codecs/codecs.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include "codecs.h"
 

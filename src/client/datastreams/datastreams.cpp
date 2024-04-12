@@ -14,7 +14,11 @@
 #include <src/library/yql/public/issue/yql_issue_message.h>
 
 #include <src/client/ydb_common_client/impl/client.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_datastreams/datastreams.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_datastreams/datastreams.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb::NDataStreams::V1 {
 

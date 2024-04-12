@@ -10,7 +10,11 @@
 #include <src/client/impl/ydb_internal/kqp_session_common/kqp_session_common.h>
 #include <src/client/impl/ydb_endpoints/endpoints.h>
 #include <src/library/operation_id/operation_id.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_table/impl/client_session.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/impl/client_session.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <src/api/protos/ydb_table.pb.h>
 
@@ -20,7 +24,11 @@
 #include <ydb-cpp-sdk/util/datetime/base.h>
 ========
 #include <src/util/datetime/base.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_table/impl/client_session.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/impl/client_session.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <functional>
 

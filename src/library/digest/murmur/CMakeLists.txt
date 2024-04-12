@@ -7,8 +7,11 @@ target_link_libraries(cpp-digest-murmur PUBLIC
 target_sources(cpp-digest-murmur PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/library/digest/murmur/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/digest/murmur/murmur.cpp
 =======
@@ -20,5 +23,11 @@ target_sources(cpp-digest-murmur PRIVATE
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/digest/murmur/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/digest/murmur/murmur.cpp
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )

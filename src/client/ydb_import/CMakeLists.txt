@@ -25,7 +25,11 @@ generate_enum_serilization(cpp-client-ydb_import
 
 generate_enum_serilization(cpp-client-ydb_import
   ${YDB_SDK_SOURCE_DIR}/client/ydb_import/import.h
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_import/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_import/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/client/import/import.h
 ========
@@ -36,7 +40,11 @@ generate_enum_serilization(cpp-client-ydb_import
   ${YDB_SDK_SOURCE_DIR}/src/client/ydb_import/import.h
   INCLUDE_HEADERS
   src/client/ydb_import/import.h
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_import/CMakeLists.txt
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_import/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 add_library(YDB-CPP-SDK::Import ALIAS cpp-client-ydb_import)

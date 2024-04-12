@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/library/json/common/defs.h>
 ========
 #include <src/library/json/common/defs.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/json/fast_sax/parser.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/json/fast_sax/parser.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NJson {
     bool ReadJsonFast(std::string_view in, TJsonCallbacks* callbacks);

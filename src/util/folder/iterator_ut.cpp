@@ -12,7 +12,11 @@
 #include <src/util/system/file.h>
 #include <src/util/generic/hash.h>
 #include <src/util/generic/algorithm.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/random/mersenne.h>
 
 static std::string JoinWithNewline(const std::vector<std::string>& strings) {

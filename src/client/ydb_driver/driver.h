@@ -18,7 +18,11 @@
 #include <src/client/ydb_types/status/status.h>
 
 #include <src/library/logger/backend.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_driver/driver.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_driver/driver.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 ////////////////////////////////////////////////////////////////////////////////
 

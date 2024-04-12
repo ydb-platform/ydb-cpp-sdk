@@ -10,7 +10,11 @@
 #include <src/client/impl/ydb_internal/plain_status/status.h>
 #include <src/client/impl/ydb_internal/grpc_connections/grpc_connections.h>
 #include <src/client/ydb_types/core_facility/core_facility.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_types/credentials/login/login.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/credentials/login/login.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/api/grpc/ydb_auth_v1.grpc.pb.h>
 #include <src/library/login/login.h>
 #include <src/library/security/util.h>
@@ -19,7 +23,11 @@
 #include <ydb-cpp-sdk/util/string/cast.h>
 ========
 #include <src/util/string/cast.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_types/credentials/login/login.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/credentials/login/login.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

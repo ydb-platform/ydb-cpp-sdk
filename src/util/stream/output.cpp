@@ -12,7 +12,11 @@
 #include <src/util/memory/tempbuf.h>
 #include <src/util/generic/singleton.h>
 #include <src/util/generic/yexception.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/charset/utf8.h>
 #include <src/util/charset/wide.h>
 
@@ -22,7 +26,11 @@
     #include <ydb-cpp-sdk/util/system/guard.h>
 =======
     #include <src/util/system/guard.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
     #include <android/log.h>
     #include <mutex>
 #endif

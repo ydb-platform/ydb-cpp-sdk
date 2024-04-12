@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/library/http/server/response.h>
 =======
 #include <src/library/http/server/response.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <src/library/testing/mock_server/server.h>
 #include <src/library/testing/unittest/registar.h>
@@ -14,7 +18,11 @@
 #include <ydb-cpp-sdk/util/system/event.h>
 =======
 #include <src/util/system/event.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/system/thread.h>
 
 #include <thread>

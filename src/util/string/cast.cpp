@@ -2,7 +2,11 @@
 #include <ydb-cpp-sdk/util/system/defaults.h>
 =======
 #include <src/util/system/defaults.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #if defined(_freebsd_) && !defined(__LONG_LONG_SUPPORTED)
     #define __LONG_LONG_SUPPORTED
@@ -38,7 +42,11 @@
 #include <src/util/generic/ylimits.h>
 #include <src/util/generic/singleton.h>
 #include <src/util/generic/utility.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 using double_conversion::DoubleToStringConverter;
 using double_conversion::StringBuilder;

@@ -20,7 +20,11 @@
 #include <src/client/impl/ydb_internal/common/ssl_credentials.h>
 #include <src/util/stream/file.h>
 #include <src/client/resources/ydb_ca.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_driver/driver.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_driver/driver.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

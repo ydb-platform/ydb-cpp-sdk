@@ -7,7 +7,11 @@
 
 #include <src/api/protos/ydb_operation.pb.h>
 #include <src/client/ydb_types/status/status.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_types/operation/operation.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/operation/operation.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb {
 

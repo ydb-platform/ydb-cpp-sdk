@@ -6,7 +6,11 @@
 ========
 #include <src/util/generic/ptr.h>
 #include <src/util/datetime/base.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/system/event.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/system/event.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 struct TEventResetType {
     enum ResetMode {

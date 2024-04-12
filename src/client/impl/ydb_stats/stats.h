@@ -12,7 +12,11 @@
 #include <src/library/grpc/client/grpc_client_low.h>
 #include <src/library/monlib/metrics/metric_registry.h>
 #include <src/library/monlib/metrics/histogram_collector.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <atomic>
 #include <memory>

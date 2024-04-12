@@ -16,20 +16,29 @@ target_link_libraries(library-cpp-json PUBLIC
 target_sources(library-cpp-json PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/json/CMakeLists.txt
 =======
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 <<<<<<< HEAD:src/library/json/CMakeLists.txt
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+<<<<<<< HEAD:src/library/json/CMakeLists.txt
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   ${YDB_SDK_SOURCE_DIR}/src/library/json/json_writer.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/json/json_reader.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/json/json_prettifier.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/json/rapidjson_helpers.cpp
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 =======
   ${YDB_SDK_SOURCE_DIR}/library/cpp/json/json_writer.cpp
   ${YDB_SDK_SOURCE_DIR}/library/cpp/json/json_reader.cpp
@@ -41,7 +50,12 @@ target_sources(library-cpp-json PRIVATE
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/json/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 

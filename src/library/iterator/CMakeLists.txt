@@ -22,4 +22,8 @@ target_sources(library-cpp-iterator PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/iterator/mapped.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/iterator/zip.cpp
 )
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))

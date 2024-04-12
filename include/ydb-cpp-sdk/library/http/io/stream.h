@@ -17,7 +17,11 @@
 #include <string>
 #include <string_view>
 #include <src/util/generic/yexception.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/http/io/stream.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/http/io/stream.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 class TSocket;
 

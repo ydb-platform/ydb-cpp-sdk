@@ -22,7 +22,11 @@
 
 #include <src/util/random/entropy.h>
 #include <src/util/stream/input.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <openssl/bio.h>
 #include <openssl/ssl.h>

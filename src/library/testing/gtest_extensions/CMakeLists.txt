@@ -2,7 +2,11 @@ add_library(cpp-testing-gtest_extensions)
 <<<<<<< HEAD
 
 =======
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 target_link_libraries(cpp-testing-gtest_extensions PUBLIC
   yutil
   GTest::gmock
@@ -28,4 +32,8 @@ target_sources(cpp-testing-gtest_extensions PRIVATE
 
 # Unit tests
 add_subdirectory(ut)
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))

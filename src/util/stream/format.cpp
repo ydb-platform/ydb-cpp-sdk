@@ -7,7 +7,11 @@
 #include <src/util/system/datetime.h>
 =======
 #include <src/util/string/cast.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NFormatPrivate {
     static inline i64 Round(double value) {

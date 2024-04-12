@@ -10,7 +10,11 @@
 =======
 #include <src/util/string/builder.h>
 #include <src/library/string_utils/misc/misc.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/library/streams/brotli/brotli.h>
 #include <src/library/streams/lzma/lzma.h>
 #include <src/library/streams/bzip2/bzip2.h>

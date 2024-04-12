@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/util/string/builder.h>
 ========
 #include <src/util/string/builder.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/http/io/headers.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/http/io/headers.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <string>
 #include <string_view>
@@ -13,7 +17,11 @@
 #include <ydb-cpp-sdk/util/string/cast.h>
 ========
 #include <src/util/string/cast.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/http/io/headers.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/http/io/headers.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 class IInputStream;
 class IOutputStream;

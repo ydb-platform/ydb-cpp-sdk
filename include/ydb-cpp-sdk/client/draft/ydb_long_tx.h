@@ -7,7 +7,11 @@
 ========
 #include <src/client/ydb_driver/driver.h>
 #include <src/client/ydb_types/operation/operation.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/draft/ydb_long_tx.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/draft/ydb_long_tx.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb {
 namespace NLongTx {

@@ -10,7 +10,11 @@
 #include <src/client/ydb_persqueue_core/impl/common.h>
 #include <src/client/ydb_persqueue_core/impl/callback_context.h>
 #include <src/client/ydb_topic/topic.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_topic/impl/write_session_impl.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/impl/write_session_impl.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <src/util/generic/buffer.h>
 

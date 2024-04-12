@@ -12,8 +12,11 @@ target_link_libraries(client-yc_public-events PUBLIC
 target_proto_messages(client-yc_public-events PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/api/client/yc_public/events/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/events/options.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/events/common.proto
@@ -31,7 +34,15 @@ target_proto_messages(client-yc_public-events PRIVATE
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):ydb/public/api/client/yc_public/events/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/events/options.proto
+  ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/events/common.proto
+  ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/events/yq.proto
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 target_proto_addincls(client-yc_public-events
   ./

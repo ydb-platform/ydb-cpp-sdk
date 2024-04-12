@@ -45,7 +45,11 @@
 #include <src/util/system/compiler.h>
 #include <src/util/system/defaults.h>
 #include <src/util/system/error.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <stdlib.h>
 #ifndef _win_

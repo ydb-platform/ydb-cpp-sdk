@@ -15,7 +15,11 @@
 #include <src/util/string/cast.h>
 
 #include <src/util/generic/cast.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/yt/misc/enum-inl.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yt/misc/enum-inl.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <algorithm>
 #include <format>

@@ -11,10 +11,17 @@ target_sources(client-ydb_common_client-impl PRIVATE
   client.cpp
 =======
   ${YDB_SDK_SOURCE_DIR}/client/ydb_common_client/impl/client.cpp
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_common_client/impl/CMakeLists.txt
 ========
   client.cpp
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_common_client/impl/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_common_client/impl/CMakeLists.txt
+========
+  client.cpp
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_common_client/impl/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 

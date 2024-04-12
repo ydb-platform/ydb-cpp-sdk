@@ -8,7 +8,11 @@
 ========
 #include <src/library/resource/resource.h>
 #include <src/library/string_utils/misc/misc.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/yql/public/issue/yql_issue_id.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yql/public/issue/yql_issue_id.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/repeated_field.h>
@@ -24,7 +28,11 @@
 #include <src/util/generic/singleton.h>
 #include <src/util/generic/yexception.h>
 #include <src/util/string/subst.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/yql/public/issue/yql_issue_id.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yql/public/issue/yql_issue_id.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #ifdef _win_
 #ifdef GetMessage

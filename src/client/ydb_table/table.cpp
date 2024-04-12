@@ -28,7 +28,11 @@
 #include <src/client/ydb_table/impl/request_migrator.h>
 #include <src/client/ydb_table/impl/table_client.h>
 #include <src/client/resources/ydb_resources.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_table/table.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/table.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <google/protobuf/util/time_util.h>
 
@@ -41,7 +45,11 @@
 #include <src/library/string_utils/misc/misc.h>
 
 #include <src/util/random/random.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_table/table.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/table.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/string/join.h>
 
 #include <map>

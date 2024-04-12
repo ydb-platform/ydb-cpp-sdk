@@ -24,9 +24,13 @@ target_link_libraries(cpp-client-ydb_table PUBLIC
 
 target_sources(cpp-client-ydb_table PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/table/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+<<<<<<<< HEAD:src/client/table/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/client/table/CMakeLists.txt
   table.cpp
   proto_accessor.cpp
@@ -57,7 +61,11 @@ generate_enum_serilization(cpp-client-ydb_table
   ${YDB_SDK_SOURCE_DIR}/src/client/ydb_table/table_enum.h
   INCLUDE_HEADERS
   src/client/ydb_table/table_enum.h
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_table/CMakeLists.txt
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 add_library(YDB-CPP-SDK::Table ALIAS cpp-client-ydb_table)

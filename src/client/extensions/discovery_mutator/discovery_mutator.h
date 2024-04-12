@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/client/ydb_extension/extension.h>
 ========
 #include <src/client/ydb_extension/extension.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/extensions/discovery_mutator/discovery_mutator.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/extensions/discovery_mutator/discovery_mutator.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NDiscoveryMutator {
 

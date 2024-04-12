@@ -9,7 +9,11 @@
 ========
 #include <src/library/threading/future/core/future.h>
 #include <src/library/threading/future/wait/wait_group.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/threading/future/wait/wait.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/threading/future/wait/wait.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NThreading {
     namespace NImpl {

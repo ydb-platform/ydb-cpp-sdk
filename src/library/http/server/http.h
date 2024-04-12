@@ -17,7 +17,11 @@
 #include <src/util/generic/ptr.h>
 
 #include <src/library/deprecated/atomic/atomic.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/http/server/http.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/http/server/http.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 class IThreadFactory;
 class TClientRequest;

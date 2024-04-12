@@ -17,7 +17,11 @@
 #include <src/util/generic/ptr.h>
 #include <src/util/network/pair.h>
 #include <src/util/generic/noncopyable.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 using PIPEHANDLE = SOCKET;
 #define INVALID_PIPEHANDLE INVALID_SOCKET

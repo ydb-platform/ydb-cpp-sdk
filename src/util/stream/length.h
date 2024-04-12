@@ -7,7 +7,11 @@
 #include <ydb-cpp-sdk/util/generic/utility.h>
 =======
 #include <src/util/generic/utility.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 /**
  * Proxy input stream that can read a limited number of characters from a slave

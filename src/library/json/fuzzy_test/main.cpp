@@ -8,7 +8,11 @@
 
 #include <src/util/random/random.h>
 #include <src/util/stream/str.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 extern "C" int LLVMFuzzerTestOneInput(const ui8* data, size_t size) {
     const auto json = std::string((const char*)data, size);

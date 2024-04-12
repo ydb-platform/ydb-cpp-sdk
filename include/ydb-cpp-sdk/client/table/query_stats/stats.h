@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/client/query/stats.h>
 ========
 #include <src/client/ydb_query/stats.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_table/query_stats/stats.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/query_stats/stats.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 class TDuration;
 

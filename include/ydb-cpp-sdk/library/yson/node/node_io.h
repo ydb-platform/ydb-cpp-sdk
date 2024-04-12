@@ -5,7 +5,11 @@
 #include <ydb-cpp-sdk/library/yson/public.h>
 ========
 #include <src/library/yson/public.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/yson/node/node_io.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yson/node/node_io.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NJson {
     class TJsonValue;

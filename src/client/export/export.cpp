@@ -13,7 +13,11 @@
 ========
 #include <src/client/ydb_common_client/impl/client.h>
 #include <src/client/ydb_proto/accessor.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_export/export.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_export/export.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/timestamp.pb.h>
@@ -22,7 +26,11 @@
 #include <ydb-cpp-sdk/util/stream/str.h>
 ========
 #include <src/util/stream/str.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_export/export.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_export/export.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYdb {
 namespace NExport {

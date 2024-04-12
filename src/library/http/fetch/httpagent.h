@@ -19,7 +19,11 @@
 #include <src/util/network/sock.h>
 #include <src/util/generic/scope.h>
 #include <src/util/generic/utility.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <ydb-cpp-sdk/library/http/fetch/exthttpcodes.h>
 #include "sockhandler.h"

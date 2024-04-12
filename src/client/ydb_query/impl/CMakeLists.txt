@@ -16,11 +16,19 @@ target_sources(client-ydb_query-impl PRIVATE
 =======
   ${YDB_SDK_SOURCE_DIR}/client/ydb_query/impl/exec_query.cpp
   ${YDB_SDK_SOURCE_DIR}/client/ydb_query/impl/client_session.cpp
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_query/impl/CMakeLists.txt
 ========
   exec_query.cpp
   client_session.cpp
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_query/impl/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_query/impl/CMakeLists.txt
+========
+  exec_query.cpp
+  client_session.cpp
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/impl/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 

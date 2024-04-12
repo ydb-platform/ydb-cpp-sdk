@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/client/query/client.h>
 ========
 #include <src/client/ydb_query/client.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_query/impl/client_session.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/impl/client_session.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/client/impl/ydb_internal/kqp_session_common/kqp_session_common.h>
 
 namespace NYdb::NQuery {

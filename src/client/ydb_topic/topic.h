@@ -28,7 +28,11 @@
 #include <src/util/generic/ptr.h>
 #include <src/util/generic/size_literals.h>
 #include <src/util/thread/pool.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_topic/topic.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/topic.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <exception>
 #include <variant>

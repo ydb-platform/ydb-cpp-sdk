@@ -5,7 +5,11 @@
 ========
 #include <src/util/generic/ptr.h>
 #include <src/util/generic/size_literals.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/ut/ut_utils/test_utils.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/ut/ut_utils/test_utils.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/library/threading/chunk_queue/queue.h>
 #include <src/util/generic/overloaded.h>
 #include <src/library/testing/unittest/registar.h>

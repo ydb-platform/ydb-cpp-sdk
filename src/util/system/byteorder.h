@@ -17,7 +17,11 @@
     #include <ydb-cpp-sdk/util/generic/utility.h>
 ========
     #include <src/util/generic/utility.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/system/byteorder.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/system/byteorder.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #endif
 
 #if defined(_linux_) && !defined(USE_GENERIC_ENDIAN_CVT)

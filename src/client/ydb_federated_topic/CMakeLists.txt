@@ -15,14 +15,22 @@ generate_enum_serilization(cpp-client-ydb_federated_topic
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/federated_topic/federated_topic.h
 =======
   ${YDB_SDK_SOURCE_DIR}/client/ydb_federated_topic/federated_topic.h
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_federated_topic/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_federated_topic/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/client/federated_topic/federated_topic.h
 ========
   ${YDB_SDK_SOURCE_DIR}/src/client/ydb_federated_topic/federated_topic.h
   INCLUDE_HEADERS
   src/client/ydb_federated_topic/federated_topic.h
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/CMakeLists.txt
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 add_library(YDB-CPP-SDK::FederatedTopic ALIAS cpp-client-ydb_federated_topic)

@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 ========
 #include <src/library/threading/future/future.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/ut/fds_mock.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/ut/fds_mock.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/api/grpc/ydb_federation_discovery_v1.grpc.pb.h>
 
 #include <deque>

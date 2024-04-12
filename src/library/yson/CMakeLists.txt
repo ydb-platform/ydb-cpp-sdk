@@ -26,7 +26,11 @@ target_sources(library-cpp-yson PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/yson/tokenizer.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/yson/varint.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/yson/writer.cpp
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 

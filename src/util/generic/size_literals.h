@@ -6,7 +6,11 @@
 ========
 #include "yexception.h"
 #include <src/util/system/types.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/generic/size_literals.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/size_literals.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <limits>
 
 // Unsigned literals

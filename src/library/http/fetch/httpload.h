@@ -14,7 +14,11 @@
 #include <src/util/network/ip.h>
 #include <src/library/uri/http_url.h>
 #include <src/library/http/misc/httpcodes.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 /********************************************************/
 // Section 1: socket handlers

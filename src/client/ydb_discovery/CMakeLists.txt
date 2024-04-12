@@ -16,10 +16,17 @@ target_sources(cpp-client-ydb_discovery PRIVATE
   discovery.cpp
 =======
   ${YDB_SDK_SOURCE_DIR}/client/ydb_discovery/discovery.cpp
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_discovery/CMakeLists.txt
 ========
   discovery.cpp
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_discovery/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_discovery/CMakeLists.txt
+========
+  discovery.cpp
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_discovery/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 add_library(YDB-CPP-SDK::Discovery ALIAS cpp-client-ydb_discovery)

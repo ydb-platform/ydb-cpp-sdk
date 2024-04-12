@@ -4,6 +4,7 @@ add_ydb_test(NAME client-ydb_coordination-ut
   INCLUDE_DIRS
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/client/ydb_coordination
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -13,6 +14,13 @@ add_ydb_test(NAME client-ydb_coordination-ut
   ${YDB_SDK_SOURCE_DIR}/client/ydb_coordination
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_coordination
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/client/ydb_coordination
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   SOURCES
   coordination_ut.cpp
   LINK_LIBRARIES
@@ -28,6 +36,7 @@ add_ydb_test(NAME client-extensions-discovery_mutator-ut
   INCLUDE_DIRS
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/client/extensions/discovery_mutator
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -37,6 +46,13 @@ add_ydb_test(NAME client-extensions-discovery_mutator-ut
   ${YDB_SDK_SOURCE_DIR}/client/extensions/discovery_mutator
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/extensions/discovery_mutator
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/client/extensions/discovery_mutator
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   SOURCES
   discovery_mutator_ut.cpp
   LINK_LIBRARIES
@@ -52,6 +68,7 @@ add_ydb_test(NAME client-ydb_driver-ut
   INCLUDE_DIRS
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/client/ydb_driver
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -61,6 +78,13 @@ add_ydb_test(NAME client-ydb_driver-ut
   ${YDB_SDK_SOURCE_DIR}/client/ydb_driver
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_driver
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/client/ydb_driver
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   SOURCES
   driver_ut.cpp
   LINK_LIBRARIES
@@ -75,6 +99,7 @@ add_ydb_test(NAME client-impl-ydb_endpoints-ut
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/src/client/impl/ydb_endpoints
 =======
   ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_endpoints
@@ -83,11 +108,19 @@ add_ydb_test(NAME client-impl-ydb_endpoints-ut
   ${YDB_SDK_SOURCE_DIR}/src/client/impl/ydb_endpoints
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   ${YDB_SDK_SOURCE_DIR}/src/client/impl/ydb_endpoints
 =======
   ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_endpoints
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/client/impl/ydb_endpoints
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   SOURCES
   endpoints_ut.cpp
   LINK_LIBRARIES
@@ -102,6 +135,7 @@ add_ydb_test(NAME client-ydb_params-ut
   INCLUDE_DIRS
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/client/ydb_params
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -111,6 +145,13 @@ add_ydb_test(NAME client-ydb_params-ut
   ${YDB_SDK_SOURCE_DIR}/client/ydb_params
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_params
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/client/ydb_params
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   SOURCES
   params_ut.cpp
   LINK_LIBRARIES
@@ -126,6 +167,7 @@ add_ydb_test(NAME client-ydb_result-ut
   INCLUDE_DIRS
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/client/ydb_result
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -135,6 +177,13 @@ add_ydb_test(NAME client-ydb_result-ut
   ${YDB_SDK_SOURCE_DIR}/client/ydb_result
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_result
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/client/ydb_result
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   SOURCES
   result_ut.cpp
   LINK_LIBRARIES
@@ -150,6 +199,7 @@ add_ydb_test(NAME client-ydb_value-ut
   INCLUDE_DIRS
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/client/ydb_value
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -159,6 +209,13 @@ add_ydb_test(NAME client-ydb_value-ut
   ${YDB_SDK_SOURCE_DIR}/client/ydb_value
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/ydb_value
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/client/ydb_value
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   SOURCES
   value_ut.cpp
   LINK_LIBRARIES
@@ -176,6 +233,7 @@ add_ydb_test(NAME client-draft-ut
   INCLUDE_DIRS
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/client/draft
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -185,6 +243,13 @@ add_ydb_test(NAME client-draft-ut
   ${YDB_SDK_SOURCE_DIR}/client/draft
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/client/draft
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/client/draft
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   SOURCES
   ydb_scripting_response_headers_ut.cpp
   LINK_LIBRARIES

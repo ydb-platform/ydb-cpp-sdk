@@ -19,7 +19,11 @@
 #include <src/util/system/event.h>
 #include <src/util/stream/zlib.h>
 #include <src/util/stream/str.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/ut/basic_usage_ut.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/ut/basic_usage_ut.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <atomic>
 #include <format>

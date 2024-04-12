@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/library/yt/misc/enum.h>
 ========
 #include <src/library/yt/misc/enum.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/yt/yson_string/public.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yt/yson_string/public.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYT::NYson {
 

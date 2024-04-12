@@ -6,7 +6,11 @@
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 =======
 #include <src/library/string_utils/misc/misc.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <src/util/charset/recode_result.h>
 #include <src/util/charset/unidata.h> // all wchar32 functions
@@ -22,7 +26,11 @@
 #include <src/util/generic/yexception.h>
 #include <src/util/system/yassert.h>
 #include <src/util/system/defaults.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 struct CodePage;
 struct Recoder;

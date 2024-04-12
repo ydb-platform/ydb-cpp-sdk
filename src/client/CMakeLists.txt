@@ -61,4 +61,8 @@ add_subdirectory(ydb_table)
 add_subdirectory(ydb_topic)
 add_subdirectory(ydb_types)
 add_subdirectory(ydb_value)
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))

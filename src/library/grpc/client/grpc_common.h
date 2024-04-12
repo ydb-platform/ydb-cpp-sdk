@@ -9,7 +9,11 @@
 ========
 #include <src/library/grpc/common/constants.h>
 #include <src/util/datetime/base.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/grpc/client/grpc_common.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/grpc/client/grpc_common.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <unordered_map>
 #include <string>
 

@@ -15,7 +15,11 @@
 
 #include <src/util/network/ip.h>
 #include <src/library/cgiparam/cgiparam.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/monlib/service/service.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/monlib/service/service.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <functional>
 

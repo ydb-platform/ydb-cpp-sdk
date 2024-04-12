@@ -12,7 +12,11 @@
 ========
 #include <src/client/ydb_types/exceptions/exceptions.h>
 #include <src/client/impl/ydb_internal/common/ssl_credentials.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_common_client/impl/client.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_common_client/impl/client.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <memory>
 

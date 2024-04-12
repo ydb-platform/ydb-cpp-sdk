@@ -3,7 +3,11 @@
 #include <ydb-cpp-sdk/util/system/types.h>
 =======
 #include <src/util/system/types.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #ifdef SSE41_STUB
 
@@ -20,7 +24,11 @@ namespace NDetail {
     #include <ydb-cpp-sdk/util/system/compiler.h>
 =======
     #include <src/util/system/compiler.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
     #include <cstring>
     #include <emmintrin.h>

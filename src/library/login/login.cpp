@@ -10,7 +10,11 @@
 #include <src/library/string_utils/base64/base64.h>
 #include <src/library/json/json_value.h>
 #include <src/library/json/json_reader.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/library/json/json_writer.h>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
@@ -24,7 +28,11 @@
 #include <src/util/generic/singleton.h>
 #include <src/util/string/builder.h>
 #include <src/util/string/cast.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/string/hex.h>
 
 #include <deque>

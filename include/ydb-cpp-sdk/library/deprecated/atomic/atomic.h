@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/util/system/defaults.h>
 ========
 #include <src/util/system/defaults.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/deprecated/atomic/atomic.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/deprecated/atomic/atomic.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 using TAtomicBase = intptr_t;
 using TAtomic = volatile TAtomicBase;

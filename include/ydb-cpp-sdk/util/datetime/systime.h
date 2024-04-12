@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/util/system/platform.h>
 ========
 #include <src/util/system/platform.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/datetime/systime.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/datetime/systime.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <ctime>
 #include <string>
@@ -20,7 +24,11 @@ std::string CTimeR(const time_t* timer);
     #include <ydb-cpp-sdk/util/system/winint.h>
 ========
     #include <src/util/system/winint.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/datetime/systime.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/datetime/systime.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
     #include <winsock2.h>
 
 void FileTimeToTimeval(const FILETIME* ft, struct timeval* tv);

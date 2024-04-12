@@ -19,7 +19,11 @@ target_sources(cpp-client-ydb_query PRIVATE
 <<<<<<<< HEAD:src/client/query/CMakeLists.txt
 <<<<<<< HEAD:src/client/query/CMakeLists.txt
 ========
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_query/CMakeLists.txt
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   client.cpp
   query.cpp
   stats.cpp
@@ -30,9 +34,15 @@ target_sources(cpp-client-ydb_query PRIVATE
   ${YDB_SDK_SOURCE_DIR}/client/ydb_query/query.cpp
   ${YDB_SDK_SOURCE_DIR}/client/ydb_query/stats.cpp
   ${YDB_SDK_SOURCE_DIR}/client/ydb_query/tx.cpp
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_query/CMakeLists.txt
 ========
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_query/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_query/CMakeLists.txt
+========
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 add_library(YDB-CPP-SDK::Query ALIAS cpp-client-ydb_query)

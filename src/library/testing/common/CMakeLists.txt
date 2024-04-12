@@ -2,7 +2,11 @@ add_library(cpp-testing-common)
 <<<<<<< HEAD
 
 =======
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 target_link_libraries(cpp-testing-common PUBLIC
   yutil
   library-cpp-json
@@ -31,4 +35,8 @@ target_sources(cpp-testing-common PRIVATE
 vcs_info(cpp-testing-common)
 
 add_subdirectory(ut)
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))

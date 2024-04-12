@@ -32,7 +32,11 @@ generate_enum_serilization(cpp-yson-node
   ${YDB_SDK_SOURCE_DIR}/src/library/yson/node/node.h
   INCLUDE_HEADERS
   src/library/yson/node/node.h
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 

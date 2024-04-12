@@ -17,7 +17,11 @@
 #include <src/util/system/compiler.h>
 #include <src/util/system/defaults.h>
 #include <src/util/system/yassert.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/generic/ptr.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/ptr.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 template <class T, class U>
 using TGuardConversion = typename std::enable_if_t<std::is_convertible<U*, T*>::value>;

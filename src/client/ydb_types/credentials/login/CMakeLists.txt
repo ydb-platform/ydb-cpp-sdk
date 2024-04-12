@@ -16,10 +16,17 @@ target_sources(ydb_types-credentials-login PRIVATE
   login.cpp
 =======
   ${YDB_SDK_SOURCE_DIR}/client/ydb_types/credentials/login/login.cpp
+<<<<<<< HEAD
 >>>>>>> b509d53abd (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_types/credentials/login/CMakeLists.txt
 ========
   login.cpp
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_types/credentials/login/CMakeLists.txt
+=======
+>>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_types/credentials/login/CMakeLists.txt
+========
+  login.cpp
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/credentials/login/CMakeLists.txt
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 

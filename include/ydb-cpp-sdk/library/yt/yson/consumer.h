@@ -10,7 +10,11 @@
 #include <src/util/system/defaults.h>
 
 #include <src/library/yt/yson_string/public.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/library/yt/yson/consumer.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yt/yson/consumer.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NYT::NYson {
 

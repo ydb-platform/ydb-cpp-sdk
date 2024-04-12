@@ -17,7 +17,11 @@
 #include <src/util/system/defaults.h>
 #include <src/util/str_stl.h>
 #include <src/util/ysaveload.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 namespace NBitMapPrivate {
     // Returns number of bits set; result is in most significatnt byte

@@ -4,7 +4,11 @@
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 ========
 #include <src/library/threading/future/future.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/ut/retry_policy_ut.cpp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/ut/retry_policy_ut.cpp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/library/testing/unittest/registar.h>
 
 

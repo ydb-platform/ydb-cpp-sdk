@@ -8,12 +8,18 @@ target_link_libraries(cpp-mime-types PUBLIC
 target_sources(cpp-mime-types PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/mime/types/CMakeLists.txt
 =======
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 <<<<<<< HEAD:src/library/mime/types/CMakeLists.txt
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+<<<<<<< HEAD:src/library/mime/types/CMakeLists.txt
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
   ${YDB_SDK_SOURCE_DIR}/src/library/mime/types/mime.cpp
 )
 
@@ -37,5 +43,9 @@ generate_enum_serilization(cpp-mime-types
   ${YDB_SDK_SOURCE_DIR}/src/library/mime/types/mime.h
   INCLUDE_HEADERS
   src/library/mime/types/mime.h
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )

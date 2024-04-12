@@ -20,5 +20,9 @@ target_sources(cpp-threading-future PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/threading/future/wait/wait.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/threading/future/wait/wait_group.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/threading/future/wait/wait_policy.cpp
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )

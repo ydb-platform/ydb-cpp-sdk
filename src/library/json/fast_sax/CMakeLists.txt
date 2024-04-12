@@ -8,8 +8,11 @@ target_link_libraries(cpp-json-fast_sax PUBLIC
 target_sources(cpp-json-fast_sax PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/library/json/fast_sax/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/src/library/json/fast_sax/unescape.cpp
 =======
@@ -21,7 +24,13 @@ target_sources(cpp-json-fast_sax PRIVATE
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/json/fast_sax/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/json/fast_sax/unescape.cpp
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 )
 
 if (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
@@ -29,8 +38,11 @@ if (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
     PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/library/json/fast_sax/CMakeLists.txt
     ${YDB_SDK_SOURCE_DIR}/src/library/json/fast_sax/parser.rl6
 =======
@@ -42,7 +54,13 @@ if (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/json/fast_sax/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+    ${YDB_SDK_SOURCE_DIR}/src/library/json/fast_sax/parser.rl6
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
     -CT0
   )
 else ()
@@ -50,8 +68,11 @@ else ()
     PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/library/json/fast_sax/CMakeLists.txt
     ${YDB_SDK_SOURCE_DIR}/src/library/json/fast_sax/parser.rl6
 =======
@@ -63,7 +84,13 @@ else ()
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/json/fast_sax/CMakeLists.txt
+<<<<<<< HEAD
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+=======
+    ${YDB_SDK_SOURCE_DIR}/src/library/json/fast_sax/parser.rl6
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
     -CG2
   )
 endif ()

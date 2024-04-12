@@ -6,7 +6,11 @@
 ========
 #include <src/util/generic/typelist.h>
 #include <src/util/system/defaults.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/util/digest/numeric.h
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/digest/numeric.h
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 /*
  * original url (now dead): http://www.cris.com/~Ttwang/tech/inthash.htm

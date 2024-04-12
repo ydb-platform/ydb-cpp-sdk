@@ -8,7 +8,11 @@
 #include <src/util/generic/algorithm.h>
 #include <src/util/memory/pool.h>
 #include <src/util/stream/str.h>
+<<<<<<< HEAD
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
+=======
+>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 #include <src/util/string/util.h>
 
 #include <src/library/string_utils/relaxed_escaper/relaxed_escaper.h>

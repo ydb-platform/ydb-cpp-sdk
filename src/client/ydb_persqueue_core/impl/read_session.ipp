@@ -10,7 +10,11 @@
 #include <src/client/persqueue_core/impl/log_lazy.h>
 ========
 #include <src/client/ydb_persqueue_core/impl/log_lazy.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/read_session.ipp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/read_session.ipp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/logger/log.h>
@@ -30,7 +34,11 @@
 #include <src/util/generic/utility.h>
 #include <src/util/generic/yexception.h>
 #include <src/util/stream/mem.h>
+<<<<<<< HEAD
 >>>>>>>> ed2145fb77 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/read_session.ipp
+=======
+>>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/read_session.ipp
+>>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
 #include <utility>
 #include <variant>
