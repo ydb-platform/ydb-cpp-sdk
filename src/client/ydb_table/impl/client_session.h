@@ -5,7 +5,7 @@
 #include <src/client/impl/ydb_endpoints/endpoints.h>
 #include <src/library/operation_id/operation_id.h>
 
-#include <ydb/public/api/protos/ydb_table.pb.h>
+#include <src/api/protos/ydb_table.pb.h>
 
 #include <library/cpp/cache/cache.h>
 

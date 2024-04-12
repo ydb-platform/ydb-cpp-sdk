@@ -5,8 +5,8 @@
 #include <src/client/impl/ydb_internal/table_helpers/helpers.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <ydb/public/api/grpc/ydb_scripting_v1.grpc.pb.h>
-#include <ydb/public/api/protos/ydb_scripting.pb.h>
+#include <src/api/grpc/ydb_scripting_v1.grpc.pb.h>
+#include <src/api/protos/ydb_scripting.pb.h>
 #include <src/client/ydb_common_client/impl/client.h>
 
 namespace NYdb {

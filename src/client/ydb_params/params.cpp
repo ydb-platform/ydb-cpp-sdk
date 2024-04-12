@@ -1,7 +1,7 @@
 #include "params.h"
 #include "impl.h"
 
-#include <ydb/public/api/protos/ydb_value.pb.h>
+#include <src/api/protos/ydb_value.pb.h>
 
 #include <src/client/ydb_types/fatal_error_handlers/handlers.h>
 

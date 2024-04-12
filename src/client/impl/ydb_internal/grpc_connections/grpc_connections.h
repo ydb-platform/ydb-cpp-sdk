@@ -6,7 +6,7 @@
 #include "actions.h"
 #include "params.h"
 
-#include <ydb/public/api/grpc/ydb_discovery_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>
 #include <src/client/impl/ydb_internal/db_driver_state/state.h>
 #include <src/client/impl/ydb_internal/rpc_request_settings/settings.h>
 #include <src/client/impl/ydb_internal/thread_pool/pool.h>

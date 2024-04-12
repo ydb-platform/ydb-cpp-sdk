@@ -2,7 +2,7 @@
 
 #include <src/client/ydb_topic/topic.h>
 
-#include <ydb/public/api/protos/ydb_federation_discovery.pb.h>
+#include <src/api/protos/ydb_federation_discovery.pb.h>
 
 namespace NYdb::NFederatedTopic {
 

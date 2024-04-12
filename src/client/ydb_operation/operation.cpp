@@ -10,7 +10,7 @@
 #include <src/client/ydb_import/import.h>
 #include <src/client/ydb_table/table.h>
 
-#include <ydb/public/api/grpc/ydb_operation_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_operation_v1.grpc.pb.h>
 #include <src/library/operation_id/operation_id.h>
 #include <src/client/ydb_common_client/impl/client.h>
 

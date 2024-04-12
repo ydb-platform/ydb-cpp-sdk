@@ -5,7 +5,7 @@
 #include <src/client/impl/ydb_internal/scheme_helpers/helpers.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <ydb/public/api/grpc/ydb_coordination_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_coordination_v1.grpc.pb.h>
 #include <src/client/ydb_common_client/impl/client.h>
 
 #include <util/random/entropy.h>

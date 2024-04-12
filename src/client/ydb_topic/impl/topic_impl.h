@@ -9,7 +9,7 @@
 #include <src/client/ydb_topic/impl/executor.h>
 #include <src/client/ydb_proto/accessor.h>
 
-#include <ydb/public/api/grpc/ydb_topic_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
 #include <src/client/ydb_topic/topic.h>
 
 namespace NYdb::NTopic {

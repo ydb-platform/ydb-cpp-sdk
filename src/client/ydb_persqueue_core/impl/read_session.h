@@ -6,8 +6,8 @@
 
 #include <src/client/ydb_common_client/impl/client.h>
 
-#include <ydb/public/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
-#include <ydb/public/api/grpc/ydb_topic_v1.grpc.pb.h>
+#include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
 #include <src/client/ydb_persqueue_core/persqueue.h>
 #include <src/client/ydb_topic/topic.h>
 

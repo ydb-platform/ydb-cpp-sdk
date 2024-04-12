@@ -5,7 +5,7 @@
 #include <src/client/impl/ydb_internal/grpc_connections/grpc_connections.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <ydb/public/api/protos/ydb_federation_discovery.pb.h>
+#include <src/api/protos/ydb_federation_discovery.pb.h>
 
 #include <src/client/ydb_persqueue_core/impl/callback_context.h>
 #include <src/client/ydb_common_client/impl/client.h>

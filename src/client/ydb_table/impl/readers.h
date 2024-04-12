@@ -2,7 +2,7 @@
 
 #include <src/client/resources/ydb_resources.h>
 
-#include <ydb/public/api/grpc/ydb_table_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 #include <src/client/ydb_proto/accessor.h>
 
 #include <util/random/random.h>

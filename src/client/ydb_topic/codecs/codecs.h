@@ -1,6 +1,6 @@
 #pragma once
 #include <util/stream/output.h>
-#include <ydb/public/api/protos/ydb_topic.pb.h>
+#include <src/api/protos/ydb_topic.pb.h>
 #include <src/client/ydb_topic/topic.h>
 
 

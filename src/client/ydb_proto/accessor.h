@@ -1,13 +1,13 @@
 #pragma once
 
-#include <ydb/public/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
-#include <ydb/public/api/protos/ydb_coordination.pb.h>
-#include <ydb/public/api/protos/ydb_export.pb.h>
-#include <ydb/public/api/protos/ydb_import.pb.h>
-#include <ydb/public/api/protos/ydb_query_stats.pb.h>
-#include <ydb/public/api/protos/ydb_table.pb.h>
-#include <ydb/public/api/protos/ydb_topic.pb.h>
-#include <ydb/public/api/protos/ydb_value.pb.h>
+#include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
+#include <src/api/protos/ydb_coordination.pb.h>
+#include <src/api/protos/ydb_export.pb.h>
+#include <src/api/protos/ydb_import.pb.h>
+#include <src/api/protos/ydb_query_stats.pb.h>
+#include <src/api/protos/ydb_table.pb.h>
+#include <src/api/protos/ydb_topic.pb.h>
+#include <src/api/protos/ydb_value.pb.h>
 
 #include <src/client/ydb_coordination/coordination.h>
 #include <src/client/ydb_export/export.h>

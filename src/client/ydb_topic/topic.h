@@ -1,5 +1,5 @@
 #pragma once
-#include <ydb/public/api/grpc/ydb_topic_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
 #include <src/client/ydb_driver/driver.h>
 #include <src/client/ydb_scheme/scheme.h>
 #include <src/client/ydb_types/exceptions/exceptions.h>

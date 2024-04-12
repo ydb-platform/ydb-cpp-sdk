@@ -4,7 +4,7 @@
 
 #include <src/client/ydb_types/status_codes.h>
 
-#include <ydb/public/api/protos/ydb_operation.pb.h>
+#include <src/api/protos/ydb_operation.pb.h>
 
 #include <src/library/yql/public/issue/yql_issue.h>
 

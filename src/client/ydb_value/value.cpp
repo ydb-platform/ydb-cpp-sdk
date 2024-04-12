@@ -7,7 +7,7 @@
 #include <src/client/ydb_params/params.h>
 #include <src/client/ydb_types/fatal_error_handlers/handlers.h>
 
-#include <ydb/public/api/protos/ydb_value.pb.h>
+#include <src/api/protos/ydb_value.pb.h>
 
 #include <library/cpp/containers/stack_vector/stack_vec.h>
 #include <util/string/builder.h>

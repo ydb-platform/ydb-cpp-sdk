@@ -2,7 +2,7 @@
 
 #include <src/client/impl/ydb_internal/internal_header.h>
 
-#include <ydb/public/api/protos/ydb_operation.pb.h>
+#include <src/api/protos/ydb_operation.pb.h>
 #include <src/client/impl/ydb_internal/common/types.h>
 #include <src/client/impl/ydb_internal/db_driver_state/state.h>
 #include <src/client/impl/ydb_internal/plain_status/status.h>

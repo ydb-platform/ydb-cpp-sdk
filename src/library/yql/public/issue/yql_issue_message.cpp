@@ -1,7 +1,7 @@
 #include "yql_issue_message.h"
 
 #include <src/library/yql/public/issue/protos/issue_message.pb.h>
-#include <ydb/public/api/protos/ydb_issue_message.pb.h>
+#include <src/api/protos/ydb_issue_message.pb.h>
 
 #include <util/generic/yexception.h>
 #include <util/stream/output.h>

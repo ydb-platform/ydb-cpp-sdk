@@ -11,7 +11,7 @@
 #include <src/client/resources/ydb_resources.h>
 #include <src/client/ydb_common_client/impl/client.h>
 #include <src/client/ydb_proto/accessor.h>
-#include <ydb/public/api/grpc/ydb_table_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 
 #include "client_session.h"
 #include "data_query.h"
