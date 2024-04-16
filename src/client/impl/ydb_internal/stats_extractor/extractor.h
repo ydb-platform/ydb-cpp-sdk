@@ -4,7 +4,7 @@
 
 #include <src/client/impl/ydb_internal/internal_client/client.h>
 
-#include <src/client/ydb_extension/extension.h>
+#include <src/client/extension/extension.h>
 
 #include <src/library/monlib/metrics/metric_registry.h>
 

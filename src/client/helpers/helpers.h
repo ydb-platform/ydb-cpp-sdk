@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/client/ydb_driver/driver.h>
+#include <src/client/driver/driver.h>
 
 namespace NYdb {
 

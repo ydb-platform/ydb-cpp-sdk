@@ -1,7 +1,7 @@
 #include "retry.h"
 #include <src/util/random/random.h>
-#include <src/client/ydb_retry/retry.h>
-#include <src/client/ydb_common_client/impl/iface.h>
+#include <src/client/retry/retry.h>
+#include <src/client/common_client/impl/iface.h>
 
 #include <cmath>
 

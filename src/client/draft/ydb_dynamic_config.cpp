@@ -1,6 +1,6 @@
 #include "ydb_dynamic_config.h"
 
-#include <src/client/ydb_common_client/impl/client.h>
+#include <src/client/common_client/impl/client.h>
 #include <src/client/impl/ydb_internal/make_request/make.h>
 
 namespace NYdb::NDynamicConfig {

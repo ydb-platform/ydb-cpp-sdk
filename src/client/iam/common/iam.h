@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/client/ydb_types/credentials/credentials.h>
+#include <src/client/types/credentials/credentials.h>
 
 #include <src/library/grpc/client/grpc_client_low.h>
 #include <src/library/threading/atomic/bool.h>

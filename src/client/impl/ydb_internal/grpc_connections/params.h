@@ -5,7 +5,7 @@
 #include <src/client/impl/ydb_internal/internal_header.h>
 #include <src/client/impl/ydb_internal/common/types.h>
 #include <src/client/impl/ydb_internal/common/ssl_credentials.h>
-#include <src/client/ydb_types/credentials/credentials.h>
+#include <src/client/types/credentials/credentials.h>
 
 namespace NYdb {
 

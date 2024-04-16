@@ -11,7 +11,7 @@
 #include <src/client/impl/ydb_internal/rpc_request_settings/settings.h>
 #include <src/client/impl/ydb_internal/thread_pool/pool.h>
 #include <src/client/resources/ydb_resources.h>
-#include <src/client/ydb_extension/extension.h>
+#include <src/client/extension/extension.h>
 
 #include <src/library/yql/public/issue/yql_issue_message.h>
 

@@ -7,7 +7,7 @@
 
 #include <src/api/grpc/ydb_scripting_v1.grpc.pb.h>
 #include <src/api/protos/ydb_scripting.pb.h>
-#include <src/client/ydb_common_client/impl/client.h>
+#include <src/client/common_client/impl/client.h>
 
 namespace NYdb {
 namespace NScripting {

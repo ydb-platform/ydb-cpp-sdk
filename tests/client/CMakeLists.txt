@@ -1,6 +1,6 @@
 add_ydb_test(NAME client-ydb_coordination-ut
   INCLUDE_DIRS
-  ${YDB_SDK_SOURCE_DIR}/src/client/ydb_coordination
+  ${YDB_SDK_SOURCE_DIR}/src/client/coordination
   SOURCES
   coordination_ut.cpp
   LINK_LIBRARIES
@@ -24,7 +24,7 @@ add_ydb_test(NAME client-extensions-discovery_mutator-ut
 
 add_ydb_test(NAME client-ydb_driver-ut
   INCLUDE_DIRS
-  ${YDB_SDK_SOURCE_DIR}/src/client/ydb_driver
+  ${YDB_SDK_SOURCE_DIR}/src/client/driver
   SOURCES
   driver_ut.cpp
   LINK_LIBRARIES
@@ -47,7 +47,7 @@ add_ydb_test(NAME client-impl-ydb_endpoints-ut
 
 add_ydb_test(NAME client-ydb_params-ut
   INCLUDE_DIRS
-  ${YDB_SDK_SOURCE_DIR}/src/client/ydb_params
+  ${YDB_SDK_SOURCE_DIR}/src/client/params
   SOURCES
   params_ut.cpp
   LINK_LIBRARIES
@@ -59,7 +59,7 @@ add_ydb_test(NAME client-ydb_params-ut
 
 add_ydb_test(NAME client-ydb_result-ut
   INCLUDE_DIRS
-  ${YDB_SDK_SOURCE_DIR}/src/client/ydb_result
+  ${YDB_SDK_SOURCE_DIR}/src/client/result
   SOURCES
   result_ut.cpp
   LINK_LIBRARIES
@@ -70,8 +70,6 @@ add_ydb_test(NAME client-ydb_result-ut
 )
 
 add_ydb_test(NAME client-ydb_value-ut
-  INCLUDE_DIRS
-  ${YDB_SDK_SOURCE_DIR}/src/client/ydb_value
   SOURCES
   value_ut.cpp
   LINK_LIBRARIES

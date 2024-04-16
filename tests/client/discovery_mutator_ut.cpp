@@ -1,8 +1,8 @@
 #include <discovery_mutator.h>
 
 #include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>
-#include <src/client/ydb_extension/extension.h>
-#include <src/client/ydb_table/table.h>
+#include <src/client/extension/extension.h>
+#include <src/client/table/table.h>
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>

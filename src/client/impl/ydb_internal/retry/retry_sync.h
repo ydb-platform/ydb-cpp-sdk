@@ -1,8 +1,8 @@
 #pragma once
 
 #include <src/client/impl/ydb_internal/retry/retry.h>
-#include <src/client/ydb_retry/retry.h>
-#include <src/client/ydb_types/status/status.h>
+#include <src/client/retry/retry.h>
+#include <src/client/types/status/status.h>
 
 namespace NYdb::NRetry::Sync {
 

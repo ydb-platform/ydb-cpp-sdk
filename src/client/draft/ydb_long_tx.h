@@ -1,8 +1,8 @@
 #pragma once
 
 #include <src/api/grpc/draft/ydb_long_tx_v1.grpc.pb.h>
-#include <src/client/ydb_driver/driver.h>
-#include <src/client/ydb_types/operation/operation.h>
+#include <src/client/driver/driver.h>
+#include <src/client/types/operation/operation.h>
 
 namespace NYdb {
 namespace NLongTx {

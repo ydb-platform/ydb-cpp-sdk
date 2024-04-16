@@ -1,7 +1,7 @@
-#include "value.h"
+#include <ydb-cpp-sdk/client/value/value.h>
 
 #include <src/api/protos/ydb_value.pb.h>
-#include <src/client/ydb_types/exceptions/exceptions.h>
+#include <src/client/types/exceptions/exceptions.h>
 #include <src/json_value/ydb_json_value.h>
 #include <src/yson_value/ydb_yson_value.h>
 

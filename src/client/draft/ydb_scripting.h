@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/client/ydb_table/table.h>
+#include <src/client/table/table.h>
 #include <src/api/protos/ydb_value.pb.h>
 #include <src/api/protos/ydb_query.pb.h>
 

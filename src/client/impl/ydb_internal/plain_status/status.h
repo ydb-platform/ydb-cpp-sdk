@@ -2,7 +2,7 @@
 
 #include <src/client/impl/ydb_internal/internal_header.h>
 
-#include <src/client/ydb_types/status_codes.h>
+#include <src/client/types/status_codes.h>
 
 #include <src/api/protos/ydb_operation.pb.h>
 

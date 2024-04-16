@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/client/ydb_extension/extension.h>
+#include <src/client/extension/extension.h>
 
 #include <src/library/monlib/metrics/metric_registry.h>
 
