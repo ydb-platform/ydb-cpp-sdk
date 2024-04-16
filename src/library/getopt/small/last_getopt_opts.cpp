@@ -9,6 +9,8 @@
 #include <src/util/generic/algorithm.h>
 #include <src/util/stream/format.h>
 
+#include <sstream>
+
 #include <stdlib.h>
 
 namespace NLastGetoptPrivate {
