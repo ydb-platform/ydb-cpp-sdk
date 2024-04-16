@@ -15,7 +15,7 @@ namespace NArgonish {
     template <NArgonish::EInstructionSet instructionSet>
     class TBlake2B final: public IBlake2Base {
     public:
-        virtual ~TBlake2B<instructionSet>() {
+        virtual ~TBlake2B() {
             SecureZeroMemory_((void*)&State_, sizeof(State_));
             SecureZeroMemory_((void*)&Param_, sizeof(Param_));
         }
