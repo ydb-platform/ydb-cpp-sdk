@@ -1,4 +1,4 @@
-#include "credentials.h"
+#include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 #include <src/util/string/cast.h>
 
 namespace NYdb {

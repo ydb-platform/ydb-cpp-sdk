@@ -1,7 +1,7 @@
 #pragma once
 #include <src/util/stream/output.h>
 #include <src/api/protos/ydb_topic.pb.h>
-#include <src/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
 
 
 namespace NYdb::NTopic {

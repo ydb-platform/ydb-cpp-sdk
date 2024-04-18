@@ -1,8 +1,8 @@
 #pragma once
 
-#include <src/client/retry/retry.h>
-#include <src/client/types/fluent_settings_helpers.h>
-#include <src/client/types/status/status.h>
+#include <ydb-cpp-sdk/client/retry/retry.h>
+#include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
+#include <ydb-cpp-sdk/client/types/status/status.h>
 
 #include <src/library/threading/future/core/fwd.h>
 #include <src/util/datetime/base.h>

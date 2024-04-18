@@ -5,7 +5,7 @@
 
 #include <src/client/persqueue_core/impl/common.h>
 #include <src/client/persqueue_core/impl/callback_context.h>
-#include <src/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
 
 #include <src/util/generic/buffer.h>
 

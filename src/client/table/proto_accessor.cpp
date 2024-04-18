@@ -1,6 +1,6 @@
 #include <src/client/proto/accessor.h>
 
-#include "table.h"
+#include <ydb-cpp-sdk/client/table/table.h>
 
 namespace NYdb {
 

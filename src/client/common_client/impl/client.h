@@ -6,7 +6,7 @@
 #include <src/client/impl/ydb_internal/grpc_connections/grpc_connections.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <src/client/types/exceptions/exceptions.h>
+#include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 #include <src/client/impl/ydb_internal/common/ssl_credentials.h>
 
 #include <memory>

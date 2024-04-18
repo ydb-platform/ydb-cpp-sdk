@@ -1,4 +1,4 @@
-#include "stats.h"
+#include <ydb-cpp-sdk/client/query/stats.h>
 
 #include <src/api/protos/ydb_table.pb.h>
 

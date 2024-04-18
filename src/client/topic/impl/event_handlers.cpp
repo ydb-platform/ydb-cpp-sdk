@@ -1,4 +1,4 @@
-#include <src/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
 
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 

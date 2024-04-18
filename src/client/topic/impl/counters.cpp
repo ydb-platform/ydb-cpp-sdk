@@ -1,4 +1,4 @@
-#include <src/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
 
 namespace NYdb::NTopic {
 

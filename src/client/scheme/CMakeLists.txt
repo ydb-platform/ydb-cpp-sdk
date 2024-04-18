@@ -13,9 +13,9 @@ target_sources(cpp-client-ydb_scheme PRIVATE
 )
 
 generate_enum_serilization(cpp-client-ydb_scheme
-  ${YDB_SDK_SOURCE_DIR}/src/client/scheme/scheme.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/scheme/scheme.h
   INCLUDE_HEADERS
-  src/client/scheme/scheme.h
+  include/ydb-cpp-sdk/client/scheme/scheme.h
 )
 
 add_library(YDB-CPP-SDK::Scheme ALIAS cpp-client-ydb_scheme)

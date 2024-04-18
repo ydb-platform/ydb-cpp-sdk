@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/client/table/table.h>
+#include <ydb-cpp-sdk/client/table/table.h>
 
 #include <src/util/folder/pathsplit.h>
 #include <src/util/generic/yexception.h>

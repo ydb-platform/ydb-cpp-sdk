@@ -1,7 +1,7 @@
 #define INCLUDE_YDB_INTERNAL_H
 #include "exec_query.h"
 
-#include <src/client/query/client.h>
+#include <ydb-cpp-sdk/client/query/client.h>
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #include <src/client/impl/ydb_internal/kqp_session_common/kqp_session_common.h>
 #include <src/client/common_client/impl/client.h>

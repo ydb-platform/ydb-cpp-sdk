@@ -1,4 +1,4 @@
-#include <ydb_scripting.h>
+#include <ydb-cpp-sdk/client/draft/ydb_scripting.h>
 
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 #include <src/api/grpc/ydb_scripting_v1.grpc.pb.h>

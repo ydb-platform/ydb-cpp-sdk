@@ -1,4 +1,4 @@
-#include "ydb_scripting.h"
+#include <ydb-cpp-sdk/client/draft/ydb_scripting.h>
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/make_request/make.h>

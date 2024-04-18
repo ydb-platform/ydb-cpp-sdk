@@ -1,7 +1,7 @@
 #pragma once
 
-#include <src/client/types/status_codes.h>
-#include <src/client/types/status/status.h>
+#include <ydb-cpp-sdk/client/types/status_codes.h>
+#include <ydb-cpp-sdk/client/types/status/status.h>
 
 namespace NYdb {
 using TPeriodicCb = std::function<bool(NYql::TIssues&&, EStatus)>;

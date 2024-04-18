@@ -2,7 +2,7 @@
 
 #include "client_session.h"
 
-#include <src/client/table/table.h>
+#include <ydb-cpp-sdk/client/table/table.h>
 
 #include <src/library/threading/future/future.h>
 

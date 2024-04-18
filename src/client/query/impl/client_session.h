@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/client/query/client.h>
+#include <ydb-cpp-sdk/client/query/client.h>
 #include <src/client/impl/ydb_internal/kqp_session_common/kqp_session_common.h>
 
 namespace NYdb::NQuery {

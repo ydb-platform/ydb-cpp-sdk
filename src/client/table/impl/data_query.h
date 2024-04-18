@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/client/table/table.h>
+#include <ydb-cpp-sdk/client/table/table.h>
 #include <src/api/protos/ydb_table.pb.h>
 
 namespace NYdb {

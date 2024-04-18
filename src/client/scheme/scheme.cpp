@@ -1,4 +1,4 @@
-#include "scheme.h"
+#include <ydb-cpp-sdk/client/scheme/scheme.h>
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/make_request/make.h>

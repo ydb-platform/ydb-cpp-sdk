@@ -1,4 +1,4 @@
-#include "query.h"
+#include <ydb-cpp-sdk/client/query/query.h>
 
 namespace NYdb::NQuery {
 

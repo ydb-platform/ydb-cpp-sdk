@@ -1,4 +1,4 @@
-#include <src/client/iam/common/iam.h>
+#include <ydb-cpp-sdk/client/iam/common/iam.h>
 
 #include <src/library/http/simple/http_client.h>
 

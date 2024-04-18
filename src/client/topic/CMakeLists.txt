@@ -22,9 +22,9 @@ target_sources(cpp-client-ydb_topic PRIVATE
 )
 
 generate_enum_serilization(cpp-client-ydb_topic
-  ${YDB_SDK_SOURCE_DIR}/src/client/topic/topic.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/topic/topic.h
   INCLUDE_HEADERS
-  src/client/topic/topic.h
+  include/ydb-cpp-sdk/client/topic/topic.h
 )
 
 add_library(YDB-CPP-SDK::Topic ALIAS cpp-client-ydb_topic)

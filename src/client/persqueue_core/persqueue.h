@@ -1,7 +1,7 @@
 #pragma once
 #include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
-#include <src/client/driver/driver.h>
-#include <src/client/types/exceptions/exceptions.h>
+#include <ydb-cpp-sdk/client/driver/driver.h>
+#include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 
 #include <src/library/monlib/dynamic_counters/counters.h>
 #include <src/library/logger/log.h>

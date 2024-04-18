@@ -4,8 +4,8 @@
 #include <src/client/impl/ydb_internal/value_helpers/helpers.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <src/client/params/params.h>
-#include <src/client/types/fatal_error_handlers/handlers.h>
+#include <ydb-cpp-sdk/client/params/params.h>
+#include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 
 #include <src/api/protos/ydb_value.pb.h>
 

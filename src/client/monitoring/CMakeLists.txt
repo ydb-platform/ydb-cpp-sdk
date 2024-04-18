@@ -14,9 +14,9 @@ target_sources(cpp-client-ydb_monitoring PRIVATE
 )
 
 generate_enum_serilization(cpp-client-ydb_monitoring
-  ${YDB_SDK_SOURCE_DIR}/src/client/monitoring/monitoring.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/monitoring/monitoring.h
   INCLUDE_HEADERS
-  src/client/monitoring/monitoring.h
+  include/ydb-cpp-sdk/client/monitoring/monitoring.h
 )
 
 add_library(YDB-CPP-SDK::Monitoring ALIAS cpp-client-ydb_monitoring)

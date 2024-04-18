@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/client/scheme/scheme.h>
+#include <ydb-cpp-sdk/client/scheme/scheme.h>
 #include <vector>
 
 namespace NYdb {

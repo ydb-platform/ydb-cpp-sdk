@@ -15,15 +15,15 @@ target_link_libraries(cpp-client-ydb_types PUBLIC
 )
 
 generate_enum_serilization(cpp-client-ydb_types
-  ${YDB_SDK_SOURCE_DIR}/src/client/types/s3_settings.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/types/s3_settings.h
   INCLUDE_HEADERS
-  src/client/types/s3_settings.h
+  include/ydb-cpp-sdk/client/types/s3_settings.h
 )
 
 generate_enum_serilization(cpp-client-ydb_types
-  ${YDB_SDK_SOURCE_DIR}/src/client/types/status_codes.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/types/status_codes.h
   INCLUDE_HEADERS
-  src/client/types/status_codes.h
+  include/ydb-cpp-sdk/client/types/status_codes.h
 )
 
 add_library(YDB-CPP-SDK::Types ALIAS cpp-client-ydb_types)

@@ -10,9 +10,9 @@ target_link_libraries(cpp-client-ydb_federated_topic PUBLIC
 )
 
 generate_enum_serilization(cpp-client-ydb_federated_topic
-  ${YDB_SDK_SOURCE_DIR}/src/client/federated_topic/federated_topic.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/federated_topic/federated_topic.h
   INCLUDE_HEADERS
-  src/client/federated_topic/federated_topic.h
+  include/ydb-cpp-sdk/client/federated_topic/federated_topic.h
 )
 
 add_library(YDB-CPP-SDK::FederatedTopic ALIAS cpp-client-ydb_federated_topic)

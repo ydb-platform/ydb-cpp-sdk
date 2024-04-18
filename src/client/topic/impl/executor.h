@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
 #include <src/client/common_client/impl/client.h>
 
 #include <src/util/thread/pool.h>

@@ -1,5 +1,6 @@
-#include "client.h"
 #include "impl/client_session.h"
+
+#include <ydb-cpp-sdk/client/query/client.h>
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_endpoints/endpoints.h>
@@ -14,7 +15,7 @@
 #include <src/library/operation_id/operation_id.h>
 #include <src/client/common_client/impl/client.h>
 #include <src/client/query/impl/exec_query.h>
-#include <src/client/retry/retry.h>
+#include <ydb-cpp-sdk/client/retry/retry.h>
 
 namespace NYdb::NQuery {
 

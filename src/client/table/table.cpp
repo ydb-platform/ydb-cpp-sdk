@@ -1,4 +1,4 @@
-#include "table.h"
+#include <ydb-cpp-sdk/client/table/table.h>
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/scheme_helpers/helpers.h>
@@ -18,7 +18,7 @@
 #include <src/client/table/impl/data_query.h>
 #include <src/client/table/impl/request_migrator.h>
 #include <src/client/table/impl/table_client.h>
-#include <src/client/resources/ydb_resources.h>
+#include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 
 #include <google/protobuf/util/time_util.h>
 

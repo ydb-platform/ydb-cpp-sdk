@@ -9,7 +9,7 @@
 
 #include <src/client/persqueue_core/impl/callback_context.h>
 #include <src/client/common_client/impl/client.h>
-#include <src/client/federated_topic/federated_topic.h>
+#include <ydb-cpp-sdk/client/federated_topic/federated_topic.h>
 
 #include <src/util/system/spinlock.h>
 #include <src/util/generic/hash.h>

@@ -1,4 +1,4 @@
-#include "discovery.h"
+#include <ydb-cpp-sdk/client/discovery/discovery.h>
 
 #include <src/client/common_client/impl/client.h>
 

@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/tests_data.h>
 #include <src/library/testing/unittest/registar.h>
-#include <src/client/types/exceptions/exceptions.h>
+#include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 #include <src/client/proto/accessor.h>
 #include <src/library/json/json_reader.h>
 

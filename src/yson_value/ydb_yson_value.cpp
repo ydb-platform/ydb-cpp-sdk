@@ -3,7 +3,7 @@
 #include <src/util/string/builder.h>
 
 #include <ydb-cpp-sdk/client/value/value.h>
-#include <src/client/result/result.h>
+#include <ydb-cpp-sdk/client/result/result.h>
 
 #include <src/util/string/builder.h>
 

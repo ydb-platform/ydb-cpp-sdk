@@ -16,9 +16,9 @@ target_sources(cpp-client-ydb_export PRIVATE
 )
 
 generate_enum_serilization(cpp-client-ydb_export
-  ${YDB_SDK_SOURCE_DIR}/src/client/export/export.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/export/export.h
   INCLUDE_HEADERS
-  src/client/export/export.h
+  include/ydb-cpp-sdk/client/export/export.h
 )
 
 add_library(YDB-CPP-SDK::Export ALIAS cpp-client-ydb_export)

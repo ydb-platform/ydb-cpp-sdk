@@ -19,9 +19,9 @@ target_sources(cpp-client-ydb_coordination PRIVATE
 )
 
 generate_enum_serilization(cpp-client-ydb_coordination
-  ${YDB_SDK_SOURCE_DIR}/src/client/coordination/coordination.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/coordination/coordination.h
   INCLUDE_HEADERS
-  src/client/coordination/coordination.h
+  include/ydb-cpp-sdk/client/coordination/coordination.h
 )
 
 add_library(YDB-CPP-SDK::Coordination ALIAS cpp-client-ydb_coordination)

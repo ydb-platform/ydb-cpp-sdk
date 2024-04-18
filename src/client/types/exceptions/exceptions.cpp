@@ -1,4 +1,4 @@
-#include "exceptions.h"
+#include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 
 namespace NYdb {
 

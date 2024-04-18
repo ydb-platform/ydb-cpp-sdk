@@ -4,7 +4,7 @@
 
 #include <src/client/common_client/impl/client.h>
 #include <src/client/persqueue_core/persqueue.h>
-#include <src/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
 #include <src/client/persqueue_core/impl/callback_context.h>
 #include <src/client/persqueue_core/impl/log_lazy.h>
 

@@ -2,7 +2,7 @@
 
 #include <src/client/persqueue_core/impl/log_lazy.h>
 
-#include <src/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
 #include <src/library/string_utils/url/url.h>
 
 #include <google/protobuf/util/time_util.h>

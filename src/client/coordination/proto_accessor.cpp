@@ -1,6 +1,6 @@
 #include <src/client/proto/accessor.h>
 
-#include "coordination.h"
+#include <ydb-cpp-sdk/client/coordination/coordination.h>
 
 namespace NYdb {
 

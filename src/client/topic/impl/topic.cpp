@@ -1,4 +1,4 @@
-#include <src/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
 #include <src/client/topic/impl/topic_impl.h>
 #include <src/client/topic/impl/executor.h>
 #include <src/client/impl/ydb_internal/scheme_helpers/helpers.h>

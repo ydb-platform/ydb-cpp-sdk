@@ -1,14 +1,14 @@
-#include "operation.h"
+#include <ydb-cpp-sdk/client/operation/operation.h>
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
 /* Headers below used to instantiate concrete 'Get' & 'List' methods */
-#include <src/client/query/query.h>
-#include <src/client/export/export.h>
-#include <src/client/import/import.h>
-#include <src/client/table/table.h>
+#include <ydb-cpp-sdk/client/query/query.h>
+#include <ydb-cpp-sdk/client/export/export.h>
+#include <ydb-cpp-sdk/client/import/import.h>
+#include <ydb-cpp-sdk/client/table/table.h>
 
 #include <src/api/grpc/ydb_operation_v1.grpc.pb.h>
 #include <src/library/operation_id/operation_id.h>

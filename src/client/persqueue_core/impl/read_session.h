@@ -9,7 +9,7 @@
 #include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
 #include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
 #include <src/client/persqueue_core/persqueue.h>
-#include <src/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
 
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 

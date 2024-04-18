@@ -2,8 +2,8 @@
 
 #include <src/client/impl/ydb_internal/internal_header.h>
 
-#include <src/client/types/status_codes.h>
-#include <src/client/types/ydb.h>
+#include <ydb-cpp-sdk/client/types/status_codes.h>
+#include <ydb-cpp-sdk/client/types/ydb.h>
 
 #include <src/library/yql/public/issue/yql_issue.h>
 

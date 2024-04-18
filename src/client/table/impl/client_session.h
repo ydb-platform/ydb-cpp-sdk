@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/client/table/table.h>
+#include <ydb-cpp-sdk/client/table/table.h>
 #include <src/client/impl/ydb_internal/kqp_session_common/kqp_session_common.h>
 #include <src/client/impl/ydb_endpoints/endpoints.h>
 #include <src/library/operation_id/operation_id.h>

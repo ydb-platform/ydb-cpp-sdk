@@ -1,8 +1,7 @@
-#include "operation.h"
-
+#include <ydb-cpp-sdk/client/types/operation/operation.h>
 
 #include <src/api/protos/ydb_operation.pb.h>
-#include <src/client/types/status/status.h>
+#include <ydb-cpp-sdk/client/types/status/status.h>
 
 namespace NYdb {
 

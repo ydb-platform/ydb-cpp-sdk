@@ -1,4 +1,4 @@
-#include <src/client/federated_topic/federated_topic.h>
+#include <ydb-cpp-sdk/client/federated_topic/federated_topic.h>
 #include <src/client/persqueue_core/impl/read_session.h>
 
 #include <optional>

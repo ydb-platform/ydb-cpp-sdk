@@ -16,9 +16,9 @@ target_sources(cpp-client-ydb_import PRIVATE
 )
 
 generate_enum_serilization(cpp-client-ydb_import
-  ${YDB_SDK_SOURCE_DIR}/src/client/import/import.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/import/import.h
   INCLUDE_HEADERS
-  src/client/import/import.h
+  include/ydb-cpp-sdk/client/import/import.h
 )
 
 add_library(YDB-CPP-SDK::Import ALIAS cpp-client-ydb_import)

@@ -1,4 +1,4 @@
-#include "result.h"
+#include <ydb-cpp-sdk/client/result/result.h>
 
 #include <src/client/proto/accessor.h>
 

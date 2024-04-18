@@ -1,4 +1,4 @@
-#include "settings.h"
+#include <ydb-cpp-sdk/client/common_client/settings.h>
 
 #include <src/client/impl/ydb_internal/common/parser.h>
 

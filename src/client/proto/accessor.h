@@ -9,13 +9,13 @@
 #include <src/api/protos/ydb_topic.pb.h>
 #include <src/api/protos/ydb_value.pb.h>
 
-#include <src/client/coordination/coordination.h>
-#include <src/client/export/export.h>
-#include <src/client/import/import.h>
-#include <src/client/monitoring/monitoring.h>
+#include <ydb-cpp-sdk/client/coordination/coordination.h>
+#include <ydb-cpp-sdk/client/export/export.h>
+#include <ydb-cpp-sdk/client/import/import.h>
+#include <ydb-cpp-sdk/client/monitoring/monitoring.h>
 #include <src/client/persqueue_public/persqueue.h>
-#include <src/client/table/table.h>
-#include <src/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/table/table.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
 
 namespace NYdb {
 

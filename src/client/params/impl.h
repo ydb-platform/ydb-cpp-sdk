@@ -1,6 +1,6 @@
 #pragma once
 
-#include "params.h"
+#include <ydb-cpp-sdk/client/params/params.h>
 
 namespace NYdb {
 

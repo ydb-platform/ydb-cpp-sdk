@@ -1,8 +1,8 @@
 #pragma once
 
-#include <src/client/result/result.h>
+#include <ydb-cpp-sdk/client/result/result.h>
 #include <ydb-cpp-sdk/client/value/value.h>
-#include <src/client/types/fatal_error_handlers/handlers.h>
+#include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 
 #include <src/library/yson/node/node_io.h>
 

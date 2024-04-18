@@ -28,9 +28,9 @@ target_sources(cpp-client-ydb_table PRIVATE
 )
 
 generate_enum_serilization(cpp-client-ydb_table
-  ${YDB_SDK_SOURCE_DIR}/src/client/table/table_enum.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/table/table_enum.h
   INCLUDE_HEADERS
-  src/client/table/table_enum.h
+  include/ydb-cpp-sdk/client/table/table_enum.h
 )
 
 add_library(YDB-CPP-SDK::Table ALIAS cpp-client-ydb_table)

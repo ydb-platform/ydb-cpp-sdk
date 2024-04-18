@@ -1,7 +1,7 @@
 #include "application.h"
 #include "options.h"
 
-#include <src/client/driver/driver.h>
+#include <ydb-cpp-sdk/client/driver/driver.h>
 
 #include <optional>
 

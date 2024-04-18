@@ -1,4 +1,4 @@
-#include "driver.h"
+#include <ydb-cpp-sdk/client/driver/driver.h>
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/driver/constants.h>
@@ -11,7 +11,7 @@
 #include <src/client/impl/ydb_internal/common/getenv.h>
 #include <src/client/impl/ydb_internal/common/ssl_credentials.h>
 #include <src/util/stream/file.h>
-#include <src/client/resources/ydb_ca.h>
+#include <ydb-cpp-sdk/client/resources/ydb_ca.h>
 
 namespace NYdb {
 
