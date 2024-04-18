@@ -7,8 +7,6 @@
 #include <ydb-cpp-sdk/client/types/request_settings.h>
 #include <ydb-cpp-sdk/client/driver/driver.h>
 
-#include <src/util/system/types.h>
-
 #include <memory>
 
 namespace NYdb::NDynamicConfig {
