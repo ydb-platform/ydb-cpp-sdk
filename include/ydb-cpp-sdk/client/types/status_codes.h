@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/system/types.h>
+#include <cstddef>
 
 namespace NYdb {
 

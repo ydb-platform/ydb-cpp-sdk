@@ -4,8 +4,6 @@
 
 #include <src/library/monlib/metrics/metric_registry.h>
 
-#include <src/util/generic/ptr.h>
-
 namespace NSolomonStatExtension {
 
 template <typename TMetricRegistryPtr>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/client/impl/ydb_internal/internal_header.h>
-#include <src/client/impl/ydb_internal/common/ssl_credentials.h>
+#include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
 
 #include "actions.h"
 #include "params.h"

@@ -10,8 +10,6 @@
 #include <src/util/string/builder.h>
 
 #include <src/util/datetime/base.h>
-#include <src/util/generic/hash.h>
-#include <src/util/generic/ptr.h>
 #include <src/util/generic/size_literals.h>
 #include <src/util/thread/pool.h>
 

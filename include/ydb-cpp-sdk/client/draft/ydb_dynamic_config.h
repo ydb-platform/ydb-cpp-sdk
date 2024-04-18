@@ -7,7 +7,6 @@
 #include <ydb-cpp-sdk/client/types/request_settings.h>
 #include <ydb-cpp-sdk/client/driver/driver.h>
 
-#include <src/util/generic/set.h>
 #include <src/util/system/types.h>
 
 #include <memory>
@@ -138,18 +137,18 @@ struct TVerboseResolveConfigResult : public TStatus {
         }
     };
 
-    using ConfigByLabelSet = std::map<TSet<std::vector<TLabel>>, std::string>;
+    using ConfigByLabelSet = std::map<std::set<std::vector<TLabel>>, std::string>;
 
     TVerboseResolveConfigResult(
         TStatus&& status,
-        TSet<std::string>&& labels,
+        std::set<std::string>&& labels,
         ConfigByLabelSet&& configs)
         : TStatus(std::move(status))
         , Labels_(std::move(labels))
         , Configs_(std::move(configs))
     {}
 
-    const TSet<std::string>& GetLabels() const {
+    const std::set<std::string>& GetLabels() const {
         return Labels_;
     }
 
@@ -158,7 +157,7 @@ struct TVerboseResolveConfigResult : public TStatus {
     }
 
 private:
-    TSet<std::string> Labels_;
+    std::set<std::string> Labels_;
     ConfigByLabelSet Configs_;
 };
 

@@ -7,7 +7,7 @@
 #undef INCLUDE_YDB_INTERNAL_H
 
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
-#include <src/client/impl/ydb_internal/common/ssl_credentials.h>
+#include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
 
 #include <memory>
 

@@ -303,12 +303,12 @@ public:
                 }
             };
 
-            TSet<std::string> labels;
+            std::set<std::string> labels;
             TVerboseResolveConfigResult::ConfigByLabelSet configs;
 
             if (Ydb::DynamicConfig::ResolveAllConfigResult result; any && any->UnpackTo(&result)) {
                 for (auto& config : result.configs()) {
-                    TSet<std::vector<TVerboseResolveConfigResult::TLabel>> labelSets;
+                    std::set<std::vector<TVerboseResolveConfigResult::TLabel>> labelSets;
                     for (auto& labelSet : config.label_sets()) {
                         std::vector<TVerboseResolveConfigResult::TLabel> set;
                         for (auto& label : labelSet.labels()) {

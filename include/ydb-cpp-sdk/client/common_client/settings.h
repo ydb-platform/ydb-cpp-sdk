@@ -1,13 +1,12 @@
 #pragma once
 
+#include "ssl_credentials.h"
+
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 #include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
 #include <ydb-cpp-sdk/client/types/ydb.h>
 
-#include <src/client/impl/ydb_internal/common/ssl_credentials.h>
-
 #include <optional>
-#include <functional>
 
 namespace NYdb {
 

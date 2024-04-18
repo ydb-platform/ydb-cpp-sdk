@@ -11,8 +11,9 @@
 #include <src/util/datetime/base.h>
 
 #include <src/util/system/spinlock.h>
-#include <src/util/stream/file.h>
 #include <src/util/string/builder.h>
+
+#include <fstream>
 
 namespace NYdb {
 
@@ -45,7 +46,8 @@ struct TIamJwtContent : TIamEndpoint { std::string JwtContent; };
 struct TIamJwtParams : TIamEndpoint { TJwtParams JwtParams; };
 
 inline TJwtParams ReadJwtKeyFile(const std::string& filename) {
-    return ParseJwtParams(TFileInput(filename).ReadAll());
+    std::ifstream input(filename, std::ios::in);
+    return ParseJwtParams({std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()});
 }
 
 struct TIamOAuth : TIamEndpoint { std::string OAuthToken; };

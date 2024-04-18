@@ -10,8 +10,6 @@
 #include <ydb-cpp-sdk/client/table/query_stats/stats.h>
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
 
-#include <src/util/generic/hash.h>
-
 #include <variant>
 
 namespace Ydb {
