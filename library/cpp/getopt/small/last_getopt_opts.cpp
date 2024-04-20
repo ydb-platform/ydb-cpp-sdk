@@ -107,7 +107,7 @@ namespace NLastGetopt {
 
     const TOpt* TOpts::FindLongOption(const std::string_view& name) const {
         for (const auto& Opt : Opts_) {
-            const TOpt* opt = Opt.Get();
+            const TOpt* opt = Opt.get();
             if (IsIn(opt->GetLongNames(), name))
                 return opt;
         }
@@ -116,7 +116,7 @@ namespace NLastGetopt {
 
     TOpt* TOpts::FindLongOption(const std::string_view& name) {
         for (auto& Opt : Opts_) {
-            TOpt* opt = Opt.Get();
+            TOpt* opt = Opt.get();
             if (IsIn(opt->GetLongNames(), name))
                 return opt;
         }
@@ -125,7 +125,7 @@ namespace NLastGetopt {
 
     const TOpt* TOpts::FindCharOption(char c) const {
         for (const auto& Opt : Opts_) {
-            const TOpt* opt = Opt.Get();
+            const TOpt* opt = Opt.get();
             if (IsIn(opt->GetShortNames(), c))
                 return opt;
         }
@@ -134,7 +134,7 @@ namespace NLastGetopt {
 
     TOpt* TOpts::FindCharOption(char c) {
         for (auto& Opt : Opts_) {
-            TOpt* opt = Opt.Get();
+            TOpt* opt = Opt.get();
             if (IsIn(opt->GetShortNames(), c))
                 return opt;
         }
@@ -171,7 +171,7 @@ namespace NLastGetopt {
 
     bool TOpts::HasAnyShortOption() const {
         for (const auto& Opt : Opts_) {
-            const TOpt* opt = Opt.Get();
+            const TOpt* opt = Opt.get();
             if (!opt->GetShortNames().empty())
                 return true;
         }
@@ -180,7 +180,7 @@ namespace NLastGetopt {
 
     bool TOpts::HasAnyLongOption() const {
         for (const auto& Opt : Opts_) {
-            TOpt* opt = Opt.Get();
+            TOpt* opt = Opt.get();
             if (!opt->GetLongNames().empty())
                 return true;
         }
@@ -189,11 +189,11 @@ namespace NLastGetopt {
 
     void TOpts::Validate() const {
         for (TOptsVector::const_iterator i = Opts_.begin(); i != Opts_.end(); ++i) {
-            TOpt* opt = i->Get();
+            TOpt* opt = i->get();
             const TOpt::TShortNames& shortNames = opt->GetShortNames();
             for (auto c : shortNames) {
                 for (TOptsVector::const_iterator j = i + 1; j != Opts_.end(); ++j) {
-                    TOpt* nextOpt = j->Get();
+                    TOpt* nextOpt = j->get();
                     if (nextOpt->CharIs(c))
                         ythrow TConfException() << "option "
                                                 << NPrivate::OptToString(c)
@@ -203,7 +203,7 @@ namespace NLastGetopt {
             const TOpt::TLongNames& longNames = opt->GetLongNames();
             for (const auto& longName : longNames) {
                 for (TOptsVector::const_iterator j = i + 1; j != Opts_.end(); ++j) {
-                    TOpt* nextOpt = j->Get();
+                    TOpt* nextOpt = j->get();
                     if (nextOpt->NameIs(longName))
                         ythrow TConfException() << "option "
                                                 << NPrivate::OptToString(longName)
@@ -218,13 +218,22 @@ namespace NLastGetopt {
             ythrow TConfException() << "Described args count is greater than FreeArgsMax. Either increase FreeArgsMax or remove unreachable descriptions";
         }
     }
-
+/*
     TOpt& TOpts::AddOption(const TOpt& option) {
         if (option.GetShortNames().empty() && option.GetLongNames().empty())
             ythrow TConfException() << "bad option: no chars, no long names";
         Opts_.push_back(new TOpt(option));
         return *Opts_.back();
     }
+*/
+    TOpt& TOpts::AddOption(const TOpt& option) {
+    if (option.GetShortNames().empty() && option.GetLongNames().empty())
+        ythrow TConfException() << "bad option: no chars, no long names";
+
+    std::shared_ptr<NLastGetopt::TOpt> newOpt = std::make_shared<NLastGetopt::TOpt>(option);
+    Opts_.push_back(newOpt);
+    return *Opts_.back();
+}
 
     TOpt& TOpts::AddCompletionOption(std::string command, std::string longName) {
         if (TOpt* o = FindLongOption(longName)) {
@@ -252,13 +261,27 @@ namespace NLastGetopt {
         opt2.Handler1(MutuallyExclusiveHandler(&opt2, &opt1))
             .IfPresentDisableCompletionFor(opt1);
     }
-
+/*
     size_t TOpts::IndexOf(const TOpt* opt) const {
         TOptsVector::const_iterator it = std::find(Opts_.begin(), Opts_.end(), opt);
         if (it == Opts_.end())
             ythrow TException() << "unknown option";
         return it - Opts_.begin();
+    }*/
+
+    size_t TOpts::IndexOf(const TOpt* opt) const {
+    // Используем std::find_if для поиска элемента по указателю opt
+    auto it = std::find_if(Opts_.begin(), Opts_.end(), [opt](const std::shared_ptr<NLastGetopt::TOpt>& element) {
+        // Сравниваем содержимое указателя в shared_ptr с указателем opt
+        return element.get() == opt;
+    });
+    // Проверяем, был ли найден элемент
+    if (it == Opts_.end()) {
+        ythrow TException() << "unknown option";
     }
+    // Возвращаем индекс найденного элемента
+    return std::distance(Opts_.begin(), it);
+}
 
     std::string_view TOpts::GetFreeArgTitle(size_t pos) const {
         if (FreeArgSpecs_.contains(pos)) {
@@ -380,7 +403,7 @@ namespace NLastGetopt {
         NColorizer::TColors disabledColors(false);
 
         for (size_t i = 0; i < Opts_.size(); i++) {
-            const TOpt* opt = Opts_[i].Get();
+            const TOpt* opt = Opts_[i].get();
             if (opt->IsHidden())
                 continue;
             leftColumn[i] = FormatOption(opt, colors);
@@ -415,7 +438,7 @@ namespace NLastGetopt {
             }
 
             for (size_t i = 0; i < Opts_.size(); i++) {
-                const TOpt* opt = Opts_[i].Get();
+                const TOpt* opt = Opts_[i].get();
 
                 if (opt->IsHidden())
                     continue;

@@ -148,7 +148,7 @@ namespace NMonitoring {
                 std::function<IHistogramCollectorPtr()> makeHistogramCollector) override;
 
     private:
-        THolder<TRWMutex> Lock_ = MakeHolder<TRWMutex>();
+        std::unique_ptr<TRWMutex> Lock_ = MakeHolder<TRWMutex>();
         THashMap<ILabelsPtr, IMetricPtr> Metrics_;
 
         template <typename TMetric, EMetricType type, typename TLabelsType, typename... Args>

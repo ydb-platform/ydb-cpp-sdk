@@ -29,7 +29,7 @@
         virtual size_t GetMemorySize() const override;                                                                \
                                                                                                                       \
     protected:                                                                                                        \
-        THolder<IArgon2Base> argon2;                                                                                  \
+        std::unique_ptr<IArgon2Base> argon2;                                                                                  \
     };
 
 #define ARGON2_INSTANCE_DECL(IS_val, mcost_val, threads_val)                                     \
@@ -159,7 +159,7 @@
         virtual void Final(void* out, size_t outlen) override;                          \
                                                                                         \
     protected:                                                                          \
-        THolder<IBlake2Base> blake2;                                                    \
+        std::unique_ptr<IBlake2Base> blake2;                                                    \
     };
 
 #define BLAKE2B_PROXY_CLASS_IMPL(IS)                                                      \

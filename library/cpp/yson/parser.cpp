@@ -66,7 +66,7 @@ namespace NYson {
 
     class TStatelessYsonParser::TImpl {
     private:
-        THolder<TStatelessYsonParserImplBase> Impl;
+        std::unique_ptr<TStatelessYsonParserImplBase> Impl;
 
     public:
         TImpl(
@@ -138,7 +138,7 @@ namespace NYson {
 
         bool Parse() {
             if (!Impl_) {
-                Impl_.Reset(
+                Impl_.reset(
                     EnableLinePositionInfo_
                         ? static_cast<TYsonListParserImplBase*>(new TYsonListParserImpl<NYT::NYson::IYsonConsumer, TStreamReader, true>(Reader_, Consumer_, MemoryLimit_))
                         : static_cast<TYsonListParserImplBase*>(new TYsonListParserImpl<NYT::NYson::IYsonConsumer, TStreamReader, false>(Reader_, Consumer_, MemoryLimit_)));
@@ -153,7 +153,7 @@ namespace NYson {
         std::optional<ui64> MemoryLimit_;
         TBuffer Buffer_;
         TStreamReader Reader_;
-        THolder<TYsonListParserImplBase> Impl_;
+        std::unique_ptr<TYsonListParserImplBase> Impl_;
     };
 
     ////////////////////////////////////////////////////////////////////////////////

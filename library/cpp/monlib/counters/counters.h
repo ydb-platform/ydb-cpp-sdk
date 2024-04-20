@@ -152,7 +152,7 @@ namespace NMonitoring {
         typedef std::map<T, G*> TGroups;
         typedef std::vector<T> TGroupsNames;
 
-        typedef THolder<TGroupsNames> TGroupsNamesPtr;
+        typedef std::unique_ptr<TGroupsNames> TGroupsNamesPtr;
 
     private:
         class TCollection {

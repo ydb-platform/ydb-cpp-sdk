@@ -13,18 +13,25 @@ namespace NTesting {
         virtual ui16 Get() = 0;
     };
 
-    class TPortHolder : private THolder<IPort> {
-        using TBase = THolder<IPort>;
+    class TPortHolder : private std::unique_ptr<IPort> {
+        using TBase = std::unique_ptr<IPort>;
     public:
         using TBase::TBase;
-        using TBase::Release;
-        using TBase::Reset;
+        using TBase::release;
+        using TBase::reset;
 
         operator ui16() const& {
             return (*this)->Get();
         }
 
         operator ui16() const&& = delete;
+///////////////////////////////////////////////////////
+        TPortHolder(std::unique_ptr<IPort> ptr) : TBase(std::move(ptr)) {}
+
+        TPortHolder(const TPortHolder&) = default;
+        TPortHolder(TPortHolder&&) = default;
+        TPortHolder& operator=(const TPortHolder&) = default;
+        TPortHolder& operator=(TPortHolder&&) = default;
     };
 
     IOutputStream& operator<<(IOutputStream& out, const TPortHolder& port);

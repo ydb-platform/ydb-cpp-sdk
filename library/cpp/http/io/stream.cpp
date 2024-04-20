@@ -117,14 +117,14 @@ namespace {
     private:
         inline void ConstructSlave() {
             if (!Slave_) {
-                Slave_.Reset(new TStream(Output_, BlockSize_));
+                Slave_.reset(new TStream(Output_, BlockSize_));
             }
         }
 
     private:
         IOutputStream* Output_;
         ui16 BlockSize_;
-        THolder<IOutputStream> Slave_;
+        std::unique_ptr<IOutputStream> Slave_;
     };
 }
 
@@ -349,7 +349,7 @@ private:
 
         if (auto decoder = TCompressionCodecFactory::Instance().FindDecoder(p.LZipped)) {
             ContentEncoded_ = true;
-            Input_ = Streams_.Add((*decoder)(Input_).Release());
+            Input_ = Streams_.Add((*decoder)(Input_).release());
         }
 
         KeepAlive_ = p.KeepAlive;
@@ -833,7 +833,7 @@ private:
         Output_ = Streams_.Add(new TTeeOutput(Output_, &SizeCalculator_));
 
         if (IsBodyEncodingEnabled() && encoder) {
-            Output_ = Streams_.Add((*encoder)(Output_).Release());
+            Output_ = Streams_.Add((*encoder)(Output_).release());
         }
     }
 

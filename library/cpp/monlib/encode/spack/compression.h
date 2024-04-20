@@ -13,7 +13,7 @@ public:
     virtual void FinishAndWriteEmptyFrame() = 0;
 };
 
-THolder<IInputStream> CompressedInput(IInputStream* in, ECompression alg);
-THolder<IFramedCompressStream> CompressedOutput(IOutputStream* out, ECompression alg);
+std::unique_ptr<IInputStream> CompressedInput(IInputStream* in, ECompression alg);
+std::unique_ptr<IFramedCompressStream> CompressedOutput(IOutputStream* out, ECompression alg);
 
 } // namespace NMonitoring

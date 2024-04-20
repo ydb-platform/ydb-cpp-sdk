@@ -370,33 +370,33 @@ TBufferedOutputBase::~TBufferedOutputBase() {
 }
 
 size_t TBufferedOutputBase::DoNext(void** ptr) {
-    Y_ENSURE(Impl_.Get(), "cannot call next in finished stream");
+    Y_ENSURE(Impl_.get(), "cannot call next in finished stream");
     return Impl_->Next(ptr);
 }
 
 void TBufferedOutputBase::DoUndo(size_t len) {
-    Y_ENSURE(Impl_.Get(), "cannot call undo in finished stream");
+    Y_ENSURE(Impl_.get(), "cannot call undo in finished stream");
     Impl_->Undo(len);
 }
 
 void TBufferedOutputBase::DoWrite(const void* data, size_t len) {
-    Y_ENSURE(Impl_.Get(), "cannot write to finished stream");
+    Y_ENSURE(Impl_.get(), "cannot write to finished stream");
     Impl_->Write(data, len);
 }
 
 void TBufferedOutputBase::DoWriteC(char c) {
-    Y_ENSURE(Impl_.Get(), "cannot write to finished stream");
+    Y_ENSURE(Impl_.get(), "cannot write to finished stream");
     Impl_->Write(c);
 }
 
 void TBufferedOutputBase::DoFlush() {
-    if (Impl_.Get()) {
+    if (Impl_.get()) {
         Impl_->Flush();
     }
 }
 
 void TBufferedOutputBase::DoFinish() {
-    THolder<TImpl> impl(Impl_.Release());
+    std::unique_ptr<TImpl> impl(Impl_.release());
 
     if (impl) {
         impl->Finish();
@@ -404,13 +404,13 @@ void TBufferedOutputBase::DoFinish() {
 }
 
 void TBufferedOutputBase::SetFlushPropagateMode(bool propagate) noexcept {
-    if (Impl_.Get()) {
+    if (Impl_.get()) {
         Impl_->SetFlushPropagateMode(propagate);
     }
 }
 
 void TBufferedOutputBase::SetFinishPropagateMode(bool propagate) noexcept {
-    if (Impl_.Get()) {
+    if (Impl_.get()) {
         Impl_->SetFinishPropagateMode(propagate);
     }
 }

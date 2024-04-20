@@ -447,24 +447,24 @@ int main(int argc, char** argv) {
         std::vector<std::string> freeArgs = res.GetFreeArgs();
         std::string inputFileName = freeArgs[0];
 
-        THolder<std::ostream> hOut;
+        std::unique_ptr<std::ostream> hOut;
         std::ostream* out = &std::cout;
 
-        THolder<std::ostream> headerOut;
+        std::unique_ptr<std::ostream> headerOut;
 
-        THolder<std::ostream> jsonOut;
+        std::unique_ptr<std::ostream> jsonOut;
 
         if (!outputFileName.empty()) {
             NFs::Remove(outputFileName.c_str());
-            hOut.Reset(new std::ofstream(outputFileName));
-            out = hOut.Get();
+            hOut.reset(new std::ofstream(outputFileName));
+            out = hOut.get();
 
             if (!outputHeaderFileName.empty()) {
-                headerOut.Reset(new std::ofstream(outputHeaderFileName));
+                headerOut.reset(new std::ofstream(outputHeaderFileName));
             }
 
             if (!outputJsonFileName.empty()) {
-                jsonOut.Reset(new std::ofstream(outputJsonFileName));
+                jsonOut.reset(new std::ofstream(outputJsonFileName));
             }
         }
 
@@ -475,7 +475,7 @@ int main(int argc, char** argv) {
         }
 
         TEnumParser parser(inputFileName);
-        WriteHeader(includePath, *out, headerOut.Get());
+        WriteHeader(includePath, *out, headerOut.get());
 
         TStringStream jEnums;
         OpenArray(jEnums);
@@ -487,7 +487,7 @@ int main(int argc, char** argv) {
             }
 
             TStringStream jEnum;
-            GenerateEnum(en, *out, &jEnum, headerOut.Get());
+            GenerateEnum(en, *out, &jEnum, headerOut.get());
             OutItem(jEnums, jEnum.Str(), false);
         }
         FinishItems(jEnums);

@@ -28,11 +28,11 @@ public:
         , Arg_(nullptr)
     {
         for (size_t i = 0; i < Args_.size(); ++i) {
-            ArgsPtrs_.Get()[i] = Args_[i].data();
+            ArgsPtrs_.get()[i] = Args_[i].data();
         }
 
-        ArgsPtrs_.Get()[Args_.size()] = nullptr;
-        Opt_.Reset(new Opt((int)Args_.size(), ArgsPtrs_.Get(), Format_.data()));
+        ArgsPtrs_.get()[Args_.size()] = nullptr;
+        Opt_.reset(new Opt((int)Args_.size(), ArgsPtrs_.get(), Format_.data()));
     }
 
     inline ~TIterImpl() = default;
@@ -58,7 +58,7 @@ private:
     std::vector<std::string> Args_;
     TArrayHolder<char*> ArgsPtrs_;
     const std::string Format_;
-    THolder<Opt> Opt_;
+    std::unique_ptr<Opt> Opt_;
     int OptLet_;
     const char* Arg_;
 };

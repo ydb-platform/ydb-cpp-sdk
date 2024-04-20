@@ -89,7 +89,7 @@ private:
             NYdbGrpc::TGRpcClientConfig grpcConf;
             grpcConf.Locator = IamEndpoint_.Endpoint;
             grpcConf.EnableSsl = true;
-            Connection_ = THolder<NYdbGrpc::TServiceConnection<TService>>(Client->CreateGRpcServiceConnection<TService>(grpcConf).release());
+            Connection_ = std::unique_ptr<NYdbGrpc::TServiceConnection<TService>>(Client->CreateGRpcServiceConnection<TService>(grpcConf).release());
         }
 
         void UpdateTicket(bool sync = false) {
@@ -152,7 +152,7 @@ private:
                 NeedStop_ = true;
             }
 
-            Client.Reset(); // Will trigger destroy
+            Client.reset(); // Will trigger destroy
         }
 
     private:
@@ -194,8 +194,8 @@ private:
 
     private:
 
-        THolder<NYdbGrpc::TGRpcClientLow> Client;
-        THolder<NYdbGrpc::TServiceConnection<TService>> Connection_;
+        std::unique_ptr<NYdbGrpc::TGRpcClientLow> Client;
+        std::unique_ptr<NYdbGrpc::TServiceConnection<TService>> Connection_;
         std::string Ticket_;
         TInstant NextTicketUpdate_;
         const TIamEndpoint IamEndpoint_;

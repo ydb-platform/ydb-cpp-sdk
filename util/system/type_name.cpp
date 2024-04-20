@@ -28,13 +28,13 @@ const char* NPrivate::TCppDemangler::Demangle(const char* name) {
     return name;
 #else
     int status;
-    TmpBuf_.Reset(__cxxabiv1::__cxa_demangle(name, nullptr, nullptr, &status));
+    TmpBuf_.reset(__cxxabiv1::__cxa_demangle(name, nullptr, nullptr, &status));
 
     if (!TmpBuf_) {
         return name;
     }
 
-    return TmpBuf_.Get();
+    return TmpBuf_.get();
 #endif
 }
 

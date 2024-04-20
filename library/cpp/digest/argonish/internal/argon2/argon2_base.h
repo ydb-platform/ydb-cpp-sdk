@@ -44,15 +44,15 @@ namespace NArgonish {
         virtual void Hash(const ui8* pwd, ui32 pwdlen, const ui8* salt, ui32 saltlen,
                           ui8* out, ui32 outlen, const ui8* aad = nullptr, ui32 aadlen = 0) const override {
             TArrayHolder<TBlock> buffer(new TBlock[MemoryBlocks_]);
-            InternalHash_(buffer.Get(), pwd, pwdlen, salt, saltlen, out, outlen, aad, aadlen);
+            InternalHash_(buffer.get(), pwd, pwdlen, salt, saltlen, out, outlen, aad, aadlen);
         }
 
         virtual bool Verify(const ui8* pwd, ui32 pwdlen, const ui8* salt, ui32 saltlen,
                             const ui8* hash, ui32 hashlen, const ui8* aad = nullptr, ui32 aadlen = 0) const override {
             TArrayHolder<ui8> hashResult(new ui8[hashlen]);
-            Hash(pwd, pwdlen, salt, saltlen, hashResult.Get(), hashlen, aad, aadlen);
+            Hash(pwd, pwdlen, salt, saltlen, hashResult.get(), hashlen, aad, aadlen);
 
-            return SecureCompare_(hash, hashResult.Get(), hashlen);
+            return SecureCompare_(hash, hashResult.get(), hashlen);
         }
 
         virtual void HashWithCustomMemory(ui8* memory, size_t mlen, const ui8* pwd, ui32 pwdlen,
@@ -68,9 +68,9 @@ namespace NArgonish {
                                             const ui8* salt, ui32 saltlen, const ui8* hash, ui32 hashlen,
                                             const ui8* aad = nullptr, ui32 aadlen = 0) const override {
             TArrayHolder<ui8> hashResult(new ui8[hashlen]);
-            HashWithCustomMemory(memory, mlen, pwd, pwdlen, salt, saltlen, hashResult.Get(), hashlen, aad, aadlen);
+            HashWithCustomMemory(memory, mlen, pwd, pwdlen, salt, saltlen, hashResult.get(), hashlen, aad, aadlen);
 
-            return SecureCompare_(hashResult.Get(), hash, hashlen);
+            return SecureCompare_(hashResult.get(), hash, hashlen);
         }
 
         virtual size_t GetMemorySize() const override {

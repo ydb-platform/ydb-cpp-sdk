@@ -43,7 +43,7 @@ void TIndexMonPage::Output(IMonHttpRequest& request) {
         }
     }
     if (found) {
-        THolder<IMonHttpRequest> child(request.MakeChild(found.Get(), std::string{pathInfo}));
+        std::unique_ptr<IMonHttpRequest> child(request.MakeChild(found.Get(), std::string{pathInfo}));
         found->Output(*child);
     } else {
         request.Output() << HTTPNOTFOUND;
