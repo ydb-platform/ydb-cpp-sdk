@@ -257,7 +257,7 @@ namespace NBitMapPrivate {
         }
 
         // Returns true if the resulting storage capacity is enough to fit the requested size
-        Y_FORCE_INLINE bool ExpandSize(size_t size, bool keepData = true) {
+        /*Y_FORCE_INLINE bool ExpandSize(size_t size, bool keepData = true) {
             if (size > Size) {
                 size = Max(size, Size * 2);
                 TArrayHolder<TChunk> newData(new TChunk[size]);
@@ -270,7 +270,24 @@ namespace NBitMapPrivate {
                     }
                 }
                 DoSwap(ArrayData, newData);
-                Data = ArrayData.Get();
+                Data = ArrayData.get();
+                Size = size;
+            }
+            return true;
+        }*/
+        Y_FORCE_INLINE bool ExpandSize(size_t size, bool keepData = true) {
+            if (size > Size) {
+                size = std::max(size, Size * 2);
+                std::unique_ptr<TChunk[]> newData(new TChunk[size]); // Используем std::unique_ptr с массивом
+                if (keepData) {
+                    for (size_t i = 0; i < Size; ++i) {
+                        newData[i] = Data[i];
+                    }
+                }
+                for (size_t i = Size; i < size; ++i) {
+                    newData[i] = 0;
+                }
+                Data = newData.release();
                 Size = size;
             }
             return true;

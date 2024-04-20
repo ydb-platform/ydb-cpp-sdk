@@ -48,11 +48,11 @@ TPooledSocket TSocketPool::AllocateMore(TConnectData* conn) {
             ythrow TSystemError(ret) << std::string_view("can not connect(") << cont->Name() << ')';
         }
 
-        THolder<TPooledSocket::TImpl> res(new TPooledSocket::TImpl(s, this));
+        std::unique_ptr<TPooledSocket::TImpl> res(new TPooledSocket::TImpl(s, this));
         s.Release();
 
         if (res->IsOpen()) {
-            return res.Release();
+            return res.release();
         }
     }
 }

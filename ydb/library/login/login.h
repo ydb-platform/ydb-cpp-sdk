@@ -185,7 +185,7 @@ private:
     static bool CheckAllowedName(const std::string& name);
 
     struct TImpl;
-    THolder<TImpl> Impl;
+    std::unique_ptr<TImpl> Impl;
 };
 
 }

@@ -43,7 +43,7 @@ namespace NArgonish {
             QuickTest_();
     }
 
-    THolder<IArgon2Base> TArgon2Factory::Create(EInstructionSet instructionSet, EArgon2Type atype, ui32 tcost,
+    std::unique_ptr<IArgon2Base> TArgon2Factory::Create(EInstructionSet instructionSet, EArgon2Type atype, ui32 tcost,
                                                 ui32 mcost, ui32 threads, const ui8* key, ui32 keylen) const {
         switch (instructionSet) {
             case EInstructionSet::REF:
@@ -64,7 +64,7 @@ namespace NArgonish {
         ythrow yexception() << "Invalid instruction set value";
     }
 
-    THolder<IArgon2Base> TArgon2Factory::Create(EArgon2Type atype, ui32 tcost, ui32 mcost, ui32 threads,
+    std::unique_ptr<IArgon2Base> TArgon2Factory::Create(EArgon2Type atype, ui32 tcost, ui32 mcost, ui32 threads,
                                                 const ui8* key, ui32 keylen) const {
         return Create(InstructionSet_, atype, tcost, mcost, threads, key, keylen);
     }
@@ -142,7 +142,7 @@ namespace NArgonish {
             QuickTest_();
     }
 
-    THolder<IBlake2Base> TBlake2BFactory::Create(EInstructionSet instructionSet, size_t outlen, const ui8* key,
+    std::unique_ptr<IBlake2Base> TBlake2BFactory::Create(EInstructionSet instructionSet, size_t outlen, const ui8* key,
                                                  size_t keylen) const {
         switch (instructionSet) {
             case EInstructionSet::REF:
@@ -163,7 +163,7 @@ namespace NArgonish {
         ythrow yexception() << "Invalid instruction set";
     }
 
-    THolder<IBlake2Base> TBlake2BFactory::Create(size_t outlen, const ui8* key, size_t keylen) const {
+    std::unique_ptr<IBlake2Base> TBlake2BFactory::Create(size_t outlen, const ui8* key, size_t keylen) const {
         return Create(InstructionSet_, outlen, key, keylen);
     }
 

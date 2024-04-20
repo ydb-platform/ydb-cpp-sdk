@@ -17,7 +17,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 class TLzmaDecompress: public IInputStream {
@@ -33,5 +33,5 @@ private:
     class TImpl;
     class TImplStream;
     class TImplZeroCopy;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };

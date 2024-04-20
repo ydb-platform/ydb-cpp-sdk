@@ -620,7 +620,7 @@ namespace NLastGetopt {
             std::vector<const TOpt*> ret;
             ret.reserve(Opts_.size());
             for (auto& opt : Opts_) {
-                ret.push_back(opt.Get());
+                ret.push_back(opt.get());
             }
             return ret;
         }

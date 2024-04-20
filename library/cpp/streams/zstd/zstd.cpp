@@ -12,7 +12,7 @@ namespace {
             ythrow yexception() << op << std::string_view(" zstd error: ") << ::ZSTD_getErrorName(code);
         }
     }
-
+/*
     struct DestroyZCStream {
         static void Destroy(::ZSTD_CStream* p) noexcept {
             ::ZSTD_freeCStream(p);
@@ -25,7 +25,19 @@ namespace {
         }
     };
 }
+*/
+struct DestroyZCStream {
+    void operator()(::ZSTD_CStream* p) const noexcept {
+        ::ZSTD_freeCStream(p);
+    }
+};
 
+struct DestroyZDStream {
+    void operator()(::ZSTD_DStream* p) const noexcept {
+        ::ZSTD_freeDStream(p);
+    }
+};
+}
 class TZstdCompress::TImpl {
 public:
     TImpl(IOutputStream* slave, int quality)
@@ -33,9 +45,9 @@ public:
         , ZCtx_(::ZSTD_createCStream())
         , Buffer_(::ZSTD_CStreamOutSize())  // do reserve
     {
-        Y_ENSURE(nullptr != ZCtx_.Get(), "Failed to allocate ZSTD_CStream");
+        Y_ENSURE(nullptr != ZCtx_.get(), "Failed to allocate ZSTD_CStream");
         Y_ENSURE(0 != Buffer_.Capacity(), "ZSTD_CStreamOutSize was too small");
-        CheckError("init", ZSTD_initCStream(ZCtx_.Get(), quality));
+        CheckError("init", ZSTD_initCStream(ZCtx_.get(), quality));
     }
 
     void Write(const void* buffer, size_t size) {
@@ -43,7 +55,7 @@ public:
         auto zOut = OutBuffer();
 
         while (0 != zIn.size) {
-            CheckError("compress", ::ZSTD_compressStream(ZCtx_.Get(), &zOut, &zIn));
+            CheckError("compress", ::ZSTD_compressStream(ZCtx_.get(), &zOut, &zIn));
             DoWrite(zOut);
             // forget about the data we already compressed
             zIn.src = static_cast<const unsigned char*>(zIn.src) + zIn.pos;
@@ -54,7 +66,7 @@ public:
 
     void Flush() {
         auto zOut = OutBuffer();
-        CheckError("flush", ::ZSTD_flushStream(ZCtx_.Get(), &zOut));
+        CheckError("flush", ::ZSTD_flushStream(ZCtx_.get(), &zOut));
         DoWrite(zOut);
     }
 
@@ -62,7 +74,7 @@ public:
         auto zOut = OutBuffer();
         size_t returnCode;
         do {
-            returnCode = ::ZSTD_endStream(ZCtx_.Get(), &zOut);
+            returnCode = ::ZSTD_endStream(ZCtx_.get(), &zOut);
             CheckError("finish", returnCode);
             DoWrite(zOut);
         } while (0 != returnCode);  // zero means there is no more bytes to flush
@@ -79,7 +91,7 @@ private:
     }
 private:
     IOutputStream* Slave_;
-    THolder<::ZSTD_CStream, DestroyZCStream> ZCtx_;
+    std::unique_ptr<::ZSTD_CStream, DestroyZCStream> ZCtx_;
     TBuffer Buffer_;
 };
 
@@ -122,7 +134,7 @@ public:
         , Buffer_(bufferSize)  // do reserve
         , Offset_(0)
     {
-        Y_ENSURE(nullptr != ZCtx_.Get(), "Failed to allocate ZSTD_DStream");
+        Y_ENSURE(nullptr != ZCtx_.get(), "Failed to allocate ZSTD_DStream");
         Y_ENSURE(0 != Buffer_.Capacity(), "Buffer size was too small");
     }
 
@@ -144,11 +156,11 @@ public:
                     break;
                 }
             }
-            returnCode = ::ZSTD_decompressStream(ZCtx_.Get(), &zOut, &zIn);
+            returnCode = ::ZSTD_decompressStream(ZCtx_.get(), &zOut, &zIn);
             CheckError("decompress", returnCode);
             if (0 == returnCode) {
                 // The frame is over, prepare to (maybe) start a new frame
-                ZSTD_initDStream(ZCtx_.Get());
+                ZSTD_initDStream(ZCtx_.get());
             }
         }
         Offset_ = zIn.pos;
@@ -157,7 +169,7 @@ public:
 
 private:
     IInputStream* Slave_;
-    THolder<::ZSTD_DStream, DestroyZDStream> ZCtx_;
+    std::unique_ptr<::ZSTD_DStream, DestroyZDStream> ZCtx_;
     TBuffer Buffer_;
     size_t  Offset_;
 };

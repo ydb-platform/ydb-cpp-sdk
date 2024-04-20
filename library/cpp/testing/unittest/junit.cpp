@@ -215,7 +215,7 @@ void TJUnitProcessor::OnError(const TError* descr) {
     }
 }
 
-void TJUnitProcessor::TransferFromCapturer(THolder<TJUnitProcessor::TOutputCapturer>& capturer, std::string& out, std::ostream& outStream) {
+void TJUnitProcessor::TransferFromCapturer(std::unique_ptr<TJUnitProcessor::TOutputCapturer>& capturer, std::string& out, std::ostream& outStream) {
     if (capturer) {
         capturer->Uncapture();
         {

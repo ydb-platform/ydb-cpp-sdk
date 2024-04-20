@@ -57,7 +57,7 @@ namespace NMonitoring {
                 // if compression enabled all below reads must go throught decompressor
                 auto compressedIn = CompressedInput(In_, DecodeCompression(Header_.Compression));
                 if (compressedIn) {
-                    In_ = compressedIn.Get();
+                    In_ = compressedIn.get();
                 }
 
                 TimePrecision_ = DecodeTimePrecision(Header_.TimePrecision);

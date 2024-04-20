@@ -1,7 +1,7 @@
 #include "null_creator.h"
 #include "null.h"
 
-THolder<TLogBackend> TNullLogBackendCreator::DoCreateLogBackend() const {
+std::unique_ptr<TLogBackend> TNullLogBackendCreator::DoCreateLogBackend() const {
     return MakeHolder<TNullLogBackend>();
 }
 

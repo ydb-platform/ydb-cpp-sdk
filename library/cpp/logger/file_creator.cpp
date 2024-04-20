@@ -6,7 +6,7 @@ TFileLogBackendCreator::TFileLogBackendCreator(const std::string& path /*= std::
     , Path(path)
 {}
 
-THolder<TLogBackend> TFileLogBackendCreator::DoCreateLogBackend() const {
+std::unique_ptr<TLogBackend> TFileLogBackendCreator::DoCreateLogBackend() const {
     return MakeHolder<TFileLogBackend>(Path);
 }
 

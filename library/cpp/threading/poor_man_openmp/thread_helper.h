@@ -18,7 +18,7 @@ public:
         SetThreadCount(NSystemInfo::CachedNumberOfCpus());
     }
     IThreadPool* Get() {
-        return q.Get();
+        return q.get();
     }
     size_t GetThreadCount() {
         return ThreadCount;
@@ -32,7 +32,7 @@ public:
 
 private:
     size_t ThreadCount;
-    TAutoPtr<IThreadPool> q;
+    std::unique_ptr<IThreadPool> q;
 };
 
 namespace NYmp {

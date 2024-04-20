@@ -43,10 +43,10 @@ namespace NYT {
             ythrow ::NYson::TYsonException() << ("Map fragments are not supported by Json");
         }
 
-        UnderlyingJsonWriter.Reset(new NJson::TJsonWriter(
+        UnderlyingJsonWriter.reset(new NJson::TJsonWriter(
             output,
             config));
-        JsonWriter = UnderlyingJsonWriter.Get();
+        JsonWriter = UnderlyingJsonWriter.get();
         HasAttributes = false;
         InAttributesBalance = 0;
     }

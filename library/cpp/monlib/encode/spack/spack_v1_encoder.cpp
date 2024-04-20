@@ -103,7 +103,7 @@ namespace NMonitoring {
                 // if compression enabled all below writes must go throught compressor
                 auto compressedOut = CompressedOutput(Out_, Compression_);
                 if (compressedOut) {
-                    Out_ = compressedOut.Get();
+                    Out_ = compressedOut.get();
                 }
 
                 // (2) write string pools

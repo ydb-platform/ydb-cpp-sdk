@@ -11,7 +11,7 @@ namespace NMonitoring {
         TMetricRegistryPage(const std::string& path, const std::string& title, TAtomicSharedPtr<IMetricSupplier> registry)
             : TPreMonPage(path, title)
             , Registry_(registry)
-            , RegistryRawPtr_(Registry_.Get())
+            , RegistryRawPtr_(Registry_.get())
         {
         }
 

@@ -116,7 +116,7 @@ namespace NArgonish {
          * @param keylen the length of the key (optional)
          * @return unique_ptr to Argon2 instance. In case of error std::runtime_excetion is thrown
          */
-        THolder<IArgon2Base> Create(EArgon2Type atype = EArgon2Type::Argon2d, ui32 tcost = 1, ui32 mcost = 1024,
+        std::unique_ptr<IArgon2Base> Create(EArgon2Type atype = EArgon2Type::Argon2d, ui32 tcost = 1, ui32 mcost = 1024,
                                     ui32 threads = 1, const ui8* key = nullptr, ui32 keylen = 0) const;
 
         /**
@@ -130,7 +130,7 @@ namespace NArgonish {
          * @param keylen the length of the key (optional)
          * @return unique_ptr to Argon2 instance. In case of error std::runtime_excetion is thrown
          */
-        THolder<IArgon2Base> Create(EInstructionSet instructionSet, EArgon2Type atype = EArgon2Type::Argon2d, ui32 tcost = 1,
+        std::unique_ptr<IArgon2Base> Create(EInstructionSet instructionSet, EArgon2Type atype = EArgon2Type::Argon2d, ui32 tcost = 1,
                                     ui32 mcost = 1024, ui32 threads = 1, const ui8* key = nullptr,
                                     ui32 keylen = 0) const;
 

@@ -17,7 +17,7 @@ using TCounterPtr = ::NMonitoring::TDynamicCounters::TCounterPtr;
 const TDuration UPDATE_TOKEN_PERIOD = TDuration::Hours(1);
 
 namespace NCompressionDetails {
-    THolder<IOutputStream> CreateCoder(ECodec codec, TBuffer& result, int quality);
+    std::unique_ptr<IOutputStream> CreateCoder(ECodec codec, TBuffer& result, int quality);
 }
 
 #define HISTOGRAM_SETUP NMonitoring::ExplicitHistogram({0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100})
@@ -906,7 +906,7 @@ TMemoryUsageChange TWriteSessionImpl::OnMemoryUsageChangedImpl(i64 diff) {
 
 TBuffer CompressBuffer(std::vector<std::string_view>& data, ECodec codec, i32 level) {
     TBuffer result;
-    THolder<IOutputStream> coder = NCompressionDetails::CreateCoder(codec, result, level);
+    std::unique_ptr<IOutputStream> coder = NCompressionDetails::CreateCoder(codec, result, level);
     for (auto& buffer : data) {
         coder->Write(buffer.data(), buffer.size());
     }

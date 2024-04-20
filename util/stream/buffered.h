@@ -45,7 +45,7 @@ protected:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
@@ -119,7 +119,7 @@ protected:
     void DoFinish() override;
 
 private:
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**

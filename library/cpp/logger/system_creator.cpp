@@ -1,6 +1,6 @@
 #include "system_creator.h"
 
-THolder<TLogBackend> TSysLogBackendCreator::DoCreateLogBackend() const {
+std::unique_ptr<TLogBackend> TSysLogBackendCreator::DoCreateLogBackend() const {
     return MakeHolder<TSysLogBackend>(Ident.c_str(), Facility, Flags);
 }
 

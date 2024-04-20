@@ -10,7 +10,7 @@ namespace NCompressionDetails {
 
 extern std::string Decompress(const Ydb::PersQueue::V1::MigrationStreamingReadServerMessage::DataBatch::MessageData& data);
 
-THolder<IOutputStream> CreateCoder(ECodec codec, TBuffer& result, int quality);
+std::unique_ptr<IOutputStream> CreateCoder(ECodec codec, TBuffer& result, int quality);
 
 } // namespace NDecompressionDetails
 

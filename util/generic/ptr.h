@@ -69,11 +69,22 @@ public:
     static void Destroy(void* t) noexcept;
 };
 
+/*
 class TDeleteArray {
 public:
     template <class T>
     static inline void Destroy(T* t) noexcept {
         CheckedArrayDelete(t);
+    }
+};
+*/
+class TDeleteArray {
+public:
+template <class T>
+    void operator()(T* t) const noexcept {
+        if (t) {
+            delete t; // Удаляем объект типа T
+        }
     }
 };
 
@@ -86,6 +97,7 @@ public:
     }
 };
 
+/*
 class TFree {
 public:
     template <class T>
@@ -94,10 +106,20 @@ public:
     }
 
 private:
-    /*
-     * we do not want dependancy on cstdlib here...
-     */
+    
+     // we do not want dependancy on cstdlib here...
+     
     static void DoDestroy(void* t) noexcept;
+};
+*/
+class TFree {
+public:
+    template <class T>
+    void operator()(T* t) const noexcept {
+        if (t) {
+            delete t; // Удаляем объект типа T
+        }
+    }
 };
 
 template <class Base, class T>
@@ -161,7 +183,7 @@ public:
 template <class Base>
 class TPointerBase<Base, void>: public TPointerCommon<Base, void> {
 };
-
+/*
 template <class T, class D>
 class TAutoPtr: public TPointerBase<TAutoPtr<T, D>, T> {
 public:
@@ -230,7 +252,8 @@ private:
 private:
     mutable T* T_;
 };
-
+*/
+/*
 template <class T, class D>
 class THolder: public TPointerBase<THolder<T, D>, T> {
 public:
@@ -249,13 +272,13 @@ public:
     {
     }
 
-    inline THolder(TAutoPtr<T, D> t) noexcept
+    inline THolder(std::unique_ptr<T, D> t) noexcept
         : T_(t.Release())
     {
     }
 
     template <class U, class = TGuardConversion<T, U>>
-    inline THolder(TAutoPtr<U, D> t) noexcept
+    inline THolder(std::unique_ptr<U, D> t) noexcept
         : T_(t.Release())
     {
     }
@@ -293,7 +316,7 @@ public:
         }
     }
 
-    Y_REINITIALIZES_OBJECT inline void Reset(TAutoPtr<T, D> t) noexcept {
+    Y_REINITIALIZES_OBJECT inline void Reset(std::unique_ptr<T, D> t) noexcept {
         Reset(t.Release());
     }
 
@@ -309,7 +332,7 @@ public:
         return T_;
     }
 
-    inline operator TAutoPtr<T, D>() noexcept {
+    inline operator std::unique_ptr<T, D>() noexcept {
         return Release();
     }
 
@@ -345,10 +368,11 @@ private:
 private:
     T* T_;
 };
+*/
 
 template <typename T, typename... Args>
-[[nodiscard]] THolder<T> MakeHolder(Args&&... args) {
-    return THolder<T>(new T(std::forward<Args>(args)...));
+[[nodiscard]] std::unique_ptr<T> MakeHolder(Args&&... args) {
+    return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
 /*
@@ -789,7 +813,7 @@ template <typename T, class Ops = TDefaultIntrusivePtrOps<T>, typename... Args>
 [[nodiscard]] TIntrusiveConstPtr<T, Ops> MakeIntrusiveConst(Args&&... args) {
     return new T{std::forward<Args>(args)...};
 }
-
+/*
 template <class T, class C, class D>
 class TSharedPtr: public TPointerBase<TSharedPtr<T, C, D>, T> {
     template <class TT, class CC, class DD>
@@ -803,12 +827,12 @@ public:
     }
 
     inline TSharedPtr(T* t) {
-        THolder<T, D> h(t);
+        std::unique_ptr<T, D> h(t);
 
         Init(h);
     }
 
-    inline TSharedPtr(TAutoPtr<T, D> t) {
+    inline TSharedPtr(std::unique_ptr<T, D> t) {
         Init(t);
     }
 
@@ -819,7 +843,7 @@ public:
     }
 
     template <class TT, class = TGuardConversion<T, TT>>
-    inline TSharedPtr(THolder<TT>&& t) {
+    inline TSharedPtr(std::unique_ptr<TT>&& t) {
         Init(t);
     }
 
@@ -931,9 +955,9 @@ public:
 #endif
 private:
     template <class X>
-    inline void Init(X& t) {
+    inline void Init(std::unique_ptr<X>& t) {
         C_ = !!t ? new C(1) : nullptr;
-        T_ = t.Release();
+        T_ = t.release();
     }
 
     inline void Ref() noexcept {
@@ -960,35 +984,48 @@ private:
     T* T_;
     C* C_;
 };
+*/
 
-template <class T, class C, class D>
-struct THash<TSharedPtr<T, C, D>>: THash<const T*> {
+template <class T>
+struct THash<std::shared_ptr<T>> : THash<const T*> {
     using THash<const T*>::operator();
-    inline size_t operator()(const TSharedPtr<T, C, D>& ptr) const {
-        return THash<const T*>::operator()(ptr.Get());
+    inline size_t operator()(const std::shared_ptr<T>& ptr) const {
+        return THash<const T*>::operator()(ptr.get());
     }
 };
 
-template <class T, class D = TDelete>
-using TAtomicSharedPtr = TSharedPtr<T, TAtomicCounter, D>;
+
+/*template <typename T, typename D = TDelete>
+using TAtomicSharedPtr = std::shared_ptr<T, TAtomicCounter, D>;
 
 // use with great care. if in doubt, use TAtomicSharedPtr instead
-template <class T, class D = TDelete>
-using TSimpleSharedPtr = TSharedPtr<T, TSimpleCounter, D>;
+template <typename T, typename D = TDelete>
+using TSimpleSharedPtr = std::shared_ptr<T, TSimpleCounter, D>;
+*/
+template <typename T, typename D = TDelete>
+using TAtomicSharedPtr = std::shared_ptr<T>;
 
-template <typename T, typename C, typename... Args>
-[[nodiscard]] TSharedPtr<T, C> MakeShared(Args&&... args) {
-    return new T{std::forward<Args>(args)...};
+template <typename T, typename D = TDelete>
+using TSimpleSharedPtr = std::shared_ptr<T>;
+
+template <typename T, typename... Args>
+[[nodiscard]] std::shared_ptr<T> MakeShared(Args&&... args) {
+    return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
 template <typename T, typename... Args>
 [[nodiscard]] inline TAtomicSharedPtr<T> MakeAtomicShared(Args&&... args) {
-    return MakeShared<T, TAtomicCounter>(std::forward<Args>(args)...);
+    return std::make_shared<T, TAtomicCounter>(std::forward<Args>(args)...);
 }
 
-template <typename T, typename... Args>
+/*template <typename T, typename... Args>
 [[nodiscard]] inline TSimpleSharedPtr<T> MakeSimpleShared(Args&&... args) {
-    return MakeShared<T, TSimpleCounter>(std::forward<Args>(args)...);
+    return std::make_shared<T, TSimpleCounter>(std::forward<Args>(args)...);
+}
+*/
+template <typename T, typename... Args>
+[[nodiscard]] inline std::shared_ptr<T> MakeSimpleShared(Args&&... args) {
+    return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
 class TCopyClone {

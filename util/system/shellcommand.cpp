@@ -61,14 +61,14 @@ namespace {
 #if defined(_unix_)
     void SetUserGroups(const passwd* pw) {
         int ngroups = 1;
-        THolder<gid_t, TFree> groups = THolder<gid_t, TFree>(static_cast<gid_t*>(malloc(ngroups * sizeof(gid_t))));
-        if (getgrouplist(pw->pw_name, pw->pw_gid, reinterpret_cast<TGetGroupListGid*>(groups.Get()), &ngroups) == -1) {
-            groups.Reset(static_cast<gid_t*>(malloc(ngroups * sizeof(gid_t))));
-            if (getgrouplist(pw->pw_name, pw->pw_gid, reinterpret_cast<TGetGroupListGid*>(groups.Get()), &ngroups) == -1) {
+        std::unique_ptr<gid_t, TFree> groups = std::unique_ptr<gid_t, TFree>(static_cast<gid_t*>(malloc(ngroups * sizeof(gid_t))));
+        if (getgrouplist(pw->pw_name, pw->pw_gid, reinterpret_cast<TGetGroupListGid*>(groups.get()), &ngroups) == -1) {
+            groups.reset(static_cast<gid_t*>(malloc(ngroups * sizeof(gid_t))));
+            if (getgrouplist(pw->pw_name, pw->pw_gid, reinterpret_cast<TGetGroupListGid*>(groups.get()), &ngroups) == -1) {
                 ythrow TSystemError() << "getgrouplist failed: user " << pw->pw_name << " (" << pw->pw_uid << ")";
             }
         }
-        if (setgroups(ngroups, groups.Get()) == -1) {
+        if (setgroups(ngroups, groups.get()) == -1) {
             ythrow TSystemError(errno) << "Unable to set groups for user " << pw->pw_name << Endl;
         }
     }
@@ -843,16 +843,16 @@ void TShellCommand::TImpl::Run() {
 }
 
 void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
-    THolder<IOutputStream> outputHolder;
+    std::unique_ptr<IOutputStream> outputHolder;
     IOutputStream* output = pi->Parent->Options_.OutputStream;
     if (!output) {
-        outputHolder.Reset(output = new TStringOutput(pi->Parent->CollectedOutput));
+        outputHolder.reset(output = new TStringOutput(pi->Parent->CollectedOutput));
     }
 
-    THolder<IOutputStream> errorHolder;
+    std::unique_ptr<IOutputStream> errorHolder;
     IOutputStream* error = pi->Parent->Options_.ErrorStream;
     if (!error) {
-        errorHolder.Reset(error = new TStringOutput(pi->Parent->CollectedError));
+        errorHolder.reset(error = new TStringOutput(pi->Parent->CollectedError));
     }
 
     IInputStream*& input = pi->Parent->Options_.InputStream;

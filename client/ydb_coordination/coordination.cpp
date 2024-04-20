@@ -693,7 +693,7 @@ private:
     template<class TSource>
     void SetCurrentFailure(TSource&& source) {
         Y_ABORT_UNLESS(!CurrentFailure);
-        CurrentFailure.Reset(new TStatus(std::forward<TSource>(source)));
+        CurrentFailure.reset(new TStatus(std::forward<TSource>(source)));
     }
 
     template<class T>
@@ -843,7 +843,7 @@ private:
         DoSemaphoreProcessQueue(state);
     }
 
-    ui64 DoSendSimpleOp(THolder<TSimpleOp> op) {
+    ui64 DoSendSimpleOp(std::unique_ptr<TSimpleOp> op) {
         Y_ABORT_UNLESS(IsWriteAllowed());
         ui64 reqId = NextReqId++;
         TRequest req;
@@ -860,7 +860,7 @@ private:
         if (it == SentRequests.end()) {
             return nullptr;
         }
-        return dynamic_cast<TOperation*>(it->second.Get());
+        return dynamic_cast<TOperation*>(it->second.get());
     }
 
 private:
@@ -875,7 +875,7 @@ private:
         TResultPromise<void> reconnectPromise;
         std::deque<TResultPromise<bool>> abortedSemaphoreOps;
         std::deque<TResultPromise<bool>> failedSemaphoreOps;
-        std::deque<THolder<TSimpleOp>> failedSimpleOps;
+        std::deque<std::unique_ptr<TSimpleOp>> failedSimpleOps;
         TResultPromise<void> closePromise;
 
         {
@@ -944,7 +944,7 @@ private:
                     status = *CurrentFailure;
                 } else {
                     status = std::move(*CurrentFailure);
-                    CurrentFailure.Reset();
+                    CurrentFailure.reset();
                 }
             }
 
@@ -1187,9 +1187,9 @@ private:
         }
 
         // Start reading responses
-        Response.Reset(new TResponse);
+        Response.reset(new TResponse);
         processor->Read(
-            Response.Get(),
+            Response.get(),
             [self = TPtr(this)] (auto status) {
                 self->OnRead(std::move(status));
             });
@@ -1254,7 +1254,7 @@ private:
 
     void OnRead(TGrpcStatus grpcStatus) {
         if (!grpcStatus.Ok()) {
-            Response.Reset();
+            Response.reset();
             switch (HandleSessionDetach()) {
                 case ESessionDetachResult::Ok:
                     // Report grpc status to client
@@ -1277,15 +1277,15 @@ private:
 
         if (ProcessResponse(processor)) {
             // Start reading the next response
-            Response.Reset(new TResponse);
+            Response.reset(new TResponse);
             processor->Read(
-                Response.Get(),
+                Response.get(),
                 [self = TPtr(this)] (auto status) {
                     self->OnRead(std::move(status));
                 });
         } else {
             // Stop reading responses
-            Response.Reset();
+            Response.reset();
             processor->Finish([self = TPtr(this)] (auto status) {
                 self->OnFinish(std::move(status));
             });
@@ -1755,7 +1755,7 @@ private:
     ESessionState SessionState = ESessionState::DETACHED;
     EConnectionState ConnectionState = EConnectionState::DISCONNECTED;
 
-    THolder<TStatus> CurrentFailure;
+    std::unique_ptr<TStatus> CurrentFailure;
     TResultPromise<void> ClosedPromise;
 
     // Used during a connection attempt for a custom timeout
@@ -1764,8 +1764,8 @@ private:
 
     THashMap<std::string, TSemaphoreState> Semaphores;
     THashMap<ui64, TSemaphoreState*> SemaphoreByReqId;
-    std::deque<THolder<TSimpleOp>> PendingRequests;
-    THashMap<ui64, THolder<TSimpleOp>> SentRequests;
+    std::deque<std::unique_ptr<TSimpleOp>> PendingRequests;
+    THashMap<ui64, std::unique_ptr<TSimpleOp>> SentRequests;
     TResultPromise<void> ReconnectPromise;
 
     // These are used to manage session timeout
@@ -1788,7 +1788,7 @@ private:
     TDuration SessionReconnectDelay = TDuration::Zero();
 
     IProcessor::TPtr Processor;
-    THolder<TResponse> Response;
+    std::unique_ptr<TResponse> Response;
 
     ui64 SessionSeqNo = 0;
     ui64 SessionId = 0;

@@ -199,10 +199,10 @@ private:
         std::lock_guard guard(Mutex_);
 
         while (!Pool_.Empty()) {
-            THolder<TPooledSocket::TImpl> ret(Pool_.PopFront());
+            std::unique_ptr<TPooledSocket::TImpl> ret(Pool_.PopFront());
 
             if (ret->IsOpen()) {
-                return ret.Release();
+                return ret.release();
             }
         }
         return nullptr;

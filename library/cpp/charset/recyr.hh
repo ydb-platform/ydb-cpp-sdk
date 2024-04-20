@@ -86,11 +86,11 @@ inline RECODE_RESULT Recode(ECharset from, ECharset to, const char* in, char* ou
     size_t wideRead = 0;
     size_t wideWritten = 0;
 
-    RECODE_RESULT res = RecodeToUnicode(from, in, wide.Get(), inSize, wideSize, inRead, wideWritten);
+    RECODE_RESULT res = RecodeToUnicode(from, in, wide.get(), inSize, wideSize, inRead, wideWritten);
     if (res != RECODE_OK)
         return res;
 
-    res = RecodeFromUnicode(to, wide.Get(), out, wideWritten, outSize, wideRead, outWritten);
+    res = RecodeFromUnicode(to, wide.get(), out, wideWritten, outSize, wideRead, outWritten);
 
     return res;
 }

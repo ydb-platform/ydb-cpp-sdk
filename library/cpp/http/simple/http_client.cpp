@@ -64,7 +64,7 @@ TKeepAliveHttpClient::THttpCode TKeepAliveHttpClient::DoRequestRaw(const std::st
 
 void TKeepAliveHttpClient::DisableVerificationForHttps() {
     HttpsVerification.reset();
-    Connection.Reset();
+    Connection.reset();
 }
 
 void TKeepAliveHttpClient::SetClientCertificate(const TOpenSslClientIO::TOptions::TClientCert& options) {
@@ -72,7 +72,7 @@ void TKeepAliveHttpClient::SetClientCertificate(const TOpenSslClientIO::TOptions
 }
 
 void TKeepAliveHttpClient::ResetConnection() {
-    Connection.Reset();
+    Connection.reset();
 }
 
 std::vector<IOutputStream::TPart> TKeepAliveHttpClient::FormRequest(std::string_view method,
@@ -143,7 +143,7 @@ THttpInput* TKeepAliveHttpClient::GetHttpInput() {
 
 bool TKeepAliveHttpClient::CreateNewConnectionIfNeeded() {
     if (IsClosingRequired || (Connection && !Connection->IsOk())) {
-        Connection.Reset();
+        Connection.reset();
     }
     if (!Connection) {
         Connection = MakeHolder<NPrivate::THttpConnection>(Host,
@@ -238,7 +238,7 @@ namespace NPrivate {
             }
 
             Ssl = MakeHolder<TOpenSslClientIO>(&SocketIn, &SocketOut, opts);
-            HttpOut = MakeHolder<THttpOutput>(Ssl.Get());
+            HttpOut = MakeHolder<THttpOutput>(Ssl.get());
         } else {
             HttpOut = MakeHolder<THttpOutput>(&SocketOut);
         }

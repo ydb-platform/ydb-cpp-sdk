@@ -5,6 +5,7 @@
 #include <iosfwd>
 #include <vector>
 #include <deque>
+#include <memory>
 
 //misc
 class TBuffer;
@@ -64,11 +65,14 @@ class TDeleteArray;
 class TFree;
 class TCopyNew;
 
+/*
 template <class T, class D = TDelete>
 class TAutoPtr;
+*/
 
-template <class T, class D = TDelete>
+/*template <class T, class D = TDelete>
 class THolder;
+*/
 
 template <class T, class C, class D = TDelete>
 class TRefCounted;
@@ -87,10 +91,10 @@ class TIntrusiveConstPtr;
 
 template <class T, class Ops = TDefaultIntrusivePtrOps<T>>
 using TSimpleIntrusivePtr = TIntrusivePtr<T, TSimpleIntrusiveOps<T, Ops>>;
-
+/*
 template <class T, class C, class D = TDelete>
 class TSharedPtr;
-
+*/
 template <class T, class C = TCopyNew, class D = TDelete>
 class TCopyPtr;
 
@@ -101,15 +105,15 @@ template <typename T>
 class TPtrArg;
 
 template <typename T>
-using TArrayHolder = THolder<T, TDeleteArray>;
+using TArrayHolder = std::unique_ptr<T, TDeleteArray>;
 
 template <typename T>
-using TMallocHolder = THolder<T, TFree>;
+using TMallocHolder = std::unique_ptr<T, TFree>;
 
 template <typename T>
-using TArrayPtr = TAutoPtr<T, TDeleteArray>;
+using TArrayPtr = std::unique_ptr<T, TDeleteArray>;
 
 template <typename T>
-using TMallocPtr = TAutoPtr<T, TFree>;
+using TMallocPtr = std::unique_ptr<T, TFree>;
 
 struct TGUID;

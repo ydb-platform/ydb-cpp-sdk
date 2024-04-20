@@ -12,21 +12,23 @@
 #include <unordered_set>
 
 //smart pointers
+/////////////////////////////////////////мб комент подправить
 template <class T, class D>
-struct TDumper<TAutoPtr<T, D>> {
+struct TDumper<std::unique_ptr<T, D>> {
     template <class S>
-    static inline void Dump(S& s, const TAutoPtr<T, D>& v) {
+    static inline void Dump(S& s, const std::unique_ptr<T, D>& v) {
         s << DumpRaw("TAutoPtr(") << v.Get() << DumpRaw(")");
     }
 };
-
+/*
 template <class T, class D>
-struct TDumper<THolder<T, D>> {
+struct TDumper<std::unique_ptr<T, D>> {
     template <class S>
-    static inline void Dump(S& s, const THolder<T, D>& v) {
+    static inline void Dump(S& s, const std::unique_ptr<T, D>& v) {
         s << DumpRaw("THolder(") << v.Get() << DumpRaw(")");
     }
 };
+*/
 
 template <class T, class Ops>
 struct TDumper<TIntrusivePtr<T, Ops>> {
@@ -35,11 +37,19 @@ struct TDumper<TIntrusivePtr<T, Ops>> {
         s << DumpRaw("TIntrusivePtr(") << v.Get() << DumpRaw(")");
     }
 };
-
+/*
 template <class T, class C, class D>
-struct TDumper<TSharedPtr<T, C, D>> {
+struct TDumper<std::shared_ptr<T, C, D>> {
     template <class S>
-    static inline void Dump(S& s, const TSharedPtr<T, C, D>& v) {
+    static inline void Dump(S& s, const std::shared_ptr<T, C, D>& v) {
+        s << DumpRaw("TSharedPtr(") << v.Get() << DumpRaw(")");
+    }
+};
+*/
+template <class T>
+struct TDumper<std::shared_ptr<T>> {
+    template <class S>
+    static inline void Dump(S& s, const std::shared_ptr<T>& v) {
         s << DumpRaw("TSharedPtr(") << v.Get() << DumpRaw(")");
     }
 };

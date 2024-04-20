@@ -112,7 +112,7 @@ private:
         }
 
         inline const IRemoteAddr* Addr() const noexcept {
-            return Addr_.Get();
+            return Addr_.get();
         }
 
         inline void Stop() noexcept {
@@ -316,7 +316,8 @@ void TContListener::Bind(const TNetworkAddress& addr) {
 }
 
 void TContListener::Stop() noexcept {
-    Impl_.Destroy();
+    //Impl_.Destroy();
+    Impl_.reset();
 }
 
 void TContListener::StopListenAddr(const IRemoteAddr& addr) {
