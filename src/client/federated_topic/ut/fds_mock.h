@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/library/threading/future/future.h>
+#include <ydb-cpp-sdk/library/threading/future/future.h>
 #include <src/api/grpc/ydb_federation_discovery_v1.grpc.pb.h>
 
 #include <deque>

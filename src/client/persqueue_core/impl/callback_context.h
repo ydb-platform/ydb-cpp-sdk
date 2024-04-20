@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/library/threading/future/core/future.h>
+#include <ydb-cpp-sdk/library/threading/future/core/future.h>
 #include <src/util/system/guard.h>
 #include <src/util/system/spinlock.h>
 

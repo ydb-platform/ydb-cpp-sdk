@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 
 #include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
-#include <src/library/threading/future/future.h>
+#include <ydb-cpp-sdk/library/threading/future/future.h>
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 
 #include <ydb-cpp-sdk/library/jwt/jwt.h>

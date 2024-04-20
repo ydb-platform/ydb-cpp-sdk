@@ -1,11 +1,10 @@
 #pragma once
 
-#include "fwd.h"
-
 #include <span>
 
-#include <src/library/threading/future/core/future.h>
-#include <src/library/threading/future/wait/wait_group.h>
+#include <ydb-cpp-sdk/library/threading/future/core/future.h>
+
+#include "wait_group.h"
 
 namespace NThreading {
     namespace NImpl {

@@ -10,7 +10,7 @@
 #include <ydb-cpp-sdk/client/types/request_settings.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
-#include <src/library/threading/future/future.h>
+#include <ydb-cpp-sdk/library/threading/future/future.h>
 
 namespace NYdb::NQuery {
 

@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/threading/future/async.h>
-#include <src/library/threading/future/future.h>
+#include <ydb-cpp-sdk/library/threading/future/future.h>
 
 using namespace NMonitoring;
 using namespace NThreading;

@@ -1,7 +1,7 @@
 #include <src/client/ydb_persqueue_core/ut/ut_utils/ut_utils.h>
 
 #include <src/library/testing/unittest/registar.h>
-#include <src/library/threading/future/future.h>
+#include <ydb-cpp-sdk/library/threading/future/future.h>
 #include <src/library/threading/future/async.h>
 
 #include <src/util/generic/ptr.h>
