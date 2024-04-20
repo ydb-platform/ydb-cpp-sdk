@@ -52,7 +52,7 @@ public:
     }
 };
 
-THolder<IOutputStream> CreateCoder(ECodec codec, TBuffer& result, int quality) {
+std::unique_ptr<IOutputStream> CreateCoder(ECodec codec, TBuffer& result, int quality) {
     switch (codec) {
         case ECodec::GZIP:
             return MakeHolder<TZLibToStringCompressor>(result, ZLib::GZip, quality >= 0 ? quality : 6);

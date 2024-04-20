@@ -17,7 +17,7 @@ namespace {
             }
 
             void DoRun(IThreadAble* func) override {
-                Thr_.Reset(new TThread(ThreadProc, func));
+                Thr_.reset(new TThread(ThreadProc, func));
 
                 Thr_->Start();
             }
@@ -28,7 +28,7 @@ namespace {
                 }
 
                 Thr_->Join();
-                Thr_.Destroy();
+                Thr_.reset();
             }
 
         private:
@@ -39,7 +39,7 @@ namespace {
             }
 
         private:
-            THolder<TThread> Thr_;
+            std::unique_ptr<TThread> Thr_;
         };
 
         inline TSystemThreadFactory() noexcept {
@@ -57,7 +57,7 @@ namespace {
         {
         }
         void DoExecute() override {
-            THolder<TThreadFactoryFuncObj> self(this);
+            std::unique_ptr<TThreadFactoryFuncObj> self(this);
             Func();
         }
 
@@ -66,8 +66,8 @@ namespace {
     };
 }
 
-THolder<IThread> IThreadFactory::Run(const std::function<void()>& func) {
-    THolder<IThread> ret(DoCreate());
+std::unique_ptr<IThread> IThreadFactory::Run(const std::function<void()>& func) {
+    std::unique_ptr<IThread> ret(DoCreate());
 
     ret->Run(new ::TThreadFactoryFuncObj(func));
 

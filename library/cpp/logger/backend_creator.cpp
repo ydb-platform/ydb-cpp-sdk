@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-THolder<TLogBackend> ILogBackendCreator::CreateLogBackend() const {
+std::unique_ptr<TLogBackend> ILogBackendCreator::CreateLogBackend() const {
     try {
         return DoCreateLogBackend();
     } catch(...) {
@@ -27,7 +27,7 @@ NJson::TJsonValue ILogBackendCreator::AsJson() const {
     return json;
 }
 
-THolder<ILogBackendCreator> ILogBackendCreator::Create(const IInitContext& ctx) {
+std::unique_ptr<ILogBackendCreator> ILogBackendCreator::Create(const IInitContext& ctx) {
     auto res = MakeHolder<TLogBackendCreatorUninitialized>();
     if(!res->Init(ctx)) {
         Cdbg << "Cannot init log backend creator";

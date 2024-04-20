@@ -167,7 +167,7 @@ namespace NTls {
 
     private:
         class TImpl;
-        THolder<TImpl> Impl_;
+        std::unique_ptr<TImpl> Impl_;
     };
 
     struct TCleaner {
@@ -262,31 +262,57 @@ namespace NTls {
             return *GetPtr();
         }
 
+        /*inline T* GetPtr() const {
+            T* val = static_cast<T*>(Key_.Get());
+
+            if (!val) {
+                std::unique_ptr<void> mem(::operator new(sizeof(T)));
+                std::unique_ptr<T> newval(Constructor_->Construct(mem.get()));
+
+                Y_UNUSED(mem.release());
+                Key_.Set((void*)newval.get());
+                val = newval.release();
+            }
+
+            return val;
+        }*/
+
         inline T* GetPtr() const {
             T* val = static_cast<T*>(Key_.Get());
 
             if (!val) {
-                THolder<void> mem(::operator new(sizeof(T)));
-                THolder<T> newval(Constructor_->Construct(mem.Get()));
+                void* mem = ::operator new(sizeof(T));
 
-                Y_UNUSED(mem.Release());
-                Key_.Set((void*)newval.Get());
-                val = newval.Release();
+                //std::unique_ptr<T> newval(Constructor_->Construct(mem));
+                std::unique_ptr<T> newval = std::make_unique<T>();
+
+                val = newval.get();
+
+                Key_.Set(static_cast<void*>(newval.release()));
             }
 
             return val;
         }
 
+
+
     private:
-        static void Dtor(void* ptr) {
-            THolder<void> mem(ptr);
+        /*static void Dtor(void* ptr) {
+            std::unique_ptr<void> mem(ptr);
 
             ((T*)ptr)->~T();
             ::NPrivate::FillWithTrash(ptr, sizeof(T));
+        }*/
+        static void Dtor(void* ptr) {
+            T* typedPtr = static_cast<T*>(ptr);
+            typedPtr->~T();
+            ::NPrivate::FillWithTrash(ptr, sizeof(T));
+            operator delete(ptr);
         }
 
+
     private:
-        THolder<TConstructor> Constructor_;
+        std::unique_ptr<TConstructor> Constructor_;
         TKey Key_;
     };
 }

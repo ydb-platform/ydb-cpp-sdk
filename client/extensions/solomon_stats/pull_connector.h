@@ -13,14 +13,14 @@ class TMetricRegistryConnector: public NYdb::IExtension {
     static NMonitoring::IMetricRegistry* ToRawPtr(NMonitoring::IMetricRegistry* p) {
         return p;
     }
-
+///////////////тут ага да
     static NMonitoring::IMetricRegistry* ToRawPtr(std::shared_ptr<NMonitoring::IMetricRegistry> p) {
         return p.get();
     }
 
-    static NMonitoring::IMetricRegistry* ToRawPtr(TAtomicSharedPtr<NMonitoring::IMetricRegistry> p) {
-        return p.Get();
-    }
+    /*static NMonitoring::IMetricRegistry* ToRawPtr(TAtomicSharedPtr<NMonitoring::IMetricRegistry> p) {
+        return p.get();
+    }*/
 
 public:
     using IApi = NYdb::NSdkStats::IStatApi;
@@ -62,12 +62,12 @@ inline void AddMetricRegistry(NYdb::TDriver& driver, std::shared_ptr<NMonitoring
     driver.AddExtension<TConnector>(TConnector::TParams(ptr));
 }
 
-inline void AddMetricRegistry(NYdb::TDriver& driver, TAtomicSharedPtr<NMonitoring::IMetricRegistry> ptr) {
+/*inline void AddMetricRegistry(NYdb::TDriver& driver, TAtomicSharedPtr<NMonitoring::IMetricRegistry> ptr) {
     if (!ptr)
         return;
     using TConnector = TMetricRegistryConnector<TAtomicSharedPtr<NMonitoring::IMetricRegistry>>;
 
     driver.AddExtension<TConnector>(TConnector::TParams(ptr));
-}
+}*/
 
 } // namespace NSolomonStatExtension

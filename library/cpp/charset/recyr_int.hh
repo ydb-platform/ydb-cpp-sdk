@@ -320,7 +320,7 @@ namespace NCodepagePrivate {
 
     inline RECODE_RESULT _recodeToHTMLEntities(ECharset From, const char* in, char* out, size_t in_size, size_t out_size, size_t& in_readed, size_t& out_writed) {
         TArrayHolder<wchar32> bufHolder(new wchar32[in_size]);
-        wchar32* buf = bufHolder.Get();
+        wchar32* buf = bufHolder.get();
         size_t unicode_size;
         RECODE_RESULT res1, res2;
 

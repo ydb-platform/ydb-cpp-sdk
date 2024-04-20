@@ -68,7 +68,7 @@ protected:
 
 public:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
@@ -144,10 +144,13 @@ private:
 public:
     class TImpl;
 
-    /** To allow inline constructors. */
+    /*// To allow inline constructors.
     struct TDestruct {
         static void Destroy(TImpl* impl);
+    };*/
+    struct TDestruct {
+        void operator()(TImpl* impl) const;
     };
 
-    THolder<TImpl, TDestruct> Impl_;
+    std::unique_ptr<TImpl, TDestruct> Impl_;
 };

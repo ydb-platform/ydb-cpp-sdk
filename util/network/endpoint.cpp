@@ -21,8 +21,8 @@ void TEndpoint::SetPort(ui16 port) {
         return;
     }
 
-    NAddr::TOpaqueAddr* oa = new NAddr::TOpaqueAddr(Addr_.Get());
-    Addr_.Reset(oa);
+    NAddr::TOpaqueAddr* oa = new NAddr::TOpaqueAddr(Addr_.get());
+    Addr_.reset(oa);
     sockaddr* sa = oa->MutableAddr();
 
     if (sa->sa_family == AF_INET) {

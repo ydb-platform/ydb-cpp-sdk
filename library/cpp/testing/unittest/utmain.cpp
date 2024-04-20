@@ -130,11 +130,11 @@ public:
     inline TTraceWriterProcessor(const char* traceFilePath, EOpenMode mode)
         : PrevTime(TInstant::Now())
     {
-        TraceFile = new TUnbufferedFileOutput(TFile(traceFilePath, mode | WrOnly | Seq));
+        std::unique_ptr<TUnbufferedFileOutput> TraceFile = std::make_unique<TUnbufferedFileOutput>(TFile(traceFilePath, mode | WrOnly | Seq));
     }
 
 private:
-    TAutoPtr<TUnbufferedFileOutput> TraceFile;
+    std::unique_ptr<TUnbufferedFileOutput> TraceFile;
     std::string TraceFilePath;
     TInstant PrevTime;
     std::vector<std::string> ErrorMessages;
@@ -149,7 +149,7 @@ private:
 
         json.EndObject();
 
-        json.FlushTo(TraceFile.Get());
+        json.FlushTo(TraceFile.get());
         *TraceFile << "\n";
     }
 

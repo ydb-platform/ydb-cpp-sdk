@@ -1023,7 +1023,7 @@ public:                       \
         };                                                                                         \
         class TCurrentTest: public T {                                                             \
         private:                                                                                   \
-            typedef std::function<THolder<NUnitTest::TBaseTestCase>()> TTestCaseFactory;           \
+            typedef std::function<std::unique_ptr<NUnitTest::TBaseTestCase>()> TTestCaseFactory;           \
             typedef std::vector<TTestCaseFactory> TTests;                                          \
                                                                                                    \
             static TTests& Tests() {                                                               \
@@ -1114,7 +1114,7 @@ public:                       \
             Name_ = #N;                                     \
             ForceFork_ = FF;                                \
         }                                                   \
-        static THolder<NUnitTest::TBaseTestCase> Create() { \
+        static std::unique_ptr<NUnitTest::TBaseTestCase> Create() { \
             return ::MakeHolder<TTestCase##N>();            \
         }                                                   \
         void Execute_(NUnitTest::TTestContext&) override;   \

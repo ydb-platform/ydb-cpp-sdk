@@ -169,10 +169,10 @@ public:
         const THttpServerOptions& Options;
     };
 
-    TAutoPtr<TClientRequest> CreateRequest(TAutoPtr<TClientConnection> c) {
-        THolder<TClientRequest> obj(Cb_->CreateClient());
+    std::unique_ptr<TClientRequest> CreateRequest(std::unique_ptr<TClientConnection> c) {
+        std::unique_ptr<TClientRequest> obj(Cb_->CreateClient());
 
-        obj->Conn_.Reset(c.Release());
+        obj->Conn_.reset(c.release());
 
         return obj;
     }
@@ -205,8 +205,8 @@ public:
     }
 
     bool Start() {
-        Poller.Reset(new TSocketPoller());
-        Connections.Reset(new TConnections(Poller.Get(), Options_));
+        Poller.reset(new TSocketPoller());
+        Connections.reset(new TConnections(Poller.get(), Options_));
 
         // throws on error
         TPipeHandle::Pipe(ListenWakeupReadFd, ListenWakeupWriteFd);
@@ -219,13 +219,13 @@ public:
         ErrorCode = 0;
 
         std::function<void(TSocket)> callback = [&](TSocket socket) {
-            THolder<TListenSocket> ls(new TListenSocket(socket, this));
+            std::unique_ptr<TListenSocket> ls(new TListenSocket(socket, this));
             if (Options_.OneShotPoll) {
-                Poller->WaitReadOneShot(socket, static_cast<IPollAble*>(ls.Get()));
+                Poller->WaitReadOneShot(socket, static_cast<IPollAble*>(ls.get()));
             } else {
-                Poller->WaitRead(socket, static_cast<IPollAble*>(ls.Get()));
+                Poller->WaitRead(socket, static_cast<IPollAble*>(ls.get()));
             }
-            Reqs.PushBack(ls.Release());
+            Reqs.PushBack(ls.release());
         };
 
         bool addressesBound = TryToBindAddresses(Options_, &callback);
@@ -278,8 +278,10 @@ public:
             Connections->Clear();
         }
 
-        Connections.Destroy();
-        Poller.Destroy();
+        /*Connections.Destroy();
+        Poller.Destroy();*/
+        Connections.reset();
+        Poller.reset();
     }
 
     void Shutdown() {
@@ -287,11 +289,11 @@ public:
         // ignore result
     }
 
-    void AddRequest(TAutoPtr<TClientRequest> req, bool fail) {
+    void AddRequest(std::unique_ptr<TClientRequest> req, bool fail) {
         struct TFailRequest: public THttpClientRequestEx {
-            inline TFailRequest(TAutoPtr<TClientRequest> parent) {
-                Conn_.Reset(parent->Conn_.Release());
-                HttpConn_.Reset(parent->HttpConn_.Release());
+            inline TFailRequest(std::unique_ptr<TClientRequest> parent) {
+                Conn_.reset(parent->Conn_.release());
+                HttpConn_.reset(parent->HttpConn_.release());
             }
 
             bool Reply(void*) override {
@@ -304,13 +306,14 @@ public:
             }
         };
 
-        if (!fail && Requests->Add(req.Get())) {
-            Y_UNUSED(req.Release());
+        if (!fail && Requests->Add(req.get())) {
+            Y_UNUSED(req.release());
         } else {
-            req = new TFailRequest(req);
+            req = std::make_unique<TFailRequest>(std::move(req));
 
-            if (FailRequests->Add(req.Get())) {
-                Y_UNUSED(req.Release());
+
+            if (FailRequests->Add(req.get())) {
+                Y_UNUSED(req.release());
             } else {
                 Cb_->OnFailRequest(-1);
             }
@@ -410,7 +413,7 @@ public:
 
         if (0 == --RunningListeners_) {
             while (!Reqs.Empty()) {
-                THolder<TListenSocket> ls(Reqs.PopFront());
+                std::unique_ptr<TListenSocket> ls(Reqs.PopFront());
 
                 Poller->Unwait(ls->GetSocket());
             }
@@ -483,7 +486,7 @@ public:
         return Options_.MaxConnections && ((size_t)GetClientCount() >= Options_.MaxConnections);
     }
 
-    std::vector<THolder<TThread>> ListenThreads;
+    std::vector<std::unique_ptr<TThread>> ListenThreads;
     std::atomic<size_t> RunningListeners_ = 0;
     TIntrusiveListWithAutoDelete<TListenSocket, TDelete> Reqs;
     TPipeHandle ListenWakeupReadFd;
@@ -491,8 +494,8 @@ public:
     TMtpQueueRef Requests;
     TMtpQueueRef FailRequests;
     TAtomic ConnectionCount = 0;
-    THolder<TSocketPoller> Poller;
-    THolder<TConnections> Connections;
+    std::unique_ptr<TSocketPoller> Poller;
+    std::unique_ptr<TConnections> Connections;
     int ErrorCode = 0;
     TOptions Options_;
     ICallBack* Cb_ = nullptr;
@@ -502,12 +505,12 @@ public:
 
 private:
     template <class TThreadPool_>
-    static THolder<IThreadPool> MakeThreadPool(IThreadFactory* factory, bool elastic, ICallBack* callback = nullptr, const std::string& threadName = {}) {
+    static std::unique_ptr<IThreadPool> MakeThreadPool(IThreadFactory* factory, bool elastic, ICallBack* callback = nullptr, const std::string& threadName = {}) {
         if (!factory) {
             factory = SystemThreadFactory();
         }
 
-        THolder<IThreadPool> pool;
+        std::unique_ptr<IThreadPool> pool;
         const auto params = IThreadPool::TParams().SetFactory(factory).SetThreadName(threadName.c_str());
         if (callback) {
             pool = MakeHolder<TThreadPoolBinder<TThreadPool_, THttpServer::ICallBack>>(callback, params);
@@ -619,8 +622,33 @@ void TClientConnection::ScheduleDelete() {
     CleanupState_.Closed = true;
 }
 
+/*
 void TClientConnection::OnPollEvent(TInstant now) {
-    THolder<TClientConnection> this_(this);
+    std::unique_ptr<TClientConnection> this_(this);
+    Activate(now);
+
+    {
+        char tmp[1];
+
+        if (::recv(Socket_, tmp, 1, MSG_PEEK) < 1) {
+            //отседова звездочку 
+             * We can received a FIN so our socket was moved to
+             * TCP_CLOSE_WAIT state. Check it before adding work
+             * for this socket.
+             //доседова звездочку
+
+            return;
+        }
+    }
+
+    std::unique_ptr<TClientRequest> obj(HttpServ_->CreateRequest(this_));
+    AcceptMoment = now;
+
+    HttpServ_->AddRequest(obj, Reject_);
+}
+*/
+
+void TClientConnection::OnPollEvent(TInstant now) {
     Activate(now);
 
     {
@@ -628,20 +656,20 @@ void TClientConnection::OnPollEvent(TInstant now) {
 
         if (::recv(Socket_, tmp, 1, MSG_PEEK) < 1) {
             /*
-             * We can received a FIN so our socket was moved to
+             * We can receive a FIN so our socket was moved to
              * TCP_CLOSE_WAIT state. Check it before adding work
              * for this socket.
              */
-
             return;
         }
     }
-
-    THolder<TClientRequest> obj(HttpServ_->CreateRequest(this_));
+    std::unique_ptr<TClientConnection> thisPtr(this);
+    std::unique_ptr<TClientRequest> obj = HttpServ_->CreateRequest(std::move(thisPtr));
     AcceptMoment = now;
 
-    HttpServ_->AddRequest(obj, Reject_);
+    HttpServ_->AddRequest(std::move(obj), Reject_);
 }
+
 
 void TClientConnection::Activate(TInstant now) noexcept {
     HttpServ_->Connections->Erase(this, now);
@@ -713,7 +741,7 @@ void TClientRequest::ReleaseConnection() {
     if (Conn_ && HttpConn_ && HttpServ()->Options().KeepAliveEnabled && HttpConn_->CanBeKeepAlive() && (!HttpServ()->Options().RejectExcessConnections || !HttpServ()->MaxRequestsReached())) {
         Output().Finish();
         Conn_->DeActivate();
-        Y_UNUSED(Conn_.Release());
+        Y_UNUSED(Conn_.release());
     }
 }
 
@@ -721,12 +749,13 @@ void TClientRequest::ResetConnection() {
     if (HttpConn_) {
         // send RST packet to client
         HttpConn_->Reset();
-        HttpConn_.Destroy();
+        //HttpConn_.Destroy();
+        HttpConn_.reset();
     }
 }
 
 void TClientRequest::Process(void* ThreadSpecificResource) {
-    THolder<TClientRequest> this_(this);
+    std::unique_ptr<TClientRequest> this_(this);
 
     auto* serverImpl = Conn_->HttpServ_;
 
@@ -734,9 +763,9 @@ void TClientRequest::Process(void* ThreadSpecificResource) {
         if (!HttpConn_) {
             const size_t outputBufferSize = HttpServ()->Options().OutputBufferSize;
             if (outputBufferSize) {
-                HttpConn_.Reset(new THttpServerConn(Socket(), outputBufferSize));
+                HttpConn_.reset(new THttpServerConn(Socket(), outputBufferSize));
             } else {
-                HttpConn_.Reset(new THttpServerConn(Socket()));
+                HttpConn_.reset(new THttpServerConn(Socket()));
             }
 
             auto maxRequestsPerConnection = HttpServ()->Options().MaxRequestsPerConnection;
@@ -774,7 +803,7 @@ void TClientRequest::Process(void* ThreadSpecificResource) {
         throw;
     }
 
-    Y_UNUSED(this_.Release());
+    Y_UNUSED(this_.release());
 }
 
 void TClientRequest::ProcessFailRequest(int failstate) {

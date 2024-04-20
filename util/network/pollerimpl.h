@@ -477,10 +477,10 @@ public:
 
     inline TEvent* SavedEvents() {
         if (!SavedEvents_) {
-            SavedEvents_.Reset(new TEvent[EventNumberHint()]);
+            SavedEvents_.reset(new TEvent[EventNumberHint()]);
         }
 
-        return SavedEvents_.Get();
+        return SavedEvents_.get();
     }
 
     inline size_t WaitBase(TEvent* events, size_t len, int timeout) noexcept {

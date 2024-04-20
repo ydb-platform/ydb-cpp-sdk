@@ -14,7 +14,7 @@ namespace NPrivate {
         const char* Demangle(const char* name);
 
     private:
-        THolder<char, TFree> TmpBuf_;
+        std::unique_ptr<char, TFree> TmpBuf_;
     };
 
 } //namespace NPrivate

@@ -152,11 +152,11 @@ private:
         }
     };
 
-    TThread(TPrivateCtor, THolder<TCallableBase> callable);
+    TThread(TPrivateCtor, std::unique_ptr<TCallableBase> callable);
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 class ISimpleThread: public TThread {

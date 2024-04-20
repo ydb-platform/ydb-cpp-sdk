@@ -109,7 +109,7 @@ void TCont::Cancel() noexcept {
     }
 }
 
-void TCont::Cancel(THolder<std::exception> exception) noexcept {
+void TCont::Cancel(std::unique_ptr<std::exception> exception) noexcept {
     if (!Cancelled()) {
         SetException(std::move(exception));
         Cancel();
@@ -128,7 +128,7 @@ void TCont::ReSchedule() noexcept {
 
 TContExecutor::TContExecutor(
     uint32_t defaultStackSize,
-    THolder<IPollerFace> poller,
+    std::unique_ptr<IPollerFace> poller,
     NCoro::IScheduleCallback* scheduleCallback,
     NCoro::IEnterPollerCallback* enterPollerCallback,
     NCoro::NStack::EGuard defaultGuard,

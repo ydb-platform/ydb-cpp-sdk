@@ -58,7 +58,7 @@ namespace NAddr {
                 }
             }
         }
-#else
+#else/*
         ifaddrs* ifap;
         if (getifaddrs(&ifap) != -1) {
             for (ifaddrs* ifa = ifap; ifa != nullptr; ifa = ifa->ifa_next) {
@@ -77,5 +77,27 @@ namespace NAddr {
 #endif
 
         return result;
+    }
+}*/
+
+ifaddrs* ifap;
+if (getifaddrs(&ifap) != -1) {
+    for (ifaddrs* ifa = ifap; ifa != nullptr; ifa = ifa->ifa_next) {
+        if (IsInetAddress(ifa->ifa_addr)) {
+            TNetworkInterface interface;
+            interface.Name = ifa->ifa_name;
+            interface.Address = std::make_shared<TOpaqueAddr>(ifa->ifa_addr);
+            
+            if (IsInetAddress(ifa->ifa_netmask)) {
+                interface.Mask = std::make_shared<TOpaqueAddr>(ifa->ifa_netmask);
+            }
+            result.push_back(interface);
+        }
+    }
+    freeifaddrs(ifap);
+}
+#endif
+
+return result;
     }
 }

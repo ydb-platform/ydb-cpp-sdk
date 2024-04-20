@@ -53,13 +53,13 @@ namespace {
 }
 
 IGTestFactory* NUnitTest::NPrivate::ByName(const char* name) {
-    static std::map<std::string_view, TAutoPtr<TGTestFactory>> tests;
+    static std::map<std::string_view, std::unique_ptr<TGTestFactory>> tests;
 
     auto& ret = tests[name];
 
     if (!ret) {
-        ret = new TGTestFactory(name);
+        auto ret = std::make_unique<TGTestFactory>(name);
     }
 
-    return ret.Get();
+    return ret.get();
 }

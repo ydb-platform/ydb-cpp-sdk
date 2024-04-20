@@ -5,12 +5,12 @@
 
 class TFilteredBackendCreator : public ILogBackendCreator {
 public:
-    TFilteredBackendCreator(THolder<ILogBackendCreator> slave, ELogPriority priority);
+    TFilteredBackendCreator(std::unique_ptr<ILogBackendCreator> slave, ELogPriority priority);
     virtual bool Init(const IInitContext& ctx) override;
     virtual void ToJson(NJson::TJsonValue& value) const override;
 
 private:
-    virtual THolder<TLogBackend> DoCreateLogBackend() const override;
-    THolder<ILogBackendCreator> Slave;
+    virtual std::unique_ptr<TLogBackend> DoCreateLogBackend() const override;
+    std::unique_ptr<ILogBackendCreator> Slave;
     ELogPriority Priority;
 };

@@ -221,7 +221,7 @@ TChunkedOutput::~TChunkedOutput() {
 }
 
 void TChunkedOutput::DoWrite(const void* buf, size_t len) {
-    if (Impl_.Get()) {
+    if (Impl_.get()) {
         Impl_->Write(buf, len);
     } else {
         ythrow yexception() << "can not write to finished stream";
@@ -229,14 +229,14 @@ void TChunkedOutput::DoWrite(const void* buf, size_t len) {
 }
 
 void TChunkedOutput::DoFlush() {
-    if (Impl_.Get()) {
+    if (Impl_.get()) {
         Impl_->Flush();
     }
 }
 
 void TChunkedOutput::DoFinish() {
-    if (Impl_.Get()) {
+    if (Impl_.get()) {
         Impl_->Finish();
-        Impl_.Destroy();
+        Impl_.reset();
     }
 }

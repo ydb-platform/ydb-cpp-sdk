@@ -190,8 +190,8 @@ private:
     const T* End_;
     size_t Size_;
     char DummyData_[sizeof(T) + PLATFORM_DATA_ALIGN];
-    mutable THolder<T, TDestructor> Dummy_;
-    THolder<TFileMap> DataHolder_;
+    mutable std::unique_ptr<T, TDestructor> Dummy_;
+    std::unique_ptr<TFileMap> DataHolder_;
 
 public:
     TFileMappedArray()
@@ -205,15 +205,15 @@ public:
         End_ = nullptr;
     }
     void Init(const char* name) {
-        DataHolder_.Reset(new TFileMap(name));
+        DataHolder_.reset(new TFileMap(name));
         DoInit(name);
     }
     void Init(const TFileMap& fileMap) {
-        DataHolder_.Reset(new TFileMap(fileMap));
+        DataHolder_.reset(new TFileMap(fileMap));
         DoInit(fileMap.GetFile().GetName());
     }
     void Term() {
-        DataHolder_.Destroy();
+        DataHolder_.reset();
         Ptr_ = nullptr;
         Size_ = 0;
         End_ = nullptr;

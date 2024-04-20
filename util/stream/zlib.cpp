@@ -211,7 +211,7 @@ public:
         if (p.Type == ZLib::GZip) {
             GZHeader_ = MakeHolder<gz_header>();
             GZHeader_->os = 3; // UNIX
-            deflateSetHeader(Z(), GZHeader_.Get());
+            deflateSetHeader(Z(), GZHeader_.get());
         }
 
         if (p.Dict.size()) {
@@ -314,7 +314,7 @@ private:
 
 private:
     IOutputStream* Stream_;
-    THolder<gz_header> GZHeader_;
+    std::unique_ptr<gz_header> GZHeader_;
 };
 
 TZLibDecompress::TZLibDecompress(IZeroCopyInput* input, ZLib::StreamType type, std::string_view dict)
@@ -339,10 +339,13 @@ size_t TZLibDecompress::DoRead(void* buf, size_t size) {
 
 void TZLibCompress::Init(const TParams& params) {
     Y_ENSURE(params.BufLen >= 16, "ZLib buffer too small");
-    Impl_.Reset(new (params.BufLen) TImpl(params));
+    Impl_.reset(new (params.BufLen) TImpl(params));
 }
 
-void TZLibCompress::TDestruct::Destroy(TImpl* impl) {
+/*void TZLibCompress::TDestruct::Destroy(TImpl* impl) {
+    delete impl;
+}*/
+void TZLibCompress::TDestruct::operator()(TImpl* impl) const{
     delete impl;
 }
 
@@ -369,7 +372,7 @@ void TZLibCompress::DoFlush() {
 }
 
 void TZLibCompress::DoFinish() {
-    THolder<TImpl> impl(Impl_.Release());
+    std::unique_ptr<TImpl> impl(Impl_.release());
 
     if (impl) {
         impl->Finish();

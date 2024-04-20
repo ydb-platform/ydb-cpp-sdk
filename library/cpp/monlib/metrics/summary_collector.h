@@ -19,7 +19,7 @@ namespace NMonitoring {
         virtual size_t SizeBytes() const = 0;
     };
 
-    using ISummaryDoubleCollectorPtr = THolder<ISummaryDoubleCollector>;
+    using ISummaryDoubleCollectorPtr = std::unique_ptr<ISummaryDoubleCollector>;
 
     class TSummaryDoubleCollector final: public ISummaryDoubleCollector {
     public:

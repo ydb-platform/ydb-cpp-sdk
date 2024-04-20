@@ -13,7 +13,7 @@ namespace {
 
 } // namespace
 
-THolder<IAuthProvider> CreateFakeAuth() {
+std::unique_ptr<IAuthProvider> CreateFakeAuth() {
     return MakeHolder<TFakeAuthProvider>();
 }
 

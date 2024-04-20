@@ -9,7 +9,7 @@ namespace NYson {
 
     class TStatelessLexer::TImpl {
     private:
-        THolder<TStatelessYsonLexerImplBase> Impl;
+        std::unique_ptr<TStatelessYsonLexerImplBase> Impl;
 
     public:
         TImpl(bool enableLinePositionInfo = false)

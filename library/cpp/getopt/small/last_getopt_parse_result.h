@@ -66,7 +66,7 @@ namespace NLastGetopt {
      */
     class TOptsParseResult {
     private:
-        THolder<TOptsParser> Parser_; //The instance of parser.
+        std::unique_ptr<TOptsParser> Parser_; //The instance of parser.
 
         // XXX: make argc, argv
         typedef std::vector<TOptParseResult> TdVec;

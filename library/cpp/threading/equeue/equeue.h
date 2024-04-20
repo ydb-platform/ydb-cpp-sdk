@@ -7,7 +7,7 @@
 //actual queue limit will be (maxQueueSize - numBusyThreads) or 0
 class TElasticQueue: public IThreadPool {
 public:
-    explicit TElasticQueue(THolder<IThreadPool> slaveQueue);
+    explicit TElasticQueue(std::unique_ptr<IThreadPool> slaveQueue);
 
     bool Add(IObjectInQueue* obj) override;
     size_t Size() const noexcept override;
@@ -21,7 +21,7 @@ private:
 
     bool TryIncCounter();
 private:
-    THolder<IThreadPool> SlaveQueue_;
+    std::unique_ptr<IThreadPool> SlaveQueue_;
     size_t MaxQueueSize_ = 0;
     TAtomic ObjectCount_ = 0;
     TAtomic GuardCount_ = 0;

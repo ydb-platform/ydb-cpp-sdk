@@ -348,7 +348,7 @@ namespace NMonitoring {
 
     }
 
-    THolder<IInputStream> CompressedInput(IInputStream* in, ECompression alg) {
+    std::unique_ptr<IInputStream> CompressedInput(IInputStream* in, ECompression alg) {
         switch (alg) {
             case ECompression::IDENTITY:
                 return nullptr;
@@ -364,7 +364,7 @@ namespace NMonitoring {
         Y_ABORT("invalid compression algorithm");
     }
 
-    THolder<IFramedCompressStream> CompressedOutput(IOutputStream* out, ECompression alg) {
+    std::unique_ptr<IFramedCompressStream> CompressedOutput(IOutputStream* out, ECompression alg) {
         switch (alg) {
             case ECompression::IDENTITY:
                 return nullptr;

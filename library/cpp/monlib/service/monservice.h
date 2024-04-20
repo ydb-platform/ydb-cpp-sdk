@@ -17,7 +17,7 @@ namespace NMonitoring {
         const std::string Title;
         char StartTime[26];
         TIntrusivePtr<TIndexMonPage> IndexMonPage;
-        THolder<IAuthProvider> AuthProvider_;
+        std::unique_ptr<IAuthProvider> AuthProvider_;
 
     public:
         static THttpServerOptions HttpServerOptions(ui16 port, const std::string& host, ui32 threads) {
@@ -38,11 +38,11 @@ namespace NMonitoring {
         }
 
     public:
-        explicit TMonService2(ui16 port, const std::string& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
-        explicit TMonService2(ui16 port, ui32 threads, const std::string& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
-        explicit TMonService2(ui16 port, const std::string& host, ui32 threads, const std::string& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
-        explicit TMonService2(const THttpServerOptions& options, const std::string& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
-        explicit TMonService2(const THttpServerOptions& options, TSimpleSharedPtr<IThreadPool> pool, const std::string& title = GetProgramName(), THolder<IAuthProvider> auth = nullptr);
+        explicit TMonService2(ui16 port, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider> auth = nullptr);
+        explicit TMonService2(ui16 port, ui32 threads, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider> auth = nullptr);
+        explicit TMonService2(ui16 port, const std::string& host, ui32 threads, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider> auth = nullptr);
+        explicit TMonService2(const THttpServerOptions& options, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider> auth = nullptr);
+        explicit TMonService2(const THttpServerOptions& options, TSimpleSharedPtr<IThreadPool> pool, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider> auth = nullptr);
 
         ~TMonService2() override {
         }

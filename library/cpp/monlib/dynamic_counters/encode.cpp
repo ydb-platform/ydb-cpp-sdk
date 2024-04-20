@@ -95,7 +95,7 @@ namespace NMonitoring {
 
     }
 
-    THolder<ICountableConsumer> CreateEncoder(IOutputStream* out, EFormat format,
+    std::unique_ptr<ICountableConsumer> CreateEncoder(IOutputStream* out, EFormat format,
         std::string_view nameLabel, TCountableBase::EVisibility vis)
     {
         switch (format) {
@@ -115,7 +115,7 @@ namespace NMonitoring {
         }
     }
 
-    THolder<ICountableConsumer> AsCountableConsumer(IMetricEncoderPtr encoder, TCountableBase::EVisibility visibility) {
+    std::unique_ptr<ICountableConsumer> AsCountableConsumer(IMetricEncoderPtr encoder, TCountableBase::EVisibility visibility) {
         return MakeHolder<TConsumer>(std::move(encoder), visibility);
     }
 
