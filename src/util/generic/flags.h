@@ -2,8 +2,8 @@
 
 #include <type_traits>
 
-#include <src/util/system/types.h>
-#include <src/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/system/types.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <src/util/generic/fwd.h>
 
 class IOutputStream;

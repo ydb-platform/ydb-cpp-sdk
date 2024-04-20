@@ -3,9 +3,9 @@
 #include <src/util/network/ip.h>
 #include <src/util/network/init.h>
 #include <src/util/network/address.h>
-#include <src/util/generic/size_literals.h>
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
 
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 class THttpServerOptions {
 public:

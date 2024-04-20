@@ -10,7 +10,7 @@
 
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 #include <src/client/common_client/impl/client.h>
-#include <src/client/proto/accessor.h>
+#include <ydb-cpp-sdk/client/proto/accessor.h>
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 
 #include "client_session.h"

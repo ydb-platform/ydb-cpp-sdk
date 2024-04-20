@@ -8,14 +8,14 @@
 #include <src/util/generic/ptr.h>
 #include <src/util/generic/scope.h>
 #include <src/util/generic/set.h>
-#include <src/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 #include <src/util/generic/yexception.h>
 
 #include <src/util/string/builder.h>
 #include <src/util/string/cast.h>
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/type_name.h>
 #include <src/util/system/spinlock.h>
 #include <src/util/system/src_location.h>

@@ -4,7 +4,7 @@
 
 #include <src/util/string/ascii.h>
 #include <src/util/generic/yexception.h>
-#include <src/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 namespace NMonitoring {
     namespace NPrivate {

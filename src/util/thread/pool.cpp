@@ -1,6 +1,6 @@
 #include <atomic>
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #if defined(_unix_)
     #include <pthread.h>
@@ -8,7 +8,7 @@
 
 #include <src/util/generic/intrlist.h>
 #include <src/util/generic/yexception.h>
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <src/util/generic/singleton.h>
 #include <src/util/generic/fastqueue.h>
 
@@ -18,7 +18,7 @@
 #include <src/util/system/event.h>
 #include <src/util/system/thread.h>
 
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 #include "factory.h"
 #include "pool.h"

@@ -1,5 +1,5 @@
-#include <src/library/json/writer/json_value.h>
-#include <src/library/json/writer/json.h>
+#include <ydb-cpp-sdk/library/json/writer/json_value.h>
+#include <ydb-cpp-sdk/library/json/writer/json.h>
 #include <src/library/getopt/small/last_getopt.h>
 
 #include <tools/enum_parser/parse_enum/parse_enum.h>
@@ -30,7 +30,7 @@ void WriteHeader(const std::string& headerName, std::ostream& out, std::ostream*
     out << "#include " << headerName << "\n";
     out << "#include <tools/enum_parser/enum_serialization_runtime/enum_runtime.h>\n\n";
     out << "#include <tools/enum_parser/enum_parser/stdlib_deps.h>\n\n";
-    out << "#include <src/util/generic/typetraits.h>\n";
+    out << "#include <ydb-cpp-sdk/util/generic/typetraits.h>\n";
     out << "#include <src/util/generic/singleton.h>\n";
     out << "#include <string>\n";
     out << "#include <vector>\n";

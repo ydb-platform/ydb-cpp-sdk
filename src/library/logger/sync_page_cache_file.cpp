@@ -1,5 +1,5 @@
 #include "sync_page_cache_file.h"
-#include "record.h"
+#include <ydb-cpp-sdk/library/logger/record.h>
 
 #include <src/util/generic/buffer.h>
 #include <src/util/generic/yexception.h>

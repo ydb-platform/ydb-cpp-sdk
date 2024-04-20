@@ -4,7 +4,7 @@
 #include "pollerimpl.h"
 #include "iovec.h"
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/byteorder.h>
 #include <unordered_set>
 
@@ -34,7 +34,7 @@
     #include <src/util/system/compat.h>
 #endif
 
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 
 #include <src/util/string/cast.h>
 #include <src/util/stream/mem.h>

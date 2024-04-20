@@ -1,6 +1,6 @@
 #include "nice.h"
 
-#include "platform.h"
+#include <ydb-cpp-sdk/util/system/platform.h>
 
 #if defined(_unix_)
     #include <unistd.h>

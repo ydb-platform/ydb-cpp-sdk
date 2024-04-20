@@ -2,7 +2,7 @@
 
 #include <src/library/yt/yson/consumer.h>
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 namespace NYson {
     struct TYsonConsumerBase

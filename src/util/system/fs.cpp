@@ -1,5 +1,5 @@
 #include "fs.h"
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #if defined(_win_)
     #include "fs_win.h"

@@ -5,7 +5,7 @@
 
 #include <utility>
 #include <src/util/generic/ptr.h>
-#include <src/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <src/util/generic/store_policy.h>
 
 /**

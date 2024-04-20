@@ -6,7 +6,7 @@
 
 #include "format.h"
 
-#include <src/library/string_utils/misc/misc.h>
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 #include <src/library/yt/exception/exception.h>
 
 namespace NYT {

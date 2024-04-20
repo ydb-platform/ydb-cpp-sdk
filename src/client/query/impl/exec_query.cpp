@@ -7,7 +7,7 @@
 #include <src/client/common_client/impl/client.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <src/client/proto/accessor.h>
+#include <ydb-cpp-sdk/client/proto/accessor.h>
 
 namespace NYdb::NQuery {
 

@@ -6,7 +6,7 @@
 
 #include <src/util/stream/zerocopy_output.h>
 
-#include <src/util/generic/size_literals.h>
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
 
 namespace NYT {
 

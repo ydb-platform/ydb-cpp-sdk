@@ -1,6 +1,4 @@
 add_ydb_test(NAME operation_id-ut
-  INCLUDE_DIRS
-  ${CMAKE_SOURCE_DIR}/src/library/operation_id
   SOURCES
   operation_id_ut.cpp
   LINK_LIBRARIES

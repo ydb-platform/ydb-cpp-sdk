@@ -1,4 +1,4 @@
-#include "array_size.h"
+#include <ydb-cpp-sdk/util/generic/array_size.h>
 
 #include <src/library/testing/unittest/registar.h>
 

@@ -1,8 +1,8 @@
 #pragma once
 
-// probably you do not need to include this file directly, use "src/util/datetime/base.h"
+// probably you do not need to include this file directly, use "ydb-cpp-sdk/util/datetime/base.h"
 
-#include "base.h"
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 struct TDateTimeFields {
     TDateTimeFields() {

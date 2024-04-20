@@ -1,7 +1,7 @@
 #include "bt_exception.h"
 #include "yexception.h"
 
-#include <src/library/string_utils/helpers/helpers.h>
+#include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <src/util/stream/str.h>
 #include <src/util/system/backtrace.h>

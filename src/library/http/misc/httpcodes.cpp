@@ -1,4 +1,4 @@
-#include "httpcodes.h"
+#include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
 
 std::string_view HttpCodeStrEx(int code) noexcept {
     switch (code) {

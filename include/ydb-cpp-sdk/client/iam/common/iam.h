@@ -2,13 +2,12 @@
 
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 
-#include <src/library/grpc/client/grpc_client_low.h>
-#include <src/library/threading/atomic/bool.h>
-#include <src/library/threading/future/core/future.h>
-#include <src/library/json/json_reader.h>
+#include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
+#include <src/library/threading/future/future.h>
+#include <ydb-cpp-sdk/library/json/json_reader.h>
 
-#include <src/library/jwt/jwt.h>
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/library/jwt/jwt.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 #include <src/util/system/spinlock.h>
 #include <src/util/string/builder.h>

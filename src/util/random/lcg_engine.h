@@ -1,7 +1,7 @@
 #pragma once
 
 #include <utility>
-#include <src/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 // common engine for lcg-based RNG's
 // http://en.wikipedia.org/wiki/Linear_congruential_generator

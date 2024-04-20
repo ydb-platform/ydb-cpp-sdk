@@ -2,7 +2,7 @@
 
 #include "mon_page.h"
 
-#include <src/library/resource/resource.h>
+#include <ydb-cpp-sdk/library/resource/resource.h>
 
 namespace NMonitoring {
     struct TResourceMonPage: public IMonPage {

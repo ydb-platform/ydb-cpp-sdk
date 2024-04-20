@@ -6,11 +6,11 @@
 #include <src/library/monlib/metrics/labels.h>
 #include <src/library/monlib/metrics/metric_value.h>
 
-#include <src/library/json/json_reader.h>
+#include <ydb-cpp-sdk/library/json/json_reader.h>
 
 #include <src/util/string/builder.h>
 
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 #include <src/util/string/cast.h>
 
 #include <limits>

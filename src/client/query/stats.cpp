@@ -2,7 +2,7 @@
 
 #include <src/api/protos/ydb_table.pb.h>
 
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 #include <google/protobuf/text_format.h>
 

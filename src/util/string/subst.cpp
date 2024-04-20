@@ -1,6 +1,6 @@
 #include "subst.h"
 
-#include <src/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 
 #include <string>
 #include <type_traits>

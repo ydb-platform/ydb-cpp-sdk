@@ -3,7 +3,7 @@
 #include <src/util/generic/ptr.h>
 
 #include <src/util/generic/yexception.h>
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 
 #include <span>
 #include <cmath>

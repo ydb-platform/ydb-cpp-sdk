@@ -12,7 +12,7 @@
 #include <src/client/impl/ydb_internal/session_pool/session_pool.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <src/library/operation_id/operation_id.h>
+#include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 #include <src/client/common_client/impl/client.h>
 #include <src/client/query/impl/exec_query.h>
 #include <ydb-cpp-sdk/client/retry/retry.h>

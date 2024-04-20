@@ -2,7 +2,7 @@
 
 #include "node.h"
 
-#include <src/library/json/json_reader.h>
+#include <ydb-cpp-sdk/library/json/json_reader.h>
 
 #include <src/library/yson/consumer.h>
 

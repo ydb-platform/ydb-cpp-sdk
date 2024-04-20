@@ -1,7 +1,7 @@
 #pragma once
 #include "test_server.h"
 #include <src/library/persqueue/topic_parser_public/topic_parser.h>
-#include <src/library/logger/log.h>
+#include <ydb-cpp-sdk/library/logger/log.h>
 #include <src/util/system/tempfile.h>
 
 #define TEST_CASE_NAME (this->Name_)

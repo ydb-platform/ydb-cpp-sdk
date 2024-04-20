@@ -6,7 +6,7 @@
 
 #include <src/client/persqueue_core/impl/common.h>
 #include <src/client/topic/impl/executor.h>
-#include <src/client/proto/accessor.h>
+#include <ydb-cpp-sdk/client/proto/accessor.h>
 
 #include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
 #include <ydb-cpp-sdk/client/federated_topic/federated_topic.h>

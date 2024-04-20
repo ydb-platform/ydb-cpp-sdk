@@ -5,14 +5,14 @@
 
 #include <src/library/colorizer/colors.h>
 
-#include <src/library/json/writer/json.h>
-#include <src/library/json/writer/json_value.h>
+#include <ydb-cpp-sdk/library/json/writer/json.h>
+#include <ydb-cpp-sdk/library/json/writer/json_value.h>
 
 #include <src/library/testing/common/env.h>
 #include <src/library/testing/common/env_var.h>
 #include <src/library/testing/hook/hook.h>
 
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 #include <src/util/generic/hash.h>
 #include <src/util/generic/scope.h>
@@ -26,7 +26,7 @@
 #include <src/util/string/join.h>
 #include <src/util/string/util.h>
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/execpath.h>
 #include <src/util/system/valgrind.h>
 #include <src/util/system/shellcommand.h>

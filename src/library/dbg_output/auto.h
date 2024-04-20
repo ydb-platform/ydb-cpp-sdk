@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/generic/va_args.h>
+#include <ydb-cpp-sdk/util/generic/va_args.h>
 
 // int a = 1, b = 2; std::cout << LabeledDump(a, b, 1 + 2); yields {"a": 1, "b": 2, "1 + 2": 3}
 #define LabeledDump(...) \

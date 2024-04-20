@@ -1,8 +1,8 @@
 #pragma once
 
-#include <src/util/system/types.h>
+#include <ydb-cpp-sdk/util/system/types.h>
 
-#include <src/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 #include <type_traits>
 

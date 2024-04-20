@@ -7,7 +7,7 @@
 #include <src/client/common_client/impl/client.h>
 #include <src/client/persqueue_core/impl/common.h>
 #include <src/client/topic/impl/executor.h>
-#include <src/client/proto/accessor.h>
+#include <ydb-cpp-sdk/client/proto/accessor.h>
 
 #include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
 #include <ydb-cpp-sdk/client/topic/topic.h>

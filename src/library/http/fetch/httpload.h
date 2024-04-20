@@ -7,7 +7,7 @@
 #include <src/util/system/compat.h>
 #include <src/util/network/ip.h>
 #include <src/library/uri/http_url.h>
-#include <src/library/http/misc/httpcodes.h>
+#include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
 
 /********************************************************/
 // Section 1: socket handlers

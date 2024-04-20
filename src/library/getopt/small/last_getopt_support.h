@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/library/string_utils/misc/misc.h>
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <src/util/string/cast.h>
 #include <src/util/string/escape.h>

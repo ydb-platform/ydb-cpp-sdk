@@ -2,7 +2,7 @@
 #include "split.h"
 #include "vector.h"
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 template <class TConsumer, class TDelim, typename TChr>
 static inline void DoSplit2(TConsumer& c, TDelim& d, const std::basic_string_view<TChr> str, int) {

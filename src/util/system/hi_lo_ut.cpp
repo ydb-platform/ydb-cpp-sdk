@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 Y_UNIT_TEST_SUITE(HiLo) {
     Y_UNIT_TEST(HiLo32) {

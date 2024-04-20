@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/util/generic/noncopyable.h>
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 template <class T>
 struct TCommonLockOps {

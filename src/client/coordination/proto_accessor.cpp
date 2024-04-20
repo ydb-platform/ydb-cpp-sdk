@@ -1,4 +1,4 @@
-#include <src/client/proto/accessor.h>
+#include <ydb-cpp-sdk/client/proto/accessor.h>
 
 #include <ydb-cpp-sdk/client/coordination/coordination.h>
 

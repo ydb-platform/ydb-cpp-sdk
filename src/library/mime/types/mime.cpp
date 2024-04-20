@@ -1,6 +1,6 @@
 #include "mime.h"
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/generic/hash.h>
 
 #include <cctype>

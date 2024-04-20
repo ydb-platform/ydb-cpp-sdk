@@ -4,7 +4,7 @@
 #include "options.h"
 
 #include <src/util/thread/pool.h>
-#include <src/library/http/io/stream.h>
+#include <ydb-cpp-sdk/library/http/io/stream.h>
 #include <src/util/memory/blob.h>
 #include <src/util/generic/ptr.h>
 

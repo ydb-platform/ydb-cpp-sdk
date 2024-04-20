@@ -5,7 +5,7 @@
 #include "summary_collector.h"
 #include "log_histogram_snapshot.h"
 
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 #include <src/util/generic/algorithm.h>
 
 #include <src/util/generic/cast.h>

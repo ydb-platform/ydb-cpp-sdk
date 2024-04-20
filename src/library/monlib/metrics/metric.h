@@ -2,8 +2,10 @@
 
 #include "metric_consumer.h"
 
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 #include <src/util/generic/ptr.h>
+
+#include <functional>
 
 namespace NMonitoring {
     ///////////////////////////////////////////////////////////////////////////////

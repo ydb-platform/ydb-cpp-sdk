@@ -7,7 +7,7 @@
 #include <src/library/monlib/metrics/metric_value.h>
 #include <src/library/monlib/metrics/labels.h>
 
-#include <src/library/json/writer/json.h>
+#include <ydb-cpp-sdk/library/json/writer/json.h>
 
 #include <src/util/charset/utf8.h>
 #include <src/util/generic/algorithm.h>

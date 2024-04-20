@@ -6,10 +6,10 @@
 
 #include <src/library/mime/types/mime.h>
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/compat.h>
 #include <string>
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <src/util/system/maxlen.h>
 
 #include <ctime>

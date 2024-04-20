@@ -1,5 +1,5 @@
-#include "thread.h"
-#include "record.h"
+#include <ydb-cpp-sdk/library/logger/thread.h>
+#include <ydb-cpp-sdk/library/logger/record.h>
 
 #include <src/util/thread/pool.h>
 #include <src/util/system/event.h>

@@ -1,17 +1,16 @@
-#include "yql_issue.h"
-#include "yql_issue_id.h"
+#include <ydb-cpp-sdk/library/yql/public/issue/yql_issue.h>
 
-#include <src/library/yql/utils/utf8.h>
+#include <ydb-cpp-sdk/library/yql/utils/utf8.h>
 
 #include <src/library/colorizer/output.h>
-#include <src/library/string_utils/misc/misc.h>
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <src/util/charset/utf8.h>
 #include <src/util/string/ascii.h>
 #include <src/util/string/split.h>
 #include <src/util/string/strip.h>
 #include <src/util/string/subst.h>
-#include <src/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/generic/stack.h>
 #include <cstdlib>
 

@@ -14,9 +14,9 @@ target_sources(cpp-json-writer PRIVATE
 )
 
 generate_enum_serilization(cpp-json-writer
-  ${YDB_SDK_SOURCE_DIR}/src/library/json/writer/json_value.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/library/json/writer/json_value.h
   INCLUDE_HEADERS
-  src/library/json/writer/json_value.h
+  include/ydb-cpp-sdk/library/json/writer/json_value.h
 )
 
 

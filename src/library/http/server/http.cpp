@@ -11,7 +11,7 @@
 #include <src/util/network/poller.h>
 #include <src/library/deprecated/atomic/atomic.h>
 #include <src/util/system/compat.h> // stricmp, strnicmp, strlwr, strupr, stpcpy
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/event.h>
 #include <src/util/system/pipe.h>
 #include <src/util/system/thread.h>

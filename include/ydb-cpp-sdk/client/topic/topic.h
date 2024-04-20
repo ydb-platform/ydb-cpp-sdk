@@ -5,12 +5,12 @@
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 
 #include <src/library/monlib/dynamic_counters/counters.h>
-#include <src/library/logger/log.h>
-#include <src/library/retry/retry_policy.h>
+#include <ydb-cpp-sdk/library/logger/log.h>
+#include <ydb-cpp-sdk/library/retry/retry_policy.h>
 #include <src/util/string/builder.h>
 
-#include <src/util/datetime/base.h>
-#include <src/util/generic/size_literals.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <src/util/thread/pool.h>
 
 #include <exception>

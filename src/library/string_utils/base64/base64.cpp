@@ -3,7 +3,7 @@
 #include <libbase64.h>
 #include <src/util/generic/yexception.h>
 #include <src/util/system/cpu_id.h>
-#include <src/util/system/platform.h>
+#include <ydb-cpp-sdk/util/system/platform.h>
 
 #include <cstdlib>
 

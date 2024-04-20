@@ -3,7 +3,7 @@
 #include "completion_generator.h"
 
 #include <src/util/string/builder.h>
-#include <src/library/string_utils/misc/misc.h>
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 using NLastGetopt::NEscaping::Q;
 using NLastGetopt::NEscaping::QQ;

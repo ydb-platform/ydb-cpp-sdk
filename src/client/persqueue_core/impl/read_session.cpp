@@ -10,7 +10,7 @@
 
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 #include <src/util/generic/guid.h>
-#include <src/util/generic/size_literals.h>
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <src/util/generic/utility.h>
 #include <src/util/generic/yexception.h>
 #include <src/util/stream/mem.h>

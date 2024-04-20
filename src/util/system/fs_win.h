@@ -1,7 +1,7 @@
 #pragma once
 
 #include "winint.h"
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 
 namespace NFsPrivate {

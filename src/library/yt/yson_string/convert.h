@@ -8,7 +8,7 @@
 
 #include <string>
 
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 namespace NYT::NYson {
 

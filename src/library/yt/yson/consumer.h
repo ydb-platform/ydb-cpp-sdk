@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #include <src/library/yt/yson_string/public.h>
 

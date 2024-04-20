@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 using TAtomicBase = intptr_t;
 using TAtomic = volatile TAtomicBase;

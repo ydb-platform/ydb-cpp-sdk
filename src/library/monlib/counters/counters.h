@@ -1,7 +1,7 @@
 #pragma once
 
 #include <list>
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 #include <src/util/generic/algorithm.h>
 
 #include <src/util/generic/ptr.h>
@@ -11,7 +11,7 @@
 #include <src/util/stream/output.h>
 #include <src/util/string/util.h>
 #include <src/library/deprecated/atomic/atomic.h>
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/guard.h>
 #include <src/util/system/sem.h>
 #include <src/util/system/spinlock.h>

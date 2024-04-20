@@ -12,7 +12,7 @@
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 #include <src/api/protos/ydb_table.pb.h>
 #include <src/client/impl/ydb_stats/stats.h>
-#include <src/client/proto/accessor.h>
+#include <ydb-cpp-sdk/client/proto/accessor.h>
 #include <ydb-cpp-sdk/client/value/value.h>
 #include <src/client/table/impl/client_session.h>
 #include <src/client/table/impl/data_query.h>
@@ -23,7 +23,7 @@
 #include <google/protobuf/util/time_util.h>
 
 #include <src/library/cache/cache.h>
-#include <src/library/string_utils/misc/misc.h>
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <src/util/random/random.h>
 #include <src/util/string/join.h>

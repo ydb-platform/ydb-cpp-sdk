@@ -1,6 +1,6 @@
 #pragma once
 
-#include "backend.h"
+#include <ydb-cpp-sdk/library/logger/backend.h>
 
 class TNullLogBackend: public TLogBackend {
 public:

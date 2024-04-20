@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/system/platform.h>
+#include <ydb-cpp-sdk/util/system/platform.h>
 
 // Check platform bitness.
 #if !defined(_64_)

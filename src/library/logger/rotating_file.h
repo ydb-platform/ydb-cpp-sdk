@@ -1,6 +1,6 @@
 #pragma once
 
-#include "backend.h"
+#include <ydb-cpp-sdk/library/logger/backend.h>
 
 #include <src/util/generic/fwd.h>
 #include <src/util/generic/ptr.h>

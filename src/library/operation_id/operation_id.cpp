@@ -1,4 +1,4 @@
-#include "operation_id.h"
+#include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 
 #include <google/protobuf/message.h>
 

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <src/util/generic/fwd.h>
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
+
 #include <span>
+#include <string>
 
 class IOutputStream;
 

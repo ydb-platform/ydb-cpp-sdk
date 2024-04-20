@@ -1,6 +1,6 @@
 #pragma once
 #include <src/util/generic/ptr.h>
-#include <src/util/generic/size_literals.h>
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <src/library/threading/chunk_queue/queue.h>
 #include <src/util/generic/overloaded.h>
 #include <src/library/testing/unittest/registar.h>

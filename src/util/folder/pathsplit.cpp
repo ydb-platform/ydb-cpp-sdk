@@ -1,6 +1,6 @@
 #include "pathsplit.h"
 
-#include <src/library/string_utils/helpers/helpers.h>
+#include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <src/util/stream/output.h>
 #include <src/util/generic/yexception.h>

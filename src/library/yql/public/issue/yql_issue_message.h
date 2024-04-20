@@ -1,8 +1,8 @@
 #pragma once
 
-#include "yql_issue.h"
+#include <ydb-cpp-sdk/library/yql/public/issue/yql_issue.h>
 
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 
 namespace NYql {
 

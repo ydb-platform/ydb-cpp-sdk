@@ -4,6 +4,7 @@
 #error "you should never include future-inl.h directly"
 #endif // INCLUDE_FUTURE_INL_H
 
+#include <atomic>
 #include <mutex>
 
 namespace NThreading {
@@ -35,7 +36,7 @@ namespace NThreading {
             };
 
         private:
-            mutable TAtomic State;
+            mutable std::atomic<int> State;
             mutable TAdaptiveLock StateLock;
 
             TCallbackList<T> Callbacks;
@@ -50,8 +51,8 @@ namespace NThreading {
 
             void AccessValue(TDuration timeout, int acquireState) const {
                 using namespace std::literals;
-                TAtomicBase state = AtomicGet(State);
-                if (Y_UNLIKELY(state == NotReady)) {
+                int state = State.load();
+                if (Y_UNLIKELY(State.load() == NotReady)) {
                     if (timeout == TDuration::Zero()) {
                         ::NThreading::NImpl::ThrowFutureException("value not set"sv, __LOCATION__);
                     }
@@ -60,12 +61,13 @@ namespace NThreading {
                         ::NThreading::NImpl::ThrowFutureException("wait timeout"sv, __LOCATION__);
                     }
 
-                    state = AtomicGet(State);
+                    state = State.load();
                 }
 
                 TryRethrowWithState(state);
-
-                switch (AtomicGetAndCas(&State, acquireState, ValueSet)) {
+                int expected = ValueSet;
+                State.compare_exchange_strong(expected, acquireState);
+                switch (expected) {
                     case ValueSet:
                         break;
                     case ValueRead:
@@ -108,16 +110,16 @@ namespace NThreading {
             }
 
             bool HasValue() const {
-                return AtomicGet(State) >= ValueMoved; // ValueMoved, ValueSet, ValueRead
+                return State.load() >= ValueMoved; // ValueMoved, ValueSet, ValueRead
             }
 
             void TryRethrow() const {
-                TAtomicBase state = AtomicGet(State);
+                int state = State.load();
                 TryRethrowWithState(state);
             }
 
             bool HasException() const {
-                return AtomicGet(State) == ExceptionSet;
+                return State.load() == ExceptionSet;
             }
 
             const T& GetValue(TDuration timeout = TDuration::Zero()) const {
@@ -146,7 +148,7 @@ namespace NThreading {
 
                 {
                     std::lock_guard guard(StateLock);
-                    TAtomicBase state = AtomicGet(State);
+                    int state = State.load();
                     if (Y_UNLIKELY(state != NotReady)) {
                         return false;
                     }
@@ -156,7 +158,7 @@ namespace NThreading {
                     readyEvent = ReadyEvent.Get();
                     callbacks = std::move(Callbacks);
 
-                    AtomicSet(State, ValueSet);
+                    State.store(ValueSet);
                 }
 
                 if (readyEvent) {
@@ -187,7 +189,7 @@ namespace NThreading {
 
                 {
                     std::lock_guard guard(StateLock);
-                    TAtomicBase state = AtomicGet(State);
+                    int state = State.load();
                     if (Y_UNLIKELY(state != NotReady)) {
                         return false;
                     }
@@ -197,7 +199,7 @@ namespace NThreading {
                     readyEvent = ReadyEvent.Get();
                     callbacks = std::move(Callbacks);
 
-                    AtomicSet(State, ExceptionSet);
+                    State.store(ExceptionSet);
                 }
 
                 if (readyEvent) {
@@ -217,8 +219,7 @@ namespace NThreading {
             template <typename F>
             bool Subscribe(F&& func) {
                 std::lock_guard guard(StateLock);
-                TAtomicBase state = AtomicGet(State);
-                if (state == NotReady) {
+                if (State.load() == NotReady) {
                     Callbacks.emplace_back(std::forward<F>(func));
                     return true;
                 }
@@ -238,8 +239,7 @@ namespace NThreading {
 
                 {
                     std::lock_guard guard{StateLock};
-                    TAtomicBase state = AtomicGet(State);
-                    if (state != NotReady) {
+                    if (State.load() != NotReady) {
                         return true;
                     }
 
@@ -253,7 +253,7 @@ namespace NThreading {
                 return readyEvent->WaitD(deadline);
             }
 
-            void TryRethrowWithState(TAtomicBase state) const {
+            void TryRethrowWithState(int state) const {
                 if (Y_UNLIKELY(state == ExceptionSet)) {
                     Y_ASSERT(Exception);
                     std::rethrow_exception(Exception);
@@ -272,7 +272,7 @@ namespace NThreading {
             };
 
         private:
-            TAtomic State;
+            std::atomic<int> State;
             mutable TAdaptiveLock StateLock;
 
             TCallbackList<void> Callbacks;
@@ -293,21 +293,20 @@ namespace NThreading {
             }
 
             bool HasValue() const {
-                return AtomicGet(State) == ValueSet;
+                return State.load() == ValueSet;
             }
 
             void TryRethrow() const {
-                TAtomicBase state = AtomicGet(State);
-                TryRethrowWithState(state);
+                TryRethrowWithState(State.load());
             }
 
             bool HasException() const {
-                return AtomicGet(State) == ExceptionSet;
+                return State.load() == ExceptionSet;
             }
 
             void GetValue(TDuration timeout = TDuration::Zero()) const {
                 using namespace std::literals;
-                TAtomicBase state = AtomicGet(State);
+                int state = State.load();
                 if (Y_UNLIKELY(state == NotReady)) {
                     if (timeout == TDuration::Zero()) {
                         ::NThreading::NImpl::ThrowFutureException("value not set"sv, __LOCATION__);
@@ -317,7 +316,7 @@ namespace NThreading {
                         ::NThreading::NImpl::ThrowFutureException("wait timeout"sv, __LOCATION__);
                     }
 
-                    state = AtomicGet(State);
+                    state = State.load();
                 }
 
                 TryRethrowWithState(state);
@@ -339,15 +338,14 @@ namespace NThreading {
 
                 {
                     std::lock_guard guard(StateLock);
-                    TAtomicBase state = AtomicGet(State);
-                    if (Y_UNLIKELY(state != NotReady)) {
+                    if (Y_UNLIKELY(State.load() != NotReady)) {
                         return false;
                     }
 
                     readyEvent = ReadyEvent.Get();
                     callbacks = std::move(Callbacks);
 
-                    AtomicSet(State, ValueSet);
+                    State.store(ValueSet);
                 }
 
                 if (readyEvent) {
@@ -378,8 +376,7 @@ namespace NThreading {
 
                 {
                     std::lock_guard guard(StateLock);
-                    TAtomicBase state = AtomicGet(State);
-                    if (Y_UNLIKELY(state != NotReady)) {
+                    if (Y_UNLIKELY(State.load() != NotReady)) {
                         return false;
                     }
 
@@ -388,7 +385,7 @@ namespace NThreading {
                     readyEvent = ReadyEvent.Get();
                     callbacks = std::move(Callbacks);
 
-                    AtomicSet(State, ExceptionSet);
+                    State.store(ExceptionSet);
                 }
 
                 if (readyEvent) {
@@ -408,8 +405,7 @@ namespace NThreading {
             template <typename F>
             bool Subscribe(F&& func) {
                 std::lock_guard guard(StateLock);
-                TAtomicBase state = AtomicGet(State);
-                if (state == NotReady) {
+                if (State.load() == NotReady) {
                     Callbacks.emplace_back(std::forward<F>(func));
                     return true;
                 }
@@ -429,8 +425,7 @@ namespace NThreading {
 
                 {
                     std::lock_guard guard{StateLock};
-                    TAtomicBase state = AtomicGet(State);
-                    if (state != NotReady) {
+                    if (State.load() != NotReady) {
                         return true;
                     }
 
@@ -444,7 +439,7 @@ namespace NThreading {
                 return readyEvent->WaitD(deadline);
             }
 
-            void TryRethrowWithState(TAtomicBase state) const {
+            void TryRethrowWithState(int state) const {
                 if (Y_UNLIKELY(state == ExceptionSet)) {
                     Y_ASSERT(Exception);
                     std::rethrow_exception(Exception);

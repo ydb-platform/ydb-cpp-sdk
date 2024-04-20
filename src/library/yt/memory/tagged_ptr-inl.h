@@ -6,7 +6,7 @@
 
 #include <src/library/yt/assert/assert.h>
 
-#include <src/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 
 namespace NYT {
 

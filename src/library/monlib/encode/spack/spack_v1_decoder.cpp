@@ -9,7 +9,7 @@
 
 #include <src/util/generic/yexception.h>
 #include <src/util/generic/buffer.h>
-#include <src/util/generic/size_literals.h>
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <src/util/stream/format.h>
 
 #ifndef _little_endian_

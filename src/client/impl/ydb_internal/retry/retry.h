@@ -5,10 +5,10 @@
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
 #include <src/library/threading/future/core/fwd.h>
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 #include <src/util/datetime/cputimer.h>
 #include <src/util/generic/ptr.h>
-#include <src/util/system/types.h>
+#include <ydb-cpp-sdk/util/system/types.h>
 
 #include <functional>
 #include <memory>

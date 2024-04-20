@@ -3,8 +3,8 @@
 #include <src/library/monlib/encode/protobuf/protobuf.h>
 #include <src/library/monlib/metrics/labels.h>
 
-#include <src/library/json/json_reader.h>
-#include <src/library/resource/resource.h>
+#include <ydb-cpp-sdk/library/json/json_reader.h>
+#include <ydb-cpp-sdk/library/resource/resource.h>
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/stream/str.h>

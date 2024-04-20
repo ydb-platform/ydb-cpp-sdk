@@ -3,7 +3,7 @@
 #include "nice.h"
 #include "sigset.h"
 
-#include <src/library/string_utils/helpers/helpers.h>
+#include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <src/util/folder/dirut.h>
 #include <src/util/generic/algorithm.h>

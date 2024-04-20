@@ -1,5 +1,5 @@
-#include "resource.h"
-#include "resource.h"
+#include <ydb-cpp-sdk/library/resource/resource.h>
+
 #include "registry.h"
 
 #include <src/util/generic/yexception.h>

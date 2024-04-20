@@ -4,7 +4,7 @@
 #include <src/util/generic/algorithm.h>
 
 #include <src/util/generic/yexception.h>
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 
 namespace NMonitoring {
 

@@ -6,7 +6,7 @@
 #include <src/util/digest/numeric.h>
 #include <src/util/generic/fwd.h>
 #include <src/util/generic/string_hash.h>
-#include <src/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 #include <functional>
 #include <string>

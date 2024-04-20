@@ -1,6 +1,6 @@
 #include "rotating_file.h"
 #include "file.h"
-#include "record.h"
+#include <ydb-cpp-sdk/library/logger/record.h>
 
 #include <src/util/string/builder.h>
 

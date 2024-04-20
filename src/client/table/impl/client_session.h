@@ -3,13 +3,13 @@
 #include <ydb-cpp-sdk/client/table/table.h>
 #include <src/client/impl/ydb_internal/kqp_session_common/kqp_session_common.h>
 #include <src/client/impl/ydb_endpoints/endpoints.h>
-#include <src/library/operation_id/operation_id.h>
+#include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 
 #include <src/api/protos/ydb_table.pb.h>
 
 #include <src/library/cache/cache.h>
 
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 #include <functional>
 

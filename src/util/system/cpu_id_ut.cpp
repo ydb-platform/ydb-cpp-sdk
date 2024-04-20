@@ -1,6 +1,6 @@
 #include "cpu_id.h"
 
-#include "platform.h"
+#include <ydb-cpp-sdk/util/system/platform.h>
 
 #include <src/library/testing/unittest/registar.h>
 
