@@ -25,7 +25,7 @@ namespace NTesting {
         }
 
         operator ui16() const&& = delete;
-///////////////////////////////////////////////////////
+        
         TPortHolder(std::unique_ptr<IPort> ptr) : TBase(std::move(ptr)) {}
 
         TPortHolder(const TPortHolder&) = default;

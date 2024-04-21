@@ -311,55 +311,33 @@ TThread::~TThread() {
     Join();
 }
 
-/*void TThread::Start() {
-    Impl(Impl_, "start", false)->Start();
-}*/
 void TThread::Start() {
     if (!Impl_) {
         ythrow yexception() << "cannot start dead thread";
     }
 
-    TImpl* implPtr = Impl_.get();  // Получаем указатель на управляемый объект TImpl
-    if (implPtr->Running() != false) {  // Проверяем, что объект не запущен
+    TImpl* implPtr = Impl_.get();
+    if (implPtr->Running() != false) {
         ythrow yexception() << "cannot start a running thread";
     }
 
-    implPtr->Start();  // Запускаем поток, вызывая метод Start() у объекта TImpl
+    implPtr->Start();
 }
 
-/*void* TThread::Join() {
+void* TThread::Join() {
     if (Running()) {
         void* ret = Impl_->Join();
-
-        Impl_.Destroy();
-
+        Impl_ = nullptr;
         return ret;
     }
-
     return nullptr;
 }
+
 
 void TThread::Detach() {
     if (Running()) {
         Impl_->Detach();
-        Impl_.Destroy();
-    }
-}
-*/
-void* TThread::Join() {
-    if (Running()) {
-        void* ret = Impl_->Join();
-        Impl_ = nullptr; // Освобождаем ресурсы, управляемые std::unique_ptr
-        return ret;
-    }
-    return nullptr;
-}
-
-
-void TThread::Detach() {
-    if (Running()) {
-        Impl_->Detach(); // Вызываем метод Detach объекта TImpl
-        Impl_ = nullptr; // Освобождаем ресурсы, управляемые std::unique_ptr
+        Impl_ = nullptr;
     }
 }
 

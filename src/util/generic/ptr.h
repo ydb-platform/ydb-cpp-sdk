@@ -69,21 +69,12 @@ public:
     static void Destroy(void* t) noexcept;
 };
 
-/*
-class TDeleteArray {
-public:
-    template <class T>
-    static inline void Destroy(T* t) noexcept {
-        CheckedArrayDelete(t);
-    }
-};
-*/
 class TDeleteArray {
 public:
 template <class T>
     void operator()(T* t) const noexcept {
         if (t) {
-            delete t; // Удаляем объект типа T
+            delete t;
         }
     }
 };
@@ -97,27 +88,12 @@ public:
     }
 };
 
-/*
-class TFree {
-public:
-    template <class T>
-    static inline void Destroy(T* t) noexcept {
-        DoDestroy((void*)t);
-    }
-
-private:
-    
-     // we do not want dependancy on cstdlib here...
-     
-    static void DoDestroy(void* t) noexcept;
-};
-*/
 class TFree {
 public:
     template <class T>
     void operator()(T* t) const noexcept {
         if (t) {
-            delete t; // Удаляем объект типа T
+            delete t;
         }
     }
 };
@@ -183,192 +159,6 @@ public:
 template <class Base>
 class TPointerBase<Base, void>: public TPointerCommon<Base, void> {
 };
-/*
-template <class T, class D>
-class TAutoPtr: public TPointerBase<TAutoPtr<T, D>, T> {
-public:
-    inline TAutoPtr(T* t = nullptr) noexcept
-        : T_(t)
-    {
-    }
-
-    inline TAutoPtr(const TAutoPtr& t) noexcept
-        : T_(t.Release())
-    {
-    }
-
-    inline ~TAutoPtr() {
-        DoDestroy();
-    }
-
-    inline TAutoPtr& operator=(const TAutoPtr& t) noexcept {
-        if (this != &t) {
-            Reset(t.Release());
-        }
-
-        return *this;
-    }
-
-    inline T* Release() const noexcept Y_WARN_UNUSED_RESULT {
-        return this->DoRelease(T_);
-    }
-
-    Y_REINITIALIZES_OBJECT inline void Reset(T* t) noexcept {
-        if (T_ != t) {
-            DoDestroy();
-            T_ = t;
-        }
-    }
-
-    Y_REINITIALIZES_OBJECT inline void Reset() noexcept {
-        Destroy();
-    }
-
-    inline void Destroy() noexcept {
-        Reset(nullptr);
-    }
-
-    inline void Swap(TAutoPtr& r) noexcept {
-        DoSwap(T_, r.T_);
-    }
-
-    inline T* Get() const noexcept {
-        return T_;
-    }
-
-#ifdef __cpp_impl_three_way_comparison
-    template <class Other>
-    inline bool operator==(const Other& p) const noexcept {
-        return (p == Get());
-    }
-#endif
-private:
-    inline void DoDestroy() noexcept {
-        if (T_) {
-            D::Destroy(T_);
-        }
-    }
-
-private:
-    mutable T* T_;
-};
-*/
-/*
-template <class T, class D>
-class THolder: public TPointerBase<THolder<T, D>, T> {
-public:
-    constexpr THolder() noexcept
-        : T_(nullptr)
-    {
-    }
-
-    constexpr THolder(std::nullptr_t) noexcept
-        : T_(nullptr)
-    {
-    }
-
-    explicit THolder(T* t) noexcept
-        : T_(t)
-    {
-    }
-
-    inline THolder(std::unique_ptr<T, D> t) noexcept
-        : T_(t.Release())
-    {
-    }
-
-    template <class U, class = TGuardConversion<T, U>>
-    inline THolder(std::unique_ptr<U, D> t) noexcept
-        : T_(t.Release())
-    {
-    }
-
-    inline THolder(THolder&& that) noexcept
-        : T_(that.Release())
-    {
-    }
-
-    template <class U, class = TGuardConversion<T, U>>
-    inline THolder(THolder<U, D>&& that) noexcept
-        : T_(that.Release())
-    {
-    }
-
-    THolder(const THolder&) = delete;
-    THolder& operator=(const THolder&) = delete;
-
-    inline ~THolder() {
-        DoDestroy();
-    }
-
-    inline void Destroy() noexcept {
-        Reset(nullptr);
-    }
-
-    inline T* Release() noexcept Y_WARN_UNUSED_RESULT {
-        return this->DoRelease(T_);
-    }
-
-    Y_REINITIALIZES_OBJECT inline void Reset(T* t) noexcept {
-        if (T_ != t) {
-            DoDestroy();
-            T_ = t;
-        }
-    }
-
-    Y_REINITIALIZES_OBJECT inline void Reset(std::unique_ptr<T, D> t) noexcept {
-        Reset(t.Release());
-    }
-
-    Y_REINITIALIZES_OBJECT inline void Reset() noexcept {
-        Destroy();
-    }
-
-    inline void Swap(THolder& r) noexcept {
-        DoSwap(T_, r.T_);
-    }
-
-    inline T* Get() const noexcept {
-        return T_;
-    }
-
-    inline operator std::unique_ptr<T, D>() noexcept {
-        return Release();
-    }
-
-    THolder& operator=(std::nullptr_t) noexcept {
-        this->Reset(nullptr);
-        return *this;
-    }
-
-    THolder& operator=(THolder&& that) noexcept {
-        this->Reset(that.Release());
-        return *this;
-    }
-
-    template <class U>
-    THolder& operator=(THolder<U, D>&& that) noexcept {
-        this->Reset(that.Release());
-        return *this;
-    }
-
-#ifdef __cpp_impl_three_way_comparison
-    template <class Other>
-    inline bool operator==(const Other& p) const noexcept {
-        return (p == Get());
-    }
-#endif
-private:
-    inline void DoDestroy() noexcept {
-        if (T_) {
-            D::Destroy(T_);
-        }
-    }
-
-private:
-    T* T_;
-};
-*/
 
 template <typename T, typename... Args>
 [[nodiscard]] std::unique_ptr<T> MakeHolder(Args&&... args) {
@@ -813,178 +603,6 @@ template <typename T, class Ops = TDefaultIntrusivePtrOps<T>, typename... Args>
 [[nodiscard]] TIntrusiveConstPtr<T, Ops> MakeIntrusiveConst(Args&&... args) {
     return new T{std::forward<Args>(args)...};
 }
-/*
-template <class T, class C, class D>
-class TSharedPtr: public TPointerBase<TSharedPtr<T, C, D>, T> {
-    template <class TT, class CC, class DD>
-    friend class TSharedPtr;
-
-public:
-    inline TSharedPtr() noexcept
-        : T_(nullptr)
-        , C_(nullptr)
-    {
-    }
-
-    inline TSharedPtr(T* t) {
-        std::unique_ptr<T, D> h(t);
-
-        Init(h);
-    }
-
-    inline TSharedPtr(std::unique_ptr<T, D> t) {
-        Init(t);
-    }
-
-    inline TSharedPtr(T* t, C* c) noexcept
-        : T_(t)
-        , C_(c)
-    {
-    }
-
-    template <class TT, class = TGuardConversion<T, TT>>
-    inline TSharedPtr(std::unique_ptr<TT>&& t) {
-        Init(t);
-    }
-
-    inline ~TSharedPtr() {
-        UnRef();
-    }
-
-    inline TSharedPtr(const TSharedPtr& t) noexcept
-        : T_(t.T_)
-        , C_(t.C_)
-    {
-        Ref();
-    }
-
-    inline TSharedPtr(TSharedPtr&& t) noexcept
-        : T_(nullptr)
-        , C_(nullptr)
-    {
-        Swap(t);
-    }
-
-    template <class TT, class = TGuardConversion<T, TT>>
-    inline TSharedPtr(const TSharedPtr<TT, C, D>& t) noexcept
-        : T_(t.T_)
-        , C_(t.C_)
-    {
-        Ref();
-    }
-
-    template <class TT, class = TGuardConversion<T, TT>>
-    inline TSharedPtr(TSharedPtr<TT, C, D>&& t) noexcept
-        : T_(t.T_)
-        , C_(t.C_)
-    {
-        t.T_ = nullptr;
-        t.C_ = nullptr;
-    }
-
-    inline TSharedPtr& operator=(TSharedPtr t) noexcept {
-        t.Swap(*this);
-
-        return *this;
-    }
-
-    // Effectively replace both:
-    // Reset(const TSharedPtr& t)
-    // Reset(TSharedPtr&& t)
-    Y_REINITIALIZES_OBJECT inline void Reset(TSharedPtr t) noexcept {
-        Swap(t);
-    }
-
-    Y_REINITIALIZES_OBJECT inline void Reset() noexcept {
-        Drop();
-    }
-
-    inline void Drop() noexcept {
-        TSharedPtr().Swap(*this);
-    }
-
-    inline T* Get() const noexcept {
-        return T_;
-    }
-
-    inline C* ReferenceCounter() const noexcept {
-        return C_;
-    }
-
-    inline void Swap(TSharedPtr& r) noexcept {
-        DoSwap(T_, r.T_);
-        DoSwap(C_, r.C_);
-    }
-
-    inline long RefCount() const noexcept {
-        return C_ ? C_->Val() : 0;
-    }
-
-    template <class TT>
-    [[nodiscard]] inline TSharedPtr<TT, C, D> As() & noexcept {
-        static_assert(std::has_virtual_destructor<TT>(), "Type should have a virtual dtor");
-        static_assert(std::is_base_of<T, TT>(), "When downcasting from T to TT, T should be a parent of TT");
-        if (const auto ttPtr = dynamic_cast<TT*>(T_)) {
-            TSharedPtr<TT, C, D> ttSharedPtr(ttPtr, C_);
-            ttSharedPtr.Ref();
-            return ttSharedPtr;
-        } else {
-            return TSharedPtr<TT, C, D>{};
-        }
-    }
-
-    template <class TT>
-    [[nodiscard]] inline TSharedPtr<TT, C, D> As() && noexcept {
-        static_assert(std::has_virtual_destructor<TT>(), "Type should have a virtual dtor");
-        static_assert(std::is_base_of<T, TT>(), "When downcasting from T to TT, T should be a parent of TT");
-        if (const auto ttPtr = dynamic_cast<TT*>(T_)) {
-            TSharedPtr<TT, C, D> ttSharedPtr(ttPtr, C_);
-            T_ = nullptr;
-            C_ = nullptr;
-            return ttSharedPtr;
-        } else {
-            return TSharedPtr<TT, C, D>{};
-        }
-    }
-
-#ifdef __cpp_impl_three_way_comparison
-    template <class Other>
-    inline bool operator==(const Other& p) const noexcept {
-        return (p == Get());
-    }
-#endif
-private:
-    template <class X>
-    inline void Init(std::unique_ptr<X>& t) {
-        C_ = !!t ? new C(1) : nullptr;
-        T_ = t.release();
-    }
-
-    inline void Ref() noexcept {
-        if (C_) {
-            C_->Inc();
-        }
-    }
-
-    inline void UnRef() noexcept {
-        if (C_ && !C_->Dec()) {
-            DoDestroy();
-        }
-    }
-
-    inline void DoDestroy() noexcept {
-        if (T_) {
-            D::Destroy(T_);
-        }
-
-        delete C_;
-    }
-
-private:
-    T* T_;
-    C* C_;
-};
-*/
 
 template <class T>
 struct THash<std::shared_ptr<T>> : THash<const T*> {
@@ -994,14 +612,6 @@ struct THash<std::shared_ptr<T>> : THash<const T*> {
     }
 };
 
-
-/*template <typename T, typename D = TDelete>
-using TAtomicSharedPtr = std::shared_ptr<T, TAtomicCounter, D>;
-
-// use with great care. if in doubt, use TAtomicSharedPtr instead
-template <typename T, typename D = TDelete>
-using TSimpleSharedPtr = std::shared_ptr<T, TSimpleCounter, D>;
-*/
 template <typename T, typename D = TDelete>
 using TAtomicSharedPtr = std::shared_ptr<T>;
 
@@ -1018,11 +628,6 @@ template <typename T, typename... Args>
     return std::make_shared<T, TAtomicCounter>(std::forward<Args>(args)...);
 }
 
-/*template <typename T, typename... Args>
-[[nodiscard]] inline TSimpleSharedPtr<T> MakeSimpleShared(Args&&... args) {
-    return std::make_shared<T, TSimpleCounter>(std::forward<Args>(args)...);
-}
-*/
 template <typename T, typename... Args>
 [[nodiscard]] inline std::shared_ptr<T> MakeSimpleShared(Args&&... args) {
     return std::make_shared<T>(std::forward<Args>(args)...);

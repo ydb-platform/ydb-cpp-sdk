@@ -61,14 +61,7 @@ namespace NLCS {
             typedef TLCSCtx<TVal> TCtx;
 
             std::unique_ptr<TCtx> ctxhld;
-            /*
-            if (!ctx) {
-                ctxhld.Reset(new TCtx());
-                ctx = ctxhld.Get();
-            } else {
-                ctx->Reset();
-            }
-            */
+
             if (!ctx) {
                 ctxhld = std::make_unique<TCtx>();
                 ctx = ctxhld.get();

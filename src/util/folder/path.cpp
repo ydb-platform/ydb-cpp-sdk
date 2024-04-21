@@ -263,15 +263,6 @@ TFsPath TFsPath::Child(const std::string& name) const {
     return *this / name;
 }
 
-/*struct TClosedir {
-    static void Destroy(DIR* dir) {
-        if (dir) {
-            if (0 != closedir(dir)) {
-                ythrow TIoSystemError() << "failed to closedir";
-            }
-        }
-    }
-};*/
 struct TClosedir {
     void operator()(DIR* dir) const {
         Destroy(dir);
@@ -285,7 +276,6 @@ struct TClosedir {
         }
     }
 };
-
 
 void TFsPath::ListNames(std::vector<std::string>& children) const {
     CheckDefined();

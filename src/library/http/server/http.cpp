@@ -278,8 +278,6 @@ public:
             Connections->Clear();
         }
 
-        /*Connections.Destroy();
-        Poller.Destroy();*/
         Connections.reset();
         Poller.reset();
     }
@@ -622,32 +620,6 @@ void TClientConnection::ScheduleDelete() {
     CleanupState_.Closed = true;
 }
 
-/*
-void TClientConnection::OnPollEvent(TInstant now) {
-    std::unique_ptr<TClientConnection> this_(this);
-    Activate(now);
-
-    {
-        char tmp[1];
-
-        if (::recv(Socket_, tmp, 1, MSG_PEEK) < 1) {
-            //отседова звездочку 
-             * We can received a FIN so our socket was moved to
-             * TCP_CLOSE_WAIT state. Check it before adding work
-             * for this socket.
-             //доседова звездочку
-
-            return;
-        }
-    }
-
-    std::unique_ptr<TClientRequest> obj(HttpServ_->CreateRequest(this_));
-    AcceptMoment = now;
-
-    HttpServ_->AddRequest(obj, Reject_);
-}
-*/
-
 void TClientConnection::OnPollEvent(TInstant now) {
     Activate(now);
 
@@ -749,7 +721,6 @@ void TClientRequest::ResetConnection() {
     if (HttpConn_) {
         // send RST packet to client
         HttpConn_->Reset();
-        //HttpConn_.Destroy();
         HttpConn_.reset();
     }
 }

@@ -65,15 +65,6 @@ class TDeleteArray;
 class TFree;
 class TCopyNew;
 
-/*
-template <class T, class D = TDelete>
-class TAutoPtr;
-*/
-
-/*template <class T, class D = TDelete>
-class THolder;
-*/
-
 template <class T, class C, class D = TDelete>
 class TRefCounted;
 
@@ -91,10 +82,7 @@ class TIntrusiveConstPtr;
 
 template <class T, class Ops = TDefaultIntrusivePtrOps<T>>
 using TSimpleIntrusivePtr = TIntrusivePtr<T, TSimpleIntrusiveOps<T, Ops>>;
-/*
-template <class T, class C, class D = TDelete>
-class TSharedPtr;
-*/
+
 template <class T, class C = TCopyNew, class D = TDelete>
 class TCopyPtr;
 

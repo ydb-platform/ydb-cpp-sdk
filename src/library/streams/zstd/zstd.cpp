@@ -12,20 +12,7 @@ namespace {
             ythrow yexception() << op << std::string_view(" zstd error: ") << ::ZSTD_getErrorName(code);
         }
     }
-/*
-    struct DestroyZCStream {
-        static void Destroy(::ZSTD_CStream* p) noexcept {
-            ::ZSTD_freeCStream(p);
-        }
-    };
 
-    struct DestroyZDStream {
-        static void Destroy(::ZSTD_DStream* p) noexcept {
-            ::ZSTD_freeDStream(p);
-        }
-    };
-}
-*/
 struct DestroyZCStream {
     void operator()(::ZSTD_CStream* p) const noexcept {
         ::ZSTD_freeCStream(p);

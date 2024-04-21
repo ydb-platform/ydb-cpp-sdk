@@ -584,10 +584,6 @@ void TAdaptiveThreadPool::Start(size_t, size_t) {
     Impl_.reset(new TImpl(this, Params));
 }
 
-/*void TAdaptiveThreadPool::Stop() noexcept {
-    Impl_.Destroy();
-}
-*/
 void TAdaptiveThreadPool::Stop() noexcept {
     Impl_.reset();
 }

@@ -42,23 +42,6 @@ namespace {
         }
     };
 
-    /*struct TSslDestroy {
-        static inline void Destroy(ssl_ctx_st* ctx) noexcept {
-            SSL_CTX_free(ctx);
-        }
-
-        static inline void Destroy(ssl_st* ssl) noexcept {
-            SSL_free(ssl);
-        }
-
-        static inline void Destroy(bio_st* bio) noexcept {
-            BIO_free(bio);
-        }
-
-        static inline void Destroy(x509_st* x509) noexcept {
-            X509_free(x509);
-        }
-    };*/
     struct TSslDestroy {
     void operator()(ssl_ctx_st* ctx) const noexcept {
         SSL_CTX_free(ctx);

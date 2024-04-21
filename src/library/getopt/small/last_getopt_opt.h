@@ -572,18 +572,9 @@ namespace NLastGetopt {
         void FireHandlers(const TOptsParser* parser) const;
 
     private:
-        /*
         TOpt& HandlerImpl(IOptHandler* handler) {
-            Handlers_.push_back(handler);
-            return *this;
-        }
-*/
-        TOpt& HandlerImpl(IOptHandler* handler) {
-        // Создаем shared_ptr для переданного handler
             std::shared_ptr<NLastGetopt::IOptHandler> handlerPtr(handler);
-        // Добавляем созданный shared_ptr в вектор Handlers_
             Handlers_.push_back(handlerPtr);
-        // Возвращаем ссылку на текущий объект TOpt
             return *this;
         }
     public:
