@@ -1,7 +1,7 @@
 #include "malloc.h"
 
-#include <src/util/system/compiler.h>
-#include <src/util/system/platform.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/platform.h>
 
 #include <stdlib.h>
 

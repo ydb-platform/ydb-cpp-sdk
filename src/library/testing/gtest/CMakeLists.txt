@@ -12,11 +12,8 @@ foreach(_suffix IN ITEMS "" "_main")
     cpp-testing-hook
   )
   target_sources(cpp-testing-gtest${_suffix} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/gtest.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/matchers.cpp
+    gtest.cpp
+    main.cpp
+    matchers.cpp
   )
 endforeach()
-
-# Unit tests
-add_subdirectory(ut)

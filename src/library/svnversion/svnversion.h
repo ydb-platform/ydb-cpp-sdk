@@ -7,7 +7,7 @@
 #define PRINT_VERSION_EX(opts) PrintSvnVersionAndExitEx(argc, (char**)argv, opts)
 #endif
 
-#include <src/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 
 // Automatically generated functions.
 #include "scripts/c_templates/svnversion.h"

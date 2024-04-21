@@ -1,4 +1,4 @@
-#include "platform.h"
+#include <ydb-cpp-sdk/util/system/platform.h>
 #include "demangle_impl.h"
 
 #ifdef __GNUC__

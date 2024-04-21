@@ -9,7 +9,7 @@
 #include <src/util/generic/yexception.h>
 #include <src/util/memory/tempbuf.h>
 #include <src/util/string/escape.h>
-#include <src/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/system/cpu_id.h>
 #include <src/util/system/yassert.h>
 

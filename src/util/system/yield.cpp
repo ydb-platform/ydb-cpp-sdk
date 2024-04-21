@@ -1,4 +1,4 @@
-#include "platform.h"
+#include <ydb-cpp-sdk/util/system/platform.h>
 
 #ifdef _win_
     #include "winint.h"

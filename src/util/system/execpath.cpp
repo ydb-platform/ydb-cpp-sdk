@@ -1,4 +1,4 @@
-#include "platform.h"
+#include <ydb-cpp-sdk/util/system/platform.h>
 
 #if defined(_solaris_)
     #include <stdlib.h>

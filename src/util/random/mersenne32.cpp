@@ -1,6 +1,6 @@
 #include "mersenne32.h"
 
-#include <src/util/generic/array_size.h>
+#include <ydb-cpp-sdk/util/generic/array_size.h>
 #include <src/util/stream/input.h>
 
 using namespace NPrivate;

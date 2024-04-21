@@ -1,10 +1,10 @@
-#include "ydb_long_tx.h"
+#include <ydb-cpp-sdk/client/draft/ydb_long_tx.h>
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <src/client/ydb_common_client/impl/client.h>
+#include <src/client/common_client/impl/client.h>
 
 namespace NYdb {
 namespace NLongTx {

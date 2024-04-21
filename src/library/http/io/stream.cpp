@@ -1,9 +1,9 @@
-#include "stream.h"
+#include <ydb-cpp-sdk/library/http/io/stream.h>
 
 #include "compression.h"
 #include "chunk.h"
 
-#include <src/library/string_utils/misc/misc.h>
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 #include <src/library/string_utils/stream/stream.h>
 
 #include <src/util/stream/buffered.h>

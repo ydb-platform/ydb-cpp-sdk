@@ -1,7 +1,7 @@
 #include "url.h"
 
 #include <src/util/string/builder.h>
-#include <src/library/string_utils/misc/misc.h>
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <src/util/string/cast.h>
 #include <src/util/string/util.h>
@@ -10,7 +10,7 @@
 #include <src/util/string/strip.h>
 
 #include <src/util/charset/unidata.h> // for ToLower
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/generic/algorithm.h>
 #include <src/util/generic/yexception.h>
 #include <src/util/generic/singleton.h>

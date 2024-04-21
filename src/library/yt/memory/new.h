@@ -4,7 +4,7 @@
 
 #include <src/library/yt/misc/source_location.h>
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 namespace NYT {
 

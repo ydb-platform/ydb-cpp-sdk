@@ -1,9 +1,9 @@
 #pragma once
 
-#include "counters.h"
+#include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 
-#include <src/library/monlib/encode/encoder.h>
-#include <src/library/monlib/encode/format.h>
+#include <ydb-cpp-sdk/library/monlib/encode/encoder.h>
+#include <ydb-cpp-sdk/library/monlib/encode/format.h>
 
 namespace NMonitoring {
 

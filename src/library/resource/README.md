@@ -16,7 +16,7 @@ END()
 
 ### Example - access to a file content by a key:
 ```cpp
-#include <src/library/resource/resource.h>
+#include <ydb-cpp-sdk/library/resource/resource.h>
 int main() {
         std::cout << NResource::Find("/key/in/program/1") << std::endl;
         std::cout << NResource::Find("/key2") << std::endl;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/util/generic/typelist.h>
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 /*
  * original url (now dead): http://www.cris.com/~Ttwang/tech/inthash.htm

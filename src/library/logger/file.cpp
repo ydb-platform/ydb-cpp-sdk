@@ -1,5 +1,5 @@
 #include "file.h"
-#include "record.h"
+#include <ydb-cpp-sdk/library/logger/record.h>
 
 #include <src/util/system/file.h>
 #include <src/util/system/rwlock.h>

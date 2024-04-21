@@ -3,7 +3,7 @@ where HTML special characters are always escaped.
 
 Use it like this:
 
-    #include <src/library/json/writer/json.h>
+    #include <ydb-cpp-sdk/library/json/writer/json.h>
     ...
 
     NJsonWriter::TBuf json;

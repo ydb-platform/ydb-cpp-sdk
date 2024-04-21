@@ -1,9 +1,8 @@
 #include "datetime.h"
 #include "yassert.h"
-#include "platform.h"
 #include "cpu_id.h"
 
-#include <src/util/datetime/systime.h>
+#include <ydb-cpp-sdk/util/datetime/systime.h>
 
 #include <ctime>
 #include <cerrno>

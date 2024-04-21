@@ -1,4 +1,4 @@
-#include "defs.h"
+#include <ydb-cpp-sdk/library/json/common/defs.h>
 
 using namespace NJson;
 

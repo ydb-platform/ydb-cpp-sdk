@@ -23,9 +23,9 @@ target_sources(library-cpp-logger PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/thread_creator.cpp
 )
 generate_enum_serilization(library-cpp-logger
-  ${YDB_SDK_SOURCE_DIR}/src/library/logger/priority.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/library/logger/priority.h
   INCLUDE_HEADERS
-  src/library/logger/priority.h
+  include/ydb-cpp-sdk/library/logger/priority.h
 )
 
 add_global_library_for(library-cpp-logger.global library-cpp-logger)
@@ -45,13 +45,3 @@ target_sources(library-cpp-logger.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/system_creator.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/uninitialized_creator.cpp
 )
-
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  target_link_libraries(library-cpp-logger PUBLIC
-    
-  )
-  target_link_libraries(library-cpp-logger.global PUBLIC
-    
-  )
-endif()

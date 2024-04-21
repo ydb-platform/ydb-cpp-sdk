@@ -1,9 +1,9 @@
-#include "ydb_yson_value.h"
+#include <ydb-cpp-sdk/yson_value/ydb_yson_value.h>
 
 #include <src/util/string/builder.h>
 
-#include <src/client/ydb_value/value.h>
-#include <src/client/ydb_result/result.h>
+#include <ydb-cpp-sdk/client/value/value.h>
+#include <ydb-cpp-sdk/client/result/result.h>
 
 #include <src/util/string/builder.h>
 

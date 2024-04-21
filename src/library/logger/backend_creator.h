@@ -1,8 +1,8 @@
 #pragma once
 
-#include "backend.h"
+#include <ydb-cpp-sdk/library/logger/backend.h>
 #include <src/library/object_factory/object_factory.h>
-#include <src/library/json/json_value.h>
+#include <ydb-cpp-sdk/library/json/json_value.h>
 
 #include <src/util/generic/ptr.h>
 #include <src/util/string/cast.h>

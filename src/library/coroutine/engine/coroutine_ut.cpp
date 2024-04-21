@@ -2,7 +2,7 @@
 #include "condvar.h"
 #include "network.h"
 
-#include <src/library/deprecated/atomic/atomic.h>
+#include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/string/cast.h>

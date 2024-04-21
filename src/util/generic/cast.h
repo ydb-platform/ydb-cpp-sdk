@@ -1,6 +1,6 @@
 #pragma once
 
-#include "typetraits.h"
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include "yexception.h"
 
 #include <src/util/system/compat.h>

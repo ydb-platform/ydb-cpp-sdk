@@ -1,6 +1,6 @@
 #pragma once
 
-#include "stream.h"
+#include <ydb-cpp-sdk/library/http/io/stream.h>
 
 #include <src/util/generic/hash.h>
 

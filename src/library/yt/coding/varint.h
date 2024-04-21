@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #include <src/util/stream/input.h>
 #include <src/util/stream/output.h>

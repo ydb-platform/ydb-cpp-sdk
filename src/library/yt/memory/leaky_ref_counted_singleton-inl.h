@@ -9,7 +9,7 @@
 #include <atomic>
 #include <mutex>
 
-#include <src/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/system/sanitizers.h>
 
 namespace NYT {

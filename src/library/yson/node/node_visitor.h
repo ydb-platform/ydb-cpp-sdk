@@ -1,8 +1,8 @@
 #pragma once
 
-#include "node.h"
+#include <ydb-cpp-sdk/library/yson/node/node.h>
 
-#include <src/library/yson/consumer.h>
+#include <ydb-cpp-sdk/library/yson/consumer.h>
 
 namespace NYT {
 

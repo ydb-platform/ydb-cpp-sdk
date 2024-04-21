@@ -1,7 +1,4 @@
-#include "wait.h"
-
-#include "wait_group.h"
-#include "wait_policy.h"
+#include <ydb-cpp-sdk/library/threading/future/wait/wait.h>
 
 namespace NThreading {
     namespace {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "public.h"
-#include "token.h"
+#include <ydb-cpp-sdk/library/yson/public.h>
+#include <ydb-cpp-sdk/library/yson/token.h>
 
 #include <src/util/generic/ptr.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "http.h"
+#include <ydb-cpp-sdk/library/http/server/http.h>
 
 #include <src/library/http/misc/httpreqdata.h>
 

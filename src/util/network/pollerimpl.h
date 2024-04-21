@@ -4,11 +4,11 @@
 
 #include <src/util/system/error.h>
 #include <src/util/system/fake_mutex.h>
-#include <src/util/system/defaults.h>
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <src/util/generic/utility.h>
 #include <src/util/generic/yexception.h>
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 #include <mutex>
 

@@ -1,9 +1,9 @@
-#include "log.h"
+#include <ydb-cpp-sdk/library/logger/log.h>
 #include "uninitialized_creator.h"
 #include "filter.h"
 #include "null.h"
 #include "stream.h"
-#include "thread.h"
+#include <ydb-cpp-sdk/library/logger/thread.h>
 
 #include <src/util/system/yassert.h>
 #include <src/util/generic/scope.h>

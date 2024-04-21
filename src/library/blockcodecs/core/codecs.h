@@ -3,7 +3,7 @@
 #include <src/util/generic/buffer.h>
 #include <string_view>
 #include <string>
-#include <src/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <src/util/generic/yexception.h>
 
 namespace NBlockCodecs {

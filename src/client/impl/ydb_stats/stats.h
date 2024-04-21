@@ -1,10 +1,10 @@
 #pragma once
 
-#include <src/client/ydb_types/status_codes.h>
+#include <ydb-cpp-sdk/client/types/status_codes.h>
 
-#include <src/library/grpc/client/grpc_client_low.h>
-#include <src/library/monlib/metrics/metric_registry.h>
-#include <src/library/monlib/metrics/histogram_collector.h>
+#include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
+#include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
+#include <ydb-cpp-sdk/library/monlib/metrics/histogram_collector.h>
 
 #include <atomic>
 #include <memory>

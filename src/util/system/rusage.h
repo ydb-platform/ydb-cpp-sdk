@@ -1,8 +1,8 @@
 #pragma once
 
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/generic/utility.h>
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 /// portable getrusage
 

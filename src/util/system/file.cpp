@@ -18,11 +18,11 @@
 
 #include <src/util/random/random.h>
 
-#include <src/util/generic/size_literals.h>
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <src/util/generic/yexception.h>
 
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 #include <errno.h>
 

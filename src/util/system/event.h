@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/util/generic/ptr.h>
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 struct TEventResetType {
     enum ResetMode {

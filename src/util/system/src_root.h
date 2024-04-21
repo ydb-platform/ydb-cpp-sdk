@@ -1,7 +1,7 @@
 #pragma once
 
-#include "compiler.h"
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #include <type_traits>
 

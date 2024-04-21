@@ -1,5 +1,5 @@
-#include "mon_service_http_request.h"
-#include "monservice.h"
+#include <ydb-cpp-sdk/library/monlib/service/mon_service_http_request.h>
+#include <ydb-cpp-sdk/library/monlib/service/monservice.h>
 
 using namespace NMonitoring;
 

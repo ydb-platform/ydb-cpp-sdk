@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/library/monlib/dynamic_counters/counters.h>
+#include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 
 namespace NMonitoring {
 

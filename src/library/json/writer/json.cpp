@@ -1,6 +1,6 @@
-#include "json.h"
+#include <ydb-cpp-sdk/library/json/writer/json.h>
 
-#include <src/library/json/json_value.h>
+#include <ydb-cpp-sdk/library/json/json_value.h>
 #include <src/util/string/builder.h>
 
 #include <src/util/string/cast.h>

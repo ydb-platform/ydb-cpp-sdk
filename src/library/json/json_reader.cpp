@@ -1,4 +1,4 @@
-#include "json_reader.h"
+#include <ydb-cpp-sdk/library/json/json_reader.h>
 
 #include "rapidjson_helpers.h"
 

@@ -4,7 +4,7 @@
 
 #include <src/util/generic/fwd.h>
 #include <src/util/system/align.h>
-#include <src/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/system/yassert.h>
 
 #include <cstring>

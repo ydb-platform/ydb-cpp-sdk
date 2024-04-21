@@ -5,7 +5,7 @@
 #define FROM_IMPL
 #include "svnversion.h"
 
-#include <src/library/string_utils/misc/misc.h>
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 #include <string_view>
 
 extern "C" void PrintProgramSvnVersion() {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "base.h"
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 /**
  * Returns system uptime

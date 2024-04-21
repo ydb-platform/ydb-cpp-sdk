@@ -1,4 +1,4 @@
-#include <src/client/iam/common/iam.h>
+#include <ydb-cpp-sdk/client/iam/common/iam.h>
 
 #include <src/api/client/yc_public/iam/iam_token_service.pb.h>
 #include <src/api/client/yc_public/iam/iam_token_service.grpc.pb.h>

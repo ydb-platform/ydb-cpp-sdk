@@ -6,8 +6,9 @@ target_link_libraries(cpp-testing-gmock_in_unittest PUBLIC
   cpp-testing-gtest_extensions
   cpp-testing-unittest
 )
+
 target_sources(cpp-testing-gmock_in_unittest PRIVATE
-  ${YDB_SDK_SOURCE_DIR}/src/library/testing/gmock_in_unittest/events.cpp
+  events.cpp
 )
 
 add_global_library_for(cpp-testing-gmock_in_unittest.global cpp-testing-gmock_in_unittest)
@@ -18,9 +19,7 @@ target_link_libraries(cpp-testing-gmock_in_unittest.global PUBLIC
   cpp-testing-gtest_extensions
   cpp-testing-unittest
 )
-target_sources(cpp-testing-gmock_in_unittest.global PRIVATE
-  ${YDB_SDK_SOURCE_DIR}/src/library/testing/gmock_in_unittest/registration.cpp
-)
 
-# Unit tests
-add_subdirectory(example_ut)
+target_sources(cpp-testing-gmock_in_unittest.global PRIVATE
+  registration.cpp
+)

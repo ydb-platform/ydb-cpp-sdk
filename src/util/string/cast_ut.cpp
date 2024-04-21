@@ -3,7 +3,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/charset/wide.h>
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #include <limits>
 

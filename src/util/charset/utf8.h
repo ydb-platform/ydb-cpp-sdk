@@ -4,7 +4,7 @@
 
 #include <src/util/generic/yexception.h>
 #include <src/util/string/escape.h>
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/yassert.h>
 
 extern const wchar32 BROKEN_RUNE;

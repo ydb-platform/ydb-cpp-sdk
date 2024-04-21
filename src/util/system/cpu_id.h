@@ -1,7 +1,7 @@
 #pragma once
 
-#include "types.h"
-#include "compiler.h"
+#include <ydb-cpp-sdk/util/system/types.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/generic/singleton.h>
 
 #define Y_CPU_ID_ENUMERATE(F) \

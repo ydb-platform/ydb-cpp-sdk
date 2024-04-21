@@ -1,10 +1,10 @@
 #pragma once
 
-#include "node.h"
+#include <ydb-cpp-sdk/library/yson/node/node.h>
 
-#include <src/library/json/json_reader.h>
+#include <ydb-cpp-sdk/library/json/json_reader.h>
 
-#include <src/library/yson/consumer.h>
+#include <ydb-cpp-sdk/library/yson/consumer.h>
 
 #include <src/util/generic/stack.h>
 

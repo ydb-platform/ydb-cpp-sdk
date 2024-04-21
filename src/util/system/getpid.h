@@ -1,7 +1,7 @@
 #pragma once
 
-#include "platform.h"
-#include "types.h"
+#include <ydb-cpp-sdk/util/system/platform.h>
+#include <ydb-cpp-sdk/util/system/types.h>
 
 #if defined(_win_)
 using TProcessId = ui32; // DWORD

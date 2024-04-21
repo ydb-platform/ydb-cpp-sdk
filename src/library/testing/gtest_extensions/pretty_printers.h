@@ -4,7 +4,7 @@
 #include <src/util/stream/output.h>
 #include <src/util/stream/str.h>
 #include <src/util/string/escape.h>
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 namespace NResolver {
     // resolve hostname and fills up to *slots slots in ip array;

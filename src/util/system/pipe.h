@@ -5,7 +5,7 @@
     #pragma GCC diagnostic ignored "-Warray-bounds" //need because of bug in gcc4.9.2
 #endif
 
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include "file.h"
 #include <src/util/generic/ptr.h>
 #include <src/util/network/pair.h>

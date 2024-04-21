@@ -1,11 +1,5 @@
-add_library(cpp-containers-stack_vector)
+add_library(cpp-containers-stack_vector INTERFACE)
 
-target_link_libraries(cpp-containers-stack_vector PUBLIC
+target_link_libraries(cpp-containers-stack_vector INTERFACE
   yutil
 )
-
-target_sources(cpp-containers-stack_vector PRIVATE
-  ${YDB_SDK_SOURCE_DIR}/src/library/containers/stack_vector/stack_vec.cpp
-)
-
-

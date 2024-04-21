@@ -1,4 +1,4 @@
-#include "exception.h"
+#include <ydb-cpp-sdk/library/yt/exception/exception.h>
 
 namespace NYT {
 

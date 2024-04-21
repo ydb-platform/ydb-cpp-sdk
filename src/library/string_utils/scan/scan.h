@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/library/string_utils/helpers/helpers.h>
+#include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <string_view>
 

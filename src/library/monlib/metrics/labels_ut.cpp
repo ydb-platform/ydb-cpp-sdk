@@ -1,4 +1,4 @@
-#include "labels.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/labels.h>
 
 #include <src/library/testing/unittest/registar.h>
 

@@ -1,7 +1,7 @@
 #include <src/util/stream/output.h>
 #include <src/util/stream/null.h>
 #include <src/util/system/yassert.h>
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/generic/singleton.h>
 #include <src/util/generic/utility.h>
 
@@ -10,7 +10,7 @@
 #endif
 
 #include "system.h"
-#include "record.h"
+#include <ydb-cpp-sdk/library/logger/record.h>
 #include "stream.h"
 
 TSysLogBackend::TSysLogBackend(const char* ident, EFacility facility, int flags)

@@ -1,6 +1,6 @@
 #include "endpoints.h"
 
-#include <src/library/monlib/metrics/metric_registry.h>
+#include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
 #include <src/library/string_utils/quote/quote.h>
 
 #include <src/util/random/random.h>
