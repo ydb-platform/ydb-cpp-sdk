@@ -1,4 +1,4 @@
-#include <src/library/resource/resource.h>
+#include <ydb-cpp-sdk/library/resource/resource.h>
 #include <src/library/testing/unittest/registar.h>
 
 Y_UNIT_TEST_SUITE(TestResource) {

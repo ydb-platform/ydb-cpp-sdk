@@ -1,8 +1,8 @@
 #pragma once
 
-#include "log.h"
-#include "backend.h"
-#include "priority.h"
+#include <ydb-cpp-sdk/library/logger/log.h>
+#include <ydb-cpp-sdk/library/logger/backend.h>
+#include <ydb-cpp-sdk/library/logger/priority.h>
 
 #define YSYSLOG(priority, ...) SysLogInstance().AddLog((priority), __VA_ARGS__)
 #define YSYSLOGINIT_FLAGS(ident, facility, flags)                                                                                    \

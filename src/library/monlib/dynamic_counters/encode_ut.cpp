@@ -1,6 +1,6 @@
 #include "encode.h"
 
-#include <src/library/monlib/encode/json/json.h>
+#include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
 #include <src/library/monlib/encode/spack/spack_v1.h>
 #include <src/library/monlib/encode/protobuf/protobuf.h>
 

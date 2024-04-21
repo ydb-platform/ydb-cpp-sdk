@@ -1,4 +1,4 @@
-#include "metric_consumer.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/metric_consumer.h>
 
 #include <src/util/system/yassert.h>
 

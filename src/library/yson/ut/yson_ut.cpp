@@ -1,5 +1,5 @@
 #include <src/library/yson/parser.h>
-#include <src/library/yson/writer.h>
+#include <ydb-cpp-sdk/library/yson/writer.h>
 
 #include <src/library/testing/gtest/gtest.h>
 

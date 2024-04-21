@@ -4,8 +4,8 @@
 #include <src/client/impl/ydb_internal/plain_status/status.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <src/client/resources/ydb_resources.h>
-#include <src/client/ydb_types/operation/operation.h>
+#include <ydb-cpp-sdk/client/resources/ydb_resources.h>
+#include <ydb-cpp-sdk/client/types/operation/operation.h>
 
 #include <src/util/random/random.h>
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/util/thread/pool.h>
-#include <src/library/deprecated/atomic/atomic.h>
+#include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <src/util/generic/ptr.h>
 
 //actual queue limit will be (maxQueueSize - numBusyThreads) or 0

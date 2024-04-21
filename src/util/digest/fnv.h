@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #define FNV32INIT 2166136261U
 #define FNV32PRIME 16777619U

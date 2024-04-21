@@ -1,4 +1,4 @@
-#include <src/util/system/platform.h>
+#include <ydb-cpp-sdk/util/system/platform.h>
 #include <src/util/system/yassert.h>
 #include <src/util/stream/output.h>
 #include <src/util/system/backtrace.h>

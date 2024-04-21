@@ -1,10 +1,11 @@
 #pragma once
 
-#include "log_histogram_snapshot.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/log_histogram_snapshot.h>
 
 #include <src/util/generic/algorithm.h>
 #include <src/util/generic/utility.h>
 #include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 
 #include <mutex>
 #include <cmath>
@@ -56,7 +57,7 @@ namespace NMonitoring {
 
         void CollectPositiveDouble(double value) {
             ssize_t idx = std::floor(std::log(value) / std::log(BASE)) - StartPower_;
-            if (idx >= Buckets_.ysize()) {
+            if (idx >= Buckets_.size()) {
                 idx = ExtendUp(idx);
             } else if (idx <= 0) {
                 idx = Max<ssize_t>(0, ExtendDown(idx, 1));
@@ -138,7 +139,7 @@ namespace NMonitoring {
         std::pair<ssize_t, ssize_t> ExtendBounds(ssize_t startIdx, ssize_t endIdx, ui8 margin) {
             ssize_t realEndIdx;
             ssize_t realStartIdx;
-            if (endIdx >= Buckets_.ysize()) {
+            if (endIdx >= Buckets_.size()) {
                 Buckets_.reserve(std::max<size_t>(std::min<ui32>(endIdx - startIdx + 1ul, MAX_BUCKETS), 0ul));
                 realEndIdx = ExtendUp(endIdx);
                 startIdx += realEndIdx - endIdx;

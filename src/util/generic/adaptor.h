@@ -1,7 +1,7 @@
 #pragma once
 
 #include "store_policy.h"
-#include "typetraits.h"
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 namespace NPrivate {
     template <class Range>

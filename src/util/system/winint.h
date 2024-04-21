@@ -7,7 +7,7 @@
  * and then #include <src/util/system/win_undef.h> in order to undefine some common macros.
  */
 
-#include <src/util/system/platform.h>
+#include <ydb-cpp-sdk/util/system/platform.h>
 
 #if defined(_win_)
     #include <windows.h>

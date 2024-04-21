@@ -1,7 +1,7 @@
 #pragma once
 
 #include "guard.h"
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #include <src/util/generic/ptr.h>
 

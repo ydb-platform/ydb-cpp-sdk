@@ -1,4 +1,4 @@
-#include <src/library/json/json_reader.h>
+#include <ydb-cpp-sdk/library/json/json_reader.h>
 
 #include <src/util/random/random.h>
 #include <src/util/stream/str.h>

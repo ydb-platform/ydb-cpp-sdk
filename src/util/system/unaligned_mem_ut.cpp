@@ -3,7 +3,7 @@
 #include <src/library/testing/benchmark/bench.h>
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 
 #ifdef Y_HAVE_INT128
 namespace {

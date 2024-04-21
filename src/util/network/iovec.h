@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/util/stream/output.h>
-#include <src/util/system/types.h>
+#include <ydb-cpp-sdk/util/system/types.h>
 #include <src/util/system/yassert.h>
 
 class TContIOVector {

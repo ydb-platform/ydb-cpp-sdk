@@ -1,4 +1,4 @@
-#include "index_mon_page.h"
+#include <ydb-cpp-sdk/library/monlib/service/pages/index_mon_page.h>
 
 #include <src/util/generic/cast.h>
 #include <src/util/string/ascii.h>
@@ -28,7 +28,7 @@ void TIndexMonPage::Output(IMonHttpRequest& request) {
         std::lock_guard g(Mtx);
         std::string_view pathTmp = request.GetPathInfo();
         for (;;) {
-            if (TPagesByPath::iterator i = PagesByPath.find(pathTmp); i != PagesByPath.end()) {
+            if (TPagesByPath::iterator i = PagesByPath.find(std::string{pathTmp}); i != PagesByPath.end()) {
                 found = *i->second;
                 pathInfo = request.GetPathInfo().substr(pathTmp.size());
                 Y_ABORT_UNLESS(pathInfo.empty() || pathInfo.starts_with('/'));

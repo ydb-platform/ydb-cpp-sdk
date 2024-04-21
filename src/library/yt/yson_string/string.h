@@ -1,6 +1,6 @@
 #pragma once
 
-#include "public.h"
+#include <ydb-cpp-sdk/library/yt/yson_string/public.h>
 
 #include <src/library/yt/memory/ref.h>
 

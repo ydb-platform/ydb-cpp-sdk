@@ -1,7 +1,6 @@
 #pragma once
 
-#include "defaults.h"
-#include "platform.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #if defined(_win_)
     #include <intrin.h>
@@ -13,7 +12,7 @@
 #endif
 
 /// src/util/system/datetime.h contains only system time providers
-/// for handy datetime utilities include src/util/datetime/base.h
+/// for handy datetime utilities include ydb-cpp-sdk/util/datetime/base.h
 
 /// Current time in microseconds since epoch
 ui64 MicroSeconds() noexcept;

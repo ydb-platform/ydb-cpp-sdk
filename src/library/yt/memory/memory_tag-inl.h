@@ -5,7 +5,7 @@
 #include "memory_tag.h"
 #endif
 
-#include <src/util/system/types.h>
+#include <ydb-cpp-sdk/util/system/types.h>
 
 namespace NYT {
 

@@ -4,7 +4,7 @@
 #include "cast.h"
 #endif
 
-#include "enum.h"
+#include <ydb-cpp-sdk/library/yt/misc/enum.h>
 
 #include <src/util/string/builder.h>
 

@@ -2,13 +2,13 @@
 
 #include <src/library/testing/common/env_var.h>
 
-#include <src/library/json/json_reader.h>
-#include <src/library/json/writer/json.h>
-#include <src/library/json/writer/json_value.h>
+#include <ydb-cpp-sdk/library/json/json_reader.h>
+#include <ydb-cpp-sdk/library/json/writer/json.h>
+#include <ydb-cpp-sdk/library/json/writer/json_value.h>
 
 #include <src/util/charset/utf8.h>
 #include <src/util/generic/scope.h>
-#include <src/util/generic/size_literals.h>
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <src/util/stream/file.h>
 #include <src/util/stream/input.h>
 #include <src/util/system/backtrace.h>

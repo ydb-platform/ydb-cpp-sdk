@@ -1,11 +1,12 @@
 #pragma once
-#include "retry_policy.h"
+
+#include <ydb-cpp-sdk/library/retry/retry_policy.h>
 #include "utils.h"
 
 #include <src/library/retry/protos/retry_options.pb.h>
 
-#include <src/util/datetime/base.h>
-#include <src/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <src/util/generic/yexception.h>
 
 #include <functional>

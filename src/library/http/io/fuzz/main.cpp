@@ -1,4 +1,4 @@
-#include <src/library/http/io/stream.h>
+#include <ydb-cpp-sdk/library/http/io/stream.h>
 
 
 #include <src/util/stream/mem.h>

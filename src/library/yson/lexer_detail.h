@@ -1,7 +1,7 @@
 #pragma once
 
 #include "detail.h"
-#include "token.h"
+#include <ydb-cpp-sdk/library/yson/token.h>
 
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////

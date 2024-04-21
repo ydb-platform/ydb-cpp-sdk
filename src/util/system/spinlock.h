@@ -1,6 +1,6 @@
 #pragma once
 
-#include "platform.h"
+#include <ydb-cpp-sdk/util/system/platform.h>
 #include "spin_wait.h"
 
 #include <atomic>

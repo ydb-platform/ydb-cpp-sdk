@@ -4,7 +4,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/system/event.h>
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 
 Y_UNIT_TEST_SUITE(TElasticQueueTest) {

@@ -1,5 +1,4 @@
-#include "headers.h"
-#include "stream.h"
+#include <ydb-cpp-sdk/library/http/io/stream.h>
 
 #include <src/library/string_utils/stream/stream.h>
 #include <src/util/string/strip.h>

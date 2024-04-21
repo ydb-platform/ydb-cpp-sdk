@@ -1,6 +1,6 @@
-#include <src/library/resource/resource.h>
+#include <ydb-cpp-sdk/library/resource/resource.h>
 
-#include "ydb_ca.h"
+#include <ydb-cpp-sdk/client/resources/ydb_ca.h>
 
 namespace NYdb {
 

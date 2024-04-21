@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ylimits.h"
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include "typelist.h"
 
-#include <src/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/system/yassert.h>
 
 #ifdef _MSC_VER

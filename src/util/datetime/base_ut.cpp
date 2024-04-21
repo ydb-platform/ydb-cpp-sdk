@@ -3,7 +3,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/generic/utility.h>
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <src/util/generic/ymath.h>
 #include <src/util/string/cast.h>
 #include <src/util/stream/output.h>

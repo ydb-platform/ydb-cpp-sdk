@@ -1,4 +1,4 @@
-#include "va_args.h"
+#include <ydb-cpp-sdk/util/generic/va_args.h>
 
 // Test that it compiles
 #define __DUMMY__(x)

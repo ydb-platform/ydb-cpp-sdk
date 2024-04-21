@@ -1,4 +1,4 @@
-#include "http.h"
+#include <ydb-cpp-sdk/library/http/server/http.h>
 #include "http_ex.h"
 
 #include <src/library/threading/equeue/equeue.h>
@@ -9,9 +9,9 @@
 #include <src/util/network/address.h>
 #include <src/util/network/socket.h>
 #include <src/util/network/poller.h>
-#include <src/library/deprecated/atomic/atomic.h>
+#include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <src/util/system/compat.h> // stricmp, strnicmp, strlwr, strupr, stpcpy
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/event.h>
 #include <src/util/system/pipe.h>
 #include <src/util/system/thread.h>

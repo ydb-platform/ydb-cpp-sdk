@@ -4,16 +4,16 @@
 #include "format.h"
 #endif
 
-#include "enum.h"
+#include <ydb-cpp-sdk/library/yt/misc/enum.h>
 #include "string.h"
 
 #include <src/library/yt/assert/assert.h>
 
 #include <src/library/yt/small_containers/compact_vector.h>
 
-#include <src/library/yt/misc/enum.h>
+#include <ydb-cpp-sdk/library/yt/misc/enum.h>
 
-#include <src/util/system/platform.h>
+#include <ydb-cpp-sdk/util/system/platform.h>
 
 #include <cctype>
 #include <optional>

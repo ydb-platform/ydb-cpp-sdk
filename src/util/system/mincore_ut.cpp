@@ -6,7 +6,7 @@
 #include "mlock.h"
 #include "tempfile.h"
 
-#include <src/util/generic/size_literals.h>
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
 
 Y_UNIT_TEST_SUITE(MincoreSuite) {
     static const char* FileName_("./mappped_file");

@@ -1,4 +1,4 @@
-#include "conn.h"
+#include <ydb-cpp-sdk/library/http/server/conn.h>
 
 #include <src/util/network/socket.h>
 #include <src/util/stream/buffered.h>

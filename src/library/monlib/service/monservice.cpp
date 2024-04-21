@@ -1,4 +1,4 @@
-#include "monservice.h"
+#include <ydb-cpp-sdk/library/monlib/service/monservice.h>
 
 #include <src/library/string_utils/base64/base64.h>
 #include <src/library/svnversion/svnversion.h>

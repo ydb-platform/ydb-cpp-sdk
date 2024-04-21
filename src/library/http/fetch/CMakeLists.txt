@@ -21,9 +21,9 @@ target_sources(cpp-http-fetch PRIVATE
 )
 
 generate_enum_serilization(cpp-http-fetch
-  ${YDB_SDK_SOURCE_DIR}/src/library/http/fetch/httpheader.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/library/http/fetch/httpheader.h
   INCLUDE_HEADERS
-  src/library/http/fetch/httpheader.h
+  include/ydb-cpp-sdk/library/http/fetch/httpheader.h
 )
 
 target_ragel_lexers(cpp-http-fetch

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <src/library/monlib/encode/encoder.h>
-#include <src/library/monlib/encode/format.h>
-#include <src/library/monlib/metrics/metric.h>
+#include <ydb-cpp-sdk/library/monlib/encode/encoder.h>
+#include <ydb-cpp-sdk/library/monlib/encode/format.h>
+#include <ydb-cpp-sdk/library/monlib/metrics/metric.h>
 
 #include <src/util/generic/yexception.h>
 

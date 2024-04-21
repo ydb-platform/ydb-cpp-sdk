@@ -2,13 +2,13 @@
 
 #include <src/client/impl/ydb_internal/internal_header.h>
 
-#include <src/client/ydb_types/status_codes.h>
+#include <ydb-cpp-sdk/client/types/status_codes.h>
 
 #include <src/api/protos/ydb_operation.pb.h>
 
-#include <src/library/yql/public/issue/yql_issue.h>
+#include <ydb-cpp-sdk/library/yql/public/issue/yql_issue.h>
 
-#include <src/library/grpc/client/grpc_client_low.h>
+#include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
 
 namespace NYdb {
 

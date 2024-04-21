@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/util/system/atexit.h>
-#include <src/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 
 #include <atomic>
 #include <new>

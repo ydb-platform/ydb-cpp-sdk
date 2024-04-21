@@ -1,4 +1,4 @@
-#include <src/library/string_utils/misc/misc.h>
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <src/util/memory/tempbuf.h>
 #include <src/util/generic/singleton.h>
@@ -15,7 +15,7 @@
     #include <WinSock2.h>
 #endif
 
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include "yassert.h"
 #include "hostname.h"
 

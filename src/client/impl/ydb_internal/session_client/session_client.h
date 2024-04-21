@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 namespace NYdb {
 

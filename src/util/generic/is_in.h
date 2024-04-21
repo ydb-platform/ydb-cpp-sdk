@@ -1,6 +1,6 @@
 #pragma once
 
-#include "typetraits.h"
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 #include <algorithm>
 #include <initializer_list>

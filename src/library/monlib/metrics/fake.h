@@ -1,7 +1,7 @@
 #pragma once
 
-#include "metric.h"
-#include "metric_registry.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/metric.h>
+#include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
 
 namespace NMonitoring {
     class TFakeMetricRegistry: public IMetricRegistry {

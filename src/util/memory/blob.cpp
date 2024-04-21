@@ -7,7 +7,7 @@
 #include <src/util/stream/buffer.h>
 #include <src/util/generic/ptr.h>
 #include <src/util/generic/buffer.h>
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <src/util/generic/singleton.h>
 #include <src/util/generic/yexception.h>
 

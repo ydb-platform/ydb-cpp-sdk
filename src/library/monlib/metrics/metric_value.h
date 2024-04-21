@@ -1,11 +1,11 @@
 #pragma once
 
-#include "histogram_collector.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/histogram_collector.h>
 #include "metric_value_type.h"
-#include "summary_collector.h"
-#include "log_histogram_snapshot.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/summary_collector.h>
+#include <ydb-cpp-sdk/library/monlib/metrics/log_histogram_snapshot.h>
 
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 #include <src/util/generic/algorithm.h>
 
 #include <src/util/generic/cast.h>

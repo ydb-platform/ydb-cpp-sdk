@@ -1,6 +1,6 @@
 #pragma once
 
-#include "future.h"
+#include <ydb-cpp-sdk/library/threading/future/future.h>
 
 #include <src/util/generic/function.h>
 #include <src/util/thread/pool.h>

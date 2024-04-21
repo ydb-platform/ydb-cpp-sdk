@@ -1,8 +1,8 @@
-#include "operation_id.h"
+#include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 
 #include <google/protobuf/message.h>
 
-#include <src/library/cgiparam/cgiparam.h>
+#include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
 #include <src/library/uri/uri.h>
 
 #include <src/util/generic/yexception.h>

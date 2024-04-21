@@ -2,7 +2,7 @@
 
 #include <src/util/generic/fwd.h>
 #include <src/util/generic/noncopyable.h>
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 class IOutputStream;
 

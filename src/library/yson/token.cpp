@@ -1,4 +1,4 @@
-#include "token.h"
+#include <ydb-cpp-sdk/library/yson/token.h>
 
 #include <src/util/string/vector.h>
 

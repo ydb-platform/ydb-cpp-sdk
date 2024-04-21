@@ -1,6 +1,6 @@
 #include <src/library/http/simple/http_client.h>
 
-#include <src/library/http/server/response.h>
+#include <ydb-cpp-sdk/library/http/server/response.h>
 
 #include <src/library/testing/mock_server/server.h>
 #include <src/library/testing/unittest/registar.h>

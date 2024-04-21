@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/sysstat.h>
 #include <src/util/system/fs.h>
 #include <src/util/generic/yexception.h>

@@ -31,7 +31,7 @@
  * SUCH DAMAGE.
  */
 
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #include <fcntl.h>
 #include <errno.h>

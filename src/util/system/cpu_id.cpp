@@ -1,6 +1,6 @@
 #include "cpu_id.h"
-#include "types.h"
-#include "platform.h"
+#include <ydb-cpp-sdk/util/system/types.h>
+#include <ydb-cpp-sdk/util/system/platform.h>
 
 #include <src/util/generic/singleton.h>
 

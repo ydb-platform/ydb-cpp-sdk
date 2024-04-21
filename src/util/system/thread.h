@@ -8,7 +8,7 @@
 
 #include <string>
 
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include "progname.h"
 
 bool SetHighestThreadPriority();

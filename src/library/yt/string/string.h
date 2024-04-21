@@ -2,9 +2,9 @@
 
 #include "string_builder.h"
 
-#include <src/library/yt/exception/exception.h>
+#include <ydb-cpp-sdk/library/yt/exception/exception.h>
 
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 #include <string>
 

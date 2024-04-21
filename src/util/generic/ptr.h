@@ -4,14 +4,14 @@
 #include "utility.h"
 #include "intrlist.h"
 #include "refcount.h"
-#include "typetraits.h"
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include "singleton.h"
 
 #include <type_traits>
 #include <utility>
 
-#include <src/util/system/compiler.h>
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/yassert.h>
 
 template <class T, class U>

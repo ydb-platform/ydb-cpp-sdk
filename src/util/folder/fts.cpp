@@ -35,8 +35,8 @@
 
 #include <src/util/memory/tempbuf.h>
 #include <src/util/system/compat.h>
-#include <src/util/system/compiler.h>
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/error.h>
 
 #include <stdlib.h>

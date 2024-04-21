@@ -1,6 +1,6 @@
 #pragma once
 
-#include "typetraits.h"
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 /**
  * Helper type that can be used as one of the parameters in function declaration

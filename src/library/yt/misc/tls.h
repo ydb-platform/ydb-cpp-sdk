@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 
 // Workaround for fiber (un)friendly TLS.
 // Volatile qualifier prevents caching access to thread local variables.

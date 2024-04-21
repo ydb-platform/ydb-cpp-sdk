@@ -26,7 +26,7 @@
 * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 * SUCH DAMAGE.
 */
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #include <sys/types.h>
 #include <cctype>
@@ -38,7 +38,7 @@
 #include <src/util/system/compat.h>   /* stricmp */
 #include <src/util/system/yassert.h>
 #include "httpdate.h"
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 
 static const char *wkdays[] = {
     "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "metric_registry.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
 
 namespace NMonitoring {
 

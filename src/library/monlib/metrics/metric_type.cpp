@@ -1,4 +1,4 @@
-#include "metric_type.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/metric_type.h>
 
 #include <string_view>
 #include <src/util/generic/yexception.h>

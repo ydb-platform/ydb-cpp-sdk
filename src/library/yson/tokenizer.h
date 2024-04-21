@@ -1,6 +1,6 @@
 #pragma once
 
-#include "public.h"
+#include <ydb-cpp-sdk/library/yson/public.h>
 #include "lexer.h"
 
 namespace NYson {

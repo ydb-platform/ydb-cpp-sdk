@@ -10,7 +10,7 @@ target_sources(cpp-mime-types PRIVATE
 )
 
 generate_enum_serilization(cpp-mime-types
-  ${YDB_SDK_SOURCE_DIR}/src/library/mime/types/mime.h
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/library/mime/types/mime.h
   INCLUDE_HEADERS
-  src/library/mime/types/mime.h
+  include/ydb-cpp-sdk/library/mime/types/mime.h
 )

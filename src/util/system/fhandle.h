@@ -1,6 +1,6 @@
 #pragma once
 
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 using WIN_HANDLE = void*;
 #define INVALID_WIN_HANDLE ((WIN_HANDLE)(long)-1)
