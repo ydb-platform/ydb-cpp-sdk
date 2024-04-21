@@ -1,4 +1,4 @@
-#include "size_literals.h"
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
 
 void CompileTestUnsigned() {
     static_assert(1_KB == 1024, "Wrong 1KB value");

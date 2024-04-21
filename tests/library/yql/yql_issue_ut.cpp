@@ -1,5 +1,5 @@
-#include "yql_issue.h"
-#include "yql_issue_message.h"
+#include <ydb-cpp-sdk/library/yql/public/issue/yql_issue.h>
+#include <src/library/yql/public/issue/yql_issue_message.h>
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/yql/public/issue/protos/issue_message.pb.h>

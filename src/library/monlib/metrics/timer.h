@@ -1,8 +1,8 @@
 #pragma once
 
-#include "metric.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/metric.h>
 
-#include <src/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 #include <chrono>
 

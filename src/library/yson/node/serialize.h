@@ -1,6 +1,6 @@
 #pragma once
 
-#include "node.h"
+#include <ydb-cpp-sdk/library/yson/node/node.h>
 
 namespace NYT {
 

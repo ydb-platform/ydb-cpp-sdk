@@ -6,7 +6,7 @@
 #include <src/util/generic/ptr.h>
 #include <src/util/string/cast.h>
 #include <src/util/system/fstat.h>
-#include <src/util/system/platform.h>
+#include <ydb-cpp-sdk/util/system/platform.h>
 #include <src/util/system/sysstat.h>
 #include <src/util/system/yassert.h>
 

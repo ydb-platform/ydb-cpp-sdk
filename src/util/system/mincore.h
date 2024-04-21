@@ -1,6 +1,6 @@
 #pragma once
 
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 /**
  * Fills a vector that indicates whether pages of the calling process's virtual memory are resident in RAM. Each byte
  * in the vector contains the status of a single page. The page size can be obtained via the NSystemInfo::GetPageSize()

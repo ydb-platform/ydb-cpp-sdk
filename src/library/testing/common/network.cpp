@@ -7,7 +7,7 @@
 #include <src/util/generic/singleton.h>
 #include <src/util/generic/utility.h>
 
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <src/util/network/address.h>
 #include <src/util/network/sock.h>
 #include <src/util/random/random.h>

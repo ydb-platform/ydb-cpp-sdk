@@ -1,6 +1,6 @@
 #include "mem_info.h"
 
-#include <src/library/string_utils/helpers/helpers.h>
+#include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <src/util/stream/file.h>
 #include <src/util/string/cast.h>

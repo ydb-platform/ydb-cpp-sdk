@@ -2,7 +2,7 @@
 
 #include <contrib/libs/libc_compat/string.h>
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/compat.h>
 
 #include <string>

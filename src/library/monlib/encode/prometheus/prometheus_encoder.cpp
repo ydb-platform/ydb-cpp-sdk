@@ -3,7 +3,7 @@
 
 #include <src/library/monlib/encode/encoder_state.h>
 #include <src/library/monlib/encode/buffered/string_pool.h>
-#include <src/library/monlib/metrics/labels.h>
+#include <ydb-cpp-sdk/library/monlib/metrics/labels.h>
 #include <src/library/monlib/metrics/metric_value.h>
 
 #include <src/util/string/cast.h>

@@ -1,6 +1,6 @@
 #include "init.h"
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/generic/singleton.h>
 
 namespace {

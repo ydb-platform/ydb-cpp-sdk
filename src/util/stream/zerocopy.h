@@ -1,8 +1,8 @@
 #pragma once
 
 #include <src/util/system/yassert.h>
-#include <src/util/system/defaults.h>
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 
 #include "input.h"
 

@@ -1,6 +1,6 @@
 #include "nonblock.h"
 
-#include <src/util/system/platform.h>
+#include <ydb-cpp-sdk/util/system/platform.h>
 
 #include <src/util/generic/singleton.h>
 

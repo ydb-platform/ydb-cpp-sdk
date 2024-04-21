@@ -1,5 +1,5 @@
 #include <src/library/json/fast_sax/unescape.h>
-#include <src/library/json/fast_sax/parser.h>
+#include <ydb-cpp-sdk/library/json/fast_sax/parser.h>
 #include <src/util/string/builder.h>
 
 #include <src/util/string/cast.h>

@@ -3,12 +3,12 @@
 
 #include <src/library/charset/doccodes.h>
 #include <src/library/charset/codepage.h>
-#include <src/library/http/misc/httpcodes.h>
-#include <src/util/datetime/base.h>
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <algorithm>    // max
 
-#include <src/library/http/fetch/httpheader.h>
+#include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 #include <src/library/http/fetch/httpfsm.h>
 
 #ifdef _MSC_VER

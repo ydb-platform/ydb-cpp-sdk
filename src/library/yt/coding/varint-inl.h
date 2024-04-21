@@ -6,7 +6,7 @@
 
 #include "zig_zag.h"
 
-#include <src/library/yt/exception/exception.h>
+#include <ydb-cpp-sdk/library/yt/exception/exception.h>
 
 #include <array>
 

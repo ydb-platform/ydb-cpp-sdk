@@ -1,1 +1,1 @@
-#include "discovery_mutator.h"
+#include <ydb-cpp-sdk/client/extensions/discovery_mutator/discovery_mutator.h>

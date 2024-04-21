@@ -7,6 +7,7 @@ target_link_libraries(cpp-client-draft PUBLIC
   client-ydb_types-operation
   cpp-client-ydb_value
 )
+
 target_sources(cpp-client-draft PRIVATE
   ydb_dynamic_config.cpp
   ydb_scripting.cpp

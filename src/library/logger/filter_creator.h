@@ -1,7 +1,7 @@
 #pragma once
 
 #include "backend_creator.h"
-#include "priority.h"
+#include <ydb-cpp-sdk/library/logger/priority.h>
 
 class TFilteredBackendCreator : public ILogBackendCreator {
 public:

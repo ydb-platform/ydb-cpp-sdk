@@ -1,15 +1,15 @@
-#include "node_io.h"
+#include <ydb-cpp-sdk/library/yson/node/node_io.h>
 
 #include "node_builder.h"
 #include "node_visitor.h"
 
 #include <src/library/yson/json/json_writer.h>
 #include <src/library/yson/parser.h>
-#include <src/library/yson/writer.h>
+#include <ydb-cpp-sdk/library/yson/writer.h>
 #include <src/library/yson/json/yson2json_adapter.h>
 
-#include <src/library/json/json_reader.h>
-#include <src/library/json/json_value.h>
+#include <ydb-cpp-sdk/library/json/json_reader.h>
+#include <ydb-cpp-sdk/library/json/json_value.h>
 
 #include <src/util/stream/input.h>
 #include <src/util/stream/output.h>

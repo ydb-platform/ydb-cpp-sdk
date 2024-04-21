@@ -1,7 +1,7 @@
 #include "str.h"
 
 #include <src/library/testing/unittest/registar.h>
-#include <src/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 template <typename T>
 const T ReturnConstTemp();

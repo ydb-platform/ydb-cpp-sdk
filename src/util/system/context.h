@@ -1,8 +1,8 @@
 #pragma once
 
 #include "align.h"
-#include "defaults.h"
-#include "compiler.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 #include "sanitizers.h"
 
 #include <span>

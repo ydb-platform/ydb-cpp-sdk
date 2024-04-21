@@ -7,20 +7,19 @@ target_link_libraries(cpp-monlib-metrics PUBLIC
 )
 
 target_sources(cpp-monlib-metrics PRIVATE
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/ewma.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/fake.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/histogram_collector_explicit.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/histogram_collector_exponential.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/histogram_collector_linear.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/histogram_snapshot.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/log_histogram_snapshot.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/labels.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/metric_registry.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/metric_consumer.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/metric_type.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/metric_value.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/summary_collector.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/metrics/summary_snapshot.cpp
+  ewma.cpp
+  fake.cpp
+  histogram_collector_explicit.cpp
+  histogram_collector_exponential.cpp
+  histogram_collector_linear.cpp
+  histogram_snapshot.cpp
+  log_histogram_snapshot.cpp
+  labels.cpp
+  metric_registry.cpp
+  metric_consumer.cpp
+  metric_type.cpp
+  metric_value.cpp
+  summary_snapshot.cpp
 )
 
 generate_enum_serilization(cpp-monlib-metrics

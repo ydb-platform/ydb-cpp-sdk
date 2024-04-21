@@ -1,5 +1,5 @@
 #include "demangle_impl.h"
-#include "platform.h"
+#include <ydb-cpp-sdk/util/system/platform.h>
 #include "backtrace.h"
 
 #include <src/util/stream/output.h>

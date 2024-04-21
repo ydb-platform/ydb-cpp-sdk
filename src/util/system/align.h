@@ -1,7 +1,7 @@
 #pragma once
 
 #include "yassert.h"
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/generic/bitops.h>
 
 template <class T>

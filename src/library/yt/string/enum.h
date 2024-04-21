@@ -2,7 +2,7 @@
 
 #include "string.h"
 
-#include <src/library/yt/misc/enum.h>
+#include <ydb-cpp-sdk/library/yt/misc/enum.h>
 
 #include <optional>
 

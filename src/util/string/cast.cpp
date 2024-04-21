@@ -1,4 +1,4 @@
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #if defined(_freebsd_) && !defined(__LONG_LONG_SUPPORTED)
     #define __LONG_LONG_SUPPORTED
@@ -17,8 +17,8 @@
 
 #include <src/util/system/yassert.h>
 #include <src/util/generic/yexception.h>
-#include <src/util/generic/typetraits.h>
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <src/util/generic/singleton.h>
 #include <src/util/generic/utility.h>
 

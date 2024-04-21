@@ -3,7 +3,7 @@
  * as the user might need to include this header multiple times.
  */
 
-#include <src/util/system/platform.h>
+#include <ydb-cpp-sdk/util/system/platform.h>
 
 #if defined(_win_)
     #undef GetFreeSpace

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 //#define USE_GENERIC_ENDIAN_CVT
 

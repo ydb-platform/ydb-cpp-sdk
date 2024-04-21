@@ -1,4 +1,4 @@
-#include "consumer.h"
+#include <ydb-cpp-sdk/library/yt/yson/consumer.h>
 
 #include <src/library/yt/yson_string/string.h>
 

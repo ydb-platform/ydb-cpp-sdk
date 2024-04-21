@@ -1,6 +1,6 @@
 #include "last_getopt_parser.h"
 
-#include <src/library/string_utils/misc/misc.h>
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 #include <src/library/colorizer/colors.h>
 
 #include <src/util/string/escape.h>

@@ -11,8 +11,8 @@
 #include <src/util/system/file_lock.h>
 #include <src/util/system/guard.h>
 
-#include <src/library/json/json_reader.h>
-#include <src/library/json/json_value.h>
+#include <ydb-cpp-sdk/library/json/json_reader.h>
+#include <ydb-cpp-sdk/library/json/json_value.h>
 #include <src/library/json/json_writer.h>
 #include <src/library/svnversion/svnversion.h>
 

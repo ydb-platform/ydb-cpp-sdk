@@ -2,7 +2,7 @@
 
 #include <src/util/generic/yexception.h>
 
-#include <src/util/system/platform.h>
+#include <ydb-cpp-sdk/util/system/platform.h>
 
 #if defined(_win_)
     #include <src/util/system/wininit.h>

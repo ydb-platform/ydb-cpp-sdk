@@ -1,4 +1,4 @@
-#include "stack_vec.h"
+#include <ydb-cpp-sdk/library/containers/stack_vector/stack_vec.h>
 
 #include <src/library/testing/unittest/registar.h>
 

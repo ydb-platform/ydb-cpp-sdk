@@ -3,12 +3,12 @@
 #include "fwd.h"
 #include "ptr.h"
 #include "bitops.h"
-#include "typetraits.h"
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include "algorithm.h"
 #include "utility.h"
 
 #include <src/util/system/yassert.h>
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/str_stl.h>
 #include <src/util/ysaveload.h>
 

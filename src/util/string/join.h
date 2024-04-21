@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <src/util/string/cast.h>
 #include "cast.h"
 

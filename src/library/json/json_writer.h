@@ -2,9 +2,9 @@
 
 // Deprecated. Use src/library/json/writer in new code.
 
-#include "json_value.h"
+#include <ydb-cpp-sdk/library/json/json_value.h>
 
-#include <src/library/json/writer/json.h>
+#include <ydb-cpp-sdk/library/json/writer/json.h>
 
 #include <src/util/stream/output.h>
 #include <src/util/generic/hash.h>

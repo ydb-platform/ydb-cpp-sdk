@@ -1,7 +1,7 @@
 #include "socket.h"
 #include "hostip.h"
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/byteorder.h>
 
 #if defined(_unix_) || defined(_cygwin_)

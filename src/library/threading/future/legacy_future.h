@@ -1,7 +1,6 @@
 #pragma once
 
-#include "fwd.h"
-#include "future.h"
+#include <ydb-cpp-sdk/library/threading/future/future.h>
 
 #include <src/util/thread/factory.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "httpheader.h"
+#include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 
 #include <src/util/system/maxlen.h>
 #include <src/util/datetime/parser.h>

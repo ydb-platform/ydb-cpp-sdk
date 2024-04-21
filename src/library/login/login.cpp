@@ -2,8 +2,8 @@
 #include <src/library/digest/argonish/argon2.h>
 #include <src/util/string/builder.h>
 #include <src/library/string_utils/base64/base64.h>
-#include <src/library/json/json_value.h>
-#include <src/library/json/json_reader.h>
+#include <ydb-cpp-sdk/library/json/json_value.h>
+#include <ydb-cpp-sdk/library/json/json_reader.h>
 #include <src/library/json/json_writer.h>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>

@@ -4,7 +4,7 @@
 #include <src/util/generic/cast.h>
 #include <src/util/generic/ptr.h>
 #include <src/util/generic/scope.h>
-#include <src/util/generic/size_literals.h>
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <src/util/stream/format.h>
 #include <src/util/stream/output.h>
 #include <src/util/stream/walk.h>

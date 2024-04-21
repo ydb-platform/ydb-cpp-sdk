@@ -5,8 +5,9 @@
 #include <cstring>
 #include <cstdarg>
 #include <algorithm>
+#include <string>
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 /// @addtogroup Strings_Miscellaneous
 /// @{

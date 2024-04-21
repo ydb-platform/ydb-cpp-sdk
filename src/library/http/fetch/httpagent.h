@@ -5,14 +5,14 @@
 #include <cstdlib>
 
 #include <src/library/uri/http_url.h>
-#include <src/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
 #include <src/util/network/hostip.h>
 #include <src/util/network/ip.h>
 #include <src/util/network/sock.h>
 #include <src/util/generic/scope.h>
 #include <src/util/generic/utility.h>
 
-#include "exthttpcodes.h"
+#include <ydb-cpp-sdk/library/http/fetch/exthttpcodes.h>
 #include "sockhandler.h"
 
 class TIpResolver {

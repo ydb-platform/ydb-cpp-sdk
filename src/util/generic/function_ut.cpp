@@ -1,5 +1,5 @@
 #include "function.h"
-#include "typetraits.h"
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 #include <src/library/testing/unittest/registar.h>
 

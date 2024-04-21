@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/yassert.h>
 
 namespace NPrivate {

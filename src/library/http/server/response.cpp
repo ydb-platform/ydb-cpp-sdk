@@ -1,4 +1,4 @@
-#include "response.h"
+#include <ydb-cpp-sdk/library/http/server/response.h>
 
 #include <src/util/stream/mem.h>
 

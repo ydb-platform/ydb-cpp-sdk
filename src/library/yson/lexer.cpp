@@ -1,6 +1,6 @@
 #include "lexer.h"
 #include "lexer_detail.h"
-#include "token.h"
+#include <ydb-cpp-sdk/library/yson/token.h>
 
 #include <src/util/generic/ptr.h>
 

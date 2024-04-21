@@ -1,11 +1,11 @@
 #pragma once
 
-#include "log.h"
-#include "backend.h"
+#include <ydb-cpp-sdk/library/logger/log.h>
+#include <ydb-cpp-sdk/library/logger/backend.h>
 
 #include <src/util/generic/fwd.h>
 #include <src/util/generic/ptr.h>
-#include <src/util/generic/size_literals.h>
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
 
 #include <atomic>
 

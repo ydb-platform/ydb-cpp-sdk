@@ -3,7 +3,7 @@
 #include <string>
 #include <string_view>
 
-#include "resource.h"
+#include <ydb-cpp-sdk/library/resource/resource.h>
 
 namespace NResource {
     std::string Compress(const std::string_view data);

@@ -1,6 +1,6 @@
 #define INCLUDE_YDB_INTERNAL_H
 #include "helpers.h"
-#include <src/client/ydb_types/fatal_error_handlers/handlers.h>
+#include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 
 #include <src/util/string/builder.h>
 

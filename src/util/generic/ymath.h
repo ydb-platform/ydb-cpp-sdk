@@ -1,13 +1,13 @@
 #pragma once
 
 #include <src/util/system/yassert.h>
-#include <src/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #include <cmath>
 #include <cfloat>
 #include <cstdlib>
 
-#include "typetraits.h"
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include "utility.h"
 
 constexpr double PI = M_PI;

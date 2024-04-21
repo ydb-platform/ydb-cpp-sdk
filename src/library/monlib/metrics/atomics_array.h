@@ -2,7 +2,6 @@
 
 #include <src/util/generic/ptr.h>
 
-
 #include <atomic>
 
 namespace NMonitoring {

@@ -2,7 +2,7 @@
 
 #include "unicode_table.h"
 
-#include <src/util/system/defaults.h> // wchar32, ui64, ULL()
+#include <ydb-cpp-sdk/util/system/defaults.h> // wchar32, ui64, ULL()
 
 enum WC_TYPE {        // TODO move no NUnicode
     Lu_UPPER = 1,     // 'Ъ'

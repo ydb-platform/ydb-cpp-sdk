@@ -1,4 +1,4 @@
-#include "counters.h"
+#include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 
 #include <src/library/testing/unittest/registar.h>
 

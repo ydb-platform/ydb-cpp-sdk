@@ -1,10 +1,10 @@
-#include "histogram_collector.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/histogram_collector.h>
 #include "atomics_array.h"
 
 #include <src/util/generic/algorithm.h>
 
 #include <src/util/generic/yexception.h>
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 
 namespace NMonitoring {
     ///////////////////////////////////////////////////////////////////////////

@@ -1,2 +1,2 @@
 //test for C-compiler compileability
-#include "defaults.h"
+#include <ydb-cpp-sdk/util/system/defaults.h>

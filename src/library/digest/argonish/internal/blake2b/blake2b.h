@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/util/generic/yexception.h>
-#include <src/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/library/digest/argonish/blake2b.h>
 
 namespace NArgonish {

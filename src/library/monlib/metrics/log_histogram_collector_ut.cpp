@@ -1,4 +1,4 @@
-#include "log_histogram_collector.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/log_histogram_snapshot.h>
 
 #include <src/library/testing/unittest/registar.h>
 

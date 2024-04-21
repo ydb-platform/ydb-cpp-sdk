@@ -1,6 +1,6 @@
 #include "chunk.h"
 
-#include "headers.h"
+#include <ydb-cpp-sdk/library/http/io/headers.h>
 
 static inline size_t ParseHex(const std::string& s) {
     if (s.empty()) {

@@ -1,4 +1,4 @@
-#include "va_args.h"
+#include <ydb-cpp-sdk/util/generic/va_args.h>
 
 #include <src/library/testing/unittest/registar.h>
 

@@ -1,6 +1,6 @@
 #include "kqp_session_common.h"
 
-#include <src/library/operation_id/operation_id.h>
+#include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 
 namespace NYdb {
 

@@ -1,5 +1,5 @@
 #include "hash_primes.h"
-#include "array_size.h"
+#include <ydb-cpp-sdk/util/generic/array_size.h>
 #include "algorithm.h"
 
 /// Order of fields: reciprocal, reciprocal shift, adjacent hint, divisor

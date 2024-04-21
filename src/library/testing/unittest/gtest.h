@@ -8,7 +8,7 @@
 #include "registar.h"
 
 #include <src/util/generic/ymath.h>
-#include <src/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
 
 namespace NUnitTest {
     namespace NPrivate {

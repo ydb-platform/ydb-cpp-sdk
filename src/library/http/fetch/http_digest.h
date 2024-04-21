@@ -1,9 +1,9 @@
 #pragma once
 
-#include "httpheader.h"
+#include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 
 #include <src/util/system/compat.h>
-#include <src/library/http/misc/httpcodes.h>
+#include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
 
 class httpDigestHandler {
 protected:

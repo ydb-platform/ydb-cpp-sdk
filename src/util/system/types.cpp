@@ -1,6 +1,6 @@
-#include "types.h"
+#include <ydb-cpp-sdk/util/system/types.h>
 
-#include <src/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <src/util/generic/typelist.h>
 
 static_assert(sizeof(ui8) == 1, "incorrect ui8 type");
