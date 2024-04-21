@@ -139,7 +139,7 @@ ENDIF()
 
 IF (PROVIDE_GETRANDOM_GETENTROPY)
     PEERDIR(
-        library/cpp/sanitizer/include
+        src/library/sanitizer/include
     )
     SRCS(
         random/getrandom.c

@@ -1,14 +1,14 @@
-#include <client/ydb_coordination/coordination.h>
+#include <ydb-cpp-sdk/client/coordination/coordination.h>
 
-#include <ydb/public/api/grpc/ydb_coordination_v1.grpc.pb.h>
-#include <ydb/public/api/grpc/ydb_discovery_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_coordination_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>
 
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>
 #include <grpcpp/server_context.h>
 
-#include <library/cpp/testing/unittest/registar.h>
-#include <library/cpp/testing/unittest/tests_data.h>
+#include <src/library/testing/unittest/registar.h>
+#include <src/library/testing/unittest/tests_data.h>
 
 using namespace NYdb;
 using namespace NYdb::NCoordination;

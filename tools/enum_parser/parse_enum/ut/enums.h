@@ -1,8 +1,8 @@
 #pragma once
 // Sample file for parse_enum unittests
 
-#include <util/generic/fwd.h>
-#include <util/system/compiler.h>
+#include <src/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
 
 // Test template declarations
 template<class T>
@@ -103,7 +103,7 @@ static inline void f() {
     (void)(f);
 }
 
-// buggy case taken from library/cpp/html/face/parstypes.h
+// buggy case taken from src/library/html/face/parstypes.h
 enum TEXT_WEIGHT {
     WEIGHT_ZERO=-1,// NOINDEX_RELEV
     WEIGHT_LOW,    // LOW_RELEV

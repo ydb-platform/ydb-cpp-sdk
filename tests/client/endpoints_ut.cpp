@@ -1,11 +1,11 @@
-#include <client/impl/ydb_endpoints/endpoints.h>
+#include <endpoints.h>
 
-#include <library/cpp/testing/unittest/registar.h>
-#include <library/cpp/testing/unittest/tests_data.h>
-#include <library/cpp/threading/future/core/future.h>
+#include <src/library/testing/unittest/registar.h>
+#include <src/library/testing/unittest/tests_data.h>
+#include <ydb-cpp-sdk/library/threading/future/core/future.h>
 
-#include <util/system/thread.h>
-#include <util/random/random.h>
+#include <src/util/system/thread.h>
+#include <src/util/random/random.h>
 
 #include <unordered_set>
 
