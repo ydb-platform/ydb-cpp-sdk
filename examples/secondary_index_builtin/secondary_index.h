@@ -1,13 +1,13 @@
 #pragma once
 
-#include <client/ydb_driver/driver.h>
-#include <client/ydb_table/table.h>
+#include <ydb-cpp-sdk/client/driver/driver.h>
+#include <ydb-cpp-sdk/client/table/table.h>
 
-#include <library/cpp/getopt/last_getopt.h>
+#include <src/library/getopt/last_getopt.h>
 #include <string>
-#include <util/generic/yexception.h>
-#include <util/stream/output.h>
-#include <util/string/builder.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/stream/output.h>
+#include <src/util/string/builder.h>
 
 #define TABLE_USERS "users"
 #define TABLE_SERIES "series"

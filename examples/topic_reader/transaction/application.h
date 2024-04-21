@@ -2,9 +2,9 @@
 
 #include "options.h"
 
-#include <client/ydb_driver/driver.h>
-#include <client/ydb_topic/topic.h>
-#include <client/ydb_table/table.h>
+#include <ydb-cpp-sdk/client/driver/driver.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/table/table.h>
 
 #include <memory>
 #include <optional>

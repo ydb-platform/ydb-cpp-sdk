@@ -1,7 +1,7 @@
 #include "secondary_index.h"
 
-#include <util/random/random.h>
-#include <util/thread/pool.h>
+#include <src/util/random/random.h>
+#include <src/util/thread/pool.h>
 
 using namespace NLastGetopt;
 using namespace NYdb;

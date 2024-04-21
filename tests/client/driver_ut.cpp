@@ -1,15 +1,15 @@
-#include <client/ydb_table/table.h>
-#include <client/ydb_types/exceptions/exceptions.h>
+#include <ydb-cpp-sdk/client/table/table.h>
+#include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 
-#include <ydb/public/api/grpc/ydb_discovery_v1.grpc.pb.h>
-#include <ydb/public/api/grpc/ydb_table_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>
 #include <grpcpp/server_context.h>
 
-#include <library/cpp/testing/unittest/registar.h>
-#include <library/cpp/testing/unittest/tests_data.h>
+#include <src/library/testing/unittest/registar.h>
+#include <src/library/testing/unittest/tests_data.h>
 
 #include <atomic>
 

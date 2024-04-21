@@ -55,20 +55,20 @@ __pycache__/
 *.kdev4
 
 # Other symlinks
-util/all_datetime.cpp
-util/all_digest.cpp
-util/all_folder.cpp
-util/all_generic.cpp
-util/all_memory.cpp
-util/all_network.cpp
-util/all_random.cpp
-util/all_stream.cpp
-util/all_string.cpp
-util/all_system_1.cpp
-util/all_system_2.cpp
-util/all_thread.cpp
-util/all_util.cpp
-util/charset/all_charset.cpp
+src/util/all_datetime.cpp
+src/util/all_digest.cpp
+src/util/all_folder.cpp
+src/util/all_generic.cpp
+src/util/all_memory.cpp
+src/util/all_network.cpp
+src/util/all_random.cpp
+src/util/all_stream.cpp
+src/util/all_string.cpp
+src/util/all_system_1.cpp
+src/util/all_system_2.cpp
+src/util/all_thread.cpp
+src/util/all_util.cpp
+src/util/charset/all_charset.cpp
 
 cmake-build-debug
 llvm.sh
