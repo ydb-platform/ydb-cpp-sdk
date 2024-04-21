@@ -99,7 +99,7 @@ function(add_ydb_test)
     ${YDB_TEST_NAME}
     PROPERTY
     SPLIT_FACTOR
-    10
+    1
   )
 
   add_yunittest(

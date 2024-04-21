@@ -1,8 +1,8 @@
 #pragma once
 
-#include <util/generic/algorithm.h>
-#include <util/stream/input.h>
-#include <util/generic/yexception.h>
+#include <src/util/generic/algorithm.h>
+#include <src/util/stream/input.h>
+#include <src/util/generic/yexception.h>
 #include <span>
 #include <array>
 #include <functional>

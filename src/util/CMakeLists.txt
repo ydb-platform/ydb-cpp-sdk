@@ -1,0 +1,314 @@
+add_subdirectory(charset)
+
+add_library(yutil)
+target_compile_options(yutil PRIVATE
+  -Wnarrowing
+)
+target_link_libraries(yutil PUBLIC
+  util-charset
+  ZLIB::ZLIB
+  double-conversion::double-conversion
+  contrib-libs-libc_compat
+  cpp-string_utils-helpers
+)
+
+target_joined_source(yutil
+  all_datetime.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/datetime/base.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/datetime/constants.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/datetime/cputimer.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/datetime/systime.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/datetime/uptime.cpp
+)
+target_joined_source(yutil
+  all_digest.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/digest/fnv.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/digest/multi.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/digest/murmur.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/digest/numeric.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/digest/sequence.cpp
+)
+target_joined_source(yutil
+  all_util.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/ysafeptr.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/ysaveload.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/str_stl.cpp
+)
+target_joined_source(yutil
+  all_folder.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/folder/dirut.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/folder/filelist.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/folder/fts.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/folder/fwd.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/folder/iterator.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/folder/path.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/folder/pathsplit.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/folder/tempdir.cpp
+)
+target_joined_source(yutil
+  all_generic.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/adaptor.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/algorithm.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/array_size.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/bitmap.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/bitops.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/bt_exception.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/buffer.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/cast.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/explicit_type.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/fastqueue.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/flags.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/function.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/function_ref.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/fwd.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/guid.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/hash.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/hash_multi_map.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/hash_table.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/hash_primes.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/hide_ptr.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/intrlist.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/is_in.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/iterator.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/iterator_range.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/lazy_value.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/mapfindptr.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/mem_copy.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/noncopyable.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/object_counter.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/overloaded.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/ptr.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/refcount.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/scope.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/set.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/singleton.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/size_literals.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/stack.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/store_policy.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/strfcpy.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/typelist.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/typetraits.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/utility.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/va_args.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/variant.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/xrange.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/yexception.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/ylimits.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/generic/ymath.cpp
+)
+target_joined_source(yutil
+  all_memory.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/memory/addstorage.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/memory/alloc.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/memory/blob.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/memory/mmapalloc.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/memory/pool.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/memory/segmented_string_pool.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/memory/segpool_alloc.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/memory/smallobj.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/memory/tempbuf.cpp
+)
+target_joined_source(yutil
+  all_network.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/address.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/endpoint.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/hostip.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/init.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/interface.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/iovec.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/ip.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/nonblock.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/pair.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/poller.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/pollerimpl.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/sock.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/socket.cpp
+)
+target_joined_source(yutil
+  all_random.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/random/common_ops.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/random/easy.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/random/entropy.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/random/fast.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/random/lcg_engine.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/random/mersenne32.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/random/mersenne64.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/random/mersenne.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/random/normal.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/random/shuffle.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/random/init_atfork.cpp
+)
+target_joined_source(yutil
+  all_stream.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/buffer.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/buffered.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/debug.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/file.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/format.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/fwd.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/hex.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/input.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/length.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/mem.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/multi.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/null.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/output.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/str.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/tee.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/tempbuf.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/walk.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/zerocopy.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/zerocopy_output.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/stream/zlib.cpp
+)
+target_joined_source(yutil
+  all_string.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/ascii.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/builder.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/cstriter.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/escape.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/hex.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/join.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/reverse.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/split.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/strip.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/strspn.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/subst.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/type.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/util.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/vector.cpp
+)
+target_joined_source(yutil
+  all_system_1.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/atexit.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/backtrace.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/compat.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/context.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/daemon.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/datetime.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/defaults.c
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/direct_io.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/dynlib.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/error.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/event.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/execpath.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/fasttime.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/file.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/file_lock.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/filemap.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/flock.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/fs.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/fstat.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/getpid.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/hi_lo.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/hostname.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/hp_timer.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/info.cpp
+)
+target_joined_source(yutil
+  all_system_2.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/align.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/byteorder.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/cpu_id.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/fhandle.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/guard.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/interrupt_signals.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/madvise.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/maxlen.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/mem_info.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/mincore.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/mktemp.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/mlock.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/fake_mutex.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/nice.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/pipe.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/platform.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/progname.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/protect.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/rusage.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/rwlock.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/sanitizers.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/sem.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/shellcommand.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/shmat.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/sigset.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/spinlock.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/spin_wait.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/src_location.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/sys_alloc.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/sysstat.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/tempfile.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/thread.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/tls.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/types.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/type_name.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/unaligned_mem.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/user.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/utime.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/yassert.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/yield.cpp
+)
+target_joined_source(yutil
+  all_thread.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/thread/factory.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/thread/fwd.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/thread/pool.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/thread/singleton.cpp
+)
+
+target_sources(yutil PRIVATE
+  ${YDB_SDK_SOURCE_DIR}/src/util/system/compiler.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/digest/city.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/random/random.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/string/cast.cpp
+)
+
+if (NOT WIN32)
+  target_ragel_lexers(yutil
+    PRIVATE
+    ${YDB_SDK_SOURCE_DIR}/src/util/datetime/parser.rl6
+    -CG2
+  )
+endif ()
+
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+  target_yasm_source(yutil
+    PRIVATE
+    ${YDB_SDK_SOURCE_DIR}/src/util/system/context_x86.asm
+    -I
+    ${YDB_SDK_BINARY_DIR}
+    -I
+    ${YDB_SDK_SOURCE_DIR}
+  )
+elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+  target_sources(yutil PRIVATE
+    ${YDB_SDK_SOURCE_DIR}/src/util/system/context_aarch64.S
+  )
+endif ()
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  target_sources(yutil PRIVATE
+    ${YDB_SDK_SOURCE_DIR}/src/util/system/valgrind.cpp
+    ${YDB_SDK_SOURCE_DIR}/src/util/system/mktemp_system.cpp
+  )
+elseif (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+  target_sources(yutil PRIVATE
+    ${YDB_SDK_SOURCE_DIR}/src/util/datetime/strptime.cpp
+    ${YDB_SDK_SOURCE_DIR}/src/util/folder/lstat_win.c
+    ${YDB_SDK_SOURCE_DIR}/src/util/folder/dirent_win.c
+    ${YDB_SDK_SOURCE_DIR}/src/util/system/err.cpp
+    ${YDB_SDK_SOURCE_DIR}/src/util/system/fs_win.cpp
+    ${YDB_SDK_SOURCE_DIR}/src/util/system/winint.cpp
+    ${YDB_SDK_SOURCE_DIR}/src/util/system/mktemp_system.cpp
+  )
+  target_ragel_lexers(yutil
+    PRIVATE
+    ${YDB_SDK_SOURCE_DIR}/src/util/datetime/parser.rl6
+    -CT0
+  )
+endif()
+
+target_compile_definitions(yutil PUBLIC
+  ARCADIA_ROOT_CMAKE_HELPER=${YDB_SDK_SOURCE_DIR}
+  ARCADIA_BUILD_ROOT_CMAKE_HELPER=${YDB_SDK_BINARY_DIR}
+)

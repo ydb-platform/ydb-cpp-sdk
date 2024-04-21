@@ -1,9 +1,9 @@
 #pragma once
 
-#include <client/ydb_table/table.h>
+#include <ydb-cpp-sdk/client/table/table.h>
 
-#include <util/folder/pathsplit.h>
-#include <util/generic/yexception.h>
+#include <src/util/folder/pathsplit.h>
+#include <src/util/generic/yexception.h>
 
 namespace NExample {
 
