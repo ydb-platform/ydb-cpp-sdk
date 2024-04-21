@@ -1,7 +1,7 @@
 #pragma once
 
-#include <client/ydb_driver/driver.h>
-#include <client/ydb_table/table.h>
+#include <ydb-cpp-sdk/client/driver/driver.h>
+#include <ydb-cpp-sdk/client/table/table.h>
 
 NYdb::TParams GetTablesDataParams();
 

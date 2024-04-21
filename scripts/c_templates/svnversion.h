@@ -1,7 +1,7 @@
 #pragma once
 
 // Permit compilation with NO_UTIL():
-// util/system/compiler.h
+// src/util/system/compiler.h
 #if !defined(Y_HIDDEN)
 #if defined(__GNUC__)
 #define Y_HIDDEN __attribute__((visibility("hidden")))

@@ -1,10 +1,10 @@
 #include "parse_enum.h"
 
-#include <library/cpp/cppparser/parser.h>
+#include <src/library/cppparser/parser.h>
 
-#include <util/generic/yexception.h>
-#include <util/stream/file.h>
-#include <util/string/escape.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/stream/file.h>
+#include <src/util/string/escape.h>
 
 #include <iostream>
 

@@ -1,5 +1,5 @@
-#include <library/cpp/resource/resource.h>
-#include <library/cpp/testing/unittest/registar.h>
+#include <ydb-cpp-sdk/library/resource/resource.h>
+#include <src/library/testing/unittest/registar.h>
 
 #include <tools/enum_parser/parse_enum/parse_enum.h>
 

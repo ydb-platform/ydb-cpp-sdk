@@ -1,7 +1,7 @@
 #pragma once
 
-#include <util/stream/output.h>
-#include <util/string/strip.h>
+#include <src/util/stream/output.h>
+#include <src/util/string/strip.h>
 
 #include <optional>
 #include <string>

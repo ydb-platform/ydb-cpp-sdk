@@ -1,3 +1,3 @@
 ### Usage
 
-Не используйте эту библиотеку напрямую. Следует пользоваться `library/cpp/svnversion/svnversion.h`.
+Не используйте эту библиотеку напрямую. Следует пользоваться `src/library/svnversion/svnversion.h`.

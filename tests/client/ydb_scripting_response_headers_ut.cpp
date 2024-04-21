@@ -1,14 +1,14 @@
+#include <ydb-cpp-sdk/client/draft/ydb_scripting.h>
 
-#include <ydb/public/api/grpc/ydb_table_v1.grpc.pb.h>
-#include <ydb/public/api/grpc/ydb_scripting_v1.grpc.pb.h>
-#include <client/draft/ydb_scripting.h>
+#include <src/api/grpc/ydb_table_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_scripting_v1.grpc.pb.h>
 
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>
 #include <grpcpp/server_context.h>
 
-#include <library/cpp/testing/unittest/registar.h>
-#include <library/cpp/testing/unittest/tests_data.h>
+#include <src/library/testing/unittest/registar.h>
+#include <src/library/testing/unittest/tests_data.h>
 
 using namespace NYdb;
 using namespace NYdb::NScripting;

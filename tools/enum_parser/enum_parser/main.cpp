@@ -1,27 +1,27 @@
-#include <library/cpp/json/writer/json_value.h>
-#include <library/cpp/json/writer/json.h>
-#include <library/cpp/getopt/small/last_getopt.h>
+#include <ydb-cpp-sdk/library/json/writer/json_value.h>
+#include <ydb-cpp-sdk/library/json/writer/json.h>
+#include <src/library/getopt/small/last_getopt.h>
 
 #include <tools/enum_parser/parse_enum/parse_enum.h>
 
-#include <util/stream/file.h>
-#include <util/stream/output.h>
-#include <util/stream/input.h>
-#include <util/stream/mem.h>
+#include <src/util/stream/file.h>
+#include <src/util/stream/output.h>
+#include <src/util/stream/input.h>
+#include <src/util/stream/mem.h>
 
-#include <util/charset/wide.h>
-#include <util/string/builder.h>
-#include <util/string/escape.h>
-#include <util/string/strip.h>
-#include <util/string/cast.h>
-#include <util/string/join.h>
-#include <util/string/subst.h>
+#include <src/util/charset/wide.h>
+#include <src/util/string/builder.h>
+#include <src/util/string/escape.h>
+#include <src/util/string/strip.h>
+#include <src/util/string/cast.h>
+#include <src/util/string/join.h>
+#include <src/util/string/subst.h>
 #include <string>
 
-#include <util/generic/ptr.h>
-#include <util/generic/yexception.h>
-#include <util/system/fs.h>
-#include <util/folder/path.h>
+#include <src/util/generic/ptr.h>
+#include <src/util/generic/yexception.h>
+#include <src/util/system/fs.h>
+#include <src/util/folder/path.h>
 
 #include <fstream>
 
@@ -30,14 +30,14 @@ void WriteHeader(const std::string& headerName, std::ostream& out, std::ostream*
     out << "#include " << headerName << "\n";
     out << "#include <tools/enum_parser/enum_serialization_runtime/enum_runtime.h>\n\n";
     out << "#include <tools/enum_parser/enum_parser/stdlib_deps.h>\n\n";
-    out << "#include <util/generic/typetraits.h>\n";
-    out << "#include <util/generic/singleton.h>\n";
+    out << "#include <ydb-cpp-sdk/util/generic/typetraits.h>\n";
+    out << "#include <src/util/generic/singleton.h>\n";
     out << "#include <string>\n";
     out << "#include <vector>\n";
     out << "#include <map>\n";
     out << "#include <span>\n";
-    out << "#include <util/string/cast.h>\n";
-    out << "#include <util/stream/output.h>\n\n";
+    out << "#include <src/util/string/cast.h>\n";
+    out << "#include <src/util/stream/output.h>\n\n";
 
     if (headerOutPtr) {
         auto& outHeader = *headerOutPtr;
