@@ -1,4 +1,4 @@
-#include "writer.h"
+#include <ydb-cpp-sdk/library/yson/writer.h>
 
 #include "detail.h"
 #include "format.h"

@@ -1,4 +1,4 @@
-#include "histogram_snapshot.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/histogram_snapshot.h>
 
 #include <src/util/stream/output.h>
 

@@ -1,4 +1,4 @@
-#include "summary_collector.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/summary_collector.h>
 
 #include <src/library/testing/unittest/registar.h>
 

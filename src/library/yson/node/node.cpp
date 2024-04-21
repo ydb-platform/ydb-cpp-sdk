@@ -1,8 +1,8 @@
-#include "node.h"
+#include <ydb-cpp-sdk/library/yson/node/node.h>
 
-#include "node_io.h"
+#include <ydb-cpp-sdk/library/yson/node/node_io.h>
 
-#include <src/library/yson/writer.h>
+#include <ydb-cpp-sdk/library/yson/writer.h>
 
 #include <src/util/generic/overloaded.h>
 #include <src/util/string/escape.h>

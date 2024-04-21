@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mapped.h"
+#include <ydb-cpp-sdk/library/iterator/mapped.h>
 
 template<typename TMapping>
 auto IterateKeys(TMapping&& map) {

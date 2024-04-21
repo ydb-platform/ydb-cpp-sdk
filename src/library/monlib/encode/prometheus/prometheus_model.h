@@ -2,7 +2,6 @@
 
 #include <string_view>
 
-
 namespace NMonitoring {
 namespace NPrometheus {
 

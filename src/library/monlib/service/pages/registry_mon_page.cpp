@@ -1,7 +1,7 @@
 #include "registry_mon_page.h"
 
 #include <src/library/monlib/encode/text/text.h>
-#include <src/library/monlib/encode/json/json.h>
+#include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
 #include <src/library/monlib/encode/prometheus/prometheus.h>
 #include <src/library/monlib/encode/spack/spack_v1.h>
 #include <src/library/monlib/service/format.h>

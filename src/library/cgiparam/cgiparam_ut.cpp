@@ -1,4 +1,4 @@
-#include "cgiparam.h"
+#include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
 
 #include <src/library/testing/unittest/registar.h>
 

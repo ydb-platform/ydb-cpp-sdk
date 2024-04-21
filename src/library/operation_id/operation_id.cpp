@@ -2,7 +2,7 @@
 
 #include <google/protobuf/message.h>
 
-#include <src/library/cgiparam/cgiparam.h>
+#include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
 #include <src/library/uri/uri.h>
 
 #include <src/util/generic/yexception.h>

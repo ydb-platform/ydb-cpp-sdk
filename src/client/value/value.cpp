@@ -9,7 +9,7 @@
 
 #include <src/api/protos/ydb_value.pb.h>
 
-#include <src/library/containers/stack_vector/stack_vec.h>
+#include <ydb-cpp-sdk/library/containers/stack_vector/stack_vec.h>
 #include <src/util/string/builder.h>
 
 #include <src/library/yql/public/decimal/yql_decimal.h>

@@ -1,4 +1,4 @@
-#include "summary_snapshot.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/summary_snapshot.h>
 
 #include <src/util/stream/output.h>
 

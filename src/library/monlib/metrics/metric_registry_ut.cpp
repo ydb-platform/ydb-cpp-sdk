@@ -1,7 +1,7 @@
-#include "metric_registry.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
 
 #include <src/library/monlib/encode/protobuf/protobuf.h>
-#include <src/library/monlib/encode/json/json.h>
+#include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
 #include <ydb-cpp-sdk/library/resource/resource.h>
 
 #include <src/library/testing/unittest/registar.h>

@@ -1,7 +1,7 @@
-#include "json.h"
+#include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
 
 #include <src/library/monlib/encode/protobuf/protobuf.h>
-#include <src/library/monlib/metrics/labels.h>
+#include <ydb-cpp-sdk/library/monlib/metrics/labels.h>
 
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 #include <ydb-cpp-sdk/library/resource/resource.h>

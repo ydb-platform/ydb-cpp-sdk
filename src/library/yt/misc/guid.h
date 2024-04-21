@@ -3,7 +3,7 @@
 #include <src/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 
-#include <src/library/yt/exception/exception.h>
+#include <ydb-cpp-sdk/library/yt/exception/exception.h>
 
 #include <array>
 #include <string>

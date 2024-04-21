@@ -8,7 +8,7 @@
 #include <src/util/memory/blob.h>
 #include <src/util/generic/ptr.h>
 
-#include <src/library/deprecated/atomic/atomic.h>
+#include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 
 class IThreadFactory;
 class TClientRequest;

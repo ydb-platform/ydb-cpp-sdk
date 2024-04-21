@@ -6,7 +6,7 @@
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include <src/library/deprecated/atomic/atomic.h>
+#include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <src/util/system/datetime.h>
 #include <src/util/system/guard.h>
 #include <src/util/system/spinlock.h>

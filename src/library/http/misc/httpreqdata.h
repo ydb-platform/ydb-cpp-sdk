@@ -3,7 +3,7 @@
 #include <src/library/digest/lower_case/hash_ops.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/library/cgiparam/cgiparam.h>
+#include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
 #include <src/util/network/address.h>
 #include <src/util/network/socket.h>
 #include <src/util/generic/hash.h>

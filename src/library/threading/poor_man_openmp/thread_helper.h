@@ -4,7 +4,7 @@
 #include <src/util/generic/utility.h>
 #include <src/util/generic/yexception.h>
 #include <src/util/system/info.h>
-#include <src/library/deprecated/atomic/atomic.h>
+#include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <src/util/stream/output.h>
 
 #include <functional>

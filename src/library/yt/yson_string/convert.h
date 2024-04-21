@@ -4,7 +4,7 @@
 
 #include <src/library/yt/misc/guid.h>
 
-#include <src/library/yt/exception/exception.h>
+#include <ydb-cpp-sdk/library/yt/exception/exception.h>
 
 #include <string>
 

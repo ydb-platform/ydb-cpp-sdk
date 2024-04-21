@@ -1,11 +1,11 @@
-#include "json.h"
+#include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
 #include "typed_point.h"
 
 #include <src/library/monlib/encode/buffered/buffered_encoder_base.h>
 #include <src/library/monlib/encode/encoder_state.h>
-#include <src/library/monlib/metrics/metric.h>
+#include <ydb-cpp-sdk/library/monlib/metrics/metric.h>
 #include <src/library/monlib/metrics/metric_value.h>
-#include <src/library/monlib/metrics/labels.h>
+#include <ydb-cpp-sdk/library/monlib/metrics/labels.h>
 
 #include <ydb-cpp-sdk/library/json/writer/json.h>
 

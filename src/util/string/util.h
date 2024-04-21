@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cstdarg>
 #include <algorithm>
+#include <string>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
 

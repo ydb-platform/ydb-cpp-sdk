@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mon_page.h"
+#include <ydb-cpp-sdk/library/monlib/service/pages/mon_page.h>
 
 #include <ydb-cpp-sdk/library/resource/resource.h>
 

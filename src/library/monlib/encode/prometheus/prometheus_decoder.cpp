@@ -1,8 +1,8 @@
 #include "prometheus.h"
 #include "prometheus_model.h"
 
-#include <src/library/monlib/metrics/histogram_snapshot.h>
-#include <src/library/monlib/metrics/metric.h>
+#include <ydb-cpp-sdk/library/monlib/metrics/histogram_snapshot.h>
+#include <ydb-cpp-sdk/library/monlib/metrics/metric.h>
 
 #include <src/util/string/builder.h>
 

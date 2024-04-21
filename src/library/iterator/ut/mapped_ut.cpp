@@ -1,4 +1,4 @@
-#include <src/library/iterator/mapped.h>
+#include <ydb-cpp-sdk/library/iterator/mapped.h>
 
 #include <src/library/testing/gtest/gtest.h>
 

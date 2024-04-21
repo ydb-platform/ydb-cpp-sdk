@@ -1,4 +1,4 @@
-#include "counters.h"
+#include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 
 #include <src/library/monlib/service/pages/templates.h>
 #include <src/util/string/builder.h>

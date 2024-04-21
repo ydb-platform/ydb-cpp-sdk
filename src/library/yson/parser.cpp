@@ -1,5 +1,5 @@
 #include "parser.h"
-#include "consumer.h"
+#include <ydb-cpp-sdk/library/yson/consumer.h>
 #include "format.h"
 #include "parser_detail.h"
 

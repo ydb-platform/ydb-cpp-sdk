@@ -8,7 +8,7 @@
 #include <src/util/system/fstat.h>
 #include <src/util/system/rwlock.h>
 #include <src/util/system/fs.h>
-#include <src/library/deprecated/atomic/atomic.h>
+#include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 
 /*
  * rotating file log

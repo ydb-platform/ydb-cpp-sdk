@@ -4,7 +4,7 @@
 #include <ydb-cpp-sdk/client/scheme/scheme.h>
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 
-#include <src/library/monlib/dynamic_counters/counters.h>
+#include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 #include <ydb-cpp-sdk/library/logger/log.h>
 #include <ydb-cpp-sdk/library/retry/retry_policy.h>
 #include <src/util/string/builder.h>

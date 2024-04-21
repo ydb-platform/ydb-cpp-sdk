@@ -9,7 +9,7 @@
 #include <src/util/network/address.h>
 #include <src/util/network/socket.h>
 #include <src/util/network/poller.h>
-#include <src/library/deprecated/atomic/atomic.h>
+#include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <src/util/system/compat.h> // stricmp, strnicmp, strlwr, strupr, stpcpy
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/event.h>

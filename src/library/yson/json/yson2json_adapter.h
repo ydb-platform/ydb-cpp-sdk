@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/library/yson/consumer.h>
+#include <ydb-cpp-sdk/library/yson/consumer.h>
 
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 

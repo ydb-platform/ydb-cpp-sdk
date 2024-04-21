@@ -1,5 +1,5 @@
 #include "ewma.h"
-#include "metric.h"
+#include <ydb-cpp-sdk/library/monlib/metrics/metric.h>
 
 #include <atomic>
 #include <cmath>

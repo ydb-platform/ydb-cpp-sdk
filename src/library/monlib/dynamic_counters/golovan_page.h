@@ -1,8 +1,8 @@
 #pragma once
 
-#include "counters.h"
+#include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 
-#include <src/library/monlib/service/pages/mon_page.h>
+#include <ydb-cpp-sdk/library/monlib/service/pages/mon_page.h>
 
 #include <src/util/generic/ptr.h>
 

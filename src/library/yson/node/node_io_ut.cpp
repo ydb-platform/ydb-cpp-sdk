@@ -1,4 +1,4 @@
-#include "node_io.h"
+#include <ydb-cpp-sdk/library/yson/node/node_io.h>
 
 #include <src/library/testing/unittest/registar.h>
 

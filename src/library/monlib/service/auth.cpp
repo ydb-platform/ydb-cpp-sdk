@@ -1,6 +1,4 @@
-#include "auth.h"
-
-
+#include <ydb-cpp-sdk/library/monlib/service/auth.h>
 
 namespace NMonitoring {
 namespace {
