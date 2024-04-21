@@ -342,9 +342,6 @@ void TZLibCompress::Init(const TParams& params) {
     Impl_.reset(new (params.BufLen) TImpl(params));
 }
 
-/*void TZLibCompress::TDestruct::Destroy(TImpl* impl) {
-    delete impl;
-}*/
 void TZLibCompress::TDestruct::operator()(TImpl* impl) const{
     delete impl;
 }

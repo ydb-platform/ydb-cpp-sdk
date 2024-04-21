@@ -37,9 +37,6 @@ public:
     {
     }
 
-    /*static TAddrList MakeV4Addr(ui32 ip, TIpPort port) {
-        return TAddrList({new NAddr::TIPv4Addr(TIpAddress(htonl(ip), htons(port)))});
-    }*/
     static TAddrList MakeV4Addr(ui32 ip, TIpPort port) {
         auto ipv4Addr = std::make_shared<NAddr::TIPv4Addr>(TIpAddress(htonl(ip), htons(port)));
         TAddrList addrList = {ipv4Addr};
@@ -100,7 +97,6 @@ public:
         if (!Socket)
             return;
         Socket->ShutDown(SHUT_RDWR);
-        //Socket.Destroy();
         Socket.reset();
     }
 

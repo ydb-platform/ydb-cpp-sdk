@@ -14,32 +14,17 @@ namespace NUri {
 
     static const std::string_view ESCAPED_FRAGMENT(std::string_view("_escaped_fragment_="));
 
-/*
-    TMallocPtr<char> TUri::IDNToAscii(const wchar32* idna) {
-        // XXX: don't use punycode_encode directly as it doesn't include
-        // proper stringprep and splitting on dot-equivalent characters
-        char* buf;
-        static_assert(sizeof(*idna) == sizeof(ui32), "fixme");
-        if (IDNA_SUCCESS != idna_to_ascii_4z((const uint32_t*) idna, &buf, 0)) {
-            buf = nullptr;
-        }
-        return buf;
-    }
-    */
-
    TMallocPtr<char> TUri::IDNToAscii(const wchar32* idna) {
-    char* buf = nullptr; // Инициализируем указатель на nullptr
+    char* buf = nullptr;
     static_assert(sizeof(*idna) == sizeof(ui32), "fixme");
 
     if (IDNA_SUCCESS != idna_to_ascii_4z((const uint32_t*) idna, &buf, 0)) {
         buf = nullptr;
     }
 
-    // Используем std::unique_ptr для управления памятью
-    std::unique_ptr<char, TFree> bufPtr(buf); // Создаем unique_ptr с автоматическим удалением через TFree
+    std::unique_ptr<char, TFree> bufPtr(buf);
 
-    // Если нужно, можно вернуть указатель из unique_ptr в TMallocPtr<char>
-    TMallocPtr<char> resultPtr(bufPtr.release()); // Освобождаем управление памятью у unique_ptr и передаем в TMallocPtr
+    TMallocPtr<char> resultPtr(bufPtr.release());
 
     return resultPtr;
 }
@@ -55,16 +40,16 @@ namespace NUri {
     }
 
     std::string_view TUri::HostToAscii(std::string_view host, TMallocPtr<char>& buf, bool hasExtended, bool allowIDN, ECharset enc) {
-    std::string_view outHost; // Храним результат здесь перед возвратом, чтобы использовать RVO
+        std::string_view outHost; // store the result here before returning it, to get RVO
 
-    size_t buflen = 0;
+        size_t buflen = 0;
 
-    if (hasExtended && !allowIDN) {
-        return outHost; // Не можем преобразовать
+        if (hasExtended && !allowIDN) {
+            return outHost; // definitely can't convert
     }
 
-    // charset-recode: RFC 3986, 3.2.2, требует процентно закодированные непечатаемые ASCII-символы в reg-name
-    const bool recoding = CODES_UTF8 != enc && hasExtended;
+        // charset-recode: RFC 3986, 3.2.2, requires percent-encoded non-ASCII
+        // chars in reg-name to be UTF-8 so convert to UTF-8 prior to decoding    const bool recoding = CODES_UTF8 != enc && hasExtended;
     if (recoding) {
         size_t nrd, nwr;
         buflen = host.length() * 4;
@@ -98,13 +83,12 @@ namespace NUri {
         return outHost;
     }
 
-    // Преобразуем в punycode
     try {
         TMallocPtr<char> puny = IDNToAscii(host);
-        buf = std::move(puny); // Передаем владение памятью из puny в buf
+        buf = std::move(puny);
         outHost = buf.get();
     } catch (const yexception& /* exc */) {
-        // Обработка исключений, если нужно
+        //...
     }
 
     return outHost;

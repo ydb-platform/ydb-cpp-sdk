@@ -25,11 +25,9 @@ public:
                 const struct addrinfo& ai = *i;
                 switch (ai.ai_family) {
                     case AF_INET:
-                        //result.push_back(new NAddr::TIPv4Addr(*(sockaddr_in*)ai.ai_addr));
                         result.push_back(std::make_shared<NAddr::TIPv4Addr>(*(sockaddr_in*)ai.ai_addr));
                         break;
                     case AF_INET6:
-                        //result.push_back(new NAddr::TIPv6Addr(*(sockaddr_in6*)ai.ai_addr));
                         result.push_back(std::make_shared<NAddr::TIPv6Addr>(*(sockaddr_in6*)ai.ai_addr));
                         break;
                 }

@@ -46,7 +46,6 @@ namespace NMonitoring {
         }
 
     private:
-        //TArrayHolder<std::atomic<ui64>> Values_;
         std::unique_ptr<std::atomic<ui64>[]> Values_;
         size_t Size_;
     };

@@ -220,14 +220,7 @@ namespace NLastGetopt {
             ythrow TConfException() << "Described args count is greater than FreeArgsMax. Either increase FreeArgsMax or remove unreachable descriptions";
         }
     }
-/*
-    TOpt& TOpts::AddOption(const TOpt& option) {
-        if (option.GetShortNames().empty() && option.GetLongNames().empty())
-            ythrow TConfException() << "bad option: no chars, no long names";
-        Opts_.push_back(new TOpt(option));
-        return *Opts_.back();
-    }
-*/
+
     TOpt& TOpts::AddOption(const TOpt& option) {
     if (option.GetShortNames().empty() && option.GetLongNames().empty())
         ythrow TConfException() << "bad option: no chars, no long names";
@@ -263,25 +256,14 @@ namespace NLastGetopt {
         opt2.Handler1(MutuallyExclusiveHandler(&opt2, &opt1))
             .IfPresentDisableCompletionFor(opt1);
     }
-/*
-    size_t TOpts::IndexOf(const TOpt* opt) const {
-        TOptsVector::const_iterator it = std::find(Opts_.begin(), Opts_.end(), opt);
-        if (it == Opts_.end())
-            ythrow TException() << "unknown option";
-        return it - Opts_.begin();
-    }*/
 
     size_t TOpts::IndexOf(const TOpt* opt) const {
-    // Используем std::find_if для поиска элемента по указателю opt
     auto it = std::find_if(Opts_.begin(), Opts_.end(), [opt](const std::shared_ptr<NLastGetopt::TOpt>& element) {
-        // Сравниваем содержимое указателя в shared_ptr с указателем opt
         return element.get() == opt;
     });
-    // Проверяем, был ли найден элемент
     if (it == Opts_.end()) {
         ythrow TException() << "unknown option";
     }
-    // Возвращаем индекс найденного элемента
     return std::distance(Opts_.begin(), it);
 }
 

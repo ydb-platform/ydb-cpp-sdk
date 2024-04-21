@@ -58,27 +58,7 @@ namespace NAddr {
                 }
             }
         }
-#else/*
-        ifaddrs* ifap;
-        if (getifaddrs(&ifap) != -1) {
-            for (ifaddrs* ifa = ifap; ifa != nullptr; ifa = ifa->ifa_next) {
-                if (IsInetAddress(ifa->ifa_addr)) {
-                    TNetworkInterface interface;
-                    interface.Name = ifa->ifa_name;
-                    interface.Address = new TOpaqueAddr(ifa->ifa_addr);
-                    if (IsInetAddress(ifa->ifa_netmask)) {
-                        interface.Mask = new TOpaqueAddr(ifa->ifa_netmask);
-                    }
-                    result.push_back(interface);
-                }
-            }
-            freeifaddrs(ifap);
-        }
-#endif
-
-        return result;
-    }
-}*/
+#else
 
 ifaddrs* ifap;
 if (getifaddrs(&ifap) != -1) {

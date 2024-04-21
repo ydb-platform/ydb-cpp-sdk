@@ -15,7 +15,6 @@ namespace {
         }
     };
 
-    //NUnitTest::NPlugin::TPluginRegistrator registerGMock(new TGMockUnittestPlugin());
     NUnitTest::NPlugin::TPluginRegistrator registerGMock(std::make_shared<TGMockUnittestPlugin>());
 
 }

@@ -18,7 +18,7 @@ namespace {
             : L_(0)
         {
         }
-///////////////////и тут
+
         T* operator~() const noexcept {
             return B_.get();
         }
@@ -157,7 +157,7 @@ namespace {
         T& operator[](size_t i) {
             return *Get(i);
         }
-///////////////////////////////////////////////////////тут
+
         T* Get(size_t i) {
             TValRef& v = V_.Get(i);
 
@@ -170,7 +170,7 @@ namespace {
 
             return v.get();
         }
-//////////////////////тут тоже
+        
         void Erase(size_t i) noexcept {
             V_.Get(i).reset();
         }

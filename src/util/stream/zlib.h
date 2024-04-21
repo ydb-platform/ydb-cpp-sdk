@@ -144,10 +144,6 @@ private:
 public:
     class TImpl;
 
-    /*// To allow inline constructors.
-    struct TDestruct {
-        static void Destroy(TImpl* impl);
-    };*/
     struct TDestruct {
         void operator()(TImpl* impl) const;
     };

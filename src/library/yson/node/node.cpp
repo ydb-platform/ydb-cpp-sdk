@@ -785,7 +785,6 @@ bool TNode::HasAttributes() const
 void TNode::ClearAttributes()
 {
     if (Attributes_) {
-        //Attributes_.Destroy();
         Attributes_.reset();
     }
 }

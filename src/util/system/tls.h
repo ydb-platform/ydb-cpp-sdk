@@ -262,28 +262,12 @@ namespace NTls {
             return *GetPtr();
         }
 
-        /*inline T* GetPtr() const {
-            T* val = static_cast<T*>(Key_.Get());
-
-            if (!val) {
-                std::unique_ptr<void> mem(::operator new(sizeof(T)));
-                std::unique_ptr<T> newval(Constructor_->Construct(mem.get()));
-
-                Y_UNUSED(mem.release());
-                Key_.Set((void*)newval.get());
-                val = newval.release();
-            }
-
-            return val;
-        }*/
-
         inline T* GetPtr() const {
             T* val = static_cast<T*>(Key_.Get());
 
             if (!val) {
                 void* mem = ::operator new(sizeof(T));
 
-                //std::unique_ptr<T> newval(Constructor_->Construct(mem));
                 std::unique_ptr<T> newval = std::make_unique<T>();
 
                 val = newval.get();
@@ -297,12 +281,6 @@ namespace NTls {
 
 
     private:
-        /*static void Dtor(void* ptr) {
-            std::unique_ptr<void> mem(ptr);
-
-            ((T*)ptr)->~T();
-            ::NPrivate::FillWithTrash(ptr, sizeof(T));
-        }*/
         static void Dtor(void* ptr) {
             T* typedPtr = static_cast<T*>(ptr);
             typedPtr->~T();
