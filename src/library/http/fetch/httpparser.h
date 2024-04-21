@@ -1,9 +1,9 @@
 #pragma once
 
 #include "httpfsm.h"
-#include "httpheader.h"
+#include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 
-#include <src/library/mime/types/mime.h>
+#include <ydb-cpp-sdk/library/mime/types/mime.h>
 #include <src/util/system/yassert.h>
 #include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
 

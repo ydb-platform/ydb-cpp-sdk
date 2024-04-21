@@ -1,8 +1,8 @@
 #pragma once
 
-#include "httpheader.h"
+#include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 #include "httpparser.h"
-#include "exthttpcodes.h"
+#include <ydb-cpp-sdk/library/http/fetch/exthttpcodes.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/generic/yexception.h>

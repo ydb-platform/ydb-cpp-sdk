@@ -2,7 +2,7 @@
 
 #include <src/library/coroutine/engine/sockpool.h>
 #include <ydb-cpp-sdk/library/http/io/stream.h>
-#include <src/library/http/fetch/httpheader.h>
+#include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 #include <src/library/http/fetch/httpfsm.h>
 #include <src/library/uri/http_url.h>
 #include <src/library/logger/all.h>

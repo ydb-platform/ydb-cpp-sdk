@@ -12,7 +12,7 @@
 #include <src/util/generic/scope.h>
 #include <src/util/generic/utility.h>
 
-#include "exthttpcodes.h"
+#include <ydb-cpp-sdk/library/http/fetch/exthttpcodes.h>
 #include "sockhandler.h"
 
 class TIpResolver {

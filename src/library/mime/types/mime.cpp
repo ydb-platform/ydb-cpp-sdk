@@ -1,4 +1,4 @@
-#include "mime.h"
+#include <ydb-cpp-sdk/library/mime/types/mime.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/generic/hash.h>

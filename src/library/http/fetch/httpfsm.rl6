@@ -8,7 +8,7 @@
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <algorithm>    // max
 
-#include <src/library/http/fetch/httpheader.h>
+#include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 #include <src/library/http/fetch/httpfsm.h>
 
 #ifdef _MSC_VER

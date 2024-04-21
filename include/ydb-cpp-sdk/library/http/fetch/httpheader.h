@@ -4,7 +4,7 @@
 
 #include <contrib/libs/libc_compat/string.h>
 
-#include <src/library/mime/types/mime.h>
+#include <ydb-cpp-sdk/library/mime/types/mime.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/compat.h>

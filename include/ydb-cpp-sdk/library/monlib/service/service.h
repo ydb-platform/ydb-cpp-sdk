@@ -1,8 +1,8 @@
 #pragma once
 
-#include <src/library/coroutine/listener/listen.h>
-#include <src/library/http/fetch/httpheader.h>
-#include <src/library/http/server/http.h>
+#include <ydb-cpp-sdk/library/coroutine/listener/listen.h>
+#include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
+#include <ydb-cpp-sdk/library/http/server/http.h>
 
 #include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
 

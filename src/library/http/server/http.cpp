@@ -1,4 +1,4 @@
-#include "http.h"
+#include <ydb-cpp-sdk/library/http/server/http.h>
 #include "http_ex.h"
 
 #include <src/library/threading/equeue/equeue.h>
