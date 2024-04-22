@@ -2,7 +2,7 @@
 
 #include <src/library/yt/memory/free_list.h>
 
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 
 #include <thread>
 #include <stack>

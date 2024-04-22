@@ -20,7 +20,7 @@
     #endif
 #elif defined(_win_)
     #include <Windows.h>
-    #include <src/util/generic/ptr.h>
+    #include <ydb-cpp-sdk/util/generic/ptr.h>
 
 using NTSTATUS = LONG;
     #define STATUS_INFO_LENGTH_MISMATCH 0xC0000004

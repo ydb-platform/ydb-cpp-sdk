@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/system/rwlock.h>
+#include <ydb-cpp-sdk/util/system/rwlock.h>
 #include <src/util/system/sanitizers.h>
 
 // TLightRWLock and TSAN are not friends...

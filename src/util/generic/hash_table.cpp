@@ -1,6 +1,6 @@
 #include "hash_table.h"
 
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 #include <src/util/string/cast.h>
 
 const void* const _yhashtable_empty_data[] = {(void*)3, nullptr, (void*)1};

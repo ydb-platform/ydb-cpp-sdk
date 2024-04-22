@@ -1,6 +1,6 @@
 #include "stream.h"
 
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/generic/yexception.h>
 
 #include <src/library/openssl/init/init.h>

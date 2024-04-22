@@ -6,7 +6,7 @@
 #include "sanitizers.h"
 
 #include <span>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 #include <src/util/generic/yexception.h>
 
 #define STACK_ALIGN (8 * PLATFORM_DATA_ALIGN)

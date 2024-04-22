@@ -5,9 +5,9 @@
 #endif // INCLUDE_FUTURE_INL_H
 
 #include <src/util/generic/function.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/system/event.h>
-#include <src/util/system/spinlock.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
 
 #include <atomic>
 #include <mutex>

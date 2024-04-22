@@ -3,9 +3,9 @@
 #include "recode_result.h"
 
 #include <src/util/generic/yexception.h>
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 extern const wchar32 BROKEN_RUNE;
 

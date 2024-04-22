@@ -5,7 +5,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/charset/utf8.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 class TRecyr_intTest: public TTestBase {
 private:

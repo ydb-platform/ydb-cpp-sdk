@@ -4,7 +4,7 @@
 
 #include <src/util/generic/yexception.h>
 #include <src/util/string/cast.h>
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/system/file.h>
 #include <src/util/system/fs.h>

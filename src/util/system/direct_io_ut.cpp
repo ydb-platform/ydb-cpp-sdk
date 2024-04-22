@@ -3,7 +3,7 @@
 #include <src/util/generic/yexception.h>
 #include <src/util/system/fs.h>
 #include <src/util/system/tempfile.h>
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 
 #include "direct_io.h"
 

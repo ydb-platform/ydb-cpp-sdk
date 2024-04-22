@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src_root.h"
+#include <ydb-cpp-sdk/util/system/src_root.h>
 
 #include <string_view>
 

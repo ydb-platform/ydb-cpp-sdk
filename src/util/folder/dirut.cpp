@@ -8,8 +8,8 @@
 #include <src/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/system/fs.h>
-#include <src/util/system/maxlen.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/maxlen.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 namespace NStringPrivate {
     template <class TCharType>

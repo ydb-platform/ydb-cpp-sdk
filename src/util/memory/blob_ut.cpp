@@ -1,4 +1,4 @@
-#include "blob.h"
+#include <ydb-cpp-sdk/util/memory/blob.h>
 
 #include <src/library/testing/unittest/registar.h>
 

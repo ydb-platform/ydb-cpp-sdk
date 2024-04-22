@@ -6,13 +6,13 @@
 
 #include <src/util/generic/ymath.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include <src/util/generic/utility.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/stream/output.h>
 #include <src/util/string/cast.h>
 #include <src/util/string/type.h>
 #include <src/util/string/vector.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <src/util/ysaveload.h>
 #include <src/util/generic/bt_exception.h>
 

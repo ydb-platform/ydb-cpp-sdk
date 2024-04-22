@@ -3,7 +3,7 @@
 #include <src/util/string/cast.h>
 #include <src/util/stream/output.h>
 #include <src/util/stream/mem.h>
-#include <src/util/system/compat.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
 #include <src/util/system/datetime.h>
 #include <src/util/memory/tempbuf.h>
 

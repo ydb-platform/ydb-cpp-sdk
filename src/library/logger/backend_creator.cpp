@@ -1,7 +1,7 @@
 #include "backend_creator.h"
 #include "stream.h"
 #include "uninitialized_creator.h"
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <src/util/stream/debug.h>
 #include <src/util/stream/output.h>
 

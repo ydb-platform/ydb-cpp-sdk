@@ -1,6 +1,6 @@
 #include <src/library/testing/unittest/registar.h>
 
-#include "algorithm.h"
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include "hash.h"
 #include "hash_multi_map.h"
 #include "is_in.h"

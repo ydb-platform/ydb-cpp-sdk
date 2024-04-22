@@ -12,7 +12,7 @@
 #include <src/util/stream/null.h>
 #include <src/util/stream/tee.h>
 
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <src/util/network/socket.h>
 

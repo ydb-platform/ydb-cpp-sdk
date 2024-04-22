@@ -1,6 +1,6 @@
 #include "file.h"
 
-#include <src/util/memory/blob.h>
+#include <ydb-cpp-sdk/util/memory/blob.h>
 #include <src/util/generic/yexception.h>
 
 TUnbufferedFileInput::TUnbufferedFileInput(const char* path)

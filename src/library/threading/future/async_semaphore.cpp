@@ -1,7 +1,7 @@
 #include "async_semaphore.h"
 
-#include <src/util/system/guard.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/guard.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <src/library/threading/cancellation/operation_cancelled_exception.h>
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <src/util/system/guard.h>
+#include <ydb-cpp-sdk/util/system/guard.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <atomic>
 

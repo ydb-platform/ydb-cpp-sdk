@@ -10,7 +10,7 @@
 #include <string>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <src/util/generic/yexception.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
 struct CodePage;

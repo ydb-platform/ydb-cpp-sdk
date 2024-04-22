@@ -2,7 +2,7 @@
 
 #include <src/util/generic/hash.h>
 
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 
 namespace NYT {
 

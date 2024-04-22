@@ -5,8 +5,8 @@
 
 #include <src/util/thread/pool.h>
 #include <ydb-cpp-sdk/library/http/io/stream.h>
-#include <src/util/memory/blob.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/memory/blob.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 #include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 

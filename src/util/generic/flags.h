@@ -4,7 +4,7 @@
 
 #include <ydb-cpp-sdk/util/system/types.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
-#include <src/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 
 class IOutputStream;
 namespace NPrivate {

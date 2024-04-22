@@ -1,7 +1,7 @@
 #include "dynlib.h"
 #include "fasttime.h"
 
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/generic/yexception.h>
 #include <utility>
 

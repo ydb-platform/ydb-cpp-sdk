@@ -2,7 +2,7 @@
 
 #include <src/library/lcs/lcs_via_lis.h>
 
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 
 #include <string_view>
 #include <span>

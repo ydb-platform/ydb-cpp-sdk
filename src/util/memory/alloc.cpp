@@ -1,6 +1,6 @@
-#include "alloc.h"
+#include <ydb-cpp-sdk/util/memory/alloc.h>
 
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/system/sys_alloc.h>
 
 using TBlock = TDefaultAllocator::TBlock;

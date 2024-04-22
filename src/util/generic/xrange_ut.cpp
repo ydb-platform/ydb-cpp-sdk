@@ -1,6 +1,6 @@
-#include "xrange.h"
+#include <ydb-cpp-sdk/util/generic/xrange.h>
 
-#include "algorithm.h"
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include "vector.h"
 #include <src/library/testing/unittest/registar.h>
 #include <src/util/string/builder.h>

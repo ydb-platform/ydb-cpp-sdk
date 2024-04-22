@@ -1,5 +1,5 @@
 #pragma once
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <src/library/threading/chunk_queue/queue.h>
 #include <src/util/generic/overloaded.h>

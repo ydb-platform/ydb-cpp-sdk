@@ -11,16 +11,16 @@
 
 #include <src/util/string/type.h>
 #include <src/util/string/cast.h>
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 
 #include <double-conversion.h>
 
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <src/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include <src/util/generic/singleton.h>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 using double_conversion::DoubleToStringConverter;
 using double_conversion::StringBuilder;

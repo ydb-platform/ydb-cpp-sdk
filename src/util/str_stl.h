@@ -2,9 +2,9 @@
 
 #include <contrib/libs/libc_compat/string.h>
 
-#include <src/util/memory/alloc.h>
+#include <ydb-cpp-sdk/util/memory/alloc.h>
 #include <src/util/digest/numeric.h>
-#include <src/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <src/util/generic/string_hash.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 

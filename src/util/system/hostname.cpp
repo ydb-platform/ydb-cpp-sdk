@@ -1,7 +1,7 @@
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <src/util/memory/tempbuf.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/generic/yexception.h>
 #include <src/util/network/ip.h>
 
@@ -16,7 +16,7 @@
 #endif
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include "yassert.h"
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include "hostname.h"
 
 namespace {

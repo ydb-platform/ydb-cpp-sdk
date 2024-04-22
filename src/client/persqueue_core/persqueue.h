@@ -10,7 +10,7 @@
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <src/util/generic/hash.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <src/util/string/builder.h>
 #include <src/util/thread/pool.h>

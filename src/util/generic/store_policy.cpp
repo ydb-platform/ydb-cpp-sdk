@@ -1,1 +1,1 @@
-#include "store_policy.h"
+#include <ydb-cpp-sdk/util/generic/store_policy.h>

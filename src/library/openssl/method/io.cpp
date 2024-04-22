@@ -1,9 +1,9 @@
 #include "io.h"
 
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 namespace {
     using NOpenSSL::TAbstractIO;

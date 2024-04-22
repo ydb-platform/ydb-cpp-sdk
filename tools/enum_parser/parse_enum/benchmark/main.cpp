@@ -1,8 +1,8 @@
 #include <tools/enum_parser/parse_enum/benchmark/enum.h_serialized.h>
 #include <src/library/testing/benchmark/bench.h>
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/generic/vector.h>
-#include <src/util/generic/xrange.h>
+#include <ydb-cpp-sdk/util/generic/xrange.h>
 #include <src/util/stream/null.h>
 #include <src/util/string/cast.h>
 

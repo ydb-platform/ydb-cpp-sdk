@@ -3,10 +3,10 @@
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include "yexception.h"
 
-#include <src/util/system/compat.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
 #include <src/util/system/type_name.h>
 #include <src/util/system/unaligned_mem.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <cstdlib>
 

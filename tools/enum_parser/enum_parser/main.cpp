@@ -11,14 +11,14 @@
 
 #include <src/util/charset/wide.h>
 #include <src/util/string/builder.h>
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 #include <src/util/string/strip.h>
 #include <src/util/string/cast.h>
 #include <src/util/string/join.h>
-#include <src/util/string/subst.h>
+#include <ydb-cpp-sdk/util/string/subst.h>
 #include <string>
 
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/yexception.h>
 #include <src/util/system/fs.h>
 #include <src/util/folder/path.h>
@@ -31,7 +31,7 @@ void WriteHeader(const std::string& headerName, std::ostream& out, std::ostream*
     out << "#include <tools/enum_parser/enum_serialization_runtime/enum_runtime.h>\n\n";
     out << "#include <tools/enum_parser/enum_parser/stdlib_deps.h>\n\n";
     out << "#include <ydb-cpp-sdk/util/generic/typetraits.h>\n";
-    out << "#include <src/util/generic/singleton.h>\n";
+    out << "#include <ydb-cpp-sdk/util/generic/singleton.h>\n";
     out << "#include <string>\n";
     out << "#include <vector>\n";
     out << "#include <map>\n";

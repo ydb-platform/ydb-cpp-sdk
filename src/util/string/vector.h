@@ -4,7 +4,7 @@
 #include "split.h"
 
 #include <src/util/string/cast.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #define KEEP_EMPTY_TOKENS 0x01
 

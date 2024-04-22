@@ -1,4 +1,4 @@
-#include "rwlock.h"
+#include <ydb-cpp-sdk/util/system/rwlock.h>
 
 #include <src/util/generic/yexception.h>
 

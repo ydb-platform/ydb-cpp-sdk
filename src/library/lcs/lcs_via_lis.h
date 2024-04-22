@@ -2,10 +2,10 @@
 
 #include <src/library/containers/paged_vector/paged_vector.h>
 
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/hash.h>
 
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/memory/pool.h>
 
 namespace NLCS {

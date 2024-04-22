@@ -5,7 +5,7 @@
 #include <src/util/digest/multi.h>
 #include <src/util/digest/sequence.h>
 
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 
 #include <src/util/stream/output.h>
 #include <src/util/string/builder.h>
@@ -410,6 +410,8 @@ namespace NMonitoring {
 
 template<>
 struct THash<NMonitoring::ILabelsPtr> {
+    using is_transparent = void;
+
     size_t operator()(const NMonitoring::ILabelsPtr& labels) const noexcept {
         return labels->Hash();
     }
@@ -421,6 +423,8 @@ struct THash<NMonitoring::ILabelsPtr> {
 
 template<typename TStringBackend>
 struct THash<NMonitoring::TLabelsImpl<TStringBackend>> {
+    using is_transparent = void;
+
     size_t operator()(const NMonitoring::TLabelsImpl<TStringBackend>& labels) const noexcept {
         return labels.Hash();
     }
@@ -428,6 +432,8 @@ struct THash<NMonitoring::TLabelsImpl<TStringBackend>> {
 
 template <typename TStringBackend>
 struct THash<NMonitoring::TLabelImpl<TStringBackend>> {
+    using is_transparent = void;
+
     inline size_t operator()(const NMonitoring::TLabelImpl<TStringBackend>& label) const noexcept {
         return label.Hash();
     }
@@ -454,15 +460,17 @@ bool operator==(const NMonitoring::ILabelsPtr& lhs, const NMonitoring::ILabels& 
 
 template<>
 struct TEqualTo<NMonitoring::ILabelsPtr> {
-    bool operator()(const NMonitoring::ILabelsPtr& lhs, const NMonitoring::ILabelsPtr& rhs) {
+    using is_transparent = void;
+
+    bool operator()(const NMonitoring::ILabelsPtr& lhs, const NMonitoring::ILabelsPtr& rhs) const {
         return *lhs == *rhs;
     }
 
-    bool operator()(const NMonitoring::ILabelsPtr& lhs, const NMonitoring::ILabels& rhs) {
+    bool operator()(const NMonitoring::ILabelsPtr& lhs, const NMonitoring::ILabels& rhs) const {
         return *lhs == rhs;
     }
 
-    bool operator()(const NMonitoring::ILabels& lhs, const NMonitoring::ILabelsPtr& rhs) {
+    bool operator()(const NMonitoring::ILabels& lhs, const NMonitoring::ILabelsPtr& rhs) const {
         return lhs == *rhs;
     }
 };

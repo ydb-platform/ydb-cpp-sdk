@@ -4,7 +4,7 @@
 #include "typelist.h"
 
 #include <ydb-cpp-sdk/util/system/compiler.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #ifdef _MSC_VER
     #include <intrin.h>

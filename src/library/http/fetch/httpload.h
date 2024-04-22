@@ -4,7 +4,7 @@
 #include "httpparser.h"
 #include "http_digest.h"
 
-#include <src/util/system/compat.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
 #include <src/util/network/ip.h>
 #include <src/library/uri/http_url.h>
 #include <ydb-cpp-sdk/library/http/misc/httpcodes.h>

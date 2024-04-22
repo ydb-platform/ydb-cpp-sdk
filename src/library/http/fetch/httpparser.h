@@ -4,7 +4,7 @@
 #include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 
 #include <ydb-cpp-sdk/library/mime/types/mime.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
 
 template <size_t headermax = 100 << 10, size_t bodymax = 1 << 20>

@@ -3,7 +3,7 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/util/stream/str.h>
 
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 
 Y_UNIT_TEST_SUITE(ColorizerTest) {
     Y_UNIT_TEST(BasicTest) {

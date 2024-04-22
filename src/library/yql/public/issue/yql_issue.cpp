@@ -9,7 +9,7 @@
 #include <src/util/string/ascii.h>
 #include <src/util/string/split.h>
 #include <src/util/string/strip.h>
-#include <src/util/string/subst.h>
+#include <ydb-cpp-sdk/util/string/subst.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/generic/stack.h>
 #include <cstdlib>

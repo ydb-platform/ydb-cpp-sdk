@@ -626,7 +626,7 @@ struct TWriteSessionMeta: public TThrRefBase {
     using TPtr = TIntrusivePtr<TWriteSessionMeta>;
 
     //! User defined fields.
-    THashMap<std::string, std::string> Fields;
+    std::unordered_map<std::string, std::string> Fields;
 };
 
 struct TMessageMeta: public TThrRefBase {

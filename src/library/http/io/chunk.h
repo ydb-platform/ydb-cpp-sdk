@@ -2,8 +2,8 @@
 
 #include <src/util/stream/input.h>
 #include <src/util/stream/output.h>
-#include <src/util/generic/algorithm.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 #include <optional>
 

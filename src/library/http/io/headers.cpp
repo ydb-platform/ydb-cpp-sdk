@@ -2,7 +2,7 @@
 
 #include <src/library/string_utils/stream/stream.h>
 #include <src/util/string/strip.h>
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 
 static inline std::string_view Trim(const char* b, const char* e) noexcept {
     return StripString(std::string_view(b, e));

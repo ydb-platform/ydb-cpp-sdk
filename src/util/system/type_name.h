@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/string/subst.h>
+#include <ydb-cpp-sdk/util/string/subst.h>
 
 #include <typeindex>
 #include <typeinfo>

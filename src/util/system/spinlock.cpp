@@ -1,1 +1,1 @@
-#include "spinlock.h"
+#include <ydb-cpp-sdk/util/system/spinlock.h>

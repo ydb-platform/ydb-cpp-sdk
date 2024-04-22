@@ -2,7 +2,7 @@
 
 #include <src/util/generic/buffer.h>
 #include <src/util/generic/cast.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/scope.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <src/util/stream/format.h>

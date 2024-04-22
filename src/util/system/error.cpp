@@ -8,7 +8,7 @@
 #if defined(_win_)
     #include <src/util/string/strip.h>
     #include <src/util/network/socket.h>
-    #include <src/util/generic/singleton.h>
+    #include <ydb-cpp-sdk/util/generic/singleton.h>
     #include "winint.h"
 #endif
 

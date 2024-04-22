@@ -11,7 +11,7 @@
 #include <src/library/containers/intrusive_rb_tree/rb_tree.h>
 
 #include <src/util/system/error.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/intrlist.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <src/util/generic/function.h>

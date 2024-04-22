@@ -87,8 +87,8 @@ private:
     TAdaptiveLock Lock; // For the case when user gave us multithreaded executor.
     const std::function<void(TReadSessionEvent::TDataReceivedEvent&)> DataHandler;
     const bool CommitAfterProcessing;
-    THashMap<ui64, TDisjointIntervalTree<ui64>> PartitionStreamToUncommittedOffsets; // Partition stream id -> set of offsets.
-    THashMap<ui64, TReadSessionEvent::TStopPartitionSessionEvent> UnconfirmedDestroys; // Partition stream id -> destroy events.
+    std::unordered_map<ui64, TDisjointIntervalTree<ui64>> PartitionStreamToUncommittedOffsets; // Partition stream id -> set of offsets.
+    std::unordered_map<ui64, TReadSessionEvent::TStopPartitionSessionEvent> UnconfirmedDestroys; // Partition stream id -> destroy events.
 };
 
 TReadSessionSettings::TEventHandlers& TReadSessionSettings::TEventHandlers::SimpleDataHandlers(std::function<void(TReadSessionEvent::TDataReceivedEvent&)> dataHandler,

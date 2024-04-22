@@ -2,9 +2,8 @@
 
 #include "fwd.h"
 #include "utility.h"
-#include "intrlist.h"
 #include "refcount.h"
-#include <ydb-cpp-sdk/util/generic/typetraits.h>
+#include "typetraits.h"
 #include "singleton.h"
 
 #include <type_traits>
@@ -12,7 +11,7 @@
 
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 template <class T, class U>
 using TGuardConversion = typename std::enable_if_t<std::is_convertible<U*, T*>::value>;

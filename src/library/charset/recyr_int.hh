@@ -2,7 +2,7 @@
 
 #include <src/util/charset/recode_result.h>
 #include <src/util/charset/utf8.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <string>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 

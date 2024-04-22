@@ -1,4 +1,4 @@
-#include "random.h"
+#include <ydb-cpp-sdk/util/random/random.h>
 #include "entropy.h"
 #include "mersenne.h"
 

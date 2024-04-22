@@ -1,7 +1,7 @@
 #include <ydb-cpp-sdk/util/system/platform.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <src/util/stream/output.h>
-#include <src/util/system/backtrace.h>
+#include <ydb-cpp-sdk/util/system/backtrace.h>
 
 #include <string.h>
 

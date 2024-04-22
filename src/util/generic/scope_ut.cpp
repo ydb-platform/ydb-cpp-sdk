@@ -1,6 +1,6 @@
 #include "scope.h"
 
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/library/testing/unittest/registar.h>
 
 Y_UNIT_TEST_SUITE(ScopeToolsTest) {

@@ -5,8 +5,8 @@
 
 #include <src/util/generic/bt_exception.h>
 #include <src/util/random/fast.h>
-#include <src/util/system/backtrace.h>
-#include <src/util/system/guard.h>
+#include <ydb-cpp-sdk/util/system/backtrace.h>
+#include <ydb-cpp-sdk/util/system/guard.h>
 #include <src/util/system/tls.h>
 #include <src/util/system/error.h>
 #include <src/util/string/cast.h>

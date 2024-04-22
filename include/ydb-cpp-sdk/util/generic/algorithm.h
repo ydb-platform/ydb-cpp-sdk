@@ -1,10 +1,10 @@
 #pragma once
 
 #include "is_in.h"
-#include "utility.h"
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 
 #include <numeric>
 #include <algorithm>

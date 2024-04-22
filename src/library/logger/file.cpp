@@ -2,7 +2,7 @@
 #include <ydb-cpp-sdk/library/logger/record.h>
 
 #include <src/util/system/file.h>
-#include <src/util/system/rwlock.h>
+#include <ydb-cpp-sdk/util/system/rwlock.h>
 
 /*
  * file log

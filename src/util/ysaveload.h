@@ -1,10 +1,10 @@
 #pragma once
 
 #include <queue>
-#include <src/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <src/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/stream/output.h>
 #include <src/util/stream/input.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
@@ -15,6 +15,7 @@
 #include <set>
 #include <string>
 #include <unordered_set>
+#include <unordered_map>
 
 #ifndef __NVCC__
     // cuda is compiled in C++14 mode at the time
@@ -583,6 +584,10 @@ class TSerializer<std::map<K, T, C, A>>: public TMapSerializer<std::map<K, T, C,
 
 template <class K, class T, class C, class A>
 class TSerializer<std::multimap<K, T, C, A>>: public TMapSerializer<std::multimap<K, T, C, A>, true> {
+};
+
+template <class K, class T, class C, class A>
+class TSerializer<std::unordered_map<K, T, C, A>>: public TMapSerializer<std::unordered_map<K, T, C, A>, true> {
 };
 
 template <class T1, class T2, class T3, class T4, class T5>

@@ -2,7 +2,7 @@
 
 #include <src/util/generic/yexception.h>
 
-#include "yassert.h"
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #if defined(_unix_) || defined(_darwin_)
     #include <sys/mman.h>

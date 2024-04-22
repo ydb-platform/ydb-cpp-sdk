@@ -3,7 +3,7 @@
 #include <src/library/testing/gtest/gtest.h>
 
 
-#include <src/util/generic/xrange.h>
+#include <ydb-cpp-sdk/util/generic/xrange.h>
 #include <src/util/generic/adaptor.h>
 
 #include <set>

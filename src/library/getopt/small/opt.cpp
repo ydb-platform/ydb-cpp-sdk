@@ -1,6 +1,6 @@
 #include "opt.h"
 
-#include <src/util/system/progname.h>
+#include <ydb-cpp-sdk/util/system/progname.h>
 
 #include <ctype.h>
 

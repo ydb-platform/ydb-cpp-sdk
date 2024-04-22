@@ -2,7 +2,7 @@
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 
 #include <string>
-#include <src/util/generic/xrange.h>
+#include <ydb-cpp-sdk/util/generic/xrange.h>
 
 using namespace NThreading;
 

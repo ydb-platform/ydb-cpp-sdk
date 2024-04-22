@@ -8,7 +8,7 @@
     #include <errno.h>
 #endif
 
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 #include <src/util/generic/yexception.h>
 #include <src/util/memory/tempbuf.h>
 #include <src/util/stream/file.h>

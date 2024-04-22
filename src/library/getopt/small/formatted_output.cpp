@@ -1,7 +1,7 @@
 #include "formatted_output.h"
 
 #include <src/util/memory/tempbuf.h>
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 
 #include <iostream>
 

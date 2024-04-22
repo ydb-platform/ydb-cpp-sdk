@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/library/yson/public.h>
 #include <ydb-cpp-sdk/library/yson/token.h>
 
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////

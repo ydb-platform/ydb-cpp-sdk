@@ -1,7 +1,7 @@
 #pragma once
 
 #include "numeric.h"
-#include <src/util/generic/hash.h>
+#include <src/util/str_stl.h>
 
 #include <span>
 

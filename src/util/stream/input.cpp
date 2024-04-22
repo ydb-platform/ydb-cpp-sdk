@@ -5,10 +5,10 @@
 #include <src/util/charset/wide.h>
 #include <src/util/memory/tempbuf.h>
 #include <src/util/generic/yexception.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/string/cast.h>
-#include <src/util/system/compat.h>
-#include <src/util/system/spinlock.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
 
 #include <cstdlib>
 

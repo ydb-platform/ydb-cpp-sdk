@@ -3,10 +3,10 @@
 #include <src/library/blockcodecs/core/codecs.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <src/util/generic/hash.h>
-#include <src/util/generic/singleton.h>
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 
 #include <iostream>
 

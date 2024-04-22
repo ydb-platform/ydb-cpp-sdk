@@ -1,7 +1,7 @@
 #include "colors.h"
 
 #include <src/util/stream/output.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #include <iostream>
 

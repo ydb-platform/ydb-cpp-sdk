@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/util/datetime/systime.h>
 
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
 #ifdef _win_

@@ -3,7 +3,7 @@
 #include <utility>
 #include "yexception.h"
 
-#include <src/util/system/backtrace.h>
+#include <ydb-cpp-sdk/util/system/backtrace.h>
 
 template <class T>
 class TWithBackTrace: public T {

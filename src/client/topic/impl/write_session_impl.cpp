@@ -7,8 +7,8 @@
 
 #include <google/protobuf/util/time_util.h>
 
-#include <src/util/generic/store_policy.h>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/store_policy.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 #include <src/util/stream/buffer.h>
 #include <src/util/generic/guid.h>
 

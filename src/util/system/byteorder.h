@@ -13,7 +13,7 @@
         #include <machine/byte_order.h>
     #endif
 #else
-    #include <src/util/generic/utility.h>
+    #include <ydb-cpp-sdk/util/generic/utility.h>
 #endif
 
 #if defined(_linux_) && !defined(USE_GENERIC_ENDIAN_CVT)

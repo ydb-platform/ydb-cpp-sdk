@@ -1,7 +1,7 @@
 #pragma once
 
-#include <src/util/generic/fwd.h>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
 #include <string_view>

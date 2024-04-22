@@ -1,8 +1,8 @@
 #include "execpath.h"
-#include "progname.h"
+#include <ydb-cpp-sdk/util/system/progname.h>
 
 #include <src/util/folder/dirut.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 static const char* Argv0;
 

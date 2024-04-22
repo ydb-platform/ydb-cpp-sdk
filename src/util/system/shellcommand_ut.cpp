@@ -9,7 +9,7 @@
 #include <src/library/testing/unittest/env.h>
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 #include <src/util/stream/file.h>
 #include <src/util/stream/str.h>
 #include <src/util/stream/mem.h>

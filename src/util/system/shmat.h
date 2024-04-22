@@ -2,7 +2,7 @@
 
 #include "fhandle.h"
 
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/guid.h>
 
 class TSharedMemory: public TThrRefBase {

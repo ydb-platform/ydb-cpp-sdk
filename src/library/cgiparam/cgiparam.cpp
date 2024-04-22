@@ -3,7 +3,7 @@
 #include <src/library/string_utils/scan/scan.h>
 #include <src/library/string_utils/quote/quote.h>
 
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #include <string>
 

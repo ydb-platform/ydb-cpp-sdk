@@ -4,7 +4,7 @@
 #include <src/util/system/context.h>
 #include <src/util/generic/cast.h>
 #include <src/util/memory/addstorage.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/intrlist.h>
 #include <src/util/generic/scope.h>
 

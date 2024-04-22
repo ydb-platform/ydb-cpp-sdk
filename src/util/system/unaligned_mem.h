@@ -1,9 +1,9 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include "yassert.h"
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
-#include <string.h>
+#include <cstring>
 #include <type_traits>
 
 // The following code used to have smart tricks assuming that unaligned reads and writes are OK on x86. This assumption

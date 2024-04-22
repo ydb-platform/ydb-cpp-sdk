@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 #include <src/util/stream/str.h>
 
 extern "C" int LLVMFuzzerTestOneInput(const ui8* data, size_t size) {

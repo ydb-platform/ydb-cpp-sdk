@@ -4,13 +4,13 @@
 
 #include <src/util/folder/dirut.h>
 #include <src/util/folder/path.h>
-#include <src/util/generic/singleton.h>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <src/util/network/address.h>
 #include <src/util/network/sock.h>
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 #include <src/util/stream/file.h>
 #include <src/util/string/split.h>
 #include <src/util/system/error.h>

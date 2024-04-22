@@ -4,7 +4,7 @@
 #include <src/util/stream/output.h>
 #include <src/util/stream/zerocopy.h>
 
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 class TLzmaCompress: public IOutputStream {
 public:

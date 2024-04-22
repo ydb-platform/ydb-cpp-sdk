@@ -7,9 +7,9 @@
 
 #include <src/util/stream/str.h>
 #include <src/util/generic/buffer.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/stream/mem.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <cstdlib>
 

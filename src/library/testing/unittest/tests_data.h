@@ -2,8 +2,8 @@
 
 #include <src/library/testing/common/env.h>
 
-#include <src/util/generic/noncopyable.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/network/sock.h>
 
 #include <string>

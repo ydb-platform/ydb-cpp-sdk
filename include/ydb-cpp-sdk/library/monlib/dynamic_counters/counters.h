@@ -6,9 +6,9 @@
 #include <ydb-cpp-sdk/library/containers/stack_vector/stack_vec.h>
 
 #include <src/util/generic/cast.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/string/cast.h>
-#include <src/util/system/rwlock.h>
+#include <ydb-cpp-sdk/util/system/rwlock.h>
 
 #include <map>
 #include <functional>

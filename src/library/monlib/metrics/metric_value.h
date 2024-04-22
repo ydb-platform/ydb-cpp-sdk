@@ -6,7 +6,7 @@
 #include <ydb-cpp-sdk/library/monlib/metrics/log_histogram_snapshot.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 
 #include <src/util/generic/cast.h>
 #include <src/util/generic/ymath.h>

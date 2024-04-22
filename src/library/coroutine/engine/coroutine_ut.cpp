@@ -10,7 +10,7 @@
 #include <src/util/system/env.h>
 #include <src/util/system/info.h>
 #include <src/util/system/thread.h>
-#include <src/util/generic/xrange.h>
+#include <ydb-cpp-sdk/util/generic/xrange.h>
 #include <src/util/generic/serialized_enum.h>
 
 #include <iostream>

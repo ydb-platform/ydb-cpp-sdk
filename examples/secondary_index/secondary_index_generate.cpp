@@ -1,6 +1,6 @@
 #include "secondary_index.h"
 
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 #include <src/util/thread/pool.h>
 
 using namespace NLastGetopt;

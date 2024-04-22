@@ -1,7 +1,7 @@
 #include "assertions.h"
 
 #include <src/util/string/builder.h>
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 #include <src/util/string/split.h>
 #include <src/util/system/type_name.h>
 

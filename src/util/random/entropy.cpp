@@ -1,5 +1,5 @@
 #include "fast.h"
-#include "random.h"
+#include <ydb-cpp-sdk/util/random/random.h>
 #include "entropy.h"
 #include "mersenne.h"
 #include "shuffle.h"
@@ -12,7 +12,7 @@
 
 #include <src/util/system/fs.h>
 #include <src/util/system/info.h>
-#include <src/util/system/spinlock.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
 #include <src/util/system/thread.h>
 #include <src/util/system/execpath.h>
 #include <src/util/system/datetime.h>
@@ -24,7 +24,7 @@
 #include <src/util/system/unaligned_mem.h>
 
 #include <src/util/generic/buffer.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #include <src/util/digest/murmur.h>
 #include <src/util/digest/city.h>

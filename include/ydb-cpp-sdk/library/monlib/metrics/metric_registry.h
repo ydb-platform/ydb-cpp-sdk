@@ -3,7 +3,7 @@
 #include "labels.h"
 #include "metric.h"
 
-#include <src/util/system/rwlock.h>
+#include <ydb-cpp-sdk/util/system/rwlock.h>
 
 namespace NMonitoring {
     class IMetricFactory {
@@ -146,7 +146,8 @@ namespace NMonitoring {
 
     private:
         THolder<TRWMutex> Lock_ = MakeHolder<TRWMutex>();
-        THashMap<ILabelsPtr, IMetricPtr> Metrics_;
+        using TMapType = std::unordered_map<ILabelsPtr, IMetricPtr, THash<ILabelsPtr>, TEqualTo<ILabelsPtr>>;
+        TMapType Metrics_;
 
         template <typename TMetric, EMetricType type, typename TLabelsType, typename... Args>
         TMetric* Metric(TLabelsType&& labels, Args&&... args);

@@ -3,7 +3,7 @@
 #include "registry.h"
 
 #include <src/util/generic/yexception.h>
-#include <src/util/generic/xrange.h>
+#include <ydb-cpp-sdk/util/generic/xrange.h>
 
 using namespace NResource;
 

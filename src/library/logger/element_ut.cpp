@@ -4,7 +4,7 @@
 
 #include <string>
 #include <src/util/stream/str.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <utility>
 
 #include <src/library/testing/unittest/registar.h>

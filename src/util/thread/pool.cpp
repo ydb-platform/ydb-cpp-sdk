@@ -9,7 +9,7 @@
 #include <src/util/generic/intrlist.h>
 #include <src/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/generic/fastqueue.h>
 
 #include <src/util/stream/output.h>
@@ -20,7 +20,7 @@
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
-#include "factory.h"
+#include <ydb-cpp-sdk/util/thread/factory.h>
 #include "pool.h"
 
 #include <condition_variable>

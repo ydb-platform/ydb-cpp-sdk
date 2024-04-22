@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
 
 class TFakeMutex: public TNonCopyable {
 public:

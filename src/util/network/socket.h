@@ -2,14 +2,14 @@
 
 #include "init.h"
 
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/error.h>
 #include <src/util/stream/output.h>
 #include <src/util/stream/input.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/yexception.h>
-#include <src/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
 #include <cerrno>

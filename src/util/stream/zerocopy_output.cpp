@@ -1,6 +1,6 @@
 #include "zerocopy_output.h"
 
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 void IZeroCopyOutput::DoWrite(const void* buf, size_t len) {
     void* ptr = nullptr;

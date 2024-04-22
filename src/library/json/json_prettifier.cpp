@@ -1,6 +1,6 @@
 #include "json_prettifier.h"
 
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/memory/pool.h>
 #include <src/util/stream/str.h>
 #include <src/util/string/util.h>

@@ -11,9 +11,9 @@
 
 #include <src/util/charset/unidata.h> // for ToLower
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/generic/yexception.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #include <cstdlib>
 

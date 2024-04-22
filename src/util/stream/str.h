@@ -3,8 +3,8 @@
 #include "zerocopy.h"
 #include "zerocopy_output.h"
 
-#include <src/util/generic/noncopyable.h>
-#include <src/util/generic/store_policy.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/store_policy.h>
 
 #include <string>
 

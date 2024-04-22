@@ -1,7 +1,7 @@
 #include <src/library/threading/light_rw_lock/lightrwlock.h>
 #include <src/library/testing/unittest/registar.h>
-#include <src/util/generic/ptr.h>
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 #include <src/util/thread/pool.h>
 
 class TRWMutexTest: public TTestBase {

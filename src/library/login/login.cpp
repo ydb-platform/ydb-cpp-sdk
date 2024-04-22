@@ -9,7 +9,7 @@
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/string/builder.h>
 #include <src/util/string/cast.h>
 #include <src/util/string/hex.h>

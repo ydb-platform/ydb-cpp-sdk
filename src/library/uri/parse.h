@@ -10,7 +10,7 @@
 #include <string_view>
 #include <src/util/stream/output.h>
 #include <src/util/string/cast.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 namespace NUri {
     class TParser;

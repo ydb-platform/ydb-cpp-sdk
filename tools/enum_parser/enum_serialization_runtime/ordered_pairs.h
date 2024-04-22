@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/stream/input.h>
 #include <src/util/generic/yexception.h>
 #include <span>

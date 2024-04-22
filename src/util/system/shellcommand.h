@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <src/util/generic/hash.h>
 #include <src/util/stream/input.h>
 #include <src/util/stream/output.h>

@@ -3,8 +3,8 @@
 #include <ydb-cpp-sdk/library/logger/log.h>
 #include <ydb-cpp-sdk/library/logger/backend.h>
 
-#include <src/util/generic/fwd.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 
 #include <atomic>

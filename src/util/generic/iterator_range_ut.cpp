@@ -1,7 +1,7 @@
-#include "iterator_range.h"
+#include <ydb-cpp-sdk/util/generic/iterator_range.h>
 
 #include <src/library/testing/unittest/registar.h>
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/generic/vector.h>
 
 Y_UNIT_TEST_SUITE(IteratorRange) {

@@ -10,7 +10,7 @@
 #include <src/util/network/ip.h>
 #include <src/util/network/sock.h>
 #include <src/util/generic/scope.h>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 #include <ydb-cpp-sdk/library/http/fetch/exthttpcodes.h>
 #include "sockhandler.h"

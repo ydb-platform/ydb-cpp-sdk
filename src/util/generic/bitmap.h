@@ -1,13 +1,13 @@
 #pragma once
 
-#include "fwd.h"
-#include "ptr.h"
+#include <ydb-cpp-sdk/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include "bitops.h"
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
-#include "algorithm.h"
-#include "utility.h"
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/str_stl.h>
 #include <src/util/ysaveload.h>

@@ -8,7 +8,7 @@
 #include <array>
 #include <filesystem>
 
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 #include <src/util/string/util.h>
 #include <src/util/string/cast.h>
 #include <src/util/string/builder.h>
@@ -16,7 +16,7 @@
 #include <src/util/stream/hex.h>
 #include <src/util/stream/format.h>
 
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>

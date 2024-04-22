@@ -1,6 +1,6 @@
-#include "singleton.h"
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
-#include <src/util/system/spinlock.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
 #include <src/util/system/thread.h>
 #include <src/util/system/sanitizers.h>
 

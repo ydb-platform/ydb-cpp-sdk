@@ -2,7 +2,7 @@
 
 #include "fwd.h"
 
-#include <src/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 #include <string_view>

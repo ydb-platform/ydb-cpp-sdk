@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/memory/alloc.h>
+#include <ydb-cpp-sdk/util/memory/alloc.h>
 #include <src/util/ysaveload.h>
 
 #include <type_traits>

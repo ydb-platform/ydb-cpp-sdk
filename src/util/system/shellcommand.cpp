@@ -6,7 +6,7 @@
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <src/util/folder/dirut.h>
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/generic/buffer.h>
 #include <src/util/generic/yexception.h>
 #include <src/util/memory/tempbuf.h>

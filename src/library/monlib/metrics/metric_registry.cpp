@@ -202,7 +202,7 @@ namespace NMonitoring {
 
             TWriteGuard g{*Lock_};
             // decltype(Metrics_)::iterator breaks build on windows
-            THashMap<ILabelsPtr, IMetricPtr>::iterator it;
+            TMapType::iterator it;
             if constexpr (!std::is_convertible_v<TLabelsType, ILabelsPtr>) {
                 it = Metrics_.emplace(new TLabels{std::forward<TLabelsType>(labels)}, std::move(metric)).first;
             } else {
@@ -215,7 +215,10 @@ namespace NMonitoring {
 
     void TMetricRegistry::RemoveMetric(const ILabels& labels) noexcept {
         TWriteGuard g{*Lock_};
-        Metrics_.erase(labels);
+        auto it = Metrics_.find(labels);
+        if (it != Metrics_.end()) { 
+            Metrics_.erase(it);
+        }
     }
 
     void TMetricRegistry::Accept(TInstant time, IMetricConsumer* consumer) const {

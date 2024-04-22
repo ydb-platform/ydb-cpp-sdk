@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 #include <src/util/network/socket.h>
 #include <src/util/network/pollerimpl.h>

@@ -4,7 +4,7 @@
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <src/util/stream/str.h>
-#include <src/util/system/backtrace.h>
+#include <ydb-cpp-sdk/util/system/backtrace.h>
 #include <src/util/system/type_name.h>
 
 #if defined(_linux_) || defined(_android_) || defined(_darwin_)

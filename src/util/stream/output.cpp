@@ -3,14 +3,14 @@
 #include <src/util/string/cast.h>
 #include "format.h"
 #include <src/util/memory/tempbuf.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/generic/yexception.h>
 #include <src/util/charset/utf8.h>
 #include <src/util/charset/wide.h>
 
 #if defined(_android_)
     #include <src/util/system/dynlib.h>
-    #include <src/util/system/guard.h>
+    #include <ydb-cpp-sdk/util/system/guard.h>
     #include <android/log.h>
     #include <mutex>
 #endif

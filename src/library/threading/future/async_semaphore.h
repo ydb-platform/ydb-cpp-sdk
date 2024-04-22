@@ -2,8 +2,8 @@
 
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 
-#include <src/util/system/spinlock.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 #include <list>
 #include <functional>

@@ -1,7 +1,7 @@
 #include "ascii.h"
 
-#include <src/util/system/yassert.h>
-#include <src/util/system/compat.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
 
 // clang-format off
 extern const unsigned char NPrivate::ASCII_CLASS[256] = {

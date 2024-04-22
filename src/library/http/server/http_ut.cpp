@@ -8,7 +8,7 @@
 #include <src/util/stream/output.h>
 #include <src/util/stream/zlib.h>
 #include <src/util/system/datetime.h>
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 
 #include <mutex>
 

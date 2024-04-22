@@ -3,7 +3,7 @@
 #include "qargs.h"
 #include <src/library/html/entity/htmlentity.h>
 
-#include <src/util/system/maxlen.h>
+#include <ydb-cpp-sdk/util/system/maxlen.h>
 
 namespace NUri {
     Y_UNIT_TEST_SUITE(URLTest) {

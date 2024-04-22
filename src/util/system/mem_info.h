@@ -1,6 +1,6 @@
 #pragma once
 
-#include "compat.h"
+#include <ydb-cpp-sdk/util/system/compat.h>
 
 namespace NMemInfo {
     struct TMemInfo {

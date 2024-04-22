@@ -16,7 +16,7 @@
     #include <unistd.h>
 #endif
 
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #include "execpath.h"
 #include "fs.h"

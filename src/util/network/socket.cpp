@@ -31,7 +31,7 @@
     #include <ws2tcpip.h>
     #include <wspiapi.h>
 
-    #include <src/util/system/compat.h>
+    #include <ydb-cpp-sdk/util/system/compat.h>
 #endif
 
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
@@ -41,7 +41,7 @@
 #include <src/util/system/datetime.h>
 #include <src/util/system/error.h>
 #include <src/util/memory/tempbuf.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #include <stddef.h>
 #include <sys/uio.h>
