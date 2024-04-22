@@ -142,26 +142,26 @@ void TPointerTest::TestSimpleIntrPtr() {
 
 void TPointerTest::TestHolderPtr() {
     {
-        THolder<A> a1(MakeA());
-        THolder<A> a2(a1.Release());
+        std::unique_ptr<A> a1(MakeA());
+        std::unique_ptr<A> a2(a1.Release());
     }
 
     UNIT_ASSERT_VALUES_EQUAL(cnt, 0);
 }
 
-THolder<int> CreateInt(int value) {
-    THolder<int> res(new int);
+std::unique_ptr<int> CreateInt(int value) {
+    std::unique_ptr<int> res(new int);
     *res = value;
     return res;
 }
 
 void TPointerTest::TestHolderPtrMoveConstructor() {
-    THolder<int> h = CreateInt(42);
+    std::unique_ptr<int> h = CreateInt(42);
     UNIT_ASSERT_VALUES_EQUAL(*h, 42);
 }
 
 void TPointerTest::TestHolderPtrMoveAssignment() {
-    THolder<int> h(new int);
+    std::unique_ptr<int> h(new int);
     h = CreateInt(42);
     UNIT_ASSERT_VALUES_EQUAL(*h, 42);
 }
@@ -175,13 +175,13 @@ struct TDerived: public TBase {
 
 void TPointerTest::TestHolderPtrMoveConstructorInheritance() {
     // compileability test
-    THolder<TBase> basePtr(THolder<TDerived>(new TDerived));
+    std::unique_ptr<TBase> basePtr(std::unique_ptr<TDerived>(new TDerived));
 }
 
 void TPointerTest::TestHolderPtrMoveAssignmentInheritance() {
     // compileability test
-    THolder<TBase> basePtr;
-    basePtr = THolder<TDerived>(new TDerived);
+    std::unique_ptr<TBase> basePtr;
+    basePtr = std::unique_ptr<TDerived>(new TDerived);
 }
 
 void TPointerTest::TestMakeHolder() {
@@ -198,7 +198,7 @@ void TPointerTest::TestMakeHolder() {
             {
             }
         };
-        THolder<TRec> ptr = MakeHolder<TRec>();
+        std::unique_ptr<TRec> ptr = MakeHolder<TRec>();
         UNIT_ASSERT_VALUES_EQUAL(ptr->X, 1);
         UNIT_ASSERT_VALUES_EQUAL(ptr->Y, 2);
     }
@@ -242,8 +242,8 @@ void TPointerTest::TestMakeHolder() {
 
 void TPointerTest::TestTrulePtr() {
     {
-        TAutoPtr<A> a1(MakeA());
-        TAutoPtr<A> a2(a1);
+        std::unique_ptr<A> a1(MakeA());
+        std::unique_ptr<A> a2(a1);
         a1 = a2;
     }
 
@@ -252,8 +252,8 @@ void TPointerTest::TestTrulePtr() {
 
 void TPointerTest::TestAutoToHolder() {
     {
-        TAutoPtr<A> a1(MakeA());
-        THolder<A> a2(a1);
+        std::unique_ptr<A> a1(MakeA());
+        std::unique_ptr<A> a2(a1);
 
         UNIT_ASSERT_EQUAL(a1.Get(), nullptr);
         UNIT_ASSERT_VALUES_EQUAL(cnt, 1);
@@ -262,8 +262,8 @@ void TPointerTest::TestAutoToHolder() {
     UNIT_ASSERT_VALUES_EQUAL(cnt, 0);
 
     {
-        TAutoPtr<A> x(new A());
-        THolder<const A> y = x;
+        std::unique_ptr<A> x(new A());
+        std::unique_ptr<const A> y = x;
     }
 
     UNIT_ASSERT_VALUES_EQUAL(cnt, 0);
@@ -272,8 +272,8 @@ void TPointerTest::TestAutoToHolder() {
         class B1: public A {
         };
 
-        TAutoPtr<B1> x(new B1());
-        THolder<A> y = x;
+        std::unique_ptr<B1> x(new B1());
+        std::unique_ptr<A> y = x;
     }
 
     UNIT_ASSERT_VALUES_EQUAL(cnt, 0);
@@ -575,13 +575,13 @@ void TPointerTest::TestOperatorBool() {
 
     // pointers
     UNIT_ASSERT(!(TImplicitlyCastable<TSimpleSharedPtr<TVec>, int>::Result));
-    UNIT_ASSERT(!(TImplicitlyCastable<TAutoPtr<ui64>, ui64>::Result));
-    UNIT_ASSERT(!(TImplicitlyCastable<THolder<TVec>, bool>::Result)); // even this
+    UNIT_ASSERT(!(TImplicitlyCastable<std::unique_ptr<ui64>, ui64>::Result));
+    UNIT_ASSERT(!(TImplicitlyCastable<std::unique_ptr<TVec>, bool>::Result)); // even this
 
     {
         // mostly a compilability test
 
-        THolder<TVec> a;
+        std::unique_ptr<TVec> a;
         UNIT_ASSERT(!a);
         UNIT_ASSERT(!bool(a));
         if (a) {
@@ -601,7 +601,7 @@ void TPointerTest::TestOperatorBool() {
             UNIT_ASSERT(false);
         }
 
-        THolder<TVec> b(new TVec);
+        std::unique_ptr<TVec> b(new TVec);
         UNIT_ASSERT(a.Get() != b.Get());
         UNIT_ASSERT(a != b);
         if (a == b) {
@@ -719,8 +719,8 @@ void TestPtrComparison(const TPtr& ptr) {
 }
 
 void TPointerTest::TestComparison() {
-    THolder<A> ptr1(new A);
-    TAutoPtr<A> ptr2;
+    std::unique_ptr<A> ptr1(new A);
+    std::unique_ptr<A> ptr2;
     TSimpleSharedPtr<int> ptr3(new int(6));
     TIntrusivePtr<A> ptr4;
     TIntrusiveConstPtr<A> ptr5 = ptr4;
@@ -773,7 +773,7 @@ void TPointerTest::TestRefCountedPtrsInHashSet() {
     TestRefCountedPtrsInHashSetImpl<A, TIntrusiveConstPtr<A>>();
 
     // test with custom ops
-    TestRefCountedPtrsInHashSetImpl<std::string, TSharedPtr<std::string, TCustomCounter, TCustomDeleter>>();
+    TestRefCountedPtrsInHashSetImpl<std::string, std::shared_ptr<std::string, TCustomCounter, TCustomDeleter>>();
     TestRefCountedPtrsInHashSetImpl<A, TIntrusivePtr<A, TCustomIntrusivePtrOps>>();
     TestRefCountedPtrsInHashSetImpl<A, TIntrusiveConstPtr<A, TCustomIntrusivePtrOps>>();
 }

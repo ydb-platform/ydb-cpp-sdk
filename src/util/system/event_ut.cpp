@@ -22,7 +22,7 @@ namespace {
         }
 
         void Process(void*) override {
-            THolder<TThreadTask> This(this);
+            std::unique_ptr<TThreadTask> This(this);
 
             if (Id_ == 0) {
                 usleep(100);
@@ -61,7 +61,7 @@ namespace {
     class TOwnerTask: public IObjectInQueue {
     public:
         TManualEvent Barrier;
-        THolder<TManualEvent> Ev;
+        std::unique_ptr<TManualEvent> Ev;
 
     public:
         TOwnerTask()
@@ -96,7 +96,7 @@ Y_UNIT_TEST_SUITE(EventTest) {
         TManualEvent event[limit];
         TThreadPool queue;
         queue.Start(limit);
-        std::vector<THolder<IObjectInQueue>> tasks;
+        std::vector<std::unique_ptr<IObjectInQueue>> tasks;
         for (size_t i = 0; i < limit; ++i) {
             tasks.emplace_back(MakeHolder<TSignalTask>(event[i]));
             UNIT_ASSERT(queue.Add(tasks.back().Get()));
@@ -110,7 +110,7 @@ Y_UNIT_TEST_SUITE(EventTest) {
     /** Test for a problem: http://nga.at.yandex-team.ru/5772 */
     Y_UNIT_TEST(DestructorBeforeSignalFinishTest) {
         return;
-        std::vector<THolder<IObjectInQueue>> tasks;
+        std::vector<std::unique_ptr<IObjectInQueue>> tasks;
         for (size_t i = 0; i < 1000; ++i) {
             auto owner = MakeHolder<TOwnerTask>();
             tasks.emplace_back(MakeHolder<TSignalTask>(*owner->Ev));

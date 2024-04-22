@@ -1,5 +1,5 @@
 from libcpp.utility cimport pair
-from util.generic.ptr cimport MakeAtomicShared, TAtomicSharedPtr, THolder
+from util.generic.ptr cimport MakeAtomicShared, TAtomicSharedPtr, std::unique_ptr
 from util.system.types cimport ui64
 
 import pytest
@@ -9,7 +9,7 @@ import unittest
 class TestHolder(unittest.TestCase):
 
     def test_basic(self):
-        cdef THolder[std::string] holder
+        cdef std::unique_ptr[std::string] holder
         holder.Reset(new std::string("aaa"))
         assert holder.Get()[0] == "aaa"
         holder.Destroy()

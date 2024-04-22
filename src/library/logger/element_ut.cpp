@@ -27,12 +27,12 @@ void TLogElementTest::TestMoveCtor() {
     std::stringstream output;
     TLog log(MakeHolder<TStreamLogBackend>(&output));
 
-    THolder<TLogElement> src = MakeHolder<TLogElement>(&log);
+    std::unique_ptr<TLogElement> src = MakeHolder<TLogElement>(&log);
 
     std::string message = "Hello, World!";
     (*src) << message;
 
-    THolder<TLogElement> dst = MakeHolder<TLogElement>(std::move(*src));
+    std::unique_ptr<TLogElement> dst = MakeHolder<TLogElement>(std::move(*src));
 
     src.Destroy();
     UNIT_ASSERT(output.str() == "");
@@ -45,7 +45,7 @@ void TLogElementTest::TestWith() {
     std::stringstream output;
     TLog log(MakeHolder<TStreamWithContextLogBackend>(&output));
 
-    THolder<TLogElement> src = MakeHolder<TLogElement>(&log);
+    std::unique_ptr<TLogElement> src = MakeHolder<TLogElement>(&log);
 
     std::string message = "Hello, World!";
     (*src).With("Foo", "Bar").With("Foo", "Baz") << message;

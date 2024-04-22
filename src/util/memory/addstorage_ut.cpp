@@ -12,7 +12,7 @@ class TAddStorageTest: public TTestBase {
 
 private:
     inline void TestIt() {
-        THolder<TClass> c(new (100) TClass);
+        std::unique_ptr<TClass> c(new (100) TClass);
 
         UNIT_ASSERT_EQUAL(c->AdditionalDataLength(), 100);
 

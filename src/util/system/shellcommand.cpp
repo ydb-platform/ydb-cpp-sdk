@@ -876,7 +876,7 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
         pumps[0] = {&pi->ErrorFd, error};
         pumps[1] = {&pi->OutputFd, output};
 
-        std::vector<THolder<TThread>> streamThreads;
+        std::vector<std::unique_ptr<TThread>> streamThreads;
         streamThreads.emplace_back(new TThread(&TImpl::ReadStream, &pumps[0]));
         streamThreads.emplace_back(new TThread(&TImpl::ReadStream, &pumps[1]));
 

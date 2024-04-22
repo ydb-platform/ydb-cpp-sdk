@@ -205,7 +205,7 @@ namespace {
         }
 
     private:
-        using TPTSRef = THolder<TPerThreadStorage>;
+        using TPTSRef = std::unique_ptr<TPerThreadStorage>;
         std::mutex Lock_;
         THashMap<TThread::TId, TPTSRef> Datas_;
     };

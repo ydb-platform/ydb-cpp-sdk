@@ -33,7 +33,7 @@ class THttpHeaderParserTestSuite: public TTestBase {
     UNIT_TEST_SUITE_END();
 
 private:
-    THolder<THttpHeaderParser> httpHeaderParser;
+    std::unique_ptr<THttpHeaderParser> httpHeaderParser;
 
 private:
     void TestStart();

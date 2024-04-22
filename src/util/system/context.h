@@ -110,7 +110,7 @@ public:
     void SwitchTo(TContMachineContext* next) noexcept;
 
 private:
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 #endif
 

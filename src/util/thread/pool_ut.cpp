@@ -24,7 +24,7 @@ struct TThreadPoolTest {
         }
 
         void Process(void*) override {
-            THolder<TTask> This(this);
+            std::unique_ptr<TTask> This(this);
 
             std::lock_guard guard(Test->Lock);
             Test->R ^= Value;
