@@ -3,7 +3,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/digest/numeric.h>
+#include <ydb-cpp-sdk/util/digest/numeric.h>
 
 #include <random>
 

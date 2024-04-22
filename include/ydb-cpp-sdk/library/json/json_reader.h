@@ -5,7 +5,7 @@
 #include <ydb-cpp-sdk/library/json/common/defs.h>
 #include <ydb-cpp-sdk/library/json/fast_sax/parser.h>
 
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 
 namespace NJson {
     struct TJsonReaderConfig {

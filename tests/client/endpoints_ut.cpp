@@ -5,7 +5,7 @@
 #include <ydb-cpp-sdk/library/threading/future/core/future.h>
 
 #include <src/util/system/thread.h>
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 
 #include <unordered_set>
 

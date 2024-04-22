@@ -2,7 +2,7 @@
 
 // Functions for manipulating signal sets
 
-#include "compat.h"
+#include <ydb-cpp-sdk/util/system/compat.h>
 
 #if defined _unix_
     #include <pthread.h>

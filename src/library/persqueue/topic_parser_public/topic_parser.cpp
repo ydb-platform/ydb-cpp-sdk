@@ -1,6 +1,6 @@
 #include "topic_parser.h"
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <src/util/folder/path.h>
 

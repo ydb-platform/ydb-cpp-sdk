@@ -1,7 +1,7 @@
-#include "ptr.h"
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/memory/alloc.h>
+#include <ydb-cpp-sdk/util/memory/alloc.h>
 
 #include <new>
 #include <cstdlib>

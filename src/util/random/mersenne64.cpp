@@ -1,7 +1,7 @@
 #include "mersenne64.h"
 
 #include <ydb-cpp-sdk/util/generic/array_size.h>
-#include <src/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
 
 #define MM 156
 #define MATRIX_A ULL(0xB5026F5AA96619E9)

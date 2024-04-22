@@ -1,6 +1,6 @@
-#include "mem.h"
+#include <ydb-cpp-sdk/util/stream/mem.h>
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 TMemoryInput::TMemoryInput() noexcept
     : Buf_(nullptr)

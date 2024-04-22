@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fwd.h"
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 #include "hash_table.h"
 
 template <class Key, class T, class HashFcn, class EqualKey, class Alloc>

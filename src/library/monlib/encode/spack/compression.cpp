@@ -1,12 +1,12 @@
 #include "compression.h"
 
 #include <src/util/generic/buffer.h>
-#include <src/util/generic/cast.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/cast.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/scope.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <src/util/stream/format.h>
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/stream/walk.h>
 
 #include <lz4.h>

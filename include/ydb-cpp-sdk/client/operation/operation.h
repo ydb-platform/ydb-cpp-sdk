@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 namespace NYdb {
 namespace NOperation {

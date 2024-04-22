@@ -1,8 +1,8 @@
 #include "demangle_impl.h"
 #include <ydb-cpp-sdk/util/system/platform.h>
-#include "backtrace.h"
+#include <ydb-cpp-sdk/util/system/backtrace.h>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/stream/format.h>
 
 #ifdef _win_
@@ -146,7 +146,7 @@ TResolvedSymbol ResolveSymbol(void* sym, char* buf, size_t len) {
     return ret;
 }
 #elif defined(_win_)
-    #include <src/util/generic/singleton.h>
+    #include <ydb-cpp-sdk/util/generic/singleton.h>
 
 namespace {
     struct TWinSymbolResolverImpl {

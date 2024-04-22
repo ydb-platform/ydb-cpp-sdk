@@ -2,7 +2,7 @@
 #include "library-htfetch_ut_hreflang_in.h"
 #include "library-htfetch_ut_hreflang_out.h"
 
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/library/charset/doccodes.h>
 #include <src/library/testing/unittest/registar.h>
 

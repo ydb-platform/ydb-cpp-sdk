@@ -2,7 +2,7 @@
 
 #include "codepage.h"
 
-#include <src/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
 
 // WARNING: Do not use this functions - use functions from wide.h or recyr.hh instead.
 

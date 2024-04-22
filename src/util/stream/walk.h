@@ -1,6 +1,6 @@
 #pragma once
 
-#include "zerocopy.h"
+#include <ydb-cpp-sdk/util/stream/zerocopy.h>
 
 /**
  * Zero-copy stream that simplifies implementation of derived classes.

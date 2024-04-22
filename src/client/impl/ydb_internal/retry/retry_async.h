@@ -2,7 +2,7 @@
 
 #include <src/client/impl/ydb_internal/retry/retry.h>
 
-#include <src/util/generic/function.h>
+#include <ydb-cpp-sdk/util/generic/function.h>
 
 namespace NYdb::NRetry::Async {
 

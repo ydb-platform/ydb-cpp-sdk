@@ -2,8 +2,8 @@
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/system/hp_timer.h>
-#include <src/util/stream/output.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #include <iostream>
 

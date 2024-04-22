@@ -7,7 +7,7 @@
 
 #include <src/library/yt/assert/assert.h>
 
-#include <src/util/ysaveload.h>
+#include <ydb-cpp-sdk/util/ysaveload.h>
 
 #include <optional>
 

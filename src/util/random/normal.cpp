@@ -1,6 +1,6 @@
 #include "normal.h"
 #include "common_ops.h"
-#include "random.h"
+#include <ydb-cpp-sdk/util/random/random.h>
 
 namespace {
     template <class T>

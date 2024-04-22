@@ -1,15 +1,15 @@
 #pragma once
 
-#include "file.h"
+#include <ydb-cpp-sdk/util/system/file.h>
 #include "align.h"
-#include "yassert.h"
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
-#include <src/util/generic/noncopyable.h>
-#include <src/util/generic/ptr.h>
-#include <src/util/generic/utility.h>
-#include <src/util/generic/yexception.h>
-#include <src/util/generic/flags.h>
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/flags.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 
 #include <new>
 #include <cstdio>

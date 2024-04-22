@@ -9,8 +9,8 @@
 #include <ydb-cpp-sdk/library/jwt/jwt.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
-#include <src/util/system/spinlock.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <fstream>
 

@@ -6,7 +6,7 @@
 #include <ydb-cpp-sdk/library/monlib/metrics/labels.h>
 #include <src/library/monlib/metrics/metric_value.h>
 
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <unordered_set>
 
 

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "pool.h"
-#include "alloc.h"
+#include <ydb-cpp-sdk/util/memory/alloc.h>
 
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 #include <src/util/generic/intrlist.h>
 
 class TFixedSizeAllocator {

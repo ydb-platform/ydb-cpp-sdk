@@ -2,7 +2,7 @@
 
 #include <src/library/testing/gtest/gtest.h>
 
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 
 #include <map>
 #include <unordered_map>

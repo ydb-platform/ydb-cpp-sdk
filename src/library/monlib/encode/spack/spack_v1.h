@@ -4,7 +4,7 @@
 #include <ydb-cpp-sdk/library/monlib/encode/format.h>
 #include <ydb-cpp-sdk/library/monlib/metrics/metric.h>
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 //
 // format specification available here:

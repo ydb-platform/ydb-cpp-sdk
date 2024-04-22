@@ -1,6 +1,6 @@
 #pragma once
 
-#include "init.h"
+#include <ydb-cpp-sdk/util/network/init.h>
 
 int SocketPair(SOCKET socks[2], bool overlapped, bool cloexec = false);
 

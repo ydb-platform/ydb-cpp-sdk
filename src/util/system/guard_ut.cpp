@@ -1,9 +1,9 @@
-#include "guard.h"
+#include <ydb-cpp-sdk/util/system/guard.h>
 #include "rwlock.h"
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/thread/pool.h>
+#include <ydb-cpp-sdk/util/thread/pool.h>
 
 struct TTestGuard: public TTestBase {
     UNIT_TEST_SUITE(TTestGuard);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/generic/store_policy.h>
+#include <ydb-cpp-sdk/util/generic/store_policy.h>
 
 #include <algorithm>
 #include <tuple>

@@ -38,11 +38,11 @@ union semun arg;
 #endif
 
 #include <src/util/digest/city.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/random/fast.h>
 
 #if !defined(_unix_) || defined(_darwin_)
-    #include <src/util/random/random.h>
+    #include <ydb-cpp-sdk/util/random/random.h>
 #endif
 
 namespace {

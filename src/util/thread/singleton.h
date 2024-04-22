@@ -1,8 +1,8 @@
 #pragma once
 
 #include <src/util/system/tls.h>
-#include <src/util/generic/singleton.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 namespace NPrivate {
     template <class T, size_t Priority>

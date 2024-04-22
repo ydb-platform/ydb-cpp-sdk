@@ -1,10 +1,10 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include "typelist.h"
+#include <ydb-cpp-sdk/util/generic/typelist.h>
 
 #include <ydb-cpp-sdk/util/system/compiler.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #ifdef _MSC_VER
     #include <intrin.h>

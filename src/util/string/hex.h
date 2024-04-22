@@ -1,7 +1,7 @@
 #pragma once
 
-#include <src/util/generic/yexception.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 inline static char DigitToChar(unsigned char digit) {
     if (digit < 10) {

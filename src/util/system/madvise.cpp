@@ -2,12 +2,12 @@
 #include "align.h"
 #include "info.h"
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <string>
 
 #if defined(_win_)
-    #include <src/util/system/winint.h>
+    #include <ydb-cpp-sdk/util/system/winint.h>
 #else
     #include <sys/mman.h>
 #endif

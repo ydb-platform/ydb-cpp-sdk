@@ -1,8 +1,8 @@
 #include "format.h"
-#include "output.h"
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 #include <src/util/generic/ymath.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/system/datetime.h>
 
 namespace NFormatPrivate {

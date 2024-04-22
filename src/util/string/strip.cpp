@@ -1,5 +1,4 @@
-#include "strip.h"
-#include "ascii.h"
+#include <ydb-cpp-sdk/util/string/strip.h>
 
 #include <src/util/string/reverse.h>
 

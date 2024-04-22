@@ -1,4 +1,4 @@
-#include "factory.h"
+#include <ydb-cpp-sdk/util/thread/factory.h>
 #include "pool.h"
 
 #include <src/library/testing/unittest/registar.h>

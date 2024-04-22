@@ -8,9 +8,9 @@
 #include <src/library/logger/all.h>
 
 #include <src/util/generic/buffer.h>
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 #include <src/util/stream/buffer.h>
-#include <src/util/stream/zerocopy.h>
+#include <ydb-cpp-sdk/util/stream/zerocopy.h>
 #include <src/util/string/vector.h>
 
 namespace NMonitoring {

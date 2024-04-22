@@ -2,7 +2,7 @@
 
 #include "intrusive_ptr.h"
 
-#include <src/util/ysaveload.h>
+#include <ydb-cpp-sdk/util/ysaveload.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -1,4 +1,4 @@
-#include "str.h"
+#include <ydb-cpp-sdk/util/stream/str.h>
 
 #include <src/util/generic/bitops.h>
 

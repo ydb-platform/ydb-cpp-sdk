@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/library/http/server/response.h>
 
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 
 THttpResponse& THttpResponse::AddMultipleHeaders(const THttpHeaders& headers) {
     for (THttpHeaders::TConstIterator i = headers.Begin(); i != headers.End(); ++i) {

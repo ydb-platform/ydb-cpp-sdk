@@ -3,7 +3,7 @@
 #include "yql_issue_id.h"
 
 #include <ydb-cpp-sdk/util/system/types.h>
-#include <src/util/generic/hash.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
 #include <google/protobuf/message.h>
 
 #include <vector>
@@ -155,9 +155,9 @@ public:
         return CombineHashes(
             CombineHashes(
                 (size_t)CombineHashes(IntHash(Position.Row), IntHash(Position.Column)),
-                ComputeHash(Position.File)
+                THash<std::string>{}(Position.File)
             ),
-            (size_t)CombineHashes((size_t)IntHash(static_cast<int>(IssueCode)), ComputeHash(Message)));
+            (size_t)CombineHashes((size_t)IntHash(static_cast<int>(IssueCode)), THash<std::string>{}(Message)));
     }
 
     TIssue& SetCode(TIssueCode id, ESeverity severity) {

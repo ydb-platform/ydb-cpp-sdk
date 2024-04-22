@@ -1,4 +1,4 @@
-#include "progname.h"
+#include <ydb-cpp-sdk/util/system/progname.h>
 
 #include <src/library/testing/unittest/registar.h>
 

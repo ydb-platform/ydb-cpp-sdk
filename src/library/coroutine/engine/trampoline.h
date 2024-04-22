@@ -3,8 +3,8 @@
 #include "stack/stack_common.h"
 #include "stack/stack.h"
 
-#include <src/util/generic/noncopyable.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/system/context.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 

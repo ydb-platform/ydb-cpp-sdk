@@ -6,8 +6,8 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <utility>
-#include <src/util/str_stl.h>
-#include <src/util/digest/multi.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
+#include <ydb-cpp-sdk/util/digest/multi.h>
 
 static const char star = 42;
 

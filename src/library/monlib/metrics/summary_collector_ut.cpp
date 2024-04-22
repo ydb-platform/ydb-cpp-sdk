@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 
 #include <numeric>
 #include <algorithm>

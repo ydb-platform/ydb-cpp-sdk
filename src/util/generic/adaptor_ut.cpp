@@ -1,5 +1,5 @@
 #include "adaptor.h"
-#include "yexception.h"
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <src/library/testing/unittest/registar.h>
 

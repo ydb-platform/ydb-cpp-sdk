@@ -3,7 +3,7 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/util/stream/buffer.h>
 #include <src/util/generic/buffer.h>
-#include <src/util/ysaveload.h>
+#include <ydb-cpp-sdk/util/ysaveload.h>
 
 Y_UNIT_TEST_SUITE(JsonSaveLoad) {
     Y_UNIT_TEST(Serialize) {

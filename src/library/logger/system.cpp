@@ -1,9 +1,9 @@
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/stream/null.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/generic/singleton.h>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 #if defined(_unix_)
 #include <syslog.h>

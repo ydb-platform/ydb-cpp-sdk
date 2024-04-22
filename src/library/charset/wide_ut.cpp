@@ -5,7 +5,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/charset/utf8.h>
-#include <src/util/digest/numeric.h>
+#include <ydb-cpp-sdk/util/digest/numeric.h>
 
 #include <algorithm>
 #include <unordered_set>

@@ -4,7 +4,7 @@
 #include <ydb-cpp-sdk/library/logger/record.h>
 #include <ydb-cpp-sdk/library/logger/backend.h>
 
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 class TFilteredLogBackend: public TLogBackend {
     THolder<TLogBackend> Backend;

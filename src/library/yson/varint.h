@@ -1,7 +1,7 @@
 #pragma once
 
-#include <src/util/stream/input.h>
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
 namespace NYson {

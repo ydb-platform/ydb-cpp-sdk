@@ -1,14 +1,14 @@
-#include "yassert.h"
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
-#include "backtrace.h"
-#include "guard.h"
-#include "spinlock.h"
-#include "src_root.h"
+#include <ydb-cpp-sdk/util/system/backtrace.h>
+#include <ydb-cpp-sdk/util/system/guard.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
+#include <ydb-cpp-sdk/util/system/src_root.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
-#include <src/util/generic/singleton.h>
-#include <src/util/stream/output.h>
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 
 #include <cstdlib>
 #include <iostream>

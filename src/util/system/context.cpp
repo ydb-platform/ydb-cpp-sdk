@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include "event.h"
+#include <ydb-cpp-sdk/util/system/event.h>
 #include "thread.h"
 
 #include <cstdlib> //for abort()
@@ -25,8 +25,8 @@ namespace __cxxabiv1 {
     #endif
 #endif
 
-#include <src/util/stream/output.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #define FROM_CONTEXT_IMPL
 #include "context.h"

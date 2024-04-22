@@ -1,12 +1,12 @@
-#include "random.h"
+#include <ydb-cpp-sdk/util/random/random.h>
 #include "entropy.h"
 #include "mersenne.h"
 
 #include <src/util/system/getpid.h>
 #include <src/util/thread/singleton.h>
 #include <src/util/stream/multi.h>
-#include <src/util/stream/mem.h>
-#include <src/util/digest/numeric.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/digest/numeric.h>
 
 namespace {
     struct TProcStream {

@@ -1,7 +1,7 @@
-#include "factory.h"
+#include <ydb-cpp-sdk/util/thread/factory.h>
 
 #include <src/util/system/thread.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 using IThread = IThreadFactory::IThread;
 

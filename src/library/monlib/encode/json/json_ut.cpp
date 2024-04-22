@@ -7,8 +7,8 @@
 #include <ydb-cpp-sdk/library/resource/resource.h>
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/stream/str.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <iostream>
 #include <limits>

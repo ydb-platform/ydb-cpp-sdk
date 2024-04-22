@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 
-#include <src/util/system/compat.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
 
 class httpDigestHandler {

@@ -12,7 +12,7 @@ struct tm* GmTimeR(const time_t* timer, struct tm* tmbuf);
 std::string CTimeR(const time_t* timer);
 
 #ifdef _win_
-    #include <src/util/system/winint.h>
+    #include <ydb-cpp-sdk/util/system/winint.h>
     #include <winsock2.h>
 
 void FileTimeToTimeval(const FILETIME* ft, struct timeval* tv);

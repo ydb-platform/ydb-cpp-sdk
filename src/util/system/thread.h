@@ -4,12 +4,12 @@
 /// If you need threads, use thread pool functionality in <src/util/thread/factory.h>
 /// @see SystemThreadFactory()
 
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 #include <string>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include "progname.h"
+#include <ydb-cpp-sdk/util/system/progname.h>
 
 bool SetHighestThreadPriority();
 bool SetLowestThreadPriority();

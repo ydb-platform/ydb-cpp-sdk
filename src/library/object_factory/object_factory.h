@@ -1,10 +1,10 @@
 #pragma once
 
-#include <src/util/system/guard.h>
-#include <src/util/system/rwlock.h>
+#include <ydb-cpp-sdk/util/system/guard.h>
+#include <ydb-cpp-sdk/util/system/rwlock.h>
 #include <src/util/generic/set.h>
-#include <src/util/generic/singleton.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <algorithm>
 #include <map>

@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/charset/wide.h>
 #include <src/util/datetime/cputimer.h>
 

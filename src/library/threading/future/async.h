@@ -2,8 +2,8 @@
 
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 
-#include <src/util/generic/function.h>
-#include <src/util/thread/pool.h>
+#include <ydb-cpp-sdk/util/generic/function.h>
+#include <ydb-cpp-sdk/util/thread/pool.h>
 
 namespace NThreading {
     /**

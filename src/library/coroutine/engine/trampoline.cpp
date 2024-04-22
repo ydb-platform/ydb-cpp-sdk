@@ -6,7 +6,7 @@
 #include <src/util/system/info.h>
 #include <src/util/system/protect.h>
 #include <src/util/system/valgrind.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <cstdlib>
 #include <src/util/stream/format.h>

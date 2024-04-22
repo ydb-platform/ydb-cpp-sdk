@@ -8,7 +8,7 @@
 #include <src/client/persqueue_core/impl/callback_context.h>
 #include <src/client/persqueue_core/impl/log_lazy.h>
 
-#include <src/util/system/spinlock.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
 
 namespace NYdb::NPersQueue {
 

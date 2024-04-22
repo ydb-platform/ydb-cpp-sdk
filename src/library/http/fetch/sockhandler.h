@@ -4,13 +4,13 @@
 
 #include <src/util/generic/buffer.h>
 
-#include <src/util/network/address.h>
-#include <src/util/network/ip.h>
-#include <src/util/network/socket.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/network/address.h>
+#include <ydb-cpp-sdk/util/network/ip.h>
+#include <ydb-cpp-sdk/util/network/socket.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <cerrno>
-#include <src/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
 
 class TAddrList: public std::vector<NAddr::IRemoteAddrRef> {
 private:

@@ -16,12 +16,12 @@
 
 #include <src/util/generic/hash.h>
 #include <src/util/generic/scope.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
-#include <src/util/network/init.h>
+#include <ydb-cpp-sdk/util/network/init.h>
 
 #include <src/util/stream/file.h>
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 #include <src/util/string/join.h>
 #include <src/util/string/util.h>

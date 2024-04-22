@@ -3,7 +3,7 @@
 #include <src/client/persqueue_core/persqueue.h>
 #include <src/client/common_client/impl/client.h>
 
-#include <src/util/thread/pool.h>
+#include <ydb-cpp-sdk/util/thread/pool.h>
 
 #include <queue>
 #include <condition_variable>

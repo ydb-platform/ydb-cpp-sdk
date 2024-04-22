@@ -3,6 +3,8 @@
 #include <ydb-cpp-sdk/library/monlib/metrics/metric.h>
 #include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
 
+#include <src/util/generic/hash.h>
+
 namespace NMonitoring {
     class TFakeMetricRegistry: public IMetricRegistry {
     public:

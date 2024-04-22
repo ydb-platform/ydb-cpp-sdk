@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 #include <src/library/testing/unittest/registar.h>
-#include <src/util/system/event.h>
+#include <ydb-cpp-sdk/util/system/event.h>
 #include <src/util/system/thread.h>
 
 using namespace NMonitoring;

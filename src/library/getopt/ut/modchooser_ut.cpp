@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 
 void ValidateArgcArgv(int argc, const char** argv) {
     UNIT_ASSERT_EQUAL(argc, 1);

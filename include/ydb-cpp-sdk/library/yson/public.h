@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb-cpp-sdk/library/yt/misc/enum.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <ydb-cpp-sdk/library/yt/yson_string/public.h>
 #include <ydb-cpp-sdk/library/yt/yson/public.h>

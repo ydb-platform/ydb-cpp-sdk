@@ -1,6 +1,6 @@
-#include "builder.h"
+#include <ydb-cpp-sdk/util/string/builder.h>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 template <>
 void Out<TStringBuilder>(IOutputStream& os, const TStringBuilder& sb) {

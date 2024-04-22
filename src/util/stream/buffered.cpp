@@ -1,8 +1,8 @@
-#include "mem.h"
+#include <ydb-cpp-sdk/util/stream/mem.h>
 #include "buffered.h"
 
 #include <src/util/memory/addstorage.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/util/generic/buffer.h>
 
 #include <string>

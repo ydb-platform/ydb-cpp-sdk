@@ -6,7 +6,7 @@
 #include "colorscheme.h"
 
 #include <src/util/stream/format.h>
-#include <src/util/system/type_name.h>
+#include <ydb-cpp-sdk/util/system/type_name.h>
 #include <utility>
 #include <unordered_set>
 

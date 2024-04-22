@@ -1,11 +1,11 @@
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
-#include <src/util/string/cast.h>
-#include <src/util/stream/output.h>
-#include <src/util/stream/mem.h>
-#include <src/util/system/compat.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
 #include <src/util/system/datetime.h>
-#include <src/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
 
 std::string Strftime(const char* format, const struct tm* tm) {
     size_t size = Max<size_t>(strlen(format) * 2 + 1, 107);

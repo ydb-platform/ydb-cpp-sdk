@@ -1,7 +1,7 @@
 #include <src/library/testing/unittest/registar.h>
 
-#include "atexit.h"
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/system/atexit.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #include <errno.h>
 

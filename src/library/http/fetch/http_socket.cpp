@@ -7,8 +7,8 @@
 
 #include <gcrypt.h>
 #include <gnutls/gnutls.h>
-#include <src/util/network/init.h>
-#include <src/util/network/socket.h>
+#include <ydb-cpp-sdk/util/network/init.h>
+#include <ydb-cpp-sdk/util/network/socket.h>
 
 #include <mutex>
 

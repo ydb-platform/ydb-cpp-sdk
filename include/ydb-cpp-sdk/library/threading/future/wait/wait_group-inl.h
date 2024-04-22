@@ -6,11 +6,11 @@
 
 #include "wait_policy.h"
 
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 #include <ydb-cpp-sdk/library/threading/future/core/future.h>
 
-#include <src/util/system/spinlock.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
 
 #include <atomic>
 #include <exception>

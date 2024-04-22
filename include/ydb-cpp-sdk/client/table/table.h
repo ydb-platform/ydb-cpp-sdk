@@ -228,8 +228,8 @@ public:
     TChangefeedDescription& WithInitialScan();
     // Attributes
     TChangefeedDescription& AddAttribute(const std::string& key, const std::string& value);
-    TChangefeedDescription& SetAttributes(const THashMap<std::string, std::string>& attrs);
-    TChangefeedDescription& SetAttributes(THashMap<std::string, std::string>&& attrs);
+    TChangefeedDescription& SetAttributes(const std::unordered_map<std::string, std::string>& attrs);
+    TChangefeedDescription& SetAttributes(std::unordered_map<std::string, std::string>&& attrs);
     // Value that will be emitted in the `awsRegion` field of the record in DynamoDBStreamsJson format
     TChangefeedDescription& WithAwsRegion(const std::string& value);
 
@@ -240,7 +240,7 @@ public:
     bool GetVirtualTimestamps() const;
     const std::optional<TDuration>& GetResolvedTimestamps() const;
     bool GetInitialScan() const;
-    const THashMap<std::string, std::string>& GetAttributes() const;
+    const std::unordered_map<std::string, std::string>& GetAttributes() const;
     const std::string& GetAwsRegion() const;
 
     void SerializeTo(Ydb::Table::Changefeed& proto) const;
@@ -263,7 +263,7 @@ private:
     std::optional<TDuration> ResolvedTimestamps_;
     std::optional<TDuration> RetentionPeriod_;
     bool InitialScan_ = false;
-    THashMap<std::string, std::string> Attributes_;
+    std::unordered_map<std::string, std::string> Attributes_;
     std::string AwsRegion_;
 };
 
@@ -520,7 +520,7 @@ public:
     const std::vector<TColumnFamilyDescription>& GetColumnFamilies() const;
 
     // Attributes
-    const THashMap<std::string, std::string>& GetAttributes() const;
+    const std::unordered_map<std::string, std::string>& GetAttributes() const;
 
     // Returns partitioning settings of the table
     const TPartitioningSettings& GetPartitioningSettings() const;
@@ -564,8 +564,8 @@ private:
     void SetStorageSettings(const TStorageSettings& settings);
     void AddColumnFamily(const TColumnFamilyDescription& desc);
     void AddAttribute(const std::string& key, const std::string& value);
-    void SetAttributes(const THashMap<std::string, std::string>& attrs);
-    void SetAttributes(THashMap<std::string, std::string>&& attrs);
+    void SetAttributes(const std::unordered_map<std::string, std::string>& attrs);
+    void SetAttributes(std::unordered_map<std::string, std::string>&& attrs);
     void SetCompactionPolicy(const std::string& name);
     void SetUniformPartitions(ui64 partitionsCount);
     void SetPartitionAtKeys(const TExplicitPartitions& keys);
@@ -787,8 +787,8 @@ public:
     TTableBuilder& AddColumnFamily(const TColumnFamilyDescription& desc);
 
     TTableBuilder& AddAttribute(const std::string& key, const std::string& value);
-    TTableBuilder& SetAttributes(const THashMap<std::string, std::string>& attrs);
-    TTableBuilder& SetAttributes(THashMap<std::string, std::string>&& attrs);
+    TTableBuilder& SetAttributes(const std::unordered_map<std::string, std::string>& attrs);
+    TTableBuilder& SetAttributes(std::unordered_map<std::string, std::string>&& attrs);
 
     TTableBuilder& SetCompactionPolicy(const std::string& name);
 
@@ -1379,7 +1379,7 @@ public:
 
 private:
     TAlterTableSettings& Parent_;
-    THashMap<std::string, std::string> AlterAttributes_;
+    std::unordered_map<std::string, std::string> AlterAttributes_;
 };
 
 class TAlterPartitioningSettingsBuilder {
@@ -1422,7 +1422,7 @@ private:
 
 struct TAlterTableSettings : public TOperationRequestSettings<TAlterTableSettings> {
     using TSelf = TAlterTableSettings;
-    using TAlterAttributes = THashMap<std::string, std::string>;
+    using TAlterAttributes = std::unordered_map<std::string, std::string>;
 
     TAlterTableSettings();
 

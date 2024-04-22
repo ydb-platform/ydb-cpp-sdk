@@ -2,7 +2,7 @@
 
 #include <src/util/generic/hash.h>
 #include <src/util/generic/intrlist.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #include <atomic>
 

@@ -3,11 +3,11 @@
 
 #include <src/util/digest/murmur.h>
 #include <src/util/generic/scope.h>
-#include <src/util/generic/cast.h>
+#include <ydb-cpp-sdk/util/generic/cast.h>
 #include <src/util/generic/hash.h>
-#include <src/util/generic/singleton.h>
-#include <src/util/stream/mem.h>
-#include <src/util/ysaveload.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/ysaveload.h>
 
 using namespace NBlockCodecs;
 

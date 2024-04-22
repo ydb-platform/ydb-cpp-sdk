@@ -1,4 +1,4 @@
-#include "tempbuf.h"
+#include <ydb-cpp-sdk/util/stream/tempbuf.h>
 
 namespace {
     static inline size_t Next(size_t size) noexcept {

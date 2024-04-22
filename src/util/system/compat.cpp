@@ -1,5 +1,5 @@
-#include "compat.h"
-#include "progname.h"
+#include <ydb-cpp-sdk/util/system/compat.h>
+#include <ydb-cpp-sdk/util/system/progname.h>
 
 
 #ifdef _win_

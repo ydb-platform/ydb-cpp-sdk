@@ -5,7 +5,7 @@
 #include "stream.h"
 #include <ydb-cpp-sdk/library/logger/thread.h>
 
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <src/util/generic/scope.h>
 
 #include <iostream>

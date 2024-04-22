@@ -27,6 +27,12 @@ inline auto MapFindPtr(const Map& map Y_LIFETIME_BOUND, const K& key) {
     return (i == map.end() ? nullptr : &i->second);
 }
 
+template <class Map, class K, class DefaultValue>
+inline auto MapValue(const Map& map Y_LIFETIME_BOUND, const K& key, DefaultValue&& defaultValue) {
+    auto found = MapFindPtr(map, key);
+    return found ? *found : std::forward<DefaultValue>(defaultValue);
+}
+
 /** helper for THashMap/TMap */
 template <class Derived>
 struct TMapOps {
@@ -42,8 +48,7 @@ struct TMapOps {
 
     template <class K, class DefaultValue>
     inline auto Value(const K& key, DefaultValue&& defaultValue) const {
-        auto found = FindPtr(key);
-        return found ? *found : std::forward<DefaultValue>(defaultValue);
+        return MapValue(key, defaultValue);
     }
 
     template <class K, class V>

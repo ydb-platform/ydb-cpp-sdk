@@ -3,11 +3,11 @@
 #include <list>
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/system/guard.h>
-#include <src/util/system/spinlock.h>
+#include <ydb-cpp-sdk/util/system/guard.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
 
 #include <map>
 #include <mutex>

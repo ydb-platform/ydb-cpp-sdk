@@ -1,6 +1,6 @@
 #include "null.h"
 
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 TNullIO& NPrivate::UtilNullStream() noexcept {
     return *SingletonWithPriority<TNullIO, 4>();

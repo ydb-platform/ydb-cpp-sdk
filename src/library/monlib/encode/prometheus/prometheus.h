@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/library/monlib/encode/encoder.h>
 #include <ydb-cpp-sdk/library/monlib/encode/format.h>
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 
 namespace NMonitoring {

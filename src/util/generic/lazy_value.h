@@ -1,6 +1,6 @@
 #pragma once
 
-#include "function.h"
+#include <ydb-cpp-sdk/util/generic/function.h>
 
 template <class T>
 class TLazyValueBase {

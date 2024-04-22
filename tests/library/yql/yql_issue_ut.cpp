@@ -10,7 +10,7 @@
 
 #include <src/util/charset/utf8.h>
 #include <src/util/charset/wide.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
