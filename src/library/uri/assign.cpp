@@ -42,7 +42,7 @@ namespace NUri {
     std::string_view TUri::HostToAscii(std::string_view host, TMallocPtr<char>& buf, bool hasExtended, bool allowIDN, ECharset enc) {
     std::string_view outHost; // store the result here before returning it, to get RVO
 
-    size_t buflen = 0;
+        size_t buflen = 0;
 
     if (hasExtended && !allowIDN) {
         return outHost; // definitely can't convert
@@ -86,7 +86,7 @@ namespace NUri {
 
     try {
         TMallocPtr<char> puny = IDNToAscii(host);
-        buf = std::move(puny); // Передаем владение памятью из puny в buf
+        buf = std::move(puny);
         outHost = buf.get();
     } catch (const yexception& /* exc */) {
         // ¯\_(ツ)_/¯

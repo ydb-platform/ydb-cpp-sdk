@@ -277,7 +277,6 @@ struct TClosedir {
     }
 };
 
-
 void TFsPath::ListNames(std::vector<std::string>& children) const {
     CheckDefined();
     std::unique_ptr<DIR, TClosedir> dir(opendir(this->c_str()));
