@@ -6,7 +6,7 @@
 #include <src/util/generic/scope.h>
 #include <src/util/thread/singleton.h>
 #include <src/util/stream/format.h>
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 
 TCont::TJoinWait::TJoinWait(TCont& c) noexcept

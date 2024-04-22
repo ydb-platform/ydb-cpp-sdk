@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 
 #include <stdexcept>

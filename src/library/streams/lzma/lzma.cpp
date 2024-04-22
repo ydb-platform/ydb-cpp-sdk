@@ -1,8 +1,8 @@
 #include "lzma.h"
 
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 #include <src/util/system/context.h>
-#include <src/util/generic/cast.h>
+#include <ydb-cpp-sdk/util/generic/cast.h>
 #include <src/util/memory/addstorage.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/intrlist.h>

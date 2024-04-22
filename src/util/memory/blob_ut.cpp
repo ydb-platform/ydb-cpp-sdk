@@ -4,7 +4,7 @@
 
 #include <src/util/system/tempfile.h>
 #include <src/util/folder/path.h>
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/stream/file.h>
 #include <src/util/generic/buffer.h>
 

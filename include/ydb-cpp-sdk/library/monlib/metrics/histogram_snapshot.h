@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 
 #include <span>

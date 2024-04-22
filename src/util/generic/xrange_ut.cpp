@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include "vector.h"
 #include <src/library/testing/unittest/registar.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 Y_UNIT_TEST_SUITE(XRange) {
     void TestXRangeImpl(size_t begin, size_t end) {

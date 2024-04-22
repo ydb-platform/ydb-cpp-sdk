@@ -3,7 +3,7 @@
 #include "conn.h"
 #include "options.h"
 
-#include <src/util/thread/pool.h>
+#include <ydb-cpp-sdk/util/thread/pool.h>
 #include <ydb-cpp-sdk/library/http/io/stream.h>
 #include <ydb-cpp-sdk/util/memory/blob.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>

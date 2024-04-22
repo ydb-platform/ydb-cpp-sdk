@@ -1,17 +1,17 @@
 #pragma once
 
-#include <queue>
 #include <ydb-cpp-sdk/util/generic/fwd.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
-#include <src/util/stream/output.h>
-#include <src/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 
 #include <deque>
 #include <list>
 #include <map>
+#include <queue>
 #include <set>
 #include <string>
 #include <unordered_set>

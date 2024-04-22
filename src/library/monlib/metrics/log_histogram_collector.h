@@ -4,7 +4,7 @@
 
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 
 #include <mutex>

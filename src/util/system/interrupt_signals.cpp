@@ -1,6 +1,6 @@
 #include "interrupt_signals.h"
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <csignal>
 

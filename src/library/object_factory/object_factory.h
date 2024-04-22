@@ -4,7 +4,7 @@
 #include <ydb-cpp-sdk/util/system/rwlock.h>
 #include <src/util/generic/set.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <algorithm>
 #include <map>

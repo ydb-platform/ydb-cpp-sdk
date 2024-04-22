@@ -2,13 +2,13 @@
 
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
-#include <src/util/digest/multi.h>
-#include <src/util/digest/sequence.h>
+#include <ydb-cpp-sdk/util/digest/multi.h>
+#include <ydb-cpp-sdk/util/digest/sequence.h>
 
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 
-#include <src/util/stream/output.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include <src/util/string/strip.h>
 
 #include <optional>

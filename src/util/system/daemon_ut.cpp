@@ -3,7 +3,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/network/pair.h>
-#include <src/util/network/socket.h>
+#include <ydb-cpp-sdk/util/network/socket.h>
 #include <src/util/system/pipe.h>
 
 Y_UNIT_TEST_SUITE(TDaemonTest) {

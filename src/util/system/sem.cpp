@@ -38,7 +38,7 @@ union semun arg;
 #endif
 
 #include <src/util/digest/city.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/random/fast.h>
 
 #if !defined(_unix_) || defined(_darwin_)

@@ -3,9 +3,9 @@
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <algorithm>
 #include <optional>

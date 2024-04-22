@@ -1,9 +1,9 @@
 #include "null.h"
-#include "debug.h"
+#include <ydb-cpp-sdk/util/stream/debug.h>
 
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <cstdio>
 #include <cstdlib>

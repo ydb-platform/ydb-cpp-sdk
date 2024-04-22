@@ -3,7 +3,7 @@
 #include <list>
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/guard.h>

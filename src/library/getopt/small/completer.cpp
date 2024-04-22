@@ -2,7 +2,7 @@
 
 #include "completion_generator.h"
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 using NLastGetopt::NEscaping::Q;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "socket.h"
+#include <ydb-cpp-sdk/util/network/socket.h>
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>

@@ -1,4 +1,4 @@
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/stream/null.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/library/digest/argonish/argon2.h>
 #include <src/library/digest/argonish/internal/blake2b/blake2b.h>
 #include <src/library/threading/poor_man_openmp/thread_helper.h>

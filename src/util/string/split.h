@@ -1,7 +1,7 @@
 #pragma once
 
 #include "strspn.h"
-#include "cast.h"
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 

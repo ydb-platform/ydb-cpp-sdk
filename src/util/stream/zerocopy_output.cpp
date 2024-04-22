@@ -1,4 +1,4 @@
-#include "zerocopy_output.h"
+#include <ydb-cpp-sdk/util/stream/zerocopy_output.h>
 
 #include <ydb-cpp-sdk/util/generic/utility.h>
 

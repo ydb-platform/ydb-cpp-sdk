@@ -3,7 +3,7 @@
 #include <brotli/decode.h>
 #include <brotli/encode.h>
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/util/memory/addstorage.h>
 
 namespace {

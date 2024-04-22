@@ -4,8 +4,8 @@
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
-#include <src/util/network/address.h>
-#include <src/util/network/socket.h>
+#include <ydb-cpp-sdk/util/network/address.h>
+#include <ydb-cpp-sdk/util/network/socket.h>
 #include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>

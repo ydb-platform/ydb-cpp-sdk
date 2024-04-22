@@ -1,7 +1,7 @@
 #pragma once
 
-#include "zerocopy.h"
-#include "output.h"
+#include <ydb-cpp-sdk/util/stream/zerocopy.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 #include <iostream>
 

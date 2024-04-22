@@ -1,8 +1,8 @@
 #include <ydb-cpp-sdk/json_value/ydb_json_value.h>
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include <src/library/string_utils/base64/base64.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 
 namespace NYdb {

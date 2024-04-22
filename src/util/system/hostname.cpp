@@ -1,9 +1,9 @@
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
-#include <src/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
-#include <src/util/generic/yexception.h>
-#include <src/util/network/ip.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/network/ip.h>
 
 #if defined(_unix_)
     #include <unistd.h>

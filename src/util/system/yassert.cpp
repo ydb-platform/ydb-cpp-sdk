@@ -7,8 +7,8 @@
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
-#include <src/util/stream/output.h>
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 
 #include <cstdlib>
 #include <iostream>

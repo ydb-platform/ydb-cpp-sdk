@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/util/generic/flags.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <string>
 

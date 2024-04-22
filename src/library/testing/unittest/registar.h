@@ -2,7 +2,7 @@
 
 #include <src/library/dbg_output/dump.h>
 
-#include <src/util/generic/bt_exception.h>
+#include <ydb-cpp-sdk/util/generic/bt_exception.h>
 #include <src/util/generic/hash.h>
 #include <src/util/generic/intrlist.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
@@ -10,15 +10,15 @@
 #include <src/util/generic/set.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
-#include <src/util/string/builder.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/system/type_name.h>
+#include <ydb-cpp-sdk/util/system/type_name.h>
 #include <ydb-cpp-sdk/util/system/spinlock.h>
-#include <src/util/system/src_location.h>
+#include <ydb-cpp-sdk/util/system/src_location.h>
 
 #include <src/util/system/rusage.h>
 

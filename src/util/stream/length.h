@@ -1,7 +1,7 @@
 #pragma once
 
-#include "input.h"
-#include "output.h"
+#include <ydb-cpp-sdk/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 #include <ydb-cpp-sdk/util/generic/utility.h>
 

@@ -9,8 +9,8 @@
 
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/str_stl.h>
-#include <src/util/ysaveload.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
+#include <ydb-cpp-sdk/util/ysaveload.h>
 
 namespace NBitMapPrivate {
     // Returns number of bits set; result is in most significatnt byte

@@ -3,7 +3,7 @@
 #include <src/library/testing/unittest/tests_data.h>
 
 #include <src/util/generic/set.h>
-#include <src/util/network/sock.h>
+#include <ydb-cpp-sdk/util/network/sock.h>
 #include <src/util/system/fs.h>
 
 TEST(GTest, Test1) {

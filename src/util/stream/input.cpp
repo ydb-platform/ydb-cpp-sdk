@@ -1,12 +1,12 @@
-#include "input.h"
-#include "output.h"
-#include "str.h"
+#include <ydb-cpp-sdk/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 
 #include <src/util/charset/wide.h>
-#include <src/util/memory/tempbuf.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 

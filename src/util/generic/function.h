@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
-#include "typelist.h"
+#include <ydb-cpp-sdk/util/generic/typelist.h>
 
 #include <functional>
 

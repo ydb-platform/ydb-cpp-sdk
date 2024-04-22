@@ -1,10 +1,10 @@
 #pragma once
 
-#include "fwd.h"
-#include "input.h"
-#include "output.h"
+#include <ydb-cpp-sdk/util/stream/fwd.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include "buffered.h"
-#include "mem.h"
+#include <ydb-cpp-sdk/util/stream/mem.h>
 
 #include <src/util/system/file.h>
 

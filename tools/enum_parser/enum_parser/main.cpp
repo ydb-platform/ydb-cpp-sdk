@@ -5,21 +5,21 @@
 #include <tools/enum_parser/parse_enum/parse_enum.h>
 
 #include <src/util/stream/file.h>
-#include <src/util/stream/output.h>
-#include <src/util/stream/input.h>
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 
 #include <src/util/charset/wide.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <src/util/string/strip.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/string/join.h>
 #include <ydb-cpp-sdk/util/string/subst.h>
 #include <string>
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/util/system/fs.h>
 #include <src/util/folder/path.h>
 
@@ -36,8 +36,8 @@ void WriteHeader(const std::string& headerName, std::ostream& out, std::ostream*
     out << "#include <vector>\n";
     out << "#include <map>\n";
     out << "#include <span>\n";
-    out << "#include <src/util/string/cast.h>\n";
-    out << "#include <src/util/stream/output.h>\n\n";
+    out << "#include <ydb-cpp-sdk/util/string/cast.h>\n";
+    out << "#include <ydb-cpp-sdk/util/stream/output.h>\n\n";
 
     if (headerOutPtr) {
         auto& outHeader = *headerOutPtr;

@@ -7,11 +7,11 @@
 #include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 #include <ydb-cpp-sdk/library/logger/log.h>
 #include <ydb-cpp-sdk/library/retry/retry_policy.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
-#include <src/util/thread/pool.h>
+#include <ydb-cpp-sdk/util/thread/pool.h>
 
 #include <exception>
 #include <variant>

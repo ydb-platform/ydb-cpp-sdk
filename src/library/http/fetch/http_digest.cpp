@@ -1,8 +1,8 @@
 #include "http_digest.h"
 
 #include <src/library/digest/md5/md5.h>
-#include <src/util/stream/output.h>
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 
 /************************************************************/
 /************************************************************/

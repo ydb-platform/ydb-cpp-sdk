@@ -3,7 +3,7 @@
 
 #include <src/library/testing/gtest/gtest.h>
 
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 
 using namespace NYson;
 

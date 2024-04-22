@@ -2,7 +2,7 @@
 
 #include "output.h"
 
-#include <src/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
 
 class TTempBufOutput: public IOutputStream, public TTempBuf {
 public:

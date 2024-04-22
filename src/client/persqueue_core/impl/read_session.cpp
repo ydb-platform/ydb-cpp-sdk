@@ -12,8 +12,8 @@
 #include <src/util/generic/guid.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
-#include <src/util/generic/yexception.h>
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 
 #include <variant>
 

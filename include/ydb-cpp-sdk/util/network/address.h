@@ -2,9 +2,9 @@
 
 #include "ip.h"
 #include "socket.h"
+#include "sock.h"
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <src/util/network/sock.h>
 
 namespace NAddr {
     class IRemoteAddr {

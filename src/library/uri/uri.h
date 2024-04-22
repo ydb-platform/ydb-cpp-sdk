@@ -5,10 +5,10 @@
 
 #include <src/library/charset/doccodes.h>
 
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 #include <src/util/generic/buffer.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <cstdlib>

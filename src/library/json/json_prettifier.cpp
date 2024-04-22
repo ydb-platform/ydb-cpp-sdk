@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/memory/pool.h>
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 #include <src/util/string/util.h>
 
 #include <src/library/string_utils/relaxed_escaper/relaxed_escaper.h>

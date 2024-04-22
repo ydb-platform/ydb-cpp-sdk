@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 namespace NUri {
     namespace NEncode {

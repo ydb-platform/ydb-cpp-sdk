@@ -3,9 +3,9 @@
 #include "socket.h"
 #include "hostip.h"
 
-#include <src/util/system/error.h>
-#include <src/util/system/byteorder.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/system/error.h>
+#include <ydb-cpp-sdk/util/system/byteorder.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <string>
 

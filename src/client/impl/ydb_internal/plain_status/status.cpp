@@ -1,7 +1,7 @@
 #define INCLUDE_YDB_INTERNAL_H
 #include "status.h"
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 namespace NYdb {
 

@@ -11,8 +11,8 @@
 
 #include <ydb-cpp-sdk/util/random/random.h>
 #include <src/util/stream/file.h>
-#include <src/util/stream/str.h>
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 #include <src/util/string/strip.h>
 #include <src/util/folder/tempdir.h>
 

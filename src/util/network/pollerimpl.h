@@ -1,13 +1,13 @@
 #pragma once
 
-#include "socket.h"
+#include <ydb-cpp-sdk/util/network/socket.h>
 
-#include <src/util/system/error.h>
+#include <ydb-cpp-sdk/util/system/error.h>
 #include <src/util/system/fake_mutex.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
 #include <mutex>
@@ -319,7 +319,7 @@ private:
 #endif
 
 #if defined(HAVE_SELECT_POLLER)
-    #include <src/util/memory/tempbuf.h>
+    #include <ydb-cpp-sdk/util/memory/tempbuf.h>
     #include <src/util/generic/hash.h>
 
     #include "pair.h"

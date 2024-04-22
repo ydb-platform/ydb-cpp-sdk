@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/generic/typelist.h>
+#include <ydb-cpp-sdk/util/generic/typelist.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
 /*

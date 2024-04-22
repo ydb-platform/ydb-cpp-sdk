@@ -1,9 +1,9 @@
 #include <ydb-cpp-sdk/library/json/writer/json.h>
 
 #include <ydb-cpp-sdk/library/json/json_value.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/string/strspn.h>
 #include <src/util/generic/ymath.h>
 

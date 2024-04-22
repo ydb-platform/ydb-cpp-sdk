@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/system/error.h>
+#include <ydb-cpp-sdk/util/system/error.h>
 
 #if defined(_unix_)
     #include <fcntl.h>

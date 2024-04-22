@@ -4,8 +4,8 @@
 
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <src/util/string/strip.h>
-#include <src/util/generic/yexception.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 static inline std::string_view StripLeft(const std::string_view& s) noexcept {
     const char* b = s.begin();

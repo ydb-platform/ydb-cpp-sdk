@@ -3,7 +3,7 @@
 #include "stream.h"
 
 #include <string>
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <utility>
 

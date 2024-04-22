@@ -8,7 +8,7 @@
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 
-#include <src/util/generic/cast.h>
+#include <ydb-cpp-sdk/util/generic/cast.h>
 #include <src/util/generic/ymath.h>
 
 namespace NMonitoring {

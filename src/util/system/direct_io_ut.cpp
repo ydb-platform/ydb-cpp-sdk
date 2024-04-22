@@ -1,6 +1,6 @@
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/util/system/fs.h>
 #include <src/util/system/tempfile.h>
 #include <ydb-cpp-sdk/util/random/random.h>

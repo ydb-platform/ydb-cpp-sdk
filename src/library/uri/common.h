@@ -2,7 +2,7 @@
 
 #include <contrib/libs/libc_compat/string.h>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <string_view>
 

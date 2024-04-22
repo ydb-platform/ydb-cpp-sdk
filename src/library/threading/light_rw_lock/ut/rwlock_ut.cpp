@@ -2,7 +2,7 @@
 #include <src/library/testing/unittest/registar.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/random/random.h>
-#include <src/util/thread/pool.h>
+#include <ydb-cpp-sdk/util/thread/pool.h>
 
 class TRWMutexTest: public TTestBase {
     UNIT_TEST_SUITE(TRWMutexTest);

@@ -1,4 +1,4 @@
-#include "init.h"
+#include <ydb-cpp-sdk/util/network/init.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>

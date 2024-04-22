@@ -2,7 +2,7 @@
 
 #include "recode_result.h"
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>

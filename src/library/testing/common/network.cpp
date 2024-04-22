@@ -8,12 +8,12 @@
 #include <ydb-cpp-sdk/util/generic/utility.h>
 
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include <src/util/network/address.h>
-#include <src/util/network/sock.h>
+#include <ydb-cpp-sdk/util/network/address.h>
+#include <ydb-cpp-sdk/util/network/sock.h>
 #include <ydb-cpp-sdk/util/random/random.h>
 #include <src/util/stream/file.h>
 #include <src/util/string/split.h>
-#include <src/util/system/error.h>
+#include <ydb-cpp-sdk/util/system/error.h>
 #include <src/util/system/file_lock.h>
 #include <src/util/system/fs.h>
 

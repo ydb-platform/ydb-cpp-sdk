@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 
-#include <src/util/digest/numeric.h>
+#include <ydb-cpp-sdk/util/digest/numeric.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 
 #include <atomic>

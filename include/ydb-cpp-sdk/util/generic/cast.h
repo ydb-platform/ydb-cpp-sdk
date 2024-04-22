@@ -1,11 +1,11 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
-#include "yexception.h"
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <ydb-cpp-sdk/util/system/compat.h>
-#include <src/util/system/type_name.h>
-#include <src/util/system/unaligned_mem.h>
+#include <ydb-cpp-sdk/util/system/type_name.h>
+#include <ydb-cpp-sdk/util/system/unaligned_mem.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <cstdlib>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include "typelist.h"
+#include <ydb-cpp-sdk/util/generic/typelist.h>
 
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>

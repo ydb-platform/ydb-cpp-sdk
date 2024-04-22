@@ -3,7 +3,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/ysaveload.h>
+#include <ydb-cpp-sdk/util/ysaveload.h>
 
 using namespace NYT;
 

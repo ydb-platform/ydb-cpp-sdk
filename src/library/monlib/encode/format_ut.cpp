@@ -3,7 +3,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <string>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <array>
 

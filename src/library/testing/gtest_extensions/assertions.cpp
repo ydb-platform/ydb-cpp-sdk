@@ -1,9 +1,9 @@
 #include "assertions.h"
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <src/util/string/split.h>
-#include <src/util/system/type_name.h>
+#include <ydb-cpp-sdk/util/system/type_name.h>
 
 namespace NGTest::NInternal {
     namespace {

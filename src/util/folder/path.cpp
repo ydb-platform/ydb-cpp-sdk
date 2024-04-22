@@ -2,8 +2,8 @@
 #include "path.h"
 #include "pathsplit.h"
 
-#include <src/util/generic/yexception.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/system/file.h>

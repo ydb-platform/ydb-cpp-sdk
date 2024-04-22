@@ -5,8 +5,8 @@
 #include <src/util/string/ascii.h>
 #include <src/util/string/split.h>
 #include <src/util/string/strip.h>
-#include <src/util/stream/output.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 namespace NMonitoring {
     static ECompression CompressionFromHeader(std::string_view value) {

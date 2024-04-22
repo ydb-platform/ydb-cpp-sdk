@@ -4,7 +4,7 @@
 #include <src/util/generic/vector.h>
 #include <ydb-cpp-sdk/util/generic/xrange.h>
 #include <src/util/stream/null.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 namespace {
 

@@ -7,7 +7,7 @@
 
 #include <span>
 #include <ydb-cpp-sdk/util/generic/utility.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #define STACK_ALIGN (8 * PLATFORM_DATA_ALIGN)
 

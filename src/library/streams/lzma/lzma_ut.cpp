@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 #include <src/util/random/fast.h>
 #include <ydb-cpp-sdk/util/random/random.h>
 

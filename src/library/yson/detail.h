@@ -5,8 +5,8 @@
 
 #include <src/util/generic/buffer.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
-#include <src/util/string/cast.h>
-#include <src/util/stream/input.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
 
 namespace NYson {
     namespace NDetail {

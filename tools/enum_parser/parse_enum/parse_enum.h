@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/string/strip.h>
 
 #include <optional>

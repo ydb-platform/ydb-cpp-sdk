@@ -1,6 +1,6 @@
 #include "uri.h"
 
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/string/util.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 

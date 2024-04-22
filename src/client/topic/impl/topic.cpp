@@ -7,7 +7,7 @@
 #include <src/library/persqueue/obfuscate/obfuscate.h>
 
 #include <ydb-cpp-sdk/util/random/random.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/subst.h>
 
 namespace NYdb::NTopic {

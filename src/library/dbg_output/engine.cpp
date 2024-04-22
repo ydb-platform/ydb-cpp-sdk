@@ -1,6 +1,6 @@
 #include "engine.h"
 
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 
 #if !defined(DBGDUMP_INLINE_IF_INCLUDED)

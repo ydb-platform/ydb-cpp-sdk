@@ -6,9 +6,9 @@
 
 #include <src/library/uri/http_url.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
-#include <src/util/network/hostip.h>
-#include <src/util/network/ip.h>
-#include <src/util/network/sock.h>
+#include <ydb-cpp-sdk/util/network/hostip.h>
+#include <ydb-cpp-sdk/util/network/ip.h>
+#include <ydb-cpp-sdk/util/network/sock.h>
 #include <src/util/generic/scope.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 

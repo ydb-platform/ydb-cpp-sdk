@@ -1,4 +1,4 @@
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include "align.h"
 #include "error.h"
 #include "info.h"

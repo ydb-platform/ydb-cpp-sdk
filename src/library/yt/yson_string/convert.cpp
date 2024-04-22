@@ -11,7 +11,7 @@
 
 #include <array>
 
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 
 namespace NYT::NYson {
 

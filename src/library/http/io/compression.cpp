@@ -4,7 +4,7 @@
 #include <src/library/streams/lz/lz.h>
 #endif
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 #include <src/library/streams/brotli/brotli.h>
 #include <src/library/streams/lzma/lzma.h>

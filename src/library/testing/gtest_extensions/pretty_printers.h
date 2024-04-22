@@ -1,8 +1,8 @@
 #pragma once
 
 #include <src/util/generic/variant.h>
-#include <src/util/stream/output.h>
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <src/util/stream/input.h>
-#include <src/util/stream/output.h>
-#include <src/util/stream/zerocopy.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/zerocopy.h>
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 

@@ -5,9 +5,9 @@
 
 #include <src/library/getopt/last_getopt.h>
 #include <string>
-#include <src/util/generic/yexception.h>
-#include <src/util/stream/output.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #define TABLE_USERS "users"
 #define TABLE_SERIES "series"

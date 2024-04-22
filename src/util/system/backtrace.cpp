@@ -2,7 +2,7 @@
 #include <ydb-cpp-sdk/util/system/platform.h>
 #include <ydb-cpp-sdk/util/system/backtrace.h>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/stream/format.h>
 
 #ifdef _win_

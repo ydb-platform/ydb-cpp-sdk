@@ -1,6 +1,6 @@
 #include "enum_runtime.h"
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 

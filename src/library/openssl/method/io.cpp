@@ -1,7 +1,7 @@
 #include "io.h"
 
 #include <ydb-cpp-sdk/util/generic/singleton.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 

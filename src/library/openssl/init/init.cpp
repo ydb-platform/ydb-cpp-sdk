@@ -9,7 +9,7 @@
 #include <src/util/system/thread.h>
 
 #include <src/util/random/entropy.h>
-#include <src/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
 
 #include <openssl/bio.h>
 #include <openssl/ssl.h>

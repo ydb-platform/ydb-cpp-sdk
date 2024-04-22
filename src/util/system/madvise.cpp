@@ -2,7 +2,7 @@
 #include "align.h"
 #include "info.h"
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <string>
 

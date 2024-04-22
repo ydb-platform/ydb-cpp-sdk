@@ -10,13 +10,13 @@
 #include <string>
 
 #include <src/util/string/type.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 
 #include <double-conversion.h>
 
 #include <ydb-cpp-sdk/util/system/yassert.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>

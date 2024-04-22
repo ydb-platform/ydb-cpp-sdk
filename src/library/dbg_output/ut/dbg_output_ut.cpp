@@ -1,8 +1,8 @@
 #include <src/library/dbg_output/dump.h>
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/stream/str.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <src/util/generic/map.h>
 

@@ -5,7 +5,7 @@
 #include <src/util/folder/dirut.h>
 #include <src/util/folder/path.h>
 #include <src/util/folder/tempdir.h>
-#include <src/util/network/sock.h>
+#include <ydb-cpp-sdk/util/network/sock.h>
 #include <src/util/system/fs.h>
 
 #include <src/library/testing/gtest/gtest.h>

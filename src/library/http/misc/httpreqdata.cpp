@@ -1,10 +1,10 @@
 #include "httpreqdata.h"
 
 #include <src/library/case_insensitive_string/case_insensitive_string.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 #include <src/util/string/join.h>
 #include <src/util/system/datetime.h>
 

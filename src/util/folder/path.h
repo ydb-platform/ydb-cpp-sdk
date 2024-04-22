@@ -4,10 +4,10 @@
 #include "pathsplit.h"
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/system/fstat.h>
 #include <ydb-cpp-sdk/util/system/platform.h>
-#include <src/util/system/sysstat.h>
+#include <ydb-cpp-sdk/util/system/sysstat.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <utility>

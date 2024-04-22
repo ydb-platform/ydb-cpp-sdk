@@ -5,8 +5,8 @@
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <src/util/generic/ymath.h>
-#include <src/util/string/cast.h>
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/random/random.h>
 

@@ -5,8 +5,8 @@
 #include "shuffle.h"
 #include "init_atfork.h"
 
-#include <src/util/stream/output.h>
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 #include <src/util/stream/zlib.h>
 #include <src/util/stream/buffer.h>
 
@@ -21,7 +21,7 @@
 #include <src/util/system/mem_info.h>
 #include <src/util/system/rusage.h>
 #include <src/util/system/cpu_id.h>
-#include <src/util/system/unaligned_mem.h>
+#include <ydb-cpp-sdk/util/system/unaligned_mem.h>
 
 #include <src/util/generic/buffer.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
@@ -29,7 +29,7 @@
 #include <src/util/digest/murmur.h>
 #include <src/util/digest/city.h>
 
-#include <src/util/ysaveload.h>
+#include <ydb-cpp-sdk/util/ysaveload.h>
 
 namespace {
     inline void Permute(char* buf, size_t len, ui32 seed) noexcept {

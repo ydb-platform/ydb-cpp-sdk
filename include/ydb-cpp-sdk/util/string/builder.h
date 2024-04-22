@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 #include <utility>
 
 namespace NPrivateStringBuilder {

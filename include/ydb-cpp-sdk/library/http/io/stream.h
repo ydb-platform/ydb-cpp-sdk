@@ -2,11 +2,11 @@
 
 #include "headers.h"
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <span>
 #include <string>
 #include <string_view>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <memory>
 

@@ -6,8 +6,8 @@
 #include "wide_specific.h"
 
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
-#include <src/util/generic/yexception.h>
-#include <src/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/system/cpu_id.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/thread/pool.h>
+#include <ydb-cpp-sdk/util/thread/pool.h>
 #include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 

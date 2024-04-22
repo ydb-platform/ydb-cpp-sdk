@@ -9,8 +9,8 @@
 #endif
 
 #include <ydb-cpp-sdk/util/string/escape.h>
-#include <src/util/generic/yexception.h>
-#include <src/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <src/util/stream/file.h>
 #include <src/util/folder/iterator.h>
 #include <src/util/system/fstat.h>

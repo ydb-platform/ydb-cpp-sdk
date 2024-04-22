@@ -2,10 +2,10 @@
 
 #include "fts.h"
 
-#include <src/util/system/error.h>
+#include <ydb-cpp-sdk/util/system/error.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/iterator.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 
 #include <string>

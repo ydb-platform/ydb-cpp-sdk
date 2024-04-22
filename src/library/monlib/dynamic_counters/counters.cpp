@@ -1,9 +1,9 @@
 #include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 
 #include <src/library/monlib/service/pages/templates.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
-#include <src/util/generic/cast.h>
+#include <ydb-cpp-sdk/util/generic/cast.h>
 
 using namespace NMonitoring;
 

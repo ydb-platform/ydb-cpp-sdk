@@ -2,15 +2,15 @@
 
 #include "codecs.h"
 
-#include <src/util/ysaveload.h>
+#include <ydb-cpp-sdk/util/ysaveload.h>
 #include <src/util/stream/null.h>
-#include <src/util/stream/mem.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/string/join.h>
 #include <src/util/system/align.h>
-#include <src/util/system/unaligned_mem.h>
+#include <ydb-cpp-sdk/util/system/unaligned_mem.h>
 #include <src/util/generic/hash.h>
-#include <src/util/generic/cast.h>
+#include <ydb-cpp-sdk/util/generic/cast.h>
 #include <src/util/generic/buffer.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/algorithm.h>

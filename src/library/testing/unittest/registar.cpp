@@ -3,13 +3,13 @@
 #include <src/library/diff/diff.h>
 #include <src/library/colorizer/colors.h>
 
-#include <src/util/generic/bt_exception.h>
+#include <ydb-cpp-sdk/util/generic/bt_exception.h>
 #include <src/util/random/fast.h>
 #include <ydb-cpp-sdk/util/system/backtrace.h>
 #include <ydb-cpp-sdk/util/system/guard.h>
 #include <src/util/system/tls.h>
-#include <src/util/system/error.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/system/error.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 #include <mutex>
 

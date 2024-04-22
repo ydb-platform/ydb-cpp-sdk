@@ -1,11 +1,11 @@
-#include "tempbuf.h"
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include "addstorage.h"
 
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/generic/intrlist.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <utility>
 #include <src/util/thread/singleton.h>
 

@@ -1,11 +1,11 @@
-#include "ip.h"
-#include "socket.h"
-#include "address.h"
+#include <ydb-cpp-sdk/util/network/ip.h>
+#include <ydb-cpp-sdk/util/network/socket.h>
+#include <ydb-cpp-sdk/util/network/address.h>
 #include "pollerimpl.h"
 #include "iovec.h"
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/system/byteorder.h>
+#include <ydb-cpp-sdk/util/system/byteorder.h>
 #include <unordered_set>
 
 #if defined(_unix_)
@@ -36,11 +36,11 @@
 
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 
-#include <src/util/string/cast.h>
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 #include <src/util/system/datetime.h>
-#include <src/util/system/error.h>
-#include <src/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/system/error.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #include <stddef.h>

@@ -2,9 +2,9 @@
 #include "file.h"
 #include <ydb-cpp-sdk/library/logger/record.h>
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include <src/util/system/fstat.h>
 #include <ydb-cpp-sdk/util/system/rwlock.h>
 #include <src/util/system/fs.h>

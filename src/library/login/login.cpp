@@ -1,6 +1,6 @@
 #include <jwt-cpp/jwt.h>
 #include <src/library/digest/argonish/argon2.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include <src/library/string_utils/base64/base64.h>
 #include <ydb-cpp-sdk/library/json/json_value.h>
 #include <ydb-cpp-sdk/library/json/json_reader.h>
@@ -10,8 +10,8 @@
 #include <openssl/rand.h>
 
 #include <ydb-cpp-sdk/util/generic/singleton.h>
-#include <src/util/string/builder.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/string/hex.h>
 
 #include <deque>

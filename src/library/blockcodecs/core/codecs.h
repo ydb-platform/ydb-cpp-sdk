@@ -4,7 +4,7 @@
 #include <string_view>
 #include <string>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 namespace NBlockCodecs {
     struct TData: public std::string_view {

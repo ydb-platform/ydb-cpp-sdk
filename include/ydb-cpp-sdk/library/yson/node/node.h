@@ -1,10 +1,10 @@
 #pragma once
 
-#include <src/util/generic/bt_exception.h>
+#include <ydb-cpp-sdk/util/generic/bt_exception.h>
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 #include <cmath>
 #include <variant>

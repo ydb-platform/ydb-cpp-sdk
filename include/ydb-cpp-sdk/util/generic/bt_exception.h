@@ -1,9 +1,10 @@
 #pragma once
 
-#include <utility>
-#include "yexception.h"
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <ydb-cpp-sdk/util/system/backtrace.h>
+
+#include <utility>
 
 template <class T>
 class TWithBackTrace: public T {

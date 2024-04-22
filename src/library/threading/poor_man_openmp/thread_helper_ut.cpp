@@ -3,7 +3,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <string>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 Y_UNIT_TEST_SUITE(TestMP) {
     Y_UNIT_TEST(TestErr) {

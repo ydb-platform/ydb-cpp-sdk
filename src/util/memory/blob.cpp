@@ -9,7 +9,7 @@
 #include <src/util/generic/buffer.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 template <class TCounter>
 class TDynamicBlobBase: public TBlob::TBase,

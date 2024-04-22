@@ -3,12 +3,12 @@
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/va_args.h>
 
-#include <src/util/stream/tempbuf.h>
+#include <ydb-cpp-sdk/util/stream/tempbuf.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/system/error.h>
-#include <src/util/system/src_location.h>
+#include <ydb-cpp-sdk/util/system/error.h>
+#include <ydb-cpp-sdk/util/system/src_location.h>
 #include <ydb-cpp-sdk/util/system/platform.h>
 
 #include <cstdio>

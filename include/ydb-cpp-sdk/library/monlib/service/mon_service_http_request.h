@@ -2,7 +2,7 @@
 
 #include "service.h"
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 namespace NMonitoring {
     class TMonService2;

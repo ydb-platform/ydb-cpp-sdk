@@ -4,7 +4,7 @@
     #include <src/util/system/winint.h>
 #elif defined(_linux_)
     #include <src/util/stream/file.h>
-    #include <src/util/string/cast.h>
+    #include <ydb-cpp-sdk/util/string/cast.h>
 #elif defined(_darwin_)
     #include <sys/sysctl.h>
 #endif

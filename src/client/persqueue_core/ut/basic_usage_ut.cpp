@@ -8,7 +8,7 @@
 #include <src/util/string/join.h>
 #include <src/util/system/event.h>
 #include <src/util/stream/zlib.h>
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 
 #include <atomic>
 #include <format>

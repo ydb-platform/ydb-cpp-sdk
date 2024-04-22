@@ -7,7 +7,7 @@
 #include <string_view>
 #include <span>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/string/split.h>
 
 namespace NDiff {

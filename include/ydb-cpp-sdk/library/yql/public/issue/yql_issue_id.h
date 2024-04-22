@@ -11,7 +11,7 @@
 #include <google/protobuf/message.h>
 
 #include <ydb-cpp-sdk/util/generic/singleton.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/string/subst.h>
 
 #ifdef _win_

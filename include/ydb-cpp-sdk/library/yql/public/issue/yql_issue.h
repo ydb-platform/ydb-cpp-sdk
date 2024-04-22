@@ -3,7 +3,7 @@
 #include "yql_issue_id.h"
 
 #include <ydb-cpp-sdk/util/system/types.h>
-#include <src/util/str_stl.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
 #include <google/protobuf/message.h>
 
 #include <vector>

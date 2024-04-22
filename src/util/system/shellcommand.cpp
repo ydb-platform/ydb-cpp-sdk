@@ -8,11 +8,11 @@
 #include <src/util/folder/dirut.h>
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/generic/buffer.h>
-#include <src/util/generic/yexception.h>
-#include <src/util/memory/tempbuf.h>
-#include <src/util/network/socket.h>
-#include <src/util/stream/str.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/network/socket.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/system/info.h>
 #include <src/util/system/pipe.h>
 

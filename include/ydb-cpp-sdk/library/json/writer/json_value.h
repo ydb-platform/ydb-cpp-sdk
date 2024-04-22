@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/library/json/common/defs.h>
 
 #include <ydb-cpp-sdk/util/generic/utility.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <unordered_map>
 

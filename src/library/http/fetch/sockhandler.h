@@ -4,9 +4,9 @@
 
 #include <src/util/generic/buffer.h>
 
-#include <src/util/network/address.h>
-#include <src/util/network/ip.h>
-#include <src/util/network/socket.h>
+#include <ydb-cpp-sdk/util/network/address.h>
+#include <ydb-cpp-sdk/util/network/ip.h>
+#include <ydb-cpp-sdk/util/network/socket.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <cerrno>

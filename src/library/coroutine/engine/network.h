@@ -3,10 +3,10 @@
 #include "iostatus.h"
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
-#include <src/util/network/init.h>
+#include <ydb-cpp-sdk/util/network/init.h>
 #include <src/util/network/iovec.h>
 #include <src/util/network/nonblock.h>
-#include <src/util/network/socket.h>
+#include <ydb-cpp-sdk/util/network/socket.h>
 
 class TCont;
 

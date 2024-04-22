@@ -1,7 +1,7 @@
 #include "file.h"
 #include "flock.h"
 #include "fstat.h"
-#include "sysstat.h"
+#include <ydb-cpp-sdk/util/system/sysstat.h>
 #include "align.h"
 #include "info.h"
 
@@ -10,8 +10,8 @@
 
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <src/util/string/util.h>
-#include <src/util/string/cast.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <src/util/stream/hex.h>
 #include <src/util/stream/format.h>
@@ -20,7 +20,7 @@
 
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
 

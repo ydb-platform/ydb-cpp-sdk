@@ -14,7 +14,7 @@
 
 #include <ydb-cpp-sdk/util/system/yassert.h>
 
-#include <src/util/network/socket.h>
+#include <ydb-cpp-sdk/util/network/socket.h>
 
 #include <src/util/string/strip.h>
 

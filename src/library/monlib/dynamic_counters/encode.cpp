@@ -5,7 +5,7 @@
 #include <src/library/monlib/encode/spack/spack_v1.h>
 #include <src/library/monlib/encode/prometheus/prometheus.h>
 
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 
 namespace NMonitoring {
     namespace {

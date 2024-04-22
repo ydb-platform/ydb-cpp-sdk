@@ -1,10 +1,11 @@
 #pragma once
 
-#include <src/util/folder/path.h>
+#include <contrib/libs/libc_compat/string.h>
+
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/string/cast.h>
-#include <src/util/stream/output.h>
-#include <src/util/system/sysstat.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/system/sysstat.h>
 
 #if defined(_win_) || defined(_cygwin_)
     #include <src/util/system/file.h>
@@ -97,9 +98,9 @@ struct TSockAddrLocal: public ISockAddr {
         return std::string(Path);
     }
 
-    TFsPath ToPath() const {
-        return TFsPath(Path);
-    }
+    // TFsPath ToPath() const {
+    //     return TFsPath(Path);
+    // }
 
     int ResolveAddr() const {
         if (in.sin_port == 0) {
@@ -200,9 +201,9 @@ struct TSockAddrLocal: public sockaddr_un, public ISockAddr {
         return std::string(sun_path);
     }
 
-    TFsPath ToPath() const {
-        return TFsPath(sun_path);
-    }
+    // TFsPath ToPath() const {
+    //     return TFsPath(sun_path);
+    // }
 
     int Bind(SOCKET s, ui16 mode) const override {
         (void)unlink(sun_path);

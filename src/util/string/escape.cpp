@@ -1,5 +1,5 @@
 #include <ydb-cpp-sdk/util/string/escape.h>
-#include "cast.h"
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/charset/utf8.h>

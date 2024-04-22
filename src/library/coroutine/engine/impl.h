@@ -10,7 +10,7 @@
 
 #include <src/library/containers/intrusive_rb_tree/rb_tree.h>
 
-#include <src/util/system/error.h>
+#include <ydb-cpp-sdk/util/system/error.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/intrlist.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>

@@ -4,11 +4,11 @@
 
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/system/error.h>
-#include <src/util/stream/output.h>
-#include <src/util/stream/input.h>
+#include <ydb-cpp-sdk/util/system/error.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
