@@ -2,9 +2,9 @@
 
 #include <ydb-cpp-sdk/library/monlib/metrics/log_histogram_snapshot.h>
 
-#include <src/util/generic/algorithm.h>
-#include <src/util/generic/utility.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 
 #include <mutex>

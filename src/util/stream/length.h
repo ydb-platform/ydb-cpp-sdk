@@ -1,9 +1,9 @@
 #pragma once
 
-#include "input.h"
-#include "output.h"
+#include <ydb-cpp-sdk/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 /**
  * Proxy input stream that can read a limited number of characters from a slave

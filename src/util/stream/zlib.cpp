@@ -2,7 +2,7 @@
 
 #include <src/util/memory/addstorage.h>
 #include <src/util/generic/scope.h>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 #include <zlib.h>
 

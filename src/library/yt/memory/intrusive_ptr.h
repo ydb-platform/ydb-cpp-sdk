@@ -3,7 +3,7 @@
 #include "ref_counted.h"
 
 #include <src/util/generic/hash.h>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 #include <utility>
 #include <type_traits>

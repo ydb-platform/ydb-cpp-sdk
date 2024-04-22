@@ -1,8 +1,8 @@
-#include "alloc.h"
+#include <ydb-cpp-sdk/util/memory/alloc.h>
 #include "mmapalloc.h"
 
 #include <src/util/system/filemap.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 namespace {
     class TMmapAllocator: public IAllocator {

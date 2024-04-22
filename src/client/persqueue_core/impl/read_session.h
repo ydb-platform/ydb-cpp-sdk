@@ -13,7 +13,7 @@
 
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 
-#include <src/util/digest/numeric.h>
+#include <ydb-cpp-sdk/util/digest/numeric.h>
 #include <src/util/generic/hash.h>
 #include <src/util/generic/hash_multi_map.h>
 

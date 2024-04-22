@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 #include <atomic>
 

@@ -2,7 +2,7 @@
 
 #include "priority.h"
 
-#include <src/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <vector>
 #include <cstddef>
 

@@ -5,7 +5,7 @@
 #include <ydb-cpp-sdk/library/http/fetch/exthttpcodes.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <zlib.h>
 

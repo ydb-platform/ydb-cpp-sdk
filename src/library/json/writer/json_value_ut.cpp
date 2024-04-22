@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
 
 using namespace NJson;
 

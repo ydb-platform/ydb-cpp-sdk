@@ -1,9 +1,9 @@
 #pragma once
 
-#include "zerocopy.h"
-#include "zerocopy_output.h"
+#include <ydb-cpp-sdk/util/stream/zerocopy.h>
+#include <ydb-cpp-sdk/util/stream/zerocopy_output.h>
 
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 class TBuffer;
 

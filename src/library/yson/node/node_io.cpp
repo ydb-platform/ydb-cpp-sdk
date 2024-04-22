@@ -11,10 +11,10 @@
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 #include <ydb-cpp-sdk/library/json/json_value.h>
 
-#include <src/util/stream/input.h>
-#include <src/util/stream/output.h>
-#include <src/util/stream/str.h>
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 
 namespace NYT {
 

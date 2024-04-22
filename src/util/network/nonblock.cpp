@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/util/system/platform.h>
 
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #if defined(_unix_)
     #include <dlfcn.h>

@@ -25,7 +25,7 @@
 #include <src/library/cache/cache.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 #include <src/util/string/join.h>
 
 #include <map>
@@ -477,11 +477,11 @@ public:
         Attributes_[key] = value;
     }
 
-    void SetAttributes(const THashMap<std::string, std::string>& attrs) {
+    void SetAttributes(const std::unordered_map<std::string, std::string>& attrs) {
         Attributes_ = attrs;
     }
 
-    void SetAttributes(THashMap<std::string, std::string>&& attrs) {
+    void SetAttributes(std::unordered_map<std::string, std::string>&& attrs) {
         Attributes_ = std::move(attrs);
     }
 
@@ -578,7 +578,7 @@ public:
         return ColumnFamilies_;
     }
 
-    const THashMap<std::string, std::string>& GetAttributes() const {
+    const std::unordered_map<std::string, std::string>& GetAttributes() const {
         return Attributes_;
     }
 
@@ -626,7 +626,7 @@ private:
     std::vector<TPartitionStats> PartitionStats_;
     TTableStats TableStats;
     std::vector<TColumnFamilyDescription> ColumnFamilies_;
-    THashMap<std::string, std::string> Attributes_;
+    std::unordered_map<std::string, std::string> Attributes_;
     std::string CompactionPolicy_;
     std::optional<ui64> UniformPartitions_;
     std::optional<TExplicitPartitions> PartitionAtKeys_;
@@ -777,11 +777,11 @@ void TTableDescription::AddAttribute(const std::string& key, const std::string& 
     Impl_->AddAttribute(key, value);
 }
 
-void TTableDescription::SetAttributes(const THashMap<std::string, std::string>& attrs) {
+void TTableDescription::SetAttributes(const std::unordered_map<std::string, std::string>& attrs) {
     Impl_->SetAttributes(attrs);
 }
 
-void TTableDescription::SetAttributes(THashMap<std::string, std::string>&& attrs) {
+void TTableDescription::SetAttributes(std::unordered_map<std::string, std::string>&& attrs) {
     Impl_->SetAttributes(std::move(attrs));
 }
 
@@ -845,7 +845,7 @@ const std::vector<TColumnFamilyDescription>& TTableDescription::GetColumnFamilie
     return Impl_->GetColumnFamilies();
 }
 
-const THashMap<std::string, std::string>& TTableDescription::GetAttributes() const {
+const std::unordered_map<std::string, std::string>& TTableDescription::GetAttributes() const {
     return Impl_->GetAttributes();
 }
 
@@ -1238,12 +1238,12 @@ TTableBuilder& TTableBuilder::AddAttribute(const std::string& key, const std::st
     return *this;
 }
 
-TTableBuilder& TTableBuilder::SetAttributes(const THashMap<std::string, std::string>& attrs) {
+TTableBuilder& TTableBuilder::SetAttributes(const std::unordered_map<std::string, std::string>& attrs) {
     TableDescription_.SetAttributes(attrs);
     return *this;
 }
 
-TTableBuilder& TTableBuilder::SetAttributes(THashMap<std::string, std::string>&& attrs) {
+TTableBuilder& TTableBuilder::SetAttributes(std::unordered_map<std::string, std::string>&& attrs) {
     TableDescription_.SetAttributes(std::move(attrs));
     return *this;
 }
@@ -2362,12 +2362,12 @@ TChangefeedDescription& TChangefeedDescription::AddAttribute(const std::string& 
     return *this;
 }
 
-TChangefeedDescription& TChangefeedDescription::SetAttributes(const THashMap<std::string, std::string>& attrs) {
+TChangefeedDescription& TChangefeedDescription::SetAttributes(const std::unordered_map<std::string, std::string>& attrs) {
     Attributes_ = attrs;
     return *this;
 }
 
-TChangefeedDescription& TChangefeedDescription::SetAttributes(THashMap<std::string, std::string>&& attrs) {
+TChangefeedDescription& TChangefeedDescription::SetAttributes(std::unordered_map<std::string, std::string>&& attrs) {
     Attributes_ = std::move(attrs);
     return *this;
 }
@@ -2405,7 +2405,7 @@ bool TChangefeedDescription::GetInitialScan() const {
     return InitialScan_;
 }
 
-const THashMap<std::string, std::string>& TChangefeedDescription::GetAttributes() const {
+const std::unordered_map<std::string, std::string>& TChangefeedDescription::GetAttributes() const {
     return Attributes_;
 }
 

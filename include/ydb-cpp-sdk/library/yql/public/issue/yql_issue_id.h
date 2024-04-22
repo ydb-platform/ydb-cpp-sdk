@@ -10,9 +10,9 @@
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/message.h>
 
-#include <src/util/generic/singleton.h>
-#include <src/util/generic/yexception.h>
-#include <src/util/string/subst.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/string/subst.h>
 
 #ifdef _win_
 #ifdef GetMessage

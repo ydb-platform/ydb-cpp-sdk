@@ -1,11 +1,11 @@
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include "progname.h"
+#include <ydb-cpp-sdk/util/system/progname.h>
 #include "compat.h"
 #include "error.h"
 
 #include <src/util/generic/scope.h>
 
-#include <src/util/system/compat.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
 
 #include <iostream>
 

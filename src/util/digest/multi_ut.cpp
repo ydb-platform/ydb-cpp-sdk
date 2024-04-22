@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 class TMultiHashTest: public TTestBase {
     UNIT_TEST_SUITE(TMultiHashTest);

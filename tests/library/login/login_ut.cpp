@@ -1,5 +1,5 @@
 #include <src/library/testing/unittest/registar.h>
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include "login.h"
 
 using namespace NLogin;

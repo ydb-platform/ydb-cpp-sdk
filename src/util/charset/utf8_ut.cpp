@@ -2,7 +2,7 @@
 #include "wide.h"
 
 #include <src/util/stream/file.h>
-#include <src/util/ysaveload.h>
+#include <ydb-cpp-sdk/util/ysaveload.h>
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/env.h>

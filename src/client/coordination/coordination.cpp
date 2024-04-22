@@ -9,6 +9,7 @@
 #include <src/client/common_client/impl/client.h>
 
 #include <src/util/random/entropy.h>
+#include <src/util/generic/mapfindptr.h>
 
 namespace NYdb {
 namespace NCoordination {
@@ -28,6 +29,8 @@ using TResultPromise = TPromise<TResult<T>>;
 template<class T>
 inline TResultPromise<T> NewResultPromise() {
     return NewPromise<TResult<T>>();
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -307,7 +310,7 @@ private:
         std::string Name;
         TIntrusivePtr<TSemaphoreOp> LastSentOp;
         TIntrusivePtr<TSemaphoreOp> LastAckedOp;
-        THashMap<ui64, TIntrusivePtr<TSemaphoreOp>> WaitingOps;
+        std::unordered_map<ui64, TIntrusivePtr<TSemaphoreOp>> WaitingOps;
         std::deque<TIntrusivePtr<TSemaphoreOp>> OpQueue;
         bool Restoring = false;
 
@@ -780,7 +783,7 @@ private:
             TResultPromise<bool>* supersededPromise,
             TResultPromise<bool>* resultPromise)
     {
-        auto* state = SemaphoreByReqId.Value(reqId, nullptr);
+        auto* state = MapValue(SemaphoreByReqId, reqId, nullptr);
         if (!state) {
             return false;
         }
@@ -834,7 +837,7 @@ private:
     }
 
     void DoSemaphoreEnqueueOp(const std::string& name, TIntrusivePtr<TSemaphoreOp> op) {
-        TSemaphoreState* state = Semaphores.FindPtr(name);
+        TSemaphoreState* state = MapFindPtr(Semaphores, name);
         if (!state) {
             state = &Semaphores[name];
             state->Name = name;
@@ -1537,7 +1540,7 @@ private:
                 std::function<void()> acceptedCallback;
                 {
                     std::lock_guard guard(Lock);
-                    if (auto* state = SemaphoreByReqId.Value(reqId, nullptr)) {
+                    if (auto* state = MapValue(SemaphoreByReqId, reqId, nullptr)) {
                         auto op = state->LastSentOp;
                         Y_ABORT_UNLESS(op && op->ReqId == reqId && op->OpType == SEM_OP_ACQUIRE,
                             "Received AcquireSemaphorePending for an unexpected request");
@@ -1762,10 +1765,10 @@ private:
     IQueueClientContextPtr ConnectContext;
     IQueueClientContextPtr ConnectTimeoutContext;
 
-    THashMap<std::string, TSemaphoreState> Semaphores;
-    THashMap<ui64, TSemaphoreState*> SemaphoreByReqId;
+    std::unordered_map<std::string, TSemaphoreState> Semaphores;
+    std::unordered_map<ui64, TSemaphoreState*> SemaphoreByReqId;
     std::deque<THolder<TSimpleOp>> PendingRequests;
-    THashMap<ui64, THolder<TSimpleOp>> SentRequests;
+    std::unordered_map<ui64, THolder<TSimpleOp>> SentRequests;
     TResultPromise<void> ReconnectPromise;
 
     // These are used to manage session timeout

@@ -1,7 +1,7 @@
 #include <src/library/monlib/encode/prometheus/prometheus.h>
 #include <src/library/monlib/encode/fake/fake.h>
 
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 
 
 extern "C" int LLVMFuzzerTestOneInput(const ui8* buf, size_t size) {

@@ -4,11 +4,11 @@
 #include "thread.h"
 #include "thread.i"
 
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/ymath.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include <src/util/generic/yexception.h>
-#include "yassert.h"
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <utility>
 
 #if defined(_linux_)

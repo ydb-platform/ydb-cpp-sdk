@@ -2,7 +2,7 @@
 
 #include "ref.h"
 
-#include <src/util/stream/zerocopy.h>
+#include <ydb-cpp-sdk/util/stream/zerocopy.h>
 
 namespace NYT {
 

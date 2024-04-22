@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/util/generic/buffer.h>
-#include <src/util/generic/flags.h>
+#include <ydb-cpp-sdk/util/generic/flags.h>
 
 #include <string>
 

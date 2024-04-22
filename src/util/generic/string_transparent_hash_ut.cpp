@@ -4,7 +4,7 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/containers/absl_flat_hash/flat_hash_set.h>
 
-#include <src/util/str_stl.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
 
 Y_UNIT_TEST_SUITE(StringHashFunctorTests) {
     Y_UNIT_TEST(TestTransparencyWithUnorderedSet) {

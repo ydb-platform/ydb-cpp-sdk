@@ -5,7 +5,7 @@
 #include <ydb-cpp-sdk/library/yson/writer.h>
 
 #include <src/util/generic/overloaded.h>
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 
 #include <iostream>
 

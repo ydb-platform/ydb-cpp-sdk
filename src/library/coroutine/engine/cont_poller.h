@@ -8,7 +8,7 @@
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <src/util/memory/pool.h>
 #include <src/util/memory/smallobj.h>
-#include <src/util/network/init.h>
+#include <ydb-cpp-sdk/util/network/init.h>
 
 #include <cerrno>
 

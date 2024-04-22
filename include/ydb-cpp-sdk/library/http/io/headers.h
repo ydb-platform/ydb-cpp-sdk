@@ -1,11 +1,11 @@
 #pragma once
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <string>
 #include <string_view>
 
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 class IInputStream;
 class IOutputStream;

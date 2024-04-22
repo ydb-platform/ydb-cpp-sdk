@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 #include <string_view>
 #include <utility>

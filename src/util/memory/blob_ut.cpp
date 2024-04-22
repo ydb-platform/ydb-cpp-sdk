@@ -1,10 +1,10 @@
-#include "blob.h"
+#include <ydb-cpp-sdk/util/memory/blob.h>
 
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/system/tempfile.h>
 #include <src/util/folder/path.h>
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/stream/file.h>
 #include <src/util/generic/buffer.h>
 

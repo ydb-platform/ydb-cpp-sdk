@@ -5,7 +5,7 @@
 #include <src/api/protos/ydb_common.pb.h>
 #include <src/api/protos/ydb_value.pb.h>
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <src/util/generic/mapfindptr.h>
 

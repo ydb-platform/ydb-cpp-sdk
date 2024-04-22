@@ -1,7 +1,7 @@
 #pragma once
 
-#include <src/util/generic/fwd.h>
-#include <src/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 class TGetOpt {
 public:

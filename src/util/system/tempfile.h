@@ -1,7 +1,7 @@
 #pragma once
 
 #include "fs.h"
-#include "file.h"
+#include <ydb-cpp-sdk/util/system/file.h>
 
 #include <src/util/folder/path.h>
 

@@ -1,7 +1,7 @@
 #include "plugin.h"
 
-#include <src/util/generic/singleton.h>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 #include <vector>
 
 namespace NUnitTest::NPlugin {

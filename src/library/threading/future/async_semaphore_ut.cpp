@@ -6,7 +6,7 @@
 
 #include <src/util/generic/scope.h>
 
-#include <src/util/thread/pool.h>
+#include <ydb-cpp-sdk/util/thread/pool.h>
 
 using namespace NThreading;
 

@@ -1,6 +1,6 @@
 #include "murmur.h"
 
-#include <src/util/system/unaligned_mem.h>
+#include <ydb-cpp-sdk/util/system/unaligned_mem.h>
 
 namespace NMurmurPrivate {
     //-----------------------------------------------------------------------------

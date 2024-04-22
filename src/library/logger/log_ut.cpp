@@ -3,9 +3,9 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/system/fs.h>
-#include <src/util/system/rwlock.h>
+#include <ydb-cpp-sdk/util/system/rwlock.h>
 #include <src/util/system/yield.h>
-#include <src/util/memory/blob.h>
+#include <ydb-cpp-sdk/util/memory/blob.h>
 #include <src/util/stream/file.h>
 #include <string>
 

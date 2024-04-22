@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 
 // NOTE: This function has rare sporadic failures (throws exceptions) on FreeBSD. See REVIEW:54297
 const std::string& GetExecPath();

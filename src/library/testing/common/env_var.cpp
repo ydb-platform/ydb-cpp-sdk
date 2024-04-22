@@ -1,6 +1,6 @@
 #include "env_var.h"
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <ydb-cpp-sdk/util/system/platform.h>
 

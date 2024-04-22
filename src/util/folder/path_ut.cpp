@@ -7,8 +7,8 @@
 
 #include <src/util/generic/scope.h>
 #include <ydb-cpp-sdk/util/system/platform.h>
-#include <src/util/system/yassert.h>
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/stream/file.h>
 #include <src/util/system/fs.h>
 

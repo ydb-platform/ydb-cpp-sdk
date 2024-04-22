@@ -11,9 +11,9 @@
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 #include <src/util/generic/guid.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
-#include <src/util/generic/utility.h>
-#include <src/util/generic/yexception.h>
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 
 #include <variant>
 

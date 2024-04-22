@@ -4,8 +4,8 @@
 #include <src/library/object_factory/object_factory.h>
 #include <ydb-cpp-sdk/library/json/json_value.h>
 
-#include <src/util/generic/ptr.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 class ILogBackendCreator {
 public:

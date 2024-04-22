@@ -8,7 +8,7 @@
 #include <src/library/monlib/metrics/metric_value.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
-#include <src/util/digest/numeric.h>
+#include <ydb-cpp-sdk/util/digest/numeric.h>
 
 
 namespace NMonitoring {

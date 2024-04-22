@@ -2,7 +2,7 @@
 
 #include "engine.h"
 
-#include <src/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 
 #include <list>
 #include <map>

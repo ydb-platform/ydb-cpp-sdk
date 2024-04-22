@@ -8,7 +8,7 @@
 #include "zip.h"
 
 #include <src/util/generic/adaptor.h>
-#include <src/util/generic/xrange.h>
+#include <ydb-cpp-sdk/util/generic/xrange.h>
 
 #include <tuple>
 #include <algorithm>

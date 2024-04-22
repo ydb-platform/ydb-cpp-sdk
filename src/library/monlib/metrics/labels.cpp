@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/library/monlib/metrics/labels.h>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/string/split.h>
 
 static void OutputLabels(IOutputStream& out, const NMonitoring::ILabels& labels) {

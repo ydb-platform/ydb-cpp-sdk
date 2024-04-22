@@ -1,7 +1,7 @@
 #pragma once
 
-#include <src/util/generic/yexception.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 #include <vector>
 

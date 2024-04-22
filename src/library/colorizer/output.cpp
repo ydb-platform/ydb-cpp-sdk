@@ -1,6 +1,6 @@
 #include "output.h"
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 using namespace NColorizer;
 

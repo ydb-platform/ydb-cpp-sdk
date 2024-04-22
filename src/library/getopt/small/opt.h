@@ -2,8 +2,8 @@
 
 #include "last_getopt.h"
 
-#include <src/util/generic/ptr.h>
-#include <src/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
 
 // implementation of Opt class using last getopt
 

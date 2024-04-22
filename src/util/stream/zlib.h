@@ -1,13 +1,13 @@
 #pragma once
 
-#include "fwd.h"
-#include "input.h"
-#include "output.h"
+#include <ydb-cpp-sdk/util/stream/fwd.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include "buffered.h"
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/generic/ptr.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 /**
  * @addtogroup Streams_Archs

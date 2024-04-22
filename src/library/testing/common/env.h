@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/util/folder/path.h>
-#include <src/util/system/src_location.h>
+#include <ydb-cpp-sdk/util/system/src_location.h>
 
 #include <string>
 #include <string_view>

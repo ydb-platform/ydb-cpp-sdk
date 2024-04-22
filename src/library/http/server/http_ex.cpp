@@ -1,7 +1,7 @@
 #include "http_ex.h"
 
 #include <src/util/generic/buffer.h>
-#include <src/util/generic/cast.h>
+#include <ydb-cpp-sdk/util/generic/cast.h>
 #include <src/util/stream/null.h>
 
 bool THttpClientRequestExtension::Parse(char* req, TBaseServerRequestData& rd) {

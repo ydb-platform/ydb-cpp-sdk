@@ -1,6 +1,6 @@
-#include "rwlock.h"
+#include <ydb-cpp-sdk/util/system/rwlock.h>
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #if defined(_unix_)
     #include <errno.h>

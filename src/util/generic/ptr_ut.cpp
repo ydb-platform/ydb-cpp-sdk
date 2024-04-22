@@ -1,4 +1,4 @@
-#include "ptr.h"
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 #include "vector.h"
 #include "noncopyable.h"
 

@@ -2,7 +2,7 @@
 #include <src/library/blockcodecs/core/common.h>
 #include <src/library/blockcodecs/core/register.h>
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <lz4.h>
 #include <lz4hc.h>

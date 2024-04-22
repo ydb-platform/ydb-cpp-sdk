@@ -4,7 +4,7 @@
 
 #include <src/library/yt/memory/ref.h>
 
-#include <src/util/stream/zerocopy_output.h>
+#include <ydb-cpp-sdk/util/stream/zerocopy_output.h>
 
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 

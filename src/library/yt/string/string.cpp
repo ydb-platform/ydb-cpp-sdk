@@ -5,7 +5,7 @@
 
 #include <src/util/generic/hash.h>
 
-#include <src/util/string/ascii.h>
+#include <ydb-cpp-sdk/util/string/ascii.h>
 
 namespace NYT {
 

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <src/util/system/align.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
 
 #include <memory>
 #include <cstdio>

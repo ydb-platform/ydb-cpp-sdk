@@ -1,7 +1,7 @@
 #include "guid.h"
 
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 
 #include <cstring>
 #include <format>

@@ -2,9 +2,9 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/generic/noncopyable.h>
-#include <src/util/generic/xrange.h>
-#include <src/util/thread/pool.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/xrange.h>
+#include <ydb-cpp-sdk/util/thread/pool.h>
 
 #include <atomic>
 #include <exception>

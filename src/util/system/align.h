@@ -1,6 +1,6 @@
 #pragma once
 
-#include "yassert.h"
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/generic/bitops.h>
 

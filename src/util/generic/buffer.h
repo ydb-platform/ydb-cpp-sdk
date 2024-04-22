@@ -1,11 +1,11 @@
 #pragma once
 
-#include "utility.h"
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
-#include <src/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <src/util/system/align.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <cstring>
 

@@ -1,7 +1,7 @@
 #include <ydb-cpp-sdk/library/monlib/service/pages/index_mon_page.h>
 
-#include <src/util/generic/cast.h>
-#include <src/util/string/ascii.h>
+#include <ydb-cpp-sdk/util/generic/cast.h>
+#include <ydb-cpp-sdk/util/string/ascii.h>
 
 using namespace NMonitoring;
 

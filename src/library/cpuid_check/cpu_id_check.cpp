@@ -1,4 +1,4 @@
-#include <src/util/system/compat.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/system/cpu_id.h>
 #include <ydb-cpp-sdk/util/system/platform.h>

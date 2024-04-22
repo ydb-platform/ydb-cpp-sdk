@@ -2,10 +2,10 @@
 
 #include <ydb-cpp-sdk/library/json/common/defs.h>
 
-#include <src/util/generic/hash.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
-#include <src/util/generic/utility.h>
-#include <src/util/generic/yexception.h>
+#include <unordered_map>
 
 namespace NJson {
     enum EJsonValueType {
@@ -33,7 +33,7 @@ namespace NJson {
         void Clear() noexcept;
 
     public:
-        typedef THashMap<std::string, TJsonValue> TMapType;
+        typedef std::unordered_map<std::string, TJsonValue> TMapType;
         typedef std::deque<TJsonValue> TArray;
 
         TJsonValue() noexcept = default;
@@ -265,10 +265,10 @@ namespace NJson {
             : TJsonValue(NJson::JSON_MAP)
         {}
 
-        TJsonMap(const std::initializer_list<std::pair<std::string, TJsonValue>>& list)
+        TJsonMap(const std::initializer_list<std::pair<const std::string, TJsonValue>>& list)
             : TJsonValue(NJson::JSON_MAP)
         {
-            GetMapSafe() = THashMap<std::string, TJsonValue>(list);
+            GetMapSafe() = std::unordered_map<std::string, TJsonValue>(list);
         }
     };
 

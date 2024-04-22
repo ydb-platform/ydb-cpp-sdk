@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fwd.h"
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <deque>
 
 #include <stack>

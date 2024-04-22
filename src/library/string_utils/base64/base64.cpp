@@ -1,7 +1,7 @@
 #include "base64.h"
 
 #include <libbase64.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/util/system/cpu_id.h>
 #include <ydb-cpp-sdk/util/system/platform.h>
 

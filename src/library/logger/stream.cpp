@@ -1,9 +1,9 @@
 #include "stream.h"
 #include <ydb-cpp-sdk/library/logger/record.h>
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 #include <ostream>
 

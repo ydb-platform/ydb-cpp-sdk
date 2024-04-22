@@ -6,7 +6,7 @@
 #include <src/library/colorizer/colors.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/stream/format.h>
 
 #include <sstream>

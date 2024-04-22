@@ -3,7 +3,7 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/util/generic/vector.h>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 struct TCustomData {
     std::vector<int> Ints;

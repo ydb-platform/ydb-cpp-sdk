@@ -1,12 +1,12 @@
 #pragma once
 
-#include "mem.h"
-#include "output.h"
+#include <ydb-cpp-sdk/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
-#include <src/util/generic/flags.h>
-#include <src/util/memory/tempbuf.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/generic/flags.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 enum ENumberFormatFlag {
     HF_FULL = 0x01, /**< Output number with leading zeros. */

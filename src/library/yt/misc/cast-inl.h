@@ -6,9 +6,9 @@
 
 #include <ydb-cpp-sdk/library/yt/misc/enum.h>
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 #include <concepts>
 #include <format>

@@ -1,6 +1,6 @@
 #include "uuid.h"
 
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 
 namespace NKikimr {
 namespace NUuid {

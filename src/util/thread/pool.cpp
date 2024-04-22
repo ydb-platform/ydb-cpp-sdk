@@ -7,21 +7,21 @@
 #endif
 
 #include <src/util/generic/intrlist.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/generic/fastqueue.h>
 
-#include <src/util/stream/output.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
-#include <src/util/system/event.h>
+#include <ydb-cpp-sdk/util/system/event.h>
 #include <src/util/system/thread.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
-#include "factory.h"
-#include "pool.h"
+#include <ydb-cpp-sdk/util/thread/factory.h>
+#include <ydb-cpp-sdk/util/thread/pool.h>
 
 #include <condition_variable>
 #include <mutex>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "output.h"
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 /**
  * @addtogroup Streams_Multi

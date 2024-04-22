@@ -4,7 +4,7 @@
 #include "token.h"
 #include "consumer.h"
 
-#include <src/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
 
 class IOutputStream;
 class IZeroCopyInput;

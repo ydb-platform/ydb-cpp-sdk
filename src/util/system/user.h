@@ -1,5 +1,5 @@
 #pragma once
 
-#include <src/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 
 std::string GetUsername();

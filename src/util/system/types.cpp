@@ -1,7 +1,7 @@
 #include <ydb-cpp-sdk/util/system/types.h>
 
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
-#include <src/util/generic/typelist.h>
+#include <ydb-cpp-sdk/util/generic/typelist.h>
 
 static_assert(sizeof(ui8) == 1, "incorrect ui8 type");
 static_assert(sizeof(ui16) == 2, "incorrect ui16 type");

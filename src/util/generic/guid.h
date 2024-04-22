@@ -1,8 +1,8 @@
 #pragma once
 
-#include "fwd.h"
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 
-#include <src/util/str_stl.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
 
 /**
  * UUID generation

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/system/types.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 inline constexpr bool IsW16SurrogateLead(wchar16 c) noexcept {
     return 0xD800 <= c && c <= 0xDBFF;

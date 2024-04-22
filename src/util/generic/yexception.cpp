@@ -1,11 +1,11 @@
-#include "bt_exception.h"
-#include "yexception.h"
+#include <ydb-cpp-sdk/util/generic/bt_exception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
-#include <src/util/stream/str.h>
-#include <src/util/system/backtrace.h>
-#include <src/util/system/type_name.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
+#include <ydb-cpp-sdk/util/system/backtrace.h>
+#include <ydb-cpp-sdk/util/system/type_name.h>
 
 #if defined(_linux_) || defined(_android_) || defined(_darwin_)
     #include <cxxabi.h>

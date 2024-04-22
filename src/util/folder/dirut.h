@@ -1,9 +1,9 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/system/sysstat.h>
+#include <ydb-cpp-sdk/util/system/sysstat.h>
 #include <src/util/system/fs.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <sys/types.h>
 
@@ -11,7 +11,7 @@
 #include <cstdlib>
 
 #ifdef _win32_
-    #include <src/util/system/winint.h>
+    #include <ydb-cpp-sdk/util/system/winint.h>
     #include <direct.h>
     #include <malloc.h>
     #include <time.h>

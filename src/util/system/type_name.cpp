@@ -5,7 +5,7 @@
     #include <cxxabi.h>
 #endif
 
-#include "type_name.h"
+#include <ydb-cpp-sdk/util/system/type_name.h>
 
 namespace {
 

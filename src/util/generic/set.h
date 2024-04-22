@@ -1,9 +1,9 @@
 #pragma once
 
-#include "fwd.h"
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 
-#include <src/util/str_stl.h>
-#include <src/util/memory/alloc.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
+#include <ydb-cpp-sdk/util/memory/alloc.h>
 
 #include <initializer_list>
 #include <memory>

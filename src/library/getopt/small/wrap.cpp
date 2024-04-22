@@ -2,7 +2,7 @@
 
 #include <src/library/colorizer/colors.h>
 
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 #include <src/util/charset/utf8.h>
 
 namespace NLastGetopt {
