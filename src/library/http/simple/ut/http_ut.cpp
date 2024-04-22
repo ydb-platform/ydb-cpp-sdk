@@ -6,7 +6,7 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>
 
-#include <src/util/system/event.h>
+#include <ydb-cpp-sdk/util/system/event.h>
 #include <src/util/system/thread.h>
 
 #include <thread>

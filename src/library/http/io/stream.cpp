@@ -16,7 +16,7 @@
 
 #include <ydb-cpp-sdk/util/network/socket.h>
 
-#include <src/util/string/strip.h>
+#include <ydb-cpp-sdk/util/string/strip.h>
 
 #include <unordered_set>
 

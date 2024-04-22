@@ -1,6 +1,6 @@
 #pragma once
 
-#include "file.h"
+#include <ydb-cpp-sdk/util/system/file.h>
 #include "align.h"
 #include <ydb-cpp-sdk/util/system/yassert.h>
 
@@ -8,7 +8,7 @@
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <src/util/generic/flags.h>
+#include <ydb-cpp-sdk/util/generic/flags.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 
 #include <new>

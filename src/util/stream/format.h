@@ -4,7 +4,7 @@
 #include <ydb-cpp-sdk/util/stream/output.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
-#include <src/util/generic/flags.h>
+#include <ydb-cpp-sdk/util/generic/flags.h>
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 

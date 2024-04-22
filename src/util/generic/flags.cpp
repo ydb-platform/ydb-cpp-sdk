@@ -1,4 +1,4 @@
-#include "flags.h"
+#include <ydb-cpp-sdk/util/generic/flags.h>
 
 #include <src/util/stream/format.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>

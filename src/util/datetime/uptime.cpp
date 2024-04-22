@@ -1,7 +1,7 @@
 #include "uptime.h"
 
 #if defined(_win_)
-    #include <src/util/system/winint.h>
+    #include <ydb-cpp-sdk/util/system/winint.h>
 #elif defined(_linux_)
     #include <src/util/stream/file.h>
     #include <ydb-cpp-sdk/util/string/cast.h>

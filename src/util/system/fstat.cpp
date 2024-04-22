@@ -1,5 +1,5 @@
 #include "fstat.h"
-#include "file.h"
+#include <ydb-cpp-sdk/util/system/file.h>
 
 #include <sys/stat.h>
 

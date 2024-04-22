@@ -36,9 +36,9 @@ static int getloadavg(double* loadavg, int nelem) {
     #include <sys/sysctl.h>
 #endif
 
-#include <src/util/string/ascii.h>
+#include <ydb-cpp-sdk/util/string/ascii.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
-#include <src/util/string/strip.h>
+#include <ydb-cpp-sdk/util/string/strip.h>
 #include <src/util/string/split.h>
 #include <src/util/stream/file.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>

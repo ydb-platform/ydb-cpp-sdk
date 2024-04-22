@@ -6,7 +6,7 @@
 #include "buffered.h"
 #include <ydb-cpp-sdk/util/stream/mem.h>
 
-#include <src/util/system/file.h>
+#include <ydb-cpp-sdk/util/system/file.h>
 
 #include <utility>
 

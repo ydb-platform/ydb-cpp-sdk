@@ -25,7 +25,7 @@ using SOCKET = int;
     #define INVALID_SOCKET -1
     #define WSAGetLastError() errno
 #elif defined(_win_)
-    #include <src/util/system/winint.h>
+    #include <ydb-cpp-sdk/util/system/winint.h>
     #include <io.h>
     #include <winsock2.h>
     #include <ws2tcpip.h>

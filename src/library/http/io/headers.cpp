@@ -1,7 +1,7 @@
 #include <ydb-cpp-sdk/library/http/io/stream.h>
 
 #include <src/library/string_utils/stream/stream.h>
-#include <src/util/string/strip.h>
+#include <ydb-cpp-sdk/util/string/strip.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 
 static inline std::string_view Trim(const char* b, const char* e) noexcept {

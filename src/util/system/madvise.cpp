@@ -7,7 +7,7 @@
 #include <string>
 
 #if defined(_win_)
-    #include <src/util/system/winint.h>
+    #include <ydb-cpp-sdk/util/system/winint.h>
 #else
     #include <sys/mman.h>
 #endif

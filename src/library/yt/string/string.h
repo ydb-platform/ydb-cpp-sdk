@@ -8,7 +8,7 @@
 
 #include <string>
 
-#include <src/util/string/strip.h>
+#include <ydb-cpp-sdk/util/string/strip.h>
 
 #include <vector>
 #include <set>

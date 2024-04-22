@@ -3,7 +3,7 @@
 #include "fhandle.h"
 #include "flock.h"
 
-#include <src/util/generic/flags.h>
+#include <ydb-cpp-sdk/util/generic/flags.h>
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>

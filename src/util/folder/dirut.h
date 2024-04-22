@@ -11,7 +11,7 @@
 #include <cstdlib>
 
 #ifdef _win32_
-    #include <src/util/system/winint.h>
+    #include <ydb-cpp-sdk/util/system/winint.h>
     #include <direct.h>
     #include <malloc.h>
     #include <time.h>

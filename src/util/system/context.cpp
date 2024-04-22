@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include "event.h"
+#include <ydb-cpp-sdk/util/system/event.h>
 #include "thread.h"
 
 #include <cstdlib> //for abort()

@@ -7,7 +7,7 @@
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/stream/file.h>
 #include <ydb-cpp-sdk/util/stream/fwd.h>
-#include <src/util/system/file.h>
+#include <ydb-cpp-sdk/util/system/file.h>
 #include <src/util/system/file_lock.h>
 #include <ydb-cpp-sdk/util/system/guard.h>
 

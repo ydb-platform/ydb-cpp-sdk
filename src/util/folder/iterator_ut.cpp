@@ -4,7 +4,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/system/fs.h>
-#include <src/util/system/file.h>
+#include <ydb-cpp-sdk/util/system/file.h>
 #include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/random/mersenne.h>

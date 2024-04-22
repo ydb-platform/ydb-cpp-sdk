@@ -22,7 +22,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if defined(_MSC_VER) && defined(_DEBUG)
-    #include <src/util/system/winint.h>
+    #include <ydb-cpp-sdk/util/system/winint.h>
     #define CHECK_YPTR2
 #endif
 

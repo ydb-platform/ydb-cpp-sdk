@@ -15,7 +15,7 @@
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
 
-#include <src/util/system/event.h>
+#include <ydb-cpp-sdk/util/system/event.h>
 #include <src/util/system/thread.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>

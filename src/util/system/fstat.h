@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/generic/fwd.h>
-#include <src/util/system/fhandle.h>
+#include <ydb-cpp-sdk/util/system/fhandle.h>
 
 class TFile;
 class TFsPath;

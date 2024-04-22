@@ -9,7 +9,7 @@
 
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
-#include <src/util/string/strip.h>
+#include <ydb-cpp-sdk/util/string/strip.h>
 
 #include <optional>
 #include <type_traits>

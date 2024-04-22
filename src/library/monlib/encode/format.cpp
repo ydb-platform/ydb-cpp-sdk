@@ -2,9 +2,9 @@
 
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
-#include <src/util/string/ascii.h>
+#include <ydb-cpp-sdk/util/string/ascii.h>
 #include <src/util/string/split.h>
-#include <src/util/string/strip.h>
+#include <ydb-cpp-sdk/util/string/strip.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 

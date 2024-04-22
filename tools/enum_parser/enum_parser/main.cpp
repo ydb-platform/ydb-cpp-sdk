@@ -12,7 +12,7 @@
 #include <src/util/charset/wide.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
-#include <src/util/string/strip.h>
+#include <ydb-cpp-sdk/util/string/strip.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/string/join.h>
 #include <ydb-cpp-sdk/util/string/subst.h>

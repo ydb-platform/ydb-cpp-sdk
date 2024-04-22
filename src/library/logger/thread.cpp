@@ -2,7 +2,7 @@
 #include <ydb-cpp-sdk/library/logger/record.h>
 
 #include <ydb-cpp-sdk/util/thread/pool.h>
-#include <src/util/system/event.h>
+#include <ydb-cpp-sdk/util/system/event.h>
 #include <src/util/memory/addstorage.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>

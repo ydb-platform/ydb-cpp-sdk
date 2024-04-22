@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <ydb-cpp-sdk/util/string/escape.h>
-#include <src/util/string/strip.h>
+#include <ydb-cpp-sdk/util/string/strip.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 

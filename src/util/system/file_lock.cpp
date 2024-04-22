@@ -1,5 +1,5 @@
 #include "file_lock.h"
-#include "flock.h"
+#include <ydb-cpp-sdk/util/system/flock.h>
 
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 

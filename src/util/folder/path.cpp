@@ -6,7 +6,7 @@
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
-#include <src/util/system/file.h>
+#include <ydb-cpp-sdk/util/system/file.h>
 #include <src/util/system/fs.h>
 
 struct TFsPath::TSplit: public TAtomicRefCount<TSplit>, public TPathSplit {

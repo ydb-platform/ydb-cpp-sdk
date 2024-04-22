@@ -6,7 +6,7 @@
 #endif
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include "file.h"
+#include <ydb-cpp-sdk/util/system/file.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/network/pair.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>

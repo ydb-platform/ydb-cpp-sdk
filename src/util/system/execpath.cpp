@@ -4,7 +4,7 @@
     #include <stdlib.h>
 #elif defined(_darwin_)
     #include <mach-o/dyld.h>
-    #include <src/util/generic/function.h>
+    #include <ydb-cpp-sdk/util/generic/function.h>
 #elif defined(_win_)
     #include "winint.h"
     #include <io.h>

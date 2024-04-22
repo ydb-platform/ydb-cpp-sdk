@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
-#include <src/util/system/file.h>
+#include <ydb-cpp-sdk/util/system/file.h>
 
 enum class EFileLockType {
     Exclusive,

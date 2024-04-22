@@ -6,9 +6,9 @@
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <src/util/charset/utf8.h>
-#include <src/util/string/ascii.h>
+#include <ydb-cpp-sdk/util/string/ascii.h>
 #include <src/util/string/split.h>
-#include <src/util/string/strip.h>
+#include <ydb-cpp-sdk/util/string/strip.h>
 #include <ydb-cpp-sdk/util/string/subst.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/generic/stack.h>

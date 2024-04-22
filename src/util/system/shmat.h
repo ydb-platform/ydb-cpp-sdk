@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fhandle.h"
+#include <ydb-cpp-sdk/util/system/fhandle.h>
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/guid.h>

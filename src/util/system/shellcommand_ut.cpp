@@ -13,7 +13,7 @@
 #include <src/util/stream/file.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
-#include <src/util/string/strip.h>
+#include <ydb-cpp-sdk/util/string/strip.h>
 #include <src/util/folder/tempdir.h>
 
 #include <mutex>

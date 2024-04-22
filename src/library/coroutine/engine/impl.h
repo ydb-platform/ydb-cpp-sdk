@@ -14,7 +14,7 @@
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/intrlist.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
-#include <src/util/generic/function.h>
+#include <ydb-cpp-sdk/util/generic/function.h>
 
 #include <optional>
 

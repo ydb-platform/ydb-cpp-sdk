@@ -6,7 +6,7 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/string/join.h>
-#include <src/util/system/event.h>
+#include <ydb-cpp-sdk/util/system/event.h>
 #include <src/util/stream/zlib.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
 

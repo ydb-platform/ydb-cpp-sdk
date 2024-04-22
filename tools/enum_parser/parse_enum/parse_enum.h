@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/stream/output.h>
-#include <src/util/string/strip.h>
+#include <ydb-cpp-sdk/util/string/strip.h>
 
 #include <optional>
 #include <string>

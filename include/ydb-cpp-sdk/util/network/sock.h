@@ -8,7 +8,7 @@
 #include <ydb-cpp-sdk/util/system/sysstat.h>
 
 #if defined(_win_) || defined(_cygwin_)
-    #include <src/util/system/file.h>
+    #include <ydb-cpp-sdk/util/system/file.h>
 #else
     #include <sys/un.h>
     #include <sys/stat.h>

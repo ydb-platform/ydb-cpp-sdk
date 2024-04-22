@@ -6,7 +6,7 @@
 #include <cstring>
 
 #if defined(_win_)
-    #include <src/util/string/strip.h>
+    #include <ydb-cpp-sdk/util/string/strip.h>
     #include <ydb-cpp-sdk/util/network/socket.h>
     #include <ydb-cpp-sdk/util/generic/singleton.h>
     #include "winint.h"

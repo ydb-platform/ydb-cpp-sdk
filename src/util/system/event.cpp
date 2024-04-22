@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
-#include "event.h"
+#include <ydb-cpp-sdk/util/system/event.h>
 
 #include <condition_variable>
 #include <mutex>

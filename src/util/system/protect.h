@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
-#include <src/util/generic/flags.h>
+#include <ydb-cpp-sdk/util/generic/flags.h>
 
 enum EProtectMemoryMode {
     PM_NONE = 0x00,  // no access allowed
