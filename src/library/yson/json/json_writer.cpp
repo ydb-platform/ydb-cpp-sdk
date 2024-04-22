@@ -1,7 +1,7 @@
 #include "json_writer.h"
 
 #include <src/library/json/json_writer.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 namespace NYT {
     ////////////////////////////////////////////////////////////////////////////////

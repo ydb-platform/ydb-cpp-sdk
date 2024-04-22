@@ -4,12 +4,12 @@
 
 #include <src/util/folder/dirut.h>
 #include <src/util/folder/path.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/stream/file.h>
-#include <src/util/stream/fwd.h>
-#include <src/util/system/file.h>
+#include <ydb-cpp-sdk/util/stream/fwd.h>
+#include <ydb-cpp-sdk/util/system/file.h>
 #include <src/util/system/file_lock.h>
-#include <src/util/system/guard.h>
+#include <ydb-cpp-sdk/util/system/guard.h>
 
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 #include <ydb-cpp-sdk/library/json/json_value.h>

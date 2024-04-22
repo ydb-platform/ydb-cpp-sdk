@@ -10,11 +10,11 @@
 #include <src/util/generic/scope.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <src/util/stream/file.h>
-#include <src/util/stream/input.h>
-#include <src/util/system/backtrace.h>
-#include <src/util/system/file.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
+#include <ydb-cpp-sdk/util/system/backtrace.h>
+#include <ydb-cpp-sdk/util/system/file.h>
 #include <src/util/system/fs.h>
-#include <src/util/system/file.h>
+#include <ydb-cpp-sdk/util/system/file.h>
 #include <src/util/system/fstat.h>
 #include <src/util/system/tempfile.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <vector>
 

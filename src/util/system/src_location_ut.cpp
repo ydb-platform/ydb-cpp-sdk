@@ -1,6 +1,6 @@
 #include "src_location.h"
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <src/library/testing/unittest/registar.h>
 

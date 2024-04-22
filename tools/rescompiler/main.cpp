@@ -1,9 +1,9 @@
 #include <src/library/resource/registry.h>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/stream/file.h>
 #include <src/util/digest/city.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/string/hex.h>
 #include <src/util/string/vector.h>
 #include <src/util/string/split.h>

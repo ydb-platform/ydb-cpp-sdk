@@ -4,8 +4,8 @@
 #include "strong_typedef.h"
 #endif
 
-#include <src/util/stream/output.h>
-#include <src/util/str_stl.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
 
 #include "wrapper_traits.h"
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/util/memory/smallobj.h>
-#include "ptr.h"
+#include <ydb-cpp-sdk/util/generic/ptr.h>
 
 template <class T>
 class TFastQueue {

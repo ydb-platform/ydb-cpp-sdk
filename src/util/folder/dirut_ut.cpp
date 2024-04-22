@@ -3,7 +3,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <src/util/stream/file.h>
 
 Y_UNIT_TEST_SUITE(TDirutTest) {

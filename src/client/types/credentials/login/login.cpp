@@ -7,7 +7,7 @@
 #include <src/library/login/login.h>
 #include <src/library/security/util.h>
 
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 namespace NYdb {
 

@@ -3,8 +3,8 @@
 #include <cstdlib>
 
 #include <src/util/charset/recode_result.h>
-#include <src/util/generic/ptr.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include "codepage.h"
 #include "doccodes.h"

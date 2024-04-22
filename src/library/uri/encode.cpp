@@ -1,6 +1,6 @@
 #include "encode.h"
 
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 namespace NUri {
     namespace NEncode {

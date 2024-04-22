@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 #include <optional>
 

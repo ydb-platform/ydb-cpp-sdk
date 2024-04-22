@@ -1,8 +1,8 @@
 #include "init_atfork.h"
-#include "random.h"
+#include <ydb-cpp-sdk/util/random/random.h>
 
-#include <src/util/generic/singleton.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #if defined(_unix_)
     #include <pthread.h>

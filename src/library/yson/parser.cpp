@@ -3,7 +3,7 @@
 #include "format.h"
 #include "parser_detail.h"
 
-#include <src/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
 #include <src/util/generic/buffer.h>
 
 namespace NYson {

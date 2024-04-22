@@ -3,8 +3,8 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/system/file.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/file.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #ifdef _win_
     #include <io.h>

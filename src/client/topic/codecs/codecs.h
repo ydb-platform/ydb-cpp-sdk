@@ -1,5 +1,5 @@
 #pragma once
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/api/protos/ydb_topic.pb.h>
 #include <ydb-cpp-sdk/client/topic/topic.h>
 

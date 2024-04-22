@@ -1,8 +1,8 @@
 #pragma once
 
-#include "address.h"
+#include <ydb-cpp-sdk/util/network/address.h>
 
-#include <src/util/str_stl.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
 
 //some equivalent boost::asio::ip::endpoint (easy for using pair ip:port)
 class TEndpoint {

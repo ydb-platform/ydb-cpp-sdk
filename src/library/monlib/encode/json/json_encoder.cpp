@@ -10,7 +10,7 @@
 #include <ydb-cpp-sdk/library/json/writer/json.h>
 
 #include <src/util/charset/utf8.h>
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 
 namespace NMonitoring {
     namespace {

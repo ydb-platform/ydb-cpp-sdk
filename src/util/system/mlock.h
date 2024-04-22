@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
-#include <src/util/generic/flags.h>
+#include <ydb-cpp-sdk/util/generic/flags.h>
 
 //on some systems (not win, freebd, linux, but darwin (Mac OS X)
 //multiple mlock calls on the same address range

@@ -7,10 +7,10 @@
 
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 #include <limits>
 

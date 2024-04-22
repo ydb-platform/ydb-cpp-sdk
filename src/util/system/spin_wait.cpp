@@ -1,10 +1,10 @@
-#include "spin_wait.h"
+#include <ydb-cpp-sdk/util/system/spin_wait.h>
 #include "yield.h"
-#include "compat.h"
-#include "spinlock.h"
+#include <ydb-cpp-sdk/util/system/compat.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
 
-#include <src/util/digest/numeric.h>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/digest/numeric.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 #include <atomic>
 

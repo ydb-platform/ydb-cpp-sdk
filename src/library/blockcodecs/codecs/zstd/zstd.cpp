@@ -2,7 +2,7 @@
 #include <src/library/blockcodecs/core/common.h>
 #include <src/library/blockcodecs/core/register.h>
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #define ZSTD_STATIC_LINKING_ONLY
 #include <zstd.h>

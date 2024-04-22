@@ -4,7 +4,7 @@
 #include <src/client/impl/ydb_internal/session_client/session_client.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
-#include <src/util/system/spinlock.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
 
 #include <functional>
 

@@ -13,7 +13,7 @@
 #endif
 
 #include <src/util/system/cpu_id.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 namespace NArgonish {
     static EInstructionSet GetBestSet() {

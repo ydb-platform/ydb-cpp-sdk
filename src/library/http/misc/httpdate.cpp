@@ -35,8 +35,8 @@
 #include <cstring>
 #include <ctime>
 
-#include <src/util/system/compat.h>   /* stricmp */
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/compat.h>   /* stricmp */
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include "httpdate.h"
 #include <ydb-cpp-sdk/util/datetime/base.h>
 

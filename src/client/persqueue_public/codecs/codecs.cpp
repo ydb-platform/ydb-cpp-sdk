@@ -1,7 +1,7 @@
 #include <src/library/streams/zstd/zstd.h>
 #include <src/util/stream/buffer.h>
 #include <src/util/stream/zlib.h>
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 
 #include "codecs.h"
 

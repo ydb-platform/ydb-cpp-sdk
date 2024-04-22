@@ -1,8 +1,8 @@
 #include <ydb-cpp-sdk/library/monlib/metrics/metric_type.h>
 
 #include <string_view>
-#include <src/util/generic/yexception.h>
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 
 namespace NMonitoring {
     std::string_view MetricTypeToStr(EMetricType type) {

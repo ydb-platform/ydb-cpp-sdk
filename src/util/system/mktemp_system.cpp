@@ -42,8 +42,8 @@
     #include <src/util/folder/dirut.h>
 #endif
 
-#include <src/util/random/random.h>
-#include "sysstat.h"
+#include <ydb-cpp-sdk/util/random/random.h>
+#include <ydb-cpp-sdk/util/system/sysstat.h>
 
 static const unsigned char padchar[] =
     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

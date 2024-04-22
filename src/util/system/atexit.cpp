@@ -1,11 +1,11 @@
-#include "atexit.h"
-#include "yassert.h"
-#include "spinlock.h"
+#include <ydb-cpp-sdk/util/system/atexit.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
 #include "thread.h"
 
 #include <queue>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 #include <atomic>
 #include <mutex>

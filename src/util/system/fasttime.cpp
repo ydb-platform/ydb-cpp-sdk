@@ -1,8 +1,8 @@
 #include "dynlib.h"
 #include "fasttime.h"
 
-#include <src/util/generic/singleton.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <utility>
 
 #include <src/util/thread/singleton.h>

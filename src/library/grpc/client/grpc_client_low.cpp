@@ -4,7 +4,7 @@
 #include <ydb-cpp-sdk/library/containers/stack_vector/stack_vec.h>
 
 #include <src/util/system/thread.h>
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 
 #if !defined(_WIN32) && !defined(_WIN64)
 #include <sys/types.h>

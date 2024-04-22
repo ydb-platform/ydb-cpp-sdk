@@ -8,7 +8,7 @@
 
 #include <src/util/stream/buffer.h>
 
-#include <src/util/ysaveload.h>
+#include <ydb-cpp-sdk/util/ysaveload.h>
 
 namespace NYT {
 namespace {

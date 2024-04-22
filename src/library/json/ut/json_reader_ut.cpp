@@ -2,7 +2,7 @@
 #include <src/library/json/json_writer.h>
 
 #include <src/library/testing/unittest/registar.h>
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 
 using namespace NJson;
 

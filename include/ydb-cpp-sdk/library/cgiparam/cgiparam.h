@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/library/iterator/iterate_values.h>
 
-#include <src/util/generic/iterator_range.h>
+#include <ydb-cpp-sdk/util/generic/iterator_range.h>
 #include <string_view>
 #include <string>
 

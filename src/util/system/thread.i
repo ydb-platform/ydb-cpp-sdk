@@ -17,7 +17,7 @@
     #include <pthread_np.h>
 #endif
 
-#include <src/util/digest/numeric.h>
+#include <ydb-cpp-sdk/util/digest/numeric.h>
 
 static inline size_t SystemCurrentThreadIdImpl() noexcept {
     #if defined(_unix_)

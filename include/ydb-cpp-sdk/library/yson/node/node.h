@@ -1,14 +1,14 @@
 #pragma once
 
-#include <src/util/generic/bt_exception.h>
-#include <src/util/generic/hash.h>
+#include <ydb-cpp-sdk/util/generic/bt_exception.h>
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 #include <cmath>
 #include <variant>
+#include <unordered_map>
 
 class IInputStream;
 class IOutputStream;
@@ -44,7 +44,7 @@ public:
     };
 
     using TListType = std::vector<TNode>;
-    using TMapType = THashMap<std::string, TNode>;
+    using TMapType = std::unordered_map<std::string, TNode>;
 
 private:
     struct TNull {

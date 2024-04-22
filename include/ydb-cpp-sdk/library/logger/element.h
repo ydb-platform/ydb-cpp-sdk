@@ -4,8 +4,8 @@
 #include "record.h"
 
 
-#include <src/util/string/cast.h>
-#include <src/util/stream/tempbuf.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/stream/tempbuf.h>
 
 
 class TLog;

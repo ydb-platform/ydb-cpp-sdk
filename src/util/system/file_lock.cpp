@@ -1,7 +1,7 @@
 #include "file_lock.h"
-#include "flock.h"
+#include <ydb-cpp-sdk/util/system/flock.h>
 
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <cerrno>
 

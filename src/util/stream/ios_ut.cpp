@@ -6,8 +6,8 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/string/cast.h>
-#include <src/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <src/util/charset/wide.h>
 
 #include <string>

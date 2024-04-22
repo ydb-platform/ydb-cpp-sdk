@@ -2,11 +2,11 @@
 #include "path.h"
 #include "pathsplit.h"
 
-#include <src/util/generic/yexception.h>
-#include <src/util/string/cast.h>
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
-#include <src/util/system/file.h>
+#include <ydb-cpp-sdk/util/system/file.h>
 #include <src/util/system/fs.h>
 
 struct TFsPath::TSplit: public TAtomicRefCount<TSplit>, public TPathSplit {

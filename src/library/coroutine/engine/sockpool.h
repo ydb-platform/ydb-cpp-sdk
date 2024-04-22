@@ -3,8 +3,8 @@
 #include "impl.h"
 #include "network.h"
 
-#include <src/util/network/address.h>
-#include <src/util/network/socket.h>
+#include <ydb-cpp-sdk/util/network/address.h>
+#include <ydb-cpp-sdk/util/network/socket.h>
 
 #include <mutex>
 

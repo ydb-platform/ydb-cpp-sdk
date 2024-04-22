@@ -10,14 +10,14 @@
 #include <src/api/protos/ydb_value.pb.h>
 
 #include <ydb-cpp-sdk/library/containers/stack_vector/stack_vec.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <src/library/yql/public/decimal/yql_decimal.h>
 #include <src/library/uuid/uuid.h>
 
 #include <src/util/generic/mapfindptr.h>
 #include <src/util/generic/bitmap.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 namespace NYdb {
 

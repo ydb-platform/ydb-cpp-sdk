@@ -2,9 +2,9 @@
 
 #include <src/library/yt/coding/varint.h>
 
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 
 #include <tuple>
 

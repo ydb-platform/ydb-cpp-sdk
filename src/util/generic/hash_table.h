@@ -1,16 +1,16 @@
 #pragma once
 
-#include "fwd.h"
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 #include "mapfindptr.h"
 
-#include <src/util/memory/alloc.h>
+#include <ydb-cpp-sdk/util/memory/alloc.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
-#include <src/util/system/type_name.h>
-#include <src/util/system/yassert.h>
-#include <src/util/str_stl.h>
-#include "yexception.h"
+#include <ydb-cpp-sdk/util/system/type_name.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
-#include "utility.h"
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 #include <algorithm>
 #include <initializer_list>

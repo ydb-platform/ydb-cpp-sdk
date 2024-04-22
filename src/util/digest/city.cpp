@@ -33,8 +33,8 @@ using uint8 = ui8;
 using uint32 = ui32;
 using uint64 = ui64;
 
-#include <src/util/system/unaligned_mem.h>
-#include <src/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/system/unaligned_mem.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
 
 using namespace std;
 

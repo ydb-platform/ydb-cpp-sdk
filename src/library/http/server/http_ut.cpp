@@ -4,11 +4,11 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>
 
-#include <src/util/generic/cast.h>
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/generic/cast.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/stream/zlib.h>
 #include <src/util/system/datetime.h>
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 
 #include <mutex>
 

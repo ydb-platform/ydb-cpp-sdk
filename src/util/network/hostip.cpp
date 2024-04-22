@@ -1,8 +1,8 @@
-#include "socket.h"
-#include "hostip.h"
+#include <ydb-cpp-sdk/util/network/socket.h>
+#include <ydb-cpp-sdk/util/network/hostip.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/system/byteorder.h>
+#include <ydb-cpp-sdk/util/system/byteorder.h>
 
 #if defined(_unix_) || defined(_cygwin_)
     #include <netdb.h>

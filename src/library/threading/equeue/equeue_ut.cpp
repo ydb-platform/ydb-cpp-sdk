@@ -3,7 +3,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/system/event.h>
+#include <ydb-cpp-sdk/util/system/event.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
 

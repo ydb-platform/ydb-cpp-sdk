@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 namespace NPrivate {
     constexpr double ToRandReal1(const ui32 x) noexcept {

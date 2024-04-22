@@ -1,9 +1,9 @@
 #include <cstdlib>
 #include <exception>
 
-#include <src/util/stream/output.h>
-#include <src/util/system/backtrace.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/system/backtrace.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <iostream>
 #include <string>

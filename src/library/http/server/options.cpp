@@ -1,10 +1,10 @@
 #include <ydb-cpp-sdk/library/http/server/options.h>
 
-#include <src/util/string/cast.h>
-#include <src/util/digest/numeric.h>
-#include <src/util/network/ip.h>
-#include <src/util/network/socket.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/digest/numeric.h>
+#include <ydb-cpp-sdk/util/network/ip.h>
+#include <ydb-cpp-sdk/util/network/socket.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <unordered_set>
 
 using TAddr = THttpServerOptions::TAddr;

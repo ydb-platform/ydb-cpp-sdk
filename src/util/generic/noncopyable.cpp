@@ -1,1 +1,1 @@
-#include "noncopyable.h"
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>

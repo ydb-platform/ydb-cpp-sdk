@@ -1,7 +1,7 @@
 #include "gtest.h"
 #include "simple.h"
 
-#include <src/util/system/type_name.h>
+#include <ydb-cpp-sdk/util/system/type_name.h>
 
 using namespace NUnitTest;
 using namespace NUnitTest::NPrivate;

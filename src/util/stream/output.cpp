@@ -1,16 +1,16 @@
-#include "output.h"
+#include <ydb-cpp-sdk/util/stream/output.h>
 
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include "format.h"
-#include <src/util/memory/tempbuf.h>
-#include <src/util/generic/singleton.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/util/charset/utf8.h>
 #include <src/util/charset/wide.h>
 
 #if defined(_android_)
     #include <src/util/system/dynlib.h>
-    #include <src/util/system/guard.h>
+    #include <ydb-cpp-sdk/util/system/guard.h>
     #include <android/log.h>
     #include <mutex>
 #endif

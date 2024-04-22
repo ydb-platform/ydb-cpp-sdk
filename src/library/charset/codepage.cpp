@@ -1,16 +1,16 @@
 #include "ci_string.h"
 #include "codepage.h"
 
-#include <src/util/string/cast.h>
-#include <src/util/string/subst.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/subst.h>
 #include <src/util/string/util.h>
 #include <src/util/system/hi_lo.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <src/util/generic/hash.h>
 #include <string>
 
-#include <src/util/generic/singleton.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/util/memory/pool.h>
 
 #include <cstring>

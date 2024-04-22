@@ -2,7 +2,7 @@
 
 #include <src/library/string_utils/base64/base64.h>
 
-#include <src/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
 #include <src/util/stream/file.h>
 #include <src/util/string/hex.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "random.h"
+#include <ydb-cpp-sdk/util/random/random.h>
 
 namespace NPrivate {
     struct TRandom {

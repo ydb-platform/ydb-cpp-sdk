@@ -1,4 +1,4 @@
-#include <src/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 
 #include <src/library/yt/misc/guid.h>
 

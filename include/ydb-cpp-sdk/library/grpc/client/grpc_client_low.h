@@ -2,8 +2,8 @@
 
 #include "grpc_common.h"
 
-#include <src/util/thread/factory.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/thread/factory.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include <grpc++/grpc++.h>
 #include <grpc++/support/async_stream.h>
 #include <grpc++/support/async_unary_call.h>

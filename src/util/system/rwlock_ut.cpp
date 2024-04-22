@@ -1,9 +1,9 @@
-#include "rwlock.h"
+#include <ydb-cpp-sdk/util/system/rwlock.h>
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/thread/pool.h>
-#include <src/util/random/random.h>
+#include <ydb-cpp-sdk/util/thread/pool.h>
+#include <ydb-cpp-sdk/util/random/random.h>
 
 #include <atomic>
 

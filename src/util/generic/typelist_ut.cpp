@@ -1,5 +1,5 @@
 #include <src/library/testing/unittest/registar.h>
-#include <src/util/system/type_name.h>
+#include <ydb-cpp-sdk/util/system/type_name.h>
 
 #include "typelist.h"
 #include "vector.h"

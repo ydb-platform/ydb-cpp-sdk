@@ -1,6 +1,6 @@
 #pragma once
 
-#include "address.h"
+#include <ydb-cpp-sdk/util/network/address.h>
 
 #include <vector>
 

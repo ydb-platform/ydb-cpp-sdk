@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/system/compiler.h>
-#include <src/util/system/src_root.h>
+#include <ydb-cpp-sdk/util/system/src_root.h>
 
 #include <string_view>
 

@@ -7,10 +7,10 @@
 #include <ydb-cpp-sdk/library/mime/types/mime.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/system/compat.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
 #include <string>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
-#include <src/util/system/maxlen.h>
+#include <ydb-cpp-sdk/util/system/maxlen.h>
 
 #include <ctime>
 #include <cstdio>

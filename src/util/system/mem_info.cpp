@@ -3,8 +3,8 @@
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <src/util/stream/file.h>
-#include <src/util/string/cast.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include "error.h"
 #include "info.h"
 
@@ -20,7 +20,7 @@
     #endif
 #elif defined(_win_)
     #include <Windows.h>
-    #include <src/util/generic/ptr.h>
+    #include <ydb-cpp-sdk/util/generic/ptr.h>
 
 using NTSTATUS = LONG;
     #define STATUS_INFO_LENGTH_MISMATCH 0xC0000004

@@ -2,7 +2,7 @@
 #include "network.h"
 
 #include <src/util/generic/scope.h>
-#include <src/util/generic/xrange.h>
+#include <ydb-cpp-sdk/util/generic/xrange.h>
 
 #include <sys/uio.h>
 

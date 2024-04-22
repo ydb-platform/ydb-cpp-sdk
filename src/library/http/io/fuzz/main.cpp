@@ -1,7 +1,7 @@
 #include <ydb-cpp-sdk/library/http/io/stream.h>
 
 
-#include <src/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
 
 extern "C" int LLVMFuzzerTestOneInput(const ui8* data, size_t size) {
     TMemoryInput mi(data, size);

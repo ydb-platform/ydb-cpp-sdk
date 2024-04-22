@@ -1,7 +1,7 @@
 #pragma once
 
-#include <src/util/generic/function.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/generic/function.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <functional>
 

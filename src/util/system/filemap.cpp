@@ -3,8 +3,8 @@
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include "hi_lo.h"
 
-#include <src/util/generic/yexception.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #if defined(_win_)
     #include "winint.h"
@@ -29,7 +29,7 @@
     #error todo
 #endif
 
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 #include <src/util/system/sanitizers.h>
 #include "filemap.h"
 

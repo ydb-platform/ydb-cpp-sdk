@@ -1,6 +1,6 @@
-#include <src/util/stream/str.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
 
-#include "address.h"
+#include <ydb-cpp-sdk/util/network/address.h>
 
 #if defined(_unix_)
     #include <sys/un.h>

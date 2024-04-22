@@ -1,4 +1,4 @@
-#include "src_root.h"
+#include <ydb-cpp-sdk/util/system/src_root.h>
 
 #include <src/util/folder/pathsplit.h>
 #include <src/library/testing/unittest/registar.h>

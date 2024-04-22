@@ -4,7 +4,7 @@
 
 #ifdef _win_
 
-    #include <src/util/system/winint.h>
+    #include <ydb-cpp-sdk/util/system/winint.h>
 
     #ifdef __cplusplus
 extern "C" {

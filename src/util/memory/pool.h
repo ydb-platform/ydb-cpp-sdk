@@ -1,13 +1,13 @@
 #pragma once
 
-#include "alloc.h"
+#include <ydb-cpp-sdk/util/memory/alloc.h>
 
 #include <src/util/system/align.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <src/util/generic/bitops.h>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 #include <src/util/generic/intrlist.h>
-#include <src/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #include <new>
 #include <string>

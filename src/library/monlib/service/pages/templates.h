@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
 #define WITH_SCOPED(var, value) WITH_SCOPED_I(var, value, Y_GENERATE_UNIQUE_ID(WITH_SCOPED_LABEL_))

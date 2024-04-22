@@ -1,5 +1,5 @@
 #include "join.h"
-#include "subst.h"
+#include <ydb-cpp-sdk/util/string/subst.h>
 #include <string>
 
 #include <src/library/testing/unittest/registar.h>

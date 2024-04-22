@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
 #include <cmath>
@@ -8,7 +8,7 @@
 #include <cstdlib>
 
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
-#include "utility.h"
+#include <ydb-cpp-sdk/util/generic/utility.h>
 
 constexpr double PI = M_PI;
 constexpr double M_LOG2_10 = 3.32192809488736234787; // log2(10)

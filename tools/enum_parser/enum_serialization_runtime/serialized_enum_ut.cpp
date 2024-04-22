@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/generic/typelist.h>
+#include <ydb-cpp-sdk/util/generic/typelist.h>
 #include <src/util/generic/vector.h>
 
 #include <map>

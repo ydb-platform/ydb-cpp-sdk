@@ -1,7 +1,7 @@
 #include "quote.h"
 
-#include <src/util/memory/tempbuf.h>
-#include <src/util/string/ascii.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/string/ascii.h>
 #include <src/util/string/cstriter.h>
 
 /* note: (x & 0xdf) makes x upper case */

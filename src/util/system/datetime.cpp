@@ -1,5 +1,5 @@
 #include "datetime.h"
-#include "yassert.h"
+#include <ydb-cpp-sdk/util/system/yassert.h>
 #include "cpu_id.h"
 
 #include <ydb-cpp-sdk/util/datetime/systime.h>

@@ -3,7 +3,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/library/string_utils/relaxed_escaper/relaxed_escaper.h>
-#include <src/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 #include <iostream>
 

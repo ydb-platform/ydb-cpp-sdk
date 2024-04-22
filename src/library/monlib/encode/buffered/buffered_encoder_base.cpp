@@ -1,9 +1,9 @@
 #include "buffered_encoder_base.h"
 
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <src/util/string/join.h>
-#include <src/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
 
 namespace NMonitoring {
 

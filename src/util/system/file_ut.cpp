@@ -5,7 +5,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/util/stream/file.h>
-#include <src/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 class TFileTest: public TTestBase {
     UNIT_TEST_SUITE(TFileTest);

@@ -5,8 +5,8 @@
 
 #include <src/library/string_utils/url/url.h>
 
-#include <src/util/generic/store_policy.h>
-#include <src/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/generic/store_policy.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 #include <src/util/stream/buffer.h>
 
 

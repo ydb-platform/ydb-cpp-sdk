@@ -6,7 +6,7 @@
 #include <src/library/colorizer/colors.h>
 
 #include <src/util/folder/path.h>
-#include <src/util/string/escape.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
 
 class PtrWrapper: public TMainClass {
 public:

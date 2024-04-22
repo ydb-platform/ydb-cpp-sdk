@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <type_traits>
 #include <map>

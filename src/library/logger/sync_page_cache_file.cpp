@@ -2,8 +2,8 @@
 #include <ydb-cpp-sdk/library/logger/record.h>
 
 #include <src/util/generic/buffer.h>
-#include <src/util/generic/yexception.h>
-#include <src/util/system/file.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/system/file.h>
 #include <src/util/system/info.h>
 #include <src/util/system/align.h>
 

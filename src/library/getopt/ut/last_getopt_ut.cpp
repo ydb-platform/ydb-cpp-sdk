@@ -4,7 +4,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <ydb-cpp-sdk/util/generic/array_size.h>
-#include <src/util/string/subst.h>
+#include <ydb-cpp-sdk/util/string/subst.h>
 #include <src/util/string/vector.h>
 #include <src/util/string/split.h>
 

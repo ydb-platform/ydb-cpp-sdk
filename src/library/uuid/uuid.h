@@ -1,6 +1,6 @@
 #pragma once
 #include <ydb-cpp-sdk/util/system/types.h>
-#include <src/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <cctype>
 #include <cstring>
