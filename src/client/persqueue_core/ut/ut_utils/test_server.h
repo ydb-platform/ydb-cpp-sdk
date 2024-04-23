@@ -155,14 +155,14 @@ public:
     ui16 Port;
     ui16 GrpcPort;
 
-    THolder<NKikimr::Tests::TServer> CleverServer;
+    std::unique_ptr<NKikimr::Tests::TServer> CleverServer;
     NKikimr::Tests::TServerSettings ServerSettings;
     NYdbGrpc::TServerOptions GrpcServerOptions;
-    THolder<TTempFileHandle> NetDataFile;
+    std::unique_ptr<TTempFileHandle> NetDataFile;
 
     TLog Log = CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG);
 
-    THolder<NKikimr::NPersQueueTests::TFlatMsgBusPQClient> AnnoyingClient;
+    std::unique_ptr<NKikimr::NPersQueueTests::TFlatMsgBusPQClient> AnnoyingClient;
 
 
     static const std::vector<NKikimrServices::EServiceKikimr> LOGGED_SERVICES;

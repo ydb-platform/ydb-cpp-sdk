@@ -311,7 +311,7 @@ TThread::~TThread() {
     Join();
 }
 
-void TThread::Start() {
+/*void TThread::Start() {
     if (!Impl_) {
         ythrow yexception() << "cannot start dead thread";
     }
@@ -322,7 +322,20 @@ void TThread::Start() {
     }
 
     implPtr->Start();
+}*/
+//тут снизу как изначально,сверху модиф
+/*void TThread::Start() {
+    Impl(Impl_, "start", false)->Start();
+}*/
+void TThread::Start() {
+    if (Impl_) {
+        Impl_->Start();
+    } else {
+        // Обработка ситуации, когда Impl_ пустой
+        // Можно выбросить исключение или выполнить другую логику
+    }
 }
+
 
 void* TThread::Join() {
     if (Running()) {

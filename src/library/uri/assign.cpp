@@ -14,7 +14,7 @@ namespace NUri {
 
     static const std::string_view ESCAPED_FRAGMENT(std::string_view("_escaped_fragment_="));
 
-    TMallocPtr<char> TUri::IDNToAscii(const wchar32* idna) {
+    /*TMallocPtr<char> TUri::IDNToAscii(const wchar32* idna) {
         char* buf = nullptr;
         static_assert(sizeof(*idna) == sizeof(ui32), "fixme");
 
@@ -88,12 +88,100 @@ namespace NUri {
         TMallocPtr<char> puny = IDNToAscii(host);
         buf = std::move(puny);
         outHost = buf.get();
-    } catch (const yexception& /* exc */) {
+    } catch (const yexception&  //exc ) {
         // ¯\_(ツ)_/¯
     }
+       return outHost;
+}*/
+    TMallocPtr<char> TUri::IDNToAscii(const wchar32* idna) {
+        char* buf = nullptr;
+        if (IDNA_SUCCESS != idna_to_ascii_4z((const uint32_t*) idna, &buf, 0)) {
+            buf = nullptr;
+        }
+        return TMallocPtr<char>(buf);  // Создаем TMallocPtr, который будет освобождать buf
+    }
+
+    TMallocPtr<char> TUri::IDNToAscii(const std::string_view& host, ECharset enc) {
+        TTempBuf buf(sizeof(wchar32) * (1 + host.length()));
+        wchar32* wbuf = reinterpret_cast<wchar32*>(buf.Data());
+
+        const size_t written = NDetail::NBaseOps::Recode(host, wbuf, enc).length();
+        wbuf[written] = 0;
+
+        return IDNToAscii(wbuf);
+    }
+
+    std::string_view TUri::HostToAscii(std::string_view host, TMallocPtr<char>& buf, bool hasExtended, bool allowIDN, ECharset enc) {
+        std::string_view outHost; // store the result here before returning it, to get RVO
+
+        size_t buflen = 0;
+
+        if (hasExtended && !allowIDN) {
+            return outHost; // definitely can't convert
+        }
+        // charset-recode: RFC 3986, 3.2.2, requires percent-encoded non-ASCII
+        // chars in reg-name to be UTF-8 so convert to UTF-8 prior to decoding
+        const bool recoding = CODES_UTF8 != enc && hasExtended;
+        if (recoding) {
+            size_t nrd, nwr;
+            buflen = host.length() * 4;
+            buf.reset(static_cast<char*>(y_allocate(buflen)));
+            if (RECODE_OK != Recode(enc, CODES_UTF8, host.data(), buf.get(), host.length(), buflen, nrd, nwr)) {
+                return outHost;
+            }
+            host = std::string_view(buf.get(), nwr);
+        }
+
+        // percent-decode
+        if (0 == buflen) {
+            buflen = host.length();
+            buf.reset(static_cast<char*>(y_allocate(buflen)));
+        }
+        // decoding shortens so writing over host in buf is OK
+        TMemoryWriteBuffer out(buf.get(), buflen);
+        TEncoder decoder(out, FeatureDecodeANY | FeatureToLower);
+        const ui64 outFlags = decoder.ReEncode(host);
+        hasExtended = 0 != (outFlags & FeatureEncodeExtendedASCII);
+
+        // check again
+        if (hasExtended && !allowIDN) {
+            return outHost;
+        }
+
+        host = out.Str();
+
+        // convert to punycode if needed
+        if (!hasExtended) {
+            outHost = host;
+            return outHost;
+        }
+
+        TMallocPtr<char> puny;
+        try {
+        puny = IDNToAscii(host);
+        } catch (const yexception& /* exc */) {
+        }
+
+        if (!puny) {
+    // XXX: try user charset unless UTF8 or converted to it
+        if (CODES_UTF8 == enc || recoding) {
+            return outHost;
+        }
+        try {
+            puny = IDNToAscii(host, enc);
+        } catch (const yexception& /* exc */) {
+            return outHost;
+        }
+        if (!puny) {
+            return outHost;
+        }
+    }
+
+    buf = std::move(puny);
+    outHost = buf.get();
 
     return outHost;
-}
+    }
 
     std::string_view TUri::HostToAscii(const std::string_view& host, TMallocPtr<char>& buf, bool allowIDN, ECharset enc) {
         // find what we have

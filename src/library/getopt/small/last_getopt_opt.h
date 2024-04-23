@@ -52,7 +52,7 @@ namespace NLastGetopt {
 
     private:
         typedef std::optional<std::string> TdOptVal;
-        typedef std::vector<TSimpleSharedPtr<IOptHandler>> TOptHandlers;
+        typedef std::vector<std::shared_ptr<IOptHandler>> TOptHandlers;
 
     public:
         bool Hidden_ = false;       // is visible in help

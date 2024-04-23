@@ -2,7 +2,7 @@
 
 from cython.operator cimport dereference
 
-from util.generic.ptr cimport THolder
+
 from util.generic.string cimport std::string, std::string_view
 from util.stream.str cimport TStringOutput, TStringOutputPtr
 

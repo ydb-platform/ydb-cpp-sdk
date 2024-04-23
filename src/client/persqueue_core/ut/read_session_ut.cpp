@@ -39,7 +39,7 @@ std::string Compress(const std::string& sourceData, Ydb::PersQueue::V1::Codec co
 
     std::string compressed;
     TStringOutput out(compressed);
-    THolder<IOutputStream> coder;
+    std::unique_ptr<IOutputStream> coder;
     switch (codec) {
     case Ydb::PersQueue::V1::CODEC_GZIP:
         coder = MakeHolder<TZLibCompress>(&out, ZLib::GZip);

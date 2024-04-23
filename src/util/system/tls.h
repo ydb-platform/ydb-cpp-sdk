@@ -277,15 +277,34 @@ namespace NTls {
 
             return val;
         }
+        //так изначально
+        /*inline T* GetPtr() const {
+            T* val = static_cast<T*>(Key_.Get());
+
+            if (!val) {
+                THolder<void> mem(::operator new(sizeof(T)));
+                THolder<T> newval(Constructor_->Construct(mem.Get()));
+
+                Y_UNUSED(mem.Release());
+                Key_.Set((void*)newval.Get());
+                val = newval.Release();
+            }
+
+            return val;
+        }*/
 
 
 
     private:
-        static void Dtor(void* ptr) {
+        /*static void Dtor(void* ptr) {
             T* typedPtr = static_cast<T*>(ptr);
             typedPtr->~T();
             ::NPrivate::FillWithTrash(ptr, sizeof(T));
             operator delete(ptr);
+        }*/
+        static void Dtor(void* ptr) {
+            ((T*)ptr)->~T();
+            ::NPrivate::FillWithTrash(ptr, sizeof(T));
         }
 
 

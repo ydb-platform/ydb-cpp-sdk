@@ -28,7 +28,7 @@ namespace NCoro::NStack::Tests {
     }
 
     protected: // data
-        THolder<IAllocator> Allocator_;
+        std::unique_ptr<IAllocator> Allocator_;
     };
 
 
@@ -62,19 +62,19 @@ namespace NCoro::NStack::Tests {
     // Test that allocated stack has guards
     //
     template<class AllocatorType>
-    THolder<IAllocator> GetAllocator(EGuard guardType);
+    std::unique_ptr<IAllocator> GetAllocator(EGuard guardType);
 
     struct TPoolTag {};
     struct TSimpleTag {};
 
     template<>
-    THolder<IAllocator> GetAllocator<TPoolTag>(EGuard guardType) {
+    std::unique_ptr<IAllocator> GetAllocator<TPoolTag>(EGuard guardType) {
         std::optional<TPoolAllocatorSettings> poolSettings = TPoolAllocatorSettings{};
         return GetAllocator(poolSettings, guardType);
     }
 
     template<>
-    THolder<IAllocator> GetAllocator<TSimpleTag>(EGuard guardType) {
+    std::unique_ptr<IAllocator> GetAllocator<TSimpleTag>(EGuard guardType) {
         std::optional<TPoolAllocatorSettings> poolSettings;
         return GetAllocator(poolSettings, guardType);
     }
@@ -88,7 +88,7 @@ namespace NCoro::NStack::Tests {
         {}
 
         const size_t StackSize_ = PageSize * 2;
-        THolder<IAllocator> Allocator_;
+        std::unique_ptr<IAllocator> Allocator_;
     };
 
     typedef Types<TPoolTag, TSimpleTag> Implementations;

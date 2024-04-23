@@ -172,7 +172,8 @@ TSharedRangeHolderPtr MakeSharedRangeHolder(THolders&&... holders)
         std::tuple<typename std::decay<THolders>::type...> Holders;
     };
 
-    auto holder = New<THolder>();
+    //auto holder = New<THolder>();
+    auto holder = std::make_unique<THolder>();
     holder->Holders = std::tuple<THolders...>(std::forward<THolders>(holders)...);
     return holder;
 }
@@ -187,7 +188,8 @@ TSharedRange<T> DoMakeSharedRange(TContainer&& elements, THolders&&... holders)
         std::tuple<typename std::decay<THolders>::type...> Holders;
     };
 
-    auto holder = New<THolder>();
+    //auto holder = New<THolder>();
+    auto holder = std::make_unique<THolder>();
     holder->Holders = std::tuple<THolders...>(std::forward<THolders>(holders)...);
     holder->Elements = std::forward<TContainer>(elements);
 

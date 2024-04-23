@@ -20,13 +20,14 @@ struct THolder
     { }
 };
 
-DEFINE_REFCOUNTED_TYPE(THolder);
+DEFINE_REFCOUNTED_TYPE(std::unique_ptr);
 
 ////////////////////////////////////////////////////////////////////////////////
 
 TEST(TSharedRange, Move)
 {
-    auto holder = New<THolder>(0);
+    //auto holder = New<THolder>(0);
+    auto holder = std::make_unique<std::unique_ptr>(0);
     int* raw = &holder->Value;
 
     auto sharedRange = MakeSharedRange<int>({raw, 1}, std::move(holder));
