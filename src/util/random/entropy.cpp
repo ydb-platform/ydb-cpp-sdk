@@ -6,6 +6,7 @@
 #include "init_atfork.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
 =======
@@ -16,11 +17,16 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/mem.h>
+>>>>>>> origin/main
 #include <src/util/stream/zlib.h>
 #include <src/util/stream/buffer.h>
 
 #include <src/util/system/fs.h>
 #include <src/util/system/info.h>
+<<<<<<< HEAD
 <<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 =======
@@ -30,6 +36,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/spinlock.h>
+>>>>>>> origin/main
 #include <src/util/system/thread.h>
 #include <src/util/system/execpath.h>
 #include <src/util/system/datetime.h>
@@ -39,10 +48,14 @@
 #include <src/util/system/rusage.h>
 #include <src/util/system/cpu_id.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/system/unaligned_mem.h>
 
 #include <src/util/generic/buffer.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+<<<<<<< HEAD
 =======
 #include <src/util/system/unaligned_mem.h>
 
@@ -66,6 +79,13 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+
+#include <src/util/digest/murmur.h>
+#include <src/util/digest/city.h>
+
+#include <ydb-cpp-sdk/util/ysaveload.h>
+>>>>>>> origin/main
 
 namespace {
     inline void Permute(char* buf, size_t len, ui32 seed) noexcept {

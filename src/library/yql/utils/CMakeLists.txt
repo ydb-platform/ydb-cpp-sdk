@@ -11,6 +11,7 @@ target_sources(library-yql-utils PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -33,4 +34,7 @@ target_sources(library-yql-utils PRIVATE
   utf8.cpp
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  utf8.cpp
+>>>>>>> origin/main
 )

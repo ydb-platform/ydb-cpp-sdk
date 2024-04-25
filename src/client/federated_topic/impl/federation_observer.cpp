@@ -1,5 +1,6 @@
 #include <src/api/grpc/ydb_federation_discovery_v1.grpc.pb.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/federated_topic/impl/federation_observer.cpp
 #include <src/client/federated_topic/impl/federation_observer.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/impl/federation_observer.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <src/client/federated_topic/impl/federation_observer.h>
+>>>>>>> origin/main
 
 namespace NYdb::NFederatedTopic {
 

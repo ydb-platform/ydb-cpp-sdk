@@ -2,6 +2,7 @@
 
 #include <span>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/threading/future/wait/wait.h
 #include <ydb-cpp-sdk/library/threading/future/core/future.h>
 
@@ -14,6 +15,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/threading/future/wait/wait.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/threading/future/core/future.h>
+
+#include "wait_group.h"
+>>>>>>> origin/main
 
 namespace NThreading {
     namespace NImpl {

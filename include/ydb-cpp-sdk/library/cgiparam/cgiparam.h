@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/cgiparam/cgiparam.h
 #include <ydb-cpp-sdk/library/iterator/iterate_values.h>
 
@@ -13,6 +14,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/cgiparam/cgiparam.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/iterator/iterate_values.h>
+
+#include <ydb-cpp-sdk/util/generic/iterator_range.h>
+>>>>>>> origin/main
 #include <string_view>
 #include <string>
 

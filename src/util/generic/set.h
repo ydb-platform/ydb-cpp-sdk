@@ -3,6 +3,7 @@
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/str_stl.h>
 #include <ydb-cpp-sdk/util/memory/alloc.h>
 =======
@@ -13,6 +14,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/str_stl.h>
+#include <ydb-cpp-sdk/util/memory/alloc.h>
+>>>>>>> origin/main
 
 #include <initializer_list>
 #include <memory>

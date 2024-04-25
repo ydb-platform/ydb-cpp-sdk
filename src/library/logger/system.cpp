@@ -1,10 +1,14 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/stream/null.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
+<<<<<<< HEAD
 =======
 #include <src/util/stream/output.h>
 #include <src/util/stream/null.h>
@@ -17,6 +21,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #if defined(_unix_)
 #include <syslog.h>

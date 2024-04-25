@@ -3,6 +3,7 @@
 
 #include <src/util/generic/buffer.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/file.h>
 =======
@@ -13,6 +14,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/system/file.h>
+>>>>>>> origin/main
 #include <src/util/system/info.h>
 #include <src/util/system/align.h>
 

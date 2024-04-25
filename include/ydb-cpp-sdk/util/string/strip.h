@@ -2,6 +2,10 @@
 
 #include "ascii.h"
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/string/strip.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/string/strip.h
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 ========
@@ -11,6 +15,12 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/string/strip.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/string/strip.h
+>>>>>>> origin/main
 #include <utility>
 
 template <class It>

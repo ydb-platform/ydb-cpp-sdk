@@ -3,6 +3,7 @@
 #include "options.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/topic/topic.h>
 #include <ydb-cpp-sdk/client/table/table.h>
@@ -15,6 +16,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/driver/driver.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/table/table.h>
+>>>>>>> origin/main
 
 #include <memory>
 #include <optional>

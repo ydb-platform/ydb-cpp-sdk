@@ -6,6 +6,9 @@
 #include <src/library/yson/json/json_writer.h>
 #include <src/library/yson/parser.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/yson/writer.h>
 #include <src/library/yson/json/yson2json_adapter.h>
 
@@ -16,6 +19,7 @@
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
+<<<<<<< HEAD
 =======
 #include <src/library/yson/writer.h>
 #include <src/library/yson/json/yson2json_adapter.h>
@@ -32,6 +36,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYT {
 

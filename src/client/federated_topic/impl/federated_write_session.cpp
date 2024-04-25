@@ -1,10 +1,14 @@
 #include "federated_write_session.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/federated_topic/impl/federated_write_session.cpp
+=======
+>>>>>>> origin/main
 #include <src/client/persqueue_core/impl/log_lazy.h>
 #include <src/client/topic/impl/topic_impl.h>
 
 #include <ydb-cpp-sdk/library/threading/future/future.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_persqueue_core/impl/log_lazy.h>
 #include <src/client/ydb_topic/impl/topic_impl.h>
@@ -15,6 +19,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/impl/federated_write_session.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <algorithm>
 

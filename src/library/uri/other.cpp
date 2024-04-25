@@ -3,6 +3,7 @@
 #include <contrib/libs/libc_compat/string.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <src/util/string/util.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
@@ -15,6 +16,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/utility.h>
+#include <src/util/string/util.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+>>>>>>> origin/main
 
 /********************************************************/
 /********************************************************/

@@ -12,6 +12,7 @@ target_link_libraries(cpp-client-ydb_driver PUBLIC
 target_sources(cpp-client-ydb_driver PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/driver/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
@@ -36,6 +37,9 @@ target_sources(cpp-client-ydb_driver PRIVATE
   driver.cpp
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_driver/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  driver.cpp
+>>>>>>> origin/main
 )
 
 add_library(YDB-CPP-SDK::Driver ALIAS cpp-client-ydb_driver)

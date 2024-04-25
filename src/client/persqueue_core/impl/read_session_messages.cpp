@@ -1,5 +1,6 @@
 #include "read_session.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/impl/read_session_messages.cpp
 #include <src/client/persqueue_core/persqueue.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/read_session_messages.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <src/client/persqueue_core/persqueue.h>
+>>>>>>> origin/main
 
 namespace NYdb::NPersQueue {
 

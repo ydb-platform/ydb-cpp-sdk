@@ -1,5 +1,9 @@
 #include <src/library/testing/gtest/gtest.h>
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/testing/gtest_extensions/ut/gtest_extensions_ut.cpp
+>>>>>>> origin/main
 <<<<<<<< HEAD:tests/library/testing/gtest_extensions/gtest_extensions_ut.cpp
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
@@ -11,6 +15,13 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/testing/gtest_extensions/ut/gtest_extensions_ut.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/stream/str.h>
+>>>>>>>> origin/main:tests/library/testing/gtest_extensions/gtest_extensions_ut.cpp
+>>>>>>> origin/main
 
 #include <string>
 

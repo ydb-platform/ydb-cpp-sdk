@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/thread/factory.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/thread/factory.h
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 ========
@@ -9,6 +13,12 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/thread/factory.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/thread/factory.h
+>>>>>>> origin/main
 #include <functional>
 
 class IThreadFactory {

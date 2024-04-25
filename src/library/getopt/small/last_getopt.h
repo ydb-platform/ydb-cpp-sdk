@@ -5,6 +5,7 @@
 #include "last_getopt_parse_result.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/function.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 =======
@@ -15,6 +16,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/function.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
+>>>>>>> origin/main
 #include <src/util/string/split.h>
 
 /// see some documentation in

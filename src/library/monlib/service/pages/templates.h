@@ -1,6 +1,7 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 =======
@@ -11,6 +12,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
+>>>>>>> origin/main
 
 #define WITH_SCOPED(var, value) WITH_SCOPED_I(var, value, Y_GENERATE_UNIQUE_ID(WITH_SCOPED_LABEL_))
 

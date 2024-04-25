@@ -18,11 +18,14 @@ target_sources(service-pages-tablesorter.global PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/library/monlib/service/pages/tablesorter/CMakeLists.txt
+=======
+>>>>>>> origin/main
   ${YDB_SDK_BINARY_DIR}/src/library/monlib/service/pages/tablesorter/0c255888afcc3e2adc5fd360ee152bac.cpp
 )
 
@@ -31,6 +34,7 @@ resources(service-pages-tablesorter.global
   INPUTS
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/pages/tablesorter/resources/jquery.tablesorter.css
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/pages/tablesorter/resources/jquery.tablesorter.js
+<<<<<<< HEAD
 =======
   ${YDB_SDK_BINARY_DIR}/library/cpp/monlib/service/pages/tablesorter/0c255888afcc3e2adc5fd360ee152bac.cpp
 <<<<<<< HEAD
@@ -74,6 +78,8 @@ resources(service-pages-tablesorter.global
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/pages/tablesorter/resources/jquery.tablesorter.js
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   KEYS
   jquery.tablesorter.css
   jquery.tablesorter.js

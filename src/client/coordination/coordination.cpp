@@ -6,11 +6,15 @@
 #undef INCLUDE_YDB_INTERNAL_H
 
 #include <src/api/grpc/ydb_coordination_v1.grpc.pb.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/coordination/coordination.cpp
+=======
+>>>>>>> origin/main
 #include <src/client/common_client/impl/client.h>
 
 #include <src/util/random/entropy.h>
 #include <src/util/generic/mapfindptr.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_common_client/impl/client.h>
 
@@ -20,6 +24,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_coordination/coordination.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb {
 namespace NCoordination {

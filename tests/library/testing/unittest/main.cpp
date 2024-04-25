@@ -3,6 +3,7 @@
 #include <src/library/testing/unittest/tests_data.h>
 
 #include <src/util/generic/set.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:tests/library/testing/unittest/main.cpp
 #include <ydb-cpp-sdk/util/network/sock.h>
 ========
@@ -12,6 +13,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/testing/unittest/ut/main.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/network/sock.h>
+>>>>>>> origin/main
 #include <src/util/system/fs.h>
 
 TEST(GTest, Test1) {

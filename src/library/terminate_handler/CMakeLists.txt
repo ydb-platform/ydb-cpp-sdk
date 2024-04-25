@@ -6,6 +6,7 @@ target_sources(library-cpp-terminate_handler PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -28,6 +29,9 @@ target_sources(library-cpp-terminate_handler PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/terminate_handler/segv_handler.cpp
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/terminate_handler/segv_handler.cpp
+>>>>>>> origin/main
 )
 
 add_global_library_for(library-cpp-terminate_handler.global library-cpp-terminate_handler)
@@ -35,6 +39,7 @@ target_link_libraries(library-cpp-terminate_handler.global PUBLIC
   yutil
 )
 target_sources(library-cpp-terminate_handler.global PRIVATE
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -60,4 +65,7 @@ target_sources(library-cpp-terminate_handler.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/terminate_handler/terminate_handler.cpp
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/terminate_handler/terminate_handler.cpp
+>>>>>>> origin/main
 )

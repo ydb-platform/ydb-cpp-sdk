@@ -3,6 +3,7 @@
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/thread/factory.h>
 =======
 #include <src/util/thread/factory.h>
@@ -11,6 +12,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/thread/factory.h>
+>>>>>>> origin/main
 
 #include <functional>
 

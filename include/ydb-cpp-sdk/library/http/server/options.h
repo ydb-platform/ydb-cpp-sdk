@@ -1,12 +1,16 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/http/server/options.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/network/ip.h>
 #include <ydb-cpp-sdk/util/network/init.h>
 #include <ydb-cpp-sdk/util/network/address.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
+<<<<<<< HEAD
 ========
 #include <src/util/network/ip.h>
 #include <src/util/network/init.h>
@@ -19,6 +23,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/http/server/options.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 class THttpServerOptions {
 public:

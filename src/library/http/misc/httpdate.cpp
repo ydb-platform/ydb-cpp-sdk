@@ -27,6 +27,7 @@
 * SUCH DAMAGE.
 */
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
 =======
 #include <src/util/system/defaults.h>
@@ -35,6 +36,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/defaults.h>
+>>>>>>> origin/main
 
 #include <sys/types.h>
 #include <cctype>
@@ -44,10 +48,14 @@
 #include <ctime>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/system/compat.h>   /* stricmp */
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include "httpdate.h"
 #include <ydb-cpp-sdk/util/datetime/base.h>
+<<<<<<< HEAD
 =======
 #include <src/util/system/compat.h>   /* stricmp */
 #include <src/util/system/yassert.h>
@@ -58,6 +66,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 static const char *wkdays[] = {
     "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"

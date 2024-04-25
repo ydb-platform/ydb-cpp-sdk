@@ -1,10 +1,14 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/network/ip.h>
+<<<<<<< HEAD
 =======
 #include <src/library/string_utils/misc/misc.h>
 
@@ -17,6 +21,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #if defined(_unix_)
     #include <unistd.h>

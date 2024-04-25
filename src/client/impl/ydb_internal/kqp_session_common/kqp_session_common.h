@@ -4,6 +4,7 @@
 #include <src/client/impl/ydb_internal/session_client/session_client.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 =======
@@ -14,6 +15,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
+>>>>>>> origin/main
 
 #include <functional>
 

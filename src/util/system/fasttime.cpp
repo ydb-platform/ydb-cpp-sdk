@@ -2,6 +2,7 @@
 #include "fasttime.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 =======
@@ -12,6 +13,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+>>>>>>> origin/main
 #include <utility>
 
 #include <src/util/thread/singleton.h>

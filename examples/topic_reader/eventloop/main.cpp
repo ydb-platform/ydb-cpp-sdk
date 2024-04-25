@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/topic/topic.h>
 =======
 #include <src/client/ydb_topic/topic.h>
@@ -7,6 +8,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/topic/topic.h>
+>>>>>>> origin/main
 
 #include <src/library/getopt/last_getopt.h>
 

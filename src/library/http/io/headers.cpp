@@ -2,6 +2,7 @@
 
 #include <src/library/string_utils/stream/stream.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/strip.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 =======
@@ -12,6 +13,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/strip.h>
+#include <ydb-cpp-sdk/util/string/escape.h>
+>>>>>>> origin/main
 
 static inline std::string_view Trim(const char* b, const char* e) noexcept {
     return StripString(std::string_view(b, e));

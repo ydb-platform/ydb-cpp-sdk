@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
 #include <src/library/testing/unittest/registar.h>
 #include <ydb-cpp-sdk/util/system/event.h>
@@ -11,6 +12,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
+#include <src/library/testing/unittest/registar.h>
+#include <ydb-cpp-sdk/util/system/event.h>
+>>>>>>> origin/main
 #include <src/util/system/thread.h>
 
 using namespace NMonitoring;

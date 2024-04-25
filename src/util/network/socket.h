@@ -2,7 +2,10 @@
 
 #include "init.h"
 
+<<<<<<<< HEAD:src/util/network/socket.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/network/socket.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/network/socket.h
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/error.h>
@@ -12,6 +15,7 @@
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
+<<<<<<<< HEAD:src/util/network/socket.h
 ========
 #include <src/util/system/yassert.h>
 #include <src/util/system/defaults.h>
@@ -27,6 +31,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/network/socket.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/network/socket.h
 
 #include <cerrno>
 

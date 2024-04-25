@@ -10,6 +10,7 @@ target_link_libraries(cpp-client-ydb_rate_limiter PUBLIC
 target_sources(cpp-client-ydb_rate_limiter PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/rate_limiter/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
@@ -34,6 +35,9 @@ target_sources(cpp-client-ydb_rate_limiter PRIVATE
   rate_limiter.cpp
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_rate_limiter/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  rate_limiter.cpp
+>>>>>>> origin/main
 )
 
 add_library(YDB-CPP-SDK::RateLimiter ALIAS cpp-client-ydb_rate_limiter)

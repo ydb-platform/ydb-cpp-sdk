@@ -1,5 +1,6 @@
 #include "write_session.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/topic/impl/write_session_impl.cpp
 #include <src/client/persqueue_core/impl/log_lazy.h>
 
@@ -13,10 +14,16 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/impl/write_session_impl.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <src/client/persqueue_core/impl/log_lazy.h>
+
+#include <ydb-cpp-sdk/client/topic/topic.h>
+>>>>>>> origin/main
 #include <src/library/string_utils/url/url.h>
 
 #include <google/protobuf/util/time_util.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/topic/impl/write_session_impl.cpp
 #include <ydb-cpp-sdk/util/generic/store_policy.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
@@ -28,6 +35,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/impl/write_session_impl.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/store_policy.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
+>>>>>>> origin/main
 #include <src/util/stream/buffer.h>
 #include <src/util/generic/guid.h>
 

@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/memory/blob.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/memory/blob.h
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
@@ -13,6 +17,14 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/memory/blob.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/memory/blob.h
+>>>>>>> origin/main
 
 #include <string_view>
 

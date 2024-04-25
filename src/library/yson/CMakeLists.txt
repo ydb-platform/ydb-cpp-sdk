@@ -11,6 +11,9 @@ target_link_libraries(library-cpp-yson PUBLIC
 
 target_sources(library-cpp-yson PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
   consumer.cpp
   lexer.cpp
   parser.cpp
@@ -18,6 +21,7 @@ target_sources(library-cpp-yson PRIVATE
   tokenizer.cpp
   varint.cpp
   writer.cpp
+<<<<<<< HEAD
 =======
   ${YDB_SDK_SOURCE_DIR}/src/library/yson/consumer.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/yson/lexer.cpp
@@ -31,6 +35,8 @@ target_sources(library-cpp-yson PRIVATE
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 )
 
 

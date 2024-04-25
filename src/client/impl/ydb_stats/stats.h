@@ -1,11 +1,15 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/types/status_codes.h>
 
 #include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
 #include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
 #include <ydb-cpp-sdk/library/monlib/metrics/histogram_collector.h>
+<<<<<<< HEAD
 =======
 #include <src/client/ydb_types/status_codes.h>
 
@@ -17,6 +21,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <atomic>
 #include <memory>

@@ -1,6 +1,10 @@
 #pragma once
 
 #include "node.h"
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/yson/node/node_io.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/yson/node/node_io.h
 #include <ydb-cpp-sdk/library/yson/public.h>
 ========
@@ -10,6 +14,12 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yson/node/node_io.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/library/yson/public.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/yson/node/node_io.h
+>>>>>>> origin/main
 
 namespace NJson {
     class TJsonValue;

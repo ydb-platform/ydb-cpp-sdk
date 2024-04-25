@@ -1,6 +1,7 @@
 #include "guid.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/random/random.h>
 =======
@@ -11,6 +12,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/random/random.h>
+>>>>>>> origin/main
 
 #include <cstring>
 #include <format>

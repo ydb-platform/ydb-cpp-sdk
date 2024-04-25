@@ -1,9 +1,13 @@
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/types/credentials/login/login.cpp
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/plain_status/status.h>
 #include <src/client/impl/ydb_internal/grpc_connections/grpc_connections.h>
 #include <src/client/types/core_facility/core_facility.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_types/credentials/credentials.h>
 #define INCLUDE_YDB_INTERNAL_H
@@ -15,10 +19,13 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/credentials/login/login.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/api/grpc/ydb_auth_v1.grpc.pb.h>
 #include <src/library/login/login.h>
 #include <src/library/security/util.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/types/credentials/login/login.cpp
 #include <ydb-cpp-sdk/util/string/cast.h>
 ========
@@ -28,6 +35,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/credentials/login/login.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/cast.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 

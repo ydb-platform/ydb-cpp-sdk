@@ -14,6 +14,7 @@ target_link_libraries(cpp-client-ydb_export PUBLIC
 target_sources(cpp-client-ydb_export PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/export/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
@@ -21,11 +22,14 @@ target_sources(cpp-client-ydb_export PRIVATE
 <<<<<<<< HEAD:src/client/export/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/client/export/CMakeLists.txt
+=======
+>>>>>>> origin/main
   export.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_export
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/export/export.h
+<<<<<<< HEAD
 =======
   ${YDB_SDK_SOURCE_DIR}/client/ydb_export/export.cpp
 )
@@ -52,6 +56,10 @@ generate_enum_serilization(cpp-client-ydb_export
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_export/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  INCLUDE_HEADERS
+  include/ydb-cpp-sdk/client/export/export.h
+>>>>>>> origin/main
 )
 
 add_library(YDB-CPP-SDK::Export ALIAS cpp-client-ydb_export)

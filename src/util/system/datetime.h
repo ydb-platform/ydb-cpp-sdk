@@ -13,6 +13,7 @@
 
 /// src/util/system/datetime.h contains only system time providers
 <<<<<<< HEAD
+<<<<<<< HEAD
 /// for handy datetime utilities include ydb-cpp-sdk/util/datetime/base.h
 =======
 /// for handy datetime utilities include src/util/datetime/base.h
@@ -21,6 +22,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+/// for handy datetime utilities include ydb-cpp-sdk/util/datetime/base.h
+>>>>>>> origin/main
 
 /// Current time in microseconds since epoch
 ui64 MicroSeconds() noexcept;

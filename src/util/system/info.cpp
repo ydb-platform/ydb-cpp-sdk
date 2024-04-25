@@ -37,12 +37,16 @@ static int getloadavg(double* loadavg, int nelem) {
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/string/ascii.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/strip.h>
 #include <src/util/string/split.h>
 #include <src/util/stream/file.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+<<<<<<< HEAD
 =======
 #include <src/util/string/ascii.h>
 #include <src/util/string/cast.h>
@@ -55,6 +59,8 @@ static int getloadavg(double* loadavg, int nelem) {
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #if defined(_linux_)
 /*

@@ -5,6 +5,7 @@
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 =======
@@ -15,6 +16,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/builder.h>
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
+>>>>>>> origin/main
 #include <src/library/streams/brotli/brotli.h>
 #include <src/library/streams/lzma/lzma.h>
 #include <src/library/streams/bzip2/bzip2.h>

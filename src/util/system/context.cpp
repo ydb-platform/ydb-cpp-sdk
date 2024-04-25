@@ -26,6 +26,7 @@ namespace __cxxabiv1 {
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 =======
@@ -36,6 +37,10 @@ namespace __cxxabiv1 {
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+>>>>>>> origin/main
 
 #define FROM_CONTEXT_IMPL
 #include "context.h"

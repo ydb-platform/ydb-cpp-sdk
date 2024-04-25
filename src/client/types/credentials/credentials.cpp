@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/types/credentials/credentials.cpp
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
@@ -9,6 +10,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/credentials/credentials.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/types/credentials/credentials.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 

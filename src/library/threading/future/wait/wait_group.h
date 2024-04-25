@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<<< HEAD:src/library/threading/future/wait/wait_group.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/threading/future/wait/wait_group.h
 #include <ydb-cpp-sdk/library/threading/future/core/future.h>
 
@@ -13,6 +14,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/threading/future/wait/wait_group.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+#include <ydb-cpp-sdk/library/threading/future/core/future.h>
+
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/threading/future/wait/wait_group.h
 
 namespace NThreading {
     namespace NWaitGroup::NImpl {

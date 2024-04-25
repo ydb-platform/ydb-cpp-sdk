@@ -4,11 +4,15 @@
 
 #include <src/util/system/align.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <src/util/generic/bitops.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <src/util/generic/intrlist.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+<<<<<<< HEAD
 =======
 #include <src/util/system/yassert.h>
 #include <src/util/generic/bitops.h>
@@ -20,6 +24,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <new>
 #include <string>

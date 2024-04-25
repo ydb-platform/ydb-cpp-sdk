@@ -9,6 +9,7 @@ target_proto_messages(encode-legacy_protobuf-protos PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -31,6 +32,9 @@ target_proto_messages(encode-legacy_protobuf-protos PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/encode/legacy_protobuf/protos/metric_meta.proto
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/monlib/encode/legacy_protobuf/protos/metric_meta.proto
+>>>>>>> origin/main
 )
 
 target_proto_addincls(encode-legacy_protobuf-protos

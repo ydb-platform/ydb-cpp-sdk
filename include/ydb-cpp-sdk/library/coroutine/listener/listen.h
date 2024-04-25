@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/coroutine/listener/listen.h
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
@@ -11,6 +12,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/coroutine/listener/listen.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
+>>>>>>> origin/main
 
 struct TIpAddress;
 class TContExecutor;

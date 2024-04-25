@@ -3,6 +3,7 @@
 #include "info.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 =======
 #include <src/util/generic/yexception.h>
@@ -11,10 +12,14 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+>>>>>>> origin/main
 
 #include <string>
 
 #if defined(_win_)
+<<<<<<< HEAD
 <<<<<<< HEAD
     #include <ydb-cpp-sdk/util/system/winint.h>
 =======
@@ -24,6 +29,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    #include <ydb-cpp-sdk/util/system/winint.h>
+>>>>>>> origin/main
 #else
     #include <sys/mman.h>
 #endif

@@ -15,6 +15,7 @@ target_sources(cpp-yt-misc PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/yt/misc/CMakeLists.txt
 =======
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
@@ -26,10 +27,13 @@ target_sources(cpp-yt-misc PRIVATE
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   ${YDB_SDK_SOURCE_DIR}/src/library/yt/misc/guid.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/yt/misc/source_location.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/yt/misc/thread_name.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/yt/misc/variant.cpp
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -54,6 +58,8 @@ target_sources(cpp-yt-misc PRIVATE
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 )
 
 

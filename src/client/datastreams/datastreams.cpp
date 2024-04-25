@@ -4,11 +4,15 @@
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/datastreams/datastreams.cpp
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/yql/public/issue/yql_issue.h>
 #include <src/library/yql/public/issue/yql_issue_message.h>
 
 #include <src/client/common_client/impl/client.h>
+<<<<<<< HEAD
 ========
 #include <src/library/yql/public/issue/yql_issue.h>
 #include <src/library/yql/public/issue/yql_issue_message.h>
@@ -19,6 +23,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_datastreams/datastreams.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb::NDataStreams::V1 {
 

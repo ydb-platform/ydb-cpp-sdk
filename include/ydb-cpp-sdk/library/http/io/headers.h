@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/http/io/headers.h
 #include <ydb-cpp-sdk/util/string/builder.h>
 ========
@@ -9,10 +10,14 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/http/io/headers.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/builder.h>
+>>>>>>> origin/main
 
 #include <string>
 #include <string_view>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/http/io/headers.h
 #include <ydb-cpp-sdk/util/string/cast.h>
 ========
@@ -22,6 +27,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/http/io/headers.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/cast.h>
+>>>>>>> origin/main
 
 class IInputStream;
 class IOutputStream;

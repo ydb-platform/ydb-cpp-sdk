@@ -12,6 +12,7 @@ target_link_libraries(cpp-client-ydb_monitoring PUBLIC
 target_sources(cpp-client-ydb_monitoring PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/monitoring/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
@@ -19,11 +20,14 @@ target_sources(cpp-client-ydb_monitoring PRIVATE
 <<<<<<<< HEAD:src/client/monitoring/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/client/monitoring/CMakeLists.txt
+=======
+>>>>>>> origin/main
   monitoring.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_monitoring
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/monitoring/monitoring.h
+<<<<<<< HEAD
 =======
   ${YDB_SDK_SOURCE_DIR}/client/ydb_monitoring/monitoring.cpp
 )
@@ -50,6 +54,10 @@ generate_enum_serilization(cpp-client-ydb_monitoring
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_monitoring/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  INCLUDE_HEADERS
+  include/ydb-cpp-sdk/client/monitoring/monitoring.h
+>>>>>>> origin/main
 )
 
 add_library(YDB-CPP-SDK::Monitoring ALIAS cpp-client-ydb_monitoring)

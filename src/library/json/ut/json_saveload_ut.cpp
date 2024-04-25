@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/json_value.h>
 =======
 #include <src/library/json/json_value.h>
@@ -7,10 +8,14 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/json/json_value.h>
+>>>>>>> origin/main
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/util/stream/buffer.h>
 #include <src/util/generic/buffer.h>
+<<<<<<< HEAD
 <<<<<<< HEAD
 #include <ydb-cpp-sdk/util/ysaveload.h>
 =======
@@ -20,6 +25,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/ysaveload.h>
+>>>>>>> origin/main
 
 Y_UNIT_TEST_SUITE(JsonSaveLoad) {
     Y_UNIT_TEST(Serialize) {

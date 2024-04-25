@@ -6,13 +6,17 @@
 #include <src/client/impl/ydb_internal/logger/log.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/driver/driver.cpp
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/logger/log.h>
 #include <src/client/impl/ydb_internal/common/parser.h>
 #include <src/client/impl/ydb_internal/common/getenv.h>
 #include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
 #include <src/util/stream/file.h>
 #include <ydb-cpp-sdk/client/resources/ydb_ca.h>
+<<<<<<< HEAD
 ========
 #include <src/library/logger/log.h>
 #include <src/client/impl/ydb_internal/common/parser.h>
@@ -25,6 +29,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_driver/driver.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb {
 

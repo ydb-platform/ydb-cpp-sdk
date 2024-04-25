@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/extensions/discovery_mutator/discovery_mutator.h
 #include <ydb-cpp-sdk/client/ydb_extension/extension.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/extensions/discovery_mutator/discovery_mutator.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/ydb_extension/extension.h>
+>>>>>>> origin/main
 
 namespace NDiscoveryMutator {
 

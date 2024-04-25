@@ -4,6 +4,7 @@
 
 #include <src/util/charset/recode_result.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 =======
@@ -14,6 +15,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+>>>>>>> origin/main
 
 #include "codepage.h"
 #include "doccodes.h"

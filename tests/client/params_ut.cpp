@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/params/params.h>
 
 #include <ydb-cpp-sdk/yson_value/ydb_yson_value.h>
@@ -11,6 +12,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/params/params.h>
+
+#include <ydb-cpp-sdk/yson_value/ydb_yson_value.h>
+>>>>>>> origin/main
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>

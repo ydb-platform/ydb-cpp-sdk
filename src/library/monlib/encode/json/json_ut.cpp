@@ -2,6 +2,9 @@
 
 #include <src/library/monlib/encode/protobuf/protobuf.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/monlib/metrics/labels.h>
 
 #include <ydb-cpp-sdk/library/json/json_reader.h>
@@ -10,6 +13,7 @@
 
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
+<<<<<<< HEAD
 =======
 #include <src/library/monlib/metrics/labels.h>
 
@@ -24,6 +28,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <iostream>
 #include <limits>

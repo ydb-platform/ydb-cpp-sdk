@@ -2,6 +2,7 @@
 
 #include <ydb-cpp-sdk/util/generic/va_args.h>
 
+<<<<<<<< HEAD:src/util/generic/typetraits.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/typetraits.h
 #include <ydb-cpp-sdk/util/system/defaults.h>
 ========
@@ -11,6 +12,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/typetraits.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+#include <ydb-cpp-sdk/util/system/defaults.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/typetraits.h
 
 #include <iterator>
 #include <type_traits>

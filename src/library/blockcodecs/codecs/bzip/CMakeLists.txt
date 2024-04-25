@@ -17,6 +17,7 @@ target_sources(blockcodecs-codecs-bzip.global PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -39,6 +40,9 @@ target_sources(blockcodecs-codecs-bzip.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/bzip/bzip.cpp
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/bzip/bzip.cpp
+>>>>>>> origin/main
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")

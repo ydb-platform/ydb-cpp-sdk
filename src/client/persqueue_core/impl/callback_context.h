@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/impl/callback_context.h
 #include <ydb-cpp-sdk/library/threading/future/core/future.h>
 #include <ydb-cpp-sdk/util/system/guard.h>
@@ -13,6 +14,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/callback_context.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/threading/future/core/future.h>
+#include <ydb-cpp-sdk/util/system/guard.h>
+#include <ydb-cpp-sdk/util/system/spinlock.h>
+>>>>>>> origin/main
 
 #include <memory>
 #include <shared_mutex>

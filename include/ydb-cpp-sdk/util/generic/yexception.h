@@ -3,7 +3,14 @@
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/va_args.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/yexception.h
+=======
+<<<<<<<< HEAD:src/util/generic/yexception.h
+<<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/yexception.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/yexception.h
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/stream/tempbuf.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
@@ -11,6 +18,10 @@
 #include <ydb-cpp-sdk/util/system/error.h>
 #include <ydb-cpp-sdk/util/system/src_location.h>
 #include <ydb-cpp-sdk/util/system/platform.h>
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/generic/yexception.h
+>>>>>>> origin/main
 ========
 #include <src/util/stream/tempbuf.h>
 #include <src/util/system/compat.h>
@@ -26,6 +37,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/yexception.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/yexception.h
+>>>>>>> origin/main
 
 #include <cstdio>
 #include <cstring>

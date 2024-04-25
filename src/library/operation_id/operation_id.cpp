@@ -3,11 +3,15 @@
 #include <google/protobuf/message.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
 #include <src/library/uri/uri.h>
 
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+<<<<<<< HEAD
 =======
 #include <src/library/cgiparam/cgiparam.h>
 #include <src/library/uri/uri.h>
@@ -19,6 +23,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NKikimr {
 namespace NOperationId {

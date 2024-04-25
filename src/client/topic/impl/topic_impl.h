@@ -4,7 +4,10 @@
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/topic/impl/topic_impl.h
+=======
+>>>>>>> origin/main
 #include <src/client/common_client/impl/client.h>
 #include <src/client/persqueue_core/impl/common.h>
 #include <src/client/topic/impl/executor.h>
@@ -12,6 +15,7 @@
 
 #include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
 #include <ydb-cpp-sdk/client/topic/topic.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_common_client/impl/client.h>
 #include <src/client/ydb_persqueue_core/impl/common.h>
@@ -25,6 +29,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/impl/topic_impl.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb::NTopic {
 

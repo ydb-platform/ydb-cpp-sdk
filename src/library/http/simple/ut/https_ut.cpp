@@ -1,6 +1,7 @@
 #include <src/library/http/simple/http_client.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/http/server/response.h>
 =======
 #include <src/library/http/server/response.h>
@@ -9,6 +10,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/http/server/response.h>
+>>>>>>> origin/main
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>

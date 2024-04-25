@@ -1,6 +1,7 @@
 #include <atomic>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
 =======
 #include <src/util/system/defaults.h>
@@ -9,6 +10,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/defaults.h>
+>>>>>>> origin/main
 
 #if defined(_unix_)
     #include <pthread.h>
@@ -16,6 +20,9 @@
 
 #include <src/util/generic/intrlist.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
@@ -28,6 +35,7 @@
 #include <src/util/system/thread.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
+<<<<<<< HEAD
 =======
 #include <src/util/generic/yexception.h>
 #include <src/util/generic/ylimits.h>
@@ -47,6 +55,9 @@
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
+=======
+
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/thread/factory.h>
 #include <ydb-cpp-sdk/util/thread/pool.h>
 

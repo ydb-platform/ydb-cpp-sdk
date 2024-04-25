@@ -1,6 +1,9 @@
 #include "init.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
@@ -11,6 +14,7 @@
 
 #include <src/util/random/entropy.h>
 #include <ydb-cpp-sdk/util/stream/input.h>
+<<<<<<< HEAD
 =======
 #include <src/util/generic/singleton.h>
 
@@ -27,6 +31,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <openssl/bio.h>
 #include <openssl/ssl.h>

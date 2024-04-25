@@ -121,6 +121,7 @@ constexpr bool Y_IS_DEBUG_BUILD = true;
  * falsefully accept pointers to types of sizes that are divisors of 8 (1, 2, 4 and 8).
  */
 #if defined(__cplusplus)
+<<<<<<<< HEAD:src/util/system/defaults.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/system/defaults.h
     #include <ydb-cpp-sdk/util/generic/array_size.h>
 ========
@@ -130,6 +131,9 @@ constexpr bool Y_IS_DEBUG_BUILD = true;
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/system/defaults.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+    #include <ydb-cpp-sdk/util/generic/array_size.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/system/defaults.h
 #else
     #undef Y_ARRAY_SIZE
     #define Y_ARRAY_SIZE(arr) \

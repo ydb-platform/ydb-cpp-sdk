@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/proto/accessor.h
 ========
 #include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
@@ -8,6 +9,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_proto/accessor.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/api/protos/ydb_coordination.pb.h>
 #include <src/api/protos/ydb_export.pb.h>
 #include <src/api/protos/ydb_import.pb.h>
@@ -16,13 +19,17 @@
 #include <src/api/protos/ydb_topic.pb.h>
 #include <src/api/protos/ydb_value.pb.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/proto/accessor.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/coordination/coordination.h>
 #include <ydb-cpp-sdk/client/export/export.h>
 #include <ydb-cpp-sdk/client/import/import.h>
 #include <ydb-cpp-sdk/client/monitoring/monitoring.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 #include <ydb-cpp-sdk/client/topic/topic.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_coordination/coordination.h>
 #include <src/client/ydb_export/export.h>
@@ -36,6 +43,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_proto/accessor.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb {
 

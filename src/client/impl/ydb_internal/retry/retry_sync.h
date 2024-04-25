@@ -2,6 +2,7 @@
 
 #include <src/client/impl/ydb_internal/retry/retry.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/retry/retry.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
 =======
@@ -12,6 +13,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/retry/retry.h>
+#include <ydb-cpp-sdk/client/types/status/status.h>
+>>>>>>> origin/main
 
 namespace NYdb::NRetry::Sync {
 

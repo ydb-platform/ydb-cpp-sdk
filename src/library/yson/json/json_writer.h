@@ -1,6 +1,7 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/yson/public.h>
 #include <ydb-cpp-sdk/library/yson/consumer.h>
 =======
@@ -11,6 +12,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/yson/public.h>
+#include <ydb-cpp-sdk/library/yson/consumer.h>
+>>>>>>> origin/main
 
 #include <src/library/json/json_writer.h>
 

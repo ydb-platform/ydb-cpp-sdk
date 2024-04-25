@@ -4,6 +4,7 @@
 
 #include <src/api/protos/ydb_table.pb.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/table/query_stats/stats.h>
 =======
 #include <src/client/ydb_table/query_stats/stats.h>
@@ -12,6 +13,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/table/query_stats/stats.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 

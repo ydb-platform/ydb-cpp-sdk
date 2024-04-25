@@ -3,6 +3,7 @@
 #include "ref.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/zerocopy.h>
 =======
 #include <src/util/stream/zerocopy.h>
@@ -11,6 +12,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/zerocopy.h>
+>>>>>>> origin/main
 
 namespace NYT {
 

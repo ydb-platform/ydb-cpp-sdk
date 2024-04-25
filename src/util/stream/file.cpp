@@ -1,6 +1,7 @@
 #include "file.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/memory/blob.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 =======
@@ -11,6 +12,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/memory/blob.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+>>>>>>> origin/main
 
 TUnbufferedFileInput::TUnbufferedFileInput(const char* path)
     : TUnbufferedFileInput(TFile(path, OPEN_MODE))

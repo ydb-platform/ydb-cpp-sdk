@@ -1,11 +1,22 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/monlib/service/pages/mon_page.h
+=======
+<<<<<<<< HEAD:src/library/monlib/service/pages/mon_page.h
+<<<<<<<< HEAD:include/ydb-cpp-sdk/library/monlib/service/pages/mon_page.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/monlib/service/pages/mon_page.h
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/monlib/service/service.h>
 #include <ydb-cpp-sdk/library/monlib/service/mon_service_http_request.h>
 
 #include <string>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/monlib/service/pages/mon_page.h
+>>>>>>> origin/main
 ========
 #include <src/library/monlib/service/service.h>
 #include <src/library/monlib/service/mon_service_http_request.h>
@@ -17,6 +28,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/monlib/service/pages/mon_page.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/monlib/service/pages/mon_page.h
+>>>>>>> origin/main
 
 namespace NMonitoring {
     static const char HTTPOKTEXT[] = "HTTP/1.1 200 Ok\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";

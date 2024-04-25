@@ -1,7 +1,10 @@
 #define INCLUDE_YDB_INTERNAL_H
 #include "exec_query.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/query/impl/exec_query.cpp
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/query/client.h>
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #include <src/client/impl/ydb_internal/kqp_session_common/kqp_session_common.h>
@@ -9,6 +12,7 @@
 #undef INCLUDE_YDB_INTERNAL_H
 
 #include <ydb-cpp-sdk/client/proto/accessor.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_query/client.h>
 #include <src/client/impl/ydb_internal/make_request/make.h>
@@ -22,6 +26,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/impl/exec_query.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb::NQuery {
 

@@ -1,10 +1,14 @@
 #include <ydb-cpp-sdk/json_value/ydb_json_value.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <src/library/string_utils/base64/base64.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/library/json/json_reader.h>
+<<<<<<< HEAD
 =======
 #include <src/util/string/builder.h>
 #include <src/library/string_utils/base64/base64.h>
@@ -15,6 +19,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb {
 

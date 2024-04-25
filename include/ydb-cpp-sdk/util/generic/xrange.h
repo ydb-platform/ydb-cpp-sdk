@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/generic/xrange.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/xrange.h
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
@@ -13,6 +17,14 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/xrange.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/xrange.h
+>>>>>>> origin/main
 #include <iterator>
 
 /** @file

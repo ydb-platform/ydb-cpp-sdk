@@ -1,6 +1,7 @@
 #include <ydb-cpp-sdk/library/http/server/response.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/mem.h>
 =======
 #include <src/util/stream/mem.h>
@@ -9,6 +10,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/mem.h>
+>>>>>>> origin/main
 
 THttpResponse& THttpResponse::AddMultipleHeaders(const THttpHeaders& headers) {
     for (THttpHeaders::TConstIterator i = headers.Begin(); i != headers.End(); ++i) {

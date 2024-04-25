@@ -2,10 +2,14 @@
 
 #include <src/util/generic/variant.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
+<<<<<<< HEAD
 =======
 #include <src/util/stream/output.h>
 #include <src/util/stream/str.h>
@@ -16,6 +20,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

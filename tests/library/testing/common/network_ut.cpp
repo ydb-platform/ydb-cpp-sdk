@@ -5,6 +5,10 @@
 #include <src/util/folder/dirut.h>
 #include <src/util/folder/path.h>
 #include <src/util/folder/tempdir.h>
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/testing/common/ut/network_ut.cpp
+>>>>>>> origin/main
 <<<<<<<< HEAD:tests/library/testing/common/network_ut.cpp
 #include <ydb-cpp-sdk/util/network/sock.h>
 ========
@@ -14,6 +18,12 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/testing/common/ut/network_ut.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/network/sock.h>
+>>>>>>>> origin/main:tests/library/testing/common/network_ut.cpp
+>>>>>>> origin/main
 #include <src/util/system/fs.h>
 
 #include <src/library/testing/gtest/gtest.h>

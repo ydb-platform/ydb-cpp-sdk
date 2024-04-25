@@ -1,6 +1,7 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 =======
 #include <src/util/generic/yexception.h>
@@ -9,6 +10,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+>>>>>>> origin/main
 #include <src/library/digest/argonish/argon2.h>
 #include <src/library/digest/argonish/internal/blake2b/blake2b.h>
 #include <src/library/threading/poor_man_openmp/thread_helper.h>

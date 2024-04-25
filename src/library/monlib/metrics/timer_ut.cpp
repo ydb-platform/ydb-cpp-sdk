@@ -3,6 +3,7 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/threading/future/async.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 =======
 #include <src/library/threading/future/future.h>
@@ -11,6 +12,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/threading/future/future.h>
+>>>>>>> origin/main
 
 using namespace NMonitoring;
 using namespace NThreading;

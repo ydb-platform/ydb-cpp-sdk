@@ -17,6 +17,7 @@ END()
 ### Example - access to a file content by a key:
 ```cpp
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/resource/resource.h>
 =======
 #include <src/library/resource/resource.h>
@@ -25,6 +26,9 @@ END()
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/resource/resource.h>
+>>>>>>> origin/main
 int main() {
         std::cout << NResource::Find("/key/in/program/1") << std::endl;
         std::cout << NResource::Find("/key2") << std::endl;

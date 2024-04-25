@@ -1,6 +1,9 @@
 #include "write_session.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/impl/write_session.cpp
+=======
+>>>>>>> origin/main
 #include <src/client/persqueue_core/persqueue.h>
 #include <src/client/persqueue_core/impl/log_lazy.h>
 
@@ -8,6 +11,7 @@
 
 #include <ydb-cpp-sdk/util/generic/store_policy.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_persqueue_core/persqueue.h>
 #include <src/client/ydb_persqueue_core/impl/log_lazy.h>
@@ -21,6 +25,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/write_session.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/util/stream/buffer.h>
 
 

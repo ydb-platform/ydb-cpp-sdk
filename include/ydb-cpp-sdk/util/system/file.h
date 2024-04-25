@@ -3,11 +3,22 @@
 #include "fhandle.h"
 #include "flock.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/system/file.h
+=======
+<<<<<<<< HEAD:src/util/system/file.h
+<<<<<<<< HEAD:include/ydb-cpp-sdk/util/system/file.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/system/file.h
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/flags.h>
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/system/file.h
+>>>>>>> origin/main
 ========
 #include <src/util/generic/flags.h>
 #include <src/util/generic/fwd.h>
@@ -18,6 +29,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/system/file.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/system/file.h
+>>>>>>> origin/main
 
 #include <cstdio>
 #include <filesystem>

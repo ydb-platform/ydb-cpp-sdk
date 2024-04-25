@@ -8,6 +8,7 @@ target_link_libraries(client-ydb_types-fatal_error_handlers PUBLIC
 target_sources(client-ydb_types-fatal_error_handlers PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/types/fatal_error_handlers/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
@@ -32,6 +33,9 @@ target_sources(client-ydb_types-fatal_error_handlers PRIVATE
   handlers.cpp
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/fatal_error_handlers/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  handlers.cpp
+>>>>>>> origin/main
 )
 
 

@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/digest/numeric.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/digest/numeric.h
 #include <ydb-cpp-sdk/util/generic/typelist.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
@@ -11,6 +15,13 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/digest/numeric.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/generic/typelist.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/digest/numeric.h
+>>>>>>> origin/main
 
 /*
  * original url (now dead): http://www.cris.com/~Ttwang/tech/inthash.htm

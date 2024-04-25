@@ -1,5 +1,6 @@
 #include <src/library/testing/unittest/registar.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/error.h>
 =======
 #include <src/util/system/error.h>
@@ -8,6 +9,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/error.h>
+>>>>>>> origin/main
 
 #include "pair.h"
 #include "poller.h"

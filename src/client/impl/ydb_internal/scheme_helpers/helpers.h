@@ -1,6 +1,7 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/scheme/scheme.h>
 =======
 #include <src/client/ydb_scheme/scheme.h>
@@ -9,6 +10,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/scheme/scheme.h>
+>>>>>>> origin/main
 #include <vector>
 
 namespace NYdb {

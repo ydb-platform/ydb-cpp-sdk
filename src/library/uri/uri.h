@@ -6,11 +6,15 @@
 #include <src/library/charset/doccodes.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <src/util/generic/buffer.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+<<<<<<< HEAD
 =======
 #include <src/util/stream/str.h>
 #include <src/util/generic/buffer.h>
@@ -22,6 +26,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <cstdlib>
 

@@ -12,6 +12,7 @@
 #include <src/library/yt/misc/hash.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/compiler.h>
 =======
 #include <src/util/system/compiler.h>
@@ -20,6 +21,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/compiler.h>
+>>>>>>> origin/main
 
 #include <algorithm>
 #include <bit>

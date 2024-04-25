@@ -3,10 +3,14 @@
 #include <ydb-cpp-sdk/library/yson/node/node_io.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/yson/writer.h>
 
 #include <src/util/generic/overloaded.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
+<<<<<<< HEAD
 =======
 #include <src/library/yson/writer.h>
 
@@ -17,6 +21,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <iostream>
 

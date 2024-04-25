@@ -3,6 +3,7 @@
 #include "cache.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/system/rwlock.h>
@@ -15,6 +16,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
+#include <ydb-cpp-sdk/util/system/rwlock.h>
+>>>>>>> origin/main
 
 namespace NPrivate {
     // We are interested in getters promotion policy _here_ because of Read-Write-Lock optimizations.

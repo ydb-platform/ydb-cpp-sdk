@@ -1,11 +1,22 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/yson/node/node.h
+=======
+<<<<<<<< HEAD:src/library/yson/node/node.h
+<<<<<<<< HEAD:include/ydb-cpp-sdk/library/yson/node/node.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/yson/node/node.h
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/bt_exception.h>
 
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/yson/node/node.h
+>>>>>>> origin/main
 ========
 #include <src/util/generic/bt_exception.h>
 #include <src/util/generic/cast.h>
@@ -20,6 +31,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yson/node/node.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/yson/node/node.h
+>>>>>>> origin/main
 
 #include <cmath>
 #include <variant>

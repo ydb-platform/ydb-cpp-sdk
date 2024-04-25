@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/draft/ydb_scripting.h>
 =======
 #include <ydb_scripting.h>
@@ -7,6 +8,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/draft/ydb_scripting.h>
+>>>>>>> origin/main
 
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 #include <src/api/grpc/ydb_scripting_v1.grpc.pb.h>

@@ -8,6 +8,7 @@
 #include <src/api/grpc/ydb_scripting_v1.grpc.pb.h>
 #include <src/api/protos/ydb_scripting.pb.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <src/client/common_client/impl/client.h>
 =======
 #include <src/client/ydb_common_client/impl/client.h>
@@ -16,6 +17,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <src/client/common_client/impl/client.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 namespace NScripting {

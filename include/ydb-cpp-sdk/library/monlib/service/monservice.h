@@ -4,11 +4,15 @@
 #include "auth.h"
 #include "mon_service_http_request.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/monlib/service/monservice.h
+=======
+>>>>>>> origin/main
 #include "pages/index_mon_page.h"
 #include "pages/mon_page.h"
 
 #include <ydb-cpp-sdk/util/system/progname.h>
+<<<<<<< HEAD
 ========
 #include <src/library/monlib/service/pages/index_mon_page.h>
 #include <src/library/monlib/service/pages/mon_page.h>
@@ -19,6 +23,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/monlib/service/monservice.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <functional>
 

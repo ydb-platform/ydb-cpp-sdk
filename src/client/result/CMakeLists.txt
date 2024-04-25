@@ -11,6 +11,7 @@ target_link_libraries(cpp-client-ydb_result PUBLIC
 target_sources(cpp-client-ydb_result PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/result/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
@@ -39,6 +40,10 @@ target_sources(cpp-client-ydb_result PRIVATE
   result.cpp
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_result/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  proto_accessor.cpp
+  result.cpp
+>>>>>>> origin/main
 )
 
 add_library(YDB-CPP-SDK::Result ALIAS cpp-client-ydb_result)

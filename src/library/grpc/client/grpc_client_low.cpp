@@ -2,10 +2,14 @@
 #include <grpc/support/log.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/containers/stack_vector/stack_vec.h>
 
 #include <src/util/system/thread.h>
 #include <ydb-cpp-sdk/util/random/random.h>
+<<<<<<< HEAD
 =======
 #include <src/library/containers/stack_vector/stack_vec.h>
 
@@ -16,6 +20,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #if !defined(_WIN32) && !defined(_WIN64)
 #include <sys/types.h>

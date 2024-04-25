@@ -1,10 +1,14 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/impl/common.h
+=======
+>>>>>>> origin/main
 #include <src/client/persqueue_core/persqueue.h>
 #include <src/client/common_client/impl/client.h>
 
 #include <ydb-cpp-sdk/util/thread/pool.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_persqueue_core/persqueue.h>
 #include <src/client/ydb_common_client/impl/client.h>
@@ -15,6 +19,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/common.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <queue>
 #include <condition_variable>

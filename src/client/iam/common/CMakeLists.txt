@@ -14,6 +14,7 @@ target_sources(client-iam-common PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -36,6 +37,9 @@ target_sources(client-iam-common PRIVATE
   iam.cpp
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  iam.cpp
+>>>>>>> origin/main
 )
 
 

@@ -11,6 +11,7 @@ target_sources(cpp-testing-gmock_in_unittest PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -33,6 +34,9 @@ target_sources(cpp-testing-gmock_in_unittest PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/testing/gmock_in_unittest/events.cpp
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  events.cpp
+>>>>>>> origin/main
 )
 
 add_global_library_for(cpp-testing-gmock_in_unittest.global cpp-testing-gmock_in_unittest)
@@ -43,6 +47,7 @@ target_link_libraries(cpp-testing-gmock_in_unittest.global PUBLIC
   cpp-testing-gtest_extensions
   cpp-testing-unittest
 )
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/testing/gmock_in_unittest/CMakeLists.txt
 =======
 target_sources(cpp-testing-gmock_in_unittest.global PRIVATE
@@ -59,6 +64,8 @@ target_sources(cpp-testing-gmock_in_unittest.global PRIVATE
 )
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):library/cpp/testing/gmock_in_unittest/CMakeLists.txt
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+>>>>>>> origin/main
 
 target_sources(cpp-testing-gmock_in_unittest.global PRIVATE
   registration.cpp

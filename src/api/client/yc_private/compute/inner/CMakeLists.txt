@@ -11,15 +11,19 @@ target_proto_messages(yc_private-compute-inner PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/api/client/yc_private/compute/inner/CMakeLists.txt
+=======
+>>>>>>> origin/main
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/compute/inner/disk_service.proto
 )
 target_proto_addincls(yc_private-compute-inner
   ./
+<<<<<<< HEAD
 =======
   ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/compute/inner/disk_service.proto
 )
@@ -47,6 +51,8 @@ target_proto_addincls(yc_private-compute-inner
   ./
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   ${YDB_SDK_SOURCE_DIR}
   ${YDB_SDK_BINARY_DIR}
 )

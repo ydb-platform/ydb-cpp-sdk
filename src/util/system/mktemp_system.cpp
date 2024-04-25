@@ -43,6 +43,7 @@
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/random/random.h>
 #include <ydb-cpp-sdk/util/system/sysstat.h>
 =======
@@ -53,6 +54,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/random/random.h>
+#include <ydb-cpp-sdk/util/system/sysstat.h>
+>>>>>>> origin/main
 
 static const unsigned char padchar[] =
     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

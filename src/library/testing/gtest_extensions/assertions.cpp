@@ -1,10 +1,14 @@
 #include "assertions.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <src/util/string/split.h>
 #include <ydb-cpp-sdk/util/system/type_name.h>
+<<<<<<< HEAD
 =======
 #include <src/util/string/builder.h>
 #include <src/util/string/escape.h>
@@ -15,6 +19,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NGTest::NInternal {
     namespace {

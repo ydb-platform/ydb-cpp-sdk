@@ -2,6 +2,7 @@
 
 #include <src/api/protos/ydb_table.pb.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/query/stats.cpp
 #include <ydb-cpp-sdk/util/datetime/base.h>
 ========
@@ -11,6 +12,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/stats.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/datetime/base.h>
+>>>>>>> origin/main
 
 #include <google/protobuf/text_format.h>
 

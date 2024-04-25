@@ -5,7 +5,10 @@
 #undef INCLUDE_YDB_INTERNAL_H
 
 /* Headers below used to instantiate concrete 'Get' & 'List' methods */
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/operation/operation.cpp
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/query/query.h>
 #include <ydb-cpp-sdk/client/export/export.h>
 #include <ydb-cpp-sdk/client/import/import.h>
@@ -14,6 +17,7 @@
 #include <src/api/grpc/ydb_operation_v1.grpc.pb.h>
 #include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 #include <src/client/common_client/impl/client.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_query/query.h>
 #include <src/client/ydb_export/export.h>
@@ -28,6 +32,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_operation/operation.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb {
 namespace NOperation {

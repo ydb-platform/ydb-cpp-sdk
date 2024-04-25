@@ -1,6 +1,7 @@
 #pragma once
 
 #include "numeric.h"
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/digest/sequence.h
 #include <ydb-cpp-sdk/util/str_stl.h>
 ========
@@ -10,6 +11,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/digest/sequence.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/str_stl.h>
+>>>>>>> origin/main
 
 #include <span>
 

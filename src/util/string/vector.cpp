@@ -3,6 +3,7 @@
 #include "vector.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
 =======
 #include <src/util/system/defaults.h>
@@ -11,6 +12,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/defaults.h>
+>>>>>>> origin/main
 
 template <class TConsumer, class TDelim, typename TChr>
 static inline void DoSplit2(TConsumer& c, TDelim& d, const std::basic_string_view<TChr> str, int) {

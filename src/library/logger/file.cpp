@@ -2,6 +2,7 @@
 #include <ydb-cpp-sdk/library/logger/record.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/file.h>
 #include <ydb-cpp-sdk/util/system/rwlock.h>
 =======
@@ -12,6 +13,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/file.h>
+#include <ydb-cpp-sdk/util/system/rwlock.h>
+>>>>>>> origin/main
 
 /*
  * file log

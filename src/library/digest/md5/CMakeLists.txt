@@ -2,11 +2,16 @@ add_library(cpp-digest-md5)
 
 target_link_libraries(cpp-digest-md5 PUBLIC
   yutil
+<<<<<<< HEAD
   nayuki_md5
+=======
+  contrib-libs-nayuki_md5
+>>>>>>> origin/main
   cpp-string_utils-base64
 )
 
 target_sources(cpp-digest-md5 PRIVATE
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -32,4 +37,7 @@ target_sources(cpp-digest-md5 PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/digest/md5/md5.cpp
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/digest/md5/md5.cpp
+>>>>>>> origin/main
 )

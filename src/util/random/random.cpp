@@ -6,6 +6,7 @@
 #include <src/util/thread/singleton.h>
 #include <src/util/stream/multi.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/mem.h>
 #include <ydb-cpp-sdk/util/digest/numeric.h>
 =======
@@ -16,6 +17,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/mem.h>
+#include <ydb-cpp-sdk/util/digest/numeric.h>
+>>>>>>> origin/main
 
 namespace {
     struct TProcStream {

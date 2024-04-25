@@ -2,12 +2,16 @@
 
 #include <src/library/monlib/encode/protobuf/protobuf.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
 #include <ydb-cpp-sdk/library/resource/resource.h>
 
 #include <src/library/testing/unittest/registar.h>
 
 #include <ydb-cpp-sdk/util/stream/str.h>
+<<<<<<< HEAD
 =======
 #include <src/library/monlib/encode/json/json.h>
 #include <src/library/resource/resource.h>
@@ -20,6 +24,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 using namespace NMonitoring;
 

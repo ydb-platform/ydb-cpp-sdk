@@ -3,6 +3,7 @@
 #include "zerocopy.h"
 #include "zerocopy_output.h"
 
+<<<<<<<< HEAD:src/util/stream/str.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/stream/str.h
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/generic/store_policy.h>
@@ -14,6 +15,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/stream/str.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/store_policy.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/stream/str.h
 
 #include <string>
 

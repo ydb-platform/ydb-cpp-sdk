@@ -1,5 +1,6 @@
 add_library(cpp-testing-common)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 <<<<<<< HEAD
@@ -7,12 +8,18 @@ add_library(cpp-testing-common)
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+
+>>>>>>> origin/main
 target_link_libraries(cpp-testing-common PUBLIC
   yutil
   library-cpp-json
   library-cpp-svnversion
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 
 target_sources(cpp-testing-common PRIVATE
   env.cpp
@@ -23,6 +30,7 @@ target_sources(cpp-testing-common PRIVATE
 )
 
 vcs_info(cpp-testing-common)
+<<<<<<< HEAD
 =======
 target_sources(cpp-testing-common PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/testing/common/env.cpp
@@ -40,3 +48,5 @@ add_subdirectory(ut)
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main

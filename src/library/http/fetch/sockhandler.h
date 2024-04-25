@@ -5,6 +5,9 @@
 #include <src/util/generic/buffer.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/network/address.h>
 #include <ydb-cpp-sdk/util/network/ip.h>
 #include <ydb-cpp-sdk/util/network/socket.h>
@@ -12,6 +15,7 @@
 
 #include <cerrno>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
+<<<<<<< HEAD
 =======
 #include <src/util/network/address.h>
 #include <src/util/network/ip.h>
@@ -25,6 +29,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 class TAddrList: public std::vector<NAddr::IRemoteAddrRef> {
 private:

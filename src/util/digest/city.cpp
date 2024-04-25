@@ -34,6 +34,7 @@ using uint32 = ui32;
 using uint64 = ui64;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/unaligned_mem.h>
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 =======
@@ -44,6 +45,10 @@ using uint64 = ui64;
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/unaligned_mem.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
+>>>>>>> origin/main
 
 using namespace std;
 

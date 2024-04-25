@@ -6,6 +6,7 @@
 #include <src/library/threading/future/async.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/file.h>
 =======
 #include <src/util/system/file.h>
@@ -14,6 +15,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/file.h>
+>>>>>>> origin/main
 #include <src/util/system/tempfile.h>
 
 class TFtsTest: public TTestBase {

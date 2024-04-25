@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/http/fetch/exthttpcodes.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/http/fetch/exthttpcodes.h
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
@@ -11,6 +15,13 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/http/fetch/exthttpcodes.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/system/defaults.h>
+#include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/http/fetch/exthttpcodes.h
+>>>>>>> origin/main
 
 enum ExtHttpCodes {
     // Custom

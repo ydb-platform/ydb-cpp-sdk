@@ -1,12 +1,16 @@
 #include "parsed_request.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/string/strip.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+<<<<<<< HEAD
 =======
 #include <src/library/string_utils/misc/misc.h>
 
@@ -19,6 +23,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 static inline std::string_view StripLeft(const std::string_view& s) noexcept {
     const char* b = s.begin();

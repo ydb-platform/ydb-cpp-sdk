@@ -1,6 +1,9 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 
@@ -9,6 +12,7 @@
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
+<<<<<<< HEAD
 =======
 #include <src/client/ydb_driver/driver.h>
 #include <src/client/ydb_table/table.h>
@@ -23,6 +27,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #define TABLE_USERS "users"
 #define TABLE_SERIES "series"

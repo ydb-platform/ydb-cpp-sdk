@@ -1,5 +1,6 @@
 add_library(cpp-testing-unittest)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 <<<<<<< HEAD
@@ -7,6 +8,9 @@ add_library(cpp-testing-unittest)
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+
+>>>>>>> origin/main
 target_link_libraries(cpp-testing-unittest PUBLIC
   yutil
   library-cpp-colorizer
@@ -18,6 +22,9 @@ target_link_libraries(cpp-testing-unittest PUBLIC
   cpp-testing-hook
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 
 target_sources(cpp-testing-unittest PRIVATE
   gtest.cpp
@@ -28,6 +35,7 @@ target_sources(cpp-testing-unittest PRIVATE
   tests_data.cpp
   utmain.cpp
 )
+<<<<<<< HEAD
 =======
 target_sources(cpp-testing-unittest PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/testing/unittest/gtest.cpp
@@ -47,3 +55,5 @@ add_subdirectory(ut)
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main

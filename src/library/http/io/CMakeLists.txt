@@ -14,6 +14,7 @@ target_sources(cpp-http-io PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/http/io/CMakeLists.txt
 =======
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
@@ -25,10 +26,13 @@ target_sources(cpp-http-io PRIVATE
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   ${YDB_SDK_SOURCE_DIR}/src/library/http/io/chunk.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/http/io/compression.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/http/io/headers.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/http/io/stream.cpp
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -53,6 +57,8 @@ target_sources(cpp-http-io PRIVATE
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 )
 
 

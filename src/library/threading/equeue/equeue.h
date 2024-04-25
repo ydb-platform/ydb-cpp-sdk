@@ -1,6 +1,7 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/thread/pool.h>
 #include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
@@ -13,6 +14,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/thread/pool.h>
+#include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+>>>>>>> origin/main
 
 //actual queue limit will be (maxQueueSize - numBusyThreads) or 0
 class TElasticQueue: public IThreadPool {

@@ -1,6 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/monlib/counters/counters.h>
 #include <ydb-cpp-sdk/library/monlib/metrics/histogram_collector.h>
 
@@ -10,6 +13,7 @@
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/system/rwlock.h>
+<<<<<<< HEAD
 ========
 #include <src/library/monlib/counters/counters.h>
 #include <src/library/monlib/metrics/histogram_collector.h>
@@ -26,6 +30,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/monlib/dynamic_counters/counters.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <map>
 #include <functional>

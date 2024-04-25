@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/types/status_codes.h
 #include <cstddef>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/status_codes.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <cstddef>
+>>>>>>> origin/main
 
 namespace NYdb {
 

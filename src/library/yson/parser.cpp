@@ -4,6 +4,7 @@
 #include "parser_detail.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/input.h>
 =======
 #include <src/util/stream/input.h>
@@ -12,6 +13,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/input.h>
+>>>>>>> origin/main
 #include <src/util/generic/buffer.h>
 
 namespace NYson {

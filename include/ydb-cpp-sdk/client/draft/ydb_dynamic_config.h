@@ -1,12 +1,16 @@
 #pragma once
 
 #include <src/api/grpc/draft/ydb_dynamic_config_v1.grpc.pb.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/draft/ydb_dynamic_config.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/types/ydb.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
 #include <ydb-cpp-sdk/client/common_client/settings.h>
 #include <ydb-cpp-sdk/client/types/request_settings.h>
 #include <ydb-cpp-sdk/client/driver/driver.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_types/ydb.h>
 #include <src/client/ydb_types/status/status.h>
@@ -21,6 +25,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/draft/ydb_dynamic_config.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <memory>
 

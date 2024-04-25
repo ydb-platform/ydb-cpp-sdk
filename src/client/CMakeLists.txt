@@ -14,6 +14,9 @@ add_subdirectory(iam_private)
 add_subdirectory(impl)
 add_subdirectory(resources)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 add_subdirectory(common_client)
 add_subdirectory(coordination)
 add_subdirectory(datastreams)
@@ -37,6 +40,7 @@ add_subdirectory(table)
 add_subdirectory(topic)
 add_subdirectory(types)
 add_subdirectory(value)
+<<<<<<< HEAD
 =======
 add_subdirectory(ydb_common_client)
 add_subdirectory(ydb_coordination)
@@ -66,3 +70,5 @@ add_subdirectory(ydb_value)
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main

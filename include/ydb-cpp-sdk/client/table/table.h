@@ -2,7 +2,10 @@
 
 #include "table_enum.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/table/table.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/params/params.h>
 #include <ydb-cpp-sdk/client/result/result.h>
@@ -12,6 +15,7 @@
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
 
 #include <variant>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_driver/driver.h>
 #include <src/client/ydb_params/params.h>
@@ -28,6 +32,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/table.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace Ydb {
 namespace Table {

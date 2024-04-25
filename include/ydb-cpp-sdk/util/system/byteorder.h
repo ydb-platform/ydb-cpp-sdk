@@ -13,6 +13,10 @@
         #include <machine/byte_order.h>
     #endif
 #else
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/system/byteorder.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/system/byteorder.h
     #include <ydb-cpp-sdk/util/generic/utility.h>
 ========
@@ -22,6 +26,12 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/system/byteorder.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+    #include <ydb-cpp-sdk/util/generic/utility.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/system/byteorder.h
+>>>>>>> origin/main
 #endif
 
 #if defined(_linux_) && !defined(USE_GENERIC_ENDIAN_CVT)

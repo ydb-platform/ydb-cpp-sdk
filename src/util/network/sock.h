@@ -1,6 +1,9 @@
 #pragma once
 
+<<<<<<<< HEAD:src/util/network/sock.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/network/sock.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/network/sock.h
 #include <contrib/libs/libc_compat/string.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
@@ -10,6 +13,7 @@
 
 #if defined(_win_) || defined(_cygwin_)
     #include <ydb-cpp-sdk/util/system/file.h>
+<<<<<<<< HEAD:src/util/network/sock.h
 ========
 #include <src/util/folder/path.h>
 #include <src/util/system/defaults.h>
@@ -24,6 +28,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/network/sock.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/network/sock.h
 #else
     #include <sys/un.h>
     #include <sys/stat.h>

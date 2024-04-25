@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/containers/stack_vector/stack_vec.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/containers/stack_vector/stack_vec.h
 #include <ydb-cpp-sdk/util/memory/alloc.h>
 #include <ydb-cpp-sdk/util/ysaveload.h>
@@ -11,6 +15,13 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/containers/stack_vector/stack_vec.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/memory/alloc.h>
+#include <ydb-cpp-sdk/util/ysaveload.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/containers/stack_vector/stack_vec.h
+>>>>>>> origin/main
 
 #include <type_traits>
 

@@ -1,5 +1,6 @@
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/proto/accessor.cpp
 #include <ydb-cpp-sdk/client/value/value.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_proto/accessor.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/value/value.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 

@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/monlib/metrics/log_histogram_snapshot.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/monlib/metrics/log_histogram_snapshot.h
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 ========
@@ -9,6 +13,12 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/monlib/metrics/log_histogram_snapshot.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/monlib/metrics/log_histogram_snapshot.h
+>>>>>>> origin/main
 
 #include <vector>
 #include <cmath>

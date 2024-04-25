@@ -24,6 +24,7 @@ target_sources(library-cpp-logger PRIVATE
 )
 generate_enum_serilization(library-cpp-logger
 <<<<<<< HEAD
+<<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/library/logger/priority.h
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/library/logger/priority.h
@@ -36,6 +37,11 @@ generate_enum_serilization(library-cpp-logger
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/library/logger/priority.h
+  INCLUDE_HEADERS
+  include/ydb-cpp-sdk/library/logger/priority.h
+>>>>>>> origin/main
 )
 
 add_global_library_for(library-cpp-logger.global library-cpp-logger)
@@ -56,6 +62,7 @@ target_sources(library-cpp-logger.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/uninitialized_creator.cpp
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 
@@ -72,3 +79,5 @@ endif()
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main

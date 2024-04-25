@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<<< HEAD:src/library/monlib/metrics/summary_snapshot.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/monlib/metrics/summary_snapshot.h
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/monlib/metrics/summary_snapshot.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/monlib/metrics/summary_snapshot.h
 
 namespace NMonitoring {
 

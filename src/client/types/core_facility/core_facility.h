@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/types/core_facility/core_facility.h
 #include <ydb-cpp-sdk/client/types/status_codes.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
@@ -11,6 +12,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/core_facility/core_facility.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/types/status_codes.h>
+#include <ydb-cpp-sdk/client/types/status/status.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 using TPeriodicCb = std::function<bool(NYql::TIssues&&, EStatus)>;

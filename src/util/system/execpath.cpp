@@ -5,6 +5,7 @@
 #elif defined(_darwin_)
     #include <mach-o/dyld.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/generic/function.h>
 =======
     #include <src/util/generic/function.h>
@@ -13,6 +14,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    #include <ydb-cpp-sdk/util/generic/function.h>
+>>>>>>> origin/main
 #elif defined(_win_)
     #include "winint.h"
     #include <io.h>
@@ -25,6 +29,7 @@
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 =======
 #include <src/util/generic/singleton.h>
@@ -33,6 +38,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+>>>>>>> origin/main
 
 #include "execpath.h"
 #include "fs.h"

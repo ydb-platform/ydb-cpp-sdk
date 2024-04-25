@@ -3,6 +3,7 @@
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 =======
 #include <src/util/generic/ptr.h>
@@ -11,6 +12,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+>>>>>>> origin/main
 
 #define Y_GET_FUNC(dll, name) FUNC_##name((dll).Sym(#name))
 #define Y_GET_FUNC_OPTIONAL(dll, name) FUNC_##name((dll).SymOptional(#name))

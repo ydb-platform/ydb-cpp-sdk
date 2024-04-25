@@ -8,6 +8,7 @@
 #include <gcrypt.h>
 #include <gnutls/gnutls.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/network/init.h>
 #include <ydb-cpp-sdk/util/network/socket.h>
 =======
@@ -18,6 +19,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/network/init.h>
+#include <ydb-cpp-sdk/util/network/socket.h>
+>>>>>>> origin/main
 
 #include <mutex>
 

@@ -5,11 +5,22 @@
 #include "enum.h"
 #endif
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/yt/misc/enum-inl.h
+=======
+<<<<<<<< HEAD:src/library/yt/misc/enum-inl.h
+<<<<<<<< HEAD:include/ydb-cpp-sdk/library/yt/misc/enum-inl.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/yt/misc/enum-inl.h
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 
 #include <ydb-cpp-sdk/util/generic/cast.h>
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/yt/misc/enum-inl.h
+>>>>>>> origin/main
 ========
 #include <src/util/string/escape.h>
 #include <src/util/string/cast.h>
@@ -20,6 +31,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yt/misc/enum-inl.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/yt/misc/enum-inl.h
+>>>>>>> origin/main
 
 #include <algorithm>
 #include <format>

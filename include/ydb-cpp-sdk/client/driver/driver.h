@@ -1,6 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/driver/driver.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/common_client/settings.h>
 #include <ydb-cpp-sdk/client/types/status_codes.h>
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
@@ -9,6 +12,7 @@
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
 #include <ydb-cpp-sdk/library/logger/backend.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_common_client/settings.h>
 #include <src/client/ydb_types/status_codes.h>
@@ -23,6 +27,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_driver/driver.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 ////////////////////////////////////////////////////////////////////////////////
 

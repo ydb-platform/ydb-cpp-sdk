@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/http/server/response.h
 #include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
 #include <ydb-cpp-sdk/library/http/io/stream.h>
@@ -11,6 +12,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/http/server/response.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
+#include <ydb-cpp-sdk/library/http/io/stream.h>
+>>>>>>> origin/main
 
 #include <vector>
 

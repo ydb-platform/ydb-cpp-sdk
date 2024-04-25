@@ -4,6 +4,7 @@
 #include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/mime/types/mime.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
@@ -16,6 +17,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/mime/types/mime.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+#include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
+>>>>>>> origin/main
 
 template <size_t headermax = 100 << 10, size_t bodymax = 1 << 20>
 struct TFakeCheck {

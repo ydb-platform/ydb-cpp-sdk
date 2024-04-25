@@ -1,10 +1,14 @@
 #include "direct_io.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+<<<<<<< HEAD
 =======
 #include <src/library/string_utils/helpers/helpers.h>
 
@@ -15,10 +19,13 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/util/system/info.h>
 #include "align.h"
 
 #ifdef _linux_
+<<<<<<< HEAD
 <<<<<<< HEAD
     #include <ydb-cpp-sdk/util/string/cast.h>
 =======
@@ -28,6 +35,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    #include <ydb-cpp-sdk/util/string/cast.h>
+>>>>>>> origin/main
     #include <linux/version.h>
     #include <sys/utsname.h>
 #endif

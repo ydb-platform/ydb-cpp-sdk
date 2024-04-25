@@ -1,6 +1,9 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/retry/retry.h>
 #include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
@@ -10,6 +13,7 @@
 #include <src/util/datetime/cputimer.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/system/types.h>
+<<<<<<< HEAD
 =======
 #include <src/client/ydb_retry/retry.h>
 #include <src/client/ydb_types/fluent_settings_helpers.h>
@@ -25,6 +29,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <functional>
 #include <memory>

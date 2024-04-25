@@ -1,12 +1,16 @@
 #include "encode.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/monlib/encode/encoder.h>
 #include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
 #include <src/library/monlib/encode/spack/spack_v1.h>
 #include <src/library/monlib/encode/prometheus/prometheus.h>
 
 #include <ydb-cpp-sdk/util/stream/str.h>
+<<<<<<< HEAD
 =======
 #include <src/library/monlib/encode/encoder.h>
 #include <src/library/monlib/encode/json/json.h>
@@ -19,6 +23,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NMonitoring {
     namespace {

@@ -3,6 +3,9 @@
 #include "http_client_options.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
@@ -10,6 +13,7 @@
 
 #include <ydb-cpp-sdk/library/http/io/stream.h>
 #include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
+<<<<<<< HEAD
 =======
 #include <src/util/datetime/base.h>
 #include <src/util/generic/hash.h>
@@ -23,6 +27,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/library/openssl/io/stream.h>
 
 class TNetworkAddress;

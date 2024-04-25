@@ -5,6 +5,7 @@
 #include <src/library/containers/absl_flat_hash/flat_hash_set.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/str_stl.h>
 =======
 #include <src/util/str_stl.h>
@@ -13,6 +14,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/str_stl.h>
+>>>>>>> origin/main
 
 Y_UNIT_TEST_SUITE(StringHashFunctorTests) {
     Y_UNIT_TEST(TestTransparencyWithUnorderedSet) {

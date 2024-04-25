@@ -3,11 +3,15 @@
 #include "query.h"
 #include "tx.h"
 
+<<<<<<<< HEAD:src/client/ydb_query/client.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/query/client.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/client/query/client.h
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/params/params.h>
 #include <ydb-cpp-sdk/client/retry/retry.h>
 #include <ydb-cpp-sdk/client/types/request_settings.h>
+<<<<<<<< HEAD:src/client/ydb_query/client.h
 ========
 #include <src/client/ydb_driver/driver.h>
 #include <src/client/ydb_params/params.h>
@@ -20,6 +24,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/client.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/client/query/client.h
 
 namespace NYdb {
     class TProtoAccessor;

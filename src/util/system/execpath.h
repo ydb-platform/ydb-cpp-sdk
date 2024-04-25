@@ -1,6 +1,7 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 =======
 #include <src/util/generic/fwd.h>
@@ -9,6 +10,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/fwd.h>
+>>>>>>> origin/main
 
 // NOTE: This function has rare sporadic failures (throws exceptions) on FreeBSD. See REVIEW:54297
 const std::string& GetExecPath();

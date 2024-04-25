@@ -1,9 +1,13 @@
 #pragma once
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_public/codecs/codecs.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/api/protos/ydb_persqueue_v1.pb.h>
 #include <src/client/persqueue_core/persqueue.h>
 #include <ydb-cpp-sdk/client/topic/topic.h>
+<<<<<<< HEAD
 ========
 #include <src/util/stream/output.h>
 #include <src/api/protos/ydb_persqueue_v1.pb.h>
@@ -14,6 +18,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_public/codecs/codecs.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 
 namespace NYdb::NPersQueue {

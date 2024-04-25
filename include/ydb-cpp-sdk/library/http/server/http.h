@@ -3,13 +3,17 @@
 #include "conn.h"
 #include "options.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/http/server/http.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/thread/pool.h>
 #include <ydb-cpp-sdk/library/http/io/stream.h>
 #include <ydb-cpp-sdk/util/memory/blob.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
 #include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
+<<<<<<< HEAD
 ========
 #include <src/util/thread/pool.h>
 #include <src/library/http/io/stream.h>
@@ -22,6 +26,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/http/server/http.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 class IThreadFactory;
 class TClientRequest;

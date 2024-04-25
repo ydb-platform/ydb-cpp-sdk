@@ -2,6 +2,7 @@
 
 #include <type_traits>
 
+<<<<<<<< HEAD:src/util/generic/flags.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/flags.h
 #include <ydb-cpp-sdk/util/system/types.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
@@ -15,6 +16,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/flags.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+#include <ydb-cpp-sdk/util/system/types.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/flags.h
 
 class IOutputStream;
 namespace NPrivate {

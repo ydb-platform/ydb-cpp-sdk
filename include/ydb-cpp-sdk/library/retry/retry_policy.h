@@ -1,9 +1,13 @@
 #pragma once
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/retry/retry_policy.h
+=======
+>>>>>>> origin/main
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/random/random.h>
+<<<<<<< HEAD
 ========
 #include <src/util/datetime/base.h>
 #include <src/util/generic/typetraits.h>
@@ -13,6 +17,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/retry/retry_policy.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <functional>
 #include <limits>

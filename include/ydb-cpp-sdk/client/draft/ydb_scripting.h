@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/draft/ydb_scripting.h
 #include <ydb-cpp-sdk/client/table/table.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/draft/ydb_scripting.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/table/table.h>
+>>>>>>> origin/main
 #include <src/api/protos/ydb_value.pb.h>
 #include <src/api/protos/ydb_query.pb.h>
 

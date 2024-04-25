@@ -4,6 +4,9 @@
 #include "mapfindptr.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/memory/alloc.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/type_name.h>
@@ -12,6 +15,7 @@
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
+<<<<<<< HEAD
 =======
 #include <src/util/memory/alloc.h>
 #include <src/util/system/compiler.h>
@@ -26,6 +30,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <algorithm>
 #include <initializer_list>

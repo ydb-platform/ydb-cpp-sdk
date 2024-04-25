@@ -7,12 +7,11 @@
 
 
 
-add_library(cpp-testing-unittest_main)
-target_link_libraries(cpp-testing-unittest_main PUBLIC
+add_library(contrib-libs-nayuki_md5)
+target_link_libraries(contrib-libs-nayuki_md5 PUBLIC
+  
   yutil
-  cpp-testing-unittest
-  library-cpp-terminate_handler
 )
-target_sources(cpp-testing-unittest_main PRIVATE
-  ${YDB_SDK_SOURCE_DIR}/src/library/testing/unittest_main/main.cpp
+target_sources(contrib-libs-nayuki_md5 PRIVATE
+  ${YDB_SDK_SOURCE_DIR}/contrib/libs/nayuki_md5/md5.c
 )

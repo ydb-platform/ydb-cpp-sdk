@@ -4,6 +4,7 @@
 #include "entropy.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 =======
@@ -14,6 +15,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+>>>>>>> origin/main
 
 // some kind of https://en.wikipedia.org/wiki/Fisher–Yates_shuffle#The_modern_algorithm
 

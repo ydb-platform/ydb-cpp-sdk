@@ -6,10 +6,14 @@ target_link_libraries(cpp-threading-future PUBLIC
 
 target_sources(cpp-threading-future PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
   async_semaphore.cpp
   async.cpp
   core/future.cpp
   wait/wait.cpp
+<<<<<<< HEAD
 =======
   ${YDB_SDK_SOURCE_DIR}/src/library/threading/future/async_semaphore.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/threading/future/async.cpp
@@ -25,4 +29,6 @@ target_sources(cpp-threading-future PRIVATE
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 )

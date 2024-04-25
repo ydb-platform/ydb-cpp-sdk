@@ -1,6 +1,7 @@
 #include "murmur.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/unaligned_mem.h>
 =======
 #include <src/util/system/unaligned_mem.h>
@@ -9,6 +10,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/unaligned_mem.h>
+>>>>>>> origin/main
 
 namespace NMurmurPrivate {
     //-----------------------------------------------------------------------------

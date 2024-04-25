@@ -2,6 +2,7 @@
 
 #include <src/util/generic/buffer.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/cast.h>
 =======
 #include <src/util/generic/cast.h>
@@ -10,6 +11,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/cast.h>
+>>>>>>> origin/main
 #include <src/util/stream/null.h>
 
 bool THttpClientRequestExtension::Parse(char* req, TBaseServerRequestData& rd) {

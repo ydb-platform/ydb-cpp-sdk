@@ -41,6 +41,10 @@ TEST(Runtime, BuildRoot) {
 TEST(Runtime, BinaryPath) {
     NTesting::TScopedEnvironment contextGuard("YA_TEST_CONTEXT_FILE", ""); // remove context filename
     Singleton<NPrivate::TTestEnv>()->ReInitialize();
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/testing/common/ut/env_ut.cpp
+>>>>>>> origin/main
 <<<<<<<< HEAD:tests/library/testing/common/env_ut.cpp
     EXPECT_TRUE(TFsPath(BinaryPath("tests/library/testing/common")).Exists());
 ========
@@ -50,6 +54,12 @@ TEST(Runtime, BinaryPath) {
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/testing/common/ut/env_ut.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+    EXPECT_TRUE(TFsPath(BinaryPath("tests/library/testing/common")).Exists());
+>>>>>>>> origin/main:tests/library/testing/common/env_ut.cpp
+>>>>>>> origin/main
 }
 
 TEST(Runtime, GetArcadiaTestsData) {

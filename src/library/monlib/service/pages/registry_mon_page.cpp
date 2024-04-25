@@ -2,6 +2,7 @@
 
 #include <src/library/monlib/encode/text/text.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
 =======
 #include <src/library/monlib/encode/json/json.h>
@@ -10,10 +11,14 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
+>>>>>>> origin/main
 #include <src/library/monlib/encode/prometheus/prometheus.h>
 #include <src/library/monlib/encode/spack/spack_v1.h>
 #include <src/library/monlib/service/format.h>
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 =======
@@ -23,6 +28,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
+>>>>>>> origin/main
 
 namespace NMonitoring {
     void TMetricRegistryPage::Output(NMonitoring::IMonHttpRequest& request) {

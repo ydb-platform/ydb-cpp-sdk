@@ -1,11 +1,15 @@
 #include <ydb-cpp-sdk/util/stream/output.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include "format.h"
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+<<<<<<< HEAD
 =======
 #include <src/util/string/cast.h>
 #include "format.h"
@@ -17,11 +21,14 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/util/charset/utf8.h>
 #include <src/util/charset/wide.h>
 
 #if defined(_android_)
     #include <src/util/system/dynlib.h>
+<<<<<<< HEAD
 <<<<<<< HEAD
     #include <ydb-cpp-sdk/util/system/guard.h>
 =======
@@ -31,6 +38,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    #include <ydb-cpp-sdk/util/system/guard.h>
+>>>>>>> origin/main
     #include <android/log.h>
     #include <mutex>
 #endif

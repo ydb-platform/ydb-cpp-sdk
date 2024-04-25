@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
@@ -14,6 +15,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
+>>>>>>> origin/main
 #include <src/util/system/tls.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,6 +39,7 @@
 
 #if defined(_MSC_VER) && defined(_DEBUG)
 <<<<<<< HEAD
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/system/winint.h>
 =======
     #include <src/util/system/winint.h>
@@ -41,6 +48,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    #include <ydb-cpp-sdk/util/system/winint.h>
+>>>>>>> origin/main
     #define CHECK_YPTR2
 #endif
 

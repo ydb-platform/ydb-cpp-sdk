@@ -2,6 +2,7 @@
 
 #include <src/library/yql/public/issue/protos/issue_severity.pb.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/yql/public/issue/yql_issue_id.h
 #include <ydb-cpp-sdk/library/resource/resource.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
@@ -13,12 +14,17 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yql/public/issue/yql_issue_id.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/resource/resource.h>
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
+>>>>>>> origin/main
 
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/message.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/yql/public/issue/yql_issue_id.h
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
@@ -33,6 +39,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yql/public/issue/yql_issue_id.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/string/subst.h>
+>>>>>>> origin/main
 
 #ifdef _win_
 #ifdef GetMessage

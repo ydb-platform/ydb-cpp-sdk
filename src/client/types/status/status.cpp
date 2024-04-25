@@ -4,6 +4,7 @@
 #include <src/client/impl/ydb_internal/plain_status/status.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/types/status/status.cpp
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 ========
@@ -13,6 +14,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/status/status.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 

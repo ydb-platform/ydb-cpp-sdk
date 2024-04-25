@@ -1,10 +1,14 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/sysstat.h>
 #include <src/util/system/fs.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+<<<<<<< HEAD
 =======
 #include <src/util/system/defaults.h>
 #include <src/util/system/sysstat.h>
@@ -15,6 +19,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <sys/types.h>
 
@@ -22,6 +28,7 @@
 #include <cstdlib>
 
 #ifdef _win32_
+<<<<<<< HEAD
 <<<<<<< HEAD
     #include <ydb-cpp-sdk/util/system/winint.h>
 =======
@@ -31,6 +38,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    #include <ydb-cpp-sdk/util/system/winint.h>
+>>>>>>> origin/main
     #include <direct.h>
     #include <malloc.h>
     #include <time.h>

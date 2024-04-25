@@ -6,6 +6,7 @@
 
 #include <src/client/impl/ydb_internal/internal_client/client.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
 #include <src/client/types/core_facility/core_facility.h>
 =======
@@ -16,6 +17,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
+#include <src/client/types/core_facility/core_facility.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 

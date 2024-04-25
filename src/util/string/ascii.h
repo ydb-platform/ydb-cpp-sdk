@@ -2,6 +2,7 @@
 
 #include <contrib/libs/libc_compat/string.h>
 
+<<<<<<<< HEAD:src/util/string/ascii.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/string/ascii.h
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
@@ -13,6 +14,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/string/ascii.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+#include <ydb-cpp-sdk/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/string/ascii.h
 
 #include <string>
 

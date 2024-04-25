@@ -1,12 +1,16 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/table/impl/readers.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 
 #include <ydb-cpp-sdk/util/random/random.h>
+<<<<<<< HEAD
 ========
 #include <src/client/resources/ydb_resources.h>
 
@@ -19,6 +23,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/impl/readers.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include "client_session.h"
 #include "data_query.h"

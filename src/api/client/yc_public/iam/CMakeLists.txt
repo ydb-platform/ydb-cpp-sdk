@@ -13,6 +13,7 @@ target_proto_messages(client-yc_public-iam PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -35,6 +36,9 @@ target_proto_messages(client-yc_public-iam PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/iam/iam_token_service.proto
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_public/iam/iam_token_service.proto
+>>>>>>> origin/main
 )
 target_proto_addincls(client-yc_public-iam
   ./

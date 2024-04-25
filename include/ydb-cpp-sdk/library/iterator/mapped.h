@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/iterator/mapped.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/iterator/mapped.h
 #include <ydb-cpp-sdk/util/generic/iterator_range.h>
 #include <ydb-cpp-sdk/util/generic/store_policy.h>
@@ -11,6 +15,13 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/iterator/mapped.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/generic/iterator_range.h>
+#include <ydb-cpp-sdk/util/generic/store_policy.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/iterator/mapped.h
+>>>>>>> origin/main
 
 #include <functional>
 #include <iterator>

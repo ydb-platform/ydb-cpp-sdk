@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/types/operation/operation.h
 #include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 
@@ -13,6 +14,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/operation/operation.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/operation_id/operation_id.h>
+
+#include <ydb-cpp-sdk/library/threading/future/future.h>
+>>>>>>> origin/main
 
 #include <google/protobuf/stubs/status.h>
 #include <google/protobuf/util/json_util.h>

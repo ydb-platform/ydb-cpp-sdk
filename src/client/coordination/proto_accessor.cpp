@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/coordination/proto_accessor.cpp
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 ========
@@ -7,6 +8,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_coordination/proto_accessor.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/proto/accessor.h>
+>>>>>>> origin/main
 
 #include <ydb-cpp-sdk/client/coordination/coordination.h>
 

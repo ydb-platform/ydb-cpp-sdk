@@ -8,6 +8,7 @@
 #include <src/client/impl/ydb_endpoints/endpoints.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 =======
 #include <src/library/threading/future/future.h>
@@ -16,6 +17,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/threading/future/future.h>
+>>>>>>> origin/main
 
 #include <mutex>
 

@@ -9,6 +9,7 @@
 
 #include <src/util/generic/adaptor.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/xrange.h>
 =======
 #include <src/util/generic/xrange.h>
@@ -17,6 +18,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/xrange.h>
+>>>>>>> origin/main
 
 #include <tuple>
 #include <algorithm>

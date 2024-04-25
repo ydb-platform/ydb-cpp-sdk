@@ -3,6 +3,7 @@
 #include <ydb-cpp-sdk/library/yson/node/node.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 
 #include <ydb-cpp-sdk/library/yson/consumer.h>
@@ -16,6 +17,12 @@
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
+=======
+#include <ydb-cpp-sdk/library/json/json_reader.h>
+
+#include <ydb-cpp-sdk/library/yson/consumer.h>
+
+>>>>>>> origin/main
 #include <src/util/generic/stack.h>
 
 namespace NYT {

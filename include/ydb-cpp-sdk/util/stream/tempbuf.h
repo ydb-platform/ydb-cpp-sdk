@@ -2,6 +2,7 @@
 
 #include "output.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/stream/tempbuf.h
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 ========
@@ -11,6 +12,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/stream/tempbuf.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
+>>>>>>> origin/main
 
 class TTempBufOutput: public IOutputStream, public TTempBuf {
 public:

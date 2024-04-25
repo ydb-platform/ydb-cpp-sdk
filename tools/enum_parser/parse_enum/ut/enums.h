@@ -2,6 +2,7 @@
 // Sample file for parse_enum unittests
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 =======
@@ -12,6 +13,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
+>>>>>>> origin/main
 
 // Test template declarations
 template<class T>

@@ -2,6 +2,7 @@
 
 #include "grpc_common.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/grpc/client/grpc_client_low.h
 #include <ydb-cpp-sdk/util/thread/factory.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
@@ -16,6 +17,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/grpc/client/grpc_client_low.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/thread/factory.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
+>>>>>>> origin/main
 #include <grpc++/grpc++.h>
 #include <grpc++/support/async_stream.h>
 #include <grpc++/support/async_unary_call.h>

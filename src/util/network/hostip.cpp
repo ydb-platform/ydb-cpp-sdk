@@ -2,6 +2,7 @@
 #include <ydb-cpp-sdk/util/network/hostip.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/byteorder.h>
 =======
@@ -12,6 +13,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/byteorder.h>
+>>>>>>> origin/main
 
 #if defined(_unix_) || defined(_cygwin_)
     #include <netdb.h>

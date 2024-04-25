@@ -1,6 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/yson_value/ydb_yson_value.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/result/result.h>
 #include <ydb-cpp-sdk/client/value/value.h>
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
@@ -8,6 +11,7 @@
 #include <ydb-cpp-sdk/library/yson/node/node_io.h>
 
 #include <ydb-cpp-sdk/library/yson/writer.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_result/result.h>
 #include <src/client/ydb_value/value.h>
@@ -21,6 +25,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/yson_value/ydb_yson_value.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb {
 

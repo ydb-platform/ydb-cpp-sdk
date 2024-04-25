@@ -2,6 +2,7 @@
 
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/bt_exception.h
 #include <ydb-cpp-sdk/util/system/backtrace.h>
 
@@ -13,6 +14,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/bt_exception.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/backtrace.h>
+
+#include <utility>
+>>>>>>> origin/main
 
 template <class T>
 class TWithBackTrace: public T {

@@ -1,11 +1,15 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/monlib/encode/encoder.h>
 #include <ydb-cpp-sdk/library/monlib/encode/format.h>
 #include <ydb-cpp-sdk/library/monlib/metrics/metric.h>
 
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+<<<<<<< HEAD
 =======
 #include <src/library/monlib/encode/encoder.h>
 #include <src/library/monlib/encode/format.h>
@@ -17,6 +21,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 //
 // format specification available here:

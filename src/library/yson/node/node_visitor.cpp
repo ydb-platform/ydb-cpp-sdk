@@ -1,6 +1,7 @@
 #include "node_visitor.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 =======
 #include <src/util/generic/algorithm.h>
@@ -9,6 +10,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
+>>>>>>> origin/main
 
 namespace NYT {
 

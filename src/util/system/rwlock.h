@@ -3,6 +3,7 @@
 #include <ydb-cpp-sdk/util/system/guard.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
+<<<<<<<< HEAD:src/util/system/rwlock.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/system/rwlock.h
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 ========
@@ -12,6 +13,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/system/rwlock.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/system/rwlock.h
 
 class TRWMutex {
 public:

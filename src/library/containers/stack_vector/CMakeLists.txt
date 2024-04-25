@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 add_library(cpp-containers-stack_vector INTERFACE)
 
 target_link_libraries(cpp-containers-stack_vector INTERFACE
   yutil
 )
+<<<<<<< HEAD
 =======
 add_library(cpp-containers-stack_vector)
 
@@ -21,3 +25,5 @@ target_sources(cpp-containers-stack_vector PRIVATE
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main

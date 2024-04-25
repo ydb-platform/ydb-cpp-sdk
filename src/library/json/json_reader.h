@@ -2,11 +2,15 @@
 
 #include "json_value.h"
 
+<<<<<<<< HEAD:src/library/json/json_reader.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/json/json_reader.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/json/json_reader.h
 #include <ydb-cpp-sdk/library/json/common/defs.h>
 #include <ydb-cpp-sdk/library/json/fast_sax/parser.h>
 
 #include <ydb-cpp-sdk/util/stream/mem.h>
+<<<<<<<< HEAD:src/library/json/json_reader.h
 ========
 #include <src/library/json/common/defs.h>
 #include <src/library/json/fast_sax/parser.h>
@@ -17,6 +21,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/json/json_reader.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/json/json_reader.h
 
 namespace NJson {
     struct TJsonReaderConfig {

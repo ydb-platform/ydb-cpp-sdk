@@ -4,7 +4,10 @@
 #include <src/client/impl/ydb_internal/value_helpers/helpers.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/value/value.cpp
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/params/params.h>
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 
@@ -12,6 +15,7 @@
 
 #include <ydb-cpp-sdk/library/containers/stack_vector/stack_vec.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_params/params.h>
 #include <src/client/ydb_types/fatal_error_handlers/handlers.h>
@@ -40,6 +44,15 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_value/value.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+
+#include <src/library/yql/public/decimal/yql_decimal.h>
+#include <src/library/uuid/uuid.h>
+
+#include <src/util/generic/mapfindptr.h>
+#include <src/util/generic/bitmap.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 

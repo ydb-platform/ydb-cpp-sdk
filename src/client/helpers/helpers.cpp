@@ -1,6 +1,7 @@
 #include <ydb-cpp-sdk/client/helpers/helpers.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/iam/iam.h>
 #include <ydb-cpp-sdk/client/resources/ydb_ca.h>
 =======
@@ -11,6 +12,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/iam/iam.h>
+#include <ydb-cpp-sdk/client/resources/ydb_ca.h>
+>>>>>>> origin/main
 #include <src/client/impl/ydb_internal/common/parser.h>
 #include <src/client/impl/ydb_internal/common/getenv.h>
 #include <src/util/stream/file.h>

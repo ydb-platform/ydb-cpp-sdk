@@ -4,6 +4,7 @@
 #include <ydb-cpp-sdk/library/logger/backend.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
@@ -16,6 +17,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
+>>>>>>> origin/main
 
 #include <atomic>
 

@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/system/event.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/system/event.h
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
@@ -11,6 +15,13 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/system/event.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/system/event.h
+>>>>>>> origin/main
 
 struct TEventResetType {
     enum ResetMode {

@@ -1,10 +1,14 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/topic/impl/executor.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/topic/topic.h>
 #include <src/client/common_client/impl/client.h>
 
 #include <ydb-cpp-sdk/util/thread/pool.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_topic/topic.h>
 #include <src/client/ydb_common_client/impl/client.h>
@@ -15,6 +19,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/impl/executor.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 
 namespace NYdb::NTopic {

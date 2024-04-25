@@ -3,6 +3,7 @@
 #include <ydb-cpp-sdk/library/jwt/jwt.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
 =======
@@ -13,6 +14,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/json/json_reader.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 

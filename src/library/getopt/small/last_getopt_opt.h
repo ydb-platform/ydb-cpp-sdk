@@ -6,6 +6,7 @@
 #include <src/util/generic/mapfindptr.h>
 #include <src/util/string/join.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/subst.h>
 =======
 #include <src/util/string/subst.h>
@@ -14,6 +15,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/subst.h>
+>>>>>>> origin/main
 
 #include <optional>
 #include <unordered_set>

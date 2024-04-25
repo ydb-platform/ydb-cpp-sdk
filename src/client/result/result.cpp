@@ -1,5 +1,6 @@
 #include <ydb-cpp-sdk/client/result/result.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/result/result.cpp
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 ========
@@ -9,10 +10,14 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_result/result.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
+>>>>>>> origin/main
 
 #include <src/api/protos/ydb_common.pb.h>
 #include <src/api/protos/ydb_value.pb.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/result/result.cpp
 #include <ydb-cpp-sdk/util/string/builder.h>
 ========
@@ -22,6 +27,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_result/result.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/builder.h>
+>>>>>>> origin/main
 
 #include <src/util/generic/mapfindptr.h>
 

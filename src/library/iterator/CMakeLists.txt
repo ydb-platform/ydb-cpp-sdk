@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 add_library(library-cpp-iterator INTERFACE)
 
 target_link_libraries(library-cpp-iterator INTERFACE
   yutil
 )
+<<<<<<< HEAD
 =======
 add_library(library-cpp-iterator)
 
@@ -27,3 +31,5 @@ target_sources(library-cpp-iterator PRIVATE
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main

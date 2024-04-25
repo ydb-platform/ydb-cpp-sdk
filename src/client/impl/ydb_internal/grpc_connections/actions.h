@@ -8,6 +8,7 @@
 #include <src/client/impl/ydb_internal/plain_status/status.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
 
 #include <ydb-cpp-sdk/util/thread/pool.h>
@@ -20,6 +21,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
+
+#include <ydb-cpp-sdk/util/thread/pool.h>
+>>>>>>> origin/main
 
 #include <grpc++/alarm.h>
 

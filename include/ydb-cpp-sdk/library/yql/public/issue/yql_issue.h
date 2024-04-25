@@ -2,6 +2,7 @@
 
 #include "yql_issue_id.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/yql/public/issue/yql_issue.h
 #include <ydb-cpp-sdk/util/system/types.h>
 #include <ydb-cpp-sdk/util/str_stl.h>
@@ -14,6 +15,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yql/public/issue/yql_issue.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/types.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
+>>>>>>> origin/main
 #include <google/protobuf/message.h>
 
 #include <vector>

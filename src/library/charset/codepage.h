@@ -3,6 +3,7 @@
 #include "doccodes.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 =======
 #include <src/library/string_utils/misc/misc.h>
@@ -11,16 +12,23 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
+>>>>>>> origin/main
 
 #include <src/util/charset/recode_result.h>
 #include <src/util/charset/unidata.h> // all wchar32 functions
 #include <src/util/charset/utf8.h>
 #include <string>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
+<<<<<<< HEAD
 =======
 #include <src/util/generic/ylimits.h>
 #include <src/util/generic/yexception.h>
@@ -31,6 +39,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 struct CodePage;
 struct Recoder;

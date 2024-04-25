@@ -3,6 +3,7 @@
 #include "priority.h"
 
 #include <string>
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/logger/record.h
 #include <ydb-cpp-sdk/util/system/defaults.h>
 ========
@@ -12,6 +13,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/logger/record.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/defaults.h>
+>>>>>>> origin/main
 
 #include <utility>
 #include <vector>

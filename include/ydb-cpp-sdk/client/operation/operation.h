@@ -1,10 +1,14 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/operation/operation.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
 
 #include <ydb-cpp-sdk/util/string/builder.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_driver/driver.h>
 #include <src/client/ydb_types/operation/operation.h>
@@ -15,6 +19,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_operation/operation.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb {
 namespace NOperation {

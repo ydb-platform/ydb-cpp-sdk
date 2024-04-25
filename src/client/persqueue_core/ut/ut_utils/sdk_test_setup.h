@@ -1,6 +1,7 @@
 #pragma once
 #include "test_server.h"
 #include <src/library/persqueue/topic_parser_public/topic_parser.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/ut/ut_utils/sdk_test_setup.h
 #include <ydb-cpp-sdk/library/logger/log.h>
 ========
@@ -10,6 +11,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/ut/ut_utils/sdk_test_setup.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/logger/log.h>
+>>>>>>> origin/main
 #include <src/util/system/tempfile.h>
 
 #define TEST_CASE_NAME (this->Name_)

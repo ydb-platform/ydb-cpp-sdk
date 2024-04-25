@@ -5,6 +5,7 @@
 #include <src/library/yt/memory/ref.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/zerocopy_output.h>
 
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
@@ -17,6 +18,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/zerocopy_output.h>
+
+#include <ydb-cpp-sdk/util/generic/size_literals.h>
+>>>>>>> origin/main
 
 namespace NYT {
 

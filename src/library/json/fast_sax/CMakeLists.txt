@@ -9,6 +9,7 @@ target_sources(cpp-json-fast_sax PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -31,6 +32,9 @@ target_sources(cpp-json-fast_sax PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/json/fast_sax/unescape.cpp
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/json/fast_sax/unescape.cpp
+>>>>>>> origin/main
 )
 
 if (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
@@ -39,6 +43,7 @@ if (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -61,6 +66,9 @@ if (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
     ${YDB_SDK_SOURCE_DIR}/src/library/json/fast_sax/parser.rl6
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    ${YDB_SDK_SOURCE_DIR}/src/library/json/fast_sax/parser.rl6
+>>>>>>> origin/main
     -CT0
   )
 else ()
@@ -69,6 +77,7 @@ else ()
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -91,6 +100,9 @@ else ()
     ${YDB_SDK_SOURCE_DIR}/src/library/json/fast_sax/parser.rl6
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    ${YDB_SDK_SOURCE_DIR}/src/library/json/fast_sax/parser.rl6
+>>>>>>> origin/main
     -CG2
   )
 endif ()

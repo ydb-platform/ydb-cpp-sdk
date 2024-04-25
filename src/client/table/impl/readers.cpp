@@ -1,5 +1,6 @@
 #include "readers.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/table/impl/readers.cpp
 #include <src/client/common_client/impl/client.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/impl/readers.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <src/client/common_client/impl/client.h>
+>>>>>>> origin/main
 
 
 namespace NYdb {

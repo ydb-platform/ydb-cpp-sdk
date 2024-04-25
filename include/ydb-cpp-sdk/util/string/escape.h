@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/string/escape.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/string/escape.h
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 ========
@@ -9,6 +13,12 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/string/escape.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/string/escape.h
+>>>>>>> origin/main
 
 template <class TChar>
 std::basic_string<TChar>& EscapeCImpl(const TChar* str, size_t len, std::basic_string<TChar>&);

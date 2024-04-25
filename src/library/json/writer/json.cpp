@@ -1,10 +1,14 @@
 #include <ydb-cpp-sdk/library/json/writer/json.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/json/json_value.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <ydb-cpp-sdk/util/string/cast.h>
+<<<<<<< HEAD
 =======
 #include <src/library/json/json_value.h>
 #include <src/util/string/builder.h>
@@ -15,6 +19,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/util/string/strspn.h>
 #include <src/util/generic/ymath.h>
 

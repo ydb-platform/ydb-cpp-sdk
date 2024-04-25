@@ -1,6 +1,7 @@
 #include "registar.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/datetime/base.h>
 =======
 #include <src/util/datetime/base.h>
@@ -9,6 +10,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/datetime/base.h>
+>>>>>>> origin/main
 #include <src/util/system/tempfile.h>
 
 #include <optional>

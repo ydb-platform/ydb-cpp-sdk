@@ -4,6 +4,7 @@ where HTML special characters are always escaped.
 Use it like this:
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/library/json/writer/json.h>
 =======
     #include <src/library/json/writer/json.h>
@@ -12,6 +13,9 @@ Use it like this:
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    #include <ydb-cpp-sdk/library/json/writer/json.h>
+>>>>>>> origin/main
     ...
 
     NJsonWriter::TBuf json;

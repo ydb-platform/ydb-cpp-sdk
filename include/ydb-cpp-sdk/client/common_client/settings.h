@@ -1,11 +1,15 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/common_client/settings.h
+=======
+>>>>>>> origin/main
 #include "ssl_credentials.h"
 
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 #include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
 #include <ydb-cpp-sdk/client/types/ydb.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_types/credentials/credentials.h>
 #include <src/client/ydb_types/fluent_settings_helpers.h>
@@ -17,6 +21,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_common_client/settings.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <optional>
 

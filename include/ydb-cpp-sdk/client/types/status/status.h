@@ -1,12 +1,16 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/types/status/status.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 #include <ydb-cpp-sdk/client/types/ydb.h>
 
 #include <ydb-cpp-sdk/library/yql/public/issue/yql_issue.h>
 
 #include <ydb-cpp-sdk/library/threading/future/future.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_types/fatal_error_handlers/handlers.h>
 #include <src/client/ydb_types/ydb.h>
@@ -19,6 +23,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/status/status.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb {
 

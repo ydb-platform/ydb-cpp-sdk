@@ -1,5 +1,6 @@
 add_ydb_test(NAME operation_id-ut
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   INCLUDE_DIRS
   ${CMAKE_SOURCE_DIR}/src/library/operation_id
@@ -8,6 +9,8 @@ add_ydb_test(NAME operation_id-ut
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   SOURCES
   operation_id_ut.cpp
   LINK_LIBRARIES

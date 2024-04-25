@@ -1,7 +1,10 @@
 #include <src/client/ydb_persqueue_core/ut/ut_utils/ut_utils.h>
 
 #include <src/library/testing/unittest/registar.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/ut/basic_usage_ut.cpp
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 #include <src/library/threading/future/async.h>
 
@@ -10,6 +13,7 @@
 #include <ydb-cpp-sdk/util/system/event.h>
 #include <src/util/stream/zlib.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
+<<<<<<< HEAD
 ========
 #include <src/library/threading/future/future.h>
 #include <src/library/threading/future/async.h>
@@ -24,6 +28,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/ut/basic_usage_ut.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <atomic>
 #include <format>

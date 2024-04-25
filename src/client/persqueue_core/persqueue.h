@@ -1,6 +1,9 @@
 #pragma once
 #include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/persqueue.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 
@@ -15,6 +18,7 @@
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/util/thread/pool.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_driver/driver.h>
 #include <src/client/ydb_types/exceptions/exceptions.h>
@@ -35,6 +39,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/persqueue.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <exception>
 #include <variant>

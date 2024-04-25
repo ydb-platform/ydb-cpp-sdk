@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<<< HEAD:src/util/generic/iterator_range.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/iterator_range.h
 #include <ydb-cpp-sdk/util/system/yassert.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/iterator_range.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+#include <ydb-cpp-sdk/util/system/yassert.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/iterator_range.h
 
 #include <iterator>
 #include <utility>

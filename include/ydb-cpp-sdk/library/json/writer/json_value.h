@@ -1,12 +1,16 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/json/writer/json_value.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/json/common/defs.h>
 
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <unordered_map>
+<<<<<<< HEAD
 ========
 #include <src/library/json/common/defs.h>
 
@@ -19,6 +23,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/json/writer/json_value.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NJson {
     enum EJsonValueType {

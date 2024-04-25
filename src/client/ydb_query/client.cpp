@@ -12,11 +12,15 @@
 #include <src/client/impl/ydb_internal/session_pool/session_pool.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
+<<<<<<<< HEAD:src/client/ydb_query/client.cpp
 <<<<<<<< HEAD:src/client/query/client.cpp
+========
+>>>>>>>> origin/main:src/client/query/client.cpp
 #include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 #include <src/client/common_client/impl/client.h>
 #include <src/client/query/impl/exec_query.h>
 #include <ydb-cpp-sdk/client/retry/retry.h>
+<<<<<<<< HEAD:src/client/ydb_query/client.cpp
 ========
 #include <src/library/operation_id/operation_id.h>
 #include <src/client/ydb_common_client/impl/client.h>
@@ -27,6 +31,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/client.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+>>>>>>>> origin/main:src/client/query/client.cpp
 
 namespace NYdb::NQuery {
 

@@ -5,11 +5,15 @@
 #include "thread.i"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/ymath.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+<<<<<<< HEAD
 =======
 #include <src/util/generic/ptr.h>
 #include <src/util/generic/ymath.h>
@@ -21,6 +25,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <utility>
 
 #if defined(_linux_)

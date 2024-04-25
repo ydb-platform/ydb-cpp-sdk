@@ -2,11 +2,22 @@
 
 #include "factory.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/thread/pool.h
+=======
+<<<<<<<< HEAD:src/util/thread/pool.h
+<<<<<<<< HEAD:include/ydb-cpp-sdk/util/thread/pool.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/thread/pool.h
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/thread/pool.h
+>>>>>>> origin/main
 ========
 #include <src/util/system/yassert.h>
 #include <src/util/system/defaults.h>
@@ -19,6 +30,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/thread/pool.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/thread/pool.h
+>>>>>>> origin/main
 
 #include <string>
 

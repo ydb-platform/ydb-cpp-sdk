@@ -2,6 +2,7 @@
 
 #include "client_session.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/table/impl/request_migrator.h
 #include <ydb-cpp-sdk/client/table/table.h>
 
@@ -15,6 +16,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/impl/request_migrator.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/table/table.h>
+
+#include <ydb-cpp-sdk/library/threading/future/future.h>
+>>>>>>> origin/main
 
 #include <string>
 

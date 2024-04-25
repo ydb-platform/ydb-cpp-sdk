@@ -1,12 +1,16 @@
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <src/util/system/datetime.h>
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
+<<<<<<< HEAD
 =======
 #include <src/util/string/cast.h>
 #include <src/util/stream/output.h>
@@ -19,6 +23,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 std::string Strftime(const char* format, const struct tm* tm) {
     size_t size = Max<size_t>(strlen(format) * 2 + 1, 107);

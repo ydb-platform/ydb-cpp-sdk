@@ -3,6 +3,10 @@
 #include "is_in.h"
 #include <ydb-cpp-sdk/util/generic/utility.h>
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/generic/algorithm.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/algorithm.h
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/generic/fwd.h>
@@ -14,6 +18,13 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/algorithm.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/algorithm.h
+>>>>>>> origin/main
 
 #include <numeric>
 #include <algorithm>

@@ -2,6 +2,7 @@
 
 #include "fwd.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/threading/future/core/future.h
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
@@ -20,6 +21,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/threading/future/core/future.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+>>>>>>> origin/main
 
 #include <string_view>
 #include <optional>

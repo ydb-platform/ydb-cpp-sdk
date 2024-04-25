@@ -2,6 +2,9 @@
 #include "codepage.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/subst.h>
 #include <src/util/string/util.h>
@@ -12,6 +15,7 @@
 
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+<<<<<<< HEAD
 =======
 #include <src/util/string/cast.h>
 #include <src/util/string/subst.h>
@@ -28,6 +32,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/util/memory/pool.h>
 
 #include <cstring>

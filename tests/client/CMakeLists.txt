@@ -1,5 +1,6 @@
 add_ydb_test(NAME client-ydb_coordination-ut
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   INCLUDE_DIRS
 <<<<<<< HEAD
@@ -21,6 +22,8 @@ add_ydb_test(NAME client-ydb_coordination-ut
   ${YDB_SDK_SOURCE_DIR}/src/client/ydb_coordination
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   SOURCES
   coordination_ut.cpp
   LINK_LIBRARIES
@@ -32,6 +35,7 @@ add_ydb_test(NAME client-ydb_coordination-ut
 
 add_ydb_test(NAME client-extensions-discovery_mutator-ut
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   INCLUDE_DIRS
 <<<<<<< HEAD
@@ -53,6 +57,8 @@ add_ydb_test(NAME client-extensions-discovery_mutator-ut
   ${YDB_SDK_SOURCE_DIR}/src/client/extensions/discovery_mutator
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   SOURCES
   discovery_mutator_ut.cpp
   LINK_LIBRARIES
@@ -64,6 +70,7 @@ add_ydb_test(NAME client-extensions-discovery_mutator-ut
 
 add_ydb_test(NAME client-ydb_driver-ut
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   INCLUDE_DIRS
 <<<<<<< HEAD
@@ -85,6 +92,8 @@ add_ydb_test(NAME client-ydb_driver-ut
   ${YDB_SDK_SOURCE_DIR}/src/client/ydb_driver
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   SOURCES
   driver_ut.cpp
   LINK_LIBRARIES
@@ -100,6 +109,7 @@ add_ydb_test(NAME client-impl-ydb_endpoints-ut
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/src/client/impl/ydb_endpoints
 =======
   ${YDB_SDK_SOURCE_DIR}/client/impl/ydb_endpoints
@@ -121,6 +131,9 @@ add_ydb_test(NAME client-impl-ydb_endpoints-ut
   ${YDB_SDK_SOURCE_DIR}/src/client/impl/ydb_endpoints
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/client/impl/ydb_endpoints
+>>>>>>> origin/main
   SOURCES
   endpoints_ut.cpp
   LINK_LIBRARIES
@@ -130,6 +143,7 @@ add_ydb_test(NAME client-impl-ydb_endpoints-ut
 )
 
 add_ydb_test(NAME client-ydb_params-ut
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
   INCLUDE_DIRS
@@ -152,6 +166,8 @@ add_ydb_test(NAME client-ydb_params-ut
   ${YDB_SDK_SOURCE_DIR}/src/client/ydb_params
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   SOURCES
   params_ut.cpp
   LINK_LIBRARIES
@@ -163,6 +179,7 @@ add_ydb_test(NAME client-ydb_params-ut
 
 add_ydb_test(NAME client-ydb_result-ut
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   INCLUDE_DIRS
 <<<<<<< HEAD
@@ -184,6 +201,8 @@ add_ydb_test(NAME client-ydb_result-ut
   ${YDB_SDK_SOURCE_DIR}/src/client/ydb_result
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   SOURCES
   result_ut.cpp
   LINK_LIBRARIES
@@ -195,6 +214,7 @@ add_ydb_test(NAME client-ydb_result-ut
 
 add_ydb_test(NAME client-ydb_value-ut
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   INCLUDE_DIRS
 <<<<<<< HEAD
@@ -216,6 +236,8 @@ add_ydb_test(NAME client-ydb_value-ut
   ${YDB_SDK_SOURCE_DIR}/src/client/ydb_value
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   SOURCES
   value_ut.cpp
   LINK_LIBRARIES
@@ -229,6 +251,7 @@ add_ydb_test(NAME client-ydb_value-ut
 
 add_ydb_test(NAME client-draft-ut
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   INCLUDE_DIRS
 <<<<<<< HEAD
@@ -250,6 +273,8 @@ add_ydb_test(NAME client-draft-ut
   ${YDB_SDK_SOURCE_DIR}/src/client/draft
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   SOURCES
   ydb_scripting_response_headers_ut.cpp
   LINK_LIBRARIES

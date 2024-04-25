@@ -3,6 +3,9 @@
 #include <ydb-cpp-sdk/util/network/socket.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/system/error.h>
 #include <src/util/system/fake_mutex.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
@@ -10,6 +13,7 @@
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
+<<<<<<< HEAD
 =======
 #include <src/util/system/error.h>
 #include <src/util/system/fake_mutex.h>
@@ -23,6 +27,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <mutex>
 
@@ -334,6 +340,7 @@ private:
 
 #if defined(HAVE_SELECT_POLLER)
 <<<<<<< HEAD
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 =======
     #include <src/util/memory/tempbuf.h>
@@ -342,6 +349,9 @@ private:
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    #include <ydb-cpp-sdk/util/memory/tempbuf.h>
+>>>>>>> origin/main
     #include <src/util/generic/hash.h>
 
     #include "pair.h"

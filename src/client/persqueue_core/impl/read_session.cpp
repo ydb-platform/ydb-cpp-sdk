@@ -2,6 +2,7 @@
 #include "read_session.h"
 #include "common.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/impl/read_session.cpp
 #include <src/client/persqueue_core/impl/log_lazy.h>
 ========
@@ -11,6 +12,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/read_session.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <src/client/persqueue_core/impl/log_lazy.h>
+>>>>>>> origin/main
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/logger/log.h>
@@ -18,11 +22,15 @@
 
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 #include <src/util/generic/guid.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/impl/read_session.cpp
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
+<<<<<<< HEAD
 ========
 #include <src/util/generic/size_literals.h>
 #include <src/util/generic/utility.h>
@@ -33,6 +41,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/read_session.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <variant>
 

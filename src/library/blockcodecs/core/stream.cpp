@@ -4,11 +4,15 @@
 #include <src/util/digest/murmur.h>
 #include <src/util/generic/scope.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/cast.h>
 #include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
 #include <ydb-cpp-sdk/util/ysaveload.h>
+<<<<<<< HEAD
 =======
 #include <src/util/generic/cast.h>
 #include <src/util/generic/hash.h>
@@ -20,6 +24,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 using namespace NBlockCodecs;
 

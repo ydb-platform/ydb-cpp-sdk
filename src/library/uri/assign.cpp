@@ -6,6 +6,7 @@
 #include <src/library/charset/recyr.hh>
 #include <src/util/charset/wide.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
@@ -18,6 +19,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+>>>>>>> origin/main
 #include <src/util/system/sys_alloc.h>
 
 namespace NUri {

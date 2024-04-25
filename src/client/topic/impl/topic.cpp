@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/topic/impl/topic.cpp
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/topic/topic.h>
 #include <src/client/topic/impl/topic_impl.h>
 #include <src/client/topic/impl/executor.h>
@@ -10,6 +13,7 @@
 #include <ydb-cpp-sdk/util/random/random.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/subst.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_topic/topic.h>
 #include <src/client/ydb_topic/impl/topic_impl.h>
@@ -27,6 +31,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/impl/topic.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb::NTopic {
 

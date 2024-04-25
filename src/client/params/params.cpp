@@ -1,6 +1,9 @@
 #include "impl.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/params/params.cpp
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/params/params.h>
 
 #include <src/api/protos/ydb_value.pb.h>
@@ -8,6 +11,7 @@
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 
 #include <ydb-cpp-sdk/util/string/builder.h>
+<<<<<<< HEAD
 ========
 #include <src/api/protos/ydb_value.pb.h>
 
@@ -19,6 +23,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_params/params.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb {
 

@@ -2,7 +2,10 @@
 
 #include "headers.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/http/io/stream.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <span>
 #include <string>
@@ -10,6 +13,7 @@
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <memory>
+<<<<<<< HEAD
 ========
 #include <src/util/stream/output.h>
 #include <src/util/generic/ptr.h>
@@ -22,6 +26,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/http/io/stream.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 class TSocket;
 

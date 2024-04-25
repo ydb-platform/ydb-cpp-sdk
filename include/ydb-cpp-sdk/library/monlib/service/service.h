@@ -1,11 +1,15 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/monlib/service/service.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/coroutine/listener/listen.h>
 #include <ydb-cpp-sdk/library/http/fetch/httpheader.h>
 #include <ydb-cpp-sdk/library/http/server/http.h>
 
 #include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
+<<<<<<< HEAD
 ========
 #include <src/library/coroutine/engine/impl.h>
 #include <src/library/coroutine/listener/listen.h>
@@ -20,6 +24,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/monlib/service/service.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <functional>
 

@@ -4,7 +4,14 @@
 
 #include <contrib/libs/libc_compat/string.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/http/fetch/httpheader.h
+=======
+<<<<<<<< HEAD:src/library/http/fetch/httpheader.h
+<<<<<<<< HEAD:include/ydb-cpp-sdk/library/http/fetch/httpheader.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/http/fetch/httpheader.h
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/mime/types/mime.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
@@ -12,6 +19,10 @@
 #include <string>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/system/maxlen.h>
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/http/fetch/httpheader.h
+>>>>>>> origin/main
 ========
 #include <src/library/mime/types/mime.h>
 
@@ -25,6 +36,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/http/fetch/httpheader.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/http/fetch/httpheader.h
+>>>>>>> origin/main
 
 #include <ctime>
 #include <cstdio>

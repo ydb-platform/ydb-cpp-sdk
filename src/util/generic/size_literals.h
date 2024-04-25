@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<<< HEAD:src/util/generic/size_literals.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/size_literals.h
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/types.h>
@@ -11,6 +12,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/size_literals.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/system/types.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/size_literals.h
 #include <limits>
 
 // Unsigned literals

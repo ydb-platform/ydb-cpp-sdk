@@ -5,6 +5,7 @@
 #include <src/util/memory/pool.h>
 #include <src/util/stream/buffer.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/memory/blob.h>
 =======
 #include <src/util/memory/blob.h>
@@ -13,6 +14,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/memory/blob.h>
+>>>>>>> origin/main
 
 #include <src/util/generic/hash_multi_map.h>
 

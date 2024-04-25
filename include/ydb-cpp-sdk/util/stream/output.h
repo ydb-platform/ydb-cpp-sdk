@@ -2,6 +2,10 @@
 
 #include "fwd.h"
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/stream/output.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/stream/output.h
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
@@ -13,6 +17,13 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/stream/output.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/stream/output.h
+>>>>>>> origin/main
 
 #include <string_view>
 #include <type_traits>

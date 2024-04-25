@@ -2,11 +2,15 @@
 
 #include "metric_consumer.h"
 
+<<<<<<<< HEAD:src/library/monlib/metrics/metric.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/monlib/metrics/metric.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/monlib/metrics/metric.h
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
 #include <functional>
+<<<<<<<< HEAD:src/library/monlib/metrics/metric.h
 ========
 #include <src/util/datetime/base.h>
 #include <src/util/generic/ptr.h>
@@ -15,6 +19,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/monlib/metrics/metric.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/monlib/metrics/metric.h
 
 namespace NMonitoring {
     ///////////////////////////////////////////////////////////////////////////////

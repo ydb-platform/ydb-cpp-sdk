@@ -1,6 +1,9 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
@@ -12,6 +15,7 @@
 #include <ydb-cpp-sdk/util/system/guard.h>
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+<<<<<<< HEAD
 =======
 #include <src/util/datetime/base.h>
 #include <src/util/generic/noncopyable.h>
@@ -28,6 +32,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <mutex>
 #include <type_traits>

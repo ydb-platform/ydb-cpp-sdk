@@ -1,6 +1,7 @@
 #include "hex.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 =======
 #include "output.h"
@@ -9,6 +10,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/output.h>
+>>>>>>> origin/main
 #include <src/util/string/hex.h>
 
 void HexEncode(const void* in, size_t len, IOutputStream& out) {

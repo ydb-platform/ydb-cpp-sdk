@@ -12,6 +12,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/topic/ut/basic_usage_ut.cpp
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 ========
@@ -21,6 +22,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/ut/basic_usage_ut.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/threading/future/future.h>
+>>>>>>> origin/main
 #include <src/library/threading/future/async.h>
 
 #include <future>

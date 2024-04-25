@@ -1,6 +1,9 @@
 #pragma once
 
+<<<<<<<< HEAD:src/util/ysaveload.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/ysaveload.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/ysaveload.h
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
@@ -8,6 +11,7 @@
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
+<<<<<<<< HEAD:src/util/ysaveload.h
 ========
 #include <queue>
 #include <src/util/generic/fwd.h>
@@ -22,6 +26,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/ysaveload.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/ysaveload.h
 
 #include <deque>
 #include <list>

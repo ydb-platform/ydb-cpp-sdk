@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/topic/impl/deferred_commit.cpp
 #include <ydb-cpp-sdk/client/topic/topic.h>
 
@@ -12,6 +13,12 @@
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/impl/deferred_commit.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
+=======
+#include <ydb-cpp-sdk/client/topic/topic.h>
+
+#include <src/client/persqueue_core/impl/read_session.h>
+
+>>>>>>> origin/main
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 
 namespace NYdb::NTopic {

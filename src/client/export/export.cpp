@@ -7,6 +7,7 @@
 #include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>
 #include <src/api/grpc/ydb_export_v1.grpc.pb.h>
 #include <src/api/protos/ydb_export.pb.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/export/export.cpp
 #include <src/client/common_client/impl/client.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
@@ -18,10 +19,15 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_export/export.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <src/client/common_client/impl/client.h>
+#include <ydb-cpp-sdk/client/proto/accessor.h>
+>>>>>>> origin/main
 
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/timestamp.pb.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/export/export.cpp
 #include <ydb-cpp-sdk/util/stream/str.h>
 ========
@@ -31,6 +37,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_export/export.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/str.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 namespace NExport {

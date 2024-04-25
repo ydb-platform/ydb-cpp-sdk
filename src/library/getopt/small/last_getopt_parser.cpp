@@ -1,10 +1,14 @@
 #include "last_getopt_parser.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 #include <src/library/colorizer/colors.h>
 
 #include <ydb-cpp-sdk/util/string/escape.h>
+<<<<<<< HEAD
 =======
 #include <src/library/string_utils/misc/misc.h>
 #include <src/library/colorizer/colors.h>
@@ -15,6 +19,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NLastGetopt {
     void TOptsParser::Init(const TOpts* opts, int argc, const char* argv[]) {

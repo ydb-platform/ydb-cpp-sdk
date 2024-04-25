@@ -8,6 +8,7 @@
 
 // DO_NOT_STYLE
 
+<<<<<<<< HEAD:src/util/generic/va_args.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/va_args.h
 #include <ydb-cpp-sdk/util/system/defaults.h>
 ========
@@ -17,6 +18,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/va_args.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+#include <ydb-cpp-sdk/util/system/defaults.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/va_args.h
 
 /**
  * Triggers another level of macro expansion, use whenever passing __VA_ARGS__ to another macro.

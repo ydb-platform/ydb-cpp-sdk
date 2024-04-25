@@ -4,6 +4,7 @@
 #include <ydb-cpp-sdk/library/yson/token.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 =======
 #include <src/util/generic/ptr.h>
@@ -12,6 +13,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+>>>>>>> origin/main
 
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////

@@ -3,6 +3,7 @@
 #include "common.h"
 #include "persqueue_impl.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/impl/write_session_impl.h
 #include <src/client/persqueue_core/persqueue.h>
 #include <src/client/persqueue_core/impl/callback_context.h>
@@ -14,6 +15,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/write_session_impl.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <src/client/persqueue_core/persqueue.h>
+#include <src/client/persqueue_core/impl/callback_context.h>
+>>>>>>> origin/main
 
 #include <src/util/generic/buffer.h>
 

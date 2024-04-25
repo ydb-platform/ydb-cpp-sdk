@@ -1,6 +1,7 @@
 #include <ydb-cpp-sdk/library/monlib/metrics/metric_consumer.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
 =======
 #include <src/util/system/yassert.h>
@@ -9,6 +10,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/yassert.h>
+>>>>>>> origin/main
 
 namespace NMonitoring {
     void IMetricConsumer::OnLabel(ui32 name, ui32 value) {

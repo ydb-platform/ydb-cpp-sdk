@@ -2,6 +2,7 @@
 
 #include "priority.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/logger/backend.h
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 ========
@@ -11,6 +12,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/logger/backend.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
+>>>>>>> origin/main
 #include <vector>
 #include <cstddef>
 

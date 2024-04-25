@@ -5,6 +5,7 @@
 #include <src/library/monlib/encode/buffered/buffered_encoder_base.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/cast.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
@@ -17,6 +18,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/cast.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/string/builder.h>
+>>>>>>> origin/main
 
 #ifndef _little_endian_
 #error Unsupported platform

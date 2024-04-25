@@ -3,6 +3,9 @@
 #include "string_pool.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/monlib/encode/encoder.h>
 #include <src/library/monlib/encode/encoder_state.h>
 #include <ydb-cpp-sdk/library/monlib/encode/format.h>
@@ -10,6 +13,7 @@
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/digest/numeric.h>
+<<<<<<< HEAD
 =======
 #include <src/library/monlib/encode/encoder.h>
 #include <src/library/monlib/encode/encoder_state.h>
@@ -23,6 +27,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 
 namespace NMonitoring {

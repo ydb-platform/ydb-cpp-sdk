@@ -2,6 +2,7 @@
 
 #include <src/library/operation_id/protos/operation_id.pb.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/operation_id/operation_id.h
 ========
 #include <src/util/generic/hash.h>
@@ -10,6 +11,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/operation_id/operation_id.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <string>
 #include <vector>
 

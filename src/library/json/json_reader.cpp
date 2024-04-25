@@ -7,10 +7,14 @@
 #include <rapidjson/reader.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <src/util/generic/stack.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+<<<<<<< HEAD
 =======
 #include <src/util/string/builder.h>
 
@@ -21,6 +25,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NJson {
     namespace {

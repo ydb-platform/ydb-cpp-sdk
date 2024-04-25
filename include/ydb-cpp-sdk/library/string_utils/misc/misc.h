@@ -1,10 +1,14 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/string_utils/misc/misc.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+<<<<<<< HEAD
 ========
 #include <src/library/string_utils/helpers/helpers.h>
 
@@ -15,6 +19,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/string_utils/misc/misc.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <optional>
 

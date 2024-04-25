@@ -4,6 +4,7 @@
 
 #include <src/util/system/fs.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/rwlock.h>
 #include <src/util/system/yield.h>
 #include <ydb-cpp-sdk/util/memory/blob.h>
@@ -16,6 +17,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/rwlock.h>
+#include <src/util/system/yield.h>
+#include <ydb-cpp-sdk/util/memory/blob.h>
+>>>>>>> origin/main
 #include <src/util/stream/file.h>
 #include <string>
 

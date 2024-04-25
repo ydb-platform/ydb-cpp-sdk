@@ -1,7 +1,10 @@
 #pragma once
 
 #include <list>
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/monlib/counters/counters.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
 #include <ydb-cpp-sdk/util/stream/output.h>
@@ -9,6 +12,7 @@
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/guard.h>
 #include <ydb-cpp-sdk/util/system/spinlock.h>
+<<<<<<< HEAD
 ========
 #include <src/util/datetime/base.h>
 #include <src/util/generic/algorithm.h>
@@ -29,6 +33,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/monlib/counters/counters.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <map>
 #include <mutex>

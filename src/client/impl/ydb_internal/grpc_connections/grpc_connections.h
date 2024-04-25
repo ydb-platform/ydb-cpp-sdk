@@ -2,6 +2,7 @@
 
 #include <src/client/impl/ydb_internal/internal_header.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
 =======
 #include <src/client/impl/ydb_internal/common/ssl_credentials.h>
@@ -10,6 +11,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
+>>>>>>> origin/main
 
 #include "actions.h"
 #include "params.h"
@@ -18,6 +22,7 @@
 #include <src/client/impl/ydb_internal/db_driver_state/state.h>
 #include <src/client/impl/ydb_internal/rpc_request_settings/settings.h>
 #include <src/client/impl/ydb_internal/thread_pool/pool.h>
+<<<<<<< HEAD
 <<<<<<< HEAD
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 #include <ydb-cpp-sdk/client/ydb_extension/extension.h>
@@ -29,6 +34,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/resources/ydb_resources.h>
+#include <ydb-cpp-sdk/client/ydb_extension/extension.h>
+>>>>>>> origin/main
 
 #include <src/library/yql/public/issue/yql_issue_message.h>
 

@@ -1,10 +1,14 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 
 #include <ydb-cpp-sdk/library/yt/exception/exception.h>
+<<<<<<< HEAD
 =======
 #include <src/util/generic/fwd.h>
 #include <src/util/generic/typetraits.h>
@@ -15,6 +19,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <array>
 #include <string>

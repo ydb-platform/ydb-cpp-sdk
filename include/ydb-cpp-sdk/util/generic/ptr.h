@@ -9,6 +9,10 @@
 #include <type_traits>
 #include <utility>
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/generic/ptr.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/ptr.h
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
@@ -22,6 +26,14 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/ptr.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/system/compiler.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/ptr.h
+>>>>>>> origin/main
 
 template <class T, class U>
 using TGuardConversion = typename std::enable_if_t<std::is_convertible<U*, T*>::value>;

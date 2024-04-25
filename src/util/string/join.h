@@ -1,6 +1,7 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 =======
@@ -12,6 +13,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+>>>>>>> origin/main
 
 /*
  * Default implementation of AppendToString uses a temporary std::string object which is inefficient. You can overload it

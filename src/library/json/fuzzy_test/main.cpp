@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 
 #include <ydb-cpp-sdk/util/random/random.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
+<<<<<<< HEAD
 =======
 #include <src/library/json/json_reader.h>
 
@@ -13,6 +17,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 extern "C" int LLVMFuzzerTestOneInput(const ui8* data, size_t size) {
     const auto json = std::string((const char*)data, size);

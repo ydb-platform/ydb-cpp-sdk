@@ -4,10 +4,14 @@
 #include <ydb-cpp-sdk/util/stream/output.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/generic/flags.h>
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+<<<<<<< HEAD
 =======
 #include <src/util/datetime/base.h>
 #include <src/util/generic/flags.h>
@@ -18,6 +22,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 enum ENumberFormatFlag {
     HF_FULL = 0x01, /**< Output number with leading zeros. */

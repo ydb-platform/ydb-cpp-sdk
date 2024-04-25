@@ -11,11 +11,15 @@ static inline void Throw2DontMove() {
 #include <src/library/testing/unittest/registar.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <src/util/random/mersenne.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/string/subst.h>
+<<<<<<< HEAD
 =======
 #include <src/util/generic/algorithm.h>
 #include <src/util/memory/tempbuf.h>
@@ -27,6 +31,8 @@ static inline void Throw2DontMove() {
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/util/string/split.h>
 
 #include "yexception_ut.h"

@@ -1,6 +1,7 @@
 #include "mersenne64.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/array_size.h>
 #include <ydb-cpp-sdk/util/stream/input.h>
 =======
@@ -11,6 +12,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/array_size.h>
+#include <ydb-cpp-sdk/util/stream/input.h>
+>>>>>>> origin/main
 
 #define MM 156
 #define MATRIX_A ULL(0xB5026F5AA96619E9)

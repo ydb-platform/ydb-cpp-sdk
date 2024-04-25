@@ -3,6 +3,7 @@
 #include <src/util/charset/recode_result.h>
 #include <src/util/charset/utf8.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <string>
 #include <ydb-cpp-sdk/util/system/defaults.h>
@@ -15,6 +16,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <string>
+#include <ydb-cpp-sdk/util/system/defaults.h>
+>>>>>>> origin/main
 
 #include "codepage.h"
 #include "doccodes.h"

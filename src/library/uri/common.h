@@ -3,6 +3,7 @@
 #include <contrib/libs/libc_compat/string.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
 =======
@@ -13,6 +14,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
+>>>>>>> origin/main
 #include <string_view>
 
 namespace NUri {

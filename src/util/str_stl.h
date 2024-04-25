@@ -2,12 +2,16 @@
 
 #include <contrib/libs/libc_compat/string.h>
 
+<<<<<<<< HEAD:src/util/str_stl.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/str_stl.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/str_stl.h
 #include <ydb-cpp-sdk/util/memory/alloc.h>
 #include <ydb-cpp-sdk/util/digest/numeric.h>
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/string_hash.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
+<<<<<<<< HEAD:src/util/str_stl.h
 ========
 #include <src/util/memory/alloc.h>
 #include <src/util/digest/numeric.h>
@@ -19,6 +23,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/str_stl.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/str_stl.h
 
 #include <functional>
 #include <string>

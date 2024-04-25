@@ -3,6 +3,10 @@
 #include "socket.h"
 #include "hostip.h"
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/network/ip.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/network/ip.h
 #include <ydb-cpp-sdk/util/system/error.h>
 #include <ydb-cpp-sdk/util/system/byteorder.h>
@@ -16,6 +20,14 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/network/ip.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/system/error.h>
+#include <ydb-cpp-sdk/util/system/byteorder.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/network/ip.h
+>>>>>>> origin/main
 
 #include <string>
 

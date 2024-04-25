@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/query/impl/client_session.h
 #include <ydb-cpp-sdk/client/query/client.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/impl/client_session.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/query/client.h>
+>>>>>>> origin/main
 #include <src/client/impl/ydb_internal/kqp_session_common/kqp_session_common.h>
 
 namespace NYdb::NQuery {

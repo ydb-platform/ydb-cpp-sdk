@@ -1,12 +1,16 @@
 #pragma once
 
+<<<<<<<< HEAD:src/util/string/cast.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/string/cast.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/string/cast.h
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+<<<<<<<< HEAD:src/util/string/cast.h
 ========
 #include <src/library/string_utils/helpers/helpers.h>
 
@@ -19,6 +23,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/string/cast.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/string/cast.h
 
 #include <algorithm>
 #include <optional>

@@ -2,6 +2,7 @@
 
 #include <src/util/generic/buffer.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/flags.h>
 =======
 #include <src/util/generic/flags.h>
@@ -10,6 +11,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/flags.h>
+>>>>>>> origin/main
 
 #include <string>
 

@@ -6,6 +6,7 @@
 
 #include <src/library/colorizer/colors.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 =======
 #include <src/library/string_utils/misc/misc.h>
@@ -14,6 +15,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
+>>>>>>> origin/main
 
 namespace NLastGetopt {
     std::string MakeInfo(std::string_view command, std::string_view flag) {

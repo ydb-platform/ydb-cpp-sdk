@@ -1,11 +1,15 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/federated_topic/impl/federated_write_session.h
+=======
+>>>>>>> origin/main
 #include <src/client/federated_topic/impl/federated_topic_impl.h>
 
 #include <src/client/persqueue_core/impl/write_session.h>
 
 #include <src/client/topic/impl/write_session.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_federated_topic/impl/federated_topic_impl.h>
 
@@ -17,6 +21,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/impl/federated_write_session.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <deque>
 

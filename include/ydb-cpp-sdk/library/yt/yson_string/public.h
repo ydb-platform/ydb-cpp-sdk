@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/yt/yson_string/public.h
 #include <ydb-cpp-sdk/library/yt/misc/enum.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yt/yson_string/public.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/yt/misc/enum.h>
+>>>>>>> origin/main
 
 namespace NYT::NYson {
 

@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/string/subst.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/string/subst.h
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 ========
@@ -9,6 +13,12 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/string/subst.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/generic/fwd.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/string/subst.h
+>>>>>>> origin/main
 
 #include <string>
 #include <string_view>

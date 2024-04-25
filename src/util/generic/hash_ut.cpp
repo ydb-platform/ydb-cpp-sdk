@@ -7,6 +7,7 @@
 
 #include <utility>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/str_stl.h>
 #include <ydb-cpp-sdk/util/digest/multi.h>
 =======
@@ -17,6 +18,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/str_stl.h>
+#include <ydb-cpp-sdk/util/digest/multi.h>
+>>>>>>> origin/main
 
 static const char star = 42;
 

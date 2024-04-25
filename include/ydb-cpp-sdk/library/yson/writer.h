@@ -4,6 +4,10 @@
 #include "token.h"
 #include "consumer.h"
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/yson/writer.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/yson/writer.h
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 ========
@@ -13,6 +17,12 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yson/writer.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/yson/writer.h
+>>>>>>> origin/main
 
 class IOutputStream;
 class IZeroCopyInput;

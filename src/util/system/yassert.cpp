@@ -6,10 +6,14 @@
 #include <ydb-cpp-sdk/util/system/src_root.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
+<<<<<<< HEAD
 =======
 #include <src/util/datetime/base.h>
 #include <src/util/generic/singleton.h>
@@ -20,6 +24,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <cstdlib>
 #include <iostream>

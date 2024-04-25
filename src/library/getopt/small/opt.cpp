@@ -1,6 +1,7 @@
 #include "opt.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/progname.h>
 =======
 #include <src/util/system/progname.h>
@@ -9,6 +10,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/progname.h>
+>>>>>>> origin/main
 
 #include <ctype.h>
 

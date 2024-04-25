@@ -1,6 +1,7 @@
 #include "secondary_index.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/random/random.h>
 #include <ydb-cpp-sdk/util/thread/pool.h>
 =======
@@ -11,6 +12,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/random/random.h>
+#include <ydb-cpp-sdk/util/thread/pool.h>
+>>>>>>> origin/main
 
 using namespace NLastGetopt;
 using namespace NYdb;

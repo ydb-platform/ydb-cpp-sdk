@@ -1,6 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/iam/common/iam.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 
 #include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
@@ -14,6 +17,7 @@
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <fstream>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_types/credentials/credentials.h>
 
@@ -33,6 +37,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/iam/common/iam.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb {
 

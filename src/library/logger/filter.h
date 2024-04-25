@@ -1,11 +1,15 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/logger/priority.h>
 #include <ydb-cpp-sdk/library/logger/record.h>
 #include <ydb-cpp-sdk/library/logger/backend.h>
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
+<<<<<<< HEAD
 =======
 #include "priority.h"
 #include "record.h"
@@ -16,6 +20,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 class TFilteredLogBackend: public TLogBackend {
     THolder<TLogBackend> Backend;

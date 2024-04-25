@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/topic/impl/counters.cpp
 #include <ydb-cpp-sdk/client/topic/topic.h>
 ========
@@ -7,6 +8,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/impl/counters.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/topic/topic.h>
+>>>>>>> origin/main
 
 namespace NYdb::NTopic {
 

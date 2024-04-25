@@ -6,11 +6,15 @@
 #include "path.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/system/fs.h>
 #include <ydb-cpp-sdk/util/system/maxlen.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+<<<<<<< HEAD
 =======
 #include <src/util/generic/yexception.h>
 #include <src/util/system/compiler.h>
@@ -22,6 +26,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NStringPrivate {
     template <class TCharType>

@@ -3,6 +3,7 @@
 #include "string.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/yt/misc/enum.h>
 =======
 #include <src/library/yt/misc/enum.h>
@@ -11,6 +12,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/yt/misc/enum.h>
+>>>>>>> origin/main
 
 #include <optional>
 

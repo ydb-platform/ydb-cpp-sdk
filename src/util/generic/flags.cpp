@@ -2,6 +2,7 @@
 
 #include <src/util/stream/format.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
 =======
 #include <src/util/system/yassert.h>
@@ -10,6 +11,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/yassert.h>
+>>>>>>> origin/main
 
 void ::NPrivate::PrintFlags(IOutputStream& stream, ui64 value, size_t size) {
     /* Note that this function is in cpp because we need to break circular

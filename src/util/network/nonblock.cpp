@@ -1,6 +1,7 @@
 #include "nonblock.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/platform.h>
 
 #include <ydb-cpp-sdk/util/generic/singleton.h>
@@ -13,6 +14,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/platform.h>
+
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+>>>>>>> origin/main
 
 #if defined(_unix_)
     #include <dlfcn.h>

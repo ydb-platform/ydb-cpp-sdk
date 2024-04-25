@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/federated_topic/ut/fds_mock.h
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/ut/fds_mock.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/threading/future/future.h>
+>>>>>>> origin/main
 #include <src/api/grpc/ydb_federation_discovery_v1.grpc.pb.h>
 
 #include <deque>

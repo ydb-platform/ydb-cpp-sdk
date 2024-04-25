@@ -3,6 +3,7 @@
 #include "spack_v1.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
 =======
@@ -13,6 +14,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/input.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+>>>>>>> origin/main
 
 namespace NMonitoring {
 

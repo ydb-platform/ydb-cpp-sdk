@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/iam/common/iam.h>
 =======
 #include <src/client/iam/common/iam.h>
@@ -7,6 +8,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/iam/common/iam.h>
+>>>>>>> origin/main
 
 #include <src/api/client/yc_public/iam/iam_token_service.pb.h>
 #include <src/api/client/yc_public/iam/iam_token_service.grpc.pb.h>

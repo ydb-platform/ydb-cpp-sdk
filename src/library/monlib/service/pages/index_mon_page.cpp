@@ -1,6 +1,7 @@
 #include <ydb-cpp-sdk/library/monlib/service/pages/index_mon_page.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/cast.h>
 #include <ydb-cpp-sdk/util/string/ascii.h>
 =======
@@ -11,6 +12,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/cast.h>
+#include <ydb-cpp-sdk/util/string/ascii.h>
+>>>>>>> origin/main
 
 using namespace NMonitoring;
 

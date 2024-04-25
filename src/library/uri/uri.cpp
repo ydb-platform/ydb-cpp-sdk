@@ -1,6 +1,7 @@
 #include "uri.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <src/util/string/util.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
@@ -13,6 +14,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <src/util/string/util.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+>>>>>>> origin/main
 
 namespace NUri {
     TState::EParsed TUri::CheckHost(const std::string_view& host) {

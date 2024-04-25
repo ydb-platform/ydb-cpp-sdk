@@ -6,6 +6,10 @@
 #include "record.h"
 #include "thread.h"
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/library/logger/log.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/logger/log.h
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 ========
@@ -16,6 +20,12 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/logger/log.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/logger/log.h
+>>>>>>> origin/main
 
 #include <functional>
 #include <cstdarg>

@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<<< HEAD:src/util/stream/input.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/stream/input.h
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
@@ -13,6 +14,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/stream/input.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+#include <ydb-cpp-sdk/util/generic/fwd.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/stream/input.h
 
 class IOutputStream;
 

@@ -1,6 +1,9 @@
 #include "url.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
@@ -15,6 +18,7 @@
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+<<<<<<< HEAD
 =======
 #include <src/util/string/builder.h>
 #include <src/library/string_utils/misc/misc.h>
@@ -35,6 +39,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <cstdlib>
 

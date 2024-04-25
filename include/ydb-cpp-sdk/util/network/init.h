@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/network/init.h
 #include <ydb-cpp-sdk/util/system/error.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/network/init.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/error.h>
+>>>>>>> origin/main
 
 #if defined(_unix_)
     #include <fcntl.h>
@@ -33,6 +37,7 @@ using SOCKET = int;
     #define INVALID_SOCKET -1
     #define WSAGetLastError() errno
 #elif defined(_win_)
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/network/init.h
     #include <ydb-cpp-sdk/util/system/winint.h>
 ========
@@ -42,6 +47,9 @@ using SOCKET = int;
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/network/init.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    #include <ydb-cpp-sdk/util/system/winint.h>
+>>>>>>> origin/main
     #include <io.h>
     #include <winsock2.h>
     #include <ws2tcpip.h>

@@ -2,6 +2,9 @@
 #include <ydb-cpp-sdk/library/json/writer/json.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
@@ -16,6 +19,7 @@
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/ysaveload.h>
 #include <ydb-cpp-sdk/util/generic/bt_exception.h>
+<<<<<<< HEAD
 =======
 #include <src/util/string/builder.h>
 #include <src/library/string_utils/misc/misc.h>
@@ -36,6 +40,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 static bool
 AreJsonMapsEqual(const NJson::TJsonValue& lhs, const NJson::TJsonValue& rhs) {

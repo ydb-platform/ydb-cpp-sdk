@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 #include <src/util/system/cpu_id.h>
 #include <ydb-cpp-sdk/util/system/platform.h>
+<<<<<<< HEAD
 =======
 #include <src/util/system/compat.h>
 #include <src/util/system/compiler.h>
@@ -13,6 +17,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #define Y_CPU_ID_ENUMERATE_STARTUP_CHECKS(F) \
     F(SSE42)                                 \

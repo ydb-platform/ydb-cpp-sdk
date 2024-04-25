@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/extensions/solomon_stats/pull_connector.h
 #include <ydb-cpp-sdk/client/ydb_extension/extension.h>
 
@@ -15,6 +16,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/extensions/solomon_stats/pull_connector.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/ydb_extension/extension.h>
+
+#include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
+>>>>>>> origin/main
 
 namespace NSolomonStatExtension {
 

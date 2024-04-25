@@ -3,6 +3,7 @@
 #include <grpc++/grpc++.h>
 #include <grpc++/resource_quota.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/grpc/client/grpc_common.h
 #include <ydb-cpp-sdk/library/grpc/common/constants.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
@@ -14,6 +15,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/grpc/client/grpc_common.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/grpc/common/constants.h>
+#include <ydb-cpp-sdk/util/datetime/base.h>
+>>>>>>> origin/main
 #include <unordered_map>
 #include <string>
 

@@ -13,6 +13,7 @@ target_sources(public-lib-json_value PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -35,6 +36,9 @@ target_sources(public-lib-json_value PRIVATE
   ydb_json_value.cpp
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ydb_json_value.cpp
+>>>>>>> origin/main
 )
 
 add_library(YDB-CPP-SDK::JsonValue ALIAS public-lib-json_value)

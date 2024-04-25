@@ -1,6 +1,7 @@
 #pragma once
 
 #include <src/api/grpc/draft/ydb_long_tx_v1.grpc.pb.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/draft/ydb_long_tx.h
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
@@ -12,6 +13,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/draft/ydb_long_tx.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/driver/driver.h>
+#include <ydb-cpp-sdk/client/types/operation/operation.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 namespace NLongTx {

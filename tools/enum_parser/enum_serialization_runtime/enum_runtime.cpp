@@ -1,6 +1,7 @@
 #include "enum_runtime.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
@@ -13,6 +14,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/builder.h>
+
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
+>>>>>>> origin/main
 
 namespace NEnumSerializationRuntime {
     template <typename TEnumRepresentationType>

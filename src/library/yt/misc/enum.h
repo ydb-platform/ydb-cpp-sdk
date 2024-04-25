@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <vector>
 
+<<<<<<<< HEAD:src/library/yt/misc/enum.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/yt/misc/enum.h
 #include <ydb-cpp-sdk/library/yt/exception/exception.h>
 ========
@@ -18,6 +19,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yt/misc/enum.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+#include <ydb-cpp-sdk/library/yt/exception/exception.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/yt/misc/enum.h
 
 namespace NYT {
 

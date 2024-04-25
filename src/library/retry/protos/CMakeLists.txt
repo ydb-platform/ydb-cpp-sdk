@@ -9,6 +9,7 @@ target_proto_messages(cpp-retry-protos PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -31,6 +32,9 @@ target_proto_messages(cpp-retry-protos PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/retry/protos/retry_options.proto
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/retry/protos/retry_options.proto
+>>>>>>> origin/main
 )
 
 target_proto_addincls(cpp-retry-protos

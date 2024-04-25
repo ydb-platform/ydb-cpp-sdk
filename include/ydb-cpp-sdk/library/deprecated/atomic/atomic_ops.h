@@ -2,6 +2,7 @@
 
 #include "atomic.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/deprecated/atomic/atomic_ops.h
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 ========
@@ -11,6 +12,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/deprecated/atomic/atomic_ops.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
+>>>>>>> origin/main
 
 template <typename T>
 inline TAtomic* AsAtomicPtr(T volatile* target) {

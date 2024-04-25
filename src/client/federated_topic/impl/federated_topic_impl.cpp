@@ -3,6 +3,7 @@
 #include "federated_read_session.h"
 #include "federated_write_session.h"
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/federated_topic/impl/federated_topic_impl.cpp
 #include <src/client/persqueue_core/impl/read_session.h>
 #include <src/client/persqueue_core/impl/write_session.h>
@@ -14,6 +15,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/impl/federated_topic_impl.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <src/client/persqueue_core/impl/read_session.h>
+#include <src/client/persqueue_core/impl/write_session.h>
+>>>>>>> origin/main
 
 namespace NYdb::NFederatedTopic {
 

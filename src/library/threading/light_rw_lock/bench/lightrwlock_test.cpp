@@ -1,5 +1,6 @@
 #include <src/library/threading/light_rw_lock/lightrwlock.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/random/random.h>
 =======
 #include <src/util/random/random.h>
@@ -8,6 +9,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/random/random.h>
+>>>>>>> origin/main
 
 #ifdef _linux_
 // Light rw lock is implemented only for linux

@@ -1,5 +1,6 @@
 add_library(cpp-testing-gtest_extensions)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 <<<<<<< HEAD
@@ -7,12 +8,18 @@ add_library(cpp-testing-gtest_extensions)
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+
+>>>>>>> origin/main
 target_link_libraries(cpp-testing-gtest_extensions PUBLIC
   yutil
   GTest::gmock
   GTest::gtest
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 
 target_sources(cpp-testing-gtest_extensions PRIVATE
   assertions.cpp
@@ -21,6 +28,7 @@ target_sources(cpp-testing-gtest_extensions PRIVATE
   pretty_printers.cpp
   probe.cpp
 )
+<<<<<<< HEAD
 =======
 target_sources(cpp-testing-gtest_extensions PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/testing/gtest_extensions/assertions.cpp
@@ -37,3 +45,5 @@ add_subdirectory(ut)
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main

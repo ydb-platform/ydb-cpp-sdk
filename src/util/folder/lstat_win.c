@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
 #ifdef _win_
     #include <ydb-cpp-sdk/util/system/winint.h>
+<<<<<<< HEAD
 =======
 #include <src/util/system/defaults.h>
 
@@ -13,6 +17,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
     #include "lstat_win.h"
 
 int lstat(const char* fileName, stat_struct* fileStat) {

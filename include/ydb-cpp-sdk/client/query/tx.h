@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/client/ydb_query/tx.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/query/tx.h
 #include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
 
@@ -15,6 +19,14 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/tx.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
+
+#include <ydb-cpp-sdk/util/stream/output.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/client/query/tx.h
+>>>>>>> origin/main
 
 #include <optional>
 

@@ -3,6 +3,9 @@
 #include <src/client/impl/ydb_internal/internal_header.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/types/status_codes.h>
 
 #include <src/api/protos/ydb_operation.pb.h>
@@ -10,6 +13,7 @@
 #include <ydb-cpp-sdk/library/yql/public/issue/yql_issue.h>
 
 #include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
+<<<<<<< HEAD
 =======
 #include <src/client/ydb_types/status_codes.h>
 
@@ -23,6 +27,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb {
 

@@ -2,6 +2,7 @@
 
 #include <src/client/impl/ydb_internal/kqp_session_common/kqp_session_common.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <src/client/types/core_facility/core_facility.h>
 =======
 #include <src/client/ydb_types/core_facility/core_facility.h>
@@ -10,6 +11,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <src/client/types/core_facility/core_facility.h>
+>>>>>>> origin/main
 
 
 namespace NYdb {

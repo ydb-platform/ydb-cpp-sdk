@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/generic/singleton.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/singleton.h
 #include <ydb-cpp-sdk/util/system/atexit.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
@@ -11,6 +15,13 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/singleton.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/system/atexit.h>
+#include <ydb-cpp-sdk/util/system/compiler.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/singleton.h
+>>>>>>> origin/main
 
 #include <atomic>
 #include <new>

@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 #include <src/library/json/json_writer.h>
 
 #include <src/library/testing/unittest/registar.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
+<<<<<<< HEAD
 =======
 #include <src/library/json/json_reader.h>
 #include <src/library/json/json_writer.h>
@@ -15,6 +19,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 using namespace NJson;
 

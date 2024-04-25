@@ -7,6 +7,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
 =======
@@ -17,6 +18,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
+>>>>>>> origin/main
 #include <src/util/charset/wide.h>
 
 #include <string>

@@ -1,5 +1,6 @@
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/types/operation/operation.cpp
 #include <src/api/protos/ydb_operation.pb.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
@@ -12,6 +13,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/operation/operation.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <src/api/protos/ydb_operation.pb.h>
+#include <ydb-cpp-sdk/client/types/status/status.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 

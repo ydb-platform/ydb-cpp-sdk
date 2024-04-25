@@ -1,12 +1,16 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/thread/pool.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/util/system/info.h>
 #include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
+<<<<<<< HEAD
 =======
 #include <src/util/thread/pool.h>
 #include <src/util/generic/utility.h>
@@ -19,6 +23,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <functional>
 #include <cstdlib>

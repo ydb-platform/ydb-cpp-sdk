@@ -18,6 +18,7 @@
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/digest/numeric.h>
 =======
 #include <src/util/digest/numeric.h>
@@ -26,6 +27,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/digest/numeric.h>
+>>>>>>> origin/main
 
 static inline size_t SystemCurrentThreadIdImpl() noexcept {
     #if defined(_unix_)

@@ -3,6 +3,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/typelist.h>
 =======
 #include <src/util/generic/typelist.h>
@@ -11,6 +12,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/typelist.h>
+>>>>>>> origin/main
 #include <src/util/generic/vector.h>
 
 #include <map>

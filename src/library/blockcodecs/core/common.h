@@ -3,6 +3,9 @@
 #include "codecs.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/ysaveload.h>
 #include <src/util/stream/null.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
@@ -15,6 +18,7 @@
 #include <src/util/generic/buffer.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
+<<<<<<< HEAD
 =======
 #include <src/util/ysaveload.h>
 #include <src/util/stream/null.h>
@@ -33,6 +37,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/util/generic/mem_copy.h>
 
 namespace NBlockCodecs {

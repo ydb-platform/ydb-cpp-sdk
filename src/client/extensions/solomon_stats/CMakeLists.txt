@@ -13,6 +13,7 @@ target_sources(client-extensions-solomon_stats PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -39,6 +40,10 @@ target_sources(client-extensions-solomon_stats PRIVATE
   pull_connector.cpp
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  pull_client.cpp
+  pull_connector.cpp
+>>>>>>> origin/main
 )
 
 add_library(YDB-CPP-SDK::SolomonStats ALIAS client-extensions-solomon_stats)

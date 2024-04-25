@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/stream/fwd.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/stream/fwd.h
 #include <ydb-cpp-sdk/util/system/types.h>
 ========
@@ -9,6 +13,12 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/stream/fwd.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/system/types.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/stream/fwd.h
+>>>>>>> origin/main
 
 class IInputStream;
 class IOutputStream;

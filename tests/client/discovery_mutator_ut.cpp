@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/extensions/discovery_mutator/discovery_mutator.h>
 
 #include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>
 #include <ydb-cpp-sdk/client/ydb_extension/extension.h>
 #include <ydb-cpp-sdk/client/table/table.h>
+<<<<<<< HEAD
 =======
 #include <discovery_mutator.h>
 
@@ -15,6 +19,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>

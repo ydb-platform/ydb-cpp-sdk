@@ -3,6 +3,7 @@
 #include <ydb-cpp-sdk/util/network/address.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/str_stl.h>
 =======
 #include <src/util/str_stl.h>
@@ -11,6 +12,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/str_stl.h>
+>>>>>>> origin/main
 
 //some equivalent boost::asio::ip::endpoint (easy for using pair ip:port)
 class TEndpoint {

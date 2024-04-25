@@ -3,6 +3,7 @@
 #include <ydb-cpp-sdk/util/system/backtrace.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 =======
 #include <src/util/stream/output.h>
@@ -11,6 +12,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/output.h>
+>>>>>>> origin/main
 #include <src/util/stream/format.h>
 
 #ifdef _win_
@@ -155,6 +159,7 @@ TResolvedSymbol ResolveSymbol(void* sym, char* buf, size_t len) {
 }
 #elif defined(_win_)
 <<<<<<< HEAD
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/generic/singleton.h>
 =======
     #include <src/util/generic/singleton.h>
@@ -163,6 +168,9 @@ TResolvedSymbol ResolveSymbol(void* sym, char* buf, size_t len) {
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    #include <ydb-cpp-sdk/util/generic/singleton.h>
+>>>>>>> origin/main
 
 namespace {
     struct TWinSymbolResolverImpl {

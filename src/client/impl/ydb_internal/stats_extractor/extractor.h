@@ -5,6 +5,7 @@
 #include <src/client/impl/ydb_internal/internal_client/client.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/client/ydb_extension/extension.h>
 
 #include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
@@ -17,6 +18,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/ydb_extension/extension.h>
+
+#include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 

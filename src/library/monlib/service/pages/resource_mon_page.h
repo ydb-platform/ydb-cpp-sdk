@@ -3,6 +3,7 @@
 #include <ydb-cpp-sdk/library/monlib/service/pages/mon_page.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/resource/resource.h>
 =======
 #include <src/library/resource/resource.h>
@@ -11,6 +12,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/resource/resource.h>
+>>>>>>> origin/main
 
 namespace NMonitoring {
     struct TResourceMonPage: public IMonPage {

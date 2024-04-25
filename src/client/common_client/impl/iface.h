@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/common_client/impl/iface.h
 #include <ydb-cpp-sdk/util/datetime/base.h>
 ========
@@ -10,6 +11,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_common_client/impl/iface.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/datetime/base.h>
+>>>>>>> origin/main
 
 namespace NYdb {
 

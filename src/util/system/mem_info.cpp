@@ -1,11 +1,15 @@
 #include "mem_info.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <src/util/stream/file.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
+<<<<<<< HEAD
 =======
 #include <src/library/string_utils/helpers/helpers.h>
 
@@ -17,6 +21,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include "error.h"
 #include "info.h"
 
@@ -33,6 +39,7 @@
 #elif defined(_win_)
     #include <Windows.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/generic/ptr.h>
 =======
     #include <src/util/generic/ptr.h>
@@ -41,6 +48,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    #include <ydb-cpp-sdk/util/generic/ptr.h>
+>>>>>>> origin/main
 
 using NTSTATUS = LONG;
     #define STATUS_INFO_LENGTH_MISMATCH 0xC0000004

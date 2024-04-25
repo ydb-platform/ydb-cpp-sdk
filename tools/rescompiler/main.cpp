@@ -1,10 +1,14 @@
 #include <src/library/resource/registry.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/stream/file.h>
 #include <src/util/digest/city.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+<<<<<<< HEAD
 =======
 #include <src/util/stream/output.h>
 #include <src/util/stream/file.h>
@@ -15,6 +19,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/util/string/hex.h>
 #include <src/util/string/vector.h>
 #include <src/util/string/split.h>

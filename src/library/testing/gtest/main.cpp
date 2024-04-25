@@ -7,6 +7,7 @@
 #include <src/util/generic/scope.h>
 #include <src/util/string/join.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/src_root.h>
 =======
 #include <src/util/system/src_root.h>
@@ -15,6 +16,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/src_root.h>
+>>>>>>> origin/main
 
 #include <fstream>
 

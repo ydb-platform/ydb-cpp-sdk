@@ -3,6 +3,7 @@
 #include "labels.h"
 #include "metric.h"
 
+<<<<<<<< HEAD:src/library/monlib/metrics/metric_registry.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/monlib/metrics/metric_registry.h
 #include <ydb-cpp-sdk/util/system/rwlock.h>
 ========
@@ -15,6 +16,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/monlib/metrics/metric_registry.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+#include <ydb-cpp-sdk/util/system/rwlock.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/monlib/metrics/metric_registry.h
 
 namespace NMonitoring {
     class IMetricFactory {

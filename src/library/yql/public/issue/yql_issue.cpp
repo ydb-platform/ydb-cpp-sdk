@@ -1,6 +1,9 @@
 #include <ydb-cpp-sdk/library/yql/public/issue/yql_issue.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/yql/utils/utf8.h>
 
 #include <src/library/colorizer/output.h>
@@ -12,6 +15,7 @@
 #include <ydb-cpp-sdk/util/string/strip.h>
 #include <ydb-cpp-sdk/util/string/subst.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
+<<<<<<< HEAD
 =======
 #include <src/library/yql/utils/utf8.h>
 
@@ -29,6 +33,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/util/generic/stack.h>
 #include <cstdlib>
 

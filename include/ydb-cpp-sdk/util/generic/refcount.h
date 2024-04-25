@@ -1,5 +1,9 @@
 #pragma once
 
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:src/util/generic/refcount.h
+>>>>>>> origin/main
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/refcount.h
 #include <ydb-cpp-sdk/util/system/guard.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
@@ -13,6 +17,14 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/refcount.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+<<<<<<< HEAD
+=======
+========
+#include <ydb-cpp-sdk/util/system/guard.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/refcount.h
+>>>>>>> origin/main
 
 #include <atomic>
 

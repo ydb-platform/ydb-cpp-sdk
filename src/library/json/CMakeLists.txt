@@ -17,6 +17,7 @@ target_sources(library-cpp-json PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/json/CMakeLists.txt
 =======
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
@@ -28,10 +29,13 @@ target_sources(library-cpp-json PRIVATE
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   ${YDB_SDK_SOURCE_DIR}/src/library/json/json_writer.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/json/json_reader.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/json/json_prettifier.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/json/rapidjson_helpers.cpp
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -56,6 +60,8 @@ target_sources(library-cpp-json PRIVATE
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 )
 
 

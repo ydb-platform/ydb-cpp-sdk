@@ -8,6 +8,7 @@ target_sources(cpp-yt-malloc PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -30,6 +31,9 @@ target_sources(cpp-yt-malloc PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/yt/malloc/malloc.cpp
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/yt/malloc/malloc.cpp
+>>>>>>> origin/main
 )
 
 if (NOT (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64"))

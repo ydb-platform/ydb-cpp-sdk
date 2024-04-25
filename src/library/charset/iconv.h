@@ -3,6 +3,7 @@
 #include "codepage.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 =======
 #include <src/util/generic/noncopyable.h>
@@ -11,6 +12,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
+>>>>>>> origin/main
 
 // WARNING: Do not use this functions - use functions from wide.h or recyr.hh instead.
 

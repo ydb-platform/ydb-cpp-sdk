@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
 =======
 #include <src/library/monlib/encode/json/json.h>
@@ -7,6 +8,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
+>>>>>>> origin/main
 #include <src/library/monlib/encode/fake/fake.h>
 
 #include <string_view>

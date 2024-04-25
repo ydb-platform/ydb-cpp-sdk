@@ -5,6 +5,9 @@
 #include <src/util/folder/dirut.h>
 #include <src/util/folder/path.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <src/util/stream/file.h>
 #include <ydb-cpp-sdk/util/stream/fwd.h>
@@ -14,6 +17,7 @@
 
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 #include <ydb-cpp-sdk/library/json/json_value.h>
+<<<<<<< HEAD
 =======
 #include <src/util/generic/singleton.h>
 #include <src/util/stream/file.h>
@@ -29,6 +33,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/library/json/json_writer.h>
 #include <src/library/svnversion/svnversion.h>
 

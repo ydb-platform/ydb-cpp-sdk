@@ -18,6 +18,7 @@ target_link_libraries(cpp-client-ydb_persqueue_core PUBLIC
 generate_enum_serilization(cpp-client-ydb_persqueue_core
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
@@ -44,4 +45,9 @@ generate_enum_serilization(cpp-client-ydb_persqueue_core
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/client/persqueue_core/persqueue.h
+  INCLUDE_HEADERS
+  src/client/persqueue_core/persqueue.h
+>>>>>>> origin/main
 )

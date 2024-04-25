@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/datetime/systime.h
 #include <ydb-cpp-sdk/util/system/platform.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/datetime/systime.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/platform.h>
+>>>>>>> origin/main
 
 #include <ctime>
 #include <string>
@@ -20,6 +24,7 @@ struct tm* GmTimeR(const time_t* timer, struct tm* tmbuf);
 std::string CTimeR(const time_t* timer);
 
 #ifdef _win_
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/datetime/systime.h
     #include <ydb-cpp-sdk/util/system/winint.h>
 ========
@@ -29,6 +34,9 @@ std::string CTimeR(const time_t* timer);
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/datetime/systime.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    #include <ydb-cpp-sdk/util/system/winint.h>
+>>>>>>> origin/main
     #include <winsock2.h>
 
 void FileTimeToTimeval(const FILETIME* ft, struct timeval* tv);

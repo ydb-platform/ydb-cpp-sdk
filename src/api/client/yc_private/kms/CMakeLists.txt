@@ -16,16 +16,20 @@ target_proto_messages(client-yc_private-kms PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/api/client/yc_private/kms/CMakeLists.txt
+=======
+>>>>>>> origin/main
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/kms/symmetric_crypto_service.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/client/yc_private/kms/symmetric_key.proto
 )
 target_proto_addincls(client-yc_private-kms
   ./
+<<<<<<< HEAD
 =======
   ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/kms/symmetric_crypto_service.proto
   ${YDB_SDK_SOURCE_DIR}/ydb/public/api/client/yc_private/kms/symmetric_key.proto
@@ -56,6 +60,8 @@ target_proto_addincls(client-yc_private-kms
   ./
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   ${YDB_SDK_SOURCE_DIR}
   ${YDB_SDK_BINARY_DIR}
 )

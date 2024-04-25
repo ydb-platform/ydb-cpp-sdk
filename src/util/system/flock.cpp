@@ -3,6 +3,7 @@
 #ifndef _unix_
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     #include <ydb-cpp-sdk/util/generic/utility.h>
 =======
     #include <src/util/generic/utility.h>
@@ -11,6 +12,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    #include <ydb-cpp-sdk/util/generic/utility.h>
+>>>>>>> origin/main
 
     #include "winint.h"
     #include <io.h>

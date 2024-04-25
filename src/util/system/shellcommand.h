@@ -1,11 +1,15 @@
 #pragma once
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/file.h>
+<<<<<<< HEAD
 =======
 #include <src/util/generic/noncopyable.h>
 #include <src/util/generic/hash.h>
@@ -17,6 +21,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include "getpid.h"
 #include "thread.h"
 #include <sys/types.h>

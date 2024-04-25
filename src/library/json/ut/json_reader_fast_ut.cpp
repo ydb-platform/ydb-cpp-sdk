@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/json_reader.h>
 =======
 #include <src/library/json/json_reader.h>
@@ -7,10 +8,14 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/json/json_reader.h>
+>>>>>>> origin/main
 #include <src/library/json/json_prettifier.h>
 #include <src/library/testing/unittest/registar.h>
 
 #include <src/library/string_utils/relaxed_escaper/relaxed_escaper.h>
+<<<<<<< HEAD
 <<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/cast.h>
 =======
@@ -20,6 +25,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/cast.h>
+>>>>>>> origin/main
 
 #include <iostream>
 

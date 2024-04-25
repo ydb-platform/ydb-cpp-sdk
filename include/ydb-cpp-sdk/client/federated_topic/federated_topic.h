@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/federated_topic/federated_topic.h
 #include <ydb-cpp-sdk/client/topic/topic.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/federated_topic.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/topic/topic.h>
+>>>>>>> origin/main
 
 #include <src/api/protos/ydb_federation_discovery.pb.h>
 

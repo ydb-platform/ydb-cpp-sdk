@@ -2,6 +2,7 @@
 
 #include <utility>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 =======
 #include <src/util/generic/typetraits.h>
@@ -10,6 +11,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/typetraits.h>
+>>>>>>> origin/main
 
 // common engine for lcg-based RNG's
 // http://en.wikipedia.org/wiki/Linear_congruential_generator

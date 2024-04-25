@@ -4,6 +4,7 @@
 #include <src/library/coroutine/engine/network.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/network/ip.h>
 #include <ydb-cpp-sdk/util/network/address.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
@@ -16,6 +17,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/network/ip.h>
+#include <ydb-cpp-sdk/util/network/address.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
+>>>>>>> origin/main
 #include <src/util/generic/intrlist.h>
 
 using namespace NAddr;

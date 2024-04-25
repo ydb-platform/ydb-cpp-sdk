@@ -8,6 +8,7 @@ target_sources(cpp-string_utils-stream PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -30,5 +31,8 @@ target_sources(cpp-string_utils-stream PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/string_utils/stream/stream.cpp
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/src/library/string_utils/stream/stream.cpp
+>>>>>>> origin/main
 )
 

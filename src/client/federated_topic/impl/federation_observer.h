@@ -7,12 +7,16 @@
 
 #include <src/api/protos/ydb_federation_discovery.pb.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/federated_topic/impl/federation_observer.h
+=======
+>>>>>>> origin/main
 #include <src/client/persqueue_core/impl/callback_context.h>
 #include <src/client/common_client/impl/client.h>
 #include <ydb-cpp-sdk/client/federated_topic/federated_topic.h>
 
 #include <ydb-cpp-sdk/util/system/spinlock.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_persqueue_core/impl/callback_context.h>
 #include <src/client/ydb_common_client/impl/client.h>
@@ -24,6 +28,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_federated_topic/impl/federation_observer.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/util/generic/hash.h>
 
 #include <deque>

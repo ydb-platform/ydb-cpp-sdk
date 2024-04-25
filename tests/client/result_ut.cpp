@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/result/result.h>
 
 #include <src/api/protos/ydb_value.pb.h>
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
+<<<<<<< HEAD
 =======
 #include <result.h>
 
@@ -13,6 +17,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>

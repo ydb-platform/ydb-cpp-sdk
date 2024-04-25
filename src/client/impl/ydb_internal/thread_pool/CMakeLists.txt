@@ -8,6 +8,7 @@ target_sources(impl-ydb_internal-thread_pool PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
 =======
@@ -30,4 +31,7 @@ target_sources(impl-ydb_internal-thread_pool PRIVATE
   pool.cpp
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  pool.cpp
+>>>>>>> origin/main
 )

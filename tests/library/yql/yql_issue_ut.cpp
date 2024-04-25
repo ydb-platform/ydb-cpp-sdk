@@ -11,6 +11,7 @@
 #include <src/util/charset/utf8.h>
 #include <src/util/charset/wide.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 =======
 #include <src/util/string/builder.h>
@@ -19,6 +20,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/builder.h>
+>>>>>>> origin/main
 
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>

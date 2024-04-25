@@ -4,6 +4,7 @@
 #include <src/library/testing/unittest/registar.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <src/util/string/join.h>
 #include <ydb-cpp-sdk/util/digest/multi.h>
@@ -16,6 +17,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/str.h>
+#include <src/util/string/join.h>
+#include <ydb-cpp-sdk/util/digest/multi.h>
+>>>>>>> origin/main
 
 Y_UNIT_TEST_SUITE(TBlockCodecsTest) {
     using namespace NBlockCodecs;

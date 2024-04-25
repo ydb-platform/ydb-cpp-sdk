@@ -5,12 +5,16 @@
 #include <ydb-cpp-sdk/util/system/yassert.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/flags.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
+<<<<<<< HEAD
 =======
 #include <src/util/generic/noncopyable.h>
 #include <src/util/generic/ptr.h>
@@ -23,6 +27,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <new>
 #include <cstdio>

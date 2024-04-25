@@ -7,6 +7,7 @@
 #undef INCLUDE_YDB_INTERNAL_H
 
 #include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/impl/persqueue_impl.h
 #include <src/client/persqueue_core/persqueue.h>
 ========
@@ -16,6 +17,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/persqueue_impl.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <src/client/persqueue_core/persqueue.h>
+>>>>>>> origin/main
 
 namespace NYdb::NPersQueue {
 

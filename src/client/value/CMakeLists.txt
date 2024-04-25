@@ -15,6 +15,7 @@ target_link_libraries(cpp-client-ydb_value PUBLIC
 target_sources(cpp-client-ydb_value PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/value/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
@@ -22,11 +23,14 @@ target_sources(cpp-client-ydb_value PRIVATE
 <<<<<<<< HEAD:src/client/value/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
 <<<<<<< HEAD:src/client/value/CMakeLists.txt
+=======
+>>>>>>> origin/main
   value.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_value
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/value/value.h
+<<<<<<< HEAD
 =======
   ${YDB_SDK_SOURCE_DIR}/client/ydb_value/value.cpp
 )
@@ -53,6 +57,10 @@ generate_enum_serilization(cpp-client-ydb_value
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_value/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  INCLUDE_HEADERS
+  include/ydb-cpp-sdk/client/value/value.h
+>>>>>>> origin/main
 )
 
 add_library(YDB-CPP-SDK::Value ALIAS cpp-client-ydb_value)

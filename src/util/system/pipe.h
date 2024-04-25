@@ -6,11 +6,15 @@
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/file.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/network/pair.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
+<<<<<<< HEAD
 =======
 #include "defaults.h"
 #include "file.h"
@@ -22,6 +26,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 using PIPEHANDLE = SOCKET;
 #define INVALID_PIPEHANDLE INVALID_SOCKET

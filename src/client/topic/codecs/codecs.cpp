@@ -1,6 +1,7 @@
 #include <src/library/streams/zstd/zstd.h>
 #include <src/util/stream/buffer.h>
 #include <src/util/stream/zlib.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/topic/codecs/codecs.cpp
 #include <ydb-cpp-sdk/util/stream/mem.h>
 ========
@@ -10,6 +11,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/codecs/codecs.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/mem.h>
+>>>>>>> origin/main
 
 #include "codecs.h"
 

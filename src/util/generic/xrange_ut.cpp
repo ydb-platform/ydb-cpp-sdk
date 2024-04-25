@@ -4,6 +4,7 @@
 #include "vector.h"
 #include <src/library/testing/unittest/registar.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/builder.h>
 =======
 #include <src/util/string/builder.h>
@@ -12,6 +13,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/builder.h>
+>>>>>>> origin/main
 
 Y_UNIT_TEST_SUITE(XRange) {
     void TestXRangeImpl(size_t begin, size_t end) {

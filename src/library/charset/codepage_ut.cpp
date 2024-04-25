@@ -5,6 +5,7 @@
 
 #include <src/util/charset/utf8.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/yassert.h>
 =======
 #include <src/util/system/yassert.h>
@@ -13,6 +14,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/yassert.h>
+>>>>>>> origin/main
 
 #if defined(_MSC_VER)
 #pragma warning(disable : 4309) /*truncation of constant value*/

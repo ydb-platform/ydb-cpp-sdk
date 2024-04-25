@@ -4,6 +4,7 @@
 
 #include <string>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 =======
@@ -14,6 +15,10 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/str.h>
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+>>>>>>> origin/main
 #include <utility>
 
 #include <src/library/testing/unittest/registar.h>

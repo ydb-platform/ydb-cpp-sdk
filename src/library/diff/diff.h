@@ -3,6 +3,7 @@
 #include <src/library/lcs/lcs_via_lis.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 =======
 #include <src/util/generic/algorithm.h>
@@ -11,10 +12,14 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
+>>>>>>> origin/main
 
 #include <string_view>
 #include <span>
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 #include <ydb-cpp-sdk/util/stream/output.h>
 =======
@@ -24,6 +29,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/stream/output.h>
+>>>>>>> origin/main
 #include <src/util/string/split.h>
 
 namespace NDiff {

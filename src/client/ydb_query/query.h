@@ -1,6 +1,9 @@
 #pragma once
 
+<<<<<<<< HEAD:src/client/ydb_query/query.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/query/query.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/client/query/query.h
 #include "stats.h"
 
 #include <src/api/grpc/ydb_query_v1.grpc.pb.h>
@@ -10,6 +13,7 @@
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
 #include <ydb-cpp-sdk/client/types/request_settings.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
+<<<<<<<< HEAD:src/client/ydb_query/query.h
 ========
 #include <src/api/grpc/ydb_query_v1.grpc.pb.h>
 
@@ -27,6 +31,9 @@
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_query/query.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
 
+========
+
+>>>>>>>> origin/main:include/ydb-cpp-sdk/client/query/query.h
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 
 namespace NYdb::NQuery {

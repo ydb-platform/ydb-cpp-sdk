@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/library/json/writer/json_value.h>
 #include <ydb-cpp-sdk/library/json/writer/json.h>
 =======
@@ -9,12 +10,19 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/json/writer/json_value.h>
+#include <ydb-cpp-sdk/library/json/writer/json.h>
+>>>>>>> origin/main
 #include <src/library/getopt/small/last_getopt.h>
 
 #include <tools/enum_parser/parse_enum/parse_enum.h>
 
 #include <src/util/stream/file.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
@@ -30,6 +38,7 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+<<<<<<< HEAD
 =======
 #include <src/util/stream/output.h>
 #include <src/util/stream/input.h>
@@ -51,6 +60,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 #include <src/util/system/fs.h>
 #include <src/util/folder/path.h>
 
@@ -62,6 +73,7 @@ void WriteHeader(const std::string& headerName, std::ostream& out, std::ostream*
     out << "#include <tools/enum_parser/enum_serialization_runtime/enum_runtime.h>\n\n";
     out << "#include <tools/enum_parser/enum_parser/stdlib_deps.h>\n\n";
 <<<<<<< HEAD
+<<<<<<< HEAD
     out << "#include <ydb-cpp-sdk/util/generic/typetraits.h>\n";
     out << "#include <ydb-cpp-sdk/util/generic/singleton.h>\n";
 =======
@@ -72,10 +84,15 @@ void WriteHeader(const std::string& headerName, std::ostream& out, std::ostream*
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    out << "#include <ydb-cpp-sdk/util/generic/typetraits.h>\n";
+    out << "#include <ydb-cpp-sdk/util/generic/singleton.h>\n";
+>>>>>>> origin/main
     out << "#include <string>\n";
     out << "#include <vector>\n";
     out << "#include <map>\n";
     out << "#include <span>\n";
+<<<<<<< HEAD
 <<<<<<< HEAD
     out << "#include <ydb-cpp-sdk/util/string/cast.h>\n";
     out << "#include <ydb-cpp-sdk/util/stream/output.h>\n\n";
@@ -87,6 +104,10 @@ void WriteHeader(const std::string& headerName, std::ostream& out, std::ostream*
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+    out << "#include <ydb-cpp-sdk/util/string/cast.h>\n";
+    out << "#include <ydb-cpp-sdk/util/stream/output.h>\n\n";
+>>>>>>> origin/main
 
     if (headerOutPtr) {
         auto& outHeader = *headerOutPtr;

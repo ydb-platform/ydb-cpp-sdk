@@ -8,6 +8,7 @@
 #include <src/client/impl/ydb_internal/session_pool/session_pool.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/table/impl/table_client.h
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 #include <src/client/common_client/impl/client.h>
@@ -21,6 +22,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/impl/table_client.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/resources/ydb_resources.h>
+#include <src/client/common_client/impl/client.h>
+#include <ydb-cpp-sdk/client/proto/accessor.h>
+>>>>>>> origin/main
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 
 #include "client_session.h"

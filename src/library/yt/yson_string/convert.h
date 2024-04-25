@@ -5,11 +5,15 @@
 #include <src/library/yt/misc/guid.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/yt/exception/exception.h>
 
 #include <string>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
+<<<<<<< HEAD
 =======
 #include <src/library/yt/exception/exception.h>
 
@@ -21,6 +25,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYT::NYson {
 

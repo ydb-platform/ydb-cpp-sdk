@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/topic/impl/read_session_event.cpp
 #include <ydb-cpp-sdk/client/topic/topic.h>
 #include <src/client/persqueue_core/impl/read_session.h>
@@ -9,6 +10,10 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/impl/read_session_event.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/topic/topic.h>
+#include <src/client/persqueue_core/impl/read_session.h>
+>>>>>>> origin/main
 
 namespace NYdb::NTopic {
 

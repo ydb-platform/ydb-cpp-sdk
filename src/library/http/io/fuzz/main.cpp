@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/http/io/stream.h>
 
 
 #include <ydb-cpp-sdk/util/stream/mem.h>
+<<<<<<< HEAD
 =======
 #include <src/library/http/io/stream.h>
 
@@ -13,6 +17,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 extern "C" int LLVMFuzzerTestOneInput(const ui8* data, size_t size) {
     TMemoryInput mi(data, size);

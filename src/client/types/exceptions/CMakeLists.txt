@@ -7,6 +7,7 @@ target_link_libraries(client-ydb_types-exceptions PUBLIC
 target_sources(client-ydb_types-exceptions PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/types/exceptions/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
@@ -31,6 +32,9 @@ target_sources(client-ydb_types-exceptions PRIVATE
   exceptions.cpp
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/exceptions/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  exceptions.cpp
+>>>>>>> origin/main
 )
 
 

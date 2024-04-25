@@ -9,6 +9,7 @@
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
@@ -21,6 +22,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/string/escape.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
+>>>>>>> origin/main
 #include <src/util/stream/file.h>
 #include <src/util/folder/iterator.h>
 #include <src/util/system/fstat.h>

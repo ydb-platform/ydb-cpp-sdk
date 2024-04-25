@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/ydb_extension/extension.h
 #include <ydb-cpp-sdk/client/driver/driver.h>
 
@@ -13,6 +14,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_extension/extension.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/client/driver/driver.h>
+
+#include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
+>>>>>>> origin/main
 
 namespace Ydb {
 namespace Discovery {

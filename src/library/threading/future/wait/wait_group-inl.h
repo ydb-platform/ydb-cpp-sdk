@@ -6,12 +6,16 @@
 
 #include "wait_policy.h"
 
+<<<<<<<< HEAD:src/library/threading/future/wait/wait_group-inl.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/threading/future/wait/wait_group-inl.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/threading/future/wait/wait_group-inl.h
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
 #include <ydb-cpp-sdk/library/threading/future/core/future.h>
 
 #include <ydb-cpp-sdk/util/system/spinlock.h>
+<<<<<<<< HEAD:src/library/threading/future/wait/wait_group-inl.h
 ========
 #include <src/util/generic/ptr.h>
 
@@ -23,6 +27,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/threading/future/wait/wait_group-inl.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/library/threading/future/wait/wait_group-inl.h
 
 #include <atomic>
 #include <exception>

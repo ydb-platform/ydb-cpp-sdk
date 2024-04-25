@@ -1,5 +1,8 @@
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/impl/persqueue.cpp
+=======
+>>>>>>> origin/main
 #include <src/client/persqueue_core/persqueue.h>
 #include <src/client/persqueue_core/impl/persqueue_impl.h>
 #include <src/client/persqueue_core/impl/read_session.h>
@@ -9,6 +12,7 @@
 #include <ydb-cpp-sdk/util/random/random.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/subst.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_persqueue_core/persqueue.h>
 #include <src/client/ydb_persqueue_core/impl/persqueue_impl.h>
@@ -24,6 +28,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/persqueue.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb::NPersQueue {
 

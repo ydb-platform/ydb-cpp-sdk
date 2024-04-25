@@ -9,6 +9,9 @@ target_link_libraries(cpp-yson-node PUBLIC
 
 target_sources(cpp-yson-node PRIVATE
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
   node.cpp
   node_io.cpp
   node_builder.cpp
@@ -20,6 +23,7 @@ generate_enum_serilization(cpp-yson-node
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/library/yson/node/node.h
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/library/yson/node/node.h
+<<<<<<< HEAD
 =======
   ${YDB_SDK_SOURCE_DIR}/src/library/yson/node/node.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/yson/node/node_io.cpp
@@ -37,6 +41,8 @@ generate_enum_serilization(cpp-yson-node
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 )
 
 

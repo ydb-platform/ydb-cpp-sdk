@@ -9,6 +9,7 @@ target_sources(cpp-mime-types PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/library/mime/types/CMakeLists.txt
 =======
 >>>>>>> ed2145fb77 (Moved SDK code to src (#149))
@@ -20,10 +21,13 @@ target_sources(cpp-mime-types PRIVATE
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   ${YDB_SDK_SOURCE_DIR}/src/library/mime/types/mime.cpp
 )
 
 generate_enum_serilization(cpp-mime-types
+<<<<<<< HEAD
 <<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/library/mime/types/mime.h
 =======
@@ -48,4 +52,9 @@ generate_enum_serilization(cpp-mime-types
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/library/mime/types/mime.h
+  INCLUDE_HEADERS
+  include/ydb-cpp-sdk/library/mime/types/mime.h
+>>>>>>> origin/main
 )

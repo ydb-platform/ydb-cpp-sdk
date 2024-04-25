@@ -6,6 +6,7 @@
 #include <src/util/charset/wide.h>
 #include <src/util/generic/hash.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
@@ -18,6 +19,11 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
+>>>>>>> origin/main
 #include <utility>
 
 namespace NUnicode {

@@ -2,6 +2,7 @@
 #include "simple.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/type_name.h>
 =======
 #include <src/util/system/type_name.h>
@@ -10,6 +11,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/type_name.h>
+>>>>>>> origin/main
 
 using namespace NUnitTest;
 using namespace NUnitTest::NPrivate;

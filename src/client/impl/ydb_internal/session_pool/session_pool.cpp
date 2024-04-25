@@ -5,10 +5,14 @@
 #undef INCLUDE_YDB_INTERNAL_H
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
 
 #include <ydb-cpp-sdk/util/random/random.h>
+<<<<<<< HEAD
 =======
 #include <src/client/resources/ydb_resources.h>
 #include <src/client/ydb_types/operation/operation.h>
@@ -19,6 +23,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb {
 namespace NSessionPool {

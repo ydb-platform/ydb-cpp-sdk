@@ -2,7 +2,10 @@
 
 #include <src/client/impl/ydb_internal/grpc_connections/grpc_connections.h>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/persqueue_core/impl/counters_logger.h
+=======
+>>>>>>> origin/main
 #include <src/client/common_client/impl/client.h>
 #include <src/client/persqueue_core/persqueue.h>
 #include <ydb-cpp-sdk/client/topic/topic.h>
@@ -10,6 +13,7 @@
 #include <src/client/persqueue_core/impl/log_lazy.h>
 
 #include <ydb-cpp-sdk/util/system/spinlock.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_common_client/impl/client.h>
 #include <src/client/ydb_persqueue_core/persqueue.h>
@@ -23,6 +27,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_persqueue_core/impl/counters_logger.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 namespace NYdb::NPersQueue {
 

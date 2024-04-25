@@ -2,6 +2,7 @@
 
 #include <string_view>
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/yt/yson/consumer.h
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
@@ -15,6 +16,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/yt/yson/consumer.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/defaults.h>
+
+#include <ydb-cpp-sdk/library/yt/yson_string/public.h>
+>>>>>>> origin/main
 
 namespace NYT::NYson {
 

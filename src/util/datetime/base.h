@@ -2,12 +2,16 @@
 
 #include "systime.h"
 
+<<<<<<<< HEAD:src/util/datetime/base.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/datetime/base.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/datetime/base.h
 #include <ydb-cpp-sdk/util/system/platform.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+<<<<<<<< HEAD:src/util/datetime/base.h
 ========
 #include <src/util/str_stl.h>
 #include <src/util/system/platform.h>
@@ -21,6 +25,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/datetime/base.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/datetime/base.h
 
 #include <chrono>
 

@@ -17,6 +17,7 @@ target_link_libraries(cpp-client-ydb_types PUBLIC
 generate_enum_serilization(cpp-client-ydb_types
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/types/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
@@ -32,11 +33,15 @@ generate_enum_serilization(cpp-client-ydb_types
 =======
 >>>>>>> 826c9ae11c (Fix CMAKE_SOURCE_DIR bug (#135)):client/ydb_types/CMakeLists.txt
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
+=======
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/types/s3_settings.h
+>>>>>>> origin/main
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/client/types/s3_settings.h
 )
 
 generate_enum_serilization(cpp-client-ydb_types
+<<<<<<< HEAD
 <<<<<<< HEAD:src/client/types/CMakeLists.txt
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/types/status_codes.h
 =======
@@ -63,6 +68,11 @@ generate_enum_serilization(cpp-client-ydb_types
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_types/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/types/status_codes.h
+  INCLUDE_HEADERS
+  include/ydb-cpp-sdk/client/types/status_codes.h
+>>>>>>> origin/main
 )
 
 add_library(YDB-CPP-SDK::Types ALIAS cpp-client-ydb_types)

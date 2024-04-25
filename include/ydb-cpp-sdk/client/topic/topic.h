@@ -1,6 +1,9 @@
 #pragma once
 #include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/client/topic/topic.h
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/scheme/scheme.h>
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
@@ -13,6 +16,7 @@
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <ydb-cpp-sdk/util/thread/pool.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_driver/driver.h>
 #include <src/client/ydb_scheme/scheme.h>
@@ -33,6 +37,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_topic/topic.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <exception>
 #include <variant>

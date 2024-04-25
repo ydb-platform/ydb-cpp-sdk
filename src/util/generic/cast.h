@@ -3,11 +3,15 @@
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 
+<<<<<<<< HEAD:src/util/generic/cast.h
 <<<<<<<< HEAD:include/ydb-cpp-sdk/util/generic/cast.h
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/cast.h
 #include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/system/type_name.h>
 #include <ydb-cpp-sdk/util/system/unaligned_mem.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
+<<<<<<<< HEAD:src/util/generic/cast.h
 ========
 #include <src/util/system/compat.h>
 #include <src/util/system/type_name.h>
@@ -18,6 +22,8 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/util/generic/cast.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+========
+>>>>>>>> origin/main:include/ydb-cpp-sdk/util/generic/cast.h
 
 #include <cstdlib>
 

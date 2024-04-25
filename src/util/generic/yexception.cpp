@@ -2,11 +2,15 @@
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/system/backtrace.h>
 #include <ydb-cpp-sdk/util/system/type_name.h>
+<<<<<<< HEAD
 =======
 #include <src/library/string_utils/helpers/helpers.h>
 
@@ -18,6 +22,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #if defined(_linux_) || defined(_android_) || defined(_darwin_)
     #include <cxxabi.h>

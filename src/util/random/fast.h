@@ -5,6 +5,7 @@
 
 #include <src/util/generic/bitops.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <ydb-cpp-sdk/util/system/platform.h>
 =======
 #include <src/util/system/platform.h>
@@ -13,6 +14,9 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/system/platform.h>
+>>>>>>> origin/main
 
 // based on http://www.pcg-random.org/. See T*FastRng* family below.
 

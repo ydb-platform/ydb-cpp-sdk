@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/library/iterator/iterate_values.h>
 
 #include <src/library/testing/gtest/gtest.h>
 
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
+<<<<<<< HEAD
 =======
 #include <src/library/iterator/iterate_values.h>
 
@@ -15,6 +19,8 @@
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <map>
 #include <unordered_map>

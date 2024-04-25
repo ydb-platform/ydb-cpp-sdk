@@ -15,6 +15,7 @@ target_link_libraries(cpp-client-ydb_operation PUBLIC
 target_sources(cpp-client-ydb_operation PRIVATE
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/operation/CMakeLists.txt
 =======
 >>>>>>> 61c08f3f93 (Fix CMAKE_SOURCE_DIR bug (#135))
@@ -39,6 +40,9 @@ target_sources(cpp-client-ydb_operation PRIVATE
   operation.cpp
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_operation/CMakeLists.txt
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  operation.cpp
+>>>>>>> origin/main
 )
 
 add_library(YDB-CPP-SDK::Operation ALIAS cpp-client-ydb_operation)

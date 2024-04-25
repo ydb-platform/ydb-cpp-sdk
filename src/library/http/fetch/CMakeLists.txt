@@ -22,6 +22,7 @@ target_sources(cpp-http-fetch PRIVATE
 
 generate_enum_serilization(cpp-http-fetch
 <<<<<<< HEAD
+<<<<<<< HEAD
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/library/http/fetch/httpheader.h
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/library/http/fetch/httpheader.h
@@ -34,6 +35,11 @@ generate_enum_serilization(cpp-http-fetch
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/library/http/fetch/httpheader.h
+  INCLUDE_HEADERS
+  include/ydb-cpp-sdk/library/http/fetch/httpheader.h
+>>>>>>> origin/main
 )
 
 target_ragel_lexers(cpp-http-fetch

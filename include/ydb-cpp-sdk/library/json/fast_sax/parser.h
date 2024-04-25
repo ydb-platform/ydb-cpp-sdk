@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/json/fast_sax/parser.h
 #include <ydb-cpp-sdk/library/json/common/defs.h>
 ========
@@ -9,6 +10,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/json/fast_sax/parser.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/json/common/defs.h>
+>>>>>>> origin/main
 
 namespace NJson {
     bool ReadJsonFast(std::string_view in, TJsonCallbacks* callbacks);

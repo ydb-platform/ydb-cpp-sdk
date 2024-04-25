@@ -12,7 +12,10 @@
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 #include <src/api/protos/ydb_table.pb.h>
 #include <src/client/impl/ydb_stats/stats.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/table/table.cpp
+=======
+>>>>>>> origin/main
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 #include <ydb-cpp-sdk/client/value/value.h>
 #include <src/client/table/impl/client_session.h>
@@ -20,6 +23,7 @@
 #include <src/client/table/impl/request_migrator.h>
 #include <src/client/table/impl/table_client.h>
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
+<<<<<<< HEAD
 ========
 #include <src/client/ydb_proto/accessor.h>
 #include <src/client/ydb_value/value.h>
@@ -33,10 +37,13 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/table.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
 
 #include <google/protobuf/util/time_util.h>
 
 #include <src/library/cache/cache.h>
+<<<<<<< HEAD
 <<<<<<<< HEAD:src/client/table/table.cpp
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
@@ -50,6 +57,11 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/client/ydb_table/table.cpp
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
+
+#include <ydb-cpp-sdk/util/random/random.h>
+>>>>>>> origin/main
 #include <src/util/string/join.h>
 
 #include <map>

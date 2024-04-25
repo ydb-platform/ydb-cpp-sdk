@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string_view>
+<<<<<<< HEAD
 <<<<<<<< HEAD:include/ydb-cpp-sdk/library/json/common/defs.h
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 ========
@@ -10,6 +11,9 @@
 =======
 >>>>>>>> 64d9ce2d94 (Moved SDK code to src (#149)):src/library/json/common/defs.h
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+>>>>>>> origin/main
 
 namespace NJson {
     class TJsonException: public yexception {

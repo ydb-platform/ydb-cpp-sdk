@@ -1,5 +1,6 @@
 add_ydb_test(NAME library-yql-utils-ut
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   INCLUDE_DIRS
   ${YDB_SDK_SOURCE_DIR}/src/library/yql/utils
@@ -8,6 +9,8 @@ add_ydb_test(NAME library-yql-utils-ut
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   SOURCES
   utf8_ut.cpp
   LINK_LIBRARIES
@@ -18,6 +21,7 @@ add_ydb_test(NAME library-yql-utils-ut
 
 add_ydb_test(NAME yql-public-issue-ut
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   INCLUDE_DIRS
   ${YDB_SDK_SOURCE_DIR}/src/library/yql/public/issue
@@ -26,6 +30,8 @@ add_ydb_test(NAME yql-public-issue-ut
 =======
 >>>>>>> 64d9ce2d94 (Moved SDK code to src (#149))
 >>>>>>> 02ff417676 (Moved SDK code to src (#149))
+=======
+>>>>>>> origin/main
   SOURCES
   yql_issue_ut.cpp
   LINK_LIBRARIES
