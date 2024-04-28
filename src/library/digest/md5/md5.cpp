@@ -6,7 +6,7 @@
 #include <src/util/stream/file.h>
 #include <src/util/string/hex.h>
 
-#include <contrib/libs/nayuki_md5/md5.h>
+#include <third_party/nayuki_md5/nayuki_md5.h>
 
 namespace {
 
