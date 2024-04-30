@@ -29,7 +29,7 @@ If you ok with this warning, then...
 - lz4
 - snappy 1.1.8+
 - base64
-- brotli 1.1.10+
+- brotli 1.1.0+
 - double-conversion
 - jwt-cpp
 
@@ -50,7 +50,7 @@ sudo apt-get -y update
 sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
   protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
   rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev liblz4-dev \
-  libgtest-dev libgmock-dev libbz2-dev libdouble-conversion-dev
+  libgtest-dev libgmock-dev libbz2-dev libdouble-conversion-dev libssl-dev
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh
@@ -100,7 +100,7 @@ sudo tar -xJ -C /usr/local/bin/ --strip-components=1 --no-same-owner ccache-${V}
 ## Clone the ydb-cpp-sdk repository
 
 ```bash
-git clone https://github.com/ydb-platform/ydb-cpp-sdk.git
+git clone --recurse-submodules https://github.com/ydb-platform/ydb-cpp-sdk.git
 ```
 
 ## Configure
