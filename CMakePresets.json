@@ -1,0 +1,64 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 22,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "ninja-generator",
+      "hidden": true,
+      "generator": "Ninja"
+    },
+    {
+      "name": "release-build",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "ccache-clang-toolchain",
+      "hidden": true,
+      "toolchainFile": "${sourceDir}/clang.toolchain",
+      "cacheVariables": {
+        "CCACHE_PATH": {
+          "type": "PATH",
+          "value": "/usr/local/bin/ccache"
+        }
+      }
+    },
+    {
+      "name": "release",
+      "inherits": [
+        "ninja-generator",
+        "release-build",
+        "ccache-clang-toolchain"
+      ],
+      "displayName": "Default Release Config",
+      "description": "Default release build configuration using Ninja generator and Clang compiler via Ccache",
+      "binaryDir": "${sourceDir}/../build"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "displayName": "Default Release Build"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "displayName": "Default Release Tests",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "timeout": 1200
+      }
+    }
+  ]
+}

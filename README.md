@@ -105,26 +105,23 @@ git clone https://github.com/ydb-platform/ydb-cpp-sdk.git
 
 ## Configure
 
-Generate build configuration using `ccache`
+Generate build configuration using the `release` preset with `ccache`
 
 ```bash
-cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release \
--DCCACHE_PATH=/usr/local/bin/ccache \
--DCMAKE_TOOLCHAIN_FILE=../ydb-cpp-sdk/clang.toolchain \
-../ydb-cpp-sdk
+cd ydb-cpp-sdk
+cmake --preset release
 ```
 
 ## Build
 
 ```bash
-cd build
-ninja
+cmake --build --preset release
 ```
 
 ## Test
 
+Specify a level of parallelism by passing the `-j<level>` option into the command below (e.g. `-j$(nproc)`)
+
 ```bash
-cd build
-ctest -j32 --timeout 1200 --output-on-failure
+ctest -j$(nproc) --preset release
 ```
