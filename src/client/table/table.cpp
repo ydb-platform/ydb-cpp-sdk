@@ -2085,6 +2085,10 @@ const std::vector<TResultSet>& TDataQueryResult::GetResultSets() const {
     return ResultSets_;
 }
 
+std::vector<TResultSet> TDataQueryResult::ExtractResultSets() && {
+    return std::move(ResultSets_);
+}
+
 TResultSet TDataQueryResult::GetResultSet(size_t resultIndex) const {
     if (resultIndex >= ResultSets_.size()) {
         RaiseError(std::string("Requested index out of range\n"));

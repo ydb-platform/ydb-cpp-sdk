@@ -1816,6 +1816,7 @@ public:
         const std::optional<TDataQuery>& dataQuery, bool fromCache, const std::optional<TQueryStats>& queryStats);
 
     const std::vector<TResultSet>& GetResultSets() const;
+    std::vector<TResultSet> ExtractResultSets() &&;
     TResultSet GetResultSet(size_t resultIndex) const;
 
     TResultSetParser GetResultSetParser(size_t resultIndex) const;
