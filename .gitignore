@@ -72,3 +72,6 @@ src/util/charset/all_charset.cpp
 
 cmake-build-debug
 llvm.sh
+
+# User CMake presets
+CMakeUserPresets.json

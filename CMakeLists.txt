@@ -11,10 +11,10 @@ set(YDB_SDK_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
 list(APPEND CMAKE_MODULE_PATH ${YDB_SDK_BINARY_DIR} ${YDB_SDK_SOURCE_DIR}/cmake)
 include_directories(${YDB_SDK_SOURCE_DIR} ${YDB_SDK_SOURCE_DIR}/include ${YDB_SDK_BINARY_DIR})
-list(APPEND CMAKE_CTEST_ARGUMENTS "--output-on-failure")
 enable_testing()
 
 include(cmake/common.cmake)
+include(cmake/ccache.cmake)
 include(cmake/global_flags.cmake)
 include(cmake/protobuf.cmake)
 include(cmake/global_vars.cmake)
