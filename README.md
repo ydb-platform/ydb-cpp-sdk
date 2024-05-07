@@ -105,7 +105,7 @@ git clone --recurse-submodules https://github.com/ydb-platform/ydb-cpp-sdk.git
 
 ## Configure
 
-Generate build configuration using the `release` preset with `ccache`
+Generate build configuration using the `release` preset. `ccache` is located automatically, but if you get the warning that it's not been found, specify its location by passing `-DCCACHE_PATH=path/to/bin`
 
 ```bash
 cd ydb-cpp-sdk
