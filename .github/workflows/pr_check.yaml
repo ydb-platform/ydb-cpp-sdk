@@ -60,8 +60,7 @@ jobs:
     - name: Test
       shell: bash
       run: |
-        cd ../build
-        ctest -j32 --timeout 1200 --output-on-failure
+        ctest -j32 --preset release
     - name: Launch basic example
       shell: bash
       run: |

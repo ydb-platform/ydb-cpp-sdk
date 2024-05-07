@@ -29,7 +29,7 @@ If you ok with this warning, then...
 - lz4
 - snappy 1.1.8+
 - base64
-- brotli 1.1.10+
+- brotli 1.1.0+
 - double-conversion
 - jwt-cpp
 
@@ -50,7 +50,7 @@ sudo apt-get -y update
 sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
   protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
   rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev liblz4-dev \
-  libgtest-dev libgmock-dev libbz2-dev libdouble-conversion-dev
+  libgtest-dev libgmock-dev libbz2-dev libdouble-conversion-dev libssl-dev
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh
@@ -100,31 +100,28 @@ sudo tar -xJ -C /usr/local/bin/ --strip-components=1 --no-same-owner ccache-${V}
 ## Clone the ydb-cpp-sdk repository
 
 ```bash
-git clone https://github.com/ydb-platform/ydb-cpp-sdk.git
+git clone --recurse-submodules https://github.com/ydb-platform/ydb-cpp-sdk.git
 ```
 
 ## Configure
 
-Generate build configuration using `ccache`
+Generate build configuration using the `release` preset. `ccache` is located automatically, but if you get the warning that it's not been found, specify its location by passing `-DCCACHE_PATH=path/to/bin`
 
 ```bash
-cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release \
--DCCACHE_PATH=/usr/local/bin/ccache \
--DCMAKE_TOOLCHAIN_FILE=../ydb-cpp-sdk/clang.toolchain \
-../ydb-cpp-sdk
+cd ydb-cpp-sdk
+cmake --preset release
 ```
 
 ## Build
 
 ```bash
-cd build
-ninja
+cmake --build --preset release
 ```
 
 ## Test
 
+Specify a level of parallelism by passing the `-j<level>` option into the command below (e.g. `-j$(nproc)`)
+
 ```bash
-cd build
-ctest -j32 --timeout 1200 --output-on-failure
+ctest -j$(nproc) --preset release
 ```
