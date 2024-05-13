@@ -20,7 +20,7 @@ namespace {
 
     bool ConvertCaseUTF8Impl(ECaseConversion conversion, const char* beg, size_t n,
                              std::string& newString) {
-        const unsigned char* p = (const unsigned char*)beg;
+        const unsigned char* p = reinterpret_cast<const unsigned char*>(beg);
         const unsigned char* const end = p + n;
 
         // first loop searches for the first character, which is changed by ConvertChar
@@ -31,12 +31,14 @@ namespace {
             wchar32 c;
             if (RECODE_OK != SafeReadUTF8Char(c, cLen, p, end)) {
                 ythrow yexception()
-                    << "failed to decode UTF-8 string at pos " << ((const char*)p - beg);
+                    << "failed to decode UTF-8 string at pos "
+                    << (reinterpret_cast<const char*>(p) - beg);
             }
             cNew = ConvertChar(conversion, c);
 
-            if (cNew != c)
+            if (cNew != c) {
                 break;
+            }
             p += cLen;
         }
         if (p == end) {
@@ -46,7 +48,7 @@ namespace {
         // some character changed after ToLower. Write new string to newString.
         newString.resize(n);
 
-        size_t written = (char*)p - beg;
+        size_t written = reinterpret_cast<const char*>(p) - beg;
         char* writePtr = newString.data();
         memcpy(writePtr, beg, written);
         writePtr += written;
@@ -57,7 +59,8 @@ namespace {
             size_t cNewLen;
             Y_ASSERT((writePtr - newString.data()) + destSpace == newString.size());
             if (RECODE_EOOUTPUT ==
-                SafeWriteUTF8Char(cNew, cNewLen, (unsigned char*)writePtr, destSpace)) {
+                    SafeWriteUTF8Char(cNew, cNewLen,
+                                      reinterpret_cast<unsigned char*>(writePtr), destSpace)) {
                 destSpace += newString.size();
                 newString.resize(newString.size() * 2);
                 writePtr = newString.data() + (newString.size() - destSpace);
@@ -73,7 +76,8 @@ namespace {
             wchar32 c = 0;
             if (RECODE_OK != SafeReadUTF8Char(c, cLen, p, end)) {
                 ythrow yexception()
-                    << "failed to decode UTF-8 string at pos " << ((const char*)p - beg);
+                    << "failed to decode UTF-8 string at pos "
+                    << (reinterpret_cast<const char*>(p) - beg);
             }
             cNew = ConvertChar(conversion, c);
         }
@@ -106,7 +110,7 @@ std::string_view SubstrUTF8(const std::string_view str, size_t pos, size_t len) 
 }
 
 EUTF8Detect UTF8Detect(const char* s, size_t len) {
-    const unsigned char* s0 = (const unsigned char*)s;
+    const unsigned char* s0 = reinterpret_cast<const unsigned char*>(s);
     const unsigned char* send = s0 + len;
     wchar32 rune;
     size_t rune_len;

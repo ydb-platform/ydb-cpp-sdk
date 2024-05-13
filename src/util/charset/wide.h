@@ -5,12 +5,12 @@
 #include "utf8.h"
 #include "wide_specific.h"
 
+#include <src/util/system/cpu_id.h>
+
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
-#include <src/util/system/cpu_id.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <cstring>
@@ -19,9 +19,6 @@
     #include <emmintrin.h>
 #endif
 
-template <class T>
-class TTempArray;
-using TCharTemp = TTempArray<wchar16>;
 
 namespace NDetail {
     inline std::string InStringMsg(const char* s, size_t len) {
@@ -146,7 +143,7 @@ inline wchar32 ReadSymbolAndAdvance(const wchar32*& begin, const wchar32* end) n
 
 template <class T>
 inline size_t WriteSymbol(wchar16 s, T& dest) noexcept {
-    ::NDetail::TSelector<std::is_pointer<T>::value>::WriteSymbol(s, dest);
+    ::NDetail::TSelector<std::is_pointer_v<T>>::WriteSymbol(s, dest);
     return 1;
 }
 
@@ -325,8 +322,10 @@ inline std::u16string UTF8ToWide(const char* text, size_t len) {
     std::u16string w(len, '\0');
     size_t written;
     size_t pos = UTF8ToWideImpl<robust>(text, len, w.data(), written);
-    if (pos != len)
-        ythrow yexception() << "failed to decode UTF-8 string at pos " << pos << ::NDetail::InStringMsg(text, len);
+    if (pos != len) {
+        ythrow yexception() << "failed to decode UTF-8 string at pos " 
+                            << pos << ::NDetail::InStringMsg(text, len);
+    }
     Y_ASSERT(w.size() >= written);
     w.erase(written);
     return w;
@@ -660,15 +659,17 @@ inline std::u32string ASCIIToUTF32(const std::string_view s) {
 
 //! returns @c true if string contains whitespace characters only
 inline bool IsSpace(const wchar16* s, size_t n) {
-    if (n == 0)
+    if (n == 0) {
         return false;
+    }
 
     Y_ASSERT(s);
 
     const wchar16* const e = s + n;
     for (const wchar16* p = s; p != e; ++p) {
-        if (!IsWhitespace(*p))
+        if (!IsWhitespace(*p)) {
             return false;
+        }
     }
     return true;
 }
@@ -832,8 +833,9 @@ inline bool IsValidUTF16(const wchar16* b, const wchar16* e) {
     Y_ENSURE(b <= e, "invalid iterators");
     while (b < e) {
         wchar32 symbol = ReadSymbolAndAdvance(b, e);
-        if (symbol == BROKEN_RUNE)
+        if (symbol == BROKEN_RUNE) {
             return false;
+        }
     }
     return true;
 }

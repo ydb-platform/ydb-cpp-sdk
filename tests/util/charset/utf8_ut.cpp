@@ -1,11 +1,13 @@
 #include "utf8.h"
 #include "wide.h"
 
-#include <src/util/stream/file.h>
-#include <ydb-cpp-sdk/util/ysaveload.h>
-
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/env.h>
+
+#include <src/util/stream/file.h>
+
+#include <ydb-cpp-sdk/util/ysaveload.h>
+
 
 Y_UNIT_TEST_SUITE(TUtfUtilTest) {
     Y_UNIT_TEST(TestUTF8Len) {
@@ -24,7 +26,6 @@ Y_UNIT_TEST_SUITE(TUtfUtilTest) {
             UNIT_ASSERT(ToLowerUTF8Impl(s.data(), s.size(), tmp) == false);
             UNIT_ASSERT(ToLowerUTF8Impl(q.data(), q.size(), tmp) == true);
         }
-
         {
             const char* weird = "\xC8\xBE"; // 'Ⱦ', U+023E. strlen(weird)==2, strlen(tolower_utf8(weird)) is 3
             const char* turkI = "İ";        //strlen("İ") == 2, strlen(tolower_utf8("İ") == 1
@@ -43,7 +44,7 @@ Y_UNIT_TEST_SUITE(TUtfUtilTest) {
                     }
 
                     std::u16string tmp = UTF8ToWide(s);
-                    tmp.to_lower();
+                    ToLower(tmp, 0, tmp.size());
 
                     UNIT_ASSERT_VALUES_EQUAL(ToLowerUTF8(s), WideToUTF8(tmp));
                 }
@@ -64,7 +65,6 @@ Y_UNIT_TEST_SUITE(TUtfUtilTest) {
             UNIT_ASSERT(ToUpperUTF8Impl(s.data(), s.size(), tmp) == false);
             UNIT_ASSERT(ToUpperUTF8Impl(q.data(), q.size(), tmp) == true);
         }
-
         {
             const char* weird = "\xC8\xBE"; // 'Ⱦ', U+023E. strlen(weird)==2, strlen(ToUpper_utf8(weird)) is 3
             const char* turkI = "İ";        //strlen("İ") == 2, strlen(ToUpper_utf8("İ") == 1
@@ -83,7 +83,7 @@ Y_UNIT_TEST_SUITE(TUtfUtilTest) {
                     }
 
                     std::u16string tmp = UTF8ToWide(s);
-                    tmp.to_upper();
+                    ToUpper(tmp, 0, tmp.size());
 
                     UNIT_ASSERT_VALUES_EQUAL(ToUpperUTF8(s), WideToUTF8(tmp));
                 }
@@ -93,15 +93,15 @@ Y_UNIT_TEST_SUITE(TUtfUtilTest) {
     }
 
     Y_UNIT_TEST(TestUTF8ToWide) {
-        TFileInput in(ArcadiaSourceRoot() + std::string_view("/src/util/charset/ut/utf8/test1.txt"));
-
+        TFileInput in(SRC_("data/test1.txt"));
         std::string text = in.ReadAll();
+        
         UNIT_ASSERT(WideToUTF8(UTF8ToWide(text)) == text);
     }
 
     Y_UNIT_TEST(TestInvalidUTF8) {
         std::vector<std::string> testData;
-        TFileInput input(ArcadiaSourceRoot() + std::string_view("/src/util/charset/ut/utf8/invalid_UTF8.bin"));
+        TFileInput input(SRC_("data/invalid_UTF8.bin"));
         Load(&input, testData);
 
         for (const auto& text : testData) {
@@ -110,17 +110,20 @@ Y_UNIT_TEST_SUITE(TUtfUtilTest) {
     }
 
     Y_UNIT_TEST(TestUTF8ToWideScalar) {
-        TFileInput in(ArcadiaSourceRoot() + std::string_view("/src/util/charset/ut/utf8/test1.txt"));
+        TFileInput in(SRC_("data/test1.txt"));
 
         std::string text = in.ReadAll();
         std::u16string wtextSSE = UTF8ToWide(text);
-        std::u16string wtextScalar = std::u16string::Uninitialized(text.size());
+        std::u16string wtextScalar(text.size(), wchar16{});
+
         const unsigned char* textBegin = reinterpret_cast<const unsigned char*>(text.c_str());
-        wchar16* wtextBegin = wtextScalar.begin();
+        wchar16* wtextBegin = wtextScalar.data();
+
         ::NDetail::UTF8ToWideImplScalar<false>(textBegin, textBegin + text.size(), wtextBegin);
-        UNIT_ASSERT(wtextBegin == wtextScalar.begin() + wtextSSE.size());
-        UNIT_ASSERT(textBegin == reinterpret_cast<const unsigned char*>(text.end()));
-        wtextScalar.remove(wtextSSE.size());
+        UNIT_ASSERT(wtextBegin == wtextScalar.data() + wtextSSE.size());
+        UNIT_ASSERT(textBegin == reinterpret_cast<const unsigned char*>(text.data() + text.size()));
+
+        wtextScalar.erase(wtextSSE.size());
         UNIT_ASSERT(wtextScalar == wtextSSE);
     }
 }

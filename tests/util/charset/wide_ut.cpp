@@ -9,18 +9,18 @@
 
 namespace {
     //! three UTF8 encoded russian letters (A, B, V)
-    const char utext[] = "\xd0\x90\xd0\x91\xd0\x92";
+    constexpr char utext[] = "\xd0\x90\xd0\x91\xd0\x92";
 
-    const char asciiLatinAlphabet[] = "ABCDEFGHIGKLMNOPQRSTUVWXYZabcdefghigklmnopqrstuvwxyz";
-    const wchar16 wideLatinAlphabet[] = {
+    constexpr char asciiLatinAlphabet[] = "ABCDEFGHIGKLMNOPQRSTUVWXYZabcdefghigklmnopqrstuvwxyz";
+    constexpr wchar16 wideLatinAlphabet[] = {
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'G', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'g', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 0};
-    const wchar16 wideCyrillicAlphabet[] = {
+    constexpr wchar16 wideCyrillicAlphabet[] = {
         0x0410, 0x0411, 0x0412, 0x0413, 0x0414, 0x0415, 0x0416, 0x0417, 0x0418, 0x0419, 0x041A, 0x041B, 0x041C, 0x041D, 0x041E, 0x041F,
         0x0420, 0x0421, 0x0422, 0x0423, 0x0424, 0x0425, 0x0426, 0x0427, 0x0428, 0x0429, 0x042A, 0x042B, 0x042C, 0x042D, 0x042E, 0x042F,
         0x0430, 0x0431, 0x0432, 0x0433, 0x0434, 0x0435, 0x0436, 0x0437, 0x0438, 0x0439, 0x043A, 0x043B, 0x043C, 0x043D, 0x043E, 0x043F,
         0x0440, 0x0441, 0x0442, 0x0443, 0x0444, 0x0445, 0x0446, 0x0447, 0x0448, 0x0449, 0x044A, 0x044B, 0x044C, 0x044D, 0x044E, 0x044F, 0x00};
-    const char utf8CyrillicAlphabet[] =
+    constexpr char utf8CyrillicAlphabet[] =
         "\xd0\x90\xd0\x91\xd0\x92\xd0\x93\xd0\x94\xd0\x95\xd0\x96\xd0\x97"
         "\xd0\x98\xd0\x99\xd0\x9a\xd0\x9b\xd0\x9c\xd0\x9d\xd0\x9e\xd0\x9f"
         "\xd0\xa0\xd0\xa1\xd0\xa2\xd0\xa3\xd0\xa4\xd0\xa5\xd0\xa6\xd0\xa7"
@@ -30,11 +30,11 @@ namespace {
         "\xd1\x80\xd1\x81\xd1\x82\xd1\x83\xd1\x84\xd1\x85\xd1\x86\xd1\x87"
         "\xd1\x88\xd1\x89\xd1\x8a\xd1\x8b\xd1\x8c\xd1\x8d\xd1\x8e\xd1\x8f";
 
-    const wchar32 LEAD_BITS_MASK_2_BYTES = 0x1F;
-    const wchar32 LEAD_BITS_MASK_3_BYTES = 0x0F;
-    const wchar32 LEAD_BITS_MASK_4_BYTES = 0x07;
+    constexpr wchar32 LEAD_BITS_MASK_2_BYTES = 0x1F;
+    constexpr wchar32 LEAD_BITS_MASK_3_BYTES = 0x0F;
+    constexpr wchar32 LEAD_BITS_MASK_4_BYTES = 0x07;
 
-    wchar16 ws[] = {
+    constexpr wchar16 ws[] = {
         0x0009,
         0x000A, 0x2028, 0x2029,
         0x000B,
@@ -45,8 +45,8 @@ namespace {
         0x202F, 0x205F, 0x3000,
         0x00A0};
 
-    const size_t CaseTestDataSize = 10;
-    wchar32 WideStringTestData[][CaseTestDataSize] = {
+    constexpr std::size_t CaseTestDataSize = 10;
+    constexpr wchar32 WideStringTestData[][CaseTestDataSize] = {
         {0x01C4, 0x10428, 0x10429, 0x10447, 0x10441, 0x1C03, 0x00A0, 0x10400, 0x10415, 0x10437}, // original
         {0x01C6, 0x10428, 0x10429, 0x10447, 0x10441, 0x1C03, 0x00A0, 0x10428, 0x1043D, 0x10437}, // lower
         {0x01C4, 0x10400, 0x10401, 0x1041F, 0x10419, 0x1C03, 0x00A0, 0x10400, 0x10415, 0x1040F}, // upper
@@ -54,7 +54,7 @@ namespace {
     };
 
     std::u16string CreateUnicodeText() {
-        const int len = 256;
+        constexpr int len = 256;
         wchar16 text[len] = {
             0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 0x00 - 0x0F
             0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 0x10 - 0x1F
@@ -81,7 +81,7 @@ namespace {
     }
 
     std::string CreateUTF8Text() {
-        char text[] = {
+        constexpr char text[] = {
             '\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x0a', '\x0b', '\x0c', '\x0d', '\x0e', '\x0f',
             '\x10', '\x11', '\x12', '\x13', '\x14', '\x15', '\x16', '\x17', '\x18', '\x19', '\x1a', '\x1b', '\x1c', '\x1d', '\x1e', '\x1f',
             '\x20', '\x21', '\x22', '\x23', '\x24', '\x25', '\x26', '\x27', '\x28', '\x29', '\x2a', '\x2b', '\x2c', '\x2d', '\x2e', '\x2f',
@@ -123,13 +123,13 @@ namespace {
     //    }
 
     template <StrictUTF8 strictMode = StrictUTF8::No>
-    void CheckRecodeOK(wchar32 expected, unsigned char* first, size_t n) {
+    void CheckRecodeOK(wchar32 expected, unsigned char* first, std::size_t n) {
         wchar32 w = 0;
         const unsigned char* p = first;
 
         RECODE_RESULT r = ReadUTF8CharAndAdvance<strictMode>(w, p, first + n);
         UNIT_ASSERT(w == expected);
-        UNIT_ASSERT(size_t(p - first) == n);
+        UNIT_ASSERT(std::size_t(p - first) == n);
         UNIT_ASSERT(r == RECODE_OK);
     }
 
@@ -144,7 +144,7 @@ namespace {
         UNIT_ASSERT(r == RECODE_BROKENSYMBOL);
     }
 
-    void CheckEndOfInput(unsigned char* first, size_t n) {
+    void CheckEndOfInput(unsigned char* first, std::size_t n) {
         wchar32 w = 0;
         const unsigned char* p = first;
 
@@ -154,8 +154,9 @@ namespace {
         UNIT_ASSERT(r == RECODE_EOINPUT);
     }
 
-    void CheckCharLen(unsigned char* first, unsigned char* last, size_t len, RECODE_RESULT result) {
-        size_t n = 0;
+    void CheckCharLen(unsigned char* first, unsigned char* last,
+                      std::size_t len, RECODE_RESULT result) {
+        std::size_t n = 0;
         RECODE_RESULT r = GetUTF8CharLen(n, first, last);
         UNIT_ASSERT(n == len);
         UNIT_ASSERT(r == result);
@@ -219,7 +220,8 @@ void TConversionTest::TestHexConversion() {
         UNIT_ASSERT(IsHexdigit(ch));
     }
 
-    for (wchar16 i = std::numeric_limits<wchar16>::min(); i < std::numeric_limits<wchar16>::max(); ++i) {
+    for (wchar16 i = std::numeric_limits<wchar16>::min();
+            i < std::numeric_limits<wchar16>::max(); ++i) {
         if (IsHexdigit(i)) {
             UNIT_ASSERT(isxdigit(char(i)));
         }
@@ -481,7 +483,7 @@ void TConversionTest::TestGetUTF8CharLen() {
 void TConversionTest::TestWriteUTF8Char() {
     wchar32 w;
     unsigned long u; // single UTF8 encoded character
-    size_t n;
+    std::size_t n;
 
     for (w = 0x00; w < 0x80; ++w) {
         u = 0;
@@ -511,7 +513,7 @@ void TConversionTest::TestWriteUTF8Char() {
     }
 }
 
-static void TestSurrogates(const char* str, const wchar16* wide, size_t wideSize) {
+static void TestSurrogates(const char* str, const wchar16* wide, std::size_t wideSize) {
     std::u16string w = UTF8ToWide(str);
 
     UNIT_ASSERT(w.size() == wideSize);
@@ -533,7 +535,7 @@ void TConversionTest::TestUTF8ToWide() {
     }
 
     wchar16 buffer[4] = {0};
-    size_t written = 0;
+    std::size_t written = 0;
     // the function must extract 2 symbols only
     bool result = UTF8ToWide(utext, 5, buffer, written);
     UNIT_ASSERT(!result);
@@ -566,29 +568,33 @@ void TConversionTest::TestUTF8ToWide() {
     wchar16 wNonBMPDummy2[] = {'a', 'b', 0xDBC0, 0xDE47, 'n'};
     TestSurrogates(utf8NonBMP2, wNonBMPDummy2, Y_ARRAY_SIZE(wNonBMPDummy2));
 
-    UNIT_ASSERT_VALUES_EQUAL(WideToUTF8(UTF8ToWide(WideToUTF8(UTF8ToWide<true>(
-                                 "m\xFB\xB2\xA5\xAA\xAFyeuse.sexwebcamz.com")))),
-                             std::string(
-                                 "m\xEF\xBF\xBD\xEF\xBF\xBD\xEF\xBF\xBD\xEF\xBF\xBD\xEF\xBF\xBDyeuse.sexwebcamz.com"));
+    UNIT_ASSERT_VALUES_EQUAL(
+            WideToUTF8(
+                UTF8ToWide(
+                    WideToUTF8(
+                        UTF8ToWide<true>("m\xFB\xB2\xA5\xAA\xAFyeuse.sexwebcamz.com")))),
+            std::string("m\xEF\xBF\xBD\xEF\xBF\xBD\xEF\xBF\xBD\xEF\xBF\xBD\xEF\xBF\xBD"
+                        "yeuse.sexwebcamz.com"));
 }
 
 void TConversionTest::TestWideToUTF8() {
     std::string s = WideToUTF8(UnicodeText_);
-    size_t len = 0;
-    for (std::u16string::const_iterator i = UnicodeText_.begin(), ie = UnicodeText_.end(); i != ie; ++i) {
+    std::size_t len = 0;
+    for (std::u16string::const_iterator i = UnicodeText_.begin(), ie = UnicodeText_.end();
+            i != ie; ++i) {
         len += UTF8RuneLenByUCS(*i);
     }
 
     UNIT_ASSERT(s.size() == Utf8Text_.size());
     UNIT_ASSERT(s.size() == len);
 
-    for (int i = 0; i < static_cast<int>(s.size()); ++i) {
+    for (std::size_t i = 0; i < s.size(); ++i) {
         UNIT_ASSERT_VALUES_EQUAL(s[i], Utf8Text_[i]);
     }
 }
 
 void TConversionTest::TestGetNumOfUTF8Chars() {
-    size_t n = 0;
+    std::size_t n = 0;
     bool result = GetNumberOfUTF8Chars(Utf8Text_.c_str(), Utf8Text_.size(), n);
     UNIT_ASSERT(result);
     UNIT_ASSERT(n == 256);
@@ -662,7 +668,11 @@ class TWideUtilTest: public TTestBase {
 public:
     void TestCollapse() {
         std::u16string s;
-        s.append(ws, Y_ARRAY_SIZE(ws)).append(3, 'a').append(ws, Y_ARRAY_SIZE(ws)).append(3, 'b').append(ws, Y_ARRAY_SIZE(ws));
+        s.append(ws, Y_ARRAY_SIZE(ws))
+            .append(3, 'a')
+            .append(ws, Y_ARRAY_SIZE(ws))
+            .append(3, 'b')
+            .append(ws, Y_ARRAY_SIZE(ws));
         Collapse(s);
         UNIT_ASSERT(s == ASCIIToWide(" aaa bbb "));
         {
@@ -715,68 +725,72 @@ public:
 
     void TestCollapseBuffer() {
         std::u16string s;
-        s.append(ws, Y_ARRAY_SIZE(ws)).append(3, 'a').append(ws, Y_ARRAY_SIZE(ws)).append(3, 'b').append(ws, Y_ARRAY_SIZE(ws));
-        size_t n = Collapse(s.begin(), s.size());
+        s.append(ws, Y_ARRAY_SIZE(ws))
+            .append(3, 'a')
+            .append(ws, Y_ARRAY_SIZE(ws))
+            .append(3, 'b')
+            .append(ws, Y_ARRAY_SIZE(ws));
+        std::size_t n = Collapse(s.data(), s.size());
         s.resize(n);
         UNIT_ASSERT(s == ASCIIToWide(" aaa bbb "));
 
         s = ASCIIToWide(" a b c ");
-        n = Collapse(s.begin(), s.size());
+        n = Collapse(s.data(), s.size());
         UNIT_ASSERT(n == s.size()); // length was not changed
         UNIT_ASSERT(s == ASCIIToWide(" a b c "));
 
         s = ASCIIToWide("  123    456  ");
-        n = Collapse(s.begin(), s.size());
+        n = Collapse(s.data(), s.size());
         s.resize(n);
         UNIT_ASSERT(s == ASCIIToWide(" 123 456 "));
 
         s = ASCIIToWide("  1\n\n\n23\t    4\f\f56  ");
-        n = Collapse(s.begin(), s.size());
+        n = Collapse(s.data(), s.size());
         s.resize(n);
         UNIT_ASSERT(s == ASCIIToWide(" 1 23 4 56 "));
 
         s = ASCIIToWide(" 1\n\n\n\f\f56  ");
-        n = Collapse(s.begin(), s.size());
+        n = Collapse(s.data(), s.size());
         s.resize(n);
         UNIT_ASSERT(s == ASCIIToWide(" 1 56 "));
 
         s = ASCIIToWide("  1\r\n,\n(\n23\t    4\f\f56  ");
-        n = Collapse(s.begin(), s.size());
+        n = Collapse(s.data(), s.size());
         s.resize(n);
         UNIT_ASSERT(s == ASCIIToWide(" 1 , ( 23 4 56 "));
 
         s = ASCIIToWide("1 23  ");
-        n = Collapse(s.begin(), s.size());
+        n = Collapse(s.data(), s.size());
         s.resize(n);
         UNIT_ASSERT(s == ASCIIToWide("1 23 "));
 
         s = ASCIIToWide(" ");
-        n = Collapse(s.begin(), s.size());
+        n = Collapse(s.data(), s.size());
         UNIT_ASSERT(n == 1);
         UNIT_ASSERT(s == ASCIIToWide(" "));
 
         s = ASCIIToWide("   ");
-        n = Collapse(s.begin(), s.size());
+        n = Collapse(s.data(), s.size());
         s.resize(n);
         UNIT_ASSERT(s == ASCIIToWide(" "));
 
         s = ASCIIToWide(",\r\n\"");
-        n = Collapse(s.begin(), s.size());
+        n = Collapse(s.data(), s.size());
         s.resize(n);
         UNIT_ASSERT(s == ASCIIToWide(", \""));
 
         s = ASCIIToWide("-");
-        n = Collapse(s.begin(), s.size());
+        n = Collapse(s.data(), s.size());
         UNIT_ASSERT(n == 1);
         UNIT_ASSERT(s == ASCIIToWide("-"));
 
         s = ASCIIToWide("\t");
-        n = Collapse(s.begin(), s.size());
+        n = Collapse(s.data(), s.size());
         UNIT_ASSERT(n == 1);
         UNIT_ASSERT(s == ASCIIToWide(" "));
 
         s.clear();
-        n = Collapse(s.begin(), s.size());
+        n = Collapse(s.data(), s.size());
         UNIT_ASSERT(n == 0);
         UNIT_ASSERT(s == std::u16string());
     }
@@ -845,7 +859,9 @@ public:
         w.assign(std::u16string(1, '_')).append(ws, Y_ARRAY_SIZE(ws));
         UNIT_ASSERT(!IsSpace(w.c_str(), w.size()));
 
-        w.assign(ws, Y_ARRAY_SIZE(ws)).append(std::u16string(1, '$')).append(ws, Y_ARRAY_SIZE(ws));
+        w.assign(ws, Y_ARRAY_SIZE(ws))
+            .append(std::u16string(1, '$'))
+            .append(ws, Y_ARRAY_SIZE(ws));
         UNIT_ASSERT(!IsSpace(w.c_str(), w.size()));
     }
 
@@ -903,19 +919,21 @@ public:
     }
 
     void TestToLower() {
-        const size_t n = 32;
+        const std::size_t n = 32;
         wchar16 upperCase[n];
         std::copy(wideCyrillicAlphabet, wideCyrillicAlphabet + n, upperCase);
         ToLower(upperCase, n);
-        UNIT_ASSERT(std::u16string_view(upperCase, n) == std::u16string_view(wideCyrillicAlphabet + n, n));
+        UNIT_ASSERT(std::u16string_view(upperCase, n)
+                 == std::u16string_view(wideCyrillicAlphabet + n, n));
     }
 
     void TestToUpper() {
-        const size_t n = 32;
+        const std::size_t n = 32;
         wchar16 lowerCase[n];
         std::copy(wideCyrillicAlphabet + n, wideCyrillicAlphabet + n * 2, lowerCase);
         ToUpper(lowerCase, n);
-        UNIT_ASSERT(std::u16string_view(lowerCase, n) == std::u16string_view(wideCyrillicAlphabet, n));
+        UNIT_ASSERT(std::u16string_view(lowerCase, n)
+                 == std::u16string_view(wideCyrillicAlphabet, n));
     }
 
     void TestWideString() {
@@ -926,27 +944,27 @@ public:
         std::u16string temp;
 
         temp = original;
-        temp.to_lower();
+        ToLower(temp, 0, temp.size());
         UNIT_ASSERT(temp == lower);
 
         temp = original;
-        ToLower(temp.begin(), temp.size());
+        ToLower(temp.data(), temp.size());
         UNIT_ASSERT(temp == lower);
 
         temp = original;
-        temp.to_upper();
+        ToUpper(temp, 0, temp.size());
         UNIT_ASSERT(temp == upper);
 
         temp = original;
-        ToUpper(temp.begin(), temp.size());
+        ToUpper(temp.data(), temp.size());
         UNIT_ASSERT(temp == upper);
 
         temp = original;
-        temp.to_title();
+        ToTitle(temp, 0, temp.size());
         UNIT_ASSERT(temp == title);
 
         temp = original;
-        ToTitle(temp.begin(), temp.size());
+        ToTitle(temp.data(), temp.size());
         UNIT_ASSERT(temp == title);
 
         std::vector<wchar32> buffer(WideStringTestData[0], WideStringTestData[0] + CaseTestDataSize);
@@ -990,11 +1008,11 @@ public:
         // Also, test that a non-ASCII character will be detected regardless of its
         // position inside the string.
         {
-            const size_t stringLength = Y_ARRAY_SIZE(charAscii) - 1;
-            for (size_t offset = 0; offset < 8; ++offset) {
-                for (size_t len = 0, maxLen = stringLength - offset; len < maxLen; ++len) {
+            const std::size_t stringLength = Y_ARRAY_SIZE(charAscii) - 1;
+            for (std::size_t offset = 0; offset < 8; ++offset) {
+                for (std::size_t len = 0, maxLen = stringLength - offset; len < maxLen; ++len) {
                     UNIT_ASSERT(IsStringASCII(charAscii + offset, charAscii + offset + len));
-                    for (size_t charPos = offset; charPos < len; ++charPos) {
+                    for (std::size_t charPos = offset; charPos < len; ++charPos) {
                         charAscii[charPos] |= '\x80';
                         UNIT_ASSERT(!IsStringASCII(charAscii + offset, charAscii + offset + len));
                         charAscii[charPos] &= ~'\x80';
@@ -1004,12 +1022,12 @@ public:
         }
 
         {
-            const size_t stringLength = Y_ARRAY_SIZE(char16Ascii) - 1;
-            for (size_t offset = 0; offset < 4; ++offset) {
-                for (size_t len = 0, maxLen = stringLength - offset; len < maxLen; ++len) {
+            const std::size_t stringLength = Y_ARRAY_SIZE(char16Ascii) - 1;
+            for (std::size_t offset = 0; offset < 4; ++offset) {
+                for (std::size_t len = 0, maxLen = stringLength - offset; len < maxLen; ++len) {
                     UNIT_ASSERT(IsStringASCII(char16Ascii + offset, char16Ascii + offset + len));
 
-                    for (size_t charPos = offset; charPos < len; ++charPos) {
+                    for (std::size_t charPos = offset; charPos < len; ++charPos) {
                         char16Ascii[charPos] |= 0x80;
                         UNIT_ASSERT(
                             !IsStringASCII(char16Ascii + offset, char16Ascii + offset + len));
@@ -1116,38 +1134,37 @@ public:
     }
 
     void TestToLowerStr() {
-        // In these test and test for `ToUpper` and `ToTitle` we are checking that string keep
-        // pointing to the same piece of memory we are doing it the following way:
-        //
-        // std::u16string s = ...
-        // const auto copy = s;
-        // ...
-        // UNIT_ASSERT(s.data() == copy.data())
-        //
-        // It saves us a couple lines (we are reusing `copy` later) and if one day `std::string` will
-        // become non-refcounted we'll need to rewrite it to something like:
-        //
-        // std::u16string s = ...
-        // const auto* const data = s.data();
-        // const auto length = s.length();
-        // ...
-        // UNIT_ASSERT(s.data() == data);
-        // UNIT_ASSERT(s.length() == length);
+        // In these test and test for `ToUpper` and `ToTitle`
+        // we are checking that string keep pointing to the same piece of memory
         {
             std::u16string s;
             auto writableCopy = s;
             const auto copy = s;
             const std::u16string lower;
-
-            UNIT_ASSERT(!ToLower(s));
-            UNIT_ASSERT(s == lower);
-
-            UNIT_ASSERT(!ToLower(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == lower);
-
-            UNIT_ASSERT(!ToLower(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == lower);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToLower(s));
+                UNIT_ASSERT(s == lower);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToLower(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == lower);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToLower(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == lower);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToLowerRet(copy) == lower);
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
@@ -1156,16 +1173,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const std::u16string lower;
-
-            UNIT_ASSERT(!ToLower(s));
-            UNIT_ASSERT(s == lower);
-
-            UNIT_ASSERT(!ToLower(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == lower);
-
-            UNIT_ASSERT(!ToLower(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == lower);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToLower(s));
+                UNIT_ASSERT(s == lower);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToLower(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == lower);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToLower(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == lower);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToLowerRet(copy) == lower);
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
@@ -1173,10 +1204,14 @@ public:
             std::u16string s;
             const auto copy = s;
             const std::u16string lower;
-
-            UNIT_ASSERT(!ToLower(s, 100500));
-            UNIT_ASSERT(s == lower);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToLower(s, 100500));
+                UNIT_ASSERT(s == lower);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToLowerRet(copy, 100500) == lower);
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy), 100500) == lower);
         }
@@ -1184,10 +1219,14 @@ public:
             std::u16string s;
             const auto copy = s;
             const std::u16string lower;
-
-            UNIT_ASSERT(!ToLower(s, 100500, 1111));
-            UNIT_ASSERT(s == lower);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToLower(s, 100500, 1111));
+                UNIT_ASSERT(s == lower);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToLowerRet(copy, 100500, 1111) == lower);
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy), 100500, 1111) == lower);
         }
@@ -1196,16 +1235,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto lower = UTF8ToWide("й");
-
-            UNIT_ASSERT(ToLower(s));
-            UNIT_ASSERT(s == lower);
-
-            UNIT_ASSERT(ToLower(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == lower);
-
-            UNIT_ASSERT(ToLower(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == lower);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToLower(s));
+                UNIT_ASSERT(s == lower);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToLower(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == lower);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToLower(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == lower);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToLowerRet(copy) == lower);
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
@@ -1214,16 +1267,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto lower = UTF8ToWide("й");
-
-            UNIT_ASSERT(!ToLower(s));
-            UNIT_ASSERT(s == lower);
-
-            UNIT_ASSERT(!ToLower(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == lower);
-
-            UNIT_ASSERT(!ToLower(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == lower);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToLower(s));
+                UNIT_ASSERT(s == lower);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToLower(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == lower);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToLower(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == lower);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToLowerRet(copy) == lower);
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
@@ -1232,16 +1299,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto lower = UTF8ToWide("тест");
-
-            UNIT_ASSERT(!ToLower(s));
-            UNIT_ASSERT(s == lower);
-
-            UNIT_ASSERT(!ToLower(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == lower);
-
-            UNIT_ASSERT(!ToLower(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == lower);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToLower(s));
+                UNIT_ASSERT(s == lower);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToLower(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == lower);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToLower(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == lower);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToLowerRet(copy) == lower);
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
@@ -1250,16 +1331,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto lower = UTF8ToWide("тест");
-
-            UNIT_ASSERT(ToLower(s));
-            UNIT_ASSERT(s == lower);
-
-            UNIT_ASSERT(ToLower(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == lower);
-
-            UNIT_ASSERT(ToLower(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == lower);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToLower(s));
+                UNIT_ASSERT(s == lower);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToLower(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == lower);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToLower(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == lower);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToLowerRet(copy) == lower);
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
@@ -1267,10 +1362,14 @@ public:
             std::u16string s = UTF8ToWide("тЕст");
             const auto copy = s;
             const auto lower = UTF8ToWide("тест");
-
-            UNIT_ASSERT(ToLower(s));
-            UNIT_ASSERT(s == UTF8ToWide("тест"));
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToLower(s));
+                UNIT_ASSERT(s == UTF8ToWide("тест"));
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToLowerRet(copy) == lower);
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy)) == lower);
         }
@@ -1278,10 +1377,14 @@ public:
             auto s = UTF8ToWide("тЕст");
             const auto copy = s;
             const auto lower = UTF8ToWide("тЕст");
-
-            UNIT_ASSERT(!ToLower(s, 2));
-            UNIT_ASSERT(s == lower);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToLower(s, 2));
+                UNIT_ASSERT(s == lower);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToLowerRet(copy, 2) == lower);
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy), 2) == lower);
         }
@@ -1289,10 +1392,14 @@ public:
             auto s = UTF8ToWide("теСт");
             const auto copy = s;
             const auto lower = UTF8ToWide("тест");
-
-            UNIT_ASSERT(ToLower(s, 2));
-            UNIT_ASSERT(s == lower);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToLower(s, 2));
+                UNIT_ASSERT(s == lower);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToLowerRet(copy, 2) == lower);
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy), 2) == lower);
         }
@@ -1300,10 +1407,14 @@ public:
             auto s = UTF8ToWide("теСт");
             const auto copy = s;
             const auto lower = UTF8ToWide("теСт");
-
-            UNIT_ASSERT(!ToLower(s, 3, 1));
-            UNIT_ASSERT(s == copy);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToLower(s, 3, 1));
+                UNIT_ASSERT(s == copy);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToLowerRet(copy, 3, 1) == lower);
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy), 3, 1) == lower);
         }
@@ -1311,10 +1422,14 @@ public:
             auto s = UTF8ToWide("теСт");
             const auto copy = s;
             const auto lower = UTF8ToWide("теСт");
-
-            UNIT_ASSERT(!ToLower(s, 3, 100500));
-            UNIT_ASSERT(s == copy);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToLower(s, 3, 100500));
+                UNIT_ASSERT(s == copy);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToLowerRet(copy, 3, 100500) == lower);
             UNIT_ASSERT(ToLowerRet(std::u16string_view(copy), 3, 100500) == lower);
         }
@@ -1326,16 +1441,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const std::u16string upper;
-
-            UNIT_ASSERT(!ToUpper(s));
-            UNIT_ASSERT(s == upper);
-
-            UNIT_ASSERT(!ToUpper(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == upper);
-
-            UNIT_ASSERT(!ToUpper(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == upper);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToUpper(s));
+                UNIT_ASSERT(s == upper);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToUpper(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToUpper(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToUpperRet(copy) == upper);
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
@@ -1344,16 +1473,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const std::u16string upper;
-
-            UNIT_ASSERT(!ToUpper(s));
-            UNIT_ASSERT(s == upper);
-
-            UNIT_ASSERT(!ToUpper(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == upper);
-
-            UNIT_ASSERT(!ToUpper(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == upper);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToUpper(s));
+                UNIT_ASSERT(s == upper);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToUpper(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToUpper(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToUpperRet(copy) == upper);
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
@@ -1362,16 +1505,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const std::u16string upper;
-
-            UNIT_ASSERT(!ToUpper(s, 100500));
-            UNIT_ASSERT(s == upper);
-
-            UNIT_ASSERT(!ToUpper(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == upper);
-
-            UNIT_ASSERT(!ToUpper(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == upper);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToUpper(s, 100500));
+                UNIT_ASSERT(s == upper);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToUpper(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToUpper(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToUpperRet(copy, 100500) == upper);
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy), 100500) == upper);
         }
@@ -1379,10 +1536,14 @@ public:
             std::u16string s;
             const auto copy = s;
             const std::u16string upper;
-
-            UNIT_ASSERT(!ToUpper(s, 100500, 1111));
-            UNIT_ASSERT(s == upper);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToUpper(s, 100500, 1111));
+                UNIT_ASSERT(s == upper);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToUpperRet(copy, 100500, 1111) == upper);
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy), 100500, 1111) == upper);
         }
@@ -1391,16 +1552,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto upper = UTF8ToWide("Й");
-
-            UNIT_ASSERT(ToUpper(s));
-            UNIT_ASSERT(s == upper);
-
-            UNIT_ASSERT(ToUpper(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == upper);
-
-            UNIT_ASSERT(ToUpper(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == upper);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToUpper(s));
+                UNIT_ASSERT(s == upper);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToUpper(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToUpper(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToUpperRet(copy) == upper);
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
@@ -1409,16 +1584,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto upper = UTF8ToWide("Й");
-
-            UNIT_ASSERT(!ToUpper(s));
-            UNIT_ASSERT(s == copy);
-
-            UNIT_ASSERT(!ToUpper(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == upper);
-
-            UNIT_ASSERT(!ToUpper(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == upper);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToUpper(s));
+                UNIT_ASSERT(s == copy);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToUpper(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToUpper(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToUpperRet(copy) == upper);
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
@@ -1427,16 +1616,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto upper = UTF8ToWide("ТЕСТ");
-
-            UNIT_ASSERT(ToUpper(s));
-            UNIT_ASSERT(s == upper);
-
-            UNIT_ASSERT(ToUpper(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == upper);
-
-            UNIT_ASSERT(ToUpper(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == upper);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToUpper(s));
+                UNIT_ASSERT(s == upper);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToUpper(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToUpper(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToUpperRet(copy) == upper);
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
@@ -1445,16 +1648,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto upper = UTF8ToWide("ТЕСТ");
-
-            UNIT_ASSERT(ToUpper(s));
-            UNIT_ASSERT(s == upper);
-
-            UNIT_ASSERT(ToUpper(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == upper);
-
-            UNIT_ASSERT(ToUpper(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == upper);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToUpper(s));
+                UNIT_ASSERT(s == upper);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToUpper(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToUpper(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToUpperRet(copy) == upper);
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
@@ -1463,16 +1680,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto upper = UTF8ToWide("ТЕСТ");
-
-            UNIT_ASSERT(ToUpper(s));
-            UNIT_ASSERT(s == upper);
-
-            UNIT_ASSERT(ToUpper(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == upper);
-
-            UNIT_ASSERT(ToUpper(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == upper);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToUpper(s));
+                UNIT_ASSERT(s == upper);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToUpper(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToUpper(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == upper);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToUpperRet(copy) == upper);
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy)) == upper);
         }
@@ -1480,10 +1711,14 @@ public:
             auto s = UTF8ToWide("тЕст");
             const auto copy = s;
             const auto upper = UTF8ToWide("тЕСТ");
-
-            UNIT_ASSERT(ToUpper(s, 2));
-            UNIT_ASSERT(s == upper);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToUpper(s, 2));
+                UNIT_ASSERT(s == upper);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToUpperRet(copy, 2) == upper);
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy), 2) == upper);
         }
@@ -1491,10 +1726,14 @@ public:
             auto s = UTF8ToWide("теСт");
             const auto copy = s;
             const auto upper = UTF8ToWide("теСТ");
-
-            UNIT_ASSERT(ToUpper(s, 2));
-            UNIT_ASSERT(s == upper);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToUpper(s, 2));
+                UNIT_ASSERT(s == upper);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToUpperRet(copy, 2) == upper);
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy), 2) == upper);
         }
@@ -1502,10 +1741,14 @@ public:
             auto s = UTF8ToWide("теСт");
             const auto copy = s;
             const auto upper = UTF8ToWide("теСТ");
-
-            UNIT_ASSERT(ToUpper(s, 3, 1));
-            UNIT_ASSERT(s == upper);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToUpper(s, 3, 1));
+                UNIT_ASSERT(s == upper);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToUpperRet(copy, 3, 1) == upper);
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy), 3, 1) == upper);
         }
@@ -1513,10 +1756,14 @@ public:
             auto s = UTF8ToWide("теСт");
             const auto copy = s;
             const auto upper = UTF8ToWide("теСТ");
-
-            UNIT_ASSERT(ToUpper(s, 3, 100500));
-            UNIT_ASSERT(s == upper);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToUpper(s, 3, 100500));
+                UNIT_ASSERT(s == upper);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToUpperRet(copy, 3, 100500) == upper);
             UNIT_ASSERT(ToUpperRet(std::u16string_view(copy), 3, 100500) == upper);
         }
@@ -1528,16 +1775,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const std::u16string title;
-
-            UNIT_ASSERT(!ToTitle(s));
-            UNIT_ASSERT(s == title);
-
-            UNIT_ASSERT(!ToTitle(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == title);
-
-            UNIT_ASSERT(!ToTitle(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == title);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToTitle(s));
+                UNIT_ASSERT(s == title);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToTitle(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToTitle(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToTitleRet(copy) == title);
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
@@ -1546,16 +1807,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const std::u16string title;
-
-            UNIT_ASSERT(!ToTitle(s));
-            UNIT_ASSERT(s == title);
-
-            UNIT_ASSERT(!ToTitle(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == title);
-
-            UNIT_ASSERT(!ToTitle(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == title);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToTitle(s));
+                UNIT_ASSERT(s == title);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToTitle(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToTitle(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToTitleRet(copy) == title);
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
@@ -1563,10 +1838,14 @@ public:
             std::u16string s;
             const auto copy = s;
             const std::u16string title;
-
-            UNIT_ASSERT(!ToTitle(s, 100500));
-            UNIT_ASSERT(s == title);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToTitle(s, 100500));
+                UNIT_ASSERT(s == title);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToTitleRet(copy) == title);
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
@@ -1574,10 +1853,14 @@ public:
             std::u16string s;
             const auto copy = s;
             const std::u16string title;
-
-            UNIT_ASSERT(!ToTitle(s, 100500, 1111));
-            UNIT_ASSERT(s == title);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToTitle(s, 100500, 1111));
+                UNIT_ASSERT(s == title);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToTitleRet(copy) == title);
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
@@ -1586,16 +1869,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto title = UTF8ToWide("Й");
-
-            UNIT_ASSERT(ToTitle(s));
-            UNIT_ASSERT(s == title);
-
-            UNIT_ASSERT(ToTitle(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == title);
-
-            UNIT_ASSERT(ToTitle(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == title);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToTitle(s));
+                UNIT_ASSERT(s == title);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToTitle(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToTitle(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToTitleRet(copy) == title);
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
@@ -1604,16 +1901,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto title = UTF8ToWide("Й");
-
-            UNIT_ASSERT(!ToTitle(s));
-            UNIT_ASSERT(s == title);
-
-            UNIT_ASSERT(!ToTitle(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == title);
-
-            UNIT_ASSERT(!ToTitle(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == title);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToTitle(s));
+                UNIT_ASSERT(s == title);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToTitle(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToTitle(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToTitleRet(copy) == title);
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
@@ -1622,16 +1933,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto title = UTF8ToWide("Тест");
-
-            UNIT_ASSERT(ToTitle(s));
-            UNIT_ASSERT(s == title);
-
-            UNIT_ASSERT(ToTitle(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == title);
-
-            UNIT_ASSERT(ToTitle(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == title);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToTitle(s));
+                UNIT_ASSERT(s == title);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToTitle(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToTitle(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToTitleRet(copy) == title);
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
@@ -1640,16 +1965,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto title = UTF8ToWide("Тест");
-
-            UNIT_ASSERT(!ToTitle(s));
-            UNIT_ASSERT(s == title);
-
-            UNIT_ASSERT(!ToTitle(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == title);
-
-            UNIT_ASSERT(!ToTitle(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == title);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToTitle(s));
+                UNIT_ASSERT(s == title);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToTitle(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(!ToTitle(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToTitleRet(copy) == title);
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
@@ -1658,16 +1997,30 @@ public:
             auto writableCopy = s;
             const auto copy = s;
             const auto title = UTF8ToWide("Тест");
-
-            UNIT_ASSERT(ToTitle(s));
-            UNIT_ASSERT(s == title);
-
-            UNIT_ASSERT(ToTitle(writableCopy.Detach(), writableCopy.size()));
-            UNIT_ASSERT(writableCopy == title);
-
-            UNIT_ASSERT(ToTitle(copy.data(), copy.size(), writableCopy.Detach()));
-            UNIT_ASSERT(writableCopy == title);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToTitle(s));
+                UNIT_ASSERT(s == title);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToTitle(writableCopy.data(), writableCopy.size()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
+            {
+                const auto data = writableCopy.data();
+                const auto size = writableCopy.size();
+                UNIT_ASSERT(ToTitle(copy.data(), copy.size(), writableCopy.data()));
+                UNIT_ASSERT(writableCopy == title);
+                UNIT_ASSERT(writableCopy.data() == data);
+                UNIT_ASSERT(writableCopy.size() == size);
+            }
             UNIT_ASSERT(ToTitleRet(copy) == title);
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy)) == title);
         }
@@ -1675,10 +2028,14 @@ public:
             auto s = UTF8ToWide("тЕст");
             const auto copy = s;
             const auto title = UTF8ToWide("тЕСт");
-
-            UNIT_ASSERT(ToTitle(s, 2));
-            UNIT_ASSERT(s == title);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToTitle(s, 2));
+                UNIT_ASSERT(s == title);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToTitleRet(copy, 2) == title);
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy), 2) == title);
         }
@@ -1686,10 +2043,14 @@ public:
             auto s = UTF8ToWide("теСт");
             const auto copy = s;
             const auto title = UTF8ToWide("теСт");
-
-            UNIT_ASSERT(!ToTitle(s, 2));
-            UNIT_ASSERT(s == title);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(!ToTitle(s, 2));
+                UNIT_ASSERT(s == title);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToTitleRet(copy, 2) == title);
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy), 2) == title);
         }
@@ -1697,10 +2058,14 @@ public:
             auto s = UTF8ToWide("теСт");
             const auto copy = s;
             const auto title = UTF8ToWide("теСТ");
-
-            UNIT_ASSERT(ToTitle(s, 3, 1));
-            UNIT_ASSERT(s == title);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToTitle(s, 3, 1));
+                UNIT_ASSERT(s == title);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToTitleRet(copy, 3, 1) == title);
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy), 3, 1) == title);
         }
@@ -1708,10 +2073,14 @@ public:
             auto s = UTF8ToWide("теСт");
             const auto copy = s;
             const auto title = UTF8ToWide("теСТ");
-
-            UNIT_ASSERT(ToTitle(s, 3, 100500));
-            UNIT_ASSERT(s == title);
-
+            {
+                const auto data = s.data();
+                const auto size = s.size();
+                UNIT_ASSERT(ToTitle(s, 3, 100500));
+                UNIT_ASSERT(s == title);
+                UNIT_ASSERT(s.data() == data);
+                UNIT_ASSERT(s.size() == size);
+            }
             UNIT_ASSERT(ToTitleRet(copy, 3, 100500) == title);
             UNIT_ASSERT(ToTitleRet(std::u16string_view(copy), 3, 100500) == title);
         }
