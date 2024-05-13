@@ -1,9 +1,9 @@
-/* 
+/*
  * MD5 hash in C
  * 
  * Copyright (c) 2023 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to
@@ -29,7 +29,7 @@ void md5_compress(const uint8_t block[64], uint32_t state[4]) {
 		            | (uint32_t)block[i * 4 + 1] <<  8  \
 		            | (uint32_t)block[i * 4 + 2] << 16  \
 		            | (uint32_t)block[i * 4 + 3] << 24;
-	
+
 	uint32_t schedule[16];
 	LOADSCHEDULE( 0)
 	LOADSCHEDULE( 1)
@@ -47,7 +47,7 @@ void md5_compress(const uint8_t block[64], uint32_t state[4]) {
 	LOADSCHEDULE(13)
 	LOADSCHEDULE(14)
 	LOADSCHEDULE(15)
-	
+
 	#define ROTL32(x, n)  (((0U + (x)) << (n)) | ((x) >> (32 - (n))))  // Assumes that x is uint32_t and 0 < n < 32
 	#define ROUND0(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, d ^ (b & (c ^ d)), k, s, t)
 	#define ROUND1(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, c ^ (d & (b ^ c)), k, s, t)
@@ -56,12 +56,12 @@ void md5_compress(const uint8_t block[64], uint32_t state[4]) {
 	#define ROUND_TAIL(a, b, expr, k, s, t)    \
 		a = 0U + a + (expr) + UINT32_C(t) + schedule[k];  \
 		a = 0U + b + ROTL32(a, s);
-	
+
 	uint32_t a = state[0];
 	uint32_t b = state[1];
 	uint32_t c = state[2];
 	uint32_t d = state[3];
-	
+
 	ROUND0(a, b, c, d,  0,  7, 0xD76AA478)
 	ROUND0(d, a, b, c,  1, 12, 0xE8C7B756)
 	ROUND0(c, d, a, b,  2, 17, 0x242070DB)
@@ -126,7 +126,7 @@ void md5_compress(const uint8_t block[64], uint32_t state[4]) {
 	ROUND3(d, a, b, c, 11, 10, 0xBD3AF235)
 	ROUND3(c, d, a, b,  2, 15, 0x2AD7D2BB)
 	ROUND3(b, c, d, a,  9, 21, 0xEB86D391)
-	
+
 	state[0] = 0U + state[0] + a;
 	state[1] = 0U + state[1] + b;
 	state[2] = 0U + state[2] + c;
