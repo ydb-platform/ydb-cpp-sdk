@@ -123,13 +123,13 @@ void MD5::UpdatePart(std::span<const ui8> data) {
         data = data.subspan(partLen);
         if (BufferSize == MD5_BLOCK_LENGTH) {
             /* Buffer is full and ready for hashing */
-            md5_compress(State, Buffer);
+            md5_compress(Buffer, State);
             BufferSize = 0;
         }
     }
     /* Processing input by chanks */
     while (data.size() >= MD5_BLOCK_LENGTH) {
-        md5_compress(State, data.data());
+        md5_compress(data.data(), State);
         data = data.subspan(MD5_BLOCK_LENGTH);
     }
     /* Save remaining input in buffer */
@@ -154,7 +154,7 @@ void MD5::Pad() {
         // Storing in reverse order
         Buffer[MD5_PADDING_SHIFT + i] = static_cast<ui8>(streamSize & 0xFFU);
     }
-    md5_compress(State, Buffer);
+    md5_compress(Buffer, State);
 }
 
 /*

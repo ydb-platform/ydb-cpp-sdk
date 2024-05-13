@@ -23,8 +23,7 @@
 
 #include "nayuki_md5.h"
 
-
-void md5_compress(uint32_t state[4], const uint8_t block[64]) {
+void md5_compress(const uint8_t block[64], uint32_t state[4]) {
 	#define LOADSCHEDULE(i)  \
 		schedule[i] = (uint32_t)block[i * 4 + 0] <<  0  \
 		            | (uint32_t)block[i * 4 + 1] <<  8  \
