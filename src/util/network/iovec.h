@@ -15,6 +15,37 @@
 
 namespace NUtils::NIOVector {
 
+    /**
+     * @brief Compatibility traits for adapting two span-like types.
+     * 
+     * This class and its couple `With` take two types and additional non-type
+     * parameters, respectively.
+     * 
+     * The first type is a span-like type that's used in C system calls
+     * like `readv`, `writev`. Its additional non-type parameteres are pointers
+     * to non-static data members (the pointer and the length), and the maximal
+     * number of instances of this span-like type, that can be processed
+     * by C system call at once.
+     *
+     * The second type is a span-like type that's used as a higher-level abstraction
+     * in the rest of the current library. Its additional non-type parameters are
+     * pointers to non-static data members (the pointer and the length) OR
+     * pointers to non-static methods (getters of the pointer and the length),
+     * and an optional boolean hint value that says if the offsets of non-static
+     * data members of the first and second type are compatible (for example,
+     * by using macros `offsetof`).
+     *
+     * Usage:
+     * @code{.cpp}
+     * using TTraits =
+     *         TSpanAdapterTraits<Type1, &Type1::Ptr, &Type1::Length, 1024>
+     *             ::With<Type2, &Type2::Ptr, &Type2::Length,
+     *                    offsetof(Type1, Ptr) == offsetof(Type2, Ptr)
+     *                        && offsetof(Type1, Length) == offsetof(Type2, Length)>;
+     * @endcode
+     *
+     * This couple gives useful type aliases and methods.
+     */
     template <typename CSpan,
               auto CSpan::* CPtrToMemPtrBase, auto CSpan::* CPtrToMemLength,
               std::size_t CMaxCount = std::numeric_limits<std::size_t>::max()>
@@ -236,6 +267,24 @@ namespace NUtils::NIOVector {
             static inline const bool IsCompatibleByRuntime =
                     IsCompatibleByCompileTime
                         || (AreCommonTraitsCompatible && IsCompatibleImpl());
+
+            static void Copy(LowLevel::Type* to, const HighLevel::Type* from, std::size_t count) {
+                const auto bytes = count * sizeof(typename LowLevel::Type);
+
+                if constexpr (IsCompatibilityKnownInCompileTime) {
+                    if constexpr (IsCompatibleByCompileTime) {
+                        std::memcpy(to, from, bytes);
+                    } else {
+                        std::transform(from, from + count, to, Make);
+                    }
+                } else {
+                    if (IsCompatibleByRuntime) {
+                        std::memcpy(to, from, bytes);
+                    } else {
+                        std::transform(from, from + count, to, Make);
+                    }
+                }
+            }
         };
     };
 
@@ -282,7 +331,7 @@ namespace NUtils::NIOVector {
             return Count_;
         }
 
-        void Proceed(std::size_t processed_bytes) {
+        void Proceed(std::size_t processed_bytes) noexcept {
             using L = LowLevel;
 
             for (; Count_ != 0; processed_bytes -= L::Length(*Current_), ++Current_, --Count_) {
@@ -305,22 +354,7 @@ namespace NUtils::NIOVector {
         requires std::is_same_v<typename TCompatibilityTraits::LowLevel::Type,
                                 typename LowLevel::Type>
         void Populate(const TCompatibilityTraits::HighLevel::Type* cxx_span, std::size_t count) {
-            count = std::min(count, Count_);
-            const auto bytes = count * sizeof(typename TCompatibilityTraits::LowLevel::Type);
-
-            if constexpr (TCompatibilityTraits::IsCompatibilityKnownInCompileTime) {
-                if constexpr (TCompatibilityTraits::IsCompatibleByCompileTime) {
-                    std::memcpy(Current_, cxx_span, bytes);
-                } else {
-                    std::transform(cxx_span, cxx_span + count, Current_, TCompatibilityTraits::Make);
-                }
-            } else {
-                if (TCompatibilityTraits::IsCompatibleByRuntime) {
-                    std::memcpy(Current_, cxx_span, bytes);
-                } else {
-                    std::transform(cxx_span, cxx_span + count, Current_, TCompatibilityTraits::Make);
-                }
-            }
+            TCompatibilityTraits::Copy(Current_, cxx_span, std::min(count, Count_));
         }
 
         void Swap(TContIOVectorBase& rhs) noexcept {

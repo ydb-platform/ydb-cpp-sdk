@@ -122,6 +122,7 @@ target_joined_source(yutil
   ${YDB_SDK_SOURCE_DIR}/src/util/network/pollerimpl.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/network/sock.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/network/socket.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/vectored_io.cpp
 )
 target_joined_source(yutil
   all_random.cpp
