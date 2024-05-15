@@ -1,27 +1,16 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/memory/tempbuf.h>
-#include <ydb-cpp-sdk/util/stream/output.h>
-#include <ydb-cpp-sdk/util/system/platform.h>
-#include <ydb-cpp-sdk/util/system/types.h>
+#include "ydb-cpp-sdk/util/network/init.h"
 #include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <algorithm>
 #include <array>
 #include <bit>
-#include <climits>
 #include <cstddef>
 #include <cstring>
 #include <limits>
 #include <type_traits>
-
-#if !defined(_win_)
-    #include <sys/uio.h>    
-#else // defined(_win_)
-    #include <basetsd.h>
-    #include <errno.h>
-    #include <winsock2.h>
-#endif // defined(_win_)
 
 
 namespace NUtils::NIOVector {
@@ -257,7 +246,7 @@ namespace NUtils::NIOVector {
         std::size_t Count_;
 
     public:
-        TContIOVectorBase(std::size_t count)
+        explicit TContIOVectorBase(std::size_t count)
                 : Buffer_(count)
                 , Current_(new(Buffer_.Data()) LowLevel::Type[count])
                 , Count_(count) {
@@ -361,12 +350,12 @@ namespace NUtils::NIOVector {
 
     public: // Processing bytes
         
-        ssize_t TryProcess(int socket) noexcept(IsNothrowHandler) {
+        ssize_t TryProcess(SOCKET socket) noexcept(IsNothrowHandler) {
             return THandler{}(socket, Base::Current(),
                               std::min(Base::Count(), TCompatibilityTraits::LowLevel::MaxCount));
         }
 
-        Result TryProcessAllBytes(int socket) noexcept(IsNothrowHandler) {
+        Result TryProcessAllBytes(SOCKET socket) noexcept(IsNothrowHandler) {
             Result result;
             auto response = TryProcess(socket);
             if (response < 0) {
@@ -388,62 +377,6 @@ namespace NUtils::NIOVector {
                 result.processed_bytes += response;
             }
             return result;
-        }
-    };
-
-    using TPart = IOutputStream::TPart;
-
-    using TIOVectorAdaptorTraits =
-#if !defined(_win_)
-            TSpanAdapterTraits<iovec, &iovec::iov_base, &iovec::iov_len, IOV_MAX>
-                ::With<TPart, &TPart::buf, &TPart::len,
-                    offsetof(TPart, buf) == offsetof(iovec, iov_base)
-                        && offsetof(TPart, len) == offsetof(iovec, iov_len)>;
-#else // defined(_win_)
-            TSpanAdapterTraits<WSABUF, &WSABUF::buf, &WSABUF::len, INT_MAX>
-                ::With<TPart, &TPart::buf, &TPart::len,
-                    offsetof(TPart, buf) == offsetof(WSABUF, buf)
-                        && offsetof(TPart, len) == offsetof(WSABUF, len)>;
-#endif // defined(_win_)
-
-    struct TReadVHandler {
-        using IOVector = TIOVectorAdaptorTraits::LowLevel::Type;
-
-        ssize_t operator()(int socket, const IOVector* to, std::size_t count) const noexcept {
-#if !defined(_win_)
-            return readv(socket, to, static_cast<int>(count));
-#else // defined(_win_)
-            DWORD n_bytes_recv;
-            DWORD flags = 0;
-            const int res = WSARecv(static_cast<SOCKET>(socket),
-                                    iovecs, static_cast<DWORD>(n_iovecs),
-                                    &n_bytes_recv, &flags, nullptr, nullptr);
-            if (res == SOCKET_ERROR) {
-                errno = EIO;
-                return -1;
-            }
-            return n_bytes_recv;
-#endif // defined(_win_)
-        }
-    };
-
-    struct TWriteVHandler {
-        using IOVector = TIOVectorAdaptorTraits::LowLevel::Type;
-
-        ssize_t operator()(int socket, const IOVector* from, std::size_t count) const noexcept {
-#if !defined(_win_)
-            return writev(socket, from, static_cast<int>(count));
-#else // defined(_win_)
-            DWORD n_bytes_recv;
-            const int res = WSASend(static_cast<SOCKET>(socket),
-                                    iovecs, static_cast<DWORD>(n_iovecs),
-                                    &n_bytes_recv, 0, nullptr, nullptr);
-            if (res == SOCKET_ERROR) {
-                errno = EIO;
-                return -1;
-            }
-            return n_bytes_recv;
-#endif // defined(_win_)
         }
     };
 

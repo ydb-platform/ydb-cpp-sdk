@@ -1,5 +1,5 @@
 #include "pollerimpl.h"
-#include "iovec.h"
+#include "vectored_io.h"
 
 #include <src/util/system/datetime.h>
 
@@ -59,23 +59,15 @@ namespace {
             ssize_t result = -1;
             do {
 #if !defined(_win_)
-                struct msghdr message;
+                msghdr message;
 
                 Zero(message);
-                message.msg_iov = const_cast<struct iovec*>(from);
+                message.msg_iov = const_cast<IOVector*>(from);
                 message.msg_iovlen = count;
 
                 result = sendmsg(socket, &message, MSG_NOSIGNAL);
 #else // defined(_win_)
-                DWORD n_bytes_recv;
-                result = WSASend(static_cast<SOCKET>(socket),
-                                 from, static_cast<DWORD>(count),
-                                 &n_bytes_recv, 0, nullptr, nullptr);
-                if (result == SOCKET_ERROR) {
-                    errno = EIO;
-                    result = -1;
-                }
-                result = n_bytes_recv;
+                result = NUtils::NIOVector::TWriteVHandler{}(socket, from, count);
 #endif // defined(_win_)
             } while (result == -1 && errno == EINTR);
 
@@ -86,8 +78,7 @@ namespace {
         }
     };
 
-    using TContIOVector = NUtils::NIOVector::TContIOVector<
-            NUtils::NIOVector::TIOVectorAdaptorTraits, TSendMsgHandler>;
+    using TContIOVector = NUtils::NIOVector::TContIOVectorWith<TSendMsgHandler>;
 
 } // namespace
 
@@ -771,8 +762,7 @@ public:
     }
 
     ssize_t SendV(SOCKET fd, const TPart* parts, size_t count) override {
-        TContIOVector iov(parts, count);
-        const auto result = iov.TryProcessAllBytes(fd);
+        const auto result = TContIOVector(parts, count).TryProcessAllBytes(fd);
         return result.error == 0 ? result.processed_bytes : result.error;
     }
 };

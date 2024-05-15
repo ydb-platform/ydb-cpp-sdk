@@ -2,7 +2,7 @@
 
 #include "iostatus.h"
 
-#include <src/util/network/iovec.h>
+#include <src/util/network/vectored_io.h>
 #include <src/util/network/nonblock.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
@@ -13,13 +13,8 @@ class TCont;
 
 namespace NCoro {
 
-    using TContIOVectorReader = NUtils::NIOVector::TContIOVector<
-            NUtils::NIOVector::TIOVectorAdaptorTraits,
-            NUtils::NIOVector::TReadVHandler>;
-
-    using TContIOVectorWriter = NUtils::NIOVector::TContIOVector<
-            NUtils::NIOVector::TIOVectorAdaptorTraits,
-            NUtils::NIOVector::TWriteVHandler>;
+    using TContIOVectorReader = NUtils::NIOVector::TContIOVectorReader;
+    using TContIOVectorWriter = NUtils::NIOVector::TContIOVectorWriter;
 
     int SelectD(TCont* cont, SOCKET fds[], int what[], size_t nfds, SOCKET* outfd, TInstant deadline) noexcept;
     int SelectT(TCont* cont, SOCKET fds[], int what[], size_t nfds, SOCKET* outfd, TDuration timeout) noexcept;
