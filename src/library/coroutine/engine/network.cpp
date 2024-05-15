@@ -2,30 +2,18 @@
 #include "network.h"
 
 #include <src/util/generic/scope.h>
+
 #include <ydb-cpp-sdk/util/generic/xrange.h>
 
-#include <sys/uio.h>
-
-#if defined(_bionic_)
-#   define IOV_MAX 1024
-#endif
-
-
 namespace NCoro {
+
     namespace {
+
         bool IsBlocked(int lasterr) noexcept {
             return lasterr == EAGAIN || lasterr == EWOULDBLOCK;
         }
 
-        ssize_t DoReadVector(SOCKET fd, TContIOVector* vec) noexcept {
-            return readv(fd, (const iovec*) vec->Parts(), Min(IOV_MAX, (int) vec->Count()));
-        }
-
-        ssize_t DoWriteVector(SOCKET fd, TContIOVector* vec) noexcept {
-            return writev(fd, (const iovec*) vec->Parts(), Min(IOV_MAX, (int) vec->Count()));
-        }
-    }
-
+    } // namespace
 
     int SelectD(TCont* cont, SOCKET fds[], int what[], size_t nfds, SOCKET* outfd, TInstant deadline) noexcept {
         if (cont->Cancelled()) {
@@ -109,12 +97,12 @@ namespace NCoro {
     }
 
 
-    TContIOStatus ReadVectorD(TCont* cont, SOCKET fd, TContIOVector* vec, TInstant deadline) noexcept {
+    TContIOStatus ReadVectorD(TCont* cont, SOCKET fd, TContIOVectorReader* vec, TInstant deadline) noexcept {
         while (true) {
-            ssize_t res = DoReadVector(fd, vec);
+            ssize_t res = vec->TryProcess(fd);
 
             if (res >= 0) {
-                return TContIOStatus::Success((size_t) res);
+                return TContIOStatus::Success(static_cast<size_t>(res));
             }
 
             {
@@ -126,23 +114,23 @@ namespace NCoro {
             }
 
             if ((res = PollD(cont, fd, CONT_POLL_READ, deadline)) != 0) {
-                return TContIOStatus::Error((int) res);
+                return TContIOStatus::Error(static_cast<int>(res));
             }
         }
     }
 
-    TContIOStatus ReadVectorT(TCont* cont, SOCKET fd, TContIOVector* vec, TDuration timeOut) noexcept {
+    TContIOStatus ReadVectorT(TCont* cont, SOCKET fd, TContIOVectorReader* vec, TDuration timeOut) noexcept {
         return ReadVectorD(cont, fd, vec, timeOut.ToDeadLine());
     }
 
-    TContIOStatus ReadVectorI(TCont* cont, SOCKET fd, TContIOVector* vec) noexcept {
+    TContIOStatus ReadVectorI(TCont* cont, SOCKET fd, TContIOVectorReader* vec) noexcept {
         return ReadVectorD(cont, fd, vec, TInstant::Max());
     }
 
 
     TContIOStatus ReadD(TCont* cont, SOCKET fd, void* buf, size_t len, TInstant deadline) noexcept {
         IOutputStream::TPart part(buf, len);
-        TContIOVector vec(&part, 1);
+        TContIOVectorReader vec(&part, 1);
         return ReadVectorD(cont, fd, &vec, deadline);
     }
 
@@ -155,16 +143,12 @@ namespace NCoro {
     }
 
 
-    TContIOStatus WriteVectorD(TCont* cont, SOCKET fd, TContIOVector* vec, TInstant deadline) noexcept {
-        size_t written = 0;
-
+    TContIOStatus WriteVectorD(TCont* cont, SOCKET fd, TContIOVectorWriter* vec, TInstant deadline) noexcept {
+        ssize_t written = 0;
         while (!vec->Complete()) {
-            ssize_t res = DoWriteVector(fd, vec);
-
-            if (res >= 0) {
-                written += res;
-
-                vec->Proceed((size_t) res);
+            const auto result = vec->TryProcessAllBytes(fd);
+            if (result.error >= 0) {
+                written += result.processed_bytes;
             } else {
                 {
                     const int err = LastSystemError();
@@ -174,27 +158,26 @@ namespace NCoro {
                     }
                 }
 
-                if ((res = PollD(cont, fd, CONT_POLL_WRITE, deadline)) != 0) {
-                    return TContIOStatus(written, (int) res);
+                if (const auto res = PollD(cont, fd, CONT_POLL_WRITE, deadline); res != 0) {
+                    return TContIOStatus(written, static_cast<int>(res));
                 }
             }
         }
-
-        return TContIOStatus::Success(written);
+        return TContIOStatus::Success(static_cast<size_t>(written));
     }
 
-    TContIOStatus WriteVectorT(TCont* cont, SOCKET fd, TContIOVector* vec, TDuration timeOut) noexcept {
+    TContIOStatus WriteVectorT(TCont* cont, SOCKET fd, TContIOVectorWriter* vec, TDuration timeOut) noexcept {
         return WriteVectorD(cont, fd, vec, timeOut.ToDeadLine());
     }
 
-    TContIOStatus WriteVectorI(TCont* cont, SOCKET fd, TContIOVector* vec) noexcept {
+    TContIOStatus WriteVectorI(TCont* cont, SOCKET fd, TContIOVectorWriter* vec) noexcept {
         return WriteVectorD(cont, fd, vec, TInstant::Max());
     }
 
 
     TContIOStatus WriteD(TCont* cont, SOCKET fd, const void* buf, size_t len, TInstant deadline) noexcept {
         IOutputStream::TPart part(buf, len);
-        TContIOVector vec(&part, 1);
+        TContIOVectorWriter vec(&part, 1);
         return WriteVectorD(cont, fd, &vec, deadline);
     }
 
@@ -322,4 +305,5 @@ namespace NCoro {
     SOCKET Socket(const struct addrinfo& ai) noexcept {
         return Socket(ai.ai_family, ai.ai_socktype, ai.ai_protocol);
     }
-}
+
+} // namespace NCoro
