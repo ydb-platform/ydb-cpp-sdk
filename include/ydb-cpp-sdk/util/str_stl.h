@@ -1,12 +1,11 @@
 #pragma once
 
-#include <contrib/libs/libc_compat/string.h>
-
-#include <ydb-cpp-sdk/util/memory/alloc.h>
 #include <ydb-cpp-sdk/util/digest/numeric.h>
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/string_hash.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/memory/alloc.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
 
 #include <functional>
 #include <string>

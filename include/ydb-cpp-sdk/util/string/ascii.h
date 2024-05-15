@@ -1,7 +1,5 @@
 #pragma once
 
-#include <contrib/libs/libc_compat/string.h>
-
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
 

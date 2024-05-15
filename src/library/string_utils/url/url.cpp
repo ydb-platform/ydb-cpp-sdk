@@ -1,19 +1,22 @@
 #include "url.h"
 
-#include <ydb-cpp-sdk/util/string/builder.h>
+#include <src/util/charset/unidata.h> // for ToLower
+#include <src/util/string/cstriter.h>
+#include <src/util/string/util.h>
+
+#include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
-#include <ydb-cpp-sdk/util/string/cast.h>
-#include <src/util/string/util.h>
-#include <src/util/string/cstriter.h>
-#include <ydb-cpp-sdk/util/string/ascii.h>
-#include <ydb-cpp-sdk/util/string/strip.h>
-
-#include <src/util/charset/unidata.h> // for ToLower
-#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+
+#include <ydb-cpp-sdk/util/string/builder.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/string/ascii.h>
+#include <ydb-cpp-sdk/util/string/strip.h>
+
+#include <ydb-cpp-sdk/util/system/defaults.h>
 
 #include <cstdlib>
 
@@ -38,8 +41,9 @@ namespace {
     template <typename TChar1, typename TChar2>
     int Compare1Case2(const TChar1* s1, const TChar2* s2, size_t n) {
         for (size_t i = 0; i < n; ++i) {
-            if ((TChar1)ToLower(s1[i]) != s2[i])
-                return (TChar1)ToLower(s1[i]) < s2[i] ? -1 : 1;
+            if (static_cast<TChar1>(ToLower(s1[i])) != s2[i]) {
+                return static_cast<TChar1>(ToLower(s1[i])) < s2[i] ? -1 : 1;
+            }
         }
         return 0;
     }
@@ -48,18 +52,22 @@ namespace {
     inline size_t GetHttpPrefixSizeImpl(const TChar* url, const TBounds& urlSize, bool ignorehttps) {
         const TChar httpPrefix[] = {'h', 't', 't', 'p', ':', '/', '/', 0};
         const TChar httpsPrefix[] = {'h', 't', 't', 'p', 's', ':', '/', '/', 0};
-        if (urlSize.Has(7) && Compare1Case2(url, httpPrefix, 7) == 0)
+        if (urlSize.Has(7) && Compare1Case2(url, httpPrefix, 7) == 0) {
             return 7;
-        if (!ignorehttps && urlSize.Has(8) && Compare1Case2(url, httpsPrefix, 8) == 0)
+        }
+        if (!ignorehttps && urlSize.Has(8) && Compare1Case2(url, httpsPrefix, 8) == 0) {
             return 8;
+        }
         return 0;
     }
 
     template <typename T>
     inline T CutHttpPrefixImpl(const T& url, bool ignorehttps) {
-        size_t prefixSize = GetHttpPrefixSizeImpl<typename T::value_type>(url.data(), TKnownSize(url.size()), ignorehttps);
-        if (prefixSize)
+        size_t prefixSize = GetHttpPrefixSizeImpl<typename T::value_type>(
+                url.data(), TKnownSize(url.size()), ignorehttps);
+        if (prefixSize) {
             return url.substr(prefixSize);
+        }
         return url;
     }
 }
@@ -186,7 +194,7 @@ std::string_view GetSchemeHostAndPort(const std::string_view url, bool trimHttp,
     std::string_view hostAndPort = GetHostAndPort(url.substr(schemeSize));
 
     if (trimDefaultPort) {
-        const size_t pos = hostAndPort.find(':');
+        const auto pos = hostAndPort.find(':');
         if (pos != std::string_view::npos) {
             const bool isHttps = (scheme == std::string_view("https://"));
 
@@ -259,8 +267,9 @@ std::string_view GetOnlyHost(const std::string_view url) noexcept {
 std::string_view GetPathAndQuery(const std::string_view url, bool trimFragment) noexcept {
     const size_t off = url.find('/', GetHttpPrefixSize(url));
     std::string_view hostUnused, path;
-    if (!NUtils::TrySplitOn(url, hostUnused, path, off, 0))
+    if (!NUtils::TrySplitOn(url, hostUnused, path, off, 0)) {
         return "/";
+    }
 
     return trimFragment ? NUtils::Before(path, '#') : path;
 }
@@ -281,11 +290,12 @@ std::string_view GetDomain(const std::string_view host) noexcept {
 }
 
 std::string_view GetParentDomain(const std::string_view host, size_t level) noexcept {
-    size_t pos = host.size();
+    auto pos = host.size();
     for (size_t i = 0; i < level; ++i) {
         pos = host.rfind('.', pos);
-        if (pos == std::string::npos)
+        if (pos == std::string::npos) {
             return host;
+        }
     }
     return host.substr(pos + 1);
 }
@@ -295,8 +305,9 @@ std::string_view GetZone(const std::string_view host) noexcept {
 }
 
 std::string_view CutWWWPrefix(const std::string_view url) noexcept {
-    if (url.size() >= 4 && url[3] == '.' && !strnicmp(url.data(), "www", 3))
+    if (url.size() >= 4 && url[3] == '.' && !strnicmp(url.data(), "www", 3)) {
         return url.substr(4);
+    }
     return url;
 }
 
@@ -333,8 +344,9 @@ static inline bool IsSchemeChar(char c) noexcept {
 
 static bool HasPrefix(const std::string_view url) noexcept {
     std::string_view scheme, unused;
-    if (!NUtils::TrySplit(url, scheme, unused, std::string_view("://")))
+    if (!NUtils::TrySplit(url, scheme, unused, std::string_view("://"))) {
         return false;
+    }
 
     return AllOf(scheme, IsSchemeChar);
 }
@@ -354,8 +366,9 @@ std::string AddSchemePrefix(const std::string& url, std::string_view scheme) {
 #define X(c) (c >= 'A' ? ((c & 0xdf) - 'A') + 10 : (c - '0'))
 
 static inline int x2c(unsigned char* x) {
-    if (!IsAsciiHex(x[0]) || !IsAsciiHex(x[1]))
+    if (!IsAsciiHex(x[0]) || !IsAsciiHex(x[1])) {
         return -1;
+    }
     return X(x[0]) * 16 + X(x[1]);
 }
 
@@ -364,11 +377,13 @@ static inline int x2c(unsigned char* x) {
 static inline int Unescape(char* str) {
     char *to, *from;
     int dlen = 0;
-    if ((str = strchr(str, '%')) == nullptr)
+    if ((str = strchr(str, '%')) == nullptr) {
         return dlen;
+    }
     for (to = str, from = str; *from; from++, to++) {
         if ((*to = *from) == '%') {
-            int c = x2c((unsigned char*)from + 1);
+            // SAFE: cast char* -> unsigned char* (see [basic.lval] par.11.3)
+            int c = x2c(reinterpret_cast<unsigned char*>(from) + 1);
             *to = char((c > 0) ? c : '0');
             from += 2;
             dlen += 2;
@@ -379,13 +394,14 @@ static inline int Unescape(char* str) {
 }
 
 size_t NormalizeUrlName(char* dest, const std::string_view source, size_t dest_size) {
-    if (source.empty() || source[0] == '?')
-        return strlcpy(dest, "/", dest_size);
+    if (source.empty() || source[0] == '?') {
+        return NUtils::Strlcpy(dest, "/", dest_size);
+    }
     size_t len = Min(dest_size - 1, source.length());
     memcpy(dest, source.data(), len);
     dest[len] = 0;
     len -= Unescape(dest);
-    strlwr(dest);
+    NUtils::ToLower(dest);
     return len;
 }
 
@@ -401,7 +417,7 @@ size_t NormalizeHostName(char* dest, const std::string_view source, size_t dest_
         len -= buflen;
         *ptr = 0;
     }
-    strlwr(dest);
+    NUtils::ToLower(dest);
     return len;
 }
 

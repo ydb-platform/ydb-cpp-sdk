@@ -2,21 +2,20 @@
 
 #include "exthttpcodes.h"
 
-#include <contrib/libs/libc_compat/string.h>
-
 #include <ydb-cpp-sdk/library/mime/types/mime.h>
+#include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
-#include <string>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/system/maxlen.h>
 
+#include <algorithm>
 #include <ctime>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <algorithm>
+#include <string>
 
 // This is ugly solution but here a lot of work to do it the right way.
 #define FETCHER_URL_MAX 8192
@@ -233,7 +232,7 @@ public:
 
     char* GetUrl(char* buffer, size_t size) {
         if (host[0] == 0 || !strcmp(host, "")) {
-            strlcpy(buffer, request_uri.c_str(), size);
+            NUtils::Strlcpy(buffer, request_uri.c_str(), size);
         } else {
             snprintf(buffer, size, "http://%s%s", host, request_uri.c_str());
         }
@@ -275,12 +274,15 @@ public:
     void Print() {
         THttpHeader::Print();
         if (use_auth) {
-            if (realm)
+            if (realm) {
                 printf("realm: \"%s\"\n", realm);
-            if (nonce)
+            }
+            if (nonce) {
                 printf("nonce: \"%s\"\n", nonce);
-            if (opaque)
+            }
+            if (opaque) {
                 printf("opaque: \"%s\"\n", opaque);
+            }
             printf("stale: %d\n", stale);
             printf("algorithm: %d\n", algorithm);
             printf("qop_auth: %d\n", qop_auth);

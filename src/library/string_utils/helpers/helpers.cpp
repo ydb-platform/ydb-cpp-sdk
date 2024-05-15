@@ -1,6 +1,8 @@
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <algorithm>
+#include <cctype>
+#include <cstring>
 
 namespace NUtils {
     namespace {
@@ -9,6 +11,13 @@ namespace NUtils {
         l = src.substr(0, pos);
         r = right;
     }
+    } // namespace
+
+char* ToLower(char* str) noexcept(noexcept(std::tolower(0))) {
+    for (char* dst = str; *dst != '\0'; ++dst) {
+        *dst = static_cast<char>(std::tolower(static_cast<unsigned char>(*dst)));
+    }
+    return str;
 }
 
 void ToLower(std::string& str) {
@@ -32,9 +41,10 @@ std::string ToTitle(const std::string& s) {
 }
 
 void RemoveAll(std::string& str, char ch) {
-    size_t pos = str.find(ch); // 'find' to avoid cloning of string in 'TString.begin()'
-    if (pos == std::string::npos)
+    const auto pos = str.find(ch); // 'find' to avoid cloning of string in 'string.begin()'
+    if (pos == std::string::npos) {
         return;
+    }
 
     auto begin = str.begin();
     auto end = begin + str.size();
@@ -148,11 +158,64 @@ size_t SumLength() noexcept {
     return 0;
 }
 
+size_t Strlcat(char* dst, const char* src, size_t dsize) noexcept {
+    const char* odst = dst;
+    const char* osrc = src;
+    size_t n = dsize;
+    size_t dlen;
+
+    // Find the end of dst and adjust bytes left but don't go past end.
+    while (n-- != 0 && *dst != '\0') {
+        dst++;
+    }
+    dlen = dst - odst;
+    n = dsize - dlen;
+
+    if (n-- == 0) {
+        return dlen + std::strlen(src);
+    }
+    for (; *src != '\0'; ++src) {
+        if (n != 0) {
+            *dst++ = *src;
+            --n;
+        }
+    }
+    *dst = '\0';
+
+    return dlen + (src - osrc); // count doesn't include NUL
+}
+
+size_t Strlcpy(char* dst, const char* src, size_t dsize) noexcept {
+    const char* osrc = src;
+    size_t nleft = dsize;
+
+    // Copy as many bytes as will fit.
+    if (nleft != 0) {
+        while (--nleft != 0) {
+            if ((*dst++ = *src++) == '\0') {
+                break;
+            }
+        }
+    }
+
+    // Not enough room in dst, add NUL and traverse rest of src.
+    if (nleft == 0) {
+        if (dsize != 0) {
+            *dst = '\0'; // NUL-terminate dst
+        }
+        while (*src++ != '\0') {
+            // pass
+        }
+    }
+
+    return src - osrc - 1; // count does not include NUL
+}
+
 void CopyAll(char*) noexcept {
 }
 
 template <>
-std::u16string FromAscii(const ::std::string_view& s) {
+std::u16string FromAscii(const std::string_view& s) {
     std::u16string res;
     res.resize(s.size());
 
@@ -166,7 +229,7 @@ std::u16string FromAscii(const ::std::string_view& s) {
 }
 
 template <>
-std::u32string FromAscii(const ::std::string_view& s) {
+std::u32string FromAscii(const std::string_view& s) {
     std::u32string res;
     res.resize(s.size());
 
@@ -179,4 +242,4 @@ std::u32string FromAscii(const ::std::string_view& s) {
     return res;
 }
 
-}
+} // namespace NUtils

@@ -15,7 +15,5 @@ target_include_directories(contrib-libs-libc_compat PUBLIC
   ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/include/windows
 )
 target_sources(contrib-libs-libc_compat PRIVATE
-  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/strlcat.c
-  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/strlcpy.c
   ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/src/windows/sys/uio.c
 )

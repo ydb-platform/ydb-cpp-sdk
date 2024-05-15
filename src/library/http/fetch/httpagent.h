@@ -1,19 +1,22 @@
 #pragma once
 
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
+#include "sockhandler.h"
 
 #include <src/library/uri/http_url.h>
+#include <src/util/generic/scope.h>
+
+#include <ydb-cpp-sdk/library/http/fetch/exthttpcodes.h>
+#include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
+
 #include <ydb-cpp-sdk/util/datetime/base.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/network/hostip.h>
 #include <ydb-cpp-sdk/util/network/ip.h>
 #include <ydb-cpp-sdk/util/network/sock.h>
-#include <src/util/generic/scope.h>
-#include <ydb-cpp-sdk/util/generic/utility.h>
 
-#include <ydb-cpp-sdk/library/http/fetch/exthttpcodes.h>
-#include "sockhandler.h"
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 
 class TIpResolver {
 public:
@@ -232,8 +235,11 @@ public:
             strcpy(message, "GET ");
             messlen = 4;
         }
-#define _AppendMessage(mes) messlen += Min(MessageMax - messlen, \
-                                           (ssize_t)strlcpy(message + messlen, (mes), MessageMax - messlen))
+#define _AppendMessage(mes)                                                                        \
+    messlen += Min(                                                                                \
+            MessageMax - messlen,                                                                  \
+            static_cast<ssize_t>(NUtils::Strlcpy(message + messlen, (mes), MessageMax - messlen)))
+
         _AppendMessage(url);
         _AppendMessage(" HTTP/1.1\r\n");
         if (*url == '/') //if not then Host is a proxy

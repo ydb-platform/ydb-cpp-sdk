@@ -4,6 +4,7 @@
 
 namespace NUtils {
 
+char* ToLower(char* str) noexcept(noexcept(std::tolower(0)));
 std::string ToLower(const std::string& str);
 void ToLower(std::string& str);
 
@@ -41,6 +42,24 @@ size_t SumLength(const std::string_view s1, const R&... r) noexcept {
     return s1.size() + SumLength(r...);
 }
 
+/**
+    * Appends `src` to string dst of size `dsize` (unlike `strncat`, `dsize` is
+    * the full size of `dst`, not space left). At most `dsize-1` characters
+    * will be copied. Always NUL terminates (unless `dsize <= strlen(dst)`).
+    * 
+    * @return strlen(src) + MIN(dsize, strlen(initial dst));
+    *         if retval >= dsize, truncation occurred.
+    */
+size_t Strlcat(char* dst, const char* src, size_t dsize) noexcept;
+
+/**
+    * Copy string `src` to buffer `dst` of size `dsize`. At most `dsize-1`
+    * chars will be copied. Always NUL terminates (unless `dsize == 0`).
+    * 
+    * @return strlen(src); if retval >= dsize, truncation occurred.
+    */
+size_t Strlcpy(char* dst, const char* src, size_t dsize) noexcept;
+
 void CopyAll(char*) noexcept;
 
 template <typename... R>
@@ -53,7 +72,7 @@ template <typename... R>
 std::string Join(const R&... r) {
     std::string s(SumLength(r...), '\0');
 
-    CopyAll((char*)s.data(), r...);
+    CopyAll(s.data(), r...);
 
     return s;
 }
@@ -61,4 +80,4 @@ std::string Join(const R&... r) {
 template <typename TChar>
 std::basic_string<TChar> FromAscii(const std::string_view& s);
 
-}
+} // namespace NUtils
