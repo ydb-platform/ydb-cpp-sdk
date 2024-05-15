@@ -8,7 +8,6 @@ target_link_libraries(yutil PUBLIC
   util-charset
   ZLIB::ZLIB
   double-conversion::double-conversion
-  contrib-libs-libc_compat
   cpp-string_utils-helpers
 )
 
