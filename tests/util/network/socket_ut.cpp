@@ -1,12 +1,11 @@
+#include <ydb-cpp-sdk/util/network/socket.h>
+
 #include "pair.h"
 
 #include <src/library/testing/unittest/registar.h>
-
 #include <src/util/system/datetime.h>
 
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
-
-#include <ydb-cpp-sdk/util/network/socket.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <ctime>
@@ -87,10 +86,16 @@ void TSockTest::TestNetworkResolutionError() {
         return; // on Windows getaddrinfo("", 0, ...) returns "OK"
     }
 
-    int expectedErr = EAI_NODATA;
-    std::string expectedErrMsg = gai_strerror(expectedErr);
-    if (errMsg.find(expectedErrMsg) == std::string::npos) {
-        UNIT_FAIL("TNetworkResolutionError contains\nInvalid msg: " + errMsg + "\nExpected msg: " + expectedErrMsg + "\n");
+    int expectedErr1 = EAI_NODATA;
+    int expectedErr2 = EAI_NONAME;
+    std::string expectedErrMsg1 = gai_strerror(expectedErr1);
+    std::string expectedErrMsg2 = gai_strerror(expectedErr2);
+    if (errMsg.find(expectedErrMsg1) == std::string::npos
+            && errMsg.find(expectedErrMsg2) == std::string::npos) {
+        UNIT_FAIL("TNetworkResolutionError contains\nInvalid msg: " + errMsg
+                + "\nExpected msg: " + expectedErrMsg1
+                + "\nor"
+                + "\nExpected msg: " + expectedErrMsg2 + "\n");
     }
 }
 
