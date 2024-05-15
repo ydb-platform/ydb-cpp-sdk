@@ -3,7 +3,8 @@
 
 #include <ydb-cpp-sdk/util/string/escape.h>
 
-const char* TCaseInsensitiveCharTraits::find(const char* s, std::size_t n, char a) {
+const TCaseInsensitiveCharTraits::char_type* TCaseInsensitiveCharTraits::find(
+        const char_type* s, std::size_t n, char_type a) noexcept(IsNothrowToUpper) {
     const auto ua = to_upper(a);
     for (; n != 0; --n, ++s) {
         if (to_upper(*s) == ua) {
