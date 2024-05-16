@@ -83,3 +83,22 @@ add_library(FastLZ
 )
 
 target_include_directories(FastLZ PUBLIC ${YDB_SDK_SOURCE_DIR}/third_party/FastLZ)
+
+# nayuki_md5
+add_library(nayuki_md5)
+target_link_libraries(nayuki_md5 PUBLIC
+  yutil
+)
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+target_sources(nayuki_md5 PRIVATE 
+  ${YDB_SDK_SOURCE_DIR}/third_party/nayuki_md5/nayuki_md5-fast-x8664.S
+)
+else()
+target_sources(nayuki_md5 PRIVATE 
+  ${YDB_SDK_SOURCE_DIR}/third_party/nayuki_md5/nayuki_md5.c
+)
+endif()
+
+target_include_directories(nayuki_md5 PUBLIC ${YDB_SDK_SOURCE_DIR}/third_party/nayuki_md5)
+ 

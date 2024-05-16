@@ -6,4 +6,4 @@
 extern "C"
 #endif
 
-void md5_compress(uint32_t state[4], const uint8_t block[64]);
+void md5_compress(const uint8_t block[64], uint32_t state[4]);
