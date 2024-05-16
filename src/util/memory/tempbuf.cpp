@@ -1,21 +1,20 @@
-#include <ydb-cpp-sdk/util/memory/tempbuf.h>
 #include "addstorage.h"
 
-#include <ydb-cpp-sdk/util/system/yassert.h>
-#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <src/util/generic/intrlist.h>
-#include <ydb-cpp-sdk/util/generic/singleton.h>
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <utility>
 #include <src/util/thread/singleton.h>
 
-#ifndef TMP_BUF_LEN
-    #define TMP_BUF_LEN (64 * 1024)
-#endif
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
+
+#include <utility>
+
 
 class TTempBuf::TImpl: public TRefCounted<TImpl, TSimpleCounter, TImpl> {
 public:
-    inline TImpl(void* data, size_t size) noexcept
+    TImpl(void* data, std::size_t size) noexcept
         : Data_(data)
         , Size_(size)
         , Offset_(0)
@@ -28,7 +27,7 @@ public:
      */
     virtual ~TImpl() = default;
 
-    inline void* Data() noexcept {
+    void* Data() noexcept {
         return Data_;
     }
 
@@ -36,34 +35,34 @@ public:
         return Data_;
     }
 
-    inline size_t Size() const noexcept {
+    std::size_t Size() const noexcept {
         return Size_;
     }
 
-    inline size_t Filled() const noexcept {
+    std::size_t Filled() const noexcept {
         return Offset_;
     }
 
-    inline void Reset() noexcept {
+    void Reset() noexcept {
         Offset_ = 0;
     }
 
-    inline size_t Left() const noexcept {
+    std::size_t Left() const noexcept {
         return Size() - Filled();
     }
 
-    void SetPos(size_t off) {
+    void SetPos(std::size_t off) {
         Y_ASSERT(off <= Size());
         Offset_ = off;
     }
 
-    inline void Proceed(size_t off) {
+    void Proceed(std::size_t off) {
         Y_ASSERT(off <= Left());
 
         Offset_ += off;
     }
 
-    static inline void Destroy(TImpl* This) noexcept {
+    static void Destroy(TImpl* This) noexcept {
         This->Dispose();
     }
 
@@ -72,8 +71,8 @@ protected:
 
 private:
     void* Data_;
-    size_t Size_;
-    size_t Offset_;
+    std::size_t Size_;
+    std::size_t Offset_;
 };
 
 namespace {
@@ -81,12 +80,12 @@ namespace {
 
     class TAllocedBuf: public TTempBuf::TImpl, public TAdditionalStorage<TAllocedBuf> {
     public:
-        inline TAllocedBuf()
+        TAllocedBuf()
             : TImpl(AdditionalData(), AdditionalDataLength())
         {
         }
 
-        inline ~TAllocedBuf() override = default;
+        ~TAllocedBuf() override = default;
 
     private:
         void Dispose() noexcept override {
@@ -104,34 +103,33 @@ namespace {
         {
         }
 
-        inline ~TPerThreadedBuf() override = default;
+        ~TPerThreadedBuf() override = default;
 
     private:
         void Dispose() noexcept override;
 
     private:
-        char Data_[TMP_BUF_LEN];
+        alignas(std::max_align_t) char Data_[TTempBuf::TmpBufLen];
         TTempBufManager* Manager_;
     };
 
     class TTempBufManager {
         struct TDelete {
-            inline void operator()(TPerThreadedBuf* p) noexcept {
+            void operator()(TPerThreadedBuf* p) noexcept {
                 delete p;
             }
         };
 
     public:
-        inline TTempBufManager() noexcept {
-        }
+        TTempBufManager() noexcept = default;
 
-        inline ~TTempBufManager() {
+        ~TTempBufManager() {
             TDelete deleter;
 
             Unused_.ForEach(deleter);
         }
 
-        inline TPerThreadedBuf* Acquire() {
+        TPerThreadedBuf* Acquire() {
             if (!Unused_.Empty()) {
                 return Unused_.PopFront();
             }
@@ -139,7 +137,7 @@ namespace {
             return new TPerThreadedBuf(this);
         }
 
-        inline void Return(TPerThreadedBuf* buf) noexcept {
+        void Return(TPerThreadedBuf* buf) noexcept {
             buf->Reset();
             Unused_.PushFront(buf);
         }
@@ -153,11 +151,10 @@ static inline TTempBufManager* TempBufManager() {
     return FastTlsSingletonWithPriority<TTempBufManager, 2>();
 }
 
-static inline TTempBuf::TImpl* AcquireSmallBuffer(size_t size) {
+static inline TTempBuf::TImpl* AcquireSmallBuffer([[maybe_unused]] std::size_t size) {
 #if defined(_asan_enabled_)
     return new (size) TAllocedBuf();
 #else
-    Y_UNUSED(size);
     return TempBufManager()->Acquire();
 #endif
 }
@@ -171,24 +168,24 @@ void TPerThreadedBuf::Dispose() noexcept {
 }
 
 TTempBuf::TTempBuf()
-    : Impl_(AcquireSmallBuffer(TMP_BUF_LEN))
+    : Impl_(AcquireSmallBuffer(TTempBuf::TmpBufLen))
 {
 }
 
 /*
  * all magick is here:
- * if len <= TMP_BUF_LEN. then we get prealloced per threaded buffer
+ * if len <= TTempBuf::TmpBufLen. then we get prealloced per threaded buffer
  * else allocate one in heap
  */
-static inline TTempBuf::TImpl* ConstructImpl(size_t len) {
-    if (len <= TMP_BUF_LEN) {
+static inline TTempBuf::TImpl* ConstructImpl(std::size_t len) {
+    if (len <= TTempBuf::TmpBufLen) {
         return AcquireSmallBuffer(len);
     }
 
     return new (len) TAllocedBuf();
 }
 
-TTempBuf::TTempBuf(size_t len)
+TTempBuf::TTempBuf(std::size_t len)
     : Impl_(ConstructImpl(len))
 {
 }
@@ -219,14 +216,14 @@ TTempBuf& TTempBuf::operator=(TTempBuf&& b) noexcept {
 }
 
 char* TTempBuf::Data() noexcept {
-    return (char*)Impl_->Data();
+    return static_cast<char*>(Impl_->Data());
 }
 
 const char* TTempBuf::Data() const noexcept {
     return static_cast<const char*>(Impl_->Data());
 }
 
-size_t TTempBuf::Size() const noexcept {
+std::size_t TTempBuf::Size() const noexcept {
     return Impl_->Size();
 }
 
@@ -238,11 +235,11 @@ const char* TTempBuf::Current() const noexcept {
     return Data() + Filled();
 }
 
-size_t TTempBuf::Filled() const noexcept {
+std::size_t TTempBuf::Filled() const noexcept {
     return Impl_->Filled();
 }
 
-size_t TTempBuf::Left() const noexcept {
+std::size_t TTempBuf::Left() const noexcept {
     return Impl_->Left();
 }
 
@@ -250,17 +247,17 @@ void TTempBuf::Reset() noexcept {
     Impl_->Reset();
 }
 
-void TTempBuf::SetPos(size_t off) {
+void TTempBuf::SetPos(std::size_t off) {
     Impl_->SetPos(off);
 }
 
-char* TTempBuf::Proceed(size_t off) {
+char* TTempBuf::Proceed(std::size_t off) {
     char* ptr = Current();
     Impl_->Proceed(off);
     return ptr;
 }
 
-void TTempBuf::Append(const void* data, size_t len) {
+void TTempBuf::Append(const void* data, std::size_t len) {
     if (len > Left()) {
         ythrow yexception() << "temp buf exhausted(" << Left() << ", " << len << ")";
     }
@@ -283,34 +280,34 @@ void* allocaFunc() {
 }
 
 int main() {
-    const size_t num = 10000000;
-    size_t tmp = 0;
+    const std::size_t num = 10000000;
+    std::size_t tmp = 0;
 
     {
         CTimer t("alloca");
 
-        for (size_t i = 0; i < num; ++i) {
-            tmp += (size_t)allocaFunc();
+        for (std::size_t i = 0; i < num; ++i) {
+            tmp += (std::size_t)allocaFunc();
         }
     }
 
     {
         CTimer t("log buffer");
 
-        for (size_t i = 0; i < num; ++i) {
+        for (std::size_t i = 0; i < num; ++i) {
             TTempBuf buf(LEN);
 
-            tmp += (size_t)buf.Data();
+            tmp += (std::size_t)buf.Data();
         }
     }
 
     {
         CTimer t("malloc");
 
-        for (size_t i = 0; i < num; ++i) {
+        for (std::size_t i = 0; i < num; ++i) {
             void* ptr = malloc(LEN);
 
-            tmp += (size_t)ptr;
+            tmp += (std::size_t)ptr;
 
             free(ptr);
         }

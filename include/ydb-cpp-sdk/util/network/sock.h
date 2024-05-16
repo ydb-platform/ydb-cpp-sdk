@@ -1,11 +1,16 @@
 #pragma once
 
-#include <contrib/libs/libc_compat/string.h>
+#include "init.h"
+#include "ip.h"
+#include "socket.h"
 
+#include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
+
+#include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
-#include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/sysstat.h>
+#include <ydb-cpp-sdk/util/stream/output.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
 
 #if defined(_win_) || defined(_cygwin_)
     #include <ydb-cpp-sdk/util/system/file.h>
@@ -13,10 +18,6 @@
     #include <sys/un.h>
     #include <sys/stat.h>
 #endif //_win_
-
-#include "init.h"
-#include "ip.h"
-#include "socket.h"
 
 constexpr ui16 DEF_LOCAL_SOCK_MODE = 00644;
 
@@ -75,7 +76,7 @@ struct TSockAddrLocal: public ISockAddr {
         in.sin_family = AF_INET;
         in.sin_addr.s_addr = IpFromString("127.0.0.1");
         in.sin_port = 0;
-        strlcpy(Path, path, PathSize);
+        NUtils::Strlcpy(Path, path, PathSize);
     }
 
     inline void Set(std::string_view path) noexcept {
@@ -83,7 +84,7 @@ struct TSockAddrLocal: public ISockAddr {
         in.sin_family = AF_INET;
         in.sin_addr.s_addr = IpFromString("127.0.0.1");
         in.sin_port = 0;
-        strlcpy(Path, path.data(), Min(PathSize, path.size() + 1));
+        NUtils::Strlcpy(Path, path.data(), Min(PathSize, path.size() + 1));
     }
 
     sockaddr* SockAddr() {
@@ -107,13 +108,15 @@ struct TSockAddrLocal: public ISockAddr {
             int ret = 0;
             // 1. open file
             TFileHandle f(Path, OpenExisting | RdOnly);
-            if (!f.IsOpen())
+            if (!f.IsOpen()) {
                 return -errno;
+            }
 
             // 2. read the port from file
             ret = f.Read(&in.sin_port, sizeof(in.sin_port));
-            if (ret != sizeof(in.sin_port))
+            if (ret != sizeof(in.sin_port)) {
                 return -(errno ? errno : EFAULT);
+            }
         }
 
         return 0;
@@ -124,24 +127,28 @@ struct TSockAddrLocal: public ISockAddr {
         int ret = 0;
         // 1. open file
         TFileHandle f(Path, CreateAlways | WrOnly);
-        if (!f.IsOpen())
+        if (!f.IsOpen()) {
             return -errno;
+        }
 
         // 2. find port and bind to it
         in.sin_port = 0;
         ret = bind(s, SockAddr(), Len());
-        if (ret != 0)
+        if (ret != 0) {
             return -WSAGetLastError();
+        }
 
         int size = Size();
         ret = getsockname(s, (struct sockaddr*)(&in), &size);
-        if (ret != 0)
+        if (ret != 0) {
             return -WSAGetLastError();
+        }
 
         // 3. write port to file
         ret = f.Write(&(in.sin_port), sizeof(in.sin_port));
-        if (ret != sizeof(in.sin_port))
+        if (ret != sizeof(in.sin_port)) {
             return -errno;
+        }
 
         return 0;
     }
@@ -180,13 +187,13 @@ struct TSockAddrLocal: public sockaddr_un, public ISockAddr {
     inline void Set(const char* path) noexcept {
         Clear();
         sun_family = AF_UNIX;
-        strlcpy(sun_path, path, sizeof(sun_path));
+        NUtils::Strlcpy(sun_path, path, sizeof(sun_path));
     }
 
     inline void Set(std::string_view path) noexcept {
         Clear();
         sun_family = AF_UNIX;
-        strlcpy(sun_path, path.data(), Min(sizeof(sun_path), path.size() + 1));
+        NUtils::Strlcpy(sun_path, path.data(), Min(sizeof(sun_path), path.size() + 1));
     }
 
     sockaddr* SockAddr() override {
@@ -209,12 +216,14 @@ struct TSockAddrLocal: public sockaddr_un, public ISockAddr {
         (void)unlink(sun_path);
 
         int ret = bind(s, SockAddr(), Len());
-        if (ret < 0)
+        if (ret < 0) {
             return -errno;
+        }
 
         ret = Chmod(sun_path, mode);
-        if (ret < 0)
+        if (ret < 0) {
             return -errno;
+        }
         return 0;
     }
 };
@@ -267,12 +276,14 @@ struct TSockAddrInet: public sockaddr_in, public ISockAddr {
     int Bind(SOCKET s, ui16 mode) const override {
         Y_UNUSED(mode);
         int ret = bind(s, SockAddr(), Len());
-        if (ret < 0)
+        if (ret < 0) {
             return -errno;
+        }
 
         socklen_t len = Len();
-        if (getsockname(s, (struct sockaddr*)(SockAddr()), &len) < 0)
+        if (getsockname(s, (struct sockaddr*)(SockAddr()), &len) < 0) {
             return -WSAGetLastError();
+        }
 
         return 0;
     }
@@ -378,13 +389,15 @@ public:
     }
 
     void CheckSock() {
-        if ((SOCKET) * this == INVALID_SOCKET)
+        if ((SOCKET) * this == INVALID_SOCKET) {
             ythrow TSystemError() << "no socket";
+        }
     }
 
     static ssize_t Check(ssize_t ret, const char* op = "") {
-        if (ret < 0)
-            ythrow TSystemError(-(int)ret) << "socket operation " << op;
+        if (ret < 0) {
+            ythrow TSystemError(-static_cast<int>(ret)) << "socket operation " << op;
+        }
         return ret;
     }
 };
@@ -403,7 +416,9 @@ public:
             return -LastSystemError();
         }
 
-        ret = sendto((SOCKET) * this, (const char*)msg, (int)len, 0, toAddr->SockAddr(), toAddr->Len());
+        ret = sendto((SOCKET) * this,
+                     static_cast<const char*>(msg), static_cast<int>(len),
+                     0, toAddr->SockAddr(), toAddr->Len());
         if (ret < 0) {
             return -LastSystemError();
         }
@@ -413,7 +428,9 @@ public:
 
     ssize_t RecvFrom(void* buf, size_t len, ISockAddr* fromAddr) {
         socklen_t fromSize = fromAddr->Size();
-        const ssize_t ret = recvfrom((SOCKET) * this, (char*)buf, (int)len, 0, fromAddr->SockAddr(), &fromSize);
+        const ssize_t ret = recvfrom((SOCKET) * this,
+                                     static_cast<char*>(buf), static_cast<int>(len),
+                                     0, fromAddr->SockAddr(), &fromSize);
         if (ret < 0) {
             return -LastSystemError();
         }
@@ -436,37 +453,46 @@ public:
     }
 
     ssize_t Send(const void* msg, size_t len, int flags = 0) {
-        const ssize_t ret = send((SOCKET) * this, (const char*)msg, (int)len, flags);
-        if (ret < 0)
+        const ssize_t ret = send((SOCKET) * this,
+                                 static_cast<const char*>(msg), static_cast<int>(len),
+                                 flags);
+        if (ret < 0) {
             return -errno;
+        }
 
         return ret;
     }
 
     ssize_t Recv(void* buf, size_t len, int flags = 0) {
-        const ssize_t ret = recv((SOCKET) * this, (char*)buf, (int)len, flags);
-        if (ret < 0)
+        const ssize_t ret = recv((SOCKET) * this,
+                                 static_cast<char*>(buf), static_cast<int>(len),
+                                 flags);
+        if (ret < 0) {
             return -errno;
+        }
 
         return ret;
     }
 
     int Connect(const ISockAddr* addr) {
         int ret = addr->ResolveAddr();
-        if (ret < 0)
+        if (ret < 0) {
             return -errno;
+        }
 
         ret = connect((SOCKET) * this, addr->SockAddr(), addr->Len());
-        if (ret < 0)
+        if (ret < 0) {
             return -errno;
+        }
 
         return ret;
     }
 
     int Listen(int backlog) {
         int ret = listen((SOCKET) * this, backlog);
-        if (ret < 0)
+        if (ret < 0) {
             return -errno;
+        }
 
         return ret;
     }
@@ -480,8 +506,9 @@ public:
             s = accept((SOCKET) * this, nullptr, nullptr);
         }
 
-        if (s == INVALID_SOCKET)
+        if (s == INVALID_SOCKET) {
             return -errno;
+        }
 
         TSocketHolder sock(s);
         acceptedSock->Swap(sock);
@@ -585,10 +612,10 @@ protected:
         const ssize_t ret = Socket->Recv(buf, len);
 
         if (ret >= 0) {
-            return (size_t)ret;
+            return static_cast<size_t>(ret);
         }
 
-        ythrow TSystemError(-(int)ret) << "can not read from socket input stream";
+        ythrow TSystemError(-static_cast<int>(ret)) << "can not read from socket input stream";
     }
 };
 
@@ -611,7 +638,7 @@ protected:
     void DoWrite(const void* buf, size_t len) override {
         Y_ABORT_UNLESS(Socket, "TStreamSocketOutput: socket isn't set");
 
-        const char* ptr = (const char*)buf;
+        const char* ptr = static_cast<const char*>(buf);
         while (len) {
             const ssize_t ret = Socket->Send(ptr, len);
 

@@ -1,8 +1,7 @@
-#include <ydb-cpp-sdk/util/generic/bt_exception.h>
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
+#include <ydb-cpp-sdk/util/generic/bt_exception.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/system/backtrace.h>
 #include <ydb-cpp-sdk/util/system/type_name.h>
@@ -153,7 +152,7 @@ const TBackTrace* NPrivateException::yexception::BackTrace() const noexcept {
 
 void fputs(const std::exception& e, FILE* f) {
     char message[256];
-    size_t len = Min(sizeof(message) - 2, strlcpy(message, e.what(), sizeof(message) - 1));
+    size_t len = Min(sizeof(message) - 2, NUtils::Strlcpy(message, e.what(), sizeof(message) - 1));
     message[len++] = '\n';
     message[len] = 0;
     fputs(message, f);

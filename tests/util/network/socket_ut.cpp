@@ -1,11 +1,12 @@
-#include "socket.h"
+#include <ydb-cpp-sdk/util/network/socket.h>
 
 #include "pair.h"
 
 #include <src/library/testing/unittest/registar.h>
+#include <src/util/system/datetime.h>
 
+#include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
-#include <src/util/generic/vector.h>
 
 #include <ctime>
 
@@ -85,10 +86,16 @@ void TSockTest::TestNetworkResolutionError() {
         return; // on Windows getaddrinfo("", 0, ...) returns "OK"
     }
 
-    int expectedErr = EAI_NONAME;
-    std::string expectedErrMsg = gai_strerror(expectedErr);
-    if (errMsg.find(expectedErrMsg) == std::string::npos) {
-        UNIT_FAIL("TNetworkResolutionError contains\nInvalid msg: " + errMsg + "\nExpected msg: " + expectedErrMsg + "\n");
+    int expectedErr1 = EAI_NODATA;
+    int expectedErr2 = EAI_NONAME;
+    std::string expectedErrMsg1 = gai_strerror(expectedErr1);
+    std::string expectedErrMsg2 = gai_strerror(expectedErr2);
+    if (errMsg.find(expectedErrMsg1) == std::string::npos
+            && errMsg.find(expectedErrMsg2) == std::string::npos) {
+        UNIT_FAIL("TNetworkResolutionError contains\nInvalid msg: " + errMsg
+                + "\nExpected msg: " + expectedErrMsg1
+                + "\nor"
+                + "\nExpected msg: " + expectedErrMsg2 + "\n");
     }
 }
 
@@ -191,9 +198,9 @@ void TSockTest::TestReusePortAvailCheck() {
     Y_ABORT_UNLESS(!uname(&sysInfo), "Error while call uname: %s", LastSystemErrorText());
     std::string_view release(sysInfo.release);
     release = release.substr(0, release.find_first_not_of(".0123456789"));
-    int v1 = FromString<int>(release.NextTok('.'));
-    int v2 = FromString<int>(release.NextTok('.'));
-    int v3 = FromString<int>(release.NextTok('.'));
+    int v1 = FromString<int>(NUtils::NextTok(release, '.'));
+    int v2 = FromString<int>(NUtils::NextTok(release, '.'));
+    int v3 = FromString<int>(NUtils::NextTok(release, '.'));
     int linuxVersionCode = KERNEL_VERSION(v1, v2, v3);
     if (linuxVersionCode >= KERNEL_VERSION(3, 9, 1)) {
         // new kernels support SO_REUSEPORT

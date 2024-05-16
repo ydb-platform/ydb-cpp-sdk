@@ -2,7 +2,6 @@ add_library(library-cpp-case_insensitive_string)
 
 target_link_libraries(library-cpp-case_insensitive_string PUBLIC
   yutil
-  contrib-libs-libc_compat
   cpp-digest-murmur
 )
 

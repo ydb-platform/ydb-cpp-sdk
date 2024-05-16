@@ -84,3 +84,19 @@ int truncate(const char* name, i64 length);
         #define va_copy __va_copy
     #endif
 #endif
+
+#if defined(_MSC_VER)
+
+#include <string.h>
+
+#define stricmp _stricmp
+#define strnicmp _strnicmp
+
+#else // !defined(_MSC_VER)
+
+#include <strings.h>
+
+#define stricmp strcasecmp
+#define strnicmp strncasecmp
+
+#endif
