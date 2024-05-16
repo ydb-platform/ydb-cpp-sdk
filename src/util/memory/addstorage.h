@@ -1,37 +1,39 @@
 #pragma once
 
 #include <src/util/system/align.h>
+
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
+#include <cstddef>
 #include <new>
 
 namespace NPrivate {
     class TAdditionalStorageInfo {
     public:
-        constexpr TAdditionalStorageInfo(size_t length) noexcept
+        constexpr TAdditionalStorageInfo(std::size_t length) noexcept
             : Length_(length)
         {
         }
 
-        constexpr size_t Length() const noexcept {
+        constexpr std::size_t Length() const noexcept {
             return Length_;
         }
 
     private:
-        size_t Length_;
+        std::size_t Length_;
     };
-}
+} // NPrivate
 
 template <class T>
 class alignas(::NPrivate::TAdditionalStorageInfo) TAdditionalStorage {
     using TInfo = ::NPrivate::TAdditionalStorageInfo;
 
 public:
-    inline TAdditionalStorage() noexcept = default;
+    TAdditionalStorage() noexcept = default;
 
-    inline ~TAdditionalStorage() = default;
+    ~TAdditionalStorage() = default;
 
-    inline void* operator new(size_t len1, size_t len2) {
+    void* operator new(std::size_t len1, std::size_t len2) {
         static_assert(alignof(T) >= alignof(TInfo));
         Y_ASSERT(len1 == sizeof(T));
         void* data = ::operator new(CombinedSizeOfInstanceWithTInfo() + len2);
@@ -41,15 +43,15 @@ public:
         return data;
     }
 
-    inline void operator delete(void* ptr) noexcept {
+    void operator delete(void* ptr) noexcept {
         DoDelete(ptr);
     }
 
-    inline void operator delete(void* ptr, size_t) noexcept {
+    void operator delete(void* ptr, std::size_t) noexcept {
         DoDelete(ptr);
     }
 
-    inline void operator delete(void* ptr, size_t, size_t) noexcept {
+    void operator delete(void* ptr, std::size_t, std::size_t) noexcept {
         /*
          * this delete operator can be called automagically by compiler
          */
@@ -57,27 +59,32 @@ public:
         DoDelete(ptr);
     }
 
-    inline void* AdditionalData() const noexcept {
-        return (char*)(static_cast<const T*>(this)) + CombinedSizeOfInstanceWithTInfo();
+    void* AdditionalData() const noexcept {
+        return reinterpret_cast<char*>(const_cast<T*>(static_cast<const T*>(this)))
+                + CombinedSizeOfInstanceWithTInfo();
     }
 
-    static inline T* ObjectFromData(void* data) noexcept {
+    static T* ObjectFromData(void* data) noexcept {
         return reinterpret_cast<T*>(static_cast<char*>(data) - CombinedSizeOfInstanceWithTInfo());
     }
 
-    inline size_t AdditionalDataLength() const noexcept {
+    std::size_t AdditionalDataLength() const noexcept {
         return InfoPtr(static_cast<const T*>(this))->Length();
     }
 
 private:
-    static inline void DoDelete(void* ptr) noexcept {
+    static void DoDelete(void* ptr) noexcept {
         TInfo* info = InfoPtr(static_cast<T*>(ptr));
         info->~TInfo();
         ::operator delete(ptr);
     }
 
-    static constexpr size_t CombinedSizeOfInstanceWithTInfo() noexcept {
-        return AlignUp(sizeof(T), alignof(TInfo)) + sizeof(TInfo);
+    static constexpr std::size_t CombinedSizeOfInstanceWithTInfo() noexcept {
+        return AlignUp(InfoPtrOffset() + sizeof(TInfo), __STDCPP_DEFAULT_NEW_ALIGNMENT__);
+    }
+
+    static constexpr std::size_t InfoPtrOffset() noexcept {
+        return AlignUp(sizeof(T), alignof(TInfo));
     }
 
     static constexpr TInfo* InfoPtr(T* instance) noexcept {
@@ -85,9 +92,10 @@ private:
     }
 
     static constexpr const TInfo* InfoPtr(const T* instance) noexcept {
-        return reinterpret_cast<const TInfo*>(reinterpret_cast<const char*>(instance) + CombinedSizeOfInstanceWithTInfo() - sizeof(TInfo));
+        return reinterpret_cast<const TInfo*>(
+                reinterpret_cast<const char*>(instance) + InfoPtrOffset());
     }
 
 private:
-    void* operator new(size_t) = delete;
+    void* operator new(std::size_t) = delete;
 };

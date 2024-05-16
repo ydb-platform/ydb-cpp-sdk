@@ -2,16 +2,18 @@
 #include "condvar.h"
 #include "network.h"
 
-#include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 #include <src/library/testing/unittest/registar.h>
 
-#include <ydb-cpp-sdk/util/string/cast.h>
-#include <src/util/system/pipe.h>
-#include <src/util/system/env.h>
 #include <src/util/system/info.h>
+#include <src/util/system/pipe.h>
 #include <src/util/system/thread.h>
+
+#include <tools/enum_parser/enum_serialization_runtime/serialized_enum.h>
+
+#include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
+
+#include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/generic/xrange.h>
-#include <src/util/generic/serialized_enum.h>
 
 #include <iostream>
 
@@ -637,7 +639,7 @@ namespace NCoroTestFastPathWake {
             state.IoSleepRunning = false;
         } catch (const NUnitTest::TAssertException& ex) {
             std::cerr << ex.AsStrBuf() << std::endl;
-            ex.BackTrace()->PrintTo(std::cerr);
+            ex.BackTrace()->PrintTo(Cerr);
             throw;
         } catch (...) {
             std::cerr << CurrentExceptionMessage() << std::endl;
@@ -700,7 +702,7 @@ namespace NCoroTestFastPathWake {
             UNIT_ASSERT(TInstant::Now() - start < TDuration::Seconds(1));
         } catch (const NUnitTest::TAssertException& ex) {
             std::cerr << ex.AsStrBuf() << std::endl;
-            ex.BackTrace()->PrintTo(std::cerr);
+            ex.BackTrace()->PrintTo(Cerr);
             throw;
         } catch (...) {
             std::cerr << CurrentExceptionMessage() << std::endl;

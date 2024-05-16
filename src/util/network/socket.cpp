@@ -1,12 +1,28 @@
+#include "pollerimpl.h"
+#include "vectored_io.h"
+
+#include <src/util/system/datetime.h>
+
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/ylimits.h>
+
+#include <ydb-cpp-sdk/util/network/address.h>
 #include <ydb-cpp-sdk/util/network/ip.h>
 #include <ydb-cpp-sdk/util/network/socket.h>
-#include <ydb-cpp-sdk/util/network/address.h>
-#include "pollerimpl.h"
-#include "iovec.h"
 
-#include <ydb-cpp-sdk/util/system/defaults.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
+
+#include <ydb-cpp-sdk/util/stream/mem.h>
+
+#include <ydb-cpp-sdk/util/system/error.h>
 #include <ydb-cpp-sdk/util/system/byteorder.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
+
 #include <unordered_set>
+
+#include <stddef.h>
 
 #if defined(_unix_)
     #include <netdb.h>
@@ -34,17 +50,37 @@
     #include <ydb-cpp-sdk/util/system/compat.h>
 #endif
 
-#include <ydb-cpp-sdk/util/generic/ylimits.h>
+namespace {
 
-#include <ydb-cpp-sdk/util/string/cast.h>
-#include <ydb-cpp-sdk/util/stream/mem.h>
-#include <src/util/system/datetime.h>
-#include <ydb-cpp-sdk/util/system/error.h>
-#include <ydb-cpp-sdk/util/memory/tempbuf.h>
-#include <ydb-cpp-sdk/util/generic/singleton.h>
+    struct TSendMsgHandler {
+        using IOVector = NUtils::NIOVector::TIOVectorAdaptorTraits::LowLevel::Type;
 
-#include <stddef.h>
-#include <sys/uio.h>
+        ssize_t operator()(SOCKET socket, const IOVector* from, std::size_t count) const noexcept {
+            ssize_t result = -1;
+            do {
+#if !defined(_win_)
+                msghdr message;
+
+                Zero(message);
+                message.msg_iov = const_cast<IOVector*>(from);
+                message.msg_iovlen = count;
+
+                result = sendmsg(socket, &message, MSG_NOSIGNAL);
+#else // defined(_win_)
+                result = NUtils::NIOVector::TWriteVHandler{}(socket, from, count);
+#endif // defined(_win_)
+            } while (result == -1 && errno == EINTR);
+
+            if (result < 0) {
+                return -LastSystemError();
+            }
+            return result;
+        }
+    };
+
+    using TContIOVector = NUtils::NIOVector::TContIOVectorWith<TSendMsgHandler>;
+
+} // namespace
 
 using namespace NAddr;
 
@@ -537,22 +573,6 @@ ESocketReadStatus HasSocketDataToRead(SOCKET s) {
     return ESocketReadStatus::SocketClosed;
 }
 
-#if defined(_win_)
-static ssize_t DoSendMsg(SOCKET sock, const struct iovec* iov, int iovcnt) {
-    return writev(sock, iov, iovcnt);
-}
-#else
-static ssize_t DoSendMsg(SOCKET sock, const struct iovec* iov, int iovcnt) {
-    struct msghdr message;
-
-    Zero(message);
-    message.msg_iov = const_cast<struct iovec*>(iov);
-    message.msg_iovlen = iovcnt;
-
-    return sendmsg(sock, &message, MSG_NOSIGNAL);
-}
-#endif
-
 void TSocketHolder::Close() noexcept {
     if (Fd_ != INVALID_SOCKET) {
         bool ok = (closesocket(Fd_) == 0);
@@ -706,48 +726,6 @@ static inline SOCKET DoConnect(const struct addrinfo* res, const TInstant& deadL
     return ret.Release();
 }
 
-static inline ssize_t DoSendV(SOCKET fd, const struct iovec* iov, size_t count) {
-    ssize_t ret = -1;
-    do {
-        ret = DoSendMsg(fd, iov, (int)count);
-    } while (ret == -1 && errno == EINTR);
-
-    if (ret < 0) {
-        return -LastSystemError();
-    }
-
-    return ret;
-}
-
-template <bool isCompat>
-struct TSender {
-    using TPart = TSocket::TPart;
-
-    static inline ssize_t SendV(SOCKET fd, const TPart* parts, size_t count) {
-        return DoSendV(fd, (const iovec*)parts, count);
-    }
-};
-
-template <>
-struct TSender<false> {
-    using TPart = TSocket::TPart;
-
-    static inline ssize_t SendV(SOCKET fd, const TPart* parts, size_t count) {
-        TTempBuf tempbuf(sizeof(struct iovec) * count);
-        struct iovec* iov = (struct iovec*)tempbuf.Data();
-
-        for (size_t i = 0; i < count; ++i) {
-            struct iovec& io = iov[i];
-            const TPart& part = parts[i];
-
-            io.iov_base = (char*)part.buf;
-            io.iov_len = part.len;
-        }
-
-        return DoSendV(fd, iov, count);
-    }
-};
-
 class TCommonSockOps: public TSocket::TOps {
     using TPart = TSocket::TPart;
 
@@ -784,53 +762,10 @@ public:
     }
 
     ssize_t SendV(SOCKET fd, const TPart* parts, size_t count) override {
-        ssize_t ret = SendVImpl(fd, parts, count);
-
-        if (ret < 0) {
-            return ret;
-        }
-
-        size_t len = TContIOVector::Bytes(parts, count);
-
-        if ((size_t)ret == len) {
-            return ret;
-        }
-
-        return SendVPartial(fd, parts, count, ret);
+        const auto result = TContIOVector(parts, count).TryProcessAllBytes(fd);
+        return result.error == 0 ? result.processed_bytes : result.error;
     }
-
-    inline ssize_t SendVImpl(SOCKET fd, const TPart* parts, size_t count) {
-        return TSender < (sizeof(iovec) == sizeof(TPart)) && (offsetof(iovec, iov_base) == offsetof(TPart, buf)) && (offsetof(iovec, iov_len) == offsetof(TPart, len)) > ::SendV(fd, parts, count);
-    }
-
-    ssize_t SendVPartial(SOCKET fd, const TPart* constParts, size_t count, size_t written);
 };
-
-ssize_t TCommonSockOps::SendVPartial(SOCKET fd, const TPart* constParts, size_t count, size_t written) {
-    TTempBuf tempbuf(sizeof(TPart) * count);
-    TPart* parts = (TPart*)tempbuf.Data();
-
-    for (size_t i = 0; i < count; ++i) {
-        parts[i] = constParts[i];
-    }
-
-    TContIOVector vec(parts, count);
-    vec.Proceed(written);
-
-    while (!vec.Complete()) {
-        ssize_t ret = SendVImpl(fd, vec.Parts(), vec.Count());
-
-        if (ret < 0) {
-            return ret;
-        }
-
-        written += ret;
-
-        vec.Proceed((size_t)ret);
-    }
-
-    return written;
-}
 
 static inline TSocket::TOps* GetCommonSockOps() noexcept {
     return Singleton<TCommonSockOps>();

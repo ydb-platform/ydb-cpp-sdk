@@ -1,10 +1,9 @@
 #pragma once
 
-#include <contrib/libs/libc_compat/string.h>
-
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/compat.h>
 
+#include <cstring>
 #include <string>
 
 // ctype.h-like functions, locale-independent:
@@ -218,7 +217,7 @@ Y_PURE_FUNCTION int AsciiCompareIgnoreCase(const std::string_view s1, const std:
  * @return                              true iff @c s2 are case-sensitively prefix of @c s1.
  */
 static inline bool AsciiHasPrefix(const std::string_view s1, const std::string_view s2) noexcept {
-    return (s1.size() >= s2.size()) && memcmp(s1.data(), s2.data(), s2.size()) == 0;
+    return (s1.size() >= s2.size()) && std::memcmp(s1.data(), s2.data(), s2.size()) == 0;
 }
 
 /**

@@ -8,7 +8,6 @@ target_link_libraries(yutil PUBLIC
   util-charset
   ZLIB::ZLIB
   double-conversion::double-conversion
-  contrib-libs-libc_compat
   cpp-string_utils-helpers
 )
 
@@ -123,6 +122,7 @@ target_joined_source(yutil
   ${YDB_SDK_SOURCE_DIR}/src/util/network/pollerimpl.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/network/sock.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/network/socket.cpp
+  ${YDB_SDK_SOURCE_DIR}/src/util/network/vectored_io.cpp
 )
 target_joined_source(yutil
   all_random.cpp

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <contrib/libs/libc_compat/string.h>
-
-#include <ydb-cpp-sdk/util/memory/alloc.h>
 #include <ydb-cpp-sdk/util/digest/numeric.h>
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/string_hash.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
+#include <ydb-cpp-sdk/util/memory/alloc.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
 
+#include <cstring>
 #include <functional>
 #include <string>
 #include <typeindex>
@@ -17,13 +17,13 @@ namespace std {
     template <>
     struct less<const char*> {
         bool operator()(const char* x, const char* y) const {
-            return strcmp(x, y) < 0;
+            return std::strcmp(x, y) < 0;
         }
     };
     template <>
     struct equal_to<const char*> {
         bool operator()(const char* x, const char* y) const {
-            return strcmp(x, y) == 0;
+            return std::strcmp(x, y) == 0;
         }
         using is_transparent = void;
     };
@@ -33,7 +33,7 @@ namespace NHashPrivate {
     template <class T, bool needNumericHashing>
     struct THashHelper {
         inline size_t operator()(const T& t) const noexcept {
-            return (size_t)t; // If you have a compilation error here, look at explanation below:
+            return static_cast<size_t>(t); // If you have a compilation error here, look at explanation below:
             // Probably error is caused by undefined template specialization of THash<T>
             // You can find examples of specialization in this file
         }

@@ -1,30 +1,55 @@
 #pragma once
 
-#include <contrib/libs/libc_compat/string.h>
+#include <ydb-cpp-sdk/util/system/compat.h>
 
+#include <cctype>
 #include <string>
 
 struct TCaseInsensitiveCharTraits : private std::char_traits<char> {
-    static bool eq(char c1, char c2) {
+private:
+    static constexpr bool IsNothrowToUpper = noexcept(std::toupper(0));
+
+    using TBaseTraits = std::char_traits<char>;
+
+public:
+    using TBaseTraits::char_type;
+    using TBaseTraits::int_type;
+    using TBaseTraits::off_type;
+    using TBaseTraits::pos_type;
+    using TBaseTraits::state_type;
+
+public:
+    static bool eq(char_type c1, char_type c2) noexcept(IsNothrowToUpper) {
         return to_upper(c1) == to_upper(c2);
     }
 
-    static bool lt(char c1, char c2) {
+    static bool lt(char_type c1, char_type c2) noexcept(IsNothrowToUpper) {
         return to_upper(c1) < to_upper(c2);
     }
 
-    static int compare(const char* s1, const char* s2, std::size_t n);
+    static bool eq_int_type(int_type c1, int_type c2) noexcept(IsNothrowToUpper) {
+        return eq(to_char_type(c1), to_char_type(c2));
+    }
 
-    static const char* find(const char* s, std::size_t n, char a);
+    static int compare(const char_type* s1, const char_type* s2, std::size_t n)
+            noexcept(IsNothrowToUpper) {
+        return strnicmp(s1, s2, n);
+    }
 
-    using std::char_traits<char>::assign;
-    using std::char_traits<char>::char_type;
-    using std::char_traits<char>::copy;
-    using std::char_traits<char>::length;
-    using std::char_traits<char>::move;
+    static const char_type* find(const char_type* s, std::size_t n, char_type a)
+            noexcept(IsNothrowToUpper);
+
+    using TBaseTraits::length;
+    using TBaseTraits::move;
+    using TBaseTraits::copy;
+    using TBaseTraits::assign;
+    using TBaseTraits::not_eof;
+    using TBaseTraits::to_char_type;
+    using TBaseTraits::to_int_type;
+    using TBaseTraits::eof;
 
 private:
-    static char to_upper(char ch) {
-        return std::toupper((unsigned char)ch);
+    static char_type to_upper(char_type ch) noexcept(IsNothrowToUpper) {
+        return static_cast<char_type>(std::toupper(static_cast<unsigned char>(ch)));
     }
 };

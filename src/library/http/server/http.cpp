@@ -10,7 +10,7 @@
 #include <ydb-cpp-sdk/util/network/socket.h>
 #include <src/util/network/poller.h>
 #include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
-#include <ydb-cpp-sdk/util/system/compat.h> // stricmp, strnicmp, strlwr, strupr, stpcpy
+#include <ydb-cpp-sdk/util/system/compat.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/event.h>
 #include <src/util/system/pipe.h>

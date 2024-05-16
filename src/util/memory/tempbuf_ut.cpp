@@ -1,8 +1,8 @@
-#include "tempbuf.h"
-
-#include <utility>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
 
 #include <src/library/testing/unittest/registar.h>
+
+#include <utility>
 
 class TTempBufTest: public TTestBase {
     UNIT_TEST_SUITE(TTempBufTest);
@@ -34,14 +34,14 @@ public:
 UNIT_TEST_SUITE_REGISTRATION(TTempBufTest);
 
 void TTempBufTest::TestCreate() {
-    const size_t num = 1000000;
-    size_t tmp = 0;
-    const size_t len = 4096;
+    const std::size_t num = 1000000;
+    std::size_t tmp = 0;
+    const std::size_t len = 4096;
 
-    for (size_t i = 0; i < num; ++i) {
+    for (std::size_t i = 0; i < num; ++i) {
         TTempBuf buf(len);
 
-        tmp += (size_t)buf.Data();
+        tmp += reinterpret_cast<std::size_t>(buf.Data());
     }
 
     UNIT_ASSERT(tmp != 0);
