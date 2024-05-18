@@ -350,7 +350,7 @@ inline RECODE_RESULT SafeWriteUTF8Char(wchar32 rune, size_t& rune_len, unsigned 
         return RECODE_OK;
     }
     /*if (rune < 0x200000)*/ {
-        if (tail <= 3) {   
+        if (tail <= 3) {
             return RECODE_EOOUTPUT;
         }
         *s++ = static_cast<unsigned char>(0xF0 | ((rune >> 18) & 0x07));
