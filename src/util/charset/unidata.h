@@ -137,7 +137,7 @@ namespace NUnicode {
     }
 
     inline WC_TYPE CharType(wchar32 ch) {
-        return (WC_TYPE)(NUnicode::NPrivate::CharInfo(ch) & CCL_MASK);
+        return static_cast<WC_TYPE>(NUnicode::NPrivate::CharInfo(ch) & CCL_MASK);
     }
     inline bool CharHasType(wchar32 ch, ui64 type_bits) {
         return (SHIFT(NUnicode::CharType(ch)) & type_bits) != 0;
@@ -401,8 +401,9 @@ inline bool IsPrint(wchar32 ch) {
 }
 
 inline bool IsRomanDigit(wchar32 ch) {
-    if (NUnicode::CharHasType(ch, SHIFT(Nl_LETTER)) && 0x2160 <= ch && ch <= 0x2188)
+    if (NUnicode::CharHasType(ch, SHIFT(Nl_LETTER)) && 0x2160 <= ch && ch <= 0x2188) {
         return true;
+    }
     if (ch < 127) {
         switch (static_cast<char>(::ToLower(ch))) {
             case 'i':

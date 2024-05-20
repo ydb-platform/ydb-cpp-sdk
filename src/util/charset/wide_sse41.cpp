@@ -23,10 +23,9 @@ namespace NDetail {
 
 //return dstAdvance 0 in case of problems
 static Y_FORCE_INLINE ui32 Unpack16BytesIntoUtf16IfNoSurrogats(const unsigned char*& cur, __m128i& utf16Low, __m128i& utf16High) {
-    unsigned char curAligned[16];
-
-    memcpy(curAligned, cur, sizeof(__m128i));
-    __m128i chunk = _mm_load_si128(reinterpret_cast<const __m128i*>(curAligned));
+    __m128i curAligned;
+    memcpy(&curAligned, cur, sizeof(__m128i));
+    __m128i chunk = _mm_load_si128(&curAligned);
 
     //only ascii characters - simple copy
     if (!_mm_movemask_epi8(chunk)) {
@@ -40,10 +39,10 @@ static Y_FORCE_INLINE ui32 Unpack16BytesIntoUtf16IfNoSurrogats(const unsigned ch
     __m128i isAsciiMask = _mm_cmpgt_epi8(chunk, _mm_set1_epi8(0));
 
     __m128i cond2 = _mm_cmplt_epi8(_mm_set1_epi8(0xc2 - 1 - 0x80), chunkSigned);
-    __m128i state = _mm_set1_epi8(0x0 | (char)0x80);
+    __m128i state = _mm_set1_epi8(0x0 | char(0x80));
 
     __m128i cond3 = _mm_cmplt_epi8(_mm_set1_epi8(0xe0 - 1 - 0x80), chunkSigned);
-    state = _mm_blendv_epi8(state, _mm_set1_epi8(0x2 | (char)0xc0), cond2);
+    state = _mm_blendv_epi8(state, _mm_set1_epi8(0x2 | char(0xc0)), cond2);
 
     int sourceAdvance;
     __m128i shifts;
@@ -107,7 +106,7 @@ static Y_FORCE_INLINE ui32 Unpack16BytesIntoUtf16IfNoSurrogats(const unsigned ch
         __m128i mask3 = _mm_slli_si128(cond3, 1);
 
         __m128i cond4 = _mm_cmplt_epi8(_mm_set1_epi8(0xf0 - 1 - 0x80), chunkSigned);
-        state = _mm_blendv_epi8(state, _mm_set1_epi8(0x3 | (char)0xe0), cond3);
+        state = _mm_blendv_epi8(state, _mm_set1_epi8(0x3 | char(0xe0)), cond3);
 
         // 4 bytes sequences are not vectorize. Fall back to the scalar processing
         if (Y_UNLIKELY(_mm_movemask_epi8(cond4))) {
@@ -193,7 +192,7 @@ static Y_FORCE_INLINE ui32 Unpack16BytesIntoUtf16IfNoSurrogats(const unsigned ch
 
 namespace NDetail {
     void UTF8ToWideImplSSE41(const unsigned char*& cur, const unsigned char* last, wchar16*& dest) noexcept {
-        alignas(16) wchar16 destAligned[16];
+        __m128i destAligned[2];
 
         while (cur + 16 <= last) {
             __m128i utf16Low;
@@ -204,8 +203,8 @@ namespace NDetail {
                 break;
             }
 
-            _mm_store_si128(reinterpret_cast<__m128i*>(destAligned), utf16Low);
-            _mm_store_si128(reinterpret_cast<__m128i*>(destAligned) + 1, utf16High);
+            _mm_store_si128(destAligned, utf16Low);
+            _mm_store_si128(destAligned + 1, utf16High);
             memcpy(dest, destAligned, sizeof(__m128i) * 2);
             dest += dstAdvance;
         }
@@ -214,7 +213,7 @@ namespace NDetail {
     }
 
     void UTF8ToWideImplSSE41(const unsigned char*& cur, const unsigned char* last, wchar32*& dest) noexcept {
-        alignas(16) wchar32 destAligned[16];
+        __m128i destAligned[4];
 
         while (cur + 16 <= last) {
             __m128i utf16Low;
@@ -231,10 +230,10 @@ namespace NDetail {
             __m128i utf32_highlow = _mm_unpacklo_epi16(utf16High, _mm_set1_epi8(0));
             __m128i utf32_highhigh = _mm_unpackhi_epi16(utf16High, _mm_set1_epi8(0));
 
-            _mm_store_si128(reinterpret_cast<__m128i*>(destAligned), utf32_lowlow);
-            _mm_store_si128(reinterpret_cast<__m128i*>(destAligned) + 1, utf32_lowhigh);
-            _mm_store_si128(reinterpret_cast<__m128i*>(destAligned) + 2, utf32_highlow);
-            _mm_store_si128(reinterpret_cast<__m128i*>(destAligned) + 3, utf32_highhigh);
+            _mm_store_si128(destAligned, utf32_lowlow);
+            _mm_store_si128(destAligned + 1, utf32_lowhigh);
+            _mm_store_si128(destAligned + 2, utf32_highlow);
+            _mm_store_si128(destAligned + 3, utf32_highhigh);
 
             memcpy(dest, destAligned, sizeof(__m128i) * 4);
             dest += dstAdvance;

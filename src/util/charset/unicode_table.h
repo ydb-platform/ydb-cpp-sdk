@@ -41,7 +41,7 @@ namespace NUnicodeTable {
         using TData = const TValuePtr*;
 
         static inline TValuePtr Get(TData table, size_t index) {
-            static_assert(std::is_pointer<TData>::value, "expect std::is_pointer<TData>::value");
+            static_assert(std::is_pointer_v<TData>, "expect std::is_pointer<TData>::value");
             return table[index];
         }
 
@@ -58,7 +58,7 @@ namespace NUnicodeTable {
         using TData = const typename TChild::TData*;
 
         static inline TValuePtr Get(TData table, size_t key) {
-            static_assert(std::is_pointer<TData>::value, "expect std::is_pointer<TData>::value");
+            static_assert(std::is_pointer_v<TData>, "expect std::is_pointer<TData>::value");
             return TChild::Get(table[key >> Shift], key & ((1 << Shift) - 1));
         }
 
@@ -97,19 +97,21 @@ namespace NUnicodeTable {
             : Data(data)
             , MSize(size)
         {
-            static_assert(std::is_pointer<TData>::value, "expect std::is_pointer<TData>::value");
+            static_assert(std::is_pointer_v<TData>, "expect std::is_pointer<TData>::value");
         }
 
         inline TValueRef Get(size_t key, TValueRef value) const {
-            if (key >= Size())
+            if (key >= Size()) {
                 return value;
+            }
 
             return GetImpl(key);
         }
 
         inline TValueRef Get(size_t key, size_t defaultKey) const {
-            if (key >= Size())
+            if (key >= Size()) {
                 return Get(defaultKey);
+            }
 
             return GetImpl(key);
         }

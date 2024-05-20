@@ -5,11 +5,11 @@
 
 namespace {
     //! the constants are not zero-terminated
-    const wchar16 LT[] = {'&', 'l', 't', ';'};
-    const wchar16 GT[] = {'&', 'g', 't', ';'};
-    const wchar16 AMP[] = {'&', 'a', 'm', 'p', ';'};
-    const wchar16 BR[] = {'<', 'B', 'R', '>'};
-    const wchar16 QUOT[] = {'&', 'q', 'u', 'o', 't', ';'};
+    constexpr wchar16 LT[] = {'&', 'l', 't', ';'};
+    constexpr wchar16 GT[] = {'&', 'g', 't', ';'};
+    constexpr wchar16 AMP[] = {'&', 'a', 'm', 'p', ';'};
+    constexpr wchar16 BR[] = {'<', 'B', 'R', '>'};
+    constexpr wchar16 QUOT[] = {'&', 'q', 'u', 'o', 't', ';'};
 
     template <bool insertBr>
     inline size_t EscapedLen(wchar16 c) {
@@ -23,10 +23,11 @@ namespace {
             case '\"':
                 return Y_ARRAY_SIZE(QUOT);
             default:
-                if (insertBr && (c == '\r' || c == '\n'))
+                if (insertBr && (c == '\r' || c == '\n')) {
                     return Y_ARRAY_SIZE(BR);
-                else
+                } else {
                     return 1;
+                }
         }
     }
 }
@@ -152,7 +153,7 @@ static bool ModifySequence(TCharType*& p, const TCharType* const pe, F&& f) {
         const auto symbol = ReadSymbol(p, pe);
         const auto modified = f(symbol);
         if (symbol != modified) {
-            if (stopOnFirstModification) {
+            if constexpr (stopOnFirstModification) {
                 return true;
             }
 
@@ -167,11 +168,18 @@ static bool ModifySequence(TCharType*& p, const TCharType* const pe, F&& f) {
 
 template <bool stopOnFirstModification, typename TCharType, typename F>
 static bool ModifySequence(const TCharType*& p, const TCharType* const pe, TCharType*& out, F&& f) {
+    using TSymbol = decltype(stopOnFirstModification ? ReadSymbol(p, pe) : ReadSymbolAndAdvance(p, pe));
+    
     while (p != pe) {
-        const auto symbol = stopOnFirstModification ? ReadSymbol(p, pe) : ReadSymbolAndAdvance(p, pe);
+        TSymbol symbol;
+        if constexpr (stopOnFirstModification) {
+            symbol = ReadSymbol(p, pe);
+        } else {
+            symbol = ReadSymbolAndAdvance(p, pe);
+        }
         const auto modified = f(symbol);
 
-        if (stopOnFirstModification) {
+        if constexpr (stopOnFirstModification) {
             if (symbol != modified) {
                 return true;
             }
@@ -185,29 +193,17 @@ static bool ModifySequence(const TCharType*& p, const TCharType* const pe, TChar
     return false;
 }
 
-template <class TStringType>
-static void DetachAndFixPointers(TStringType& text, typename TStringType::value_type*& p, const typename TStringType::value_type*& pe) {
-    const auto pos = p - text.data();
-    const auto count = pe - p;
-    p = text.data() + pos;
-    pe = p + count;
-}
-
 template <class TStringType, typename F>
 static bool ModifyStringSymbolwise(TStringType& text, size_t pos, size_t count, F&& f) {
-    // TODO(yazevnul): this is done for consistency with `std::u16string::to_lower` and friends
+    // TODO(yazevnul): this is done for consistency with old `TUtf16String::to_lower` and friends
     // at r2914050, maybe worth replacing them with asserts. Also see the same code in `ToTitle`.
-    pos = pos < text.size() ? pos : text.size();
-    count = count < text.size() - pos ? count : text.size() - pos;
+    pos = std::min(pos, text.size());
+    count = std::min(count, text.size() - pos);
 
-    // std::u16string is refcounted and it's `data` method return pointer to the constant memory.
-    // To simplify the code we do a `const_cast`, though first write to the memory will be done only
-    // after we call `Detach()` and get pointer to a writable piece of memory.
-    auto* p = const_cast<typename TStringType::value_type*>(text.data() + pos);
+    auto* p = text.data() + pos;
     const auto* pe = text.data() + pos + count;
 
     if (ModifySequence<true>(p, pe, f)) {
-        DetachAndFixPointers(text, p, pe);
         ModifySequence<false>(p, pe, f);
         return true;
     }
@@ -240,8 +236,8 @@ bool ToTitle(std::u16string& text, size_t pos, size_t count) {
         return false;
     }
 
-    pos = pos < text.size() ? pos : text.size();
-    count = count < text.size() - pos ? count : text.size() - pos;
+    pos = std::min(pos, text.size());
+    count = std::min(text.size(), text.size() - pos);
 
     const auto toLower = [](const wchar32 s) { return ToLower(s); };
 
@@ -252,12 +248,10 @@ bool ToTitle(std::u16string& text, size_t pos, size_t count) {
     if (firstSymbol == ToTitle(firstSymbol)) {
         p = SkipSymbol(p, pe);
         if (ModifySequence<true>(p, pe, toLower)) {
-            DetachAndFixPointers(text, p, pe);
             ModifySequence<false>(p, pe, toLower);
             return true;
         }
     } else {
-        DetachAndFixPointers(text, p, pe);
         WriteSymbol(ToTitle(ReadSymbol(p, pe)), p); // also moves `p` forward
         ModifySequence<false>(p, pe, toLower);
         return true;
@@ -271,8 +265,8 @@ bool ToTitle(std::u32string& text, size_t pos, size_t count) {
         return false;
     }
 
-    pos = pos < text.size() ? pos : text.size();
-    count = count < text.size() - pos ? count : text.size() - pos;
+    pos = std::min(pos, text.size());
+    count = std::min(count, text.size() - pos);
 
     const auto toLower = [](const wchar32 s) { return ToLower(s); };
 
@@ -283,12 +277,10 @@ bool ToTitle(std::u32string& text, size_t pos, size_t count) {
     if (firstSymbol == ToTitle(firstSymbol)) {
         p += 1;
         if (ModifySequence<true>(p, pe, toLower)) {
-            DetachAndFixPointers(text, p, pe);
             ModifySequence<false>(p, pe, toLower);
             return true;
         }
     } else {
-        DetachAndFixPointers(text, p, pe);
         WriteSymbol(ToTitle(ReadSymbol(p, pe)), p); // also moves `p` forward
         ModifySequence<false>(p, pe, toLower);
         return true;
@@ -491,8 +483,8 @@ bool ToTitle(wchar32* text, size_t length) noexcept {
 
 template <typename F>
 static std::u16string ToSmthRet(const std::u16string_view text, size_t pos, size_t count, F&& f) {
-    pos = pos < text.size() ? pos : text.size();
-    count = count < text.size() - pos ? count : text.size() - pos;
+    pos = std::min(pos, text.size());
+    count = std::min(count, text.size() - pos);
 
     std::u16string res(text.size(), '\0');
     auto* const resBegin = res.data();
@@ -512,8 +504,8 @@ static std::u16string ToSmthRet(const std::u16string_view text, size_t pos, size
 
 template <typename F>
 static std::u32string ToSmthRet(const std::u32string_view text, size_t pos, size_t count, F&& f) {
-    pos = pos < text.size() ? pos : text.size();
-    count = count < text.size() - pos ? count : text.size() - pos;
+    pos = std::min(pos, text.size());
+    count = std::min(count, text.size() - pos);
 
     std::u32string res(text.size(), '\0');
     auto* const resBegin = res.data();
@@ -579,11 +571,13 @@ void EscapeHtmlChars(std::u16string& str) {
 
     const std::u16string& cs = str;
 
-    for (size_t i = 0; i < cs.size(); ++i)
+    for (size_t i = 0; i < cs.size(); ++i) {
         escapedLen += EscapedLen<insertBr>(cs[i]);
+    }
 
-    if (escapedLen == cs.size())
+    if (escapedLen == cs.size()) {
         return;
+    }
 
     std::u16string res;
     res.reserve(escapedLen);
@@ -609,8 +603,9 @@ void EscapeHtmlChars(std::u16string& str) {
                 if (insertBr && (cs[i] == '\r' || cs[i] == '\n')) {
                     ent = &br;
                     break;
-                } else
+                } else {
                     continue;
+                }
         }
 
         res.append(cs.begin() + start, cs.begin() + i);
