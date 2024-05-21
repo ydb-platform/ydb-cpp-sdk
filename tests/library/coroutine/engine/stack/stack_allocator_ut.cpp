@@ -1,5 +1,6 @@
-#include <src/library/coroutine/engine/stack/stack_allocator.h>
-#include <src/library/coroutine/engine/stack/stack_common.h>
+#include "stack_allocator.h"
+#include "stack_common.h"
+
 #include <src/library/testing/gtest/gtest.h>
 
 
@@ -41,7 +42,7 @@ namespace NCoro::NStack::Tests {
 
         // Correct stack should have
         EXPECT_EQ(stack.GetSize(), stackSize); // predefined size
-        EXPECT_FALSE((size_t)stack.GetAlignedMemory() & PageSizeMask); // aligned pointer
+        EXPECT_FALSE(reinterpret_cast<size_t>(stack.GetAlignedMemory()) & PageSizeMask); // aligned pointer
         // Writable workspace
         auto workspace = Allocator_->GetStackWorkspace(stack.GetAlignedMemory(), stack.GetSize());
         for (size_t i = 0; i < workspace.size(); i += 512) {
@@ -91,7 +92,7 @@ namespace NCoro::NStack::Tests {
         THolder<IAllocator> Allocator_;
     };
 
-    typedef Types<TPoolTag, TSimpleTag> Implementations;
+    using Implementations = Types<TPoolTag, TSimpleTag>;
     TYPED_TEST_SUITE(TAllocatorFixture, Implementations);
 
     TYPED_TEST(TAllocatorFixture, StackOverflow) {

@@ -1,6 +1,7 @@
-#include <src/library/coroutine/engine/stack/stack_common.h>
-#include <src/library/coroutine/engine/stack/stack_guards.h>
-#include <src/library/coroutine/engine/stack/stack_pool.h>
+#include "stack_common.h"
+#include "stack_guards.h"
+#include "stack_pool.h"
+
 #include <src/library/testing/gtest/gtest.h>
 
 
@@ -18,7 +19,7 @@ namespace NCoro::NStack::Tests {
         TPool<TGuard> Pool_;
     };
 
-    typedef Types<TCanaryGuard, TPageGuard> Implementations;
+    using Implementations = Types<TCanaryGuard, TPageGuard>;
     TYPED_TEST_SUITE(TPoolFixture, Implementations);
 
     TYPED_TEST(TPoolFixture, AllocAndFreeStack) {

@@ -1,5 +1,6 @@
-#include <src/library/coroutine/engine/stack/stack_common.h>
-#include <src/library/coroutine/engine/stack/stack_utils.h>
+#include "stack_common.h"
+#include "stack_utils.h"
+
 #include <src/library/testing/gtest/gtest.h>
 
 
@@ -26,7 +27,7 @@ namespace NCoro::NStack::Tests {
             EXPECT_TRUE(GetAlignedMemory(i, rawPtr, alignedPtr));
             EXPECT_TRUE(rawPtr);
             EXPECT_TRUE(alignedPtr);
-            EXPECT_FALSE((size_t)alignedPtr & PageSizeMask);
+            EXPECT_FALSE(reinterpret_cast<size_t>(alignedPtr) & PageSizeMask);
 
             ReleaseRss(alignedPtr, i); // allocator can provide reused memory with RSS memory on it
             EXPECT_EQ(CountMapped(alignedPtr, i), 0ul); // no RSS memory allocated
@@ -48,7 +49,7 @@ namespace NCoro::NStack::Tests {
             EXPECT_TRUE(GetAlignedMemory(i, rawPtr, alignedPtr));
             EXPECT_TRUE(rawPtr);
             EXPECT_TRUE(alignedPtr);
-            EXPECT_FALSE((size_t)alignedPtr & PageSizeMask);
+            EXPECT_FALSE(reinterpret_cast<size_t>(alignedPtr) & PageSizeMask);
 
             ReleaseRss(alignedPtr, i); // allocator can provide reused memory with RSS memory on it
             EXPECT_EQ(CountMapped(alignedPtr, i), 0ul); // no RSS memory allocated
@@ -70,4 +71,3 @@ namespace NCoro::NStack::Tests {
 #endif
 
 }
-
