@@ -38,7 +38,7 @@ bool IsComparable(TInt128 v) {
 
 const char* ToString(TInt128 val, ui8 precision, ui8 scale) {
     if (!precision || precision > MaxPrecision || scale > precision) {
-        return nullptr;
+        return "";
     }
 
     if (val == Inf())
@@ -71,7 +71,7 @@ const char* ToString(TInt128 val, ui8 precision, ui8 scale) {
 
     do {
         if (!precision--) {
-            return nullptr;
+            return "";
         }
 
 

@@ -1,3 +1,5 @@
+add_subdirectory(public/decimal)
+
 add_ydb_test(NAME library-yql-utils-ut
   SOURCES
   utf8_ut.cpp
