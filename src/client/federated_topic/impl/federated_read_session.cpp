@@ -134,8 +134,7 @@ std::vector<TReadSessionEvent::TEvent> TFederatedReadSessionImpl::GetEvents(bool
     {
         std::lock_guard guard(Lock);
         if (Closing) {
-            // TODO correct conversion
-            return {NTopic::TSessionClosedEvent(FederationState->Status.GetStatus(), {})};
+            return {NTopic::TSessionClosedEvent(FederationState->Status.GetStatus(), NYql::TIssues(FederationState->Status.GetIssues()))};
         }
         // TODO!!! handle aborting or closing state
         //         via handler on SessionClosedEvent {
