@@ -28,6 +28,7 @@ public:
     std::string ToString(bool withPlan = false) const;
 
     std::optional<std::string> GetPlan() const;
+    std::optional<std::string> GetAst() const;
 
     TDuration GetTotalDuration() const;
     TDuration GetTotalCpuTime() const;
