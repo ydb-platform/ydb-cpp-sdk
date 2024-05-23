@@ -517,6 +517,11 @@ public:
         (NotReady.empty() ? Ready : NotReady).pop_back();
     }
 
+    void clear() noexcept {
+        NotReady.clear();
+        Ready.clear();
+    }
+
     void SignalReadyEvents(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> stream,
                            TReadSessionEventsQueue<UseMigrationProtocol>& queue,
                            TDeferredActions<UseMigrationProtocol>& deferred);
@@ -538,6 +543,7 @@ private:
                                  TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator,
                                  std::deque<TRawPartitionStreamEvent<UseMigrationProtocol>>& queue);
 
+private:
     std::deque<TRawPartitionStreamEvent<UseMigrationProtocol>> Ready;
     std::deque<TRawPartitionStreamEvent<UseMigrationProtocol>> NotReady;
 };
@@ -718,6 +724,10 @@ public:
 
     void DeleteNotReadyTail(TDeferredActions<UseMigrationProtocol>& deferred);
 
+    void ClearQueue() noexcept {
+        EventsQueue.clear();
+    }
+
     static void GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                                  size_t& maxEventsCount,
                                  size_t& maxByteSize,
@@ -777,8 +787,16 @@ public:
         TWaiter waiter;
         {
             std::lock_guard<std::mutex> guard(TParent::Mutex);
-            if (TParent::Closed)
+            if (TParent::Closed) {
                 return false;
+            }
+            while (!TParent::Events.empty()) {
+                auto& event = TParent::Events.front();
+                if (!event.IsEmpty()) {
+                    event.PartitionStream->ClearQueue();
+                }
+                TParent::Events.pop();
+            }
             TParent::CloseEvent = event;
             TParent::Closed = true;
             waiter = TWaiter(TParent::Waiter.ExtractPromise(), this);
@@ -958,6 +976,8 @@ public:
         , ReadSizeServerDelta(0)
     {
     }
+
+    ~TSingleClusterReadSessionImpl();
 
     void Start();
     void ConfirmPartitionStreamCreate(const TPartitionStreamImpl<UseMigrationProtocol>* partitionStream, std::optional<ui64> readOffset, std::optional<ui64> commitOffset);
