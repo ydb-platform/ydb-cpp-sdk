@@ -11,7 +11,6 @@ target_link_libraries(cpp-client-draft PUBLIC
 target_sources(cpp-client-draft PRIVATE
   ydb_dynamic_config.cpp
   ydb_scripting.cpp
-  ydb_long_tx.cpp
 )
 
 add_library(YDB-CPP-SDK::Draft ALIAS cpp-client-draft)

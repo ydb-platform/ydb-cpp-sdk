@@ -12,7 +12,6 @@ target_proto_messages(api-protos PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/draft/fq.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/draft/persqueue_common.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/draft/persqueue_error_codes.proto
-  ${YDB_SDK_SOURCE_DIR}/src/api/protos/draft/ydb_long_tx.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/draft/ydb_maintenance.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/draft/ydb_logstore.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/draft/ydb_dynamic_config.proto
