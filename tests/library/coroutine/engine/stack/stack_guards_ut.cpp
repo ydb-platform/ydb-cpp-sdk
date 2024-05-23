@@ -1,6 +1,7 @@
-#include <src/library/coroutine/engine/stack/stack_common.h>
-#include <src/library/coroutine/engine/stack/stack_guards.h>
-#include <src/library/coroutine/engine/stack/stack_utils.h>
+#include "stack_common.h"
+#include "stack_guards.h"
+#include "stack_utils.h"
+
 #include <src/library/testing/gtest/gtest.h>
 
 
@@ -16,7 +17,7 @@ namespace NCoro::NStack::Tests {
         const TGuard& Guard_;
     };
 
-    typedef Types<TCanaryGuard, TPageGuard> Implementations;
+    using Implementations = Types<TCanaryGuard, TPageGuard>;
     TYPED_TEST_SUITE(TGuardFixture, Implementations);
 
     TYPED_TEST(TGuardFixture, GuardSize) {
