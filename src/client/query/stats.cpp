@@ -46,6 +46,16 @@ std::optional<std::string> TExecStats::GetPlan() const {
     return proto.query_plan();
 }
 
+std::optional<std::string> TExecStats::GetAst() const {
+    auto proto = Impl_->Proto;
+
+    if (proto.query_ast().empty()) {
+        return {};
+    }
+
+    return proto.query_ast();
+}
+
 TDuration TExecStats::GetTotalDuration() const {
     return TDuration::MicroSeconds(Impl_->Proto.total_duration_us());
 }
