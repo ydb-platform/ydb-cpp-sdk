@@ -75,23 +75,6 @@ public:
     }
 };
 
-class TLongTxReadResult : public TOperation {
-public:
-    explicit TLongTxReadResult(TStatus&& status)
-        : TOperation(std::move(status))
-    {}
-
-    TLongTxReadResult(TStatus&& status, Ydb::Operations::Operation&& operation)
-        : TOperation(std::move(status), std::move(operation))
-    {}
-
-    Ydb::LongTx::ReadResult GetResult() {
-        Ydb::LongTx::ReadResult result;
-        GetProto().result().UnpackTo(&result);
-        return result;
-    }
-};
-
 struct TClientSettings : public TCommonClientSettingsBase<TClientSettings> {
     using TSelf = TClientSettings;
 };
@@ -102,17 +85,14 @@ public:
     using TAsyncCommitTxResult = NThreading::TFuture<TLongTxCommitResult>;
     using TAsyncRollbackTxResult = NThreading::TFuture<TLongTxRollbackResult>;
     using TAsyncWriteResult = NThreading::TFuture<TLongTxWriteResult>;
-    using TAsyncReadResult = NThreading::TFuture<TLongTxReadResult>;
 
     TClient(const TDriver& driver, const TClientSettings& settings = TClientSettings());
 
     TAsyncBeginTxResult BeginWriteTx();
-    TAsyncBeginTxResult BeginReadTx();
     TAsyncCommitTxResult CommitTx(const std::string& txId);
     TAsyncRollbackTxResult RollbackTx(const std::string& txId);
     TAsyncWriteResult Write(const std::string& txId, const std::string& table, const std::string& dedupId,
                             const std::string& data, Ydb::LongTx::Data::Format format);
-    TAsyncReadResult Read(const std::string& txId, const std::string& table);
 
 private:
     class TImpl;

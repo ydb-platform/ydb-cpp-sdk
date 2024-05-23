@@ -19,6 +19,13 @@
       }
     },
     {
+      "name": "debug-build",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
       "name": "clang-toolchain",
       "hidden": true,
       "toolchainFile": "${sourceDir}/clang.toolchain"
