@@ -77,19 +77,6 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncReadResult Read(const std::string& txId, const std::string& table,
-                          const TOpSettings& settings = TOpSettings()) {
-        auto request = MakeOperationRequest<Ydb::LongTx::ReadRequest>(settings);
-        request.set_tx_id(txId);
-        request.set_path(table);
-        // TODO: query
-
-        return RunOperation<Ydb::LongTx::V1::LongTxService,
-                            Ydb::LongTx::ReadRequest, Ydb::LongTx::ReadResponse, TLongTxReadResult>(
-            std::move(request),
-            &Ydb::LongTx::V1::LongTxService::Stub::AsyncRead,
-            TRpcRequestSettings::Make(settings));
-    }
 };
 
 TClient::TClient(const TDriver& driver, const TClientSettings& settings)
@@ -98,10 +85,6 @@ TClient::TClient(const TDriver& driver, const TClientSettings& settings)
 
 TClient::TAsyncBeginTxResult TClient::BeginWriteTx() {
     return Impl_->BeginTx(Ydb::LongTx::BeginTransactionRequest::WRITE);
-}
-
-TClient::TAsyncBeginTxResult TClient::BeginReadTx() {
-    return Impl_->BeginTx(Ydb::LongTx::BeginTransactionRequest::READ);
 }
 
 TClient::TAsyncCommitTxResult TClient::CommitTx(const std::string& txId) {
@@ -115,10 +98,6 @@ TClient::TAsyncRollbackTxResult TClient::RollbackTx(const std::string& txId) {
 TClient::TAsyncWriteResult TClient::Write(const std::string& txId, const std::string& table, const std::string& dedupId,
                                           const std::string& data, Ydb::LongTx::Data::Format format) {
     return Impl_->Write(txId, table, dedupId, data, format);
-}
-
-TClient::TAsyncReadResult TClient::Read(const std::string& txId, const std::string& table) {
-    return Impl_->Read(txId, table);
 }
 
 } // namespace NLongTx
