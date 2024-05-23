@@ -14,7 +14,6 @@ target_proto_messages(api-grpc-draft PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/api/grpc/draft/ydb_clickhouse_internal_v1.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/grpc/draft/ydb_persqueue_v1.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/grpc/draft/ydb_datastreams_v1.proto
-  ${YDB_SDK_SOURCE_DIR}/src/api/grpc/draft/ydb_long_tx_v1.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/grpc/draft/ydb_maintenance_v1.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/grpc/draft/ydb_logstore_v1.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/grpc/draft/ydb_dynamic_config_v1.proto
