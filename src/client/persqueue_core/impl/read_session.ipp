@@ -1,5 +1,7 @@
 #ifndef READ_SESSION_IMPL
 #error "Do not include this file directly"
+// For the sake of sane code completion.
+#include "read_session.h"
 #endif
 // #include "read_session.h"
 
@@ -224,6 +226,13 @@ void TRawPartitionStreamEventQueue<UseMigrationProtocol>::DeleteNotReadyTail(TDe
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TSingleClusterReadSessionImpl
+
+template<bool UseMigrationProtocol>
+TSingleClusterReadSessionImpl<UseMigrationProtocol>::~TSingleClusterReadSessionImpl() {
+    for (auto&& [_, partitionStream] : PartitionStreams) {
+        partitionStream->ClearQueue();
+    }
+}
 
 template<bool UseMigrationProtocol>
 TStringBuilder TSingleClusterReadSessionImpl<UseMigrationProtocol>::GetLogPrefix() const {
@@ -1056,6 +1065,7 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
         PartitionStreams[partitionStream->GetAssignId()];
     if (currentPartitionStream) {
         CookieMapping.RemoveMapping(currentPartitionStream->GetPartitionStreamId());
+
         bool pushRes = EventsQueue->PushEvent(
             currentPartitionStream,
              TReadSessionEvent::TPartitionStreamClosedEvent(
