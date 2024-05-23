@@ -18,6 +18,7 @@ namespace NYdb {
 
 namespace NIam {
 constexpr std::string_view DEFAULT_ENDPOINT = "iam.api.cloud.yandex.net";
+constexpr bool DEFAULT_ENABLE_SSL = true;
 
 constexpr std::string_view DEFAULT_HOST = "169.254.169.254";
 constexpr ui32 DEFAULT_PORT = 80;
@@ -36,6 +37,7 @@ struct TIamEndpoint {
     std::string Endpoint = std::string(NIam::DEFAULT_ENDPOINT);
     TDuration RefreshPeriod = NIam::DEFAULT_REFRESH_PERIOD;
     TDuration RequestTimeout = NIam::DEFAULT_REQUEST_TIMEOUT;
+    bool EnableSsl = NIam::DEFAULT_ENABLE_SSL;
 };
 
 struct TIamJwtFilename : TIamEndpoint { std::string JwtFilename; };
@@ -89,7 +91,7 @@ private:
         {
             NYdbGrpc::TGRpcClientConfig grpcConf;
             grpcConf.Locator = IamEndpoint_.Endpoint;
-            grpcConf.EnableSsl = true;
+            grpcConf.EnableSsl = IamEndpoint_.EnableSsl;
             Connection_ = THolder<NYdbGrpc::TServiceConnection<TService>>(Client->CreateGRpcServiceConnection<TService>(grpcConf).release());
         }
 
