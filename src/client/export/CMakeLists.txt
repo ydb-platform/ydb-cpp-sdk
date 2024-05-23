@@ -13,6 +13,7 @@ target_link_libraries(cpp-client-ydb_export PUBLIC
 
 target_sources(cpp-client-ydb_export PRIVATE
   export.cpp
+  out.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_export

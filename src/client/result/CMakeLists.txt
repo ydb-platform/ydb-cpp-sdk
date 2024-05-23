@@ -11,6 +11,7 @@ target_link_libraries(cpp-client-ydb_result PUBLIC
 target_sources(cpp-client-ydb_result PRIVATE
   proto_accessor.cpp
   result.cpp
+  out.cpp
 )
 
 add_library(YDB-CPP-SDK::Result ALIAS cpp-client-ydb_result)
