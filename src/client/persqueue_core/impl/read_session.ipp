@@ -2320,8 +2320,7 @@ i64 TDataDecompressionInfo<UseMigrationProtocol>::StartDecompressionTasks(
 
 template<bool UseMigrationProtocol>
 void TDataDecompressionInfo<UseMigrationProtocol>::PlanDecompressionTasks(double averageCompressionRatio,
-                                                                          TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream)
-{
+                                                                          TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream) {
     constexpr size_t TASK_LIMIT = 512_KB;
 
     auto session = CbContext->LockShared();
@@ -2350,8 +2349,7 @@ void TDataDecompressionInfo<UseMigrationProtocol>::PlanDecompressionTasks(double
                                                      TDataDecompressionInfo::shared_from_this(),
                                                      ReadyThresholds.back().Ready);
             if (!pushRes) {
-                // std::lock_guard guard(session->Lock);
-                session->Abort();
+                session->AbortImpl();
                 return;
             }
         }
