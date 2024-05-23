@@ -104,7 +104,3 @@ bool TStreamPartStatus::EOS() const {
 }
 
 } // namespace NYdb
-
-Y_DECLARE_OUT_SPEC(, NYdb::TStatus, o, x) {
-    return x.Out(o);
-}

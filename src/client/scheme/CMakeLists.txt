@@ -10,6 +10,7 @@ target_link_libraries(cpp-client-ydb_scheme PUBLIC
 
 target_sources(cpp-client-ydb_scheme PRIVATE
   scheme.cpp
+  out.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_scheme

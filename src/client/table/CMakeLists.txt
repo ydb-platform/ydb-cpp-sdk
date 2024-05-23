@@ -25,6 +25,7 @@ target_link_libraries(cpp-client-ydb_table PUBLIC
 target_sources(cpp-client-ydb_table PRIVATE
   table.cpp
   proto_accessor.cpp
+  out.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_table
