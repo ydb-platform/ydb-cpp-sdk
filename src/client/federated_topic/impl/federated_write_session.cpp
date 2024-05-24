@@ -64,7 +64,7 @@ void TFederatedWriteSession::OpenSubSessionImpl(std::shared_ptr<TDbInfo> db) {
 
     auto handlers = NTopic::TWriteSessionSettings::TEventHandlers()
         .HandlersExecutor(Settings.EventHandlers_.HandlersExecutor_)
-        .ReadyToAcceptHander([self = shared_from_this()](NTopic::TWriteSessionEvent::TReadyToAcceptEvent& ev){
+        .ReadyToAcceptHandler([self = shared_from_this()](NTopic::TWriteSessionEvent::TReadyToAcceptEvent& ev){
             TDeferredWrite deferred(self->Subsession);
             {
                 std::lock_guard guard(self->Lock);
