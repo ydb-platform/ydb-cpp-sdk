@@ -734,8 +734,8 @@ void TWriteSessionImpl::InitImpl() {
     LOG_LAZY(DbDriverState->Log, TLOG_DEBUG, LogPrefix() << "Write session: send init request: "<< req.ShortDebugString());
     
     TRACE_LAZY(DbDriverState->Log, "InitRequest",
-        TRACE_KV_IF(init->has_partition_id(), "partition_id", init->partition_id()),
-        TRACE_IF(init->has_partition_with_generation(),
+        TRACE_KV_IF(init->partitioning_case() == Ydb::Topic::StreamWriteMessage_InitRequest::kPartitionId, "partition_id", init->partition_id()),
+        TRACE_IF(init->partitioning_case() == Ydb::Topic::StreamWriteMessage_InitRequest::kPartitionWithGeneration,
             TRACE_KV("pwg_partition_id", init->partition_with_generation().partition_id()),
             TRACE_KV("pwg_generation", init->partition_with_generation().generation())
         ));
