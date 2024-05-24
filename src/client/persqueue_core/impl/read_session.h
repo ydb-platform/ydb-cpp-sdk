@@ -728,6 +728,10 @@ public:
         EventsQueue.clear();
     }
 
+    TRawPartitionStreamEventQueue<UseMigrationProtocol> ExtractQueue() noexcept {
+        return std::move(EventsQueue);
+    }
+
     static void GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                                  size_t& maxEventsCount,
                                  size_t& maxByteSize,
@@ -785,15 +789,16 @@ public:
 
     bool Close(const TASessionClosedEvent<UseMigrationProtocol>& event, TDeferredActions<UseMigrationProtocol>& deferred) {
         TWaiter waiter;
-        {
-            std::lock_guard<std::mutex> guard(TParent::Mutex);
+        std::vector<TRawPartitionStreamEventQueue<UseMigrationProtocol>> defferedDelete;
+        with_lock(TParent::Mutex) {
             if (TParent::Closed) {
                 return false;
             }
+            defferedDelete.reserve(TParent::Events.size());
             while (!TParent::Events.empty()) {
                 auto& event = TParent::Events.front();
                 if (!event.IsEmpty()) {
-                    event.PartitionStream->ClearQueue();
+                    defferedDelete.push_back(event.PartitionStream->ExtractQueue());
                 }
                 TParent::Events.pop();
             }
@@ -801,6 +806,9 @@ public:
             TParent::Closed = true;
             waiter = TWaiter(TParent::Waiter.ExtractPromise(), this);
         }
+
+        // Delayed deletion is necessary to avoid deadlock with PushEvent
+        defferedDelete.clear();
 
         TReadSessionEventInfo<UseMigrationProtocol> info(event);
         ApplyHandler(info, deferred);
