@@ -462,7 +462,7 @@ template <typename TKey, typename TValue, typename TListType, typename TDeleter,
 class TCache {
     typedef typename TListType::TItem TItem;
     typedef typename TItem::THash THash;
-    typedef std::unordered_multiset<TItem, THash, typename TItem::TEqualTo, TAllocator> TIndex;
+    typedef std::unordered_multiset<TItem, THash, typename TItem::TEqualTo, std::allocator<TItem>> TIndex;
     typedef typename TIndex::iterator TIndexIterator;
     typedef typename TIndex::const_iterator TIndexConstIterator;
 
