@@ -20,6 +20,8 @@ struct TS3Settings {
     FLUENT_SETTING(std::string, Bucket);
     FLUENT_SETTING(std::string, AccessKey);
     FLUENT_SETTING(std::string, SecretKey);
+    // true by default for backward compatibility
+    FLUENT_SETTING_DEFAULT(bool, UseVirtualAddressing, true);
 };
 
 } // namespace NYdb

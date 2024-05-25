@@ -1,5 +1,6 @@
 set(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET "" CACHE STRING "Name of cmake target preparing google common proto library")
 option(YDB_SDK_USE_RAPID_JSON "" ON)
+option(YDB_SDK_GRPC_CONFIG_SEARCH "" OFF)
 
 find_package(IDN REQUIRED)
 find_package(Iconv REQUIRED)

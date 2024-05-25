@@ -1,7 +1,8 @@
-#include <src/library/coroutine/engine/stack/stack.h>
-#include <src/library/coroutine/engine/stack/stack_common.h>
-#include <src/library/coroutine/engine/stack/stack_guards.h>
-#include <src/library/coroutine/engine/stack/stack_utils.h>
+#include "stack.h"
+#include "stack_common.h"
+#include "stack_guards.h"
+#include "stack_utils.h"
+
 #include <src/library/testing/gtest/gtest.h>
 
 
@@ -40,7 +41,7 @@ namespace NCoro::NStack::Tests {
         THolder<NDetails::TStack> Stack_;
     };
 
-    typedef Types<TCanaryGuard, TPageGuard> Implementations;
+    using Implementations = Types<TCanaryGuard, TPageGuard>;
     TYPED_TEST_SUITE(TStackFixture, Implementations);
 
     TYPED_TEST(TStackFixture, PointersAndSize) {

@@ -77,7 +77,7 @@ public:
                     stats = TExecStats(std::move(*self->Response_.mutable_exec_stats()));
                 }
 
-                if (self->Response_.has_tx_meta() && self->Session_.has_value()) {
+                if (self->Response_.has_tx_meta() && !self->Response_.tx_meta().id().empty() && self->Session_.has_value()) {
                     tx = TTransaction(self->Session_.value(), self->Response_.tx_meta().id());
                 }
 
@@ -136,16 +136,21 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
         Iterator_.ReadNext().Subscribe([self](TAsyncExecuteQueryPart partFuture) mutable {
             auto part = partFuture.ExtractValue();
 
+            if (const auto& st = part.GetStats()) {
+                self->Stats_ = st;
+            }
+
             if (!part.IsSuccess()) {
+                std::optional<TExecStats> stats;
+                std::swap(self->Stats_, stats);
+
                 if (part.EOS()) {
                     std::vector<NYql::TIssue> issues;
                     std::vector<Ydb::ResultSet> resultProtos;
-                    std::optional<TExecStats> stats;
                     std::optional<TTransaction> tx;
 
                     std::swap(self->Issues_, issues);
                     std::swap(self->ResultSets_, resultProtos);
-                    std::swap(self->Stats_, stats);
                     std::swap(self->Tx_, tx);
 
                     std::vector<TResultSet> resultSets;
@@ -160,7 +165,7 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
                         std::move(tx)
                     ));
                 } else {
-                    self->Promise_.SetValue(TExecuteQueryResult(std::move(part), {}, {}, {}));
+                    self->Promise_.SetValue(TExecuteQueryResult(std::move(part), {}, std::move(stats), {}));
                 }
 
                 return;
@@ -186,10 +191,6 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
                 for (const auto& row : inRsProto.rows()) {
                     *resultSet.mutable_rows()->Add() = row;
                 }
-            }
-
-            if (const auto& st = part.GetStats()) {
-                self->Stats_ = st;
             }
 
             if (const auto& tx = part.GetTransaction()) {

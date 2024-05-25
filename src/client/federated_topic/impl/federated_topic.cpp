@@ -3,10 +3,21 @@
 
 namespace NYdb::NFederatedTopic {
 
-NTopic::TTopicClientSettings FromFederated(const TFederatedTopicClientSettings& settings) {
-    return NTopic::TTopicClientSettings()
-        .DefaultCompressionExecutor(settings.DefaultCompressionExecutor_)
-        .DefaultHandlersExecutor(settings.DefaultHandlersExecutor_);
+NTopic::TTopicClientSettings FromFederated(const TFederatedTopicClientSettings& fedSettings) {
+    auto settings = NTopic::TTopicClientSettings()
+        .DefaultCompressionExecutor(fedSettings.DefaultCompressionExecutor_)
+        .DefaultHandlersExecutor(fedSettings.DefaultHandlersExecutor_);
+
+    if (fedSettings.CredentialsProviderFactory_) {
+        settings.CredentialsProviderFactory(*fedSettings.CredentialsProviderFactory_);
+    }
+    if (fedSettings.SslCredentials_) {
+        settings.SslCredentials(*fedSettings.SslCredentials_);
+    }
+    if (fedSettings.DiscoveryMode_) {
+        settings.DiscoveryMode(*fedSettings.DiscoveryMode_);
+    }
+    return settings;
 }
 
 TFederatedTopicClient::TFederatedTopicClient(const TDriver& driver, const TFederatedTopicClientSettings& settings)

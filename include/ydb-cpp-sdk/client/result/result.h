@@ -106,7 +106,3 @@ private:
 using TResultSets = std::vector<TResultSet>;
 
 } // namespace NYdb
-
-Y_DECLARE_OUT_SPEC(inline, NYdb::TColumn, o, x) {
-    return x.Out(o);
-}

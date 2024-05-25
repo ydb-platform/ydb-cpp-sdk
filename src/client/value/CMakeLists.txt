@@ -14,6 +14,7 @@ target_link_libraries(cpp-client-ydb_value PUBLIC
 
 target_sources(cpp-client-ydb_value PRIVATE
   value.cpp
+  out.cpp
 )
 
 generate_enum_serilization(cpp-client-ydb_value

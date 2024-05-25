@@ -9,6 +9,7 @@
 #include <src/api/protos/ydb_scheme.pb.h>
 #include <src/client/common_client/impl/client.h>
 
+#include <src/util/string/join.h>
 
 namespace NYdb {
 namespace NScheme {
@@ -32,8 +33,8 @@ std::string TVirtualTimestamp::ToString() const {
     return result;
 }
 
-void TVirtualTimestamp::Out(IOutputStream& o) const {
-    o << "{ plan_step: " << PlanStep
+void TVirtualTimestamp::Out(IOutputStream& out) const {
+    out << "{ plan_step: " << PlanStep
       << ", tx_id: " << TxId
       << " }";
 }
@@ -108,6 +109,15 @@ TSchemeEntry::TSchemeEntry(const ::Ydb::Scheme::Entry& proto)
 {
     PermissionToSchemeEntry(proto.effective_permissions(), &EffectivePermissions);
     PermissionToSchemeEntry(proto.permissions(), &Permissions);
+}
+
+void TSchemeEntry::Out(IOutputStream& out) const {
+    out << "{ name: " << Name
+        << ", owner: " << Owner
+        << ", type: " << Type
+        << ", size_bytes: " << SizeBytes
+        << ", created_at: " << CreatedAt
+        << " }";
 }
 
 class TSchemeClient::TImpl : public TClientImplCommon<TSchemeClient::TImpl> {
@@ -252,6 +262,14 @@ const TSchemeEntry& TDescribePathResult::GetEntry() const {
     return Entry_;
 }
 
+void TDescribePathResult::Out(IOutputStream& out) const {
+    if (IsSuccess()) {
+        return Entry_.Out(out);
+    } else {
+        return TStatus::Out(out);
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 TListDirectoryResult::TListDirectoryResult(TStatus&& status, const TSchemeEntry& self, std::vector<TSchemeEntry>&& children)
@@ -262,6 +280,14 @@ TListDirectoryResult::TListDirectoryResult(TStatus&& status, const TSchemeEntry&
 const std::vector<TSchemeEntry>& TListDirectoryResult::GetChildren() const {
     CheckStatusOk("TListDirectoryResult::GetChildren");
     return Children_;
+}
+
+void TListDirectoryResult::Out(IOutputStream& out) const {
+    if (IsSuccess()) {
+        out << "{ children [" << JoinSeq(", ", Children_) << "] }";
+    } else {
+        return TStatus::Out(out);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -296,7 +322,3 @@ TAsyncStatus TSchemeClient::ModifyPermissions(const std::string& path,
 
 } // namespace NScheme
 } // namespace NYdb
-
-Y_DECLARE_OUT_SPEC(, NYdb::NScheme::TVirtualTimestamp, o, x) {
-    return x.Out(o);
-}

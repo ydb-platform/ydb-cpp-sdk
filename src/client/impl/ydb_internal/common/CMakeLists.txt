@@ -9,6 +9,7 @@ target_link_libraries(impl-ydb_internal-common PUBLIC
 target_sources(impl-ydb_internal-common PRIVATE
   parser.cpp
   getenv.cpp
+  client_pid.cpp
 )
 
 

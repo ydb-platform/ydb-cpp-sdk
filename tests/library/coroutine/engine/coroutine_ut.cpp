@@ -116,7 +116,7 @@ void TCoroTest::TestException() {
 
     auto f2 = [&unc, &f2run](TCont*) {
         f2run = true;
-        unc = std::uncaught_exception();
+        unc = std::uncaught_exceptions() > 0;
 
         // check segfault
         try {
@@ -319,7 +319,7 @@ static void CoCondVarTest(TCont* c, void* /*run*/) {
     c->Yield();
 
     for (size_t i5 = 0; i5 < 3; ++i5) {
-        res += ToString((size_t)i5) + "^";
+        res += ToString(i5) + "^";
         c1.BroadCast();
         c->Yield();
     }
@@ -464,7 +464,7 @@ namespace NCoroJoinCancelExitRaceBug {
     };
 
     static void DoAux(TCont*, void* argPtr) noexcept {
-        TState& state = *(TState*)(argPtr);
+        TState& state = *reinterpret_cast<TState*>(argPtr);
 
         // 06.{Ready:[Sub2]} > {Ready:[Sub2,Sub]}
         state.Sub->Cancel();
@@ -476,7 +476,7 @@ namespace NCoroJoinCancelExitRaceBug {
     }
 
     static void DoSub(TCont* cont, void* argPtr) noexcept {
-        TState& state = *(TState*)(argPtr);
+        TState& state = *reinterpret_cast<TState*>(argPtr);
         state.Sub = cont;
 
         // 04.{Ready:[Aux]} > {Ready:[Aux,Sub2]}
@@ -545,7 +545,7 @@ namespace NCoroWaitWakeLivelockBug {
     }
 
     static void DoStop(TCont* cont, void* argPtr) {
-        TState& state = *(TState*)(argPtr);
+        TState& state = *reinterpret_cast<TState*>(argPtr);
 
         TTimerEvent event(cont, TInstant::Now());
         ExecuteEvent(&event);
@@ -558,7 +558,7 @@ namespace NCoroWaitWakeLivelockBug {
     }
 
     static void DoSub(TCont* cont, void* argPtr) {
-        TSubState& state = *(TSubState*)(argPtr);
+        TSubState& state = *reinterpret_cast<TSubState*>(argPtr);
 
         while (!state.Parent.Stop) {
             TTimerEvent event(cont, TInstant::Max());
@@ -629,7 +629,7 @@ namespace NCoroTestFastPathWake {
 
     static void DoIoSleep(TCont* cont, void* argPtr) noexcept {
         try {
-            TState& state = *(TState*) (argPtr);
+            TState& state = *reinterpret_cast<TState*>(argPtr);
             state.IoSleepRunning = true;
 
             TTempBuf tmp;
@@ -648,7 +648,7 @@ namespace NCoroTestFastPathWake {
     }
 
     static void DoSub(TCont* cont, void* argPtr) noexcept {
-        TSubState& state = *(TSubState*)(argPtr);
+        TSubState& state = *reinterpret_cast<TSubState*>(argPtr);
 
         TTimerEvent event(cont, TInstant::Max());
         state.Event = &event;
@@ -749,7 +749,7 @@ namespace NCoroTestLegacyCancelYieldRaceBug {
     };
 
     static void DoSub(TCont* cont, void* argPtr) {
-        TState& state = *(TState*)argPtr;
+        TState& state = *reinterpret_cast<TState*>(argPtr);
         state.SubState = EState::Running;
         cont->Yield();
         cont->Yield();
@@ -757,7 +757,7 @@ namespace NCoroTestLegacyCancelYieldRaceBug {
     }
 
     static void DoMain(TCont* cont, void* argPtr) {
-        TState& state = *(TState*)argPtr;
+        TState& state = *reinterpret_cast<TState*>(argPtr);
         TCont* sub =  cont->Executor()->Create(DoSub, argPtr, "Sub");
         sub->Cancel();
         cont->Yield();
@@ -785,7 +785,7 @@ namespace NCoroTestJoinRescheduleBug {
     };
 
     static void DoSubC(TCont* cont, void* argPtr) {
-        TState& state = *(TState*)argPtr;
+        TState& state = *reinterpret_cast<TState*>(argPtr);
         state.SubCState = EState::Running;
         while (state.SubBState != EState::Running) {
             cont->Yield();
@@ -796,7 +796,7 @@ namespace NCoroTestJoinRescheduleBug {
     }
 
     static void DoSubB(TCont* cont, void* argPtr) {
-        TState& state = *(TState*)argPtr;
+        TState& state = *reinterpret_cast<TState*>(argPtr);
         state.SubBState = EState::Running;
         while (state.SubAState != EState::Running && state.SubCState != EState::Running) {
             cont->Yield();
@@ -813,7 +813,7 @@ namespace NCoroTestJoinRescheduleBug {
     }
 
     static void DoSubA(TCont* cont, void* argPtr) {
-        TState& state = *(TState*)argPtr;
+        TState& state = *reinterpret_cast<TState*>(argPtr);
         state.SubAState = EState::Running;
         TCont* subC = cont->Executor()->Create(DoSubC, argPtr, "SubC");
         while (state.SubBState != EState::Running && state.SubCState != EState::Running) {
@@ -826,7 +826,7 @@ namespace NCoroTestJoinRescheduleBug {
     }
 
     static void DoMain(TCont* cont, void* argPtr) {
-        TState& state = *(TState*)argPtr;
+        TState& state = *reinterpret_cast<TState*>(argPtr);
         TCont* subA = cont->Executor()->Create(DoSubA, argPtr, "SubA");
         state.SubA = subA;
         cont->Join(cont->Executor()->Create(DoSubB, argPtr, "SubB"));
