@@ -1599,7 +1599,7 @@ public:
     }
 
     //! Message body.
-    const std::string_view Data;
+    std::string_view Data;
 
     //! Codec and original size for compressed message.
     //! Do not specify or change these options directly, use CompressedMessage()
