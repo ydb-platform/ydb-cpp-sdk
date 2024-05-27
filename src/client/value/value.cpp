@@ -1196,6 +1196,26 @@ public:
         return GetProto().int64_value();
     }
 
+    i32 GetDate32() const {
+        CheckPrimitive(NYdb::EPrimitiveType::Date32);
+        return GetProto().int32_value();
+    }
+
+    i64 GetDatetime64() const {
+        CheckPrimitive(NYdb::EPrimitiveType::Datetime64);
+        return GetProto().int64_value();
+    }
+
+    i64 GetTimestamp64() const {
+        CheckPrimitive(NYdb::EPrimitiveType::Timestamp64);
+        return GetProto().int64_value();
+    }
+
+    i64 GetInterval64() const {
+        CheckPrimitive(NYdb::EPrimitiveType::Interval64);
+        return GetProto().int64_value();
+    }
+
     const std::string& GetTzDate() const {
         CheckPrimitive(NYdb::EPrimitiveType::TzDate);
         return GetProto().text_value();
@@ -1578,9 +1598,14 @@ private:
             case NYdb::EPrimitiveType::Date:
             case NYdb::EPrimitiveType::Datetime:
                 return Ydb::Value::kUint32Value;
+            case NYdb::EPrimitiveType::Date32:
+                return Ydb::Value::kInt32Value;
             case NYdb::EPrimitiveType::Timestamp:
                 return Ydb::Value::kUint64Value;
             case NYdb::EPrimitiveType::Interval:
+            case NYdb::EPrimitiveType::Interval64:
+            case NYdb::EPrimitiveType::Timestamp64:
+            case NYdb::EPrimitiveType::Datetime64:
                 return Ydb::Value::kInt64Value;
             case NYdb::EPrimitiveType::TzDate:
             case NYdb::EPrimitiveType::TzDatetime:
@@ -1699,6 +1724,22 @@ i64 TValueParser::GetInterval() const {
     return Impl_->GetInterval();
 }
 
+i32 TValueParser::GetDate32() const {
+    return Impl_->GetDate32();
+}
+
+i64 TValueParser::GetDatetime64() const {
+    return Impl_->GetDatetime64();
+}
+
+i64 TValueParser::GetTimestamp64() const {
+    return Impl_->GetTimestamp64();
+}
+
+i64 TValueParser::GetInterval64() const {
+    return Impl_->GetInterval64();
+}
+
 const std::string& TValueParser::GetTzDate() const {
     return Impl_->GetTzDate();
 }
@@ -1813,6 +1854,22 @@ std::optional<TInstant> TValueParser::GetOptionalTimestamp() const {
 
 std::optional<i64> TValueParser::GetOptionalInterval() const {
     RET_OPT_VALUE(i64, Interval);
+}
+
+std::optional<i32> TValueParser::GetOptionalDate32() const {
+    RET_OPT_VALUE(i64, Date32);
+}
+
+std::optional<i64> TValueParser::GetOptionalDatetime64() const {
+    RET_OPT_VALUE(i64, Datetime64);
+}
+
+std::optional<i64> TValueParser::GetOptionalTimestamp64() const {
+    RET_OPT_VALUE(i64, Timestamp64);
+}
+
+std::optional<i64> TValueParser::GetOptionalInterval64() const {
+    RET_OPT_VALUE(i64, Interval64);
 }
 
 std::optional<std::string> TValueParser::GetOptionalTzDate() const {
