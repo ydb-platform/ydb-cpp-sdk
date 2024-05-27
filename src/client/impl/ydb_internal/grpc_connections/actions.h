@@ -11,7 +11,7 @@
 
 #include <ydb-cpp-sdk/util/thread/pool.h>
 
-#include <grpc++/alarm.h>
+#include <grpcpp/alarm.h>
 
 namespace NYdb {
 
