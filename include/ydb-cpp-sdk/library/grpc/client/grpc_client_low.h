@@ -4,9 +4,9 @@
 
 #include <ydb-cpp-sdk/util/thread/factory.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
-#include <grpc++/grpc++.h>
-#include <grpc++/support/async_stream.h>
-#include <grpc++/support/async_unary_call.h>
+#include <grpcpp/grpcpp.h>
+#include <grpcpp/support/async_stream.h>
+#include <grpcpp/support/async_unary_call.h>
 
 #include <deque>
 #include <condition_variable>
