@@ -431,6 +431,10 @@ public:
     TDerived& Uuid(const TUuidValue& value);
     TDerived& JsonDocument(const std::string& value);
     TDerived& DyNumber(const std::string& value);
+    TDerived& Date32(const i32 value);
+    TDerived& Datetime64(const i64 value);
+    TDerived& Timestamp64(const i64 value);
+    TDerived& Interval64(const i64 value);
 
     TDerived& OptionalBool(const std::optional<bool>& value);
     TDerived& OptionalInt8(const std::optional<i8>& value);
@@ -457,6 +461,10 @@ public:
     TDerived& OptionalUuid(const std::optional<TUuidValue>& value);
     TDerived& OptionalJsonDocument(const std::optional<std::string>& value);
     TDerived& OptionalDyNumber(const std::optional<std::string>& value);
+    TDerived& OptionalDate32(const std::optional<i32>& value);
+    TDerived& OptionalDatetime64(const std::optional<i64>& value);
+    TDerived& OptionalTimestamp64(const std::optional<i64>& value);
+    TDerived& OptionalInterval64(const std::optional<i64>& value);
 
     // Optional
     TDerived& BeginOptional();
