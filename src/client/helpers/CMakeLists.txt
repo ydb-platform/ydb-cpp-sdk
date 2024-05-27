@@ -2,7 +2,7 @@ add_library(cpp-client-helpers)
 
 target_link_libraries(cpp-client-helpers PUBLIC
   yutil
-  cpp-client-iam
+  client-iam-common
   client-ydb_types-credentials
   public-issue-protos
 )
