@@ -11,5 +11,3 @@ target_link_libraries(cpp-client-iam PUBLIC
 target_sources(cpp-client-iam PRIVATE
   iam.cpp
 )
-
-add_library(YDB-CPP-SDK::Iam ALIAS cpp-client-iam)

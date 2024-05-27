@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/helpers/helpers.h>
 
-#include <ydb-cpp-sdk/client/iam/iam.h>
+#include <ydb-cpp-sdk/client/iam/common/iam.h>
 #include <ydb-cpp-sdk/client/resources/ydb_ca.h>
 #include <src/client/impl/ydb_internal/common/parser.h>
 #include <src/client/impl/ydb_internal/common/getenv.h>
