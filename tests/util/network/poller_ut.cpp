@@ -1,11 +1,15 @@
-#include <src/library/testing/unittest/registar.h>
-#include <ydb-cpp-sdk/util/system/error.h>
-
 #include "pair.h"
 #include "poller.h"
 #include "pollerimpl.h"
 
+#include <src/library/testing/unittest/registar.h>
+
+#include <ydb-cpp-sdk/util/system/error.h>
+
+
 Y_UNIT_TEST_SUITE(TSocketPollerTest) {
+    static int data = 42;
+
     Y_UNIT_TEST(TestSimple) {
         SOCKET sockets[2];
         UNIT_ASSERT(SocketPair(sockets) == 0);
@@ -14,7 +18,7 @@ Y_UNIT_TEST_SUITE(TSocketPollerTest) {
         TSocketHolder s2(sockets[1]);
 
         TSocketPoller poller;
-        poller.WaitRead(sockets[1], (void*)17);
+        poller.WaitRead(sockets[1], &data);
 
         UNIT_ASSERT_VALUES_EQUAL(nullptr, poller.WaitT(TDuration::Zero()));
         UNIT_ASSERT_VALUES_EQUAL(nullptr, poller.WaitT(TDuration::Zero()));
@@ -23,7 +27,7 @@ Y_UNIT_TEST_SUITE(TSocketPollerTest) {
             char buf[] = {18};
             UNIT_ASSERT_VALUES_EQUAL(1, send(sockets[0], buf, 1, 0));
 
-            UNIT_ASSERT_VALUES_EQUAL((void*)17, poller.WaitT(TDuration::Zero()));
+            UNIT_ASSERT_VALUES_EQUAL(&data, poller.WaitT(TDuration::Zero()));
 
             UNIT_ASSERT_VALUES_EQUAL(1, recv(sockets[1], buf, 1, 0));
             UNIT_ASSERT_VALUES_EQUAL(18, buf[0]);
@@ -46,7 +50,7 @@ Y_UNIT_TEST_SUITE(TSocketPollerTest) {
         UNIT_ASSERT_VALUES_EQUAL(nullptr, poller.WaitT(TDuration::Zero()));
 
         for (ui32 i = 0; i < 3; ++i) {
-            poller.WaitReadOneShot(sockets[1], (void*)17);
+            poller.WaitReadOneShot(sockets[1], &data);
 
             char buf[1];
 
@@ -54,7 +58,7 @@ Y_UNIT_TEST_SUITE(TSocketPollerTest) {
 
             UNIT_ASSERT_VALUES_EQUAL(1, send(sockets[0], buf, 1, 0));
 
-            UNIT_ASSERT_VALUES_EQUAL((void*)17, poller.WaitT(TDuration::Zero()));
+            UNIT_ASSERT_VALUES_EQUAL(&data, poller.WaitT(TDuration::Zero()));
 
             UNIT_ASSERT_VALUES_EQUAL(1, recv(sockets[1], buf, 1, 0));
             UNIT_ASSERT_VALUES_EQUAL(char(i + 20), buf[0]);
@@ -116,10 +120,10 @@ Y_UNIT_TEST_SUITE(TSocketPollerTest) {
         UNIT_ASSERT_VALUES_EQUAL(nullptr, poller.WaitT(TDuration::Zero()));
 
         for (ui32 i = 0; i < 3; ++i) {
-            poller.WaitReadWriteEdgeTriggered(sockets[1], (void*)17);
+            poller.WaitReadWriteEdgeTriggered(sockets[1], &data);
 
             // notify about writeble
-            UNIT_ASSERT_VALUES_EQUAL((void*)17, poller.WaitT(TDuration::Zero()));
+            UNIT_ASSERT_VALUES_EQUAL(&data, poller.WaitT(TDuration::Zero()));
             UNIT_ASSERT_VALUES_EQUAL(nullptr, poller.WaitT(TDuration::Zero()));
 
             char buf[2];
@@ -130,11 +134,11 @@ Y_UNIT_TEST_SUITE(TSocketPollerTest) {
             // send one byte
             UNIT_ASSERT_VALUES_EQUAL(1, send(sockets[0], buf, 1, 0));
 
-            UNIT_ASSERT_VALUES_EQUAL((void*)17, poller.WaitT(TDuration::Zero()));
+            UNIT_ASSERT_VALUES_EQUAL(&data, poller.WaitT(TDuration::Zero()));
             UNIT_ASSERT_VALUES_EQUAL(nullptr, poller.WaitT(TDuration::Zero()));
 
             // restart without reading
-            poller.RestartReadWriteEdgeTriggered(sockets[1], (void*)17, false);
+            poller.RestartReadWriteEdgeTriggered(sockets[1], &data, false);
 
             // after restart read and write might generate separate events
             {
@@ -142,7 +146,7 @@ Y_UNIT_TEST_SUITE(TSocketPollerTest) {
                 size_t count = poller.WaitT(events, 3, TDuration::Zero());
                 UNIT_ASSERT_GE(count, 1);
                 UNIT_ASSERT_LE(count, 2);
-                UNIT_ASSERT_VALUES_EQUAL(events[0], (void*)17);
+                UNIT_ASSERT_VALUES_EQUAL(events[0], &data);
             }
 
             UNIT_ASSERT_VALUES_EQUAL(nullptr, poller.WaitT(TDuration::Zero()));
@@ -176,12 +180,12 @@ Y_UNIT_TEST_SUITE(TSocketPollerTest) {
             UNIT_ASSERT_VALUES_EQUAL(EAGAIN, LastSystemError());
 
             // restart after end (noop for epoll)
-            poller.RestartReadWriteEdgeTriggered(sockets[1], (void*)17, true);
+            poller.RestartReadWriteEdgeTriggered(sockets[1], &data, true);
 
             // send and recv byte
             UNIT_ASSERT_VALUES_EQUAL(1, send(sockets[0], buf, 1, 0));
 
-            UNIT_ASSERT_VALUES_EQUAL((void*)17, poller.WaitT(TDuration::Zero()));
+            UNIT_ASSERT_VALUES_EQUAL(&data, poller.WaitT(TDuration::Zero()));
             UNIT_ASSERT_VALUES_EQUAL(nullptr, poller.WaitT(TDuration::Zero()));
 
             // recv and see end
@@ -195,9 +199,9 @@ Y_UNIT_TEST_SUITE(TSocketPollerTest) {
             UNIT_ASSERT_VALUES_EQUAL(1, send(sockets[0], buf, 1, 0));
 
             // restart after end (noop for epoll)
-            poller.RestartReadWriteEdgeTriggered(sockets[1], (void*)17, true);
+            poller.RestartReadWriteEdgeTriggered(sockets[1], &data, true);
 
-            UNIT_ASSERT_VALUES_EQUAL((void*)17, poller.WaitT(TDuration::Zero()));
+            UNIT_ASSERT_VALUES_EQUAL(&data, poller.WaitT(TDuration::Zero()));
             UNIT_ASSERT_VALUES_EQUAL(nullptr, poller.WaitT(TDuration::Zero()));
 
             UNIT_ASSERT_VALUES_EQUAL(1, recv(sockets[1], buf, 2, 0));
@@ -224,13 +228,13 @@ Y_UNIT_TEST_SUITE(TSocketPollerTest) {
 
         using TPoller = TGenericPoller<TEpollPoller<TWithoutLocking>>;
         TPoller poller;
-        poller.Set((void*)17, s2, CONT_POLL_RDHUP);
+        poller.Set(&data, s2, CONT_POLL_RDHUP);
 
         TPoller::TEvent e;
         UNIT_ASSERT_VALUES_EQUAL(poller.WaitD(&e, 1, TDuration::Zero().ToDeadLine()), 1);
         UNIT_ASSERT_EQUAL(TPoller::ExtractStatus(&e), 0);
         UNIT_ASSERT_EQUAL(TPoller::ExtractFilter(&e), CONT_POLL_RDHUP);
-        UNIT_ASSERT_EQUAL(TPoller::ExtractEvent(&e), (void*)17);
+        UNIT_ASSERT_EQUAL(TPoller::ExtractEvent(&e), &data);
     }
 
     Y_UNIT_TEST(TestSetSocketErrors) {
