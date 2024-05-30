@@ -1,7 +1,9 @@
 #pragma once
+
 #include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/scheme/scheme.h>
+#include <src/client/topic/codecs/codecs.h>
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 
 #include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
@@ -1773,6 +1775,8 @@ public:
 
     TTopicClient(const TDriver& driver, const TTopicClientSettings& settings = TTopicClientSettings());
 
+    void ProvideCodec(ECodec codecId, THolder<ICodec>&& codecImpl);
+
     // Create a new topic.
     TAsyncStatus CreateTopic(const std::string& path, const TCreateTopicSettings& settings = {});
 
@@ -1801,6 +1805,9 @@ public:
     // Commit offset
     TAsyncStatus CommitOffset(const std::string& path, ui64 partitionId, const std::string& consumerName, ui64 offset,
         const TCommitOffsetSettings& settings = {});
+
+protected:
+    void OverrideCodec(ECodec codecId, THolder<ICodec>&& codecImpl);
 
 private:
     std::shared_ptr<TImpl> Impl_;
