@@ -3,6 +3,43 @@
 
 namespace NYdb::NFederatedTopic {
 
+// TFederatedReadSessionSettings
+// Read policy settings
+
+using TReadOriginalSettings = TFederatedReadSessionSettings::TReadOriginalSettings;
+TReadOriginalSettings& TReadOriginalSettings::AddDatabase(const std::string& database) {
+    Databases.insert(std::move(database));
+    return *this;
+}
+
+TReadOriginalSettings& TReadOriginalSettings::AddDatabases(const std::vector<std::string>& databases) {
+    std::move(std::begin(databases), std::end(databases), std::inserter(Databases, Databases.end()));
+    return *this;
+}
+
+TReadOriginalSettings& TReadOriginalSettings::AddLocal() {
+    Databases.insert("_local");
+    return *this;
+}
+
+TFederatedReadSessionSettings& TFederatedReadSessionSettings::ReadOriginal(TReadOriginalSettings settings) {
+    std::swap(DatabasesToReadFrom, settings.Databases);
+    ReadMirroredEnabled = false;
+    return *this;
+}
+
+TFederatedReadSessionSettings& TFederatedReadSessionSettings::ReadMirrored(const std::string& database) {
+    if (database == "_local") {
+        ythrow TContractViolation("Reading from local database not supported, use specific database");
+    }
+    DatabasesToReadFrom.clear();
+    DatabasesToReadFrom.insert(std::move(database));
+    ReadMirroredEnabled = true;
+    return *this;
+}
+
+// TFederatedTopicClient
+
 NTopic::TTopicClientSettings FromFederated(const TFederatedTopicClientSettings& fedSettings) {
     auto settings = NTopic::TTopicClientSettings()
         .DefaultCompressionExecutor(fedSettings.DefaultCompressionExecutor_)
