@@ -90,6 +90,8 @@ private:
 
     void CloseImpl(EStatus statusCode, NYql::TIssues&& issues);
 
+    TStringBuilder GetLogPrefix() const;
+
 private:
     // For subsession creation
     const NTopic::TFederatedWriteSessionSettings Settings;
@@ -101,6 +103,8 @@ private:
     NThreading::TFuture<void> AsyncInit;
     std::shared_ptr<TFederatedDbState> FederationState;
     NYdbGrpc::IQueueClientContextPtr UpdateStateDelayContext;
+
+    TLog Log;
 
     std::shared_ptr<TDbInfo> CurrentDatabase;
 
