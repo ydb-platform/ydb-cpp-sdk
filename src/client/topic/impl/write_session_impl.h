@@ -391,6 +391,7 @@ private:
     void OnWriteDone(NYdbGrpc::TGrpcStatus&& status, size_t connectionGeneration);
     TProcessSrvMessageResult ProcessServerMessageImpl();
     TMemoryUsageChange OnMemoryUsageChangedImpl(i64 diff);
+    TBuffer CompressBufferImpl(std::vector<std::string_view>& data, ECodec codec, i32 level);
     void CompressImpl(TBlock&& block);
     void OnCompressed(TBlock&& block, bool isSyncCompression=false);
     TMemoryUsageChange OnCompressedImpl(TBlock&& block);
