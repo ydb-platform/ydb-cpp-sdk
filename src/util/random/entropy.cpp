@@ -9,6 +9,7 @@
 #include <ydb-cpp-sdk/util/stream/mem.h>
 #include <src/util/stream/zlib.h>
 #include <src/util/stream/buffer.h>
+#include <src/util/stream/buffered.h>
 
 #include <src/util/system/fs.h>
 #include <src/util/system/info.h>
