@@ -11,7 +11,7 @@ namespace NFnvPrivate {
     template <class It>
     constexpr ui32 FnvHash32(It b, It e, ui32 init) {
         while (b != e) {
-            init = (init * FNV32PRIME) ^ (unsigned char)*b++;
+            init = (init * FNV32PRIME) ^ static_cast<unsigned char>(*b++);
         }
 
         return init;
@@ -20,7 +20,7 @@ namespace NFnvPrivate {
     template <class It>
     constexpr ui64 FnvHash64(It b, It e, ui64 init) {
         while (b != e) {
-            init = (init * FNV64PRIME) ^ (unsigned char)*b++;
+            init = (init * FNV64PRIME) ^ static_cast<unsigned char>(*b++);
         }
 
         return init;
@@ -49,22 +49,24 @@ template <class T, class It>
 static constexpr T FnvHash(It b, It e, T init) {
     static_assert(sizeof(*b) == 1, "expect sizeof(*b) == 1");
 
-    return (T)NFnvPrivate::TFnvHelper<8 * sizeof(T)>::FnvHash(b, e, init);
+    return static_cast<T>(NFnvPrivate::TFnvHelper<8 * sizeof(T)>::FnvHash(b, e, init));
 }
 
 template <class T, class It>
 static constexpr T FnvHash(It b, It e) {
-    return FnvHash<T>(b, e, (T)NFnvPrivate::TFnvHelper<8 * sizeof(T)>::Init);
+    return FnvHash<T>(b, e, static_cast<T>(NFnvPrivate::TFnvHelper<8 * sizeof(T)>::Init));
 }
 
 template <class T>
 static constexpr T FnvHash(const void* buf, size_t len, T init) {
-    return FnvHash<T>((const unsigned char*)buf, (const unsigned char*)buf + len, init);
+    auto ptr = reinterpret_cast<const unsigned char*>(buf);
+    return FnvHash<T>(ptr, ptr + len, init);
 }
 
 template <class T>
 static constexpr T FnvHash(const void* buf, size_t len) {
-    return FnvHash<T>((const unsigned char*)buf, (const unsigned char*)buf + len);
+    auto ptr = reinterpret_cast<const unsigned char*>(buf);
+    return FnvHash<T>(ptr, ptr + len);
 }
 
 template <class T, class Buf>

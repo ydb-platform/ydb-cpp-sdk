@@ -3,6 +3,8 @@
 #include <ydb-cpp-sdk/util/generic/typelist.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 
+#include <bit>
+
 /*
  * original url (now dead): http://www.cris.com/~Ttwang/tech/inthash.htm
  * copy: https://gist.github.com/badboy/6267743
@@ -62,7 +64,7 @@ template <class T>
 static constexpr T IntHash(T t) noexcept {
     using TCvt = TFixedWidthUnsignedInt<T>;
 
-    return IntHashImpl((TCvt)(t));
+    return IntHashImpl(static_cast<TCvt>(t));
 }
 
 /*
@@ -72,12 +74,8 @@ template <class T>
 static constexpr size_t NumericHash(T t) noexcept {
     using TCvt = TFixedWidthUnsignedInt<T>;
 
-    union Y_HIDDEN {
-        T t;
-        TCvt cvt;
-    } u{t};
-
-    return (size_t)IntHash(u.cvt);
+    auto cvt = std::bit_cast<TCvt>(t);
+    return static_cast<size_t>(IntHash(cvt));
 }
 
 template <class T>

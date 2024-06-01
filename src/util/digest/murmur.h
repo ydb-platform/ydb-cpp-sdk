@@ -31,12 +31,12 @@ namespace NMurmurPrivate {
 
 template <class T>
 inline T MurmurHash(const void* buf, size_t len, T init) noexcept {
-    return (T)NMurmurPrivate::TMurHelper<8 * sizeof(T)>::MurmurHash(buf, len, init);
+    return static_cast<T>(NMurmurPrivate::TMurHelper<8 * sizeof(T)>::MurmurHash(buf, len, init));
 }
 
 template <class T>
 inline T MurmurHash(const void* buf, size_t len) noexcept {
-    return MurmurHash<T>(buf, len, (T)0);
+    return MurmurHash<T>(buf, len, static_cast<T>(0));
 }
 
 template <typename TOut = size_t>

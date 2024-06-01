@@ -41,8 +41,8 @@ using namespace std;
 //#define UNALIGNED_LOAD64(p) (*(const uint64*)(p))
 //#define UNALIGNED_LOAD32(p) (*(const uint32*)(p))
 
-#define UNALIGNED_LOAD64(p) (ReadUnaligned<uint64>((const void*)(p)))
-#define UNALIGNED_LOAD32(p) (ReadUnaligned<uint32>((const void*)(p)))
+#define UNALIGNED_LOAD64(p) (ReadUnaligned<uint64>(static_cast<const void*>(p)))
+#define UNALIGNED_LOAD32(p) (ReadUnaligned<uint32>(static_cast<const void*>(p)))
 
 #define LIKELY(x) Y_LIKELY(!!(x))
 
