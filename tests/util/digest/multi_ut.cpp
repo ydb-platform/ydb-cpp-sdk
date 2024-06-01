@@ -1,8 +1,8 @@
-#include "multi.h"
+#include <ydb-cpp-sdk/util/digest/multi.h>
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <ydb-cpp-sdk/util/stream/output.h>
+using namespace std::string_literals;
 
 class TMultiHashTest: public TTestBase {
     UNIT_TEST_SUITE(TMultiHashTest);
@@ -14,11 +14,11 @@ class TMultiHashTest: public TTestBase {
 
 private:
     inline void TestStrInt() {
-        UNIT_ASSERT_EQUAL(MultiHash(std::string("1234567"), static_cast<int>(123)), static_cast<size_t>(ULL(17038203285960021630)));
+        UNIT_ASSERT_EQUAL(MultiHash("1234567"s, 123), static_cast<size_t>(ULL(17038203285960021630)));
     }
 
     inline void TestIntStr() {
-        UNIT_ASSERT_EQUAL(MultiHash(static_cast<int>(123), std::string("1234567")), static_cast<size_t>(ULL(9973288649881090712)));
+        UNIT_ASSERT_EQUAL(MultiHash(123, "1234567"s), static_cast<size_t>(ULL(9973288649881090712)));
     }
 
     inline void TestSimpleCollision() {
@@ -26,12 +26,12 @@ private:
     }
 
     inline void TestTypes() {
-        UNIT_ASSERT_EQUAL(MultiHash("aaa", (ui64)123), MultiHash("aaa", 123));
-        UNIT_ASSERT_EQUAL(MultiHash("aaa", (i64)123), MultiHash("aaa", 123));
-        UNIT_ASSERT_EQUAL(MultiHash("aaa", (i32)123), MultiHash("aaa", 123));
-        UNIT_ASSERT_EQUAL(MultiHash("aaa", (ui32)123), MultiHash("aaa", 123));
-        UNIT_ASSERT_EQUAL(MultiHash("aaa", (i64)-123), MultiHash("aaa", -123));
-        UNIT_ASSERT_EQUAL(MultiHash("aaa", (i32)-123), MultiHash("aaa", -123));
+        UNIT_ASSERT_EQUAL(MultiHash("aaa", static_cast<ui64>(123)), MultiHash("aaa", 123));
+        UNIT_ASSERT_EQUAL(MultiHash("aaa", static_cast<i64>(123)), MultiHash("aaa", 123));
+        UNIT_ASSERT_EQUAL(MultiHash("aaa", static_cast<i32>(123)), MultiHash("aaa", 123));
+        UNIT_ASSERT_EQUAL(MultiHash("aaa", static_cast<ui32>(123)), MultiHash("aaa", 123));
+        UNIT_ASSERT_EQUAL(MultiHash("aaa", static_cast<i64>(-123)), MultiHash("aaa", -123));
+        UNIT_ASSERT_EQUAL(MultiHash("aaa", static_cast<i32>(-123)), MultiHash("aaa", -123));
     }
 };
 

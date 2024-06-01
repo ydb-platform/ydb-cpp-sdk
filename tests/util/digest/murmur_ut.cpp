@@ -1,4 +1,3 @@
-
 #include "murmur.h"
 
 #include <src/library/testing/unittest/registar.h>
