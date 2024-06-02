@@ -462,7 +462,7 @@ template <typename TKey, typename TValue, typename TListType, typename TDeleter,
 class TCache {
     typedef typename TListType::TItem TItem;
     typedef typename TItem::THash THash;
-    typedef std::unordered_multiset<TItem, THash, typename TItem::TEqualTo, std::allocator<TItem>> TIndex;
+    typedef std::unordered_multiset<TItem, THash, typename TItem::TEqualTo, TAllocator> TIndex;
     typedef typename TIndex::iterator TIndexIterator;
     typedef typename TIndex::const_iterator TIndexConstIterator;
 
@@ -724,7 +724,7 @@ public:
     }
 };
 
-template <typename TKey, typename TValue, typename TDeleter = TNoopDelete, typename TAllocator = std::allocator<void>, class TSizeProvider = TUniformSizeProvider<TValue>>
+template <typename TKey, typename TValue, typename TDeleter = TNoopDelete, class TSizeProvider = TUniformSizeProvider<TValue>, typename TAllocator = std::allocator<typename TLFUList<TKey, TValue, TSizeProvider>::TItem>>
 class TLFUCache: public TCache<TKey, TValue, TLFUList<TKey, TValue, TSizeProvider>, TDeleter, TAllocator> {
     typedef TCache<TKey, TValue, TLFUList<TKey, TValue, TSizeProvider>, TDeleter, TAllocator> TBase;
     using TListType = TLFUList<TKey, TValue, TSizeProvider>;
@@ -749,7 +749,7 @@ public:
 // Least Weighted cache
 // discards the least weighted items first
 // doesn't support promotion
-template <typename TKey, typename TValue, typename TWeight, typename TWeighter, typename TDeleter = TNoopDelete, typename TAllocator = std::allocator<void>>
+template <typename TKey, typename TValue, typename TWeight, typename TWeighter, typename TDeleter = TNoopDelete, typename TAllocator = std::allocator<typename TLWList<TKey, TValue, TWeight, TWeighter>::TItem>>
 class TLWCache: public TCache<TKey, TValue, TLWList<TKey, TValue, TWeight, TWeighter>, TDeleter, TAllocator> {
     typedef TCache<TKey, TValue, TLWList<TKey, TValue, TWeight, TWeighter>, TDeleter, TAllocator> TBase;
     using TListType = TLWList<TKey, TValue, TWeight, TWeighter>;
