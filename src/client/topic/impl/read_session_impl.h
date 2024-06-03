@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef INCLUDE_READ_SESSION_IMPL_H
+//#error "Do not include this file directly. Use read_session_impl.ipp instead."
+#endif
+
 #include "common.h"
 #include "callback_context.h"
 #include "counters_logger.h"
@@ -8,7 +12,7 @@
 
 #include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
 #include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
-#include <src/client/persqueue_core/persqueue.h>
+#include <src/client/persqueue_public/persqueue.h>
 #include <ydb-cpp-sdk/client/topic/topic.h>
 
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
@@ -21,7 +25,10 @@
 #include <deque>
 #include <vector>
 
-namespace NYdb::NPersQueue {
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Templates declarations
+
+namespace NYdb::NTopic {
 
 template <bool UseMigrationProtocol>
 using TClientImpl = std::conditional_t<UseMigrationProtocol,
@@ -96,7 +103,7 @@ using TAReadSessionSettings = std::conditional_t<UseMigrationProtocol,
     NYdb::NTopic::TReadSessionSettings>;
 
 template <bool UseMigrationProtocol>
-using TDataReceivedEvent = typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent;
+using TADataReceivedEvent = typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent;
 
 template <bool UseMigrationProtocol>
 class TPartitionStreamImpl;
@@ -368,8 +375,8 @@ public:
     }
 
     void TakeData(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
-                  std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                  std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                  std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TMessage>& messages,
+                  std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TCompressedMessage>& compressedMessages,
                   size_t& maxByteSize,
                   size_t& dataSize) const;
 
@@ -394,9 +401,8 @@ struct IUserRetrievedEventCallback {
 template <bool UseMigrationProtocol>
 struct TReadSessionEventInfo {
     using TEvent = typename TAReadSessionEvent<UseMigrationProtocol>::TEvent;
-    using TDataReceivedEvent = typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent;
-    using TMessage = typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage;
-    using TCompressedMessage = typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage;
+    using TMessage = typename TADataReceivedEvent<UseMigrationProtocol>::TMessage;
+    using TCompressedMessage = typename TADataReceivedEvent<UseMigrationProtocol>::TCompressedMessage;
 
     // Event with only partition stream ref.
     // Partition stream holds all its events.
@@ -540,16 +546,16 @@ public:
     void GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                           size_t& maxEventsCount,
                           size_t& maxByteSize,
-                          std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                          std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                          std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TMessage>& messages,
+                          std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TCompressedMessage>& compressedMessages,
                           TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator);
 
 private:
     static void GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                                  size_t& maxEventsCount,
                                  size_t& maxByteSize,
-                                 std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                                 std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                                 std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TMessage>& messages,
+                                 std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TCompressedMessage>& compressedMessages,
                                  TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator,
                                  std::deque<TRawPartitionStreamEvent<UseMigrationProtocol>>& queue);
 
@@ -745,8 +751,8 @@ public:
     static void GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                                  size_t& maxEventsCount,
                                  size_t& maxByteSize,
-                                 std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                                 std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                                 std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TMessage>& messages,
+                                 std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TCompressedMessage>& compressedMessages,
                                  TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator);
 
     std::mutex& GetLock() {
@@ -829,7 +835,7 @@ public:
     bool TryApplyCallbackToEventImpl(typename TParent::TEvent& event,
                                      TDeferredActions<UseMigrationProtocol>& deferred);
     bool HasDataEventCallback() const;
-    void ApplyCallbackToEventImpl(TDataReceivedEvent<UseMigrationProtocol>& event,
+    void ApplyCallbackToEventImpl(TADataReceivedEvent<UseMigrationProtocol>& event,
                                   TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>&& eventsInfo,
                                   TDeferredActions<UseMigrationProtocol>& deferred);
 
@@ -913,7 +919,7 @@ private:
         TDeferredActions<UseMigrationProtocol>& Deferred;
     };
 
-    typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent
+    TADataReceivedEvent<UseMigrationProtocol>
         GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> stream,
                          size_t& maxByteSize,
                          TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator); // Assumes that we're under lock.
@@ -927,11 +933,11 @@ private:
     bool HasEventCallbacks;
 };
 
-} // namespace NYdb::NPersQueue
+} // namespace NYdb::NTopic
 
 template <>
-struct THash<NYdb::NPersQueue::TPartitionStreamImpl<false>::TKey> {
-    size_t operator()(const NYdb::NPersQueue::TPartitionStreamImpl<false>::TKey& key) const {
+struct THash<NYdb::NTopic::TPartitionStreamImpl<false>::TKey> {
+    size_t operator()(const NYdb::NTopic::TPartitionStreamImpl<false>::TKey& key) const {
         THash<std::string> strHash;
         const size_t h1 = strHash(key.Topic);
         const size_t h2 = NumericHash(key.Partition);
@@ -940,8 +946,8 @@ struct THash<NYdb::NPersQueue::TPartitionStreamImpl<false>::TKey> {
 };
 
 template <>
-struct THash<NYdb::NPersQueue::TPartitionStreamImpl<true>::TKey> {
-    size_t operator()(const NYdb::NPersQueue::TPartitionStreamImpl<true>::TKey& key) const {
+struct THash<NYdb::NTopic::TPartitionStreamImpl<true>::TKey> {
+    size_t operator()(const NYdb::NTopic::TPartitionStreamImpl<true>::TKey& key) const {
         THash<std::string> strHash;
         const size_t h1 = strHash(key.Topic);
         const size_t h2 = strHash(key.Cluster);
@@ -950,14 +956,14 @@ struct THash<NYdb::NPersQueue::TPartitionStreamImpl<true>::TKey> {
     }
 };
 
-namespace NYdb::NPersQueue {
+namespace NYdb::NTopic {
 
 // Read session for single cluster.
 // This class holds only read session logic.
 // It is parametrized with output queue for client events
 // and connection factory interface to separate logic from transport.
 template <bool UseMigrationProtocol>
-class TSingleClusterReadSessionImpl : public NPersQueue::TEnableSelfContext<TSingleClusterReadSessionImpl<UseMigrationProtocol>>,
+class TSingleClusterReadSessionImpl : public TEnableSelfContext<TSingleClusterReadSessionImpl<UseMigrationProtocol>>,
                                       public IUserRetrievedEventCallback<UseMigrationProtocol> {
 public:
     using TSelf = TSingleClusterReadSessionImpl<UseMigrationProtocol>;
@@ -978,7 +984,7 @@ public:
         NYdbGrpc::IQueueClientContextPtr clientContext,
         ui64 partitionStreamIdStart,
         ui64 partitionStreamIdStep,
-        std::shared_ptr<std::unordered_map<ECodecAlias<UseMigrationProtocol>, THolder<NTopic::ICodec>>> codecs
+        std::shared_ptr<std::unordered_map<ECodecAlias<UseMigrationProtocol>, THolder<ICodec>>> codecs
     )
         : Settings(settings)
         , Database(database)
@@ -1049,7 +1055,7 @@ public:
         return Log;
     }
 
-    const NTopic::ICodec* GetCodecImplOrThrow(ECodecAlias<UseMigrationProtocol> codecId) const {
+    const ICodec* GetCodecImplOrThrow(ECodecAlias<UseMigrationProtocol> codecId) const {
         if (!Codecs->contains(codecId)) {
             throw yexception() << "codec with id " << ui32(codecId) << " not provided";
         }
@@ -1205,7 +1211,7 @@ private:
     TLog Log;
     ui64 NextPartitionStreamId;
     ui64 PartitionStreamIdStep;
-    std::shared_ptr<std::unordered_map<ECodecAlias<UseMigrationProtocol>, THolder<NTopic::ICodec>>> Codecs;
+    std::shared_ptr<std::unordered_map<ECodecAlias<UseMigrationProtocol>, THolder<ICodec>>> Codecs;
     std::shared_ptr<IReadSessionConnectionProcessorFactory<UseMigrationProtocol>> ConnectionFactory;
     std::shared_ptr<TReadSessionEventsQueue<UseMigrationProtocol>> EventsQueue;
     NYdbGrpc::IQueueClientContextPtr ClientContext; // Common client context.
@@ -1240,125 +1246,4 @@ private:
     i64 ReadSizeServerDelta = 0;
 };
 
-// High level class that manages several read session impls.
-// Each one of them works with single cluster.
-// This class communicates with cluster discovery service and then creates
-// sessions to each cluster.
-class TReadSession : public IReadSession,
-                     public std::enable_shared_from_this<TReadSession> {
-    struct TClusterSessionInfo {
-        TClusterSessionInfo(const std::string& cluster)
-            : ClusterName(cluster)
-        {
-        }
-
-        std::string ClusterName; // In lower case
-        TSingleClusterReadSessionImpl<true>::TPtr Session;
-        std::vector<TTopicReadSettings> Topics;
-        std::string ClusterEndpoint;
-    };
-
-public:
-    TReadSession(const TReadSessionSettings& settings,
-                 std::shared_ptr<TPersQueueClient::TImpl> client,
-                 std::shared_ptr<TGRpcConnectionsImpl> connections,
-                 TDbDriverStatePtr dbDriverState);
-
-    ~TReadSession();
-
-    void Start();
-
-    NThreading::TFuture<void> WaitEvent() override;
-    std::vector<TReadSessionEvent::TEvent> GetEvents(bool block, std::optional<size_t> maxEventsCount, size_t maxByteSize) override;
-    std::optional<TReadSessionEvent::TEvent> GetEvent(bool block, size_t maxByteSize) override;
-
-    bool Close(TDuration timeout) override;
-
-    std::string GetSessionId() const override {
-        return SessionId;
-    }
-
-    TReaderCounters::TPtr GetCounters() const override {
-        return Settings.Counters_; // Always not nullptr.
-    }
-
-    void AddTopic(const TTopicReadSettings& topicReadSettings) /*override*/ {
-        Y_UNUSED(topicReadSettings);
-        // TODO: implement.
-        ThrowFatalError("Method \"AddTopic\" is not implemented");
-    }
-
-    void RemoveTopic(const std::string& path) /*override*/ {
-        Y_UNUSED(path);
-        // TODO: implement.
-        ThrowFatalError("Method \"RemoveTopic\" is not implemented");
-    }
-
-    void RemoveTopic(const std::string& path, const std::vector<ui64>& partitionGruops) /*override*/ {
-        Y_UNUSED(path);
-        Y_UNUSED(partitionGruops);
-        // TODO: implement.
-        ThrowFatalError("Method \"RemoveTopic\" is not implemented");
-    }
-
-    void StopReadingData() override;
-    void ResumeReadingData() override;
-
-    void Abort();
-
-    void ClearAllEvents();
-
-private:
-    TStringBuilder GetLogPrefix() const;
-
-    // Start
-    bool ValidateSettings();
-
-    // Cluster discovery
-    Ydb::PersQueue::ClusterDiscovery::DiscoverClustersRequest MakeClusterDiscoveryRequest() const;
-    void StartClusterDiscovery();
-    void OnClusterDiscovery(const TStatus& status, const Ydb::PersQueue::ClusterDiscovery::DiscoverClustersResult& result);
-    void ProceedWithoutClusterDiscovery();
-    void RestartClusterDiscoveryImpl(TDuration delay, TDeferredActions<true>& deferred);
-    void CreateClusterSessionsImpl(TDeferredActions<true>& deferred);
-
-    void AbortImpl(TDeferredActions<true>& deferred);
-    void AbortImpl(TSessionClosedEvent&& closeEvent, TDeferredActions<true>& deferred);
-    void AbortImpl(EStatus statusCode, NYql::TIssues&& issues, TDeferredActions<true>& deferred);
-    void AbortImpl(EStatus statusCode, const std::string& message, TDeferredActions<true>& deferred);
-
-    void MakeCountersIfNeeded();
-    void SetupCountersLogger();
-
-private:
-    TReadSessionSettings Settings;
-    const std::string SessionId;
-    const TInstant StartSessionTime = TInstant::Now();
-    TLog Log;
-    std::shared_ptr<TPersQueueClient::TImpl> Client;
-    std::shared_ptr<TGRpcConnectionsImpl> Connections;
-    TDbDriverStatePtr DbDriverState;
-    TAdaptiveLock Lock;
-    std::shared_ptr<TReadSessionEventsQueue<true>> EventsQueue;
-    THashMap<std::string, TClusterSessionInfo> ClusterSessions; // Cluster name (in lower case) -> TClusterSessionInfo
-    NYdbGrpc::IQueueClientContextPtr ClusterDiscoveryDelayContext;
-    IRetryPolicy::IRetryState::TPtr ClusterDiscoveryRetryState;
-    bool DataReadingSuspended = false;
-
-    // Exiting.
-    bool Aborting = false;
-    bool Closing = false;
-
-    std::vector<TCallbackContextPtr<true>> CbContexts;
-
-    std::shared_ptr<TCountersLogger<true>> CountersLogger;
-    std::shared_ptr<TCallbackContext<TCountersLogger<true>>> DumpCountersContext;
-};
-
-} // namespace NYdb::NPersQueue
-
-/////////////////////////////////////////
-// Templates implementation
-#define READ_SESSION_IMPL
-#include "read_session.ipp"
-#undef READ_SESSION_IMPL
+} // namespace NYdb::NTopic

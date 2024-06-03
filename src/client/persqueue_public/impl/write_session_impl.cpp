@@ -1,7 +1,8 @@
-#include "write_session.h"
-#include <src/client/persqueue_core/impl/log_lazy.h>
+#include "write_session_impl.h"
 
-#include <src/client/persqueue_core/persqueue.h>
+#include <src/client/topic/impl/log_lazy.h>
+#include <src/client/persqueue_public/persqueue.h>
+
 #include <src/library/string_utils/url/url.h>
 
 #include <ydb-cpp-sdk/util/generic/store_policy.h>
@@ -10,9 +11,9 @@
 
 
 namespace NYdb::NPersQueue {
+
 using ::NMonitoring::TDynamicCounterPtr;
 using TCounterPtr = ::NMonitoring::TDynamicCounters::TCounterPtr;
-
 
 const TDuration UPDATE_TOKEN_PERIOD = TDuration::Hours(1);
 
@@ -907,7 +908,7 @@ TMemoryUsageChange TWriteSessionImpl::OnMemoryUsageChangedImpl(i64 diff) {
 TBuffer CompressBuffer(std::shared_ptr<TPersQueueClient::TImpl> client, std::vector<std::string_view>& data, ECodec codec, i32 level) {
     TBuffer result;
     Y_UNUSED(client);
-    THolder<IOutputStream> coder = NYdb::NTopic::TCodecMap::GetTheCodecMap().GetOrThrow((ui32)codec)->CreateCoder(result, level);
+    THolder<IOutputStream> coder = TCodecMap::GetTheCodecMap().GetOrThrow((ui32)codec)->CreateCoder(result, level);
     for (auto& buffer : data) {
         coder->Write(buffer.data(), buffer.size());
     }
@@ -1425,4 +1426,4 @@ TWriteSessionImpl::~TWriteSessionImpl() {
     }
 }
 
-}; // namespace NYdb::NPersQueue
+} // namespace NYdb::NPersQueue

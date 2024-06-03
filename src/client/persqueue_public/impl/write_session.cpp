@@ -1,14 +1,14 @@
 #include "write_session.h"
 
-#include <src/client/persqueue_core/persqueue.h>
-#include <src/client/persqueue_core/impl/log_lazy.h>
+#include <src/client/topic/impl/log_lazy.h>
+
+#include <src/client/persqueue_public/persqueue.h>
 
 #include <src/library/string_utils/url/url.h>
 
 #include <ydb-cpp-sdk/util/generic/store_policy.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <src/util/stream/buffer.h>
-
 
 namespace NYdb::NPersQueue {
 
@@ -151,4 +151,4 @@ bool TSimpleBlockingWriteSession::Close(TDuration closeTimeout) {
     return Writer->Close(std::move(closeTimeout));
 }
 
-}; // namespace NYdb::NPersQueue
+} // namespace NYdb::NPersQueue

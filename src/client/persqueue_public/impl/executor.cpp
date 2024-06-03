@@ -1,6 +1,6 @@
 #include "executor.h"
 
-namespace NYdb::NTopic {
+namespace NYdb::NPersQueue {
 
 void IAsyncExecutor::Post(TFunction&& f) {
     PostImpl(std::move(f));
@@ -94,4 +94,4 @@ IExecutor::TPtr CreateSyncExecutor()
     return MakeIntrusive<TSyncExecutor>();
 }
 
-}
+} // namespace NYdb::NTopic

@@ -1,10 +1,11 @@
 #pragma once
 
-#include <ydb-cpp-sdk/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/topic/common/executor.h>
 #include <src/client/common_client/impl/client.h>
 
 #include <ydb-cpp-sdk/util/thread/pool.h>
 
+#include <queue>
 
 namespace NYdb::NTopic {
 
@@ -83,4 +84,4 @@ public:
 
 IExecutor::TPtr CreateGenericExecutor();
 
-}
+} // namespace NYdb::NTopic

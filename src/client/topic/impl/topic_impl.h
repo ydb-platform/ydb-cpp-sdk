@@ -1,16 +1,16 @@
 #pragma once
 
+#include <src/client/topic/impl/common.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
+
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
 #include <src/client/common_client/impl/client.h>
-#include <src/client/persqueue_core/impl/common.h>
-#include <src/client/topic/impl/executor.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 
 #include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
-#include <ydb-cpp-sdk/client/topic/topic.h>
 
 #include <unordered_map>
 
@@ -387,14 +387,14 @@ public:
     std::shared_ptr<IWriteSession> CreateWriteSession(const TWriteSessionSettings& settings);
 
     using IReadSessionConnectionProcessorFactory =
-        NYdb::NPersQueue::ISessionConnectionProcessorFactory<Ydb::Topic::StreamReadMessage::FromClient,
-                                                             Ydb::Topic::StreamReadMessage::FromServer>;
+        ISessionConnectionProcessorFactory<Ydb::Topic::StreamReadMessage::FromClient,
+                                           Ydb::Topic::StreamReadMessage::FromServer>;
 
     std::shared_ptr<IReadSessionConnectionProcessorFactory> CreateReadSessionConnectionProcessorFactory();
 
     using IWriteSessionConnectionProcessorFactory =
-        NYdb::NPersQueue::ISessionConnectionProcessorFactory<Ydb::Topic::StreamWriteMessage::FromClient,
-                                                             Ydb::Topic::StreamWriteMessage::FromServer>;
+        ISessionConnectionProcessorFactory<Ydb::Topic::StreamWriteMessage::FromClient,
+                                           Ydb::Topic::StreamWriteMessage::FromServer>;
 
     std::shared_ptr<IWriteSessionConnectionProcessorFactory> CreateWriteSessionConnectionProcessorFactory();
 

@@ -1,8 +1,5 @@
 #include "topic_impl.h"
 
-#include <src/client/persqueue_core/impl/read_session.h>
-#include <src/client/persqueue_core/impl/write_session.h>
-
 #include "read_session.h"
 #include "write_session.h"
 
@@ -68,14 +65,14 @@ std::shared_ptr<TTopicClient::TImpl::IReadSessionConnectionProcessorFactory> TTo
     using TService = Ydb::Topic::V1::TopicService;
     using TRequest = Ydb::Topic::StreamReadMessage::FromClient;
     using TResponse = Ydb::Topic::StreamReadMessage::FromServer;
-    return NPersQueue::CreateConnectionProcessorFactory<TService, TRequest, TResponse>(&TService::Stub::AsyncStreamRead, Connections_, DbDriverState_);
+    return CreateConnectionProcessorFactory<TService, TRequest, TResponse>(&TService::Stub::AsyncStreamRead, Connections_, DbDriverState_);
 }
 
 std::shared_ptr<TTopicClient::TImpl::IWriteSessionConnectionProcessorFactory> TTopicClient::TImpl::CreateWriteSessionConnectionProcessorFactory() {
     using TService = Ydb::Topic::V1::TopicService;
     using TRequest = Ydb::Topic::StreamWriteMessage::FromClient;
     using TResponse = Ydb::Topic::StreamWriteMessage::FromServer;
-    return NPersQueue::CreateConnectionProcessorFactory<TService, TRequest, TResponse>(&TService::Stub::AsyncStreamWrite, Connections_, DbDriverState_);
+    return CreateConnectionProcessorFactory<TService, TRequest, TResponse>(&TService::Stub::AsyncStreamWrite, Connections_, DbDriverState_);
 }
 
 }

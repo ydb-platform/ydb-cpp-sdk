@@ -1,7 +1,7 @@
 
-#include <src/client/persqueue_core/persqueue.h>
-#include <src/client/persqueue_core/impl/persqueue_impl.h>
-#include <src/client/persqueue_core/impl/read_session.h>
+#include <src/client/persqueue_public/impl/persqueue_impl.h>
+#include <src/client/topic/impl/common.h>
+#include <src/client/persqueue_public/persqueue.h>
 
 #include <src/library/persqueue/obfuscate/obfuscate.h>
 
@@ -14,8 +14,8 @@ namespace NYdb::NPersQueue {
 class TCommonCodecsProvider {
 public:
     TCommonCodecsProvider() {
-        NYdb::NTopic::TCodecMap::GetTheCodecMap().Set((ui32)NYdb::NPersQueue::ECodec::GZIP, MakeHolder<NYdb::NTopic::TGzipCodec>());
-        NYdb::NTopic::TCodecMap::GetTheCodecMap().Set((ui32)NYdb::NPersQueue::ECodec::ZSTD, MakeHolder<NYdb::NTopic::TZstdCodec>());
+        TCodecMap::GetTheCodecMap().Set((ui32)NYdb::NPersQueue::ECodec::GZIP, MakeHolder<TGzipCodec>());
+        TCodecMap::GetTheCodecMap().Set((ui32)NYdb::NPersQueue::ECodec::ZSTD, MakeHolder<TZstdCodec>());
     }
 };
 TCommonCodecsProvider COMMON_CODECS_PROVIDER;
@@ -151,16 +151,16 @@ TDescribeTopicResult::TTopicSettings::TRemoteMirrorRule::TRemoteMirrorRule(const
 TPersQueueClient::TPersQueueClient(const TDriver& driver, const TPersQueueClientSettings& settings)
     : Impl_(std::make_shared<TImpl>(CreateInternalInterface(driver), settings))
 {
-    ProvideCodec(ECodec::GZIP, MakeHolder<NTopic::TGzipCodec>());
-    ProvideCodec(ECodec::LZOP, MakeHolder<NTopic::TUnsupportedCodec>());
-    ProvideCodec(ECodec::ZSTD, MakeHolder<NTopic::TZstdCodec>());
+    ProvideCodec(ECodec::GZIP, MakeHolder<TGzipCodec>());
+    ProvideCodec(ECodec::LZOP, MakeHolder<TUnsupportedCodec>());
+    ProvideCodec(ECodec::ZSTD, MakeHolder<TZstdCodec>());
 }
 
-void TPersQueueClient::ProvideCodec(ECodec codecId, THolder<NTopic::ICodec>&& codecImpl) {
+void TPersQueueClient::ProvideCodec(ECodec codecId, THolder<ICodec>&& codecImpl) {
     return Impl_->ProvideCodec(codecId, std::move(codecImpl));
 }
 
-void TPersQueueClient::OverrideCodec(ECodec codecId, THolder<NTopic::ICodec>&& codecImpl) {
+void TPersQueueClient::OverrideCodec(ECodec codecId, THolder<ICodec>&& codecImpl) {
     return Impl_->OverrideCodec(codecId, std::move(codecImpl));
 }
 

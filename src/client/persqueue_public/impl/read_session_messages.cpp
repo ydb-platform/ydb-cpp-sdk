@@ -1,6 +1,8 @@
-#include "read_session.h"
+#include <src/client/persqueue_public/persqueue.h>
 
-#include <src/client/persqueue_core/persqueue.h>
+#include <src/client/topic/impl/common.h>
+#include <src/client/topic/impl/read_session_impl.ipp>
+#include <src/client/persqueue_public/impl/aliases.h>
 
 namespace NYdb::NPersQueue {
 
@@ -163,7 +165,7 @@ TReadSessionEvent::TDataReceivedEvent::TMessage::TMessage(const std::string& dat
 }
 
 void TReadSessionEvent::TDataReceivedEvent::TMessage::Commit() {
-    static_cast<TPartitionStreamImpl<true>*>(PartitionStream.Get())->Commit(Information.Offset, Information.Offset + 1);
+    static_cast<TPartitionStreamImpl*>(PartitionStream.Get())->Commit(Information.Offset, Information.Offset + 1);
 }
 
 ui64 TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::GetBlocksCount() const {
@@ -233,7 +235,7 @@ TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::TCompressedMessage(EC
 {}
 
 void TReadSessionEvent::TDataReceivedEvent::TCompressedMessage::Commit() {
-    static_cast<TPartitionStreamImpl<true>*>(PartitionStream.Get())->Commit(
+    static_cast<TPartitionStreamImpl*>(PartitionStream.Get())->Commit(
         Information.front().Offset,
         Information.back().Offset + 1
     );

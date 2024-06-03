@@ -1,6 +1,6 @@
 #include "federated_read_session.h"
 
-#include <src/client/persqueue_core/impl/log_lazy.h>
+#include <src/client/topic/impl/log_lazy.h>
 #include <src/client/topic/impl/topic_impl.h>
 
 

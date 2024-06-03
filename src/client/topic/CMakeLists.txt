@@ -1,4 +1,5 @@
 add_subdirectory(codecs)
+add_subdirectory(common)
 add_subdirectory(impl)
 
 add_library(cpp-client-ydb_topic)
@@ -8,6 +9,7 @@ target_link_libraries(cpp-client-ydb_topic PUBLIC
   tools-enum_parser-enum_serialization_runtime
   client-ydb_topic-codecs
   library-cpp-retry
+  client-ydb_topic-common
   client-ydb_topic-impl
   cpp-client-ydb_proto
   cpp-client-ydb_driver

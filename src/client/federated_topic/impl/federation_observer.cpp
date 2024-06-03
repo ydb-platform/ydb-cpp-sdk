@@ -1,4 +1,4 @@
-#include <src/client/persqueue_core/impl/log_lazy.h>
+#include <src/client/topic/impl/log_lazy.h>
 #include <src/api/grpc/ydb_federation_discovery_v1.grpc.pb.h>
 
 #include <src/client/federated_topic/impl/federation_observer.h>

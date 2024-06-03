@@ -13,4 +13,8 @@ target_sources(client-ydb_topic-codecs PRIVATE
   codecs.cpp
 )
 
-
+generate_enum_serilization(client-ydb_topic-codecs
+  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/topic/codecs/codecs.h
+  INCLUDE_HEADERS
+  include/ydb-cpp-sdk/client/topic/codecs/codecs.h
+)

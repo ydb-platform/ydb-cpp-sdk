@@ -1,16 +1,5 @@
-add_library(client-ydb_persqueue_public-codecs)
+add_library(client-ydb_persqueue_public-codecs INTERFACE)
 
-target_link_libraries(client-ydb_persqueue_public-codecs PUBLIC
-  yutil
-  cpp-streams-zstd
-  public-issue-protos
-  api-grpc-draft
-  api-grpc
-  api-protos
+target_link_libraries(client-ydb_persqueue_public-codecs INTERFACE
+  client-ydb_topic-codecs
 )
-
-target_sources(client-ydb_persqueue_public-codecs PRIVATE
-  codecs.cpp
-)
-
-

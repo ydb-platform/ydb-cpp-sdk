@@ -4,8 +4,8 @@
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <src/client/persqueue_core/impl/common.h>
-#include <src/client/topic/impl/executor.h>
+#include <src/client/topic/impl/common.h>
+#include <src/client/topic/common/executor_impl.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 
 #include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
