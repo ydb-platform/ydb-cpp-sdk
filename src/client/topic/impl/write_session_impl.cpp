@@ -546,8 +546,7 @@ void TWriteSessionImpl::Connect(const TDuration& delay) {
     std::function<void(TPlainStatus&&, typename IProcessor::TPtr&&)> connectCallback;
     std::function<void(bool)> connectTimeoutCallback;
 
-    {
-        std::lock_guard guard(Lock);
+    with_lock(Lock) {
         if (Aborting) {
             return;
         }
@@ -555,19 +554,20 @@ void TWriteSessionImpl::Connect(const TDuration& delay) {
         LOG_LAZY(DbDriverState->Log, TLOG_INFO, LogPrefix() << "Start write session. Will connect to nodeId: " << PreferredPartitionLocation.Endpoint.NodeId);
 
         ++ConnectionGeneration;
-        auto subclient = Client;
-        connectionFactory = subclient->CreateWriteSessionConnectionProcessorFactory();
-        auto clientContext = subclient->CreateContext();
-        ConnectionFactory = connectionFactory;
-
-        ClientContext = std::move(clientContext);
-        ServerMessage = std::make_shared<TServerMessage>();
 
         if (!ClientContext) {
-            AbortImpl();
-            // Grpc and WriteSession is closing right now.
-            return;
+            ClientContext = Client->CreateContext();
+            if (!ClientContext) {
+                AbortImpl();
+                // Grpc and WriteSession is closing right now.
+                return;
+            }
         }
+
+        ServerMessage = std::make_shared<TServerMessage>();
+
+        connectionFactory = Client->CreateWriteSessionConnectionProcessorFactory();
+        ConnectionFactory = connectionFactory;
 
         connectContext = ClientContext->CreateContext();
         if (delay)
