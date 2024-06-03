@@ -1557,8 +1557,8 @@ public:
                               std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) = 0;
 
 
-    //! Wait for all writes to complete (no more that closeTimeout()), than close. Empty maybe - means infinite timeout.
-    //! return - true if all writes were completed and acked. false if timeout was reached and some writes were aborted.
+    //! Wait for all writes to complete (no more that closeTimeout()), then close.
+    //! Return true if all writes were completed and acked, false if timeout was reached and some writes were aborted.
     virtual bool Close(TDuration closeTimeout = TDuration::Max()) = 0;
 
     //! Writer counters with different stats (see TWriterConuters).
