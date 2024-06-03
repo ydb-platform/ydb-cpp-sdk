@@ -1,8 +1,10 @@
 #pragma once
 
-#include <src/client/topic/impl/common.h>
+#include <ydb-cpp-sdk/client/types/status_codes.h>
+
+#include <src/library/retry/retry.h>
 
 namespace NYdb::NPersQueue {
-    using NTopic::GetRetryErrorClass;
-    using NTopic::GetRetryErrorClassV2;
+    ERetryErrorClass GetRetryErrorClass(EStatus status);
+    ERetryErrorClass GetRetryErrorClassV2(EStatus status);
 }
