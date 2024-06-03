@@ -1,13 +1,14 @@
 #pragma once
 
-#include "common.h"
+#include <src/client/persqueue_public/impl/aliases.h>
+#include <src/client/topic/impl/common.h>
+
+#include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
+#include <src/client/persqueue_public/persqueue.h>
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
-
-#include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
-#include <src/client/persqueue_core/persqueue.h>
 
 namespace NYdb::NPersQueue {
 
@@ -106,7 +107,7 @@ public:
         return request;
     }
 
-    void ProvideCodec(ECodec codecId, THolder<NTopic::ICodec>&& codecImpl) {
+    void ProvideCodec(ECodec codecId, THolder<ICodec>&& codecImpl) {
         with_lock(Lock) {
             if (ProvidedCodecs->contains(codecId)) {
                 throw yexception() << "codec with id " << ui32(codecId) << " already provided";
@@ -115,13 +116,13 @@ public:
         }
     }
 
-    void OverrideCodec(ECodec codecId, THolder<NTopic::ICodec>&& codecImpl) {
+    void OverrideCodec(ECodec codecId, THolder<ICodec>&& codecImpl) {
         with_lock(Lock) {
             (*ProvidedCodecs)[codecId] = std::move(codecImpl);
         }
     }
 
-    const NTopic::ICodec* GetCodecImplOrThrow(ECodec codecId) const {
+    const ICodec* GetCodecImplOrThrow(ECodec codecId) const {
         with_lock(Lock) {
             if (!ProvidedCodecs->contains(codecId)) {
                 throw yexception() << "codec with id " << ui32(codecId) << " not provided";
@@ -130,7 +131,7 @@ public:
         }
     }
 
-    std::shared_ptr<std::unordered_map<ECodec, THolder<NTopic::ICodec>>> GetProvidedCodecs() const {
+    std::shared_ptr<std::unordered_map<ECodec, THolder<ICodec>>> GetProvidedCodecs() const {
         return ProvidedCodecs;
     }
 
@@ -239,7 +240,7 @@ private:
     const TPersQueueClientSettings Settings;
     const std::string CustomEndpoint;
     TAdaptiveLock Lock;
-    std::shared_ptr<std::unordered_map<ECodec, THolder<NTopic::ICodec>>> ProvidedCodecs = std::make_shared<std::unordered_map<ECodec, THolder<NTopic::ICodec>>>();
+    std::shared_ptr<std::unordered_map<ECodec, THolder<ICodec>>> ProvidedCodecs = std::make_shared<std::unordered_map<ECodec, THolder<ICodec>>>();
     THashMap<std::string, std::shared_ptr<TImpl>> Subclients; // Endpoint -> Subclient.
 };
 

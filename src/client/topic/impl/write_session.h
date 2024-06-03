@@ -1,10 +1,8 @@
 #pragma once
 
-#include "topic_impl.h"
-#include "write_session_impl.h"
-
-#include <src/client/persqueue_core/impl/common.h>
-#include <src/client/persqueue_core/impl/callback_context.h>
+#include <src/client/topic/impl/write_session_impl.h>
+#include <src/client/topic/impl/callback_context.h>
+#include <src/client/topic/impl/topic_impl.h>
 #include <ydb-cpp-sdk/client/topic/topic.h>
 
 #include <src/util/generic/buffer.h>
@@ -17,7 +15,7 @@ namespace NYdb::NTopic {
 // TWriteSession
 
 class TWriteSession : public IWriteSession,
-                      public NPersQueue::TContextOwner<TWriteSessionImpl> {
+                      public TContextOwner<TWriteSessionImpl> {
 private:
     friend class TSimpleBlockingWriteSession;
     friend class TTopicClient;
@@ -92,4 +90,4 @@ private:
 };
 
 
-}; // namespace NYdb::NTopic
+} // namespace NYdb::NTopic

@@ -1,19 +1,10 @@
 #include "read_session.h"
 
-#include <src/client/persqueue_core/impl/log_lazy.h>
-
-#define INCLUDE_YDB_INTERNAL_H
-#include <src/client/impl/ydb_internal/logger/log.h>
-#undef INCLUDE_YDB_INTERNAL_H
-
-#include <src/util/generic/guid.h>
+#include <src/client/topic/impl/log_lazy.h>
 
 namespace NYdb::NTopic {
 
 static const std::string DRIVER_IS_STOPPING_DESCRIPTION = "Driver is stopping";
-
-void MakeCountersNotNull(TReaderCounters& counters);
-bool HasNullCounters(TReaderCounters& counters);
 
 TReadSession::TReadSession(const TReadSessionSettings& settings,
              std::shared_ptr<TTopicClient::TImpl> client,
@@ -48,7 +39,7 @@ TReadSession::~TReadSession() {
 }
 
 void TReadSession::Start() {
-    EventsQueue = std::make_shared<NPersQueue::TReadSessionEventsQueue<false>>(Settings);
+    EventsQueue = std::make_shared<TReadSessionEventsQueue<false>>(Settings);
 
     if (!ValidateSettings()) {
         return;
@@ -56,9 +47,8 @@ void TReadSession::Start() {
 
     LOG_LAZY(Log, TLOG_INFO, GetLogPrefix() << "Starting read session");
 
-    NPersQueue::TDeferredActions<false> deferred;
-    {
-        std::lock_guard guard(Lock);
+    TDeferredActions<false> deferred;
+    with_lock(Lock) {
         if (Aborting) {
             return;
         }
@@ -68,7 +58,7 @@ void TReadSession::Start() {
     SetupCountersLogger();
 }
 
-void TReadSession::CreateClusterSessionsImpl(NPersQueue::TDeferredActions<false>& deferred) {
+void TReadSession::CreateClusterSessionsImpl(TDeferredActions<false>& deferred) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     // Create cluster sessions.
@@ -82,7 +72,7 @@ void TReadSession::CreateClusterSessionsImpl(NPersQueue::TDeferredActions<false>
         return;
     }
 
-    CbContext = NPersQueue::MakeWithCallbackContext<NPersQueue::TSingleClusterReadSessionImpl<false>>(
+    CbContext = MakeWithCallbackContext<TSingleClusterReadSessionImpl<false>>(
         Settings,
         DbDriverState->Database,
         SessionId,
@@ -118,7 +108,7 @@ bool TReadSession::ValidateSettings() {
     }
 
     if (issues) {
-        Abort(EStatus::BAD_REQUEST, NPersQueue::MakeIssueWithSubIssues("Invalid read session settings", issues));
+        Abort(EStatus::BAD_REQUEST, MakeIssueWithSubIssues("Invalid read session settings", issues));
         return false;
     } else {
         return true;
@@ -260,13 +250,13 @@ bool TReadSession::Close(TDuration timeout) {
         }
     }
 
-    NPersQueue::TSingleClusterReadSessionImpl<false>::TPtr session;
+    TSingleClusterReadSessionImpl<false>::TPtr session;
     NThreading::TPromise<bool> promise = NThreading::NewPromise<bool>();
     auto callback = [=]() mutable {
         promise.TrySetValue(true);
     };
 
-    NPersQueue::TDeferredActions<false> deferred;
+    TDeferredActions<false> deferred;
     {
         std::lock_guard guard(Lock);
         if (Closing || Aborting) {
@@ -302,7 +292,7 @@ bool TReadSession::Close(TDuration timeout) {
     NThreading::TFuture<bool> resultFuture = promise.GetFuture();
     const bool result = resultFuture.GetValueSync();
     if (result) {
-        NPersQueue::Cancel(timeoutContext);
+        Cancel(timeoutContext);
 
         NYql::TIssues issues;
         issues.AddIssue("Session was gracefully closed");
@@ -330,27 +320,27 @@ TStringBuilder TReadSession::GetLogPrefix() const {
 }
 
 void TReadSession::MakeCountersIfNeeded() {
-    if (!Settings.Counters_ || NPersQueue::HasNullCounters(*Settings.Counters_)) {
+    if (!Settings.Counters_ || HasNullCounters(*Settings.Counters_)) {
         TReaderCounters::TPtr counters = MakeIntrusive<TReaderCounters>();
         if (Settings.Counters_) {
             *counters = *Settings.Counters_; // Copy all counters that have been set by user.
         }
-        NPersQueue::MakeCountersNotNull(*counters);
+        MakeCountersNotNull(*counters);
         Settings.Counters(counters);
     }
 }
 
 void TReadSession::SetupCountersLogger() {
     std::lock_guard guard(Lock);
-    std::vector<NPersQueue::TCallbackContextPtr<false>> sessions{CbContext};
+    std::vector<TCallbackContextPtr<false>> sessions{CbContext};
 
-    CountersLogger = std::make_shared<NPersQueue::TCountersLogger<false>>(Connections, sessions, Settings.Counters_, Log,
+    CountersLogger = std::make_shared<TCountersLogger<false>>(Connections, sessions, Settings.Counters_, Log,
                                                                 GetLogPrefix(), StartSessionTime);
     DumpCountersContext = CountersLogger->MakeCallbackContext();
     CountersLogger->Start();
 }
 
-void TReadSession::AbortImpl(NPersQueue::TDeferredActions<false>&) {
+void TReadSession::AbortImpl(TDeferredActions<false>&) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     if (!Aborting) {
@@ -362,20 +352,20 @@ void TReadSession::AbortImpl(NPersQueue::TDeferredActions<false>&) {
     }
 }
 
-void TReadSession::AbortImpl(TSessionClosedEvent&& closeEvent, NPersQueue::TDeferredActions<false>& deferred) {
+void TReadSession::AbortImpl(TSessionClosedEvent&& closeEvent, TDeferredActions<false>& deferred) {
     LOG_LAZY(Log, TLOG_NOTICE, GetLogPrefix() << "Aborting read session. Description: " << closeEvent.DebugString());
 
     EventsQueue->Close(std::move(closeEvent), deferred);
     AbortImpl(deferred);
 }
 
-void TReadSession::AbortImpl(EStatus statusCode, NYql::TIssues&& issues, NPersQueue::TDeferredActions<false>& deferred) {
+void TReadSession::AbortImpl(EStatus statusCode, NYql::TIssues&& issues, TDeferredActions<false>& deferred) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     AbortImpl(TSessionClosedEvent(statusCode, std::move(issues)), deferred);
 }
 
-void TReadSession::AbortImpl(EStatus statusCode, const std::string& message, NPersQueue::TDeferredActions<false>& deferred) {
+void TReadSession::AbortImpl(EStatus statusCode, const std::string& message, TDeferredActions<false>& deferred) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     NYql::TIssues issues;
@@ -394,9 +384,10 @@ void TReadSession::Abort(EStatus statusCode, const std::string& message) {
 }
 
 void TReadSession::Abort(TSessionClosedEvent&& closeEvent) {
-    NPersQueue::TDeferredActions<false> deferred;
-    std::lock_guard guard(Lock);
-    AbortImpl(std::move(closeEvent), deferred);
+    TDeferredActions<false> deferred;
+    with_lock(Lock) {
+        AbortImpl(std::move(closeEvent), deferred);
+    }
 }
 
-}
+} // namespace NYdb::NTopic

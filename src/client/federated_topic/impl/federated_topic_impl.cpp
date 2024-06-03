@@ -3,8 +3,8 @@
 #include "federated_read_session.h"
 #include "federated_write_session.h"
 
-#include <src/client/persqueue_core/impl/read_session.h>
-#include <src/client/persqueue_core/impl/write_session.h>
+#include <src/client/topic/impl/read_session.h>
+#include <src/client/topic/impl/write_session.h>
 
 namespace NYdb::NFederatedTopic {
 

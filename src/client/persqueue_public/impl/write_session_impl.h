@@ -1,10 +1,10 @@
 #pragma once
 
-#include "common.h"
-#include "persqueue_impl.h"
-
-#include <src/client/persqueue_core/persqueue.h>
-#include <src/client/persqueue_core/impl/callback_context.h>
+#include <src/client/persqueue_public/impl/aliases.h>
+#include <src/client/topic/impl/callback_context.h>
+#include <src/client/topic/impl/common.h>
+#include <src/client/persqueue_public/impl/persqueue_impl.h>
+#include <src/client/persqueue_public/persqueue.h>
 
 #include <src/util/generic/buffer.h>
 
@@ -454,4 +454,4 @@ protected:
     ui64 MessagesAcquired = 0;
 };
 
-}; // namespace NYdb::NPersQueue
+} // namespace NYdb::NPersQueue

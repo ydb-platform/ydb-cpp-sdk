@@ -5,10 +5,10 @@
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 
 #include <memory>
+#include <mutex>
 #include <shared_mutex>
-#include <vector>
 
-namespace NYdb::NPersQueue {
+namespace NYdb::NTopic {
 
 template<typename T>
 class TContextOwner;
@@ -144,4 +144,4 @@ protected:
     std::shared_ptr<TCallbackContext<T>> ImplContext;
 };
 
-}
+} // namespace NYdb::NTopic

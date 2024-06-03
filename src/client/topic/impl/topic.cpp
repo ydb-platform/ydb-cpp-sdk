@@ -1,10 +1,8 @@
-#include <ydb-cpp-sdk/client/topic/topic.h>
 #include <src/client/topic/impl/topic_impl.h>
-#include <src/client/topic/impl/executor.h>
-#include <src/client/impl/ydb_internal/scheme_helpers/helpers.h>
-#include <src/client/persqueue_core/impl/common.h>
+#include <src/client/topic/impl/common.h>
+#include <ydb-cpp-sdk/client/topic/topic.h>
 
-#include <src/library/persqueue/obfuscate/obfuscate.h>
+#include <src/client/impl/ydb_internal/scheme_helpers/helpers.h>
 
 #include <ydb-cpp-sdk/util/random/random.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
@@ -15,8 +13,8 @@ namespace NYdb::NTopic {
 class TCommonCodecsProvider {
 public:
     TCommonCodecsProvider() {
-        NYdb::NTopic::TCodecMap::GetTheCodecMap().Set((ui32)NYdb::NPersQueue::ECodec::GZIP, MakeHolder<NYdb::NTopic::TGzipCodec>());
-        NYdb::NTopic::TCodecMap::GetTheCodecMap().Set((ui32)NYdb::NPersQueue::ECodec::ZSTD, MakeHolder<NYdb::NTopic::TZstdCodec>());
+        TCodecMap::GetTheCodecMap().Set((ui32)ECodec::GZIP, MakeHolder<TGzipCodec>());
+        TCodecMap::GetTheCodecMap().Set((ui32)ECodec::ZSTD, MakeHolder<TZstdCodec>());
     }
 };
 TCommonCodecsProvider COMMON_CODECS_PROVIDER;
@@ -450,32 +448,6 @@ TAsyncDescribeConsumerResult TTopicClient::DescribeConsumer(const std::string& p
 
 TAsyncDescribePartitionResult TTopicClient::DescribePartition(const std::string& path, i64 partitionId, const TDescribePartitionSettings& settings) {
     return Impl_->DescribePartition(path, partitionId, settings);
-}
-
-IRetryPolicy::TPtr IRetryPolicy::GetDefaultPolicy() {
-    static IRetryPolicy::TPtr policy = GetExponentialBackoffPolicy();
-    return policy;
-}
-
-IRetryPolicy::TPtr IRetryPolicy::GetNoRetryPolicy() {
-    return ::IRetryPolicy<EStatus>::GetNoRetryPolicy();
-}
-
-IRetryPolicy::TPtr
-IRetryPolicy::GetExponentialBackoffPolicy(TDuration minDelay, TDuration minLongRetryDelay, TDuration maxDelay,
-                                          size_t maxRetries, TDuration maxTime, double scaleFactor,
-                                          std::function<ERetryErrorClass(EStatus)> customRetryClassFunction) {
-    return ::IRetryPolicy<EStatus>::GetExponentialBackoffPolicy(
-        customRetryClassFunction ? customRetryClassFunction : NYdb::NPersQueue::GetRetryErrorClass, minDelay,
-        minLongRetryDelay, maxDelay, maxRetries, maxTime, scaleFactor);
-}
-
-IRetryPolicy::TPtr
-IRetryPolicy::GetFixedIntervalPolicy(TDuration delay, TDuration longRetryDelay, size_t maxRetries, TDuration maxTime,
-                                     std::function<ERetryErrorClass(EStatus)> customRetryClassFunction) {
-    return ::IRetryPolicy<EStatus>::GetFixedIntervalPolicy(
-        customRetryClassFunction ? customRetryClassFunction : NYdb::NPersQueue::GetRetryErrorClass, delay,
-        longRetryDelay, maxRetries, maxTime);
 }
 
 std::shared_ptr<IReadSession> TTopicClient::CreateReadSession(const TReadSessionSettings& settings) {

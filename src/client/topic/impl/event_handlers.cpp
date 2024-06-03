@@ -138,4 +138,4 @@ TReadSessionSettings::TEventHandlers& TReadSessionSettings::TEventHandlers::Simp
     return *this;
 }
 
-}
+} // namespace NYdb::NTopic

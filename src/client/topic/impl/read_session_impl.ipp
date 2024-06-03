@@ -1,14 +1,10 @@
-#ifndef READ_SESSION_IMPL
-#error "Do not include this file directly"
-// For the sake of sane code completion.
-#include "read_session.h"
-#endif
-// #include "read_session.h"
+#pragma once
 
-#include "persqueue_impl.h"
-#include "common.h"
+#define INCLUDE_READ_SESSION_IMPL_H
+#include "read_session_impl.h"
+#undef INCLUDE_READ_SESSION_IMPL_H
 
-#include <src/client/persqueue_core/impl/log_lazy.h>
+#include <src/client/topic/impl/log_lazy.h>
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/logger/log.h>
@@ -17,6 +13,7 @@
 #include <google/protobuf/util/time_util.h>
 
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
+
 #include <src/util/generic/guid.h>
 #include <ydb-cpp-sdk/util/generic/size_literals.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
@@ -26,17 +23,10 @@
 #include <utility>
 #include <variant>
 
-// Forward delcarations
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Templates definitions
 
 namespace NYdb::NTopic {
-    class TReadSession;
-}
-
-namespace NYdb::NPersQueue::NCompressionDetails {
-    extern std::string Decompress(const Ydb::PersQueue::V1::MigrationStreamingReadServerMessage::DataBatch::MessageData& data);
-}
-
-namespace NYdb::NPersQueue {
 
 static const bool RangesMode = !std::string{std::getenv("PQ_OFFSET_RANGES_MODE") ? std::getenv("PQ_OFFSET_RANGES_MODE") : ""}.empty();
 
@@ -44,7 +34,6 @@ template <typename TReaderCounters>
 void MakeCountersNotNull(TReaderCounters& counters);
 template <typename TReaderCounters>
 bool HasNullCounters(TReaderCounters& counters);
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TPartitionStreamImpl
@@ -131,8 +120,8 @@ template <bool UseMigrationProtocol>
 void TPartitionStreamImpl<UseMigrationProtocol>::GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                                                                   size_t& maxEventsCount,
                                                                   size_t& maxByteSize,
-                                                                  std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                                                                  std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                                                                  std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TMessage>& messages,
+                                                                  std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TCompressedMessage>& compressedMessages,
                                                                   TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator)
 {
     partitionStream->EventsQueue.GetDataEventImpl(partitionStream,
@@ -163,8 +152,8 @@ void TRawPartitionStreamEventQueue<UseMigrationProtocol>::SignalReadyEvents(TInt
 
         if (front.IsDataEvent()) {
             if (queue.HasDataEventCallback()) {
-                std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage> messages;
-                std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage> compressedMessages;
+                std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TMessage> messages;
+                std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TCompressedMessage> compressedMessages;
                 TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol> accumulator;
                 auto maxEventsCount = Max<size_t>();
                 auto maxByteSize = Max<size_t>();
@@ -179,7 +168,7 @@ void TRawPartitionStreamEventQueue<UseMigrationProtocol>::SignalReadyEvents(TInt
                                                                                       accumulator,
                                                                                       NotReady);
 
-                TDataReceivedEvent<UseMigrationProtocol> data(std::move(messages),
+                TADataReceivedEvent<UseMigrationProtocol> data(std::move(messages),
                                                               std::move(compressedMessages),
                                                               stream);
 
@@ -456,7 +445,7 @@ inline void TSingleClusterReadSessionImpl<true>::InitImpl(TDeferredActions<true>
     TClientMessage<true> req;
     auto& init = *req.mutable_init_request();
     init.set_ranges_mode(GetRangesMode());
-    for (const TTopicReadSettings& topic : Settings.Topics_) {
+    for (const NPersQueue::TTopicReadSettings& topic : Settings.Topics_) {
         auto* topicSettings = init.add_topics_read_settings();
         topicSettings->set_topic(topic.Path_);
         if (topic.StartingMessageTimestamp_) {
@@ -489,7 +478,7 @@ inline void TSingleClusterReadSessionImpl<false>::InitImpl(TDeferredActions<fals
 
     init.set_consumer(Settings.ConsumerName_);
 
-    for (const NTopic::TTopicReadSettings& topic : Settings.Topics_) {
+    for (const TTopicReadSettings& topic : Settings.Topics_) {
         auto* topicSettings = init.add_topics_read_settings();
         topicSettings->set_path(topic.Path_);
         for (ui64 partitionId : topic.PartitionIds_) {
@@ -1064,8 +1053,8 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
 
         bool pushRes = EventsQueue->PushEvent(
             currentPartitionStream,
-             TReadSessionEvent::TPartitionStreamClosedEvent(
-                 currentPartitionStream, TReadSessionEvent::TPartitionStreamClosedEvent::EReason::Lost),
+            NPersQueue::TReadSessionEvent::TPartitionStreamClosedEvent(
+                 currentPartitionStream, NPersQueue::TReadSessionEvent::TPartitionStreamClosedEvent::EReason::Lost),
             deferred);
         if (!pushRes) {
             AbortImpl();
@@ -1077,7 +1066,7 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
     // Send event to user.
     bool pushRes = EventsQueue->PushEvent(
         partitionStream,
-         TReadSessionEvent::TCreatePartitionStreamEvent(partitionStream, msg.read_offset(), msg.end_offset()),
+        NPersQueue::TReadSessionEvent::TCreatePartitionStreamEvent(partitionStream, msg.read_offset(), msg.end_offset()),
         deferred);
     if (!pushRes) {
         AbortImpl();
@@ -1101,14 +1090,15 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
     if (msg.forceful_release()) {
         PartitionStreams.erase(msg.assign_id());
         CookieMapping.RemoveMapping(partitionStream->GetPartitionStreamId());
-        pushRes = EventsQueue->PushEvent(partitionStream,
-                                TReadSessionEvent::TPartitionStreamClosedEvent(
-                                    partitionStream, TReadSessionEvent::TPartitionStreamClosedEvent::EReason::Lost),
-                               deferred);
+        pushRes = EventsQueue->PushEvent(
+            partitionStream,
+            NPersQueue::TReadSessionEvent::TPartitionStreamClosedEvent(
+                partitionStream, NPersQueue::TReadSessionEvent::TPartitionStreamClosedEvent::EReason::Lost),
+            deferred);
     } else {
         pushRes = EventsQueue->PushEvent(
             partitionStream,
-             TReadSessionEvent::TDestroyPartitionStreamEvent(std::move(partitionStream), msg.commit_offset()),
+            NPersQueue::TReadSessionEvent::TDestroyPartitionStreamEvent(std::move(partitionStream), msg.commit_offset()),
             deferred);
     }
 
@@ -1137,10 +1127,10 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
         }
     }
     for (auto& [id, partitionStream] : partitionStreams) {
-        bool pushRes = EventsQueue->PushEvent(
-            partitionStream,
-             TReadSessionEvent::TCommitAcknowledgementEvent(partitionStream, partitionStream->GetMaxCommittedOffset()),
-            deferred);
+        bool pushRes = EventsQueue->PushEvent(partitionStream,
+                                              NPersQueue::TReadSessionEvent::TCommitAcknowledgementEvent(
+                                                  partitionStream, partitionStream->GetMaxCommittedOffset()),
+                                              deferred);
         if (!pushRes) {
             AbortImpl();
             return;
@@ -1154,7 +1144,7 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
             partitionStream->UpdateMaxCommittedOffset(rangeProto.end_offset());
             bool pushRes = EventsQueue->PushEvent(
                 partitionStream,
-                 TReadSessionEvent::TCommitAcknowledgementEvent(partitionStream, rangeProto.end_offset()),
+                NPersQueue::TReadSessionEvent::TCommitAcknowledgementEvent(partitionStream, rangeProto.end_offset()),
                 deferred);
             if (!pushRes) {
                 AbortImpl();
@@ -1176,18 +1166,18 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
         return;
     }
     bool pushRes = EventsQueue->PushEvent(partitionStreamIt->second,
-                            TReadSessionEvent::TPartitionStreamStatusEvent(
-                                partitionStreamIt->second, msg.committed_offset(),
-                                0, // TODO: support read offset in status
-                                msg.end_offset(), TInstant::MilliSeconds(msg.write_watermark_ms())),
-                           deferred);
+                                          NPersQueue::TReadSessionEvent::TPartitionStreamStatusEvent(
+                                              partitionStreamIt->second, msg.committed_offset(),
+                                              0, // TODO: support read offset in status
+                                              msg.end_offset(), TInstant::MilliSeconds(msg.write_watermark_ms())),
+                                          deferred);
     if (!pushRes) {
         AbortImpl();
         return;
     }
 }
 
-//////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <>
 template <>
@@ -1308,8 +1298,8 @@ inline void TSingleClusterReadSessionImpl<false>::OnReadDoneImpl(
     if (currentPartitionStream) {
         bool pushRes = EventsQueue->PushEvent(
             currentPartitionStream,
-             NTopic::TReadSessionEvent::TPartitionSessionClosedEvent(
-                 currentPartitionStream, NTopic::TReadSessionEvent::TPartitionSessionClosedEvent::EReason::Lost),
+             TReadSessionEvent::TPartitionSessionClosedEvent(
+                 currentPartitionStream, TReadSessionEvent::TPartitionSessionClosedEvent::EReason::Lost),
             deferred);
         if (!pushRes) {
             AbortImpl();
@@ -1320,7 +1310,7 @@ inline void TSingleClusterReadSessionImpl<false>::OnReadDoneImpl(
 
     // Send event to user.
     bool pushRes = EventsQueue->PushEvent(partitionStream,
-                            NTopic::TReadSessionEvent::TStartPartitionSessionEvent(
+                            TReadSessionEvent::TStartPartitionSessionEvent(
                                 partitionStream, msg.committed_offset(), msg.partition_offsets().end()),
                            deferred);
     if (!pushRes) {
@@ -1360,13 +1350,13 @@ inline void TSingleClusterReadSessionImpl<false>::OnReadDoneImpl(
     if (!msg.graceful()) {
         PartitionStreams.erase(msg.partition_session_id());
         pushRes = EventsQueue->PushEvent(partitionStream,
-                                NTopic::TReadSessionEvent::TPartitionSessionClosedEvent(
-                                    partitionStream, NTopic::TReadSessionEvent::TPartitionSessionClosedEvent::EReason::Lost),
+                                TReadSessionEvent::TPartitionSessionClosedEvent(
+                                    partitionStream, TReadSessionEvent::TPartitionSessionClosedEvent::EReason::Lost),
                                deferred);
     } else {
         pushRes = EventsQueue->PushEvent(
             partitionStream,
-             NTopic::TReadSessionEvent::TStopPartitionSessionEvent(std::move(partitionStream), msg.committed_offset()),
+             TReadSessionEvent::TStopPartitionSessionEvent(std::move(partitionStream), msg.committed_offset()),
             deferred);
     }
     if (!pushRes) {
@@ -1390,7 +1380,7 @@ inline void TSingleClusterReadSessionImpl<false>::OnReadDoneImpl(
             auto partitionStream = partitionStreamIt->second;
             partitionStream->UpdateMaxCommittedOffset(rangeProto.committed_offset());
             bool pushRes = EventsQueue->PushEvent(partitionStream,
-                                    NTopic::TReadSessionEvent::TCommitOffsetAcknowledgementEvent(
+                                    TReadSessionEvent::TCommitOffsetAcknowledgementEvent(
                                         partitionStream, rangeProto.committed_offset()),
                                    deferred);
             if (!pushRes) {
@@ -1413,7 +1403,7 @@ inline void TSingleClusterReadSessionImpl<false>::OnReadDoneImpl(
         return;
     }
     bool pushRes = EventsQueue->PushEvent(partitionStreamIt->second,
-                            NTopic::TReadSessionEvent::TPartitionSessionStatusEvent(
+                            TReadSessionEvent::TPartitionSessionStatusEvent(
                                 partitionStreamIt->second, msg.committed_offset(),
                                 0, // TODO: support read offset in status
                                 msg.partition_offsets().end(),
@@ -1915,8 +1905,8 @@ template <bool UseMigrationProtocol>
 void TRawPartitionStreamEventQueue<UseMigrationProtocol>::GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                                                                            size_t& maxEventsCount,
                                                                            size_t& maxByteSize,
-                                                                           std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                                                                           std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                                                                           std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TMessage>& messages,
+                                                                           std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TCompressedMessage>& compressedMessages,
                                                                            TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator)
 {
     GetDataEventImpl(partitionStream,
@@ -1932,8 +1922,8 @@ template <bool UseMigrationProtocol>
 void TRawPartitionStreamEventQueue<UseMigrationProtocol>::GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
                                                                            size_t& maxEventsCount,
                                                                            size_t& maxByteSize,
-                                                                           std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                                                                           std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                                                                           std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TMessage>& messages,
+                                                                           std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TCompressedMessage>& compressedMessages,
                                                                            TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator,
                                                                            std::deque<TRawPartitionStreamEvent<UseMigrationProtocol>>& queue)
 {
@@ -1963,13 +1953,13 @@ void TRawPartitionStreamEventQueue<UseMigrationProtocol>::GetDataEventImpl(TIntr
 }
 
 template <bool UseMigrationProtocol>
-typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent
+TADataReceivedEvent<UseMigrationProtocol>
 TReadSessionEventsQueue<UseMigrationProtocol>::GetDataEventImpl(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> stream,
                                                                 size_t& maxByteSize,
                                                                 TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>& accumulator) // Assumes that we're under lock.
 {
-    std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage> messages;
-    std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage> compressedMessages;
+    std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TMessage> messages;
+    std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TCompressedMessage> compressedMessages;
 
     Y_ABORT_UNLESS(!TParent::Events.empty());
 
@@ -2147,7 +2137,7 @@ bool TReadSessionEventsQueue<UseMigrationProtocol>::HasDataEventCallback() const
 }
 
 template <bool UseMigrationProtocol>
-void TReadSessionEventsQueue<UseMigrationProtocol>::ApplyCallbackToEventImpl(TDataReceivedEvent<UseMigrationProtocol>& data,
+void TReadSessionEventsQueue<UseMigrationProtocol>::ApplyCallbackToEventImpl(TADataReceivedEvent<UseMigrationProtocol>& data,
                                                                              TUserRetrievedEventsInfoAccumulator<UseMigrationProtocol>&& eventsInfo,
                                                                              TDeferredActions<UseMigrationProtocol>& deferred)
 {
@@ -2384,8 +2374,8 @@ void TDataDecompressionInfo<UseMigrationProtocol>::PlanDecompressionTasks(double
 
 template<bool UseMigrationProtocol>
 void TDataDecompressionEvent<UseMigrationProtocol>::TakeData(TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>> partitionStream,
-                                                             std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TMessage>& messages,
-                                                             std::vector<typename TAReadSessionEvent<UseMigrationProtocol>::TDataReceivedEvent::TCompressedMessage>& compressedMessages,
+                                                             std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TMessage>& messages,
+                                                             std::vector<typename TADataReceivedEvent<UseMigrationProtocol>::TCompressedMessage>& compressedMessages,
                                                              size_t& maxByteSize,
                                                              size_t& dataSize) const
 {
@@ -2407,14 +2397,16 @@ void TDataDecompressionEvent<UseMigrationProtocol>::TakeData(TIntrusivePtr<TPart
     maxOffset = Max(maxOffset, static_cast<i64>(messageData.offset()));
 
     if constexpr (UseMigrationProtocol) {
-        TReadSessionEvent::TDataReceivedEvent::TMessageInformation messageInfo(messageData.offset(),
-                                                                               batch.source_id(),
-                                                                               messageData.seq_no(),
-                                                                               TInstant::MilliSeconds(messageData.create_timestamp_ms()),
-                                                                               batchWriteTimestamp,
-                                                                               batch.ip(),
-                                                                               meta,
-                                                                               messageData.uncompressed_size());
+        using TMessageInformation = NPersQueue::TReadSessionEvent::TDataReceivedEvent::TMessageInformation;
+
+        TMessageInformation messageInfo(messageData.offset(),
+                                        batch.source_id(),
+                                        messageData.seq_no(),
+                                        TInstant::MilliSeconds(messageData.create_timestamp_ms()),
+                                        batchWriteTimestamp,
+                                        batch.ip(),
+                                        meta,
+                                        messageData.uncompressed_size());
 
         if (Parent->GetDoDecompress()) {
             messages.emplace_back(messageData.data(),
@@ -2424,16 +2416,16 @@ void TDataDecompressionEvent<UseMigrationProtocol>::TakeData(TIntrusivePtr<TPart
                                   messageData.partition_key(),
                                   messageData.explicit_hash());
         } else {
-            compressedMessages.emplace_back(static_cast<ECodec>(messageData.codec()),
+            compressedMessages.emplace_back(static_cast<NPersQueue::ECodec>(messageData.codec()),
                                             messageData.data(),
-                                            std::vector<TReadSessionEvent::TDataReceivedEvent::TMessageInformation>{messageInfo},
+                                            std::vector<TMessageInformation>{messageInfo},
                                             partitionStream,
                                             messageData.partition_key(),
                                             messageData.explicit_hash());
         }
     } else {
         const auto& messageMeta = Parent->GetMessageMeta(Batch, Message);
-        NTopic::TReadSessionEvent::TDataReceivedEvent::TMessageInformation messageInfo(
+        TReadSessionEvent::TDataReceivedEvent::TMessageInformation messageInfo(
                 messageData.offset(),
                 batch.producer_id(),
                 messageData.seq_no(),
@@ -2451,7 +2443,7 @@ void TDataDecompressionEvent<UseMigrationProtocol>::TakeData(TIntrusivePtr<TPart
                                   messageInfo,
                                   partitionStream);
         } else {
-            compressedMessages.emplace_back(static_cast<NTopic::ECodec>(batch.codec()),
+            compressedMessages.emplace_back(static_cast<ECodec>(batch.codec()),
                                             messageData.data(),
                                             messageInfo,
                                             partitionStream);
@@ -2556,7 +2548,7 @@ void TDataDecompressionInfo<UseMigrationProtocol>::TDecompressionTask::operator(
                         && data.codec() != Ydb::PersQueue::V1::CODEC_RAW
                         && data.codec() != Ydb::PersQueue::V1::CODEC_UNSPECIFIED
                     ) {
-                        const NYdb::NTopic::ICodec* codecImpl = NYdb::NTopic::TCodecMap::GetTheCodecMap().GetOrThrow(static_cast<ui32>(data.codec()));
+                        const ICodec* codecImpl = TCodecMap::GetTheCodecMap().GetOrThrow(static_cast<ui32>(data.codec()));
                         std::string decompressed = codecImpl->Decompress(data.data());
                         data.set_data(decompressed);
                         data.set_codec(Ydb::PersQueue::V1::CODEC_RAW);
@@ -2566,7 +2558,7 @@ void TDataDecompressionInfo<UseMigrationProtocol>::TDecompressionTask::operator(
                         && static_cast<Ydb::Topic::Codec>(batch.codec()) != Ydb::Topic::CODEC_RAW
                         && static_cast<Ydb::Topic::Codec>(batch.codec()) != Ydb::Topic::CODEC_UNSPECIFIED
                     ) {
-                        const NYdb::NTopic::ICodec* codecImpl = NYdb::NTopic::TCodecMap::GetTheCodecMap().GetOrThrow(static_cast<ui32>(batch.codec()));
+                        const ICodec* codecImpl = TCodecMap::GetTheCodecMap().GetOrThrow(static_cast<ui32>(batch.codec()));
                         std::string decompressed = codecImpl->Decompress(data.data());
                         data.set_data(decompressed);
                     }
@@ -2821,4 +2813,4 @@ bool HasNullCounters(TReaderCounters& counters) {
         || !counters.CompressedBytesInflightUsageByTime;
 }
 
-} // namespace NYdb::NPersQueue
+} // namespace NYdb::NTopic

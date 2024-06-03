@@ -1,21 +1,6 @@
-#include "persqueue_impl.h"
 #include "read_session.h"
-#include "common.h"
 
-#include <src/client/persqueue_core/impl/log_lazy.h>
-
-#define INCLUDE_YDB_INTERNAL_H
-#include <src/client/impl/ydb_internal/logger/log.h>
-#undef INCLUDE_YDB_INTERNAL_H
-
-#include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
-#include <src/util/generic/guid.h>
-#include <ydb-cpp-sdk/util/generic/size_literals.h>
-#include <ydb-cpp-sdk/util/generic/utility.h>
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <ydb-cpp-sdk/util/stream/mem.h>
-
-#include <variant>
+#include <src/client/topic/impl/log_lazy.h>
 
 namespace NYdb::NPersQueue {
 
@@ -59,7 +44,7 @@ TReadSession::~TReadSession() {
     Close(TDuration::Zero());
 
     {
-        TDeferredActions<true> deferred;
+        TDeferredActions deferred;
         NYql::TIssues issues;
         issues.AddIssue("Aborted");
         EventsQueue->Close(TSessionClosedEvent(EStatus::ABORTED, std::move(issues)), deferred);
@@ -87,7 +72,7 @@ Ydb::PersQueue::ClusterDiscovery::DiscoverClustersRequest TReadSession::MakeClus
 }
 
 void TReadSession::Start() {
-    EventsQueue = std::make_shared<TReadSessionEventsQueue<true>>(Settings);
+    EventsQueue = std::make_shared<TReadSessionEventsQueue>(Settings);
 
     if (!ValidateSettings()) {
         return;
@@ -117,7 +102,7 @@ bool TReadSession::ValidateSettings() {
 
     if (issues) {
         {
-            TDeferredActions<true> deferred;
+            TDeferredActions deferred;
             EventsQueue->Close(TSessionClosedEvent(EStatus::BAD_REQUEST, MakeIssueWithSubIssues("Invalid read session settings", issues)), deferred);
         }
         Abort();
@@ -168,9 +153,8 @@ void TReadSession::StartClusterDiscovery() {
 
 
 void TReadSession::ProceedWithoutClusterDiscovery() {
-    TDeferredActions<true> deferred;
-    {
-        std::lock_guard guard(Lock);
+    TDeferredActions deferred;
+    with_lock(Lock) {
         if (Aborting) {
             return;
         }
@@ -186,7 +170,7 @@ void TReadSession::ProceedWithoutClusterDiscovery() {
     SetupCountersLogger();
 }
 
-void TReadSession::CreateClusterSessionsImpl(TDeferredActions<true>& deferred) {
+void TReadSession::CreateClusterSessionsImpl(TDeferredActions& deferred) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     // Create cluster sessions.
@@ -209,7 +193,7 @@ void TReadSession::CreateClusterSessionsImpl(TDeferredActions<true>& deferred) {
             AbortImpl(EStatus::ABORTED, DRIVER_IS_STOPPING_DESCRIPTION, deferred);
             return;
         }
-        CbContexts.push_back(MakeWithCallbackContext<TSingleClusterReadSessionImpl<true>>(
+        CbContexts.push_back(MakeWithCallbackContext<TSingleClusterReadSessionImpl>(
             sessionSettings,
             DbDriverState->Database,
             SessionId,
@@ -229,9 +213,8 @@ void TReadSession::CreateClusterSessionsImpl(TDeferredActions<true>& deferred) {
 }
 
 void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueue::ClusterDiscovery::DiscoverClustersResult& result) {
-    TDeferredActions<true> deferred;
-    {
-        std::lock_guard guard(Lock);
+    TDeferredActions deferred;
+    with_lock(Lock) {
         if (Aborting) {
             return;
         }
@@ -330,7 +313,7 @@ void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueu
     SetupCountersLogger();
 }
 
-void TReadSession::RestartClusterDiscoveryImpl(TDuration delay, TDeferredActions<true>& deferred) {
+void TReadSession::RestartClusterDiscoveryImpl(TDuration delay, TDeferredActions& deferred) {
     Y_ABORT_UNLESS(Lock.IsLocked());
     if (Aborting || Closing) {
         return;
@@ -364,7 +347,7 @@ bool TReadSession::Close(TDuration timeout) {
         CountersLogger->Stop();
     }
 
-    std::vector<TSingleClusterReadSessionImpl<true>::TPtr> sessions;
+    std::vector<TSingleClusterReadSessionImpl::TPtr> sessions;
     NThreading::TPromise<bool> promise = NThreading::NewPromise<bool>();
     std::shared_ptr<std::atomic<size_t>> count = std::make_shared<std::atomic<size_t>>(0);
     auto callback = [=]() mutable {
@@ -373,7 +356,7 @@ bool TReadSession::Close(TDuration timeout) {
         }
     };
 
-    TDeferredActions<true> deferred;
+    TDeferredActions deferred;
     {
         std::lock_guard guard(Lock);
         if (Closing || Aborting) {
@@ -438,7 +421,7 @@ bool TReadSession::Close(TDuration timeout) {
     return result;
 }
 
-void TReadSession::AbortImpl(TDeferredActions<true>&) {
+void TReadSession::AbortImpl(TDeferredActions&) {
 
     Y_ABORT_UNLESS(Lock.IsLocked());
 
@@ -461,7 +444,7 @@ void TReadSession::AbortImpl(TDeferredActions<true>&) {
     }
 }
 
-void TReadSession::AbortImpl(EStatus statusCode, NYql::TIssues&& issues, TDeferredActions<true>& deferred) {
+void TReadSession::AbortImpl(EStatus statusCode, NYql::TIssues&& issues, TDeferredActions& deferred) {
     Y_ABORT_UNLESS(Lock.IsLocked());
     auto closeEvent = TSessionClosedEvent(statusCode, std::move(issues));
     LOG_LAZY(Log, TLOG_NOTICE, GetLogPrefix() << "Aborting read session. Description: " << closeEvent.DebugString());
@@ -470,7 +453,7 @@ void TReadSession::AbortImpl(EStatus statusCode, NYql::TIssues&& issues, TDeferr
     AbortImpl(deferred);
 }
 
-void TReadSession::AbortImpl(EStatus statusCode, const std::string& message, TDeferredActions<true>& deferred) {
+void TReadSession::AbortImpl(EStatus statusCode, const std::string& message, TDeferredActions& deferred) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     NYql::TIssues issues;
@@ -480,7 +463,7 @@ void TReadSession::AbortImpl(EStatus statusCode, const std::string& message, TDe
 }
 
 void TReadSession::Abort() {
-    TDeferredActions<true> deferred;
+    TDeferredActions deferred;
     std::lock_guard guard(Lock);
     AbortImpl(EStatus::ABORTED, "Aborted", deferred);
 }
@@ -550,7 +533,7 @@ void TReadSession::MakeCountersIfNeeded() {
 
 void TReadSession::SetupCountersLogger() {
     std::lock_guard guard(Lock);
-    CountersLogger = std::make_shared<TCountersLogger<true>>(Connections, CbContexts, Settings.Counters_, Log,
+    CountersLogger = std::make_shared<TCountersLogger>(Connections, CbContexts, Settings.Counters_, Log,
                                                                 GetLogPrefix(), StartSessionTime);
     DumpCountersContext = CountersLogger->MakeCallbackContext();
     CountersLogger->Start();
@@ -568,7 +551,7 @@ TReadSessionEvent::TCreatePartitionStreamEvent::TCreatePartitionStreamEvent(TPar
 
 void TReadSessionEvent::TCreatePartitionStreamEvent::Confirm(std::optional<ui64> readOffset, std::optional<ui64> commitOffset) {
     if (PartitionStream) {
-        static_cast<TPartitionStreamImpl<true>*>(PartitionStream.Get())->ConfirmCreate(readOffset, commitOffset);
+        static_cast<TPartitionStreamImpl*>(PartitionStream.Get())->ConfirmCreate(readOffset, commitOffset);
     }
 }
 
@@ -580,7 +563,7 @@ TReadSessionEvent::TDestroyPartitionStreamEvent::TDestroyPartitionStreamEvent(TP
 
 void TReadSessionEvent::TDestroyPartitionStreamEvent::Confirm() {
     if (PartitionStream) {
-        static_cast<TPartitionStreamImpl<true>*>(PartitionStream.Get())->ConfirmDestroy();
+        static_cast<TPartitionStreamImpl*>(PartitionStream.Get())->ConfirmDestroy();
     }
 }
 
@@ -609,7 +592,7 @@ TReadSessionEvent::TDataReceivedEvent::TDataReceivedEvent(std::vector<TMessage> 
 
 void TReadSessionEvent::TDataReceivedEvent::Commit() {
     for (auto [from, to] : OffsetRanges) {
-        static_cast<TPartitionStreamImpl<true>*>(PartitionStream.Get())->Commit(from, to);
+        static_cast<TPartitionStreamImpl*>(PartitionStream.Get())->Commit(from, to);
     }
 }
 
@@ -938,7 +921,7 @@ void TDeferredCommit::TImpl::Add(const TReadSessionEvent::TDataReceivedEvent& da
 void TDeferredCommit::TImpl::Commit() {
     for (auto&& [partitionStream, offsetRanges] : Offsets) {
         for (auto&& [startOffset, endOffset] : offsetRanges) {
-            static_cast<TPartitionStreamImpl<true>*>(partitionStream.Get())->Commit(startOffset, endOffset);
+            static_cast<TPartitionStreamImpl*>(partitionStream.Get())->Commit(startOffset, endOffset);
         }
     }
     Offsets.clear();

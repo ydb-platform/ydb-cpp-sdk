@@ -1,10 +1,9 @@
 #pragma once
 
-#include "topic_impl.h"
-
-#include <src/client/persqueue_core/impl/callback_context.h>
-#include <src/client/persqueue_core/impl/counters_logger.h>
-#include <src/client/persqueue_core/impl/read_session.h>
+#include <src/client/topic/impl/read_session_impl.ipp>
+#include <src/client/topic/impl/callback_context.h>
+#include <src/client/topic/impl/counters_logger.h>
+#include <src/client/topic/impl/topic_impl.h>
 
 namespace NYdb::NTopic {
 
@@ -48,7 +47,7 @@ private:
     // Start
     bool ValidateSettings();
 
-    void CreateClusterSessionsImpl(NPersQueue::TDeferredActions<false>& deferred);
+    void CreateClusterSessionsImpl(TDeferredActions<false>& deferred);
 
     void MakeCountersIfNeeded();
     void SetupCountersLogger();
@@ -57,10 +56,10 @@ private:
     void Abort(EStatus statusCode, NYql::TIssues&& issues);
     void Abort(EStatus statusCode, const std::string& message);
 
-    void AbortImpl(NPersQueue::TDeferredActions<false>& deferred);
-    void AbortImpl(TSessionClosedEvent&& closeEvent, NPersQueue::TDeferredActions<false>& deferred);
-    void AbortImpl(EStatus statusCode, NYql::TIssues&& issues, NPersQueue::TDeferredActions<false>& deferred);
-    void AbortImpl(EStatus statusCode, const std::string& message, NPersQueue::TDeferredActions<false>& deferred);
+    void AbortImpl(TDeferredActions<false>& deferred);
+    void AbortImpl(TSessionClosedEvent&& closeEvent, TDeferredActions<false>& deferred);
+    void AbortImpl(EStatus statusCode, NYql::TIssues&& issues, TDeferredActions<false>& deferred);
+    void AbortImpl(EStatus statusCode, const std::string& message, TDeferredActions<false>& deferred);
 
 private:
     using TOffsetRanges = THashMap<std::string, THashMap<ui64, TDisjointIntervalTree<ui64>>>;
@@ -84,17 +83,17 @@ private:
     std::shared_ptr<TGRpcConnectionsImpl> Connections;
     TDbDriverStatePtr DbDriverState;
     TAdaptiveLock Lock;
-    std::shared_ptr<NPersQueue::TReadSessionEventsQueue<false>> EventsQueue;
+    std::shared_ptr<TReadSessionEventsQueue<false>> EventsQueue;
 
-    std::shared_ptr<NPersQueue::TCallbackContext<NPersQueue::TSingleClusterReadSessionImpl<false>>> CbContext;
+    std::shared_ptr<TCallbackContext<TSingleClusterReadSessionImpl<false>>> CbContext;
     std::vector<TTopicReadSettings> Topics;
 
-    std::shared_ptr<NPersQueue::TCountersLogger<false>> CountersLogger;
-    std::shared_ptr<NPersQueue::TCallbackContext<NPersQueue::TCountersLogger<false>>> DumpCountersContext;
+    std::shared_ptr<TCountersLogger<false>> CountersLogger;
+    std::shared_ptr<TCallbackContext<TCountersLogger<false>>> DumpCountersContext;
 
     // Exiting.
     bool Aborting = false;
     bool Closing = false;
 };
 
-}
+} // namespace NYdb::NTopic

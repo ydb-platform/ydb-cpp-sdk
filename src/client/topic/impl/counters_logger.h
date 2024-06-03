@@ -1,16 +1,14 @@
 #pragma once
 
-#include <src/client/impl/ydb_internal/grpc_connections/grpc_connections.h>
-
 #include <src/client/common_client/impl/client.h>
-#include <src/client/persqueue_core/persqueue.h>
+#include <src/client/persqueue_public/persqueue.h>
 #include <ydb-cpp-sdk/client/topic/topic.h>
-#include <src/client/persqueue_core/impl/callback_context.h>
-#include <src/client/persqueue_core/impl/log_lazy.h>
+#include <src/client/topic/impl/callback_context.h>
+#include <src/client/topic/impl/log_lazy.h>
 
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 
-namespace NYdb::NPersQueue {
+namespace NYdb::NTopic {
 
 template <bool UseMigrationProtocol>
 class TSingleClusterReadSessionImpl;
@@ -154,4 +152,4 @@ private:
     bool Stopping = false;
 };
 
-}
+} // namespace NYdb::NTopic

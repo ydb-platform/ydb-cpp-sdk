@@ -1,17 +1,15 @@
 #pragma once
 
-#include "common.h"
-#include "persqueue_impl.h"
-#include "write_session_impl.h"
-
-#include <src/client/persqueue_core/persqueue.h>
-#include <src/client/persqueue_core/impl/callback_context.h>
+#include <src/client/persqueue_public/impl/aliases.h>
+#include <src/client/topic/impl/callback_context.h>
+#include <src/client/topic/impl/common.h>
+#include <src/client/persqueue_public/impl/write_session_impl.h>
+#include <src/client/persqueue_public/impl/persqueue_impl.h>
+#include <src/client/persqueue_public/persqueue.h>
 
 #include <src/util/generic/buffer.h>
 
-
 namespace NYdb::NPersQueue {
-
 
 namespace NTests {
     class TSimpleWriteSessionTestAdapter;
@@ -100,4 +98,4 @@ private:
 };
 
 
-}; // namespace NYdb::NPersQueue
+} // namespace NYdb::NPersQueue

@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/topic/topic.h>
 
-#include <src/client/persqueue_core/impl/read_session.h>
+#include <src/client/topic/impl/read_session_impl.ipp>
 
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 
@@ -122,7 +122,7 @@ void TDeferredCommit::TImpl::Add(const TReadSessionEvent::TDataReceivedEvent& da
 void TDeferredCommit::TImpl::Commit() {
     for (auto&& [partitionStream, offsetRanges] : Offsets) {
         for (auto&& [startOffset, endOffset] : offsetRanges) {
-            static_cast<NPersQueue::TPartitionStreamImpl<false>*>(partitionStream.Get())->Commit(startOffset, endOffset);
+            static_cast<NTopic::TPartitionStreamImpl<false>*>(partitionStream.Get())->Commit(startOffset, endOffset);
         }
     }
     Offsets.clear();
