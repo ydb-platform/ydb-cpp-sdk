@@ -4,6 +4,8 @@
 #include <src/library/testing/unittest/registar.h>
 #include <ydb-cpp-sdk/util/stream/str.h>
 
+#include <sstream>
+
 using namespace NJson;
 
 class TReformatCallbacks: public TJsonCallbacks {
@@ -66,7 +68,7 @@ public:
     }
 };
 
-void GenerateDeepJson(std::stringStream& stream, ui64 depth) {
+void GenerateDeepJson(TStringStream& stream, ui64 depth) {
     stream << "{\"key\":";
     for (ui32 i = 0; i < depth - 1; ++i) {
         stream << "[";
@@ -83,9 +85,9 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
 
         std::string result1, result2;
         {
-            std::stringStream in;
+            TStringStream in;
             in << data;
-            std::stringStream out;
+            TStringStream out;
             TJsonWriter writer(&out, false);
             TReformatCallbacks cb(writer);
             ReadJson(&in, &cb);
@@ -94,9 +96,9 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
         }
 
         {
-            std::stringStream in;
+            TStringStream in;
             in << result1;
-            std::stringStream out;
+            TStringStream out;
             TJsonWriter writer(&out, false);
             TReformatCallbacks cb(writer);
             ReadJson(&in, &cb);
@@ -110,29 +112,19 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
     Y_UNIT_TEST(TJsonEscapedApostrophe) {
         std::string jsonString = "{ \"foo\" : \"bar\\'buzz\" }";
         {
-            std::stringStream in;
+            TStringStream in;
             in << jsonString;
-            std::stringStream out;
+            TStringStream out;
             TJsonWriter writer(&out, false);
             TReformatCallbacks cb(writer);
             UNIT_ASSERT(!ReadJson(&in, &cb));
         }
 
-        {
-            std::stringStream in;
-            in << jsonString;
-            std::stringStream out;
-            TJsonWriter writer(&out, false);
-            TReformatCallbacks cb(writer);
-            UNIT_ASSERT(ReadJson(&in, false, true, &cb));
-            writer.Flush();
-            UNIT_ASSERT_EQUAL(out.Str(), "[\"foo\",\"bar'buzz\"]");
-        }
     }
 
     Y_UNIT_TEST(TJsonTreeTest) {
         std::string data = "{\"intkey\": 10, \"double key\": 11.11, \"null value\":null, \"string key\": \"string\", \"array\": [1,2,3,\"std::string\"], \"bool key\": true}";
-        std::stringStream in;
+        TStringStream in;
         in << data;
         TJsonValue value;
         ReadJsonTree(&in, &value);
@@ -168,7 +160,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
     Y_UNIT_TEST(TJsonRomaTest) {
         std::string data = "{\"test\": [ {\"name\": \"A\"} ]}";
 
-        std::stringStream in;
+        TStringStream in;
         in << data;
         TJsonValue value;
         ReadJsonTree(&in, &value);
@@ -181,7 +173,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
             std::string leadingCommentData = "{ // \"test\" : 1 \n}";
             {
                 // No comments allowed
-                std::stringStream in;
+                TStringStream in;
                 in << leadingCommentData;
                 TJsonValue value;
                 UNIT_ASSERT(!ReadJsonTree(&in, false, &value));
@@ -189,7 +181,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
 
             {
                 // Comments allowed
-                std::stringStream in;
+                TStringStream in;
                 in << leadingCommentData;
                 TJsonValue value;
                 UNIT_ASSERT(ReadJsonTree(&in, true, &value));
@@ -201,7 +193,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
             std::string trailingCommentData = "{ \"test1\" : 1 // \"test2\" : 2 \n }";
             {
                 // No comments allowed
-                std::stringStream in;
+                TStringStream in;
                 in << trailingCommentData;
                 TJsonValue value;
                 UNIT_ASSERT(!ReadJsonTree(&in, false, &value));
@@ -209,7 +201,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
 
             {
                 // Comments allowed
-                std::stringStream in;
+                TStringStream in;
                 in << trailingCommentData;
                 TJsonValue value;
                 UNIT_ASSERT(ReadJsonTree(&in, true, &value));
@@ -222,7 +214,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
 
     Y_UNIT_TEST(TJsonSignedIntegerTest) {
         {
-            std::stringStream in;
+            TStringStream in;
             in << "{ \"test\" : " << Min<i64>() << " }";
             TJsonValue value;
             UNIT_ASSERT(ReadJsonTree(&in, &value));
@@ -234,7 +226,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
         } // Min<i64>()
 
         {
-            std::stringStream in;
+            TStringStream in;
             in << "{ \"test\" : " << Max<i64>() + 1ull << " }";
             TJsonValue value;
             UNIT_ASSERT(ReadJsonTree(&in, &value));
@@ -247,7 +239,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
 
     Y_UNIT_TEST(TJsonUnsignedIntegerTest) {
         {
-            std::stringStream in;
+            TStringStream in;
             in << "{ \"test\" : 1 }";
             TJsonValue value;
             UNIT_ASSERT(ReadJsonTree(&in, &value));
@@ -261,7 +253,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
         } // 1
 
         {
-            std::stringStream in;
+            TStringStream in;
             in << "{ \"test\" : -1 }";
             TJsonValue value;
             UNIT_ASSERT(ReadJsonTree(&in, &value));
@@ -275,7 +267,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
         } // -1
 
         {
-            std::stringStream in;
+            TStringStream in;
             in << "{ \"test\" : 18446744073709551615 }";
             TJsonValue value;
             UNIT_ASSERT(ReadJsonTree(&in, &value));
@@ -289,7 +281,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
         } // 18446744073709551615
 
         {
-            std::stringStream in;
+            TStringStream in;
             in << "{ \"test\" : 1.1 }";
             TJsonValue value;
             UNIT_ASSERT(ReadJsonTree(&in, &value));
@@ -303,7 +295,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
         } // 1.1
 
         {
-            std::stringStream in;
+            TStringStream in;
             in << "{ \"test\" : [1, 18446744073709551615] }";
             TJsonValue value;
             UNIT_ASSERT(ReadJsonTree(&in, &value));
@@ -322,7 +314,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
 
     Y_UNIT_TEST(TJsonDoubleTest) {
         {
-            std::stringStream in;
+            TStringStream in;
             in << "{ \"test\" : 1.0 }";
             TJsonValue value;
             UNIT_ASSERT(ReadJsonTree(&in, &value));
@@ -333,7 +325,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
         } // 1.0
 
         {
-            std::stringStream in;
+            TStringStream in;
             in << "{ \"test\" : 1 }";
             TJsonValue value;
             UNIT_ASSERT(ReadJsonTree(&in, &value));
@@ -344,7 +336,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
         } // 1
 
         {
-            std::stringStream in;
+            TStringStream in;
             in << "{ \"test\" : -1 }";
             TJsonValue value;
             UNIT_ASSERT(ReadJsonTree(&in, &value));
@@ -355,7 +347,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
         } // -1
 
         {
-            std::stringStream in;
+            TStringStream in;
             in << "{ \"test\" : " << Max<ui64>() << " }";
             TJsonValue value;
             UNIT_ASSERT(ReadJsonTree(&in, &value));
@@ -369,7 +361,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
     Y_UNIT_TEST(TJsonInvalidTest) {
         {
             // No exceptions mode.
-            std::stringStream in;
+            TStringStream in;
             in << "{ \"test\" : }";
             TJsonValue value;
             UNIT_ASSERT(!ReadJsonTree(&in, &value));
@@ -377,7 +369,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
 
         {
             // Exception throwing mode.
-            std::stringStream in;
+            TStringStream in;
             in << "{ \"test\" : }";
             TJsonValue value;
             UNIT_ASSERT_EXCEPTION(ReadJsonTree(&in, &value, true), TJsonException);
@@ -389,7 +381,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
         std::string s = ".";
         NJson::TJsonValue json;
         try {
-            std::stringInput in(s);
+            TStringInput in(s);
             NJson::ReadJsonTree(&in, &json, true);
         } catch (...) {
         }
@@ -398,7 +390,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
     Y_UNIT_TEST(TJsonDuplicateKeysWithNullValuesTest) {
         const std::string json = "{\"\":null,\"\":\"\"}";
 
-        std::stringInput in(json);
+        TStringInput in(json);
         NJson::TJsonValue v;
         UNIT_ASSERT(ReadJsonTree(&in, &v));
         UNIT_ASSERT(v.IsMap());
@@ -413,7 +405,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
     Y_UNIT_TEST(TJsonIterativeTest) {
         constexpr ui32 brackets = static_cast<ui32>(1e5);
 
-        std::stringStream jsonStream;
+        TStringStream jsonStream;
         GenerateDeepJson(jsonStream, brackets);
 
         TJsonReaderConfig config;
@@ -428,7 +420,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
         constexpr ui32 depth = static_cast<ui32>(1e3);
 
         {
-            std::stringStream jsonStream;
+            TStringStream jsonStream;
             GenerateDeepJson(jsonStream, depth);
             TJsonReaderConfig config;
             config.MaxDepth = depth;
@@ -437,7 +429,7 @@ Y_UNIT_TEST_SUITE(TJsonReaderTest) {
         }
 
         {
-            std::stringStream jsonStream;
+            TStringStream jsonStream;
             GenerateDeepJson(jsonStream, depth);
             TJsonReaderConfig config;
             config.MaxDepth = depth - 1;

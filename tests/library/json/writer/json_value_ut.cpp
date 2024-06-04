@@ -1,4 +1,4 @@
-#include "json_value.h"
+#include <ydb-cpp-sdk/library/json/json_value.h>
 
 #include <src/library/testing/unittest/registar.h>
 

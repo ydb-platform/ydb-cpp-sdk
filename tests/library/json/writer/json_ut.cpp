@@ -1,7 +1,7 @@
 #include <src/library/testing/unittest/registar.h>
 #include <src/util/system/sanitizers.h>
 
-#include "json.h"
+#include <ydb-cpp-sdk/library/json/writer/json.h>
 #include <ydb-cpp-sdk/library/json/json_value.h>
 
 #include <limits>
