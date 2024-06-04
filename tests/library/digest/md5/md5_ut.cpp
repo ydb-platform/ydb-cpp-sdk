@@ -1,6 +1,6 @@
 #include "md5.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include "registar.h"
 
 #include <src/util/system/fs.h>
 #include <src/util/stream/file.h>
@@ -16,12 +16,12 @@ Y_UNIT_TEST_SUITE(TMD5Test) {
 
         char rs[33];
         std::string s(r.End(rs));
-        s.to_lower();
+        std::ranges::transform(s, s.begin(), ::tolower);
 
         UNIT_ASSERT_NO_DIFF(s, std::string_view("3ac00dd696b966fd74deee3c35a59d8f"));
 
         std::string result = r.Calc(std::string_view(b));
-        result.to_lower();
+        std::ranges::transform(result, result.begin(), ::tolower);
         UNIT_ASSERT_NO_DIFF(result, std::string_view("3ac00dd696b966fd74deee3c35a59d8f"));
     }
 
