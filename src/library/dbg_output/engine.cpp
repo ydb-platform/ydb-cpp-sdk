@@ -20,6 +20,19 @@ DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::String(const std::u16string_view& s) 
     String(ToString(s));
 }
 
+DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::String(const char* s) {
+    if (s != nullptr) {
+        std::string_view str(s);
+        if (!str.empty()){
+            Raw(NUtils::Quote(str));
+        } else {
+            Raw("(empty)");
+        }
+    } else {
+        Raw("(empty)");
+    }
+}
+
 DBGDUMP_INLINE_IF_INCLUDED void TDumpBase::Raw(const std::string_view& s) {
     Stream().Write(s.data(), s.size());
 }

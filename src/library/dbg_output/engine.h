@@ -48,6 +48,7 @@ struct TDumpBase: public ::NDumpPrivate::TADLBase {
 
     void String(const std::string_view& s);
     void String(const std::u16string_view& s);
+    void String(const char* c);
 
     void Raw(const std::string_view& s);
 

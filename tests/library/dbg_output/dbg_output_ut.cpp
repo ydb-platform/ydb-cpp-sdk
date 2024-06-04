@@ -1,10 +1,10 @@
-#include <src/library/dbg_output/dump.h>
-#include <src/library/testing/unittest/registar.h>
+#include "dump.h"
+#include "registar.h"
 
 #include <ydb-cpp-sdk/util/stream/str.h>
 #include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
-#include <src/util/generic/map.h>
+#include <map>
 
 namespace {
     struct TX {
@@ -33,26 +33,27 @@ DEFINE_DUMPER(TMyNS::TMyStruct, A, B)
 
 Y_UNIT_TEST_SUITE(TContainerPrintersTest) {
     Y_UNIT_TEST(TestVectorInt) {
-        std::stringStream out;
+        TStringStream out;
         out << DbgDump(std::vector<int>({1, 2, 3, 4, 5}));
         UNIT_ASSERT_STRINGS_EQUAL(out.Str(), "[1, 2, 3, 4, 5]");
     }
 
     Y_UNIT_TEST(TestMapCharToCharArray) {
-        std::stringStream out;
+        TStringStream out;
 
-        TMap<char, const char*> m;
+        std::map<char, const char*> m;
 
         m['a'] = "SMALL LETTER A";
         m['b'] = nullptr;
+        m['c'] = "";
 
         out << DbgDump(m);
 
-        UNIT_ASSERT_STRINGS_EQUAL(out.Str(), "{'a' -> \"SMALL LETTER A\", 'b' -> (empty)}");
+        UNIT_ASSERT_STRINGS_EQUAL(out.Str(), "{'a' -> \"SMALL LETTER A\", 'b' -> (empty), 'c' -> (empty)}");
     }
 
     Y_UNIT_TEST(TestVectorOfVectors) {
-        std::stringStream out;
+        TStringStream out;
         std::vector<std::vector<wchar16>> vec(2);
         vec[0].push_back(0);
         vec[1] = {wchar16('a')};
@@ -61,28 +62,28 @@ Y_UNIT_TEST_SUITE(TContainerPrintersTest) {
     }
 
     Y_UNIT_TEST(TestInfinite) {
-        UNIT_ASSERT(!!(TYdbStringBuilder() << DbgDumpDeep(TX())));
+        UNIT_ASSERT(!!(::TStringBuilder() << DbgDumpDeep(TX())).data());
     }
 
     Y_UNIT_TEST(TestLabeledDump) {
-        std::stringStream out;
+        TStringStream out;
         int a = 1, b = 2;
         out << LabeledDump(a, b, 1 + 2);
         UNIT_ASSERT_STRINGS_EQUAL(out.Str(), "{\"a\": 1, \"b\": 2, \"1 + 2\": 3}");
     }
 
     Y_UNIT_TEST(TestStructDumper) {
-        std::stringStream out;
+        TStringStream out;
         out << DbgDump(TMyNS::TMyStruct{3, 4});
         UNIT_ASSERT_STRINGS_EQUAL(out.Str(), "{\"A\": 3, \"B\": 4}");
     }
 
     Y_UNIT_TEST(TestColors) {
-        using TComplex = TMap<std::string, TMap<int, char>>;
+        using TComplex = std::map<std::string, std::map<int, char>>;
         TComplex test;
         test["a"][1] = '7';
         test["b"][2] = '6';
-        std::stringStream out;
+        TStringStream out;
         out << DbgDump<TComplex, NDbgDump::NColorScheme::TEyebleed</* Enforce = */ true>>(test);
         UNIT_ASSERT_STRINGS_EQUAL(
             EscapeC(out.Str()),
@@ -99,8 +100,8 @@ Y_UNIT_TEST_SUITE(TContainerPrintersTest) {
         char c = 'e';
         i8 i = -100;
         ui8 u = 10;
-        UNIT_ASSERT_VALUES_EQUAL(TYdbStringBuilder() << DbgDump(c), "'e'");
-        UNIT_ASSERT_VALUES_EQUAL(TYdbStringBuilder() << DbgDump(i), "-100");
-        UNIT_ASSERT_VALUES_EQUAL(TYdbStringBuilder() << DbgDump(u), "10");
+        UNIT_ASSERT_VALUES_EQUAL(::TStringBuilder() << DbgDump(c), "'e'");
+        UNIT_ASSERT_VALUES_EQUAL(::TStringBuilder() << DbgDump(i), "-100");
+        UNIT_ASSERT_VALUES_EQUAL(::TStringBuilder() << DbgDump(u), "10");
     }
 }
