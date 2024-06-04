@@ -4,7 +4,7 @@
 #include "read_session_impl.h"
 #undef INCLUDE_READ_SESSION_IMPL_H
 
-#include <src/client/topic/impl/log_lazy.h>
+#include <src/client/topic/common/log_lazy.h>
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/logger/log.h>
@@ -23,17 +23,11 @@
 #include <utility>
 #include <variant>
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Templates definitions
 
 namespace NYdb::NTopic {
 
 static const bool RangesMode = !std::string{std::getenv("PQ_OFFSET_RANGES_MODE") ? std::getenv("PQ_OFFSET_RANGES_MODE") : ""}.empty();
 
-template <typename TReaderCounters>
-void MakeCountersNotNull(TReaderCounters& counters);
-template <typename TReaderCounters>
-bool HasNullCounters(TReaderCounters& counters);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TPartitionStreamImpl
@@ -1693,11 +1687,11 @@ bool TSingleClusterReadSessionImpl<UseMigrationProtocol>::TPartitionCookieMappin
         return false;
     }
     for (ui64 offset = cookie->OffsetRange.first; offset < cookie->OffsetRange.second; ++offset) {
-        if (!UncommittedOffsetToCookie.emplace(std::make_pair(cookie->PartitionStream->GetPartitionStreamId(), offset), cookie).second) {
+        if (!UncommittedOffsetToCookie.emplace(std::make_pair(GetPartitionStreamId(cookie->PartitionStream.Get()), offset), cookie).second) {
             return false;
         }
     }
-    PartitionStreamIdToCookie.emplace(cookie->PartitionStream->GetPartitionStreamId(), cookie);
+    PartitionStreamIdToCookie.emplace(GetPartitionStreamId(cookie->PartitionStream.Get()), cookie);
     return true;
 }
 
@@ -1729,7 +1723,7 @@ typename TSingleClusterReadSessionImpl<UseMigrationProtocol>::TPartitionCookieMa
         cookieInfo = cookieIt->second;
         Cookies.erase(cookieIt);
 
-        auto [rangeBegin, rangeEnd] = PartitionStreamIdToCookie.equal_range(cookieInfo->PartitionStream->GetPartitionStreamId());
+        auto [rangeBegin, rangeEnd] = PartitionStreamIdToCookie.equal_range(GetPartitionStreamId(cookieInfo->PartitionStream.Get()));
         for (auto i = rangeBegin; i != rangeEnd; ++i) {
             if (i->second == cookieInfo) {
                 PartitionStreamIdToCookie.erase(i);
@@ -2739,78 +2733,6 @@ void TDeferredActions<UseMigrationProtocol>::SignalWaiters() {
     for (auto& w : Waiters) {
         w.Signal();
     }
-}
-
-#define HISTOGRAM_SETUP ::NMonitoring::ExplicitHistogram({0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100})
-
-template <typename TReaderCounters>
-void MakeCountersNotNull(TReaderCounters& counters) {
-    if (!counters.Errors) {
-        counters.Errors = MakeIntrusive<::NMonitoring::TCounterForPtr>(true);
-    }
-
-    if (!counters.CurrentSessionLifetimeMs) {
-        counters.CurrentSessionLifetimeMs = MakeIntrusive<::NMonitoring::TCounterForPtr>(false);
-    }
-
-    if (!counters.BytesRead) {
-        counters.BytesRead = MakeIntrusive<::NMonitoring::TCounterForPtr>(true);
-    }
-
-    if (!counters.MessagesRead) {
-        counters.MessagesRead = MakeIntrusive<::NMonitoring::TCounterForPtr>(true);
-    }
-
-    if (!counters.BytesReadCompressed) {
-        counters.BytesReadCompressed = MakeIntrusive<::NMonitoring::TCounterForPtr>(true);
-    }
-
-    if (!counters.BytesInflightUncompressed) {
-        counters.BytesInflightUncompressed = MakeIntrusive<::NMonitoring::TCounterForPtr>(false);
-    }
-
-    if (!counters.BytesInflightCompressed) {
-        counters.BytesInflightCompressed = MakeIntrusive<::NMonitoring::TCounterForPtr>(false);
-    }
-
-    if (!counters.BytesInflightTotal) {
-        counters.BytesInflightTotal = MakeIntrusive<::NMonitoring::TCounterForPtr>(false);
-    }
-
-    if (!counters.MessagesInflight) {
-        counters.MessagesInflight = MakeIntrusive<::NMonitoring::TCounterForPtr>(false);
-    }
-
-
-    if (!counters.TotalBytesInflightUsageByTime) {
-        counters.TotalBytesInflightUsageByTime = MakeIntrusive<::NMonitoring::THistogramCounter>(HISTOGRAM_SETUP);
-    }
-
-    if (!counters.UncompressedBytesInflightUsageByTime) {
-        counters.UncompressedBytesInflightUsageByTime = MakeIntrusive<::NMonitoring::THistogramCounter>(HISTOGRAM_SETUP);
-    }
-
-    if (!counters.CompressedBytesInflightUsageByTime) {
-        counters.CompressedBytesInflightUsageByTime = MakeIntrusive<::NMonitoring::THistogramCounter>(HISTOGRAM_SETUP);
-    }
-}
-
-#undef HISTOGRAM_SETUP
-
-template <typename TReaderCounters>
-bool HasNullCounters(TReaderCounters& counters) {
-    return !counters.Errors
-        || !counters.CurrentSessionLifetimeMs
-        || !counters.BytesRead
-        || !counters.MessagesRead
-        || !counters.BytesReadCompressed
-        || !counters.BytesInflightUncompressed
-        || !counters.BytesInflightCompressed
-        || !counters.BytesInflightTotal
-        || !counters.MessagesInflight
-        || !counters.TotalBytesInflightUsageByTime
-        || !counters.UncompressedBytesInflightUsageByTime
-        || !counters.CompressedBytesInflightUsageByTime;
 }
 
 } // namespace NYdb::NTopic

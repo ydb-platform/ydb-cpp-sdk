@@ -2,9 +2,7 @@
 
 #include <src/client/federated_topic/impl/federated_topic_impl.h>
 
-#include <src/client/topic/impl/callback_context.h>
-#include <src/client/topic/impl/read_session.h>
-
+#include <src/client/topic/common/callback_context.h>
 #include <src/client/topic/impl/read_session.h>
 
 namespace NYdb::NFederatedTopic {

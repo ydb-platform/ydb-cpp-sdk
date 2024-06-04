@@ -1,25 +1,13 @@
 #pragma once
 
 #include <src/client/persqueue_public/impl/aliases.h>
-#include <src/client/topic/impl/callback_context.h>
+#include <src/client/topic/common/callback_context.h>
 #include <src/client/topic/impl/common.h>
 #include <src/client/persqueue_public/impl/persqueue_impl.h>
-#include <src/client/persqueue_public/persqueue.h>
 
 #include <src/util/generic/buffer.h>
 
 namespace NYdb::NPersQueue {
-
-inline const std::string& GetCodecId(const ECodec codec) {
-    static THashMap<ECodec, std::string> idByCodec{
-        {ECodec::RAW, std::string(1, '\0')},
-        {ECodec::GZIP, "\1"},
-        {ECodec::LZOP, "\2"},
-        {ECodec::ZSTD, "\3"}
-    };
-    Y_ABORT_UNLESS(idByCodec.contains(codec));
-    return idByCodec[codec];
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TWriteSessionEventsQueue

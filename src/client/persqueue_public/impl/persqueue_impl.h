@@ -4,7 +4,7 @@
 #include <src/client/topic/impl/common.h>
 
 #include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
-#include <src/client/persqueue_public/persqueue.h>
+#include <src/client/persqueue_public/include/client.h>
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/make_request/make.h>

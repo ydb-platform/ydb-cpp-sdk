@@ -11,7 +11,25 @@ target_link_libraries(cpp-client-ydb_persqueue_public INTERFACE
 )
 
 generate_enum_serilization(cpp-client-ydb_persqueue_public
-  ${YDB_SDK_SOURCE_DIR}/src/client/persqueue_public/persqueue.h
+  ${YDB_SDK_SOURCE_DIR}/src/client/persqueue_public/include/control_plane.h
   INCLUDE_HEADERS
-  src/client/persqueue_public/persqueue.h
+  src/client/persqueue_public/include/control_plane.h
+)
+
+generate_enum_serilization(cpp-client-ydb_persqueue_public
+  ${YDB_SDK_SOURCE_DIR}/src/client/persqueue_public/include/read_events.h
+  INCLUDE_HEADERS
+  src/client/persqueue_public/include/read_events.h
+)
+
+generate_enum_serilization(cpp-client-ydb_persqueue_public
+  ${YDB_SDK_SOURCE_DIR}/src/client/persqueue_public/include/write_events.h
+  INCLUDE_HEADERS
+  src/client/persqueue_public/include/write_events.h
+)
+
+generate_enum_serilization(cpp-client-ydb_persqueue_public
+  ${YDB_SDK_SOURCE_DIR}/src/client/persqueue_public/include/write_session.h
+  INCLUDE_HEADERS
+  src/client/persqueue_public/include/write_session.h
 )

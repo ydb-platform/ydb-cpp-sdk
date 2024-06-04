@@ -1,8 +1,6 @@
 #include "write_session.h"
 
-#include <src/client/topic/impl/log_lazy.h>
-
-#include <src/client/persqueue_public/persqueue.h>
+#include <src/client/topic/common/log_lazy.h>
 
 #include <src/library/string_utils/url/url.h>
 

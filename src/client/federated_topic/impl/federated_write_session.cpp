@@ -1,6 +1,6 @@
 #include "federated_write_session.h"
 
-#include <src/client/topic/impl/log_lazy.h>
+#include <src/client/topic/common/log_lazy.h>
 #include <src/client/topic/impl/topic_impl.h>
 
 #define INCLUDE_YDB_INTERNAL_H
@@ -114,7 +114,6 @@ void TFederatedWriteSessionImpl::OpenSubsessionImpl(std::shared_ptr<TDbInfo> db)
         .Database(db->path())
         .DiscoveryEndpoint(db->endpoint());
     auto subclient = make_shared<NTopic::TTopicClient::TImpl>(Connections, clientSettings);
-    subclient->SetProvidedCodecs(ProvidedCodecs);
 
     auto handlers = NTopic::TWriteSessionSettings::TEventHandlers()
         .HandlersExecutor(Settings.EventHandlers_.HandlersExecutor_)

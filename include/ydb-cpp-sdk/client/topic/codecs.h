@@ -21,6 +21,17 @@ enum class ECodec : ui32 {
     CUSTOM = 10000,
 };
 
+inline const std::string& GetCodecId(const ECodec codec) {
+    static std::unordered_map<ECodec, std::string> idByCodec{
+        {ECodec::RAW, std::string(1, '\0')},
+        {ECodec::GZIP, "\1"},
+        {ECodec::LZOP, "\2"},
+        {ECodec::ZSTD, "\3"}
+    };
+    Y_ABORT_UNLESS(idByCodec.contains(codec));
+    return idByCodec[codec];
+}
+
 class ICodec {
 public:
     virtual ~ICodec() = default;
@@ -121,7 +132,5 @@ private:
     std::unordered_map<ui32, THolder<ICodec>> Codecs;
     TAdaptiveLock Lock;
 };
-
-#define CODEC_MAP_ALREADY_PROVIDED
 
 } // namespace NYdb::NTopic

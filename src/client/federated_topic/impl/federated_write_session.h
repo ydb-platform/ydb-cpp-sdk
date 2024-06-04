@@ -2,7 +2,7 @@
 
 #include <src/client/federated_topic/impl/federated_topic_impl.h>
 
-#include <src/client/persqueue_public/impl/write_session.h>
+#include <src/client/persqueue_public/include/write_session.h>
 
 #include <src/client/topic/impl/write_session.h>
 
