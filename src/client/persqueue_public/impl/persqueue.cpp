@@ -1,7 +1,6 @@
-
 #include <src/client/persqueue_public/impl/persqueue_impl.h>
 #include <src/client/topic/impl/common.h>
-#include <src/client/persqueue_public/persqueue.h>
+#include <src/client/persqueue_public/include/client.h>
 
 #include <src/library/persqueue/obfuscate/obfuscate.h>
 
@@ -151,17 +150,6 @@ TDescribeTopicResult::TTopicSettings::TRemoteMirrorRule::TRemoteMirrorRule(const
 TPersQueueClient::TPersQueueClient(const TDriver& driver, const TPersQueueClientSettings& settings)
     : Impl_(std::make_shared<TImpl>(CreateInternalInterface(driver), settings))
 {
-    ProvideCodec(ECodec::GZIP, MakeHolder<TGzipCodec>());
-    ProvideCodec(ECodec::LZOP, MakeHolder<TUnsupportedCodec>());
-    ProvideCodec(ECodec::ZSTD, MakeHolder<TZstdCodec>());
-}
-
-void TPersQueueClient::ProvideCodec(ECodec codecId, THolder<ICodec>&& codecImpl) {
-    return Impl_->ProvideCodec(codecId, std::move(codecImpl));
-}
-
-void TPersQueueClient::OverrideCodec(ECodec codecId, THolder<ICodec>&& codecImpl) {
-    return Impl_->OverrideCodec(codecId, std::move(codecImpl));
 }
 
 TAsyncStatus TPersQueueClient::CreateTopic(const std::string& path, const TCreateTopicSettings& settings) {
@@ -186,35 +174,6 @@ TAsyncStatus TPersQueueClient::RemoveReadRule(const std::string& path, const TRe
 
 TAsyncDescribeTopicResult TPersQueueClient::DescribeTopic(const std::string& path, const TDescribeTopicSettings& settings) {
     return Impl_->DescribeTopic(path, settings);
-}
-
-IRetryPolicy::TPtr IRetryPolicy::GetDefaultPolicy() {
-    static IRetryPolicy::TPtr policy = GetExponentialBackoffPolicy();
-    return policy;
-}
-
-IRetryPolicy::TPtr IRetryPolicy::GetNoRetryPolicy() {
-    return ::IRetryPolicy<EStatus>::GetNoRetryPolicy();
-}
-
-IRetryPolicy::TPtr IRetryPolicy::GetExponentialBackoffPolicy(TDuration minDelay,
-                                                             TDuration minLongRetryDelay,
-                                                             TDuration maxDelay,
-                                                             size_t maxRetries,
-                                                             TDuration maxTime,
-                                                             double scaleFactor,
-                                                             std::function<ERetryErrorClass(EStatus)> customRetryClassFunction)
-{
-    return ::IRetryPolicy<EStatus>::GetExponentialBackoffPolicy(customRetryClassFunction ? customRetryClassFunction : GetRetryErrorClass, minDelay, minLongRetryDelay, maxDelay, maxRetries, maxTime, scaleFactor);
-}
-
-IRetryPolicy::TPtr IRetryPolicy::GetFixedIntervalPolicy(TDuration delay,
-                                                        TDuration longRetryDelay,
-                                                        size_t maxRetries,
-                                                        TDuration maxTime,
-                                                        std::function<ERetryErrorClass(EStatus)> customRetryClassFunction)
-{
-    return ::IRetryPolicy<EStatus>::GetFixedIntervalPolicy(customRetryClassFunction ? customRetryClassFunction : GetRetryErrorClass, delay, longRetryDelay, maxRetries, maxTime);
 }
 
 std::shared_ptr<IReadSession> TPersQueueClient::CreateReadSession(const TReadSessionSettings& settings) {

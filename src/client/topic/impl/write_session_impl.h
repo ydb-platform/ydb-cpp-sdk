@@ -1,25 +1,13 @@
 #pragma once
 
-#include <src/client/topic/impl/callback_context.h>
+#include <src/client/topic/common/callback_context.h>
 #include <src/client/topic/impl/common.h>
 #include <src/client/topic/impl/topic_impl.h>
-#include <ydb-cpp-sdk/client/topic/topic.h>
 
 #include <src/util/generic/buffer.h>
 
 
 namespace NYdb::NTopic {
-
-inline const std::string& GetCodecId(const ECodec codec) {
-    static std::unordered_map<ECodec, std::string> idByCodec{
-        {ECodec::RAW, std::string(1, '\0')},
-        {ECodec::GZIP, "\1"},
-        {ECodec::LZOP, "\2"},
-        {ECodec::ZSTD, "\3"}
-    };
-    Y_ABORT_UNLESS(idByCodec.contains(codec));
-    return idByCodec[codec];
-}
 
 class TWriteSessionEventsQueue: public TBaseSessionEventsQueue<TWriteSessionSettings, TWriteSessionEvent::TEvent, TSessionClosedEvent, IExecutor> {
     using TParent = TBaseSessionEventsQueue<TWriteSessionSettings, TWriteSessionEvent::TEvent, TSessionClosedEvent, IExecutor>;

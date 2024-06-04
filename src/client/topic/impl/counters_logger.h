@@ -1,10 +1,10 @@
 #pragma once
 
+#include <ydb-cpp-sdk/client/topic/counters.h>
+#include <src/client/topic/common/callback_context.h>
+#include <src/client/topic/common/log_lazy.h>
+
 #include <src/client/common_client/impl/client.h>
-#include <src/client/persqueue_public/persqueue.h>
-#include <ydb-cpp-sdk/client/topic/topic.h>
-#include <src/client/topic/impl/callback_context.h>
-#include <src/client/topic/impl/log_lazy.h>
 
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 
@@ -21,14 +21,10 @@ class TCountersLogger : public std::enable_shared_from_this<TCountersLogger<UseM
 public:
     static constexpr auto UPDATE_PERIOD = TDuration::Seconds(1);
 
-    using TReaderCountersPtr = std::conditional_t<UseMigrationProtocol,
-        NYdb::NPersQueue::TReaderCounters::TPtr,
-        NYdb::NTopic::TReaderCounters::TPtr>;
-
 public:
     explicit TCountersLogger(std::shared_ptr<TGRpcConnectionsImpl> connections,
                              std::vector<TCallbackContextPtr<UseMigrationProtocol>> sessions,
-                             TReaderCountersPtr counters, const TLog& log, std::string prefix, TInstant startSessionTime)
+                             TReaderCounters::TPtr counters, const TLog& log, std::string prefix, TInstant startSessionTime)
         : Connections(std::move(connections))
         , SessionsContexts(std::move(sessions))
         , Counters(std::move(counters))
@@ -143,7 +139,7 @@ private:
 
     IQueueClientContextPtr DumpCountersContext;
 
-    TReaderCountersPtr Counters;
+    TReaderCounters::TPtr Counters;
 
     TLog Log;
     const std::string Prefix;

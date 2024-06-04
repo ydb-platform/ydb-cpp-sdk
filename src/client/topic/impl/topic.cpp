@@ -1,6 +1,7 @@
+#include <ydb-cpp-sdk/client/topic/client.h>
+
 #include <src/client/topic/impl/topic_impl.h>
 #include <src/client/topic/impl/common.h>
-#include <ydb-cpp-sdk/client/topic/topic.h>
 
 #include <src/client/impl/ydb_internal/scheme_helpers/helpers.h>
 
@@ -417,13 +418,6 @@ ui64 TPartitionInfo::GetPartitionId() const {
 TTopicClient::TTopicClient(const TDriver& driver, const TTopicClientSettings& settings)
     : Impl_(std::make_shared<TImpl>(CreateInternalInterface(driver), settings))
 {
-    ProvideCodec(ECodec::GZIP, MakeHolder<TGzipCodec>());
-    ProvideCodec(ECodec::LZOP, MakeHolder<TUnsupportedCodec>());
-    ProvideCodec(ECodec::ZSTD, MakeHolder<TZstdCodec>());
-}
-
-void TTopicClient::ProvideCodec(ECodec codecId, THolder<ICodec>&& codecImpl) {
-    return Impl_->ProvideCodec(codecId, std::move(codecImpl));
 }
 
 TAsyncStatus TTopicClient::CreateTopic(const std::string& path, const TCreateTopicSettings& settings) {
@@ -466,10 +460,6 @@ std::shared_ptr<IWriteSession> TTopicClient::CreateWriteSession(const TWriteSess
 TAsyncStatus TTopicClient::CommitOffset(const std::string& path, ui64 partitionId, const std::string& consumerName, ui64 offset,
     const TCommitOffsetSettings& settings) {
     return Impl_->CommitOffset(path, partitionId, consumerName, offset, settings);
-}
-
-void TTopicClient::OverrideCodec(ECodec codecId, THolder<ICodec>&& codecImpl) {
-    return Impl_->OverrideCodec(codecId, std::move(codecImpl));
 }
 
 } // namespace NYdb::NTopic

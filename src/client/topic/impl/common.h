@@ -1,9 +1,11 @@
 #pragma once
 
-#include <ydb-cpp-sdk/client/topic/topic.h>
-#include <src/client/common_client/impl/client.h>
+#include <ydb-cpp-sdk/client/topic/errors.h>
+#include <ydb-cpp-sdk/client/topic/read_events.h>
 
 #include <ydb-cpp-sdk/util/thread/pool.h>
+
+#include <src/client/common_client/impl/client.h>
 
 #include <queue>
 #include <condition_variable>

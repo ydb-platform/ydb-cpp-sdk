@@ -1,6 +1,7 @@
-#include <src/client/topic/impl/common.h>
-#include <src/client/topic/impl/read_session_impl.ipp>
-#include <ydb-cpp-sdk/client/topic/topic.h>
+#include "common.h"
+#include "read_session_impl.ipp"
+
+#include <ydb-cpp-sdk/client/topic/read_events.h>
 
 namespace NYdb::NTopic {
 

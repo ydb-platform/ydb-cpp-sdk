@@ -1,4 +1,4 @@
-#include <ydb-cpp-sdk/client/topic/topic.h>
+#include <ydb-cpp-sdk/client/topic/client.h>
 
 Y_DECLARE_OUT_SPEC(, NYdb::NTopic::TDescribeTopicResult, o, x) {
     return x.Out(o);

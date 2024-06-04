@@ -1,4 +1,4 @@
-#include <src/client/persqueue_public/persqueue.h>
+#include <src/client/persqueue_public/include/read_events.h>
 
 #include <src/client/topic/impl/common.h>
 #include <src/client/topic/impl/read_session_impl.ipp>

@@ -1,9 +1,10 @@
 #pragma once
 
-#include <src/client/topic/impl/read_session_impl.ipp>
-#include <src/client/topic/impl/callback_context.h>
-#include <src/client/topic/impl/counters_logger.h>
-#include <src/client/topic/impl/topic_impl.h>
+#include "counters_logger.h"
+#include "read_session_impl.ipp"
+#include "topic_impl.h"
+
+#include <src/client/topic/common/callback_context.h>
 
 namespace NYdb::NTopic {
 

@@ -1,6 +1,6 @@
 #include "federated_read_session.h"
 
-#include <src/client/topic/impl/log_lazy.h>
+#include <src/client/topic/common/log_lazy.h>
 #include <src/client/topic/impl/topic_impl.h>
 
 
@@ -116,7 +116,6 @@ void TFederatedReadSessionImpl::OpenSubSessionsImpl(const std::vector<std::share
             .Database(db->path())
             .DiscoveryEndpoint(db->endpoint());
         auto subclient = make_shared<NTopic::TTopicClient::TImpl>(Connections, settings);
-        subclient->SetProvidedCodecs(ProvidedCodecs);
         auto subsession = subclient->CreateReadSession(FromFederated(Settings, db, EventFederator));
         SubSessions.emplace_back(subsession, db);
     }

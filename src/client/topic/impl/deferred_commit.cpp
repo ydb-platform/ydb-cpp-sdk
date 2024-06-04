@@ -1,6 +1,6 @@
-#include <ydb-cpp-sdk/client/topic/topic.h>
+#include "read_session_impl.ipp"
 
-#include <src/client/topic/impl/read_session_impl.ipp>
+#include <ydb-cpp-sdk/client/topic/read_events.h>
 
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 

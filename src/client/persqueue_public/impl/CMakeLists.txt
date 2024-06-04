@@ -16,7 +16,7 @@ target_link_libraries(client-ydb_persqueue_public-impl PUBLIC
 )
 
 target_sources(client-ydb_persqueue_public-impl PRIVATE
-  executor.cpp
+  common.cpp
   persqueue_impl.cpp
   persqueue.cpp
   read_session.cpp
