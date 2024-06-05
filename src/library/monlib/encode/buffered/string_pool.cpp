@@ -2,6 +2,8 @@
 
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 
+#include <algorithm>
+
 namespace NMonitoring {
     ////////////////////////////////////////////////////////////////////////////////
     // TStringPoolBuilder
@@ -57,4 +59,4 @@ namespace NMonitoring {
         }
     }
 
-}
+} // namespace NMonitoring

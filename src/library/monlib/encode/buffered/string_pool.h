@@ -1,7 +1,12 @@
 #pragma once
 
-#include <src/util/generic/hash.h>
+#include <ydb-cpp-sdk/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/system/types.h>
 
+#include <string_view>
+#include <vector>
+#include <unordered_map>
 
 namespace NMonitoring {
     ////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +67,7 @@ namespace NMonitoring {
         }
 
     private:
-        THashMap<std::string, TValue> StrMap_;
+        std::unordered_map<std::string, TValue> StrMap_;
         std::vector<std::pair<std::string_view, TValue*>> StrVector_;
         bool RequiresSorting_ = false;
         bool IsBuilt_ = false;
@@ -97,4 +102,4 @@ namespace NMonitoring {
         std::vector<std::string_view> Index_;
     };
 
-}
+} // namespace NMonitoring

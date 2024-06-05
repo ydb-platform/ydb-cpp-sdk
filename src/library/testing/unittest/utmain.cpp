@@ -14,7 +14,6 @@
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
-#include <src/util/generic/hash.h>
 #include <src/util/generic/scope.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 

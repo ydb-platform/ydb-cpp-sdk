@@ -7,6 +7,9 @@
 
 #include <ydb-cpp-sdk/util/system/type_name.h>
 
+#include <optional>
+#include <unordered_map>
+
 namespace NYT::NDetail {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +36,7 @@ struct TArcadiaEnumTraitsImpl
     static std::optional<T> FindValueByLiteral(std::string_view literal)
     {
         static const auto LiteralToValue = [] {
-            THashMap<std::string, T> result;
+            std::unordered_map<std::string, T> result;
             for (const auto& [value, name] : GetEnumNames<T>()) {
                 result.emplace(name, value);
             }

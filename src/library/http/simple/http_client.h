@@ -3,13 +3,15 @@
 #include "http_client_options.h"
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
-#include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/network/socket.h>
 
 #include <ydb-cpp-sdk/library/http/io/stream.h>
 #include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
 #include <src/library/openssl/io/stream.h>
+
+#include <functional>
+#include <unordered_map>
 
 class TNetworkAddress;
 class IOutputStream;
@@ -40,7 +42,7 @@ namespace NPrivate {
 
 class TKeepAliveHttpClient {
 public:
-    using THeaders = THashMap<std::string, std::string>;
+    using THeaders = std::unordered_map<std::string, std::string>;
     using THttpCode = unsigned;
 
 public:

@@ -26,7 +26,7 @@ static_assert(TFormatTraits<std::set<int>>::HasCustomFormatValue);
 static_assert(TFormatTraits<std::map<int, int>>::HasCustomFormatValue);
 static_assert(TFormatTraits<std::multimap<int, int>>::HasCustomFormatValue);
 static_assert(TFormatTraits<std::unordered_set<int>>::HasCustomFormatValue);
-static_assert(TFormatTraits<THashMap<int, int>>::HasCustomFormatValue);
+static_assert(TFormatTraits<std::unordered_map<int, int>>::HasCustomFormatValue);
 static_assert(TFormatTraits<std::unordered_multiset<int>>::HasCustomFormatValue);
 static_assert(TFormatTraits<std::pair<int, int>>::HasCustomFormatValue);
 static_assert(TFormatTraits<std::optional<int>>::HasCustomFormatValue);

@@ -2,8 +2,8 @@
 
 #include "ref_counted.h"
 
-#include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
 
 #include <utility>
 #include <type_traits>

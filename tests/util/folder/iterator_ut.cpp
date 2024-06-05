@@ -5,7 +5,6 @@
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 
 #include <src/util/system/fs.h>
-#include <src/util/generic/hash.h>
 #include <src/util/random/mersenne.h>
 
 #include <src/library/testing/unittest/registar.h>
@@ -69,7 +68,7 @@ private:
         }
 
         inline int Type(const std::string& path) {
-            THashMap<std::string, TPath>::const_iterator it = Srch_.find(path);
+            auto it = Srch_.find(path);
 
             UNIT_ASSERT(it != Srch_.end());
 
@@ -88,7 +87,7 @@ private:
 
     private:
         std::vector<TPath> Paths_;
-        THashMap<std::string, TPath> Srch_;
+        std::unordered_map<std::string, TPath> Srch_;
     };
 
     inline void TestLocal() {

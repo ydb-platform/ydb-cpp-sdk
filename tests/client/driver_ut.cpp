@@ -10,6 +10,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 #include <src/library/testing/unittest/tests_data.h>
+#include <src/util/generic/mapfindptr.h>
 
 #include <atomic>
 
@@ -31,7 +32,7 @@ namespace {
 
             std::cerr << "ListEndpoints: " << request->ShortDebugString() << std::endl;
 
-            const auto* result = MockResults.FindPtr(request->database());
+            const auto* result = MapFindPtr(MockResults, request->database());
             Y_ABORT_UNLESS(result, "Mock service doesn't have a result for database '%s'", request->database().c_str());
 
             auto* op = response->mutable_operation();
@@ -42,7 +43,7 @@ namespace {
         }
 
         // From database name to result
-        THashMap<std::string, Ydb::Discovery::ListEndpointsResult> MockResults;
+        std::unordered_map<std::string, Ydb::Discovery::ListEndpointsResult> MockResults;
     };
 
     class TMockTableService : public Ydb::Table::V1::TableService::Service {

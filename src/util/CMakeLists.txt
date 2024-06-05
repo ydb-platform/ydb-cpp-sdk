@@ -61,10 +61,6 @@ target_joined_source(yutil
   ${YDB_SDK_SOURCE_DIR}/src/util/generic/function_ref.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/generic/fwd.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/generic/guid.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/util/generic/hash.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/util/generic/hash_multi_map.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/util/generic/hash_table.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/util/generic/hash_primes.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/generic/hide_ptr.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/generic/intrlist.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/generic/is_in.cpp

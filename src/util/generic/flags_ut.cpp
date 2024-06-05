@@ -1,6 +1,6 @@
-#include <src/library/testing/unittest/registar.h>
-
 #include "flags.h"
+
+#include <src/library/testing/unittest/registar.h>
 
 enum ETestFlag1: ui16 {
     Test1 = 1,
@@ -103,7 +103,7 @@ Y_UNIT_TEST_SUITE(TFlagsTest) {
     Y_UNIT_TEST(TestHash) {
         ETest1 value0 = nullptr, value1 = Test1;
 
-        THashMap<ETest1, int> hash;
+        std::unordered_map<ETest1, int, THash<ETest1>> hash;
         hash[value0] = 0;
         hash[value1] = 1;
 

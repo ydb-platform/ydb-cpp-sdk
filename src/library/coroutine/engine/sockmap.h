@@ -1,7 +1,7 @@
 #pragma once
 
-#include <src/util/generic/hash.h>
-
+#include <vector>
+#include <unordered_map>
 
 template <class T>
 class TSocketMap {
@@ -20,5 +20,5 @@ public:
 
 private:
     std::vector<T> V_;
-    THashMap<size_t, T> H_;
+    std::unordered_map<size_t, T> H_;
 };

@@ -3,8 +3,6 @@
 
 #include <src/library/yt/assert/assert.h>
 
-#include <src/util/generic/hash.h>
-
 #include <ydb-cpp-sdk/util/string/ascii.h>
 
 namespace NYT {
@@ -308,7 +306,7 @@ size_t TCaseInsensitiveStringHasher::operator()(std::string_view arg) const
         for (size_t index = 0; index < arg.length(); ++index) {
             buffer[index] = AsciiToLower(arg[index]);
         }
-        return ComputeHash(std::string_view(buffer, arg.length()));
+        return THash<std::string_view>{}(std::string_view(buffer, arg.length()));
     };
     const size_t SmallSize = 256;
     if (arg.length() <= SmallSize) {

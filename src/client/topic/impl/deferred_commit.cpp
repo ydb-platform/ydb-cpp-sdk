@@ -27,7 +27,7 @@ private:
 
 private:
     // Partition stream -> offsets set.
-    THashMap<TPartitionSession::TPtr, TDisjointIntervalTree<ui64>> Offsets;
+    std::unordered_map<TPartitionSession::TPtr, TDisjointIntervalTree<ui64>, THash<TPartitionSession::TPtr>> Offsets;
 };
 
 TDeferredCommit::TDeferredCommit() {

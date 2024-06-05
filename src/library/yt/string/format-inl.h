@@ -374,21 +374,21 @@ struct TValueFormatter<std::unordered_multiset<T>>
     }
 };
 
-// THashMap
+// std::unordered_map
 template <class K, class V>
-struct TValueFormatter<THashMap<K, V>>
+struct TValueFormatter<std::unordered_map<K, V>>
 {
-    static void Do(TStringBuilderBase* builder, const THashMap<K, V>& collection, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const std::unordered_map<K, V>& collection, std::string_view /*format*/)
     {
         FormatKeyValueRange(builder, collection, TDefaultFormatter());
     }
 };
 
-// THashMultiMap
+// std::unordered_multimap
 template <class K, class V>
-struct TValueFormatter<THashMultiMap<K, V>>
+struct TValueFormatter<std::unordered_multimap<K, V>>
 {
-    static void Do(TStringBuilderBase* builder, const THashMultiMap<K, V>& collection, std::string_view /*format*/)
+    static void Do(TStringBuilderBase* builder, const std::unordered_multimap<K, V>& collection, std::string_view /*format*/)
     {
         FormatKeyValueRange(builder, collection, TDefaultFormatter());
     }

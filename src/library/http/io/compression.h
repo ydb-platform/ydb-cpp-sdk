@@ -2,8 +2,9 @@
 
 #include <ydb-cpp-sdk/library/http/io/stream.h>
 
-#include <src/util/generic/hash.h>
+#include <src/util/generic/mapfindptr.h>
 
+#include <functional>
 #include <span>
 
 class TCompressionCodecFactory {
@@ -18,7 +19,7 @@ public:
     }
 
     inline const TDecoderConstructor* FindDecoder(std::string_view name) const {
-        if (auto codec = Codecs_.FindPtr(name)) {
+        if (auto codec = MapFindPtr(Codecs_, name)) {
             return &codec->Decoder;
         }
 
@@ -26,7 +27,7 @@ public:
     }
 
     inline const TEncoderConstructor* FindEncoder(std::string_view name) const {
-        if (auto codec = Codecs_.FindPtr(name)) {
+        if (auto codec = MapFindPtr(Codecs_, name)) {
             return &codec->Encoder;
         }
 
@@ -46,7 +47,7 @@ private:
     };
 
     std::deque<std::string> Strings_;
-    THashMap<std::string_view, TCodec> Codecs_;
+    std::unordered_map<std::string_view, TCodec> Codecs_;
     std::vector<std::string_view> BestCodecs_;
 };
 

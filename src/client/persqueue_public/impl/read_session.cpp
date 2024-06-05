@@ -166,8 +166,7 @@ void TReadSession::ProceedWithoutClusterDiscovery() {
         }
 
         std::string normalizedName = "null";
-        THashMap<std::string, TClusterSessionInfo>::iterator clusterSessionInfoIter;
-        clusterSessionInfoIter = ClusterSessions.emplace(normalizedName, normalizedName).first;
+        auto clusterSessionInfoIter = ClusterSessions.emplace(normalizedName, normalizedName).first;
         TClusterSessionInfo& clusterSessionInfo = clusterSessionInfoIter->second;
         clusterSessionInfo.ClusterEndpoint = DbDriverState->DiscoveryEndpoint;
         clusterSessionInfo.Topics = Settings.Topics_;
@@ -271,7 +270,7 @@ void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueu
             for (const Ydb::PersQueue::ClusterDiscovery::ClusterInfo& cluster : readSessionClusters.clusters()) {
                 std::string normalizedName = cluster.name();
                 NUtils::ToLower(normalizedName);
-                THashMap<std::string, TClusterSessionInfo>::iterator clusterSessionInfoIter;
+                decltype(ClusterSessions)::iterator clusterSessionInfoIter;
                 if (explicitlySpecifiedClusters) {
                     clusterSessionInfoIter = ClusterSessions.find(normalizedName);
                     if (clusterSessionInfoIter == ClusterSessions.end()) { // User hasn't specified this cluster, so it isn't in our interest.
@@ -755,8 +754,8 @@ private:
     TAdaptiveLock Lock; // For the case when user gave us multithreaded executor.
     const std::function<void(TReadSessionEvent::TDataReceivedEvent&)> DataHandler;
     const bool CommitAfterProcessing;
-    THashMap<ui64, TDisjointIntervalTree<ui64>> PartitionStreamToUncommittedOffsets; // Partition stream id -> set of offsets.
-    THashMap<ui64, TReadSessionEvent::TDestroyPartitionStreamEvent> UnconfirmedDestroys; // Partition stream id -> destroy events.
+    std::unordered_map<ui64, TDisjointIntervalTree<ui64>> PartitionStreamToUncommittedOffsets; // Partition stream id -> set of offsets.
+    std::unordered_map<ui64, TReadSessionEvent::TDestroyPartitionStreamEvent> UnconfirmedDestroys; // Partition stream id -> destroy events.
 };
 
 TReadSessionSettings::TEventHandlers& TReadSessionSettings::TEventHandlers::SimpleDataHandlers(std::function<void(TReadSessionEvent::TDataReceivedEvent&)> dataHandler,
@@ -824,7 +823,7 @@ private:
     static void Add(const TPartitionStream::TPtr& partitionStream, TDisjointIntervalTree<ui64>& offsetSet, ui64 startOffset, ui64 endOffset);
 
 private:
-    THashMap<TPartitionStream::TPtr, TDisjointIntervalTree<ui64>> Offsets; // Partition stream -> offsets set.
+    std::unordered_map<TPartitionStream::TPtr, TDisjointIntervalTree<ui64>, THash<TPartitionStream::TPtr>> Offsets; // Partition stream -> offsets set.
 };
 
 TDeferredCommit::TDeferredCommit() {

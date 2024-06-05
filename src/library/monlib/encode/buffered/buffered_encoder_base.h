@@ -3,13 +3,12 @@
 #include "string_pool.h"
 
 #include <ydb-cpp-sdk/library/monlib/encode/encoder.h>
-#include <src/library/monlib/encode/encoder_state.h>
 #include <ydb-cpp-sdk/library/monlib/encode/format.h>
-#include <src/library/monlib/metrics/metric_value.h>
-
 #include <ydb-cpp-sdk/util/datetime/base.h>
 #include <ydb-cpp-sdk/util/digest/numeric.h>
 
+#include <src/library/monlib/encode/encoder_state.h>
+#include <src/library/monlib/metrics/metric_value.h>
 
 namespace NMonitoring {
 
@@ -74,7 +73,7 @@ protected:
         }
     };
 
-    using TMetricMap = THashMap<TPooledLabels, size_t, TPooledLabelsHash>;
+    using TMetricMap = std::unordered_map<TPooledLabels, size_t, TPooledLabelsHash>;
 
     struct TMetric {
         EMetricType MetricType = EMetricType::UNKNOWN;
@@ -97,4 +96,4 @@ protected:
     EMetricsMergingMode MetricsMergingMode_ = EMetricsMergingMode::DEFAULT;
 };
 
-}
+} // namespace NMonitoring

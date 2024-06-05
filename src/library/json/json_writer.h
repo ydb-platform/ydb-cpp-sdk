@@ -7,7 +7,6 @@
 #include <ydb-cpp-sdk/library/json/writer/json.h>
 
 #include <ydb-cpp-sdk/util/stream/output.h>
-#include <src/util/generic/hash.h>
 
 #include <string>
 

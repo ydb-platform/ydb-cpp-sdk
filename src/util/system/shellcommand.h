@@ -1,15 +1,17 @@
 #pragma once
 
+#include "getpid.h"
+#include "thread.h"
+
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
-#include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/stream/input.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <ydb-cpp-sdk/util/system/file.h>
-#include "getpid.h"
-#include "thread.h"
+
 #include <sys/types.h>
 
 #include <atomic>
+#include <functional>
 #include <optional>
 #include <list>
 
@@ -334,7 +336,7 @@ public:
     IOutputStream* OutputStream;
     IOutputStream* ErrorStream;
     TUserOptions User;
-    THashMap<std::string, std::string> Environment;
+    std::unordered_map<std::string, std::string> Environment;
     int Nice = 0;
 
     std::function<void()> FuncAfterFork = {};

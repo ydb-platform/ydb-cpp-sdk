@@ -3,17 +3,17 @@
 #include "register.h"
 
 #include <ydb-cpp-sdk/util/ysaveload.h>
-#include <src/util/stream/null.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/util/system/unaligned_mem.h>
+#include <ydb-cpp-sdk/util/generic/cast.h>
+#include <ydb-cpp-sdk/util/generic/algorithm.h>
+#include <ydb-cpp-sdk/util/generic/singleton.h>
+
+#include <src/util/stream/null.h>
 #include <src/util/string/join.h>
 #include <src/util/system/align.h>
-#include <ydb-cpp-sdk/util/system/unaligned_mem.h>
-#include <src/util/generic/hash.h>
-#include <ydb-cpp-sdk/util/generic/cast.h>
 #include <src/util/generic/buffer.h>
-#include <ydb-cpp-sdk/util/generic/singleton.h>
-#include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <src/util/generic/mem_copy.h>
 
 using namespace NBlockCodecs;
@@ -60,7 +60,7 @@ namespace {
         std::deque<std::string> Tmp;
         TNullCodec Null;
         std::vector<TCodecPtr> Codecs;
-        typedef THashMap<std::string_view, ICodec*> TRegistry;
+        using TRegistry = std::unordered_map<std::string_view, ICodec*>;
         TRegistry Registry;
 
         // SEARCH-8344: Global decompressed size limiter (to prevent remote DoS)

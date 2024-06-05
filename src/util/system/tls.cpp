@@ -1,6 +1,5 @@
 #include "tls.h"
 
-#include <src/util/generic/hash.h>
 #include <src/util/generic/intrlist.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 
@@ -9,6 +8,8 @@
 #if defined(_unix_)
     #include <pthread.h>
 #endif
+
+#include <unordered_map>
 
 using namespace NTls;
 
@@ -91,7 +92,7 @@ namespace {
 
         private:
             std::vector<TStoredValue*> Values_;
-            THashMap<size_t, TStoredValue*> FarValues_;
+            std::unordered_map<size_t, TStoredValue*> FarValues_;
             TIntrusiveListWithAutoDelete<TStoredValue, TDelete> Storage_;
         };
 
@@ -207,7 +208,7 @@ namespace {
     private:
         using TPTSRef = THolder<TPerThreadStorage>;
         std::mutex Lock_;
-        THashMap<TThread::TId, TPTSRef> Datas_;
+        std::unordered_map<TThread::TId, TPTSRef> Datas_;
     };
 }
 

@@ -1,13 +1,13 @@
 #include "stream.h"
 #include "codecs.h"
 
-#include <src/util/digest/murmur.h>
-#include <src/util/generic/scope.h>
 #include <ydb-cpp-sdk/util/generic/cast.h>
-#include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
 #include <ydb-cpp-sdk/util/ysaveload.h>
+
+#include <src/util/digest/murmur.h>
+#include <src/util/generic/scope.h>
 
 using namespace NBlockCodecs;
 
@@ -51,7 +51,7 @@ namespace {
             ythrow yexception() << "can not find codec by id " << id;
         }
 
-        typedef THashMap<TCodecID, const ICodec*> TByID;
+        using TByID = std::unordered_map<TCodecID, const ICodec*>;
         TByID ByID;
     };
 

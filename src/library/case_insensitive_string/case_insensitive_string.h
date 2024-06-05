@@ -2,7 +2,6 @@
 
 #include "case_insensitive_char_traits.h"
 
-#include <src/util/generic/hash.h>
 #include <src/util/string/split.h>
 
 #include <string>

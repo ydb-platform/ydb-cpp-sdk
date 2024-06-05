@@ -1,16 +1,17 @@
 #pragma once
 
 #include <ydb-cpp-sdk/util/network/socket.h>
-
 #include <ydb-cpp-sdk/util/system/error.h>
-#include <src/util/system/fake_mutex.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 #include <ydb-cpp-sdk/util/generic/utility.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
+#include <src/util/system/fake_mutex.h>
+
 #include <mutex>
+#include <unordered_map>
 
 #if defined(_freebsd_) || defined(_darwin_)
     #define HAVE_KQUEUE_POLLER
@@ -320,7 +321,6 @@ private:
 
 #if defined(HAVE_SELECT_POLLER)
     #include <ydb-cpp-sdk/util/memory/tempbuf.h>
-    #include <src/util/generic/hash.h>
 
     #include "pair.h"
 
@@ -363,7 +363,7 @@ struct TSelectPollerNoTemplate {
         }
     };
 
-    class TFds: public THashMap<SOCKET, THandle> {
+    class TFds: public std::unordered_map<SOCKET, THandle> {
     public:
         inline void Set(SOCKET fd, void* data, int filter) {
             (*this)[fd].Set(data, filter);

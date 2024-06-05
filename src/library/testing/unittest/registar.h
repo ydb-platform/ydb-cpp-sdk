@@ -3,7 +3,6 @@
 #include <src/library/dbg_output/dump.h>
 
 #include <ydb-cpp-sdk/util/generic/bt_exception.h>
-#include <src/util/generic/hash.h>
 #include <src/util/generic/intrlist.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <src/util/generic/scope.h>
@@ -75,7 +74,7 @@ namespace NUnitTest {
         {
         }
 
-        using TMetrics = THashMap<std::string, double>;
+        using TMetrics = std::unordered_map<std::string, double>;
         TMetrics Metrics;
 
         ITestSuiteProcessor* Processor;
