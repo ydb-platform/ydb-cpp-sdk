@@ -12,7 +12,6 @@ target_link_libraries(client-ydb_federated_topic-impl PUBLIC
   impl-ydb_internal-make_request
   client-ydb_common_client-impl
   cpp-client-ydb_driver
-  client-ydb_persqueue_core-impl
   cpp-client-ydb_proto
 )
 
@@ -24,5 +23,3 @@ target_sources(client-ydb_federated_topic-impl PRIVATE
   federated_topic.cpp
   federation_observer.cpp
 )
-
-
