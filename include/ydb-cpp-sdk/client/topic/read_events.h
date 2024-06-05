@@ -267,7 +267,7 @@ struct TReadSessionEvent {
     //! Server can destroy partition session gracefully
     //! for rebalancing among all topic clients.
     struct TStopPartitionSessionEvent: public TPartitionSessionAccessor, public TPrintable<TStopPartitionSessionEvent> {
-        TStopPartitionSessionEvent(TPartitionSession::TPtr partitionSession, bool committedOffset);
+        TStopPartitionSessionEvent(TPartitionSession::TPtr partitionSession, ui64 committedOffset);
 
         //! Last offset of the partition session that was committed.
         ui64 GetCommittedOffset() const {
