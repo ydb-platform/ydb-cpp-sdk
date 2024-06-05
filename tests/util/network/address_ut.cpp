@@ -1,6 +1,6 @@
-#include <src/library/testing/unittest/registar.h>
+#include <ydb-cpp-sdk/util/network/address.h>
 
-#include "address.h"
+#include <src/library/testing/unittest/registar.h>
 
 using namespace NAddr;
 
@@ -16,8 +16,8 @@ Y_UNIT_TEST_SUITE(IRemoteAddr_ToString) {
 
         std::string t = ToString(*addr);
 
-        UNIT_ASSERT_C(t.StartsWith("(raw 0 0"), t);
-        UNIT_ASSERT_C(t.EndsWith(')'), t);
+        UNIT_ASSERT_C(t.starts_with("(raw 0 0"), t);
+        UNIT_ASSERT_C(t.ends_with(')'), t);
     }
 
     Y_UNIT_TEST(Ipv6) {
@@ -25,7 +25,7 @@ Y_UNIT_TEST_SUITE(IRemoteAddr_ToString) {
         TNetworkAddress::TIterator it = address.Begin();
         UNIT_ASSERT(it != address.End());
         UNIT_ASSERT(it->ai_family == AF_INET6);
-        std::string toString = ToString((const IRemoteAddr&)TAddrInfo(&*it));
+        std::string toString = ToString(static_cast<const IRemoteAddr&>(TAddrInfo(&*it)));
         UNIT_ASSERT_VALUES_EQUAL(std::string("[::1]:22"), toString);
     }
 

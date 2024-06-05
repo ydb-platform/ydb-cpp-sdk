@@ -1,6 +1,8 @@
-#include "sock.h"
+#include <ydb-cpp-sdk/util/network/sock.h>
 
 #include <src/library/testing/unittest/registar.h>
+
+#include <ydb-cpp-sdk/library/threading/future/fwd.h>
 #include <src/library/threading/future/legacy_future.h>
 
 #include <src/util/string/split.h>
