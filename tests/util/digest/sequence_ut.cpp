@@ -1,7 +1,6 @@
-#include "sequence.h"
+#include <ydb-cpp-sdk/util/digest/sequence.h>
 
 #include <src/library/testing/unittest/registar.h>
-#include <src/util/generic/vector.h>
 
 class TRangeHashTest: public TTestBase {
     UNIT_TEST_SUITE(TRangeHashTest);

@@ -6,7 +6,13 @@
 #include <iterator>
 
 template <class T>
-struct TLowerCaseIterator: public std::iterator<std::input_iterator_tag, T> {
+struct TLowerCaseIterator {
+    using iterator_category = std::input_iterator_tag;
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = T*;
+    using reference = T&;
+
     using TNonConst = std::remove_const_t<T>;
 
     inline TLowerCaseIterator(T* c)
