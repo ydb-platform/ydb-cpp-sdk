@@ -282,6 +282,26 @@ struct TReadSessionEvent {
         ui64 CommittedOffset;
     };
 
+    //! Server command for ending partition session.
+    //! This is a hint that all messages from the partition have been read and will no longer appear, and that the client must commit offsets.
+    struct TEndPartitionSessionEvent: public TPartitionSessionAccessor, public TPrintable<TEndPartitionSessionEvent> {
+        TEndPartitionSessionEvent(TPartitionSession::TPtr partitionSession, std::vector<ui32>&& adjacentPartitionIds, std::vector<ui32>&& childPartitionIds);
+
+        //! A list of the partition IDs that also participated in the partition's merge.
+        const std::vector<ui32> GetAdjacentPartitionIds() const {
+            return AdjacentPartitionIds;
+        }
+
+        //! A list of partition IDs that were obtained as a result of merging or splitting this partition.
+        const std::vector<ui32> GetChildPartitionIds() const {
+            return ChildPartitionIds;
+        }
+
+    private:
+        std::vector<ui32> AdjacentPartitionIds;
+        std::vector<ui32> ChildPartitionIds;
+    };
+
     //! Status for partition session requested via TPartitionSession::RequestStatus()
     struct TPartitionSessionStatusEvent: public TPartitionSessionAccessor,
                                          public TPrintable<TPartitionSessionStatusEvent> {
@@ -343,6 +363,7 @@ struct TReadSessionEvent {
                                 TCommitOffsetAcknowledgementEvent,
                                 TStartPartitionSessionEvent,
                                 TStopPartitionSessionEvent,
+                                TEndPartitionSessionEvent,
                                 TPartitionSessionStatusEvent,
                                 TPartitionSessionClosedEvent,
                                 TSessionClosedEvent>;

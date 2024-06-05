@@ -76,6 +76,9 @@ public:
         }
     }
 
+    void OnEndPartitionStream(TReadSessionEvent::TEndPartitionSessionEvent&) {
+    }
+
     void OnPartitionStreamClosed(TReadSessionEvent::TPartitionSessionClosedEvent& event) {
         std::lock_guard guard(Lock);
         const ui64 partitionStreamId = event.GetPartitionSession()->GetPartitionSessionId();
@@ -109,6 +112,9 @@ TReadSessionSettings::TEventHandlers& TReadSessionSettings::TEventHandlers::Simp
         StopPartitionSessionHandler([handlers](TReadSessionEvent::TStopPartitionSessionEvent& event) {
             handlers->OnDestroyPartitionStream(event);
         });
+        EndPartitionSessionHandler([handlers](TReadSessionEvent::TEndPartitionSessionEvent& event) {
+            handlers->OnEndPartitionStream(event);
+        });
         CommitOffsetAcknowledgementHandler([handlers](TReadSessionEvent::TCommitOffsetAcknowledgementEvent& event) {
             handlers->OnCommitAcknowledgement(event);
         });
@@ -131,6 +137,8 @@ TReadSessionSettings::TEventHandlers& TReadSessionSettings::TEventHandlers::Simp
         });
         StopPartitionSessionHandler([](TReadSessionEvent::TStopPartitionSessionEvent& event) {
             event.Confirm();
+        });
+        EndPartitionSessionHandler([](TReadSessionEvent::TEndPartitionSessionEvent&) {
         });
         CommitOffsetAcknowledgementHandler([](TReadSessionEvent::TCommitOffsetAcknowledgementEvent&){});
         PartitionSessionClosedHandler([](TReadSessionEvent::TPartitionSessionClosedEvent&){});
