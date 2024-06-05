@@ -9,6 +9,7 @@ target_link_libraries(cpp-client-ydb_operation PUBLIC
   cpp-client-ydb_driver
   cpp-client-ydb_export
   cpp-client-ydb_import
+  cpp-client-ss_tasks
   client-ydb_types-operation
 )
 

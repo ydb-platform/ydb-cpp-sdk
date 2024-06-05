@@ -8,6 +8,7 @@
 #include <ydb-cpp-sdk/client/query/query.h>
 #include <ydb-cpp-sdk/client/export/export.h>
 #include <ydb-cpp-sdk/client/import/import.h>
+#include <src/client/ss_tasks/task.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 
 #include <src/api/grpc/ydb_operation_v1.grpc.pb.h>
@@ -168,6 +169,12 @@ TFuture<TOperationsList<TOp>> TOperationClient::List(const std::string& kind, ui
 }
 
 // Instantiations
+template TFuture<NSchemeShard::TBackgroundProcessesResponse> TOperationClient::Get(const TOperation::TOperationId& id);
+template <>
+TFuture<TOperationsList<NSchemeShard::TBackgroundProcessesResponse>> TOperationClient::List(ui64 pageSize, const std::string& pageToken) {
+    return List<NSchemeShard::TBackgroundProcessesResponse>("ss/backgrounds", pageSize, pageToken);
+}
+
 template TFuture<NExport::TExportToYtResponse> TOperationClient::Get(const TOperation::TOperationId& id);
 template <>
 TFuture<TOperationsList<NExport::TExportToYtResponse>> TOperationClient::List(ui64 pageSize, const std::string& pageToken) {

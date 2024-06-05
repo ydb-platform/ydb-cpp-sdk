@@ -180,6 +180,10 @@ void AddOptionalValue(Ydb::TOperationId& proto, const std::string& key, const st
 }
 
 Ydb::TOperationId::EKind ParseKind(const std::string_view value) {
+    if (value.starts_with("ss/backgrounds")) {
+        return Ydb::TOperationId::SS_BG_TASKS;
+    }
+
     if (value.starts_with("export")) {
         return Ydb::TOperationId::EXPORT;
     }
