@@ -2,11 +2,12 @@
 #include "dirut.h"
 #include "tempdir.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include <ydb-cpp-sdk/util/system/file.h>
+
+#include <src/util/system/tempfile.h>
 #include <src/library/threading/future/async.h>
 
-#include <ydb-cpp-sdk/util/system/file.h>
-#include <src/util/system/tempfile.h>
+#include <src/library/testing/unittest/registar.h>
 
 class TFtsTest: public TTestBase {
     UNIT_TEST_SUITE(TFtsTest);
@@ -36,7 +37,7 @@ void CheckEnt(FTSENT* ent, const char* name, int type) {
 
 class TFileTree {
 public:
-    TFileTree(char* const* argv, int options, int (*compar)(const FTSENT**, const FTSENT**)) {
+    TFileTree(const char* const* argv, int options, int (*compar)(const FTSENT**, const FTSENT**)) {
         Fts_ = yfts_open(argv, options, compar);
     }
 
@@ -54,7 +55,7 @@ private:
 
 void TFtsTest::TestSimple() {
     const char* dotPath[2] = {"." LOCSLASH_S, nullptr};
-    TFileTree currentDirTree((char* const*)dotPath, 0, FtsCmp);
+    TFileTree currentDirTree(dotPath, 0, FtsCmp);
     UNIT_ASSERT(currentDirTree());
     TTempDir tempDir = MakeTempName(yfts_read(currentDirTree())->fts_path);
     MakeDirIfNotExist(tempDir().data());
@@ -66,7 +67,7 @@ void TFtsTest::TestSimple() {
     MakeFile((tempDir() + LOCSLASH_S "dir2" LOCSLASH_S "file4").data());
 
     const char* path[2] = {tempDir().data(), nullptr};
-    TFileTree fileTree((char* const*)path, 0, FtsCmp);
+    TFileTree fileTree(path, 0, FtsCmp);
     UNIT_ASSERT(fileTree());
     CheckEnt(yfts_read(fileTree()), tempDir().data(), FTS_D);
     CheckEnt(yfts_read(fileTree()), (tempDir() + LOCSLASH_S "dir1").data(), FTS_D);
@@ -93,13 +94,13 @@ public:
 void TFtsTest::TestNoLeakChangingAccessToFolder() {
     TTempDirWithLostAccess tempDir;
     std::string tmpPath = tempDir();
-    if (tmpPath.EndsWith(LOCSLASH_S)) {
+    if (tmpPath.ends_with(LOCSLASH_S)) {
         tmpPath.resize(tmpPath.size() - 1);
     }
     MakeDirIfNotExist((tmpPath + LOCSLASH_S + "subdir").data());
 
     const char* path[2] = {tmpPath.data(), nullptr};
-    TFileTree fileTree((char* const*)path, FTS_SEEDOT, FtsCmp);
+    TFileTree fileTree(path, FTS_SEEDOT, FtsCmp);
     UNIT_ASSERT(fileTree());
 
     CheckEnt(yfts_read(fileTree()), tmpPath.data(), FTS_D);

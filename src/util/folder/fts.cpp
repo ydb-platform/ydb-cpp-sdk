@@ -195,7 +195,7 @@ static FTSENT* fts_alloc(FTS*, const char*, int);
 static FTSENT* fts_build(FTS*, int);
 static void fts_lfree(FTSENT*);
 static void fts_load(FTS*, FTSENT*);
-static size_t fts_maxarglen(char* const*);
+static size_t fts_maxarglen(const char* const*);
 static void fts_padjust(FTS*);
 static int fts_palloc(FTS*, size_t);
 static FTSENT* fts_sort(FTS*, FTSENT*, int);
@@ -239,7 +239,7 @@ yreallocf(void* ptr, size_t size)
     return (nptr);
 }
 
-FTS* yfts_open(char* const* argv, int options, int (*compar)(const FTSENT**, const FTSENT**))
+FTS* yfts_open(const char* const* argv, int options, int (*compar)(const FTSENT**, const FTSENT**))
 {
     FTS* sp;
     FTSENT *p, *root;
@@ -1338,7 +1338,7 @@ fts_padjust(FTS* sp)
 }
 
 static size_t
-fts_maxarglen(char* const* argv)
+fts_maxarglen(const char* const* argv)
 {
     size_t len, max;
 
