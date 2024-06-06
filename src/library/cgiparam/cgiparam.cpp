@@ -161,7 +161,7 @@ void TCgiParameters::ScanAddAll(const std::string_view query) {
 std::string TCgiParameters::Print() const {
     std::string res;
 
-    res.reserve(PrintSize());
+    res.resize(PrintSize());
     const char* end = Print(res.data());
     res.resize(end - res.data());
 

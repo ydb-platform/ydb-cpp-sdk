@@ -1,3 +1,5 @@
+add_subdirectory(oauth2_token_exchange)
+
 add_ydb_test(NAME client-ydb_coordination-ut
   SOURCES
   coordination_ut.cpp
