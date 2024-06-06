@@ -3,6 +3,8 @@
 #include <ydb-cpp-sdk/client/scheme/scheme.h>
 #include <ydb-cpp-sdk/client/driver/driver.h>
 
+#include <optional>
+
 namespace Ydb::Replication {
     class ConnectionParams;
     class DescribeReplicationResult;
@@ -74,6 +76,7 @@ public:
     struct TItem {
         std::string SrcPath;
         std::string DstPath;
+        std::optional<std::string> SrcChangefeedName;
     };
 
     enum class EState {
