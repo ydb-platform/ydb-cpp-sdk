@@ -5,7 +5,7 @@
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 
 size_t TCIOps::operator()(const std::string_view& s) const noexcept {
-    return FnvCaseLess(s, (size_t)0xBEE);
+    return FnvCaseLess(s, size_t{0xBEE});
 }
 
 size_t TCIOps::operator()(const char* s) const noexcept {
