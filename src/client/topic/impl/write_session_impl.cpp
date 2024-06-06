@@ -107,23 +107,22 @@ void TWriteSessionImpl::Start(const TDuration& delay) {
         EventsQueue = std::make_shared<TWriteSessionEventsQueue>(Settings);
     }
 
-    ++ConnectionAttemptsDone;
     if (!Started) {
-        {
-            std::lock_guard guard(Lock);
+        with_lock(Lock) {
             HandleWakeUpImpl();
         }
         InitWriter();
     }
-    Started = true;
-
-    if (Settings.DirectWriteToPartition_ && (Settings.PartitionId_.has_value() || DirectWriteToPartitionId.has_value())) {
-        std::lock_guard guard(Lock);
-        PreferredPartitionLocation = {};
-        return ConnectToPreferredPartitionLocation(delay);
-    } else {
-        return Connect(delay);
+    with_lock(Lock) {
+        ++ConnectionAttemptsDone;
+        Started = true;
+        if (Settings.DirectWriteToPartition_ && (Settings.PartitionId_.has_value() || DirectWriteToPartitionId.has_value())) {
+            PreferredPartitionLocation = {};
+            ConnectToPreferredPartitionLocation(delay);
+            return;
+        }
     }
+    Connect(delay);
 }
 
 // Returns true if we need to switch to another DirectWriteToPartitionId.
@@ -242,6 +241,8 @@ void TWriteSessionImpl::ConnectToPreferredPartitionLocation(const TDuration& del
         AbortImpl();
         return;
     }
+
+    ++ConnectionGeneration;
 
     prevDescribePartitionContext = std::exchange(DescribePartitionContext, describePartitionContext);
     Y_ASSERT(DescribePartitionContext);
