@@ -17,6 +17,7 @@ target_proto_messages(api-grpc-draft PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/api/grpc/draft/ydb_maintenance_v1.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/grpc/draft/ydb_logstore_v1.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/grpc/draft/ydb_dynamic_config_v1.proto
+  ${YDB_SDK_SOURCE_DIR}/src/api/grpc/draft/ydb_replication_v1.proto
 )
 target_proto_addincls(api-grpc-draft
   ./

@@ -15,6 +15,7 @@ target_proto_messages(api-protos PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/draft/ydb_maintenance.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/draft/ydb_logstore.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/draft/ydb_dynamic_config.proto
+  ${YDB_SDK_SOURCE_DIR}/src/api/protos/draft/ydb_replication.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/ydb_federation_discovery.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/persqueue_error_codes_v1.proto
   ${YDB_SDK_SOURCE_DIR}/src/api/protos/ydb_auth.proto
