@@ -454,6 +454,10 @@ void TWriteSessionImpl::DoConnect(const TDuration& delay, const std::string& end
         Y_ASSERT(ConnectContext);
         Y_ASSERT(ConnectTimeoutContext);
 
+        if (Processor) {
+            Processor->Cancel();
+        }
+
         // Cancel previous operations.
         Cancel(prevConnectContext);
         if (prevConnectDelayContext)
