@@ -5,8 +5,8 @@
 #include <ydb-cpp-sdk/util/system/file.h>
 
 #include <src/util/system/tempfile.h>
-#include <src/library/threading/future/async.h>
 
+#include <src/library/threading/future/async.h>
 #include <src/library/testing/unittest/registar.h>
 
 class TFtsTest: public TTestBase {
