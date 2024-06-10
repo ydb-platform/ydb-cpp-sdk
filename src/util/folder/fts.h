@@ -103,6 +103,6 @@ typedef struct _ftsent {
 
 FTSENT* yfts_children(FTS*, int);
 int yfts_close(FTS*);
-FTS* yfts_open(char* const*, int, int (*)(const FTSENT**, const FTSENT**));
+FTS* yfts_open(const char* const*, int, int (*)(const FTSENT**, const FTSENT**));
 FTSENT* yfts_read(FTS*);
 int yfts_set(FTS*, FTSENT*, int);

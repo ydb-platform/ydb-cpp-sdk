@@ -3,14 +3,15 @@
 #include "dirut.h"
 #include "tempdir.h"
 
-#include <src/library/testing/unittest/registar.h>
-
-#include <src/util/generic/scope.h>
 #include <ydb-cpp-sdk/util/system/platform.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
+
+#include <src/util/generic/scope.h>
 #include <src/util/stream/file.h>
 #include <src/util/system/fs.h>
+
+#include <src/library/testing/unittest/registar.h>
 
 #include <algorithm>
 
@@ -818,8 +819,8 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
         const TPathSplit& split2 = path2.PathSplit();
 
         for (const auto& it : split2) {
-            UNIT_ASSERT(path2.GetPath().begin() <= it.begin());
-            UNIT_ASSERT(it.end() <= path2.GetPath().end());
+            UNIT_ASSERT(std::string_view(path2.GetPath()).begin() <= it.begin());
+            UNIT_ASSERT(it.end() <= std::string_view(path2.GetPath()).end());
         }
     }
 
