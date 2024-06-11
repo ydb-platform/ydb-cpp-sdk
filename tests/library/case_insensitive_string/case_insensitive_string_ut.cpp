@@ -1,17 +1,6 @@
 #include "case_insensitive_string.h"
 
-#include <src/util/generic/string_ut.h>
-
-class TCaseInsensitiveStringTest : public TTestBase, private TStringTestImpl<TCaseInsensitiveString, TTestData<char>> {
-public:
-    UNIT_TEST_SUITE(TCaseInsensitiveStringTest);
-    UNIT_TEST(TestOperators);
-    UNIT_TEST(TestOperatorsCI);
-
-    UNIT_TEST_SUITE_END();
-};
-
-UNIT_TEST_SUITE_REGISTRATION(TCaseInsensitiveStringTest);
+#include <src/library/testing/unittest/registar.h>
 
 Y_UNIT_TEST_SUITE(TCaseInsensitiveCharTraits) {
     Y_UNIT_TEST(EqualTo) {
@@ -30,12 +19,12 @@ Y_UNIT_TEST_SUITE(TCaseInsensitiveCharTraits) {
         for (const auto& [c1, c2, answer] : cases) {
             const auto uc1 = static_cast<char>(std::toupper(static_cast<unsigned char>(c1)));
             const auto uc2 = static_cast<char>(std::toupper(static_cast<unsigned char>(c2)));
-            
+
             UNIT_ASSERT_EQUAL(eq(c1, c2), answer);
             UNIT_ASSERT_EQUAL(eq(c2, c1), answer);
             UNIT_ASSERT_EQUAL(eq_int_type(to_int_type(c1), to_int_type(c2)), answer);
             UNIT_ASSERT_EQUAL(eq_int_type(to_int_type(c2), to_int_type(c1)), answer);
-            
+
             UNIT_ASSERT_EQUAL(eq(c1, uc2), answer);
             UNIT_ASSERT_EQUAL(eq(uc2, c1), answer);
             UNIT_ASSERT_EQUAL(eq_int_type(to_int_type(c1), to_int_type(uc2)), answer);
@@ -45,7 +34,7 @@ Y_UNIT_TEST_SUITE(TCaseInsensitiveCharTraits) {
             UNIT_ASSERT_EQUAL(eq(c2, uc1), answer);
             UNIT_ASSERT_EQUAL(eq_int_type(to_int_type(uc1), to_int_type(c2)), answer);
             UNIT_ASSERT_EQUAL(eq_int_type(to_int_type(c2), to_int_type(uc1)), answer);
-            
+
             UNIT_ASSERT_EQUAL(eq(uc1, uc2), answer);
             UNIT_ASSERT_EQUAL(eq(uc2, uc1), answer);
             UNIT_ASSERT_EQUAL(eq_int_type(to_int_type(uc1), to_int_type(uc2)), answer);
@@ -95,7 +84,7 @@ Y_UNIT_TEST_SUITE(TCaseInsensitiveCharTraits) {
             {"Bar", "bAR", 4},
         };
 
-        for (const auto& [s1, s2, size] : equal_cases) {      
+        for (const auto& [s1, s2, size] : equal_cases) {
             for (std::size_t n = 0; n < size; ++n) {
                 UNIT_ASSERT_EQUAL(compare(s1, s1, n), 0);
                 UNIT_ASSERT_EQUAL(compare(s2, s2, n), 0);
@@ -141,13 +130,13 @@ Y_UNIT_TEST_SUITE(TCaseInsensitiveCharTraits) {
 
             UNIT_ASSERT_EQUAL(find(s1, 0, ch), nullptr);
             UNIT_ASSERT_EQUAL(find(s1, 0, uch), nullptr);
-            
+
             UNIT_ASSERT_EQUAL(find(s2, 0, ch), nullptr);
             UNIT_ASSERT_EQUAL(find(s2, 0, uch), nullptr);
 
             UNIT_ASSERT_EQUAL(find(s1, offset, ch), nullptr);
             UNIT_ASSERT_EQUAL(find(s1, offset, uch), nullptr);
-            
+
             UNIT_ASSERT_EQUAL(find(s2, offset, ch), nullptr);
             UNIT_ASSERT_EQUAL(find(s2, offset, uch), nullptr);
 
@@ -160,53 +149,105 @@ Y_UNIT_TEST_SUITE(TCaseInsensitiveCharTraits) {
     }
 }
 
-Y_UNIT_TEST_SUITE(TCaseInsensitiveStringTestEx) {
-    Y_UNIT_TEST(BasicTString) {
-        TCaseInsensitiveString foo("foo");
-        TCaseInsensitiveString FOO("FOO");
-        TCaseInsensitiveString Bar("Bar");
-        TCaseInsensitiveString bAR("bAR");
+Y_UNIT_TEST_SUITE(TCaseInsensitiveStringTest) {
+    using TCIString = TCaseInsensitiveString;
+    using TCIStringBuf = TCaseInsensitiveStringBuf;
 
-        UNIT_ASSERT_EQUAL(foo, FOO);
-        UNIT_ASSERT_EQUAL(Bar, bAR);
+    Y_UNIT_TEST(TestOperators) {
+        TCIString s("0123456");
 
-        constexpr TCaseInsensitiveStringBuf foobar("foobar");
-        UNIT_ASSERT(foobar.StartsWith(foo));
-        UNIT_ASSERT(foobar.StartsWith(FOO));
-        UNIT_ASSERT(foobar.EndsWith(Bar));
-        UNIT_ASSERT(foobar.EndsWith(bAR));
-        UNIT_ASSERT(foobar.Contains(FOO));
-        UNIT_ASSERT(foobar.Contains(Bar));
+        const auto x = "x";
+        const auto y = "y";
+        const auto z = "z";
+
+        // operator +=
+        s += TCIString(x);
+        UNIT_ASSERT(s == "0123456x");
+
+        s += y;
+        UNIT_ASSERT(s == "0123456xy");
+
+        s += *z;
+        UNIT_ASSERT(s == "0123456xyz");
+
+        // operator +
+        s = "0123456";
+        s = s + TCIString(x);
+        UNIT_ASSERT(s == "0123456x");
+
+        s = s + y;
+        UNIT_ASSERT(s == "0123456xy");
+
+        s = s + *z;
+        UNIT_ASSERT(s == "0123456xyz");
+
+        // operator !=
+        s = "012345";
+        const auto xyz = "xyz";
+        UNIT_ASSERT(s != TCIString(xyz));
+        UNIT_ASSERT(s != xyz);
+        UNIT_ASSERT(xyz != s);
+
+        // operator <
+        UNIT_ASSERT_EQUAL(s < TCIString(xyz), true);
+        UNIT_ASSERT_EQUAL(s < xyz, true);
+        UNIT_ASSERT_EQUAL(xyz < s, false);
+
+        // operator <=
+        UNIT_ASSERT_EQUAL(s <= TCIString(xyz), true);
+        UNIT_ASSERT_EQUAL(s <= xyz, true);
+        UNIT_ASSERT_EQUAL(xyz <= s, false);
+
+        // operator >
+        UNIT_ASSERT_EQUAL(s > TCIString(xyz), false);
+        UNIT_ASSERT_EQUAL(s > xyz, false);
+        UNIT_ASSERT_EQUAL(xyz > s, true);
+
+        // operator >=
+        UNIT_ASSERT_EQUAL(s >= TCIString(xyz), false);
+        UNIT_ASSERT_EQUAL(s >= xyz, false);
+        UNIT_ASSERT_EQUAL(xyz >= s, true);
+    }
+
+    Y_UNIT_TEST(TestOperatorsCI) {
+        TCIString s("ABCD");
+        UNIT_ASSERT(s > "abc0123456xyz");
+        UNIT_ASSERT(s == "abcd");
+        UNIT_ASSERT(s > TCIStringBuf("abc0123456xyz"));
+        UNIT_ASSERT(TCIStringBuf("abc0123456xyz") < s);
+        UNIT_ASSERT(s == TCIStringBuf("abcd"));
     }
 
     Y_UNIT_TEST(BasicStdString) {
-        using TCaseInsensitiveStdString = std::basic_string<char, TCaseInsensitiveCharTraits>;
-        using TCaseInsensitiveStringView = std::basic_string_view<char, TCaseInsensitiveCharTraits>;
-
-        TCaseInsensitiveStdString foo("foo");
-        TCaseInsensitiveStdString FOO("FOO");
-        TCaseInsensitiveStdString Bar("Bar");
-        TCaseInsensitiveStdString bAR("bAR");
+        TCIString foo("foo");
+        TCIString FOO("FOO");
+        TCIString Bar("Bar");
+        TCIString bAR("bAR");
 
         UNIT_ASSERT_EQUAL(foo, FOO);
         UNIT_ASSERT_EQUAL(Bar, bAR);
 
-        constexpr TCaseInsensitiveStringView foobar("foobar");
+        constexpr TCIStringBuf foobar("foobar");
         UNIT_ASSERT(foobar.starts_with(foo));
         UNIT_ASSERT(foobar.starts_with(FOO));
         UNIT_ASSERT(foobar.ends_with(Bar));
         UNIT_ASSERT(foobar.ends_with(bAR));
-        //TODO: test contains after C++23
+    #if __cpp_lib_string_contains >= 202011L
+        UNIT_ASSERT(foobar.contains(FOO));
+        UNIT_ASSERT(foobar.contains(Bar));
+    #endif
     }
 
-/*
+// StringSplitter does not use CharTraits properly
+// Splitting such strings is explicitly disabled.
+#if 0
     Y_UNIT_TEST(TestSplit) {
-        TCaseInsensitiveStringBuf input("splitAmeAbro");
-        std::vector<TCaseInsensitiveStringBuf> expected{"split", "me", "bro"};
+        TCIStringBuf input("splitAmeAbro");
+        std::vector<TCIStringBuf> expected{"split", "me", "bro"};
 
-        std::vector<TCaseInsensitiveStringBuf> split = StringSplitter(input).Split('a');
+        std::vector<TCIStringBuf> split = StringSplitter(input).Split('a');
 
         UNIT_ASSERT_VALUES_EQUAL(split, expected);
     }
-*/
+#endif
 }
