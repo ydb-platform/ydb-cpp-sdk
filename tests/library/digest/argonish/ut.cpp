@@ -2,7 +2,13 @@
 #include <src/library/digest/argonish/blake2b.h>
 #include <src/library/testing/unittest/registar.h>
 
+#include <type_traits>
+
 Y_UNIT_TEST_SUITE(ArgonishTest) {
+    constexpr auto ToUnderlying(NArgonish::EInstructionSet e) noexcept {
+        return static_cast<std::underlying_type_t<NArgonish::EInstructionSet>>(e);
+    }
+
     const ui8 GenKatPassword[32] = {
         0x01,
         0x01,
@@ -159,10 +165,12 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
 
         try {
             NArgonish::TArgon2Factory factory;
-            NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-            for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
-                auto argon2d = factory.Create((NArgonish::EInstructionSet)i, NArgonish::EArgon2Type::Argon2d, tcost, mcost, 1,
-                                              FrSecret, sizeof(FrSecret));
+            const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+            for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
+                auto argon2d = factory.Create(
+                    static_cast<NArgonish::EInstructionSet>(i), NArgonish::EArgon2Type::Argon2d,
+                    tcost, mcost, 1, FrSecret, sizeof(FrSecret));
+
                 ui8 hashResult[sizeof(TResult)];
                 argon2d->HashWithCustomMemory(memory.Get(), mcost * 1024, FrPassword, sizeof(FrPassword),
                                               FrSalt, sizeof(FrSalt), hashResult, sizeof(hashResult));
@@ -202,11 +210,11 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
             0xd8, 0xc6, 0x8f, 0x53, 0xea, 0xb2, 0x1a, 0x32};
 
         NArgonish::TArgon2Factory factory;
-        NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-        for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
+        const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+        for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
             ui8 result[32];
             auto argon2d = factory.Create(
-                (NArgonish::EInstructionSet)i, NArgonish::EArgon2Type::Argon2d,
+                static_cast<NArgonish::EInstructionSet>(i), NArgonish::EArgon2Type::Argon2d,
                 1, 32, 1, GenKatSecret, sizeof(GenKatSecret));
 
             argon2d->Hash(GenKatPassword, sizeof(GenKatPassword), GenKatSalt, sizeof(GenKatSalt),
@@ -229,11 +237,11 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
             0x0d, 0x5d, 0x24, 0x19, 0x8a, 0xac, 0xd2, 0xbb};
 
         NArgonish::TArgon2Factory factory;
-        NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-        for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
+        const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+        for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
             ui8 result[32];
             auto argon2i = factory.Create(
-                (NArgonish::EInstructionSet)i, NArgonish::EArgon2Type::Argon2i,
+                static_cast<NArgonish::EInstructionSet>(i), NArgonish::EArgon2Type::Argon2i,
                 1, 32, 1, GenKatSecret, sizeof(GenKatSecret));
 
             argon2i->Hash(GenKatPassword, sizeof(GenKatPassword), GenKatSalt, sizeof(GenKatSalt),
@@ -256,11 +264,11 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
             0xcb, 0xb4, 0x69, 0xaa, 0xa8, 0x72, 0x18, 0xba};
 
         NArgonish::TArgon2Factory factory;
-        NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-        for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
+        const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+        for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
             ui8 result[32];
             auto argon2id = factory.Create(
-                (NArgonish::EInstructionSet)i, NArgonish::EArgon2Type::Argon2id,
+                static_cast<NArgonish::EInstructionSet>(i), NArgonish::EArgon2Type::Argon2id,
                 1, 32, 1, GenKatSecret, sizeof(GenKatSecret));
 
             argon2id->Hash(GenKatPassword, sizeof(GenKatPassword), GenKatSalt, sizeof(GenKatSalt),
@@ -283,11 +291,11 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
             0xb9, 0x64, 0xa2, 0x59, 0x3f, 0xe9, 0xd9, 0xc5};
 
         NArgonish::TArgon2Factory factory;
-        NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-        for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
+        const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+        for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
             ui8 result[32];
             auto argon2d = factory.Create(
-                (NArgonish::EInstructionSet)i, NArgonish::EArgon2Type::Argon2d,
+                static_cast<NArgonish::EInstructionSet>(i), NArgonish::EArgon2Type::Argon2d,
                 2, 32, 1, GenKatSecret, sizeof(GenKatSecret));
 
             argon2d->Hash(GenKatPassword, sizeof(GenKatPassword), GenKatSalt, sizeof(GenKatSalt),
@@ -310,11 +318,11 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
             0x26, 0xd0, 0x6e, 0xad, 0x75, 0x46, 0xe0, 0x44};
 
         NArgonish::TArgon2Factory factory;
-        NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-        for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
+        const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+        for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
             ui8 result[32];
             auto argon2i = factory.Create(
-                (NArgonish::EInstructionSet)i, NArgonish::EArgon2Type::Argon2i,
+                static_cast<NArgonish::EInstructionSet>(i), NArgonish::EArgon2Type::Argon2i,
                 2, 32, 1, GenKatSecret, sizeof(GenKatSecret));
 
             argon2i->Hash(GenKatPassword, sizeof(GenKatPassword), GenKatSalt, sizeof(GenKatSalt),
@@ -337,11 +345,11 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
             0xd8, 0x08, 0x42, 0x11, 0xd3, 0x23, 0x6b, 0x7a};
 
         NArgonish::TArgon2Factory factory;
-        NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-        for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
+        const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+        for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
             ui8 result[32];
             auto argon2id = factory.Create(
-                (NArgonish::EInstructionSet)i, NArgonish::EArgon2Type::Argon2id,
+                static_cast<NArgonish::EInstructionSet>(i), NArgonish::EArgon2Type::Argon2id,
                 2, 32, 1, GenKatSecret, sizeof(GenKatSecret));
 
             argon2id->Hash(GenKatPassword, sizeof(GenKatPassword), GenKatSalt, sizeof(GenKatSalt),
@@ -364,11 +372,11 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
             0xbf, 0x35, 0x73, 0x9a, 0xdb, 0x31, 0x0c, 0x60};
 
         NArgonish::TArgon2Factory factory;
-        NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-        for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
+        const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+        for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
             ui8 result[32];
             auto argon2d = factory.Create(
-                (NArgonish::EInstructionSet)i, NArgonish::EArgon2Type::Argon2d,
+                static_cast<NArgonish::EInstructionSet>(i), NArgonish::EArgon2Type::Argon2d,
                 2, 32, 2, GenKatSecret, sizeof(GenKatSecret));
 
             argon2d->Hash(GenKatPassword, sizeof(GenKatPassword), GenKatSalt, sizeof(GenKatSalt),
@@ -391,11 +399,11 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
             0xca, 0x92, 0xaa, 0xae, 0xba, 0x05, 0x29, 0xd8};
 
         NArgonish::TArgon2Factory factory;
-        NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-        for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
+        const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+        for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
             ui8 result[32];
             auto argon2id = factory.Create(
-                (NArgonish::EInstructionSet)i, NArgonish::EArgon2Type::Argon2id,
+                static_cast<NArgonish::EInstructionSet>(i), NArgonish::EArgon2Type::Argon2id,
                 2, 64, 4, GenKatSecret, sizeof(GenKatSecret));
 
             argon2id->Hash(GenKatPassword, sizeof(GenKatPassword), GenKatSalt, sizeof(GenKatSalt),
@@ -418,11 +426,11 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
             0xca, 0xaf, 0xe4, 0xdc, 0x61, 0x4c, 0xae, 0xb2};
 
         NArgonish::TArgon2Factory factory;
-        NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-        for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
+        const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+        for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
             ui8 result[32];
             auto argon2d = factory.Create(
-                (NArgonish::EInstructionSet)i, NArgonish::EArgon2Type::Argon2d,
+                static_cast<NArgonish::EInstructionSet>(i), NArgonish::EArgon2Type::Argon2d,
                 2, 64, 4, GenKatSecret, sizeof(GenKatSecret));
 
             argon2d->Hash(GenKatPassword, sizeof(GenKatPassword), GenKatSalt, sizeof(GenKatSalt),
@@ -445,11 +453,11 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
             0xb4, 0x9c, 0x6c, 0x64, 0xaf, 0xf0, 0x79, 0x0b};
 
         NArgonish::TArgon2Factory factory;
-        NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-        for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
+        const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+        for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
             ui8 result[32];
             auto argon2i = factory.Create(
-                (NArgonish::EInstructionSet)i, NArgonish::EArgon2Type::Argon2i,
+                static_cast<NArgonish::EInstructionSet>(i), NArgonish::EArgon2Type::Argon2i,
                 2, 64, 4, GenKatSecret, sizeof(GenKatSecret));
 
             argon2i->Hash(GenKatPassword, sizeof(GenKatPassword), GenKatSalt, sizeof(GenKatSalt),
@@ -484,11 +492,11 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
             0x9e, 0x62, 0x65, 0x89, 0xbb, 0xce, 0x7d, 0x65};
 
         NArgonish::TArgon2Factory factory;
-        NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-        for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
+        const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+        for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
             ui8 result[128];
             auto argon2d = factory.Create(
-                (NArgonish::EInstructionSet)i, NArgonish::EArgon2Type::Argon2d,
+                static_cast<NArgonish::EInstructionSet>(i), NArgonish::EArgon2Type::Argon2d,
                 1, 32, 1, GenKatSecret, sizeof(GenKatSecret));
 
             argon2d->Hash(GenKatPassword, sizeof(GenKatPassword), GenKatSalt, sizeof(GenKatSalt),
@@ -510,9 +518,9 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
         const ui8 data[] = {'a', 'b', 'c'};
 
         NArgonish::TBlake2BFactory factory;
-        NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-        for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
-            auto blake2b = factory.Create((NArgonish::EInstructionSet)i, sizeof(TResult));
+        const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+        for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
+            auto blake2b = factory.Create(static_cast<NArgonish::EInstructionSet>(i), sizeof(TResult));
             ui8 hashResult[16] = {0};
 
             blake2b->Update(data, sizeof(data));
@@ -535,9 +543,9 @@ Y_UNIT_TEST_SUITE(ArgonishTest) {
         const ui8 data[] = {'a', 'b', 'c'};
 
         NArgonish::TBlake2BFactory factory;
-        NArgonish::EInstructionSet maxInstructionSet = factory.GetInstructionSet();
-        for (int i = (int)NArgonish::EInstructionSet::REF; i <= (int)maxInstructionSet; ++i) {
-            auto blake2b = factory.Create((NArgonish::EInstructionSet)i, sizeof(TResult));
+        const auto maxInstructionSet = ToUnderlying(factory.GetInstructionSet());
+        for (auto i = ToUnderlying(NArgonish::EInstructionSet::REF); i <= maxInstructionSet; ++i) {
+            auto blake2b = factory.Create(static_cast<NArgonish::EInstructionSet>(i), sizeof(TResult));
             ui8 hashResult[64] = {0};
 
             blake2b->Update(data, sizeof(data));
