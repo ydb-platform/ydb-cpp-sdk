@@ -63,7 +63,7 @@ private:
     void AbortImpl(EStatus statusCode, const std::string& message, TDeferredActions<false>& deferred);
 
 private:
-    using TOffsetRanges = THashMap<std::string, THashMap<ui64, TDisjointIntervalTree<ui64>>>;
+    using TOffsetRanges = std::unordered_map<std::string, std::unordered_map<ui64, TDisjointIntervalTree<ui64>>>;
 
     void CollectOffsets(NTable::TTransaction& tx,
                         const TReadSessionEvent::TDataReceivedEvent& event);
@@ -74,7 +74,7 @@ private:
     //
     // (session, tx) -> topic -> partition -> (begin, end)
     //
-    THashMap<std::pair<std::string, std::string>, TOffsetRanges> OffsetRanges;
+    std::unordered_map<std::pair<std::string, std::string>, TOffsetRanges, THash<std::pair<std::string, std::string>>> OffsetRanges;
 
     TReadSessionSettings Settings;
     const std::string SessionId;

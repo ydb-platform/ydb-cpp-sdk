@@ -50,7 +50,9 @@ namespace NMonitoring {
 
     void TFakeMetricRegistry::RemoveMetric(const ILabels& labels) noexcept {
         TWriteGuard g{Lock_};
-        Metrics_.erase(labels);
+        if (auto pos = Metrics_.find(labels); pos != Metrics_.end()) {
+            Metrics_.erase(pos);
+        }
     }
 
     void TFakeMetricRegistry::Accept(TInstant time, IMetricConsumer* consumer) const {
@@ -97,7 +99,7 @@ namespace NMonitoring {
             IMetricPtr metric = MakeIntrusive<TMetric>(std::forward<Args>(args)...);
 
             // decltype(Metrics_)::iterator breaks build on windows
-            THashMap<ILabelsPtr, IMetricPtr>::iterator it;
+            TMetrics::iterator it;
             if constexpr (!std::is_convertible_v<TLabelsType, ILabelsPtr>) {
                 it = Metrics_.emplace(new TLabels{std::forward<TLabelsType>(labels)}, std::move(metric)).first;
             } else {

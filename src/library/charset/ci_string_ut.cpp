@@ -1,13 +1,12 @@
 #include "ci_string.h"
 
-#include <src/util/generic/hash.h>
 #include <src/util/generic/string_ut.h>
 
 class TCaseStringTest: public TTestBase, private TStringTestImpl<TCiString, TTestData<char>> {
 public:
     void TestSpecial() {
         TCiString ss = Data._0123456(); // type 'TCiString' is used as is
-        size_t hash_val = ComputeHash(ss);
+        size_t hash_val = THash<TCiString>{}(ss);
         UNIT_ASSERT(hash_val == 1489244);
     }
 

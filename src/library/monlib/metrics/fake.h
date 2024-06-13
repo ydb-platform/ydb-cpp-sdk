@@ -3,8 +3,6 @@
 #include <ydb-cpp-sdk/library/monlib/metrics/metric.h>
 #include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
 
-#include <src/util/generic/hash.h>
-
 namespace NMonitoring {
     class TFakeMetricRegistry: public IMetricRegistry {
     public:
@@ -50,7 +48,9 @@ namespace NMonitoring {
 
     private:
         TRWMutex Lock_;
-        THashMap<ILabelsPtr, IMetricPtr> Metrics_;
+
+        using TMetrics = std::unordered_map<ILabelsPtr, IMetricPtr, THash<ILabelsPtr>, TEqualTo<ILabelsPtr>>;
+        TMetrics Metrics_;
 
         template <typename TMetric, EMetricType type, typename TLabelsType, typename... Args>
         TMetric* Metric(TLabelsType&& labels, Args&&... args);

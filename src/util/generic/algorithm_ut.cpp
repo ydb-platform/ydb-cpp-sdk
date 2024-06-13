@@ -1,9 +1,6 @@
 #include <src/library/testing/unittest/registar.h>
 
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
-#include "hash.h"
-#include "hash_multi_map.h"
-#include "string.h"
 
 static auto isOne = [](char c) { return c == '1'; };
 
@@ -302,13 +299,13 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         EraseNodesIf(multiSet, [](int i) { return i % 2 == 0; });
         UNIT_ASSERT_EQUAL(multiSet, expectedMultiSet);
 
-        THashMap<int, int> hashMap{{1, 0}, {3, 0}, {4, 0}, {10, 0}, {2, 0}, {5, 2}};
-        THashMap<int, int> expectedHashMap{{1, 0}, {3, 0}, {5, 2}};
+        std::unordered_map<int, int> hashMap{{1, 0}, {3, 0}, {4, 0}, {10, 0}, {2, 0}, {5, 2}};
+        std::unordered_map<int, int> expectedHashMap{{1, 0}, {3, 0}, {5, 2}};
         EraseNodesIf(hashMap, [](auto p) { return p.first % 2 == 0; });
         UNIT_ASSERT_EQUAL(hashMap, expectedHashMap);
 
-        THashMultiMap<int, int> hashMultiMap{{1, 0}, {3, 0}, {4, 0}, {10, 0}, {2, 0}, {5, 0}, {1, 0}, {1, 0}, {2, 0}, {2, 2}};
-        THashMultiMap<int, int> expectedHashMultiMap{{1, 0}, {1, 0}, {1, 0}, {3, 0}, {5, 0}};
+        std::unordered_multimap<int, int> hashMultiMap{{1, 0}, {3, 0}, {4, 0}, {10, 0}, {2, 0}, {5, 0}, {1, 0}, {1, 0}, {2, 0}, {2, 2}};
+        std::unordered_multimap<int, int> expectedHashMultiMap{{1, 0}, {1, 0}, {1, 0}, {3, 0}, {5, 0}};
         EraseNodesIf(hashMultiMap, [](auto p) { return p.first % 2 == 0; });
         UNIT_ASSERT_EQUAL(hashMultiMap, expectedHashMultiMap);
     }

@@ -10,6 +10,8 @@
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
+#include <unordered_map>
+
 namespace NYdb::NPersQueue {
 
 class TPersQueueClient::TImpl : public TClientImplCommon<TPersQueueClient::TImpl> {
@@ -241,7 +243,7 @@ private:
     const std::string CustomEndpoint;
     TAdaptiveLock Lock;
     std::shared_ptr<std::unordered_map<ECodec, THolder<ICodec>>> ProvidedCodecs = std::make_shared<std::unordered_map<ECodec, THolder<ICodec>>>();
-    THashMap<std::string, std::shared_ptr<TImpl>> Subclients; // Endpoint -> Subclient.
+    std::unordered_map<std::string, std::shared_ptr<TImpl>> Subclients; // Endpoint -> Subclient.
 };
 
 } // namespace NYdb::NPersQueue

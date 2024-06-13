@@ -1,9 +1,12 @@
 #include <ydb-cpp-sdk/library/mime/types/mime.h>
 
+#include "ydb-cpp-sdk/util/generic/singleton.h"
 #include <ydb-cpp-sdk/util/system/defaults.h>
-#include <src/util/generic/hash.h>
 
+#include <cassert>
 #include <cctype>
+#include <cstring>
+#include <unordered_map>
 
 /*
  * MIME types
@@ -39,7 +42,7 @@ private:
         const char* Ext;
     };
 
-    typedef THashMap<const char*, int> TRecordHash;
+    using TRecordHash = std::unordered_map<const char*, int>;
 
     // Fields
 private:
@@ -118,9 +121,10 @@ void TMimeTypes::SetContentTypes() {
     for (int i = 0; i < (int)Y_ARRAY_SIZE(Records); ++i) {
         const TRecord& record(Records[i]);
         assert(i == record.Mime || i > MIME_MAX || record.Mime == MIME_UNKNOWN);
-        if (!record.ContentType)
+        if (!record.ContentType) {
             continue;
-        for (const char* type = record.ContentType; *type; type += strlen(type) + 1) {
+        }
+        for (const char* type = record.ContentType; *type; type += std::strlen(type) + 1) {
             assert(ContentTypes.find(type) == ContentTypes.end());
             ContentTypes[type] = i;
         }
@@ -130,10 +134,11 @@ void TMimeTypes::SetContentTypes() {
 void TMimeTypes::SetExt() {
     for (int i = 0; i < (int)Y_ARRAY_SIZE(Records); ++i) {
         const TRecord& record(Records[i]);
-        if (!record.Ext)
+        if (!record.Ext) {
             continue;
-        for (const char* ext = record.Ext; *ext; ext += strlen(ext) + 1) {
-            assert(strlen(ext) <= MAX_EXT_LEN);
+        }
+        for (const char* ext = record.Ext; *ext; ext += std::strlen(ext) + 1) {
+            assert(std::strlen(ext) <= MAX_EXT_LEN);
             assert(Ext.find(ext) == Ext.end());
             Ext[ext] = i;
         }
@@ -142,22 +147,25 @@ void TMimeTypes::SetExt() {
 
 const char* TMimeTypes::StrByExt(const char* ext) const {
     TRecordHash::const_iterator it = Ext.find(ext);
-    if (it == Ext.end())
+    if (it == Ext.end()) {
         return nullptr;
+    }
     return Records[it->second].ContentType;
 }
 
 MimeTypes TMimeTypes::MimeByStr(const char* str) const {
     TRecordHash::const_iterator it = ContentTypes.find(str);
-    if (it == ContentTypes.end())
+    if (it == ContentTypes.end()) {
         return MIME_UNKNOWN;
+    }
     return Records[it->second].Mime;
 }
 
 MimeTypes TMimeTypes::MimeByStr(const std::string_view& str) const {
     TRecordHash::const_iterator it = ContentTypes.find(str.data());
-    if (it == ContentTypes.end())
+    if (it == ContentTypes.end()) {
         return MIME_UNKNOWN;
+    }
     return Records[it->second].Mime;
 }
 
@@ -167,23 +175,27 @@ const char* TMimeTypes::StrByMime(MimeTypes mime) const {
 
 const char* mimetypeByExt(const char* fname, const char* check_ext) {
     const char* ext_p;
-    if (fname == nullptr || *fname == 0 ||
-        (ext_p = strrchr(fname, '.')) == nullptr || strlen(ext_p) - 1 > TMimeTypes::MAX_EXT_LEN) {
+    if (fname == nullptr
+            || *fname == 0
+            || (ext_p = std::strrchr(fname, '.')) == nullptr
+            || std::strlen(ext_p) - 1 > TMimeTypes::MAX_EXT_LEN) {
         return nullptr;
     }
 
     char ext[TMimeTypes::MAX_EXT_LEN + 1];
     size_t i;
     ext_p++;
-    for (i = 0; i < TMimeTypes::MAX_EXT_LEN && ext_p[i]; i++)
-        ext[i] = (char)tolower(ext_p[i]);
+    for (i = 0; i < TMimeTypes::MAX_EXT_LEN && ext_p[i]; i++) {
+        ext[i] = static_cast<char>(tolower(ext_p[i]));
+    }
     ext[i] = 0;
 
     if (check_ext != nullptr) {
-        if (strcmp(ext, check_ext) == 0)
+        if (std::strcmp(ext, check_ext) == 0) {
             return check_ext;
-        else
+        } else {
             return nullptr;
+        }
     }
 
     return Singleton<TMimeTypes>()->StrByExt(ext);
@@ -198,8 +210,9 @@ MimeTypes mimeByStr(const std::string_view& mimeStr) {
 }
 
 const char* strByMime(MimeTypes mime) {
-    if (mime < 0 || mime > MIME_MAX)
+    if (mime < 0 || mime > MIME_MAX) {
         return nullptr; // index may contain documents with invalid MIME (ex. 255)
+    }
     return Singleton<TMimeTypes>()->StrByMime(mime);
 }
 

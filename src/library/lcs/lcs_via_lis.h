@@ -1,20 +1,20 @@
 #pragma once
 
-#include <src/library/containers/paged_vector/paged_vector.h>
-
 #include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <src/util/generic/hash.h>
-
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
+
+#include <src/library/containers/paged_vector/paged_vector.h>
 #include <src/util/memory/pool.h>
+
+#include <unordered_map>
 
 namespace NLCS {
     template <typename TVal>
     struct TLCSCtx {
-        typedef std::vector<ui32> TSubsequence;
-        typedef THashMap<TVal, TSubsequence, THash<TVal>, TEqualTo<TVal>, ::TPoolAllocator> TEncounterIndex;
-        typedef std::vector<std::pair<ui32, ui32>> TLastIndex;
-        typedef NPagedVector::TPagedVector<TSubsequence, 4096> TCover;
+        using TSubsequence = std::vector<ui32>;
+        using TEncounterIndex = std::unordered_map<TVal, TSubsequence, THash<TVal>, TEqualTo<TVal>, ::TPoolAllocator<std::pair<const TVal, TSubsequence>>>;
+        using TLastIndex = std::vector<std::pair<ui32, ui32>>;
+        using TCover = NPagedVector::TPagedVector<TSubsequence, 4096>;
 
         TMemoryPool Pool;
         THolder<TEncounterIndex> Encounters;

@@ -38,7 +38,7 @@ void Deserialize(bool& value, const TNode& node);
 void Serialize(const TNode& node, NYson::IYsonConsumer* consumer);
 void Deserialize(TNode& value, const TNode& node);
 
-void Serialize(const THashMap<std::string, std::string>& renameColumns, NYson::IYsonConsumer* consumer);
+void Serialize(const std::unordered_map<std::string, std::string>& renameColumns, NYson::IYsonConsumer* consumer);
 
 ////////////////////////////////////////////////////////////////////////////////
 

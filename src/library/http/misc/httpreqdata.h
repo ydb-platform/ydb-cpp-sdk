@@ -2,15 +2,14 @@
 
 #include <src/library/digest/lower_case/hash_ops.h>
 
-#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
+#include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/network/address.h>
 #include <ydb-cpp-sdk/util/network/socket.h>
-#include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
-using THttpHeadersContainer = THashMap<std::string, std::string, TCIOps, TCIOps>;
+using THttpHeadersContainer = std::unordered_map<std::string, std::string, TCIOps, TCIOps>;
 
 class TBaseServerRequestData {
 public:

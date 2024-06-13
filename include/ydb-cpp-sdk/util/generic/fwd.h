@@ -37,15 +37,6 @@ template <class TValue, class TCmp>
 class TRbTree;
 
 //containers
-//template <class T, class A = std::allocator<T>>
-//class TDeque;
-
-template <class Key, class T, class HashFcn = THash<Key>, class EqualKey = TEqualTo<Key>, class Alloc = std::allocator<Key>>
-class THashMap;
-
-template <class Key, class T, class HashFcn = THash<Key>, class EqualKey = TEqualTo<Key>, class Alloc = std::allocator<Key>>
-class THashMultiMap;
-
 template <class K, class L = TLess<K>, class A = std::allocator<K>>
 class TSet;
 

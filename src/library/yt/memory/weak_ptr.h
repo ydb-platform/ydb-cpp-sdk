@@ -2,7 +2,7 @@
 
 #include "ref_counted.h"
 
-#include <src/util/generic/hash.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
 
 namespace NYT {
 

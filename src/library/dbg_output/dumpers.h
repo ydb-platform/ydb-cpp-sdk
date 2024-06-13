@@ -9,6 +9,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <unordered_set>
 
 //smart pointers
@@ -133,11 +134,11 @@ struct TDumper<TMultiSet<T, P, A>>: public TAssocDumper {
 };
 
 template <class K, class V, class H, class P, class A>
-struct TDumper<THashMap<K, V, H, P, A>>: public TAssocDumper {
+struct TDumper<std::unordered_map<K, V, H, P, A>>: public TAssocDumper {
 };
 
 template <class K, class V, class H, class P, class A>
-struct TDumper<THashMultiMap<K, V, H, P, A>>: public TAssocDumper {
+struct TDumper<std::unordered_multimap<K, V, H, P, A>>: public TAssocDumper {
 };
 
 template <class T, class H, class P, class A>

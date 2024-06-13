@@ -1,14 +1,12 @@
-#include "ysaveload.h"
+#include <ydb-cpp-sdk/util/ysaveload.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <ydb-cpp-sdk/util/memory/blob.h>
 
 #include <src/util/memory/pool.h>
 #include <src/util/stream/buffer.h>
-#include <ydb-cpp-sdk/util/memory/blob.h>
-
-#include <src/util/generic/hash_multi_map.h>
-
 #include <src/util/generic/buffer.h>
+
+#include <src/library/testing/unittest/registar.h>
 
 static inline char* AllocateFromPool(TMemoryPool& pool, size_t len) {
     return (char*)pool.Allocate(len);
@@ -179,7 +177,7 @@ private:
         }
 
         {
-            TDeque<ui16> deq;
+            std::deque<ui16> deq;
 
             deq.push_back(1);
             deq.push_back(2);
@@ -210,7 +208,7 @@ private:
         }
 
         {
-            THashMultiMap<std::string, int> mm;
+            std::unordered_multimap<std::string, int> mm;
 
             mm.insert({"one", 1});
             mm.insert({"two", 2});
@@ -322,7 +320,7 @@ private:
         }
 
         {
-            TDeque<ui16> deq;
+            std::deque<ui16> deq;
 
             Load(&S_, deq);
 
@@ -360,7 +358,7 @@ private:
         }
 
         {
-            THashMultiMap<std::string, int> mm;
+            std::unordered_multimap<std::string, int> mm;
 
             Load(&S_, mm);
 

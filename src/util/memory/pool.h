@@ -1,13 +1,14 @@
 #pragma once
 
-#include <ydb-cpp-sdk/util/memory/alloc.h>
-
-#include <src/util/system/align.h>
-#include <ydb-cpp-sdk/util/system/yassert.h>
-#include <src/util/generic/bitops.h>
-#include <ydb-cpp-sdk/util/generic/utility.h>
-#include <src/util/generic/intrlist.h>
+#include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <ydb-cpp-sdk/util/generic/utility.h>
+#include <ydb-cpp-sdk/util/memory/alloc.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
+
+#include <src/util/generic/bitops.h>
+#include <src/util/generic/intrlist.h>
+#include <src/util/system/align.h>
 
 #include <new>
 #include <string>
@@ -421,7 +422,8 @@ template <class T>
 using TPoolAlloc = TPoolAllocBase<T, TMemoryPool>;
 
 // Any type since it is supposed to be rebound anyway.
-using TPoolAllocator = TPoolAlloc<int>;
+template <class T = int>
+using TPoolAllocator = TPoolAlloc<T>;
 
 template <class T>
 inline bool operator==(const TPoolAlloc<T>&, const TPoolAlloc<T>&) noexcept {

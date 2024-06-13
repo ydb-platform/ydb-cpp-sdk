@@ -1,8 +1,7 @@
 #pragma once
 
-#include <src/util/generic/hash.h>
-
 #include <ydb-cpp-sdk/util/random/random.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
 
 namespace NYT {
 

@@ -1,10 +1,11 @@
 #include "httpreqdata.h"
 
-#include <src/library/case_insensitive_string/case_insensitive_string.h>
-#include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
-
+#include <ydb-cpp-sdk/util/string/builder.h>
 #include <ydb-cpp-sdk/util/stream/mem.h>
+
+#include <src/library/case_insensitive_string/case_insensitive_string.h>
+#include <src/util/generic/mapfindptr.h>
 #include <src/util/string/join.h>
 #include <src/util/system/datetime.h>
 
@@ -60,7 +61,7 @@ std::string_view TBaseServerRequestData::RemoteAddr() const {
  }
 
 const std::string* TBaseServerRequestData::HeaderIn(std::string_view key) const {
-    return HeadersIn_.FindPtr(key);
+    return MapFindPtr(HeadersIn_, key);
 }
 
 std::string_view TBaseServerRequestData::HeaderInOrEmpty(std::string_view key) const {

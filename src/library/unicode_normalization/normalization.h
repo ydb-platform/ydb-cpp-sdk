@@ -4,10 +4,13 @@
 
 #include <src/util/charset/unidata.h>
 #include <src/util/charset/wide.h>
-#include <src/util/generic/hash.h>
+
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
+#include <ydb-cpp-sdk/util/digest/numeric.h>
+
+#include <unordered_map>
 #include <utility>
 
 namespace NUnicode {
@@ -110,7 +113,7 @@ namespace NUnicode {
                 }
             };
 
-            typedef THashMap<TKey, wchar32, THash<TKey>> TData;
+            using TData = std::unordered_map<TKey, wchar32, THash<TKey>>;
             TData Data;
 
         public:

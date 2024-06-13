@@ -78,7 +78,7 @@ Y_UNIT_TEST_SUITE(YtNodeTest) {
         UNIT_ASSERT_VALUES_EQUAL(listNode.AsList(), expectedListValue);
 
         const TNode mapNode = TNode::CreateMap({{"one", 1}, {"two", 2u}});
-        const auto expectedMapValue = THashMap<std::string, TNode>({{"one", 1}, {"two", 2u}});
+        const auto expectedMapValue = std::unordered_map<std::string, TNode>({{"one", 1}, {"two", 2u}});
         UNIT_ASSERT_VALUES_EQUAL(mapNode.AsMap(), expectedMapValue);
     }
 
@@ -266,13 +266,13 @@ Y_UNIT_TEST_SUITE(YtNodeTest) {
 
         std::string bytes;
         {
-            std::stringOutput s(bytes);
+            std::TStringOutput s(bytes);
             ::Save(&s, node);
         }
 
         TNode nodeCopy;
         {
-            std::stringInput s(bytes);
+            std::TStringInput s(bytes);
             ::Load(&s, nodeCopy);
         }
 

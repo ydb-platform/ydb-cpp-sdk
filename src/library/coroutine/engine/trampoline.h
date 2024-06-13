@@ -1,12 +1,16 @@
 #pragma once
-#include <span>
+
 #include "stack/stack_common.h"
 #include "stack/stack.h"
 
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <src/util/system/context.h>
 #include <ydb-cpp-sdk/util/system/defaults.h>
+
+#include <src/util/system/context.h>
+
+#include <functional>
+#include <span>
 
 #if !defined(STACK_GROW_DOWN)
 #   error "unsupported"
@@ -23,7 +27,7 @@ namespace NCoro {
 
     class TTrampoline : public ITrampoLine, TNonCopyable {
     public:
-        typedef std::function<void (TCont*)> TFunc;
+        using TFunc = std::function<void (TCont*)>;
 
         TTrampoline(
             NCoro::NStack::IAllocator& allocator,

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "hash.h"
+#include <ydb-cpp-sdk/util/str_stl.h>
 
 #include <variant>
 
@@ -10,7 +10,13 @@ public:
     size_t operator()(const std::variant<Ts...>& v) const noexcept {
         return CombineHashes(
             IntHash(v.index()),
-            v.valueless_by_exception() ? 0 : std::visit([](const auto& value) { return ComputeHash(value); }, v));
+            v.valueless_by_exception()
+                ? 0
+                : std::visit(
+                    [](const auto& value) {
+                        return THash<std::decay_t<decltype(value)>>{}(value);
+                    }, v)
+        );
     }
 };
 

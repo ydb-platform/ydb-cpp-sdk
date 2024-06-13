@@ -3,9 +3,10 @@
 
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <utility>
 
 #include <src/util/thread/singleton.h>
+
+#include <utility>
 
 #if defined(_win_) || defined(_arm32_) || defined(_cygwin_)
 ui64 InterpolatedMicroSeconds() {
@@ -17,9 +18,6 @@ ui64 InterpolatedMicroSeconds() {
     #include <sys/time.h>
 
     #if defined(_musl_)
-        #include <src/util/generic/hash.h>
-        #include <src/util/generic/vector.h>
-        
         #include <contrib/libs/linuxvdso/interface.h>
     #endif
 

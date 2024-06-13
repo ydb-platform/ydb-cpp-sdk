@@ -3,17 +3,17 @@
 
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/subst.h>
-#include <src/util/string/util.h>
-#include <src/util/system/hi_lo.h>
 #include <ydb-cpp-sdk/util/system/yassert.h>
-#include <src/util/generic/hash.h>
-#include <string>
-
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+
+#include <src/util/string/util.h>
+#include <src/util/system/hi_lo.h>
 #include <src/util/memory/pool.h>
 
 #include <cstring>
+#include <string>
+#include <unordered_map>
 #include <unordered_set>
 
 #include <ctype.h>
@@ -126,7 +126,7 @@ const NCodepagePrivate::TCodepagesMap& NCodepagePrivate::TCodepagesMap::Instance
 
 class TCodePageHash {
 private:
-    using TData = THashMap<std::string_view, ECharset, ci_hash, ci_equal_to>;
+    using TData = std::unordered_map<std::string_view, ECharset, ci_hash, ci_equal_to>;
 
     TData Data;
     TMemoryPool Pool;
@@ -179,12 +179,14 @@ public:
     }
 
     inline ECharset CharsetByName(std::string_view name) {
-        if (name.empty())
+        if (name.empty()) {
             return CODES_UNKNOWN;
+        }
 
-        TData::const_iterator it = Data.find(name);
-        if (it == Data.end())
+        auto it = Data.find(name);
+        if (it == Data.end()) {
             return CODES_UNKNOWN;
+        }
 
         return it->second;
     }
@@ -196,57 +198,45 @@ ECharset CharsetByName(std::string_view name) {
 
 ECharset CharsetByNameOrDie(std::string_view name) {
     ECharset result = CharsetByName(name);
-    if (result == CODES_UNKNOWN)
+    if (result == CODES_UNKNOWN) {
         ythrow yexception() << "CharsetByNameOrDie: unknown charset '" << name << "'";
+    }
     return result;
 }
 
-namespace {
-    class THashSetType: public std::unordered_set<std::string> {
-    public:
-        inline void Add(const std::string& s) {
-            insert(s);
-        }
-
-        inline bool Has(const std::string& s) const noexcept {
-            return find(s) != end();
-        }
-    };
-}
-
-class TWindowsPrefixesHashSet: public THashSetType {
+class TWindowsPrefixesHashSet: public std::unordered_set<std::string> {
 public:
     inline TWindowsPrefixesHashSet() {
-        Add("win");
-        Add("wincp");
-        Add("window");
-        Add("windowcp");
-        Add("windows");
-        Add("windowscp");
-        Add("ansi");
-        Add("ansicp");
+        insert("win");
+        insert("wincp");
+        insert("window");
+        insert("windowcp");
+        insert("windows");
+        insert("windowscp");
+        insert("ansi");
+        insert("ansicp");
     }
 };
 
-class TCpPrefixesHashSet: public THashSetType {
+class TCpPrefixesHashSet: public std::unordered_set<std::string> {
 public:
     inline TCpPrefixesHashSet() {
-        Add("microsoft");
-        Add("microsoftcp");
-        Add("cp");
+        insert("microsoft");
+        insert("microsoftcp");
+        insert("cp");
     }
 };
 
-class TIsoPrefixesHashSet: public THashSetType {
+class TIsoPrefixesHashSet: public std::unordered_set<std::string> {
 public:
     inline TIsoPrefixesHashSet() {
-        Add("iso");
-        Add("isolatin");
-        Add("latin");
+        insert("iso");
+        insert("isolatin");
+        insert("latin");
     }
 };
 
-class TLatinToIsoHash: public THashMap<const char*, std::string, ci_hash, ci_equal_to> {
+class TLatinToIsoHash: public std::unordered_map<const char*, std::string, ci_hash, ci_equal_to> {
 public:
     inline TLatinToIsoHash() {
         insert(value_type("latin1", "iso-8859-1"));
@@ -263,9 +253,10 @@ public:
 };
 
 static inline void NormalizeEncodingPrefixes(std::string& enc) {
-    size_t preflen = enc.find_first_of("0123456789");
-    if (preflen == std::string::npos)
+    const auto preflen = enc.find_first_of("0123456789");
+    if (preflen == std::string::npos) {
         return;
+    }
 
     std::string prefix = enc.substr(0, preflen);
     for (size_t i = 0; i < prefix.length(); ++i) {
@@ -274,13 +265,13 @@ static inline void NormalizeEncodingPrefixes(std::string& enc) {
         }
     }
 
-    if (Singleton<TWindowsPrefixesHashSet>()->Has(prefix)) {
+    if (Singleton<TWindowsPrefixesHashSet>()->contains(prefix)) {
         enc.erase(0, preflen);
         enc.insert(0, "windows-");
         return;
     }
 
-    if (Singleton<TCpPrefixesHashSet>()->Has(prefix)) {
+    if (Singleton<TCpPrefixesHashSet>()->contains(prefix)) {
         if (enc.length() > preflen + 3 && !strncmp(enc.c_str() + preflen, "125", 3) && isdigit(enc[preflen + 3])) {
             enc.erase(0, preflen);
             enc.insert(0, "windows-");
@@ -291,14 +282,14 @@ static inline void NormalizeEncodingPrefixes(std::string& enc) {
         return;
     }
 
-    if (Singleton<TIsoPrefixesHashSet>()->Has(prefix)) {
+    if (Singleton<TIsoPrefixesHashSet>()->contains(prefix)) {
         if (enc.length() == preflen + 1 || enc.length() == preflen + 2) {
             std::string enccopy = enc.substr(preflen);
             enccopy.insert(0, "latin");
             const TLatinToIsoHash* latinhash = Singleton<TLatinToIsoHash>();
-            TLatinToIsoHash::const_iterator it = latinhash->find(enccopy.data());
-            if (it != latinhash->end())
+            if (auto it = latinhash->find(enccopy.data()); it != latinhash->end()) {
                 enc.assign(it->second);
+            }
             return;
         } else if (enc.length() > preflen + 5 && enc[preflen] == '8') {
             enc.erase(0, preflen);
@@ -308,55 +299,56 @@ static inline void NormalizeEncodingPrefixes(std::string& enc) {
     }
 }
 
-class TEncodingNamesHashSet: public THashSetType {
+class TEncodingNamesHashSet: public std::unordered_set<std::string> {
 public:
     TEncodingNamesHashSet() {
-        Add("iso-8859-1");
-        Add("iso-8859-2");
-        Add("iso-8859-3");
-        Add("iso-8859-4");
-        Add("iso-8859-5");
-        Add("iso-8859-6");
-        Add("iso-8859-7");
-        Add("iso-8859-8");
-        Add("iso-8859-8-i");
-        Add("iso-8859-9");
-        Add("iso-8859-10");
-        Add("iso-8859-11");
-        Add("iso-8859-12");
-        Add("iso-8859-13");
-        Add("iso-8859-14");
-        Add("iso-8859-15");
-        Add("windows-1250");
-        Add("windows-1251");
-        Add("windows-1252");
-        Add("windows-1253");
-        Add("windows-1254");
-        Add("windows-1255");
-        Add("windows-1256");
-        Add("windows-1257");
-        Add("windows-1258");
-        Add("windows-874");
-        Add("iso-2022-jp");
-        Add("euc-jp");
-        Add("shift-jis");
-        Add("shiftjis");
-        Add("iso-2022-kr");
-        Add("euc-kr");
-        Add("gb-2312");
-        Add("gb2312");
-        Add("gb-18030");
-        Add("gb18030");
-        Add("gbk");
-        Add("big5");
-        Add("tis-620");
-        Add("tis620");
+        insert("iso-8859-1");
+        insert("iso-8859-2");
+        insert("iso-8859-3");
+        insert("iso-8859-4");
+        insert("iso-8859-5");
+        insert("iso-8859-6");
+        insert("iso-8859-7");
+        insert("iso-8859-8");
+        insert("iso-8859-8-i");
+        insert("iso-8859-9");
+        insert("iso-8859-10");
+        insert("iso-8859-11");
+        insert("iso-8859-12");
+        insert("iso-8859-13");
+        insert("iso-8859-14");
+        insert("iso-8859-15");
+        insert("windows-1250");
+        insert("windows-1251");
+        insert("windows-1252");
+        insert("windows-1253");
+        insert("windows-1254");
+        insert("windows-1255");
+        insert("windows-1256");
+        insert("windows-1257");
+        insert("windows-1258");
+        insert("windows-874");
+        insert("iso-2022-jp");
+        insert("euc-jp");
+        insert("shift-jis");
+        insert("shiftjis");
+        insert("iso-2022-kr");
+        insert("euc-kr");
+        insert("gb-2312");
+        insert("gb2312");
+        insert("gb-18030");
+        insert("gb18030");
+        insert("gbk");
+        insert("big5");
+        insert("tis-620");
+        insert("tis620");
     }
 };
 
 ECharset EncodingHintByName(const char* encname) {
-    if (!encname)
+    if (!encname) {
         return CODES_UNKNOWN; // safety check
+    }
 
     // Common trouble: spurious "charset=" in the encoding name
     if (!strnicmp(encname, "charset=", 8)) {
@@ -364,31 +356,37 @@ ECharset EncodingHintByName(const char* encname) {
     }
 
     // Strip everything up to the first alphanumeric, and after the last one
-    while (*encname && !isalnum(*encname))
+    while (*encname && !isalnum(*encname)) {
         ++encname;
+    }
 
-    if (!*encname)
+    if (!*encname) {
         return CODES_UNKNOWN;
+    }
 
     const char* lastpos = encname + strlen(encname) - 1;
-    while (lastpos > encname && !isalnum(*lastpos))
+    while (lastpos > encname && !isalnum(*lastpos)) {
         --lastpos;
+    }
 
     // Do some normalization
     std::string enc(encname, lastpos - encname + 1);
     NUtils::ToLower(enc);
     for (char* p = enc.data(); p != enc.data() + enc.size(); ++p) {
-        if (*p == ' ' || *p == '=' || *p == '_')
+        if (*p == ' ' || *p == '=' || *p == '_') {
             *p = '-';
+        }
     }
 
     NormalizeEncodingPrefixes(enc);
 
     ECharset hint = CharsetByName(enc.c_str());
-    if (hint != CODES_UNKNOWN)
+    if (hint != CODES_UNKNOWN) {
         return hint;
+    }
 
-    if (Singleton<TEncodingNamesHashSet>()->Has(enc))
+    if (Singleton<TEncodingNamesHashSet>()->contains(enc)) {
         return CODES_UNSUPPORTED;
+    }
     return CODES_UNKNOWN;
 }

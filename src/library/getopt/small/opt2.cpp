@@ -1,12 +1,14 @@
 #include "opt2.h"
 
-#include <src/util/generic/hash.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <stdio.h>
 
+#include <unordered_map>
+
 void Opt2::Clear() {
     Specs.clear();
-    memset(SpecsMap, 0, sizeof(SpecsMap));
+    std::memset(SpecsMap, 0, sizeof(SpecsMap));
     Pos.clear();
 }
 
@@ -52,7 +54,7 @@ void Opt2::EatArgv(const char* optspec, const char* long_alias) {
     // long_alias has a form "long-name1=A,long-name2=B", etc.
     // This implementation is limited to aliasing a single long option
     // with single short option (extend it if you really need).
-    THashMap<const char*, char> long2short;
+    std::unordered_map<const char*, char> long2short;
     long2short["help"] = '?';
     long_alias = long_alias ? long_alias : "";
     alias_copy = long_alias;
@@ -71,7 +73,7 @@ void Opt2::EatArgv(const char* optspec, const char* long_alias) {
         Opt2Param& p = Specs[SpecsMap[(ui8)*eq] - 1];
         // If several long options aliased to some letter, only last one is shown in usage
         p.LongOptName = s;
-        if (long2short.find(s) != long2short.end())
+        if (long2short.contains(s))
             ythrow yexception() << "Opt2, long_alias: " << s << " specified twice";
         long2short[s] = *eq;
         s = comma ? comma + 1 : nullptr;
@@ -101,7 +103,7 @@ void Opt2::EatArgv(const char* optspec, const char* long_alias) {
             // long option always spans one argv (--switch or --option-name=value)
             const char* eq = strchr(s, '=');
             std::string lname(s, eq ? (size_t)(eq - s) : (size_t)strlen(s));
-            THashMap<const char*, char>::iterator i = long2short.find(lname.data());
+            auto i = long2short.find(lname.data());
             if (i == long2short.end()) {
                 UnknownLongOption = strdup(lname.data()); // free'd in AutoUsage()
                 HasErrors = true;

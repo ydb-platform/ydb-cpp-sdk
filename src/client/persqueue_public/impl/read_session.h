@@ -6,6 +6,8 @@
 #include <src/client/topic/impl/counters_logger.h>
 #include <src/client/persqueue_public/impl/persqueue_impl.h>
 
+#include <unordered_map>
+
 namespace NYdb::NPersQueue {
 
 // High level class that manages several read session impls.
@@ -108,7 +110,7 @@ private:
     TDbDriverStatePtr DbDriverState;
     TAdaptiveLock Lock;
     std::shared_ptr<TReadSessionEventsQueue> EventsQueue;
-    THashMap<std::string, TClusterSessionInfo> ClusterSessions; // Cluster name (in lower case) -> TClusterSessionInfo
+    std::unordered_map<std::string, TClusterSessionInfo> ClusterSessions; // Cluster name (in lower case) -> TClusterSessionInfo
     NYdbGrpc::IQueueClientContextPtr ClusterDiscoveryDelayContext;
     IRetryPolicy::IRetryState::TPtr ClusterDiscoveryRetryState;
     bool DataReadingSuspended = false;

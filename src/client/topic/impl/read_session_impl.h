@@ -19,8 +19,6 @@
 #include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 
 #include <ydb-cpp-sdk/util/digest/numeric.h>
-#include <src/util/generic/hash.h>
-#include <src/util/generic/hash_multi_map.h>
 
 #include <atomic>
 #include <deque>
@@ -1272,9 +1270,9 @@ private:
         bool HasUnacknowledgedCookies() const;
 
     private:
-        THashMap<typename TCookie::TKey, typename TCookie::TPtr, typename TCookie::TKey::THash> Cookies;
-        THashMap<std::pair<ui64, ui64>, typename TCookie::TPtr> UncommittedOffsetToCookie; // (Partition stream id, Offset) -> Cookie.
-        THashMultiMap<ui64, typename TCookie::TPtr> PartitionStreamIdToCookie;
+        std::unordered_map<typename TCookie::TKey, typename TCookie::TPtr, typename TCookie::TKey::THash> Cookies;
+        std::unordered_map<std::pair<ui64, ui64>, typename TCookie::TPtr, THash<std::pair<ui64, ui64>>> UncommittedOffsetToCookie; // (Partition stream id, Offset) -> Cookie.
+        std::unordered_multimap<ui64, typename TCookie::TPtr> PartitionStreamIdToCookie;
         size_t CommitInflight = 0; // Commit inflight to server.
     };
 
@@ -1318,7 +1316,7 @@ private:
 
     bool WaitingReadResponse = false;
     std::shared_ptr<TServerMessage<UseMigrationProtocol>> ServerMessage; // Server message to write server response to.
-    THashMap<ui64, TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>>> PartitionStreams; // assignId -> Partition stream.
+    std::unordered_map<ui64, TIntrusivePtr<TPartitionStreamImpl<UseMigrationProtocol>>> PartitionStreams; // assignId -> Partition stream.
     TPartitionCookieMapping CookieMapping;
     std::deque<TDecompressionQueueItem> DecompressionQueue;
     bool DataReadingSuspended = false;

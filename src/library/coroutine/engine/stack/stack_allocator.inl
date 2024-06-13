@@ -2,8 +2,8 @@
 #include "stack_pool.h"
 #include "stack_utils.h"
 
-#include <src/util/generic/hash.h>
 #include <span>
+#include <unordered_map>
 
 #ifdef _linux_
 #include <unistd.h>
@@ -44,7 +44,7 @@ namespace NCoro::NStack {
     private: // data
         const TPoolAllocatorSettings PoolSettings_;
         const TGuard& Guard_;
-        THashMap<size_t, TPool<TGuard>> Pools_; // key - stack size
+        std::unordered_map<size_t, TPool<TGuard>> Pools_; // key - stack size
     };
 
     template<typename TGuard>

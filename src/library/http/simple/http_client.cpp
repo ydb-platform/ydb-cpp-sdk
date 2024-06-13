@@ -197,7 +197,7 @@ void TSimpleHttpClient::DoGet(const std::string_view relativeUrl, IOutputStream*
     ProcessResponse(relativeUrl, *cl.GetHttpInput(), output, code);
 }
 
-void TSimpleHttpClient::DoPost(const std::string_view relativeUrl, std::string_view body, IOutputStream* output, const THashMap<std::string, std::string>& headers) const {
+void TSimpleHttpClient::DoPost(const std::string_view relativeUrl, std::string_view body, IOutputStream* output, const std::unordered_map<std::string, std::string>& headers) const {
     TKeepAliveHttpClient cl = CreateClient();
 
     TKeepAliveHttpClient::THttpCode code = cl.DoPost(relativeUrl, body, output, headers);

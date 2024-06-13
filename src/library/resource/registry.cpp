@@ -1,14 +1,15 @@
 #include "registry.h"
 
-#include <src/library/blockcodecs/core/codecs.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
-
 #include <ydb-cpp-sdk/util/system/yassert.h>
-#include <src/util/generic/hash.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/string/escape.h>
 
+#include <src/library/blockcodecs/core/codecs.h>
+#include <src/util/generic/mapfindptr.h>
+
 #include <iostream>
+#include <unordered_map>
 
 using namespace NResource;
 using namespace NBlockCodecs;
@@ -22,7 +23,7 @@ namespace {
 
     typedef std::pair<std::string_view, std::string_view> TDescriptor;
 
-    struct TStore: public IStore, public THashMap<std::string_view, TDescriptor*> {
+    struct TStore: public IStore, public std::unordered_map<std::string_view, TDescriptor*> {
         void Store(const std::string_view key, const std::string_view data) override {
             if (contains(key)) {
                 const std::string_view value = (*this)[key]->second;
@@ -56,7 +57,7 @@ namespace {
         }
 
         bool FindExact(const std::string_view key, std::string* out) const override {
-            if (TDescriptor* const* res = FindPtr(key)) {
+            if (TDescriptor* const* res = MapFindPtr(*this, key)) {
                 // temporary
                 // https://st.yandex-team.ru/DEVTOOLS-3985
                 try {

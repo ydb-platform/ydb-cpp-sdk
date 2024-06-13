@@ -7,9 +7,11 @@
 #include <ydb-cpp-sdk/util/string/builder.h>
 
 #include <ydb-cpp-sdk/util/datetime/base.h>
-#include <src/util/generic/hash.h>
+#include <ydb-cpp-sdk/util/str_stl.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 #include <ydb-cpp-sdk/util/string/ascii.h>
+
+#include <src/util/generic/mapfindptr.h>
 
 #include <cmath>
 
@@ -24,7 +26,7 @@ namespace NMonitoring {
     namespace {
         constexpr ui32 MAX_LABEL_VALUE_LEN = 256;
 
-        using TLabelsMap = THashMap<std::string, std::string>;
+        using TLabelsMap = std::unordered_map<std::string, std::string>;
 
         std::string LabelsToStr(const TLabelsMap& labels) {
             TStringBuilder sb;
@@ -272,11 +274,11 @@ namespace NMonitoring {
                 std::string_view baseName = name;
                 EPrometheusMetricType type = EPrometheusMetricType::UNTYPED;
 
-                if (auto* seenType = SeenTypes_.FindPtr(name)) {
+                if (auto* seenType = MapFindPtr(SeenTypes_, name)) {
                     type = *seenType;
                 } else {
                     baseName = NPrometheus::ToBaseName(name);
-                    if (auto* baseType = SeenTypes_.FindPtr(baseName)) {
+                    if (auto* baseType = MapFindPtr(SeenTypes_, baseName)) {
                         type = *baseType;
                     }
                 }
@@ -582,7 +584,7 @@ namespace NMonitoring {
             std::string_view Data_;
             IMetricConsumer* Consumer_;
             std::string_view MetricNameLabel_;
-            THashMap<std::string, EPrometheusMetricType> SeenTypes_;
+            std::unordered_map<std::string, EPrometheusMetricType, THash<std::string>, TEqualTo<std::string>> SeenTypes_;
             THistogramBuilder HistogramBuilder_;
 
             ui32 CurrentLine_ = 1;

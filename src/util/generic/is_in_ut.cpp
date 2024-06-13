@@ -1,11 +1,7 @@
-#include <src/library/testing/unittest/registar.h>
-
+#include <ydb-cpp-sdk/util/generic/is_in.h>
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
-#include "hash.h"
-#include "hash_multi_map.h"
-#include "is_in.h"
-#include "set.h"
-#include "string.h"
+
+#include <src/library/testing/unittest/registar.h>
 
 Y_UNIT_TEST_SUITE(TIsIn) {
     template <class TCont, class T>
@@ -39,8 +35,8 @@ Y_UNIT_TEST_SUITE(TIsIn) {
     }
 
     Y_UNIT_TEST(IsInTest) {
-        TestIsInWithCont<THashMap<std::string, std::string>>(std::make_pair("found", "1"));
-        TestIsInWithCont<THashMultiMap<std::string, std::string>>(std::make_pair("found", "1"));
+        TestIsInWithCont<std::unordered_map<std::string, std::string>>(std::make_pair("found", "1"));
+        TestIsInWithCont<std::unordered_multimap<std::string, std::string>>(std::make_pair("found", "1"));
 
         TestIsInWithCont<TSet<std::string>>("found");
         TestIsInWithCont<TMultiSet<std::string>>("found");
