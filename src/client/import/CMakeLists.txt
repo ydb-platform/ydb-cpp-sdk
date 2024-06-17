@@ -1,24 +1,26 @@
-add_library(cpp-client-ydb_import)
+add_library(client-ydb_import)
 
-target_link_libraries(cpp-client-ydb_import PUBLIC
+target_link_libraries(client-ydb_import PUBLIC
   yutil
-  tools-enum_parser-enum_serialization_runtime
+  enum_serialization_runtime
   api-grpc
   api-protos
   client-ydb_common_client-impl
-  cpp-client-ydb_driver
-  cpp-client-ydb_proto
+  client-ydb_driver
+  client-ydb_proto
   client-ydb_types-operation
 )
 
-target_sources(cpp-client-ydb_import PRIVATE
+target_sources(client-ydb_import PRIVATE
   import.cpp
 )
 
-generate_enum_serilization(cpp-client-ydb_import
+generate_enum_serilization(client-ydb_import
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/import/import.h
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/client/import/import.h
 )
 
-add_library(YDB-CPP-SDK::Import ALIAS cpp-client-ydb_import)
+_ydb_sdk_install_targets(TARGETS client-ydb_import)
+
+add_library(YDB-CPP-SDK::Import ALIAS client-ydb_import)

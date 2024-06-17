@@ -4,8 +4,8 @@ add_library(cpp-client-ydb_federated_topic)
 
 target_link_libraries(cpp-client-ydb_federated_topic PUBLIC
   yutil
-  tools-enum_parser-enum_serialization_runtime
-  cpp-client-ydb_topic
+  enum_serialization_runtime
+  client-ydb_topic
   client-ydb_federated_topic-impl
 )
 

@@ -1,10 +1,10 @@
 add_subdirectory(internal)
 
-add_library(cpp-digest-argonish)
+add_library(digest-argonish)
 
-target_link_libraries(cpp-digest-argonish PUBLIC
+target_link_libraries(digest-argonish PUBLIC
   yutil
-  cpp-threading-poor_man_openmp
+  threading-poor_man_openmp
   internal-proxies-avx2
   internal-proxies-ref
   internal-proxies-sse2
@@ -12,6 +12,8 @@ target_link_libraries(cpp-digest-argonish PUBLIC
   internal-proxies-ssse3
 )
 
-target_sources(cpp-digest-argonish PRIVATE
+target_sources(digest-argonish PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/digest/argonish/factory/factory.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS digest-argonish)

@@ -2,7 +2,7 @@ add_executable(rescompiler)
 
 target_link_libraries(rescompiler PUBLIC
   yutil
-  library-cpp-resource
+  library-resource
 )
 
 target_sources(rescompiler PRIVATE
@@ -13,7 +13,7 @@ vcs_info(rescompiler)
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(rescompiler PUBLIC
-    library-cpp-cpuid_check
+    library-cpuid_check
   )
 endif()
 

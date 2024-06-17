@@ -4,7 +4,7 @@ add_ydb_test(NAME library-coroutine-engine-stack-stack_allocator_ut
   INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}/src/library/coroutine/engine/stack
   LINK_LIBRARIES
-    cpp-coroutine-engine
+    library-coroutine-engine
     cpp-testing-gtest_main
 )
 
@@ -14,7 +14,7 @@ add_ydb_test(NAME library-coroutine-engine-stack-stack_guards_ut
   INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}/src/library/coroutine/engine/stack
   LINK_LIBRARIES
-    cpp-coroutine-engine
+    library-coroutine-engine
     cpp-testing-gtest_main
 )
 
@@ -24,7 +24,7 @@ add_ydb_test(NAME library-coroutine-engine-stack-stack_pool_ut
   INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}/src/library/coroutine/engine/stack
   LINK_LIBRARIES
-    cpp-coroutine-engine
+    library-coroutine-engine
     cpp-testing-gtest_main
 )
 
@@ -34,7 +34,7 @@ add_ydb_test(NAME library-coroutine-engine-stack-stack_ut
   INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}/src/library/coroutine/engine/stack
   LINK_LIBRARIES
-    cpp-coroutine-engine
+    library-coroutine-engine
     cpp-testing-gtest_main
 )
 
@@ -44,6 +44,6 @@ add_ydb_test(NAME library-coroutine-engine-stack-stack_utils_ut
   INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}/src/library/coroutine/engine/stack
   LINK_LIBRARIES
-    cpp-coroutine-engine
+    library-coroutine-engine
     cpp-testing-gtest_main
 )

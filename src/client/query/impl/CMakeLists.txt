@@ -5,7 +5,7 @@ target_link_libraries(client-ydb_query-impl PUBLIC
   api-grpc-draft
   api-protos
   client-ydb_common_client-impl
-  cpp-client-ydb_proto
+  client-ydb_proto
 )
 
 target_sources(client-ydb_query-impl PRIVATE
@@ -13,4 +13,4 @@ target_sources(client-ydb_query-impl PRIVATE
   client_session.cpp
 )
 
-
+_ydb_sdk_install_targets(TARGETS client-ydb_query-impl)

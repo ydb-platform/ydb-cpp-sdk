@@ -1,8 +1,10 @@
-add_library(cpp-yt-small_containers INTERFACE)
+add_library(library-yt-small_containers INTERFACE)
 
-target_link_libraries(cpp-yt-small_containers INTERFACE
+target_link_libraries(library-yt-small_containers INTERFACE
   yutil
-  cpp-yt-assert
-  cpp-yt-malloc
-  cpp-yt-misc
+  library-yt-assert
+  library-yt-malloc
+  library-yt-misc
 )
+
+_ydb_sdk_install_targets(TARGETS library-yt-small_containers)

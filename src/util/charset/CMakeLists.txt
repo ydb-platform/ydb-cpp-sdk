@@ -31,3 +31,5 @@ elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR CMAKE_SYSTEM_PROCESSOR STRE
     -DSSE41_STUB
   )
 endif()
+
+_ydb_sdk_install_targets(TARGETS util-charset)

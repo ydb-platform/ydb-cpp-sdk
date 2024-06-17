@@ -26,7 +26,7 @@ add_ydb_test(NAME client-ydb_driver-ut
   LINK_LIBRARIES
   yutil
   cpp-testing-unittest_main
-  YDB-CPP-SDK::Driver
+  YDB-CPP-SDK::Core
   YDB-CPP-SDK::Table
 )
 

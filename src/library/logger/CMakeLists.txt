@@ -1,11 +1,11 @@
-add_library(library-cpp-logger)
-target_link_libraries(library-cpp-logger PUBLIC
+add_library(library-logger)
+target_link_libraries(library-logger PUBLIC
   yutil
-  tools-enum_parser-enum_serialization_runtime
-  library-cpp-json
-  cpp-deprecated-atomic
+  enum_serialization_runtime
+  library-json
+  deprecated-atomic
 )
-target_sources(library-cpp-logger PRIVATE
+target_sources(library-logger PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/backend.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/backend_creator.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/composite.cpp
@@ -22,20 +22,20 @@ target_sources(library-cpp-logger PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/thread.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/thread_creator.cpp
 )
-generate_enum_serilization(library-cpp-logger
+generate_enum_serilization(library-logger
   ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/library/logger/priority.h
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/library/logger/priority.h
 )
 
-add_global_library_for(library-cpp-logger.global library-cpp-logger)
-target_link_libraries(library-cpp-logger.global PUBLIC
+add_global_library_for(library-logger.global library-logger)
+target_link_libraries(library-logger.global PUBLIC
   yutil
-  tools-enum_parser-enum_serialization_runtime
-  library-cpp-json
-  cpp-deprecated-atomic
+  enum_serialization_runtime
+  library-json
+  deprecated-atomic
 )
-target_sources(library-cpp-logger.global PRIVATE
+target_sources(library-logger.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/composite_creator.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/file_creator.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/null_creator.cpp
@@ -45,3 +45,6 @@ target_sources(library-cpp-logger.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/system_creator.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/logger/uninitialized_creator.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS library-logger)
+_ydb_sdk_install_targets(TARGETS library-logger.global.wholearchive)

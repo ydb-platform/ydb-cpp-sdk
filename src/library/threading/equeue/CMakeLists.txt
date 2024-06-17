@@ -1,10 +1,12 @@
-add_library(cpp-threading-equeue)
+add_library(threading-equeue)
 
-target_link_libraries(cpp-threading-equeue PUBLIC
+target_link_libraries(threading-equeue PUBLIC
   yutil
-  cpp-deprecated-atomic
+  deprecated-atomic
 )
 
-target_sources(cpp-threading-equeue PRIVATE
+target_sources(threading-equeue PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/threading/equeue/equeue.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS threading-equeue)

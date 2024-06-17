@@ -1,12 +1,12 @@
-add_library(cpp-blockcodecs-core)
+add_library(blockcodecs-core)
 
-target_link_libraries(cpp-blockcodecs-core PUBLIC
+target_link_libraries(blockcodecs-core PUBLIC
   yutil
 )
 
-target_sources(cpp-blockcodecs-core PRIVATE
+target_sources(blockcodecs-core PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/core/codecs.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/core/stream.cpp
 )
 
-
+_ydb_sdk_install_targets(TARGETS blockcodecs-core)

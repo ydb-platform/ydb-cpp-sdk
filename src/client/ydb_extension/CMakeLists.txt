@@ -1,13 +1,15 @@
-add_library(cpp-client-ydb_extension)
+add_library(client-ydb_extension)
 
-target_link_libraries(cpp-client-ydb_extension PUBLIC
+target_link_libraries(client-ydb_extension PUBLIC
   yutil
-  cpp-monlib-metrics
-  cpp-client-ydb_driver
+  monlib-metrics
+  client-ydb_driver
 )
 
-target_sources(cpp-client-ydb_extension PRIVATE
+target_sources(client-ydb_extension PRIVATE
   extension.cpp
 )
 
-add_library(YDB-CPP-SDK::Extension ALIAS cpp-client-ydb_extension)
+_ydb_sdk_install_targets(TARGETS client-ydb_extension)
+
+add_library(YDB-CPP-SDK::Extension ALIAS client-ydb_extension)

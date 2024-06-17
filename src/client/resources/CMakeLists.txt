@@ -1,22 +1,22 @@
-add_library(cpp-client-resources)
-target_link_libraries(cpp-client-resources PUBLIC
+add_library(client-resources)
+target_link_libraries(client-resources PUBLIC
   yutil
-  library-cpp-resource
+  library-resource
 )
-target_sources(cpp-client-resources PRIVATE
+target_sources(client-resources PRIVATE
   ydb_resources.cpp
   ydb_ca.cpp
 )
 
-add_global_library_for(cpp-client-resources.global cpp-client-resources)
-target_link_libraries(cpp-client-resources.global PUBLIC
+add_global_library_for(client-resources.global client-resources)
+target_link_libraries(client-resources.global PUBLIC
   yutil
-  library-cpp-resource
+  library-resource
 )
-target_sources(cpp-client-resources.global PRIVATE
+target_sources(client-resources.global PRIVATE
   ${YDB_SDK_BINARY_DIR}/src/client/resources/6ed212bf45019efe2a5e72b6d5ed50fb.cpp
 )
-resources(cpp-client-resources.global
+resources(client-resources.global
   ${YDB_SDK_BINARY_DIR}/src/client/resources/6ed212bf45019efe2a5e72b6d5ed50fb.cpp
   INPUTS
   ${YDB_SDK_SOURCE_DIR}/src/client/resources/ydb_sdk_version.txt
@@ -26,4 +26,7 @@ resources(cpp-client-resources.global
   ydb_root_ca.pem
 )
 
-add_library(YDB-CPP-SDK::Resources ALIAS cpp-client-resources)
+add_library(YDB-CPP-SDK::Resources ALIAS client-resources)
+
+_ydb_sdk_install_targets(TARGETS client-resources)
+_ydb_sdk_install_targets(TARGETS client-resources.global.wholearchive)

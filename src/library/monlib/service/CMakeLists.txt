@@ -1,23 +1,23 @@
 add_subdirectory(pages)
 
-add_library(cpp-monlib-service)
+add_library(monlib-service)
 
-target_link_libraries(cpp-monlib-service PUBLIC
+target_link_libraries(monlib-service PUBLIC
   yutil
-  cpp-string_utils-base64
+  string_utils-base64
   protobuf::libprotobuf
-  cpp-coroutine-engine
-  cpp-coroutine-listener
-  cpp-http-fetch
-  cpp-http-server
-  cpp-http-io
-  library-cpp-logger
-  library-cpp-svnversion
-  library-cpp-uri
-  library-cpp-cgiparam
+  library-coroutine-engine
+  library-coroutine-listener
+  library-http-fetch
+  library-http-server
+  library-http-io
+  library-logger
+  library-svnversion
+  library-uri
+  library-cgiparam
 )
 
-target_sources(cpp-monlib-service PRIVATE
+target_sources(monlib-service PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/monservice.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/mon_service_http_request.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/service.cpp
@@ -25,5 +25,4 @@ target_sources(cpp-monlib-service PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/auth.cpp
 )
 
-
-
+_ydb_sdk_install_targets(TARGETS monlib-service)

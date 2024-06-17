@@ -1,13 +1,8 @@
-add_library(cpp-yt-coding INTERFACE)
+add_library(library-yt-coding INTERFACE)
 
-target_link_libraries(cpp-yt-coding INTERFACE
-  
+target_link_libraries(library-yt-coding INTERFACE
   yutil
-  cpp-yt-exception
+  library-yt-exception
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  target_link_libraries(cpp-yt-coding INTERFACE
-    
-  )
-endif()
+_ydb_sdk_install_targets(TARGETS library-yt-coding)

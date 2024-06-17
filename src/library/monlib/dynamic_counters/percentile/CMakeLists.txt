@@ -2,12 +2,8 @@ add_library(monlib-dynamic_counters-percentile INTERFACE)
 
 target_link_libraries(monlib-dynamic_counters-percentile INTERFACE
   yutil
-  cpp-containers-stack_vector
-  cpp-monlib-dynamic_counters
+  containers-stack_vector
+  monlib-dynamic_counters
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  target_link_libraries(monlib-dynamic_counters-percentile INTERFACE
-    
-  )
-endif()
+_ydb_sdk_install_targets(TARGETS monlib-dynamic_counters-percentile)

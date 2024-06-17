@@ -2,7 +2,7 @@ add_executable(enum_parser)
 
 target_link_libraries(enum_parser PUBLIC
   yutil
-  cpp-getopt-small
+  library-getopt-small
   tools-enum_parser-parse_enum
 )
 
@@ -14,7 +14,7 @@ vcs_info(enum_parser)
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(enum_parser PUBLIC
-    library-cpp-cpuid_check
+    library-cpuid_check
   )
 endif()
 

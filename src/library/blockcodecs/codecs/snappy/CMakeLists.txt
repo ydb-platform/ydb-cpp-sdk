@@ -3,7 +3,7 @@ add_library(blockcodecs-codecs-snappy INTERFACE)
 target_link_libraries(blockcodecs-codecs-snappy INTERFACE
   yutil
   Snappy::snappy
-  cpp-blockcodecs-core
+  blockcodecs-core
 )
 
 add_global_library_for(blockcodecs-codecs-snappy.global blockcodecs-codecs-snappy)
@@ -11,18 +11,12 @@ add_global_library_for(blockcodecs-codecs-snappy.global blockcodecs-codecs-snapp
 target_link_libraries(blockcodecs-codecs-snappy.global PUBLIC
   yutil
   Snappy::snappy
-  cpp-blockcodecs-core
+  blockcodecs-core
 )
 
 target_sources(blockcodecs-codecs-snappy.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/snappy/snappy.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  target_link_libraries(blockcodecs-codecs-snappy INTERFACE
-    
-  )
-  target_link_libraries(blockcodecs-codecs-snappy.global PUBLIC
-    
-  )
-endif()
+_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-snappy.global.wholearchive)
+_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-snappy)

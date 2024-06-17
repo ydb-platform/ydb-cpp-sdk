@@ -14,3 +14,5 @@ target_link_libraries(client-ydb_types-credentials PUBLIC
 target_sources(client-ydb_types-credentials PRIVATE
   credentials.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS client-ydb_types-credentials)

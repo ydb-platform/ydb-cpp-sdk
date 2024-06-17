@@ -1,29 +1,23 @@
 add_subdirectory(small)
 
-add_library(library-cpp-getopt INTERFACE)
-target_link_libraries(library-cpp-getopt INTERFACE
+add_library(library-getopt INTERFACE)
+target_link_libraries(library-getopt INTERFACE
   yutil
-  cpp-getopt-small
-  library-cpp-svnversion
-  library-cpp-build_info
+  library-getopt-small
+  library-svnversion
+  library-build_info
 )
 
-add_global_library_for(library-cpp-getopt.global library-cpp-getopt)
-target_link_libraries(library-cpp-getopt.global PUBLIC
+add_global_library_for(library-getopt.global library-getopt)
+target_link_libraries(library-getopt.global PUBLIC
   yutil
-  cpp-getopt-small
-  library-cpp-svnversion
-  library-cpp-build_info
+  library-getopt-small
+  library-svnversion
+  library-build_info
 )
-target_sources(library-cpp-getopt.global PRIVATE
+target_sources(library-getopt.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/getopt/print.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  target_link_libraries(library-cpp-getopt INTERFACE
-    
-  )
-  target_link_libraries(library-cpp-getopt.global PUBLIC
-    
-  )
-endif()
+_ydb_sdk_install_targets(TARGETS library-getopt)
+_ydb_sdk_install_targets(TARGETS library-getopt.global.wholearchive)

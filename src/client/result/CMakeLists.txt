@@ -1,17 +1,19 @@
-add_library(cpp-client-ydb_result)
+add_library(client-ydb_result)
 
-target_link_libraries(cpp-client-ydb_result PUBLIC
+target_link_libraries(client-ydb_result PUBLIC
   yutil
   api-protos
   client-ydb_types-fatal_error_handlers
-  cpp-client-ydb_value
-  cpp-client-ydb_proto
+  client-ydb_value
+  client-ydb_proto
 )
 
-target_sources(cpp-client-ydb_result PRIVATE
+target_sources(client-ydb_result PRIVATE
   proto_accessor.cpp
   result.cpp
   out.cpp
 )
 
-add_library(YDB-CPP-SDK::Result ALIAS cpp-client-ydb_result)
+_ydb_sdk_install_targets(TARGETS client-ydb_result)
+
+add_library(YDB-CPP-SDK::Result ALIAS client-ydb_result)

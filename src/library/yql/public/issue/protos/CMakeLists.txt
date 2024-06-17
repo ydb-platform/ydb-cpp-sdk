@@ -1,23 +1,9 @@
-add_library(public-issue-protos)
-
-target_link_libraries(public-issue-protos PUBLIC
-  yutil
-  protobuf::libprotobuf
+file(GLOB_RECURSE YQL_PUBLIC_ISSUE_PROTOS
+  ./*.proto
 )
 
-target_proto_messages(public-issue-protos PRIVATE
-  ${YDB_SDK_SOURCE_DIR}/src/library/yql/public/issue/protos/issue_message.proto
-  ${YDB_SDK_SOURCE_DIR}/src/library/yql/public/issue/protos/issue_severity.proto
+_ydb_sdk_add_proto_library(yql-public-issue-protos
+  SOURCES ${YQL_PUBLIC_ISSUE_PROTOS}
 )
 
-target_proto_addincls(public-issue-protos
-  ./
-  ${YDB_SDK_SOURCE_DIR}
-  ${YDB_SDK_BINARY_DIR}
-)
-
-target_proto_outs(public-issue-protos
-  --cpp_out=${YDB_SDK_BINARY_DIR}/
-)
-
-
+_ydb_sdk_install_targets(TARGETS yql-public-issue-protos)
