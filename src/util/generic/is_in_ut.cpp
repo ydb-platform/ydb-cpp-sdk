@@ -38,8 +38,8 @@ Y_UNIT_TEST_SUITE(TIsIn) {
         TestIsInWithCont<std::unordered_map<std::string, std::string>>(std::make_pair("found", "1"));
         TestIsInWithCont<std::unordered_multimap<std::string, std::string>>(std::make_pair("found", "1"));
 
-        TestIsInWithCont<TSet<std::string>>("found");
-        TestIsInWithCont<TMultiSet<std::string>>("found");
+        TestIsInWithCont<std::set<std::string>>("found");
+        TestIsInWithCont<std::multiset<std::string>>("found");
         TestIsInWithCont<std::unordered_set<std::string>>("found");
         TestIsInWithCont<std::unordered_multiset<std::string>>("found");
 

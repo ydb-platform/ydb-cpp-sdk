@@ -599,10 +599,6 @@ class TSerializer<std::unordered_multimap<T1, T2, T3, T4, T5>>: public TMapSeria
 };
 
 template <class K, class C, class A>
-class TSerializer<TSet<K, C, A>>: public TSetSerializer<TSet<K, C, A>, true> {
-};
-
-template <class K, class C, class A>
 class TSerializer<std::set<K, C, A>>: public TSetSerializer<std::set<K, C, A>, true> {
 };
 

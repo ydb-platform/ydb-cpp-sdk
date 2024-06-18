@@ -2,7 +2,7 @@
 
 #include <src/library/testing/unittest/registar.h>
 
-#include <src/util/generic/set.h>
+#include <set>
 
 namespace NThreading {
     ////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +136,7 @@ UNIT_ASSERT(!queue.Dequeue(result));
 }
 
 Y_UNIT_TEST(ShouldReturnEntries) {
-    TSet<int> items = {1, 2, 3};
+    std::set<int> items = {1, 2, 3};
 
     TRelaxedManyOneQueue<int> queue;
     for (int item : items) {
@@ -173,7 +173,7 @@ UNIT_ASSERT(!queue.Dequeue(result));
 }
 
 Y_UNIT_TEST(ShouldReturnEntries) {
-    TSet<int> items = {1, 2, 3};
+    std::set<int> items = {1, 2, 3};
 
     TRelaxedManyManyQueue<int> queue;
     for (int item : items) {

@@ -1,10 +1,11 @@
 #include "split.h"
 
-#include <src/library/testing/unittest/registar.h>
-
 #include <ydb-cpp-sdk/util/stream/output.h>
+
 #include <src/util/charset/wide.h>
 #include <src/util/datetime/cputimer.h>
+
+#include <src/library/testing/unittest/registar.h>
 
 #include <iostream>
 #include <string>
@@ -528,8 +529,8 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
     }
 
     Y_UNIT_TEST(TestStringSplitterCollectInsert) {
-        TSet<std::string> expected = {"1", "2", "3"};
-        TSet<std::string> actual;
+        std::set<std::string> expected = {"1", "2", "3"};
+        std::set<std::string> actual;
         StringSplitter("1 2 3 1 2 3").Split(' ').Collect(&actual);
         UNIT_ASSERT_VALUES_EQUAL(expected, actual);
     }
@@ -629,12 +630,12 @@ Y_UNIT_TEST_SUITE(StringSplitter) {
         std::vector<std::string> actual0 = StringSplitter("1 2 3 4").Split(' ');
         UNIT_ASSERT_VALUES_EQUAL(expected0, actual0);
 
-        TSet<std::string> expected1 = {"11", "22", "33", "44"};
-        TSet<std::string> actual1 = StringSplitter("11 22 33 44").Split(' ');
+        std::set<std::string> expected1 = {"11", "22", "33", "44"};
+        std::set<std::string> actual1 = StringSplitter("11 22 33 44").Split(' ');
         UNIT_ASSERT_VALUES_EQUAL(expected1, actual1);
 
-        TSet<std::string> expected2 = {"11", "aa"};
-        auto actual2 = static_cast<TSet<std::string>>(StringSplitter("11 aa 11 11 aa").Split(' '));
+        std::set<std::string> expected2 = {"11", "aa"};
+        auto actual2 = static_cast<std::set<std::string>>(StringSplitter("11 aa 11 11 aa").Split(' '));
         UNIT_ASSERT_VALUES_EQUAL(expected2, actual2);
 
         std::vector<std::string> expected3 = {"dd", "bb"};

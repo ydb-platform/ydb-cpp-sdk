@@ -1,9 +1,12 @@
 #pragma once
 
+#include <ydb-cpp-sdk/util/str_stl.h>
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <src/util/generic/intrlist.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+
+#include <src/util/generic/intrlist.h>
+
 #include <utility>
 #include <unordered_set>
 
@@ -346,8 +349,8 @@ public:
             }
         };
 
-        struct TEqualTo {    
-            using is_transparent = void;       
+        struct TEqualTo {
+            using is_transparent = void;
             bool operator()(const TItem& lhs, const TItem& rhs) const {
                 return lhs.Key == rhs.Key;
             }

@@ -482,7 +482,7 @@ void Split(std::string_view s, D delim, P1& p1, P2& p2, Other&... other) {
  * Use `ParseInto` to also perform string conversions before inserting values
  * into target container:
  * \code
- * TSet<int> values;
+ * std::set<int> values;
  * StringSplitter("1\t2\t3").Split('\t').ParseInto(&values);
  * \endcode
  */

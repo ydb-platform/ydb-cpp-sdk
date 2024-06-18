@@ -1,14 +1,8 @@
 #pragma once
 
-#include <src/library/dbg_output/dump.h>
-
 #include <ydb-cpp-sdk/util/generic/bt_exception.h>
-#include <src/util/generic/intrlist.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <src/util/generic/scope.h>
-#include <src/util/generic/set.h>
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
-
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <ydb-cpp-sdk/util/string/builder.h>
@@ -19,7 +13,12 @@
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 #include <ydb-cpp-sdk/util/system/src_location.h>
 
+#include <src/util/generic/intrlist.h>
+#include <src/util/generic/scope.h>
+
 #include <src/util/system/rusage.h>
+
+#include <src/library/dbg_output/dump.h>
 
 #include <cmath>
 #include <span>
@@ -266,7 +265,7 @@ namespace NUnitTest {
     };
 
 #define UNIT_TEST_SUITE(N)                               \
-    typedef N TThisUnitTestSuite;                        \
+    using TThisUnitTestSuite = N;                        \
                                                          \
 public:                                                  \
     static std::string StaticName() noexcept {           \
@@ -282,7 +281,7 @@ private:                                                 \
         this->AtStart();
 
 #define UNIT_TEST_SUITE_DEMANGLE(N)                        \
-    typedef N TThisUnitTestSuite;                          \
+    using TThisUnitTestSuite = N;                          \
                                                            \
 public:                                                    \
     static std::string StaticName() noexcept {             \
@@ -1022,8 +1021,8 @@ public:                       \
         };                                                                                         \
         class TCurrentTest: public T {                                                             \
         private:                                                                                   \
-            typedef std::function<THolder<NUnitTest::TBaseTestCase>()> TTestCaseFactory;           \
-            typedef std::vector<TTestCaseFactory> TTests;                                          \
+            using TTestCaseFactory = std::function<THolder<NUnitTest::TBaseTestCase>()>;           \
+            using TTests = std::vector<TTestCaseFactory>;                                          \
                                                                                                    \
             static TTests& Tests() {                                                               \
                 static TTests tests;                                                               \

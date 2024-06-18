@@ -2,6 +2,8 @@
 
 #include <ydb-cpp-sdk/util/generic/algorithm.h>
 
+#include <set>
+
 static auto isOne = [](char c) { return c == '1'; };
 
 Y_UNIT_TEST_SUITE(TAlgorithm) {
@@ -289,13 +291,13 @@ Y_UNIT_TEST_SUITE(TAlgorithm) {
         EraseNodesIf(multiMap, [](auto p) { return p.first >= 2; });
         UNIT_ASSERT_EQUAL(multiMap, expectedMultiMap);
 
-        TSet<int> set{1, 2, 3, 4, 5, 6, 7};
-        TSet<int> expectedSet{1, 3, 5, 7};
+        std::set<int> set{1, 2, 3, 4, 5, 6, 7};
+        std::set<int> expectedSet{1, 3, 5, 7};
         EraseNodesIf(set, [](int i) { return i % 2 == 0; });
         UNIT_ASSERT_EQUAL(set, expectedSet);
 
-        TMultiSet<int> multiSet{1, 1, 2, 3, 4, 4, 4, 5, 5, 5, 6, 7};
-        TMultiSet<int> expectedMultiSet{1, 1, 3, 5, 5, 5, 7};
+        std::multiset<int> multiSet{1, 1, 2, 3, 4, 4, 4, 5, 5, 5, 6, 7};
+        std::multiset<int> expectedMultiSet{1, 1, 3, 5, 5, 5, 7};
         EraseNodesIf(multiSet, [](int i) { return i % 2 == 0; });
         UNIT_ASSERT_EQUAL(multiSet, expectedMultiSet);
 
