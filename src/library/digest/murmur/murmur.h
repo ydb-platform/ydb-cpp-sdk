@@ -37,12 +37,12 @@ private:
     using TValue = typename TTraits::TValue;
 
 public:
-    inline TMurmurHash2A(TValue seed = 0)
+    TMurmurHash2A(TValue seed = 0)
         : Hash(seed)
     {
     }
 
-    inline TMurmurHash2A& Update(const void* buf, size_t len) noexcept {
+    TMurmurHash2A& Update(const void* buf, size_t len) noexcept {
         Size += len;
 
         MixTail(buf, len);
@@ -58,8 +58,8 @@ public:
         return *this;
     }
 
-    inline TValue Value() const noexcept {
-        TValue hash = Mix(Mix(Hash, Tail), (TValue)Size);
+    TValue Value() const noexcept {
+        TValue hash = Mix(Mix(Hash, Tail), static_cast<TValue>(Size));
 
         hash ^= hash >> TTraits::R2;
         hash *= TTraits::Multiplier;
@@ -69,7 +69,7 @@ public:
     }
 
 private:
-    static inline TValue Mix(TValue h, TValue k) noexcept {
+    static TValue Mix(TValue h, TValue k) noexcept {
         k *= TTraits::Multiplier;
         k ^= k >> TTraits::R1;
         k *= TTraits::Multiplier;
@@ -78,9 +78,9 @@ private:
         return h;
     }
 
-    inline void MixTail(const void*& buf, size_t& len) noexcept {
+    void MixTail(const void*& buf, size_t& len) noexcept {
         while (len && (len < sizeof(TValue) || Count)) {
-            Tail |= (TValue) * ((const unsigned char*&)buf)++ << (Count++ * 8);
+            Tail |= (TValue) * (reinterpret_cast<const unsigned char*&>(buf))++ << (Count++ * 8);
 
             --len;
 
