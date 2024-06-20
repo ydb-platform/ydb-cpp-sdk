@@ -1,4 +1,5 @@
 add_subdirectory(cache)
+add_subdirectory(case_insensitive_string)
 add_subdirectory(coroutine)
 add_subdirectory(login)
 add_subdirectory(operation_id)
