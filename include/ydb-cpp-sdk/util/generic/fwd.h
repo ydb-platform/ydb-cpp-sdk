@@ -37,12 +37,6 @@ template <class TValue, class TCmp>
 class TRbTree;
 
 //containers
-template <class K, class L = TLess<K>, class A = std::allocator<K>>
-class TSet;
-
-template <class K, class L = TLess<K>, class A = std::allocator<K>>
-class TMultiSet;
-
 template <class T, class S = std::deque<T>>
 class TStack;
 

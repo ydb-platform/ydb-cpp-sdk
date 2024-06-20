@@ -2,11 +2,11 @@
 
 #include <ydb-cpp-sdk/util/system/guard.h>
 #include <ydb-cpp-sdk/util/system/rwlock.h>
-#include <src/util/generic/set.h>
 #include <ydb-cpp-sdk/util/generic/singleton.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 
 #include <algorithm>
+#include <set>
 #include <map>
 
 namespace NObjectFactory {
@@ -51,8 +51,8 @@ namespace NObjectFactory {
     template <class P, class K, class... TArgs>
     class IObjectFactory {
     public:
-        typedef P TProduct;
-        typedef K TKey;
+        using TProduct = P;
+        using TKey = K;
 
     public:
         template <class TDerivedProduct>
@@ -70,7 +70,7 @@ namespace NObjectFactory {
             Register<TDerivedProduct>(key, new TFactoryObjectCreator<TProduct, TDerivedProduct, TArgs...>);
         }
 
-        void GetKeys(TSet<TKey>& keys) const {
+        void GetKeys(std::set<TKey>& keys) const {
             TReadGuard guard(CreatorsLock);
             keys.clear();
             for (typename ICreators::const_iterator i = Creators.begin(), e = Creators.end(); i != e; ++i) {
@@ -93,8 +93,8 @@ namespace NObjectFactory {
         }
 
     private:
-        typedef TSimpleSharedPtr<IFactoryObjectCreator<TProduct, TArgs...>> ICreatorPtr;
-        typedef std::map<TKey, ICreatorPtr> ICreators;
+        using ICreatorPtr = TSimpleSharedPtr<IFactoryObjectCreator<TProduct, TArgs...>>;
+        using ICreators = std::map<TKey, ICreatorPtr>;
         ICreators Creators;
         TRWMutex CreatorsLock;
     };
@@ -139,20 +139,20 @@ namespace NObjectFactory {
             return THolder<TProduct>(Construct(std::forward<Args>(args)...));
         }
 
-        static void GetRegisteredKeys(TSet<TKey>& keys) {
+        static void GetRegisteredKeys(std::set<TKey>& keys) {
             return Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->GetKeys(keys);
         }
 
-        static TSet<TKey> GetRegisteredKeys() {
-            TSet<TKey> keys;
+        static std::set<TKey> GetRegisteredKeys() {
+            std::set<TKey> keys;
             Singleton<TParametrizedObjectFactory<TProduct, TKey, TArgs...>>()->GetKeys(keys);
             return keys;
         }
 
         template <class TDerivedProduct>
-        static TSet<TKey> GetRegisteredKeys() {
-            TSet<TKey> registeredKeys(GetRegisteredKeys());
-            TSet<TKey> fileredKeys;
+        static std::set<TKey> GetRegisteredKeys() {
+            std::set<TKey> registeredKeys(GetRegisteredKeys());
+            std::set<TKey> fileredKeys;
             std::copy_if(registeredKeys.begin(), registeredKeys.end(), std::inserter(fileredKeys, fileredKeys.end()), [](const TKey& key) {
                 THolder<TProduct> objectHolder(Construct(key));
                 return !!dynamic_cast<const TDerivedProduct*>(objectHolder.Get());

@@ -6,6 +6,7 @@
 
 #include <list>
 #include <map>
+#include <set>
 #include <span>
 #include <string>
 #include <string_view>
@@ -126,11 +127,11 @@ struct TDumper<std::multimap<K, V, P, A>>: public TAssocDumper {
 };
 
 template <class T, class P, class A>
-struct TDumper<TSet<T, P, A>>: public TAssocDumper {
+struct TDumper<std::set<T, P, A>>: public TAssocDumper {
 };
 
 template <class T, class P, class A>
-struct TDumper<TMultiSet<T, P, A>>: public TAssocDumper {
+struct TDumper<std::multiset<T, P, A>>: public TAssocDumper {
 };
 
 template <class K, class V, class H, class P, class A>

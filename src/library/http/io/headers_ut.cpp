@@ -1,10 +1,11 @@
-#include <src/util/generic/set.h>
+#include <ydb-cpp-sdk/library/http/io/headers.h>
+
+#include <src/library/testing/unittest/registar.h>
+
+#include <set>
 #include <string>
 #include <string_view>
 #include <utility>
-
-#include <src/library/http/io/headers.h>
-#include <src/library/testing/unittest/registar.h>
 
 namespace {
     class THeadersExistence {
@@ -29,7 +30,7 @@ namespace {
         }
 
     private:
-        typedef TMultiSet<std::pair<std::string, std::string>> TImpl;
+        using TImpl = std::multiset<std::pair<std::string, std::string>>;
         TImpl Impl;
     };
 }
@@ -53,8 +54,8 @@ class THttpHeadersTest: public TTestBase {
     UNIT_TEST_SUITE_END();
 
 private:
-    typedef void (*TAddHeaderFunction)(THttpHeaders&, std::string_view name, std::string_view value);
-    typedef void (*TAddOrReplaceHeaderFunction)(THttpHeaders&, std::string_view name, std::string_view value);
+    using TAddHeaderFunction = void (*)(THttpHeaders&, std::string_view name, std::string_view value);
+    using TAddOrReplaceHeaderFunction = void (*)(THttpHeaders&, std::string_view name, std::string_view value);
 
 public:
     void TestAddOperation1Arg();

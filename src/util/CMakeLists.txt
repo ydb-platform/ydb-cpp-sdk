@@ -75,7 +75,6 @@ target_joined_source(yutil
   ${YDB_SDK_SOURCE_DIR}/src/util/generic/ptr.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/generic/refcount.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/generic/scope.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/util/generic/set.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/generic/singleton.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/generic/size_literals.cpp
   ${YDB_SDK_SOURCE_DIR}/src/util/generic/stack.cpp
