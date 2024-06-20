@@ -1,8 +1,8 @@
-#include <ydb-cpp-sdk/library/json/json_value.h>
+#include "json_value.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include "registar.h"
 
-#include <ydb-cpp-sdk/util/stream/input.h>
+#include "input.h"
 
 using namespace NJson;
 

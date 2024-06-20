@@ -1,8 +1,8 @@
-#include <ydb-cpp-sdk/library/json/json_reader.h>
-#include <src/library/json/json_writer.h>
+#include "json_reader.h"
+#include "json_writer.h"
 
-#include <src/library/testing/unittest/registar.h>
-#include <ydb-cpp-sdk/util/stream/str.h>
+#include "registar.h"
+#include "str.h"
 
 #include <sstream>
 
