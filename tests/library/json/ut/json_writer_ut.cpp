@@ -1,7 +1,7 @@
-#include <src/library/json/json_writer.h>
-#include <src/library/testing/unittest/registar.h>
+#include "json_writer.h"
+#include "registar.h"
 
-#include <ydb-cpp-sdk/util/stream/str.h>
+#include "str.h"
 
 using namespace NJson;
 
@@ -11,7 +11,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
         std::string expected2 = expected1 + ",\"array\":[\"stroka\",false]";
         std::string expected3 = expected2 + "}";
 
-        std::stringStream out;
+        TStringStream out;
 
         TJsonWriter json(&out, false);
         json.OpenMap();
@@ -50,8 +50,8 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
         v["key2"]["subkey1"].AppendValue(JSON_NULL);
         v["key2"]["subkey1"].AppendValue(true);
         v["key2"]["subkey2"] = "test";
-        std::stringStream out;
-        WriteJson(&out, &v);
+        TStringStream out;
+        WriteJson(&out, &v, false, true);
         UNIT_ASSERT_VALUES_EQUAL(out.Str(), expected);
     }
 
@@ -64,8 +64,8 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
         v["key2"]["subkey1"].AppendValue(JSON_NULL);
         v["key2"]["subkey1"].AppendValue(true);
         v["key2"]["subkey2"] = "test";
-        std::stringStream out;
-        WriteJson(&out, &v, true);
+        TStringStream out;
+        WriteJson(&out, &v, true, true);
         UNIT_ASSERT_STRINGS_EQUAL(out.Str(), expected);
     }
 
@@ -77,7 +77,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
         v["a"] = JSON_NULL;
         v["y"] = JSON_NULL;
         v["j"] = JSON_NULL;
-        std::stringStream out;
+        TStringStream out;
         WriteJson(&out, &v, false, true);
         UNIT_ASSERT_STRINGS_EQUAL(out.Str(), expected);
     }
@@ -87,7 +87,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
             std::string expected = "{\"test\":1}";
             TJsonValue v;
             v.InsertValue("test", 1ull);
-            std::stringStream out;
+            TStringStream out;
             WriteJson(&out, &v);
             UNIT_ASSERT_VALUES_EQUAL(out.Str(), expected);
         } // 1
@@ -96,7 +96,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
             std::string expected = "{\"test\":-1}";
             TJsonValue v;
             v.InsertValue("test", -1);
-            std::stringStream out;
+            TStringStream out;
             WriteJson(&out, &v);
             UNIT_ASSERT_VALUES_EQUAL(out.Str(), expected);
         } // -1
@@ -105,7 +105,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
             std::string expected = "{\"test\":18446744073709551615}";
             TJsonValue v;
             v.InsertValue("test", 18446744073709551615ull);
-            std::stringStream out;
+            TStringStream out;
             WriteJson(&out, &v);
             UNIT_ASSERT_VALUES_EQUAL(out.Str(), expected);
         } // 18446744073709551615
@@ -116,7 +116,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
             v.InsertValue("test", TJsonValue());
             v["test"].AppendValue(1);
             v["test"].AppendValue(18446744073709551615ull);
-            std::stringStream out;
+            TStringStream out;
             WriteJson(&out, &v);
             UNIT_ASSERT_VALUES_EQUAL(out.Str(), expected);
         } // 18446744073709551615
@@ -126,11 +126,11 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
         {
             std::string expected = "{\"test\":1}";
 
-            std::stringStream out;
+            TStringStream out;
 
             TJsonWriter json(&out, false);
             json.OpenMap();
-            json.WriteOptional("test", MakeMaybe<int>(1));
+            json.WriteOptional("test", std::optional<int>(1));
             json.CloseMap();
             json.Flush();
             UNIT_ASSERT_VALUES_EQUAL(out.Str(), expected);
@@ -139,7 +139,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
         {
             std::string expected = "{}";
 
-            std::stringStream out;
+            TStringStream out;
 
             std::optional<int> nothing = std::nullopt;
 
@@ -154,7 +154,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
         {
             std::string expected = "{}";
 
-            std::stringStream out;
+            TStringStream out;
 
             std::optional<int> empty;
 
@@ -169,11 +169,11 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
         {
             std::string expected = "{}";
 
-            std::stringStream out;
+            TStringStream out;
 
             TJsonWriter json(&out, false);
             json.OpenMap();
-            json.WriteOptional("test", Nothing());
+            json.WriteOptional("test", std::nullopt);
             json.CloseMap();
             json.Flush();
             UNIT_ASSERT_VALUES_EQUAL(out.Str(), expected);
@@ -200,7 +200,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
         {
             std::string expected = "1517933989";
 
-            std::stringStream ss;
+            TStringStream ss;
             NJson::WriteJson(&ss, &json, config);
             std::string actual = ss.Str();
             UNIT_ASSERT_VALUES_EQUAL(actual, expected);
@@ -209,7 +209,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
             config.DoubleNDigits = 13;
             std::string expected = "1517933989.424";
 
-            std::stringStream ss;
+            TStringStream ss;
             NJson::WriteJson(&ss, &json, config);
             std::string actual = ss.Str();
             UNIT_ASSERT_VALUES_EQUAL(actual, expected);
@@ -219,7 +219,7 @@ Y_UNIT_TEST_SUITE(TJsonWriterTest) {
             config.FloatToStringMode = PREC_POINT_DIGITS;
             std::string expected = "1517933989.424200";
 
-            std::stringStream ss;
+            TStringStream ss;
             NJson::WriteJson(&ss, &json, config);
             std::string actual = ss.Str();
             UNIT_ASSERT_VALUES_EQUAL(actual, expected);

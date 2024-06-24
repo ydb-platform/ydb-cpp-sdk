@@ -1,9 +1,9 @@
-#include <ydb-cpp-sdk/library/json/json_reader.h>
-#include <src/library/json/json_prettifier.h>
-#include <src/library/testing/unittest/registar.h>
+#include "json_reader.h"
+#include "json_prettifier.h"
+#include "registar.h"
 
-#include <src/library/string_utils/relaxed_escaper/relaxed_escaper.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
+#include "relaxed_escaper.h"
+#include "cast.h"
 
 #include <iostream>
 
