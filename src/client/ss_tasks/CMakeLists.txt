@@ -21,6 +21,4 @@ generate_enum_serilization(client-ss_tasks
   src/client/ss_tasks/task.h
 )
 
-_ydb_sdk_install_targets(TARGETS client-ss_tasks)
-
-add_library(YDB-CPP-SDK::SSTasks ALIAS client-ss_tasks)
+_ydb_sdk_make_client_component(SSTasks client-ss_tasks)

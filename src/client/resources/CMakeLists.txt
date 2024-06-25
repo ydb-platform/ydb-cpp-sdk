@@ -26,7 +26,4 @@ resources(client-resources.global
   ydb_root_ca.pem
 )
 
-add_library(YDB-CPP-SDK::Resources ALIAS client-resources)
-
-_ydb_sdk_install_targets(TARGETS client-resources)
-_ydb_sdk_install_targets(TARGETS client-resources.global.wholearchive)
+_ydb_sdk_make_client_component(Resources client-resources client-resources.global)

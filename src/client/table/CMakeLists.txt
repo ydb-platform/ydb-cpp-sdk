@@ -34,6 +34,4 @@ generate_enum_serilization(client-ydb_table
   include/ydb-cpp-sdk/client/table/table_enum.h
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_table)
-
-add_library(YDB-CPP-SDK::Table ALIAS client-ydb_table)
+_ydb_sdk_make_client_component(Table client-ydb_table)

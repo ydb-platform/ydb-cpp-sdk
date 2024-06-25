@@ -10,6 +10,4 @@ target_sources(client-iam_private PRIVATE
   iam.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-iam_private)
-
-add_library(YDB-CPP-SDK::IamPrivate ALIAS client-iam_private)
+_ydb_sdk_make_client_component(IamPrivate client-iam_private)

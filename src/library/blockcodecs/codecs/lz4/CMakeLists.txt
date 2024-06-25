@@ -18,5 +18,5 @@ target_sources(blockcodecs-codecs-lz4.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/lz4/lz4.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-lz4.global.wholearchive)
+_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-lz4.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-lz4)

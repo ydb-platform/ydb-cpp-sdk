@@ -9,6 +9,4 @@ target_sources(client-extensions-discovery_mutator PRIVATE
   discovery_mutator.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-extensions-discovery_mutator)
-
-add_library(YDB-CPP-SDK::DiscoveryMutator ALIAS client-extensions-discovery_mutator)
+_ydb_sdk_make_client_component(DiscoveryMutator client-extensions-discovery_mutator)

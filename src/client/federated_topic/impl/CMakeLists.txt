@@ -23,3 +23,5 @@ target_sources(client-ydb_federated_topic-impl PRIVATE
   federated_topic.cpp
   federation_observer.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS client-ydb_federated_topic-impl)

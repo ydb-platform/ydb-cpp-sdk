@@ -14,6 +14,4 @@ target_sources(client-ydb_discovery PRIVATE
   discovery.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_discovery)
-
-add_library(YDB-CPP-SDK::Discovery ALIAS client-ydb_discovery)
+_ydb_sdk_make_client_component(Discovery client-ydb_discovery)

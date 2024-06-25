@@ -47,4 +47,4 @@ target_sources(library-logger.global PRIVATE
 )
 
 _ydb_sdk_install_targets(TARGETS library-logger)
-_ydb_sdk_install_targets(TARGETS library-logger.global.wholearchive)
+_ydb_sdk_install_targets(TARGETS library-logger.global)

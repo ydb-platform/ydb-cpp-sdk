@@ -18,5 +18,5 @@ target_sources(blockcodecs-codecs-fastlz.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/fastlz/fastlz.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-fastlz.global.wholearchive)
+_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-fastlz.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-fastlz)

@@ -14,6 +14,4 @@ target_sources(client-ydb_result PRIVATE
   out.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_result)
-
-add_library(YDB-CPP-SDK::Result ALIAS client-ydb_result)
+_ydb_sdk_make_client_component(Result client-ydb_result)

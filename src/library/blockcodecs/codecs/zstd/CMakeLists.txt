@@ -18,5 +18,5 @@ target_sources(blockcodecs-codecs-zstd.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/zstd/zstd.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-zstd.global.wholearchive)
+_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-zstd.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-zstd)

@@ -14,6 +14,4 @@ target_sources(client-extensions-solomon_stats PRIVATE
   pull_connector.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-extensions-solomon_stats)
-
-add_library(YDB-CPP-SDK::SolomonStats ALIAS client-extensions-solomon_stats)
+_ydb_sdk_make_client_component(SolomonStats client-extensions-solomon_stats)

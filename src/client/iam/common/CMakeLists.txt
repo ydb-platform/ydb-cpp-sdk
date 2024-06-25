@@ -14,6 +14,4 @@ target_sources(client-iam-common PRIVATE
   iam.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-iam-common)
-
-add_library(YDB-CPP-SDK::Iam ALIAS client-iam-common)
+_ydb_sdk_make_client_component(Iam client-iam-common)

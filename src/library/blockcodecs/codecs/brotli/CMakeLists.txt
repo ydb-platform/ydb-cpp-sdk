@@ -20,5 +20,5 @@ target_sources(blockcodecs-codecs-brotli.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/brotli/brotli.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-brotli.global.wholearchive)
+_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-brotli.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-brotli)

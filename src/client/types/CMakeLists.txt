@@ -26,6 +26,4 @@ generate_enum_serilization(client-ydb_types
   include/ydb-cpp-sdk/client/types/status_codes.h
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_types)
-
-add_library(YDB-CPP-SDK::Types ALIAS client-ydb_types)
+_ydb_sdk_make_client_component(Types client-ydb_types)

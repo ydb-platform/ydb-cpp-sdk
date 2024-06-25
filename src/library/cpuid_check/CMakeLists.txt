@@ -15,4 +15,4 @@ target_sources(library-cpuid_check.global PRIVATE
 )
 
 _ydb_sdk_install_targets(TARGETS library-cpuid_check)
-_ydb_sdk_install_targets(TARGETS library-cpuid_check.global.wholearchive)
+_ydb_sdk_install_targets(TARGETS library-cpuid_check.global)

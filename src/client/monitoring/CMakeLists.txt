@@ -19,6 +19,4 @@ generate_enum_serilization(client-ydb_monitoring
   include/ydb-cpp-sdk/client/monitoring/monitoring.h
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_monitoring)
-
-add_library(YDB-CPP-SDK::Monitoring ALIAS client-ydb_monitoring)
+_ydb_sdk_make_client_component(Monitoring client-ydb_monitoring)

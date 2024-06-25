@@ -11,6 +11,4 @@ target_sources(client-helpers PRIVATE
   helpers.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-helpers)
-
-add_library(YDB-CPP-SDK::Helpers ALIAS client-helpers)
+_ydb_sdk_make_client_component(Helpers client-helpers)

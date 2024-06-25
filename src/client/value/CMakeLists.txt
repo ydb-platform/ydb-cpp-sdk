@@ -23,6 +23,4 @@ generate_enum_serilization(client-ydb_value
   include/ydb-cpp-sdk/client/value/value.h
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_value)
-
-add_library(YDB-CPP-SDK::Value ALIAS client-ydb_value)
+_ydb_sdk_make_client_component(Value client-ydb_value)

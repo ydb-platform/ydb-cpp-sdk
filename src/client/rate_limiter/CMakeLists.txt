@@ -11,6 +11,4 @@ target_sources(client-ydb_rate_limiter PRIVATE
   rate_limiter.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_rate_limiter)
-
-add_library(YDB-CPP-SDK::RateLimiter ALIAS client-ydb_rate_limiter)
+_ydb_sdk_make_client_component(RateLimiter client-ydb_rate_limiter)

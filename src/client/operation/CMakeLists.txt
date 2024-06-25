@@ -17,6 +17,4 @@ target_sources(client-ydb_operation PRIVATE
   operation.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_operation)
-
-add_library(YDB-CPP-SDK::Operation ALIAS client-ydb_operation)
+_ydb_sdk_make_client_component(Operation client-ydb_operation)

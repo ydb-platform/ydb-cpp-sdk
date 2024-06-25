@@ -12,6 +12,4 @@ target_sources(client-ydb_params PRIVATE
   impl.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_params)
-
-add_library(YDB-CPP-SDK::Params ALIAS client-ydb_params)
+_ydb_sdk_make_client_component(Params client-ydb_params)

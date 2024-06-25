@@ -10,6 +10,4 @@ target_sources(client-ydb_extension PRIVATE
   extension.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_extension)
-
-add_library(YDB-CPP-SDK::Extension ALIAS client-ydb_extension)
+_ydb_sdk_make_client_component(Extension client-ydb_extension)

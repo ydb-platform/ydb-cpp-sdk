@@ -21,6 +21,4 @@ generate_enum_serilization(client-draft
   include/ydb-cpp-sdk/client/draft/ydb_replication.h
 )
 
-_ydb_sdk_install_targets(TARGETS client-draft)
-
-add_library(YDB-CPP-SDK::Draft ALIAS client-draft)
+_ydb_sdk_make_client_component(Draft client-draft)

@@ -18,5 +18,5 @@ target_sources(blockcodecs-codecs-lzma.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/lzma/lzma.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-lzma.global.wholearchive)
+_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-lzma.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-lzma)

@@ -60,6 +60,4 @@ generate_enum_serilization(client-ydb_topic
   include/ydb-cpp-sdk/client/topic/write_events.h
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_topic)
-
-add_library(YDB-CPP-SDK::Topic ALIAS client-ydb_topic)
+_ydb_sdk_make_client_component(Topic client-ydb_topic)

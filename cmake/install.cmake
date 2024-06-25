@@ -27,7 +27,7 @@ function(_ydb_sdk_install_targets)
 endfunction()
 
 function(_ydb_sdk_directory_install)
-  if (NOT YDB_SDK_INSTALL)
+  if (NOT ${YDB_SDK_INSTALL})
     return()
   endif()
   set(oneValueArgs DESTINATION)

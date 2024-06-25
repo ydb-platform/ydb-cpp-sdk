@@ -15,6 +15,4 @@ target_sources(client-ydb_proto PRIVATE
   accessor.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_proto)
-
-add_library(YDB-CPP-SDK::Proto ALIAS client-ydb_proto)
+_ydb_sdk_make_client_component(Proto client-ydb_proto)

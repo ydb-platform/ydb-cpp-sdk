@@ -21,6 +21,4 @@ generate_enum_serilization(client-ydb_import
   include/ydb-cpp-sdk/client/import/import.h
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_import)
-
-add_library(YDB-CPP-SDK::Import ALIAS client-ydb_import)
+_ydb_sdk_make_client_component(Import client-ydb_import)

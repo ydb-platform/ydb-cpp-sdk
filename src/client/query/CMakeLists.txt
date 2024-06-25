@@ -22,6 +22,4 @@ target_sources(client-ydb_query PRIVATE
   tx.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_query)
-
-add_library(YDB-CPP-SDK::Query ALIAS client-ydb_query)
+_ydb_sdk_make_client_component(Query client-ydb_query)

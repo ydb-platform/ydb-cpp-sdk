@@ -19,6 +19,4 @@ generate_enum_serilization(client-ydb_scheme
   include/ydb-cpp-sdk/client/scheme/scheme.h
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_scheme)
-
-add_library(YDB-CPP-SDK::Scheme ALIAS client-ydb_scheme)
+_ydb_sdk_make_client_component(Scheme client-ydb_scheme)

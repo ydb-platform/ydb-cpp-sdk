@@ -18,6 +18,3 @@ target_link_libraries(library-getopt.global PUBLIC
 target_sources(library-getopt.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/getopt/print.cpp
 )
-
-_ydb_sdk_install_targets(TARGETS library-getopt)
-_ydb_sdk_install_targets(TARGETS library-getopt.global.wholearchive)

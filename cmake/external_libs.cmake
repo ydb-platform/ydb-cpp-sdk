@@ -1,6 +1,3 @@
-set(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET "" CACHE STRING "Name of cmake target preparing google common proto library")
-option(YDB_SDK_USE_RAPID_JSON "" ON)
-
 find_package(IDN REQUIRED)
 find_package(Iconv REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -59,8 +56,7 @@ else()
   )
 
   target_include_directories(api-common-protos PUBLIC
-    $<BUILD_INTERFACE:${YDB_SDK_BINARY_DIR}/third_party/api-common-protos>  
-    $<INSTALL_INTERFACE:third_party/api-common-protos>
+    $<BUILD_INTERFACE:${YDB_SDK_BINARY_DIR}/third_party/api-common-protos>
   )
 
   _ydb_sdk_gen_proto_messages(api-common-protos PRIVATE ${API_COMMON_PROTOS_SOURCES})
@@ -75,7 +71,6 @@ add_library(FastLZ
 
 target_include_directories(FastLZ PUBLIC
   $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}/third_party/FastLZ>
-  $<INSTALL_INTERFACE:third_party/FastLZ>
 )
 
 _ydb_sdk_install_targets(TARGETS FastLZ)

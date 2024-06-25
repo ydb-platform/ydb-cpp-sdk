@@ -17,5 +17,5 @@ target_sources(blockcodecs-codecs-bzip.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/bzip/bzip.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-bzip.global.wholearchive)
+_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-bzip.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-bzip)
