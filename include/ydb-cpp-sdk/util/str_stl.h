@@ -234,6 +234,11 @@ struct TLess: public std::less<T> {
 };
 
 template <>
+struct TLess<std::string>: public TLess<std::string_view> {
+    using is_transparent = void;
+};
+
+template <>
 struct TLess<std::u16string>: public TLess<std::u16string_view> {
     using is_transparent = void;
 };
