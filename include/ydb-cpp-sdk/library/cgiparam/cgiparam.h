@@ -2,14 +2,16 @@
 
 #include <ydb-cpp-sdk/library/iterator/iterate_values.h>
 
+#include <ydb-cpp-sdk/util/str_stl.h>
 #include <ydb-cpp-sdk/util/generic/iterator_range.h>
-#include <string_view>
-#include <string>
+#include <ydb-cpp-sdk/util/memory/tempbuf.h>
 
-#include <map>
 #include <initializer_list>
+#include <map>
+#include <string>
+#include <string_view>
 
-class TCgiParameters: public std::multimap<std::string, std::string> {
+class TCgiParameters: public std::multimap<std::string, std::string, TLess<std::string>> {
 public:
     TCgiParameters() = default;
 
@@ -26,7 +28,7 @@ public:
     size_t EraseAll(const std::string_view name);
 
     size_t NumOfValues(const std::string_view name) const noexcept {
-        return count(static_cast<std::string>(name));
+        return count(name);
     }
 
     std::string operator()() const {
@@ -57,7 +59,7 @@ public:
 
     Y_PURE_FUNCTION
     auto Range(const std::string_view name) const noexcept {
-        return IterateValues(MakeIteratorRange(equal_range(static_cast<std::string>(name))));
+        return IterateValues(MakeIteratorRange(equal_range(name)));
     }
 
     Y_PURE_FUNCTION
@@ -68,11 +70,12 @@ public:
 
     Y_PURE_FUNCTION
     bool Has(const std::string_view name) const noexcept {
-        const auto pair = equal_range(static_cast<std::string>(name));
+        const auto pair = equal_range(name);
         return pair.first != pair.second;
     }
-    /// Returns value by name
     /**
+     * Returns value by name.
+     *
      * @note The returned value is CGI-unescaped.
      */
     Y_PURE_FUNCTION
@@ -139,7 +142,7 @@ public:
 
 template <typename TIter>
 void TCgiParameters::ReplaceUnescaped(const std::string_view key, TIter valuesBegin, const TIter valuesEnd) {
-    const auto oldRange = equal_range(static_cast<std::string>(key));
+    const auto oldRange = equal_range(key);
     auto current = oldRange.first;
 
     // reuse as many existing nodes as possible (probably none)
@@ -176,7 +179,7 @@ public:
 
     Y_PURE_FUNCTION
     bool Has(const std::string_view name) const noexcept {
-        const auto pair = equal_range(static_cast<std::string>(name));
+        const auto pair = equal_range(name);
         return pair.first != pair.second;
     }
 
@@ -184,5 +187,5 @@ public:
     const std::string_view& Get(const std::string_view name, size_t numOfValue = 0) const noexcept;
 
 private:
-    std::string UnescapeBuf;
+    TTempBuf UnescapeBuf;
 };
