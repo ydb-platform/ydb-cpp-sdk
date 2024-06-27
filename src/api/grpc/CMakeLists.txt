@@ -4,7 +4,10 @@ file(GLOB API_GRPC_SOURCES
   ./*.proto
 )
 
-_ydb_sdk_add_grpc_library(api-grpc
+_ydb_sdk_add_proto_library(api-grpc GRPC
   SOURCES ${API_GRPC_SOURCES}
+)
+target_link_libraries(api-grpc PUBLIC
+  api-protos
 )
 _ydb_sdk_install_targets(TARGETS api-grpc)

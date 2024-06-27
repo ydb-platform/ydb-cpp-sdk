@@ -40,26 +40,15 @@ else()
     PROTO_NAMESPACE third_party/api-common-protos
   )
 
-  list(APPEND proto_incls
-    ./third_party/api-common-protos
-    ${YDB_SDK_BINARY_DIR}
-    ${YDB_SDK_SOURCE_DIR}
-    ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos
-  )
-
-  set_property(TARGET api-common-protos PROPERTY 
-    PROTO_ADDINCL ${proto_incls}
-  )
-
-  set_property(TARGET api-common-protos PROPERTY 
-    PROTO_OUTS --cpp_out=${YDB_SDK_BINARY_DIR}/third_party/api-common-protos
+  set_property(TARGET api-common-protos APPEND PROPERTY 
+    PROTO_ADDINCL ./third_party/api-common-protos
   )
 
   target_include_directories(api-common-protos PUBLIC
     $<BUILD_INTERFACE:${YDB_SDK_BINARY_DIR}/third_party/api-common-protos>
   )
 
-  _ydb_sdk_gen_proto_messages(api-common-protos PRIVATE ${API_COMMON_PROTOS_SOURCES})
+  _ydb_sdk_gen_proto_messages(api-common-protos PRIVATE ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos Off ${API_COMMON_PROTOS_SOURCES})
 
   _ydb_sdk_install_targets(TARGETS api-common-protos)
 endif()

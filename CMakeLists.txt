@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
 project(YDB-CPP-SDK LANGUAGES C CXX ASM)
 
-option(YDB_SDK_INSTALL Off)
-option(YDB_SDK_TESTS Off)
-option(YDB_SDK_EXAMPLES On)
+option(YDB_SDK_INSTALL "Install YDB C++ SDK" Off)
+option(YDB_SDK_TESTS "Build YDB C++ SDK tests" Off)
+option(YDB_SDK_EXAMPLES "Build YDB C++ SDK examples" On)
 set(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET "" CACHE STRING "Name of cmake target preparing google common proto library")
-option(YDB_SDK_USE_RAPID_JSON "" ON)
+option(YDB_SDK_USE_RAPID_JSON "Search for rapid json library in system" ON)
 
 set(BUILD_SHARED_LIBS Off)
 set(CMAKE_CXX_STANDARD 20)
@@ -62,11 +62,11 @@ if (${YDB_SDK_INSTALL})
     ${CMAKE_CURRENT_BINARY_DIR}/ydb-cpp-sdk-config.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ydb-cpp-sdk
   )
-  _ydb_sdk_directory_install(COMPONENT universal FILES
+  _ydb_sdk_directory_install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/ydb-cpp-sdk-config.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ydb-cpp-sdk
   )
-  _ydb_sdk_directory_install(COMPONENT universal FILES
+  _ydb_sdk_directory_install(FILES
     ${YDB_SDK_SOURCE_DIR}/cmake/FindBrotli.cmake
     ${YDB_SDK_SOURCE_DIR}/cmake/FindgRPC.cmake
     ${YDB_SDK_SOURCE_DIR}/cmake/FindIDN.cmake

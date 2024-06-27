@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ydb-cpp-sdk/client/table/table.h>
-#include <src/api/protos/ydb_value.pb.h>
 #include <src/api/protos/ydb_query.pb.h>
 
 namespace NYdb {
