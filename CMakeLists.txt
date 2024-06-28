@@ -51,6 +51,10 @@ if (${YDB_SDK_INSTALL})
   _ydb_sdk_directory_install(DIRECTORY ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
+  _ydb_sdk_directory_install(DIRECTORY ${YDB_SDK_BINARY_DIR}/ydb-cpp-sdk
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    PATTERN "*.h"
+  )
   install(EXPORT ydb-cpp-sdk-targets
     FILE ydb-cpp-sdk-targets.cmake
     CONFIGURATIONS RELEASE

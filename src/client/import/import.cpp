@@ -6,7 +6,7 @@
 
 #include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>
 #include <src/api/grpc/ydb_import_v1.grpc.pb.h>
-#include <src/api/protos/ydb_import.pb.h>
+#include <ydb-cpp-sdk/src/api/protos/ydb_import.pb.h>
 #include <src/client/common_client/impl/client.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 

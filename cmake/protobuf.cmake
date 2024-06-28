@@ -1,28 +1,28 @@
-function(_ydb_sdk_gen_proto_messages Tgt Scope WorkDir Grpc)
-  file(RELATIVE_PATH WorkDirRel ${YDB_SDK_SOURCE_DIR} ${WorkDir})
+function(_ydb_sdk_gen_proto_messages Tgt Scope Grpc)
+  get_property(PublicProtos TARGET ${Tgt} PROPERTY PUBLIC_PROTOS)
   foreach(ProtoPath ${ARGN})
     get_filename_component(OutputBase ${ProtoPath} NAME_WLE)
-    get_target_property(OutputRelPath ${Tgt} PROTOC_PATH_${OutputBase})
-    if (${OutputRelPath} STREQUAL "OutputRelPath-NOTFOUND")
-      set(OutputRelPath ${WorkDirRel})
+    file(RELATIVE_PATH ProtoRelPath ${YDB_SDK_SOURCE_DIR} ${ProtoPath})
+    set(OutDir "")
+    if (${OutputBase} IN_LIST PublicProtos)
+      get_property(OutDir TARGET ${Tgt} PROPERTY PROTOS_OUT_DIR)
+      get_filename_component(GenDir ${YDB_SDK_BINARY_DIR}/${OutDir}/${ProtoRelPath} DIRECTORY)
+    else()
+      get_filename_component(GenDir ${YDB_SDK_BINARY_DIR}/${ProtoRelPath} DIRECTORY)
     endif()
-    if (NOT ${ProtoPath} MATCHES ${WorkDir})
-      message(FATAL_ERROR "Proto path '${ProtoPath}' isn't in workdir ${WorkDir}")
-    endif()
-    file(RELATIVE_PATH ProtoRelPath ${WorkDir} ${ProtoPath})
-    get_filename_component(OutputDir ${YDB_SDK_BINARY_DIR}/${OutputRelPath}/${ProtoRelPath} DIRECTORY)
+
     set(ProtocOuts
-      ${OutputDir}/${OutputBase}.pb.cc
-      ${OutputDir}/${OutputBase}.pb.h
+      ${GenDir}/${OutputBase}.pb.cc
+      ${GenDir}/${OutputBase}.pb.h
     )
-    set(ProtocOpts "")
+    set(Opts "")
     if (Grpc)
       list(APPEND ProtocOuts
-        ${OutputDir}/${OutputBase}.grpc.pb.cc
-        ${OutputDir}/${OutputBase}.grpc.pb.h
+        ${GenDir}/${OutputBase}.grpc.pb.cc
+        ${GenDir}/${OutputBase}.grpc.pb.h
       )
-      list(APPEND ProtocOpts
-        "--grpc_cpp_out=${YDB_SDK_BINARY_DIR}/$<TARGET_PROPERTY:${Tgt},PROTO_NAMESPACE>" 
+      list(APPEND Opts
+        "--grpc_cpp_out=${YDB_SDK_BINARY_DIR}/${OutDir}/$<TARGET_PROPERTY:${Tgt},PROTO_NAMESPACE>" 
         "--plugin=protoc-gen-grpc_cpp=$<TARGET_GENEX_EVAL:${Tgt},$<TARGET_FILE:gRPC::grpc_cpp_plugin>>"
       )
     endif()
@@ -33,11 +33,10 @@ function(_ydb_sdk_gen_proto_messages Tgt Scope WorkDir Grpc)
       COMMAND protobuf::protoc
         ${COMMON_PROTOC_FLAGS}
         "-I$<JOIN:$<TARGET_GENEX_EVAL:${Tgt},$<TARGET_PROPERTY:${Tgt},PROTO_ADDINCL>>,;-I>"
-        "-I${WorkDir}"
-        "--cpp_out=${YDB_SDK_BINARY_DIR}/$<TARGET_PROPERTY:${Tgt},PROTO_NAMESPACE>"
-        "${ProtocOpts}"
+        "--cpp_out=${YDB_SDK_BINARY_DIR}/${OutDir}/$<TARGET_PROPERTY:${Tgt},PROTO_NAMESPACE>"
+        "${Opts}"
         "--experimental_allow_proto3_optional"
-        ${OutputRelPath}/${ProtoRelPath}
+        ${ProtoRelPath}
       DEPENDS
         ${ProtoPath}
       WORKING_DIRECTORY ${YDB_SDK_SOURCE_DIR}
@@ -70,25 +69,21 @@ function(_ydb_sdk_init_proto_library_impl Tgt USE_API_COMMON_PROTOS)
 
   foreach(ProtoPath ${ARGN})
     get_filename_component(OutputBase ${ProtoPath} NAME_WLE)
-    get_filename_component(OutputDir ydb-cpp-sdk/${ProtoPath} DIRECTORY)
-    set_property(TARGET ${Tgt} PROPERTY
-      PROTOC_HEADER_PATH_${OutputBase} ${OutputDir}
+    set_property(TARGET ${Tgt} APPEND PROPERTY
+      PUBLIC_PROTOS ${OutputBase}
     )
   endforeach()
 endfunction()
 
 function(_ydb_sdk_add_proto_library Tgt)
   set(opts "USE_API_COMMON_PROTOS" "GRPC")
-  set(oneValueArgs "WORKDIR")
+  set(oneValueArgs "OUT_DIR")
   set(multiValueArgs "SOURCES" "PUBLIC_PROTOS")
   cmake_parse_arguments(
     ARG "${opts}" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}"
   )
-  if (NOT WORKDIR IN_LIST ARG_UNPARSED_ARGUMENTS)
-    set(ARG_WORKDIR ${CMAKE_CURRENT_SOURCE_DIR})
-  endif()
 
-  _ydb_sdk_init_proto_library_impl(${Tgt} $<BOOL:ARG_USE_API_COMMON_PROTOS> ${ARG_PUBLIC_PROTOS})
+  _ydb_sdk_init_proto_library_impl(${Tgt} ${ARG_USE_API_COMMON_PROTOS} ${ARG_PUBLIC_PROTOS})
 
   if (ARG_GRPC)
     target_link_libraries(${Tgt} PUBLIC
@@ -96,28 +91,9 @@ function(_ydb_sdk_add_proto_library Tgt)
     )
   endif()
 
-  _ydb_sdk_gen_proto_messages(${Tgt} PRIVATE ${ARG_WORKDIR} $<BOOL:ARG_GRPC> ${ARG_SOURCES})
-endfunction()
-
-function(_ydb_sdk_install_proto_headers Tgt ProtoNames)
-  get_target_property(ProtocExtraOutsSuf ${Tgt} PROTOC_EXTRA_OUTS)
-  set(HeaderPaths "")
-  foreach(Proto ${ProtoNames})
-    get_target_property(NewPath ${Tgt} PROTOC_HEADER_PATH_${Proto})
-    if (${NewPath} STREQUAL "NewPath-NOTFOUND")
-      message(FATAL_ERROR "Cannot install proto header '${Proto}' because it wasn't marked as public")
-    endif()
-    list(APPEND HeaderPaths
-      ${YDB_SDK_BINARY_DIR}/ydb-cpp-sdk/${NewPath}/${Proto}.pb.h
-    )
-    if (NOT ${ProtocExtraOutsSuf} STREQUAL "ProtocExtraOutsSuf-NOTFOUND")
-      list(APPEND HeaderPaths
-        ${YDB_SDK_BINARY_DIR}/ydb-cpp-sdk/${NewPath}/${Proto}.${ProtocExtraOutsSuf}.h
-      )
-    endif()
-  endforeach()
-  _ydb_sdk_directory_install(FILES
-    ${HeaderPaths}
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${NewPath}
+  set_property(TARGET ${Tgt} PROPERTY
+    PROTOS_OUT_DIR ${ARG_OUT_DIR}
   )
+
+  _ydb_sdk_gen_proto_messages(${Tgt} PRIVATE ${ARG_GRPC} ${ARG_SOURCES})
 endfunction()

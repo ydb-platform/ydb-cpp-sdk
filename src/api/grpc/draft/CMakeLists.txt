@@ -1,5 +1,5 @@
 file(GLOB API_GRPC_DRAFT_SOURCES
-  ./*.proto
+  *.proto
 )
 
 _ydb_sdk_add_proto_library(api-grpc-draft GRPC

@@ -41,14 +41,16 @@ else()
   )
 
   set_property(TARGET api-common-protos APPEND PROPERTY 
-    PROTO_ADDINCL ./third_party/api-common-protos
+    PROTO_ADDINCL 
+      ./third_party/api-common-protos
+      ${YDB_SDK_SOURCE_DIR}
   )
 
   target_include_directories(api-common-protos PUBLIC
     $<BUILD_INTERFACE:${YDB_SDK_BINARY_DIR}/third_party/api-common-protos>
   )
 
-  _ydb_sdk_gen_proto_messages(api-common-protos PRIVATE ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos Off ${API_COMMON_PROTOS_SOURCES})
+  _ydb_sdk_gen_proto_messages(api-common-protos PRIVATE Off ${API_COMMON_PROTOS_SOURCES})
 
   _ydb_sdk_install_targets(TARGETS api-common-protos)
 endif()
