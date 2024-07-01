@@ -3,7 +3,7 @@ add_library(cpp-coroutine-engine)
 target_link_libraries(cpp-coroutine-engine PUBLIC
   yutil
   tools-enum_parser-enum_serialization_runtime
-  cpp-containers-intrusive_rb_tree
+  library-containers-intrusive_rb_tree
   cpp-deprecated-atomic
 )
 
