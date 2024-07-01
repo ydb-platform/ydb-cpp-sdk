@@ -62,8 +62,8 @@ Y_UNIT_TEST_SUITE(TStackBasedVectorTest) {
         const TStackVec<int> vec(5);
 
         UNIT_ASSERT(
-            (const char*)&vec <= (const char*)&vec[0] &&
-            (const char*)&vec[0] <= (const char*)&vec + sizeof(vec)
+            reinterpret_cast<const char*>(&vec) <= reinterpret_cast<const char*>(&vec[0]) &&
+            reinterpret_cast<const char*>(&vec[0]) <= reinterpret_cast<const char*>(&vec) + sizeof(vec)
         );
     }
 
@@ -74,7 +74,7 @@ Y_UNIT_TEST_SUITE(TStackBasedVectorTest) {
         }
 
         for (size_t i = 0; i < ints.size(); ++i) {
-            UNIT_ASSERT_EQUAL(ints[i], (int)i);
+            UNIT_ASSERT_EQUAL(ints[i], static_cast<int>(i));
         }
 
         for (int i = 14; i < 20; ++i) {
@@ -82,20 +82,20 @@ Y_UNIT_TEST_SUITE(TStackBasedVectorTest) {
         }
 
         for (size_t i = 0; i < ints.size(); ++i) {
-            UNIT_ASSERT_EQUAL(ints[i], (int)i);
+            UNIT_ASSERT_EQUAL(ints[i], static_cast<int>(i));
         }
 
         TSmallVec<int> ints2 = ints;
 
         for (size_t i = 0; i < ints2.size(); ++i) {
-            UNIT_ASSERT_EQUAL(ints2[i], (int)i);
+            UNIT_ASSERT_EQUAL(ints2[i], static_cast<int>(i));
         }
 
         TSmallVec<int> ints3;
         ints3 = ints2;
 
         for (size_t i = 0; i < ints3.size(); ++i) {
-            UNIT_ASSERT_EQUAL(ints3[i], (int)i);
+            UNIT_ASSERT_EQUAL(ints3[i], static_cast<int>(i));
         }
     }
 
