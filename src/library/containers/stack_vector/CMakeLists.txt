@@ -1,5 +1,5 @@
-add_library(cpp-containers-stack_vector INTERFACE)
+add_library(library-containers-stack_vector INTERFACE)
 
-target_link_libraries(cpp-containers-stack_vector INTERFACE
+target_link_libraries(library-containers-stack_vector INTERFACE
   yutil
 )

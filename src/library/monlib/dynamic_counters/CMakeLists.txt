@@ -4,7 +4,7 @@ add_library(cpp-monlib-dynamic_counters)
 
 target_link_libraries(cpp-monlib-dynamic_counters PUBLIC
   yutil
-  cpp-containers-stack_vector
+  library-containers-stack_vector
   monlib-encode-json
   monlib-encode-spack
   monlib-encode-prometheus
@@ -19,5 +19,3 @@ target_sources(cpp-monlib-dynamic_counters PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/dynamic_counters/golovan_page.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/dynamic_counters/page.cpp
 )
-
-

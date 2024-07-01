@@ -8,7 +8,7 @@
 template <class T>
 class TDisjointIntervalTree {
 private:
-    static_assert(std::is_integral<T>::value, "expect std::is_integral<T>::value");
+    static_assert(std::is_integral_v<T>, "expect std::is_integral_v<T>");
 
     using TTree = std::map<T, T>; // [key, value)
     using TIterator = typename TTree::iterator;
@@ -32,7 +32,7 @@ public:
     // we assume that none of elements from [begin, end) belong to tree.
     void InsertInterval(const T begin, const T end) {
         InsertIntervalImpl(begin, end);
-        NumElements += (size_t)(end - begin);
+        NumElements += static_cast<size_t>(end - begin);
     }
 
     bool Has(const T t) const {

@@ -3,7 +3,7 @@ add_library(cpp-client-ydb_value)
 target_link_libraries(cpp-client-ydb_value PUBLIC
   yutil
   tools-enum_parser-enum_serialization_runtime
-  cpp-containers-stack_vector
+  library-containers-stack_vector
   api-protos
   impl-ydb_internal-value_helpers
   client-ydb_types-fatal_error_handlers
