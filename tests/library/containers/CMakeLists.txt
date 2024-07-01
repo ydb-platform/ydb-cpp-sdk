@@ -1,1 +1,2 @@
 add_subdirectory(disjoint_interval_tree)
+add_subdirectory(intrusive_rb_tree)
