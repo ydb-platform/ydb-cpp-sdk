@@ -1,2 +1,3 @@
 add_subdirectory(disjoint_interval_tree)
 add_subdirectory(intrusive_rb_tree)
+add_subdirectory(paged_vector)
