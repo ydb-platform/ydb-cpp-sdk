@@ -2,7 +2,7 @@ add_library(client-ydb_persqueue_public-impl)
 
 target_link_libraries(client-ydb_persqueue_public-impl PUBLIC
   yutil
-  cpp-containers-disjoint_interval_tree
+  library-containers-disjoint_interval_tree
   library-grpc-client
   cpp-monlib-dynamic_counters
   cpp-monlib-metrics
