@@ -51,7 +51,6 @@ endfunction()
 message(STATUS "YDB SDK components: ${YDB-CPP-SDK_FIND_COMPONENTS}")
 
 foreach(ITEM_COMPONENT IN LISTS YDB-CPP-SDK_FIND_COMPONENTS)
-  message(VERBOSE "Searching component '${ITEM_COMPONENT}'...")
   _find_ydb_sdk_component(${ITEM_COMPONENT})
 endforeach()
 
