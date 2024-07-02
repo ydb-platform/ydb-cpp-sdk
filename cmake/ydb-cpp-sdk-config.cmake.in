@@ -9,8 +9,6 @@ list(REMOVE_DUPLICATES YDB-CPP-SDK_FIND_COMPONENTS)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/Modules")
 
-@PACKAGE_INIT@
-
 find_package(IDN REQUIRED)
 find_package(Iconv REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -40,19 +38,23 @@ endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/release/ydb-cpp-sdk-targets.cmake")
 
-function(_find_ydb_sdk_component CmpName)
-  list(FIND YDB-CPP-SDK_AVAILABLE_COMPONENTS ${CmpName} CmpId)
-  if (CmpId EQUAL -1)
-    message(FATAL_ERROR "${CmpName} is not available component")
+function(_find_ydb_sdk_component CompName)
+  list(FIND YDB-CPP-SDK_AVAILABLE_COMPONENTS ${CompName} CompId)
+  if (CompId EQUAL -1)
+    message(FATAL_ERROR "${CompName} is not available component")
   endif()
-  list(GET YDB-CPP-SDK_COMPONENT_TARGETS ${CmpId} Tgt)
-  add_library(YDB-CPP-SDK::${CmpName} ALIAS YDB-CPP-SDK::${Tgt})
-  set(${CmpName}_FOUND TRUE)
+  list(GET YDB-CPP-SDK_COMPONENT_TARGETS ${CompId} Tgt)
+  add_library(YDB-CPP-SDK::${CompName} ALIAS YDB-CPP-SDK::${Tgt})
+  set(YDB-CPP-SDK_${CompName}_FOUND TRUE PARENT_SCOPE)
 endfunction()
+
+message(STATUS "YDB SDK components: ${YDB-CPP-SDK_FIND_COMPONENTS}")
 
 foreach(ITEM_COMPONENT IN LISTS YDB-CPP-SDK_FIND_COMPONENTS)
   message(VERBOSE "Searching component '${ITEM_COMPONENT}'...")
   _find_ydb_sdk_component(${ITEM_COMPONENT})
 endforeach()
+
+@PACKAGE_INIT@
 
 check_required_components(YDB-CPP-SDK)

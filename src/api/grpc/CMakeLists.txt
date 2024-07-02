@@ -6,9 +6,6 @@ file(GLOB API_GRPC_SOURCES
 
 _ydb_sdk_add_proto_library(api-grpc GRPC
   SOURCES ${API_GRPC_SOURCES}
-  OUT_DIR ydb-cpp-sdk
-  PUBLIC_PROTOS
-    ydb_query_v1
 )
 
 target_include_directories(api-grpc PUBLIC

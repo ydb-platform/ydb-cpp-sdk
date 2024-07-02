@@ -13,6 +13,8 @@ target_link_libraries(client-ydb_query PUBLIC
   client-ydb_query-impl
   client-ydb_result
   client-ydb_types-operation
+  api-protos
+  api-grpc
 )
 
 target_sources(client-ydb_query PRIVATE

@@ -2,7 +2,7 @@ add_library(client-ydb_query-impl)
 
 target_link_libraries(client-ydb_query-impl PUBLIC
   yutil
-  api-grpc-draft
+  api-grpc
   api-protos
   client-ydb_common_client-impl
   client-ydb_proto
