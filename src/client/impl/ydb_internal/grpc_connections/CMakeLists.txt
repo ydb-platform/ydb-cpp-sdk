@@ -8,7 +8,7 @@ target_link_libraries(impl-ydb_internal-grpc_connections PUBLIC
   impl-ydb_internal-plain_status
   impl-ydb_internal-thread_pool
   client-impl-ydb_stats
-  cpp-client-resources
+  client-resources
   client-ydb_types-exceptions
 )
 
@@ -16,3 +16,5 @@ target_sources(impl-ydb_internal-grpc_connections PRIVATE
   actions.cpp
   grpc_connections.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS impl-ydb_internal-grpc_connections)

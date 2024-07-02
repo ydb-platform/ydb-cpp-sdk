@@ -1,6 +1,8 @@
-add_library(cpp-string_utils-misc INTERFACE)
+add_library(string_utils-misc INTERFACE)
 
-target_link_libraries(cpp-string_utils-misc INTERFACE
+target_link_libraries(string_utils-misc INTERFACE
   yutil
-  cpp-string_utils-helpers
+  string_utils-helpers
 )
+
+_ydb_sdk_install_targets(TARGETS string_utils-misc)

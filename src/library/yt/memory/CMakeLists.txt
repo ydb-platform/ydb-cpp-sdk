@@ -1,13 +1,13 @@
-add_library(cpp-yt-memory)
+add_library(library-yt-memory)
 
-target_link_libraries(cpp-yt-memory PUBLIC
+target_link_libraries(library-yt-memory PUBLIC
   yutil
-  cpp-yt-assert
-  cpp-yt-misc
-  cpp-yt-malloc
+  library-yt-assert
+  library-yt-misc
+  library-yt-malloc
 )
 
-target_sources(cpp-yt-memory PRIVATE
+target_sources(library-yt-memory PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/yt/memory/blob.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/yt/memory/chunked_input_stream.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/yt/memory/chunked_memory_allocator.cpp
@@ -22,7 +22,9 @@ target_sources(cpp-yt-memory PRIVATE
 )
 
 if (NOT WIN32)
-  target_compile_options(cpp-yt-memory PRIVATE
+  target_compile_options(library-yt-memory PRIVATE
     -Wdeprecated-this-capture
   )
 endif()
+
+_ydb_sdk_install_targets(TARGETS library-yt-memory)

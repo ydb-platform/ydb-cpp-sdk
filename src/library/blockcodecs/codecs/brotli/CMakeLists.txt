@@ -4,7 +4,7 @@ target_link_libraries(blockcodecs-codecs-brotli INTERFACE
   yutil
   Brotli::enc
   Brotli::dec
-  cpp-blockcodecs-core
+  blockcodecs-core
 )
 
 add_global_library_for(blockcodecs-codecs-brotli.global blockcodecs-codecs-brotli)
@@ -13,9 +13,12 @@ target_link_libraries(blockcodecs-codecs-brotli.global PUBLIC
   yutil
   Brotli::enc
   Brotli::dec
-  cpp-blockcodecs-core
+  blockcodecs-core
 )
 
 target_sources(blockcodecs-codecs-brotli.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs/brotli/brotli.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-brotli.global)
+_ydb_sdk_install_targets(TARGETS blockcodecs-codecs-brotli)

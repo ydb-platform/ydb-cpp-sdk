@@ -1,14 +1,14 @@
-add_library(cpp-openssl-io)
+add_library(openssl-io)
 
-target_link_libraries(cpp-openssl-io PUBLIC
+target_link_libraries(openssl-io PUBLIC
   yutil
   OpenSSL::SSL
-  cpp-openssl-init
-  cpp-openssl-method
+  openssl-init
+  openssl-method
 )
 
-target_sources(cpp-openssl-io PRIVATE
+target_sources(openssl-io PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/openssl/io/stream.cpp
 )
 
-
+_ydb_sdk_install_targets(TARGETS openssl-io)

@@ -1,13 +1,13 @@
-add_library(cpp-coroutine-engine)
+add_library(library-coroutine-engine)
 
-target_link_libraries(cpp-coroutine-engine PUBLIC
+target_link_libraries(library-coroutine-engine PUBLIC
   yutil
-  tools-enum_parser-enum_serialization_runtime
-  cpp-containers-intrusive_rb_tree
-  cpp-deprecated-atomic
+  enum_serialization_runtime
+  containers-intrusive_rb_tree
+  deprecated-atomic
 )
 
-target_sources(cpp-coroutine-engine PRIVATE
+target_sources(library-coroutine-engine PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/coroutine/engine/cont_poller.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/coroutine/engine/helper.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/coroutine/engine/impl.cpp
@@ -23,14 +23,16 @@ target_sources(cpp-coroutine-engine PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/coroutine/engine/trampoline.cpp
 )
 
-generate_enum_serilization(cpp-coroutine-engine
+generate_enum_serilization(library-coroutine-engine
   ${YDB_SDK_SOURCE_DIR}/src/library/coroutine/engine/poller.h
   INCLUDE_HEADERS
   src/library/coroutine/engine/poller.h
 )
 
-generate_enum_serilization(cpp-coroutine-engine
+generate_enum_serilization(library-coroutine-engine
   ${YDB_SDK_SOURCE_DIR}/src/library/coroutine/engine/stack/stack_common.h
   INCLUDE_HEADERS
   src/library/coroutine/engine/stack/stack_common.h
 )
+
+_ydb_sdk_install_targets(TARGETS library-coroutine-engine)

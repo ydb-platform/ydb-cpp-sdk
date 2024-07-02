@@ -17,6 +17,8 @@
 #include <src/client/query/impl/exec_query.h>
 #include <ydb-cpp-sdk/client/retry/retry.h>
 
+#include <src/api/grpc/ydb_query_v1.grpc.pb.h>
+
 namespace NYdb::NQuery {
 
 using TRetryContextAsync = NRetry::Async::TRetryContext<TQueryClient, TAsyncExecuteQueryResult>;

@@ -10,3 +10,5 @@ target_sources(proto_output PRIVATE
   proto_output.cpp
 )
 
+_ydb_sdk_install_targets(TARGETS proto_output)
+

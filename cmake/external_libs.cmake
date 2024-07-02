@@ -1,7 +1,3 @@
-set(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET "" CACHE STRING "Name of cmake target preparing google common proto library")
-option(YDB_SDK_USE_RAPID_JSON "" ON)
-option(YDB_SDK_GRPC_CONFIG_SEARCH "" OFF)
-
 find_package(IDN REQUIRED)
 find_package(Iconv REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -28,68 +24,50 @@ if (YDB_SDK_USE_RAPID_JSON)
   target_include_directories(RapidJSON::RapidJSON INTERFACE
     ${RAPIDJSON_INCLUDE_DIRS}
   )
-endif ()
+endif()
 
 # api-common-protos
 if (YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET)
   add_library(api-common-protos ALIAS ${YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET})
-else ()
-  add_library(api-common-protos)
-
-  set_property(TARGET api-common-protos PROPERTY
-    PROTOC_EXTRA_OUTS .grpc.pb.cc .grpc.pb.h
+else()
+  file(GLOB_RECURSE API_COMMON_PROTOS_SOURCES
+    ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos/google/*.proto
   )
+
+  _ydb_sdk_init_proto_library_impl(api-common-protos Off)
 
   set_property(TARGET api-common-protos PROPERTY
     PROTO_NAMESPACE third_party/api-common-protos
   )
 
+  set_property(TARGET api-common-protos APPEND PROPERTY 
+    PROTO_ADDINCL 
+      ./third_party/api-common-protos
+      ${YDB_SDK_SOURCE_DIR}
+  )
+
   target_include_directories(api-common-protos PUBLIC
-    ${YDB_SDK_BINARY_DIR}/third_party/api-common-protos
+    $<BUILD_INTERFACE:${YDB_SDK_BINARY_DIR}/third_party/api-common-protos>
   )
 
-  target_link_libraries(api-common-protos PUBLIC
-    gRPC::grpc++
-    protobuf::libprotobuf
-  )
+  _ydb_sdk_gen_proto_messages(api-common-protos PRIVATE Off ${API_COMMON_PROTOS_SOURCES})
 
-  file(GLOB_RECURSE SOURCES
-    ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos/google/*.proto
-  )
-
-  target_proto_messages(api-common-protos PRIVATE
-    ${SOURCES}
-  )
-
-  target_proto_addincls(api-common-protos
-    ./third_party/api-common-protos
-    ${YDB_SDK_BINARY_DIR}
-    ${YDB_SDK_SOURCE_DIR}
-    ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos
-  )
-
-  target_proto_outs(api-common-protos
-    --cpp_out=${YDB_SDK_BINARY_DIR}/third_party/api-common-protos
-  )
-
-  target_proto_plugin(api-common-protos
-    grpc_cpp
-    gRPC::grpc_cpp_plugin
-  )
-endif ()
+  _ydb_sdk_install_targets(TARGETS api-common-protos)
+endif()
 
 # FastLZ
 add_library(FastLZ 
-    ${YDB_SDK_SOURCE_DIR}/third_party/FastLZ/fastlz.c
+  ${YDB_SDK_SOURCE_DIR}/third_party/FastLZ/fastlz.c
 )
 
-target_include_directories(FastLZ PUBLIC ${YDB_SDK_SOURCE_DIR}/third_party/FastLZ)
+target_include_directories(FastLZ PUBLIC
+  $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}/third_party/FastLZ>
+)
+
+_ydb_sdk_install_targets(TARGETS FastLZ)
 
 # nayuki_md5
 add_library(nayuki_md5)
-target_link_libraries(nayuki_md5 PUBLIC
-  yutil
-)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 target_sources(nayuki_md5 PRIVATE 
@@ -101,5 +79,9 @@ target_sources(nayuki_md5 PRIVATE
 )
 endif()
 
-target_include_directories(nayuki_md5 PUBLIC ${YDB_SDK_SOURCE_DIR}/third_party/nayuki_md5)
- 
+target_include_directories(nayuki_md5 PUBLIC
+  $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}/third_party/nayuki_md5>
+  $<INSTALL_INTERFACE:third_party/nayuki_md5>
+)
+
+_ydb_sdk_install_targets(TARGETS nayuki_md5)

@@ -1,12 +1,12 @@
-add_library(library-cpp-uri)
+add_library(library-uri)
 
-target_link_libraries(library-cpp-uri PUBLIC
+target_link_libraries(library-uri PUBLIC
   yutil
   IDN::IDN
-  library-cpp-charset
+  library-charset
 )
 
-target_sources(library-cpp-uri PRIVATE
+target_sources(library-uri PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/uri/assign.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/uri/common.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/uri/encode.cpp
@@ -18,25 +18,27 @@ target_sources(library-cpp-uri PRIVATE
 )
 
 if (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
-    target_ragel_lexers(library-cpp-uri
+    target_ragel_lexers(library-uri
     PRIVATE
     ${YDB_SDK_SOURCE_DIR}/src/library/uri/encodefsm.rl6
     -CT0
   )
-    target_ragel_lexers(library-cpp-uri
+    target_ragel_lexers(library-uri
     PRIVATE
     ${YDB_SDK_SOURCE_DIR}/src/library/uri/parsefsm.rl6
     -CT0
   )
-else ()
-  target_ragel_lexers(library-cpp-uri
+else()
+  target_ragel_lexers(library-uri
     PRIVATE
     ${YDB_SDK_SOURCE_DIR}/src/library/uri/encodefsm.rl6
     -CG2
   )
-  target_ragel_lexers(library-cpp-uri
+  target_ragel_lexers(library-uri
     PRIVATE
     ${YDB_SDK_SOURCE_DIR}/src/library/uri/parsefsm.rl6
     -CG2
   )
-endif ()
+endif()
+
+_ydb_sdk_install_targets(TARGETS library-uri)

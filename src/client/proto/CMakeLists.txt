@@ -1,18 +1,18 @@
-add_library(cpp-client-ydb_proto)
+add_library(client-ydb_proto)
 
-target_link_libraries(cpp-client-ydb_proto PUBLIC
+target_link_libraries(client-ydb_proto PUBLIC
   yutil
   api-grpc
   api-grpc-draft
   api-protos
   lib-operation_id-protos
-  cpp-client-ydb_params
-  cpp-client-ydb_value
-  public-issue-protos
+  client-ydb_params
+  client-ydb_value
+  yql-public-issue-protos
 )
 
-target_sources(cpp-client-ydb_proto PRIVATE
+target_sources(client-ydb_proto PRIVATE
   accessor.cpp
 )
 
-add_library(YDB-CPP-SDK::Proto ALIAS cpp-client-ydb_proto)
+_ydb_sdk_make_client_component(Proto client-ydb_proto)

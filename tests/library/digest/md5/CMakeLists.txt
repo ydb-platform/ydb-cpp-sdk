@@ -6,7 +6,7 @@ add_ydb_test(NAME library-digest-md5_medium_ut
     ${YDB_SDK_SOURCE_DIR}/src/library/testing/unittest
   LINK_LIBRARIES
     yutil
-    cpp-digest-md5
+    digest-md5
     cpp-testing-unittest_main
 )
 
@@ -18,6 +18,6 @@ add_ydb_test(NAME library-digest-md5_ut
     ${YDB_SDK_SOURCE_DIR}/src/library/testing/unittest
   LINK_LIBRARIES
     yutil
-    cpp-digest-md5
+    digest-md5
     cpp-testing-unittest_main
 )

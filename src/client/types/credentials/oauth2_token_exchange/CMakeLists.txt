@@ -1,19 +1,21 @@
-add_library(ydb_types-credentials-oauth2)
+add_library(client-ydb_types-credentials-oauth2)
 
-target_link_libraries(ydb_types-credentials-oauth2 PUBLIC
+target_link_libraries(client-ydb_types-credentials-oauth2 PUBLIC
   yutil
   jwt-cpp::jwt-cpp
-  library-cpp-cgiparam
-  cpp-http-misc
-  cpp-http-simple
-  library-cpp-json
-  library-cpp-retry
-  library-cpp-uri
+  library-cgiparam
+  library-http-misc
+  library-http-simple
+  library-json
+  library-retry
+  library-uri
   client-ydb_types-credentials
-  cpp-client-ydb_types
+  client-ydb_types
 )
 
-target_sources(ydb_types-credentials-oauth2 PRIVATE
+target_sources(client-ydb_types-credentials-oauth2 PRIVATE
   credentials.cpp
   jwt_token_source.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS client-ydb_types-credentials-oauth2)

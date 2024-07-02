@@ -1,10 +1,12 @@
-add_library(library-cpp-lcs)
+add_library(library-lcs)
 
-target_link_libraries(library-cpp-lcs PUBLIC
+target_link_libraries(library-lcs PUBLIC
   yutil
-  cpp-containers-paged_vector
+  containers-paged_vector
 )
 
-target_sources(library-cpp-lcs PRIVATE
+target_sources(library-lcs PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/lcs/lcs_via_lis.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS library-lcs)

@@ -5,13 +5,13 @@ add_library(yql-public-issue)
 target_link_libraries(yql-public-issue PUBLIC
   yutil
   protobuf::libprotobuf
-  library-cpp-colorizer
-  library-cpp-resource
+  colorizer
+  library-resource
   api-protos
-  public-issue-protos
-  library-yql-utils
-  tools-enum_parser-enum_serialization_runtime
-  cpp-string_utils-misc
+  yql-public-issue-protos
+  yql-utils
+  enum_serialization_runtime
+  string_utils-misc
 )
 
 target_sources(yql-public-issue PRIVATE
@@ -19,4 +19,4 @@ target_sources(yql-public-issue PRIVATE
   yql_issue_message.cpp
 )
 
-
+_ydb_sdk_install_targets(TARGETS yql-public-issue)

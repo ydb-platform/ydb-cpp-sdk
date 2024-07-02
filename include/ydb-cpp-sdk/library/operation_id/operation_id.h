@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/library/operation_id/protos/operation_id.pb.h>
+#include <ydb-cpp-sdk/src/library/operation_id/protos/operation_id.pb.h>
 
 #include <string>
 #include <vector>

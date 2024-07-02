@@ -2,8 +2,8 @@ add_library(cpp-testing-common)
 
 target_link_libraries(cpp-testing-common PUBLIC
   yutil
-  library-cpp-json
-  library-cpp-svnversion
+  library-json
+  library-svnversion
 )
 
 target_sources(cpp-testing-common PRIVATE

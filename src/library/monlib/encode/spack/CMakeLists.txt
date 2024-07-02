@@ -3,7 +3,7 @@ add_library(monlib-encode-spack)
 target_link_libraries(monlib-encode-spack PUBLIC
   yutil
   monlib-encode-buffered
-  cpp-monlib-exception
+  monlib-exception
   LZ4::LZ4
   xxHash::xxHash
   ZLIB::ZLIB
@@ -17,4 +17,4 @@ target_sources(monlib-encode-spack PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/encode/spack/compression.cpp
 )
 
-
+_ydb_sdk_install_targets(TARGETS monlib-encode-spack)

@@ -9,6 +9,8 @@
 
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 
+#include <src/api/grpc/ydb_query_v1.grpc.pb.h>
+
 namespace NYdb::NQuery {
 
 using namespace NThreading;

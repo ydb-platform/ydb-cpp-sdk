@@ -9,4 +9,4 @@ target_sources(client-ydb_types-fatal_error_handlers PRIVATE
   handlers.cpp
 )
 
-
+_ydb_sdk_install_targets(TARGETS client-ydb_types-fatal_error_handlers)

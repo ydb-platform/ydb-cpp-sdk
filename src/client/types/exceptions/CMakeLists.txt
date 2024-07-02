@@ -8,4 +8,4 @@ target_sources(client-ydb_types-exceptions PRIVATE
   exceptions.cpp
 )
 
-
+_ydb_sdk_install_targets(TARGETS client-ydb_types-exceptions)

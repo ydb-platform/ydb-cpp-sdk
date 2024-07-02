@@ -65,6 +65,6 @@ add_ydb_test(NAME util-network-sock_ut
     ${YDB_SDK_SOURCE_DIR}/src/util/network
   LINK_LIBRARIES
     yutil
-    cpp-threading-future
+    threading-future
     cpp-testing-unittest_main
 )

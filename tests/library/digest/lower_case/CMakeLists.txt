@@ -4,7 +4,7 @@ add_ydb_test(NAME library-digest-lower_case-hash_ops_ut
   INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}/src/library/digest/lower_case
   LINK_LIBRARIES
-    cpp-digest-lower_case
+    digest-lower_case
     cpp-testing-unittest_main
 )
 
@@ -14,6 +14,6 @@ add_ydb_test(NAME library-digest-lower_case-lchash_ut
   INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}/src/library/digest/lower_case
   LINK_LIBRARIES
-    cpp-digest-lower_case
+    digest-lower_case
     cpp-testing-unittest_main
 )

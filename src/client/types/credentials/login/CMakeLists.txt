@@ -1,6 +1,6 @@
-add_library(ydb_types-credentials-login)
+add_library(client-ydb_types-credentials-login)
 
-target_link_libraries(ydb_types-credentials-login PUBLIC
+target_link_libraries(client-ydb_types-credentials-login PUBLIC
   yutil
   library-login
   library-security
@@ -10,8 +10,8 @@ target_link_libraries(ydb_types-credentials-login PUBLIC
   yql-public-issue
 )
 
-target_sources(ydb_types-credentials-login PRIVATE
+target_sources(client-ydb_types-credentials-login PRIVATE
   login.cpp
 )
 
-
+_ydb_sdk_install_targets(TARGETS client-ydb_types-credentials-login)

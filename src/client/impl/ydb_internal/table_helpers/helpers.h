@@ -2,7 +2,7 @@
 
 #include <src/client/impl/ydb_internal/internal_header.h>
 
-#include <src/api/protos/ydb_table.pb.h>
+#include <ydb-cpp-sdk/src/api/protos/ydb_table.pb.h>
 #include <ydb-cpp-sdk/client/table/query_stats/stats.h>
 
 namespace NYdb {

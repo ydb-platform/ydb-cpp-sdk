@@ -1,14 +1,14 @@
-add_library(cpp-client-ydb_rate_limiter)
+add_library(client-ydb_rate_limiter)
 
-target_link_libraries(cpp-client-ydb_rate_limiter PUBLIC
+target_link_libraries(client-ydb_rate_limiter PUBLIC
   yutil
   api-grpc
   client-ydb_common_client-impl
-  cpp-client-ydb_driver
+  client-ydb_driver
 )
 
-target_sources(cpp-client-ydb_rate_limiter PRIVATE
+target_sources(client-ydb_rate_limiter PRIVATE
   rate_limiter.cpp
 )
 
-add_library(YDB-CPP-SDK::RateLimiter ALIAS cpp-client-ydb_rate_limiter)
+_ydb_sdk_make_client_component(RateLimiter client-ydb_rate_limiter)

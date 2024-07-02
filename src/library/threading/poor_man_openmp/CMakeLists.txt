@@ -1,10 +1,12 @@
-add_library(cpp-threading-poor_man_openmp)
+add_library(threading-poor_man_openmp)
 
-target_link_libraries(cpp-threading-poor_man_openmp PUBLIC
+target_link_libraries(threading-poor_man_openmp PUBLIC
   yutil
-  cpp-deprecated-atomic
+  deprecated-atomic
 )
 
-target_sources(cpp-threading-poor_man_openmp PRIVATE
+target_sources(threading-poor_man_openmp PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/threading/poor_man_openmp/thread_helper.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS threading-poor_man_openmp)

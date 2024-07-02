@@ -16,3 +16,5 @@ target_sources_custom(internal-proxies-avx2
   -mbmi
   -mbmi2
 )
+
+_ydb_sdk_install_targets(TARGETS internal-proxies-avx2)

@@ -4,5 +4,5 @@ add_ydb_test(NAME cache-cache_ut
         LINK_LIBRARIES
         yutil
         cpp-testing-unittest_main
-        library-cpp-cache
+        library-cache
 )

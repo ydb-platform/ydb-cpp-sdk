@@ -1,12 +1,12 @@
-add_library(cpp-getopt-small)
+add_library(library-getopt-small)
 
-target_link_libraries(cpp-getopt-small PUBLIC
+target_link_libraries(library-getopt-small PUBLIC
   yutil
-  library-cpp-colorizer
-  cpp-string_utils-misc
-  )
+  colorizer
+  string_utils-misc
+)
 
-target_sources(cpp-getopt-small PRIVATE
+target_sources(library-getopt-small PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/getopt/small/completer.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/getopt/small/completer_command.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/getopt/small/completion_generator.cpp
@@ -25,5 +25,4 @@ target_sources(cpp-getopt-small PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/getopt/small/ygetopt.cpp
 )
 
-
-
+_ydb_sdk_install_targets(TARGETS library-getopt-small)

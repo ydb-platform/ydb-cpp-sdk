@@ -13,3 +13,5 @@ target_sources_custom(internal-proxies-sse41
   CUSTOM_FLAGS
   -msse4.1
 )
+
+_ydb_sdk_install_targets(TARGETS internal-proxies-sse41)

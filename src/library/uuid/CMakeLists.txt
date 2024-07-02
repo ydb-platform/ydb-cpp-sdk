@@ -7,3 +7,5 @@ target_link_libraries(library-uuid PUBLIC
 target_sources(library-uuid PRIVATE
   uuid.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS library-uuid)

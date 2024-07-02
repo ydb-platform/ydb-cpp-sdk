@@ -2,7 +2,7 @@
 
 #include "stats.h"
 
-#include <src/api/grpc/ydb_query_v1.grpc.pb.h>
+#include <ydb-cpp-sdk/src/api/protos/ydb_query.pb.h>
 
 #include <ydb-cpp-sdk/client/result/result.h>
 #include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>

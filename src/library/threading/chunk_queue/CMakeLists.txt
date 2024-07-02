@@ -1,10 +1,12 @@
-add_library(cpp-threading-chunk_queue)
+add_library(threading-chunk_queue)
 
-target_link_libraries(cpp-threading-chunk_queue PUBLIC
+target_link_libraries(threading-chunk_queue PUBLIC
   yutil
-  cpp-deprecated-atomic
+  deprecated-atomic
 )
 
-target_sources(cpp-threading-chunk_queue PRIVATE
+target_sources(threading-chunk_queue PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/threading/chunk_queue/queue.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS threading-chunk_queue)

@@ -1,24 +1,18 @@
-add_library(library-cpp-cpuid_check INTERFACE)
+add_library(library-cpuid_check INTERFACE)
 
-target_link_libraries(library-cpp-cpuid_check INTERFACE
+target_link_libraries(library-cpuid_check INTERFACE
   yutil
 )
 
-add_global_library_for(library-cpp-cpuid_check.global library-cpp-cpuid_check)
+add_global_library_for(library-cpuid_check.global library-cpuid_check)
 
-target_link_libraries(library-cpp-cpuid_check.global PUBLIC
+target_link_libraries(library-cpuid_check.global PUBLIC
   yutil
 )
 
-target_sources(library-cpp-cpuid_check.global PRIVATE
+target_sources(library-cpuid_check.global PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/cpuid_check/cpu_id_check.cpp
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  target_link_libraries(library-cpp-cpuid_check INTERFACE
-    
-  )
-  target_link_libraries(library-cpp-cpuid_check.global PUBLIC
-    
-  )
-endif()
+_ydb_sdk_install_targets(TARGETS library-cpuid_check)
+_ydb_sdk_install_targets(TARGETS library-cpuid_check.global)

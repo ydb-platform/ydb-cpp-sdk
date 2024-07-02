@@ -1,13 +1,13 @@
-add_library(cpp-client-iam_private)
+add_library(client-iam_private)
 
-target_link_libraries(cpp-client-iam_private PUBLIC
+target_link_libraries(client-iam_private PUBLIC
   yutil
-  client-yc_private-iam
+  api-client-yc_private
   client-iam-common
 )
 
-target_sources(cpp-client-iam_private PRIVATE
+target_sources(client-iam_private PRIVATE
   iam.cpp
 )
 
-add_library(YDB-CPP-SDK::IamPrivate ALIAS cpp-client-iam_private)
+_ydb_sdk_make_client_component(IamPrivate client-iam_private)

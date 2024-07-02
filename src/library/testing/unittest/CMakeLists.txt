@@ -2,11 +2,11 @@ add_library(cpp-testing-unittest)
 
 target_link_libraries(cpp-testing-unittest PUBLIC
   yutil
-  library-cpp-colorizer
-  library-cpp-dbg_output
-  library-cpp-diff
-  library-cpp-json
-  cpp-json-writer
+  colorizer
+  library-dbg_output
+  library-diff
+  library-json
+  library-json-writer
   cpp-testing-common
   cpp-testing-hook
 )

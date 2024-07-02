@@ -2,17 +2,17 @@ add_library(client-ydb_persqueue_public-impl)
 
 target_link_libraries(client-ydb_persqueue_public-impl PUBLIC
   yutil
-  cpp-containers-disjoint_interval_tree
+  containers-disjoint_interval_tree
   library-grpc-client
-  cpp-monlib-dynamic_counters
-  cpp-monlib-metrics
-  cpp-string_utils-url
-  library-persqueue-obfuscate
+  monlib-dynamic_counters
+  monlib-metrics
+  string_utils-url
+  persqueue-obfuscate
   api-grpc-draft
   impl-ydb_internal-make_request
   client-ydb_common_client-impl
-  cpp-client-ydb_driver
-  cpp-string_utils-misc
+  client-ydb_driver
+  string_utils-misc
 )
 
 target_sources(client-ydb_persqueue_public-impl PRIVATE

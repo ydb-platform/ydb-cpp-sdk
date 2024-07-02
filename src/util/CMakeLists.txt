@@ -8,7 +8,7 @@ target_link_libraries(yutil PUBLIC
   util-charset
   ZLIB::ZLIB
   double-conversion::double-conversion
-  cpp-string_utils-helpers
+  string_utils-helpers
 )
 
 target_joined_source(yutil
@@ -307,3 +307,5 @@ target_compile_definitions(yutil PUBLIC
   ARCADIA_ROOT_CMAKE_HELPER=${YDB_SDK_SOURCE_DIR}
   ARCADIA_BUILD_ROOT_CMAKE_HELPER=${YDB_SDK_BINARY_DIR}
 )
+
+_ydb_sdk_install_targets(TARGETS yutil)

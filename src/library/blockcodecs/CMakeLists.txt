@@ -1,11 +1,11 @@
 add_subdirectory(codecs)
 add_subdirectory(core)
 
-add_library(library-cpp-blockcodecs)
+add_library(blockcodecs)
 
-target_link_libraries(library-cpp-blockcodecs PUBLIC
+target_link_libraries(blockcodecs PUBLIC
   yutil
-  cpp-blockcodecs-core
+  blockcodecs-core
   blockcodecs-codecs-brotli
   blockcodecs-codecs-bzip
   blockcodecs-codecs-fastlz
@@ -16,7 +16,9 @@ target_link_libraries(library-cpp-blockcodecs PUBLIC
   blockcodecs-codecs-zstd
 )
 
-target_sources(library-cpp-blockcodecs PRIVATE
+target_sources(blockcodecs PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/codecs.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/blockcodecs/stream.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS blockcodecs)

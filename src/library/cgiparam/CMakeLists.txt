@@ -1,12 +1,14 @@
-add_library(library-cpp-cgiparam)
+add_library(library-cgiparam)
 
-target_link_libraries(library-cpp-cgiparam PUBLIC
+target_link_libraries(library-cgiparam PUBLIC
   yutil
-  library-cpp-iterator
-  cpp-string_utils-quote
-  cpp-string_utils-scan
+  library-iterator
+  string_utils-quote
+  string_utils-scan
 )
 
-target_sources(library-cpp-cgiparam PRIVATE
+target_sources(library-cgiparam PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/cgiparam/cgiparam.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS library-cgiparam)

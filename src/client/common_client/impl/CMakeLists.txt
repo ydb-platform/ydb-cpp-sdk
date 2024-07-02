@@ -9,4 +9,4 @@ target_sources(client-ydb_common_client-impl PRIVATE
   client.cpp
 )
 
-
+_ydb_sdk_install_targets(TARGETS client-ydb_common_client-impl)

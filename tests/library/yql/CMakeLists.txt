@@ -1,10 +1,10 @@
-add_ydb_test(NAME library-yql-utils-ut
+add_ydb_test(NAME yql-utils-ut
   SOURCES
   utf8_ut.cpp
   LINK_LIBRARIES
   yutil
   cpp-testing-unittest_main
-  library-yql-utils
+  yql-utils
 )
 
 add_ydb_test(NAME yql-public-issue-ut
@@ -14,7 +14,7 @@ add_ydb_test(NAME yql-public-issue-ut
   yutil
   cpp-testing-unittest_main
   yql-public-issue
-  cpp-unicode_normalization
+  unicode_normalization
 )
 
 add_ydb_test(NAME yql-public-decimal_ut

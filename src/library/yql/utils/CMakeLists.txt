@@ -1,12 +1,14 @@
-add_library(library-yql-utils)
+add_library(yql-utils)
 
-target_link_libraries(library-yql-utils PUBLIC
+target_link_libraries(yql-utils PUBLIC
   yutil
-  cpp-string_utils-quote
-  cpp-threading-future
-  cpp-deprecated-atomic
+  string_utils-quote
+  threading-future
+  deprecated-atomic
 )
 
-target_sources(library-yql-utils PRIVATE
+target_sources(yql-utils PRIVATE
   utf8.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS yql-utils)

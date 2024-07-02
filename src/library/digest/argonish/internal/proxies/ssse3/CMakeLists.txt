@@ -13,3 +13,5 @@ target_sources_custom(internal-proxies-ssse3
   CUSTOM_FLAGS
   -mssse3
 )
+
+_ydb_sdk_install_targets(TARGETS internal-proxies-ssse3)
