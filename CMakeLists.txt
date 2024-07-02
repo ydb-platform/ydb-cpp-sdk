@@ -16,6 +16,7 @@ set(YDB_SDK_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(YDB_SDK_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 set(YDB-CPP-SDK_AVAILABLE_COMPONENTS "" CACHE INTERNAL "")
 set(YDB-CPP-SDK_COMPONENT_TARGETS "" CACHE INTERNAL "")
+file(READ "src/client/resources/ydb_sdk_version.txt" YDB_SDK_VERSION)
 
 list(APPEND CMAKE_MODULE_PATH ${YDB_SDK_SOURCE_DIR}/cmake)
 include_directories(${YDB_SDK_SOURCE_DIR} ${YDB_SDK_SOURCE_DIR}/include ${YDB_SDK_BINARY_DIR})
@@ -47,7 +48,7 @@ if (YDB_SDK_TESTS)
   add_subdirectory(tests)
 endif()
 
-if (${YDB_SDK_INSTALL})
+if (YDB_SDK_INSTALL)
   _ydb_sdk_directory_install(DIRECTORY ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
@@ -66,8 +67,13 @@ if (${YDB_SDK_INSTALL})
     ${CMAKE_CURRENT_BINARY_DIR}/ydb-cpp-sdk-config.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ydb-cpp-sdk
   )
+  write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/ydb-cpp-sdk-config-version.cmake
+    VERSION ${YDB_SDK_VERSION} COMPATIBILITY SameMajorVersion
+  )
   _ydb_sdk_directory_install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/ydb-cpp-sdk-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/ydb-cpp-sdk-config-version.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ydb-cpp-sdk
   )
   _ydb_sdk_directory_install(FILES
