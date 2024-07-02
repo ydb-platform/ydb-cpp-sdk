@@ -1,9 +1,9 @@
-#include <ydb-cpp-sdk/library/json/json_value.h>
+#include "json_value.h"
 
-#include <src/library/testing/unittest/registar.h>
-#include <src/util/stream/buffer.h>
+#include "registar.h"
+#include "buffer.h"
 #include <src/util/generic/buffer.h>
-#include <ydb-cpp-sdk/util/ysaveload.h>
+#include "ysaveload.h"
 
 Y_UNIT_TEST_SUITE(JsonSaveLoad) {
     Y_UNIT_TEST(Serialize) {
