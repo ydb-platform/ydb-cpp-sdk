@@ -2,7 +2,7 @@ add_executable(ttl)
 
 target_link_libraries(ttl PUBLIC
   yutil
-  library-cpp-getopt
+  library-getopt
   YDB-CPP-SDK::Table
 )
 
@@ -15,7 +15,7 @@ vcs_info(ttl)
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(ttl PUBLIC
-    library-cpp-cpuid_check
+    library-cpuid_check
   )
 endif()
 

@@ -1,9 +1,11 @@
-add_library(cpp-digest-murmur)
+add_library(digest-murmur)
 
-target_link_libraries(cpp-digest-murmur PUBLIC
+target_link_libraries(digest-murmur PUBLIC
   yutil
 )
 
-target_sources(cpp-digest-murmur PRIVATE
+target_sources(digest-murmur PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/digest/murmur/murmur.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS digest-murmur)

@@ -15,12 +15,12 @@ target_link_libraries(ydb_topic-ut-ut_utils PUBLIC
   yutil
   library-grpc-server
   cpp-testing-unittest
-  cpp-threading-chunk_queue
+  threading-chunk_queue
   core-testlib-default
-  library-persqueue-topic_parser_public
-  cpp-client-ydb_driver
-  cpp-client-ydb_topic
-  cpp-client-ydb_table
+  persqueue-topic_parser_public
+  client-ydb_driver
+  client-ydb_topic
+  client-ydb_table
 )
 target_sources(ydb_topic-ut-ut_utils PRIVATE
   ${YDB_SDK_SOURCE_DIR}/client/ydb_topic/ut/ut_utils/managed_executor.cpp

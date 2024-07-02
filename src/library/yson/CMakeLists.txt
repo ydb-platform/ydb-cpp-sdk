@@ -1,15 +1,15 @@
 add_subdirectory(json)
 add_subdirectory(node)
 
-add_library(library-cpp-yson)
+add_library(library-yson)
 
-target_link_libraries(library-cpp-yson PUBLIC
+target_link_libraries(library-yson PUBLIC
   yutil
-  cpp-yt-misc
-  cpp-yt-yson
+  library-yt-misc
+  library-yt-yson
 )
 
-target_sources(library-cpp-yson PRIVATE
+target_sources(library-yson PRIVATE
   consumer.cpp
   lexer.cpp
   parser.cpp
@@ -19,4 +19,4 @@ target_sources(library-cpp-yson PRIVATE
   writer.cpp
 )
 
-
+_ydb_sdk_install_targets(TARGETS library-yson)

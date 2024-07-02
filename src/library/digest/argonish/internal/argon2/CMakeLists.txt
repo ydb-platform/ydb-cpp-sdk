@@ -4,5 +4,8 @@ target_link_libraries(argonish-internal-argon2 INTERFACE
   yutil
   argonish-internal-blamka
   argonish-internal-blake2b
-  cpp-threading-poor_man_openmp
+  threading-poor_man_openmp
 )
+
+
+_ydb_sdk_install_targets(TARGETS argonish-internal-argon2)

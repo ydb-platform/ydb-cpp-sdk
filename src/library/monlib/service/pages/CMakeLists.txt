@@ -1,14 +1,11 @@
-add_subdirectory(resources)
-add_subdirectory(tablesorter)
-
 add_library(monlib-service-pages)
 
 target_link_libraries(monlib-service-pages PUBLIC
   yutil
-  library-cpp-build_info
-  library-cpp-svnversion
-  library-cpp-resource
-  cpp-monlib-service
+  library-build_info
+  library-svnversion
+  library-resource
+  monlib-service
   monlib-encode-json
   monlib-encode-text
   monlib-encode-spack
@@ -27,4 +24,4 @@ target_sources(monlib-service-pages PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/monlib/service/pages/registry_mon_page.cpp
 )
 
-
+_ydb_sdk_install_targets(TARGETS monlib-service-pages)

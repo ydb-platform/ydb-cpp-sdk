@@ -3,16 +3,16 @@ add_library(client-ydb_federated_topic-impl)
 target_link_libraries(client-ydb_federated_topic-impl PUBLIC
   yutil
   library-grpc-client
-  cpp-monlib-dynamic_counters
-  cpp-monlib-metrics
-  cpp-string_utils-url
-  library-persqueue-obfuscate
+  monlib-dynamic_counters
+  monlib-metrics
+  string_utils-url
+  persqueue-obfuscate
   api-grpc-draft
   api-grpc
   impl-ydb_internal-make_request
   client-ydb_common_client-impl
-  cpp-client-ydb_driver
-  cpp-client-ydb_proto
+  client-ydb_driver
+  client-ydb_proto
 )
 
 target_sources(client-ydb_federated_topic-impl PRIVATE
@@ -23,3 +23,5 @@ target_sources(client-ydb_federated_topic-impl PRIVATE
   federated_topic.cpp
   federation_observer.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS client-ydb_federated_topic-impl)

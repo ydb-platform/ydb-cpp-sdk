@@ -4,3 +4,5 @@ target_link_libraries(argonish-internal-blamka INTERFACE
   yutil
   argonish-internal-rotations
 )
+
+_ydb_sdk_install_targets(TARGETS argonish-internal-blamka)

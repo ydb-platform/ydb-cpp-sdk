@@ -1,21 +1,8 @@
-add_library(cpp-retry-protos)
-
-target_link_libraries(cpp-retry-protos PUBLIC
-  yutil
-  protobuf::libprotobuf
+file(GLOB_RECURSE LIBRARY_RETRY_PROTOS
+  ./*.proto
 )
 
-target_proto_messages(cpp-retry-protos PRIVATE
-  ${YDB_SDK_SOURCE_DIR}/src/library/retry/protos/retry_options.proto
+_ydb_sdk_add_proto_library(library-retry-protos
+  SOURCES ${LIBRARY_RETRY_PROTOS}
 )
-
-target_proto_addincls(cpp-retry-protos
-  ./
-  ${YDB_SDK_SOURCE_DIR}
-  ${YDB_SDK_BINARY_DIR}
-)
-
-target_proto_outs(cpp-retry-protos
-  --cpp_out=${YDB_SDK_BINARY_DIR}/
-)
-
+_ydb_sdk_install_targets(TARGETS library-retry-protos)

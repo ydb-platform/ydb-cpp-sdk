@@ -6,6 +6,6 @@ add_ydb_test(NAME library-dbg_output-dbg_output_ut
     ${YDB_SDK_SOURCE_DIR}/src/library/testing/unittest
   LINK_LIBRARIES
     yutil
-    library-cpp-dbg_output
+    library-dbg_output
     cpp-testing-unittest_main
 )

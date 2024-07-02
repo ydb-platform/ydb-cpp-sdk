@@ -1,14 +1,14 @@
-add_library(cpp-client-helpers)
+add_library(client-helpers)
 
-target_link_libraries(cpp-client-helpers PUBLIC
+target_link_libraries(client-helpers PUBLIC
   yutil
   client-iam-common
   client-ydb_types-credentials
-  public-issue-protos
+  yql-public-issue-protos
 )
 
-target_sources(cpp-client-helpers PRIVATE
+target_sources(client-helpers PRIVATE
   helpers.cpp
 )
 
-add_library(YDB-CPP-SDK::Helpers ALIAS cpp-client-helpers)
+_ydb_sdk_make_client_component(Helpers client-helpers)

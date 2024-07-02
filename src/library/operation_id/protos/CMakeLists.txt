@@ -1,17 +1,16 @@
-add_library(lib-operation_id-protos)
-target_link_libraries(lib-operation_id-protos PUBLIC
-  yutil
-  protobuf::libprotobuf
-)
-target_proto_messages(lib-operation_id-protos PRIVATE
-  ${YDB_SDK_SOURCE_DIR}/src/library/operation_id/protos/operation_id.proto
-)
-target_proto_addincls(lib-operation_id-protos
-  ./
-  ${YDB_SDK_SOURCE_DIR}
-  ${YDB_SDK_BINARY_DIR}
-)
-target_proto_outs(lib-operation_id-protos
-  --cpp_out=${YDB_SDK_BINARY_DIR}/
+file(GLOB_RECURSE LIB_OPERATION_ID_PROTOS
+  *.proto
 )
 
+_ydb_sdk_add_proto_library(lib-operation_id-protos
+  SOURCES ${LIB_OPERATION_ID_PROTOS}
+  OUT_DIR ydb-cpp-sdk
+  PUBLIC_PROTOS
+    operation_id
+)
+
+target_include_directories(lib-operation_id-protos PRIVATE
+  ${YDB_SDK_BINARY_DIR}/ydb-cpp-sdk
+)
+
+_ydb_sdk_install_targets(TARGETS lib-operation_id-protos)

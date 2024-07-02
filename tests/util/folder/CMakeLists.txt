@@ -26,7 +26,7 @@ add_ydb_test(NAME util-folder-fts_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
-    cpp-threading-future
+    threading-future
 )
 
 add_ydb_test(NAME util-folder-iterator_ut

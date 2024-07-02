@@ -2,10 +2,10 @@ add_library(public-lib-yson_value)
 
 target_link_libraries(public-lib-yson_value PUBLIC
   yutil
-  library-cpp-yson
-  cpp-yson-node
-  cpp-client-ydb_result
-  cpp-client-ydb_value
+  library-yson
+  library-yson-node
+  client-ydb_result
+  client-ydb_value
   library-uuid
 )
 

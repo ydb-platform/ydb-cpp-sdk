@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/library/yql/public/issue/protos/issue_severity.pb.h>
+#include <ydb-cpp-sdk/src/library/yql/public/issue/protos/issue_severity.pb.h>
 
 #include <ydb-cpp-sdk/library/resource/resource.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>

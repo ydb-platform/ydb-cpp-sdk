@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb-cpp-sdk/client/table/table.h>
-#include <src/api/protos/ydb_table.pb.h>
+#include <ydb-cpp-sdk/src/api/protos/ydb_table.pb.h>
 
 namespace NYdb {
 namespace NTable {

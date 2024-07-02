@@ -114,28 +114,15 @@ function(generate_enum_serilization Tgt Input)
   target_sources(${Tgt} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${BaseName}_serialized.cpp)
 endfunction()
 
-
-if (MSVC AND (${CMAKE_VERSION} VERSION_LESS "3.21.0"))
-    message(FATAL_ERROR "Build with MSVC-compatible toolchain requires at least cmake 3.21.0 because of used TARGET_OBJECTS feature")
-endif()
-
 function(add_global_library_for TgtName MainName)
-  if (MSVC)
-    add_library(${TgtName} OBJECT ${ARGN})
-    add_dependencies(${TgtName} ${MainName}) # needed because object library can use some extra generated files in MainName
-    target_link_libraries(${MainName} INTERFACE ${TgtName} "$<TARGET_OBJECTS:${TgtName}>")
+  add_library(${TgtName} STATIC ${ARGN})
+  if(APPLE)
+    target_link_options(${MainName} INTERFACE "SHELL:-Wl,-force_load,$<TARGET_FILE:$<INSTALL_INTERFACE:YDB-CPP-SDK::>${TgtName}>")
   else()
-    add_library(${TgtName} STATIC ${ARGN})
-    add_library(${TgtName}.wholearchive INTERFACE)
-    add_dependencies(${TgtName}.wholearchive ${TgtName})
-    add_dependencies(${TgtName} ${MainName})
-    if(APPLE)
-      target_link_options(${TgtName}.wholearchive INTERFACE "SHELL:-Wl,-force_load,$<TARGET_FILE:${TgtName}>")
-    else()
-      target_link_options(${TgtName}.wholearchive INTERFACE "SHELL:-Wl,--whole-archive $<TARGET_FILE:${TgtName}> -Wl,--no-whole-archive")
-    endif()
-    target_link_libraries(${MainName} INTERFACE ${TgtName}.wholearchive)
+    target_link_options(${MainName} INTERFACE "SHELL:-Wl,--whole-archive $<TARGET_FILE:$<INSTALL_INTERFACE:YDB-CPP-SDK::>${TgtName}> -Wl,--no-whole-archive")
   endif()
+  add_dependencies(${MainName} ${TgtName})
+  target_link_libraries(${MainName} INTERFACE ${TgtName})
 endfunction()
 
 function(vcs_info Tgt)
@@ -183,4 +170,12 @@ function(resources Tgt Output)
     COMMAND ${rescompiler_bin} ${Output} ${ResourcesList}
     DEPENDS ${RESOURCE_ARGS_INPUTS} ${rescompiler_bin}
   )
+endfunction()
+
+function(_ydb_sdk_make_client_component CmpName Tgt)
+  add_library(YDB-CPP-SDK::${CmpName} ALIAS ${Tgt})
+
+  _ydb_sdk_install_targets(TARGETS ${Tgt} ${ARGN})
+  set(YDB-CPP-SDK_AVAILABLE_COMPONENTS ${YDB-CPP-SDK_AVAILABLE_COMPONENTS} ${CmpName} CACHE INTERNAL "")
+  set(YDB-CPP-SDK_COMPONENT_TARGETS ${YDB-CPP-SDK_COMPONENT_TARGETS} ${Tgt} CACHE INTERNAL "")
 endfunction()

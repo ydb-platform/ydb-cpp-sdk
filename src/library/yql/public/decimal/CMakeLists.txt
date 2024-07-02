@@ -9,4 +9,4 @@ target_sources(yql-public-decimal PRIVATE
   yql_decimal_serialize.cpp
 )
 
-
+_ydb_sdk_install_targets(TARGETS yql-public-decimal)

@@ -1,10 +1,12 @@
-add_library(cpp-coroutine-listener)
+add_library(library-coroutine-listener)
 
-target_link_libraries(cpp-coroutine-listener PUBLIC
+target_link_libraries(library-coroutine-listener PUBLIC
   yutil
-  cpp-coroutine-engine
+  library-coroutine-engine
 )
 
-target_sources(cpp-coroutine-listener PRIVATE
+target_sources(library-coroutine-listener PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/coroutine/listener/listen.cpp
 )
+
+_ydb_sdk_install_targets(TARGETS library-coroutine-listener)

@@ -1,14 +1,14 @@
-add_library(cpp-http-server)
+add_library(library-http-server)
 
-target_link_libraries(cpp-http-server PUBLIC
+target_link_libraries(library-http-server PUBLIC
   yutil
-  cpp-http-misc
-  cpp-http-io
-  cpp-threading-equeue
-  cpp-deprecated-atomic
+  library-http-misc
+  library-http-io
+  threading-equeue
+  deprecated-atomic
 )
 
-target_sources(cpp-http-server PRIVATE
+target_sources(library-http-server PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/http/server/conn.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/http/server/http.cpp
   ${YDB_SDK_SOURCE_DIR}/src/library/http/server/http_ex.cpp
@@ -16,4 +16,4 @@ target_sources(cpp-http-server PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/http/server/response.cpp
 )
 
-
+_ydb_sdk_install_targets(TARGETS library-http-server)
