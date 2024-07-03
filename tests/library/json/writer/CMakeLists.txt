@@ -8,7 +8,7 @@ INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}/src/util/system
 LINK_LIBRARIES
     yutil
-    cpp-json-writer
+    library-json-writer
     cpp-testing-unittest_main
 )
 
@@ -21,6 +21,6 @@ INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}/src/library/testing/unittest
 LINK_LIBRARIES
     yutil
-    cpp-json-writer
+    library-json-writer
     cpp-testing-unittest_main
 )
