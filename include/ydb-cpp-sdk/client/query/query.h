@@ -2,8 +2,6 @@
 
 #include "stats.h"
 
-#include <ydb-cpp-sdk/src/api/protos/ydb_query.pb.h>
-
 #include <ydb-cpp-sdk/client/result/result.h>
 #include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
@@ -95,9 +93,9 @@ using TAsyncBeginTransactionResult = NThreading::TFuture<TBeginTransactionResult
 using TAsyncCommitTransactionResult = NThreading::TFuture<TCommitTransactionResult>;
 
 struct TExecuteScriptSettings : public TOperationRequestSettings<TExecuteScriptSettings> {
-    FLUENT_SETTING_DEFAULT(Ydb::Query::Syntax, Syntax, Ydb::Query::SYNTAX_YQL_V1);
-    FLUENT_SETTING_DEFAULT(Ydb::Query::ExecMode, ExecMode, Ydb::Query::EXEC_MODE_EXECUTE);
-    FLUENT_SETTING_DEFAULT(Ydb::Query::StatsMode, StatsMode, Ydb::Query::STATS_MODE_NONE);
+    FLUENT_SETTING_DEFAULT(ESyntax, Syntax, ESyntax::YqlV1);
+    FLUENT_SETTING_DEFAULT(EExecMode, ExecMode, EExecMode::Execute);
+    FLUENT_SETTING_DEFAULT(EStatsMode, StatsMode, EStatsMode::None);
     FLUENT_SETTING(TDuration, ResultsTtl);
 };
 
@@ -114,6 +112,21 @@ public:
     ESyntax Syntax = ESyntax::Unspecified;
 };
 
+class TResultSetMeta {
+public:
+    TResultSetMeta() = default;
+
+    explicit TResultSetMeta(const std::vector<TColumn>& columns)
+        : Columns(columns)
+    {}
+
+    explicit TResultSetMeta(std::vector<TColumn>&& columns)
+        : Columns(std::move(columns))
+    {}
+
+    std::vector<TColumn> Columns;
+};
+
 class TScriptExecutionOperation : public TOperation {
 public:
     struct TMetadata {
@@ -122,8 +135,8 @@ public:
         EExecMode ExecMode = EExecMode::Unspecified;
 
         TQueryContent ScriptContent;
-        Ydb::TableStats::QueryStats ExecStats;
-        std::vector<Ydb::Query::ResultSetMeta> ResultSetsMeta;
+        TExecStats ExecStats;
+        std::vector<TResultSetMeta> ResultSetsMeta;
     };
 
     using TOperation::TOperation;
