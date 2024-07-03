@@ -248,16 +248,16 @@ bool TCgiParameters::Has(const std::string_view name, const std::string_view val
 }
 
 TQuickCgiParam::TQuickCgiParam(const std::string_view cgiParamStr) {
-    const size_t buf_length = CgiUnescapeBufLen(cgiParamStr.size());
-    UnescapeBuf = TTempBuf(buf_length);
+    const size_t bufLength = CgiUnescapeBufLen(cgiParamStr.size());
+    UnescapeBuf = TTempBuf(bufLength);
     char* buf = UnescapeBuf.Data();
 
-    auto f = [this, &buf, buf_length](const std::string_view key, const std::string_view val) {
+    auto f = [this, &buf, bufLength](const std::string_view key, const std::string_view val) {
         std::string_view name = CgiUnescapeBuf(buf, key);
         buf += name.size() + 1;
         std::string_view value = CgiUnescapeBuf(buf, val);
         buf += value.size() + 1;
-        Y_ASSERT(buf <= UnescapeBuf.Data() + buf_length);
+        Y_ASSERT(buf <= UnescapeBuf.Data() + bufLength);
         emplace(name, value);
     };
 
