@@ -18,6 +18,17 @@ Y_UNIT_TEST_SUITE(TCgiParametersTest) {
     }
 
     Y_UNIT_TEST(TestQuick) {
+        TQuickCgiParam A("a=b");
+        UNIT_ASSERT_EQUAL(A.Get("a") == "b", true);
+        UNIT_ASSERT(A.Has("a", "b"));
+
+        TQuickCgiParam B("aaa=bbb&ccc=ddd&ag0=");
+        UNIT_ASSERT_EQUAL(B.Get("aaa") == "bbb", true);
+        UNIT_ASSERT(B.Has("ccc", "ddd"));
+        UNIT_ASSERT(B.Has("ag0", ""));
+        UNIT_ASSERT(!B.Has("a", "bbb"));
+        UNIT_ASSERT(!B.Has("aaa", "bb"));
+
         TQuickCgiParam C("aaa=b%62b&ccc=ddd&ag0=");
         UNIT_ASSERT_EQUAL(C.Get("aaa") == "bbb", true);
         UNIT_ASSERT(C.Has("ccc", "ddd"));

@@ -20,7 +20,7 @@ const std::string& TCgiParameters::Get(const std::string_view name, size_t numOf
 }
 
 bool TCgiParameters::Erase(const std::string_view name, size_t pos) {
-    const auto pair = equal_range(static_cast<std::string>(name));
+    const auto pair = equal_range(name);
 
     for (auto it = pair.first; it != pair.second; ++it, --pos) {
         if (0 == pos) {
@@ -33,7 +33,7 @@ bool TCgiParameters::Erase(const std::string_view name, size_t pos) {
 }
 
 bool TCgiParameters::Erase(const std::string_view name, const std::string_view val) {
-    const auto pair = equal_range(static_cast<std::string>(name));
+    const auto pair = equal_range(name);
 
     bool found = false;
     for (auto it = pair.first; it != pair.second;) {
@@ -49,7 +49,7 @@ bool TCgiParameters::Erase(const std::string_view name, const std::string_view v
 }
 
 bool TCgiParameters::ErasePattern(const std::string_view name, const std::string_view pat) {
-    const auto pair = equal_range(static_cast<std::string>(name));
+    const auto pair = equal_range(name);
 
     bool found = false;
     for (auto it = pair.first; it != pair.second;) {
@@ -68,7 +68,7 @@ bool TCgiParameters::ErasePattern(const std::string_view name, const std::string
 size_t TCgiParameters::EraseAll(const std::string_view name) {
     size_t num = 0;
 
-    const auto pair = equal_range(static_cast<std::string>(name));
+    const auto pair = equal_range(name);
 
     for (auto it = pair.first; it != pair.second; erase(it++), ++num)
         ;
@@ -77,7 +77,7 @@ size_t TCgiParameters::EraseAll(const std::string_view name) {
 }
 
 void TCgiParameters::JoinUnescaped(const std::string_view key, char sep, std::string_view val) {
-    const auto pair = equal_range(static_cast<std::string>(key));
+    const auto pair = equal_range(key);
     auto it = pair.first;
 
     if (it == pair.second) { // not found
@@ -224,7 +224,7 @@ std::string TCgiParameters::QuotedPrint(const char* safe) const {
 }
 
 TCgiParameters::const_iterator TCgiParameters::Find(const std::string_view name, size_t pos) const noexcept {
-    const auto pair = equal_range(static_cast<std::string>(name));
+    const auto pair = equal_range(name);
 
     for (auto it = pair.first; it != pair.second; ++it, --pos) {
         if (0 == pos) {
@@ -236,7 +236,7 @@ TCgiParameters::const_iterator TCgiParameters::Find(const std::string_view name,
 }
 
 bool TCgiParameters::Has(const std::string_view name, const std::string_view value) const noexcept {
-    const auto pair = equal_range(static_cast<std::string>(name));
+    const auto pair = equal_range(name);
 
     for (auto it = pair.first; it != pair.second; ++it) {
         if (value == it->second) {
@@ -248,27 +248,24 @@ bool TCgiParameters::Has(const std::string_view name, const std::string_view val
 }
 
 TQuickCgiParam::TQuickCgiParam(const std::string_view cgiParamStr) {
-    UnescapeBuf.reserve(CgiUnescapeBufLen(cgiParamStr.size()));
-    char* buf = UnescapeBuf.data();
+    const size_t bufLength = CgiUnescapeBufLen(cgiParamStr.size());
+    UnescapeBuf = TTempBuf(bufLength);
+    char* buf = UnescapeBuf.Data();
 
-    auto f = [this, &buf](const std::string_view key, const std::string_view val) {
+    auto f = [this, &buf, bufLength](const std::string_view key, const std::string_view val) {
         std::string_view name = CgiUnescapeBuf(buf, key);
         buf += name.size() + 1;
         std::string_view value = CgiUnescapeBuf(buf, val);
         buf += value.size() + 1;
-        Y_ASSERT(buf <= UnescapeBuf.data() + UnescapeBuf.capacity() + 1 /*trailing zero*/);
+        Y_ASSERT(buf <= UnescapeBuf.Data() + bufLength);
         emplace(name, value);
     };
 
     DoScan<false>(cgiParamStr, f);
-
-    if (buf != UnescapeBuf.data()) {
-        UnescapeBuf.resize(buf - UnescapeBuf.data() - 1 /*trailing zero*/);
-    }
 }
 
 const std::string_view& TQuickCgiParam::Get(const std::string_view name, size_t pos) const noexcept {
-    const auto pair = equal_range(static_cast<std::string>(name));
+    const auto pair = equal_range(name);
 
     for (auto it = pair.first; it != pair.second; ++it, --pos) {
         if (0 == pos) {
@@ -280,7 +277,7 @@ const std::string_view& TQuickCgiParam::Get(const std::string_view name, size_t 
 }
 
 bool TQuickCgiParam::Has(const std::string_view name, const std::string_view value) const noexcept {
-    const auto pair = equal_range(static_cast<std::string>(name));
+    const auto pair = equal_range(name);
 
     for (auto it = pair.first; it != pair.second; ++it) {
         if (value == it->second) {
