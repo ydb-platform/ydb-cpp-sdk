@@ -30,6 +30,7 @@ endif()
 if (YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET)
   add_library(api-common-protos ALIAS ${YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET})
 else()
+  file(MAKE_DIRECTORY ${YDB_SDK_BINARY_DIR}/third_party/api-common-protos)
   file(GLOB_RECURSE API_COMMON_PROTOS_SOURCES
     ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos/google/*.proto
   )

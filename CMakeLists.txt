@@ -18,6 +18,8 @@ set(YDB-CPP-SDK_AVAILABLE_COMPONENTS "" CACHE INTERNAL "")
 set(YDB-CPP-SDK_COMPONENT_TARGETS "" CACHE INTERNAL "")
 file(READ "src/client/resources/ydb_sdk_version.txt" YDB_SDK_VERSION)
 
+file(MAKE_DIRECTORY ${YDB_SDK_BINARY_DIR}/ydb-cpp-sdk)
+
 list(APPEND CMAKE_MODULE_PATH ${YDB_SDK_SOURCE_DIR}/cmake)
 include_directories(${YDB_SDK_SOURCE_DIR} ${YDB_SDK_SOURCE_DIR}/include ${YDB_SDK_BINARY_DIR})
 
