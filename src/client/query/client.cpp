@@ -87,9 +87,9 @@ public:
     NThreading::TFuture<TScriptExecutionOperation> ExecuteScript(const std::string& script, const std::optional<TParams>& params, const TExecuteScriptSettings& settings) {
         using namespace Ydb::Query;
         auto request = MakeOperationRequest<ExecuteScriptRequest>(settings);
-        request.set_exec_mode(settings.ExecMode_);
-        request.set_stats_mode(settings.StatsMode_);
-        request.mutable_script_content()->set_syntax(settings.Syntax_);
+        request.set_exec_mode(::Ydb::Query::ExecMode(settings.ExecMode_));
+        request.set_stats_mode(::Ydb::Query::StatsMode(settings.StatsMode_));
+        request.mutable_script_content()->set_syntax(::Ydb::Query::Syntax(settings.Syntax_));
         request.mutable_script_content()->set_text(script);
         SetDuration(settings.ResultsTtl_, *request.mutable_results_ttl());
     
