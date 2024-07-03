@@ -6,7 +6,7 @@ target_link_libraries(client-extensions-solomon_stats PUBLIC
   monlib-metrics
   monlib-service
   monlib-service-pages
-  client-ydb_extension
+  client-extension_common
 )
 
 target_sources(client-extensions-solomon_stats PRIVATE

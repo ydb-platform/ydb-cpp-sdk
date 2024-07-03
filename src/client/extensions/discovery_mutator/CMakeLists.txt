@@ -2,7 +2,7 @@ add_library(client-extensions-discovery_mutator)
 
 target_link_libraries(client-extensions-discovery_mutator PUBLIC
   yutil
-  client-ydb_extension
+  client-extension_common
 )
 
 target_sources(client-extensions-discovery_mutator PRIVATE
