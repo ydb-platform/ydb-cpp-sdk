@@ -1,4 +1,4 @@
-#include <ydb-cpp-sdk/client/ydb_extension/extension.h>
+#include <ydb-cpp-sdk/client/extension_common/extension.h>
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/grpc_connections/grpc_connections.h>
