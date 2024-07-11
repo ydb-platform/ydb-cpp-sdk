@@ -242,8 +242,8 @@ void TPointerTest::TestMakeHolder() {
 
 void TPointerTest::TestTrulePtr() {
     {
-        TAutoPtr<A> a1(MakeA());
-        TAutoPtr<A> a2(a1);
+        std::unique_ptr<A> a1(MakeA());
+        std::unique_ptr<A> a2(a1);
         a1 = a2;
     }
 
@@ -252,8 +252,8 @@ void TPointerTest::TestTrulePtr() {
 
 void TPointerTest::TestAutoToHolder() {
     {
-        TAutoPtr<A> a1(MakeA());
-        THolder<A> a2(a1);
+        std::unique_ptr<A> a1(MakeA());
+        std::unique_ptr<A> a2(a1);
 
         UNIT_ASSERT_EQUAL(a1.Get(), nullptr);
         UNIT_ASSERT_VALUES_EQUAL(cnt, 1);
@@ -262,8 +262,8 @@ void TPointerTest::TestAutoToHolder() {
     UNIT_ASSERT_VALUES_EQUAL(cnt, 0);
 
     {
-        TAutoPtr<A> x(new A());
-        THolder<const A> y = x;
+        std::unique_ptr<A> x(new A());
+        std::unique_ptr<const A> y = x;
     }
 
     UNIT_ASSERT_VALUES_EQUAL(cnt, 0);
@@ -272,8 +272,8 @@ void TPointerTest::TestAutoToHolder() {
         class B1: public A {
         };
 
-        TAutoPtr<B1> x(new B1());
-        THolder<A> y = x;
+        std::unique_ptr<B1> x(new B1());
+        std::unique_ptr<A> y = x;
     }
 
     UNIT_ASSERT_VALUES_EQUAL(cnt, 0);
@@ -575,8 +575,8 @@ void TPointerTest::TestOperatorBool() {
 
     // pointers
     UNIT_ASSERT(!(TImplicitlyCastable<TSimpleSharedPtr<TVec>, int>::Result));
-    UNIT_ASSERT(!(TImplicitlyCastable<TAutoPtr<ui64>, ui64>::Result));
-    UNIT_ASSERT(!(TImplicitlyCastable<THolder<TVec>, bool>::Result)); // even this
+    UNIT_ASSERT(!(TImplicitlyCastable<std::unique_ptr<ui64>, ui64>::Result));
+    UNIT_ASSERT(!(TImplicitlyCastable<std::unique_ptr<TVec>, bool>::Result)); // even this
 
     {
         // mostly a compilability test
@@ -719,8 +719,8 @@ void TestPtrComparison(const TPtr& ptr) {
 }
 
 void TPointerTest::TestComparison() {
-    THolder<A> ptr1(new A);
-    TAutoPtr<A> ptr2;
+    std::unique_ptr<A> ptr1(new A);
+    std::unique_ptr<A> ptr2;
     TSimpleSharedPtr<int> ptr3(new int(6));
     TIntrusivePtr<A> ptr4;
     TIntrusiveConstPtr<A> ptr5 = ptr4;
