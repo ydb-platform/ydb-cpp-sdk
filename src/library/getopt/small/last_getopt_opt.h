@@ -12,6 +12,7 @@
 #include <utility>
 #include <algorithm>
 #include <functional>
+#include <memory>
 
 namespace NLastGetopt {
     enum EHasArg {
@@ -607,13 +608,13 @@ namespace NLastGetopt {
             return Handler1(f);
         }
 
-        TOpt& Handler(TAutoPtr<IOptHandler> handler) {
-            return HandlerImpl(handler.Release());
+        TOpt& Handler(std::unique_ptr<IOptHandler>& handler) {
+            return HandlerImpl(handler.release());
         }
 
         template <typename T> // T extends IOptHandler
-        TOpt& Handler(TAutoPtr<T> handler) {
-            return HandlerImpl(handler.Release());
+        TOpt& Handler(std::unique_ptr<T>& handler) {
+            return HandlerImpl(handler.release());
         }
 
         // Stores FromString<T>(arg) in *target
