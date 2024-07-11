@@ -19,6 +19,7 @@
 
 #include <cerrno>
 #include <cstring>
+#include <memory>
 #include <mutex>
 
 using namespace NAddr;
@@ -169,10 +170,10 @@ public:
         const THttpServerOptions& Options;
     };
 
-    TAutoPtr<TClientRequest> CreateRequest(TAutoPtr<TClientConnection> c) {
-        THolder<TClientRequest> obj(Cb_->CreateClient());
+    std::unique_ptr<TClientRequest> CreateRequest(std::unique_ptr<TClientConnection>& c) {
+        std::unique_ptr<TClientRequest> obj(Cb_->CreateClient());
 
-        obj->Conn_.Reset(c.Release());
+        obj->Conn_.Reset(c.release());
 
         return obj;
     }
@@ -287,9 +288,9 @@ public:
         // ignore result
     }
 
-    void AddRequest(TAutoPtr<TClientRequest> req, bool fail) {
+    void AddRequest(std::unique_ptr<TClientRequest>& req, bool fail) {
         struct TFailRequest: public THttpClientRequestEx {
-            inline TFailRequest(TAutoPtr<TClientRequest> parent) {
+            inline TFailRequest(std::unique_ptr<TClientRequest>& parent) {
                 Conn_.Reset(parent->Conn_.Release());
                 HttpConn_.Reset(parent->HttpConn_.Release());
             }
@@ -304,13 +305,13 @@ public:
             }
         };
 
-        if (!fail && Requests->Add(req.Get())) {
-            Y_UNUSED(req.Release());
+        if (!fail && Requests->Add(req.get())) {
+            Y_UNUSED(req.release());
         } else {
-            req = new TFailRequest(req);
+            req = std::make_unique<TFailRequest>(req);
 
-            if (FailRequests->Add(req.Get())) {
-                Y_UNUSED(req.Release());
+            if (FailRequests->Add(req.get())) {
+                Y_UNUSED(req.release());
             } else {
                 Cb_->OnFailRequest(-1);
             }
@@ -620,7 +621,7 @@ void TClientConnection::ScheduleDelete() {
 }
 
 void TClientConnection::OnPollEvent(TInstant now) {
-    THolder<TClientConnection> this_(this);
+    std::unique_ptr<TClientConnection> this_(this);
     Activate(now);
 
     {
@@ -637,7 +638,7 @@ void TClientConnection::OnPollEvent(TInstant now) {
         }
     }
 
-    THolder<TClientRequest> obj(HttpServ_->CreateRequest(this_));
+    std::unique_ptr<TClientRequest> obj = std::move(HttpServ_->CreateRequest(this_));
     AcceptMoment = now;
 
     HttpServ_->AddRequest(obj, Reject_);
