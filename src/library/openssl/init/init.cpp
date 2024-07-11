@@ -18,6 +18,7 @@
 #include <openssl/conf.h>
 #include <openssl/crypto.h>
 #include <mutex>
+#include <memory>
 #include <vector>
 
 namespace {
@@ -27,7 +28,7 @@ namespace {
                 : Mutexes(CRYPTO_num_locks())
             {
                 for (auto& mpref : Mutexes) {
-                    mpref.Reset(new std::mutex());
+                    mpref.reset(new std::mutex());
                 }
             }
 
@@ -41,7 +42,7 @@ namespace {
                 }
             }
 
-            std::vector<TAutoPtr<std::mutex>> Mutexes;
+            std::vector<std::unique_ptr<std::mutex>> Mutexes;
         };
 
         inline TInitSsl() {
