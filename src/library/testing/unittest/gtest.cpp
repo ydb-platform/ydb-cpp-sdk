@@ -3,6 +3,8 @@
 
 #include <ydb-cpp-sdk/util/system/type_name.h>
 
+#include <memory>
+
 using namespace NUnitTest;
 using namespace NUnitTest::NPrivate;
 
@@ -53,13 +55,13 @@ namespace {
 }
 
 IGTestFactory* NUnitTest::NPrivate::ByName(const char* name) {
-    static std::map<std::string_view, TAutoPtr<TGTestFactory>> tests;
+    static std::map<std::string_view, std::unique_ptr<TGTestFactory>> tests;
 
     auto& ret = tests[name];
 
     if (!ret) {
-        ret = new TGTestFactory(name);
+        ret = std::make_unique<TGTestFactory>(name);
     }
 
-    return ret.Get();
+    return ret.get();
 }
