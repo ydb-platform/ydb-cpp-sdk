@@ -767,12 +767,12 @@ IThread* IThreadPool::DoCreate() {
     return new TPoolThread(this);
 }
 
-THolder<IThreadPool> CreateThreadPool(size_t threadsCount, size_t queueSizeLimit, const TThreadPoolParams& params) {
-    THolder<IThreadPool> queue;
+std::unique_ptr<IThreadPool> CreateThreadPool(size_t threadsCount, size_t queueSizeLimit, const TThreadPoolParams& params) {
+    std::unique_ptr<IThreadPool> queue;
     if (threadsCount > 1) {
-        queue.Reset(new TThreadPool(params));
+        queue.reset(new TThreadPool(params));
     } else {
-        queue.Reset(new TFakeThreadPool());
+        queue.reset(new TFakeThreadPool());
     }
     queue->Start(threadsCount, queueSizeLimit);
     return queue;

@@ -8,6 +8,7 @@
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 
 #include <string>
+#include <memory>
 
 class TDuration;
 
@@ -15,7 +16,7 @@ struct IObjectInQueue {
     virtual ~IObjectInQueue() = default;
 
     /**
-     * Supposed to be implemented by user, to define jobs processed
+     * Supposed to be implemented by user, to define jobs pCrocessed
      * in multiple threads.
      *
      * @param threadSpecificResource is nullptr by default. But if you override
@@ -386,4 +387,4 @@ inline void Delete(THolder<IThreadPool> q) {
  * Creates and starts TThreadPool if threadsCount > 1, or TFakeThreadPool otherwise
  * You could specify blocking and catching modes for TThreadPool only
  */
-THolder<IThreadPool> CreateThreadPool(size_t threadCount, size_t queueSizeLimit = 0, const IThreadPool::TParams& params = {});
+std::unique_ptr<IThreadPool> CreateThreadPool(size_t threadCount, size_t queueSizeLimit = 0, const IThreadPool::TParams& params = {});
