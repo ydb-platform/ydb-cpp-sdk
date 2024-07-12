@@ -434,19 +434,19 @@ Y_UNIT_TEST_SUITE(TThreadSafeCacheTest) {
         TCallbacks callbacks;
         TCache cache(callbacks, 10);
 
-        cache.Insert(2, MakeAtomicShared<std::string>("hj"));
-        TAtomicSharedPtr<std::string> item = cache.Get(2);
+        cache.Insert(2, std::make_shared<std::string>("hj"));
+        std::shared_ptr<std::string> item = cache.Get(2);
 
         UNIT_ASSERT(callbacks.Creations == 0);
         UNIT_ASSERT(*item == "hj");
 
-        cache.Insert(2, MakeAtomicShared<std::string>("hjk"));
+        cache.Insert(2, std::make_shared<std::string>("hjk"));
         item = cache.Get(2);
 
         UNIT_ASSERT(callbacks.Creations == 0);
         UNIT_ASSERT(*item == "hj");
 
-        cache.Update(2, MakeAtomicShared<std::string>("hjk"));
+        cache.Update(2, std::make_shared<std::string>("hjk"));
         item = cache.Get(2);
 
         UNIT_ASSERT(callbacks.Creations == 0);
@@ -477,7 +477,7 @@ Y_UNIT_TEST_SUITE(TThreadSafeCacheUnsafeTest) {
         TCallbacks callbacks;
         TCache cache(callbacks, Y_ARRAY_SIZE(VALS));
         for (ui32 i = 0; i < Y_ARRAY_SIZE(VALS); ++i) {
-            const std::string* data = cache.GetUnsafe(i).Get();
+            const std::string* data = cache.GetUnsafe(i).get();
             if (i == FAILED_IDX) {
                 UNIT_ASSERT(data == nullptr);
             } else {
@@ -517,19 +517,19 @@ Y_UNIT_TEST_SUITE(TThreadSafeLRUCacheTest) {
         TCallbacks callbacks;
         TCache cache(callbacks, 10);
 
-        cache.Insert(2, MakeAtomicShared<std::string>("hj"));
-        TAtomicSharedPtr<std::string> item = cache.Get(2);
+        cache.Insert(2, std::make_shared<std::string>("hj"));
+        std::shared_ptr<std::string> item = cache.Get(2);
 
         UNIT_ASSERT(callbacks.Creations == 0);
         UNIT_ASSERT(*item == "hj");
 
-        cache.Insert(2, MakeAtomicShared<std::string>("hjk"));
+        cache.Insert(2, std::make_shared<std::string>("hjk"));
         item = cache.Get(2);
 
         UNIT_ASSERT(callbacks.Creations == 0);
         UNIT_ASSERT(*item == "hj");
 
-        cache.Update(2, MakeAtomicShared<std::string>("hjk"));
+        cache.Update(2, std::make_shared<std::string>("hjk"));
         item = cache.Get(2);
 
         UNIT_ASSERT(callbacks.Creations == 0);
@@ -543,13 +543,13 @@ Y_UNIT_TEST_SUITE(TThreadSafeLRUCacheTest) {
         UNIT_ASSERT_EQUAL(cache.GetMaxSize(), 3);
 
         for (size_t i = 0; i < Values.size(); ++i) {
-            TAtomicSharedPtr<std::string> item = cache.Get(i);
+            std::shared_ptr<std::string> item = cache.Get(i);
             UNIT_ASSERT(*item == Values[i]);
         }
         UNIT_ASSERT(callbacks.Creations == Values.size());
 
         size_t expectedCreations = Values.size();
-        TAtomicSharedPtr<std::string> item;
+        std::shared_ptr<std::string> item;
 
 
         item = cache.Get(4);
@@ -606,12 +606,12 @@ Y_UNIT_TEST_SUITE(TThreadSafeLRUCacheTest) {
         UNIT_ASSERT_EQUAL(cache.GetMaxSize(), 3);
 
         for (size_t i = 0; i < Values.size(); ++i) {
-            TAtomicSharedPtr<std::string> item = cache.Get(i);
+            std::shared_ptr<std::string> item = cache.Get(i);
             UNIT_ASSERT(*item == Values[i]);
         }
 
         size_t expectedCreations = Values.size();
-        TAtomicSharedPtr<std::string> item;
+        std::shared_ptr<std::string> item;
 
         item = cache.Get(4);
         UNIT_ASSERT_EQUAL(callbacks.Creations, expectedCreations);

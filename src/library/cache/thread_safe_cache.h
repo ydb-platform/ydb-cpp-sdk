@@ -16,7 +16,7 @@ namespace NPrivate {
     template <class Key, class Value, template <class, class> class List, EGettersPromotionPolicy GettersPromotionPolicy, class... TArgs>
     class TThreadSafeCache {
     public:
-        using TPtr = TAtomicSharedPtr<Value>;
+        using TPtr = std::shared_ptr<Value>;
 
         class ICallbacks {
         public:
@@ -128,8 +128,8 @@ namespace NPrivate {
             if (i != Cache.End()) {
                 return i.Value();
             }
-            TPtr value = Callbacks.CreateObject(args...);
-            if (value || AllowNullValues) {
+            TPtr value = std::shared_ptr<Value>(Callbacks.CreateObject(args...));
+            if (value || AllowNullValues) { 
                 Cache.Insert(key, value);
             }
             return value;
