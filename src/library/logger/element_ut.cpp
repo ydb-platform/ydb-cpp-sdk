@@ -25,31 +25,31 @@ UNIT_TEST_SUITE_REGISTRATION(TLogElementTest);
 
 void TLogElementTest::TestMoveCtor() {
     std::stringstream output;
-    TLog log(MakeHolder<TStreamLogBackend>(&output));
+    TLog log(std::unique_ptr<TStreamLogBackend>(&output));
 
-    THolder<TLogElement> src = MakeHolder<TLogElement>(&log);
+    std::unique_ptr<TLogElement> src = std::make_unique<TLogElement>(&log);
 
     std::string message = "Hello, World!";
     (*src) << message;
 
-    THolder<TLogElement> dst = MakeHolder<TLogElement>(std::move(*src));
+    std::unique_ptr<TLogElement> dst = std::make_unique<TLogElement>(std::move(*src));
 
-    src.Destroy();
+    src.reset(nullptr);
     UNIT_ASSERT(output.str() == "");
 
-    dst.Destroy();
+    dst.reset(nullptr);
     UNIT_ASSERT(output.str() == message);
 }
 
 void TLogElementTest::TestWith() {
     std::stringstream output;
-    TLog log(MakeHolder<TStreamWithContextLogBackend>(&output));
+    TLog log(std::make_unique<TStreamWithContextLogBackend>(&output));
 
-    THolder<TLogElement> src = MakeHolder<TLogElement>(&log);
+    std::unique_ptr<TLogElement> src = std::make_unique<TLogElement>(&log);
 
     std::string message = "Hello, World!";
     (*src).With("Foo", "Bar").With("Foo", "Baz") << message;
 
-    src.Destroy();
+    src.reset(nullptr);
     UNIT_ASSERT(output.str() == "Hello, World!; Foo=Bar; Foo=Baz; ");
 }
