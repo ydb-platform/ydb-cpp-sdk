@@ -1,6 +1,6 @@
-#include <src/library/testing/unittest/registar.h>
+#include "disjoint_interval_tree.h"
 
-#include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
+#include <src/library/testing/unittest/registar.h>
 
 Y_UNIT_TEST_SUITE(DisjointIntervalTreeTest) {
     Y_UNIT_TEST(GenericTest) {
