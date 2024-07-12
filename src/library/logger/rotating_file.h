@@ -5,6 +5,8 @@
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 class TRotatingFileLogBackend: public TLogBackend {
 public:
     TRotatingFileLogBackend(const std::string& preRotatePath, const std::string& postRotatePath, const ui64 maxSizeBytes);
@@ -16,5 +18,5 @@ public:
 
 private:
     class TImpl;
-    TAtomicSharedPtr<TImpl> Impl_;
+    std::shared_ptr<TImpl> Impl_;
 };

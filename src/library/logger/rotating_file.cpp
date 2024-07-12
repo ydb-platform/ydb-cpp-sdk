@@ -10,6 +10,8 @@
 #include <src/util/system/fs.h>
 #include <ydb-cpp-sdk/library/deprecated/atomic/atomic.h>
 
+#include <memory>
+
 /*
  * rotating file log
  * if Size_ > MaxSizeBytes
@@ -80,7 +82,7 @@ void TRotatingFileLogBackend::WriteData(const TLogRecord& rec) {
 }
 
 void TRotatingFileLogBackend::ReopenLog() {
-    TAtomicSharedPtr<TImpl> copy = Impl_;
+    std::shared_ptr<TImpl> copy = Impl_;
     if (copy) {
         copy->ReopenLog();
     }
