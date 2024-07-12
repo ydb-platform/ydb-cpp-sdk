@@ -33,7 +33,7 @@ public:
 
         virtual ~IInitContext() = default;
         virtual bool GetValue(std::string_view name, std::string& var) const = 0;
-        virtual std::vector<THolder<IInitContext>> GetChildren(std::string_view name) const = 0;
+        virtual std::vector<std::unique_ptr<IInitContext>> GetChildren(std::string_view name) const = 0;
     };
 
 public:
@@ -44,7 +44,7 @@ public:
     NJson::TJsonValue AsJson() const;
     virtual void ToJson(NJson::TJsonValue& value) const = 0;
 
-    static THolder<ILogBackendCreator> Create(const IInitContext& ctx);
+    static std::unique_ptr<ILogBackendCreator> Create(const IInitContext& ctx);
 
 private:
     virtual std::unique_ptr<TLogBackend> DoCreateLogBackend() const = 0;

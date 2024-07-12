@@ -27,8 +27,8 @@ NJson::TJsonValue ILogBackendCreator::AsJson() const {
     return json;
 }
 
-THolder<ILogBackendCreator> ILogBackendCreator::Create(const IInitContext& ctx) {
-    auto res = MakeHolder<TLogBackendCreatorUninitialized>();
+std::unique_ptr<ILogBackendCreator> ILogBackendCreator::Create(const IInitContext& ctx) {
+    auto res = std::make_unique<TLogBackendCreatorUninitialized>();
     if(!res->Init(ctx)) {
         Cdbg << "Cannot init log backend creator";
         return nullptr;
