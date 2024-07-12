@@ -19,7 +19,7 @@ public:
             return port;
         }
 
-        TAtomicSharedPtr<NTesting::IPort> holder(NTesting::GetFreePort().Release());
+        std::shared_ptr<NTesting::IPort> holder(NTesting::GetFreePort().Release());
         ReservePortForCurrentTest(holder);
 
         std::lock_guard g(Lock);
@@ -52,7 +52,7 @@ public:
     }
 
 private:
-    void ReservePortForCurrentTest(const TAtomicSharedPtr<NTesting::IPort>& portGuard) {
+    void ReservePortForCurrentTest(const std::shared_ptr<NTesting::IPort>& portGuard) {
         if (EnableReservePortsForCurrentTest) {
             TTestBase* currentTest = NUnitTest::NPrivate::GetCurrentTest();
             if (currentTest != nullptr) {
@@ -65,7 +65,7 @@ private:
 
 private:
     std::mutex Lock;
-    std::vector<TAtomicSharedPtr<NTesting::IPort>> ReservedPorts;
+    std::vector<std::shared_ptr<NTesting::IPort>> ReservedPorts;
     const bool EnableReservePortsForCurrentTest;
     const bool DisableRandomPorts;
 };
