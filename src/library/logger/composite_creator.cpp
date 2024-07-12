@@ -2,8 +2,8 @@
 #include "composite.h"
 #include "uninitialized_creator.h"
 
-THolder<TLogBackend> TCompositeBackendCreator::DoCreateLogBackend() const {
-    auto res = MakeHolder<TCompositeLogBackend>();
+std::unique_ptr<TLogBackend> TCompositeBackendCreator::DoCreateLogBackend() const {
+    auto res = std::make_unique<TCompositeLogBackend>();
     for (const auto& child : Children) {
         res->AddLogBackend(child->CreateLogBackend());
     }

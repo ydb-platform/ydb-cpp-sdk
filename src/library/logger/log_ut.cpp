@@ -64,7 +64,7 @@ void TLogTest::TestFile() {
 void TLogTest::TestThreaded() {
     {
         TFileLogBackend fb(LOGFILE);
-        TLog log(THolder(new TThreadedLogBackend(&fb)));
+        TLog log(std::make_unique<TThreadedLogBackend>(&fb));
 
         int v1 = 12;
         unsigned v2 = 34;
@@ -108,7 +108,7 @@ void TLogTest::TestThreadedWithOverflow() {
 
     TFakeLogBackend fb;
     {
-        TLog log(THolder(new TThreadedLogBackend(&fb, 2)));
+        TLog log(std::make_unique<TLogBackend>(&fb, 2));
 
         auto guard = fb.Guard();
         log.AddLog("first write");
@@ -120,7 +120,7 @@ void TLogTest::TestThreadedWithOverflow() {
 
     {
         ui32 overflows = 0;
-        TLog log(THolder(new TThreadedLogBackend(&fb, 2, [&overflows] { ++overflows; })));
+        TLog log(std::make_unique<TThreadedLogBackend>(&fb, 2, [&overflows] { ++overflows; }));
 
         auto guard = fb.Guard();
         log.AddLog("first write");
@@ -136,7 +136,7 @@ void TLogTest::TestThreadedWithOverflow() {
 void TLogTest::TestNoFlush() {
     {
         TFileLogBackend fb(LOGFILE);
-        TLog log(THolder(new TThreadedLogBackend(&fb)));
+        TLog log(std::make_unique<TThreadedLogBackend>(&fb));
 
         int v1 = 12;
         unsigned v2 = 34;
@@ -156,7 +156,7 @@ void TLogTest::TestFormat() {
     std::stringstream data;
 
     {
-        TLog log(THolder(new TStreamLogBackend(&data)));
+        TLog log(std::make_unique<TStreamLogBackend>(&data));
 
         log << "qw"
             << " "
@@ -171,7 +171,7 @@ void TLogTest::TestWrite() {
     std::string test;
 
     {
-        TLog log(THolder(new TStreamLogBackend(&data)));
+        TLog log(std::make_unique<TStreamLogBackend>(&data));
 
         for (size_t i = 0; i < 1000; ++i) {
             std::vector<char> buf(i, (char)i);
@@ -204,7 +204,7 @@ void TLogTest::TestMetaFlags() {
     };
 
     TLogRecord::TMetaFlags metaFlags;
-    TLog log(MakeHolder<TTestLogBackendStub>(metaFlags));
+    TLog log(std::make_unique<TTestLogBackendStub>(metaFlags));
     log.Write(ELogPriority::TLOG_INFO, std::string("message"), {{"key", "value"}});
 
     TLogRecord::TMetaFlags expected{{"key", "value"}};

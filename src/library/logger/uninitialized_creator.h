@@ -11,6 +11,6 @@ public:
     static TFactory::TRegistrator<TLogBackendCreatorUninitialized> Registrar;
 
 private:
-    virtual THolder<TLogBackend> DoCreateLogBackend() const override;
+    virtual std::unique_ptr<TLogBackend> DoCreateLogBackend() const override;
     THolder<ILogBackendCreator> Slave;
 };

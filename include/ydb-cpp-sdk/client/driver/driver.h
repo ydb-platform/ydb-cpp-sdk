@@ -118,7 +118,7 @@ public:
     TDriverConfig& SetMaxMessageSize(ui64 maxMessageSize);
 
     //! Log backend.
-    TDriverConfig& SetLog(THolder<TLogBackend> log);
+    TDriverConfig& SetLog(std::unique_ptr<TLogBackend> log);
 private:
     class TImpl;
     std::shared_ptr<TImpl> Impl_;

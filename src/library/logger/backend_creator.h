@@ -7,6 +7,8 @@
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 
+#include <memory>
+
 class ILogBackendCreator {
 public:
     using TFactory = NObjectFactory::TObjectFactory<ILogBackendCreator, std::string>;
@@ -36,7 +38,7 @@ public:
 
 public:
     virtual ~ILogBackendCreator() = default;
-    THolder<TLogBackend> CreateLogBackend() const;
+    std::unique_ptr<TLogBackend> CreateLogBackend() const;
     virtual bool Init(const IInitContext& ctx);
 
     NJson::TJsonValue AsJson() const;
@@ -45,7 +47,7 @@ public:
     static THolder<ILogBackendCreator> Create(const IInitContext& ctx);
 
 private:
-    virtual THolder<TLogBackend> DoCreateLogBackend() const = 0;
+    virtual std::unique_ptr<TLogBackend> DoCreateLogBackend() const = 0;
 };
 
 class TLogBackendCreatorBase: public ILogBackendCreator {

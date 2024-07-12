@@ -6,8 +6,8 @@ TFilteredBackendCreator::TFilteredBackendCreator(THolder<ILogBackendCreator> sla
     , Priority(priority)
 {}
 
-THolder<TLogBackend> TFilteredBackendCreator::DoCreateLogBackend() const {
-    return MakeHolder<TFilteredLogBackend>(Slave->CreateLogBackend(), Priority);
+std::unique_ptr<TLogBackend> TFilteredBackendCreator::DoCreateLogBackend() const {
+    return std::make_unique<TFilteredLogBackend>(Slave->CreateLogBackend(), Priority);
 }
 
 bool TFilteredBackendCreator::Init(const IInitContext& ctx) {

@@ -5,8 +5,8 @@ TOwningThreadedLogBackendCreator::TOwningThreadedLogBackendCreator(THolder<ILogB
     : Slave(std::move(slave))
 {}
 
-THolder<TLogBackend> TOwningThreadedLogBackendCreator::DoCreateLogBackend() const {
-    return MakeHolder<TOwningThreadedLogBackend>(Slave->CreateLogBackend().Release(), QueueLen, QueueOverflowCallback);
+std::unique_ptr<TLogBackend> TOwningThreadedLogBackendCreator::DoCreateLogBackend() const {
+    return std::make_unique<TOwningThreadedLogBackend>(Slave->CreateLogBackend().release(), QueueLen, QueueOverflowCallback);
 }
 
 bool TOwningThreadedLogBackendCreator::Init(const IInitContext& ctx) {

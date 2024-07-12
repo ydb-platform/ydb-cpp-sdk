@@ -7,13 +7,13 @@
 
 #include <iostream>
 
-THolder<TLogBackend> ILogBackendCreator::CreateLogBackend() const {
+std::unique_ptr<TLogBackend> ILogBackendCreator::CreateLogBackend() const {
     try {
         return DoCreateLogBackend();
     } catch(...) {
         Cdbg << "Warning: " << CurrentExceptionMessage() << ". Use stderr instead." << std::endl;
     }
-    return MakeHolder<TStreamLogBackend>(&std::cerr);
+    return std::make_unique<TStreamLogBackend>(&std::cerr);
 }
 
 bool ILogBackendCreator::Init(const IInitContext& /*ctx*/) {

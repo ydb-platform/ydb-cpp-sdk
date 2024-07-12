@@ -6,12 +6,14 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 class TFilteredLogBackend: public TLogBackend {
-    THolder<TLogBackend> Backend;
+    std::unique_ptr<TLogBackend> Backend;
     ELogPriority Level;
 
 public:
-    TFilteredLogBackend(THolder<TLogBackend>&& t, ELogPriority level = LOG_MAX_PRIORITY) noexcept
+    TFilteredLogBackend(std::unique_ptr<TLogBackend>&& t, ELogPriority level = LOG_MAX_PRIORITY) noexcept
         : Backend(std::move(t))
         , Level(level)
     {

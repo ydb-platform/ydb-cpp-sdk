@@ -13,5 +13,5 @@ protected:
     std::string Path;
 
 private:
-    virtual THolder<TLogBackend> DoCreateLogBackend() const override;
+    virtual std::unique_ptr<TLogBackend> DoCreateLogBackend() const override;
 };

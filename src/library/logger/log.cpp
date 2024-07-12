@@ -10,18 +10,19 @@
 
 #include <iostream>
 
-THolder<TLogBackend> CreateLogBackend(const std::string& fname, ELogPriority priority, bool threaded) {
+
+std::unique_ptr<TLogBackend> CreateLogBackend(const std::string& fname, ELogPriority priority, bool threaded) {
     TLogBackendCreatorUninitialized creator;
     creator.InitCustom(fname, priority, threaded);
     return creator.CreateLogBackend();
 }
 
-THolder<TLogBackend> CreateFilteredOwningThreadedLogBackend(const std::string& fname, ELogPriority priority, size_t queueLen) {
-    return MakeHolder<TFilteredLogBackend>(CreateOwningThreadedLogBackend(fname, queueLen), priority);
+std::unique_ptr<TLogBackend> CreateFilteredOwningThreadedLogBackend(const std::string& fname, ELogPriority priority, size_t queueLen) {
+    return std::make_unique<TFilteredLogBackend>(CreateOwningThreadedLogBackend(fname, queueLen), priority);
 }
 
-THolder<TOwningThreadedLogBackend> CreateOwningThreadedLogBackend(const std::string& fname, size_t queueLen) {
-    return MakeHolder<TOwningThreadedLogBackend>(CreateLogBackend(fname, LOG_MAX_PRIORITY, false).Release(), queueLen);
+std::unique_ptr<TOwningThreadedLogBackend> CreateOwningThreadedLogBackend(const std::string& fname, size_t queueLen) {
+    return std::make_unique<TOwningThreadedLogBackend>(CreateLogBackend(fname, LOG_MAX_PRIORITY, false).release(), queueLen);
 }
 
 class TLog::TImpl: public TAtomicRefCount<TImpl> {
@@ -43,7 +44,7 @@ class TLog::TImpl: public TAtomicRefCount<TImpl> {
     };
 
 public:
-    inline TImpl(THolder<TLogBackend> backend)
+    inline TImpl(std::unique_ptr<TLogBackend> backend)
         : Backend_(std::move(backend))
     {
     }
@@ -81,24 +82,24 @@ public:
         ls << tmp;
     }
 
-    inline void ResetBackend(THolder<TLogBackend> backend) noexcept {
+    inline void ResetBackend(std::unique_ptr<TLogBackend> backend) noexcept {
         Backend_ = std::move(backend);
     }
 
-    inline THolder<TLogBackend> ReleaseBackend() noexcept {
+    inline std::unique_ptr<TLogBackend> ReleaseBackend() noexcept {
         return std::move(Backend_);
     }
 
     inline bool IsNullLog() const noexcept {
-        return !IsOpen() || (dynamic_cast<TNullLogBackend*>(Backend_.Get()) != nullptr);
+        return !IsOpen() || (dynamic_cast<TNullLogBackend*>(Backend_.get()) != nullptr);
     }
 
     inline bool IsOpen() const noexcept {
-        return nullptr != Backend_.Get();
+        return nullptr != Backend_.get();
     }
 
     inline void CloseLog() noexcept {
-        Backend_.Destroy();
+        Backend_.reset(nullptr);
 
         Y_ASSERT(!IsOpen());
     }
@@ -126,7 +127,7 @@ public:
     }
 
 private:
-    THolder<TLogBackend> Backend_;
+    std::unique_ptr<TLogBackend> Backend_;
     ELogPriority DefaultPriority_ = LOG_DEF_PRIORITY;
 };
 
@@ -140,7 +141,7 @@ TLog::TLog(const std::string& fname, ELogPriority priority)
 {
 }
 
-TLog::TLog(THolder<TLogBackend> backend)
+TLog::TLog(std::unique_ptr<TLogBackend> backend)
     : Impl_(MakeIntrusive<TImpl>(std::move(backend)))
 {
 }
@@ -213,13 +214,13 @@ bool TLog::OpenLog(const char* path, ELogPriority lp) {
     if (path) {
         ResetBackend(CreateLogBackend(path, lp));
     } else {
-        ResetBackend(MakeHolder<TStreamLogBackend>(&std::cerr));
+        ResetBackend(std::make_unique<TStreamLogBackend>(&std::cerr));
     }
 
     return true;
 }
 
-void TLog::ResetBackend(THolder<TLogBackend> backend) noexcept {
+void TLog::ResetBackend(std::unique_ptr<TLogBackend> backend) noexcept {
     Impl_->ResetBackend(std::move(backend));
 }
 
@@ -227,7 +228,7 @@ bool TLog::IsNullLog() const noexcept {
     return Impl_->IsNullLog();
 }
 
-THolder<TLogBackend> TLog::ReleaseBackend() noexcept {
+std::unique_ptr<TLogBackend> TLog::ReleaseBackend() noexcept {
     return Impl_->ReleaseBackend();
 }
 

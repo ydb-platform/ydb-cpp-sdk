@@ -10,6 +10,7 @@
 
 #include <functional>
 #include <cstdarg>
+#include <memory>
 
 using TLogFormatter = std::function<std::string(ELogPriority priority, std::string_view)>;
 
@@ -36,7 +37,7 @@ public:
     // Construct file logger.
     TLog(const std::string& fname, ELogPriority priority = LOG_MAX_PRIORITY);
     // Construct any type of logger
-    TLog(THolder<TLogBackend> backend);
+    TLog(std::unique_ptr<TLogBackend> backend);
 
     TLog(const TLog&);
     TLog(TLog&&);
@@ -46,10 +47,10 @@ public:
 
     // Change underlying backend.
     // NOTE: not thread safe.
-    void ResetBackend(THolder<TLogBackend> backend) noexcept;
+    void ResetBackend(std::unique_ptr<TLogBackend> backend) noexcept;
     // Reset underlying backend, `IsNullLog()` will return `true` after this call.
     // NOTE: not thread safe.
-    THolder<TLogBackend> ReleaseBackend() noexcept;
+    std::unique_ptr<TLogBackend> ReleaseBackend() noexcept;
     // Check if underlying backend is defined and is not null.
     // NOTE: not thread safe with respect to `ResetBackend` and `ReleaseBackend`.
     bool IsNullLog() const noexcept;
@@ -113,6 +114,6 @@ private:
     TLogFormatter Formatter_;
 };
 
-THolder<TLogBackend> CreateLogBackend(const std::string& fname, ELogPriority priority = LOG_MAX_PRIORITY, bool threaded = false);
-THolder<TLogBackend> CreateFilteredOwningThreadedLogBackend(const std::string& fname, ELogPriority priority = LOG_MAX_PRIORITY, size_t queueLen = 0);
-THolder<TOwningThreadedLogBackend> CreateOwningThreadedLogBackend(const std::string& fname, size_t queueLen = 0);
+std::unique_ptr<TLogBackend> CreateLogBackend(const std::string& fname, ELogPriority priority = LOG_MAX_PRIORITY, bool threaded = false);
+std::unique_ptr<TLogBackend> CreateFilteredOwningThreadedLogBackend(const std::string& fname, ELogPriority priority = LOG_MAX_PRIORITY, size_t queueLen = 0);
+std::unique_ptr<TOwningThreadedLogBackend> CreateOwningThreadedLogBackend(const std::string& fname, size_t queueLen = 0);

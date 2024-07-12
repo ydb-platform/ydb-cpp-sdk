@@ -5,7 +5,7 @@
 #include "null_creator.h"
 #include <ydb-cpp-sdk/util/string/cast.h>
 
-THolder<TLogBackend> TLogBackendCreatorUninitialized::DoCreateLogBackend() const {
+std::unique_ptr<TLogBackend> TLogBackendCreatorUninitialized::DoCreateLogBackend() const {
     return Slave->CreateLogBackend();
 }
 

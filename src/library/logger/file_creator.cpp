@@ -1,13 +1,15 @@
 #include "file_creator.h"
 #include "file.h"
 
+#include <memory>
+
 TFileLogBackendCreator::TFileLogBackendCreator(const std::string& path /*= std::string()*/, const std::string& type /*= "file"*/)
     : TLogBackendCreatorBase(type)
     , Path(path)
 {}
 
-THolder<TLogBackend> TFileLogBackendCreator::DoCreateLogBackend() const {
-    return MakeHolder<TFileLogBackend>(Path);
+std::unique_ptr<TLogBackend> TFileLogBackendCreator::DoCreateLogBackend() const {
+    return std::make_unique<TFileLogBackend>(Path);
 }
 
 bool TFileLogBackendCreator::Init(const IInitContext& ctx) {

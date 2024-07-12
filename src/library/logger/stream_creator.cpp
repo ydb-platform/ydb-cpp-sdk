@@ -3,8 +3,8 @@
 
 #include <iostream>
 
-THolder<TLogBackend> TCerrLogBackendCreator::DoCreateLogBackend() const {
-    return MakeHolder<TStreamLogBackend>(&std::cerr);
+std::unique_ptr<TLogBackend> TCerrLogBackendCreator::DoCreateLogBackend() const {
+    return std::make_unique<TStreamLogBackend>(&std::cerr);
 }
 
 
@@ -19,8 +19,8 @@ ILogBackendCreator::TFactory::TRegistrator<TCerrLogBackendCreator> TCerrLogBacke
 ILogBackendCreator::TFactory::TRegistrator<TCerrLogBackendCreator> TCerrLogBackendCreator::RegistrarConsole("console");
 
 
-THolder<TLogBackend> TCoutLogBackendCreator::DoCreateLogBackend() const {
-    return MakeHolder<TStreamLogBackend>(&std::cout);
+std::unique_ptr<TLogBackend> TCoutLogBackendCreator::DoCreateLogBackend() const {
+    return std::make_unique<TStreamLogBackend>(&std::cout);
 }
 
 
