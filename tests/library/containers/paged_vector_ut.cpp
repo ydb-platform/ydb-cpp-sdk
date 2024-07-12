@@ -1,4 +1,5 @@
-#include <src/library/containers/paged_vector/paged_vector.h>
+#include "paged_vector.h"
+
 #include <src/library/testing/unittest/registar.h>
 
 #include <stdexcept>

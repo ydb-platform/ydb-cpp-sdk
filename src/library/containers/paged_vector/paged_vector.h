@@ -16,8 +16,8 @@ namespace NPagedVector {
         struct TPagedVectorIterator {
         private:
             friend class TPagedVector<TT, PageSize, A>;
-            typedef TPagedVector<TT, PageSize, A> TVec;
-            typedef TPagedVectorIterator<T, TT, PageSize, A> TSelf;
+            using TVec = TPagedVector<TT, PageSize, A>;
+            using TSelf = TPagedVectorIterator<T, TT, PageSize, A>;
             size_t Offset;
             TVec* Vector;
 
@@ -136,11 +136,11 @@ namespace NPagedVector {
 namespace std {
     template <class T, class TT, ui32 PageSize, class A>
     struct iterator_traits<NPagedVector::NPrivate::TPagedVectorIterator<T, TT, PageSize, A>> {
-        typedef ptrdiff_t difference_type;
-        typedef T value_type;
-        typedef T* pointer;
-        typedef T& reference;
-        typedef random_access_iterator_tag iterator_category;
+        using difference_type = ptrdiff_t;
+        using value_type = T;
+        using pointer = T*;
+        using reference = T&;
+        using iterator_category = random_access_iterator_tag;
     };
 
 }
@@ -159,13 +159,13 @@ namespace NPagedVector {
         using TSelf = TPagedVector<T, PageSize, A>;
 
     public:
-        typedef NPrivate::TPagedVectorIterator<T, T, PageSize, A> iterator;
-        typedef NPrivate::TPagedVectorIterator<const T, T, PageSize, A> const_iterator;
-        typedef std::reverse_iterator<iterator> reverse_iterator;
-        typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-        typedef T value_type;
-        typedef value_type& reference;
-        typedef const value_type& const_reference;
+        using iterator = NPrivate::TPagedVectorIterator<T, T, PageSize, A>;
+        using const_iterator = NPrivate::TPagedVectorIterator<const T, T, PageSize, A>;
+        using reverse_iterator = std::reverse_iterator<iterator>;
+        using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+        using value_type = T;
+        using reference = value_type&;
+        using const_reference = const value_type&;
 
         TPagedVector() = default;
 
@@ -354,8 +354,9 @@ namespace NPagedVector {
         template <typename TIter>
         void insert(iterator it, TIter b, TIter e) {
             // todo : suboptimal!
-            for (; b != e; ++b, ++it)
+            for (; b != e; ++b, ++it) {
                 it = insert(it, *b);
+            }
         }
 
         reference front() {
@@ -379,25 +380,30 @@ namespace NPagedVector {
         }
 
         void resize(size_t sz) {
-            if (sz == size())
+            if (sz == size()) {
                 return;
+            }
 
             const size_t npages = NPages();
             const size_t newwholepages = sz / PageSize;
             const size_t pagepart = sz % PageSize;
             const size_t newpages = newwholepages + bool(pagepart);
 
-            if (npages && newwholepages >= npages)
+            if (npages && newwholepages >= npages) {
                 CurrentPage().resize(PageSize);
+            }
 
-            if (newpages < npages)
+            if (newpages < npages) {
                 TPages::resize(newpages);
-            else
-                for (size_t i = npages; i < newpages; ++i)
+            } else {
+                for (size_t i = npages; i < newpages; ++i) {
                     MakeNewPage();
+                }
+            }
 
-            if (pagepart)
+            if (pagepart) {
                 CurrentPage().resize(pagepart);
+            }
 
             Y_ABORT_UNLESS(sz == size(), "%" PRIu64 " %" PRIu64, (ui64)sz, (ui64)size());
         }
@@ -428,9 +434,9 @@ namespace NPagedVector {
     };
 
     namespace NPrivate {
-        typedef std::is_same<std::random_access_iterator_tag, std::iterator_traits<
-                                                                  TPagedVector<ui32>::iterator>::iterator_category>
-            TIteratorCheck;
+        using TIteratorCheck = std::is_same<
+                std::random_access_iterator_tag,
+                std::iterator_traits<TPagedVector<ui32>::iterator>::iterator_category>;
         static_assert(TIteratorCheck::value, "expect TIteratorCheck::Result");
     }
 
