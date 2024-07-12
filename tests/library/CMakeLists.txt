@@ -1,7 +1,6 @@
 add_subdirectory(cache)
 add_subdirectory(case_insensitive_string)
 add_subdirectory(cgiparam)
-add_subdirectory(charset)
 add_subdirectory(containers)
 add_subdirectory(coroutine)
 add_subdirectory(dbg_output)
