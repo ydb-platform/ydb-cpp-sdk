@@ -1,10 +1,10 @@
 #include "codepage.h"
-#include "wide.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <src/util/charset/utf8.h>
-#include <ydb-cpp-sdk/util/system/yassert.h>
+
+#include <src/library/testing/unittest/registar.h>
 
 #if defined(_MSC_VER)
 #pragma warning(disable : 4309) /*truncation of constant value*/
@@ -72,14 +72,15 @@ void TCodepageTest::TestUTF() {
         size_t rune_len;
         size_t ref_len = 0;
 
-        if (i < 0x80)
+        if (i < 0x80) {
             ref_len = 1;
-        else if (i < 0x800)
+        } else if (i < 0x800) {
             ref_len = 2;
-        else if (i < 0x10000)
+        } else if (i < 0x10000) {
             ref_len = 3;
-        else
+        } else {
             ref_len = 4;
+        }
 
         RECODE_RESULT res = SafeWriteUTF8Char(i, rune_len, buffer, buffer + 32);
         UNIT_ASSERT(res == RECODE_OK);
@@ -143,7 +144,7 @@ void TCodepageTest::TestUTF() {
     };
     for (size_t i = 0; i < Y_ARRAY_SIZE(badStrings); ++i) {
         wchar32 rune;
-        const ui8* p = (const ui8*)badStrings[i];
+        const ui8* p = reinterpret_cast<const ui8*>(badStrings[i]);
         size_t len;
         RECODE_RESULT res = SafeReadUTF8Char(rune, len, p, p + strlen(badStrings[i]));
         UNIT_ASSERT(res == RECODE_BROKENSYMBOL);
