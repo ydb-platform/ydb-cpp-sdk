@@ -15,5 +15,5 @@ public:
 
 private:
     class TImpl;
-    TAtomicSharedPtr<TImpl> Impl_;
+    std::shared_ptr<TImpl> Impl_;
 };
