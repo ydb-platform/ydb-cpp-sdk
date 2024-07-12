@@ -773,7 +773,7 @@ void TPointerTest::TestRefCountedPtrsInHashSet() {
     TestRefCountedPtrsInHashSetImpl<A, TIntrusiveConstPtr<A>>();
 
     // test with custom ops
-    TestRefCountedPtrsInHashSetImpl<std::string, std::shared_ptr<std::string, TCustomCounter, TCustomDeleter>>();
+    TestRefCountedPtrsInHashSetImpl<std::string, TSharedPtr<std::string, TCustomCounter, TCustomDeleter>>();
     TestRefCountedPtrsInHashSetImpl<A, TIntrusivePtr<A, TCustomIntrusivePtrOps>>();
     TestRefCountedPtrsInHashSetImpl<A, TIntrusiveConstPtr<A, TCustomIntrusivePtrOps>>();
 }
