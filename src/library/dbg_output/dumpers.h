@@ -13,6 +13,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include <memory>
+
 //smart pointers
 template <class T, class D>
 struct TDumper<TAutoPtr<T, D>> {
@@ -38,11 +40,11 @@ struct TDumper<TIntrusivePtr<T, Ops>> {
     }
 };
 
-template <class T, class C, class D>
-struct TDumper<TSharedPtr<T, C, D>> {
+template <class T>
+struct TDumper<std::shared_ptr<T>> {
     template <class S>
-    static inline void Dump(S& s, const TSharedPtr<T, C, D>& v) {
-        s << DumpRaw("TSharedPtr(") << v.Get() << DumpRaw(")");
+    static inline void Dump(S& s, const std::shared_ptr<T>& v) {
+        s << DumpRaw("std::shared_ptr(") << v.get() << DumpRaw(")");
     }
 };
 
