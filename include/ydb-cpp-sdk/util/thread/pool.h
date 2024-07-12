@@ -16,7 +16,7 @@ struct IObjectInQueue {
     virtual ~IObjectInQueue() = default;
 
     /**
-     * Supposed to be implemented by user, to define jobs pCrocessed
+     * Supposed to be implemented by user, to define jobs processed
      * in multiple threads.
      *
      * @param threadSpecificResource is nullptr by default. But if you override
