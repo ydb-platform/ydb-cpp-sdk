@@ -36,7 +36,7 @@ public:
         : TBase(list)
     {
     }
-
+    
     static TAddrList MakeV4Addr(ui32 ip, TIpPort port) {
         return TAddrList({
             std::make_shared<NAddr::TIPv4Addr>(TIpAddress(htonl(ip), htons(port)))
