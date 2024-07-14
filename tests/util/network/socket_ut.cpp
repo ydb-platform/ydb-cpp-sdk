@@ -296,12 +296,12 @@ void TPollTest::TestPollInOut() {
 
     ui32 localIp = ntohl(inet_addr("127.0.0.1"));
 
-    std::vector<TSimpleSharedPtr<TSocketHolder>> clientSockets;
-    std::vector<TSimpleSharedPtr<TSocketHolder>> connectedSockets;
+    std::vector<std::shared_ptr<TSocketHolder>> clientSockets;
+    std::vector<std::shared_ptr<TSocketHolder>> connectedSockets;
     std::vector<pollfd> fds;
 
     for (size_t i = 0; i < socketCount; ++i) {
-        TSimpleSharedPtr<TSocketHolder> clientSocket(new TSocketHolder(StartClientSocket(localIp, port)));
+        std::shared_ptr<TSocketHolder> clientSocket(new TSocketHolder(StartClientSocket(localIp, port)));
         clientSockets.push_back(clientSocket);
 
         if (i % 5 == 0 || i % 5 == 2) {
@@ -310,7 +310,7 @@ void TPollTest::TestPollInOut() {
                 ythrow yexception() << "Can not send (" << LastSystemErrorText() << ")";
         }
 
-        TSimpleSharedPtr<TSocketHolder> connectedSocket(new TSocketHolder(AcceptConnection(serverSocket)));
+        std::shared_ptr<TSocketHolder> connectedSocket(new TSocketHolder(AcceptConnection(serverSocket)));
         connectedSockets.push_back(connectedSocket);
 
         if (i % 5 == 2 || i % 5 == 3) {
