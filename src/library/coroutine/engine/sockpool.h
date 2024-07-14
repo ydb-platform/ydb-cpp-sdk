@@ -143,7 +143,7 @@ class TSocketPool {
     friend class TPooledSocket::TImpl;
 
 public:
-    typedef TAtomicSharedPtr<NAddr::IRemoteAddr> TAddrRef;
+    typedef std::shared_ptr<NAddr::IRemoteAddr> TAddrRef;
 
     TSocketPool(int ip, int port)
         : Addr_(new NAddr::TIPv4Addr(TIpAddress((ui32)ip, (ui16)port)))
