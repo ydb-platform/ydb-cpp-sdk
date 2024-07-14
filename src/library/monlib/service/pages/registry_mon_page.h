@@ -8,10 +8,10 @@ namespace NMonitoring {
     // For now this class can only enumerate all metrics without any grouping or serve JSON/Spack/Prometheus
     class TMetricRegistryPage: public TPreMonPage {
     public:
-        TMetricRegistryPage(const std::string& path, const std::string& title, TAtomicSharedPtr<IMetricSupplier> registry)
+        TMetricRegistryPage(const std::string& path, const std::string& title, std::shared_ptr<IMetricSupplier> registry)
             : TPreMonPage(path, title)
             , Registry_(registry)
-            , RegistryRawPtr_(Registry_.Get())
+            , RegistryRawPtr_(Registry_.get())
         {
         }
 
@@ -25,7 +25,7 @@ namespace NMonitoring {
         void OutputText(IOutputStream& out, NMonitoring::IMonHttpRequest&) override;
 
     private:
-        TAtomicSharedPtr<IMetricSupplier> Registry_;
+        std::shared_ptr<IMetricSupplier> Registry_;
         IMetricSupplier* RegistryRawPtr_;
     };
 
