@@ -12,6 +12,7 @@
 #include <utility>
 #include <algorithm>
 #include <functional>
+#include <memory>
 
 namespace NLastGetopt {
     enum EHasArg {
@@ -52,7 +53,7 @@ namespace NLastGetopt {
 
     private:
         typedef std::optional<std::string> TdOptVal;
-        typedef std::vector<TSimpleSharedPtr<IOptHandler>> TOptHandlers;
+        typedef std::vector<std::shared_ptr<IOptHandler>> TOptHandlers;
 
     public:
         bool Hidden_ = false;       // is visible in help
@@ -573,7 +574,7 @@ namespace NLastGetopt {
 
     private:
         TOpt& HandlerImpl(IOptHandler* handler) {
-            Handlers_.push_back(handler);
+            Handlers_.push_back(std::shared_ptr<IOptHandler>(handler));
             return *this;
         }
 
