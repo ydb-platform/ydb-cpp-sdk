@@ -21,7 +21,7 @@ Y_UNIT_TEST_SUITE(TEndpointTest) {
 
             addrs.push_back(na1);
 
-            ep1 = TEndpoint(new NAddr::TAddrInfo(&*na1.Begin()));
+            ep1 = TEndpoint(std::make_shared<NAddr::TAddrInfo>(&*na1.Begin()));
 
             UNIT_ASSERT(ep1.IsIpV4());
             UNIT_ASSERT_VALUES_EQUAL("25.26.27.28", ep1.IpToString());
@@ -31,7 +31,7 @@ Y_UNIT_TEST_SUITE(TEndpointTest) {
 
             addrs.push_back(n);
 
-            ep1 = TEndpoint(new NAddr::TAddrInfo(&*n.Begin()));
+            ep1 = TEndpoint(std::make_shared<NAddr::TAddrInfo>(&*n.Begin()));
         }
 
         ep0.SetPort(12345);
@@ -49,7 +49,7 @@ Y_UNIT_TEST_SUITE(TEndpointTest) {
         UNIT_ASSERT(ep2 == ep2_);
 
         TNetworkAddress na3("2a02:6b8:0:1410::5f6c:f3c2", 54321);
-        TEndpoint ep3(new NAddr::TAddrInfo(&*na3.Begin()));
+        TEndpoint ep3(std::make_shared<NAddr::TAddrInfo>(&*na3.Begin()));
 
         UNIT_ASSERT(ep3.IsIpV6());
         UNIT_ASSERT(ep3.IpToString().starts_with(std::string_view("2a02:6b8:0:1410:")));
@@ -57,7 +57,7 @@ Y_UNIT_TEST_SUITE(TEndpointTest) {
         UNIT_ASSERT_VALUES_EQUAL(54321, ep3.Port());
 
         TNetworkAddress na4("2a02:6b8:0:1410:0::5f6c:f3c2", 1);
-        TEndpoint ep4(new NAddr::TAddrInfo(&*na4.Begin()));
+        TEndpoint ep4(std::make_shared<NAddr::TAddrInfo>(&*na4.Begin()));
 
         TEndpoint ep3_ = ep4;
 
@@ -90,16 +90,16 @@ Y_UNIT_TEST_SUITE(TEndpointTest) {
         const std::string ip2 = "2a02:6b8:0:1410::5f6c:f3c3";
 
         TNetworkAddress na1(ip1, 24242);
-        TEndpoint ep1(new NAddr::TAddrInfo(&*na1.Begin()));
+        TEndpoint ep1(std::make_shared<NAddr::TAddrInfo>(&*na1.Begin()));
 
         TNetworkAddress na2(ip1, 24242);
-        TEndpoint ep2(new NAddr::TAddrInfo(&*na2.Begin()));
+        TEndpoint ep2(std::make_shared<NAddr::TAddrInfo>(&*na2.Begin()));
 
         TNetworkAddress na3(ip2, 24242);
-        TEndpoint ep3(new NAddr::TAddrInfo(&*na3.Begin()));
+        TEndpoint ep3(std::make_shared<NAddr::TAddrInfo>(&*na3.Begin()));
 
         TNetworkAddress na4(ip2, 24243);
-        TEndpoint ep4(new NAddr::TAddrInfo(&*na4.Begin()));
+        TEndpoint ep4(std::make_shared<NAddr::TAddrInfo>(&*na4.Begin()));
 
         UNIT_ASSERT(ep1 == ep2);
         UNIT_ASSERT(!(ep1 == ep3));
@@ -108,10 +108,10 @@ Y_UNIT_TEST_SUITE(TEndpointTest) {
 
     Y_UNIT_TEST(TestIsUnixSocket) {
         TNetworkAddress na1(TUnixSocketPath("/tmp/unixsocket"));
-        TEndpoint ep1(new NAddr::TAddrInfo(&*na1.Begin()));
+        TEndpoint ep1(std::make_shared<NAddr::TAddrInfo>(&*na1.Begin()));
 
         TNetworkAddress na2("2a02:6b8:0:1410::5f6c:f3c2", 24242);
-        TEndpoint ep2(new NAddr::TAddrInfo(&*na2.Begin()));
+        TEndpoint ep2(std::make_shared<NAddr::TAddrInfo>(&*na2.Begin()));
 
         UNIT_ASSERT(ep1.IsUnix());
         UNIT_ASSERT(ep1.SockAddr()->sa_family == AF_UNIX);

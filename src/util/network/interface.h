@@ -3,6 +3,7 @@
 #include <ydb-cpp-sdk/util/network/address.h>
 
 #include <vector>
+#include <memory>
 
 namespace NAddr {
     struct TNetworkInterface {

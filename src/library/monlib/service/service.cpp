@@ -196,7 +196,7 @@ namespace NMonitoring {
         }
 
         bool Reply(void*) override {
-            ServeRequest(Input(), Output(), NAddr::GetPeerAddr(Socket()).Get(), Parent.Handler);
+            ServeRequest(Input(), Output(), NAddr::GetPeerAddr(Socket()).get(), Parent.Handler);
             return true;
         }
 

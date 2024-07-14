@@ -65,9 +65,9 @@ namespace NAddr {
                 if (IsInetAddress(ifa->ifa_addr)) {
                     TNetworkInterface interface;
                     interface.Name = ifa->ifa_name;
-                    interface.Address = new TOpaqueAddr(ifa->ifa_addr);
+                    interface.Address = std::make_shared<TOpaqueAddr>(ifa->ifa_addr);
                     if (IsInetAddress(ifa->ifa_netmask)) {
-                        interface.Mask = new TOpaqueAddr(ifa->ifa_netmask);
+                        interface.Mask = std::make_shared<TOpaqueAddr>(ifa->ifa_netmask);
                     }
                     result.push_back(interface);
                 }
