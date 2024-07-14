@@ -100,7 +100,7 @@ namespace NLastGetopt::NComp {
     };
 
     ICompleterPtr Alternative(std::vector<TAlternative> alternatives) {
-        return MakeSimpleShared<TAlternativeCompleter>(std::move(alternatives));
+        return std::make_shared<TAlternativeCompleter>(std::move(alternatives));
     }
 
     class TSimpleCompleter: public ICompleter {
@@ -149,7 +149,7 @@ namespace NLastGetopt::NComp {
             }}
         }
         action << "))";
-        return MakeSimpleShared<TSimpleCompleter>(bash, action);
+        return std::make_shared<TSimpleCompleter>(bash, action);
     }
 
     std::string Compgen(std::string_view flags) {
@@ -157,30 +157,30 @@ namespace NLastGetopt::NComp {
     }
 
     ICompleterPtr Default() {
-        return MakeSimpleShared<TSimpleCompleter>("", "_default");
+        return std::make_shared<TSimpleCompleter>("", "_default");
     }
 
     ICompleterPtr File(std::string pattern) {
         if (!pattern.empty()) {
             pattern = " -g " + SS(pattern);
         }
-        return MakeSimpleShared<TSimpleCompleter>("", "_files" + pattern);
+        return std::make_shared<TSimpleCompleter>("", "_files" + pattern);
     }
 
     ICompleterPtr Directory() {
-        return MakeSimpleShared<TSimpleCompleter>("", "_files -/");
+        return std::make_shared<TSimpleCompleter>("", "_files -/");
     }
 
     ICompleterPtr Host() {
-        return MakeSimpleShared<TSimpleCompleter>(Compgen("-A hostname"), "_hosts");
+        return std::make_shared<TSimpleCompleter>(Compgen("-A hostname"), "_hosts");
     }
 
     ICompleterPtr Pid() {
-        return MakeSimpleShared<TSimpleCompleter>("", "_pids");
+        return std::make_shared<TSimpleCompleter>("", "_pids");
     }
 
     ICompleterPtr User() {
-        return MakeSimpleShared<TSimpleCompleter>(Compgen("-A user"), "_users");
+        return std::make_shared<TSimpleCompleter>(Compgen("-A user"), "_users");
     }
 
     ICompleterPtr Group() {
@@ -188,34 +188,34 @@ namespace NLastGetopt::NComp {
         // You can try removing this ifdef and debugging it, but be prepared to force-shutdown your machine
         // (and possibly reinstall OSX if force-shutdown breaks anything).
 #ifdef _darwin_
-        return MakeSimpleShared<TSimpleCompleter>("", "");
+        return std::make_shared<TSimpleCompleter>("", "");
 #else
-        return MakeSimpleShared<TSimpleCompleter>(Compgen("-A group"), "_groups");
+        return std::make_shared<TSimpleCompleter>(Compgen("-A group"), "_groups");
 #endif
     }
 
     ICompleterPtr Url() {
-        return MakeSimpleShared<TSimpleCompleter>("", "_urls");
+        return std::make_shared<TSimpleCompleter>("", "_urls");
     }
 
     ICompleterPtr Tty() {
-        return MakeSimpleShared<TSimpleCompleter>("", "_ttys");
+        return std::make_shared<TSimpleCompleter>("", "_ttys");
     }
 
     ICompleterPtr NetInterface() {
-        return MakeSimpleShared<TSimpleCompleter>("", "_net_interfaces");
+        return std::make_shared<TSimpleCompleter>("", "_net_interfaces");
     }
 
     ICompleterPtr TimeZone() {
-        return MakeSimpleShared<TSimpleCompleter>("", "_time_zone");
+        return std::make_shared<TSimpleCompleter>("", "_time_zone");
     }
 
     ICompleterPtr Signal() {
-        return MakeSimpleShared<TSimpleCompleter>(Compgen("-A signal"), "_signals");
+        return std::make_shared<TSimpleCompleter>(Compgen("-A signal"), "_signals");
     }
 
     ICompleterPtr Domain() {
-        return MakeSimpleShared<TSimpleCompleter>("", "_domains");
+        return std::make_shared<TSimpleCompleter>("", "_domains");
     }
 
     namespace {
@@ -311,7 +311,7 @@ namespace NLastGetopt::NComp {
     };
 
     ICompleterPtr LaunchSelf(TCustomCompleter& completer) {
-        return MakeSimpleShared<TLaunchSelf>(&completer);
+        return std::make_shared<TLaunchSelf>(&completer);
     }
 
     class TLaunchSelfMultiPart: public ICompleter {
@@ -360,7 +360,7 @@ namespace NLastGetopt::NComp {
     };
 
     ICompleterPtr LaunchSelfMultiPart(TCustomCompleter& completer) {
-        return MakeSimpleShared<TLaunchSelfMultiPart>(&completer);
+        return std::make_shared<TLaunchSelfMultiPart>(&completer);
     }
 
 #undef I
