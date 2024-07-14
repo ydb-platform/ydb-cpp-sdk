@@ -51,17 +51,17 @@ class TRedBlackTreeTest: public TTestBase {
 
 private:
     inline void TestStress() {
-        std::vector<TSimpleSharedPtr<TNode>> nodes;
+        std::vector<std::shared_ptr<TNode>> nodes;
 
         for (int i = 0; i < 1000; ++i) {
-            nodes.push_back(new TNode(i));
+            nodes.push_back(std::make_shared<TNode>(i));
         }
 
         TTree tree;
         TReallyFastRng32 rnd(Random());
 
         for (size_t i = 0; i < 1000000; ++i) {
-            tree.Insert(nodes[rnd.Uniform(nodes.size())].Get());
+            tree.Insert(nodes[rnd.Uniform(nodes.size())].get());
         }
 
         for (TTree::TConstIterator it = tree.Begin(); it != tree.End();) {
@@ -78,18 +78,18 @@ private:
     }
 
     inline void TestGettingIndexWithDifferentValues() {
-        std::vector<TSimpleSharedPtr<TNode>> nodes;
+        std::vector<std::shared_ptr<TNode>> nodes;
         size_t N = 1000;
 
         for (size_t i = 0; i < N; ++i) {
-            nodes.push_back(new TNode(int(i)));
+            nodes.push_back(std::make_shared<TNode>(int(i)));
         }
 
         TTree tree;
         Shuffle(nodes.begin(), nodes.end());
 
         for (size_t i = 0; i < N; ++i) {
-            tree.Insert(nodes[i].Get());
+            tree.Insert(nodes[i].get());
         }
 
         for (size_t i = 0; i < N; ++i) {
@@ -105,18 +105,18 @@ private:
     }
 
     inline void TestCheckChildrenAfterErase() {
-        std::vector<TSimpleSharedPtr<TNode>> nodes;
+        std::vector<std::shared_ptr<TNode>> nodes;
         size_t N = 1000;
 
         for (size_t i = 0; i < N; ++i) {
-            nodes.push_back(new TNode(int(i)));
+            nodes.push_back(std::make_shared<TNode>(int(i)));
         }
 
         TTree tree;
         Shuffle(nodes.begin(), nodes.end());
 
         for (size_t i = 0; i < N; ++i) {
-            tree.Insert(nodes[i].Get());
+            tree.Insert(nodes[i].get());
         }
         auto checker = [](const TTree& tree) {
             for (auto node = tree.Begin(); node != tree.End(); ++node) {
@@ -132,24 +132,24 @@ private:
         };
 
         for (auto node : nodes) {
-            tree.Erase(node.Get());
+            tree.Erase(node.get());
             checker(tree);
         }
     }
 
     inline void TestGettingIndexWithDifferentValuesAfterErase() {
-        std::vector<TSimpleSharedPtr<TNode>> nodes;
+        std::vector<std::shared_ptr<TNode>> nodes;
         size_t N = 1000;
 
         for (size_t i = 0; i < N; ++i) {
-            nodes.push_back(new TNode(int(i)));
+            nodes.push_back(std::make_shared<TNode>(int(i)));
         }
 
         TTree tree;
         Shuffle(nodes.begin(), nodes.end());
 
         for (size_t i = 0; i < N; ++i) {
-            tree.Insert(nodes[i].Get());
+            tree.Insert(nodes[i].get());
         }
         {
             size_t index = 0;
@@ -176,17 +176,17 @@ private:
     }
 
     inline void TestGettingIndexWithEqualValues() {
-        std::vector<TSimpleSharedPtr<TNode>> nodes;
+        std::vector<std::shared_ptr<TNode>> nodes;
         size_t N = 1000;
 
         for (size_t i = 0; i < N; ++i) {
-            nodes.push_back(new TNode(0));
+            nodes.push_back(std::make_shared<TNode>(0));
         }
 
         TTree tree;
 
         for (size_t i = 0; i < N; ++i) {
-            tree.Insert(nodes[i].Get());
+            tree.Insert(nodes[i].get());
         }
 
         for (size_t i = 0; i < N; ++i) {
