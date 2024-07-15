@@ -11,19 +11,19 @@ std::unique_ptr<TLogBackend> TLogBackendCreatorUninitialized::DoCreateLogBackend
 
 void TLogBackendCreatorUninitialized::InitCustom(const std::string& type, ELogPriority priority, bool threaded) {
     if (type.empty()) {
-        Slave = MakeHolder<TNullLogBackendCreator>();
+        Slave = std::make_unique<TNullLogBackendCreator>();
     } else if (TFactory::Has(type)) {
-        Slave = TFactory::MakeHolder(type);
+        Slave = std::unique_ptr<ILogBackendCreator>(TFactory::Construct(type));
     } else {
-        Slave = MakeHolder<TFileLogBackendCreator>(type);
+        Slave = std::make_unique<TFileLogBackendCreator>(type);
     }
 
     if (threaded) {
-        Slave = MakeHolder<TOwningThreadedLogBackendCreator>(std::move(Slave));
+        Slave = std::make_unique<TOwningThreadedLogBackendCreator>(std::move(Slave));
     }
 
     if (priority != LOG_MAX_PRIORITY) {
-        Slave = MakeHolder<TFilteredBackendCreator>(std::move(Slave), priority);
+        Slave = std::make_unique<TFilteredBackendCreator>(std::move(Slave), priority);
     }
 }
 

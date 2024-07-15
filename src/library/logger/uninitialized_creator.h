@@ -12,5 +12,5 @@ public:
 
 private:
     virtual std::unique_ptr<TLogBackend> DoCreateLogBackend() const override;
-    THolder<ILogBackendCreator> Slave;
+    std::unique_ptr<ILogBackendCreator> Slave;
 };

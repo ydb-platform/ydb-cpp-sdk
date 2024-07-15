@@ -1,7 +1,7 @@
 #include "filter_creator.h"
 #include "filter.h"
 
-TFilteredBackendCreator::TFilteredBackendCreator(THolder<ILogBackendCreator> slave, ELogPriority priority)
+TFilteredBackendCreator::TFilteredBackendCreator(std::unique_ptr<ILogBackendCreator> slave, ELogPriority priority)
     : Slave(std::move(slave))
     , Priority(priority)
 {}

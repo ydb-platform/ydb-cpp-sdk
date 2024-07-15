@@ -1,7 +1,7 @@
 #include "thread_creator.h"
 #include <ydb-cpp-sdk/library/logger/thread.h>
 
-TOwningThreadedLogBackendCreator::TOwningThreadedLogBackendCreator(THolder<ILogBackendCreator>&& slave)
+TOwningThreadedLogBackendCreator::TOwningThreadedLogBackendCreator(std::unique_ptr<ILogBackendCreator>&& slave)
     : Slave(std::move(slave))
 {}
 
