@@ -113,7 +113,7 @@ void TFederatedWriteSessionImpl::OpenSubsessionImpl(std::shared_ptr<TDbInfo> db)
     clientSettings
         .Database(db->path())
         .DiscoveryEndpoint(db->endpoint());
-    auto subclient = make_shared<NTopic::TTopicClient::TImpl>(Connections, clientSettings);
+    auto subclient = std::make_shared<NTopic::TTopicClient::TImpl>(Connections, clientSettings);
 
     auto handlers = NTopic::TWriteSessionSettings::TEventHandlers()
         .HandlersExecutor(Settings.EventHandlers_.HandlersExecutor_)
