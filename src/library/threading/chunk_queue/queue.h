@@ -532,7 +532,7 @@ namespace NThreading {
             }
         }
 
-        void Enqueue(std::unique_ptr<T> value) {
+        void Enqueue(std::unique_ptr<T>&& value) {
             Impl.Enqueue(value.Get());
             Y_UNUSED(value.Release());
         }
