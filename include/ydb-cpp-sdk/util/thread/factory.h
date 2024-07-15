@@ -4,6 +4,8 @@
 #include <functional>
 #include <memory>
 
+#include <memory>
+
 class IThreadFactory {
 public:
     class IThreadAble {
