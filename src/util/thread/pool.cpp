@@ -770,9 +770,9 @@ IThread* IThreadPool::DoCreate() {
 std::unique_ptr<IThreadPool> CreateThreadPool(size_t threadsCount, size_t queueSizeLimit, const TThreadPoolParams& params) {
     std::unique_ptr<IThreadPool> queue;
     if (threadsCount > 1) {
-        queue.reset(new TThreadPool(params));
+        queue = std::make_unique<TThreadPool>(params);
     } else {
-        queue.reset(new TFakeThreadPool());
+        queue = std::make_unique<TFakeThreadPool>();
     }
     queue->Start(threadsCount, queueSizeLimit);
     return queue;
