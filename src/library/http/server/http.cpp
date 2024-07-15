@@ -170,7 +170,7 @@ public:
         const THttpServerOptions& Options;
     };
 
-    std::unique_ptr<TClientRequest> CreateRequest(std::unique_ptr<TClientConnection>& c) {
+    std::unique_ptr<TClientRequest> CreateRequest(std::unique_ptr<TClientConnection>&& c) {
         std::unique_ptr<TClientRequest> obj(Cb_->CreateClient());
 
         obj->Conn_.Reset(c.release());
@@ -638,7 +638,7 @@ void TClientConnection::OnPollEvent(TInstant now) {
         }
     }
 
-    std::unique_ptr<TClientRequest> obj = std::move(HttpServ_->CreateRequest(this_));
+    std::unique_ptr<TClientRequest> obj = HttpServ_->CreateRequest(std::move(this_));
     AcceptMoment = now;
 
     HttpServ_->AddRequest(obj, Reject_);
