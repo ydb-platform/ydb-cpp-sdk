@@ -10,6 +10,8 @@
 #include <src/library/streams/lz/lz4/lz4.h>
 #include <src/library/streams/lz/snappy/snappy.h>
 
+#include <memory>
+
 /**
  * @file
  *
@@ -159,10 +161,10 @@ private:
  * @param input                         Stream to decompress.
  * @return                              Decompressing proxy input stream.
  */
-TAutoPtr<IInputStream> OpenLzDecompressor(IInputStream* input);
-TAutoPtr<IInputStream> TryOpenLzDecompressor(IInputStream* input);
-TAutoPtr<IInputStream> TryOpenLzDecompressor(const std::string_view& signature, IInputStream* input);
+std::unique_ptr<IInputStream> OpenLzDecompressor(IInputStream* input);
+std::unique_ptr<IInputStream> TryOpenLzDecompressor(IInputStream* input);
+std::unique_ptr<IInputStream> TryOpenLzDecompressor(const std::string_view& signature, IInputStream* input);
 
-TAutoPtr<IInputStream> OpenOwnedLzDecompressor(TAutoPtr<IInputStream> input);
-TAutoPtr<IInputStream> TryOpenOwnedLzDecompressor(TAutoPtr<IInputStream> input);
-TAutoPtr<IInputStream> TryOpenOwnedLzDecompressor(const std::string_view& signature, TAutoPtr<IInputStream> input);
+std::unique_ptr<IInputStream> OpenOwnedLzDecompressor(std::unique_ptr<IInputStream>&& input);
+std::unique_ptr<IInputStream> TryOpenOwnedLzDecompressor(std::unique_ptr<IInputStream>&& input);
+std::unique_ptr<IInputStream> TryOpenOwnedLzDecompressor(const std::string_view& signature, std::unique_ptr<IInputStream>&& input);

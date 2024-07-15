@@ -13,6 +13,7 @@
 #include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <mutex>
+#include <memory>
 #include <type_traits>
 #include <utility>
 
@@ -522,21 +523,21 @@ namespace NThreading {
         TImpl Impl;
 
     public:
-        using TItem = TAutoPtr<T>;
+        using TItem = std::unique_ptr<T>;
 
         ~TAutoQueueBase() {
-            TAutoPtr<T> value;
+            std::unique_ptr<T> value;
             while (Dequeue(value)) {
                 // do nothing
             }
         }
 
-        void Enqueue(TAutoPtr<T> value) {
+        void Enqueue(std::unique_ptr<T>&& value) {
             Impl.Enqueue(value.Get());
             Y_UNUSED(value.Release());
         }
 
-        bool Dequeue(TAutoPtr<T>& value) {
+        bool Dequeue(std::unique_ptr<T>&& value) {
             T* ptr = nullptr;
             if (Impl.Dequeue(ptr)) {
                 value.Reset(ptr);
