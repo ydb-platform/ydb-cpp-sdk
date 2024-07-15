@@ -11,7 +11,7 @@
 
 class TReopenLogBackend: public TLogBackend {
 public:
-    explicit TReopenLogBackend(THolder<TLogBackend>&& backend, ui64 bytesWrittenLimit = 1_GB)
+    explicit TReopenLogBackend(std::unique_ptr<TLogBackend>&& backend, ui64 bytesWrittenLimit = 1_GB)
         : Backend_(std::move(backend)), BytesWrittenLimit_(bytesWrittenLimit), BytesWritten_(0) {
             Y_ENSURE(BytesWrittenLimit_ > 0);
     }
@@ -33,7 +33,7 @@ public:
     }
 
 private:
-    const THolder<TLogBackend> Backend_;
+    const std::unique_ptr<TLogBackend> Backend_;
 
     const ui64 BytesWrittenLimit_;
     std::atomic<ui64> BytesWritten_;
