@@ -339,7 +339,7 @@ namespace NLastGetopt {
 
         TOpts::TOptsVector::const_iterator it;
         for (it = optvec.begin(); it != optvec.end(); ++it) {
-            const TOpt* opt = (*it).Get();
+            const TOpt* opt = (*it).get();
             if (nullptr == opt)
                 continue;
             if (OptsSeen_.contains(opt))

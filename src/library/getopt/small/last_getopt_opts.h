@@ -42,7 +42,7 @@ namespace NLastGetopt {
     public:
         static constexpr const ui32 UNLIMITED_ARGS = Max<ui32>();
 
-        typedef std::vector<TSimpleSharedPtr<TOpt>> TOptsVector;
+        typedef std::vector<std::shared_ptr<TOpt>> TOptsVector;
         TOptsVector Opts_; // infomation about named (short and long) options
         std::vector<std::function<void(std::string_view)>> ArgBindings_;
 
@@ -620,7 +620,7 @@ namespace NLastGetopt {
             std::vector<const TOpt*> ret;
             ret.reserve(Opts_.size());
             for (auto& opt : Opts_) {
-                ret.push_back(opt.Get());
+                ret.push_back(opt.get());
             }
             return ret;
         }
