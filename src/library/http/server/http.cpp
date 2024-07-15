@@ -206,8 +206,8 @@ public:
     }
 
     bool Start() {
-        Poller.Reset(new TSocketPoller());
-        Connections.Reset(new TConnections(Poller.Get(), Options_));
+        Poller.reset(new TSocketPoller());
+        Connections.reset(new TConnections(Poller.get(), Options_));
 
         // throws on error
         TPipeHandle::Pipe(ListenWakeupReadFd, ListenWakeupWriteFd);
@@ -220,13 +220,13 @@ public:
         ErrorCode = 0;
 
         std::function<void(TSocket)> callback = [&](TSocket socket) {
-            THolder<TListenSocket> ls(new TListenSocket(socket, this));
+            std::unique_ptr<TListenSocket> ls(new TListenSocket(socket, this));
             if (Options_.OneShotPoll) {
-                Poller->WaitReadOneShot(socket, static_cast<IPollAble*>(ls.Get()));
+                Poller->WaitReadOneShot(socket, static_cast<IPollAble*>(ls.get()));
             } else {
-                Poller->WaitRead(socket, static_cast<IPollAble*>(ls.Get()));
+                Poller->WaitRead(socket, static_cast<IPollAble*>(ls.get()));
             }
-            Reqs.PushBack(ls.Release());
+            Reqs.PushBack(ls.release());
         };
 
         bool addressesBound = TryToBindAddresses(Options_, &callback);
@@ -242,7 +242,7 @@ public:
         try {
             RunningListeners_.store(Options_.nListenerThreads);
             for (size_t i = 0; i < Options_.nListenerThreads; ++i) {
-                ListenThreads.push_back(MakeHolder<TThread>([this, threadNum = i]() {
+                ListenThreads.push_back(std::make_unique<TThread>([this, threadNum = i]() {
                     ListenSocket(threadNum);
                 }));
                 ListenThreads.back()->Start();
@@ -279,8 +279,8 @@ public:
             Connections->Clear();
         }
 
-        Connections.Destroy();
-        Poller.Destroy();
+        Connections.reset(nullptr);
+        Poller.reset(nullptr);
     }
 
     void Shutdown() {
@@ -316,7 +316,7 @@ public:
                 Cb_->OnFailRequest(-1);
             }
         }
-    }
+    }   
 
     size_t GetRequestQueueSize() const {
         return Requests->Size();
@@ -411,7 +411,7 @@ public:
 
         if (0 == --RunningListeners_) {
             while (!Reqs.Empty()) {
-                THolder<TListenSocket> ls(Reqs.PopFront());
+                std::unique_ptr<TListenSocket> ls(Reqs.PopFront());
 
                 Poller->Unwait(ls->GetSocket());
             }
@@ -484,7 +484,7 @@ public:
         return Options_.MaxConnections && ((size_t)GetClientCount() >= Options_.MaxConnections);
     }
 
-    std::vector<THolder<TThread>> ListenThreads;
+    std::vector<std::unique_ptr<TThread>> ListenThreads;
     std::atomic<size_t> RunningListeners_ = 0;
     TIntrusiveListWithAutoDelete<TListenSocket, TDelete> Reqs;
     TPipeHandle ListenWakeupReadFd;
@@ -492,8 +492,8 @@ public:
     TMtpQueueRef Requests;
     TMtpQueueRef FailRequests;
     TAtomic ConnectionCount = 0;
-    THolder<TSocketPoller> Poller;
-    THolder<TConnections> Connections;
+    std::unique_ptr<TSocketPoller> Poller;
+    std::unique_ptr<TConnections> Connections;
     int ErrorCode = 0;
     TOptions Options_;
     ICallBack* Cb_ = nullptr;
@@ -714,7 +714,7 @@ void TClientRequest::ReleaseConnection() {
     if (Conn_ && HttpConn_ && HttpServ()->Options().KeepAliveEnabled && HttpConn_->CanBeKeepAlive() && (!HttpServ()->Options().RejectExcessConnections || !HttpServ()->MaxRequestsReached())) {
         Output().Finish();
         Conn_->DeActivate();
-        Y_UNUSED(Conn_.Release());
+        Y_UNUSED(Conn_.release());
     }
 }
 
@@ -722,12 +722,12 @@ void TClientRequest::ResetConnection() {
     if (HttpConn_) {
         // send RST packet to client
         HttpConn_->Reset();
-        HttpConn_.Destroy();
+        HttpConn_.reset(nullptr);
     }
 }
 
 void TClientRequest::Process(void* ThreadSpecificResource) {
-    THolder<TClientRequest> this_(this);
+    std::unique_ptr<TClientRequest> this_(this);
 
     auto* serverImpl = Conn_->HttpServ_;
 
@@ -735,9 +735,9 @@ void TClientRequest::Process(void* ThreadSpecificResource) {
         if (!HttpConn_) {
             const size_t outputBufferSize = HttpServ()->Options().OutputBufferSize;
             if (outputBufferSize) {
-                HttpConn_.Reset(new THttpServerConn(Socket(), outputBufferSize));
+                HttpConn_.reset(new THttpServerConn(Socket(), outputBufferSize));
             } else {
-                HttpConn_.Reset(new THttpServerConn(Socket()));
+                HttpConn_.reset(new THttpServerConn(Socket()));
             }
 
             auto maxRequestsPerConnection = HttpServ()->Options().MaxRequestsPerConnection;
@@ -775,7 +775,7 @@ void TClientRequest::Process(void* ThreadSpecificResource) {
         throw;
     }
 
-    Y_UNUSED(this_.Release());
+    Y_UNUSED(this_.release());
 }
 
 void TClientRequest::ProcessFailRequest(int failstate) {

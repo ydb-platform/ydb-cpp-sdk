@@ -10,12 +10,12 @@
 
 using namespace NMonitoring;
 
-TMonService2::TMonService2(ui16 port, const std::string& host, ui32 threads, const std::string& title, THolder<IAuthProvider> auth)
+TMonService2::TMonService2(ui16 port, const std::string& host, ui32 threads, const std::string& title, std::unique_ptr<IAuthProvider> auth)
     : TMonService2(HttpServerOptions(port, host, threads), title, std::move(auth))
 {
 }
 
-TMonService2::TMonService2(const THttpServerOptions& options, const std::string& title, THolder<IAuthProvider> auth)
+TMonService2::TMonService2(const THttpServerOptions& options, const std::string& title, std::unique_ptr<IAuthProvider> auth)
     : NMonitoring::TMtHttpServer(options, std::bind(&TMonService2::ServeRequest, this, std::placeholders::_1, std::placeholders::_2))
     , Title(title)
     , IndexMonPage(new TIndexMonPage("", Title))
@@ -26,7 +26,7 @@ TMonService2::TMonService2(const THttpServerOptions& options, const std::string&
     ctime_r(&t, StartTime);
 }
 
-TMonService2::TMonService2(const THttpServerOptions& options, std::shared_ptr<IThreadPool> pool, const std::string& title, THolder<IAuthProvider> auth)
+TMonService2::TMonService2(const THttpServerOptions& options, std::shared_ptr<IThreadPool> pool, const std::string& title, std::unique_ptr<IAuthProvider> auth)
     : NMonitoring::TMtHttpServer(options, std::bind(&TMonService2::ServeRequest, this, std::placeholders::_1, std::placeholders::_2), std::move(pool))
     , Title(title)
     , IndexMonPage(new TIndexMonPage("", Title))
@@ -37,12 +37,12 @@ TMonService2::TMonService2(const THttpServerOptions& options, std::shared_ptr<IT
     ctime_r(&t, StartTime);
 }
 
-TMonService2::TMonService2(ui16 port, ui32 threads, const std::string& title, THolder<IAuthProvider> auth)
+TMonService2::TMonService2(ui16 port, ui32 threads, const std::string& title, std::unique_ptr<IAuthProvider> auth)
     : TMonService2(port, std::string(), threads, title, std::move(auth))
 {
 }
 
-TMonService2::TMonService2(ui16 port, const std::string& title, THolder<IAuthProvider> auth)
+TMonService2::TMonService2(ui16 port, const std::string& title, std::unique_ptr<IAuthProvider> auth)
     : TMonService2(port, std::string(), 0, title, std::move(auth))
 {
 }
