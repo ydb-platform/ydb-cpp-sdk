@@ -4,6 +4,8 @@
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/system/compiler.h>
 
+#include <memory>
+
 // Test template declarations
 template<class T>
 void Func(T&);
