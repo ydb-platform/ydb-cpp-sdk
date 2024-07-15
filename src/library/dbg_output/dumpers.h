@@ -6,6 +6,7 @@
 
 #include <list>
 #include <map>
+#include <memory>
 #include <set>
 #include <span>
 #include <string>
@@ -17,10 +18,10 @@
 
 //smart pointers
 template <class T, class D>
-struct TDumper<TAutoPtr<T, D>> {
+struct TDumper<std::unique_ptr<T, D>> {
     template <class S>
-    static inline void Dump(S& s, const TAutoPtr<T, D>& v) {
-        s << DumpRaw("TAutoPtr(") << v.Get() << DumpRaw(")");
+    static inline void Dump(S& s, const std::unique_ptr<T, D>& v) {
+        s << DumpRaw("std::unique_ptr(") << v.get() << DumpRaw(")");
     }
 };
 

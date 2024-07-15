@@ -6,6 +6,7 @@
 #include <ydb-cpp-sdk/util/system/event.h>
 #include <ydb-cpp-sdk/util/datetime/base.h>
 
+#include <memory>
 
 Y_UNIT_TEST_SUITE(TElasticQueueTest) {
     const size_t MaxQueueSize = 20;
@@ -139,7 +140,7 @@ Y_UNIT_TEST_SUITE(TElasticQueueTest) {
         {
             typename TEnv<T>::TQueueSetup setup;
 
-            std::vector< TAutoPtr<IThreadFactory::IThread> > senders;
+            std::vector< std::unique_ptr<IThreadFactory::IThread> > senders;
             for (size_t i = 0; i < ThreadCount; ++i) {
                 senders.push_back(::SystemThreadFactory()->Run(&sender));
             }
