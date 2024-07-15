@@ -162,7 +162,7 @@ namespace NPagedVector {
         static_assert(PageSize, "expect PageSize");
 
         using TPage = TPagedVectorBase<T, A>;
-        using TPages = TPagedVectorBase<TSimpleSharedPtr<TPage>, A>;
+        using TPages = TPagedVectorBase<std::shared_ptr<TPage>, A>;
         using TSelf = TPagedVector<T, PageSize, A>;
 
     public:
