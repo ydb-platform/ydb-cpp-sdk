@@ -151,11 +151,11 @@ namespace NPagedVector {
     using TPagedVectorBase = std::vector<T, TReboundAllocator<A, T>>;
 
     template <class T, ui32 PageSize, class A>
-    class TPagedVector: private TPagedVectorBase<TSimpleSharedPtr<TPagedVectorBase<T, A>>, A> {
+    class TPagedVector: private TPagedVectorBase<std::shared_ptr<TPagedVectorBase<T, A>>, A> {
         static_assert(PageSize, "expect PageSize");
 
         typedef TPagedVectorBase<T, A> TPage;
-        typedef TPagedVectorBase<TSimpleSharedPtr<TPage>, A> TPages;
+        typedef TPagedVectorBase<std::shared_ptr<TPage>, A> TPages;
         typedef TPagedVector<T, PageSize, A> TSelf;
 
     public:
@@ -240,7 +240,7 @@ namespace NPagedVector {
         }
 
         void AllocateNewPage() {
-            TPages::push_back(MakeSimpleShared<TPage>());
+            TPages::push_back(std::make_shared<TPage>());
             CurrentPage().reserve(PageSize);
         }
 
