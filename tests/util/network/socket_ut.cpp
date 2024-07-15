@@ -301,7 +301,7 @@ void TPollTest::TestPollInOut() {
     std::vector<pollfd> fds;
 
     for (size_t i = 0; i < socketCount; ++i) {
-        std::shared_ptr<TSocketHolder> clientSocket(new TSocketHolder(StartClientSocket(localIp, port)));
+        auto clientSocket = std::make_shared<StartClientSocket>(StartClientSocket(localIp, port));
         clientSockets.push_back(clientSocket);
 
         if (i % 5 == 0 || i % 5 == 2) {
@@ -310,7 +310,7 @@ void TPollTest::TestPollInOut() {
                 ythrow yexception() << "Can not send (" << LastSystemErrorText() << ")";
         }
 
-        std::shared_ptr<TSocketHolder> connectedSocket(new TSocketHolder(AcceptConnection(serverSocket)));
+        auto connectedSocket = std::make_shared<TSocketHolder>(AcceptConnection(serverSocket));
         connectedSockets.push_back(connectedSocket);
 
         if (i % 5 == 2 || i % 5 == 3) {
