@@ -165,6 +165,6 @@ std::unique_ptr<IInputStream> OpenLzDecompressor(IInputStream* input);
 std::unique_ptr<IInputStream> TryOpenLzDecompressor(IInputStream* input);
 std::unique_ptr<IInputStream> TryOpenLzDecompressor(const std::string_view& signature, IInputStream* input);
 
-std::unique_ptr<IInputStream> OpenOwnedLzDecompressor(std::unique_ptr<IInputStream> input);
-std::unique_ptr<IInputStream> TryOpenOwnedLzDecompressor(std::unique_ptr<IInputStream> input);
-std::unique_ptr<IInputStream> TryOpenOwnedLzDecompressor(const std::string_view& signature, std::unique_ptr<IInputStream> input);
+std::unique_ptr<IInputStream> OpenOwnedLzDecompressor(std::unique_ptr<IInputStream>&& input);
+std::unique_ptr<IInputStream> TryOpenOwnedLzDecompressor(std::unique_ptr<IInputStream>&& input);
+std::unique_ptr<IInputStream> TryOpenOwnedLzDecompressor(const std::string_view& signature, std::unique_ptr<IInputStream>&& input);
