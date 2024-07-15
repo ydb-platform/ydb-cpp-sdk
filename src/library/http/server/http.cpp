@@ -288,9 +288,9 @@ public:
         // ignore result
     }
 
-    void AddRequest(std::unique_ptr<TClientRequest>& req, bool fail) {
+    void AddRequest(std::unique_ptr<TClientRequest>&& req, bool fail) {
         struct TFailRequest: public THttpClientRequestEx {
-            inline TFailRequest(std::unique_ptr<TClientRequest>& parent) {
+            inline TFailRequest(std::unique_ptr<TClientRequest>&& parent) {
                 Conn_.Reset(parent->Conn_.Release());
                 HttpConn_.Reset(parent->HttpConn_.Release());
             }
@@ -308,7 +308,7 @@ public:
         if (!fail && Requests->Add(req.get())) {
             Y_UNUSED(req.release());
         } else {
-            req = std::make_unique<TFailRequest>(req);
+            req = std::make_unique<TFailRequest>(std::move(req));
 
             if (FailRequests->Add(req.get())) {
                 Y_UNUSED(req.release());
@@ -641,7 +641,7 @@ void TClientConnection::OnPollEvent(TInstant now) {
     std::unique_ptr<TClientRequest> obj = HttpServ_->CreateRequest(std::move(this_));
     AcceptMoment = now;
 
-    HttpServ_->AddRequest(obj, Reject_);
+    HttpServ_->AddRequest(std::move(obj), Reject_);
 }
 
 void TClientConnection::Activate(TInstant now) noexcept {

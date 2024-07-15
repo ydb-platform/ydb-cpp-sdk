@@ -608,12 +608,12 @@ namespace NLastGetopt {
             return Handler1(f);
         }
 
-        TOpt& Handler(std::unique_ptr<IOptHandler>& handler) {
+        TOpt& Handler(std::unique_ptr<IOptHandler>&& handler) {
             return HandlerImpl(handler.release());
         }
 
         template <typename T> // T extends IOptHandler
-        TOpt& Handler(std::unique_ptr<T>& handler) {
+        TOpt& Handler(std::unique_ptr<T>&& handler) {
             return HandlerImpl(handler.release());
         }
 

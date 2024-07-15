@@ -537,7 +537,7 @@ namespace NThreading {
             Y_UNUSED(value.Release());
         }
 
-        bool Dequeue(std::unique_ptr<T>& value) {
+        bool Dequeue(std::unique_ptr<T>&& value) {
             T* ptr = nullptr;
             if (Impl.Dequeue(ptr)) {
                 value.Reset(ptr);

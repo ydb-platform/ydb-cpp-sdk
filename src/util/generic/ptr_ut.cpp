@@ -931,5 +931,5 @@ void TPointerTest::TestSharedPtrDowncast() {
         }
 
         UNIT_ASSERT_VALUES_EQUAL(probeState.Destructors, 1);
-    } 
+    }
 }
