@@ -154,9 +154,9 @@ namespace NPagedVector {
     class TPagedVector: private TPagedVectorBase<std::shared_ptr<TPagedVectorBase<T, A>>, A> {
         static_assert(PageSize, "expect PageSize");
 
-        typedef TPagedVectorBase<T, A> TPage;
-        typedef TPagedVectorBase<std::shared_ptr<TPage>, A> TPages;
-        typedef TPagedVector<T, PageSize, A> TSelf;
+        using TPage = TPagedVectorBase<T, A>;
+        using TPages = TPagedVectorBase<std::shared_ptr<TPage>, A>;
+        using TSelf = TPagedVector<T, PageSize, A>;
 
     public:
         typedef NPrivate::TPagedVectorIterator<T, T, PageSize, A> iterator;
