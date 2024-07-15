@@ -5,6 +5,8 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 class TRWMutex {
 public:
     TRWMutex();
@@ -22,7 +24,7 @@ public:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 template <class T>
