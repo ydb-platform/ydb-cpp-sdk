@@ -2,6 +2,8 @@
 
 #include <src/library/testing/unittest/registar.h>
 
+#include <memory>
+
 using namespace NAddr;
 
 Y_UNIT_TEST_SUITE(IRemoteAddr_ToString) {
