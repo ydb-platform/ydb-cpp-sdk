@@ -28,7 +28,7 @@ namespace {
                 : Mutexes(CRYPTO_num_locks())
             {
                 for (auto& mpref : Mutexes) {
-                    mpref.reset(new std::mutex());
+                    mpref = std::make_unique<std::mutex>();
                 }
             }
 
