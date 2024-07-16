@@ -15,6 +15,6 @@ namespace {
         }
     };
 
-    NUnitTest::NPlugin::TPluginRegistrator registerGMock(std::shared_ptr<TGMockUnittestPlugin>());
+    NUnitTest::NPlugin::TPluginRegistrator registerGMock(std::make_shared<TGMockUnittestPlugin>());
 
 }
