@@ -100,7 +100,7 @@ private:
 
             auto nodePtr = tree.Find(i);
             UNIT_ASSERT_EQUAL(tree.GetIndex(nodePtr), i);
-            UNIT_ASSERT_EQUAL(tree.GetIndex(nodes[i].Get()), static_cast<size_t>(nodes[i]->N));
+            UNIT_ASSERT_EQUAL(tree.GetIndex(nodes[i].get()), static_cast<size_t>(nodes[i]->N));
         }
     }
 
@@ -195,10 +195,10 @@ private:
             UNIT_ASSERT_EQUAL(tree.GreaterCount(nodes[i]->N), 0);
             UNIT_ASSERT_EQUAL(tree.NotLessCount(nodes[i]->N), N);
 
-            UNIT_ASSERT_EQUAL(tree.LessCount(*nodes[i].Get()), 0);
-            UNIT_ASSERT_EQUAL(tree.NotGreaterCount(*nodes[i].Get()), N);
-            UNIT_ASSERT_EQUAL(tree.GreaterCount(*nodes[i].Get()), 0);
-            UNIT_ASSERT_EQUAL(tree.NotLessCount(*nodes[i].Get()), N);
+            UNIT_ASSERT_EQUAL(tree.LessCount(*nodes[i].get()), 0);
+            UNIT_ASSERT_EQUAL(tree.NotGreaterCount(*nodes[i].get()), N);
+            UNIT_ASSERT_EQUAL(tree.GreaterCount(*nodes[i].get()), 0);
+            UNIT_ASSERT_EQUAL(tree.NotLessCount(*nodes[i].get()), N);
         }
     }
 
