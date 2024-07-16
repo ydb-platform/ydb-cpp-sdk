@@ -26,7 +26,7 @@ TMonService2::TMonService2(const THttpServerOptions& options, const std::string&
     ctime_r(&t, StartTime);
 }
 
-TMonService2::TMonService2(const THttpServerOptions& options, TSimpleSharedPtr<IThreadPool> pool, const std::string& title, THolder<IAuthProvider> auth)
+TMonService2::TMonService2(const THttpServerOptions& options, std::shared_ptr<IThreadPool> pool, const std::string& title, THolder<IAuthProvider> auth)
     : NMonitoring::TMtHttpServer(options, std::bind(&TMonService2::ServeRequest, this, std::placeholders::_1, std::placeholders::_2), std::move(pool))
     , Title(title)
     , IndexMonPage(new TIndexMonPage("", Title))

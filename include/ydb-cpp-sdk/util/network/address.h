@@ -6,6 +6,8 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 namespace NAddr {
     class IRemoteAddr {
     public:
@@ -15,8 +17,8 @@ namespace NAddr {
         virtual socklen_t Len() const = 0;
     };
 
-    using IRemoteAddrPtr = THolder<IRemoteAddr>;
-    using IRemoteAddrRef = TAtomicSharedPtr<NAddr::IRemoteAddr>;
+    using IRemoteAddrPtr = std::unique_ptr<IRemoteAddr>;
+    using IRemoteAddrRef = std::shared_ptr<NAddr::IRemoteAddr>;
 
     IRemoteAddrPtr GetSockAddr(SOCKET s);
     IRemoteAddrPtr GetPeerAddr(SOCKET s);

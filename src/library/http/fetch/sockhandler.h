@@ -38,7 +38,9 @@ public:
     }
 
     static TAddrList MakeV4Addr(ui32 ip, TIpPort port) {
-        return TAddrList({new NAddr::TIPv4Addr(TIpAddress(htonl(ip), htons(port)))});
+        return TAddrList({
+            std::make_shared<NAddr::TIPv4Addr>(TIpAddress(htonl(ip), htons(port)))
+        });
     }
 
     std::pair<ui32, TIpPort> GetV4Addr() const {

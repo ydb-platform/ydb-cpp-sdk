@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <set>
 #include <map>
+#include <memory>
 
 namespace NObjectFactory {
     template <class TProduct, class... TArgs>
@@ -83,7 +84,7 @@ namespace NObjectFactory {
         IFactoryObjectCreator<TProduct, TArgs...>* GetCreator(const T& key) const {
             TReadGuard guard(CreatorsLock);
             typename ICreators::const_iterator i = Creators.find(key);
-            return i == Creators.end() ? nullptr : i->second.Get();
+            return i == Creators.end() ? nullptr : i->second.get();
         }
 
         template <class T>
@@ -93,7 +94,7 @@ namespace NObjectFactory {
         }
 
     private:
-        using ICreatorPtr = TSimpleSharedPtr<IFactoryObjectCreator<TProduct, TArgs...>>;
+        using ICreatorPtr = std::shared_ptr<IFactoryObjectCreator<TProduct, TArgs...>>;
         using ICreators = std::map<TKey, ICreatorPtr>;
         ICreators Creators;
         TRWMutex CreatorsLock;

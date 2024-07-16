@@ -4,6 +4,8 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 namespace NLastGetopt::NComp {
     class ICompleter;
 
@@ -41,7 +43,7 @@ namespace NLastGetopt::NComp {
         virtual void GenerateZsh(TFormattedOutput& out, TCompleterManager& manager) const = 0;
     };
 
-    using ICompleterPtr = TSimpleSharedPtr<ICompleter>;
+    using ICompleterPtr = std::shared_ptr<ICompleter>;
 
     /// Generate default completions.
     /// Output of this completer depends on shell settings.

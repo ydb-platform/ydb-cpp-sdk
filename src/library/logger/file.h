@@ -5,6 +5,8 @@
 #include <ydb-cpp-sdk/util/generic/fwd.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 class TFileLogBackend: public TLogBackend {
 public:
     TFileLogBackend(const std::string& path);
@@ -15,5 +17,5 @@ public:
 
 private:
     class TImpl;
-    TAtomicSharedPtr<TImpl> Impl_;
+    std::shared_ptr<TImpl> Impl_;
 };

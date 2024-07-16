@@ -503,21 +503,21 @@ public:
 
 private:
     template <class TThreadPool_>
-    static THolder<IThreadPool> MakeThreadPool(IThreadFactory* factory, bool elastic, ICallBack* callback = nullptr, const std::string& threadName = {}) {
+    static std::unique_ptr<IThreadPool> MakeThreadPool(IThreadFactory* factory, bool elastic, ICallBack* callback = nullptr, const std::string& threadName = {}) {
         if (!factory) {
             factory = SystemThreadFactory();
         }
 
-        THolder<IThreadPool> pool;
+        std::unique_ptr<IThreadPool> pool;
         const auto params = IThreadPool::TParams().SetFactory(factory).SetThreadName(threadName.c_str());
         if (callback) {
-            pool = MakeHolder<TThreadPoolBinder<TThreadPool_, THttpServer::ICallBack>>(callback, params);
+            pool = std::make_unique<TThreadPoolBinder<TThreadPool_, THttpServer::ICallBack>>(callback, params);
         } else {
-            pool = MakeHolder<TThreadPool_>(params);
+            pool = std::make_unique<TThreadPool_>(params);
         }
 
         if (elastic) {
-            pool = MakeHolder<TElasticQueue>(std::move(pool));
+            pool = std::make_unique<TElasticQueue>(std::move(pool));
         }
 
         return pool;

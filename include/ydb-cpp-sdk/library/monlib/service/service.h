@@ -58,7 +58,7 @@ namespace NMonitoring {
     class TMtHttpServer: public THttpServer, private THttpServer::ICallBack {
     public:
         TMtHttpServer(const TOptions& options, THandler handler, IThreadFactory* pool = nullptr);
-        TMtHttpServer(const TOptions& options, THandler handler, TSimpleSharedPtr<IThreadPool> pool);
+        TMtHttpServer(const TOptions& options, THandler handler, std::shared_ptr<IThreadPool> pool);
 
         ~TMtHttpServer() override {
             Stop();

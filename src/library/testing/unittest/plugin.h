@@ -2,6 +2,8 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 namespace NUnitTest {
     // Plugins are deprecated, please use Y_TEST_HOOK_* from src/library/hook/hook.h
     namespace NPlugin {
@@ -22,7 +24,7 @@ namespace NUnitTest {
 
         class TPluginRegistrator {
         public:
-            TPluginRegistrator(TSimpleSharedPtr<IPlugin> plugin);
+            TPluginRegistrator(std::shared_ptr<IPlugin> plugin);
         };
 
     }

@@ -20,7 +20,7 @@ namespace NUnitTest::NPlugin {
                 }
             }
 
-            void Register(TSimpleSharedPtr<IPlugin> plugin) {
+            void Register(std::shared_ptr<IPlugin> plugin) {
                 Plugins.emplace_back(std::move(plugin));
             }
 
@@ -29,11 +29,11 @@ namespace NUnitTest::NPlugin {
             }
 
         private:
-            std::vector<TSimpleSharedPtr<IPlugin>> Plugins;
+            std::vector<std::shared_ptr<IPlugin>> Plugins;
         };
     } // anonymous namespace
 
-    TPluginRegistrator::TPluginRegistrator(TSimpleSharedPtr<IPlugin> plugin) {
+    TPluginRegistrator::TPluginRegistrator(std::shared_ptr<IPlugin> plugin) {
         TPlugins::Instance().Register(std::move(plugin));
     }
 
