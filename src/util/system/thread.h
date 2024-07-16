@@ -7,6 +7,7 @@
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
 #include <string>
+#include <memory>
 
 #include <ydb-cpp-sdk/util/system/defaults.h>
 #include <ydb-cpp-sdk/util/system/progname.h>
@@ -80,7 +81,7 @@ public:
     template <typename Callable>
     TThread(Callable&& callable)
         : TThread(TPrivateCtor{},
-                  MakeHolder<TCallableParams<Callable>>(std::forward<Callable>(callable)))
+                  std::make_unique<TCallableParams<Callable>>(std::forward<Callable>(callable)))
     {
     }
 
@@ -152,11 +153,11 @@ private:
         }
     };
 
-    TThread(TPrivateCtor, THolder<TCallableBase> callable);
+    TThread(TPrivateCtor, std::unique_ptr<TCallableBase>&& callable);
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 class ISimpleThread: public TThread {
