@@ -6,6 +6,7 @@
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
 #include <optional>
+#include <memory>
 
 class THttpHeaders;
 
@@ -27,7 +28,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /// Вывод данных порциями.
@@ -45,6 +46,6 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 /// @}
