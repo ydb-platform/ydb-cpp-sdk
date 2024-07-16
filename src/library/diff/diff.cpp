@@ -12,7 +12,7 @@ struct TCollectionImpl {
     inline bool Consume(const T* b, const T* e, const T*) {
         if (b < e) {
             Words.push_back(std::span<const T>(b, e));
-            Keys.push_back(FnvHash<ui64>((const char*)b, (e - b) * sizeof(T)));
+            Keys.push_back(FnvHash<ui64>(static_cast<const void*>(b), (e - b) * sizeof(T)));
         }
         return true;
     }

@@ -5,7 +5,7 @@
 using namespace NDiff;
 
 struct TDiffTester {
-    std::stringStream Res;
+    TStringStream Res;
     std::vector<TChunk<char>> Chunks;
 
     std::string_view Special(const std::string_view& str) const {
