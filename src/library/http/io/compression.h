@@ -9,8 +9,8 @@
 
 class TCompressionCodecFactory {
 public:
-    using TDecoderConstructor = std::function<THolder<IInputStream>(IInputStream*)>;
-    using TEncoderConstructor = std::function<THolder<IOutputStream>(IOutputStream*)>;
+    using TDecoderConstructor = std::function<std::unique_ptr<IInputStream>(IInputStream*)>;
+    using TEncoderConstructor = std::function<std::unique_ptr<IOutputStream>(IOutputStream*)>;
 
     TCompressionCodecFactory();
 
