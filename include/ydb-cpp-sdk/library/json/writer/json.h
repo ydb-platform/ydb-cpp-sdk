@@ -4,6 +4,7 @@
 #include <ydb-cpp-sdk/util/string/cast.h>
 
 #include <vector>
+#include <memory>
 
 namespace NJson {
     class TJsonValue;
@@ -143,7 +144,7 @@ namespace NJsonWriter {
 
     private:
         IOutputStream* Stream;
-        THolder<TStringStream> StringStream;
+        std::unique_ptr<TStringStream> StringStream;
         typedef std::vector<const std::string*> TKeys;
         TKeys Keys;
 
