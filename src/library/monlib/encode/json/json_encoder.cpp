@@ -539,18 +539,18 @@ namespace NMonitoring {
     }
 
     IMetricEncoderPtr EncoderJson(IOutputStream* out, int indentation) {
-        return MakeHolder<TEncoderJson>(out, indentation, EJsonStyle::Solomon, "");
+        return std::make_unique<TEncoderJson>(out, indentation, EJsonStyle::Solomon, "");
     }
 
     IMetricEncoderPtr BufferedEncoderJson(IOutputStream* out, int indentation) {
-        return MakeHolder<TBufferedJsonEncoder>(out, indentation, EJsonStyle::Solomon, "");
+        return std::make_unique<TBufferedJsonEncoder>(out, indentation, EJsonStyle::Solomon, "");
     }
 
     IMetricEncoderPtr EncoderCloudJson(IOutputStream* out, int indentation, std::string_view metricNameLabel) {
-        return MakeHolder<TEncoderJson>(out, indentation, EJsonStyle::Cloud, metricNameLabel);
+        return std::make_unique<TEncoderJson>(out, indentation, EJsonStyle::Cloud, metricNameLabel);
     }
 
     IMetricEncoderPtr BufferedEncoderCloudJson(IOutputStream* out, int indentation, std::string_view metricNameLabel) {
-        return MakeHolder<TBufferedJsonEncoder>(out, indentation, EJsonStyle::Cloud, metricNameLabel);
+        return std::make_unique<TBufferedJsonEncoder>(out, indentation, EJsonStyle::Cloud, metricNameLabel);
     }
 }

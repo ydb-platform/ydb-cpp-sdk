@@ -4,6 +4,8 @@
 
 #include <ydb-cpp-sdk/library/monlib/metrics/metric_consumer.h>
 
+#include <memory>
+
 namespace NMonitoring {
     class IMetricEncoder: public IMetricConsumer {
     public:
@@ -12,6 +14,6 @@ namespace NMonitoring {
         virtual void Close() = 0;
     };
 
-    using IMetricEncoderPtr = THolder<IMetricEncoder>;
+    using IMetricEncoderPtr = std::unique_ptr<IMetricEncoder>;
 
 }
