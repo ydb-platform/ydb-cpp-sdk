@@ -2,6 +2,8 @@
 
 #include "histogram_snapshot.h"
 
+#include <memory>
+
 namespace NMonitoring {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -43,7 +45,7 @@ namespace NMonitoring {
         virtual IHistogramSnapshotPtr Snapshot() const = 0;
     };
 
-    using IHistogramCollectorPtr = THolder<IHistogramCollector>;
+    using IHistogramCollectorPtr = std::unique_ptr<IHistogramCollector>;
 
     ///////////////////////////////////////////////////////////////////////////
     // free functions
