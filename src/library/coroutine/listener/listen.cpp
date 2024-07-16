@@ -316,7 +316,7 @@ void TContListener::Bind(const TNetworkAddress& addr) {
 }
 
 void TContListener::Stop() noexcept {
-    Impl_.Destroy();
+    Impl_.reset(nullptr);
 }
 
 void TContListener::StopListenAddr(const IRemoteAddr& addr) {

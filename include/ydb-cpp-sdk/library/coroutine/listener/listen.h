@@ -3,6 +3,8 @@
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/ylimits.h>
 
+#include <memory>
+
 struct TIpAddress;
 class TContExecutor;
 class TSocketHolder;
@@ -121,5 +123,5 @@ public:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
