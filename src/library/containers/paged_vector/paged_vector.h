@@ -240,7 +240,7 @@ namespace NPagedVector {
         }
 
         void AllocateNewPage() {
-            TPages::push_back(MakeSimpleShared<TPage>());
+            TPages::push_back(std::make_shared<TPage>());
             CurrentPage().reserve(PageSize);
         }
 
