@@ -4,6 +4,8 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 class IInputStream;
 
 namespace NYT::NYson {
@@ -28,7 +30,7 @@ namespace NYson {
 
     private:
         class TImpl;
-        THolder<TImpl> Impl;
+        std::unique_ptr<TImpl> Impl;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +48,7 @@ namespace NYson {
 
     private:
         class TImpl;
-        THolder<TImpl> Impl;
+        std::unique_ptr<TImpl> Impl;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +67,7 @@ namespace NYson {
 
     private:
         class TImpl;
-        THolder<TImpl> Impl;
+        std::unique_ptr<TImpl> Impl;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
