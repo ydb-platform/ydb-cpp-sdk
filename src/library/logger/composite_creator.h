@@ -14,5 +14,5 @@ protected:
 
 private:
     virtual std::unique_ptr<TLogBackend> DoCreateLogBackend() const override;
-    std::vector<THolder<ILogBackendCreator>> Children;
+    std::vector<std::unique_ptr<ILogBackendCreator>> Children;
 };

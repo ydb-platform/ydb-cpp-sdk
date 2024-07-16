@@ -17,7 +17,7 @@ TCompositeBackendCreator::TCompositeBackendCreator()
 
 bool TCompositeBackendCreator::Init(const IInitContext& ctx) {
     for (const auto& child : ctx.GetChildren("SubLogger")) {
-        Children.emplace_back(MakeHolder<TLogBackendCreatorUninitialized>());
+        Children.emplace_back(std::make_unique<TLogBackendCreatorUninitialized>());
         if (!Children.back()->Init(*child)) {
             return false;
         }
