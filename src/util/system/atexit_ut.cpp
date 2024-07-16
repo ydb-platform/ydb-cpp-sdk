@@ -13,6 +13,7 @@
 #endif //_win_
 
 #include <stdio.h>
+#include <memory>
 
 #ifdef _win_
 // not implemented
@@ -29,7 +30,7 @@ struct TAtExitParams {
 };
 
 void MyAtExitFunc(void* ptr) {
-    THolder<TAtExitParams> params{static_cast<TAtExitParams*>(ptr)};
+    std::unique_ptr<TAtExitParams> params{static_cast<TAtExitParams*>(ptr)};
     if (write(params->fd, params->str, strlen(params->str)) < 0) {
         abort();
     }
