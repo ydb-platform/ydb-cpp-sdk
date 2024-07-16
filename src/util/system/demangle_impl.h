@@ -2,6 +2,8 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 namespace NPrivate {
 
     /*
@@ -14,7 +16,7 @@ namespace NPrivate {
         const char* Demangle(const char* name);
 
     private:
-        THolder<char, TFree> TmpBuf_;
+        std::unique_ptr<char, TFree> TmpBuf_;
     };
 
 } //namespace NPrivate
