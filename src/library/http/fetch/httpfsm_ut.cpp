@@ -6,6 +6,8 @@
 #include <src/library/charset/doccodes.h>
 #include <src/library/testing/unittest/registar.h>
 
+#include <memory>
+
 class THttpHeaderParserTestSuite: public TTestBase {
     UNIT_TEST_SUITE(THttpHeaderParserTestSuite);
     UNIT_TEST(TestRequestHeader);
@@ -33,7 +35,7 @@ class THttpHeaderParserTestSuite: public TTestBase {
     UNIT_TEST_SUITE_END();
 
 private:
-    THolder<THttpHeaderParser> httpHeaderParser;
+    std::unique_ptr<THttpHeaderParser> httpHeaderParser;
 
 private:
     void TestStart();
@@ -65,11 +67,11 @@ public:
 };
 
 void THttpHeaderParserTestSuite::TestStart() {
-    httpHeaderParser.Reset(new THttpHeaderParser());
+    httpHeaderParser = std::make_unique<THttpHeaderParser>();
 }
 
 void THttpHeaderParserTestSuite::TestFinish() {
-    httpHeaderParser.Reset();
+    httpHeaderParser.reset();
 }
 
 void THttpHeaderParserTestSuite::TestRequestHeader() {
