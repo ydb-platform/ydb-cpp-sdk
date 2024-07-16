@@ -5,6 +5,8 @@
 #include "summary_collector.h"
 #include "log_histogram_snapshot.h"
 
+#include <memory>
+
 class TInstant;
 
 namespace NMonitoring {
@@ -35,6 +37,6 @@ namespace NMonitoring {
         virtual void OnSummaryDouble(TInstant time, ISummaryDoubleSnapshotPtr snapshot) = 0;
     };
 
-    using IMetricConsumerPtr = THolder<IMetricConsumer>;
+    using IMetricConsumerPtr = std::unique_ptr<IMetricConsumer>;
 
 }
