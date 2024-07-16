@@ -6,28 +6,28 @@
 
 #include <inttypes.h>
 
-typedef int8_t i8;
-typedef int16_t i16;
-typedef uint8_t ui8;
-typedef uint16_t ui16;
+using i8 = int8_t;
+using i16 = int16_t;
+using ui8 = uint8_t;
+using ui16 = uint16_t;
 
-typedef int yssize_t;
+using yssize_t = int;
 #define PRIYSZT "d"
 
 #if defined(_darwin_) && defined(_32_)
-typedef unsigned long ui32;
-typedef long i32;
+using ui32 = unsigned long;
+using i32 = long;
 #else
-typedef uint32_t ui32;
-typedef int32_t i32;
+using ui32 = uint32_t;
+using i32 = int32_t;
 #endif
 
 #if defined(_darwin_) && defined(_64_)
-typedef unsigned long ui64;
-typedef long i64;
+using ui64 = unsigned long;
+using i64 = long;
 #else
-typedef uint64_t ui64;
-typedef int64_t i64;
+using ui64 = uint64_t;
+using i64 = int64_t;
 #endif
 
 #define LL(number) INT64_C(number)
@@ -97,16 +97,16 @@ typedef int64_t i64;
 // SUPERLONG
 #if !defined(DONT_USE_SUPERLONG) && !defined(SUPERLONG_MAX)
     #define SUPERLONG_MAX ~LL(0)
-typedef i64 SUPERLONG;
+using SUPERLONG = i64;
 #endif
 
 // UNICODE
 #ifdef __cplusplus
 // UCS-2, native byteorder
-typedef char16_t wchar16;
+using wchar16 = char16_t;
 // internal symbol type: UTF-16LE
-typedef wchar16 TChar;
-typedef char32_t wchar32;
+using TChar = wchar16;
+using wchar32 = char32_t;
 #endif
 
 #if defined(_MSC_VER)
@@ -119,7 +119,7 @@ typedef SSIZE_T ssize_t;
 #include <sys/types.h>
 
 // for pb.h/cc
-typedef i32 arc_i32;
-typedef i64 arc_i64;
-typedef ui32 arc_ui32;
-typedef ui64 arc_ui64;
+using arc_i32 = i32;
+using arc_i64 = i64;
+using arc_ui32 = ui32;
+using arc_ui64 = ui64;
