@@ -134,16 +134,16 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
 
         std::string Execute() {
             TSocket* s = nullptr;
-            THolder<TSocket> singleReqSocket;
+            std::unique_ptr<TSocket> singleReqSocket;
             if (KeepAliveConnection) {
                 if (!KeepAlivedSocket) {
-                    KeepAlivedSocket = MakeHolder<TSocket>(TNetworkAddress("localhost", Port), TDuration::Seconds(10));
+                    KeepAlivedSocket = std::make_unique<TSocket>(TNetworkAddress("localhost", Port), TDuration::Seconds(10));
                 }
-                s = KeepAlivedSocket.Get();
+                s = KeepAlivedSocket.get();
             } else {
                 TNetworkAddress addr("localhost", Port);
-                singleReqSocket.Reset(new TSocket(addr, TDuration::Seconds(10)));
-                s = singleReqSocket.Get();
+                singleReqSocket = std::make_unique<TSocket>(addr, TDuration::Seconds(10));
+                s = singleReqSocket.get();
             }
             bool isPost = Type == "POST";
             TSocketInput si(*s);
@@ -253,7 +253,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         std::string ContentEncoding;
         std::string Content;
         bool KeepAliveConnection = false;
-        THolder<TSocket> KeepAlivedSocket;
+        std::unique_ptr<TSocket> KeepAlivedSocket;
         bool EnableResponseEncoding = false;
         std::string Hdr;
         bool Expect100Continue = false;
@@ -347,9 +347,9 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         const ui16 port = pm.GetPort();
 
         TEchoServer serverImpl(res);
-        std::vector<THolder<THttpServer>> servers;
+        std::vector<std::unique_ptr<THttpServer>> servers;
         for (ui32 i = 0; i < 10; i++) {
-            servers.push_back(MakeHolder<THttpServer>(&serverImpl, THttpServer::TOptions(port).EnableReusePort(true)));
+            servers.push_back(std::make_unique<THttpServer>(&serverImpl, THttpServer::TOptions(port).EnableReusePort(true)));
         }
 
         for (ui32 testRun = 0; testRun < 3; testRun++) {
@@ -405,14 +405,14 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
         options.EnableKeepAlive(true);
         options.EnableCompression(true);
         using TFailingServerMtpQueue = TThreadPoolBinder<TFailingMtpQueue, THttpServer::ICallBack>;
-        THttpServer::TMtpQueueRef mainWorkers = new TFailingServerMtpQueue(&serverImpl, SystemThreadFactory());
-        THttpServer::TMtpQueueRef failWorkers = new TThreadPool(SystemThreadFactory());
+        THttpServer::TMtpQueueRef mainWorkers = std::make_shared<TFailingServerMtpQueue>(&serverImpl, SystemThreadFactory());
+        THttpServer::TMtpQueueRef failWorkers = std::make_shared<TThreadPool>(SystemThreadFactory());
         THttpServer server(&serverImpl, mainWorkers, failWorkers, options);
 
         UNIT_ASSERT(server.Start());
         for (size_t i = 0; i < 3; ++i) {
             // should fail on 2nd request
-            static_cast<TFailingMtpQueue*>(mainWorkers.Get())->SetFailOnAdd(i == 1);
+            static_cast<TFailingMtpQueue*>(mainWorkers.get())->SetFailOnAdd(i == 1);
             TTestRequest r(port);
             r.Content = res;
             r.Type = "POST";
@@ -711,7 +711,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
                 UNIT_ASSERT(server.Lock.try_lock());
 
                 std::atomic<size_t> threadsFinished = 0;
-                std::vector<THolder<IThreadFactory::IThread>> threads;
+                std::vector<std::unique_ptr<IThreadFactory::IThread>> threads;
                 auto func = [port, keepAlive, &threadsFinished]() {
                     try {
                         TTestRequest r(port);
@@ -833,7 +833,7 @@ Y_UNIT_TEST_SUITE(THttpServerTest) {
             Stop();
         }
     private:
-        std::vector<THolder<IThreadFactory::IThread>> Threads_;
+        std::vector<std::unique_ptr<IThreadFactory::IThread>> Threads_;
         std::atomic<bool> Stopped_ = false;
         std::vector<TCounters> Counters_;
     };
