@@ -10,6 +10,7 @@
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 
 #include <atomic>
+#include <memory>
 #include <mutex>
 
 namespace NThreading {
@@ -45,7 +46,7 @@ namespace NThreading {
             mutable TAdaptiveLock StateLock;
 
             TCallbackList<T> Callbacks;
-            mutable THolder<TSystemEvent> ReadyEvent;
+            mutable std::unique_ptr<TSystemEvent> ReadyEvent;
 
             std::exception_ptr Exception;
 
@@ -160,7 +161,7 @@ namespace NThreading {
 
                     new (&Value) T(std::forward<TT>(value));
 
-                    readyEvent = ReadyEvent.Get();
+                    readyEvent = ReadyEvent.get();
                     callbacks = std::move(Callbacks);
 
                     State.store(ValueSet);
@@ -201,7 +202,7 @@ namespace NThreading {
 
                     Exception = std::move(e);
 
-                    readyEvent = ReadyEvent.Get();
+                    readyEvent = ReadyEvent.get();
                     callbacks = std::move(Callbacks);
 
                     State.store(ExceptionSet);
@@ -249,9 +250,9 @@ namespace NThreading {
                     }
 
                     if (!ReadyEvent) {
-                        ReadyEvent.Reset(new TSystemEvent());
+                        ReadyEvent = std::make_unique<TSystemEvent>();
                     }
-                    readyEvent = ReadyEvent.Get();
+                    readyEvent = ReadyEvent.get();
                 }
 
                 Y_ASSERT(readyEvent);
@@ -281,7 +282,7 @@ namespace NThreading {
             mutable TAdaptiveLock StateLock;
 
             TCallbackList<void> Callbacks;
-            mutable THolder<TSystemEvent> ReadyEvent;
+            mutable std::unique_ptr<TSystemEvent> ReadyEvent;
 
             std::exception_ptr Exception;
 
@@ -347,7 +348,7 @@ namespace NThreading {
                         return false;
                     }
 
-                    readyEvent = ReadyEvent.Get();
+                    readyEvent = ReadyEvent.get();
                     callbacks = std::move(Callbacks);
 
                     State.store(ValueSet);
@@ -387,7 +388,7 @@ namespace NThreading {
 
                     Exception = std::move(e);
 
-                    readyEvent = ReadyEvent.Get();
+                    readyEvent = ReadyEvent.get();
                     callbacks = std::move(Callbacks);
 
                     State.store(ExceptionSet);
@@ -435,9 +436,9 @@ namespace NThreading {
                     }
 
                     if (!ReadyEvent) {
-                        ReadyEvent.Reset(new TSystemEvent());
+                        ReadyEvent = std::make_unique<TSystemEvent>();
                     }
-                    readyEvent = ReadyEvent.Get();
+                    readyEvent = ReadyEvent.get();
                 }
 
                 Y_ASSERT(readyEvent);
