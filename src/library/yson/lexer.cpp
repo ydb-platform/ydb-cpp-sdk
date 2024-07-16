@@ -4,12 +4,14 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////
 
     class TStatelessLexer::TImpl {
     private:
-        THolder<TStatelessYsonLexerImplBase> Impl;
+        std::unique_ptr<TStatelessYsonLexerImplBase> Impl;
 
     public:
         TImpl(bool enableLinePositionInfo = false)
