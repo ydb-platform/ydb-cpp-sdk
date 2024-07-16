@@ -117,14 +117,14 @@ namespace {
     private:
         inline void ConstructSlave() {
             if (!Slave_) {
-                Slave_.Reset(new TStream(Output_, BlockSize_));
+                Slave_ = std::make_unique<TStream>(Output_, BlockSize_);
             }
         }
 
     private:
         IOutputStream* Output_;
         ui16 BlockSize_;
-        THolder<IOutputStream> Slave_;
+        std::unique_ptr<IOutputStream> Slave_;
     };
 }
 
