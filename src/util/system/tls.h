@@ -6,6 +6,7 @@
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 
 #include <new>
+#include <memory>
 
 #if defined(_darwin_)
     #define Y_DISABLE_THRKEY_OPTIMIZATION
