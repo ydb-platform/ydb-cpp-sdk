@@ -142,10 +142,10 @@ namespace NMonitoring {
     template <typename T, typename G, typename TL = TLess<T>>
     class TDeprecatedCounterGroups {
     public:
-        typedef std::map<T, G*> TGroups;
-        typedef std::vector<T> TGroupsNames;
+        using TGroups = std::map<T, G*>;
+        using TGroupsNames = std::vector<T>;
 
-        typedef THolder<TGroupsNames> TGroupsNamesPtr;
+        using TGroupsNamesPtr = std::unique_ptr<TGroupsNames>;
 
     private:
         class TCollection {
