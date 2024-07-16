@@ -2,12 +2,12 @@
 #include "codepage.h"
 #include "recyr.hh"
 
-#include <src/library/testing/unittest/registar.h>
-
-#include <src/util/charset/utf8.h>
 #include <ydb-cpp-sdk/util/digest/numeric.h>
 
-#include <algorithm>
+#include <src/util/charset/utf8.h>
+
+#include <src/library/testing/unittest/registar.h>
+
 #include <unordered_set>
 
 namespace {
@@ -41,7 +41,7 @@ namespace {
         return std::string(text, len);
     }
 
-    TUtf16String CreateUnicodeText() {
+    std::u16string CreateUnicodeText() {
         const int len = 256;
         wchar16 text[len] = {
             0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 0x00 - 0x0F
@@ -65,7 +65,7 @@ namespace {
                 text[i] = static_cast<wchar16>(i + 0x0350); // 0x0410 - 0x044F
             }
         }
-        return TUtf16String(text, len);
+        return std::u16string(text, len);
     }
 
     std::string CreateUTF8Text() {
@@ -118,7 +118,7 @@ class TConversionTest: public TTestBase {
 private:
     //! @note every of the text can have zeros in the middle
     const std::string YandexText;
-    const TUtf16String UnicodeText;
+    const std::u16string UnicodeText;
     const std::string UTF8Text;
 
 private:
@@ -159,14 +159,14 @@ UNIT_TEST_SUITE_REGISTRATION(TConversionTest);
     do {                                                                                                                              \
         /* convert char to wchar32 */                                                                                                 \
         TTempBuf tmpbuf1(sbuf.length() * sizeof(wchar32));                                                                            \
-        const TBasicStringBuf<wchar32> s4buf = NDetail::NBaseOps::Recode<char>(sbuf, reinterpret_cast<wchar32*>(tmpbuf1.Data()), enc); \
+        const std::u32string_view s4buf = NDetail::NBaseOps::Recode<char>(sbuf, reinterpret_cast<wchar32*>(tmpbuf1.Data()), enc);     \
                                                                                                                                       \
         /* convert wchar32 to char */                                                                                                 \
         TTempBuf tmpbuf2(s4buf.length() * 4);                                                                                         \
-        const std::string_view s1buf = NDetail::NBaseOps::Recode(s4buf, tmpbuf2.Data(), enc);                                               \
+        const std::string_view s1buf = NDetail::NBaseOps::Recode(s4buf, tmpbuf2.Data(), enc);                                         \
                                                                                                                                       \
         /* convert wchar32 to wchar16 */                                                                                              \
-        const TUtf16String wstr2 = UTF32ToWide(s4buf.data(), s4buf.length());                                                         \
+        const std::u16string wstr2 = UTF32ToWide(s4buf.data(), s4buf.length());                                                       \
                                                                                                                                       \
         /* test conversions */                                                                                                        \
         UNIT_ASSERT_VALUES_EQUAL(sbuf, s1buf);                                                                                        \
@@ -174,7 +174,7 @@ UNIT_TEST_SUITE_REGISTRATION(TConversionTest);
     } while (false)
 
 void TConversionTest::TestCharToWide() {
-    TUtf16String w = CharToWide(YandexText, CODES_YANDEX);
+    std::u16string w = CharToWide(YandexText, CODES_YANDEX);
 
     UNIT_ASSERT(w.size() == 256);
     UNIT_ASSERT(w.size() == UnicodeText.size());
@@ -196,7 +196,7 @@ void TConversionTest::TestWideToChar() {
 }
 
 static void TestSurrogates(const char* str, const wchar16* wide, size_t wideSize, ECharset enc) {
-    TUtf16String w = UTF8ToWide(str);
+    std::u16string w = UTF8ToWide(str);
 
     UNIT_ASSERT(w.size() == wideSize);
     UNIT_ASSERT(!memcmp(w.c_str(), wide, wideSize));
@@ -207,7 +207,7 @@ static void TestSurrogates(const char* str, const wchar16* wide, size_t wideSize
 }
 
 void TConversionTest::TestYandexEncoding() {
-    TUtf16String w = UTF8ToWide(utf8CyrillicAlphabet, strlen(utf8CyrillicAlphabet), csYandex);
+    std::u16string w = UTF8ToWide(utf8CyrillicAlphabet, strlen(utf8CyrillicAlphabet), csYandex);
     UNIT_ASSERT(w == wideCyrillicAlphabet);
     w = UTF8ToWide(yandexCyrillicAlphabet, strlen(yandexCyrillicAlphabet), csYandex);
     UNIT_ASSERT(w == wideCyrillicAlphabet);
@@ -224,8 +224,8 @@ void TConversionTest::TestYandexEncoding() {
         temp.resize(Y_ARRAY_SIZE(wNonBMPDummy2));
         size_t read = 0;
         size_t written = 0;
-        RecodeFromUnicode(CODES_YANDEX, wNonBMPDummy2, temp.begin(), Y_ARRAY_SIZE(wNonBMPDummy2), temp.size(), read, written);
-        temp.remove(written);
+        RecodeFromUnicode(CODES_YANDEX, wNonBMPDummy2, temp.data(), Y_ARRAY_SIZE(wNonBMPDummy2), temp.size(), read, written);
+        temp.erase(written);
 
         UNIT_ASSERT(yandexNonBMP2 == temp);
     }
@@ -241,7 +241,7 @@ void TConversionTest::TestRecodeIntoString() {
     UNIT_ASSERT(sYandex.size() == sres.size());     // same size
     TEST_WCHAR32(sYandex, UnicodeText, CODES_YANDEX);
 
-    TUtf16String sUnicode;
+    std::u16string sUnicode;
     sUnicode.reserve(YandexText.size() * 4);
     const wchar16* wdata = sUnicode.data();
     std::u16string_view wres = NDetail::Recode<char>(YandexText, sUnicode, CODES_YANDEX);
@@ -261,7 +261,7 @@ void TConversionTest::TestRecodeIntoString() {
 
     sUnicode.clear();
     wdata = sUnicode.data();
-    TUtf16String copy = sUnicode; // increase ref-counter
+    std::u16string copy = sUnicode; // increase ref-counter
     wres = NDetail::Recode<char>(UTF8Text, sUnicode, CODES_UTF8);
     UNIT_ASSERT(sUnicode == UnicodeText); // same content
     UNIT_ASSERT(sUnicode.size() == wres.size());      // same content
@@ -272,15 +272,16 @@ static std::string GenerateJunk(size_t seed) {
     size_t hash = NumericHash(seed);
     size_t size = hash % 1024;
     res.reserve(size);
-    for (size_t i = 0; i < size; ++i)
+    for (size_t i = 0; i < size; ++i) {
         res += static_cast<char>(NumericHash(hash + i) % 256);
+    }
     return res;
 }
 
 void TConversionTest::TestRecodeAppend() {
     {
         std::string s1, s2;
-        NDetail::RecodeAppend<wchar16>(TUtf16String(), s1, CODES_YANDEX);
+        NDetail::RecodeAppend<wchar16>(std::u16string(), s1, CODES_YANDEX);
         UNIT_ASSERT(s1.empty());
 
         NDetail::RecodeAppend<wchar16>(UnicodeText, s1, CODES_WIN);
@@ -291,7 +292,7 @@ void TConversionTest::TestRecodeAppend() {
         s2 += WideToChar(UnicodeText, CODES_YANDEX);
         UNIT_ASSERT_EQUAL(s1, s2);
 
-        NDetail::RecodeAppend<wchar16>(TUtf16String(), s1, CODES_YANDEX);
+        NDetail::RecodeAppend<wchar16>(std::u16string(), s1, CODES_YANDEX);
         UNIT_ASSERT_EQUAL(s1, s2);
 
         NDetail::RecodeAppend<wchar16>(UnicodeText, s1, CODES_UTF8);
@@ -299,7 +300,7 @@ void TConversionTest::TestRecodeAppend() {
         UNIT_ASSERT_EQUAL(s1, s2);
 
         for (size_t i = 0; i < 100; ++i) {
-            TUtf16String junk = CharToWide(GenerateJunk(i), CODES_YANDEX);
+            std::u16string junk = CharToWide(GenerateJunk(i), CODES_YANDEX);
             NDetail::RecodeAppend<wchar16>(junk, s1, CODES_UTF8);
             s2 += WideToUTF8(junk);
             UNIT_ASSERT_EQUAL(s1, s2);
@@ -307,7 +308,7 @@ void TConversionTest::TestRecodeAppend() {
     }
 
     {
-        TUtf16String s1, s2;
+        std::u16string s1, s2;
         NDetail::RecodeAppend<char>(std::string(), s1, CODES_YANDEX);
         UNIT_ASSERT(s1.empty());
 
@@ -343,8 +344,9 @@ void Out<RECODE_RESULT>(IOutputStream& out, RECODE_RESULT val) {
 void TConversionTest::TestRecode() {
     for (int c = 0; c != CODES_MAX; ++c) {
         ECharset enc = static_cast<ECharset>(c);
-        if (!SingleByteCodepage(enc))
+        if (!SingleByteCodepage(enc)) {
             continue;
+        }
 
         using THash = std::unordered_set<char>;
         THash hash;
@@ -359,8 +361,9 @@ void TConversionTest::TestRecode() {
 
             res = RecodeToUnicode(enc, &ch, &wch, 1, 1, read, written);
             UNIT_ASSERT(res == RECODE_OK);
-            if (wch == BROKEN_RUNE)
+            if (wch == BROKEN_RUNE) {
                 continue;
+            }
 
             char rch = 0;
             res = RecodeFromUnicode(enc, &wch, &rch, 1, 1, read, written);
@@ -385,8 +388,9 @@ void TConversionTest::TestRecode() {
 void TConversionTest::TestUnicodeLimit() {
     for (int i = 0; i != CODES_MAX; ++i) {
         ECharset code = static_cast<ECharset>(i);
-        if (!SingleByteCodepage(code))
+        if (!SingleByteCodepage(code)) {
             continue;
+        }
 
         const CodePage* page = CodePageByCharset(code);
         Y_ASSERT(page);
@@ -407,9 +411,10 @@ static void TestCanEncodeEmpty() {
 static void TestCanEncodeEach(const std::u16string_view& text, ECharset encoding, bool expectedResult) {
     // char by char
     for (size_t i = 0; i < text.size(); ++i) {
-        if (CanBeEncoded(text.SubStr(i, 1), encoding) != expectedResult)
+        if (CanBeEncoded(text.substr(i, 1), encoding) != expectedResult) {
             ythrow yexception() << "assertion failed: encoding " << NameByCharset(encoding)
-                                << " on '" << text.SubStr(i, 1) << "' (expected " << expectedResult << ")";
+                                << " on '" << text.substr(i, 1) << "' (expected " << expectedResult << ")";
+        }
     }
     // whole text
     UNIT_ASSERT_EQUAL(CanBeEncoded(text, encoding), expectedResult);
@@ -418,58 +423,58 @@ static void TestCanEncodeEach(const std::u16string_view& text, ECharset encoding
 void TConversionTest::TestCanEncode() {
     TestCanEncodeEmpty();
 
-    const TUtf16String lat = u"AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
+    const std::u16string lat = u"AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
     TestCanEncodeEach(lat, CODES_WIN, true);
     TestCanEncodeEach(lat, CODES_YANDEX, true);
     TestCanEncodeEach(lat, CODES_UTF8, true);
 
-    const TUtf16String rus = u"АаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя";
+    const std::u16string rus = u"АаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя";
     TestCanEncodeEach(rus, CODES_WIN, true);
     TestCanEncodeEach(rus, CODES_YANDEX, true);
     TestCanEncodeEach(rus, CODES_UTF8, true);
 
-    const TUtf16String ukr = u"ҐґЄєІіЇї";
+    const std::u16string ukr = u"ҐґЄєІіЇї";
     TestCanEncodeEach(ukr, CODES_WIN, true);
     TestCanEncodeEach(ukr, CODES_YANDEX, true);
     TestCanEncodeEach(ukr, CODES_UTF8, true);
 
-    const TUtf16String pol = u"ĄĆĘŁŃÓŚŹŻąćęłńóśźż";
+    const std::u16string pol = u"ĄĆĘŁŃÓŚŹŻąćęłńóśźż";
     TestCanEncodeEach(pol, CODES_WIN, false);
     TestCanEncodeEach(pol, CODES_YANDEX, true);
     TestCanEncodeEach(pol, CODES_UTF_16BE, true);
 
-    const TUtf16String ger = u"ÄäÖöÜüß";
+    const std::u16string ger = u"ÄäÖöÜüß";
     TestCanEncodeEach(ger, CODES_WIN, false);
     TestCanEncodeEach(ger, CODES_YANDEX, true);
     TestCanEncodeEach(ger, CODES_UTF_16LE, true);
 
-    const TUtf16String fra1 = u"éàèùâêîôûëïç"; // supported in yandex cp
-    const TUtf16String fra2 = u"ÉÀÈÙÂÊÎÔÛËÏŸÿÇ";
-    const TUtf16String fra3 = u"ÆæŒœ";
+    const std::u16string fra1 = u"éàèùâêîôûëïç"; // supported in yandex cp
+    const std::u16string fra2 = u"ÉÀÈÙÂÊÎÔÛËÏŸÿÇ";
+    const std::u16string fra3 = u"ÆæŒœ";
     TestCanEncodeEach(fra1 + fra2 + fra3, CODES_WIN, false);
     TestCanEncodeEach(fra1, CODES_YANDEX, true);
     TestCanEncodeEach(fra2 + fra3, CODES_YANDEX, false);
     TestCanEncodeEach(fra1 + fra2 + fra3, CODES_UTF8, true);
 
-    const TUtf16String kaz = u"ӘәҒғҚқҢңӨөҰұҮүҺһ";
+    const std::u16string kaz = u"ӘәҒғҚқҢңӨөҰұҮүҺһ";
     TestCanEncodeEach(kaz, CODES_WIN, false);
     TestCanEncodeEach(kaz, CODES_YANDEX, false);
     TestCanEncodeEach(kaz, CODES_UTF8, true);
     TestCanEncodeEach(kaz, CODES_KAZWIN, true);
 
-    const TUtf16String tur1 = u"ĞİŞğş";
-    const TUtf16String tur = tur1 + u"ı";
+    const std::u16string tur1 = u"ĞİŞğş";
+    const std::u16string tur = tur1 + u"ı";
     TestCanEncodeEach(tur, CODES_WIN, false);
     TestCanEncodeEach(tur, CODES_YANDEX, false);
     TestCanEncodeEach(tur, CODES_UTF8, true);
 
-    const TUtf16String chi = u"新隶体新隸體";
+    const std::u16string chi = u"新隶体新隸體";
     TestCanEncodeEach(chi, CODES_WIN, false);
     TestCanEncodeEach(chi, CODES_YANDEX, false);
     TestCanEncodeEach(chi, CODES_UTF8, true);
     TestCanEncodeEach(chi, CODES_UTF_16LE, true);
 
-    const TUtf16String jap = u"漢字仮字交じり文";
+    const std::u16string jap = u"漢字仮字交じり文";
     TestCanEncodeEach(jap, CODES_WIN, false);
     TestCanEncodeEach(jap, CODES_YANDEX, false);
     TestCanEncodeEach(jap, CODES_UTF8, true);

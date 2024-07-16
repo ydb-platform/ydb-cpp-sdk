@@ -5,8 +5,8 @@
 #include <src/library/testing/unittest/registar.h>
 
 static void TestIconv(const std::string& utf8, const std::string& other, ECharset enc) {
-    TUtf16String wide0 = CharToWide(utf8, CODES_UTF8);
-    TUtf16String wide1 = CharToWide(other, enc);
+    std::u16string wide0 = CharToWide(utf8, CODES_UTF8);
+    std::u16string wide1 = CharToWide(other, enc);
 
     UNIT_ASSERT(wide0 == wide1);
 
@@ -25,13 +25,13 @@ static void TestIconv(const std::string& utf8, const std::string& other, ECharse
     size_t read = 0;
     size_t written = 0;
 
-    RECODE_RESULT res = RecodeToUnicode(enc, other.c_str(), wide1.begin(), other.size(), wide1.size(), read, written);
+    RECODE_RESULT res = RecodeToUnicode(enc, other.c_str(), wide1.data(), other.size(), wide1.size(), read, written);
     UNIT_ASSERT(res == RECODE_OK);
     UNIT_ASSERT(read == other.size());
     UNIT_ASSERT(written == wide1.size());
     UNIT_ASSERT(wide0 == wide1);
 
-    res = RecodeFromUnicode(enc, wide0.c_str(), temp.begin(), wide0.size(), temp.size(), read, written);
+    res = RecodeFromUnicode(enc, wide0.c_str(), temp.data(), wide0.size(), temp.size(), read, written);
     UNIT_ASSERT(res == RECODE_OK);
     UNIT_ASSERT(read == wide0.size());
     UNIT_ASSERT(written == other.size());

@@ -2,10 +2,11 @@
 #include "recyr.hh"
 #include "wide.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include <ydb-cpp-sdk/util/system/yassert.h>
 
 #include <src/util/charset/utf8.h>
-#include <ydb-cpp-sdk/util/system/yassert.h>
+
+#include <src/library/testing/unittest/registar.h>
 
 class TRecyr_intTest: public TTestBase {
 private:
@@ -83,8 +84,9 @@ void TRecyr_intTest::TestUTFFromUnknownPlane() {
     DecodeUnknownPlane(charbuffer, charbufferend, CODES_UTF8);
 
     UNIT_ASSERT(charbufferend == charbuffer + samplelen);
-    for (size_t i = 0; i < samplelen; ++i)
+    for (size_t i = 0; i < samplelen; ++i) {
         UNIT_ASSERT(sampletext[i] == charbuffer[i]);
+    }
 
     // Now, concatenate the thing with an explicit character and retest
     res = RecodeToUnicode(CODES_UNKNOWNPLANE, bytebuffer, charbuffer, writtenbytes, BUFFER_SIZE, readbytes, writtenchars);
@@ -114,9 +116,9 @@ void TRecyr_intTest::TestUTFFromUnknownPlane() {
 
     // test TChar version
     // bytebuffer of len writtenbytes contains sampletext of len samplelen chars in utf8
-    TUtf16String wtr = CharToWide(std::string_view(bytebuffer, writtenbytes), CODES_UNKNOWNPLANE);
-    TChar* strend = wtr.begin() + wtr.size();
-    DecodeUnknownPlane(wtr.begin(), strend, CODES_UTF8);
+    std::u16string wtr = CharToWide(std::string_view(bytebuffer, writtenbytes), CODES_UNKNOWNPLANE);
+    TChar* strend = wtr.data() + wtr.size();
+    DecodeUnknownPlane(wtr.data(), strend, CODES_UTF8);
     wtr.resize(strend - wtr.data(), 'Q');
     UNIT_ASSERT_VALUES_EQUAL(wtr.size(), samplelen);
     for (size_t i = 0; i < wtr.size(); ++i) {
