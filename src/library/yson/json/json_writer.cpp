@@ -43,10 +43,10 @@ namespace NYT {
             ythrow ::NYson::TYsonException() << ("Map fragments are not supported by Json");
         }
 
-        UnderlyingJsonWriter.Reset(new NJson::TJsonWriter(
+        UnderlyingJsonWriter = std::make_unique<NJson::TJsonWriter>(
             output,
-            config));
-        JsonWriter = UnderlyingJsonWriter.Get();
+            config);
+        JsonWriter = UnderlyingJsonWriter.get();
         HasAttributes = false;
         InAttributesBalance = 0;
     }
