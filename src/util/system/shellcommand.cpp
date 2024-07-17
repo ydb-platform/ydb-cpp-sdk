@@ -61,7 +61,7 @@ namespace {
 #if defined(_unix_)
     void SetUserGroups(const passwd* pw) {
         int ngroups = 1;
-        std::unique_ptr<gid_t, TFree> groups = std::unique_ptr<gid_t, TFree>(static_cast<gid_t*>(malloc(ngroups * sizeof(gid_t))));
+        std::unique_ptr<gid_t, TFreeUnique> groups = std::unique_ptr<gid_t, TFreeUnique>(static_cast<gid_t*>(malloc(ngroups * sizeof(gid_t))));
         if (getgrouplist(pw->pw_name, pw->pw_gid, reinterpret_cast<TGetGroupListGid*>(groups.get()), &ngroups) == -1) {
             groups.reset(static_cast<gid_t*>(malloc(ngroups * sizeof(gid_t))));
             if (getgrouplist(pw->pw_name, pw->pw_gid, reinterpret_cast<TGetGroupListGid*>(groups.get()), &ngroups) == -1) {

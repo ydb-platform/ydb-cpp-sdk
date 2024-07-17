@@ -111,6 +111,14 @@ private:
     static void DoDestroy(void* t) noexcept;
 };
 
+class TFreeUnique {
+public:
+    template <class T>
+    void operator()(T* t) {
+        TFree::Destroy((void*)t);
+    }
+};
+
 template <class Base, class T>
 class TPointerCommon {
 public:
