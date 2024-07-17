@@ -6,7 +6,7 @@
 #include <ydb-cpp-sdk/util/generic/noncopyable.h>
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
-
+#include <memory>
 
 namespace NCoro::NStack {
 
@@ -43,7 +43,7 @@ namespace NCoro::NStack {
         size_t RssPagesToKeep_ = 0;
         const TGuard& Guard_;
         std::vector<TMemory> Memory_; // memory chunks
-        THolder<TStorage> Storage_;
+        std::unique_ptr<TStorage> Storage_;
         char* NextToAlloc_ = nullptr; // points to next available stack in the last memory chunk
         const size_t ChunkSize_ = 0;
         size_t NumOfAllocated_ = 0;
