@@ -5,6 +5,8 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 namespace NYson {
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,7 +20,7 @@ namespace NYson {
 
     private:
         class TImpl;
-        THolder<TImpl> Impl;
+        std::unique_ptr<TImpl> Impl;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
