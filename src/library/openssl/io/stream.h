@@ -5,6 +5,7 @@
 #include <ydb-cpp-sdk/util/stream/output.h>
 
 #include <optional>
+#include <memory>
 
 class TOpenSslClientIO: public IInputStream, public IOutputStream {
 public:
@@ -35,5 +36,5 @@ private:
 
 private:
     struct TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
