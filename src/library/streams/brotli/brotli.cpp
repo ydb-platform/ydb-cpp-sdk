@@ -6,6 +6,8 @@
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <src/util/memory/addstorage.h>
 
+#include <memory>
+
 namespace {
     struct TAllocator {
         static void* Allocate(void* /* opaque */, size_t size) {
@@ -113,7 +115,7 @@ void TBrotliCompress::DoFlush() {
 }
 
 void TBrotliCompress::DoFinish() {
-    THolder<TImpl> impl(Impl_.Release());
+    std::unique_ptr<TImpl> impl(Impl_.Release());
 
     if (impl) {
         impl->Finish();
