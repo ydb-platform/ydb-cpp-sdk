@@ -8,6 +8,8 @@
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/generic/store_policy.h>
 
+#include <memory>
+
 /**
  * @addtogroup Streams_Buffered
  * @{
@@ -45,7 +47,7 @@ protected:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
@@ -119,7 +121,7 @@ protected:
     void DoFinish() override;
 
 private:
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
