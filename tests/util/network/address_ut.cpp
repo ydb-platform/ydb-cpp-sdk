@@ -6,8 +6,8 @@ using namespace NAddr;
 
 Y_UNIT_TEST_SUITE(IRemoteAddr_ToString) {
     Y_UNIT_TEST(Raw) {
-        THolder<TOpaqueAddr> opaque(new TOpaqueAddr);
-        IRemoteAddr* addr = opaque.Get();
+        auto opaque = std::make_unique<TOpaqueAddr>();
+        IRemoteAddr* addr = opaque.get();
 
         std::string s = ToString(*addr);
         UNIT_ASSERT_VALUES_EQUAL("(raw all zeros)", s);
