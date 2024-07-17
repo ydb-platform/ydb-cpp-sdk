@@ -95,19 +95,19 @@ namespace NMonitoring {
 
     }
 
-    THolder<ICountableConsumer> CreateEncoder(IOutputStream* out, EFormat format,
+    std::unique_ptr<ICountableConsumer> CreateEncoder(IOutputStream* out, EFormat format,
         std::string_view nameLabel, TCountableBase::EVisibility vis)
     {
         switch (format) {
             case EFormat::JSON:
-                return MakeHolder<TConsumer>(NMonitoring::EncoderJson(out), vis);
+                return std::make_unique<TConsumer>(NMonitoring::EncoderJson(out), vis);
             case EFormat::SPACK:
-                return MakeHolder<TConsumer>(NMonitoring::EncoderSpackV1(
+                return std::make_unique<TConsumer>(NMonitoring::EncoderSpackV1(
                     out,
                     NMonitoring::ETimePrecision::SECONDS,
                     NMonitoring::ECompression::ZSTD), vis);
             case EFormat::PROMETHEUS:
-                return MakeHolder<TConsumer>(NMonitoring::EncoderPrometheus(
+                return std::make_unique<TConsumer>(NMonitoring::EncoderPrometheus(
                     out, nameLabel), vis);
             default:
                 ythrow yexception() << "unsupported metric encoding format: " << format;
@@ -115,8 +115,8 @@ namespace NMonitoring {
         }
     }
 
-    THolder<ICountableConsumer> AsCountableConsumer(IMetricEncoderPtr encoder, TCountableBase::EVisibility visibility) {
-        return MakeHolder<TConsumer>(std::move(encoder), visibility);
+    std::unique_ptr<ICountableConsumer> AsCountableConsumer(IMetricEncoderPtr encoder, TCountableBase::EVisibility visibility) {
+        return std::make_unique<TConsumer>(std::move(encoder), visibility);
     }
 
     void ToJson(const TDynamicCounters& counters, IOutputStream* out) {

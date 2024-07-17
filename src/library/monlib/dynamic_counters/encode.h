@@ -7,14 +7,14 @@
 
 namespace NMonitoring {
 
-    THolder<ICountableConsumer> CreateEncoder(
+    std::unique_ptr<ICountableConsumer> CreateEncoder(
         IOutputStream* out,
         EFormat format,
         std::string_view nameLabel = "sensor",
         TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public
     );
 
-    THolder<ICountableConsumer> AsCountableConsumer(
+    std::unique_ptr<ICountableConsumer> AsCountableConsumer(
         NMonitoring::IMetricEncoderPtr encoder,
         TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public);
 
