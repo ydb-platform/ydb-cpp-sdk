@@ -4,6 +4,7 @@
 #include <src/util/generic/scope.h>
 
 #include <bzlib.h>
+#include <memory>
 
 class TBZipDecompress::TImpl: public TAdditionalStorage<TImpl> {
 public:
@@ -196,7 +197,7 @@ void TBZipCompress::DoFlush() {
 }
 
 void TBZipCompress::DoFinish() {
-    THolder<TImpl> impl(Impl_.Release());
+    std::unique_ptr<TImpl> impl(Impl_.Release());
 
     if (impl) {
         impl->Finish();
