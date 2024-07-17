@@ -970,7 +970,7 @@ public:
     inline TImpl(const char* path, int flags)
         : Info_(nullptr, TAddrInfoDeleter{/* useFreeAddrInfo = */ false})
     {
-        THolder<struct sockaddr_un, TFree> sockAddr(
+        std::unique_ptr<struct sockaddr_un, TFree> sockAddr(
             reinterpret_cast<struct sockaddr_un*>(malloc(sizeof(struct sockaddr_un))));
 
         Y_ENSURE(strlen(path) < sizeof(sockAddr->sun_path), "Unix socket path more than " << sizeof(sockAddr->sun_path));
@@ -984,7 +984,7 @@ public:
         hints->ai_family = AF_UNIX;
         hints->ai_socktype = SOCK_STREAM;
         hints->ai_addrlen = sizeof(*sockAddr);
-        hints->ai_addr = (struct sockaddr*)sockAddr.Release();
+        hints->ai_addr = (struct sockaddr*)sockAddr.release();
 
         Info_.reset(hints.release());
     }
