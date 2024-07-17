@@ -271,11 +271,15 @@ struct TClosedir {
             }
         }
     }
+    void operator()(DIR* dir)
+    {
+        Destroy(dir);
+    }
 };
 
 void TFsPath::ListNames(std::vector<std::string>& children) const {
     CheckDefined();
-    THolder<DIR, TClosedir> dir(opendir(this->c_str()));
+    std::unique_ptr<DIR, TClosedir> dir(opendir(this->c_str()));
     if (!dir) {
         ythrow TIoSystemError() << "failed to opendir " << Path_;
     }
@@ -287,7 +291,7 @@ void TFsPath::ListNames(std::vector<std::string>& children) const {
         // alternative
         Y_PRAGMA_DIAGNOSTIC_PUSH
         Y_PRAGMA_NO_DEPRECATED
-        int r = readdir_r(dir.Get(), &de, &ok);
+        int r = readdir_r(dir.get(), &de, &ok);
         Y_PRAGMA_DIAGNOSTIC_POP
         if (r != 0) {
             ythrow TIoSystemError() << "failed to readdir " << Path_;
