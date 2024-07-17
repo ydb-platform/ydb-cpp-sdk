@@ -94,7 +94,7 @@ private:
 };
 
 TBrotliCompress::TBrotliCompress(IOutputStream* slave, int quality) {
-    Impl_.Reset(new TImpl(slave, quality));
+    Impl_ = std::make_unique<TImpl>(slave, quality);
 }
 
 TBrotliCompress::~TBrotliCompress() {
@@ -115,7 +115,7 @@ void TBrotliCompress::DoFlush() {
 }
 
 void TBrotliCompress::DoFinish() {
-    std::unique_ptr<TImpl> impl(Impl_.Release());
+    std::unique_ptr<TImpl> impl(Impl_.release());
 
     if (impl) {
         impl->Finish();
