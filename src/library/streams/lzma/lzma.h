@@ -6,6 +6,8 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 class TLzmaCompress: public IOutputStream {
 public:
     TLzmaCompress(IOutputStream* slave, size_t level = 7);
@@ -17,7 +19,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 class TLzmaDecompress: public IInputStream {
@@ -33,5 +35,5 @@ private:
     class TImpl;
     class TImplStream;
     class TImplZeroCopy;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
