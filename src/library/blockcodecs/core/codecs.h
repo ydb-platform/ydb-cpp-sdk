@@ -6,6 +6,8 @@
 #include <ydb-cpp-sdk/util/generic/typetraits.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 
+#include <memory>
+
 namespace NBlockCodecs {
     struct TData: public std::string_view {
         inline TData() = default;
@@ -72,7 +74,7 @@ namespace NBlockCodecs {
         size_t GetDecompressedLength(const TData& in) const;
     };
 
-    using TCodecPtr = THolder<ICodec>;
+    using TCodecPtr = std::unique_ptr<ICodec>;
 
     const ICodec* Codec(const std::string_view& name);
 

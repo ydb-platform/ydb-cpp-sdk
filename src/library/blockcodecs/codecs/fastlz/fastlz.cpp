@@ -45,7 +45,7 @@ namespace {
     struct TFastLZRegistrar {
         TFastLZRegistrar() {
             for (int i = 0; i < 3; ++i) {
-                RegisterCodec(MakeHolder<TFastLZCodec>(i));
+                RegisterCodec(std::make_unique<TFastLZCodec>(i));
             }
             RegisterAlias("fastlz", "fastlz-0");
         }
