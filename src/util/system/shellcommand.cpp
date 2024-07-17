@@ -846,13 +846,13 @@ void TShellCommand::TImpl::Communicate(TProcessInfo* pi) {
     std::unique_ptr<IOutputStream> outputHolder;
     IOutputStream* output = pi->Parent->Options_.OutputStream;
     if (!output) {
-        outputHolder = std::make_unique<TStringOutput>(pi->Parent->CollectedOutput);
+        outputHolder.reset(output = new TStringOutput(pi->Parent->CollectedOutput));
     }
 
     std::unique_ptr<IOutputStream> errorHolder;
     IOutputStream* error = pi->Parent->Options_.ErrorStream;
     if (!error) {
-        errorHolder = std::make_unique<TStringOutput>(pi->Parent->CollectedError);
+        errorHolder.reset(error = new TStringOutput(pi->Parent->CollectedError));
     }
 
     IInputStream*& input = pi->Parent->Options_.InputStream;
