@@ -22,7 +22,7 @@ void Opt::Init(int argc, char* argv[], const char* optString, const Ion* longOpt
     GotError_ = false;
     Ind = argc;
 
-    Opts_.Reset(new TOptsNoDefault(optString));
+    Opts_ = std::make_unique<TOptsNoDefault>(optString);
     for (const Ion* o = longOptions; o != nullptr && o->name != nullptr; ++o) {
         TOpt* opt;
         if ((unsigned)o->val < 0x80 && isalnum(o->val)) {
@@ -40,7 +40,7 @@ void Opt::Init(int argc, char* argv[], const char* optString, const Ion* longOpt
     Opts_->AllowUnknownCharOptions_ = isOpen;
     Opts_->AllowUnknownLongOptions_ = false;
 
-    OptsParser_.Reset(new TOptsParser(Opts_.Get(), argc, argv));
+    OptsParser_ = std::make_unique<TOptsParser>(Opts_.get(), argc, argv);
 }
 
 Opt::Opt(int argc, char* argv[], const char* optString, const Ion* longOptions, bool longOnly, bool isOpen) {
