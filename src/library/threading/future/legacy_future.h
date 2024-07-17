@@ -17,7 +17,7 @@ namespace NThreading {
     private:
         TFunctionObjectType Func_;
         TPromise<TResult> Result_;
-        THolder<IThreadFactory::IThread> Thread_;
+        std::unique_ptr<IThreadFactory::IThread> Thread_;
 
     public:
         inline TLegacyFuture(const TFunctionObjectType func, IThreadFactory* pool = SystemThreadFactory())
@@ -40,7 +40,7 @@ namespace NThreading {
         inline void Join() {
             if (Thread_) {
                 Thread_->Join();
-                Thread_.Destroy();
+                Thread_.reset(nullptr);
             }
         }
 

@@ -2,6 +2,7 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <functional>
+#include <memory>
 
 class IThreadFactory {
 public:
@@ -47,15 +48,15 @@ public:
     virtual ~IThreadFactory() = default;
 
     // XXX: rename to Start
-    inline THolder<IThread> Run(IThreadAble* func) {
-        THolder<IThread> ret(DoCreate());
+    inline std::unique_ptr<IThread> Run(IThreadAble* func) {
+        std::unique_ptr<IThread> ret(DoCreate());
 
         ret->Run(func);
 
         return ret;
     }
 
-    THolder<IThread> Run(const std::function<void()>& func);
+    std::unique_ptr<IThread> Run(const std::function<void()>& func);
 
 private:
     virtual IThread* DoCreate() = 0;
