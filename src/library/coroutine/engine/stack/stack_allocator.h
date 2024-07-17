@@ -9,6 +9,7 @@
 #include <span>
 #include <cstdint>
 #include <optional>
+#include <memory>
 
 namespace NCoro::NStack {
 
@@ -45,7 +46,7 @@ namespace NCoro::NStack {
         virtual void DoFreeStack(NDetails::TStack& stack) noexcept = 0;
     };
 
-    THolder<IAllocator> GetAllocator(std::optional<TPoolAllocatorSettings> poolSettings, EGuard guardType);
+    std::unique_ptr<IAllocator> GetAllocator(std::optional<TPoolAllocatorSettings> poolSettings, EGuard guardType);
 
 }
 

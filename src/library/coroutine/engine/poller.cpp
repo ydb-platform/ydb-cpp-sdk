@@ -162,17 +162,17 @@ namespace {
             TValRef& v = V_.Get(i);
 
             if (Y_UNLIKELY(!v)) {
-                v.Reset(new (&P_) TVal());
-                I_.PushFront(v.Get());
+                v.reset(new (&P_) TVal());
+                I_.PushFront(v.get());
             }
 
-            Y_PREFETCH_WRITE(v.Get(), 1);
+            Y_PREFETCH_WRITE(v.get(), 1);
 
-            return v.Get();
+            return v.get();
         }
 
         void Erase(size_t i) noexcept {
-            V_.Get(i).Destroy();
+            V_.Get(i).reset(nullptr);
         }
 
         size_t Size() const noexcept {
@@ -180,7 +180,7 @@ namespace {
         }
 
     private:
-        using TValRef = THolder<TVal>;
+        using TValRef = std::unique_ptr<TVal>;
         typename TVal::TPool P_;
         TSocketMap<TValRef> V_;
         TListType I_;
@@ -317,15 +317,15 @@ namespace {
     };
 }
 
-THolder<IPollerFace> IPollerFace::Default() {
+std::unique_ptr<IPollerFace> IPollerFace::Default() {
     return Construct(*SingletonWithPriority<TUserPoller, 0>());
 }
 
-THolder<IPollerFace> IPollerFace::Construct(std::string_view name) {
+std::unique_ptr<IPollerFace> IPollerFace::Construct(std::string_view name) {
     return Construct(!name.empty() ? FromString<EContPoller>(name) : EContPoller::Default);
 }
 
-THolder<IPollerFace> IPollerFace::Construct(EContPoller poller) {
+std::unique_ptr<IPollerFace> IPollerFace::Construct(EContPoller poller) {
     if (poller == EContPoller::Default) {
 #if defined (HAVE_EPOLL_POLLER)
         poller = EContPoller::Epoll;
@@ -338,18 +338,18 @@ THolder<IPollerFace> IPollerFace::Construct(EContPoller poller) {
 
     switch (poller) {
     case EContPoller::Select:
-        return MakeHolder<TVirtualize<TPoller<TGenericPoller<TSelectPoller<TWithoutLocking>>>>>(poller);
+        return std::make_unique<TVirtualize<TPoller<TGenericPoller<TSelectPoller<TWithoutLocking>>>>>(poller);
     case EContPoller::Poll:
-        return MakeHolder<TVirtualize<TPollPoller>>(poller);
+        return std::make_unique<TVirtualize<TPollPoller>>(poller);
     case EContPoller::Epoll:
 #if defined(HAVE_EPOLL_POLLER)
-        return MakeHolder<TVirtualize<TPoller<TGenericPoller<TEpollPoller<TWithoutLocking>>>>>(poller);
+        return std::make_unique<TVirtualize<TPoller<TGenericPoller<TEpollPoller<TWithoutLocking>>>>>(poller);
 #else
         return nullptr;
 #endif
     case EContPoller::Kqueue:
 #if defined(HAVE_KQUEUE_POLLER)
-        return MakeHolder<TVirtualize<TPoller<TGenericPoller<TKqueuePoller<TWithoutLocking>>>>>(poller);
+        return std::make_unique<TVirtualize<TPoller<TGenericPoller<TKqueuePoller<TWithoutLocking>>>>>(poller);
 #else
         return nullptr;
 #endif

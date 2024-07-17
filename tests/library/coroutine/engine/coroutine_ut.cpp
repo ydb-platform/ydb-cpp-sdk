@@ -164,11 +164,11 @@ void TCoroTest::TestSimpleX1() {
 }
 
 void TCoroTest::TestSimpleX1MultiThread() {
-    std::vector<THolder<TThread>> threads;
+    std::vector<std::unique_ptr<TThread>> threads;
     const size_t nThreads = 0;
     TAtomic c = 0;
     for (size_t i = 0; i < nThreads; ++i) {
-        threads.push_back(MakeHolder<TThread>([&]() {
+        threads.push_back(std::make_unique<TThread>([&]() {
             TestSimpleX1();
             AtomicIncrement(c);
         }));
@@ -1022,18 +1022,18 @@ void TCoroTest::TestCancelWithException() {
     TContExecutor exec(32000);
 
     std::string excText = "test exception";
-    THolder<std::exception> excep = MakeHolder<yexception>(yexception() << excText);
-    std::exception* excPtr = excep.Get();
+    std::unique_ptr<std::exception> excep = std::make_unique<yexception>(yexception() << excText);
+    std::exception* excPtr = excep.get();
 
     exec.CreateOwned([&](TCont* cont){
         TCont *cont1 = cont->Executor()->CreateOwned([&](TCont* c) {
             int result = c->SleepD(TDuration::MilliSeconds(200).ToDeadLine());
             UNIT_ASSERT_EQUAL(result, ECANCELED);
             UNIT_ASSERT_EQUAL(c->Cancelled(), true);
-            THolder<std::exception> exc = c->TakeException();
-            UNIT_ASSERT_EQUAL(exc.Get(), excPtr);
+            std::unique_ptr<std::exception> exc = c->TakeException();
+            UNIT_ASSERT_EQUAL(exc.get(), excPtr);
             UNIT_ASSERT_EQUAL(exc->what(), excText);
-            UNIT_ASSERT(dynamic_cast<yexception*>(exc.Get()) != nullptr);
+            UNIT_ASSERT(dynamic_cast<yexception*>(exc.get()) != nullptr);
         }, "cancelExc");
         cont1->Cancel(std::move(excep));
 
@@ -1041,11 +1041,11 @@ void TCoroTest::TestCancelWithException() {
             int result = c->SleepD(TDuration::MilliSeconds(200).ToDeadLine());
             UNIT_ASSERT_EQUAL(result, ECANCELED);
             UNIT_ASSERT_EQUAL(c->Cancelled(), true);
-            THolder<std::exception> exc = c->TakeException();
-            UNIT_ASSERT_EQUAL(exc.Get(), nullptr);
+            std::unique_ptr<std::exception> exc = c->TakeException();
+            UNIT_ASSERT_EQUAL(exc.get(), nullptr);
         }, "cancelTwice");
         cont2->Cancel();
-        THolder<std::exception> e = MakeHolder<yexception>(yexception() << "another exception");
+        std::unique_ptr<std::exception> e = std::make_unique<yexception>(yexception() << "another exception");
         cont2->Cancel(std::move(e));
     }, "coro");
 

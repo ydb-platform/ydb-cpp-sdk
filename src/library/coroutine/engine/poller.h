@@ -43,7 +43,7 @@ public:
     virtual void Wait(TEvents& events, TInstant deadLine) = 0;
     virtual EContPoller PollEngine() const = 0;
 
-    static THolder<IPollerFace> Default();
-    static THolder<IPollerFace> Construct(std::string_view name);
-    static THolder<IPollerFace> Construct(EContPoller poller);
+    static std::unique_ptr<IPollerFace> Default();
+    static std::unique_ptr<IPollerFace> Construct(std::string_view name);
+    static std::unique_ptr<IPollerFace> Construct(EContPoller poller);
 };

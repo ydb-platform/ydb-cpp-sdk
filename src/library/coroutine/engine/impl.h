@@ -87,7 +87,7 @@ public:
     bool IAmRunning() const noexcept;
 
     void Cancel() noexcept;
-    void Cancel(THolder<std::exception> exception) noexcept;
+    void Cancel(std::unique_ptr<std::exception>&& exception) noexcept;
 
     bool Cancelled() const noexcept {
         return Cancelled_;
@@ -112,11 +112,11 @@ public:
         Trampoline_.SwitchTo(ctx);
     }
 
-    THolder<std::exception> TakeException() noexcept {
+    std::unique_ptr<std::exception> TakeException() noexcept {
         return std::move(Exception_);
     }
 
-    void SetException(THolder<std::exception> exception) noexcept {
+    void SetException(std::unique_ptr<std::exception>&& exception) noexcept {
         Exception_ = std::move(exception);
     }
 
@@ -135,7 +135,7 @@ private:
     bool Cancelled_ = false;
     bool Scheduled_ = false;
 
-    THolder<std::exception> Exception_;
+    std::unique_ptr<std::exception> Exception_;
 };
 
 TCont* RunningCont();
@@ -169,7 +169,7 @@ class TContExecutor {
 public:
     TContExecutor(
         uint32_t defaultStackSize,
-        THolder<IPollerFace> poller = IPollerFace::Default(),
+        std::unique_ptr<IPollerFace> poller = IPollerFace::Default(),
         NCoro::IScheduleCallback* = nullptr,
         NCoro::IEnterPollerCallback* = nullptr,
         NCoro::NStack::EGuard stackGuard = NCoro::NStack::EGuard::Canary,
@@ -308,7 +308,7 @@ private:
     NCoro::IScheduleCallback* const ScheduleCallback_ = nullptr;
     NCoro::IEnterPollerCallback* const EnterPollerCallback_ = nullptr;
     const uint32_t DefaultStackSize_;
-    THolder<NCoro::NStack::IAllocator> StackAllocator_;
+    std::unique_ptr<NCoro::NStack::IAllocator> StackAllocator_;
 
     TExceptionSafeContext SchedContext_;
 
