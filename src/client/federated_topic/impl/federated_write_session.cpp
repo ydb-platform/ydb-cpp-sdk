@@ -29,7 +29,7 @@ TFederatedWriteSessionImpl::TFederatedWriteSessionImpl(
     std::shared_ptr<TGRpcConnectionsImpl> connections,
     const TFederatedTopicClientSettings& clientSettings,
     std::shared_ptr<TFederatedDbObserver> observer,
-    std::shared_ptr<std::unordered_map<NTopic::ECodec, THolder<NTopic::ICodec>>> codecs
+    std::shared_ptr<std::unordered_map<NTopic::ECodec, std::unique_ptr<NTopic::ICodec>>> codecs
 )
     : Settings(settings)
     , Connections(std::move(connections))

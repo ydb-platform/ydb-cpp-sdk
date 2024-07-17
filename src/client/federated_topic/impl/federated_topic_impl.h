@@ -31,7 +31,7 @@ public:
         }
     }
 
-    void ProvideCodec(NTopic::ECodec codecId, THolder<NTopic::ICodec>&& codecImpl) {
+    void ProvideCodec(NTopic::ECodec codecId, std::unique_ptr<NTopic::ICodec>&& codecImpl) {
         with_lock(Lock) {
             if (ProvidedCodecs->contains(codecId)) {
                 throw yexception() << "codec with id " << ui32(codecId) << " already provided";
@@ -40,7 +40,7 @@ public:
         }
     }
 
-    void OverrideCodec(NTopic::ECodec codecId, THolder<NTopic::ICodec>&& codecImpl) {
+    void OverrideCodec(NTopic::ECodec codecId, std::unique_ptr<NTopic::ICodec>&& codecImpl) {
         with_lock(Lock) {
             (*ProvidedCodecs)[codecId] = std::move(codecImpl);
         }
@@ -51,11 +51,11 @@ public:
             if (!ProvidedCodecs->contains(codecId)) {
                 throw yexception() << "codec with id " << ui32(codecId) << " not provided";
             }
-            return ProvidedCodecs->at(codecId).Get();
+            return ProvidedCodecs->at(codecId).get();
         }
     }
 
-    std::shared_ptr<std::unordered_map<NTopic::ECodec, THolder<NTopic::ICodec>>> GetProvidedCodecs() const {
+    std::shared_ptr<std::unordered_map<NTopic::ECodec, std::unique_ptr<NTopic::ICodec>>> GetProvidedCodecs() const {
         return ProvidedCodecs;
     }
 
@@ -76,8 +76,8 @@ private:
     std::shared_ptr<TGRpcConnectionsImpl> Connections;
     const TFederatedTopicClientSettings ClientSettings;
     std::shared_ptr<TFederatedDbObserver> Observer;
-    std::shared_ptr<std::unordered_map<NTopic::ECodec, THolder<NTopic::ICodec>>> ProvidedCodecs =
-         std::make_shared<std::unordered_map<NTopic::ECodec, THolder<NTopic::ICodec>>>();
+    std::shared_ptr<std::unordered_map<NTopic::ECodec, std::unique_ptr<NTopic::ICodec>>> ProvidedCodecs =
+         std::make_shared<std::unordered_map<NTopic::ECodec, std::unique_ptr<NTopic::ICodec>>>();
     TAdaptiveLock Lock;
 };
 
