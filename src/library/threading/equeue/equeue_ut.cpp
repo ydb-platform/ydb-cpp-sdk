@@ -13,21 +13,21 @@ Y_UNIT_TEST_SUITE(TElasticQueueTest) {
     const size_t ThreadCount = 10;
 
     template <typename T>
-    THolder<T> MakeQueue();
+    std::unique_ptr<T> MakeQueue();
 
     template <>
-    THolder<TElasticQueue> MakeQueue() {
-        return MakeHolder<TElasticQueue>(MakeHolder<TSimpleThreadPool>());
+    std::unique_ptr<TElasticQueue> MakeQueue() {
+        return std::make_unique<TElasticQueue>(std::make_unique<TSimpleThreadPool>());
     }
 
     template <>
-    THolder<TFastElasticQueue> MakeQueue() {
-        return MakeHolder<TFastElasticQueue>();
+    std::unique_ptr<TFastElasticQueue> MakeQueue() {
+        return std::make_unique<TFastElasticQueue>();
     }
 
     template <typename T>
     struct TEnv {
-        static inline THolder<T> Queue;
+        static inline std::unique_ptr<T> Queue;
 
         struct TQueueSetup {
             TQueueSetup() {
