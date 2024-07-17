@@ -5,6 +5,8 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 class TBuffer;
 
 /**
@@ -52,7 +54,7 @@ private:
     void DoWriteC(char c) override;
 
 private:
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /**
