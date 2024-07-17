@@ -68,6 +68,13 @@ public:
     static void Destroy(void* t) noexcept;
 };
 
+class TDeleteVoid {
+public:
+    void operator()(void* t){
+        TDelete::Destroy(t);
+    }
+};
+
 class TDeleteArray {
 public:
     template <class T>
