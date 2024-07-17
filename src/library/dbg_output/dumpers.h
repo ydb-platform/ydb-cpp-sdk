@@ -25,14 +25,6 @@ struct TDumper<std::unique_ptr<T, D>> {
     }
 };
 
-template <class T, class D>
-struct TDumper<THolder<T, D>> {
-    template <class S>
-    static inline void Dump(S& s, const THolder<T, D>& v) {
-        s << DumpRaw("THolder(") << v.Get() << DumpRaw(")");
-    }
-};
-
 template <class T, class Ops>
 struct TDumper<TIntrusivePtr<T, Ops>> {
     template <class S>
