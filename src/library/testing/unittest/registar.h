@@ -1021,7 +1021,7 @@ public:                       \
         };                                                                                         \
         class TCurrentTest: public T {                                                             \
         private:                                                                                   \
-            using TTestCaseFactory = std::function<THolder<NUnitTest::TBaseTestCase>()>;           \
+            using TTestCaseFactory = std::function<std::unique_ptr<NUnitTest::TBaseTestCase>()>;           \
             using TTests = std::vector<TTestCaseFactory>;                                          \
                                                                                                    \
             static TTests& Tests() {                                                               \
@@ -1041,7 +1041,7 @@ public:                       \
                 const std::function<void(NUnitTest::TTestContext&)>& body, bool forceFork)         \
             {                                                                                      \
                 Tests().emplace_back([=] {                                                         \
-                    return MakeHolder<NUnitTest::TBaseTestCase>(name, body, forceFork);            \
+                    return std::make_unique<NUnitTest::TBaseTestCase>(name, body, forceFork);            \
                 });                                                                                \
             }                                                                                      \
                                                                                                    \
@@ -1112,8 +1112,8 @@ public:                       \
             Name_ = #N;                                     \
             ForceFork_ = FF;                                \
         }                                                   \
-        static THolder<NUnitTest::TBaseTestCase> Create() { \
-            return ::MakeHolder<TTestCase##N>();            \
+        static std::unique_ptr<NUnitTest::TBaseTestCase> Create() { \
+            return ::std::make_unique<TTestCase##N>();            \
         }                                                   \
         void Execute_(NUnitTest::TTestContext&) override;   \
     };                                                      \
