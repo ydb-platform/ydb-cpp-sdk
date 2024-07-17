@@ -4,6 +4,8 @@
 #include <string>
 #include <ydb-cpp-sdk/util/stream/output.h>
 
+#include <memory>
+
 class TCppSaxParser: public IOutputStream {
 public:
     struct TText {
@@ -44,7 +46,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 class TCppSimpleSax: public TCppSaxParser::TWorker {
@@ -95,5 +97,5 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
