@@ -200,8 +200,8 @@ void TJUnitProcessor::OnBeforeTest(const TTest* test) {
     CurrentTest.emplace(test);
     CaptureSignal(this);
     if (!GetForkTests() || GetIsForked()) {
-        StdErrCapturer = MakeHolder<TOutputCapturer>(TOutputCapturer::STDERR_FD);
-        StdOutCapturer = MakeHolder<TOutputCapturer>(TOutputCapturer::STDOUT_FD);
+        StdErrCapturer = std::make_unique<TOutputCapturer>(TOutputCapturer::STDERR_FD);
+        StdOutCapturer = std::make_unique<TOutputCapturer>(TOutputCapturer::STDOUT_FD);
         StartCurrentTestTime = TInstant::Now();
     }
 }
@@ -215,7 +215,7 @@ void TJUnitProcessor::OnError(const TError* descr) {
     }
 }
 
-void TJUnitProcessor::TransferFromCapturer(THolder<TJUnitProcessor::TOutputCapturer>& capturer, std::string& out, std::ostream& outStream) {
+void TJUnitProcessor::TransferFromCapturer(std::unique_ptr<TJUnitProcessor::TOutputCapturer>& capturer, std::string& out, std::ostream& outStream) {
     if (capturer) {
         capturer->Uncapture();
         {
