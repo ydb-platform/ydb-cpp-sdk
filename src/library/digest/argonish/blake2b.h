@@ -4,6 +4,8 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
+
 namespace NArgonish {
     /**
      * Interface for all Blake2B instances
@@ -52,7 +54,7 @@ namespace NArgonish {
          * @param keylen the secret key length
          * @return returns an unique_ptr containing Blake2B instance
          */
-        THolder<IBlake2Base> Create(size_t outlen = 32, const ui8* key = nullptr, size_t keylen = 0) const;
+        std::unique_ptr<IBlake2Base> Create(size_t outlen = 32, const ui8* key = nullptr, size_t keylen = 0) const;
 
         /**
          * Creates an instance of Blake2B hash algorithm optimized for the particular instruction set
@@ -62,7 +64,7 @@ namespace NArgonish {
          * @param keylen the secret key length
          * @return returns an unique_ptr containing Blake2B instance
          */
-        THolder<IBlake2Base> Create(EInstructionSet instructionSet, size_t outlen = 32,
+        std::unique_ptr<IBlake2Base> Create(EInstructionSet instructionSet, size_t outlen = 32,
                                     const ui8* key = nullptr, size_t keylen = 0) const;
 
         /**
