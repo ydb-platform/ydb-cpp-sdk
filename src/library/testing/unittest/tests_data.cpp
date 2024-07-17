@@ -19,7 +19,7 @@ public:
             return port;
         }
 
-        std::shared_ptr<NTesting::IPort> holder(NTesting::GetFreePort().Release());
+        std::shared_ptr<NTesting::IPort> holder(NTesting::GetFreePort().release());
         ReservePortForCurrentTest(holder);
 
         std::lock_guard g(Lock);
@@ -45,7 +45,7 @@ public:
         ui16 first = ports[0];
         std::lock_guard g(Lock);
         for (auto& port : ports) {
-            ReservedPorts.emplace_back(port.Release());
+            ReservedPorts.emplace_back(port.release());
             ReservePortForCurrentTest(ReservedPorts.back());
         }
         return first;

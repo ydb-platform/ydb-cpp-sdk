@@ -2,6 +2,7 @@
 
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 
+#include <memory>
 
 namespace NTesting {
 
@@ -13,12 +14,14 @@ namespace NTesting {
         virtual ui16 Get() = 0;
     };
 
-    class TPortHolder : private THolder<IPort> {
-        using TBase = THolder<IPort>;
+    class TPortHolder : private std::unique_ptr<IPort> {
+        using TBase = std::unique_ptr<IPort>;
     public:
         using TBase::TBase;
-        using TBase::Release;
-        using TBase::Reset;
+        using TBase::release;
+        using TBase::reset;
+
+        TPortHolder(std::unique_ptr<IPort>&& port);
 
         operator ui16() const& {
             return (*this)->Get();
