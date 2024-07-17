@@ -7,6 +7,7 @@
 #include <src/util/memory/pool.h>
 
 #include <unordered_map>
+#include <memory>
 
 namespace NLCS {
     template <typename TVal>
@@ -17,7 +18,7 @@ namespace NLCS {
         using TCover = NPagedVector::TPagedVector<TSubsequence, 4096>;
 
         TMemoryPool Pool;
-        THolder<TEncounterIndex> Encounters;
+        std::unique_ptr<TEncounterIndex> Encounters;
         TLastIndex LastIndex;
         TCover Cover;
 
@@ -30,9 +31,9 @@ namespace NLCS {
         }
 
         void Reset() {
-            Encounters.Reset(nullptr);
+            Encounters.reset(nullptr);
             Pool.Clear();
-            Encounters.Reset(new TEncounterIndex(&Pool));
+            Encounters = std::make_unique<TEncounterIndex>(&Pool);
             LastIndex.clear();
             Cover.clear();
             ResultBuffer.clear();
@@ -61,11 +62,11 @@ namespace NLCS {
         size_t MakeLCS(TSequence s1, TSequence s2, TResult* res = nullptr, TLCSCtx<TVal>* ctx = nullptr) {
             typedef TLCSCtx<TVal> TCtx;
 
-            THolder<TCtx> ctxhld;
+            std::unique_ptr<TCtx> ctxhld;
 
             if (!ctx) {
-                ctxhld.Reset(new TCtx());
-                ctx = ctxhld.Get();
+                ctxhld = std::make_unique<TCtx>();
+                ctx = ctxhld.get();
             } else {
                 ctx->Reset();
             }
