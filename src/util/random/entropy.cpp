@@ -32,6 +32,8 @@
 
 #include <ydb-cpp-sdk/util/ysaveload.h>
 
+#include <memory>
+
 namespace {
     inline void Permute(char* buf, size_t len, ui32 seed) noexcept {
         Shuffle(buf, buf + len, TReallyFastRng32(seed));
@@ -178,7 +180,7 @@ namespace {
     };
 
     struct TDefaultTraits {
-        THolder<TEntropyPoolStream> EP;
+        std::unique_ptr<TEntropyPoolStream> EP;
         TSeedStream SS;
 
         inline TDefaultTraits() {
@@ -194,7 +196,7 @@ namespace {
         }
 
         inline void Reset() noexcept {
-            EP.Reset(new TEntropyPoolStream(THostEntropy()));
+            EP = std::make_unique<TEntropyPoolStream>(THostEntropy());
         }
 
         static inline TDefaultTraits& Instance() {
