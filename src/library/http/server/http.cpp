@@ -173,7 +173,7 @@ public:
     std::unique_ptr<TClientRequest> CreateRequest(std::unique_ptr<TClientConnection>&& c) {
         std::unique_ptr<TClientRequest> obj(Cb_->CreateClient());
 
-        obj->Conn_.Reset(c.release());
+        obj->Conn_.reset(c.release());
 
         return obj;
     }
@@ -291,8 +291,8 @@ public:
     void AddRequest(std::unique_ptr<TClientRequest>&& req, bool fail) {
         struct TFailRequest: public THttpClientRequestEx {
             inline TFailRequest(std::unique_ptr<TClientRequest>&& parent) {
-                Conn_.Reset(parent->Conn_.Release());
-                HttpConn_.Reset(parent->HttpConn_.Release());
+                Conn_.reset(parent->Conn_.release());
+                HttpConn_.reset(parent->HttpConn_.release());
             }
 
             bool Reply(void*) override {

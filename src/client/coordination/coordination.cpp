@@ -484,7 +484,6 @@ private:
             return MakeClosedResult<void>();
         }
         auto op = std::make_unique<TPingOp>();
-        auto op = std::make_unique<TPingOp>();
         auto future = op->Promise.GetFuture();
         if (IsWriteAllowed()) {
             DoSendSimpleOp(std::move(op));
@@ -544,7 +543,6 @@ private:
             return MakeClosedResult<TSemaphoreDescription>();
         }
         auto op = std::make_unique<TDescribeSemaphoreOp>(name, settings);
-        auto op = std::make_unique<TDescribeSemaphoreOp>(name, settings);
         auto future = op->Promise.GetFuture();
         if (IsWriteAllowed()) {
             DoSendSimpleOp(std::move(op));
@@ -559,7 +557,6 @@ private:
         if (IsClosed()) {
             return MakeClosedResult<void>();
         }
-        auto op = std::make_unique<TCreateSemaphoreOp>(name, limit, data);
         auto op = std::make_unique<TCreateSemaphoreOp>(name, limit, data);
         auto future = op->Promise.GetFuture();
         if (IsWriteAllowed()) {
@@ -576,7 +573,6 @@ private:
             return MakeClosedResult<void>();
         }
         auto op = std::make_unique<TUpdateSemaphoreOp>(name, data);
-        auto op = std::make_unique<TUpdateSemaphoreOp>(name, data);
         auto future = op->Promise.GetFuture();
         if (IsWriteAllowed()) {
             DoSendSimpleOp(std::move(op));
@@ -591,7 +587,6 @@ private:
         if (IsClosed()) {
             return MakeClosedResult<void>();
         }
-        auto op = std::make_unique<TDeleteSemaphoreOp>(name, force);
         auto op = std::make_unique<TDeleteSemaphoreOp>(name, force);
         auto future = op->Promise.GetFuture();
         if (IsWriteAllowed()) {
@@ -885,7 +880,6 @@ private:
         TResultPromise<void> reconnectPromise;
         std::deque<TResultPromise<bool>> abortedSemaphoreOps;
         std::deque<TResultPromise<bool>> failedSemaphoreOps;
-        std::deque<std::unique_ptr<TSimpleOp>> failedSimpleOps;
         std::deque<std::unique_ptr<TSimpleOp>> failedSimpleOps;
         TResultPromise<void> closePromise;
 
@@ -1200,9 +1194,7 @@ private:
         
         // Start reading responses
         Response = std::make_unique<TResponse>();
-        Response = std::make_unique<TResponse>();
         processor->Read(
-            Response.get(),
             Response.get(),
             [self = TPtr(this)] (auto status) {
                 self->OnRead(std::move(status));
@@ -1294,7 +1286,6 @@ private:
             // Start reading the next response
             Response = std::make_unique<TResponse>();
             processor->Read(
-                Response.get(),
                 Response.get(),
                 [self = TPtr(this)] (auto status) {
                     self->OnRead(std::move(status));
@@ -1774,7 +1765,6 @@ private:
     EConnectionState ConnectionState = EConnectionState::DISCONNECTED;
 
     std::unique_ptr<TStatus> CurrentFailure;
-    std::unique_ptr<TStatus> CurrentFailure;
     TResultPromise<void> ClosedPromise;
 
     // Used during a connection attempt for a custom timeout
@@ -1783,8 +1773,6 @@ private:
 
     std::unordered_map<std::string, TSemaphoreState> Semaphores;
     std::unordered_map<ui64, TSemaphoreState*> SemaphoreByReqId;
-    std::deque<std::unique_ptr<TSimpleOp>> PendingRequests;
-    std::unordered_map<ui64, std::unique_ptr<TSimpleOp>> SentRequests;
     std::deque<std::unique_ptr<TSimpleOp>> PendingRequests;
     std::unordered_map<ui64, std::unique_ptr<TSimpleOp>> SentRequests;
     TResultPromise<void> ReconnectPromise;
@@ -1809,7 +1797,6 @@ private:
     TDuration SessionReconnectDelay = TDuration::Zero();
 
     IProcessor::TPtr Processor;
-    std::unique_ptr<TResponse> Response;
     std::unique_ptr<TResponse> Response;
 
     ui64 SessionSeqNo = 0;
