@@ -623,11 +623,11 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
             }
         }
 
-        THolder<void, TLocalFree> SetAcl(PACL oldAcl, ACCESS_MODE accessMode) {
+        std::unique_ptr<void, TLocalFree> SetAcl(PACL oldAcl, ACCESS_MODE accessMode) {
             DWORD res = 0;
             EXPLICIT_ACCESS ea;
             PACL newAcl = nullptr;
-            THolder<void, TLocalFree> newAclHolder;
+            std::unique_ptr<void, TLocalFree> newAclHolder;
 
             memset(&ea, 0, sizeof(EXPLICIT_ACCESS));
             ea.grfAccessPermissions = Perms_;
@@ -659,8 +659,8 @@ Y_UNIT_TEST_SUITE(TFsPathTests) {
     private:
         const TFsPath Name_;
         const DWORD Perms_;
-        THolder<void, TLocalFree> SdHolder_;
-        THolder<void, TLocalFree> Acl_;
+        std::unique_ptr<void, TLocalFree> SdHolder_;
+        std::unique_ptr<void, TLocalFree> Acl_;
     };
 #endif
 
