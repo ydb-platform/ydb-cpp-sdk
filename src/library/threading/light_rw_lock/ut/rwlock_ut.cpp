@@ -90,7 +90,7 @@ class TRWMutexTest: public TTestBase {
         }
 
         void Process(void*) override {
-            THolder<TThreadTask> This(this);
+            std::unqiue_ptr<TThreadTask> This(this);
 
             (this->*Func_)();
         }
@@ -166,7 +166,7 @@ class TRWMutexTest: public TTestBase {
 
 private:
 #define RUN_CYCLE(what, count)                                                      \
-    Data_.Reset(MakeHolder<TSharedData>());                                         \
+    Data_.Reset(std::make_unique<TSharedData>());                                         \
     Q_.Start(count);                                                                \
     for (size_t i = 0; i < count; ++i) {                                            \
         UNIT_ASSERT(Q_.Add(new TThreadTask(&TThreadTask::what, *Data_, i, count))); \
@@ -189,7 +189,7 @@ private:
 
 #undef RUN_CYCLE
 private:
-    THolder<TSharedData> Data_;
+    std::unqiue_ptr<TSharedData> Data_;
     TThreadPool Q_;
 };
 
