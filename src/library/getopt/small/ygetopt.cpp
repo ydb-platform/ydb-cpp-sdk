@@ -32,7 +32,7 @@ public:
         }
 
         ArgsPtrs_.Get()[Args_.size()] = nullptr;
-        Opt_.Reset(new Opt((int)Args_.size(), ArgsPtrs_.Get(), Format_.data()));
+        Opt_ = std::make_unique<Opt>((int)Args_.size(), ArgsPtrs_.Get(), Format_.data());
     }
 
     inline ~TIterImpl() = default;
@@ -58,7 +58,7 @@ private:
     std::vector<std::string> Args_;
     TArrayHolder<char*> ArgsPtrs_;
     const std::string Format_;
-    THolder<Opt> Opt_;
+    std::unique_ptr<Opt> Opt_;
     int OptLet_;
     const char* Arg_;
 };
