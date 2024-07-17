@@ -5,6 +5,8 @@
 #include <ydb-cpp-sdk/util/generic/ptr.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 
+#include <memory>
+
 #define BZIP_BUF_LEN (8 * 1024)
 #define BZIP_COMPRESSION_LEVEL 6
 
@@ -32,7 +34,7 @@ private:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 class TBZipCompress: public IOutputStream {
@@ -47,7 +49,7 @@ private:
 
 public:
     class TImpl;
-    THolder<TImpl> Impl_;
+    std::unique_ptr<TImpl> Impl_;
 };
 
 /** @} */

@@ -197,7 +197,7 @@ void TBZipCompress::DoFlush() {
 }
 
 void TBZipCompress::DoFinish() {
-    std::unique_ptr<TImpl> impl(Impl_.Release());
+    std::unique_ptr<TImpl> impl(Impl_.release());
 
     if (impl) {
         impl->Finish();
