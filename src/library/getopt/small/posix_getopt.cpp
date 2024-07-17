@@ -9,8 +9,8 @@ namespace NLastGetopt {
     int opterr;
     int optreset;
 
-    static THolder<TOpts> Opts;
-    static THolder<TOptsParser> OptsParser;
+    static std::unique_ptr<TOpts> Opts;
+    static std::unique_ptr<TOptsParser> OptsParser;
 
     int getopt_long_impl(int argc, char* const* argv, const char* optstring,
                          const struct option* longopts, int* longindex, bool long_only) {
@@ -19,7 +19,7 @@ namespace NLastGetopt {
             optind = 1;
             opterr = 1;
             optreset = 0;
-            Opts.Reset(new TOpts(TOpts::Default(optstring)));
+            Opts = std::make_unique<TOpts>(TOpts::Default(optstring));
 
             Opts->AllowSingleDashForLong_ = long_only;
 
@@ -36,7 +36,7 @@ namespace NLastGetopt {
                 opt->UserValue(o->flag);
             }
 
-            OptsParser.Reset(new TOptsParser(&*Opts, argc, (const char**)argv));
+            OptsParser = std::make_unique<TOptsParser>(&*Opts, argc, (const char**)argv);
         }
 
         optarg = nullptr;
