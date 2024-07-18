@@ -346,8 +346,7 @@ void TZLibCompress::TDestruct::Destroy(TImpl* impl) {
     delete impl;
 }
 
-void TZLibCompress::TDestruct::operator()(TImpl* impl)
-{
+void TZLibCompress::TDestruct::operator()(TImpl* impl) {
     Destroy(impl);
 }
 
