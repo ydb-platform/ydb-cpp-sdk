@@ -8,7 +8,7 @@
 #define YSYSLOGINIT_FLAGS(ident, facility, flags)                                                                                    \
     struct TLogIniter {                                                                                                              \
         TLogIniter() {                                                                                                               \
-            SysLogInstance().ResetBackend(std::unique_ptr<TLogBackend>(                                                                      \
+            SysLogInstance().ResetBackend(std::unique_ptr<TLogBackend>(                                                              \
                 (ident) ? (TLogBackend*)(new TSysLogBackend((ident), (facility), (flags))) : (TLogBackend*)(new TNullLogBackend())));\
         }                                                                                                                            \
     } Y_CAT(loginit, __LINE__);
