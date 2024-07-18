@@ -38,11 +38,11 @@ namespace NMonitoring {
         }
 
     public:
-        explicit TMonService2(ui16 port, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider> auth = nullptr);
-        explicit TMonService2(ui16 port, ui32 threads, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider> auth = nullptr);
-        explicit TMonService2(ui16 port, const std::string& host, ui32 threads, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider> auth = nullptr);
-        explicit TMonService2(const THttpServerOptions& options, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider> auth = nullptr);
-        explicit TMonService2(const THttpServerOptions& options, std::shared_ptr<IThreadPool> pool, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider> auth = nullptr);
+        explicit TMonService2(ui16 port, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider>&& auth = nullptr);
+        explicit TMonService2(ui16 port, ui32 threads, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider>&& auth = nullptr);
+        explicit TMonService2(ui16 port, const std::string& host, ui32 threads, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider>&& auth = nullptr);
+        explicit TMonService2(const THttpServerOptions& options, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider>&& auth = nullptr);
+        explicit TMonService2(const THttpServerOptions& options, std::shared_ptr<IThreadPool> pool, const std::string& title = GetProgramName(), std::unique_ptr<IAuthProvider>&& auth = nullptr);
 
         ~TMonService2() override {
         }
