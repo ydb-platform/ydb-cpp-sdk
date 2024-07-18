@@ -92,15 +92,18 @@ public:
     }
 };
 
+class TDestructorUnique {
+public:
+    template <class T>
+    void operator()(T* t) noexcept {
+        TDestructor::Destroy(t);
+    }
+};
+
 class TFree {
 public:
     template <class T>
     static inline void Destroy(T* t) noexcept {
-        DoDestroy((void*)t);
-    }
-    template <class T>
-    void operator()(T* t)
-    {
         DoDestroy((void*)t);
     }
 
@@ -114,7 +117,7 @@ private:
 class TFreeUnique {
 public:
     template <class T>
-    void operator()(T* t) {
+    void operator()(T* t) noexcept {
         TFree::Destroy((void*)t);
     }
 };
