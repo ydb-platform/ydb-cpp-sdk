@@ -461,7 +461,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         auto totalReceived = 0u;
 
         auto f = checkedPromise.GetFuture();
-        TAtomic check = 1;
+        std::atomic<int> check = 1;
 
         // Create read session.
         NYdb::NFederatedTopic::TFederatedReadSessionSettings readSettings;
@@ -472,7 +472,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         readSettings.FederatedEventHandlers_.SimpleDataHandlers([&](TReadSessionEvent::TDataReceivedEvent& ev) mutable {
             std::cerr << ">>> event from dataHandler: " << DebugString(ev) << std::endl;
-            Y_VERIFY_S(AtomicGet(check) != 0, "check is false");
+            Y_VERIFY_S(check.load() != 0, "check is false");
             auto& messages = ev.GetMessages();
             for (size_t i = 0u; i < messages.size(); ++i) {
                 auto& message = messages[i];
@@ -517,7 +517,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         f.GetValueSync();
         ReadSession->Close();
-        AtomicSet(check, 0);
+        check.store(0);
     }
 
     Y_UNIT_TEST(BasicWriteSession) {
