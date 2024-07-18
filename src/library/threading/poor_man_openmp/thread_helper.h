@@ -52,7 +52,7 @@ namespace NYmp {
         IThreadPool* queue = TMtpQueueHelper::Instance().Get();
         std::condition_variable cv;
         std::mutex mutex;
-        TAtomic counter = threadCount;
+        std::atomic<int> counter = threadCount;
         std::exception_ptr err;
 
         for (size_t i = 0; i < threadCount; ++i) {
@@ -75,7 +75,7 @@ namespace NYmp {
                 }
 
                 std::lock_guard guard(mutex);
-                if (AtomicDecrement(counter) == 0) {
+                if (--counter == 0) {
                     //last one
                     cv.notify_one();
                 }
@@ -84,7 +84,7 @@ namespace NYmp {
 
         {
             std::unique_lock lock(mutex);
-            while (AtomicGet(counter) > 0) {
+            while (counter.load() > 0) {
                 cv.wait(lock);
             }
         }
