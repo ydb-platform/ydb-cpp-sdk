@@ -45,10 +45,10 @@ Y_UNIT_TEST_SUITE(TElasticQueueTest) {
             Processed = Scheduled = Discarded = Total = 0;
         }
 
-        TAtomic Processed;
-        TAtomic Scheduled;
-        TAtomic Discarded;
-        TAtomic Total;
+        std::atomic<int> Processed;
+        std::atomic<int> Scheduled;
+        std::atomic<int> Discarded;
+        std::atomic<int> Total;
     };
     static TCounters Counters;
 
@@ -62,7 +62,7 @@ Y_UNIT_TEST_SUITE(TElasticQueueTest) {
         struct TWaitJob: public IObjectInQueue {
             void Process(void*) override {
                 WaitEvent.Wait();
-                AtomicIncrement(Counters.Processed);
+                Counters.Processed++;
             }
         } job;
 
@@ -102,19 +102,19 @@ Y_UNIT_TEST_SUITE(TElasticQueueTest) {
 //concurrent test -- send many jobs from different threads
     struct TJob: public IObjectInQueue {
         void Process(void*) override {
-            AtomicIncrement(Counters.Processed);
+            Counters.Processed++;
         }
     };
     static TJob Job;
 
     template <typename T>
     static bool TryAdd() {
-        AtomicIncrement(Counters.Total);
+        Counters.Total++;
         if (TEnv<T>::Queue->Add(&Job)) {
-            AtomicIncrement(Counters.Scheduled);
+            Counters.Scheduled++;
             return true;
         } else {
-            AtomicIncrement(Counters.Discarded);
+            Counters.Discarded++;
             return false;
         }
     }
@@ -129,7 +129,7 @@ Y_UNIT_TEST_SUITE(TElasticQueueTest) {
 
         struct TSender: public IThreadFactory::IThreadAble {
             void DoExecute() override {
-                while ((size_t)AtomicIncrement(TryCounter) <= N) {
+                while ((size_t)++TryCounter <= N) {
                     if (!TryAdd<T>()) {
                         Sleep(TDuration::MicroSeconds(50));
                     }
