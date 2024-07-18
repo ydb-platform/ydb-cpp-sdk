@@ -263,23 +263,19 @@ TFsPath TFsPath::Child(const std::string& name) const {
     return *this / name;
 }
 
-struct TClosedir {
-    static void Destroy(DIR* dir) {
+struct TClosedirUnique {
+    void operator()(DIR* dir) {
         if (dir) {
             if (0 != closedir(dir)) {
                 ythrow TIoSystemError() << "failed to closedir";
             }
         }
     }
-    void operator()(DIR* dir)
-    {
-        Destroy(dir);
-    }
 };
 
 void TFsPath::ListNames(std::vector<std::string>& children) const {
     CheckDefined();
-    std::unique_ptr<DIR, TClosedir> dir(opendir(this->c_str()));
+    std::unique_ptr<DIR, TClosedirUnique> dir(opendir(this->c_str()));
     if (!dir) {
         ythrow TIoSystemError() << "failed to opendir " << Path_;
     }
