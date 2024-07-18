@@ -25,6 +25,6 @@ private:
 private:
     std::unique_ptr<IThreadPool> SlaveQueue_;
     size_t MaxQueueSize_ = 0;
-    TAtomic ObjectCount_ = 0;
-    TAtomic GuardCount_ = 0;
+    std::atomic<int> ObjectCount_ = 0;
+    std::atomic<int> GuardCount_ = 0;
 };
