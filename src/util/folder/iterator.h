@@ -18,6 +18,8 @@ class TDirIterator: public TInputRangeAdaptor<TDirIterator> {
         static inline void Destroy(FTS* f) noexcept {
             yfts_close(f);
         }
+    };
+    struct TFtsDestroyUnique {
         void operator()(FTS* f) {
             yfts_close(f);
         }
@@ -112,5 +114,5 @@ private:
     TOptions Options_;
     std::string Path_;
     char* Trees_[2];
-    std::unique_ptr<FTS, TFtsDestroy> FileTree_;
+    std::unique_ptr<FTS, TFtsDestroyUnique> FileTree_;
 };
