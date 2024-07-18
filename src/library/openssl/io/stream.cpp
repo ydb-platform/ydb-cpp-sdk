@@ -58,32 +58,28 @@ namespace {
         static inline void Destroy(x509_st* x509) noexcept {
             X509_free(x509);
         }
+    };
 
-        
-        void operator()(ssl_ctx_st* ctx)
-        {
+    struct TSslDestroyUnique {
+        void operator()(ssl_ctx_st* ctx) noexcept {
             SSL_CTX_free(ctx);
         }
 
-        void operator()(ssl_st* ssl)
-        {
+        void operator()(ssl_st* ssl) noexcept {
             SSL_free(ssl);
         }
 
-        void operator()(bio_st* bio)
-        {
+        void operator()(bio_st* bio) noexcept {
             BIO_free(bio);
         }
 
-        void operator()(x509_st* x509)
-        {
+        void operator()(x509_st* x509) noexcept {
             X509_free(x509);
         }
-
     };
 
     template <class T>
-    using TSslHolderPtr = std::unique_ptr<T, TSslDestroy>;
+    using TSslHolderPtr = std::unique_ptr<T, TSslDestroyUnique>;
 
     using TSslContextPtr = TSslHolderPtr<ssl_ctx_st>;
     using TSslPtr = TSslHolderPtr<ssl_st>;
