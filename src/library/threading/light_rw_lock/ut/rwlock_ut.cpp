@@ -166,7 +166,7 @@ class TRWMutexTest: public TTestBase {
 
 private:
 #define RUN_CYCLE(what, count)                                                      \
-    Data_.Reset(std::make_unique<TSharedData>());                                         \
+    Data_.Reset(std::make_unique<TSharedData>());                                   \
     Q_.Start(count);                                                                \
     for (size_t i = 0; i < count; ++i) {                                            \
         UNIT_ASSERT(Q_.Add(new TThreadTask(&TThreadTask::what, *Data_, i, count))); \
