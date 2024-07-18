@@ -75,7 +75,7 @@ TDriverConfig TTopicSdkTestSetup::MakeDriverConfig() const
     config.SetEndpoint(GetEndpoint());
     config.SetDatabase(GetDatabase());
     config.SetAuthToken("root@builtin");
-    config.SetLog(MakeHolder<TStreamLogBackend>(&std::cerr));
+    config.SetLog(std::make_unique<TStreamLogBackend>(&std::cerr));
     return config;
 }
 

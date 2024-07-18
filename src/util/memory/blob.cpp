@@ -392,10 +392,10 @@ TBlob TBlob::FromBuffer(TBuffer& in) {
 template <class TCounter, class S>
 TBlob ConstructFromString(S&& s) {
     using TBase = TStringBlobBase<TCounter>;
-    auto base = MakeHolder<TBase>(std::forward<S>(s));
+    auto base = std::make_unique<TBase>(std::forward<S>(s));
 
-    TBlob ret(base->String().data(), base->String().size(), base.Get());
-    Y_UNUSED(base.Release());
+    TBlob ret(base->String().data(), base->String().size(), base.get());
+    Y_UNUSED(base.release());
 
     return ret;
 }

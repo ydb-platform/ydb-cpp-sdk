@@ -38,7 +38,7 @@ Y_UNIT_TEST_SUITE(ReopenLogSuite) {
         const auto testData = {"test", "dshkafhuadshfiasuh", "log", "data"};
         constexpr ui64 expectedReopens = 2; // considering the limit, the first reopen after the second string and one more at the end
 
-        auto mockHolder = MakeHolder<TMockLogBackend>();
+        auto mockHolder = std::make_unique<TMockLogBackend>();
         auto& mock = *mockHolder;
         TReopenLogBackend log(std::move(mockHolder), limit);
 
@@ -61,7 +61,7 @@ Y_UNIT_TEST_SUITE(ReopenLogSuite) {
         constexpr ui64 expectedWritten = numLogs * logSize;
         constexpr ui64 expectedReopens = expectedWritten / limit;
 
-        auto mockHolder = MakeHolder<TMockLogBackend>();
+        auto mockHolder = std::make_unique<TMockLogBackend>();
         auto& mock = *mockHolder;
         TReopenLogBackend log(std::move(mockHolder), limit);
 
@@ -86,7 +86,7 @@ Y_UNIT_TEST_SUITE(ReopenLogSuite) {
         constexpr ui64 minExpectedReopens = limit / logSize;
         constexpr ui64 maxExpectedReopens = expectedWritten / limit;
 
-        auto mockHolder = MakeHolder<TMockLogBackend>();
+        auto mockHolder = std::make_unique<TMockLogBackend>();
         auto& mock = *mockHolder;
         TReopenLogBackend log(std::move(mockHolder), limit);
 
@@ -113,6 +113,6 @@ Y_UNIT_TEST_SUITE(ReopenLogSuite) {
     }
 
     Y_UNIT_TEST(TestZeroThrows) {
-        UNIT_ASSERT_EXCEPTION(TReopenLogBackend(MakeHolder<TMockLogBackend>(), 0), std::exception);
+        UNIT_ASSERT_EXCEPTION(TReopenLogBackend(std::make_unique<TMockLogBackend>(), 0), std::exception);
     }
 }
