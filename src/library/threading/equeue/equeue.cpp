@@ -52,7 +52,7 @@ bool TElasticQueue::Add(IObjectInQueue* obj) {
 
     std::unique_ptr<TDecrementingWrapper> wrapper;
     try {
-        wrapper.reset(new TDecrementingWrapper(obj, this));
+        wrapper = std::make_unique<TDecrementingWrapper>(obj, this);
     } catch (...) {
         AtomicDecrement(GuardCount_);
         throw;
