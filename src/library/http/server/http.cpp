@@ -469,15 +469,15 @@ public:
     }
 
     inline void DecreaseConnections() noexcept {
-        AtomicDecrement(ConnectionCount);
+        ConnectionCount--;
     }
 
     inline void IncreaseConnections() noexcept {
-        AtomicIncrement(ConnectionCount);
+        ConnectionCount++;
     }
 
     inline i64 GetClientCount() const {
-        return AtomicGet(ConnectionCount);
+        return ConnectionCount.load();
     }
 
     inline bool MaxRequestsReached() const {
@@ -491,7 +491,7 @@ public:
     TPipeHandle ListenWakeupWriteFd;
     TMtpQueueRef Requests;
     TMtpQueueRef FailRequests;
-    TAtomic ConnectionCount = 0;
+    std::atomic<int> ConnectionCount = 0;
     THolder<TSocketPoller> Poller;
     THolder<TConnections> Connections;
     int ErrorCode = 0;
