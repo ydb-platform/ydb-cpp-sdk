@@ -166,11 +166,11 @@ void TCoroTest::TestSimpleX1() {
 void TCoroTest::TestSimpleX1MultiThread() {
     std::vector<THolder<TThread>> threads;
     const size_t nThreads = 0;
-    TAtomic c = 0;
+    std::atomic<int> c = 0;
     for (size_t i = 0; i < nThreads; ++i) {
         threads.push_back(MakeHolder<TThread>([&]() {
             TestSimpleX1();
-            AtomicIncrement(c);
+            c++;
         }));
     }
 
