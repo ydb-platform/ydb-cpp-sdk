@@ -1021,7 +1021,7 @@ public:                       \
         };                                                                                         \
         class TCurrentTest: public T {                                                             \
         private:                                                                                   \
-            using TTestCaseFactory = std::function<std::unique_ptr<NUnitTest::TBaseTestCase>()>;           \
+            using TTestCaseFactory = std::function<std::unique_ptr<NUnitTest::TBaseTestCase>()>;   \
             using TTests = std::vector<TTestCaseFactory>;                                          \
                                                                                                    \
             static TTests& Tests() {                                                               \
@@ -1041,7 +1041,7 @@ public:                       \
                 const std::function<void(NUnitTest::TTestContext&)>& body, bool forceFork)         \
             {                                                                                      \
                 Tests().emplace_back([=] {                                                         \
-                    return std::make_unique<NUnitTest::TBaseTestCase>(name, body, forceFork);            \
+                    return std::make_unique<NUnitTest::TBaseTestCase>(name, body, forceFork);      \
                 });                                                                                \
             }                                                                                      \
                                                                                                    \
@@ -1105,23 +1105,23 @@ public:                       \
 #define RUSAGE_UNIT_TEST_SUITE(N) \
     Y_UNIT_TEST_SUITE_IMPL(N, NUnitTest::TRusageTest, ::NUnitTest::TBaseTestCase)
 
-#define Y_UNIT_TEST_IMPL_REGISTER(N, FF, F)                 \
-    struct TTestCase##N : public F {                        \
-        TTestCase##N()                                      \
-        {                                                   \
-            Name_ = #N;                                     \
-            ForceFork_ = FF;                                \
-        }                                                   \
-        static std::unique_ptr<NUnitTest::TBaseTestCase> Create() { \
-            return ::std::make_unique<TTestCase##N>();            \
-        }                                                   \
-        void Execute_(NUnitTest::TTestContext&) override;   \
-    };                                                      \
-    struct TTestRegistration##N {                           \
-        TTestRegistration##N() {                            \
-            TCurrentTest::AddTest(TTestCase##N::Create);    \
-        }                                                   \
-    };                                                      \
+#define Y_UNIT_TEST_IMPL_REGISTER(N, FF, F)                                \
+    struct TTestCase##N : public F {                                       \
+        TTestCase##N()                                                     \
+        {                                                                  \
+            Name_ = #N;                                                    \
+            ForceFork_ = FF;                                               \
+        }                                                                  \
+        static std::unique_ptr<NUnitTest::TBaseTestCase> Create() {        \
+            return ::std::make_unique<TTestCase##N>();                     \
+        }                                                                  \
+        void Execute_(NUnitTest::TTestContext&) override;                  \
+    };                                                                     \
+    struct TTestRegistration##N {                                          \
+        TTestRegistration##N() {                                           \
+            TCurrentTest::AddTest(TTestCase##N::Create);                   \
+        }                                                                  \
+    };                                                                     \
     static const TTestRegistration##N testRegistration##N;
 
 #define Y_UNIT_TEST_IMPL(N, FF, F)      \
