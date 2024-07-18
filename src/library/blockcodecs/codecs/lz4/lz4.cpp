@@ -96,8 +96,8 @@ namespace {
                 typedef TLz4Codec<TLz4FastCompress, TLz4FastDecompress> T1;
                 typedef TLz4Codec<TLz4FastCompress, TLz4SafeDecompress> T2;
 
-                std::unique_ptr<T1> t1(new T1(i));
-                std::unique_ptr<T2> t2(new T2(i));
+                auto t1 = std::make_unique<T1>(i);
+                auto t2 = std::make_unique<T2>(i);
 
                 RegisterCodec(std::move(t1));
                 RegisterCodec(std::move(t2));
