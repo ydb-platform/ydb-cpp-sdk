@@ -21,7 +21,7 @@ Y_UNIT_TEST_SUITE(ScopeToolsTest) {
     }
 
     Y_UNIT_TEST(OnScopeExitMoveTest) {
-        std::unique_ptr<int> i{new int{10}};
+        auto i = std::make_unique<int>(10);
         int p = 0;
 
         {
