@@ -32,7 +32,7 @@ namespace NMonitoring {
     // https://wiki.yandex-team.ru/solomon/libs/monlib_cpp/
     class TDeprecatedCounter {
     public:
-        using TValue = TAtomic;
+        using TValue = std::atomic<int>;
         using TValueBase = TAtomicBase;
 
         TDeprecatedCounter()
@@ -52,28 +52,28 @@ namespace NMonitoring {
         }
 
         operator TValueBase() const {
-            return AtomicGet(Value);
+            return Value.load();
         }
         TValueBase Val() const {
-            return AtomicGet(Value);
+            return Value.load();
         }
 
         void Set(TValueBase val) {
-            AtomicSet(Value, val);
+            Value.store(val);
         }
 
         TValueBase Inc() {
-            return AtomicIncrement(Value);
+            return ++Value;
         }
         TValueBase Dec() {
-            return AtomicDecrement(Value);
+            return --Value;
         }
 
         TValueBase Add(const TValueBase val) {
-            return AtomicAdd(Value, val);
+            return Value.fetch_add(val);
         }
         TValueBase Sub(const TValueBase val) {
-            return AtomicAdd(Value, -val);
+            return Value.fetch_sub(val);
         }
 
         // operator overloads convinient
@@ -99,20 +99,19 @@ namespace NMonitoring {
         }
 
         TValueBase operator=(TValueBase rhs) {
-            AtomicSwap(&Value, rhs);
-            return rhs;
+            return Value.exchange(rhs);
         }
 
         bool operator!() const {
-            return AtomicGet(Value) == 0;
+            return Value.load() == 0;
         }
 
-        TAtomic& GetAtomic() {
+        std::atomic<int>& GetAtomic() {
             return Value;
         }
 
     private:
-        TAtomic Value;
+        std::atomic<int> Value;
         bool Derivative;
     };
 
