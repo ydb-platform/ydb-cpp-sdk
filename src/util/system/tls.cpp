@@ -68,7 +68,7 @@ namespace {
                 TStoredValue*& ret = *ValuePtr((size_t)key->Key);
 
                 if (!ret) {
-                    std::unique_ptr<TStoredValue> sv(new TStoredValue(key));
+                    auto sv = std::make_unique<TStoredValue>(key);
 
                     Storage_.PushFront(sv.get());
                     ret = sv.release();

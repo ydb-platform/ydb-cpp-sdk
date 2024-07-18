@@ -371,7 +371,7 @@ TEnumParser::TEnumParser(const std::string& fileName) {
     IInputStream* in = nullptr;
     if (fileName != "-") {
         SourceFileName = fileName;
-        hIn.reset(new TFileInput(fileName.c_str()));
+        hIn = std::make_unique<TFileInput>(fileName.c_str());
         in = hIn.get();
     } else {
         in = &Cin;

@@ -167,7 +167,7 @@ Y_UNIT_TEST_SUITE(TFileMapTest) {
             std::vector<std::unique_ptr<TFileMap>> maps;
 
             for (int i = 0; i < 16; ++i) {
-                maps.emplace_back(MakeHolder<TFileMap>(FileName_, TMemoryMapCommon::oRdOnly | TMemoryMapCommon::oNotGreedy));
+                maps.emplace_back(std::make_unique<TFileMap>(FileName_, TMemoryMapCommon::oRdOnly | TMemoryMapCommon::oNotGreedy));
                 maps.back()->Map(i * sizeof(page), sizeof(page));
             }
 

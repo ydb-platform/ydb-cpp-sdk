@@ -33,7 +33,7 @@ public:
     ~TEnumSerializationInitializerHolder() {
     }
 
-    void Init() { Ptr.reset(new TEnumSerializationInitializer); }
+    void Init() { Ptr = std::make_unique<TEnumSerializationInitializer>(); }
 private:
     std::unique_ptr<TEnumSerializationInitializer> Ptr;
 };
