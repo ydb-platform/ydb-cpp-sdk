@@ -21,6 +21,16 @@ namespace NThreading {
 ////////////////////////////////////////////////////////////////////////////////
 // Platform helpers
 
+static inline bool AtomicTryAndTryLock(std::atomic<int>& a) {
+    int zero = 0;
+    int one = 1;
+    return a.load() == 0 && a.compare_exchange_strong(zero, one);
+}
+
+static inline void AtomicUnlock(std::atomic<int>& a) {
+    a.store(0);
+}
+
 #if !defined(PLATFORM_CACHE_LINE)
 #define PLATFORM_CACHE_LINE 64
 #endif
@@ -181,13 +191,13 @@ namespace NThreading {
             }
 
             chunk = new TChunk();
-            AtomicSet(Writer.Chunk->Next, chunk);
+            Writer.Chunk->Next.store(chunk);
             Writer.Chunk = chunk;
             return chunk->GetPtr(0);
         }
 
         void CompleteWrite() {
-            AtomicSet(Writer.Chunk->Count, Writer.Chunk->Count + 1);
+            Writer.Chunk->Count++;
         }
 
         T* PrepareRead() {
@@ -195,7 +205,7 @@ namespace NThreading {
             Y_ASSERT(chunk);
 
             for (;;) {
-                size_t writerCount = AtomicGet(chunk->Count);
+                size_t writerCount = chunk->Count.load();
                 if (Reader.Count != writerCount) {
                     return chunk->GetPtr(Reader.Count);
                 }
@@ -204,7 +214,7 @@ namespace NThreading {
                     return nullptr;
                 }
 
-                chunk = AtomicGet(chunk->Next);
+                chunk = chunk->Next.load();
                 if (!chunk) {
                     return nullptr;
                 }
@@ -243,7 +253,7 @@ namespace NThreading {
         };
 
         struct TQueueType: public TOneOneQueue<TEntry, ChunkSize> {
-            TAtomic WriteLock = 0;
+            std::atomic<int> WriteLock = 0;
 
             using TOneOneQueue<TEntry, ChunkSize>::PrepareWrite;
             using TOneOneQueue<TEntry, ChunkSize>::CompleteWrite;
@@ -254,7 +264,7 @@ namespace NThreading {
 
     private:
         union {
-            TAtomic WriteTag = 0;
+            std::atomic<int> WriteTag = 0;
             char Pad[PLATFORM_CACHE_LINE];
         };
 
@@ -294,20 +304,21 @@ namespace NThreading {
         ui64 NextTag() {
             // TODO: can we avoid synchronization here? it costs 1.5x performance penalty
             // return GetCycleCount();
-            return AtomicIncrement(WriteTag);
+            return ++WriteTag;
         }
 
         template <typename TT>
         bool TryEnqueue(TT&& value, ui64 tag) {
             for (size_t i = 0; i < Concurrency; ++i) {
                 TQueueType& queue = Queues[i];
-                if (AtomicTryAndTryLock(&queue.WriteLock)) {
+                
+                if (AtomicTryAndTryLock(queue.WriteLock)) {
                     TEntry* entry = queue.PrepareWrite();
                     Y_ASSERT(entry);
                     TTypeHelper::Write(&entry->Value, std::forward<TT>(value));
                     entry->Tag = tag;
                     queue.CompleteWrite();
-                    AtomicUnlock(&queue.WriteLock);
+                    AtomicUnlock(queue.WriteLock);
                     return true;
                 }
             }
@@ -383,7 +394,7 @@ namespace NThreading {
     template <typename T, size_t Concurrency = 4, size_t ChunkSize = PLATFORM_PAGE_SIZE>
     class TRelaxedManyOneQueue: private TNonCopyable {
         struct TQueueType: public TOneOneQueue<T, ChunkSize> {
-            TAtomic WriteLock = 0;
+            std::atomic<int> WriteLock = 0;
         };
 
     private:
@@ -429,9 +440,9 @@ namespace NThreading {
             size_t writePos = GetCycleCount();
             for (size_t i = 0; i < Concurrency; ++i) {
                 TQueueType& queue = Queues[writePos++ % Concurrency];
-                if (AtomicTryAndTryLock(&queue.WriteLock)) {
+                if (AtomicTryAndTryLock(queue.WriteLock)) {
                     queue.Enqueue(std::forward<TT>(value));
-                    AtomicUnlock(&queue.WriteLock);
+                    AtomicUnlock(queue.WriteLock);
                     return true;
                 }
             }
@@ -447,11 +458,11 @@ namespace NThreading {
     class TRelaxedManyManyQueue: private TNonCopyable {
         struct TQueueType: public TOneOneQueue<T, ChunkSize> {
             union {
-                TAtomic WriteLock = 0;
+                std::atomic<int> WriteLock = 0;
                 char Pad1[PLATFORM_CACHE_LINE];
             };
             union {
-                TAtomic ReadLock = 0;
+                std::atomic<int> ReadLock = 0;
                 char Pad2[PLATFORM_CACHE_LINE];
             };
         };
@@ -473,9 +484,9 @@ namespace NThreading {
             size_t readPos = GetCycleCount();
             for (size_t i = 0; i < Concurrency; ++i) {
                 TQueueType& queue = Queues[readPos++ % Concurrency];
-                if (AtomicTryAndTryLock(&queue.ReadLock)) {
+                if (AtomicTryAndTryLock(queue.ReadLock)) {
                     bool dequeued = queue.Dequeue(value);
-                    AtomicUnlock(&queue.ReadLock);
+                    AtomicUnlock(queue.ReadLock);
                     if (dequeued) {
                         return true;
                     }
@@ -487,9 +498,9 @@ namespace NThreading {
         bool IsEmpty() {
             for (size_t i = 0; i < Concurrency; ++i) {
                 TQueueType& queue = Queues[i];
-                if (AtomicTryAndTryLock(&queue.ReadLock)) {
+                if (AtomicTryAndTryLock(queue.ReadLock)) {
                     bool empty = queue.IsEmpty();
-                    AtomicUnlock(&queue.ReadLock);
+                    AtomicUnlock(queue.ReadLock);
                     if (!empty) {
                         return false;
                     }
@@ -504,9 +515,9 @@ namespace NThreading {
             size_t writePos = GetCycleCount();
             for (size_t i = 0; i < Concurrency; ++i) {
                 TQueueType& queue = Queues[writePos++ % Concurrency];
-                if (AtomicTryAndTryLock(&queue.WriteLock)) {
+                if (AtomicTryAndTryLock(queue.WriteLock)) {
                     queue.Enqueue(std::forward<TT>(value));
-                    AtomicUnlock(&queue.WriteLock);
+                    AtomicUnlock(queue.WriteLock);
                     return true;
                 }
             }
