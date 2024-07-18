@@ -171,7 +171,7 @@ void TDynamicCounters::MergeWithSubgroup(const std::string& name, const std::str
     Y_ABORT_UNLESS(subgroup);
     Counters.erase(it);
     Counters.merge(subgroup->Resign());
-    AtomicAdd(ExpiringCount, AtomicSwap(&subgroup->ExpiringCount, 0));
+    ExpiringCount.fetch_add(subgroup->ExpiringCount.exchange(0));
 }
 
 void TDynamicCounters::ResetCounters(bool derivOnly) {
@@ -272,7 +272,7 @@ void TDynamicCounters::Accept(const std::string& labelName, const std::string& l
 }
 
 void TDynamicCounters::RemoveExpired() const {
-    if (AtomicGet(ExpiringCount) == 0) {
+    if (ExpiringCount.load() == 0) {
         return;
     }
 
@@ -288,7 +288,7 @@ void TDynamicCounters::RemoveExpired() const {
         }
     }
 
-    AtomicSub(ExpiringCount, count);
+    ExpiringCount.fetch_sub(count);
 }
 
 template <bool expiring, class TCounterType, class... TArgs>
@@ -308,7 +308,7 @@ TDynamicCounters::TCountablePtr TDynamicCounters::GetNamedCounterImpl(const std:
         auto value = MakeIntrusive<TCounterType>(std::forward<TArgs>(args)...);
         it = Counters.emplace_hint(it, key, value);
         if constexpr (expiring) {
-            AtomicIncrement(ExpiringCount);
+            ExpiringCount++;
         }
     }
     return it->second;
