@@ -34,9 +34,9 @@ public:
     }
 
     inline void WriteData(const TLogRecord& rec) {
-        if (static_cast<ui64>(AtomicGet(Size_)) > MaxSizeBytes_) {
+        if (static_cast<ui64>(Size_.load()) > MaxSizeBytes_) {
             TWriteGuard guard(Lock_);
-            if (static_cast<ui64>(AtomicGet(Size_)) > MaxSizeBytes_) {
+            if (static_cast<ui64>(Size_.load()) > MaxSizeBytes_) {
                 std::string newLogPath(TStringBuilder() << Path_ << "." << RotatedFilesCount_);
                 for (size_t fileId = RotatedFilesCount_ - 1; fileId; --fileId) {
                     std::string oldLogPath(TStringBuilder() << Path_ << "." << fileId);
@@ -45,19 +45,19 @@ public:
                 }
                 NFs::Rename(Path_.c_str(), newLogPath.c_str());
                 Log_.ReopenLog();
-                AtomicSet(Size_, 0);
+                Size_.store(0);
             }
         }
         TReadGuard guard(Lock_);
         Log_.WriteData(rec);
-        AtomicAdd(Size_, rec.Len);
+        Size_.fetch_add(rec.Len);
     }
 
     inline void ReopenLog() {
         TWriteGuard guard(Lock_);
 
         Log_.ReopenLog();
-        AtomicSet(Size_, TFileStat(Path_.c_str()).Size);
+        Size_.store(TFileStat(Path_.c_str()).Size);
     }
 
 private:
@@ -65,7 +65,7 @@ private:
     TFileLogBackend Log_;
     const std::string Path_;
     const ui64 MaxSizeBytes_;
-    TAtomic Size_;
+    std::atomic<int> Size_;
     const ui32 RotatedFilesCount_;
 };
 
