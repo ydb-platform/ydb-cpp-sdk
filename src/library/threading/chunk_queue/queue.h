@@ -197,7 +197,7 @@ static inline void AtomicUnlock(std::atomic<int>& a) {
         }
 
         void CompleteWrite() {
-            Writer.Chunk->Count++;
+            Writer.Chunk->Count.store(Writer.Chunk->Count + 1);
         }
 
         T* PrepareRead() {
