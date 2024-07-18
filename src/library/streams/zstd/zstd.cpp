@@ -17,8 +17,10 @@ namespace {
         static void Destroy(::ZSTD_CStream* p) noexcept {
             ::ZSTD_freeCStream(p);
         }
-        void operator()(::ZSTD_CStream* p)
-        {
+    };
+
+    struct DestroyZCStreamUnique {
+        void operator()(::ZSTD_CStream* p) {
             ::ZSTD_freeCStream(p);
         }
     };
@@ -27,11 +29,14 @@ namespace {
         static void Destroy(::ZSTD_DStream* p) noexcept {
             ::ZSTD_freeDStream(p);
         }
-        void operator()(::ZSTD_DStream* p)
-        {
+    };
+
+    struct DestroyZDStreamUnique {
+        void operator()(::ZSTD_DStream* p) {
             ::ZSTD_freeDStream(p);
         }
     };
+
 }
 
 class TZstdCompress::TImpl {
@@ -87,7 +92,7 @@ private:
     }
 private:
     IOutputStream* Slave_;
-    std::unique_ptr<::ZSTD_CStream, DestroyZCStream> ZCtx_;
+    std::unique_ptr<::ZSTD_CStream, DestroyZCStreamUnique> ZCtx_;
     TBuffer Buffer_;
 };
 
@@ -165,7 +170,7 @@ public:
 
 private:
     IInputStream* Slave_;
-    std::unique_ptr<::ZSTD_DStream, DestroyZDStream> ZCtx_;
+    std::unique_ptr<::ZSTD_DStream, DestroyZDStreamUnique> ZCtx_;
     TBuffer Buffer_;
     size_t  Offset_;
 };
