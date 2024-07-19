@@ -63,10 +63,10 @@ namespace NMonitoring {
         }
 
         TValueBase Inc() {
-            return ++Value;
+            return Value.fetch_add(1);
         }
         TValueBase Dec() {
-            return --Value;
+            return Value.fetch_sub(1);
         }
 
         TValueBase Add(const TValueBase val) {

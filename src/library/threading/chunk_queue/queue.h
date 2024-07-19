@@ -304,7 +304,7 @@ static inline void AtomicUnlock(std::atomic<int>& a) {
         ui64 NextTag() {
             // TODO: can we avoid synchronization here? it costs 1.5x performance penalty
             // return GetCycleCount();
-            return ++WriteTag;
+            return WriteTag.fetch_add(1);
         }
 
         template <typename TT>

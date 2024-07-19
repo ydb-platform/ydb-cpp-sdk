@@ -409,7 +409,7 @@ public:
             }
         }
 
-        if (0 == --RunningListeners_) {
+        if (0 == RunningListeners_.fetch_sub(1)) {
             while (!Reqs.Empty()) {
                 THolder<TListenSocket> ls(Reqs.PopFront());
 
@@ -469,11 +469,11 @@ public:
     }
 
     inline void DecreaseConnections() noexcept {
-        ConnectionCount--;
+        ConnectionCount.fetch_sub(1);
     }
 
     inline void IncreaseConnections() noexcept {
-        ConnectionCount++;
+        ConnectionCount.fetch_add(1);
     }
 
     inline i64 GetClientCount() const {

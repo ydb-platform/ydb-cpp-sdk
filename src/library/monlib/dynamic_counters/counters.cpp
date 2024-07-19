@@ -308,7 +308,7 @@ TDynamicCounters::TCountablePtr TDynamicCounters::GetNamedCounterImpl(const std:
         auto value = MakeIntrusive<TCounterType>(std::forward<TArgs>(args)...);
         it = Counters.emplace_hint(it, key, value);
         if constexpr (expiring) {
-            ExpiringCount++;
+            ExpiringCount.fetch_add(1);
         }
     }
     return it->second;

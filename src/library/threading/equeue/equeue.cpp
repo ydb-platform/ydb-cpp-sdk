@@ -10,8 +10,8 @@ size_t TElasticQueue::ObjectCount() const {
 }
 
 bool TElasticQueue::TryIncCounter() {
-    if ((size_t)++GuardCount_ > MaxQueueSize_) {
-        GuardCount_--;
+    if ((size_t)GuardCount_.fetch_add(1) > MaxQueueSize_) {
+        GuardCount_.fetch_sub(1);
         return false;
     }
 
@@ -26,12 +26,12 @@ public:
         : RealObject_(realObject)
         , Queue_(queue)
     {
-        Queue_->ObjectCount_++;
+        Queue_->ObjectCount_.fetch_add(1);
     }
 
     ~TDecrementingWrapper() override {
-        --Queue_->ObjectCount_;
-        --Queue_->GuardCount_;
+        Queue_->ObjectCount_.fetch_sub(1);
+        Queue_->GuardCount_.fetch_sub(1);
     }
 private:
     void Process(void *tsr) override {
@@ -54,7 +54,7 @@ bool TElasticQueue::Add(IObjectInQueue* obj) {
     try {
         wrapper.Reset(new TDecrementingWrapper(obj, this));
     } catch (...) {
-        --GuardCount_;
+        GuardCount_.fetch_sub(1);
         throw;
     }
 
