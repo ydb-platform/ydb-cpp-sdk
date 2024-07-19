@@ -1,0 +1,9 @@
+#ifndef CONFIG_YDB_H_IN
+#define CONFIG_YDB_H_IN
+
+#include <string>
+
+const std::string endpoint = "@ENDPOINT@";
+const std::string database = "@DATABASE@";
+ 
+#endif // CONFIG_YDB_H_IN
