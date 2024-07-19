@@ -1,4 +1,4 @@
-add_ydb_test(NAME json_value-ut
+add_ydb_test(NAME json_value_ut
   SOURCES
   ydb_json_value_ut.cpp
   LINK_LIBRARIES

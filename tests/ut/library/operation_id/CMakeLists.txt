@@ -1,4 +1,4 @@
-add_ydb_test(NAME operation_id-ut
+add_ydb_test(NAME operation_id_ut
   SOURCES
   operation_id_ut.cpp
   LINK_LIBRARIES

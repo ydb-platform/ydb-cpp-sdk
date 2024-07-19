@@ -1,6 +1,6 @@
 add_subdirectory(oauth2_token_exchange)
 
-add_ydb_test(NAME client-ydb_coordination-ut
+add_ydb_test(NAME client-ydb_coordination_ut
   SOURCES
   coordination_ut.cpp
   LINK_LIBRARIES
@@ -10,7 +10,7 @@ add_ydb_test(NAME client-ydb_coordination-ut
   api-grpc
 )
 
-add_ydb_test(NAME client-extensions-discovery_mutator-ut
+add_ydb_test(NAME client-extensions-discovery_mutator_ut
   SOURCES
   discovery_mutator_ut.cpp
   LINK_LIBRARIES
@@ -20,7 +20,7 @@ add_ydb_test(NAME client-extensions-discovery_mutator-ut
   YDB-CPP-SDK::Table
 )
 
-add_ydb_test(NAME client-ydb_driver-ut
+add_ydb_test(NAME client-ydb_driver_ut
   SOURCES
   driver_ut.cpp
   LINK_LIBRARIES
@@ -30,7 +30,7 @@ add_ydb_test(NAME client-ydb_driver-ut
   YDB-CPP-SDK::Table
 )
 
-add_ydb_test(NAME client-impl-ydb_endpoints-ut
+add_ydb_test(NAME client-impl-ydb_endpoints_ut
   INCLUDE_DIRS
   ${YDB_SDK_SOURCE_DIR}/src/client/impl/ydb_endpoints
   SOURCES
@@ -41,7 +41,7 @@ add_ydb_test(NAME client-impl-ydb_endpoints-ut
   client-impl-ydb_endpoints
 )
 
-add_ydb_test(NAME client-ydb_params-ut
+add_ydb_test(NAME client-ydb_params_ut
   SOURCES
   params_ut.cpp
   LINK_LIBRARIES
@@ -51,7 +51,7 @@ add_ydb_test(NAME client-ydb_params-ut
   YDB-CPP-SDK::YsonValue
 )
 
-add_ydb_test(NAME client-ydb_result-ut
+add_ydb_test(NAME client-ydb_result_ut
   SOURCES
   result_ut.cpp
   LINK_LIBRARIES
@@ -61,7 +61,7 @@ add_ydb_test(NAME client-ydb_result-ut
   YDB-CPP-SDK::Params
 )
 
-add_ydb_test(NAME client-ydb_value-ut
+add_ydb_test(NAME client-ydb_value_ut
   SOURCES
   value_ut.cpp
   LINK_LIBRARIES
@@ -73,7 +73,7 @@ add_ydb_test(NAME client-ydb_value-ut
   YDB-CPP-SDK::Params
 )
 
-add_ydb_test(NAME client-draft-ut
+add_ydb_test(NAME client-draft_ut
   SOURCES
   ydb_scripting_response_headers_ut.cpp
   LINK_LIBRARIES

@@ -1,4 +1,4 @@
-add_ydb_test(NAME client-oauth2-ut
+add_ydb_test(NAME client-oauth2_ut
   SOURCES
   credentials_ut.cpp
   jwt_token_source_ut.cpp

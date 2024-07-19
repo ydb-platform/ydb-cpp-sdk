@@ -1,4 +1,4 @@
-add_ydb_test(NAME library-digest-murmur-ut
+add_ydb_test(NAME library-digest-murmur_ut
   SOURCES
     ut.cpp
   INCLUDE_DIRS

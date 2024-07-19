@@ -1,4 +1,4 @@
-add_ydb_test(NAME yql-utils-ut
+add_ydb_test(NAME yql-utils_ut
   SOURCES
   utf8_ut.cpp
   LINK_LIBRARIES
@@ -7,7 +7,7 @@ add_ydb_test(NAME yql-utils-ut
   yql-utils
 )
 
-add_ydb_test(NAME yql-public-issue-ut
+add_ydb_test(NAME yql-public-issue_ut
   SOURCES
   yql_issue_ut.cpp
   LINK_LIBRARIES

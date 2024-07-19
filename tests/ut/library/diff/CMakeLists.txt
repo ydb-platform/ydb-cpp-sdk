@@ -1,4 +1,4 @@
-add_ydb_test(NAME library-diff-ut
+add_ydb_test(NAME library-diff_ut
   SOURCES
     ut.cpp
   INCLUDE_DIRS
