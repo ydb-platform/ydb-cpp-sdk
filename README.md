@@ -131,11 +131,11 @@ ctest -j$(nproc) --preset release
 Running unit tests only:
 
 ```bash
-ctest -j$(nproc) --preset release -R .*_ut
+ctest -j$(nproc) --preset release-unit
 ```
 
 Running integration tests only:
 
 ```bash
-ctest -j$(nproc) --preset release -R .*_it
+ctest -j$(nproc) --preset release-integration
 ```

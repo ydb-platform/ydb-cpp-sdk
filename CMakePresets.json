@@ -60,6 +60,38 @@
       "execution": {
         "timeout": 1200
       }
+    },
+    {
+      "name": "release-unit",
+      "configurePreset": "release",
+      "displayName": "Default Unit Release Tests",
+      "filter" : {
+        "include": {
+          "name": ".*_ut"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "timeout": 1200
+      }
+    },
+    {
+      "name": "release-integration",
+      "configurePreset": "release",
+      "displayName": "Default Integration Release Tests",
+      "output": {
+        "outputOnFailure": true
+      },
+      "filter" : {
+        "include": {
+          "name": ".*_it"
+        }
+      },
+      "execution": {
+        "timeout": 1200
+      }
     }
   ]
 }
