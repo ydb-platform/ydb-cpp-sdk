@@ -4,12 +4,36 @@
 #include <src/client/impl/ydb_internal/grpc_connections/grpc_connections.h>
 #include <src/client/types/core_facility/core_facility.h>
 #include <src/api/grpc/ydb_auth_v1.grpc.pb.h>
-#include <src/library/login/login.h>
-#include <src/library/security/util.h>
 
 #include <ydb-cpp-sdk/util/string/cast.h>
 
+#include <jwt-cpp/jwt.h>
+
 namespace NYdb {
+
+namespace {
+
+// copy-pasted from <robot/library/utils/time_convert.h>
+template<typename Rep, typename Period>
+constexpr ui64 ToMicroseconds(std::chrono::duration<Rep, Period> value) {
+    return std::chrono::duration_cast<std::chrono::microseconds>(value).count();
+}
+
+template<typename Clock, typename Duration>
+constexpr TInstant ToInstant(std::chrono::time_point<Clock, Duration> value) {
+    return TInstant::MicroSeconds(ToMicroseconds(value.time_since_epoch()));
+}
+
+std::chrono::system_clock::time_point GetTokenExpiresAt(const std::string& token) {
+    try {
+        jwt::decoded_jwt decoded_token = jwt::decode(token);
+        return decoded_token.get_expires_at();
+    }
+    catch (...) {
+    }
+    return {};
+}
+}
 
 class TLoginCredentialsProvider : public ICredentialsProvider {
 public:
@@ -151,7 +175,7 @@ void TLoginCredentialsProvider::ParseToken() { // works under mutex
             Token_ = GetToken();
             Error_.reset();
             TInstant now = TInstant::Now();
-            TokenExpireAt_ = NKikimr::ToInstant(NLogin::TLoginProvider::GetTokenExpiresAt(Token_.value()));
+            TokenExpireAt_ = ToInstant(GetTokenExpiresAt(Token_.value()));
             TokenRequestAt_ = now + TDuration::Minutes((TokenExpireAt_ - now).Minutes() / 2);
         } else {
             Token_.reset();

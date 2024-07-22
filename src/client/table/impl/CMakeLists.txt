@@ -11,6 +11,8 @@ target_link_libraries(client-ydb_table-impl
     impl-ydb_internal-session_pool
     client-ydb_table-query_stats
     yql-public-issue-protos
+  PRIVATE
+    OpenSSL::SSL
 )
 
 target_sources(client-ydb_table-impl PRIVATE
