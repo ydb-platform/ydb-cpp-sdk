@@ -513,7 +513,7 @@ std::string MultiStep(TTableClient client, const std::string& path) {
 
 void ExplicitTcl(TTableClient client, const std::string& path) {
     ThrowOnError(client.RetryOperationSync([path](TSession session) {
-        return ExplicitTclTransaction(session, path, TInstant::Now());
+        return ExplicitTclTransaction(session, path, TInstant());
     }));
 }
 
