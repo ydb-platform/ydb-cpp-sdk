@@ -48,11 +48,11 @@ TTxIdOpt GetTransactionId(const NTable::TTransaction* tx)
 }
 
 namespace NCompressionDetails {
-    THolder<IOutputStream> CreateCoder(ECodec codec, TBuffer& result, int quality);
+    std::unique_ptr<IOutputStream> CreateCoder(ECodec codec, TBuffer& result, int quality);
 }
 
 namespace NCompressionDetails {
-    THolder<IOutputStream> CreateCoder(ECodec codec, TBuffer& result, int quality);
+    std::unique_ptr<IOutputStream> CreateCoder(ECodec codec, TBuffer& result, int quality);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1107,7 +1107,7 @@ TMemoryUsageChange TWriteSessionImpl::OnMemoryUsageChangedImpl(i64 diff) {
 TBuffer CompressBuffer(std::shared_ptr<TTopicClient::TImpl> client, std::vector<std::string_view>& data, ECodec codec, i32 level) {
     TBuffer result;
     Y_UNUSED(client);
-    THolder<IOutputStream> coder = TCodecMap::GetTheCodecMap().GetOrThrow((ui32)codec)->CreateCoder(result, level);
+    std::unique_ptr<IOutputStream> coder = TCodecMap::GetTheCodecMap().GetOrThrow((ui32)codec)->CreateCoder(result, level);
     for (auto& buffer : data) {
         coder->Write(buffer.data(), buffer.size());
     }

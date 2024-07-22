@@ -29,7 +29,7 @@ TFederatedWriteSessionImpl::TFederatedWriteSessionImpl(
     std::shared_ptr<TGRpcConnectionsImpl> connections,
     const TFederatedTopicClientSettings& clientSettings,
     std::shared_ptr<TFederatedDbObserver> observer,
-    std::shared_ptr<std::unordered_map<NTopic::ECodec, THolder<NTopic::ICodec>>> codecs
+    std::shared_ptr<std::unordered_map<NTopic::ECodec, std::unique_ptr<NTopic::ICodec>>> codecs
 )
     : Settings(settings)
     , Connections(std::move(connections))
@@ -113,7 +113,7 @@ void TFederatedWriteSessionImpl::OpenSubsessionImpl(std::shared_ptr<TDbInfo> db)
     clientSettings
         .Database(db->path())
         .DiscoveryEndpoint(db->endpoint());
-    auto subclient = make_shared<NTopic::TTopicClient::TImpl>(Connections, clientSettings);
+    auto subclient = std::make_shared<NTopic::TTopicClient::TImpl>(Connections, clientSettings);
 
     auto handlers = NTopic::TWriteSessionSettings::TEventHandlers()
         .HandlersExecutor(Settings.EventHandlers_.HandlersExecutor_)

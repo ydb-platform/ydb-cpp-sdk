@@ -33,7 +33,7 @@ public:
 
     TPersQueueClient(const TDriver& driver, const TPersQueueClientSettings& settings = TPersQueueClientSettings());
 
-    void ProvideCodec(ECodec codecId, THolder<NTopic::ICodec>&& codecImpl);
+    void ProvideCodec(ECodec codecId, std::unique_ptr<NTopic::ICodec>&& codecImpl);
 
     // Create a new topic.
     TAsyncStatus CreateTopic(const std::string& path, const TCreateTopicSettings& = {});
@@ -61,7 +61,7 @@ public:
     std::shared_ptr<IWriteSession> CreateWriteSession(const TWriteSessionSettings& settings);
 
 protected:
-    void OverrideCodec(ECodec codecId, THolder<NTopic::ICodec>&& codecImpl);
+    void OverrideCodec(ECodec codecId, std::unique_ptr<NTopic::ICodec>&& codecImpl);
 
 private:
     std::shared_ptr<TImpl> Impl_;

@@ -239,7 +239,7 @@ public:
 
 private:
     class TImpl;
-    THolder<TImpl> Impl;
+    std::unique_ptr<TImpl> Impl;
 };
 
 //! Event debug string.
@@ -507,7 +507,7 @@ public:
     // executors from settings are passed to subclients
     TFederatedTopicClient(const TDriver& driver, const TFederatedTopicClientSettings& settings = {});
 
-    void ProvideCodec(NTopic::ECodec codecId, THolder<NTopic::ICodec>&& codecImpl);
+    void ProvideCodec(NTopic::ECodec codecId, std::unique_ptr<NTopic::ICodec>&& codecImpl);
 
     //! Create read session.
     std::shared_ptr<IFederatedReadSession> CreateReadSession(const TFederatedReadSessionSettings& settings);
@@ -517,7 +517,7 @@ public:
     std::shared_ptr<NTopic::IWriteSession> CreateWriteSession(const TFederatedWriteSessionSettings& settings);
 
 protected:
-    void OverrideCodec(NTopic::ECodec codecId, THolder<NTopic::ICodec>&& codecImpl);
+    void OverrideCodec(NTopic::ECodec codecId, std::unique_ptr<NTopic::ICodec>&& codecImpl);
 
 private:
     std::shared_ptr<TImpl> Impl_;

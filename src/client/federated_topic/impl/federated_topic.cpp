@@ -60,12 +60,12 @@ NTopic::TTopicClientSettings FromFederated(const TFederatedTopicClientSettings& 
 TFederatedTopicClient::TFederatedTopicClient(const TDriver& driver, const TFederatedTopicClientSettings& settings)
     : Impl_(std::make_shared<TImpl>(CreateInternalInterface(driver), settings))
 {
-    ProvideCodec(NTopic::ECodec::GZIP, MakeHolder<NTopic::TGzipCodec>());
-    ProvideCodec(NTopic::ECodec::LZOP, MakeHolder<NTopic::TUnsupportedCodec>());
-    ProvideCodec(NTopic::ECodec::ZSTD, MakeHolder<NTopic::TZstdCodec>());
+    ProvideCodec(NTopic::ECodec::GZIP, std::make_unique<NTopic::TGzipCodec>());
+    ProvideCodec(NTopic::ECodec::LZOP, std::make_unique<NTopic::TUnsupportedCodec>());
+    ProvideCodec(NTopic::ECodec::ZSTD, std::make_unique<NTopic::TZstdCodec>());
 }
 
-void TFederatedTopicClient::ProvideCodec(NTopic::ECodec codecId, THolder<NTopic::ICodec>&& codecImpl) {
+void TFederatedTopicClient::ProvideCodec(NTopic::ECodec codecId, std::unique_ptr<NTopic::ICodec>&& codecImpl) {
     return Impl_->ProvideCodec(codecId, std::move(codecImpl));
 }
 
@@ -82,7 +82,7 @@ std::shared_ptr<NTopic::IWriteSession> TFederatedTopicClient::CreateWriteSession
     return Impl_->CreateWriteSession(settings);
 }
 
-void TFederatedTopicClient::OverrideCodec(NTopic::ECodec codecId, THolder<NTopic::ICodec>&& codecImpl) {
+void TFederatedTopicClient::OverrideCodec(NTopic::ECodec codecId, std::unique_ptr<NTopic::ICodec>&& codecImpl) {
     return Impl_->OverrideCodec(codecId, std::move(codecImpl));
 }
 

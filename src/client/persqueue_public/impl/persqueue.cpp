@@ -13,8 +13,8 @@ namespace NYdb::NPersQueue {
 class TCommonCodecsProvider {
 public:
     TCommonCodecsProvider() {
-        TCodecMap::GetTheCodecMap().Set((ui32)NYdb::NPersQueue::ECodec::GZIP, MakeHolder<TGzipCodec>());
-        TCodecMap::GetTheCodecMap().Set((ui32)NYdb::NPersQueue::ECodec::ZSTD, MakeHolder<TZstdCodec>());
+        TCodecMap::GetTheCodecMap().Set((ui32)NYdb::NPersQueue::ECodec::GZIP, std::make_unique<TGzipCodec>());
+        TCodecMap::GetTheCodecMap().Set((ui32)NYdb::NPersQueue::ECodec::ZSTD, std::make_unique<TZstdCodec>());
     }
 };
 TCommonCodecsProvider COMMON_CODECS_PROVIDER;

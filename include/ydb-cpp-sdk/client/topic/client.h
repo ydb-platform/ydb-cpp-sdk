@@ -23,7 +23,7 @@ public:
 
     TTopicClient(const TDriver& driver, const TTopicClientSettings& settings = TTopicClientSettings());
 
-    void ProvideCodec(ECodec codecId, THolder<ICodec>&& codecImpl);
+    void ProvideCodec(ECodec codecId, std::unique_ptr<ICodec>&& codecImpl);
 
     // Create a new topic.
     TAsyncStatus CreateTopic(const std::string& path, const TCreateTopicSettings& settings = {});
@@ -55,7 +55,7 @@ public:
         const TCommitOffsetSettings& settings = {});
 
 protected:
-    void OverrideCodec(ECodec codecId, THolder<ICodec>&& codecImpl);
+    void OverrideCodec(ECodec codecId, std::unique_ptr<ICodec>&& codecImpl);
 
 private:
     std::shared_ptr<TImpl> Impl_;
