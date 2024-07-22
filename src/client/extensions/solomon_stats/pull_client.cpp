@@ -30,7 +30,7 @@ TSolomonStatPullExtension::TSolomonStatPage::TSolomonStatPage(const std::string&
 void TSolomonStatPullExtension::TSolomonStatPage::Output(NMonitoring::IMonHttpRequest& request) {
     request.Output() << NMonitoring::HTTPOKJSON;
     auto json = NMonitoring::EncoderJson(&request.Output());
-    Api_->Accept(json.get());
+    Api_->Accept(json.Get());
 }
 
 TSolomonStatPullExtension::TSolomonStatPullExtension(const TSolomonStatPullExtension::TParams& params, IApi* api)
