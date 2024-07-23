@@ -23,6 +23,17 @@ jobs:
       OS: ${{ matrix.os }}-latest
     runs-on: ${{ matrix.os }}-latest
     steps:
+      - name: Checkout PR
+      uses: actions/checkout@v3
+      if: github.event.pull_request.head.sha != ''
+      with:
+        submodules: true
+        ref: ${{ github.event.pull_request.head.sha }}
+      - name: Checkout
+        uses: actions/checkout@v3
+        if: github.event.pull_request.head.sha == ''
+        with:
+          submodules: true
       - name: Install dependencies
         uses: ./.github/actions/prepare_vm
       - name: Prepare ccache timestamp
@@ -40,18 +51,18 @@ jobs:
             ubuntu-22.04-ccache-
       - name: Build
         uses: ./.github/actions/build
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Run tests
-        run: ctest -j32 --preset release-unit
-      - name: Upload unit-tests coverage report to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./unit.txt
-          flags: unit,${{ matrix.os }},go-${{ matrix.go-version }}
-          name: unit
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Test
+        shell: bash
+        - name: Run tests
+          run: ctest -j32 --preset release-unit
+        - name: Upload unit-tests coverage report to Codecov
+          uses: codecov/codecov-action@v4
+          with:
+            file: ./unit.txt
+            flags: unit,${{ matrix.os }},go-${{ matrix.go-version }}
+            name: unit
+          env:
+            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   integration:
     concurrency:
@@ -85,6 +96,17 @@ jobs:
       YDB_SESSIONS_SHUTDOWN_URLS: http://localhost:8765/actors/kqp_proxy?force_shutdown=all
       HIDE_APPLICATION_OUTPUT: 1
     steps:
+      - name: Checkout PR
+      uses: actions/checkout@v3
+      if: github.event.pull_request.head.sha != ''
+      with:
+        submodules: true
+        ref: ${{ github.event.pull_request.head.sha }}
+      - name: Checkout
+        uses: actions/checkout@v3
+        if: github.event.pull_request.head.sha == ''
+        with:
+          submodules: true
       - name: Install dependencies
         uses: ./.github/actions/prepare_vm
       - name: Prepare ccache timestamp
@@ -102,8 +124,6 @@ jobs:
             ubuntu-22.04-ccache-
       - name: Build
         uses: ./.github/actions/build
-      - name: Checkout code
-        uses: actions/checkout@v4
       - name: Run tests
         run: ctest -j32 --preset release-integration
       - name: Upload integration-tests coverage report to Codecov
