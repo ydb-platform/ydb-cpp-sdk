@@ -1,4 +1,15 @@
-main:
+name: Examples
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:      
+  main:
     name: Examples
     runs-on: ubuntu-22.04
     services:

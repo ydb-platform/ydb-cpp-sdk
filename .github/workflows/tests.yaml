@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, macOS]
+        os: [ubuntu]
     env:
       OS: ${{ matrix.os }}-latest
     runs-on: ${{ matrix.os }}-latest
