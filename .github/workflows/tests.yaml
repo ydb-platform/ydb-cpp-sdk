@@ -61,6 +61,9 @@ jobs:
       group: integration-${{ github.ref }}-${{ matrix.os }}-${{ matrix.go-version }}-${{ matrix.ydb-version }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
+    env:
+      ENDPOINT: "localhost:2136"
+      DATABASE: "/local"
     strategy:
       fail-fast: false
       matrix:

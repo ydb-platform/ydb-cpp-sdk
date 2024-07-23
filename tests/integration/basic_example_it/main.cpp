@@ -1,5 +1,4 @@
 #include "basic_example.h"
-#include "../config_ydb.h"
 
 #include <src/library/getopt/last_getopt.h>
 
@@ -19,7 +18,9 @@ void StopHandler(int) {
 
 TEST(Integration, BasicExample) {
     TOpts opts = TOpts::Default();
-
+    
+    std::string database = std::getenv( "DATABASE" );
+    std::string endpoint = std::getenv( "ENDPOINT" );;
     std::string path;
     std::string certPath;
 
