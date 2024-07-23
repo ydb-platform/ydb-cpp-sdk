@@ -199,7 +199,7 @@ TDriverConfig& TDriverConfig::SetMaxMessageSize(ui64 maxMessageSize) {
 }
 
 TDriverConfig& TDriverConfig::SetLog(std::unique_ptr<TLogBackend>&& log) {
-    Impl_->Log.ResetBackend(THolder(log.get()));
+    Impl_->Log.ResetBackend(THolder(log.release()));
     return *this;
 }
 
