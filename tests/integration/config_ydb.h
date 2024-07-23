@@ -4,6 +4,6 @@
 #include <string>
 
 const std::string endpoint = "localhost:2136";
-const std::string database = "/local/basic";
+const std::string database = "/local";
  
 #endif // CONFIG_YDB_H_IN
