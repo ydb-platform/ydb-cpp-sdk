@@ -697,7 +697,6 @@ private:
     void SetCurrentFailure(TSource&& source) {
         Y_ABORT_UNLESS(!CurrentFailure);
         CurrentFailure = std::make_unique<TStatus>(std::forward<TSource>(source));
-        CurrentFailure = std::make_unique<TStatus>(std::forward<TSource>(source));
     }
 
     template<class T>
@@ -865,7 +864,6 @@ private:
             return nullptr;
         }
         return dynamic_cast<TOperation*>(it->second.get());
-        return dynamic_cast<TOperation*>(it->second.get());
     }
 
 private:
@@ -949,7 +947,6 @@ private:
                     status = *CurrentFailure;
                 } else {
                     status = std::move(*CurrentFailure);
-                    CurrentFailure.reset();
                     CurrentFailure.reset();
                 }
             }
@@ -1261,7 +1258,6 @@ private:
     void OnRead(TGrpcStatus grpcStatus) {
         if (!grpcStatus.Ok()) {
             Response.reset();
-            Response.reset();
             switch (HandleSessionDetach()) {
                 case ESessionDetachResult::Ok:
                     // Report grpc status to client
@@ -1292,7 +1288,6 @@ private:
                 });
         } else {
             // Stop reading responses
-            Response.reset();
             Response.reset();
             processor->Finish([self = TPtr(this)] (auto status) {
                 self->OnFinish(std::move(status));
@@ -1381,7 +1376,6 @@ private:
                 nextTimerTimestamp = SessionLastKnownGoodTimestamp + Settings_.Timeout_ * (2.0 / 3.0);
             } else {
                 // Send a new ping request right now
-                SessionSelfPingReqId = DoSendSimpleOp(std::make_unique<TPingOp>());
                 SessionSelfPingReqId = DoSendSimpleOp(std::make_unique<TPingOp>());
                 // We want to wait until either:
                 // 1. Expected session timeout from the client point of view

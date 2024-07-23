@@ -55,7 +55,7 @@ int main(int argc, const char* argv[]) {
         .SetEndpoint(opts.Endpoint)
         .SetDatabase(opts.Database)
         .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "")
-        .SetLog(std::unique_ptr<TLogBackend>(CreateLogBackend("cerr").Get()));
+        .SetLog(std::unique_ptr<TLogBackend>(CreateLogBackend("cerr").Release()));
 
     if (opts.UseSecureConnection) {
         driverConfig.UseSecureConnection();

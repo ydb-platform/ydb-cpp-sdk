@@ -13,7 +13,7 @@ TApplication::TApplication(const TOptions& options)
         .SetEndpoint(options.Endpoint)
         .SetDatabase(options.Database)
         .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "")
-        .SetLog(std::unique_ptr<TLogBackend>(CreateLogBackend("cerr", Min(options.LogPriority, TLOG_RESOURCES)).Get()));
+        .SetLog(std::unique_ptr<TLogBackend>(CreateLogBackend("cerr", Min(options.LogPriority, TLOG_RESOURCES)).Release()));
     if (options.UseSecureConnection) {
         config.UseSecureConnection();
     }
