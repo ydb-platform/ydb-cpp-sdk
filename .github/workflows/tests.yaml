@@ -23,6 +23,23 @@ jobs:
       OS: ${{ matrix.os }}-latest
     runs-on: ${{ matrix.os }}-latest
     steps:
+      - name: Install dependencies
+        uses: ./.github/actions/prepare_vm
+      - name: Prepare ccache timestamp
+        id: ccache_cache_timestamp
+        shell: cmake -P {0}
+        run: |
+          string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+          message("::set-output name=timestamp::${current_date}")
+      - name: Restore cache files
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.ccache
+          key: ubuntu-22.04-ccache-${{steps.ccache_cache_timestamp.outputs.timestamp}}
+          restore-keys: |
+            ubuntu-22.04-ccache-
+      - name: Build
+        uses: ./.github/actions/build
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Run tests
@@ -68,6 +85,23 @@ jobs:
       YDB_SESSIONS_SHUTDOWN_URLS: http://localhost:8765/actors/kqp_proxy?force_shutdown=all
       HIDE_APPLICATION_OUTPUT: 1
     steps:
+      - name: Install dependencies
+        uses: ./.github/actions/prepare_vm
+      - name: Prepare ccache timestamp
+        id: ccache_cache_timestamp
+        shell: cmake -P {0}
+        run: |
+          string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+          message("::set-output name=timestamp::${current_date}")
+      - name: Restore cache files
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.ccache
+          key: ubuntu-22.04-ccache-${{steps.ccache_cache_timestamp.outputs.timestamp}}
+          restore-keys: |
+            ubuntu-22.04-ccache-
+      - name: Build
+        uses: ./.github/actions/build
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Run tests
