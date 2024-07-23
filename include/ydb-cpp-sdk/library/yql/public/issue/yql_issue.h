@@ -2,10 +2,14 @@
 
 #include "yql_issue_id.h"
 
+#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/system/types.h>
 #include <ydb-cpp-sdk/util/str_stl.h>
+
 #include <google/protobuf/message.h>
 
+#include <optional>
 #include <vector>
 #include <sstream>
 #include <string>

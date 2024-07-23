@@ -7,7 +7,7 @@
 #include <ydb-cpp-sdk/util/stream/output.h>
 #include <src/util/string/join.h>
 
-#include <tuple>
+#include <google/protobuf/text_format.h>
 
 namespace NYql {
 
