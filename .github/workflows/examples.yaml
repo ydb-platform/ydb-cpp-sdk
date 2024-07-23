@@ -1,0 +1,26 @@
+main:
+    name: Examples
+    runs-on: ubuntu-22.04
+    services:
+      ydb:
+        image: ydbplatform/local-ydb:latest
+        ports:
+          - 2135:2135
+          - 2136:2136
+          - 8765:8765
+        volumes:
+          - /tmp/ydb_certs:/ydb_certs
+        env:
+          YDB_LOCAL_SURVIVE_RESTART: true
+          YDB_USE_IN_MEMORY_PDISKS: true
+          YDB_TABLE_ENABLE_PREPARED_DDL: true
+        options: '-h localhost'
+    steps:
+    - name: Launch basic example
+      shell: bash
+      run: |
+        cd ../build
+        examples/basic_example/basic_example -e localhost:2136 -d /local -p /local/basic
+        examples/bulk_upsert_simple/bulk_upsert_simple -e localhost:2136 -d /local -p /local/bulk
+        examples/pagination/pagination -e localhost:2136 -d /local -p /local/pagination
+        examples/ttl/ttl -e localhost:2136 -d /local -p /local/ttl
