@@ -42,7 +42,7 @@ TDeferredCommit::~TDeferredCommit() {
 
 #define GET_IMPL()                              \
     if (!Impl) {                                \
-        Impl = MakeHolder<TImpl>();             \
+        Impl = std::make_unique<TImpl>();       \
     }                                           \
     Impl
 

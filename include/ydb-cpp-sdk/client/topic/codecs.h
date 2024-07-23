@@ -10,6 +10,7 @@
 #include <ydb-cpp-sdk/util/system/spinlock.h>
 
 #include <unordered_map>
+#include <memory>
 
 namespace NYdb::NTopic {
 
@@ -36,7 +37,7 @@ class ICodec {
 public:
     virtual ~ICodec() = default;
     virtual std::string Decompress(const std::string& data) const = 0;
-    virtual THolder<IOutputStream> CreateCoder(TBuffer& result, int quality) const = 0;
+    virtual std::unique_ptr<IOutputStream> CreateCoder(TBuffer& result, int quality) const = 0;
 };
 
 class TGzipCodec final : public ICodec {
@@ -58,8 +59,8 @@ class TGzipCodec final : public ICodec {
         return result;
     }
 
-    THolder<IOutputStream> CreateCoder(TBuffer& result, int quality) const override {
-        return MakeHolder<TZLibToStringCompressor>(result, ZLib::GZip, quality >= 0 ? quality : 6);
+    std::unique_ptr<IOutputStream> CreateCoder(TBuffer& result, int quality) const override {
+        return std::make_unique<TZLibToStringCompressor>(result, ZLib::GZip, quality >= 0 ? quality : 6);
     }
 };
 
@@ -82,8 +83,8 @@ class TZstdCodec final : public ICodec {
         return result;
     }
 
-    THolder<IOutputStream> CreateCoder(TBuffer& result, int quality) const override {
-        return MakeHolder<TZstdToStringCompressor>(result, quality);
+    std::unique_ptr<IOutputStream> CreateCoder(TBuffer& result, int quality) const override {
+        return std::make_unique<TZstdToStringCompressor>(result, quality);
     }
 };
 
@@ -92,7 +93,7 @@ class TUnsupportedCodec final : public ICodec {
         throw yexception() << "use of unsupported codec";
     }
 
-    THolder<IOutputStream> CreateCoder(TBuffer&, int) const override {
+    std::unique_ptr<IOutputStream> CreateCoder(TBuffer&, int) const override {
         throw yexception() << "use of unsupported codec";
     }
 };
@@ -104,7 +105,7 @@ public:
         return instance;
     }
 
-    void Set(ui32 codecId, THolder<ICodec>&& codecImpl) {
+    void Set(ui32 codecId, std::unique_ptr<ICodec>&& codecImpl) {
         with_lock(Lock) {
             Codecs[codecId] = std::move(codecImpl);
         }
@@ -115,7 +116,7 @@ public:
             if (!Codecs.contains(codecId)) {
                 throw yexception() << "codec with id " << ui32(codecId) << " not provided";
             }
-            return Codecs.at(codecId).Get();
+            return Codecs.at(codecId).get();
         }
     }
 
@@ -129,7 +130,7 @@ private:
     TCodecMap() = default;
 
 private:
-    std::unordered_map<ui32, THolder<ICodec>> Codecs;
+    std::unordered_map<ui32, std::unique_ptr<ICodec>> Codecs;
     TAdaptiveLock Lock;
 };
 

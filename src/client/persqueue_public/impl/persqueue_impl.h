@@ -109,7 +109,7 @@ public:
         return request;
     }
 
-    void ProvideCodec(ECodec codecId, THolder<ICodec>&& codecImpl) {
+    void ProvideCodec(ECodec codecId, std::unique_ptr<ICodec>&& codecImpl) {
         with_lock(Lock) {
             if (ProvidedCodecs->contains(codecId)) {
                 throw yexception() << "codec with id " << ui32(codecId) << " already provided";
@@ -118,7 +118,7 @@ public:
         }
     }
 
-    void OverrideCodec(ECodec codecId, THolder<ICodec>&& codecImpl) {
+    void OverrideCodec(ECodec codecId, std::unique_ptr<ICodec>&& codecImpl) {
         with_lock(Lock) {
             (*ProvidedCodecs)[codecId] = std::move(codecImpl);
         }
@@ -129,11 +129,11 @@ public:
             if (!ProvidedCodecs->contains(codecId)) {
                 throw yexception() << "codec with id " << ui32(codecId) << " not provided";
             }
-            return ProvidedCodecs->at(codecId).Get();
+            return ProvidedCodecs->at(codecId).get();
         }
     }
 
-    std::shared_ptr<std::unordered_map<ECodec, THolder<ICodec>>> GetProvidedCodecs() const {
+    std::shared_ptr<std::unordered_map<ECodec, std::unique_ptr<ICodec>>> GetProvidedCodecs() const {
         return ProvidedCodecs;
     }
 
@@ -242,7 +242,7 @@ private:
     const TPersQueueClientSettings Settings;
     const std::string CustomEndpoint;
     TAdaptiveLock Lock;
-    std::shared_ptr<std::unordered_map<ECodec, THolder<ICodec>>> ProvidedCodecs = std::make_shared<std::unordered_map<ECodec, THolder<ICodec>>>();
+    std::shared_ptr<std::unordered_map<ECodec, std::unique_ptr<ICodec>>> ProvidedCodecs = std::make_shared<std::unordered_map<ECodec, std::unique_ptr<ICodec>>>();
     std::unordered_map<std::string, std::shared_ptr<TImpl>> Subclients; // Endpoint -> Subclient.
 };
 
