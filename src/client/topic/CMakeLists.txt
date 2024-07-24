@@ -1,18 +1,6 @@
 add_subdirectory(common)
 add_subdirectory(impl)
-
-add_library(client-ydb_topic-codecs INTERFACE)
-
-target_link_libraries(client-ydb_topic-codecs INTERFACE
-  yutil
-  streams-zstd
-  yql-public-issue-protos
-  api-grpc-draft
-  api-grpc
-  api-protos
-)
-
-_ydb_sdk_install_targets(TARGETS client-ydb_topic-codecs)
+add_subdirectory(codecs)
 
 add_library(client-ydb_topic)
 
@@ -34,12 +22,6 @@ target_link_libraries(client-ydb_topic PUBLIC
 target_sources(client-ydb_topic PRIVATE
   proto_accessor.cpp
   out.cpp
-)
-
-generate_enum_serilization(client-ydb_topic
-  ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/client/topic/codecs.h
-  INCLUDE_HEADERS
-  include/ydb-cpp-sdk/client/topic/codecs.h
 )
 
 generate_enum_serilization(client-ydb_topic
