@@ -29,7 +29,7 @@ enum class EStatusFlag {
 struct TSelfCheckSettings : public TOperationRequestSettings<TSelfCheckSettings>{
     FLUENT_SETTING_OPTIONAL(bool, ReturnVerboseStatus);
     FLUENT_SETTING_OPTIONAL(EStatusFlag, MinimumStatus);
-    FLUENT_SETTING_OPTIONAL(ui32, MaximumLevel);
+    FLUENT_SETTING_OPTIONAL(uint32_t, MaximumLevel);
 };
 
 class TSelfCheckResult : public TStatus {

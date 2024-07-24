@@ -162,7 +162,7 @@ public:
     EIndexType GetIndexType() const;
     const std::vector<std::string>& GetIndexColumns() const;
     const std::vector<std::string>& GetDataColumns() const;
-    ui64 GetSizeBytes() const;
+    uint64_t GetSizeBytes() const;
 
     void SerializeTo(Ydb::Table::TableIndex& proto) const;
     std::string ToString() const;
@@ -180,7 +180,7 @@ private:
     EIndexType IndexType_;
     std::vector<std::string> IndexColumns_;
     std::vector<std::string> DataColumns_;
-    ui64 SizeBytes = 0;
+    uint64_t SizeBytes = 0;
 };
 
 struct TRenameIndex {
@@ -273,8 +273,8 @@ bool operator!=(const TChangefeedDescription& lhs, const TChangefeedDescription&
 ////////////////////////////////////////////////////////////////////////////////
 
 struct TPartitionStats {
-    ui64 Rows = 0;
-    ui64 Size = 0;
+    uint64_t Rows = 0;
+    uint64_t Size = 0;
 };
 
 class TDateTypeColumnModeSettings {
@@ -330,11 +330,11 @@ public:
     };
 
     explicit TTtlSettings(const std::string& columnName, const TDuration& expireAfter);
-    explicit TTtlSettings(const Ydb::Table::DateTypeColumnModeSettings& mode, ui32 runIntervalSeconds);
+    explicit TTtlSettings(const Ydb::Table::DateTypeColumnModeSettings& mode, uint32_t runIntervalSeconds);
     const TDateTypeColumnModeSettings& GetDateTypeColumn() const;
 
     explicit TTtlSettings(const std::string& columnName, EUnit columnUnit, const TDuration& expireAfter);
-    explicit TTtlSettings(const Ydb::Table::ValueSinceUnixEpochModeSettings& mode, ui32 runIntervalSeconds);
+    explicit TTtlSettings(const Ydb::Table::ValueSinceUnixEpochModeSettings& mode, uint32_t runIntervalSeconds);
     const TValueSinceUnixEpochModeSettings& GetValueSinceUnixEpoch() const;
 
     void SerializeTo(Ydb::Table::TtlSettings& proto) const;
@@ -433,9 +433,9 @@ public:
 
     std::optional<bool> GetPartitioningBySize() const;
     std::optional<bool> GetPartitioningByLoad() const;
-    ui64 GetPartitionSizeMb() const;
-    ui64 GetMinPartitionsCount() const;
-    ui64 GetMaxPartitionsCount() const;
+    uint64_t GetPartitionSizeMb() const;
+    uint64_t GetMinPartitionsCount() const;
+    uint64_t GetMaxPartitionsCount() const;
 
 private:
     class TImpl;
@@ -450,14 +450,14 @@ public:
         AnyAz = 1
     };
 
-    TReadReplicasSettings(EMode mode, ui64 readReplicasCount);
+    TReadReplicasSettings(EMode mode, uint64_t readReplicasCount);
 
     EMode GetMode() const;
-    ui64 GetReadReplicasCount() const;
+    uint64_t GetReadReplicasCount() const;
 
 private:
     EMode Mode_;
-    ui64 ReadReplicasCount_;
+    uint64_t ReadReplicasCount_;
 };
 
 struct TExplicitPartitions;
@@ -499,11 +499,11 @@ public:
     // flag WithTableStatistics must be set
 
     // Number of partition
-    ui64 GetPartitionsCount() const;
+    uint64_t GetPartitionsCount() const;
     // Approximate number of rows
-    ui64 GetTableRows() const;
+    uint64_t GetTableRows() const;
     // Approximate size of table (bytes)
-    ui64 GetTableSize() const;
+    uint64_t GetTableSize() const;
     // Timestamp of last modification
     TInstant GetModificationTime() const;
     // Timestamp of table creation
@@ -567,11 +567,11 @@ private:
     void SetAttributes(const std::unordered_map<std::string, std::string>& attrs);
     void SetAttributes(std::unordered_map<std::string, std::string>&& attrs);
     void SetCompactionPolicy(const std::string& name);
-    void SetUniformPartitions(ui64 partitionsCount);
+    void SetUniformPartitions(uint64_t partitionsCount);
     void SetPartitionAtKeys(const TExplicitPartitions& keys);
     void SetPartitioningSettings(const TPartitioningSettings& settings);
     void SetKeyBloomFilter(bool enabled);
-    void SetReadReplicasSettings(TReadReplicasSettings::EMode mode, ui64 readReplicasCount);
+    void SetReadReplicasSettings(TReadReplicasSettings::EMode mode, uint64_t readReplicasCount);
     void SetStoreType(EStoreType type);
     const Ydb::Table::DescribeTableResult& GetProto() const;
 
@@ -607,9 +607,9 @@ public:
 
     TPartitioningSettingsBuilder& SetPartitioningBySize(bool enabled);
     TPartitioningSettingsBuilder& SetPartitioningByLoad(bool enabled);
-    TPartitioningSettingsBuilder& SetPartitionSizeMb(ui64 sizeMb);
-    TPartitioningSettingsBuilder& SetMinPartitionsCount(ui64 count);
-    TPartitioningSettingsBuilder& SetMaxPartitionsCount(ui64 count);
+    TPartitioningSettingsBuilder& SetPartitionSizeMb(uint64_t sizeMb);
+    TPartitioningSettingsBuilder& SetMinPartitionsCount(uint64_t count);
+    TPartitioningSettingsBuilder& SetMaxPartitionsCount(uint64_t count);
 
     TPartitioningSettings Build() const;
 
@@ -712,17 +712,17 @@ public:
         return *this;
     }
 
-    TTablePartitioningSettingsBuilder& SetPartitionSizeMb(ui64 sizeMb) {
+    TTablePartitioningSettingsBuilder& SetPartitionSizeMb(uint64_t sizeMb) {
         Builder_.SetPartitionSizeMb(sizeMb);
         return *this;
     }
 
-    TTablePartitioningSettingsBuilder& SetMinPartitionsCount(ui64 count) {
+    TTablePartitioningSettingsBuilder& SetMinPartitionsCount(uint64_t count) {
         Builder_.SetMinPartitionsCount(count);
         return *this;
     }
 
-    TTablePartitioningSettingsBuilder& SetMaxPartitionsCount(ui64 count) {
+    TTablePartitioningSettingsBuilder& SetMaxPartitionsCount(uint64_t count) {
         Builder_.SetMaxPartitionsCount(count);
         return *this;
     }
@@ -793,14 +793,14 @@ public:
     TTableBuilder& SetCompactionPolicy(const std::string& name);
 
     // UniformPartitions and PartitionAtKeys are mutually exclusive
-    TTableBuilder& SetUniformPartitions(ui64 partitionsCount);
+    TTableBuilder& SetUniformPartitions(uint64_t partitionsCount);
     TTableBuilder& SetPartitionAtKeys(const TExplicitPartitions& keys);
 
     TTableBuilder& SetPartitioningSettings(const TPartitioningSettings& settings);
 
     TTableBuilder& SetKeyBloomFilter(bool enabled);
 
-    TTableBuilder& SetReadReplicasSettings(TReadReplicasSettings::EMode mode, ui64 readReplicasCount);
+    TTableBuilder& SetReadReplicasSettings(TReadReplicasSettings::EMode mode, uint64_t readReplicasCount);
 
     TTableStorageSettingsBuilder BeginStorageSettings() {
         return TTableStorageSettingsBuilder(*this);
@@ -905,11 +905,11 @@ struct TSessionPoolSettings {
     using TSelf = TSessionPoolSettings;
 
     // Max number of sessions client can get from session pool
-    FLUENT_SETTING_DEFAULT(ui32, MaxActiveSessions, 50);
+    FLUENT_SETTING_DEFAULT(uint32_t, MaxActiveSessions, 50);
 
     // Max number of attempt to create session inside session pool
     // to handle OVERLOADED error
-    FLUENT_SETTING_DEFAULT(ui32, RetryLimit, 5);
+    FLUENT_SETTING_DEFAULT(uint32_t, RetryLimit, 5);
 
     // Max time session to be in idle state in session pool before
     // keep alive start to touch it
@@ -920,7 +920,7 @@ struct TSessionPoolSettings {
 
     // Min number of session in session pool.
     // Sessions will not be closed by CloseIdleThreshold if the number of sessions less then this limit.
-    FLUENT_SETTING_DEFAULT(ui32, MinPoolSize, 10);
+    FLUENT_SETTING_DEFAULT(uint32_t, MinPoolSize, 10);
 };
 
 struct TClientSettings : public TCommonClientSettingsBase<TClientSettings> {
@@ -935,7 +935,7 @@ struct TClientSettings : public TCommonClientSettingsBase<TClientSettings> {
     // query on demand without client interaction.
     // The recommended value is False.
     FLUENT_SETTING_DEFAULT(bool, UseQueryCache, false);
-    FLUENT_SETTING_DEFAULT(ui32, QueryCacheSize, 1000);
+    FLUENT_SETTING_DEFAULT(uint32_t, QueryCacheSize, 1000);
     FLUENT_SETTING_DEFAULT(bool, KeepDataQueryText, true);
 
     // Min allowed session variation coefficient (%) to start session balancing.
@@ -945,7 +945,7 @@ struct TClientSettings : public TCommonClientSettingsBase<TClientSettings> {
     //   - add new host ([90, 100, 110, 0] sessions per host). Cv will be 77%
     // Balancing is will be performed if calculated cv greater than MinSessionCV
     // Zero - disable this feature
-    FLUENT_SETTING_DEFAULT(ui32, MinSessionCV, 20);
+    FLUENT_SETTING_DEFAULT(uint32_t, MinSessionCV, 20);
 
     // Allow migrate requests between session during session balancing
     FLUENT_SETTING_DEFAULT(bool, AllowRequestMigration, true);
@@ -1010,13 +1010,13 @@ public:
     TAsyncCreateSessionResult GetSession(const TCreateSessionSettings& settings = TCreateSessionSettings());
 
     //! Returns number of active sessions given via session pool
-    i64 GetActiveSessionCount() const;
+    int64_t GetActiveSessionCount() const;
 
     //! Returns the maximum number of sessions in session pool
-    i64 GetActiveSessionsLimit() const;
+    int64_t GetActiveSessionsLimit() const;
 
     //! Returns the size of session pool
-    i64 GetCurrentPoolSize() const;
+    int64_t GetCurrentPoolSize() const;
 
     //! Returns new table builder
     TTableBuilder GetTableBuilder();
@@ -1232,7 +1232,7 @@ struct TPartitioningPolicy {
 
     FLUENT_SETTING_OPTIONAL(EAutoPartitioningPolicy, AutoPartitioning);
 
-    FLUENT_SETTING_OPTIONAL(ui64, UniformPartitions);
+    FLUENT_SETTING_OPTIONAL(uint64_t, UniformPartitions);
 
     FLUENT_SETTING_OPTIONAL(TExplicitPartitions, ExplicitPartitions);
 };
@@ -1242,7 +1242,7 @@ struct TReplicationPolicy {
 
     FLUENT_SETTING_OPTIONAL(std::string, PresetName);
 
-    FLUENT_SETTING_OPTIONAL(ui32, ReplicasCount);
+    FLUENT_SETTING_OPTIONAL(uint32_t, ReplicasCount);
 
     FLUENT_SETTING_OPTIONAL(bool, CreatePerAvailabilityZone);
 
@@ -1398,17 +1398,17 @@ public:
         return *this;
     }
 
-    TAlterPartitioningSettingsBuilder& SetPartitionSizeMb(ui64 sizeMb) {
+    TAlterPartitioningSettingsBuilder& SetPartitionSizeMb(uint64_t sizeMb) {
         Builder_.SetPartitionSizeMb(sizeMb);
         return *this;
     }
 
-    TAlterPartitioningSettingsBuilder& SetMinPartitionsCount(ui64 count) {
+    TAlterPartitioningSettingsBuilder& SetMinPartitionsCount(uint64_t count) {
         Builder_.SetMinPartitionsCount(count);
         return *this;
     }
 
-    TAlterPartitioningSettingsBuilder& SetMaxPartitionsCount(ui64 count) {
+    TAlterPartitioningSettingsBuilder& SetMaxPartitionsCount(uint64_t count) {
         Builder_.SetMaxPartitionsCount(count);
         return *this;
     }
@@ -1462,7 +1462,7 @@ struct TAlterTableSettings : public TOperationRequestSettings<TAlterTableSetting
     FLUENT_SETTING_OPTIONAL(bool, SetKeyBloomFilter);
 
     FLUENT_SETTING_OPTIONAL(TReadReplicasSettings, SetReadReplicasSettings);
-    TSelf& SetReadReplicasSettings(TReadReplicasSettings::EMode mode, ui64 readReplicasCount) {
+    TSelf& SetReadReplicasSettings(TReadReplicasSettings::EMode mode, uint64_t readReplicasCount) {
         SetReadReplicasSettings_ = TReadReplicasSettings(mode, readReplicasCount);
         return *this;
     }
@@ -1568,13 +1568,13 @@ struct TReadTableSettings : public TRequestSettings<TReadTableSettings> {
 
     FLUENT_SETTING_FLAG(Ordered);
 
-    FLUENT_SETTING_OPTIONAL(ui64, RowLimit);
+    FLUENT_SETTING_OPTIONAL(uint64_t, RowLimit);
 
     FLUENT_SETTING_OPTIONAL(bool, UseSnapshot);
 
-    FLUENT_SETTING_OPTIONAL(ui64, BatchLimitBytes);
+    FLUENT_SETTING_OPTIONAL(uint64_t, BatchLimitBytes);
 
-    FLUENT_SETTING_OPTIONAL(ui64, BatchLimitRows);
+    FLUENT_SETTING_OPTIONAL(uint64_t, BatchLimitRows);
 
     FLUENT_SETTING_OPTIONAL(bool, ReturnNotNullAsOptional);
 };
@@ -1842,17 +1842,17 @@ private:
 
 class TReadTableSnapshot {
 public:
-    TReadTableSnapshot(ui64 step, ui64 txId)
+    TReadTableSnapshot(uint64_t step, uint64_t txId)
         : Step_(step)
         , TxId_(txId)
     {}
 
-    ui64 GetStep() const { return Step_; }
-    ui64 GetTxId() const { return TxId_; }
+    uint64_t GetStep() const { return Step_; }
+    uint64_t GetTxId() const { return TxId_; }
 
 private:
-    ui64 Step_;
-    ui64 TxId_;
+    uint64_t Step_;
+    uint64_t TxId_;
 };
 
 template<typename TPart>

@@ -20,7 +20,7 @@ namespace NYdb {
 
 namespace NYdb::NTopic {
     
-enum class EMeteringMode : ui32 {
+enum class EMeteringMode : uint32_t {
     Unspecified = 0,
     ReservedCapacity = 1,
     RequestUnits = 2,
@@ -28,7 +28,7 @@ enum class EMeteringMode : ui32 {
     Unknown = std::numeric_limits<int>::max(),
 };
 
-enum class EAutoscalingStrategy: ui32 {
+enum class EAutoscalingStrategy: uint32_t {
     Unspecified = 0,
     Disabled = 1,
     ScaleUp = 2,
@@ -59,20 +59,20 @@ class TTopicStats {
 public:
     TTopicStats(const Ydb::Topic::DescribeTopicResult::TopicStats& topicStats);
 
-    ui64 GetStoreSizeBytes() const;
+    uint64_t GetStoreSizeBytes() const;
     TDuration GetMaxWriteTimeLag() const;
     TInstant GetMinLastWriteTime() const;
-    ui64 GetBytesWrittenPerMinute() const;
-    ui64 GetBytesWrittenPerHour() const;
-    ui64 GetBytesWrittenPerDay() const;
+    uint64_t GetBytesWrittenPerMinute() const;
+    uint64_t GetBytesWrittenPerHour() const;
+    uint64_t GetBytesWrittenPerDay() const;
 
 private:
-    ui64 StoreSizeBytes_;
+    uint64_t StoreSizeBytes_;
     TInstant MinLastWriteTime_;
     TDuration MaxWriteTimeLag_;
-    ui64 BytesWrittenPerMinute_;
-    ui64 BytesWrittenPerHour_;
-    ui64 BytesWrittenPerDay_;
+    uint64_t BytesWrittenPerMinute_;
+    uint64_t BytesWrittenPerHour_;
+    uint64_t BytesWrittenPerDay_;
 };
 
 
@@ -80,37 +80,37 @@ class TPartitionStats {
 public:
     TPartitionStats(const Ydb::Topic::PartitionStats& partitionStats);
 
-    ui64 GetStartOffset() const;
-    ui64 GetEndOffset() const;
-    ui64 GetStoreSizeBytes() const;
+    uint64_t GetStartOffset() const;
+    uint64_t GetEndOffset() const;
+    uint64_t GetStoreSizeBytes() const;
     TDuration GetMaxWriteTimeLag() const;
     TInstant GetLastWriteTime() const;
-    ui64 GetBytesWrittenPerMinute() const;
-    ui64 GetBytesWrittenPerHour() const;
-    ui64 GetBytesWrittenPerDay() const;
+    uint64_t GetBytesWrittenPerMinute() const;
+    uint64_t GetBytesWrittenPerHour() const;
+    uint64_t GetBytesWrittenPerDay() const;
 
 private:
-    ui64 StartOffset_;
-    ui64 EndOffset_;
-    ui64 StoreSizeBytes_;
+    uint64_t StartOffset_;
+    uint64_t EndOffset_;
+    uint64_t StoreSizeBytes_;
     TInstant LastWriteTime_;
     TDuration MaxWriteTimeLag_;
-    ui64 BytesWrittenPerMinute_;
-    ui64 BytesWrittenPerHour_;
-    ui64 BytesWrittenPerDay_;
+    uint64_t BytesWrittenPerMinute_;
+    uint64_t BytesWrittenPerHour_;
+    uint64_t BytesWrittenPerDay_;
 };
 
 class TPartitionConsumerStats {
 public:
     TPartitionConsumerStats(const Ydb::Topic::DescribeConsumerResult::PartitionConsumerStats& partitionStats);
-    ui64 GetCommittedOffset() const;
-    ui64 GetLastReadOffset() const;
+    uint64_t GetCommittedOffset() const;
+    uint64_t GetLastReadOffset() const;
     std::string GetReaderName() const;
     std::string GetReadSessionId() const;
 
 private:
-    ui64 CommittedOffset_;
-    i64 LastReadOffset_;
+    uint64_t CommittedOffset_;
+    int64_t LastReadOffset_;
     std::string ReaderName_;
     std::string ReadSessionId_;
 };
@@ -119,15 +119,15 @@ private:
 class TPartitionLocation {
 public:
     TPartitionLocation(const Ydb::Topic::PartitionLocation& partitionLocation);
-    i32 GetNodeId() const;
-    i64 GetGeneration() const;
+    int32_t GetNodeId() const;
+    int64_t GetGeneration() const;
 
 private:
     // Node identificator.
-    i32 NodeId_ = 1;
+    int32_t NodeId_ = 1;
 
     // Partition generation.
-    i64 Generation_ = 2;
+    int64_t Generation_ = 2;
 };
 
 class TPartitionInfo {
@@ -135,20 +135,20 @@ public:
     TPartitionInfo(const Ydb::Topic::DescribeTopicResult::PartitionInfo& partitionInfo);
     TPartitionInfo(const Ydb::Topic::DescribeConsumerResult::PartitionInfo& partitionInfo);
 
-    ui64 GetPartitionId() const;
+    uint64_t GetPartitionId() const;
     bool GetActive() const;
-    const std::vector<ui64> GetChildPartitionIds() const;
-    const std::vector<ui64> GetParentPartitionIds() const;
+    const std::vector<uint64_t> GetChildPartitionIds() const;
+    const std::vector<uint64_t> GetParentPartitionIds() const;
 
     const std::optional<TPartitionStats>& GetPartitionStats() const;
     const std::optional<TPartitionConsumerStats>& GetPartitionConsumerStats() const;
     const std::optional<TPartitionLocation>& GetPartitionLocation() const;
 
 private:
-    ui64 PartitionId_;
+    uint64_t PartitionId_;
     bool Active_;
-    std::vector<ui64> ChildPartitionIds_;
-    std::vector<ui64> ParentPartitionIds_;
+    std::vector<uint64_t> ChildPartitionIds_;
+    std::vector<uint64_t> ParentPartitionIds_;
     std::optional<TPartitionStats> PartitionStats_;
     std::optional<TPartitionConsumerStats> PartitionConsumerStats_;
     std::optional<TPartitionLocation> PartitionLocation_;
@@ -167,7 +167,7 @@ public:
         , ScaleUpThresholdPercent_(0) {
     }
     TAutoscalingSettings(const Ydb::Topic::AutoscalingSettings& settings);
-    TAutoscalingSettings(EAutoscalingStrategy strategy, TDuration thresholdTime, ui64 scaleUpThresholdPercent, ui64 scaleDownThresholdPercent)
+    TAutoscalingSettings(EAutoscalingStrategy strategy, TDuration thresholdTime, uint64_t scaleUpThresholdPercent, uint64_t scaleDownThresholdPercent)
         : Strategy_(strategy)
         , ThresholdTime_(thresholdTime)
         , ScaleDownThresholdPercent_(scaleDownThresholdPercent)
@@ -175,13 +175,13 @@ public:
 
     EAutoscalingStrategy GetStrategy() const;
     TDuration GetThresholdTime() const;
-    ui32 GetScaleDownThresholdPercent() const;
-    ui32 GetScaleUpThresholdPercent() const;
+    uint32_t GetScaleDownThresholdPercent() const;
+    uint32_t GetScaleUpThresholdPercent() const;
 private:
     EAutoscalingStrategy Strategy_;
     TDuration ThresholdTime_;
-    ui32 ScaleDownThresholdPercent_;
-    ui32 ScaleUpThresholdPercent_;
+    uint32_t ScaleDownThresholdPercent_;
+    uint32_t ScaleUpThresholdPercent_;
 };
 
 struct TAlterAutoscalingSettings {
@@ -191,8 +191,8 @@ struct TAlterAutoscalingSettings {
 
     FLUENT_SETTING_OPTIONAL(EAutoscalingStrategy, Strategy);
     FLUENT_SETTING_OPTIONAL(TDuration, ThresholdTime);
-    FLUENT_SETTING_OPTIONAL(ui64, ScaleUpThresholdPercent);
-    FLUENT_SETTING_OPTIONAL(ui64, ScaleDownThresholdPercent);
+    FLUENT_SETTING_OPTIONAL(uint64_t, ScaleUpThresholdPercent);
+    FLUENT_SETTING_OPTIONAL(uint64_t, ScaleDownThresholdPercent);
 
     TAlterPartitioningSettings& EndAlterAutoscalingSettings() { return Parent_; };
 
@@ -206,7 +206,7 @@ class TPartitioningSettings {
 public:
     TPartitioningSettings() : MinActivePartitions_(0), MaxActivePartitions_(0), PartitionCountLimit_(0), AutoscalingSettings_(){}
     TPartitioningSettings(const Ydb::Topic::PartitioningSettings& settings);
-    TPartitioningSettings(ui64 minActivePartitions, ui64 maxActivePartitions, TAutoscalingSettings autoscalingSettings = {})
+    TPartitioningSettings(uint64_t minActivePartitions, uint64_t maxActivePartitions, TAutoscalingSettings autoscalingSettings = {})
         : MinActivePartitions_(minActivePartitions)
         , MaxActivePartitions_(maxActivePartitions)
         , PartitionCountLimit_(0)
@@ -214,14 +214,14 @@ public:
     {
     }
 
-    ui64 GetMinActivePartitions() const;
-    ui64 GetMaxActivePartitions() const;
-    ui64 GetPartitionCountLimit() const;
+    uint64_t GetMinActivePartitions() const;
+    uint64_t GetMaxActivePartitions() const;
+    uint64_t GetPartitionCountLimit() const;
     TAutoscalingSettings GetAutoscalingSettings() const;
 private:
-    ui64 MinActivePartitions_;
-    ui64 MaxActivePartitions_;
-    ui64 PartitionCountLimit_;
+    uint64_t MinActivePartitions_;
+    uint64_t MaxActivePartitions_;
+    uint64_t PartitionCountLimit_;
     TAutoscalingSettings AutoscalingSettings_;
 };
 
@@ -232,8 +232,8 @@ struct TAlterPartitioningSettings {
 public:
     TAlterPartitioningSettings(TAlterTopicSettings& parent): Parent_(parent) {}
 
-    FLUENT_SETTING_OPTIONAL(ui64, MinActivePartitions);
-    FLUENT_SETTING_OPTIONAL(ui64, MaxActivePartitions);
+    FLUENT_SETTING_OPTIONAL(uint64_t, MinActivePartitions);
+    FLUENT_SETTING_OPTIONAL(uint64_t, MaxActivePartitions);
 
     TAlterTopicSettings& EndAlterTopicPartitioningSettings() { return Parent_; };
 
@@ -264,7 +264,7 @@ public:
 
     const TPartitioningSettings& GetPartitioningSettings() const;
 
-    ui32 GetTotalPartitionsCount() const;
+    uint32_t GetTotalPartitionsCount() const;
 
     const std::vector<TPartitionInfo>& GetPartitions() const;
 
@@ -272,11 +272,11 @@ public:
 
     const TDuration& GetRetentionPeriod() const;
 
-    std::optional<ui64> GetRetentionStorageMb() const;
+    std::optional<uint64_t> GetRetentionStorageMb() const;
 
-    ui64 GetPartitionWriteSpeedBytesPerSecond() const;
+    uint64_t GetPartitionWriteSpeedBytesPerSecond() const;
 
-    ui64 GetPartitionWriteBurstBytes() const;
+    uint64_t GetPartitionWriteBurstBytes() const;
 
     const std::map<std::string, std::string>& GetAttributes() const;
 
@@ -296,9 +296,9 @@ private:
     std::vector<ECodec> SupportedCodecs_;
     TPartitioningSettings PartitioningSettings_;
     TDuration RetentionPeriod_;
-    std::optional<ui64> RetentionStorageMb_;
-    ui64 PartitionWriteSpeedBytesPerSecond_;
-    ui64 PartitionWriteBurstBytes_;
+    std::optional<uint64_t> RetentionStorageMb_;
+    uint64_t PartitionWriteSpeedBytesPerSecond_;
+    uint64_t PartitionWriteBurstBytes_;
     EMeteringMode MeteringMode_;
     std::map<std::string, std::string> Attributes_;
     std::vector<TConsumer> Consumers_;
@@ -513,11 +513,11 @@ struct TCreateTopicSettings : public TOperationRequestSettings<TCreateTopicSetti
 
     FLUENT_SETTING_VECTOR(ECodec, SupportedCodecs);
 
-    FLUENT_SETTING_DEFAULT(ui64, RetentionStorageMb, 0);
+    FLUENT_SETTING_DEFAULT(uint64_t, RetentionStorageMb, 0);
     FLUENT_SETTING_DEFAULT(EMeteringMode, MeteringMode, EMeteringMode::Unspecified);
 
-    FLUENT_SETTING_DEFAULT(ui64, PartitionWriteSpeedBytesPerSecond, 0);
-    FLUENT_SETTING_DEFAULT(ui64, PartitionWriteBurstBytes, 0);
+    FLUENT_SETTING_DEFAULT(uint64_t, PartitionWriteSpeedBytesPerSecond, 0);
+    FLUENT_SETTING_DEFAULT(uint64_t, PartitionWriteBurstBytes, 0);
 
     FLUENT_SETTING_VECTOR(TConsumerSettings<TCreateTopicSettings>, Consumers);
 
@@ -558,7 +558,7 @@ struct TCreateTopicSettings : public TOperationRequestSettings<TCreateTopicSetti
         return *this;
     }
 
-    TCreateTopicSettings& PartitioningSettings(ui64 minActivePartitions, ui64 maxActivePartitions, TAutoscalingSettings autoscalingSettings = {}) {
+    TCreateTopicSettings& PartitioningSettings(uint64_t minActivePartitions, uint64_t maxActivePartitions, TAutoscalingSettings autoscalingSettings = {}) {
         PartitioningSettings_ = TPartitioningSettings(minActivePartitions, maxActivePartitions, autoscalingSettings);
         return *this;
     }
@@ -581,12 +581,12 @@ public:
         return *this;
     }
 
-    TSelf ScaleDownThresholdPercent(ui32 value) {
+    TSelf ScaleDownThresholdPercent(uint32_t value) {
         Settings_.ScaleDownThresholdPercent_ = value;
         return *this;
     }
 
-    TSelf ScaleUpThresholdPercent(ui32 value) {
+    TSelf ScaleUpThresholdPercent(uint32_t value) {
         Settings_.ScaleUpThresholdPercent_ = value;
         return *this;
     }
@@ -605,12 +605,12 @@ struct TPartitioningSettingsBuilder {
 public:
     TPartitioningSettingsBuilder(TCreateTopicSettings& parent): Parent_(parent) {}
 
-    TSelf MinActivePartitions(ui64 value) {
+    TSelf MinActivePartitions(uint64_t value) {
         Parent_.PartitioningSettings_.MinActivePartitions_ = value;
         return *this;
     }
 
-    TSelf MaxActivePartitions(ui64 value) {
+    TSelf MaxActivePartitions(uint64_t value) {
         Parent_.PartitioningSettings_.MaxActivePartitions_ = value;
         return *this;
     }
@@ -636,10 +636,10 @@ struct TAlterTopicSettings : public TOperationRequestSettings<TAlterTopicSetting
 
     FLUENT_SETTING_OPTIONAL_VECTOR(ECodec, SetSupportedCodecs);
 
-    FLUENT_SETTING_OPTIONAL(ui64, SetRetentionStorageMb);
+    FLUENT_SETTING_OPTIONAL(uint64_t, SetRetentionStorageMb);
 
-    FLUENT_SETTING_OPTIONAL(ui64, SetPartitionWriteSpeedBytesPerSecond);
-    FLUENT_SETTING_OPTIONAL(ui64, SetPartitionWriteBurstBytes);
+    FLUENT_SETTING_OPTIONAL(uint64_t, SetPartitionWriteSpeedBytesPerSecond);
+    FLUENT_SETTING_OPTIONAL(uint64_t, SetPartitionWriteBurstBytes);
 
     FLUENT_SETTING_OPTIONAL(EMeteringMode, SetMeteringMode);
 
@@ -688,7 +688,7 @@ struct TAlterTopicSettings : public TOperationRequestSettings<TAlterTopicSetting
         return *AlterPartitioningSettings_;
     }
 
-    TAlterTopicSettings& AlterPartitioningSettings(ui64 minActivePartitions, ui64 maxActivePartitions) {
+    TAlterTopicSettings& AlterPartitioningSettings(uint64_t minActivePartitions, uint64_t maxActivePartitions) {
         AlterPartitioningSettings_.emplace(*this);
         AlterPartitioningSettings_->MinActivePartitions(minActivePartitions);
         AlterPartitioningSettings_->MaxActivePartitions(maxActivePartitions);

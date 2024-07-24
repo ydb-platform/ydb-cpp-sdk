@@ -5,7 +5,7 @@
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/string/cast.h>
 
-#include <src/util/folder/pathsplit.h>
+#include <filesystem>
 
 namespace NExample {
 
@@ -36,10 +36,10 @@ inline std::string JoinPath(const std::string& basePath, const std::string& path
         return path;
     }
 
-    TPathSplitUnix prefixPathSplit(basePath);
-    prefixPathSplit.AppendComponent(path);
+    std::filesystem::path prefixPathSplit(basePath);
+    prefixPathSplit /= path;
 
-    return prefixPathSplit.Reconstruct();
+    return prefixPathSplit;
 }
 
 }

@@ -1,6 +1,6 @@
 #include "application.h"
 
-TApplication::TRow::TRow(ui64 key, const std::string& value) :
+TApplication::TRow::TRow(uint64_t key, const std::string& value) :
     Key(key),
     Value(value)
 {
@@ -191,5 +191,5 @@ void TApplication::InsertRowsIntoTable()
 
 void TApplication::AppendTableRow(const NYdb::NTopic::TReadSessionEvent::TDataReceivedEvent::TMessage& message)
 {
-    Rows.emplace_back(RandomNumber<ui64>(), message.GetData());
+    Rows.emplace_back(Dist(MersenneEngine), message.GetData());
 }

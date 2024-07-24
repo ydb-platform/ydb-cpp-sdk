@@ -4,7 +4,7 @@ using namespace NYdb;
 using namespace NYdb::NTable;
 using namespace NLastGetopt;
 
-TStatus SelectSeriesWithViews(TSession session, const std::string& path, std::vector<TSeries>& selectResult, ui64 minViews) {
+TStatus SelectSeriesWithViews(TSession session, const std::string& path, std::vector<TSeries>& selectResult, uint64_t minViews) {
     auto queryText = std::format(R"(
         --!syntax_v1
         PRAGMA TablePathPrefix("{}");
@@ -42,7 +42,7 @@ int Select(TDriver& driver, const std::string& path, int argc, char **argv) {
 
     TOpts opts = TOpts::Default();
 
-    ui64 minViews = 0;
+    uint64_t minViews = 0;
     opts.AddLongOption("min-views", "Series with views greater than").Required().RequiredArgument("NUM")
         .StoreResult(&minViews);
 

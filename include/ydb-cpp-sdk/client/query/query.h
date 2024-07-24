@@ -69,7 +69,7 @@ private:
 using TAsyncExecuteQueryIterator = NThreading::TFuture<TExecuteQueryIterator>;
 
 struct TExecuteQuerySettings : public TRequestSettings<TExecuteQuerySettings> {
-    FLUENT_SETTING_OPTIONAL(ui32, OutputChunkMaxSize);
+    FLUENT_SETTING_OPTIONAL(uint32_t, OutputChunkMaxSize);
     FLUENT_SETTING_DEFAULT(ESyntax, Syntax, ESyntax::YqlV1);
     FLUENT_SETTING_DEFAULT(EExecMode, ExecMode, EExecMode::Execute);
     FLUENT_SETTING_DEFAULT(EStatsMode, StatsMode, EStatsMode::None);
@@ -152,13 +152,13 @@ private:
 
 struct TFetchScriptResultsSettings : public TRequestSettings<TFetchScriptResultsSettings> {
     FLUENT_SETTING(std::string, FetchToken);
-    FLUENT_SETTING_DEFAULT(ui64, RowsLimit, 1000);
+    FLUENT_SETTING_DEFAULT(uint64_t, RowsLimit, 1000);
 };
 
 class TFetchScriptResultsResult : public TStatus {
 public:
     bool HasResultSet() const { return ResultSet_.has_value(); }
-    ui64 GetResultSetIndex() const { return ResultSetIndex_; }
+    uint64_t GetResultSetIndex() const { return ResultSetIndex_; }
     const TResultSet& GetResultSet() const { return *ResultSet_; }
     TResultSet ExtractResultSet() { return std::move(*ResultSet_); }
     const std::string& GetNextFetchToken() const { return NextFetchToken_; }
@@ -167,7 +167,7 @@ public:
         : TStatus(std::move(status))
     {}
 
-    TFetchScriptResultsResult(TStatus&& status, TResultSet&& resultSet, i64 resultSetIndex, const std::string& nextFetchToken)
+    TFetchScriptResultsResult(TStatus&& status, TResultSet&& resultSet, int64_t resultSetIndex, const std::string& nextFetchToken)
         : TStatus(std::move(status))
         , ResultSet_(std::move(resultSet))
         , ResultSetIndex_(resultSetIndex)
@@ -176,7 +176,7 @@ public:
 
 private:
     std::optional<TResultSet> ResultSet_;
-    i64 ResultSetIndex_ = 0;
+    int64_t ResultSetIndex_ = 0;
     std::string NextFetchToken_;
 };
 

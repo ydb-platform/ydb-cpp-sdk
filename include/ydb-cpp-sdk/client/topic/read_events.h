@@ -22,7 +22,7 @@ public:
 
     //! Unique identifier of partition session.
     //! It is unique within one read session.
-    ui64 GetPartitionSessionId() const {
+    uint64_t GetPartitionSessionId() const {
         return PartitionSessionId;
     }
 
@@ -32,14 +32,14 @@ public:
     }
 
     //! Partition id.
-    ui64 GetPartitionId() const {
+    uint64_t GetPartitionId() const {
         return PartitionId;
     }
 
 protected:
-    ui64 PartitionSessionId;
+    uint64_t PartitionSessionId;
     std::string TopicPath;
-    ui64 PartitionId;
+    uint64_t PartitionId;
 };
 
 template<>
@@ -63,23 +63,23 @@ struct TReadSessionEvent {
     //! Contains batch of messages from single partition session.
     struct TDataReceivedEvent : public TPartitionSessionAccessor, public TPrintable<TDataReceivedEvent> {
         struct TMessageInformation {
-            TMessageInformation(ui64 offset,
+            TMessageInformation(uint64_t offset,
                                 std::string producerId,
-                                ui64 seqNo,
+                                uint64_t seqNo,
                                 TInstant createTime,
                                 TInstant writeTime,
                                 TWriteSessionMeta::TPtr meta,
                                 TMessageMeta::TPtr messageMeta,
-                                ui64 uncompressedSize,
+                                uint64_t uncompressedSize,
                                 std::string messageGroupId);
-            ui64 Offset;
+            uint64_t Offset;
             std::string ProducerId;
-            ui64 SeqNo;
+            uint64_t SeqNo;
             TInstant CreateTime;
             TInstant WriteTime;
             TWriteSessionMeta::TPtr Meta;
             TMessageMeta::TPtr MessageMeta;
-            ui64 UncompressedSize;
+            uint64_t UncompressedSize;
             std::string MessageGroupId;
         };
 
@@ -94,7 +94,7 @@ struct TReadSessionEvent {
             virtual void Commit() = 0;
 
             //! Message offset.
-            ui64 GetOffset() const;
+            uint64_t GetOffset() const;
 
             //! Producer id.
             const std::string& GetProducerId() const;
@@ -103,7 +103,7 @@ struct TReadSessionEvent {
             const std::string& GetMessageGroupId() const;
 
             //! Sequence number.
-            ui64 GetSeqNo() const;
+            uint64_t GetSeqNo() const;
 
             //! Message creation timestamp.
             TInstant GetCreateTime() const;
@@ -157,7 +157,7 @@ struct TReadSessionEvent {
             ECodec GetCodec() const;
 
             //! Uncompressed size.
-            ui64 GetUncompressedSize() const;
+            uint64_t GetUncompressedSize() const;
 
             //! Commits all offsets in compressed message.
             void Commit() override;
@@ -217,60 +217,60 @@ struct TReadSessionEvent {
     private:
         std::vector<TMessage> Messages;
         std::vector<TCompressedMessage> CompressedMessages;
-        std::vector<std::pair<ui64, ui64>> OffsetRanges;
+        std::vector<std::pair<uint64_t, uint64_t>> OffsetRanges;
     };
 
     //! Acknowledgement for commit request.
     struct TCommitOffsetAcknowledgementEvent: public TPartitionSessionAccessor,
                                               public TPrintable<TCommitOffsetAcknowledgementEvent> {
-        TCommitOffsetAcknowledgementEvent(TPartitionSession::TPtr partitionSession, ui64 committedOffset);
+        TCommitOffsetAcknowledgementEvent(TPartitionSession::TPtr partitionSession, uint64_t committedOffset);
 
         //! Committed offset.
         //! This means that from now the first available
         //! message offset in current partition
         //! for current consumer is this offset.
         //! All messages before are committed and futher never be available.
-        ui64 GetCommittedOffset() const {
+        uint64_t GetCommittedOffset() const {
             return CommittedOffset;
         }
 
     private:
-        ui64 CommittedOffset;
+        uint64_t CommittedOffset;
     };
 
     //! Server command for creating and starting partition session.
     struct TStartPartitionSessionEvent: public TPartitionSessionAccessor,
                                         public TPrintable<TStartPartitionSessionEvent> {
-        explicit TStartPartitionSessionEvent(TPartitionSession::TPtr, ui64 committedOffset, ui64 endOffset);
+        explicit TStartPartitionSessionEvent(TPartitionSession::TPtr, uint64_t committedOffset, uint64_t endOffset);
 
         //! Current committed offset in partition session.
-        ui64 GetCommittedOffset() const {
+        uint64_t GetCommittedOffset() const {
             return CommittedOffset;
         }
 
         //! Offset of first not existing message in partition session.
-        ui64 GetEndOffset() const {
+        uint64_t GetEndOffset() const {
             return EndOffset;
         }
 
         //! Confirm partition session creation.
         //! This signals that user is ready to receive data from this partition session.
         //! If maybe is empty then no rewinding
-        void Confirm(std::optional<ui64> readOffset = std::nullopt, std::optional<ui64> commitOffset = std::nullopt);
+        void Confirm(std::optional<uint64_t> readOffset = std::nullopt, std::optional<uint64_t> commitOffset = std::nullopt);
 
     private:
-        ui64 CommittedOffset;
-        ui64 EndOffset;
+        uint64_t CommittedOffset;
+        uint64_t EndOffset;
     };
 
     //! Server command for stopping and destroying partition session.
     //! Server can destroy partition session gracefully
     //! for rebalancing among all topic clients.
     struct TStopPartitionSessionEvent: public TPartitionSessionAccessor, public TPrintable<TStopPartitionSessionEvent> {
-        TStopPartitionSessionEvent(TPartitionSession::TPtr partitionSession, ui64 committedOffset);
+        TStopPartitionSessionEvent(TPartitionSession::TPtr partitionSession, uint64_t committedOffset);
 
         //! Last offset of the partition session that was committed.
-        ui64 GetCommittedOffset() const {
+        uint64_t GetCommittedOffset() const {
             return CommittedOffset;
         }
 
@@ -279,21 +279,21 @@ struct TReadSessionEvent {
         void Confirm();
 
     private:
-        ui64 CommittedOffset;
+        uint64_t CommittedOffset;
     };
 
     //! Server command for ending partition session.
     //! This is a hint that all messages from the partition have been read and will no longer appear, and that the client must commit offsets.
     struct TEndPartitionSessionEvent: public TPartitionSessionAccessor, public TPrintable<TEndPartitionSessionEvent> {
-        TEndPartitionSessionEvent(TPartitionSession::TPtr partitionSession, std::vector<ui32>&& adjacentPartitionIds, std::vector<ui32>&& childPartitionIds);
+        TEndPartitionSessionEvent(TPartitionSession::TPtr partitionSession, std::vector<uint32_t>&& adjacentPartitionIds, std::vector<uint32_t>&& childPartitionIds);
 
         //! A list of the partition IDs that also participated in the partition's merge.
-        const std::vector<ui32> GetAdjacentPartitionIds() const {
+        const std::vector<uint32_t> GetAdjacentPartitionIds() const {
             return AdjacentPartitionIds;
         }
 
         //! A list of partition IDs that were obtained as a result of merging or splitting this partition.
-        const std::vector<ui32> GetChildPartitionIds() const {
+        const std::vector<uint32_t> GetChildPartitionIds() const {
             return ChildPartitionIds;
         }
 
@@ -302,28 +302,28 @@ struct TReadSessionEvent {
         void Confirm();
 
     private:
-        std::vector<ui32> AdjacentPartitionIds;
-        std::vector<ui32> ChildPartitionIds;
+        std::vector<uint32_t> AdjacentPartitionIds;
+        std::vector<uint32_t> ChildPartitionIds;
     };
 
     //! Status for partition session requested via TPartitionSession::RequestStatus()
     struct TPartitionSessionStatusEvent: public TPartitionSessionAccessor,
                                          public TPrintable<TPartitionSessionStatusEvent> {
-        TPartitionSessionStatusEvent(TPartitionSession::TPtr partitionSession, ui64 committedOffset, ui64 readOffset,
-                                     ui64 endOffset, TInstant writeTimeHighWatermark);
+        TPartitionSessionStatusEvent(TPartitionSession::TPtr partitionSession, uint64_t committedOffset, uint64_t readOffset,
+                                     uint64_t endOffset, TInstant writeTimeHighWatermark);
 
         //! Committed offset.
-        ui64 GetCommittedOffset() const {
+        uint64_t GetCommittedOffset() const {
             return CommittedOffset;
         }
 
         //! Offset of next message (that is not yet read by session).
-        ui64 GetReadOffset() const {
+        uint64_t GetReadOffset() const {
             return ReadOffset;
         }
 
         //! Offset of first not existing message in partition.
-        ui64 GetEndOffset() const {
+        uint64_t GetEndOffset() const {
             return EndOffset;
         }
 
@@ -334,9 +334,9 @@ struct TReadSessionEvent {
         }
 
     private:
-        ui64 CommittedOffset = 0;
-        ui64 ReadOffset = 0;
-        ui64 EndOffset = 0;
+        uint64_t CommittedOffset = 0;
+        uint64_t ReadOffset = 0;
+        uint64_t EndOffset = 0;
         TInstant WriteTimeHighWatermark;
     };
 
@@ -385,10 +385,10 @@ public:
     void Add(const TReadSessionEvent::TDataReceivedEvent& dataReceivedEvent);
 
     //! Add offsets range to set.
-    void Add(const TPartitionSession::TPtr& partitionSession, ui64 startOffset, ui64 endOffset);
+    void Add(const TPartitionSession::TPtr& partitionSession, uint64_t startOffset, uint64_t endOffset);
 
     //! Add offset to set.
-    void Add(const TPartitionSession::TPtr& partitionSession, ui64 offset);
+    void Add(const TPartitionSession::TPtr& partitionSession, uint64_t offset);
 
     //! Commit all added offsets.
     void Commit();

@@ -60,11 +60,11 @@ struct TWriteSessionEvent {
         };
         //! Details of successfully written message.
         struct TWrittenMessageDetails {
-            ui64 Offset;
-            ui64 PartitionId;
+            uint64_t Offset;
+            uint64_t PartitionId;
         };
         //! Same SeqNo as provided on write.
-        ui64 SeqNo;
+        uint64_t SeqNo;
         EEventState State;
         //! Filled only for EES_WRITTEN. Empty for ALREADY and DISCARDED.
         std::optional<TWrittenMessageDetails> Details;

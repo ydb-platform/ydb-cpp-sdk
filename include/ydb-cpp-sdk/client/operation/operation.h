@@ -3,8 +3,6 @@
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
 
-#include <ydb-cpp-sdk/util/string/builder.h>
-
 namespace NYdb {
 namespace NOperation {
 
@@ -27,7 +25,7 @@ public:
     const std::string& NextPageToken() const { return NextPageToken_; }
 
     std::string ToJsonString() const {
-        TStringBuilder json;
+        std::stringstream json;
         json << "{\"operations\":[";
 
         bool first = true;
@@ -37,7 +35,7 @@ public:
         }
 
         json << "],\"nextPageToken\":\"" << NextPageToken() << "\"}";
-        return json;
+        return json.str();
     }
 
 private:

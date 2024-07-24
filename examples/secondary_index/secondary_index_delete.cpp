@@ -6,7 +6,7 @@ using namespace NYdb::NTable;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static TStatus DeleteSeries(TSession& session, const std::string& prefix, ui64 seriesId, ui64& deletedCount) {
+static TStatus DeleteSeries(TSession& session, const std::string& prefix, uint64_t seriesId, uint64_t& deletedCount) {
     auto queryText = std::format(R"(
         --!syntax_v1
         PRAGMA TablePathPrefix("{}");
@@ -61,14 +61,14 @@ static TStatus DeleteSeries(TSession& session, const std::string& prefix, ui64 s
 int RunDeleteSeries(TDriver& driver, const std::string& prefix, int argc, char** argv) {
     TOpts opts = TOpts::Default();
 
-    ui64 seriesId;
+    uint64_t seriesId;
 
     opts.AddLongOption("id", "Series id").Required().RequiredArgument("NUM")
         .StoreResult(&seriesId);
 
     TOptsParseResult res(&opts, argc, argv);
 
-    ui64 deletedCount = 0;
+    uint64_t deletedCount = 0;
     TTableClient client(driver);
     ThrowOnError(client.RetryOperationSync([&](TSession session) -> TStatus {
         return DeleteSeries(session, prefix, seriesId, deletedCount);

@@ -68,7 +68,7 @@ public:
     //! Limit using of memory for grpc buffer pool. 0 means disabled.
     //! If enabled the size must be greater than size of recieved message.
     //! default: 0
-    TDriverConfig& SetGrpcMemoryQuota(ui64 bytes);
+    TDriverConfig& SetGrpcMemoryQuota(uint64_t bytes);
     //! Specify tcp keep alive settings
     //! This option allows to adjust tcp keep alive settings, useful to work
     //! with balancers or to detect unexpected connectivity problem.
@@ -108,14 +108,14 @@ public:
     //! Set maximum incoming message size.
     //! Note: this option overrides MaxMessageSize for incoming messages.
     //! default: 0
-    TDriverConfig& SetMaxInboundMessageSize(ui64 maxInboundMessageSize);
+    TDriverConfig& SetMaxInboundMessageSize(uint64_t maxInboundMessageSize);
     //! Set maximum outgoing message size.
     //! Note: this option overrides MaxMessageSize for outgoing messages.
     //! default: 0
-    TDriverConfig& SetMaxOutboundMessageSize(ui64 maxOutboundMessageSize);
+    TDriverConfig& SetMaxOutboundMessageSize(uint64_t maxOutboundMessageSize);
     //! Note: if this option is unset, default 64_MB message size will be used.
     //! default: 0
-    TDriverConfig& SetMaxMessageSize(ui64 maxMessageSize);
+    TDriverConfig& SetMaxMessageSize(uint64_t maxMessageSize);
 
     //! Log backend.
     TDriverConfig& SetLog(std::unique_ptr<TLogBackend>&& log);

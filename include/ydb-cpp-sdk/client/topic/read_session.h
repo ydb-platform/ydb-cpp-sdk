@@ -41,7 +41,7 @@ struct TTopicReadSettings {
 
     //! Partition ids to read.
     //! 0-based.
-    FLUENT_SETTING_VECTOR(ui64, PartitionIds);
+    FLUENT_SETTING_VECTOR(uint64_t, PartitionIds);
 
     //! Max message time lag. All messages older that now - MaxLag will be ignored.
     FLUENT_SETTING_OPTIONAL(TDuration, MaxLag);
@@ -75,7 +75,7 @@ struct TReadSessionSettings: public TRequestSettings<TReadSessionSettings> {
 
         //! Data size limit for the DataReceivedHandler handler.
         //! The data size may exceed this limit.
-        FLUENT_SETTING_DEFAULT(size_t, MaxMessagesBytes, Max<size_t>());
+        FLUENT_SETTING_DEFAULT(size_t, MaxMessagesBytes, std::numeric_limits<size_t>::max());
 
         //! Function to handle data events.
         //! If this handler is set, data events will be handled by handler,

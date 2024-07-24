@@ -65,6 +65,6 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    Y_UNREACHABLE();
+    __builtin_unreachable();
     return 1;
 }

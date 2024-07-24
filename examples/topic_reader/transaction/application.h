@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <optional>
+#include <random>
 
 class TApplication {
 public:
@@ -20,9 +21,9 @@ public:
 private:
     struct TRow {
         TRow() = default;
-        TRow(ui64 key, const std::string& value);
+        TRow(uint64_t key, const std::string& value);
 
-        ui64 Key = 0;
+        uint64_t Key = 0;
         std::string Value;
     };
 
@@ -46,4 +47,7 @@ private:
     std::vector<NYdb::NTopic::TReadSessionEvent::TStopPartitionSessionEvent> PendingStopEvents;
     std::vector<TRow> Rows;
     std::string TablePath;
+
+    std::mt19937_64 MersenneEngine;
+    std::uniform_int_distribution<uint64_t> Dist;
 };

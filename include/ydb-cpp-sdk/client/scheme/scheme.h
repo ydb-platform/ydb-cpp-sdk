@@ -46,11 +46,11 @@ enum class ESchemeEntryType : i32 {
 };
 
 struct TVirtualTimestamp {
-    ui64 PlanStep = 0;
-    ui64 TxId = 0;
+    uint64_t PlanStep = 0;
+    uint64_t TxId = 0;
 
     TVirtualTimestamp() = default;
-    TVirtualTimestamp(ui64 planStep, ui64 txId);
+    TVirtualTimestamp(uint64_t planStep, uint64_t txId);
     TVirtualTimestamp(const ::Ydb::VirtualTimestamp& proto);
 
     std::string ToString() const;
@@ -70,7 +70,7 @@ struct TSchemeEntry {
     ESchemeEntryType Type;
     std::vector<TPermissions> EffectivePermissions;
     std::vector<TPermissions> Permissions;
-    ui64 SizeBytes = 0;
+    uint64_t SizeBytes = 0;
     TVirtualTimestamp CreatedAt;
 
     TSchemeEntry() = default;

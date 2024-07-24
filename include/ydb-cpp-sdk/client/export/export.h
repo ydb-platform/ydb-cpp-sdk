@@ -2,7 +2,6 @@
 
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
-
 #include <ydb-cpp-sdk/client/types/s3_settings.h>
 
 namespace NYdb {
@@ -17,12 +16,12 @@ enum class EExportProgress {
     Cancellation = 4,
     Cancelled = 5,
 
-    Unknown = Max<int>(),
+    Unknown = std::numeric_limits<int>::max(),
 };
 
 struct TExportItemProgress {
-    ui32 PartsTotal;
-    ui32 PartsCompleted;
+    uint32_t PartsTotal;
+    uint32_t PartsCompleted;
     TInstant StartTime;
     TInstant EndTime;
 };
@@ -35,11 +34,11 @@ struct TExportToYtSettings : public TOperationRequestSettings<TExportToYtSetting
     };
 
     FLUENT_SETTING(std::string, Host);
-    FLUENT_SETTING_OPTIONAL(ui16, Port);
+    FLUENT_SETTING_OPTIONAL(uint16_t, Port);
     FLUENT_SETTING(std::string, Token);
     FLUENT_SETTING_VECTOR(TItem, Item);
     FLUENT_SETTING_OPTIONAL(std::string, Description);
-    FLUENT_SETTING_OPTIONAL(ui32, NumberOfRetries);
+    FLUENT_SETTING_OPTIONAL(uint32_t, NumberOfRetries);
     FLUENT_SETTING_DEFAULT(bool, UseTypeV3, false);
 };
 
@@ -77,7 +76,7 @@ struct TExportToS3Settings : public TOperationRequestSettings<TExportToS3Setting
         DEEP_ARCHIVE = 7,
         OUTPOSTS = 8,
 
-        UNKNOWN = Max<int>(),
+        UNKNOWN = std::numeric_limits<int>::max(),
     };
 
     struct TItem {
@@ -88,7 +87,7 @@ struct TExportToS3Settings : public TOperationRequestSettings<TExportToS3Setting
     FLUENT_SETTING_DEFAULT(EStorageClass, StorageClass, EStorageClass::NOT_SET);
     FLUENT_SETTING_VECTOR(TItem, Item);
     FLUENT_SETTING_OPTIONAL(std::string, Description);
-    FLUENT_SETTING_OPTIONAL(ui32, NumberOfRetries);
+    FLUENT_SETTING_OPTIONAL(uint32_t, NumberOfRetries);
     FLUENT_SETTING_OPTIONAL(std::string, Compression);
 };
 

@@ -49,7 +49,7 @@ struct TWriteSessionSettings : public TRequestSettings<TWriteSessionSettings> {
 
     //! Write to an exact partition. Generally server assigns partition automatically by message_group_id.
     //! Using this option is not recommended unless you know for sure why you need it.
-    FLUENT_SETTING_OPTIONAL(ui32, PartitionId);
+    FLUENT_SETTING_OPTIONAL(uint32_t, PartitionId);
 
     //! Direct write to the partition host.
     //! If both PartitionId and DirectWriteToPartition are set, write session goes directly to the partition host.
@@ -61,15 +61,15 @@ struct TWriteSessionSettings : public TRequestSettings<TWriteSessionSettings> {
 
     //! codec and level to use for data compression prior to write.
     FLUENT_SETTING_DEFAULT(ECodec, Codec, ECodec::GZIP);
-    FLUENT_SETTING_DEFAULT(i32, CompressionLevel, 4);
+    FLUENT_SETTING_DEFAULT(int32_t, CompressionLevel, 4);
 
     //! Writer will not accept new messages if memory usage exceeds this limit.
     //! Memory usage consists of raw data pending compression and compressed messages being sent.
-    FLUENT_SETTING_DEFAULT(ui64, MaxMemoryUsage, 20_MB);
+    FLUENT_SETTING_DEFAULT(uint64_t, MaxMemoryUsage, 20_MB);
 
     //! Maximum messages accepted by writer but not written (with confirmation from server).
     //! Writer will not accept new messages after reaching the limit.
-    FLUENT_SETTING_DEFAULT(ui32, MaxInflightCount, 100000);
+    FLUENT_SETTING_DEFAULT(uint32_t, MaxInflightCount, 100000);
 
     //! Retry policy enables automatic retries for non-fatal errors.
     //! IRetryPolicy::GetDefaultPolicy() if null (not set).
@@ -90,7 +90,7 @@ struct TWriteSessionSettings : public TRequestSettings<TWriteSessionSettings> {
     //! Setting either value to zero means immediate write with no batching. (Unrecommended, especially for clients
     //! sending small messages at high rate).
     FLUENT_SETTING_OPTIONAL(TDuration, BatchFlushInterval);
-    FLUENT_SETTING_OPTIONAL(ui64, BatchFlushSizeBytes);
+    FLUENT_SETTING_OPTIONAL(uint64_t, BatchFlushSizeBytes);
 
     FLUENT_SETTING_DEFAULT(TDuration, ConnectTimeout, TDuration::Seconds(30));
 
@@ -159,7 +159,7 @@ public:
 
     //! A message that is already compressed by codec. Codec from WriteSessionSettings does not apply to this message.
     //! Compression will not be performed in SDK for such messages.
-    static TWriteMessage CompressedMessage(const std::string_view& data, ECodec codec, ui32 originalSize) {
+    static TWriteMessage CompressedMessage(const std::string_view& data, ECodec codec, uint32_t originalSize) {
         TWriteMessage result{data};
         result.Codec = codec;
         result.OriginalSize = originalSize;
@@ -177,11 +177,11 @@ public:
     //! Do not specify or change these options directly, use CompressedMessage()
     //! method to create an object for compressed message.
     std::optional<ECodec> Codec;
-    ui32 OriginalSize = 0;
+    uint32_t OriginalSize = 0;
 
     //! Message SeqNo, optional. If not provided SDK core will calculate SeqNo automatically.
     //! NOTICE: Either all messages within one write session must have SeqNo provided or none of them.
-    FLUENT_SETTING_OPTIONAL(ui64, SeqNo);
+    FLUENT_SETTING_OPTIONAL(uint64_t, SeqNo);
 
     //! Message creation timestamp. If not provided, Now() will be used.
     FLUENT_SETTING_OPTIONAL(TInstant, CreateTimestamp);
@@ -208,11 +208,11 @@ public:
 
 
     //! Write single message. Deprecated method with only basic message options.
-    virtual bool Write(std::string_view data, std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt,
+    virtual bool Write(std::string_view data, std::optional<uint64_t> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt,
                        const TDuration& blockTimeout = TDuration::Max()) = 0;
 
     //! Blocks till SeqNo is discovered from server. Returns 0 in case of failure on init.
-    virtual ui64 GetInitSeqNo() = 0;
+    virtual uint64_t GetInitSeqNo() = 0;
 
     //! Complete all active writes, wait for ack from server and close.
     //! closeTimeout - max time to wait. Empty Maybe means infinity.
@@ -245,14 +245,14 @@ public:
     virtual std::vector<TWriteSessionEvent::TEvent> GetEvents(bool block = false, std::optional<size_t> maxEventsCount = std::nullopt) = 0;
 
     //! Future that is set when initial SeqNo is available.
-    virtual NThreading::TFuture<ui64> GetInitSeqNo() = 0;
+    virtual NThreading::TFuture<uint64_t> GetInitSeqNo() = 0;
 
     //! Write single message.
     //! continuationToken - a token earlier provided to client with ReadyToAccept event.
     virtual void Write(TContinuationToken&& continuationToken, TWriteMessage&& message) = 0;
 
     //! Write single message. Old method with only basic message options.
-    virtual void Write(TContinuationToken&& continuationToken, std::string_view data, std::optional<ui64> seqNo = std::nullopt,
+    virtual void Write(TContinuationToken&& continuationToken, std::string_view data, std::optional<uint64_t> seqNo = std::nullopt,
                        std::optional<TInstant> createTimestamp = std::nullopt) = 0;
 
     //! Write single message that is already coded by codec.
@@ -260,8 +260,8 @@ public:
     virtual void WriteEncoded(TContinuationToken&& continuationToken, TWriteMessage&& params) = 0;
 
     //! Write single message that is already compressed by codec. Old method with only basic message options.
-    virtual void WriteEncoded(TContinuationToken&& continuationToken, std::string_view data, ECodec codec, ui32 originalSize,
-                              std::optional<ui64> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) = 0;
+    virtual void WriteEncoded(TContinuationToken&& continuationToken, std::string_view data, ECodec codec, uint32_t originalSize,
+                              std::optional<uint64_t> seqNo = std::nullopt, std::optional<TInstant> createTimestamp = std::nullopt) = 0;
 
 
     //! Wait for all writes to complete (no more that closeTimeout()), then close.

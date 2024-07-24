@@ -4,6 +4,7 @@
 
 #include <src/util/folder/pathsplit.h>
 
+#include <filesystem>
 #include <format>
 
 using namespace NYdb;
@@ -33,10 +34,10 @@ static std::string JoinPath(const std::string& basePath, const std::string& path
         return path;
     }
 
-    TPathSplitUnix prefixPathSplit(basePath);
-    prefixPathSplit.AppendComponent(path);
+    std::filesystem::path prefixPathSplit(basePath);
+    prefixPathSplit /= path;
 
-    return prefixPathSplit.Reconstruct();
+    return prefixPathSplit;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -210,7 +211,7 @@ static TStatus UpsertSimpleTransaction(TSession session, const std::string& path
 
 //! Shows usage of parameters in data queries.
 static TStatus SelectWithParamsTransaction(TSession session, const std::string& path,
-    ui64 seriesId, ui64 seasonId, std::optional<TResultSet>& resultSet)
+    uint64_t seriesId, uint64_t seasonId, std::optional<TResultSet>& resultSet)
 {
     auto query = std::format(R"(
         --!syntax_v1
@@ -250,7 +251,7 @@ static TStatus SelectWithParamsTransaction(TSession session, const std::string& 
 
 //! Shows usage of prepared queries.
 static TStatus PreparedSelectTransaction(TSession session, const std::string& path,
-    ui64 seriesId, ui64 seasonId, ui64 episodeId, std::optional<TResultSet>& resultSet)
+    uint64_t seriesId, uint64_t seasonId, uint64_t episodeId, std::optional<TResultSet>& resultSet)
 {
     // Once prepared, query data is stored in the session and identified by QueryId.
     // Local query cache is used to keep track of queries, prepared in current session.
@@ -302,7 +303,7 @@ static TStatus PreparedSelectTransaction(TSession session, const std::string& pa
 }
 
 //! Shows usage of transactions consisting of multiple data queries with client logic between them.
-static TStatus MultiStepTransaction(TSession session, const std::string& path, ui64 seriesId, ui64 seasonId,
+static TStatus MultiStepTransaction(TSession session, const std::string& path, uint64_t seriesId, uint64_t seasonId,
     std::optional<TResultSet>& resultSet)
 {
     auto query1 = std::format(R"(
@@ -472,7 +473,7 @@ void SelectWithParams(TTableClient client, const std::string& path) {
     }
 }
 
-void PreparedSelect(TTableClient client, const std::string& path, ui32 seriesId, ui32 seasonId, ui32 episodeId) {
+void PreparedSelect(TTableClient client, const std::string& path, uint32_t seriesId, uint32_t seasonId, uint32_t episodeId) {
     std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, seriesId, seasonId, episodeId, &resultSet](TSession session) {
         return PreparedSelectTransaction(session, path, seriesId, seasonId, episodeId, resultSet);

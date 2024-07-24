@@ -3,11 +3,10 @@
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 
-#include <src/library/getopt/last_getopt.h>
-#include <string>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 #include <ydb-cpp-sdk/util/stream/output.h>
-#include <ydb-cpp-sdk/util/string/builder.h>
+
+#include <src/library/getopt/last_getopt.h>
 
 #define TABLE_USERS "users"
 #define TABLE_SERIES "series"
@@ -24,25 +23,25 @@ enum class TCommand {
 };
 
 struct TUser {
-    ui64 UserId;
+    uint64_t UserId;
     std::string Name;
-    ui32 Age;
-    TUser(ui64 userId = 0, std::string name = "", ui32 age = 0)
+    uint32_t Age;
+    TUser(uint64_t userId = 0, std::string name = "", uint32_t age = 0)
         : UserId(userId)
         , Name(name)
         , Age(age) {}
 };
 
 struct TSeries {
-    ui64 SeriesId;
+    uint64_t SeriesId;
     std::string Title;
     TInstant ReleaseDate;
     std::string Info;
-    ui64 Views;
-    ui64 UploadedUserId;
+    uint64_t Views;
+    uint64_t UploadedUserId;
 
-    TSeries(ui64 seriesId = 0, std::string title = "", TInstant releaseDate = TInstant::Days(0),
-            std::string info = "", ui64 views = 0, ui64 uploadedUserId = 0)
+    TSeries(uint64_t seriesId = 0, std::string title = "", TInstant releaseDate = TInstant::Days(0),
+            std::string info = "", uint64_t views = 0, uint64_t uploadedUserId = 0)
         : SeriesId(seriesId)
         , Title(title)
         , ReleaseDate(releaseDate)

@@ -2,7 +2,6 @@
 
 #include <ydb-cpp-sdk/client/extension_common/extension.h>
 
-#include <ydb-cpp-sdk/library/http/server/response.h>
 #include <ydb-cpp-sdk/library/monlib/metrics/metric_consumer.h>
 #include <ydb-cpp-sdk/library/monlib/encode/json/json.h>
 #include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>

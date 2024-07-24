@@ -121,17 +121,17 @@ public:
 
     TSemaphoreSession(const Ydb::Coordination::SemaphoreSession& desc);
 
-    ui64 GetOrderId() const { return OrderId_; }
-    ui64 GetSessionId() const { return SessionId_; }
+    uint64_t GetOrderId() const { return OrderId_; }
+    uint64_t GetSessionId() const { return SessionId_; }
     TDuration GetTimeout() const { return Timeout_; }
-    ui64 GetCount() const { return Count_; }
+    uint64_t GetCount() const { return Count_; }
     const std::string& GetData() const { return Data_; }
 
 private:
-    ui64 OrderId_;
-    ui64 SessionId_;
+    uint64_t OrderId_;
+    uint64_t SessionId_;
     TDuration Timeout_;
-    ui64 Count_;
+    uint64_t Count_;
     std::string Data_;
 };
 
@@ -146,8 +146,8 @@ public:
 
     const std::string& GetName() const { return Name_; }
     const std::string& GetData() const { return Data_; }
-    ui64 GetCount() const { return Count_; }
-    ui64 GetLimit() const { return Limit_; }
+    uint64_t GetCount() const { return Count_; }
+    uint64_t GetLimit() const { return Limit_; }
     const std::vector<TSemaphoreSession>& GetOwners() const { return Owners_; }
     const std::vector<TSemaphoreSession>& GetWaiters() const { return Waiters_; }
     bool IsEphemeral() const { return IsEphemeral_; }
@@ -155,8 +155,8 @@ public:
 private:
     std::string Name_;
     std::string Data_;
-    ui64 Count_;
-    ui64 Limit_;
+    uint64_t Count_;
+    uint64_t Limit_;
     std::vector<TSemaphoreSession> Owners_;
     std::vector<TSemaphoreSession> Waiters_;
     bool IsEphemeral_;
@@ -252,15 +252,15 @@ struct TAcquireSemaphoreSettings {
 
     FLUENT_SETTING(TAcceptedCallback, OnAccepted);
 
-    FLUENT_SETTING_DEFAULT(ui64, Count, 0);
+    FLUENT_SETTING_DEFAULT(uint64_t, Count, 0);
 
     FLUENT_SETTING_DEFAULT(TDuration, Timeout, TDuration::Max());
 
     FLUENT_SETTING_FLAG(Ephemeral);
 
-    FLUENT_SETTING_FLAG_ALIAS(Shared, Count, ui64(1));
+    FLUENT_SETTING_FLAG_ALIAS(Shared, Count, uint64_t(1));
 
-    FLUENT_SETTING_FLAG_ALIAS(Exclusive, Count, ui64(-1));
+    FLUENT_SETTING_FLAG_ALIAS(Exclusive, Count, uint64_t(-1));
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -322,7 +322,7 @@ public:
         return bool(Impl_);
     }
 
-    ui64 GetSessionId();
+    uint64_t GetSessionId();
 
     ESessionState GetSessionState();
 
@@ -343,7 +343,7 @@ public:
         const TDescribeSemaphoreSettings& settings = TDescribeSemaphoreSettings());
 
     TAsyncResult<void> CreateSemaphore(const std::string& name,
-        ui64 limit, const std::string& data = std::string());
+        uint64_t limit, const std::string& data = std::string());
 
     TAsyncResult<void> UpdateSemaphore(const std::string& name,
         const std::string& data);

@@ -14,9 +14,9 @@ struct TGetConfigResult : public TStatus {
     TGetConfigResult(
         TStatus&& status,
         std::string&& clusterName,
-        ui64 version,
+        uint64_t version,
         std::string&& config,
-        std::map<ui64, std::string>&& volatileConfigs)
+        std::map<uint64_t, std::string>&& volatileConfigs)
         : TStatus(std::move(status))
         , ClusterName_(std::move(clusterName))
         , Version_(version)
@@ -28,7 +28,7 @@ struct TGetConfigResult : public TStatus {
         return ClusterName_;
     }
 
-    ui64 GetVersion() const {
+    uint64_t GetVersion() const {
         return Version_;
     }
 
@@ -36,15 +36,15 @@ struct TGetConfigResult : public TStatus {
         return Config_;
     }
 
-    const std::map<ui64, std::string>& GetVolatileConfigs() const {
+    const std::map<uint64_t, std::string>& GetVolatileConfigs() const {
         return VolatileConfigs_;
     }
 
 private:
     std::string ClusterName_;
-    ui64 Version_;
+    uint64_t Version_;
     std::string Config_;
-    std::map<ui64, std::string> VolatileConfigs_;
+    std::map<uint64_t, std::string> VolatileConfigs_;
 };
 
 using TAsyncGetConfigResult = NThreading::TFuture<TGetConfigResult>;
@@ -53,7 +53,7 @@ struct TGetMetadataResult : public TStatus {
     TGetMetadataResult(
         TStatus&& status,
         std::string&& metadata,
-        std::map<ui64, std::string>&& volatileConfigs)
+        std::map<uint64_t, std::string>&& volatileConfigs)
         : TStatus(std::move(status))
         , Metadata_(std::move(metadata))
         , VolatileConfigs_(std::move(volatileConfigs))
@@ -63,13 +63,13 @@ struct TGetMetadataResult : public TStatus {
         return Metadata_;
     }
 
-    const std::map<ui64, std::string>& GetVolatileConfigs() const {
+    const std::map<uint64_t, std::string>& GetVolatileConfigs() const {
         return VolatileConfigs_;
     }
 
 private:
     std::string Metadata_;
-    std::map<ui64, std::string> VolatileConfigs_;
+    std::map<uint64_t, std::string> VolatileConfigs_;
 };
 
 using TAsyncGetMetadataResult = NThreading::TFuture<TGetMetadataResult>;
@@ -182,7 +182,7 @@ public:
     // Drop config
     TAsyncStatus DropConfig(
         const std::string& cluster,
-        ui64 version,
+        uint64_t version,
         const TClusterConfigSettings& settings = {});
 
     // Add volatile config
@@ -193,19 +193,19 @@ public:
     // Remove specific volatile configs
     TAsyncStatus RemoveVolatileConfig(
         const std::string& cluster,
-        ui64 version,
-        const std::vector<ui64>& ids,
+        uint64_t version,
+        const std::vector<uint64_t>& ids,
         const TClusterConfigSettings& settings = {});
 
     // Remove all volatile config
     TAsyncStatus RemoveAllVolatileConfigs(
         const std::string& cluster,
-        ui64 version,
+        uint64_t version,
         const TClusterConfigSettings& settings = {});
 
     // Remove specific volatile configs
     TAsyncStatus ForceRemoveVolatileConfig(
-        const std::vector<ui64>& ids,
+        const std::vector<uint64_t>& ids,
         const TClusterConfigSettings& settings = {});
 
     // Remove all volatile config
@@ -219,25 +219,25 @@ public:
     TAsyncGetConfigResult GetConfig(const TClusterConfigSettings& settings = {});
 
     // Get current cluster configs
-    TAsyncGetNodeLabelsResult GetNodeLabels(ui64 nodeId, const TClusterConfigSettings& settings = {});
+    TAsyncGetNodeLabelsResult GetNodeLabels(uint64_t nodeId, const TClusterConfigSettings& settings = {});
 
     // Resolve arbitrary config for specific labels
     TAsyncResolveConfigResult ResolveConfig(
         const std::string& config,
-        const std::map<ui64, std::string>& volatileConfigs,
+        const std::map<uint64_t, std::string>& volatileConfigs,
         const std::map<std::string, std::string>& labels,
         const TClusterConfigSettings& settings = {});
 
     // Resolve arbitrary config for all label combinations
     TAsyncResolveConfigResult ResolveConfig(
         const std::string& config,
-        const std::map<ui64, std::string>& volatileConfigs,
+        const std::map<uint64_t, std::string>& volatileConfigs,
         const TClusterConfigSettings& settings = {});
 
     // Resolve arbitrary config for all label combinations
     TAsyncVerboseResolveConfigResult VerboseResolveConfig(
         const std::string& config,
-        const std::map<ui64, std::string>& volatileConfigs,
+        const std::map<uint64_t, std::string>& volatileConfigs,
         const TClusterConfigSettings& settings = {});
 
 private:
