@@ -191,5 +191,5 @@ void TApplication::InsertRowsIntoTable()
 
 void TApplication::AppendTableRow(const NYdb::NTopic::TReadSessionEvent::TDataReceivedEvent::TMessage& message)
 {
-    Rows.emplace_back(RandomNumber<uint64_t>(), message.GetData());
+    Rows.emplace_back(Dist(MersenneEngine), message.GetData());
 }

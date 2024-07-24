@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <optional>
+#include <random>
 
 class TApplication {
 public:
@@ -46,4 +47,7 @@ private:
     std::vector<NYdb::NTopic::TReadSessionEvent::TStopPartitionSessionEvent> PendingStopEvents;
     std::vector<TRow> Rows;
     std::string TablePath;
+
+    std::mt19937_64 MersenneEngine;
+    std::uniform_int_distribution<uint64_t> Dist;
 };
