@@ -325,7 +325,7 @@ struct TFederatedReadSessionSettings: public NTopic::TReadSessionSettings {
 
         //! Data size limit for the DataReceivedHandler handler.
         //! The data size may exceed this limit.
-        FLUENT_SETTING_DEFAULT(size_t, MaxMessagesBytes, Max<size_t>());
+        FLUENT_SETTING_DEFAULT(size_t, MaxMessagesBytes, std::numeric_limits<size_t>::max());
 
         //! Function to handle data events.
         //! If this handler is set, data events will be handled by handler,
