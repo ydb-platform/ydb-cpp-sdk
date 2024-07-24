@@ -81,7 +81,7 @@ private:
 struct TAcquireResourceSettings : public TOperationRequestSettings<TAcquireResourceSettings> {
     using TSelf = TAcquireResourceSettings;
 
-    FLUENT_SETTING_OPTIONAL(ui64, Amount);
+    FLUENT_SETTING_OPTIONAL(uint64_t, Amount);
     FLUENT_SETTING_FLAG(IsUsedAmount);
 };
 

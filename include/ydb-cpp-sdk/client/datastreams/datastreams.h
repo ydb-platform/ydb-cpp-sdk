@@ -102,14 +102,14 @@ namespace NYdb::NDataStreams::V1 {
     };
 
     struct TCreateStreamSettings : public NYdb::TOperationRequestSettings<TCreateStreamSettings> {
-        FLUENT_SETTING(ui32, ShardCount);
-        FLUENT_SETTING_OPTIONAL(ui32, RetentionPeriodHours);
-        FLUENT_SETTING_OPTIONAL(ui32, RetentionStorageMegabytes);
-        FLUENT_SETTING(ui64, WriteQuotaKbPerSec);
+        FLUENT_SETTING(uint32_t, ShardCount);
+        FLUENT_SETTING_OPTIONAL(uint32_t, RetentionPeriodHours);
+        FLUENT_SETTING_OPTIONAL(uint32_t, RetentionStorageMegabytes);
+        FLUENT_SETTING(uint64_t, WriteQuotaKbPerSec);
         FLUENT_SETTING_OPTIONAL(EStreamMode, StreamMode);
     };
     struct TListStreamsSettings : public NYdb::TOperationRequestSettings<TListStreamsSettings> {
-        FLUENT_SETTING(ui32, Limit);
+        FLUENT_SETTING(uint32_t, Limit);
         FLUENT_SETTING(std::string, ExclusiveStartStreamName);
         FLUENT_SETTING_DEFAULT(bool, Recurse, true);
     };
@@ -117,42 +117,42 @@ namespace NYdb::NDataStreams::V1 {
         FLUENT_SETTING_DEFAULT(bool, EnforceConsumerDeletion, false);
     };
     struct TDescribeStreamSettings : public NYdb::TOperationRequestSettings<TDescribeStreamSettings> {
-        FLUENT_SETTING(ui32, Limit);
+        FLUENT_SETTING(uint32_t, Limit);
         FLUENT_SETTING(std::string, ExclusiveStartShardId);
     };
     struct TListShardsSettings : public NYdb::TOperationRequestSettings<TListShardsSettings> {
         FLUENT_SETTING(std::string, ExclusiveStartShardId);
-        FLUENT_SETTING(ui32, MaxResults);
+        FLUENT_SETTING(uint32_t, MaxResults);
         FLUENT_SETTING(std::string, NextToken);
-        FLUENT_SETTING(ui64, StreamCreationTimestamp);
+        FLUENT_SETTING(uint64_t, StreamCreationTimestamp);
     };
     struct TGetRecordsSettings : public NYdb::TOperationRequestSettings<TGetRecordsSettings> {
-        FLUENT_SETTING_DEFAULT(ui32, Limit, 10000);
+        FLUENT_SETTING_DEFAULT(uint32_t, Limit, 10000);
     };
     struct TGetShardIteratorSettings : public NYdb::TOperationRequestSettings<TGetShardIteratorSettings> {
         FLUENT_SETTING(std::string, StartingSequenceNumber);
-        FLUENT_SETTING(ui64, Timestamp);
+        FLUENT_SETTING(uint64_t, Timestamp);
     };
     struct TSubscribeToShardSettings : public NYdb::TOperationRequestSettings<TSubscribeToShardSettings> {};
     struct TDescribeLimitsSettings : public NYdb::TOperationRequestSettings<TDescribeLimitsSettings> {};
     struct TDescribeStreamSummarySettings : public NYdb::TOperationRequestSettings<TDescribeStreamSummarySettings> {};
     struct TDecreaseStreamRetentionPeriodSettings : public NYdb::TOperationRequestSettings<TDecreaseStreamRetentionPeriodSettings> {
-        FLUENT_SETTING(ui32, RetentionPeriodHours);
+        FLUENT_SETTING(uint32_t, RetentionPeriodHours);
     };
     struct TIncreaseStreamRetentionPeriodSettings : public NYdb::TOperationRequestSettings<TIncreaseStreamRetentionPeriodSettings> {
-        FLUENT_SETTING(ui32, RetentionPeriodHours);
+        FLUENT_SETTING(uint32_t, RetentionPeriodHours);
     };
     struct TUpdateShardCountSettings : public NYdb::TOperationRequestSettings<TUpdateShardCountSettings> {
-        FLUENT_SETTING(ui32, TargetShardCount);
+        FLUENT_SETTING(uint32_t, TargetShardCount);
     };
     struct TUpdateStreamModeSettings : public NYdb::TOperationRequestSettings<TUpdateStreamModeSettings> {
         FLUENT_SETTING_DEFAULT(EStreamMode, StreamMode, ESM_PROVISIONED);
     };
     struct TUpdateStreamSettings : public NYdb::TOperationRequestSettings<TUpdateStreamSettings> {
-        FLUENT_SETTING(ui32, TargetShardCount);
-        FLUENT_SETTING_OPTIONAL(ui32, RetentionPeriodHours);
-        FLUENT_SETTING_OPTIONAL(ui32, RetentionStorageMegabytes);
-        FLUENT_SETTING(ui64, WriteQuotaKbPerSec);
+        FLUENT_SETTING(uint32_t, TargetShardCount);
+        FLUENT_SETTING_OPTIONAL(uint32_t, RetentionPeriodHours);
+        FLUENT_SETTING_OPTIONAL(uint32_t, RetentionStorageMegabytes);
+        FLUENT_SETTING(uint64_t, WriteQuotaKbPerSec);
         FLUENT_SETTING_OPTIONAL(EStreamMode, StreamMode);
 
     };
@@ -162,7 +162,7 @@ namespace NYdb::NDataStreams::V1 {
     struct TDeregisterStreamConsumerSettings : public NYdb::TOperationRequestSettings<TDeregisterStreamConsumerSettings> {};
     struct TDescribeStreamConsumerSettings : public NYdb::TOperationRequestSettings<TDescribeStreamConsumerSettings> {};
     struct TListStreamConsumersSettings : public NYdb::TOperationRequestSettings<TListStreamConsumersSettings> {
-        FLUENT_SETTING(ui32, MaxResults);
+        FLUENT_SETTING(uint32_t, MaxResults);
         FLUENT_SETTING(std::string, NextToken);
     };
     struct TAddTagsToStreamSettings : public NYdb::TOperationRequestSettings<TAddTagsToStreamSettings> {};

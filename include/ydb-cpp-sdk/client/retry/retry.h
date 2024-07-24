@@ -9,14 +9,14 @@ struct TBackoffSettings {
     using TSelf = TBackoffSettings;
 
     FLUENT_SETTING_DEFAULT(TDuration, SlotDuration, TDuration::Seconds(1));
-    FLUENT_SETTING_DEFAULT(ui32, Ceiling, 6);
+    FLUENT_SETTING_DEFAULT(uint32_t, Ceiling, 6);
     FLUENT_SETTING_DEFAULT(double, UncertainRatio, 0.5);
 };
 
 struct TRetryOperationSettings {
     using TSelf = TRetryOperationSettings;
 
-    FLUENT_SETTING_DEFAULT(ui32, MaxRetries, 10);
+    FLUENT_SETTING_DEFAULT(uint32_t, MaxRetries, 10);
     FLUENT_SETTING_DEFAULT(bool, RetryNotFound, true);
     FLUENT_SETTING_DEFAULT(TDuration, GetSessionClientTimeout, TDuration::Seconds(5));
     FLUENT_SETTING_DEFAULT(TDuration, MaxTimeout, TDuration::Max());

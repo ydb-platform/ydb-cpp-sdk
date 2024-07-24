@@ -65,10 +65,10 @@ enum class EPrimitiveType {
 };
 
 struct TDecimalType {
-    ui8 Precision;
-    ui8 Scale;
+    uint8_t Precision;
+    uint8_t Scale;
 
-    TDecimalType(ui8 precision, ui8 scale)
+    TDecimalType(uint8_t precision, uint8_t scale)
         : Precision(precision)
         , Scale(scale) {}
 };
@@ -77,9 +77,9 @@ struct TPgType {
     std::string TypeName;
     std::string TypeModifier;
 
-    ui32 Oid = 0;
-    i16 Typlen = 0;
-    i32 Typmod = 0;
+    uint32_t Oid = 0;
+    int16_t Typlen = 0;
+    int32_t Typmod = 0;
 
     TPgType(const std::string& typeName, const std::string& typeModifier = {})
         : TypeName(typeName)
@@ -224,11 +224,11 @@ private:
 struct TDecimalValue {
     std::string ToString() const;
     TDecimalValue(const Ydb::Value& decimalValueProto, const TDecimalType& decimalType);
-    TDecimalValue(const std::string& decimalString, ui8 precision = 22, ui8 scale = 9);
+    TDecimalValue(const std::string& decimalString, uint8_t precision = 22, uint8_t scale = 9);
 
     TDecimalType DecimalType_;
-    ui64 Low_;
-    i64 Hi_;
+    uint64_t Low_;
+    int64_t Hi_;
 };
 
 struct TPgValue {
@@ -250,13 +250,13 @@ struct TPgValue {
 
 struct TUuidValue {
     std::string ToString() const;
-    TUuidValue(ui64 low_128, ui64 high_128);
+    TUuidValue(uint64_t low_128, uint64_t high_128);
     TUuidValue(const Ydb::Value& uuidValueProto);
     TUuidValue(const std::string& uuidString);
 
     union {
         char Bytes[16];
-        ui64 Halfs[2];
+        uint64_t Halfs[2];
     } Buf_;
 };
 
@@ -291,24 +291,24 @@ public:
     EPrimitiveType GetPrimitiveType() const;
 
     bool GetBool() const;
-    i8 GetInt8() const;
-    ui8 GetUint8() const;
-    i16 GetInt16() const;
-    ui16 GetUint16() const;
-    i32 GetInt32() const;
-    ui32 GetUint32() const;
-    i64 GetInt64() const;
-    ui64 GetUint64() const;
+    int8_t GetInt8() const;
+    uint8_t GetUint8() const;
+    int16_t GetInt16() const;
+    uint16_t GetUint16() const;
+    int32_t GetInt32() const;
+    uint32_t GetUint32() const;
+    int64_t GetInt64() const;
+    uint64_t GetUint64() const;
     float GetFloat() const;
     double GetDouble() const;
     TInstant GetDate() const;
     TInstant GetDatetime() const;
     TInstant GetTimestamp() const;
-    i64 GetInterval() const;
-    i32 GetDate32() const;
-    i64 GetDatetime64() const;
-    i64 GetTimestamp64() const;
-    i64 GetInterval64() const;
+    int64_t GetInterval() const;
+    int32_t GetDate32() const;
+    int64_t GetDatetime64() const;
+    int64_t GetTimestamp64() const;
+    int64_t GetInterval64() const;
     const std::string& GetTzDate() const;
     const std::string& GetTzDatetime() const;
     const std::string& GetTzTimestamp() const;
@@ -323,24 +323,24 @@ public:
     const std::string& GetDyNumber() const;
 
     std::optional<bool> GetOptionalBool() const;
-    std::optional<i8> GetOptionalInt8() const;
-    std::optional<ui8> GetOptionalUint8() const;
-    std::optional<i16> GetOptionalInt16() const;
-    std::optional<ui16> GetOptionalUint16() const;
-    std::optional<i32> GetOptionalInt32() const;
-    std::optional<ui32> GetOptionalUint32() const;
-    std::optional<i64> GetOptionalInt64() const;
-    std::optional<ui64> GetOptionalUint64() const;
+    std::optional<int8_t> GetOptionalInt8() const;
+    std::optional<uint8_t> GetOptionalUint8() const;
+    std::optional<int16_t> GetOptionalInt16() const;
+    std::optional<uint16_t> GetOptionalUint16() const;
+    std::optional<int32_t> GetOptionalInt32() const;
+    std::optional<uint32_t> GetOptionalUint32() const;
+    std::optional<int64_t> GetOptionalInt64() const;
+    std::optional<uint64_t> GetOptionalUint64() const;
     std::optional<float> GetOptionalFloat() const;
     std::optional<double> GetOptionalDouble() const;
     std::optional<TInstant> GetOptionalDate() const;
     std::optional<TInstant> GetOptionalDatetime() const;
     std::optional<TInstant> GetOptionalTimestamp() const;
-    std::optional<i64> GetOptionalInterval() const;
-    std::optional<i32> GetOptionalDate32() const;
-    std::optional<i64> GetOptionalDatetime64() const;
-    std::optional<i64> GetOptionalTimestamp64() const;
-    std::optional<i64> GetOptionalInterval64() const;
+    std::optional<int64_t> GetOptionalInterval() const;
+    std::optional<int32_t> GetOptionalDate32() const;
+    std::optional<int64_t> GetOptionalDatetime64() const;
+    std::optional<int64_t> GetOptionalTimestamp64() const;
+    std::optional<int64_t> GetOptionalInterval64() const;
     std::optional<std::string> GetOptionalTzDate() const;
     std::optional<std::string> GetOptionalTzDatetime() const;
     std::optional<std::string> GetOptionalTzTimestamp() const;
@@ -405,20 +405,20 @@ class TValueBuilderBase : public TMoveOnly {
     friend TDerived;
 public:
     TDerived& Bool(bool value);
-    TDerived& Int8(i8 value);
-    TDerived& Uint8(ui8 value);
-    TDerived& Int16(i16 value);
-    TDerived& Uint16(ui16 value);
-    TDerived& Int32(i32 value);
-    TDerived& Uint32(ui32 value);
-    TDerived& Int64(i64 value);
-    TDerived& Uint64(ui64 value);
+    TDerived& Int8(int8_t value);
+    TDerived& Uint8(uint8_t value);
+    TDerived& Int16(int16_t value);
+    TDerived& Uint16(uint16_t value);
+    TDerived& Int32(int32_t value);
+    TDerived& Uint32(uint32_t value);
+    TDerived& Int64(int64_t value);
+    TDerived& Uint64(uint64_t value);
     TDerived& Float(float value);
     TDerived& Double(double value);
     TDerived& Date(const TInstant& value);
     TDerived& Datetime(const TInstant& value);
     TDerived& Timestamp(const TInstant& value);
-    TDerived& Interval(i64 value);
+    TDerived& Interval(int64_t value);
     TDerived& TzDate(const std::string& value);
     TDerived& TzDatetime(const std::string& value);
     TDerived& TzTimestamp(const std::string& value);
@@ -431,26 +431,26 @@ public:
     TDerived& Uuid(const TUuidValue& value);
     TDerived& JsonDocument(const std::string& value);
     TDerived& DyNumber(const std::string& value);
-    TDerived& Date32(const i32 value);
-    TDerived& Datetime64(const i64 value);
-    TDerived& Timestamp64(const i64 value);
-    TDerived& Interval64(const i64 value);
+    TDerived& Date32(const int32_t value);
+    TDerived& Datetime64(const int64_t value);
+    TDerived& Timestamp64(const int64_t value);
+    TDerived& Interval64(const int64_t value);
 
     TDerived& OptionalBool(const std::optional<bool>& value);
-    TDerived& OptionalInt8(const std::optional<i8>& value);
-    TDerived& OptionalUint8(const std::optional<ui8>& value);
-    TDerived& OptionalInt16(const std::optional<i16>& value);
-    TDerived& OptionalUint16(const std::optional<ui16>& value);
-    TDerived& OptionalInt32(const std::optional<i32>& value);
-    TDerived& OptionalUint32(const std::optional<ui32>& value);
-    TDerived& OptionalInt64(const std::optional<i64>& value);
-    TDerived& OptionalUint64(const std::optional<ui64>& value);
+    TDerived& OptionalInt8(const std::optional<int8_t>& value);
+    TDerived& OptionalUint8(const std::optional<uint8_t>& value);
+    TDerived& OptionalInt16(const std::optional<int16_t>& value);
+    TDerived& OptionalUint16(const std::optional<uint16_t>& value);
+    TDerived& OptionalInt32(const std::optional<int32_t>& value);
+    TDerived& OptionalUint32(const std::optional<uint32_t>& value);
+    TDerived& OptionalInt64(const std::optional<int64_t>& value);
+    TDerived& OptionalUint64(const std::optional<uint64_t>& value);
     TDerived& OptionalFloat(const std::optional<float>& value);
     TDerived& OptionalDouble(const std::optional<double>& value);
     TDerived& OptionalDate(const std::optional<TInstant>& value);
     TDerived& OptionalDatetime(const std::optional<TInstant>& value);
     TDerived& OptionalTimestamp(const std::optional<TInstant>& value);
-    TDerived& OptionalInterval(const std::optional<i64>& value);
+    TDerived& OptionalInterval(const std::optional<int64_t>& value);
     TDerived& OptionalTzDate(const std::optional<std::string>& value);
     TDerived& OptionalTzDatetime(const std::optional<std::string>& value);
     TDerived& OptionalTzTimestamp(const std::optional<std::string>& value);
@@ -461,10 +461,10 @@ public:
     TDerived& OptionalUuid(const std::optional<TUuidValue>& value);
     TDerived& OptionalJsonDocument(const std::optional<std::string>& value);
     TDerived& OptionalDyNumber(const std::optional<std::string>& value);
-    TDerived& OptionalDate32(const std::optional<i32>& value);
-    TDerived& OptionalDatetime64(const std::optional<i64>& value);
-    TDerived& OptionalTimestamp64(const std::optional<i64>& value);
-    TDerived& OptionalInterval64(const std::optional<i64>& value);
+    TDerived& OptionalDate32(const std::optional<int32_t>& value);
+    TDerived& OptionalDatetime64(const std::optional<int64_t>& value);
+    TDerived& OptionalTimestamp64(const std::optional<int64_t>& value);
+    TDerived& OptionalInterval64(const std::optional<int64_t>& value);
 
     // Optional
     TDerived& BeginOptional();

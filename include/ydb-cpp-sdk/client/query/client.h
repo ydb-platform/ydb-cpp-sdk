@@ -31,14 +31,14 @@ struct TSessionPoolSettings {
     using TSelf = TSessionPoolSettings;
 
     // Max number of sessions client can get from session pool
-    FLUENT_SETTING_DEFAULT(ui32, MaxActiveSessions, 50);
+    FLUENT_SETTING_DEFAULT(uint32_t, MaxActiveSessions, 50);
 
     // Max time session to be in idle state before closing
     FLUENT_SETTING_DEFAULT(TDuration, CloseIdleThreshold, TDuration::Minutes(1));
 
     // Min number of session in session pool.
     // Sessions will not be closed by CloseIdleThreshold if the number of sessions less then this limit.
-    FLUENT_SETTING_DEFAULT(ui32, MinPoolSize, 10);
+    FLUENT_SETTING_DEFAULT(uint32_t, MinPoolSize, 10);
 };
 
 struct TClientSettings : public TCommonClientSettingsBase<TClientSettings> {
@@ -96,13 +96,13 @@ public:
     TAsyncCreateSessionResult GetSession(const TCreateSessionSettings& settings = TCreateSessionSettings());
 
     //! Returns number of active sessions given via session pool
-    i64 GetActiveSessionCount() const;
+    int64_t GetActiveSessionCount() const;
 
     //! Returns the maximum number of sessions in session pool
-    i64 GetActiveSessionsLimit() const;
+    int64_t GetActiveSessionsLimit() const;
 
     //! Returns the size of session pool
-    i64 GetCurrentPoolSize() const;
+    int64_t GetCurrentPoolSize() const;
 
 private:
     class TImpl;
@@ -189,7 +189,7 @@ private:
 class TExecuteQueryPart : public TStreamPartStatus {
 public:
     bool HasResultSet() const { return ResultSet_.has_value(); }
-    ui64 GetResultSetIndex() const { return ResultSetIndex_; }
+    uint64_t GetResultSetIndex() const { return ResultSetIndex_; }
     const TResultSet& GetResultSet() const { return *ResultSet_; }
     TResultSet ExtractResultSet() { return std::move(*ResultSet_); }
 
@@ -202,7 +202,7 @@ public:
         , Transaction_(std::move(tx))
     {}
 
-    TExecuteQueryPart(TStatus&& status, TResultSet&& resultSet, i64 resultSetIndex,
+    TExecuteQueryPart(TStatus&& status, TResultSet&& resultSet, int64_t resultSetIndex,
         std::optional<TExecStats>&& queryStats, std::optional<TTransaction>&& tx)
         : TStreamPartStatus(std::move(status))
         , ResultSet_(std::move(resultSet))
@@ -213,7 +213,7 @@ public:
 
 private:
     std::optional<TResultSet> ResultSet_;
-    i64 ResultSetIndex_ = 0;
+    int64_t ResultSetIndex_ = 0;
     std::optional<TExecStats> Stats_;
     std::optional<TTransaction> Transaction_;
 };

@@ -27,11 +27,11 @@ struct TNodeLocation {
     TNodeLocation() = default;
     TNodeLocation(const Ydb::Discovery::NodeLocation& location);
 
-    std::optional<ui32> DataCenterNum;
-    std::optional<ui32> RoomNum;
-    std::optional<ui32> RackNum;
-    std::optional<ui32> BodyNum;
-    std::optional<ui32> Body;
+    std::optional<uint32_t> DataCenterNum;
+    std::optional<uint32_t> RoomNum;
+    std::optional<uint32_t> RackNum;
+    std::optional<uint32_t> BodyNum;
+    std::optional<uint32_t> Body;
 
     std::optional<std::string> DataCenter;
     std::optional<std::string> Module;
@@ -41,7 +41,7 @@ struct TNodeLocation {
 
 struct TNodeRegistrationSettings : public TSimpleRequestSettings<TNodeRegistrationSettings> {
     FLUENT_SETTING(std::string, Host);
-    FLUENT_SETTING(ui32, Port);
+    FLUENT_SETTING(uint32_t, Port);
     FLUENT_SETTING(std::string, ResolveHost);
     FLUENT_SETTING(std::string, Address);
     FLUENT_SETTING(TNodeLocation, Location);
@@ -52,12 +52,12 @@ struct TNodeRegistrationSettings : public TSimpleRequestSettings<TNodeRegistrati
 
 struct TEndpointInfo {
     std::string Address;
-    ui32 Port = 0;
+    uint32_t Port = 0;
     float LoadFactor = 0.0;
     bool Ssl = false;
     std::vector<std::string> Services;
     std::string Location;
-    ui32 NodeId = 0;
+    uint32_t NodeId = 0;
     std::vector<std::string> IPv4Addrs;
     std::vector<std::string> IPv6Addrs;
     std::string SslTargetNameOverride;
@@ -89,36 +89,36 @@ struct TNodeInfo {
     TNodeInfo() = default;
     TNodeInfo(const Ydb::Discovery::NodeInfo& info);
 
-    ui32 NodeId;
+    uint32_t NodeId;
     std::string Host;
-    ui32 Port;
+    uint32_t Port;
     std::string ResolveHost;
     std::string Address;
     TNodeLocation Location;
-    ui64 Expire;
+    uint64_t Expire;
 };
 
 class TNodeRegistrationResult : public TStatus {
 public:
     TNodeRegistrationResult() : TStatus(EStatus::GENERIC_ERROR, NYql::TIssues()) {}
     TNodeRegistrationResult(TStatus&& status, const Ydb::Discovery::NodeRegistrationResult& proto);
-    const ui32& GetNodeId() const;
+    const uint32_t& GetNodeId() const;
     const std::string& GetDomainPath() const;
-    const ui64& GetExpire() const;
-    const ui64& GetScopeTabletId() const;
+    const uint64_t& GetExpire() const;
+    const uint64_t& GetScopeTabletId() const;
     bool HasScopeTabletId() const;
-    const ui64& GetScopePathId() const;
+    const uint64_t& GetScopePathId() const;
     bool HasScopePathId() const;
     const std::string& GetNodeName() const;
     bool HasNodeName() const;
     const std::vector<TNodeInfo>& GetNodes() const;
 
 private:
-    ui32 NodeId_;
+    uint32_t NodeId_;
     std::string DomainPath_;
-    ui64 Expire_;
-    std::optional<ui64> ScopeTableId_;
-    std::optional<ui64> ScopePathId_;
+    uint64_t Expire_;
+    std::optional<uint64_t> ScopeTableId_;
+    std::optional<uint64_t> ScopePathId_;
     std::optional<std::string> NodeName_;
     std::vector<TNodeInfo> Nodes_;
 };

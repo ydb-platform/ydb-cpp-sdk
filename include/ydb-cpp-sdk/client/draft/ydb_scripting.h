@@ -25,16 +25,16 @@ private:
 
 class TYqlPartialResult {
 public:
-    TYqlPartialResult(ui32 resultSetIndex, TResultSet&& resultSet)
+    TYqlPartialResult(uint32_t resultSetIndex, TResultSet&& resultSet)
         : ResultSetIndex_(resultSetIndex)
         , ResultSet_(std::move(resultSet))
     {}
 
-    ui32 GetResultSetIndex() const { return ResultSetIndex_; }
+    uint32_t GetResultSetIndex() const { return ResultSetIndex_; }
     const TResultSet& GetResultSet() const { return ResultSet_; }
 
 private:
-    ui32 ResultSetIndex_;
+    uint32_t ResultSetIndex_;
     TResultSet ResultSet_;
 };
 

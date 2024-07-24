@@ -14,7 +14,7 @@
 
 namespace NYdb::NTopic {
 
-enum class ECodec : ui32 {
+enum class ECodec : uint32_t {
     RAW = 1,
     GZIP = 2,
     LZOP = 3,
@@ -105,16 +105,16 @@ public:
         return instance;
     }
 
-    void Set(ui32 codecId, std::unique_ptr<ICodec>&& codecImpl) {
+    void Set(uint32_t codecId, std::unique_ptr<ICodec>&& codecImpl) {
         with_lock(Lock) {
             Codecs[codecId] = std::move(codecImpl);
         }
     }
 
-    const ICodec* GetOrThrow(ui32 codecId) const {
+    const ICodec* GetOrThrow(uint32_t codecId) const {
         with_lock(Lock) {
             if (!Codecs.contains(codecId)) {
-                throw yexception() << "codec with id " << ui32(codecId) << " not provided";
+                throw yexception() << "codec with id " << uint32_t(codecId) << " not provided";
             }
             return Codecs.at(codecId).get();
         }
@@ -130,7 +130,7 @@ private:
     TCodecMap() = default;
 
 private:
-    std::unordered_map<ui32, std::unique_ptr<ICodec>> Codecs;
+    std::unordered_map<uint32_t, std::unique_ptr<ICodec>> Codecs;
     TAdaptiveLock Lock;
 };
 

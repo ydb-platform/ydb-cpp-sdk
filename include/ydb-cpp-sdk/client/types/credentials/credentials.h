@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ydb-cpp-sdk/util/system/compiler.h>
-
 #include <memory>
 #include <string>
 
@@ -22,8 +20,7 @@ public:
     virtual ~ICredentialsProviderFactory() = default;
     virtual TCredentialsProviderPtr CreateProvider() const = 0;
     // !!!Experimental!!!
-    virtual TCredentialsProviderPtr CreateProvider(std::weak_ptr<ICoreFacility> facility) const {
-        Y_UNUSED(facility);
+    virtual TCredentialsProviderPtr CreateProvider([[maybe_unused]] std::weak_ptr<ICoreFacility> facility) const {
         return CreateProvider();
     }
     virtual std::string GetClientIdentity() const;

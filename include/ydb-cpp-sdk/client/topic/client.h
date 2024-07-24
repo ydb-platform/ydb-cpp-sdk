@@ -41,7 +41,7 @@ public:
     TAsyncDescribeConsumerResult DescribeConsumer(const std::string& path, const std::string& consumer, const TDescribeConsumerSettings& settings = {});
 
     // Describe a topic partition
-    TAsyncDescribePartitionResult DescribePartition(const std::string& path, i64 partitionId, const TDescribePartitionSettings& settings = {});
+    TAsyncDescribePartitionResult DescribePartition(const std::string& path, int64_t partitionId, const TDescribePartitionSettings& settings = {});
 
     //! Create read session.
     std::shared_ptr<IReadSession> CreateReadSession(const TReadSessionSettings& settings);
@@ -51,7 +51,7 @@ public:
     std::shared_ptr<IWriteSession> CreateWriteSession(const TWriteSessionSettings& settings);
 
     // Commit offset
-    TAsyncStatus CommitOffset(const std::string& path, ui64 partitionId, const std::string& consumerName, ui64 offset,
+    TAsyncStatus CommitOffset(const std::string& path, uint64_t partitionId, const std::string& consumerName, uint64_t offset,
         const TCommitOffsetSettings& settings = {});
 
 protected:

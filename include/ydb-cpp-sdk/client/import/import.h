@@ -18,12 +18,12 @@ enum class EImportProgress {
     Cancellation = 5,
     Cancelled = 6,
 
-    Unknown = Max<int>(),
+    Unknown = std::numeric_limits<int>::max(),
 };
 
 struct TImportItemProgress {
-    ui32 PartsTotal;
-    ui32 PartsCompleted;
+    uint32_t PartsTotal;
+    uint32_t PartsCompleted;
     TInstant StartTime;
     TInstant EndTime;
 };
@@ -40,7 +40,7 @@ struct TImportFromS3Settings : public TOperationRequestSettings<TImportFromS3Set
 
     FLUENT_SETTING_VECTOR(TItem, Item);
     FLUENT_SETTING_OPTIONAL(std::string, Description);
-    FLUENT_SETTING_OPTIONAL(ui32, NumberOfRetries);
+    FLUENT_SETTING_OPTIONAL(uint32_t, NumberOfRetries);
 };
 
 class TImportFromS3Response : public TOperation {
