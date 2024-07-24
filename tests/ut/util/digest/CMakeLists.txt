@@ -6,6 +6,8 @@ add_ydb_test(NAME util-digest-city_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-digest-fnv_ut
@@ -16,6 +18,8 @@ add_ydb_test(NAME util-digest-fnv_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-digest-multi_ut
@@ -24,6 +28,8 @@ add_ydb_test(NAME util-digest-multi_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-digest-murmur_ut
@@ -34,6 +40,8 @@ add_ydb_test(NAME util-digest-murmur_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-digest-sequence_ut
@@ -42,4 +50,6 @@ add_ydb_test(NAME util-digest-sequence_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )

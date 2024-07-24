@@ -6,6 +6,8 @@ add_ydb_test(NAME util-charset-utf8_ut
   LINK_LIBRARIES
     util-charset
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-charset-wide_ut
@@ -16,4 +18,6 @@ add_ydb_test(NAME util-charset-wide_ut
   LINK_LIBRARIES
     util-charset
     cpp-testing-unittest_main
+  LABELS
+    unit
 )

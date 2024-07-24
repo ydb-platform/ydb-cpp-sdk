@@ -6,6 +6,8 @@ add_ydb_test(NAME util-folder-dirut_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-folder-filelist_ut
@@ -16,6 +18,8 @@ add_ydb_test(NAME util-folder-filelist_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-folder-fts_ut
@@ -27,6 +31,8 @@ add_ydb_test(NAME util-folder-fts_ut
     yutil
     cpp-testing-unittest_main
     threading-future
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-folder-iterator_ut
@@ -37,6 +43,8 @@ add_ydb_test(NAME util-folder-iterator_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-folder-path_ut
@@ -47,6 +55,8 @@ add_ydb_test(NAME util-folder-path_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-folder-pathsplit_ut
@@ -57,4 +67,6 @@ add_ydb_test(NAME util-folder-pathsplit_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )

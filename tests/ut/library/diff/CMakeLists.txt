@@ -6,4 +6,6 @@ add_ydb_test(NAME library-diff_ut
   LINK_LIBRARIES
     library-diff
     cpp-testing-unittest_main
+  LABELS
+    unit
 )

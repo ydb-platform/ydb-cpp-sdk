@@ -7,4 +7,6 @@ add_ydb_test(NAME client-oauth2_ut
   cpp-testing-unittest_main
   library-http-server
   client-ydb_types-credentials-oauth2
+  LABELS
+  unit
 )

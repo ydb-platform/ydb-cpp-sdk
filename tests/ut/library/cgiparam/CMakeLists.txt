@@ -4,4 +4,6 @@ add_ydb_test(NAME library-cgiparam_ut
   LINK_LIBRARIES
     library-cgiparam
     cpp-testing-unittest_main
+  LABELS
+    unit
 )

@@ -10,6 +10,8 @@ LINK_LIBRARIES
     yutil
     library-json-writer
     cpp-testing-unittest_main
+LABELS
+    unit
 )
 
 add_ydb_test(NAME library-json-writer-json_value_ut
@@ -23,4 +25,6 @@ LINK_LIBRARIES
     yutil
     library-json-writer
     cpp-testing-unittest_main
+LABELS
+    unit
 )

@@ -5,6 +5,8 @@ add_ydb_test(NAME yql-utils_ut
   yutil
   cpp-testing-unittest_main
   yql-utils
+  LABELS
+  unit
 )
 
 add_ydb_test(NAME yql-public-issue_ut
@@ -15,6 +17,8 @@ add_ydb_test(NAME yql-public-issue_ut
   cpp-testing-unittest_main
   yql-public-issue
   unicode_normalization
+  LABELS
+  unit
 )
 
 add_ydb_test(NAME yql-public-decimal_ut
@@ -24,6 +28,8 @@ add_ydb_test(NAME yql-public-decimal_ut
   yutil
   cpp-testing-unittest_main
   yql-public-decimal
+  LABELS
+  unit
 )
 
 add_ydb_test(NAME yql-public-wide_int_ut
@@ -33,4 +39,6 @@ add_ydb_test(NAME yql-public-wide_int_ut
   yutil
   cpp-testing-unittest_main
   yql-public-decimal
+  LABELS
+  unit
 )

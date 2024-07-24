@@ -6,4 +6,6 @@ add_ydb_test(NAME library-digest-murmur_ut
   LINK_LIBRARIES
     digest-murmur
     cpp-testing-unittest_main
+  LABELS
+    unit
 )

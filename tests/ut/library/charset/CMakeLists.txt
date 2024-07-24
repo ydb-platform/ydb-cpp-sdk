@@ -6,6 +6,8 @@ add_ydb_test(NAME library-charset-ci_string_ut
   LINK_LIBRARIES
     library-charset-lite
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME library-charset-codepage_ut
@@ -16,6 +18,8 @@ add_ydb_test(NAME library-charset-codepage_ut
   LINK_LIBRARIES
     library-charset
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME library-charset-iconv_ut
@@ -26,6 +30,8 @@ add_ydb_test(NAME library-charset-iconv_ut
   LINK_LIBRARIES
     library-charset
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME library-charset-recyr_int_ut
@@ -36,6 +42,8 @@ add_ydb_test(NAME library-charset-recyr_int_ut
   LINK_LIBRARIES
     library-charset
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME library-charset-wide_ut
@@ -46,4 +54,6 @@ add_ydb_test(NAME library-charset-wide_ut
   LINK_LIBRARIES
     library-charset
     cpp-testing-unittest_main
+  LABELS
+    unit
 )

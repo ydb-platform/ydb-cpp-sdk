@@ -6,4 +6,6 @@ add_ydb_test(NAME library-case_insensitive_string_ut
   LINK_LIBRARIES
     library-case_insensitive_string
     cpp-testing-unittest_main
+  LABELS
+    unit
 )

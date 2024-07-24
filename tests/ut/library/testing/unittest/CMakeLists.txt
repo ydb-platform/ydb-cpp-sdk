@@ -3,6 +3,8 @@ add_ydb_test(NAME cpp-testing-unittest_ut
   main.cpp
   LINK_LIBRARIES
   cpp-testing-unittest_main
+  LABELS
+  unit
 )
 
 add_ydb_test(NAME cpp-testing-unittest_fat_ut
@@ -10,4 +12,6 @@ add_ydb_test(NAME cpp-testing-unittest_fat_ut
   test_port_manager.cpp
   LINK_LIBRARIES
   cpp-testing-unittest_main
+  LABELS
+  unit
 )

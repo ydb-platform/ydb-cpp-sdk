@@ -10,6 +10,8 @@ LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
     library-json
+LABELS
+    unit
 )
 
 add_ydb_test(NAME json-ut-json_reader_fast_ut
@@ -25,6 +27,8 @@ LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
     library-json
+LABELS
+    unit
 )
 
 add_ydb_test(NAME json-ut-json_reader_ut
@@ -39,6 +43,8 @@ LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
     library-json
+LABELS
+    unit
 )
 
 add_ydb_test(NAME json-ut-json_saveload_ut
@@ -53,6 +59,8 @@ LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
     library-json
+LABELS
+    unit
 )
 
 add_ydb_test(NAME json-ut-json_writer_ut
@@ -66,4 +74,6 @@ LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
     library-json
+LABELS
+    unit
 )

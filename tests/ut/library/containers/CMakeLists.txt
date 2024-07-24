@@ -6,6 +6,8 @@ add_ydb_test(NAME library-containers-disjoint_interval_tree_ut
   LINK_LIBRARIES
     containers-disjoint_interval_tree
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME library-containers-intrusive_rb_tree_ut
@@ -16,6 +18,8 @@ add_ydb_test(NAME library-containers-intrusive_rb_tree_ut
   LINK_LIBRARIES
     containers-intrusive_rb_tree
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME library-containers-paged_vector_ut
@@ -26,6 +30,8 @@ add_ydb_test(NAME library-containers-paged_vector_ut
   LINK_LIBRARIES
     containers-paged_vector
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME library-containers-stack_vector_ut
@@ -34,4 +40,6 @@ add_ydb_test(NAME library-containers-stack_vector_ut
   LINK_LIBRARIES
     containers-stack_vector
     cpp-testing-unittest_main
+  LABELS
+    unit
 )

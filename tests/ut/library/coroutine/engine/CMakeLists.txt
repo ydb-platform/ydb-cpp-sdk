@@ -6,6 +6,8 @@ add_ydb_test(NAME library-coroutine-engine-coroutine_ut
   LINK_LIBRARIES
     library-coroutine-engine
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_subdirectory(stack)

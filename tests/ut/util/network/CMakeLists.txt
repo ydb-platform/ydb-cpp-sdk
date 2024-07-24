@@ -6,6 +6,8 @@ add_ydb_test(NAME util-network-iovec_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-gtest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-network-socket_ut
@@ -16,6 +18,8 @@ add_ydb_test(NAME util-network-socket_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-network-address_ut
@@ -26,6 +30,8 @@ add_ydb_test(NAME util-network-address_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-network-endpoint_ut
@@ -36,6 +42,8 @@ add_ydb_test(NAME util-network-endpoint_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-network-ip_ut
@@ -46,6 +54,8 @@ add_ydb_test(NAME util-network-ip_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-network-poller_ut
@@ -56,6 +66,8 @@ add_ydb_test(NAME util-network-poller_ut
   LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME util-network-sock_ut
@@ -67,4 +79,6 @@ add_ydb_test(NAME util-network-sock_ut
     yutil
     threading-future
     cpp-testing-unittest_main
+  LABELS
+    unit
 )

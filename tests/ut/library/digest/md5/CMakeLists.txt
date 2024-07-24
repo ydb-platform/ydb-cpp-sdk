@@ -8,6 +8,8 @@ add_ydb_test(NAME library-digest-md5_medium_ut
     yutil
     digest-md5
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME library-digest-md5_ut
@@ -20,4 +22,6 @@ add_ydb_test(NAME library-digest-md5_ut
     yutil
     digest-md5
     cpp-testing-unittest_main
+  LABELS
+    unit
 )

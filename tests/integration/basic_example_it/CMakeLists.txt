@@ -9,4 +9,6 @@ add_ydb_test(NAME basic-example_it
   library-getopt
   YDB-CPP-SDK::Table
   GTest::gtest_main
+  LABELS
+  integration
 )

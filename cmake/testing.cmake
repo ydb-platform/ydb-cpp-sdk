@@ -60,7 +60,7 @@ endfunction()
 function(add_ydb_test)
   set(opts "")
   set(oneval_args NAME)
-  set(multival_args INCLUDE_DIRS SOURCES LINK_LIBRARIES)
+  set(multival_args INCLUDE_DIRS SOURCES LINK_LIBRARIES LABELS)
   cmake_parse_arguments(YDB_TEST
     "${opts}"
     "${oneval_args}"
@@ -72,6 +72,7 @@ function(add_ydb_test)
   target_include_directories(${YDB_TEST_NAME} PRIVATE ${YDB_TEST_INCLUDE_DIRS})
   target_link_libraries(${YDB_TEST_NAME} PRIVATE ${YDB_TEST_LINK_LIBRARIES})
   target_sources(${YDB_TEST_NAME} PRIVATE ${YDB_TEST_SOURCES})
+  #set_tests_properties(${YDB_TEST_NAME} PROPERTIES LABELS "${YDB_TEST_LABELS}")
 
   if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
     target_link_libraries(${YDB_TEST_NAME} PRIVATE
@@ -121,6 +122,7 @@ function(add_ydb_test)
     PROPERTY
     LABELS
     MEDIUM
+    ${YDB_TEST_LABELS}
   )
 
   set_yunittest_property(

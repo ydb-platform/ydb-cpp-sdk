@@ -67,7 +67,7 @@
       "displayName": "Default Unit Release Tests",
       "filter" : {
         "include": {
-          "name": ".*_ut"
+          "label": "unit"
         }
       },
       "output": {
@@ -86,11 +86,15 @@
       },
       "filter" : {
         "include": {
-          "name": ".*_it"
+          "label": "integration"
         }
       },
       "execution": {
         "timeout": 1200
+      },
+      "environment": {
+        "ENDPOINT": "localhost:2136",
+        "DATABASE": "/local"
       }
     }
   ]

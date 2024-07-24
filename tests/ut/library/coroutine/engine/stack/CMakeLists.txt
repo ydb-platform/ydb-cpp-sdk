@@ -6,6 +6,8 @@ add_ydb_test(NAME library-coroutine-engine-stack-stack_allocator_ut
   LINK_LIBRARIES
     library-coroutine-engine
     cpp-testing-gtest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME library-coroutine-engine-stack-stack_guards_ut
@@ -16,6 +18,8 @@ add_ydb_test(NAME library-coroutine-engine-stack-stack_guards_ut
   LINK_LIBRARIES
     library-coroutine-engine
     cpp-testing-gtest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME library-coroutine-engine-stack-stack_pool_ut
@@ -26,6 +30,8 @@ add_ydb_test(NAME library-coroutine-engine-stack-stack_pool_ut
   LINK_LIBRARIES
     library-coroutine-engine
     cpp-testing-gtest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME library-coroutine-engine-stack-stack_ut
@@ -36,6 +42,8 @@ add_ydb_test(NAME library-coroutine-engine-stack-stack_ut
   LINK_LIBRARIES
     library-coroutine-engine
     cpp-testing-gtest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME library-coroutine-engine-stack-stack_utils_ut
@@ -46,4 +54,6 @@ add_ydb_test(NAME library-coroutine-engine-stack-stack_utils_ut
   LINK_LIBRARIES
     library-coroutine-engine
     cpp-testing-gtest_main
+  LABELS
+    unit
 )

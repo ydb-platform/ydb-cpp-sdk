@@ -9,4 +9,6 @@ add_ydb_test(NAME json_value_ut
   cpp-testing-unittest
   YDB-CPP-SDK::Proto
   YDB-CPP-SDK::Params
+  LABELS
+  unit
 )

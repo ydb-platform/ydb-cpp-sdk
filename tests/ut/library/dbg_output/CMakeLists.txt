@@ -8,4 +8,6 @@ add_ydb_test(NAME library-dbg_output-dbg_output_ut
     yutil
     library-dbg_output
     cpp-testing-unittest_main
+  LABELS
+    unit
 )

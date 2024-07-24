@@ -6,6 +6,8 @@ add_ydb_test(NAME library-digest-lower_case-hash_ops_ut
   LINK_LIBRARIES
     digest-lower_case
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
 
 add_ydb_test(NAME library-digest-lower_case-lchash_ut
@@ -16,4 +18,6 @@ add_ydb_test(NAME library-digest-lower_case-lchash_ut
   LINK_LIBRARIES
     digest-lower_case
     cpp-testing-unittest_main
+  LABELS
+    unit
 )
