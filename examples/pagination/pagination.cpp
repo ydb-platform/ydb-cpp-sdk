@@ -34,7 +34,7 @@ static std::string JoinPath(const std::string& basePath, const std::string& path
     }
 
     std::filesystem::path prefixPathSplit(basePath);
-    prefixPathSplit += path;
+    prefixPathSplit /= path;
 
     return prefixPathSplit;
 }
