@@ -23,13 +23,13 @@ void SanitizeNonAscii(std::string& s);
 // TPosition
 ///////////////////////////////////////////////////////////////////////////////
 struct TPosition {
-    ui32 Column = 0U;
-    ui32 Row = 0U;
+    uint32_t Column = 0U;
+    uint32_t Row = 0U;
     std::string File;
 
     TPosition() = default;
 
-    TPosition(ui32 column, ui32 row, const std::string& file = {})
+    TPosition(uint32_t column, uint32_t row, const std::string& file = {})
         : Column(column)
         , Row(row)
         , File(file)
@@ -76,7 +76,7 @@ public:
 private:
     TPosition& Position;
     bool HaveCr;
-    ui32 LfCount;
+    uint32_t LfCount;
 };
 
 struct TRange {
@@ -189,7 +189,7 @@ public:
     }
 
     TIssue& AddSubIssue(TIntrusivePtr<TIssue> issue) {
-        Severity = (ESeverity)Min((ui32)issue->GetSeverity(), (ui32)Severity);
+        Severity = (ESeverity)std::min((uint32_t)issue->GetSeverity(), (uint32_t)Severity);
         Children_.push_back(issue);
         return *this;
     }
@@ -221,7 +221,7 @@ public:
     }
 };
 
-void WalkThroughIssues(const TIssue& topIssue, bool leafOnly, std::function<void(const TIssue&, ui16 level)> fn, std::function<void(const TIssue&, ui16 level)> afterChildrenFn = {});
+void WalkThroughIssues(const TIssue& topIssue, bool leafOnly, std::function<void(const TIssue&, uint16_t level)> fn, std::function<void(const TIssue&, uint16_t level)> afterChildrenFn = {});
 
 ///////////////////////////////////////////////////////////////////////////////
 // TIssues
