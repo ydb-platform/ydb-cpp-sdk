@@ -1,5 +1,7 @@
 #include "basic_example.h"
 
+#include <ydb-cpp-sdk/util/string/cast.h>
+
 #include <src/util/folder/pathsplit.h>
 
 #include <format>

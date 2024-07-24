@@ -2,8 +2,10 @@
 
 #include <ydb-cpp-sdk/client/table/table.h>
 
-#include <src/util/folder/pathsplit.h>
 #include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <ydb-cpp-sdk/util/string/cast.h>
+
+#include <src/util/folder/pathsplit.h>
 
 namespace NExample {
 

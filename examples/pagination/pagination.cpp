@@ -1,5 +1,7 @@
 #include "pagination.h"
 
+#include <ydb-cpp-sdk/util/string/cast.h>
+
 #include <src/util/folder/pathsplit.h>
 
 using namespace NYdb;
