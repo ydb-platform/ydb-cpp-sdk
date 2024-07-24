@@ -6,6 +6,8 @@
 
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 
+#include <ydb-cpp-sdk/util/string/cast.h>
+
 namespace NYdb {
 
 class TStatus::TImpl {
