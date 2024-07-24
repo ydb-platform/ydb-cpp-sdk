@@ -59,6 +59,10 @@
       },
       "execution": {
         "timeout": 1200
+      },
+      "environment": {
+        "ENDPOINT": "localhost:2136",
+        "DATABASE": "/local"
       }
     },
     {
