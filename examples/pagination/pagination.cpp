@@ -2,12 +2,12 @@
 
 #include <ydb-cpp-sdk/util/string/cast.h>
 
-#include <src/util/folder/pathsplit.h>
+#include <filesystem>
 
 using namespace NYdb;
 using namespace NYdb::NTable;
 
-const ui32 MaxPages = 10;
+const uint32_t MaxPages = 10;
 
 class TYdbErrorException : public yexception {
 public:
@@ -33,10 +33,10 @@ static std::string JoinPath(const std::string& basePath, const std::string& path
         return path;
     }
 
-    TPathSplitUnix prefixPathSplit(basePath);
-    prefixPathSplit.AppendComponent(path);
+    std::filesystem::path prefixPathSplit(basePath);
+    prefixPathSplit += path;
 
-    return prefixPathSplit.Reconstruct();
+    return prefixPathSplit;
 }
 
 //! Creates sample table with CrateTable API.
@@ -82,7 +82,7 @@ static TStatus FillTableDataTransaction(TSession& session, const std::string& pa
 
 //! Shows usage of query paging.
 static TStatus SelectPagingTransaction(TSession& session, const std::string& path,
-    ui64 pageLimit, const std::string& lastCity, ui32 lastNumber, std::optional<TResultSet>& resultSet)
+    uint64_t pageLimit, const std::string& lastCity, uint32_t lastNumber, std::optional<TResultSet>& resultSet)
 {
     auto query = std::format(R"(
         --!syntax_v1
@@ -138,7 +138,7 @@ static TStatus SelectPagingTransaction(TSession& session, const std::string& pat
     return result;
 }
 
-bool SelectPaging(TTableClient client, const std::string& path, ui64 pageLimit, std::string& lastCity, ui32& lastNumber) {
+bool SelectPaging(TTableClient client, const std::string& path, uint64_t pageLimit, std::string& lastCity, uint32_t& lastNumber) {
     std::optional<TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, pageLimit, &lastCity, lastNumber, &resultSet](TSession session) {
         return SelectPagingTransaction(session, path, pageLimit, lastCity, lastNumber, resultSet);
@@ -167,10 +167,10 @@ bool Run(const TDriver& driver, const std::string& path) {
             return FillTableDataTransaction(session, path);
         }));
 
-        ui64 limit = 3;
+        uint64_t limit = 3;
         std::string lastCity;
-        ui32 lastNumber = 0;
-        ui32 page = 0;
+        uint32_t lastNumber = 0;
+        uint32_t page = 0;
         bool pageNotEmpty = true;
 
         std::cout << "> Pagination, Limit=" << limit << std::endl;

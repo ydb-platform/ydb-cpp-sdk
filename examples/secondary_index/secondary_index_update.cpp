@@ -9,8 +9,8 @@ using namespace NYdb::NTable;
 int RunUpdateViews(TDriver& driver, const std::string& prefix, int argc, char** argv) {
     TOpts opts = TOpts::Default();
 
-    ui64 seriesId;
-    ui64 newViews;
+    uint64_t seriesId;
+    uint64_t newViews;
 
     opts.AddLongOption("id", "Series id").Required().RequiredArgument("NUM")
         .StoreResult(&seriesId);
@@ -48,7 +48,7 @@ int RunUpdateViews(TDriver& driver, const std::string& prefix, int argc, char** 
         SELECT COUNT(*) AS cnt FROM $data;
     )", prefix);
 
-    ui64 updatedCount = 0;
+    uint64_t updatedCount = 0;
 
     TTableClient client(driver);
     ThrowOnError(client.RetryOperationSync([&](TSession session) -> TStatus {

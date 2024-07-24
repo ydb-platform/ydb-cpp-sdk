@@ -11,11 +11,11 @@
 #define TABLE_SERIES_REV_VIEWS "series_rev_views"
 
 struct TSeries {
-    ui64 SeriesId;
+    uint64_t SeriesId;
     std::string Title;
     std::string SeriesInfo;
     TInstant ReleaseDate;
-    ui64 Views;
+    uint64_t Views;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

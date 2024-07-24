@@ -5,10 +5,10 @@ using namespace NYdb::NTable;
 
 struct TSchool {
     std::string City;
-    ui32 Number;
+    uint32_t Number;
     std::string Address;
 
-    TSchool(const std::string& city, ui32 number, const std::string& address)
+    TSchool(const std::string& city, uint32_t number, const std::string& address)
         : City(city)
         , Number(number)
         , Address(address) {}

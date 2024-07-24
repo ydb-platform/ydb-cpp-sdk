@@ -20,9 +20,9 @@ public:
 private:
     struct TRow {
         TRow() = default;
-        TRow(ui64 key, const std::string& value);
+        TRow(uint64_t key, const std::string& value);
 
-        ui64 Key = 0;
+        uint64_t Key = 0;
         std::string Value;
     };
 

@@ -24,9 +24,9 @@ static TStatus ListByViews(
         std::vector<TSeries>& results,
         TSession& session,
         const std::string& prefix,
-        ui64 limit,
-        ui64 lastSeriesId,
-        ui64 lastViews)
+        uint64_t limit,
+        uint64_t lastSeriesId,
+        uint64_t lastViews)
 {
     auto queryText = std::format(R"(
         --!syntax_v1
@@ -102,7 +102,7 @@ static TStatus ListByViews(
         std::vector<TSeries>& results,
         TSession& session,
         const std::string& prefix,
-        ui64 limit)
+        uint64_t limit)
 {
     auto queryText = std::format(R"(
         --!syntax_v1
@@ -151,8 +151,8 @@ static TStatus ListById(
         std::vector<TSeries>& results,
         TSession& session,
         const std::string& prefix,
-        ui64 limit,
-        ui64 lastSeriesId)
+        uint64_t limit,
+        uint64_t lastSeriesId)
 {
     auto queryText = std::format(R"(
         --!syntax_v1
@@ -199,7 +199,7 @@ static TStatus ListById(
         std::vector<TSeries>& results,
         TSession& session,
         const std::string& prefix,
-        ui64 limit)
+        uint64_t limit)
 {
     auto queryText = std::format(R"(
         --!syntax_v1
@@ -241,9 +241,9 @@ int RunListSeries(TDriver& driver, const std::string& prefix, int argc, char** a
     TOpts opts = TOpts::Default();
 
     bool byViews = false;
-    ui64 limit = 10;
-    ui64 lastSeriesId = -1;
-    ui64 lastViews = -1;
+    uint64_t limit = 10;
+    uint64_t lastSeriesId = -1;
+    uint64_t lastViews = -1;
 
     opts.AddLongOption("by-views", "Sort by views").NoArgument().SetFlag(&byViews);
     opts.AddLongOption("limit", "Maximum number of rows").Optional().RequiredArgument("NUM")

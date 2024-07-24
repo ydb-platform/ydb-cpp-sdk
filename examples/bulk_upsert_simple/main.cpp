@@ -2,7 +2,7 @@
 
 #include <src/library/getopt/last_getopt.h>
 
-#include <src/util/folder/pathsplit.h>
+#include <filesystem>
 
 constexpr size_t BATCH_SIZE = 1000;
 
@@ -10,11 +10,11 @@ struct TLogMessage {
     std::string App;
     std::string Host;
     TInstant Timestamp;
-    ui32 HttpCode;
+    uint32_t HttpCode;
     std::string Message;
 };
 
-void GetLogBatch(ui64 logOffset, std::vector<TLogMessage>& logBatch) {
+void GetLogBatch(uint64_t logOffset, std::vector<TLogMessage>& logBatch) {
     logBatch.clear();
     for (size_t i = 0; i < BATCH_SIZE; ++i) {
         TLogMessage message;
@@ -83,7 +83,7 @@ bool CreateLogTable(NYdb::NTable::TTableClient& client, const std::string& table
     return true;
 }
 
-bool Run(const NYdb::TDriver &driver, const std::string &table, ui32 batchCount) {
+bool Run(const NYdb::TDriver &driver, const std::string &table, uint32_t batchCount) {
     NYdb::NTable::TTableClient client(driver);
     if (!CreateLogTable(client, table)) {
         return false;
@@ -95,7 +95,7 @@ bool Run(const NYdb::TDriver &driver, const std::string &table, ui32 batchCount)
             .MaxRetries(20);
 
     std::vector<TLogMessage> logBatch;
-    for (ui32 offset = 0; offset < batchCount; ++offset) {
+    for (uint32_t offset = 0; offset < batchCount; ++offset) {
         GetLogBatch(offset, logBatch);
         if (!WriteLogBatch(client, table, logBatch, writeRetrySettings)) {
             return false;
@@ -112,10 +112,10 @@ std::string JoinPath(const std::string& basePath, const std::string& path) {
         return path;
     }
 
-    TPathSplitUnix prefixPathSplit(basePath);
-    prefixPathSplit.AppendComponent(path);
+    std::filesystem::path prefixPathSplit(basePath);
+    prefixPathSplit += path;
 
-    return prefixPathSplit.Reconstruct();
+    return prefixPathSplit;
 }
 
 int main(int argc, char** argv) {
@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
     std::string endpoint;
     std::string database;
     std::string table = "bulk_upsert_example";
-    ui32 count = 1000;
+    uint32_t count = 1000;
 
     opts.AddLongOption('e', "endpoint", "YDB endpoint").Required().RequiredArgument("HOST:PORT")
         .StoreResult(&endpoint);
@@ -137,8 +137,7 @@ int main(int argc, char** argv) {
     opts.AddLongOption('c', "count", "count requests").Optional().RequiredArgument("NUM")
         .StoreResult(&count).DefaultValue(count);
 
-    TOptsParseResult res(&opts, argc, argv);
-    Y_UNUSED(res);
+    [[maybe_unused]] TOptsParseResult res(&opts, argc, argv);
 
     table = JoinPath(database, table);
 

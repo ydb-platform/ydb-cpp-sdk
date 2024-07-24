@@ -2,15 +2,21 @@
 
 #include <src/library/getopt/last_getopt.h>
 
-#include <src/util/stream/file.h>
-
 #include <cstdlib>
+#include <fstream>
 
 using namespace NLastGetopt;
 using namespace NYdb;
 
 void StopHandler(int) {
     exit(1);
+}
+
+std::string ReadFile(const std::string& filename) {
+    std::ifstream input(filename);
+    std::stringstream data;
+    data << input.rdbuf();
+    return data.str();
 }
 
 int main(int argc, char** argv) {
@@ -45,7 +51,7 @@ int main(int argc, char** argv) {
         .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "");
 
     if (!certPath.empty()) {
-        std::string cert = TFileInput(certPath).ReadAll();
+        std::string cert = ReadFile(certPath);
         driverConfig.UseSecureConnection(cert);
     }
 

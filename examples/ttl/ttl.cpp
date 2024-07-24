@@ -5,8 +5,8 @@ using namespace NExample;
 using namespace NYdb;
 using namespace NYdb::NTable;
 
-constexpr ui32 DOC_TABLE_PARTITION_COUNT = 4;
-constexpr ui32 EXPIRATION_QUEUE_COUNT = 4;
+constexpr uint32_t DOC_TABLE_PARTITION_COUNT = 4;
+constexpr uint32_t EXPIRATION_QUEUE_COUNT = 4;
 
 //! Creates Documents table and multiple ExpirationQueue tables
 static void CreateTables(TTableClient client, const std::string& path) {
@@ -31,7 +31,7 @@ static void CreateTables(TTableClient client, const std::string& path) {
 
     // Multiple ExpirationQueue tables allow to scale the load.
     // Each ExpirationQueue table can be handled by a dedicated worker.
-    for (ui32 i = 0; i < EXPIRATION_QUEUE_COUNT; ++i) {
+    for (uint32_t i = 0; i < EXPIRATION_QUEUE_COUNT; ++i) {
         ThrowOnError(client.RetryOperationSync([path, i](TSession session) {
             auto expirationDesc = TTableBuilder()
                 .AddNullableColumn("timestamp", EPrimitiveType::Uint64)
@@ -49,10 +49,10 @@ static void CreateTables(TTableClient client, const std::string& path) {
 
 //! Insert or replaces a document.
 static TStatus AddDocumentTransaction(TSession session, const std::string& path,
-    const std::string& url, const std::string& html, ui64 timestamp)
+    const std::string& url, const std::string& html, uint64_t timestamp)
 {
     // Add an entry to a random expiration queue in order to evenly distribute the load
-    ui32 queue = rand() % EXPIRATION_QUEUE_COUNT;
+    uint32_t queue = rand() % EXPIRATION_QUEUE_COUNT;
 
     auto query = std::format(R"(
         --!syntax_v1
@@ -121,8 +121,8 @@ static TStatus ReadDocumentTransaction(TSession session, const std::string& path
 }
 
 //! Reads a batch of entries from expiration queue
-static TStatus ReadExpiredBatchTransaction(TSession session, const std::string& path, const ui32 queue,
-    const ui64 timestamp, const ui64 prevTimestamp, const ui64 prevDocId, std::optional<TResultSet>& resultSet)
+static TStatus ReadExpiredBatchTransaction(TSession session, const std::string& path, const uint32_t queue,
+    const uint64_t timestamp, const uint64_t prevTimestamp, const uint64_t prevDocId, std::optional<TResultSet>& resultSet)
 {
     auto query = std::format(R"(
         --!syntax_v1
@@ -177,8 +177,8 @@ static TStatus ReadExpiredBatchTransaction(TSession session, const std::string& 
 }
 
 //! Deletes an expired document
-static TStatus DeleteDocumentWithTimestamp(TSession session, const std::string& path, const ui32 queue,
-    const ui64 docId, const ui64 timestamp)
+static TStatus DeleteDocumentWithTimestamp(TSession session, const std::string& path, const uint32_t queue,
+    const uint64_t docId, const uint64_t timestamp)
 {
     auto query = std::format(R"(
         --!syntax_v1
@@ -209,7 +209,7 @@ static TStatus DeleteDocumentWithTimestamp(TSession session, const std::string& 
 ///////////////////////////////////////////////////////////////////////////////
 
 void AddDocument(TTableClient client, const std::string& path, const std::string& url,
-    const std::string& html, const ui64 timestamp)
+    const std::string& html, const uint64_t timestamp)
 {
     std::cout << "> AddDocument:" << std::endl
          << " Url: " << url << std::endl
@@ -240,11 +240,11 @@ void ReadDocument(TTableClient client, const std::string& path, const std::strin
     std::cout << std::endl;
 }
 
-void DeleteExpired(TTableClient client, const std::string& path, const ui32 queue, const ui64 timestamp) {
+void DeleteExpired(TTableClient client, const std::string& path, const uint32_t queue, const uint64_t timestamp) {
     std::cout << "> DeleteExpired from queue #" << queue << ":" << std::endl;
     bool empty = false;
-    ui64 lastTimestamp = 0;
-    ui64 lastDocId = 0;
+    uint64_t lastTimestamp = 0;
+    uint64_t lastDocId = 0;
     while (!empty) {
         std::optional<TResultSet> resultSet;
         ThrowOnError(client.RetryOperationSync([path, queue, timestamp, lastDocId, lastTimestamp, &resultSet] (TSession session) {
@@ -287,7 +287,7 @@ bool Run(const TDriver& driver, const std::string& path) {
         ReadDocument(client, path, "https://yandex.ru/");
         ReadDocument(client, path, "https://ya.ru/");
 
-        for (ui32 q = 0; q < EXPIRATION_QUEUE_COUNT; ++q) {
+        for (uint32_t q = 0; q < EXPIRATION_QUEUE_COUNT; ++q) {
             DeleteExpired(client, path, q, 1);
         }
 
@@ -303,7 +303,7 @@ bool Run(const TDriver& driver, const std::string& path) {
                     "<html><body><h1>Yandex</h1></body></html>",
                     3);
 
-        for (ui32 q = 0; q < EXPIRATION_QUEUE_COUNT; ++q) {
+        for (uint32_t q = 0; q < EXPIRATION_QUEUE_COUNT; ++q) {
             DeleteExpired(client, path, q, 2);
         }
 

@@ -1,7 +1,8 @@
 #include "secondary_index.h"
 
-#include <ydb-cpp-sdk/util/random/random.h>
 #include <ydb-cpp-sdk/util/thread/pool.h>
+
+#include <random>
 
 using namespace NLastGetopt;
 using namespace NYdb;
@@ -55,9 +56,9 @@ public:
             }
         }
 
-        THolder<TTask> task = MakeHolder<TTask>(this, std::move(callback));
-        if (Queue.Add(task.Get())) {
-            Y_UNUSED(task.Release());
+        std::unique_ptr<TTask> task = std::make_unique<TTask>(this, std::move(callback));
+        if (Queue.Add(task.get())) {
+            Y_UNUSED(task.release());
             return true;
         }
 
@@ -75,7 +76,7 @@ private:
         { }
 
         void Process(void*) override {
-            THolder<TTask> self(this);
+            std::unique_ptr<TTask> self(this);
             {
                 std::lock_guard guard(Owner->Lock);
                 if (Owner->Stopped) {
@@ -164,8 +165,8 @@ static TStatus InsertSeries(TSession& session, const std::string& prefix, const 
 int RunGenerateSeries(TDriver& driver, const std::string& prefix, int argc, char** argv) {
     TOpts opts = TOpts::Default();
 
-    ui64 seriesId = 1;
-    ui64 count = 10;
+    uint64_t seriesId = 1;
+    uint64_t count = 10;
     size_t threads = 10;
 
     opts.AddLongOption("start", "First id to generate").Optional().RequiredArgument("NUM")
@@ -181,14 +182,16 @@ int RunGenerateSeries(TDriver& driver, const std::string& prefix, int argc, char
     executor.Start(threads);
 
     size_t generated = 0;
+    std::mt19937_64 engine;
+    std::uniform_int_distribution<uint64_t> dist(0, 1000000);
     while (count > 0) {
-        bool ok = executor.Execute([&client, &prefix, seriesId] {
+        bool ok = executor.Execute([views = dist(engine), &client, &prefix, seriesId] {
             TSeries series;
             series.SeriesId = seriesId;
             series.Title = TStringBuilder() << "Name " << seriesId;
             series.SeriesInfo = TStringBuilder() << "Info " << seriesId;
             series.ReleaseDate = TInstant::Days(TInstant::Now().Days());
-            series.Views = RandomNumber<ui64>(1000000);
+            series.Views = views;
             ThrowOnError(client.RetryOperationSync([&prefix, &series](TSession session) -> TStatus {
                 return InsertSeries(session, prefix, series);
             }));

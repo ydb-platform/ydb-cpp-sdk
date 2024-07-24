@@ -1,6 +1,6 @@
 #include "secondary_index.h"
 
-#include <src/util/folder/pathsplit.h>
+#include <filesystem>
 
 std::string GetCmdList() {
     return "create_tables, drop_tables, update_views, list, generate, delete";
@@ -33,8 +33,8 @@ std::string JoinPath(const std::string& prefix, const std::string& path) {
         return path;
     }
 
-    TPathSplitUnix prefixPathSplit(prefix);
-    prefixPathSplit.AppendComponent(path);
+    std::filesystem::path prefixPathSplit(prefix);
+    prefixPathSplit += path;
 
-    return prefixPathSplit.Reconstruct();
+    return prefixPathSplit;
 }
