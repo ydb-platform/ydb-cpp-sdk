@@ -440,10 +440,11 @@ std::string SelectSimple(TTableClient client, const std::string& path) {
     }));
     TResultSetParser parser(*resultSet);
     if (parser.TryNextRow()) {
-        return std::format("> SelectSimple:\nSeries, Id: {}, Title: {}, Release date: {}\n"
+        std::cout << std::format("> SelectSimple:\nSeries, Id: {}, Title: {}, Release date: {}\n"
                             , ToString(parser.ColumnParser("series_id").GetOptionalUint64())
                             , ToString(parser.ColumnParser("title").GetOptionalUtf8())
                             , ToString(parser.ColumnParser("release_date").GetOptionalString()));
+        return FormatResultSetJson(resultSet.value(), EBinaryStringEncoding::Unicode);                    
     }
     return "";
 }
@@ -577,9 +578,8 @@ std::string ScanQuerySelect(TTableClient client, const std::string& path) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<Response> Run(const TDriver& driver, const std::string& path) {
+bool Run(const TDriver& driver, const std::string& path) {
     TTableClient client(driver);
-    auto response = std::make_unique<Response>();
     try {
         CreateTables(client, path);
 
@@ -589,28 +589,27 @@ std::unique_ptr<Response> Run(const TDriver& driver, const std::string& path) {
             return FillTableDataTransaction(session, path);
         }));
 
-        response->result += SelectSimple(client, path);
+        std::string expectedResultSelectSimple = "{\"series_id\":1,\"title\":\"IT Crowd\",\"release_date\":\"2006-02-03\"}";
+        std::string resultSelectSimple = SelectSimple(client, path);
         UpsertSimple(client, path);
 
-        response->result += SelectWithParams(client, path);
+        SelectWithParams(client, path);
 
-        response->result += PreparedSelect(client, path, 2, 3, 7);
-        response->result += PreparedSelect(client, path, 2, 3, 8);
+        PreparedSelect(client, path, 2, 3, 7);
+        PreparedSelect(client, path, 2, 3, 8);
 
-        response->result += MultiStep(client, path);
+        MultiStep(client, path);
 
         ExplicitTcl(client, path);
 
-        response->result += PreparedSelect(client, path, 2, 6, 1);
+        PreparedSelect(client, path, 2, 6, 1);
 
-        response->result += ScanQuerySelect(client, path);
+        ScanQuerySelect(client, path);
     }
     catch (const TYdbErrorException& e) {
-        response->success = false;
         std::cerr << "Execution failed due to fatal error:" << std::endl;
         PrintStatus(e.Status);
-        return response;
+        return false;
     }
-    response->success = true;
-    return response;
+    return true;
 }
