@@ -1,6 +1,7 @@
 #include "basic_example.h"
 
 #include <src/util/folder/pathsplit.h>
+#include <include/ydb-cpp-sdk/json_value/ydb_json_value.h>
 
 #include <format>
 
@@ -82,7 +83,7 @@ static void CreateTables(TTableClient client, const std::string& path) {
 }
 
 //! Describe existing table.
-static std::string DescribeTable(TTableClient client, const std::string& path, const std::string& name) {
+static void DescribeTable(TTableClient client, const std::string& path, const std::string& name) {
     std::optional<TTableDescription> desc;
     std::string result;
     ThrowOnError(client.RetryOperationSync([path, name, &desc](TSession session) {
@@ -91,15 +92,13 @@ static std::string DescribeTable(TTableClient client, const std::string& path, c
         if (result.IsSuccess()) {
             desc = result.GetTableDescription();
         }
-
         return result;
     }));
 
-    result += std::format("> Describe table: {}\n", name);
+    std::cout << std::format("> Describe table: {}\n", name);
     for (auto& column : desc->GetColumns()) {
-        result += std::format("Column, name: {}, type: {}\n", column.Name, FormatType(column.Type));
+        std::cout << std::format("Column, name: {}, type: {}\n", column.Name, FormatType(column.Type));
     }
-    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -439,7 +438,6 @@ std::string SelectSimple(TTableClient client, const std::string& path) {
     ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
         return SelectSimpleTransaction(session, path, resultSet);
     }));
-
     TResultSetParser parser(*resultSet);
     if (parser.TryNextRow()) {
         return std::format("> SelectSimple:\nSeries, Id: {}, Title: {}, Release date: {}\n"
@@ -585,7 +583,7 @@ std::unique_ptr<Response> Run(const TDriver& driver, const std::string& path) {
     try {
         CreateTables(client, path);
 
-        response->result += DescribeTable(client, path, "series");
+        DescribeTable(client, path, "series");
 
         ThrowOnError(client.RetryOperationSync([path](TSession session) {
             return FillTableDataTransaction(session, path);

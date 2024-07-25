@@ -4,6 +4,7 @@ target_link_libraries(basic_example PUBLIC
   yutil
   library-getopt
   YDB-CPP-SDK::Table
+  public-lib-json_value
 )
 
 target_sources(basic_example PRIVATE

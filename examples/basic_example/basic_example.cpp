@@ -1,6 +1,7 @@
 #include "basic_example.h"
 
 #include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/json_value/ydb_json_value.h>
 
 #include <src/util/folder/pathsplit.h>
 
@@ -441,7 +442,10 @@ void SelectSimple(TTableClient client, const std::string& path) {
     ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
         return SelectSimpleTransaction(session, path, resultSet);
     }));
-
+    
+    if (resultSet.has_value()) {
+        std::cout << FormatResultSetJson(resultSet.value(), EBinaryStringEncoding::Base64);
+    }
     TResultSetParser parser(*resultSet);
     if (parser.TryNextRow()) {
         std::cout << "> SelectSimple:" << std::endl << "Series"
