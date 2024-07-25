@@ -409,7 +409,7 @@ public:
             }
         }
 
-        if (0 == RunningListeners_.fetch_sub(1)) {
+        if (0 == --RunningListeners_) {
             while (!Reqs.Empty()) {
                 THolder<TListenSocket> ls(Reqs.PopFront());
 
@@ -469,15 +469,15 @@ public:
     }
 
     inline void DecreaseConnections() noexcept {
-        ConnectionCount.fetch_sub(1);
+        AtomicDecrement(ConnectionCount);
     }
 
     inline void IncreaseConnections() noexcept {
-        ConnectionCount.fetch_add(1);
+        AtomicIncrement(ConnectionCount);
     }
 
     inline i64 GetClientCount() const {
-        return ConnectionCount.load();
+        return AtomicGet(ConnectionCount);
     }
 
     inline bool MaxRequestsReached() const {
@@ -491,7 +491,7 @@ public:
     TPipeHandle ListenWakeupWriteFd;
     TMtpQueueRef Requests;
     TMtpQueueRef FailRequests;
-    std::atomic<int> ConnectionCount = 0;
+    TAtomic ConnectionCount = 0;
     THolder<TSocketPoller> Poller;
     THolder<TConnections> Connections;
     int ErrorCode = 0;

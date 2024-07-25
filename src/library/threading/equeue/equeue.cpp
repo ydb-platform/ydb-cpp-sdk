@@ -6,12 +6,12 @@ TElasticQueue::TElasticQueue(std::unique_ptr<IThreadPool> slaveQueue)
 }
 
 size_t TElasticQueue::ObjectCount() const {
-    return (size_t)ObjectCount_.load();
+    return (size_t)AtomicGet(ObjectCount_);
 }
 
 bool TElasticQueue::TryIncCounter() {
-    if ((size_t)GuardCount_.fetch_add(1) > MaxQueueSize_) {
-        GuardCount_.fetch_sub(1);
+    if ((size_t)AtomicIncrement(GuardCount_) > MaxQueueSize_) {
+        AtomicDecrement(GuardCount_);
         return false;
     }
 
@@ -26,12 +26,12 @@ public:
         : RealObject_(realObject)
         , Queue_(queue)
     {
-        Queue_->ObjectCount_.fetch_add(1);
+        AtomicIncrement(Queue_->ObjectCount_);
     }
 
     ~TDecrementingWrapper() override {
-        Queue_->ObjectCount_.fetch_sub(1);
-        Queue_->GuardCount_.fetch_sub(1);
+        AtomicDecrement(Queue_->ObjectCount_);
+        AtomicDecrement(Queue_->GuardCount_);
     }
 private:
     void Process(void *tsr) override {
@@ -54,7 +54,7 @@ bool TElasticQueue::Add(IObjectInQueue* obj) {
     try {
         wrapper.Reset(new TDecrementingWrapper(obj, this));
     } catch (...) {
-        GuardCount_.fetch_sub(1);
+        AtomicDecrement(GuardCount_);
         throw;
     }
 

@@ -228,7 +228,7 @@ namespace NMonitoring {
 
         /// XXX: hack for deferred removal of expired counters. Remove once Output* functions are not used for serialization
         mutable TCounters Counters;
-        mutable std::atomic<int> ExpiringCount = 0;
+        mutable TAtomic ExpiringCount = 0;
 
     public:
         TDynamicCounters(TCountableBase::EVisibility visibility = TCountableBase::EVisibility::Public);
