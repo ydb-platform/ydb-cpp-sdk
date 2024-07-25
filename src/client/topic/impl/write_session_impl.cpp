@@ -167,7 +167,7 @@ TWriteSessionImpl::THandleResult TWriteSessionImpl::RestartImpl(const TPlainStat
         TRACE_KV("status", status.Status));
 
     THandleResult result;
-    if (AtomicGet(Aborting)) {
+    if (Aborting.load()) {
         LOG_LAZY(DbDriverState->Log, TLOG_DEBUG, LogPrefix() << "Write session is aborting and will not restart");
         return result;
     }
@@ -226,7 +226,7 @@ void TWriteSessionImpl::ConnectToPreferredPartitionLocation(const TDuration& del
     Y_ABORT_UNLESS(Lock.IsLocked());
     Y_ABORT_UNLESS(Settings.DirectWriteToPartition_ && (Settings.PartitionId_.has_value() || DirectWriteToPartitionId.has_value()));
 
-    if (AtomicGet(Aborting)) {
+    if (Aborting.load()) {
         return;
     }
 
@@ -1425,7 +1425,7 @@ void TWriteSessionImpl::SendImpl() {
 
 // Client method, no Lock
 bool TWriteSessionImpl::Close(TDuration closeTimeout) {
-    if (AtomicGet(Aborting)) {
+    if (Aborting.load()) {
         return false;
     }
     LOG_LAZY(DbDriverState->Log, TLOG_INFO, LogPrefix() << "Write session: close. Timeout " << closeTimeout);
@@ -1439,7 +1439,7 @@ bool TWriteSessionImpl::Close(TDuration closeTimeout) {
             if (OriginalMessagesToSend.empty() && SentOriginalMessages.empty()) {
                 ready = true;
             }
-            if (AtomicGet(Aborting))
+            if (Aborting.load())
                 break;
         }
         if (ready) {
@@ -1450,7 +1450,7 @@ bool TWriteSessionImpl::Close(TDuration closeTimeout) {
     }
     {
         std::lock_guard guard(Lock);
-        ready = (OriginalMessagesToSend.empty() && SentOriginalMessages.empty()) && !AtomicGet(Aborting);
+        ready = (OriginalMessagesToSend.empty() && SentOriginalMessages.empty()) && !Aborting.load();
     }
     {
         std::lock_guard guard(Lock);
@@ -1472,7 +1472,7 @@ void TWriteSessionImpl::HandleWakeUpImpl() {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     FlushWriteIfRequiredImpl();
-    if (AtomicGet(Aborting)) {
+    if (Aborting.load()) {
         return;
     }
     auto callback = [cbContext = SelfContext] (bool ok)
@@ -1538,9 +1538,9 @@ void TWriteSessionImpl::UpdateTimedCountersImpl() {
 void TWriteSessionImpl::AbortImpl() {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
-    if (!AtomicGet(Aborting)) {
+    if (!Aborting.load()) {
         LOG_LAZY(DbDriverState->Log, TLOG_DEBUG, LogPrefix() << "Write session: aborting");
-        AtomicSet(Aborting, 1);
+        Aborting.store(1);
         Cancel(DescribePartitionContext);
         Cancel(ConnectContext);
         Cancel(ConnectTimeoutContext);
@@ -1582,7 +1582,7 @@ TWriteSessionImpl::~TWriteSessionImpl() {
     bool needClose = false;
     {
         std::lock_guard guard(Lock);
-        if (!AtomicGet(Aborting)) {
+        if (!Aborting.load()) {
             CloseImpl(EStatus::SUCCESS, NYql::TIssues{});
 
             needClose = !InitSeqNoSetDone && (InitSeqNoSetDone = true);

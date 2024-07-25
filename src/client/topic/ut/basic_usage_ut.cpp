@@ -71,20 +71,20 @@ void WriteAndReadToEndWithRestarts(TReadSessionSettings readSettings, TWriteSess
 
 
     NThreading::TPromise<void> checkedPromise = NThreading::NewPromise<void>();
-    TAtomic lastOffset = 0u;
+    std::atomic<int> lastOffset = 0u;
 
     auto f = checkedPromise.GetFuture();
     readSettings.EventHandlers_.SimpleDataHandlers(
         [&]
         (TReadSessionEvent::TDataReceivedEvent& ev) mutable {
-        AtomicSet(lastOffset, ev.GetMessages().back().GetOffset());
+        lastOffset.store(ev.GetMessages().back().GetOffset());
         std::cerr << ">>> TEST: last offset = " << lastOffset << std::endl;
     });
 
     ReadSession = topicClient.CreateReadSession(readSettings);
 
     ui32 i = 0;
-    while (AtomicGet(lastOffset) + 1 < count) {
+    while (lastOffset.load() + 1 < count) {
         RunTasks(decompressor, {i++});
     }
 
@@ -302,12 +302,12 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
         auto totalReceived = 0u;
 
         auto f = checkedPromise.GetFuture();
-        TAtomic check = 1;
+        std::atomic<int> check = 1;
         readSettings.EventHandlers_.SimpleDataHandlers(
             // [checkedPromise = std::move(checkedPromise), &check, &sentMessages, &totalReceived]
             [&]
             (TReadSessionEvent::TDataReceivedEvent& ev) mutable {
-            Y_VERIFY_S(AtomicGet(check) != 0, "check is false");
+            Y_VERIFY_S(check.load() != 0, "check is false");
             auto& messages = ev.GetMessages();
             for (size_t i = 0u; i < messages.size(); ++i) {
                 auto& message = messages[i];
@@ -322,7 +322,7 @@ Y_UNIT_TEST_SUITE(BasicUsage) {
 
         f.GetValueSync();
         ReadSession->Close(TDuration::MilliSeconds(10));
-        AtomicSet(check, 0);
+        check.store(0);
 
         auto status = topicClient.CommitOffset(setup->GetTestTopic(), 0, setup->GetTestConsumer(), 50);
         UNIT_ASSERT(status.GetValueSync().IsSuccess());
