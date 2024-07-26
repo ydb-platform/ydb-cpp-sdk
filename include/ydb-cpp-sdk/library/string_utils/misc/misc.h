@@ -2,8 +2,8 @@
 
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
+#include <util/generic/yexception.h>
+#include <util/string/cast.h>
 
 #include <optional>
 

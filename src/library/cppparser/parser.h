@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <util/generic/ptr.h>
 #include <string>
-#include <ydb-cpp-sdk/util/stream/output.h>
+#include <util/stream/output.h>
 
 class TCppSaxParser: public IOutputStream {
 public:

@@ -40,6 +40,7 @@ include(cmake/external_libs.cmake)
 add_subdirectory(tools)
 add_subdirectory(contrib)
 add_subdirectory(src)
+add_subdirectory(util)
 
 if (YDB_SDK_EXAMPLES)
   add_subdirectory(examples)

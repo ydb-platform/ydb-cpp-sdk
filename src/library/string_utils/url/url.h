@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ydb-cpp-sdk/util/generic/fwd.h>
+#include <util/generic/fwd.h>
 #include <string_view>
 
 namespace NUrl {

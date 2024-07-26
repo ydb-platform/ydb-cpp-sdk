@@ -1,7 +1,7 @@
-#include <ydb-cpp-sdk/util/system/compat.h>
-#include <ydb-cpp-sdk/util/system/compiler.h>
-#include <src/util/system/cpu_id.h>
-#include <ydb-cpp-sdk/util/system/platform.h>
+#include <util/system/compat.h>
+#include <util/system/compiler.h>
+#include <util/system/cpu_id.h>
+#include <util/system/platform.h>
 
 #define Y_CPU_ID_ENUMERATE_STARTUP_CHECKS(F) \
     F(SSE42)                                 \

@@ -2,9 +2,9 @@
 
 #include <src/library/cppparser/parser.h>
 
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <src/util/stream/file.h>
-#include <ydb-cpp-sdk/util/string/escape.h>
+#include <util/generic/yexception.h>
+#include <util/stream/file.h>
+#include <util/string/escape.h>
 
 #include <iostream>
 
@@ -139,7 +139,7 @@ public:
     }
 
     void DoMultiLineComment(const TText& text) override {
-        Y_ENSURE(text.Data.size() >= 4, "Invalid multiline comment " << NUtils::Quote(text.Data) << ". ");
+        Y_ENSURE(text.Data.size() >= 4, "Invalid multiline comment " << TString(text.Data).Quote() << ". ");
         std::string commentText = text.Data.substr(2, text.Data.size() - 4);
         commentText = StripString(commentText);
         CurrentItem.CommentText = commentText;
@@ -288,8 +288,8 @@ public:
             size_t contextOffsetBegin = (offset >= 256) ? offset - 256 : 0;
             std::string codeContext = std::string(Data + contextOffsetBegin, offset - contextOffsetBegin + 1);
             ythrow yexception() << "C++ source parse failed: unbalanced scope. Did you miss a closing '}' bracket? "
-                "Context: enum " << NUtils::Quote(CurrentEnum.CppName) <<
-                " in scope " << NUtils::Quote(TEnumParser::ScopeStr(CurrentEnum.Scope)) << ". Code context:\n... " <<
+                "Context: enum " << TString(CurrentEnum.CppName).Quote() <<
+                " in scope " << TString(TEnumParser::ScopeStr(CurrentEnum.Scope)).Quote() << ". Code context:\n... " <<
                 codeContext << " ...";
         }
         Scope.pop_back();
@@ -303,7 +303,7 @@ public:
                 std::string ofFile;
                 if (!SourceFileName.empty()) {
                     ofFile += " of file ";
-                    ofFile += NUtils::Quote(SourceFileName);
+                    ofFile += TString(SourceFileName).Quote();
                 }
                 ythrow yexception() << "Failed to parse enum " << CurrentEnum.CppName <<
                     " in scope " << TEnumParser::ScopeStr(CurrentEnum.Scope) << ofFile <<
@@ -333,7 +333,7 @@ public:
     }
 
     void PrintEnum(const TEnum& en) {
-        std::cerr << "Enum within scope " << NUtils::Quote(TEnumParser::ScopeStr(en.Scope)) << std::endl;
+        std::cerr << "Enum within scope " << TString(TEnumParser::ScopeStr(en.Scope)).Quote() << std::endl;
         for (const auto& item : en.Items) {
             std::cerr << "    " << item.CppName;
             if (item.Value)
@@ -396,7 +396,8 @@ void TEnumParser::Parse(const char* dataIn, size_t lengthIn) {
     std::string line;
     std::string result;
 
-    while (mi.ReadLine(line)) {
+    while (mi.Avail()) {
+        line = mi.ReadLine();
         if (line.find("if (GetOwningArena() == other->GetOwningArena()) {") == std::string::npos) {
             result += line;
             result += "\n";

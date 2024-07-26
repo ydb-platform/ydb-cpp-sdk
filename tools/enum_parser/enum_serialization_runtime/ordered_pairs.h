@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ydb-cpp-sdk/util/generic/algorithm.h>
-#include <ydb-cpp-sdk/util/stream/input.h>
-#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <util/generic/algorithm.h>
+#include <util/stream/input.h>
+#include <util/generic/yexception.h>
 #include <span>
 #include <array>
 #include <functional>

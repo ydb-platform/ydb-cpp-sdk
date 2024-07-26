@@ -1,7 +1,7 @@
 add_library(string_utils-scan)
 
 target_link_libraries(string_utils-scan PUBLIC
-  yutil
+  string_utils-helpers
 )
 
 target_sources(string_utils-scan PRIVATE

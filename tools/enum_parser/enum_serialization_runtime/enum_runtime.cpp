@@ -1,8 +1,8 @@
 #include "enum_runtime.h"
 
-#include <ydb-cpp-sdk/util/string/builder.h>
+#include <util/string/builder.h>
 
-#include <ydb-cpp-sdk/util/generic/algorithm.h>
+#include <util/generic/algorithm.h>
 
 namespace NEnumSerializationRuntime {
     template <typename TEnumRepresentationType>

@@ -1,4 +1,4 @@
-#include <ydb-cpp-sdk/util/stream/input.h>
+#include <util/stream/input.h>
 
 namespace NUtils {
 

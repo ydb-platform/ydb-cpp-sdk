@@ -3,7 +3,6 @@ add_library(tools-enum_parser-parse_enum)
 target_link_libraries(tools-enum_parser-parse_enum PUBLIC
   yutil
   library-cppparser
-  string_utils-misc
 )
 
 target_sources(tools-enum_parser-parse_enum PRIVATE

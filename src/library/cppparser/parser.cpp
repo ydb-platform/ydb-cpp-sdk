@@ -1,7 +1,7 @@
 #include "parser.h"
 
-#include <ydb-cpp-sdk/util/string/cast.h>
-#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <util/string/cast.h>
+#include <util/generic/yexception.h>
 
 #include <unordered_set>
 

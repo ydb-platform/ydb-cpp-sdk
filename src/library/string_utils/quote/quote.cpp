@@ -1,8 +1,8 @@
 #include "quote.h"
 
-#include <ydb-cpp-sdk/util/memory/tempbuf.h>
-#include <ydb-cpp-sdk/util/string/ascii.h>
-#include <src/util/string/cstriter.h>
+#include <util/memory/tempbuf.h>
+#include <util/string/ascii.h>
+#include <util/string/cstriter.h>
 
 /* note: (x & 0xdf) makes x upper case */
 #define GETXC                                                           \

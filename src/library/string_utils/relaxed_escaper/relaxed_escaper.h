@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ydb-cpp-sdk/util/stream/output.h>
-#include <ydb-cpp-sdk/util/string/escape.h>
-#include <ydb-cpp-sdk/util/memory/tempbuf.h>
+#include <util/stream/output.h>
+#include <util/string/escape.h>
+#include <util/memory/tempbuf.h>
 #include <string_view>
 
 namespace NEscJ {

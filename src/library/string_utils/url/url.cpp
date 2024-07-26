@@ -1,22 +1,22 @@
 #include "url.h"
 
-#include <src/util/charset/unidata.h> // for ToLower
-#include <src/util/string/cstriter.h>
-#include <src/util/string/util.h>
+#include <util/charset/unidata.h> // for ToLower
+#include <util/string/cstriter.h>
+#include <util/string/util.h>
 
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
-#include <ydb-cpp-sdk/util/generic/algorithm.h>
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <util/generic/algorithm.h>
+#include <util/generic/yexception.h>
+#include <util/generic/singleton.h>
 
-#include <ydb-cpp-sdk/util/string/builder.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
-#include <ydb-cpp-sdk/util/string/ascii.h>
-#include <ydb-cpp-sdk/util/string/strip.h>
+#include <util/string/builder.h>
+#include <util/string/cast.h>
+#include <util/string/ascii.h>
+#include <util/string/strip.h>
 
-#include <ydb-cpp-sdk/util/system/defaults.h>
+#include <util/system/defaults.h>
 
 #include <cstdlib>
 
