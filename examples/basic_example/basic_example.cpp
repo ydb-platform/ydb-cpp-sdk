@@ -442,10 +442,7 @@ void SelectSimple(TTableClient client, const std::string& path) {
     ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
         return SelectSimpleTransaction(session, path, resultSet);
     }));
-    
-    if (resultSet.has_value()) {
-        std::cout << FormatResultSetJson(resultSet.value(), EBinaryStringEncoding::Base64);
-    }
+
     TResultSetParser parser(*resultSet);
     if (parser.TryNextRow()) {
         std::cout << "> SelectSimple:" << std::endl << "Series"
@@ -482,7 +479,7 @@ void PreparedSelect(TTableClient client, const std::string& path, uint32_t serie
     ThrowOnError(client.RetryOperationSync([path, seriesId, seasonId, episodeId, &resultSet](TSession session) {
         return PreparedSelectTransaction(session, path, seriesId, seasonId, episodeId, resultSet);
     }));
-
+    
     TResultSetParser parser(*resultSet);
     if (parser.TryNextRow()) {
         auto airDate = TInstant::Days(*parser.ColumnParser("air_date").GetOptionalUint64());
@@ -501,6 +498,7 @@ void MultiStep(TTableClient client, const std::string& path) {
     }));
 
     TResultSetParser parser(*resultSet);
+    
     std::cout << "> MultiStep:" << std::endl;
     while (parser.TryNextRow()) {
         auto airDate = TInstant::Days(*parser.ColumnParser("air_date").GetOptionalUint64());
@@ -563,7 +561,6 @@ void ScanQuerySelect(TTableClient client, const std::string& path) {
         if (streamPart.HasResultSet()) {
             auto rs = streamPart.ExtractResultSet();
             auto columns = rs.GetColumnsMeta();
-
             TResultSetParser parser(rs);
             while (parser.TryNextRow()) {
                 std::cout << "Season"
