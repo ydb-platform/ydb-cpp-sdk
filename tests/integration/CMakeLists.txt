@@ -1,1 +1,2 @@
 add_subdirectory(basic_example_it)
+add_subdirectory(pagination_it)
