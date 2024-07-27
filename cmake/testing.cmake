@@ -72,7 +72,6 @@ function(add_ydb_test)
   target_include_directories(${YDB_TEST_NAME} PRIVATE ${YDB_TEST_INCLUDE_DIRS})
   target_link_libraries(${YDB_TEST_NAME} PRIVATE ${YDB_TEST_LINK_LIBRARIES})
   target_sources(${YDB_TEST_NAME} PRIVATE ${YDB_TEST_SOURCES})
-  #set_tests_properties(${YDB_TEST_NAME} PROPERTIES LABELS "${YDB_TEST_LABELS}")
 
   if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
     target_link_libraries(${YDB_TEST_NAME} PRIVATE
