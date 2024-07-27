@@ -1,7 +1,6 @@
 #include "basic_example.h"
 
 #include <ydb-cpp-sdk/util/string/cast.h>
-#include <ydb-cpp-sdk/json_value/ydb_json_value.h>
 
 #include <src/util/folder/pathsplit.h>
 
@@ -479,7 +478,7 @@ void PreparedSelect(TTableClient client, const std::string& path, uint32_t serie
     ThrowOnError(client.RetryOperationSync([path, seriesId, seasonId, episodeId, &resultSet](TSession session) {
         return PreparedSelectTransaction(session, path, seriesId, seasonId, episodeId, resultSet);
     }));
-    
+
     TResultSetParser parser(*resultSet);
     if (parser.TryNextRow()) {
         auto airDate = TInstant::Days(*parser.ColumnParser("air_date").GetOptionalUint64());
@@ -498,7 +497,6 @@ void MultiStep(TTableClient client, const std::string& path) {
     }));
 
     TResultSetParser parser(*resultSet);
-    
     std::cout << "> MultiStep:" << std::endl;
     while (parser.TryNextRow()) {
         auto airDate = TInstant::Days(*parser.ColumnParser("air_date").GetOptionalUint64());
@@ -561,6 +559,7 @@ void ScanQuerySelect(TTableClient client, const std::string& path) {
         if (streamPart.HasResultSet()) {
             auto rs = streamPart.ExtractResultSet();
             auto columns = rs.GetColumnsMeta();
+
             TResultSetParser parser(rs);
             while (parser.TryNextRow()) {
                 std::cout << "Season"

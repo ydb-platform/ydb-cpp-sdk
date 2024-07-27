@@ -13,15 +13,13 @@ concurrency:
 jobs:
   unit:
     concurrency:
-      group: unit-${{ github.ref }}-${{ matrix.os }}-${{ matrix.go-version }}
+      group: unit-${{ github.ref }}-${{ matrix.os }}
       cancel-in-progress: true
     strategy:
       fail-fast: false
-      matrix:
-        os: [ubuntu]
     env:
-      OS: ${{ matrix.os }}-latest
-    runs-on: ${{ matrix.os }}-latest
+      OS: ubuntu-22.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Checkout PR
       uses: actions/checkout@v3
@@ -56,15 +54,15 @@ jobs:
       run: |
         ctest -j32 --preset release-unit
 
-  integrtion:
+  integration:
     concurrency:
-      group: integration-${{ github.ref }}-${{ matrix.os }}-${{ matrix.go-version }}-${{ matrix.ydb-version }}
+      group: integration-${{ github.ref }}-${{ matrix.ydb-version }}
       cancel-in-progress: true
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        ydb-version: [23.3, 24.1]
+        ydb-version: [23.3, 24.1, trunk]
     services:
       ydb:
         image: ydbplatform/local-ydb:${{ matrix.ydb-version }}

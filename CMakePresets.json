@@ -97,8 +97,8 @@
         "timeout": 1200
       },
       "environment": {
-        "ENDPOINT": "localhost:2136",
-        "DATABASE": "/local"
+        "YDB_ENDPOINT": "localhost:2136",
+        "YDB_DATABASE": "/local"
       }
     }
   ]

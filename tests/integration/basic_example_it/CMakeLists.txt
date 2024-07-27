@@ -6,7 +6,6 @@ add_ydb_test(NAME basic-example_it
   basic_example.h
   LINK_LIBRARIES
   yutil
-  library-getopt
   YDB-CPP-SDK::Table
   GTest::gtest_main
   public-lib-json_value
