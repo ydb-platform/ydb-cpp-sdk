@@ -70,9 +70,8 @@ TEST(Integration, BasicExample) {
         ASSERT_EQ(resultScanQuerySelect, expectedResultScanQuerySelect);
     }
     catch (const TYdbErrorException& e) {
-        std::cerr << "Execution failed due to fatal error:" << std::endl;
         driver.Stop(true);
-        FAIL();
+        FAIL() << "Execution failed due to fatal error:\nStatus: " << ToString(e.Status.GetStatus()) << std::endl << e.Status.GetIssues().ToString();
     }
 
     driver.Stop(true);

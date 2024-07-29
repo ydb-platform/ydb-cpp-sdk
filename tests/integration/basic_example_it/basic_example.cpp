@@ -404,6 +404,56 @@ static TStatus ExplicitTclTransaction(TSession session, const std::string& path,
     return tx.Commit().GetValueSync();
 }
 
+static TStatus ScanQuerySelect(TTableClient client, const std::string& path, std::vector <TResultSet>& vectorResultSet) {    
+    std::vector<std::string> result;
+    auto query = std::format(R"(
+        --!syntax_v1
+        PRAGMA TablePathPrefix("{}");
+
+        DECLARE $series AS List<UInt64>;
+
+        SELECT series_id, season_id, title, CAST(CAST(first_aired AS Date) AS String) AS first_aired
+        FROM seasons
+        WHERE series_id IN $series
+        ORDER BY season_id;
+    )", path);
+
+    auto parameters = TParamsBuilder()
+        .AddParam("$series")
+        .BeginList()
+            .AddListItem().Uint64(1)
+            .AddListItem().Uint64(10)
+        .EndList().Build()
+        .Build();
+
+    // Executes scan query
+    auto resultScanQuery = client.StreamExecuteScanQuery(query, parameters).GetValueSync();
+
+    if (!resultScanQuery.IsSuccess()) {
+        return resultScanQuery;
+    }
+
+    bool eos = false;
+
+    while (!eos) {
+        auto streamPart = resultScanQuery.ReadNext().ExtractValueSync();
+
+        if (!streamPart.IsSuccess()) {
+            eos = true;
+            if (!streamPart.EOS()) {
+                std::cerr << "ScanQuery execution failure: " << streamPart.GetIssues().ToString() << std::endl;
+            }
+            continue;
+        }
+
+        if (streamPart.HasResultSet()) {
+            auto rs = streamPart.ExtractResultSet();
+            vectorResultSet.push_back(rs);
+        }
+    }
+    return resultScanQuery;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 std::string SelectSimple(TTableClient client, const std::string& path) {
@@ -452,53 +502,11 @@ void ExplicitTcl(TTableClient client, const std::string& path) {
 }
 
 std::vector<std::string> ScanQuerySelect(TTableClient client, const std::string& path) {
-    std::vector<std::string> result;
-    auto query = std::format(R"(
-        --!syntax_v1
-        PRAGMA TablePathPrefix("{}");
-
-        DECLARE $series AS List<UInt64>;
-
-        SELECT series_id, season_id, title, CAST(CAST(first_aired AS Date) AS String) AS first_aired
-        FROM seasons
-        WHERE series_id IN $series
-        ORDER BY season_id;
-    )", path);
-
-    auto parameters = TParamsBuilder()
-        .AddParam("$series")
-        .BeginList()
-            .AddListItem().Uint64(1)
-            .AddListItem().Uint64(10)
-        .EndList().Build()
-        .Build();
-
-    // Executes scan query
-    auto resultScanQuery = client.StreamExecuteScanQuery(query, parameters).GetValueSync();
-
-    if (!resultScanQuery.IsSuccess()) {
-        std::cerr << "ScanQuery execution failure: " << resultScanQuery.GetIssues().ToString() << std::endl;
-        return {};
-    }
-
-    bool eos = false;
-
-    while (!eos) {
-        auto streamPart = resultScanQuery.ReadNext().ExtractValueSync();
-
-        if (!streamPart.IsSuccess()) {
-            eos = true;
-            if (!streamPart.EOS()) {
-                std::cerr << "ScanQuery execution failure: " << streamPart.GetIssues().ToString() << std::endl;
-            }
-            continue;
-        }
-
-        if (streamPart.HasResultSet()) {
-            auto rs = streamPart.ExtractResultSet();
-            auto columns = rs.GetColumnsMeta();
-            result.push_back(FormatResultSetJson(rs, EBinaryStringEncoding::Unicode));
-        }
-    }
-    return result;
+    std::vector <TResultSet> vectorResultSet;
+    ThrowOnError(client.RetryOperationSync([path, &vectorResultSet](TTableClient& client) {
+        return ScanQuerySelect(client, path, vectorResultSet);
+    }));
+    std::vector <std::string> resultJson(vectorResultSet.size());
+    std::transform(vectorResultSet.begin(), vectorResultSet.end(), resultJson.begin(), [](TResultSet& x){return FormatResultSetJson(x, EBinaryStringEncoding::Unicode);});
+    return resultJson;
 }
