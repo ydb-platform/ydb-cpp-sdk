@@ -66,7 +66,7 @@ TEST(Integration, BasicExample) {
 
         std::string expectedResultScanQuerySelect = "{\"series_id\":1,\"season_id\":1,\"title\":\"Season 1\",\"first_aired\":\"2006-02-03\"}\n{\"series_id\":1,\"season_id\":2,\"title\":\"Season 2\",\"first_aired\":\"2007-08-24\"}\n{\"series_id\":1,\"season_id\":3,\"title\":\"Season 3\",\"first_aired\":\"2008-11-21\"}\n{\"series_id\":1,\"season_id\":4,\"title\":\"Season 4\",\"first_aired\":\"2010-06-25\"}\n";
         std::vector<std::string> resultScanQuerySelectVector = ScanQuerySelect(client, path);
-        std::string resultScanQuerySelect = std::reduce(resultScanQuerySelectVector.begin(), resultScanQuerySelectVector.end(), std::string());
+        std::string resultScanQuerySelect = std::reduce(resultScanQuerySelectVector.begin(), resultScanQuerySelectVector.end());
         ASSERT_EQ(resultScanQuerySelect, expectedResultScanQuerySelect);
     }
     catch (const TYdbErrorException& e) {
