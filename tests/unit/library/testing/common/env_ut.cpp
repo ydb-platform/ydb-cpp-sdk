@@ -41,7 +41,7 @@ TEST(Runtime, BuildRoot) {
 TEST(Runtime, BinaryPath) {
     NTesting::TScopedEnvironment contextGuard("YA_TEST_CONTEXT_FILE", ""); // remove context filename
     Singleton<NPrivate::TTestEnv>()->ReInitialize();
-    EXPECT_TRUE(TFsPath(BinaryPath("tests/ut/library/testing/common")).Exists());
+    EXPECT_TRUE(TFsPath(BinaryPath("tests/unit/library/testing/common")).Exists());
 }
 
 TEST(Runtime, GetArcadiaTestsData) {
