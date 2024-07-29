@@ -25,6 +25,20 @@ static std::string JoinPath(const std::string& basePath, const std::string& path
     return prefixPathSplit;
 }
 
+RunArgs GetRunArgs() {
+    
+    std::string database = std::getenv("YDB_DATABASE");
+    std::string endpoint = std::getenv("YDB_ENDPOINT");
+
+    auto driverConfig = TDriverConfig()
+        .SetEndpoint(endpoint)
+        .SetDatabase(database)
+        .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "");
+
+    TDriver driver(driverConfig);
+    return {driver, JoinPath(database, "basic")};
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 //! Creates sample tables with CrateTable API.
@@ -242,10 +256,6 @@ static TStatus PreparedSelectTransaction(TSession session, const std::string& pa
         return prepareResult;
     }
 
-    if (!prepareResult.IsQueryFromCache()) {
-        std::cerr << "+Finished preparing query: PreparedSelectTransaction" << std::endl;
-    }
-
     auto dataQuery = prepareResult.GetQuery();
 
     auto params = dataQuery.GetParamsBuilder()
@@ -441,7 +451,7 @@ static TStatus ScanQuerySelect(TTableClient client, const std::string& path, std
         if (!streamPart.IsSuccess()) {
             eos = true;
             if (!streamPart.EOS()) {
-                std::cerr << "ScanQuery execution failure: " << streamPart.GetIssues().ToString() << std::endl;
+                return resultScanQuery;
             }
             continue;
         }

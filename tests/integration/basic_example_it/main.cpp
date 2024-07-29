@@ -1,6 +1,5 @@
 #include "basic_example.h"
 
-#include <src/util/stream/file.h>
 #include <ydb-cpp-sdk/json_value/ydb_json_value.h>
 
 #include <cstdlib>
@@ -8,20 +7,6 @@
 #include <numeric>
 
 #include <gtest/gtest.h>
-
-RunArgs GetRunArgs() {
-    
-    std::string database = std::getenv("YDB_DATABASE");
-    std::string endpoint = std::getenv("YDB_ENDPOINT");
-
-    auto driverConfig = TDriverConfig()
-        .SetEndpoint(endpoint)
-        .SetDatabase(database)
-        .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "");
-
-    TDriver driver(driverConfig);
-    return {driver, database};
-}
 
 TEST(Integration, BasicExample) {
     

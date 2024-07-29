@@ -26,6 +26,7 @@ NYdb::TParams GetTablesDataParams();
 
 void CreateTables(TTableClient client, const std::string& path);
 void ThrowOnError(const TStatus& status);
+RunArgs GetRunArgs();
 TStatus FillTableDataTransaction(TSession session, const std::string& path);
 std::string SelectSimple(TTableClient client, const std::string& path);
 void UpsertSimple(TTableClient client, const std::string& path);
