@@ -47,7 +47,7 @@ endif()
 
 if (YDB_SDK_TESTS)
   enable_testing()
-  add_subdirectory(tests/ut)
+  add_subdirectory(tests/unit)
   add_subdirectory(tests/integration)
 endif()
 
