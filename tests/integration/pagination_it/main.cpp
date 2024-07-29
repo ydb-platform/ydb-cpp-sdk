@@ -1,41 +1,28 @@
 #include "pagination.h"
 
-#include <src/library/getopt/last_getopt.h>
 #include <ydb-cpp-sdk/json_value/ydb_json_value.h>
 
 #include <gtest/gtest.h>
 
-using namespace NLastGetopt;
 using namespace NYdb;
 
 const uint32_t MaxPages = 10;
 
-void StopHandler(int) {
-    exit(1);
-}
-
-RunArgs getRunArgs() {
-    TOpts opts = TOpts::Default();
-
-    std::string database = std::getenv( "DATABASE" );
-    std::string endpoint = std::getenv( "ENDPOINT" );
-    std::string path;
-
-    if (path.empty()) {
-        path = database;
-    }
+RunArgs GetRunArgs() {
+    std::string database = std::getenv("YDB_DATABASE");
+    std::string endpoint = std::getenv("YDB_ENDPOINT");
 
     auto driverConfig = TDriverConfig()
         .SetEndpoint(endpoint)
         .SetDatabase(database)
         .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "");
+
     TDriver driver(driverConfig);
-    
-    return {driver, path};
+    return {driver, database};
 }
 
 TEST(Integration, Pagination) {
-    
+
     std::vector<std::string> mapPagToJson = {
         "{\"address\":\"Кирова, 6\",\"city\":\"Кирс\",\"number\":3}\n{\"address\":\"Урицкого, 21\",\"city\":\"Котельнич\",\"number\":1}\n{\"address\":\"Октябрьская, 109\",\"city\":\"Котельнич\",\"number\":2}\n",
         "{\"address\":\"Советская, 153\",\"city\":\"Котельнич\",\"number\":3}\n{\"address\":\"Школьная, 2\",\"city\":\"Котельнич\",\"number\":5}\n{\"address\":\"Октябрьская, 91\",\"city\":\"Котельнич\",\"number\":15}\n",
@@ -45,7 +32,7 @@ TEST(Integration, Pagination) {
         ""
     };
 
-    auto [driver, path] = getRunArgs();
+    auto [driver, path] = GetRunArgs();
 
     TTableClient client(driver);
 
@@ -62,19 +49,15 @@ TEST(Integration, Pagination) {
         uint32_t page = 0;
         std::string currentResultSet = " ";
 
-        std::cout << "> Pagination, Limit=" << limit << std::endl;
-
         // show first MaxPages=10 pages:
         while (!currentResultSet.empty() && page <= MaxPages) {
             ++page;
-            std::cout << "> Page " << page << ":" << std::endl;
             currentResultSet = SelectPaging(client, path, limit, lastCity, lastNumber);
             ASSERT_EQ(mapPagToJson[page - 1], currentResultSet);
         }
     }
     catch (const TYdbErrorException& e) {
         std::cerr << "Execution failed due to fatal error:" << std::endl;
-        PrintStatus(e.Status);
         FAIL();
     }
 }

@@ -25,4 +25,3 @@ void CreateTable(TTableClient client, const std::string& path);
 void ThrowOnError(const TStatus& status);
 TStatus FillTableDataTransaction(TSession& session, const std::string& path);
 std::string SelectPaging(TTableClient client, const std::string& path, uint64_t pageLimit, std::string& lastCity, uint32_t& lastNumber);
-void PrintStatus(const TStatus& status);

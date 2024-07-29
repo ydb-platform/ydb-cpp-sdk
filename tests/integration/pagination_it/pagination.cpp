@@ -11,11 +11,6 @@ void ThrowOnError(const TStatus& status) {
     }
 }
 
-void PrintStatus(const TStatus& status) {
-    std::cerr << "Status: " << ToString(status.GetStatus()) << std::endl;
-    status.GetIssues().PrintTo(std::cerr);
-}
-
 static std::string JoinPath(const std::string& basePath, const std::string& path) {
     if (basePath.empty()) {
         return path;
@@ -140,8 +135,7 @@ std::string SelectPaging(TTableClient client, const std::string& path, uint64_t 
     do {
         lastCity = parser.ColumnParser("city").GetOptionalUtf8().value();
         lastNumber = parser.ColumnParser("number").GetOptionalUint32().value();
-        std::cout << lastCity << ", Школа №" << lastNumber << ", Адрес: " << ToString(parser.ColumnParser("address").GetOptionalUtf8()) << std::endl;
     } while (parser.TryNextRow());
-    return FormatResultSetJson(resultSet.value(), EBinaryStringEncoding::Unicode);;
+    return FormatResultSetJson(resultSet.value(), EBinaryStringEncoding::Unicode);
 }
 
