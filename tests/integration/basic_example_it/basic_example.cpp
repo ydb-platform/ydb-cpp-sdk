@@ -140,7 +140,8 @@ static TStatus SelectSimpleTransaction(TSession session, const std::string& path
 
         SELECT series_id, title, CAST(CAST(release_date AS Date) AS String) AS release_date
         FROM series
-        WHERE series_id = 1;
+        WHERE series_id = 1
+        ORDER BY series_id;
     )", path);
 
     auto txControl =
@@ -189,7 +190,8 @@ static TStatus SelectWithParamsTransaction(TSession session, const std::string& 
         FROM seasons AS sa
         INNER JOIN series AS sr
         ON sa.series_id = sr.series_id
-        WHERE sa.series_id = $seriesId AND sa.season_id = $seasonId;
+        WHERE sa.series_id = $seriesId AND sa.season_id = $seasonId
+        ORDER BY season_title, series_title;
     )", path);
 
     // Type of parameter values should be exactly the same as in DECLARE statements.
@@ -230,7 +232,8 @@ static TStatus PreparedSelectTransaction(TSession session, const std::string& pa
 
         SELECT *
         FROM episodes
-        WHERE series_id = $seriesId AND season_id = $seasonId AND episode_id = $episodeId;
+        WHERE series_id = $seriesId AND season_id = $seasonId AND episode_id = $episodeId
+        ORDER BY season_id, episode_id;
     )", path);
 
     // Prepare query or get result from query cache
@@ -279,7 +282,8 @@ static TStatus MultiStepTransaction(TSession session, const std::string& path, u
         DECLARE $seasonId AS Uint64;
 
         SELECT first_aired AS from_date FROM seasons
-        WHERE series_id = $seriesId AND season_id = $seasonId;
+        WHERE series_id = $seriesId AND season_id = $seasonId
+        ORDER BY from_date;
     )", path);
 
     auto params1 = session.GetParamsBuilder()
@@ -328,7 +332,8 @@ static TStatus MultiStepTransaction(TSession session, const std::string& path, u
         DECLARE $toDate AS Uint64;
 
         SELECT season_id, episode_id, title, air_date FROM episodes
-        WHERE series_id = $seriesId AND air_date >= $fromDate AND air_date <= $toDate;
+        WHERE series_id = $seriesId AND air_date >= $fromDate AND air_date <= $toDate
+        ORDER BY season_id, episode_id;
     )", path);
 
     auto params2 = session.GetParamsBuilder()
@@ -457,6 +462,7 @@ std::vector<std::string> ScanQuerySelect(TTableClient client, const std::string&
         SELECT series_id, season_id, title, CAST(CAST(first_aired AS Date) AS String) AS first_aired
         FROM seasons
         WHERE series_id IN $series
+        ORDER BY season_id;
     )", path);
 
     auto parameters = TParamsBuilder()
