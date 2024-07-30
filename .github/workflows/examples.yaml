@@ -11,6 +11,9 @@ on:
 jobs:      
   main:
     name: Examples
+    concurrency:
+      group: examples-${{ github.ref }}-${{ matrix.ydb-version }}
+      cancel-in-progress: true
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false

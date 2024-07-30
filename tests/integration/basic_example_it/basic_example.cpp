@@ -25,7 +25,7 @@ static std::string JoinPath(const std::string& basePath, const std::string& path
     return prefixPathSplit;
 }
 
-RunArgs GetRunArgs() {
+TRunArgs GetRunArgs() {
     
     std::string database = std::getenv("YDB_DATABASE");
     std::string endpoint = std::getenv("YDB_ENDPOINT");
@@ -451,7 +451,7 @@ static TStatus ScanQuerySelect(TTableClient client, const std::string& path, std
         if (!streamPart.IsSuccess()) {
             eos = true;
             if (!streamPart.EOS()) {
-                return resultScanQuery;
+                return streamPart;
             }
             continue;
         }
@@ -461,7 +461,7 @@ static TStatus ScanQuerySelect(TTableClient client, const std::string& path, std
             vectorResultSet.push_back(rs);
         }
     }
-    return resultScanQuery;
+    return TStatus(EStatus::SUCCESS, NYql::TIssues());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
