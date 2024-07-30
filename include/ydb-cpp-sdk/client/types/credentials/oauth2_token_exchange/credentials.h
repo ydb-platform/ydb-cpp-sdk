@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 #include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
 
-#include <ydb-cpp-sdk/util/datetime/base.h>
+#include <util/datetime/base.h>
 
 #include <string>
 

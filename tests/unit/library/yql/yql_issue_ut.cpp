@@ -6,7 +6,7 @@
 #include <src/library/yql/public/issue/yql_issue_message.h>
 #include <src/api/protos/ydb_issue_message.pb.h>
 
-#include <src/library/unicode_normalization/normalization.h>
+#include <src/library/unicode-normalization/normalization.h>
 
 #include <src/util/charset/utf8.h>
 #include <src/util/charset/wide.h>

@@ -8,7 +8,7 @@
 
 #include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
 
-#include <ydb-cpp-sdk/util/generic/size_literals.h>
+#include <util/generic/size_literals.h>
 
 namespace NYdb {
     class TProtoAccessor;

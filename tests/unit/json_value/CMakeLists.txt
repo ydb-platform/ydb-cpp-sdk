@@ -5,7 +5,7 @@ add_ydb_test(NAME json_value_ut
   yutil
   cpp-testing-unittest_main
   YDB-CPP-SDK::JsonValue
-  library-json
+  json
   cpp-testing-unittest
   YDB-CPP-SDK::Proto
   YDB-CPP-SDK::Params

@@ -2,7 +2,7 @@ add_library(library-yson-json)
 
 target_link_libraries(library-yson-json PUBLIC
   yutil
-  library-json
+  json
 )
 
 target_sources(library-yson-json PRIVATE

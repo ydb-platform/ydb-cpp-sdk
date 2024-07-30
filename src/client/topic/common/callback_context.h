@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ydb-cpp-sdk/library/threading/future/core/future.h>
-#include <ydb-cpp-sdk/util/system/guard.h>
-#include <ydb-cpp-sdk/util/system/spinlock.h>
+#include <library/cpp/threading/future/core/future.h>
+#include <util/system/guard.h>
+#include <util/system/spinlock.h>
 
 #include <map>
 #include <memory>

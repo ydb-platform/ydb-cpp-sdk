@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/library/yql/public/issue/yql_issue.h>
 
-#include <ydb-cpp-sdk/util/generic/ylimits.h>
+#include <util/generic/ylimits.h>
 
 namespace NYql {
 

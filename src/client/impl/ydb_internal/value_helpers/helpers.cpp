@@ -2,9 +2,7 @@
 #include "helpers.h"
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 
-#include <ydb-cpp-sdk/util/string/builder.h>
-
-#include <ydb-cpp-sdk/util/string/builder.h>
+#include <util/string/builder.h>
 
 namespace NYdb {
 

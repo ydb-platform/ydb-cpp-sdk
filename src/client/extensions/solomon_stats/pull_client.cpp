@@ -24,7 +24,7 @@ NMonitoring::TLabels TSolomonStatPullExtension::TParams::GetLabels() const {
 
 
 TSolomonStatPullExtension::TSolomonStatPage::TSolomonStatPage(const std::string& title, const std::string& path, IApi* api)
-    : NMonitoring::IMonPage(title, path), Api_(api)
+    : NMonitoring::IMonPage(TString(title), TString(path)), Api_(api)
     { }
 
 void TSolomonStatPullExtension::TSolomonStatPage::Output(NMonitoring::IMonHttpRequest& request) {
@@ -35,7 +35,7 @@ void TSolomonStatPullExtension::TSolomonStatPage::Output(NMonitoring::IMonHttpRe
 
 TSolomonStatPullExtension::TSolomonStatPullExtension(const TSolomonStatPullExtension::TParams& params, IApi* api)
     : MetricRegistry_(new NMonitoring::TMetricRegistry(params.GetLabels()))
-    , MonService_(params.Port_, params.Host_, 0), Page_( new TSolomonStatPage("stats", "Statistics", api) ) {
+    , MonService_(params.Port_, TString(params.Host_), 0), Page_( new TSolomonStatPage("stats", "Statistics", api) ) {
         api->SetMetricRegistry(MetricRegistry_.get());
         MonService_.Register(Page_);
         MonService_.StartOrThrow();

@@ -1,6 +1,6 @@
 #include "obfuscate.h"
 
-#include <ydb-cpp-sdk/util/generic/utility.h>
+#include <util/generic/utility.h>
 
 namespace NPersQueue {
 

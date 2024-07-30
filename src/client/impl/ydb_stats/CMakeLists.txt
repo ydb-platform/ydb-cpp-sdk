@@ -2,7 +2,7 @@ add_library(client-impl-ydb_stats)
 
 target_link_libraries(client-impl-ydb_stats PUBLIC
   yutil
-  library-grpc-client
+  grpc-client
   monlib-metrics
 )
 

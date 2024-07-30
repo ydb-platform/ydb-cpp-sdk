@@ -1,16 +1,16 @@
 #include <ydb-cpp-sdk/client/types/credentials/oauth2_token_exchange/credentials.h>
 
-#include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
-#include <ydb-cpp-sdk/library/http/misc/httpcodes.h>
-#include <src/library/http/simple/http_client.h>
-#include <ydb-cpp-sdk/library/json/json_reader.h>
-#include <ydb-cpp-sdk/library/retry/retry_policy.h>
-#include <src/library/uri/uri.h>
+#include <library/cpp/cgiparam/cgiparam.h>
+#include <library/cpp/http/misc/httpcodes.h>
+#include <library/cpp/http/simple/http_client.h>
+#include <library/cpp/json/json_reader.h>
+#include <library/cpp/uri/uri.h>
+#include <src/library/retry/retry_policy.h>
 
-#include <ydb-cpp-sdk/util/datetime/base.h>
-#include <ydb-cpp-sdk/util/string/builder.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
-#include <ydb-cpp-sdk/util/system/spinlock.h>
+#include <util/datetime/base.h>
+#include <util/string/builder.h>
+#include <util/string/cast.h>
+#include <util/system/spinlock.h>
 
 #include <condition_variable>
 #include <mutex>
@@ -348,7 +348,7 @@ private:
     // May be run without lock
     // Can throw exceptions
     TTokenExchangeResult ExchangeToken(TInstant now) const {
-        TKeepAliveHttpClient client(Params.TokenHost_, Params.TokenPort_, Params.SocketTimeout_, Params.ConnectTimeout_);
+        TKeepAliveHttpClient client(TString(Params.TokenHost_), Params.TokenPort_, Params.SocketTimeout_, Params.ConnectTimeout_);
         TStringStream responseStream;
         TKeepAliveHttpClient::THeaders headers;
         headers["Content-Type"] = "application/x-www-form-urlencoded";

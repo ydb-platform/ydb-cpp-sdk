@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/topic/read_events.h>
 
-#include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
+#include <library/cpp/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 
 namespace NYdb::NTopic {
 

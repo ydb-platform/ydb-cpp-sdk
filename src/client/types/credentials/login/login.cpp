@@ -5,7 +5,7 @@
 #include <src/client/types/core_facility/core_facility.h>
 #include <src/api/grpc/ydb_auth_v1.grpc.pb.h>
 
-#include <ydb-cpp-sdk/util/string/cast.h>
+#include <util/string/cast.h>
 
 #include <jwt-cpp/jwt.h>
 

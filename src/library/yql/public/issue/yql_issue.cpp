@@ -2,16 +2,16 @@
 
 #include <ydb-cpp-sdk/library/yql/utils/utf8.h>
 
-#include <src/library/colorizer/output.h>
+#include <library/cpp/colorizer/output.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
-#include <src/util/charset/utf8.h>
-#include <ydb-cpp-sdk/util/string/ascii.h>
-#include <src/util/string/split.h>
-#include <ydb-cpp-sdk/util/string/strip.h>
-#include <ydb-cpp-sdk/util/string/subst.h>
-#include <ydb-cpp-sdk/util/system/compiler.h>
-#include <src/util/generic/stack.h>
+#include <util/charset/utf8.h>
+#include <util/string/ascii.h>
+#include <util/string/split.h>
+#include <util/string/strip.h>
+#include <util/string/subst.h>
+#include <util/system/compiler.h>
+#include <util/generic/stack.h>
 #include <cstdlib>
 
 
@@ -64,7 +64,7 @@ TTextWalker& TTextWalker::Advance(char c) {
     return *this;
 }
 
-void TIssue::PrintTo(std::ostream& out, bool oneLine) const {
+void TIssue::PrintTo(IOutputStream& out, bool oneLine) const {
     out << Range() << ": " << SeverityToString(GetSeverity()) << ": ";
     if (oneLine) {
         std::string message = StripString(Message);
@@ -117,10 +117,10 @@ void WalkThroughIssues(const TIssue& topIssue, bool leafOnly, std::function<void
 
 namespace {
 
-Y_NO_INLINE void Indent(std::ostream& out, ui32 indentation) {
+Y_NO_INLINE void Indent(IOutputStream& out, ui32 indentation) {
     char* whitespaces = reinterpret_cast<char*>(alloca(indentation));
     memset(whitespaces, ' ', indentation);
-    out.write(whitespaces, indentation);
+    out.Write(whitespaces, indentation);
 }
 
 void ProgramLinesWithErrors(
@@ -155,7 +155,7 @@ void ProgramLinesWithErrors(
 
 } // namspace
 
-void TIssues::PrintTo(std::ostream& out, bool oneLine) const
+void TIssues::PrintTo(IOutputStream& out, bool oneLine) const
 {
     if (oneLine) {
         bool printWithSpace = false;
@@ -184,14 +184,14 @@ void TIssues::PrintTo(std::ostream& out, bool oneLine) const
             WalkThroughIssues(topIssue, false, [&](const TIssue& issue, ui16 level) {
                 auto shift = level * 4;
                 Indent(out, shift);
-                out << issue << std::endl;
+                out << issue << Endl;
             });
         }
     }
 }
 
 void TIssues::PrintWithProgramTo(
-        std::ostream& out,
+        IOutputStream& out,
         const std::string& programFilename,
         const std::string& programText) const
 {
@@ -218,7 +218,7 @@ void TIssues::PrintWithProgramTo(
                 }
                 out << '^';
             }
-            out << std::endl;
+            out << Endl;
         });
     }
 }
@@ -276,29 +276,29 @@ std::optional<TPosition> TryParseTerminationMessage(std::string_view& message) {
 
 } // namspace NYql
 
-std::ostream& operator<<(std::ostream& out, const NYql::TPosition& pos) {
-    out << (!pos.File.empty() ? pos.File : "<main>");
+template <>
+void Out<NYql::TPosition>(IOutputStream& out, const NYql::TPosition& pos) {
+    out << (pos.File.empty() ? "<main>" : pos.File);
     if (pos) {
         out << ":" << pos.Row << ':' << pos.Column;
     }
-    return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const NYql::TRange& range) {
+template<>
+void Out<NYql::TRange>(IOutputStream & out, const NYql::TRange & range) {
     if (range.IsRange()) {
         out << '[' << range.Position << '-' << range.EndPosition << ']';
     } else {
         out << range.Position;
     }
-    return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const NYql::TIssue& error) {
+template <>
+void Out<NYql::TIssue>(IOutputStream& out, const NYql::TIssue& error) {
     error.PrintTo(out);
-    return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const NYql::TIssues& error) {
+template <>
+void Out<NYql::TIssues>(IOutputStream& out, const NYql::TIssues& error) {
     error.PrintTo(out);
-    return out;
 }

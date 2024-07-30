@@ -13,7 +13,7 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/timestamp.pb.h>
 
-#include <ydb-cpp-sdk/util/stream/str.h>
+#include <util/stream/str.h>
 
 namespace NYdb {
 namespace NExport {

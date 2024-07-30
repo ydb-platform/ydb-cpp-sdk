@@ -4,9 +4,10 @@ target_link_libraries(yql-public-decimal PUBLIC
   yutil
 )
 
-target_sources(yql-public-decimal PRIVATE
-  yql_decimal.cpp
-  yql_decimal_serialize.cpp
+target_sources(yql-public-decimal
+  PRIVATE
+    yql_decimal.cpp
+    yql_decimal_serialize.cpp
 )
 
 _ydb_sdk_install_targets(TARGETS yql-public-decimal)

@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/client/topic/executor.h>
 #include <src/client/common_client/impl/client.h>
 
-#include <ydb-cpp-sdk/util/thread/pool.h>
+#include <util/thread/pool.h>
 
 #include <queue>
 

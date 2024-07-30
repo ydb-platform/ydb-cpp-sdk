@@ -8,7 +8,7 @@ target_link_libraries(client-ydb_topic PUBLIC
   yutil
   enum_serialization_runtime
   client-ydb_topic-codecs
-  library-retry
+  retry
   client-ydb_topic-common
   client-ydb_topic-impl
   client-ydb_proto

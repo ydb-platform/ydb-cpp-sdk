@@ -1,4 +1,4 @@
-add_ydb_test(NAME library-dbg_output-dbg_output_ut
+add_ydb_test(NAME dbg_output-dbg_output_ut
   SOURCES
     dbg_output_ut.cpp
   INCLUDE_DIRS
@@ -6,7 +6,7 @@ add_ydb_test(NAME library-dbg_output-dbg_output_ut
     ${YDB_SDK_SOURCE_DIR}/src/library/testing/unittest
   LINK_LIBRARIES
     yutil
-    library-dbg_output
+    dbg_output
     cpp-testing-unittest_main
   LABELS
     unit

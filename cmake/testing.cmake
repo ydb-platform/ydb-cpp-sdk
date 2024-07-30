@@ -75,7 +75,7 @@ function(add_ydb_test)
 
   if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
     target_link_libraries(${YDB_TEST_NAME} PRIVATE
-      library-cpuid_check
+      cpuid_check
     )
   endif()
 

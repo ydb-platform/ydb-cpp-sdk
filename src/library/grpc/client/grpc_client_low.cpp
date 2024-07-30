@@ -1,10 +1,10 @@
 #include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
 #include <grpc/support/log.h>
 
-#include <ydb-cpp-sdk/library/containers/stack_vector/stack_vec.h>
+#include <library/cpp/containers/stack_vector/stack_vec.h>
 
-#include <src/util/system/thread.h>
-#include <ydb-cpp-sdk/util/random/random.h>
+#include <util/system/thread.h>
+#include <util/random/random.h>
 
 #if !defined(_WIN32) && !defined(_WIN64)
 #include <sys/types.h>

@@ -7,7 +7,7 @@
 #include <src/client/impl/ydb_internal/plain_status/status.h>
 #include <src/client/impl/ydb_endpoints/endpoints.h>
 
-#include <ydb-cpp-sdk/library/threading/future/future.h>
+#include <library/cpp/threading/future/future.h>
 
 #include <mutex>
 

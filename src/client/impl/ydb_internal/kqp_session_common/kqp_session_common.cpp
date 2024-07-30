@@ -2,6 +2,7 @@
 
 #include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 
+#include <util/string/cast.h>
 namespace NYdb {
 
 using std::string;

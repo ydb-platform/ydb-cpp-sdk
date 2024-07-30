@@ -7,7 +7,7 @@
 #include <ydb-cpp-sdk/client/types/request_settings.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
-#include <ydb-cpp-sdk/library/logger/backend.h>
+#include <library/cpp/logger/backend.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
-#include <ydb-cpp-sdk/util/stream/str.h>
+#include <util/stream/str.h>
 
 #include <src/api/protos/ydb_operation.pb.h>
 
@@ -68,7 +68,7 @@ const TStatus& TOperation::Status() const {
 }
 
 std::string TOperation::ToString() const {
-    std::string result;
+    TString result;
     TStringOutput out(result);
     Out(out);
     return result;

@@ -3,13 +3,13 @@
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 
 #include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
-#include <ydb-cpp-sdk/library/threading/future/future.h>
+#include <library/cpp/threading/future/future.h>
 
 #include <ydb-cpp-sdk/library/jwt/jwt.h>
-#include <ydb-cpp-sdk/util/datetime/base.h>
+#include <util/datetime/base.h>
 
-#include <ydb-cpp-sdk/util/system/spinlock.h>
-#include <ydb-cpp-sdk/util/string/builder.h>
+#include <util/system/spinlock.h>
+#include <util/string/builder.h>
 
 #include <fstream>
 

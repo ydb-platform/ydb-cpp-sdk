@@ -1,12 +1,12 @@
 #pragma once
 
-#include <ydb-cpp-sdk/util/stream/mem.h>
-#include <ydb-cpp-sdk/util/stream/str.h>
-#include <ydb-cpp-sdk/util/stream/output.h>
-#include <ydb-cpp-sdk/util/system/spinlock.h>
-#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <util/stream/mem.h>
+#include <util/stream/str.h>
+#include <util/stream/output.h>
+#include <util/system/spinlock.h>
+#include <util/generic/yexception.h>
 
-#include <src/util/generic/buffer.h>
+#include <util/generic/buffer.h>
 
 #include <unordered_map>
 #include <memory>

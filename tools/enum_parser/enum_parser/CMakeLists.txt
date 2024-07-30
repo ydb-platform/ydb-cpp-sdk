@@ -2,19 +2,19 @@ add_executable(enum_parser)
 
 target_link_libraries(enum_parser PUBLIC
   yutil
-  library-getopt-small
+  getopt-small
   tools-enum_parser-parse_enum
 )
 
 target_sources(enum_parser PRIVATE
-  ${YDB_SDK_SOURCE_DIR}/tools/enum_parser/enum_parser/main.cpp
+  main.cpp
 )
 
 vcs_info(enum_parser)
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(enum_parser PUBLIC
-    library-cpuid_check
+    cpuid_check
   )
 endif()
 

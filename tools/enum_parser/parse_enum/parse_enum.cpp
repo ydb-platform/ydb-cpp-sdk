@@ -1,12 +1,20 @@
 #include "parse_enum.h"
 
-#include <src/library/cppparser/parser.h>
+#include <library/cpp/cppparser/parser.h>
 
-#include <util/generic/yexception.h>
 #include <util/stream/file.h>
-#include <util/string/escape.h>
+#include <util/stream/output.h>
+#include <util/stream/input.h>
+#include <util/stream/mem.h>
 
-#include <iostream>
+#include <util/charset/wide.h>
+#include <util/string/strip.h>
+#include <util/string/cast.h>
+#include <util/generic/map.h>
+#include <util/generic/string.h>
+#include <util/generic/vector.h>
+#include <util/generic/ptr.h>
+#include <util/generic/yexception.h>
 
 /**
  * Parse C-style strings inside multiline comments
@@ -20,11 +28,11 @@ public:
     ~TValuesContext() override {
     }
 
-    std::vector<std::string> Values;
+    TVector<TString> Values;
 };
 
-static std::vector<std::string> ParseEnumValues(const std::string& strValues) {
-    std::vector<std::string> result;
+static TVector<TString> ParseEnumValues(const TString& strValues) {
+    TVector<TString> result;
 
     TValuesContext ctx;
     TCppSaxParser parser(&ctx);
@@ -33,7 +41,7 @@ static std::vector<std::string> ParseEnumValues(const std::string& strValues) {
     parser.Finish();
     for (const auto& value : ctx.Values) {
         Y_ENSURE(value.size() >= 2, "Invalid C-style string. ");
-        std::string dequoted = value.substr(1, value.size() - 2);
+        TString dequoted = value.substr(1, value.size() - 2);
         // TODO: support C-unescaping
         result.push_back(dequoted);
     }
@@ -57,14 +65,14 @@ public:
     }
 
     void AddEnumItem() {
-        if (CurrentItem.CppName.empty()) {
+        if (!CurrentItem.CppName) {
             // uninitialized element should have no value too
-            Y_ASSERT(!CurrentItem.Value.has_value());
+            Y_ASSERT(!CurrentItem.Value.Defined());
             return;
         }
 
         // enum item C++ name should not be empty
-        Y_ASSERT(!CurrentItem.CppName.empty());
+        Y_ASSERT(CurrentItem.CppName);
         CurrentItem.NormalizeValue();
         CurrentEnum.Items.push_back(CurrentItem);
         CurrentItem.Clear();
@@ -77,7 +85,7 @@ public:
         // leave it to C++ compiler to parse/interpret
 
         if (!CurrentItem.Value)
-            CurrentItem.Value = std::string();
+            CurrentItem.Value = TString();
 
         *CurrentItem.Value += text;
     }
@@ -139,13 +147,13 @@ public:
     }
 
     void DoMultiLineComment(const TText& text) override {
-        Y_ENSURE(text.Data.size() >= 4, "Invalid multiline comment " << TString(text.Data).Quote() << ". ");
-        std::string commentText = text.Data.substr(2, text.Data.size() - 4);
+        Y_ENSURE(text.Data.size() >= 4, "Invalid multiline comment " << text.Data.Quote() << ". ");
+        TString commentText = text.Data.substr(2, text.Data.size() - 4);
         commentText = StripString(commentText);
         CurrentItem.CommentText = commentText;
         CurrentItem.Aliases = ParseEnumValues(commentText);
 
-        if (!CurrentItem.Aliases.empty() && CurrentItem.CppName.empty()) {
+        if (CurrentItem.Aliases && !CurrentItem.CppName) {
             // this means we process multiline comment when item name was not set yet.
             ythrow yexception() << "Are you hit with https://clubs.at.yandex-team.ru/stackoverflow/2603 typo? ";
         }
@@ -177,13 +185,13 @@ public:
     typedef TEnumParser::TEnum TEnum;
     typedef TEnumParser::TEnums TEnums;
 
-    const std::string NAMESPACE = "<namespace>";
-    const std::string CLASS = "<class>";
-    const std::string STRUCT = "<struct>";
-    const std::string ENUM = "<enum>";
-    const std::string BLOCK = "<block>";
+    const TString NAMESPACE = "<namespace>";
+    const TString CLASS = "<class>";
+    const TString STRUCT = "<struct>";
+    const TString ENUM = "<enum>";
+    const TString BLOCK = "<block>";
 
-    TCppContext(const char* data, const std::string& sourceFileName = std::string())
+    TCppContext(const char* data, const TString& sourceFileName = TString())
         : Data(data)
         , SourceFileName(sourceFileName)
     {
@@ -195,7 +203,7 @@ public:
     void DoSyntax(const TText& text) override {
         // For some reason, parser sometimes passes chunks like '{};' here,
         // so we handle each symbol separately.
-        const std::string& syn = text.Data;
+        const TString& syn = text.Data;
         if (syn == "::" && InCompositeNamespace) {
             LastScope += syn;
             InCompositeNamespace = false;
@@ -284,12 +292,12 @@ public:
 
     /// @param offset: terminating curly brace position
     void OnLeaveScope(size_t offset) {
-        if (Scope.empty()) {
+        if (!Scope) {
             size_t contextOffsetBegin = (offset >= 256) ? offset - 256 : 0;
-            std::string codeContext = std::string(Data + contextOffsetBegin, offset - contextOffsetBegin + 1);
+            TString codeContext = TString(Data + contextOffsetBegin, offset - contextOffsetBegin + 1);
             ythrow yexception() << "C++ source parse failed: unbalanced scope. Did you miss a closing '}' bracket? "
-                "Context: enum " << TString(CurrentEnum.CppName).Quote() <<
-                " in scope " << TString(TEnumParser::ScopeStr(CurrentEnum.Scope)).Quote() << ". Code context:\n... " <<
+                "Context: enum " << CurrentEnum.CppName.Quote() <<
+                " in scope " << TEnumParser::ScopeStr(CurrentEnum.Scope).Quote() << ". Code context:\n... " <<
                 codeContext << " ...";
         }
         Scope.pop_back();
@@ -300,10 +308,10 @@ public:
             try {
                ParseEnum(Data + EnumPos, offset - EnumPos + 1);
             } catch (...) {
-                std::string ofFile;
-                if (!SourceFileName.empty()) {
+                TString ofFile;
+                if (SourceFileName) {
                     ofFile += " of file ";
-                    ofFile += TString(SourceFileName).Quote();
+                    ofFile += SourceFileName.Quote();
                 }
                 ythrow yexception() << "Failed to parse enum " << CurrentEnum.CppName <<
                     " in scope " << TEnumParser::ScopeStr(CurrentEnum.Scope) << ofFile <<
@@ -325,7 +333,7 @@ public:
 
     // Some debug stuff goes here
     static void PrintScope(const TScope& scope) {
-        std::cerr << "Current scope: " << TEnumParser::ScopeStr(scope) << std::endl;
+        Cerr << "Current scope: " << TEnumParser::ScopeStr(scope) << Endl;
     }
 
     void PrintScope() {
@@ -333,14 +341,14 @@ public:
     }
 
     void PrintEnum(const TEnum& en) {
-        std::cerr << "Enum within scope " << TString(TEnumParser::ScopeStr(en.Scope)).Quote() << std::endl;
+        Cerr << "Enum within scope " << TEnumParser::ScopeStr(en.Scope).Quote() << Endl;
         for (const auto& item : en.Items) {
-            std::cerr << "    " << item.CppName;
+            Cerr << "    " << item.CppName;
             if (item.Value)
-                std::cerr << " = " << *item.Value;
-            std::cerr << std::endl;
+                Cerr << " = " << *item.Value;
+            Cerr << Endl;
             for (const auto& value : item.Aliases) {
-                std::cerr << "        " << value << std::endl;
+                Cerr << "        " << value << Endl;
             }
         }
     }
@@ -355,29 +363,29 @@ public:
     TEnums Enums;
 private:
     const char* const Data;
-    std::string SourceFileName;
+    TString SourceFileName;
 
     bool InEnum = false;
     bool ScopeDeclaration = false;
     bool InCompositeNamespace = false;
-    std::string NextScopeName = BLOCK;
-    std::string LastScope;
+    TString NextScopeName = BLOCK;
+    TString LastScope;
     size_t EnumPos = 0;
     TEnum CurrentEnum;
 };
 
-TEnumParser::TEnumParser(const std::string& fileName) {
+TEnumParser::TEnumParser(const TString& fileName) {
     THolder<IInputStream> hIn;
     IInputStream* in = nullptr;
     if (fileName != "-") {
         SourceFileName = fileName;
-        hIn.Reset(new TFileInput(fileName.c_str()));
+        hIn.Reset(new TFileInput(fileName));
         in = hIn.Get();
     } else {
         in = &Cin;
     }
 
-    std::string contents = in->ReadAll();
+    TString contents = in->ReadAll();
     Parse(contents.data(), contents.size());
 }
 
@@ -386,19 +394,18 @@ TEnumParser::TEnumParser(const char* data, size_t length) {
 }
 
 TEnumParser::TEnumParser(IInputStream& in) {
-    std::string contents = in.ReadAll();
+    TString contents = in.ReadAll();
     Parse(contents.data(), contents.size());
 }
 
 void TEnumParser::Parse(const char* dataIn, size_t lengthIn) {
     TMemoryInput mi(dataIn, lengthIn);
 
-    std::string line;
-    std::string result;
+    TString line;
+    TString result;
 
-    while (mi.Avail()) {
-        line = mi.ReadLine();
-        if (line.find("if (GetOwningArena() == other->GetOwningArena()) {") == std::string::npos) {
+    while (mi.ReadLine(line)) {
+        if (line.find("if (GetOwningArena() == other->GetOwningArena()) {") == TString::npos) {
             result += line;
             result += "\n";
         }
@@ -407,10 +414,10 @@ void TEnumParser::Parse(const char* dataIn, size_t lengthIn) {
     const char* data = result.c_str();
     size_t length = result.length();
 
-    const std::string_view span(data, length);
-    const bool hasPragmaOnce = span.find("#pragma once") != std::string_view::npos;
-    const bool isProtobufHeader = span.find("// Generated by the protocol buffer compiler") != std::string_view::npos;
-    const bool isFlatbuffersHeader = span.find("// automatically generated by the FlatBuffers compiler") != std::string_view::npos;
+    const TStringBuf span(data, length);
+    const bool hasPragmaOnce = span.Contains("#pragma once");
+    const bool isProtobufHeader = span.Contains("// Generated by the protocol buffer compiler");
+    const bool isFlatbuffersHeader = span.Contains("// automatically generated by the FlatBuffers compiler");
     Y_ENSURE(
         hasPragmaOnce || isProtobufHeader || isFlatbuffersHeader,
         "Serialization functions can be generated only for enums in header files. "
@@ -424,7 +431,7 @@ void TEnumParser::Parse(const char* dataIn, size_t lengthIn) {
     parser.Finish();
     // obtain result
     Enums = cppContext.Enums;
-    if (!cppContext.Scope.empty()) {
+    if (cppContext.Scope) {
         cppContext.PrintEnums();
         cppContext.PrintScope();
         ythrow yexception() << "Unbalanced scope, something is wrong with enum parser. ";

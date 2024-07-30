@@ -1,8 +1,8 @@
 #include <ydb-cpp-sdk/client/iam/common/iam.h>
 
-#include <ydb-cpp-sdk/library/json/json_reader.h>
+#include <library/cpp/json/json_reader.h>
 
-#include <src/library/http/simple/http_client.h>
+#include <library/cpp/http/simple/http_client.h>
 #include <src/api/client/yc_public/iam/iam_token_service.pb.h>
 #include <src/api/client/yc_public/iam/iam_token_service.grpc.pb.h>
 
@@ -14,7 +14,7 @@ namespace NYdb {
 class TIAMCredentialsProvider : public ICredentialsProvider {
 public:
     TIAMCredentialsProvider(const TIamHost& params)
-        : HttpClient_(TSimpleHttpClient(params.Host, params.Port))
+        : HttpClient_(TSimpleHttpClient(TString(params.Host), params.Port))
         , Request_("/computeMetadata/v1/instance/service-accounts/default/token")
         , NextTicketUpdate_(TInstant::Zero())
         , RefreshPeriod_(params.RefreshPeriod)

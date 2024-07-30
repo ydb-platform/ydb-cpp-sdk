@@ -12,13 +12,13 @@
 
 #include <google/protobuf/util/time_util.h>
 
-#include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
+#include <library/cpp/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 
-#include <src/util/generic/guid.h>
-#include <ydb-cpp-sdk/util/generic/size_literals.h>
-#include <ydb-cpp-sdk/util/generic/utility.h>
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <ydb-cpp-sdk/util/stream/mem.h>
+#include <util/generic/guid.h>
+#include <util/generic/size_literals.h>
+#include <util/generic/utility.h>
+#include <util/generic/yexception.h>
+#include <util/stream/mem.h>
 
 #include <utility>
 #include <variant>

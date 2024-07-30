@@ -1,4 +1,4 @@
-#include <ydb-cpp-sdk/util/stream/output.h>
+#include <util/stream/output.h>
 
 #include <ydb-cpp-sdk/src/api/protos/ydb_value.pb.h>
 #include <ydb-cpp-sdk/src/api/protos/ydb_topic.pb.h>

@@ -2,7 +2,7 @@ add_library(public-lib-json_value)
 
 target_link_libraries(public-lib-json_value PUBLIC
   yutil
-  library-json-writer
+  json-writer
   string_utils-base64
   client-ydb_result
   client-ydb_value

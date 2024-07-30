@@ -2,7 +2,7 @@
 #include <library/cpp/blockcodecs/core/common.h>
 #include <library/cpp/blockcodecs/core/register.h>
 
-#include <contrib/libs/snappy/snappy.h>
+#include <snappy.h>
 
 using namespace NBlockCodecs;
 

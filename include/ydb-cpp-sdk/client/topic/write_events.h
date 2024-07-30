@@ -5,7 +5,7 @@
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
-#include <ydb-cpp-sdk/util/generic/ptr.h>
+#include <util/generic/ptr.h>
 
 namespace NYdb::NTopic {
 

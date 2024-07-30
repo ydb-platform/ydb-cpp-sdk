@@ -2,8 +2,8 @@
 
 #include <ydb-cpp-sdk/library/jwt/jwt.h>
 
-#include <ydb-cpp-sdk/library/json/json_reader.h>
-#include <ydb-cpp-sdk/util/string/builder.h>
+#include <library/cpp/json/json_reader.h>
+#include <util/string/builder.h>
 
 namespace NYdb {
 

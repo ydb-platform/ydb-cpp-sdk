@@ -3,14 +3,14 @@
 #include <src/client/topic/common/log_lazy.h>
 #include <src/client/topic/common/trace_lazy.h>
 
-#include <src/library/string_utils/url/url.h>
+#include <library/cpp/string_utils/url/url.h>
 
 #include <google/protobuf/util/time_util.h>
 
-#include <ydb-cpp-sdk/util/generic/store_policy.h>
-#include <ydb-cpp-sdk/util/generic/utility.h>
-#include <src/util/stream/buffer.h>
-#include <src/util/generic/guid.h>
+#include <util/generic/store_policy.h>
+#include <util/generic/utility.h>
+#include <util/stream/buffer.h>
+#include <util/generic/guid.h>
 
 
 namespace NYdb::NTopic {

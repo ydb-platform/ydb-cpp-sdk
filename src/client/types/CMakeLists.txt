@@ -9,7 +9,7 @@ add_library(client-ydb_types)
 target_link_libraries(client-ydb_types PUBLIC
   yutil
   protobuf::libprotobuf
-  library-grpc-client
+  grpc-client
   yql-public-issue
   enum_serialization_runtime
 )

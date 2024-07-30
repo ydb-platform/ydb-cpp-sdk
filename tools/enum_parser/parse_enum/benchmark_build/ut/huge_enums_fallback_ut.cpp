@@ -1,8 +1,8 @@
 #include <tools/enum_parser/parse_enum/benchmark_build/lib/enum_huge.h_serialized.h>
 #include <tools/enum_parser/parse_enum/benchmark_build/lib/enum_enormous.h_serialized.h>
-#include <src/library/testing/unittest/registar.h>
-#include <src/util/generic/serialized_enum.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
+#include <library/cpp/testing/unittest/registar.h>
+#include <util/generic/serialized_enum.h>
+#include <util/string/cast.h>
 
 
 namespace {

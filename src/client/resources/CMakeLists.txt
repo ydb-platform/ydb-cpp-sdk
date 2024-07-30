@@ -1,7 +1,7 @@
 add_library(client-resources)
 target_link_libraries(client-resources PUBLIC
   yutil
-  library-resource
+  resource
 )
 target_sources(client-resources PRIVATE
   ydb_resources.cpp
@@ -11,7 +11,7 @@ target_sources(client-resources PRIVATE
 add_global_library_for(client-resources.global client-resources)
 target_link_libraries(client-resources.global PUBLIC
   yutil
-  library-resource
+  resource
 )
 target_sources(client-resources.global PRIVATE
   ${YDB_SDK_BINARY_DIR}/src/client/resources/6ed212bf45019efe2a5e72b6d5ed50fb.cpp

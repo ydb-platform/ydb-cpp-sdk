@@ -1,6 +1,6 @@
 #include "client_pid.h"
 
-#include <ydb-cpp-sdk/util/system/defaults.h>
+#include <util/system/defaults.h>
 
 #ifdef _win_
     // copied from util/system/getpid.cpp

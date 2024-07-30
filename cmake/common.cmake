@@ -163,7 +163,7 @@ function(resources Tgt Output)
     list(APPEND ResourcesList ${Key})
   endforeach()
 
-  get_built_tool_path(rescompiler_bin tools/rescompiler/bin rescompiler)
+  get_built_tool_path(rescompiler_bin tools/rescompiler rescompiler)
 
   add_custom_command(
     OUTPUT ${Output}

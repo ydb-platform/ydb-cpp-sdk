@@ -2,7 +2,7 @@ add_executable(bulk_upsert_simple)
 
 target_link_libraries(bulk_upsert_simple PUBLIC
   yutil
-  library-getopt
+  getopt
   YDB-CPP-SDK::Table
 )
 
@@ -14,7 +14,7 @@ vcs_info(bulk_upsert_simple)
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(bulk_upsert_simple PUBLIC
-    library-cpuid_check
+    cpuid_check
   )
 endif()
 

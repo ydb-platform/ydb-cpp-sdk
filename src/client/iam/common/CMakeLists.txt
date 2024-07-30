@@ -2,9 +2,9 @@ add_library(client-iam-common)
 
 target_link_libraries(client-iam-common PUBLIC
   yutil
-  library-grpc-client
-  library-http-simple
-  library-json
+  grpc-client
+  http-simple
+  json
   library-jwt
   client-ydb_types-credentials
   api-client-yc_public

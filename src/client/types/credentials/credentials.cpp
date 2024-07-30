@@ -1,5 +1,5 @@
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
+#include <util/string/cast.h>
 
 namespace NYdb {
 

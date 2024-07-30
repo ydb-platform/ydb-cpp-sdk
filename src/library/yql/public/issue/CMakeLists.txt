@@ -6,7 +6,7 @@ target_link_libraries(yql-public-issue PUBLIC
   yutil
   protobuf::libprotobuf
   colorizer
-  library-resource
+  resource
   api-protos
   yql-public-issue-protos
   yql-utils

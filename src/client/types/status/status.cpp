@@ -6,7 +6,7 @@
 
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 
-#include <ydb-cpp-sdk/util/string/cast.h>
+#include <util/string/cast.h>
 
 namespace NYdb {
 
@@ -81,15 +81,9 @@ void TStatus::Out(IOutputStream& out) const {
 }
 
 IOutputStream& operator<<(IOutputStream& out, const TStatus& st) {
-    std::stringstream buf;
-    buf << st;
-    return out << buf.str();
-}
-
-std::ostream& operator<<(std::ostream& out, const TStatus& st) {
-    out << "Status: " << ToString(st.GetStatus()) << std::endl;
+    out << "Status: " << ToString(st.GetStatus()) << Endl;
     if (st.GetIssues()) {
-        out << "Issues: " << std::endl;
+        out << "Issues: " << Endl;
         st.GetIssues().PrintTo(out);
     }
     return out;

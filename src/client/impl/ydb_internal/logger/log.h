@@ -2,7 +2,7 @@
 
 #include <src/client/impl/ydb_internal/internal_header.h>
 
-#include <ydb-cpp-sdk/library/logger/log.h>
+#include <library/cpp/logger/log.h>
 
 namespace NYdb {
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <ydb-cpp-sdk/util/system/spinlock.h>
-#include <ydb-cpp-sdk/util/thread/pool.h>
+#include <util/generic/ptr.h>
+#include <util/system/spinlock.h>
+#include <util/thread/pool.h>
 
 #include <memory>
 

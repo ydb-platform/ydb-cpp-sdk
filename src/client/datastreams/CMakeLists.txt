@@ -2,7 +2,7 @@ add_library(client-ydb_datastreams)
 
 target_link_libraries(client-ydb_datastreams PUBLIC
   yutil
-  library-grpc-client
+  grpc-client
   string_utils-url
   api-grpc-draft
   library-operation_id

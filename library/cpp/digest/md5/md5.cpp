@@ -1,12 +1,12 @@
 #include "md5.h"
 
-#include <library/cpp/string_utils/base64/base64.h>
+#include <src/library/string_utils/base64/base64.h>
 
 #include <util/stream/input.h>
 #include <util/stream/file.h>
 #include <util/string/hex.h>
 
-#include <contrib/libs/nayuki_md5/md5.h>
+#include <third_party/nayuki_md5/nayuki_md5.h>
 
 namespace {
 

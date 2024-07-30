@@ -1,8 +1,8 @@
-add_ydb_test(NAME library-cgiparam_ut
+add_ydb_test(NAME cgiparam-ut
   SOURCES
     ut.cpp
   LINK_LIBRARIES
-    library-cgiparam
+    cgiparam
     cpp-testing-unittest_main
   LABELS
     unit

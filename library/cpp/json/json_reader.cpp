@@ -2,9 +2,9 @@
 
 #include "rapidjson_helpers.h"
 
-#include <contrib/libs/rapidjson/include/rapidjson/error/en.h>
-#include <contrib/libs/rapidjson/include/rapidjson/error/error.h>
-#include <contrib/libs/rapidjson/include/rapidjson/reader.h>
+#include <rapidjson/error/en.h>
+#include <rapidjson/error/error.h>
+#include <rapidjson/reader.h>
 
 #include <util/generic/stack.h>
 #include <util/string/cast.h>
@@ -348,9 +348,9 @@ namespace NJson {
                 rapidjsonFlags |= rapidjson::kParseValidateEncodingFlag;
             }
 
-            if (flags & ReaderConfigFlags::ESCAPE) {
-                rapidjsonFlags |= rapidjson::kParseEscapedApostropheFlag;
-            }
+            // if (flags & ReaderConfigFlags::ESCAPE) {
+            //     rapidjsonFlags |= rapidjson::kParseEscapedApostropheFlag;
+            // }
 
             return rapidjsonFlags;
         }

@@ -3,7 +3,7 @@ add_library(client-ydb_persqueue_public-impl)
 target_link_libraries(client-ydb_persqueue_public-impl PUBLIC
   yutil
   containers-disjoint_interval_tree
-  library-grpc-client
+  grpc-client
   monlib-dynamic_counters
   monlib-metrics
   string_utils-url

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ydb-cpp-sdk/util/system/types.h>
+#include <util/system/types.h>
 
 #include <type_traits>
 #include <tuple>

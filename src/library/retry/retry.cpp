@@ -1,6 +1,6 @@
 #include "retry.h"
 
-#include <ydb-cpp-sdk/util/stream/output.h>
+#include <util/stream/output.h>
 
 namespace {
 class TRetryOptionsWithRetCodePolicy : public IRetryPolicy<bool> {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <util/generic/yexception.h>
 
 namespace NYdb {
 

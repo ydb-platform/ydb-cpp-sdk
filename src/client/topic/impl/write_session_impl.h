@@ -4,7 +4,7 @@
 #include <src/client/topic/impl/common.h>
 #include <src/client/topic/impl/topic_impl.h>
 
-#include <src/util/generic/buffer.h>
+#include <util/generic/buffer.h>
 
 
 namespace NYdb::NTopic {
@@ -23,7 +23,8 @@ public:
         }
 
         TWaiter waiter;
-        with_lock(Mutex) {
+        {
+            std::lock_guard guard(Mutex);
             Events.emplace(std::move(eventInfo));
             waiter = PopWaiterImpl();
         }
@@ -49,7 +50,8 @@ public:
 
     std::vector<TEvent> GetEvents(bool block = false, std::optional<size_t> maxEventsCount = std::nullopt) {
         std::vector<TEventInfo> eventInfos;
-        with_lock(Mutex) {
+        {
+            std::lock_guard guard(Mutex);
             if (block) {
                 WaitEventsImpl();
             }
@@ -76,7 +78,8 @@ public:
 
     void Close(const TSessionClosedEvent& event) {
         TWaiter waiter;
-        with_lock(Mutex) {
+        {
+            std::lock_guard guard(Mutex);
             CloseEvent = event;
             Closed = true;
             waiter = TWaiter(Waiter.ExtractPromise(), this);

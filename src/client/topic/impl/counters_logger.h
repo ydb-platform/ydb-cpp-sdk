@@ -6,7 +6,7 @@
 
 #include <src/client/common_client/impl/client.h>
 
-#include <ydb-cpp-sdk/util/system/spinlock.h>
+#include <util/system/spinlock.h>
 
 namespace NYdb::NTopic {
 

@@ -5,16 +5,16 @@
 #include <src/api/protos/ydb_common.pb.h>
 #include <ydb-cpp-sdk/src/api/protos/ydb_value.pb.h>
 
-#include <ydb-cpp-sdk/util/string/builder.h>
+#include <util/string/builder.h>
 
-#include <src/util/generic/mapfindptr.h>
+#include <util/generic/mapfindptr.h>
 
 #include <google/protobuf/text_format.h>
 
 namespace NYdb {
 
 std::string TColumn::ToString() const {
-    std::string result;
+    TString result;
     TStringOutput out(result);
     Out(out);
     return result;

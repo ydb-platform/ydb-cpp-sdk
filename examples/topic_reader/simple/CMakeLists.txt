@@ -3,7 +3,7 @@ add_executable(simple_persqueue_reader)
 target_link_libraries(simple_persqueue_reader PUBLIC
   yutil
   YDB-CPP-SDK::Topic
-  library-getopt
+  getopt
 )
 
 target_sources(simple_persqueue_reader PRIVATE
@@ -14,7 +14,7 @@ vcs_info(simple_persqueue_reader)
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_link_libraries(simple_persqueue_reader PUBLIC
-    library-cpuid_check
+    cpuid_check
   )
 endif()
 

@@ -5,6 +5,8 @@
 #include <src/client/topic/common/callback_context.h>
 #include <src/client/topic/impl/read_session.h>
 
+#include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
+
 namespace NYdb::NFederatedTopic {
 
 class TEventFederator {

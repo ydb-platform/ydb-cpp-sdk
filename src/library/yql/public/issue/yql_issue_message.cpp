@@ -3,9 +3,9 @@
 #include <src/library/yql/public/issue/protos/issue_message.pb.h>
 #include <src/api/protos/ydb_issue_message.pb.h>
 
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <ydb-cpp-sdk/util/stream/output.h>
-#include <src/util/string/join.h>
+#include <util/generic/yexception.h>
+#include <util/stream/output.h>
+#include <util/string/join.h>
 
 #include <google/protobuf/text_format.h>
 

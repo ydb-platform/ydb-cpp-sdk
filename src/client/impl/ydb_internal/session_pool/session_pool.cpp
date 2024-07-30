@@ -7,7 +7,7 @@
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
 
-#include <ydb-cpp-sdk/util/random/random.h>
+#include <util/random/random.h>
 
 namespace NYdb {
 namespace NSessionPool {

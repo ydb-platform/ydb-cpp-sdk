@@ -18,7 +18,12 @@ _ydb_sdk_add_proto_library(api-protos
     ydb_replication
 )
 
-target_link_libraries(api-protos PUBLIC
+target_compile_options(api-protos
+  PRIVATE
+    -Wno-deprecated
+)
+
+target_link_libraries(api-protos PRIVATE
   enum_serialization_runtime
 )
 

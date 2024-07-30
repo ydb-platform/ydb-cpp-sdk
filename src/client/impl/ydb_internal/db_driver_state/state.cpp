@@ -4,10 +4,19 @@
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 #include <src/client/impl/ydb_internal/logger/log.h>
 
-#include <src/library/string_utils/quote/quote.h>
+#include <library/cpp/string_utils/quote/quote.h>
 
 #include <thread>
 #include <unordered_map>
+
+namespace {
+    void Quote(std::string& url, const char* safe = "/") {
+        TTempBuf tempBuf(CgiEscapeBufLen(url.size()));
+        char* to = tempBuf.Data();
+
+        url.assign(to, Quote(to, TStringBuf(url), safe));
+    }
+}
 
 namespace NYdb {
 

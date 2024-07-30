@@ -22,11 +22,11 @@
 
 #include <google/protobuf/util/time_util.h>
 
-#include <src/library/cache/cache.h>
+#include <library/cpp/cache/cache.h>
 #include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
-#include <ydb-cpp-sdk/util/random/random.h>
-#include <src/util/string/join.h>
+#include <util/random/random.h>
+#include <util/string/join.h>
 
 #include <map>
 
@@ -2300,7 +2300,7 @@ void TIndexDescription::SerializeTo(Ydb::Table::TableIndex& proto) const {
 }
 
 std::string TIndexDescription::ToString() const {
-    std::string result;
+    TString result;
     TStringOutput out(result);
     Out(out);
     return result;
@@ -2551,7 +2551,7 @@ void TChangefeedDescription::SerializeTo(Ydb::Table::Changefeed& proto) const {
 }
 
 std::string TChangefeedDescription::ToString() const {
-    std::string result;
+    TString result;
     TStringOutput out(result);
     Out(out);
     return result;
@@ -2653,7 +2653,7 @@ void TValueSinceUnixEpochModeSettings::Out(IOutputStream& out, EUnit unit) {
 }
 
 std::string TValueSinceUnixEpochModeSettings::ToString(EUnit unit) {
-    std::string result;
+    TString result;
     TStringOutput out(result);
     Out(out, unit);
     return result;

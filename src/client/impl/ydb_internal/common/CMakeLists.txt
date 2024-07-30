@@ -2,7 +2,7 @@ add_library(impl-ydb_internal-common)
 
 target_link_libraries(impl-ydb_internal-common PUBLIC
   yutil
-  library-grpc-client
+  grpc-client
   yql-public-issue
 )
 

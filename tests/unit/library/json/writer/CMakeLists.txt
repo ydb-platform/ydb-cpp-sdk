@@ -1,4 +1,4 @@
-add_ydb_test(NAME library-json-writer-json_ut
+add_ydb_test(NAME json-writer-json_ut
 SOURCES
     json_ut.cpp
 INCLUDE_DIRS   
@@ -8,13 +8,13 @@ INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}/src/util/system
 LINK_LIBRARIES
     yutil
-    library-json-writer
+    json-writer
     cpp-testing-unittest_main
 LABELS
     unit
 )
 
-add_ydb_test(NAME library-json-writer-json_value_ut
+add_ydb_test(NAME json-writer-json_value_ut
 SOURCES
     json_value_ut.cpp
 INCLUDE_DIRS   
@@ -23,7 +23,7 @@ INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}/src/library/testing/unittest
 LINK_LIBRARIES
     yutil
-    library-json-writer
+    json-writer
     cpp-testing-unittest_main
 LABELS
     unit
