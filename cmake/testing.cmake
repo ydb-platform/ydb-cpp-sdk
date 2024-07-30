@@ -60,7 +60,7 @@ endfunction()
 function(add_ydb_test)
   set(opts "")
   set(oneval_args NAME)
-  set(multival_args INCLUDE_DIRS SOURCES LINK_LIBRARIES)
+  set(multival_args INCLUDE_DIRS SOURCES LINK_LIBRARIES LABELS)
   cmake_parse_arguments(YDB_TEST
     "${opts}"
     "${oneval_args}"
@@ -121,6 +121,7 @@ function(add_ydb_test)
     PROPERTY
     LABELS
     MEDIUM
+    ${YDB_TEST_LABELS}
   )
 
   set_yunittest_property(

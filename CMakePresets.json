@@ -59,6 +59,46 @@
       },
       "execution": {
         "timeout": 1200
+      },
+      "environment": {
+        "YDB_ENDPOINT": "localhost:2136",
+        "YDB_DATABASE": "/local"
+      }
+    },
+    {
+      "name": "release-unit",
+      "configurePreset": "release",
+      "displayName": "Default Unit Release Tests",
+      "filter" : {
+        "include": {
+          "label": "unit"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "timeout": 1200
+      }
+    },
+    {
+      "name": "release-integration",
+      "configurePreset": "release",
+      "displayName": "Default Integration Release Tests",
+      "output": {
+        "outputOnFailure": true
+      },
+      "filter" : {
+        "include": {
+          "label": "integration"
+        }
+      },
+      "execution": {
+        "timeout": 1200
+      },
+      "environment": {
+        "YDB_ENDPOINT": "localhost:2136",
+        "YDB_DATABASE": "/local"
       }
     }
   ]

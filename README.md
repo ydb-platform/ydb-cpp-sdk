@@ -122,6 +122,20 @@ cmake --build --preset release
 
 Specify a level of parallelism by passing the `-j<level>` option into the command below (e.g. `-j$(nproc)`)
 
+Running all tests:
+
 ```bash
 ctest -j$(nproc) --preset release
+```
+
+Running unit tests only:
+
+```bash
+ctest -j$(nproc) --preset release-unit
+```
+
+Running integration tests only:
+
+```bash
+ctest -j$(nproc) --preset release-integration
 ```

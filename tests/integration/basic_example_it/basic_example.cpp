@@ -1,6 +1,6 @@
 #include "basic_example.h"
 
-#include <ydb-cpp-sdk/util/string/cast.h>
+#include <ydb-cpp-sdk/json_value/ydb_json_value.h>
 
 #include <filesystem>
 #include <format>
@@ -8,23 +8,10 @@
 using namespace NYdb;
 using namespace NYdb::NTable;
 
-class TYdbErrorException : public yexception {
-public:
-    TYdbErrorException(const TStatus& status)
-        : Status(status) {}
-
-    TStatus Status;
-};
-
-static void ThrowOnError(const TStatus& status) {
+void ThrowOnError(const TStatus& status) {
     if (!status.IsSuccess()) {
         throw TYdbErrorException(status) << status;
     }
-}
-
-static void PrintStatus(const TStatus& status) {
-    std::cerr << "Status: " << ToString(status.GetStatus()) << std::endl;
-    status.GetIssues().PrintTo(std::cerr);
 }
 
 static std::string JoinPath(const std::string& basePath, const std::string& path) {
@@ -38,10 +25,24 @@ static std::string JoinPath(const std::string& basePath, const std::string& path
     return prefixPathSplit;
 }
 
+TRunArgs GetRunArgs() {
+    
+    std::string database = std::getenv("YDB_DATABASE");
+    std::string endpoint = std::getenv("YDB_ENDPOINT");
+
+    auto driverConfig = TDriverConfig()
+        .SetEndpoint(endpoint)
+        .SetDatabase(database)
+        .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "");
+
+    TDriver driver(driverConfig);
+    return {driver, JoinPath(database, "basic")};
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 //! Creates sample tables with CrateTable API.
-static void CreateTables(TTableClient client, const std::string& path) {
+void CreateTables(TTableClient client, const std::string& path) {
     ThrowOnError(client.RetryOperationSync([path](TSession session) {
         auto seriesDesc = TTableBuilder()
             .AddNullableColumn("series_id", EPrimitiveType::Uint64)
@@ -82,30 +83,10 @@ static void CreateTables(TTableClient client, const std::string& path) {
     }));
 }
 
-//! Describe existing table.
-static void DescribeTable(TTableClient client, const std::string& path, const std::string& name) {
-    std::optional<TTableDescription> desc;
-
-    ThrowOnError(client.RetryOperationSync([path, name, &desc](TSession session) {
-        auto result = session.DescribeTable(JoinPath(path, name)).GetValueSync();
-
-        if (result.IsSuccess()) {
-            desc = result.GetTableDescription();
-        }
-
-        return result;
-    }));
-
-    std::cout << "> Describe table: " << name << std::endl;
-    for (auto& column : desc->GetColumns()) {
-        std::cout << "Column, name: " << column.Name << ", type: " << FormatType(column.Type) << std::endl;
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 //! Fills sample tables with data in single parameterized data query.
-static TStatus FillTableDataTransaction(TSession session, const std::string& path) {
+TStatus FillTableDataTransaction(TSession session, const std::string& path) {
     auto query = std::format(R"(
         PRAGMA TablePathPrefix("{}");
 
@@ -173,7 +154,8 @@ static TStatus SelectSimpleTransaction(TSession session, const std::string& path
 
         SELECT series_id, title, CAST(CAST(release_date AS Date) AS String) AS release_date
         FROM series
-        WHERE series_id = 1;
+        WHERE series_id = 1
+        ORDER BY series_id;
     )", path);
 
     auto txControl =
@@ -222,7 +204,8 @@ static TStatus SelectWithParamsTransaction(TSession session, const std::string& 
         FROM seasons AS sa
         INNER JOIN series AS sr
         ON sa.series_id = sr.series_id
-        WHERE sa.series_id = $seriesId AND sa.season_id = $seasonId;
+        WHERE sa.series_id = $seriesId AND sa.season_id = $seasonId
+        ORDER BY season_title, series_title;
     )", path);
 
     // Type of parameter values should be exactly the same as in DECLARE statements.
@@ -263,17 +246,14 @@ static TStatus PreparedSelectTransaction(TSession session, const std::string& pa
 
         SELECT *
         FROM episodes
-        WHERE series_id = $seriesId AND season_id = $seasonId AND episode_id = $episodeId;
+        WHERE series_id = $seriesId AND season_id = $seasonId AND episode_id = $episodeId
+        ORDER BY season_id, episode_id;
     )", path);
 
     // Prepare query or get result from query cache
     auto prepareResult = session.PrepareDataQuery(query).GetValueSync();
     if (!prepareResult.IsSuccess()) {
         return prepareResult;
-    }
-
-    if (!prepareResult.IsQueryFromCache()) {
-        std::cerr << "+Finished preparing query: PreparedSelectTransaction" << std::endl;
     }
 
     auto dataQuery = prepareResult.GetQuery();
@@ -312,7 +292,8 @@ static TStatus MultiStepTransaction(TSession session, const std::string& path, u
         DECLARE $seasonId AS Uint64;
 
         SELECT first_aired AS from_date FROM seasons
-        WHERE series_id = $seriesId AND season_id = $seasonId;
+        WHERE series_id = $seriesId AND season_id = $seasonId
+        ORDER BY from_date;
     )", path);
 
     auto params1 = session.GetParamsBuilder()
@@ -361,7 +342,8 @@ static TStatus MultiStepTransaction(TSession session, const std::string& path, u
         DECLARE $toDate AS Uint64;
 
         SELECT season_id, episode_id, title, air_date FROM episodes
-        WHERE series_id = $seriesId AND air_date >= $fromDate AND air_date <= $toDate;
+        WHERE series_id = $seriesId AND air_date >= $fromDate AND air_date <= $toDate
+        ORDER BY season_id, episode_id;
     )", path);
 
     auto params2 = session.GetParamsBuilder()
@@ -432,88 +414,8 @@ static TStatus ExplicitTclTransaction(TSession session, const std::string& path,
     return tx.Commit().GetValueSync();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-void SelectSimple(TTableClient client, const std::string& path) {
-    std::optional<TResultSet> resultSet;
-    ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
-        return SelectSimpleTransaction(session, path, resultSet);
-    }));
-
-    TResultSetParser parser(*resultSet);
-    if (parser.TryNextRow()) {
-        std::cout << "> SelectSimple:" << std::endl << "Series"
-            << ", Id: " << ToString(parser.ColumnParser("series_id").GetOptionalUint64())
-            << ", Title: " << ToString(parser.ColumnParser("title").GetOptionalUtf8())
-            << ", Release date: " << ToString(parser.ColumnParser("release_date").GetOptionalString())
-            << std::endl;
-    }
-}
-
-void UpsertSimple(TTableClient client, const std::string& path) {
-    ThrowOnError(client.RetryOperationSync([path](TSession session) {
-        return UpsertSimpleTransaction(session, path);
-    }));
-}
-
-void SelectWithParams(TTableClient client, const std::string& path) {
-    std::optional<TResultSet> resultSet;
-    ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
-        return SelectWithParamsTransaction(session, path, 2, 3, resultSet);
-    }));
-
-    TResultSetParser parser(*resultSet);
-    if (parser.TryNextRow()) {
-        std::cout << "> SelectWithParams:" << std::endl << "Season"
-            << ", Title: " << ToString(parser.ColumnParser("season_title").GetOptionalUtf8())
-            << ", Series title: " << ToString(parser.ColumnParser("series_title").GetOptionalUtf8())
-            << std::endl;
-    }
-}
-
-void PreparedSelect(TTableClient client, const std::string& path, uint32_t seriesId, uint32_t seasonId, uint32_t episodeId) {
-    std::optional<TResultSet> resultSet;
-    ThrowOnError(client.RetryOperationSync([path, seriesId, seasonId, episodeId, &resultSet](TSession session) {
-        return PreparedSelectTransaction(session, path, seriesId, seasonId, episodeId, resultSet);
-    }));
-
-    TResultSetParser parser(*resultSet);
-    if (parser.TryNextRow()) {
-        auto airDate = TInstant::Days(*parser.ColumnParser("air_date").GetOptionalUint64());
-
-        std::cout << "> PreparedSelect:" << std::endl << "Episode " << ToString(parser.ColumnParser("episode_id").GetOptionalUint64())
-            << ", Title: " << ToString(parser.ColumnParser("title").GetOptionalUtf8())
-            << ", Air date: " << airDate.FormatLocalTime("%a %b %d, %Y")
-            << std::endl;
-    }
-}
-
-void MultiStep(TTableClient client, const std::string& path) {
-    std::optional<TResultSet> resultSet;
-    ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
-        return MultiStepTransaction(session, path, 2, 5, resultSet);
-    }));
-
-    TResultSetParser parser(*resultSet);
-    std::cout << "> MultiStep:" << std::endl;
-    while (parser.TryNextRow()) {
-        auto airDate = TInstant::Days(*parser.ColumnParser("air_date").GetOptionalUint64());
-
-        std::cout << "Episode " << ToString(parser.ColumnParser("episode_id").GetOptionalUint64())
-            << ", Season: " << ToString(parser.ColumnParser("season_id").GetOptionalUint64())
-            << ", Title: " << ToString(parser.ColumnParser("title").GetOptionalUtf8())
-            << ", Air date: " << airDate.FormatLocalTime("%a %b %d, %Y")
-            << std::endl;
-    }
-}
-
-void ExplicitTcl(TTableClient client, const std::string& path) {
-    ThrowOnError(client.RetryOperationSync([path](TSession session) {
-        return ExplicitTclTransaction(session, path, TInstant::Now());
-    }));
-}
-
-void ScanQuerySelect(TTableClient client, const std::string& path) {
+static TStatus ScanQuerySelect(TTableClient client, const std::string& path, std::vector <TResultSet>& vectorResultSet) {    
+    std::vector<std::string> result;
     auto query = std::format(R"(
         --!syntax_v1
         PRAGMA TablePathPrefix("{}");
@@ -523,6 +425,7 @@ void ScanQuerySelect(TTableClient client, const std::string& path) {
         SELECT series_id, season_id, title, CAST(CAST(first_aired AS Date) AS String) AS first_aired
         FROM seasons
         WHERE series_id IN $series
+        ORDER BY season_id;
     )", path);
 
     auto parameters = TParamsBuilder()
@@ -534,78 +437,86 @@ void ScanQuerySelect(TTableClient client, const std::string& path) {
         .Build();
 
     // Executes scan query
-    auto result = client.StreamExecuteScanQuery(query, parameters).GetValueSync();
+    auto resultScanQuery = client.StreamExecuteScanQuery(query, parameters).GetValueSync();
 
-    if (!result.IsSuccess()) {
-        std::cerr << "ScanQuery execution failure: " << result.GetIssues().ToString() << std::endl;
-        return;
+    if (!resultScanQuery.IsSuccess()) {
+        return resultScanQuery;
     }
 
     bool eos = false;
-    std::cout << "> ScanQuerySelect:" << std::endl;
+
     while (!eos) {
-        auto streamPart = result.ReadNext().ExtractValueSync();
+        auto streamPart = resultScanQuery.ReadNext().ExtractValueSync();
 
         if (!streamPart.IsSuccess()) {
             eos = true;
             if (!streamPart.EOS()) {
-                std::cerr << "ScanQuery execution failure: " << streamPart.GetIssues().ToString() << std::endl;
+                return streamPart;
             }
             continue;
         }
 
         if (streamPart.HasResultSet()) {
             auto rs = streamPart.ExtractResultSet();
-            auto columns = rs.GetColumnsMeta();
-
-            TResultSetParser parser(rs);
-            while (parser.TryNextRow()) {
-                std::cout << "Season"
-                     << ", SeriesId: " << ToString(parser.ColumnParser("series_id").GetOptionalUint64())
-                     << ", SeasonId: " << ToString(parser.ColumnParser("season_id").GetOptionalUint64())
-                     << ", Title: " << ToString(parser.ColumnParser("title").GetOptionalUtf8())
-                     << ", Air date: " << ToString(parser.ColumnParser("first_aired").GetOptionalString())
-                     << std::endl;
-            }
+            vectorResultSet.push_back(rs);
         }
     }
+    return TStatus(EStatus::SUCCESS, NYql::TIssues());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool Run(const TDriver& driver, const std::string& path) {
-    TTableClient client(driver);
+std::string SelectSimple(TTableClient client, const std::string& path) {
+    std::optional<TResultSet> resultSet;
+    ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
+        return SelectSimpleTransaction(session, path, resultSet);
+    }));
+    return FormatResultSetJson(resultSet.value(), EBinaryStringEncoding::Unicode); 
+}
 
-    try {
-        CreateTables(client, path);
+void UpsertSimple(TTableClient client, const std::string& path) {
+    ThrowOnError(client.RetryOperationSync([path](TSession session) {
+        return UpsertSimpleTransaction(session, path);
+    }));
+}
 
-        DescribeTable(client, path, "series");
+std::string SelectWithParams(TTableClient client, const std::string& path) {
+    std::optional<TResultSet> resultSet;
+    std::string result;
+    ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
+        return SelectWithParamsTransaction(session, path, 2, 3, resultSet);
+    }));
+    return FormatResultSetJson(resultSet.value(), EBinaryStringEncoding::Unicode); 
+}
 
-        ThrowOnError(client.RetryOperationSync([path](TSession session) {
-            return FillTableDataTransaction(session, path);
-        }));
+std::string PreparedSelect(TTableClient client, const std::string& path, ui32 seriesId, ui32 seasonId, ui32 episodeId) {
+    std::optional<TResultSet> resultSet;
+    ThrowOnError(client.RetryOperationSync([path, seriesId, seasonId, episodeId, &resultSet](TSession session) {
+        return PreparedSelectTransaction(session, path, seriesId, seasonId, episodeId, resultSet);
+    }));
+    return FormatResultSetJson(resultSet.value(), EBinaryStringEncoding::Unicode);  
+}
 
-        SelectSimple(client, path);
-        UpsertSimple(client, path);
+std::string MultiStep(TTableClient client, const std::string& path) {
+    std::optional<TResultSet> resultSet;
+    ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
+        return MultiStepTransaction(session, path, 2, 5, resultSet);
+    }));
+    return FormatResultSetJson(resultSet.value(), EBinaryStringEncoding::Unicode);
+}
 
-        SelectWithParams(client, path);
+void ExplicitTcl(TTableClient client, const std::string& path) {
+    ThrowOnError(client.RetryOperationSync([path](TSession session) {
+        return ExplicitTclTransaction(session, path, TInstant());
+    }));
+}
 
-        PreparedSelect(client, path, 2, 3, 7);
-        PreparedSelect(client, path, 2, 3, 8);
-
-        MultiStep(client, path);
-
-        ExplicitTcl(client, path);
-
-        PreparedSelect(client, path, 2, 6, 1);
-
-        ScanQuerySelect(client, path);
-    }
-    catch (const TYdbErrorException& e) {
-        std::cerr << "Execution failed due to fatal error:" << std::endl;
-        PrintStatus(e.Status);
-        return false;
-    }
-
-    return true;
+std::vector<std::string> ScanQuerySelect(TTableClient client, const std::string& path) {
+    std::vector <TResultSet> vectorResultSet;
+    ThrowOnError(client.RetryOperationSync([path, &vectorResultSet](TTableClient& client) {
+        return ScanQuerySelect(client, path, vectorResultSet);
+    }));
+    std::vector <std::string> resultJson(vectorResultSet.size());
+    std::transform(vectorResultSet.begin(), vectorResultSet.end(), resultJson.begin(), [](TResultSet& x){return FormatResultSetJson(x, EBinaryStringEncoding::Unicode);});
+    return resultJson;
 }
