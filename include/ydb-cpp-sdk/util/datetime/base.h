@@ -167,6 +167,8 @@ public:
         return Value_;
     }
 
+    auto operator<=>(const TTimeBase&) const = default;
+
 protected:
     TValue Value_; // microseconds count
 };
@@ -580,36 +582,6 @@ namespace NPrivate {
 /// @see TInstant::ToStringLocalUpToSeconds()
 ::NPrivate::TPrintableLocalTime<true, false> FormatLocalUpToSeconds(TInstant instant);
 ///@}
-
-template <class S>
-static constexpr bool operator<(const TTimeBase<S>& l, const TTimeBase<S>& r) noexcept {
-    return l.GetValue() < r.GetValue();
-}
-
-template <class S>
-static constexpr bool operator<=(const TTimeBase<S>& l, const TTimeBase<S>& r) noexcept {
-    return l.GetValue() <= r.GetValue();
-}
-
-template <class S>
-static constexpr bool operator==(const TTimeBase<S>& l, const TTimeBase<S>& r) noexcept {
-    return l.GetValue() == r.GetValue();
-}
-
-template <class S>
-static constexpr bool operator!=(const TTimeBase<S>& l, const TTimeBase<S>& r) noexcept {
-    return l.GetValue() != r.GetValue();
-}
-
-template <class S>
-static constexpr bool operator>(const TTimeBase<S>& l, const TTimeBase<S>& r) noexcept {
-    return l.GetValue() > r.GetValue();
-}
-
-template <class S>
-static constexpr bool operator>=(const TTimeBase<S>& l, const TTimeBase<S>& r) noexcept {
-    return l.GetValue() >= r.GetValue();
-}
 
 namespace NDateTimeHelpers {
     template <typename T>
