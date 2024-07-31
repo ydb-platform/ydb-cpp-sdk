@@ -1,6 +1,6 @@
 #include "paged_vector.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 #include <stdexcept>
 

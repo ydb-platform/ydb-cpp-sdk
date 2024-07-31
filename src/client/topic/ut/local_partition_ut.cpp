@@ -9,8 +9,8 @@
 #include <src/client/ydb_persqueue_core/impl/common.h>
 #include <src/client/ydb_persqueue_core/impl/write_session.h>
 
-#include <src/library/testing/unittest/registar.h>
-#include <src/library/testing/unittest/tests_data.h>
+#include <library/cpp/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/tests_data.h>
 
 #include <future>
 

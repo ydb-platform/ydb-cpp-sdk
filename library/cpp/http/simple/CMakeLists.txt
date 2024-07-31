@@ -8,7 +8,7 @@ target_link_libraries(http-simple
     openssl-io
     string_utils-url
   PRIVATE
-    library-uri
+    uri
 )
 
 target_sources(http-simple PRIVATE

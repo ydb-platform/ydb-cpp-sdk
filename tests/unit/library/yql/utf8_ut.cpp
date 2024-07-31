@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/library/yql/utils/utf8.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 Y_UNIT_TEST_SUITE(TUtf8Tests) {
     Y_UNIT_TEST(Simple) {

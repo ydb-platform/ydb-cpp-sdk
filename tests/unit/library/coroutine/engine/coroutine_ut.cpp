@@ -2,7 +2,7 @@
 #include "condvar.h"
 #include "network.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 #include <src/util/system/info.h>
 #include <src/util/system/pipe.h>

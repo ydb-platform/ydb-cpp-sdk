@@ -44,13 +44,13 @@ add_subdirectory(src)
 add_subdirectory(util)
 
 if (YDB_SDK_EXAMPLES)
-  #add_subdirectory(examples)
+  add_subdirectory(examples)
 endif()
 
 if (YDB_SDK_TESTS)
   enable_testing()
-  #add_subdirectory(tests/unit)
-  #add_subdirectory(tests/integration)
+  add_subdirectory(tests/unit)
+  add_subdirectory(tests/integration)
 endif()
 
 if (YDB_SDK_INSTALL)

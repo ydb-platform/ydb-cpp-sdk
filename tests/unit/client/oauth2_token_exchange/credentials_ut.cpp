@@ -1,13 +1,13 @@
 #include <ydb-cpp-sdk/client/types/credentials/oauth2_token_exchange/credentials.h>
 
-#include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
-#include <src/library/http/misc/parsed_request.h>
-#include <ydb-cpp-sdk/library/http/server/http.h>
-#include <ydb-cpp-sdk/library/http/server/response.h>
-#include <src/library/testing/unittest/registar.h>
-#include <src/library/testing/unittest/tests_data.h>
+#include <library/cpp/cgiparam/cgiparam.h>
+#include <library/cpp/http/misc/parsed_request.h>
+#include <library/cpp/http/server/http.h>
+#include <library/cpp/http/server/response.h>
+#include <library/cpp/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/tests_data.h>
 
-#include <ydb-cpp-sdk/util/string/builder.h>
+#include <util/string/builder.h>
 
 using namespace NYdb;
 
@@ -56,7 +56,7 @@ public:
 
                 Server->Check.InputParams.emplace(bodyStr);
                 THttpResponse resp(Server->Check.StatusCode);
-                resp.SetContent(Server->Check.Response);
+                resp.SetContent(TString{Server->Check.Response});
                 resp.OutTo(params.Output);
                 return true;
             }

@@ -6,7 +6,7 @@ target_link_libraries(library-operation_id PUBLIC
   yutil
   protobuf::libprotobuf
   cgiparam
-  library-uri
+  uri
   lib-operation_id-protos
 )
 

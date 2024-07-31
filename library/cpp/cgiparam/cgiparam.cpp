@@ -159,7 +159,7 @@ void TCgiParameters::ScanAddAll(const TStringBuf query) {
 TString TCgiParameters::Print() const {
     TString res;
 
-    res.reserve(PrintSize());
+    res.resize(PrintSize());
     const char* end = Print(res.begin());
     res.ReserveAndResize(end - res.data());
 

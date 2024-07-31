@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/library/containers/stack_vector/stack_vec.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 namespace {
     struct TNotCopyAssignable {

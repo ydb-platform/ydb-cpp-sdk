@@ -1,6 +1,6 @@
 #include <src/library/cache/cache.h>
 #include <src/library/cache/thread_safe_cache.h>
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 struct TStrokaWeighter {
     static size_t Weight(const std::string& s) {

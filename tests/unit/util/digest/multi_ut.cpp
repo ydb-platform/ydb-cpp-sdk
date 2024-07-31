@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/util/digest/multi.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 using namespace std::string_literals;
 

@@ -2,7 +2,7 @@
 #include "poller.h"
 #include "pollerimpl.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 #include <ydb-cpp-sdk/util/system/error.h>
 

@@ -2,8 +2,7 @@ add_library(public-lib-yson_value)
 
 target_link_libraries(public-lib-yson_value PUBLIC
   yutil
-  library-yson
-  library-yson-node
+  yson
   client-ydb_result
   client-ydb_value
   library-uuid

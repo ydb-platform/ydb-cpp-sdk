@@ -1,6 +1,6 @@
 #include "fnv.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 Y_UNIT_TEST_SUITE(TFnvTest) {
     using namespace std::string_view_literals;

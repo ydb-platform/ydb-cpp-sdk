@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ydb-cpp-sdk/library/logger/priority.h>
+#include <library/cpp/logger/priority.h>
 
 #include <string>
 

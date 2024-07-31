@@ -5,7 +5,6 @@ target_link_libraries(http-server
     yutil
     http-misc
     http-io
-    deprecated-atomic
   PRIVATE
     threading-equeue
 )

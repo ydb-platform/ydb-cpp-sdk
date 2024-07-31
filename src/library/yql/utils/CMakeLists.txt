@@ -4,7 +4,6 @@ target_link_libraries(yql-utils PUBLIC
   yutil
   string_utils-quote
   threading-future
-  deprecated-atomic
 )
 
 target_sources(yql-utils PRIVATE

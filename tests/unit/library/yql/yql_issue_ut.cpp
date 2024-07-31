@@ -1,16 +1,16 @@
 #include <ydb-cpp-sdk/library/yql/public/issue/yql_issue.h>
 #include <src/library/yql/public/issue/yql_issue_message.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 #include <src/library/yql/public/issue/protos/issue_message.pb.h>
 #include <src/library/yql/public/issue/yql_issue_message.h>
 #include <src/api/protos/ydb_issue_message.pb.h>
 
-#include <src/library/unicode-normalization/normalization.h>
+#include <library/cpp/unicode/normalization/normalization.h>
 
-#include <src/util/charset/utf8.h>
-#include <src/util/charset/wide.h>
-#include <ydb-cpp-sdk/util/string/builder.h>
+#include <util/charset/utf8.h>
+#include <util/charset/wide.h>
+#include <util/string/builder.h>
 
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
@@ -47,14 +47,6 @@ void ensureMessageTypesSame(const Descriptor* a, const Descriptor* b, std::unord
 
     for (int i = 0; i < a->field_count(); i++) {
         ensureFieldDescriptorsSame(a->field(i), b->field(i), visitedTypes);
-    }
-}
-
-template <>
-void Out<NYql::TPosition>(IOutputStream& out, const NYql::TPosition& pos) {
-    out << (!pos.File.empty() ? pos.File : "<main>");
-    if (pos) {
-        out << ":" << pos.Row << ':' << pos.Column;
     }
 }
 

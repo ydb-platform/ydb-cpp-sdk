@@ -48,4 +48,14 @@ void GetNext(std::string_view& s, D delim, std::optional<P>& param) {
     }
 }
 
+template <class D>
+void GetNext(std::string_view& s, D delim, std::optional<std::string_view>& param) {
+    std::string_view next;
+    if (NUtils::NextTok(s, next, delim)) {
+        param = next;
+    } else {
+        param.reset();
+    }
+}
+
 }

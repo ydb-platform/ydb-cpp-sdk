@@ -1,7 +1,7 @@
 #include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 
-#include <src/library/testing/unittest/tests_data.h>
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/tests_data.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 namespace NKikimr {
 namespace NOperationId {

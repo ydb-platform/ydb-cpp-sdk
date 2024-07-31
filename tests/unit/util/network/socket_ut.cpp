@@ -2,7 +2,7 @@
 
 #include "pair.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 #include <src/util/system/datetime.h>
 
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>

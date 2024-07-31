@@ -8,7 +8,7 @@ target_link_libraries(client-ydb_types-credentials-oauth2 PUBLIC
   http-simple
   json
   retry
-  library-uri
+  uri
   client-ydb_types-credentials
   client-ydb_types
 )

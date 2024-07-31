@@ -4,8 +4,8 @@
 #include <ydb-cpp-sdk/client/extension_common/extension.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 
-#include <src/library/testing/unittest/registar.h>
-#include <src/library/testing/unittest/tests_data.h>
+#include <library/cpp/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/tests_data.h>
 
 using namespace NYdb;
 using namespace NDiscoveryMutator;

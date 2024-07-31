@@ -41,7 +41,7 @@ target_link_libraries(monlib-service
   PRIVATE
     http-io
     svnversion
-    library-uri
+    uri
     string_utils-base64
     protobuf::libprotobuf
 )

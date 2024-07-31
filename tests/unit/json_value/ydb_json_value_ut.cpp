@@ -1,10 +1,10 @@
 #include <ydb-cpp-sdk/json_value/ydb_json_value.h>
 
-#include <src/library/testing/unittest/tests_data.h>
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/tests_data.h>
+#include <library/cpp/testing/unittest/registar.h>
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
-#include <ydb-cpp-sdk/library/json/json_reader.h>
+#include <library/cpp/json/json_reader.h>
 
 namespace NYdb {
 

@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/topic/client.h>
 
-#include <src/library/getopt/last_getopt.h>
+#include <library/cpp/getopt/last_getopt.h>
 
 struct TOptions {
     std::string Endpoint;

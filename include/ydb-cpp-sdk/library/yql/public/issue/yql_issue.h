@@ -161,9 +161,9 @@ public:
         return CombineHashes(
             CombineHashes(
                 (size_t)CombineHashes(IntHash(Position.Row), IntHash(Position.Column)),
-                THash<std::string>{}(Position.File)
+                std::hash<std::string>{}(Position.File)
             ),
-            (size_t)CombineHashes((size_t)IntHash(static_cast<int>(IssueCode)), THash<std::string>{}(Message)));
+            (size_t)CombineHashes((size_t)IntHash(static_cast<int>(IssueCode)), std::hash<std::string>{}(Message)));
     }
 
     TIssue& SetCode(TIssueCode id, ESeverity severity) {

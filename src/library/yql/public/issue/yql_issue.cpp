@@ -13,7 +13,7 @@
 #include <util/system/compiler.h>
 #include <util/generic/stack.h>
 #include <cstdlib>
-
+#include <charconv>
 
 namespace NYql {
 
@@ -247,9 +247,8 @@ std::optional<TPosition> TryParseTerminationMessage(std::string_view& message) {
         if (endPos != std::string::npos) {
             std::string_view lenText = message.substr(startPos + TerminationMessageMarker.size())
                 .substr(0, endPos - startPos - TerminationMessageMarker.size());
-            try {
-                len = FromString<size_t>(lenText);
-            } catch (const TFromStringException&) {
+            auto result = std::from_chars(lenText.data(), lenText.data() + lenText.size(), len);
+            if (result.ec != std::errc{} || result.ptr != lenText.data() + lenText.size()) {
                 len = 0;
             }
         }
@@ -258,7 +257,7 @@ std::optional<TPosition> TryParseTerminationMessage(std::string_view& message) {
     if (len) {
         message = message.substr(endPos + 3).substr(0, len);
         auto s = message;
-        std::optional<std::string_view> file = NUtils::NextTok(s, ':');
+        std::optional<std::string_view> file;
         std::optional<std::string_view> row;
         std::optional<std::string_view> column;
         NUtils::GetNext(s, ':', file);

@@ -6,7 +6,6 @@ target_link_libraries(coroutine-engine
     containers-intrusive_rb_tree
   PRIVATE
     enum_serialization_runtime
-    deprecated-atomic
 )
 
 target_sources(coroutine-engine

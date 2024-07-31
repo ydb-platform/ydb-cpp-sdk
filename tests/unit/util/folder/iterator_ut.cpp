@@ -7,7 +7,7 @@
 #include <src/util/system/fs.h>
 #include <src/util/random/mersenne.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 static std::string JoinWithNewline(const std::vector<std::string>& strings) {
     TStringStream ss;

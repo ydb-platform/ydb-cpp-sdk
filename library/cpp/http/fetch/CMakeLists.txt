@@ -6,7 +6,7 @@ target_link_libraries(http-fetch
     http-misc
     logger
     mime-types
-    library-uri
+    uri
     ZLIB::ZLIB
   PRIVATE
     charset

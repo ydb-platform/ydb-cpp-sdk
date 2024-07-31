@@ -5,8 +5,8 @@
 #include <ydb-cpp-sdk/json_value/ydb_json_value.h>
 #include <ydb-cpp-sdk/yson_value/ydb_yson_value.h>
 
-#include <src/library/testing/unittest/registar.h>
-#include <src/library/testing/unittest/tests_data.h>
+#include <library/cpp/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/tests_data.h>
 
 #include <google/protobuf/text_format.h>
 
@@ -517,15 +517,15 @@ Y_UNIT_TEST_SUITE(YdbValue) {
 
         parser.OpenTuple();
         UNIT_ASSERT(parser.TryNextElement());
-        UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalUtf8(), "SomeUtf");
+        UNIT_ASSERT(parser.GetOptionalUtf8() == "SomeUtf");
         UNIT_ASSERT(parser.TryNextElement());
-        UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalInt8(), -5);
+        UNIT_ASSERT(parser.GetOptionalInt8() == -5);
         UNIT_ASSERT(parser.TryNextElement());
-        UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalDouble(), std::optional<double>());
+        UNIT_ASSERT(parser.GetOptionalDouble() == std::optional<double>());
         UNIT_ASSERT(parser.TryNextElement());
-        UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalUint64(), (ui64)7);
+        UNIT_ASSERT(parser.GetOptionalUint64() == (ui64)7);
         UNIT_ASSERT(parser.TryNextElement());
-        UNIT_ASSERT_VALUES_EQUAL(parser.GetOptionalDyNumber(), "12.345");
+        UNIT_ASSERT(parser.GetOptionalDyNumber() == "12.345");
         parser.CloseTuple();
     }
 

@@ -11,7 +11,7 @@
 #include <src/util/stream/file.h>
 #include <src/util/system/fs.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 #include <algorithm>
 

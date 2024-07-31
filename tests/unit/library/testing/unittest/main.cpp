@@ -1,6 +1,6 @@
 #include <src/library/testing/unittest/gtest.h>
-#include <src/library/testing/unittest/registar.h>
-#include <src/library/testing/unittest/tests_data.h>
+#include <library/cpp/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/tests_data.h>
 
 #include <src/util/system/fs.h>
 

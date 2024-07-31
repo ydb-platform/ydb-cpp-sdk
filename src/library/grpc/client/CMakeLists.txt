@@ -3,7 +3,6 @@ add_library(grpc-client)
 target_link_libraries(grpc-client PUBLIC
   yutil
   gRPC::grpc++
-  deprecated-atomic
 )
 
 target_sources(grpc-client PRIVATE

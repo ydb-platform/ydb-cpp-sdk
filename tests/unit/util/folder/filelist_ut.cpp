@@ -4,7 +4,7 @@
 
 #include <ydb-cpp-sdk/util/system/file.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 class TFileListTest: public TTestBase {
     UNIT_TEST_SUITE(TFileListTest);

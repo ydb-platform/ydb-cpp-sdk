@@ -1,6 +1,6 @@
 #include "basic_example.h"
 
-#include <ydb-cpp-sdk/util/string/cast.h>
+#include <util/string/cast.h>
 
 #include <filesystem>
 #include <format>
@@ -24,7 +24,7 @@ static void ThrowOnError(const TStatus& status) {
 
 static void PrintStatus(const TStatus& status) {
     std::cerr << "Status: " << ToString(status.GetStatus()) << std::endl;
-    status.GetIssues().PrintTo(std::cerr);
+    std::cerr << status.GetIssues().ToString();
 }
 
 static std::string JoinPath(const std::string& basePath, const std::string& path) {

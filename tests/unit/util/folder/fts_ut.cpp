@@ -7,7 +7,7 @@
 #include <src/util/system/tempfile.h>
 
 #include <src/library/threading/future/async.h>
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 class TFtsTest: public TTestBase {
     UNIT_TEST_SUITE(TFtsTest);

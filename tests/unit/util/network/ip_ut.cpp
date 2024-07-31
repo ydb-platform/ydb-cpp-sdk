@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/util/network/ip.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 #include <ydb-cpp-sdk/util/generic/yexception.h>
 

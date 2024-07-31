@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/util/network/sock.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 #include <ydb-cpp-sdk/library/threading/future/fwd.h>
 #include <src/library/threading/future/legacy_future.h>

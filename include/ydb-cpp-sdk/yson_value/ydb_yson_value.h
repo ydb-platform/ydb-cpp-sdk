@@ -4,9 +4,7 @@
 #include <ydb-cpp-sdk/client/value/value.h>
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 
-#include <ydb-cpp-sdk/library/yson/node/node_io.h>
-
-#include <ydb-cpp-sdk/library/yson/writer.h>
+#include <library/cpp/yson/writer.h>
 
 namespace NYdb {
 

@@ -2,7 +2,7 @@
 #include "recyr.hh"
 #include "codepage.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 static void TestIconv(const std::string& utf8, const std::string& other, ECharset enc) {
     std::u16string wide0 = CharToWide(utf8, CODES_UTF8);

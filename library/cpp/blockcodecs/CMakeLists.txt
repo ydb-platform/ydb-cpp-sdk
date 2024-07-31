@@ -148,7 +148,6 @@ target_link_libraries(blockcodecs
   PUBLIC
     yutil
     blockcodecs-core
-  PRIVATE
     blockcodecs-codecs-brotli
     blockcodecs-codecs-bzip
     blockcodecs-codecs-fastlz

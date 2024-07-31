@@ -1,6 +1,6 @@
 #include "murmur.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 class TMurmurHashTest: public TTestBase {
 private:

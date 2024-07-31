@@ -1,6 +1,6 @@
 #include "retry_policy.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 Y_UNIT_TEST_SUITE(RetryPolicy) {
     Y_UNIT_TEST(NoRetryPolicy) {

@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/table/table.h>
 
-#include <src/library/getopt/last_getopt.h>
+#include <library/cpp/getopt/last_getopt.h>
 
 #include <filesystem>
 
@@ -53,7 +53,7 @@ bool WriteLogBatch(NYdb::NTable::TTableClient& tableClient, const std::string& t
     auto status = tableClient.RetryOperationSync(bulkUpsertOperation, retrySettings);
 
     if (!status.IsSuccess()) {
-        std::cerr << std::endl << "Write failed with status: " << (const NYdb::TStatus&)status << std::endl;
+        std::cerr << std::endl << "Write failed with status: " << ToString(status) << std::endl;
         return false;
     }
     return true;
@@ -77,7 +77,7 @@ bool CreateLogTable(NYdb::NTable::TTableClient& client, const std::string& table
         }, settings);
 
     if (!status.IsSuccess()) {
-        std::cerr << "Create table failed with status: " << status << std::endl;
+        std::cerr << "Create table failed with status: " << ToString(status) << std::endl;
         return false;
     }
     return true;

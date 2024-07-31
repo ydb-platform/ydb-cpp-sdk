@@ -1,6 +1,6 @@
 #include "rb_tree.h"
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 #include <src/util/random/fast.h>
 #include <src/util/random/easy.h>

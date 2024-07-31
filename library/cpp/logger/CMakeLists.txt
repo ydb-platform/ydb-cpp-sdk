@@ -5,7 +5,6 @@ target_link_libraries(logger
     json
   PRIVATE
     enum_serialization_runtime
-    deprecated-atomic
 )
 target_sources(logger
   PRIVATE
@@ -38,7 +37,6 @@ target_link_libraries(logger.global
     json
   PRIVATE
     enum_serialization_runtime
-    deprecated-atomic
 )
 target_sources(logger.global
   PRIVATE
