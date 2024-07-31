@@ -9,13 +9,9 @@ INCLUDE_DIRS
 LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
-<<<<<<< HEAD:tests/unit/library/json/CMakeLists.txt
-    library-json
+    json
 LABELS
     unit
-=======
-    json
->>>>>>> 740dcae8d (Returned library and switched client to ol util and library):tests/library/json/CMakeLists.txt
 )
 
 add_ydb_test(NAME json-ut-json_reader_fast_ut
@@ -30,13 +26,9 @@ INCLUDE_DIRS
 LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
-<<<<<<< HEAD:tests/unit/library/json/CMakeLists.txt
-    library-json
+    json
 LABELS
     unit
-=======
-    json
->>>>>>> 740dcae8d (Returned library and switched client to ol util and library):tests/library/json/CMakeLists.txt
 )
 
 add_ydb_test(NAME json-ut-json_reader_ut
@@ -50,13 +42,9 @@ INCLUDE_DIRS
 LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
-<<<<<<< HEAD:tests/unit/library/json/CMakeLists.txt
-    library-json
+    json
 LABELS
     unit
-=======
-    json
->>>>>>> 740dcae8d (Returned library and switched client to ol util and library):tests/library/json/CMakeLists.txt
 )
 
 add_ydb_test(NAME json-ut-json_saveload_ut
@@ -70,13 +58,9 @@ INCLUDE_DIRS
 LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
-<<<<<<< HEAD:tests/unit/library/json/CMakeLists.txt
-    library-json
+    json
 LABELS
     unit
-=======
-    json
->>>>>>> 740dcae8d (Returned library and switched client to ol util and library):tests/library/json/CMakeLists.txt
 )
 
 add_ydb_test(NAME json-ut-json_writer_ut
@@ -89,11 +73,7 @@ INCLUDE_DIRS
 LINK_LIBRARIES
     yutil
     cpp-testing-unittest_main
-<<<<<<< HEAD:tests/unit/library/json/CMakeLists.txt
-    library-json
+    json
 LABELS
     unit
-=======
-    json
->>>>>>> 740dcae8d (Returned library and switched client to ol util and library):tests/library/json/CMakeLists.txt
 )
