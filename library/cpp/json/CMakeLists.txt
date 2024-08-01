@@ -57,4 +57,7 @@ target_sources(json
     json_prettifier.cpp
     rapidjson_helpers.cpp
 )
+target_compile_definitions(json PUBLIC
+  DISABLE_JSON_ESCAPE
+)
 _ydb_sdk_install_targets(TARGETS json)

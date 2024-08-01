@@ -4,6 +4,15 @@ endif()
 
 add_library(util-charset)
 
+target_compile_options(util-charset PUBLIC
+  -DTSTRING_IS_STD_STRING
+)
+
+target_compile_options(util-charset PRIVATE
+  -Wnarrowing
+  -DNO_CUSTOM_CHAR_PTR_STD_COMPARATOR
+)
+
 target_joined_source(util-charset
   all_charset.cpp
   ${YDB_SDK_SOURCE_DIR}/util/charset/generated/unidata.cpp

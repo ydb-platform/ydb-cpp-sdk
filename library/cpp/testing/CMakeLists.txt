@@ -1,7 +1,4 @@
 add_subdirectory(common)
-add_subdirectory(gtest)
-add_subdirectory(gtest_extensions)
-add_subdirectory(gtest_main)
 add_subdirectory(hook)
 add_subdirectory(unittest)
 add_subdirectory(unittest_main)

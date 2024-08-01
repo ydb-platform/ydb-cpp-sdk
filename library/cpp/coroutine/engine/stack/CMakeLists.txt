@@ -7,7 +7,7 @@ add_ydb_test(NAME coroutine-engine-stack-ut GTEST
     ut/stack_utils_ut.cpp
   LINK_LIBRARIES
     coroutine-engine
-    cpp-testing-gtest_main
+    GTest::gtest_main
   LABELS
     unit
 )

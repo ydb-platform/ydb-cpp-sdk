@@ -1,7 +1,7 @@
 #include <library/cpp/coroutine/engine/stack/stack_common.h>
 #include <library/cpp/coroutine/engine/stack/stack_guards.h>
 #include <library/cpp/coroutine/engine/stack/stack_utils.h>
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 
 using namespace testing;

@@ -1,44 +1,44 @@
 add_ydb_test(NAME yql-utils_ut
   SOURCES
-  utf8_ut.cpp
+    utf8_ut.cpp
   LINK_LIBRARIES
-  yutil
-  cpp-testing-unittest_main
-  yql-utils
+    yutil
+    cpp-testing-unittest_main
+    yql-utils
   LABELS
-  unit
+    unit
 )
 
 add_ydb_test(NAME yql-public-issue_ut
   SOURCES
-  yql_issue_ut.cpp
+    yql_issue_ut.cpp
   LINK_LIBRARIES
-  yutil
-  cpp-testing-unittest_main
-  yql-public-issue
-  unicode-normalization
+    yutil
+    cpp-testing-unittest_main
+    yql-public-issue
+    unicode-normalization
   LABELS
-  unit
+    unit
 )
 
 add_ydb_test(NAME yql-public-decimal_ut
   SOURCES
-  yql_decimal_ut.cpp
+    yql_decimal_ut.cpp
   LINK_LIBRARIES
-  yutil
-  cpp-testing-unittest_main
-  yql-public-decimal
+    yutil
+    cpp-testing-unittest_main
+    yql-public-decimal
   LABELS
-  unit
+    unit
 )
 
 add_ydb_test(NAME yql-public-wide_int_ut
   SOURCES
-  yql_wide_int_ut.cpp
+    yql_wide_int_ut.cpp
   LINK_LIBRARIES
-  yutil
-  cpp-testing-unittest_main
-  yql-public-decimal
+    yutil
+    cpp-testing-unittest_main
+    yql-public-decimal
   LABELS
-  unit
+    unit
 )

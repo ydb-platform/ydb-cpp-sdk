@@ -347,11 +347,11 @@ namespace NJson {
             if (flags & ReaderConfigFlags::VALIDATE) {
                 rapidjsonFlags |= rapidjson::kParseValidateEncodingFlag;
             }
-
-            // if (flags & ReaderConfigFlags::ESCAPE) {
-            //     rapidjsonFlags |= rapidjson::kParseEscapedApostropheFlag;
-            // }
-
+#ifndef DISABLE_JSON_ESCAPE
+            if (flags & ReaderConfigFlags::ESCAPE) {
+                rapidjsonFlags |= rapidjson::kParseEscapedApostropheFlag;
+            }
+#endif
             return rapidjsonFlags;
         }
 
@@ -374,7 +374,9 @@ namespace NJson {
             TRY_EXTRACT_FLAG(ReaderConfigFlags::ITERATIVE);
             TRY_EXTRACT_FLAG(ReaderConfigFlags::COMMENTS);
             TRY_EXTRACT_FLAG(ReaderConfigFlags::VALIDATE);
+#ifndef DISABLE_JSON_ESCAPE
             TRY_EXTRACT_FLAG(ReaderConfigFlags::ESCAPE);
+#endif
 
 #undef TRY_EXTRACT_FLAG
 
@@ -401,10 +403,11 @@ namespace NJson {
             if (config.DontValidateUtf8) {
                 flags &= ~(ReaderConfigFlags::VALIDATE);
             }
-
+#ifndef DISABLE_JSON_ESCAPE
             if (config.AllowEscapedApostrophe) {
                 flags |= ReaderConfigFlags::ESCAPE;
             }
+#endif
 
             return ReadWithRuntimeFlags(flags, reader, is, handler);
         }
@@ -584,14 +587,14 @@ namespace NJson {
         config.AllowComments = allowComments;
         return ReadJson(in, &config, cbs);
     }
-
+#ifndef DISABLE_JSON_ESCAPE
     bool ReadJson(IInputStream* in, bool allowComments, bool allowEscapedApostrophe, TJsonCallbacks* cbs) {
         TJsonReaderConfig config;
         config.AllowComments = allowComments;
         config.AllowEscapedApostrophe = allowEscapedApostrophe;
         return ReadJson(in, &config, cbs);
     }
-
+#endif
     bool ReadJson(IInputStream* in, const TJsonReaderConfig* config, TJsonCallbacks* cbs) {
         TJsonCallbacksWrapper wrapper(*cbs);
         TInputStreamWrapper is(*in);
