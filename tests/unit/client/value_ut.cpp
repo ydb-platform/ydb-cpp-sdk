@@ -2,8 +2,8 @@
 
 #include <ydb-cpp-sdk/src/api/protos/ydb_value.pb.h>
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
-#include <ydb-cpp-sdk/json_value/ydb_json_value.h>
-#include <ydb-cpp-sdk/yson_value/ydb_yson_value.h>
+#include <ydb-cpp-sdk/library/json_value/ydb_json_value.h>
+#include <ydb-cpp-sdk/library/yson_value/ydb_yson_value.h>
 
 #include <library/cpp/testing/unittest/registar.h>
 #include <library/cpp/testing/unittest/tests_data.h>
