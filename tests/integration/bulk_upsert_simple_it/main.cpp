@@ -36,11 +36,15 @@ TEST(Integration, BulkUpsert) {
         }
     }
 
-    auto [sumApp, sumHost, rowCount] = Select(client, path);
-
-    EXPECT_EQ(rowCount, correctRowCount);
-    EXPECT_EQ(sumApp, correctSumApp);
-    EXPECT_EQ(sumHost, correctSumHost);
+    try {
+        auto [sumApp, sumHost, rowCount] = Select(client, path);
+        EXPECT_EQ(rowCount, correctRowCount);
+        EXPECT_EQ(sumApp, correctSumApp);
+        EXPECT_EQ(sumHost, correctSumHost);
+    } catch (const TYdbErrorException& e) {
+        driver.Stop(true);
+        FAIL() << "Execution failed due to fatal error:\nStatus: " << ToString(e.Status.GetStatus()) << std::endl << e.Status.GetIssues().ToString();
+    }
     
     DropTable(client, path);
     driver.Stop(true);

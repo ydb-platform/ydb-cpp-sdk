@@ -1,7 +1,5 @@
 #include "bulk_upsert.h"
 
-#include <src/library/getopt/last_getopt.h>
-
 #include <filesystem>
 
 static constexpr size_t BATCH_SIZE = 1000;
@@ -143,6 +141,11 @@ TStatistic Select(TTableClient& client, const std::string& path) {
     uint64_t sumApp = 0;
     uint64_t sumHost = 0;
     uint64_t rowCount = 0;
+
+    if (parser.ColumnsCount() != 3 || parser.RowsCount() != 1) {
+        throw TYdbErrorException(TStatus(EStatus::GENERIC_ERROR,
+        {NYql::TIssue("The number of columns should be: 3.\nThe number of rows should be: 1")}));
+    }
 
     if (parser.TryNextRow()) {
         sumApp = *parser.ColumnParser("column0").GetOptionalInt64();
