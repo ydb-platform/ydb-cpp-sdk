@@ -58,7 +58,7 @@ function(set_yunittest_property)
 endfunction()
 
 function(add_ydb_test)
-  set(opts "")
+  set(opts GTEST)
   set(oneval_args NAME)
   set(multival_args INCLUDE_DIRS SOURCES LINK_LIBRARIES LABELS)
   cmake_parse_arguments(YDB_TEST
@@ -101,19 +101,27 @@ function(add_ydb_test)
     SPLIT_FACTOR
     1
   )
-
-  add_yunittest(
-    NAME
-    ${YDB_TEST_NAME}
-    TEST_TARGET
-    ${YDB_TEST_NAME}
-    TEST_ARG
-    --print-before-suite
-    --print-before-test
-    --fork-tests
-    --print-times
-    --show-fails
-  )
+  if (YDB_TEST_GTEST)
+    add_yunittest(
+      NAME
+      ${YDB_TEST_NAME}
+      TEST_TARGET
+      ${YDB_TEST_NAME}
+    )
+  else()
+    add_yunittest(
+      NAME
+      ${YDB_TEST_NAME}
+      TEST_TARGET
+      ${YDB_TEST_NAME}
+      TEST_ARG
+      --print-before-suite
+      --print-before-test
+      --fork-tests
+      --print-times
+      --show-fails
+    )
+  endif()
 
   set_yunittest_property(
     TEST

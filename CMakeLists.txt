@@ -37,6 +37,10 @@ include(cmake/protobuf.cmake)
 include(cmake/testing.cmake)
 include(cmake/external_libs.cmake)
 
+if (YDB_SDK_TESTS)
+  enable_testing()
+endif()
+
 add_subdirectory(tools)
 add_subdirectory(contrib)
 add_subdirectory(library/cpp)
@@ -48,7 +52,6 @@ if (YDB_SDK_EXAMPLES)
 endif()
 
 if (YDB_SDK_TESTS)
-  enable_testing()
   add_subdirectory(tests/unit)
   add_subdirectory(tests/integration)
 endif()

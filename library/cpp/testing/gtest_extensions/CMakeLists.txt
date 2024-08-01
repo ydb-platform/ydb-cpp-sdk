@@ -1,3 +1,7 @@
+if (YDB_SDK_TESTS)
+  add_subdirectory(ut)
+endif()
+
 add_library(cpp-testing-gtest_extensions)
 
 target_link_libraries(cpp-testing-gtest_extensions PUBLIC

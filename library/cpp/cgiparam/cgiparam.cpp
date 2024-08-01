@@ -246,7 +246,7 @@ bool TCgiParameters::Has(const TStringBuf name, const TStringBuf value) const no
 }
 
 TQuickCgiParam::TQuickCgiParam(const TStringBuf cgiParamStr) {
-    UnescapeBuf.reserve(CgiUnescapeBufLen(cgiParamStr.size()));
+    UnescapeBuf.resize(CgiUnescapeBufLen(cgiParamStr.size()));
     char* buf = UnescapeBuf.begin();
 
     auto f = [this, &buf](const TStringBuf key, const TStringBuf val) {

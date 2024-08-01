@@ -1,3 +1,7 @@
+if (YDB_SDK_TESTS)
+  add_subdirectory(ut)
+endif()
+
 add_library(dbg_output)
 
 target_link_libraries(dbg_output

@@ -1,3 +1,7 @@
+if (YDB_SDK_TESTS)
+  add_subdirectory(ut)
+endif()
+
 add_library(library-cache)
 
 target_link_libraries(library-cache PUBLIC

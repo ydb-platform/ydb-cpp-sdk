@@ -1,6 +1,10 @@
-add_library(util-charset-old)
+if (YDB_SDK_TESTS)
+  add_subdirectory(ut)
+endif()
 
-target_joined_source(util-charset-old
+add_library(util-charset)
+
+target_joined_source(util-charset
   all_charset.cpp
   ${YDB_SDK_SOURCE_DIR}/util/charset/generated/unidata.cpp
   ${YDB_SDK_SOURCE_DIR}/util/charset/recode_result.cpp
@@ -11,7 +15,7 @@ target_joined_source(util-charset-old
 )
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
-  target_sources_custom(util-charset-old
+  target_sources_custom(util-charset
     .sse41
     SRCS
     ${YDB_SDK_SOURCE_DIR}/util/charset/wide_sse41.cpp
@@ -19,7 +23,7 @@ if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL 
     -msse4.1
   )
 elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
-  target_sources(util-charset-old PRIVATE
+  target_sources(util-charset PRIVATE
     ${YDB_SDK_SOURCE_DIR}/util/charset/wide_sse41.cpp
   )
   set_property(
@@ -32,4 +36,4 @@ elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR CMAKE_SYSTEM_PROCESSOR STRE
   )
 endif()
 
-_ydb_sdk_install_targets(TARGETS util-charset-old)
+_ydb_sdk_install_targets(TARGETS util-charset)

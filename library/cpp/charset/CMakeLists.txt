@@ -1,3 +1,31 @@
+if (YDB_SDK_TESTS)
+  add_ydb_test(NAME charset-lite-ut
+    SOURCES
+      ci_string_ut.cpp
+      codepage_ut.cpp
+    LINK_LIBRARIES
+      charset-lite
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+  target_compile_options(charset-lite-ut PRIVATE
+    -DLIBRARY_CHARSET_WITHOUT_LIBICONV=yes
+  )
+
+  add_ydb_test(NAME charset-ut
+    SOURCES
+      iconv_ut.cpp
+      recyr_int_ut.cpp
+      wide_ut.cpp
+    LINK_LIBRARIES
+      charset
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+endif()
+
 add_library(charset-lite)
 target_link_libraries(charset-lite PUBLIC
   yutil

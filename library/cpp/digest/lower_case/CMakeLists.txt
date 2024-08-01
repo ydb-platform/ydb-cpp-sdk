@@ -1,3 +1,20 @@
+if (YDB_SDK_TESTS)
+  add_ydb_test(NAME digest-lower_case-ut
+    SOURCES
+      hash_ops_ut.cpp
+      lchash_ut.cpp
+    LINK_LIBRARIES
+      digest-lower_case
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  target_compile_options(digest-lower_case-ut PRIVATE
+    -Wno-deprecated
+  )
+endif()
+
 add_library(digest-lower_case)
 
 target_link_libraries(digest-lower_case PUBLIC

@@ -1,6 +1,52 @@
 add_subdirectory(charset)
 add_subdirectory(draft)
 
+if (YDB_SDK_TESTS)
+  add_ydb_test(NAME util-digest-ut
+    SOURCES
+      digest/city_ut.cpp
+      digest/fnv_ut.cpp
+      digest/multi_ut.cpp
+      digest/murmur_ut.cpp
+      digest/sequence_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+  add_ydb_test(NAME util-folder-ut
+    SOURCES
+      folder/dirut_ut.cpp
+      folder/filelist_ut.cpp
+      folder/fts_ut.cpp
+      folder/iterator_ut.cpp
+      folder/path_ut.cpp
+      folder/pathsplit_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+      threading-future
+    LABELS
+      unit
+  )
+  add_ydb_test(NAME util-network-ut
+    SOURCES
+      network/address_ut.cpp
+      network/endpoint_ut.cpp
+      network/ip_ut.cpp
+      network/poller_ut.cpp
+      network/sock_ut.cpp
+      network/socket_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+      threading-future
+    LABELS
+      unit
+  )
+endif()
+
 add_library(yutil)
 
 target_compile_options(yutil PUBLIC
@@ -13,7 +59,7 @@ target_compile_options(yutil PRIVATE
 )
 
 target_link_libraries(yutil PUBLIC
-  util-charset-old
+  util-charset
   contrib-libs-libc_compat
   ZLIB::ZLIB
   double-conversion::double-conversion

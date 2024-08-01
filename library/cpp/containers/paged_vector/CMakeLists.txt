@@ -1,3 +1,7 @@
+if (YDB_SDK_TESTS)
+  add_subdirectory(ut)
+endif()
+
 add_library(containers-paged_vector)
 
 target_link_libraries(containers-paged_vector PUBLIC

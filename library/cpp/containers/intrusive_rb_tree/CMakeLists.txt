@@ -1,3 +1,15 @@
+if (YDB_SDK_TESTS)
+  add_ydb_test(NAME containers-intrusive_rb_tree_ut
+    SOURCES
+      rb_tree_ut.cpp
+    LINK_LIBRARIES
+      containers-intrusive_rb_tree
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+endif()
+
 add_library(containers-intrusive_rb_tree)
 
 target_link_libraries(containers-intrusive_rb_tree PUBLIC

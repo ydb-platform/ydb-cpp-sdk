@@ -1,3 +1,21 @@
+if (YDB_SDK_TESTS)
+  add_subdirectory(stack)
+
+  add_ydb_test(NAME coroutine-engine-coroutine_ut
+    SOURCES
+      coroutine_ut.cpp
+    LINK_LIBRARIES
+      coroutine-engine
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  target_compile_options(coroutine-engine-coroutine_ut PRIVATE
+    -Wno-deprecated
+  )
+endif()
+
 add_library(coroutine-engine)
 
 target_link_libraries(coroutine-engine

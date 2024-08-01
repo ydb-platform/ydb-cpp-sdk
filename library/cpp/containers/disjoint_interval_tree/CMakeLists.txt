@@ -1,3 +1,7 @@
+if (YDB_SDK_TESTS)
+  add_subdirectory(ut)
+endif()
+
 add_library(containers-disjoint_interval_tree)
 
 target_link_libraries(containers-disjoint_interval_tree PUBLIC
