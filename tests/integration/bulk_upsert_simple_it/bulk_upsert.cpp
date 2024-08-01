@@ -38,18 +38,16 @@ TRunArgs GetRunArgs() {
 }
 
 TStatus CreateTable(TTableClient& client, const std::string& table) {
-    std::cerr << "Create table " << table << "\n";
-
     TRetryOperationSettings settings;
     auto status = client.RetryOperationSync([&table](TSession session) {
             auto tableDesc = TTableBuilder()
-                .AddNonNullableColumn("pk", EPrimitiveType::Uint64)
                 .AddNullableColumn("App", EPrimitiveType::Utf8)
                 .AddNullableColumn("Timestamp", EPrimitiveType::Timestamp)
                 .AddNullableColumn("Host", EPrimitiveType::Utf8)
+                .AddNonNullableColumn("Id", EPrimitiveType::Uint64)
                 .AddNullableColumn("HttpCode", EPrimitiveType::Uint32)
                 .AddNullableColumn("Message", EPrimitiveType::Utf8)
-                .SetPrimaryKeyColumns({"pk"})
+                .SetPrimaryKeyColumns({"App", "Timestamp", "Host", "Id"})
                 .Build();
 
             return session.CreateTable(table, std::move(tableDesc)).GetValueSync();
@@ -66,10 +64,10 @@ TStatistic GetLogBatch(uint64_t logOffset, std::vector<TLogMessage>& logBatch, u
 
     for (size_t i = 0; i < BATCH_SIZE; ++i) {
         TLogMessage message;
-        message.pk = correctRowCount + lastNumber;        
-        message.App = "App_" + std::to_string(logOffset % 10);
-        message.Host = "192.168.0." + std::to_string(logOffset % 11);
-        message.Timestamp = TInstant::Now() + TDuration::MilliSeconds(i % 1000);
+        message.Pk.Id = correctRowCount + lastNumber;        
+        message.Pk.App = "App_" + std::to_string(logOffset % 10);
+        message.Pk.Host = "192.168.0." + std::to_string(logOffset % 11);
+        message.Pk.Timestamp = TInstant::Now() + TDuration::MilliSeconds(i % 1000);
         message.HttpCode = 200;
         message.Message = i % 2 ? "GET / HTTP/1.1" : "GET /images/logo.png HTTP/1.1";
         logBatch.emplace_back(message);
@@ -89,10 +87,10 @@ TStatus WriteLogBatch(TTableClient& tableClient, const std::string& table, const
     for (const auto& message : logBatch) {
         rows.AddListItem()
                 .BeginStruct()
-                .AddMember("pk").Uint64(message.pk)
-                .AddMember("App").Utf8(message.App)
-                .AddMember("Host").Utf8(message.Host)
-                .AddMember("Timestamp").Timestamp(message.Timestamp)
+                .AddMember("Id").Uint64(message.Pk.Id)
+                .AddMember("App").Utf8(message.Pk.App)
+                .AddMember("Host").Utf8(message.Pk.Host)
+                .AddMember("Timestamp").Timestamp(message.Pk.Timestamp)
                 .AddMember("HttpCode").Uint32(message.HttpCode)
                 .AddMember("Message").Utf8(message.Message)
                 .EndStruct();
@@ -147,7 +145,6 @@ TStatistic Select(TTableClient& client, const std::string& path) {
     uint64_t rowCount = 0;
 
     if (parser.TryNextRow()) {
-
         sumApp = *parser.ColumnParser("column0").GetOptionalInt64();
         sumHost = *parser.ColumnParser("column1").GetOptionalInt64();
         rowCount = parser.ColumnParser("column2").GetUint64();

@@ -7,15 +7,20 @@ using namespace NYdb;
 using namespace NYdb::NTable;
 
 struct TRunArgs {
-    TDriver driver;
-    std::string path;
+    TDriver Driver;
+    std::string Path;
 };
 
 struct TLogMessage {
-    uint64_t pk;
-    std::string App;
-    std::string Host;
-    TInstant Timestamp;
+    struct TPrimaryKeyLogMessage {
+        std::string App;
+        std::string Host;
+        TInstant Timestamp;
+        uint64_t Id;
+        bool operator<(const TPrimaryKeyLogMessage& o) const;
+    };
+
+    TPrimaryKeyLogMessage Pk;
     uint32_t HttpCode;
     std::string Message;
 };
@@ -29,9 +34,9 @@ public:
 };
 
 struct TStatistic {
-    uint64_t sumApp;
-    uint64_t sumHost;
-    uint64_t rowCount;
+    uint64_t SumApp;
+    uint64_t SumHost;
+    uint64_t RowCount;
 };
 
 TRunArgs GetRunArgs();
