@@ -23,6 +23,10 @@ static std::string JoinPath(const std::string& basePath, const std::string& path
     return prefixPathSplit;
 }
 
+bool TLogMessage::TPrimaryKeyLogMessage::operator<(const TLogMessage::TPrimaryKeyLogMessage& o) const {
+    return App < o.App || App == o.App && Host < o.Host || App == o.App && Host == o.Host && Timestamp < o.Timestamp;
+}
+
 TRunArgs GetRunArgs() {
     
     std::string database = std::getenv("YDB_DATABASE");
@@ -57,7 +61,7 @@ TStatus CreateLogTable(TTableClient& client, const std::string& table) {
     return status;
 }
 
-TStatistic GetLogBatch(uint64_t logOffset, std::vector<TLogMessage>& logBatch, std::set<TLogMessage>& setMessage) {
+TStatistic GetLogBatch(uint64_t logOffset, std::vector<TLogMessage>& logBatch, std::set<TLogMessage::TPrimaryKeyLogMessage>& setMessage) {
     logBatch.clear();
     uint32_t correctSumApp = 0;
     uint32_t correctSumHost = 0;
@@ -65,18 +69,18 @@ TStatistic GetLogBatch(uint64_t logOffset, std::vector<TLogMessage>& logBatch, s
 
     for (size_t i = 0; i < BATCH_SIZE; ++i) {
         TLogMessage message;        
-        message.pk.App = "App_" + ToString(logOffset % 10);
-        message.pk.Host = "192.168.0." + ToString(logOffset % 11);
+        message.pk.App = "App_" + std::to_string(logOffset % 10);
+        message.pk.Host = "192.168.0." + std::to_string(logOffset % 11);
         message.pk.Timestamp = TInstant::Now() + TDuration::MilliSeconds(i % 1000);
         message.HttpCode = 200;
         message.Message = i % 2 ? "GET / HTTP/1.1" : "GET /images/logo.png HTTP/1.1";
         logBatch.emplace_back(message);
 
-        if (!setMessage.contains(message)) {
+        if (!setMessage.contains(message.pk)) {
             correctSumApp += logOffset % 10;
             correctSumHost += logOffset % 11;
             ++correctRowCount;
-            setMessage.insert(message);
+            setMessage.insert(message.pk);
         }
         
     }
@@ -108,65 +112,49 @@ TStatus WriteLogBatch(TTableClient& tableClient, const std::string& table, const
     return status;
 }
 
-static TStatus ScanQuerySelect(TTableClient& client, const std::string& path, std::vector <TResultSet>& vectorResultSet) {    
+static TStatus SelectTransaction(TSession session, const std::string& path,
+    std::optional<TResultSet>& resultSet) {
     std::filesystem::path filesystemPath(path);
     auto query = std::format(R"(
-        --!syntax_v1
         PRAGMA TablePathPrefix("{}");
 
-        SELECT * 
+        SELECT
+        SUM(CAST(SUBSTRING(CAST(App as string), 4) as Int32)),
+        SUM(CAST(SUBSTRING(CAST(Host as string), 10) as Int32)),
+        COUNT(*)
         FROM {}
-    )", filesystemPath.parent_path().c_str(), filesystemPath.filename().c_str());
+    )", filesystemPath.parent_path().string(), filesystemPath.filename().string());
 
-    auto resultScanQuery = client.StreamExecuteScanQuery(query).GetValueSync();
+    auto txControl =
+        TTxControl::BeginTx(TTxSettings::SerializableRW())
+        .CommitTx();
 
-    if (!resultScanQuery.IsSuccess()) {
-        return resultScanQuery;
+    auto result = session.ExecuteDataQuery(query, txControl).GetValueSync();
+
+    if (result.IsSuccess()) {
+        resultSet = result.GetResultSet(0);
     }
 
-    bool eos = false;
-
-    while (!eos) {
-        auto streamPart = resultScanQuery.ReadNext().ExtractValueSync();
-
-        if (!streamPart.IsSuccess()) {
-            eos = true;
-            if (!streamPart.EOS()) {
-                return streamPart;
-            }
-            continue;
-        }
-
-        if (streamPart.HasResultSet()) {
-            auto rs = streamPart.ExtractResultSet();
-            vectorResultSet.push_back(rs);
-        }
-    }
-    return TStatus(EStatus::SUCCESS, NYql::TIssues());
+    return result;
 }
 
-TStatistic ScanQuerySelect(TTableClient& client, const std::string& path) {
-    std::vector <TResultSet> vectorResultSet;
-    ThrowOnError(client.RetryOperationSync([path, &vectorResultSet](TTableClient& client) {
-        return ScanQuerySelect(client, path, vectorResultSet);
+TStatistic Select(TTableClient& client, const std::string& path) {
+    std::optional<TResultSet> resultSet;
+    ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
+        return SelectTransaction(session, path, resultSet);
     }));
 
-    uint32_t sumApp = 0;
-    uint32_t sumHost = 0;
-    uint32_t rowCount = 0;
+    TResultSetParser parser(*resultSet);
 
-    for (TResultSet& resultSet : vectorResultSet) {
-        TResultSetParser parser(resultSet);
-        
-        while (parser.TryNextRow()) {
+    uint64_t sumApp = 0;
+    uint64_t sumHost = 0;
+    uint64_t rowCount = 0;
 
-            ++rowCount;
-            sumApp += ToString(parser.ColumnParser("App").GetOptionalUtf8()).back() - '0';
-            std::string strHost = ToString(parser.ColumnParser("Host").GetOptionalUtf8());
-            char penCharStrHost = strHost[strHost.size() - 2];
-            sumHost += strHost.back() - '0' + (penCharStrHost == '.' ? 0 : (penCharStrHost - '0') * 10);
-        }
-        
+    if (parser.TryNextRow()) {
+
+        sumApp = *parser.ColumnParser("column0").GetOptionalInt64();
+        sumHost = *parser.ColumnParser("column1").GetOptionalInt64();
+        rowCount = parser.ColumnParser("column2").GetUint64();
     }
 
     return {sumApp, sumHost, rowCount};

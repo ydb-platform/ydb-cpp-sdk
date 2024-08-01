@@ -11,19 +11,18 @@ struct TRunArgs {
     std::string path;
 };
 
-class TLogMessage {
+struct TLogMessage {
     struct TPrimaryKeyLogMessage {
         std::string App;
         std::string Host;
         TInstant Timestamp;
-        auto operator<=>(const TPrimaryKeyLogMessage&) const = default;
+        bool operator<(const TPrimaryKeyLogMessage& o) const;
     };
 
-public:
     TPrimaryKeyLogMessage pk;
     uint32_t HttpCode;
     std::string Message;
-    auto operator<=>(const TLogMessage& o) const {return pk <=> o.pk;};
+    bool operator<(const TLogMessage& o) const {return pk < o.pk;};
 };
 
 class TYdbErrorException : public yexception {
@@ -35,15 +34,15 @@ public:
 };
 
 struct TStatistic {
-    uint32_t sumApp;
-    uint32_t sumHost;
-    uint32_t rowCount;
+    uint64_t sumApp;
+    uint64_t sumHost;
+    uint64_t rowCount;
 };
 
 TRunArgs GetRunArgs();
 TStatus CreateLogTable(TTableClient& client, const std::string& table);
-TStatistic GetLogBatch(uint64_t logOffset, std::vector<TLogMessage>& logBatch, std::set<TLogMessage>& setMessage);
+TStatistic GetLogBatch(uint64_t logOffset, std::vector<TLogMessage>& logBatch, std::set<TLogMessage::TPrimaryKeyLogMessage>& setMessage);
 TStatus WriteLogBatch(TTableClient& tableClient, const std::string& table, const std::vector<TLogMessage>& logBatch,
                    const TRetryOperationSettings& retrySettings);
-TStatistic ScanQuerySelect(TTableClient& client, const std::string& path);
+TStatistic Select(TTableClient& client, const std::string& path);
 void DropTable(TTableClient& client, const std::string& path);

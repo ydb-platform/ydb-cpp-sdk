@@ -8,7 +8,8 @@ TEST(Integration, BulkUpsert) {
 
     uint32_t correctSumApp = 0;
     uint32_t correctSumHost = 0;
-    std::set <TLogMessage> setMessage;
+    uint32_t correctRowCount = 0;
+    std::set <TLogMessage::TPrimaryKeyLogMessage> setMessage;
 
     auto [driver, path] = GetRunArgs();
 
@@ -30,6 +31,7 @@ TEST(Integration, BulkUpsert) {
         auto [batchSumApp, batchSumHost, batchRowCount] = GetLogBatch(offset, logBatch, setMessage);
         correctSumApp += batchSumApp;
         correctSumHost += batchSumHost;
+        correctRowCount += batchRowCount;
 
         TStatus statusWrite = WriteLogBatch(client, path, logBatch, writeRetrySettings);
         if (!statusWrite.IsSuccess()) {
@@ -37,9 +39,9 @@ TEST(Integration, BulkUpsert) {
         }
     }
 
-    auto [sumApp, sumHost, rowCount] = ScanQuerySelect(client, path);
+    auto [sumApp, sumHost, rowCount] = Select(client, path);
 
-    EXPECT_EQ(rowCount, setMessage.size());
+    EXPECT_EQ(rowCount, correctRowCount);
     EXPECT_EQ(sumApp, correctSumApp);
     EXPECT_EQ(sumHost, correctSumHost);
     
