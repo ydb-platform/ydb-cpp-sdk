@@ -2,20 +2,17 @@
 
 #include <gtest/gtest.h>
 
-#include <set>
-
 TEST(Integration, BulkUpsert) {
 
     uint32_t correctSumApp = 0;
     uint32_t correctSumHost = 0;
     uint32_t correctRowCount = 0;
-    std::set <TLogMessage::TPrimaryKeyLogMessage> setMessage;
 
     auto [driver, path] = GetRunArgs();
 
     TTableClient client(driver);
     uint32_t count = 1000;
-    TStatus statusCreate = CreateLogTable(client, path);
+    TStatus statusCreate = CreateTable(client, path);
     if (!statusCreate.IsSuccess()) {
         FAIL() << "Create table failed with status: " << statusCreate << std::endl;
     }
@@ -28,7 +25,7 @@ TEST(Integration, BulkUpsert) {
     std::vector<TLogMessage> logBatch;
     for (uint32_t offset = 0; offset < count; ++offset) {
 
-        auto [batchSumApp, batchSumHost, batchRowCount] = GetLogBatch(offset, logBatch, setMessage);
+        auto [batchSumApp, batchSumHost, batchRowCount] = GetLogBatch(offset, logBatch, correctRowCount);
         correctSumApp += batchSumApp;
         correctSumHost += batchSumHost;
         correctRowCount += batchRowCount;

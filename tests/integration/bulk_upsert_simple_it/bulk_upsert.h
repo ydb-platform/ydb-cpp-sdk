@@ -12,17 +12,12 @@ struct TRunArgs {
 };
 
 struct TLogMessage {
-    struct TPrimaryKeyLogMessage {
-        std::string App;
-        std::string Host;
-        TInstant Timestamp;
-        bool operator<(const TPrimaryKeyLogMessage& o) const;
-    };
-
-    TPrimaryKeyLogMessage pk;
+    uint64_t pk;
+    std::string App;
+    std::string Host;
+    TInstant Timestamp;
     uint32_t HttpCode;
     std::string Message;
-    bool operator<(const TLogMessage& o) const {return pk < o.pk;};
 };
 
 class TYdbErrorException : public yexception {
@@ -40,8 +35,8 @@ struct TStatistic {
 };
 
 TRunArgs GetRunArgs();
-TStatus CreateLogTable(TTableClient& client, const std::string& table);
-TStatistic GetLogBatch(uint64_t logOffset, std::vector<TLogMessage>& logBatch, std::set<TLogMessage::TPrimaryKeyLogMessage>& setMessage);
+TStatus CreateTable(TTableClient& client, const std::string& table);
+TStatistic GetLogBatch(uint64_t logOffset, std::vector<TLogMessage>& logBatch, uint32_t lastNumber);
 TStatus WriteLogBatch(TTableClient& tableClient, const std::string& table, const std::vector<TLogMessage>& logBatch,
                    const TRetryOperationSettings& retrySettings);
 TStatistic Select(TTableClient& client, const std::string& path);

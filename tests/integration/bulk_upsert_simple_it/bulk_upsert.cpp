@@ -23,10 +23,6 @@ static std::string JoinPath(const std::string& basePath, const std::string& path
     return prefixPathSplit;
 }
 
-bool TLogMessage::TPrimaryKeyLogMessage::operator<(const TLogMessage::TPrimaryKeyLogMessage& o) const {
-    return App < o.App || App == o.App && Host < o.Host || App == o.App && Host == o.Host && Timestamp < o.Timestamp;
-}
-
 TRunArgs GetRunArgs() {
     
     std::string database = std::getenv("YDB_DATABASE");
@@ -41,18 +37,19 @@ TRunArgs GetRunArgs() {
     return {driver, JoinPath(database, "bulk")};
 }
 
-TStatus CreateLogTable(TTableClient& client, const std::string& table) {
+TStatus CreateTable(TTableClient& client, const std::string& table) {
     std::cerr << "Create table " << table << "\n";
 
     TRetryOperationSettings settings;
     auto status = client.RetryOperationSync([&table](TSession session) {
             auto tableDesc = TTableBuilder()
+                .AddNonNullableColumn("pk", EPrimitiveType::Uint64)
                 .AddNullableColumn("App", EPrimitiveType::Utf8)
                 .AddNullableColumn("Timestamp", EPrimitiveType::Timestamp)
                 .AddNullableColumn("Host", EPrimitiveType::Utf8)
                 .AddNullableColumn("HttpCode", EPrimitiveType::Uint32)
                 .AddNullableColumn("Message", EPrimitiveType::Utf8)
-                .SetPrimaryKeyColumns({"App", "Host", "Timestamp"})
+                .SetPrimaryKeyColumns({"pk"})
                 .Build();
 
             return session.CreateTable(table, std::move(tableDesc)).GetValueSync();
@@ -61,27 +58,25 @@ TStatus CreateLogTable(TTableClient& client, const std::string& table) {
     return status;
 }
 
-TStatistic GetLogBatch(uint64_t logOffset, std::vector<TLogMessage>& logBatch, std::set<TLogMessage::TPrimaryKeyLogMessage>& setMessage) {
+TStatistic GetLogBatch(uint64_t logOffset, std::vector<TLogMessage>& logBatch, uint32_t lastNumber) {
     logBatch.clear();
     uint32_t correctSumApp = 0;
     uint32_t correctSumHost = 0;
     uint32_t correctRowCount = 0;
 
     for (size_t i = 0; i < BATCH_SIZE; ++i) {
-        TLogMessage message;        
-        message.pk.App = "App_" + std::to_string(logOffset % 10);
-        message.pk.Host = "192.168.0." + std::to_string(logOffset % 11);
-        message.pk.Timestamp = TInstant::Now() + TDuration::MilliSeconds(i % 1000);
+        TLogMessage message;
+        message.pk = correctRowCount + lastNumber;        
+        message.App = "App_" + std::to_string(logOffset % 10);
+        message.Host = "192.168.0." + std::to_string(logOffset % 11);
+        message.Timestamp = TInstant::Now() + TDuration::MilliSeconds(i % 1000);
         message.HttpCode = 200;
         message.Message = i % 2 ? "GET / HTTP/1.1" : "GET /images/logo.png HTTP/1.1";
         logBatch.emplace_back(message);
 
-        if (!setMessage.contains(message.pk)) {
-            correctSumApp += logOffset % 10;
-            correctSumHost += logOffset % 11;
-            ++correctRowCount;
-            setMessage.insert(message.pk);
-        }
+        correctSumApp += logOffset % 10;
+        correctSumHost += logOffset % 11;
+        ++correctRowCount;
         
     }
     return {correctSumApp, correctSumHost, correctRowCount};
@@ -94,9 +89,10 @@ TStatus WriteLogBatch(TTableClient& tableClient, const std::string& table, const
     for (const auto& message : logBatch) {
         rows.AddListItem()
                 .BeginStruct()
-                .AddMember("App").Utf8(message.pk.App)
-                .AddMember("Host").Utf8(message.pk.Host)
-                .AddMember("Timestamp").Timestamp(message.pk.Timestamp)
+                .AddMember("pk").Uint64(message.pk)
+                .AddMember("App").Utf8(message.App)
+                .AddMember("Host").Utf8(message.Host)
+                .AddMember("Timestamp").Timestamp(message.Timestamp)
                 .AddMember("HttpCode").Uint32(message.HttpCode)
                 .AddMember("Message").Utf8(message.Message)
                 .EndStruct();
