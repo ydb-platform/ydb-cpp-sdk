@@ -224,7 +224,9 @@ function(_ydb_sdk_validate_public_headers)
     get_filename_component(relPath ${path} DIRECTORY)
     add_custom_command(OUTPUT ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include/${path}
       COMMAND ${CMAKE_COMMAND} -E
-        copy "${YDB_SDK_BINARY_DIR}/${path}" "${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include/${relPath}"
+        copy "${path}" "__validate_headers_dir/include/${relPath}"
+      DEPENDS "${path}"
+      WORKING_DIRECTORY ${YDB_SDK_BINARY_DIR}
     )
   endforeach()
 
