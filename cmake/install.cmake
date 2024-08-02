@@ -66,23 +66,10 @@ function(_ydb_sdk_install_headers ArgIncludeDir)
   )
 
   file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/public_headers.txt PublicHeaders)
+  file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/protos_public_headers.txt ProtosPublicHeaders)
   if (NOT MSVC)
     list(REMOVE_ITEM PublicHeaders library/cpp/deprecated/atomic/atomic_win.h)
   endif()
-  list(APPEND ProtosPublicHeaders
-    src/api/protos/ydb_federation_discovery.pb.h
-    src/api/protos/ydb_value.pb.h
-    src/api/protos/ydb_query.pb.h
-    src/api/protos/ydb_topic.pb.h
-    src/api/protos/ydb_table.pb.h
-    src/api/protos/ydb_query_stats.pb.h
-    src/api/protos/ydb_import.pb.h
-    src/api/protos/ydb_export.pb.h
-    src/api/protos/ydb_coordination.pb.h
-    src/api/protos/draft/ydb_replication.pb.h
-    src/library/operation_id/protos/operation_id.pb.h
-    src/library/yql/public/issue/protos/issue_severity.pb.h
-  )
   foreach(HeaderPath ${PublicHeaders})
     get_filename_component(RelInstallPath ${HeaderPath} DIRECTORY)
     _ydb_sdk_directory_install(FILES

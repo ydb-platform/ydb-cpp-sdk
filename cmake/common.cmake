@@ -201,8 +201,9 @@ function(_ydb_sdk_add_library Tgt)
 endfunction()
 
 function(_ydb_sdk_validate_public_headers)
-  file(GLOB_RECURSE allHeaders RELATIVE ${YDB_SDK_SOURCE_DIR}/include ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk)
+  file(GLOB_RECURSE allHeaders RELATIVE ${YDB_SDK_SOURCE_DIR}/include ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/*)
   file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/public_headers.txt specialHeaders)
+  file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/protos_public_headers.txt protosHeaders)
   if (NOT MSVC)
     list(REMOVE_ITEM specialHeaders library/cpp/deprecated/atomic/atomic_win.h)
   endif()
@@ -215,18 +216,38 @@ function(_ydb_sdk_validate_public_headers)
     )
   endforeach()
 
+  add_custom_target(make_validate_proto_headers
+    COMMAND ${CMAKE_COMMAND} -E
+    WORKING_DIRECTORY ${YDB_SDK_BINARY_DIR}
+  )
+  foreach(path ${protosHeaders})
+    get_filename_component(relPath ${path} DIRECTORY)
+    add_custom_command(OUTPUT ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include/${path}
+      COMMAND ${CMAKE_COMMAND} -E
+        copy "${YDB_SDK_BINARY_DIR}/${path}" "${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include/${relPath}"
+    )
+  endforeach()
+
   list(REMOVE_ITEM allHeaders
     library/cpp/threading/future/core/future-inl.h
     library/cpp/threading/future/wait/wait-inl.h
     library/cpp/yt/misc/guid-inl.h
   )
+
+  set(targetHeaders ${allHeaders})
+  list(APPEND targetHeaders ${protosHeaders})
+  list(TRANSFORM targetHeaders PREPEND "${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include/")
+
   list(TRANSFORM allHeaders PREPEND "#include <")
   list(TRANSFORM allHeaders APPEND ">")
   list(JOIN allHeaders "\n" fileContent)
 
   file(WRITE ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/main.cpp ${fileContent})
 
-  add_library(validate_public_interface MODULE ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/main.cpp)
+  add_library(validate_public_interface MODULE
+    ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/main.cpp
+    ${targetHeaders}
+  )
   target_include_directories(validate_public_interface PUBLIC ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include)
 endfunction()
 

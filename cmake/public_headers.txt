@@ -101,6 +101,7 @@ util/generic/array_size.h
 util/generic/array_ref.h
 util/generic/bitops.h
 util/generic/bt_exception.h
+util/generic/buffer.h
 util/generic/cast.h
 util/generic/deque.h
 util/generic/explicit_type.h
