@@ -215,6 +215,11 @@ function(_ydb_sdk_validate_public_headers)
     )
   endforeach()
 
+  list(REMOVE_ITEM allHeaders
+    library/cpp/threading/future/core/future-inl.h
+    library/cpp/threading/future/wait/wait-inl.h
+    library/cpp/yt/misc/guid-inl.h
+  )
   list(TRANSFORM allHeaders PREPEND "#include <")
   list(TRANSFORM allHeaders APPEND ">")
   list(JOIN allHeaders "\n" fileContent)

@@ -4,6 +4,9 @@
 
 #include <list>
 
+#include <util/generic/hash.h>
+#include <util/system/mutex.h>
+
 namespace NMonitoring {
     struct TIndexMonPage: public IMonPage {
         TMutex Mtx;
