@@ -186,16 +186,36 @@ function(_ydb_sdk_add_library Tgt)
     ${ARGN}
   )
 
-  set(LibraryMode "")
-  set(IncludeMode "PUBLIC")
+  set(libraryMode "")
+  set(includeMode "PUBLIC")
   if (ARG_INTERFACE)
-    set(LibraryMode "INTERFACE")
-    set(IncludeMode "INTERFACE")
+    set(libraryMode "INTERFACE")
+    set(includeMode "INTERFACE")
   endif()
-  add_library(${Tgt} ${LibraryMode})
-  target_include_directories(${Tgt} ${IncludeMode}
+  add_library(${Tgt} ${libraryMode})
+  target_include_directories(${Tgt} ${includeMode}
     $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}>
     $<BUILD_INTERFACE:${YDB_SDK_BINARY_DIR}>
     $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}/include>
   )
 endfunction()
+
+function(_ydb_sdk_validate_public_headers)
+  file(GLOB_RECURSE allHeaders RELATIVE ${YDB_SDK_SOURCE_DIR}/include ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk)
+  file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/public_headers.txt specialHeaders)
+  list(APPEND allHeaders ${specialHeaders})
+  file(COPY ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk DESTINATION ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include)
+  foreach(path ${specialHeaders})
+    get_filename_component(relPath ${path} DIRECTORY)
+    file(COPY ${YDB_SDK_SOURCE_DIR}/${path}
+      DESTINATION ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include/${relPath}
+    )
+  endforeach()
+
+  list(TRANSFORM allHeaders PREPEND "#include <")
+  list(TRANSFORM allHeaders APPEND ">")
+  list(JOIN allHeaders "\n" fileContent)
+
+  file(WRITE ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/main.cpp ${fileContent})
+endfunction()
+
