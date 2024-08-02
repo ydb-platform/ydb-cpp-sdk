@@ -1,4 +1,4 @@
-add_library(public-lib-json_value)
+_ydb_sdk_add_library(public-lib-json_value)
 
 target_link_libraries(public-lib-json_value PUBLIC
   yutil
@@ -13,4 +13,4 @@ target_sources(public-lib-json_value PRIVATE
   ydb_json_value.cpp
 )
 
-add_library(YDB-CPP-SDK::JsonValue ALIAS public-lib-json_value)
+_ydb_sdk_make_client_component(JsonValue public-lib-json_value)

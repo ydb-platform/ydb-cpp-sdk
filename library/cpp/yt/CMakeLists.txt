@@ -1,4 +1,4 @@
-add_library(yt-assert)
+_ydb_sdk_add_library(yt-assert)
 target_compile_options(yt-assert PRIVATE
   -Wdeprecated-this-capture
 )
@@ -11,7 +11,7 @@ target_sources(yt-assert PRIVATE
 _ydb_sdk_install_targets(TARGETS yt-assert)
 
 
-add_library(yt-coding INTERFACE)
+_ydb_sdk_add_library(yt-coding INTERFACE)
 target_link_libraries(yt-coding
   INTERFACE
     yutil
@@ -20,16 +20,16 @@ target_link_libraries(yt-coding
 _ydb_sdk_install_targets(TARGETS yt-coding)
 
 
-add_library(yt-containers INTERFACE)
+_ydb_sdk_add_library(yt-containers INTERFACE)
 target_link_libraries(yt-containers
   INTERFACE
     yt-assert
     yt-misc
 )
-_ydb_sdk_install_targets(TARGETS yt-coding)
+_ydb_sdk_install_targets(TARGETS yt-containers)
 
 
-add_library(yt-exception)
+_ydb_sdk_add_library(yt-exception)
 target_compile_options(yt-exception PRIVATE
   -Wdeprecated-this-capture
 )
@@ -42,7 +42,7 @@ target_sources(yt-exception PRIVATE
 _ydb_sdk_install_targets(TARGETS yt-exception)
 
 
-add_library(yt-malloc)
+_ydb_sdk_add_library(yt-malloc)
 target_link_libraries(yt-malloc PUBLIC
   yutil
 )
@@ -57,7 +57,7 @@ endif()
 _ydb_sdk_install_targets(TARGETS yt-malloc)
 
 
-add_library(yt-memory)
+_ydb_sdk_add_library(yt-memory)
 target_link_libraries(yt-memory
   PUBLIC
     yutil
@@ -87,7 +87,7 @@ endif()
 _ydb_sdk_install_targets(TARGETS yt-memory)
 
 
-add_library(yt-misc)
+_ydb_sdk_add_library(yt-misc)
 target_compile_options(yt-misc PRIVATE
   -Wdeprecated-this-capture
 )
@@ -106,7 +106,7 @@ target_sources(yt-misc
 _ydb_sdk_install_targets(TARGETS yt-misc)
 
 
-add_library(yt-small_containers INTERFACE)
+_ydb_sdk_add_library(yt-small_containers INTERFACE)
 target_link_libraries(yt-small_containers 
   INTERFACE
     yutil
@@ -117,7 +117,7 @@ target_link_libraries(yt-small_containers
 _ydb_sdk_install_targets(TARGETS yt-small_containers)
 
 
-add_library(yt-string)
+_ydb_sdk_add_library(yt-string)
 target_compile_options(yt-string PRIVATE
   -Wdeprecated-this-capture
 )
@@ -140,7 +140,7 @@ target_sources(yt-string
 _ydb_sdk_install_targets(TARGETS yt-string)
 
 
-add_library(yt-yson)
+_ydb_sdk_add_library(yt-yson)
 target_compile_options(yt-yson PRIVATE
   -Wdeprecated-this-capture
 )
@@ -155,7 +155,7 @@ target_sources(yt-yson PRIVATE
 _ydb_sdk_install_targets(TARGETS yt-yson)
 
 
-add_library(yt-yson_string)
+_ydb_sdk_add_library(yt-yson_string)
 target_link_libraries(yt-yson_string
   PUBLIC
     yutil

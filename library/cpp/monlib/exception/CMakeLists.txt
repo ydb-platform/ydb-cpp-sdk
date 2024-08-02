@@ -1,4 +1,4 @@
-add_library(monlib-exception)
+_ydb_sdk_add_library(monlib-exception)
 
 target_link_libraries(monlib-exception PUBLIC
   yutil

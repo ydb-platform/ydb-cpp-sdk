@@ -26,7 +26,7 @@ if (YDB_SDK_TESTS)
   )
 endif()
 
-add_library(charset-lite)
+_ydb_sdk_add_library(charset-lite)
 target_link_libraries(charset-lite PUBLIC
   yutil
 )
@@ -42,7 +42,7 @@ target_sources(charset-lite
 _ydb_sdk_install_targets(TARGETS charset-lite)
 
 
-add_library(charset)
+_ydb_sdk_add_library(charset)
 target_link_libraries(charset 
   PUBLIC
     yutil

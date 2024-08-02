@@ -1,4 +1,4 @@
-add_library(client-ydb_table-query_stats)
+_ydb_sdk_add_library(client-ydb_table-query_stats)
 
 target_link_libraries(client-ydb_table-query_stats PUBLIC
   yutil

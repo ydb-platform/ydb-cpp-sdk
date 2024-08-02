@@ -10,7 +10,7 @@ if (YDB_SDK_TESTS)
   )
 endif()
 
-add_library(cgiparam)
+_ydb_sdk_add_library(cgiparam)
 
 target_link_libraries(cgiparam 
   PUBLIC

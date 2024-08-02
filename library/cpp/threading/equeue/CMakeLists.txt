@@ -1,4 +1,4 @@
-add_library(threading-equeue)
+_ydb_sdk_add_library(threading-equeue)
 
 target_link_libraries(threading-equeue PUBLIC
   yutil

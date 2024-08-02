@@ -1,4 +1,4 @@
-add_library(client-ydb_types-exceptions)
+_ydb_sdk_add_library(client-ydb_types-exceptions)
 
 target_link_libraries(client-ydb_types-exceptions PUBLIC
   yutil

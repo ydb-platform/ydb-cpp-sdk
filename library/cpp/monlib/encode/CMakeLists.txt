@@ -1,4 +1,4 @@
-add_library(monlib-encode-buffered)
+_ydb_sdk_add_library(monlib-encode-buffered)
 target_link_libraries(monlib-encode-buffered
   PUBLIC
     yutil
@@ -13,7 +13,7 @@ target_sources(monlib-encode-buffered
 _ydb_sdk_install_targets(TARGETS monlib-encode-buffered)
 
 
-add_library(monlib-encode-json)
+_ydb_sdk_add_library(monlib-encode-json)
 target_link_libraries(monlib-encode-json
   PUBLIC
     yutil
@@ -33,7 +33,7 @@ target_sources(monlib-encode-json
 _ydb_sdk_install_targets(TARGETS monlib-encode-json)
 
 
-add_library(monlib-encode-prometheus)
+_ydb_sdk_add_library(monlib-encode-prometheus)
 target_link_libraries(monlib-encode-prometheus
   PUBLIC
     yutil
@@ -50,7 +50,7 @@ target_sources(monlib-encode-prometheus
 _ydb_sdk_install_targets(TARGETS monlib-encode-prometheus)
 
 
-add_library(monlib-encode-spack)
+_ydb_sdk_add_library(monlib-encode-spack)
 target_link_libraries(monlib-encode-spack
   PUBLIC
     yutil
@@ -74,7 +74,7 @@ target_sources(monlib-encode-spack
 _ydb_sdk_install_targets(TARGETS monlib-encode-spack)
 
 
-add_library(monlib-encode-text)
+_ydb_sdk_add_library(monlib-encode-text)
 target_link_libraries(monlib-encode-text
   PUBLIC
     yutil
@@ -86,7 +86,7 @@ target_sources(monlib-encode-text PRIVATE
 _ydb_sdk_install_targets(TARGETS monlib-encode-text)
 
 
-add_library(monlib-encode)
+_ydb_sdk_add_library(monlib-encode)
 target_link_libraries(monlib-encode
   PUBLIC
     yutil

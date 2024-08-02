@@ -1,4 +1,4 @@
-add_library(openssl-init)
+_ydb_sdk_add_library(openssl-init)
 
 target_link_libraries(openssl-init PRIVATE
   OpenSSL::SSL

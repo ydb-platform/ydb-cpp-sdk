@@ -6,7 +6,7 @@ _ydb_sdk_add_proto_library(retry-protos
 )
 _ydb_sdk_install_targets(TARGETS retry-protos)
 
-add_library(retry)
+_ydb_sdk_add_library(retry)
 target_link_libraries(retry
   PUBLIC
     yutil

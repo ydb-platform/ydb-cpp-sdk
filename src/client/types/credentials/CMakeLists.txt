@@ -1,7 +1,7 @@
 add_subdirectory(login)
 add_subdirectory(oauth2_token_exchange)
 
-add_library(client-ydb_types-credentials)
+_ydb_sdk_add_library(client-ydb_types-credentials)
 
 target_link_libraries(client-ydb_types-credentials PUBLIC
   yutil

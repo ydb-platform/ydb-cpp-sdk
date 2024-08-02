@@ -1,4 +1,4 @@
-add_library(http-fetch)
+_ydb_sdk_add_library(http-fetch)
 
 target_link_libraries(http-fetch
   PUBLIC

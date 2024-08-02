@@ -1,4 +1,4 @@
-add_library(client-resources)
+_ydb_sdk_add_library(client-resources)
 target_link_libraries(client-resources PUBLIC
   yutil
   resource

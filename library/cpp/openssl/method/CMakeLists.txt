@@ -1,4 +1,4 @@
-add_library(openssl-method)
+_ydb_sdk_add_library(openssl-method)
 
 target_link_libraries(openssl-method
   PUBLIC

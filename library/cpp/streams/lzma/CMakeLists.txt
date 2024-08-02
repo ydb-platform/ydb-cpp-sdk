@@ -1,4 +1,4 @@
-add_library(streams-lzma)
+_ydb_sdk_add_library(streams-lzma)
 
 target_link_libraries(streams-lzma
   PUBLIC

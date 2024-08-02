@@ -1,4 +1,4 @@
-add_library(client-ydb_discovery)
+_ydb_sdk_add_library(client-ydb_discovery)
 
 target_compile_options(client-ydb_discovery PRIVATE
   -Wno-deprecated

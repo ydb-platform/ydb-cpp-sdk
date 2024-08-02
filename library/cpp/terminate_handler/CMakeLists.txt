@@ -1,4 +1,4 @@
-add_library(terminate_handler)
+_ydb_sdk_add_library(terminate_handler)
 target_link_libraries(terminate_handler PRIVATE
   yutil
 )

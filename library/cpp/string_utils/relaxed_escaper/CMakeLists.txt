@@ -1,4 +1,4 @@
-add_library(string_utils-relaxed_escaper)
+_ydb_sdk_add_library(string_utils-relaxed_escaper)
 
 target_link_libraries(string_utils-relaxed_escaper
   PUBLIC

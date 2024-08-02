@@ -10,7 +10,7 @@ if (YDB_SDK_TESTS)
   )
 endif()
 
-add_library(containers-intrusive_rb_tree)
+_ydb_sdk_add_library(containers-intrusive_rb_tree)
 
 target_link_libraries(containers-intrusive_rb_tree PUBLIC
   yutil

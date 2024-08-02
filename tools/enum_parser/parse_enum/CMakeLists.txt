@@ -1,4 +1,4 @@
-add_library(tools-enum_parser-parse_enum)
+_ydb_sdk_add_library(tools-enum_parser-parse_enum)
 
 target_link_libraries(tools-enum_parser-parse_enum
   PUBLIC

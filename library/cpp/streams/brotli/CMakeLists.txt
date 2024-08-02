@@ -1,4 +1,4 @@
-add_library(streams-brotli)
+_ydb_sdk_add_library(streams-brotli)
 
 target_link_libraries(streams-brotli
   PUBLIC

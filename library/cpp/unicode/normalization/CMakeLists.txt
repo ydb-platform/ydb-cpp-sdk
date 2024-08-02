@@ -1,4 +1,4 @@
-add_library(unicode-normalization)
+_ydb_sdk_add_library(unicode-normalization)
 
 target_link_libraries(unicode-normalization PUBLIC
   yutil

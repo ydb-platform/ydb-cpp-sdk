@@ -1,4 +1,4 @@
-add_library(logger)
+_ydb_sdk_add_library(logger)
 target_link_libraries(logger
   PUBLIC
     yutil

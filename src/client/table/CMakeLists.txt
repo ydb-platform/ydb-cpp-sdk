@@ -1,7 +1,7 @@
 add_subdirectory(impl)
 add_subdirectory(query_stats)
 
-add_library(client-ydb_table)
+_ydb_sdk_add_library(client-ydb_table)
 
 target_link_libraries(client-ydb_table PUBLIC
   yutil

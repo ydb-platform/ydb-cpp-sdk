@@ -10,7 +10,7 @@ if (YDB_SDK_TESTS)
   )
 endif()
 
-add_library(digest-murmur)
+_ydb_sdk_add_library(digest-murmur)
 
 target_link_libraries(digest-murmur
   PUBLIC

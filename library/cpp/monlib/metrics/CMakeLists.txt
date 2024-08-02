@@ -1,4 +1,4 @@
-add_library(monlib-metrics)
+_ydb_sdk_add_library(monlib-metrics)
 
 target_link_libraries(monlib-metrics
   PUBLIC

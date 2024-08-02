@@ -1,4 +1,4 @@
-add_library(threading-chunk_queue)
+_ydb_sdk_add_library(threading-chunk_queue)
 
 target_link_libraries(threading-chunk_queue PUBLIC
   yutil

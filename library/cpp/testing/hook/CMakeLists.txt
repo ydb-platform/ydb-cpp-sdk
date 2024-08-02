@@ -1,4 +1,4 @@
-add_library(cpp-testing-hook)
+_ydb_sdk_add_library(cpp-testing-hook)
 
 target_link_libraries(cpp-testing-hook PUBLIC
   yutil

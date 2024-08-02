@@ -1,4 +1,4 @@
-add_library(string_utils-misc INTERFACE)
+_ydb_sdk_add_library(string_utils-misc INTERFACE)
 
 target_link_libraries(string_utils-misc INTERFACE
   yutil

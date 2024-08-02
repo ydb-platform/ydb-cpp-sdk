@@ -1,4 +1,4 @@
-add_library(getopt-small)
+_ydb_sdk_add_library(getopt-small)
 target_link_libraries(getopt-small
   PUBLIC
     yutil
@@ -25,7 +25,7 @@ target_sources(getopt-small PRIVATE
 _ydb_sdk_install_targets(TARGETS getopt-small)
 
 
-add_library(getopt INTERFACE)
+_ydb_sdk_add_library(getopt INTERFACE)
 add_global_library_for(getopt.global getopt)
 target_link_libraries(getopt.global
   PUBLIC

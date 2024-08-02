@@ -1,4 +1,4 @@
-add_library(http-misc)
+_ydb_sdk_add_library(http-misc)
 
 target_link_libraries(http-misc
   PUBLIC

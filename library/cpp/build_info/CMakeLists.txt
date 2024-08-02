@@ -4,7 +4,7 @@ set(KOSHER_SVN_VERSION "")
 set(SANDBOX_TASK_ID 0)
 set(BUILD_TYPE RELEASE)
 
-add_library(build_info)
+_ydb_sdk_add_library(build_info)
 target_include_directories(build_info
   PRIVATE
     ${YDB_SDK_BINARY_DIR}/library/cpp/build_info

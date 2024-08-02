@@ -1,4 +1,4 @@
-add_library(iterator)
+_ydb_sdk_add_library(iterator)
 
 target_link_libraries(iterator PUBLIC
   yutil

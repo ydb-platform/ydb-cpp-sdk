@@ -1,4 +1,4 @@
-add_library(streams-bzip2)
+_ydb_sdk_add_library(streams-bzip2)
 
 target_link_libraries(streams-bzip2
   PUBLIC

@@ -1,4 +1,4 @@
-add_library(monlib-dynamic_counters)
+_ydb_sdk_add_library(monlib-dynamic_counters)
 target_link_libraries(monlib-dynamic_counters
   PUBLIC
     yutil

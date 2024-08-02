@@ -1,4 +1,4 @@
-add_library(impl-ydb_internal-value_helpers)
+_ydb_sdk_add_library(impl-ydb_internal-value_helpers)
 
 target_link_libraries(impl-ydb_internal-value_helpers PUBLIC
   yutil

@@ -1,4 +1,4 @@
-add_library(http-io)
+_ydb_sdk_add_library(http-io)
 
 target_link_libraries(http-io
   PUBLIC

@@ -1,4 +1,4 @@
-add_library(impl-ydb_internal-session_pool)
+_ydb_sdk_add_library(impl-ydb_internal-session_pool)
 
 target_link_libraries(impl-ydb_internal-session_pool PUBLIC
   yutil

@@ -4,7 +4,7 @@ endif()
 
 add_subdirectory(writer)
 
-add_library(json-common)
+_ydb_sdk_add_library(json-common)
 target_link_libraries(json-common PUBLIC
   yutil
 )
@@ -14,7 +14,7 @@ target_sources(json-common PRIVATE
 _ydb_sdk_install_targets(TARGETS json-common)
 
 
-add_library(json-fast_sax)
+_ydb_sdk_add_library(json-fast_sax)
 target_link_libraries(json-fast_sax
   PUBLIC
     yutil
@@ -39,7 +39,7 @@ endif()
 _ydb_sdk_install_targets(TARGETS json-fast_sax)
 
 
-add_library(json)
+_ydb_sdk_add_library(json)
 target_link_libraries(json
   PUBLIC
     yutil

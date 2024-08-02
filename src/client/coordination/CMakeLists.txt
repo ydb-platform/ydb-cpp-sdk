@@ -1,4 +1,4 @@
-add_library(client-ydb_coordination)
+_ydb_sdk_add_library(client-ydb_coordination)
 
 target_link_libraries(client-ydb_coordination PUBLIC
   yutil

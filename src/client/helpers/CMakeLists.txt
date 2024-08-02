@@ -1,4 +1,4 @@
-add_library(client-helpers)
+_ydb_sdk_add_library(client-helpers)
 
 target_link_libraries(client-helpers PUBLIC
   yutil

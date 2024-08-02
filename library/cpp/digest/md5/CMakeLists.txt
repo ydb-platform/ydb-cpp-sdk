@@ -22,7 +22,7 @@ if (YDB_SDK_TESTS)
   )
 endif()
 
-add_library(digest-md5)
+_ydb_sdk_add_library(digest-md5)
 
 target_link_libraries(digest-md5 
   PUBLIC

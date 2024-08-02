@@ -1,4 +1,4 @@
-add_library(client-ydb_types-credentials-oauth2)
+_ydb_sdk_add_library(client-ydb_types-credentials-oauth2)
 
 target_link_libraries(client-ydb_types-credentials-oauth2 PUBLIC
   yutil

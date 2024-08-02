@@ -1,4 +1,4 @@
-add_library(yson)
+_ydb_sdk_add_library(yson)
 
 target_link_libraries(yson 
   PUBLIC

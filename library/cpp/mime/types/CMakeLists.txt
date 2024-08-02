@@ -1,4 +1,4 @@
-add_library(mime-types)
+_ydb_sdk_add_library(mime-types)
 
 target_link_libraries(mime-types
   PUBLIC

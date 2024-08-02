@@ -1,4 +1,4 @@
-add_library(cpuid_check INTERFACE)
+_ydb_sdk_add_library(cpuid_check INTERFACE)
 
 add_global_library_for(cpuid_check.global cpuid_check)
 

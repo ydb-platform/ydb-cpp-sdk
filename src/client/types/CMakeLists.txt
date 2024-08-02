@@ -4,7 +4,7 @@ add_subdirectory(fatal_error_handlers)
 add_subdirectory(operation)
 add_subdirectory(status)
 
-add_library(client-ydb_types)
+_ydb_sdk_add_library(client-ydb_types)
 
 target_link_libraries(client-ydb_types PUBLIC
   yutil

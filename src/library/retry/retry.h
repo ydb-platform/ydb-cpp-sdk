@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/library/retry/retry_policy.h>
+#include <ydb-cpp-sdk/library/retry/retry_policy.h>
 #include "utils.h"
 
 #include <src/library/retry/protos/retry_options.pb.h>

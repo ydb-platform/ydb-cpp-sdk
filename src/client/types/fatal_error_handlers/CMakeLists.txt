@@ -1,4 +1,4 @@
-add_library(client-ydb_types-fatal_error_handlers)
+_ydb_sdk_add_library(client-ydb_types-fatal_error_handlers)
 
 target_link_libraries(client-ydb_types-fatal_error_handlers PUBLIC
   yutil

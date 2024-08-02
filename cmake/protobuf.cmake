@@ -49,7 +49,7 @@ function(_ydb_sdk_gen_proto_messages Tgt Scope Grpc)
 endfunction()
 
 function(_ydb_sdk_init_proto_library_impl Tgt USE_API_COMMON_PROTOS)
-  add_library(${Tgt})
+  _ydb_sdk_add_library(${Tgt})
   target_link_libraries(${Tgt} PUBLIC
     protobuf::libprotobuf
   )

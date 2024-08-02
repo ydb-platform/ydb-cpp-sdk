@@ -15,7 +15,7 @@ if (YDB_SDK_TESTS)
   )
 endif()
 
-add_library(digest-lower_case)
+_ydb_sdk_add_library(digest-lower_case)
 
 target_link_libraries(digest-lower_case PUBLIC
   yutil

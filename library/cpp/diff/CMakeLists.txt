@@ -10,7 +10,7 @@ if (YDB_SDK_TESTS)
   )
 endif()
 
-add_library(diff)
+_ydb_sdk_add_library(diff)
 
 target_link_libraries(diff
   PUBLIC

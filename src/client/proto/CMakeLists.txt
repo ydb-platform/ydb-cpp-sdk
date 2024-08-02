@@ -1,4 +1,4 @@
-add_library(client-ydb_proto)
+_ydb_sdk_add_library(client-ydb_proto)
 
 target_link_libraries(client-ydb_proto PUBLIC
   yutil

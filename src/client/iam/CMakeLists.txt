@@ -1,6 +1,6 @@
 add_subdirectory(common)
 
-add_library(client-iam)
+_ydb_sdk_add_library(client-iam)
 
 target_link_libraries(client-iam PUBLIC
   yutil

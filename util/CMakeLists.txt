@@ -47,7 +47,7 @@ if (YDB_SDK_TESTS)
   )
 endif()
 
-add_library(yutil)
+_ydb_sdk_add_library(yutil)
 
 target_compile_options(yutil PUBLIC
   -DTSTRING_IS_STD_STRING

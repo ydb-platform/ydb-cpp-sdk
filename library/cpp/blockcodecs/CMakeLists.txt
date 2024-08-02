@@ -1,4 +1,4 @@
-add_library(blockcodecs-core)
+_ydb_sdk_add_library(blockcodecs-core)
 target_link_libraries(blockcodecs-core
   PUBLIC
     yutil
@@ -10,7 +10,7 @@ target_sources(blockcodecs-core PRIVATE
 _ydb_sdk_install_targets(TARGETS blockcodecs-core)
 
 
-add_library(blockcodecs-codecs-brotli INTERFACE)
+_ydb_sdk_add_library(blockcodecs-codecs-brotli INTERFACE)
 add_global_library_for(blockcodecs-codecs-brotli.global blockcodecs-codecs-brotli)
 target_link_libraries(blockcodecs-codecs-brotli.global
   PRIVATE
@@ -27,7 +27,7 @@ _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-brotli.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-brotli)
 
 
-add_library(blockcodecs-codecs-bzip INTERFACE)
+_ydb_sdk_add_library(blockcodecs-codecs-bzip INTERFACE)
 add_global_library_for(blockcodecs-codecs-bzip.global blockcodecs-codecs-bzip)
 target_link_libraries(blockcodecs-codecs-bzip.global 
   PRIVATE
@@ -43,7 +43,7 @@ _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-bzip.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-bzip)
 
 
-add_library(blockcodecs-codecs-fastlz INTERFACE)
+_ydb_sdk_add_library(blockcodecs-codecs-fastlz INTERFACE)
 add_global_library_for(blockcodecs-codecs-fastlz.global blockcodecs-codecs-fastlz)
 target_link_libraries(blockcodecs-codecs-fastlz.global
   PRIVATE
@@ -59,7 +59,7 @@ _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-fastlz.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-fastlz)
 
 
-add_library(blockcodecs-codecs-lz4 INTERFACE)
+_ydb_sdk_add_library(blockcodecs-codecs-lz4 INTERFACE)
 add_global_library_for(blockcodecs-codecs-lz4.global blockcodecs-codecs-lz4)
 target_link_libraries(blockcodecs-codecs-lz4.global
   PRIVATE
@@ -79,7 +79,7 @@ _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-lz4.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-lz4)
 
 
-add_library(blockcodecs-codecs-lzma INTERFACE)
+_ydb_sdk_add_library(blockcodecs-codecs-lzma INTERFACE)
 add_global_library_for(blockcodecs-codecs-lzma.global blockcodecs-codecs-lzma)
 target_link_libraries(blockcodecs-codecs-lzma.global
   PRIVATE
@@ -95,7 +95,7 @@ _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-lzma.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-lzma)
 
 
-add_library(blockcodecs-codecs-snappy INTERFACE)
+_ydb_sdk_add_library(blockcodecs-codecs-snappy INTERFACE)
 add_global_library_for(blockcodecs-codecs-snappy.global blockcodecs-codecs-snappy)
 target_link_libraries(blockcodecs-codecs-snappy.global
   PRIVATE
@@ -111,7 +111,7 @@ _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-snappy.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-snappy)
 
 
-add_library(blockcodecs-codecs-zlib INTERFACE)
+_ydb_sdk_add_library(blockcodecs-codecs-zlib INTERFACE)
 add_global_library_for(blockcodecs-codecs-zlib.global blockcodecs-codecs-zlib)
 target_link_libraries(blockcodecs-codecs-zlib.global
   PRIVATE
@@ -127,7 +127,7 @@ _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-zlib.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-zlib)
 
 
-add_library(blockcodecs-codecs-zstd INTERFACE)
+_ydb_sdk_add_library(blockcodecs-codecs-zstd INTERFACE)
 add_global_library_for(blockcodecs-codecs-zstd.global blockcodecs-codecs-zstd)
 target_link_libraries(blockcodecs-codecs-zstd.global
   PRIVATE
@@ -143,7 +143,7 @@ _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-zstd.global)
 _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-zstd)
 
 
-add_library(blockcodecs)
+_ydb_sdk_add_library(blockcodecs)
 target_link_libraries(blockcodecs 
   PUBLIC
     yutil

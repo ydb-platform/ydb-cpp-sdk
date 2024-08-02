@@ -1,4 +1,4 @@
-add_library(lcs)
+_ydb_sdk_add_library(lcs)
 
 target_link_libraries(lcs
   PUBLIC

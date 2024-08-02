@@ -16,7 +16,7 @@ if (YDB_SDK_TESTS)
   )
 endif()
 
-add_library(coroutine-engine)
+_ydb_sdk_add_library(coroutine-engine)
 
 target_link_libraries(coroutine-engine
   PUBLIC

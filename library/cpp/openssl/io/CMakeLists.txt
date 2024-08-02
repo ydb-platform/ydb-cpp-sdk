@@ -1,4 +1,4 @@
-add_library(openssl-io)
+_ydb_sdk_add_library(openssl-io)
 
 target_link_libraries(openssl-io
   PUBLIC

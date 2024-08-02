@@ -1,4 +1,4 @@
-add_library(enum_serialization_runtime)
+_ydb_sdk_add_library(enum_serialization_runtime)
 
 target_link_libraries(enum_serialization_runtime PUBLIC
   yutil

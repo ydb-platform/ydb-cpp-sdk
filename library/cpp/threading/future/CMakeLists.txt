@@ -1,4 +1,4 @@
-add_library(threading-future)
+_ydb_sdk_add_library(threading-future)
 
 target_link_libraries(threading-future PUBLIC
   yutil

@@ -1,4 +1,4 @@
-add_library(impl-ydb_internal-common)
+_ydb_sdk_add_library(impl-ydb_internal-common)
 
 target_link_libraries(impl-ydb_internal-common PUBLIC
   yutil

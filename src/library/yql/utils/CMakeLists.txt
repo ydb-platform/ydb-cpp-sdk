@@ -1,4 +1,4 @@
-add_library(yql-utils)
+_ydb_sdk_add_library(yql-utils)
 
 target_link_libraries(yql-utils PUBLIC
   yutil

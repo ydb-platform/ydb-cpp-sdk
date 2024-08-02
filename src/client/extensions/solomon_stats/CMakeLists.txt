@@ -1,4 +1,4 @@
-add_library(client-extensions-solomon_stats)
+_ydb_sdk_add_library(client-extensions-solomon_stats)
 
 target_link_libraries(client-extensions-solomon_stats PUBLIC
   yutil

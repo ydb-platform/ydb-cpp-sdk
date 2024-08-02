@@ -1,4 +1,4 @@
-add_library(client-ydb_driver)
+_ydb_sdk_add_library(client-ydb_driver)
 
 target_link_libraries(client-ydb_driver 
   PUBLIC

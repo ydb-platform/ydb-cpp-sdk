@@ -1,4 +1,4 @@
-add_library(monlib-service-pages)
+_ydb_sdk_add_library(monlib-service-pages)
 target_link_libraries(monlib-service-pages
   PUBLIC
     yutil
@@ -27,7 +27,7 @@ target_sources(monlib-service-pages PRIVATE
 _ydb_sdk_install_targets(TARGETS monlib-service-pages)
 
 
-add_library(monlib-service)
+_ydb_sdk_add_library(monlib-service)
 target_link_libraries(monlib-service 
   PUBLIC
     yutil

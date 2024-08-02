@@ -1,4 +1,4 @@
-add_library(persqueue-topic_parser_public)
+_ydb_sdk_add_library(persqueue-topic_parser_public)
 
 target_link_libraries(persqueue-topic_parser_public PUBLIC
   yutil

@@ -12,7 +12,7 @@ if (YDB_SDK_TESTS)
     )
 endif()
 
-add_library(json-writer)
+_ydb_sdk_add_library(json-writer)
 target_link_libraries(json-writer
   PUBLIC
     yutil

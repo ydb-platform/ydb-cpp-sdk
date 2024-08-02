@@ -1,4 +1,4 @@
-add_library(resource)
+_ydb_sdk_add_library(resource)
 
 target_link_libraries(resource
   PUBLIC

@@ -1,4 +1,4 @@
-add_library(openssl-holders)
+_ydb_sdk_add_library(openssl-holders)
 
 target_link_libraries(openssl-holders
   PUBLIC

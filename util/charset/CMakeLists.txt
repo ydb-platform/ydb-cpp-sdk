@@ -2,7 +2,7 @@ if (YDB_SDK_TESTS)
   add_subdirectory(ut)
 endif()
 
-add_library(util-charset)
+_ydb_sdk_add_library(util-charset)
 
 target_compile_options(util-charset PUBLIC
   -DTSTRING_IS_STD_STRING

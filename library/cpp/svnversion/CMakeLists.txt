@@ -1,4 +1,4 @@
-add_library(svnversion)
+_ydb_sdk_add_library(svnversion)
 
 target_link_libraries(svnversion PUBLIC
   yutil

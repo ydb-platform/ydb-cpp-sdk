@@ -10,7 +10,7 @@ if (YDB_SDK_TESTS)
   )
 endif()
 
-add_library(case_insensitive_string)
+_ydb_sdk_add_library(case_insensitive_string)
 
 target_link_libraries(case_insensitive_string
   PUBLIC

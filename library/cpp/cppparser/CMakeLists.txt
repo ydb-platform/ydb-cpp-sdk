@@ -1,4 +1,4 @@
-add_library(cppparser)
+_ydb_sdk_add_library(cppparser)
 
 target_link_libraries(cppparser PUBLIC
   yutil

@@ -3,7 +3,7 @@ if (YDB_SDK_TESTS)
   add_subdirectory(ut)
 endif()
 
-add_library(cpp-testing-unittest)
+_ydb_sdk_add_library(cpp-testing-unittest)
 
 target_link_libraries(cpp-testing-unittest PUBLIC
   yutil

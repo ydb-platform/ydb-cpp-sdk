@@ -1,4 +1,4 @@
-add_library(uri)
+_ydb_sdk_add_library(uri)
 
 target_link_libraries(uri
   PUBLIC

@@ -1,4 +1,4 @@
-add_library(string_utils-base64)
+_ydb_sdk_add_library(string_utils-base64)
 
 target_link_libraries(string_utils-base64 PUBLIC
   yutil

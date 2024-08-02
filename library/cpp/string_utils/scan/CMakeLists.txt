@@ -1,4 +1,4 @@
-add_library(string_utils-scan)
+_ydb_sdk_add_library(string_utils-scan)
 
 target_link_libraries(string_utils-scan 
   PUBLIC

@@ -1,4 +1,4 @@
-add_library(colorizer)
+_ydb_sdk_add_library(colorizer)
 
 target_link_libraries(colorizer PUBLIC
   yutil

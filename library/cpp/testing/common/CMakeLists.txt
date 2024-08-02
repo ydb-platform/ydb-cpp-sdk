@@ -1,4 +1,4 @@
-add_library(cpp-testing-common)
+_ydb_sdk_add_library(cpp-testing-common)
 
 target_link_libraries(cpp-testing-common PUBLIC
   yutil

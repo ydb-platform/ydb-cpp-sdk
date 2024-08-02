@@ -1,4 +1,4 @@
-add_library(client-iam-common)
+_ydb_sdk_add_library(client-iam-common)
 
 target_link_libraries(client-iam-common PUBLIC
   yutil

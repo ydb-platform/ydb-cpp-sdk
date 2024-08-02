@@ -10,13 +10,13 @@ if (YDB_SDK_TESTS)
   )
 endif()
 
-add_library(containers-stack_vector)
+_ydb_sdk_add_library(containers-stack_vector)
 
 target_link_libraries(containers-stack_vector PUBLIC
   yutil
 )
 
-target_sources(containers-stack_vector PUBLIC
+target_sources(containers-stack_vector PRIVATE
   stack_vec.cpp
 )
 

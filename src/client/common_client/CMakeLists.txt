@@ -1,6 +1,6 @@
 add_subdirectory(impl)
 
-add_library(client-ydb_common_client)
+_ydb_sdk_add_library(client-ydb_common_client)
 
 target_link_libraries(client-ydb_common_client PUBLIC
   yutil

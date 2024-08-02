@@ -1,6 +1,6 @@
-add_library(util-draft-old)
+_ydb_sdk_add_library(util-draft)
 
-target_sources(util-draft-old PRIVATE
+target_sources(util-draft PRIVATE
   ${YDB_SDK_SOURCE_DIR}/util/draft/date.cpp
   ${YDB_SDK_SOURCE_DIR}/util/draft/datetime.cpp
   ${YDB_SDK_SOURCE_DIR}/util/draft/enum.cpp
