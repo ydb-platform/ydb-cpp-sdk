@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/table/table.h>
-#include <src/library/getopt/last_getopt.h>
+#include <library/cpp/getopt/last_getopt.h>
 
 using namespace NYdb;
 using namespace NYdb::NTable;
