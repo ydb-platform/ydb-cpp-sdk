@@ -18,7 +18,6 @@ struct TLogMessage {
         std::string Host;
         TInstant Timestamp;
         uint64_t Id;
-        bool operator<(const TPrimaryKeyLogMessage& o) const;
     };
 
     TPrimaryKeyLogMessage Pk;
