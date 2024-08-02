@@ -66,6 +66,9 @@ function(_ydb_sdk_install_headers ArgIncludeDir)
   )
 
   file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/public_headers.txt PublicHeaders)
+  if (NOT MSVC)
+    list(REMOVE_ITEM PublicHeaders library/cpp/deprecated/atomic/atomic_win.h)
+  endif()
   list(APPEND ProtosPublicHeaders
     src/api/protos/ydb_federation_discovery.pb.h
     src/api/protos/ydb_value.pb.h

@@ -203,6 +203,9 @@ endfunction()
 function(_ydb_sdk_validate_public_headers)
   file(GLOB_RECURSE allHeaders RELATIVE ${YDB_SDK_SOURCE_DIR}/include ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk)
   file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/public_headers.txt specialHeaders)
+  if (NOT MSVC)
+    list(REMOVE_ITEM specialHeaders library/cpp/deprecated/atomic/atomic_win.h)
+  endif()
   list(APPEND allHeaders ${specialHeaders})
   file(COPY ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk DESTINATION ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include)
   foreach(path ${specialHeaders})
@@ -217,5 +220,8 @@ function(_ydb_sdk_validate_public_headers)
   list(JOIN allHeaders "\n" fileContent)
 
   file(WRITE ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/main.cpp ${fileContent})
+
+  add_library(validate_public_interface MODULE ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/main.cpp)
+  target_include_directories(validate_public_interface PUBLIC ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include)
 endfunction()
 
