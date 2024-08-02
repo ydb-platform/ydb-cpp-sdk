@@ -1,7 +1,7 @@
 #include <util/stream/output.h>
 
-#include <ydb-cpp-sdk/src/api/protos/ydb_value.pb.h>
-#include <ydb-cpp-sdk/src/api/protos/ydb_topic.pb.h>
+#include <src/api/protos/ydb_value.pb.h>
+#include <src/api/protos/ydb_topic.pb.h>
 
 #include <google/protobuf/text_format.h>
 

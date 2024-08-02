@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/result/result.h>
 
-#include <ydb-cpp-sdk/src/api/protos/ydb_value.pb.h>
+#include <src/api/protos/ydb_value.pb.h>
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 
 #include <library/cpp/testing/unittest/registar.h>

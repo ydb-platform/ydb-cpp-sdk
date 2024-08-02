@@ -1,13 +1,13 @@
 #pragma once
 
-#include <ydb-cpp-sdk/src/api/protos/draft/ydb_replication.pb.h>
-#include <ydb-cpp-sdk/src/api/protos/ydb_coordination.pb.h>
-#include <ydb-cpp-sdk/src/api/protos/ydb_export.pb.h>
-#include <ydb-cpp-sdk/src/api/protos/ydb_import.pb.h>
-#include <ydb-cpp-sdk/src/api/protos/ydb_query_stats.pb.h>
-#include <ydb-cpp-sdk/src/api/protos/ydb_table.pb.h>
-#include <ydb-cpp-sdk/src/api/protos/ydb_topic.pb.h>
-#include <ydb-cpp-sdk/src/api/protos/ydb_value.pb.h>
+#include <src/api/protos/draft/ydb_replication.pb.h>
+#include <src/api/protos/ydb_coordination.pb.h>
+#include <src/api/protos/ydb_export.pb.h>
+#include <src/api/protos/ydb_import.pb.h>
+#include <src/api/protos/ydb_query_stats.pb.h>
+#include <src/api/protos/ydb_table.pb.h>
+#include <src/api/protos/ydb_topic.pb.h>
+#include <src/api/protos/ydb_value.pb.h>
 
 #include <ydb-cpp-sdk/client/draft/ydb_replication.h>
 #include <ydb-cpp-sdk/client/coordination/coordination.h>

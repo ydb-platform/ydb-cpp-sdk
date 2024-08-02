@@ -179,3 +179,23 @@ function(_ydb_sdk_make_client_component CmpName Tgt)
   set(YDB-CPP-SDK_AVAILABLE_COMPONENTS ${YDB-CPP-SDK_AVAILABLE_COMPONENTS} ${CmpName} CACHE INTERNAL "")
   set(YDB-CPP-SDK_COMPONENT_TARGETS ${YDB-CPP-SDK_COMPONENT_TARGETS} ${Tgt} CACHE INTERNAL "")
 endfunction()
+
+function(_ydb_sdk_add_library Tgt)
+  cmake_parse_arguments(ARG
+    "INTERFACE" "" ""
+    ${ARGN}
+  )
+
+  set(LibraryMode "")
+  set(IncludeMode "PUBLIC")
+  if (ARG_INTERFACE)
+    set(LibraryMode "INTERFACE")
+    set(IncludeMode "INTERFACE")
+  endif()
+  add_library(${Tgt} ${LibraryMode})
+  target_include_directories(${Tgt} ${IncludeMode}
+    $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${YDB_SDK_BINARY_DIR}>
+    $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}/include>
+  )
+endfunction()

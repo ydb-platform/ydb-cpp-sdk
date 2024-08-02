@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/query/stats.h>
 
-#include <ydb-cpp-sdk/src/api/protos/ydb_table.pb.h>
+#include <src/api/protos/ydb_table.pb.h>
 
 #include <util/datetime/base.h>
 

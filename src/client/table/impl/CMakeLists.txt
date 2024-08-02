@@ -23,4 +23,8 @@ target_sources(client-ydb_table-impl PRIVATE
   table_client.cpp
 )
 
+target_compile_options(client-ydb_table-impl PRIVATE
+  -Wno-deprecated
+)
+
 _ydb_sdk_install_targets(TARGETS client-ydb_table-impl)

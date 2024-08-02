@@ -10,7 +10,7 @@
 #undef INCLUDE_YDB_INTERNAL_H
 
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>
-#include <ydb-cpp-sdk/src/api/protos/ydb_table.pb.h>
+#include <src/api/protos/ydb_table.pb.h>
 #include <src/client/impl/ydb_stats/stats.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 #include <ydb-cpp-sdk/client/value/value.h>
