@@ -1,8 +1,8 @@
-add_library(client-ydb_federated_topic-impl)
+_ydb_sdk_add_library(client-ydb_federated_topic-impl)
 
 target_link_libraries(client-ydb_federated_topic-impl PUBLIC
   yutil
-  library-grpc-client
+  grpc-client
   monlib-dynamic_counters
   monlib-metrics
   string_utils-url
@@ -13,6 +13,10 @@ target_link_libraries(client-ydb_federated_topic-impl PUBLIC
   client-ydb_common_client-impl
   client-ydb_driver
   client-ydb_proto
+)
+
+target_compile_options(client-ydb_federated_topic-impl PRIVATE
+  -Wno-deprecated
 )
 
 target_sources(client-ydb_federated_topic-impl PRIVATE

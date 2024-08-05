@@ -17,7 +17,7 @@ target_include_directories(ydb-public-sdk-client-ydb_topic-ut PRIVATE
 )
 target_link_libraries(ydb-public-sdk-client-ydb_topic-ut PUBLIC
   yutil
-  library-cpuid_check
+  cpuid_check
   cpp-testing-unittest_main
   client-ydb_topic
   cpp-testing-gmock_in_unittest

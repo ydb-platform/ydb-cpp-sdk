@@ -1,6 +1,6 @@
 #include "common.h"
 
-#include <src/util/charset/unidata.h>
+#include <util/charset/unidata.h>
 
 namespace NYdb::NPersQueue {
 

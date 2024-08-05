@@ -5,7 +5,7 @@
 #include <src/client/topic/impl/common.h>
 #include <src/client/persqueue_public/impl/persqueue_impl.h>
 
-#include <src/util/generic/buffer.h>
+#include <util/generic/buffer.h>
 
 namespace NYdb::NPersQueue {
 

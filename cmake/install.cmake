@@ -22,7 +22,9 @@ function(_ydb_sdk_install_targets)
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    INCLUDES DESTINATION
+      ${CMAKE_INSTALL_INCLUDEDIR}
+      ${CMAKE_INSTALL_INCLUDEDIR}/__ydb_sdk_special_headers
   )
 endfunction()
 
@@ -53,4 +55,33 @@ function(_ydb_sdk_directory_install)
       install(DIRECTORY ${ARG_DIRECTORY} DESTINATION ${ARG_DESTINATION} USE_SOURCE_PERMISSIONS)
     endif()
   endif()
+endfunction()
+
+function(_ydb_sdk_install_headers ArgIncludeDir)
+  if (NOT ${YDB_SDK_INSTALL})
+    return()
+  endif()
+  _ydb_sdk_directory_install(DIRECTORY ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk
+    DESTINATION ${ArgIncludeDir}
+  )
+
+  file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/public_headers.txt PublicHeaders)
+  file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/protos_public_headers.txt ProtosPublicHeaders)
+  if (NOT MSVC)
+    list(REMOVE_ITEM PublicHeaders library/cpp/deprecated/atomic/atomic_win.h)
+  endif()
+  foreach(HeaderPath ${PublicHeaders})
+    get_filename_component(RelInstallPath ${HeaderPath} DIRECTORY)
+    _ydb_sdk_directory_install(FILES
+        ${YDB_SDK_SOURCE_DIR}/${HeaderPath}
+      DESTINATION ${ArgIncludeDir}/__ydb_sdk_special_headers/${RelInstallPath}
+    )
+  endforeach()
+  foreach(HeaderPath ${ProtosPublicHeaders})
+    get_filename_component(RelInstallPath ${HeaderPath} DIRECTORY)
+    _ydb_sdk_directory_install(FILES
+        ${YDB_SDK_BINARY_DIR}/${HeaderPath}
+      DESTINATION ${ArgIncludeDir}/__ydb_sdk_special_headers/${RelInstallPath}
+    )
+  endforeach()
 endfunction()

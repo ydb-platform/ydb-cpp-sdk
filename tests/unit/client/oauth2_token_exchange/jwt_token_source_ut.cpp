@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/types/credentials/oauth2_token_exchange/jwt_token_source.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 #include <jwt-cpp/jwt.h>
 

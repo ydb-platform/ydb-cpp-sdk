@@ -1,6 +1,6 @@
 #include "secondary_index.h"
 
-#include <ydb-cpp-sdk/util/thread/pool.h>
+#include <util/thread/pool.h>
 
 #include <random>
 

@@ -2,8 +2,8 @@
 
 #include <ydb-cpp-sdk/client/table/table.h>
 
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
+#include <util/generic/yexception.h>
+#include <util/string/cast.h>
 
 #include <filesystem>
 
@@ -28,7 +28,7 @@ inline void ThrowOnError(const TStatus& status) {
 
 inline void PrintStatus(const TStatus& status) {
     std::cerr << "Status: " << ToString(status.GetStatus()) << std::endl;
-    status.GetIssues().PrintTo(std::cerr);
+    std::cerr << status.GetIssues().ToString();
 }
 
 inline std::string JoinPath(const std::string& basePath, const std::string& path) {

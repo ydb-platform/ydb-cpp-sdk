@@ -1,9 +1,9 @@
 #include "endpoints.h"
 
-#include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
-#include <src/library/string_utils/quote/quote.h>
+#include <library/cpp/monlib/metrics/metric_registry.h>
+#include <library/cpp/string_utils/quote/quote.h>
 
-#include <ydb-cpp-sdk/util/random/random.h>
+#include <util/random/random.h>
 
 #include <set>
 #include <unordered_set>

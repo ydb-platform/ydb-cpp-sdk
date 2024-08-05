@@ -1,13 +1,14 @@
-add_library(tools-enum_parser-parse_enum)
+_ydb_sdk_add_library(tools-enum_parser-parse_enum)
 
-target_link_libraries(tools-enum_parser-parse_enum PUBLIC
-  yutil
-  library-cppparser
-  string_utils-misc
+target_link_libraries(tools-enum_parser-parse_enum
+  PUBLIC
+    yutil
+  PRIVATE
+    cppparser
 )
 
 target_sources(tools-enum_parser-parse_enum PRIVATE
-  ${YDB_SDK_SOURCE_DIR}/tools/enum_parser/parse_enum/parse_enum.cpp
+  parse_enum.cpp
 )
 
 

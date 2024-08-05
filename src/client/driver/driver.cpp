@@ -6,11 +6,11 @@
 #include <src/client/impl/ydb_internal/logger/log.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <ydb-cpp-sdk/library/logger/log.h>
+#include <library/cpp/logger/log.h>
 #include <src/client/impl/ydb_internal/common/parser.h>
 #include <src/client/impl/ydb_internal/common/getenv.h>
 #include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
-#include <src/util/stream/file.h>
+#include <util/stream/file.h>
 #include <ydb-cpp-sdk/client/resources/ydb_ca.h>
 
 namespace NYdb {

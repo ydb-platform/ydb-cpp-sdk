@@ -1,15 +1,15 @@
 #include <tools/enum_parser/parse_enum/benchmark/enum.h_serialized.h>
-#include <src/library/testing/benchmark/bench.h>
-#include <ydb-cpp-sdk/util/generic/algorithm.h>
-#include <src/util/generic/vector.h>
-#include <ydb-cpp-sdk/util/generic/xrange.h>
-#include <src/util/stream/null.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
+#include <library/cpp/testing/benchmark/bench.h>
+#include <util/generic/algorithm.h>
+#include <util/generic/vector.h>
+#include <util/generic/xrange.h>
+#include <util/stream/null.h>
+#include <util/string/cast.h>
 
 namespace {
 
     template <class TEnum>
-    std::vector<TEnum> SelectValues(size_t count) {
+    TVector<TEnum> SelectValues(size_t count) {
         auto values = GetEnumAllValues<TEnum>().Materialize();
         SortBy(values, [](const TEnum& v) { return IntHash(static_cast<ui64>(v)); });
         values.crop(count);
@@ -17,13 +17,12 @@ namespace {
     }
 
     template <class TEnum>
-    std::vector<std::string_view> SelectStrings(size_t count) {
-        std::vector<std::string_view> strings;
-        strings.reserve(GetEnumItemsCount<TEnum>());
+    TVector<TStringBuf> SelectStrings(size_t count) {
+        TVector<TStringBuf> strings(Reserve(GetEnumItemsCount<TEnum>()));
         for (const auto& [_, s] : GetEnumNames<TEnum>()) {
             strings.push_back(s);
         }
-        SortBy(strings, [](const std::string_view& s) { return THash<std::string_view>()(s); });
+        SortBy(strings, [](const TStringBuf& s) { return THash<TStringBuf>()(s); });
         strings.crop(count);
         return strings;
     }

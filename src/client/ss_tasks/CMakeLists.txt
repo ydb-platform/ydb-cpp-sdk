@@ -1,4 +1,4 @@
-add_library(client-ss_tasks)
+_ydb_sdk_add_library(client-ss_tasks)
 
 target_link_libraries(client-ss_tasks PUBLIC
   yutil

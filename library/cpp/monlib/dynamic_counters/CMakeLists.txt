@@ -1,0 +1,23 @@
+_ydb_sdk_add_library(monlib-dynamic_counters)
+target_link_libraries(monlib-dynamic_counters
+  PUBLIC
+    yutil
+    containers-stack_vector
+    threading-light_rw_lock
+    monlib-metrics
+    monlib-encode
+    monlib-service-pages
+  PRIVATE
+    monlib-encode-json
+    monlib-encode-spack
+    monlib-encode-prometheus
+    string_utils-quote
+)
+target_sources(monlib-dynamic_counters
+  PRIVATE
+    counters.cpp
+    encode.cpp
+    golovan_page.cpp
+    page.cpp
+)
+_ydb_sdk_install_targets(TARGETS monlib-dynamic_counters)

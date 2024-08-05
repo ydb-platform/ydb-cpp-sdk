@@ -5,9 +5,9 @@
 
 #include <src/library/retry/protos/retry_options.pb.h>
 
-#include <ydb-cpp-sdk/util/datetime/base.h>
-#include <ydb-cpp-sdk/util/generic/typetraits.h>
-#include <ydb-cpp-sdk/util/generic/yexception.h>
+#include <util/datetime/base.h>
+#include <util/generic/typetraits.h>
+#include <util/generic/yexception.h>
 
 #include <functional>
 

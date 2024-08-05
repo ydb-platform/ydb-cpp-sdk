@@ -2,13 +2,13 @@ add_subdirectory(common)
 add_subdirectory(impl)
 add_subdirectory(codecs)
 
-add_library(client-ydb_topic)
+_ydb_sdk_add_library(client-ydb_topic)
 
 target_link_libraries(client-ydb_topic PUBLIC
   yutil
   enum_serialization_runtime
   client-ydb_topic-codecs
-  library-retry
+  retry
   client-ydb_topic-common
   client-ydb_topic-impl
   client-ydb_proto

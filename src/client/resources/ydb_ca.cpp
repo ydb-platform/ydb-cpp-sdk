@@ -1,4 +1,4 @@
-#include <ydb-cpp-sdk/library/resource/resource.h>
+#include <library/cpp/resource/resource.h>
 
 #include <ydb-cpp-sdk/client/resources/ydb_ca.h>
 

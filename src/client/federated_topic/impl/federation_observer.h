@@ -5,13 +5,13 @@
 #include <src/client/impl/ydb_internal/grpc_connections/grpc_connections.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <ydb-cpp-sdk/src/api/protos/ydb_federation_discovery.pb.h>
+#include <src/api/protos/ydb_federation_discovery.pb.h>
 
 #include <src/client/topic/common/callback_context.h>
 #include <src/client/common_client/impl/client.h>
 #include <ydb-cpp-sdk/client/federated_topic/federated_topic.h>
 
-#include <ydb-cpp-sdk/util/system/spinlock.h>
+#include <util/system/spinlock.h>
 
 #include <deque>
 #include <memory>

@@ -1,4 +1,4 @@
-add_library(proto_output)
+_ydb_sdk_add_library(proto_output)
 
 target_link_libraries(proto_output PUBLIC
   yutil

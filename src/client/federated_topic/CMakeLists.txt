@@ -1,6 +1,6 @@
 add_subdirectory(impl)
 
-add_library(client-ydb_federated_topic)
+_ydb_sdk_add_library(client-ydb_federated_topic)
 
 target_link_libraries(client-ydb_federated_topic PUBLIC
   yutil

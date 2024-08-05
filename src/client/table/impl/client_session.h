@@ -5,11 +5,11 @@
 #include <src/client/impl/ydb_endpoints/endpoints.h>
 #include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 
-#include <ydb-cpp-sdk/src/api/protos/ydb_table.pb.h>
+#include <src/api/protos/ydb_table.pb.h>
 
-#include <src/library/cache/cache.h>
+#include <library/cpp/cache/cache.h>
 
-#include <ydb-cpp-sdk/util/datetime/base.h>
+#include <util/datetime/base.h>
 
 #include <functional>
 

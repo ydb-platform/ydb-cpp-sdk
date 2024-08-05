@@ -1,12 +1,12 @@
 add_subdirectory(protos)
 
-add_library(yql-public-issue)
+_ydb_sdk_add_library(yql-public-issue)
 
 target_link_libraries(yql-public-issue PUBLIC
   yutil
   protobuf::libprotobuf
   colorizer
-  library-resource
+  resource
   api-protos
   yql-public-issue-protos
   yql-utils

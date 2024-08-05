@@ -1,13 +1,12 @@
-add_library(library-grpc-client)
+_ydb_sdk_add_library(grpc-client)
 
-target_link_libraries(library-grpc-client PUBLIC
+target_link_libraries(grpc-client PUBLIC
   yutil
   gRPC::grpc++
-  deprecated-atomic
 )
 
-target_sources(library-grpc-client PRIVATE
+target_sources(grpc-client PRIVATE
   grpc_client_low.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS library-grpc-client)
+_ydb_sdk_install_targets(TARGETS grpc-client)

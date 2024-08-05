@@ -1,12 +1,12 @@
 add_subdirectory(protos)
 
-add_library(library-operation_id)
+_ydb_sdk_add_library(library-operation_id)
 
 target_link_libraries(library-operation_id PUBLIC
   yutil
   protobuf::libprotobuf
-  library-cgiparam
-  library-uri
+  cgiparam
+  uri
   lib-operation_id-protos
 )
 

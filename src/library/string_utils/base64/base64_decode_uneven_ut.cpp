@@ -1,4 +1,4 @@
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 #include <src/library/string_utils/base64/base64.h>
 

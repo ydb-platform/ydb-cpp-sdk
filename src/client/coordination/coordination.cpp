@@ -8,8 +8,8 @@
 #include <src/api/grpc/ydb_coordination_v1.grpc.pb.h>
 #include <src/client/common_client/impl/client.h>
 
-#include <src/util/random/entropy.h>
-#include <src/util/generic/mapfindptr.h>
+#include <util/random/entropy.h>
+#include <util/generic/mapfindptr.h>
 
 namespace NYdb {
 namespace NCoordination {
@@ -783,7 +783,11 @@ private:
             TResultPromise<bool>* supersededPromise,
             TResultPromise<bool>* resultPromise)
     {
-        auto* state = MapValue(SemaphoreByReqId, reqId, nullptr);
+        auto statePtr = MapFindPtr(SemaphoreByReqId, reqId);
+        TSessionContext::TSemaphoreState* state = nullptr;
+        if (statePtr) {
+            state = *statePtr;
+        }
         if (!state) {
             return false;
         }
@@ -1538,9 +1542,10 @@ private:
                 ui64 reqId = source.req_id();
                 TResultPromise<bool> supersededPromise;
                 std::function<void()> acceptedCallback;
-                {
-                    std::lock_guard guard(Lock);
-                    if (auto* state = MapValue(SemaphoreByReqId, reqId, nullptr)) {
+                with_lock(Lock) {
+                    auto statePtr = MapFindPtr(SemaphoreByReqId, reqId);
+                    if (statePtr) {
+                        auto* state = *statePtr;
                         auto op = state->LastSentOp;
                         Y_ABORT_UNLESS(op && op->ReqId == reqId && op->OpType == SEM_OP_ACQUIRE,
                             "Received AcquireSemaphorePending for an unexpected request");

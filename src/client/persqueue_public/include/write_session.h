@@ -6,7 +6,7 @@
 #include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
 #include <ydb-cpp-sdk/client/types/request_settings.h>
 
-#include <ydb-cpp-sdk/util/generic/size_literals.h>
+#include <util/generic/size_literals.h>
 
 namespace NYdb::NPersQueue {
 

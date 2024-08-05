@@ -6,7 +6,7 @@
 
 #include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
 
-#include <ydb-cpp-sdk/util/datetime/base.h>
+#include <util/datetime/base.h>
 
 #include <limits>
 

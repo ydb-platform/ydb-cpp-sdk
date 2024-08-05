@@ -1,4 +1,4 @@
-add_library(string_utils-helpers)
+_ydb_sdk_add_library(string_utils-helpers)
 
 target_sources(string_utils-helpers PRIVATE
   ${YDB_SDK_SOURCE_DIR}/src/library/string_utils/helpers/helpers.cpp

@@ -1,4 +1,4 @@
-add_library(client-ydb_monitoring)
+_ydb_sdk_add_library(client-ydb_monitoring)
 
 target_link_libraries(client-ydb_monitoring PUBLIC
   yutil

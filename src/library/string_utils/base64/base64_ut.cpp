@@ -7,7 +7,7 @@
 #include <contrib/libs/base64/plain64/libbase64.h>
 #include <contrib/libs/base64/ssse3/libbase64.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 
 #include <src/util/random/fast.h>

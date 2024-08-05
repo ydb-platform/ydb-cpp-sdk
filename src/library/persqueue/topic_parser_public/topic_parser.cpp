@@ -1,8 +1,8 @@
 #include "topic_parser.h"
 
-#include <ydb-cpp-sdk/util/string/builder.h>
+#include <util/string/builder.h>
 
-#include <src/util/folder/path.h>
+#include <util/folder/path.h>
 
 namespace NPersQueue {
 

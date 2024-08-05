@@ -1,14 +1,14 @@
-add_library(client-ydb_types-credentials-oauth2)
+_ydb_sdk_add_library(client-ydb_types-credentials-oauth2)
 
 target_link_libraries(client-ydb_types-credentials-oauth2 PUBLIC
   yutil
   jwt-cpp::jwt-cpp
-  library-cgiparam
-  library-http-misc
-  library-http-simple
-  library-json
-  library-retry
-  library-uri
+  cgiparam
+  http-misc
+  http-simple
+  json
+  retry
+  uri
   client-ydb_types-credentials
   client-ydb_types
 )

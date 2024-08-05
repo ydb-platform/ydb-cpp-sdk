@@ -5,11 +5,12 @@
 #include "including_header.h"
 
 // just to test that generated stuff works
-#include <src/util/generic/serialized_enum.h>
-#include <src/library/testing/unittest/registar.h>
+#include <util/generic/serialized_enum.h>
+#include <library/cpp/testing/unittest/registar.h>
 
-#include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <ydb-cpp-sdk/util/generic/singleton.h>
+#include <util/generic/algorithm.h>
+#include <util/generic/ptr.h>
+#include <util/generic/singleton.h>
 
 
 void FunctionUsingEFwdEnum(EFwdEnum) {
@@ -78,25 +79,25 @@ Y_UNIT_TEST_SUITE(TEnumGeneratorTest) {
 
     template<typename T>
     void CheckFromString(const TString& strValue, const T& value) {
-        UNIT_ASSERT_VALUES_EQUAL(static_cast<int>(FromString<T>(std::string_view(strValue))), static_cast<int>(value));
+        UNIT_ASSERT_VALUES_EQUAL(static_cast<int>(FromString<T>(TStringBuf(strValue))), static_cast<int>(value));
     }
 
     template<typename T>
     void CheckFromStringFail(const TString& strValue) {
-        UNIT_ASSERT_EXCEPTION(FromString<T>(std::string_view(strValue)), yexception);
+        UNIT_ASSERT_EXCEPTION(FromString<T>(TStringBuf(strValue)), yexception);
     }
 
     template<typename T>
     void CheckTryFromString(const TString& strValue, const T& value) {
         T x;
-        UNIT_ASSERT_VALUES_EQUAL(TryFromString(std::string_view(strValue), x), true);
+        UNIT_ASSERT_VALUES_EQUAL(TryFromString(TStringBuf(strValue), x), true);
         UNIT_ASSERT_VALUES_EQUAL(x, value);
     }
 
     template<typename T>
     void CheckTryFromStringFail(const TString& strValue) {
         T x = T(-666);
-        UNIT_ASSERT_VALUES_EQUAL(TryFromString(std::string_view(strValue), x), false);
+        UNIT_ASSERT_VALUES_EQUAL(TryFromString(TStringBuf(strValue), x), false);
         UNIT_ASSERT_VALUES_EQUAL(int(x), -666);
     }
 
@@ -197,4 +198,11 @@ Y_UNIT_TEST_SUITE(TEnumGeneratorTest) {
     Y_UNIT_TEST(EnumSerializerDestructionPriority) {
         Singleton<TEnumSerializationInitializerHolder>()->Init();
     }
+
+    Y_UNIT_TEST(ValuesSortTest) {
+        const auto& allValues = GetEnumAllValues<ENontrivialValues>();
+        UNIT_ASSERT_VALUES_EQUAL(allValues.size(), 4u);
+        UNIT_ASSERT(IsSorted(allValues.begin(), allValues.end()));
+    }
+
 };

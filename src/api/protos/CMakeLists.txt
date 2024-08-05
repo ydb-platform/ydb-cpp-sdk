@@ -4,21 +4,14 @@ file(GLOB_RECURSE API_PROTOS_SOURCES
 
 _ydb_sdk_add_proto_library(api-protos
   SOURCES ${API_PROTOS_SOURCES}
-  OUT_DIR ydb-cpp-sdk
-  PUBLIC_PROTOS 
-    ydb_federation_discovery
-    ydb_value
-    ydb_query
-    ydb_topic
-    ydb_table
-    ydb_query_stats
-    ydb_import
-    ydb_export
-    ydb_coordination
-    ydb_replication
 )
 
-target_link_libraries(api-protos PUBLIC
+target_compile_options(api-protos
+  PRIVATE
+    -Wno-deprecated
+)
+
+target_link_libraries(api-protos PRIVATE
   enum_serialization_runtime
 )
 

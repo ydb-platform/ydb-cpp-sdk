@@ -6,7 +6,7 @@
 
 #include <ydb-cpp-sdk/client/extension_common/extension.h>
 
-#include <ydb-cpp-sdk/library/monlib/metrics/metric_registry.h>
+#include <library/cpp/monlib/metrics/metric_registry.h>
 
 namespace NYdb {
 

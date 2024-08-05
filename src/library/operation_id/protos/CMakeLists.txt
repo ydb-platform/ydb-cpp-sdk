@@ -4,9 +4,6 @@ file(GLOB_RECURSE LIB_OPERATION_ID_PROTOS
 
 _ydb_sdk_add_proto_library(lib-operation_id-protos
   SOURCES ${LIB_OPERATION_ID_PROTOS}
-  OUT_DIR ydb-cpp-sdk
-  PUBLIC_PROTOS
-    operation_id
 )
 
 target_include_directories(lib-operation_id-protos PRIVATE

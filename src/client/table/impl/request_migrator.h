@@ -4,7 +4,7 @@
 
 #include <ydb-cpp-sdk/client/table/table.h>
 
-#include <ydb-cpp-sdk/library/threading/future/future.h>
+#include <library/cpp/threading/future/future.h>
 
 #include <string>
 

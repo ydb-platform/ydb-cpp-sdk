@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ydb-cpp-sdk/library/monlib/dynamic_counters/counters.h>
+#include <library/cpp/monlib/dynamic_counters/counters.h>
 
 namespace NYdb::NTopic {
 

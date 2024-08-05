@@ -1,20 +1,21 @@
 #pragma once
 
-#include <ydb-cpp-sdk/util/stream/output.h>
-#include <ydb-cpp-sdk/util/string/strip.h>
-
-#include <optional>
-#include <string>
-#include <vector>
+#include <util/stream/output.h>
+#include <util/stream/input.h>
+#include <util/stream/mem.h>
+#include <util/string/strip.h>
+#include <util/generic/maybe.h>
+#include <util/generic/string.h>
+#include <util/generic/vector.h>
 
 class TEnumParser {
 public:
 
     struct TItem {
-        std::optional<std::string> Value;
-        std::string CppName;
-        std::vector<std::string> Aliases;
-        std::string CommentText;
+        TMaybe<TString> Value;
+        TString CppName;
+        TVector<TString> Aliases;
+        TString CommentText;
 
         void Clear() {
             *this = TItem();
@@ -29,13 +30,13 @@ public:
     };
 
     // vector is to preserve declaration order
-    typedef std::vector<TItem> TItems;
+    typedef TVector<TItem> TItems;
 
-    typedef std::vector<std::string> TScope;
+    typedef TVector<TString> TScope;
 
     struct TEnum {
         TItems Items;
-        std::string CppName;
+        TString CppName;
         TScope Scope;
         // enum or enum class
         bool EnumClass = false;
@@ -47,13 +48,13 @@ public:
         }
     };
 
-    typedef std::vector<TEnum> TEnums;
+    typedef TVector<TEnum> TEnums;
 
     /// Parse results stored here
     TEnums Enums;
 
     /// Parse enums from file containing C++ code
-    TEnumParser(const std::string& fileName);
+    TEnumParser(const TString& fileName);
 
     /// Parse enums from memory buffer containing C++ code
     TEnumParser(const char* data, size_t length);
@@ -61,9 +62,9 @@ public:
     /// Parse enums from input stream
     TEnumParser(IInputStream& in);
 
-    static std::string ScopeStr(const TScope& scope) {
-        std::string result;
-        for (const std::string& name : scope) {
+    static TString ScopeStr(const TScope& scope) {
+        TString result;
+        for (const TString& name : scope) {
             result += name;
             result += "::";
         }
@@ -73,5 +74,5 @@ public:
 private:
     void Parse(const char* data, size_t length);
 protected:
-    std::string SourceFileName;
+    TString SourceFileName;
 };

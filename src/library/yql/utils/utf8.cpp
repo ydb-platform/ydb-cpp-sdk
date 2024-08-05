@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/library/yql/utils/utf8.h>
 
-#include <src/util/charset/wide.h>
+#include <util/charset/wide.h>
 
 #include <ctype.h>
 #include <vector>

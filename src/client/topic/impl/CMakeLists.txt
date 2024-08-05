@@ -1,8 +1,8 @@
-add_library(client-ydb_topic-impl)
+_ydb_sdk_add_library(client-ydb_topic-impl)
 
 target_link_libraries(client-ydb_topic-impl PUBLIC
   yutil
-  library-grpc-client
+  grpc-client
   monlib-dynamic_counters
   monlib-metrics
   string_utils-url
@@ -17,16 +17,22 @@ target_link_libraries(client-ydb_topic-impl PUBLIC
   proto_output
 )
 
-target_sources(client-ydb_topic-impl PRIVATE
-  common.cpp
-  deferred_commit.cpp
-  event_handlers.cpp
-  read_session_event.cpp
-  read_session.cpp
-  write_session.cpp
-  write_session_impl.cpp
-  topic_impl.cpp
-  topic.cpp
+target_compile_options(client-ydb_topic-impl
+  PRIVATE
+    -Wno-deprecated
+)
+
+target_sources(client-ydb_topic-impl
+  PRIVATE
+    common.cpp
+    deferred_commit.cpp
+    event_handlers.cpp
+    read_session_event.cpp
+    read_session.cpp
+    write_session.cpp
+    write_session_impl.cpp
+    topic_impl.cpp
+    topic.cpp
 )
 
 _ydb_sdk_install_targets(TARGETS client-ydb_topic-impl)

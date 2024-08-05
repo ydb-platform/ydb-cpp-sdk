@@ -1,14 +1,20 @@
-add_subdirectory(protos)
-
-add_library(library-retry)
-target_link_libraries(library-retry PUBLIC
-  yutil
-  library-retry-protos
+file(GLOB_RECURSE LIBRARY_RETRY_PROTOS
+  protos/*.proto
 )
-
-target_sources(library-retry PRIVATE
-  ${YDB_SDK_SOURCE_DIR}/src/library/retry/retry.cpp
-  ${YDB_SDK_SOURCE_DIR}/src/library/retry/utils.cpp
+_ydb_sdk_add_proto_library(retry-protos
+  SOURCES ${LIBRARY_RETRY_PROTOS}
 )
+_ydb_sdk_install_targets(TARGETS retry-protos)
 
-_ydb_sdk_install_targets(TARGETS library-retry)
+_ydb_sdk_add_library(retry)
+target_link_libraries(retry
+  PUBLIC
+    yutil
+    retry-protos
+)
+target_sources(retry
+  PRIVATE
+    retry.cpp
+    utils.cpp
+)
+_ydb_sdk_install_targets(TARGETS retry)

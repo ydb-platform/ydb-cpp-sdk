@@ -4,7 +4,7 @@
 #include <ydb-cpp-sdk/client/resources/ydb_ca.h>
 #include <src/client/impl/ydb_internal/common/parser.h>
 #include <src/client/impl/ydb_internal/common/getenv.h>
-#include <src/util/stream/file.h>
+#include <util/stream/file.h>
 
 namespace NYdb {
 

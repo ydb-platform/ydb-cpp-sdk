@@ -1,4 +1,4 @@
-add_library(client-ydb_types-credentials-login)
+_ydb_sdk_add_library(client-ydb_types-credentials-login)
 
 target_link_libraries(client-ydb_types-credentials-login
   PUBLIC

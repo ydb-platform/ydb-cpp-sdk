@@ -2,10 +2,12 @@
 
 #include "yql_issue_id.h"
 
-#include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <ydb-cpp-sdk/util/system/types.h>
-#include <ydb-cpp-sdk/util/str_stl.h>
+#include <util/generic/ptr.h>
+#include <util/generic/yexception.h>
+#include <util/stream/output.h>
+#include <util/stream/str.h>
+#include <util/system/types.h>
+#include <util/str_stl.h>
 
 #include <google/protobuf/message.h>
 
@@ -159,9 +161,9 @@ public:
         return CombineHashes(
             CombineHashes(
                 (size_t)CombineHashes(IntHash(Position.Row), IntHash(Position.Column)),
-                THash<std::string>{}(Position.File)
+                std::hash<std::string>{}(Position.File)
             ),
-            (size_t)CombineHashes((size_t)IntHash(static_cast<int>(IssueCode)), THash<std::string>{}(Message)));
+            (size_t)CombineHashes((size_t)IntHash(static_cast<int>(IssueCode)), std::hash<std::string>{}(Message)));
     }
 
     TIssue& SetCode(TIssueCode id, ESeverity severity) {
@@ -198,12 +200,12 @@ public:
         return Children_;
     }
 
-    void PrintTo(std::ostream& out, bool oneLine = false) const;
+    void PrintTo(IOutputStream& out, bool oneLine = false) const;
 
     std::string ToString(bool oneLine = false) const {
-        std::stringstream out;
+        TStringStream out;
         PrintTo(out, oneLine);
-        return out.str();
+        return out.Str();
     }
 
     // Unsafe method. Doesn't call SanitizeNonAscii(Message)
@@ -306,16 +308,16 @@ public:
         return Issues_.size();
     }
 
-    void PrintTo(std::ostream& out, bool oneLine = false) const;
+    void PrintTo(IOutputStream& out, bool oneLine = false) const;
     void PrintWithProgramTo(
-            std::ostream& out,
+            IOutputStream& out,
             const std::string& programFilename,
             const std::string& programText) const;
 
     inline std::string ToString(bool oneLine = false) const {
-        std::stringstream out;
+        TStringStream out;
         PrintTo(out, oneLine);
-        return out.str();
+        return out.Str();
     }
 
     std::string ToOneLineString() const {
@@ -350,10 +352,17 @@ std::optional<TPosition> TryParseTerminationMessage(std::string_view& message);
 
 } // namespace NYql
 
-std::ostream& operator<<(std::ostream& out, const NYql::TPosition& pos);
-std::ostream& operator<<(std::ostream& out, const NYql::TRange& range);
-std::ostream& operator<<(std::ostream& out, const NYql::TIssue& error);
-std::ostream& operator<<(std::ostream& out, const NYql::TIssues& error);
+template <>
+void Out<NYql::TPosition>(IOutputStream& out, const NYql::TPosition& pos);
+
+template <>
+void Out<NYql::TRange>(IOutputStream& out, const NYql::TRange& pos);
+
+template <>
+void Out<NYql::TIssue>(IOutputStream& out, const NYql::TIssue& error);
+
+template <>
+void Out<NYql::TIssues>(IOutputStream& out, const NYql::TIssues& error);
 
 template <>
 struct THash<NYql::TIssue> {

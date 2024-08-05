@@ -7,7 +7,7 @@
 #include <src/client/impl/ydb_internal/logger/log.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <ydb-cpp-sdk/library/threading/future/future.h>
+#include <library/cpp/threading/future/future.h>
 
 #include <algorithm>
 

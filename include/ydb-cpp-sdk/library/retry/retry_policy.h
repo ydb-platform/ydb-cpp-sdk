@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ydb-cpp-sdk/util/datetime/base.h>
-#include <ydb-cpp-sdk/util/generic/typetraits.h>
-#include <ydb-cpp-sdk/util/random/random.h>
+#include <util/datetime/base.h>
+#include <util/generic/typetraits.h>
+#include <util/random/random.h>
 
 #include <functional>
 #include <limits>

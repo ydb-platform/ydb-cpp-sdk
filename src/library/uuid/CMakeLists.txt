@@ -1,4 +1,4 @@
-add_library(library-uuid)
+_ydb_sdk_add_library(library-uuid)
 
 target_link_libraries(library-uuid PUBLIC
   yutil

@@ -2,8 +2,8 @@
 
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
-#include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <ydb-cpp-sdk/util/string/builder.h>
+#include <util/generic/ptr.h>
+#include <util/string/builder.h>
 
 namespace NYdb::NTopic {
 

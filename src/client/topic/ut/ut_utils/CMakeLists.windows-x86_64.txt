@@ -7,7 +7,7 @@
 
 
 
-add_library(ydb_topic-ut-ut_utils)
+_ydb_sdk_add_library(ydb_topic-ut-ut_utils)
 target_compile_options(ydb_topic-ut-ut_utils PRIVATE
   -DUSE_CURRENT_UDF_ABI_VERSION
 )

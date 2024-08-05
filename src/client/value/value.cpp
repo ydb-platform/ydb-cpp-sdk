@@ -7,17 +7,16 @@
 #include <ydb-cpp-sdk/client/params/params.h>
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 
-#include <ydb-cpp-sdk/src/api/protos/ydb_value.pb.h>
+#include <src/api/protos/ydb_value.pb.h>
 
-#include <ydb-cpp-sdk/library/containers/stack_vector/stack_vec.h>
-#include <ydb-cpp-sdk/util/string/builder.h>
+#include <library/cpp/containers/stack_vector/stack_vec.h>
 
 #include <src/library/yql/public/decimal/yql_decimal.h>
 #include <src/library/uuid/uuid.h>
 
-#include <src/util/generic/mapfindptr.h>
-#include <src/util/generic/bitmap.h>
-#include <ydb-cpp-sdk/util/string/builder.h>
+#include <util/generic/mapfindptr.h>
+#include <util/generic/bitmap.h>
+#include <util/string/builder.h>
 
 namespace NYdb {
 

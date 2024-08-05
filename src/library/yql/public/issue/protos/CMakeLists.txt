@@ -4,9 +4,6 @@ file(GLOB_RECURSE YQL_PUBLIC_ISSUE_PROTOS
 
 _ydb_sdk_add_proto_library(yql-public-issue-protos
   SOURCES ${YQL_PUBLIC_ISSUE_PROTOS}
-  OUT_DIR ydb-cpp-sdk
-  PUBLIC_PROTOS
-    issue_severity
 )
 
 target_include_directories(yql-public-issue-protos PRIVATE

@@ -1,5 +1,0 @@
-add_subdirectory(chunk_queue)
-add_subdirectory(equeue)
-add_subdirectory(future)
-add_subdirectory(light_rw_lock)
-add_subdirectory(poor_man_openmp)

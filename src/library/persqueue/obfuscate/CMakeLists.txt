@@ -1,4 +1,4 @@
-add_library(persqueue-obfuscate)
+_ydb_sdk_add_library(persqueue-obfuscate)
 
 target_link_libraries(persqueue-obfuscate PUBLIC
   yutil

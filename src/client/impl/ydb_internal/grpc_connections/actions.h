@@ -9,7 +9,7 @@
 
 #include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
 
-#include <ydb-cpp-sdk/util/thread/pool.h>
+#include <util/thread/pool.h>
 
 #include <grpcpp/alarm.h>
 

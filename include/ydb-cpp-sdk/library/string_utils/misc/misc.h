@@ -2,8 +2,8 @@
 
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
+#include <util/generic/yexception.h>
+#include <util/string/cast.h>
 
 #include <optional>
 
@@ -43,6 +43,16 @@ void GetNext(std::string_view& s, D delim, std::optional<P>& param) {
     std::string_view next;
     if (NUtils::NextTok(s, next, delim)) {
         param = FromString<P>(next);
+    } else {
+        param.reset();
+    }
+}
+
+template <class D>
+void GetNext(std::string_view& s, D delim, std::optional<std::string_view>& param) {
+    std::string_view next;
+    if (NUtils::NextTok(s, next, delim)) {
+        param = next;
     } else {
         param.reset();
     }

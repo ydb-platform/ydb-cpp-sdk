@@ -1,5 +1,5 @@
 #include <src/library/yql/public/decimal/yql_wide_int.h>
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 namespace NYql {
 Y_UNIT_TEST_SUITE(TYqlWideIntTest) {

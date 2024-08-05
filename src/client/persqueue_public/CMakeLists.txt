@@ -1,7 +1,7 @@
 add_subdirectory(codecs)
 add_subdirectory(impl)
 
-add_library(cpp-client-ydb_persqueue_public INTERFACE)
+_ydb_sdk_add_library(cpp-client-ydb_persqueue_public INTERFACE)
 
 target_link_libraries(cpp-client-ydb_persqueue_public INTERFACE
   yutil

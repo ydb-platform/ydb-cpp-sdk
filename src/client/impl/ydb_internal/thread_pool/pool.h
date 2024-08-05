@@ -2,7 +2,7 @@
 
 #include <src/client/impl/ydb_internal/internal_header.h>
 
-#include <ydb-cpp-sdk/util/thread/pool.h>
+#include <util/thread/pool.h>
 
 #include <memory>
 

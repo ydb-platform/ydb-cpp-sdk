@@ -1,9 +1,8 @@
 #pragma once
 
-#include <ydb-cpp-sdk/util/generic/algorithm.h>
-#include <ydb-cpp-sdk/util/stream/input.h>
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <span>
+#include <util/generic/algorithm.h>
+#include <util/generic/array_ref.h>
+#include <util/generic/strbuf.h>
 #include <array>
 #include <functional>
 
@@ -18,11 +17,11 @@ namespace NEnumSerializationRuntime {
     template <typename TEnumRepresentationType>
     struct TEnumStringPair {
         TEnumRepresentationType Key;
-        std::string_view Name;
+        TStringBuf Name;
     };
 
     template <typename TEnumRepresentationType>
-    constexpr ESortOrder GetKeyFieldSortOrder(const std::span<const TEnumStringPair<TEnumRepresentationType>> initializer) {
+    constexpr ESortOrder GetKeyFieldSortOrder(const TArrayRef<const TEnumStringPair<TEnumRepresentationType>> initializer) {
         if (initializer.empty()) {
             return ESortOrder::DirectMapping;
         }
@@ -53,7 +52,7 @@ namespace NEnumSerializationRuntime {
     }
 
     template <typename TEnumRepresentationType>
-    constexpr ESortOrder GetNameFieldSortOrder(const std::span<const TEnumStringPair<TEnumRepresentationType>> initializer) {
+    constexpr ESortOrder GetNameFieldSortOrder(const TArrayRef<const TEnumStringPair<TEnumRepresentationType>> initializer) {
         if (initializer.empty()) {
             return ESortOrder::DirectMapping;
         }

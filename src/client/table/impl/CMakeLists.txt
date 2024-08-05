@@ -1,4 +1,4 @@
-add_library(client-ydb_table-impl)
+_ydb_sdk_add_library(client-ydb_table-impl)
 
 target_link_libraries(client-ydb_table-impl
   PUBLIC
@@ -21,6 +21,10 @@ target_sources(client-ydb_table-impl PRIVATE
   readers.cpp
   request_migrator.cpp
   table_client.cpp
+)
+
+target_compile_options(client-ydb_table-impl PRIVATE
+  -Wno-deprecated
 )
 
 _ydb_sdk_install_targets(TARGETS client-ydb_table-impl)

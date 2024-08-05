@@ -3,7 +3,7 @@
 #include "codecs.h"
 #include "events_common.h"
 
-#include <ydb-cpp-sdk/util/datetime/base.h>
+#include <util/datetime/base.h>
 
 namespace NYdb::NTopic {
 

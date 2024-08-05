@@ -4,7 +4,7 @@
 #include <src/client/topic/impl/write_session_impl.h>
 #include <src/client/topic/impl/topic_impl.h>
 
-#include <src/util/generic/buffer.h>
+#include <util/generic/buffer.h>
 
 #include <atomic>
 

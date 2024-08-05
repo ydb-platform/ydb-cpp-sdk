@@ -1,4 +1,4 @@
-add_library(client-ydb_rate_limiter)
+_ydb_sdk_add_library(client-ydb_rate_limiter)
 
 target_link_libraries(client-ydb_rate_limiter PUBLIC
   yutil

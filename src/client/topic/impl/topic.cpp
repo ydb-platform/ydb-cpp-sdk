@@ -5,9 +5,9 @@
 
 #include <src/client/impl/ydb_internal/scheme_helpers/helpers.h>
 
-#include <ydb-cpp-sdk/util/random/random.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
-#include <ydb-cpp-sdk/util/string/subst.h>
+#include <util/random/random.h>
+#include <util/string/cast.h>
+#include <util/string/subst.h>
 
 namespace NYdb::NTopic {
 

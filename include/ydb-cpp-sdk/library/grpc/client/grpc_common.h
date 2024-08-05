@@ -4,7 +4,7 @@
 #include <grpcpp/resource_quota.h>
 
 #include <ydb-cpp-sdk/library/grpc/common/constants.h>
-#include <ydb-cpp-sdk/util/datetime/base.h>
+#include <util/datetime/base.h>
 #include <unordered_map>
 #include <string>
 

@@ -14,7 +14,7 @@ TEST(Integration, BulkUpsert) {
     uint32_t count = 1000;
     TStatus statusCreate = CreateTable(client, path);
     if (!statusCreate.IsSuccess()) {
-        FAIL() << "Create table failed with status: " << statusCreate << std::endl;
+        FAIL() << "Create table failed with status: " << ToString(statusCreate) << std::endl;
     }
 
     TRetryOperationSettings writeRetrySettings;
@@ -32,7 +32,7 @@ TEST(Integration, BulkUpsert) {
 
         TStatus statusWrite = WriteLogBatch(client, path, logBatch, writeRetrySettings);
         if (!statusWrite.IsSuccess()) {
-            FAIL() << "Write failed with status: " << statusWrite << std::endl;
+            FAIL() << "Write failed with status: " << ToString(statusWrite) << std::endl;
         }
     }
 

@@ -1,4 +1,4 @@
-add_library(client-extensions-discovery_mutator)
+_ydb_sdk_add_library(client-extensions-discovery_mutator)
 
 target_link_libraries(client-extensions-discovery_mutator PUBLIC
   yutil

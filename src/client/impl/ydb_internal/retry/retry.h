@@ -4,11 +4,11 @@
 #include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
-#include <ydb-cpp-sdk/library/threading/future/core/fwd.h>
-#include <ydb-cpp-sdk/util/datetime/base.h>
-#include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <ydb-cpp-sdk/util/system/types.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
+#include <library/cpp/threading/future/core/fwd.h>
+#include <util/datetime/base.h>
+#include <util/generic/ptr.h>
+#include <util/system/types.h>
+#include <util/string/cast.h>
 
 #include <functional>
 #include <memory>

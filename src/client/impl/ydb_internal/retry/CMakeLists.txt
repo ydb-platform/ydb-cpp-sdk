@@ -1,4 +1,4 @@
-add_library(impl-ydb_internal-retry)
+_ydb_sdk_add_library(impl-ydb_internal-retry)
 
 target_link_libraries(impl-ydb_internal-retry PUBLIC
   yutil

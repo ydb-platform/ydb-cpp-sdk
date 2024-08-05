@@ -1,4 +1,4 @@
-add_library(impl-ydb_internal-grpc_connections)
+_ydb_sdk_add_library(impl-ydb_internal-grpc_connections)
 
 target_link_libraries(impl-ydb_internal-grpc_connections PUBLIC
   yutil

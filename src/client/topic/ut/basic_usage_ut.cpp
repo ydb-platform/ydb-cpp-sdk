@@ -10,8 +10,8 @@
 #include <src/client/ydb_persqueue_core/impl/write_session.h>
 #include <src/client/ydb_topic/impl/write_session.h>
 
-#include <src/library/testing/unittest/registar.h>
-#include <src/library/testing/unittest/tests_data.h>
+#include <library/cpp/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/tests_data.h>
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 #include <src/library/threading/future/async.h>
 

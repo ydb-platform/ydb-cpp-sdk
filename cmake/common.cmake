@@ -163,7 +163,7 @@ function(resources Tgt Output)
     list(APPEND ResourcesList ${Key})
   endforeach()
 
-  get_built_tool_path(rescompiler_bin tools/rescompiler/bin rescompiler)
+  get_built_tool_path(rescompiler_bin tools/rescompiler rescompiler)
 
   add_custom_command(
     OUTPUT ${Output}
@@ -179,3 +179,77 @@ function(_ydb_sdk_make_client_component CmpName Tgt)
   set(YDB-CPP-SDK_AVAILABLE_COMPONENTS ${YDB-CPP-SDK_AVAILABLE_COMPONENTS} ${CmpName} CACHE INTERNAL "")
   set(YDB-CPP-SDK_COMPONENT_TARGETS ${YDB-CPP-SDK_COMPONENT_TARGETS} ${Tgt} CACHE INTERNAL "")
 endfunction()
+
+function(_ydb_sdk_add_library Tgt)
+  cmake_parse_arguments(ARG
+    "INTERFACE" "" ""
+    ${ARGN}
+  )
+
+  set(libraryMode "")
+  set(includeMode "PUBLIC")
+  if (ARG_INTERFACE)
+    set(libraryMode "INTERFACE")
+    set(includeMode "INTERFACE")
+  endif()
+  add_library(${Tgt} ${libraryMode})
+  target_include_directories(${Tgt} ${includeMode}
+    $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${YDB_SDK_BINARY_DIR}>
+    $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}/include>
+  )
+endfunction()
+
+function(_ydb_sdk_validate_public_headers)
+  file(GLOB_RECURSE allHeaders RELATIVE ${YDB_SDK_SOURCE_DIR}/include ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk/*)
+  file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/public_headers.txt specialHeaders)
+  file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/protos_public_headers.txt protosHeaders)
+  if (NOT MSVC)
+    list(REMOVE_ITEM specialHeaders library/cpp/deprecated/atomic/atomic_win.h)
+  endif()
+  list(APPEND allHeaders ${specialHeaders})
+  file(COPY ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk DESTINATION ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include)
+  foreach(path ${specialHeaders})
+    get_filename_component(relPath ${path} DIRECTORY)
+    file(COPY ${YDB_SDK_SOURCE_DIR}/${path}
+      DESTINATION ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include/${relPath}
+    )
+  endforeach()
+
+  add_custom_target(make_validate_proto_headers
+    COMMAND ${CMAKE_COMMAND} -E
+    WORKING_DIRECTORY ${YDB_SDK_BINARY_DIR}
+  )
+  foreach(path ${protosHeaders})
+    get_filename_component(relPath ${path} DIRECTORY)
+    add_custom_command(OUTPUT ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include/${path}
+      COMMAND ${CMAKE_COMMAND} -E
+        copy "${path}" "__validate_headers_dir/include/${relPath}"
+      DEPENDS "${path}"
+      WORKING_DIRECTORY ${YDB_SDK_BINARY_DIR}
+    )
+  endforeach()
+
+  list(REMOVE_ITEM allHeaders
+    library/cpp/threading/future/core/future-inl.h
+    library/cpp/threading/future/wait/wait-inl.h
+    library/cpp/yt/misc/guid-inl.h
+  )
+
+  set(targetHeaders ${allHeaders})
+  list(APPEND targetHeaders ${protosHeaders})
+  list(TRANSFORM targetHeaders PREPEND "${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include/")
+
+  list(TRANSFORM allHeaders PREPEND "#include <")
+  list(TRANSFORM allHeaders APPEND ">")
+  list(JOIN allHeaders "\n" fileContent)
+
+  file(WRITE ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/main.cpp ${fileContent})
+
+  add_library(validate_public_interface MODULE
+    ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/main.cpp
+    ${targetHeaders}
+  )
+  target_include_directories(validate_public_interface PUBLIC ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include)
+endfunction()
+

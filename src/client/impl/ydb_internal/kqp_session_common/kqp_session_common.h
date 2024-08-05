@@ -3,8 +3,8 @@
 #include <src/client/impl/ydb_endpoints/endpoints.h>
 #include <src/client/impl/ydb_internal/session_client/session_client.h>
 
-#include <ydb-cpp-sdk/util/datetime/base.h>
-#include <ydb-cpp-sdk/util/system/spinlock.h>
+#include <util/datetime/base.h>
+#include <util/system/spinlock.h>
 
 #include <functional>
 

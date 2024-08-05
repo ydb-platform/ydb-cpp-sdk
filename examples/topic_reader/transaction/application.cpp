@@ -13,7 +13,7 @@ TApplication::TApplication(const TOptions& options)
         .SetEndpoint(options.Endpoint)
         .SetDatabase(options.Database)
         .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "")
-        .SetLog(std::unique_ptr<TLogBackend>(CreateLogBackend("cerr", Min(options.LogPriority, TLOG_RESOURCES)).Release()));
+        .SetLog(std::unique_ptr<TLogBackend>(CreateLogBackend("cerr", std::min(options.LogPriority, TLOG_RESOURCES)).Release()));
     if (options.UseSecureConnection) {
         config.UseSecureConnection();
     }
@@ -120,7 +120,7 @@ void TApplication::CommitTransaction()
 
     auto result = Transaction->Commit(settings).GetValueSync();
 
-    std::cout << "Commit: " << static_cast<NYdb::TStatus&>(result) << std::endl;
+    std::cout << "Commit: " << ToString(static_cast<const NYdb::TStatus&>(result)) << std::endl;
 }
 
 void TApplication::TryCommitTransaction()

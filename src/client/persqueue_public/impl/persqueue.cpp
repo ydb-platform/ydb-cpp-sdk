@@ -4,9 +4,9 @@
 
 #include <src/library/persqueue/obfuscate/obfuscate.h>
 
-#include <ydb-cpp-sdk/util/random/random.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
-#include <ydb-cpp-sdk/util/string/subst.h>
+#include <util/random/random.h>
+#include <util/string/cast.h>
+#include <util/string/subst.h>
 
 namespace NYdb::NPersQueue {
 

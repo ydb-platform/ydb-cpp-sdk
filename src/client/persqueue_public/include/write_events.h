@@ -4,7 +4,7 @@
 
 #include <ydb-cpp-sdk/client/topic/write_events.h>
 
-#include <ydb-cpp-sdk/util/datetime/base.h>
+#include <util/datetime/base.h>
 
 namespace NYdb::NPersQueue {
     

@@ -1,6 +1,6 @@
 #include "basic_example.h"
 
-#include <ydb-cpp-sdk/json_value/ydb_json_value.h>
+#include <ydb-cpp-sdk/library/json_value/ydb_json_value.h>
 
 #include <cstdlib>
 #include <format>

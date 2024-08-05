@@ -10,8 +10,8 @@
 #include <src/client/ydb_persqueue_core/ut/ut_utils/ut_utils.h>
 #include <src/client/ydb_federated_topic/ut/fds_mock.h>
 
-#include <src/library/testing/unittest/registar.h>
-#include <src/library/testing/unittest/tests_data.h>
+#include <library/cpp/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/tests_data.h>
 #include <ydb-cpp-sdk/library/threading/future/future.h>
 #include <src/library/threading/future/async.h>
 

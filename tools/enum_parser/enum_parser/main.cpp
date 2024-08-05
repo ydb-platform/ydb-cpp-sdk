@@ -1,53 +1,54 @@
-#include <ydb-cpp-sdk/library/json/writer/json_value.h>
-#include <ydb-cpp-sdk/library/json/writer/json.h>
-#include <src/library/getopt/small/last_getopt.h>
+#include <library/cpp/json/writer/json_value.h>
+#include <library/cpp/json/writer/json.h>
+#include <library/cpp/getopt/small/last_getopt.h>
 
 #include <tools/enum_parser/parse_enum/parse_enum.h>
 
-#include <src/util/stream/file.h>
-#include <ydb-cpp-sdk/util/stream/output.h>
-#include <ydb-cpp-sdk/util/stream/input.h>
-#include <ydb-cpp-sdk/util/stream/mem.h>
+#include <util/stream/file.h>
+#include <util/stream/output.h>
+#include <util/stream/input.h>
+#include <util/stream/mem.h>
 
-#include <src/util/charset/wide.h>
-#include <ydb-cpp-sdk/util/string/builder.h>
-#include <ydb-cpp-sdk/util/string/escape.h>
-#include <ydb-cpp-sdk/util/string/strip.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
-#include <src/util/string/join.h>
-#include <ydb-cpp-sdk/util/string/subst.h>
-#include <string>
+#include <util/charset/wide.h>
+#include <util/string/builder.h>
+#include <util/string/escape.h>
+#include <util/string/strip.h>
+#include <util/string/cast.h>
+#include <util/string/join.h>
+#include <util/string/subst.h>
+#include <util/generic/map.h>
+#include <util/generic/string.h>
+#include <util/generic/vector.h>
+#include <util/generic/ptr.h>
+#include <util/generic/yexception.h>
+#include <util/generic/maybe.h>
+#include <util/system/fs.h>
+#include <util/folder/path.h>
 
-#include <ydb-cpp-sdk/util/generic/ptr.h>
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <src/util/system/fs.h>
-#include <src/util/folder/path.h>
-
-#include <fstream>
-
-void WriteHeader(const std::string& headerName, std::ostream& out, std::ostream* headerOutPtr = nullptr) {
+void WriteHeader(const TString& headerName, IOutputStream& out, IOutputStream* headerOutPtr = nullptr) {
     out << "// This file was auto-generated. Do not edit!!!\n";
     out << "#include " << headerName << "\n";
     out << "#include <tools/enum_parser/enum_serialization_runtime/enum_runtime.h>\n\n";
     out << "#include <tools/enum_parser/enum_parser/stdlib_deps.h>\n\n";
-    out << "#include <ydb-cpp-sdk/util/generic/typetraits.h>\n";
-    out << "#include <ydb-cpp-sdk/util/generic/singleton.h>\n";
-    out << "#include <string>\n";
-    out << "#include <vector>\n";
-    out << "#include <map>\n";
-    out << "#include <span>\n";
-    out << "#include <ydb-cpp-sdk/util/string/cast.h>\n";
-    out << "#include <ydb-cpp-sdk/util/stream/output.h>\n\n";
+    out << "#include <util/generic/typetraits.h>\n";
+    out << "#include <util/generic/singleton.h>\n";
+    out << "#include <util/generic/string.h>\n";
+    out << "#include <util/generic/vector.h>\n";
+    out << "#include <util/generic/map.h>\n";
+    out << "#include <util/generic/serialized_enum.h>\n";
+    out << "#include <util/string/cast.h>\n";
+    out << "#include <util/stream/output.h>\n\n";
 
     if (headerOutPtr) {
         auto& outHeader = *headerOutPtr;
         outHeader << "// This file was auto-generated. Do not edit!!!\n";
         outHeader << "#pragma once\n\n";
+        outHeader << "#include <util/generic/serialized_enum.h>\n";
         outHeader << "#include " << headerName << "\n";
     }
 }
 
-static inline void JsonEscape(std::string& s) {
+static inline void JsonEscape(TString& s) {
     SubstGlobal(s, "\\", "\\\\");
     SubstGlobal(s, "\"", "\\\"");
     SubstGlobal(s, "\r", "\\r");
@@ -55,8 +56,8 @@ static inline void JsonEscape(std::string& s) {
     SubstGlobal(s, "\t", "\\t");
 }
 
-static inline std::string JsonQuote(const std::string& s) {
-    std::string quoted = s;
+static inline TString JsonQuote(const TString& s) {
+    TString quoted = s;
     JsonEscape(quoted);
     return "\"" + quoted + "\""; // do not use .Quote() here, it performs escaping!
 }
@@ -64,18 +65,18 @@ static inline std::string JsonQuote(const std::string& s) {
 
 /// Simplifed JSON map encoder for generic types
 template<typename T>
-void OutKey(IOutputStream& out, const std::string& key, const T& value, bool escape = true) {
-    std::string quoted = ToString(value);
+void OutKey(IOutputStream& out, const TString& key, const T& value, bool escape = true) {
+    TString quoted = ToString(value);
     if (escape) {
         quoted = JsonQuote(quoted);
     }
     out << "\"" << key << "\": " << quoted << ",\n";
 }
 
-/// Simplifed JSON map encoder for optional
-void OutKey(IOutputStream& out, const std::string& key, const std::optional<std::string>& value) {
-    std::string quoted;
-    if (value.has_value()) {
+/// Simplifed JSON map encoder for TMaybe
+void OutKey(IOutputStream& out, const TString& key, const TMaybe<TString>& value) {
+    TString quoted;
+    if (value) {
         quoted = JsonQuote(ToString(*value));
     } else {
         quoted = "null";
@@ -85,7 +86,7 @@ void OutKey(IOutputStream& out, const std::string& key, const std::optional<std:
 
 
 /// Simplifed JSON map encoder for bool values
-void OutKey(IOutputStream& out, const std::string& key, const bool& value) {
+void OutKey(IOutputStream& out, const TString& key, const bool& value) {
     out << "\"" << key << "\": " << (value ? "true" : "false") << ",\n";
 }
 
@@ -93,7 +94,7 @@ void OutKey(IOutputStream& out, const std::string& key, const bool& value) {
 /// Simplifed JSON map encoder for array items
 template<typename T>
 void OutItem(IOutputStream& out, const T& value, bool escape = true) {
-    std::string quoted = ToString(value);
+    TString quoted = ToString(value);
     if (escape) {
         quoted = JsonQuote(quoted);
     }
@@ -102,11 +103,11 @@ void OutItem(IOutputStream& out, const T& value, bool escape = true) {
 
 /// Cut trailing ",\n" or ","
 static inline void FinishItems(TStringStream& out) {
-    std::string& s = out.Str();
-    if (s.ends_with(",\n")) {
-        s.erase(s.size() - 2, 2);
+    TString& s = out.Str();
+    if (s.EndsWith(",\n")) {
+        s.remove(s.size() - 2, 2);
     }
-    if (s.ends_with(",")) {
+    if (s.EndsWith(",")) {
         s.pop_back();
     }
 }
@@ -128,22 +129,22 @@ static inline void CloseArray(TStringStream& out) {
     out << "]\n";
 }
 
-static std::string WrapStringBuf(const std::string_view str) {
-    return TStringBuilder() << "\"" << str << "\"sv";
+static TString WrapStringBuf(const TStringBuf str) {
+    return TString::Join("\"", str, "\"sv");
 }
 
 void GenerateEnum(
     const TEnumParser::TEnum& en,
-    std::ostream& out,
+    IOutputStream& out,
     IOutputStream* jsonEnumOut = nullptr,
-    std::ostream* headerOutPtr = nullptr
+    IOutputStream* headerOutPtr = nullptr
 ) {
     TStringStream jEnum;
     OpenMap(jEnum);
 
     size_t count = en.Items.size();
     OutKey(jEnum, "count", count);
-    const std::string name = TEnumParser::ScopeStr(en.Scope) + en.CppName;
+    const TString name = TEnumParser::ScopeStr(en.Scope) + en.CppName;
     OutKey(jEnum, "full_name", name);
     OutKey(jEnum, "cpp_name", en.CppName);
     TStringStream scopeJson;
@@ -162,20 +163,20 @@ void GenerateEnum(
         outerScope.push_back(en.CppName);
     }
 
-    std::string outerScopeStr = TEnumParser::ScopeStr(outerScope);
+    TString outerScopeStr = TEnumParser::ScopeStr(outerScope);
 
-    std::string cName = name;
+    TString cName = name;
     SubstGlobal(cName, "::", "");
 
     out << "// I/O for " << name << "\n";
 
-    std::string nsName = "N" + cName + "Private";
+    TString nsName = "N" + cName + "Private";
 
-    out << "namespace {\n" "using namespace std::literals;\n" "namespace " << nsName << " {\n";
+    out << "namespace { namespace " << nsName << " {\n";
 
-    std::vector<std::string> nameInitializerPairs;
-    std::vector<std::pair<std::string, std::string>> valueInitializerPairsUnsorted;  // data, sort_key
-    std::vector<std::string> cppNamesInitializer;
+    TVector<TString> nameInitializerPairs;
+    TVector<std::pair<TString, TString>> valueInitializerPairsUnsorted;  // data, sort_key
+    TVector<TString> cppNamesInitializer;
 
     TStringStream jItems;
     OpenArray(jItems);
@@ -191,8 +192,8 @@ void GenerateEnum(
         TStringStream jAliases;
         OpenArray(jAliases);
 
-        std::string strValue = it.CppName;
-        if (!it.Aliases.empty()) {
+        TString strValue = it.CppName;
+        if (it.Aliases) {
             // first alias is main
             strValue = it.Aliases[0];
             OutKey(jEnumItem, "str_value", strValue);
@@ -207,7 +208,7 @@ void GenerateEnum(
         FinishItems(jAliases);
         CloseArray(jAliases);
 
-        if (it.Aliases.empty()) {
+        if (!it.Aliases) {
             valueInitializerPairsUnsorted.emplace_back("TNameBufsBase::EnumStringPair(" + outerScopeStr + it.CppName + ", " + WrapStringBuf(it.CppName) + ")", it.CppName);
         }
         OutKey(jEnumItem, "aliases", jAliases.Str(), false);
@@ -221,15 +222,15 @@ void GenerateEnum(
     CloseArray(jItems);
     OutKey(jEnum, "items", jItems.Str(), false);
 
-    const std::string nsNameBufsClass = nsName + "::TNameBufs";
+    const TString nsNameBufsClass = nsName + "::TNameBufs";
 
-    auto defineConstArray = [&out, payloadCache = std::map<std::pair<std::string, std::vector<std::string>>, std::string>()](const std::string_view indent, const std::string_view elementType, const std::string_view name, const std::vector<std::string>& items) mutable {
+    auto defineConstArray = [&out, payloadCache = TMap<std::pair<TString, TVector<TString>>, TString>()](const TStringBuf indent, const TStringBuf elementType, const TStringBuf name, const TVector<TString>& items) mutable {
         if (items.empty()) { // ISO C++ forbids zero-size array
-            out << indent << "static constexpr const std::span<const " << elementType << "> " << name << ";\n";
+            out << indent << "static constexpr const TArrayRef<const " << elementType << "> " << name << ";\n";
         } else {
             // try to reuse one of the previous payload arrays
             const auto inserted = payloadCache.emplace(std::make_pair(elementType, items), ToString(name) + "_PAYLOAD");
-            const std::string& payloadStorageName = inserted.first->second;
+            const TString& payloadStorageName = inserted.first->second;
             if (inserted.second) { // new array content or type
                 out << indent << "static constexpr const " << elementType << " " << payloadStorageName << "[" << items.size() << "]{\n";
                 for (const auto& it : items) {
@@ -237,7 +238,7 @@ void GenerateEnum(
                 }
                 out << indent << "};\n";
             }
-            out << indent << "static constexpr const std::span<const " << elementType << "> " << name << "{" << payloadStorageName << "};\n";
+            out << indent << "static constexpr const TArrayRef<const " << elementType << "> " << name << "{" << payloadStorageName << "};\n";
         }
         out << "\n";
     };
@@ -252,18 +253,17 @@ void GenerateEnum(
             out << "        " << it << ",\n";
         }
         out << "    }});\n";
-        out << "    " << "static constexpr const std::span<const TNameBufsBase::TEnumStringPair> " << "NAMES_INITIALIZATION_PAIRS{NAMES_INITIALIZATION_PAIRS_PAYLOAD};\n\n";
+        out << "    " << "static constexpr const TArrayRef<const TNameBufsBase::TEnumStringPair> " << "NAMES_INITIALIZATION_PAIRS{NAMES_INITIALIZATION_PAIRS_PAYLOAD};\n\n";
     }
     {
-        StableSortBy(valueInitializerPairsUnsorted, [](const auto& pair) -> const std::string& { return pair.second; });
-        std::vector<std::string> valueInitializerPairs;
-        valueInitializerPairs.reserve(valueInitializerPairsUnsorted.size());
+        StableSortBy(valueInitializerPairsUnsorted, [](const auto& pair) -> const TString& { return pair.second; });
+        TVector<TString> valueInitializerPairs(Reserve(valueInitializerPairsUnsorted.size()));
         for (auto& [value, _] : valueInitializerPairsUnsorted) {
             valueInitializerPairs.push_back(std::move(value));
         }
         defineConstArray("    ", "TNameBufsBase::TEnumStringPair", "VALUES_INITIALIZATION_PAIRS", valueInitializerPairs);
     }
-    defineConstArray("    ", "std::string_view", "CPP_NAMES_INITIALIZATION_ARRAY", cppNamesInitializer);
+    defineConstArray("    ", "TStringBuf", "CPP_NAMES_INITIALIZATION_ARRAY", cppNamesInitializer);
 
     out << "    static constexpr const TNameBufsBase::TInitializationData ENUM_INITIALIZATION_DATA{\n";
     out << "        NAMES_INITIALIZATION_PAIRS,\n";
@@ -309,12 +309,12 @@ void GenerateEnum(
 
     // outer ToString
     if (headerOutPtr) {
-        (*headerOutPtr) << "const std::string& ToString(" << name << ");\n";
-        (*headerOutPtr) << "Y_FORCE_INLINE std::string_view ToStringBuf(" << name << " e) {\n";
+        (*headerOutPtr) << "const TString& ToString(" << name << ");\n";
+        (*headerOutPtr) << "Y_FORCE_INLINE TStringBuf ToStringBuf(" << name << " e) {\n";
         (*headerOutPtr) << "    return ::NEnumSerializationRuntime::ToStringBuf<" << name << ">(e);\n";
         (*headerOutPtr) << "}\n";
     }
-    out << "const std::string& ToString(" << name << " x) {\n";
+    out << "const TString& ToString(" << name << " x) {\n";
     out << "    const " << nsNameBufsClass << "& names = " << nsNameBufsClass << "::Instance();\n";
     out << "    return names.ToString(x);\n";
     out << "}\n\n";
@@ -333,17 +333,17 @@ void GenerateEnum(
 
     // outer FromString
     if (headerOutPtr) {
-        (*headerOutPtr) << "bool FromString(const std::string& name, " << name << "& ret);\n";
+        (*headerOutPtr) << "bool FromString(const TString& name, " << name << "& ret);\n";
     }
-    out << "bool FromString(const std::string& name, " << name << "& ret) {\n";
+    out << "bool FromString(const TString& name, " << name << "& ret) {\n";
     out << "    return ::TryFromStringImpl<" << name << ">(name.data(), name.size(), ret);\n";
     out << "}\n\n";
 
     // outer FromString
     if (headerOutPtr) {
-        (*headerOutPtr) << "bool FromString(const std::string_view& name, " << name << "& ret);\n";
+        (*headerOutPtr) << "bool FromString(const TStringBuf& name, " << name << "& ret);\n";
     }
-    out << "bool FromString(const std::string_view& name, " << name << "& ret) {\n";
+    out << "bool FromString(const TStringBuf& name, " << name << "& ret) {\n";
     out << "    return ::TryFromStringImpl<" << name << ">(name.data(), name.size(), ret);\n";
     out << "}\n\n";
 
@@ -357,7 +357,7 @@ void GenerateEnum(
     out << "namespace NEnumSerializationRuntime {\n";
     // template<> ToStringBuf
     out << "    template<>\n";
-    out << "    std::string_view ToStringBuf<" << name << ">(" << name << " e) {\n";
+    out << "    TStringBuf ToStringBuf<" << name << ">(" << name << " e) {\n";
     out << "        return ::NEnumSerializationRuntime::DispatchToStringBufFn<" << nsNameBufsClass << ">(e);\n";
     out << "    }\n\n";
 
@@ -370,21 +370,21 @@ void GenerateEnum(
 
     // template<> GetEnumAllNames
     out << "    template<>\n";
-    out << "    const std::string& GetEnumAllNamesImpl<" << name << ">() {\n";
+    out << "    const TString& GetEnumAllNamesImpl<" << name << ">() {\n";
     out << "        const " << nsNameBufsClass << "& names = " << nsNameBufsClass << "::Instance();\n";
     out << "        return names.AllEnumNames();\n";
     out << "    }\n\n";
 
     // template<> GetEnumNames<EnumType>
     out << "    template<>\n";
-    out << "    TMappedDictView<" << name << ", std::string> GetEnumNamesImpl<" << name << ">() {\n";
+    out << "    TMappedDictView<" << name << ", TString> GetEnumNamesImpl<" << name << ">() {\n";
     out << "        const " << nsNameBufsClass << "& names = " << nsNameBufsClass << "::Instance();\n";
     out << "        return names.EnumNames();\n";
     out << "    }\n\n";
 
     // template<> GetEnumAllCppNames, see IGNIETFERRO-534
     out << "    template<>\n";
-    out << "    const std::vector<std::string>& GetEnumAllCppNamesImpl<" << name << ">() {\n";
+    out << "    const TVector<TString>& GetEnumAllCppNamesImpl<" << name << ">() {\n";
     out << "        const " << nsNameBufsClass << "& names = " << nsNameBufsClass << "::Instance();\n";
     out << "        return names.AllEnumCppNames();\n";
     out << "    }\n";
@@ -414,10 +414,10 @@ int main(int argc, char** argv) {
         TOpts opts = NLastGetopt::TOpts::Default();
         opts.AddHelpOption();
 
-        std::string outputFileName;
-        std::string outputHeaderFileName;
-        std::string outputJsonFileName;
-        std::string includePath;
+        TString outputFileName;
+        TString outputHeaderFileName;
+        TString outputJsonFileName;
+        TString includePath;
         opts.AddLongOption('o', "output").OptionalArgument("<output-file>").StoreResult(&outputFileName)
             .Help(
                 "Output generated code to specified file.\n"
@@ -444,34 +444,35 @@ int main(int argc, char** argv) {
 
         TOptsParseResult res(&opts, argc, argv);
 
-        std::vector<std::string> freeArgs = res.GetFreeArgs();
-        std::string inputFileName = freeArgs[0];
+        TVector<TString> freeArgs = res.GetFreeArgs();
+        TString inputFileName = freeArgs[0];
 
-        THolder<std::ostream> hOut;
-        std::ostream* out = &std::cout;
+        THolder<IOutputStream> hOut;
+        IOutputStream* out = &Cout;
 
-        THolder<std::ostream> headerOut;
+        THolder<IOutputStream> headerOut;
 
-        THolder<std::ostream> jsonOut;
+        THolder<IOutputStream> jsonOut;
 
-        if (!outputFileName.empty()) {
-            NFs::Remove(outputFileName.c_str());
-            hOut.Reset(new std::ofstream(outputFileName));
+
+        if (outputFileName) {
+            NFs::Remove(outputFileName);
+            hOut.Reset(new TFileOutput(outputFileName));
             out = hOut.Get();
 
-            if (!outputHeaderFileName.empty()) {
-                headerOut.Reset(new std::ofstream(outputHeaderFileName));
+            if (outputHeaderFileName) {
+                headerOut.Reset(new TFileOutput(outputHeaderFileName));
             }
 
-            if (!outputJsonFileName.empty()) {
-                jsonOut.Reset(new std::ofstream(outputJsonFileName));
+            if (outputJsonFileName) {
+                jsonOut.Reset(new TFileOutput(outputJsonFileName));
             }
         }
 
-        if (includePath.empty()) {
-            includePath = std::string() + '"' + TFsPath(inputFileName).Basename() + '"';
+        if (!includePath) {
+            includePath = TString() + '"' + TFsPath(inputFileName).Basename() + '"';
         } else {
-            includePath = std::string() + '<' + includePath + '>';
+            includePath = TString() + '<' + includePath + '>';
         }
 
         TEnumParser parser(inputFileName);
@@ -481,7 +482,7 @@ int main(int argc, char** argv) {
         OpenArray(jEnums);
 
         for (const auto& en : parser.Enums) {
-            if (en.CppName.empty()) {
+            if (!en.CppName) {
                 // skip unnamed enum declarations
                 continue;
             }
@@ -494,12 +495,12 @@ int main(int argc, char** argv) {
         CloseArray(jEnums);
 
         if (jsonOut) {
-            *jsonOut << jEnums.Str() << std::endl;
+            *jsonOut << jEnums.Str() << Endl;
         }
 
         return 0;
     } catch (...) {
-        std::cerr << CurrentExceptionMessage() << std::endl;
+        Cerr << CurrentExceptionMessage() << Endl;
     }
 
     return 1;

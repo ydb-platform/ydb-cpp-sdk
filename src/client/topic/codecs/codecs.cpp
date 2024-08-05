@@ -1,9 +1,9 @@
 #include <ydb-cpp-sdk/client/topic/codecs.h>
 
-#include <src/library/streams/zstd/zstd.h>
+#include <library/cpp/streams/zstd/zstd.h>
 
-#include <src/util/stream/buffer.h>
-#include <src/util/stream/zlib.h>
+#include <util/stream/buffer.h>
+#include <util/stream/zlib.h>
 
 namespace NYdb::NTopic {
 
@@ -31,7 +31,7 @@ public:
 
 std::string TGzipCodec::Decompress(const std::string& data) const {
     TMemoryInput input(data.data(), data.size());
-    std::string result;
+    TString result;
     TStringOutput resultOutput(result);
     TZLibDecompress inputStreamStorage(&input);
     TransferData(&inputStreamStorage, &resultOutput);
@@ -44,7 +44,7 @@ std::unique_ptr<IOutputStream> TGzipCodec::CreateCoder(TBuffer& result, int qual
 
 std::string TZstdCodec::Decompress(const std::string& data) const {
     TMemoryInput input(data.data(), data.size());
-    std::string result;
+    TString result;
     TStringOutput resultOutput(result);
     TZstdDecompress inputStreamStorage(&input);
     TransferData(&inputStreamStorage, &resultOutput);

@@ -2,11 +2,11 @@
 
 #include <src/client/topic/common/log_lazy.h>
 
-#include <src/library/string_utils/url/url.h>
+#include <library/cpp/string_utils/url/url.h>
 
-#include <ydb-cpp-sdk/util/generic/store_policy.h>
-#include <ydb-cpp-sdk/util/generic/utility.h>
-#include <src/util/stream/buffer.h>
+#include <util/generic/store_policy.h>
+#include <util/generic/utility.h>
+#include <util/stream/buffer.h>
 
 namespace NYdb::NPersQueue {
 

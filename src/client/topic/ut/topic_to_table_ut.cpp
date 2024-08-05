@@ -6,7 +6,7 @@
 
 #include <src/library/logger/stream.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 namespace NYdb::NTopic::NTests {
 

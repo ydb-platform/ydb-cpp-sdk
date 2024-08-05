@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 
-#include <src/library/getopt/last_getopt.h>
+#include <library/cpp/getopt/last_getopt.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +49,7 @@ public:
         out << "Status: " << ToString(e.Status.GetStatus());
         if (e.Status.GetIssues()) {
             out << std::endl;
-            e.Status.GetIssues().PrintTo(out);
+            out << e.Status.GetIssues().ToString();
         }
         return out;
     }

@@ -16,9 +16,9 @@
 #include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
 #include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
 
-#include <src/library/containers/disjoint_interval_tree/disjoint_interval_tree.h>
+#include <library/cpp/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 
-#include <ydb-cpp-sdk/util/digest/numeric.h>
+#include <util/digest/numeric.h>
 
 #include <atomic>
 #include <deque>
@@ -800,7 +800,8 @@ public:
     bool Close(const TASessionClosedEvent<UseMigrationProtocol>& event, TDeferredActions<UseMigrationProtocol>& deferred) {
         TWaiter waiter;
         std::vector<TRawPartitionStreamEventQueue<UseMigrationProtocol>> deferredDelete;
-        with_lock(TParent::Mutex) {
+        {
+            std::lock_guard guard(TParent::Mutex);
             if (TParent::Closed) {
                 return false;
             }

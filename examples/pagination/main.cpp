@@ -1,6 +1,6 @@
 #include "pagination.h"
 
-#include <src/library/getopt/last_getopt.h>
+#include <library/cpp/getopt/last_getopt.h>
 
 using namespace NLastGetopt;
 using namespace NYdb;

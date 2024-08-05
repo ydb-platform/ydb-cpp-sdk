@@ -2,11 +2,11 @@
 
 #include <google/protobuf/message.h>
 
-#include <ydb-cpp-sdk/library/cgiparam/cgiparam.h>
-#include <src/library/uri/uri.h>
+#include <library/cpp/cgiparam/cgiparam.h>
+#include <library/cpp/uri/uri.h>
 
-#include <ydb-cpp-sdk/util/generic/yexception.h>
-#include <ydb-cpp-sdk/util/string/cast.h>
+#include <util/generic/yexception.h>
+#include <util/string/cast.h>
 
 namespace NKikimr {
 namespace NOperationId {
@@ -119,7 +119,7 @@ TOperationId::TOperationId(const std::string &string, bool allowEmpty) {
         ythrow yexception() << "Unable to parse input string";
     }
 
-    const std::string& path = uri.PrintS(TField::FlagPath).substr(1); // start from 1 to remove first '/'
+    std::string path = uri.PrintS(TField::FlagPath).substr(1); // start from 1 to remove first '/'
     if (path.length() < 1) {
         ythrow yexception() << "Invalid path length";
     }
@@ -135,7 +135,7 @@ TOperationId::TOperationId(const std::string &string, bool allowEmpty) {
 
     Proto_.set_kind(static_cast<Ydb::TOperationId::EKind>(kind));
 
-    const std::string& query = uri.PrintS(TField::FlagQuery);
+    std::string query = uri.PrintS(TField::FlagQuery);
 
     if (!query.empty()) {
         TCgiParameters params(query.substr(1)); // start from 1 to remove first '?'

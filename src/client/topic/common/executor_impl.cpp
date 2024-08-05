@@ -33,7 +33,8 @@ void TSerialExecutor::PostImpl(std::vector<TFunction>&& fs) {
 }
 
 void TSerialExecutor::PostImpl(TFunction&& f) {
-    with_lock(Mutex) {
+    {
+        std::lock_guard guard(Mutex);
         ExecutionQueue.push(std::move(f));
         if (Busy) {
             return;
@@ -53,7 +54,8 @@ void TSerialExecutor::PostNext() {
     Executor->Post([weakThis, f = std::move(ExecutionQueue.front())]() {
         if (auto sharedThis = weakThis.lock()) {
             f();
-            with_lock(sharedThis->Mutex) {
+            {
+                std::lock_guard guard(sharedThis->Mutex);
                 sharedThis->Busy = false;
                 sharedThis->PostNext();
             }

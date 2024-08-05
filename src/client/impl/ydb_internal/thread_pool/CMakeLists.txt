@@ -1,4 +1,4 @@
-add_library(impl-ydb_internal-thread_pool)
+_ydb_sdk_add_library(impl-ydb_internal-thread_pool)
 
 target_link_libraries(impl-ydb_internal-thread_pool PUBLIC
   yutil

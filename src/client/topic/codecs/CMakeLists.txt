@@ -1,4 +1,4 @@
-add_library(client-ydb_topic-codecs)
+_ydb_sdk_add_library(client-ydb_topic-codecs)
 
 target_link_libraries(client-ydb_topic-codecs PUBLIC
   yutil
