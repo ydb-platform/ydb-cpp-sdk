@@ -69,8 +69,13 @@ endfunction()
 
 function(add_ydb_test)
   set(opts GTEST)
+<<<<<<< HEAD
   set(oneval_args NAME WORKING_DIRECTORY OUTPUT_DIRECTORY)
   set(multival_args INCLUDE_DIRS SOURCES LINK_LIBRARIES LABELS TEST_ARG)
+=======
+  set(oneval_args NAME)
+  set(multival_args SPLIT_FACTOR INCLUDE_DIRS SOURCES LINK_LIBRARIES LABELS)
+>>>>>>> 273b4fe0c (session_pool_ut)
   cmake_parse_arguments(YDB_TEST
     "${opts}"
     "${oneval_args}"
@@ -112,12 +117,16 @@ function(add_ydb_test)
     )
   endif()
 
+  if(NOT DEFINED YDB_TEST_SPLIT_FACTOR)
+    set(YDB_TEST_SPLIT_FACTOR "1")
+  endif()
+
   set_property(
     TARGET
       ${YDB_TEST_NAME}
     PROPERTY
       SPLIT_FACTOR
-      1
+      ${YDB_TEST_SPLIT_FACTOR}
   )
   if (YDB_TEST_GTEST)
     add_yunittest(
