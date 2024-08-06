@@ -1,7 +1,43 @@
 add_subdirectory(charset)
 add_subdirectory(draft)
 
+function(add_ydb_util_tests)
+  set(opts "")
+  set(oneval_args FOLDER)
+  set(multival_args TESTS LINK_LIBRARIES)
+  cmake_parse_arguments(ARGS
+    "${opts}"
+    "${oneval_args}"
+    "${multival_args}"
+    ${ARGN}
+  )
+  list(PREPEND ARGS_LINK_LIBRARIES
+    yutil
+    cpp-testing-unittest_main
+  )
+  foreach (__test_name_suffix IN LISTS ARGS_TESTS)
+    add_ydb_test(NAME "util-${ARGS_FOLDER}-${__test_name_suffix}"
+      SOURCES
+        "${ARGS_FOLDER}/${__test_name_suffix}.cpp"
+      LINK_LIBRARIES
+        ${ARGS_LINK_LIBRARIES}
+      LABELS
+        unit
+    )
+  endforeach()
+endfunction()
+
 if (YDB_SDK_TESTS)
+  add_ydb_util_tests(FOLDER datetime
+    TESTS
+      base_ut
+      cputimer_ut
+      parser_deprecated_ut
+      parser_ut
+      process_uptime_ut
+      uptime_ut
+  )
+
   add_ydb_test(NAME util-digest-ut
     SOURCES
       digest/city_ut.cpp
@@ -70,6 +106,7 @@ target_joined_source(yutil
   ${YDB_SDK_SOURCE_DIR}/util/datetime/base.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/constants.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/cputimer.cpp
+  ${YDB_SDK_SOURCE_DIR}/util/datetime/process_uptime.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/systime.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/uptime.cpp
 )
