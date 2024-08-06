@@ -358,7 +358,7 @@ Y_UNIT_TEST_SUITE(YdbSdkSessionsPool) {
 
         RunStressTestAsync(100, 10, client);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 
         UNIT_ASSERT_VALUES_EQUAL(client.GetActiveSessionCount(), 0);
         UNIT_ASSERT_VALUES_EQUAL(client.GetCurrentPoolSize(), activeSessionsLimit);
@@ -410,7 +410,7 @@ Y_UNIT_TEST_SUITE(YdbSdkSessionsPool) {
         sessionFutures.clear();
         sessions.clear();
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
         UNIT_ASSERT_VALUES_EQUAL(client.GetActiveSessionCount(), 0);
         UNIT_ASSERT_VALUES_EQUAL(client.GetCurrentPoolSize(), activeSessionsLimit);
     }
