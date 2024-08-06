@@ -1,11 +1,11 @@
 #include <ydb-cpp-sdk/client/table/table.h>
 #include <ydb-cpp-sdk/client/query/client.h>
-#include <ydb-cpp-sdk/util/thread/factory.h>
-#include <ydb-cpp-sdk/util/random/random.h>
+#include <util/thread/factory.h>
+#include <util/random/random.h>
 
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
 #include <grpcpp/security/credentials.h>
 #include <grpcpp/create_channel.h>

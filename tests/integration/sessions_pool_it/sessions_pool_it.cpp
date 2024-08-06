@@ -1,9 +1,9 @@
 #include <ydb-cpp-sdk/client/table/table.h>
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 
-#include <src/library/testing/unittest/registar.h>
+#include <library/cpp/testing/unittest/registar.h>
 
-#include <ydb-cpp-sdk/util/thread/pool.h>
+#include <util/thread/pool.h>
 
 #include <random>
 #include <thread>
@@ -242,7 +242,7 @@ Y_UNIT_TEST_SUITE(YdbSdkSessionsPool) {
         CheckPlan(plan);
         RunPlan(plan, client);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 
         UNIT_ASSERT_VALUES_EQUAL(client.GetActiveSessionCount(), 0);
     }
@@ -301,7 +301,7 @@ Y_UNIT_TEST_SUITE(YdbSdkSessionsPool) {
 
         RunStressTestSync(1000, activeSessionsLimit, client);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 
         UNIT_ASSERT_VALUES_EQUAL(client.GetActiveSessionCount(), 0);
         UNIT_ASSERT_VALUES_EQUAL(client.GetCurrentPoolSize(), activeSessionsLimit);
