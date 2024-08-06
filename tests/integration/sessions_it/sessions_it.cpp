@@ -25,7 +25,7 @@ Y_UNIT_TEST_SUITE(YdbSdkSessions) {
         NYdb::NTable::TTableClient client(driver);
         int count = 10;
 
-        std::unordered_set<std::string> sids;
+        THashSet<std::string> sids;
         while (count--) {
             auto sessionResponse = client.GetSession().ExtractValueSync();
             UNIT_ASSERT_EQUAL(sessionResponse.IsTransportError(), false);
@@ -55,8 +55,8 @@ Y_UNIT_TEST_SUITE(YdbSdkSessions) {
         NYdb::NTable::TTableClient client(driver);
         int count = 10;
 
-        std::vector<TSession> sids;
-        std::vector<TAsyncDataQueryResult> results;
+        TVector<TSession> sids;
+        TVector<TAsyncDataQueryResult> results;
         while (count--) {
             auto sessionResponse = client.GetSession().ExtractValueSync();
             UNIT_ASSERT_EQUAL(sessionResponse.IsTransportError(), false);
@@ -90,8 +90,8 @@ Y_UNIT_TEST_SUITE(YdbSdkSessions) {
         NYdb::NTable::TTableClient client(driver);
         int count = 10;
 
-        std::vector<TSession> sids;
-        std::vector<TAsyncDataQueryResult> results;
+        TVector<TSession> sids;
+        TVector<TAsyncDataQueryResult> results;
         while (count--) {
             auto sessionResponse = client.GetSession().ExtractValueSync();
             UNIT_ASSERT_EQUAL(sessionResponse.IsTransportError(), false);
@@ -189,7 +189,7 @@ Y_UNIT_TEST_SUITE(YdbSdkSessions) {
         };
         IThreadFactory* pool = SystemThreadFactory();
 
-        std::vector<TAutoPtr<IThreadFactory::IThread>> threads;
+        TVector<TAutoPtr<IThreadFactory::IThread>> threads;
         threads.resize(nThreads);
         for (int i = 0; i < nThreads; i++) {
             threads[i] = pool->Run(job);
@@ -229,12 +229,12 @@ Y_UNIT_TEST_SUITE(YdbSdkSessions) {
 
         constexpr int nThreads = 100;
         NYdb::EStatus statuses[nThreads];
-        std::vector<std::optional<typename TClient::TSession>> sessions;
+        TVector<TMaybe<typename TClient::TSession>> sessions;
         sessions.resize(nThreads);
-        std::atomic<int> t = 0;
+        TAtomic t = 0;
         auto job = [client, &t, &statuses, &sessions]() mutable {
             auto sessionResponse = client.GetSession().ExtractValueSync();
-            int i = ++t;
+            int i = AtomicIncrement(t);
             statuses[--i] = sessionResponse.GetStatus();
             if (statuses[i] == EStatus::SUCCESS) {
                 EnsureCanExecQuery(sessionResponse.GetSession());
@@ -243,7 +243,7 @@ Y_UNIT_TEST_SUITE(YdbSdkSessions) {
         };
         IThreadFactory* pool = SystemThreadFactory();
 
-        std::vector<TAutoPtr<IThreadFactory::IThread>> threads;
+        TVector<TAutoPtr<IThreadFactory::IThread>> threads;
         threads.resize(nThreads);
         for (int i = 0; i < nThreads; i++) {
             threads[i] = pool->Run(job);
@@ -309,14 +309,14 @@ Y_UNIT_TEST_SUITE(YdbSdkSessions) {
 
         constexpr int nThreads = 20;
         constexpr int nRequests = 50;
-        std::array<std::vector<typename T::TResult>, nThreads> results;
+        std::array<TVector<typename T::TResult>, nThreads> results;
         std::atomic<int> t = 0;
         std::atomic<int> validSessions = 0;
         auto job = [client, &t, &results, &validSessions]() mutable {
             auto sessionResponse = client.GetSession().ExtractValueSync();
 
             int i = ++t;
-            std::vector<typename T::TResult>& r = results[--i];
+            TVector<typename T::TResult>& r = results[--i];
 
             if (sessionResponse.GetStatus() != EStatus::SUCCESS) {
                 return;
@@ -329,7 +329,7 @@ Y_UNIT_TEST_SUITE(YdbSdkSessions) {
         };
         IThreadFactory* pool = SystemThreadFactory();
 
-        std::vector<TAutoPtr<IThreadFactory::IThread>> threads;
+        TVector<TAutoPtr<IThreadFactory::IThread>> threads;
         threads.resize(nThreads);
         for (int i = 0; i < nThreads; i++) {
             threads[i] = pool->Run(job);
@@ -475,7 +475,7 @@ Y_UNIT_TEST_SUITE(YdbSdkSessions) {
     }*/
 
     Y_UNIT_TEST(CloseSessionAfterDriverDtorWithoutSessionPool) {
-        std::vector<std::string> sessionIds;
+        TVector<std::string> sessionIds;
         int iterations = 50;
 
         while (iterations--) {
@@ -505,7 +505,7 @@ Y_UNIT_TEST_SUITE(YdbSdkSessions) {
     }
 
     Y_UNIT_TEST(CloseSessionWithSessionPoolExplicit) {
-        std::vector<std::string> sessionIds;
+        TVector<std::string> sessionIds;
         int iterations = 100;
 
         while (iterations--) {
@@ -559,7 +559,7 @@ Y_UNIT_TEST_SUITE(YdbSdkSessions) {
     }
 
     Y_UNIT_TEST(CloseSessionWithSessionPoolExplicitDriverStopOnly) {
-        std::vector<std::string> sessionIds;
+        TVector<std::string> sessionIds;
         int iterations = 100;
 
         while (iterations--) {
@@ -601,7 +601,7 @@ Y_UNIT_TEST_SUITE(YdbSdkSessions) {
     }
 
     Y_UNIT_TEST(CloseSessionWithSessionPoolFromDtors) {
-        std::vector<std::string> sessionIds;
+        TVector<std::string> sessionIds;
         int iterations = 100;
 
         while (iterations--) {

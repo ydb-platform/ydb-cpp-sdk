@@ -54,7 +54,7 @@ using TPlan = std::vector<std::pair<EAction, ui32>>;
 
 
 void CheckPlan(TPlan plan) {
-    std::unordered_map<ui32, EAction> sessions;
+    THashMap<ui32, EAction> sessions;
     for (const auto& [action, sessionId]: plan) {
         if (action == EAction::CreateFuture) {
             UNIT_ASSERT(!sessions.contains(sessionId));
@@ -79,8 +79,8 @@ void CheckPlan(TPlan plan) {
 }
 
 void RunPlan(const TPlan& plan, NYdb::NTable::TTableClient& client) {
-    std::unordered_map<ui32, NThreading::TFuture<NYdb::NTable::TCreateSessionResult>> sessionFutures;
-    std::unordered_map<ui32, NYdb::NTable::TCreateSessionResult> sessions;
+    THashMap<ui32, NThreading::TFuture<NYdb::NTable::TCreateSessionResult>> sessionFutures;
+    THashMap<ui32, NYdb::NTable::TCreateSessionResult> sessions;
 
     ui32 requestedSessions = 0;
 
@@ -162,8 +162,8 @@ Y_UNIT_TEST_SUITE(YdbSdkSessionsPool) {
     }
 
     void TestWaitQueue(NYdb::NTable::TTableClient& client, ui32 activeSessionsLimit) {
-        std::vector<NThreading::TFuture<NYdb::NTable::TCreateSessionResult>> sessionFutures;
-        std::vector<NYdb::NTable::TCreateSessionResult> sessions;
+        TVector<NThreading::TFuture<NYdb::NTable::TCreateSessionResult>> sessionFutures;
+        TVector<NYdb::NTable::TCreateSessionResult> sessions;
 
         // exhaust the pool
         for (ui32 i = 0; i < activeSessionsLimit; ++i) {
@@ -248,8 +248,8 @@ Y_UNIT_TEST_SUITE(YdbSdkSessionsPool) {
     }
 
     ui32 RunStressTestSync(ui32 n, ui32 activeSessionsLimit, NYdb::NTable::TTableClient& client) {
-        std::vector<NThreading::TFuture<NYdb::NTable::TCreateSessionResult>> sessionFutures;
-        std::vector<NYdb::NTable::TCreateSessionResult> sessions;
+        TVector<NThreading::TFuture<NYdb::NTable::TCreateSessionResult>> sessionFutures;
+        TVector<NYdb::NTable::TCreateSessionResult> sessions;
         std::mt19937 rng(0);
         ui32 successCount = 0;
 
@@ -338,7 +338,7 @@ Y_UNIT_TEST_SUITE(YdbSdkSessionsPool) {
         };
 
         IThreadFactory* pool = SystemThreadFactory();
-        std::vector<TAutoPtr<IThreadFactory::IThread>> threads;
+        TVector<TAutoPtr<IThreadFactory::IThread>> threads;
         threads.resize(nThreads);
         for (ui32 i = 0; i < nThreads; i++) {
             threads[i] = pool->Run(job);
@@ -379,8 +379,8 @@ Y_UNIT_TEST_SUITE(YdbSdkSessionsPool) {
     }
 
     void TestPeriodicTask(ui32 activeSessionsLimit, NYdb::NTable::TTableClient& client) {
-        std::vector<NThreading::TFuture<NYdb::NTable::TCreateSessionResult>> sessionFutures;
-        std::vector<NYdb::NTable::TCreateSessionResult> sessions;
+        TVector<NThreading::TFuture<NYdb::NTable::TCreateSessionResult>> sessionFutures;
+        TVector<NYdb::NTable::TCreateSessionResult> sessions;
 
         for (ui32 i = 0; i < activeSessionsLimit; ++i) {
             sessions.emplace_back(client.GetSession().ExtractValueSync());
