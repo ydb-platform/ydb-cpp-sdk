@@ -164,6 +164,10 @@ Y_UNIT_TEST_SUITE(YdbSdkSessions) {
         }
 
         UNIT_ASSERT_VALUES_EQUAL(client.GetActiveSessionCount(), 0);
+        auto session = client.GetSession().ExtractValueSync().GetSession();
+        session.ExecuteSchemeQuery(R"___(
+            DROP TABLE `/local/t`;
+        )___").ExtractValueSync();
         driver.Stop(true);
     }
 
