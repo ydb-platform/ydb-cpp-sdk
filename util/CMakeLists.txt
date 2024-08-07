@@ -38,48 +38,37 @@ if (YDB_SDK_TESTS)
       uptime_ut
   )
 
-  add_ydb_test(NAME util-digest-ut
-    SOURCES
-      digest/city_ut.cpp
-      digest/fnv_ut.cpp
-      digest/multi_ut.cpp
-      digest/murmur_ut.cpp
-      digest/sequence_ut.cpp
-    LINK_LIBRARIES
-      yutil
-      cpp-testing-unittest_main
-    LABELS
-      unit
+  add_ydb_util_tests(FOLDER digest
+    TESTS
+      city_ut
+      fnv_ut
+      multi_ut
+      murmur_ut
+      sequence_ut
   )
-  add_ydb_test(NAME util-folder-ut
-    SOURCES
-      folder/dirut_ut.cpp
-      folder/filelist_ut.cpp
-      folder/fts_ut.cpp
-      folder/iterator_ut.cpp
-      folder/path_ut.cpp
-      folder/pathsplit_ut.cpp
+
+  add_ydb_util_tests(FOLDER folder
+    TESTS
+      dirut_ut
+      filelist_ut
+      fts_ut
+      iterator_ut
+      path_ut
+      pathsplit_ut
     LINK_LIBRARIES
-      yutil
-      cpp-testing-unittest_main
       threading-future
-    LABELS
-      unit
   )
-  add_ydb_test(NAME util-network-ut
-    SOURCES
-      network/address_ut.cpp
-      network/endpoint_ut.cpp
-      network/ip_ut.cpp
-      network/poller_ut.cpp
-      network/sock_ut.cpp
-      network/socket_ut.cpp
+
+  add_ydb_util_tests(FOLDER network
+    TESTS
+      address_ut
+      endpoint_ut
+      ip_ut
+      poller_ut
+      sock_ut
+      socket_ut
     LINK_LIBRARIES
-      yutil
-      cpp-testing-unittest_main
       threading-future
-    LABELS
-      unit
   )
 endif()
 
