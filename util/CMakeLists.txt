@@ -249,9 +249,6 @@ if (YDB_SDK_TESTS)
       nice_ut
       pipe_ut
       platform_ut
-      # TODO: fix progname_ut
-      #       TProgramNameTest::TestIt
-      progname_ut
       rusage_ut
       rwlock_ut
       sanitizers_ut
@@ -280,6 +277,18 @@ if (YDB_SDK_TESTS)
       # unaligned_mem_ut
       user_ut
       yassert_ut
+  )
+
+  # This test checks if the executable file's name (the same name as the target)
+  # is either "util-system-ut" or slightly different variations
+  add_ydb_test(NAME util-system-ut
+    SOURCES
+      system/progname_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
   )
 
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
