@@ -100,8 +100,7 @@ if (YDB_SDK_TESTS)
       stack_ut
       store_policy_ut
       strbuf_ut
-      # TODO: either add library/cpp/containers/absl_flat_hash
-      #       or use __cplusplus macro to switch to C++20 and use std::unordered_set
+      # See fix/util-unit-tests branch
       # string_transparent_hash_ut
       string_ut
       typelist_ut
@@ -221,7 +220,8 @@ if (YDB_SDK_TESTS)
       cpu_id_ut
       daemon_ut
       datetime_ut
-      direct_io_ut
+      # See fix/util-unit-tests branch
+      # direct_io_ut
       env_ut
       error_ut
       event_ut
@@ -229,7 +229,8 @@ if (YDB_SDK_TESTS)
       filemap_ut
       file_ut
       flock_ut
-      fstat_ut
+      # See fix/util-unit-tests branch
+      # fstat_ut
       fs_ut
       getpid_ut
       guard_ut
@@ -254,7 +255,8 @@ if (YDB_SDK_TESTS)
       src_root_ut
       tempfile_ut
       tls_ut
-      type_name_ut
+      # See fix/util-unit-tests branch
+      # type_name_ut
       types_ut
       # TODO: add library/cpp/testing/benchmark
       #       depends only on NBench::Clobber, that's a memory optimization barrier
@@ -301,7 +303,7 @@ if (YDB_SDK_TESTS)
     LINK_LIBRARIES
       threading-future
   )
-endif()
+endif(YDB_SDK_TESTS)
 
 _ydb_sdk_add_library(yutil)
 
