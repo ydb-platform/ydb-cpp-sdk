@@ -91,8 +91,7 @@ if (YDB_SDK_TESTS)
       stack_ut.cpp
       store_policy_ut.cpp
       strbuf_ut.cpp
-      # See fix/util-unit-tests branch
-      # string_transparent_hash_ut.cpp
+      string_transparent_hash_ut.cpp
       string_ut.cpp
       typelist_ut.cpp
       typetraits_ut.cpp
@@ -162,8 +161,7 @@ if (YDB_SDK_TESTS)
 
   add_ydb_multiple_tests(PREFIX util BASE_DIR random
     FILES
-      # See fix/util-unit-tests branch
-      # common_ops_ut.cpp
+      common_ops_ut.cpp
       easy_ut.cpp
       entropy_ut.cpp
       fast_ut.cpp
@@ -246,8 +244,7 @@ if (YDB_SDK_TESTS)
       cpu_id_ut.cpp
       daemon_ut.cpp
       datetime_ut.cpp
-      # See fix/util-unit-tests branch
-      # direct_io_ut.cpp
+      direct_io_ut.cpp
       env_ut.cpp
       error_ut.cpp
       event_ut.cpp
@@ -255,8 +252,7 @@ if (YDB_SDK_TESTS)
       filemap_ut.cpp
       file_ut.cpp
       flock_ut.cpp
-      # See fix/util-unit-tests branch
-      # fstat_ut.cpp
+      fstat_ut.cpp
       fs_ut.cpp
       getpid_ut.cpp
       guard_ut.cpp
@@ -281,8 +277,7 @@ if (YDB_SDK_TESTS)
       src_root_ut.cpp
       tempfile_ut.cpp
       tls_ut.cpp
-      # See fix/util-unit-tests branch
-      # type_name_ut.cpp
+      type_name_ut.cpp
       types_ut.cpp
       # TODO: add library/cpp/testing/benchmark
       #       depends only on NBench::Clobber, that's a memory optimization barrier
