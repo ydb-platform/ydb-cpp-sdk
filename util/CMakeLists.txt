@@ -207,6 +207,93 @@ if (YDB_SDK_TESTS)
       util_ut
       vector_ut
   )
+
+  add_ydb_util_tests(FOLDER system
+    TESTS
+      align_ut
+      atexit_ut
+      backtrace_ut
+      byteorder_ut
+      compat_ut
+      compiler_ut
+      condvar_ut
+      context_ut
+      cpu_id_ut
+      daemon_ut
+      datetime_ut
+      # TODO: direct_io_ut freezes
+      direct_io_ut
+      env_ut
+      error_ut
+      event_ut
+      execpath_ut
+      filemap_ut
+      file_ut
+      flock_ut
+      # TODO: fix fstat_ut
+      #       TestFileStat::SymlinkToExistingFileTest
+      #       TestFileStat::SymlinkToNonExistingFileTest
+      #       TestFileStat::SymlinkToFileThatCantExistTest
+      fstat_ut
+      fs_ut
+      getpid_ut
+      guard_ut
+      hi_lo_ut
+      hostname_ut
+      info_ut
+      interrupt_signals_ut
+      mem_info_ut
+      mincore_ut
+      mktemp_ut
+      mutex_ut
+      nice_ut
+      pipe_ut
+      platform_ut
+      # TODO: fix progname_ut
+      #       TProgramNameTest::TestIt
+      progname_ut
+      rusage_ut
+      rwlock_ut
+      sanitizers_ut
+      shellcommand_ut
+      shmat_ut
+      spinlock_ut
+      # TODO: fix src_location_ut
+      #           TestLocation::Test1
+      src_location_ut
+      # TODO: fix src_root_ut
+      #           TestSourceRoot::TestStrip
+      src_root_ut
+      tempfile_ut
+      # TODO: fix thread_ut
+      #       TSysThreadTest::TestSetGetThreadNameInChildThread
+      thread_ut
+      tls_ut
+      # TODO: fix type_name_ut
+      #       TypeName::FromWellKnownTypes
+      #       TypeName::FromWellKnownValues
+      #       TypeName::FromWellKnownValues
+      type_name_ut
+      types_ut
+      # TODO: add library/cpp/testing/benchmark
+      #       depends only on NBench::Clobber, that's a memory optimization barrier
+      # unaligned_mem_ut
+      user_ut
+      yassert_ut
+  )
+
+  if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    add_ydb_test(NAME util-system-fs_win_ut
+      SOURCES
+        system/fs_win_ut.cpp
+      LINK_LIBRARIES
+        yutil
+        cpp-testing-unittest_main
+      LABELS
+        unit
+    )
+  endif()
+
 endif()
 
 _ydb_sdk_add_library(yutil)
