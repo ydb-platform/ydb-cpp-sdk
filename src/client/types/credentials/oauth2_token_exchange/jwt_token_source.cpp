@@ -8,6 +8,12 @@
 
 namespace NYdb {
 
+#ifdef YDB_SDK_USE_NEW_JWT
+    using TJwtCppStorage = std::vector<picojson::value>;
+#else
+    using TJwtCppStorage = std::set<std::string>;
+#endif
+
 static const std::string TOKEN_TYPE = "urn:ietf:params:oauth:token-type:jwt";
 
 class TJwtTokenSource: public ITokenSource {
@@ -61,7 +67,7 @@ public:
         if (Params.Audience_.size() == 1) {
             tokenBuilder.set_audience(Params.Audience_[0]);
         } else if (Params.Audience_.size() > 1) {
-            std::vector<picojson::value> aud(Params.Audience_.begin(), Params.Audience_.end());
+            TJwtCppStorage aud(Params.Audience_.begin(), Params.Audience_.end());
             tokenBuilder.set_audience(aud);
         }
 
