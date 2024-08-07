@@ -141,6 +141,19 @@ if (YDB_SDK_TESTS)
       tempbuf_ut
   )
 
+  add_ydb_util_tests(FOLDER random
+    TESTS
+      # TODO: fix common_ops_ut: TestStlCompatibility
+      common_ops_ut
+      easy_ut
+      entropy_ut
+      fast_ut
+      mersenne_ut
+      normal_ut
+      random_ut
+      shuffle_ut
+  )
+
   add_ydb_util_tests(FOLDER network
     TESTS
       address_ut
