@@ -141,6 +141,18 @@ if (YDB_SDK_TESTS)
       tempbuf_ut
   )
 
+  add_ydb_util_tests(FOLDER network
+    TESTS
+      address_ut
+      endpoint_ut
+      ip_ut
+      poller_ut
+      sock_ut
+      socket_ut
+    LINK_LIBRARIES
+      threading-future
+  )
+
   add_ydb_util_tests(FOLDER random
     TESTS
       # TODO: fix common_ops_ut: TestStlCompatibility
@@ -154,16 +166,28 @@ if (YDB_SDK_TESTS)
       shuffle_ut
   )
 
-  add_ydb_util_tests(FOLDER network
+  add_ydb_util_tests(FOLDER stream
     TESTS
-      address_ut
-      endpoint_ut
-      ip_ut
-      poller_ut
-      sock_ut
-      socket_ut
-    LINK_LIBRARIES
-      threading-future
+      aligned_ut
+      buffered_ut
+      buffer_ut
+      direct_io_ut
+      file_ut
+      format_std_ut
+      format_ut
+      hex_ut
+      input_ut
+      ios_ut
+      labeled_ut
+      length_ut
+      mem_ut
+      multi_ut
+      printf_ut
+      str_ut
+      tokenizer_ut
+      walk_ut
+      zerocopy_output_ut
+      zlib_ut
   )
 endif()
 
