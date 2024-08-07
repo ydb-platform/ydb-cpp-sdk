@@ -46,6 +46,7 @@ TString TypeName(const std::type_info& typeInfo) {
     TString demangled = CppDemangle(typeInfo.name()); // NOLINT(arcadia-typeid-name-restriction)
 #if defined(_linux_) || defined(_darwin_)
     SubstGlobal(demangled, STD_ABI_PREFIX, STD_PREFIX);
+    SubstGlobal(demangled, " >", ">");
 #endif
     return demangled;
 }
@@ -54,6 +55,7 @@ TString TypeName(const std::type_index& typeIndex) {
     TString demangled = CppDemangle(typeIndex.name());
 #if defined(_linux_) || defined(_darwin_)
     SubstGlobal(demangled, STD_ABI_PREFIX, STD_PREFIX);
+    SubstGlobal(demangled, " >", ">");
 #endif
     return demangled;
 }
