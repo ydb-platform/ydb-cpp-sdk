@@ -13,6 +13,10 @@ target_link_libraries(client-ydb_types-credentials-oauth2 PUBLIC
   client-ydb_types
 )
 
+target_compile_definitions(client-ydb_types-credentials-oauth2 PUBLIC
+  YDB_SDK_USE_NEW_JWT
+)
+
 target_sources(client-ydb_types-credentials-oauth2 PRIVATE
   credentials.cpp
   jwt_token_source.cpp
