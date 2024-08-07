@@ -59,6 +59,79 @@ if (YDB_SDK_TESTS)
       threading-future
   )
 
+  add_ydb_util_tests(FOLDER generic
+    TESTS
+      adaptor_ut
+      algorithm_ut
+      array_ref_ut
+      array_size_ut
+      bitmap_ut
+      bitops_ut
+      buffer_ut
+      cast_ut
+      deque_ut
+      enum_range_ut
+      explicit_type_ut
+      flags_ut
+      function_ref_ut
+      function_ut
+      guid_ut
+      hash_primes_ut
+      hash_ut
+      intrlist_ut
+      is_in_ut
+      iterator_range_ut
+      iterator_ut
+      lazy_value_ut
+      list_ut
+      mapfindptr_ut
+      map_ut
+      maybe_ut
+      mem_copy_ut
+      objects_counter_ut
+      overloaded_ut
+      ptr_ut
+      queue_ut
+      scope_ut
+      serialized_enum_ut
+      set_ut
+      singleton_ut
+      size_literals_ut
+      stack_ut
+      store_policy_ut
+      strbuf_ut
+      # TODO: either add library/cpp/containers/absl_flat_hash
+      #       or use __cplusplus macro to switch to C++20 and use std::unordered_set
+      # string_transparent_hash_ut
+      string_ut
+      typelist_ut
+      typetraits_ut
+      utility_ut
+      va_args_ut
+      vector_ut
+      xrange_ut
+      ylimits_ut
+      ymath_ut
+  )
+
+  add_ydb_test(NAME util-generic-yexception_ut
+    SOURCES
+      generic/yexception_ut.c
+      generic/yexception_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+  if (CMAKE_SYSTEM_NAME MATCHES "^(Linux|Darwin)$")
+    target_compile_definitions(util-generic-yexception_ut
+      PRIVATE
+        LIBCXX_BUILDING_LIBCXXRT
+        LIBCXX_BUILDING_LIBGCC
+    )
+  endif()
+
   add_ydb_util_tests(FOLDER network
     TESTS
       address_ut
