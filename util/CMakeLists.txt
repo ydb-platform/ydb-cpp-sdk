@@ -221,8 +221,6 @@ if (YDB_SDK_TESTS)
       cpu_id_ut
       daemon_ut
       datetime_ut
-      # TODO: fix direct_io_ut
-      #       TDirectIoErrorHandling::Constructor: did not throw any exception (expected TFileError)
       direct_io_ut
       env_ut
       error_ut
@@ -231,10 +229,6 @@ if (YDB_SDK_TESTS)
       filemap_ut
       file_ut
       flock_ut
-      # TODO: fix fstat_ut
-      #       TestFileStat::SymlinkToExistingFileTest
-      #       TestFileStat::SymlinkToNonExistingFileTest
-      #       TestFileStat::SymlinkToFileThatCantExistTest
       fstat_ut
       fs_ut
       getpid_ut
@@ -259,14 +253,7 @@ if (YDB_SDK_TESTS)
       src_location_ut
       src_root_ut
       tempfile_ut
-      # TODO: fix thread_ut
-      #       TSysThreadTest::TestSetGetThreadNameInChildThread
-      thread_ut
       tls_ut
-      # TODO: fix type_name_ut
-      #       TypeName::FromWellKnownTypes
-      #       TypeName::FromArcadiaTypes
-      #       TypeName::FromWellKnownValues
       type_name_ut
       types_ut
       # TODO: add library/cpp/testing/benchmark
@@ -277,10 +264,14 @@ if (YDB_SDK_TESTS)
   )
 
   # This test checks if the executable file's name (the same name as the target)
-  # is either "util-system-ut" or slightly different variations
+  # is either "util-system-ut" or slightly different variations.
+  # It also compares the executable file's name and the current thread name,
+  # whose length can't be more than 16 bytes in Linux, so "util-system-ut" is
+  # a suitable name.
   add_ydb_test(NAME util-system-ut
     SOURCES
       system/progname_ut.cpp
+      system/thread_ut.cpp
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
