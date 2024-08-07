@@ -189,6 +189,24 @@ if (YDB_SDK_TESTS)
       zerocopy_output_ut
       zlib_ut
   )
+
+  add_ydb_util_tests(FOLDER string
+    TESTS
+      ascii_ut
+      builder_ut
+      cast_ut
+      escape_ut
+      hex_ut
+      join_ut
+      printf_ut
+      split_ut
+      strip_ut
+      strspn_ut
+      subst_ut
+      type_ut
+      util_ut
+      vector_ut
+  )
 endif()
 
 _ydb_sdk_add_library(yutil)
