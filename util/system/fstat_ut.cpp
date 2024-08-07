@@ -105,6 +105,7 @@ Y_UNIT_TEST_SUITE(TestFileStat) {
 #endif
 
     Y_UNIT_TEST(SymlinkToExistingFileTest) {
+        NFs::MakeDirectory(GetOutputPath());
         const auto path = GetOutputPath() / "file_1";
         const auto link = GetOutputPath() / "symlink_1";
         TFile(path, EOpenModeFlag::CreateNew | EOpenModeFlag::RdWr);
