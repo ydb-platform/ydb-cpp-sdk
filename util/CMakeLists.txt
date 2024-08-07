@@ -221,7 +221,8 @@ if (YDB_SDK_TESTS)
       cpu_id_ut
       daemon_ut
       datetime_ut
-      # TODO: direct_io_ut freezes
+      # TODO: fix direct_io_ut
+      #       TDirectIoErrorHandling::Constructor: did not throw any exception (expected TFileError)
       direct_io_ut
       env_ut
       error_ut
@@ -255,11 +256,7 @@ if (YDB_SDK_TESTS)
       shellcommand_ut
       shmat_ut
       spinlock_ut
-      # TODO: fix src_location_ut
-      #           TestLocation::Test1
       src_location_ut
-      # TODO: fix src_root_ut
-      #           TestSourceRoot::TestStrip
       src_root_ut
       tempfile_ut
       # TODO: fix thread_ut
@@ -268,7 +265,7 @@ if (YDB_SDK_TESTS)
       tls_ut
       # TODO: fix type_name_ut
       #       TypeName::FromWellKnownTypes
-      #       TypeName::FromWellKnownValues
+      #       TypeName::FromArcadiaTypes
       #       TypeName::FromWellKnownValues
       type_name_ut
       types_ut
@@ -674,9 +671,10 @@ elseif (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   )
 endif()
 
+# These definitions are needed to `util/system/src_root.h` works properly
 target_compile_definitions(yutil PUBLIC
-  ARCADIA_ROOT_CMAKE_HELPER=${YDB_SDK_SOURCE_DIR}
-  ARCADIA_BUILD_ROOT_CMAKE_HELPER=${YDB_SDK_BINARY_DIR}
+  ARCADIA_ROOT=${YDB_SDK_SOURCE_DIR}
+  ARCADIA_BUILD_ROOT=${YDB_SDK_BINARY_DIR}
 )
 
 _ydb_sdk_install_targets(TARGETS yutil)
