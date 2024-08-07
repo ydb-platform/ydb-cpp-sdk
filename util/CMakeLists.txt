@@ -294,6 +294,16 @@ if (YDB_SDK_TESTS)
     )
   endif()
 
+  add_ydb_util_tests(FOLDER thread
+    TESTS
+      factory_ut
+      lfqueue_ut
+      lfstack_ut
+      pool_ut
+      singleton_ut
+    LINK_LIBRARIES
+      threading-future
+  )
 endif()
 
 _ydb_sdk_add_library(yutil)
