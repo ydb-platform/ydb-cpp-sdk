@@ -132,6 +132,15 @@ if (YDB_SDK_TESTS)
     )
   endif()
 
+  add_ydb_util_tests(FOLDER memory
+    TESTS
+      addstorage_ut
+      blob_ut
+      pool_ut
+      smallobj_ut
+      tempbuf_ut
+  )
+
   add_ydb_util_tests(FOLDER network
     TESTS
       address_ut
