@@ -1,116 +1,113 @@
 add_subdirectory(charset)
 add_subdirectory(draft)
 
-function(add_ydb_util_tests)
-  set(opts "")
-  set(oneval_args FOLDER)
-  set(multival_args TESTS LINK_LIBRARIES)
-  cmake_parse_arguments(ARGS
-    "${opts}"
-    "${oneval_args}"
-    "${multival_args}"
-    ${ARGN}
-  )
-  list(PREPEND ARGS_LINK_LIBRARIES
-    yutil
-    cpp-testing-unittest_main
-  )
-  foreach (__test_name_suffix IN LISTS ARGS_TESTS)
-    add_ydb_test(NAME "util-${ARGS_FOLDER}-${__test_name_suffix}"
-      SOURCES
-        "${ARGS_FOLDER}/${__test_name_suffix}.cpp"
-      LINK_LIBRARIES
-        ${ARGS_LINK_LIBRARIES}
-      LABELS
-        unit
-    )
-  endforeach()
-endfunction()
-
 if (YDB_SDK_TESTS)
-  add_ydb_util_tests(FOLDER datetime
-    TESTS
-      base_ut
-      cputimer_ut
-      parser_deprecated_ut
-      parser_ut
-      process_uptime_ut
-      uptime_ut
-  )
-
-  add_ydb_util_tests(FOLDER digest
-    TESTS
-      city_ut
-      fnv_ut
-      multi_ut
-      murmur_ut
-      sequence_ut
-  )
-
-  add_ydb_util_tests(FOLDER folder
-    TESTS
-      dirut_ut
-      filelist_ut
-      fts_ut
-      iterator_ut
-      path_ut
-      pathsplit_ut
+  add_ydb_multiple_tests(PREFIX util BASE_DIR datetime
+    FILES
+      base_ut.cpp
+      cputimer_ut.cpp
+      parser_deprecated_ut.cpp
+      parser_ut.cpp
+      process_uptime_ut.cpp
+      uptime_ut.cpp
+    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
-      threading-future
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
   )
 
-  add_ydb_util_tests(FOLDER generic
-    TESTS
-      adaptor_ut
-      algorithm_ut
-      array_ref_ut
-      array_size_ut
-      bitmap_ut
-      bitops_ut
-      buffer_ut
-      cast_ut
-      deque_ut
-      enum_range_ut
-      explicit_type_ut
-      flags_ut
-      function_ref_ut
-      function_ut
-      guid_ut
-      hash_primes_ut
-      hash_ut
-      intrlist_ut
-      is_in_ut
-      iterator_range_ut
-      iterator_ut
-      lazy_value_ut
-      list_ut
-      mapfindptr_ut
-      map_ut
-      maybe_ut
-      mem_copy_ut
-      objects_counter_ut
-      overloaded_ut
-      ptr_ut
-      queue_ut
-      scope_ut
-      serialized_enum_ut
-      set_ut
-      singleton_ut
-      size_literals_ut
-      stack_ut
-      store_policy_ut
-      strbuf_ut
+  add_ydb_multiple_tests(PREFIX util BASE_DIR digest
+    FILES
+      city_ut.cpp
+      fnv_ut.cpp
+      multi_ut.cpp
+      murmur_ut.cpp
+      sequence_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR folder
+    FILES
+      dirut_ut.cpp
+      filelist_ut.cpp
+      fts_ut.cpp
+      iterator_ut.cpp
+      path_ut.cpp
+      pathsplit_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+      threading-future
+    LABELS
+      unit
+  )
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR generic
+    FILES
+      adaptor_ut.cpp
+      algorithm_ut.cpp
+      array_ref_ut.cpp
+      array_size_ut.cpp
+      bitmap_ut.cpp
+      bitops_ut.cpp
+      buffer_ut.cpp
+      cast_ut.cpp
+      deque_ut.cpp
+      enum_range_ut.cpp
+      explicit_type_ut.cpp
+      flags_ut.cpp
+      function_ref_ut.cpp
+      function_ut.cpp
+      guid_ut.cpp
+      hash_primes_ut.cpp
+      hash_ut.cpp
+      intrlist_ut.cpp
+      is_in_ut.cpp
+      iterator_range_ut.cpp
+      iterator_ut.cpp
+      lazy_value_ut.cpp
+      list_ut.cpp
+      mapfindptr_ut.cpp
+      map_ut.cpp
+      maybe_ut.cpp
+      mem_copy_ut.cpp
+      objects_counter_ut.cpp
+      overloaded_ut.cpp
+      ptr_ut.cpp
+      queue_ut.cpp
+      scope_ut.cpp
+      serialized_enum_ut.cpp
+      set_ut.cpp
+      singleton_ut.cpp
+      size_literals_ut.cpp
+      stack_ut.cpp
+      store_policy_ut.cpp
+      strbuf_ut.cpp
       # See fix/util-unit-tests branch
-      # string_transparent_hash_ut
-      string_ut
-      typelist_ut
-      typetraits_ut
-      utility_ut
-      va_args_ut
-      vector_ut
-      xrange_ut
-      ylimits_ut
-      ymath_ut
+      # string_transparent_hash_ut.cpp
+      string_ut.cpp
+      typelist_ut.cpp
+      typetraits_ut.cpp
+      utility_ut.cpp
+      va_args_ut.cpp
+      vector_ut.cpp
+      xrange_ut.cpp
+      ylimits_ut.cpp
+      ymath_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
   )
 
   add_ydb_test(NAME util-generic-yexception_ut
@@ -131,138 +128,173 @@ if (YDB_SDK_TESTS)
     )
   endif()
 
-  add_ydb_util_tests(FOLDER memory
-    TESTS
-      addstorage_ut
-      blob_ut
-      pool_ut
-      smallobj_ut
-      tempbuf_ut
-  )
-
-  add_ydb_util_tests(FOLDER network
-    TESTS
-      address_ut
-      endpoint_ut
-      ip_ut
-      poller_ut
-      sock_ut
-      socket_ut
+  add_ydb_multiple_tests(PREFIX util BASE_DIR memory
+    FILES
+      addstorage_ut.cpp
+      blob_ut.cpp
+      pool_ut.cpp
+      smallobj_ut.cpp
+      tempbuf_ut.cpp
+    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR network
+    FILES
+      address_ut.cpp
+      endpoint_ut.cpp
+      ip_ut.cpp
+      poller_ut.cpp
+      sock_ut.cpp
+      socket_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
       threading-future
+    LABELS
+      unit
   )
 
-  add_ydb_util_tests(FOLDER random
-    TESTS
-      # TODO: fix common_ops_ut: TestStlCompatibility
-      common_ops_ut
-      easy_ut
-      entropy_ut
-      fast_ut
-      mersenne_ut
-      normal_ut
-      random_ut
-      shuffle_ut
-  )
-
-  add_ydb_util_tests(FOLDER stream
-    TESTS
-      aligned_ut
-      buffered_ut
-      buffer_ut
-      direct_io_ut
-      file_ut
-      format_std_ut
-      format_ut
-      hex_ut
-      input_ut
-      ios_ut
-      labeled_ut
-      length_ut
-      mem_ut
-      multi_ut
-      printf_ut
-      str_ut
-      tokenizer_ut
-      walk_ut
-      zerocopy_output_ut
-      zlib_ut
-  )
-
-  add_ydb_util_tests(FOLDER string
-    TESTS
-      ascii_ut
-      builder_ut
-      cast_ut
-      escape_ut
-      hex_ut
-      join_ut
-      printf_ut
-      split_ut
-      strip_ut
-      strspn_ut
-      subst_ut
-      type_ut
-      util_ut
-      vector_ut
-  )
-
-  add_ydb_util_tests(FOLDER system
-    TESTS
-      align_ut
-      atexit_ut
-      backtrace_ut
-      byteorder_ut
-      compat_ut
-      compiler_ut
-      condvar_ut
-      context_ut
-      cpu_id_ut
-      daemon_ut
-      datetime_ut
+  add_ydb_multiple_tests(PREFIX util BASE_DIR random
+    FILES
       # See fix/util-unit-tests branch
-      # direct_io_ut
-      env_ut
-      error_ut
-      event_ut
-      execpath_ut
-      filemap_ut
-      file_ut
-      flock_ut
+      # common_ops_ut.cpp
+      easy_ut.cpp
+      entropy_ut.cpp
+      fast_ut.cpp
+      mersenne_ut.cpp
+      normal_ut.cpp
+      random_ut.cpp
+      shuffle_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR stream
+    FILES
+      aligned_ut.cpp
+      buffered_ut.cpp
+      buffer_ut.cpp
+      direct_io_ut.cpp
+      file_ut.cpp
+      format_std_ut.cpp
+      format_ut.cpp
+      hex_ut.cpp
+      input_ut.cpp
+      ios_ut.cpp
+      labeled_ut.cpp
+      length_ut.cpp
+      mem_ut.cpp
+      multi_ut.cpp
+      printf_ut.cpp
+      str_ut.cpp
+      tokenizer_ut.cpp
+      walk_ut.cpp
+      zerocopy_output_ut.cpp
+      zlib_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR string
+    FILES
+      ascii_ut.cpp
+      builder_ut.cpp
+      cast_ut.cpp
+      escape_ut.cpp
+      hex_ut.cpp
+      join_ut.cpp
+      printf_ut.cpp
+      split_ut.cpp
+      strip_ut.cpp
+      strspn_ut.cpp
+      subst_ut.cpp
+      type_ut.cpp
+      util_ut.cpp
+      vector_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR system
+    FILES
+      align_ut.cpp
+      atexit_ut.cpp
+      backtrace_ut.cpp
+      byteorder_ut.cpp
+      compat_ut.cpp
+      compiler_ut.cpp
+      condvar_ut.cpp
+      context_ut.cpp
+      cpu_id_ut.cpp
+      daemon_ut.cpp
+      datetime_ut.cpp
       # See fix/util-unit-tests branch
-      # fstat_ut
-      fs_ut
-      getpid_ut
-      guard_ut
-      hi_lo_ut
-      hostname_ut
-      info_ut
-      interrupt_signals_ut
-      mem_info_ut
-      mincore_ut
-      mktemp_ut
-      mutex_ut
-      nice_ut
-      pipe_ut
-      platform_ut
-      rusage_ut
-      rwlock_ut
-      sanitizers_ut
-      shellcommand_ut
-      shmat_ut
-      spinlock_ut
-      src_location_ut
-      src_root_ut
-      tempfile_ut
-      tls_ut
+      # direct_io_ut.cpp
+      env_ut.cpp
+      error_ut.cpp
+      event_ut.cpp
+      execpath_ut.cpp
+      filemap_ut.cpp
+      file_ut.cpp
+      flock_ut.cpp
       # See fix/util-unit-tests branch
-      # type_name_ut
-      types_ut
+      # fstat_ut.cpp
+      fs_ut.cpp
+      getpid_ut.cpp
+      guard_ut.cpp
+      hi_lo_ut.cpp
+      hostname_ut.cpp
+      info_ut.cpp
+      interrupt_signals_ut.cpp
+      mem_info_ut.cpp
+      mincore_ut.cpp
+      mktemp_ut.cpp
+      mutex_ut.cpp
+      nice_ut.cpp
+      pipe_ut.cpp
+      platform_ut.cpp
+      rusage_ut.cpp
+      rwlock_ut.cpp
+      sanitizers_ut.cpp
+      shellcommand_ut.cpp
+      shmat_ut.cpp
+      spinlock_ut.cpp
+      src_location_ut.cpp
+      src_root_ut.cpp
+      tempfile_ut.cpp
+      tls_ut.cpp
+      # See fix/util-unit-tests branch
+      # type_name_ut.cpp
+      types_ut.cpp
       # TODO: add library/cpp/testing/benchmark
       #       depends only on NBench::Clobber, that's a memory optimization barrier
-      # unaligned_mem_ut
-      user_ut
-      yassert_ut
+      # unaligned_mem_ut.cpp
+      user_ut.cpp
+      yassert_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
   )
 
   # This test checks if the executable file's name (the same name as the target)
@@ -293,15 +325,20 @@ if (YDB_SDK_TESTS)
     )
   endif()
 
-  add_ydb_util_tests(FOLDER thread
-    TESTS
-      factory_ut
-      lfqueue_ut
-      lfstack_ut
-      pool_ut
-      singleton_ut
+  add_ydb_multiple_tests(PREFIX util BASE_DIR thread
+    FILES
+      factory_ut.cpp
+      lfqueue_ut.cpp
+      lfstack_ut.cpp
+      pool_ut.cpp
+      singleton_ut.cpp
+    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
       threading-future
+    LABELS
+      unit
   )
 endif(YDB_SDK_TESTS)
 

@@ -150,3 +150,71 @@ function(add_ydb_test)
 
   vcs_info(${YDB_TEST_NAME})
 endfunction()
+
+#[=============================================================================[
+  This wrapper over `add_ydb_test` adds a separate test for each test file in
+  FILES list. Mandatory PREFIX will prepend the test name. All the test files
+  must have either an absolute or relative path. If test files have a relative
+  path, their paths will be prepended by BASE_DIR, and then, if BASE_DIR is not
+  empty, BASE_DIR will also prepend the test name after PREFIX. If BASE_DIR is
+  empty then the current source directory is used instead. All other parameters
+  of `add_ydb_test` except NAME and SOURCES are passed after ADD_YDB_TEST_ARGS
+  keyword.
+#]=============================================================================]
+function(add_ydb_multiple_tests)
+  set(opts "")
+  set(oneval_args PREFIX BASE_DIR)
+  set(multival_args FILES ADD_YDB_TEST_ARGS)
+  cmake_parse_arguments(ARGS
+    "${opts}"
+    "${oneval_args}"
+    "${multival_args}"
+    ${ARGN}
+  )
+
+  if (NOT ARGS_PREFIX)
+    message(FATAL_ERROR "Missing the PREFIX parameter.")
+  endif()
+
+  if (NOT ARGS_FILES)
+    message(FATAL_ERROR "Missing the FILES list.")
+  endif()
+
+  set(test_prefix "${ARGS_PREFIX}")
+
+  if (NOT ARGS_BASE_DIR)
+    set(ARGS_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+  else()
+    set(test_prefix "${test_prefix}-${ARGS_BASE_DIR}")
+  endif()
+
+  list(GET ARGS_FILES 0 firts_file_path)
+  if (IS_ABSOLUTE "${firts_file_path}")
+    set(file_path_is_absolute TRUE)
+  else()
+    set(file_path_is_absolute FALSE)
+  endif()
+
+  foreach (test_path IN LISTS ARGS_FILES)
+    get_filename_component(test_suffix "${test_path}" NAME_WLE)
+
+    if (NOT IS_ABSOLUTE "${test_path}")
+      if (file_path_is_absolute)
+        set(file_path_kind_error TRUE)
+      endif()
+      set(test_path "${ARGS_BASE_DIR}/${test_path}")
+    elseif (NOT file_path_is_absolute)
+      set(file_path_kind_error TRUE)
+    endif()
+
+    if (file_path_kind_error)
+      message(FATAL_ERROR "All paths of test files must be either relative or absolute.")
+    endif()
+
+    add_ydb_test(NAME "${test_prefix}-${test_suffix}"
+      SOURCES
+        "${test_path}"
+      ${ARGS_ADD_YDB_TEST_ARGS}
+    )
+  endforeach()
+endfunction()
