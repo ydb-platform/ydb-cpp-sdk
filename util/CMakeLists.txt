@@ -2,27 +2,46 @@ add_subdirectory(charset)
 add_subdirectory(draft)
 
 if (YDB_SDK_TESTS)
-  add_ydb_test(NAME util-digest-ut
-    SOURCES
-      digest/city_ut.cpp
-      digest/fnv_ut.cpp
-      digest/multi_ut.cpp
-      digest/murmur_ut.cpp
-      digest/sequence_ut.cpp
+  add_ydb_multiple_tests(PREFIX util BASE_DIR datetime
+    FILES
+      base_ut.cpp
+      cputimer_ut.cpp
+      parser_deprecated_ut.cpp
+      parser_ut.cpp
+      process_uptime_ut.cpp
+      uptime_ut.cpp
+    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
     LABELS
       unit
   )
-  add_ydb_test(NAME util-folder-ut
-    SOURCES
-      folder/dirut_ut.cpp
-      folder/filelist_ut.cpp
-      folder/fts_ut.cpp
-      folder/iterator_ut.cpp
-      folder/path_ut.cpp
-      folder/pathsplit_ut.cpp
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR digest
+    FILES
+      city_ut.cpp
+      fnv_ut.cpp
+      multi_ut.cpp
+      murmur_ut.cpp
+      sequence_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR folder
+    FILES
+      dirut_ut.cpp
+      filelist_ut.cpp
+      fts_ut.cpp
+      iterator_ut.cpp
+      path_ut.cpp
+      pathsplit_ut.cpp
+    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -30,14 +49,108 @@ if (YDB_SDK_TESTS)
     LABELS
       unit
   )
-  add_ydb_test(NAME util-network-ut
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR generic
+    FILES
+      adaptor_ut.cpp
+      algorithm_ut.cpp
+      array_ref_ut.cpp
+      array_size_ut.cpp
+      bitmap_ut.cpp
+      bitops_ut.cpp
+      buffer_ut.cpp
+      cast_ut.cpp
+      deque_ut.cpp
+      enum_range_ut.cpp
+      explicit_type_ut.cpp
+      flags_ut.cpp
+      function_ref_ut.cpp
+      function_ut.cpp
+      guid_ut.cpp
+      hash_primes_ut.cpp
+      hash_ut.cpp
+      intrlist_ut.cpp
+      is_in_ut.cpp
+      iterator_range_ut.cpp
+      iterator_ut.cpp
+      lazy_value_ut.cpp
+      list_ut.cpp
+      mapfindptr_ut.cpp
+      map_ut.cpp
+      maybe_ut.cpp
+      mem_copy_ut.cpp
+      objects_counter_ut.cpp
+      overloaded_ut.cpp
+      ptr_ut.cpp
+      queue_ut.cpp
+      scope_ut.cpp
+      serialized_enum_ut.cpp
+      set_ut.cpp
+      singleton_ut.cpp
+      size_literals_ut.cpp
+      stack_ut.cpp
+      store_policy_ut.cpp
+      strbuf_ut.cpp
+      string_transparent_hash_ut.cpp
+      string_ut.cpp
+      typelist_ut.cpp
+      typetraits_ut.cpp
+      utility_ut.cpp
+      va_args_ut.cpp
+      vector_ut.cpp
+      xrange_ut.cpp
+      ylimits_ut.cpp
+      ymath_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_test(NAME util-generic-yexception_ut
     SOURCES
-      network/address_ut.cpp
-      network/endpoint_ut.cpp
-      network/ip_ut.cpp
-      network/poller_ut.cpp
-      network/sock_ut.cpp
-      network/socket_ut.cpp
+      generic/yexception_ut.c
+      generic/yexception_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+  if (CMAKE_SYSTEM_NAME MATCHES "^(Linux|Darwin)$")
+    target_compile_definitions(util-generic-yexception_ut
+      PRIVATE
+        LIBCXX_BUILDING_LIBCXXRT
+        LIBCXX_BUILDING_LIBGCC
+    )
+  endif()
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR memory
+    FILES
+      addstorage_ut.cpp
+      blob_ut.cpp
+      pool_ut.cpp
+      smallobj_ut.cpp
+      tempbuf_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR network
+    FILES
+      address_ut.cpp
+      endpoint_ut.cpp
+      ip_ut.cpp
+      poller_ut.cpp
+      sock_ut.cpp
+      socket_ut.cpp
+    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -45,7 +158,184 @@ if (YDB_SDK_TESTS)
     LABELS
       unit
   )
-endif()
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR random
+    FILES
+      common_ops_ut.cpp
+      easy_ut.cpp
+      entropy_ut.cpp
+      fast_ut.cpp
+      mersenne_ut.cpp
+      normal_ut.cpp
+      random_ut.cpp
+      shuffle_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR stream
+    FILES
+      aligned_ut.cpp
+      buffered_ut.cpp
+      buffer_ut.cpp
+      direct_io_ut.cpp
+      file_ut.cpp
+      format_std_ut.cpp
+      format_ut.cpp
+      hex_ut.cpp
+      input_ut.cpp
+      ios_ut.cpp
+      labeled_ut.cpp
+      length_ut.cpp
+      mem_ut.cpp
+      multi_ut.cpp
+      printf_ut.cpp
+      str_ut.cpp
+      tokenizer_ut.cpp
+      walk_ut.cpp
+      zerocopy_output_ut.cpp
+      zlib_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR string
+    FILES
+      ascii_ut.cpp
+      builder_ut.cpp
+      cast_ut.cpp
+      escape_ut.cpp
+      hex_ut.cpp
+      join_ut.cpp
+      printf_ut.cpp
+      split_ut.cpp
+      strip_ut.cpp
+      strspn_ut.cpp
+      subst_ut.cpp
+      type_ut.cpp
+      util_ut.cpp
+      vector_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR system
+    FILES
+      align_ut.cpp
+      atexit_ut.cpp
+      backtrace_ut.cpp
+      byteorder_ut.cpp
+      compat_ut.cpp
+      compiler_ut.cpp
+      condvar_ut.cpp
+      context_ut.cpp
+      cpu_id_ut.cpp
+      daemon_ut.cpp
+      datetime_ut.cpp
+      direct_io_ut.cpp
+      env_ut.cpp
+      error_ut.cpp
+      event_ut.cpp
+      execpath_ut.cpp
+      filemap_ut.cpp
+      file_ut.cpp
+      flock_ut.cpp
+      fstat_ut.cpp
+      fs_ut.cpp
+      getpid_ut.cpp
+      guard_ut.cpp
+      hi_lo_ut.cpp
+      hostname_ut.cpp
+      info_ut.cpp
+      interrupt_signals_ut.cpp
+      mem_info_ut.cpp
+      mincore_ut.cpp
+      mktemp_ut.cpp
+      mutex_ut.cpp
+      nice_ut.cpp
+      pipe_ut.cpp
+      platform_ut.cpp
+      rusage_ut.cpp
+      rwlock_ut.cpp
+      sanitizers_ut.cpp
+      shellcommand_ut.cpp
+      shmat_ut.cpp
+      spinlock_ut.cpp
+      src_location_ut.cpp
+      src_root_ut.cpp
+      tempfile_ut.cpp
+      tls_ut.cpp
+      type_name_ut.cpp
+      types_ut.cpp
+      # TODO: add library/cpp/testing/benchmark
+      #       depends only on NBench::Clobber, that's a memory optimization barrier
+      # unaligned_mem_ut.cpp
+      user_ut.cpp
+      yassert_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  # This test checks if the executable file's name (the same name as the target)
+  # is either "util-system-ut" or slightly different variations.
+  # It also compares the executable file's name and the current thread name,
+  # whose length can't be more than 16 bytes in Linux, so "util-system-ut" is
+  # a suitable name.
+  add_ydb_test(NAME util-system-ut
+    SOURCES
+      system/progname_ut.cpp
+      system/thread_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    add_ydb_test(NAME util-system-fs_win_ut
+      SOURCES
+        system/fs_win_ut.cpp
+      LINK_LIBRARIES
+        yutil
+        cpp-testing-unittest_main
+      LABELS
+        unit
+    )
+  endif()
+
+  add_ydb_multiple_tests(PREFIX util BASE_DIR thread
+    FILES
+      factory_ut.cpp
+      lfqueue_ut.cpp
+      lfstack_ut.cpp
+      pool_ut.cpp
+      singleton_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+      threading-future
+    LABELS
+      unit
+  )
+endif(YDB_SDK_TESTS)
 
 _ydb_sdk_add_library(yutil)
 
@@ -70,6 +360,7 @@ target_joined_source(yutil
   ${YDB_SDK_SOURCE_DIR}/util/datetime/base.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/constants.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/cputimer.cpp
+  ${YDB_SDK_SOURCE_DIR}/util/datetime/process_uptime.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/systime.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/uptime.cpp
 )
@@ -405,9 +696,10 @@ elseif (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   )
 endif()
 
+# These definitions are needed to `util/system/src_root.h` works properly
 target_compile_definitions(yutil PUBLIC
-  ARCADIA_ROOT_CMAKE_HELPER=${YDB_SDK_SOURCE_DIR}
-  ARCADIA_BUILD_ROOT_CMAKE_HELPER=${YDB_SDK_BINARY_DIR}
+  ARCADIA_ROOT=${YDB_SDK_SOURCE_DIR}
+  ARCADIA_BUILD_ROOT=${YDB_SDK_BINARY_DIR}
 )
 
 _ydb_sdk_install_targets(TARGETS yutil)

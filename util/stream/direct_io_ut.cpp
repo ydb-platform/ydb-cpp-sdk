@@ -2,6 +2,7 @@
 
 #include <util/generic/string.h>
 #include <util/generic/array_size.h>
+#include <util/system/fs.h>
 
 #include "buffered.h"
 #include "direct_io.h"
@@ -54,6 +55,7 @@ Y_UNIT_TEST_SUITE(TDirectIOTests) {
         }
 
         UNIT_ASSERT_VALUES_EQUAL(bytesRead, numBufToWrite * BUFFER_SIZE);
+        NFs::Remove(fileName);
     }
 
     Y_UNIT_TEST(ReadWriteTest) {
