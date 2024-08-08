@@ -79,6 +79,9 @@
       },
       "execution": {
         "timeout": 1200
+      },
+      "environment": {
+        "YDB_ENDPOINT": "localhost:2136"
       }
     },
     {
