@@ -1,3 +1,25 @@
+if (YDB_SDK_TESTS)
+  add_ydb_test(NAME http-fetch-httpfsm_ut
+    SOURCES
+      httpfsm_ut.cpp
+    LINK_LIBRARIES
+      http-fetch
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_test(NAME http-fetch-httpparser_ut
+    SOURCES
+      httpparser_ut.cpp
+    LINK_LIBRARIES
+      http-fetch
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+endif(YDB_SDK_TESTS)
+
 _ydb_sdk_add_library(http-fetch)
 
 target_link_libraries(http-fetch
