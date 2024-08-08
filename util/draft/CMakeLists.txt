@@ -1,3 +1,19 @@
+if (YDB_SDK_TESTS)
+  add_ydb_multiple_tests(PREFIX util-draft
+    FILES
+      datetime_ut.cpp
+      date_ut.cpp
+      holder_vector_ut.cpp
+      memory_ut.cpp
+    ADD_YDB_TEST_ARGS
+    LINK_LIBRARIES
+      util-draft
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+endif(YDB_SDK_TESTS)
+
 _ydb_sdk_add_library(util-draft)
 
 target_sources(util-draft PRIVATE
