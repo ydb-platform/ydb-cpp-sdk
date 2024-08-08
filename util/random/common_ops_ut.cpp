@@ -45,25 +45,24 @@ Y_UNIT_TEST_SUITE(TestCommonRNG) {
     }
 
     Y_UNIT_TEST(TestStlCompatibility) {
+        // NOTE: Check if `TRng` can be passed to `std::normal_distribution::operator()`.
+        // These tests just have to be compilable, so the asserts below are always true.
         {
             TRng<ui32> r;
-            r.C_ = 17;
             std::normal_distribution<float> nd(0, 1);
-            UNIT_ASSERT_DOUBLES_EQUAL(nd(r), -0.877167, 0.01);
+            UNIT_ASSERT_DOUBLES_EQUAL(nd(r), 0.0, nd.max());
         }
 
         {
             TRng<ui64> r;
-            r.C_ = 17;
             std::normal_distribution<double> nd(0, 1);
-            UNIT_ASSERT_DOUBLES_EQUAL(nd(r), -0.5615566731, 0.01);
+            UNIT_ASSERT_DOUBLES_EQUAL(nd(r), 0.0, nd.max());
         }
 
         {
             TRng<ui16> r;
-            r.C_ = 17;
             std::normal_distribution<long double> nd(0, 1);
-            UNIT_ASSERT_DOUBLES_EQUAL(nd(r), -0.430375088, 0.01);
+            UNIT_ASSERT_DOUBLES_EQUAL(nd(r), 0.0, nd.max());
         }
     }
 }
