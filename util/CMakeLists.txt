@@ -1,49 +1,308 @@
 add_subdirectory(charset)
 add_subdirectory(draft)
 
+function(add_ydb_util_tests)
+  set(opts "")
+  set(oneval_args FOLDER)
+  set(multival_args TESTS LINK_LIBRARIES)
+  cmake_parse_arguments(ARGS
+    "${opts}"
+    "${oneval_args}"
+    "${multival_args}"
+    ${ARGN}
+  )
+  list(PREPEND ARGS_LINK_LIBRARIES
+    yutil
+    cpp-testing-unittest_main
+  )
+  foreach (__test_name_suffix IN LISTS ARGS_TESTS)
+    add_ydb_test(NAME "util-${ARGS_FOLDER}-${__test_name_suffix}"
+      SOURCES
+        "${ARGS_FOLDER}/${__test_name_suffix}.cpp"
+      LINK_LIBRARIES
+        ${ARGS_LINK_LIBRARIES}
+      LABELS
+        unit
+    )
+  endforeach()
+endfunction()
+
 if (YDB_SDK_TESTS)
-  add_ydb_test(NAME util-digest-ut
+  add_ydb_util_tests(FOLDER datetime
+    TESTS
+      base_ut
+      cputimer_ut
+      parser_deprecated_ut
+      parser_ut
+      process_uptime_ut
+      uptime_ut
+  )
+
+  add_ydb_util_tests(FOLDER digest
+    TESTS
+      city_ut
+      fnv_ut
+      multi_ut
+      murmur_ut
+      sequence_ut
+  )
+
+  add_ydb_util_tests(FOLDER folder
+    TESTS
+      dirut_ut
+      filelist_ut
+      fts_ut
+      iterator_ut
+      path_ut
+      pathsplit_ut
+    LINK_LIBRARIES
+      threading-future
+  )
+
+  add_ydb_util_tests(FOLDER generic
+    TESTS
+      adaptor_ut
+      algorithm_ut
+      array_ref_ut
+      array_size_ut
+      bitmap_ut
+      bitops_ut
+      buffer_ut
+      cast_ut
+      deque_ut
+      enum_range_ut
+      explicit_type_ut
+      flags_ut
+      function_ref_ut
+      function_ut
+      guid_ut
+      hash_primes_ut
+      hash_ut
+      intrlist_ut
+      is_in_ut
+      iterator_range_ut
+      iterator_ut
+      lazy_value_ut
+      list_ut
+      mapfindptr_ut
+      map_ut
+      maybe_ut
+      mem_copy_ut
+      objects_counter_ut
+      overloaded_ut
+      ptr_ut
+      queue_ut
+      scope_ut
+      serialized_enum_ut
+      set_ut
+      singleton_ut
+      size_literals_ut
+      stack_ut
+      store_policy_ut
+      strbuf_ut
+      # TODO: either add library/cpp/containers/absl_flat_hash
+      #       or use __cplusplus macro to switch to C++20 and use std::unordered_set
+      # string_transparent_hash_ut
+      string_ut
+      typelist_ut
+      typetraits_ut
+      utility_ut
+      va_args_ut
+      vector_ut
+      xrange_ut
+      ylimits_ut
+      ymath_ut
+  )
+
+  add_ydb_test(NAME util-generic-yexception_ut
     SOURCES
-      digest/city_ut.cpp
-      digest/fnv_ut.cpp
-      digest/multi_ut.cpp
-      digest/murmur_ut.cpp
-      digest/sequence_ut.cpp
+      generic/yexception_ut.c
+      generic/yexception_ut.cpp
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
     LABELS
       unit
   )
-  add_ydb_test(NAME util-folder-ut
-    SOURCES
-      folder/dirut_ut.cpp
-      folder/filelist_ut.cpp
-      folder/fts_ut.cpp
-      folder/iterator_ut.cpp
-      folder/path_ut.cpp
-      folder/pathsplit_ut.cpp
-    LINK_LIBRARIES
-      yutil
-      cpp-testing-unittest_main
-      threading-future
-    LABELS
-      unit
+  if (CMAKE_SYSTEM_NAME MATCHES "^(Linux|Darwin)$")
+    target_compile_definitions(util-generic-yexception_ut
+      PRIVATE
+        LIBCXX_BUILDING_LIBCXXRT
+        LIBCXX_BUILDING_LIBGCC
+    )
+  endif()
+
+  add_ydb_util_tests(FOLDER memory
+    TESTS
+      addstorage_ut
+      blob_ut
+      pool_ut
+      smallobj_ut
+      tempbuf_ut
   )
-  add_ydb_test(NAME util-network-ut
-    SOURCES
-      network/address_ut.cpp
-      network/endpoint_ut.cpp
-      network/ip_ut.cpp
-      network/poller_ut.cpp
-      network/sock_ut.cpp
-      network/socket_ut.cpp
+
+  add_ydb_util_tests(FOLDER network
+    TESTS
+      address_ut
+      endpoint_ut
+      ip_ut
+      poller_ut
+      sock_ut
+      socket_ut
     LINK_LIBRARIES
-      yutil
-      cpp-testing-unittest_main
       threading-future
-    LABELS
-      unit
+  )
+
+  add_ydb_util_tests(FOLDER random
+    TESTS
+      # TODO: fix common_ops_ut: TestStlCompatibility
+      common_ops_ut
+      easy_ut
+      entropy_ut
+      fast_ut
+      mersenne_ut
+      normal_ut
+      random_ut
+      shuffle_ut
+  )
+
+  add_ydb_util_tests(FOLDER stream
+    TESTS
+      aligned_ut
+      buffered_ut
+      buffer_ut
+      direct_io_ut
+      file_ut
+      format_std_ut
+      format_ut
+      hex_ut
+      input_ut
+      ios_ut
+      labeled_ut
+      length_ut
+      mem_ut
+      multi_ut
+      printf_ut
+      str_ut
+      tokenizer_ut
+      walk_ut
+      zerocopy_output_ut
+      zlib_ut
+  )
+
+  add_ydb_util_tests(FOLDER string
+    TESTS
+      ascii_ut
+      builder_ut
+      cast_ut
+      escape_ut
+      hex_ut
+      join_ut
+      printf_ut
+      split_ut
+      strip_ut
+      strspn_ut
+      subst_ut
+      type_ut
+      util_ut
+      vector_ut
+  )
+
+  add_ydb_util_tests(FOLDER system
+    TESTS
+      align_ut
+      atexit_ut
+      backtrace_ut
+      byteorder_ut
+      compat_ut
+      compiler_ut
+      condvar_ut
+      context_ut
+      cpu_id_ut
+      daemon_ut
+      datetime_ut
+      # TODO: direct_io_ut freezes
+      direct_io_ut
+      env_ut
+      error_ut
+      event_ut
+      execpath_ut
+      filemap_ut
+      file_ut
+      flock_ut
+      # TODO: fix fstat_ut
+      #       TestFileStat::SymlinkToExistingFileTest
+      #       TestFileStat::SymlinkToNonExistingFileTest
+      #       TestFileStat::SymlinkToFileThatCantExistTest
+      fstat_ut
+      fs_ut
+      getpid_ut
+      guard_ut
+      hi_lo_ut
+      hostname_ut
+      info_ut
+      interrupt_signals_ut
+      mem_info_ut
+      mincore_ut
+      mktemp_ut
+      mutex_ut
+      nice_ut
+      pipe_ut
+      platform_ut
+      # TODO: fix progname_ut
+      #       TProgramNameTest::TestIt
+      progname_ut
+      rusage_ut
+      rwlock_ut
+      sanitizers_ut
+      shellcommand_ut
+      shmat_ut
+      spinlock_ut
+      # TODO: fix src_location_ut
+      #           TestLocation::Test1
+      src_location_ut
+      # TODO: fix src_root_ut
+      #           TestSourceRoot::TestStrip
+      src_root_ut
+      tempfile_ut
+      # TODO: fix thread_ut
+      #       TSysThreadTest::TestSetGetThreadNameInChildThread
+      thread_ut
+      tls_ut
+      # TODO: fix type_name_ut
+      #       TypeName::FromWellKnownTypes
+      #       TypeName::FromWellKnownValues
+      #       TypeName::FromWellKnownValues
+      type_name_ut
+      types_ut
+      # TODO: add library/cpp/testing/benchmark
+      #       depends only on NBench::Clobber, that's a memory optimization barrier
+      # unaligned_mem_ut
+      user_ut
+      yassert_ut
+  )
+
+  if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    add_ydb_test(NAME util-system-fs_win_ut
+      SOURCES
+        system/fs_win_ut.cpp
+      LINK_LIBRARIES
+        yutil
+        cpp-testing-unittest_main
+      LABELS
+        unit
+    )
+  endif()
+
+  add_ydb_util_tests(FOLDER thread
+    TESTS
+      factory_ut
+      lfqueue_ut
+      lfstack_ut
+      pool_ut
+      singleton_ut
+    LINK_LIBRARIES
+      threading-future
   )
 endif()
 
@@ -70,6 +329,7 @@ target_joined_source(yutil
   ${YDB_SDK_SOURCE_DIR}/util/datetime/base.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/constants.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/cputimer.cpp
+  ${YDB_SDK_SOURCE_DIR}/util/datetime/process_uptime.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/systime.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/uptime.cpp
 )
