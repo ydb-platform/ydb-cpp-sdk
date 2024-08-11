@@ -1,6 +1,7 @@
 #include <library/cpp/iterator/iterate_values.h>
 
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <util/generic/algorithm.h>
 

@@ -1,4 +1,5 @@
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <library/cpp/yt/memory/new.h>
 #include <library/cpp/yt/memory/weak_ptr.h>

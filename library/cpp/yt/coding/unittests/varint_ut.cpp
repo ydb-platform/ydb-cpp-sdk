@@ -1,8 +1,10 @@
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <library/cpp/yt/coding/varint.h>
 
 #include <util/random/random.h>
+
+#include <util/stream/str.h>
 
 #include <util/string/escape.h>
 

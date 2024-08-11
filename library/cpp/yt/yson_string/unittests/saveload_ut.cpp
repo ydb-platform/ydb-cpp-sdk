@@ -1,6 +1,4 @@
-#include <library/cpp/testing/gtest/gtest.h>
-
-#include <library/cpp/testing/gtest_extensions/assertions.h>
+#include <gtest/gtest.h>
 
 #include <library/cpp/yt/yson_string/string.h>
 

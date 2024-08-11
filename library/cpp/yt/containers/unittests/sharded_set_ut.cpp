@@ -1,6 +1,6 @@
 #include <library/cpp/yt/containers/sharded_set.h>
 
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <random>
 

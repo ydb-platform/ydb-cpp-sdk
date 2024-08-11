@@ -1,4 +1,4 @@
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <library/cpp/yt/containers/enum_indexed_array.h>
 
@@ -42,4 +42,3 @@ TEST(TEnumIndexedArrayTest, Simple)
 
 } // namespace
 } // namespace NYT
-

@@ -1,4 +1,4 @@
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <library/cpp/yt/misc/cast.h>
 #include <library/cpp/yt/misc/enum.h>
@@ -284,4 +284,3 @@ TEST(TEnumTest, Cast)
 
 } // namespace
 } // namespace NYT
-

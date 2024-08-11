@@ -1,4 +1,4 @@
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <library/cpp/yt/string/string.h>
 
@@ -49,4 +49,3 @@ TEST(TStringTest, CamelCaseToUnderscoreCase)
 
 } // namespace
 } // namespace NYT
-

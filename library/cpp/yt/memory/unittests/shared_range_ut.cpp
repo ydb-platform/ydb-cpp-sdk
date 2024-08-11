@@ -1,4 +1,4 @@
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <library/cpp/yt/memory/new.h>
 #include <library/cpp/yt/memory/shared_range.h>

@@ -1,6 +1,7 @@
 #include <library/cpp/iterator/mapped.h>
 
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <util/generic/map.h>
 #include <util/generic/vector.h>

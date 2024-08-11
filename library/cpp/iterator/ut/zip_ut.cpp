@@ -1,6 +1,6 @@
 #include <library/cpp/iterator/zip.h>
 
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <util/generic/vector.h>
 
@@ -25,4 +25,3 @@ TEST(TIterator, ZipSimplePostIncrement) {
 
     EXPECT_EQ(std::next(cur), last);
 }
-

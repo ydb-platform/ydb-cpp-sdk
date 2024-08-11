@@ -1,4 +1,4 @@
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <library/cpp/yt/memory/chunked_memory_pool.h>
 #include <library/cpp/yt/memory/chunked_memory_pool_allocator.h>

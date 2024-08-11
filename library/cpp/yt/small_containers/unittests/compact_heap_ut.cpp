@@ -1,6 +1,6 @@
 #include <library/cpp/yt/small_containers/compact_heap.h>
 
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <random>
 

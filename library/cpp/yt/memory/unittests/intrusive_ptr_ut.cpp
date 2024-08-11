@@ -1,4 +1,5 @@
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <library/cpp/yt/memory/new.h>
 #include <library/cpp/yt/memory/ref_counted.h>
@@ -7,6 +8,7 @@
 #include <util/generic/buffer.h>
 
 #include <util/stream/buffer.h>
+#include <util/stream/str.h>
 
 #include <util/ysaveload.h>
 

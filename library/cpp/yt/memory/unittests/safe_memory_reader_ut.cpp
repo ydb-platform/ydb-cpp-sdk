@@ -1,5 +1,5 @@
 
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <library/cpp/yt/memory/safe_memory_reader.h>
 
