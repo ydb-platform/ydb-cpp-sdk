@@ -4,6 +4,7 @@ add_ydb_test(NAME iterator-filtering_ut GTEST
   LINK_LIBRARIES
     iterator
     GTest::gtest_main
+    GTest::gmock
   LABELS
     unit
 )
@@ -14,6 +15,7 @@ add_ydb_test(NAME iterator-functools_ut GTEST
   LINK_LIBRARIES
     iterator
     GTest::gtest_main
+    GTest::gmock
   LABELS
     unit
 )
@@ -24,6 +26,7 @@ add_ydb_test(NAME iterator-iterate_keys_ut GTEST
   LINK_LIBRARIES
     iterator
     GTest::gtest_main
+    GTest::gmock
   LABELS
     unit
 )
@@ -34,6 +37,7 @@ add_ydb_test(NAME iterator-iterate_values_ut GTEST
   LINK_LIBRARIES
     iterator
     GTest::gtest_main
+    GTest::gmock
   LABELS
     unit
 )
@@ -44,6 +48,7 @@ add_ydb_test(NAME iterator-mapped_ut GTEST
   LINK_LIBRARIES
     iterator
     GTest::gtest_main
+    GTest::gmock
   LABELS
     unit
 )
