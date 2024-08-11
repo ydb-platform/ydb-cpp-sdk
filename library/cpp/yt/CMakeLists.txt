@@ -4,6 +4,7 @@ if (YDB_SDK_TESTS)
   add_subdirectory(memory/unittests)
   add_subdirectory(misc/unittests)
   add_subdirectory(small_containers/unittests)
+  add_subdirectory(string/unittests)
 endif()
 
 _ydb_sdk_add_library(yt-assert)
@@ -147,6 +148,7 @@ target_sources(yt-string
     string/guid.cpp
     string/string.cpp
     string/format.cpp
+    string/format_string.cpp
 )
 _ydb_sdk_install_targets(TARGETS yt-string)
 
