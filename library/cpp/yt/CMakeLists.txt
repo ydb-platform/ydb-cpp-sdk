@@ -1,3 +1,7 @@
+if (YDB_SDK_TESTS)
+  add_subdirectory(coding/unittests)
+endif()
+
 _ydb_sdk_add_library(yt-assert)
 target_compile_options(yt-assert PRIVATE
   -Wdeprecated-this-capture
@@ -33,8 +37,11 @@ _ydb_sdk_add_library(yt-exception)
 target_compile_options(yt-exception PRIVATE
   -Wdeprecated-this-capture
 )
-target_link_libraries(yt-exception PUBLIC
-  yutil
+target_link_libraries(yt-exception
+  PUBLIC
+    yutil
+  PRIVATE
+    yt-assert
 )
 target_sources(yt-exception PRIVATE
   exception/exception.cpp
@@ -107,7 +114,7 @@ _ydb_sdk_install_targets(TARGETS yt-misc)
 
 
 _ydb_sdk_add_library(yt-small_containers INTERFACE)
-target_link_libraries(yt-small_containers 
+target_link_libraries(yt-small_containers
   INTERFACE
     yutil
     yt-assert
@@ -121,7 +128,7 @@ _ydb_sdk_add_library(yt-string)
 target_compile_options(yt-string PRIVATE
   -Wdeprecated-this-capture
 )
-target_link_libraries(yt-string 
+target_link_libraries(yt-string
   PUBLIC
     yutil
     yt-assert
