@@ -3,6 +3,7 @@ if (YDB_SDK_TESTS)
   add_subdirectory(containers/unittests)
   add_subdirectory(memory/unittests)
   add_subdirectory(misc/unittests)
+  add_subdirectory(small_containers/unittests)
 endif()
 
 _ydb_sdk_add_library(yt-assert)
