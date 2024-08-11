@@ -5,6 +5,7 @@ if (YDB_SDK_TESTS)
   add_subdirectory(misc/unittests)
   add_subdirectory(small_containers/unittests)
   add_subdirectory(string/unittests)
+  add_subdirectory(yson_string/unittests)
 endif()
 
 _ydb_sdk_add_library(yt-assert)
