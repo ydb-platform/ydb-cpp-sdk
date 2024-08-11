@@ -1,3 +1,7 @@
+if (YDB_SDK_TESTS)
+  add_subdirectory(ut)
+endif()
+
 _ydb_sdk_add_library(iterator)
 
 target_link_libraries(iterator PUBLIC
