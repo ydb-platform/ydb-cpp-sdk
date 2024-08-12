@@ -2,14 +2,14 @@ add_subdirectory(charset)
 add_subdirectory(draft)
 
 if (YDB_SDK_TESTS)
-  add_ydb_multiple_tests(PREFIX util BASE_DIR datetime
+  add_ydb_multiple_tests(PREFIX util-datetime
     FILES
-      base_ut.cpp
-      cputimer_ut.cpp
-      parser_deprecated_ut.cpp
-      parser_ut.cpp
-      process_uptime_ut.cpp
-      uptime_ut.cpp
+      datetime/base_ut.cpp
+      datetime/cputimer_ut.cpp
+      datetime/parser_deprecated_ut.cpp
+      datetime/parser_ut.cpp
+      datetime/process_uptime_ut.cpp
+      datetime/uptime_ut.cpp
     ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
@@ -18,13 +18,13 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util BASE_DIR digest
+  add_ydb_multiple_tests(PREFIX util-digest
     FILES
-      city_ut.cpp
-      fnv_ut.cpp
-      multi_ut.cpp
-      murmur_ut.cpp
-      sequence_ut.cpp
+      digest/city_ut.cpp
+      digest/fnv_ut.cpp
+      digest/multi_ut.cpp
+      digest/murmur_ut.cpp
+      digest/sequence_ut.cpp
     ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
@@ -33,14 +33,14 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util BASE_DIR folder
+  add_ydb_multiple_tests(PREFIX util-folder
     FILES
-      dirut_ut.cpp
-      filelist_ut.cpp
-      fts_ut.cpp
-      iterator_ut.cpp
-      path_ut.cpp
-      pathsplit_ut.cpp
+      folder/dirut_ut.cpp
+      folder/filelist_ut.cpp
+      folder/fts_ut.cpp
+      folder/iterator_ut.cpp
+      folder/path_ut.cpp
+      folder/pathsplit_ut.cpp
     ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
@@ -50,58 +50,58 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util BASE_DIR generic
+  add_ydb_multiple_tests(PREFIX util-generic
     FILES
-      adaptor_ut.cpp
-      algorithm_ut.cpp
-      array_ref_ut.cpp
-      array_size_ut.cpp
-      bitmap_ut.cpp
-      bitops_ut.cpp
-      buffer_ut.cpp
-      cast_ut.cpp
-      deque_ut.cpp
-      enum_range_ut.cpp
-      explicit_type_ut.cpp
-      flags_ut.cpp
-      function_ref_ut.cpp
-      function_ut.cpp
-      guid_ut.cpp
-      hash_primes_ut.cpp
-      hash_ut.cpp
-      intrlist_ut.cpp
-      is_in_ut.cpp
-      iterator_range_ut.cpp
-      iterator_ut.cpp
-      lazy_value_ut.cpp
-      list_ut.cpp
-      mapfindptr_ut.cpp
-      map_ut.cpp
-      maybe_ut.cpp
-      mem_copy_ut.cpp
-      objects_counter_ut.cpp
-      overloaded_ut.cpp
-      ptr_ut.cpp
-      queue_ut.cpp
-      scope_ut.cpp
-      serialized_enum_ut.cpp
-      set_ut.cpp
-      singleton_ut.cpp
-      size_literals_ut.cpp
-      stack_ut.cpp
-      store_policy_ut.cpp
-      strbuf_ut.cpp
+      generic/adaptor_ut.cpp
+      generic/algorithm_ut.cpp
+      generic/array_ref_ut.cpp
+      generic/array_size_ut.cpp
+      generic/bitmap_ut.cpp
+      generic/bitops_ut.cpp
+      generic/buffer_ut.cpp
+      generic/cast_ut.cpp
+      generic/deque_ut.cpp
+      generic/enum_range_ut.cpp
+      generic/explicit_type_ut.cpp
+      generic/flags_ut.cpp
+      generic/function_ref_ut.cpp
+      generic/function_ut.cpp
+      generic/guid_ut.cpp
+      generic/hash_primes_ut.cpp
+      generic/hash_ut.cpp
+      generic/intrlist_ut.cpp
+      generic/is_in_ut.cpp
+      generic/iterator_range_ut.cpp
+      generic/iterator_ut.cpp
+      generic/lazy_value_ut.cpp
+      generic/list_ut.cpp
+      generic/mapfindptr_ut.cpp
+      generic/map_ut.cpp
+      generic/maybe_ut.cpp
+      generic/mem_copy_ut.cpp
+      generic/objects_counter_ut.cpp
+      generic/overloaded_ut.cpp
+      generic/ptr_ut.cpp
+      generic/queue_ut.cpp
+      generic/scope_ut.cpp
+      generic/serialized_enum_ut.cpp
+      generic/set_ut.cpp
+      generic/singleton_ut.cpp
+      generic/size_literals_ut.cpp
+      generic/stack_ut.cpp
+      generic/store_policy_ut.cpp
+      generic/strbuf_ut.cpp
       # See fix/util-unit-tests branch
-      # string_transparent_hash_ut.cpp
-      string_ut.cpp
-      typelist_ut.cpp
-      typetraits_ut.cpp
-      utility_ut.cpp
-      va_args_ut.cpp
-      vector_ut.cpp
-      xrange_ut.cpp
-      ylimits_ut.cpp
-      ymath_ut.cpp
+      # generic/string_transparent_hash_ut.cpp
+      generic/string_ut.cpp
+      generic/typelist_ut.cpp
+      generic/typetraits_ut.cpp
+      generic/utility_ut.cpp
+      generic/va_args_ut.cpp
+      generic/vector_ut.cpp
+      generic/xrange_ut.cpp
+      generic/ylimits_ut.cpp
+      generic/ymath_ut.cpp
     ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
@@ -128,13 +128,13 @@ if (YDB_SDK_TESTS)
     )
   endif()
 
-  add_ydb_multiple_tests(PREFIX util BASE_DIR memory
+  add_ydb_multiple_tests(PREFIX util-memory
     FILES
-      addstorage_ut.cpp
-      blob_ut.cpp
-      pool_ut.cpp
-      smallobj_ut.cpp
-      tempbuf_ut.cpp
+      memory/addstorage_ut.cpp
+      memory/blob_ut.cpp
+      memory/pool_ut.cpp
+      memory/smallobj_ut.cpp
+      memory/tempbuf_ut.cpp
     ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
@@ -143,14 +143,14 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util BASE_DIR network
+  add_ydb_multiple_tests(PREFIX util-network
     FILES
-      address_ut.cpp
-      endpoint_ut.cpp
-      ip_ut.cpp
-      poller_ut.cpp
-      sock_ut.cpp
-      socket_ut.cpp
+      network/address_ut.cpp
+      network/endpoint_ut.cpp
+      network/ip_ut.cpp
+      network/poller_ut.cpp
+      network/sock_ut.cpp
+      network/socket_ut.cpp
     ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
@@ -160,17 +160,17 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util BASE_DIR random
+  add_ydb_multiple_tests(PREFIX util-random
     FILES
       # See fix/util-unit-tests branch
-      # common_ops_ut.cpp
-      easy_ut.cpp
-      entropy_ut.cpp
-      fast_ut.cpp
-      mersenne_ut.cpp
-      normal_ut.cpp
-      random_ut.cpp
-      shuffle_ut.cpp
+      # random/common_ops_ut.cpp
+      random/easy_ut.cpp
+      random/entropy_ut.cpp
+      random/fast_ut.cpp
+      random/mersenne_ut.cpp
+      random/normal_ut.cpp
+      random/random_ut.cpp
+      random/shuffle_ut.cpp
     ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
@@ -179,28 +179,28 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util BASE_DIR stream
+  add_ydb_multiple_tests(PREFIX util-stream
     FILES
-      aligned_ut.cpp
-      buffered_ut.cpp
-      buffer_ut.cpp
-      direct_io_ut.cpp
-      file_ut.cpp
-      format_std_ut.cpp
-      format_ut.cpp
-      hex_ut.cpp
-      input_ut.cpp
-      ios_ut.cpp
-      labeled_ut.cpp
-      length_ut.cpp
-      mem_ut.cpp
-      multi_ut.cpp
-      printf_ut.cpp
-      str_ut.cpp
-      tokenizer_ut.cpp
-      walk_ut.cpp
-      zerocopy_output_ut.cpp
-      zlib_ut.cpp
+      stream/aligned_ut.cpp
+      stream/buffered_ut.cpp
+      stream/buffer_ut.cpp
+      stream/direct_io_ut.cpp
+      stream/file_ut.cpp
+      stream/format_std_ut.cpp
+      stream/format_ut.cpp
+      stream/hex_ut.cpp
+      stream/input_ut.cpp
+      stream/ios_ut.cpp
+      stream/labeled_ut.cpp
+      stream/length_ut.cpp
+      stream/mem_ut.cpp
+      stream/multi_ut.cpp
+      stream/printf_ut.cpp
+      stream/str_ut.cpp
+      stream/tokenizer_ut.cpp
+      stream/walk_ut.cpp
+      stream/zerocopy_output_ut.cpp
+      stream/zlib_ut.cpp
     ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
@@ -209,22 +209,22 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util BASE_DIR string
+  add_ydb_multiple_tests(PREFIX util-string
     FILES
-      ascii_ut.cpp
-      builder_ut.cpp
-      cast_ut.cpp
-      escape_ut.cpp
-      hex_ut.cpp
-      join_ut.cpp
-      printf_ut.cpp
-      split_ut.cpp
-      strip_ut.cpp
-      strspn_ut.cpp
-      subst_ut.cpp
-      type_ut.cpp
-      util_ut.cpp
-      vector_ut.cpp
+      string/ascii_ut.cpp
+      string/builder_ut.cpp
+      string/cast_ut.cpp
+      string/escape_ut.cpp
+      string/hex_ut.cpp
+      string/join_ut.cpp
+      string/printf_ut.cpp
+      string/split_ut.cpp
+      string/strip_ut.cpp
+      string/strspn_ut.cpp
+      string/subst_ut.cpp
+      string/type_ut.cpp
+      string/util_ut.cpp
+      string/vector_ut.cpp
     ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
@@ -233,62 +233,62 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util BASE_DIR system
+  add_ydb_multiple_tests(PREFIX util-system
     FILES
-      align_ut.cpp
-      atexit_ut.cpp
-      backtrace_ut.cpp
-      byteorder_ut.cpp
-      compat_ut.cpp
-      compiler_ut.cpp
-      condvar_ut.cpp
-      context_ut.cpp
-      cpu_id_ut.cpp
-      daemon_ut.cpp
-      datetime_ut.cpp
+      system/align_ut.cpp
+      system/atexit_ut.cpp
+      system/backtrace_ut.cpp
+      system/byteorder_ut.cpp
+      system/compat_ut.cpp
+      system/compiler_ut.cpp
+      system/condvar_ut.cpp
+      system/context_ut.cpp
+      system/cpu_id_ut.cpp
+      system/daemon_ut.cpp
+      system/datetime_ut.cpp
       # See fix/util-unit-tests branch
-      # direct_io_ut.cpp
-      env_ut.cpp
-      error_ut.cpp
-      event_ut.cpp
-      execpath_ut.cpp
-      filemap_ut.cpp
-      file_ut.cpp
-      flock_ut.cpp
+      # system/direct_io_ut.cpp
+      system/env_ut.cpp
+      system/error_ut.cpp
+      system/event_ut.cpp
+      system/execpath_ut.cpp
+      system/filemap_ut.cpp
+      system/file_ut.cpp
+      system/flock_ut.cpp
       # See fix/util-unit-tests branch
-      # fstat_ut.cpp
-      fs_ut.cpp
-      getpid_ut.cpp
-      guard_ut.cpp
-      hi_lo_ut.cpp
-      hostname_ut.cpp
-      info_ut.cpp
-      interrupt_signals_ut.cpp
-      mem_info_ut.cpp
-      mincore_ut.cpp
-      mktemp_ut.cpp
-      mutex_ut.cpp
-      nice_ut.cpp
-      pipe_ut.cpp
-      platform_ut.cpp
-      rusage_ut.cpp
-      rwlock_ut.cpp
-      sanitizers_ut.cpp
-      shellcommand_ut.cpp
-      shmat_ut.cpp
-      spinlock_ut.cpp
-      src_location_ut.cpp
-      src_root_ut.cpp
-      tempfile_ut.cpp
-      tls_ut.cpp
+      # system/fstat_ut.cpp
+      system/fs_ut.cpp
+      system/getpid_ut.cpp
+      system/guard_ut.cpp
+      system/hi_lo_ut.cpp
+      system/hostname_ut.cpp
+      system/info_ut.cpp
+      system/interrupt_signals_ut.cpp
+      system/mem_info_ut.cpp
+      system/mincore_ut.cpp
+      system/mktemp_ut.cpp
+      system/mutex_ut.cpp
+      system/nice_ut.cpp
+      system/pipe_ut.cpp
+      system/platform_ut.cpp
+      system/rusage_ut.cpp
+      system/rwlock_ut.cpp
+      system/sanitizers_ut.cpp
+      system/shellcommand_ut.cpp
+      system/shmat_ut.cpp
+      system/spinlock_ut.cpp
+      system/src_location_ut.cpp
+      system/src_root_ut.cpp
+      system/tempfile_ut.cpp
+      system/tls_ut.cpp
       # See fix/util-unit-tests branch
-      # type_name_ut.cpp
-      types_ut.cpp
+      # system/type_name_ut.cpp
+      system/types_ut.cpp
       # TODO: add library/cpp/testing/benchmark
       #       depends only on NBench::Clobber, that's a memory optimization barrier
-      # unaligned_mem_ut.cpp
-      user_ut.cpp
-      yassert_ut.cpp
+      # system/unaligned_mem_ut.cpp
+      system/user_ut.cpp
+      system/yassert_ut.cpp
     ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
@@ -325,13 +325,13 @@ if (YDB_SDK_TESTS)
     )
   endif()
 
-  add_ydb_multiple_tests(PREFIX util BASE_DIR thread
+  add_ydb_multiple_tests(PREFIX util-thread
     FILES
-      factory_ut.cpp
-      lfqueue_ut.cpp
-      lfstack_ut.cpp
-      pool_ut.cpp
-      singleton_ut.cpp
+      thread/factory_ut.cpp
+      thread/lfqueue_ut.cpp
+      thread/lfstack_ut.cpp
+      thread/pool_ut.cpp
+      thread/singleton_ut.cpp
     ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
