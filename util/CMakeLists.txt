@@ -10,7 +10,6 @@ if (YDB_SDK_TESTS)
       datetime/parser_ut.cpp
       datetime/process_uptime_ut.cpp
       datetime/uptime_ut.cpp
-    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -25,7 +24,6 @@ if (YDB_SDK_TESTS)
       digest/multi_ut.cpp
       digest/murmur_ut.cpp
       digest/sequence_ut.cpp
-    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -41,7 +39,6 @@ if (YDB_SDK_TESTS)
       folder/iterator_ut.cpp
       folder/path_ut.cpp
       folder/pathsplit_ut.cpp
-    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -91,8 +88,7 @@ if (YDB_SDK_TESTS)
       generic/stack_ut.cpp
       generic/store_policy_ut.cpp
       generic/strbuf_ut.cpp
-      # See fix/util-unit-tests branch
-      # generic/string_transparent_hash_ut.cpp
+      generic/string_transparent_hash_ut.cpp
       generic/string_ut.cpp
       generic/typelist_ut.cpp
       generic/typetraits_ut.cpp
@@ -102,7 +98,6 @@ if (YDB_SDK_TESTS)
       generic/xrange_ut.cpp
       generic/ylimits_ut.cpp
       generic/ymath_ut.cpp
-    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -135,7 +130,6 @@ if (YDB_SDK_TESTS)
       memory/pool_ut.cpp
       memory/smallobj_ut.cpp
       memory/tempbuf_ut.cpp
-    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -151,7 +145,6 @@ if (YDB_SDK_TESTS)
       network/poller_ut.cpp
       network/sock_ut.cpp
       network/socket_ut.cpp
-    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -162,8 +155,7 @@ if (YDB_SDK_TESTS)
 
   add_ydb_multiple_tests(PREFIX util-random
     FILES
-      # See fix/util-unit-tests branch
-      # random/common_ops_ut.cpp
+      random/common_ops_ut.cpp
       random/easy_ut.cpp
       random/entropy_ut.cpp
       random/fast_ut.cpp
@@ -171,7 +163,6 @@ if (YDB_SDK_TESTS)
       random/normal_ut.cpp
       random/random_ut.cpp
       random/shuffle_ut.cpp
-    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -201,7 +192,6 @@ if (YDB_SDK_TESTS)
       stream/walk_ut.cpp
       stream/zerocopy_output_ut.cpp
       stream/zlib_ut.cpp
-    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -225,7 +215,6 @@ if (YDB_SDK_TESTS)
       string/type_ut.cpp
       string/util_ut.cpp
       string/vector_ut.cpp
-    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -246,8 +235,7 @@ if (YDB_SDK_TESTS)
       system/cpu_id_ut.cpp
       system/daemon_ut.cpp
       system/datetime_ut.cpp
-      # See fix/util-unit-tests branch
-      # system/direct_io_ut.cpp
+      system/direct_io_ut.cpp
       system/env_ut.cpp
       system/error_ut.cpp
       system/event_ut.cpp
@@ -255,8 +243,7 @@ if (YDB_SDK_TESTS)
       system/filemap_ut.cpp
       system/file_ut.cpp
       system/flock_ut.cpp
-      # See fix/util-unit-tests branch
-      # system/fstat_ut.cpp
+      system/fstat_ut.cpp
       system/fs_ut.cpp
       system/getpid_ut.cpp
       system/guard_ut.cpp
@@ -281,15 +268,13 @@ if (YDB_SDK_TESTS)
       system/src_root_ut.cpp
       system/tempfile_ut.cpp
       system/tls_ut.cpp
-      # See fix/util-unit-tests branch
-      # system/type_name_ut.cpp
+      system/type_name_ut.cpp
       system/types_ut.cpp
       # TODO: add library/cpp/testing/benchmark
       #       depends only on NBench::Clobber, that's a memory optimization barrier
       # system/unaligned_mem_ut.cpp
       system/user_ut.cpp
       system/yassert_ut.cpp
-    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -332,7 +317,6 @@ if (YDB_SDK_TESTS)
       thread/lfstack_ut.cpp
       thread/pool_ut.cpp
       thread/singleton_ut.cpp
-    ADD_YDB_TEST_ARGS
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main

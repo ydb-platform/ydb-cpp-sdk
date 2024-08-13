@@ -151,17 +151,12 @@ function(add_ydb_test)
   vcs_info(${YDB_TEST_NAME})
 endfunction()
 
-#[=============================================================================[
-  This wrapper over `add_ydb_test` adds a separate test for each test file in
-  FILES list. Mandatory PREFIX will prepend the test name. If test files have
-  a relative path, their paths will be prepended by CMAKE_CURRENT_SOURCE_DIR.
-  All other parameters of `add_ydb_test` except NAME and SOURCES are passed
-  after ADD_YDB_TEST_ARGS keyword.
-#]=============================================================================]
+# This wrapper over `add_ydb_test` adds a separate test for each test file in
+# FILES list. Mandatory PREFIX will prepend the test name.
 function(add_ydb_multiple_tests)
-  set(opts "")
+  set(opts GTEST)
   set(oneval_args PREFIX)
-  set(multival_args FILES ADD_YDB_TEST_ARGS)
+  set(multival_args FILES INCLUDE_DIRS LINK_LIBRARIES LABELS)
   cmake_parse_arguments(ARGS
     "${opts}"
     "${oneval_args}"
@@ -177,17 +172,18 @@ function(add_ydb_multiple_tests)
     message(FATAL_ERROR "Missing the FILES list.")
   endif()
 
+  if (ARGS_GTEST)
+    set(ARGS_GTEST "GTEST")
+  endif()
+
   foreach (testPath IN LISTS ARGS_FILES)
     get_filename_component(testSuffix "${testPath}" NAME_WLE)
-
-    if (NOT IS_ABSOLUTE "${testPath}")
-      set(testPath "${CMAKE_CURRENT_SOURCE_DIR}/${testPath}")
-    endif()
-
-    add_ydb_test(NAME "${ARGS_PREFIX}-${testSuffix}"
+    add_ydb_test(NAME "${ARGS_PREFIX}-${testSuffix}" ${ARGS_GTEST}
       SOURCES
         "${testPath}"
-      ${ARGS_ADD_YDB_TEST_ARGS}
+      INCLUDE_DIRS ${ARGS_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ARGS_LINK_LIBRARIES}
+      LABELS ${ARGS_LABELS}
     )
   endforeach()
 endfunction()
