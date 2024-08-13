@@ -701,10 +701,10 @@ elseif (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   )
 endif()
 
-# These definitions are needed to `util/system/src_root.h` works properly
+# NOTE: these definitions are needed to `util/system/src_root.h` works properly
 target_compile_definitions(yutil PUBLIC
-  ARCADIA_ROOT=${YDB_SDK_SOURCE_DIR}
-  ARCADIA_BUILD_ROOT=${YDB_SDK_BINARY_DIR}
+  ARCADIA_ROOT=${ARCADIA_ROOT}
+  ARCADIA_BUILD_ROOT=${ARCADIA_BUILD_ROOT}
 )
 
 _ydb_sdk_install_targets(TARGETS yutil)
