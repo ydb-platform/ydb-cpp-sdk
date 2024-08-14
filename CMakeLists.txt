@@ -27,8 +27,8 @@ file(READ "src/client/resources/ydb_sdk_version.txt" YDB_SDK_VERSION)
   an absolute path, and we have to know the proper prefix of that path.
   See details: https://ccache.dev/manual/3.1.html#_compiling_in_different_directories
 #]=============================================================================]
-set(ARCADIA_ROOT ${YDB_SDK_SOURCE_DIR} CACHE PATH "The source root directory")
-set(ARCADIA_BUILD_ROOT ${YDB_SDK_BINARY_DIR} CACHE PATH "The build root directory")
+set(ARCADIA_ROOT ${YDB_SDK_SOURCE_DIR} CACHE INTERNAL "The source root directory")
+set(ARCADIA_BUILD_ROOT ${YDB_SDK_BINARY_DIR} CACHE INTERNAL "The build root directory")
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
