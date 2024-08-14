@@ -2,8 +2,8 @@ add_subdirectory(charset)
 add_subdirectory(draft)
 
 if (YDB_SDK_TESTS)
-  add_ydb_multiple_tests(PREFIX util-datetime
-    FILES
+  add_ydb_test(NAME util-datetime-ut
+    SOURCES
       datetime/base_ut.cpp
       datetime/cputimer_ut.cpp
       datetime/parser_deprecated_ut.cpp
@@ -17,8 +17,8 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util-digest
-    FILES
+  add_ydb_test(NAME util-digest-ut
+    SOURCES
       digest/city_ut.cpp
       digest/fnv_ut.cpp
       digest/multi_ut.cpp
@@ -31,8 +31,8 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util-folder
-    FILES
+  add_ydb_test(NAME util-folder-ut
+    SOURCES
       folder/dirut_ut.cpp
       folder/filelist_ut.cpp
       folder/fts_ut.cpp
@@ -47,8 +47,8 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util-generic
-    FILES
+  add_ydb_test(NAME util-generic-ut
+    SOURCES
       generic/adaptor_ut.cpp
       generic/algorithm_ut.cpp
       generic/array_ref_ut.cpp
@@ -123,8 +123,8 @@ if (YDB_SDK_TESTS)
     )
   endif()
 
-  add_ydb_multiple_tests(PREFIX util-memory
-    FILES
+  add_ydb_test(NAME util-memory-ut
+    SOURCES
       memory/addstorage_ut.cpp
       memory/blob_ut.cpp
       memory/pool_ut.cpp
@@ -137,8 +137,8 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util-network
-    FILES
+  add_ydb_test(NAME util-network-ut
+    SOURCES
       network/address_ut.cpp
       network/endpoint_ut.cpp
       network/ip_ut.cpp
@@ -153,8 +153,8 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util-random
-    FILES
+  add_ydb_test(NAME util-random-ut
+    SOURCES
       random/common_ops_ut.cpp
       random/easy_ut.cpp
       random/entropy_ut.cpp
@@ -170,8 +170,8 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util-stream
-    FILES
+  add_ydb_test(NAME util-stream-ut
+    SOURCES
       stream/aligned_ut.cpp
       stream/buffered_ut.cpp
       stream/buffer_ut.cpp
@@ -199,8 +199,8 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util-string
-    FILES
+  add_ydb_test(NAME util-string-ut
+    SOURCES
       string/ascii_ut.cpp
       string/builder_ut.cpp
       string/cast_ut.cpp
@@ -222,8 +222,8 @@ if (YDB_SDK_TESTS)
       unit
   )
 
-  add_ydb_multiple_tests(PREFIX util-system
-    FILES
+  add_ydb_test(NAME util-system-ut
+    SOURCES
       system/align_ut.cpp
       system/atexit_ut.cpp
       system/backtrace_ut.cpp
@@ -258,6 +258,9 @@ if (YDB_SDK_TESTS)
       system/nice_ut.cpp
       system/pipe_ut.cpp
       system/platform_ut.cpp
+      # NOTE: `progname_ut` checks if the executable file's name, aka the target's
+      # name, is either "util-system-ut" or slightly different variations
+      system/progname_ut.cpp
       system/rusage_ut.cpp
       system/rwlock_ut.cpp
       system/sanitizers_ut.cpp
@@ -269,28 +272,16 @@ if (YDB_SDK_TESTS)
       system/tempfile_ut.cpp
       system/tls_ut.cpp
       system/type_name_ut.cpp
+      # NOTE: `thread_ut` compares the executable file's name and the current
+      # thread name, whose length can't be more than 16 bytes in Linux,
+      # so the test name shouldn't be longer than "util-system-ut"
+      system/thread_ut.cpp
       system/types_ut.cpp
       # TODO: add library/cpp/testing/benchmark
       #       depends only on NBench::Clobber, that's a memory optimization barrier
       # system/unaligned_mem_ut.cpp
       system/user_ut.cpp
       system/yassert_ut.cpp
-    LINK_LIBRARIES
-      yutil
-      cpp-testing-unittest_main
-    LABELS
-      unit
-  )
-
-  # This test checks if the executable file's name (the same name as the target)
-  # is either "util-system-ut" or slightly different variations.
-  # It also compares the executable file's name and the current thread name,
-  # whose length can't be more than 16 bytes in Linux, so "util-system-ut" is
-  # a suitable name.
-  add_ydb_test(NAME util-system-ut
-    SOURCES
-      system/progname_ut.cpp
-      system/thread_ut.cpp
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -310,8 +301,8 @@ if (YDB_SDK_TESTS)
     )
   endif()
 
-  add_ydb_multiple_tests(PREFIX util-thread
-    FILES
+  add_ydb_test(NAME util-thread-ut
+    SOURCES
       thread/factory_ut.cpp
       thread/lfqueue_ut.cpp
       thread/lfstack_ut.cpp
