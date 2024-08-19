@@ -3,8 +3,8 @@
 
 #include <jwt-cpp/jwt.h>
 
-extern const std::string TestPrivateKeyContent;
-extern const std::string TestPublicKeyContent;
+extern const std::string TestRSAPrivateKeyContent;
+extern const std::string TestRSAPublicKeyContent;
 
 struct TJwtCheck {
     using TSelf = TJwtCheck;
@@ -45,10 +45,10 @@ struct TJwtCheck {
 
     template <class TAlg>
     TSelf& Alg(const std::string& publicKey) {
-        Alg_.Reset(new TAlgCheck<TAlg>(publicKey));
+        Alg_.reset(new TAlgCheck<TAlg>(publicKey));
         return *this;
     }
-    THolder<IAlgCheck> Alg_ = MakeHolder<TAlgCheck<jwt::algorithm::rs256>>(TestPublicKeyContent);
+    std::unique_ptr<IAlgCheck> Alg_ = std::make_unique<TAlgCheck<jwt::algorithm::rs256>>(TestRSAPublicKeyContent);
 
     FLUENT_SETTING_OPTIONAL(std::string, KeyId);
 

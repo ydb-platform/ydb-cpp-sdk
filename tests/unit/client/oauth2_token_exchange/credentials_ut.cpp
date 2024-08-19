@@ -2,6 +2,8 @@
 #include <ydb-cpp-sdk/client/types/credentials/oauth2_token_exchange/from_file.h>
 #include "jwt_check_helper.h"
 
+#include <src/library/string_utils/base64/base64.h>
+
 #include <library/cpp/cgiparam/cgiparam.h>
 #include <library/cpp/http/misc/parsed_request.h>
 #include <library/cpp/http/server/http.h>
@@ -16,8 +18,11 @@
 
 using namespace NYdb;
 
-extern const std::string TestPrivateKeyContent;
-extern const std::string TestPublicKeyContent;
+extern const std::string TestRSAPrivateKeyContent;
+extern const std::string TestRSAPublicKeyContent;
+extern const std::string TestECPrivateKeyContent;
+extern const std::string TestECPublicKeyContent;
+extern const std::string TestHMACSecretKeyBase64Content;
 
 class TTestTokenExchangeServer: public THttpServer::ICallBack {
 public:
@@ -33,7 +38,7 @@ public:
         std::optional<TJwtCheck> ActorJwtCheck;
 
         void Check() {
-            UNIT_ASSERT(InputParams || !ExpectRequest);
+            UNIT_ASSERT_C(InputParams || !ExpectRequest, "Request error: " << Error);
             if (InputParams) {
                 if (SubjectJwtCheck || ActorJwtCheck) {
                     TCgiParameters inputParamsCopy = *InputParams;
@@ -976,7 +981,7 @@ Y_UNIT_TEST_SUITE(TestTokenExchange) {
             .Subject("test_sub")
             .Audience("test_aud")
             .Id("test_jti")
-            .Alg<jwt::algorithm::rs384>(TestPublicKeyContent);
+            .Alg<jwt::algorithm::rs384>(TestRSAPublicKeyContent);
         server.Check.ActorJwtCheck.emplace()
             .AppendAudience("a1")
             .AppendAudience("a2");
@@ -993,7 +998,7 @@ Y_UNIT_TEST_SUITE(TestTokenExchange) {
                     .Field("aud", "test_aud")
                     .Field("jti", "test_jti")
                     .Field("alg", "rs384")
-                    .Field("private-key", TestPrivateKeyContent)
+                    .Field("private-key", TestRSAPrivateKeyContent)
                     .Field("unknown", "unknown value")
                     .Build()
                 .SubMap("actor-credentials")
@@ -1003,7 +1008,33 @@ Y_UNIT_TEST_SUITE(TestTokenExchange) {
                         .Value("a2")
                         .Build()
                     .Field("alg", "RS256")
-                    .Field("private-key", TestPrivateKeyContent)
+                    .Field("private-key", TestRSAPrivateKeyContent)
+                    .Build()
+                .Build(),
+            "Bearer received_token"
+        );
+
+        // Other signing methods
+        server.Check.SubjectJwtCheck.emplace()
+            .Id("jti")
+            .Alg<jwt::algorithm::hs384>(Base64Decode(TestHMACSecretKeyBase64Content));
+        server.Check.ActorJwtCheck.emplace()
+            .Alg<jwt::algorithm::es256>(TestECPublicKeyContent)
+            .Issuer("iss");
+        server.RunFromConfig(
+            TTestConfigFile()
+                .Field("token-endpoint", server.GetEndpoint())
+                .SubMap("subject-credentials")
+                    .Field("type", "jwt")
+                    .Field("jti", "jti")
+                    .Field("alg", "HS384")
+                    .Field("private-key", TestHMACSecretKeyBase64Content)
+                    .Build()
+                .SubMap("actor-credentials")
+                    .Field("type", "JWT")
+                    .Field("alg", "ES256")
+                    .Field("private-key", TestECPrivateKeyContent)
+                    .Field("iss", "iss")
                     .Build()
                 .Build(),
             "Bearer received_token"
@@ -1089,7 +1120,7 @@ Y_UNIT_TEST_SUITE(TestTokenExchange) {
                 .Field("token-endpoint", server.GetEndpoint())
                 .SubMap("subject-credentials")
                     .Field("type", "jwt")
-                    .Field("private-key", TestPrivateKeyContent)
+                    .Field("private-key", TestRSAPrivateKeyContent)
                     .Build()
                 .Build()
         );
@@ -1112,7 +1143,7 @@ Y_UNIT_TEST_SUITE(TestTokenExchange) {
                 .SubMap("subject-credentials")
                     .Field("type", "jwt")
                     .Field("alg", "rs256")
-                    .Field("private-key", TestPrivateKeyContent)
+                    .Field("private-key", TestRSAPrivateKeyContent)
                     .Field("ttl", "-1s")
                     .Build()
                 .Build()
@@ -1125,7 +1156,7 @@ Y_UNIT_TEST_SUITE(TestTokenExchange) {
                 .SubMap("subject-credentials")
                     .Field("type", "jwt")
                     .Field("alg", "algorithm")
-                    .Field("private-key", TestPrivateKeyContent)
+                    .Field("private-key", TestRSAPrivateKeyContent)
                     .Build()
                 .Build()
         );
@@ -1141,6 +1172,50 @@ Y_UNIT_TEST_SUITE(TestTokenExchange) {
                     .Field("type", "jwt")
                     .Field("alg", "rs256")
                     .Field("private-key", "not a key")
+                    .Build()
+                .Build()
+        );
+
+        server.Check.ExpectedErrorPart = "failed to decode HMAC secret from Base64";
+        server.RunFromConfig(
+            TTestConfigFile()
+                .Field("token-endpoint", server.GetEndpoint())
+                .SubMap("subject-credentials")
+                    .Field("type", "jwt")
+                    .Field("alg", "hs256")
+                    .Field("private-key", "\n<not a base64>\n")
+                    .Build()
+                .Build()
+        );
+
+#ifdef YDB_SDK_USE_NEW_JWT
+        server.Check.ExpectedErrorPart = "invalid key size";
+#else
+        server.Check.ExpectedErrorPart = "failed to load private key";
+#endif
+        server.RunFromConfig(
+            TTestConfigFile()
+                .Field("token-endpoint", server.GetEndpoint())
+                .SubMap("subject-credentials")
+                    .Field("type", "jwt")
+                    .Field("alg", "es256")
+                    .Field("private-key", TestRSAPrivateKeyContent) // Need EC key
+                    .Build()
+                .Build()
+        );
+
+#ifdef YDB_SDK_USE_NEW_JWT
+        server.Check.ExpectedErrorPart = "failed to load key";
+#else
+        server.Check.ExpectedErrorPart = "failed to load private key";
+#endif
+        server.RunFromConfig(
+            TTestConfigFile()
+                .Field("token-endpoint", server.GetEndpoint())
+                .SubMap("subject-credentials")
+                    .Field("type", "jwt")
+                    .Field("alg", "ps512")
+                    .Field("private-key", TestHMACSecretKeyBase64Content) // Need RSA key
                     .Build()
                 .Build()
         );

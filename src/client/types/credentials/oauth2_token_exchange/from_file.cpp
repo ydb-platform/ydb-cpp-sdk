@@ -3,8 +3,8 @@
 #include <ydb-cpp-sdk/client/types/credentials/oauth2_token_exchange/jwt_token_source.h>
 
 #include <library/cpp/json/json_reader.h>
+#include <src/library/string_utils/base64/base64.h>
 
-#include <util/generic/map.h>
 #include <util/stream/file.h>
 #include <util/string/builder.h>
 #include <util/string/cast.h>
@@ -32,13 +32,45 @@ void ApplyAsymmetricAlg(TJwtTokenSourceParams* params, const std::string& privat
     params->SigningAlgorithm<TAlg>(std::string{}, privateKey);
 }
 
-template <class TAlg>
-void ApplyHmacAlg(TJwtTokenSourceParams* params, const std::string& key) {
-    // Alg with first param as key
-    params->SigningAlgorithm<TAlg>(key);
+size_t Base64OutputLen(std::string_view input) {
+    while (!input.empty() && (input.back() == '=' || input.back() == ',')) { // padding
+        input.remove_suffix(1);
+    }
+    const size_t inputLen = input.size();
+    const size_t tailEncoded = inputLen % 4;
+    if (tailEncoded == 1) {
+        throw std::runtime_error(TStringBuilder() << "invalid Base64 encoded data size: " << input.size());
+    }
+    const size_t mainSize = (inputLen / 4) * 3;
+    size_t tailSize = 0;
+    switch (tailEncoded) {
+        case 2: // 12 bit => 1 byte
+            tailSize = 1;
+            break;
+        case 3: // 18 bits -> 2 bytes
+            tailSize = 2;
+            break;
+    }
+    return mainSize + tailSize;
 }
 
-const TMap<std::string, void(*)(TJwtTokenSourceParams*, const std::string& privateKey), TLessNoCase> JwtAlgorithmsFactory = {
+template <class TAlg>
+void ApplyHmacAlg(TJwtTokenSourceParams* params, const std::string& key) {
+    // HMAC keys are encoded in base64 encoding
+    const size_t base64OutputSize = Base64OutputLen(key); // throws
+    std::string binaryKey;
+    binaryKey.resize(Base64DecodeBufSize(key.size()));
+    // allows strings without padding
+    const size_t decodedBytes = Base64DecodeUneven(const_cast<char*>(binaryKey.data()), key);
+    if (decodedBytes != base64OutputSize) {
+        throw std::runtime_error("failed to decode HMAC secret from Base64");
+    }
+    binaryKey.resize(decodedBytes);
+    // Alg with first param as key
+    params->SigningAlgorithm<TAlg>(binaryKey);
+}
+
+const std::map<std::string, void(*)(TJwtTokenSourceParams*, const std::string& privateKey), TLessNoCase> JwtAlgorithmsFactory = {
     {"RS256", &ApplyAsymmetricAlg<jwt::algorithm::rs256>},
     {"RS384", &ApplyAsymmetricAlg<jwt::algorithm::rs384>},
     {"RS512", &ApplyAsymmetricAlg<jwt::algorithm::rs512>},
