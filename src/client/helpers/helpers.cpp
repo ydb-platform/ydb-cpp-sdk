@@ -58,7 +58,7 @@ TDriverConfig CreateFromEnvironment(const std::string& connectionString) {
     }
 
     std::string oauth2KeyFile = GetStrFromEnv("YDB_OAUTH2_KEY_FILE", "");
-    if (!saKeyFile.empty()) {
+    if (!oauth2KeyFile.empty()) {
         driverConfig.SetCredentialsProviderFactory(
             CreateOauth2TokenExchangeFileCredentialsProviderFactory(oauth2KeyFile));
         return driverConfig;
