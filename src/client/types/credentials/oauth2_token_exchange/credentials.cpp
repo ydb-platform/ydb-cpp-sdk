@@ -239,7 +239,9 @@ private:
             }
         };
 
-        addIfNotEmpty("resource", Params.Resource_);
+        for (const std::string& res : Params.Resource_) {
+            params.emplace("resource", res);
+        }
         for (const std::string& aud : Params.Audience_) {
             params.emplace("audience", aud);
         }
