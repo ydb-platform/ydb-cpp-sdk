@@ -1,3 +1,35 @@
+if (YDB_SDK_TESTS)
+  add_ydb_test(NAME http-misc-httpdate_ut
+    SOURCES
+      httpdate_ut.cpp
+    LINK_LIBRARIES
+      http-misc
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_test(NAME http-misc-httpreqdata_ut
+    SOURCES
+      httpreqdata_ut.cpp
+    LINK_LIBRARIES
+      http-misc
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_test(NAME http-misc-parsed_request_ut
+    SOURCES
+      parsed_request_ut.cpp
+    LINK_LIBRARIES
+      http-misc
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+endif(YDB_SDK_TESTS)
+
 _ydb_sdk_add_library(http-misc)
 
 target_link_libraries(http-misc

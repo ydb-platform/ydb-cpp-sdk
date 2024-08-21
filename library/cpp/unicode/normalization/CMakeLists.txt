@@ -1,3 +1,7 @@
+if (YDB_SDK_TESTS)
+  add_subdirectory(ut)
+endif()
+
 _ydb_sdk_add_library(unicode-normalization)
 
 target_link_libraries(unicode-normalization PUBLIC
