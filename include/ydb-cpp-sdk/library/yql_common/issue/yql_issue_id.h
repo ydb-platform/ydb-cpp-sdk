@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ydb/public/sdk/cpp/src/library/yql_common/issue/protos/issue_severity.pb.h>
+#include <src/library/yql_common/issue/protos/issue_severity.pb.h>
 
 namespace NYql {
 

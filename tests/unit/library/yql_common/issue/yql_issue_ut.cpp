@@ -2,7 +2,7 @@
 #include <src/library/yql_common/issue/yql_issue_message.h>
 
 #include <library/cpp/testing/unittest/registar.h>
-#include <ydb/public/sdk/cpp/src/library/yql_common/issue/protos/issue_message.pb.h>
+#include <src/library/yql_common/issue/protos/issue_message.pb.h>
 #include <src/library/yql_common/issue/yql_issue_message.h>
 #include <src/api/protos/ydb_issue_message.pb.h>
 

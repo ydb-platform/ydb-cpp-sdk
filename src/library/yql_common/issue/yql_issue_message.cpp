@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/type_switcher.h>
 
-#include <ydb/public/sdk/cpp/src/library/yql_common/issue/protos/issue_message.pb.h>
+#include <src/library/yql_common/issue/protos/issue_message.pb.h>
 #include <src/api/protos/ydb_issue_message.pb.h>
 
 #include <util/generic/yexception.h>

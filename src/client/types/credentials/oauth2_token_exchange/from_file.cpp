@@ -250,7 +250,7 @@ TOauth2TokenExchangeParams ReadOauth2ConfigJson(const std::string& configJson, c
 }
 
 TOauth2TokenExchangeParams ReadOauth2ConfigFile(const std::string& configFilePath, const std::string& tokenEndpoint) {
-    return ReadOauth2ConfigJson(TFileInput(TStringType{configFilePath}).ReadAll(), tokenEndpoint);
+    return ReadOauth2ConfigJson(TFileInput(TString{configFilePath}).ReadAll(), tokenEndpoint);
 }
 
 } // namespace
