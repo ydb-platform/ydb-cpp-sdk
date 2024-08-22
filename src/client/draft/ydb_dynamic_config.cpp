@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/draft/ydb_dynamic_config.h>
 
-#include <ydb/public/api/grpc/draft/ydb_dynamic_config_v1.grpc.pb.h>
+#include <src/api/grpc/draft/ydb_dynamic_config_v1.grpc.pb.h>
 #include <src/client/common_client/impl/client.h>
 #include <src/client/impl/ydb_internal/make_request/make.h>
 

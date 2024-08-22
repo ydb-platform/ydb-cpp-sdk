@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/type_switcher.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 
-#include <ydb/public/api/protos/ydb_table.pb.h>
+#include <src/api/protos/ydb_table.pb.h>
 
 #include <string>
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/client/impl/ydb_internal/internal_header.h>
-#include <ydb/public/api/protos/ydb_common.pb.h>
+#include <src/api/protos/ydb_common.pb.h>
 
 #include <util/datetime/base.h>
 

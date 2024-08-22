@@ -2,7 +2,7 @@
 
 #include <src/client/impl/ydb_internal/internal_header.h>
 
-#include <ydb/public/api/protos/ydb_discovery.pb.h>
+#include <src/api/protos/ydb_discovery.pb.h>
 #include <src/client/impl/ydb_internal/internal_client/client.h>
 #include <src/client/impl/ydb_internal/plain_status/status.h>
 #include <src/client/impl/ydb_endpoints/endpoints.h>

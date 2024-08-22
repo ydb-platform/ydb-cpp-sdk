@@ -2,8 +2,8 @@
 
 #include <ydb-cpp-sdk/type_switcher.h>
 
-#include <ydb/public/api/grpc/ydb_coordination_v1.grpc.pb.h>
-#include <ydb/public/api/grpc/ydb_discovery_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_coordination_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>
 
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>

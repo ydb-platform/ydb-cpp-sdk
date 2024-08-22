@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/type_switcher.h>
 
-#include <ydb/public/api/protos/ydb_table.pb.h>
+#include <src/api/protos/ydb_table.pb.h>
 
 #include <util/datetime/base.h>
 

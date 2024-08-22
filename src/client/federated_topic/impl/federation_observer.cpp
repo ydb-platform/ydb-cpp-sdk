@@ -1,5 +1,5 @@
 #include <src/client/topic/common/log_lazy.h>
-#include <ydb/public/api/grpc/ydb_federation_discovery_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_federation_discovery_v1.grpc.pb.h>
 
 #include <src/client/federated_topic/impl/federation_observer.h>
 

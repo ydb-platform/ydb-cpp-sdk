@@ -1,7 +1,7 @@
 #include "impl.h"
 
-#include <ydb/public/api/protos/ydb_scheme.pb.h>
-#include <ydb/public/api/protos/ydb_value.pb.h>
+#include <src/api/protos/ydb_scheme.pb.h>
+#include <src/api/protos/ydb_value.pb.h>
 
 
 namespace NYdb {

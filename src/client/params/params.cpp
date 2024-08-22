@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/params/params.h>
 
-#include <ydb/public/api/protos/ydb_value.pb.h>
+#include <src/api/protos/ydb_value.pb.h>
 
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 

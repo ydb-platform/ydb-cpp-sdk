@@ -1,8 +1,8 @@
 #include <ydb-cpp-sdk/client/draft/ydb_scripting.h>
 #include <ydb-cpp-sdk/type_switcher.h>
 
-#include <ydb/public/api/grpc/ydb_table_v1.grpc.pb.h>
-#include <ydb/public/api/grpc/ydb_scripting_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_table_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_scripting_v1.grpc.pb.h>
 
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>

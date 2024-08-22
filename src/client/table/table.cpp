@@ -9,8 +9,8 @@
 #include <src/client/impl/ydb_internal/retry/retry_sync.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <ydb/public/api/grpc/ydb_table_v1.grpc.pb.h>
-#include <ydb/public/api/protos/ydb_table.pb.h>
+#include <src/api/grpc/ydb_table_v1.grpc.pb.h>
+#include <src/api/protos/ydb_table.pb.h>
 #include <src/client/impl/ydb_stats/stats.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 #include <ydb-cpp-sdk/client/value/value.h>

@@ -2,7 +2,7 @@
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 #include <ydb-cpp-sdk/type_switcher.h>
 
-#include <ydb/public/api/protos/ydb_value.pb.h>
+#include <src/api/protos/ydb_value.pb.h>
 
 #include <library/cpp/testing/unittest/registar.h>
 #include <library/cpp/testing/unittest/tests_data.h>

@@ -4,7 +4,7 @@
 
 #include <ydb-cpp-sdk/client/scheme/scheme.h>
 
-#include <ydb/public/api/protos/ydb_topic.pb.h>
+#include <src/api/protos/ydb_topic.pb.h>
 
 #include <util/datetime/base.h>
 

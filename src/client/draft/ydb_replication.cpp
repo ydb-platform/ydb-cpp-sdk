@@ -6,7 +6,7 @@
 
 #include <ydb-cpp-sdk/library/yql_common/issue/yql_issue.h>
 #include <src/library/yql_common/issue/yql_issue_message.h>
-#include <ydb/public/api/grpc/draft/ydb_replication_v1.grpc.pb.h>
+#include <src/api/grpc/draft/ydb_replication_v1.grpc.pb.h>
 #include <src/client/common_client/impl/client.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 

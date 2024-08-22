@@ -17,7 +17,7 @@
 #include <src/client/query/impl/exec_query.h>
 #include <ydb-cpp-sdk/client/retry/retry.h>
 
-#include <ydb/public/api/grpc/ydb_query_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_query_v1.grpc.pb.h>
 
 namespace NYdb::NQuery {
 

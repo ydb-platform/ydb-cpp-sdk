@@ -16,7 +16,7 @@
 namespace NYdb::NTopic {
 
 const TDuration UPDATE_TOKEN_PERIOD = TDuration::Hours(1);
-// Error code from file ydb/public/api/protos/persqueue_error_codes_v1.proto
+// Error code from file src/api/protos/persqueue_error_codes_v1.proto
 const uint64_t WRITE_ERROR_PARTITION_INACTIVE = 500029;
 
 namespace {

@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/extensions/discovery_mutator/discovery_mutator.h>
 
-#include <ydb/public/api/grpc/ydb_discovery_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_discovery_v1.grpc.pb.h>
 #include <ydb-cpp-sdk/client/extension_common/extension.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 

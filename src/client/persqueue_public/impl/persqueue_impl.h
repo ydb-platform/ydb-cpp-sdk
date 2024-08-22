@@ -3,7 +3,7 @@
 #include <src/client/persqueue_public/impl/aliases.h>
 #include <src/client/topic/impl/common.h>
 
-#include <ydb/public/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
+#include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
 #include <src/client/persqueue_public/include/client.h>
 
 #define INCLUDE_YDB_INTERNAL_H

@@ -5,7 +5,7 @@
 
 #include <util/stream/str.h>
 
-#include <ydb/public/api/protos/ydb_operation.pb.h>
+#include <src/api/protos/ydb_operation.pb.h>
 
 namespace NYdb {
 

@@ -1,7 +1,7 @@
 #include <ydb-cpp-sdk/client/value/value.h>
 #include <ydb-cpp-sdk/type_switcher.h>
 
-#include <ydb/public/api/protos/ydb_value.pb.h>
+#include <src/api/protos/ydb_value.pb.h>
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 #include <ydb-cpp-sdk/library/json_value/ydb_json_value.h>
 #include <ydb-cpp-sdk/library/yson_value/ydb_yson_value.h>

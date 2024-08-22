@@ -9,7 +9,7 @@
 #include <src/client/common_client/impl/client.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 
-#include <ydb/public/api/grpc/ydb_topic_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
 
 namespace NYdb::NTopic {
 struct TOffsetsRange {

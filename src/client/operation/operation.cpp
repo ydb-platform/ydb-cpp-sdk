@@ -11,7 +11,7 @@
 #include <src/client/ss_tasks/task.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 
-#include <ydb/public/api/grpc/ydb_operation_v1.grpc.pb.h>
+#include <src/api/grpc/ydb_operation_v1.grpc.pb.h>
 #include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 #include <src/client/common_client/impl/client.h>
 

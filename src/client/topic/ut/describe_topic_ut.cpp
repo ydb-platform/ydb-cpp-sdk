@@ -2,7 +2,7 @@
 
 #include <format>
 #include <ydb/public/sdk/cpp/src/library/persqueue/topic_parser_public/topic_parser.h>
-#include <ydb/public/api/protos/persqueue_error_codes_v1.pb.h>
+#include <src/api/protos/persqueue_error_codes_v1.pb.h>
 #include <ydb-cpp-sdk/client/topic/client.h>
 #include <ydb/public/sdk/cpp/src/client/persqueue_public/persqueue.h>
 #include <ydb/public/sdk/cpp/src/client/topic/common/log_lazy.h>
