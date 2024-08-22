@@ -16,8 +16,8 @@
 namespace NYdb::NTopic {
 
 const TDuration UPDATE_TOKEN_PERIOD = TDuration::Hours(1);
-// Error code from file ydb/public/api/protos/persqueue_error_codes_v1.proto
-const ui64 WRITE_ERROR_PARTITION_INACTIVE = 500029;
+// Error code from file src/api/protos/persqueue_error_codes_v1.proto
+const uint64_t WRITE_ERROR_PARTITION_INACTIVE = 500029;
 
 namespace {
 
@@ -68,7 +68,7 @@ TWriteSessionImpl::TWriteSessionImpl(
     , Connections(std::move(connections))
     , DbDriverState(std::move(dbDriverState))
     , PrevToken(DbDriverState->CredentialsProvider ? DbDriverState->CredentialsProvider->GetAuthInfo() : "")
-    , InitSeqNoPromise(NThreading::NewPromise<ui64>())
+    , InitSeqNoPromise(NThreading::NewPromise<uint64_t>())
     , WakeupInterval(
             Settings.BatchFlushInterval_.value_or(TDuration::Zero()) ?
                 std::min(Settings.BatchFlushInterval_.value_or(TDuration::Seconds(1)) / 5, TDuration::MilliSeconds(100))
@@ -184,13 +184,12 @@ TWriteSessionImpl::THandleResult TWriteSessionImpl::RestartImpl(const TPlainStat
         PreferredPartitionLocation = {};
     }
 
-    std::optional<TDuration> nextDelay = TDuration::Zero();
     if (!RetryState) {
         RetryState = Settings.RetryPolicy_->CreateRetryState();
     }
-    nextDelay = RetryState->GetNextRetryDelay(status.Status);
+    auto nextDelay = RetryState->GetNextRetryDelay(status.Status);
 
-    if (nextDelay.has_value()) {
+    if (nextDelay) {
         result.StartDelay = *nextDelay;
         result.DoRestart = true;
         LOG_LAZY(DbDriverState->Log, TLOG_WARNING, LogPrefix() << "Write session will restart in " << result.StartDelay);
@@ -354,7 +353,7 @@ void TWriteSessionImpl::OnDescribePartition(const TStatus& status, const Ydb::To
     Connect(TDuration::Zero());
 }
 
-std::optional<TEndpointKey> TWriteSessionImpl::GetPreferredEndpointImpl(ui32 partitionId, ui64 partitionNodeId) {
+std::optional<TEndpointKey> TWriteSessionImpl::GetPreferredEndpointImpl(ui32 partitionId, uint64_t partitionNodeId) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     TEndpointKey preferredEndpoint{"", partitionNodeId};
@@ -420,7 +419,7 @@ void TWriteSessionImpl::InitWriter() { // No Lock, very initial start - no race 
 
 }
 // Client method
-NThreading::TFuture<ui64> TWriteSessionImpl::GetInitSeqNo() {
+NThreading::TFuture<uint64_t> TWriteSessionImpl::GetInitSeqNo() {
     if (!Settings.DeduplicationEnabled_.value_or(true)) {
         LOG_LAZY(DbDriverState->Log, TLOG_ERR, LogPrefix() << "GetInitSeqNo called with deduplication disabled");
         ThrowFatalError("Cannot call GetInitSeqNo when deduplication is disabled");
@@ -450,24 +449,24 @@ std::vector<TWriteSessionEvent::TEvent> TWriteSessionImpl::GetEvents(bool block,
     return EventsQueue->GetEvents(block, maxEventsCount);
 }
 
-ui64 TWriteSessionImpl::GetIdImpl(ui64 seqNo) {
+uint64_t TWriteSessionImpl::GetIdImpl(uint64_t seqNo) {
     Y_ABORT_UNLESS(AutoSeqNoMode.has_value());
     Y_ABORT_UNLESS(!*AutoSeqNoMode || InitSeqNo.has_value() && seqNo > *InitSeqNo);
     return *AutoSeqNoMode ? seqNo - *InitSeqNo : seqNo;
 }
 
-ui64 TWriteSessionImpl::GetSeqNoImpl(ui64 id) {
+uint64_t TWriteSessionImpl::GetSeqNoImpl(uint64_t id) {
     Y_ABORT_UNLESS(AutoSeqNoMode.has_value());
     Y_ABORT_UNLESS(InitSeqNo.has_value());
     return *AutoSeqNoMode ? id + *InitSeqNo : id;
 
 }
 
-ui64 TWriteSessionImpl::GetNextIdImpl(const std::optional<ui64>& seqNo) {
+uint64_t TWriteSessionImpl::GetNextIdImpl(const std::optional<uint64_t>& seqNo) {
 
     Y_ABORT_UNLESS(Lock.IsLocked());
 
-    ui64 id = ++NextId;
+    uint64_t id = ++NextId;
     if (!AutoSeqNoMode.has_value()) {
         AutoSeqNoMode = !seqNo.has_value();
     }
@@ -725,8 +724,8 @@ void TWriteSessionImpl::InitImpl() {
 
     TClientMessage req;
     auto* init = req.mutable_init_request();
-    init->set_path(Settings.Path_);
-    init->set_producer_id(Settings.ProducerId_);
+    init->set_path(TStringType{Settings.Path_});
+    init->set_producer_id(TStringType{Settings.ProducerId_});
 
    if (Settings.DirectWriteToPartition_ && (Settings.PartitionId_.has_value() || DirectWriteToPartitionId.has_value())) {
         auto partition_id = Settings.PartitionId_.has_value() ? *Settings.PartitionId_ : *DirectWriteToPartitionId;
@@ -738,7 +737,7 @@ void TWriteSessionImpl::InitImpl() {
         init->set_partition_id(*Settings.PartitionId_);
         LOG_LAZY(DbDriverState->Log, TLOG_DEBUG, LogPrefix() << "Write session: write to partition: " << *Settings.PartitionId_);
     } else {
-        init->set_message_group_id(Settings.MessageGroupId_);
+        init->set_message_group_id(TStringType{Settings.MessageGroupId_});
         LOG_LAZY(DbDriverState->Log, TLOG_DEBUG, LogPrefix() << "Write session: write to message_group: " << Settings.MessageGroupId_);
     }
 
@@ -778,7 +777,7 @@ void TWriteSessionImpl::WriteToProcessorImpl(TWriteSessionImpl::TClientMessage&&
 void TWriteSessionImpl::ReadFromProcessor() {
     Y_ASSERT(Processor);
     IProcessor::TPtr prc;
-    ui64 generation;
+    uint64_t generation;
     std::function<void(NYdbGrpc::TGrpcStatus&&)> callback;
     {
         std::lock_guard guard(Lock);
@@ -943,7 +942,7 @@ TWriteSessionImpl::TProcessSrvMessageResult TWriteSessionImpl::ProcessServerMess
             }
             PartitionId = initResponse.partition_id();
 
-            ui64 newLastSeqNo = initResponse.last_seq_no();
+            uint64_t newLastSeqNo = initResponse.last_seq_no();
             if (!Settings.DeduplicationEnabled_.value_or(true)) {
                 newLastSeqNo = 0;
             }
@@ -995,7 +994,7 @@ TWriteSessionImpl::TProcessSrvMessageResult TWriteSessionImpl::ProcessServerMess
             for (size_t messageIndex = 0, endIndex = batchWriteResponse.acks_size(); messageIndex != endIndex; ++messageIndex) {
                 // TODO: Fill writer statistics
                 auto ack = batchWriteResponse.acks(messageIndex);
-                ui64 sequenceNumber = ack.seq_no();
+                uint64_t sequenceNumber = ack.seq_no();
 
                 Y_ABORT_UNLESS(ack.has_written() || ack.has_skipped());
                 auto msgWriteStatus = ack.has_written()
@@ -1004,7 +1003,7 @@ TWriteSessionImpl::TProcessSrvMessageResult TWriteSessionImpl::ProcessServerMess
                                     ? TWriteSessionEvent::TWriteAck::EES_ALREADY_WRITTEN
                                     : TWriteSessionEvent::TWriteAck::EES_DISCARDED);
 
-                ui64 offset = ack.has_written() ? ack.written().offset() : 0;
+                uint64_t offset = ack.has_written() ? ack.written().offset() : 0;
 
                 acksEvent.Acks.push_back(TWriteSessionEvent::TWriteAck{
                     GetIdImpl(sequenceNumber),
@@ -1034,13 +1033,13 @@ TWriteSessionImpl::TProcessSrvMessageResult TWriteSessionImpl::ProcessServerMess
     return result;
 }
 
-bool TWriteSessionImpl::CleanupOnAcknowledged(ui64 id) {
+bool TWriteSessionImpl::CleanupOnAcknowledged(uint64_t id) {
     bool result = false;
     LOG_LAZY(DbDriverState->Log, TLOG_DEBUG, LogPrefix() << "Write session: acknoledged message " << id);
     UpdateTimedCountersImpl();
     const auto& sentFront = SentOriginalMessages.front();
-    ui64 size = 0;
-    ui64 compressedSize = 0;
+    uint64_t size = 0;
+    uint64_t compressedSize = 0;
     if(!SentPackedMessage.empty() && SentPackedMessage.front().Offset == id) {
         auto memoryUsage = OnMemoryUsageChangedImpl(-SentPackedMessage.front().Data.size());
         result = memoryUsage.NowOk && !memoryUsage.WasOk;
@@ -1187,7 +1186,7 @@ void TWriteSessionImpl::ResetForRetryImpl() {
         PackedMessagesToSend.emplace(std::move(SentPackedMessage.front()));
         SentPackedMessage.pop();
     }
-    ui64 minId = PackedMessagesToSend.empty() ? NextId + 1 : PackedMessagesToSend.top().Offset;
+    uint64_t minId = PackedMessagesToSend.empty() ? NextId + 1 : PackedMessagesToSend.top().Offset;
     std::queue<TOriginalMessage> freshOriginalMessagesToSend;
     OriginalMessagesToSend.swap(freshOriginalMessagesToSend);
     while (!SentOriginalMessages.empty()) {
@@ -1210,7 +1209,7 @@ void TWriteSessionImpl::FlushWriteIfRequiredImpl() {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     if (!CurrentBatch.Empty() && !CurrentBatch.FlushRequested) {
-        MessagesAcquired += static_cast<ui64>(CurrentBatch.Acquire());
+        MessagesAcquired += static_cast<uint64_t>(CurrentBatch.Acquire());
         if (TInstant::Now() - CurrentBatch.StartedAt >= Settings.BatchFlushInterval_.value_or(TDuration::Zero())
             || CurrentBatch.CurrentSize >= Settings.BatchFlushSizeBytes_.value_or(0)
             || CurrentBatch.CurrentSize >= MaxBlockSize
@@ -1236,7 +1235,7 @@ size_t TWriteSessionImpl::WriteBatchImpl() {
 
     const bool skipCompression = Settings.Codec_ == ECodec::RAW || CurrentBatch.HasCodec();
     if (!skipCompression && Settings.CompressionExecutor_->IsAsync()) {
-        MessagesAcquired += static_cast<ui64>(CurrentBatch.Acquire());
+        MessagesAcquired += static_cast<uint64_t>(CurrentBatch.Acquire());
     }
 
     size_t size = 0;
@@ -1336,7 +1335,7 @@ void TWriteSessionImpl::UpdateTokenIfNeededImpl() {
     PrevToken = token;
 
     TClientMessage clientMessage;
-    clientMessage.mutable_update_token_request()->set_token(token);
+    clientMessage.mutable_update_token_request()->set_token(TStringType{token});
     Processor->Write(std::move(clientMessage));
 }
 
@@ -1382,8 +1381,8 @@ void TWriteSessionImpl::SendImpl() {
                 auto* msgData = writeRequest->add_messages();
 
                 if (message.Tx) {
-                    writeRequest->mutable_tx()->set_id(message.Tx->GetId());
-                    writeRequest->mutable_tx()->set_session(message.Tx->GetSession().GetId());
+                    writeRequest->mutable_tx()->set_id(TStringType{message.Tx->GetId()});
+                    writeRequest->mutable_tx()->set_session(TStringType{message.Tx->GetSession().GetId()});
                 }
 
                 msgData->set_seq_no(GetSeqNoImpl(message.Id));
@@ -1391,8 +1390,8 @@ void TWriteSessionImpl::SendImpl() {
 
                 for (auto& [k, v] : message.MessageMeta) {
                     auto* pair = msgData->add_metadata_items();
-                    pair->set_key(k);
-                    pair->set_value(v);
+                    pair->set_key(TStringType{k});
+                    pair->set_value(TStringType{v});
                 }
                 SentOriginalMessages.emplace(std::move(message));
                 OriginalMessagesToSend.pop();

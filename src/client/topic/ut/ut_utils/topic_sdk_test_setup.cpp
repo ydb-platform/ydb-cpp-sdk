@@ -1,16 +1,14 @@
 #include "topic_sdk_test_setup.h"
 
-#include <iostream>
-
 using namespace NYdb;
 using namespace NYdb::NTopic;
 using namespace NYdb::NTopic::NTests;
 
-TTopicSdkTestSetup::TTopicSdkTestSetup(const std::string& testCaseName, const NKikimr::Tests::TServerSettings& settings, bool createTopic)
+TTopicSdkTestSetup::TTopicSdkTestSetup(const TString& testCaseName, const NKikimr::Tests::TServerSettings& settings, bool createTopic)
     : Database("/Root")
     , Server(settings, false)
 {
-    Log.SetFormatter([testCaseName](ELogPriority priority, std::string_view message) {
+    Log.SetFormatter([testCaseName](ELogPriority priority, TStringBuf message) {
         return TStringBuilder() << TInstant::Now() << " :" << testCaseName << " " << priority << ": " << message << Endl;
     });
 
@@ -24,14 +22,27 @@ TTopicSdkTestSetup::TTopicSdkTestSetup(const std::string& testCaseName, const NK
     }
 }
 
-void TTopicSdkTestSetup::CreateTopic(const std::string& path, const std::string& consumer, size_t partitionCount)
+void TTopicSdkTestSetup::CreateTopicWithAutoscale(const TString& path, const TString& consumer, size_t partitionCount, size_t maxPartitionCount) {
+    CreateTopic(path, consumer, partitionCount, maxPartitionCount);
+}
+
+void TTopicSdkTestSetup::CreateTopic(const TString& path, const TString& consumer, size_t partitionCount, std::optional<size_t> maxPartitionCount)
 {
     TTopicClient client(MakeDriver());
 
     TCreateTopicSettings topics;
-    TPartitioningSettings partitions(partitionCount, partitionCount);
+    topics
+        .BeginConfigurePartitioningSettings()
+        .MinActivePartitions(partitionCount)
+        .MaxActivePartitions(maxPartitionCount.value_or(partitionCount));
 
-    topics.PartitioningSettings(partitions);
+    if (maxPartitionCount.has_value() && maxPartitionCount.value() > partitionCount) {
+        topics
+            .BeginConfigurePartitioningSettings()
+            .BeginConfigureAutoPartitioningSettings()
+            .Strategy(EAutoPartitioningStrategy::ScaleUp);
+    }
+
     TConsumerSettings<TCreateTopicSettings> consumers(topics, consumer);
     topics.AppendConsumers(consumers);
 
@@ -41,19 +52,19 @@ void TTopicSdkTestSetup::CreateTopic(const std::string& path, const std::string&
     Server.WaitInit(path);
 }
 
-std::string TTopicSdkTestSetup::GetEndpoint() const {
+TString TTopicSdkTestSetup::GetEndpoint() const {
     return "localhost:" + ToString(Server.GrpcPort);
 }
 
-std::string TTopicSdkTestSetup::GetTopicPath(const std::string& name) const {
+TString TTopicSdkTestSetup::GetTopicPath(const TString& name) const {
     return GetTopicParent() + "/" + name;
 }
 
-std::string TTopicSdkTestSetup::GetTopicParent() const {
+TString TTopicSdkTestSetup::GetTopicParent() const {
     return GetDatabase();
 }
 
-std::string TTopicSdkTestSetup::GetDatabase() const {
+TString TTopicSdkTestSetup::GetDatabase() const {
     return Database;
 }
 
@@ -75,7 +86,7 @@ TDriverConfig TTopicSdkTestSetup::MakeDriverConfig() const
     config.SetEndpoint(GetEndpoint());
     config.SetDatabase(GetDatabase());
     config.SetAuthToken("root@builtin");
-    config.SetLog(std::make_unique<TStreamLogBackend>(&std::cerr));
+    config.SetLog(MakeHolder<TStreamLogBackend>(&Cerr));
     return config;
 }
 

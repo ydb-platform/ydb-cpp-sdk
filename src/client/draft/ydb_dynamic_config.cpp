@@ -15,7 +15,7 @@ public:
 
     TAsyncStatus SetConfig(const std::string& config, bool dryRun, bool allowUnknownFields, const TClusterConfigSettings& settings = {}) {
         auto request = MakeOperationRequest<Ydb::DynamicConfig::SetConfigRequest>(settings);
-        request.set_config(config);
+        request.set_config(TStringType{config});
         request.set_dry_run(dryRun);
         request.set_allow_unknown_fields(allowUnknownFields);
 
@@ -27,7 +27,7 @@ public:
 
     TAsyncStatus ReplaceConfig(const std::string& config, bool dryRun, bool allowUnknownFields, const TClusterConfigSettings& settings = {}) {
         auto request = MakeOperationRequest<Ydb::DynamicConfig::ReplaceConfigRequest>(settings);
-        request.set_config(config);
+        request.set_config(TStringType{config});
         request.set_dry_run(dryRun);
         request.set_allow_unknown_fields(allowUnknownFields);
 
@@ -37,10 +37,10 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncStatus DropConfig(const std::string& cluster, ui64 version, const TClusterConfigSettings& settings = {}) {
+    TAsyncStatus DropConfig(const std::string& cluster, uint64_t version, const TClusterConfigSettings& settings = {}) {
         auto request = MakeOperationRequest<Ydb::DynamicConfig::DropConfigRequest>(settings);
 
-        request.mutable_identity()->set_cluster(cluster);
+        request.mutable_identity()->set_cluster(TStringType{cluster});
         request.mutable_identity()->set_version(version);
 
         return RunSimple<Ydb::DynamicConfig::V1::DynamicConfigService, Ydb::DynamicConfig::DropConfigRequest, Ydb::DynamicConfig::DropConfigResponse>(
@@ -51,7 +51,7 @@ public:
 
     TAsyncStatus AddVolatileConfig(const std::string& config, const TClusterConfigSettings& settings = {}) {
         auto request = MakeOperationRequest<Ydb::DynamicConfig::AddVolatileConfigRequest>(settings);
-        request.set_config(config);
+        request.set_config(TStringType{config});
 
         return RunSimple<Ydb::DynamicConfig::V1::DynamicConfigService, Ydb::DynamicConfig::AddVolatileConfigRequest, Ydb::DynamicConfig::AddVolatileConfigResponse>(
             std::move(request),
@@ -59,10 +59,10 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncStatus RemoveVolatileConfig(const std::string& cluster, ui64 version, const std::vector<ui64>& ids, const TClusterConfigSettings& settings = {}) {
+    TAsyncStatus RemoveVolatileConfig(const std::string& cluster, uint64_t version, const std::vector<uint64_t>& ids, const TClusterConfigSettings& settings = {}) {
         auto request = MakeOperationRequest<Ydb::DynamicConfig::RemoveVolatileConfigRequest>(settings);
 
-        request.mutable_identity()->set_cluster(cluster);
+        request.mutable_identity()->set_cluster(TStringType{cluster});
         request.mutable_identity()->set_version(version);
 
         for (auto& id: ids) {
@@ -75,10 +75,10 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncStatus RemoveAllVolatileConfigs(const std::string& cluster, ui64 version, const TClusterConfigSettings& settings = {}) {
+    TAsyncStatus RemoveAllVolatileConfigs(const std::string& cluster, uint64_t version, const TClusterConfigSettings& settings = {}) {
         auto request = MakeOperationRequest<Ydb::DynamicConfig::RemoveVolatileConfigRequest>(settings);
 
-        request.mutable_identity()->set_cluster(cluster);
+        request.mutable_identity()->set_cluster(TStringType{cluster});
         request.mutable_identity()->set_version(version);
         request.set_all(true);
 
@@ -88,7 +88,7 @@ public:
             TRpcRequestSettings::Make(settings));
     }
 
-    TAsyncStatus ForceRemoveVolatileConfig(const std::vector<ui64>& ids, const TClusterConfigSettings& settings = {}) {
+    TAsyncStatus ForceRemoveVolatileConfig(const std::vector<uint64_t>& ids, const TClusterConfigSettings& settings = {}) {
         auto request = MakeOperationRequest<Ydb::DynamicConfig::RemoveVolatileConfigRequest>(settings);
 
         for (auto& id: ids) {
@@ -116,7 +116,7 @@ public:
     }
 
 
-    TAsyncGetNodeLabelsResult GetNodeLabels(ui64 nodeId, const TClusterConfigSettings& settings = {}) {
+    TAsyncGetNodeLabelsResult GetNodeLabels(uint64_t nodeId, const TClusterConfigSettings& settings = {}) {
         auto request = MakeOperationRequest<Ydb::DynamicConfig::GetNodeLabelsRequest>(settings);
         request.set_node_id(nodeId);
 
@@ -152,9 +152,9 @@ public:
 
         auto extractor = [promise] (google::protobuf::Any* any, TPlainStatus status) mutable {
                 std::string clusterName = "<unknown>";
-                ui64 version = 0;
+                uint64_t version = 0;
                 std::string config;
-                std::map<ui64, std::string> volatileConfigs;
+                std::map<uint64_t, std::string> volatileConfigs;
                 if (Ydb::DynamicConfig::GetConfigResult result; any && any->UnpackTo(&result)) {
                     clusterName = result.identity().cluster();
                     version = result.identity().version();
@@ -186,7 +186,7 @@ public:
 
         auto extractor = [promise] (google::protobuf::Any* any, TPlainStatus status) mutable {
                 std::string metadata;
-                std::map<ui64, std::string> volatileConfigs;
+                std::map<uint64_t, std::string> volatileConfigs;
                 if (Ydb::DynamicConfig::GetMetadataResult result; any && any->UnpackTo(&result)) {
                     metadata = result.metadata();
                     for (const auto& config : result.volatile_configs()) {
@@ -209,18 +209,18 @@ public:
         return promise.GetFuture();
     }
 
-    TAsyncResolveConfigResult ResolveConfig(const std::string& config, const std::map<ui64, std::string>& volatileConfigs, const std::map<std::string, std::string>& labels, const TClusterConfigSettings& settings = {}) {
+    TAsyncResolveConfigResult ResolveConfig(const std::string& config, const std::map<uint64_t, std::string>& volatileConfigs, const std::map<std::string, std::string>& labels, const TClusterConfigSettings& settings = {}) {
         auto request = MakeOperationRequest<Ydb::DynamicConfig::ResolveConfigRequest>(settings);
-        request.set_config(config);
+        request.set_config(TStringType{config});
         for (auto& [id, volatileConfig] : volatileConfigs) {
             auto* proto = request.add_volatile_configs();
             proto->set_id(id);
-            proto->set_config(volatileConfig);
+            proto->set_config(TStringType{volatileConfig});
         }
         for (auto& [name, value] : labels) {
             auto* proto = request.add_labels();
-            proto->set_label(name);
-            proto->set_value(value);
+            proto->set_label(TStringType{name});
+            proto->set_value(TStringType{value});
         }
 
         auto promise = NThreading::NewPromise<TResolveConfigResult>();
@@ -246,13 +246,13 @@ public:
         return promise.GetFuture();
     }
 
-    TAsyncResolveConfigResult ResolveConfig(const std::string& config, const std::map<ui64, std::string>& volatileConfigs, const TClusterConfigSettings& settings = {}) {
+    TAsyncResolveConfigResult ResolveConfig(const std::string& config, const std::map<uint64_t, std::string>& volatileConfigs, const TClusterConfigSettings& settings = {}) {
         auto request = MakeOperationRequest<Ydb::DynamicConfig::ResolveAllConfigRequest>(settings);
-        request.set_config(config);
+        request.set_config(TStringType{config});
         for (auto& [id, volatileConfig] : volatileConfigs) {
             auto* proto = request.add_volatile_configs();
             proto->set_id(id);
-            proto->set_config(volatileConfig);
+            proto->set_config(TStringType{volatileConfig});
         }
 
         auto promise = NThreading::NewPromise<TResolveConfigResult>();
@@ -278,13 +278,13 @@ public:
         return promise.GetFuture();
     }
 
-    TAsyncVerboseResolveConfigResult VerboseResolveConfig(const std::string& config, const std::map<ui64, std::string>& volatileConfigs, const TClusterConfigSettings& settings = {}) {
+    TAsyncVerboseResolveConfigResult VerboseResolveConfig(const std::string& config, const std::map<uint64_t, std::string>& volatileConfigs, const TClusterConfigSettings& settings = {}) {
         auto request = MakeOperationRequest<Ydb::DynamicConfig::ResolveAllConfigRequest>(settings);
-        request.set_config(config);
+        request.set_config(TStringType{config});
         for (auto& [id, volatileConfig] : volatileConfigs) {
             auto* proto = request.add_volatile_configs();
             proto->set_id(id);
-            proto->set_config(volatileConfig);
+            proto->set_config(TStringType{volatileConfig});
         }
         request.set_verbose_response(true);
 
@@ -360,7 +360,7 @@ TAsyncStatus TDynamicConfigClient::ReplaceConfig(
 
 TAsyncStatus TDynamicConfigClient::DropConfig(
     const std::string& cluster,
-    ui64 version,
+    uint64_t version,
     const TClusterConfigSettings& settings) {
     return Impl_->DropConfig(cluster, version, settings);
 }
@@ -373,21 +373,21 @@ TAsyncStatus TDynamicConfigClient::AddVolatileConfig(
 
 TAsyncStatus TDynamicConfigClient::RemoveVolatileConfig(
     const std::string& cluster,
-    ui64 version,
-    const std::vector<ui64>& ids,
+    uint64_t version,
+    const std::vector<uint64_t>& ids,
     const TClusterConfigSettings& settings) {
     return Impl_->RemoveVolatileConfig(cluster, version, ids, settings);
 }
 
 TAsyncStatus TDynamicConfigClient::RemoveAllVolatileConfigs(
     const std::string& cluster,
-    ui64 version,
+    uint64_t version,
     const TClusterConfigSettings& settings) {
     return Impl_->RemoveAllVolatileConfigs(cluster, version, settings);
 }
 
 TAsyncStatus TDynamicConfigClient::ForceRemoveVolatileConfig(
-    const std::vector<ui64>& ids,
+    const std::vector<uint64_t>& ids,
     const TClusterConfigSettings& settings) {
     return Impl_->ForceRemoveVolatileConfig(ids, settings);
 }
@@ -405,13 +405,13 @@ TAsyncGetConfigResult TDynamicConfigClient::GetConfig(const TClusterConfigSettin
     return Impl_->GetConfig(settings);
 }
 
-TAsyncGetNodeLabelsResult TDynamicConfigClient::GetNodeLabels(ui64 nodeId, const TClusterConfigSettings& settings) {
+TAsyncGetNodeLabelsResult TDynamicConfigClient::GetNodeLabels(uint64_t nodeId, const TClusterConfigSettings& settings) {
     return Impl_->GetNodeLabels(nodeId, settings);
 }
 
 TAsyncResolveConfigResult TDynamicConfigClient::ResolveConfig(
     const std::string& config,
-    const std::map<ui64, std::string>& volatileConfigs,
+    const std::map<uint64_t, std::string>& volatileConfigs,
     const std::map<std::string, std::string>& labels,
     const TClusterConfigSettings& settings) {
     return Impl_->ResolveConfig(config, volatileConfigs, labels, settings);
@@ -419,14 +419,14 @@ TAsyncResolveConfigResult TDynamicConfigClient::ResolveConfig(
 
 TAsyncResolveConfigResult TDynamicConfigClient::ResolveConfig(
     const std::string& config,
-    const std::map<ui64, std::string>& volatileConfigs,
+    const std::map<uint64_t, std::string>& volatileConfigs,
     const TClusterConfigSettings& settings) {
     return Impl_->ResolveConfig(config, volatileConfigs, settings);
 }
 
 TAsyncVerboseResolveConfigResult TDynamicConfigClient::VerboseResolveConfig(
     const std::string& config,
-    const std::map<ui64, std::string>& volatileConfigs,
+    const std::map<uint64_t, std::string>& volatileConfigs,
     const TClusterConfigSettings& settings) {
     return Impl_->VerboseResolveConfig(config, volatileConfigs, settings);
 }

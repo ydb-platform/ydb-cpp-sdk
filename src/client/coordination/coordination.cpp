@@ -149,7 +149,7 @@ TSemaphoreSession::TSemaphoreSession(
 {
     OrderId_ = desc.order_id();
     SessionId_ = desc.session_id();
-    Timeout_ = desc.timeout_millis() == Max<ui64>() ? TDuration::Max() : TDuration::MilliSeconds(desc.timeout_millis());
+    Timeout_ = desc.timeout_millis() == Max<uint64_t>() ? TDuration::Max() : TDuration::MilliSeconds(desc.timeout_millis());
     Count_ = desc.count();
     Data_ = desc.data();
 }
@@ -254,7 +254,7 @@ private:
 
     struct TSemaphoreOp : public TSimpleRefCount<TSemaphoreOp> {
         TInstant SendTimestamp;
-        ui64 ReqId = 0;
+        uint64_t ReqId = 0;
         TResultPromise<bool> Promise = NewResultPromise<bool>();
         const ESemaphoreOpType OpType;
 
@@ -276,9 +276,9 @@ private:
             , Deadline(Settings.Timeout_.ToDeadLine())
         { }
 
-        ui64 GetTimeoutMillisLeft() const {
+        uint64_t GetTimeoutMillisLeft() const {
             if (Deadline == TInstant::Max()) {
-                return Max<ui64>();
+                return Max<uint64_t>();
             }
             return (Deadline - TInstant::Now()).MilliSeconds();
         }
@@ -286,10 +286,10 @@ private:
         void FillRequest(TRequest& req, const std::string& name) const override {
             auto& inner = *req.mutable_acquire_semaphore();
             inner.set_req_id(ReqId);
-            inner.set_name(name);
+            inner.set_name(TStringType{name});
             inner.set_count(Settings.Count_);
             inner.set_timeout_millis(GetTimeoutMillisLeft());
-            inner.set_data(Settings.Data_);
+            inner.set_data(TStringType{Settings.Data_});
             inner.set_ephemeral(Settings.Ephemeral_);
         }
     };
@@ -302,7 +302,7 @@ private:
         void FillRequest(TRequest& req, const std::string& name) const override {
             auto& inner = *req.mutable_release_semaphore();
             inner.set_req_id(ReqId);
-            inner.set_name(name);
+            inner.set_name(TStringType{name});
         }
     };
 
@@ -310,7 +310,7 @@ private:
         std::string Name;
         TIntrusivePtr<TSemaphoreOp> LastSentOp;
         TIntrusivePtr<TSemaphoreOp> LastAckedOp;
-        std::unordered_map<ui64, TIntrusivePtr<TSemaphoreOp>> WaitingOps;
+        std::unordered_map<uint64_t, TIntrusivePtr<TSemaphoreOp>> WaitingOps;
         std::deque<TIntrusivePtr<TSemaphoreOp>> OpQueue;
         bool Restoring = false;
 
@@ -326,7 +326,7 @@ private:
         TInstant SendTimestamp;
 
         virtual ~TSimpleOp() = default;
-        virtual void FillRequest(TRequest& req, ui64 reqId) const = 0;
+        virtual void FillRequest(TRequest& req, uint64_t reqId) const = 0;
         virtual void SetFailure(const TStatus& status) = 0;
     };
 
@@ -335,7 +335,7 @@ private:
 
         TPingOp() = default;
 
-        void FillRequest(TRequest& req, ui64 reqId) const override {
+        void FillRequest(TRequest& req, uint64_t reqId) const override {
             auto& inner = *req.mutable_ping();
             inner.set_opaque(reqId);
         }
@@ -355,10 +355,10 @@ private:
             , Settings(settings)
         {}
 
-        void FillRequest(TRequest& req, ui64 reqId) const override {
+        void FillRequest(TRequest& req, uint64_t reqId) const override {
             auto& inner = *req.mutable_describe_semaphore();
             inner.set_req_id(reqId);
-            inner.set_name(Name);
+            inner.set_name(TStringType{Name});
             inner.set_include_owners(Settings.IncludeOwners_);
             inner.set_include_waiters(Settings.IncludeWaiters_);
             inner.set_watch_data(Settings.WatchData_);
@@ -378,22 +378,22 @@ private:
 
     struct TCreateSemaphoreOp : public TSimpleOp {
         const std::string Name;
-        const ui64 Limit;
+        const uint64_t Limit;
         const std::string Data;
         TResultPromise<void> Promise = NewResultPromise<void>();
 
-        TCreateSemaphoreOp(const std::string& name, ui64 limit, const std::string& data)
+        TCreateSemaphoreOp(const std::string& name, uint64_t limit, const std::string& data)
             : Name(name)
             , Limit(limit)
             , Data(data)
         { }
 
-        void FillRequest(TRequest& req, ui64 reqId) const override {
+        void FillRequest(TRequest& req, uint64_t reqId) const override {
             auto& inner = *req.mutable_create_semaphore();
             inner.set_req_id(reqId);
-            inner.set_name(Name);
+            inner.set_name(TStringType{Name});
             inner.set_limit(Limit);
-            inner.set_data(Data);
+            inner.set_data(TStringType{Data});
         }
 
         void SetFailure(const TStatus& status) override {
@@ -411,11 +411,11 @@ private:
             , Data(data)
         {}
 
-        void FillRequest(TRequest& req, ui64 reqId) const override {
+        void FillRequest(TRequest& req, uint64_t reqId) const override {
             auto& inner = *req.mutable_update_semaphore();
             inner.set_req_id(reqId);
-            inner.set_name(Name);
-            inner.set_data(Data);
+            inner.set_name(TStringType{Name});
+            inner.set_data(TStringType{Data});
         }
 
         void SetFailure(const TStatus& status) override {
@@ -433,10 +433,10 @@ private:
             , Force(force)
         {}
 
-        void FillRequest(TRequest& req, ui64 reqId) const override {
+        void FillRequest(TRequest& req, uint64_t reqId) const override {
             auto& inner = *req.mutable_delete_semaphore();
             inner.set_req_id(reqId);
-            inner.set_name(Name);
+            inner.set_name(TStringType{Name});
             inner.set_force(Force);
         }
 
@@ -552,7 +552,7 @@ private:
         return future;
     }
 
-    TAsyncResult<void> DoCreateSemaphore(const std::string& name, ui64 limit, const std::string& data) {
+    TAsyncResult<void> DoCreateSemaphore(const std::string& name, uint64_t limit, const std::string& data) {
         std::lock_guard guard(Lock);
         if (IsClosed()) {
             return MakeClosedResult<void>();
@@ -779,7 +779,7 @@ private:
     }
 
     bool DoSemaphoreProcessResult(
-            ui64 reqId, ESemaphoreOpType opType, EStatus status,
+            uint64_t reqId, ESemaphoreOpType opType, EStatus status,
             TResultPromise<bool>* supersededPromise,
             TResultPromise<bool>* resultPromise)
     {
@@ -850,9 +850,9 @@ private:
         DoSemaphoreProcessQueue(state);
     }
 
-    ui64 DoSendSimpleOp(std::unique_ptr<TSimpleOp>&& op) {
+    uint64_t DoSendSimpleOp(std::unique_ptr<TSimpleOp>&& op) {
         Y_ABORT_UNLESS(IsWriteAllowed());
-        ui64 reqId = NextReqId++;
+        uint64_t reqId = NextReqId++;
         TRequest req;
         op->FillRequest(req, reqId);
         op->SendTimestamp = TInstant::Now();
@@ -862,7 +862,7 @@ private:
     }
 
     template<class TOperation>
-    TOperation* FindSentRequest(ui64 reqId) const {
+    TOperation* FindSentRequest(uint64_t reqId) const {
         auto it = SentRequests.find(reqId);
         if (it == SentRequests.end()) {
             return nullptr;
@@ -1134,8 +1134,8 @@ private:
             return;
         }
 
-        ui64 seqNo;
-        ui64 sessionId;
+        uint64_t seqNo;
+        uint64_t sessionId;
 
         TDuration timeout = Settings_.Timeout_;
         IQueueClientContextPtr timeoutContext;
@@ -1185,11 +1185,11 @@ private:
             auto* start = req.mutable_session_start();
             start->set_seq_no(seqNo);
             start->set_session_id(sessionId);
-            start->set_path(Path_);
+            start->set_path(TStringType{Path_});
             start->set_timeout_millis(Settings_.Timeout_ != TDuration::Max() ?
-                Settings_.Timeout_.MilliSeconds() : Max<ui64>());
-            start->set_description(Settings_.Description_);
-            start->set_protection_key(ProtectionKey_);
+                Settings_.Timeout_.MilliSeconds() : Max<uint64_t>());
+            start->set_description(TStringType{Settings_.Description_});
+            start->set_protection_key(TStringType{ProtectionKey_});
             processor->Write(std::move(req));
         }
 
@@ -1415,7 +1415,7 @@ private:
             }
             case TResponse::kPong: {
                 const auto& source = Response->pong();
-                const ui64 reqId = source.opaque();
+                const uint64_t reqId = source.opaque();
                 TResultPromise<void> replyPromise;
                 {
                     std::lock_guard guard(Lock);
@@ -1539,7 +1539,7 @@ private:
             }
             case TResponse::kAcquireSemaphorePending: {
                 const auto& source = Response->acquire_semaphore_pending();
-                ui64 reqId = source.req_id();
+                uint64_t reqId = source.req_id();
                 TResultPromise<bool> supersededPromise;
                 std::function<void()> acceptedCallback;
                 with_lock(Lock) {
@@ -1576,7 +1576,7 @@ private:
             }
             case TResponse::kAcquireSemaphoreResult: {
                 const auto& source = Response->acquire_semaphore_result();
-                const ui64 reqId = source.req_id();
+                const uint64_t reqId = source.req_id();
                 auto plain = MakePlainStatus(source.status(), source.issues());
                 TResultPromise<bool> supersededPromise;
                 TResultPromise<bool> resultPromise;
@@ -1595,7 +1595,7 @@ private:
             }
             case TResponse::kReleaseSemaphoreResult: {
                 const auto& source = Response->release_semaphore_result();
-                const ui64 reqId = source.req_id();
+                const uint64_t reqId = source.req_id();
                 auto plain = MakePlainStatus(source.status(), source.issues());
                 TResultPromise<bool> supersededPromise;
                 TResultPromise<bool> resultPromise;
@@ -1614,7 +1614,7 @@ private:
             }
             case TResponse::kDescribeSemaphoreResult: {
                 const auto& source = Response->describe_semaphore_result();
-                const ui64 reqId = source.req_id();
+                const uint64_t reqId = source.req_id();
                 auto plain = MakePlainStatus(source.status(), source.issues());
                 TPromise<TDescribeSemaphoreResult> resultPromise;
                 {
@@ -1637,7 +1637,7 @@ private:
             }
             case TResponse::kDescribeSemaphoreChanged: {
                 const auto& source = Response->describe_semaphore_changed();
-                const ui64 reqId = source.req_id();
+                const uint64_t reqId = source.req_id();
                 std::function<void(bool)> callback;
                 bool triggered = false;
                 {
@@ -1657,7 +1657,7 @@ private:
             }
             case TResponse::kCreateSemaphoreResult: {
                 const auto& source = Response->create_semaphore_result();
-                const ui64 reqId = source.req_id();
+                const uint64_t reqId = source.req_id();
                 auto plain = MakePlainStatus(source.status(), source.issues());
                 TResultPromise<void> resultPromise;
                 {
@@ -1675,7 +1675,7 @@ private:
             }
             case TResponse::kUpdateSemaphoreResult: {
                 const auto& source = Response->update_semaphore_result();
-                const ui64 reqId = source.req_id();
+                const uint64_t reqId = source.req_id();
                 auto plain = MakePlainStatus(source.status(), source.issues());
                 TResultPromise<void> resultPromise;
                 {
@@ -1693,7 +1693,7 @@ private:
             }
             case TResponse::kDeleteSemaphoreResult: {
                 const auto& source = Response->delete_semaphore_result();
-                const ui64 reqId = source.req_id();
+                const uint64_t reqId = source.req_id();
                 auto plain = MakePlainStatus(source.status(), source.issues());
                 TResultPromise<void> resultPromise;
                 {
@@ -1771,15 +1771,15 @@ private:
     IQueueClientContextPtr ConnectTimeoutContext;
 
     std::unordered_map<std::string, TSemaphoreState> Semaphores;
-    std::unordered_map<ui64, TSemaphoreState*> SemaphoreByReqId;
+    std::unordered_map<uint64_t, TSemaphoreState*> SemaphoreByReqId;
     std::deque<std::unique_ptr<TSimpleOp>> PendingRequests;
-    std::unordered_map<ui64, std::unique_ptr<TSimpleOp>> SentRequests;
+    std::unordered_map<uint64_t, std::unique_ptr<TSimpleOp>> SentRequests;
     TResultPromise<void> ReconnectPromise;
 
     // These are used to manage session timeout
     IQueueClientContextPtr SessionStartTimeoutContext;
     IQueueClientContextPtr SessionSelfPingContext;
-    ui64 SessionSelfPingReqId = 0;
+    uint64_t SessionSelfPingReqId = 0;
 
     // This will be set to true when session is timed out
     bool SessionTimeout = false;
@@ -1798,9 +1798,9 @@ private:
     IProcessor::TPtr Processor;
     std::unique_ptr<TResponse> Response;
 
-    ui64 SessionSeqNo = 0;
-    ui64 SessionId = 0;
-    ui64 NextReqId = 1;
+    uint64_t SessionSeqNo = 0;
+    uint64_t SessionId = 0;
+    uint64_t NextReqId = 1;
 
     bool IsStopping = false;
 };
@@ -1919,7 +1919,7 @@ TAsyncStatus TClient::CreateNode(
     const TCreateNodeSettings& settings)
 {
     auto request = MakeOperationRequest<Ydb::Coordination::CreateNodeRequest>(settings);
-    request.set_path(path);
+    request.set_path(TStringType{path});
     ConvertSettingsToProtoConfig(settings, request.mutable_config());
     return Impl_->CreateNode(std::move(request), settings);
 }
@@ -1929,7 +1929,7 @@ TAsyncStatus TClient::AlterNode(
     const TAlterNodeSettings& settings)
 {
     auto request = MakeOperationRequest<Ydb::Coordination::AlterNodeRequest>(settings);
-    request.set_path(path);
+    request.set_path(TStringType{path});
     ConvertSettingsToProtoConfig(settings, request.mutable_config());
     return Impl_->AlterNode(std::move(request), settings);
 }
@@ -1939,7 +1939,7 @@ TAsyncStatus TClient::DropNode(
     const TDropNodeSettings& settings)
 {
     auto request = MakeOperationRequest<Ydb::Coordination::DropNodeRequest>(settings);
-    request.set_path(path);
+    request.set_path(TStringType{path});
     return Impl_->DropNode(std::move(request), settings);
 }
 
@@ -1948,7 +1948,7 @@ TAsyncDescribeNodeResult TClient::DescribeNode(
     const TDescribeNodeSettings& settings)
 {
     auto request = MakeOperationRequest<Ydb::Coordination::DescribeNodeRequest>(settings);
-    request.set_path(path);
+    request.set_path(TStringType{path});
     return Impl_->DescribeNode(std::move(request), settings);
 }
 
@@ -1964,7 +1964,7 @@ public:
         Context->DoClose(true);
     }
 
-    ui64 GetSessionId() {
+    uint64_t GetSessionId() {
         return Context->SessionId;
     }
 
@@ -2006,7 +2006,7 @@ public:
         return Context->DoDescribeSemaphore(name, settings);
     }
 
-    TAsyncResult<void> CreateSemaphore(const std::string& name, ui64 limit, const std::string& data) {
+    TAsyncResult<void> CreateSemaphore(const std::string& name, uint64_t limit, const std::string& data) {
         return Context->DoCreateSemaphore(name, limit, data);
     }
 
@@ -2028,7 +2028,7 @@ TSession::TSession(TSessionContext* context)
     : Impl_(std::make_shared<TImpl>(context))
 { }
 
-ui64 TSession::GetSessionId() {
+uint64_t TSession::GetSessionId() {
     return Impl_->GetSessionId();
 }
 
@@ -2072,7 +2072,7 @@ TAsyncDescribeSemaphoreResult TSession::DescribeSemaphore(
 
 TAsyncResult<void> TSession::CreateSemaphore(
     const std::string& name,
-    ui64 limit,
+    uint64_t limit,
     const std::string& data)
 {
     return Impl_->CreateSemaphore(name, limit, data);

@@ -41,6 +41,11 @@ message Node {
         StorageNode storage = 6;
         DynamicNode dynamic = 7;
     }
+    // start_time defines time when node was registered in cms.
+    google.protobuf.Timestamp start_time = 8;
+    // version defines YDB version for current Node.
+    // For example, 'ydb-stable-24-1'.
+    string version = 9;
 }
 
 message ListClusterNodesRequest {
@@ -60,13 +65,13 @@ enum AvailabilityMode {
     AVAILABILITY_MODE_UNSPECIFIED = 0;
 
     // In this mode allowed:
-    // - at most 1 unavailable disk in each storage group;
+    // - at most 1 unavailable disk in each affected storage group;
     // - at most 1 unavailable state storage ring.
     // For nodes tenant and cluster policies are followed.
     AVAILABILITY_MODE_STRONG = 1;
 
     // In this mode:
-    // - total number of an unavailable disks in each storage group
+    // - total number of an unavailable disks in each affected storage group
     //   shouldn't exceed number of parity parts in that group;
     // - it is allowed to disable (n_to_select - 1) / 2 state storage rings.
     // Nodes are handled as in strong mode.
@@ -85,6 +90,8 @@ message MaintenanceTaskOptions {
     // Availability mode.
     AvailabilityMode availability_mode = 3;
     bool dry_run = 4;
+    // Priority of the task. Lower value indicates higher priority.
+    int32 priority = 5 [(value) = "[-100; 100]"];
 }
 
 // Used to describe the scope of a single action.

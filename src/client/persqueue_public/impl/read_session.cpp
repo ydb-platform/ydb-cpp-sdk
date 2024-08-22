@@ -14,7 +14,7 @@ namespace NYdb::NPersQueue {
 
 static const std::string DRIVER_IS_STOPPING_DESCRIPTION = "Driver is stopping";
 
-std::pair<ui64, ui64> GetMessageOffsetRange(const TReadSessionEvent::TDataReceivedEvent& dataReceivedEvent, ui64 index) {
+std::pair<uint64_t, uint64_t> GetMessageOffsetRange(const TReadSessionEvent::TDataReceivedEvent& dataReceivedEvent, uint64_t index) {
     if (dataReceivedEvent.IsCompressedMessages()) {
         const auto& msg = dataReceivedEvent.GetCompressedMessages()[index];
         return {msg.GetOffset(0), msg.GetOffset(msg.GetBlocksCount() - 1) + 1};
@@ -73,7 +73,7 @@ Ydb::PersQueue::ClusterDiscovery::DiscoverClustersRequest TReadSession::MakeClus
     Ydb::PersQueue::ClusterDiscovery::DiscoverClustersRequest req;
     for (const TTopicReadSettings& topic : Settings.Topics_) {
         auto* params = req.add_read_sessions();
-        params->set_topic(topic.Path_);
+        params->set_topic(TStringType{topic.Path_});
         params->mutable_all_original(); // set all_original
     }
     return req;
@@ -230,7 +230,7 @@ void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueu
             if (!ClusterDiscoveryRetryState) {
                 ClusterDiscoveryRetryState = Settings.RetryPolicy_->CreateRetryState();
             }
-            std::optional<TDuration> retryDelay = ClusterDiscoveryRetryState->GetNextRetryDelay(status.GetStatus());
+            auto retryDelay = ClusterDiscoveryRetryState->GetNextRetryDelay(status.GetStatus());
             if (retryDelay) {
                 LOG_LAZY(Log,
                     TLOG_INFO,

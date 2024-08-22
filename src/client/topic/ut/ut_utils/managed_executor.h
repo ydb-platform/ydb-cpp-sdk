@@ -1,10 +1,11 @@
 #pragma once
 
-#include <src/client/ydb_topic/topic.h>
-#include <src/client/ydb_topic/impl/executor.h>
+#include <ydb-cpp-sdk/client/topic/client.h>
+#include <ydb-cpp-sdk/client/topic/executor.h>
+
+#include <util/system/mutex.h>
 
 #include <vector>
-#include <mutex>
 
 namespace NYdb::NTopic::NTests {
 
@@ -34,7 +35,7 @@ private:
     void RunTask(TFunction&& func);
 
     TExecutorPtr Executor;
-    std::mutex Mutex;
+    TMutex Mutex;
     std::vector<TFunction> Funcs;
     std::atomic<size_t> Planned = 0;
     std::atomic<size_t> Running = 0;

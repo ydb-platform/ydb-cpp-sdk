@@ -5,6 +5,8 @@
 #include <library/cpp/json/json_reader.h>
 #include <util/string/builder.h>
 
+#include <format>
+
 namespace NYdb {
 
     namespace {

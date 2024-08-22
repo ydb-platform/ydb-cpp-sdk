@@ -14,7 +14,7 @@
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 #include <ydb-cpp-sdk/client/extension_common/extension.h>
 
-#include <src/library/yql/public/issue/yql_issue_message.h>
+#include <src/library/yql_common/issue/yql_issue_message.h>
 
 namespace NYdb {
 
@@ -82,7 +82,7 @@ public:
     {
         auto clientConfig = NYdbGrpc::TGRpcClientConfig(dbState->DiscoveryEndpoint);
         const auto& sslCredentials = dbState->SslCredentials;
-        clientConfig.SslCredentials = {.pem_root_certs = sslCredentials.CaCert, .pem_private_key = sslCredentials.PrivateKey, .pem_cert_chain = sslCredentials.Cert};
+        clientConfig.SslCredentials = {.pem_root_certs = TStringType{sslCredentials.CaCert}, .pem_private_key = TStringType{sslCredentials.PrivateKey}, .pem_cert_chain = TStringType{sslCredentials.Cert}};
         clientConfig.EnableSsl = sslCredentials.IsEnabled;
 
         clientConfig.MemQuota = MemoryQuota_;

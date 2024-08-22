@@ -140,8 +140,8 @@ void TFederatedDbObserverImpl::OnFederationDiscovery(TStatus&& status, Ydb::Fede
             FederatedDbState->ControlPlaneEndpoint = dbState->DiscoveryEndpoint;
             // FederatedDbState->SelfLocation = ???;
             auto db = std::make_shared<Ydb::FederationDiscovery::DatabaseInfo>();
-            db->set_path(DbDriverState_->Database);
-            db->set_endpoint(DbDriverState_->DiscoveryEndpoint);
+            db->set_path(TStringType{DbDriverState_->Database});
+            db->set_endpoint(TStringType{DbDriverState_->DiscoveryEndpoint});
             db->set_status(Ydb::FederationDiscovery::DatabaseInfo_Status_AVAILABLE);
             db->set_weight(100);
             FederatedDbState->DbInfos.emplace_back(std::move(db));
@@ -151,8 +151,10 @@ void TFederatedDbObserverImpl::OnFederationDiscovery(TStatus&& status, Ydb::Fede
                 if (!FederationDiscoveryRetryState) {
                     FederationDiscoveryRetryState = FederationDiscoveryRetryPolicy->CreateRetryState();
                 }
-                std::optional<TDuration> retryDelay = FederationDiscoveryRetryState->GetNextRetryDelay(status.GetStatus());
-                if (retryDelay.has_value()) {
+
+                auto retryDelay = FederationDiscoveryRetryState->GetNextRetryDelay(status.GetStatus());
+
+                if (retryDelay) {
                     ScheduleFederationDiscoveryImpl(*retryDelay);
                     return;
                 }

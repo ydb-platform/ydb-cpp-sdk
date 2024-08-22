@@ -2,6 +2,8 @@
 #include <ydb-cpp-sdk/client/types/credentials/oauth2_token_exchange/credentials.h>
 #include <ydb-cpp-sdk/client/types/credentials/oauth2_token_exchange/jwt_token_source.h>
 
+#include <ydb-cpp-sdk/type_switcher.h>
+
 #include <library/cpp/json/json_reader.h>
 #include <src/library/string_utils/base64/base64.h>
 
@@ -248,7 +250,7 @@ TOauth2TokenExchangeParams ReadOauth2ConfigJson(const std::string& configJson, c
 }
 
 TOauth2TokenExchangeParams ReadOauth2ConfigFile(const std::string& configFilePath, const std::string& tokenEndpoint) {
-    return ReadOauth2ConfigJson(TFileInput(configFilePath).ReadAll(), tokenEndpoint);
+    return ReadOauth2ConfigJson(TFileInput(TString{configFilePath}).ReadAll(), tokenEndpoint);
 }
 
 } // namespace

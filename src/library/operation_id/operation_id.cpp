@@ -1,7 +1,5 @@
 #include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 
-#include <google/protobuf/message.h>
-
 #include <library/cpp/cgiparam/cgiparam.h>
 #include <library/cpp/uri/uri.h>
 
@@ -67,7 +65,7 @@ std::string TOperationId::ToString() const {
         res << "?";
     }
 
-    for (int i = 0; i < Data.size(); i++) {
+    for (size_t i = 0; i < Data.size(); ++i) {
         TUri::ReEncode(res, Data[i]->Key);
         res << "=";
         TUri::ReEncode(res, Data[i]->Value);
