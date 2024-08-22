@@ -122,12 +122,9 @@ Y_UNIT_TEST_SUITE(TestFileStat) {
         UNIT_ASSERT_VALUES_EQUAL_C(false, statFollow.IsFile(), ToString(statFollow.Mode));
         UNIT_ASSERT_VALUES_EQUAL_C(true, statFollow.IsSymlink(), ToString(statFollow.Mode));
         UNIT_ASSERT_VALUES_EQUAL_C(false, statFollow.IsDir(), ToString(statFollow.Mode));
-
-        NFs::RemoveRecursive(GetOutputPath());
     }
 
     Y_UNIT_TEST(SymlinkToNonExistingFileTest) {
-        NFs::MakeDirectory(GetOutputPath());
         const auto path = GetOutputPath() / "file_2";
         const auto link = GetOutputPath() / "symlink_2";
         SAFE_SYMLINK(path, link);
@@ -143,12 +140,9 @@ Y_UNIT_TEST_SUITE(TestFileStat) {
         UNIT_ASSERT_VALUES_EQUAL_C(false, statFollow.IsFile(), ToString(statFollow.Mode));
         UNIT_ASSERT_VALUES_EQUAL_C(true, statFollow.IsSymlink(), ToString(statFollow.Mode));
         UNIT_ASSERT_VALUES_EQUAL_C(false, statFollow.IsDir(), ToString(statFollow.Mode));
-
-        NFs::RemoveRecursive(GetOutputPath());
     }
 
     Y_UNIT_TEST(SymlinkToFileThatCantExistTest) {
-        NFs::MakeDirectory(GetOutputPath());
         const auto path = TFsPath("/path") / "that" / "does" / "not" / "exists";
         const auto link = GetOutputPath() / "symlink_3";
         SAFE_SYMLINK(path, link);
@@ -164,8 +158,6 @@ Y_UNIT_TEST_SUITE(TestFileStat) {
         UNIT_ASSERT_VALUES_EQUAL_C(false, statFollow.IsFile(), ToString(statFollow.Mode));
         UNIT_ASSERT_VALUES_EQUAL_C(true, statFollow.IsSymlink(), ToString(statFollow.Mode));
         UNIT_ASSERT_VALUES_EQUAL_C(false, statFollow.IsDir(), ToString(statFollow.Mode));
-
-        NFs::RemoveRecursive(GetOutputPath());
     }
 
     Y_UNIT_TEST(FileDoesNotExistTest) {
