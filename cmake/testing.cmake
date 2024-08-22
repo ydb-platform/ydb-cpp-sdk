@@ -70,7 +70,7 @@ endfunction()
 function(add_ydb_test)
   set(opts GTEST)
   set(oneval_args NAME WORKING_DIRECTORY OUTPUT_DIRECTORY)
-  set(multival_args INCLUDE_DIRS SOURCES LINK_LIBRARIES LABELS)
+  set(multival_args INCLUDE_DIRS SOURCES LINK_LIBRARIES LABELS TEST_ARG)
   cmake_parse_arguments(YDB_TEST
     "${opts}"
     "${oneval_args}"
@@ -125,6 +125,8 @@ function(add_ydb_test)
         ${YDB_TEST_NAME}
       TEST_TARGET
         ${YDB_TEST_NAME}
+      TEST_ARG
+        ${YDB_TEST_TEST_ARG}
       WORKING_DIRECTORY
         ${YDB_TEST_WORKING_DIRECTORY}
     )
@@ -140,6 +142,7 @@ function(add_ydb_test)
         --fork-tests
         --print-times
         --show-fails
+        ${YDB_TEST_TEST_ARG}
       WORKING_DIRECTORY
         ${YDB_TEST_WORKING_DIRECTORY}
     )
