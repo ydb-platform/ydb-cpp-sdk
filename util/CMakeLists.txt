@@ -265,7 +265,6 @@ if (YDB_SDK_TESTS)
       system/filemap_ut.cpp
       system/file_ut.cpp
       system/flock_ut.cpp
-      system/fstat_ut.cpp
       system/fs_ut.cpp
       system/getpid_ut.cpp
       system/guard_ut.cpp
@@ -304,6 +303,20 @@ if (YDB_SDK_TESTS)
       # system/unaligned_mem_ut.cpp
       system/user_ut.cpp
       system/yassert_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_test(NAME util-system-fstat_ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/system
+    OUTPUT_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/system/testing_out_stuff
+    SOURCES
+      system/fstat_ut.cpp
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main

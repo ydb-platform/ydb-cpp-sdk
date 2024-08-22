@@ -69,7 +69,7 @@ endfunction()
 
 function(add_ydb_test)
   set(opts GTEST)
-  set(oneval_args NAME WORKING_DIRECTORY)
+  set(oneval_args NAME WORKING_DIRECTORY OUTPUT_DIRECTORY)
   set(multival_args INCLUDE_DIRS SOURCES LINK_LIBRARIES LABELS)
   cmake_parse_arguments(YDB_TEST
     "${opts}"
@@ -80,6 +80,10 @@ function(add_ydb_test)
 
   if (YDB_TEST_WORKING_DIRECTORY AND NOT EXISTS "${YDB_TEST_WORKING_DIRECTORY}")
     file(MAKE_DIRECTORY "${YDB_TEST_WORKING_DIRECTORY}")
+  endif()
+
+  if (YDB_TEST_OUTPUT_DIRECTORY AND NOT EXISTS "${YDB_TEST_OUTPUT_DIRECTORY}")
+    file(MAKE_DIRECTORY "${YDB_TEST_OUTPUT_DIRECTORY}")
   endif()
 
   add_executable(${YDB_TEST_NAME})
