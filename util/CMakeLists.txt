@@ -3,6 +3,8 @@ add_subdirectory(draft)
 
 if (YDB_SDK_TESTS)
   add_ydb_test(NAME util-datetime-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/datetime
     SOURCES
       datetime/base_ut.cpp
       datetime/cputimer_ut.cpp
@@ -18,6 +20,8 @@ if (YDB_SDK_TESTS)
   )
 
   add_ydb_test(NAME util-digest-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/digest
     SOURCES
       digest/city_ut.cpp
       digest/fnv_ut.cpp
@@ -32,6 +36,8 @@ if (YDB_SDK_TESTS)
   )
 
   add_ydb_test(NAME util-folder-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/folder
     SOURCES
       folder/dirut_ut.cpp
       folder/filelist_ut.cpp
@@ -48,6 +54,8 @@ if (YDB_SDK_TESTS)
   )
 
   add_ydb_test(NAME util-generic-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/generic
     SOURCES
       generic/adaptor_ut.cpp
       generic/algorithm_ut.cpp
@@ -106,6 +114,8 @@ if (YDB_SDK_TESTS)
   )
 
   add_ydb_test(NAME util-generic-yexception_ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/generic
     SOURCES
       generic/yexception_ut.c
       generic/yexception_ut.cpp
@@ -124,6 +134,8 @@ if (YDB_SDK_TESTS)
   endif()
 
   add_ydb_test(NAME util-memory-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/memory
     SOURCES
       memory/addstorage_ut.cpp
       memory/blob_ut.cpp
@@ -138,6 +150,8 @@ if (YDB_SDK_TESTS)
   )
 
   add_ydb_test(NAME util-network-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/network
     SOURCES
       network/address_ut.cpp
       network/endpoint_ut.cpp
@@ -154,6 +168,8 @@ if (YDB_SDK_TESTS)
   )
 
   add_ydb_test(NAME util-random-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/random
     SOURCES
       random/common_ops_ut.cpp
       random/easy_ut.cpp
@@ -171,6 +187,8 @@ if (YDB_SDK_TESTS)
   )
 
   add_ydb_test(NAME util-stream-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/stream
     SOURCES
       stream/aligned_ut.cpp
       stream/buffered_ut.cpp
@@ -200,6 +218,8 @@ if (YDB_SDK_TESTS)
   )
 
   add_ydb_test(NAME util-string-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/string
     SOURCES
       string/ascii_ut.cpp
       string/builder_ut.cpp
@@ -223,6 +243,8 @@ if (YDB_SDK_TESTS)
   )
 
   add_ydb_test(NAME util-system-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/system
     SOURCES
       system/align_ut.cpp
       system/atexit_ut.cpp
@@ -291,6 +313,8 @@ if (YDB_SDK_TESTS)
 
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     add_ydb_test(NAME util-system-fs_win_ut
+      WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/system
       SOURCES
         system/fs_win_ut.cpp
       LINK_LIBRARIES
@@ -302,6 +326,8 @@ if (YDB_SDK_TESTS)
   endif()
 
   add_ydb_test(NAME util-thread-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/thread
     SOURCES
       thread/factory_ut.cpp
       thread/lfqueue_ut.cpp
