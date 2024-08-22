@@ -279,9 +279,11 @@ if (YDB_SDK_TESTS)
       system/nice_ut.cpp
       system/pipe_ut.cpp
       system/platform_ut.cpp
+
       # NOTE: `progname_ut` checks if the executable file's name, aka the target's
       # name, is either "util-system-ut" or slightly different variations
       system/progname_ut.cpp
+
       system/rusage_ut.cpp
       system/rwlock_ut.cpp
       system/sanitizers_ut.cpp
@@ -292,16 +294,22 @@ if (YDB_SDK_TESTS)
       system/src_root_ut.cpp
       system/tempfile_ut.cpp
       system/tls_ut.cpp
-      system/type_name_ut.cpp
+
+      # NOTE: this test shouldn't be run with STL, so it's explicitly disabled
+      # system/type_name_ut.cpp
+
       # NOTE: `thread_ut` compares the executable file's name and the current
       # thread name, whose length can't be more than 16 bytes in Linux,
       # so the test name shouldn't be longer than "util-system-ut"
       system/thread_ut.cpp
+
       system/types_ut.cpp
+
       # TODO: add library/cpp/testing/benchmark
       #       depends only on NBench::Clobber, that's a memory optimization barrier
       # system/unaligned_mem_ut.cpp
       system/user_ut.cpp
+
       system/yassert_ut.cpp
     LINK_LIBRARIES
       yutil
