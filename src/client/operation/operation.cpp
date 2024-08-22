@@ -11,7 +11,7 @@
 #include <src/client/ss_tasks/task.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 
-#include <src/api/grpc/ydb_operation_v1.grpc.pb.h>
+#include <ydb/public/api/grpc/ydb_operation_v1.grpc.pb.h>
 #include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 #include <src/client/common_client/impl/client.h>
 
@@ -134,21 +134,21 @@ TOperationClient::TOperationClient(const TDriver& driver, const TCommonClientSet
 template <typename TOp>
 TFuture<TOp> TOperationClient::Get(const TOperation::TOperationId& id) {
     auto request = MakeRequest<GetOperationRequest>();
-    request.set_id(id.ToString());
+    request.set_id(TStringType{id.ToString()});
 
     return Impl_->Get<TOp>(std::move(request));
 }
 
 TAsyncStatus TOperationClient::Cancel(const TOperation::TOperationId& id) {
     auto request = MakeRequest<CancelOperationRequest>();
-    request.set_id(id.ToString());
+    request.set_id(TStringType{id.ToString()});
 
     return Impl_->Cancel(std::move(request));
 }
 
 TAsyncStatus TOperationClient::Forget(const TOperation::TOperationId& id) {
     auto request = MakeRequest<ForgetOperationRequest>();
-    request.set_id(id.ToString());
+    request.set_id(TStringType{id.ToString()});
 
     return Impl_->Forget(std::move(request));
 }
@@ -157,12 +157,12 @@ template <typename TOp>
 TFuture<TOperationsList<TOp>> TOperationClient::List(const std::string& kind, ui64 pageSize, const std::string& pageToken) {
     auto request = MakeRequest<ListOperationsRequest>();
 
-    request.set_kind(kind);
+    request.set_kind(TStringType{kind});
     if (pageSize) {
         request.set_page_size(pageSize);
     }
     if (!pageToken.empty()) {
-        request.set_page_token(pageToken);
+        request.set_page_token(TStringType{pageToken});
     }
 
     return Impl_->List<TOp>(std::move(request));

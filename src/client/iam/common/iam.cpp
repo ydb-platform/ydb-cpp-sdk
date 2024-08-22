@@ -3,8 +3,8 @@
 #include <library/cpp/json/json_reader.h>
 
 #include <library/cpp/http/simple/http_client.h>
-#include <src/api/client/yc_public/iam/iam_token_service.pb.h>
-#include <src/api/client/yc_public/iam/iam_token_service.grpc.pb.h>
+#include <ydb/public/api/client/yc_public/iam/iam_token_service.pb.h>
+#include <ydb/public/api/client/yc_public/iam/iam_token_service.grpc.pb.h>
 
 using namespace NYdbGrpc;
 using namespace yandex::cloud::iam::v1;

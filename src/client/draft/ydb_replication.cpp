@@ -4,9 +4,9 @@
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <ydb-cpp-sdk/library/yql/public/issue/yql_issue.h>
-#include <src/library/yql/public/issue/yql_issue_message.h>
-#include <src/api/grpc/draft/ydb_replication_v1.grpc.pb.h>
+#include <ydb-cpp-sdk/library/yql_common/issue/yql_issue.h>
+#include <src/library/yql_common/issue/yql_issue_message.h>
+#include <ydb/public/api/grpc/draft/ydb_replication_v1.grpc.pb.h>
 #include <src/client/common_client/impl/client.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 
@@ -167,7 +167,7 @@ public:
         using namespace Ydb::Replication;
 
         auto request = MakeOperationRequest<DescribeReplicationRequest>(settings);
-        request.set_path(path);
+        request.set_path(TStringType{path});
 
         auto promise = NThreading::NewPromise<TDescribeReplicationResult>();
 

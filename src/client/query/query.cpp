@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/query/query.h>
 
-#include <src/api/grpc/ydb_query_v1.grpc.pb.h>
+#include <ydb/public/api/grpc/ydb_query_v1.grpc.pb.h>
 
 namespace NYdb::NQuery {
 

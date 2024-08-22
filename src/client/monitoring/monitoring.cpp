@@ -4,8 +4,8 @@
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <src/api/grpc/ydb_monitoring_v1.grpc.pb.h>
-#include <src/api/protos/ydb_monitoring.pb.h>
+#include <ydb/public/api/grpc/ydb_monitoring_v1.grpc.pb.h>
+#include <ydb/public/api/protos/ydb_monitoring.pb.h>
 #include <src/client/common_client/impl/client.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 

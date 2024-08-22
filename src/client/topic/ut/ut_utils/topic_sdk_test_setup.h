@@ -1,27 +1,30 @@
-#pragma once 
+#pragma once
 
-#include <src/client/ydb_persqueue_core/ut/ut_utils/test_server.h>
+#include <ydb/public/sdk/cpp/src/client/persqueue_public/ut/ut_utils/test_server.h>
 
-#include <src/client/ydb_topic/impl/write_session.h>
+#include <ydb/public/sdk/cpp/src/client/topic/impl/write_session.h>
 
 namespace NYdb::NTopic::NTests {
 
 #define TEST_CASE_NAME (this->Name_)
 
-inline static const std::string TEST_TOPIC = "test-topic";
-inline static const std::string TEST_CONSUMER = "test-consumer";
-inline static const std::string TEST_MESSAGE_GROUP_ID = "test-message_group_id";
+inline static const TString TEST_TOPIC = "test-topic";
+inline static const TString TEST_CONSUMER = "test-consumer";
+inline static const TString TEST_MESSAGE_GROUP_ID = "test-message_group_id";
 
 class TTopicSdkTestSetup {
 public:
-    TTopicSdkTestSetup(const std::string& testCaseName, const NKikimr::Tests::TServerSettings& settings = MakeServerSettings(), bool createTopic = true);
+    TTopicSdkTestSetup(const TString& testCaseName, const NKikimr::Tests::TServerSettings& settings = MakeServerSettings(), bool createTopic = true);
 
-    void CreateTopic(const std::string& path = TEST_TOPIC, const std::string& consumer = TEST_CONSUMER, size_t partitionCount = 1);
+    void CreateTopic(const TString& path = TEST_TOPIC, const TString& consumer = TEST_CONSUMER, size_t partitionCount = 1,
+                     std::optional<size_t> maxPartitionCount = std::nullopt);
+    void CreateTopicWithAutoscale(const TString& path = TEST_TOPIC, const TString& consumer = TEST_CONSUMER, size_t partitionCount = 1,
+                     size_t maxPartitionCount = 100);
 
-    std::string GetEndpoint() const;
-    std::string GetTopicPath(const std::string& name = TEST_TOPIC) const;
-    std::string GetTopicParent() const;
-    std::string GetDatabase() const;
+    TString GetEndpoint() const;
+    TString GetTopicPath(const TString& name = TEST_TOPIC) const;
+    TString GetTopicParent() const;
+    TString GetDatabase() const;
 
     ::NPersQueue::TTestServer& GetServer();
     NActors::TTestActorRuntime& GetRuntime();
@@ -35,7 +38,7 @@ public:
     TDriverConfig MakeDriverConfig() const;
     static NKikimr::Tests::TServerSettings MakeServerSettings();
 private:
-    std::string Database;
+    TString Database;
     ::NPersQueue::TTestServer Server;
 
     TLog Log = CreateLogBackend("cerr", ELogPriority::TLOG_DEBUG);

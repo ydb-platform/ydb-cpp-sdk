@@ -9,8 +9,8 @@
 #include <src/client/impl/ydb_internal/retry/retry_sync.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <src/api/grpc/ydb_table_v1.grpc.pb.h>
-#include <src/api/protos/ydb_table.pb.h>
+#include <ydb/public/api/grpc/ydb_table_v1.grpc.pb.h>
+#include <ydb/public/api/protos/ydb_table.pb.h>
 #include <src/client/impl/ydb_stats/stats.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 #include <ydb-cpp-sdk/client/value/value.h>
@@ -217,37 +217,37 @@ std::optional<bool> TPartitioningSettings::GetPartitioningByLoad() const {
     }
 }
 
-ui64 TPartitioningSettings::GetPartitionSizeMb() const {
+uint64_t TPartitioningSettings::GetPartitionSizeMb() const {
     return GetProto().partition_size_mb();
 }
 
-ui64 TPartitioningSettings::GetMinPartitionsCount() const {
+uint64_t TPartitioningSettings::GetMinPartitionsCount() const {
     return GetProto().min_partitions_count();
 }
 
-ui64 TPartitioningSettings::GetMaxPartitionsCount() const {
+uint64_t TPartitioningSettings::GetMaxPartitionsCount() const {
     return GetProto().max_partitions_count();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 struct TTableStats {
-    ui64 Rows = 0;
-    ui64 Size = 0;
-    ui64 Partitions = 0;
+    uint64_t Rows = 0;
+    uint64_t Size = 0;
+    uint64_t Partitions = 0;
     TInstant ModificationTime;
     TInstant CreationTime;
 };
 
 static TInstant ProtobufTimestampToTInstant(const google::protobuf::Timestamp& timestamp) {
-    ui64 lastModificationUs = timestamp.seconds() * 1000000;
+    uint64_t lastModificationUs = timestamp.seconds() * 1000000;
     lastModificationUs += timestamp.nanos() / 1000;
     return TInstant::MicroSeconds(lastModificationUs);
 }
 
 static void SerializeTo(const TRenameIndex& rename, Ydb::Table::RenameIndexItem& proto) {
-    proto.set_source_name(rename.SourceName_);
-    proto.set_destination_name(rename.DestinationName_);
+    proto.set_source_name(TStringType{rename.SourceName_});
+    proto.set_destination_name(TStringType{rename.DestinationName_});
     proto.set_replace_destination(rename.ReplaceDestination_);
 }
 
@@ -493,7 +493,7 @@ public:
         CompactionPolicy_ = name;
     }
 
-    void SetUniformPartitions(ui64 partitionsCount) {
+    void SetUniformPartitions(uint64_t partitionsCount) {
         UniformPartitions_ = partitionsCount;
     }
 
@@ -510,7 +510,7 @@ public:
         KeyBloomFilter_ = enabled;
     }
 
-    void SetReadReplicasSettings(TReadReplicasSettings::EMode mode, ui64 readReplicasCount) {
+    void SetReadReplicasSettings(TReadReplicasSettings::EMode mode, uint64_t readReplicasCount) {
         ReadReplicasSettings_ = TReadReplicasSettings(mode, readReplicasCount);
     }
 
@@ -590,7 +590,7 @@ public:
         return CompactionPolicy_;
     }
 
-    const std::optional<ui64>& GetUniformPartitions() const {
+    const std::optional<uint64_t>& GetUniformPartitions() const {
         return UniformPartitions_;
     }
 
@@ -632,7 +632,7 @@ private:
     std::vector<TColumnFamilyDescription> ColumnFamilies_;
     std::unordered_map<std::string, std::string> Attributes_;
     std::string CompactionPolicy_;
-    std::optional<ui64> UniformPartitions_;
+    std::optional<uint64_t> UniformPartitions_;
     std::optional<TExplicitPartitions> PartitionAtKeys_;
     TPartitioningSettings PartitioningSettings_;
     std::optional<bool> KeyBloomFilter_;
@@ -793,7 +793,7 @@ void TTableDescription::SetCompactionPolicy(const std::string& name) {
     Impl_->SetCompactionPolicy(name);
 }
 
-void TTableDescription::SetUniformPartitions(ui64 partitionsCount) {
+void TTableDescription::SetUniformPartitions(uint64_t partitionsCount) {
     Impl_->SetUniformPartitions(partitionsCount);
 }
 
@@ -809,7 +809,7 @@ void TTableDescription::SetKeyBloomFilter(bool enabled) {
     Impl_->SetKeyBloomFilter(enabled);
 }
 
-void TTableDescription::SetReadReplicasSettings(TReadReplicasSettings::EMode mode, ui64 readReplicasCount) {
+void TTableDescription::SetReadReplicasSettings(TReadReplicasSettings::EMode mode, uint64_t readReplicasCount) {
     Impl_->SetReadReplicasSettings(mode, readReplicasCount);
 }
 
@@ -829,15 +829,15 @@ TInstant TTableDescription::GetCreationTime() const {
     return Impl_->GetTableStats().CreationTime;
 }
 
-ui64 TTableDescription::GetTableSize() const {
+uint64_t TTableDescription::GetTableSize() const {
     return Impl_->GetTableStats().Size;
 }
 
-ui64 TTableDescription::GetTableRows() const {
+uint64_t TTableDescription::GetTableRows() const {
     return Impl_->GetTableStats().Rows;
 }
 
-ui64 TTableDescription::GetPartitionsCount() const {
+uint64_t TTableDescription::GetPartitionsCount() const {
     return Impl_->GetTableStats().Partitions;
 }
 
@@ -872,16 +872,16 @@ const Ydb::Table::DescribeTableResult& TTableDescription::GetProto() const {
 void TTableDescription::SerializeTo(Ydb::Table::CreateTableRequest& request) const {
     for (const auto& column : Impl_->GetColumns()) {
         auto& protoColumn = *request.add_columns();
-        protoColumn.set_name(column.Name);
+        protoColumn.set_name(TStringType{column.Name});
         protoColumn.mutable_type()->CopyFrom(TProtoAccessor::GetProto(column.Type));
-        protoColumn.set_family(column.Family);
+        protoColumn.set_family(TStringType{column.Family});
         if (column.NotNull.has_value()) {
             protoColumn.set_not_null(column.NotNull.value());
         }
     }
 
     for (const auto& pk : Impl_->GetPrimaryKeyColumns()) {
-        request.add_primary_key(pk);
+        request.add_primary_key(TStringType{pk});
     }
 
     for (const auto& index : Impl_->GetIndexDescriptions()) {
@@ -893,7 +893,7 @@ void TTableDescription::SerializeTo(Ydb::Table::CreateTableRequest& request) con
     }
 
     if (const auto& tiering = Impl_->GetTiering()) {
-        request.set_tiering(*tiering);
+        request.set_tiering(TStringType{tiering.value()});
     }
 
     if (Impl_->GetStoreType() == EStoreType::Column) {
@@ -914,7 +914,7 @@ void TTableDescription::SerializeTo(Ydb::Table::CreateTableRequest& request) con
     }
 
     if (!Impl_->GetCompactionPolicy().empty()) {
-        request.set_compaction_policy(Impl_->GetCompactionPolicy());
+        request.set_compaction_policy(TStringType{Impl_->GetCompactionPolicy()});
     }
 
     if (const auto& uniformPartitions = Impl_->GetUniformPartitions()) {
@@ -972,17 +972,17 @@ TStorageSettingsBuilder::TStorageSettingsBuilder()
 TStorageSettingsBuilder::~TStorageSettingsBuilder() { }
 
 TStorageSettingsBuilder& TStorageSettingsBuilder::SetTabletCommitLog0(const std::string& media) {
-    Impl_->Proto.mutable_tablet_commit_log0()->set_media(media);
+    Impl_->Proto.mutable_tablet_commit_log0()->set_media(TStringType{media});
     return *this;
 }
 
 TStorageSettingsBuilder& TStorageSettingsBuilder::SetTabletCommitLog1(const std::string& media) {
-    Impl_->Proto.mutable_tablet_commit_log1()->set_media(media);
+    Impl_->Proto.mutable_tablet_commit_log1()->set_media(TStringType{media});
     return *this;
 }
 
 TStorageSettingsBuilder& TStorageSettingsBuilder::SetExternal(const std::string& media) {
-    Impl_->Proto.mutable_external()->set_media(media);
+    Impl_->Proto.mutable_external()->set_media(TStringType{media});
     return *this;
 }
 
@@ -1021,17 +1021,17 @@ TPartitioningSettingsBuilder& TPartitioningSettingsBuilder::SetPartitioningByLoa
     return *this;
 }
 
-TPartitioningSettingsBuilder& TPartitioningSettingsBuilder::SetPartitionSizeMb(ui64 sizeMb) {
+TPartitioningSettingsBuilder& TPartitioningSettingsBuilder::SetPartitionSizeMb(uint64_t sizeMb) {
     Impl_->Proto.set_partition_size_mb(sizeMb);
     return *this;
 }
 
-TPartitioningSettingsBuilder& TPartitioningSettingsBuilder::SetMinPartitionsCount(ui64 count) {
+TPartitioningSettingsBuilder& TPartitioningSettingsBuilder::SetMinPartitionsCount(uint64_t count) {
     Impl_->Proto.set_min_partitions_count(count);
     return *this;
 }
 
-TPartitioningSettingsBuilder& TPartitioningSettingsBuilder::SetMaxPartitionsCount(ui64 count) {
+TPartitioningSettingsBuilder& TPartitioningSettingsBuilder::SetMaxPartitionsCount(uint64_t count) {
     Impl_->Proto.set_max_partitions_count(count);
     return *this;
 }
@@ -1050,13 +1050,13 @@ public:
 TColumnFamilyBuilder::TColumnFamilyBuilder(const std::string& name)
     : Impl_(new TImpl)
 {
-    Impl_->Proto.set_name(name);
+    Impl_->Proto.set_name(TStringType{name});
 }
 
 TColumnFamilyBuilder::~TColumnFamilyBuilder() { }
 
 TColumnFamilyBuilder& TColumnFamilyBuilder::SetData(const std::string& media) {
-    Impl_->Proto.mutable_data()->set_media(media);
+    Impl_->Proto.mutable_data()->set_media(TStringType{media});
     return *this;
 }
 
@@ -1257,7 +1257,7 @@ TTableBuilder& TTableBuilder::SetCompactionPolicy(const std::string& name) {
     return *this;
 }
 
-TTableBuilder& TTableBuilder::SetUniformPartitions(ui64 partitionsCount) {
+TTableBuilder& TTableBuilder::SetUniformPartitions(uint64_t partitionsCount) {
     TableDescription_.SetUniformPartitions(partitionsCount);
     return *this;
 }
@@ -1277,7 +1277,7 @@ TTableBuilder& TTableBuilder::SetKeyBloomFilter(bool enabled) {
     return *this;
 }
 
-TTableBuilder& TTableBuilder::SetReadReplicasSettings(TReadReplicasSettings::EMode mode, ui64 readReplicasCount) {
+TTableBuilder& TTableBuilder::SetReadReplicasSettings(TReadReplicasSettings::EMode mode, uint64_t readReplicasCount) {
     TableDescription_.SetReadReplicasSettings(mode, readReplicasCount);
     return *this;
 }
@@ -1373,15 +1373,15 @@ TAsyncCreateSessionResult TTableClient::GetSession(const TCreateSessionSettings&
     return Impl_->GetSession(settings);
 }
 
-i64 TTableClient::GetActiveSessionCount() const {
+int64_t TTableClient::GetActiveSessionCount() const {
     return Impl_->GetActiveSessionCount();
 }
 
-i64 TTableClient::GetActiveSessionsLimit() const {
+int64_t TTableClient::GetActiveSessionsLimit() const {
     return Impl_->GetActiveSessionsLimit();
 }
 
-i64 TTableClient::GetCurrentPoolSize() const {
+int64_t TTableClient::GetCurrentPoolSize() const {
     return Impl_->GetCurrentPoolSize();
 }
 
@@ -1457,18 +1457,18 @@ TAsyncScanQueryPartIterator TTableClient::StreamExecuteScanQuery(const std::stri
 
 static void ConvertCreateTableSettingsToProto(const TCreateTableSettings& settings, Ydb::Table::TableProfile* proto) {
     if (settings.PresetName_) {
-        proto->set_preset_name(settings.PresetName_.value());
+        proto->set_preset_name(TStringType{settings.PresetName_.value()});
     }
     if (settings.ExecutionPolicy_) {
-        proto->mutable_execution_policy()->set_preset_name(settings.ExecutionPolicy_.value());
+        proto->mutable_execution_policy()->set_preset_name(TStringType{settings.ExecutionPolicy_.value()});
     }
     if (settings.CompactionPolicy_) {
-        proto->mutable_compaction_policy()->set_preset_name(settings.CompactionPolicy_.value());
+        proto->mutable_compaction_policy()->set_preset_name(TStringType{settings.CompactionPolicy_.value()});
     }
     if (settings.PartitioningPolicy_) {
         const auto& policy = settings.PartitioningPolicy_.value();
         if (policy.PresetName_) {
-            proto->mutable_partitioning_policy()->set_preset_name(policy.PresetName_.value());
+            proto->mutable_partitioning_policy()->set_preset_name(TStringType{policy.PresetName_.value()});
         }
         if (policy.AutoPartitioning_) {
             proto->mutable_partitioning_policy()->set_auto_partitioning(static_cast<Ydb::Table::PartitioningPolicy_AutoPartitioningPolicy>(policy.AutoPartitioning_.value()));
@@ -1488,30 +1488,30 @@ static void ConvertCreateTableSettingsToProto(const TCreateTableSettings& settin
     if (settings.StoragePolicy_) {
         const auto& policy = settings.StoragePolicy_.value();
         if (policy.PresetName_) {
-            proto->mutable_storage_policy()->set_preset_name(policy.PresetName_.value());
+            proto->mutable_storage_policy()->set_preset_name(TStringType{policy.PresetName_.value()});
         }
         if (policy.SysLog_) {
-            proto->mutable_storage_policy()->mutable_syslog()->set_media(policy.SysLog_.value());
+            proto->mutable_storage_policy()->mutable_syslog()->set_media(TStringType{policy.SysLog_.value()});
         }
         if (policy.Log_) {
-            proto->mutable_storage_policy()->mutable_log()->set_media(policy.Log_.value());
+            proto->mutable_storage_policy()->mutable_log()->set_media(TStringType{policy.Log_.value()});
         }
         if (policy.Data_) {
-            proto->mutable_storage_policy()->mutable_data()->set_media(policy.Data_.value());
+            proto->mutable_storage_policy()->mutable_data()->set_media(TStringType{policy.Data_.value()});
         }
         if (policy.External_) {
-            proto->mutable_storage_policy()->mutable_external()->set_media(policy.External_.value());
+            proto->mutable_storage_policy()->mutable_external()->set_media(TStringType{policy.External_.value()});
         }
         for (const auto& familyPolicy : policy.ColumnFamilies_) {
             auto* familyProto = proto->mutable_storage_policy()->add_column_families();
             if (familyPolicy.Name_) {
-                familyProto->set_name(familyPolicy.Name_.value());
+                familyProto->set_name(TStringType{familyPolicy.Name_.value()});
             }
             if (familyPolicy.Data_) {
-                familyProto->mutable_data()->set_media(familyPolicy.Data_.value());
+                familyProto->mutable_data()->set_media(TStringType{familyPolicy.Data_.value()});
             }
             if (familyPolicy.External_) {
-                familyProto->mutable_external()->set_media(familyPolicy.External_.value());
+                familyProto->mutable_external()->set_media(TStringType{familyPolicy.External_.value()});
             }
             if (familyPolicy.KeepInMemory_) {
                 familyProto->set_keep_in_memory(
@@ -1530,7 +1530,7 @@ static void ConvertCreateTableSettingsToProto(const TCreateTableSettings& settin
     if (settings.ReplicationPolicy_) {
         const auto& policy = settings.ReplicationPolicy_.value();
         if (policy.PresetName_) {
-            proto->mutable_replication_policy()->set_preset_name(policy.PresetName_.value());
+            proto->mutable_replication_policy()->set_preset_name(TStringType{policy.PresetName_.value()});
         }
         if (policy.ReplicasCount_) {
             proto->mutable_replication_policy()->set_replicas_count(policy.ReplicasCount_.value());
@@ -1578,8 +1578,8 @@ TFuture<TStatus> TSession::CreateTable(const std::string& path, TTableDescriptio
         const TCreateTableSettings& settings)
 {
     auto request = MakeOperationRequest<Ydb::Table::CreateTableRequest>(settings);
-    request.set_session_id(SessionImpl_->GetId());
-    request.set_path(path);
+    request.set_session_id(TStringType{SessionImpl_->GetId()});
+    request.set_path(TStringType{path});
 
     tableDesc.SerializeTo(request);
 
@@ -1604,24 +1604,24 @@ static Ydb::Table::AlterTableRequest MakeAlterTableProtoRequest(
     const std::string& path, const TAlterTableSettings& settings, const std::string& sessionId)
 {
     auto request = MakeOperationRequest<Ydb::Table::AlterTableRequest>(settings);
-    request.set_session_id(sessionId);
-    request.set_path(path);
+    request.set_session_id(TStringType{sessionId});
+    request.set_path(TStringType{path});
 
     for (const auto& column : settings.AddColumns_) {
         auto& protoColumn = *request.add_add_columns();
-        protoColumn.set_name(column.Name);
+        protoColumn.set_name(TStringType{column.Name});
         protoColumn.mutable_type()->CopyFrom(TProtoAccessor::GetProto(column.Type));
-        protoColumn.set_family(column.Family);
+        protoColumn.set_family(TStringType{column.Family});
     }
 
     for (const auto& columnName : settings.DropColumns_) {
-        request.add_drop_columns(columnName);
+        request.add_drop_columns(TStringType{columnName});
     }
 
     for (const auto& alter : settings.AlterColumns_) {
         auto& protoAlter = *request.add_alter_columns();
-        protoAlter.set_name(alter.Name);
-        protoAlter.set_family(alter.Family);
+        protoAlter.set_name(TStringType{alter.Name});
+        protoAlter.set_family(TStringType{alter.Family});
     }
 
     for (const auto& addIndex : settings.AddIndexes_) {
@@ -1629,7 +1629,7 @@ static Ydb::Table::AlterTableRequest MakeAlterTableProtoRequest(
     }
 
     for (const auto& name : settings.DropIndexes_) {
-        request.add_drop_indexes(name);
+        request.add_drop_indexes(TStringType{name});
     }
 
     for (const auto& rename : settings.RenameIndexes_) {
@@ -1641,7 +1641,7 @@ static Ydb::Table::AlterTableRequest MakeAlterTableProtoRequest(
     }
 
     for (const auto& name : settings.DropChangefeeds_) {
-        request.add_drop_changefeeds(name);
+        request.add_drop_changefeeds(TStringType{name});
     }
 
     if (settings.AlterStorageSettings_) {
@@ -1672,7 +1672,7 @@ static Ydb::Table::AlterTableRequest MakeAlterTableProtoRequest(
     }
 
     if (!settings.SetCompactionPolicy_.empty()) {
-        request.set_set_compaction_policy(settings.SetCompactionPolicy_);
+        request.set_set_compaction_policy(TStringType{settings.SetCompactionPolicy_});
     }
 
     if (settings.AlterPartitioningSettings_) {
@@ -1725,12 +1725,12 @@ TAsyncOperation TSession::AlterTableLong(const std::string& path, const TAlterTa
 
 TAsyncStatus TSession::RenameTables(const std::vector<TRenameItem>& renameItems, const TRenameTablesSettings& settings) {
     auto request = MakeOperationRequest<Ydb::Table::RenameTablesRequest>(settings);
-    request.set_session_id(SessionImpl_->GetId());
+    request.set_session_id(TStringType{SessionImpl_->GetId()});
 
     for (const auto& item: renameItems) {
         auto add = request.add_tables();
-        add->set_source_path(item.SourcePath());
-        add->set_destination_path(item.DestinationPath());
+        add->set_source_path(TStringType{item.SourcePath()});
+        add->set_destination_path(TStringType{item.DestinationPath()});
         add->set_replace_destination(item.ReplaceDestination());
     }
 
@@ -1743,12 +1743,12 @@ TAsyncStatus TSession::RenameTables(const std::vector<TRenameItem>& renameItems,
 
 TAsyncStatus TSession::CopyTables(const std::vector<TCopyItem>& copyItems, const TCopyTablesSettings& settings) {
     auto request = MakeOperationRequest<Ydb::Table::CopyTablesRequest>(settings);
-    request.set_session_id(SessionImpl_->GetId());
+    request.set_session_id(TStringType{SessionImpl_->GetId()});
 
     for (const auto& item: copyItems) {
         auto add = request.add_tables();
-        add->set_source_path(item.SourcePath());
-        add->set_destination_path(item.DestinationPath());
+        add->set_source_path(TStringType{item.SourcePath()});
+        add->set_destination_path(TStringType{item.DestinationPath()});
         add->set_omit_indexes(item.OmitIndexes());
     }
 
@@ -1795,7 +1795,7 @@ TAsyncDataQueryResult TSession::ExecuteDataQuery(const std::string& query, const
             nullptr,
             settings);
     } else {
-        using TProtoParamsType = const ::google::protobuf::Map<std::string, Ydb::TypedValue>;
+        using TProtoParamsType = const ::google::protobuf::Map<TStringType, Ydb::TypedValue>;
         return Client_->ExecuteDataQuery<TProtoParamsType&>(
             *this,
             query,
@@ -1936,7 +1936,7 @@ TDataQuery::TDataQuery(const TSession& session, const std::string& text, const s
 {}
 
 TDataQuery::TDataQuery(const TSession& session, const std::string& text, const std::string& id,
-    const ::google::protobuf::Map<std::string, Ydb::Type>& types)
+    const ::google::protobuf::Map<TStringType, Ydb::Type>& types)
     : Impl_(new TImpl(session, text, session.Client_->Settings_.KeepDataQueryText_, id,
                       session.Client_->Settings_.AllowRequestMigration_, types))
 {}
@@ -1984,7 +1984,7 @@ TAsyncDataQueryResult TDataQuery::Execute(const TTxControl& txControl, const TPa
             settings,
             false);
     } else {
-        using TProtoParamsType = const ::google::protobuf::Map<std::string, Ydb::TypedValue>;
+        using TProtoParamsType = const ::google::protobuf::Map<TStringType, Ydb::TypedValue>;
         return Impl_->Session_.Client_->ExecuteDataQuery<TProtoParamsType&>(
             Impl_->Session_,
             *this,
@@ -2240,7 +2240,7 @@ const std::vector<std::string>& TIndexDescription::GetDataColumns() const {
     return DataColumns_;
 }
 
-ui64 TIndexDescription::GetSizeBytes() const {
+uint64_t TIndexDescription::GetSizeBytes() const {
     return SizeBytes;
 }
 
@@ -2277,9 +2277,9 @@ TIndexDescription TIndexDescription::FromProto(const TProto& proto) {
 }
 
 void TIndexDescription::SerializeTo(Ydb::Table::TableIndex& proto) const {
-    proto.set_name(IndexName_);
+    proto.set_name(TStringType{IndexName_});
     for (const auto& indexCol : IndexColumns_) {
-        proto.add_index_columns(indexCol);
+        proto.add_index_columns(TStringType{indexCol});
     }
 
     *proto.mutable_data_columns() = {DataColumns_.begin(), DataColumns_.end()};
@@ -2498,10 +2498,10 @@ TChangefeedDescription TChangefeedDescription::FromProto(const TProto& proto) {
 }
 
 void TChangefeedDescription::SerializeTo(Ydb::Table::Changefeed& proto) const {
-    proto.set_name(Name_);
+    proto.set_name(TStringType{Name_});
     proto.set_virtual_timestamps(VirtualTimestamps_);
     proto.set_initial_scan(InitialScan_);
-    proto.set_aws_region(AwsRegion_);
+    proto.set_aws_region(TStringType{AwsRegion_});
 
     switch (Mode_) {
     case EChangefeedMode::KeysOnly:
@@ -2599,7 +2599,7 @@ TDateTypeColumnModeSettings::TDateTypeColumnModeSettings(const std::string& colu
 {}
 
 void TDateTypeColumnModeSettings::SerializeTo(Ydb::Table::DateTypeColumnModeSettings& proto) const {
-    proto.set_column_name(ColumnName_);
+    proto.set_column_name(TStringType{ColumnName_});
     proto.set_expire_after_seconds(ExpireAfter_.Seconds());
 }
 
@@ -2618,7 +2618,7 @@ TValueSinceUnixEpochModeSettings::TValueSinceUnixEpochModeSettings(const std::st
 {}
 
 void TValueSinceUnixEpochModeSettings::SerializeTo(Ydb::Table::ValueSinceUnixEpochModeSettings& proto) const {
-    proto.set_column_name(ColumnName_);
+    proto.set_column_name(TStringType{ColumnName_});
     proto.set_column_unit(TProtoAccessor::GetProto(ColumnUnit_));
     proto.set_expire_after_seconds(ExpireAfter_.Seconds());
 }
@@ -2828,7 +2828,7 @@ const std::optional<TAlterTtlSettings>& TAlterTableSettings::GetAlterTtlSettings
 
 ////////////////////////////////////////////////////////////////////////////////
 
-TReadReplicasSettings::TReadReplicasSettings(EMode mode, ui64 readReplicasCount)
+TReadReplicasSettings::TReadReplicasSettings(EMode mode, uint64_t readReplicasCount)
     : Mode_(mode)
     , ReadReplicasCount_(readReplicasCount)
 {}
@@ -2837,7 +2837,7 @@ TReadReplicasSettings::EMode TReadReplicasSettings::GetMode() const {
     return Mode_;
 }
 
-ui64 TReadReplicasSettings::GetReadReplicasCount() const {
+uint64_t TReadReplicasSettings::GetReadReplicasCount() const {
     return ReadReplicasCount_;
 }
 

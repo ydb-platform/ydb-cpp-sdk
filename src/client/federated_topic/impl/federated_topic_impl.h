@@ -8,7 +8,7 @@
 #include <src/client/topic/common/executor_impl.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 
-#include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
+#include <ydb/public/api/grpc/ydb_topic_v1.grpc.pb.h>
 #include <ydb-cpp-sdk/client/federated_topic/federated_topic.h>
 #include <src/client/federated_topic/impl/federation_observer.h>
 

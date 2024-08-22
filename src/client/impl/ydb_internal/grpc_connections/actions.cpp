@@ -2,7 +2,7 @@
 #include "actions.h"
 #include "grpc_connections.h"
 
-#include <src/api/grpc/ydb_operation_v1.grpc.pb.h>
+#include <ydb/public/api/grpc/ydb_operation_v1.grpc.pb.h>
 
 namespace NYdb {
 
@@ -42,7 +42,7 @@ void TDeferredAction::OnAlarm() {
     Y_ABORT_UNLESS(Connection_);
 
     Ydb::Operations::GetOperationRequest getOperationRequest;
-    getOperationRequest.set_id(OperationId_);
+    getOperationRequest.set_id(TStringType{OperationId_});
 
     TRpcRequestSettings settings;
     settings.PreferredEndpoint = TEndpointKey(Endpoint_, 0);

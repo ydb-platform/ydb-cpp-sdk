@@ -4,8 +4,10 @@
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <ydb-cpp-sdk/library/yql/public/issue/yql_issue.h>
-#include <src/library/yql/public/issue/yql_issue_message.h>
+#include <ydb-cpp-sdk/library/yql_common/issue/yql_issue.h>
+#include <ydb-cpp-sdk/type_switcher.h>
+
+#include <src/library/yql_common/issue/yql_issue_message.h>
 
 #include <src/client/common_client/impl/client.h>
 
@@ -68,7 +70,7 @@ namespace NYdb::Ymq::V1 {
                     Ydb::Ymq::V1::GetQueueUrlResult>(settings,
                         &Ydb::Ymq::V1::YmqService::Stub::AsyncGetQueueUrl,
                         [&](Ydb::Ymq::V1::GetQueueUrlRequest& req) {
-                            req.set_queue_name(queueName);
+                            req.set_queue_name(TStringType{queueName});
                         }
             );
         }
@@ -80,7 +82,7 @@ namespace NYdb::Ymq::V1 {
                     Ydb::Ymq::V1::CreateQueueResult>(settings,
                         &Ydb::Ymq::V1::YmqService::Stub::AsyncCreateQueue,
                         [&](Ydb::Ymq::V1::CreateQueueRequest& req) {
-                            req.set_queue_name(queueName);
+                            req.set_queue_name(TStringType{queueName});
                         }
             );
         }
@@ -92,8 +94,8 @@ namespace NYdb::Ymq::V1 {
                     Ydb::Ymq::V1::SendMessageResult>(settings,
                         &Ydb::Ymq::V1::YmqService::Stub::AsyncSendMessage,
                         [&](Ydb::Ymq::V1::SendMessageRequest& req) {
-                            req.set_queue_url(queueUrl);
-                            req.set_message_body(body);
+                            req.set_queue_url(TStringType{queueUrl});
+                            req.set_message_body(TStringType{body});
                         }
             );
         }

@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/topic/client.h>
 
-#include <src/api/protos/ydb_federation_discovery.pb.h>
+#include <ydb/public/api/protos/ydb_federation_discovery.pb.h>
 
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 

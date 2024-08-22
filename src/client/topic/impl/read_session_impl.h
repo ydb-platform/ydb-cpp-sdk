@@ -13,8 +13,8 @@
 
 #include <src/client/common_client/impl/client.h>
 
-#include <src/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
-#include <src/api/grpc/ydb_topic_v1.grpc.pb.h>
+#include <ydb/public/api/grpc/draft/ydb_persqueue_v1.grpc.pb.h>
+#include <ydb/public/api/grpc/ydb_topic_v1.grpc.pb.h>
 
 #include <library/cpp/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 

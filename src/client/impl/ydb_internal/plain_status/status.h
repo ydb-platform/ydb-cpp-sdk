@@ -5,11 +5,11 @@
 #include <ydb-cpp-sdk/client/types/status_codes.h>
 
 #include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
-#include <ydb-cpp-sdk/library/yql/public/issue/yql_issue.h>
+#include <ydb-cpp-sdk/library/yql_common/issue/yql_issue.h>
 
 #include <util/string/subst.h>
 
-#include <src/api/protos/ydb_operation.pb.h>
+#include <ydb/public/api/protos/ydb_operation.pb.h>
 
 namespace NYdb {
 

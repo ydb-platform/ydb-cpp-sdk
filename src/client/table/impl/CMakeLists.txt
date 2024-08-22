@@ -6,6 +6,7 @@ target_link_libraries(client-ydb_table-impl
     threading-future
     api-protos
     api-grpc
+    lib-operation_id-protos
     client-impl-ydb_endpoints
     impl-ydb_internal-session_pool
     client-ydb_table-query_stats
