@@ -5,6 +5,8 @@
 
 #include <optional>
 
+#include <util/datetime/base.h>
+
 namespace Ydb::Replication {
     class ConnectionParams;
     class DescribeReplicationResult;
@@ -56,7 +58,17 @@ private:
     > Credentials_;
 };
 
-struct TRunningState {};
+struct TRunningState {
+public:
+    TRunningState() = default;
+    explicit TRunningState(const std::optional<TDuration>& lag);
+
+    const std::optional<TDuration>& GetLag() const;
+
+private:
+    std::optional<TDuration> Lag_;
+};
+
 struct TDoneState {};
 
 class TErrorState {
