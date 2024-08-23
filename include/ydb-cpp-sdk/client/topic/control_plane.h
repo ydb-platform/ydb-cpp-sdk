@@ -160,7 +160,7 @@ struct TAlterTopicSettings;
 struct TAutoPartitioningSettings {
 friend struct TAutoPartitioningSettingsBuilder;
 public:
-TAutoPartitioningSettings()
+    TAutoPartitioningSettings()
         : Strategy_(EAutoPartitioningStrategy::Disabled)
         , StabilizationWindow_(TDuration::Seconds(0))
         , DownUtilizationPercent_(0)
