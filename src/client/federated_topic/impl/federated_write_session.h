@@ -62,6 +62,7 @@ private:
     };
 
     struct TDeferredWrite {
+        TDeferredWrite() {}
         explicit TDeferredWrite(std::shared_ptr<NTopic::IWriteSession> writer)
             : Writer(std::move(writer)) {
         }
@@ -121,6 +122,7 @@ private:
 
     TAdaptiveLock Lock;
 
+    size_t SubsessionGeneration = 0;
     std::shared_ptr<NTopic::IWriteSession> Subsession;
     std::shared_ptr<NTopic::IWriteSession> OldSubsession;
 
