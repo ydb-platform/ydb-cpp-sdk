@@ -53,6 +53,8 @@ TEST(Integration, BasicExample) {
         std::vector<std::string> resultScanQuerySelectVector = ScanQuerySelect(client, path);
         std::string resultScanQuerySelect = std::reduce(resultScanQuerySelectVector.begin(), resultScanQuerySelectVector.end());
         ASSERT_EQ(resultScanQuerySelect, expectedResultScanQuerySelect);
+
+        DropTables(client, path);
     }
     catch (const TYdbErrorException& e) {
         driver.Stop(true);

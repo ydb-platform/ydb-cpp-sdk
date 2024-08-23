@@ -520,3 +520,15 @@ std::vector<std::string> ScanQuerySelect(TTableClient client, const std::string&
     std::transform(vectorResultSet.begin(), vectorResultSet.end(), resultJson.begin(), [](TResultSet& x){return FormatResultSetJson(x, EBinaryStringEncoding::Unicode);});
     return resultJson;
 }
+
+void DropTables(TTableClient& client, const std::string& path) {
+    ThrowOnError(client.RetryOperationSync([path](TSession session) {
+        return session.DropTable(JoinPath(path, "series")).ExtractValueSync();
+    }));
+    ThrowOnError(client.RetryOperationSync([path](TSession session) {
+        return session.DropTable(JoinPath(path, "seasons")).ExtractValueSync();
+    }));
+    ThrowOnError(client.RetryOperationSync([path](TSession session) {
+        return session.DropTable(JoinPath(path, "episodes")).ExtractValueSync();
+    }));
+}

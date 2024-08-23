@@ -34,3 +34,4 @@ std::string MultiStep(TTableClient client, const std::string& path);
 void ExplicitTcl(TTableClient client, const std::string& path);
 std::string PreparedSelect(TTableClient client, const std::string& path, ui32 seriesId, ui32 seasonId, ui32 episodeId);
 std::vector<std::string> ScanQuerySelect(TTableClient client, const std::string& path);
+void DropTables(TTableClient& client, const std::string& path);
