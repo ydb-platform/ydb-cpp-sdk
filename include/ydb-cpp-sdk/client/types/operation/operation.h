@@ -32,8 +32,9 @@ public:
     const TOperationId& Id() const;
     bool Ready() const;
     const TStatus& Status() const;
-    TInstant StartTime() const;
+    TInstant CreateTime() const;
     TInstant EndTime() const;
+    const std::string& CreatedBy() const;
 
     std::string ToString() const;
     std::string ToJsonString() const;
