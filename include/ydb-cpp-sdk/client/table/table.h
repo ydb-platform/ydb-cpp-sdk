@@ -264,9 +264,23 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//! Represents index description
+//! Represents changefeed description
 class TChangefeedDescription {
     friend class NYdb::TProtoAccessor;
+
+public:
+    class TInitialScanProgress {
+    public:
+        explicit TInitialScanProgress(uint32_t total, uint32_t completed);
+
+        uint32_t GetPartsTotal() const;
+        uint32_t GetPartsCompleted() const;
+        float GetProgress() const; // percentage
+
+    private:
+        uint32_t PartsTotal;
+        uint32_t PartsCompleted;
+    };
 
 public:
     TChangefeedDescription(const std::string& name, EChangefeedMode mode, EChangefeedFormat format);
@@ -295,6 +309,7 @@ public:
     bool GetInitialScan() const;
     const std::unordered_map<std::string, std::string>& GetAttributes() const;
     const std::string& GetAwsRegion() const;
+    const std::optional<TInitialScanProgress>& GetInitialScanProgress() const;
 
     void SerializeTo(Ydb::Table::Changefeed& proto) const;
     std::string ToString() const;
@@ -318,6 +333,7 @@ private:
     bool InitialScan_ = false;
     std::unordered_map<std::string, std::string> Attributes_;
     std::string AwsRegion_;
+    std::optional<TInitialScanProgress> InitialScanProgress_;
 };
 
 bool operator==(const TChangefeedDescription& lhs, const TChangefeedDescription& rhs);

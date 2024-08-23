@@ -2398,6 +2398,27 @@ TChangefeedDescription::TChangefeedDescription(const Ydb::Table::ChangefeedDescr
     : TChangefeedDescription(FromProto(proto))
 {}
 
+TChangefeedDescription::TInitialScanProgress::TInitialScanProgress(uint32_t total, uint32_t completed)
+    : PartsTotal(total)
+    , PartsCompleted(completed)
+{}
+
+uint32_t TChangefeedDescription::TInitialScanProgress::GetPartsTotal() const {
+    return PartsTotal;
+}
+
+uint32_t TChangefeedDescription::TInitialScanProgress::GetPartsCompleted() const {
+    return PartsCompleted;
+}
+
+float TChangefeedDescription::TInitialScanProgress::GetProgress() const {
+    if (PartsTotal == 0) {
+        return 0;
+    }
+
+    return 100 * float(PartsCompleted) / float(PartsTotal);
+}
+
 TChangefeedDescription& TChangefeedDescription::WithVirtualTimestamps() {
     VirtualTimestamps_ = true;
     return *this;
@@ -2474,6 +2495,10 @@ const std::string& TChangefeedDescription::GetAwsRegion() const {
     return AwsRegion_;
 }
 
+const std::optional<TChangefeedDescription::TInitialScanProgress>& TChangefeedDescription::GetInitialScanProgress() const {
+    return InitialScanProgress_;
+}
+
 template <typename TProto>
 TChangefeedDescription TChangefeedDescription::FromProto(const TProto& proto) {
     EChangefeedMode mode;
@@ -2540,6 +2565,13 @@ TChangefeedDescription TChangefeedDescription::FromProto(const TProto& proto) {
         default:
             ret.State_ = EChangefeedState::Unknown;
             break;
+        }
+
+        if (proto.has_initial_scan_progress()) {
+            ret.InitialScanProgress_ = std::make_optional<TInitialScanProgress>(
+                proto.initial_scan_progress().parts_total(),
+                proto.initial_scan_progress().parts_completed()
+            );
         }
     }
 
@@ -2626,6 +2658,10 @@ void TChangefeedDescription::Out(IOutputStream& o) const {
 
     if (!AwsRegion_.empty()) {
         o << ", aws_region: " << AwsRegion_;
+    }
+
+    if (InitialScanProgress_) {
+        o << ", initial_scan_progress: " << InitialScanProgress_->GetProgress() << "%";
     }
 
     o << " }";
