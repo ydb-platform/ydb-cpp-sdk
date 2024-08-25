@@ -730,6 +730,8 @@ elseif (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
 endif()
 
 # NOTE: these definitions are needed to `util/system/src_root.h` works properly
+file(TO_NATIVE_PATH "${ARCADIA_ROOT}" ARCADIA_ROOT)
+file(TO_NATIVE_PATH "${ARCADIA_BUILD_ROOT}" ARCADIA_BUILD_ROOT)
 target_compile_definitions(yutil PUBLIC
   ARCADIA_ROOT=${ARCADIA_ROOT}
   ARCADIA_BUILD_ROOT=${ARCADIA_BUILD_ROOT}
