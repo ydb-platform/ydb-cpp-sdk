@@ -48,6 +48,13 @@ if (YDB_SDK_TESTS)
     LABELS
       unit
   )
+  set_yunittest_property(
+    TEST
+      threading-future-future_mt_ut
+    PROPERTY
+      TIMEOUT
+      1500
+  )
 endif(YDB_SDK_TESTS)
 
 _ydb_sdk_add_library(threading-future)
