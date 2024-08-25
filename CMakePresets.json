@@ -58,7 +58,7 @@
       "description": "Only for the case when using CCACHE_BASEDIR",
       "cacheVariables": {
         "ARCADIA_ROOT": "../ydb-cpp-sdk",
-        "ARCADIA_BUILD_ROOT": "."
+        "ARCADIA_BUILD_ROOT": ""
       }
     }
   ],
