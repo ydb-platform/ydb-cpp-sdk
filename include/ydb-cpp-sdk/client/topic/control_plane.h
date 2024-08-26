@@ -33,6 +33,7 @@ enum class EAutoPartitioningStrategy: uint32_t {
     Disabled = 1,
     ScaleUp = 2,
     ScaleUpAndDown = 3,
+    Paused = 4,
 };
 
 class TConsumer {
