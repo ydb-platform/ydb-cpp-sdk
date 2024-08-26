@@ -5,7 +5,6 @@
 #include <src/client/topic/impl/topic_impl.h>
 
 #include <util/generic/buffer.h>
-#include <util/thread/lfqueue.h>
 
 
 namespace NYdb::NTopic {
@@ -391,8 +390,7 @@ private:
     uint64_t GetNextIdImpl(const std::optional<uint64_t>& seqNo);
     uint64_t GetSeqNoImpl(uint64_t id);
     uint64_t GetIdImpl(uint64_t seqNo);
-    void FormGrpcMessagesImpl();
-    void SendGrpcMessages();
+    void SendImpl();
     void AbortImpl();
     void CloseImpl(EStatus statusCode, NYql::TIssues&& issues);
     void CloseImpl(EStatus statusCode, const std::string& message);
@@ -452,9 +450,6 @@ private:
     //! Messages that are sent but yet not acknowledged
     std::queue<TOriginalMessage> SentOriginalMessages;
     std::queue<TBlock> SentPackedMessage;
-
-    TLockFreeQueue<TClientMessage> GrpcMessagesToSend;
-    TAdaptiveLock ProcessorLock;
 
     const size_t MaxBlockSize = std::numeric_limits<size_t>::max();
     const size_t MaxBlockMessageCount = 1; //!< Max message count that can be packed into a single block. In block version 0 is equal to 1 for compatibility
