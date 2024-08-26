@@ -978,7 +978,8 @@ TWriteSessionImpl::TProcessSrvMessageResult TWriteSessionImpl::ProcessServerMess
                 FirstTokenSent = true;
             }
             // Kickstart send after session reestablishment
-            SendImpl();
+            FormGrpcMessagesImpl();
+            SendGrpcMessages();
             break;
         }
         case TServerMessage::kWriteResponse: {
@@ -1160,12 +1161,14 @@ void TWriteSessionImpl::CompressImpl(TBlock&& block_) {
 
 void TWriteSessionImpl::OnCompressed(TBlock&& block, bool isSyncCompression) {
     TMemoryUsageChange memoryUsage;
-    if (!isSyncCompression) {
-        std::lock_guard guard(Lock);
+    if (isSyncCompression) {
+        // The Lock is already held somewhere up the stack.
         memoryUsage = OnCompressedImpl(std::move(block));
     } else {
+        std::lock_guard guard(Lock);
         memoryUsage = OnCompressedImpl(std::move(block));
     }
+    SendGrpcMessages();
     if (memoryUsage.NowOk && !memoryUsage.WasOk) {
         EventsQueue->PushEvent(TWriteSessionEvent::TReadyToAcceptEvent{IssueContinuationToken()});
     }
@@ -1181,7 +1184,7 @@ TMemoryUsageChange TWriteSessionImpl::OnCompressedImpl(TBlock&& block) {
     (*Counters->BytesInflightCompressed) += block.Data.size();
 
     PackedMessagesToSend.emplace(std::move(block));
-    SendImpl();
+    FormGrpcMessagesImpl();
     return memoryUsage;
 }
 
@@ -1298,7 +1301,7 @@ size_t TWriteSessionImpl::WriteBatchImpl() {
     }
     CurrentBatch.Reset();
     if (skipCompression) {
-        SendImpl();
+        FormGrpcMessagesImpl();
     }
     return size;
 }
@@ -1362,7 +1365,16 @@ bool TWriteSessionImpl::TxIsChanged(const Ydb::Topic::StreamWriteMessage_WriteRe
     return GetTransactionId(*writeRequest) != GetTransactionId(OriginalMessagesToSend.front().Tx);
 }
 
-void TWriteSessionImpl::SendImpl() {
+void TWriteSessionImpl::SendGrpcMessages() {
+    with_lock(ProcessorLock) {
+        TClientMessage message;
+        while (GrpcMessagesToSend.Dequeue(&message)) {
+            Processor->Write(std::move(message));
+        }
+    }
+}
+
+void TWriteSessionImpl::FormGrpcMessagesImpl() {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     // External cycle splits ready blocks into multiple gRPC messages. Current gRPC message size hard limit is 64MiB.
@@ -1433,7 +1445,7 @@ void TWriteSessionImpl::SendImpl() {
                 << OriginalMessagesToSend.size() << " left), first sequence number is "
                 << writeRequest->messages(0).seq_no()
         );
-        Processor->Write(std::move(clientMessage));
+        GrpcMessagesToSend.Enqueue(std::move(clientMessage));
     }
 }
 
@@ -1495,8 +1507,10 @@ void TWriteSessionImpl::HandleWakeUpImpl() {
             return;
         }
         if (auto self = cbContext->LockShared()) {
-            std::lock_guard guard(self->Lock);
-            self->HandleWakeUpImpl();
+            with_lock(self->Lock) {
+                self->HandleWakeUpImpl();
+            }
+            self->SendGrpcMessages();
         }
     };
     if (TInstant::Now() - LastTokenUpdate > UPDATE_TOKEN_PERIOD) {
