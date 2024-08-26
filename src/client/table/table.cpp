@@ -469,6 +469,10 @@ public:
         Indexes_.emplace_back(TIndexDescription(indexName, type, indexColumns, dataColumns));
     }
 
+    void AddSecondaryIndex(const TIndexDescription& indexDescription) {
+        Indexes_.emplace_back(indexDescription);
+    }
+
     void AddVectorIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns, const TVectorIndexSettings& vectorIndexSettings) {
         Indexes_.emplace_back(TIndexDescription(indexName, type, indexColumns, {}, {}, vectorIndexSettings));
     }
@@ -748,6 +752,10 @@ void TTableDescription::AddSecondaryIndex(const std::string& indexName, EIndexTy
 
 void TTableDescription::AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns) {
     Impl_->AddSecondaryIndex(indexName, type, indexColumns, dataColumns);
+}
+
+void TTableDescription::AddSecondaryIndex(const TIndexDescription& indexDescription) {
+    Impl_->AddSecondaryIndex(indexDescription);
 }
 
 void TTableDescription::AddSyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns) {
@@ -1171,6 +1179,11 @@ TTableBuilder& TTableBuilder::SetPrimaryKeyColumns(const std::vector<std::string
 
 TTableBuilder& TTableBuilder::SetPrimaryKeyColumn(const std::string& primaryKeyColumn) {
     TableDescription_.SetPrimaryKeyColumns(std::vector<std::string>{primaryKeyColumn});
+    return *this;
+}
+
+TTableBuilder& TTableBuilder::AddSecondaryIndex(const TIndexDescription& indexDescription) {
+    TableDescription_.AddSecondaryIndex(indexDescription);
     return *this;
 }
 
@@ -2377,7 +2390,7 @@ TVectorIndexSettings TVectorIndexSettings::FromProto(const TProto& proto) {
         default:
             return {};
         }
-    };   
+    };
 
     return {
         .Metric = metricFromProto(proto),
