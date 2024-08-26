@@ -2,7 +2,26 @@ add_subdirectory(charset)
 add_subdirectory(draft)
 
 if (YDB_SDK_TESTS)
+  add_ydb_test(NAME util-datetime-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/datetime
+    SOURCES
+      datetime/base_ut.cpp
+      datetime/cputimer_ut.cpp
+      datetime/parser_deprecated_ut.cpp
+      datetime/parser_ut.cpp
+      datetime/process_uptime_ut.cpp
+      datetime/uptime_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
   add_ydb_test(NAME util-digest-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/digest
     SOURCES
       digest/city_ut.cpp
       digest/fnv_ut.cpp
@@ -15,7 +34,10 @@ if (YDB_SDK_TESTS)
     LABELS
       unit
   )
+
   add_ydb_test(NAME util-folder-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/folder
     SOURCES
       folder/dirut_ut.cpp
       folder/filelist_ut.cpp
@@ -30,7 +52,107 @@ if (YDB_SDK_TESTS)
     LABELS
       unit
   )
+
+  add_ydb_test(NAME util-generic-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/generic
+    SOURCES
+      generic/adaptor_ut.cpp
+      generic/algorithm_ut.cpp
+      generic/array_ref_ut.cpp
+      generic/array_size_ut.cpp
+      generic/bitmap_ut.cpp
+      generic/bitops_ut.cpp
+      generic/buffer_ut.cpp
+      generic/cast_ut.cpp
+      generic/deque_ut.cpp
+      generic/enum_range_ut.cpp
+      generic/explicit_type_ut.cpp
+      generic/flags_ut.cpp
+      generic/function_ref_ut.cpp
+      generic/function_ut.cpp
+      generic/guid_ut.cpp
+      generic/hash_primes_ut.cpp
+      generic/hash_ut.cpp
+      generic/intrlist_ut.cpp
+      generic/is_in_ut.cpp
+      generic/iterator_range_ut.cpp
+      generic/iterator_ut.cpp
+      generic/lazy_value_ut.cpp
+      generic/list_ut.cpp
+      generic/mapfindptr_ut.cpp
+      generic/map_ut.cpp
+      generic/maybe_ut.cpp
+      generic/mem_copy_ut.cpp
+      generic/objects_counter_ut.cpp
+      generic/overloaded_ut.cpp
+      generic/ptr_ut.cpp
+      generic/queue_ut.cpp
+      generic/scope_ut.cpp
+      generic/serialized_enum_ut.cpp
+      generic/set_ut.cpp
+      generic/singleton_ut.cpp
+      generic/size_literals_ut.cpp
+      generic/stack_ut.cpp
+      generic/store_policy_ut.cpp
+      generic/strbuf_ut.cpp
+      # TODO: uncomment this test after we get the fix
+      # generic/string_transparent_hash_ut.cpp
+      generic/string_ut.cpp
+      generic/typelist_ut.cpp
+      generic/typetraits_ut.cpp
+      generic/utility_ut.cpp
+      generic/va_args_ut.cpp
+      generic/vector_ut.cpp
+      generic/xrange_ut.cpp
+      generic/ylimits_ut.cpp
+      generic/ymath_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_test(NAME util-generic-yexception_ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/generic
+    SOURCES
+      generic/yexception_ut.c
+      generic/yexception_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+  if (CMAKE_SYSTEM_NAME MATCHES "^(Linux|Darwin)$")
+    target_compile_definitions(util-generic-yexception_ut
+      PRIVATE
+        LIBCXX_BUILDING_LIBCXXRT
+        LIBCXX_BUILDING_LIBGCC
+    )
+  endif()
+
+  add_ydb_test(NAME util-memory-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/memory
+    SOURCES
+      memory/addstorage_ut.cpp
+      memory/blob_ut.cpp
+      memory/pool_ut.cpp
+      memory/smallobj_ut.cpp
+      memory/tempbuf_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
   add_ydb_test(NAME util-network-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/network
     SOURCES
       network/address_ut.cpp
       network/endpoint_ut.cpp
@@ -45,7 +167,208 @@ if (YDB_SDK_TESTS)
     LABELS
       unit
   )
-endif()
+
+  add_ydb_test(NAME util-random-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/random
+    SOURCES
+      random/common_ops_ut.cpp
+      random/easy_ut.cpp
+      random/entropy_ut.cpp
+      random/fast_ut.cpp
+      random/mersenne_ut.cpp
+      random/normal_ut.cpp
+      random/random_ut.cpp
+      random/shuffle_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+    TEST_ARG
+      --filter-file filter.txt
+  )
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/random/filter.txt
+    "-TestCommonRNG::TestStlCompatibility"
+  )
+
+  add_ydb_test(NAME util-stream-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/stream
+    SOURCES
+      stream/aligned_ut.cpp
+      stream/buffered_ut.cpp
+      stream/buffer_ut.cpp
+      stream/direct_io_ut.cpp
+      stream/file_ut.cpp
+      stream/format_std_ut.cpp
+      stream/format_ut.cpp
+      stream/hex_ut.cpp
+      stream/input_ut.cpp
+      stream/ios_ut.cpp
+      stream/labeled_ut.cpp
+      stream/length_ut.cpp
+      stream/mem_ut.cpp
+      stream/multi_ut.cpp
+      stream/printf_ut.cpp
+      stream/str_ut.cpp
+      stream/tokenizer_ut.cpp
+      stream/walk_ut.cpp
+      stream/zerocopy_output_ut.cpp
+      stream/zlib_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_test(NAME util-string-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/string
+    SOURCES
+      string/ascii_ut.cpp
+      string/builder_ut.cpp
+      string/cast_ut.cpp
+      string/escape_ut.cpp
+      string/hex_ut.cpp
+      string/join_ut.cpp
+      string/printf_ut.cpp
+      string/split_ut.cpp
+      string/strip_ut.cpp
+      string/strspn_ut.cpp
+      string/subst_ut.cpp
+      string/type_ut.cpp
+      string/util_ut.cpp
+      string/vector_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_test(NAME util-system-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/system
+    SOURCES
+      system/align_ut.cpp
+      system/atexit_ut.cpp
+      system/backtrace_ut.cpp
+      system/byteorder_ut.cpp
+      system/compat_ut.cpp
+      system/compiler_ut.cpp
+      system/condvar_ut.cpp
+      system/context_ut.cpp
+      system/cpu_id_ut.cpp
+      system/daemon_ut.cpp
+      system/datetime_ut.cpp
+      system/direct_io_ut.cpp
+      system/env_ut.cpp
+      system/error_ut.cpp
+      system/event_ut.cpp
+      system/execpath_ut.cpp
+      system/filemap_ut.cpp
+      system/file_ut.cpp
+      system/flock_ut.cpp
+      system/fs_ut.cpp
+      system/getpid_ut.cpp
+      system/guard_ut.cpp
+      system/hi_lo_ut.cpp
+      system/hostname_ut.cpp
+      system/info_ut.cpp
+      system/interrupt_signals_ut.cpp
+      system/mem_info_ut.cpp
+      system/mincore_ut.cpp
+      system/mktemp_ut.cpp
+      system/mutex_ut.cpp
+      system/nice_ut.cpp
+      system/pipe_ut.cpp
+      system/platform_ut.cpp
+
+      # NOTE: `progname_ut` checks if the executable file's name, aka the target's
+      # name, is either "util-system-ut" or slightly different variations
+      system/progname_ut.cpp
+
+      system/rusage_ut.cpp
+      system/rwlock_ut.cpp
+      system/sanitizers_ut.cpp
+      system/shellcommand_ut.cpp
+      system/shmat_ut.cpp
+      system/spinlock_ut.cpp
+      system/src_location_ut.cpp
+      system/src_root_ut.cpp
+      system/tempfile_ut.cpp
+      system/tls_ut.cpp
+
+      # NOTE: this test shouldn't be run with STL, so it's explicitly disabled
+      # system/type_name_ut.cpp
+
+      # NOTE: `thread_ut` compares the executable file's name and the current
+      # thread name, whose length can't be more than 16 bytes in Linux,
+      # so the test name shouldn't be longer than "util-system-ut"
+      system/thread_ut.cpp
+
+      system/types_ut.cpp
+
+      # TODO: add library/cpp/testing/benchmark
+      #       depends only on NBench::Clobber, that's a memory optimization barrier
+      # system/unaligned_mem_ut.cpp
+      system/user_ut.cpp
+
+      system/yassert_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_test(NAME util-system-fstat_ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/system
+    OUTPUT_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/system/testing_out_stuff
+    SOURCES
+      system/fstat_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    add_ydb_test(NAME util-system-fs_win_ut
+      WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/system
+      SOURCES
+        system/fs_win_ut.cpp
+      LINK_LIBRARIES
+        yutil
+        cpp-testing-unittest_main
+      LABELS
+        unit
+    )
+  endif()
+
+  add_ydb_test(NAME util-thread-ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/thread
+    SOURCES
+      thread/factory_ut.cpp
+      thread/lfqueue_ut.cpp
+      thread/lfstack_ut.cpp
+      thread/pool_ut.cpp
+      thread/singleton_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+      threading-future
+    LABELS
+      unit
+  )
+endif(YDB_SDK_TESTS)
 
 _ydb_sdk_add_library(yutil)
 
@@ -70,6 +393,7 @@ target_joined_source(yutil
   ${YDB_SDK_SOURCE_DIR}/util/datetime/base.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/constants.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/cputimer.cpp
+  ${YDB_SDK_SOURCE_DIR}/util/datetime/process_uptime.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/systime.cpp
   ${YDB_SDK_SOURCE_DIR}/util/datetime/uptime.cpp
 )
@@ -405,9 +729,12 @@ elseif (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   )
 endif()
 
+# NOTE: these definitions are needed to `util/system/src_root.h` works properly
+file(TO_NATIVE_PATH "${ARCADIA_ROOT}" ARCADIA_ROOT)
+file(TO_NATIVE_PATH "${ARCADIA_BUILD_ROOT}" ARCADIA_BUILD_ROOT)
 target_compile_definitions(yutil PUBLIC
-  ARCADIA_ROOT_CMAKE_HELPER=${YDB_SDK_SOURCE_DIR}
-  ARCADIA_BUILD_ROOT_CMAKE_HELPER=${YDB_SDK_BINARY_DIR}
+  ARCADIA_ROOT=${ARCADIA_ROOT}
+  ARCADIA_BUILD_ROOT=${ARCADIA_BUILD_ROOT}
 )
 
 _ydb_sdk_install_targets(TARGETS yutil)
