@@ -51,6 +51,7 @@ public:
 
     const std::string& GetDiscoveryEndpoint() const;
     const std::string& GetDatabase() const;
+    bool GetEnableSsl() const;
 
     ECredentials GetCredentials() const;
     const TStaticCredentials& GetStaticCredentials() const;
