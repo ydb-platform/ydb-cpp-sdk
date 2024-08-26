@@ -640,6 +640,7 @@ private:
     // common
     void AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns);
     void AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns);
+    void AddSecondaryIndex(const TIndexDescription& indexDescription);
     // sync
     void AddSyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns);
     void AddSyncSecondaryIndex(const std::string& indexName, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns);
@@ -853,6 +854,7 @@ public:
     TTableBuilder& SetPrimaryKeyColumn(const std::string& primaryKeyColumn);
 
     // common
+    TTableBuilder& AddSecondaryIndex(const TIndexDescription& indexDescription);
     TTableBuilder& AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns, const std::vector<std::string>& dataColumns);
     TTableBuilder& AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::vector<std::string>& indexColumns);
     TTableBuilder& AddSecondaryIndex(const std::string& indexName, EIndexType type, const std::string& indexColumn);
