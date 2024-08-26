@@ -145,14 +145,21 @@ public:
     const std::optional<TPartitionConsumerStats>& GetPartitionConsumerStats() const;
     const std::optional<TPartitionLocation>& GetPartitionLocation() const;
 
+    const std::optional<std::string>& GetFromBound() const;
+    const std::optional<std::string>& GetToBound() const;
+
 private:
     uint64_t PartitionId_;
     bool Active_;
     std::vector<uint64_t> ChildPartitionIds_;
     std::vector<uint64_t> ParentPartitionIds_;
+
     std::optional<TPartitionStats> PartitionStats_;
     std::optional<TPartitionConsumerStats> PartitionConsumerStats_;
     std::optional<TPartitionLocation> PartitionLocation_;
+
+    std::optional<std::string> FromBound_;
+    std::optional<std::string> ToBound_;
 };
 
 struct TAlterPartitioningSettings;
@@ -187,8 +194,8 @@ private:
 
 struct TAlterAutoPartitioningSettings {
     using TSelf = TAlterAutoPartitioningSettings;
-    public:
-        TAlterAutoPartitioningSettings(TAlterPartitioningSettings& parent): Parent_(parent) {}
+public:
+    TAlterAutoPartitioningSettings(TAlterPartitioningSettings& parent): Parent_(parent) {}
 
     FLUENT_SETTING_OPTIONAL(EAutoPartitioningStrategy, Strategy);
     FLUENT_SETTING_OPTIONAL(TDuration, StabilizationWindow);
@@ -197,8 +204,8 @@ struct TAlterAutoPartitioningSettings {
 
     TAlterPartitioningSettings& EndAlterAutoPartitioningSettings() { return Parent_; };
 
-    private:
-        TAlterPartitioningSettings& Parent_;
+private:
+    TAlterPartitioningSettings& Parent_;
 };
 
 class TPartitioningSettings {
@@ -207,11 +214,11 @@ class TPartitioningSettings {
 public:
     TPartitioningSettings() : MinActivePartitions_(0), MaxActivePartitions_(0), PartitionCountLimit_(0), AutoPartitioningSettings_(){}
     TPartitioningSettings(const Ydb::Topic::PartitioningSettings& settings);
-    TPartitioningSettings(ui64 minActivePartitions, ui64 maxActivePartitions, TAutoPartitioningSettings autoscalingSettings = {})
+    TPartitioningSettings(uint64_t minActivePartitions, uint64_t maxActivePartitions, TAutoPartitioningSettings autoPartitioning = {})
         : MinActivePartitions_(minActivePartitions)
         , MaxActivePartitions_(maxActivePartitions)
         , PartitionCountLimit_(0)
-        , AutoPartitioningSettings_(autoscalingSettings)
+        , AutoPartitioningSettings_(autoPartitioning)
     {
     }
 
@@ -457,6 +464,11 @@ struct TConsumerSettings {
 
     TConsumerSettings& SetSupportedCodecs(const std::vector<ECodec>& codecs) {
         SupportedCodecs_ = codecs;
+        return *this;
+    }
+
+    TConsumerSettings& SetImportant(bool isImportant) {
+        Important_ = isImportant;
         return *this;
     }
 
