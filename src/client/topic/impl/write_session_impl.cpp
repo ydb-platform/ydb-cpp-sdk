@@ -1187,7 +1187,17 @@ TMemoryUsageChange TWriteSessionImpl::OnCompressedImpl(TBlock&& block) {
     (*Counters->BytesInflightCompressed) += block.Data.size();
 
     PackedMessagesToSend.emplace(std::move(block));
-    SendImpl();
+
+    if (!SendImplScheduled.exchange(true)) {
+        CompressionExecutor->Post([cbContext = SelfContext]() {
+            if (auto self = cbContext->LockShared()) {
+                self->SendImplScheduled = false;
+                with_lock (self->Lock) {
+                    self->SendImpl();
+                }
+            }
+        });
+    }
     return memoryUsage;
 }
 
