@@ -96,8 +96,7 @@ if (YDB_SDK_TESTS)
       generic/stack_ut.cpp
       generic/store_policy_ut.cpp
       generic/strbuf_ut.cpp
-      # TODO: uncomment this test after we get the fix
-      # generic/string_transparent_hash_ut.cpp
+      generic/string_transparent_hash_ut.cpp
       generic/string_ut.cpp
       generic/typelist_ut.cpp
       generic/typetraits_ut.cpp
