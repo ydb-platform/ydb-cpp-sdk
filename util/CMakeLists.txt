@@ -310,15 +310,23 @@ if (YDB_SDK_TESTS)
       system/thread_ut.cpp
 
       system/types_ut.cpp
-
-      # TODO: add library/cpp/testing/benchmark
-      #       depends only on NBench::Clobber, that's a memory optimization barrier
-      # system/unaligned_mem_ut.cpp
       system/user_ut.cpp
-
       system/yassert_ut.cpp
     LINK_LIBRARIES
       yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
+
+  add_ydb_test(NAME util-system-unaligned_mem_ut
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/system
+    SOURCES
+      system/unaligned_mem_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      benchmark-clobber
       cpp-testing-unittest_main
     LABELS
       unit
