@@ -1,6 +1,6 @@
 #include "unaligned_mem.h"
 
-#include <library/cpp/testing/benchmark/bench.h>
+#include <src/library/benchmark/clobber.h>
 #include <library/cpp/testing/unittest/registar.h>
 
 #include <util/system/compiler.h>
