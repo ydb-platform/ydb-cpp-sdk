@@ -58,6 +58,10 @@ add_subdirectory(uri)
 add_subdirectory(yson)
 add_subdirectory(yt)
 
+if (YDB_SDK_TESTS)
+  add_subdirectory(int128)
+endif()
+
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   add_subdirectory(cpuid_check)
 endif()
