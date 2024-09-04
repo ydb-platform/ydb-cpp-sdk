@@ -1,3 +1,7 @@
+if (YDB_SDK_TESTS)
+  add_subdirectory(ut)
+endif()
+
 _ydb_sdk_add_library(int128)
 
 target_sources(int128
