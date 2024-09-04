@@ -38,18 +38,18 @@ add_ydb_test(NAME yt-memory-chunked_memory_pool_ut GTEST
   LABELS
     unit
 )
-#[=[
-TODO: missing the library `library/cpp/int128`
+
 add_ydb_test(NAME yt-memory-erased_storage_ut GTEST
   SOURCES
     erased_storage_ut.cpp
   LINK_LIBRARIES
     yt-memory
+    int128
     GTest::gtest_main
   LABELS
     unit
 )
-#]=]
+
 add_ydb_test(NAME yt-memory-free_list_ut GTEST
   SOURCES
     free_list_ut.cpp
