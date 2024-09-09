@@ -120,7 +120,14 @@ cmake --build --preset release
 
 ## Test
 
-Specify a level of parallelism by passing the `-j<level>` option into the command below (e.g. `-j$(nproc)`)
+Configure and build tests:
+
+```bash
+cmake --preset release-test
+cmake --build --preset release
+```
+
+Specify a level of parallelism by passing the `-j<level>` option into the commands below (e.g. `-j$(nproc)`).
 
 Running all tests:
 
