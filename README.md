@@ -143,9 +143,5 @@ ctest -j$(nproc) --preset release-integration
 Note that some tests use a legacy test library instead of GoogleTest, see `./<test_target> --help` for details. If you need to run only certain test cases, here is an alternative for `--gtest_filter` option:
 
 ```bash
-cat <<EOF | ./<test_target> --filter-file /dev/fd/0
--ExcludedTestCase
-+IncludedTestCase
-+IncludedTestCase::TestName
-EOF
+./<test_target> --filter-file -ExcludedTestSuite +IncludedTestSuite::TestName
 ```

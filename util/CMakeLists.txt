@@ -185,10 +185,7 @@ if (YDB_SDK_TESTS)
     LABELS
       unit
     TEST_ARG
-      --filter-file filter.txt
-  )
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/random/filter.txt
-    "-TestCommonRNG::TestStlCompatibility"
+      -TestCommonRNG::TestStlCompatibility
   )
 
   add_ydb_test(NAME util-stream-ut

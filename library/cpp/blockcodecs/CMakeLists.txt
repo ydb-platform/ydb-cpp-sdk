@@ -8,11 +8,8 @@ if (YDB_SDK_TESTS)
     LABELS
       unit
     TEST_ARG
-      --filter-file filter.txt
-  )
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/filter.txt
-    # Exclude this test case, because we don't use zstd06
-    "-TBlockCodecsTest::TestListAllCodecs"
+      # Exclude this test case, because we don't use zstd06
+      -TBlockCodecsTest::TestListAllCodecs
   )
 endif(YDB_SDK_TESTS)
 
