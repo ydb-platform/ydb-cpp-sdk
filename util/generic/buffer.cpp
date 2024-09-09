@@ -94,6 +94,7 @@ TBuffer::~TBuffer() {
 }
 
 void TBuffer::AsString(TString& s) {
-    s.assign(Data(), Size());
+    Y_ASSERT(Data() != nullptr || Size() == 0);
+    s.assign(Data() == nullptr ? "" : Data(), Size());
     Clear();
 }
