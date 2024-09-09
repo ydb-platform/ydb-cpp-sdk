@@ -3,12 +3,18 @@ if (YDB_SDK_TESTS)
     SOURCES
       codecs_ut.cpp
     LINK_LIBRARIES
-      blockcodecs-core
+      blockcodecs
       cpp-testing-unittest_main
     LABELS
       unit
+    TEST_ARG
+      --filter-file filter.txt
   )
-endif()
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/filter.txt
+    # Exclude this test case, because we don't use zstd06
+    "-TBlockCodecsTest::TestListAllCodecs"
+  )
+endif(YDB_SDK_TESTS)
 
 _ydb_sdk_add_library(blockcodecs-core)
 target_link_libraries(blockcodecs-core
