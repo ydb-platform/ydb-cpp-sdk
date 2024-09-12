@@ -98,6 +98,23 @@
       "filter" : {
         "include": {
           "label": "unit"
+        },
+        "exclude": {
+          "label": "unit-multithreaded"
+        }
+      }
+    },
+    {
+      "name": "release-unit-mt",
+      "inherits": "common",
+      "configurePreset": "release-test",
+      "displayName": "Unit Release Mutlithreaded Tests",
+      "execution": {
+        "jobs": 1
+      },
+      "filter" : {
+        "include": {
+          "label": "unit-multithreaded"
         }
       }
     },
