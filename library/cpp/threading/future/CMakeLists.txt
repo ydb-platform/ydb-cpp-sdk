@@ -46,7 +46,7 @@ if (YDB_SDK_TESTS)
       threading-future
       cpp-testing-unittest_main
     LABELS
-      unit
+      unit-multithreaded
   )
   set_yunittest_property(
     TEST
