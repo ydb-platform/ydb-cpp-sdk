@@ -53,6 +53,7 @@ jobs:
       shell: bash
       run: |
         ctest -j32 --preset release-unit
+        ctest --preset release-unit-mt
 
   integration:
     concurrency:
