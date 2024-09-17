@@ -4,6 +4,8 @@
 #include <ydb-cpp-sdk/client/table/table.h>
 #include <src/client/persqueue_public/persqueue.h>
 
+#include <util/generic/hash.h>
+
 namespace NKikimr::NPersQueueTests {
 
     std::shared_ptr<NYdb::NPersQueue::IWriteSession> CreateWriter(
@@ -34,7 +36,7 @@ namespace NKikimr::NPersQueueTests {
         std::optional<ui32> partitionGroup = {},
         std::optional<TString> codec = {},
         std::optional<bool> reconnectOnFailure = {},
-        THashMap<TString, TString> sessionMeta = {}
+        std::unordered_map<std::string, std::string> sessionMeta = {}
     );
 
     std::shared_ptr<NYdb::NPersQueue::IReadSession> CreateReader(
