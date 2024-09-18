@@ -417,10 +417,6 @@ void TWriteSessionImpl::InitWriter() { // No Lock, very initial start - no race 
             ThrowFatalError("ProducerId != MessageGroupId scenario is currently not supported");
     }
     CompressionExecutor = Settings.CompressionExecutor_;
-    IExecutor::TPtr executor;
-    executor = CreateSyncExecutor();
-    executor->Start();
-    Executor = std::move(executor);
 
     Settings.CompressionExecutor_->Start();
     Settings.EventHandlers_.HandlersExecutor_->Start();
@@ -1225,7 +1221,6 @@ void TWriteSessionImpl::ResetForRetryImpl() {
     }
     if (!OriginalMessagesToSend.empty() && OriginalMessagesToSend.front().Id < minId)
         minId = OriginalMessagesToSend.front().Id;
-    MinUnsentId = minId;
     Y_ABORT_UNLESS(PackedMessagesToSend.size() == totalPackedMessages);
     Y_ABORT_UNLESS(OriginalMessagesToSend.size() == totalOriginalMessages);
 }

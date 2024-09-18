@@ -415,10 +415,7 @@ private:
     TWriteSessionSettings Settings;
     std::shared_ptr<TTopicClient::TImpl> Client;
     std::shared_ptr<TGRpcConnectionsImpl> Connections;
-    std::string TargetCluster;
-    std::string InitialCluster;
-    std::string CurrentCluster;
-    std::string PreferredClusterByCDS;
+
     std::shared_ptr<IWriteSessionConnectionProcessorFactory> ConnectionFactory;
     TDbDriverStatePtr DbDriverState;
     std::string PrevToken;
@@ -438,7 +435,6 @@ private:
     std::shared_ptr<TServerMessage> ServerMessage; // Server message to write server response to.
 
     std::string SessionId;
-    IExecutor::TPtr Executor;
     IExecutor::TPtr CompressionExecutor;
     size_t MemoryUsage = 0; //!< Estimated amount of memory used
     bool FirstTokenSent = false;
@@ -461,10 +457,8 @@ private:
     ui32 PartitionId = 0;
     TPartitionLocation PreferredPartitionLocation = {};
     uint64_t NextId = 0;
-    uint64_t MinUnsentId = 1;
     std::optional<uint64_t> InitSeqNo;
     std::optional<bool> AutoSeqNoMode;
-    bool ValidateSeqNoMode = false;
 
     NThreading::TPromise<uint64_t> InitSeqNoPromise;
     bool InitSeqNoSetDone = false;
