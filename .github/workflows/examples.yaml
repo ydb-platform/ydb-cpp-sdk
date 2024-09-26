@@ -65,7 +65,7 @@ jobs:
       shell: bash
       run: |
         cd ../build
-        examples/basic_example/basic_example -e localhost:2136 -d /local -p /local/basic
+        examples/basic_example/basic_example -e localhost:2136 -d /local
         examples/bulk_upsert_simple/bulk_upsert_simple -e localhost:2136 -d /local -p /local/bulk
         examples/pagination/pagination -e localhost:2136 -d /local -p /local/pagination
         examples/ttl/ttl -e localhost:2136 -d /local -p /local/ttl
