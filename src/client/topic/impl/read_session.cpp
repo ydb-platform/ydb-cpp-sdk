@@ -230,19 +230,14 @@ void TReadSession::UpdateOffsets(const NTable::TTransaction& tx)
 
     Y_ABORT_UNLESS(!topics.empty());
 
-    while (true) {
-        auto result = Client->UpdateOffsetsInTransaction(tx,
-                                                         topics,
-                                                         Settings.ConsumerName_,
-                                                         {}).GetValueSync();
-        Y_ABORT_UNLESS(!result.IsTransportError());
-        if (result.GetStatus() != EStatus::SESSION_BUSY) {
-            if (!result.IsSuccess()) {
-                ythrow yexception() << "error on update offsets: " << result;
-            }
-            break;
-        }
-        Sleep(TDuration::MilliSeconds(1));
+    auto result = Client->UpdateOffsetsInTransaction(tx,
+                                                     topics,
+                                                     Settings.ConsumerName_,
+                                                     {}).GetValueSync();
+    Y_ABORT_UNLESS(!result.IsTransportError());
+
+    if (!result.IsSuccess()) {
+        ythrow yexception() << "error on update offsets: " << result;
     }
 
     OffsetRanges.erase(std::make_pair(sessionId, txId));
