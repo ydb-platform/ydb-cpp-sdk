@@ -230,14 +230,19 @@ void TReadSession::UpdateOffsets(const NTable::TTransaction& tx)
 
     Y_ABORT_UNLESS(!topics.empty());
 
-    auto result = Client->UpdateOffsetsInTransaction(tx,
-                                                     topics,
-                                                     Settings.ConsumerName_,
-                                                     {}).GetValueSync();
-    Y_ABORT_UNLESS(!result.IsTransportError());
-
-    if (!result.IsSuccess()) {
-        ythrow yexception() << "error on update offsets: " << result;
+    while (true) {
+        auto result = Client->UpdateOffsetsInTransaction(tx,
+                                                         topics,
+                                                         Settings.ConsumerName_,
+                                                         {}).GetValueSync();
+        Y_ABORT_UNLESS(!result.IsTransportError());
+        if (result.GetStatus() != EStatus::SESSION_BUSY) {
+            if (!result.IsSuccess()) {
+                ythrow yexception() << "error on update offsets: " << result;
+            }
+            break;
+        }
+        Sleep(TDuration::MilliSeconds(1));
     }
 
     OffsetRanges.erase(std::make_pair(sessionId, txId));
@@ -309,9 +314,10 @@ bool TReadSession::Close(TDuration timeout) {
         issues.AddIssue(TStringBuilder() << "Session was closed after waiting " << timeout);
         EventsQueue->Close(TSessionClosedEvent(EStatus::TIMEOUT, std::move(issues)), deferred);
     }
-
-    std::lock_guard guard(Lock);
-    Aborting = true; // Set abort flag for doing nothing on destructor.
+    {
+        std::lock_guard guard(Lock);
+        Aborting = true; // Set abort flag for doing nothing on destructor.
+    }
     return result;
 }
 
