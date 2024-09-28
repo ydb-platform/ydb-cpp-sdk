@@ -1,4 +1,4 @@
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <library/cpp/yt/string/enum.h>
 #include <library/cpp/yt/string/format.h>
@@ -84,5 +84,3 @@ TEST(TParseEnumTest, ParseBitEnum)
 
 } // namespace
 } // namespace NYT
-
-
