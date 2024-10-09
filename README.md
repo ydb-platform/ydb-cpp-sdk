@@ -1,5 +1,5 @@
 # YDB C++ SDK
-## This is alpha version of C++ driver for [YDB](https://github.com/ydb-platform/ydb), don't use it in production environment!
+## This is alpha version of C++ driver for [YDB](https://github.com/ydb-platform/ydb), backward compatibility is not guaranteed!
 
 If you ok with this warning, then...
 
