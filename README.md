@@ -1,5 +1,5 @@
 # YDB C++ SDK
-## This is pre-release version of C++ driver for [YDB](https://github.com/ydb-platform/ydb), backward compatibility is not guaranteed!
+## This is a pre-release version of the C++ driver for [YDB](https://github.com/ydb-platform/ydb), backward compatibility is not guaranteed!
 
 ## Building YDB C++ SDK from sources
 
