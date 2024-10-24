@@ -2283,6 +2283,12 @@ bool TCopyItem::OmitIndexes() const {
     return OmitIndexes_;
 }
 
+void TCopyItem::Out(IOutputStream& o) const {
+    o << "{ src: \"" << Source_ << "\""
+      << ", dst: \"" << Destination_ << "\""
+      << " }";
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 TRenameItem::TRenameItem(const std::string& source, const std::string& destination)

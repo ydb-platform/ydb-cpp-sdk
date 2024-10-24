@@ -983,6 +983,9 @@ public:
 
     TCopyItem& SetOmitIndexes();
     bool OmitIndexes() const;
+
+    void Out(IOutputStream& out) const;
+
 private:
     std::string Source_;
     std::string Destination_;
