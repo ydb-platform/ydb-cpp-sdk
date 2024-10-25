@@ -1948,7 +1948,7 @@ void TSingleClusterReadSessionImpl<UseMigrationProtocol>::TrySubscribeOnTransact
 
         auto callback = [cbContext = this->SelfContext, txId, txInfo, consumer = Settings.ConsumerName_, client]() {
             std::vector<TTopicOffsets> offsets;
-            
+
             with_lock (txInfo->Lock) {
                 Y_ABORT_UNLESS(!txInfo->CommitCalled);
 
@@ -2081,6 +2081,13 @@ bool TReadSessionEventsQueue<UseMigrationProtocol>::PushEvent(TIntrusivePtr<TPar
 
     if (std::holds_alternative<TClosedEvent>(event)) {
         stream->DeleteNotReadyTail(deferred);
+    }
+
+    if (!HasDataEventCallback() && !std::holds_alternative<TADataReceivedEvent<UseMigrationProtocol>>(event)) {
+        // Call non-dataEvent callbacks immediately.
+        if (TryApplyCallbackToEventImpl(event, deferred, CbContext)) {
+            return true;
+        }
     }
 
     stream->InsertEvent(std::move(event));
