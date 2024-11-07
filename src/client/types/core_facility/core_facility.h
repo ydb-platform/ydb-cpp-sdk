@@ -4,7 +4,7 @@
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
 namespace NYdb {
-using TPeriodicCb = std::function<bool(NYql::TIssues&&, EStatus)>;
+using TPeriodicCb = std::function<bool(NYdb::NIssue::TIssues&&, EStatus)>;
 
 // !!!Experimental!!!
 // Allows to communicate with sdk core

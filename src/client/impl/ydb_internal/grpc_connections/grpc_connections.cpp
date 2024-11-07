@@ -162,7 +162,7 @@ TGRpcConnectionsImpl::TGRpcConnectionsImpl(std::shared_ptr<IConnectionsParams> p
 #ifndef YDB_GRPC_BYPASS_CHANNEL_POOL
     if (params->GetSocketIdleTimeout() != TDuration::Max()) {
         auto channelPoolUpdateWrapper = [this]
-            (NYql::TIssues&&, EStatus status) mutable
+            (NYdb::NIssue::TIssues&&, EStatus status) mutable
         {
             if (status != EStatus::SUCCESS) {
                 return false;
@@ -195,7 +195,7 @@ TGRpcConnectionsImpl::~TGRpcConnectionsImpl() {
 void TGRpcConnectionsImpl::AddPeriodicTask(TPeriodicCb&& cb, TDuration period) {
     std::shared_ptr<IQueueClientContext> context;
     if (!TryCreateContext(context)) {
-        NYql::TIssues issues;
+        NYdb::NIssue::TIssues issues;
         cb(std::move(issues), EStatus::CLIENT_INTERNAL_ERROR);
     } else {
         auto action = MakeIntrusive<TPeriodicAction>(
@@ -208,7 +208,7 @@ void TGRpcConnectionsImpl::AddPeriodicTask(TPeriodicCb&& cb, TDuration period) {
 }
 
 void TGRpcConnectionsImpl::ScheduleOneTimeTask(TSimpleCb&& fn, TDuration timeout) {
-    auto cbLow = [this, fn = std::move(fn)](NYql::TIssues&&, EStatus status) mutable {
+    auto cbLow = [this, fn = std::move(fn)](NYdb::NIssue::TIssues&&, EStatus status) mutable {
         if (status != EStatus::SUCCESS) {
             return false;
         }
@@ -233,7 +233,7 @@ void TGRpcConnectionsImpl::ScheduleOneTimeTask(TSimpleCb&& fn, TDuration timeout
     if (timeout) {
         AddPeriodicTask(std::move(cbLow), timeout);
     } else {
-        cbLow(NYql::TIssues(), EStatus::SUCCESS);
+        cbLow(NYdb::NIssue::TIssues(), EStatus::SUCCESS);
     }
 }
 

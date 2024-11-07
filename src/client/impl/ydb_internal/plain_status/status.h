@@ -5,7 +5,7 @@
 #include <ydb-cpp-sdk/client/types/status_codes.h>
 
 #include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
-#include <ydb-cpp-sdk/library/yql_common/issue/yql_issue.h>
+#include <ydb-cpp-sdk/library/issue/yql_issue.h>
 
 #include <util/string/subst.h>
 
@@ -15,7 +15,7 @@ namespace NYdb {
 
 struct TPlainStatus {
     EStatus Status;
-    NYql::TIssues Issues;
+    NYdb::NIssue::TIssues Issues;
     std::string Endpoint;
     std::multimap<std::string, std::string> Metadata;
     Ydb::CostInfo ConstInfo;
@@ -24,12 +24,12 @@ struct TPlainStatus {
         : Status(EStatus::SUCCESS)
     { }
 
-    TPlainStatus(EStatus status, NYql::TIssues&& issues)
+    TPlainStatus(EStatus status, NYdb::NIssue::TIssues&& issues)
         : Status(status)
         , Issues(std::move(issues))
     { }
 
-    TPlainStatus(EStatus status, NYql::TIssues&& issues, const std::string& endpoint,
+    TPlainStatus(EStatus status, NYdb::NIssue::TIssues&& issues, const std::string& endpoint,
         std::multimap<std::string, std::string>&& metadata)
         : Status(status)
         , Issues(std::move(issues))
@@ -41,7 +41,7 @@ struct TPlainStatus {
         : Status(status)
     {
         if (!message.empty()) {
-            Issues.AddIssue(NYql::TIssue(message));
+            Issues.AddIssue(NYdb::NIssue::TIssue(message));
         }
     }
 

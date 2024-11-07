@@ -5,8 +5,7 @@ target_link_libraries(impl-ydb_internal-session_pool PUBLIC
   threading-future
   api-protos
   client-impl-ydb_endpoints
-  client-ydb_types-operation
-  yql-public-issue-protos
+  client-ydb_types-operation  
 )
 
 target_sources(impl-ydb_internal-session_pool PRIVATE

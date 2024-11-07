@@ -55,7 +55,7 @@ ERetryErrorClass GetRetryErrorClassV2(EStatus status) {
     }
 }
 
-std::string IssuesSingleLineString(const NYql::TIssues& issues) {
+std::string IssuesSingleLineString(const NYdb::NIssue::TIssues& issues) {
     return SubstGlobalCopy(issues.ToString(), '\n', ' ');
 }
 
@@ -65,11 +65,11 @@ void Cancel(NYdbGrpc::IQueueClientContextPtr& context) {
     }
 }
 
-NYql::TIssues MakeIssueWithSubIssues(const std::string& description, const NYql::TIssues& subissues) {
-    NYql::TIssues issues;
-    NYql::TIssue issue(description);
-    for (const NYql::TIssue& i : subissues) {
-        issue.AddSubIssue(MakeIntrusive<NYql::TIssue>(i));
+NYdb::NIssue::TIssues MakeIssueWithSubIssues(const std::string& description, const NYdb::NIssue::TIssues& subissues) {
+    NYdb::NIssue::TIssues issues;
+    NYdb::NIssue::TIssue issue(description);
+    for (const auto& i : subissues) {
+        issue.AddSubIssue(MakeIntrusive<NYdb::NIssue::TIssue>(i));
     }
     issues.AddIssue(std::move(issue));
     return issues;

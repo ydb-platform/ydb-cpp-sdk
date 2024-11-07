@@ -17,9 +17,9 @@ ERetryErrorClass GetRetryErrorClassV2(EStatus status);
 
 void Cancel(NYdbGrpc::IQueueClientContextPtr& context);
 
-NYql::TIssues MakeIssueWithSubIssues(const std::string& description, const NYql::TIssues& subissues);
+NYdb::NIssue::TIssues MakeIssueWithSubIssues(const std::string& description, const NYdb::NIssue::TIssues& subissues);
 
-std::string IssuesSingleLineString(const NYql::TIssues& issues);
+std::string IssuesSingleLineString(const NYdb::NIssue::TIssues& issues);
 
 template <typename TEvent>
 size_t CalcDataSize(const typename TEvent::TEvent& event) {
@@ -61,8 +61,8 @@ bool IsErrorMessage(const TMessage& serverMessage) {
 
 template <class TMessage>
 TPlainStatus MakeErrorFromProto(const TMessage& serverMessage) {
-    NYql::TIssues issues;
-    NYql::IssuesFromMessage(serverMessage.issues(), issues);
+    NYdb::NIssue::TIssues issues;
+    NYdb::NIssue::IssuesFromMessage(serverMessage.issues(), issues);
     return TPlainStatus(static_cast<EStatus>(serverMessage.status()), std::move(issues));
 }
 

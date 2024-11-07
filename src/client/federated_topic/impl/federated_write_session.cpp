@@ -285,7 +285,7 @@ std::shared_ptr<NTopic::IWriteSession> TFederatedWriteSessionImpl::OnFederationS
     if (!FederationState->Status.IsSuccess()) {
         // The observer became stale, it won't try to get federation state anymore due to retry policy,
         // so there's no reason to keep the write session alive.
-        CloseImpl(FederationState->Status.GetStatus(), NYql::TIssues(FederationState->Status.GetIssues()));
+        CloseImpl(FederationState->Status.GetStatus(), NYdb::NIssue::TIssues(FederationState->Status.GetIssues()));
         return {};
     }
 
@@ -303,7 +303,7 @@ std::shared_ptr<NTopic::IWriteSession> TFederatedWriteSessionImpl::OnFederationS
         } else {
             std::string message = "Failed to select database: no available database";
             LOG_LAZY(Log, TLOG_ERR, GetLogPrefixImpl() << message << ". Status: " << status);
-            CloseImpl(status, NYql::TIssues{NYql::TIssue(message)});
+            CloseImpl(status, NYdb::NIssue::TIssues{NYdb::NIssue::TIssue(message)});
         }
         return {};
     }
@@ -341,7 +341,7 @@ void TFederatedWriteSessionImpl::ScheduleFederationStateUpdateImpl(TDuration del
 
     UpdateStateDelayContext = Connections->CreateContext();
     if (!UpdateStateDelayContext) {
-        CloseImpl(EStatus::TRANSPORT_UNAVAILABLE, NYql::TIssues{NYql::TIssue("Could not update federation state")});
+        CloseImpl(EStatus::TRANSPORT_UNAVAILABLE, NYdb::NIssue::TIssues{NYdb::NIssue::TIssue("Could not update federation state")});
         // TODO log DRIVER_IS_STOPPING_DESCRIPTION
         return;
     }
@@ -424,7 +424,7 @@ bool TFederatedWriteSessionImpl::MaybeWriteImpl() {
     return true;
 }
 
-void TFederatedWriteSessionImpl::CloseImpl(EStatus statusCode, NYql::TIssues&& issues) {
+void TFederatedWriteSessionImpl::CloseImpl(EStatus statusCode, NYdb::NIssue::TIssues&& issues) {
     CloseImpl(TPlainStatus(statusCode, std::move(issues)));
 }
 
@@ -462,7 +462,7 @@ bool TFederatedWriteSessionImpl::Close(TDuration timeout) {
     NThreading::WaitAny(futures).Wait(timeout);
 
     with_lock(Lock) {
-        CloseImpl(EStatus::SUCCESS, NYql::TIssues{});
+        CloseImpl(EStatus::SUCCESS, NYdb::NIssue::TIssues{});
         return MessageQueuesAreEmptyImpl();
     }
 }

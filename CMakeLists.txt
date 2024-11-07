@@ -61,8 +61,7 @@ if (YDB_SDK_EXAMPLES)
 endif()
 
 if (YDB_SDK_TESTS)
-  add_subdirectory(tests/unit)
-  add_subdirectory(tests/integration)
+  add_subdirectory(tests)
 endif()
 
 if (YDB_SDK_INSTALL)

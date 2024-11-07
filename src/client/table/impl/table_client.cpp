@@ -214,7 +214,7 @@ void TTableClient::TImpl::StartPeriodicHostScanTask() {
     // and ready to accept new one
     std::pair<ui64, size_t> winner = {0, 0};
 
-    auto periodicCb = [weak, winner](NYql::TIssues&&, EStatus status) mutable -> bool {
+    auto periodicCb = [weak, winner](NYdb::NIssue::TIssues&&, EStatus status) mutable -> bool {
 
         if (status != EStatus::SUCCESS) {
             return false;
@@ -831,8 +831,8 @@ TAsyncReadRowsResult TTableClient::TImpl::ReadRows(const std::string& path, TVal
         // if there is no response status contains transport errors
         if (response) {
             Ydb::StatusIds::StatusCode msgStatus = response->status();
-            NYql::TIssues issues;
-            NYql::IssuesFromMessage(response->issues(), issues);
+            NYdb::NIssue::TIssues issues;
+            NYdb::NIssue::IssuesFromMessage(response->issues(), issues);
             status = TPlainStatus(static_cast<EStatus>(msgStatus), std::move(issues));
             resultSet = std::move(*response->mutable_result_set());
         }

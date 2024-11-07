@@ -105,8 +105,8 @@ public:
             (Ydb::Operations::Operation* response, TPlainStatus status) mutable {
                 try {
                     if (response) {
-                        NYql::TIssues opIssues;
-                        NYql::IssuesFromMessage(response->issues(), opIssues);
+                        NYdb::NIssue::TIssues opIssues;
+                        NYdb::NIssue::IssuesFromMessage(response->issues(), opIssues);
                         TStatus executeScriptStatus(TPlainStatus{static_cast<EStatus>(response->status()), std::move(opIssues),
                             status.Endpoint, std::move(status.Metadata)});
                         promise.SetValue(TScriptExecutionOperation(TStatus(std::move(executeScriptStatus)), std::move(*response)));
@@ -147,8 +147,8 @@ public:
             (Ydb::Query::RollbackTransactionResponse* response, TPlainStatus status) mutable {
                 try {
                     if (response) {
-                        NYql::TIssues opIssues;
-                        NYql::IssuesFromMessage(response->issues(), opIssues);
+                        NYdb::NIssue::TIssues opIssues;
+                        NYdb::NIssue::IssuesFromMessage(response->issues(), opIssues);
                         TStatus rollbackTxStatus(TPlainStatus{static_cast<EStatus>(response->status()), std::move(opIssues),
                             status.Endpoint, std::move(status.Metadata)});
 
@@ -183,8 +183,8 @@ public:
             (Ydb::Query::CommitTransactionResponse* response, TPlainStatus status) mutable {
                 try {
                     if (response) {
-                        NYql::TIssues opIssues;
-                        NYql::IssuesFromMessage(response->issues(), opIssues);
+                        NYdb::NIssue::TIssues opIssues;
+                        NYdb::NIssue::IssuesFromMessage(response->issues(), opIssues);
                         TStatus commitTxStatus(TPlainStatus{static_cast<EStatus>(response->status()), std::move(opIssues),
                             status.Endpoint, std::move(status.Metadata)});
 
@@ -222,8 +222,8 @@ public:
             (Ydb::Query::BeginTransactionResponse* response, TPlainStatus status) mutable {
                 try {
                     if (response) {
-                        NYql::TIssues opIssues;
-                        NYql::IssuesFromMessage(response->issues(), opIssues);
+                        NYdb::NIssue::TIssues opIssues;
+                        NYdb::NIssue::IssuesFromMessage(response->issues(), opIssues);
                         TStatus beginTxStatus(TPlainStatus{static_cast<EStatus>(response->status()), std::move(opIssues),
                             status.Endpoint, std::move(status.Metadata)});
 
@@ -261,8 +261,8 @@ public:
         auto extractor = [promise]
             (FetchScriptResultsResponse* response, TPlainStatus status) mutable {
                 if (response) {
-                    NYql::TIssues opIssues;
-                    NYql::IssuesFromMessage(response->issues(), opIssues);
+                    NYdb::NIssue::TIssues opIssues;
+                    NYdb::NIssue::IssuesFromMessage(response->issues(), opIssues);
                     TStatus st(static_cast<EStatus>(response->status()), std::move(opIssues));
 
                     if (st.IsSuccess()) {
@@ -378,8 +378,8 @@ public:
         auto extractor = [promise, self] (Ydb::Query::CreateSessionResponse* resp, TPlainStatus status) mutable {
             if (resp) {
                 if (resp->status() != Ydb::StatusIds::SUCCESS) {
-                    NYql::TIssues opIssues;
-                    NYql::IssuesFromMessage(resp->issues(), opIssues);
+                    NYdb::NIssue::TIssues opIssues;
+                    NYdb::NIssue::IssuesFromMessage(resp->issues(), opIssues);
                     TStatus st(static_cast<EStatus>(resp->status()), std::move(opIssues));
                     promise.SetValue(TCreateSessionResult(std::move(st), TSession()));
                 } else {

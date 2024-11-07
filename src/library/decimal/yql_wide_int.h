@@ -6,7 +6,7 @@
 #include <tuple>
 #include <cmath>
 
-namespace NYql {
+namespace NYdb::NDecimal {
 
 #ifndef _win_
 typedef __int128 i128_t;

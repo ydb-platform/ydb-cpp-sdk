@@ -10,7 +10,7 @@ using namespace NYdb::NView;
 
 Y_UNIT_TEST_SUITE(ViewClient) {
     Y_UNIT_TEST(Basic) {
-        TString addr = "localhost:2135";
+        TString addr = "localhost:2000";
         TViewDummyService viewService;
 
         auto server = StartGrpcServer(addr, viewService);

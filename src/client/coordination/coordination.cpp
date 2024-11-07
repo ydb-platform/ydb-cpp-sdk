@@ -660,8 +660,8 @@ private:
         Ydb::StatusIds::StatusCode protoStatus,
         const google::protobuf::RepeatedPtrField<Ydb::Issue::IssueMessage>& protoIssues) const
     {
-        NYql::TIssues issues;
-        NYql::IssuesFromMessage(protoIssues, issues);
+        NYdb::NIssue::TIssues issues;
+        NYdb::NIssue::IssuesFromMessage(protoIssues, issues);
         return TPlainStatus(static_cast<EStatus>(protoStatus), std::move(issues));
     }
 
@@ -674,7 +674,7 @@ private:
         return TStatus(std::forward<TSource>(source));
     }
 
-    TStatus MakeStatus(EStatus status, NYql::TIssues&& issues) const {
+    TStatus MakeStatus(EStatus status, NYdb::NIssue::TIssues&& issues) const {
         return TStatus(TPlainStatus(status, std::move(issues)));
     }
 

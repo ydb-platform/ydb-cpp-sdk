@@ -69,8 +69,8 @@ public:
                 self->Finished_ = true;
                 promise.SetValue({TStatus(TPlainStatus(grpcStatus, self->Endpoint_)), {}, {}});
             } else {
-                NYql::TIssues issues;
-                NYql::IssuesFromMessage(self->Response_.issues(), issues);
+                NYdb::NIssue::TIssues issues;
+                NYdb::NIssue::IssuesFromMessage(self->Response_.issues(), issues);
                 EStatus clientStatus = static_cast<EStatus>(self->Response_.status());
                 TPlainStatus plainStatus{clientStatus, std::move(issues), self->Endpoint_, {}};
                 TStatus status{std::move(plainStatus)};
@@ -141,7 +141,7 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
 
     TPromise<TExecuteQueryResult> Promise_;
     TExecuteQueryIterator Iterator_;
-    std::vector<NYql::TIssue> Issues_;
+    std::vector<NYdb::NIssue::TIssue> Issues_;
     std::vector<Ydb::ResultSet> ResultSets_;
     std::optional<TExecStats> Stats_;
     std::optional<TTransaction> Tx_;
@@ -161,7 +161,7 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
                 std::swap(self->Stats_, stats);
 
                 if (part.EOS()) {
-                    std::vector<NYql::TIssue> issues;
+                    std::vector<NYdb::NIssue::TIssue> issues;
                     std::vector<Ydb::ResultSet> resultProtos;
                     std::optional<TTransaction> tx;
 
@@ -175,7 +175,7 @@ struct TExecuteQueryBuffer : public TThrRefBase, TNonCopyable {
                     }
 
                     self->Promise_.SetValue(TExecuteQueryResult(
-                        TStatus(EStatus::SUCCESS, NYql::TIssues(std::move(issues))),
+                        TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues(std::move(issues))),
                         std::move(resultSets),
                         std::move(stats),
                         std::move(tx)

@@ -77,7 +77,7 @@ TLoginCredentialsProvider::TLoginCredentialsProvider(std::weak_ptr<ICoreFacility
 {
     auto strongFacility = facility.lock();
     if (strongFacility) {
-        auto periodicTask = [facility, this](NYql::TIssues&&, EStatus status) -> bool {
+        auto periodicTask = [facility, this](NYdb::NIssue::TIssues&&, EStatus status) -> bool {
             if (status != EStatus::SUCCESS) {
                 return false;
             }

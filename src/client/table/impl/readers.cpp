@@ -39,8 +39,8 @@ TAsyncSimpleStreamPart<TResultSet> TTablePartIterator::TReaderImpl::ReadNext(std
                             TStatus(TPlainStatus(grpcStatus, self->Endpoint_)),
                             snapshot});
         } else {
-            NYql::TIssues issues;
-            NYql::IssuesFromMessage(self->Response_.issues(), issues);
+            NYdb::NIssue::TIssues issues;
+            NYdb::NIssue::IssuesFromMessage(self->Response_.issues(), issues);
             EStatus clientStatus = static_cast<EStatus>(self->Response_.status());
             promise.SetValue({TResultSet(std::move(*self->Response_.mutable_result()->mutable_result_set())),
                             TStatus(clientStatus, std::move(issues)),
@@ -75,8 +75,8 @@ TAsyncScanQueryPart TScanQueryPartIterator::TReaderImpl::ReadNext(std::shared_pt
             self->Finished_ = true;
             promise.SetValue({TStatus(TPlainStatus(grpcStatus, self->Endpoint_))});
         } else {
-            NYql::TIssues issues;
-            NYql::IssuesFromMessage(self->Response_.issues(), issues);
+            NYdb::NIssue::TIssues issues;
+            NYdb::NIssue::IssuesFromMessage(self->Response_.issues(), issues);
             EStatus clientStatus = static_cast<EStatus>(self->Response_.status());
             // TODO: Add headers for streaming calls.
             TPlainStatus plainStatus{clientStatus, std::move(issues), self->Endpoint_, {}};

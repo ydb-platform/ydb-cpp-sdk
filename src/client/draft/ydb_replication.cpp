@@ -4,8 +4,8 @@
 #include <src/client/impl/ydb_internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <ydb-cpp-sdk/library/yql_common/issue/yql_issue.h>
-#include <src/library/yql_common/issue/yql_issue_message.h>
+#include <ydb-cpp-sdk/library/issue/yql_issue.h>
+#include <src/library/issue/yql_issue_message.h>
 #include <src/api/grpc/draft/ydb_replication_v1.grpc.pb.h>
 #include <src/client/common_client/impl/client.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
@@ -93,27 +93,26 @@ const TStats& TRunningState::GetStats() const {
 
 class TErrorState::TImpl {
 public:
-    NYql::TIssues Issues;
+    NYdb::NIssue::TIssues Issues;
 
-    explicit TImpl(NYql::TIssues&& issues)
+    explicit TImpl(NYdb::NIssue::TIssues&& issues)
         : Issues(std::move(issues))
     {
     }
 };
 
-TErrorState::TErrorState(NYql::TIssues&& issues)
+TErrorState::TErrorState(NYdb::NIssue::TIssues&& issues)
     : Impl_(std::make_shared<TImpl>(std::move(issues)))
 {
 }
 
-const NYql::TIssues& TErrorState::GetIssues() const {
+const NYdb::NIssue::TIssues& TErrorState::GetIssues() const {
     return Impl_->Issues;
 }
 
-template <typename T>
-NYql::TIssues IssuesFromMessage(const ::google::protobuf::RepeatedPtrField<T>& message) {
-    NYql::TIssues issues;
-    NYql::IssuesFromMessage<T>(message, issues);
+NYdb::NIssue::TIssues IssuesFromMessage(const ::google::protobuf::RepeatedPtrField<Ydb::Issue::IssueMessage>& message) {
+    NYdb::NIssue::TIssues issues;
+    NYdb::NIssue::IssuesFromMessage(message, issues);
     return issues;
 }
 

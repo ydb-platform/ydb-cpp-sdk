@@ -364,7 +364,7 @@ private:
     ui64 GetIdImpl(ui64 seqNo);
     void SendImpl();
     void AbortImpl();
-    void CloseImpl(EStatus statusCode, NYql::TIssues&& issues);
+    void CloseImpl(EStatus statusCode, NYdb::NIssue::TIssues&& issues);
     void CloseImpl(EStatus statusCode, const std::string& message);
     void CloseImpl(TPlainStatus&& status);
 

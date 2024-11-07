@@ -94,7 +94,7 @@ private:
 
     void AbortImpl(TDeferredActions& deferred);
     void AbortImpl(TSessionClosedEvent&& closeEvent, TDeferredActions& deferred);
-    void AbortImpl(EStatus statusCode, NYql::TIssues&& issues, TDeferredActions& deferred);
+    void AbortImpl(EStatus statusCode, NYdb::NIssue::TIssues&& issues, TDeferredActions& deferred);
     void AbortImpl(EStatus statusCode, const std::string& message, TDeferredActions& deferred);
 
     void MakeCountersIfNeeded();

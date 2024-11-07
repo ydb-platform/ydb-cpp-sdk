@@ -1,7 +1,5 @@
 #pragma once
 
-#include "yql_issue_id.h"
-
 #include <util/generic/ptr.h>
 #include <util/generic/yexception.h>
 #include <util/stream/output.h>
@@ -13,11 +11,23 @@
 
 #include <optional>
 #include <vector>
-#include <sstream>
 #include <string>
 #include <string_view>
 
-namespace NYql {
+namespace NYdb::NIssue {
+
+using TIssueCode = uint32_t;
+constexpr TIssueCode DEFAULT_ERROR = 0;
+constexpr TIssueCode UNEXPECTED_ERROR = 1;
+
+enum class ESeverity : uint32_t {
+    Fatal = 0,
+    Error = 1,
+    Warning = 2,
+    Info = 3,
+};
+
+std::string SeverityToString(ESeverity severity);
 
 void SanitizeNonAscii(std::string& s);
 
@@ -56,37 +66,6 @@ struct TPosition {
     }
 };
 
-class TTextWalker {
-public:
-    TTextWalker(TPosition& position, bool utf8Aware)
-        : Position(position)
-        , Utf8Aware(utf8Aware)
-        , HaveCr(false)
-        , LfCount(0)
-    {
-    }
-
-    static inline bool IsUtf8Intermediate(char c) {
-        return (c & 0xC0) == 0x80;
-    }
-
-    template<typename T>
-    TTextWalker& Advance(const T& buf) {
-        for (char c : buf) {
-            Advance(c);
-        }
-        return *this;
-    }
-
-    TTextWalker& Advance(char c);
-
-private:
-    TPosition& Position;
-    const bool Utf8Aware;
-    bool HaveCr;
-    uint32_t LfCount;
-};
-
 struct TRange {
     TPosition Position;
     TPosition EndPosition;
@@ -118,12 +97,12 @@ class TIssue;
 using TIssuePtr = TIntrusivePtr<TIssue>;
 class TIssue: public TThrRefBase {
     std::vector<TIntrusivePtr<TIssue>> Children_;
-    TString Message;
+    std::string Message;
 public:
     TPosition Position;
     TPosition EndPosition;
     TIssueCode IssueCode = 0U;
-    ESeverity Severity = TSeverityIds::S_ERROR;
+    ESeverity Severity = ESeverity::Error;
 
     TIssue() = default;
 
@@ -163,14 +142,7 @@ public:
             && IssueCode == other.IssueCode;
     }
 
-    ui64 Hash() const noexcept {
-        return CombineHashes(
-            CombineHashes(
-                (size_t)CombineHashes(IntHash(Position.Row), IntHash(Position.Column)),
-                std::hash<std::string>{}(Position.File)
-            ),
-            (size_t)CombineHashes((size_t)IntHash(static_cast<int>(IssueCode)), std::hash<std::string>{}(Message)));
-    }
+    uint64_t Hash() const noexcept;
 
     TIssue& SetCode(TIssueCode id, ESeverity severity) {
         IssueCode = id;
@@ -197,7 +169,8 @@ public:
     }
 
     TIssue& AddSubIssue(TIntrusivePtr<TIssue> issue) {
-        Severity = (ESeverity)std::min((uint32_t)issue->GetSeverity(), (uint32_t)Severity);
+        Severity = static_cast<ESeverity>(std::min(static_cast<uint32_t>(issue->GetSeverity()),
+                                                   static_cast<uint32_t>(Severity)));
         Children_.push_back(issue);
         return *this;
     }
@@ -215,7 +188,7 @@ public:
     }
 
     // Unsafe method. Doesn't call SanitizeNonAscii(Message)
-    TString* MutableMessage() {
+    std::string* MutableMessage() {
         return &Message;
     }
 
@@ -359,20 +332,20 @@ std::optional<TPosition> TryParseTerminationMessage(std::string_view& message);
 } // namespace NYql
 
 template <>
-void Out<NYql::TPosition>(IOutputStream& out, const NYql::TPosition& pos);
+void Out<NYdb::NIssue::TPosition>(IOutputStream& out, const NYdb::NIssue::TPosition& pos);
 
 template <>
-void Out<NYql::TRange>(IOutputStream& out, const NYql::TRange& pos);
+void Out<NYdb::NIssue::TRange>(IOutputStream& out, const NYdb::NIssue::TRange& pos);
 
 template <>
-void Out<NYql::TIssue>(IOutputStream& out, const NYql::TIssue& error);
+void Out<NYdb::NIssue::TIssue>(IOutputStream& out, const NYdb::NIssue::TIssue& error);
 
 template <>
-void Out<NYql::TIssues>(IOutputStream& out, const NYql::TIssues& error);
+void Out<NYdb::NIssue::TIssues>(IOutputStream& out, const NYdb::NIssue::TIssues& error);
 
 template <>
-struct THash<NYql::TIssue> {
-    inline size_t operator()(const NYql::TIssue& err) const {
+struct THash<NYdb::NIssue::TIssue> {
+    inline size_t operator()(const NYdb::NIssue::TIssue& err) const {
         return err.Hash();
     }
 };

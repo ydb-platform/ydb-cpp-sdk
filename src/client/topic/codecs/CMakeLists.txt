@@ -3,7 +3,6 @@ _ydb_sdk_add_library(client-ydb_topic-codecs)
 target_link_libraries(client-ydb_topic-codecs PUBLIC
   yutil
   streams-zstd
-  yql-public-issue-protos
   api-grpc-draft
   api-grpc
   api-protos

@@ -1,7 +1,8 @@
-#include <src/library/yql_common/decimal/yql_wide_int.h>
+#include <src/library/decimal/yql_wide_int.h>
 #include <library/cpp/testing/unittest/registar.h>
 
-namespace NYql {
+namespace NYdb::NDecimal {
+
 Y_UNIT_TEST_SUITE(TYqlWideIntTest) {
     template<typename T>
     void TestUnary(const T aa) {

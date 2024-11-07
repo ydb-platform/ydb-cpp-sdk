@@ -147,7 +147,7 @@ public:
     void DeferReadFromProcessor(const typename IProcessor<UseMigrationProtocol>::TPtr& processor, TServerMessage<UseMigrationProtocol>* dst, typename IProcessor<UseMigrationProtocol>::TReadCallback callback);
     void DeferStartExecutorTask(const typename IAExecutor<UseMigrationProtocol>::TPtr& executor, typename IAExecutor<UseMigrationProtocol>::TFunction&& task);
     void DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, TASessionClosedEvent<UseMigrationProtocol>&& closeEvent);
-    void DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, EStatus statusCode, NYql::TIssues&& issues);
+    void DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, EStatus statusCode, NYdb::NIssue::TIssues&& issues);
     void DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, EStatus statusCode, const std::string& message);
     void DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, TPlainStatus&& status);
     void DeferReconnection(TCallbackContextPtr<UseMigrationProtocol> cbContext, TPlainStatus&& status);
@@ -1124,12 +1124,12 @@ public:
     void Close(std::function<void()> callback);
     void AbortSession(TASessionClosedEvent<UseMigrationProtocol>&& closeEvent);
 
-    void AbortSession(EStatus statusCode, NYql::TIssues&& issues) {
+    void AbortSession(EStatus statusCode, NYdb::NIssue::TIssues&& issues) {
         AbortSession(TASessionClosedEvent<UseMigrationProtocol>(statusCode, std::move(issues)));
     }
 
     void AbortSession(EStatus statusCode, const std::string& message) {
-        NYql::TIssues issues;
+        NYdb::NIssue::TIssues issues;
         issues.AddIssue(message);
         AbortSession(statusCode, std::move(issues));
     }
@@ -1172,7 +1172,7 @@ public:
 private:
     void BreakConnectionAndReconnectImpl(TPlainStatus&& status, TDeferredActions<UseMigrationProtocol>& deferred);
 
-    void BreakConnectionAndReconnectImpl(EStatus statusCode, NYql::TIssues&& issues, TDeferredActions<UseMigrationProtocol>& deferred) {
+    void BreakConnectionAndReconnectImpl(EStatus statusCode, NYdb::NIssue::TIssues&& issues, TDeferredActions<UseMigrationProtocol>& deferred) {
         BreakConnectionAndReconnectImpl(TPlainStatus(statusCode, std::move(issues)), deferred);
     }
 

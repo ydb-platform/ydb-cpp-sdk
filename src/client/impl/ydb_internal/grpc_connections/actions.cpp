@@ -86,7 +86,7 @@ TPeriodicAction::TPeriodicAction(
 }
 
 void TPeriodicAction::OnAlarm() {
-    NYql::TIssues issues;
+    NYdb::NIssue::TIssues issues;
     if (!UserResponseCb_(std::move(issues), EStatus::SUCCESS)) {
         return;
     }
@@ -105,8 +105,8 @@ void TPeriodicAction::OnAlarm() {
 }
 
 void TPeriodicAction::OnError() {
-    NYql::TIssues issues;
-    issues.AddIssue(NYql::TIssue("Deferred timer interrupted"));
+    NYdb::NIssue::TIssues issues;
+    issues.AddIssue(NYdb::NIssue::TIssue("Deferred timer interrupted"));
     UserResponseCb_(std::move(issues), EStatus::CLIENT_INTERNAL_ERROR);
 }
 

@@ -130,7 +130,7 @@ public:
         if (!Endpoint_.empty()) {
             std::string msg = "Grpc error response on endpoint ";
             msg += Endpoint_;
-            status.Issues.AddIssue(NYql::TIssue(msg));
+            status.Issues.AddIssue(NYdb::NIssue::TIssue(msg));
         }
 
         this->UserResponseCb_(nullptr, status);
