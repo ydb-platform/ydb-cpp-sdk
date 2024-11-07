@@ -60,6 +60,25 @@ private:
         {
             Message.Data = Data;
         }
+
+        explicit TWrappedWriteMessage(const TWrappedWriteMessage& other)
+            : Data(other.Data)
+            , Message(other.Message)
+        {
+            Message.Data = Data;
+        }
+
+        explicit TWrappedWriteMessage(TWrappedWriteMessage&& other)
+            : Data(std::move(other.Data))
+            , Message(std::move(other.Message))
+        {
+            Message.Data = Data;
+        }
+
+        TWrappedWriteMessage& operator=(const TWrappedWriteMessage& other) = delete;
+        TWrappedWriteMessage& operator=(TWrappedWriteMessage&& other) = delete;
+
+        ~TWrappedWriteMessage() = default;
     };
 
 private:

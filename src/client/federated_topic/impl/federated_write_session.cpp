@@ -43,6 +43,7 @@ TFederatedWriteSessionImpl::TFederatedWriteSessionImpl(
     , Log(Connections->GetLog())
     , ClientEventsQueue(std::make_shared<NTopic::TWriteSessionEventsQueue>(Settings))
     , BufferFreeSpace(Settings.MaxMemoryUsage_)
+    , HasBeenClosed(NThreading::NewPromise())
 {
 }
 
