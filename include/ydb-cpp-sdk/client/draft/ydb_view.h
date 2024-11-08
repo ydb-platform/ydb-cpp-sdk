@@ -11,10 +11,6 @@ namespace NYdb {
     class TProtoAccessor;
 }
 
-namespace NYql {
-    class TIssues;
-}
-
 namespace NYdb::NView {
 
 class TDescribeViewResult;

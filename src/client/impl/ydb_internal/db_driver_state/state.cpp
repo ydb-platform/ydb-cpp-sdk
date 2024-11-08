@@ -92,7 +92,7 @@ void TDbDriverState::SignalDiscoveryCompleted() {
 
 TPeriodicCb CreatePeriodicDiscoveryTask(TDbDriverState::TPtr driverState) {
     auto weak = std::weak_ptr<TDbDriverState>(driverState);
-    return [weak](NYql::TIssues&&, EStatus status) {
+    return [weak](NYdb::NIssue::TIssues&&, EStatus status) {
         if (status != EStatus::SUCCESS) {
             return false;
         }

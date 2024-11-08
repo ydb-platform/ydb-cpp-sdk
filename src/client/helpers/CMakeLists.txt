@@ -6,7 +6,6 @@ target_link_libraries(client-helpers
     client-ydb_types-credentials-oauth2
     client-iam-common
     client-ydb_types-credentials
-    yql-public-issue-protos
 )
 
 target_sources(client-helpers

@@ -196,7 +196,7 @@ void TWriteSessionImpl::OnCdsResponse(
         return;
     }
 
-    NYql::TIssues issues;
+    NYdb::NIssue::TIssues issues;
     EStatus errorStatus = EStatus::INTERNAL_ERROR;
     {
         std::lock_guard guard(Lock);
@@ -727,7 +727,7 @@ TWriteSessionImpl::TProcessSrvMessageResult TWriteSessionImpl::ProcessServerMess
             SessionEstablished = false;
             result.HandleResult = OnErrorImpl({
                             static_cast<NYdb::EStatus>(ServerMessage->status()),
-                            {NYql::TIssue{ServerMessage->DebugString()}}
+                            {NYdb::NIssue::TIssue{ServerMessage->DebugString()}}
                     });
             result.Ok = false;
             break;
@@ -1258,7 +1258,7 @@ bool TWriteSessionImpl::Close(TDuration closeTimeout) {
     }
     {
         std::lock_guard guard(Lock);
-        CloseImpl(EStatus::SUCCESS, NYql::TIssues{});
+        CloseImpl(EStatus::SUCCESS, NYdb::NIssue::TIssues{});
         needSetSeqNoValue = !InitSeqNoSetDone && (InitSeqNoSetDone = true);
     }
     if (needSetSeqNoValue) {
@@ -1362,7 +1362,7 @@ void TWriteSessionImpl::AbortImpl() {
     }
 }
 
-void TWriteSessionImpl::CloseImpl(EStatus statusCode, NYql::TIssues&& issues) {
+void TWriteSessionImpl::CloseImpl(EStatus statusCode, NYdb::NIssue::TIssues&& issues) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     LOG_LAZY(DbDriverState->Log, TLOG_INFO, LogPrefix() << "Write session will now close");
@@ -1373,7 +1373,7 @@ void TWriteSessionImpl::CloseImpl(EStatus statusCode, NYql::TIssues&& issues) {
 void TWriteSessionImpl::CloseImpl(EStatus statusCode, const std::string& message) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
-    NYql::TIssues issues;
+    NYdb::NIssue::TIssues issues;
     issues.AddIssue(message);
     CloseImpl(statusCode, std::move(issues));
 }
@@ -1392,7 +1392,7 @@ TWriteSessionImpl::~TWriteSessionImpl() {
     {
         std::lock_guard guard(Lock);
         if (!Aborting.load()) {
-            CloseImpl(EStatus::SUCCESS, NYql::TIssues{});
+            CloseImpl(EStatus::SUCCESS, NYdb::NIssue::TIssues{});
 
             needClose = !InitSeqNoSetDone && (InitSeqNoSetDone = true);
         }

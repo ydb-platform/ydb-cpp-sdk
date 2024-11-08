@@ -54,12 +54,12 @@ private:
     void SetupCountersLogger();
 
     // Shutdown.
-    void Abort(EStatus statusCode, NYql::TIssues&& issues);
+    void Abort(EStatus statusCode, NYdb::NIssue::TIssues&& issues);
     void Abort(EStatus statusCode, const std::string& message);
 
     void AbortImpl(TDeferredActions<false>& deferred);
     void AbortImpl(TSessionClosedEvent&& closeEvent, TDeferredActions<false>& deferred);
-    void AbortImpl(EStatus statusCode, NYql::TIssues&& issues, TDeferredActions<false>& deferred);
+    void AbortImpl(EStatus statusCode, NYdb::NIssue::TIssues&& issues, TDeferredActions<false>& deferred);
     void AbortImpl(EStatus statusCode, const std::string& message, TDeferredActions<false>& deferred);
 
 private:

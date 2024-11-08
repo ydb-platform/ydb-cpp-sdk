@@ -1,9 +1,10 @@
-#include <ydb-cpp-sdk/library/yql_common/issue/yql_issue.h>
+#include "utf8.h"
 
-#include <ydb-cpp-sdk/library/yql_common/utils/utf8.h>
+#include <ydb-cpp-sdk/library/issue/yql_issue.h>
+
+#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <library/cpp/colorizer/output.h>
-#include <ydb-cpp-sdk/library/string_utils/misc/misc.h>
 
 #include <util/charset/utf8.h>
 #include <util/string/ascii.h>
@@ -12,13 +13,27 @@
 #include <util/string/subst.h>
 #include <util/system/compiler.h>
 #include <util/generic/stack.h>
+
 #include <cstdlib>
 #include <charconv>
 
-namespace NYql {
+namespace NYdb::NIssue {
+
+std::string SeverityToString(ESeverity severity) {
+    switch (severity) {
+        case ESeverity::Fatal:
+            return "Fatal";
+        case ESeverity::Error:
+            return "Error";
+        case ESeverity::Warning:
+            return "Warning";
+        case ESeverity::Info:
+            return "Info";
+    }
+}
 
 void SanitizeNonAscii(std::string& s) {
-    if (!NYql::IsUtf8(s)) {
+    if (!NYdb::NIssue::IsUtf8(s)) {
         std::string escaped;
         escaped.reserve(s.size());
         const unsigned char* i = reinterpret_cast<const unsigned char*>(s.data());
@@ -39,34 +54,13 @@ void SanitizeNonAscii(std::string& s) {
     }
 }
 
-TTextWalker& TTextWalker::Advance(char c) {
-    if (c == '\n') {
-        HaveCr = false;
-        ++LfCount;
-        return *this;
-    }
-
-
-    if (c == '\r' && !HaveCr) {
-        HaveCr = true;
-        return *this;
-    }
-
-    uint32_t charDistance = 1;
-    if (Utf8Aware && IsUtf8Intermediate(c)) {
-        charDistance = 0;
-    }
-
-    // either not '\r' or second '\r'
-    if (LfCount) {
-        Position.Row += LfCount;
-        Position.Column = charDistance;
-        LfCount = 0;
-    } else {
-        Position.Column += charDistance + (HaveCr && c != '\r');
-    }
-    HaveCr = (c == '\r');
-    return *this;
+uint64_t TIssue::Hash() const noexcept {
+    return CombineHashes(
+        CombineHashes(
+            (size_t)CombineHashes(IntHash(Position.Row), IntHash(Position.Column)),
+            std::hash<std::string>{}(Position.File)
+        ),
+        (size_t)CombineHashes((size_t)IntHash(static_cast<int>(IssueCode)), std::hash<std::string>{}(Message)));
 }
 
 void TIssue::PrintTo(IOutputStream& out, bool oneLine) const {
@@ -83,14 +77,14 @@ void TIssue::PrintTo(IOutputStream& out, bool oneLine) const {
     }
 }
 
-void WalkThroughIssues(const TIssue& topIssue, bool leafOnly, std::function<void(const TIssue&, ui16 level)> fn, std::function<void(const TIssue&, ui16 level)> afterChildrenFn) {
+void WalkThroughIssues(const TIssue& topIssue, bool leafOnly, std::function<void(const TIssue&, uint16_t level)> fn, std::function<void(const TIssue&, uint16_t level)> afterChildrenFn) {
     enum class EFnType {
         Main,
         AfterChildren,
     };
 
     const bool hasAfterChildrenFn = bool(afterChildrenFn);
-    TStack<std::tuple<ui16, const TIssue*, EFnType>> issuesStack;
+    TStack<std::tuple<uint16_t, const TIssue*, EFnType>> issuesStack;
     if (hasAfterChildrenFn) {
         issuesStack.push(std::make_tuple(0, &topIssue, EFnType::AfterChildren));
     }
@@ -122,7 +116,7 @@ void WalkThroughIssues(const TIssue& topIssue, bool leafOnly, std::function<void
 
 namespace {
 
-Y_NO_INLINE void Indent(IOutputStream& out, ui32 indentation) {
+Y_NO_INLINE void Indent(IOutputStream& out, uint32_t indentation) {
     char* whitespaces = reinterpret_cast<char*>(alloca(indentation));
     memset(whitespaces, ' ', indentation);
     out.Write(whitespaces, indentation);
@@ -131,12 +125,12 @@ Y_NO_INLINE void Indent(IOutputStream& out, ui32 indentation) {
 void ProgramLinesWithErrors(
         const std::string& programText,
         const std::vector<TIssue>& errors,
-        std::map<ui32, std::string_view>& lines)
+        std::map<uint32_t, std::string_view>& lines)
 {
-    std::vector<ui32> rows;
+    std::vector<uint32_t> rows;
     for (const auto& topIssue: errors) {
-        WalkThroughIssues(topIssue, false, [&](const TIssue& issue, ui16 /*level*/) {
-            for (ui32 row = issue.Position.Row; row <= issue.EndPosition.Row; row++) {
+        WalkThroughIssues(topIssue, false, [&](const TIssue& issue, uint16_t /*level*/) {
+            for (uint32_t row = issue.Position.Row; row <= issue.EndPosition.Row; row++) {
                 rows.push_back(row);
             }
         });
@@ -145,9 +139,9 @@ void ProgramLinesWithErrors(
 
     auto prog = StringSplitter(programText).Split('\n');
     auto progIt = prog.begin(), progEnd = prog.end();
-    ui32 progRow = 1;
+    uint32_t progRow = 1;
 
-    for (ui32 row: rows) {
+    for (uint32_t row: rows) {
         while (progRow < row && progIt != progEnd) {
             ++progRow;
             ++progIt;
@@ -169,7 +163,7 @@ void TIssues::PrintTo(IOutputStream& out, bool oneLine) const
             out << "[";
         }
         for (const auto& topIssue: Issues_) {
-            WalkThroughIssues(topIssue, false, [&](const TIssue& issue, ui16 level) {
+            WalkThroughIssues(topIssue, false, [&](const TIssue& issue, uint16_t level) {
                 if (level > 0) {
                     out << " subissue: { ";
                 } else {
@@ -177,7 +171,7 @@ void TIssues::PrintTo(IOutputStream& out, bool oneLine) const
                 }
                 issue.PrintTo(out, true);
             },
-            [&](const TIssue&, ui16) {
+            [&](const TIssue&, uint16_t) {
                 out << " }";
             });
         }
@@ -186,7 +180,7 @@ void TIssues::PrintTo(IOutputStream& out, bool oneLine) const
         }
     } else {
         for (const auto& topIssue: Issues_) {
-            WalkThroughIssues(topIssue, false, [&](const TIssue& issue, ui16 level) {
+            WalkThroughIssues(topIssue, false, [&](const TIssue& issue, uint16_t level) {
                 auto shift = level * 4;
                 Indent(out, shift);
                 out << issue << Endl;
@@ -202,16 +196,16 @@ void TIssues::PrintWithProgramTo(
 {
     using namespace NColorizer;
 
-    std::map<ui32, std::string_view> lines;
+    std::map<uint32_t, std::string_view> lines;
     ProgramLinesWithErrors(programText, Issues_, lines);
 
     for (const TIssue& topIssue: Issues_) {
-        WalkThroughIssues(topIssue, false, [&](const TIssue& issue, ui16 level) {
+        WalkThroughIssues(topIssue, false, [&](const TIssue& issue, uint16_t level) {
             auto shift = level * 4;
             Indent(out, shift);
             out << DarkGray() << programFilename << Old() << ':';
             out << Purple() << issue.Range() << Old();
-            auto color = (issue.GetSeverity() ==  TSeverityIds::S_WARNING) ? Yellow() : LightRed();
+            auto color = (issue.GetSeverity() ==  ESeverity::Warning) ? Yellow() : LightRed();
             auto severityName = SeverityToString(issue.GetSeverity());
             out << color << ": "<< severityName << ": " << issue.GetMessage() << Old() << '\n';
             Indent(out, shift);
@@ -234,9 +228,9 @@ TIssue ExceptionToIssue(const std::exception& e, const TPosition& pos) {
     auto issue = TIssue(parsedPos.value_or(pos), messageBuf);
     const TErrorException* errorException = dynamic_cast<const TErrorException*>(&e);
     if (errorException) {
-        issue.SetCode(errorException->GetCode(), ESeverity::TSeverityIds_ESeverityId_S_ERROR);
+        issue.SetCode(errorException->GetCode(), ESeverity::Error);
     } else {
-        issue.SetCode(UNEXPECTED_ERROR, ESeverity::TSeverityIds_ESeverityId_S_FATAL);
+        issue.SetCode(UNEXPECTED_ERROR, ESeverity::Fatal);
     }
     return issue;
 }
@@ -268,7 +262,7 @@ std::optional<TPosition> TryParseTerminationMessage(std::string_view& message) {
         NUtils::GetNext(s, ':', file);
         NUtils::GetNext(s, ':', row);
         NUtils::GetNext(s, ':', column);
-        ui32 rowValue, columnValue;
+        uint32_t rowValue, columnValue;
         if (file && row && column && TryFromString(*row, rowValue) && TryFromString(*column, columnValue)) {
             message = StripStringLeft(s);
             return TPosition(columnValue, rowValue, std::string(*file));
@@ -281,7 +275,7 @@ std::optional<TPosition> TryParseTerminationMessage(std::string_view& message) {
 } // namspace NYql
 
 template <>
-void Out<NYql::TPosition>(IOutputStream& out, const NYql::TPosition& pos) {
+void Out<NYdb::NIssue::TPosition>(IOutputStream& out, const NYdb::NIssue::TPosition& pos) {
     out << (pos.File.empty() ? "<main>" : pos.File);
     if (pos) {
         out << ":" << pos.Row << ':' << pos.Column;
@@ -289,7 +283,7 @@ void Out<NYql::TPosition>(IOutputStream& out, const NYql::TPosition& pos) {
 }
 
 template<>
-void Out<NYql::TRange>(IOutputStream & out, const NYql::TRange & range) {
+void Out<NYdb::NIssue::TRange>(IOutputStream & out, const NYdb::NIssue::TRange & range) {
     if (range.IsRange()) {
         out << '[' << range.Position << '-' << range.EndPosition << ']';
     } else {
@@ -298,11 +292,11 @@ void Out<NYql::TRange>(IOutputStream & out, const NYql::TRange & range) {
 }
 
 template <>
-void Out<NYql::TIssue>(IOutputStream& out, const NYql::TIssue& error) {
+void Out<NYdb::NIssue::TIssue>(IOutputStream& out, const NYdb::NIssue::TIssue& error) {
     error.PrintTo(out);
 }
 
 template <>
-void Out<NYql::TIssues>(IOutputStream& out, const NYql::TIssues& error) {
+void Out<NYdb::NIssue::TIssues>(IOutputStream& out, const NYdb::NIssue::TIssues& error) {
     error.PrintTo(out);
 }

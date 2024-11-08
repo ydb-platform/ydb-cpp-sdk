@@ -1890,7 +1890,7 @@ TAsyncDataQueryResult TSession::ExecuteDataQuery(const std::string& query, const
 TAsyncPrepareQueryResult TSession::PrepareDataQuery(const std::string& query, const TPrepareDataQuerySettings& settings) {
     auto maybeQuery = SessionImpl_->GetQueryFromCache(query, Client_->Settings_.AllowRequestMigration_);
     if (maybeQuery) {
-        TStatus status(EStatus::SUCCESS, NYql::TIssues());
+        TStatus status(EStatus::SUCCESS, NYdb::NIssue::TIssues());
         TDataQuery dataQuery(*this, query, maybeQuery->QueryId, maybeQuery->ParameterTypes);
         TPrepareQueryResult result(std::move(status), dataQuery, true);
         return MakeFuture(result);

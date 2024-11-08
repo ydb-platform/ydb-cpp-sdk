@@ -2910,13 +2910,13 @@ void TDeferredActions<UseMigrationProtocol>::DeferAbortSession(TCallbackContextP
 }
 
 template<bool UseMigrationProtocol>
-void TDeferredActions<UseMigrationProtocol>::DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, EStatus statusCode, NYql::TIssues&& issues) {
+void TDeferredActions<UseMigrationProtocol>::DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, EStatus statusCode, NYdb::NIssue::TIssues&& issues) {
     DeferAbortSession(std::move(cbContext), TASessionClosedEvent<UseMigrationProtocol>(statusCode, std::move(issues)));
 }
 
 template<bool UseMigrationProtocol>
 void TDeferredActions<UseMigrationProtocol>::DeferAbortSession(TCallbackContextPtr<UseMigrationProtocol> cbContext, EStatus statusCode, const std::string& message) {
-    NYql::TIssues issues;
+    NYdb::NIssue::TIssues issues;
     issues.AddIssue(message);
     DeferAbortSession(std::move(cbContext), statusCode, std::move(issues));
 }

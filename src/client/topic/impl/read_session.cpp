@@ -101,7 +101,7 @@ void TReadSession::CreateClusterSessionsImpl(TDeferredActions<false>& deferred) 
 }
 
 bool TReadSession::ValidateSettings() {
-    NYql::TIssues issues;
+    NYdb::NIssue::TIssues issues;
     if (Settings.Topics_.empty()) {
         issues.AddIssue("Empty topics list.");
     }
@@ -225,14 +225,14 @@ bool TReadSession::Close(TDuration timeout) {
     if (result) {
         Cancel(timeoutContext);
 
-        NYql::TIssues issues;
+        NYdb::NIssue::TIssues issues;
         issues.AddIssue("Session was gracefully closed");
         EventsQueue->Close(TSessionClosedEvent(EStatus::SUCCESS, std::move(issues)), deferred);
     } else {
         ++*Settings.Counters_->Errors;
         session->Abort();
 
-        NYql::TIssues issues;
+        NYdb::NIssue::TIssues issues;
         issues.AddIssue(TStringBuilder() << "Session was closed after waiting " << timeout);
         EventsQueue->Close(TSessionClosedEvent(EStatus::TIMEOUT, std::move(issues)), deferred);
     }
@@ -293,7 +293,7 @@ void TReadSession::AbortImpl(TSessionClosedEvent&& closeEvent, TDeferredActions<
     AbortImpl(deferred);
 }
 
-void TReadSession::AbortImpl(EStatus statusCode, NYql::TIssues&& issues, TDeferredActions<false>& deferred) {
+void TReadSession::AbortImpl(EStatus statusCode, NYdb::NIssue::TIssues&& issues, TDeferredActions<false>& deferred) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     AbortImpl(TSessionClosedEvent(statusCode, std::move(issues)), deferred);
@@ -302,17 +302,17 @@ void TReadSession::AbortImpl(EStatus statusCode, NYql::TIssues&& issues, TDeferr
 void TReadSession::AbortImpl(EStatus statusCode, const std::string& message, TDeferredActions<false>& deferred) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
-    NYql::TIssues issues;
+    NYdb::NIssue::TIssues issues;
     issues.AddIssue(message);
     AbortImpl(statusCode, std::move(issues), deferred);
 }
 
-void TReadSession::Abort(EStatus statusCode, NYql::TIssues&& issues) {
+void TReadSession::Abort(EStatus statusCode, NYdb::NIssue::TIssues&& issues) {
     Abort(TSessionClosedEvent(statusCode, std::move(issues)));
 }
 
 void TReadSession::Abort(EStatus statusCode, const std::string& message) {
-    NYql::TIssues issues;
+    NYdb::NIssue::TIssues issues;
     issues.AddIssue(message);
     Abort(statusCode, std::move(issues));
 }

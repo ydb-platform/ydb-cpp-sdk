@@ -4,7 +4,7 @@
 #include <src/client/impl/ydb_internal/plain_status/status.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <src/library/yql_common/issue/yql_issue_message.h>
+#include <src/library/issue/yql_issue_message.h>
 
 namespace NYdb::NQuery {
 
@@ -36,8 +36,8 @@ void TSession::TImpl::MakeImplAsync(TStreamProcessorPtr ptr,
                 TSession::TImpl::NewSmartShared(ptr, std::move(args), st);
 
             } else {
-                NYql::TIssues opIssues;
-                NYql::IssuesFromMessage(resp->issues(), opIssues);
+                NYdb::NIssue::TIssues opIssues;
+                NYdb::NIssue::IssuesFromMessage(resp->issues(), opIssues);
                 TStatus st(static_cast<EStatus>(resp->status()), std::move(opIssues));
                 args->Promise.SetValue(TCreateSessionResult(std::move(st), TSession()));
             }

@@ -29,7 +29,7 @@ public:
     }
 };
 
-TStatus::TStatus(EStatus statusCode, NYql::TIssues&& issues)
+TStatus::TStatus(EStatus statusCode, NYdb::NIssue::TIssues&& issues)
     : Impl_(std::make_shared<TImpl>(TPlainStatus{statusCode, std::move(issues)}))
 { }
 
@@ -37,7 +37,7 @@ TStatus::TStatus(TPlainStatus&& plain)
     : Impl_(std::make_shared<TImpl>(std::move(plain)))
 { }
 
-const NYql::TIssues& TStatus::GetIssues() const {
+const NYdb::NIssue::TIssues& TStatus::GetIssues() const {
     return Impl_->Status.Issues;
 }
 

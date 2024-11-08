@@ -8,7 +8,7 @@ TTransactionId MakeTransactionId(const NTable::TTransaction& tx)
     return {tx.GetSession().GetId(), tx.GetId()};
 }
 
-TStatus MakeStatus(EStatus code, NYql::TIssues&& issues)
+TStatus MakeStatus(EStatus code, NYdb::NIssue::TIssues&& issues)
 {
     return {code, std::move(issues)};
 }

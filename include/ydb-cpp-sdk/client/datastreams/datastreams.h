@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/table/table.h>
 
-#include <src/api/grpc/draft/ydb_datastreams_v1.grpc.pb.h>
+#include <src/api/grpc/draft/ydb_datastreams_v1.pb.h>
 
 namespace NYdb::NDataStreams::V1 {
 

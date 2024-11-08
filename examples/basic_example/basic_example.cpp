@@ -472,7 +472,7 @@ void StreamQuerySelect(TQueryClient client) {
                 }
             }
         }
-        return TStatus(EStatus::SUCCESS, NYql::TIssues());
+        return TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
     }));
 
 }

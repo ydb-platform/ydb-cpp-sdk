@@ -100,7 +100,7 @@ struct TNodeInfo {
 
 class TNodeRegistrationResult : public TStatus {
 public:
-    TNodeRegistrationResult() : TStatus(EStatus::GENERIC_ERROR, NYql::TIssues()) {}
+    TNodeRegistrationResult() : TStatus(EStatus::GENERIC_ERROR, NYdb::NIssue::TIssues()) {}
     TNodeRegistrationResult(TStatus&& status, const Ydb::Discovery::NodeRegistrationResult& proto);
     uint32_t GetNodeId() const;
     const std::string& GetDomainPath() const;

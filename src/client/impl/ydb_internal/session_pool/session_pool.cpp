@@ -253,7 +253,7 @@ void TSessionPool::Drain(std::function<bool(std::unique_ptr<TKqpSessionCommon>&&
 TPeriodicCb TSessionPool::CreatePeriodicTask(std::weak_ptr<ISessionClient> weakClient,
     TKeepAliveCmd&& cmd, TDeletePredicate&& deletePredicate)
 {
-    auto periodicCb = [this, weakClient, cmd=std::move(cmd), deletePredicate=std::move(deletePredicate)](NYql::TIssues&&, EStatus status) {
+    auto periodicCb = [this, weakClient, cmd=std::move(cmd), deletePredicate=std::move(deletePredicate)](NYdb::NIssue::TIssues&&, EStatus status) {
         if (status != EStatus::SUCCESS) {
             return false;
         }

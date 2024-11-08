@@ -144,7 +144,7 @@ TStatistic Select(TTableClient& client, const std::string& path) {
 
     if (parser.ColumnsCount() != 3 || parser.RowsCount() != 1) {
         throw TYdbErrorException(TStatus(EStatus::GENERIC_ERROR,
-        {NYql::TIssue("The number of columns should be: 3.\nThe number of rows should be: 1")}));
+        {NYdb::NIssue::TIssue("The number of columns should be: 3.\nThe number of rows should be: 1")}));
     }
 
     if (parser.TryNextRow()) {

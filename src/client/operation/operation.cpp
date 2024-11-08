@@ -35,8 +35,8 @@ class TOperationClient::TImpl : public TClientImplCommon<TOperationClient::TImpl
         auto extractor = [promise]
             (TResponse* response, TPlainStatus status) mutable {
                 if (response) {
-                    NYql::TIssues opIssues;
-                    NYql::IssuesFromMessage(response->issues(), opIssues);
+                    NYdb::NIssue::TIssues opIssues;
+                    NYdb::NIssue::IssuesFromMessage(response->issues(), opIssues);
                     TStatus st(static_cast<EStatus>(response->status()), std::move(opIssues));
                     promise.SetValue(std::move(st));
                 } else {
@@ -88,15 +88,15 @@ public:
         auto extractor = [promise]
             (ListOperationsResponse* response, TPlainStatus status) mutable {
                 if (response) {
-                    NYql::TIssues opIssues;
-                    NYql::IssuesFromMessage(response->issues(), opIssues);
+                    NYdb::NIssue::TIssues opIssues;
+                    NYdb::NIssue::IssuesFromMessage(response->issues(), opIssues);
                     TStatus st(static_cast<EStatus>(response->status()), std::move(opIssues));
 
                     std::vector<TOp> operations;
                     operations.reserve(response->operations_size());
                     for (auto& operation : *response->mutable_operations()) {
-                        NYql::TIssues opIssues;
-                        NYql::IssuesFromMessage(operation.issues(), opIssues);
+                        NYdb::NIssue::TIssues opIssues;
+                        NYdb::NIssue::IssuesFromMessage(operation.issues(), opIssues);
                         operations.emplace_back(
                             TStatus(static_cast<EStatus>(operation.status()), std::move(opIssues)),
                             std::move(operation));

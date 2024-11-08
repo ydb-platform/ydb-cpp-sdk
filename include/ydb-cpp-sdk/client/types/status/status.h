@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 #include <ydb-cpp-sdk/client/types/ydb.h>
 
-#include <ydb-cpp-sdk/library/yql_common/issue/yql_issue.h>
+#include <ydb-cpp-sdk/library/issue/yql_issue.h>
 
 #include <library/cpp/threading/future/future.h>
 
@@ -15,11 +15,11 @@ struct TPlainStatus;
 //! Represents status of call
 class TStatus {
 public:
-    TStatus(EStatus statusCode, NYql::TIssues&& issues);
+    TStatus(EStatus statusCode, NYdb::NIssue::TIssues&& issues);
     TStatus(TPlainStatus&& plain);
 
     EStatus GetStatus() const;
-    const NYql::TIssues& GetIssues() const;
+    const NYdb::NIssue::TIssues& GetIssues() const;
     bool IsSuccess() const;
     bool IsTransportError() const;
     const std::string& GetEndpoint() const;

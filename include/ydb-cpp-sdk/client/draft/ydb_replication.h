@@ -17,10 +17,6 @@ namespace NYdb {
     class TProtoAccessor;
 }
 
-namespace NYql {
-    class TIssues;
-}
-
 namespace NYdb::NReplication {
 
 class TDescribeReplicationResult;
@@ -94,9 +90,9 @@ class TErrorState {
     class TImpl;
 
 public:
-    explicit TErrorState(NYql::TIssues&& issues);
+    explicit TErrorState(NYdb::NIssue::TIssues&& issues);
 
-    const NYql::TIssues& GetIssues() const;
+    const NYdb::NIssue::TIssues& GetIssues() const;
 
 private:
     std::shared_ptr<TImpl> Impl_;

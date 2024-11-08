@@ -379,7 +379,7 @@ namespace NYdb::NTopic::NTests {
                 bool allowUpdateRow;
                 bool allowDescribeSchema;
                 EStatus status;
-                NYql::TIssueCode issueCode;
+                NYdb::NIssue::TIssueCode issueCode;
             };
 
             std::vector<Expectation> expectations{
@@ -397,7 +397,7 @@ namespace NYdb::NTopic::NTests {
                 auto result = RunPermissionTest(setup, userId++, existing, update, describe);
                 auto resultStatus = result.GetStatus();
                 auto line = TStringBuilder() << "=== status=" << resultStatus;
-                NYql::TIssueCode resultIssue = 0;
+                NYdb::NIssue::TIssueCode resultIssue = 0;
                 if (!result.GetIssues().Empty()) {
                     resultIssue = result.GetIssues().begin()->GetCode();
                     line << " issueCode=" << resultIssue;

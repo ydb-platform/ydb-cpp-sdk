@@ -72,8 +72,8 @@ public:
                 self->Finished_ = true;
                 promise.SetValue({ TStatus(TPlainStatus(grpcStatus, self->Endpoint_)) });
             } else {
-                NYql::TIssues issues;
-                NYql::IssuesFromMessage(self->Response_.issues(), issues);
+                NYdb::NIssue::TIssues issues;
+                NYdb::NIssue::IssuesFromMessage(self->Response_.issues(), issues);
                 EStatus clientStatus = static_cast<EStatus>(self->Response_.status());
                 TPlainStatus plainStatus{ clientStatus, std::move(issues), self->Endpoint_, {} };
                 TStatus status{ std::move(plainStatus) };

@@ -14,7 +14,7 @@
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 #include <ydb-cpp-sdk/client/extension_common/extension.h>
 
-#include <src/library/yql_common/issue/yql_issue_message.h>
+#include <src/library/issue/yql_issue_message.h>
 
 namespace NYdb {
 
@@ -303,8 +303,8 @@ public:
 
                     action->Start();
                 } else {
-                    NYql::TIssues opIssues;
-                    NYql::IssuesFromMessage(operation->issues(), opIssues);
+                    NYdb::NIssue::TIssues opIssues;
+                    NYdb::NIssue::IssuesFromMessage(operation->issues(), opIssues);
                     userResponseCb(operation, TPlainStatus{static_cast<EStatus>(operation->status()), std::move(opIssues),
                         status.Endpoint, std::move(status.Metadata)});
                 }
@@ -628,7 +628,7 @@ private:
                     discoveryStatus = TPlainStatus(EStatus::UNAVAILABLE, errString.Str());
                 } else {
                     errString <<".";
-                    discoveryStatus.Issues.AddIssues({NYql::TIssue(errString.Str())});
+                    discoveryStatus.Issues.AddIssues({NYdb::NIssue::TIssue(errString.Str())});
                 }
                 dbState->StatCollector.IncReqFailNoEndpoint();
                 callback(

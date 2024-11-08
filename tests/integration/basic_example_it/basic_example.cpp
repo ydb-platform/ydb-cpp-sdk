@@ -461,7 +461,7 @@ static TStatus ScanQuerySelect(TTableClient client, const std::string& path, std
             vectorResultSet.push_back(rs);
         }
     }
-    return TStatus(EStatus::SUCCESS, NYql::TIssues());
+    return TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

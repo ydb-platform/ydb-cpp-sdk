@@ -12,7 +12,7 @@
 
 #include <library/cpp/containers/stack_vector/stack_vec.h>
 
-#include <src/library/yql_common/decimal/yql_decimal.h>
+#include <src/library/decimal/yql_decimal.h>
 #include <src/library/uuid/uuid.h>
 
 #include <util/generic/mapfindptr.h>
@@ -958,7 +958,7 @@ TDecimalValue::TDecimalValue(const Ydb::Value& valueProto, const TDecimalType& d
 TDecimalValue::TDecimalValue(const std::string& decimalString, ui8 precision, ui8 scale)
     : DecimalType_(precision, scale)
 {
-    NYql::NDecimal::TInt128 val = NYql::NDecimal::FromString(decimalString, precision, scale);
+    NYdb::NDecimal::TInt128 val = NYdb::NDecimal::FromString(decimalString, precision, scale);
     static_assert(sizeof(val) == 16, "wrong TInt128 size");
     char* buf = reinterpret_cast<char*>(&val);
     Low_ = *(uint64_t*)buf;
@@ -966,8 +966,8 @@ TDecimalValue::TDecimalValue(const std::string& decimalString, ui8 precision, ui
 }
 
 std::string TDecimalValue::ToString() const {
-    NYql::NDecimal::TInt128 val = NYql::NDecimal::FromHalfs(Low_, Hi_);
-    return NYql::NDecimal::ToString(val, DecimalType_.Precision, DecimalType_.Scale);
+    NYdb::NDecimal::TInt128 val = NYdb::NDecimal::FromHalfs(Low_, Hi_);
+    return NYdb::NDecimal::ToString(val, DecimalType_.Precision, DecimalType_.Scale);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

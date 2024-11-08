@@ -1,10 +1,9 @@
-#include <src/library/yql_common/decimal/yql_decimal.h>
-#include <src/library/yql_common/decimal/yql_decimal_serialize.h>
+#include <src/library/decimal/yql_decimal.h>
 
 #include <library/cpp/testing/unittest/registar.h>
 
-namespace NYql {
-namespace NDecimal {
+namespace NYdb::NDecimal {
+
 Y_UNIT_TEST_SUITE(TYqlDecimalTest) {
     void SimplePositiveTest(TInt128 v, ui8 precision, ui8 scale, const std::string& expected) {
         std::string result = ToString(v, precision, scale);
@@ -16,44 +15,6 @@ Y_UNIT_TEST_SUITE(TYqlDecimalTest) {
     void SimpleNegativeFormatTest(TInt128 v, ui8 precision, ui8 scale) {
         std::string result = ToString(v, precision, scale);
         UNIT_ASSERT_VALUES_EQUAL(result, "");
-    }
-
-    void SimpleSerializeAndDeserialize(TInt128 v, size_t expectedSize) {
-        char buff[sizeof(TInt128)];
-        const auto s = Serialize(v, buff);
-        UNIT_ASSERT_VALUES_EQUAL(s, expectedSize);
-        const auto& des = Deserialize(buff, expectedSize);
-        UNIT_ASSERT_VALUES_EQUAL(des.second, expectedSize);
-        UNIT_ASSERT(des.first == v);
-        const auto& e = Deserialize(buff, expectedSize - 1);
-        UNIT_ASSERT(e.first == Err());
-    }
-
-    template<ui8 Precision, ui8 Scale>
-    void CheckMulAndRescale(const std::string_view& lhs, const std::string_view& rhs, const std::string_view& expected) {
-        const auto l = FromString(lhs, Precision, Scale);
-        const auto r = FromString(rhs, Precision, Scale);
-        const auto m = MulAndDivNormalDivider(l, r, GetDivider<Scale>());
-        const auto result = ToString(m, Precision, Scale);
-        UNIT_ASSERT_VALUES_EQUAL(result, expected);
-    }
-
-    template<ui8 Precision, ui8 Scale>
-    void CheckDivAndRescale(const std::string_view& lhs, const std::string_view& rhs, const std::string_view& expected) {
-        const auto l = FromString(lhs, Precision, Scale);
-        const auto r = FromString(rhs, Precision, Scale);
-        const auto m = MulAndDivNormalMultiplier(l, GetDivider<Scale>(), r);
-        const auto result = ToString(m, Precision, Scale);
-        UNIT_ASSERT_VALUES_EQUAL(result, expected);
-    }
-
-    template<ui8 Precision, ui8 Scale = 0>
-    void CheckMul(const std::string_view& lhs, const std::string_view& rhs, const std::string_view& expected) {
-        const auto l = FromString(lhs, Precision, Scale);
-        const auto r = FromString(rhs, Precision, Scale);
-        const auto m = Mul(l, r);
-        const auto result = ToString(m, Precision, Scale);
-        UNIT_ASSERT_VALUES_EQUAL(result, expected);
     }
 
     Y_UNIT_TEST(TestZeroFormat) {
@@ -201,34 +162,6 @@ Y_UNIT_TEST_SUITE(TYqlDecimalTest) {
         UNIT_ASSERT(IsError(FromString("+7.039493804E1", 35, 5))); // letter in tail after scale
     }
 
-    Y_UNIT_TEST(TestFormStringEx) {
-        UNIT_ASSERT(FromStringEx("NAN", 13, 1) == Nan());
-        UNIT_ASSERT(FromStringEx("+inf", 11, 7) == Inf());
-        UNIT_ASSERT(FromStringEx("-inf", 7, 7) == -Inf());
-
-        UNIT_ASSERT(FromStringEx("0.1E3", 10, 1) == 1000);
-        UNIT_ASSERT(FromStringEx("0.51e-3", 10, 3) == 1);
-
-        UNIT_ASSERT(FromStringEx("1E30", 10, 0) == Inf());
-        UNIT_ASSERT(FromStringEx("1e-30", 10, 0) == 0);
-        UNIT_ASSERT(FromStringEx("-1E+99", 10, 2) == -Inf());
-        UNIT_ASSERT(FromStringEx("-1e-99", 10, 2) == 0);
-        UNIT_ASSERT(FromStringEx("-510e-3", 1, 0) == -1);
-        UNIT_ASSERT(FromStringEx("+99E3", 5, 0) == 99000);
-    }
-
-    Y_UNIT_TEST(TestFormStringExInvalidValues) {
-        UNIT_ASSERT(IsError(FromStringEx("", 35, 15))); // empty
-        UNIT_ASSERT(IsError(FromStringEx("12.2.3", 35, 15))); // double dot
-        UNIT_ASSERT(IsError(FromStringEx("+-12", 35, 15))); // extra sign
-        UNIT_ASSERT(IsError(FromStringEx("463786378O74674", 35, 15))); // letter inside
-
-        UNIT_ASSERT(IsError(FromStringEx("E2", 35, 15))); // empty
-        UNIT_ASSERT(IsError(FromStringEx("E2E4", 35, 15))); // empty
-        UNIT_ASSERT(IsError(FromStringEx("12E0", 35, 15))); // zero isn't avail
-        UNIT_ASSERT(IsError(FromStringEx("NANE5", 35, 15))); // nan with exp
-    }
-
     Y_UNIT_TEST(TestSpecialAsString) {
         UNIT_ASSERT(IsValid("Nan"));
         UNIT_ASSERT(IsValid("INF"));
@@ -257,89 +190,6 @@ Y_UNIT_TEST_SUITE(TYqlDecimalTest) {
             UNIT_ASSERT(ToString(i, MaxPrecision, 0) == nullptr);
         }
     }
-
-    Y_UNIT_TEST(TestSerializeAndDeserialize) {
-        SimpleSerializeAndDeserialize(-Nan(), 1U);
-        SimpleSerializeAndDeserialize(-Inf(), 1U);
-
-        SimpleSerializeAndDeserialize(-Inf() + 1, 16U);
-        SimpleSerializeAndDeserialize(-Inf() + 2, 16U);
-
-        SimpleSerializeAndDeserialize(-65537, 4U);
-        SimpleSerializeAndDeserialize(-65536, 3U);
-
-        SimpleSerializeAndDeserialize(-257, 3U);
-        SimpleSerializeAndDeserialize(-256, 2U);
-
-        SimpleSerializeAndDeserialize(-3, 2U);
-        SimpleSerializeAndDeserialize(-2, 2U);
-
-        SimpleSerializeAndDeserialize(-1, 1U);
-        SimpleSerializeAndDeserialize(0, 1U);
-
-        SimpleSerializeAndDeserialize(+1, 2U);
-        SimpleSerializeAndDeserialize(+2, 2U);
-
-        SimpleSerializeAndDeserialize(+255, 2U);
-        SimpleSerializeAndDeserialize(+256, 3U);
-
-        SimpleSerializeAndDeserialize(+65535, 3U);
-        SimpleSerializeAndDeserialize(+65536, 4U);
-
-        SimpleSerializeAndDeserialize(+Inf() - 2, 16U);
-        SimpleSerializeAndDeserialize(+Inf() - 1, 16U);
-
-        SimpleSerializeAndDeserialize(+Inf(), 1U);
-        SimpleSerializeAndDeserialize(+Nan(), 1U);
-    }
-
-    Y_UNIT_TEST(TestMulAndRescale) {
-        CheckMulAndRescale<35,35>("0.99999999999999999999999999999999999", "-0.99999999999999999999999999999999999", "-0.99999999999999999999999999999999998");
-        CheckMulAndRescale<35,35>("-0.99999999999999999999999999999999999", "0.33333333333333333333333333333333333", "-0.33333333333333333333333333333333333");
-        CheckMulAndRescale<35,35>("0.33333333333333333333333333333333333", "0.33333333333333333333333333333333333", "0.11111111111111111111111111111111111");
-        CheckMulAndRescale<35,35>("0.99999999999999999999999999999999999", "0.000000000000001", "0.000000000000001");
-        CheckMulAndRescale<35,35>("0.99999999999999999999999999999999999", "0.00000000000000101010101", "0.00000000000000101010101");
-        CheckMulAndRescale<35,35>("0.12345678901234567890123456789012345", "0.12345678901234567890123456789012345", "0.01524157875323883675049535156256668");
-
-        CheckMulAndRescale<35,34>("9.9999999999999999999999999999999999", "-1.9999999999999999999999999999999999", "-inf");
-        CheckMulAndRescale<35,34>("3.3333333333333333333333333333333333", "3.3333333333333333333333333333333333", "inf");
-        CheckMulAndRescale<35,34>("3.3333333333333333333333333333333333", "1.3333333333333333333333333333333333", "4.4444444444444444444444444444444443");
-        CheckMulAndRescale<35,34>("-1.3333333333333333333333333333333333", "1.3333333333333333333333333333333333", "-1.7777777777777777777777777777777777");
-
-        CheckMulAndRescale<35,34>("-7", "0", "0");
-        CheckMulAndRescale<35,34>("inf", "nan", "nan");
-        CheckMulAndRescale<35,34>("inf", "0", "nan");
-        CheckMulAndRescale<35,34>("-inf", "-inf", "inf");
-    }
-
-    Y_UNIT_TEST(TestDivAndRescale) {
-        CheckDivAndRescale<35,35>("-0.99999999999999999999999999999999999", "0.33333333333333333333333333333333333", "-inf");
-        CheckDivAndRescale<35,35>("0.33333333333333333333333333333333333", "-0.33333333333333333333333333333333333", "-inf");
-        CheckDivAndRescale<35,35>("0.12345678901234567890123456789012345", "0.12345678901234567890123456789012345", "inf");
-
-        CheckDivAndRescale<35,34>("9.9999999999999999999999999999999999", "-1.9999999999999999999999999999999999", "-5.0000000000000000000000000000000002");
-        CheckDivAndRescale<35,34>("3.3333333333333333333333333333333333", "3.3333333333333333333333333333333333", "1");
-        CheckDivAndRescale<35,34>("3.3333333333333333333333333333333333", "1.3333333333333333333333333333333333", "2.5");
-        CheckDivAndRescale<35,34>("-1.7777777777777777777777777777777777", "1.3333333333333333333333333333333333", "-1.3333333333333333333333333333333333");
-
-        CheckDivAndRescale<35,34>("-7", "0", "-inf");
-        CheckDivAndRescale<35,34>("inf", "0", "inf");
-        CheckDivAndRescale<35,34>("inf", "0", "inf");
-        CheckDivAndRescale<35,34>("-inf", "inf", "nan");
-    }
-
-    Y_UNIT_TEST(TestWideMul) {
-        CheckMul<35>("999999999999999", "99999999999999999999", "99999999999999899999000000000000001");
-        CheckMul<35>("9999999999999999", "99999999999999999999", "inf");
-        CheckMul<35>("-99999999999999999999999999999999999", "10000000000000000000000000000000000", "-inf");
-        CheckMul<35>("-99999999999999999999999999999999999", "-1", "99999999999999999999999999999999999");
-        CheckMul<35>("-99999999999999999999999999999999999", "-2", "inf");
-
-        CheckMul<35>("nan", "0", "nan");
-        CheckMul<35>("inf", "-inf", "-inf");
-        CheckMul<35>("inf", "nan", "nan");
-    }
 }
 
-}
 }

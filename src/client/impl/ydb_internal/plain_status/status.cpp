@@ -54,7 +54,7 @@ TPlainStatus::TPlainStatus(
         Status = EStatus::SUCCESS;
     }
     if (!msg.empty()) {
-        Issues.AddIssue(NYql::TIssue(msg));
+        Issues.AddIssue(NYdb::NIssue::TIssue(msg));
     }
     for (const auto& [name, value] : grpcStatus.ServerTrailingMetadata) {
         Metadata.emplace(
