@@ -293,12 +293,12 @@ struct TReadSessionEvent {
         TEndPartitionSessionEvent(TPartitionSession::TPtr partitionSession, std::vector<uint32_t>&& adjacentPartitionIds, std::vector<uint32_t>&& childPartitionIds);
 
         //! A list of the partition IDs that also participated in the partition's merge.
-        const std::vector<uint32_t> GetAdjacentPartitionIds() const {
+        const std::vector<uint32_t>& GetAdjacentPartitionIds() const {
             return AdjacentPartitionIds;
         }
 
         //! A list of partition IDs that were obtained as a result of merging or splitting this partition.
-        const std::vector<uint32_t> GetChildPartitionIds() const {
+        const std::vector<uint32_t>& GetChildPartitionIds() const {
             return ChildPartitionIds;
         }
 
