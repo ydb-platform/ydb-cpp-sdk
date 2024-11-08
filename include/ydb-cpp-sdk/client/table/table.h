@@ -424,6 +424,7 @@ bool operator!=(const TChangefeedDescription& lhs, const TChangefeedDescription&
 struct TPartitionStats {
     uint64_t Rows = 0;
     uint64_t Size = 0;
+    uint32_t LeaderNodeId = 0;
 };
 
 class TDateTypeColumnModeSettings {
@@ -1643,6 +1644,7 @@ struct TDescribeTableSettings : public TOperationRequestSettings<TDescribeTableS
     FLUENT_SETTING_DEFAULT(bool, WithTableStatistics, false);
     FLUENT_SETTING_DEFAULT(bool, WithPartitionStatistics, false);
     FLUENT_SETTING_DEFAULT(bool, WithSetVal, false);
+    FLUENT_SETTING_DEFAULT(bool, WithShardNodesInfo, false);
 };
 
 struct TExplainDataQuerySettings : public TOperationRequestSettings<TExplainDataQuerySettings> {
