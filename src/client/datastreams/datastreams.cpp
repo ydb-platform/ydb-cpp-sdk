@@ -9,6 +9,8 @@
 
 #include <src/client/common_client/impl/client.h>
 
+#include <src/api/grpc/draft/ydb_datastreams_v1.grpc.pb.h>
+
 namespace NYdb::NDataStreams::V1 {
 
     TPartitioningSettingsBuilder<TCreateStreamSettings> TCreateStreamSettings::BeginConfigurePartitioningSettings() {
