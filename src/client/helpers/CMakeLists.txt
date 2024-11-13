@@ -4,7 +4,7 @@ target_link_libraries(client-helpers
   PUBLIC
     yutil
     client-ydb_types-credentials-oauth2
-    client-iam-common
+    client-iam
     client-ydb_types-credentials
 )
 
