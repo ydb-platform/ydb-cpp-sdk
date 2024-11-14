@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/types/status_codes.h>
 
-#include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
+#include <src/library/grpc/client/grpc_client_low.h>
 #include <library/cpp/monlib/metrics/metric_registry.h>
 #include <library/cpp/monlib/metrics/histogram_collector.h>
 
