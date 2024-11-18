@@ -2,9 +2,8 @@ _ydb_sdk_add_library(client-iam-common INTERFACE)
 
 target_link_libraries(client-iam-common
   INTERFACE
-    client-ydb_types-credentials
+    client-iam-types
     grpc-client
-    library-jwt
     threading-future
     yutil
 )

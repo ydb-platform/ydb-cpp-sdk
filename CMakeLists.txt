@@ -51,6 +51,7 @@ endif()
 add_subdirectory(tools)
 add_subdirectory(contrib/libs)
 add_subdirectory(library/cpp)
+add_subdirectory(include/ydb-cpp-sdk/client)
 add_subdirectory(src)
 add_subdirectory(util)
 

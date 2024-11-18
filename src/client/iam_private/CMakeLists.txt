@@ -2,8 +2,7 @@ _ydb_sdk_add_library(client-iam_private)
 
 target_link_libraries(client-iam_private
   PUBLIC
-    client-ydb_types-credentials
-    library-jwt
+    client-iam-types
     yutil
   PRIVATE
     api-client-yc_private

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "types.h"
+#include "common/types.h"
+
 namespace NYdb {
 
 /// Acquire an IAM token using a local metadata service on a virtual machine.

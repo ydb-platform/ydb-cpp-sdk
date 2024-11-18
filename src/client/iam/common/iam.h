@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ydb-cpp-sdk/client/iam/types.h>
-#include <ydb-cpp-sdk/client/types/credentials/credentials.h>
+#include <ydb-cpp-sdk/client/iam/common/types.h>
+
 #include <src/library/grpc/client/grpc_client_low.h>
 
 #include <library/cpp/threading/future/future.h>
