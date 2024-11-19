@@ -7,7 +7,7 @@
 
 #include <ydb-cpp-sdk/library/issue/yql_issue.h>
 
-#include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
+#include <src/library/grpc/client/grpc_client_low.h>
 
 
 namespace NYdb {

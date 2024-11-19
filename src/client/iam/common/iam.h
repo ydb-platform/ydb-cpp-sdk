@@ -1,68 +1,15 @@
 #pragma once
 
-#include <ydb-cpp-sdk/client/types/credentials/credentials.h>
+#include <ydb-cpp-sdk/client/iam/common/types.h>
 
-#include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
+#include <src/library/grpc/client/grpc_client_low.h>
+
 #include <library/cpp/threading/future/future.h>
 
-#include <ydb-cpp-sdk/library/jwt/jwt.h>
-#include <util/datetime/base.h>
-
-#include <util/system/spinlock.h>
 #include <util/string/builder.h>
-
-#include <fstream>
+#include <util/system/spinlock.h>
 
 namespace NYdb {
-
-namespace NIam {
-constexpr std::string_view DEFAULT_ENDPOINT = "iam.api.cloud.yandex.net";
-constexpr bool DEFAULT_ENABLE_SSL = true;
-
-constexpr std::string_view DEFAULT_HOST = "169.254.169.254";
-constexpr uint32_t DEFAULT_PORT = 80;
-
-constexpr TDuration DEFAULT_REFRESH_PERIOD = TDuration::Hours(1);
-constexpr TDuration DEFAULT_REQUEST_TIMEOUT = TDuration::Seconds(10);
-}
-
-struct TIamHost {
-    std::string Host = std::string(NIam::DEFAULT_HOST);
-    uint32_t Port = NIam::DEFAULT_PORT;
-    TDuration RefreshPeriod = NIam::DEFAULT_REFRESH_PERIOD;
-};
-
-struct TIamEndpoint {
-    std::string Endpoint = std::string(NIam::DEFAULT_ENDPOINT);
-    TDuration RefreshPeriod = NIam::DEFAULT_REFRESH_PERIOD;
-    TDuration RequestTimeout = NIam::DEFAULT_REQUEST_TIMEOUT;
-    bool EnableSsl = NIam::DEFAULT_ENABLE_SSL;
-};
-
-struct TIamJwtFilename : TIamEndpoint { std::string JwtFilename; };
-
-struct TIamJwtContent : TIamEndpoint { std::string JwtContent; };
-
-struct TIamJwtParams : TIamEndpoint { TJwtParams JwtParams; };
-
-inline TJwtParams ReadJwtKeyFile(const std::string& filename) {
-    std::ifstream input(filename, std::ios::in);
-    return ParseJwtParams({std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()});
-}
-
-struct TIamOAuth : TIamEndpoint { std::string OAuthToken; };
-
-/// Acquire an IAM token using a local metadata service on a virtual machine.
-TCredentialsProviderFactoryPtr CreateIamCredentialsProviderFactory(const TIamHost& params = {});
-
-/// Acquire an IAM token using a JSON Web Token (JWT) file name.
-TCredentialsProviderFactoryPtr CreateIamJwtFileCredentialsProviderFactory(const TIamJwtFilename& params);
-
-/// Acquire an IAM token using JSON Web Token (JWT) contents.
-TCredentialsProviderFactoryPtr CreateIamJwtParamsCredentialsProviderFactory(const TIamJwtContent& param);
-
-// Acquire an IAM token using a user OAuth token.
-TCredentialsProviderFactoryPtr CreateIamOAuthCredentialsProviderFactory(const TIamOAuth& params);
 
 constexpr TDuration BACKOFF_START = TDuration::MilliSeconds(50);
 constexpr TDuration BACKOFF_MAX = TDuration::Seconds(10);

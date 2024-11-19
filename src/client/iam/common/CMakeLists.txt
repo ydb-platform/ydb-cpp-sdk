@@ -1,17 +1,11 @@
-_ydb_sdk_add_library(client-iam-common)
+_ydb_sdk_add_library(client-iam-common INTERFACE)
 
-target_link_libraries(client-iam-common PUBLIC
-  yutil
-  grpc-client
-  http-simple
-  json
-  library-jwt
-  client-ydb_types-credentials
-  api-client-yc_public
+target_link_libraries(client-iam-common
+  INTERFACE
+    client-iam-types
+    grpc-client
+    threading-future
+    yutil
 )
 
-target_sources(client-iam-common PRIVATE
-  iam.cpp
-)
-
-_ydb_sdk_make_client_component(Iam client-iam-common)
+_ydb_sdk_install_targets(client-iam-common)

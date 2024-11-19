@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/helpers/helpers.h>
 
-#include <ydb-cpp-sdk/client/iam/common/iam.h>
+#include <ydb-cpp-sdk/client/iam/iam.h>
 #include <ydb-cpp-sdk/client/resources/ydb_ca.h>
 #include <ydb-cpp-sdk/client/types/credentials/oauth2_token_exchange/from_file.h>
 

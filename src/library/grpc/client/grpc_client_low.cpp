@@ -1,4 +1,5 @@
-#include <ydb-cpp-sdk/library/grpc/client/grpc_client_low.h>
+#include "grpc_client_low.h"
+
 #include <grpc/support/log.h>
 
 #include <library/cpp/containers/stack_vector/stack_vec.h>

@@ -4,7 +4,7 @@
 #include <grpcpp/resource_quota.h>
 
 #include <ydb-cpp-sdk/type_switcher.h>
-#include <ydb-cpp-sdk/library/grpc/common/constants.h>
+#include <src/library/grpc/common/constants.h>
 
 #include <util/datetime/base.h>
 #include <unordered_map>

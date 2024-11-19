@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ydb-cpp-sdk/client/iam/common/iam.h>
+#include <ydb-cpp-sdk/client/iam/common/types.h>
 
 namespace NYdb {
 

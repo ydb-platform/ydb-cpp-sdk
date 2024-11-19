@@ -2,14 +2,19 @@ add_subdirectory(common)
 
 _ydb_sdk_add_library(client-iam)
 
-target_link_libraries(client-iam PUBLIC
-  yutil
-  api-client-yc_public
-  client-iam-common
+target_link_libraries(client-iam
+  PUBLIC
+    client-iam-types
+    yutil
+  PRIVATE
+    api-client-yc_public
+    client-iam-common
+    json
+    http-simple
 )
-
-_ydb_sdk_install_targets(TARGETS client-iam)
 
 target_sources(client-iam PRIVATE
   iam.cpp
 )
+
+_ydb_sdk_make_client_component(Iam client-iam)
