@@ -1019,7 +1019,7 @@ TUuidValue::TUuidValue(const Ydb::Value& valueProto) {
 
 TUuidValue::TUuidValue(const std::string& uuidString) {
     ui16 dw[8];
-    if (!NKikimr::NUuid::ParseUuidToArray(uuidString, dw, false)) {
+    if (!NUuid::ParseUuidToArray(uuidString, dw, false)) {
         ThrowFatalError(TStringBuilder() << "Unable to parse string as uuid");
     }
     static_assert(sizeof(dw) == sizeof(Buf_.Bytes));
@@ -1032,7 +1032,7 @@ std::string TUuidValue::ToString() const {
     ui16 dw[8];
     static_assert(sizeof(dw) == sizeof(Buf_.Bytes));
     std::memcpy(dw, Buf_.Bytes, sizeof(dw));
-    NKikimr::NUuid::UuidToString(dw, s);
+    NUuid::UuidToString(dw, s);
     return s.Str();
 }
 

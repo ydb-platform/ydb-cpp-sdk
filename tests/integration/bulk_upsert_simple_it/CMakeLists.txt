@@ -6,7 +6,6 @@ add_ydb_test(NAME bulk_upsert_simple_it
   LINK_LIBRARIES
     yutil
     YDB-CPP-SDK::Table
-    getopt
     GTest::gtest_main
   LABELS
     integration

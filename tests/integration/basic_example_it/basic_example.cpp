@@ -1,14 +1,13 @@
 #include "basic_example.h"
 
-#include <ydb-cpp-sdk/library/json_value/ydb_json_value.h>
+#include <src/api/protos/ydb_value.pb.h>
 
 #include <filesystem>
 #include <format>
 
-using namespace NYdb;
 using namespace NYdb::NTable;
 
-void ThrowOnError(const TStatus& status) {
+void ThrowOnError(const NYdb::TStatus& status) {
     if (!status.IsSuccess()) {
         throw TYdbErrorException(status) << status;
     }
@@ -26,16 +25,15 @@ static std::string JoinPath(const std::string& basePath, const std::string& path
 }
 
 TRunArgs GetRunArgs() {
-    
     std::string database = std::getenv("YDB_DATABASE");
     std::string endpoint = std::getenv("YDB_ENDPOINT");
 
-    auto driverConfig = TDriverConfig()
+    auto driverConfig = NYdb::TDriverConfig()
         .SetEndpoint(endpoint)
         .SetDatabase(database)
         .SetAuthToken(std::getenv("YDB_TOKEN") ? std::getenv("YDB_TOKEN") : "");
 
-    TDriver driver(driverConfig);
+    NYdb::TDriver driver(driverConfig);
     return {driver, JoinPath(database, "basic")};
 }
 
@@ -45,10 +43,10 @@ TRunArgs GetRunArgs() {
 void CreateTables(TTableClient client, const std::string& path) {
     ThrowOnError(client.RetryOperationSync([path](TSession session) {
         auto seriesDesc = TTableBuilder()
-            .AddNullableColumn("series_id", EPrimitiveType::Uint64)
-            .AddNullableColumn("title", EPrimitiveType::Utf8)
-            .AddNullableColumn("series_info", EPrimitiveType::Utf8)
-            .AddNullableColumn("release_date", EPrimitiveType::Uint64)
+            .AddNullableColumn("series_id", NYdb::EPrimitiveType::Uint64)
+            .AddNullableColumn("title", NYdb::EPrimitiveType::Utf8)
+            .AddNullableColumn("series_info", NYdb::EPrimitiveType::Utf8)
+            .AddNullableColumn("release_date", NYdb::EPrimitiveType::Uint64)
             .SetPrimaryKeyColumn("series_id")
             .Build();
 
@@ -57,11 +55,11 @@ void CreateTables(TTableClient client, const std::string& path) {
 
     ThrowOnError(client.RetryOperationSync([path](TSession session) {
         auto seasonsDesc = TTableBuilder()
-            .AddNullableColumn("series_id", EPrimitiveType::Uint64)
-            .AddNullableColumn("season_id", EPrimitiveType::Uint64)
-            .AddNullableColumn("title", EPrimitiveType::Utf8)
-            .AddNullableColumn("first_aired", EPrimitiveType::Uint64)
-            .AddNullableColumn("last_aired", EPrimitiveType::Uint64)
+            .AddNullableColumn("series_id", NYdb::EPrimitiveType::Uint64)
+            .AddNullableColumn("season_id", NYdb::EPrimitiveType::Uint64)
+            .AddNullableColumn("title", NYdb::EPrimitiveType::Utf8)
+            .AddNullableColumn("first_aired", NYdb::EPrimitiveType::Uint64)
+            .AddNullableColumn("last_aired", NYdb::EPrimitiveType::Uint64)
             .SetPrimaryKeyColumns({"series_id", "season_id"})
             .Build();
 
@@ -70,11 +68,11 @@ void CreateTables(TTableClient client, const std::string& path) {
 
     ThrowOnError(client.RetryOperationSync([path](TSession session) {
         auto episodesDesc = TTableBuilder()
-            .AddNullableColumn("series_id", EPrimitiveType::Uint64)
-            .AddNullableColumn("season_id", EPrimitiveType::Uint64)
-            .AddNullableColumn("episode_id", EPrimitiveType::Uint64)
-            .AddNullableColumn("title", EPrimitiveType::Utf8)
-            .AddNullableColumn("air_date", EPrimitiveType::Uint64)
+            .AddNullableColumn("series_id", NYdb::EPrimitiveType::Uint64)
+            .AddNullableColumn("season_id", NYdb::EPrimitiveType::Uint64)
+            .AddNullableColumn("episode_id", NYdb::EPrimitiveType::Uint64)
+            .AddNullableColumn("title", NYdb::EPrimitiveType::Utf8)
+            .AddNullableColumn("air_date", NYdb::EPrimitiveType::Uint64)
             .SetPrimaryKeyColumns({"series_id", "season_id", "episode_id"})
             .Build();
 
@@ -86,7 +84,7 @@ void CreateTables(TTableClient client, const std::string& path) {
 ///////////////////////////////////////////////////////////////////////////////
 
 //! Fills sample tables with data in single parameterized data query.
-TStatus FillTableDataTransaction(TSession session, const std::string& path) {
+NYdb::TStatus FillTableDataTransaction(TSession session, const std::string& path) {
     auto query = std::format(R"(
         PRAGMA TablePathPrefix("{}");
 
@@ -146,8 +144,8 @@ TStatus FillTableDataTransaction(TSession session, const std::string& path) {
 }
 
 //! Shows basic usage of YDB data queries and transactions.
-static TStatus SelectSimpleTransaction(TSession session, const std::string& path,
-    std::optional<TResultSet>& resultSet)
+static NYdb::TStatus SelectSimpleTransaction(TSession session, const std::string& path,
+    std::optional<NYdb::TResultSet>& resultSet)
 {
     auto query = std::format(R"(
         PRAGMA TablePathPrefix("{}");
@@ -176,7 +174,7 @@ static TStatus SelectSimpleTransaction(TSession session, const std::string& path
 }
 
 //! Shows basic usage of mutating operations.
-static TStatus UpsertSimpleTransaction(TSession session, const std::string& path) {
+static NYdb::TStatus UpsertSimpleTransaction(TSession session, const std::string& path) {
     auto query = std::format(R"(
         --!syntax_v1
         PRAGMA TablePathPrefix("{}");
@@ -190,8 +188,8 @@ static TStatus UpsertSimpleTransaction(TSession session, const std::string& path
 }
 
 //! Shows usage of parameters in data queries.
-static TStatus SelectWithParamsTransaction(TSession session, const std::string& path,
-    uint64_t seriesId, uint64_t seasonId, std::optional<TResultSet>& resultSet)
+static NYdb::TStatus SelectWithParamsTransaction(TSession session, const std::string& path,
+    uint64_t seriesId, uint64_t seasonId, std::optional<NYdb::TResultSet>& resultSet)
 {
     auto query = std::format(R"(
         --!syntax_v1
@@ -231,8 +229,8 @@ static TStatus SelectWithParamsTransaction(TSession session, const std::string& 
 }
 
 //! Shows usage of prepared queries.
-static TStatus PreparedSelectTransaction(TSession session, const std::string& path,
-    uint64_t seriesId, uint64_t seasonId, uint64_t episodeId, std::optional<TResultSet>& resultSet)
+static NYdb::TStatus PreparedSelectTransaction(TSession session, const std::string& path,
+    uint64_t seriesId, uint64_t seasonId, uint64_t episodeId, std::optional<NYdb::TResultSet>& resultSet)
 {
     // Once prepared, query data is stored in the session and identified by QueryId.
     // Local query cache is used to keep track of queries, prepared in current session.
@@ -281,8 +279,8 @@ static TStatus PreparedSelectTransaction(TSession session, const std::string& pa
 }
 
 //! Shows usage of transactions consisting of multiple data queries with client logic between them.
-static TStatus MultiStepTransaction(TSession session, const std::string& path, uint64_t seriesId, uint64_t seasonId,
-    std::optional<TResultSet>& resultSet)
+static NYdb::TStatus MultiStepTransaction(TSession session, const std::string& path, uint64_t seriesId, uint64_t seasonId,
+    std::optional<NYdb::TResultSet>& resultSet)
 {
     auto query1 = std::format(R"(
         --!syntax_v1
@@ -320,7 +318,7 @@ static TStatus MultiStepTransaction(TSession session, const std::string& path, u
     // Get active transaction id
     auto tx = result.GetTransaction();
 
-    TResultSetParser parser(result.GetResultSet(0));
+    NYdb::TResultSetParser parser(result.GetResultSet(0));
     parser.TryNextRow();
     auto date = parser.ColumnParser("from_date").GetOptionalUint64();
 
@@ -376,7 +374,7 @@ static TStatus MultiStepTransaction(TSession session, const std::string& path, u
 // Show usage of explicit Begin/Commit transaction control calls.
 // In most cases it's better to use transaction control settings in ExecuteDataQuery calls instead
 // to avoid additional hops to YDB cluster and allow more efficient execution of queries.
-static TStatus ExplicitTclTransaction(TSession session, const std::string& path, const TInstant& airDate) {
+static NYdb::TStatus ExplicitTclTransaction(TSession session, const std::string& path, const TInstant& airDate) {
     auto beginResult = session.BeginTransaction(TTxSettings::SerializableRW()).GetValueSync();
     if (!beginResult.IsSuccess()) {
         return beginResult;
@@ -414,7 +412,7 @@ static TStatus ExplicitTclTransaction(TSession session, const std::string& path,
     return tx.Commit().GetValueSync();
 }
 
-static TStatus ScanQuerySelect(TTableClient client, const std::string& path, std::vector <TResultSet>& vectorResultSet) {    
+static NYdb::TStatus ScanQuerySelect(TTableClient client, const std::string& path, std::vector<NYdb::TResultSet>& vectorResultSet) {    
     vectorResultSet.clear();
     auto query = std::format(R"(
         --!syntax_v1
@@ -428,7 +426,7 @@ static TStatus ScanQuerySelect(TTableClient client, const std::string& path, std
         ORDER BY season_id;
     )", path);
 
-    auto parameters = TParamsBuilder()
+    auto parameters = NYdb::TParamsBuilder()
         .AddParam("$series")
         .BeginList()
             .AddListItem().Uint64(1)
@@ -461,17 +459,18 @@ static TStatus ScanQuerySelect(TTableClient client, const std::string& path, std
             vectorResultSet.push_back(rs);
         }
     }
-    return TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
+    return NYdb::TStatus(NYdb::EStatus::SUCCESS, NYdb::NIssue::TIssues());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string SelectSimple(TTableClient client, const std::string& path) {
-    std::optional<TResultSet> resultSet;
+NYdb::TResultSet SelectSimple(TTableClient client, const std::string& path) {
+    std::optional<NYdb::TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
         return SelectSimpleTransaction(session, path, resultSet);
     }));
-    return FormatResultSetJson(resultSet.value(), EBinaryStringEncoding::Unicode); 
+
+    return resultSet.value();
 }
 
 void UpsertSimple(TTableClient client, const std::string& path) {
@@ -480,29 +479,31 @@ void UpsertSimple(TTableClient client, const std::string& path) {
     }));
 }
 
-std::string SelectWithParams(TTableClient client, const std::string& path) {
-    std::optional<TResultSet> resultSet;
-    std::string result;
+NYdb::TResultSet SelectWithParams(TTableClient client, const std::string& path) {
+    std::optional<NYdb::TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
         return SelectWithParamsTransaction(session, path, 2, 3, resultSet);
     }));
-    return FormatResultSetJson(resultSet.value(), EBinaryStringEncoding::Unicode); 
+
+    return resultSet.value();
 }
 
-std::string PreparedSelect(TTableClient client, const std::string& path, ui32 seriesId, ui32 seasonId, ui32 episodeId) {
-    std::optional<TResultSet> resultSet;
+NYdb::TResultSet PreparedSelect(TTableClient client, const std::string& path, ui32 seriesId, ui32 seasonId, ui32 episodeId) {
+    std::optional<NYdb::TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, seriesId, seasonId, episodeId, &resultSet](TSession session) {
         return PreparedSelectTransaction(session, path, seriesId, seasonId, episodeId, resultSet);
     }));
-    return FormatResultSetJson(resultSet.value(), EBinaryStringEncoding::Unicode);  
+
+    return resultSet.value();
 }
 
-std::string MultiStep(TTableClient client, const std::string& path) {
-    std::optional<TResultSet> resultSet;
+NYdb::TResultSet MultiStep(TTableClient client, const std::string& path) {
+    std::optional<NYdb::TResultSet> resultSet;
     ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
         return MultiStepTransaction(session, path, 2, 5, resultSet);
     }));
-    return FormatResultSetJson(resultSet.value(), EBinaryStringEncoding::Unicode);
+
+    return resultSet.value();
 }
 
 void ExplicitTcl(TTableClient client, const std::string& path) {
@@ -511,12 +512,11 @@ void ExplicitTcl(TTableClient client, const std::string& path) {
     }));
 }
 
-std::vector<std::string> ScanQuerySelect(TTableClient client, const std::string& path) {
-    std::vector <TResultSet> vectorResultSet;
-    ThrowOnError(client.RetryOperationSync([path, &vectorResultSet](TTableClient& client) {
-        return ScanQuerySelect(client, path, vectorResultSet);
+std::vector<NYdb::TResultSet> ScanQuerySelect(TTableClient client, const std::string& path) {
+    std::vector<NYdb::TResultSet> resultSets;
+    ThrowOnError(client.RetryOperationSync([path, &resultSets](TTableClient& client) {
+        return ScanQuerySelect(client, path, resultSets);
     }));
-    std::vector <std::string> resultJson(vectorResultSet.size());
-    std::transform(vectorResultSet.begin(), vectorResultSet.end(), resultJson.begin(), [](TResultSet& x){return FormatResultSetJson(x, EBinaryStringEncoding::Unicode);});
-    return resultJson;
+
+    return resultSets;
 }

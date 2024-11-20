@@ -1,8 +1,5 @@
 #include "basic_example.h"
 
-using namespace NYdb;
-using namespace NYdb::NTable;
-
 struct TSeries {
     ui64 SeriesId;
     std::string Title;
@@ -46,7 +43,7 @@ struct TEpisode {
         , AirDate(airDate) {}
 };
 
-TParams GetTablesDataParams() {
+NYdb::TParams GetTablesDataParams() {
     std::vector<TSeries> seriesData = {
         TSeries(1, "IT Crowd",  TInstant::ParseIso8601("2006-02-03"),
             "The IT Crowd is a British sitcom produced by Channel 4, written by Graham Linehan, produced by "
@@ -141,7 +138,7 @@ TParams GetTablesDataParams() {
         TEpisode(2, 5, 8, "Fifty-One Percent", TInstant::ParseIso8601("2018-05-13"))
     };
 
-    TParamsBuilder paramsBuilder;
+    NYdb::TParamsBuilder paramsBuilder;
 
     auto& seriesParam = paramsBuilder.AddParam("$seriesData");
     seriesParam.BeginList();

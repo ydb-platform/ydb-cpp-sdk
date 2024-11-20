@@ -2,6 +2,9 @@
 
 #include <gtest/gtest.h>
 
+#include <util/string/cast.h>
+
+
 TEST(Integration, BulkUpsert) {
 
     uint32_t correctSumApp = 0;
@@ -43,7 +46,7 @@ TEST(Integration, BulkUpsert) {
         EXPECT_EQ(sumHost, correctSumHost);
     } catch (const TYdbErrorException& e) {
         driver.Stop(true);
-        FAIL() << "Execution failed due to fatal error:\nStatus: " << ToString(e.Status.GetStatus()) << std::endl << e.Status.GetIssues().ToString();
+        FAIL() << "Execution failed due to fatal error:\nStatus: " << ToString(e.Status) << std::endl << e.Status.GetIssues().ToString();
     }
     
     DropTable(client, path);
