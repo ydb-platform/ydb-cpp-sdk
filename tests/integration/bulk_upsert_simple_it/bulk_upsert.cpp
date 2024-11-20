@@ -1,6 +1,7 @@
 #include "bulk_upsert.h"
 
 #include <filesystem>
+#include <format>
 
 static constexpr size_t BATCH_SIZE = 1000;
 

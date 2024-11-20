@@ -3,12 +3,13 @@ add_ydb_test(NAME basic-example_it
     main.cpp
     basic_example_data.cpp
     basic_example.cpp
-    basic_example.h
   LINK_LIBRARIES
     yutil
+    api-protos
+    YDB-CPP-SDK::Driver
+    YDB-CPP-SDK::Proto
     YDB-CPP-SDK::Table
     GTest::gtest_main
-    public-lib-json_value
   LABELS
     integration
 )

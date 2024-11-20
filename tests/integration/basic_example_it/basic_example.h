@@ -3,34 +3,35 @@
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 
+#include <gtest/gtest.h>
+
 #include <vector>
 
-using namespace NYdb;
 using namespace NYdb::NTable;
 
 struct TRunArgs {
-    TDriver driver;
+    NYdb::TDriver driver;
     std::string path;
 };
 class TYdbErrorException : public yexception {
 public:
-    TYdbErrorException(const TStatus& status)
+    TYdbErrorException(const NYdb::TStatus& status)
         : Status(status) {}
 
-    TStatus Status;
+    NYdb::TStatus Status;
 };
 
 NYdb::TParams GetTablesDataParams();
 
 void CreateTables(TTableClient client, const std::string& path);
-void ThrowOnError(const TStatus& status);
+void ThrowOnError(const NYdb::TStatus& status);
 TRunArgs GetRunArgs();
-TStatus FillTableDataTransaction(TSession session, const std::string& path);
-std::string SelectSimple(TTableClient client, const std::string& path);
+NYdb::TStatus FillTableDataTransaction(TSession session, const std::string& path);
+NYdb::TResultSet SelectSimple(TTableClient client, const std::string& path);
 void UpsertSimple(TTableClient client, const std::string& path);
-std::string SelectWithParams(TTableClient client, const std::string& path);
-std::string PreparedSelect(TTableClient client, const std::string& path, ui32 seriesId, ui32 seasonId, ui32 episodeId);
-std::string MultiStep(TTableClient client, const std::string& path);
+NYdb::TResultSet SelectWithParams(TTableClient client, const std::string& path);
+NYdb::TResultSet PreparedSelect(TTableClient client, const std::string& path, ui32 seriesId, ui32 seasonId, ui32 episodeId);
+NYdb::TResultSet MultiStep(TTableClient client, const std::string& path);
 void ExplicitTcl(TTableClient client, const std::string& path);
-std::string PreparedSelect(TTableClient client, const std::string& path, ui32 seriesId, ui32 seasonId, ui32 episodeId);
-std::vector<std::string> ScanQuerySelect(TTableClient client, const std::string& path);
+NYdb::TResultSet PreparedSelect(TTableClient client, const std::string& path, ui32 seriesId, ui32 seasonId, ui32 episodeId);
+std::vector<NYdb::TResultSet> ScanQuerySelect(TTableClient client, const std::string& path);

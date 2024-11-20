@@ -2,7 +2,7 @@
 
 #include <util/stream/str.h>
 
-namespace NKikimr {
+namespace NYdb {
 namespace NUuid {
 
 static void WriteHexDigit(ui8 digit, IOutputStream& out) {

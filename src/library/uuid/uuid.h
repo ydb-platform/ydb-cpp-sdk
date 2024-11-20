@@ -8,7 +8,7 @@
 
 class IOutputStream;
 
-namespace NKikimr {
+namespace NYdb {
 namespace NUuid {
 
 static constexpr ui32 UUID_LEN = 16;
