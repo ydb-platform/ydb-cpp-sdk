@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 
-#include <gtest/gtest.h>
+#include <library/cpp/testing/gtest/gtest.h>
 
 #include <vector>
 

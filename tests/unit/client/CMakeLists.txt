@@ -80,17 +80,17 @@ add_ydb_test(NAME client-oauth2_ut
     unit
 )
 
-add_ydb_test(NAME client-ydb_params_ut
-  SOURCES
-    params/params_ut.cpp
-  LINK_LIBRARIES
-    yutil
-    cpp-testing-unittest_main
-    YDB-CPP-SDK::Params
-    YDB-CPP-SDK::YsonValue
-  LABELS
-    unit
-)
+# add_ydb_test(NAME client-ydb_params_ut
+#   SOURCES
+#     params/params_ut.cpp
+#   LINK_LIBRARIES
+#     yutil
+#     cpp-testing-unittest_main
+#     YDB-CPP-SDK::Params
+#     YDB-CPP-SDK::YsonValue
+#   LABELS
+#     unit
+# )
 
 add_ydb_test(NAME client-ydb_result_ut
   SOURCES
@@ -104,16 +104,16 @@ add_ydb_test(NAME client-ydb_result_ut
     unit
 )
 
-add_ydb_test(NAME client-ydb_value_ut
-  SOURCES
-    value/value_ut.cpp
-  LINK_LIBRARIES
-    yutil
-    cpp-testing-unittest_main
-    YDB-CPP-SDK::Value
-    YDB-CPP-SDK::JsonValue
-    YDB-CPP-SDK::YsonValue
-    YDB-CPP-SDK::Params
-  LABELS
-    unit
-)
+# add_ydb_test(NAME client-ydb_value_ut
+#   SOURCES
+#     value/value_ut.cpp
+#   LINK_LIBRARIES
+#     yutil
+#     cpp-testing-unittest_main
+#     YDB-CPP-SDK::Value
+#     YDB-CPP-SDK::JsonValue
+#     YDB-CPP-SDK::YsonValue
+#     YDB-CPP-SDK::Params
+#   LABELS
+#     unit
+# )

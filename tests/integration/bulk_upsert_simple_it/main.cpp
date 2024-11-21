@@ -1,6 +1,6 @@
 #include "bulk_upsert.h"
 
-#include <gtest/gtest.h>
+#include <library/cpp/testing/gtest/gtest.h>
 
 #include <util/string/cast.h>
 

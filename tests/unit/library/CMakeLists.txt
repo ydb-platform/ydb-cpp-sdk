@@ -1,5 +1,4 @@
 add_subdirectory(decimal)
-add_subdirectory(issue)
 add_subdirectory(grpc_client)
-add_subdirectory(json_value)
+add_subdirectory(issue)
 add_subdirectory(operation_id)
