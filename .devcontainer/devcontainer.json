@@ -9,6 +9,14 @@
 			"linux/amd64"
 		]
 	},
+	// Allows the container to use ptrace, which is useful for debugging.
+	"capAdd": [
+		"SYS_PTRACE"
+	],
+	// Disables seccomp, which can be necessary for some debugging tools to function correctly.
+	"securityOpt": [
+		"seccomp=unconfined"
+	],
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {
