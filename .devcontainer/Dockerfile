@@ -5,7 +5,7 @@ RUN apt-get update && apt-get -y install software-properties-common
 
 # Install C++ tools and libraries
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test && apt-get -y update && apt-get -y install \
-    git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
+    git gdb cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
     protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
     rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev libgtest-dev libgmock-dev \
     libbz2-dev libdouble-conversion-dev libstdc++-13-dev liblz4-dev libssl-dev \

@@ -18,7 +18,7 @@
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [],
-	"initializeCommand": "cd \"${localWorkspaceFolder}\" && git config --local user.email \"$(git config user.email)\" && git config --local user.name \"$(git config user.name)\"",
+	"initializeCommand": "mkdir -p ${localEnv:HOME}/.ccache && cd \"${localWorkspaceFolder}\" && git config --local user.email \"$(git config user.email)\" && git config --local user.name \"$(git config user.name)\"",
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": ".devcontainer/configure.sh ${containerWorkspaceFolder}",
 	// Configure tool-specific properties.
@@ -33,6 +33,9 @@
 			]
 		}
 	},
+	"mounts": [
+		"source=${localEnv:HOME}/.ccache,target=/root/.ccache,type=bind,consistency=cached"
+	],
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	"remoteUser": "root"
 }
