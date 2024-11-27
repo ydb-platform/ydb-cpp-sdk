@@ -76,3 +76,6 @@ llvm.sh
 
 # User CMake presets
 CMakeUserPresets.json
+
+# Dev Containers
+!.devcontainer/Dockerfile
