@@ -16,3 +16,4 @@ target_sources(client-ydb_types-credentials-login PRIVATE
 )
 
 _ydb_sdk_install_targets(TARGETS client-ydb_types-credentials-login)
+_ydb_sdk_make_client_component(Credentials client-ydb_types-credentials-login)
