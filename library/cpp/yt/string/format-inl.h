@@ -126,7 +126,7 @@ inline TString TStringBuilder::Flush()
 
 inline void TStringBuilder::DoReset()
 {
-    Buffer_ = {};
+    Buffer_ = TString{};
 }
 
 inline void TStringBuilder::DoReserve(size_t newLength)

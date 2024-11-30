@@ -1,6 +1,5 @@
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
-#include <library/cpp/testing/gtest_extensions/assertions.h>
 
 #include <library/cpp/yt/memory/ref.h>
 
