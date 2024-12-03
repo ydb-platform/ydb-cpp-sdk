@@ -14,7 +14,6 @@ target_link_libraries(client-ydb_topic-impl PUBLIC
   client-ydb_driver
   client-ydb_topic-common
   client-ydb_proto
-  client-ydb_topic
   client-ydb_topic-codecs
   proto_output
 )
