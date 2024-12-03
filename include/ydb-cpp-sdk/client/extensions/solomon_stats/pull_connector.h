@@ -16,6 +16,9 @@ class TMetricRegistryConnector: public NYdb::IExtension {
         return p.get();
     }
 
+    static NMonitoring::IMetricRegistry* ToRawPtr(TAtomicSharedPtr<NMonitoring::IMetricRegistry> p) {
+        return p.Get();
+    }
 
 public:
     using IApi = NYdb::NSdkStats::IStatApi;
@@ -53,6 +56,14 @@ inline void AddMetricRegistry(NYdb::TDriver& driver, std::shared_ptr<NMonitoring
     if (!ptr)
         return;
     using TConnector = TMetricRegistryConnector<std::shared_ptr<NMonitoring::IMetricRegistry>>;
+
+    driver.AddExtension<TConnector>(TConnector::TParams(ptr));
+}
+
+inline void AddMetricRegistry(NYdb::TDriver& driver, TAtomicSharedPtr<NMonitoring::IMetricRegistry> ptr) {
+    if (!ptr)
+        return;
+    using TConnector = TMetricRegistryConnector<TAtomicSharedPtr<NMonitoring::IMetricRegistry>>;
 
     driver.AddExtension<TConnector>(TConnector::TParams(ptr));
 }
