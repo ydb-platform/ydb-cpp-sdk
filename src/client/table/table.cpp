@@ -331,11 +331,6 @@ class TTableDescription::TImpl {
             TtlSettings_ = std::move(*ttlSettings);
         }
 
-        // tiering
-        if (proto.tiering().size()) {
-            Tiering_ = proto.tiering();
-        }
-
         if (proto.store_type()) {
             StoreType_ = (proto.store_type() == Ydb::Table::STORE_TYPE_COLUMN) ? EStoreType::Column : EStoreType::Row;
         }
@@ -407,9 +402,7 @@ public:
         }
 
         for (const auto& shardStats : Proto_.table_stats().partition_stats()) {
-            PartitionStats_.emplace_back(
-                TPartitionStats{shardStats.rows_estimate(), shardStats.store_size(), shardStats.leader_node_id()}
-            );
+            PartitionStats_.emplace_back(TPartitionStats{ shardStats.rows_estimate(), shardStats.store_size(), shardStats.leader_node_id() });
         }
 
         TableStats.Rows = Proto_.table_stats().rows_estimate();
@@ -566,10 +559,6 @@ public:
         return TtlSettings_;
     }
 
-    const std::optional<std::string>& GetTiering() const {
-        return Tiering_;
-    }
-
     EStoreType GetStoreType() const {
         return StoreType_;
     }
@@ -650,7 +639,6 @@ private:
     std::vector<TIndexDescription> Indexes_;
     std::vector<TChangefeedDescription> Changefeeds_;
     std::optional<TTtlSettings> TtlSettings_;
-    std::optional<std::string> Tiering_;
     std::string Owner_;
     std::vector<NScheme::TPermissions> Permissions_;
     std::vector<NScheme::TPermissions> EffectivePermissions_;
@@ -718,7 +706,7 @@ std::optional<TTtlSettings> TTableDescription::GetTtlSettings() const {
 }
 
 std::optional<std::string> TTableDescription::GetTiering() const {
-    return Impl_->GetTiering();
+    return std::nullopt;
 }
 
 EStoreType TTableDescription::GetStoreType() const {
@@ -939,10 +927,6 @@ void TTableDescription::SerializeTo(Ydb::Table::CreateTableRequest& request) con
 
     if (const auto& ttl = Impl_->GetTtlSettings()) {
         ttl->SerializeTo(*request.mutable_ttl_settings());
-    }
-
-    if (const auto& tiering = Impl_->GetTiering()) {
-        request.set_tiering(TStringType{tiering.value()});
     }
 
     if (Impl_->GetStoreType() == EStoreType::Column) {
