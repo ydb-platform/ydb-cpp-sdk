@@ -119,25 +119,37 @@ struct TModifyPermissionsSettings : public TOperationRequestSettings<TModifyPerm
         AddAction(EModifyPermissionsAction::Grant, permissions);
         return *this;
     }
+
     TModifyPermissionsSettings& AddRevokePermissions(const TPermissions& permissions) {
         AddAction(EModifyPermissionsAction::Revoke, permissions);
         return *this;
     }
+
     TModifyPermissionsSettings& AddSetPermissions(const TPermissions& permissions) {
         AddAction(EModifyPermissionsAction::Set, permissions);
         return *this;
     }
+
     TModifyPermissionsSettings& AddChangeOwner(const std::string& owner) {
         AddAction(EModifyPermissionsAction::Chown, TPermissions(owner));
         return *this;
     }
+
     TModifyPermissionsSettings& AddClearAcl() {
         ClearAcl_ = true;
         return *this;
     }
 
+    TModifyPermissionsSettings& AddInterruptInheritance(bool value) {
+        SetInterruptInheritance_ = true;
+        InterruptInheritanceValue_ = value;
+        return *this;
+    }
+
     std::vector<std::pair<EModifyPermissionsAction, TPermissions>> Actions_;
     bool ClearAcl_ = false;
+    bool SetInterruptInheritance_ = false;
+    bool InterruptInheritanceValue_ = false;
     void AddAction(EModifyPermissionsAction action, const TPermissions& permissions) {
         Actions_.emplace_back(std::pair<EModifyPermissionsAction, TPermissions>{action, permissions});
     }
