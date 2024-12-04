@@ -811,6 +811,7 @@ public:
 
     TColumnFamilyBuilder& SetData(const std::string& media);
     TColumnFamilyBuilder& SetCompression(EColumnFamilyCompression compression);
+    TColumnFamilyBuilder& SetKeepInMemory(bool enabled);
 
     TColumnFamilyDescription Build() const;
 
@@ -870,6 +871,11 @@ public:
 
     TTableColumnFamilyBuilder& SetCompression(EColumnFamilyCompression compression) {
         Builder_.SetCompression(compression);
+        return *this;
+    }
+
+    TTableColumnFamilyBuilder& SetKeepInMemory(bool enabled) {
+        Builder_.SetKeepInMemory(enabled);
         return *this;
     }
 
@@ -1488,6 +1494,11 @@ public:
 
     TAlterColumnFamilyBuilder& SetCompression(EColumnFamilyCompression compression) {
         Builder_.SetCompression(compression);
+        return *this;
+    }
+
+    TAlterColumnFamilyBuilder& SetKeepInMemory(bool enabled) {
+        Builder_.SetKeepInMemory(enabled);
         return *this;
     }
 
