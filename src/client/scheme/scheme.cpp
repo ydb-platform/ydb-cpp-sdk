@@ -245,7 +245,6 @@ public:
             TRpcRequestSettings::Make(settings));
 
         return promise.GetFuture();
-
     }
 
     void PermissionsToRequest(const TPermissions& permissions, Permissions* to) {
@@ -260,6 +259,9 @@ public:
         request.set_path(TStringType{path});
         if (settings.ClearAcl_) {
             request.set_clear_permissions(true);
+        }
+        if (settings.SetInterruptInheritance_) {
+            request.set_interrupt_inheritance(settings.InterruptInheritanceValue_);
         }
 
         for (const auto& action : settings.Actions_) {
