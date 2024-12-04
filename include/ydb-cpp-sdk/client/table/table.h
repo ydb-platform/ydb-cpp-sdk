@@ -665,6 +665,7 @@ public:
     std::vector<TIndexDescription> GetIndexDescriptions() const;
     std::vector<TChangefeedDescription> GetChangefeedDescriptions() const;
     std::optional<TTtlSettings> GetTtlSettings() const;
+    // Deprecated. Use GetTtlSettings() instead
     std::optional<std::string> GetTiering() const;
     EStoreType GetStoreType() const;
 
