@@ -11,8 +11,10 @@ target_link_libraries(client-ydb_import PUBLIC
   client-ydb_types-operation
 )
 
-target_sources(client-ydb_import PRIVATE
-  import.cpp
+target_sources(client-ydb_import
+  PRIVATE
+    import.cpp
+    out.cpp
 )
 
 generate_enum_serilization(client-ydb_import
