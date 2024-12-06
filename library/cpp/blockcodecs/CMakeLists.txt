@@ -1,3 +1,18 @@
+if (YDB_SDK_TESTS)
+  add_ydb_test(NAME blockcodecs-ut
+    SOURCES
+      codecs_ut.cpp
+    LINK_LIBRARIES
+      blockcodecs
+      cpp-testing-unittest_main
+    LABELS
+      unit
+    TEST_ARG
+      # Exclude this test case, because we don't use zstd06
+      -TBlockCodecsTest::TestListAllCodecs
+  )
+endif(YDB_SDK_TESTS)
+
 _ydb_sdk_add_library(blockcodecs-core)
 target_link_libraries(blockcodecs-core
   PUBLIC
@@ -29,7 +44,7 @@ _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-brotli)
 
 _ydb_sdk_add_library(blockcodecs-codecs-bzip INTERFACE)
 add_global_library_for(blockcodecs-codecs-bzip.global blockcodecs-codecs-bzip)
-target_link_libraries(blockcodecs-codecs-bzip.global 
+target_link_libraries(blockcodecs-codecs-bzip.global
   PRIVATE
     yutil
     BZip2::BZip2
@@ -144,7 +159,7 @@ _ydb_sdk_install_targets(TARGETS blockcodecs-codecs-zstd)
 
 
 _ydb_sdk_add_library(blockcodecs)
-target_link_libraries(blockcodecs 
+target_link_libraries(blockcodecs
   PUBLIC
     yutil
     blockcodecs-core
@@ -157,7 +172,7 @@ target_link_libraries(blockcodecs
     blockcodecs-codecs-zlib
     blockcodecs-codecs-zstd
 )
-target_sources(blockcodecs 
+target_sources(blockcodecs
   PRIVATE
     codecs.cpp
     stream.cpp
