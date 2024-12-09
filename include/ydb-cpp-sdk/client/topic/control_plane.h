@@ -108,12 +108,18 @@ public:
     uint64_t GetLastReadOffset() const;
     std::string GetReaderName() const;
     std::string GetReadSessionId() const;
+    const TInstant& GetLastReadTime() const;
+    const TDuration& GetMaxReadTimeLag() const;
+    const TDuration& GetMaxWriteTimeLag() const;
 
 private:
     uint64_t CommittedOffset_;
     int64_t LastReadOffset_;
     std::string ReaderName_;
     std::string ReadSessionId_;
+    TInstant LastReadTime_;
+    TDuration MaxReadTimeLag_;
+    TDuration MaxWriteTimeLag_;
 };
 
 // Topic partition location
