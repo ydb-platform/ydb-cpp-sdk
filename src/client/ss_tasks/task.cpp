@@ -5,7 +5,7 @@
 #include <src/client/common_client/impl/client.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 namespace NSchemeShard {
 
 /// YT

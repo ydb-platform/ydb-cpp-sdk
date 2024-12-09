@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/table/table.h>
 
-namespace NYdb::NTable {
+namespace NYdb::inline V3::NTable {
 
 class TTransaction::TImpl {
 public:

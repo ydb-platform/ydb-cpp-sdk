@@ -24,7 +24,7 @@
 #include <variant>
 
 
-namespace NYdb::NTopic {
+namespace NYdb::inline V3::NTopic {
 
 static const bool RangesMode = !std::string{std::getenv("PQ_OFFSET_RANGES_MODE") ? std::getenv("PQ_OFFSET_RANGES_MODE") : ""}.empty();
 

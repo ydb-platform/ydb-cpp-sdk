@@ -30,7 +30,7 @@
 #include <vector>
 
 
-namespace NYdb::NTopic {
+namespace NYdb::inline V3::NTopic {
 
 template <bool UseMigrationProtocol>
 using TClientMessage = std::conditional_t<UseMigrationProtocol,

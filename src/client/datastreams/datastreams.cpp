@@ -11,7 +11,7 @@
 
 #include <src/api/grpc/draft/ydb_datastreams_v1.grpc.pb.h>
 
-namespace NYdb::NDataStreams::V1 {
+namespace NYdb::inline V3::NDataStreams::V1 {
 
     TPartitioningSettingsBuilder<TCreateStreamSettings> TCreateStreamSettings::BeginConfigurePartitioningSettings() {
         return { *this };

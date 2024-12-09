@@ -5,7 +5,7 @@
 #include <src/api/protos/ydb_table.pb.h>
 #include <ydb-cpp-sdk/client/table/query_stats/stats.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 inline Ydb::Table::QueryStatsCollection::Mode GetStatsCollectionMode(std::optional<NTable::ECollectQueryStatsMode> mode) {
     if (mode.has_value()) {

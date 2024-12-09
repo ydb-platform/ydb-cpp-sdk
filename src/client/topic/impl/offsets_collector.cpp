@@ -1,6 +1,6 @@
 #include "offsets_collector.h"
 
-namespace NYdb::NTopic {
+namespace NYdb::inline V3::NTopic {
 
 std::vector<TTopicOffsets> TOffsetsCollector::GetOffsets() const
 {

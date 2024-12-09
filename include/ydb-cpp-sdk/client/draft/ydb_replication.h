@@ -13,11 +13,11 @@ namespace Ydb::Replication {
     class DescribeReplicationResult_Stats;
 }
 
-namespace NYdb {
+namespace NYdb::inline V3 {
     class TProtoAccessor;
 }
 
-namespace NYdb::NReplication {
+namespace NYdb::inline V3::NReplication {
 
 class TDescribeReplicationResult;
 using TAsyncDescribeReplicationResult = NThreading::TFuture<TDescribeReplicationResult>;
@@ -135,7 +135,7 @@ private:
 };
 
 class TDescribeReplicationResult: public NScheme::TDescribePathResult {
-    friend class NYdb::TProtoAccessor;
+    friend class NYdb::V3::TProtoAccessor;
     const Ydb::Replication::DescribeReplicationResult& GetProto() const;
 
 public:
@@ -160,4 +160,4 @@ private:
     std::shared_ptr<TImpl> Impl_;
 };
 
-} // namespace NYdb::NReplication
+} // namespace NYdb::V3::NReplication

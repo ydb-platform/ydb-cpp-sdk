@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 enum class ES3Scheme {
     HTTP = 1 /* "http" */,

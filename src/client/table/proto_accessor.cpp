@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/table/table.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 const Ydb::TableStats::QueryStats& TProtoAccessor::GetProto(const NTable::TQueryStats& queryStats) {
     return queryStats.GetProto();

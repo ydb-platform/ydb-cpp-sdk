@@ -8,7 +8,7 @@
 
 #include <util/generic/size_literals.h>
 
-namespace NYdb::NPersQueue {
+namespace NYdb::inline V3::NPersQueue {
 
 enum class EClusterDiscoveryMode {
     Auto = 0, // enables cluster discovery only for hostname "logbroker.yandex.net" and "logbroker-prestable.yandex.net"

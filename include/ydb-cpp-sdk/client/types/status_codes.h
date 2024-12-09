@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 constexpr size_t TRANSPORT_STATUSES_FIRST = 401000;
 constexpr size_t TRANSPORT_STATUSES_LAST  = 401999;

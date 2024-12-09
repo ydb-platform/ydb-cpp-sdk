@@ -9,7 +9,7 @@ namespace Ydb {
     class TypedValue;
 }
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 namespace NScripting {
     class TScriptingClient;
@@ -43,7 +43,7 @@ class TParams {
     friend class NExperimental::TStreamQueryClient;
     friend class NQuery::TExecQueryImpl;
     friend class NQuery::TQueryClient;
-    friend class NYdb::TProtoAccessor;
+    friend class NYdb::V3::TProtoAccessor;
 public:
     bool Empty() const;
 

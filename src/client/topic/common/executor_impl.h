@@ -7,7 +7,7 @@
 
 #include <queue>
 
-namespace NYdb::NTopic {
+namespace NYdb::inline V3::NTopic {
 
 class IAsyncExecutor : public IExecutor {
 private:

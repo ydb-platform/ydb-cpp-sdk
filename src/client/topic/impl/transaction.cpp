@@ -1,7 +1,7 @@
 #include "transaction.h"
 #include <ydb-cpp-sdk/client/table/table.h>
 
-namespace NYdb::NTopic {
+namespace NYdb::inline V3::NTopic {
 
 TTransactionId MakeTransactionId(const NTable::TTransaction& tx)
 {

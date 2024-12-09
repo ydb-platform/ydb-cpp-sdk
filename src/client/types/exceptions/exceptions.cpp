@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 TYdbException::TYdbException(const std::string& reason) {
     Append(reason);

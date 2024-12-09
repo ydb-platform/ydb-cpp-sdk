@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 namespace NTable {
 
 std::string EncodeQuery(const std::string& text, bool reversible);

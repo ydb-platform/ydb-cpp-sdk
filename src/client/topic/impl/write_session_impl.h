@@ -9,7 +9,7 @@
 #include <util/generic/buffer.h>
 
 
-namespace NYdb::NTopic {
+namespace NYdb::inline V3::NTopic {
 
 class TWriteSessionEventsQueue: public TBaseSessionEventsQueue<TWriteSessionSettings, TWriteSessionEvent::TEvent, TSessionClosedEvent, IExecutor> {
     using TParent = TBaseSessionEventsQueue<TWriteSessionSettings, TWriteSessionEvent::TEvent, TSessionClosedEvent, IExecutor>;

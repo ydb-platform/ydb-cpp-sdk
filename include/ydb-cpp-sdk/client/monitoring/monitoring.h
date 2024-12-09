@@ -8,7 +8,7 @@ namespace Monitoring {
 }
 }
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 class TProtoAccessor;
 
@@ -33,7 +33,7 @@ struct TSelfCheckSettings : public TOperationRequestSettings<TSelfCheckSettings>
 };
 
 class TSelfCheckResult : public TStatus {
-    friend class NYdb::TProtoAccessor;
+    friend class NYdb::V3::TProtoAccessor;
 public:
     TSelfCheckResult(TStatus&& status, Ydb::Monitoring::SelfCheckResult&& result);
 private:

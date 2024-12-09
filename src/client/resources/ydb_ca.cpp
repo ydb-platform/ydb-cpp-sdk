@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/resources/ydb_ca.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 std::string GetRootCertificate() {
     return NResource::Find("ydb_root_ca.pem");

@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/params/params.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 class TParams::TImpl {
 public:

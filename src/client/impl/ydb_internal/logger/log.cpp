@@ -6,7 +6,7 @@
 #include <util/datetime/base.h>
 #include <util/string/builder.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 static const std::string_view LogPrioritiesStrings[] = {
     " :EMERG: ",

@@ -7,7 +7,7 @@
 
 #include <util/generic/guid.h>
 
-namespace NYdb::NTopic {
+namespace NYdb::inline V3::NTopic {
 
 static const std::string DRIVER_IS_STOPPING_DESCRIPTION = "Driver is stopping";
 

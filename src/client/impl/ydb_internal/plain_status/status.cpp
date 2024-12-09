@@ -3,7 +3,7 @@
 
 #include <util/string/builder.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 using std::string;
 

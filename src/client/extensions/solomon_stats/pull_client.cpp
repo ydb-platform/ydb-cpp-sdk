@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/extensions/solomon_stats/pull_client.h>
 
-namespace NSolomonStatExtension {
+namespace NSolomonStatExtension::inline V3 {
 
 TSolomonStatPullExtension::TParams::TParams(const std::string& host
     , ui16 port
