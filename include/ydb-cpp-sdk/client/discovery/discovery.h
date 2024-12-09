@@ -12,7 +12,7 @@ namespace Discovery {
 } // namespace Discovery
 } // namespace Ydb
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 namespace NDiscovery {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,5 +140,5 @@ private:
     std::shared_ptr<TImpl> Impl_;
 };
 
-} // namespace NTable
 } // namespace NDiscovery
+} // namespace NYdb

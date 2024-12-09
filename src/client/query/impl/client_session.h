@@ -5,7 +5,7 @@
 
 #include <src/api/grpc/ydb_query_v1.grpc.pb.h>
 
-namespace NYdb::NQuery {
+namespace NYdb::inline V3::NQuery {
 
 class TSession::TImpl : public TKqpSessionCommon {
 public:

@@ -13,11 +13,11 @@
 
 #include <util/generic/size_literals.h>
 
-namespace NYdb::NTable {
+namespace NYdb::inline V3::NTable {
     class TTransaction;
 }
 
-namespace NYdb::NTopic {
+namespace NYdb::inline V3::NTopic {
 
 //! Read settings for single topic.
 struct TTopicReadSettings {

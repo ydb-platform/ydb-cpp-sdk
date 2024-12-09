@@ -9,7 +9,7 @@
 
 #include <util/stream/file.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 TDriverConfig CreateFromEnvironment(const std::string& connectionString) {
     TDriverConfig driverConfig;

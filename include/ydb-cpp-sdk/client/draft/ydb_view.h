@@ -7,11 +7,11 @@ namespace Ydb::View {
     class DescribeViewResult;
 }
 
-namespace NYdb {
+namespace NYdb::inline V3 {
     class TProtoAccessor;
 }
 
-namespace NYdb::NView {
+namespace NYdb::inline V3::NView {
 
 class TDescribeViewResult;
 using TAsyncDescribeViewResult = NThreading::TFuture<TDescribeViewResult>;
@@ -31,7 +31,7 @@ private:
 };
 
 class TDescribeViewResult : public NScheme::TDescribePathResult {
-    friend class NYdb::TProtoAccessor;
+    friend class NYdb::V3::TProtoAccessor;
     const Ydb::View::DescribeViewResult& GetProto() const;
 
 public:
@@ -55,4 +55,4 @@ private:
     std::shared_ptr<TImpl> Impl_;
 };
 
-} // namespace NYdb::NView
+} // namespace NYdb::V3::NView

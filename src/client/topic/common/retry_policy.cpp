@@ -1,7 +1,7 @@
 #include <ydb-cpp-sdk/client/topic/errors.h>
 #include <ydb-cpp-sdk/client/topic/retry_policy.h>
 
-namespace NYdb::NTopic {
+namespace NYdb::inline V3::NTopic {
 
 IRetryPolicy::TPtr IRetryPolicy::GetDefaultPolicy() {
     static IRetryPolicy::TPtr policy = GetExponentialBackoffPolicy();

@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/extension_common/extension.h>
 
-namespace NDiscoveryMutator {
+namespace NDiscoveryMutator::inline V3 {
 
 class TDiscoveryMutator: public NYdb::IExtension {
 public:
@@ -26,4 +26,4 @@ public:
     }
 };
 
-}; // namespace NDiscoveryModifie
+} // namespace NDiscoveryMutator

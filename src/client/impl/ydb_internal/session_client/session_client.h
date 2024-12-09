@@ -4,7 +4,7 @@
 
 #include <util/datetime/base.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 class TKqpSessionCommon;
 

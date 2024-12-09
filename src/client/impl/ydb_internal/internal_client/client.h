@@ -14,7 +14,7 @@ namespace NMonitoring {
     class TMetricRegistry;
 }
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 class TDbDriverState;
 struct TListEndpointsResult;

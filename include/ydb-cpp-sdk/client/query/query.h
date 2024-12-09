@@ -10,7 +10,7 @@
 
 #include <library/cpp/threading/future/future.h>
 
-namespace NYdb::NQuery {
+namespace NYdb::inline V3::NQuery {
 
 enum class ESyntax {
     Unspecified = 0,
@@ -186,4 +186,4 @@ class TExecuteQueryResult;
 using TAsyncFetchScriptResultsResult = NThreading::TFuture<TFetchScriptResultsResult>;
 using TAsyncExecuteQueryResult = NThreading::TFuture<TExecuteQueryResult>;
 
-} // namespace NYdb::NQuery
+} // namespace NYdb::V3::NQuery

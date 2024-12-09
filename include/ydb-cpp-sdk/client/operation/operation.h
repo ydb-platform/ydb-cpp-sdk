@@ -3,7 +3,7 @@
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 namespace NOperation {
 
 template <typename TOp>

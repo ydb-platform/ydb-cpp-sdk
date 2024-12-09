@@ -6,7 +6,7 @@
 
 #include <util/datetime/base.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 constexpr TDuration DEFAULT_JWT_TOKEN_TTL = TDuration::Hours(1);
 

@@ -1,6 +1,6 @@
 #include "view.h"
 
-namespace NYdb::NView {
+namespace NYdb::inline V3::NView {
 
 grpc::Status TViewDummyService::DescribeView(
     [[maybe_unused]] grpc::ServerContext* context,

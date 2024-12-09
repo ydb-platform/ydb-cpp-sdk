@@ -7,7 +7,7 @@ class DescribeResourceResult;
 class HierarchicalDrrSettings;
 } // namespace Ydb::RateLimiter
 
-namespace NYdb::NRateLimiter {
+namespace NYdb::inline V3::NRateLimiter {
 
 // Settings for hierarchical deficit round robin (HDRR) algorithm.
 template <class TDerived>
@@ -171,4 +171,4 @@ private:
     std::shared_ptr<TImpl> Impl_;
 };
 
-} // namespace NYdb::NRateLimiter
+} // namespace NYdb::V3::NRateLimiter

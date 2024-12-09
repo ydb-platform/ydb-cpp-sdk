@@ -2,7 +2,7 @@
 
 #include "common/types.h"
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 /// Acquire an IAM token using a local metadata service on a virtual machine.
 TCredentialsProviderFactoryPtr CreateIamCredentialsProviderFactory(const TIamHost& params = {});

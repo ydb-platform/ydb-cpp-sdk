@@ -38,7 +38,7 @@ class ValueSinceUnixEpochModeSettingsV1;
 } // namespace Table
 } // namespace Ydb
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 namespace NRetry::Async {
 template <typename TClient, typename TStatusType>
@@ -269,7 +269,7 @@ public:
 
 //! Represents index description
 class TIndexDescription {
-    friend class NYdb::TProtoAccessor;
+    friend class NYdb::V3::TProtoAccessor;
 
 public:
     TIndexDescription(
@@ -346,7 +346,7 @@ private:
 
 //! Represents changefeed description
 class TChangefeedDescription {
-    friend class NYdb::TProtoAccessor;
+    friend class NYdb::V3::TProtoAccessor;
 
 public:
     class TInitialScanProgress {
@@ -651,7 +651,7 @@ enum class EStoreType {
 //! Represents table description
 class TTableDescription {
     friend class TTableBuilder;
-    friend class NYdb::TProtoAccessor;
+    friend class NYdb::V3::TProtoAccessor;
 
     using EUnit = TValueSinceUnixEpochModeSettings::EUnit;
 

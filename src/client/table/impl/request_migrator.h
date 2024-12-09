@@ -11,7 +11,7 @@
 #include <mutex>
 #include <memory>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 namespace NMath {
 

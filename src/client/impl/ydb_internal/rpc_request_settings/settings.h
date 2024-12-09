@@ -3,7 +3,7 @@
 #include <src/client/impl/ydb_endpoints/endpoints.h>
 #include <src/client/impl/ydb_internal/internal_header.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 struct TRpcRequestSettings {
     std::string TraceId;

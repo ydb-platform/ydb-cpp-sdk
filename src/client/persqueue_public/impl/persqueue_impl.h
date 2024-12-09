@@ -12,7 +12,7 @@
 
 #include <unordered_map>
 
-namespace NYdb::NPersQueue {
+namespace NYdb::inline V3::NPersQueue {
 
 class TPersQueueClient::TImpl : public TClientImplCommon<TPersQueueClient::TImpl> {
 public:
