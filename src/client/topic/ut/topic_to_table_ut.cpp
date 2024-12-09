@@ -192,9 +192,9 @@ protected:
 
     NTable::TDataQueryResult ExecuteDataQuery(NTable::TSession session, const TString& query, const NTable::TTxControl& control);
 
-    void Read_Exactly_N_Messages_From_Topic(const TString& topicPath,
-                                        const TString& consumerName,
-                                        size_t count);
+    TVector<TString> Read_Exactly_N_Messages_From_Topic(const TString& topicPath,
+                                                        const TString& consumerName,
+                                                        size_t count);
 
     struct TAvgWriteBytes {
         ui64 PerSec = 0;
@@ -1069,16 +1069,22 @@ void TFixture::RestartLongTxService()
     }
 }
 
-void TFixture::Read_Exactly_N_Messages_From_Topic(const TString& topicPath,
-                                                  const TString& consumerName,
-                                                  size_t limit)
+TVector<TString> TFixture::Read_Exactly_N_Messages_From_Topic(const TString& topicPath,
+                                                              const TString& consumerName,
+                                                              size_t limit)
 {
-    size_t count = 0;
-    while (count < limit) {
+    TVector<TString> result;
+
+    while (result.size() < limit) {
         auto messages = ReadFromTopic(topicPath, consumerName, TDuration::Seconds(2));
-        count += messages.size();
+        for (auto& m : messages) {
+            result.push_back(std::move(m));
+        }
     }
-    UNIT_ASSERT_VALUES_EQUAL(count, limit);
+
+    UNIT_ASSERT_VALUES_EQUAL(result.size(), limit);
+
+    return result;
 }
 
 auto TFixture::GetAvgWriteBytes(const TString& topicName,
@@ -1141,15 +1147,13 @@ Y_UNIT_TEST_F(WriteToTopic_Demo_1, TFixture)
     CommitTx(tx, EStatus::SUCCESS);
 
     {
-        auto messages = ReadFromTopic("topic_A", TEST_CONSUMER, TDuration::Seconds(2));
-        UNIT_ASSERT_VALUES_EQUAL(messages.size(), 4);
+        auto messages = Read_Exactly_N_Messages_From_Topic("topic_A", TEST_CONSUMER, 4);
         UNIT_ASSERT_VALUES_EQUAL(messages[0], "message #1");
         UNIT_ASSERT_VALUES_EQUAL(messages[3], "message #4");
     }
 
     {
-        auto messages = ReadFromTopic("topic_B", TEST_CONSUMER, TDuration::Seconds(2));
-        UNIT_ASSERT_VALUES_EQUAL(messages.size(), 5);
+        auto messages = Read_Exactly_N_Messages_From_Topic("topic_B", TEST_CONSUMER, 5);
         UNIT_ASSERT_VALUES_EQUAL(messages[0], "message #5");
         UNIT_ASSERT_VALUES_EQUAL(messages[4], "message #9");
     }
@@ -1190,15 +1194,13 @@ Y_UNIT_TEST_F(WriteToTopic_Demo_2, TFixture)
     CommitTx(tx, EStatus::SUCCESS);
 
     {
-        auto messages = ReadFromTopic("topic_A", TEST_CONSUMER, TDuration::Seconds(2));
-        UNIT_ASSERT_VALUES_EQUAL(messages.size(), 4);
+        auto messages = Read_Exactly_N_Messages_From_Topic("topic_A", TEST_CONSUMER, 4);
         UNIT_ASSERT_VALUES_EQUAL(messages[0], "message #1");
         UNIT_ASSERT_VALUES_EQUAL(messages[3], "message #4");
     }
 
     {
-        auto messages = ReadFromTopic("topic_B", TEST_CONSUMER, TDuration::Seconds(2));
-        UNIT_ASSERT_VALUES_EQUAL(messages.size(), 3);
+        auto messages = Read_Exactly_N_Messages_From_Topic("topic_B", TEST_CONSUMER, 3);
         UNIT_ASSERT_VALUES_EQUAL(messages[0], "message #7");
         UNIT_ASSERT_VALUES_EQUAL(messages[2], "message #9");
     }
@@ -1299,15 +1301,13 @@ Y_UNIT_TEST_F(WriteToTopic_Demo_5, TFixture)
     }
 
     {
-        auto messages = ReadFromTopic("topic_A", TEST_CONSUMER, TDuration::Seconds(2));
-        UNIT_ASSERT_VALUES_EQUAL(messages.size(), 2);
+        auto messages = Read_Exactly_N_Messages_From_Topic("topic_A", TEST_CONSUMER, 2);
         UNIT_ASSERT_VALUES_EQUAL(messages[0], "message #1");
         UNIT_ASSERT_VALUES_EQUAL(messages[1], "message #3");
     }
 
     {
-        auto messages = ReadFromTopic("topic_B", TEST_CONSUMER, TDuration::Seconds(2));
-        UNIT_ASSERT_VALUES_EQUAL(messages.size(), 2);
+        auto messages = Read_Exactly_N_Messages_From_Topic("topic_B", TEST_CONSUMER, 2);
         UNIT_ASSERT_VALUES_EQUAL(messages[0], "message #2");
         UNIT_ASSERT_VALUES_EQUAL(messages[1], "message #4");
     }
@@ -1331,8 +1331,7 @@ Y_UNIT_TEST_F(WriteToTopic_Demo_6, TFixture)
     CommitTx(tx, EStatus::SUCCESS);
 
     {
-        auto messages = ReadFromTopic("topic_A", TEST_CONSUMER, TDuration::Seconds(2));
-        UNIT_ASSERT_VALUES_EQUAL(messages.size(), 2);
+        auto messages = Read_Exactly_N_Messages_From_Topic("topic_A", TEST_CONSUMER, 2);
         UNIT_ASSERT_VALUES_EQUAL(messages[0], "message #1");
         UNIT_ASSERT_VALUES_EQUAL(messages[1], "message #2");
     }
@@ -1357,8 +1356,7 @@ Y_UNIT_TEST_F(WriteToTopic_Demo_7, TFixture)
     WriteToTopic("topic_A", TEST_MESSAGE_GROUP_ID_1, "message #6", &tx);
 
     {
-        auto messages = ReadFromTopic("topic_A", TEST_CONSUMER, TDuration::Seconds(2));
-        UNIT_ASSERT_VALUES_EQUAL(messages.size(), 2);
+        auto messages = Read_Exactly_N_Messages_From_Topic("topic_A", TEST_CONSUMER, 2);
         UNIT_ASSERT_VALUES_EQUAL(messages[0], "message #3");
         UNIT_ASSERT_VALUES_EQUAL(messages[1], "message #4");
     }
@@ -1366,8 +1364,7 @@ Y_UNIT_TEST_F(WriteToTopic_Demo_7, TFixture)
     CommitTx(tx, EStatus::SUCCESS);
 
     {
-        auto messages = ReadFromTopic("topic_A", TEST_CONSUMER, TDuration::Seconds(2));
-        UNIT_ASSERT_VALUES_EQUAL(messages.size(), 4);
+        auto messages = Read_Exactly_N_Messages_From_Topic("topic_A", TEST_CONSUMER, 4);
         UNIT_ASSERT_VALUES_EQUAL(messages[0], "message #1");
         UNIT_ASSERT_VALUES_EQUAL(messages[3], "message #6");
     }
@@ -1456,8 +1453,7 @@ Y_UNIT_TEST_F(WriteToTopic_Demo_10, TFixture)
     }
 
     {
-        auto messages = ReadFromTopic("topic_A", TEST_CONSUMER, TDuration::Seconds(2));
-        UNIT_ASSERT_VALUES_EQUAL(messages.size(), 2);
+        auto messages = Read_Exactly_N_Messages_From_Topic("topic_A", TEST_CONSUMER, 2);
         UNIT_ASSERT_VALUES_EQUAL(messages[0], "message #1");
         UNIT_ASSERT_VALUES_EQUAL(messages[1], "message #2");
     }
@@ -1753,8 +1749,7 @@ Y_UNIT_TEST_F(WriteToTopic_Demo_15, TFixture)
 
     CommitTx(tx, EStatus::SUCCESS);
 
-    auto messages = ReadFromTopic("topic_A", TEST_CONSUMER, TDuration::Seconds(2));
-    UNIT_ASSERT_VALUES_EQUAL(messages.size(), 2);
+    auto messages = Read_Exactly_N_Messages_From_Topic("topic_A", TEST_CONSUMER, 2);
     UNIT_ASSERT_VALUES_EQUAL(messages[0], "message #1");
     UNIT_ASSERT_VALUES_EQUAL(messages[1], "message #2");
 }
@@ -1773,8 +1768,7 @@ Y_UNIT_TEST_F(WriteToTopic_Demo_16, TFixture)
 
     CommitTx(tx, EStatus::SUCCESS);
 
-    auto messages = ReadFromTopic("topic_A", TEST_CONSUMER, TDuration::Seconds(2));
-    UNIT_ASSERT_VALUES_EQUAL(messages.size(), 2);
+    auto messages = Read_Exactly_N_Messages_From_Topic("topic_A", TEST_CONSUMER, 2);
     UNIT_ASSERT_VALUES_EQUAL(messages[0], "message #1");
     UNIT_ASSERT_VALUES_EQUAL(messages[1], "message #2");
 }
@@ -1800,8 +1794,7 @@ Y_UNIT_TEST_F(WriteToTopic_Demo_17, TFixture)
 
     //RestartPQTablet("topic_A", 0);
 
-    auto messages = ReadFromTopic("topic_A", TEST_CONSUMER, TDuration::Seconds(2));
-    UNIT_ASSERT_VALUES_EQUAL(messages.size(), 8);
+    auto messages = Read_Exactly_N_Messages_From_Topic("topic_A", TEST_CONSUMER, 8);
     UNIT_ASSERT_VALUES_EQUAL(messages[0].size(), 22'000'000);
     UNIT_ASSERT_VALUES_EQUAL(messages[1].size(),        100);
     UNIT_ASSERT_VALUES_EQUAL(messages[2].size(),        200);
@@ -2033,8 +2026,7 @@ Y_UNIT_TEST_F(WriteToTopic_Demo_25, TFixture)
 
     CommitTx(tx, EStatus::SUCCESS);
 
-    messages = ReadFromTopic("topic_B", TEST_CONSUMER, TDuration::Seconds(2));
-    UNIT_ASSERT_VALUES_EQUAL(messages.size(), 3);
+    Read_Exactly_N_Messages_From_Topic("topic_B", TEST_CONSUMER, 3);
 }
 
 Y_UNIT_TEST_F(WriteToTopic_Demo_26, TFixture)
@@ -2219,8 +2211,7 @@ Y_UNIT_TEST_F(WriteToTopic_Demo_39, TFixture)
 
     CommitTx(tx, EStatus::SUCCESS);
 
-    auto messages = ReadFromTopic("topic_A", "consumer", TDuration::Seconds(2));
-    UNIT_ASSERT_VALUES_EQUAL(messages.size(), 2);
+    Read_Exactly_N_Messages_From_Topic("topic_A", "consumer", 2);
 }
 
 Y_UNIT_TEST_F(ReadRuleGeneration, TFixture)
@@ -2240,8 +2231,7 @@ Y_UNIT_TEST_F(ReadRuleGeneration, TFixture)
     AddConsumer(TString{TEST_TOPIC}, {"consumer-1"});
 
     // We read messages from the topic and committed offsets
-    auto messages = ReadFromTopic(TString{TEST_TOPIC}, "consumer-1", TDuration::Seconds(2));
-    UNIT_ASSERT_VALUES_EQUAL(messages.size(), 3);
+    Read_Exactly_N_Messages_From_Topic(TString{TEST_TOPIC}, "consumer-1", 3);
     CloseTopicReadSession(TString{TEST_TOPIC}, "consumer-1");
 
     // And then the Logbroker team turned on the feature flag
@@ -2254,8 +2244,7 @@ Y_UNIT_TEST_F(ReadRuleGeneration, TFixture)
     AddConsumer(TString{TEST_TOPIC}, {"consumer-2"});
 
     // And they wanted to continue reading their messages
-    messages = ReadFromTopic(TString{TEST_TOPIC}, "consumer-1", TDuration::Seconds(2));
-    UNIT_ASSERT_VALUES_EQUAL(messages.size(), 1);
+    Read_Exactly_N_Messages_From_Topic(TString{TEST_TOPIC}, "consumer-1", 1);
 }
 
 Y_UNIT_TEST_F(WriteToTopic_Demo_40, TFixture)
