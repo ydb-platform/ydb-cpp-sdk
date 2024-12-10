@@ -1,3 +1,4 @@
+add_subdirectory(bsconfig)
 add_subdirectory(draft)
 add_subdirectory(helpers)
 add_subdirectory(iam)
