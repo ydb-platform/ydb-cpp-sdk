@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 class ITokenSource {
 public:

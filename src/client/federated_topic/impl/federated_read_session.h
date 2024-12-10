@@ -7,7 +7,7 @@
 
 #include <ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
-namespace NYdb::NFederatedTopic {
+namespace NYdb::inline V3::NFederatedTopic {
 
 class TEventFederator {
 public:
@@ -246,4 +246,4 @@ private:
     }
 };
 
-} // namespace NYdb::NFederatedTopic
+} // namespace NYdb::V3::NFederatedTopic

@@ -4,7 +4,7 @@
 
 #include <src/api/grpc/draft/ydb_datastreams_v1.pb.h>
 
-namespace NYdb::NDataStreams::V1 {
+namespace NYdb::inline V3::NDataStreams::V1 {
 
     template<class TProtoResult>
     class TProtoResultWrapper : public NYdb::TStatus {

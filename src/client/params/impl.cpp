@@ -4,7 +4,7 @@
 #include <src/api/protos/ydb_value.pb.h>
 
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 TParams::TImpl::TImpl(::google::protobuf::Map<TStringType, Ydb::TypedValue>&& paramsMap) {
     ParamsMap_.swap(paramsMap);

@@ -8,7 +8,7 @@
 
 #include <functional>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 ////////////////////////////////////////////////////////////////////////////////
 ui64 GetNodeIdFromSession(const std::string& sessionId);

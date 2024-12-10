@@ -6,7 +6,7 @@
 
 #include <optional>
 
-namespace NYdb::NQuery {
+namespace NYdb::inline V3::NQuery {
 
 struct TTxOnlineSettings {
     using TSelf = TTxOnlineSettings;
@@ -108,4 +108,4 @@ private:
         : TxSettings_(txSettings) {}
 };
 
-} // namespace NYdb::NQuery
+} // namespace NYdb::V3::NQuery

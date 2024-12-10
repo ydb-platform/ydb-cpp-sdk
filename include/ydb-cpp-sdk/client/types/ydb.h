@@ -2,7 +2,7 @@
 
 #include "status_codes.h"
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 enum class EDiscoveryMode {
     //! Block in ctor (driver or client if database and/or auth token is overridden by client settings)

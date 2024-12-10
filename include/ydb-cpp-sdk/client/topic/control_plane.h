@@ -10,7 +10,7 @@
 
 #include <limits>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
     class TProtoAccessor;
 
     namespace NScheme {
@@ -18,7 +18,7 @@ namespace NYdb {
     }
 }
 
-namespace NYdb::NTopic {
+namespace NYdb::inline V3::NTopic {
     
 enum class EMeteringMode : uint32_t {
     Unspecified = 0,
@@ -108,12 +108,18 @@ public:
     uint64_t GetLastReadOffset() const;
     std::string GetReaderName() const;
     std::string GetReadSessionId() const;
+    const TInstant& GetLastReadTime() const;
+    const TDuration& GetMaxReadTimeLag() const;
+    const TDuration& GetMaxWriteTimeLag() const;
 
 private:
     uint64_t CommittedOffset_;
     int64_t LastReadOffset_;
     std::string ReaderName_;
     std::string ReadSessionId_;
+    TInstant LastReadTime_;
+    TDuration MaxReadTimeLag_;
+    TDuration MaxWriteTimeLag_;
 };
 
 // Topic partition location
@@ -257,7 +263,7 @@ private:
 };
 
 class TTopicDescription {
-    friend class NYdb::TProtoAccessor;
+    friend class NYdb::V3::TProtoAccessor;
 
 public:
     TTopicDescription(Ydb::Topic::DescribeTopicResult&& desc);
@@ -320,7 +326,7 @@ private:
 };
 
 class TConsumerDescription {
-    friend class NYdb::TProtoAccessor;
+    friend class NYdb::V3::TProtoAccessor;
 
 public:
     TConsumerDescription(Ydb::Topic::DescribeConsumerResult&& desc);
@@ -340,7 +346,7 @@ private:
 };
 
 class TPartitionDescription {
-    friend class NYdb::TProtoAccessor;
+    friend class NYdb::V3::TProtoAccessor;
 
 public:
     TPartitionDescription(Ydb::Topic::DescribePartitionResult&& desc);
@@ -355,7 +361,7 @@ private:
 
 // Result for describe topic request.
 struct TDescribeTopicResult : public TStatus {
-    friend class NYdb::TProtoAccessor;
+    friend class NYdb::V3::TProtoAccessor;
 
     TDescribeTopicResult(TStatus&& status, Ydb::Topic::DescribeTopicResult&& result);
 
@@ -367,7 +373,7 @@ private:
 
 // Result for describe consumer request.
 struct TDescribeConsumerResult : public TStatus {
-    friend class NYdb::TProtoAccessor;
+    friend class NYdb::V3::TProtoAccessor;
 
     TDescribeConsumerResult(TStatus&& status, Ydb::Topic::DescribeConsumerResult&& result);
 
@@ -379,7 +385,7 @@ private:
 
 // Result for describe partition request.
 struct TDescribePartitionResult: public TStatus {
-    friend class NYdb::TProtoAccessor;
+    friend class NYdb::V3::TProtoAccessor;
 
     TDescribePartitionResult(TStatus&& status, Ydb::Topic::DescribePartitionResult&& result);
 
@@ -750,4 +756,4 @@ struct TDescribePartitionSettings: public TOperationRequestSettings<TDescribePar
 // Settings for commit offset request.
 struct TCommitOffsetSettings : public TOperationRequestSettings<TCommitOffsetSettings> {};
 
-}  // namespace NYdb::NTopic
+}  // namespace NYdb::V3::NTopic

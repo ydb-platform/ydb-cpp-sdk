@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 class ICredentialsProvider {
 public:

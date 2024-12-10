@@ -8,7 +8,7 @@
 #include <set>
 #include <unordered_set>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 using std::string;
 

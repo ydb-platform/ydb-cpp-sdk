@@ -4,7 +4,7 @@
 #include <src/client/types/core_facility/core_facility.h>
 
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 class TOperation;
 namespace NSessionPool {

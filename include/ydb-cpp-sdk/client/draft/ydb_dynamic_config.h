@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace NYdb::NDynamicConfig {
+namespace NYdb::inline V3::NDynamicConfig {
 
 struct TGetConfigResult : public TStatus {
     TGetConfigResult(

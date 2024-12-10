@@ -2,7 +2,7 @@
 
 #include <ydb-cpp-sdk/client/iam/common/types.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 /// Acquire an IAM token using a JSON Web Token (JWT) file name.
 TCredentialsProviderFactoryPtr CreateIamJwtFileCredentialsProviderFactoryPrivate(const TIamJwtFilename& params);

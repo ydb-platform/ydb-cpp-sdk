@@ -5,7 +5,7 @@
 #include <src/api/client/yc_private/iam/iam_token_service.pb.h>
 #include <src/api/client/yc_private/iam/iam_token_service.grpc.pb.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 TCredentialsProviderFactoryPtr CreateIamJwtCredentialsProviderFactoryImplPrivate(TIamJwtParams&& jwtParams) {
     return std::make_shared<TIamJwtCredentialsProviderFactory<

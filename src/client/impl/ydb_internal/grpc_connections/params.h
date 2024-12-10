@@ -7,7 +7,7 @@
 #include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 class IConnectionsParams {
 public:

@@ -4,7 +4,7 @@
 #include <ydb-cpp-sdk/client/types/operation/operation.h>
 #include <ydb-cpp-sdk/client/types/s3_settings.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 namespace NExport {
 
 /// Common

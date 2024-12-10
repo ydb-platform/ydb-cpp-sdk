@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 std::string GetStrFromEnv(const char* envVarName, const std::string& defaultValue) {
     auto envVarPointer = getenv(envVarName);

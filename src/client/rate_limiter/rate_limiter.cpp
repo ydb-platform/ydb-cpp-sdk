@@ -7,7 +7,7 @@
 #include <src/api/grpc/ydb_rate_limiter_v1.grpc.pb.h>
 #include <src/client/common_client/impl/client.h>
 
-namespace NYdb::NRateLimiter {
+namespace NYdb::inline V3::NRateLimiter {
 
 TListResourcesResult::TListResourcesResult(TStatus status, std::vector<std::string> paths)
     : TStatus(std::move(status))

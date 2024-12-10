@@ -11,7 +11,7 @@
 
 #include <algorithm>
 
-namespace NYdb::NFederatedTopic {
+namespace NYdb::inline V3::NFederatedTopic {
 
 constexpr TDuration UPDATE_FEDERATION_STATE_DELAY = TDuration::Seconds(10);
 
@@ -467,4 +467,4 @@ bool TFederatedWriteSessionImpl::Close(TDuration timeout) {
     }
 }
 
-}  // namespace NYdb::NFederatedTopic
+}  // namespace NYdb::V3::NFederatedTopic

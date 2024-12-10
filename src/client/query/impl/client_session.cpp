@@ -6,7 +6,7 @@
 
 #include <src/library/issue/yql_issue_message.h>
 
-namespace NYdb::NQuery {
+namespace NYdb::inline V3::NQuery {
 
 TSession::TImpl::TImpl(TStreamProcessorPtr ptr, const std::string& sessionId, const std::string& endpoint)
     : TKqpSessionCommon(sessionId, endpoint, true)

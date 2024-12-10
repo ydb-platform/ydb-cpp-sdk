@@ -5,7 +5,7 @@
 
 #include <ydb-cpp-sdk/type_switcher.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 template<class TService>
 std::unique_ptr<grpc::Server> StartGrpcServer(const std::string& address, TService& service) {

@@ -7,11 +7,11 @@
 #include <ydb-cpp-sdk/client/common_client/settings.h>
 #include <ydb-cpp-sdk/client/driver/driver.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
     class TProtoAccessor;
 }
 
-namespace NYdb::NPersQueue {
+namespace NYdb::inline V3::NPersQueue {
 
 struct TPersQueueClientSettings : public TCommonClientSettingsBase<TPersQueueClientSettings> {
     using TSelf = TPersQueueClientSettings;

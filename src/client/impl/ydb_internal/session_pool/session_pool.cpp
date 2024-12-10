@@ -9,7 +9,7 @@
 
 #include <util/random/random.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 namespace NSessionPool {
 
 using namespace NThreading;

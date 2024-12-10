@@ -1,6 +1,6 @@
 #include <ydb-cpp-sdk/client/table/query_stats/stats.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 namespace NTable {
 
 std::optional<ECollectQueryStatsMode> ParseQueryStatsMode(std::string_view statsMode)

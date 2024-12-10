@@ -5,7 +5,7 @@
 #include <util/generic/ptr.h>
 #include <util/string/builder.h>
 
-namespace NYdb::NTopic {
+namespace NYdb::inline V3::NTopic {
 
 template <typename TEvent>
 class TPrintable {

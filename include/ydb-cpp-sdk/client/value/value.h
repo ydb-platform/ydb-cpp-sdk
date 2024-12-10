@@ -10,7 +10,7 @@ namespace Ydb {
     class Value;
 }
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 class TResultSetParser;
 

@@ -13,7 +13,7 @@
 
 #include <grpcpp/alarm.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 using NYdbGrpc::IQueueClientContext;
 using NYdbGrpc::IQueueClientEvent;

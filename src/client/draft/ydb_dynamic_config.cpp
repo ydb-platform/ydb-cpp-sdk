@@ -4,7 +4,7 @@
 #include <src/client/common_client/impl/client.h>
 #include <src/client/impl/ydb_internal/make_request/make.h>
 
-namespace NYdb::NDynamicConfig {
+namespace NYdb::inline V3::NDynamicConfig {
 
 class TDynamicConfigClient::TImpl : public TClientImplCommon<TDynamicConfigClient::TImpl> {
 public:
@@ -431,4 +431,4 @@ TAsyncVerboseResolveConfigResult TDynamicConfigClient::VerboseResolveConfig(
     return Impl_->VerboseResolveConfig(config, volatileConfigs, settings);
 }
 
-} // namespace NYdb::NDynamicConfig
+} // namespace NYdb::V3::NDynamicConfig

@@ -4,7 +4,7 @@
 #include <ydb-cpp-sdk/client/retry/retry.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
-namespace NYdb::NRetry::Sync {
+namespace NYdb::inline V3::NRetry::Sync {
 
 template <typename TClient, typename TStatusType>
 class TRetryContext : public TRetryContextBase {

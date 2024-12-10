@@ -4,7 +4,7 @@
 
 #include <cstdint>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 constexpr uint64_t TCP_KEEPALIVE_IDLE = 30; // The time the connection needs to remain idle
                                         // before TCP starts sending keepalive probes, seconds

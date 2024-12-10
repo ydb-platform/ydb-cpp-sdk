@@ -8,7 +8,7 @@
 
 #include <google/protobuf/text_format.h>
 
-namespace NYdb::NQuery {
+namespace NYdb::inline V3::NQuery {
 
 class TExecStats::TImpl {
 public:

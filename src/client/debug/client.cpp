@@ -10,7 +10,7 @@
 
 #include <src/client/common_client/impl/client.h>
 
-namespace NYdb::NDebug {
+namespace NYdb::inline V3::NDebug {
 
 using namespace Ydb;
 

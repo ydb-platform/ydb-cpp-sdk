@@ -10,7 +10,7 @@ namespace Coordination {
 }
 }
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 namespace NScheme {
 struct TPermissions;

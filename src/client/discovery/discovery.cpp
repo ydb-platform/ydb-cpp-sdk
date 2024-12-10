@@ -2,7 +2,7 @@
 
 #include <src/client/common_client/impl/client.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 namespace NDiscovery {
 
 TListEndpointsResult::TListEndpointsResult(TStatus&& status, const Ydb::Discovery::ListEndpointsResult& proto)

@@ -9,7 +9,7 @@
 #include <src/api/protos/ydb_scripting.pb.h>
 #include <src/client/common_client/impl/client.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 namespace NScripting {
 
 using namespace NThreading;

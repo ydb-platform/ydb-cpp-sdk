@@ -19,7 +19,7 @@
 #include <ydb-cpp-sdk/client/table/table.h>
 #include <ydb-cpp-sdk/client/topic/client.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 class TResultSet;
 class TValue;

@@ -11,7 +11,7 @@
 
 #include <src/api/protos/ydb_operation.pb.h>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 
 struct TPlainStatus {
     EStatus Status;
