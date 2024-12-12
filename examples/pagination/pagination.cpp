@@ -7,27 +7,9 @@
 
 using namespace NYdb;
 using namespace NYdb::NTable;
+using namespace NYdb::NStatusHelpers;
 
 const uint32_t MaxPages = 10;
-
-class TYdbErrorException : public yexception {
-public:
-    TYdbErrorException(const TStatus& status)
-        : Status(status) {}
-
-    TStatus Status;
-};
-
-static void ThrowOnError(const TStatus& status) {
-    if (!status.IsSuccess()) {
-        throw TYdbErrorException(status) << status;
-    }
-}
-
-static void PrintStatus(const TStatus& status) {
-    std::cerr << "Status: " << ToString(status.GetStatus()) << std::endl;
-    std::cerr << status.GetIssues().ToString();
-}
 
 static std::string JoinPath(const std::string& basePath, const std::string& path) {
     if (basePath.empty()) {
@@ -184,8 +166,7 @@ bool Run(const TDriver& driver, const std::string& path) {
         }
     }
     catch (const TYdbErrorException& e) {
-        std::cerr << "Execution failed due to fatal error:" << std::endl;
-        PrintStatus(e.Status);
+        std::cerr << "Execution failed due to fatal error: " << e.what() << std::endl;
         return false;
     }
 

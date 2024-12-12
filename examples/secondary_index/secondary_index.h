@@ -41,33 +41,6 @@ std::string JoinPath(const std::string& prefix, const std::string& path);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class TYdbErrorException : public yexception {
-public:
-    TYdbErrorException(NYdb::TStatus status)
-        : Status(std::move(status))
-    { }
-
-    friend std::ostream& operator<<(std::ostream& out, const TYdbErrorException& e) {
-        out << "Status: " << ToString(e.Status.GetStatus());
-        if (e.Status.GetIssues()) {
-            out << std::endl;
-            out << e.Status.GetIssues().ToString();
-        }
-        return out;
-    }
-
-private:
-    NYdb::TStatus Status;
-};
-
-inline void ThrowOnError(NYdb::TStatus status) {
-    if (!status.IsSuccess()) {
-        throw TYdbErrorException(status) << status;
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 int RunCreateTables(NYdb::TDriver& driver, const std::string& prefix, int argc, char** argv);
 int RunDropTables(NYdb::TDriver& driver, const std::string& prefix, int argc, char** argv);
 int RunUpdateViews(NYdb::TDriver& driver, const std::string& prefix, int argc, char** argv);

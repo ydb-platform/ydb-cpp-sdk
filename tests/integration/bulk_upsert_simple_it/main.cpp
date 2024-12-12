@@ -44,12 +44,11 @@ TEST(Integration, BulkUpsert) {
         EXPECT_EQ(rowCount, correctRowCount);
         EXPECT_EQ(sumApp, correctSumApp);
         EXPECT_EQ(sumHost, correctSumHost);
-    } catch (const TYdbErrorException& e) {
+    } catch (const NYdb::NStatusHelpers::TYdbErrorException& e) {
         driver.Stop(true);
-        FAIL() << "Execution failed due to fatal error:\nStatus: " << ToString(e.Status) << std::endl << e.Status.GetIssues().ToString();
+        FAIL() << "Execution failed due to fatal error:\n" << e.what() << std::endl;
     }
-    
+
     DropTable(client, path);
     driver.Stop(true);
-
 }

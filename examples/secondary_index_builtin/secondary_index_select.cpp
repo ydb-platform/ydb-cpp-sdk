@@ -2,6 +2,7 @@
 
 using namespace NYdb;
 using namespace NYdb::NTable;
+using namespace NYdb::NStatusHelpers;
 using namespace NLastGetopt;
 
 TStatus SelectSeriesWithViews(TSession session, const std::string& path, std::vector<TSeries>& selectResult, uint64_t minViews) {

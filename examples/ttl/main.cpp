@@ -4,6 +4,7 @@
 
 using namespace NLastGetopt;
 using namespace NYdb;
+using namespace NYdb::NStatusHelpers;
 
 void StopHandler(int) {
     exit(1);

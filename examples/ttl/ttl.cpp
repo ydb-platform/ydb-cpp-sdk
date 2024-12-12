@@ -6,6 +6,7 @@
 using namespace NExample;
 using namespace NYdb;
 using namespace NYdb::NTable;
+using namespace NYdb::NStatusHelpers;
 
 constexpr uint32_t DOC_TABLE_PARTITION_COUNT = 4;
 constexpr uint32_t EXPIRATION_QUEUE_COUNT = 4;
@@ -334,8 +335,7 @@ bool Run(const TDriver& driver, const std::string& path) {
         ReadDocument(client, path, "https://ya.ru/");
     }
     catch (const TYdbErrorException& e) {
-        std::cerr << "Execution failed due to fatal error:" << std::endl;
-        PrintStatus(e.Status);
+        std::cerr << "Execution failed due to fatal error: " << e.what() << std::endl;
         return false;
     }
 

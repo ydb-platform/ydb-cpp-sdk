@@ -1,15 +1,6 @@
 #include <ydb-cpp-sdk/client/topic/client.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 
-void ThrowOnError(const NYdb::TStatus& status)
-{
-    if (status.IsSuccess()) {
-        return;
-    }
-
-    ythrow yexception() << status;
-}
-
 int main()
 {
     const std::string ENDPOINT = "HOST:PORT";

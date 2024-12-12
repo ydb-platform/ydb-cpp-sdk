@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 #include <ydb-cpp-sdk/client/types/ydb.h>
 
@@ -44,5 +45,28 @@ public:
     TStreamPartStatus(TStatus&& status);
     bool EOS() const;
 };
+
+namespace NStatusHelpers {
+
+class TYdbErrorException : public TYdbException {
+public:
+    TYdbErrorException(TStatus status)
+        : Status_(std::move(status))
+    {
+        *this << status;
+    }
+
+    friend IOutputStream& operator<<(IOutputStream& out, const TYdbErrorException& e) {
+        return out << e.Status_;
+    }
+
+private:
+    TStatus Status_;
+};
+
+void ThrowOnError(TStatus status, std::function<void(TStatus)> onSuccess = [](TStatus) {});
+void ThrowOnErrorOrPrintIssues(TStatus status);
+
+}
 
 } // namespace NYdb
