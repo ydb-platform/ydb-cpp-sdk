@@ -5,6 +5,7 @@
 using namespace NLastGetopt;
 using namespace NYdb;
 using namespace NYdb::NTable;
+using namespace NYdb::NStatusHelpers;
 
 ////////////////////////////////////////////////////////////////////////////////
 

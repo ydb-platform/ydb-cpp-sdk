@@ -2,6 +2,7 @@
 
 using namespace NYdb;
 using namespace NYdb::NTable;
+using namespace NYdb::NStatusHelpers;
 using namespace NLastGetopt;
 
 static void CreateSeriesTable(TTableClient& client, const std::string& path) {

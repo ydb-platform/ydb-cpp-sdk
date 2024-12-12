@@ -24,14 +24,6 @@ struct TLogMessage {
     std::string Message;
 };
 
-class TYdbErrorException : public yexception {
-public:
-    TYdbErrorException(const NYdb::TStatus& status)
-        : Status(status) {}
-
-    NYdb::TStatus Status;
-};
-
 struct TStatistic {
     uint64_t SumApp;
     uint64_t SumHost;

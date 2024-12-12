@@ -8,25 +8,7 @@
 
 using namespace NYdb;
 using namespace NYdb::NQuery;
-
-class TYdbErrorException : public yexception {
-public:
-    TYdbErrorException(const TStatus& status)
-        : Status(status) {}
-
-    TStatus Status;
-};
-
-static void ThrowOnError(const TStatus& status) {
-    if (!status.IsSuccess()) {
-        throw TYdbErrorException(status) << status;
-    }
-}
-
-static void PrintStatus(const TStatus& status) {
-    std::cerr << "Status: " << ToString(status.GetStatus()) << std::endl;
-    std::cerr << status.GetIssues().ToString();
-}
+using namespace NYdb::NStatusHelpers;
 
 template <class T>
 std::string OptionalToString(const std::optional<T>& opt) {
@@ -502,8 +484,7 @@ bool Run(const TDriver& driver) {
         DropTables(client);
     }
     catch (const TYdbErrorException& e) {
-        std::cerr << "Execution failed due to fatal error:" << std::endl;
-        PrintStatus(e.Status);
+        std::cerr << "Execution failed due to fatal error: " << e.what() << std::endl;
         return false;
     }
 

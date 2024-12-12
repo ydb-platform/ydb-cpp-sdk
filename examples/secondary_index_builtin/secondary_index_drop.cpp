@@ -1,6 +1,7 @@
 #include "secondary_index.h"
 
 using namespace NYdb::NTable;
+using namespace NYdb::NStatusHelpers;
 using namespace NYdb;
 
 static void DropTable(TTableClient& client, const std::string& path) {

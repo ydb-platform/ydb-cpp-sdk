@@ -46,7 +46,7 @@ TEST(Integration, BasicExample) {
     try {
         CreateTables(client, path);
 
-        ThrowOnError(client.RetryOperationSync([path](NYdb::NTable::TSession session) {
+        NYdb::NStatusHelpers::ThrowOnError(client.RetryOperationSync([path](NYdb::NTable::TSession session) {
             return FillTableDataTransaction(session, path);
         }));
 
@@ -216,7 +216,7 @@ TEST(Integration, BasicExample) {
             ASSERT_EQ(result.size(), size_t(1));
             ValidateResultSet(columns, values, result[0]);
         }
-    } catch (const TYdbErrorException& e) {
-        FAIL() << "Execution failed due to fatal error:\nStatus: " << ToString(e.Status) << std::endl;
+    } catch (const NYdb::NStatusHelpers::TYdbErrorException& e) {
+        FAIL() << "Execution failed due to fatal error:\n" << e.what() << std::endl;
     }
 }

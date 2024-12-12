@@ -2,6 +2,7 @@
 
 using namespace NLastGetopt;
 using namespace NYdb;
+using namespace NYdb::NStatusHelpers;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +62,7 @@ int main(int argc, char** argv) {
                 return RunDeleteSeries(driver, prefix, argc, argv);
         }
     } catch (const TYdbErrorException& e) {
-        std::cerr << "Execution failed: " << e << std::endl;
+        std::cerr << "Execution failed: " << e.what() << std::endl;
         return 1;
     }
 

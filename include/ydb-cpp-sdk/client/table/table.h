@@ -1098,8 +1098,8 @@ using TAsyncScanQueryPartIterator = NThreading::TFuture<TScanQueryPartIterator>;
 
 struct TCreateSessionSettings : public TOperationRequestSettings<TCreateSessionSettings> {};
 
-using TBackoffSettings = NYdb::NRetry::TBackoffSettings;
-using TRetryOperationSettings = NYdb::NRetry::TRetryOperationSettings;
+using TBackoffSettings = NYdb::V3::NRetry::TBackoffSettings;
+using TRetryOperationSettings = NYdb::V3::NRetry::TRetryOperationSettings;
 
 struct TSessionPoolSettings {
     using TSelf = TSessionPoolSettings;

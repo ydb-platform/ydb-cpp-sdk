@@ -13,18 +13,10 @@ struct TRunArgs {
     NYdb::TDriver driver;
     std::string path;
 };
-class TYdbErrorException : public yexception {
-public:
-    TYdbErrorException(const NYdb::TStatus& status)
-        : Status(status) {}
-
-    NYdb::TStatus Status;
-};
 
 NYdb::TParams GetTablesDataParams();
 
 void CreateTables(TTableClient client, const std::string& path);
-void ThrowOnError(const NYdb::TStatus& status);
 TRunArgs GetRunArgs();
 NYdb::TStatus FillTableDataTransaction(TSession session, const std::string& path);
 NYdb::TResultSet SelectSimple(TTableClient client, const std::string& path);

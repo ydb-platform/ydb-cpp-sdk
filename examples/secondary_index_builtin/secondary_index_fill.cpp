@@ -4,6 +4,7 @@
 
 using namespace NYdb;
 using namespace NYdb::NTable;
+using namespace NYdb::NStatusHelpers;
 
 std::vector<TSeries> GetSeries() {
     std::vector<TSeries> series = {

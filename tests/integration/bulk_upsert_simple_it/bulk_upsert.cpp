@@ -5,12 +5,6 @@
 
 static constexpr size_t BATCH_SIZE = 1000;
 
-static void ThrowOnError(const TStatus& status) {
-    if (!status.IsSuccess()) {
-        throw TYdbErrorException(status) << status;
-    }
-}
-
 static std::string JoinPath(const std::string& basePath, const std::string& path) {
     if (basePath.empty()) {
         return path;
@@ -133,7 +127,7 @@ static TStatus SelectTransaction(TSession session, const std::string& path,
 
 TStatistic Select(TTableClient& client, const std::string& path) {
     std::optional<TResultSet> resultSet;
-    ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
+    NStatusHelpers::ThrowOnError(client.RetryOperationSync([path, &resultSet](TSession session) {
         return SelectTransaction(session, path, resultSet);
     }));
 
@@ -144,7 +138,7 @@ TStatistic Select(TTableClient& client, const std::string& path) {
     uint64_t rowCount = 0;
 
     if (parser.ColumnsCount() != 3 || parser.RowsCount() != 1) {
-        throw TYdbErrorException(TStatus(EStatus::GENERIC_ERROR,
+        throw NStatusHelpers::TYdbErrorException(TStatus(EStatus::GENERIC_ERROR,
         {NYdb::NIssue::TIssue("The number of columns should be: 3.\nThe number of rows should be: 1")}));
     }
 
@@ -158,7 +152,7 @@ TStatistic Select(TTableClient& client, const std::string& path) {
 }
 
 void DropTable(TTableClient& client, const std::string& path) {
-    ThrowOnError(client.RetryOperationSync([path](TSession session) {
+    NStatusHelpers::ThrowOnError(client.RetryOperationSync([path](TSession session) {
         return session.DropTable(path).ExtractValueSync();
     }));
 }
