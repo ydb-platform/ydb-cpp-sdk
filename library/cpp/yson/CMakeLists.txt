@@ -1,13 +1,17 @@
+if (YDB_SDK_TESTS)
+  add_subdirectory(ut)
+endif()
+
 _ydb_sdk_add_library(yson)
 
-target_link_libraries(yson 
+target_link_libraries(yson
   PUBLIC
     yutil
     yt-misc
     yt-yson
 )
 
-target_sources(yson 
+target_sources(yson
   PRIVATE
     consumer.cpp
     lexer.cpp

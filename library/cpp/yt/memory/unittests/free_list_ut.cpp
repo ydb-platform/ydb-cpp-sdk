@@ -1,6 +1,8 @@
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <library/cpp/yt/memory/free_list.h>
+
+#include <util/datetime/base.h>
 
 #include <util/random/random.h>
 

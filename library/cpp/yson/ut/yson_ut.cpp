@@ -1,7 +1,7 @@
 #include <library/cpp/yson/parser.h>
 #include <library/cpp/yson/writer.h>
 
-#include <library/cpp/testing/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <util/stream/mem.h>
 
