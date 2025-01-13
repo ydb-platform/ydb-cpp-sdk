@@ -47,6 +47,13 @@ public:
         return promise.GetFuture();
     }
 
+    TAsyncStatus BootstrapCluster(const std::string& selfAssemblyUUID) {
+        auto request = MakeRequest<Ydb::BSConfig::BootstrapClusterRequest>();
+        request.set_self_assembly_uuid(selfAssemblyUUID);
+        return RunSimple<Ydb::BSConfig::V1::BSConfigService, Ydb::BSConfig::BootstrapClusterRequest,
+            Ydb::BSConfig::BootstrapClusterResponse>(std::move(request),
+            &Ydb::BSConfig::V1::BSConfigService::Stub::AsyncBootstrapCluster);
+    }
 };
 
 TStorageConfigClient::TStorageConfigClient(const TDriver& driver, const TCommonClientSettings& settings)
@@ -61,6 +68,10 @@ TAsyncStatus TStorageConfigClient::ReplaceStorageConfig(const std::string& confi
 
 TAsyncFetchStorageConfigResult TStorageConfigClient::FetchStorageConfig(const TStorageConfigSettings& settings) {
     return Impl_->FetchStorageConfig(settings);
+}
+
+TAsyncStatus TStorageConfigClient::BootstrapCluster(const std::string& selfAssemblyUUID) {
+    return Impl_->BootstrapCluster(selfAssemblyUUID);
 }
 
 
