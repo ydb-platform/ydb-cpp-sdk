@@ -22,8 +22,8 @@ resources(client-resources.global
   ${YDB_SDK_SOURCE_DIR}/src/client/resources/ydb_sdk_version.txt
   ${YDB_SDK_SOURCE_DIR}/src/client/resources/ydb_root_ca.pem
   KEYS
-  ydb_sdk_version.txt
-  ydb_root_ca.pem
+  ydb_sdk_version_v3.txt
+  ydb_root_ca_v3.pem
 )
 
 _ydb_sdk_make_client_component(Resources client-resources client-resources.global)
