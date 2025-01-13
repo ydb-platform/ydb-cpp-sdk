@@ -44,6 +44,9 @@ public:
     // Fetch current cluster storage config
     TAsyncFetchStorageConfigResult FetchStorageConfig(const TStorageConfigSettings& settings = {});
 
+    // Bootstrap cluster with automatic configuration
+    TAsyncStatus BootstrapCluster(const std::string& selfAssemblyUUID);
+
 private:
     class TImpl;
 
