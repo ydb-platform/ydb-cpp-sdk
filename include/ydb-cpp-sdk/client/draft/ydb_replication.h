@@ -9,6 +9,7 @@
 
 namespace Ydb::Replication {
     class ConnectionParams;
+    class ConsistencyLevelGlobal;
     class DescribeReplicationResult;
     class DescribeReplicationResult_Stats;
 }
@@ -60,6 +61,19 @@ private:
     > Credentials_;
 };
 
+struct TRowConsistency {
+};
+
+class TGlobalConsistency {
+public:
+    explicit TGlobalConsistency(const Ydb::Replication::ConsistencyLevelGlobal& proto);
+
+    const TDuration& GetCommitInterval() const;
+
+private:
+    TDuration CommitInterval_;
+};
+
 class TStats {
 public:
     TStats() = default;
@@ -108,6 +122,11 @@ public:
         std::optional<std::string> SrcChangefeedName;
     };
 
+    enum class EConsistencyLevel {
+        Row,
+        Global,
+    };
+
     enum class EState {
         Running,
         Error,
@@ -119,6 +138,9 @@ public:
     const TConnectionParams& GetConnectionParams() const;
     const std::vector<TItem> GetItems() const;
 
+    EConsistencyLevel GetConsistencyLevel() const;
+    const TGlobalConsistency& GetGlobalConsistency() const;
+
     EState GetState() const;
     const TRunningState& GetRunningState() const;
     const TErrorState& GetErrorState() const;
@@ -127,6 +149,12 @@ public:
 private:
     TConnectionParams ConnectionParams_;
     std::vector<TItem> Items_;
+
+    std::variant<
+        TRowConsistency,
+        TGlobalConsistency
+    > ConsistencyLevel_;
+
     std::variant<
         TRunningState,
         TErrorState,
