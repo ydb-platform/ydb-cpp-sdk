@@ -14,6 +14,12 @@
 #include <netinet/tcp.h>
 #endif
 
+#if !defined(YDB_DISABLE_GRPC_SOCKET_MUTATOR)
+#include <contrib/libs/grpc/src/core/lib/iomgr/socket_mutator.h>
+#endif
+
+#include <format>
+
 namespace NYdbGrpc {
 
 void EnableGRpcTracing() {
@@ -30,77 +36,79 @@ void EnableGRpcTracing() {
     gpr_set_log_verbosity(GPR_LOG_SEVERITY_DEBUG);
 }
 
-// class TGRpcKeepAliveSocketMutator : public grpc_socket_mutator {
-// public:
-//     TGRpcKeepAliveSocketMutator(int idle, int count, int interval)
-//         : Idle_(idle)
-//         , Count_(count)
-//         , Interval_(interval)
-//     {
-//         grpc_socket_mutator_init(this, &VTable);
-//     }
-// private:
-//     static TGRpcKeepAliveSocketMutator* Cast(grpc_socket_mutator* mutator) {
-//         return static_cast<TGRpcKeepAliveSocketMutator*>(mutator);
-//     }
+#if !defined(YDB_DISABLE_GRPC_SOCKET_MUTATOR)
+class TGRpcKeepAliveSocketMutator : public grpc_socket_mutator {
+public:
+    TGRpcKeepAliveSocketMutator(int idle, int count, int interval)
+        : Idle_(idle)
+        , Count_(count)
+        , Interval_(interval)
+    {
+        grpc_socket_mutator_init(this, &VTable);
+    }
+private:
+    static TGRpcKeepAliveSocketMutator* Cast(grpc_socket_mutator* mutator) {
+        return static_cast<TGRpcKeepAliveSocketMutator*>(mutator);
+    }
 
-//     template<typename TVal>
-//     bool SetOption(int fd, int level, int optname, const TVal& value) {
-//         return setsockopt(fd, level, optname, reinterpret_cast<const char*>(&value), sizeof(value)) == 0;
-//     }
-//     bool SetOption(int fd) {
-//         if (!SetOption(fd, SOL_SOCKET, SO_KEEPALIVE, 1)) {
-//             std::cerr << std::format("Failed to set SO_KEEPALIVE option: {}", strerror(errno)) << std::endl;
-//             return false;
-//         }
-// #ifdef _linux_
-//         if (Idle_ && !SetOption(fd, IPPROTO_TCP, TCP_KEEPIDLE, Idle_)) {
-//             std::cerr << std::format("Failed to set TCP_KEEPIDLE option: {}", strerror(errno)) << std::endl;
-//             return false;
-//         }
-//         if (Count_ && !SetOption(fd, IPPROTO_TCP, TCP_KEEPCNT, Count_)) {
-//             std::cerr << std::format("Failed to set TCP_KEEPCNT option: {}", strerror(errno)) << std::endl;
-//             return false;
-//         }
-//         if (Interval_ && !SetOption(fd, IPPROTO_TCP, TCP_KEEPINTVL, Interval_)) {
-//             std::cerr << std::format("Failed to set TCP_KEEPINTVL option: {}", strerror(errno)) << std::endl;
-//             return false;
-//         }
-// #endif
-//         return true;
-//     }
-//     static bool Mutate(int fd, grpc_socket_mutator* mutator) {
-//         auto self = Cast(mutator);
-//         return self->SetOption(fd);
-//     }
-//     static int Compare(grpc_socket_mutator* a, grpc_socket_mutator* b) {
-//         const auto* selfA = Cast(a);
-//         const auto* selfB = Cast(b);
-//         auto tupleA = std::make_tuple(selfA->Idle_, selfA->Count_, selfA->Interval_);
-//         auto tupleB = std::make_tuple(selfB->Idle_, selfB->Count_, selfB->Interval_);
-//         return tupleA < tupleB ? -1 : tupleA > tupleB ? 1 : 0;
-//     }
-//     static void Destroy(grpc_socket_mutator* mutator) {
-//         delete Cast(mutator);
-//     }
-//     static bool Mutate2(const grpc_mutate_socket_info* info, grpc_socket_mutator* mutator) {
-//         auto self = Cast(mutator);
-//         return self->SetOption(info->fd);
-//     }
+    template<typename TVal>
+    bool SetOption(int fd, int level, int optname, const TVal& value) {
+        return setsockopt(fd, level, optname, reinterpret_cast<const char*>(&value), sizeof(value)) == 0;
+    }
+    bool SetOption(int fd) {
+        if (!SetOption(fd, SOL_SOCKET, SO_KEEPALIVE, 1)) {
+            std::cerr << std::format("Failed to set SO_KEEPALIVE option: {}", strerror(errno)) << std::endl;
+            return false;
+        }
+#ifdef _linux_
+        if (Idle_ && !SetOption(fd, IPPROTO_TCP, TCP_KEEPIDLE, Idle_)) {
+            std::cerr << std::format("Failed to set TCP_KEEPIDLE option: {}", strerror(errno)) << std::endl;
+            return false;
+        }
+        if (Count_ && !SetOption(fd, IPPROTO_TCP, TCP_KEEPCNT, Count_)) {
+            std::cerr << std::format("Failed to set TCP_KEEPCNT option: {}", strerror(errno)) << std::endl;
+            return false;
+        }
+        if (Interval_ && !SetOption(fd, IPPROTO_TCP, TCP_KEEPINTVL, Interval_)) {
+            std::cerr << std::format("Failed to set TCP_KEEPINTVL option: {}", strerror(errno)) << std::endl;
+            return false;
+        }
+#endif
+        return true;
+    }
+    static bool Mutate(int fd, grpc_socket_mutator* mutator) {
+        auto self = Cast(mutator);
+        return self->SetOption(fd);
+    }
+    static int Compare(grpc_socket_mutator* a, grpc_socket_mutator* b) {
+        const auto* selfA = Cast(a);
+        const auto* selfB = Cast(b);
+        auto tupleA = std::make_tuple(selfA->Idle_, selfA->Count_, selfA->Interval_);
+        auto tupleB = std::make_tuple(selfB->Idle_, selfB->Count_, selfB->Interval_);
+        return tupleA < tupleB ? -1 : tupleA > tupleB ? 1 : 0;
+    }
+    static void Destroy(grpc_socket_mutator* mutator) {
+        delete Cast(mutator);
+    }
+    static bool Mutate2(const grpc_mutate_socket_info* info, grpc_socket_mutator* mutator) {
+        auto self = Cast(mutator);
+        return self->SetOption(info->fd);
+    }
 
-//     static grpc_socket_mutator_vtable VTable;
-//     const int Idle_;
-//     const int Count_;
-//     const int Interval_;
-// };
+    static grpc_socket_mutator_vtable VTable;
+    const int Idle_;
+    const int Count_;
+    const int Interval_;
+};
 
-// grpc_socket_mutator_vtable TGRpcKeepAliveSocketMutator::VTable =
-//     {
-//         &TGRpcKeepAliveSocketMutator::Mutate,
-//         &TGRpcKeepAliveSocketMutator::Compare,
-//         &TGRpcKeepAliveSocketMutator::Destroy,
-//         &TGRpcKeepAliveSocketMutator::Mutate2
-//     };
+grpc_socket_mutator_vtable TGRpcKeepAliveSocketMutator::VTable =
+    {
+        &TGRpcKeepAliveSocketMutator::Mutate,
+        &TGRpcKeepAliveSocketMutator::Compare,
+        &TGRpcKeepAliveSocketMutator::Destroy,
+        &TGRpcKeepAliveSocketMutator::Mutate2
+    };
+#endif
 
 TChannelPool::TChannelPool(const TTcpKeepAliveSettings& tcpKeepAliveSettings, const TDuration& expireTime)
     : TcpKeepAliveSettings_(tcpKeepAliveSettings)
@@ -140,16 +148,9 @@ void TChannelPool::GetStubsHolderLocked(
                 }
             }
         }
-        // TGRpcKeepAliveSocketMutator* mutator = nullptr;
-        // // will be destroyed inside grpc
-        // if (TcpKeepAliveSettings_.Enabled) {
-        //     mutator = new TGRpcKeepAliveSocketMutator(
-        //         TcpKeepAliveSettings_.Idle,
-        //         TcpKeepAliveSettings_.Count,
-        //         TcpKeepAliveSettings_.Interval
-        //     );
-        // }
-        cb(Pool_.emplace(channelId, CreateChannelInterface(config, nullptr)).first->second);
+        auto mutator = NImpl::CreateGRpcKeepAliveSocketMutator(TcpKeepAliveSettings_);
+        // will be destroyed inside grpc
+        cb(Pool_.emplace(channelId, CreateChannelInterface(config, mutator)).first->second);
         LastUsedQueue_.emplace(Pool_.at(channelId).GetLastUseTime(), channelId);
     }
 }
@@ -585,6 +586,21 @@ void TGRpcClientLow::ForgetContext(TContextImpl* context) {
             cq->Shutdown();
         }
     }
+}
+
+grpc_socket_mutator* NImpl::CreateGRpcKeepAliveSocketMutator(const TTcpKeepAliveSettings& TcpKeepAliveSettings_) {
+#if !defined(YDB_DISABLE_GRPC_SOCKET_MUTATOR)
+    TGRpcKeepAliveSocketMutator* mutator = nullptr;
+    if (TcpKeepAliveSettings_.Enabled) {
+        mutator = new TGRpcKeepAliveSocketMutator(
+                TcpKeepAliveSettings_.Idle,
+                TcpKeepAliveSettings_.Count,
+                TcpKeepAliveSettings_.Interval
+                );
+    }
+    return mutator;
+#endif
+    return nullptr;
 }
 
 } // namespace NGRpc
