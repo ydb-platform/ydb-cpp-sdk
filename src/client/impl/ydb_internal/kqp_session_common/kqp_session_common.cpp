@@ -38,6 +38,7 @@ TKqpSessionCommon::TKqpSessionCommon(
     , State_(S_STANDALONE)
     , TimeToTouch_(TInstant::Now())
     , TimeInPast_(TInstant::Now())
+    , CloseHandler_(nullptr)
     , NeedUpdateActiveCounter_(false)
 {}
 
@@ -114,7 +115,7 @@ void TKqpSessionCommon::ScheduleTimeToTouch(TDuration interval,
     if (updateTimeInPast) {
             TimeInPast_ = now;
     }
-    TimeToTouch_ = now + interval;
+    TimeToTouch_.store(now + interval, std::memory_order_relaxed);
 }
 
 void TKqpSessionCommon::ScheduleTimeToTouchFast(TDuration interval,
@@ -124,11 +125,11 @@ void TKqpSessionCommon::ScheduleTimeToTouchFast(TDuration interval,
     if (updateTimeInPast) {
         TimeInPast_ = now;
     }
-    TimeToTouch_ = now + interval;
+    TimeToTouch_.store(now + interval, std::memory_order_relaxed);
 }
 
 TInstant TKqpSessionCommon::GetTimeToTouchFast() const {
-    return TimeToTouch_;
+    return TimeToTouch_.load(std::memory_order_relaxed);
 }
 
 TInstant TKqpSessionCommon::GetTimeInPastFast() const {
@@ -142,6 +143,24 @@ void TKqpSessionCommon::SetTimeInterval(TDuration interval) {
 
 TDuration TKqpSessionCommon::GetTimeInterval() const {
     return TimeInterval_;
+}
+
+void TKqpSessionCommon::UpdateServerCloseHandler(IServerCloseHandler* handler) {
+    CloseHandler_.store(handler);
+}
+
+void TKqpSessionCommon::CloseFromServer(std::weak_ptr<ISessionClient> client) noexcept {
+    auto strong = client.lock();
+    if (!strong) {
+        // Session closed on the server after stopping client - do nothing
+        // moreover pool maybe destoyed now
+        return;
+    }
+
+    IServerCloseHandler* h = CloseHandler_.load();
+    if (h) {
+        h->OnCloseSession(this, strong);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

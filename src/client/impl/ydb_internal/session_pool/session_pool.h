@@ -82,7 +82,7 @@ NThreading::TFuture<TResponse> InjectSessionStatusInterception(
     return promise.GetFuture();
 }
 
-class TSessionPool {
+class TSessionPool : public IServerCloseHandler {
 private:
     class TWaitersQueue {
     public:
@@ -124,6 +124,8 @@ public:
 
     void Drain(std::function<bool(std::unique_ptr<TKqpSessionCommon>&&)> cb, bool close);
     void SetStatCollector(NSdkStats::TStatCollector::TSessionPoolStatCollector collector);
+
+    void OnCloseSession(const TKqpSessionCommon*, std::shared_ptr<ISessionClient> client) override;
 
 private:
     void UpdateStats();
