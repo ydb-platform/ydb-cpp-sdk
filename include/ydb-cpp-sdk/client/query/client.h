@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fwd.h"
+
 #include "query.h"
 #include "tx.h"
 
@@ -27,7 +29,6 @@ struct TCreateSessionSettings : public TSimpleRequestSettings<TCreateSessionSett
     TCreateSessionSettings();
 };
 
-class TCreateSessionResult;
 using TAsyncCreateSessionResult = NThreading::TFuture<TCreateSessionResult>;
 using TRetryOperationSettings = NYdb::NRetry::TRetryOperationSettings;
 
@@ -55,7 +56,6 @@ struct TClientSettings : public TCommonClientSettingsBase<TClientSettings> {
 // ! This API is currently in experimental state and is a subject for changes.
 // ! No backward and/or forward compatibility guarantees are provided.
 // ! DO NOT USE for production workloads.
-class TSession;
 class TQueryClient {
     friend class TSession;
     friend class NRetry::Async::TRetryContext<TQueryClient, TAsyncExecuteQueryResult>;
@@ -126,7 +126,6 @@ private:
     std::shared_ptr<TImpl> Impl_;
 };
 
-class TTransaction;
 class TSession {
     friend class TQueryClient;
     friend class TTransaction;

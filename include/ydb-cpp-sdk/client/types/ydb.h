@@ -1,5 +1,6 @@
 #pragma once
 
+#include "fwd.h"
 #include "status_codes.h"
 
 namespace NYdb::inline V3 {

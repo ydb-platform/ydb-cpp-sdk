@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fwd.h"
+
 #include "table_enum.h"
 
 #include <ydb-cpp-sdk/client/driver/driver.h>
@@ -643,9 +645,6 @@ private:
     uint64_t ReadReplicasCount_;
 };
 
-struct TExplicitPartitions;
-struct TDescribeTableSettings;
-
 enum class EStoreType {
     Row = 0,
     Column = 1
@@ -825,8 +824,6 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-
-class TTableBuilder;
 
 class TTableStorageSettingsBuilder {
 public:
@@ -1071,19 +1068,6 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class TCreateSessionResult;
-class TDataQueryResult;
-class TTablePartIterator;
-class TPrepareQueryResult;
-class TExplainQueryResult;
-class TDescribeTableResult;
-class TBeginTransactionResult;
-class TCommitTransactionResult;
-class TKeepAliveResult;
-class TBulkUpsertResult;
-class TReadRowsResult;
-class TScanQueryPartIterator;
-
 using TAsyncCreateSessionResult = NThreading::TFuture<TCreateSessionResult>;
 using TAsyncDataQueryResult = NThreading::TFuture<TDataQueryResult>;
 using TAsyncPrepareQueryResult = NThreading::TFuture<TPrepareQueryResult>;
@@ -1176,9 +1160,6 @@ struct TStreamExecScanQuerySettings : public TRequestSettings<TStreamExecScanQue
     // Collect full query compilation diagnostics
     FLUENT_SETTING_DEFAULT(bool, CollectFullDiagnostics, false);
 };
-
-class TSession;
-class TSessionPool;
 
 enum class EDataFormat {
     ApacheArrow = 1,
@@ -1287,8 +1268,6 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class TTransaction;
-
 struct TTxOnlineSettings {
     using TSelf = TTxOnlineSettings;
 
@@ -1366,8 +1345,6 @@ private:
 
     ETransactionMode Mode_;
 };
-
-class TTxControl;
 
 enum class EAutoPartitioningPolicy {
     Disabled = 1,
@@ -1456,8 +1433,6 @@ struct TDropTableSettings : public TOperationRequestSettings<TDropTableSettings>
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-
-struct TAlterTableSettings;
 
 class TAlterStorageSettingsBuilder {
 public:

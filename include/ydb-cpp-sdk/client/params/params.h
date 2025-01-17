@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fwd.h"
+
 #include <ydb-cpp-sdk/type_switcher.h>
 #include <ydb-cpp-sdk/client/value/value.h>
 
@@ -31,8 +33,6 @@ namespace NQuery {
     class TExecQueryImpl;
     class TQueryClient;
 }
-
-class TParamsBuilder;
 
 class TParams {
     friend class TParamsBuilder;

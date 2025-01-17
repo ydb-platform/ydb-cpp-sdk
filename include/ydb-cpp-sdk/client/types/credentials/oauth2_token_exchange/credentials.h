@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ydb-cpp-sdk/client/types/fwd.h>
+
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 #include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
 

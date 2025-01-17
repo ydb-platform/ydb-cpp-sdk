@@ -6,8 +6,6 @@
 #include <optional>
 #include <string>
 
-class TDuration;
-
 namespace Ydb::TableStats {
     class QueryStats;
 }

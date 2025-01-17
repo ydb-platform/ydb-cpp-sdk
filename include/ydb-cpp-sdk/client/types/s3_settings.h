@@ -1,5 +1,6 @@
 #pragma once
 
+#include "fwd.h"
 #include "fluent_settings_helpers.h"
 
 #include <string>

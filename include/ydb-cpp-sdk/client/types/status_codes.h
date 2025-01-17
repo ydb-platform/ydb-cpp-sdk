@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fwd.h"
+
 #include <cstddef>
 
 namespace NYdb::inline V3 {
