@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ydb-cpp-sdk/client/types/fwd.h>
+
 #include <memory>
 #include <string>
 

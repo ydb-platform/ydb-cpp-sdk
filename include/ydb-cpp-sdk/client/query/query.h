@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fwd.h"
+
 #include "stats.h"
 
 #include <ydb-cpp-sdk/client/result/result.h>
@@ -46,7 +48,6 @@ enum class EExecStatus {
     Failed = 50,
 };
 
-class TExecuteQueryPart;
 using TAsyncExecuteQueryPart = NThreading::TFuture<TExecuteQueryPart>;
 
 class TExecuteQueryIterator : public TStatus {
@@ -87,8 +88,6 @@ class TCommitTransactionResult : public TStatus {
 public:
     TCommitTransactionResult(TStatus&& status);
 };
-
-class TBeginTransactionResult;
 
 using TAsyncBeginTransactionResult = NThreading::TFuture<TBeginTransactionResult>;
 using TAsyncCommitTransactionResult = NThreading::TFuture<TCommitTransactionResult>;
@@ -182,7 +181,6 @@ private:
     std::string NextFetchToken_;
 };
 
-class TExecuteQueryResult;
 using TAsyncFetchScriptResultsResult = NThreading::TFuture<TFetchScriptResultsResult>;
 using TAsyncExecuteQueryResult = NThreading::TFuture<TExecuteQueryResult>;
 

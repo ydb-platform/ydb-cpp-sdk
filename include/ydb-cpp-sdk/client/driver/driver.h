@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fwd.h"
+
 #include <ydb-cpp-sdk/client/common_client/settings.h>
 #include <ydb-cpp-sdk/client/types/status_codes.h>
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
@@ -13,10 +15,7 @@
 
 namespace NYdb::inline V3 {
 
-class TDriver;
 class TGRpcConnectionsImpl;
-
-////////////////////////////////////////////////////////////////////////////////
 
 //! Represents configuration of YDB driver
 class TDriverConfig {

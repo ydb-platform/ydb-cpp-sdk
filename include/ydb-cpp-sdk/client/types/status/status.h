@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ydb-cpp-sdk/client/types/fwd.h>
+
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 #include <ydb-cpp-sdk/client/types/ydb.h>

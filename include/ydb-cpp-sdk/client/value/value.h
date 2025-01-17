@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fwd.h"
+
 #include <util/datetime/base.h>
 
 #include <optional>
