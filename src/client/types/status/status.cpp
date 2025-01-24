@@ -104,6 +104,7 @@ bool TStreamPartStatus::EOS() const {
 namespace NStatusHelpers {
 
 void ThrowOnError(TStatus status, std::function<void(TStatus)> onSuccess) {
+    std::cerr << "THROW ON ERROR" << std::endl;
     if (!status.IsSuccess()) {
         throw TYdbErrorException(status) << status;
     } else {
