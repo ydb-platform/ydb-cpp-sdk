@@ -1,4 +1,4 @@
-add_ydb_test(NAME basic-example_it
+add_ydb_test(NAME basic-example
   SOURCES
     main.cpp
     basic_example_data.cpp
