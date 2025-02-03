@@ -1,8 +1,6 @@
-add_ydb_test(NAME bulk_upsert_simple_it
+add_ydb_test(NAME server_restart
   SOURCES
     main.cpp
-    bulk_upsert.cpp
-    bulk_upsert.h
   LINK_LIBRARIES
     yutil
     api-grpc
