@@ -118,7 +118,14 @@ cmake --build --preset release
 
 ### Test
 
-Specify a level of parallelism by passing the `-j<level>` option into the command below (e.g. `-j$(nproc)`)
+Configure and build tests:
+
+```bash
+cmake --preset release-test
+cmake --build --preset release
+```
+
+Specify a level of parallelism by passing the `-j<level>` option into the commands below (e.g. `-j$(nproc)`).
 
 Running all tests:
 
@@ -141,9 +148,5 @@ ctest -j$(nproc) --preset release-integration
 Note that some tests use a legacy test library instead of GoogleTest, see `./<test_target> --help` for details. If you need to run only certain test cases, here is an alternative for `--gtest_filter` option:
 
 ```bash
-cat <<EOF | ./<test_target> --filter-file /dev/fd/0
--ExcludedTestCase
-+IncludedTestCase
-+IncludedTestCase::TestName
-EOF
+./<test_target> -ExcludedTestSuite +IncludedTestSuite::TestName
 ```
