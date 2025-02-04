@@ -1,14 +1,10 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/cpp
 {
-	"name": "C++",
-	"build": {
-		"dockerfile": "Dockerfile",
-		"options": [
-			"--platform",
-			"linux/amd64"
-		]
-	},
+	"name": "C++ & YDB",
+	"service": "sdk",
+	"dockerComposeFile": "compose.yml",
+	"workspaceFolder": "/workspaces/ydb-cpp-sdk",
 	// Allows the container to use ptrace, which is useful for debugging.
 	"capAdd": [
 		"SYS_PTRACE"
@@ -19,16 +15,18 @@
 	],
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
-		"ghcr.io/devcontainers/features/github-cli:1": {
-			"installDirectlyFromGitHubRelease": true,
-			"version": "latest"
-		}
+		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [],
+	"forwardPorts": [
+		2135,
+		2136,
+		8765
+	],
+	// Use 'initializeCommand' to run commands before the container is created.
 	"initializeCommand": "mkdir -p ${localEnv:HOME}/.ccache && cd \"${localWorkspaceFolder}\" && git config --local user.email \"$(git config user.email)\" && git config --local user.name \"$(git config user.name)\"",
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": ".devcontainer/configure.sh ${containerWorkspaceFolder}",
+	// Use 'postStartCommand' to run commands after the container is started.
+	"postStartCommand": ".devcontainer/configure.sh",
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
