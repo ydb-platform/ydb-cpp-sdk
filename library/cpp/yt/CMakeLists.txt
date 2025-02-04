@@ -1,7 +1,11 @@
 _ydb_sdk_add_library(yt-assert)
-target_compile_options(yt-assert PRIVATE
-  -Wdeprecated-this-capture
-)
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(yt-assert PRIVATE
+    -Wdeprecated-this-capture
+  )
+endif()
+
 target_link_libraries(yt-assert PUBLIC
   yutil
 )
@@ -30,9 +34,12 @@ _ydb_sdk_install_targets(TARGETS yt-containers)
 
 
 _ydb_sdk_add_library(yt-exception)
-target_compile_options(yt-exception PRIVATE
-  -Wdeprecated-this-capture
-)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(yt-exception PRIVATE
+    -Wdeprecated-this-capture
+  )
+endif()
+
 target_link_libraries(yt-exception PUBLIC
   yutil
 )
@@ -49,7 +56,7 @@ target_link_libraries(yt-malloc PUBLIC
 target_sources(yt-malloc PRIVATE
   malloc/malloc.cpp
 )
-if (NOT (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64"))
+if (NOT (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64") AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(yt-malloc PRIVATE
     -Wdeprecated-this-capture
   )
@@ -79,7 +86,7 @@ target_sources(yt-memory
     memory/safe_memory_reader.cpp
     memory/shared_range.cpp
 )
-if (NOT WIN32)
+if (NOT WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(yt-memory PRIVATE
     -Wdeprecated-this-capture
   )
@@ -88,9 +95,11 @@ _ydb_sdk_install_targets(TARGETS yt-memory)
 
 
 _ydb_sdk_add_library(yt-misc)
-target_compile_options(yt-misc PRIVATE
-  -Wdeprecated-this-capture
-)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(yt-misc PRIVATE
+    -Wdeprecated-this-capture
+  )
+endif()
 target_link_libraries(yt-misc
   PUBLIC
     yutil
@@ -118,9 +127,11 @@ _ydb_sdk_install_targets(TARGETS yt-small_containers)
 
 
 _ydb_sdk_add_library(yt-string)
-target_compile_options(yt-string PRIVATE
-  -Wdeprecated-this-capture
-)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(yt-string PRIVATE
+    -Wdeprecated-this-capture
+  )
+endif()
 target_link_libraries(yt-string 
   PUBLIC
     yutil
@@ -141,9 +152,11 @@ _ydb_sdk_install_targets(TARGETS yt-string)
 
 
 _ydb_sdk_add_library(yt-yson)
-target_compile_options(yt-yson PRIVATE
-  -Wdeprecated-this-capture
-)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(yt-yson PRIVATE
+    -Wdeprecated-this-capture
+  )
+endif()
 target_link_libraries(yt-yson
   PUBLIC
     yutil
@@ -171,7 +184,7 @@ target_sources(yt-yson_string PRIVATE
   yson_string/convert.cpp
   yson_string/string.cpp
 )
-if (NOT (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64"))
+if (NOT (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64") AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(yt-yson_string PRIVATE
     -Wdeprecated-this-capture
   )
