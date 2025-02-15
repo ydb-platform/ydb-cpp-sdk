@@ -59,3 +59,9 @@ RUN wget https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/c
     && tar -xf ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz \
     && cp ccache-${CCACHE_VERSION}-linux-x86_64/ccache /usr/local/bin/ \
     && rm -rf ccache-${CCACHE_VERSION}-linux-x86_64 ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz
+
+# Install ydb cli 2.16.0
+ENV YDB_VERSION=2.16.0
+RUN wget https://storage.yandexcloud.net/yandexcloud-ydb/release/${YDB_VERSION}/linux/amd64/ydb && \
+    chmod u+x ydb && \
+    mv ydb /usr/local/bin/
