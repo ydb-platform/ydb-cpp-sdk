@@ -28,9 +28,13 @@ string(APPEND ${COMMON_C_CXX_FLAGS} "\
 ")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  # Use .init_array instead of .ctors (default for old clang versions)
-  # See: https://maskray.me/blog/2021-11-07-init-ctors-init-array
-  string(APPEND COMMON_C_CXX_FLAGS " -fuse-init-array")
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # Use .init_array instead of .ctors (default for old clang versions)
+    # See: https://maskray.me/blog/2021-11-07-init-ctors-init-array
+    string(APPEND COMMON_C_CXX_FLAGS " -fuse-init-array")
+  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    string(APPEND COMMON_C_CXX_FLAGS " -fpermissive")
+  endif()
 endif()
 
 string(APPEND COMMON_C_CXX_FLAGS " -D_FILE_OFFSET_BITS=64")
@@ -64,17 +68,22 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_C_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_C_CXX_FLAGS} \
   -Woverloaded-virtual \
-  -Wimport-preprocessor-directive-pedantic \
-  -Wno-undefined-var-template \
-  -Wno-return-std-move \
-  -Wno-defaulted-function-deleted \
   -Wno-pessimizing-move \
-  -Wno-deprecated-anon-enum-enum-conversion \
-  -Wno-deprecated-enum-enum-conversion \
   -Wno-deprecated-enum-float-conversion \
-  -Wno-ambiguous-reversed-operator \
-  -Wno-deprecated-volatile \
 ")
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_C_CXX_FLAGS} \
+    -Wimport-preprocessor-directive-pedantic \
+    -Wno-undefined-var-template \
+    -Wno-return-std-move \
+    -Wno-defaulted-function-deleted \
+    -Wno-deprecated-enum-enum-conversion \
+    -Wno-ambiguous-reversed-operator \
+    -Wno-deprecated-volatile \
+    -Wno-deprecated-anon-enum-enum-conversion \
+  ")
+endif()
 
 if (CMAKE_SYSTEM_PROCESSOR MATCHES "^(i686|x86_64|AMD64)$")
   set(_ALL_X86_EXTENSIONS_DEFINES "\

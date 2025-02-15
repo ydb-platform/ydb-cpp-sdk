@@ -1,7 +1,7 @@
 _ydb_sdk_add_library(contrib-libs-libc_compat)
 
 target_compile_options(contrib-libs-libc_compat PRIVATE
-  $<IF:$<CXX_COMPILER_ID:MSVC>,,-Wno-everything>
+  $<IF:$<CXX_COMPILER_ID:Clang>,-Wno-everything,>
 )
 
 target_sources(contrib-libs-libc_compat PRIVATE
