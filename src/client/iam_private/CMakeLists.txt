@@ -1,3 +1,5 @@
+add_subdirectory(common)
+
 _ydb_sdk_add_library(client-iam_private)
 
 target_link_libraries(client-iam_private
@@ -6,7 +8,7 @@ target_link_libraries(client-iam_private
     yutil
   PRIVATE
     api-client-yc_private
-    client-iam-common
+    client-iam_private-common
 )
 
 target_sources(client-iam_private
