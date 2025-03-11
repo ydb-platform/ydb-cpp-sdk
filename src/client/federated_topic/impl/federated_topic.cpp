@@ -86,4 +86,4 @@ void TFederatedTopicClient::OverrideCodec(NTopic::ECodec codecId, std::unique_pt
     return Impl_->OverrideCodec(codecId, std::move(codecImpl));
 }
 
-} // namespace NYdb::V3::NFederatedTopic
+} // namespace NYdb::NFederatedTopic

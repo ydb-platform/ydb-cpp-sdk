@@ -89,4 +89,4 @@ private:
     TAdaptiveLock Lock;
 };
 
-} // namespace NYdb::V3::NFederatedTopic
+} // namespace NYdb::NFederatedTopic

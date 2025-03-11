@@ -41,4 +41,4 @@ struct TRetryOperationSettings {
     }
 };
 
-} // namespace NYdb::V3::NRetry
+} // namespace NYdb::NRetry

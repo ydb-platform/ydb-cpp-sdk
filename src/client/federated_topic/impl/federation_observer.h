@@ -121,4 +121,4 @@ public:
     }
 };
 
-} // namespace NYdb::V3::NFederatedTopic
+} // namespace NYdb::NFederatedTopic

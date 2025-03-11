@@ -43,7 +43,7 @@ class TParams {
     friend class NExperimental::TStreamQueryClient;
     friend class NQuery::TExecQueryImpl;
     friend class NQuery::TQueryClient;
-    friend class NYdb::V3::TProtoAccessor;
+    friend class NYdb::TProtoAccessor;
 public:
     bool Empty() const;
 

@@ -31,7 +31,7 @@ private:
 };
 
 class TDescribeViewResult : public NScheme::TDescribePathResult {
-    friend class NYdb::V3::TProtoAccessor;
+    friend class NYdb::TProtoAccessor;
     const Ydb::View::DescribeViewResult& GetProto() const;
 
 public:
@@ -55,4 +55,4 @@ private:
     std::shared_ptr<TImpl> Impl_;
 };
 
-} // namespace NYdb::V3::NView
+} // namespace NYdb::NView

@@ -467,4 +467,4 @@ bool TFederatedWriteSessionImpl::Close(TDuration timeout) {
     }
 }
 
-}  // namespace NYdb::V3::NFederatedTopic
+}  // namespace NYdb::NFederatedTopic

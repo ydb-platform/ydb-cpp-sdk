@@ -10,4 +10,4 @@ namespace NYdb::inline V3::NTopic {
 ERetryErrorClass GetRetryErrorClass(EStatus status);
 ERetryErrorClass GetRetryErrorClassV2(EStatus status);
 
-}  // namespace NYdb::V3::NTopic
+}  // namespace NYdb::NTopic

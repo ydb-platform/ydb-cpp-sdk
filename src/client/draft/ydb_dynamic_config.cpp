@@ -464,4 +464,4 @@ TAsyncFetchStartupConfigResult TDynamicConfigClient::FetchStartupConfig(const TC
     return Impl_->FetchStartupConfig(settings);
 }
 
-} // namespace NYdb::V3::NDynamicConfig
+} // namespace NYdb::NDynamicConfig

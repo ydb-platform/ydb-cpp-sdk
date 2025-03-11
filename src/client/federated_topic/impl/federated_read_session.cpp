@@ -288,4 +288,4 @@ bool TFederatedReadSessionImpl::Close(TDuration timeout) {
     return result;
 }
 
-}  // namespace NYdb::V3::NFederatedTopic
+}  // namespace NYdb::NFederatedTopic

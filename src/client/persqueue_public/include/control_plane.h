@@ -45,7 +45,7 @@ private:
 
 // Result for describe resource request.
 struct TDescribeTopicResult : public TStatus {
-    friend class NYdb::V3::TProtoAccessor;
+    friend class NYdb::TProtoAccessor;
 
     struct TTopicSettings {
         TTopicSettings(const Ydb::PersQueue::V1::TopicSettings&);

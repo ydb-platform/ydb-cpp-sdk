@@ -320,4 +320,4 @@ private:
     std::shared_ptr<TImpl> Impl_;
 };
 
-} // namespace NYdb::V3::NRateLimiter
+} // namespace NYdb::NRateLimiter

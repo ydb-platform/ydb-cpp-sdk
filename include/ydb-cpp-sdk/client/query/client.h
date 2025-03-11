@@ -267,4 +267,4 @@ private:
     std::optional<TTransaction> Transaction_;
 };
 
-} // namespace NYdb::V3::NQuery
+} // namespace NYdb::NQuery
