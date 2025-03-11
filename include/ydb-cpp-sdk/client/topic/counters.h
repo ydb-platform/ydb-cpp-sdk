@@ -169,4 +169,4 @@ inline bool HasNullCounters(TReaderCounters& counters) {
 
 #undef TOPIC_COUNTERS_HISTOGRAM_SETUP
 
-}  // namespace NYdb::V3::NTopic
+}  // namespace NYdb::NTopic

@@ -200,4 +200,4 @@ IOutputStream& operator<<(IOutputStream& out, TFederatedDbState const& state) {
     return out << " }";
 }
 
-} // namespace NYdb::V3::NFederatedTopic
+} // namespace NYdb::NFederatedTopic

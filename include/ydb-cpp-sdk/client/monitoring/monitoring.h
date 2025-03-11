@@ -33,7 +33,7 @@ struct TSelfCheckSettings : public TOperationRequestSettings<TSelfCheckSettings>
 };
 
 class TSelfCheckResult : public TStatus {
-    friend class NYdb::V3::TProtoAccessor;
+    friend class NYdb::TProtoAccessor;
 public:
     TSelfCheckResult(TStatus&& status, Ydb::Monitoring::SelfCheckResult&& result);
 private:

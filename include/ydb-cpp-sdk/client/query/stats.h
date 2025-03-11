@@ -17,7 +17,7 @@ namespace NYdb::inline V3 {
 namespace NYdb::inline V3::NQuery {
 
 class TExecStats {
-    friend class NYdb::V3::TProtoAccessor;
+    friend class NYdb::TProtoAccessor;
 
 public:
     TExecStats() = default;
@@ -42,4 +42,4 @@ private:
     std::shared_ptr<TImpl> Impl_;
 };
 
-} // namespace NYdb::V3::NQuery
+} // namespace NYdb::NQuery

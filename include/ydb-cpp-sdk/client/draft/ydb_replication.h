@@ -163,7 +163,7 @@ private:
 };
 
 class TDescribeReplicationResult: public NScheme::TDescribePathResult {
-    friend class NYdb::V3::TProtoAccessor;
+    friend class NYdb::TProtoAccessor;
     const Ydb::Replication::DescribeReplicationResult& GetProto() const;
 
 public:
@@ -188,4 +188,4 @@ private:
     std::shared_ptr<TImpl> Impl_;
 };
 
-} // namespace NYdb::V3::NReplication
+} // namespace NYdb::NReplication

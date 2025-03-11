@@ -116,4 +116,4 @@ private:
         : TxSettings_(txSettings) {}
 };
 
-} // namespace NYdb::V3::NQuery
+} // namespace NYdb::NQuery

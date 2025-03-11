@@ -246,4 +246,4 @@ private:
     }
 };
 
-} // namespace NYdb::V3::NFederatedTopic
+} // namespace NYdb::NFederatedTopic

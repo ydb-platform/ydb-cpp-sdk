@@ -93,4 +93,4 @@ private:
     TAdaptiveLock Lock;
 };
 
-} // namespace NYdb::V3::NTopic
+} // namespace NYdb::NTopic
