@@ -132,6 +132,12 @@ if(YDB_SDK_MONITORING_VICTORIAMETRICS)
     find_package(VictoriaMetrics REQUIRED)
 endif()
 
+# Определяем основную библиотеку
+add_library(ydb-cpp-sdk STATIC
+    $<TARGET_OBJECTS:ydb-cpp-sdk-client>
+    $<TARGET_OBJECTS:ydb-cpp-sdk-library>
+)
+
 # Добавляем зависимости в target_link_libraries
 target_link_libraries(ydb-cpp-sdk
     $<$<BOOL:${YDB_SDK_MONITORING_PROMETHEUS}>:prometheus::prometheus-cpp>
