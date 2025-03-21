@@ -20,6 +20,7 @@ public:
     std::string GetName() const override { return Name_; }
     std::string GetValue() const override { return Value_; }
     std::unordered_map<std::string, std::string> GetLabels() const override { return Labels_; }
+    std::string GetType() const override { return "counter"; }
 
 private:
     std::string Name_;

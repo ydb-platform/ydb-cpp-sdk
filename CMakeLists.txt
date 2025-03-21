@@ -132,18 +132,47 @@ if(YDB_SDK_MONITORING_VICTORIAMETRICS)
     find_package(VictoriaMetrics REQUIRED)
 endif()
 
+# Поиск дополнительных зависимостей
+find_package(Brotli REQUIRED)
+find_package(LZ4 REQUIRED)
+find_package(xxHash REQUIRED)
+find_package(ZSTD REQUIRED)
+
 # Определяем основную библиотеку
 add_library(ydb-cpp-sdk STATIC
-    $<TARGET_OBJECTS:ydb-cpp-sdk-client>
-    $<TARGET_OBJECTS:ydb-cpp-sdk-library>
+    src/client/common_client/settings.cpp
+    src/client/driver/driver.cpp
 )
 
 # Добавляем зависимости в target_link_libraries
 target_link_libraries(ydb-cpp-sdk
-    $<$<BOOL:${YDB_SDK_MONITORING_PROMETHEUS}>:prometheus::prometheus-cpp>
+    PRIVATE
+    client-ydb_common_client
+    client-ydb_types-credentials
+    impl-ydb_internal-common
+    yutil
+    protobuf::libprotobuf
+    grpc++
+    grpc++_reflection
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    ZLIB::ZLIB
+    brotli
+    lz4
+    xxhash
+    zstd
+    BZip2::BZip2
+    IDN::IDN
+    $<$<BOOL:${YDB_SDK_MONITORING_PROMETHEUS}>:prometheus-cpp::prometheus-cpp>
     $<$<BOOL:${YDB_SDK_MONITORING_OPENTELEMETRY}>:OpenTelemetry::OpenTelemetry>
     $<$<BOOL:${YDB_SDK_MONITORING_DATADOG}>:Datadog::Datadog>
     $<$<BOOL:${YDB_SDK_MONITORING_NEWRELIC}>:NewRelic::NewRelic>
     $<$<BOOL:${YDB_SDK_MONITORING_APPDYNAMICS}>:AppDynamics::AppDynamics>
     $<$<BOOL:${YDB_SDK_MONITORING_VICTORIAMETRICS}>:VictoriaMetrics::VictoriaMetrics>
+)
+
+target_include_directories(ydb-cpp-sdk
+    PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
