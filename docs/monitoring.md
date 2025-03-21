@@ -71,6 +71,90 @@ TOpenTelemetryMetric metric("ydb_query_count", "1", labels);
 TMetricsContext::Instance().RecordMetric(metric);
 ```
 
+### Datadog
+
+```cpp
+#include <ydb-cpp-sdk/client/monitoring/metrics.h>
+#include <ydb-cpp-sdk/client/monitoring/impl/datadog.h>
+
+// Создаем систему мониторинга
+auto monitoringSystem = TMonitoringSystemFactory::CreateDatadog("your-api-key");
+TMetricsContext::Instance().SetMonitoringSystem(std::move(monitoringSystem));
+
+// Создаем метрику
+std::unordered_map<std::string, std::string> labels = {
+    {"operation", "query"},
+    {"status", "success"}
+};
+TDatadogMetric metric("ydb.query.count", "1", labels);
+
+// Записываем метрику
+TMetricsContext::Instance().RecordMetric(metric);
+```
+
+### New Relic
+
+```cpp
+#include <ydb-cpp-sdk/client/monitoring/metrics.h>
+#include <ydb-cpp-sdk/client/monitoring/impl/newrelic.h>
+
+// Создаем систему мониторинга
+auto monitoringSystem = TMonitoringSystemFactory::CreateNewRelic("your-license-key");
+TMetricsContext::Instance().SetMonitoringSystem(std::move(monitoringSystem));
+
+// Создаем метрику
+std::unordered_map<std::string, std::string> labels = {
+    {"operation", "query"},
+    {"status", "success"}
+};
+TNewRelicMetric metric("Custom/ydb/query_count", "1", labels);
+
+// Записываем метрику
+TMetricsContext::Instance().RecordMetric(metric);
+```
+
+### AppDynamics
+
+```cpp
+#include <ydb-cpp-sdk/client/monitoring/metrics.h>
+#include <ydb-cpp-sdk/client/monitoring/impl/appdynamics.h>
+
+// Создаем систему мониторинга
+auto monitoringSystem = TMonitoringSystemFactory::CreateAppDynamics("http://your-controller:8090");
+TMetricsContext::Instance().SetMonitoringSystem(std::move(monitoringSystem));
+
+// Создаем метрику
+std::unordered_map<std::string, std::string> labels = {
+    {"operation", "query"},
+    {"status", "success"}
+};
+TAppDynamicsMetric metric("Custom Metrics|YDB|Query Count", "1", labels);
+
+// Записываем метрику
+TMetricsContext::Instance().RecordMetric(metric);
+```
+
+### Victoria Metrics
+
+```cpp
+#include <ydb-cpp-sdk/client/monitoring/metrics.h>
+#include <ydb-cpp-sdk/client/monitoring/impl/victoriametrics.h>
+
+// Создаем систему мониторинга
+auto monitoringSystem = TMonitoringSystemFactory::CreateVictoriaMetrics("http://localhost:8428");
+TMetricsContext::Instance().SetMonitoringSystem(std::move(monitoringSystem));
+
+// Создаем метрику
+std::unordered_map<std::string, std::string> labels = {
+    {"operation", "query"},
+    {"status", "success"}
+};
+TVictoriaMetricsMetric metric("ydb_query_count", "1", labels);
+
+// Записываем метрику
+TMetricsContext::Instance().RecordMetric(metric);
+```
+
 ## Доступные метрики
 
 YDB C++ SDK собирает следующие метрики:
