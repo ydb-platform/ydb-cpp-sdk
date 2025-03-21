@@ -7,6 +7,15 @@ option(YDB_SDK_EXAMPLES "Build YDB C++ SDK examples" On)
 set(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET "" CACHE STRING "Name of cmake target preparing google common proto library")
 option(YDB_SDK_USE_RAPID_JSON "Search for rapid json library in system" ON)
 
+# Опции для систем мониторинга
+option(YDB_SDK_MONITORING_PROMETHEUS "Enable Prometheus monitoring" OFF)
+option(YDB_SDK_MONITORING_OPENTELEMETRY "Enable OpenTelemetry monitoring" OFF)
+option(YDB_SDK_MONITORING_DATADOG "Enable Datadog monitoring" OFF)
+option(YDB_SDK_MONITORING_NEWRELIC "Enable New Relic monitoring" OFF)
+option(YDB_SDK_MONITORING_APPDYNAMICS "Enable AppDynamics monitoring" OFF)
+option(YDB_SDK_MONITORING_VICTORIAMETRICS "Enable Victoria Metrics monitoring" OFF)
+option(YDB_SDK_MONITORING_SOLOMON "Enable Yandex Solomon monitoring" ON)
+
 set(BUILD_SHARED_LIBS Off)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
@@ -97,3 +106,38 @@ if (YDB_SDK_INSTALL)
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ydb-cpp-sdk/Modules
   )
 endif()
+
+# Поиск зависимостей для систем мониторинга
+if(YDB_SDK_MONITORING_PROMETHEUS)
+    find_package(Prometheus REQUIRED)
+endif()
+
+if(YDB_SDK_MONITORING_OPENTELEMETRY)
+    find_package(OpenTelemetry REQUIRED)
+endif()
+
+if(YDB_SDK_MONITORING_DATADOG)
+    find_package(Datadog REQUIRED)
+endif()
+
+if(YDB_SDK_MONITORING_NEWRELIC)
+    find_package(NewRelic REQUIRED)
+endif()
+
+if(YDB_SDK_MONITORING_APPDYNAMICS)
+    find_package(AppDynamics REQUIRED)
+endif()
+
+if(YDB_SDK_MONITORING_VICTORIAMETRICS)
+    find_package(VictoriaMetrics REQUIRED)
+endif()
+
+# Добавляем зависимости в target_link_libraries
+target_link_libraries(ydb-cpp-sdk
+    $<$<BOOL:${YDB_SDK_MONITORING_PROMETHEUS}>:prometheus::prometheus-cpp>
+    $<$<BOOL:${YDB_SDK_MONITORING_OPENTELEMETRY}>:OpenTelemetry::OpenTelemetry>
+    $<$<BOOL:${YDB_SDK_MONITORING_DATADOG}>:Datadog::Datadog>
+    $<$<BOOL:${YDB_SDK_MONITORING_NEWRELIC}>:NewRelic::NewRelic>
+    $<$<BOOL:${YDB_SDK_MONITORING_APPDYNAMICS}>:AppDynamics::AppDynamics>
+    $<$<BOOL:${YDB_SDK_MONITORING_VICTORIAMETRICS}>:VictoriaMetrics::VictoriaMetrics>
+)
