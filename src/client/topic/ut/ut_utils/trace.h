@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/topic/common/trace_lazy.h"
+#include <src/client/topic/common/trace_lazy.h>
 
 #include "library/cpp/logger/backend.h"
 #include "library/cpp/logger/record.h"
