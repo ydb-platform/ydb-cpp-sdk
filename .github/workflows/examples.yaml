@@ -18,6 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         ydb-version: [24.1, trunk]
+        compiler: [clang, gcc]
     services:
       ydb:
         image: ydbplatform/local-ydb:${{ matrix.ydb-version }}
@@ -56,15 +57,17 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ~/.ccache
-        key: ubuntu-22.04-ccache-${{steps.ccache_cache_timestamp.outputs.timestamp}}
+        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
-          ubuntu-22.04-ccache-
+          ubuntu-22.04-ccache-${{ matrix.compiler }}-
     - name: Build
       uses: ./.github/actions/build
+      with:
+        compiler: ${{ matrix.compiler }}
     - name: Launch basic example
       shell: bash
       run: |
-        cd ../build
+        cd ../build${{ matrix.compiler == 'gcc' && '-gcc' || '' }}
         examples/basic_example/basic_example -e localhost:2136 -d /local
         examples/bulk_upsert_simple/bulk_upsert_simple -e localhost:2136 -d /local -p /local/bulk
         examples/pagination/pagination -e localhost:2136 -d /local -p /local/pagination

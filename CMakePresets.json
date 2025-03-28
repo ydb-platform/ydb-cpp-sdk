@@ -31,21 +31,47 @@
       "toolchainFile": "${sourceDir}/clang.toolchain"
     },
     {
+      "name": "gcc-toolchain",
+      "hidden": true,
+      "toolchainFile": "${sourceDir}/gcc.toolchain"
+    },
+    {
       "name": "release",
       "inherits": [
         "ninja-generator",
         "release-build",
         "clang-toolchain"
       ],
-      "displayName": "Default Release Config",
+      "displayName": "Default Release Config (Clang)",
       "description": "Default release build configuration using Ninja generator and Clang compiler",
       "binaryDir": "${sourceDir}/../build"
     },
     {
+      "name": "release-gcc",
+      "inherits": [
+        "ninja-generator",
+        "release-build",
+        "gcc-toolchain"
+      ],
+      "displayName": "Default Release Config (GCC)",
+      "description": "Default release build configuration using Ninja generator and GCC compiler",
+      "binaryDir": "${sourceDir}/../build-gcc"
+    },
+    {
       "name": "release-test",
       "inherits": "release",
-      "displayName": "Default Release Test Config",
+      "displayName": "Default Release Test Config (Clang)",
       "description": "Default release build configuration with all tests and examples",
+      "cacheVariables": {
+        "YDB_SDK_TESTS": "TRUE",
+        "YDB_SDK_EXAMPLES": "TRUE"
+      }
+    },
+    {
+      "name": "release-test-gcc",
+      "inherits": "release-gcc",
+      "displayName": "Default Release Test Config (GCC)",
+      "description": "Default release build configuration with all tests and examples using GCC",
       "cacheVariables": {
         "YDB_SDK_TESTS": "TRUE",
         "YDB_SDK_EXAMPLES": "TRUE"
@@ -54,8 +80,18 @@
     {
       "name": "release-test-with-ccache-basedir",
       "inherits": "release-test",
-      "displayName": "Release Test Config CCACHE_BASEDIR Case",
+      "displayName": "Release Test Config CCACHE_BASEDIR Case (Clang)",
       "description": "Only for the case when using CCACHE_BASEDIR",
+      "cacheVariables": {
+        "ARCADIA_ROOT": "../ydb-cpp-sdk",
+        "ARCADIA_BUILD_ROOT": "."
+      }
+    },
+    {
+      "name": "release-test-with-ccache-basedir-gcc",
+      "inherits": "release-test-gcc",
+      "displayName": "Release Test Config CCACHE_BASEDIR Case (GCC)",
+      "description": "Only for the case when using CCACHE_BASEDIR with GCC",
       "cacheVariables": {
         "ARCADIA_ROOT": "../ydb-cpp-sdk",
         "ARCADIA_BUILD_ROOT": "."
@@ -66,7 +102,12 @@
     {
       "name": "release",
       "configurePreset": "release",
-      "displayName": "Default Release Build"
+      "displayName": "Default Release Build (Clang)"
+    },
+    {
+      "name": "release-gcc",
+      "configurePreset": "release-gcc",
+      "displayName": "Default Release Build (GCC)"
     }
   ],
   "testPresets": [
@@ -84,7 +125,17 @@
       "name": "release",
       "inherits": "common",
       "configurePreset": "release-test",
-      "displayName": "Default Release Tests",
+      "displayName": "Default Release Tests (Clang)",
+      "environment": {
+        "YDB_ENDPOINT": "localhost:2136",
+        "YDB_DATABASE": "/local"
+      }
+    },
+    {
+      "name": "release-gcc",
+      "inherits": "common",
+      "configurePreset": "release-test-gcc",
+      "displayName": "Default Release Tests (GCC)",
       "environment": {
         "YDB_ENDPOINT": "localhost:2136",
         "YDB_DATABASE": "/local"
@@ -94,7 +145,18 @@
       "name": "release-unit",
       "inherits": "common",
       "configurePreset": "release-test",
-      "displayName": "Default Unit Release Tests",
+      "displayName": "Default Unit Release Tests (Clang)",
+      "filter" : {
+        "include": {
+          "label": "unit"
+        }
+      }
+    },
+    {
+      "name": "release-unit-gcc",
+      "inherits": "common",
+      "configurePreset": "release-test-gcc",
+      "displayName": "Default Unit Release Tests (GCC)",
       "filter" : {
         "include": {
           "label": "unit"
@@ -105,7 +167,22 @@
       "name": "release-integration",
       "inherits": "common",
       "configurePreset": "release-test",
-      "displayName": "Default Integration Release Tests",
+      "displayName": "Default Integration Release Tests (Clang)",
+      "filter" : {
+        "include": {
+          "label": "integration"
+        }
+      },
+      "environment": {
+        "YDB_ENDPOINT": "localhost:2136",
+        "YDB_DATABASE": "/local"
+      }
+    },
+    {
+      "name": "release-integration-gcc",
+      "inherits": "common",
+      "configurePreset": "release-test-gcc",
+      "displayName": "Default Integration Release Tests (GCC)",
       "filter" : {
         "include": {
           "label": "integration"

@@ -13,10 +13,12 @@ concurrency:
 jobs:
   unit:
     concurrency:
-      group: unit-${{ github.ref }}-${{ matrix.os }}
+      group: unit-${{ github.ref }}-${{ matrix.os }}-${{ matrix.compiler }}
       cancel-in-progress: true
     strategy:
       fail-fast: false
+      matrix:
+        compiler: [clang, gcc]
     env:
       OS: ubuntu-22.04
     runs-on: ubuntu-22.04
@@ -44,25 +46,28 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ~/.ccache
-        key: ubuntu-22.04-ccache-${{steps.ccache_cache_timestamp.outputs.timestamp}}
+        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
-          ubuntu-22.04-ccache-
+          ubuntu-22.04-ccache-${{ matrix.compiler }}-
     - name: Build
       uses: ./.github/actions/build
+      with:
+        compiler: ${{ matrix.compiler }}
     - name: Test
       shell: bash
       run: |
-        ctest -j32 --preset release-unit
+        ctest -j32 --preset release-unit${{ matrix.compiler == 'gcc' && '-gcc' || '' }}
 
   integration:
     concurrency:
-      group: integration-${{ github.ref }}-${{ matrix.ydb-version }}
+      group: integration-${{ github.ref }}-${{ matrix.ydb-version }}-${{ matrix.compiler }}
       cancel-in-progress: true
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
         ydb-version: [23.3, 24.1, trunk]
+        compiler: [clang, gcc]
     services:
       ydb:
         image: ydbplatform/local-ydb:${{ matrix.ydb-version }}
@@ -101,12 +106,14 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ~/.ccache
-        key: ubuntu-22.04-ccache-${{steps.ccache_cache_timestamp.outputs.timestamp}}
+        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
-          ubuntu-22.04-ccache-
+          ubuntu-22.04-ccache-${{ matrix.compiler }}-
     - name: Build
       uses: ./.github/actions/build
+      with:
+        compiler: ${{ matrix.compiler }}
     - name: Test
       shell: bash
       run: |
-        ctest -j32 --preset release-integration
+        ctest -j32 --preset release-integration${{ matrix.compiler == 'gcc' && '-gcc' || '' }}
