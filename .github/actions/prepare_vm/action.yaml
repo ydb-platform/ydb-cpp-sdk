@@ -37,13 +37,13 @@ runs:
         cmake -DCMAKE_BUILD_TYPE=Release ..
         sudo cmake --build . --config Release --target install
         cd ../../
-        wget -O jwt-cpp-0.7.0.tar.gz https://github.com/Thalhammer/jwt-cpp/archive/refs/tags/v0.7.0.tar.gz
-        tar -xvzf jwt-cpp-0.7.0.tar.gz && cd jwt-cpp-0.7.0
+        wget -O jwt-cpp-0.4.0.tar.gz https://github.com/Thalhammer/jwt-cpp/archive/refs/tags/v0.4.0.tar.gz
+        tar -xvzf jwt-cpp-0.4.0.tar.gz && cd jwt-cpp-0.4.0
         mkdir build && cd build
         cmake -DCMAKE_BUILD_TYPE=Release ..
         sudo cmake --build . --config Release --target install
         cd ../../
         (V=4.8.1; curl -L https://github.com/ccache/ccache/releases/download/v${V}/ccache-${V}-linux-x86_64.tar.xz | \
         sudo tar -xJ -C /usr/local/bin/ --strip-components=1 --no-same-owner ccache-${V}-linux-x86_64/ccache)
-        sudo rm -rf llvm.sh libiconv-1.15.tar.gz base64-0.5.2.tar.gz brotli-1.1.0.tar.gz jwt-cpp-0.7.0.tar.gz \
-          libiconv-1.15 base64-0.5.2 brotli-1.1.0 jwt-cpp-0.7.0
+        sudo rm -rf llvm.sh libiconv-1.15.tar.gz base64-0.5.2.tar.gz brotli-1.1.0.tar.gz jwt-cpp-0.4.0.tar.gz \
+          libiconv-1.15 base64-0.5.2 brotli-1.1.0 jwt-cpp-0.4.0
