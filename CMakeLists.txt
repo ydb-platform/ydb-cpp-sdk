@@ -16,7 +16,10 @@ set(YDB_SDK_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(YDB_SDK_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 set(YDB-CPP-SDK_AVAILABLE_COMPONENTS "" CACHE INTERNAL "")
 set(YDB-CPP-SDK_COMPONENT_TARGETS "" CACHE INTERNAL "")
-file(READ "src/client/resources/ydb_sdk_version.txt" YDB_SDK_VERSION)
+file(READ "src/version.h" YDB_SDK_VERSION_FILE_RAW)
+string(REGEX MATCH "YDB_SDK_VERSION = \"([0-9]+\\.[0-9]+\\.[0-9]+)\"" _ ${YDB_SDK_VERSION_FILE_RAW})
+set(YDB_SDK_VERSION ${CMAKE_MATCH_1})
+message(STATUS "YDB С++ SDK version: ${YDB_SDK_VERSION}")
 
 #[=============================================================================[
   NOTE: if `ccache` is used with the environment variable `CCACHE_BASEDIR`,
