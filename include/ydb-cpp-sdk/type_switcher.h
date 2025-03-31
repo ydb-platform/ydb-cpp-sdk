@@ -3,7 +3,7 @@
 #include <string>
 
 namespace NYdb {
-inline namespace Dev {
+inline namespace V3 {
 
 using TStringType = std::string;
 
