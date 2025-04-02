@@ -56,7 +56,7 @@ jobs:
     - name: Test
       shell: bash
       run: |
-        ctest -j32 --preset release-unit
+        ctest -j32 --preset release-unit-${{ matrix.compiler }}
 
   integration:
     concurrency:
@@ -116,4 +116,4 @@ jobs:
     - name: Test
       shell: bash
       run: |
-        ctest -j32 --preset release-integration
+        ctest -j32 --preset release-integration-${{ matrix.compiler }}

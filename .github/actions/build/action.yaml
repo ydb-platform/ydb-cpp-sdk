@@ -15,7 +15,7 @@ runs:
       run: |
         mkdir -p build
         rm -rf build/*
-        cmake --preset release-test-with-ccache-basedir-${{ inputs.compiler }}
+        cmake --preset release-test-${{ inputs.compiler }}
     - name: Build
       shell: bash
       run: |
