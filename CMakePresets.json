@@ -7,19 +7,25 @@
   },
   "configurePresets": [
     {
-      "name": "ninja-generator",
+      "name": "base",
       "hidden": true,
-      "generator": "Ninja"
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      },
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build"
     },
     {
-      "name": "release-build",
+      "name": "release-base",
+      "inherits": "base",
       "hidden": true,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
-      "name": "debug-build",
+      "name": "debug-base",
+      "inherits": "base",
       "hidden": true,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
@@ -28,38 +34,42 @@
     {
       "name": "clang-toolchain",
       "hidden": true,
-      "toolchainFile": "${sourceDir}/clang.toolchain"
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_EXE_LINKER_FLAGS": "-fuse-ld=lld",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fuse-ld=lld"
+      }
     },
     {
       "name": "gcc-toolchain",
       "hidden": true,
-      "toolchainFile": "${sourceDir}/gcc.toolchain"
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_C_COMPILER": "gcc"
+      }
     },
     {
-      "name": "release",
+      "name": "release-clang",
       "inherits": [
-        "ninja-generator",
-        "release-build",
+        "release-base",
         "clang-toolchain"
       ],
       "displayName": "Default Release Config (Clang)",
-      "description": "Default release build configuration using Ninja generator and Clang compiler",
-      "binaryDir": "${sourceDir}/../build"
+      "description": "Default release build configuration using Ninja generator and Clang compiler"
     },
     {
       "name": "release-gcc",
       "inherits": [
-        "ninja-generator",
-        "release-build",
+        "release-base",
         "gcc-toolchain"
       ],
       "displayName": "Default Release Config (GCC)",
-      "description": "Default release build configuration using Ninja generator and GCC compiler",
-      "binaryDir": "${sourceDir}/../build-gcc"
+      "description": "Default release build configuration using Ninja generator and GCC compiler"
     },
     {
-      "name": "release-test",
-      "inherits": "release",
+      "name": "release-test-clang",
+      "inherits": "release-clang",
       "displayName": "Default Release Test Config (Clang)",
       "description": "Default release build configuration with all tests and examples",
       "cacheVariables": {
@@ -78,10 +88,10 @@
       }
     },
     {
-      "name": "release-test-with-ccache-basedir",
-      "inherits": "release-test",
+      "name": "release-test-with-ccache-basedir-clang",
+      "inherits": "release-test-clang",
       "displayName": "Release Test Config CCACHE_BASEDIR Case (Clang)",
-      "description": "Only for the case when using CCACHE_BASEDIR",
+      "description": "Only for the case when using CCACHE_BASEDIR with Clang",
       "cacheVariables": {
         "ARCADIA_ROOT": "../ydb-cpp-sdk",
         "ARCADIA_BUILD_ROOT": "."
@@ -100,8 +110,8 @@
   ],
   "buildPresets": [
     {
-      "name": "release",
-      "configurePreset": "release",
+      "name": "release-clang",
+      "configurePreset": "release-clang",
       "displayName": "Default Release Build (Clang)"
     },
     {
@@ -124,18 +134,8 @@
     {
       "name": "release",
       "inherits": "common",
-      "configurePreset": "release-test",
-      "displayName": "Default Release Tests (Clang)",
-      "environment": {
-        "YDB_ENDPOINT": "localhost:2136",
-        "YDB_DATABASE": "/local"
-      }
-    },
-    {
-      "name": "release-gcc",
-      "inherits": "common",
-      "configurePreset": "release-test-gcc",
-      "displayName": "Default Release Tests (GCC)",
+      "configurePreset": "release-base",
+      "displayName": "Default Release Tests",
       "environment": {
         "YDB_ENDPOINT": "localhost:2136",
         "YDB_DATABASE": "/local"
@@ -144,19 +144,8 @@
     {
       "name": "release-unit",
       "inherits": "common",
-      "configurePreset": "release-test",
-      "displayName": "Default Unit Release Tests (Clang)",
-      "filter" : {
-        "include": {
-          "label": "unit"
-        }
-      }
-    },
-    {
-      "name": "release-unit-gcc",
-      "inherits": "common",
-      "configurePreset": "release-test-gcc",
-      "displayName": "Default Unit Release Tests (GCC)",
+      "configurePreset": "release-base",
+      "displayName": "Default Unit Release Tests",
       "filter" : {
         "include": {
           "label": "unit"
@@ -166,23 +155,8 @@
     {
       "name": "release-integration",
       "inherits": "common",
-      "configurePreset": "release-test",
-      "displayName": "Default Integration Release Tests (Clang)",
-      "filter" : {
-        "include": {
-          "label": "integration"
-        }
-      },
-      "environment": {
-        "YDB_ENDPOINT": "localhost:2136",
-        "YDB_DATABASE": "/local"
-      }
-    },
-    {
-      "name": "release-integration-gcc",
-      "inherits": "common",
-      "configurePreset": "release-test-gcc",
-      "displayName": "Default Integration Release Tests (GCC)",
+      "configurePreset": "release-base",
+      "displayName": "Default Integration Release Tests",
       "filter" : {
         "include": {
           "label": "integration"

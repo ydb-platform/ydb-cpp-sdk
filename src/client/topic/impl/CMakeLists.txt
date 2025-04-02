@@ -15,6 +15,7 @@ target_link_libraries(client-ydb_topic-impl PUBLIC
   client-ydb_topic-common
   client-ydb_proto
   client-ydb_topic-codecs
+  client-ydb_topic-include
   proto_output
 )
 
@@ -29,6 +30,7 @@ target_sources(client-ydb_topic-impl
     deferred_commit.cpp
     event_handlers.cpp
     offsets_collector.cpp
+    proto_accessor.cpp
     read_session_event.cpp
     read_session.cpp
     topic_impl.cpp
