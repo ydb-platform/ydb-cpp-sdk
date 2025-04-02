@@ -18,11 +18,11 @@ runs:
         wget https://apt.llvm.org/llvm.sh
         chmod u+x llvm.sh
         sudo ./llvm.sh 16
-        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 100
-        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-16 100
+        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 10000
+        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-16 10000
 
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 10000
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 10000
 
         wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
         tar -xvzf libiconv-1.15.tar.gz

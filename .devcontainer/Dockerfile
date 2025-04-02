@@ -26,13 +26,13 @@ RUN wget https://apt.llvm.org/llvm.sh && \
     ./llvm.sh 16
 
 # Update alternatives to use clang-16 by default
-RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 100 && \
-    update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-16 100 && \
-    update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-16 100
+RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 10000 && \
+    update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-16 10000 && \
+    update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-16 10000
 
 # Update alternatives to use gcc-13 by default
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 && \
-    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 10000 && \
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 10000
 
 # Install libiconv
 ENV LIBICONV_VERSION=1.15
