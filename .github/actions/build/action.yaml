@@ -13,8 +13,8 @@ runs:
     - name: Configure
       shell: bash
       run: |
-        mkdir -p ../build
-        rm -rf ../build/*
+        mkdir -p build
+        rm -rf build/*
         cmake --preset release-test-with-ccache-basedir-${{ inputs.compiler }}
     - name: Build
       shell: bash

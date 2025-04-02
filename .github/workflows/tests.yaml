@@ -106,7 +106,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ~/.ccache
-        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{steps.ccache_cache_timestamp.outputs.timestamp }}
+        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
           ubuntu-22.04-ccache-${{ matrix.compiler }}-
     - name: Build
