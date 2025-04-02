@@ -4,12 +4,14 @@ description: Install required packages
 runs:
   using: "composite"
   steps:
+    - name: Install CMake and Ninja
+      uses: lukka/get-cmake@v3.27.7
     - name: Install dependencies
       shell: bash
       run: |
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt-get -y update
-        sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
+        sudo apt-get -y install git libidn11-dev ragel yasm protobuf-compiler \
           protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
           rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev libgtest-dev libgmock-dev \
           libbz2-dev libdouble-conversion-dev libstdc++-13-dev gcc-13 g++-13

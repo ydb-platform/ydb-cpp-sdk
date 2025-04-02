@@ -3,12 +3,21 @@ FROM --platform=linux/amd64 mcr.microsoft.com/devcontainers/cpp:1-ubuntu-22.04
 # Install software-properties-common for add-apt-repository
 RUN apt-get update && apt-get -y install software-properties-common
 
+# Install CMake
+ENV CMAKE_VERSION=3.27.7
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test && apt-get -y update && apt-get -y install make && \
+    wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz && \
+    tar -xvzf cmake-${CMAKE_VERSION}.tar.gz && cd cmake-${CMAKE_VERSION} && \
+    ./bootstrap && \
+    make -j$(nproc) && \
+    make install
+
 # Install C++ tools and libraries
-RUN add-apt-repository ppa:ubuntu-toolchain-r/test && apt-get -y update && apt-get -y install \
-    git gdb cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
+RUN apt-get -y update && apt-get -y install \
+    git gdb ninja-build libidn11-dev ragel yasm protobuf-compiler \
     protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
     rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev libgtest-dev libgmock-dev \
-    libbz2-dev libdouble-conversion-dev libstdc++-13-dev liblz4-dev libssl-dev \
+    libbz2-dev libdouble-conversion-dev libstdc++-13-dev gcc-13 g++-13 liblz4-dev libssl-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install LLVM
@@ -16,10 +25,14 @@ RUN wget https://apt.llvm.org/llvm.sh && \
     chmod u+x llvm.sh && \
     ./llvm.sh 16
 
-# Update alternatives to use clang-16 and clang++-16 by default
+# Update alternatives to use clang-16 by default
 RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 100 && \
     update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-16 100 && \
     update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-16 100
+
+# Update alternatives to use gcc-13 by default
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 && \
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
 
 # Install libiconv
 ENV LIBICONV_VERSION=1.15
