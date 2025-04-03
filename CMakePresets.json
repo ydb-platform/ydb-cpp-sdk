@@ -100,11 +100,13 @@
     },
     {
       "name": "all",
+      "inherits": "common",
       "displayName": "Run All Tests",
       "configurePreset": "base"
     },
     {
       "name": "unit",
+      "inherits": "common",
       "displayName": "Run Unit Tests",
       "configurePreset": "base",
       "filter": {
@@ -115,6 +117,7 @@
     },
     {
       "name": "integration",
+      "inherits": "common",
       "displayName": "Run Integration Tests",
       "configurePreset": "base",
       "filter": {

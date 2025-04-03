@@ -316,6 +316,12 @@ if (YDB_SDK_TESTS)
       cpp-testing-unittest_main
     LABELS
       unit
+    TEST_ARG
+      --filter-file filter.txt
+  )
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/system/filter.txt
+    "-TBackTraceTest::TestPrintBackTrace\n"
+    "-TBackTraceTest::TestSetFormatBackTraceFn"
   )
 
   add_ydb_test(NAME util-system-unaligned_mem_ut
