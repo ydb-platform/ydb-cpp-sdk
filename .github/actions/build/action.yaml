@@ -22,5 +22,5 @@ runs:
         ccache -z
         export CCACHE_BASEDIR=`realpath ..`
         export CCACHE_DIR=~/.ccache
-        cmake --build --preset release-${{ inputs.compiler }} -- -j32
+        cmake --build --preset default -- -j$(nproc)
         ccache -s

@@ -8,7 +8,7 @@
   "configurePresets": [
     {
       "name": "base",
-      "hidden": true,
+      "displayName": "Generic Config",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       },
@@ -55,51 +55,36 @@
       "cacheVariables": {
         "YDB_SDK_TESTS": "TRUE",
         "YDB_SDK_EXAMPLES": "TRUE",
-        "ARCADIA_ROOT": "../ydb-cpp-sdk",
+        "ARCADIA_ROOT": "..",
         "ARCADIA_BUILD_ROOT": "."
       }
     },
     {
       "name": "release-clang",
-      "inherits": [
-        "release-base",
-        "clang-toolchain"
-      ],
-      "displayName": "Default Release Config (Clang)",
-      "description": "Default release build configuration using Ninja generator and Clang compiler"
+      "inherits": ["release-base", "clang-toolchain"],
+      "displayName": "Default Release Config (Clang)"
     },
     {
       "name": "release-gcc",
-      "inherits": [
-        "release-base",
-        "gcc-toolchain"
-      ],
-      "displayName": "Default Release Config (GCC)",
-      "description": "Default release build configuration using Ninja generator and GCC compiler"
+      "inherits": ["release-base", "gcc-toolchain"],
+      "displayName": "Default Release Config (GCC)"
     },
     {
       "name": "release-test-clang",
-      "inherits": ["release-clang", "test"],
-      "displayName": "Default Release Test Config (Clang)",
-      "description": "Default release build configuration with all tests and examples"
+      "inherits": ["release-base", "clang-toolchain", "test"],
+      "displayName": "Default Release Test Config (Clang)"
     },
     {
       "name": "release-test-gcc",
-      "inherits": ["release-gcc", "test"],
-      "displayName": "Default Release Test Config (GCC)",
-      "description": "Default release build configuration with all tests and examples using GCC"
+      "inherits": ["release-base", "gcc-toolchain", "test"],
+      "displayName": "Default Release Test Config (GCC)"
     }
   ],
   "buildPresets": [
     {
-      "name": "release-clang",
-      "configurePreset": "release-clang",
-      "displayName": "Default Release Build (Clang)"
-    },
-    {
-      "name": "release-gcc",
-      "configurePreset": "release-gcc",
-      "displayName": "Default Release Build (GCC)"
+      "name": "default",
+      "displayName": "Default Build",
+      "configurePreset": "base"
     }
   ],
   "testPresets": [
@@ -114,8 +99,14 @@
       }
     },
     {
+      "name": "all",
+      "displayName": "Run All Tests",
+      "configurePreset": "base"
+    },
+    {
       "name": "unit",
-      "hidden": true,
+      "displayName": "Run Unit Tests",
+      "configurePreset": "base",
       "filter": {
         "include": {
           "label": "unit"
@@ -124,7 +115,8 @@
     },
     {
       "name": "integration",
-      "hidden": true,
+      "displayName": "Run Integration Tests",
+      "configurePreset": "base",
       "filter": {
         "include": {
           "label": "integration"
@@ -134,42 +126,6 @@
         "YDB_ENDPOINT": "localhost:2136",
         "YDB_DATABASE": "/local"
       }
-    },
-    {
-      "name": "release-clang",
-      "inherits": ["common", "unit", "integration"],
-      "configurePreset": "release-test-clang",
-      "displayName": "Default Release Tests (Clang)"
-    },
-    {
-      "name": "release-unit-clang",
-      "inherits": ["common", "unit"],
-      "configurePreset": "release-test-clang",
-      "displayName": "Default Unit Release Tests (Clang)"
-    },
-    {
-      "name": "release-integration-clang",
-      "inherits": ["common", "integration"],
-      "configurePreset": "release-test-clang",
-      "displayName": "Default Integration Release Tests (Clang)"
-    },
-    {
-      "name": "release-gcc",
-      "inherits": ["common", "unit", "integration"],
-      "configurePreset": "release-gcc",
-      "displayName": "Default Release Tests (GCC)"
-    },
-    {
-      "name": "release-unit-gcc",
-      "inherits": ["common", "unit"],
-      "configurePreset": "release-test-gcc",
-      "displayName": "Default Unit Release Tests (GCC)"
-    },
-    {
-      "name": "release-integration-gcc",
-      "inherits": ["common", "integration"],
-      "configurePreset": "release-test-gcc",
-      "displayName": "Default Integration Release Tests (GCC)"
     }
   ]
 }
