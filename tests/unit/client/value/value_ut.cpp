@@ -3,8 +3,6 @@
 
 #include <src/api/protos/ydb_value.pb.h>
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
-#include <ydb/public/lib/json_value/ydb_json_value.h>
-#include <ydb/public/lib/yson_value/ydb_yson_value.h>
 
 #include <library/cpp/testing/unittest/registar.h>
 #include <library/cpp/testing/unittest/tests_data.h>
@@ -14,6 +12,13 @@
 namespace NYdb {
 
 using TExpectedErrorException = yexception;
+
+void CheckProtoValue(const Ydb::Value& value, const TString& expected) {
+    TStringType protoStr;
+    google::protobuf::TextFormat::PrintToString(value, &protoStr);
+    Cerr << protoStr << Endl;
+    UNIT_ASSERT_NO_DIFF(protoStr, expected);
+}
 
 Y_UNIT_TEST_SUITE(YdbValue) {
     Y_UNIT_TEST(ParseType1) {
@@ -263,29 +268,28 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             }
         )";
 
-        auto protoValueStr = R"(
-            items {
-                uint32_value: 137
-            }
-            items {
-                items {
-                    bytes_value: "String1"
-                }
-                items {
-                    bytes_value: "String2"
-                }
-            }
-            items {
-                items {
-                    null_flag_value: NULL_VALUE
-                }
-                items {
-                    text_value: "UtfString"
-                }
-                items {
-                }
-            }
-        )";
+        auto protoValueStr = 
+            "items {\n"
+            "  uint32_value: 137\n"
+            "}\n"
+            "items {\n"
+            "  items {\n"
+            "    bytes_value: \"String1\"\n"
+            "  }\n"
+            "  items {\n"
+            "    bytes_value: \"String2\"\n"
+            "  }\n"
+            "}\n"
+            "items {\n"
+            "  items {\n"
+            "    null_flag_value: NULL_VALUE\n"
+            "  }\n"
+            "  items {\n"
+            "    text_value: \"UtfString\"\n"
+            "  }\n"
+            "  items {\n"
+            "  }\n"
+            "}\n";
 
         Ydb::Type protoType;
         google::protobuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
@@ -295,8 +299,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
 
         TValue value(TType(protoType), protoValue);
 
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([137u;["String1";"String2"];[#;"UtfString";"Void"]])");
+        CheckProtoValue(value.GetProto(), protoValueStr);
     }
 
     Y_UNIT_TEST(ParseValue2) {
@@ -318,28 +321,27 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             }
         )";
 
-        auto protoValueStr = R"(
-            pairs {
-                key {
-                    uint32_value: 10
-                }
-                payload {
-                    items {
-                        uint32_value: 1000
-                    }
-                }
-            }
-            pairs {
-                key {
-                    uint32_value: 20
-                }
-                payload {
-                    items {
-                        uint32_value: 2000
-                    }
-                }
-            }
-        )";
+        auto protoValueStr = 
+            "pairs {\n"
+            "  key {\n"
+            "    uint32_value: 10\n"
+            "  }\n"
+            "  payload {\n"
+            "    items {\n"
+            "      uint32_value: 1000\n"
+            "    }\n"
+            "  }\n"
+            "}\n"
+            "pairs {\n"
+            "  key {\n"
+            "    uint32_value: 20\n"
+            "  }\n"
+            "  payload {\n"
+            "    items {\n"
+            "      uint32_value: 2000\n"
+            "    }\n"
+            "  }\n"
+            "}\n";
 
         Ydb::Type protoType;
         google::protobuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
@@ -349,10 +351,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
 
         TValue value(TType(protoType), protoValue);
 
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([[10u;[1000u]];[20u;[2000u]]])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([[10,{"Member1":"1972-09-27"}],[20,{"Member1":"1975-06-24"}]])");
+        CheckProtoValue(value.GetProto(), protoValueStr);
     }
 
     Y_UNIT_TEST(ParseValuePg) {
@@ -411,22 +410,19 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             }
             )";
 
-        auto protoValueStr = R"(
-            items {
-                text_value: "my_text_value"
-            }
-            items {
-                bytes_value: "my_binary_value"
-            }
-            items {
-                text_value: ""
-            }
-            items {
-                bytes_value: ""
-            }
-            items {
-            }
-        )";
+        auto protoValueStr = 
+            "items {\n"
+            "  text_value: \"my_text_value\"\n"
+            "}\n"
+            "items {\n"
+            "  bytes_value: \"my_binary_value\"\n"
+            "}\n"
+            "items {\n"
+            "  text_value: \"\"\n"
+            "}\n"
+            "items {\n"
+            "  bytes_value: \"\"\n"
+            "}\n";
 
         Ydb::Type protoType;
         google::protobuf::TextFormat::ParseFromString(protoTypeStr, &protoType);
@@ -436,12 +432,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
 
         TValue value(TType(protoType), protoValue);
 
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"(["my_text_value";["my_binary_value"];"";[""];#])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"({"A":"my_text_value","B":["my_binary_value"],"C":"","D":[""],"E":null})");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Base64),
-            R"({"A":"my_text_value","B":["bXlfYmluYXJ5X3ZhbHVl"],"C":"","D":[""],"E":null})");
+        CheckProtoValue(value.GetProto(), protoValueStr);
     }
 
     Y_UNIT_TEST(ParseValueMaybe) {
@@ -641,10 +632,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             .DyNumber("12.345")
             .Build();
 
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"("12.345")");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"("12.345")");
+        CheckProtoValue(value.GetProto(), "text_value: \"12.345\"\n");
     }
 
     Y_UNIT_TEST(BuildTaggedValue) {
@@ -654,10 +642,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             .EndTagged()
             .Build();
 
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"("12.345")");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"("12.345")");
+        CheckProtoValue(value.GetProto(), "text_value: \"12.345\"\n");
     }
 
     Y_UNIT_TEST(BuildValueList) {
@@ -675,10 +660,16 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             .EndList()
             .Build();
 
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([17;19;21])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([17,19,21])");
+        CheckProtoValue(value.GetProto(),
+            "items {\n"
+            "  int32_value: 17\n"
+            "}\n"
+            "items {\n"
+            "  int32_value: 19\n"
+            "}\n"
+            "items {\n"
+            "  int32_value: 21\n"
+            "}\n");
     }
 
     Y_UNIT_TEST(BuildValueListEmpty) {
@@ -688,10 +679,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
 
         UNIT_ASSERT_NO_DIFF(FormatType(value.GetType()),
             R"(List<Uint32>)");
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([])");
+        CheckProtoValue(value.GetProto(), "");
     }
 
     Y_UNIT_TEST(BuildValueListEmpty2) {
@@ -707,10 +695,14 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             .EndList()
             .Build();
 
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([[10u];[]])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([[10],[]])");
+        CheckProtoValue(value.GetProto(),
+            "items {\n"
+            "  items {\n"
+            "    uint32_value: 10\n"
+            "  }\n"
+            "}\n"
+            "items {\n"
+            "}\n");
     }
 
     Y_UNIT_TEST(BuildValueListEmpty3) {
@@ -726,10 +718,14 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             .EndList()
             .Build();
 
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([[];[10u]])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([[],[10]])");
+        CheckProtoValue(value.GetProto(),
+            "items {\n"
+            "}\n"
+            "items {\n"
+            "  items {\n"
+            "    uint32_value: 10\n"
+            "  }\n"
+            "}\n");
     }
 
     Y_UNIT_TEST(BuildValueBadCall) {
@@ -763,10 +759,6 @@ Y_UNIT_TEST_SUITE(YdbValue) {
 
         UNIT_ASSERT_NO_DIFF(FormatType(value.GetType()),
             R"(List<Int32?>)");
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([[1];#;[57];#])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([1,null,57,null])");
 
         auto expectedProtoValueStr =
             "items {\n"
@@ -782,9 +774,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             "  null_flag_value: NULL_VALUE\n"
             "}\n";
 
-        TStringType protoValueStr;
-        google::protobuf::TextFormat::PrintToString(value.GetProto(), &protoValueStr);
-        UNIT_ASSERT_NO_DIFF(protoValueStr, expectedProtoValueStr);
+        CheckProtoValue(value.GetProto(), expectedProtoValueStr);
     }
 
     Y_UNIT_TEST(BuildValueNestedOptional) {
@@ -819,10 +809,6 @@ Y_UNIT_TEST_SUITE(YdbValue) {
 
         UNIT_ASSERT_NO_DIFF(FormatType(value.GetType()),
             R"(Tuple<Int32??,Int64???,String??,Utf8???>)");
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([[[10]];[[[-1]]];[#];[[#]]])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([10,-1,null,null])");
 
         auto expectedProtoValueStr =
             "items {\n"
@@ -844,9 +830,7 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             "  }\n"
             "}\n";
 
-        TStringType protoValueStr;
-        google::protobuf::TextFormat::PrintToString(value.GetProto(), &protoValueStr);
-        UNIT_ASSERT_NO_DIFF(protoValueStr, expectedProtoValueStr);
+        CheckProtoValue(value.GetProto(), expectedProtoValueStr);
     }
 
     Y_UNIT_TEST(BuildValueOptionalMismatch1) {
@@ -918,13 +902,37 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             .EndList()
             .Build();
 
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([[1u;"Anna";-100;#];[2u;"Paul";-200;["Some details"]]])");
-        UNIT_ASSERT_NO_DIFF(
-            FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([{"Id":1,"Name":"Anna","Value":-100,"Description":null},)"
-            R"({"Id":2,"Name":"Paul","Value":-200,"Description":"Some details"}])"
-        );
+        auto expectedProtoValueStr =
+            "items {\n"
+            "  items {\n"
+            "    uint32_value: 1\n"
+            "  }\n"
+            "  items {\n"
+            "    bytes_value: \"Anna\"\n"
+            "  }\n"
+            "  items {\n"
+            "    int32_value: -100\n"
+            "  }\n"
+            "  items {\n"
+            "    null_flag_value: NULL_VALUE\n"
+            "  }\n"
+            "}\n"
+            "items {\n"
+            "  items {\n"
+            "    uint32_value: 2\n"
+            "  }\n"
+            "  items {\n"
+            "    bytes_value: \"Paul\"\n"
+            "  }\n"
+            "  items {\n"
+            "    int32_value: -200\n"
+            "  }\n"
+            "  items {\n"
+            "    text_value: \"Some details\"\n"
+            "  }\n"
+            "}\n";
+
+        CheckProtoValue(value.GetProto(), expectedProtoValueStr);
     }
 
     Y_UNIT_TEST(BuildValueStructMissingMember) {
@@ -986,13 +994,76 @@ Y_UNIT_TEST_SUITE(YdbValue) {
 
         UNIT_ASSERT_NO_DIFF(FormatType(value.GetType()),
             R"(Tuple<Bool,Int8,Uint8,Int16,Uint16,Int32,Uint32,Int64,Uint64,Float,Double,Date,Datetime,Timestamp,Interval,TzDate,TzDatetime,TzTimestamp,String,Utf8,Yson,Json>)");
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([%true;-1;1u;-2;2u;-3;3u;-4;4u;-5.5;6.6;7u;8u;9u;-10;"2018-02-02,Europe/Moscow";"2018-02-03T15:00:00,Europe/Moscow";"2018-02-07T15:00:00,Europe/Moscow";"TestString";"TestUtf8";"[]";"{}"])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([true,-1,1,-2,2,-3,3,-4,4,-5.5,6.6,"1970-01-08","1970-01-01T00:00:08Z",)"
-            R"("1970-01-01T00:00:00.000009Z",-10,"2018-02-02,Europe/Moscow",)"
-            R"("2018-02-03T15:00:00,Europe/Moscow","2018-02-07T15:00:00,Europe/Moscow",)"
-            R"("TestString","TestUtf8","[]","{}"])");
+
+        auto expectedProtoValueStr =
+            "items {\n"
+            "  bool_value: true\n"
+            "}\n"
+            "items {\n"
+            "  int32_value: -1\n"
+            "}\n"
+            "items {\n"
+            "  uint32_value: 1\n"
+            "}\n"
+            "items {\n"
+            "  int32_value: -2\n"
+            "}\n"
+            "items {\n"
+            "  uint32_value: 2\n"
+            "}\n"
+            "items {\n"
+            "  int32_value: -3\n"
+            "}\n"
+            "items {\n"
+            "  uint32_value: 3\n"
+            "}\n"
+            "items {\n"
+            "  int64_value: -4\n"
+            "}\n"
+            "items {\n"
+            "  uint64_value: 4\n"
+            "}\n"
+            "items {\n"
+            "  float_value: -5.5\n"
+            "}\n"
+            "items {\n"
+            "  double_value: 6.6\n"
+            "}\n"
+            "items {\n"
+            "  uint32_value: 7\n"
+            "}\n"
+            "items {\n"
+            "  uint32_value: 8\n"
+            "}\n"
+            "items {\n"
+            "  uint64_value: 9\n"
+            "}\n"
+            "items {\n"
+            "  int64_value: -10\n"
+            "}\n"
+            "items {\n"
+            "  text_value: \"2018-02-02,Europe/Moscow\"\n"
+            "}\n"
+            "items {\n"
+            "  text_value: \"2018-02-03T15:00:00,Europe/Moscow\"\n"
+            "}\n"
+            "items {\n"
+            "  text_value: \"2018-02-07T15:00:00,Europe/Moscow\"\n"
+            "}\n"
+            "items {\n"
+            "  bytes_value: \"TestString\"\n"
+            "}\n"
+            "items {\n"
+            "  text_value: \"TestUtf8\"\n"
+            "}\n"
+            "items {\n"
+            "  bytes_value: \"[]\"\n"
+            "}\n"
+            "items {\n"
+            "  text_value: \"{}\"\n"
+            "}\n";
+
+        CheckProtoValue(value.GetProto(), expectedProtoValueStr);
     }
 
     Y_UNIT_TEST(BuildValueTuple1) {
@@ -1014,10 +1085,25 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             .EndList()
             .Build();
 
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([[10;"Str1"];[20;"Str2"]])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([[10,"Str1"],[20,"Str2"]])");
+        auto expectedProtoValueStr =
+            "items {\n"
+            "  items {\n"
+            "    int32_value: 10\n"
+            "  }\n"
+            "  items {\n"
+            "    bytes_value: \"Str1\"\n"
+            "  }\n"
+            "}\n"
+            "items {\n"
+            "  items {\n"
+            "    int32_value: 20\n"
+            "  }\n"
+            "  items {\n"
+            "    bytes_value: \"Str2\"\n"
+            "  }\n"
+            "}\n";
+
+        CheckProtoValue(value.GetProto(), expectedProtoValueStr);
     }
 
     Y_UNIT_TEST(BuildValueTuple2) {
@@ -1038,10 +1124,25 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             .EndList()
             .Build();
 
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([[-10;"Utf1"];[-20;"Utf2"]])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([[-10,"Utf1"],[-20,"Utf2"]])");
+        auto expectedProtoValueStr =
+            "items {\n"
+            "  items {\n"
+            "    int32_value: -10\n"
+            "  }\n"
+            "  items {\n"
+            "    text_value: \"Utf1\"\n"
+            "  }\n"
+            "}\n"
+            "items {\n"
+            "  items {\n"
+            "    int32_value: -20\n"
+            "  }\n"
+            "  items {\n"
+            "    text_value: \"Utf2\"\n"
+            "  }\n"
+            "}\n";
+
+        CheckProtoValue(value.GetProto(), expectedProtoValueStr);
     }
 
     Y_UNIT_TEST(BuildValueTupleElementsMismatch1) {
@@ -1139,10 +1240,25 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             .EndDict()
             .Build();
 
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([[1;"Str1"];[2;"Str2"]])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([[1,"Str1"],[2,"Str2"]])");
+        auto expectedProtoValueStr =
+            "pairs {\n"
+            "  key {\n"
+            "    int32_value: 1\n"
+            "  }\n"
+            "  payload {\n"
+            "    bytes_value: \"Str1\"\n"
+            "  }\n"
+            "}\n"
+            "pairs {\n"
+            "  key {\n"
+            "    int32_value: 2\n"
+            "  }\n"
+            "  payload {\n"
+            "    bytes_value: \"Str2\"\n"
+            "  }\n"
+            "}\n";
+
+        CheckProtoValue(value.GetProto(), expectedProtoValueStr);
     }
 
     Y_UNIT_TEST(BuildValueDict2) {
@@ -1159,10 +1275,25 @@ Y_UNIT_TEST_SUITE(YdbValue) {
             .EndDict()
             .Build();
 
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([[1;"Str1"];[2;"Str2"]])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([[1,"Str1"],[2,"Str2"]])");
+        auto expectedProtoValueStr =
+            "pairs {\n"
+            "  key {\n"
+            "    int32_value: 1\n"
+            "  }\n"
+            "  payload {\n"
+            "    bytes_value: \"Str1\"\n"
+            "  }\n"
+            "}\n"
+            "pairs {\n"
+            "  key {\n"
+            "    int32_value: 2\n"
+            "  }\n"
+            "  payload {\n"
+            "    bytes_value: \"Str2\"\n"
+            "  }\n"
+            "}\n";
+
+        CheckProtoValue(value.GetProto(), expectedProtoValueStr);
     }
 
     Y_UNIT_TEST(BuildValueDictTypeMismatch1) {
@@ -1216,10 +1347,9 @@ Y_UNIT_TEST_SUITE(YdbValue) {
 
         UNIT_ASSERT_NO_DIFF(FormatType(value.GetType()),
             R"(Dict<Uint32,String>)");
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([])");
+
+        auto expectedProtoValueStr = "";
+        CheckProtoValue(value.GetProto(), expectedProtoValueStr);
     }
 
     Y_UNIT_TEST(BuildValueDictEmpty2) {
@@ -1244,10 +1374,24 @@ Y_UNIT_TEST_SUITE(YdbValue) {
 
         UNIT_ASSERT_NO_DIFF(FormatType(value.GetType()),
             R"(List<Dict<Int32,String>>)");
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([[[1;"Str1"]];[];[]])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([[[1,"Str1"]],[],[]])");
+
+        auto expectedProtoValueStr =
+            "items {\n"
+            "  pairs {\n"
+            "    key {\n"
+            "      int32_value: 1\n"
+            "    }\n"
+            "    payload {\n"
+            "      bytes_value: \"Str1\"\n"
+            "    }\n"
+            "  }\n"
+            "}\n"
+            "items {\n"
+            "}\n"
+            "items {\n"
+            "}\n";
+
+        CheckProtoValue(value.GetProto(), expectedProtoValueStr);
     }
 
     Y_UNIT_TEST(BuildValueDictEmptyNoType) {
@@ -1353,10 +1497,39 @@ Y_UNIT_TEST_SUITE(YdbValue) {
 
         UNIT_ASSERT_NO_DIFF(FormatType(value.GetType()),
             R"(Tuple<Struct<'Name':String,'Value':Uint64>,Utf8?,List<Bool>,Dict<Int32,Uint8?>,DyNumber?>)");
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(value),
-            R"([["Sergey";1u];#;[%true];[[10;#]];["12.345"]])");
-        UNIT_ASSERT_NO_DIFF(FormatValueJson(value, EBinaryStringEncoding::Unicode),
-            R"([{"Name":"Sergey","Value":1},null,[true],[[10,null]],"12.345"])");
+
+        auto expectedProtoValueStr =
+            "items {\n"
+            "  items {\n"
+            "    bytes_value: \"Sergey\"\n"
+            "  }\n"
+            "  items {\n"
+            "    uint64_value: 1\n"
+            "  }\n"
+            "}\n"
+            "items {\n"
+            "  null_flag_value: NULL_VALUE\n"
+            "}\n"
+            "items {\n"
+            "  items {\n"
+            "    bool_value: true\n"
+            "  }\n"
+            "}\n"
+            "items {\n"
+            "  pairs {\n"
+            "    key {\n"
+            "      int32_value: 10\n"
+            "    }\n"
+            "    payload {\n"
+            "      null_flag_value: NULL_VALUE\n"
+            "    }\n"
+            "  }\n"
+            "}\n"
+            "items {\n"
+            "  text_value: \"12.345\"\n"
+            "}\n";
+
+        CheckProtoValue(value.GetProto(), expectedProtoValueStr);
     }
 
     Y_UNIT_TEST(CorrectUuid) {

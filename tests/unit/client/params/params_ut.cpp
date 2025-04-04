@@ -1,13 +1,19 @@
 #include <ydb-cpp-sdk/client/params/params.h>
 
-#include <ydb/public/lib/yson_value/ydb_yson_value.h>
-
 #include <library/cpp/testing/unittest/registar.h>
 #include <library/cpp/testing/unittest/tests_data.h>
+#include <google/protobuf/text_format.h>
+#include <src/api/protos/ydb_value.pb.h>
 
 using namespace NYdb;
 
 using TExpectedErrorException = yexception;
+
+void CheckProtoValue(const Ydb::Value& value, const TString& expected) {
+    TStringType protoStr;
+    google::protobuf::TextFormat::PrintToString(value, &protoStr);
+    UNIT_ASSERT_NO_DIFF(protoStr, expected);
+}
 
 Y_UNIT_TEST_SUITE(ParamsBuilder) {
     Y_UNIT_TEST(Build) {
@@ -27,15 +33,18 @@ Y_UNIT_TEST_SUITE(ParamsBuilder) {
                 .Build()
             .Build();
 
-        UNIT_ASSERT_NO_DIFF(FormatType(params.GetValue("$param1")->GetType()),
-            R"(List<Uint64?>)");
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(*params.GetValue("$param1")),
-            R"([[10u];#])");
+        UNIT_ASSERT_NO_DIFF(FormatType(params.GetValue("$param1")->GetType()), "List<Uint64?>");
 
-        UNIT_ASSERT_NO_DIFF(FormatType(params.GetValue("$param2")->GetType()),
-            R"(String)");
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(*params.GetValue("$param2")),
-            R"("test")");
+        CheckProtoValue(params.GetValue("$param1")->GetProto(),
+            "items {\n"
+            "  uint64_value: 10\n"
+            "}\n"
+            "items {\n"
+            "  null_flag_value: NULL_VALUE\n"
+            "}\n");
+
+        UNIT_ASSERT_NO_DIFF(FormatType(params.GetValue("$param2")->GetType()), "String");
+        CheckProtoValue(params.GetValue("$param2")->GetProto(), "bytes_value: \"test\"\n");
     }
 
     Y_UNIT_TEST(BuildFromValue) {
@@ -62,15 +71,23 @@ Y_UNIT_TEST_SUITE(ParamsBuilder) {
             .AddParam("$param2", value2)
             .Build();
 
-        UNIT_ASSERT_NO_DIFF(FormatType(params.GetValue("$param1")->GetType()),
-            R"(Utf8)");
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(*params.GetValue("$param1")),
-            R"("test1")");
+        UNIT_ASSERT_NO_DIFF(FormatType(params.GetValue("$param1")->GetType()), "Utf8");
 
-        UNIT_ASSERT_NO_DIFF(FormatType(params.GetValue("$param2")->GetType()),
-            R"(List<Tuple<Int32,String>?>)");
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(*params.GetValue("$param2")),
-            R"([[[-11;"test2"]];#])");
+        CheckProtoValue(params.GetValue("$param1")->GetProto(), "text_value: \"test1\"\n");
+
+        UNIT_ASSERT_NO_DIFF(FormatType(params.GetValue("$param2")->GetType()), "List<Tuple<Int32,String>?>");
+        CheckProtoValue(params.GetValue("$param2")->GetProto(),
+            "items {\n"
+            "  items {\n"
+            "    int32_value: -11\n"
+            "  }\n"
+            "  items {\n"
+            "    bytes_value: \"test2\"\n"
+            "  }\n"
+            "}\n"
+            "items {\n"
+            "  null_flag_value: NULL_VALUE\n"
+            "}\n");
     }
 
     Y_UNIT_TEST(BuildWithTypeInfo) {
@@ -106,15 +123,17 @@ Y_UNIT_TEST_SUITE(ParamsBuilder) {
                 .Build()
             .Build();
 
-        UNIT_ASSERT_NO_DIFF(FormatType(params.GetValue("$param1")->GetType()),
-            R"(List<String>)");
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(*params.GetValue("$param1")),
-            R"(["str1";"str2"])");
+        UNIT_ASSERT_NO_DIFF(FormatType(params.GetValue("$param1")->GetType()), "List<String>");
+        CheckProtoValue(params.GetValue("$param1")->GetProto(),
+            "items {\n"
+            "  bytes_value: \"str1\"\n"
+            "}\n"
+            "items {\n"
+            "  bytes_value: \"str2\"\n"
+            "}\n");
 
-        UNIT_ASSERT_NO_DIFF(FormatType(params.GetValue("$param2")->GetType()),
-            R"(Uint32?)");
-        UNIT_ASSERT_NO_DIFF(FormatValueYson(*params.GetValue("$param2")),
-            R"(#)");
+        UNIT_ASSERT_NO_DIFF(FormatType(params.GetValue("$param2")->GetType()), "Uint32?");
+        CheckProtoValue(params.GetValue("$param2")->GetProto(), "null_flag_value: NULL_VALUE\n");
     }
 
     Y_UNIT_TEST(MissingParam) {
