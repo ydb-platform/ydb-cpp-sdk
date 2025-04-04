@@ -1,4 +1,4 @@
-add_ydb_test(NAME basic-example
+add_ydb_test(NAME basic-example GTEST
   SOURCES
     main.cpp
     basic_example_data.cpp
@@ -9,7 +9,6 @@ add_ydb_test(NAME basic-example
     YDB-CPP-SDK::Driver
     YDB-CPP-SDK::Proto
     YDB-CPP-SDK::Table
-    GTest::gtest_main
   LABELS
     integration
 )
