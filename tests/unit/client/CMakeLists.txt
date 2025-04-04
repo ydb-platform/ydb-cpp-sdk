@@ -3,7 +3,6 @@ add_ydb_test(NAME client-ydb_coordination_ut
     coordination/coordination_ut.cpp
   LINK_LIBRARIES
     yutil
-    cpp-testing-unittest_main
     YDB-CPP-SDK::Coordination
     api-grpc
   LABELS
@@ -15,7 +14,6 @@ add_ydb_test(NAME client-extensions-discovery_mutator_ut
     discovery_mutator/discovery_mutator_ut.cpp
   LINK_LIBRARIES
     yutil
-    cpp-testing-unittest_main
     YDB-CPP-SDK::DiscoveryMutator
     YDB-CPP-SDK::Table
   LABELS
@@ -27,7 +25,6 @@ add_ydb_test(NAME client-ydb_driver_ut
     driver/driver_ut.cpp
   LINK_LIBRARIES
     yutil
-    cpp-testing-unittest_main
     YDB-CPP-SDK::Driver
     YDB-CPP-SDK::Table
   LABELS
@@ -53,7 +50,6 @@ add_ydb_test(NAME client-oauth2_ut
     oauth2_token_exchange/jwt_token_source_ut.cpp
   LINK_LIBRARIES
     yutil
-    cpp-testing-unittest_main
     http-server
     json
     string_utils-base64
@@ -62,12 +58,11 @@ add_ydb_test(NAME client-oauth2_ut
     unit
 )
 
-add_ydb_test(NAME client-ydb_params_ut
+add_ydb_test(NAME client-ydb_params_ut GTEST
   SOURCES
     params/params_ut.cpp
   LINK_LIBRARIES
     yutil
-    cpp-testing-unittest_main
     YDB-CPP-SDK::Params
   LABELS
     unit
@@ -78,19 +73,17 @@ add_ydb_test(NAME client-ydb_result_ut
     result/result_ut.cpp
   LINK_LIBRARIES
     yutil
-    cpp-testing-unittest_main
     YDB-CPP-SDK::Result
     YDB-CPP-SDK::Params
   LABELS
     unit
 )
 
-add_ydb_test(NAME client-ydb_value_ut
+add_ydb_test(NAME client-ydb_value_ut GTEST
   SOURCES
     value/value_ut.cpp
   LINK_LIBRARIES
     yutil
-    cpp-testing-unittest_main
     YDB-CPP-SDK::Value
     YDB-CPP-SDK::Params
   LABELS
