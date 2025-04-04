@@ -9,6 +9,9 @@ jobs:
   main:
     name: Build YDB C++ SDK and cache artifacts
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        compiler: [clang, gcc]
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -27,8 +30,10 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.ccache
-        key: ubuntu-22.04-ccache-${{steps.ccache_cache_timestamp.outputs.timestamp}}
+        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
-          ubuntu-22.04-ccache-
+          ubuntu-22.04-ccache-${{ matrix.compiler }}-
     - name: Build
       uses: ./.github/actions/build
+      with:
+        compiler: ${{ matrix.compiler }}

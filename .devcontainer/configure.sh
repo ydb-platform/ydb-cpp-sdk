@@ -3,7 +3,7 @@
 mkdir -p build
 git submodule update --init --recursive
 ccache -o cache_dir=/root/.ccache
-cmake --preset release-test-with-ccache-basedir -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+cmake --preset release-test-clang
 
 if which ydb > /dev/null 2>&1; then
     ENDPOINT=$(echo ${YDB_CONNECTION_STRING_SECURE:-$YDB_CONNECTION_STRING} | awk -F/ '{print $3}')

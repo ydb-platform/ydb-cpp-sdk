@@ -7,19 +7,25 @@
   },
   "configurePresets": [
     {
-      "name": "ninja-generator",
-      "hidden": true,
-      "generator": "Ninja"
+      "name": "base",
+      "displayName": "Generic Config",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      },
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build"
     },
     {
-      "name": "release-build",
+      "name": "release-base",
+      "inherits": "base",
       "hidden": true,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
-      "name": "debug-build",
+      "name": "debug-base",
+      "inherits": "base",
       "hidden": true,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
@@ -28,45 +34,57 @@
     {
       "name": "clang-toolchain",
       "hidden": true,
-      "toolchainFile": "${sourceDir}/clang.toolchain"
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_EXE_LINKER_FLAGS": "-fuse-ld=lld",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fuse-ld=lld"
+      }
     },
     {
-      "name": "release",
-      "inherits": [
-        "ninja-generator",
-        "release-build",
-        "clang-toolchain"
-      ],
-      "displayName": "Default Release Config",
-      "description": "Default release build configuration using Ninja generator and Clang compiler",
-      "binaryDir": "${sourceDir}/../build"
+      "name": "gcc-toolchain",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_C_COMPILER": "gcc"
+      }
     },
     {
-      "name": "release-test",
-      "inherits": "release",
-      "displayName": "Default Release Test Config",
-      "description": "Default release build configuration with all tests and examples",
+      "name": "test",
+      "hidden": true,
       "cacheVariables": {
         "YDB_SDK_TESTS": "TRUE",
-        "YDB_SDK_EXAMPLES": "TRUE"
+        "YDB_SDK_EXAMPLES": "TRUE",
+        "ARCADIA_ROOT": "..",
+        "ARCADIA_BUILD_ROOT": "."
       }
     },
     {
-      "name": "release-test-with-ccache-basedir",
-      "inherits": "release-test",
-      "displayName": "Release Test Config CCACHE_BASEDIR Case",
-      "description": "Only for the case when using CCACHE_BASEDIR",
-      "cacheVariables": {
-        "ARCADIA_ROOT": "../ydb-cpp-sdk",
-        "ARCADIA_BUILD_ROOT": "."
-      }
+      "name": "release-clang",
+      "inherits": ["release-base", "clang-toolchain"],
+      "displayName": "Default Release Config (Clang)"
+    },
+    {
+      "name": "release-gcc",
+      "inherits": ["release-base", "gcc-toolchain"],
+      "displayName": "Default Release Config (GCC)"
+    },
+    {
+      "name": "release-test-clang",
+      "inherits": ["release-base", "clang-toolchain", "test"],
+      "displayName": "Default Release Test Config (Clang)"
+    },
+    {
+      "name": "release-test-gcc",
+      "inherits": ["release-base", "gcc-toolchain", "test"],
+      "displayName": "Default Release Test Config (GCC)"
     }
   ],
   "buildPresets": [
     {
-      "name": "release",
-      "configurePreset": "release",
-      "displayName": "Default Release Build"
+      "name": "default",
+      "displayName": "Default Build",
+      "configurePreset": "base"
     }
   ],
   "testPresets": [
@@ -81,32 +99,28 @@
       }
     },
     {
-      "name": "release",
+      "name": "all",
       "inherits": "common",
-      "configurePreset": "release-test",
-      "displayName": "Default Release Tests",
-      "environment": {
-        "YDB_ENDPOINT": "localhost:2136",
-        "YDB_DATABASE": "/local"
-      }
+      "displayName": "Run All Tests",
+      "configurePreset": "base"
     },
     {
-      "name": "release-unit",
+      "name": "unit",
       "inherits": "common",
-      "configurePreset": "release-test",
-      "displayName": "Default Unit Release Tests",
-      "filter" : {
+      "displayName": "Run Unit Tests",
+      "configurePreset": "base",
+      "filter": {
         "include": {
           "label": "unit"
         }
       }
     },
     {
-      "name": "release-integration",
+      "name": "integration",
       "inherits": "common",
-      "configurePreset": "release-test",
-      "displayName": "Default Integration Release Tests",
-      "filter" : {
+      "displayName": "Run Integration Tests",
+      "configurePreset": "base",
+      "filter": {
         "include": {
           "label": "integration"
         }

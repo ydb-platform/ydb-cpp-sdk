@@ -4,20 +4,26 @@ description: Install required packages
 runs:
   using: "composite"
   steps:
+    - name: Install CMake and Ninja
+      uses: lukka/get-cmake@v3.27.7
     - name: Install dependencies
       shell: bash
       run: |
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt-get -y update
-        sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
+        sudo apt-get -y install git ninja-build libidn11-dev ragel yasm protobuf-compiler \
           protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
           rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev libgtest-dev libgmock-dev \
-          libbz2-dev libdouble-conversion-dev libstdc++-13-dev
+          libbz2-dev libdouble-conversion-dev libstdc++-13-dev gcc-13 g++-13
         wget https://apt.llvm.org/llvm.sh
         chmod u+x llvm.sh
         sudo ./llvm.sh 16
-        sudo ln -sf /usr/bin/clang-16 /usr/bin/clang
-        sudo ln -sf /usr/bin/clang++-16 /usr/bin/clang++
+        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 10000
+        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-16 10000
+
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 10000
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 10000
+
         wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
         tar -xvzf libiconv-1.15.tar.gz
         cd libiconv-1.15
