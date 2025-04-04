@@ -20,7 +20,6 @@ target_link_libraries(client-ydb_topic PUBLIC
 )
 
 target_sources(client-ydb_topic PRIVATE
-  proto_accessor.cpp
   out.cpp
 )
 

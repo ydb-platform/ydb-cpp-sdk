@@ -29,6 +29,7 @@ target_sources(client-ydb_topic-impl
     deferred_commit.cpp
     event_handlers.cpp
     offsets_collector.cpp
+    proto_accessor.cpp
     read_session_event.cpp
     read_session.cpp
     topic_impl.cpp
