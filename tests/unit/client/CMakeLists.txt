@@ -1,5 +1,3 @@
-add_subdirectory(draft/helpers)
-
 add_ydb_test(NAME client-ydb_coordination_ut
   SOURCES
     coordination/coordination_ut.cpp
@@ -22,22 +20,6 @@ add_ydb_test(NAME client-extensions-discovery_mutator_ut
     YDB-CPP-SDK::Table
   LABELS
     unit
-)
-
-add_ydb_test(NAME client-draft_ut
-  SOURCES
-    draft/ydb_scripting_response_headers_ut.cpp
-    draft/ydb_view_ut.cpp
-  LINK_LIBRARIES
-    yutil
-    cpp-testing-unittest_main
-    YDB-CPP-SDK::Draft
-  LABELS
-    unit
-)
-target_link_libraries(client-draft_ut
-  PRIVATE
-    client-draft_ut_helpers
 )
 
 add_ydb_test(NAME client-ydb_driver_ut
