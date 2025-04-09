@@ -1,4 +1,4 @@
-add_ydb_test(NAME server_restart
+add_ydb_test(NAME server_restart GTEST
   SOURCES
     main.cpp
   LINK_LIBRARIES
@@ -6,7 +6,6 @@ add_ydb_test(NAME server_restart
     api-grpc
     YDB-CPP-SDK::Query
     gRPC::grpc++
-    GTest::gtest_main
   LABELS
     integration
 )
