@@ -1,4 +1,4 @@
-add_ydb_test(NAME bulk_upsert
+add_ydb_test(NAME bulk_upsert GTEST
   SOURCES
     main.cpp
     bulk_upsert.cpp
@@ -6,7 +6,6 @@ add_ydb_test(NAME bulk_upsert
   LINK_LIBRARIES
     yutil
     YDB-CPP-SDK::Table
-    GTest::gtest_main
   LABELS
     integration
 )

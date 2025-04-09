@@ -130,6 +130,9 @@ function(add_ydb_test)
       WORKING_DIRECTORY
         ${YDB_TEST_WORKING_DIRECTORY}
     )
+    target_link_libraries(${YDB_TEST_NAME} PRIVATE
+      GTest::gtest_main 
+    )
   else()
     add_yunittest(
       NAME
@@ -145,6 +148,9 @@ function(add_ydb_test)
         ${YDB_TEST_TEST_ARG}
       WORKING_DIRECTORY
         ${YDB_TEST_WORKING_DIRECTORY}
+    )
+    target_link_libraries(${YDB_TEST_NAME} PRIVATE
+      cpp-testing-unittest_main
     )
   endif()
 
