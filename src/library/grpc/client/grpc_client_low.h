@@ -200,6 +200,7 @@ struct TCallMeta {
     std::shared_ptr<grpc::CallCredentials> CallCredentials;
     std::vector<std::pair<std::string, std::string>> Aux;
     std::variant<TDuration, TInstant> Timeout; // timeout as duration from now or time point in future
+    std::string TraceParent;     // Поле для трассировки
 };
 
 class TGRpcRequestProcessorCommon {
@@ -208,6 +209,12 @@ protected:
         for (const auto& rec : meta.Aux) {
             Context.AddMetadata(NYdb::TStringType{rec.first}, NYdb::TStringType{rec.second});
         }
+        
+        // Добавление traceparent в заголовки gRPC
+        if (!meta.TraceParent.empty()) {
+            Context.AddMetadata("traceparent", NYdb::TStringType{*meta.TraceParent});
+        }
+        
         if (meta.CallCredentials) {
             Context.set_credentials(meta.CallCredentials);
         }
