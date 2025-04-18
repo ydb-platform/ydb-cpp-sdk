@@ -13,6 +13,7 @@ option(YDB_SDK_EXAMPLES "Build YDB C++ SDK examples" On)
 option(YDB_SDK_ENABLE_OTEL_METRICS "Build OpenTelemetry metrics plugin" Off)
 option(YDB_SDK_ENABLE_OTEL_TRACE "Build OpenTelemetry trace plugin" Off)
 option(YDB_CPP_SDK_SLO_USE_INSTALLED_SDK "Build only SLO workloads against an installed ydb-cpp-sdk package" Off)
+option(YDB_SDK_ODBC "Build YDB ODBC driver" On)
 set(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET "" CACHE STRING "Name of cmake target preparing google common proto library")
 option(YDB_SDK_USE_RAPID_JSON "Search for rapid json library in system" ON)
 
@@ -84,6 +85,10 @@ add_subdirectory(util)
 add_subdirectory(plugins)
 
 #_ydb_sdk_validate_public_headers()
+
+if (YDB_SDK_ODBC)
+  add_subdirectory(odbc)
+endif()
 
 if (YDB_SDK_EXAMPLES)
   add_subdirectory(examples)
