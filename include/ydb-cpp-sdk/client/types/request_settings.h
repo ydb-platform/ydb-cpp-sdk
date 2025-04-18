@@ -21,7 +21,7 @@ struct TRequestSettings {
     FLUENT_SETTING(std::string, RequestType);
     FLUENT_SETTING(THeader, Header);
     FLUENT_SETTING(TDuration, ClientTimeout);
-    FLUENT_SETTING(std::string, TraceParent);       // Поле для передачи traceparent
+    FLUENT_SETTING(std::string, TraceParent);       // New field for traceparent header
 
     TRequestSettings() = default;
 
