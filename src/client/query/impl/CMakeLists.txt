@@ -6,6 +6,7 @@ target_link_libraries(client-ydb_query-impl PUBLIC
   api-protos
   client-ydb_common_client-impl
   client-ydb_proto
+  client-ydb_result
 )
 
 target_sources(client-ydb_query-impl PRIVATE
