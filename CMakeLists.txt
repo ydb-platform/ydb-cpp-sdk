@@ -46,11 +46,10 @@ include(cmake/install.cmake)
 include(cmake/common.cmake)
 include(cmake/ccache.cmake)
 include(cmake/protobuf.cmake)
-include(cmake/testing.cmake)
 include(cmake/external_libs.cmake)
 
 if (YDB_SDK_TESTS)
-  enable_testing()
+  include(cmake/testing.cmake)
 endif()
 
 add_subdirectory(tools)

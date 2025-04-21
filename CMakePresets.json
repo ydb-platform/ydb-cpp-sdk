@@ -102,7 +102,11 @@
       "name": "all",
       "inherits": "common",
       "displayName": "Run All Tests",
-      "configurePreset": "base"
+      "configurePreset": "base",
+      "environment": {
+        "YDB_ENDPOINT": "localhost:2136",
+        "YDB_DATABASE": "/local"
+      }
     },
     {
       "name": "unit",

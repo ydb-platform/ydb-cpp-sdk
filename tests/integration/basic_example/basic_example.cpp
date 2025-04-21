@@ -514,15 +514,3 @@ std::vector<NYdb::TResultSet> ScanQuerySelect(TTableClient client, const std::st
 
     return resultSets;
 }
-
-void DropTables(TTableClient& client, const std::string& path) {
-    ThrowOnError(client.RetryOperationSync([path](TSession session) {
-        return session.DropTable(JoinPath(path, "series")).ExtractValueSync();
-    }));
-    ThrowOnError(client.RetryOperationSync([path](TSession session) {
-        return session.DropTable(JoinPath(path, "seasons")).ExtractValueSync();
-    }));
-    ThrowOnError(client.RetryOperationSync([path](TSession session) {
-        return session.DropTable(JoinPath(path, "episodes")).ExtractValueSync();
-    }));
-}

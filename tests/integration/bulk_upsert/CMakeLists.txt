@@ -1,4 +1,4 @@
-add_ydb_test(NAME bulk_upsert GTEST
+add_ydb_test(NAME bulk_upsert_it GTEST
   SOURCES
     main.cpp
     bulk_upsert.cpp
