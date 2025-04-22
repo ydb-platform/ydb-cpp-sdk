@@ -24,8 +24,7 @@ struct TRpcRequestSettings {
         rpcSettings.TraceId = settings.TraceId_;
         rpcSettings.RequestType = settings.RequestType_;
         rpcSettings.Header = settings.Header_;
-
-        // Add TraceParent to headers (if it is set)
+        
         if (!settings.TraceParent_.empty()) {
             rpcSettings.Header.emplace_back("traceparent", settings.TraceParent_);
         }
