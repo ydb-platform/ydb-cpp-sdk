@@ -207,7 +207,7 @@ protected:
     void ApplyMeta(const TCallMeta& meta) {
         for (const auto& rec : meta.Aux) {
             Context.AddMetadata(NYdb::TStringType{rec.first}, NYdb::TStringType{rec.second});
-        }        
+        }
         if (meta.CallCredentials) {
             Context.set_credentials(meta.CallCredentials);
         }
