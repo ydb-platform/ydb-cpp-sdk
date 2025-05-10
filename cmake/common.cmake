@@ -173,7 +173,7 @@ function(resources Tgt Output)
 endfunction()
 
 function(_ydb_sdk_make_client_component CmpName Tgt)
-  add_library(YDB-CPP-SDK::${CmpName} ALIAS ${Tgt})
+  add_library(ydb-cpp-sdk::${CmpName} ALIAS ${Tgt})
 
   _ydb_sdk_install_targets(TARGETS ${Tgt} ${ARGN})
   set(YDB-CPP-SDK_AVAILABLE_COMPONENTS ${YDB-CPP-SDK_AVAILABLE_COMPONENTS} ${CmpName} CACHE INTERNAL "")
@@ -182,7 +182,7 @@ endfunction()
 
 function(_ydb_sdk_add_library Tgt)
   cmake_parse_arguments(ARG
-    "INTERFACE" "" ""
+    "INTERFACE;OBJECT" "" ""
     ${ARGN}
   )
 
@@ -191,6 +191,9 @@ function(_ydb_sdk_add_library Tgt)
   if (ARG_INTERFACE)
     set(libraryMode "INTERFACE")
     set(includeMode "INTERFACE")
+  endif()
+  if (ARG_OBJECT)
+    set(libraryMode "OBJECT")
   endif()
   add_library(${Tgt} ${libraryMode})
   target_include_directories(${Tgt} ${includeMode}
@@ -255,4 +258,3 @@ function(_ydb_sdk_validate_public_headers)
   )
   target_include_directories(validate_public_interface PUBLIC ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include)
 endfunction()
-

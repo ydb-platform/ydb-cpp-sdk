@@ -30,9 +30,9 @@ target_include_directories(ydb-odbc
 # Линкуем с YDB SDK и ODBC
 target_link_libraries(ydb-odbc
   PUBLIC
-    YDB-CPP-SDK::Query
-    YDB-CPP-SDK::Table
-    YDB-CPP-SDK::Driver
+    ydb-cpp-sdk::Query
+    ydb-cpp-sdk::Table
+    ydb-cpp-sdk::Driver
     ODBC::ODBC
 )
 

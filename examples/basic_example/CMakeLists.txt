@@ -3,9 +3,9 @@ add_executable(basic_example)
 target_link_libraries(basic_example PUBLIC
   yutil
   getopt
-  YDB-CPP-SDK::Query
-  YDB-CPP-SDK::Params
-  YDB-CPP-SDK::Driver
+  ydb-cpp-sdk::Query
+  ydb-cpp-sdk::Params
+  ydb-cpp-sdk::Driver
 )
 
 target_sources(basic_example PRIVATE
