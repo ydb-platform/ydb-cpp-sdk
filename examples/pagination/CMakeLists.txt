@@ -3,7 +3,7 @@ add_executable(pagination)
 target_link_libraries(pagination PUBLIC
   yutil
   getopt
-  YDB-CPP-SDK::Table
+  ydb-cpp-sdk::Table
 )
 
 target_sources(pagination PRIVATE
