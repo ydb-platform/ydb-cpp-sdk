@@ -4,7 +4,7 @@ add_ydb_test(NAME server_restart_it GTEST
   LINK_LIBRARIES
     yutil
     api-grpc
-    YDB-CPP-SDK::Query
+    ydb-cpp-sdk::Query
     gRPC::grpc++
   LABELS
     integration
