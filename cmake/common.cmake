@@ -184,7 +184,7 @@ function(resources Tgt Output)
 endfunction()
 
 function(_ydb_sdk_make_client_component CmpName Tgt)
-  add_library(YDB-CPP-SDK::${CmpName} ALIAS ${Tgt})
+  add_library(ydb-cpp-sdk::${CmpName} ALIAS ${Tgt})
 
   if (CmpName STREQUAL "Iam" OR CmpName STREQUAL "IamPrivate")
     set(PKG_COMP_NAME "libydb-cpp-iam")
@@ -212,7 +212,7 @@ endfunction()
 
 function(_ydb_sdk_add_library Tgt)
   cmake_parse_arguments(ARG
-    "INTERFACE" "" ""
+    "INTERFACE;OBJECT" "" ""
     ${ARGN}
   )
 
@@ -222,7 +222,9 @@ function(_ydb_sdk_add_library Tgt)
     set(libraryMode "INTERFACE")
     set(includeMode "INTERFACE")
   endif()
-  
+  if (ARG_OBJECT)
+    set(libraryMode "OBJECT")
+  endif()
   add_library(${Tgt} ${libraryMode})
   target_include_directories(${Tgt} ${includeMode}
     $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}>
