@@ -3,7 +3,7 @@ add_executable(vector_index)
 target_link_libraries(vector_index PUBLIC
   yutil
   getopt
-  YDB-CPP-SDK::Table
+  ydb-cpp-sdk::Table
 )
 
 target_sources(vector_index PRIVATE
