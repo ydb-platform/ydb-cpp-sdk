@@ -2,7 +2,7 @@ add_executable(read_from_topic_in_transaction)
 
 target_link_libraries(read_from_topic_in_transaction PUBLIC
   yutil
-  YDB-CPP-SDK::Topic
+  ydb-cpp-sdk::Topic
   getopt
 )
 

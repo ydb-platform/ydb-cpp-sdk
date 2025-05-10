@@ -6,9 +6,9 @@ add_ydb_test(NAME basic_example_it GTEST
   LINK_LIBRARIES
     yutil
     api-protos
-    YDB-CPP-SDK::Driver
-    YDB-CPP-SDK::Proto
-    YDB-CPP-SDK::Table
+    ydb-cpp-sdk::Driver
+    ydb-cpp-sdk::Proto
+    ydb-cpp-sdk::Table
   LABELS
     integration
 )

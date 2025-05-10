@@ -34,8 +34,8 @@ add_ydb_test(NAME client-driver_ut
     driver/driver_ut.cpp
   LINK_LIBRARIES
     yutil
-    YDB-CPP-SDK::Driver
-    YDB-CPP-SDK::Table
+    ydb-cpp-sdk::Driver
+    ydb-cpp-sdk::Table
   LABELS
     unit
 )
