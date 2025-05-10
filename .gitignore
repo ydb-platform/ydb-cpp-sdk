@@ -52,6 +52,8 @@ __pycache__/
 
 .idea/
 .vscode/
+.cursor/
+.cursorrules
 
 # KDevelop IDE
 *.kdev4
