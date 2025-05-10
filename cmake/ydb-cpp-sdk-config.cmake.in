@@ -115,7 +115,7 @@ function(_find_ydb_sdk_component CompName)
     message(FATAL_ERROR "${CompName} is not available component")
   endif()
   list(GET YDB-CPP-SDK_COMPONENT_TARGETS ${CompId} Tgt)
-  add_library(YDB-CPP-SDK::${CompName} ALIAS YDB-CPP-SDK::${Tgt})
+  add_library(ydb-cpp-sdk::${CompName} ALIAS ydb-cpp-sdk::${Tgt})
   set(${_ydb_sdk_package_name}_${CompName}_FOUND TRUE PARENT_SCOPE)
 endfunction()
 
