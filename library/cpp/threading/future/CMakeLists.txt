@@ -25,6 +25,7 @@ if (YDB_SDK_TESTS)
       future_mt_ut.cpp
       future_ut.cpp
     LINK_LIBRARIES
+      yutil
       threading-future
     LABELS
       unit
@@ -34,6 +35,7 @@ if (YDB_SDK_TESTS)
     SOURCES
       ut_gtest/coroutine_traits_ut.cpp
     LINK_LIBRARIES
+      yutil
       threading-future
     LABELS
       unit
