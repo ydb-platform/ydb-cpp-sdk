@@ -1,11 +1,10 @@
-add_ydb_test(NAME server_restart_it GTEST
+add_ydb_test(NAME sessions_pool_it GTEST
   SOURCES
     main.cpp
   LINK_LIBRARIES
     yutil
+    YDB-CPP-SDK::Table
     api-grpc
-    YDB-CPP-SDK::Query
-    gRPC::grpc++
   LABELS
     integration
 )
