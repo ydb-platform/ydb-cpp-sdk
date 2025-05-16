@@ -5,7 +5,7 @@ string(REGEX MATCH "YDB_SDK_VERSION = \"([0-9]+\\.[0-9]+\\.[0-9]+)\"" _ ${YDB_SD
 set(YDB_SDK_VERSION ${CMAKE_MATCH_1})
 message(STATUS "YDB C++ SDK version: ${YDB_SDK_VERSION}")
 
-project(ydb-cpp-sdk VERSION ${YDB_SDK_VERSION} LANGUAGES C CXX ASM)
+project(YDB-CPP-SDK VERSION ${YDB_SDK_VERSION} LANGUAGES C CXX ASM)
 
 option(YDB_SDK_INSTALL "Install YDB C++ SDK" Off)
 option(YDB_SDK_TESTS "Build YDB C++ SDK tests" Off)
@@ -62,7 +62,6 @@ add_subdirectory(include/ydb-cpp-sdk/client)
 add_subdirectory(src)
 add_subdirectory(util)
 add_subdirectory(plugins)
-add_subdirectory(c_api)
 
 #_ydb_sdk_validate_public_headers()
 
@@ -153,7 +152,7 @@ if (YDB_SDK_INSTALL)
   install(EXPORT ydb-cpp-sdk-targets
     FILE ydb-cpp-sdk-targets.cmake
     CONFIGURATIONS RELEASE
-    NAMESPACE ydb-cpp-sdk::
+    NAMESPACE YDB-CPP-SDK::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ydb-cpp-sdk/release
     COMPONENT libydb-cpp
   )
