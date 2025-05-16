@@ -1,4 +1,6 @@
-add_library(ydb-c-api STATIC
+_ydb_sdk_add_library(ydb-c-api SHARED)
+
+target_sources(ydb-c-api PRIVATE
   src/driver.cpp
   src/query.cpp
   src/result.cpp
