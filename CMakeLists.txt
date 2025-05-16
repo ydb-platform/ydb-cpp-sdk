@@ -59,7 +59,6 @@ add_subdirectory(library/cpp)
 add_subdirectory(include/ydb-cpp-sdk/client)
 add_subdirectory(src)
 add_subdirectory(util)
-add_subdirectory(c_api)
 
 #_ydb_sdk_validate_public_headers()
 
