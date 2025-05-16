@@ -1,39 +1,29 @@
-cmake_minimum_required(VERSION 3.14)
-project(ydb-odbc VERSION 0.1.0 LANGUAGES C CXX)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-# Находим зависимости
-find_package(ODBC REQUIRED)
-
 # Добавляем исходники
 add_library(ydb-odbc SHARED
-  src/driver.c
-  src/connection.c
-  src/statement.c
-  src/descriptor.c
-  src/client/driver.cpp
-  src/client/query.cpp
+  src/odbc_driver.cpp
+  src/connection.cpp
+  src/statement.cpp
+  src/environment.cpp
 )
 
 # Добавляем заголовочные файлы
 target_include_directories(ydb-odbc
-  PUBLIC
+  PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${ODBC_INCLUDE_DIRS}
-    /usr/include
-    /usr/local/include
 )
 
 # Линкуем с YDB SDK и ODBC
 target_link_libraries(ydb-odbc
-  PUBLIC
+  PRIVATE
     ydb-cpp-sdk::Query
     ydb-cpp-sdk::Table
     ydb-cpp-sdk::Driver
     ODBC::ODBC
+)
+
+set_target_properties(ydb-odbc PROPERTIES
+  POSITION_INDEPENDENT_CODE ON
 )
 
 # Устанавливаем драйвер
@@ -45,6 +35,8 @@ install(TARGETS ydb-odbc
 install(DIRECTORY include/
   DESTINATION include/ydb-odbc
 )
+
+add_subdirectory(examples)
 
 # Добавляем тесты
 # add_subdirectory(tests)

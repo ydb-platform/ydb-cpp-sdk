@@ -64,7 +64,7 @@ add_subdirectory(c_api)
 #_ydb_sdk_validate_public_headers()
 
 if (YDB_SDK_ODBC)
-  #add_subdirectory(odbc)
+  add_subdirectory(odbc)
 endif()
 
 if (YDB_SDK_EXAMPLES)
