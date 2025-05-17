@@ -15,6 +15,10 @@ find_package(jwt-cpp REQUIRED)
 find_package(GTest REQUIRED)
 find_package(double-conversion REQUIRED)
 
+if (YDB_SDK_ODBC)
+  find_package(ODBC REQUIRED)
+endif()
+
 # RapidJSON
 if (YDB_SDK_USE_RAPID_JSON)
   find_package(RapidJSON REQUIRED)

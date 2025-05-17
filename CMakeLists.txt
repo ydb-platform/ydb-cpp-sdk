@@ -5,11 +5,12 @@ string(REGEX MATCH "YDB_SDK_VERSION = \"([0-9]+\\.[0-9]+\\.[0-9]+)\"" _ ${YDB_SD
 set(YDB_SDK_VERSION ${CMAKE_MATCH_1})
 message(STATUS "YDB С++ SDK version: ${YDB_SDK_VERSION}")
 
-project(YDB-CPP-SDK VERSION ${YDB_SDK_VERSION} LANGUAGES C CXX ASM)
+project(ydb-cpp-sdk VERSION ${YDB_SDK_VERSION} LANGUAGES C CXX ASM)
 
 option(YDB_SDK_INSTALL "Install YDB C++ SDK" Off)
 option(YDB_SDK_TESTS "Build YDB C++ SDK tests" Off)
 option(YDB_SDK_EXAMPLES "Build YDB C++ SDK examples" On)
+option(YDB_SDK_ODBC "Build YDB ODBC driver" On)
 set(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET "" CACHE STRING "Name of cmake target preparing google common proto library")
 option(YDB_SDK_USE_RAPID_JSON "Search for rapid json library in system" ON)
 
@@ -62,6 +63,10 @@ add_subdirectory(util)
 
 #_ydb_sdk_validate_public_headers()
 
+if (YDB_SDK_ODBC)
+  add_subdirectory(odbc)
+endif()
+
 if (YDB_SDK_EXAMPLES)
   add_subdirectory(examples)
 endif()
@@ -75,7 +80,7 @@ if (YDB_SDK_INSTALL)
   install(EXPORT ydb-cpp-sdk-targets
     FILE ydb-cpp-sdk-targets.cmake
     CONFIGURATIONS RELEASE
-    NAMESPACE YDB-CPP-SDK::
+    NAMESPACE ydb-cpp-sdk::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ydb-cpp-sdk/release
   )
   configure_package_config_file(

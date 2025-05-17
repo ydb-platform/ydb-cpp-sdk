@@ -2,7 +2,7 @@ add_executable(simple_persqueue_reader)
 
 target_link_libraries(simple_persqueue_reader PUBLIC
   yutil
-  YDB-CPP-SDK::Topic
+  ydb-cpp-sdk::Topic
   getopt
 )
 
