@@ -20,6 +20,7 @@ target_compile_options(client-ydb_federated_topic-impl PRIVATE
 )
 
 target_sources(client-ydb_federated_topic-impl PRIVATE
+  federated_deferred_commit.cpp
   federated_read_session.cpp
   federated_read_session_event.cpp
   federated_write_session.cpp
