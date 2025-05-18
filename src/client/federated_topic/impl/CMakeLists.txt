@@ -12,6 +12,7 @@ target_link_libraries(client-ydb_federated_topic-impl PUBLIC
   impl-ydb_internal-make_request
   client-ydb_common_client-impl
   client-ydb_driver
+  client-ydb_topic-impl
   client-ydb_proto
 )
 
