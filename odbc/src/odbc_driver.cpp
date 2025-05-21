@@ -1,0 +1,253 @@
+#include "environment.h"
+#include "connection.h"
+#include "statement.h"
+
+#include <sql.h>
+#include <sqlext.h>
+
+namespace {
+    std::string GetString(SQLCHAR* str, SQLSMALLINT length) {
+        if (length == SQL_NTS) {
+            return std::string(reinterpret_cast<const char*>(str));
+        }
+        return std::string(reinterpret_cast<const char*>(str), length);
+    }
+}
+
+extern "C" {
+
+SQLRETURN SQL_API SQLAllocHandle(SQLSMALLINT handleType, 
+                                 SQLHANDLE inputHandle,
+                                 SQLHANDLE* outputHandle) {
+    if (!outputHandle) {
+        return SQL_INVALID_HANDLE;
+    }
+    
+    try {
+        switch (handleType) {
+            case SQL_HANDLE_ENV: {
+                if (inputHandle != SQL_NULL_HANDLE) {
+                    return SQL_INVALID_HANDLE;
+                }
+
+                *outputHandle = new NYdb::NOdbc::TEnvironment();
+                return SQL_SUCCESS;
+            }
+
+            case SQL_HANDLE_DBC: {
+                if (!inputHandle) {
+                    return SQL_INVALID_HANDLE;
+                }
+
+                *outputHandle = new NYdb::NOdbc::TConnection();
+                return SQL_SUCCESS;
+            }
+
+            case SQL_HANDLE_STMT: {
+                auto conn = static_cast<NYdb::NOdbc::TConnection*>(inputHandle);
+                if (!conn) {
+                    return SQL_INVALID_HANDLE;
+                }
+                auto stmt = conn->CreateStatement();
+                *outputHandle = stmt.release();
+                return SQL_SUCCESS;
+            }
+
+            default:
+                return SQL_ERROR;
+        }
+    } catch (...) {
+        return SQL_ERROR;
+    }
+}
+
+SQLRETURN SQL_API SQLFreeHandle(SQLSMALLINT handleType, SQLHANDLE handle) {
+    if (!handle) {
+        return SQL_INVALID_HANDLE;
+    }
+    
+    try {
+        switch (handleType) {
+            case SQL_HANDLE_ENV: {
+                auto env = static_cast<NYdb::NOdbc::TEnvironment*>(handle);
+                delete env;
+                return SQL_SUCCESS;
+            }
+            
+            case SQL_HANDLE_DBC: {
+                auto conn = static_cast<NYdb::NOdbc::TConnection*>(handle);
+                delete conn;
+                return SQL_SUCCESS;
+            }
+            
+            case SQL_HANDLE_STMT: {
+                auto stmt = static_cast<NYdb::NOdbc::TStatement*>(handle);
+                if (stmt->GetConnection()) {
+                    stmt->GetConnection()->RemoveStatement(stmt);
+                }
+                delete stmt;
+                return SQL_SUCCESS;
+            }
+            
+            default:
+                return SQL_ERROR;
+        }
+    } catch (...) {
+        return SQL_ERROR;
+    }
+}
+
+SQLRETURN SQL_API SQLSetEnvAttr(SQLHENV environmentHandle,
+                                SQLINTEGER attribute,
+                                SQLPOINTER value,
+                                SQLINTEGER stringLength) {
+    auto env = static_cast<NYdb::NOdbc::TEnvironment*>(environmentHandle);
+    if (!env) {
+        return SQL_INVALID_HANDLE;
+    }
+    
+    return env->SetAttribute(attribute, value, stringLength);
+}
+
+SQLRETURN SQL_API SQLDriverConnect(SQLHDBC connectionHandle,
+                                   SQLHWND /*WindowHandle*/,
+                                   SQLCHAR* inConnectionString,
+                                   SQLSMALLINT stringLength1,
+                                   SQLCHAR* /*outConnectionString*/,
+                                   SQLSMALLINT /*bufferLength*/,
+                                   SQLSMALLINT* /*stringLength2Ptr*/,
+                                   SQLUSMALLINT /*driverCompletion*/) {
+    auto conn = static_cast<NYdb::NOdbc::TConnection*>(connectionHandle);
+    if (!conn) {
+        return SQL_INVALID_HANDLE;
+    }
+
+    return conn->DriverConnect(GetString(inConnectionString, stringLength1));
+}
+
+SQLRETURN SQL_API SQLConnect(SQLHDBC connectionHandle,
+                             SQLCHAR* serverName, SQLSMALLINT nameLength1,
+                             SQLCHAR* userName, SQLSMALLINT nameLength2,
+                             SQLCHAR* authentication, SQLSMALLINT nameLength3) {
+    auto conn = static_cast<NYdb::NOdbc::TConnection*>(connectionHandle);
+    if (!conn) {
+        return SQL_INVALID_HANDLE;
+    }
+
+    return conn->Connect(GetString(serverName, nameLength1),
+                         GetString(userName, nameLength2),
+                         GetString(authentication, nameLength3));
+}
+
+SQLRETURN SQL_API SQLDisconnect(SQLHDBC connectionHandle) {
+    auto conn = static_cast<NYdb::NOdbc::TConnection*>(connectionHandle);
+    if (!conn) {
+        return SQL_INVALID_HANDLE;
+    }
+    
+    return conn->Disconnect();
+}
+
+SQLRETURN SQL_API SQLExecDirect(SQLHSTMT statementHandle,
+                                SQLCHAR* statementText,
+                                SQLINTEGER textLength) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+
+    return stmt->ExecDirect(GetString(statementText, textLength));
+}
+
+SQLRETURN SQL_API SQLFetch(SQLHSTMT statementHandle) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+    
+    return stmt->Fetch();
+}
+
+SQLRETURN SQL_API SQLGetData(SQLHSTMT statementHandle,
+                             SQLUSMALLINT columnNumber,
+                             SQLSMALLINT targetType,
+                             SQLPOINTER targetValue,
+                             SQLLEN bufferLength,
+                             SQLLEN* strLenOrInd) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+    
+    return stmt->GetData(columnNumber, targetType, targetValue, bufferLength, strLenOrInd);
+}
+
+SQLRETURN SQL_API SQLBindCol(SQLHSTMT statementHandle,
+                             SQLUSMALLINT columnNumber,
+                             SQLSMALLINT targetType,
+                             SQLPOINTER targetValue,
+                             SQLLEN bufferLength,
+                             SQLLEN* strLenOrInd) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+    return stmt->BindCol(columnNumber, targetType, targetValue, bufferLength, strLenOrInd);
+}
+
+SQLRETURN SQL_API SQLGetDiagRec(SQLSMALLINT handleType,
+                                SQLHANDLE handle,
+                                SQLSMALLINT recNumber,
+                                SQLCHAR* sqlState,
+                                SQLINTEGER* nativeError,
+                                SQLCHAR* messageText,
+                                SQLSMALLINT bufferLength,
+                                SQLSMALLINT* textLength) {
+    if (!handle) {
+        return SQL_INVALID_HANDLE;
+    }
+    
+    try {
+        switch (handleType) {
+            case SQL_HANDLE_ENV: {
+                auto env = static_cast<NYdb::NOdbc::TEnvironment*>(handle);
+                return env->GetDiagRec(recNumber, sqlState, nativeError, messageText, bufferLength, textLength);
+            }
+            
+            case SQL_HANDLE_DBC: {
+                auto conn = static_cast<NYdb::NOdbc::TConnection*>(handle);
+                return conn->GetDiagRec(recNumber, sqlState, nativeError, messageText, bufferLength, textLength);
+            }
+            
+            case SQL_HANDLE_STMT: {
+                auto stmt = static_cast<NYdb::NOdbc::TStatement*>(handle);
+                return stmt->GetDiagRec(recNumber, sqlState, nativeError, messageText, bufferLength, textLength);
+            }
+            
+            default:
+                return SQL_ERROR;
+        }
+    } catch (...) {
+        return SQL_ERROR;
+    }
+}
+
+SQLRETURN SQL_API SQLBindParameter(SQLHSTMT statementHandle,
+                                   SQLUSMALLINT paramNumber,
+                                   SQLSMALLINT inputOutputType,
+                                   SQLSMALLINT valueType,
+                                   SQLSMALLINT parameterType,
+                                   SQLULEN columnSize,
+                                   SQLSMALLINT decimalDigits,
+                                   SQLPOINTER parameterValuePtr,
+                                   SQLLEN bufferLength,
+                                   SQLLEN* strLenOrIndPtr) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+    
+    return stmt->BindParameter(paramNumber, inputOutputType, valueType, parameterType, columnSize, decimalDigits, parameterValuePtr, bufferLength, strLenOrIndPtr);
+}
+
+}
