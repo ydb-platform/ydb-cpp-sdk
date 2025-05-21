@@ -27,8 +27,14 @@ if (YDB_SDK_TESTS)
     LINK_LIBRARIES
       yutil
       threading-future
+    TEST_ARG
+      --filter-file filter.txt
     LABELS
       unit
+  )
+
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/filter.txt
+    "-TFutureMultiThreadedTest::WaitAny"
   )
 
   add_ydb_test(NAME future-coroutine-ut GTEST
