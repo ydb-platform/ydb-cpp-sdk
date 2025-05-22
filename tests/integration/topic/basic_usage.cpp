@@ -926,6 +926,11 @@ namespace {
 class TSettingsValidation : public TTopicTestFixture {};
 
 TEST_F(TSettingsValidation, TestDifferentDedupParams) {
+    char* ydbVersion = std::getenv("YDB_VERSION");
+    if (ydbVersion != nullptr && std::string(ydbVersion) != "trunk" && std::string(ydbVersion) < "24.3") {
+        GTEST_SKIP() << "Skipping test for YDB version " << ydbVersion;
+    }
+
     auto driver = MakeDriver();
 
     TTopicClient client(driver);
@@ -946,7 +951,7 @@ TEST_F(TSettingsValidation, TestDifferentDedupParams) {
         std::cerr.flush();
         std::this_thread::sleep_for(std::chrono::milliseconds(250));
         std::cerr << "=== === START TEST. Producer = '" << producer << "', MsgGroup = '" << msgGroup << "', useDedup: "
-                << useDedupStr << ", manual SeqNo: " << useSeqNo << std::endl;
+                  << useDedupStr << ", manual SeqNo: " << useSeqNo << std::endl;
 
         try {
             if (useDedup.has_value()) {
