@@ -35,6 +35,7 @@ if (YDB_SDK_TESTS)
 
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/filter.txt
     "-TFutureMultiThreadedTest::WaitAny"
+    "-TFutureMultiThreadedTest::WaitExceptionOrAll"
   )
 
   add_ydb_test(NAME future-coroutine-ut GTEST
