@@ -21,8 +21,6 @@ _ydb_sdk_install_targets(TARGETS threading-future)
 
 if (YDB_SDK_TESTS)
   add_ydb_test(NAME future-ut
-    WORKING_DIRECTORY
-      ${CMAKE_CURRENT_BINARY_DIR}
     SOURCES
       future_mt_ut.cpp
       future_ut.cpp
@@ -36,7 +34,7 @@ if (YDB_SDK_TESTS)
   )
 
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/filter.txt
-    "-TFutureMultiThreadedTest::WaitAny"
+    "-TFutureMultiThreadedTest::WaitAny\n"
     "-TFutureMultiThreadedTest::WaitExceptionOrAll"
   )
 
