@@ -371,12 +371,12 @@ public:                       \
 
 #define UNIT_FAIL_IMPL(R, M)                                                                                                                     \
     do {                                                                                                                                         \
-        ::NUnitTest::NPrivate::RaiseError(R, ::TStringBuilder() << R << " at " << __LOCATION__ << ", " << __PRETTY_FUNCTION__ << ": " << M, true); \
+        ::NUnitTest::NPrivate::RaiseError(R, ::TStringBuilder() << R << " at " << __LOCATION__ << ", " << std::string{__PRETTY_FUNCTION__} << ": " << M, true); \
     } while (false)
 
 #define UNIT_FAIL_NONFATAL_IMPL(R, M)                                                                                                             \
     do {                                                                                                                                          \
-        ::NUnitTest::NPrivate::RaiseError(R, ::TStringBuilder() << R << " at " << __LOCATION__ << ", " << __PRETTY_FUNCTION__ << ": " << M, false); \
+        ::NUnitTest::NPrivate::RaiseError(R, ::TStringBuilder() << R << " at " << __LOCATION__ << ", " << std::string{__PRETTY_FUNCTION__} << ": " << M, false); \
     } while (false)
 
 #define UNIT_FAIL(M) UNIT_FAIL_IMPL("forced failure", M)
