@@ -12,6 +12,7 @@ target_link_libraries(client-ydb_persqueue_public-impl PUBLIC
   impl-ydb_internal-make_request
   client-ydb_common_client-impl
   client-ydb_driver
+  client-ydb_persqueue_public-include
   string_utils-misc
 )
 
