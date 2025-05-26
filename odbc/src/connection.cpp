@@ -1,8 +1,10 @@
 #include "connection.h"
 #include "statement.h"
+
 #include <cstring>
 #include <string>
 #include <map>
+
 #include <sql.h>
 #include <sqlext.h>
 
@@ -12,7 +14,6 @@ namespace NYdb {
 namespace NOdbc {
 
 SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
-    // Парсим параметры
     std::map<std::string, std::string> params;
     size_t pos = 0;
     while (pos < connectionString.size()) {
@@ -50,7 +51,7 @@ SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
 SQLRETURN TConnection::Connect(const std::string& serverName,
                                const std::string& userName,
                                const std::string& auth) {
-    // Получаем параметры из секции DSN через Driver Manager API
+
     char endpoint[256] = {0};
     char database[256] = {0};
 
@@ -82,13 +83,24 @@ SQLRETURN TConnection::Disconnect() {
 
 SQLRETURN TConnection::GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLINTEGER* nativeError, 
                                  SQLCHAR* messageText, SQLSMALLINT bufferLength, SQLSMALLINT* textLength) {
-    if (recNumber < 1 || recNumber > (SQLSMALLINT)Errors_.size()) return SQL_NO_DATA;
+    if (recNumber < 1 || recNumber > (SQLSMALLINT)Errors_.size()) {
+        return SQL_NO_DATA;
+    }
+
     const auto& err = Errors_[recNumber-1];
-    if (sqlState) strncpy((char*)sqlState, err.SqlState.c_str(), 6);
-    if (nativeError) *nativeError = err.NativeError;
+    if (sqlState) {
+        strncpy((char*)sqlState, err.SqlState.c_str(), 6);
+    }
+
+    if (nativeError) {
+        *nativeError = err.NativeError;
+    }
+
     if (messageText && bufferLength > 0) {
         strncpy((char*)messageText, err.Message.c_str(), bufferLength);
-        if (textLength) *textLength = (SQLSMALLINT)std::min((int)err.Message.size(), (int)bufferLength);
+        if (textLength) {
+            *textLength = (SQLSMALLINT)std::min((int)err.Message.size(), (int)bufferLength);
+        }
     }
     return SQL_SUCCESS;
 }
@@ -111,7 +123,7 @@ void TConnection::ClearErrors() {
 }
 
 std::pair<std::string, std::string> TConnection::ParseConnectionString(const std::string& connectionString) {
-    // Заглушка
+    // TODO: Implement
     return {"", ""};
 }
 
