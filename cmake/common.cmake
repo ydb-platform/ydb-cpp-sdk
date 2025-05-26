@@ -173,7 +173,7 @@ function(resources Tgt Output)
 endfunction()
 
 function(_ydb_sdk_make_client_component CmpName Tgt)
-  add_library(ydb-cpp-sdk::${CmpName} ALIAS ${Tgt})
+  add_library(YDB-CPP-SDK::${CmpName} ALIAS ${Tgt})
 
   _ydb_sdk_install_targets(TARGETS ${Tgt} ${ARGN})
   set(YDB-CPP-SDK_AVAILABLE_COMPONENTS ${YDB-CPP-SDK_AVAILABLE_COMPONENTS} ${CmpName} CACHE INTERNAL "")
