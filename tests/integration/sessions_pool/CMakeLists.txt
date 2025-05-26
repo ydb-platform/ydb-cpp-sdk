@@ -3,7 +3,7 @@ add_ydb_test(NAME sessions_pool_it GTEST
     main.cpp
   LINK_LIBRARIES
     yutil
-    YDB-CPP-SDK::Table
+    ydb-cpp-sdk::Table
     api-grpc
   LABELS
     integration
