@@ -3,7 +3,7 @@ add_executable(bulk_upsert_simple)
 target_link_libraries(bulk_upsert_simple PUBLIC
   yutil
   getopt
-  ydb-cpp-sdk::Table
+  YDB-CPP-SDK::Table
 )
 
 target_sources(bulk_upsert_simple PRIVATE

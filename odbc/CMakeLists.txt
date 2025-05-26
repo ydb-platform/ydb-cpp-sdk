@@ -14,9 +14,9 @@ target_include_directories(ydb-odbc
 
 target_link_libraries(ydb-odbc
   PRIVATE
-    ydb-cpp-sdk::Query
-    ydb-cpp-sdk::Table
-    ydb-cpp-sdk::Driver
+    YDB-CPP-SDK::Query
+    YDB-CPP-SDK::Table
+    YDB-CPP-SDK::Driver
     ODBC::ODBC
 )
 
