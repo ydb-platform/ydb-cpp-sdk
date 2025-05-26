@@ -19,14 +19,17 @@ class TStatement;
 
 class TConnection {
 private:
-    std::unique_ptr<NYdb::TDriver> YdbDriver_;
-    std::unique_ptr<NYdb::NQuery::TQueryClient> YdbClient_;
+    std::unique_ptr<TDriver> YdbDriver_;
+    std::unique_ptr<NQuery::TQueryClient> YdbClient_;
+    std::optional<NQuery::TTransaction> Tx_;
 
     TErrorList Errors_;
     std::vector<std::unique_ptr<TStatement>> Statements_;
     std::string Endpoint_;
     std::string Database_;
     std::string AuthToken_;
+
+    bool Autocommit_ = true;
 
 public:
     SQLRETURN Connect(const std::string& serverName,
@@ -46,8 +49,14 @@ public:
     void AddError(const std::string& sqlState, SQLINTEGER nativeError, const std::string& message);
     void ClearErrors();
 
-private:
-    std::pair<std::string, std::string> ParseConnectionString(const std::string& connectionString);
+    SQLRETURN SetAutocommit(bool value);
+    bool GetAutocommit() const;
+
+    const std::optional<NQuery::TTransaction>& GetTx();
+    void SetTx(const NQuery::TTransaction& tx);
+
+    SQLRETURN CommitTx();
+    SQLRETURN RollbackTx();
 };
 
 } // namespace NOdbc
