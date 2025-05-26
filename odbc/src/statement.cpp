@@ -22,14 +22,23 @@ SQLRETURN TStatement::ExecDirect(const std::string& statementText) {
         return SQL_ERROR;
     }
 
-    auto sessionResult = client->GetSession().ExtractValueSync();
-    if (!sessionResult.IsSuccess()) {
-        return SQL_ERROR;
+    if (!Conn_->GetTx()) {
+        auto sessionResult = client->GetSession().ExtractValueSync();
+        if (!sessionResult.IsSuccess()) {
+            return SQL_ERROR;
+        }
+        auto session = sessionResult.GetSession();
+        auto beginTxResult = session.BeginTransaction(NQuery::TTxSettings::SerializableRW()).ExtractValueSync();
+        if (!beginTxResult.IsSuccess()) {
+            return SQL_ERROR;
+        }
+        Conn_->SetTx(beginTxResult.GetTransaction());
     }
 
-    auto session = sessionResult.GetSession();
+    auto session = Conn_->GetTx()->GetSession();
+    auto iterator = session.StreamExecuteQuery(statementText,
+        NQuery::TTxControl::Tx(*Conn_->GetTx()).CommitTx(Conn_->GetAutocommit()), params).ExtractValueSync();
 
-    auto iterator = session.StreamExecuteQuery(statementText, NYdb::NQuery::TTxControl::NoTx(), params).ExtractValueSync();
     if (!iterator.IsSuccess()) {
         return SQL_ERROR;
     }
