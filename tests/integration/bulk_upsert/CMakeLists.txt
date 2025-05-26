@@ -5,7 +5,7 @@ add_ydb_test(NAME bulk_upsert_it GTEST
     bulk_upsert.h
   LINK_LIBRARIES
     yutil
-    ydb-cpp-sdk::Table
+    YDB-CPP-SDK::Table
   LABELS
     integration
 )
