@@ -1,15 +1,16 @@
 #pragma once
 
-#include <sql.h>
-#include <sqlext.h>
-#include <memory>
-#include <vector>
-#include <string>
+#include "environment.h"
 
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/query/client.h>
 
-#include "environment.h"
+#include <sql.h>
+#include <sqlext.h>
+
+#include <memory>
+#include <vector>
+#include <string>
 
 namespace NYdb {
 namespace NOdbc {
