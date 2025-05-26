@@ -9,6 +9,7 @@ template<SQLSMALLINT CType>
 struct TSqlTypeTraits;
 
 template<> struct TSqlTypeTraits<SQL_C_CHAR> { using Type = std::string; };
+template<> struct TSqlTypeTraits<SQL_C_BINARY> { using Type = std::string; };
 template<> struct TSqlTypeTraits<SQL_C_SBIGINT> { using Type = SQLBIGINT; };
 template<> struct TSqlTypeTraits<SQL_C_UBIGINT> { using Type = SQLUBIGINT; };
 template<> struct TSqlTypeTraits<SQL_C_LONG> { using Type = SQLINTEGER; };
@@ -35,6 +36,11 @@ struct TTypedValue {
 
 template<>
 TTypedValue<SQL_C_CHAR>::TTypedValue(const TBoundParam& param) {
+    Data = std::string(static_cast<const char*>(param.ParameterValuePtr), param.BufferLength);
+}
+
+template<>
+TTypedValue<SQL_C_BINARY>::TTypedValue(const TBoundParam& param) {
     Data = std::string(static_cast<const char*>(param.ParameterValuePtr), param.BufferLength);
 }
 
@@ -259,15 +265,15 @@ REGISTER_CONVERTER(SQL_C_CHAR, SQL_LONGVARCHAR, EPrimitiveType::Utf8) {
 
 // Binary types
 
-REGISTER_CONVERTER(SQL_C_CHAR, SQL_BINARY, EPrimitiveType::String) {
+REGISTER_CONVERTER(SQL_C_BINARY, SQL_BINARY, EPrimitiveType::String) {
     builder.OptionalString(std::move(data));
 }
 
-REGISTER_CONVERTER(SQL_C_CHAR, SQL_VARBINARY, EPrimitiveType::String) {
+REGISTER_CONVERTER(SQL_C_BINARY, SQL_VARBINARY, EPrimitiveType::String) {
     builder.OptionalString(std::move(data));
 }
 
-REGISTER_CONVERTER(SQL_C_CHAR, SQL_LONGVARBINARY, EPrimitiveType::String) {
+REGISTER_CONVERTER(SQL_C_BINARY, SQL_LONGVARBINARY, EPrimitiveType::String) {
     builder.OptionalString(std::move(data));
 }
 
