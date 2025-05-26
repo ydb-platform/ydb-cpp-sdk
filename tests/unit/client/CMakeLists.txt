@@ -3,7 +3,7 @@ add_ydb_test(NAME client-ydb_coordination_ut
     coordination/coordination_ut.cpp
   LINK_LIBRARIES
     yutil
-    ydb-cpp-sdk::Coordination
+    YDB-CPP-SDK::Coordination
     api-grpc
   LABELS
     unit
@@ -14,8 +14,8 @@ add_ydb_test(NAME client-extensions-discovery_mutator_ut
     discovery_mutator/discovery_mutator_ut.cpp
   LINK_LIBRARIES
     yutil
-    ydb-cpp-sdk::DiscoveryMutator
-    ydb-cpp-sdk::Table
+    YDB-CPP-SDK::DiscoveryMutator
+    YDB-CPP-SDK::Table
   LABELS
     unit
 )
@@ -25,8 +25,8 @@ add_ydb_test(NAME client-ydb_driver_ut
     driver/driver_ut.cpp
   LINK_LIBRARIES
     yutil
-    ydb-cpp-sdk::Driver
-    ydb-cpp-sdk::Table
+    YDB-CPP-SDK::Driver
+    YDB-CPP-SDK::Table
   LABELS
     unit
 )
@@ -62,7 +62,7 @@ add_ydb_test(NAME client-ydb_params_ut GTEST
     params/params_ut.cpp
   LINK_LIBRARIES
     yutil
-    ydb-cpp-sdk::Params
+    YDB-CPP-SDK::Params
   LABELS
     unit
 )
@@ -72,8 +72,8 @@ add_ydb_test(NAME client-ydb_result_ut
     result/result_ut.cpp
   LINK_LIBRARIES
     yutil
-    ydb-cpp-sdk::Result
-    ydb-cpp-sdk::Params
+    YDB-CPP-SDK::Result
+    YDB-CPP-SDK::Params
   LABELS
     unit
 )
@@ -83,8 +83,8 @@ add_ydb_test(NAME client-ydb_value_ut GTEST
     value/value_ut.cpp
   LINK_LIBRARIES
     yutil
-    ydb-cpp-sdk::Value
-    ydb-cpp-sdk::Params
+    YDB-CPP-SDK::Value
+    YDB-CPP-SDK::Params
   LABELS
     unit
 )
