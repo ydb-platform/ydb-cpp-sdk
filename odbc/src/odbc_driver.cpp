@@ -250,4 +250,62 @@ SQLRETURN SQL_API SQLBindParameter(SQLHSTMT statementHandle,
     return stmt->BindParameter(paramNumber, inputOutputType, valueType, parameterType, columnSize, decimalDigits, parameterValuePtr, bufferLength, strLenOrIndPtr);
 }
 
+SQLRETURN SQL_API SQLEndTran(SQLSMALLINT handleType, SQLHANDLE handle, SQLSMALLINT completionType) {
+    if (!handle) {
+        return SQL_INVALID_HANDLE;
+    }
+    try {
+        switch (handleType) {
+            case SQL_HANDLE_DBC: {
+                auto conn = static_cast<NYdb::NOdbc::TConnection*>(handle);
+                if (completionType == SQL_COMMIT) {
+                    return conn->CommitTx();
+                } else if (completionType == SQL_ROLLBACK) {
+                    return conn->RollbackTx();
+                } else {
+                    return SQL_ERROR;
+                }
+            }
+            case SQL_HANDLE_STMT: {
+                auto stmt = static_cast<NYdb::NOdbc::TStatement*>(handle);
+                auto conn = stmt->GetConnection();
+                if (!conn) return SQL_INVALID_HANDLE;
+                if (completionType == SQL_COMMIT) {
+                    return conn->CommitTx();
+                } else if (completionType == SQL_ROLLBACK) {
+                    return conn->RollbackTx();
+                } else {
+                    return SQL_ERROR;
+                }
+            }
+            case SQL_HANDLE_ENV: {
+                // TODO: if's list of connections in ENV, go through them and commit/rollback transactions
+                return SQL_SUCCESS;
+            }
+            default:
+                return SQL_ERROR;
+        }
+    } catch (...) {
+        return SQL_ERROR;
+    }
+}
+
+SQLRETURN SQL_API SQLSetConnectAttr(SQLHDBC connectionHandle, SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER stringLength) {
+    auto conn = static_cast<NYdb::NOdbc::TConnection*>(connectionHandle);
+    if (!conn) {
+        return SQL_INVALID_HANDLE;
+    }
+    if (attribute == SQL_ATTR_AUTOCOMMIT) {
+        if ((intptr_t)value == SQL_AUTOCOMMIT_ON) {
+            return conn->SetAutocommit(true);
+        } else if ((intptr_t)value == SQL_AUTOCOMMIT_OFF) {
+            return conn->SetAutocommit(false);
+        } else {
+            return SQL_ERROR;
+        }
+    }
+    // TODO: other attributes
+    return SQL_ERROR;
+}
+
 }
