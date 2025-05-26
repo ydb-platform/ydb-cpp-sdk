@@ -122,9 +122,49 @@ void TConnection::ClearErrors() {
     Errors_.clear();
 }
 
-std::pair<std::string, std::string> TConnection::ParseConnectionString(const std::string& connectionString) {
-    // TODO: Implement
-    return {"", ""};
+SQLRETURN TConnection::SetAutocommit(bool value) {
+    Autocommit_ = value;
+    if (Autocommit_ && Tx_) {
+        auto status = Tx_->Commit().ExtractValueSync();
+        if (!status.IsSuccess()) {
+            AddError("08001", 0, "Failed to commit transaction");
+            return SQL_ERROR;
+        }
+        Tx_.reset();
+    }
+    return SQL_SUCCESS;
+}
+
+bool TConnection::GetAutocommit() const {
+    return Autocommit_;
+}
+
+const std::optional<NQuery::TTransaction>& TConnection::GetTx() {
+    return Tx_;
+}
+
+void TConnection::SetTx(const NQuery::TTransaction& tx) {
+    Tx_ = tx;
+}
+
+SQLRETURN TConnection::CommitTx() {
+    auto status = Tx_->Commit().ExtractValueSync();
+    if (!status.IsSuccess()) {
+        AddError("08001", 0, "Failed to commit transaction");
+        return SQL_ERROR;
+    }
+    Tx_.reset();
+    return SQL_SUCCESS;
+}
+
+SQLRETURN TConnection::RollbackTx() {
+    auto status = Tx_->Rollback().ExtractValueSync();
+    if (!status.IsSuccess()) {
+        AddError("08001", 0, "Failed to rollback transaction");
+        return SQL_ERROR;
+    }
+    Tx_.reset();
+    return SQL_SUCCESS;
 }
 
 } // namespace NOdbc
