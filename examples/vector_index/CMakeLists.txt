@@ -4,7 +4,7 @@ target_link_libraries(vector_index
   PUBLIC
     yutil
     getopt
-    ydb-cpp-sdk::Table
+    YDB-CPP-SDK::Table
 )
 
 target_sources(vector_index PRIVATE

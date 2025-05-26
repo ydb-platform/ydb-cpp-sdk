@@ -168,7 +168,7 @@ function(resources Tgt Output)
 endfunction()
 
 function(_ydb_sdk_make_client_component CmpName Tgt)
-  add_library(ydb-cpp-sdk::${CmpName} ALIAS ${Tgt})
+  add_library(YDB-CPP-SDK::${CmpName} ALIAS ${Tgt})
 
   if (CmpName STREQUAL "Iam" OR CmpName STREQUAL "IamPrivate")
     set(PKG_COMP_NAME "libydb-cpp-iam")
