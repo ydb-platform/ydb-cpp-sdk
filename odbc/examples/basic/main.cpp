@@ -2,9 +2,6 @@
 #include <sqlext.h>
 
 #include <iostream>
-#include <cstring>
-#include <cstdlib>
-#include <cstdint>
 
 void PrintOdbcError(SQLSMALLINT handleType, SQLHANDLE handle) {
     SQLCHAR sqlState[6] = {0};
@@ -65,16 +62,16 @@ int main() {
 
     std::cout << "6. Executing query" << std::endl;
     SQLCHAR query[] = R"(
-        DECLARE $p1 AS Int64;
-        SELECT $p1 + 1, 'test1' as String;
-        SELECT $p1 + 2, 'test2' as String;
-        SELECT $p1 + 3, 'test3' as String;
-        SELECT $p1 + 4, 'test4' as String;
-        SELECT $p1 + 5, 'test5' as String;
-        SELECT $p1 + 6, 'test6' as String;
-        SELECT $p1 + 7, 'test7' as String;
-        SELECT $p1 + 8, 'test8' as String;
-        SELECT $p1 + 9, 'test9' as String;
+        DECLARE $p1 AS Int64?;
+        SELECT $p1 + 1, 'test1';
+        SELECT $p1 + 2, 'test2';
+        SELECT $p1 + 3, 'test3';
+        SELECT $p1 + 4, 'test4';
+        SELECT $p1 + 5, 'test5';
+        SELECT $p1 + 6, 'test6';
+        SELECT $p1 + 7, 'test7';
+        SELECT $p1 + 8, 'test8';
+        SELECT $p1 + 9, 'test9';
     )";
 
     int64_t paramValue = 42;

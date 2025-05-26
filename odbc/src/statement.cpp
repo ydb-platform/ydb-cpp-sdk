@@ -1,6 +1,5 @@
 #include "statement.h"
 
-#include <cstring>
 #include <ydb-cpp-sdk/client/params/params.h>
 #include <ydb-cpp-sdk/client/value/value.h>
 
@@ -22,7 +21,6 @@ SQLRETURN TStatement::ExecDirect(const std::string& statementText) {
     if (!Errors_.empty()) {
         return SQL_ERROR;
     }
-    // --- конец сборки параметров ---
 
     auto sessionResult = client->GetSession().ExtractValueSync();
     if (!sessionResult.IsSuccess()) {
@@ -50,7 +48,6 @@ SQLRETURN TStatement::Fetch() {
     while (true) {
         if (ResultSetParser_) {
             if (ResultSetParser_->TryNextRow()) {
-                // Автоматически заполняем связанные буферы
                 for (const auto& col : BoundColumns_) {
                     GetData(col.ColumnNumber, col.TargetType, col.TargetValue, col.BufferLength, col.StrLenOrInd);
                 }
@@ -95,22 +92,38 @@ SQLRETURN TStatement::GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
 
 SQLRETURN TStatement::GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLINTEGER* nativeError, 
                                 SQLCHAR* messageText, SQLSMALLINT bufferLength, SQLSMALLINT* textLength) {
-    if (recNumber < 1 || recNumber > (SQLSMALLINT)Errors_.size()) return SQL_NO_DATA;
+
+    if (recNumber < 1 || recNumber > (SQLSMALLINT)Errors_.size()) {
+        return SQL_NO_DATA;
+    }
+
     const auto& err = Errors_[recNumber-1];
-    if (sqlState) strncpy((char*)sqlState, err.SqlState.c_str(), 6);
-    if (nativeError) *nativeError = err.NativeError;
+    if (sqlState) {
+        strncpy((char*)sqlState, err.SqlState.c_str(), 6);
+    }
+
+    if (nativeError) {
+        *nativeError = err.NativeError;
+    }
+
     if (messageText && bufferLength > 0) {
         strncpy((char*)messageText, err.Message.c_str(), bufferLength);
-        if (textLength) *textLength = (SQLSMALLINT)std::min((int)err.Message.size(), (int)bufferLength);
+        if (textLength) {
+            *textLength = (SQLSMALLINT)std::min((int)err.Message.size(), (int)bufferLength);
+        }
     }
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::BindCol(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) {
-    // Удаляем старую связь для этой колонки, если есть
+SQLRETURN TStatement::BindCol(SQLUSMALLINT columnNumber,
+                              SQLSMALLINT targetType,
+                              SQLPOINTER targetValue,
+                              SQLLEN bufferLength,
+                              SQLLEN* strLenOrInd) {
+
     BoundColumns_.erase(std::remove_if(BoundColumns_.begin(), BoundColumns_.end(),
         [columnNumber](const TBoundColumn& col) { return col.ColumnNumber == columnNumber; }), BoundColumns_.end());
-    // Если targetValue == nullptr, просто удаляем связь
+
     if (!targetValue) {
         return SQL_SUCCESS;
     }
@@ -127,14 +140,15 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
                                     SQLPOINTER parameterValuePtr,
                                     SQLLEN bufferLength,
                                     SQLLEN* strLenOrIndPtr) {
+
     if (inputOutputType != SQL_PARAM_INPUT) {
         AddError("HYC00", 0, "Only input parameters are supported");
         return SQL_ERROR;
     }
-    // Удаляем старую связь для этого параметра, если есть
+
     BoundParams_.erase(std::remove_if(BoundParams_.begin(), BoundParams_.end(),
         [paramNumber](const TBoundParam& p) { return p.ParamNumber == paramNumber; }), BoundParams_.end());
-    // Если parameterValuePtr == nullptr, просто удаляем связь
+
     if (!parameterValuePtr) {
         return SQL_SUCCESS;
     }
@@ -162,7 +176,6 @@ SQLRETURN TStatement::ConvertYdbValue(NYdb::TValueParser& valueParser,
                                       SQLLEN bufferLength,
                                       SQLLEN* strLenOrInd) {
 
-    // 1. Проверка на NULL
     if (valueParser.IsNull()) {
         if (strLenOrInd) *strLenOrInd = SQL_NULL_DATA;
         return SQL_SUCCESS;
@@ -249,7 +262,6 @@ SQLRETURN TStatement::ConvertYdbValue(NYdb::TValueParser& valueParser,
             if (strLenOrInd) *strLenOrInd = sizeof(char);
             return SQL_SUCCESS;
         }
-        // Добавьте обработку дат/времени, бинарных данных и других типов по необходимости
         default:
             return SQL_ERROR;
     }
@@ -259,84 +271,12 @@ NYdb::TParams TStatement::BuildParams() {
     Errors_.clear();
     NYdb::TParamsBuilder paramsBuilder;
     for (const auto& param : BoundParams_) {
-        std::string paramName = "$p" + std::to_string(param.ParamNumber); // ODBC нумерует с 1
-        auto& builder = paramsBuilder.AddParam(paramName);
-        // Обработка NULL
-        if (param.StrLenOrIndPtr && *param.StrLenOrIndPtr == SQL_NULL_DATA) {
-            builder.EmptyOptional();
-            builder.Build();
-            continue;
-        }
-
-        switch (param.ValueType) {
-            case SQL_C_SLONG: {
-                auto value = *static_cast<SQLINTEGER*>(param.ParameterValuePtr);
-                switch (param.ParameterType) {
-                    case SQL_INTEGER:
-                        builder.Int32(static_cast<int32_t>(value));
-                        break;
-                    case SQL_BIGINT:
-                        builder.Int64(static_cast<int64_t>(value));
-                        break;
-                    case SQL_DOUBLE:
-                        builder.Double(static_cast<double>(value));
-                        break;
-                    case SQL_FLOAT:
-                        builder.Float(static_cast<float>(value));
-                        break;
-                    case SQL_VARCHAR:
-                    case SQL_CHAR:
-                    case SQL_LONGVARCHAR:
-                        builder.Utf8(std::to_string(value));
-                        break;
-                    case SQL_BIT:
-                        builder.Uint8(static_cast<uint8_t>(value));
-                        break;
-                    default:
-                        AddError("07006", 0, "Unsupported SQL type");
-                        return paramsBuilder.Build();
-                }
-                break;
-            }
-            case SQL_C_SBIGINT: {
-                auto v = *static_cast<SQLBIGINT*>(param.ParameterValuePtr);
-                builder.Int32(static_cast<int32_t>(v));
-                break;
-            }
-            default: {
-                AddError("07006", 0, "Unsupported C type");
-                return paramsBuilder.Build();
-            }
-        }
-
-        switch (param.ParameterType) {
-            case SQL_INTEGER:
-            case SQL_BIGINT:
-                break;
-            case SQL_DOUBLE:
-                builder.Double(*reinterpret_cast<double*>(param.ParameterValuePtr));
-                break;
-            case SQL_FLOAT:
-                builder.Double(*reinterpret_cast<double*>(param.ParameterValuePtr));
-                break;
-            case SQL_VARCHAR:
-            case SQL_CHAR:
-            case SQL_LONGVARCHAR:
-                builder.Utf8(*reinterpret_cast<std::string*>(param.ParameterValuePtr));
-                break;
-            case SQL_BIT:
-                builder.Bool(*reinterpret_cast<bool*>(param.ParameterValuePtr));
-                break;
-            default:
-                AddError("07006", 0, "Unsupported SQL type");
-                return paramsBuilder.Build();
-        }
-
-        builder.Build();
+        std::string paramName = "$p" + std::to_string(param.ParamNumber);
+        ConvertValue(param, paramsBuilder.AddParam(paramName));
     }
 
     return paramsBuilder.Build();
 }
 
 } // namespace NOdbc
-} // namespace NYdb 
+} // namespace NYdb
