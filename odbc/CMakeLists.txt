@@ -1,5 +1,6 @@
 # Добавляем исходники
 add_library(ydb-odbc SHARED
+  src/utils/convert.cpp
   src/odbc_driver.cpp
   src/connection.cpp
   src/statement.cpp
