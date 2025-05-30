@@ -2,17 +2,10 @@
 #include "connection.h"
 #include "statement.h"
 
+#include "utils/util.h"
+
 #include <sql.h>
 #include <sqlext.h>
-
-namespace {
-    std::string GetString(SQLCHAR* str, SQLSMALLINT length) {
-        if (length == SQL_NTS) {
-            return std::string(reinterpret_cast<const char*>(str));
-        }
-        return std::string(reinterpret_cast<const char*>(str), length);
-    }
-}
 
 extern "C" {
 
@@ -122,7 +115,7 @@ SQLRETURN SQL_API SQLDriverConnect(SQLHDBC connectionHandle,
         return SQL_INVALID_HANDLE;
     }
 
-    return conn->DriverConnect(GetString(inConnectionString, stringLength1));
+    return conn->DriverConnect(NYdb::NOdbc::GetString(inConnectionString, stringLength1));
 }
 
 SQLRETURN SQL_API SQLConnect(SQLHDBC connectionHandle,
@@ -134,9 +127,9 @@ SQLRETURN SQL_API SQLConnect(SQLHDBC connectionHandle,
         return SQL_INVALID_HANDLE;
     }
 
-    return conn->Connect(GetString(serverName, nameLength1),
-                         GetString(userName, nameLength2),
-                         GetString(authentication, nameLength3));
+    return conn->Connect(NYdb::NOdbc::GetString(serverName, nameLength1),
+                         NYdb::NOdbc::GetString(userName, nameLength2),
+                         NYdb::NOdbc::GetString(authentication, nameLength3));
 }
 
 SQLRETURN SQL_API SQLDisconnect(SQLHDBC connectionHandle) {
@@ -156,7 +149,7 @@ SQLRETURN SQL_API SQLExecDirect(SQLHSTMT statementHandle,
         return SQL_INVALID_HANDLE;
     }
 
-    return stmt->ExecDirect(GetString(statementText, textLength));
+    return stmt->ExecDirect(NYdb::NOdbc::GetString(statementText, textLength));
 }
 
 SQLRETURN SQL_API SQLFetch(SQLHSTMT statementHandle) {
@@ -306,6 +299,38 @@ SQLRETURN SQL_API SQLSetConnectAttr(SQLHDBC connectionHandle, SQLINTEGER attribu
     }
     // TODO: other attributes
     return SQL_ERROR;
+}
+
+SQLRETURN SQL_API SQLColumns(SQLHSTMT statementHandle,
+                             SQLCHAR* catalogName, SQLSMALLINT nameLength1,
+                             SQLCHAR* schemaName, SQLSMALLINT nameLength2,
+                             SQLCHAR* tableName, SQLSMALLINT nameLength3,
+                             SQLCHAR* columnName, SQLSMALLINT nameLength4) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+    return stmt->Columns(
+        NYdb::NOdbc::GetString(catalogName, nameLength1),
+        NYdb::NOdbc::GetString(schemaName, nameLength2),
+        NYdb::NOdbc::GetString(tableName, nameLength3),
+        NYdb::NOdbc::GetString(columnName, nameLength4));
+}
+
+SQLRETURN SQL_API SQLTables(SQLHSTMT statementHandle,
+                             SQLCHAR* catalogName, SQLSMALLINT nameLength1,
+                             SQLCHAR* schemaName, SQLSMALLINT nameLength2,
+                             SQLCHAR* tableName, SQLSMALLINT nameLength3,
+                             SQLCHAR* tableType, SQLSMALLINT nameLength4) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+    return stmt->Tables(
+        NYdb::NOdbc::GetString(catalogName, nameLength1),
+        NYdb::NOdbc::GetString(schemaName, nameLength2),
+        NYdb::NOdbc::GetString(tableName, nameLength3),
+        NYdb::NOdbc::GetString(tableType, nameLength4));
 }
 
 }

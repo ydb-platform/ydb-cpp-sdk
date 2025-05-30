@@ -279,12 +279,105 @@ REGISTER_CONVERTER(SQL_C_BINARY, SQL_LONGVARBINARY, EPrimitiveType::String) {
 
 #undef REGISTER_CONVERTER
 
-void ConvertValue(const TBoundParam& param, TParamValueBuilder& builder) {
+SQLRETURN ConvertParam(const TBoundParam& param, TParamValueBuilder& builder) {
     auto converter = TConverterRegistry::GetInstance().GetConverter(param.ValueType, param.ParameterType);
-    if (converter) {
-        converter->AddToBuilder(param, builder);
-    } else {
-        throw 1; // TODO: throw exception
+    if (!converter) {
+        return SQL_ERROR;
+    }
+
+    converter->AddToBuilder(param, builder);
+    return SQL_SUCCESS;
+}
+
+SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) {
+    if (parser.IsNull()) {
+        if (strLenOrInd) *strLenOrInd = SQL_NULL_DATA;
+        return SQL_SUCCESS;
+    }
+
+    if (parser.GetKind() == TTypeParser::ETypeKind::Optional) {
+        parser.OpenOptional();
+        SQLRETURN ret = ConvertColumn(parser, targetType, targetValue, bufferLength, strLenOrInd);
+        parser.CloseOptional();
+        return ret;
+    }
+
+    if (parser.GetKind() != TTypeParser::ETypeKind::Primitive) {
+        return SQL_ERROR;
+    }
+
+    EPrimitiveType ydbType = parser.GetPrimitiveType();
+
+    switch (targetType) {
+        case SQL_C_SLONG:
+        {
+            int32_t v = 0;
+            switch (ydbType) {
+                case EPrimitiveType::Int32: v = parser.GetInt32(); break;
+                case EPrimitiveType::Uint32: v = static_cast<int32_t>(parser.GetUint32()); break;
+                case EPrimitiveType::Int64: v = static_cast<int32_t>(parser.GetInt64()); break;
+                case EPrimitiveType::Uint64: v = static_cast<int32_t>(parser.GetUint64()); break;
+                case EPrimitiveType::Bool: v = parser.GetBool() ? 1 : 0; break;
+                default: return SQL_ERROR;
+            }
+            if (targetValue) *reinterpret_cast<int32_t*>(targetValue) = v;
+            if (strLenOrInd) *strLenOrInd = sizeof(int32_t);
+            return SQL_SUCCESS;
+        }
+        case SQL_C_SBIGINT:
+        {
+            SQLBIGINT v = 0;
+            switch (ydbType) {
+                case EPrimitiveType::Int64: v = parser.GetInt64(); break;
+                case EPrimitiveType::Uint64: v = static_cast<SQLBIGINT>(parser.GetUint64()); break;
+                case EPrimitiveType::Int32: v = static_cast<SQLBIGINT>(parser.GetInt32()); break;
+                case EPrimitiveType::Uint32: v = static_cast<SQLBIGINT>(parser.GetUint32()); break;
+                default: return SQL_ERROR;
+            }
+            if (targetValue) *reinterpret_cast<SQLBIGINT*>(targetValue) = v;
+            if (strLenOrInd) *strLenOrInd = sizeof(SQLBIGINT);
+            return SQL_SUCCESS;
+        }
+        case SQL_C_DOUBLE:
+        {
+            double v = 0.0;
+            switch (ydbType) {
+                case EPrimitiveType::Double: v = parser.GetDouble(); break;
+                case EPrimitiveType::Float: v = parser.GetFloat(); break;
+                default: return SQL_ERROR;
+            }
+            if (targetValue) *reinterpret_cast<double*>(targetValue) = v;
+            if (strLenOrInd) *strLenOrInd = sizeof(double);
+            return SQL_SUCCESS;
+        }
+        case SQL_C_CHAR:
+        {
+            std::string str;
+            switch (ydbType) {
+                case EPrimitiveType::Utf8: str = parser.GetUtf8(); break;
+                case EPrimitiveType::String: str = parser.GetString(); break;
+                case EPrimitiveType::Json: str = parser.GetJson(); break;
+                case EPrimitiveType::JsonDocument: str = parser.GetJsonDocument(); break;
+                default: return SQL_ERROR;
+            }
+            SQLLEN len = str.size();
+            if (targetValue && bufferLength > 0) {
+                SQLLEN copyLen = std::min(len, bufferLength - 1);
+                memcpy(targetValue, str.data(), copyLen);
+                reinterpret_cast<char*>(targetValue)[copyLen] = 0;
+            }
+            if (strLenOrInd) *strLenOrInd = len;
+            return SQL_SUCCESS;
+        }
+        case SQL_C_BIT:
+        {
+            char v = parser.GetBool() ? 1 : 0;
+            if (targetValue) *reinterpret_cast<char*>(targetValue) = v;
+            if (strLenOrInd) *strLenOrInd = sizeof(char);
+            return SQL_SUCCESS;
+        }
+        default:
+            return SQL_ERROR;
     }
 }
 

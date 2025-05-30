@@ -33,7 +33,7 @@ TEST(OdbcConvert, Int64ToYdb) {
     };
 
     TParamsBuilder paramsBuilder;
-    ConvertValue(param, paramsBuilder.AddParam("$p1"));
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
@@ -47,7 +47,7 @@ TEST(OdbcConvert, Uint64ToYdb) {
         1, SQL_PARAM_INPUT, SQL_C_UBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), nullptr
     };
     TParamsBuilder paramsBuilder;
-    ConvertValue(param, paramsBuilder.AddParam("$p1"));
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
@@ -61,7 +61,7 @@ TEST(OdbcConvert, DoubleToYdb) {
         1, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &v, sizeof(v), nullptr
     };
     TParamsBuilder paramsBuilder;
-    ConvertValue(param, paramsBuilder.AddParam("$p1"));
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
@@ -76,7 +76,7 @@ TEST(OdbcConvert, StringToYdbUtf8) {
         1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, len, nullptr
     };
     TParamsBuilder paramsBuilder;
-    ConvertValue(param, paramsBuilder.AddParam("$p1"));
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
@@ -91,7 +91,7 @@ TEST(OdbcConvert, StringToYdbBinary) {
         1, SQL_PARAM_INPUT, SQL_C_BINARY, SQL_BINARY, 0, 0, (SQLPOINTER)str, len, nullptr
     };
     TParamsBuilder paramsBuilder;
-    ConvertValue(param, paramsBuilder.AddParam("$p1"));
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
@@ -106,7 +106,7 @@ TEST(OdbcConvert, Int64NullToYdb) {
         1, SQL_PARAM_INPUT, SQL_C_SBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), &nullInd
     };
     TParamsBuilder paramsBuilder;
-    ConvertValue(param, paramsBuilder.AddParam("$p1"));
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
@@ -121,7 +121,7 @@ TEST(OdbcConvert, StringNullToYdb) {
         1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, 4, &nullInd
     };
     TParamsBuilder paramsBuilder;
-    ConvertValue(param, paramsBuilder.AddParam("$p1"));
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);

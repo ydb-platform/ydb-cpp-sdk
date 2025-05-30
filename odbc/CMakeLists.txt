@@ -1,4 +1,7 @@
 add_library(ydb-odbc SHARED
+  src/utils/result.cpp
+  src/utils/types.cpp
+  src/utils/util.cpp
   src/utils/convert.cpp
   src/odbc_driver.cpp
   src/connection.cpp
@@ -9,6 +12,7 @@ add_library(ydb-odbc SHARED
 target_include_directories(ydb-odbc
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${ODBC_INCLUDE_DIRS}
 )
 
@@ -16,6 +20,7 @@ target_link_libraries(ydb-odbc
   PRIVATE
     YDB-CPP-SDK::Query
     YDB-CPP-SDK::Table
+    YDB-CPP-SDK::Scheme
     YDB-CPP-SDK::Driver
     ODBC::ODBC
 )
