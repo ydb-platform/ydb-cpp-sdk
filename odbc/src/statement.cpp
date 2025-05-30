@@ -1,5 +1,7 @@
 #include "statement.h"
 
+#include "utils/types.h"
+
 #include <ydb-cpp-sdk/client/params/params.h>
 #include <ydb-cpp-sdk/client/value/value.h>
 
@@ -43,60 +45,25 @@ SQLRETURN TStatement::ExecDirect(const std::string& statementText) {
         return SQL_ERROR;
     }
 
-    Iterator_ = std::make_unique<NYdb::NQuery::TExecuteQueryIterator>(std::move(iterator));
+    ResultSet_ = CreateExecResultSet(std::move(iterator));
 
     return SQL_SUCCESS;
 }
 
 SQLRETURN TStatement::Fetch() {
-    if (!Iterator_) {
+    if (!ResultSet_) {
         ClearStatement();
         return SQL_NO_DATA;
     }
-
-    while (true) {
-        if (ResultSetParser_) {
-            if (ResultSetParser_->TryNextRow()) {
-                for (const auto& col : BoundColumns_) {
-                    GetData(col.ColumnNumber, col.TargetType, col.TargetValue, col.BufferLength, col.StrLenOrInd);
-                }
-                return SQL_SUCCESS;
-            }
-
-            ResultSetParser_.reset();
-        }
-
-        auto part = Iterator_->ReadNext().ExtractValueSync();
-        if (part.EOS()) {
-            ClearStatement();
-            return SQL_NO_DATA;
-        }
-
-        if (!part.IsSuccess()) {
-            // AddError(part.GetStatus().GetStatus().GetCode(), part.GetStatus().GetStatus().GetReason());
-            ClearStatement();
-            return SQL_ERROR;
-        }
-
-        if (part.HasResultSet()) {
-            ResultSetParser_ = std::make_unique<TResultSetParser>(part.ExtractResultSet());
-        }
-    }
-
-    return SQL_SUCCESS;
+    return ResultSet_->Fetch() ? SQL_SUCCESS : SQL_NO_DATA;
 }
 
 SQLRETURN TStatement::GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, 
                               SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) {
-    if (!ResultSetParser_) {
+    if (!ResultSet_) {
         return SQL_NO_DATA;
     }
-
-    if (columnNumber < 1 || columnNumber > ResultSetParser_->ColumnsCount()) {
-        return SQL_ERROR;
-    }
-
-    return ConvertYdbValue(ResultSetParser_->ColumnParser(columnNumber - 1), targetType, targetValue, bufferLength, strLenOrInd);
+    return ResultSet_->GetData(columnNumber, targetType, targetValue, bufferLength, strLenOrInd);
 }
 
 SQLRETURN TStatement::GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLINTEGER* nativeError, 
@@ -124,20 +91,11 @@ SQLRETURN TStatement::GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLIN
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::BindCol(SQLUSMALLINT columnNumber,
-                              SQLSMALLINT targetType,
-                              SQLPOINTER targetValue,
-                              SQLLEN bufferLength,
-                              SQLLEN* strLenOrInd) {
-
-    BoundColumns_.erase(std::remove_if(BoundColumns_.begin(), BoundColumns_.end(),
-        [columnNumber](const TBoundColumn& col) { return col.ColumnNumber == columnNumber; }), BoundColumns_.end());
-
-    if (!targetValue) {
-        return SQL_SUCCESS;
+SQLRETURN TStatement::BindCol(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) {
+    if (!ResultSet_) {
+        return SQL_NO_DATA;
     }
-    BoundColumns_.push_back({columnNumber, targetType, targetValue, bufferLength, strLenOrInd});
-    return SQL_SUCCESS;
+    return ResultSet_->BindCol(columnNumber, targetType, targetValue, bufferLength, strLenOrInd);
 }
 
 SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
@@ -174,106 +132,7 @@ void TStatement::ClearErrors() {
 }
 
 void TStatement::ClearStatement() {
-    Iterator_.reset();
-    ResultSetParser_.reset();
-    BoundColumns_.clear();
-}
-
-SQLRETURN TStatement::ConvertYdbValue(NYdb::TValueParser& valueParser,
-                                      SQLSMALLINT targetType,
-                                      SQLPOINTER targetValue,
-                                      SQLLEN bufferLength,
-                                      SQLLEN* strLenOrInd) {
-
-    if (valueParser.IsNull()) {
-        if (strLenOrInd) *strLenOrInd = SQL_NULL_DATA;
-        return SQL_SUCCESS;
-    }
-
-    if (valueParser.GetKind() == TTypeParser::ETypeKind::Optional) {
-        valueParser.OpenOptional();
-        SQLRETURN ret = ConvertYdbValue(valueParser, targetType, targetValue, bufferLength, strLenOrInd);
-        valueParser.CloseOptional();
-        return ret;
-    }
-
-    if (valueParser.GetKind() != TTypeParser::ETypeKind::Primitive) {
-        return SQL_ERROR;
-    }
-
-    EPrimitiveType ydbType = valueParser.GetPrimitiveType();
-
-    switch (targetType) {
-        case SQL_C_SLONG:
-        {
-            int32_t v = 0;
-            switch (ydbType) {
-                case EPrimitiveType::Int32: v = valueParser.GetInt32(); break;
-                case EPrimitiveType::Uint32: v = static_cast<int32_t>(valueParser.GetUint32()); break;
-                case EPrimitiveType::Int64: v = static_cast<int32_t>(valueParser.GetInt64()); break;
-                case EPrimitiveType::Uint64: v = static_cast<int32_t>(valueParser.GetUint64()); break;
-                case EPrimitiveType::Bool: v = valueParser.GetBool() ? 1 : 0; break;
-                default: return SQL_ERROR;
-            }
-            if (targetValue) *reinterpret_cast<int32_t*>(targetValue) = v;
-            if (strLenOrInd) *strLenOrInd = sizeof(int32_t);
-            return SQL_SUCCESS;
-        }
-        case SQL_C_SBIGINT:
-        {
-            SQLBIGINT v = 0;
-            switch (ydbType) {
-                case EPrimitiveType::Int64: v = valueParser.GetInt64(); break;
-                case EPrimitiveType::Uint64: v = static_cast<SQLBIGINT>(valueParser.GetUint64()); break;
-                case EPrimitiveType::Int32: v = static_cast<SQLBIGINT>(valueParser.GetInt32()); break;
-                case EPrimitiveType::Uint32: v = static_cast<SQLBIGINT>(valueParser.GetUint32()); break;
-                default: return SQL_ERROR;
-            }
-            if (targetValue) *reinterpret_cast<SQLBIGINT*>(targetValue) = v;
-            if (strLenOrInd) *strLenOrInd = sizeof(SQLBIGINT);
-            return SQL_SUCCESS;
-        }
-        case SQL_C_DOUBLE:
-        {
-            double v = 0.0;
-            switch (ydbType) {
-                case EPrimitiveType::Double: v = valueParser.GetDouble(); break;
-                case EPrimitiveType::Float: v = valueParser.GetFloat(); break;
-                default: return SQL_ERROR;
-            }
-            if (targetValue) *reinterpret_cast<double*>(targetValue) = v;
-            if (strLenOrInd) *strLenOrInd = sizeof(double);
-            return SQL_SUCCESS;
-        }
-        case SQL_C_CHAR:
-        {
-            std::string str;
-            switch (ydbType) {
-                case EPrimitiveType::Utf8: str = valueParser.GetUtf8(); break;
-                case EPrimitiveType::String: str = valueParser.GetString(); break;
-                case EPrimitiveType::Json: str = valueParser.GetJson(); break;
-                case EPrimitiveType::JsonDocument: str = valueParser.GetJsonDocument(); break;
-                default: return SQL_ERROR;
-            }
-            SQLLEN len = str.size();
-            if (targetValue && bufferLength > 0) {
-                SQLLEN copyLen = std::min(len, bufferLength - 1);
-                memcpy(targetValue, str.data(), copyLen);
-                reinterpret_cast<char*>(targetValue)[copyLen] = 0;
-            }
-            if (strLenOrInd) *strLenOrInd = len;
-            return SQL_SUCCESS;
-        }
-        case SQL_C_BIT:
-        {
-            char v = valueParser.GetBool() ? 1 : 0;
-            if (targetValue) *reinterpret_cast<char*>(targetValue) = v;
-            if (strLenOrInd) *strLenOrInd = sizeof(char);
-            return SQL_SUCCESS;
-        }
-        default:
-            return SQL_ERROR;
-    }
+    ResultSet_.reset();
 }
 
 NYdb::TParams TStatement::BuildParams() {
@@ -281,10 +140,217 @@ NYdb::TParams TStatement::BuildParams() {
     NYdb::TParamsBuilder paramsBuilder;
     for (const auto& param : BoundParams_) {
         std::string paramName = "$p" + std::to_string(param.ParamNumber);
-        ConvertValue(param, paramsBuilder.AddParam(paramName));
+        ConvertParam(param, paramsBuilder.AddParam(paramName));
     }
 
     return paramsBuilder.Build();
+}
+
+SQLRETURN TStatement::Columns(const std::string& catalogName,
+                              const std::string& schemaName,
+                              const std::string& tableName,
+                              const std::string& columnName) {
+    ClearErrors();
+    ClearStatement();
+
+    std::vector<TColumnMeta> columns = {
+        {"TABLE_CAT", SQL_VARCHAR, 128, SQL_NULLABLE},
+        {"TABLE_SCHEM", SQL_VARCHAR, 128, SQL_NULLABLE},
+        {"TABLE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
+        {"COLUMN_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
+        {"DATA_TYPE", SQL_INTEGER, 0, SQL_NO_NULLS},
+        {"TYPE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
+        {"COLUMN_SIZE", SQL_INTEGER, 0, SQL_NULLABLE},
+        {"BUFFER_LENGTH", SQL_INTEGER, 0, SQL_NULLABLE},
+        {"DECIMAL_DIGITS", SQL_INTEGER, 0, SQL_NULLABLE},
+        {"NUM_PREC_RADIX", SQL_INTEGER, 0, SQL_NULLABLE},
+        {"NULLABLE", SQL_INTEGER, 0, SQL_NO_NULLS},
+        {"REMARKS", SQL_VARCHAR, 762, SQL_NULLABLE},
+        {"COLUMN_DEF", SQL_VARCHAR, 254, SQL_NULLABLE},
+        {"SQL_DATA_TYPE", SQL_INTEGER, 0, SQL_NO_NULLS},
+        {"SQL_DATETIME_SUB", SQL_INTEGER, 0, SQL_NULLABLE},
+        {"CHAR_OCTET_LENGTH", SQL_INTEGER, 0, SQL_NULLABLE},
+        {"ORDINAL_POSITION", SQL_INTEGER, 0, SQL_NO_NULLS},
+        {"IS_NULLABLE", SQL_VARCHAR, 254, SQL_NO_NULLS}
+    };
+
+    auto entries = GetPatternEntries(tableName);
+    if (entries.empty()) {
+        AddError("HYC00", 0, "No tables found");
+        return SQL_ERROR;
+    }
+
+    TTable table;
+    table.reserve(entries.size());
+
+    for (const auto& entry : entries) {
+        if (entry.Type != NScheme::ESchemeEntryType::Table &&
+            entry.Type != NScheme::ESchemeEntryType::ColumnTable) {
+            continue;
+        }
+
+        auto status = Conn_->GetTableClient()->RetryOperationSync([path = entry.Name, &table, &columnName](NTable::TSession session) -> TStatus {
+            auto result = session.DescribeTable(path).ExtractValueSync();
+            if (!result.IsSuccess()) {
+                return result;
+            }
+            auto columns = result.GetTableDescription().GetTableColumns();
+
+            auto columnIt = std::find_if(columns.begin(), columns.end(), [&columnName](const NTable::TTableColumn& column) {
+                return column.Name == columnName;
+            });
+
+            if (columnIt == columns.end()) {
+                return TStatus(EStatus::NOT_FOUND, { NYdb::NIssue::TIssue("Column not found") });
+            }
+
+            auto column = *columnIt;
+
+            TTypeParser typeParser(column.Type);
+
+            table.push_back({
+                TValueBuilder().OptionalUtf8(std::nullopt).Build(),
+                TValueBuilder().OptionalUtf8(std::nullopt).Build(),
+                TValueBuilder().Utf8(path).Build(),
+                TValueBuilder().Utf8(column.Name).Build(),
+                TValueBuilder().Int16(GetTypeId(column.Type)).Build(),
+                TValueBuilder().Utf8(column.Type.ToString()).Build(),
+                TValueBuilder().OptionalInt32(std::nullopt).Build(),
+                TValueBuilder().OptionalInt32(std::nullopt).Build(),
+                TValueBuilder().OptionalInt16(GetDecimalDigits(column.Type)).Build(),
+                TValueBuilder().OptionalInt16(GetRadix(column.Type)).Build(),
+                TValueBuilder().Int16(column.NotNull && *column.NotNull ? SQL_NO_NULLS : SQL_NULLABLE).Build(),
+                TValueBuilder().OptionalUtf8(std::nullopt).Build(),
+                TValueBuilder().OptionalUtf8(std::nullopt).Build(),
+                TValueBuilder().Int16(GetTypeId(column.Type)).Build(),
+                TValueBuilder().OptionalInt16(std::nullopt).Build(),
+                TValueBuilder().OptionalInt32(8).Build(),
+                TValueBuilder().OptionalInt32(columnIt - columns.begin() + 1).Build(),
+                TValueBuilder().Utf8(column.NotNull && *column.NotNull ? "NO" : "YES").Build(),
+            });
+            return TStatus(EStatus::SUCCESS, {});
+        });
+
+        if (!status.IsSuccess()) {
+            return SQL_ERROR;
+        }
+    }
+
+    ResultSet_ = CreateVirtualResultSet(columns, table);
+    return SQL_SUCCESS;
+}
+
+SQLRETURN TStatement::Tables(const std::string& catalogName,
+                             const std::string& schemaName,
+                             const std::string& tableName,
+                             const std::string& tableType) {
+    ClearErrors();
+    ClearStatement();
+
+    std::vector<TColumnMeta> columns = {
+        {"TABLE_CAT", SQL_VARCHAR, 128, SQL_NULLABLE},
+        {"TABLE_SCHEM", SQL_VARCHAR, 128, SQL_NULLABLE},
+        {"TABLE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
+        {"TABLE_TYPE", SQL_VARCHAR, 128, SQL_NO_NULLS},
+        {"REMARKS", SQL_VARCHAR, 254, SQL_NULLABLE}
+    };
+
+    auto entries = GetPatternEntries(tableName);
+    if (entries.empty()) {
+        AddError("HYC00", 0, "No tables found");
+        return SQL_ERROR;
+    }
+
+    TTable table;
+    table.reserve(entries.size());
+
+    for (const auto& entry : entries) {
+        auto tableType = GetTableType(entry.Type);
+        if (!tableType) {
+            continue;
+        }
+
+        std::cout << "Table name: " << entry.Name << " type: " << *tableType << std::endl;
+
+        table.push_back({
+            TValueBuilder().OptionalUtf8(std::nullopt).Build(),
+            TValueBuilder().OptionalUtf8(std::nullopt).Build(),
+            TValueBuilder().Utf8(entry.Name).Build(),
+            TValueBuilder().Utf8(*tableType).Build(),
+            TValueBuilder().OptionalUtf8(std::nullopt).Build(),
+        });
+    }
+
+    ResultSet_ = CreateVirtualResultSet(columns, table);
+    return SQL_SUCCESS;
+}
+
+std::vector<NScheme::TSchemeEntry> TStatement::GetPatternEntries(const std::string& pattern) {
+    std::vector<NScheme::TSchemeEntry> entries;
+    VisitEntry("", pattern, entries);
+    return entries;
+}
+
+SQLRETURN TStatement::VisitEntry(const std::string& path, const std::string& pattern, std::vector<NScheme::TSchemeEntry>& resultEntries) {
+    auto schemeClient = Conn_->GetSchemeClient();
+    auto listDirectoryResult = schemeClient->ListDirectory(path + "/").ExtractValueSync();
+    if (!listDirectoryResult.IsSuccess()) {
+        return SQL_ERROR;
+    }
+    for (const auto& entry : listDirectoryResult.GetChildren()) {
+        std::string fullPath = path + "/" + entry.Name;
+        if (entry.Type == NScheme::ESchemeEntryType::Directory ||
+            entry.Type == NScheme::ESchemeEntryType::SubDomain) {
+            VisitEntry(fullPath, pattern, resultEntries);
+        } else if (IsPatternMatch(fullPath, pattern)) {
+            NScheme::TSchemeEntry entryCopy = entry;
+            entryCopy.Name = fullPath;
+            resultEntries.push_back(entryCopy);
+        }
+    }
+    return SQL_SUCCESS;
+}
+
+bool TStatement::IsPatternMatch(const std::string& path, const std::string& pattern) {
+    return path.starts_with(pattern);
+}
+
+std::optional<std::string> TStatement::GetTableType(NScheme::ESchemeEntryType type) {
+    switch (type) {
+        case NScheme::ESchemeEntryType::Table:
+            return "TABLE";
+        case NScheme::ESchemeEntryType::View:
+            return "VIEW";
+        case NScheme::ESchemeEntryType::ColumnStore:
+            return "COLUMN_STORE";
+        case NScheme::ESchemeEntryType::ColumnTable:
+            return "COLUMN_TABLE";
+        case NScheme::ESchemeEntryType::Sequence:
+            return "SEQUENCE";
+        case NScheme::ESchemeEntryType::Replication:
+            return "REPLICATION";
+        case NScheme::ESchemeEntryType::Topic:
+            return "TOPIC";
+        case NScheme::ESchemeEntryType::ExternalTable:
+            return "EXTERNAL_TABLE";
+        case NScheme::ESchemeEntryType::ExternalDataSource:
+            return "EXTERNAL_DATA_SOURCE";
+        case NScheme::ESchemeEntryType::ResourcePool:
+            return "RESOURCE_POOL";
+        case NScheme::ESchemeEntryType::PqGroup:
+            return "PQ_GROUP";
+        case NScheme::ESchemeEntryType::RtmrVolume:
+            return "RTMR_VOLUME";
+        case NScheme::ESchemeEntryType::BlockStoreVolume:
+            return "BLOCK_STORE_VOLUME";
+        case NScheme::ESchemeEntryType::CoordinationNode:
+            return "COORDINATION_NODE";
+        case NScheme::ESchemeEntryType::Unknown:
+            return "UNKNOWN";
+        case NScheme::ESchemeEntryType::Directory:
+        case NScheme::ESchemeEntryType::SubDomain:
+            return std::nullopt;
+    }
 }
 
 } // namespace NOdbc
