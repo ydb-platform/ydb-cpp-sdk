@@ -44,6 +44,8 @@ SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
         .SetDatabase(Database_));
 
     YdbClient_ = std::make_unique<NYdb::NQuery::TQueryClient>(*YdbDriver_);
+    YdbSchemeClient_ = std::make_unique<NYdb::NScheme::TSchemeClient>(*YdbDriver_);
+    YdbTableClient_ = std::make_unique<NYdb::NTable::TTableClient>(*YdbDriver_);
 
     return SQL_SUCCESS;
 }
@@ -71,6 +73,8 @@ SQLRETURN TConnection::Connect(const std::string& serverName,
         .SetDatabase(Database_));
 
     YdbClient_ = std::make_unique<NYdb::NQuery::TQueryClient>(*YdbDriver_);
+    YdbSchemeClient_ = std::make_unique<NYdb::NScheme::TSchemeClient>(*YdbDriver_);
+    YdbTableClient_ = std::make_unique<NYdb::NTable::TTableClient>(*YdbDriver_);
 
     return SQL_SUCCESS;
 }

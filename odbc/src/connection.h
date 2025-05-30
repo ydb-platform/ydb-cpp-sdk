@@ -4,6 +4,8 @@
 
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/query/client.h>
+#include <ydb-cpp-sdk/client/scheme/scheme.h>
+#include <ydb-cpp-sdk/client/table/table.h>
 
 #include <sql.h>
 #include <sqlext.h>
@@ -21,6 +23,8 @@ class TConnection {
 private:
     std::unique_ptr<TDriver> YdbDriver_;
     std::unique_ptr<NQuery::TQueryClient> YdbClient_;
+    std::unique_ptr<NTable::TTableClient> YdbTableClient_;
+    std::unique_ptr<NScheme::TSchemeClient> YdbSchemeClient_;
     std::optional<NQuery::TTransaction> Tx_;
 
     TErrorList Errors_;
@@ -45,6 +49,8 @@ public:
     void RemoveStatement(TStatement* stmt);
 
     NYdb::NQuery::TQueryClient* GetClient() { return YdbClient_.get(); }
+    NYdb::NTable::TTableClient* GetTableClient() { return YdbTableClient_.get(); }
+    NScheme::TSchemeClient* GetSchemeClient() { return YdbSchemeClient_.get(); }
 
     void AddError(const std::string& sqlState, SQLINTEGER nativeError, const std::string& message);
     void ClearErrors();
