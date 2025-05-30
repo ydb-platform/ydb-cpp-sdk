@@ -1,6 +1,7 @@
 #pragma once
 
 #include "connection.h"
+#include "utils/result.h"
 #include "utils/convert.h"
 
 #include <ydb-cpp-sdk/client/query/client.h>
@@ -17,15 +18,6 @@ namespace NYdb {
 namespace NOdbc {
 
 class TStatement {
-private:
-    struct TBoundColumn {
-        SQLUSMALLINT ColumnNumber;
-        SQLSMALLINT TargetType;
-        SQLPOINTER TargetValue;
-        SQLLEN BufferLength;
-        SQLLEN* StrLenOrInd;
-    };
-
 public:
     TStatement(TConnection* conn);
 
@@ -40,6 +32,16 @@ public:
     SQLRETURN BindCol(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd);
     SQLRETURN BindParameter(SQLUSMALLINT paramNumber, SQLSMALLINT inputOutputType, SQLSMALLINT valueType, SQLSMALLINT parameterType, SQLULEN columnSize, SQLSMALLINT decimalDigits, SQLPOINTER parameterValuePtr, SQLLEN bufferLength, SQLLEN* strLenOrIndPtr);
 
+    SQLRETURN Columns(const std::string& catalogName,
+                      const std::string& schemaName,
+                      const std::string& tableName,
+                      const std::string& columnName);
+
+    SQLRETURN Tables(const std::string& catalogName,
+                     const std::string& schemaName,
+                     const std::string& tableName,
+                     const std::string& tableType);
+
     TConnection* GetConnection() {
         return Conn_;
     }
@@ -49,16 +51,19 @@ public:
 
     NYdb::TParams BuildParams();
 
-private:
     void ClearStatement();
 
-    SQLRETURN ConvertYdbValue(NYdb::TValueParser& valueParser, SQLSMALLINT targetType, 
-                             SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd);
+private:
+    std::vector<NScheme::TSchemeEntry> GetPatternEntries(const std::string& pattern);
+    SQLRETURN VisitEntry(const std::string& path, const std::string& pattern, std::vector<NScheme::TSchemeEntry>& resultEntries);
+    bool IsPatternMatch(const std::string& path, const std::string& pattern);
+
+    std::optional<std::string> GetTableType(NScheme::ESchemeEntryType type);
 
     TConnection* Conn_;
     TErrorList Errors_;
-    std::unique_ptr<NQuery::TExecuteQueryIterator> Iterator_;
-    std::unique_ptr<TResultSetParser> ResultSetParser_;
+
+    std::unique_ptr<IResultSet> ResultSet_;
 
     std::vector<TBoundColumn> BoundColumns_;
     std::vector<TBoundParam> BoundParams_;
