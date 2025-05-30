@@ -20,7 +20,16 @@ struct TBoundParam {
     SQLLEN* StrLenOrIndPtr;
 };
 
-void ConvertValue(const TBoundParam& param, TParamValueBuilder& builder);
+struct TBoundColumn {
+    SQLUSMALLINT ColumnNumber;
+    SQLSMALLINT TargetType;
+    SQLPOINTER TargetValue;
+    SQLLEN BufferLength;
+    SQLLEN* StrLenOrInd;
+};
+
+SQLRETURN ConvertParam(const TBoundParam& param, TParamValueBuilder& builder);
+SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd);
 
 } // namespace NYdb
 } // namespace NOdbc
