@@ -118,6 +118,8 @@ public:
 
     //! Log backend.
     TDriverConfig& SetLog(std::unique_ptr<TLogBackend>&& log);
+
+    TDriverConfig& SetTracer(std::shared_ptr<NTracing::ITracer> tracer);
 private:
     class TImpl;
     std::shared_ptr<TImpl> Impl_;
