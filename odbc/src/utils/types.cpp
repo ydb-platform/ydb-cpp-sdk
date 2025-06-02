@@ -3,8 +3,18 @@
 namespace NYdb {
 namespace NOdbc {
 
-SQLINTEGER GetTypeId(const TType& type) {
+SQLSMALLINT GetTypeId(const TType& type) {
+    // TODO: implement
     return 0;
+}
+
+SQLSMALLINT IsNullable(const TType& type) {
+    TTypeParser typeParser(type);
+    if (typeParser.GetKind() == TTypeParser::ETypeKind::Optional || typeParser.GetKind() == TTypeParser::ETypeKind::Null) {
+        return SQL_NULLABLE;
+    }
+
+    return SQL_NO_NULLS;
 }
 
 std::optional<SQLSMALLINT> GetDecimalDigits(const TType& type) {

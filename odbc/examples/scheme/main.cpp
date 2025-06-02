@@ -60,33 +60,6 @@ int main() {
         return 1;
     }
 
-    // std::cout << "6. Executing query" << std::endl;
-    // SQLCHAR query[] = R"(
-    //     DECLARE $p1 AS Int64?;
-    //     SELECT $p1 + 1, 'test1';
-    //     SELECT $p1 + 2, 'test2';
-    //     SELECT $p1 + 3, 'test3';
-    //     SELECT $p1 + 4, 'test4';
-    //     SELECT $p1 + 5, 'test5';
-    //     SELECT $p1 + 6, 'test6';
-    //     SELECT $p1 + 7, 'test7';
-    //     SELECT $p1 + 8, 'test8';
-    //     SELECT $p1 + 9, 'test9';
-    // )";
-
-    // int64_t paramValue = 42;
-    // SQLLEN paramInd = 0;
-    // ret = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SBIGINT, SQL_BIGINT, 0, 0, &paramValue, 0, &paramInd);
-    // if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
-    //     std::cerr << "Error binding parameter" << std::endl;
-    //     PrintOdbcError(SQL_HANDLE_STMT, hstmt);
-    //     SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
-    //     SQLDisconnect(hdbc);
-    //     SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
-    //     SQLFreeHandle(SQL_HANDLE_ENV, henv);
-    //     return 1;
-    // }
-
     std::cout << "6. Getting tables" << std::endl;
 
     SQLCHAR pattern[] = "/local";
@@ -127,8 +100,8 @@ int main() {
             return 1;
         }
 
-        std::cout << "Result column 1: " << value1 << std::endl;
-        std::cout << "Result column 2: " << value2 << std::endl;
+        std::cout << "Table name: " << value1 << std::endl;
+        std::cout << "Table type: " << value2 << std::endl;
 
         std::cout << "--------------------------------" << std::endl;
     }
