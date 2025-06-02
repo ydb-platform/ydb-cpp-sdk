@@ -1,5 +1,6 @@
 #include "statement.h"
 
+#include "utils/convert.h"
 #include "utils/types.h"
 
 #include <ydb-cpp-sdk/client/params/params.h>
@@ -11,19 +12,27 @@ namespace NOdbc {
 TStatement::TStatement(TConnection* conn)
     : Conn_(conn) {}
 
-SQLRETURN TStatement::ExecDirect(const std::string& statementText) {
-    ClearStatement();
+SQLRETURN TStatement::Prepare(const std::string& statementText) {
+    Cursor_.reset();
+    PreparedQuery_ = statementText;
+    IsPrepared_ = true;
+    return SQL_SUCCESS;
+}
 
+SQLRETURN TStatement::Execute() {
+    if (!IsPrepared_ || PreparedQuery_.empty()) {
+        AddError("HY007", 0, "No prepared statement");
+        return SQL_ERROR;
+    }
+    Cursor_.reset();
     auto* client = Conn_->GetClient();
     if (!client) {
         return SQL_ERROR;
     }
-
     NYdb::TParams params = BuildParams();
     if (!Errors_.empty()) {
         return SQL_ERROR;
     }
-
     if (!Conn_->GetTx()) {
         auto sessionResult = client->GetSession().ExtractValueSync();
         if (!sessionResult.IsSuccess()) {
@@ -36,34 +45,41 @@ SQLRETURN TStatement::ExecDirect(const std::string& statementText) {
         }
         Conn_->SetTx(beginTxResult.GetTransaction());
     }
-
     auto session = Conn_->GetTx()->GetSession();
-    auto iterator = session.StreamExecuteQuery(statementText,
+    auto iterator = session.StreamExecuteQuery(PreparedQuery_,
         NQuery::TTxControl::Tx(*Conn_->GetTx()).CommitTx(Conn_->GetAutocommit()), params).ExtractValueSync();
-
     if (!iterator.IsSuccess()) {
         return SQL_ERROR;
     }
-
-    ResultSet_ = CreateExecResultSet(std::move(iterator));
-
+    Cursor_ = CreateExecCursor(this, std::move(iterator));
+    IsPrepared_ = false;
+    PreparedQuery_.clear();
     return SQL_SUCCESS;
 }
 
 SQLRETURN TStatement::Fetch() {
-    if (!ResultSet_) {
-        ClearStatement();
+    if (!Cursor_) {
+        Cursor_.reset();
         return SQL_NO_DATA;
     }
-    return ResultSet_->Fetch() ? SQL_SUCCESS : SQL_NO_DATA;
+    return Cursor_->Fetch() ? SQL_SUCCESS : SQL_NO_DATA;
 }
 
 SQLRETURN TStatement::GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, 
                               SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) {
-    if (!ResultSet_) {
+    if (!Cursor_) {
         return SQL_NO_DATA;
     }
-    return ResultSet_->GetData(columnNumber, targetType, targetValue, bufferLength, strLenOrInd);
+    return Cursor_->GetData(columnNumber, targetType, targetValue, bufferLength, strLenOrInd);
+}
+
+void TStatement::FillBoundColumns() {
+    if (!Cursor_) {
+        return;
+    }
+    for (const auto& col : BoundColumns_) {
+        Cursor_->GetData(col.ColumnNumber, col.TargetType, col.TargetValue, col.BufferLength, col.StrLenOrInd);
+    }
 }
 
 SQLRETURN TStatement::GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLINTEGER* nativeError, 
@@ -92,10 +108,18 @@ SQLRETURN TStatement::GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLIN
 }
 
 SQLRETURN TStatement::BindCol(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) {
-    if (!ResultSet_) {
+    if (!Cursor_) {
         return SQL_NO_DATA;
     }
-    return ResultSet_->BindCol(columnNumber, targetType, targetValue, bufferLength, strLenOrInd);
+
+    BoundColumns_.erase(std::remove_if(BoundColumns_.begin(), BoundColumns_.end(),
+            [columnNumber](const TBoundColumn& col) { return col.ColumnNumber == columnNumber; }), BoundColumns_.end());
+
+    if (!targetValue) {
+        return SQL_SUCCESS;
+    }
+    BoundColumns_.push_back({columnNumber, targetType, targetValue, bufferLength, strLenOrInd});
+    return SQL_SUCCESS;
 }
 
 SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
@@ -127,14 +151,6 @@ void TStatement::AddError(const std::string& sqlState, SQLINTEGER nativeError, c
     Errors_.push_back({sqlState, nativeError, message});
 }
 
-void TStatement::ClearErrors() {
-    Errors_.clear();
-}
-
-void TStatement::ClearStatement() {
-    ResultSet_.reset();
-}
-
 NYdb::TParams TStatement::BuildParams() {
     Errors_.clear();
     NYdb::TParamsBuilder paramsBuilder;
@@ -150,8 +166,8 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
                               const std::string& schemaName,
                               const std::string& tableName,
                               const std::string& columnName) {
-    ClearErrors();
-    ClearStatement();
+    Errors_.clear();
+    Cursor_.reset();
 
     std::vector<TColumnMeta> columns = {
         {"TABLE_CAT", SQL_VARCHAR, 128, SQL_NULLABLE},
@@ -236,7 +252,7 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
         }
     }
 
-    ResultSet_ = CreateVirtualResultSet(columns, table);
+    Cursor_ = CreateVirtualCursor(this, columns, table);
     return SQL_SUCCESS;
 }
 
@@ -244,8 +260,8 @@ SQLRETURN TStatement::Tables(const std::string& catalogName,
                              const std::string& schemaName,
                              const std::string& tableName,
                              const std::string& tableType) {
-    ClearErrors();
-    ClearStatement();
+    Errors_.clear();
+    Cursor_.reset();
 
     std::vector<TColumnMeta> columns = {
         {"TABLE_CAT", SQL_VARCHAR, 128, SQL_NULLABLE},
@@ -270,8 +286,6 @@ SQLRETURN TStatement::Tables(const std::string& catalogName,
             continue;
         }
 
-        std::cout << "Table name: " << entry.Name << " type: " << *tableType << std::endl;
-
         table.push_back({
             TValueBuilder().OptionalUtf8(std::nullopt).Build(),
             TValueBuilder().OptionalUtf8(std::nullopt).Build(),
@@ -281,7 +295,7 @@ SQLRETURN TStatement::Tables(const std::string& catalogName,
         });
     }
 
-    ResultSet_ = CreateVirtualResultSet(columns, table);
+    Cursor_ = CreateVirtualCursor(this, columns, table);
     return SQL_SUCCESS;
 }
 
@@ -351,6 +365,48 @@ std::optional<std::string> TStatement::GetTableType(NScheme::ESchemeEntryType ty
         case NScheme::ESchemeEntryType::SubDomain:
             return std::nullopt;
     }
+}
+
+SQLRETURN TStatement::Close(bool force) {
+    if (!force && !Cursor_) {
+        AddError("24000", 0, "Invalid handle");
+        return SQL_ERROR;
+    }
+
+    Cursor_.reset();
+    PreparedQuery_.clear();
+    IsPrepared_ = false;
+    Errors_.clear();
+    return SQL_SUCCESS;
+}
+
+void TStatement::UnbindColumns() {
+    BoundColumns_.clear();
+}
+
+void TStatement::ResetParams() {
+    BoundParams_.clear();
+}
+
+SQLRETURN TStatement::RowCount(SQLLEN* rowCount) {
+    if (!rowCount) {
+        return SQL_ERROR;
+    }
+
+    *rowCount = -1;
+    return SQL_SUCCESS;
+}
+
+SQLRETURN TStatement::NumResultCols(SQLSMALLINT* colCount) {
+    if (!colCount) {
+        return SQL_ERROR;
+    }
+    if (!Cursor_) {
+        *colCount = 0;
+        return SQL_SUCCESS;
+    }
+    *colCount = static_cast<SQLSMALLINT>(Cursor_->GetColumnMeta().size());
+    return SQL_SUCCESS;
 }
 
 } // namespace NOdbc

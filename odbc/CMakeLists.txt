@@ -1,5 +1,5 @@
 add_library(ydb-odbc SHARED
-  src/utils/result.cpp
+  src/utils/cursor.cpp
   src/utils/types.cpp
   src/utils/util.cpp
   src/utils/convert.cpp

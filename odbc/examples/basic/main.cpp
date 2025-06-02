@@ -63,18 +63,10 @@ int main() {
     std::cout << "6. Executing query" << std::endl;
     SQLCHAR query[] = R"(
         DECLARE $p1 AS Int64?;
-        SELECT $p1 + 1, 'test1';
-        SELECT $p1 + 2, 'test2';
-        SELECT $p1 + 3, 'test3';
-        SELECT $p1 + 4, 'test4';
-        SELECT $p1 + 5, 'test5';
-        SELECT $p1 + 6, 'test6';
-        SELECT $p1 + 7, 'test7';
-        SELECT $p1 + 8, 'test8';
-        SELECT $p1 + 9, 'test9';
+        SELECT id, data from test_table WHERE id == $p1;
     )";
 
-    int64_t paramValue = 42;
+    int64_t paramValue = 1;
     SQLLEN paramInd = 0;
     ret = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SBIGINT, SQL_BIGINT, 0, 0, &paramValue, 0, &paramInd);
     if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO) {
@@ -129,6 +121,8 @@ int main() {
     }
 
     std::cout << "8. Cleaning up" << std::endl;
+
+    SQLCloseCursor(hstmt);
     SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
     SQLDisconnect(hdbc);
     SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
