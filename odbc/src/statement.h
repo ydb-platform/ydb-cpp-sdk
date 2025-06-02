@@ -1,8 +1,9 @@
 #pragma once
 
 #include "connection.h"
-#include "utils/result.h"
-#include "utils/convert.h"
+
+#include "utils/bindings.h"
+#include "utils/cursor.h"
 
 #include <ydb-cpp-sdk/client/query/client.h>
 
@@ -17,14 +18,22 @@
 namespace NYdb {
 namespace NOdbc {
 
-class TStatement {
+class TStatement : public IBindingFiller {
 public:
     TStatement(TConnection* conn);
 
-    SQLRETURN ExecDirect(const std::string& statementText);
+    SQLRETURN Prepare(const std::string& statementText);
+    SQLRETURN Execute();
+
     SQLRETURN Fetch();
     SQLRETURN GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, 
                      SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd);
+
+    void FillBoundColumns() override;
+
+    SQLRETURN Close(bool force = false);
+    void UnbindColumns();
+    void ResetParams();
 
     SQLRETURN GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLINTEGER* nativeError, 
                         SQLCHAR* messageText, SQLSMALLINT bufferLength, SQLSMALLINT* textLength);
@@ -42,16 +51,16 @@ public:
                      const std::string& tableName,
                      const std::string& tableType);
 
+    SQLRETURN RowCount(SQLLEN* rowCount);
+    SQLRETURN NumResultCols(SQLSMALLINT* colCount);
+
     TConnection* GetConnection() {
         return Conn_;
     }
 
     void AddError(const std::string& sqlState, SQLINTEGER nativeError, const std::string& message);
-    void ClearErrors();
 
     NYdb::TParams BuildParams();
-
-    void ClearStatement();
 
 private:
     std::vector<NScheme::TSchemeEntry> GetPatternEntries(const std::string& pattern);
@@ -63,10 +72,13 @@ private:
     TConnection* Conn_;
     TErrorList Errors_;
 
-    std::unique_ptr<IResultSet> ResultSet_;
+    std::unique_ptr<ICursor> Cursor_;
 
     std::vector<TBoundColumn> BoundColumns_;
     std::vector<TBoundParam> BoundParams_;
+
+    std::string PreparedQuery_;
+    bool IsPrepared_ = false;
 };
 
 } // namespace NOdbc
