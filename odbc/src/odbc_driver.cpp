@@ -149,7 +149,29 @@ SQLRETURN SQL_API SQLExecDirect(SQLHSTMT statementHandle,
         return SQL_INVALID_HANDLE;
     }
 
-    return stmt->ExecDirect(NYdb::NOdbc::GetString(statementText, textLength));
+    auto ret = stmt->Prepare(NYdb::NOdbc::GetString(statementText, textLength));
+    if (ret != SQL_SUCCESS) {
+        return ret;
+    }
+    return stmt->Execute();
+}
+
+SQLRETURN SQL_API SQLPrepare(SQLHSTMT statementHandle,
+                             SQLCHAR* statementText,
+                             SQLINTEGER textLength) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+    return stmt->Prepare(NYdb::NOdbc::GetString(statementText, textLength));
+}
+
+SQLRETURN SQL_API SQLExecute(SQLHSTMT statementHandle) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+    return stmt->Execute();
 }
 
 SQLRETURN SQL_API SQLFetch(SQLHSTMT statementHandle) {
@@ -331,6 +353,65 @@ SQLRETURN SQL_API SQLTables(SQLHSTMT statementHandle,
         NYdb::NOdbc::GetString(schemaName, nameLength2),
         NYdb::NOdbc::GetString(tableName, nameLength3),
         NYdb::NOdbc::GetString(tableType, nameLength4));
+}
+
+SQLRETURN SQL_API SQLCloseCursor(SQLHSTMT statementHandle) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+
+    return stmt->Close(false);
+}
+
+SQLRETURN SQL_API SQLFreeStmt(SQLHSTMT statementHandle, SQLUSMALLINT option) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+    switch (option) {
+        case SQL_CLOSE:
+            return stmt->Close(true);
+        case SQL_DROP:
+            return SQLFreeHandle(SQL_HANDLE_STMT, statementHandle);
+        case SQL_UNBIND:
+            stmt->UnbindColumns();
+            return SQL_SUCCESS;
+        case SQL_RESET_PARAMS:
+            stmt->ResetParams();
+            return SQL_SUCCESS;
+        default:
+            return SQL_ERROR;
+    }
+}
+
+SQLRETURN SQL_API SQLFetchScroll(SQLHSTMT statementHandle, SQLSMALLINT fetchOrientation, SQLLEN fetchOffset) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+    if (fetchOrientation == SQL_FETCH_NEXT) {
+        return stmt->Fetch();
+    } else {
+        stmt->AddError("HYC00", 0, "Only SQL_FETCH_NEXT is supported");
+        return SQL_ERROR;
+    }
+}
+
+SQLRETURN SQL_API SQLRowCount(SQLHSTMT statementHandle, SQLLEN* rowCount) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+    return stmt->RowCount(rowCount);
+}
+
+SQLRETURN SQL_API SQLNumResultCols(SQLHSTMT statementHandle, SQLSMALLINT* colCount) {
+    auto stmt = static_cast<NYdb::NOdbc::TStatement*>(statementHandle);
+    if (!stmt) {
+        return SQL_INVALID_HANDLE;
+    }
+    return stmt->NumResultCols(colCount);
 }
 
 }

@@ -291,7 +291,9 @@ SQLRETURN ConvertParam(const TBoundParam& param, TParamValueBuilder& builder) {
 
 SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) {
     if (parser.IsNull()) {
-        if (strLenOrInd) *strLenOrInd = SQL_NULL_DATA;
+        if (strLenOrInd) {
+            *strLenOrInd = SQL_NULL_DATA;
+        }
         return SQL_SUCCESS;
     }
 
@@ -320,8 +322,12 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
                 case EPrimitiveType::Bool: v = parser.GetBool() ? 1 : 0; break;
                 default: return SQL_ERROR;
             }
-            if (targetValue) *reinterpret_cast<int32_t*>(targetValue) = v;
-            if (strLenOrInd) *strLenOrInd = sizeof(int32_t);
+            if (targetValue) {
+                *reinterpret_cast<int32_t*>(targetValue) = v;
+            }
+            if (strLenOrInd) {
+                *strLenOrInd = sizeof(int32_t);
+            }
             return SQL_SUCCESS;
         }
         case SQL_C_SBIGINT:
@@ -334,8 +340,12 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
                 case EPrimitiveType::Uint32: v = static_cast<SQLBIGINT>(parser.GetUint32()); break;
                 default: return SQL_ERROR;
             }
-            if (targetValue) *reinterpret_cast<SQLBIGINT*>(targetValue) = v;
-            if (strLenOrInd) *strLenOrInd = sizeof(SQLBIGINT);
+            if (targetValue) {
+                *reinterpret_cast<SQLBIGINT*>(targetValue) = v;
+            }
+            if (strLenOrInd) {
+                *strLenOrInd = sizeof(SQLBIGINT);
+            }
             return SQL_SUCCESS;
         }
         case SQL_C_DOUBLE:
@@ -346,8 +356,12 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
                 case EPrimitiveType::Float: v = parser.GetFloat(); break;
                 default: return SQL_ERROR;
             }
-            if (targetValue) *reinterpret_cast<double*>(targetValue) = v;
-            if (strLenOrInd) *strLenOrInd = sizeof(double);
+            if (targetValue) {
+                *reinterpret_cast<double*>(targetValue) = v;
+            }
+            if (strLenOrInd) {
+                *strLenOrInd = sizeof(double);
+            }
             return SQL_SUCCESS;
         }
         case SQL_C_CHAR:
@@ -366,14 +380,20 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
                 memcpy(targetValue, str.data(), copyLen);
                 reinterpret_cast<char*>(targetValue)[copyLen] = 0;
             }
-            if (strLenOrInd) *strLenOrInd = len;
+            if (strLenOrInd) {
+                *strLenOrInd = len;
+            }
             return SQL_SUCCESS;
         }
         case SQL_C_BIT:
         {
             char v = parser.GetBool() ? 1 : 0;
-            if (targetValue) *reinterpret_cast<char*>(targetValue) = v;
-            if (strLenOrInd) *strLenOrInd = sizeof(char);
+            if (targetValue) {
+                *reinterpret_cast<char*>(targetValue) = v;
+            }
+            if (strLenOrInd) {
+                *strLenOrInd = sizeof(char);
+            }
             return SQL_SUCCESS;
         }
         default:

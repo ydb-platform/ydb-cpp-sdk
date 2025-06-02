@@ -7,7 +7,9 @@
 namespace NYdb {
 namespace NOdbc {
 
-SQLINTEGER GetTypeId(const TType& type);
+SQLSMALLINT GetTypeId(const TType& type);
+SQLSMALLINT IsNullable(const TType& type);
+
 std::optional<SQLSMALLINT> GetDecimalDigits(const TType& type);
 std::optional<SQLSMALLINT> GetRadix(const TType& type);
 
