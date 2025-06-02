@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bindings.h"
+
 #include <ydb-cpp-sdk/client/query/client.h>
 
 #include <sql.h>
@@ -19,20 +21,17 @@ struct TColumnMeta {
 
 using TTable = std::vector<std::vector<TValue>>;
 
-class IResultSet {
+class ICursor {
 public:
-    virtual ~IResultSet() = default;    
+    virtual ~ICursor() = default;    
     virtual bool Fetch() = 0;
     virtual SQLRETURN GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
                               SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) = 0;
-    virtual SQLRETURN BindCol(SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
-                              SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) = 0;
-    virtual size_t ColumnsCount() const = 0;
-    virtual const TColumnMeta& GetColumnMeta(size_t index) const = 0;
+    virtual const std::vector<TColumnMeta>& GetColumnMeta() const = 0;
 };
 
-std::unique_ptr<IResultSet> CreateExecResultSet(NYdb::NQuery::TExecuteQueryIterator iterator);
-std::unique_ptr<IResultSet> CreateVirtualResultSet(const std::vector<TColumnMeta>& columns, const TTable& table);
+std::unique_ptr<ICursor> CreateExecCursor(IBindingFiller* bindingFiller, NYdb::NQuery::TExecuteQueryIterator iterator);
+std::unique_ptr<ICursor> CreateVirtualCursor(IBindingFiller* bindingFiller, const std::vector<TColumnMeta>& columns, const TTable& table);
 
 } // namespace NOdbc
 } // namespace NYdb
