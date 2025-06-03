@@ -122,7 +122,9 @@ if (YDB_SDK_ODBC)
       LINK_LIBRARIES
         ${ODBC_TEST_LINK_LIBRARIES}
         ODBC::ODBC
-      LABELS ${ODBC_TEST_LABELS}
+      LABELS
+        integration
+        ${ODBC_TEST_LABELS}
     )
 
     target_compile_definitions(${ODBC_TEST_NAME} 
