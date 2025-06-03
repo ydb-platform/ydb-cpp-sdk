@@ -312,10 +312,15 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
 
     switch (targetType) {
         case SQL_C_SLONG:
+        case SQL_C_LONG:
         {
             int32_t v = 0;
             switch (ydbType) {
-                case EPrimitiveType::Int32: v = parser.GetInt32(); break;
+                case EPrimitiveType::Int16: v = static_cast<int32_t>(parser.GetInt16()); break;
+                case EPrimitiveType::Uint16: v = static_cast<int32_t>(parser.GetUint16()); break;
+                case EPrimitiveType::Int8: v = static_cast<int32_t>(parser.GetInt8()); break;
+                case EPrimitiveType::Uint8: v = static_cast<int32_t>(parser.GetUint8()); break;
+                case EPrimitiveType::Int32: v = static_cast<int32_t>(parser.GetInt32()); break;
                 case EPrimitiveType::Uint32: v = static_cast<int32_t>(parser.GetUint32()); break;
                 case EPrimitiveType::Int64: v = static_cast<int32_t>(parser.GetInt64()); break;
                 case EPrimitiveType::Uint64: v = static_cast<int32_t>(parser.GetUint64()); break;
