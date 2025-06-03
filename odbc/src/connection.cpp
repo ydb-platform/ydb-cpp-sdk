@@ -57,8 +57,8 @@ SQLRETURN TConnection::Connect(const std::string& serverName,
     char endpoint[256] = {0};
     char database[256] = {0};
 
-    SQLGetPrivateProfileString(serverName.c_str(), "Endpoint", "", endpoint, sizeof(endpoint), nullptr);
-    SQLGetPrivateProfileString(serverName.c_str(), "Database", "", database, sizeof(database), nullptr);
+    //SQLGetPrivateProfileString(serverName.c_str(), "Endpoint", "", endpoint, sizeof(endpoint), nullptr);
+    //SQLGetPrivateProfileString(serverName.c_str(), "Database", "", database, sizeof(database), nullptr);
 
     Endpoint_ = endpoint;
     Database_ = database;
