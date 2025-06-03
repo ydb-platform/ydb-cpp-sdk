@@ -1,105 +1,80 @@
 # YDB ODBC Driver
 
-ODBC драйвер для YDB.
+ODBC driver for YDB.
 
-## Требования
+## Requirements
 
-- CMake 3.10 или выше
-- Компилятор C/C++ с поддержкой C11 и C++20
+- CMake 3.10 or higher
+- C/C++ compiler with C11 and C++20 support
 - YDB C++ SDK
-- unixODBC (для Linux/macOS)
+- unixODBC (for Linux/macOS)
 
-## Сборка
-
-```bash
-mkdir build && cd build
-cmake ..
-make
-```
-
-## Установка
+## Build
 
 ```bash
-sudo make install
+cmake -DYDB_SDK_ODBC=1 --preset release-clang
+cmake --build --preset default
 ```
 
-Это установит:
-- Библиотеку драйвера в `/usr/local/lib/`
-- Конфигурацию драйвера в `/etc/odbcinst.d/`
-- Конфигурацию источников данных в `/etc/odbc.ini`
+## Configuration
 
-## Настройка
-
-1. Убедитесь, что драйвер зарегистрирован:
+1. Make sure the driver is registered:
 ```bash
 odbcinst -q -d
 ```
 
-2. Проверьте доступные источники данных:
+2. Check available data sources:
 ```bash
 odbcinst -q -s
 ```
 
-3. Отредактируйте `/etc/odbc.ini` для настройки подключения:
+3. Edit `/etc/odbc.ini` to configure the connection:
 ```ini
 [YDB]
 Driver=YDB
 Description=YDB Database Connection
-Server=grpc://your-server:2136
-Database=your-database
-AuthMode=none  # или token для аутентификации по токену
+Server=your-server:port
+Database=/path/to/database
 ```
 
-## Использование
+## Usage
 
-Пример подключения через isql:
+Example of connecting via isql:
 ```bash
 isql -v YDB
 ```
 
-Пример использования в C:
+Example usage in C:
 ```c
 SQLHENV env;
 SQLHDBC dbc;
 SQLHSTMT stmt;
 
-// Инициализация окружения
+// Initialize environment
 SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &env);
 SQLSetEnvAttr(env, SQL_ATTR_ODBC_VERSION, (void*)SQL_OV_ODBC3, 0);
 
-// Подключение
+// Connect
 SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc);
 SQLConnect(dbc, (SQLCHAR*)"YDB", SQL_NTS,
           (SQLCHAR*)"", SQL_NTS,
           (SQLCHAR*)"", SQL_NTS);
 
-// Выполнение запроса
+// Execute query
 SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
 SQLExecDirect(stmt, (SQLCHAR*)"SELECT * FROM mytable", SQL_NTS);
 
-// Очистка
+// Cleanup
 SQLFreeHandle(SQL_HANDLE_STMT, stmt);
 SQLDisconnect(dbc);
 SQLFreeHandle(SQL_HANDLE_DBC, dbc);
 SQLFreeHandle(SQL_HANDLE_ENV, env);
 ```
 
-## Поддерживаемые функции
+## Parameters
 
-- SQLAllocHandle
-- SQLConnect
-- SQLDisconnect
-- SQLExecDirect
-- SQLFetch
-- SQLGetData
-- SQLPrepare
-- SQLExecute
-- SQLCloseCursor
-- SQLFreeHandle
-- SQLGetInfo
-- SQLGetDescField
-- SQLSetDescField
+Use names $p1, $p2, ... for parameter names
 
-## Лицензия
+## License
 
-Apache License 2.0 
+Apache License 2.0
