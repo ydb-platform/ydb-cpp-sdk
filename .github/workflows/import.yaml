@@ -1,0 +1,85 @@
+name: Import
+
+on:
+  workflow_dispatch:
+
+jobs:
+  import-ydb-sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ydb-cpp-sdk
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          path: ydb-cpp-sdk
+
+      - name: Checkout ydb
+        uses: actions/checkout@v4
+        with:
+          repository: ydb-platform/ydb
+          ref: main
+          fetch-depth: 0
+          submodules: true
+          path: ydb
+
+      - name: Sync commits
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install rsync
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          LAST_COMMIT=$(cat ydb-cpp-sdk/.github/last_commit.txt)
+
+          COMMITS=$(git -C ydb log --format="%H" --reverse $LAST_COMMIT..main -- ydb/public/sdk/cpp ydb/public/api)
+          if [ -z "$COMMITS" ]; then
+            echo "No new commits to import"
+            exit 0
+          fi
+
+          GENERATION=$(cat ydb-cpp-sdk/.github/import_generation.txt)
+
+          git -C ydb-cpp-sdk checkout -b import-pr-$GENERATION
+          for commit in $COMMITS; do
+            echo "Importing commit: $commit"
+            git -C ydb checkout $commit
+            ydb-cpp-sdk/.github/scripts/copy_sources.sh ydb ydb-cpp-sdk
+            if [ -z "$(git -C ydb-cpp-sdk status --porcelain)" ]; then
+              echo "No changes for commit: $commit"
+              continue
+            fi
+            echo $commit > ydb-cpp-sdk/.github/last_commit.txt
+
+            message=$(git -C ydb show -s --format='%s')
+
+            git -C ydb-cpp-sdk add .
+            git -C ydb-cpp-sdk status
+
+            git -C ydb-cpp-sdk commit --author="$(git -C ydb show -s --format='%an <%ae>' $commit)" -m "$message" --no-edit
+
+            git -C ydb-cpp-sdk show -s --pretty=medium
+          done
+
+      - name: Create Pull Request
+        run: |
+          cd ydb-cpp-sdk
+          sudo apt-get -y install gh
+
+          GENERATION=$(cat .github/import_generation.txt)
+
+          echo "$((GENERATION + 1))" > .github/import_generation.txt
+
+          git add .github/import_generation.txt
+          git commit -m "Update import generation: $GENERATION"
+
+          git remote add token-origin https://${{ secrets.GITHUB_TOKEN }}@github.com/ydb-platform/ydb-cpp-sdk.git
+          git push token-origin import-pr-$GENERATION
+
+          gh pr create \
+            --base main \
+            --head import-pr-$GENERATION \
+            --title "Import YDB C++ SDK $GENERATION" \
+            --body "Automatic import of new commits from ydb repository"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

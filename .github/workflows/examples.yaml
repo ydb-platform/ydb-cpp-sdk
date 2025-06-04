@@ -35,13 +35,13 @@ jobs:
         options: '-h localhost'
     steps:
     - name: Checkout PR
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       if: github.event.pull_request.head.sha != ''
       with:
         submodules: true
         ref: ${{ github.event.pull_request.head.sha }}
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       if: github.event.pull_request.head.sha == ''
       with:
         submodules: true

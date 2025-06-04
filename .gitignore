@@ -20,7 +20,8 @@ _deps
 !*/
 # Unignore all files inside canondata dir
 !*/canondata/*
-
+# Unignore all files inside .github dir
+!*/.github/*
 # C libraries
 *.so
 *.a
