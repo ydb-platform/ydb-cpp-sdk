@@ -15,6 +15,11 @@ find_package(jwt-cpp REQUIRED)
 find_package(GTest REQUIRED)
 find_package(double-conversion REQUIRED)
 
+# OpenTelemetry
+if(YDB_SDK_TRACING)
+  find_package(opentelemetry-cpp REQUIRED)
+endif()
+
 # RapidJSON
 if (YDB_SDK_USE_RAPID_JSON)
   find_package(RapidJSON REQUIRED)

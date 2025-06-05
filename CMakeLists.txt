@@ -7,6 +7,8 @@ option(YDB_SDK_EXAMPLES "Build YDB C++ SDK examples" On)
 set(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET "" CACHE STRING "Name of cmake target preparing google common proto library")
 option(YDB_SDK_USE_RAPID_JSON "Search for rapid json library in system" ON)
 
+option(YDB_SDK_TRACING "Enable tracing support" ON)
+
 set(BUILD_SHARED_LIBS Off)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED On)

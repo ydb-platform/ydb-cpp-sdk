@@ -9,7 +9,6 @@ namespace NTracing {
 
 using TAttributeMap = std::unordered_map<std::string, std::string>;
 
-// Контекст с идентификаторами трассировки
 class TTraceContext {
 public:
     TTraceContext(std::string traceId, std::string spanId, std::string parentSpanId = "")
@@ -22,13 +21,8 @@ public:
     const std::string& GetSpanId() const { return SpanId_; }
     const std::string& GetParentSpanId() const { return ParentSpanId_; }
 
-    // Генерация нового контекста (создает новые уникальные traceId и spanId)
     static std::shared_ptr<TTraceContext> GenerateNew();
-
-    // Создание дочернего контекста (новый spanId, тот же traceId)
     std::shared_ptr<TTraceContext> CreateChild() const;
-
-    // Формирование W3C traceparent ("00-traceId-spanId-01")
     std::string ToTraceParent() const;
 
 private:
@@ -55,16 +49,13 @@ class ITracer {
 public:
     virtual ~ITracer() = default;
 
-    // Создать новый спан с именем, атрибутами и опциональным родительским контекстом
     virtual std::unique_ptr<ISpan> StartSpan(
         const std::string& name,
         const TAttributeMap& attributes = {},
         std::shared_ptr<TTraceContext> parentContext = nullptr) = 0;
 
-    // Получить текущий контекст
     virtual std::shared_ptr<TTraceContext> GetCurrentContext() const = 0;
 
-    // Получить W3C traceparent текущего контекста (если есть)
     virtual std::string GetCurrentTraceParent() const {
         if (auto ctx = GetCurrentContext()) {
             return ctx->ToTraceParent();

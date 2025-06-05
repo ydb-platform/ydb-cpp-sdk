@@ -1,4 +1,5 @@
 #include <ydb-cpp-sdk/client/driver/driver.h>
+#include <ydb-cpp-sdk/client/tracing/tracer.h>
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/ydb_internal/driver/constants.h>
@@ -200,6 +201,11 @@ TDriverConfig& TDriverConfig::SetMaxMessageSize(uint64_t maxMessageSize) {
 
 TDriverConfig& TDriverConfig::SetLog(std::unique_ptr<TLogBackend>&& log) {
     Impl_->Log.ResetBackend(THolder(log.release()));
+    return *this;
+}
+
+TDriverConfig& TDriverConfig::SetTracer(std::shared_ptr<NTracing::ITracer> tracer) {
+    Impl_->Tracer_ = tracer ? tracer : std::make_shared<NTracing::TNoopTracer>();
     return *this;
 }
 
