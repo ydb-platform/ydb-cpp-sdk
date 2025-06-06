@@ -8,6 +8,15 @@ volumes:
   ydb-certs:
 
 services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.51.0
+    ports:
+      - "16686:16686" # Jaeger UI frontend
+      - "4317:4317"   # gRPC port for accepts traces in OpenTelemetry OTLP format
+      - "4318:4318"   # HTTP port for accepts traces in OpenTelemetry OTLP format
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+  
   sdk:
     platform: linux/amd64
 

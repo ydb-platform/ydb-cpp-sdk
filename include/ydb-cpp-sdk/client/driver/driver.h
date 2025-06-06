@@ -8,6 +8,7 @@
 #include <ydb-cpp-sdk/client/types/fatal_error_handlers/handlers.h>
 #include <ydb-cpp-sdk/client/types/request_settings.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
+#include <ydb-cpp-sdk/client/tracing/tracer.h>
 
 #include <library/cpp/logger/backend.h>
 
@@ -119,6 +120,8 @@ public:
 
     //! Log backend.
     TDriverConfig& SetLog(std::unique_ptr<TLogBackend>&& log);
+
+    TDriverConfig& SetTracer(std::shared_ptr<NTracing::ITracer> tracer);
 private:
     class TImpl;
     std::shared_ptr<TImpl> Impl_;
