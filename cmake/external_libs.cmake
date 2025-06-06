@@ -14,6 +14,11 @@ find_package(Brotli 1.1.0 REQUIRED)
 find_package(jwt-cpp REQUIRED)
 find_package(double-conversion REQUIRED)
 
+# Prometheus
+if (YDB_SDK_MONITORING_PROMETHEUS)
+    find_package(prometheus-cpp REQUIRED)
+endif()
+
 # RapidJSON
 if (YDB_SDK_USE_RAPID_JSON)
   find_package(RapidJSON REQUIRED)
