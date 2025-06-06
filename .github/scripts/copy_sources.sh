@@ -31,7 +31,7 @@ cp -r $1/ydb/public/api/grpc $tmp_dir/src/api
 cp -r $1/ydb/public/api/protos $tmp_dir/src/api
 
 rm -r $tmp_dir/src/api/protos/out
-rm $tmp_dir/include/ydb-cpp-sdk/type_switcher.h $tmp_dir/src/version.h
+rm $tmp_dir/include/ydb-cpp-sdk/type_switcher.h $tmp_dir/include/ydb-cpp-sdk/client/proto/private.h $tmp_dir/src/version.h
 
 cp -r $2/util $tmp_dir
 cp -r $2/library $tmp_dir
@@ -53,6 +53,7 @@ cp $2/LICENSE $tmp_dir
 cp $2/README.md $tmp_dir
 
 cp $2/include/ydb-cpp-sdk/type_switcher.h $tmp_dir/include/ydb-cpp-sdk/type_switcher.h
+cp $2/include/ydb-cpp-sdk/client/proto/private.h $tmp_dir/include/ydb-cpp-sdk/client/proto/private.h
 cp $2/src/version.h $tmp_dir/src/version.h
 
 cd $2
