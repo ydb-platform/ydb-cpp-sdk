@@ -204,7 +204,7 @@ TRetCode DoWithRetryOnRetCode(std::function<TRetCode()> func, const typename IRe
     auto retryState = retryPolicy->CreateRetryState();
     while (true) {
         TRetCode code = func();
-        if (const std::optional<TDuration> delay = retryState->GetNextRetryDelay(code)) {
+        if (const TMaybe<TDuration> delay = retryState->GetNextRetryDelay(code)) {
             if (*delay) {
                 if (sleepFunction) {
                     sleepFunction(*delay);
