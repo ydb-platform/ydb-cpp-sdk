@@ -2,13 +2,21 @@
 
 #include <ydb-cpp-sdk/client/discovery/discovery.h>
 
+static std::string binaryName = "";
+
 namespace NYdb::NTopic::NTests {
 
 void TTopicTestFixture::SetUp() {
     TTopicClient client(MakeDriver());
-    client.DropTopic(GetTopicPath()).GetValueSync();
 
-    CreateTopic(GetTopicPath());
+    const testing::TestInfo* const testInfo = testing::UnitTest::GetInstance()->current_test_info();
+
+    std::stringstream builder;
+    builder << std::getenv("YDB_TEST_ROOT") << "/" << binaryName << "/" << testInfo->test_suite_name() << "_" << testInfo->name();
+    TopicPath = builder.str();
+
+    client.DropTopic(TopicPath).GetValueSync();
+    CreateTopic(TopicPath);
 }
 
 void TTopicTestFixture::TearDown() {
@@ -35,19 +43,17 @@ void TTopicTestFixture::CreateTopic(const std::string& path, const std::string& 
     topics.AppendConsumers(consumers);
 
     auto status = client.CreateTopic(path, topics).GetValueSync();
-    EXPECT_TRUE(status.IsSuccess());
+    EXPECT_TRUE(status.IsSuccess()) << ToString(status);
 }
 
 std::string TTopicTestFixture::GetTopicPath() {
-    const testing::TestInfo* const testInfo = testing::UnitTest::GetInstance()->current_test_info();
-
-    return std::string(testInfo->test_suite_name()) + "/" + std::string(testInfo->name()) + "/test-topic";
+    return TopicPath;
 }
 
 void TTopicTestFixture::DropTopic(const std::string& path) {
     TTopicClient client(MakeDriver());
     auto status = client.DropTopic(path).GetValueSync();
-    EXPECT_TRUE(status.IsSuccess());
+    EXPECT_TRUE(status.IsSuccess()) << ToString(status);
 }
 
 TDriverConfig TTopicTestFixture::MakeDriverConfig() const {
@@ -84,4 +90,12 @@ std::vector<std::uint32_t> TTopicTestFixture::GetNodeIds() const {
     return nodeIds;
 }
 
+}
+
+int main(int argc, char** argv) {
+    std::filesystem::path binaryPath(argv[0]);
+    binaryName = binaryPath.filename().string();
+
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

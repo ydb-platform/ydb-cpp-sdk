@@ -1,6 +1,0 @@
-- Restarts
-- WithoutPartitionPartitionRelocation
-- WithoutPartitionUnknownEndpoint
-- WithoutPartitionWithSplit
-- WithoutPartitionWithRestart
-?? DirectWriteWithoutDescribeResourcesPermission

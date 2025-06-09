@@ -1,4 +1,4 @@
-#include "fixture.h"
+#include "setup/fixture.h"
 #include "utils/trace.h"
 
 #include <ydb-cpp-sdk/client/topic/client.h>

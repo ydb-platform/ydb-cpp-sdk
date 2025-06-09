@@ -1,4 +1,4 @@
-#include "fixture.h"
+#include "setup/fixture.h"
 
 #include <ydb-cpp-sdk/client/topic/client.h>
 
@@ -172,7 +172,7 @@ TEST_F(Describe, Statistics) {
 
     // Write a message
     {
-        auto writeSettings = TWriteSessionSettings().Path(GetTopicPath()).MessageGroupId("test-message-group-id").Codec(ECodec::RAW);
+        auto writeSettings = TWriteSessionSettings().Path(GetTopicPath()).MessageGroupId("test-message_group_id").Codec(ECodec::RAW);
         auto writeSession = client.CreateSimpleBlockingWriteSession(writeSettings);
         std::string message(32_MB, 'x');
 
@@ -221,7 +221,7 @@ TEST_F(Describe, Statistics) {
 
     // Additional write
     {
-        auto writeSettings = TWriteSessionSettings().Path(GetTopicPath()).MessageGroupId("test-message-group-id").Codec(ECodec::RAW);
+        auto writeSettings = TWriteSessionSettings().Path(GetTopicPath()).MessageGroupId("test-message_group_id").Codec(ECodec::RAW);
         auto writeSession = client.CreateSimpleBlockingWriteSession(writeSettings);
         std::string message(32, 'x');
 

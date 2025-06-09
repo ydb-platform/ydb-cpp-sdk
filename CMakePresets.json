@@ -92,7 +92,7 @@
       "name": "common",
       "hidden": true,
       "output": {
-        "outputOnFailure": true
+        "outputOnFailure": false
       },
       "execution": {
         "timeout": 1200

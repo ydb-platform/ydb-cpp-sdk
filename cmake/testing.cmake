@@ -6,7 +6,7 @@ include(GoogleTest)
 function(add_ydb_test)
   set(opts GTEST)
   set(oneval_args NAME WORKING_DIRECTORY OUTPUT_DIRECTORY)
-  set(multival_args INCLUDE_DIRS SOURCES LINK_LIBRARIES LABELS TEST_ARG)
+  set(multival_args INCLUDE_DIRS SOURCES LINK_LIBRARIES LABELS TEST_ARG ENV)
   cmake_parse_arguments(YDB_TEST
     "${opts}"
     "${oneval_args}"
@@ -49,14 +49,24 @@ function(add_ydb_test)
   endif()
 
   if (YDB_TEST_GTEST)
+    set(env_vars "")
+    foreach(env_var ${YDB_TEST_ENV})
+      list(APPEND env_vars "ENVIRONMENT")
+      list(APPEND env_vars ${env_var})
+    endforeach()
+
     gtest_discover_tests(${YDB_TEST_NAME}
       EXTRA_ARGS ${YDB_TEST_TEST_ARG}
       WORKING_DIRECTORY ${YDB_TEST_WORKING_DIRECTORY}
-      PROPERTIES LABELS ${YDB_TEST_LABELS}
+      PROPERTIES
+        LABELS ${YDB_TEST_LABELS}
+        ENVIRONMENT "YDB_TEST_ROOT=sdk_tests"
+        ${env_vars}
     )
 
     target_link_libraries(${YDB_TEST_NAME} PRIVATE
       GTest::gtest_main 
+      GTest::gmock_main
     )
   else()
     add_test(NAME ${YDB_TEST_NAME}
@@ -77,6 +87,10 @@ function(add_ydb_test)
     set_tests_properties(${YDB_TEST_NAME} PROPERTIES LABELS ${YDB_TEST_LABELS})
     set_tests_properties(${YDB_TEST_NAME} PROPERTIES PROCESSORS 1)
     set_tests_properties(${YDB_TEST_NAME} PROPERTIES TIMEOUT 600)
+    set_tests_properties(${YDB_TEST_NAME} PROPERTIES ENVIRONMENT "YDB_TEST_ROOT=sdk_tests")
+    if (YDB_TEST_ENV)
+      set_tests_properties(${YDB_TEST_NAME} PROPERTIES ENVIRONMENT ${YDB_TEST_ENV})
+    endif()
   endif()
 
   vcs_info(${YDB_TEST_NAME})
