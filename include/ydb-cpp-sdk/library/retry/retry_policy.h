@@ -7,7 +7,6 @@
 
 #include <functional>
 #include <limits>
-#include <optional>
 #include <memory>
 
 //! Retry policy.
