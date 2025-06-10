@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 
-namespace NYdb::NTopic::NTests {
+namespace NYdb::inline V3::NTopic::NTests {
 
 class TTopicTestFixture : public ::testing::Test {
 public:
@@ -25,7 +25,7 @@ public:
     std::uint16_t GetPort() const;
     std::vector<std::uint32_t> GetNodeIds() const;
 private:
-    std::string TopicPath;
+    std::string TopicPath_;
 };
 
 }

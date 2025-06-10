@@ -12,9 +12,7 @@
 #include <format>
 #include <thread>
 
-using namespace NYdb;
-
-namespace NYdb::NTopic::NTests {
+namespace NYdb::inline V3::NTopic::NTests {
 
 struct TYdbPqTestRetryState : IRetryPolicy::IRetryState {
     TYdbPqTestRetryState(std::function<void ()> retryCallback, std::function<void ()> destroyCallback, const TDuration& delay)
@@ -70,7 +68,7 @@ struct TYdbPqTestRetryPolicy : IRetryPolicy {
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
-            EXPECT_EQ(CurrentRetries.load(), 0);
+            EXPECT_EQ(CurrentRetries.load(), 0u);
         }
         auto retryCb = [this]() mutable {this->RetryDone();};
         auto destroyCb = [this]() mutable {this->StateDestroyed();};
@@ -207,7 +205,7 @@ protected:
         dataReceived->Commit();
 
         auto& messages = dataReceived->GetMessages();
-        EXPECT_EQ(messages.size(), 1);
+        EXPECT_EQ(messages.size(), 1u);
         EXPECT_EQ(messages[0].GetData(), "message");
 
         event = readSession->GetEvent(true);

@@ -16,7 +16,7 @@
 static const bool EnableDirectRead = !std::string{std::getenv("PQ_EXPERIMENTAL_DIRECT_READ") ? std::getenv("PQ_EXPERIMENTAL_DIRECT_READ") : ""}.empty();
 
 
-namespace NYdb::NPersQueue::NTests {
+namespace NYdb::inline V3::NPersQueue::NTests {
 
 class TSimpleWriteSessionTestAdapter {
 public:
@@ -40,7 +40,7 @@ std::uint64_t TSimpleWriteSessionTestAdapter::GetAcquiredMessagesCount() const {
 
 }
 
-namespace NYdb::NTopic::NTests {
+namespace NYdb::inline V3::NTopic::NTests {
 
 class TManagedExecutor : public IExecutor {
 public:

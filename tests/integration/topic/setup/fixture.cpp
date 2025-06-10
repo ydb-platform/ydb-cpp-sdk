@@ -2,21 +2,22 @@
 
 #include <ydb-cpp-sdk/client/discovery/discovery.h>
 
-static std::string binaryName = "";
+#include <util/system/execpath.h>
 
-namespace NYdb::NTopic::NTests {
+namespace NYdb::inline V3::NTopic::NTests {
 
 void TTopicTestFixture::SetUp() {
     TTopicClient client(MakeDriver());
 
     const testing::TestInfo* const testInfo = testing::UnitTest::GetInstance()->current_test_info();
+    std::filesystem::path execPath(std::string{GetExecPath()});
 
     std::stringstream builder;
-    builder << std::getenv("YDB_TEST_ROOT") << "/" << binaryName << "/" << testInfo->test_suite_name() << "_" << testInfo->name();
-    TopicPath = builder.str();
+    builder << std::getenv("YDB_TEST_ROOT") << "/" << execPath.filename().string() << "/" << testInfo->test_suite_name() << "_" << testInfo->name();
+    TopicPath_ = builder.str();
 
-    client.DropTopic(TopicPath).GetValueSync();
-    CreateTopic(TopicPath);
+    client.DropTopic(TopicPath_).GetValueSync();
+    CreateTopic(TopicPath_);
 }
 
 void TTopicTestFixture::TearDown() {
@@ -43,17 +44,17 @@ void TTopicTestFixture::CreateTopic(const std::string& path, const std::string& 
     topics.AppendConsumers(consumers);
 
     auto status = client.CreateTopic(path, topics).GetValueSync();
-    EXPECT_TRUE(status.IsSuccess()) << ToString(status);
+    Y_ENSURE(status.IsSuccess(), status);
 }
 
 std::string TTopicTestFixture::GetTopicPath() {
-    return TopicPath;
+    return TopicPath_;
 }
 
 void TTopicTestFixture::DropTopic(const std::string& path) {
     TTopicClient client(MakeDriver());
     auto status = client.DropTopic(path).GetValueSync();
-    EXPECT_TRUE(status.IsSuccess()) << ToString(status);
+    Y_ENSURE(status.IsSuccess(), status);
 }
 
 TDriverConfig TTopicTestFixture::MakeDriverConfig() const {
@@ -69,9 +70,7 @@ TDriver TTopicTestFixture::MakeDriver() const {
 
 std::uint16_t TTopicTestFixture::GetPort() const {
     auto endpoint = std::getenv("YDB_ENDPOINT");
-    if (!endpoint) {
-        throw std::runtime_error("YDB_ENDPOINT is not set");
-    }
+    Y_ENSURE(endpoint, "YDB_ENDPOINT is not set");
 
     auto portPos = std::string(endpoint).find(":");
     return std::stoi(std::string(endpoint).substr(portPos + 1));
@@ -80,7 +79,7 @@ std::uint16_t TTopicTestFixture::GetPort() const {
 std::vector<std::uint32_t> TTopicTestFixture::GetNodeIds() const {
     NDiscovery::TDiscoveryClient client(MakeDriver());
     auto result = client.ListEndpoints().GetValueSync();
-    EXPECT_TRUE(result.IsSuccess());
+    Y_ENSURE(result.IsSuccess(), static_cast<TStatus>(result));
 
     std::vector<std::uint32_t> nodeIds;
     for (const auto& endpoint : result.GetEndpointsInfo()) {
@@ -90,12 +89,4 @@ std::vector<std::uint32_t> TTopicTestFixture::GetNodeIds() const {
     return nodeIds;
 }
 
-}
-
-int main(int argc, char** argv) {
-    std::filesystem::path binaryPath(argv[0]);
-    binaryName = binaryPath.filename().string();
-
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
 }

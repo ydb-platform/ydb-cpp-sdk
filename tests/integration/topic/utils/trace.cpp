@@ -4,7 +4,7 @@
 
 #include <mutex>
 
-namespace NYdb::NTopic::NTests {
+namespace NYdb::inline V3::NTopic::NTests {
 
 std::string_view SkipSpaces(std::string_view& b) {
     while (b.starts_with(' ')) {

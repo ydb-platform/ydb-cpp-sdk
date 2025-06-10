@@ -8,7 +8,7 @@
 
 #include <span>
 
-namespace NYdb::NTopic::NTests {
+namespace NYdb::inline V3::NTopic::NTests {
 
 class TTraceException : public std::exception {
 public:

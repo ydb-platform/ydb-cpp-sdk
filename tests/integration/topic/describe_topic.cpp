@@ -4,7 +4,7 @@
 
 #include <thread>
 
-namespace NYdb::NTopic::NTests {
+namespace NYdb::inline V3::NTopic::NTests {
 
 class Describe : public TTopicTestFixture {
 protected:
@@ -20,24 +20,24 @@ protected:
             const auto& description = result.GetTopicDescription();
 
             const auto& partitions = description.GetPartitions();
-            EXPECT_EQ(partitions.size(), 1);
+            EXPECT_EQ(partitions.size(), 1u);
 
             const auto& partition = partitions[0];
             EXPECT_TRUE(partition.GetActive());
-            EXPECT_EQ(partition.GetPartitionId(), 0);
+            EXPECT_EQ(partition.GetPartitionId(), 0u);
 
             if (requireStats) {
                 const auto& stats = description.GetTopicStats();
 
                 if (requireNonEmptyStats) {
-                    EXPECT_GT(stats.GetStoreSizeBytes(), 0);
-                    EXPECT_GT(stats.GetBytesWrittenPerMinute(), 0);
-                    EXPECT_GT(stats.GetBytesWrittenPerHour(), 0);
-                    EXPECT_GT(stats.GetBytesWrittenPerDay(), 0);
+                    EXPECT_GT(stats.GetStoreSizeBytes(), 0u);
+                    EXPECT_GT(stats.GetBytesWrittenPerMinute(), 0u);
+                    EXPECT_GT(stats.GetBytesWrittenPerHour(), 0u);
+                    EXPECT_GT(stats.GetBytesWrittenPerDay(), 0u);
                     EXPECT_GT(stats.GetMaxWriteTimeLag(), TDuration::Zero());
                     EXPECT_GT(stats.GetMinLastWriteTime(), TInstant::Zero());
                 } else {
-                    EXPECT_EQ(stats.GetStoreSizeBytes(), 0);
+                    EXPECT_EQ(stats.GetStoreSizeBytes(), 0u);
                 }
             }
 
@@ -62,11 +62,11 @@ protected:
             const auto& description = result.GetConsumerDescription();
 
             const auto& partitions = description.GetPartitions();
-            EXPECT_EQ(partitions.size(), 1);
+            EXPECT_EQ(partitions.size(), 1u);
 
             const auto& partition = partitions[0];
             EXPECT_TRUE(partition.GetActive());
-            EXPECT_EQ(partition.GetPartitionId(), 0);
+            EXPECT_EQ(partition.GetPartitionId(), 0u);
 
             if (requireStats) {
                 const auto& stats = partition.GetPartitionStats();
@@ -75,23 +75,23 @@ protected:
                 EXPECT_TRUE(consumerStats);
 
                 if (requireNonEmptyStats) {
-                    EXPECT_GE(stats->GetStartOffset(), 0);
-                    EXPECT_GE(stats->GetEndOffset(), 0);
-                    EXPECT_GT(stats->GetStoreSizeBytes(), 0);
+                    EXPECT_GE(stats->GetStartOffset(), 0u);
+                    EXPECT_GE(stats->GetEndOffset(), 0u);
+                    EXPECT_GT(stats->GetStoreSizeBytes(), 0u);
                     EXPECT_GT(stats->GetLastWriteTime(), TInstant::Zero());
                     EXPECT_GT(stats->GetMaxWriteTimeLag(), TDuration::Zero());
-                    EXPECT_GT(stats->GetBytesWrittenPerMinute(), 0);
-                    EXPECT_GT(stats->GetBytesWrittenPerHour(), 0);
-                    EXPECT_GT(stats->GetBytesWrittenPerDay(), 0);
+                    EXPECT_GT(stats->GetBytesWrittenPerMinute(), 0u);
+                    EXPECT_GT(stats->GetBytesWrittenPerHour(), 0u);
+                    EXPECT_GT(stats->GetBytesWrittenPerDay(), 0u);
 
-                    EXPECT_GT(consumerStats->GetLastReadOffset(), 0);
-                    EXPECT_GT(consumerStats->GetCommittedOffset(), 0);
-                    EXPECT_GE(consumerStats->GetReadSessionId().size(), 0);
+                    EXPECT_GT(consumerStats->GetLastReadOffset(), 0u);
+                    EXPECT_GT(consumerStats->GetCommittedOffset(), 0u);
+                    EXPECT_GE(consumerStats->GetReadSessionId().size(), 0u);
                     EXPECT_EQ(consumerStats->GetReaderName(), "");
                     EXPECT_GE(consumerStats->GetMaxWriteTimeLag(), TDuration::Seconds(100));
                 } else {
-                    EXPECT_EQ(stats->GetStartOffset(), 0);
-                    EXPECT_EQ(consumerStats->GetLastReadOffset(), 0);
+                    EXPECT_EQ(stats->GetStartOffset(), 0u);
+                    EXPECT_EQ(consumerStats->GetLastReadOffset(), 0u);
                 }
             }
 
@@ -109,7 +109,7 @@ protected:
         settings.IncludeStats(requireStats);
         settings.IncludeLocation(requireLocation);
 
-        std::int64_t testPartitionId = 0;
+        std::uint64_t testPartitionId = 0;
 
         {
             auto result = client.DescribePartition(GetTopicPath(), testPartitionId, settings).GetValueSync();
@@ -126,16 +126,16 @@ protected:
                 EXPECT_TRUE(stats);
 
                 if (requireNonEmptyStats) {
-                    EXPECT_GE(stats->GetStartOffset(), 0);
-                    EXPECT_GE(stats->GetEndOffset(), 0);
-                    EXPECT_GT(stats->GetStoreSizeBytes(), 0);
+                    EXPECT_GE(stats->GetStartOffset(), 0u);
+                    EXPECT_GE(stats->GetEndOffset(), 0u);
+                    EXPECT_GT(stats->GetStoreSizeBytes(), 0u);
                     EXPECT_GT(stats->GetLastWriteTime(), TInstant::Zero());
                     EXPECT_GT(stats->GetMaxWriteTimeLag(), TDuration::Zero());
-                    EXPECT_GT(stats->GetBytesWrittenPerMinute(), 0);
-                    EXPECT_GT(stats->GetBytesWrittenPerHour(), 0);
-                    EXPECT_GT(stats->GetBytesWrittenPerDay(), 0);
+                    EXPECT_GT(stats->GetBytesWrittenPerMinute(), 0u);
+                    EXPECT_GT(stats->GetBytesWrittenPerHour(), 0u);
+                    EXPECT_GT(stats->GetBytesWrittenPerDay(), 0u);
                 } else {
-                    EXPECT_EQ(stats->GetStoreSizeBytes(), 0);
+                    EXPECT_EQ(stats->GetStoreSizeBytes(), 0u);
                 }
             }
 

@@ -33,5 +33,5 @@ add_ydb_test(NAME topic_direct_read_it GTEST
     integration
   ENV
     PQ_EXPERIMENTAL_DIRECT_READ=1
-    MANY_MESSAGES_DISABLED=1
+    YDB_TEST_TOPIC_PATH=topic_direct_read
 )

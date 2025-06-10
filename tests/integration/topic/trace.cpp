@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-namespace NYdb::NTopic::NTests {
+namespace NYdb::inline V3::NTopic::NTests {
 
 TEST(Trace, SkipSpaces) {
     ASSERT_EQ(SkipSpaces(""), "");
@@ -35,14 +35,14 @@ TEST(Trace, TTraceEvent) {
         std::string s(eventName +  " a");
         auto ev = TTraceEvent::FromString(s);
         ASSERT_EQ(ev.Event, eventName);
-        ASSERT_EQ(ev.KeyValues.size(), 1);
+        ASSERT_EQ(ev.KeyValues.size(), 1u);
         ASSERT_TRUE(ev.KeyValues.at("a").empty());
     }
     {
         std::string s(eventName + " a b");
         auto ev = TTraceEvent::FromString(s);
         ASSERT_EQ(ev.Event, eventName);
-        ASSERT_EQ(ev.KeyValues.size(), 2);
+        ASSERT_EQ(ev.KeyValues.size(), 2u);
         ASSERT_TRUE(ev.KeyValues.at("a").empty());
         ASSERT_TRUE(ev.KeyValues.at("b").empty());
     }
@@ -50,14 +50,14 @@ TEST(Trace, TTraceEvent) {
         std::string s(eventName + " =");
         auto ev = TTraceEvent::FromString(s);
         ASSERT_EQ(ev.Event, eventName);
-        ASSERT_EQ(ev.KeyValues.size(), 1);
+        ASSERT_EQ(ev.KeyValues.size(), 1u);
         ASSERT_TRUE(ev.KeyValues.at("").empty());
     }
     {
         std::string s(eventName + " a=1 b");
         auto ev = TTraceEvent::FromString(s);
         ASSERT_EQ(ev.Event, eventName);
-        ASSERT_EQ(ev.KeyValues.size(), 2);
+        ASSERT_EQ(ev.KeyValues.size(), 2u);
         ASSERT_EQ(ev.KeyValues.at("a"), "1");
         ASSERT_TRUE(ev.KeyValues.at("b").empty());
     }
@@ -65,7 +65,7 @@ TEST(Trace, TTraceEvent) {
         std::string s(eventName + " a b=2");
         auto ev = TTraceEvent::FromString(s);
         ASSERT_EQ(ev.Event, eventName);
-        ASSERT_EQ(ev.KeyValues.size(), 2);
+        ASSERT_EQ(ev.KeyValues.size(), 2u);
         ASSERT_TRUE(ev.KeyValues.at("a").empty());
         ASSERT_EQ(ev.KeyValues.at("b"), "2");
     }
@@ -73,7 +73,7 @@ TEST(Trace, TTraceEvent) {
         std::string s(eventName + " a=1 b=2");
         auto ev = TTraceEvent::FromString(s);
         ASSERT_EQ(ev.Event, eventName);
-        ASSERT_EQ(ev.KeyValues.size(), 2);
+        ASSERT_EQ(ev.KeyValues.size(), 2u);
         ASSERT_EQ(ev.KeyValues.at("a"), "1");
         ASSERT_EQ(ev.KeyValues.at("b"), "2");
     }
@@ -103,14 +103,14 @@ TEST(Trace, TExpectedTraceEvent) {
         std::string s(eventName +  " a");
         auto ev = TExpectedTraceEvent::FromString(s);
         ASSERT_EQ(ev.Event, eventName);
-        ASSERT_EQ(ev.KeyValues.size(), 1);
+        ASSERT_EQ(ev.KeyValues.size(), 1u);
         ASSERT_TRUE(ev.KeyValues.at("a").empty());
     }
     {
         std::string s(eventName + " a b");
         auto ev = TExpectedTraceEvent::FromString(s);
         ASSERT_EQ(ev.Event, eventName);
-        ASSERT_EQ(ev.KeyValues.size(), 2);
+        ASSERT_EQ(ev.KeyValues.size(), 2u);
         ASSERT_TRUE(ev.KeyValues.at("a").empty());
         ASSERT_TRUE(ev.KeyValues.at("b").empty());
     }
@@ -118,14 +118,14 @@ TEST(Trace, TExpectedTraceEvent) {
         std::string s(eventName + " =");
         auto ev = TExpectedTraceEvent::FromString(s);
         ASSERT_EQ(ev.Event, eventName);
-        ASSERT_EQ(ev.KeyValues.size(), 1);
+        ASSERT_EQ(ev.KeyValues.size(), 1u);
         ASSERT_TRUE(ev.KeyValues.at("").empty());
     }
     {
         std::string s(eventName + " a=1 b");
         auto ev = TExpectedTraceEvent::FromString(s);
         ASSERT_EQ(ev.Event, eventName);
-        ASSERT_EQ(ev.KeyValues.size(), 2);
+        ASSERT_EQ(ev.KeyValues.size(), 2u);
         ASSERT_EQ(ev.KeyValues.at("a"), "1");
         ASSERT_TRUE(ev.KeyValues.at("b").empty());
     }
@@ -133,7 +133,7 @@ TEST(Trace, TExpectedTraceEvent) {
         std::string s(eventName + " a b=2");
         auto ev = TExpectedTraceEvent::FromString(s);
         ASSERT_EQ(ev.Event, eventName);
-        ASSERT_EQ(ev.KeyValues.size(), 2);
+        ASSERT_EQ(ev.KeyValues.size(), 2u);
         ASSERT_TRUE(ev.KeyValues.at("a").empty());
         ASSERT_EQ(ev.KeyValues.at("b"), "2");
     }
@@ -141,7 +141,7 @@ TEST(Trace, TExpectedTraceEvent) {
         std::string s(eventName + " a=1 b=2");
         auto ev = TExpectedTraceEvent::FromString(s);
         ASSERT_EQ(ev.Event, eventName);
-        ASSERT_EQ(ev.KeyValues.size(), 2);
+        ASSERT_EQ(ev.KeyValues.size(), 2u);
         ASSERT_EQ(ev.KeyValues.at("a"), "1");
         ASSERT_EQ(ev.KeyValues.at("b"), "2");
     }
@@ -150,7 +150,7 @@ TEST(Trace, TExpectedTraceEvent) {
         auto ev = TExpectedTraceEvent::FromString(s);
         ASSERT_EQ(ev.Event, eventName);
         ASSERT_TRUE(ev.KeyValues.empty());
-        ASSERT_EQ(ev.DeniedKeys.size(), 1);
+        ASSERT_EQ(ev.DeniedKeys.size(), 1u);
         ASSERT_EQ(ev.DeniedKeys[0], "a");
     }
 }
