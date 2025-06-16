@@ -1,3 +1,4 @@
+add_subdirectory(api)
 add_subdirectory(basic_example)
 add_subdirectory(bulk_upsert_simple)
 add_subdirectory(pagination)
