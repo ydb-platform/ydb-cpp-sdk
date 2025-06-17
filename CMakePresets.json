@@ -78,6 +78,26 @@
       "name": "release-test-gcc",
       "inherits": ["release-base", "gcc-toolchain", "test"],
       "displayName": "Default Release Test Config (GCC)"
+    },
+    {
+      "name": "debug-clang",
+      "inherits": ["debug-base", "clang-toolchain"],
+      "displayName": "Default Debug Config (Clang)"
+    },
+    {
+      "name": "debug-gcc",
+      "inherits": ["debug-base", "gcc-toolchain"],
+      "displayName": "Default Debug Config (GCC)"
+    },
+    {
+      "name": "debug-test-clang",
+      "inherits": ["debug-base", "clang-toolchain", "test"],
+      "displayName": "Default Debug Test Config (Clang)"
+    },
+    {
+      "name": "debug-test-gcc",
+      "inherits": ["debug-base", "gcc-toolchain", "test"],
+      "displayName": "Default Debug Test Config (GCC)"
     }
   ],
   "buildPresets": [

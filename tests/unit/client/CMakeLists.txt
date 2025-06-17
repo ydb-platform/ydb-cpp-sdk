@@ -1,3 +1,5 @@
+add_subdirectory(oauth2_token_exchange/helpers)
+
 add_ydb_test(NAME client-ydb_coordination_ut
   SOURCES
     coordination/coordination_ut.cpp
@@ -53,6 +55,7 @@ add_ydb_test(NAME client-oauth2_ut
     json
     string_utils-base64
     client-ydb_types-credentials-oauth2
+    client-oauth2-ut-helpers
   LABELS
     unit
 )
