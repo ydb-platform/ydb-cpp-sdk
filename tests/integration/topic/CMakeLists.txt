@@ -13,6 +13,7 @@ add_ydb_test(NAME topic_it GTEST
     cpp-client-ydb_persqueue_public
     api-grpc
     yutil
+    YDB-CPP-SDK::Topic
   LABELS
     integration
 )
@@ -29,9 +30,11 @@ add_ydb_test(NAME topic_direct_read_it GTEST
     cpp-client-ydb_persqueue_public
     api-grpc
     yutil
+    YDB-CPP-SDK::Topic
   LABELS
     integration
   ENV
     PQ_EXPERIMENTAL_DIRECT_READ=1
-    YDB_TEST_TOPIC_PATH=topic_direct_read
 )
+
+target_compile_definitions(topic_direct_read_it PUBLIC PQ_EXPERIMENTAL_DIRECT_READ=1)
