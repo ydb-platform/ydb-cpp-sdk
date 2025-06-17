@@ -1,5 +1,5 @@
 #include <ydb-cpp-sdk/client/types/credentials/oauth2_token_exchange/jwt_token_source.h>
-#include "jwt_check_helper.h"
+#include <tests/unit/client/oauth2_token_exchange/helpers/jwt_check_helper.h>
 
 #include <library/cpp/testing/unittest/registar.h>
 
