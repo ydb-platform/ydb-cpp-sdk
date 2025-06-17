@@ -104,9 +104,9 @@ public:
         {
         }
 
-        TMaybe<TDuration> GetNextRetryDelay(const TException&) override {
+        std::optional<TDuration> GetNextRetryDelay(const TException&) override {
             if (Attempt == Opts.RetryCount) {
-                return {};
+                return std::nullopt;
             }
             return Opts.GetTimeToSleep(Attempt++);
         }
@@ -151,7 +151,7 @@ std::optional<TResult> DoWithRetry(std::function<TResult()> func, const typename
                 retryState = retryPolicy->CreateRetryState();
             }
 
-            if (const TMaybe<TDuration> delay = retryState->GetNextRetryDelay(ex)) {
+            if (const std::optional<TDuration> delay = retryState->GetNextRetryDelay(ex)) {
                 if (*delay) {
                     if (sleepFunction) {
                         sleepFunction(*delay);
@@ -167,7 +167,7 @@ std::optional<TResult> DoWithRetry(std::function<TResult()> func, const typename
             }
         }
     }
-    return {};
+    return std::nullopt;
 }
 
 template <typename TResult, typename TException = yexception>
@@ -204,7 +204,7 @@ TRetCode DoWithRetryOnRetCode(std::function<TRetCode()> func, const typename IRe
     auto retryState = retryPolicy->CreateRetryState();
     while (true) {
         TRetCode code = func();
-        if (const TMaybe<TDuration> delay = retryState->GetNextRetryDelay(code)) {
+        if (const std::optional<TDuration> delay = retryState->GetNextRetryDelay(code)) {
             if (*delay) {
                 if (sleepFunction) {
                     sleepFunction(*delay);
