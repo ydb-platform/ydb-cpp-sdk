@@ -11,6 +11,8 @@ using namespace NYdb;
 using namespace NYdb::NStatusHelpers;
 using namespace std::chrono_literals;
 
+using TYdbError = TYdbErrorException;
+
 struct TClientSettings {};
 struct TDriver {};
 
@@ -129,7 +131,7 @@ struct TQueryOptsCommon {
 struct TQueryOpts : public TQueryOptsCommon<TQueryOpts>, public TRetryOptsCommon<TQueryOpts> {};
 
 struct TQueryTxOpts : public TQueryOptsCommon<TQueryTxOpts>, public TRequestSettings<TQueryTxOpts> {
-    FLUENT_SETTING_FLAG(AutoCommit);
+    FLUENT_SETTING_FLAG(WithCommit);
 };
 
 struct TCommitOpts : public TRequestSettings<TCommitOpts> {};
@@ -154,76 +156,66 @@ int main() {
     TQueryClient client(TDriver{}, TClientSettings{});
 
     // 1. Выполнение интерактивной транзакции
-
-    try {
-        client.Retry([](TTransaction& tx) {
-            auto result1 = tx.ExecuteQuery(R"(
-                UPSERT INTO table (id, data) VALUES ($id, $data);
-                SELECT id, data FROM table_1;
-                SELECT id FROM table_2;
-            )", TQueryTxOpts()
-                .ClientTimeout(10ms)
-                .Params(TParamsBuilder()
-                    .AddParam("id")
-                        .Uint64(1)
-                        .Build()
-                    .AddParam("data")
-                        .String("Some text")
-                        .Build()
-                    .Build())
-            );
-            for (const auto& row : result1.NextResultSet()) {
-                // parse SELECT id, data FROM table_1
-            }
-            for (const auto& row : result1.NextResultSet()) {
-                // parse SELECT id FROM table_2
-            }
-            auto opts = TQueryTxOpts()
-                .AutoCommit()
-                .ClientTimeout(10ms);
-            for (const auto& row : tx.ExecuteQuery("SELECT * FROM table", opts)) {
-                // parse SELECT * FROM table
-            }
-        }, TRetryOpts()
-            .TxSettings(TTxSettings::SerializableRW())
-            .ClientTimeout(1s)
-            .Idempotent()
+    client.Retry([](TTransaction& tx) {
+        auto result1 = tx.ExecuteQuery(R"(
+            UPSERT INTO table (id, data) VALUES ($id, $data);
+            SELECT id, data FROM table_1;
+            SELECT id FROM table_2;
+        )", TQueryTxOpts()
+            .ClientTimeout(10ms)
+            .Params(TParamsBuilder()
+                .AddParam("id")
+                    .Uint64(1)
+                    .Build()
+                .AddParam("data")
+                    .String("Some text")
+                    .Build()
+                .Build())
         );
-    } catch (const TYdbErrorException& e) {
-        std::cerr << e.what() << std::endl;
-    }
+        for (const auto& row : result1.NextResultSet()) {
+            // parse SELECT id, data FROM table_1
+        }
+        for (const auto& row : result1.NextResultSet()) {
+            // parse SELECT id FROM table_2
+        }
+        auto opts = TQueryTxOpts()
+            .WithCommit()
+            .ClientTimeout(10ms);
+        for (const auto& row : tx.ExecuteQuery("SELECT * FROM table", opts)) {
+            // parse SELECT * FROM table
+        }
+    }, TRetryOpts()
+        .TxSettings(TTxSettings::SerializableRW())
+        .ClientTimeout(1s)
+        .Idempotent()
+    );
 
     // 2. libpqxx
+    pqxx::connection conn("dbname=mydb connect_timeout=1");
+    pqxx::work txn(conn, "interactive_tx_example", pqxx::isolation_level::serializable);
 
-    try {
-        pqxx::connection conn("dbname=mydb connect_timeout=1");
-        pqxx::work txn(conn, "interactive_tx_example", pqxx::isolation_level::serializable);
-        
-        // Нет обработки нескольких резалт сетов
-        pqxx::result result1 = txn.exec_params(
-            R"(
-                INSERT INTO small_table(id, data) VALUES($1, $2);
-                SELECT id, data FROM table_1;
-            )",
-            1,                 // $1: id
-            "Some text"        // $2: data
-        );
-        for (const auto& row : result1) {
-            // Обработка строки
-        }
-
-        pqxx::result result2 = txn.exec("SELECT id FROM table_2;");
-        for (const auto& row : result2) {
-            // Обработка строки
-        }
-        pqxx::result result3 = txn.exec("SELECT * FROM table");
-        
-        for (const auto& row : result3) {
-            // Обработка строки
-        }
-        
-        txn.commit();
-    } catch (const pqxx::sql_error& e) {
-        std::cerr << e.what() << std::endl;
+    // Нет обработки нескольких резалт сетов
+    pqxx::result result1 = txn.exec_params(
+        R"(
+            INSERT INTO small_table(id, data) VALUES($1, $2);
+            SELECT id, data FROM table_1;
+        )",
+        1,                 // $1: id
+        "Some text"        // $2: data
+    );
+    for (const auto& row : result1) {
+        // Обработка строки
     }
+
+    pqxx::result result2 = txn.exec("SELECT id FROM table_2;");
+    for (const auto& row : result2) {
+        // Обработка строки
+    }
+    pqxx::result result3 = txn.exec("SELECT * FROM table");
+    
+    for (const auto& row : result3) {
+        // Обработка строки
+    }
+    
+    txn.commit();
 }

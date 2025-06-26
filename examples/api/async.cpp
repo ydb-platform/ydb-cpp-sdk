@@ -14,6 +14,8 @@ using namespace NYdb::NStatusHelpers;
 using namespace NThreading;
 using namespace std::chrono_literals;
 
+using TYdbError = TYdbErrorException;
+
 struct TClientSettings {};
 struct TDriver {};
 
