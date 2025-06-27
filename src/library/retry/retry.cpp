@@ -17,9 +17,9 @@ public:
         {
         }
 
-        TMaybe<TDuration> GetNextRetryDelay(bool ret) override {
+        std::optional<TDuration> GetNextRetryDelay(bool ret) override {
             if (ret || Attempt == Opts.RetryCount) {
-                return {};
+                return std::nullopt;
             }
             return Opts.GetTimeToSleep(Attempt++);
         }
