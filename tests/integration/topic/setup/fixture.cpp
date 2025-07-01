@@ -1,8 +1,12 @@
 #include "fixture.h"
 
 #include <ydb-cpp-sdk/client/discovery/discovery.h>
+#include <ydb-cpp-sdk/client/scheme/scheme.h>
+#include <ydb-cpp-sdk/client/table/table.h>
 
-#include <util/system/execpath.h>
+
+using namespace NYdb::NScheme;
+using namespace NYdb::NTable;
 
 namespace NYdb::inline V3::NTopic::NTests {
 
@@ -18,18 +22,55 @@ void TTopicTestFixture::SetUp() {
     TTopicClient client(MakeDriver());
 
     const testing::TestInfo* const testInfo = testing::UnitTest::GetInstance()->current_test_info();
-    std::filesystem::path execPath(std::string{GetExecPath()});
 
     std::stringstream topicBuilder;
     topicBuilder << std::getenv("YDB_TEST_ROOT") << "/" << testInfo->test_suite_name() << "-" << testInfo->name() << "/";
     TopicPrefix_ = topicBuilder.str();
-    
+
     std::stringstream consumerBuilder;
     consumerBuilder << testInfo->test_suite_name() << "-" << testInfo->name() << "-";
     ConsumerPrefix_ = consumerBuilder.str();
 
-    client.DropTopic(GetTopicPath()).GetValueSync();
+    RemoveDirectoryRecurive(GetDatabase() + "/" + TopicPrefix_);
+
     CreateTopic();
+}
+
+void TTopicTestFixture::RemoveDirectoryRecurive(const std::string& path) const {
+    TSchemeClient schemeClient(MakeDriver());
+
+    auto describeResult = schemeClient.DescribePath(path).GetValueSync();
+    if (describeResult.GetStatus() == EStatus::SCHEME_ERROR) {
+        return;
+    }
+    NStatusHelpers::ThrowOnError(describeResult);
+    auto entry = describeResult.GetEntry();
+
+    if (entry.Type == ESchemeEntryType::Table || entry.Type == ESchemeEntryType::ColumnTable) {
+        TTableClient client(MakeDriver());
+        NStatusHelpers::ThrowOnError(client.RetryOperationSync([&path](TSession session) {
+            return session.DropTable(path).GetValueSync();
+        }));
+    } else if (entry.Type == ESchemeEntryType::Topic) {
+        TTopicClient client(MakeDriver());
+        NStatusHelpers::ThrowOnError(client.DropTopic(path).GetValueSync());
+    } else if (entry.Type == ESchemeEntryType::Directory) {
+        auto listResult = schemeClient.ListDirectory(path).GetValueSync();
+        NStatusHelpers::ThrowOnError(listResult);
+        for (const auto& entry : listResult.GetChildren()) {
+            RemoveDirectoryRecurive(path + "/" + entry.Name);
+        }
+    } else {
+        ythrow TYdbException() << "Entry type " << entry.Type << " is not supported" << Endl;
+    }
+}
+
+void TTopicTestFixture::TearDown() {
+    // try {
+    //     RemoveDirectoryRecurive(GetDatabase() + "/" + TopicPrefix_);
+    // } catch (const std::exception& e) {
+    //     std::cerr << "Occurred error in TearDown: " << e.what() << std::endl;
+    // }
 }
 
 std::string TTopicTestFixture::GetEndpoint() const {

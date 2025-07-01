@@ -2,6 +2,10 @@ _ydb_sdk_add_library(topic_it_utils)
 
 target_sources(topic_it_utils
   PRIVATE
+    describe.cpp
+    local_partition.cpp
+    managed_executor.cpp
+    setup.cpp
     trace.cpp
 )
 

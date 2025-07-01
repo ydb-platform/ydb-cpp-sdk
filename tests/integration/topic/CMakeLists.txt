@@ -6,6 +6,7 @@ add_ydb_test(NAME topic_it GTEST
     basic_usage.cpp
     describe_topic.cpp
     local_partition.cpp
+    topic_to_table.cpp
     trace.cpp
   LINK_LIBRARIES
     topic_it_utils
@@ -24,6 +25,7 @@ add_ydb_test(NAME topic_direct_read_it GTEST
     describe_topic.cpp
     local_partition.cpp
     direct_read.cpp
+    topic_to_table.cpp
   LINK_LIBRARIES
     topic_it_utils
     topic_it_setup

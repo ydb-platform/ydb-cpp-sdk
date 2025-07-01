@@ -14,6 +14,7 @@ extern const bool EnableDirectRead;
 class TTopicTestFixture : public ::testing::Test, public ITopicTestSetup {
 public:
     void SetUp() override;
+    void TearDown() override;
 
     std::string GetEndpoint() const override;
     std::string GetDatabase() const override;
@@ -24,6 +25,8 @@ public:
 
     std::uint16_t GetPort() const override;
     std::vector<std::uint32_t> GetNodeIds() override;
+
+    void RemoveDirectoryRecurive(const std::string& path) const;
 };
 
 }
