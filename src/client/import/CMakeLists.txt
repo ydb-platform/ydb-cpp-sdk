@@ -15,6 +15,7 @@ target_sources(client-ydb_import
   PRIVATE
     import.cpp
     out.cpp
+    proto_accessor.cpp
 )
 
 generate_enum_serilization(client-ydb_import
