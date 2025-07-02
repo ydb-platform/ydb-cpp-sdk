@@ -21,12 +21,12 @@ void TTopicTestFixture::SetUp() {
 
     TTopicClient client(MakeDriver());
 
-    const testing::TestInfo* const testInfo = testing::UnitTest::GetInstance()->current_test_info();
+    const auto& testInfo = testing::UnitTest::GetInstance()->current_test_info();
 
     std::stringstream topicBuilder;
     topicBuilder << std::getenv("YDB_TEST_ROOT") << "/" << testInfo->test_suite_name() << "-" << testInfo->name() << "/";
     TopicPrefix_ = topicBuilder.str();
-
+    
     std::stringstream consumerBuilder;
     consumerBuilder << testInfo->test_suite_name() << "-" << testInfo->name() << "-";
     ConsumerPrefix_ = consumerBuilder.str();
@@ -63,14 +63,6 @@ void TTopicTestFixture::RemoveDirectoryRecurive(const std::string& path) const {
     } else {
         ythrow TYdbException() << "Entry type " << entry.Type << " is not supported" << Endl;
     }
-}
-
-void TTopicTestFixture::TearDown() {
-    // try {
-    //     RemoveDirectoryRecurive(GetDatabase() + "/" + TopicPrefix_);
-    // } catch (const std::exception& e) {
-    //     std::cerr << "Occurred error in TearDown: " << e.what() << std::endl;
-    // }
 }
 
 std::string TTopicTestFixture::GetEndpoint() const {

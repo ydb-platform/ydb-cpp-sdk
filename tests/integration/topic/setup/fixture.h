@@ -14,7 +14,6 @@ extern const bool EnableDirectRead;
 class TTopicTestFixture : public ::testing::Test, public ITopicTestSetup {
 public:
     void SetUp() override;
-    void TearDown() override;
 
     std::string GetEndpoint() const override;
     std::string GetDatabase() const override;
@@ -32,7 +31,7 @@ public:
 }
 
 #ifdef PQ_EXPERIMENTAL_DIRECT_READ
-  #define TEST_NAME(name) DirectRead_##name
+    #define TEST_NAME(name) DirectRead_##name
 #else
-  #define TEST_NAME(name) name
+    #define TEST_NAME(name) name
 #endif
