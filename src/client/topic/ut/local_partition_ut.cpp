@@ -305,7 +305,7 @@ namespace NYdb::inline V3::NTopic::NTests {
 
             UNIT_ASSERT(writeSession->Write(NPQ::NTest::Msg("message_1.1", 2)));
 
-            std::uint64_t txId = 1006;
+            ui64 txId = 1006;
             NPQ::NTest::SplitPartition(setup, ++txId, 0, "a");
 
             UNIT_ASSERT(writeSession->Write(NPQ::NTest::Msg("message_1.2", 3)));
