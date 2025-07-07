@@ -232,6 +232,11 @@ public:
 
                 TCallMeta meta;
                 meta.Timeout = requestSettings.ClientTimeout;
+
+                if (!requestSettings.TraceParent.empty()) {
+                    meta.Aux.emplace_back({"traceparent", requestSettings.TraceParent});
+                }
+
         #ifndef YDB_GRPC_UNSECURE_AUTH
                 meta.CallCredentials = dbState->CallCredentials;
         #else
@@ -465,6 +470,11 @@ public:
 
                 TCallMeta meta;
                 meta.Timeout = requestSettings.ClientTimeout;
+
+                if (!requestSettings.TraceParent.empty()) {
+                    meta.Aux.emplace_back({"traceparent", requestSettings.TraceParent});
+                }
+
 #ifndef YDB_GRPC_UNSECURE_AUTH
                 meta.CallCredentials = dbState->CallCredentials;
 #else
@@ -559,6 +569,11 @@ public:
                 }
 
                 TCallMeta meta;
+
+                if (!requestSettings.TraceParent.empty()) {
+                    meta.Aux.emplace_back({"traceparent", requestSettings.TraceParent});
+                }
+
         #ifndef YDB_GRPC_UNSECURE_AUTH
                 meta.CallCredentials = dbState->CallCredentials;
         #else
