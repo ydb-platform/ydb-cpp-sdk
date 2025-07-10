@@ -80,6 +80,7 @@ jobs:
             --base ${{ github.ref_name }} \
             --head import-pr-$GENERATION \
             --title "Import YDB C++ SDK $GENERATION" \
-            --body "Automatic import of new commits from ydb repository"
+            --body "Automatic import of new commits from ydb repository" \
+            --draft
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
