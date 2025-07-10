@@ -10,7 +10,7 @@
 #include <util/thread/lfqueue.h>
 
 
-namespace NYdb::NTopic {
+namespace NYdb::inline V3::NTopic {
 
 template <bool UseMigrationProtocol>
 class TDeferredActions;
