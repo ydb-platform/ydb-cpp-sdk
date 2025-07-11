@@ -1,5 +1,6 @@
 #include "connection.h"
 #include "statement.h"
+#include "utils/error_manager.h"
 
 #include <cstring>
 #include <string>
@@ -35,8 +36,7 @@ SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
     Database_ = params["Database"];
 
     if (Endpoint_.empty() || Database_.empty()) {
-        AddError("08001", 0, "Missing Endpoint or Database in connection string");
-        return SQL_ERROR;
+        throw TOdbcException("08001", 0, "Missing Endpoint or Database in connection string");
     }
 
     YdbDriver_ = std::make_unique<NYdb::TDriver>(NYdb::TDriverConfig()
@@ -64,8 +64,7 @@ SQLRETURN TConnection::Connect(const std::string& serverName,
     Database_ = database;
 
     if (Endpoint_.empty() || Database_.empty()) {
-        AddError("08001", 0, "Missing Endpoint or Database in DSN");
-        return SQL_ERROR;
+        throw TOdbcException("08001", 0, "Missing Endpoint or Database in DSN");
     }
 
     YdbDriver_ = std::make_unique<NYdb::TDriver>(NYdb::TDriverConfig()
@@ -85,30 +84,6 @@ SQLRETURN TConnection::Disconnect() {
     return SQL_SUCCESS;
 }
 
-SQLRETURN TConnection::GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLINTEGER* nativeError, 
-                                 SQLCHAR* messageText, SQLSMALLINT bufferLength, SQLSMALLINT* textLength) {
-    if (recNumber < 1 || recNumber > (SQLSMALLINT)Errors_.size()) {
-        return SQL_NO_DATA;
-    }
-
-    const auto& err = Errors_[recNumber-1];
-    if (sqlState) {
-        strncpy((char*)sqlState, err.SqlState.c_str(), 6);
-    }
-
-    if (nativeError) {
-        *nativeError = err.NativeError;
-    }
-
-    if (messageText && bufferLength > 0) {
-        strncpy((char*)messageText, err.Message.c_str(), bufferLength);
-        if (textLength) {
-            *textLength = (SQLSMALLINT)std::min((int)err.Message.size(), (int)bufferLength);
-        }
-    }
-    return SQL_SUCCESS;
-}
-
 std::unique_ptr<TStatement> TConnection::CreateStatement() {
     return std::make_unique<TStatement>(this);
 }
@@ -118,22 +93,11 @@ void TConnection::RemoveStatement(TStatement* stmt) {
         [stmt](const std::unique_ptr<TStatement>& s) { return s.get() == stmt; }), Statements_.end());
 }
 
-void TConnection::AddError(const std::string& sqlState, SQLINTEGER nativeError, const std::string& message) {
-    Errors_.push_back({sqlState, nativeError, message});
-}
-
-void TConnection::ClearErrors() {
-    Errors_.clear();
-}
-
 SQLRETURN TConnection::SetAutocommit(bool value) {
     Autocommit_ = value;
     if (Autocommit_ && Tx_) {
         auto status = Tx_->Commit().ExtractValueSync();
-        if (!status.IsSuccess()) {
-            AddError("08001", 0, "Failed to commit transaction");
-            return SQL_ERROR;
-        }
+        NStatusHelpers::ThrowOnError(status);
         Tx_.reset();
     }
     return SQL_SUCCESS;
@@ -153,20 +117,14 @@ void TConnection::SetTx(const NQuery::TTransaction& tx) {
 
 SQLRETURN TConnection::CommitTx() {
     auto status = Tx_->Commit().ExtractValueSync();
-    if (!status.IsSuccess()) {
-        AddError("08001", 0, "Failed to commit transaction");
-        return SQL_ERROR;
-    }
+    NStatusHelpers::ThrowOnError(status);
     Tx_.reset();
     return SQL_SUCCESS;
 }
 
 SQLRETURN TConnection::RollbackTx() {
     auto status = Tx_->Rollback().ExtractValueSync();
-    if (!status.IsSuccess()) {
-        AddError("08001", 0, "Failed to rollback transaction");
-        return SQL_ERROR;
-    }
+    NStatusHelpers::ThrowOnError(status);
     Tx_.reset();
     return SQL_SUCCESS;
 }
