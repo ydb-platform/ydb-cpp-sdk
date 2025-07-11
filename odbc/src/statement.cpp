@@ -2,6 +2,7 @@
 
 #include "utils/convert.h"
 #include "utils/types.h"
+#include "utils/error_manager.h"
 
 #include <ydb-cpp-sdk/client/params/params.h>
 #include <ydb-cpp-sdk/client/value/value.h>
@@ -21,36 +22,30 @@ SQLRETURN TStatement::Prepare(const std::string& statementText) {
 
 SQLRETURN TStatement::Execute() {
     if (!IsPrepared_ || PreparedQuery_.empty()) {
-        AddError("HY007", 0, "No prepared statement");
-        return SQL_ERROR;
+        throw TOdbcException("HY007", 0, "No prepared statement");
     }
     Cursor_.reset();
     auto* client = Conn_->GetClient();
     if (!client) {
-        return SQL_ERROR;
+        throw TOdbcException("HY000", 0, "No client connection");
     }
     NYdb::TParams params = BuildParams();
-    if (!Errors_.empty()) {
-        return SQL_ERROR;
-    }
+    
     if (!Conn_->GetTx()) {
         auto sessionResult = client->GetSession().ExtractValueSync();
-        if (!sessionResult.IsSuccess()) {
-            return SQL_ERROR;
-        }
+        NStatusHelpers::ThrowOnError(sessionResult);
+
         auto session = sessionResult.GetSession();
         auto beginTxResult = session.BeginTransaction(NQuery::TTxSettings::SerializableRW()).ExtractValueSync();
-        if (!beginTxResult.IsSuccess()) {
-            return SQL_ERROR;
-        }
+        NStatusHelpers::ThrowOnError(beginTxResult);
+
         Conn_->SetTx(beginTxResult.GetTransaction());
     }
     auto session = Conn_->GetTx()->GetSession();
     auto iterator = session.StreamExecuteQuery(PreparedQuery_,
         NQuery::TTxControl::Tx(*Conn_->GetTx()).CommitTx(Conn_->GetAutocommit()), params).ExtractValueSync();
-    if (!iterator.IsSuccess()) {
-        return SQL_ERROR;
-    }
+    NStatusHelpers::ThrowOnError(iterator);
+
     Cursor_ = CreateExecCursor(this, std::move(iterator));
     IsPrepared_ = false;
     PreparedQuery_.clear();
@@ -82,31 +77,6 @@ void TStatement::FillBoundColumns() {
     }
 }
 
-SQLRETURN TStatement::GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLINTEGER* nativeError, 
-                                SQLCHAR* messageText, SQLSMALLINT bufferLength, SQLSMALLINT* textLength) {
-
-    if (recNumber < 1 || recNumber > (SQLSMALLINT)Errors_.size()) {
-        return SQL_NO_DATA;
-    }
-
-    const auto& err = Errors_[recNumber-1];
-    if (sqlState) {
-        strncpy((char*)sqlState, err.SqlState.c_str(), 6);
-    }
-
-    if (nativeError) {
-        *nativeError = err.NativeError;
-    }
-
-    if (messageText && bufferLength > 0) {
-        strncpy((char*)messageText, err.Message.c_str(), bufferLength);
-        if (textLength) {
-            *textLength = (SQLSMALLINT)std::min((int)err.Message.size(), (int)bufferLength);
-        }
-    }
-    return SQL_SUCCESS;
-}
-
 SQLRETURN TStatement::BindCol(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) {
     if (!Cursor_) {
         return SQL_NO_DATA;
@@ -133,8 +103,7 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
                                     SQLLEN* strLenOrIndPtr) {
 
     if (inputOutputType != SQL_PARAM_INPUT) {
-        AddError("HYC00", 0, "Only input parameters are supported");
-        return SQL_ERROR;
+        throw TOdbcException("HYC00", 0, "Only input parameters are supported");
     }
 
     BoundParams_.erase(std::remove_if(BoundParams_.begin(), BoundParams_.end(),
@@ -147,12 +116,8 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
     return SQL_SUCCESS;
 }
 
-void TStatement::AddError(const std::string& sqlState, SQLINTEGER nativeError, const std::string& message) {
-    Errors_.push_back({sqlState, nativeError, message});
-}
-
 NYdb::TParams TStatement::BuildParams() {
-    Errors_.clear();
+    ClearErrors();
     NYdb::TParamsBuilder paramsBuilder;
     for (const auto& param : BoundParams_) {
         std::string paramName = "$p" + std::to_string(param.ParamNumber);
@@ -166,7 +131,7 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
                               const std::string& schemaName,
                               const std::string& tableName,
                               const std::string& columnName) {
-    Errors_.clear();
+    ClearErrors();
     Cursor_.reset();
 
     std::vector<TColumnMeta> columns = {
@@ -192,8 +157,7 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
 
     auto entries = GetPatternEntries(tableName);
     if (entries.empty()) {
-        AddError("HYC00", 0, "No tables found");
-        return SQL_ERROR;
+        throw TOdbcException("HYC00", 0, "No tables found");
     }
 
     TTable table;
@@ -207,9 +171,8 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
 
         auto status = Conn_->GetTableClient()->RetryOperationSync([path = entry.Name, &table, &columnName](NTable::TSession session) -> TStatus {
             auto result = session.DescribeTable(path).ExtractValueSync();
-            if (!result.IsSuccess()) {
-                return result;
-            }
+            NStatusHelpers::ThrowOnError(result);
+
             auto columns = result.GetTableDescription().GetTableColumns();
 
             auto columnIt = std::find_if(columns.begin(), columns.end(), [&columnName](const NTable::TTableColumn& column) {
@@ -247,9 +210,7 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
             return TStatus(EStatus::SUCCESS, {});
         });
 
-        if (!status.IsSuccess()) {
-            return SQL_ERROR;
-        }
+        NStatusHelpers::ThrowOnError(status);
     }
 
     Cursor_ = CreateVirtualCursor(this, columns, table);
@@ -260,7 +221,7 @@ SQLRETURN TStatement::Tables(const std::string& catalogName,
                              const std::string& schemaName,
                              const std::string& tableName,
                              const std::string& tableType) {
-    Errors_.clear();
+    ClearErrors();
     Cursor_.reset();
 
     std::vector<TColumnMeta> columns = {
@@ -273,8 +234,7 @@ SQLRETURN TStatement::Tables(const std::string& catalogName,
 
     auto entries = GetPatternEntries(tableName);
     if (entries.empty()) {
-        AddError("HYC00", 0, "No tables found");
-        return SQL_ERROR;
+        throw TOdbcException("HYC00", 0, "No tables found");
     }
 
     TTable table;
@@ -308,9 +268,8 @@ std::vector<NScheme::TSchemeEntry> TStatement::GetPatternEntries(const std::stri
 SQLRETURN TStatement::VisitEntry(const std::string& path, const std::string& pattern, std::vector<NScheme::TSchemeEntry>& resultEntries) {
     auto schemeClient = Conn_->GetSchemeClient();
     auto listDirectoryResult = schemeClient->ListDirectory(path + "/").ExtractValueSync();
-    if (!listDirectoryResult.IsSuccess()) {
-        return SQL_ERROR;
-    }
+    NStatusHelpers::ThrowOnError(listDirectoryResult);
+
     for (const auto& entry : listDirectoryResult.GetChildren()) {
         std::string fullPath = path + "/" + entry.Name;
         if (entry.Type == NScheme::ESchemeEntryType::Directory ||
@@ -369,14 +328,13 @@ std::optional<std::string> TStatement::GetTableType(NScheme::ESchemeEntryType ty
 
 SQLRETURN TStatement::Close(bool force) {
     if (!force && !Cursor_) {
-        AddError("24000", 0, "Invalid handle");
-        return SQL_ERROR;
+        throw TOdbcException("24000", 0, "Invalid handle");
     }
 
     Cursor_.reset();
     PreparedQuery_.clear();
     IsPrepared_ = false;
-    Errors_.clear();
+    ClearErrors();
     return SQL_SUCCESS;
 }
 
@@ -390,7 +348,7 @@ void TStatement::ResetParams() {
 
 SQLRETURN TStatement::RowCount(SQLLEN* rowCount) {
     if (!rowCount) {
-        return SQL_ERROR;
+        throw TOdbcException("HY000", 0, "Invalid parameter");
     }
 
     *rowCount = -1;
@@ -399,7 +357,7 @@ SQLRETURN TStatement::RowCount(SQLLEN* rowCount) {
 
 SQLRETURN TStatement::NumResultCols(SQLSMALLINT* colCount) {
     if (!colCount) {
-        return SQL_ERROR;
+        throw TOdbcException("HY000", 0, "Invalid parameter");
     }
     if (!Cursor_) {
         *colCount = 0;
