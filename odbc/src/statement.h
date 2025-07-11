@@ -1,7 +1,7 @@
 #pragma once
 
 #include "connection.h"
-
+#include "utils/error_manager.h"
 #include "utils/bindings.h"
 #include "utils/cursor.h"
 
@@ -18,7 +18,7 @@
 namespace NYdb {
 namespace NOdbc {
 
-class TStatement : public IBindingFiller {
+class TStatement : public TErrorManager, public IBindingFiller {
 public:
     TStatement(TConnection* conn);
 
@@ -34,9 +34,6 @@ public:
     SQLRETURN Close(bool force = false);
     void UnbindColumns();
     void ResetParams();
-
-    SQLRETURN GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLINTEGER* nativeError, 
-                        SQLCHAR* messageText, SQLSMALLINT bufferLength, SQLSMALLINT* textLength);
 
     SQLRETURN BindCol(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd);
     SQLRETURN BindParameter(SQLUSMALLINT paramNumber, SQLSMALLINT inputOutputType, SQLSMALLINT valueType, SQLSMALLINT parameterType, SQLULEN columnSize, SQLSMALLINT decimalDigits, SQLPOINTER parameterValuePtr, SQLLEN bufferLength, SQLLEN* strLenOrIndPtr);
@@ -58,27 +55,21 @@ public:
         return Conn_;
     }
 
-    void AddError(const std::string& sqlState, SQLINTEGER nativeError, const std::string& message);
-
-    NYdb::TParams BuildParams();
-
 private:
-    std::vector<NScheme::TSchemeEntry> GetPatternEntries(const std::string& pattern);
-    SQLRETURN VisitEntry(const std::string& path, const std::string& pattern, std::vector<NScheme::TSchemeEntry>& resultEntries);
-    bool IsPatternMatch(const std::string& path, const std::string& pattern);
-
-    std::optional<std::string> GetTableType(NScheme::ESchemeEntryType type);
-
     TConnection* Conn_;
-    TErrorList Errors_;
-
     std::unique_ptr<ICursor> Cursor_;
+    std::string PreparedQuery_;
+    bool IsPrepared_ = false;
 
     std::vector<TBoundColumn> BoundColumns_;
     std::vector<TBoundParam> BoundParams_;
 
-    std::string PreparedQuery_;
-    bool IsPrepared_ = false;
+    NYdb::TParams BuildParams();
+    
+    std::vector<NScheme::TSchemeEntry> GetPatternEntries(const std::string& pattern);
+    SQLRETURN VisitEntry(const std::string& path, const std::string& pattern, std::vector<NScheme::TSchemeEntry>& resultEntries);
+    bool IsPatternMatch(const std::string& path, const std::string& pattern);
+    std::optional<std::string> GetTableType(NScheme::ESchemeEntryType type);
 };
 
 } // namespace NOdbc
