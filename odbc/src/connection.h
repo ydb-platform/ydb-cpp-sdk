@@ -1,6 +1,7 @@
 #pragma once
 
 #include "environment.h"
+#include "utils/error_manager.h"
 
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/query/client.h>
@@ -19,7 +20,7 @@ namespace NOdbc {
 
 class TStatement;
 
-class TConnection {
+class TConnection : public TErrorManager {
 private:
     std::unique_ptr<TDriver> YdbDriver_;
     std::unique_ptr<NQuery::TQueryClient> YdbClient_;
@@ -27,7 +28,6 @@ private:
     std::unique_ptr<NScheme::TSchemeClient> YdbSchemeClient_;
     std::optional<NQuery::TTransaction> Tx_;
 
-    TErrorList Errors_;
     std::vector<std::unique_ptr<TStatement>> Statements_;
     std::string Endpoint_;
     std::string Database_;
@@ -42,8 +42,6 @@ public:
 
     SQLRETURN DriverConnect(const std::string& connectionString);
     SQLRETURN Disconnect();
-    SQLRETURN GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLINTEGER* nativeError, 
-                        SQLCHAR* messageText, SQLSMALLINT bufferLength, SQLSMALLINT* textLength);
 
     std::unique_ptr<TStatement> CreateStatement();
     void RemoveStatement(TStatement* stmt);
@@ -51,9 +49,6 @@ public:
     NYdb::NQuery::TQueryClient* GetClient() { return YdbClient_.get(); }
     NYdb::NTable::TTableClient* GetTableClient() { return YdbTableClient_.get(); }
     NScheme::TSchemeClient* GetSchemeClient() { return YdbSchemeClient_.get(); }
-
-    void AddError(const std::string& sqlState, SQLINTEGER nativeError, const std::string& message);
-    void ClearErrors();
 
     SQLRETURN SetAutocommit(bool value);
     bool GetAutocommit() const;
