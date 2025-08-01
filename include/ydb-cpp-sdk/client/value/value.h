@@ -229,6 +229,7 @@ struct TDecimalValue {
     std::string ToString() const;
     TDecimalValue(const Ydb::Value& decimalValueProto, const TDecimalType& decimalType);
     TDecimalValue(const std::string& decimalString, uint8_t precision, uint8_t scale);
+    TDecimalValue(uint64_t low, int64_t hi, uint8_t precision, uint8_t scale);
 
     TDecimalType DecimalType_;
     uint64_t Low_;

@@ -969,6 +969,13 @@ TDecimalValue::TDecimalValue(const std::string& decimalString, ui8 precision, ui
     Hi_ = *(int64_t*)(buf + 8);
 }
 
+TDecimalValue::TDecimalValue(uint64_t low, int64_t hi, uint8_t precision, uint8_t scale)
+    : DecimalType_(precision, scale)
+    , Low_(low)
+    , Hi_(hi)
+{
+}
+
 std::string TDecimalValue::ToString() const {
     NYdb::NDecimal::TInt128 val = NYdb::NDecimal::FromHalfs(Low_, Hi_);
     return NYdb::NDecimal::ToString(val, DecimalType_.Precision, DecimalType_.Scale);
