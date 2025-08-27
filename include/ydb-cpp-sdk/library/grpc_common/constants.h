@@ -2,10 +2,8 @@
 
 #include <cstdint>
 
-namespace NYdbGrpc {
-inline namespace V3 {
+namespace NYdb::inline V3::NGrpc {
 
 constexpr uint64_t DEFAULT_GRPC_MESSAGE_SIZE_LIMIT = 64000000;
 
-}
 }
