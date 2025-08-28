@@ -10,7 +10,8 @@
       "name": "base",
       "displayName": "Generic Config",
       "cacheVariables": {
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_PREFIX_PATH": "~/install"
       },
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build"
