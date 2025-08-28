@@ -4,6 +4,7 @@ target_link_libraries(client-iam-types
   INTERFACE
     client-ydb_types-credentials
     library-jwt
+    gRPC::grpc++
     yutil
 )
 

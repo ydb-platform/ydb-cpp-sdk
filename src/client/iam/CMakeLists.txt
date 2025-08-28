@@ -1,5 +1,3 @@
-add_subdirectory(common)
-
 _ydb_sdk_add_library(client-iam)
 
 target_link_libraries(client-iam
@@ -8,7 +6,6 @@ target_link_libraries(client-iam
     yutil
   PRIVATE
     api-client-yc_public
-    client-iam-common
     json
     http-simple
 )

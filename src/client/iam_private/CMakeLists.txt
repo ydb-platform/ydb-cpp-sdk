@@ -8,7 +8,6 @@ target_link_libraries(client-iam_private
     yutil
   PRIVATE
     api-client-yc_private
-    client-iam_private-common
 )
 
 target_sources(client-iam_private
