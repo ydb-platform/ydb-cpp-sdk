@@ -8,11 +8,13 @@ cp -r $1/ydb/public/sdk/cpp/* $tmp_dir
 echo "tmp_dir: $tmp_dir"
 
 rm -r $tmp_dir/client
+rm -r $tmp_dir/src/client/arrow
 rm -r $tmp_dir/src/client/cms
 rm -r $tmp_dir/src/client/config
 rm -r $tmp_dir/src/client/debug
 rm -r $tmp_dir/src/client/draft
 
+rm -r $tmp_dir/include/ydb-cpp-sdk/client/arrow
 rm -r $tmp_dir/include/ydb-cpp-sdk/client/cms
 rm -r $tmp_dir/include/ydb-cpp-sdk/client/config
 rm -r $tmp_dir/include/ydb-cpp-sdk/client/debug
