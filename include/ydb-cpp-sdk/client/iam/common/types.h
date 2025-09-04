@@ -8,7 +8,7 @@
 #include <fstream>
 #include <string>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 namespace NIam {
 
 constexpr std::string_view DEFAULT_ENDPOINT = "iam.api.cloud.yandex.net";
