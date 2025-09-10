@@ -3,7 +3,7 @@
 #include <src/client/topic/impl/topic_impl.h>
 #include <src/client/topic/impl/common.h>
 
-#include <src/client/impl/ydb_internal/scheme_helpers/helpers.h>
+#include <src/client/impl/internal/scheme_helpers/helpers.h>
 
 #include <util/random/random.h>
 #include <util/string/cast.h>
