@@ -3,13 +3,13 @@
 #include <ydb-cpp-sdk/client/query/client.h>
 
 #define INCLUDE_YDB_INTERNAL_H
-#include <src/client/impl/ydb_endpoints/endpoints.h>
-#include <src/client/impl/ydb_internal/make_request/make.h>
-#include <src/client/impl/ydb_internal/retry/retry.h>
-#include <src/client/impl/ydb_internal/retry/retry_async.h>
-#include <src/client/impl/ydb_internal/retry/retry_sync.h>
-#include <src/client/impl/ydb_internal/session_client/session_client.h>
-#include <src/client/impl/ydb_internal/session_pool/session_pool.h>
+#include <src/client/impl/endpoints/endpoints.h>
+#include <src/client/impl/internal/make_request/make.h>
+#include <src/client/impl/internal/retry/retry.h>
+#include <src/client/impl/internal/retry/retry_async.h>
+#include <src/client/impl/internal/retry/retry_sync.h>
+#include <src/client/impl/session/session_client.h>
+#include <src/client/impl/session/session_pool.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
 #include <ydb-cpp-sdk/library/operation_id/operation_id.h>

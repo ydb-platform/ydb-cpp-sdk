@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb-cpp-sdk/client/query/client.h>
-#include <src/client/impl/ydb_internal/kqp_session_common/kqp_session_common.h>
+#include <src/client/impl/session/kqp_session_common.h>
 
 #include <src/api/grpc/ydb_query_v1.grpc.pb.h>
 

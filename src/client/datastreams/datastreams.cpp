@@ -1,7 +1,7 @@
 #include <ydb-cpp-sdk/client/datastreams/datastreams.h>
 
 #define INCLUDE_YDB_INTERNAL_H
-#include <src/client/impl/ydb_internal/make_request/make.h>
+#include <src/client/impl/internal/make_request/make.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
 #include <ydb-cpp-sdk/library/issue/yql_issue.h>

@@ -1,17 +1,17 @@
 #include <ydb-cpp-sdk/client/table/table.h>
 
 #define INCLUDE_YDB_INTERNAL_H
-#include <src/client/impl/ydb_internal/scheme_helpers/helpers.h>
-#include <src/client/impl/ydb_internal/table_helpers/helpers.h>
-#include <src/client/impl/ydb_internal/make_request/make.h>
-#include <src/client/impl/ydb_internal/retry/retry.h>
-#include <src/client/impl/ydb_internal/retry/retry_async.h>
-#include <src/client/impl/ydb_internal/retry/retry_sync.h>
+#include <src/client/impl/internal/scheme_helpers/helpers.h>
+#include <src/client/impl/internal/table_helpers/helpers.h>
+#include <src/client/impl/internal/make_request/make.h>
+#include <src/client/impl/internal/retry/retry.h>
+#include <src/client/impl/internal/retry/retry_async.h>
+#include <src/client/impl/internal/retry/retry_sync.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
 #include <src/api/grpc/ydb_table_v1.grpc.pb.h>
 #include <src/api/protos/ydb_table.pb.h>
-#include <src/client/impl/ydb_stats/stats.h>
+#include <src/client/impl/stats/stats.h>
 #include <ydb-cpp-sdk/client/proto/accessor.h>
 #include <ydb-cpp-sdk/client/value/value.h>
 #include <src/client/table/impl/client_session.h>

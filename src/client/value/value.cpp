@@ -1,7 +1,7 @@
 #include <ydb-cpp-sdk/client/value/value.h>
 
 #define INCLUDE_YDB_INTERNAL_H
-#include <src/client/impl/ydb_internal/value_helpers/helpers.h>
+#include <src/client/impl/internal/value_helpers/helpers.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
 #include <ydb-cpp-sdk/type_switcher.h>

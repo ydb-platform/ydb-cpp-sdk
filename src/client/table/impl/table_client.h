@@ -1,11 +1,11 @@
 #pragma once
 
 #define INCLUDE_YDB_INTERNAL_H
-#include <src/client/impl/ydb_internal/session_client/session_client.h>
-#include <src/client/impl/ydb_internal/scheme_helpers/helpers.h>
-#include <src/client/impl/ydb_internal/table_helpers/helpers.h>
-#include <src/client/impl/ydb_internal/make_request/make.h>
-#include <src/client/impl/ydb_internal/session_pool/session_pool.h>
+#include <src/client/impl/internal/scheme_helpers/helpers.h>
+#include <src/client/impl/internal/table_helpers/helpers.h>
+#include <src/client/impl/internal/make_request/make.h>
+#include <src/client/impl/session/session_client.h>
+#include <src/client/impl/session/session_pool.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>

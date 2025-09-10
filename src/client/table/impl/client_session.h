@@ -1,8 +1,8 @@
 #pragma once
 
 #include <ydb-cpp-sdk/client/table/table.h>
-#include <src/client/impl/ydb_internal/kqp_session_common/kqp_session_common.h>
-#include <src/client/impl/ydb_endpoints/endpoints.h>
+#include <src/client/impl/session/kqp_session_common.h>
+#include <src/client/impl/endpoints/endpoints.h>
 #include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 
 #include <src/api/protos/ydb_table.pb.h>
