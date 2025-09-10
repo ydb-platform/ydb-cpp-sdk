@@ -5,8 +5,7 @@ _ydb_sdk_add_library(client-ydb_query)
 target_link_libraries(client-ydb_query PUBLIC
   yutil
   impl-ydb_internal-make_request
-  impl-ydb_internal-kqp_session_common
-  impl-ydb_internal-session_pool
+  impl-session
   impl-ydb_internal-retry
   client-ydb_common_client
   client-ydb_driver

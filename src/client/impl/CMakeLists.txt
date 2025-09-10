@@ -1,3 +1,4 @@
-add_subdirectory(ydb_endpoints)
-add_subdirectory(ydb_internal)
-add_subdirectory(ydb_stats)
+add_subdirectory(endpoints)
+add_subdirectory(internal)
+add_subdirectory(session)
+add_subdirectory(stats)

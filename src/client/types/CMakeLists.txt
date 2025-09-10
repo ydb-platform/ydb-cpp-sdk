@@ -6,12 +6,17 @@ add_subdirectory(status)
 
 _ydb_sdk_add_library(client-ydb_types)
 
+target_sources(client-ydb_types PRIVATE
+  ydb.cpp
+)
+
 target_link_libraries(client-ydb_types PUBLIC
   yutil
   protobuf::libprotobuf
   grpc-client
   yql-public-issue
   enum_serialization_runtime
+  impl-ydb_internal-common
 )
 
 generate_enum_serilization(client-ydb_types
