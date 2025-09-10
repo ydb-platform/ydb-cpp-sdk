@@ -432,7 +432,9 @@ void TSingleClusterReadSessionImpl<UseMigrationProtocol>::OnConnectTimeout(const
         }
     }
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     ++*Settings.Counters_->Errors;
+#endif
     TStringBuilder description;
     description << "Failed to establish connection to server. Attempts done: " << ConnectionAttemptsDone;
     if (!Reconnect(TPlainStatus(EStatus::TIMEOUT, description))) {
@@ -469,7 +471,9 @@ void TSingleClusterReadSessionImpl<UseMigrationProtocol>::OnConnect(
     }
 
     if (!st.Ok()) {
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
         ++*Settings.Counters_->Errors;
+#endif
         if (!Reconnect(st)) {
             AbortSession(
                 st.Status, MakeIssueWithSubIssues(TStringBuilder() << "Failed to establish connection to server \""
@@ -832,9 +836,11 @@ void TSingleClusterReadSessionImpl<UseMigrationProtocol>::OnUserRetrievedEvent(i
                           << decompressedSize
                           << " bytes");
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     *Settings.Counters_->MessagesInflight -= messagesCount;
     *Settings.Counters_->BytesInflightTotal -= decompressedSize;
     *Settings.Counters_->BytesInflightUncompressed -= decompressedSize;
+#endif
 
     TDeferredActions<UseMigrationProtocol> deferred;
     std::lock_guard guard(Lock);
@@ -992,8 +998,9 @@ void TSingleClusterReadSessionImpl<UseMigrationProtocol>::OnReadDone(NYdbGrpc::T
         }
     }
     if (!errorStatus.Ok()) {
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
         ++*Settings.Counters_->Errors;
-
+#endif
         if (!Reconnect(errorStatus)) {
             AbortSession(std::move(errorStatus));
         }
@@ -1030,7 +1037,9 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
     for (TPartitionData<true>& partitionData : *msg.mutable_partition_data()) {
         auto partitionStreamIt = PartitionStreams.find(partitionData.cookie().assign_id());
         if (partitionStreamIt == PartitionStreams.end()) {
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
             ++*Settings.Counters_->Errors;
+#endif
             BreakConnectionAndReconnectImpl(EStatus::INTERNAL_ERROR,
                                             TStringBuilder()
                                                 << "Got unexpected partition stream data message. Topic: "
@@ -1063,9 +1072,11 @@ inline void TSingleClusterReadSessionImpl<true>::OnReadDoneImpl(
                 partitionStream->UpdateMaxReadOffset(currentOffset);
                 const i64 messageSize = static_cast<i64>(messageData.data().size());
                 CompressedDataSize += messageSize;
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
                 *Settings.Counters_->BytesInflightTotal += messageSize;
                 *Settings.Counters_->BytesInflightCompressed += messageSize;
                 ++*Settings.Counters_->MessagesInflight;
+#endif
             }
         }
         if (firstOffset == std::numeric_limits<ui64>::max()) {
@@ -1283,7 +1294,9 @@ inline void TSingleClusterReadSessionImpl<false>::OnReadDoneImpl(
                 LOG_LAZY(Log, TLOG_DEBUG, GetLogPrefix() << "Got unexpected partition stream data message. PartitionSessionId: " << partitionData.partition_session_id());
                 continue;
             } else {
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
                 ++*Settings.Counters_->Errors;
+#endif
                 BreakConnectionAndReconnectImpl(EStatus::INTERNAL_ERROR,
                                                 TStringBuilder() << "Got unexpected partition stream data message. "
                                                 << "PartitionSessionId: " << partitionData.partition_session_id(),
@@ -1313,9 +1326,11 @@ inline void TSingleClusterReadSessionImpl<false>::OnReadDoneImpl(
                 partitionStream->UpdateMaxReadOffset(currentOffset);
                 const i64 messageSize = static_cast<i64>(messageData.data().size());
                 CompressedDataSize += messageSize;
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
                 *Settings.Counters_->BytesInflightTotal += messageSize;
                 *Settings.Counters_->BytesInflightCompressed += messageSize;
                 ++*Settings.Counters_->MessagesInflight;
+#endif
             }
         }
         if (firstOffset == std::numeric_limits<i64>::max()) {
@@ -1783,11 +1798,12 @@ void TSingleClusterReadSessionImpl<UseMigrationProtocol>::OnCreateNewDecompressi
 template<bool UseMigrationProtocol>
 void TSingleClusterReadSessionImpl<UseMigrationProtocol>::OnDecompressionInfoDestroy(i64 compressedSize, i64 decompressedSize, i64 messagesCount, i64 serverBytesSize)
 {
-
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     *Settings.Counters_->MessagesInflight -= messagesCount;
     *Settings.Counters_->BytesInflightUncompressed -= decompressedSize;
     *Settings.Counters_->BytesInflightCompressed -= compressedSize;
     *Settings.Counters_->BytesInflightTotal -= (compressedSize + decompressedSize);
+#endif
 
     TDeferredActions<UseMigrationProtocol> deferred;
     std::lock_guard guard(Lock);
@@ -1813,12 +1829,14 @@ void TSingleClusterReadSessionImpl<UseMigrationProtocol>::OnDataDecompressed(i64
     Y_ABORT_UNLESS(DecompressionTasksInflight > 0);
     --DecompressionTasksInflight;
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     *Settings.Counters_->BytesRead += decompressedSize;
     *Settings.Counters_->BytesReadCompressed += sourceSize;
     *Settings.Counters_->MessagesRead += messagesCount;
     *Settings.Counters_->BytesInflightUncompressed += decompressedSize;
     *Settings.Counters_->BytesInflightCompressed -= sourceSize;
     *Settings.Counters_->BytesInflightTotal += (decompressedSize - sourceSize);
+#endif
 
     std::lock_guard guard(Lock);
     UpdateMemoryUsageStatisticsImpl();
@@ -1971,9 +1989,11 @@ void TSingleClusterReadSessionImpl<UseMigrationProtocol>::UpdateMemoryUsageStati
     UsageStatisticsLastUpdateTime = now;
     const double percent = 100.0 / static_cast<double>(Settings.MaxMemoryUsageBytes_);
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     Settings.Counters_->TotalBytesInflightUsageByTime->Collect((DecompressedDataSize + CompressedDataSize) * percent, delta);
     Settings.Counters_->UncompressedBytesInflightUsageByTime->Collect(DecompressedDataSize * percent, delta);
     Settings.Counters_->CompressedBytesInflightUsageByTime->Collect(CompressedDataSize * percent, delta);
+#endif
 }
 
 template<bool UseMigrationProtocol>

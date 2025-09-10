@@ -43,12 +43,13 @@ TWriteSessionImpl::TWriteSessionImpl(
         TargetCluster = *Settings.PreferredCluster_;
         NUtils::ToLower(TargetCluster);
     }
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     if (Settings.Counters_.has_value()) {
         Counters = *Settings.Counters_;
     } else {
         Counters = MakeIntrusive<TWriterCounters>(new ::NMonitoring::TDynamicCounters());
     }
-
+#endif
 }
 
 void TWriteSessionImpl::Start(const TDuration& delay) {
@@ -391,7 +392,9 @@ void TWriteSessionImpl::Write(
 TWriteSessionImpl::THandleResult TWriteSessionImpl::OnErrorImpl(NYdb::TPlainStatus&& status) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     (*Counters->Errors)++;
+#endif
     auto result = RestartImpl(status);
     if (result.DoStop) {
         CloseImpl(status.Status, std::move(status.Issues));
@@ -828,28 +831,38 @@ bool TWriteSessionImpl::CleanupOnAcknowledged(ui64 id) {
             size = front.Data.size();
         }
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
         (*Counters->MessagesWritten) += front.MessageCount;
         (*Counters->MessagesInflight) -= front.MessageCount;
         (*Counters->BytesWritten) += front.OriginalSize;
+#endif
 
         SentPackedMessage.pop();
     } else {
         size = sentFront.Size;
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
         (*Counters->BytesWritten) += sentFront.Size;
         (*Counters->MessagesWritten)++;
         (*Counters->MessagesInflight)--;
+#endif
     }
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     (*Counters->BytesInflightCompressed) -= compressedSize;
     (*Counters->BytesWrittenCompressed) += compressedSize;
     (*Counters->BytesInflightUncompressed) -= size;
+#endif
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     Y_ABORT_UNLESS(Counters->BytesInflightCompressed->Val() >= 0);
     Y_ABORT_UNLESS(Counters->BytesInflightUncompressed->Val() >= 0);
+#endif
 
     Y_ABORT_UNLESS(sentFront.Id == id);
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     (*Counters->BytesInflightTotal) = MemoryUsage;
+#endif
     SentOriginalMessages.pop();
     return result;
 }
@@ -945,8 +958,10 @@ TMemoryUsageChange TWriteSessionImpl::OnCompressedImpl(TBlock&& block) {
     UpdateTimedCountersImpl();
     Y_ABORT_UNLESS(block.Valid);
     auto memoryUsage = OnMemoryUsageChangedImpl(static_cast<i64>(block.Data.size()) - block.OriginalMemoryUsage);
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     (*Counters->BytesInflightUncompressed) -= block.OriginalSize;
     (*Counters->BytesInflightCompressed) += block.Data.size();
+#endif
 
     PackedMessagesToSend.emplace(std::move(block));
     SendImpl();
@@ -1041,9 +1056,11 @@ size_t TWriteSessionImpl::WriteBatchImpl() {
             }
             size += datum.size();
             UpdateTimedCountersImpl();
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
             (*Counters->BytesInflightUncompressed) += datum.size();
             (*Counters->MessagesInflight)++;
             OriginalMessagesToSend.emplace(id, createTs, datum.size());
+#endif
         }
         block.Data = std::move(CurrentBatch.Data);
         if (skipCompression) {
@@ -1313,11 +1330,13 @@ void TWriteSessionImpl::UpdateTimedCountersImpl() {
     auto delta = (now - LastCountersUpdateTs).MilliSeconds();
     double percent = 100.0 / Settings.MaxMemoryUsage_;
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     Counters->TotalBytesInflightUsageByTime->Collect(*Counters->BytesInflightTotal * percent, delta);
     Counters->UncompressedBytesInflightUsageByTime->Collect(*Counters->BytesInflightUncompressed * percent, delta);
     Counters->CompressedBytesInflightUsageByTime->Collect(*Counters->BytesInflightCompressed * percent, delta);
 
     *Counters->CurrentSessionLifetimeMs = (TInstant::Now() - SessionStartedTs).MilliSeconds();
+#endif
     LastCountersUpdateTs = now;
     if (LastCountersLogTs == TInstant::Zero() || TInstant::Now() - LastCountersLogTs > TDuration::Seconds(60)) {
         LastCountersLogTs = TInstant::Now();
@@ -1326,7 +1345,7 @@ void TWriteSessionImpl::UpdateTimedCountersImpl() {
     << " " Y_STRINGIZE(counter) ": "                                    \
     << Counters->counter->Val()                                        \
         /**/
-
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
         LOG_LAZY(DbDriverState->Log, TLOG_INFO, LogPrefix()
             << "Counters: {"
             LOG_COUNTER(Errors)
@@ -1340,7 +1359,7 @@ void TWriteSessionImpl::UpdateTimedCountersImpl() {
             LOG_COUNTER(MessagesInflight)
             << " }"
         );
-
+#endif
 #undef LOG_COUNTER
     }
 }

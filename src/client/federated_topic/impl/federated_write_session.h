@@ -196,8 +196,9 @@ public:
     bool Close(TDuration timeout) override {
         return TryGetImpl()->Close(timeout);
     }
-
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     inline NTopic::TWriterCounters::TPtr GetCounters() override {Y_ABORT("Unimplemented"); } //ToDo - unimplemented;
+#endif
 
 private:
 

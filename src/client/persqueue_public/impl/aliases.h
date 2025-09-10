@@ -32,8 +32,10 @@ using NTopic::Cancel;
 using NTopic::IsErrorMessage;
 using NTopic::MakeErrorFromProto;
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
 // counters_logger
 using TCountersLogger = NTopic::TCountersLogger<true>;
+#endif
 
 // read_session_impl
 using NTopic::HasNullCounters;

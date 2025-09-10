@@ -242,8 +242,7 @@ public:
     void Close();
 
 private:
-
-    using TNodeSessionsMap = TMap<TNodeId, TDirectReadSessionContextPtr>;
+    using TNodeSessionsMap = std::map<TNodeId, TDirectReadSessionContextPtr>;
 
     TDirectReadSessionContextPtr CreateDirectReadSession(TNodeId);
     void DeletePartitionSession(TPartitionSessionId id, TNodeSessionsMap::iterator it);
@@ -258,7 +257,7 @@ private:
 
     IDirectReadSessionControlCallbacks::TPtr ControlCallbacks;
     TNodeSessionsMap NodeSessions;
-    TMap<TPartitionSessionId, TPartitionLocation> Locations;
+    std::map<TPartitionSessionId, TPartitionLocation> Locations;
     TLog Log;
 };
 

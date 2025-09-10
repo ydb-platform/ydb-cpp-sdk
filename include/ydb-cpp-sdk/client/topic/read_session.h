@@ -1,9 +1,12 @@
 #pragma once
 
-#include "counters.h"
 #include "executor.h"
 #include "read_events.h"
 #include "retry_policy.h"
+
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
+#include "counters.h"
+#endif
 
 #include <ydb-cpp-sdk/client/common_client/settings.h>
 #include <ydb-cpp-sdk/client/types/tx/tx.h>
@@ -183,10 +186,12 @@ struct TReadSessionSettings: public TRequestSettings<TReadSessionSettings> {
     //! If not set, default executor will be used.
     FLUENT_SETTING(IExecutor::TPtr, DecompressionExecutor);
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     //! Counters.
     //! If counters are not provided explicitly,
     //! they will be created inside session (without link with parent counters).
     FLUENT_SETTING(TReaderCounters::TPtr, Counters);
+#endif
 
     FLUENT_SETTING_DEFAULT(TDuration, ConnectTimeout, TDuration::Seconds(30));
 
@@ -244,8 +249,10 @@ public:
     //! TSessionClosedEvent arrives.
     virtual bool Close(TDuration timeout = TDuration::Max()) = 0;
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     //! Reader counters with different stats (see TReaderConuters).
     virtual TReaderCounters::TPtr GetCounters() const = 0;
+#endif
 
     //! Get unique identifier of read session.
     virtual std::string GetSessionId() const = 0;

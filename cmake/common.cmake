@@ -200,6 +200,7 @@ function(_ydb_sdk_add_library Tgt)
   )
   target_compile_definitions(${Tgt} ${includeMode}
     YDB_SDK_USE_STD_STRING
+    YDB_TOPIC_DISABLE_COUNTERS
   )
 endfunction()
 

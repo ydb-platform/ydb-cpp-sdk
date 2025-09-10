@@ -1,11 +1,14 @@
 #pragma once
 
 #include <ydb-cpp-sdk/client/topic/codecs.h>
-#include <ydb-cpp-sdk/client/topic/counters.h>
 #include <ydb-cpp-sdk/client/topic/errors.h>
 #include <ydb-cpp-sdk/client/topic/events_common.h>
 #include <ydb-cpp-sdk/client/topic/executor.h>
 #include <ydb-cpp-sdk/client/topic/retry_policy.h>
+
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
+#include <ydb-cpp-sdk/client/topic/counters.h>
+#endif
 
 namespace NYdb::inline V3::NPersQueue {
 
@@ -17,12 +20,14 @@ using NTopic::TGzipCodec;
 using NTopic::TZstdCodec;
 using NTopic::TUnsupportedCodec;
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
 // counters
 using NTopic::TCounterPtr;
 using NTopic::TReaderCounters;
 using NTopic::TWriterCounters;
 using NTopic::MakeCountersNotNull;
 using NTopic::HasNullCounters;
+#endif
 
 // errors
 // using NTopic::GetRetryErrorClass;

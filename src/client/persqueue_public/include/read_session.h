@@ -173,10 +173,12 @@ struct TReadSessionSettings : public TRequestSettings<TReadSessionSettings> {
     //! If not set, default executor will be used.
     FLUENT_SETTING(IExecutor::TPtr, DecompressionExecutor);
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     //! Counters.
     //! If counters are not provided explicitly,
     //! they will be created inside session (without link with parent counters).
     FLUENT_SETTING(TReaderCounters::TPtr, Counters);
+#endif
 
     //! Read only original topic instance, don't read mirrored.
     //!
@@ -250,8 +252,10 @@ public:
     //! TSessionClosedEvent arrives.
     virtual bool Close(TDuration timeout = TDuration::Max()) = 0;
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     //! Reader counters with different stats (see TReaderConuters).
     virtual TReaderCounters::TPtr GetCounters() const = 0;
+#endif
 
     //! Get unique identifier of read session.
     virtual std::string GetSessionId() const = 0;
