@@ -8,7 +8,7 @@ target_link_libraries(client-ydb_table PUBLIC
   enum_serialization_runtime
   api-protos
   impl-ydb_internal-make_request
-  impl-ydb_internal-kqp_session_common
+  impl-session
   impl-ydb_internal-retry
   client-ydb_driver
   client-ydb_params

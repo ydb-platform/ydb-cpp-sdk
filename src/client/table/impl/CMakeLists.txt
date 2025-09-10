@@ -8,7 +8,7 @@ target_link_libraries(client-ydb_table-impl
     api-grpc
     library-operation_id
     client-impl-ydb_endpoints
-    impl-ydb_internal-session_pool
+    impl-session
     client-ydb_table-query_stats
   PRIVATE
     OpenSSL::SSL
