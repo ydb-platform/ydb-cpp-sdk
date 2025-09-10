@@ -65,8 +65,9 @@ void TDriver::AddExtension(typename TExtension::TParams params) {
     typename TExtension::IApi* api = TExtension::IApi::Create(*this);
     auto extension = new TExtension(params, api);
     extension->SelfRegister(*this);
-    if (api)
+    if (api) {
         api->SelfRegister(*this);
+    }
 }
 
 } // namespace NYdb

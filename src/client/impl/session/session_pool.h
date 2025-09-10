@@ -22,7 +22,7 @@ public:
 //How often run session pool keep alive check
 constexpr TDuration PERIODIC_ACTION_INTERVAL = TDuration::Seconds(5);
 constexpr TDuration MAX_WAIT_SESSION_TIMEOUT = TDuration::Seconds(5); //Max time to wait session
-constexpr ui64 PERIODIC_ACTION_BATCH_SIZE = 10; //Max number of tasks to perform during one interval
+constexpr std::uint64_t PERIODIC_ACTION_BATCH_SIZE = 10; //Max number of tasks to perform during one interval
 constexpr TDuration CREATE_SESSION_INTERNAL_TIMEOUT = TDuration::Seconds(2); //Timeout for createSession call inside session pool
 
 TStatus GetStatus(const TOperation& operation);
@@ -87,24 +87,24 @@ class TSessionPool : public IServerCloseHandler {
 private:
     class TWaitersQueue {
     public:
-        TWaitersQueue(ui32 maxQueueSize, TDuration maxWaitSessionTimeout=MAX_WAIT_SESSION_TIMEOUT);
+        TWaitersQueue(std::uint32_t maxQueueSize, TDuration maxWaitSessionTimeout=MAX_WAIT_SESSION_TIMEOUT);
 
         // returns true and gets ownership if queue size less than limit
         // otherwise returns false and doesn't not touch ctx
         bool TryPush(std::unique_ptr<IGetSessionCtx>& p);
         std::unique_ptr<IGetSessionCtx> TryGet();
         void GetOld(TInstant now, std::vector<std::unique_ptr<IGetSessionCtx>>& oldWaiters);
-        ui32 Size() const;
+        std::uint32_t Size() const;
 
     private:
-        const ui32 MaxQueueSize_;
+        const std::uint32_t MaxQueueSize_;
         const TDuration MaxWaitSessionTimeout_;
         std::multimap<TInstant, std::unique_ptr<IGetSessionCtx>> Waiters_;
     };
 public:
     using TKeepAliveCmd = std::function<void(TKqpSessionCommon* s)>;
     using TDeletePredicate = std::function<bool(TKqpSessionCommon* s, size_t sessionsCount)>;
-    TSessionPool(ui32 maxActiveSessions);
+    TSessionPool(std::uint32_t maxActiveSessions);
 
     // Extracts session from pool or creates new one ising given ctx
     void GetSession(std::unique_ptr<IGetSessionCtx> ctx);
@@ -117,9 +117,9 @@ public:
     bool CheckAndFeedWaiterNewSession(bool active);
 
     TPeriodicCb CreatePeriodicTask(std::weak_ptr<ISessionClient> weakClient, TKeepAliveCmd&& cmd, TDeletePredicate&& predicate);
-    i64 GetActiveSessions() const;
-    i64 GetActiveSessionsLimit() const;
-    i64 GetCurrentPoolSize() const;
+    std::int64_t GetActiveSessions() const;
+    std::int64_t GetActiveSessionsLimit() const;
+    std::int64_t GetCurrentPoolSize() const;
     void DecrementActiveCounter();
     void IncrementActiveCounterUnsafe();
 
@@ -138,12 +138,12 @@ private:
     std::multimap<TInstant, std::unique_ptr<TKqpSessionCommon>> Sessions_;
     TWaitersQueue WaitersQueue_;
 
-    i64 ActiveSessions_;
-    const ui32 MaxActiveSessions_;
+    std::int64_t ActiveSessions_;
+    const std::uint32_t MaxActiveSessions_;
     NSdkStats::TSessionCounter ActiveSessionsCounter_;
     NSdkStats::TSessionCounter InPoolSessionsCounter_;
     NSdkStats::TSessionCounter SessionWaiterCounter_;
-    NSdkStats::TAtomicCounter<::NMonitoring::TRate> FakeSessionsCounter_;
+    NSdkStats::TAtomicCounter<NMetrics::IRate> FakeSessionsCounter_;
 };
 
 }

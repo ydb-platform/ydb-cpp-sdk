@@ -2,10 +2,11 @@
 
 #include "endpoint_pool.h"
 
-#include <src/client/impl/internal/internal_header.h>
-
-#include <src/client/impl/internal/internal_client/client.h>
 #include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
+
+#include <src/client/impl/internal/internal_header.h>
+#include <src/client/impl/internal/internal_client/client.h>
+
 #include <src/client/types/core_facility/core_facility.h>
 
 namespace NYdb::inline V3 {
@@ -97,7 +98,7 @@ public:
     );
     NThreading::TFuture<void> SendNotification(
         TDbDriverState::ENotifyType type);
-    void SetMetricRegistry(::NMonitoring::TMetricRegistry *sensorsRegistry);
+    void SetMetricRegistry(std::shared_ptr<NMetrics::IMetricsProvider> sensorsRegistry);
 private:
     IInternalClient* DiscoveryClient_;
     std::unordered_map<TStateKey, std::weak_ptr<TDbDriverState>, TStateKeyHash> States_;
