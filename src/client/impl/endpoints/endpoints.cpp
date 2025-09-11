@@ -1,6 +1,5 @@
 #include "endpoints.h"
 
-#include <library/cpp/monlib/metrics/metric_registry.h>
 #include <library/cpp/string_utils/quote/quote.h>
 
 #include <util/random/random.h>
@@ -80,7 +79,7 @@ std::vector<std::string> TEndpointElectorSafe::SetNewState(std::vector<TEndpoint
         }
     }
 
-    Sort(uniqRec.begin(), uniqRec.end());
+    std::sort(uniqRec.begin(), uniqRec.end());
 
     auto bestK = GetBestK(uniqRec);
 
@@ -176,7 +175,7 @@ void TEndpointElectorSafe::PessimizeEndpoint(const std::string& endpoint) {
             }
         }
     }
-    Sort(Records_.begin(), Records_.end());
+    std::sort(Records_.begin(), Records_.end());
     BestK_ = GetBestK(Records_);
 }
 

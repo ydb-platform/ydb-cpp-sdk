@@ -1,11 +1,12 @@
 #pragma once
 
+#include <src/client/impl/stats/stats.h>
+
 #include <atomic>
 #include <shared_mutex>
 #include <unordered_map>
 #include <vector>
 #include <string>
-#include <src/client/impl/stats/stats.h>
 
 namespace NYdb::inline V3 {
 
@@ -124,9 +125,10 @@ private:
     std::unordered_map<ui64, TKnownEndpoint> KnownEndpointsByNodeId_;
     std::int32_t BestK_ = -1;
     std::atomic_int PessimizationRatio_ = 0;
-    NSdkStats::TAtomicCounter<::NMonitoring::TIntGauge> EndpointCountGauge_;
-    NSdkStats::TAtomicCounter<::NMonitoring::TIntGauge> PessimizationRatioGauge_;
-    NSdkStats::TAtomicCounter<::NMonitoring::TIntGauge> EndpointActiveGauge_;
+
+    NSdkStats::TAtomicCounter<NMetrics::IIntGauge> EndpointCountGauge_;
+    NSdkStats::TAtomicCounter<NMetrics::IIntGauge> PessimizationRatioGauge_;
+    NSdkStats::TAtomicCounter<NMetrics::IIntGauge> EndpointActiveGauge_;
 };
 
 // Used to track object

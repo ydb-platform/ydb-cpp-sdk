@@ -48,9 +48,11 @@ public:
         return SessionId;
     }
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     TReaderCounters::TPtr GetCounters() const override {
         return Settings.Counters_; // Always not nullptr.
     }
+#endif
 
     void AddTopic(const TTopicReadSettings& topicReadSettings) /*override*/ {
         Y_UNUSED(topicReadSettings);
@@ -97,8 +99,10 @@ private:
     void AbortImpl(EStatus statusCode, NYdb::NIssue::TIssues&& issues, TDeferredActions& deferred);
     void AbortImpl(EStatus statusCode, const std::string& message, TDeferredActions& deferred);
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     void MakeCountersIfNeeded();
     void SetupCountersLogger();
+#endif
 
 private:
     TReadSessionSettings Settings;
@@ -121,8 +125,10 @@ private:
 
     std::vector<TCallbackContextPtr> CbContexts;
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     std::shared_ptr<TCountersLogger> CountersLogger;
     std::shared_ptr<TCallbackContext<TCountersLogger>> DumpCountersContext;
+#endif
 };
 
 }  // namespace NYdb::NPersQueue

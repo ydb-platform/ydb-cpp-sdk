@@ -312,7 +312,9 @@ public:
     // Empty maybe - block till all work is done. Otherwise block at most at closeTimeout duration.
     bool Close(TDuration closeTimeout = TDuration::Max());
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     TWriterCounters::TPtr GetCounters() {Y_ABORT("Unimplemented"); } //ToDo - unimplemented;
+#endif
 
     const TWriteSessionSettings& GetSettings() const {
         return Settings;
@@ -433,7 +435,9 @@ private:
     TInstant SessionStartedTs;
     TInstant LastCountersUpdateTs = TInstant::Zero();
     TInstant LastCountersLogTs;
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     TWriterCounters::TPtr Counters;
+#endif
     TDuration WakeupInterval;
 
     std::string StateStr;

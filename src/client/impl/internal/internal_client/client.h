@@ -1,23 +1,24 @@
 #pragma once
 
-#include <src/client/impl/internal/internal_header.h>
-
-#include <src/client/impl/internal/common/types.h>
 #include <ydb-cpp-sdk/client/types/ydb.h>
+
+#include <src/client/impl/internal/internal_header.h>
+#include <src/client/impl/internal/common/types.h>
+
 #include <src/client/types/core_facility/core_facility.h>
 
 #include <library/cpp/threading/future/future.h>
 #include <library/cpp/logger/log.h>
 
-namespace NMonitoring {
-    class IMetricRegistry;
-    class TMetricRegistry;
-}
 
 namespace NYdb::inline V3 {
 
 class TDbDriverState;
 struct TListEndpointsResult;
+
+namespace NMetrics {
+    class IMetricsProvider;
+}
 
 class IInternalClient {
 public:
@@ -27,8 +28,8 @@ public:
     virtual void DeleteChannels(const std::vector<std::string>& endpoints) = 0;
 #endif
     virtual TBalancingPolicy::TImpl GetBalancingSettings() const = 0;
-    virtual bool StartStatCollecting(::NMonitoring::IMetricRegistry* sensorsRegistry) = 0;
-    virtual ::NMonitoring::TMetricRegistry* GetMetricRegistry() = 0;
+    virtual bool StartStatCollecting(std::shared_ptr<NMetrics::IMetricsProvider> metricsProvider) = 0;
+    virtual std::shared_ptr<NMetrics::IMetricsProvider> GetMetricRegistry() = 0;
     virtual const TLog& GetLog() const = 0;
 };
 

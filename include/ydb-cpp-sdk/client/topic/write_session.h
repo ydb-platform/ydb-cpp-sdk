@@ -1,10 +1,13 @@
 #pragma once
 
 #include "codecs.h"
-#include "counters.h"
 #include "executor.h"
 #include "retry_policy.h"
 #include "write_events.h"
+
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
+#include "counters.h"
+#endif
 
 #include <ydb-cpp-sdk/client/types/tx/tx.h>
 #include <ydb-cpp-sdk/client/types/fluent_settings_helpers.h>
@@ -91,7 +94,9 @@ struct TWriteSessionSettings : public TRequestSettings<TWriteSessionSettings> {
 
     FLUENT_SETTING_DEFAULT(TDuration, ConnectTimeout, TDuration::Seconds(30));
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     FLUENT_SETTING_OPTIONAL(TWriterCounters::TPtr, Counters);
+#endif
 
     //! Executor for compression tasks.
     //! If not set, default executor will be used.
@@ -222,7 +227,9 @@ public:
     //! Returns true if write session is alive and acitve. False if session was closed.
     virtual bool IsAlive() const = 0;
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     virtual TWriterCounters::TPtr GetCounters() = 0;
+#endif
 
     //! Close immediately and destroy, don't wait for anything.
     virtual ~ISimpleBlockingWriteSession() = default;
@@ -269,8 +276,10 @@ public:
     //! Return true if all writes were completed and acked, false if timeout was reached and some writes were aborted.
     virtual bool Close(TDuration closeTimeout = TDuration::Max()) = 0;
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     //! Writer counters with different stats (see TWriterConuters).
     virtual TWriterCounters::TPtr GetCounters() = 0;
+#endif
 
     //! Close() with timeout = 0 and destroy everything instantly.
     virtual ~IWriteSession() = default;

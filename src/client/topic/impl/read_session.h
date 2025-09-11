@@ -34,9 +34,11 @@ public:
         return SessionId;
     }
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     inline TReaderCounters::TPtr GetCounters() const override {
         return Settings.Counters_; // Always not nullptr.
     }
+#endif
 
     void Abort(TSessionClosedEvent&& closeEvent);
 
@@ -50,8 +52,10 @@ private:
 
     void CreateClusterSessionsImpl(TDeferredActions<false>& deferred);
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     void MakeCountersIfNeeded();
     void SetupCountersLogger();
+#endif
 
     // Shutdown.
     void Abort(EStatus statusCode, NYdb::NIssue::TIssues&& issues);
@@ -77,8 +81,10 @@ private:
     std::shared_ptr<TCallbackContext<TSingleClusterReadSessionImpl<false>>> CbContext;
     std::vector<TTopicReadSettings> Topics;
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     std::shared_ptr<TCountersLogger<false>> CountersLogger;
     std::shared_ptr<TCallbackContext<TCountersLogger<false>>> DumpCountersContext;
+#endif
 
     // Exiting.
     bool Aborting = false;

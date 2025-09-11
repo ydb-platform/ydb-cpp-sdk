@@ -45,24 +45,30 @@ private:
 };
 
 inline void AddMetricRegistry(NYdb::TDriver& driver, NMonitoring::IMetricRegistry* ptr) {
-    if (!ptr)
+    if (!ptr) {
         return;
+    }
+
     using TConnector = TMetricRegistryConnector<NMonitoring::IMetricRegistry*>;
 
     driver.AddExtension<TConnector>(TConnector::TParams(ptr));
 }
 
 inline void AddMetricRegistry(NYdb::TDriver& driver, std::shared_ptr<NMonitoring::IMetricRegistry> ptr) {
-    if (!ptr)
+    if (!ptr) {
         return;
+    }
+
     using TConnector = TMetricRegistryConnector<std::shared_ptr<NMonitoring::IMetricRegistry>>;
 
     driver.AddExtension<TConnector>(TConnector::TParams(ptr));
 }
 
 inline void AddMetricRegistry(NYdb::TDriver& driver, TAtomicSharedPtr<NMonitoring::IMetricRegistry> ptr) {
-    if (!ptr)
+    if (!ptr) {
         return;
+    }
+
     using TConnector = TMetricRegistryConnector<TAtomicSharedPtr<NMonitoring::IMetricRegistry>>;
 
     driver.AddExtension<TConnector>(TConnector::TParams(ptr));

@@ -723,8 +723,10 @@ TDirectReadSessionImplTestSetup::TDirectReadSessionImplTestSetup() {
         // .DirectRead(true)
         .AppendTopics({"TestTopic"})
         .ConsumerName("TestConsumer")
-        .RetryPolicy(NYdb::NTopic::IRetryPolicy::GetFixedIntervalPolicy(TDuration::MilliSeconds(10)))
-        .Counters(MakeIntrusive<NYdb::NTopic::TReaderCounters>(MakeIntrusive<::NMonitoring::TDynamicCounters>()));
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
+        .Counters(MakeIntrusive<NYdb::NTopic::TReaderCounters>(MakeIntrusive<::NMonitoring::TDynamicCounters>()))
+#endif
+        .RetryPolicy(NYdb::NTopic::IRetryPolicy::GetFixedIntervalPolicy(TDuration::MilliSeconds(10)));
 
     Log.SetFormatter(GetPrefixLogFormatter(""));
 }

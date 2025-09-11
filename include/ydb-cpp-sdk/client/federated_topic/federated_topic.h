@@ -479,8 +479,10 @@ public:
     //! TSessionClosedEvent arrives.
     virtual bool Close(TDuration timeout = TDuration::Max()) = 0;
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     //! Reader counters with different stats (see TReaderConuters).
     virtual NTopic::TReaderCounters::TPtr GetCounters() const = 0;
+#endif
 
     //! Get unique identifier of read session.
     virtual std::string GetSessionId() const = 0;

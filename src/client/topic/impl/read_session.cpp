@@ -33,7 +33,9 @@ TReadSession::TReadSession(const TReadSessionSettings& settings,
         Settings.RetryPolicy_ = IRetryPolicy::GetDefaultPolicy();
     }
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     MakeCountersIfNeeded();
+#endif
 }
 
 TReadSession::~TReadSession() {
@@ -45,9 +47,11 @@ TReadSession::~TReadSession() {
     if (CbContext) {
         CbContext->Cancel();
     }
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     if (DumpCountersContext) {
         DumpCountersContext->Cancel();
     }
+#endif
 }
 
 void TReadSession::Start() {
@@ -67,7 +71,9 @@ void TReadSession::Start() {
         Topics = Settings.Topics_;
         CreateClusterSessionsImpl(deferred);
     }
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     SetupCountersLogger();
+#endif
 }
 
 void TReadSession::CreateClusterSessionsImpl(TDeferredActions<false>& deferred) {
@@ -175,6 +181,7 @@ std::optional<TReadSessionEvent::TEvent> TReadSession::GetEvent(const TReadSessi
 
 bool TReadSession::Close(TDuration timeout) {
     LOG_LAZY(Log, TLOG_INFO, GetLogPrefix() << "Closing read session. Close timeout: " << timeout);
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     // Log final counters.
     if (CountersLogger) {
         CountersLogger->Stop();
@@ -184,6 +191,7 @@ bool TReadSession::Close(TDuration timeout) {
             DumpCountersContext->Cancel();
         }
     }
+#endif
 
     TSingleClusterReadSessionImpl<false>::TPtr session;
     NThreading::TPromise<bool> promise = NThreading::NewPromise<bool>();
@@ -232,7 +240,9 @@ bool TReadSession::Close(TDuration timeout) {
         issues.AddIssue("Session was gracefully closed");
         EventsQueue->Close(TSessionClosedEvent(EStatus::SUCCESS, std::move(issues)), deferred);
     } else {
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
         ++*Settings.Counters_->Errors;
+#endif
         session->Abort();
 
         NYdb::NIssue::TIssues issues;
@@ -254,6 +264,7 @@ TStringBuilder TReadSession::GetLogPrefix() const {
      return TStringBuilder() << GetDatabaseLogPrefix(DbDriverState->Database) << "[" << SessionId << "] ";
 }
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
 void TReadSession::MakeCountersIfNeeded() {
     if (!Settings.Counters_ || HasNullCounters(*Settings.Counters_)) {
         TReaderCounters::TPtr counters = MakeIntrusive<TReaderCounters>();
@@ -274,15 +285,18 @@ void TReadSession::SetupCountersLogger() {
     DumpCountersContext = CountersLogger->MakeCallbackContext();
     CountersLogger->Start();
 }
+#endif
 
 void TReadSession::AbortImpl(TDeferredActions<false>&) {
     Y_ABORT_UNLESS(Lock.IsLocked());
 
     if (!Aborting) {
         Aborting = true;
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
         if (DumpCountersContext) {
             DumpCountersContext->Cancel();
         }
+#endif
         if (CbContext) {
             CbContext->TryGet()->Abort();
         }

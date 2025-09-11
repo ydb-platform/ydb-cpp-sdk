@@ -3,6 +3,7 @@ _ydb_sdk_add_library(client-extension_common)
 target_link_libraries(client-extension_common PUBLIC
   yutil
   monlib-metrics
+  client-metrics_providers-monlib
   client-ydb_driver
 )
 

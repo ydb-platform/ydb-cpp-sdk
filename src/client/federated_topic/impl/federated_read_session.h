@@ -151,9 +151,11 @@ public:
         return SessionId;
     }
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     inline NTopic::TReaderCounters::TPtr GetCounters() const {
         return Settings.Counters_; // Always not nullptr.
     }
+#endif
 
 private:
     TStringBuilder GetLogPrefix() const;
@@ -236,9 +238,11 @@ public:
         return TryGetImpl()->GetSessionId();
     }
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     inline NTopic::TReaderCounters::TPtr GetCounters() const override {
         return TryGetImpl()->GetCounters();
     }
+#endif
 
 private:
     void Start() {

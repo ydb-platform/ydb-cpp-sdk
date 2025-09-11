@@ -539,8 +539,8 @@ public:
 
 private:
     NSdkStats::TStatCollector::TClientRetryOperationStatCollector RetryOperationStatCollector_;
-    NSdkStats::TAtomicHistogram<::NMonitoring::THistogram> QuerySizeHistogram_;
-    NSdkStats::TAtomicHistogram<::NMonitoring::THistogram> ParamsSizeHistogram_;
+    NSdkStats::TAtomicHistogram<NMetrics::IHistogram> QuerySizeHistogram_;
+    NSdkStats::TAtomicHistogram<NMetrics::IHistogram> ParamsSizeHistogram_;
 
     TClientSettings Settings_;
     NSessionPool::TSessionPool SessionPool_;
