@@ -5,4 +5,4 @@ target_link_libraries(client-iam_private-types
     client-iam-types
 )
 
-_ydb_sdk_install_targets(client-iam_private-types)
+_ydb_sdk_install_targets(TARGETS client-iam_private-types)

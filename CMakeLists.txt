@@ -93,7 +93,6 @@ if (YDB_SDK_INSTALL)
   )
   _ydb_sdk_directory_install(FILES
     ${YDB_SDK_SOURCE_DIR}/cmake/FindBrotli.cmake
-    ${YDB_SDK_SOURCE_DIR}/cmake/FindgRPC.cmake
     ${YDB_SDK_SOURCE_DIR}/cmake/FindIDN.cmake
     ${YDB_SDK_SOURCE_DIR}/cmake/FindLZ4.cmake
     ${YDB_SDK_SOURCE_DIR}/cmake/FindxxHash.cmake
