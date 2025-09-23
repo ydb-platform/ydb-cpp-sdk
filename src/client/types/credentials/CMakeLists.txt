@@ -16,5 +16,4 @@ target_sources(client-ydb_types-credentials PRIVATE
   credentials.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_types-credentials)
 _ydb_sdk_make_client_component(Credentials client-ydb_types-credentials)

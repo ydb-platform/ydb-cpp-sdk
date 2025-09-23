@@ -8,4 +8,4 @@ target_link_libraries(client-iam-types
     yutil
 )
 
-_ydb_sdk_install_targets(client-iam-types)
+_ydb_sdk_install_targets(TARGETS client-iam-types)

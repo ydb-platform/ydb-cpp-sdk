@@ -118,3 +118,63 @@ jobs:
       shell: bash
       run: |
         YDB_VERSION=${{ matrix.ydb-version }} ctest -j2 --preset integration
+
+  test-install:
+    name: "Test CMake Install"
+    concurrency:
+      group: test-install-${{ github.ref }}-${{ matrix.compiler }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [clang, gcc]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        if: github.event.pull_request.head.sha != ''
+        with:
+          submodules: true
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        if: github.event.pull_request.head.sha == ''
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        uses: ./.github/actions/prepare_vm
+
+      - name: Prepare ccache timestamp
+        id: ccache_cache_timestamp
+        shell: cmake -P {0}
+        run: |
+          string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+          message("::set-output name=timestamp::${current_date}")
+
+      - name: Restore cache files
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-${{ matrix.compiler }}-
+
+      - name: Build and Install SDK
+        shell: bash
+        run: |
+          mkdir build
+          cmake --preset release-${{ matrix.compiler }} -D YDB_SDK_INSTALL=On
+          cmake --build --preset default
+          cmake --install build --prefix ./_install
+
+      - name: Verify Installation
+        shell: bash
+        run: |
+          echo "Installation directory content for ${{ matrix.compiler }}:"
+          ls -R ./_install
+          if [ -z "$(ls -A ./_install)" ]; then
+            echo "Error: Installation directory is empty!"
+            exit 1
+          fi

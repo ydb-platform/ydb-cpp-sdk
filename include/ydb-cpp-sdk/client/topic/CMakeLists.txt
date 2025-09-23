@@ -25,3 +25,5 @@ generate_enum_serilization(client-ydb_topic-include
   INCLUDE_HEADERS
   include/ydb-cpp-sdk/client/topic/write_events.h
 )
+
+_ydb_sdk_install_targets(TARGETS client-ydb_topic-include)
