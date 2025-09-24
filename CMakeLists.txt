@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 file(READ "src/version.h" YDB_SDK_VERSION_FILE_RAW)
 string(REGEX MATCH "YDB_SDK_VERSION = \"([0-9]+\\.[0-9]+\\.[0-9]+)\"" _ ${YDB_SDK_VERSION_FILE_RAW})
 set(YDB_SDK_VERSION ${CMAKE_MATCH_1})
-message(STATUS "YDB С++ SDK version: ${YDB_SDK_VERSION}")
+message(STATUS "YDB C++ SDK version: ${YDB_SDK_VERSION}")
 
 project(YDB-CPP-SDK VERSION ${YDB_SDK_VERSION} LANGUAGES C CXX ASM)
 
@@ -99,4 +99,6 @@ if (YDB_SDK_INSTALL)
     ${YDB_SDK_SOURCE_DIR}/cmake/FindZSTD.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ydb-cpp-sdk/Modules
   )
+
+  include(cmake/PackSDK.cmake)
 endif()
