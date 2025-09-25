@@ -610,7 +610,9 @@ void TDirectReadSession::OnReadDone(NYdbGrpc::TGrpcStatus&& grpcStatus, size_t c
     }
 
     if (!errorStatus.Ok()) {
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
         ReadSessionSettings.Counters_->Errors->Inc();
+#endif
 
         if (!Reconnect(errorStatus)) {
             with_lock (Lock) {
@@ -908,7 +910,9 @@ void TDirectReadSession::OnConnect(
     }
 
     if (!status.Ok()) {
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
         ReadSessionSettings.Counters_->Errors->Inc();
+#endif
         if (!Reconnect(status)) {
             with_lock (Lock) {
                 AbortImpl(TPlainStatus(

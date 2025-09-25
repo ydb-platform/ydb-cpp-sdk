@@ -46,9 +46,9 @@ public:
 
     // Empty maybe - block till all work is done. Otherwise block at most at closeTimeout duration.
     bool Close(TDuration closeTimeout = TDuration::Max()) override;
-
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     TWriterCounters::TPtr GetCounters() override {Y_ABORT("Unimplemented"); } //ToDo - unimplemented;
-
+#endif
     ~TWriteSession(); // will not call close - destroy everything without acks
 
 private:
@@ -78,7 +78,9 @@ public:
     bool Close(TDuration closeTimeout = TDuration::Max()) override;
     bool IsAlive() const override;
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     TWriterCounters::TPtr GetCounters() override;
+#endif
 
 protected:
     std::shared_ptr<TWriteSession> Writer;

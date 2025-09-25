@@ -14,7 +14,7 @@ namespace NSessionPool {
 
 using namespace NThreading;
 
-constexpr ui64 KEEP_ALIVE_RANDOM_FRACTION = 4;
+constexpr std::uint64_t KEEP_ALIVE_RANDOM_FRACTION = 4;
 static const TStatus CLIENT_RESOURCE_EXHAUSTED_ACTIVE_SESSION_LIMIT = TStatus(
     TPlainStatus(
         EStatus::CLIENT_RESOURCE_EXHAUSTED,
@@ -33,10 +33,10 @@ TStatus GetStatus(const TStatus& status) {
 TDuration RandomizeThreshold(TDuration duration) {
     TDuration::TValue value = duration.GetValue();
     if (KEEP_ALIVE_RANDOM_FRACTION) {
-        const i64 randomLimit = value / KEEP_ALIVE_RANDOM_FRACTION;
+        const std::int64_t randomLimit = value / KEEP_ALIVE_RANDOM_FRACTION;
         if (randomLimit < 2)
             return duration;
-        value += static_cast<i64>(RandomNumber<ui64>(randomLimit));
+        value += static_cast<std::int64_t>(RandomNumber<std::uint64_t>(randomLimit));
     }
     return TDuration::FromValue(value);
 }
@@ -53,7 +53,7 @@ bool IsSessionCloseRequested(const TStatus& status) {
     return false;
 }
 
-TSessionPool::TWaitersQueue::TWaitersQueue(ui32 maxQueueSize, TDuration maxWaitSessionTimeout)
+TSessionPool::TWaitersQueue::TWaitersQueue(std::uint32_t maxQueueSize, TDuration maxWaitSessionTimeout)
     : MaxQueueSize_(maxQueueSize)
     , MaxWaitSessionTimeout_(maxWaitSessionTimeout)
 {
@@ -89,12 +89,12 @@ void TSessionPool::TWaitersQueue::GetOld(TInstant now, std::vector<std::unique_p
     }
 }
 
-ui32 TSessionPool::TWaitersQueue::Size() const {
+std::uint32_t TSessionPool::TWaitersQueue::Size() const {
     return Waiters_.size(); 
 }
 
 
-TSessionPool::TSessionPool(ui32 maxActiveSessions)
+TSessionPool::TSessionPool(std::uint32_t maxActiveSessions)
     : Closed_(false)
     , WaitersQueue_(maxActiveSessions * 10)
     , ActiveSessions_(0)
@@ -329,16 +329,16 @@ TPeriodicCb TSessionPool::CreatePeriodicTask(std::weak_ptr<ISessionClient> weakC
     return periodicCb;
 }
 
-i64 TSessionPool::GetActiveSessions() const {
+std::int64_t TSessionPool::GetActiveSessions() const {
     std::lock_guard guard(Mtx_);
     return ActiveSessions_;
 }
 
-i64 TSessionPool::GetActiveSessionsLimit() const {
+std::int64_t TSessionPool::GetActiveSessionsLimit() const {
     return MaxActiveSessions_;
 }
 
-i64 TSessionPool::GetCurrentPoolSize() const {
+std::int64_t TSessionPool::GetCurrentPoolSize() const {
     std::lock_guard guard(Mtx_);
     return Sessions_.size();
 }

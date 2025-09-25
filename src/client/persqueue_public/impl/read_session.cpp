@@ -45,7 +45,9 @@ TReadSession::TReadSession(const TReadSessionSettings& settings,
         Settings.RetryPolicy_ = IRetryPolicy::GetDefaultPolicy();
     }
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     MakeCountersIfNeeded();
+#endif
 }
 
 TReadSession::~TReadSession() {
@@ -64,9 +66,11 @@ TReadSession::~TReadSession() {
     for (const auto& ctx : CbContexts) {
         ctx->Cancel();
     }
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     if (DumpCountersContext) {
         DumpCountersContext->Cancel();
     }
+#endif
 }
 
 Ydb::PersQueue::ClusterDiscovery::DiscoverClustersRequest TReadSession::MakeClusterDiscoveryRequest() const {
@@ -174,7 +178,9 @@ void TReadSession::ProceedWithoutClusterDiscovery() {
         clusterSessionInfo.Topics = Settings.Topics_;
         CreateClusterSessionsImpl(deferred);
     }
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     SetupCountersLogger();
+#endif
 }
 
 void TReadSession::CreateClusterSessionsImpl(TDeferredActions& deferred) {
@@ -226,7 +232,9 @@ void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueu
         }
 
         if (!status.IsSuccess()) {
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
             ++*Settings.Counters_->Errors;
+#endif
             if (!ClusterDiscoveryRetryState) {
                 ClusterDiscoveryRetryState = Settings.RetryPolicy_->CreateRetryState();
             }
@@ -249,7 +257,9 @@ void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueu
 
         // Init ClusterSessions.
         if (static_cast<size_t>(result.read_sessions_clusters_size()) != Settings.Topics_.size()) {
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
             ++*Settings.Counters_->Errors;
+#endif
             AbortImpl(EStatus::INTERNAL_ERROR, TStringBuilder() << "Unexpected reply from cluster discovery. Sizes of topics arrays don't match: "
                       << result.read_sessions_clusters_size() << " vs " << Settings.Topics_.size(), deferred);
             return;
@@ -309,14 +319,18 @@ void TReadSession::OnClusterDiscovery(const TStatus& status, const Ydb::PersQueu
         }
 
         if (issues) {
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
             ++*Settings.Counters_->Errors;
+#endif
             AbortImpl(errorStatus, std::move(issues), deferred);
             return;
         }
 
         CreateClusterSessionsImpl(deferred);
     }
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     SetupCountersLogger();
+#endif
 }
 
 void TReadSession::RestartClusterDiscoveryImpl(TDuration delay, TDeferredActions& deferred) {
@@ -345,14 +359,13 @@ void TReadSession::RestartClusterDiscoveryImpl(TDuration delay, TDeferredActions
 
 bool TReadSession::Close(TDuration timeout) {
     LOG_LAZY(Log, TLOG_INFO, GetLogPrefix() << "Closing read session. Close timeout: " << timeout);
-
-
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
     // the program may not have reached SetupCountersLogger
     if (CountersLogger) {
         // Log final counters.
         CountersLogger->Stop();
     }
-
+#endif
     std::vector<TSingleClusterReadSessionImpl::TPtr> sessions;
     NThreading::TPromise<bool> promise = NThreading::NewPromise<bool>();
     std::shared_ptr<std::atomic<size_t>> count = std::make_shared<std::atomic<size_t>>(0);
@@ -412,7 +425,9 @@ bool TReadSession::Close(TDuration timeout) {
         issues.AddIssue("Session was gracefully closed");
         EventsQueue->Close(TSessionClosedEvent(EStatus::SUCCESS, std::move(issues)), deferred);
     } else {
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
         ++*Settings.Counters_->Errors;
+#endif
         for (const auto& session : sessions) {
             session->Abort();
         }
@@ -438,10 +453,12 @@ void TReadSession::AbortImpl(TDeferredActions&) {
             ClusterDiscoveryDelayContext->Cancel();
             ClusterDiscoveryDelayContext.reset();
         }
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
         if (DumpCountersContext) {
             DumpCountersContext->Cancel();
             DumpCountersContext.reset();
         }
+#endif
         for (auto& [cluster, sessionInfo] : ClusterSessions) {
             if (sessionInfo.Session) {
                 sessionInfo.Session->Abort();
@@ -526,6 +543,7 @@ void TReadSession::ResumeReadingData() {
     }
 }
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
 void TReadSession::MakeCountersIfNeeded() {
     if (!Settings.Counters_ || HasNullCounters(*Settings.Counters_)) {
         TReaderCounters::TPtr counters = MakeIntrusive<TReaderCounters>();
@@ -544,6 +562,7 @@ void TReadSession::SetupCountersLogger() {
     DumpCountersContext = CountersLogger->MakeCallbackContext();
     CountersLogger->Start();
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NPersQueue::TReadSessionEvent

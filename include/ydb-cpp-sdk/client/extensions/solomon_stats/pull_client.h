@@ -18,23 +18,22 @@ public:
         friend class TSolomonStatPullExtension;
 
     public:
-        TParams(const std::string& host
-                , ui16 port
-                , const std::string& project
-                , const std::string& service
-                , const std::string& cluster
-                , const std::vector<std::pair<std::string, std::string>>& labels = {});
+        TParams(const std::string& host,
+                std::uint16_t port,
+                const std::string& project,
+                const std::string& service,
+                const std::string& cluster,
+                const std::vector<std::pair<std::string, std::string>>& labels = {});
 
         NMonitoring::TLabels GetLabels() const;
 
     private:
         const std::string Host_;
-        ui16 Port_;
+        std::uint16_t Port_;
         NMonitoring::TLabels Labels_;
     };
 
     TSolomonStatPullExtension(const TParams& params, IApi* api);
-    ~TSolomonStatPullExtension();
 
 private:
     class TSolomonStatPage: public NMonitoring::IMonPage {

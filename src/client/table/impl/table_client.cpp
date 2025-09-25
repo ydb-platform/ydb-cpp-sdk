@@ -1190,7 +1190,7 @@ void TTableClient::TImpl::SetParams(
 
 void TTableClient::TImpl::CollectParams(
     ::google::protobuf::Map<TStringType, Ydb::TypedValue>* params,
-    NSdkStats::TAtomicHistogram<::NMonitoring::THistogram> histgoram)
+    NSdkStats::TAtomicHistogram<NMetrics::IHistogram> histgoram)
 {
 
     if (params && histgoram.IsCollecting()) {
@@ -1204,7 +1204,7 @@ void TTableClient::TImpl::CollectParams(
 
 void TTableClient::TImpl::CollectParams(
     const ::google::protobuf::Map<TStringType, Ydb::TypedValue>& params,
-    NSdkStats::TAtomicHistogram<::NMonitoring::THistogram> histgoram)
+    NSdkStats::TAtomicHistogram<NMetrics::IHistogram> histgoram)
 {
 
     if (histgoram.IsCollecting()) {
@@ -1216,13 +1216,13 @@ void TTableClient::TImpl::CollectParams(
     }
 }
 
-void TTableClient::TImpl::CollectQuerySize(const std::string& query, NSdkStats::TAtomicHistogram<::NMonitoring::THistogram>& querySizeHistogram) {
+void TTableClient::TImpl::CollectQuerySize(const std::string& query, NSdkStats::TAtomicHistogram<NMetrics::IHistogram>& querySizeHistogram) {
     if (querySizeHistogram.IsCollecting()) {
         querySizeHistogram.Record(query.size());
     }
 }
 
-void TTableClient::TImpl::CollectQuerySize(const TDataQuery&, NSdkStats::TAtomicHistogram<::NMonitoring::THistogram>&) {}
+void TTableClient::TImpl::CollectQuerySize(const TDataQuery&, NSdkStats::TAtomicHistogram<NMetrics::IHistogram>&) {}
 
 void TTableClient::TImpl::SetTxSettings(const TTxSettings& txSettings, Ydb::Table::TransactionSettings* proto)
 {

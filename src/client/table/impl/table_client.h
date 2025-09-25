@@ -166,15 +166,15 @@ private:
 
     static void CollectParams(
         ::google::protobuf::Map<TStringType, Ydb::TypedValue>* params,
-        NSdkStats::TAtomicHistogram<::NMonitoring::THistogram> histgoram);
+        NSdkStats::TAtomicHistogram<NMetrics::IHistogram> histgoram);
 
     static void CollectParams(
         const ::google::protobuf::Map<TStringType, Ydb::TypedValue>& params,
-        NSdkStats::TAtomicHistogram<::NMonitoring::THistogram> histgoram);
+        NSdkStats::TAtomicHistogram<NMetrics::IHistogram> histgoram);
 
-    static void CollectQuerySize(const std::string& query, NSdkStats::TAtomicHistogram<::NMonitoring::THistogram>& querySizeHistogram);
+    static void CollectQuerySize(const std::string& query, NSdkStats::TAtomicHistogram<NMetrics::IHistogram>& querySizeHistogram);
 
-    static void CollectQuerySize(const TDataQuery&, NSdkStats::TAtomicHistogram<::NMonitoring::THistogram>&);
+    static void CollectQuerySize(const TDataQuery&, NSdkStats::TAtomicHistogram<NMetrics::IHistogram>&);
 
     template <typename TQueryType, typename TParamsType>
     TAsyncDataQueryResult ExecuteDataQueryImpl(const TSession& session, const TQueryType& query,
@@ -319,11 +319,11 @@ private:
     static std::optional<std::string> GetQueryText(const TDataQuery& queryData);
 
 public:
-    NSdkStats::TAtomicCounter<::NMonitoring::TRate> CacheMissCounter;
+    NSdkStats::TAtomicCounter<NMetrics::IRate> CacheMissCounter;
     NSdkStats::TStatCollector::TClientRetryOperationStatCollector RetryOperationStatCollector;
-    NSdkStats::TAtomicHistogram<::NMonitoring::THistogram> QuerySizeHistogram;
-    NSdkStats::TAtomicHistogram<::NMonitoring::THistogram> ParamsSizeHistogram;
-    NSdkStats::TAtomicCounter<::NMonitoring::TRate> SessionRemovedDueBalancing;
+    NSdkStats::TAtomicHistogram<NMetrics::IHistogram> QuerySizeHistogram;
+    NSdkStats::TAtomicHistogram<NMetrics::IHistogram> ParamsSizeHistogram;
+    NSdkStats::TAtomicCounter<NMetrics::IRate> SessionRemovedDueBalancing;
 
 private:
     NSessionPool::TSessionPool SessionPool_;

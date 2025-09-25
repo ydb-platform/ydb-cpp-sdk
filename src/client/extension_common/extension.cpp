@@ -2,8 +2,10 @@
 
 #define INCLUDE_YDB_INTERNAL_H
 #include <src/client/impl/internal/grpc_connections/grpc_connections.h>
-#include <src/client/impl/internal/stats_extractor/extractor.h>
 #undef INCLUDE_YDB_INTERNAL_H
+
+#include <src/client/metrics_providers/monlib/provider.h>
+
 
 namespace NYdb::inline V3 {
 
@@ -14,6 +16,34 @@ void IExtension::SelfRegister(TDriver driver) {
 void IExtensionApi::SelfRegister(TDriver driver) {
     CreateInternalInterface(driver)->RegisterExtensionApi(this);
 }
+
+class TStatsExtractor: public NSdkStats::IStatApi {
+public:
+    TStatsExtractor(std::shared_ptr<IInternalClient> client)
+        : Client_(client)
+    {}
+
+    virtual void SetMetricRegistry(::NMonitoring::IMetricRegistry* sensorsRegistry) override {
+        auto strong = Client_.lock();
+        if (strong) {
+            strong->StartStatCollecting(NMetrics::CreateMonlibMetricsProvider(sensorsRegistry));
+        }
+    }
+
+    void Accept(NMonitoring::IMetricConsumer* consumer) const override {
+        auto strong = Client_.lock();
+        if (strong) {
+            auto sensorsRegistry = strong->GetMetricRegistry();
+            auto monlibRegistry = NMetrics::TryGetUnderlyingMetricsRegistry(sensorsRegistry);
+            Y_ABORT_UNLESS(monlibRegistry, "IMetricRegistry is not a TMonlibMetricsProvider in Stats Extractor");
+            monlibRegistry->Accept(TInstant::Zero(), consumer);
+        } else {
+            throw NSdkStats::DestroyedClientException();
+        }
+    }
+private:
+    std::weak_ptr<IInternalClient> Client_;
+};
 
 namespace NSdkStats {
 

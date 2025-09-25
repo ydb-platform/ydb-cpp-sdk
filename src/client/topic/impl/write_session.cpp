@@ -165,9 +165,11 @@ std::optional<TContinuationToken> TSimpleBlockingWriteSession::WaitForToken(cons
     return std::nullopt;
 }
 
+#ifndef YDB_TOPIC_DISABLE_COUNTERS
 TWriterCounters::TPtr TSimpleBlockingWriteSession::GetCounters() {
     return Writer->GetCounters();
 }
+#endif
 
 bool TSimpleBlockingWriteSession::IsAlive() const {
     return !Closed.load();

@@ -271,7 +271,7 @@ NThreading::TFuture<void> TDbDriverStateTracker::SendNotification(
     return NThreading::WaitExceptionOrAll(results);
 }
 
-void TDbDriverStateTracker::SetMetricRegistry(NMonitoring::TMetricRegistry *sensorsRegistry) {
+void TDbDriverStateTracker::SetMetricRegistry(std::shared_ptr<NMetrics::IMetricsProvider> sensorsRegistry) {
     std::vector<std::weak_ptr<TDbDriverState>> states;
     {
         std::shared_lock lock(Lock_);

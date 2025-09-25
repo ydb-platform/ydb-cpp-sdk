@@ -386,25 +386,21 @@ TBalancingPolicy::TImpl TGRpcConnectionsImpl::GetBalancingSettings() const {
     return BalancingSettings_;
 }
 
-bool TGRpcConnectionsImpl::StartStatCollecting(NMonitoring::IMetricRegistry* sensorsRegistry) {
+bool TGRpcConnectionsImpl::StartStatCollecting(std::shared_ptr<NMetrics::IMetricsProvider> metricsProvider) {
     {
         std::lock_guard lock(ExtensionsLock_);
         if (MetricRegistryPtr_) {
             return false;
         }
-        if (auto ptr = dynamic_cast<NMonitoring::TMetricRegistry*>(sensorsRegistry)) {
-            MetricRegistryPtr_ = ptr;
-        } else {
-            std::cerr << "Unknown IMetricRegistry impl" << std::endl;
-            return false;
-        }
+
+        MetricRegistryPtr_ = std::move(metricsProvider);
     }
 
     StateTracker_.SetMetricRegistry(MetricRegistryPtr_);
     return true;
 }
 
-NMonitoring::TMetricRegistry* TGRpcConnectionsImpl::GetMetricRegistry() {
+std::shared_ptr<NMetrics::IMetricsProvider> TGRpcConnectionsImpl::GetMetricRegistry() {
     std::lock_guard lock(ExtensionsLock_);
     return MetricRegistryPtr_;
 }
