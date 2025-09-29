@@ -10,7 +10,7 @@ target_link_libraries(client-ydb_operation PUBLIC
   client-ydb_export
   client-ydb_import
   client-ss_tasks
-  client-ydb_types-operation
+  client-types-operation
 )
 
 target_sources(client-ydb_operation PRIVATE

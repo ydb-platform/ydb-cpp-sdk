@@ -4,7 +4,7 @@ target_link_libraries(library-jwt PUBLIC
   yutil
   jwt-cpp::jwt-cpp
   json
-  impl-ydb_internal-common
+  impl-internal-common
 )
 
 target_sources(library-jwt PRIVATE

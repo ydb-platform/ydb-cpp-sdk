@@ -7,9 +7,9 @@ target_link_libraries(client-ydb_table PUBLIC
   yutil
   enum_serialization_runtime
   api-protos
-  impl-ydb_internal-make_request
+  impl-internal-make_request
   impl-session
-  impl-ydb_internal-retry
+  impl-internal-retry
   client-ydb_driver
   client-ydb_params
   client-ydb_proto
@@ -17,7 +17,7 @@ target_link_libraries(client-ydb_table PUBLIC
   client-ydb_scheme
   client-ydb_table-impl
   client-ydb_table-query_stats
-  client-ydb_types-operation
+  client-types-operation
   client-ydb_value
   string_utils-misc
 )

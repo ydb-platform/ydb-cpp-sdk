@@ -7,7 +7,7 @@ target_link_libraries(client-ss_tasks PUBLIC
   client-ydb_common_client-impl
   client-ydb_driver
   client-ydb_proto
-  client-ydb_types-operation
+  client-types-operation
 )
 
 target_sources(client-ss_tasks PRIVATE

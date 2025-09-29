@@ -4,14 +4,14 @@ _ydb_sdk_add_library(client-ydb_query)
 
 target_link_libraries(client-ydb_query PUBLIC
   yutil
-  impl-ydb_internal-make_request
+  impl-internal-make_request
   impl-session
-  impl-ydb_internal-retry
+  impl-internal-retry
   client-ydb_common_client
   client-ydb_driver
   client-ydb_query-impl
   client-ydb_result
-  client-ydb_types-operation
+  client-types-operation
   api-protos
   api-grpc
 )

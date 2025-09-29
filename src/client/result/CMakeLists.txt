@@ -3,7 +3,7 @@ _ydb_sdk_add_library(client-ydb_result)
 target_link_libraries(client-ydb_result PUBLIC
   yutil
   api-protos
-  client-ydb_types-fatal_error_handlers
+  client-types-fatal_error_handlers
   client-ydb_value
   client-ydb_proto
 )

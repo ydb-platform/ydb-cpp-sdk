@@ -4,8 +4,8 @@ _ydb_sdk_add_library(client-ydb_common_client)
 
 target_link_libraries(client-ydb_common_client PUBLIC
   yutil
-  impl-ydb_internal-common
-  client-ydb_types-credentials
+  impl-internal-common
+  client-types-credentials
 )
 
 target_sources(client-ydb_common_client PRIVATE

@@ -5,8 +5,8 @@ target_link_libraries(client-ydb_value PUBLIC
   enum_serialization_runtime
   containers-stack_vector
   api-protos
-  impl-ydb_internal-value_helpers
-  client-ydb_types-fatal_error_handlers
+  impl-internal-value_helpers
+  client-types-fatal_error_handlers
   yql-public-decimal
   library-uuid
   proto_output
