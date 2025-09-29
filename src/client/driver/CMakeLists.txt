@@ -3,10 +3,10 @@ _ydb_sdk_add_library(client-ydb_driver)
 target_link_libraries(client-ydb_driver 
   PUBLIC
     client-ydb_common_client
-    client-ydb_types-status
+    client-types-status
   PRIVATE
-    impl-ydb_internal-common
-    impl-ydb_internal-grpc_connections
+    impl-internal-common
+    impl-internal-grpc_connections
     client-resources
 )
 

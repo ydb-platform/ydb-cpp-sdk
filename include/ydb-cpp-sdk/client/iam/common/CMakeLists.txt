@@ -2,7 +2,7 @@ _ydb_sdk_add_library(client-iam-types INTERFACE)
 
 target_link_libraries(client-iam-types
   INTERFACE
-    client-ydb_types-credentials
+    client-types-credentials
     library-jwt
     gRPC::grpc++
     yutil

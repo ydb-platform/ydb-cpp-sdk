@@ -1,16 +1,16 @@
-_ydb_sdk_add_library(client-ydb_types-status)
+_ydb_sdk_add_library(client-types-status)
 
-target_link_libraries(client-ydb_types-status PUBLIC
+target_link_libraries(client-types-status PUBLIC
   yutil
   threading-future
-  impl-ydb_internal-plain_status
-  client-ydb_types
-  client-ydb_types-fatal_error_handlers
+  impl-internal-plain_status
+  client-types
+  client-types-fatal_error_handlers
   yql-public-issue
 )
 
-target_sources(client-ydb_types-status PRIVATE
+target_sources(client-types-status PRIVATE
   status.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS client-ydb_types-status)
+_ydb_sdk_install_targets(TARGETS client-types-status)

@@ -6,7 +6,7 @@ target_link_libraries(client-ydb_datastreams PUBLIC
   string_utils-url
   api-grpc-draft
   library-operation_id
-  impl-ydb_internal-make_request
+  impl-internal-make_request
   client-ydb_driver
 )
 

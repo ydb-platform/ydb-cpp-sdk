@@ -3,9 +3,9 @@ _ydb_sdk_add_library(client-helpers)
 target_link_libraries(client-helpers
   PUBLIC
     yutil
-    client-ydb_types-credentials-oauth2
+    client-types-credentials-oauth2
     client-iam
-    client-ydb_types-credentials
+    client-types-credentials
 )
 
 target_sources(client-helpers

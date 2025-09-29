@@ -54,7 +54,7 @@ add_ydb_test(NAME client-oauth2_ut
     http-server
     json
     string_utils-base64
-    client-ydb_types-credentials-oauth2
+    client-types-credentials-oauth2
     client-oauth2-ut-helpers
   LABELS
     unit

@@ -3,7 +3,7 @@ _ydb_sdk_add_library(client-ydb_scheme)
 target_link_libraries(client-ydb_scheme PUBLIC
   yutil
   enum_serialization_runtime
-  impl-ydb_internal-make_request
+  impl-internal-make_request
   client-ydb_common_client-impl
   client-ydb_driver
 )

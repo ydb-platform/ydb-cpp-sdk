@@ -1,12 +1,12 @@
-_ydb_sdk_add_library(impl-ydb_internal-retry)
+_ydb_sdk_add_library(impl-internal-retry)
 
-target_link_libraries(impl-ydb_internal-retry PUBLIC
+target_link_libraries(impl-internal-retry PUBLIC
   yutil
-  impl-ydb_internal-grpc_connections
+  impl-internal-grpc_connections
 )
 
-target_sources(impl-ydb_internal-retry PRIVATE
+target_sources(impl-internal-retry PRIVATE
   retry.cpp
 )
 
-_ydb_sdk_install_targets(TARGETS impl-ydb_internal-retry)
+_ydb_sdk_install_targets(TARGETS impl-internal-retry)
