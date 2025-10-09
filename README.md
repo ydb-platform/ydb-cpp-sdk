@@ -44,38 +44,74 @@
 
 ```bash
 sudo apt-get -y update
-sudo apt-get -y install git cmake ninja-build libidn11-dev ragel yasm protobuf-compiler \
-  protobuf-compiler-grpc libprotobuf-dev libgrpc++-dev libgrpc-dev libgrpc++1 libgrpc10 \
-  rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev liblz4-dev \
-  libgtest-dev libgmock-dev libbz2-dev libdouble-conversion-dev libssl-dev
+sudo apt-get -y install git gdb ninja-build libidn11-dev ragel yasm libc-ares-dev libre2-dev \
+  rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev libgtest-dev libgmock-dev \
+  libbz2-dev liblz4-dev libdouble-conversion-dev libssl-dev libstdc++-13-dev gcc-13 g++-13
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh
 sudo ./llvm.sh 16
 
-wget https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz
-tar -xvzf libiconv-1.15.tar.gz && cd libiconv-1.15
-./configure --prefix=/usr/local
-make
-sudo make install
+# Install abseil-cpp
+wget -O abseil-cpp-20230802.0.tar.gz https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.0.tar.gz
+tar -xvzf abseil-cpp-20230802.0.tar.gz
+cd abseil-cpp-20230802.0
+mkdir build && cd build
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DABSL_PROPAGATE_CXX_STD=ON ..
+cmake --build . --config Release
+cmake --install . --config Release --prefix ~/ydb_deps/absl
+cd ../../
 
+# Install protobuf
+wget -O protobuf-3.21.12.tar.gz https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.21.12.tar.gz
+tar -xvzf protobuf-3.21.12.tar.gz
+cd protobuf-3.21.12
+mkdir build && cd build
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_INSTALL=ON ..
+cmake --build . --config Release
+cmake --install . --config Release --prefix ~/ydb_deps/protobuf
+cd ../../
+
+# Install gRPC
+wget -O grpc-1.54.3.tar.gz https://github.com/grpc/grpc/archive/refs/tags/v1.54.3.tar.gz
+tar -xvzf grpc-1.54.3.tar.gz && cd grpc-1.54.3
+mkdir build && cd build
+cmake -G Ninja -DCMAKE_PREFIX_PATH="~/ydb_deps/absl;~/ydb_deps/protobuf" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 \
+  -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DgRPC_BUILD_CSHARP_EXT=OFF \
+  -DgRPC_ZLIB_PROVIDER=package -DgRPC_CARES_PROVIDER=package -DgRPC_RE2_PROVIDER=package \
+  -DgRPC_SSL_PROVIDER=package -DgRPC_PROTOBUF_PROVIDER=package -DgRPC_ABSL_PROVIDER=package \
+  -DgRPC_BUILD_GRPC_NODE_PLUGIN=OFF -DgRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN=OFF -DgRPC_BUILD_GRPC_PHP_PLUGIN=OFF \
+  -DgRPC_BUILD_GRPC_RUBY_PLUGIN=OFF -DgRPC_BUILD_GRPC_CSHARP_PLUGIN=OFF -DgRPC_BUILD_GRPC_PYTHON_PLUGIN=OFF ..
+cmake --build . --config Release
+cmake --install . --config Release --prefix ~/ydb_deps/grpc
+cd ../../
+
+# Install base64
 wget -O base64-0.5.2.tar.gz https://github.com/aklomp/base64/archive/refs/tags/v0.5.2.tar.gz
 tar -xvzf base64-0.5.2.tar.gz && cd base64-0.5.2
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-sudo cmake --build . --config Release --target install
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
+cmake --build . --config Release
+cmake --install . --config Release --prefix ~/ydb_deps/base64
+cd ../../
 
+# Install brotli
 wget -O brotli-1.1.0.tar.gz https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz
 tar -xvzf brotli-1.1.0.tar.gz && cd brotli-1.1.0
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-sudo cmake --build . --config Release --target install
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
+cmake --build . --config Release
+cmake --install . --config Release --prefix ~/ydb_deps/brotli
+cd ../../
 
+# Install jwt-cpp
 wget -O jwt-cpp-0.7.0.tar.gz https://github.com/Thalhammer/jwt-cpp/archive/refs/tags/v0.7.0.tar.gz
 tar -xvzf jwt-cpp-0.7.0.tar.gz && cd jwt-cpp-0.7.0
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-sudo cmake --build . --config Release --target install
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
+cmake --build . --config Release
+cmake --install . --config Release --prefix ~/ydb_deps/jwt-cpp
+cd ../../
 ```
 
 ### Create the work directory

@@ -11,7 +11,7 @@
       "displayName": "Generic Config",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "CMAKE_PREFIX_PATH": "~/install"
+        "CMAKE_PREFIX_PATH": "~/ydb_deps/absl;~/ydb_deps/protobuf;~/ydb_deps/grpc;~/ydb_deps/base64;~/ydb_deps/brotli;~/ydb_deps/jwt-cpp"
       },
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build"

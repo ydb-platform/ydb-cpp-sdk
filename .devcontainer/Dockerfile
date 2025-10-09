@@ -7,7 +7,7 @@ RUN apt-get -y update && apt-get -y install software-properties-common && add-ap
 RUN apt-get -y update && apt-get -y install \
     git gdb ninja-build libidn11-dev ragel yasm libc-ares-dev libre2-dev \
     rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev libgtest-dev libgmock-dev \
-    libbz2-dev libdouble-conversion-dev libstdc++-13-dev gcc-13 g++-13 liblz4-dev libssl-dev \
+    libbz2-dev liblz4-dev libdouble-conversion-dev libssl-dev libstdc++-13-dev gcc-13 g++-13
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install CMake
@@ -35,32 +35,39 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 10000 && \
 
 # Install abseil-cpp
 ENV ABSEIL_CPP_VERSION=20230802.0
+ENV ABSEIL_CPP_INSTALL_DIR=~/ydb_deps/abseil-cpp
 RUN wget -O abseil-cpp-${ABSEIL_CPP_VERSION}.tar.gz https://github.com/abseil/abseil-cpp/archive/refs/tags/${ABSEIL_CPP_VERSION}.tar.gz && \
     tar -xvzf abseil-cpp-${ABSEIL_CPP_VERSION}.tar.gz && cd abseil-cpp-${ABSEIL_CPP_VERSION} && \
     mkdir build && cd build && \
     cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DABSL_PROPAGATE_CXX_STD=ON .. && \
-    cmake --build . --config Release --target install
+    cmake --build . --config Release && \
+    cmake --install . --config Release --prefix ${ABSEIL_CPP_INSTALL_DIR}
 
 # Install protobuf
 ENV PROTOBUF_VERSION=3.21.12
+ENV PROTOBUF_INSTALL_DIR=~/ydb_deps/protobuf
 RUN wget -O protobuf-${PROTOBUF_VERSION}.tar.gz https://github.com/protocolbuffers/protobuf/archive/refs/tags/v${PROTOBUF_VERSION}.tar.gz && \
     tar -xvzf protobuf-${PROTOBUF_VERSION}.tar.gz && cd protobuf-${PROTOBUF_VERSION} && \
     mkdir build && cd build && \
     cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_INSTALL=ON -Dprotobuf_ABSL_PROVIDER=package .. && \
-    cmake --build . --config Release --target install
+    cmake --build . --config Release && \
+    cmake --install . --config Release --prefix ${PROTOBUF_INSTALL_DIR}
 
 # Install grpc
-ENV GRPC_VERSION=1.41.0
+ENV GRPC_VERSION=1.54.3
+ENV GRPC_INSTALL_DIR=~/ydb_deps/grpc
 RUN wget -O grpc-${GRPC_VERSION}.tar.gz https://github.com/grpc/grpc/archive/refs/tags/v${GRPC_VERSION}.tar.gz && \
     tar -xvzf grpc-${GRPC_VERSION}.tar.gz && cd grpc-${GRPC_VERSION} && \
     mkdir build && cd build && \
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 \
+    cmake -G Ninja -DCMAKE_PREFIX_PATH="${ABSEIL_CPP_INSTALL_DIR};${PROTOBUF_INSTALL_DIR}" \
+    -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 \
     -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DgRPC_BUILD_CSHARP_EXT=OFF \
     -DgRPC_ZLIB_PROVIDER=package -DgRPC_CARES_PROVIDER=package -DgRPC_RE2_PROVIDER=package \
     -DgRPC_SSL_PROVIDER=package -DgRPC_PROTOBUF_PROVIDER=package -DgRPC_ABSL_PROVIDER=package \
     -DgRPC_BUILD_GRPC_NODE_PLUGIN=OFF -DgRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN=OFF -DgRPC_BUILD_GRPC_PHP_PLUGIN=OFF \
     -DgRPC_BUILD_GRPC_RUBY_PLUGIN=OFF -DgRPC_BUILD_GRPC_CSHARP_PLUGIN=OFF -DgRPC_BUILD_GRPC_PYTHON_PLUGIN=OFF .. && \
-    cmake --build . --config Release --target install
+    cmake --build . --config Release && \
+    cmake --install . --config Release --prefix ${GRPC_INSTALL_DIR}
 
 # Install base64
 ENV BASE64_VERSION=0.5.2
