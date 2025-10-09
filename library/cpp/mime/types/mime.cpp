@@ -158,7 +158,7 @@ MimeTypes TMimeTypes::MimeByStr(const char* str) const {
 }
 
 MimeTypes TMimeTypes::MimeByStr(const TStringBuf& str) const {
-    TRecordHash::const_iterator it = ContentTypes.find(str);
+    TRecordHash::const_iterator it = ContentTypes.find(str.data());
     if (it == ContentTypes.end())
         return MIME_UNKNOWN;
     return Records[it->second].Mime;

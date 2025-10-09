@@ -211,6 +211,13 @@ struct TEqualTo<TUtf32String>: public TEqualTo<TUtf32StringBuf> {
     using is_transparent = void;
 };
 
+template <>
+struct TEqualTo<const char*> {
+    inline bool operator()(const char* a, const char* b) const {
+        return strcmp(a, b) == 0;
+    }
+};
+
 template <class TFirst, class TSecond>
 struct TEqualTo<std::pair<TFirst, TSecond>> {
     template <class TOther>
@@ -262,6 +269,13 @@ struct TLess<TUtf16String>: public TLess<TWtringBuf> {
 template <>
 struct TLess<TUtf32String>: public TLess<TUtf32StringBuf> {
     using is_transparent = void;
+};
+
+template <>
+struct TLess<const char*> {
+    inline bool operator()(const char* a, const char* b) const {
+        return strcmp(a, b) < 0;
+    }
 };
 
 template <class T>
