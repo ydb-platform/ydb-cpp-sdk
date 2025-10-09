@@ -35,8 +35,6 @@ jobs:
       if: github.event.pull_request.head.sha == ''
       with:
         submodules: true
-    - name: Install dependencies
-      uses: ./.github/actions/prepare_vm
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp
       shell: cmake -P {0}
@@ -50,6 +48,8 @@ jobs:
         key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
           ubuntu-22.04-ccache-${{ matrix.compiler }}-
+    - name: Install dependencies
+      uses: ./.github/actions/prepare_vm
     - name: Build
       uses: ./.github/actions/build
       with:
@@ -95,8 +95,6 @@ jobs:
       if: github.event.pull_request.head.sha == ''
       with:
         submodules: true
-    - name: Install dependencies
-      uses: ./.github/actions/prepare_vm
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp
       shell: cmake -P {0}
@@ -110,6 +108,8 @@ jobs:
         key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
           ubuntu-22.04-ccache-${{ matrix.compiler }}-
+    - name: Install dependencies
+      uses: ./.github/actions/prepare_vm
     - name: Build
       uses: ./.github/actions/build
       with:
