@@ -5,7 +5,6 @@
 #endif
 
 #include <functional>
-#include <memory>
 #include <mutex>
 
 namespace NYdb::inline V3 {
