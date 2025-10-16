@@ -8,10 +8,6 @@
 #include <src/client/persqueue_public/impl/write_session.h>
 #include <src/client/topic/impl/write_session.h>
 
-#define INCLUDE_YDB_INTERNAL_H
-#include <src/client/impl/executor/executor_impl.h>
-#undef INCLUDE_YDB_INTERNAL_H
-
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -805,7 +801,7 @@ IExecutor::TPtr TDirectReadSessionImplTestSetup::GetDefaultExecutor() {
     if (!DefaultExecutor) {
         ThreadPool = std::make_shared<TThreadPool>();
         ThreadPool->Start(1);
-        DefaultExecutor = std::make_shared<TThreadPoolExecutor>(ThreadPool);
+        DefaultExecutor = CreateExternalThreadPoolExecutorAdapter(ThreadPool);
     }
     return DefaultExecutor;
 }
