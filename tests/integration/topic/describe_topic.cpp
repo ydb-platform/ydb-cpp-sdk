@@ -120,11 +120,6 @@ TEST_F(Describe, TEST_NAME(Location)) {
 }
 
 TEST_F(Describe, TEST_NAME(MetricsLevel)) {
-    char* ydbVersion = std::getenv("YDB_VERSION");
-    if (ydbVersion != nullptr && std::string(ydbVersion) != "trunk") {
-        GTEST_SKIP() << "Skipping test for YDB version " << ydbVersion;
-    }
-
     TTopicClient client(MakeDriver());
 
     // const std::uint32_t MetricsLevelDisabled = 0;
@@ -154,7 +149,7 @@ TEST_F(Describe, TEST_NAME(MetricsLevel)) {
     };
 
     {
-        const std::string topic(GetTopicPath("topic-with-counters"));
+        const std::string topic("topic-with-counters");
         createTopic(topic, MetricsLevelDetailed);
         checkFlag(topic, MetricsLevelDetailed);
         setMetricsLevel(topic, MetricsLevelObject);
@@ -174,7 +169,7 @@ TEST_F(Describe, TEST_NAME(MetricsLevel)) {
     }
 
     {
-        const std::string topic(GetTopicPath("topic-without-counters-by-default"));
+        const std::string topic("topic-without-counters-by-default");
         auto res = client.CreateTopic(topic).GetValueSync();
         ASSERT_TRUE(res.IsSuccess());
         Y_ENSURE(checkFlag(topic, {}));
@@ -190,7 +185,7 @@ TEST_F(Describe, TEST_NAME(MetricsLevel)) {
     }
 
     {
-        const std::string topic(GetTopicPath("topic-without-counters"));
+        const std::string topic("topic-without-counters");
         createTopic(topic, MetricsLevelObject);
         Y_ENSURE(checkFlag(topic, MetricsLevelObject));
         setMetricsLevel(topic, MetricsLevelDetailed);
