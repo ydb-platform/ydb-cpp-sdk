@@ -25,7 +25,6 @@ private:
     using TEndpoint = Ydb::Discovery::EndpointInfo;
     using TEndpointRef = std::reference_wrapper<const TEndpoint>;
     using TEndpointsByLocation = std::unordered_map<std::string, std::vector<TEndpointRef>>;
-    using TMeasureResult = std::pair<std::string, std::uint64_t>;
 
     TEndpointsByLocation GroupEndpointsByLocation(const Ydb::Discovery::ListEndpointsResult& endpointsList) const;
     void SampleEndpoints(TEndpointsByLocation& endpointsByLocation) const;
