@@ -14,12 +14,15 @@ public:
     enum class EPolicyType {
         UseAllNodes,
         UsePreferableLocation,
+        UseDetectedLocalDC,
         UsePreferablePileState
     };
 
     static TImpl UseAllNodes();
 
     static TImpl UsePreferableLocation(const std::optional<std::string>& location);
+
+    static TImpl UseDetectedLocalDC();
 
     static TImpl UsePreferablePileState(EPileState pileState);
 
