@@ -5,6 +5,7 @@
 #include <src/api/protos/ydb_discovery.pb.h>
 #include <src/client/impl/internal/common/balancing_policies.h>
 #include <src/client/impl/internal/internal_client/client.h>
+#include <src/client/impl/internal/local_dc_detector/local_dc_detector.h>
 #include <src/client/impl/internal/plain_status/status.h>
 #include <src/client/impl/endpoints/endpoints.h>
 
@@ -57,7 +58,9 @@ private:
     TEndpointElectorSafe Elector_;
     NThreading::TPromise<TEndpointUpdateResult> DiscoveryPromise_;
     std::atomic_uint64_t LastUpdateTime_;
+
     const TBalancingPolicy::TImpl BalancingPolicy_;
+    TLocalDCDetector LocalDCDetector_;
 
     NSdkStats::TStatCollector* StatCollector_ = nullptr;
 

@@ -16,6 +16,12 @@ TBalancingPolicy::TImpl TBalancingPolicy::TImpl::UsePreferableLocation(const std
     return impl;
 }
 
+TBalancingPolicy::TImpl TBalancingPolicy::TImpl::UseDetectedLocalDC() {
+    TBalancingPolicy::TImpl impl;
+    impl.PolicyType = EPolicyType::UseDetectedLocalDC;
+    return impl;
+}
+
 TBalancingPolicy::TImpl TBalancingPolicy::TImpl::UsePreferablePileState(EPileState pileState) {
     TBalancingPolicy::TImpl impl;
     impl.PolicyType = EPolicyType::UsePreferablePileState;
