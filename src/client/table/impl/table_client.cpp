@@ -1019,7 +1019,7 @@ void TTableClient::TImpl::SetStatCollector(const NSdkStats::TStatCollector::TCli
     SessionRemovedDueBalancing.Set(collector.SessionRemovedDueBalancing);
 }
 
-TAsyncBulkUpsertResult TTableClient::TImpl::BulkUpsert(const std::string& table, TValue&& rows, const TBulkUpsertSettings& settings, bool canMove) {
+TAsyncBulkUpsertResult TTableClient::TImpl::BulkUpsert(const std::string& table, TValue&& rows, const TBulkUpsertSettings& settings) {
     Ydb::Table::BulkUpsertRequest* request = nullptr;
     std::unique_ptr<Ydb::Table::BulkUpsertRequest> holder;
 
@@ -1031,12 +1031,18 @@ TAsyncBulkUpsertResult TTableClient::TImpl::BulkUpsert(const std::string& table,
     }
 
     request->set_table(TStringType{table});
-    if (canMove) {
-        request->mutable_rows()->mutable_type()->Swap(&rows.GetType().GetProto());
-        request->mutable_rows()->mutable_value()->Swap(&rows.GetProto());
+
+    auto* mutable_rows = request->mutable_rows();
+    if (rows.Impl_.use_count() == 1) {
+        mutable_rows->mutable_value()->Swap(&rows.GetProto());
+        if (rows.GetType().Impl_.use_count() == 1) {
+            mutable_rows->mutable_type()->Swap(&rows.GetType().GetProto());
+        } else {
+            *mutable_rows->mutable_type() = rows.GetType().GetProto();
+        }
     } else {
-        *request->mutable_rows()->mutable_type() = TProtoAccessor::GetProto(rows.GetType());
-        *request->mutable_rows()->mutable_value() = rows.GetProto();
+        *mutable_rows->mutable_value() = rows.GetProto();
+        *mutable_rows->mutable_type() = rows.GetType().GetProto();
     }
 
     auto promise = NewPromise<TBulkUpsertResult>();

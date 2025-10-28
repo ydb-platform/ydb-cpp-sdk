@@ -6,11 +6,11 @@ _ydb_sdk_add_library(util-charset)
 
 target_compile_options(util-charset PUBLIC
   -DTSTRING_IS_STD_STRING
+  -DNO_CUSTOM_CHAR_PTR_STD_COMPARATOR
 )
 
 target_compile_options(util-charset PRIVATE
   -Wnarrowing
-  -DNO_CUSTOM_CHAR_PTR_STD_COMPARATOR
 )
 
 target_joined_source(util-charset

@@ -13,5 +13,5 @@ target_link_libraries(client-oauth2-ut-helpers
     http-server
     json
     string_utils-base64
-    client-ydb_types-credentials-oauth2
+    client-types-credentials-oauth2
 )

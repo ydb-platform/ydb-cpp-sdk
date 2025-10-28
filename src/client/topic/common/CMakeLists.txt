@@ -2,7 +2,7 @@ _ydb_sdk_add_library(client-ydb_topic-common)
 
 target_link_libraries(client-ydb_topic-common PUBLIC
   client-ydb_common_client-impl
-  client-ydb_types
+  client-types
   monlib-dynamic_counters
   retry
 )

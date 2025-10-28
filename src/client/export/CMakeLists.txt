@@ -8,7 +8,7 @@ target_link_libraries(client-ydb_export PUBLIC
   client-ydb_common_client-impl
   client-ydb_driver
   client-ydb_proto
-  client-ydb_types-operation
+  client-types-operation
 )
 
 target_sources(client-ydb_export PRIVATE

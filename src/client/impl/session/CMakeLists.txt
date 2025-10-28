@@ -5,7 +5,7 @@ target_link_libraries(impl-session PUBLIC
   threading-future
   api-protos
   client-impl-ydb_endpoints
-  client-ydb_types-operation  
+  client-types-operation  
 )
 
 target_sources(impl-session PRIVATE
