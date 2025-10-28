@@ -2,6 +2,7 @@ enable_testing()
 
 include(FetchContent)
 
+#todo можно перенести на CPM
 FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
