@@ -3,6 +3,7 @@ _ydb_sdk_add_library(grpc-client)
 target_link_libraries(grpc-client
   PUBLIC
     yutil
+    ydb-time
     gRPC::grpc++
 )
 
