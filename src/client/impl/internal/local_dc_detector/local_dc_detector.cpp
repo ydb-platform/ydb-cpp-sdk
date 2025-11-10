@@ -12,9 +12,9 @@ TLocalDCDetector::TLocalDCDetector(std::unique_ptr<IPinger> pinger)
 
 std::string TLocalDCDetector::DetectLocalDC(const Ydb::Discovery::ListEndpointsResult& endpointsList) {
     auto endpointsByLocation = GroupEndpointsByLocation(endpointsList);
-    SelectEndpoints(endpointsByLocation);
 
     if (endpointsByLocation.size() > 1) {
+        SelectEndpoints(endpointsByLocation);
         Location_ = FindNearestLocation();   
         Pinger_->Reset();
     } else {
