@@ -4,243 +4,182 @@
 #include <src/client/impl/internal/local_dc_detector/local_dc_detector.h>
 #undef INCLUDE_YDB_INTERNAL_H
 
-#include <library/cpp/testing/unittest/registar.h>
-#include <util/datetime/base.h>
+#include <util/network/sock.h>
+
+#include <gtest/gtest.h>
 
 using namespace NYdb;
 
-class TMockedEndpoint {
+class TMockedPinger : public IPinger {
 public:
-    explicit TMockedEndpoint(std::vector<TDuration> measures) 
-        : Measures_(std::move(measures))
-        , Idx_(0)
-    {}
+    void Reset() override {}
 
-    TDuration Ping() {
-        std::size_t idx = Idx_++;
+    void AddEndpoint(const Ydb::Discovery::EndpointInfo& endpoint, const std::chrono::seconds timeout) override {
+        EndpointsPerLocation_[endpoint.location()].insert(endpoint.address());
+    }
 
-        if (idx < Measures_.size()) {
-            return Measures_.at(idx);
-        }
-        return TDuration::Max();
+    NThreading::TFuture<std::string> GetFastestLocation() override {
+        return NThreading::MakeFuture<std::string>("");
+    }
+
+    const std::unordered_map<std::string, std::unordered_set<std::string>>& GetSelectedEndpoints() {
+        return EndpointsPerLocation_;
     }
 
 private:
-    const std::vector<TDuration> Measures_;
-    std::size_t Idx_;
+    std::unordered_map<std::string, std::unordered_set<std::string>> EndpointsPerLocation_;
 };
 
-class TMockedPinger {
-public:
-    explicit TMockedPinger(std::unordered_map<std::string, std::vector<TDuration>> measuresByAdress) {
-        EndpointByAdress_.reserve(measuresByAdress.size());
-        
-        for (auto& [adress, measures] : measuresByAdress) {
-            EndpointByAdress_.emplace(std::move(adress), std::move(measures));
-        }
-    }
-
-    TDuration operator()(const Ydb::Discovery::EndpointInfo& endpoint) const {
-        auto it = EndpointByAdress_.find(endpoint.address());
-        if (it == EndpointByAdress_.end() || Blacklist_.contains(endpoint.address())) {
-            return TDuration::Max();
-        }
-        return it->second.Ping();
-    }
-
-    void BanEndpoint(const std::string& adress) {
-        Blacklist_.insert(adress);
-    }
-
-    void UnbanEndpoint(const std::string& adress) {
-        Blacklist_.erase(adress);
-    }
-
-private:
-    mutable std::unordered_map<std::string, TMockedEndpoint> EndpointByAdress_;
-    std::unordered_set<std::string> Blacklist_;
+struct LocalDCDetectionParams {
+    std::vector<std::string> InputAddresses;
+    
+    size_t ExpectedLocationsAmount;
+    std::unordered_map<std::string, size_t> ExpectedCountsPerLocation;
+    
+    std::string TestName; 
 };
 
-std::vector<TDuration> GenerateMeasures(size_t count, int minMs, int maxMs, std::mt19937& gen) {
-    std::vector<TDuration> measures;
-    measures.reserve(count);
-    std::uniform_int_distribution<int> distrib(minMs, maxMs);
-    for (size_t i = 0; i < count; ++i) {
-        measures.push_back(TDuration::MicroSeconds(distrib(gen)));
-    }
-    return measures;
+std::ostream& operator<<(std::ostream& os, const LocalDCDetectionParams& params) {
+    return os << params.TestName;
 }
 
-Y_UNIT_TEST_SUITE(LocalDCDetectionTest) {
-    Y_UNIT_TEST(Basic) {
-        Ydb::Discovery::ListEndpointsResult endpoints;
-        std::unordered_map<std::string, std::vector<TDuration>> mockData;
-        std::mt19937 gen(std::random_device{}());
+class EndpointsSelectionTest : public ::testing::TestWithParam<LocalDCDetectionParams> {
+protected:
+    std::unique_ptr<TLocalDCDetector> detector;
+    TMockedPinger* pinger;
 
-        const std::vector<std::string> endpointsA = {"A1", "A2", "A3", "A4", "A5", "A6", "A7"};
-        const std::vector<std::string> endpointsB = {"B1", "B2", "B3"};
-        const std::vector<std::string> endpointsC = {"C1", "C2", "C3", "C4", "C5", "C6", "C7"};
+    void SetUp() override {
+        auto pingerPtr = std::make_unique<TMockedPinger>();
+        pinger = pingerPtr.get();
+        detector = std::make_unique<TLocalDCDetector>(std::move(pingerPtr));
+    }
+};
 
-        const std::size_t epoches = 3;
-        const std::size_t measuresAmount = 10 * epoches;
+TEST_P(EndpointsSelectionTest, EndpointsSelection) {
+    const auto& params = GetParam();
 
-        for (const auto& ep : endpointsA) {
-            mockData[ep] = GenerateMeasures(measuresAmount, 20, 30, gen);
-            auto& endpoint = *endpoints.add_endpoints();
-            endpoint.set_location("A");
-            endpoint.set_address(ep);
-        }
-        for (const auto& ep : endpointsB) {
-            mockData[ep] = GenerateMeasures(measuresAmount, 30, 45, gen);
-            auto& endpoint = *endpoints.add_endpoints();
-            endpoint.set_location("B");
-            endpoint.set_address(ep);
-        }
-        for (const auto& ep : endpointsC) {
-            mockData[ep] = GenerateMeasures(measuresAmount, 50, 70, gen);
-            auto& endpoint = *endpoints.add_endpoints();
-            endpoint.set_location("C");
-            endpoint.set_address(ep);
-        }
-
-        std::function<TDuration(const Ydb::Discovery::EndpointInfo& endpoint)> pinger = TMockedPinger(mockData);
-        TLocalDCDetector detector(pinger);
-
-        for (std::size_t i = 0; i < epoches; ++i) {
-            detector.DetectLocalDC(endpoints);
-            UNIT_ASSERT_VALUES_EQUAL(true, detector.IsLocalDC("A"));
-            UNIT_ASSERT_VALUES_EQUAL(false, detector.IsLocalDC("B"));
-            UNIT_ASSERT_VALUES_EQUAL(false, detector.IsLocalDC("C"));
-        }
+    Ydb::Discovery::ListEndpointsResult endpoints;
+    for (const auto& ep : params.InputAddresses) {
+        auto& endpoint = *endpoints.add_endpoints();
+        endpoint.set_location(ep.substr(0, 1));
+        endpoint.set_address(ep);
     }
 
-    Y_UNIT_TEST(SingleLocation) {
-        Ydb::Discovery::ListEndpointsResult endpoints;
-        std::unordered_map<std::string, std::vector<TDuration>> mockData;
-        std::mt19937 gen(std::random_device{}());
+    detector->DetectLocalDC(endpoints);
 
-        const std::vector<std::string> endpointsA = {"A1", "A2", "A3"};
+    auto selected = pinger->GetSelectedEndpoints();
 
-        for (const auto& ep : endpointsA) {
-            mockData[ep] = GenerateMeasures(10, 20, 30, gen);
-            auto& endpoint = *endpoints.add_endpoints();
-            endpoint.set_location("A");
-            endpoint.set_address(ep);
-        }
+    ASSERT_EQ(selected.size(), params.ExpectedLocationsAmount);
 
-        std::function<TDuration(const Ydb::Discovery::EndpointInfo& endpoint)> pinger = TMockedPinger(mockData);
-        TLocalDCDetector detector(pinger);
-
-        detector.DetectLocalDC(endpoints);
-
-        UNIT_ASSERT_VALUES_EQUAL(true, detector.IsLocalDC("A"));
+    for (const auto& [location, expectedCount] : params.ExpectedCountsPerLocation) {
+        auto it = selected.find(location);
+        
+        ASSERT_NE(it, selected.end());
+        EXPECT_EQ(it->second.size(), expectedCount);
     }
 
-    Y_UNIT_TEST(UnavailableLocalDC) {
-        Ydb::Discovery::ListEndpointsResult endpoints;
-        std::unordered_map<std::string, std::vector<TDuration>> mockData;
-        std::mt19937 gen(std::random_device{}());
+    for (const auto& [location, _] : selected) {
+        EXPECT_TRUE(params.ExpectedCountsPerLocation.count(location));
+    }
+}
 
-        const std::vector<std::string> endpointsA = {"A1", "A2", "A3", "A4", "A5", "A6", "A7"};
-        const std::vector<std::string> endpointsB = {"B1", "B2", "B3", "B4", "B5", "B6", "B7"};
-        const std::vector<std::string> endpointsC = {"C1", "C2", "C3", "C4", "C5", "C6", "C7"};
-
-        const std::size_t epoches = 3;
-        const std::size_t measuresAmount = 10 * epoches;
-
-        for (const auto& ep : endpointsA) {
-            mockData[ep] = GenerateMeasures(measuresAmount, 20, 30, gen);
-            auto& endpoint = *endpoints.add_endpoints();
-            endpoint.set_location("A");
-            endpoint.set_address(ep);
+INSTANTIATE_TEST_SUITE_P(
+    LocalDCDetectorTest,
+    EndpointsSelectionTest,
+    ::testing::Values (
+        LocalDCDetectionParams{
+            {"A1", "A2", "A3", "A4", "A5", "A6", "B1", "B2", "B3", "B4", "B5", "C1", "C2", "C3", "C4", "C5"},
+            3,
+            {{"A", 5}, {"B", 5}, {"C", 5}},
+            "Basic"
+        },
+        LocalDCDetectionParams{
+            {"A1", "A2", "A3", "B1"},
+            2,
+            {{"A", 3}, {"B", 1}},
+            "BelowLimit"
+        },
+        LocalDCDetectionParams{
+            {},
+            0,
+            {},
+            "EmptyInput"
+        },
+        LocalDCDetectionParams{
+            {"X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8"},
+            1,
+            {{"X", 5}},
+            "SingleLocationOverLimit"
         }
-        for (const auto& ep : endpointsB) {
-            mockData[ep] = GenerateMeasures(measuresAmount, 30, 45, gen);
-            auto& endpoint = *endpoints.add_endpoints();
-            endpoint.set_location("B");
-            endpoint.set_address(ep);
-        }
-        for (const auto& ep : endpointsC) {
-            mockData[ep] = GenerateMeasures(measuresAmount, 50, 70, gen);
-            auto& endpoint = *endpoints.add_endpoints();
-            endpoint.set_location("C");
-            endpoint.set_address(ep);
-        }
+    ) 
+);
 
-        TMockedPinger mockPinger(mockData);
-        std::function<TDuration(const Ydb::Discovery::EndpointInfo& endpoint)> pinger = 
-            [&mockPinger](const Ydb::Discovery::EndpointInfo& endpoint) { return mockPinger(endpoint); };
+ui16 GetAssignedPort(SOCKET s) {
+    struct sockaddr_in6 bound_addr_sys;
+    socklen_t addrLen = sizeof(bound_addr_sys);
 
-        TLocalDCDetector detector(pinger);
+    if (getsockname(s, (struct sockaddr*)&bound_addr_sys, &addrLen) == 0) {
+        const ui16 assignedPort = ntohs(bound_addr_sys.sin6_port);
+        
+        return assignedPort;
+    }
+    return 0;
+}
 
-        detector.DetectLocalDC(endpoints);
-        UNIT_ASSERT_VALUES_EQUAL(true, detector.IsLocalDC("A"));
-        UNIT_ASSERT_VALUES_EQUAL(false, detector.IsLocalDC("B"));
-        UNIT_ASSERT_VALUES_EQUAL(false, detector.IsLocalDC("C"));
-
-        for (const auto& ep : endpointsA) {
-            mockPinger.BanEndpoint(ep);
-        }
-
-        detector.DetectLocalDC(endpoints);
-        UNIT_ASSERT_VALUES_EQUAL(false, detector.IsLocalDC("A"));
-        UNIT_ASSERT_VALUES_EQUAL(true, detector.IsLocalDC("B"));
-        UNIT_ASSERT_VALUES_EQUAL(false, detector.IsLocalDC("C"));
-
-        for (const auto& ep : endpointsA) {
-            mockPinger.UnbanEndpoint(ep);
-        }
-
-        detector.DetectLocalDC(endpoints);
-        UNIT_ASSERT_VALUES_EQUAL(true, detector.IsLocalDC("A"));
-        UNIT_ASSERT_VALUES_EQUAL(false, detector.IsLocalDC("B"));
-        UNIT_ASSERT_VALUES_EQUAL(false, detector.IsLocalDC("C"));
+TEST (TPingerTest, FastestEndpoint) {
+    TInetStreamSocket socket;
+    {
+        TSockAddrInet addr("127.0.0.1", 0);
+        TBaseSocket::Check(socket.Bind(&addr));
+        TBaseSocket::Check(socket.Listen(1));
     }
 
-    Y_UNIT_TEST(OfflineDCs) {
-        Ydb::Discovery::ListEndpointsResult endpoints;
-        std::unordered_map<std::string, std::vector<TDuration>> mockData;
-        std::mt19937 gen(std::random_device{}());
-
-        const std::vector<std::string> endpointsA = {"A1", "A2", "A3", "A4", "A5", "A6", "A7"};
-        const std::vector<std::string> endpointsB = {"B1", "B2", "B3", "B4", "B5", "B6", "B7"};
-        const std::vector<std::string> endpointsC = {"C1", "C2", "C3", "C4", "C5", "C6", "C7"};
-
-        for (const auto& ep : endpointsA) {
-            auto& endpoint = *endpoints.add_endpoints();
-            endpoint.set_location("A");
-            endpoint.set_address(ep);
-        }
-        for (const auto& ep : endpointsB) {
-            auto& endpoint = *endpoints.add_endpoints();
-            endpoint.set_location("B");
-            endpoint.set_address(ep);
-        }
-        for (const auto& ep : endpointsC) {
-            auto& endpoint = *endpoints.add_endpoints();
-            endpoint.set_location("C");
-            endpoint.set_address(ep);
-        }
-
-        TMockedPinger mockPinger(mockData);
-        std::function<TDuration(const Ydb::Discovery::EndpointInfo& endpoint)> pinger = 
-            [&mockPinger](const Ydb::Discovery::EndpointInfo& endpoint) { return mockPinger(endpoint); };
-
-        TLocalDCDetector detector(pinger);
-
-        for (const auto& ep : endpointsA) {
-            mockPinger.BanEndpoint(ep);
-        }
-        for (const auto& ep : endpointsB) {
-            mockPinger.BanEndpoint(ep);
-        }
-        for (const auto& ep : endpointsC) {
-            mockPinger.BanEndpoint(ep);
-        }
-
-        detector.DetectLocalDC(endpoints);
-        UNIT_ASSERT_VALUES_EQUAL(true, detector.IsLocalDC("A"));
-        UNIT_ASSERT_VALUES_EQUAL(true, detector.IsLocalDC("B"));
-        UNIT_ASSERT_VALUES_EQUAL(true, detector.IsLocalDC("C"));
+    Ydb::Discovery::EndpointInfo endpoint;
+    endpoint.set_address("127.0.0.1");
+    endpoint.set_port(GetAssignedPort(socket));
+    endpoint.set_location("real");
+    
+    TInetStreamSocket fakeSocket;
+    {
+        TSockAddrInet addr("127.0.0.1", 0);
+        TBaseSocket::Check(fakeSocket.Bind(&addr));
+        TBaseSocket::Check(fakeSocket.Listen(1));
     }
+
+    Ydb::Discovery::EndpointInfo fakeEndpoint;
+    fakeEndpoint.set_address("127.0.0.1");
+    fakeEndpoint.set_port(GetAssignedPort(fakeSocket));
+    fakeEndpoint.set_location("fake");
+
+    TPinger pinger;
+    pinger.AddEndpoint(endpoint, std::chrono::seconds(1));
+    pinger.AddEndpoint(fakeEndpoint, std::chrono::seconds(1));
+
+    fakeSocket.Close();
+
+    std::string localDC = pinger.GetFastestLocation().GetValue(std::chrono::seconds(1));
+    pinger.Reset();
+
+    EXPECT_EQ(localDC, "real");
+}
+
+TEST (TPingerTest, FailedPings) {
+    TPinger pinger;
+    for (std::size_t i = 0; i < 3; ++i) {
+        TInetStreamSocket fakeSocket;
+        {
+            TSockAddrInet addr("127.0.0.1", 0);
+            TBaseSocket::Check(fakeSocket.Bind(&addr));
+            TBaseSocket::Check(fakeSocket.Listen(1));
+        }
+        Ydb::Discovery::EndpointInfo fakeEndpoint;
+        fakeEndpoint.set_address("127.0.0.1");
+        fakeEndpoint.set_port(GetAssignedPort(fakeSocket));
+        fakeEndpoint.set_location("fake" + std::to_string(i));
+        pinger.AddEndpoint(fakeEndpoint, std::chrono::seconds(1));
+        fakeSocket.Close();
+    }
+
+    EXPECT_THROW(pinger.GetFastestLocation().GetValue(std::chrono::seconds(1)), std::runtime_error);
+    pinger.Reset();
 }

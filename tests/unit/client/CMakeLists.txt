@@ -45,7 +45,7 @@ add_ydb_test(NAME client-impl-ydb_endpoints_ut
     unit
 )
 
-add_ydb_test(NAME client-impl-internal-local_dc_detector_ut
+add_ydb_test(NAME client-impl-internal-local_dc_detector_ut GTEST
   INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}/src/client/impl/internal/local_dc_detector
   SOURCES

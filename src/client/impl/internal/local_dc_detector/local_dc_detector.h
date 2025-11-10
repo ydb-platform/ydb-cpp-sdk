@@ -4,10 +4,8 @@
 #include <src/client/impl/internal/internal_header.h>
 #include <src/client/impl/internal/local_dc_detector/pinger.h>
 
-#include <algorithm>
+#include <chrono>
 #include <map>
-#include <numeric>
-#include <random>
 #include <string>
 #include <vector>
 
@@ -15,27 +13,25 @@ namespace NYdb::inline V3 {
 
 class TLocalDCDetector {
 public:
-    using TPinger = std::function<TDuration(const Ydb::Discovery::EndpointInfo& endpoint)>;
-    explicit TLocalDCDetector(TPinger pingEndpoint = PingEndpoint);
+    explicit TLocalDCDetector(std::unique_ptr<IPinger> pinger = std::make_unique<TPinger>());
 
-    void DetectLocalDC(const Ydb::Discovery::ListEndpointsResult& endpoints);
+    std::string DetectLocalDC(const Ydb::Discovery::ListEndpointsResult& endpoints);
     bool IsLocalDC(const std::string& location) const;
 
 private:
-    using TEndpoint = Ydb::Discovery::EndpointInfo;
-    using TEndpointRef = std::reference_wrapper<const TEndpoint>;
+    using TEndpointRef = std::reference_wrapper<const Ydb::Discovery::EndpointInfo>;
     using TEndpointsByLocation = std::unordered_map<std::string, std::vector<TEndpointRef>>;
 
     TEndpointsByLocation GroupEndpointsByLocation(const Ydb::Discovery::ListEndpointsResult& endpointsList) const;
-    void SampleEndpoints(TEndpointsByLocation& endpointsByLocation) const;
-    std::uint64_t MeasureLocationRtt(const std::vector<TEndpointRef>& endpoints) const;
-    std::string FindNearestLocation(const TEndpointsByLocation& endpointsByLocation);
+    void SelectEndpoints(TEndpointsByLocation& endpointsByLocation) const;
+    std::string FindNearestLocation();
 
 private:
-    static constexpr std::size_t MAX_ENDPOINTS_PER_LOCATION = 3;
-    static constexpr std::size_t PING_COUNT = 2 * MAX_ENDPOINTS_PER_LOCATION;
+    static constexpr std::size_t MAX_ENDPOINTS_PER_LOCATION = 5;
+    static constexpr auto DETECT_TIMEOUT = std::chrono::seconds(5);
+    static constexpr auto EMPTY_LOCATION = "";
 
-    TPinger PingEndpoint_;
+    std::unique_ptr<IPinger> Pinger_;
     std::string Location_;
 };
 
