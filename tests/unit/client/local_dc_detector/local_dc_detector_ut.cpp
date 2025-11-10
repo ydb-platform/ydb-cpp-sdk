@@ -106,13 +106,28 @@ INSTANTIATE_TEST_SUITE_P(
             "EmptyInput"
         },
         LocalDCDetectionParams{
-            {"X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8"},
-            1,
-            {{"X", 5}},
-            "SingleLocationOverLimit"
+            {"A1", "B1", "C1"},
+            3,
+            {{"A", 1}, {"B", 1}, {"C", 1}},
+            "SingleNodesInLocations"
         }
     ) 
 );
+
+TEST (TLocalDCDetector, SingleLocation) {
+    TLocalDCDetector detector;
+
+    Ydb::Discovery::ListEndpointsResult endpoints;
+    for (std::size_t i = 0; i < 3; ++i) {
+        auto& endpoint = *endpoints.add_endpoints();
+        endpoint.set_location("A");
+        endpoint.set_address(std::to_string(i));
+    }
+
+    std::string localDC = detector.DetectLocalDC(endpoints);
+
+    EXPECT_EQ(localDC, "");
+}
 
 ui16 GetAssignedPort(SOCKET s) {
     struct sockaddr_in6 bound_addr_sys;

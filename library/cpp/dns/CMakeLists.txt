@@ -15,3 +15,5 @@ target_link_libraries(dns
   PUBLIC
     yutil
 )
+
+_ydb_sdk_install_targets(TARGETS dns)

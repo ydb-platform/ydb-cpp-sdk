@@ -20,3 +20,5 @@ target_link_libraries(neh-asio
   PRIVATE
     enum_serialization_runtime
 )
+
+_ydb_sdk_install_targets(TARGETS neh-asio)
