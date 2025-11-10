@@ -54,6 +54,10 @@ public:
     //! location is a name of datacenter (VLA, MAN), if location is nullopt local datacenter is used
     static TBalancingPolicy UsePreferableLocation(const std::optional<std::string>& location = {});
 
+    //! Use detected local DC
+    //! prefer datacenter with fastest tcp ping
+    static TBalancingPolicy UseDetectedLocalDC();
+
     //! Use all available cluster nodes regardless datacenter locality
     static TBalancingPolicy UseAllNodes();
 
