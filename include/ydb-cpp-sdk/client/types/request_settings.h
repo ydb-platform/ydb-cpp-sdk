@@ -9,6 +9,7 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <stop_token>
 
 namespace NYdb::inline V3 {
 
@@ -22,6 +23,7 @@ struct TRequestSettings {
     FLUENT_SETTING(THeader, Header);
     FLUENT_SETTING_DEFAULT(TDuration, ClientTimeout, TDuration::Max());
     FLUENT_SETTING(std::string, TraceParent);
+    FLUENT_SETTING(std::stop_token, CancellationToken);
 
     TRequestSettings() = default;
 
