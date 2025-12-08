@@ -1,3 +1,4 @@
+add_subdirectory(auth)
 add_subdirectory(basic_example)
 add_subdirectory(bulk_upsert)
 add_subdirectory(server_restart)
