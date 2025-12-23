@@ -13,6 +13,24 @@ FetchContent_MakeAvailable(googletest)
 
 include(GoogleTest)
 
+# Set opentelemetry-cpp options as CACHE variables so they're visible to FetchContent
+set(WITH_OTLP_HTTP ON CACHE BOOL "" FORCE)
+set(WITH_STL CXX20 CACHE STRING "" FORCE)
+set(WITH_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(WITH_FUNC_TESTS OFF CACHE BOOL "" FORCE)
+set(WITH_ABI_VERSION_1 OFF CACHE BOOL "" FORCE)
+set(WITH_ABI_VERSION_2 ON CACHE BOOL "" FORCE)
+set(WITH_BENCHMARK OFF CACHE BOOL "" FORCE)
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+
+FetchContent_Declare(
+  opentelemetry-cpp
+  GIT_REPOSITORY https://github.com/open-telemetry/opentelemetry-cpp.git
+  GIT_TAG        v1.24.0
+)
+
+FetchContent_MakeAvailable(opentelemetry-cpp)
+
 function(add_ydb_test)
   set(opts GTEST)
   set(oneval_args NAME WORKING_DIRECTORY OUTPUT_DIRECTORY)
