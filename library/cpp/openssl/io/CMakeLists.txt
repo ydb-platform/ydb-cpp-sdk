@@ -7,6 +7,7 @@ target_link_libraries(openssl-io
     OpenSSL::SSL
     openssl-init
     openssl-method
+    resource
 )
 
 target_sources(openssl-io PRIVATE

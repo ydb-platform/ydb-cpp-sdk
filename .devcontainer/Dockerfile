@@ -35,7 +35,7 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 10000 && \
 
 # Install abseil-cpp
 ENV ABSEIL_CPP_VERSION=20230802.0
-ENV ABSEIL_CPP_INSTALL_DIR=~/ydb_deps/abseil-cpp
+ENV ABSEIL_CPP_INSTALL_DIR=~/ydb_deps/absl
 RUN wget -O abseil-cpp-${ABSEIL_CPP_VERSION}.tar.gz https://github.com/abseil/abseil-cpp/archive/refs/tags/${ABSEIL_CPP_VERSION}.tar.gz && \
     tar -xvzf abseil-cpp-${ABSEIL_CPP_VERSION}.tar.gz && cd abseil-cpp-${ABSEIL_CPP_VERSION} && \
     mkdir build && cd build && \

@@ -24,7 +24,8 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cm
 ENV LLVM_VERSION=16
 RUN wget https://apt.llvm.org/llvm.sh && \
     chmod u+x llvm.sh && \
-    ./llvm.sh ${LLVM_VERSION}
+    ./llvm.sh ${LLVM_VERSION} && \
+    rm llvm.sh
 
 # Update alternatives to use clang-16 by default
 RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${LLVM_VERSION} 10000 && \
