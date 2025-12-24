@@ -10,7 +10,7 @@ target_link_libraries(slo-utils PUBLIC
 )
 
 if (SLO_BRANCH_REF)
-  target_compile_definitions(slo-utils PRIVATE REF="${SLO_BRANCH_REF}")
+  target_compile_definitions(slo-utils PRIVATE REF=${SLO_BRANCH_REF})
 endif()
 
 target_sources(slo-utils PRIVATE
