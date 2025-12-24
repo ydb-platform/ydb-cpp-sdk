@@ -1,6 +1,7 @@
 FROM ubuntu:22.04
 
 ARG PRESET=release-test-clang
+ARG REF=unknown
 
 # Install software-properties-common for add-apt-repository
 RUN apt-get -y update && apt-get -y install software-properties-common && add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -119,7 +120,7 @@ COPY . /ydb-cpp-sdk
 WORKDIR /ydb-cpp-sdk
 RUN rm -rf build
 
-RUN cmake --preset ${PRESET}
+RUN ls -la && cmake -DSLO_BRANCH_REF=${REF} --preset ${PRESET}
 RUN cmake --build --preset default --target slo-key-value
 
 ENTRYPOINT ["./build/tests/slo_workloads/key_value/slo-key-value"]
