@@ -9,6 +9,10 @@ target_link_libraries(slo-utils PUBLIC
   opentelemetry-cpp::otlp_http_metric_exporter
 )
 
+if (SLO_BRANCH_REF)
+  target_compile_definitions(slo-utils PRIVATE REF="${SLO_BRANCH_REF}")
+endif()
+
 target_sources(slo-utils PRIVATE
   executor.cpp
   generator.cpp
