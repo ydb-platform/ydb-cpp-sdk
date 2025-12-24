@@ -82,4 +82,4 @@ llvm.sh
 CMakeUserPresets.json
 
 # Dev Containers
-!.devcontainer/Dockerfile
+!Dockerfile
