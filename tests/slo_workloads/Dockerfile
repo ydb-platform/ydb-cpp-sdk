@@ -120,7 +120,7 @@ COPY . /ydb-cpp-sdk
 WORKDIR /ydb-cpp-sdk
 RUN rm -rf build
 
-RUN ls -la && cmake -DSLO_BRANCH_REF=${REF} --preset ${PRESET}
+RUN cmake -DSLO_BRANCH_REF=${REF} --preset ${PRESET}
 RUN cmake --build --preset default --target slo-key-value
 
 ENTRYPOINT ["./build/tests/slo_workloads/key_value/slo-key-value"]
