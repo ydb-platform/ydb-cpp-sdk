@@ -74,9 +74,7 @@ jobs:
         with:
           path: current
           fetch-depth: 0
-
-      - name: Configure git
-        uses: ./current/.github/actions/configure_git
+          submodules: true
 
       - name: Determine baseline commit
         id: baseline
@@ -111,6 +109,7 @@ jobs:
           ref: ${{ steps.baseline.outputs.sha }}
           path: baseline
           fetch-depth: 1
+          submodules: true
 
       - name: Build Workload Image
         run: |
