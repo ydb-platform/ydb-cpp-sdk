@@ -128,6 +128,7 @@ jobs:
 
             docker build -t ydb-app-current \
               --build-arg REF="${{ github.head_ref || github.ref_name }}" \
+              --build-arg PRESET=release-test-clang \
               -f tests/slo_workloads/Dockerfile .
 
             # Clean up .dockerignore
@@ -150,6 +151,7 @@ jobs:
 
             docker build -t ydb-app-baseline \
               --build-arg REF="${{ steps.baseline.outputs.ref }}" \
+              --build-arg PRESET=release-test-clang \
               -f tests/slo_workloads/Dockerfile .
 
             # Clean up .dockerignore
