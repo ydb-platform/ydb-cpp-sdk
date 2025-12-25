@@ -38,7 +38,7 @@ jobs:
           - workload: table
 
     concurrency:
-      group: slo-${{ github.ref }}
+      group: slo-${{ github.ref }}-${{ matrix.os }}-${{ matrix.workload }}-${{ matrix.compiler }}
       cancel-in-progress: true
 
     steps:
