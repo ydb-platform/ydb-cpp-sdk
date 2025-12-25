@@ -33,6 +33,7 @@ jobs:
 
     strategy:
       matrix:
+        compiler: [clang, gcc]
         include:
           - workload: table
 
@@ -113,7 +114,7 @@ jobs:
 
       - name: Build Workload Image
         run: |
-          echo "Cleaning up Docker system before builds..." 
+          echo "Cleaning up Docker system before builds..."
           docker system prune -af --volumes
           docker builder prune -af
           df -h
@@ -128,7 +129,7 @@ jobs:
 
             docker build -t ydb-app-current \
               --build-arg REF="${{ github.head_ref || github.ref_name }}" \
-              --build-arg PRESET=release-test-clang \
+              --build-arg PRESET=release-test-${{ matrix.compiler }} \
               -f tests/slo_workloads/Dockerfile .
 
             # Clean up .dockerignore
@@ -151,7 +152,7 @@ jobs:
 
             docker build -t ydb-app-baseline \
               --build-arg REF="${{ steps.baseline.outputs.ref }}" \
-              --build-arg PRESET=release-test-clang \
+              --build-arg PRESET=release-test-${{ matrix.compiler }} \
               -f tests/slo_workloads/Dockerfile .
 
             # Clean up .dockerignore
@@ -172,7 +173,7 @@ jobs:
         with:
           github_issue: ${{ github.event.inputs.github_issue }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          workload_name: ${{ matrix.workload }}
+          workload_name: ${{ matrix.workload }}-${{ matrix.compiler }}
           workload_current_ref: ${{ github.head_ref || github.ref_name }}
           workload_baseline_ref: ${{ steps.baseline.outputs.ref }}
 
@@ -268,7 +269,7 @@ jobs:
       - if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.workload}}-slo-cpp-sdk-logs
+          name: ${{ matrix.workload }}-${{ matrix.compiler }}-slo-cpp-sdk-logs
           path: |
             ./current.log
             ./baseline.log
