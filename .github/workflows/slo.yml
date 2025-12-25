@@ -113,7 +113,7 @@ jobs:
 
       - name: Build Workload Image
         run: |
-          echo "Cleaning up Docker system before builds..."
+          echo "Cleaning up Docker system before builds..." 
           docker system prune -af --volumes
           docker builder prune -af
           df -h
