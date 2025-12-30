@@ -5,12 +5,17 @@
 .gitattributes
 
 # IDE and editor files
-.vscode
-.idea
+.idea/
+.vscode/
+.cache/
+.cursor/
+.cursorrules
 *.swp
 *.swo
-*~
 .DS_Store
+*.dSYM
+.clangd
+compile_commands.json
 
 # Build artifacts and cache
 *.o
@@ -29,7 +34,6 @@ node_modules/
 # Documentation
 *.md
 docs/
-*.txt
 !requirements.txt
 
 # CI/CD
@@ -37,31 +41,8 @@ docs/
 .travis.yml
 azure-pipelines.yml
 
-# Test files
-*_test.cpp
-*_test.py
-*_ut.cpp
-test_*
-tests/
-!ydb/public/sdk/cpp/tests/slo_workloads/
-
 # Large directories not needed for SDK builds
 ydb/core/
 ydb/apps/
 ydb/services/
 ydb/tools/
-
-# Keep only what's needed (specified in Dockerfile COPY commands):
-# - build/
-# - certs/
-# - contrib/
-# - library/cpp/
-# - tools/
-# - util/
-# - ydb/library/yverify_stream/
-# - ydb/public/api/
-# - ydb/public/lib/protobuf/
-# - ydb/public/lib/validation/
-# - ydb/public/sdk/cpp/
-# - ya
-
