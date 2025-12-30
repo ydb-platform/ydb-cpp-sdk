@@ -1,4 +1,4 @@
-#include <src/library/time/time.h>
+#include <ydb-cpp-sdk/library/time/time.h>
 
 #include <gtest/gtest.h>
 
