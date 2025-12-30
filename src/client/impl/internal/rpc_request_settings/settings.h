@@ -3,7 +3,7 @@
 #include <src/client/impl/endpoints/endpoints.h>
 #include <src/client/impl/internal/internal_header.h>
 
-#include <src/library/time/time.h>
+#include <ydb-cpp-sdk/library/time/time.h>
 
 namespace NYdb::inline V3 {
 
@@ -22,7 +22,9 @@ struct TRpcRequestSettings {
     std::string TraceParent;
 
     template <typename TRequestSettings>
-    static TRpcRequestSettings Make(const TRequestSettings& settings, const TEndpointKey& preferredEndpoint = {}, TEndpointPolicy endpointPolicy = TEndpointPolicy::UsePreferredEndpointOptionally) {
+    static TRpcRequestSettings Make(const TRequestSettings& settings,
+                                    const TEndpointKey& preferredEndpoint = {},
+                                    TEndpointPolicy endpointPolicy = TEndpointPolicy::UsePreferredEndpointOptionally) {
         TRpcRequestSettings rpcSettings;
         rpcSettings.TraceId = settings.TraceId_;
         rpcSettings.RequestType = settings.RequestType_;
@@ -31,8 +33,15 @@ struct TRpcRequestSettings {
         rpcSettings.PreferredEndpoint = preferredEndpoint;
         rpcSettings.EndpointPolicy = endpointPolicy;
         rpcSettings.UseAuth = true;
-        rpcSettings.Deadline = NYdb::TDeadline::AfterDuration(settings.ClientTimeout_);
+        rpcSettings.Deadline = std::min(settings.Deadline_, NYdb::TDeadline::AfterDuration(settings.ClientTimeout_));
         return rpcSettings;
+    }
+
+    TRpcRequestSettings& TryUpdateDeadline(const std::optional<TDeadline>& deadline) {
+        if (deadline) {
+            Deadline = std::min(Deadline, *deadline);
+        }
+        return *this;
     }
 };
 

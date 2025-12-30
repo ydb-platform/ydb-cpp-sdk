@@ -4,7 +4,7 @@
 
 #include <ydb-cpp-sdk/type_switcher.h>
 
-#include <src/library/time/time.h>
+#include <ydb-cpp-sdk/library/time/time.h>
 
 #include <util/thread/factory.h>
 #include <util/string/builder.h>
