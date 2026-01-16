@@ -8,6 +8,8 @@
 #include <library/cpp/json/json_reader.h>
 #include <library/cpp/http/simple/http_client.h>
 
+#include <mutex>
+
 using namespace yandex::cloud::iam::v1;
 
 namespace NYdb::inline V3 {
@@ -24,10 +26,21 @@ public:
     }
 
     std::string GetAuthInfo() const override {
-        if (TInstant::Now() >= NextTicketUpdate_) {
+        bool needUpdate = false;
+        std::string ticket;
+        {
+            std::lock_guard guard(Lock_);
+            ticket = Ticket_;
+            needUpdate = TInstant::Now() >= NextTicketUpdate_;
+        }
+        if (needUpdate) {
             GetTicket();
         }
-        return Ticket_;
+        {
+            std::lock_guard guard(Lock_);
+            ticket = Ticket_;
+        }
+        return ticket;
     }
 
     bool IsValid() const override {
@@ -40,6 +53,7 @@ private:
     mutable std::string Ticket_;
     mutable TInstant NextTicketUpdate_;
     TDuration RefreshPeriod_;
+    mutable std::mutex Lock_;
 
     void GetTicket() const {
         try {
@@ -56,8 +70,10 @@ private:
                 ythrow yexception() << "Result doesn't contain access_token";
             else if (std::string ticket = it->second.GetStringSafe(); ticket.empty())
                 ythrow yexception() << "Got empty ticket";
-            else
+            else {
+                std::lock_guard guard(Lock_);
                 Ticket_ = std::move(ticket);
+            }
 
             if (auto it = respMap.find("expires_in"); it == respMap.end())
                 ythrow yexception() << "Result doesn't contain expires_in";
@@ -66,6 +82,7 @@ private:
 
                 const auto interval = std::max(std::min(expiresIn, RefreshPeriod_), TDuration::MilliSeconds(100));
 
+                std::lock_guard guard(Lock_);
                 NextTicketUpdate_ = TInstant::Now() + interval;
             }
         } catch (...) {

@@ -104,16 +104,16 @@ private:
         }
 
         std::string GetTicket() {
-            TInstant nextTicketUpdate;
+            bool needUpdate = false;
             std::string ticket;
             {
                 std::lock_guard guard(Lock_);
                 ticket = Ticket_;
-                nextTicketUpdate = NextTicketUpdate_;
                 if (ticket.empty())
                     ythrow yexception() << "IAM-token not ready yet. " << LastRequestError_;
+                needUpdate = TInstant::Now() >= NextTicketUpdate_;
             }
-            if (TInstant::Now() >= nextTicketUpdate) {
+            if (needUpdate) {
                 UpdateTicket();
             }
             return ticket;

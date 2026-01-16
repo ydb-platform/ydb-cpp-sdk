@@ -42,6 +42,11 @@ TDriverConfig CreateFromEnvironment(const std::string& connectionString) {
     bool useMetadataCredentials = GetStrFromEnv("YDB_METADATA_CREDENTIALS", "0") == "1";
     if (useMetadataCredentials) {
         auto factory = CreateIamCredentialsProviderFactory();
+        try {
+            factory->CreateProvider();
+        } catch (yexception& e) {
+            ythrow yexception() << "Unable to get token from metadata service: " << e.what();
+        }
         driverConfig.SetCredentialsProviderFactory(factory);
         return driverConfig;
     }
