@@ -58,11 +58,13 @@ private:
         }
 
         // Use RAII to ensure UpdateInProgress_ is always reset
-        auto resetFlag = [this]() {
-            std::lock_guard guard(Lock_);
-            UpdateInProgress_ = false;
-        };
-        std::shared_ptr<void> guard(nullptr, [resetFlag](void*) { resetFlag(); });
+        auto resetGuard = std::unique_ptr<TIAMCredentialsProvider, std::function<void(TIAMCredentialsProvider*)>>(
+            const_cast<TIAMCredentialsProvider*>(this),
+            [](TIAMCredentialsProvider* self) {
+                std::lock_guard guard(self->Lock_);
+                self->UpdateInProgress_ = false;
+            }
+        );
 
         try {
             TStringStream out;
@@ -95,6 +97,7 @@ private:
             NextTicketUpdate_ = nextUpdate;
         } catch (...) {
             // Flag will be reset by RAII guard
+            // Silently swallow exceptions to maintain backward compatibility
         }
     }
 };
