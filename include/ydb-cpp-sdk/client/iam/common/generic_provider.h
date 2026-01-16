@@ -104,16 +104,16 @@ private:
         }
 
         std::string GetTicket() {
-            bool needUpdate = false;
+            TInstant nextTicketUpdate;
             std::string ticket;
             {
                 std::lock_guard guard(Lock_);
                 ticket = Ticket_;
+                nextTicketUpdate = NextTicketUpdate_;
                 if (ticket.empty())
                     ythrow yexception() << "IAM-token not ready yet. " << LastRequestError_;
-                needUpdate = TInstant::Now() >= NextTicketUpdate_;
             }
-            if (needUpdate) {
+            if (TInstant::Now() >= nextTicketUpdate) {
                 UpdateTicket();
             }
             return ticket;
@@ -134,23 +134,17 @@ private:
     private:
         void ProcessIamResponse(grpc::Status&& status, TResponse&& result, bool sync) {
             if (!status.ok()) {
-                TDuration sleepDuration;
-                {
-                    std::lock_guard guard(Lock_);
-                    LastRequestError_ = TStringBuilder()
-                        << "Last request error was at " << TInstant::Now()
-                        << ". GrpcStatusCode: " << static_cast<int>(status.error_code())
-                        << " Message: \"" << status.error_message()
-                        << "\" iam-endpoint: \"" << IamEndpoint_.Endpoint << "\"";
+                std::lock_guard guard(Lock_);
+                LastRequestError_ = TStringBuilder()
+                    << "Last request error was at " << TInstant::Now()
+                    << ". GrpcStatusCode: " << static_cast<int>(status.error_code())
+                    << " Message: \"" << status.error_message()
+                    << "\" iam-endpoint: \"" << IamEndpoint_.Endpoint << "\"";
 
-                    RequestInflight_ = false;
-                    sleepDuration = std::min(BackoffTimeout_, BACKOFF_MAX);
-                    BackoffTimeout_ = std::min(BackoffTimeout_ * 2, BACKOFF_MAX);
-                }
-
-                Sleep(sleepDuration);
-
-                UpdateTicket(sync);
+                RequestInflight_ = false;
+                BackoffTimeout_ = std::min(BackoffTimeout_ * 2, BACKOFF_MAX);
+                // Don't retry immediately - let the next GetAuthInfo() call trigger retry
+                // This prevents infinite retry loops when IAM service is unavailable
             } else {
                 std::lock_guard guard(Lock_);
                 LastRequestError_ = "";
