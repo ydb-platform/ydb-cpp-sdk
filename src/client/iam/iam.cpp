@@ -57,6 +57,13 @@ private:
             UpdateInProgress_ = true;
         }
 
+        // Use RAII to ensure UpdateInProgress_ is always reset
+        auto resetFlag = [this]() {
+            std::lock_guard guard(Lock_);
+            UpdateInProgress_ = false;
+        };
+        std::shared_ptr<void> guard(nullptr, [resetFlag](void*) { resetFlag(); });
+
         try {
             TStringStream out;
             TSimpleHttpClient::THeaders headers;
@@ -83,13 +90,11 @@ private:
             }
 
             // Update both ticket and next update time atomically
-            std::lock_guard guard(Lock_);
+            std::lock_guard updateGuard(Lock_);
             Ticket_ = std::move(ticket);
             NextTicketUpdate_ = nextUpdate;
-            UpdateInProgress_ = false;
         } catch (...) {
-            std::lock_guard guard(Lock_);
-            UpdateInProgress_ = false;
+            // Flag will be reset by RAII guard
         }
     }
 };
