@@ -26,19 +26,13 @@ public:
     }
 
     std::string GetAuthInfo() const override {
-        bool needUpdate = false;
-        std::string ticket;
-        {
-            std::lock_guard guard(Lock_);
-            ticket = Ticket_;
-            needUpdate = TInstant::Now() >= NextTicketUpdate_;
-        }
-        if (needUpdate) {
+        std::unique_lock guard(Lock_);
+        if (TInstant::Now() >= NextTicketUpdate_) {
+            guard.unlock();
             GetTicket();
-            std::lock_guard guard(Lock_);
-            ticket = Ticket_;
+            guard.lock();
         }
-        return ticket;
+        return Ticket_;
     }
 
     bool IsValid() const override {
