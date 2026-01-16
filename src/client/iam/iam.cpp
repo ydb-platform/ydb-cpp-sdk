@@ -46,8 +46,17 @@ private:
     mutable TInstant NextTicketUpdate_;
     TDuration RefreshPeriod_;
     mutable std::mutex Lock_;
+    mutable bool UpdateInProgress_ = false;
 
     void GetTicket() const {
+        {
+            std::lock_guard guard(Lock_);
+            if (UpdateInProgress_) {
+                return;
+            }
+            UpdateInProgress_ = true;
+        }
+
         try {
             TStringStream out;
             TSimpleHttpClient::THeaders headers;
@@ -77,7 +86,10 @@ private:
             std::lock_guard guard(Lock_);
             Ticket_ = std::move(ticket);
             NextTicketUpdate_ = nextUpdate;
+            UpdateInProgress_ = false;
         } catch (...) {
+            std::lock_guard guard(Lock_);
+            UpdateInProgress_ = false;
         }
     }
 };
