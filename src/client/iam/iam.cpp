@@ -35,8 +35,6 @@ public:
         }
         if (needUpdate) {
             GetTicket();
-        }
-        {
             std::lock_guard guard(Lock_);
             ticket = Ticket_;
         }
@@ -66,25 +64,25 @@ private:
 
             auto respMap = resp.GetMap();
 
+            std::string ticket;
             if (auto it = respMap.find("access_token"); it == respMap.end())
                 ythrow yexception() << "Result doesn't contain access_token";
-            else if (std::string ticket = it->second.GetStringSafe(); ticket.empty())
+            else if (ticket = it->second.GetStringSafe(); ticket.empty())
                 ythrow yexception() << "Got empty ticket";
-            else {
-                std::lock_guard guard(Lock_);
-                Ticket_ = std::move(ticket);
-            }
 
+            TInstant nextUpdate;
             if (auto it = respMap.find("expires_in"); it == respMap.end())
                 ythrow yexception() << "Result doesn't contain expires_in";
             else {
                 const TDuration expiresIn = TDuration::Seconds(it->second.GetUInteger()) / 2;
-
                 const auto interval = std::max(std::min(expiresIn, RefreshPeriod_), TDuration::MilliSeconds(100));
-
-                std::lock_guard guard(Lock_);
-                NextTicketUpdate_ = TInstant::Now() + interval;
+                nextUpdate = TInstant::Now() + interval;
             }
+
+            // Update both ticket and next update time atomically
+            std::lock_guard guard(Lock_);
+            Ticket_ = std::move(ticket);
+            NextTicketUpdate_ = nextUpdate;
         } catch (...) {
         }
     }
