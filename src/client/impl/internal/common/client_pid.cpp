@@ -1,3 +1,4 @@
+#define INCLUDE_YDB_INTERNAL_H
 #include "client_pid.h"
 
 #include <util/system/defaults.h>
@@ -16,7 +17,7 @@
 namespace NYdb::inline V3 {
 
 namespace {
-ui32 GetProcessId() {
+std::uint32_t GetProcessId() {
 #ifdef _win_
     return GetCurrentProcessId();
 #else
