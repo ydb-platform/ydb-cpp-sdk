@@ -1,5 +1,14 @@
 add_subdirectory(oauth2_token_exchange/helpers)
 
+add_ydb_test(NAME client-connection_string_ut
+  SOURCES
+    connection_string/connection_string_ut.cpp
+  LINK_LIBRARIES
+    impl-internal-common
+  LABELS
+    unit
+)
+
 add_ydb_test(NAME client-ydb_coordination_ut
   SOURCES
     coordination/coordination_ut.cpp
