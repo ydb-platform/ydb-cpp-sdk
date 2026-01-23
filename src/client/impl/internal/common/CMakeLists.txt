@@ -2,6 +2,9 @@ _ydb_sdk_add_library(impl-internal-common)
 
 target_link_libraries(impl-internal-common PUBLIC
   yutil
+  cgiparam
+  uri
+  client-types-exceptions
   grpc-client
   yql-public-issue
 )
