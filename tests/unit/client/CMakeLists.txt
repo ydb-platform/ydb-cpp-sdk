@@ -1,6 +1,6 @@
 add_subdirectory(oauth2_token_exchange/helpers)
 
-add_ydb_test(NAME client-connection_string_ut
+add_ydb_test(NAME client-connection_string_ut GTEST
   SOURCES
     connection_string/connection_string_ut.cpp
   LINK_LIBRARIES
