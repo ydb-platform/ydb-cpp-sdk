@@ -54,6 +54,19 @@ add_ydb_test(NAME client-impl-ydb_endpoints_ut
     unit
 )
 
+add_ydb_test(NAME client-impl-internal-local_dc_detector_ut GTEST
+  INCLUDE_DIRS
+    ${YDB_SDK_SOURCE_DIR}/src/client/impl/internal/local_dc_detector
+  SOURCES
+    local_dc_detector/local_dc_detector_ut.cpp
+  LINK_LIBRARIES
+    yutil
+    api-protos
+    impl-internal-local_dc_detector
+  LABELS
+    unit
+)
+
 add_ydb_test(NAME client-oauth2_ut
   SOURCES
     oauth2_token_exchange/credentials_ut.cpp

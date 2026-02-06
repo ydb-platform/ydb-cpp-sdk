@@ -22,6 +22,10 @@ TBalancingPolicy TBalancingPolicy::UsePreferableLocation(const std::optional<std
     return TBalancingPolicy(std::make_unique<TImpl>(TImpl::UsePreferableLocation(location)));
 }
 
+TBalancingPolicy TBalancingPolicy::UseDetectedLocalDC() {
+    return TBalancingPolicy(std::make_unique<TImpl>(TImpl::UseDetectedLocalDC()));
+}
+
 TBalancingPolicy TBalancingPolicy::UseAllNodes() {
     return TBalancingPolicy(std::make_unique<TImpl>(TImpl::UseAllNodes()));
 }

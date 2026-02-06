@@ -227,8 +227,10 @@ void TTableClient::TImpl::StartPeriodicHostScanTask() {
             const auto balancingPolicy = strongClient->DbDriverState_->GetBalancingPolicyType();
 
             // Try to find any host at foreign locations if prefer local dc
-            const ui64 foreignHost = (balancingPolicy == TBalancingPolicy::TImpl::EPolicyType::UsePreferableLocation) ?
-                ScanForeignLocations(strongClient) : 0;
+            const ui64 foreignHost = 
+                balancingPolicy == TBalancingPolicy::TImpl::EPolicyType::UsePreferableLocation ||
+                balancingPolicy == TBalancingPolicy::TImpl::EPolicyType::UseDetectedLocalDC ?
+                    ScanForeignLocations(strongClient) : 0;
 
             std::unordered_map<ui64, size_t> hostMap;
 
