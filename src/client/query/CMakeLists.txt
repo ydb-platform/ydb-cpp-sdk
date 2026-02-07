@@ -7,6 +7,7 @@ target_link_libraries(client-ydb_query PUBLIC
   impl-internal-make_request
   impl-session
   impl-internal-retry
+  client-metrics
   client-ydb_common_client
   client-ydb_driver
   client-ydb_query-impl

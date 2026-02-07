@@ -15,7 +15,9 @@
 #include <ydb-cpp-sdk/library/operation_id/operation_id.h>
 #include <src/client/common_client/impl/client.h>
 #include <src/client/query/impl/exec_query.h>
+#include <src/client/query/impl/query_spans.h>
 #include <ydb-cpp-sdk/client/retry/retry.h>
+#include <ydb-cpp-sdk/client/metrics/metrics.h>
 
 #include <src/api/grpc/ydb_query_v1.grpc.pb.h>
 
@@ -67,6 +69,12 @@ public:
     {
         SetStatCollector(DbDriverState_->StatCollector.GetClientStatCollector("Query"));
         SessionPool_.SetStatCollector(DbDriverState_->StatCollector.GetSessionPoolStatCollector("Query"));
+
+        if (auto metricsApi = Connections_->GetExtensionApi<NMetrics::IMetricsApi>()) {
+            if (auto traceProvider = metricsApi->GetTraceProvider()) {
+                Tracer_ = traceProvider->GetTracer("ydb-cpp-sdk-query");
+            }
+        }
     }
 
     ~TImpl() {
@@ -94,8 +102,21 @@ public:
     {
         CollectQuerySize(query);
         CollectParamsSize(params ? &params->GetProtoMap() : nullptr);
+
+        auto span = std::make_shared<TQuerySpan>(Tracer_, "ExecuteQuery", DbDriverState_->DiscoveryEndpoint);
+
         return TExecQueryImpl::ExecuteQuery(
-            Connections_, DbDriverState_, query, txControl, params, settings, session);
+            Connections_, DbDriverState_, query, txControl, params, settings, session)
+            .Apply([span](TAsyncExecuteQueryResult future) {
+                try {
+                    auto result = future.GetValue();
+                    span->End(result.GetStatus());
+                    return result;
+                } catch (...) {
+                    span->End(EStatus::CLIENT_INTERNAL_ERROR);
+                    throw;
+                }
+            });
     }
 
     NThreading::TFuture<TScriptExecutionOperation> ExecuteScript(const std::string& script, const std::optional<TParams>& params, const TExecuteScriptSettings& settings) {
@@ -162,7 +183,9 @@ public:
 
         auto promise = NThreading::NewPromise<TStatus>();
 
-        auto responseCb = [promise, session]
+        auto span = std::make_shared<TQuerySpan>(Tracer_, "Rollback", DbDriverState_->DiscoveryEndpoint);
+
+        auto responseCb = [promise, session, span]
             (Ydb::Query::RollbackTransactionResponse* response, TPlainStatus status) mutable {
                 try {
                     if (response) {
@@ -171,11 +194,15 @@ public:
                         TStatus rollbackTxStatus(TPlainStatus{static_cast<EStatus>(response->status()), std::move(opIssues),
                             status.Endpoint, std::move(status.Metadata)});
 
+                        span->End(rollbackTxStatus.GetStatus());
+
                         promise.SetValue(std::move(rollbackTxStatus));
                     } else {
+                        span->End(status.Status);
                         promise.SetValue(TStatus(std::move(status)));
                     }
                 } catch (...) {
+                    span->End(EStatus::CLIENT_INTERNAL_ERROR);
                     promise.SetException(std::current_exception());
                 }
             };
@@ -203,7 +230,9 @@ public:
 
         auto promise = NThreading::NewPromise<TCommitTransactionResult>();
 
-        auto responseCb = [promise, session]
+        auto span = std::make_shared<TQuerySpan>(Tracer_, "Commit", DbDriverState_->DiscoveryEndpoint);
+
+        auto responseCb = [promise, session, span]
             (Ydb::Query::CommitTransactionResponse* response, TPlainStatus status) mutable {
                 try {
                     if (response) {
@@ -212,12 +241,16 @@ public:
                         TStatus commitTxStatus(TPlainStatus{static_cast<EStatus>(response->status()), std::move(opIssues),
                             status.Endpoint, std::move(status.Metadata)});
 
+                        span->End(commitTxStatus.GetStatus());
+
                         TCommitTransactionResult commitTxResult(std::move(commitTxStatus));
                         promise.SetValue(std::move(commitTxResult));
                     } else {
+                        span->End(status.Status);
                         promise.SetValue(TCommitTransactionResult(TStatus(std::move(status))));
                     }
                 } catch (...) {
+                    span->End(EStatus::CLIENT_INTERNAL_ERROR);
                     promise.SetException(std::current_exception());
                 }
             };
@@ -425,10 +458,11 @@ public:
     TAsyncCreateSessionResult GetSession(const TCreateSessionSettings& settings) {
         class TQueryClientGetSessionCtx : public NSessionPool::IGetSessionCtx {
         public:
-            TQueryClientGetSessionCtx(std::shared_ptr<TQueryClient::TImpl> client, const TCreateSessionSettings& settings)
+            TQueryClientGetSessionCtx(std::shared_ptr<TQueryClient::TImpl> client, const TCreateSessionSettings& settings, std::shared_ptr<TQuerySpan> span)
                 : Promise(NThreading::NewPromise<TCreateSessionResult>())
                 , Client(client)
                 , RpcSettings(TRpcRequestSettings::Make(settings))
+                , Span(span)
             {}
 
             TAsyncCreateSessionResult GetFuture() {
@@ -437,6 +471,7 @@ public:
 
             void ReplyError(TStatus status) override {
                 TSession session;
+                if (Span) Span->End(status.GetStatus());
                 ScheduleReply(TCreateSessionResult(std::move(status), std::move(session)));
             }
 
@@ -449,14 +484,17 @@ public:
                     )
                 );
 
+                if (Span) Span->End(EStatus::SUCCESS);
                 ScheduleReply(std::move(val));
             }
 
             void ReplyNewSession() override {
                 Client->CreateAttachedSession(RpcSettings).Subscribe(
-                    [promise{std::move(Promise)}](TAsyncCreateSessionResult future) mutable
+                    [promise{std::move(Promise)}, span = Span](TAsyncCreateSessionResult future) mutable
                 {
-                    promise.SetValue(future.ExtractValue());
+                    auto val = future.ExtractValue();
+                    if (span) span->End(val.GetStatus());
+                    promise.SetValue(std::move(val));
                 });
             }
 
@@ -481,9 +519,11 @@ public:
             NThreading::TPromise<TCreateSessionResult> Promise;
             std::shared_ptr<TQueryClient::TImpl> Client;
             const TRpcRequestSettings RpcSettings;
+            std::shared_ptr<TQuerySpan> Span;
         };
 
-        auto ctx = std::make_unique<TQueryClientGetSessionCtx>(shared_from_this(), settings);
+        auto span = std::make_shared<TQuerySpan>(Tracer_, "CreateSession", DbDriverState_->DiscoveryEndpoint);
+        auto ctx = std::make_unique<TQueryClientGetSessionCtx>(shared_from_this(), settings, span);
         auto future = ctx->GetFuture();
         SessionPool_.GetSession(std::move(ctx));
 
@@ -552,6 +592,7 @@ public:
     }
 
 private:
+    std::shared_ptr<NMetrics::ITracer> Tracer_;
     NSdkStats::TStatCollector::TClientRetryOperationStatCollector RetryOperationStatCollector_;
     NSdkStats::TAtomicHistogram<::NMonitoring::THistogram> QuerySizeHistogram_;
     NSdkStats::TAtomicHistogram<::NMonitoring::THistogram> ParamsSizeHistogram_;
