@@ -581,6 +581,18 @@ public:
     ::NMonitoring::TMetricRegistry* GetMetricRegistry() override;
     void RegisterExtension(IExtension* extension);
     void RegisterExtensionApi(IExtensionApi* api);
+
+    template<typename T>
+    T* GetExtensionApi() {
+        std::lock_guard lock(ExtensionsLock_);
+        for (const auto& api : ExtensionApis_) {
+            if (auto ptr = dynamic_cast<T*>(api.get())) {
+                return ptr;
+            }
+        }
+        return nullptr;
+    }
+
     void SetDiscoveryMutator(IDiscoveryMutatorApi::TMutatorCb&& cb);
     const TLog& GetLog() const override;
 
