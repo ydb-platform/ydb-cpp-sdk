@@ -48,3 +48,5 @@ if (YDB_SDK_TESTS)
       unit
   )
 endif()
+
+add_subdirectory(subscription)

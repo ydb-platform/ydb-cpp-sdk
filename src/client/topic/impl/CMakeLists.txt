@@ -9,6 +9,7 @@ target_link_libraries(client-ydb_topic-impl PUBLIC
   persqueue-obfuscate
   api-grpc-draft
   api-grpc
+  threading-future-subscription
   impl-internal-make_request
   client-ydb_common_client-impl
   client-ydb_driver
