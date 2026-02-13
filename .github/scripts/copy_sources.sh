@@ -25,6 +25,7 @@ rm -r $tmp_dir/tests/unit/client/draft
 mkdir -p $tmp_dir/src/api/client/yc_private
 mkdir -p $tmp_dir/src/api/client/yc_public
 
+cp -r $1/ydb/public/api/client/yc_private/accessservice/sensitive.proto $tmp_dir/src/api/client/yc_private/accessservice/sensitive.proto
 cp -r $1/ydb/public/api/client/yc_private/iam $tmp_dir/src/api/client/yc_private
 cp -r $1/ydb/public/api/client/yc_private/operation $tmp_dir/src/api/client/yc_private
 cp -r $1/ydb/public/api/client/yc_public/common $tmp_dir/src/api/client/yc_public
