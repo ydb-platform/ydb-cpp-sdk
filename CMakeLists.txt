@@ -10,6 +10,7 @@ project(YDB-CPP-SDK VERSION ${YDB_SDK_VERSION} LANGUAGES C CXX ASM)
 option(YDB_SDK_INSTALL "Install YDB C++ SDK" Off)
 option(YDB_SDK_TESTS "Build YDB C++ SDK tests" Off)
 option(YDB_SDK_EXAMPLES "Build YDB C++ SDK examples" On)
+option(YDB_SDK_ODBC "Build YDB ODBC driver" On)
 set(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET "" CACHE STRING "Name of cmake target preparing google common proto library")
 option(YDB_SDK_USE_RAPID_JSON "Search for rapid json library in system" ON)
 
@@ -60,6 +61,10 @@ add_subdirectory(src)
 add_subdirectory(util)
 
 #_ydb_sdk_validate_public_headers()
+
+if (YDB_SDK_ODBC)
+  add_subdirectory(odbc)
+endif()
 
 if (YDB_SDK_EXAMPLES)
   add_subdirectory(examples)
