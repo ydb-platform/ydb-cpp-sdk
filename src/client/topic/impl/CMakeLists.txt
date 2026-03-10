@@ -36,6 +36,7 @@ target_sources(client-ydb_topic-impl
     read_session_event.cpp
     read_session.cpp
     topic_impl.cpp
+    producer.cpp
     topic.cpp
     transaction.cpp
     write_session_impl.cpp
