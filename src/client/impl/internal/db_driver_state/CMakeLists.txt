@@ -7,6 +7,7 @@ target_link_libraries(impl-internal-db_driver_state PUBLIC
   client-impl-ydb_endpoints
   impl-internal-logger
   impl-internal-plain_status
+  impl-internal-local_dc_detector
   client-types-credentials
 )
 

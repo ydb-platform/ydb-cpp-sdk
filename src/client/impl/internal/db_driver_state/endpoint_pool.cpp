@@ -41,6 +41,10 @@ std::pair<NThreading::TFuture<TEndpointUpdateResult>, bool> TEndpointPool::Updat
         TListEndpointsResult result = future.GetValue();
         std::vector<std::string> removed;
         if (result.DiscoveryStatus.Status == EStatus::SUCCESS) {
+            if (BalancingPolicy_.PolicyType == TBalancingPolicy::TImpl::EPolicyType::UseDetectedLocalDC) {
+                LocalDCDetector_.DetectLocalDC(result.Result);
+            }
+
             std::vector<TEndpointRecord> records;
             // Is used to convert float to integer load factor
             // same integer values will be selected randomly.
@@ -182,6 +186,8 @@ bool TEndpointPool::IsPreferredEndpoint(const Ydb::Discovery::EndpointInfo& endp
             return true;
         case TBalancingPolicy::TImpl::EPolicyType::UsePreferableLocation:
             return endpoint.location() == BalancingPolicy_.Location.value_or(selfLocation);
+        case TBalancingPolicy::TImpl::EPolicyType::UseDetectedLocalDC:
+            return LocalDCDetector_.IsLocalDC(endpoint.location());
         case TBalancingPolicy::TImpl::EPolicyType::UsePreferablePileState:
             if (auto it = pileStates.find(endpoint.bridge_pile_name()); it != pileStates.end()) {
                 return GetPileState(it->second.state()) == BalancingPolicy_.PileState;
