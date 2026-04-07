@@ -3,6 +3,8 @@
 #include <sql.h>
 #include <sqlext.h>
 
+#include <ydb-cpp-sdk/client/types/status/status.h>
+
 namespace NYdb {
 namespace NOdbc {
 
@@ -29,6 +31,9 @@ struct TBoundColumn {
 class IBindingFiller {
 public:
     virtual void FillBoundColumns() = 0;
+    virtual void OnStreamPartError(const TStatus& status) {
+        (void)status;
+    }
 
     virtual ~IBindingFiller() = default;
 };
