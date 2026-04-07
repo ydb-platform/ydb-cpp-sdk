@@ -1,26 +1,4 @@
-#include <gtest/gtest.h>
-
-#include <sql.h>
-#include <sqlext.h>
-
-#include <string>
-
-
-#define CHECK_ODBC_OK(rc, handle, type) \
-    ASSERT_TRUE((rc) == SQL_SUCCESS || (rc) == SQL_SUCCESS_WITH_INFO) << GetOdbcError(handle, type)
-
-std::string GetOdbcError(SQLHANDLE handle, SQLSMALLINT type) {
-    SQLCHAR sqlState[6], message[256];
-    SQLINTEGER nativeError;
-    SQLSMALLINT textLength;
-    SQLRETURN rc = SQLGetDiagRec(type, handle, 1, sqlState, &nativeError, message, sizeof(message), &textLength);
-    if (rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO) {
-        return std::string((char*)sqlState) + ": " + (char*)message;
-    }
-    return "Unknown ODBC error";
-}
-
-const char* kConnStr = "Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;";
+#include "test_utils.h"
 
 TEST(OdbcBasic, SimpleQuery) {
     SQLHENV env;
