@@ -79,9 +79,22 @@ SQLRETURN TConnection::Connect(const std::string& serverName,
 }
 
 SQLRETURN TConnection::Disconnect() {
+    QuerySession_.reset();
+    Tx_.reset();
+    YdbSchemeClient_.reset();
+    YdbTableClient_.reset();
     YdbClient_.reset();
     YdbDriver_.reset();
     return SQL_SUCCESS;
+}
+
+NQuery::TSession& TConnection::GetOrCreateQuerySession() {
+    if (!QuerySession_) {
+        auto sessionResult = YdbClient_->GetSession().ExtractValueSync();
+        NStatusHelpers::ThrowOnError(sessionResult);
+        QuerySession_.emplace(std::move(sessionResult.GetSession()));
+    }
+    return *QuerySession_;
 }
 
 std::unique_ptr<TStatement> TConnection::CreateStatement() {
@@ -113,6 +126,10 @@ const std::optional<NQuery::TTransaction>& TConnection::GetTx() {
 
 void TConnection::SetTx(const NQuery::TTransaction& tx) {
     Tx_ = tx;
+}
+
+void TConnection::Reset() {
+    Tx_.reset();
 }
 
 SQLRETURN TConnection::CommitTx() {

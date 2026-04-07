@@ -14,6 +14,7 @@ TStatement::TStatement(TConnection* conn)
     : Conn_(conn) {}
 
 SQLRETURN TStatement::Prepare(const std::string& statementText) {
+    StreamFetchError_ = false;
     Cursor_.reset();
     PreparedQuery_ = statementText;
     IsPrepared_ = true;
@@ -24,32 +25,68 @@ SQLRETURN TStatement::Execute() {
     if (!IsPrepared_ || PreparedQuery_.empty()) {
         throw TOdbcException("HY007", 0, "No prepared statement");
     }
+    StreamFetchError_ = false;
     Cursor_.reset();
     auto* client = Conn_->GetClient();
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
     }
     NYdb::TParams params = BuildParams();
-    
-    if (!Conn_->GetTx()) {
-        auto sessionResult = client->GetSession().ExtractValueSync();
-        NStatusHelpers::ThrowOnError(sessionResult);
 
-        auto session = sessionResult.GetSession();
-        auto beginTxResult = session.BeginTransaction(NQuery::TTxSettings::SerializableRW()).ExtractValueSync();
-        NStatusHelpers::ThrowOnError(beginTxResult);
-
-        Conn_->SetTx(beginTxResult.GetTransaction());
+    if (Conn_->GetAutocommit()){
+        Conn_->Reset();
     }
-    auto session = Conn_->GetTx()->GetSession();
-    auto iterator = session.StreamExecuteQuery(PreparedQuery_,
-        NQuery::TTxControl::Tx(*Conn_->GetTx()).CommitTx(Conn_->GetAutocommit()), params).ExtractValueSync();
+    
+    auto& session = Conn_->GetOrCreateQuerySession();
+
+    auto iterator = CreateExecuteIterator(session, params);
     NStatusHelpers::ThrowOnError(iterator);
 
-    Cursor_ = CreateExecCursor(this, std::move(iterator));
+    std::optional<NQuery::TExecuteQueryPart> prefetchedResultPart = PrefetchFirstResultPart(iterator);
+    if (prefetchedResultPart) {
+        Cursor_ = CreateExecCursor(this, std::move(iterator), std::move(prefetchedResultPart));
+    } else {
+        Cursor_.reset();
+    }
     IsPrepared_ = false;
     PreparedQuery_.clear();
     return SQL_SUCCESS;
+}
+
+NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession& session, const NYdb::TParams& params){
+    if (Conn_->GetAutocommit()) {
+        return session.StreamExecuteQuery(
+            PreparedQuery_,
+            NQuery::TTxControl::NoTx(),
+            params).ExtractValueSync();
+    }
+    if (!Conn_->GetTx()) {
+        auto beginTxResult = session.BeginTransaction(NQuery::TTxSettings::SerializableRW()).ExtractValueSync();
+        NStatusHelpers::ThrowOnError(beginTxResult);
+        Conn_->SetTx(beginTxResult.GetTransaction());
+    }
+    return session.StreamExecuteQuery(
+        PreparedQuery_,
+        NQuery::TTxControl::Tx(*Conn_->GetTx()).CommitTx(false),
+        params).ExtractValueSync();
+}
+
+std::optional<NQuery::TExecuteQueryPart> TStatement::PrefetchFirstResultPart(NQuery::TExecuteQueryIterator& iterator){
+    std::optional<NQuery::TExecuteQueryPart> prefetchedResultPart;
+    while (true) {
+        auto part = iterator.ReadNext().ExtractValueSync();
+        if (part.EOS()) {
+            break;
+        }
+        if (!part.IsSuccess()) {
+            NStatusHelpers::ThrowOnError(part);
+        }
+        if (part.HasResultSet()) {
+            prefetchedResultPart.emplace(std::move(part));
+            break;
+        }
+    }
+    return prefetchedResultPart;
 }
 
 SQLRETURN TStatement::Fetch() {
@@ -57,7 +94,17 @@ SQLRETURN TStatement::Fetch() {
         Cursor_.reset();
         return SQL_NO_DATA;
     }
-    return Cursor_->Fetch() ? SQL_SUCCESS : SQL_NO_DATA;
+    StreamFetchError_ = false;
+    if (!Cursor_->Fetch()) {
+        return StreamFetchError_ ? SQL_ERROR : SQL_NO_DATA;
+    }
+    return SQL_SUCCESS;
+}
+
+void TStatement::OnStreamPartError(const TStatus& status) {
+    ClearErrors();
+    AddError(status);
+    StreamFetchError_ = true;
 }
 
 SQLRETURN TStatement::GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, 

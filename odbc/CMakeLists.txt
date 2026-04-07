@@ -23,7 +23,6 @@ target_link_libraries(ydb-odbc
     YDB-CPP-SDK::Table
     YDB-CPP-SDK::Scheme
     YDB-CPP-SDK::Driver
-    ODBC::ODBC
 )
 
 set_target_properties(ydb-odbc PROPERTIES
@@ -43,7 +42,7 @@ add_subdirectory(tests)
 
 include(GNUInstallDirs)
 
-install(FILES 
+install(FILES
   odbcinst.ini
   DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/odbcinst.d
   RENAME ydb-odbc.ini

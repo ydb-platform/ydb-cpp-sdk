@@ -66,9 +66,16 @@ public:
 
     SQLRETURN GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLINTEGER* nativeError, 
                         SQLCHAR* messageText, SQLSMALLINT bufferLength, SQLSMALLINT* textLength);
+    SQLRETURN GetDiagField(SQLSMALLINT recNumber, SQLSMALLINT diagIdentifier,
+                           SQLPOINTER diagInfoPtr, SQLSMALLINT bufferLength, SQLSMALLINT* stringLengthPtr);
 
 private:
     TErrorList Errors_;
+};
+
+enum class ENullInputHandlePolicy : unsigned char {
+    Reject,
+    Allow,
 };
 
 template <typename Handle>
@@ -91,7 +98,10 @@ SQLRETURN HandleOdbcExceptions(SQLHANDLE handlePtr, std::function<SQLRETURN(Hand
     }
 }
 
-SQLRETURN HandleOdbcExceptions(SQLHANDLE handlePtr, std::function<SQLRETURN()>&& func);
+SQLRETURN HandleOdbcExceptions(
+    SQLHANDLE handlePtr,
+    std::function<SQLRETURN()>&& func,
+    ENullInputHandlePolicy nullInputPolicy = ENullInputHandlePolicy::Reject);
 
 } // namespace NOdbc
 } // namespace NYdb
