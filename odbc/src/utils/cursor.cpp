@@ -8,9 +8,11 @@ namespace NOdbc {
 
 class TExecCursor : public ICursor {
 public:
-    TExecCursor(IBindingFiller* bindingFiller, NQuery::TExecuteQueryIterator iterator)
+    TExecCursor(IBindingFiller* bindingFiller, NQuery::TExecuteQueryIterator iterator,
+            std::optional<NQuery::TExecuteQueryPart> prefetchedPart)
         : BindingFiller_(bindingFiller)
         , Iterator_(std::move(iterator))
+        , PrefetchedPart_(std::move(prefetchedPart))
     {}
 
     bool Fetch() override {
@@ -22,11 +24,19 @@ public:
                 }
                 ResultSetParser_.reset();
             }
-            auto part = Iterator_.ReadNext().ExtractValueSync();
+            NQuery::TExecuteQueryPart part = [&]() {
+                if (PrefetchedPart_) {
+                    auto p = std::move(*PrefetchedPart_);
+                    PrefetchedPart_.reset();
+                    return p;
+                }
+                return Iterator_.ReadNext().ExtractValueSync();
+            }();
             if (part.EOS()) {
                 return false;
             }
             if (!part.IsSuccess()) {
+                BindingFiller_->OnStreamPartError(part);
                 return false;
             }
             if (part.HasResultSet()) {
@@ -62,7 +72,7 @@ private:
 
     IBindingFiller* BindingFiller_;
     NQuery::TExecuteQueryIterator Iterator_;
-    // std::optional<NQuery::TExecuteQueryPart> Part_;
+    std::optional<NQuery::TExecuteQueryPart> PrefetchedPart_;
     std::unique_ptr<TResultSetParser> ResultSetParser_;
     std::vector<TColumnMeta> Columns_;
 };
@@ -107,8 +117,10 @@ private:
     int64_t Cursor_ = -1;
 };
 
-std::unique_ptr<ICursor> CreateExecCursor(IBindingFiller* bindingFiller, NQuery::TExecuteQueryIterator iterator) {
-    return std::make_unique<TExecCursor>(bindingFiller, std::move(iterator));
+std::unique_ptr<ICursor> CreateExecCursor(IBindingFiller* bindingFiller,
+        NQuery::TExecuteQueryIterator iterator,
+        std::optional<NQuery::TExecuteQueryPart> prefetchedPart) {
+    return std::make_unique<TExecCursor>(bindingFiller, std::move(iterator), std::move(prefetchedPart));
 }
 
 std::unique_ptr<ICursor> CreateVirtualCursor(IBindingFiller* bindingFiller, const std::vector<TColumnMeta>& columns, const TTable& table) {
