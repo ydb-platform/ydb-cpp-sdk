@@ -39,8 +39,11 @@ SQLRETURN SQL_API SQLAllocHandle(SQLSMALLINT handleType,
         }
 
         case SQL_HANDLE_DBC: {
-            return NYdb::NOdbc::HandleOdbcExceptions(inputHandle, [&]() {
-                *outputHandle = new NYdb::NOdbc::TConnection();
+            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TEnvironment>(inputHandle, [&](auto* env) {
+                auto conn = std::make_unique<NYdb::NOdbc::TConnection>();
+                conn->SetEnvironment(env);
+                env->RegisterConnection(conn.get());
+                *outputHandle = conn.release();
                 return SQL_SUCCESS;
             });
         }
@@ -66,6 +69,10 @@ SQLRETURN SQL_API SQLFreeHandle(SQLSMALLINT handleType, SQLHANDLE handle) {
         }
         case SQL_HANDLE_DBC: {
             return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(handle, [](auto* conn) {
+                auto* env = conn->GetEnvironment();
+                if (env != nullptr){
+                    env->UnregisterConnection(conn);
+                }
                 delete conn;
                 return SQL_SUCCESS;
             });
@@ -281,8 +288,9 @@ SQLRETURN SQL_API SQLEndTran(SQLSMALLINT handleType, SQLHANDLE handle, SQLSMALLI
             });
         }
         case SQL_HANDLE_ENV: {
-            // TODO: if's list of connections in ENV, go through them and commit/rollback transactions
-            return SQL_SUCCESS;
+            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TEnvironment>(handle, [&](auto* env) -> SQLRETURN {
+                return env->EndTran(completionType);
+            });
         }
         default:
             return SQL_ERROR;
