@@ -30,6 +30,7 @@ public:
                      SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd);
 
     void FillBoundColumns() override;
+    void OnStreamPartError(const TStatus& status) override;
 
     SQLRETURN Close(bool force = false);
     void UnbindColumns();
@@ -63,9 +64,13 @@ private:
 
     std::vector<TBoundColumn> BoundColumns_;
     std::vector<TBoundParam> BoundParams_;
+    bool StreamFetchError_ = false;
 
     NYdb::TParams BuildParams();
     
+    NQuery::TExecuteQueryIterator CreateExecuteIterator(NQuery::TSession& session, const NYdb::TParams& params);
+    std::optional<NQuery::TExecuteQueryPart> PrefetchFirstResultPart(NQuery::TExecuteQueryIterator& iterator);
+
     std::vector<NScheme::TSchemeEntry> GetPatternEntries(const std::string& pattern);
     SQLRETURN VisitEntry(const std::string& path, const std::string& pattern, std::vector<NScheme::TSchemeEntry>& resultEntries);
     bool IsPatternMatch(const std::string& path, const std::string& pattern);
