@@ -146,5 +146,16 @@ SQLRETURN TConnection::RollbackTx() {
     return SQL_SUCCESS;
 }
 
+void TConnection::SetEnvironment(TEnvironment* env){
+    if (ParentEnv_){
+        throw std::logic_error("Connection already bound to environment");
+    }
+    ParentEnv_ = env;
+}
+
+TEnvironment* TConnection::GetEnvironment(){
+    return ParentEnv_;
+}
+
 } // namespace NOdbc
 } // namespace NYdb
