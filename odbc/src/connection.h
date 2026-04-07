@@ -27,13 +27,13 @@ private:
     std::unique_ptr<NTable::TTableClient> YdbTableClient_;
     std::unique_ptr<NScheme::TSchemeClient> YdbSchemeClient_;
     std::optional<NQuery::TTransaction> Tx_;
-    /** Одна сессия KQP на ODBC-соединение: DDL/DML/SELECT видят одну и ту же схему без «новой» сессии на каждый Execute. */
     std::optional<NQuery::TSession> QuerySession_;
 
     std::vector<std::unique_ptr<TStatement>> Statements_;
     std::string Endpoint_;
     std::string Database_;
     std::string AuthToken_;
+    TEnvironment* ParentEnv_;
 
     bool Autocommit_ = true;
 
@@ -62,6 +62,9 @@ public:
 
     SQLRETURN CommitTx();
     SQLRETURN RollbackTx();
+
+    void SetEnvironment(TEnvironment* env);
+    TEnvironment* GetEnvironment();
 };
 
 } // namespace NOdbc
