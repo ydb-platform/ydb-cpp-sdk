@@ -6,6 +6,7 @@
 
 #include <sql.h>
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -30,7 +31,9 @@ public:
     virtual const std::vector<TColumnMeta>& GetColumnMeta() const = 0;
 };
 
-std::unique_ptr<ICursor> CreateExecCursor(IBindingFiller* bindingFiller, NYdb::NQuery::TExecuteQueryIterator iterator);
+std::unique_ptr<ICursor> CreateExecCursor(IBindingFiller* bindingFiller,
+    NYdb::NQuery::TExecuteQueryIterator iterator,
+    std::optional<NYdb::NQuery::TExecuteQueryPart> prefetchedPart = std::nullopt);
 std::unique_ptr<ICursor> CreateVirtualCursor(IBindingFiller* bindingFiller, const std::vector<TColumnMeta>& columns, const TTable& table);
 
 } // namespace NOdbc

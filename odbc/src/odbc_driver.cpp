@@ -29,10 +29,13 @@ SQLRETURN SQL_API SQLAllocHandle(SQLSMALLINT handleType,
 
     switch (handleType) {
         case SQL_HANDLE_ENV: {
-            return NYdb::NOdbc::HandleOdbcExceptions(inputHandle, [&]() {
-                *outputHandle = new NYdb::NOdbc::TEnvironment();
-                return SQL_SUCCESS;
-            });
+            return NYdb::NOdbc::HandleOdbcExceptions(
+                inputHandle,
+                [&]() {
+                    *outputHandle = new NYdb::NOdbc::TEnvironment();
+                    return SQL_SUCCESS;
+                },
+                NYdb::NOdbc::ENullInputHandlePolicy::Allow);
         }
 
         case SQL_HANDLE_DBC: {
@@ -201,6 +204,34 @@ SQLRETURN SQL_API SQLGetDiagRec(SQLSMALLINT handleType,
         case SQL_HANDLE_STMT: {
             return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(handle, [&](auto* stmt) {
                 return stmt->GetDiagRec(recNumber, sqlState, nativeError, messageText, bufferLength, textLength);
+            });
+        }
+        default:
+            return SQL_ERROR;
+    }
+}
+
+SQLRETURN SQL_API SQLGetDiagField(SQLSMALLINT handleType,
+                                  SQLHANDLE handle,
+                                  SQLSMALLINT recNumber,
+                                  SQLSMALLINT diagIdentifier,
+                                  SQLPOINTER diagInfoPtr,
+                                  SQLSMALLINT bufferLength,
+                                  SQLSMALLINT* stringLengthPtr) {
+    switch (handleType) {
+        case SQL_HANDLE_ENV: {
+            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TEnvironment>(handle, [&](auto* env) {
+                return env->GetDiagField(recNumber, diagIdentifier, diagInfoPtr, bufferLength, stringLengthPtr);
+            });
+        }
+        case SQL_HANDLE_DBC: {
+            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(handle, [&](auto* conn) {
+                return conn->GetDiagField(recNumber, diagIdentifier, diagInfoPtr, bufferLength, stringLengthPtr);
+            });
+        }
+        case SQL_HANDLE_STMT: {
+            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(handle, [&](auto* stmt) {
+                return stmt->GetDiagField(recNumber, diagIdentifier, diagInfoPtr, bufferLength, stringLengthPtr);
             });
         }
         default:

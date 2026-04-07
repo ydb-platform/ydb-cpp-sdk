@@ -104,8 +104,58 @@ SQLRETURN TErrorManager::GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQ
     return SQL_SUCCESS;
 }
 
-SQLRETURN HandleOdbcExceptions(SQLHANDLE handlePtr, std::function<SQLRETURN()>&& func) {
-    if (!handlePtr) {
+SQLRETURN TErrorManager::GetDiagField(SQLSMALLINT recNumber, SQLSMALLINT diagIdentifier,
+                                      SQLPOINTER diagInfoPtr, SQLSMALLINT bufferLength, SQLSMALLINT* stringLengthPtr) {
+    const SQLSMALLINT count = static_cast<SQLSMALLINT>(Errors_.size());
+
+    if (recNumber == 0) {
+        if (diagIdentifier == SQL_DIAG_NUMBER) {
+            if (!diagInfoPtr) {
+                return SQL_ERROR;
+            }
+            *static_cast<SQLINTEGER*>(diagInfoPtr) = count;
+            return SQL_SUCCESS;
+        }
+        return SQL_NO_DATA;
+    }
+
+    if (recNumber < 1 || recNumber > count) {
+        return SQL_NO_DATA;
+    }
+
+    const auto& err = Errors_[recNumber - 1];
+    switch (diagIdentifier) {
+        case SQL_DIAG_SQLSTATE:
+            if (!diagInfoPtr) {
+                return SQL_ERROR;
+            }
+            strncpy((char*)diagInfoPtr, err.SqlState.c_str(), 6);
+            return SQL_SUCCESS;
+        case SQL_DIAG_NATIVE:
+            if (!diagInfoPtr) {
+                return SQL_ERROR;
+            }
+            *static_cast<SQLINTEGER*>(diagInfoPtr) = err.NativeError;
+            return SQL_SUCCESS;
+        case SQL_DIAG_MESSAGE_TEXT:
+            if (!diagInfoPtr || bufferLength <= 0) {
+                return SQL_ERROR;
+            }
+            strncpy((char*)diagInfoPtr, err.Message.c_str(), bufferLength);
+            if (stringLengthPtr) {
+                *stringLengthPtr = static_cast<SQLSMALLINT>(err.Message.size());
+            }
+            return SQL_SUCCESS;
+        default:
+            return SQL_NO_DATA;
+    }
+}
+
+SQLRETURN HandleOdbcExceptions(
+    SQLHANDLE handlePtr,
+    std::function<SQLRETURN()>&& func,
+    ENullInputHandlePolicy nullInputPolicy) {
+    if (!handlePtr && nullInputPolicy != ENullInputHandlePolicy::Allow) {
         return SQL_INVALID_HANDLE;
     }
 
