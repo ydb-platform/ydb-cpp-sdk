@@ -27,6 +27,8 @@ private:
     std::unique_ptr<NTable::TTableClient> YdbTableClient_;
     std::unique_ptr<NScheme::TSchemeClient> YdbSchemeClient_;
     std::optional<NQuery::TTransaction> Tx_;
+    /** Одна сессия KQP на ODBC-соединение: DDL/DML/SELECT видят одну и ту же схему без «новой» сессии на каждый Execute. */
+    std::optional<NQuery::TSession> QuerySession_;
 
     std::vector<std::unique_ptr<TStatement>> Statements_;
     std::string Endpoint_;
@@ -47,6 +49,7 @@ public:
     void RemoveStatement(TStatement* stmt);
 
     NYdb::NQuery::TQueryClient* GetClient() { return YdbClient_.get(); }
+    NQuery::TSession& GetOrCreateQuerySession();
     NYdb::NTable::TTableClient* GetTableClient() { return YdbTableClient_.get(); }
     NScheme::TSchemeClient* GetSchemeClient() { return YdbSchemeClient_.get(); }
 
@@ -55,6 +58,7 @@ public:
 
     const std::optional<NQuery::TTransaction>& GetTx();
     void SetTx(const NQuery::TTransaction& tx);
+    void Reset();
 
     SQLRETURN CommitTx();
     SQLRETURN RollbackTx();
