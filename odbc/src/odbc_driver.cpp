@@ -299,17 +299,14 @@ SQLRETURN SQL_API SQLEndTran(SQLSMALLINT handleType, SQLHANDLE handle, SQLSMALLI
 
 SQLRETURN SQL_API SQLSetConnectAttr(SQLHDBC connectionHandle, SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER stringLength) {
     return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(connectionHandle, [&](auto* conn) {
-        if (attribute == SQL_ATTR_AUTOCOMMIT) {
-            if ((intptr_t)value == SQL_AUTOCOMMIT_ON) {
-                return conn->SetAutocommit(true);
-            } else if ((intptr_t)value == SQL_AUTOCOMMIT_OFF) {
-                return conn->SetAutocommit(false);
-            } else {
-                throw NYdb::NOdbc::TOdbcException("HY000", 0, "Invalid autocommit value");
-            }
-        }
-        // TODO: other attributes
-        throw NYdb::NOdbc::TOdbcException("HYC00", 0, "Optional feature not implemented");
+        return conn->SetConnectAttr(attribute, value, stringLength);
+    });
+}
+
+SQLRETURN SQL_API SQLGetConnectAttr(SQLHDBC connectionHandle, SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER bufferLength,
+                                    SQLINTEGER* stringLengthPtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(connectionHandle, [&](auto* conn) {
+        return conn->GetConnectAttr(attribute, value, bufferLength, stringLengthPtr);
     });
 }
 
@@ -373,6 +370,7 @@ SQLRETURN SQL_API SQLFetchScroll(SQLHSTMT statementHandle, SQLSMALLINT fetchOrie
         } else {
             throw NYdb::NOdbc::TOdbcException("HYC00", 0, "Only SQL_FETCH_NEXT is supported");
         }
+        //TODO other fetch-orientation
     });
 }
 
