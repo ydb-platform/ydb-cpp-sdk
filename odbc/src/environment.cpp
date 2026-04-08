@@ -8,9 +8,23 @@ TEnvironment::TEnvironment() : OdbcVersion_(SQL_OV_ODBC3) {}
 TEnvironment::~TEnvironment() {}
 
 SQLRETURN TEnvironment::SetAttribute(SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER stringLength) {
-    // TODO: реализовать обработку атрибутов
-    OdbcVersion_ = attribute == SQL_ATTR_ODBC_VERSION ? reinterpret_cast<intptr_t>(value) : 0;
-    return SQL_SUCCESS;
+    switch (attribute) {
+        case SQL_ATTR_ODBC_VERSION: {
+            if (!value) {
+                return AddError("HY009", 0, "Invalid use of null pointer");
+            }
+            OdbcVersion_ = static_cast<SQLINTEGER>(reinterpret_cast<intptr_t>(value));
+            return SQL_SUCCESS;
+        }
+        case SQL_ATTR_OUTPUT_NTS: {
+            if (value && static_cast<SQLINTEGER>(reinterpret_cast<intptr_t>(value)) != SQL_TRUE) {
+                return AddError("HY024", 0, "SQL_ATTR_OUTPUT_NTS must be SQL_TRUE");
+            }
+            return SQL_SUCCESS;
+        }
+        default:
+            return AddError("HYC00", 0, "Optional feature not implemented");
+    }
 }
 
 void TEnvironment::RegisterConnection(TConnection* conn){
