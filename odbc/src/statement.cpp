@@ -36,7 +36,7 @@ SQLRETURN TStatement::Execute() {
     if (Conn_->GetAutocommit()){
         Conn_->Reset();
     }
-    
+
     auto& session = Conn_->GetOrCreateQuerySession();
 
     auto iterator = CreateExecuteIterator(session, params);
@@ -55,13 +55,20 @@ SQLRETURN TStatement::Execute() {
 
 NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession& session, const NYdb::TParams& params){
     if (Conn_->GetAutocommit()) {
+        const auto txSettings = Conn_->MakeTxSettings();
+        if (txSettings.GetMode() == NQuery::TTxSettings::TS_SERIALIZABLE_RW) {
+            return session.StreamExecuteQuery(
+                PreparedQuery_,
+                NQuery::TTxControl::NoTx(),
+                params).ExtractValueSync();
+        }
         return session.StreamExecuteQuery(
             PreparedQuery_,
-            NQuery::TTxControl::NoTx(),
+            NQuery::TTxControl::BeginTx(txSettings).CommitTx(),
             params).ExtractValueSync();
     }
     if (!Conn_->GetTx()) {
-        auto beginTxResult = session.BeginTransaction(NQuery::TTxSettings::SerializableRW()).ExtractValueSync();
+        auto beginTxResult = session.BeginTransaction(Conn_->MakeTxSettings()).ExtractValueSync();
         NStatusHelpers::ThrowOnError(beginTxResult);
         Conn_->SetTx(beginTxResult.GetTransaction());
     }

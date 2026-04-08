@@ -2,9 +2,8 @@
 #include "statement.h"
 #include "utils/error_manager.h"
 
-#include <cstring>
-#include <string>
 #include <map>
+#include <string>
 
 #include <sql.h>
 #include <sqlext.h>
@@ -107,8 +106,8 @@ void TConnection::RemoveStatement(TStatement* stmt) {
 }
 
 SQLRETURN TConnection::SetAutocommit(bool value) {
-    Autocommit_ = value;
-    if (Autocommit_ && Tx_) {
+    Attributes_.SetAutocommit(value);
+    if (Attributes_.GetAutocommit() && Tx_) {
         auto status = Tx_->Commit().ExtractValueSync();
         NStatusHelpers::ThrowOnError(status);
         Tx_.reset();
@@ -117,7 +116,22 @@ SQLRETURN TConnection::SetAutocommit(bool value) {
 }
 
 bool TConnection::GetAutocommit() const {
-    return Autocommit_;
+    return Attributes_.GetAutocommit();
+}
+
+SQLRETURN TConnection::SetConnectAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER stringLength) {
+    return Attributes_.SetConnectAttr(attr, value, stringLength, [this](bool autocommit) {
+        return SetAutocommit(autocommit);
+    }, *this);
+}
+
+SQLRETURN TConnection::GetConnectAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER bufferLength,
+                                      SQLINTEGER* stringLengthPtr) {
+    return Attributes_.GetConnectAttr(attr, value, bufferLength, stringLengthPtr, *this);
+}
+
+NQuery::TTxSettings TConnection::MakeTxSettings() const {
+    return Attributes_.MakeTxSettings();
 }
 
 const std::optional<NQuery::TTransaction>& TConnection::GetTx() {

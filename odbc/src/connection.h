@@ -1,6 +1,7 @@
 #pragma once
 
 #include "environment.h"
+#include "connection_attributes.h"
 #include "utils/error_manager.h"
 
 #include <ydb-cpp-sdk/client/driver/driver.h>
@@ -35,8 +36,7 @@ private:
     std::string AuthToken_;
     TEnvironment* ParentEnv_;
 
-    bool Autocommit_ = true;
-
+    TConnectionAttributes Attributes_;
 public:
     SQLRETURN Connect(const std::string& serverName,
                       const std::string& userName,
@@ -55,6 +55,10 @@ public:
 
     SQLRETURN SetAutocommit(bool value);
     bool GetAutocommit() const;
+
+    SQLRETURN SetConnectAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER stringLength);
+    SQLRETURN GetConnectAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr);
+    NQuery::TTxSettings MakeTxSettings() const;
 
     const std::optional<NQuery::TTransaction>& GetTx();
     void SetTx(const NQuery::TTransaction& tx);
