@@ -4,6 +4,7 @@ target_link_libraries(client-ydb_scheme PUBLIC
   yutil
   enum_serialization_runtime
   impl-internal-make_request
+  impl-internal-scheme_helpers
   client-ydb_common_client-impl
   client-ydb_driver
 )

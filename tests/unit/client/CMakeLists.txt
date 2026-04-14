@@ -9,11 +9,10 @@ add_ydb_test(NAME client-connection_string_ut GTEST
     unit
 )
 
-add_ydb_test(NAME client-ydb_coordination_ut
+add_ydb_test(NAME client-coordination_ut
   SOURCES
     coordination/coordination_ut.cpp
   LINK_LIBRARIES
-    yutil
     YDB-CPP-SDK::Coordination
     api-grpc
   LABELS
@@ -24,14 +23,13 @@ add_ydb_test(NAME client-extensions-discovery_mutator_ut
   SOURCES
     discovery_mutator/discovery_mutator_ut.cpp
   LINK_LIBRARIES
-    yutil
     YDB-CPP-SDK::DiscoveryMutator
     YDB-CPP-SDK::Table
   LABELS
     unit
 )
 
-add_ydb_test(NAME client-ydb_driver_ut
+add_ydb_test(NAME client-driver_ut
   SOURCES
     driver/driver_ut.cpp
   LINK_LIBRARIES
@@ -42,7 +40,7 @@ add_ydb_test(NAME client-ydb_driver_ut
     unit
 )
 
-add_ydb_test(NAME client-impl-ydb_endpoints_ut
+add_ydb_test(NAME client-endpoints_ut
   INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}/src/client/impl/ydb_endpoints
   SOURCES
@@ -54,12 +52,24 @@ add_ydb_test(NAME client-impl-ydb_endpoints_ut
     unit
 )
 
+add_ydb_test(NAME client-iam_ut GTEST
+  SOURCES
+    iam/iam_ut.cpp
+  LINK_LIBRARIES
+    api-grpc
+    cpp-testing-common
+    http-server
+    json
+    YDB-CPP-SDK::Iam
+  LABELS
+    unit
+)
+
 add_ydb_test(NAME client-oauth2_ut
   SOURCES
     oauth2_token_exchange/credentials_ut.cpp
     oauth2_token_exchange/jwt_token_source_ut.cpp
   LINK_LIBRARIES
-    yutil
     http-server
     json
     string_utils-base64
@@ -69,32 +79,40 @@ add_ydb_test(NAME client-oauth2_ut
     unit
 )
 
-add_ydb_test(NAME client-ydb_params_ut GTEST
+add_ydb_test(NAME client-params_ut GTEST
   SOURCES
     params/params_ut.cpp
   LINK_LIBRARIES
-    yutil
     YDB-CPP-SDK::Params
   LABELS
     unit
 )
 
-add_ydb_test(NAME client-ydb_result_ut
+add_ydb_test(NAME client-table_ut GTEST
+  SOURCES
+    table/table_ut.cpp
+  LINK_LIBRARIES
+    api-grpc
+    cpp-testing-common
+    YDB-CPP-SDK::Table
+  LABELS
+    unit
+)
+
+add_ydb_test(NAME client-result_ut
   SOURCES
     result/result_ut.cpp
   LINK_LIBRARIES
-    yutil
     YDB-CPP-SDK::Result
     YDB-CPP-SDK::Params
   LABELS
     unit
 )
 
-add_ydb_test(NAME client-ydb_value_ut GTEST
+add_ydb_test(NAME client-value_ut GTEST
   SOURCES
     value/value_ut.cpp
   LINK_LIBRARIES
-    yutil
     YDB-CPP-SDK::Value
     YDB-CPP-SDK::Params
   LABELS
