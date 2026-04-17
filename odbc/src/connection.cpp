@@ -93,13 +93,9 @@ SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
         throw TOdbcException("08001", 0, "Missing Endpoint or Database in connection string");
     }
 
-    YdbDriver_ = std::make_unique<NYdb::TDriver>(NYdb::TDriverConfig()
-        .SetEndpoint(Endpoint_)
-        .SetDatabase(Database_));
-
-    YdbClient_ = std::make_unique<NYdb::NQuery::TQueryClient>(*YdbDriver_);
-    YdbSchemeClient_ = std::make_unique<NYdb::NScheme::TSchemeClient>(*YdbDriver_);
-    YdbTableClient_ = std::make_unique<NYdb::NTable::TTableClient>(*YdbDriver_);
+    TConnectionAttributes::NormalizeCatalogPath(Database_);
+    RecreateYdbClients();
+    Attributes_.SetCurrentCatalog(Database_);
 
     return SQL_SUCCESS;
 }
@@ -121,13 +117,9 @@ SQLRETURN TConnection::Connect(const std::string& serverName,
         throw TOdbcException("08001", 0, "Missing Endpoint or Database in DSN");
     }
 
-    YdbDriver_ = std::make_unique<NYdb::TDriver>(NYdb::TDriverConfig()
-        .SetEndpoint(Endpoint_)
-        .SetDatabase(Database_));
-
-    YdbClient_ = std::make_unique<NYdb::NQuery::TQueryClient>(*YdbDriver_);
-    YdbSchemeClient_ = std::make_unique<NYdb::NScheme::TSchemeClient>(*YdbDriver_);
-    YdbTableClient_ = std::make_unique<NYdb::NTable::TTableClient>(*YdbDriver_);
+    TConnectionAttributes::NormalizeCatalogPath(Database_);
+    RecreateYdbClients();
+    Attributes_.SetCurrentCatalog(Database_);
 
     return SQL_SUCCESS;
 }
@@ -175,6 +167,17 @@ bool TConnection::GetAutocommit() const {
 }
 
 SQLRETURN TConnection::SetConnectAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER stringLength) {
+    if (attr == SQL_ATTR_CURRENT_CATALOG) {
+        std::optional<std::string> rebindDatabase;
+        SQLRETURN rc = Attributes_.ApplyCatalogChange(value, stringLength, Database_, rebindDatabase, *this);
+        if (rc != SQL_SUCCESS) {
+            return rc;
+        }
+        if (rebindDatabase) {
+            RebindToDatabase(*rebindDatabase);
+        }
+        return SQL_SUCCESS;
+    }
     return Attributes_.SetConnectAttr(attr, value, stringLength, [this](bool autocommit) {
         return SetAutocommit(autocommit);
     }, *this);
