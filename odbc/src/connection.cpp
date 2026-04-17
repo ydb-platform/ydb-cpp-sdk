@@ -4,6 +4,7 @@
 
 #include <map>
 #include <string>
+#include <unordered_map>
 
 #include <sql.h>
 #include <sqlext.h>
@@ -12,6 +13,60 @@
 
 namespace NYdb {
 namespace NOdbc {
+
+namespace {
+
+struct TDriverKey {
+    std::string Endpoint;
+    std::string Database;
+
+    bool operator==(const TDriverKey& other) const noexcept {
+        return Endpoint == other.Endpoint && Database == other.Database;
+    }
+};
+
+struct TDriverKeyHash {
+    size_t operator()(const TDriverKey& key) const noexcept {
+        return std::hash<std::string>{}(key.Endpoint) ^ (std::hash<std::string>{}(key.Database) << 1U);
+    }
+};
+
+struct TDriverPool {
+    std::unordered_map<TDriverKey, std::weak_ptr<NYdb::TDriver>, TDriverKeyHash> DriversByKey;
+    size_t InsertionsSinceCleanup = 0;
+};
+
+void CleanupExpiredDrivers(TDriverPool& pool) {
+    for (auto mapIt = pool.DriversByKey.begin(); mapIt != pool.DriversByKey.end();) {
+        if (mapIt->second.expired()) {
+            mapIt = pool.DriversByKey.erase(mapIt);
+        } else {
+            ++mapIt;
+        }
+    }
+}
+
+std::shared_ptr<NYdb::TDriver> AcquireSharedDriver(const std::string& endpoint, const std::string& database) {
+    static TDriverPool pool;
+    TDriverKey key{endpoint, database};
+    auto it = pool.DriversByKey.find(key);
+    if (it != pool.DriversByKey.end()) {
+        if (std::shared_ptr<NYdb::TDriver> existing = it->second.lock()) {
+            return existing;
+        }
+    }
+    auto driver = std::make_shared<NYdb::TDriver>(
+        NYdb::TDriverConfig().SetEndpoint(endpoint).SetDatabase(database));
+    pool.DriversByKey[std::move(key)] = driver;
+    ++pool.InsertionsSinceCleanup;
+    if (pool.InsertionsSinceCleanup >= 32) {
+        CleanupExpiredDrivers(pool);
+        pool.InsertionsSinceCleanup = 0;
+    }
+    return driver;
+}
+
+} // namespace
 
 SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
     std::map<std::string, std::string> params;
@@ -171,5 +226,41 @@ TEnvironment* TConnection::GetEnvironment(){
     return ParentEnv_;
 }
 
+void TConnection::RecreateYdbClients() {
+    QuerySession_.reset();
+    Tx_.reset();
+    YdbSchemeClient_.reset();
+    YdbTableClient_.reset();
+    YdbClient_.reset();
+    YdbDriver_ = AcquireSharedDriver(Endpoint_, Database_);
+    YdbClient_ = std::make_unique<NYdb::NQuery::TQueryClient>(*YdbDriver_);
+    YdbSchemeClient_ = std::make_unique<NYdb::NScheme::TSchemeClient>(*YdbDriver_);
+    YdbTableClient_ = std::make_unique<NYdb::NTable::TTableClient>(*YdbDriver_);
+}
+
+void TConnection::RebindToDatabase(const std::string& newDatabase) {
+    std::string db = newDatabase;
+    TConnectionAttributes::NormalizeCatalogPath(db);
+    Database_ = std::move(db);
+    Attributes_.SetCurrentCatalog(Database_);
+    RecreateYdbClients();
+}
+
+
+std::string TConnection::WrapQueryForCurrentCatalog(const std::string& sql) const {
+    std::optional<std::string> rel = Attributes_.ResolveCatalogRoute(Database_).TablePathPrefix;
+    if (!rel) {
+        return sql;
+    }
+    std::string escapedPrefix;
+    escapedPrefix.reserve(rel->size() + 8);
+    for (const char ch : *rel) {
+        if (ch == '\\' || ch == '"') {
+            escapedPrefix.push_back('\\');
+        }
+        escapedPrefix.push_back(ch);
+    }
+    return "PRAGMA TablePathPrefix = \"" + escapedPrefix + "\";\n" + sql;
+}
 } // namespace NOdbc
 } // namespace NYdb
