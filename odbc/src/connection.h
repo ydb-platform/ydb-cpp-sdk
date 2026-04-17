@@ -1,7 +1,7 @@
 #pragma once
 
 #include "environment.h"
-#include "connection_attributes.h"
+#include "connection_attr.h"
 #include "utils/error_manager.h"
 
 #include <ydb-cpp-sdk/client/driver/driver.h>
@@ -13,8 +13,9 @@
 #include <sqlext.h>
 
 #include <memory>
-#include <vector>
+#include <optional>
 #include <string>
+#include <vector>
 
 namespace NYdb {
 namespace NOdbc {
@@ -37,6 +38,9 @@ private:
     TEnvironment* ParentEnv_;
 
     TConnectionAttributes Attributes_;
+
+    void RecreateYdbClients();
+    void RebindToDatabase(const std::string& newDatabase);
 public:
     SQLRETURN Connect(const std::string& serverName,
                       const std::string& userName,
@@ -59,6 +63,8 @@ public:
     SQLRETURN SetConnectAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER stringLength);
     SQLRETURN GetConnectAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr);
     NQuery::TTxSettings MakeTxSettings() const;
+
+    std::string WrapQueryForCurrentCatalog(const std::string& sql) const;
 
     const std::optional<NQuery::TTransaction>& GetTx();
     void SetTx(const NQuery::TTransaction& tx);
