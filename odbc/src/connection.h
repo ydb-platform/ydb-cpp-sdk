@@ -23,7 +23,7 @@ class TStatement;
 
 class TConnection : public TErrorManager {
 private:
-    std::unique_ptr<TDriver> YdbDriver_;
+    std::shared_ptr<TDriver> YdbDriver_;
     std::unique_ptr<NQuery::TQueryClient> YdbClient_;
     std::unique_ptr<NTable::TTableClient> YdbTableClient_;
     std::unique_ptr<NScheme::TSchemeClient> YdbSchemeClient_;
