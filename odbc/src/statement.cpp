@@ -54,16 +54,17 @@ SQLRETURN TStatement::Execute() {
 }
 
 NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession& session, const NYdb::TParams& params){
+    const std::string queryText = Conn_->WrapQueryForCurrentCatalog(PreparedQuery_);
     if (Conn_->GetAutocommit()) {
         const auto txSettings = Conn_->MakeTxSettings();
         if (txSettings.GetMode() == NQuery::TTxSettings::TS_SERIALIZABLE_RW) {
             return session.StreamExecuteQuery(
-                PreparedQuery_,
+                queryText,
                 NQuery::TTxControl::NoTx(),
                 params).ExtractValueSync();
         }
         return session.StreamExecuteQuery(
-            PreparedQuery_,
+            queryText,
             NQuery::TTxControl::BeginTx(txSettings).CommitTx(),
             params).ExtractValueSync();
     }
@@ -73,7 +74,7 @@ NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession
         Conn_->SetTx(beginTxResult.GetTransaction());
     }
     return session.StreamExecuteQuery(
-        PreparedQuery_,
+        queryText,
         NQuery::TTxControl::Tx(*Conn_->GetTx()).CommitTx(false),
         params).ExtractValueSync();
 }
