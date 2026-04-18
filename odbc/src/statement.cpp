@@ -8,11 +8,41 @@
 
 #include <ydb-cpp-sdk/client/params/params.h>
 #include <ydb-cpp-sdk/client/value/value.h>
+#include <ydb-cpp-sdk/client/retry/retry.h>
+#include <ydb-cpp-sdk/library/issue/yql_issue.h>
 
 #include <util/datetime/base.h>
 
+#include <optional>
+
 namespace NYdb {
 namespace NOdbc {
+
+namespace {
+    NYdb::TStatus StatusFrom(const NYdb::TStatus& ydb_status) {
+        return NYdb::TStatus(ydb_status.GetStatus(), NYdb::NIssue::TIssues(ydb_status.GetIssues()));
+    }
+
+
+    NYdb::TStatus PrefetchFirstPartStatus(NQuery::TExecuteQueryIterator& iterator, std::optional<NQuery::TExecuteQueryPart>* prefetchedResultPart){
+        prefetchedResultPart->reset();
+        while (true) {
+            auto part = iterator.ReadNext().ExtractValueSync();
+            if (part.EOS()) {
+                break;
+            }
+            if (!part.IsSuccess()) {
+                return StatusFrom(part);
+    
+            }
+            if (part.HasResultSet()) {
+                prefetchedResultPart->emplace(std::move(part));
+                return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
+            }
+        }
+        return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
+    }
+}
 
 TStatement::TStatement(TConnection* conn)
     : Conn_(conn) {}
@@ -39,24 +69,57 @@ SQLRETURN TStatement::Execute() {
     }
     NYdb::TParams params = BuildParams();
 
+    std::optional<NQuery::TExecuteQueryIterator> iterator;
+    std::optional<NQuery::TExecuteQueryPart> prefetchedResultPart;
+
     if (Conn_->GetAutocommit()){
-        Conn_->Reset();
+        Conn_->ResetTx();
+        Conn_->ResetQuerySession();
+        const NYdb::NRetry::TRetryOperationSettings retrySettings =
+            MakeAutocommitRetrySettings();
+
+        NYdb::TStatus execStatus = client->RetryQuerySync(
+            [this, &params, &iterator, &prefetchedResultPart](NQuery::TSession session) -> NYdb::TStatus{
+                auto retry_iterator = CreateExecuteIterator(session, params);
+                if (!retry_iterator.IsSuccess()) {
+                    return StatusFrom(retry_iterator);
+                }
+                std::optional<NQuery::TExecuteQueryPart> retry_prefetched;
+                const NYdb::TStatus prefetchStatus = PrefetchFirstPartStatus(retry_iterator, &retry_prefetched);
+                if (!prefetchStatus.IsSuccess()) {
+                    return prefetchStatus;
+                }
+                iterator.emplace(std::move(retry_iterator));
+                prefetchedResultPart = std::move(retry_prefetched);
+                return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
+            }, retrySettings);
+
+        NStatusHelpers::ThrowOnError(execStatus);
+    } else {
+        NQuery::TSession& session = Conn_->GetOrCreateQuerySession();
+        iterator.emplace(CreateExecuteIterator(session, params));
+        NStatusHelpers::ThrowOnError(*iterator);
+        NStatusHelpers::ThrowOnError(PrefetchFirstPartStatus(*iterator, &prefetchedResultPart));
     }
 
-    auto& session = Conn_->GetOrCreateQuerySession();
-
-    auto iterator = CreateExecuteIterator(session, params);
-    NStatusHelpers::ThrowOnError(iterator);
-
-    std::optional<NQuery::TExecuteQueryPart> prefetchedResultPart = PrefetchFirstResultPart(iterator);
     if (prefetchedResultPart) {
-        Cursor_ = CreateExecCursor(this, std::move(iterator), std::move(prefetchedResultPart));
+        Cursor_ = CreateExecCursor(this, std::move(*iterator), std::move(prefetchedResultPart));
     } else {
         Cursor_.reset();
     }
     IsPrepared_ = false;
     PreparedQuery_.clear();
     return SQL_SUCCESS;
+}
+
+NYdb::NRetry::TRetryOperationSettings TStatement::MakeAutocommitRetrySettings() {
+    NYdb::NRetry::TRetryOperationSettings settings;
+    SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
+    if (queryTimeoutSec > 0) {
+        const TDuration deadline = TDuration::Seconds(queryTimeoutSec);
+        settings.MaxTimeout(deadline).GetSessionClientTimeout(deadline);
+    }
+    return settings;
 }
 
 NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession& session, const NYdb::TParams& params){
@@ -94,23 +157,7 @@ NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession
         execSettings).ExtractValueSync();
 }
 
-std::optional<NQuery::TExecuteQueryPart> TStatement::PrefetchFirstResultPart(NQuery::TExecuteQueryIterator& iterator){
-    std::optional<NQuery::TExecuteQueryPart> prefetchedResultPart;
-    while (true) {
-        auto part = iterator.ReadNext().ExtractValueSync();
-        if (part.EOS()) {
-            break;
-        }
-        if (!part.IsSuccess()) {
-            NStatusHelpers::ThrowOnError(part);
-        }
-        if (part.HasResultSet()) {
-            prefetchedResultPart.emplace(std::move(part));
-            break;
-        }
-    }
-    return prefetchedResultPart;
-}
+
 
 SQLRETURN TStatement::Fetch() {
     if (!Cursor_) {
