@@ -2,15 +2,6 @@
 
 namespace {
 
-void AllocEnvAndConnect(SQLHENV* env, SQLHDBC* dbc) {
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, env), SQL_SUCCESS);
-    ASSERT_EQ(SQLSetEnvAttr(*env, SQL_ATTR_ODBC_VERSION, (void*)SQL_OV_ODBC3, 0), SQL_SUCCESS);
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, *env, dbc), SQL_SUCCESS);
-    SQLRETURN rc = SQLDriverConnect(
-        *dbc, nullptr, (SQLCHAR*)kConnStr, SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_COMPLETE);
-    CHECK_ODBC_OK(rc, *dbc, SQL_HANDLE_DBC);
-}
-
 void StartManualTx(SQLHDBC dbc, SQLHSTMT* stmt) {
     CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0), dbc, SQL_HANDLE_DBC);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, stmt), SQL_SUCCESS);
