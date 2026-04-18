@@ -68,7 +68,8 @@ public:
 
     const std::optional<NQuery::TTransaction>& GetTx();
     void SetTx(const NQuery::TTransaction& tx);
-    void Reset();
+    void ResetTx();
+    void ResetQuerySession();
 
     SQLRETURN CommitTx();
     SQLRETURN RollbackTx();

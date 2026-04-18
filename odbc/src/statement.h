@@ -74,8 +74,8 @@ private:
     NYdb::TParams BuildParams();
     
     NQuery::TExecuteQueryIterator CreateExecuteIterator(NQuery::TSession& session, const NYdb::TParams& params);
-    std::optional<NQuery::TExecuteQueryPart> PrefetchFirstResultPart(NQuery::TExecuteQueryIterator& iterator);
 
+    NYdb::NRetry::TRetryOperationSettings MakeAutocommitRetrySettings();
     std::vector<NScheme::TSchemeEntry> GetPatternEntries(const std::string& pattern);
     SQLRETURN VisitEntry(const std::string& path, const std::string& pattern, std::vector<NScheme::TSchemeEntry>& resultEntries);
     bool IsPatternMatch(const std::string& path, const std::string& pattern);
