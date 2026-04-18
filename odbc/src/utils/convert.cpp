@@ -1,6 +1,9 @@
 #include "convert.h"
 
+#include <util/datetime/base.h>
 #include <util/generic/singleton.h>
+
+#include <algorithm>
 
 namespace NYdb {
 namespace NOdbc {
@@ -311,6 +314,28 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
     EPrimitiveType ydbType = parser.GetPrimitiveType();
 
     switch (targetType) {
+        case SQL_C_SHORT:
+        case SQL_C_SSHORT:
+        {
+            SQLSMALLINT v = 0;
+            switch (ydbType) {
+                case EPrimitiveType::Int16: v = parser.GetInt16(); break;
+                case EPrimitiveType::Uint16: v = static_cast<SQLSMALLINT>(parser.GetUint16()); break;
+                case EPrimitiveType::Int8: v = static_cast<SQLSMALLINT>(parser.GetInt8()); break;
+                case EPrimitiveType::Uint8: v = static_cast<SQLSMALLINT>(parser.GetUint8()); break;
+                case EPrimitiveType::Int32: v = static_cast<SQLSMALLINT>(parser.GetInt32()); break;
+                case EPrimitiveType::Uint32: v = static_cast<SQLSMALLINT>(parser.GetUint32()); break;
+                case EPrimitiveType::Bool: v = parser.GetBool() ? 1 : 0; break;
+                default: return SQL_ERROR;
+            }
+            if (targetValue) {
+                *reinterpret_cast<SQLSMALLINT*>(targetValue) = v;
+            }
+            if (strLenOrInd) {
+                *strLenOrInd = sizeof(SQLSMALLINT);
+            }
+            return SQL_SUCCESS;
+        }
         case SQL_C_SLONG:
         case SQL_C_LONG:
         {
@@ -377,6 +402,55 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
                 case EPrimitiveType::String: str = parser.GetString(); break;
                 case EPrimitiveType::Json: str = parser.GetJson(); break;
                 case EPrimitiveType::JsonDocument: str = parser.GetJsonDocument(); break;
+                case EPrimitiveType::Date: {
+                    const TString t = parser.GetDate().FormatGmTime("%Y-%m-%d");
+                    str.assign(t.data(), t.size());
+                    break;
+                }
+                case EPrimitiveType::Date32: {
+                    const i32 days = parser.GetDate32();
+                    if (days < 0) {
+                        return SQL_ERROR;
+                    }
+                    const TString t = TInstant::Days(static_cast<ui64>(days)).FormatGmTime("%Y-%m-%d");
+                    str.assign(t.data(), t.size());
+                    break;
+                }
+                case EPrimitiveType::Datetime: {
+                    const TString t = parser.GetDatetime().FormatGmTime("%Y-%m-%d %H:%M:%S");
+                    str.assign(t.data(), t.size());
+                    break;
+                }
+                case EPrimitiveType::Datetime64: {
+                    const std::int64_t secs = parser.GetDatetime64();
+                    if (secs < 0) {
+                        return SQL_ERROR;
+                    }
+                    const TString t =
+                        TInstant::Seconds(static_cast<ui64>(static_cast<std::uint64_t>(secs)))
+                            .FormatGmTime("%Y-%m-%d %H:%M:%S");
+                    str.assign(t.data(), t.size());
+                    break;
+                }
+                case EPrimitiveType::Timestamp: {
+                    const TString t = parser.GetTimestamp().FormatGmTime("%Y-%m-%d %H:%M:%S");
+                    str.assign(t.data(), t.size());
+                    break;
+                }
+                case EPrimitiveType::Timestamp64: {
+                    const std::int64_t micros = parser.GetTimestamp64();
+                    if (micros < 0) {
+                        return SQL_ERROR;
+                    }
+                    const TString t =
+                        TInstant::MicroSeconds(static_cast<ui64>(static_cast<std::uint64_t>(micros)))
+                            .FormatGmTime("%Y-%m-%d %H:%M:%S");
+                    str.assign(t.data(), t.size());
+                    break;
+                }
+                case EPrimitiveType::TzDate: str = parser.GetTzDate(); break;
+                case EPrimitiveType::TzDatetime: str = parser.GetTzDatetime(); break;
+                case EPrimitiveType::TzTimestamp: str = parser.GetTzTimestamp(); break;
                 default: return SQL_ERROR;
             }
             SQLLEN len = str.size();

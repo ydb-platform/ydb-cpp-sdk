@@ -386,4 +386,21 @@ SQLRETURN SQL_API SQLNumResultCols(SQLHSTMT statementHandle, SQLSMALLINT* colCou
     });
 }
 
+SQLRETURN SQL_API SQLSetStmtAttr(SQLHSTMT statementHandle, SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER stringLength) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->SetStmtAttr(attribute, value, stringLength);
+    });
+}
+
+SQLRETURN SQL_API SQLGetStmtAttr(
+    SQLHSTMT statementHandle,
+    SQLINTEGER attribute,
+    SQLPOINTER value,
+    SQLINTEGER bufferLength,
+    SQLINTEGER* stringLengthPtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->GetStmtAttr(attribute, value, bufferLength, stringLengthPtr);
+    });
+}
+
 }
