@@ -3,6 +3,8 @@
 #include "convert.h"
 #include "types.h"
 
+#include <ydb-cpp-sdk/client/result/result.h>
+
 namespace NYdb {
 namespace NOdbc {
 
@@ -40,7 +42,17 @@ public:
                 return false;
             }
             if (part.HasResultSet()) {
-                ResultSetParser_ = std::make_unique<TResultSetParser>(part.ExtractResultSet());
+                TResultSet rs = part.ExtractResultSet();
+                Columns_.clear();
+                Columns_.reserve(rs.ColumnsCount());
+                for (const auto& col : rs.GetColumnsMeta()) {
+                    Columns_.push_back(TColumnMeta{
+                        col.Name,
+                        GetTypeId(col.Type),
+                        0,
+                        IsNullable(col.Type)});
+                }
+                ResultSetParser_ = std::make_unique<TResultSetParser>(rs);
             }
         }
         return false;
