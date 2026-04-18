@@ -1,6 +1,7 @@
 #pragma once
 
 #include "connection.h"
+#include "statement_attr.h"
 #include "utils/error_manager.h"
 #include "utils/bindings.h"
 #include "utils/cursor.h"
@@ -51,6 +52,8 @@ public:
 
     SQLRETURN RowCount(SQLLEN* rowCount);
     SQLRETURN NumResultCols(SQLSMALLINT* colCount);
+    SQLRETURN SetStmtAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER stringLength);
+    SQLRETURN GetStmtAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr);
 
     TConnection* GetConnection() {
         return Conn_;
@@ -65,6 +68,8 @@ private:
     std::vector<TBoundColumn> BoundColumns_;
     std::vector<TBoundParam> BoundParams_;
     bool StreamFetchError_ = false;
+    SQLULEN RowsFetched_ = 0;
+    TStatementAttributes Attributes_;
 
     NYdb::TParams BuildParams();
     
