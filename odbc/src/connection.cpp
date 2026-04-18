@@ -200,8 +200,12 @@ void TConnection::SetTx(const NQuery::TTransaction& tx) {
     Tx_ = tx;
 }
 
-void TConnection::Reset() {
+void TConnection::ResetTx() {
     Tx_.reset();
+}
+
+void TConnection::ResetQuerySession() {
+    QuerySession_.reset();
 }
 
 SQLRETURN TConnection::CommitTx() {
