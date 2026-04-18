@@ -1,5 +1,6 @@
 add_library(ydb-odbc SHARED
   src/utils/attr.cpp
+  src/utils/escape.cpp
   src/utils/cursor.cpp
   src/utils/types.cpp
   src/utils/util.cpp
@@ -8,6 +9,7 @@ add_library(ydb-odbc SHARED
   src/odbc_driver.cpp
   src/connection_attr.cpp
   src/connection.cpp
+  src/statement_attr.cpp
   src/statement.cpp
   src/environment.cpp
 )
