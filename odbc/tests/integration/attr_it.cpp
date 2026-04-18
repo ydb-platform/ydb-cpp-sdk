@@ -3,26 +3,6 @@
 #include <cstring>
 #include <string>
 
-namespace {
-
-bool SqlStatePrefix(const std::string& diag, const char* state5) {
-    return diag.size() >= 5 && std::strncmp(diag.c_str(), state5, 5) == 0;
-}
-
-void AllocEnv(SQLHENV* env) {
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, env), SQL_SUCCESS);
-    ASSERT_EQ(SQLSetEnvAttr(*env, SQL_ATTR_ODBC_VERSION, (void*)SQL_OV_ODBC3, 0), SQL_SUCCESS);
-}
-
-void AllocEnvAndConnect(SQLHENV* env, SQLHDBC* dbc) {
-    AllocEnv(env);
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, *env, dbc), SQL_SUCCESS);
-    SQLRETURN rc = SQLDriverConnect(
-        *dbc, nullptr, (SQLCHAR*)kConnStr, SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_COMPLETE);
-    CHECK_ODBC_OK(rc, *dbc, SQL_HANDLE_DBC);
-}
-
-} // namespace
 
 TEST(OdbcAttrEnv, OdbcVersionAttr) {
     SQLHENV env;
@@ -145,7 +125,6 @@ TEST(OdbcAttrConn, TxnIsolationAttr) {
     ASSERT_EQ(SQLGetConnectAttr(dbc, SQL_ATTR_TXN_ISOLATION, &currentIsolation, sizeof(currentIsolation), nullptr), SQL_SUCCESS);
     ASSERT_EQ(static_cast<SQLUINTEGER>(SQL_TXN_REPEATABLE_READ), currentIsolation);
 
-    // In read-only mode all four standard levels are accepted and remain executable.
     CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER)SQL_MODE_READ_ONLY, 0), dbc, SQL_HANDLE_DBC);
     CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_TXN_ISOLATION, (SQLPOINTER)SQL_TXN_READ_UNCOMMITTED, 0), dbc, SQL_HANDLE_DBC);
     CHECK_ODBC_OK(SQLExecDirect(stmt, selectOneQuery, SQL_NTS), stmt, SQL_HANDLE_STMT);

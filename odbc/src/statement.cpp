@@ -3,9 +3,13 @@
 #include "utils/convert.h"
 #include "utils/types.h"
 #include "utils/error_manager.h"
+#include "utils/escape.h"
+#include "utils/sql_like.h"
 
 #include <ydb-cpp-sdk/client/params/params.h>
 #include <ydb-cpp-sdk/client/value/value.h>
+
+#include <util/datetime/base.h>
 
 namespace NYdb {
 namespace NOdbc {
@@ -15,6 +19,7 @@ TStatement::TStatement(TConnection* conn)
 
 SQLRETURN TStatement::Prepare(const std::string& statementText) {
     StreamFetchError_ = false;
+    RowsFetched_ = 0;
     Cursor_.reset();
     PreparedQuery_ = statementText;
     IsPrepared_ = true;
@@ -26,6 +31,7 @@ SQLRETURN TStatement::Execute() {
         throw TOdbcException("HY007", 0, "No prepared statement");
     }
     StreamFetchError_ = false;
+    RowsFetched_ = 0;
     Cursor_.reset();
     auto* client = Conn_->GetClient();
     if (!client) {
@@ -54,19 +60,27 @@ SQLRETURN TStatement::Execute() {
 }
 
 NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession& session, const NYdb::TParams& params){
-    const std::string queryText = Conn_->WrapQueryForCurrentCatalog(PreparedQuery_);
+    const std::string sqlText = Attributes_.GetNoScanMode() == SQL_NOSCAN_ON
+        ? PreparedQuery_
+        : RewriteOdbcEscapes(PreparedQuery_);
+    const std::string queryText = Conn_->WrapQueryForCurrentCatalog(sqlText);
+    NQuery::TExecuteQuerySettings execSettings;
+    const SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
+    execSettings.ClientTimeout(TDuration::Seconds(queryTimeoutSec));
     if (Conn_->GetAutocommit()) {
         const auto txSettings = Conn_->MakeTxSettings();
         if (txSettings.GetMode() == NQuery::TTxSettings::TS_SERIALIZABLE_RW) {
             return session.StreamExecuteQuery(
                 queryText,
                 NQuery::TTxControl::NoTx(),
-                params).ExtractValueSync();
+                params,
+                execSettings).ExtractValueSync();
         }
         return session.StreamExecuteQuery(
             queryText,
             NQuery::TTxControl::BeginTx(txSettings).CommitTx(),
-            params).ExtractValueSync();
+            params,
+            execSettings).ExtractValueSync();
     }
     if (!Conn_->GetTx()) {
         auto beginTxResult = session.BeginTransaction(Conn_->MakeTxSettings()).ExtractValueSync();
@@ -76,7 +90,8 @@ NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession
     return session.StreamExecuteQuery(
         queryText,
         NQuery::TTxControl::Tx(*Conn_->GetTx()).CommitTx(false),
-        params).ExtractValueSync();
+        params,
+        execSettings).ExtractValueSync();
 }
 
 std::optional<NQuery::TExecuteQueryPart> TStatement::PrefetchFirstResultPart(NQuery::TExecuteQueryIterator& iterator){
@@ -102,10 +117,15 @@ SQLRETURN TStatement::Fetch() {
         Cursor_.reset();
         return SQL_NO_DATA;
     }
+    const SQLULEN maxRows = Attributes_.GetMaxRows();
+    if (maxRows > 0 && RowsFetched_ >= maxRows) {
+        return SQL_NO_DATA;
+    }
     StreamFetchError_ = false;
     if (!Cursor_->Fetch()) {
         return StreamFetchError_ ? SQL_ERROR : SQL_NO_DATA;
     }
+    ++RowsFetched_;
     return SQL_SUCCESS;
 }
 
@@ -187,6 +207,7 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
                               const std::string& tableName,
                               const std::string& columnName) {
     ClearErrors();
+    RowsFetched_ = 0;
     Cursor_.reset();
 
     std::vector<TColumnMeta> columns = {
@@ -224,18 +245,24 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
             continue;
         }
 
-        auto status = Conn_->GetTableClient()->RetryOperationSync([path = entry.Name, &table, &columnName](NTable::TSession session) -> TStatus {
+        auto status = Conn_->GetTableClient()->RetryOperationSync([this, path = entry.Name, &table, &columnName](NTable::TSession session) -> TStatus {
             auto result = session.DescribeTable(path).ExtractValueSync();
             NStatusHelpers::ThrowOnError(result);
 
             auto columns = result.GetTableDescription().GetTableColumns();
 
-            auto columnIt = std::find_if(columns.begin(), columns.end(), [&columnName](const NTable::TTableColumn& column) {
-                return column.Name == columnName;
+            auto columnIt = std::find_if(columns.begin(), columns.end(), [&](const NTable::TTableColumn& column) {
+                if (Attributes_.GetMetadataId() == SQL_TRUE) {
+                    return column.Name == columnName;
+                }
+                if (columnName.empty()) {
+                    return column.Name.empty();
+                }
+                return SqlLikeMatch(column.Name, columnName);
             });
 
             if (columnIt == columns.end()) {
-                return TStatus(EStatus::NOT_FOUND, { NYdb::NIssue::TIssue("Column not found") });
+                throw TOdbcException("42S22", 0, "Column not found", SQL_ERROR);
             }
 
             auto column = *columnIt;
@@ -277,6 +304,7 @@ SQLRETURN TStatement::Tables(const std::string& catalogName,
                              const std::string& tableName,
                              const std::string& tableType) {
     ClearErrors();
+    RowsFetched_ = 0;
     Cursor_.reset();
 
     std::vector<TColumnMeta> columns = {
@@ -340,7 +368,13 @@ SQLRETURN TStatement::VisitEntry(const std::string& path, const std::string& pat
 }
 
 bool TStatement::IsPatternMatch(const std::string& path, const std::string& pattern) {
-    return path.starts_with(pattern);
+    if (pattern.empty()) {
+        return true;
+    }
+    if (Attributes_.GetMetadataId() == SQL_TRUE) {
+        return path == pattern;
+    }
+    return SqlLikeMatch(path, pattern);
 }
 
 std::optional<std::string> TStatement::GetTableType(NScheme::ESchemeEntryType type) {
@@ -375,8 +409,14 @@ std::optional<std::string> TStatement::GetTableType(NScheme::ESchemeEntryType ty
             return "COORDINATION_NODE";
         case NScheme::ESchemeEntryType::Unknown:
             return "UNKNOWN";
+        case NScheme::ESchemeEntryType::SysView:
+            return "SYSTEM VIEW";
+        case NScheme::ESchemeEntryType::Transfer:
+            return "TRANSFER";
         case NScheme::ESchemeEntryType::Directory:
         case NScheme::ESchemeEntryType::SubDomain:
+            return std::nullopt;
+        default:
             return std::nullopt;
     }
 }
@@ -387,6 +427,7 @@ SQLRETURN TStatement::Close(bool force) {
     }
 
     Cursor_.reset();
+    RowsFetched_ = 0;
     PreparedQuery_.clear();
     IsPrepared_ = false;
     ClearErrors();
@@ -420,6 +461,14 @@ SQLRETURN TStatement::NumResultCols(SQLSMALLINT* colCount) {
     }
     *colCount = static_cast<SQLSMALLINT>(Cursor_->GetColumnMeta().size());
     return SQL_SUCCESS;
+}
+
+SQLRETURN TStatement::SetStmtAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER stringLength) {
+    return Attributes_.SetStmtAttr(attr, value, stringLength, *this);
+}
+
+SQLRETURN TStatement::GetStmtAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr) {
+    return Attributes_.GetStmtAttr(attr, value, bufferLength, stringLengthPtr, *this);
 }
 
 } // namespace NOdbc
