@@ -12,3 +12,8 @@ add_odbc_test(NAME odbc-attr_it
   SOURCES
     attr_it.cpp
 )
+
+add_odbc_test(NAME odbc-stmt_attr_it
+  SOURCES
+    stmt_attr_it.cpp
+)
