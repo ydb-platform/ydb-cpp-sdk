@@ -31,8 +31,7 @@ struct TBoundColumn {
 class IBindingFiller {
 public:
     virtual void FillBoundColumns() = 0;
-    virtual void OnStreamPartError(const TStatus& status) {
-        (void)status;
+    virtual void OnStreamPartError([[maybe_unused]] const TStatus& status) {
     }
 
     virtual ~IBindingFiller() = default;
