@@ -32,7 +32,9 @@ SQLRETURN SQL_API SQLAllocHandle(SQLSMALLINT handleType,
             return NYdb::NOdbc::HandleOdbcExceptions(
                 inputHandle,
                 [&]() {
-                    *outputHandle = new NYdb::NOdbc::TEnvironment();
+                    auto* const env = new NYdb::NOdbc::TEnvironment();
+                    *outputHandle = env;
+                    env->SetLastReturnCode(SQL_SUCCESS);
                     return SQL_SUCCESS;
                 },
                 NYdb::NOdbc::ENullInputHandlePolicy::Allow);
@@ -43,14 +45,18 @@ SQLRETURN SQL_API SQLAllocHandle(SQLSMALLINT handleType,
                 auto conn = std::make_unique<NYdb::NOdbc::TConnection>();
                 conn->SetEnvironment(env);
                 env->RegisterConnection(conn.get());
-                *outputHandle = conn.release();
+                auto* const raw = conn.release();
+                *outputHandle = raw;
+                raw->SetLastReturnCode(SQL_SUCCESS);
                 return SQL_SUCCESS;
             });
         }
         case SQL_HANDLE_STMT: {
             return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(inputHandle, [&](auto* conn) {
                 auto stmt = conn->CreateStatement();
-                *outputHandle = stmt.release();
+                auto* const raw = stmt.release();
+                *outputHandle = raw;
+                raw->SetLastReturnCode(SQL_SUCCESS);
                 return SQL_SUCCESS;
             });
         }

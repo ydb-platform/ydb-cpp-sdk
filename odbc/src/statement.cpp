@@ -518,5 +518,21 @@ SQLRETURN TStatement::GetStmtAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER 
     return Attributes_.GetStmtAttr(attr, value, bufferLength, stringLengthPtr, *this);
 }
 
+SQLRETURN TStatement::GetDiagField(
+    SQLSMALLINT recNumber,
+    SQLSMALLINT diagIdentifier,
+    SQLPOINTER diagInfoPtr,
+    SQLSMALLINT bufferLength,
+    SQLSMALLINT* stringLengthPtr) {
+    if (recNumber == 0 && diagIdentifier == SQL_DIAG_ROW_COUNT) {
+        if (!diagInfoPtr) {
+            return SQL_ERROR;
+        }
+        *reinterpret_cast<SQLLEN*>(diagInfoPtr) = -1;
+        return SQL_SUCCESS;
+    }
+    return TErrorManager::GetDiagField(recNumber, diagIdentifier, diagInfoPtr, bufferLength, stringLengthPtr);
+}
+
 } // namespace NOdbc
 } // namespace NYdb

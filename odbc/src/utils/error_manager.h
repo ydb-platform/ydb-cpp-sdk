@@ -64,13 +64,21 @@ public:
 
     void ClearErrors();
 
+    void SetLastReturnCode(SQLRETURN code) {
+        LastReturnCode_ = code;
+    }
+    [[nodiscard]] SQLRETURN GetLastReturnCode() const {
+        return LastReturnCode_;
+    }
+
     SQLRETURN GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLINTEGER* nativeError, 
                         SQLCHAR* messageText, SQLSMALLINT bufferLength, SQLSMALLINT* textLength);
-    SQLRETURN GetDiagField(SQLSMALLINT recNumber, SQLSMALLINT diagIdentifier,
+    virtual SQLRETURN GetDiagField(SQLSMALLINT recNumber, SQLSMALLINT diagIdentifier,
                            SQLPOINTER diagInfoPtr, SQLSMALLINT bufferLength, SQLSMALLINT* stringLengthPtr);
 
 private:
     TErrorList Errors_;
+    SQLRETURN LastReturnCode_ = SQL_SUCCESS;
 };
 
 enum class ENullInputHandlePolicy : unsigned char {
@@ -86,7 +94,9 @@ SQLRETURN HandleOdbcExceptions(SQLHANDLE handlePtr, std::function<SQLRETURN(Hand
     auto handle = static_cast<Handle*>(handlePtr);
 
     try {
-        return func(handle);
+        const SQLRETURN ret = func(handle);
+        handle->SetLastReturnCode(ret);
+        return ret;
     } catch (const NStatusHelpers::TYdbErrorException& ex) {
         return handle->AddError(ex.GetStatus());
     } catch (const TOdbcException& ex) {

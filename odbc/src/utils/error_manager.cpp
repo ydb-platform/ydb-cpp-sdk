@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cstring>
+#include <string>
+#include <unordered_map>
 
 namespace NYdb {
 namespace NOdbc {
@@ -56,13 +58,57 @@ namespace {
     }
 } // namespace
 
+namespace {
+
+SQLRETURN WriteDiagCStr(
+    const std::string& str,
+    SQLPOINTER diagInfoPtr,
+    SQLSMALLINT bufferLength,
+    SQLSMALLINT* stringLengthPtr,
+    bool sqlStateField = false) {
+    std::string storage;
+    const std::string* src = &str;
+    if (sqlStateField) {
+        storage = str;
+        if (storage.size() < 5) {
+            storage.append(5U - storage.size(), ' ');
+        } else {
+            storage.resize(5U);
+        }
+        src = &storage;
+    }
+    if (!diagInfoPtr) {
+        return SQL_ERROR;
+    }
+    if (bufferLength < 0) {
+        return SQL_ERROR;
+    }
+    const size_t fullLen = src->size();
+    if (stringLengthPtr) {
+        *stringLengthPtr = static_cast<SQLSMALLINT>(std::min<size_t>(fullLen, 0x7FFFU));
+    }
+    if (bufferLength == 0) {
+        return fullLen == 0 ? SQL_SUCCESS : SQL_SUCCESS_WITH_INFO;
+    }
+    auto* out = static_cast<SQLCHAR*>(diagInfoPtr);
+    const size_t maxData = static_cast<size_t>(bufferLength - 1U);
+    const size_t copyLen = std::min(fullLen, maxData);
+    std::memcpy(out, src->data(), copyLen);
+    out[copyLen] = 0;
+    return (fullLen > maxData) ? SQL_SUCCESS_WITH_INFO : SQL_SUCCESS;
+}
+
+} // namespace
+
 SQLRETURN TErrorManager::AddError(const std::string& sqlState, SQLINTEGER nativeError, const std::string& message, SQLRETURN returnCode) {
     Errors_.push_back({sqlState, nativeError, message, returnCode});
+    LastReturnCode_ = returnCode;
     return returnCode;
 }
 
 SQLRETURN TErrorManager::AddError(const TOdbcException& ex) {
     Errors_.push_back({ex.GetSqlState(), ex.GetNativeError(), ex.GetMessage(), ex.GetReturnCode()});
+    LastReturnCode_ = ex.GetReturnCode();
     return ex.GetReturnCode();
 }
 
@@ -73,6 +119,7 @@ SQLRETURN TErrorManager::AddError(const TStatus& status) {
         message += ": " + status.GetIssues().ToString();
     }
     Errors_.push_back({mapping.sqlState, static_cast<SQLINTEGER>(status.GetStatus()), message, mapping.returnCode});
+    LastReturnCode_ = mapping.returnCode;
     return mapping.returnCode;
 }
 
@@ -104,19 +151,26 @@ SQLRETURN TErrorManager::GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQ
     return SQL_SUCCESS;
 }
 
-SQLRETURN TErrorManager::GetDiagField(SQLSMALLINT recNumber, SQLSMALLINT diagIdentifier,
-                                      SQLPOINTER diagInfoPtr, SQLSMALLINT bufferLength, SQLSMALLINT* stringLengthPtr) {
+SQLRETURN TErrorManager::GetDiagField(SQLSMALLINT recNumber, SQLSMALLINT diagIdentifier, SQLPOINTER diagInfoPtr,
+    SQLSMALLINT bufferLength, SQLSMALLINT* stringLengthPtr) {
     const SQLSMALLINT count = static_cast<SQLSMALLINT>(Errors_.size());
-
+    if (diagInfoPtr == nullptr) {
+        return SQL_ERROR;
+    }
     if (recNumber == 0) {
-        if (diagIdentifier == SQL_DIAG_NUMBER) {
-            if (!diagInfoPtr) {
-                return SQL_ERROR;
+        switch (diagIdentifier) {
+            case SQL_DIAG_RETURNCODE:
+                *static_cast<SQLRETURN*>(diagInfoPtr) = LastReturnCode_;
+                return SQL_SUCCESS;
+            case SQL_DIAG_NUMBER: {
+                *static_cast<SQLINTEGER*>(diagInfoPtr) = static_cast<SQLINTEGER>(count);
+                return SQL_SUCCESS;
             }
-            *static_cast<SQLINTEGER*>(diagInfoPtr) = count;
-            return SQL_SUCCESS;
+            case SQL_DIAG_ROW_COUNT:
+                return SQL_ERROR;
+            default:
+                return SQL_ERROR;
         }
-        return SQL_NO_DATA;
     }
 
     if (recNumber < 1 || recNumber > count) {
@@ -126,28 +180,28 @@ SQLRETURN TErrorManager::GetDiagField(SQLSMALLINT recNumber, SQLSMALLINT diagIde
     const auto& err = Errors_[recNumber - 1];
     switch (diagIdentifier) {
         case SQL_DIAG_SQLSTATE:
-            if (!diagInfoPtr) {
-                return SQL_ERROR;
-            }
-            strncpy((char*)diagInfoPtr, err.SqlState.c_str(), 6);
-            return SQL_SUCCESS;
-        case SQL_DIAG_NATIVE:
-            if (!diagInfoPtr) {
-                return SQL_ERROR;
-            }
+            return WriteDiagCStr(err.SqlState, diagInfoPtr, bufferLength, stringLengthPtr, true);
+        case SQL_DIAG_NATIVE: {
             *static_cast<SQLINTEGER*>(diagInfoPtr) = err.NativeError;
             return SQL_SUCCESS;
+        }
         case SQL_DIAG_MESSAGE_TEXT:
-            if (!diagInfoPtr || bufferLength <= 0) {
-                return SQL_ERROR;
-            }
-            strncpy((char*)diagInfoPtr, err.Message.c_str(), bufferLength);
-            if (stringLengthPtr) {
-                *stringLengthPtr = static_cast<SQLSMALLINT>(err.Message.size());
-            }
+            return WriteDiagCStr(err.Message, diagInfoPtr, bufferLength, stringLengthPtr);
+        case SQL_DIAG_CLASS_ORIGIN:
+            return WriteDiagCStr("ODBC 3.0", diagInfoPtr, bufferLength, stringLengthPtr);
+        case SQL_DIAG_SUBCLASS_ORIGIN:
+            return WriteDiagCStr("ODBC 3.0", diagInfoPtr, bufferLength, stringLengthPtr);
+        case SQL_DIAG_CONNECTION_NAME:
+        case SQL_DIAG_SERVER_NAME:
+            return WriteDiagCStr("", diagInfoPtr, bufferLength, stringLengthPtr);
+        case SQL_DIAG_COLUMN_NUMBER:
+            *static_cast<SQLINTEGER*>(diagInfoPtr) = SQL_COLUMN_NUMBER_UNKNOWN;
+            return SQL_SUCCESS;
+        case SQL_DIAG_ROW_NUMBER:
+            *static_cast<SQLLEN*>(diagInfoPtr) = SQL_ROW_NUMBER_UNKNOWN;
             return SQL_SUCCESS;
         default:
-            return SQL_NO_DATA;
+            return SQL_ERROR;
     }
 }
 
@@ -160,8 +214,15 @@ SQLRETURN HandleOdbcExceptions(
     }
 
     try {
-        return func();
+        const SQLRETURN r = func();
+        if (handlePtr) {
+            static_cast<TErrorManager*>(handlePtr)->SetLastReturnCode(r);
+        }
+        return r;
     } catch (...) {
+        if (handlePtr) {
+            static_cast<TErrorManager*>(handlePtr)->SetLastReturnCode(SQL_ERROR);
+        }
         return SQL_ERROR;
     }
 }
