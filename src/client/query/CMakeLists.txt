@@ -12,6 +12,7 @@ target_link_libraries(client-ydb_query PUBLIC
   client-ydb_query-impl
   client-ydb_result
   client-metrics
+  client-trace
   client-types-operation
   api-protos
   api-grpc
