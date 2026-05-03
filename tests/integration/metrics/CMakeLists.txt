@@ -7,6 +7,7 @@ add_ydb_test(NAME metrics_it GTEST
     yutil
     YDB-CPP-SDK::Query
     client-metrics
+    impl-observability-error_category
   LABELS
     integration
 )

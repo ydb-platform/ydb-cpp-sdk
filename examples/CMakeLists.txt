@@ -10,3 +10,7 @@ add_subdirectory(topic_writer/producer/basic_write)
 add_subdirectory(ttl)
 add_subdirectory(vector_index)
 add_subdirectory(vector_index_builtin)
+
+if (YDB_SDK_ENABLE_OTEL_TRACE AND YDB_SDK_ENABLE_OTEL_METRICS)
+  add_subdirectory(otel_tracing)
+endif()
