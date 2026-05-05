@@ -27,6 +27,8 @@ target_link_libraries(ydb-odbc
     YDB-CPP-SDK::Table
     YDB-CPP-SDK::Scheme
     YDB-CPP-SDK::Driver
+    ODBC::ODBC
+    odbcinst
 )
 
 set_target_properties(ydb-odbc PROPERTIES

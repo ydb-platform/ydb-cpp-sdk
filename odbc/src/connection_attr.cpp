@@ -65,21 +65,12 @@ bool IsKnownTxnIsolation(SQLUINTEGER txnIsolation) {
 
 std::optional<NQuery::TTxSettings::ETransactionMode> ResolveTxMode(SQLUINTEGER accessMode, SQLUINTEGER txnIsolation) {
     if (accessMode == SQL_MODE_READ_ONLY) {
-        switch (txnIsolation) {
-            case SQL_TXN_READ_UNCOMMITTED:
-                return NQuery::TTxSettings::TS_STALE_RO;
-            case SQL_TXN_READ_COMMITTED:
-                return NQuery::TTxSettings::TS_ONLINE_RO;
-            case SQL_TXN_REPEATABLE_READ:
-            case SQL_TXN_SERIALIZABLE:
-                return NQuery::TTxSettings::TS_SNAPSHOT_RO;
-            default:
-                return std::nullopt;
-        }
+        return NQuery::TTxSettings::TS_SNAPSHOT_RO;
     }
 
     switch (txnIsolation) {
         case SQL_TXN_REPEATABLE_READ:
+            return NQuery::TTxSettings::TS_SNAPSHOT_RW;
         case SQL_TXN_SERIALIZABLE:
             return NQuery::TTxSettings::TS_SERIALIZABLE_RW;
         default:
