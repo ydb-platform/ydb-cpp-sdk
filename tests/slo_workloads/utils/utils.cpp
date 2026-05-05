@@ -161,6 +161,12 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
     opts.SetFreeArgsMin(0);
     opts.SetFreeArgTitle(0, "<COMMAND>", GetCmdList());
     opts.ArgPermutation_ = NLastGetopt::REQUIRE_ORDER;
+    // Run-phase options (--read-rps, --write-rps, …) reach DoMain when the
+    // caller invokes the workload without an explicit subcommand (the v2 SLO
+    // action contract). Tolerate them here so the global parser stops at the
+    // first unknown option instead of erroring; they are forwarded to the
+    // run phase below.
+    opts.AllowUnknownLongOptions_ = true;
 
     TOptsParseResult res(&opts, argc, argv);
     size_t freeArgsPos = res.GetFreeArgsPos();
@@ -169,8 +175,14 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
 
     ECommandType command = (argc > 0) ? ParseCommand(*argv) : ECommandType::All;
     if (command == ECommandType::Unknown) {
-        Cerr << "Unknown command '" << *argv << "'" << Endl;
-        return EXIT_FAILURE;
+        if (argv[0][0] == '-') {
+            // First leftover token is an option, not a subcommand keyword:
+            // treat as implicit All mode and let the run phase parse it.
+            command = ECommandType::All;
+        } else {
+            Cerr << "Unknown command '" << *argv << "'" << Endl;
+            return EXIT_FAILURE;
+        }
     }
 
     if (prefix.empty()) {
@@ -227,18 +239,25 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
             break;
         case ECommandType::All: {
             Cout << "Launching full lifecycle: create -> run -> cleanup" << Endl;
-            // Synthesize argv with a fake program name so the inner NLastGetopt
-            // parsers (ParseOptionsCreate / ParseOptionsRun) treat argv[0]
-            // as the program name and parse zero real args.
+            // Forward leftover argv to the run phase so options like
+            // --read-rps / --write-rps take effect. argv[0] here is the first
+            // run-phase option (no subcommand keyword was supplied), so
+            // prepend a synthetic program name for ParseOptionsRun.
             char programName[] = "slo";
-            char* fakeArgv[] = { programName, nullptr };
+            std::vector<char*> runArgv;
+            runArgv.reserve(argc + 1);
+            runArgv.push_back(programName);
+            for (int i = 0; i < argc; ++i) {
+                runArgv.push_back(argv[i]);
+            }
             int fakeArgc = 1;
+            char* fakeArgv[] = { programName, nullptr };
 
             Cout << "[all] Launching create command..." << Endl;
             result = create(dbOptions, fakeArgc, fakeArgv);
             if (!result) {
                 Cout << "[all] Launching run command..." << Endl;
-                result = run(dbOptions, fakeArgc, fakeArgv);
+                result = run(dbOptions, static_cast<int>(runArgv.size()), runArgv.data());
             }
             Cout << "[all] Launching cleanup command..." << Endl;
             int cleanupRc = cleanup(dbOptions, fakeArgc);
