@@ -14,6 +14,8 @@
 #include <util/datetime/base.h>
 
 #include <optional>
+#include <cctype>
+#include <cstring>
 
 namespace NYdb {
 namespace NOdbc {
@@ -22,7 +24,6 @@ namespace {
     NYdb::TStatus StatusFrom(const NYdb::TStatus& ydb_status) {
         return NYdb::TStatus(ydb_status.GetStatus(), NYdb::NIssue::TIssues(ydb_status.GetIssues()));
     }
-
 
     NYdb::TStatus PrefetchFirstPartStatus(NQuery::TExecuteQueryIterator& iterator, std::optional<NQuery::TExecuteQueryPart>* prefetchedResultPart){
         prefetchedResultPart->reset();
@@ -130,9 +131,27 @@ NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession
     NQuery::TExecuteQuerySettings execSettings;
     const SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
     execSettings.ClientTimeout(TDuration::Seconds(queryTimeoutSec));
+    const auto txSettings = Conn_->MakeTxSettings();
     if (Conn_->GetAutocommit()) {
-        const auto txSettings = Conn_->MakeTxSettings();
-        if (txSettings.GetMode() == NQuery::TTxSettings::TS_SERIALIZABLE_RW) {
+        // TS_SNAPSHOT_RW doesn't support explicit BeginTx() - we use NoTx() instead
+        // DDL must use NoTx() per YDB documentation
+        const bool isSnapshotRw = (txSettings.GetMode() == NQuery::TTxSettings::TS_SNAPSHOT_RW);
+        
+        const bool isDdl = [&queryText] {
+            size_t pos = 0;
+            while (pos < queryText.size() && std::isspace(static_cast<unsigned char>(queryText[pos]))) {
+                ++pos;
+            }
+            if (queryText.size() - pos >= 6) {
+                const char* start = queryText.c_str() + pos;
+                return (strncasecmp(start, "CREATE", 6) == 0 ||
+                        strncasecmp(start, "DROP", 4) == 0 ||
+                        strncasecmp(start, "ALTER", 5) == 0);
+            }
+            return false;
+        }();
+
+        if (isSnapshotRw || isDdl) {
             return session.StreamExecuteQuery(
                 queryText,
                 NQuery::TTxControl::NoTx(),
@@ -146,7 +165,7 @@ NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession
             execSettings).ExtractValueSync();
     }
     if (!Conn_->GetTx()) {
-        auto beginTxResult = session.BeginTransaction(Conn_->MakeTxSettings()).ExtractValueSync();
+        auto beginTxResult = session.BeginTransaction(txSettings).ExtractValueSync();
         NStatusHelpers::ThrowOnError(beginTxResult);
         Conn_->SetTx(beginTxResult.GetTransaction());
     }
