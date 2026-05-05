@@ -1,6 +1,15 @@
+# syntax=docker/dockerfile:1.7
 FROM ubuntu:22.04
 
 ARG PRESET=release-test-clang
+
+# ccache settings consumed by the configure/build steps below. The cache dir
+# is materialised by the BuildKit cache mount on those RUN steps; values
+# elsewhere in the image are inert.
+ENV CCACHE_DIR=/root/.ccache
+ENV CCACHE_MAXSIZE=2G
+ENV CCACHE_COMPRESS=true
+ENV CCACHE_COMPILERCHECK=content
 
 # Every RUN that hits the network retries on transient failures so one
 # flake doesn't throw away 30 min of previous build work. apt gets five
@@ -147,7 +156,13 @@ COPY . /ydb-cpp-sdk
 WORKDIR /ydb-cpp-sdk
 RUN rm -rf build
 
-RUN cmake --preset ${PRESET}
-RUN cmake --build --preset default --target slo-key-value
+RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
+    cmake --preset ${PRESET} \
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
+    ccache --zero-stats >/dev/null \
+    && cmake --build --preset default --target slo-key-value \
+    && ccache --show-stats
 
 ENTRYPOINT ["./build/tests/slo_workloads/key_value/slo-key-value"]
