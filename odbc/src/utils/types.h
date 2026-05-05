@@ -3,6 +3,7 @@
 #include <ydb-cpp-sdk/client/value/value.h>
 
 #include <sql.h>
+#include <sqlext.h>
 
 namespace NYdb {
 namespace NOdbc {
