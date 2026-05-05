@@ -33,8 +33,8 @@ odbcinst -q -s
 [YDB]
 Driver=YDB
 Description=YDB Database Connection
-Server=your-server:port
-Database=/path/to/database
+Server=localhost:2136
+Database=/local
 ```
 
 ## Usage
@@ -69,6 +69,12 @@ SQLFreeHandle(SQL_HANDLE_STMT, stmt);
 SQLDisconnect(dbc);
 SQLFreeHandle(SQL_HANDLE_DBC, dbc);
 SQLFreeHandle(SQL_HANDLE_ENV, env);
+```
+
+Alternatively, use `SQLDriverConnect` with a connection string (does not require DSN in odbc.ini):
+```c
+SQLCHAR connStr[] = "Driver=YDB;Endpoint=localhost:2136;Database=/local";
+SQLDriverConnect(dbc, NULL, connStr, SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
 ```
 
 ## Parameters
