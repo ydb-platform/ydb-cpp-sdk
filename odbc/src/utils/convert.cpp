@@ -39,12 +39,49 @@ struct TTypedValue {
 
 template<>
 TTypedValue<SQL_C_CHAR>::TTypedValue(const TBoundParam& param) {
-    Data = std::string(static_cast<const char*>(param.ParameterValuePtr), param.BufferLength);
+    if (param.StrLenOrIndPtr && *param.StrLenOrIndPtr == SQL_NULL_DATA) {
+        Data.clear();
+        return;
+    }
+    
+    const char* ptr = static_cast<const char*>(param.ParameterValuePtr);
+    if (!ptr) {
+        Data.clear();
+        return;
+    }
+    
+    if (param.StrLenOrIndPtr) {
+        SQLLEN len = *param.StrLenOrIndPtr;
+        if (len == SQL_NTS) {
+            Data = std::string(ptr);
+        } else if (len >= 0) {
+            Data = std::string(ptr, static_cast<size_t>(len));
+        } else {
+            Data = std::string(ptr, param.BufferLength);
+        }
+    } else {
+        Data = std::string(ptr, param.BufferLength);
+    }
 }
 
 template<>
 TTypedValue<SQL_C_BINARY>::TTypedValue(const TBoundParam& param) {
-    Data = std::string(static_cast<const char*>(param.ParameterValuePtr), param.BufferLength);
+    if (param.StrLenOrIndPtr && *param.StrLenOrIndPtr == SQL_NULL_DATA) {
+        Data.clear();
+        return;
+    }
+    
+    const char* ptr = static_cast<const char*>(param.ParameterValuePtr);
+    if (!ptr) {
+        Data.clear();
+        return;
+    }
+    
+    if (param.StrLenOrIndPtr && *param.StrLenOrIndPtr >= 0) {
+        Data = std::string(ptr, static_cast<size_t>(*param.StrLenOrIndPtr));
+    } else {
+        Data = std::string(ptr, param.BufferLength);
+    }
 }
 
 class IConverter {
