@@ -89,44 +89,56 @@ jobs:
           fetch-depth: 1
           submodules: true
 
-      - name: Build current workload image
-        working-directory: sdk-current
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # .dockerignore lives under tests/slo_workloads/; buildx expects it at
+      # the context root, so place a copy in each SDK checkout.
+      - name: Stage .dockerignore
         run: |
           set -euxo pipefail
-          cp tests/slo_workloads/.dockerignore .dockerignore
-          docker build \
-            --platform linux/amd64 \
-            --build-arg PRESET=${{ matrix.sdk.preset }} \
-            -t ydb-app-current \
-            -f tests/slo_workloads/Dockerfile \
-            .
-          rm -f .dockerignore
+          cp sdk-current/tests/slo_workloads/.dockerignore sdk-current/.dockerignore
+          if [ -f sdk-baseline/tests/slo_workloads/.dockerignore ]; then
+            cp sdk-baseline/tests/slo_workloads/.dockerignore sdk-baseline/.dockerignore
+          fi
+
+      # A clean build of the SLO image takes ~30 min because the Dockerfile
+      # rebuilds the full C++ toolchain + abseil/protobuf/grpc from source.
+      # The GHA cache lets subsequent runs reuse every layer up to the SDK
+      # source COPY, so only the actual workload link step reruns (~3 min).
+      - name: Build current workload image
+        uses: docker/build-push-action@v6
+        with:
+          context: sdk-current
+          file: sdk-current/tests/slo_workloads/Dockerfile
+          platforms: linux/amd64
+          tags: ydb-app-current
+          load: true
+          build-args: PRESET=${{ matrix.sdk.preset }}
+          cache-from: type=gha,scope=slo-${{ matrix.sdk.preset }}
+          cache-to: type=gha,mode=max,scope=slo-${{ matrix.sdk.preset }}
 
       - name: Build baseline workload image
-        working-directory: sdk-baseline
-        run: |
-          set -euxo pipefail
-          # If the historical commit lacks the SLO workload files or can't
-          # compile, fall back to the current image so the SLO run is still
-          # comparable against itself rather than silently failing.
-          if [ ! -f tests/slo_workloads/Dockerfile ]; then
-            echo "Baseline commit has no SLO Dockerfile; reusing current image"
-            docker tag ydb-app-current ydb-app-baseline
-            exit 0
-          fi
+        id: baseline-build
+        continue-on-error: true
+        uses: docker/build-push-action@v6
+        with:
+          context: sdk-baseline
+          file: sdk-baseline/tests/slo_workloads/Dockerfile
+          platforms: linux/amd64
+          tags: ydb-app-baseline
+          load: true
+          build-args: PRESET=${{ matrix.sdk.preset }}
+          cache-from: type=gha,scope=slo-${{ matrix.sdk.preset }}
 
-          cp tests/slo_workloads/.dockerignore .dockerignore
-          if ! docker build \
-                --platform linux/amd64 \
-                --build-arg PRESET=${{ matrix.sdk.preset }} \
-                -t ydb-app-baseline \
-                -f tests/slo_workloads/Dockerfile \
-                .
-          then
-            echo "Baseline build failed; reusing current image"
-            docker tag ydb-app-current ydb-app-baseline
-          fi
-          rm -f .dockerignore
+      # If the historical commit lacks the SLO Dockerfile or can't compile,
+      # reuse the current image so the SLO run is still comparable against
+      # itself rather than failing outright.
+      - name: Fall back to current image for baseline
+        if: steps.baseline-build.outcome == 'failure'
+        run: |
+          echo "Baseline build failed; reusing current image as baseline."
+          docker tag ydb-app-current ydb-app-baseline
 
       - name: Run SLO Tests
         uses: ydb-platform/ydb-slo-action/init@v2

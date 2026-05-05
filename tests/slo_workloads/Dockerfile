@@ -2,11 +2,14 @@ FROM ubuntu:22.04
 
 ARG PRESET=release-test-clang
 
-# Make apt tolerant of transient PPA/mirror timeouts (shared runners see
-# ppa.launchpadcontent.net connection timeouts every few builds).
+# Every RUN that hits the network retries on transient failures so one
+# flake doesn't throw away 30 min of previous build work. apt gets five
+# Acquire retries + 60 s timeouts; wget gets the equivalent via WGET_OPTS.
 RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries && \
     echo 'Acquire::http::Timeout "60";' >> /etc/apt/apt.conf.d/80-retries && \
     echo 'Acquire::https::Timeout "60";' >> /etc/apt/apt.conf.d/80-retries
+
+ENV WGET_OPTS="--tries=5 --waitretry=15 --timeout=60 --retry-connrefused --retry-on-http-error=500,502,503,504"
 
 # Install software-properties-common for add-apt-repository
 RUN apt-get -y update && apt-get -y install software-properties-common && add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -20,7 +23,7 @@ RUN apt-get -y update && apt-get -y install \
 
 # Install CMake
 ENV CMAKE_VERSION=3.27.7
-RUN wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.sh \
+RUN wget $WGET_OPTS https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.sh \
     -q -O cmake-install.sh \
     && chmod u+x cmake-install.sh \
     && ./cmake-install.sh --skip-license --prefix=/usr/local \
@@ -28,7 +31,7 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cm
 
 # Install LLVM
 ENV LLVM_VERSION=16
-RUN wget https://apt.llvm.org/llvm.sh && \
+RUN wget $WGET_OPTS https://apt.llvm.org/llvm.sh && \
     chmod u+x llvm.sh && \
     ./llvm.sh ${LLVM_VERSION} && \
     rm llvm.sh
@@ -45,7 +48,7 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 10000 && \
 # Install abseil-cpp
 ENV ABSEIL_CPP_VERSION=20230802.0
 ENV ABSEIL_CPP_INSTALL_DIR=/root/ydb_deps/absl
-RUN wget -O abseil-cpp-${ABSEIL_CPP_VERSION}.tar.gz https://github.com/abseil/abseil-cpp/archive/refs/tags/${ABSEIL_CPP_VERSION}.tar.gz && \
+RUN wget $WGET_OPTS -O abseil-cpp-${ABSEIL_CPP_VERSION}.tar.gz https://github.com/abseil/abseil-cpp/archive/refs/tags/${ABSEIL_CPP_VERSION}.tar.gz && \
     tar -xvzf abseil-cpp-${ABSEIL_CPP_VERSION}.tar.gz && cd abseil-cpp-${ABSEIL_CPP_VERSION} && \
     mkdir build && cd build && \
     cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DABSL_PROPAGATE_CXX_STD=ON .. && \
@@ -56,7 +59,7 @@ RUN wget -O abseil-cpp-${ABSEIL_CPP_VERSION}.tar.gz https://github.com/abseil/ab
 # Install protobuf
 ENV PROTOBUF_VERSION=3.21.12
 ENV PROTOBUF_INSTALL_DIR=/root/ydb_deps/protobuf
-RUN wget -O protobuf-${PROTOBUF_VERSION}.tar.gz https://github.com/protocolbuffers/protobuf/archive/refs/tags/v${PROTOBUF_VERSION}.tar.gz && \
+RUN wget $WGET_OPTS -O protobuf-${PROTOBUF_VERSION}.tar.gz https://github.com/protocolbuffers/protobuf/archive/refs/tags/v${PROTOBUF_VERSION}.tar.gz && \
     tar -xvzf protobuf-${PROTOBUF_VERSION}.tar.gz && cd protobuf-${PROTOBUF_VERSION} && \
     mkdir build && cd build && \
     cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_INSTALL=ON -Dprotobuf_ABSL_PROVIDER=package .. && \
@@ -67,7 +70,7 @@ RUN wget -O protobuf-${PROTOBUF_VERSION}.tar.gz https://github.com/protocolbuffe
 # Install grpc
 ENV GRPC_VERSION=1.54.3
 ENV GRPC_INSTALL_DIR=/root/ydb_deps/grpc
-RUN wget -O grpc-${GRPC_VERSION}.tar.gz https://github.com/grpc/grpc/archive/refs/tags/v${GRPC_VERSION}.tar.gz && \
+RUN wget $WGET_OPTS -O grpc-${GRPC_VERSION}.tar.gz https://github.com/grpc/grpc/archive/refs/tags/v${GRPC_VERSION}.tar.gz && \
     tar -xvzf grpc-${GRPC_VERSION}.tar.gz && cd grpc-${GRPC_VERSION} && \
     mkdir build && cd build && \
     cmake -G Ninja -DCMAKE_PREFIX_PATH="${ABSEIL_CPP_INSTALL_DIR};${PROTOBUF_INSTALL_DIR}" \
@@ -84,7 +87,7 @@ RUN wget -O grpc-${GRPC_VERSION}.tar.gz https://github.com/grpc/grpc/archive/ref
 # Install base64
 ENV BASE64_VERSION=0.5.2
 ENV BASE64_INSTALL_DIR=/root/ydb_deps/base64
-RUN wget -O base64-${BASE64_VERSION}.tar.gz https://github.com/aklomp/base64/archive/refs/tags/v${BASE64_VERSION}.tar.gz && \
+RUN wget $WGET_OPTS -O base64-${BASE64_VERSION}.tar.gz https://github.com/aklomp/base64/archive/refs/tags/v${BASE64_VERSION}.tar.gz && \
     tar -xvzf base64-${BASE64_VERSION}.tar.gz && cd base64-${BASE64_VERSION} && \
     mkdir build && cd build && \
     cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && \
@@ -95,7 +98,7 @@ RUN wget -O base64-${BASE64_VERSION}.tar.gz https://github.com/aklomp/base64/arc
 # Install brotli
 ENV BROTLI_VERSION=1.1.0
 ENV BROTLI_INSTALL_DIR=/root/ydb_deps/brotli
-RUN wget -O brotli-${BROTLI_VERSION}.tar.gz https://github.com/google/brotli/archive/refs/tags/v${BROTLI_VERSION}.tar.gz && \
+RUN wget $WGET_OPTS -O brotli-${BROTLI_VERSION}.tar.gz https://github.com/google/brotli/archive/refs/tags/v${BROTLI_VERSION}.tar.gz && \
     tar -xvzf brotli-${BROTLI_VERSION}.tar.gz && cd brotli-${BROTLI_VERSION} && \
     mkdir build && cd build && \
     cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && \
@@ -106,7 +109,7 @@ RUN wget -O brotli-${BROTLI_VERSION}.tar.gz https://github.com/google/brotli/arc
 # Install jwt-cpp
 ENV JWT_CPP_VERSION=0.7.0
 ENV JWT_CPP_INSTALL_DIR=/root/ydb_deps/jwt-cpp
-RUN wget -O jwt-cpp-${JWT_CPP_VERSION}.tar.gz https://github.com/Thalhammer/jwt-cpp/archive/refs/tags/v${JWT_CPP_VERSION}.tar.gz && \
+RUN wget $WGET_OPTS -O jwt-cpp-${JWT_CPP_VERSION}.tar.gz https://github.com/Thalhammer/jwt-cpp/archive/refs/tags/v${JWT_CPP_VERSION}.tar.gz && \
     tar -xvzf jwt-cpp-${JWT_CPP_VERSION}.tar.gz && cd jwt-cpp-${JWT_CPP_VERSION} && \
     mkdir build && cd build && \
     cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && \
@@ -116,7 +119,7 @@ RUN wget -O jwt-cpp-${JWT_CPP_VERSION}.tar.gz https://github.com/Thalhammer/jwt-
 
 # Install ccache 4.8.1 or above
 ENV CCACHE_VERSION=4.8.1
-RUN wget https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz \
+RUN wget $WGET_OPTS https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz \
     && tar -xf ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz \
     && cp ccache-${CCACHE_VERSION}-linux-x86_64/ccache /usr/local/bin/ \
     && rm -rf ccache-${CCACHE_VERSION}-linux-x86_64 ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz
