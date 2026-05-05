@@ -11,15 +11,34 @@ RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries && \
 
 ENV WGET_OPTS="--tries=5 --waitretry=15 --timeout=60 --retry-connrefused --retry-on-http-error=500,502,503,504"
 
-# Install software-properties-common for add-apt-repository
-RUN apt-get -y update && apt-get -y install software-properties-common && add-apt-repository ppa:ubuntu-toolchain-r/test
+# Install software-properties-common and add the gcc-13 PPA.
+# Acquire::Retries only retries HTTP errors; TCP connect timeouts to
+# ppa.launchpadcontent.net still drop through and kill the step. Wrap the
+# whole command in a shell retry loop with exponential backoff so a CDN
+# blip doesn't throw away 30 minutes of downstream build work.
+RUN for i in 1 2 3 4 5; do \
+        apt-get -y update && \
+        apt-get -y install software-properties-common && \
+        add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
+        apt-get -y update && \
+        break; \
+        echo "add-apt-repository attempt $i failed; sleeping $((i * 15))s"; \
+        sleep $((i * 15)); \
+    done && \
+    apt-cache show gcc-13 > /dev/null  # fail fast if PPA never came up
 
 # Install C++ tools and libraries
-RUN apt-get -y update && apt-get -y install \
-    git gdb wget ninja-build libidn11-dev ragel yasm libc-ares-dev libre2-dev \
-    rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev libgtest-dev libgmock-dev \
-    libbz2-dev liblz4-dev libdouble-conversion-dev libssl-dev libstdc++-13-dev gcc-13 g++-13 \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN for i in 1 2 3 4 5; do \
+        apt-get -y install \
+            git gdb wget ninja-build libidn11-dev ragel yasm libc-ares-dev libre2-dev \
+            rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev libgtest-dev libgmock-dev \
+            libbz2-dev liblz4-dev libdouble-conversion-dev libssl-dev libstdc++-13-dev gcc-13 g++-13 && \
+        break; \
+        echo "apt-get install attempt $i failed; sleeping $((i * 15))s"; \
+        sleep $((i * 15)); \
+        apt-get -y update || true; \
+    done && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install CMake
 ENV CMAKE_VERSION=3.27.7
