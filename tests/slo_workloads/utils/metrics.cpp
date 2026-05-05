@@ -138,7 +138,7 @@ public:
         const bool success = requestData.Status == NYdb::EStatus::SUCCESS;
         const std::string status = success ? "success" : "error";
 
-        OperationsTotal_->Add(1, MergeAttributes({
+        OperationsTotal_->Add(uint64_t{1}, MergeAttributes({
             {"operation_type", OperationType_},
             {"operation_status", status},
         }));
@@ -146,7 +146,7 @@ public:
         // sdk_retry_attempts_total = total number of technical attempts
         // including the first one. TStatUnit counts only post-first attempts,
         // so add 1 to include the initial attempt.
-        RetryAttemptsTotal_->Add(static_cast<double>(requestData.RetryAttempts + 1),
+        RetryAttemptsTotal_->Add(requestData.RetryAttempts + 1,
             MergeAttributes({
                 {"operation_type", OperationType_},
             })
@@ -159,11 +159,11 @@ public:
 
 private:
     void InitMetrics() {
-        OperationsTotal_ = Meter_->CreateDoubleCounter("sdk_operations_total",
+        OperationsTotal_ = Meter_->CreateUInt64Counter("sdk_operations_total",
             "Total number of operations, categorized by operation type and status."
         );
 
-        RetryAttemptsTotal_ = Meter_->CreateDoubleCounter("sdk_retry_attempts_total",
+        RetryAttemptsTotal_ = Meter_->CreateUInt64Counter("sdk_retry_attempts_total",
             "Total number of retry attempts (including the first attempt), categorized by operation type."
         );
 
@@ -191,16 +191,18 @@ private:
 
     void PublishPercentiles() {
         auto snapshot = Latency_.SnapshotAndReset();
-        if (!snapshot.HasData) {
-            return;
-        }
         auto attrs = MergeAttributes({
             {"operation_type", OperationType_},
             {"operation_status", "success"},
         });
-        LatencyP50_->Record(snapshot.P50, attrs);
-        LatencyP95_->Record(snapshot.P95, attrs);
-        LatencyP99_->Record(snapshot.P99, attrs);
+        // When no successful ops landed in the last second, publish 0.0
+        // for all percentiles so the gauges reset with the HDR window
+        // rather than appearing "stuck" at the last non-empty value (the
+        // OTel periodic exporter would otherwise re-emit the previous
+        // Record() value on every collection cycle).
+        LatencyP50_->Record(snapshot.HasData ? snapshot.P50 : 0.0, attrs);
+        LatencyP95_->Record(snapshot.HasData ? snapshot.P95 : 0.0, attrs);
+        LatencyP99_->Record(snapshot.HasData ? snapshot.P99 : 0.0, attrs);
     }
 
     std::map<std::string, std::string> MergeAttributes(const std::map<std::string, std::string>& metricAttrs) const {
@@ -216,8 +218,8 @@ private:
     std::unique_ptr<opentelemetry::sdk::metrics::MeterProvider> MeterProvider_;
     std::shared_ptr<opentelemetry::metrics::Meter> Meter_;
 
-    std::unique_ptr<opentelemetry::metrics::Counter<double>> OperationsTotal_;
-    std::unique_ptr<opentelemetry::metrics::Counter<double>> RetryAttemptsTotal_;
+    std::unique_ptr<opentelemetry::metrics::Counter<uint64_t>> OperationsTotal_;
+    std::unique_ptr<opentelemetry::metrics::Counter<uint64_t>> RetryAttemptsTotal_;
     std::unique_ptr<opentelemetry::metrics::Gauge<double>> LatencyP50_;
     std::unique_ptr<opentelemetry::metrics::Gauge<double>> LatencyP95_;
     std::unique_ptr<opentelemetry::metrics::Gauge<double>> LatencyP99_;
