@@ -2,6 +2,12 @@ FROM ubuntu:22.04
 
 ARG PRESET=release-test-clang
 
+# Make apt tolerant of transient PPA/mirror timeouts (shared runners see
+# ppa.launchpadcontent.net connection timeouts every few builds).
+RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries && \
+    echo 'Acquire::http::Timeout "60";' >> /etc/apt/apt.conf.d/80-retries && \
+    echo 'Acquire::https::Timeout "60";' >> /etc/apt/apt.conf.d/80-retries
+
 # Install software-properties-common for add-apt-repository
 RUN apt-get -y update && apt-get -y install software-properties-common && add-apt-repository ppa:ubuntu-toolchain-r/test
 
