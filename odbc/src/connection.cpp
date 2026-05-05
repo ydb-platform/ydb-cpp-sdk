@@ -86,11 +86,11 @@ SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
         }
         pos = sc+1;
     }
-    Endpoint_ = params["Endpoint"];
+    Endpoint_ = params.contains("Server") ? params["Server"] : params["Endpoint"];
     Database_ = params["Database"];
 
     if (Endpoint_.empty() || Database_.empty()) {
-        throw TOdbcException("08001", 0, "Missing Endpoint or Database in connection string");
+        throw TOdbcException("08001", 0, "Missing Endpoint (or Server) or Database in connection string");
     }
 
     TConnectionAttributes::NormalizeCatalogPath(Database_);
@@ -105,16 +105,18 @@ SQLRETURN TConnection::Connect(const std::string& serverName,
                                const std::string& auth) {
 
     char endpoint[256] = {0};
+    char server[256] = {0};
     char database[256] = {0};
 
-    //SQLGetPrivateProfileString(serverName.c_str(), "Endpoint", "", endpoint, sizeof(endpoint), nullptr);
-    //SQLGetPrivateProfileString(serverName.c_str(), "Database", "", database, sizeof(database), nullptr);
+    SQLGetPrivateProfileString(serverName.c_str(), "Endpoint", "", endpoint, sizeof(endpoint), nullptr);
+    SQLGetPrivateProfileString(serverName.c_str(), "Server", "", server, sizeof(server), nullptr);
+    SQLGetPrivateProfileString(serverName.c_str(), "Database", "", database, sizeof(database), nullptr);
 
-    Endpoint_ = endpoint;
+    Endpoint_ = endpoint[0] ? endpoint : server;
     Database_ = database;
 
     if (Endpoint_.empty() || Database_.empty()) {
-        throw TOdbcException("08001", 0, "Missing Endpoint or Database in DSN");
+        throw TOdbcException("08001", 0, "Missing Endpoint (or Server) or Database in DSN");
     }
 
     TConnectionAttributes::NormalizeCatalogPath(Database_);
