@@ -128,3 +128,219 @@ TEST(OdbcConvert, StringNullToYdb) {
     CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: UTF8\n  }\n}\n");
     CheckProto(value->GetProto(), "null_flag_value: NULL_VALUE\n");
 }
+
+TEST(OdbcConvert, Int32ToYdb) {
+    SQLINTEGER v = 42;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), nullptr
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: INT32\n  }\n}\n");
+    CheckProto(value->GetProto(), "int32_value: 42\n");
+}
+
+TEST(OdbcConvert, Int32NegativeToYdb) {
+    SQLINTEGER v = -999;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), nullptr
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetProto(), "int32_value: -999\n");
+}
+
+TEST(OdbcConvert, Int32ZeroToYdb) {
+    SQLINTEGER v = 0;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), nullptr
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetProto(), "int32_value: 0\n");
+}
+
+TEST(OdbcConvert, Int32MaxToYdb) {
+    SQLINTEGER v = 2147483647;  // INT32_MAX
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), nullptr
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetProto(), "int32_value: 2147483647\n");
+}
+
+TEST(OdbcConvert, Int32NullToYdb) {
+    SQLINTEGER v = 42;
+    SQLLEN nullInd = SQL_NULL_DATA;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), &nullInd
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetProto(), "null_flag_value: NULL_VALUE\n");
+}
+
+TEST(OdbcConvert, Int64NegativeToYdb) {
+    SQLBIGINT v = -123456789012345LL;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_SBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), nullptr
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetProto(), "int64_value: -123456789012345\n");
+}
+
+TEST(OdbcConvert, Int64ZeroToYdb) {
+    SQLBIGINT v = 0;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_SBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), nullptr
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetProto(), "int64_value: 0\n");
+}
+
+TEST(OdbcConvert, DoubleNegativeToYdb) {
+    SQLDOUBLE v = -2.71828;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &v, sizeof(v), nullptr
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+}
+
+TEST(OdbcConvert, DoubleZeroToYdb) {
+    SQLDOUBLE v = 0.0;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &v, sizeof(v), nullptr
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetProto(), "double_value: 0\n");
+}
+
+TEST(OdbcConvert, DoubleNullToYdb) {
+    SQLDOUBLE v = 3.14;
+    SQLLEN nullInd = SQL_NULL_DATA;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &v, sizeof(v), &nullInd
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetProto(), "null_flag_value: NULL_VALUE\n");
+}
+
+TEST(OdbcConvert, StringEmptyToYdb) {
+    const char* str = "";
+    SQLLEN len = 0;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, len, &len
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetProto(), "text_value: \"\"\n");
+}
+
+TEST(OdbcConvert, StringUnicodeToYdb) {
+    const char* str = "Привет";
+    SQLLEN len = SQL_NTS;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, 0, &len
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+}
+
+TEST(OdbcConvert, StringWithLengthToYdb) {
+    const char* str = "hello world";
+    SQLLEN len = 5;  // Only "hello"
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, len, &len
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetProto(), "text_value: \"hello\"\n");
+}
+
+TEST(OdbcConvert, StringNullTerminatedToYdb) {
+    const char* str = "test";
+    SQLLEN len = SQL_NTS;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, 0, &len
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetProto(), "text_value: \"test\"\n");
+}
+
+
+TEST(OdbcConvert, BinaryNullToYdb) {
+    const char* data = "\x01\x02\x03";
+    SQLLEN nullInd = SQL_NULL_DATA;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_BINARY, SQL_BINARY, 0, 0, (SQLPOINTER)data, 3, &nullInd
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetProto(), "null_flag_value: NULL_VALUE\n");
+}
+
+TEST(OdbcConvert, BinaryEmptyToYdb) {
+    const char* data = "";
+    SQLLEN len = 0;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_BINARY, SQL_BINARY, 0, 0, (SQLPOINTER)data, len, &len
+    };
+    TParamsBuilder paramsBuilder;
+    ConvertParam(param, paramsBuilder.AddParam("$p1"));
+    auto params = paramsBuilder.Build();
+    auto value = params.GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetProto(), "bytes_value: \"\"\n");
+}
