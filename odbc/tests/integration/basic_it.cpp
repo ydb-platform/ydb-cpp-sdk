@@ -99,3 +99,28 @@ TEST(OdbcBasic, ColumnBinding) {
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
+
+TEST(OdbcBasic, SQLConnect) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+
+    AllocEnv(&env);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLConnect(dbc, (SQLCHAR*)"YDB", SQL_NTS, (SQLCHAR*)"", SQL_NTS, (SQLCHAR*)"", SQL_NTS),
+                  dbc, SQL_HANDLE_DBC);
+    
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    
+    SQLINTEGER val;
+    SQLLEN ind;
+    SQLBindCol(stmt, 1, SQL_C_SLONG, &val, 0, &ind);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    ASSERT_EQ(val, 1);
+    
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
