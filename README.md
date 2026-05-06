@@ -138,17 +138,17 @@ git clone --recurse-submodules https://github.com/ydb-platform/ydb-cpp-sdk.git
 
 ### Configure
 
-Generate build configuration using the `release` preset. `ccache` is located automatically, but if you get the warning that it's not been found, specify its location by passing `-DCCACHE_PATH=path/to/bin`
+Generate build configuration using a configure preset (e.g. `release-test-clang`). `ccache` is located automatically, but if you get the warning that it's not been found, specify its location by passing `-DCCACHE_PATH=path/to/bin`
 
 ```bash
 cd ydb-cpp-sdk
-cmake --preset release
+cmake --preset $sdk_configure_preset
 ```
 
 ### Build
 
 ```bash
-cmake --build --preset release
+cmake --build --preset $sdk_configure_preset
 ```
 
 ### Test
@@ -158,20 +158,43 @@ Specify a level of parallelism by passing the `-j<level>` option into the comman
 Running all tests:
 
 ```bash
-ctest -j$(nproc) --preset release
+ctest -j$(nproc) --preset all
 ```
 
 Running unit tests only:
 
 ```bash
-ctest -j$(nproc) --preset release-unit
+ctest -j$(nproc) --preset unit
 ```
 
 Running integration tests only:
 
 ```bash
-ctest -j$(nproc) --preset release-integration
+ctest -j$(nproc) --preset integration
 ```
+
+### Presets
+
+#### Configure presets
+
+| Preset | Build type | Compiler | Tests & examples |
+|---|---|---|---|
+| `release-clang` | Release | Clang | No |
+| `release-gcc` | Release | GCC | No |
+| `release-test-clang` | Release | Clang | Yes |
+| `release-test-gcc` | Release | GCC | Yes |
+| `debug-clang` | Debug | Clang | No |
+| `debug-gcc` | Debug | GCC | No |
+| `debug-test-clang` | Debug | Clang | Yes |
+| `debug-test-gcc` | Debug | GCC | Yes |
+
+#### Test presets
+
+| Preset | Tests included | Requires YDB server |
+|---|---|---|
+| `all` | Unit + Integration | Yes |
+| `unit` | Unit only | No |
+| `integration` | Integration only | Yes |
 
 Note that some tests use a legacy test library instead of GoogleTest, see `./<test_target> --help` for details. If you need to run only certain test cases, here is an alternative for `--gtest_filter` option:
 
