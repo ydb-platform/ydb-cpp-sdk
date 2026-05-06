@@ -12,6 +12,7 @@ add_library(ydb-odbc SHARED
   src/statement_attr.cpp
   src/statement.cpp
   src/environment.cpp
+  src/get_info.cpp
 )
 
 target_include_directories(ydb-odbc

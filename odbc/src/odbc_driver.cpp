@@ -1,6 +1,7 @@
 #include "environment.h"
 #include "connection.h"
 #include "statement.h"
+#include "get_info.h"
 
 #include "utils/util.h"
 #include "utils/error_manager.h"
@@ -406,6 +407,16 @@ SQLRETURN SQL_API SQLGetStmtAttr(
     SQLINTEGER* stringLengthPtr) {
     return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
         return stmt->GetStmtAttr(attribute, value, bufferLength, stringLengthPtr);
+    });
+}
+
+SQLRETURN SQL_API SQLGetInfo(SQLHDBC connectionHandle,
+                             SQLUSMALLINT infoType,
+                             SQLPOINTER infoValuePtr,
+                             SQLSMALLINT bufferLength,
+                             SQLSMALLINT* stringLengthPtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(connectionHandle, [&](auto* conn) {
+        return NYdb::NOdbc::TInfoProvider::GetInfo(conn, infoType, infoValuePtr, bufferLength, stringLengthPtr);
     });
 }
 
