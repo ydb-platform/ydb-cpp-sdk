@@ -106,6 +106,33 @@ jobs:
           cp sdk-current/tests/slo_workloads/.dockerignore sdk-current/.dockerignore
           cp sdk-baseline/tests/slo_workloads/.dockerignore sdk-baseline/.dockerignore
 
+      # `cache-to: type=gha` does NOT export `--mount=type=cache` content, so
+      # ccache state is lost between runs. Persist /root/.ccache via host
+      # directory + cache-dance: actions/cache restores the host dir, the
+      # dance injects it into the BuildKit cache mount before the build and
+      # extracts the updated state afterwards for the next save.
+      - name: Restore ccache
+        id: ccache
+        uses: actions/cache@v4
+        with:
+          path: ccache
+          key: slo-ccache-${{ matrix.sdk.preset }}-${{ github.run_id }}
+          restore-keys: |
+            slo-ccache-${{ matrix.sdk.preset }}-
+
+      - name: Inject ccache into BuildKit
+        uses: reproducible-containers/buildkit-cache-dance@v3.1.2
+        with:
+          cache-map: |
+            {
+              "ccache": "/root/.ccache"
+            }
+          # Always extract so newly-compiled TUs from this run are saved by
+          # actions/cache (key uses ${{ github.run_id }}, so each run gets
+          # its own snapshot). Without extraction the cache stays frozen at
+          # whatever was first persisted.
+          skip-extraction: false
+
       # A clean build of the SLO image takes ~30 min because the Dockerfile
       # rebuilds the full C++ toolchain + abseil/protobuf/grpc from source.
       # The GHA cache lets subsequent runs reuse every layer up to the SDK
