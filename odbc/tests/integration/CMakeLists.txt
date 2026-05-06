@@ -3,17 +3,33 @@ add_odbc_test(NAME odbc-basic_it
     basic_it.cpp
 )
 
-add_odbc_test(NAME odbc-env_it
+add_odbc_test(NAME odbc-environment_api_it
   SOURCES
-    env_it.cpp
+    environment_api_it.cpp
 )
 
-add_odbc_test(NAME odbc-attr_it
+# Core API Tests
+add_odbc_test(NAME odbc-connection_api_it
   SOURCES
-    attr_it.cpp
+    connection_api_it.cpp
 )
 
-add_odbc_test(NAME odbc-stmt_attr_it
+add_odbc_test(NAME odbc-statement_api_it
   SOURCES
-    stmt_attr_it.cpp
+    statement_api_it.cpp
+)
+
+add_odbc_test(NAME odbc-transaction_api_it
+  SOURCES
+    transaction_api_it.cpp
+)
+
+add_odbc_test(NAME odbc-error_handling_it
+  SOURCES
+    error_handling_it.cpp
+)
+
+add_odbc_test(NAME odbc-metadata_api_it
+  SOURCES
+    metadata_api_it.cpp
 )
