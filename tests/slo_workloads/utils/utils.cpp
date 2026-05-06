@@ -188,6 +188,12 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
     if (prefix.empty()) {
         prefix = GetDatabase(connectionString);
     }
+    if (prefix.empty()) {
+        // YDB SLO action sets YDB_CONNECTION_STRING in path form
+        // (grpc://host:port/Root/testdb), which GetDatabase can't parse.
+        // Fall back to YDB_DATABASE which the action sets alongside it.
+        prefix = GetEnv("YDB_DATABASE");
+    }
 
     if (!ParseToken(token, tokenFile)) {
         return EXIT_FAILURE;
