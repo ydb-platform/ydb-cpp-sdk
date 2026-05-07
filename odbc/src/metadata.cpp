@@ -1,4 +1,4 @@
-#include "get_info.h"
+#include "metadata.h"
 
 #include <algorithm>
 #include <cstring>
@@ -54,9 +54,49 @@ SQLRETURN WriteInfoScalar(
     return SQL_SUCCESS;
 }
 
+
+bool IsSupportedFunction(SQLUSMALLINT functionId) {
+    switch (functionId) {
+        case SQL_API_SQLALLOCHANDLE:
+        case SQL_API_SQLBINDCOL:
+        case SQL_API_SQLBINDPARAMETER:
+        case SQL_API_SQLCLOSECURSOR:
+        case SQL_API_SQLCOLUMNS:
+        case SQL_API_SQLCONNECT:
+        case SQL_API_SQLDESCRIBECOL:
+        case SQL_API_SQLDISCONNECT:
+        case SQL_API_SQLDRIVERCONNECT:
+        case SQL_API_SQLENDTRAN:
+        case SQL_API_SQLEXECDIRECT:
+        case SQL_API_SQLEXECUTE:
+        case SQL_API_SQLFETCH:
+        case SQL_API_SQLFETCHSCROLL:
+        case SQL_API_SQLFREEHANDLE:
+        case SQL_API_SQLFREESTMT:
+        case SQL_API_SQLGETDATA:
+        case SQL_API_SQLGETDIAGFIELD:
+        case SQL_API_SQLGETDIAGREC:
+        case SQL_API_SQLGETFUNCTIONS:
+        case SQL_API_SQLGETCONNECTATTR:
+        case SQL_API_SQLGETINFO:
+        case SQL_API_SQLGETSTMTATTR:
+        case SQL_API_SQLMORERESULTS:
+        case SQL_API_SQLNUMRESULTCOLS:
+        case SQL_API_SQLPREPARE:
+        case SQL_API_SQLROWCOUNT:
+        case SQL_API_SQLSETCONNECTATTR:
+        case SQL_API_SQLSETENVATTR:
+        case SQL_API_SQLSETSTMTATTR:
+        case SQL_API_SQLTABLES:
+            return true;
+        default:
+            return false;
+    }
+}
+
 } // namespace
 
-SQLRETURN TInfoProvider::GetInfo(
+SQLRETURN TMetadata::GetInfo(
     TConnection* conn,
     SQLUSMALLINT infoType,
     SQLPOINTER infoValuePtr,
@@ -203,6 +243,75 @@ SQLRETURN TInfoProvider::GetInfo(
         default:
             return conn->AddError("HYC00", 0, "Optional feature not implemented");
     }
+}
+
+
+SQLRETURN TMetadata::GetFunctions(SQLUSMALLINT functionId, SQLUSMALLINT* supportedPtr) {
+    if (!supportedPtr) {
+        return SQL_ERROR;
+    }
+
+    if (functionId == SQL_API_ALL_FUNCTIONS) {
+        std::memset(supportedPtr, 0, 100 * sizeof(SQLUSMALLINT));
+        for (SQLUSMALLINT id = 0; id < 100; ++id) {
+            if (IsSupportedFunction(id)) {
+                supportedPtr[id] = SQL_TRUE;
+            }
+        }
+        return SQL_SUCCESS;
+    }
+
+    if (functionId == SQL_API_ODBC3_ALL_FUNCTIONS) {
+        std::memset(supportedPtr, 0, SQL_API_ODBC3_ALL_FUNCTIONS_SIZE * sizeof(SQLUSMALLINT));
+        for (SQLUSMALLINT id = 0; id < SQL_API_ODBC3_ALL_FUNCTIONS_SIZE * 16; ++id) {
+            if (IsSupportedFunction(id)) {
+                supportedPtr[id >> 4] |= (1 << (id & 0x000F));
+            }
+        }
+        return SQL_SUCCESS;
+    }
+
+    *supportedPtr = IsSupportedFunction(functionId) ? SQL_TRUE : SQL_FALSE;
+    return SQL_SUCCESS;
+}
+
+SQLRETURN TMetadata::DescribeCol(
+    TStatement* stmt,
+    SQLUSMALLINT columnNumber,
+    SQLCHAR* columnName,
+    SQLSMALLINT bufferLength,
+    SQLSMALLINT* nameLengthPtr,
+    SQLSMALLINT* dataTypePtr,
+    SQLULEN* columnSizePtr,
+    SQLSMALLINT* decimalDigitsPtr,
+    SQLSMALLINT* nullablePtr) {
+    const auto& columns = stmt->GetColumnMeta();
+    if (columnNumber < 1 || columnNumber > columns.size()) {
+        throw TOdbcException("07009", 0, "Invalid descriptor index");
+    }
+
+    const auto& column = columns[columnNumber - 1];
+    if (nameLengthPtr) {
+        *nameLengthPtr = static_cast<SQLSMALLINT>(column.Name.size());
+    }
+    if (columnName && bufferLength > 0) {
+        const auto copyLength = std::min<size_t>(column.Name.size(), static_cast<size_t>(bufferLength - 1));
+        std::memcpy(columnName, column.Name.data(), copyLength);
+        columnName[copyLength] = '\0';
+    }
+    if (dataTypePtr) {
+        *dataTypePtr = column.SqlType;
+    }
+    if (columnSizePtr) {
+        *columnSizePtr = column.Size;
+    }
+    if (decimalDigitsPtr) {
+        *decimalDigitsPtr = column.DecimalDigits;
+    }
+    if (nullablePtr) {
+        *nullablePtr = column.Nullable;
+    }
+    return SQL_SUCCESS;
 }
 
 } // namespace NYdb::NOdbc

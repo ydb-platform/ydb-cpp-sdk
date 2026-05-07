@@ -15,7 +15,11 @@ public:
         : BindingFiller_(bindingFiller)
         , Iterator_(std::move(iterator))
         , PrefetchedPart_(std::move(prefetchedPart))
-    {}
+    {
+        if (PrefetchedPart_ && PrefetchedPart_->HasResultSet()) {
+            FillColumnsMeta(PrefetchedPart_->GetResultSet());
+        }
+    }
 
     bool Fetch() override {
         while (true) {
@@ -42,17 +46,10 @@ public:
                 return false;
             }
             if (part.HasResultSet()) {
-                TResultSet rs = part.ExtractResultSet();
+                TResultSet resultSet = part.ExtractResultSet();
                 Columns_.clear();
-                Columns_.reserve(rs.ColumnsCount());
-                for (const auto& col : rs.GetColumnsMeta()) {
-                    Columns_.push_back(TColumnMeta{
-                        col.Name,
-                        GetTypeId(col.Type),
-                        0,
-                        IsNullable(col.Type)});
-                }
-                ResultSetParser_ = std::make_unique<TResultSetParser>(rs);
+                FillColumnsMeta(resultSet);
+                ResultSetParser_ = std::make_unique<TResultSetParser>(resultSet);
             }
         }
         return false;
@@ -74,13 +71,17 @@ public:
     }
 
 private:
-    // void GetNextPart() {
-    //     auto part = Iterator_.ReadNext().ExtractValueSync();
-    //     while (!part.EOS() && part.IsSuccess() && !part.HasResultSet()) {
-    //         part = Iterator_.ReadNext().ExtractValueSync();
-    //     }
-    //     Part_ = std::move(part);
-    // }
+    void FillColumnsMeta(const TResultSet& resultSet) {
+        for (const auto& col : resultSet.GetColumnsMeta()) {
+            const SQLSMALLINT sqlType = GetTypeId(col.Type);
+            Columns_.push_back(TColumnMeta{
+                col.Name,
+                sqlType,
+                GetColumnSize(sqlType),
+                IsNullable(col.Type),
+                GetDecimalDigits(col.Type).value_or(0)});
+        }
+    }
 
     IBindingFiller* BindingFiller_;
     NQuery::TExecuteQueryIterator Iterator_;
