@@ -1,7 +1,7 @@
 #include "environment.h"
 #include "connection.h"
 #include "statement.h"
-#include "get_info.h"
+#include "metadata.h"
 
 #include "utils/util.h"
 #include "utils/error_manager.h"
@@ -17,6 +17,7 @@ namespace {
         }
         return static_cast<Handle*>(handle);
     }
+
 }
 
 extern "C" {
@@ -393,6 +394,41 @@ SQLRETURN SQL_API SQLNumResultCols(SQLHSTMT statementHandle, SQLSMALLINT* colCou
     });
 }
 
+SQLRETURN SQL_API SQLDescribeCol(
+    SQLHSTMT statementHandle,
+    SQLUSMALLINT columnNumber,
+    SQLCHAR* columnName,
+    SQLSMALLINT bufferLength,
+    SQLSMALLINT* nameLengthPtr,
+    SQLSMALLINT* dataTypePtr,
+    SQLULEN* columnSizePtr,
+    SQLSMALLINT* decimalDigitsPtr,
+    SQLSMALLINT* nullablePtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return NYdb::NOdbc::TMetadata::DescribeCol(
+            stmt,
+            columnNumber,
+            columnName,
+            bufferLength,
+            nameLengthPtr,
+            dataTypePtr,
+            columnSizePtr,
+            decimalDigitsPtr,
+            nullablePtr);
+    });
+}
+
+SQLRETURN SQL_API SQLMoreResults(SQLHSTMT) {
+    // YDB ODBC currently exposes only one result set per statement.
+    return SQL_NO_DATA;
+}
+
+SQLRETURN SQL_API SQLGetFunctions(SQLHDBC connectionHandle, SQLUSMALLINT functionId, SQLUSMALLINT* supportedPtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(connectionHandle, [&](auto*) {
+        return NYdb::NOdbc::TMetadata::GetFunctions(functionId, supportedPtr);
+    });
+}
+
 SQLRETURN SQL_API SQLSetStmtAttr(SQLHSTMT statementHandle, SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER stringLength) {
     return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
         return stmt->SetStmtAttr(attribute, value, stringLength);
@@ -416,7 +452,7 @@ SQLRETURN SQL_API SQLGetInfo(SQLHDBC connectionHandle,
                              SQLSMALLINT bufferLength,
                              SQLSMALLINT* stringLengthPtr) {
     return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(connectionHandle, [&](auto* conn) {
-        return NYdb::NOdbc::TInfoProvider::GetInfo(conn, infoType, infoValuePtr, bufferLength, stringLengthPtr);
+        return NYdb::NOdbc::TMetadata::GetInfo(conn, infoType, infoValuePtr, bufferLength, stringLengthPtr);
     });
 }
 

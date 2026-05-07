@@ -108,8 +108,6 @@ SQLRETURN TStatement::Execute() {
     } else {
         Cursor_.reset();
     }
-    IsPrepared_ = false;
-    PreparedQuery_.clear();
     return SQL_SUCCESS;
 }
 
@@ -317,23 +315,23 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
 
             auto columns = result.GetTableDescription().GetTableColumns();
 
-            auto columnIt = std::find_if(columns.begin(), columns.end(), [&](const NTable::TTableColumn& column) {
+            auto columnMatches = [&](const NTable::TTableColumn& column) {
+                if (columnName.empty()) {
+                    return true;
+                }
                 if (Attributes_.GetMetadataId() == SQL_TRUE) {
                     return column.Name == columnName;
                 }
-                if (columnName.empty()) {
-                    return column.Name.empty();
-                }
                 return SqlLikeMatch(column.Name, columnName);
-            });
+            };
 
-            if (columnIt == columns.end()) {
-                throw TOdbcException("42S22", 0, "Column not found", SQL_ERROR);
-            }
-
-            auto column = *columnIt;
-
-            TTypeParser typeParser(column.Type);
+            bool foundColumn = false;
+            for (size_t columnIndex = 0; columnIndex < columns.size(); ++columnIndex) {
+                const auto& column = columns[columnIndex];
+                if (!columnMatches(column)) {
+                    continue;
+                }
+                foundColumn = true;
 
             table.push_back({
                 TValueBuilder().OptionalUtf8(std::nullopt).Build(),
@@ -352,9 +350,13 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
                 TValueBuilder().Int16(GetTypeId(column.Type)).Build(),
                 TValueBuilder().OptionalInt16(std::nullopt).Build(),
                 TValueBuilder().OptionalInt32(8).Build(),
-                TValueBuilder().OptionalInt32(columnIt - columns.begin() + 1).Build(),
+                TValueBuilder().OptionalInt32(columnIndex + 1).Build(),
                 TValueBuilder().Utf8(column.NotNull && *column.NotNull ? "NO" : "YES").Build(),
             });
+        }
+            if (!foundColumn) {
+                throw TOdbcException("42S22", 0, "Column not found", SQL_ERROR);
+            }
             return TStatus(EStatus::SUCCESS, {});
         });
 
@@ -494,8 +496,6 @@ SQLRETURN TStatement::Close(bool force) {
 
     Cursor_.reset();
     RowsFetched_ = 0;
-    PreparedQuery_.clear();
-    IsPrepared_ = false;
     ClearErrors();
     return SQL_SUCCESS;
 }
@@ -527,6 +527,11 @@ SQLRETURN TStatement::NumResultCols(SQLSMALLINT* colCount) {
     }
     *colCount = static_cast<SQLSMALLINT>(Cursor_->GetColumnMeta().size());
     return SQL_SUCCESS;
+}
+
+const std::vector<TColumnMeta>& TStatement::GetColumnMeta() const {
+    static const std::vector<TColumnMeta> EmptyColumns;
+    return Cursor_ ? Cursor_->GetColumnMeta() : EmptyColumns;
 }
 
 SQLRETURN TStatement::SetStmtAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER stringLength) {
