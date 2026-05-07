@@ -16,6 +16,7 @@ template<> struct TSqlTypeTraits<SQL_C_BINARY> { using Type = std::string; };
 template<> struct TSqlTypeTraits<SQL_C_SBIGINT> { using Type = SQLBIGINT; };
 template<> struct TSqlTypeTraits<SQL_C_UBIGINT> { using Type = SQLUBIGINT; };
 template<> struct TSqlTypeTraits<SQL_C_LONG> { using Type = SQLINTEGER; };
+template<> struct TSqlTypeTraits<SQL_C_SLONG> { using Type = SQLINTEGER; };
 template<> struct TSqlTypeTraits<SQL_C_ULONG> { using Type = SQLUINTEGER; };
 template<> struct TSqlTypeTraits<SQL_C_SHORT> { using Type = SQLSMALLINT; };
 template<> struct TSqlTypeTraits<SQL_C_SSHORT> { using Type = SQLSMALLINT; };
@@ -155,6 +156,10 @@ REGISTER_CONVERTER(SQL_C_LONG, SQL_BIGINT, EPrimitiveType::Int64) {
     builder.OptionalInt64(static_cast<std::int64_t>(data));
 }
 
+REGISTER_CONVERTER(SQL_C_SLONG, SQL_BIGINT, EPrimitiveType::Int64) {
+    builder.OptionalInt64(static_cast<std::int64_t>(data));
+}
+
 REGISTER_CONVERTER(SQL_C_SHORT, SQL_BIGINT, EPrimitiveType::Int64) {
     builder.OptionalInt64(static_cast<std::int64_t>(data));
 }
@@ -184,6 +189,10 @@ REGISTER_CONVERTER(SQL_C_SBIGINT, SQL_INTEGER, EPrimitiveType::Int32) {
 }
 
 REGISTER_CONVERTER(SQL_C_LONG, SQL_INTEGER, EPrimitiveType::Int32) {
+    builder.OptionalInt32(static_cast<std::int32_t>(data));
+}
+
+REGISTER_CONVERTER(SQL_C_SLONG, SQL_INTEGER, EPrimitiveType::Int32) {
     builder.OptionalInt32(static_cast<std::int32_t>(data));
 }
 
@@ -219,6 +228,10 @@ REGISTER_CONVERTER(SQL_C_LONG, SQL_SMALLINT, EPrimitiveType::Int16) {
     builder.OptionalInt16(static_cast<std::int16_t>(data));
 }
 
+REGISTER_CONVERTER(SQL_C_SLONG, SQL_SMALLINT, EPrimitiveType::Int16) {
+    builder.OptionalInt16(static_cast<std::int16_t>(data));
+}
+
 REGISTER_CONVERTER(SQL_C_SHORT, SQL_SMALLINT, EPrimitiveType::Int16) {
     builder.OptionalInt16(static_cast<std::int16_t>(data));
 }
@@ -248,6 +261,10 @@ REGISTER_CONVERTER(SQL_C_SBIGINT, SQL_TINYINT, EPrimitiveType::Int8) {
 }
 
 REGISTER_CONVERTER(SQL_C_LONG, SQL_TINYINT, EPrimitiveType::Int8) {
+    builder.OptionalInt8(static_cast<std::int8_t>(data));
+}
+
+REGISTER_CONVERTER(SQL_C_SLONG, SQL_TINYINT, EPrimitiveType::Int8) {
     builder.OptionalInt8(static_cast<std::int8_t>(data));
 }
 
