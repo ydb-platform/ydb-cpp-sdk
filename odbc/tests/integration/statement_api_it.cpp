@@ -392,6 +392,8 @@ TEST(StatementApi, AttrMaxRows) {
     SQLHSTMT stmt;
     AllocEnvAndConnect(&env, &dbc);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_max_rows", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
     CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"CREATE TABLE test_max_rows (id Int32, PRIMARY KEY (id))", SQL_NTS),
                   stmt, SQL_HANDLE_STMT);
     SQLFreeStmt(stmt, SQL_CLOSE);
