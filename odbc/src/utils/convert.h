@@ -13,5 +13,6 @@ namespace NOdbc {
 SQLRETURN ConvertParam(const TBoundParam& param, TParamValueBuilder& builder);
 SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd);
 
-} // namespace NYdb
 } // namespace NOdbc
+} // namespace NYdb
+

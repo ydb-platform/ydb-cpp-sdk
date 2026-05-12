@@ -4,6 +4,7 @@
 #include <util/generic/singleton.h>
 
 #include <algorithm>
+#include <map>
 
 namespace NYdb {
 namespace NOdbc {
@@ -534,5 +535,5 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
     }
 }
 
-} // namespace NYdb
 } // namespace NOdbc
+} // namespace NYdb

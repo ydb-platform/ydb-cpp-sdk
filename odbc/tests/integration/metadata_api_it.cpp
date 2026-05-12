@@ -114,10 +114,14 @@ TEST(MetadataApi, SQLTablesLikePatternWithMetadataId) {
                   stmt, SQL_HANDLE_STMT);
     ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_METADATA_ID, &metadataId, 0, nullptr), SQL_SUCCESS);
     ASSERT_EQ(metadataId, SQL_TRUE);
-    ASSERT_EQ(SQLTables(stmt, nullptr, 0, nullptr, 0,
-                       (SQLCHAR*)likePattern, SQL_NTS, (SQLCHAR*)"TABLE", SQL_NTS),
-              SQL_ERROR);
-    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HYC00"));
+    CHECK_ODBC_OK(SQLTables(stmt, nullptr, 0, nullptr, 0,
+                            (SQLCHAR*)likePattern, SQL_NTS, (SQLCHAR*)"TABLE", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    tableRows = 0;
+    while (SQLFetch(stmt) == SQL_SUCCESS) {
+        ++tableRows;
+    }
+    ASSERT_EQ(tableRows, 0);
     SQLFreeStmt(stmt, SQL_CLOSE);
     const std::string exactPath = "/local/test_meta_table_1";
     CHECK_ODBC_OK(SQLTables(stmt, nullptr, 0, nullptr, 0,
