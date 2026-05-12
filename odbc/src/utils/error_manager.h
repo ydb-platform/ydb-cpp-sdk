@@ -4,6 +4,8 @@
 #include <sqlext.h>
 #include <vector>
 #include <string>
+#include <functional>
+#include <exception>
 
 #include <ydb-cpp-sdk/client/types/status/status.h>
 

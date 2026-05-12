@@ -15,12 +15,41 @@
 
 #include <optional>
 #include <cctype>
-#include <cstring>
+#include <algorithm>
 
 namespace NYdb {
 namespace NOdbc {
 
 namespace {
+
+    bool StartsWithPrefix(const char* s, size_t sLen, const char* prefix, size_t prefixLen) {
+        if (sLen < prefixLen) {
+            return false;
+        }
+        for (size_t i = 0; i < prefixLen; ++i) {
+            if (std::tolower(static_cast<unsigned char>(s[i])) !=
+                std::tolower(static_cast<unsigned char>(prefix[i]))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool IsDdlQuery(const std::string& queryText) {
+        size_t pos = 0;
+        while (pos < queryText.size() && std::isspace(static_cast<unsigned char>(queryText[pos]))) {
+            ++pos;
+        }
+        if (queryText.size() - pos < 6) {
+            return false;
+        }
+        const char* start = queryText.c_str() + pos;
+        const size_t remaining = queryText.size() - pos;
+        return StartsWithPrefix(start, remaining, "CREATE", 6) ||
+               StartsWithPrefix(start, remaining, "DROP", 4) ||
+               StartsWithPrefix(start, remaining, "ALTER", 5);
+    }
+
     NYdb::TStatus StatusFrom(const NYdb::TStatus& ydb_status) {
         return NYdb::TStatus(ydb_status.GetStatus(), NYdb::NIssue::TIssues(ydb_status.GetIssues()));
     }
@@ -68,7 +97,11 @@ SQLRETURN TStatement::Execute() {
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
     }
-    NYdb::TParams params = BuildParams();
+    NYdb::TParams params = NYdb::TParamsBuilder().Build();
+    const SQLRETURN buildRc = BuildParams(params);
+    if (buildRc != SQL_SUCCESS) {
+        return buildRc;
+    }
 
     std::optional<NQuery::TExecuteQueryIterator> iterator;
     std::optional<NQuery::TExecuteQueryPart> prefetchedResultPart;
@@ -135,19 +168,7 @@ NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession
         // DDL must use NoTx() per YDB documentation
         const bool isSnapshotRw = (txSettings.GetMode() == NQuery::TTxSettings::TS_SNAPSHOT_RW);
         
-        const bool isDdl = [&queryText] {
-            size_t pos = 0;
-            while (pos < queryText.size() && std::isspace(static_cast<unsigned char>(queryText[pos]))) {
-                ++pos;
-            }
-            if (queryText.size() - pos >= 6) {
-                const char* start = queryText.c_str() + pos;
-                return (strncasecmp(start, "CREATE", 6) == 0 ||
-                        strncasecmp(start, "DROP", 4) == 0 ||
-                        strncasecmp(start, "ALTER", 5) == 0);
-            }
-            return false;
-        }();
+        const bool isDdl = IsDdlQuery(queryText);
 
         if (isSnapshotRw || isDdl) {
             return session.StreamExecuteQuery(
@@ -217,8 +238,14 @@ void TStatement::FillBoundColumns() {
 }
 
 SQLRETURN TStatement::BindCol(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) {
-    if (!Cursor_) {
-        return SQL_NO_DATA;
+    if (targetValue && columnNumber < 1) {
+        return AddError("07009", 0, "Invalid descriptor index");
+    }
+    if (Cursor_) {
+        const size_t n = Cursor_->GetColumnMeta().size();
+        if (targetValue && n > 0 && static_cast<size_t>(columnNumber) > n) {
+            return AddError("07009", 0, "Invalid descriptor index");
+        }
     }
 
     BoundColumns_.erase(std::remove_if(BoundColumns_.begin(), BoundColumns_.end(),
@@ -255,15 +282,23 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
     return SQL_SUCCESS;
 }
 
-NYdb::TParams TStatement::BuildParams() {
+SQLRETURN TStatement::BuildParams(NYdb::TParams& out) {
     ClearErrors();
     NYdb::TParamsBuilder paramsBuilder;
     for (const auto& param : BoundParams_) {
-        std::string paramName = "$p" + std::to_string(param.ParamNumber);
-        ConvertParam(param, paramsBuilder.AddParam(paramName));
+        const std::string paramName = "$p" + std::to_string(param.ParamNumber);
+        const SQLRETURN convRc = ConvertParam(param, paramsBuilder.AddParam(paramName));
+        if (convRc != SQL_SUCCESS) {
+            return AddError(
+                "07006",
+                0,
+                "Unsupported or invalid ODBC parameter type for parameter " + std::to_string(param.ParamNumber)
+                    + " (C type " + std::to_string(static_cast<int>(param.ValueType)) + ", SQL type "
+                    + std::to_string(static_cast<int>(param.ParameterType)) + ")");
+        }
     }
-
-    return paramsBuilder.Build();
+    out = paramsBuilder.Build();
+    return SQL_SUCCESS;
 }
 
 SQLRETURN TStatement::Columns(const std::string& catalogName,
@@ -296,12 +331,14 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
     };
 
     auto entries = GetPatternEntries(tableName);
-    if (entries.empty()) {
-        throw TOdbcException("HYC00", 0, "No tables found");
-    }
 
     TTable table;
     table.reserve(entries.size());
+
+    if (entries.empty()) {
+        Cursor_ = CreateVirtualCursor(this, columns, table);
+        return SQL_SUCCESS;
+    }
 
     for (const auto& entry : entries) {
         if (entry.Type != NScheme::ESchemeEntryType::Table &&
@@ -384,9 +421,6 @@ SQLRETURN TStatement::Tables(const std::string& catalogName,
     };
 
     auto entries = GetPatternEntries(tableName);
-    if (entries.empty()) {
-        throw TOdbcException("HYC00", 0, "No tables found");
-    }
 
     TTable table;
     table.reserve(entries.size());
