@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <unordered_map>
+#include <algorithm>
 
 #include <sql.h>
 #include <sqlext.h>
@@ -211,6 +212,9 @@ void TConnection::ResetQuerySession() {
 }
 
 SQLRETURN TConnection::CommitTx() {
+    if (!Tx_) {
+        return AddError("25000", 0, "Invalid transaction state: no active transaction");
+    }
     auto status = Tx_->Commit().ExtractValueSync();
     NStatusHelpers::ThrowOnError(status);
     Tx_.reset();
@@ -218,6 +222,9 @@ SQLRETURN TConnection::CommitTx() {
 }
 
 SQLRETURN TConnection::RollbackTx() {
+    if (!Tx_) {
+        return AddError("25000", 0, "Invalid transaction state: no active transaction");
+    }
     auto status = Tx_->Rollback().ExtractValueSync();
     NStatusHelpers::ThrowOnError(status);
     Tx_.reset();

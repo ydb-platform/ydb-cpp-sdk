@@ -1,12 +1,14 @@
 #include "error_manager.h"
 
 #include <algorithm>
+#include <limits>
 #include <cstring>
 #include <string>
 #include <unordered_map>
 
 namespace NYdb {
 namespace NOdbc {
+
 namespace {
     struct OdbcErrorMapping {
         const char* sqlState;
@@ -56,47 +58,45 @@ namespace {
         }
         return DEFAULT_ERROR_MAPPING;
     }
-} // namespace
 
-namespace {
-
-SQLRETURN WriteDiagCStr(
-    const std::string& str,
-    SQLPOINTER diagInfoPtr,
-    SQLSMALLINT bufferLength,
-    SQLSMALLINT* stringLengthPtr,
-    bool sqlStateField = false) {
-    std::string storage;
-    const std::string* src = &str;
-    if (sqlStateField) {
-        storage = str;
-        if (storage.size() < 5) {
-            storage.append(5U - storage.size(), ' ');
-        } else {
-            storage.resize(5U);
+    SQLRETURN WriteDiagCStr(
+        const std::string& str,
+        SQLPOINTER diagInfoPtr,
+        SQLSMALLINT bufferLength,
+        SQLSMALLINT* stringLengthPtr,
+        bool sqlStateField = false) {
+        std::string storage;
+        const std::string* src = &str;
+        if (sqlStateField) {
+            storage = str;
+            if (storage.size() < 5) {
+                storage.append(5U - storage.size(), ' ');
+            } else {
+                storage.resize(5U);
+            }
+            src = &storage;
         }
-        src = &storage;
+        const size_t fullLen = src->size();
+        if (stringLengthPtr) {
+            *stringLengthPtr = static_cast<SQLSMALLINT>(
+                std::min(fullLen, static_cast<size_t>(std::numeric_limits<SQLSMALLINT>::max())));
+        }
+        if (!diagInfoPtr) {
+            return SQL_SUCCESS;
+        }
+        if (bufferLength < 0) {
+            return SQL_ERROR;
+        }
+        if (bufferLength == 0) {
+            return fullLen == 0 ? SQL_SUCCESS : SQL_SUCCESS_WITH_INFO;
+        }
+        auto* out = static_cast<SQLCHAR*>(diagInfoPtr);
+        const size_t maxData = static_cast<size_t>(bufferLength - 1U);
+        const size_t copyLen = std::min(fullLen, maxData);
+        std::memcpy(out, src->data(), copyLen);
+        out[copyLen] = 0;
+        return (fullLen > maxData) ? SQL_SUCCESS_WITH_INFO : SQL_SUCCESS;
     }
-    if (!diagInfoPtr) {
-        return SQL_ERROR;
-    }
-    if (bufferLength < 0) {
-        return SQL_ERROR;
-    }
-    const size_t fullLen = src->size();
-    if (stringLengthPtr) {
-        *stringLengthPtr = static_cast<SQLSMALLINT>(std::min<size_t>(fullLen, 0x7FFFU));
-    }
-    if (bufferLength == 0) {
-        return fullLen == 0 ? SQL_SUCCESS : SQL_SUCCESS_WITH_INFO;
-    }
-    auto* out = static_cast<SQLCHAR*>(diagInfoPtr);
-    const size_t maxData = static_cast<size_t>(bufferLength - 1U);
-    const size_t copyLen = std::min(fullLen, maxData);
-    std::memcpy(out, src->data(), copyLen);
-    out[copyLen] = 0;
-    return (fullLen > maxData) ? SQL_SUCCESS_WITH_INFO : SQL_SUCCESS;
-}
 
 } // namespace
 
@@ -134,21 +134,16 @@ SQLRETURN TErrorManager::GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQ
     }
 
     const auto& err = Errors_[recNumber-1];
+
     if (sqlState) {
-        strncpy((char*)sqlState, err.SqlState.c_str(), 6);
+        WriteDiagCStr(err.SqlState, sqlState, 6, nullptr, true);
     }
 
     if (nativeError) {
         *nativeError = err.NativeError;
     }
 
-    if (messageText && bufferLength > 0) {
-        strncpy((char*)messageText, err.Message.c_str(), bufferLength);
-        if (textLength) {
-            *textLength = (SQLSMALLINT)std::min((int)err.Message.size(), (int)bufferLength);
-        }
-    }
-    return SQL_SUCCESS;
+    return WriteDiagCStr(err.Message, messageText, bufferLength, textLength, false);
 }
 
 SQLRETURN TErrorManager::GetDiagField(SQLSMALLINT recNumber, SQLSMALLINT diagIdentifier, SQLPOINTER diagInfoPtr,
