@@ -15,7 +15,13 @@ TEST(ErrorHandling, GetDiagRecAfterError) {
     SQLRETURN diagRc = SQLGetDiagRec(SQL_HANDLE_DBC, dbc, 1, sqlState, &nativeError,
                                      msg, sizeof(msg), &msgLen);
     ASSERT_TRUE(diagRc == SQL_SUCCESS || diagRc == SQL_SUCCESS_WITH_INFO);
-    ASSERT_EQ(msgLen, strlen((char*)msg));
+    const size_t copiedLen = std::strlen(reinterpret_cast<char*>(msg));
+    ASSERT_EQ(msg[copiedLen], static_cast<SQLCHAR>(0));
+    if (diagRc == SQL_SUCCESS_WITH_INFO) {
+        ASSERT_GE(static_cast<size_t>(msgLen), copiedLen);
+    } else {
+        ASSERT_EQ(static_cast<size_t>(msgLen), copiedLen);
+    }
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
