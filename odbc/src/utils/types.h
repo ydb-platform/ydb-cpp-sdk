@@ -4,6 +4,7 @@
 
 #include <sql.h>
 #include <sqlext.h>
+#include <optional>
 
 namespace NYdb {
 namespace NOdbc {

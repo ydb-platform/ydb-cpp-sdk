@@ -75,7 +75,7 @@ private:
     SQLULEN RowsFetched_ = 0;
     TStatementAttributes Attributes_;
 
-    NYdb::TParams BuildParams();
+    SQLRETURN BuildParams(NYdb::TParams& out);
     
     NQuery::TExecuteQueryIterator CreateExecuteIterator(NQuery::TSession& session, const NYdb::TParams& params);
 

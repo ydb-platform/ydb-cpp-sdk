@@ -36,6 +36,8 @@ set_target_properties(ydb-odbc PROPERTIES
   POSITION_INDEPENDENT_CODE ON
 )
 
+include(GNUInstallDirs)
+
 install(TARGETS ydb-odbc
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
@@ -46,8 +48,6 @@ install(DIRECTORY include/
 
 add_subdirectory(examples)
 add_subdirectory(tests)
-
-include(GNUInstallDirs)
 
 install(FILES
   odbcinst.ini
