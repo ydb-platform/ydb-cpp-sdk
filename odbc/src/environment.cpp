@@ -1,6 +1,9 @@
 #include "environment.h"
 #include "connection.h"
 
+ #include <exception>
+ #include <stdexcept>
+
 namespace NYdb {
 namespace NOdbc {
 
