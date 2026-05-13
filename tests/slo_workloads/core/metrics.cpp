@@ -1,22 +1,16 @@
 #include "metrics.h"
 
-#include "utils.h"
-
 #include <opentelemetry/exporters/otlp/otlp_http_metric_exporter_factory.h>
-
 #include <opentelemetry/sdk/metrics/export/periodic_exporting_metric_reader_factory.h>
-#include <opentelemetry/sdk/metrics/meter_provider_factory.h>
 #include <opentelemetry/sdk/metrics/meter_context.h>
+#include <opentelemetry/sdk/metrics/meter_provider_factory.h>
 #include <opentelemetry/sdk/resource/resource.h>
-
-#include <ydb-cpp-sdk/client/resources/ydb_resources.h>
-
-#include <util/system/env.h>
 
 #include <hdr/hdr_histogram.h>
 
 #include <atomic>
 #include <chrono>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
@@ -29,11 +23,6 @@ namespace {
 constexpr std::int64_t kHdrMinLatencyNs = 1'000;          // 1 us
 constexpr std::int64_t kHdrMaxLatencyNs = 60'000'000'000; // 60 s
 constexpr int kHdrSignificantFigures = 3;
-
-std::string ResolveWorkloadRef() {
-    std::string ref = GetEnv("WORKLOAD_REF");
-    return ref.empty() ? "unknown" : ref;
-}
 
 // Thread-safe HDR histogram. Only successful latencies are recorded; errors
 // are excluded from the percentile stream (operation_status="success").
@@ -98,13 +87,12 @@ private:
 // resource label set, which Prometheus rejects as `out of order sample`.
 class TOtelSharedPusher {
 public:
-    explicit TOtelSharedPusher(const std::string& metricsPushUrl)
-        : Ref_(ResolveWorkloadRef())
-        , CommonAttributes_{
-            {"ref", Ref_},
-            {"sdk", "cpp"},
-            {"sdk_version", NYdb::GetSdkSemver()}
-        }
+    TOtelSharedPusher(
+        const std::string& metricsPushUrl,
+        std::map<std::string, std::string> resourceAttributes,
+        const std::string& meterSchemaVersion
+    )
+        : CommonAttributes_(std::move(resourceAttributes))
     {
         auto exporterOptions = opentelemetry::exporter::otlp::OtlpHttpMetricExporterOptions();
         exporterOptions.url = metricsPushUrl;
@@ -113,7 +101,7 @@ public:
 
         opentelemetry::sdk::metrics::PeriodicExportingMetricReaderOptions readerOptions;
         readerOptions.export_interval_millis = 1000ms;
-        readerOptions.export_timeout_millis  = 500ms;
+        readerOptions.export_timeout_millis = 500ms;
 
         auto metricReader = opentelemetry::sdk::metrics::PeriodicExportingMetricReaderFactory::Create(
             std::move(exporter), readerOptions);
@@ -127,7 +115,7 @@ public:
         MeterProvider_ = opentelemetry::sdk::metrics::MeterProviderFactory::Create(std::move(context));
         MeterProvider_->AddMetricReader(std::move(metricReader));
 
-        Meter_ = MeterProvider_->GetMeter("slo_workloads", NYdb::GetSdkSemver());
+        Meter_ = MeterProvider_->GetMeter("slo_workloads", meterSchemaVersion);
 
         InitMetrics();
     }
@@ -144,7 +132,7 @@ public:
     }
 
     void Record(const std::string& operationType, const TRequestData& data) {
-        const bool success = data.Status == NYdb::EStatus::SUCCESS;
+        const bool success = data.StatusLabel == "SUCCESS";
         auto& series = GetOrCreateSeries(operationType);
 
         OperationsTotal_->Add(uint64_t{1},
@@ -284,7 +272,6 @@ private:
         }
     }
 
-    std::string Ref_;
     std::map<std::string, std::string> CommonAttributes_;
 
     std::unique_ptr<opentelemetry::sdk::metrics::MeterProvider> MeterProvider_;
@@ -300,16 +287,47 @@ private:
     std::unordered_map<std::string, std::unique_ptr<TSeries>> Series_;
 };
 
-std::mutex g_sharedMu;
-std::weak_ptr<TOtelSharedPusher> g_shared;
+struct TSharedPusherKey {
+    std::string Url;
+    std::map<std::string, std::string> ResourceAttributes;
+    std::string MeterSchemaVersion;
 
-std::shared_ptr<TOtelSharedPusher> GetOrCreateSharedPusher(const std::string& url) {
-    std::lock_guard lock(g_sharedMu);
-    auto sp = g_shared.lock();
-    if (!sp) {
-        sp = std::make_shared<TOtelSharedPusher>(url);
-        g_shared = sp;
+    bool operator==(const TSharedPusherKey& other) const {
+        return Url == other.Url
+            && ResourceAttributes == other.ResourceAttributes
+            && MeterSchemaVersion == other.MeterSchemaVersion;
     }
+};
+
+struct TSharedPusherKeyHash {
+    size_t operator()(const TSharedPusherKey& key) const {
+        size_t h = std::hash<std::string>{}(key.Url);
+        for (const auto& [k, v] : key.ResourceAttributes) {
+            h ^= std::hash<std::string>{}(k) ^ std::hash<std::string>{}(v);
+        }
+        h ^= std::hash<std::string>{}(key.MeterSchemaVersion);
+        return h;
+    }
+};
+
+std::mutex g_sharedMu;
+std::unordered_map<TSharedPusherKey, std::weak_ptr<TOtelSharedPusher>, TSharedPusherKeyHash> g_shared;
+
+std::shared_ptr<TOtelSharedPusher> GetOrCreateSharedPusher(
+    const std::string& url,
+    const std::map<std::string, std::string>& resourceAttributes,
+    const std::string& meterSchemaVersion
+) {
+    TSharedPusherKey key{url, resourceAttributes, meterSchemaVersion};
+    std::lock_guard lock(g_sharedMu);
+    auto it = g_shared.find(key);
+    if (it != g_shared.end()) {
+        if (auto sp = it->second.lock()) {
+            return sp;
+        }
+    }
+    auto sp = std::make_shared<TOtelSharedPusher>(url, resourceAttributes, meterSchemaVersion);
+    g_shared[key] = sp;
     return sp;
 }
 
@@ -336,8 +354,15 @@ public:
 
 } // namespace
 
-std::unique_ptr<IMetricsPusher> CreateOtelMetricsPusher(const std::string& metricsPushUrl, const std::string& operationType) {
-    return std::make_unique<TOtelMetricsPusherWrapper>(GetOrCreateSharedPusher(metricsPushUrl), operationType);
+std::unique_ptr<IMetricsPusher> CreateOtelMetricsPusher(
+    const std::string& metricsPushUrl,
+    const std::string& operationType,
+    const std::map<std::string, std::string>& resourceAttributes,
+    const std::string& meterSchemaVersion
+) {
+    return std::make_unique<TOtelMetricsPusherWrapper>(
+        GetOrCreateSharedPusher(metricsPushUrl, resourceAttributes, meterSchemaVersion),
+        operationType);
 }
 
 std::unique_ptr<IMetricsPusher> CreateNoopMetricsPusher() {

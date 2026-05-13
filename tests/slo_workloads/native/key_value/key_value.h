@@ -1,9 +1,10 @@
 #pragma once
 
-#include <tests/slo_workloads/utils/utils.h>
-#include <tests/slo_workloads/utils/executor.h>
-#include <tests/slo_workloads/utils/generator.h>
-#include <tests/slo_workloads/utils/job.h>
+#include <tests/slo_workloads/native/utils/utils.h>
+
+#include <tests/slo_workloads/core/generator.h>
+#include <tests/slo_workloads/native/utils/executor.h>
+#include <tests/slo_workloads/native/utils/job.h>
 
 extern const std::string TableName;
 
@@ -19,7 +20,7 @@ public:
 
 private:
     TExecutor Executor;
-    TPackGenerator<TKeyValueGenerator, TKeyValueRecordData> PackGenerator;
+    TPackGenerator<TKeyValueGenerator, TKeyValueRecordData, NYdb::TValue> PackGenerator;
     std::uint64_t Total;
 };
 
@@ -37,7 +38,7 @@ private:
     std::atomic<std::uint64_t> ValuesGenerated = 0;
 };
 
-// Read workload job  
+// Read workload job
 class TReadJob : public TThreadJob {
 public:
     TReadJob(const TCommonOptions& opts, std::uint32_t maxId);

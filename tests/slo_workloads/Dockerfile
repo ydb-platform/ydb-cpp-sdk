@@ -165,4 +165,4 @@ RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
     && cmake --build --preset default --target slo-key-value \
     && ccache --show-stats
 
-ENTRYPOINT ["./build/tests/slo_workloads/key_value/slo-key-value"]
+ENTRYPOINT ["./build/tests/slo_workloads/native/key_value/slo-key-value"]
