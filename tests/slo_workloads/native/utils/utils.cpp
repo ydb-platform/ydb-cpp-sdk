@@ -1,75 +1,39 @@
 #include "utils.h"
 
 #include <ydb-cpp-sdk/client/iam/iam.h>
+#include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 
 #include <library/cpp/threading/future/async.h>
 
 #include <util/folder/path.h>
-#include <util/folder/dirut.h>
 #include <util/stream/file.h>
 #include <util/string/strip.h>
 #include <util/system/env.h>
-#include <util/random/random.h>
 
 using namespace NLastGetopt;
 using namespace NYdb;
 
-const TDuration DefaultReactionTime = TDuration::Minutes(2);
-const TDuration ReactionTimeDelay = TDuration::MilliSeconds(5);
-const std::uint64_t PartitionsCount = 64;
+#ifdef REF
+static constexpr const char* RefLabel = Y_STRINGIZE(REF);
+#else
+static constexpr const char* RefLabel = "unknown";
+#endif
 
 Y_DECLARE_OUT_SPEC(, NYdb::TStatus, stream, value) {
     stream << "Status: " << value.GetStatus() << Endl;
     value.GetIssues().PrintTo(stream);
 }
 
-TDurationMeter::TDurationMeter(TDuration& value)
-    : Value(value)
-    , StartTime(TInstant::Now())
-{
+std::map<std::string, std::string> MakeNativeSloOtelResourceAttributes() {
+    return {
+        {"ref", RefLabel},
+        {"sdk", "cpp"},
+        {"sdk_version", NYdb::GetSdkSemver()},
+    };
 }
 
-TDurationMeter::~TDurationMeter() {
-    Value += TInstant::Now() - StartTime;
-}
-
-TRpsProvider::TRpsProvider(std::uint64_t rps)
-    : Rps(rps)
-    , Period(Max(TDuration::MilliSeconds(10), TDuration::MicroSeconds(1000000 / Rps)))
-    , ProcessedTime(TInstant::Now())
-{
-}
-
-void TRpsProvider::Reset() {
-    ProcessedTime = TInstant::Now() - Period - Period;
-}
-
-void TRpsProvider::Use() {
-    if (Allowed) {
-        --Allowed;
-        return;
-    }
-
-    while (!TryUse()) {
-        SleepUntil(TInstant::Now() + Period);
-    }
-}
-
-bool TRpsProvider::TryUse() {
-    TInstant now = TInstant::Now();
-    // Number of objects to process since ProcessedTime
-    Allowed = Rps * TDuration(now - ProcessedTime).MicroSeconds() / 1000000;
-    if (Allowed) {
-        ProcessedTime += TDuration::MicroSeconds(1000000 * Allowed / Rps);
-        --Allowed;
-        return true;
-    } else {
-        return false;
-    }
-}
-
-std::uint64_t TRpsProvider::GetRps() const {
-    return Rps;
+std::string NativeSloMeterSchemaVersion() {
+    return NYdb::GetSdkSemver();
 }
 
 bool ParseToken(std::string& token, std::string& tokenFile) {
@@ -97,17 +61,6 @@ void StartStatCollecting([[maybe_unused]] TDriver& driver, const std::string& st
     if (statConfigFile.empty()) {
         return;
     }
-
-    // TODO: Implement
-}
-
-std::string GetDatabase(const std::string& connectionString) {
-    constexpr std::string_view databaseFlag = "/?database=";
-    size_t pathIndex = connectionString.find(databaseFlag);
-    if (pathIndex != std::string::npos) {
-        return connectionString.substr(pathIndex + databaseFlag.size());
-    }
-    return {};
 }
 
 int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TCleanupCommand cleanup) {
@@ -162,7 +115,7 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
 
     if (!iamSaKeyFile.empty()) {
         Cout << "Enabling IAM authentication..." << Endl;
-        TIamJwtFilename iamJwtFilename{ .JwtFilename = iamSaKeyFile };
+        TIamJwtFilename iamJwtFilename{.JwtFilename = iamSaKeyFile};
         config.SetCredentialsProviderFactory(CreateIamJwtFileCredentialsProviderFactory(iamJwtFilename));
     } else if (!token.empty()) {
         Cout << "Enabling OAuth authentication..." << Endl;
@@ -186,28 +139,27 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
 
     StartStatCollecting(driver, statConfigFile);
 
-    TDatabaseOptions dbOptions{ driver, prefix };
+    TDatabaseOptions dbOptions{driver, prefix};
     int result;
     try {
         switch (command) {
-        case ECommandType::Create:
-            Cout << "Launching create command..." << Endl;
-            result = create(dbOptions, argc, argv);
-            break;
-        case ECommandType::Run:
-            Cout << "Launching run command..." << Endl;
-            result = run(dbOptions, argc, argv);
-            break;
-        case ECommandType::Cleanup:
-            Cout << "Launching cleanup command..." << Endl;
-            result = cleanup(dbOptions, argc);
-            break;
-        default:
-            Cerr << "Unknown command" << Endl;
-            return EXIT_FAILURE;
+            case ECommandType::Create:
+                Cout << "Launching create command..." << Endl;
+                result = create(dbOptions, argc, argv);
+                break;
+            case ECommandType::Run:
+                Cout << "Launching run command..." << Endl;
+                result = run(dbOptions, argc, argv);
+                break;
+            case ECommandType::Cleanup:
+                Cout << "Launching cleanup command..." << Endl;
+                result = cleanup(dbOptions, argc);
+                break;
+            default:
+                Cerr << "Unknown command" << Endl;
+                return EXIT_FAILURE;
         }
-    }
-    catch (const NYdb::NStatusHelpers::TYdbErrorException& e) {
+    } catch (const NYdb::NStatusHelpers::TYdbErrorException& e) {
         Cerr << "Exception caught: " << e << Endl;
         return EXIT_FAILURE;
     }
@@ -232,29 +184,6 @@ ECommandType ParseCommand(const char* cmd) {
     return ECommandType::Unknown;
 }
 
-std::string JoinPath(const std::string& prefix, const std::string& path) {
-    if (prefix.empty()) {
-        return path;
-    }
-
-    TPathSplitUnix prefixPathSplit(prefix);
-    prefixPathSplit.AppendComponent(path);
-
-    return prefixPathSplit.Reconstruct();
-}
-
-std::string GenerateRandomString(std::uint32_t minLength, std::uint32_t maxLength) {
-    std::uint32_t length = minLength + RandomNumber<std::uint32_t>() % (maxLength - minLength);
-    static const char* symbols = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    std::string result;
-    result.reserve(length);
-    for (size_t i = 0; i < length; ++i) {
-        result.push_back(symbols[RandomNumber<std::uint8_t>(61)]);
-    }
-    return result;
-}
-
-using namespace NYdb;
 using namespace NYdb::NTable;
 
 TParams PackValuesToParamsAsList(const std::vector<TValue>& items, const std::string name) {
@@ -268,24 +197,6 @@ TParams PackValuesToParamsAsList(const std::vector<TValue>& items, const std::st
     TParamsBuilder paramsBuilder;
     paramsBuilder.AddParam(name, itemsAsList.Build());
     return paramsBuilder.Build();
-}
-
-static double shardSize = (static_cast<double>(Max<std::uint32_t>()) + 1) / PartitionsCount;
-
-std::uint32_t GetSpecialId(std::uint32_t id) {
-    return static_cast<std::uint32_t>(id / shardSize) * shardSize + 1;
-}
-
-std::uint32_t GetShardSpecialId(std::uint64_t shardNo) {
-    return shardNo * shardSize + 1;
-}
-
-std::uint32_t GetHash(std::uint32_t value) {
-    std::uint32_t result = NumericHash(value);
-    if (result == GetSpecialId(result)) {
-        ++result;
-    }
-    return result;
 }
 
 std::string YdbStatusToString(NYdb::EStatus status) {
@@ -357,7 +268,7 @@ std::string YdbStatusToString(NYdb::EStatus status) {
 
 TTableStats GetTableStats(TDatabaseOptions& dbOptions, const std::string& tableName) {
     Cout << TInstant::Now().ToRfc822StringLocal()
-        << " Getting table stats (maxId and count of rows) with ReadTable... " << Endl;
+         << " Getting table stats (maxId and count of rows) with ReadTable... " << Endl;
     TInstant start_time = TInstant::Now();
     NYdb::NTable::TTableClient client(
         dbOptions.Driver,
@@ -369,9 +280,9 @@ TTableStats GetTableStats(TDatabaseOptions& dbOptions, const std::string& tableN
     std::optional<TTablePartIterator> tableIterator;
     NYdb::NStatusHelpers::ThrowOnError(client.RetryOperationSync([&tableIterator, &dbOptions, &tableName](TSession session) {
         auto result = session.ReadTable(
-            JoinPath(dbOptions.Prefix, tableName),
-            TReadTableSettings().AppendColumns("object_id")
-        ).GetValueSync();
+                             JoinPath(dbOptions.Prefix, tableName),
+                             TReadTableSettings().AppendColumns("object_id"))
+                          .GetValueSync();
 
         if (result.IsSuccess()) {
             tableIterator = result;
@@ -394,7 +305,7 @@ TTableStats GetTableStats(TDatabaseOptions& dbOptions, const std::string& tableN
         }
         futures.push_back(
             NThreading::Async(
-                [extractedPart = tablePart.ExtractPart()]{
+                [extractedPart = tablePart.ExtractPart()] {
                     auto rsParser = TResultSetParser(extractedPart);
                     std::uint32_t partMax = 0;
                     while (rsParser.TryNextRow()) {
@@ -405,7 +316,7 @@ TTableStats GetTableStats(TDatabaseOptions& dbOptions, const std::string& tableN
                             partMax = id;
                         }
                     }
-                    return TTableStats{ rsParser.RowsCount(), partMax };
+                    return TTableStats{rsParser.RowsCount(), partMax};
                 },
                 pool
             )
@@ -420,7 +331,7 @@ TTableStats GetTableStats(TDatabaseOptions& dbOptions, const std::string& tableN
         result.RowCount += partStats.RowCount;
     }
     Cout << TInstant::Now().ToRfc822StringLocal() << " Done. maxId=" << result.MaxId << ", row count=" << result.RowCount
-        << ". Calculations took " << TInstant::Now() - start_time << Endl;
+         << ". Calculations took " << TInstant::Now() - start_time << Endl;
     return result;
 }
 

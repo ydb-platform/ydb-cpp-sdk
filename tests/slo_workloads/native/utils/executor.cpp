@@ -1,5 +1,7 @@
 #include "executor.h"
 
+#include "utils.h"
+
 const TDuration WaitTimeout = TDuration::Seconds(10);
 
 // Debug use only:
@@ -284,7 +286,13 @@ bool TExecutor::Execute(const NYdb::NTable::TTableClient::TOperationFunc& func) 
         future.Subscribe([this, stat, SemaphoreWrapper](const TAsyncFinalStatus& future) mutable {
             Y_ABORT_UNLESS(future.HasValue());
             TFinalStatus resultStatus = future.GetValue();
-            Stats.FinishRequest(stat, resultStatus);
+            TSloRequestFinish finish;
+            if (!resultStatus) {
+                finish.ApplicationTimeout = true;
+            } else {
+                finish.StatusLabel = YdbStatusToString(resultStatus->GetStatus());
+            }
+            Stats.FinishRequest(stat, finish);
             if (resultStatus) {
                 CheckForError(*resultStatus);
             }
