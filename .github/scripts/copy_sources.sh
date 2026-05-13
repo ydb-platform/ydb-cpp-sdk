@@ -47,6 +47,7 @@ cp -r $2/cmake $tmp_dir
 cp -r $2/scripts $tmp_dir
 cp -r $2/third_party $tmp_dir
 cp -r $2/tools $tmp_dir
+test -d "$2/plugins" && cp -r "$2/plugins" "$tmp_dir"
 
 cp $2/.gitignore $tmp_dir
 cp $2/.gitmodules $tmp_dir
