@@ -1,7 +1,8 @@
 #pragma once
 
-#include "statistics.h"
 #include "utils.h"
+
+#include <tests/slo_workloads/core/statistics.h>
 
 #include <ydb-cpp-sdk/client/table/table.h>
 
@@ -18,6 +19,9 @@ extern const TDuration WaitTimeout;
 
 // Debug use only
 extern std::atomic<std::uint64_t> ReadPromises;
+
+using TFinalStatus = std::optional<NYdb::TStatus>;
+using TAsyncFinalStatus = NThreading::TFuture<TFinalStatus>;
 
 template<typename T>
 class TTracedPromise : public NThreading::TPromise<T> {

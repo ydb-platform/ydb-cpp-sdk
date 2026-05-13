@@ -1,11 +1,10 @@
 #include "statistics.h"
 
-#include "metrics.h"
-#include "utils.h"
+#include <util/stream/output.h>
 
+#include <algorithm>
 
 namespace {
-    // Calculated percentiles for a period of time
     struct TPercentile {
         TDuration P50;
         TDuration P90;
@@ -29,9 +28,18 @@ namespace {
     }
 }
 
-TStat::TStat(const std::optional<std::string>& metricsPushUrl, const std::string& operationType)
+TStat::TStat(
+    const std::optional<std::string>& metricsPushUrl,
+    const std::string& operationType,
+    const std::map<std::string, std::string>& resourceAttributes,
+    const std::string& meterSchemaVersion
+)
     : StartTime(TInstant::Now())
-    , MetricsPusher(metricsPushUrl ? CreateOtelMetricsPusher(*metricsPushUrl, operationType) : CreateNoopMetricsPusher())
+    , MetricsPusher(
+          metricsPushUrl
+              ? CreateOtelMetricsPusher(*metricsPushUrl, operationType, resourceAttributes, meterSchemaVersion)
+              : CreateNoopMetricsPusher()
+      )
 {
     MetricsPushQueue.Start(20);
 }
@@ -56,40 +64,39 @@ std::shared_ptr<TStatUnit> TStat::StartRequest() {
     return std::make_shared<TStatUnit>(TInstant::Now());
 }
 
-void TStat::FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TFinalStatus& status) {
+void TStat::FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TSloRequestFinish& finish) {
     std::lock_guard lock(Mutex);
 
     unit->End = TInstant::Now();
-
-    auto delay = unit->End - unit->Start;
-
+    const auto delay = unit->End - unit->Start;
     --Infly;
 
-    if (status) {
-        ++Statuses[status->GetStatus()];
-    } else {
+    std::string metricStatusLabel;
+    if (finish.ApplicationTimeout) {
         ++ApplicationTimeout;
+        metricStatusLabel = "APPLICATION_TIMEOUT";
+    } else if (finish.StatusLabel) {
+        ++Statuses[*finish.StatusLabel];
+        metricStatusLabel = *finish.StatusLabel;
+    } else {
+        metricStatusLabel = "UNKNOWN";
     }
 
-    if (status && status->GetStatus() == NYdb::EStatus::SUCCESS) {
+    if (!finish.ApplicationTimeout && finish.StatusLabel && *finish.StatusLabel == "SUCCESS") {
         OkDelays.push_back(delay);
     }
 
-    ScheduleMetricsPush([this, delay, status, unit]() {
-        NYdb::EStatus requestStatus = status
-            ? status->GetStatus()
-            : NYdb::EStatus::CLIENT_DEADLINE_EXCEEDED;
+    ScheduleMetricsPush([this, delay, metricStatusLabel, unit]() {
         MetricsPusher->PushRequestData({
             .Delay = delay,
-            .Status = requestStatus,
-            .RetryAttempts = unit->RetryAttempts
+            .StatusLabel = metricStatusLabel,
+            .RetryAttempts = unit->RetryAttempts,
         });
     });
 }
 
 void TStat::ReportMaxInfly() {
     std::lock_guard lock(Mutex);
-
     ++CountMaxInfly;
 }
 
@@ -112,20 +119,20 @@ void TStat::PrintStatistics(TStringBuilder& out) {
 
     TDuration timePassed;
     if (FinishTime < StartTime) {
-        // If we ask for current progress
         timePassed = TInstant::Now() - StartTime;
     } else {
         timePassed = FinishTime - StartTime;
     }
 
-    std::uint64_t rps = total * 1000000 / timePassed.MicroSeconds();
+    const std::uint64_t micros = timePassed.MicroSeconds();
+    const std::uint64_t rps = micros ? total * 1000000 / micros : 0;
     out << total << " requests total" << Endl
-        << Statuses[NYdb::EStatus::SUCCESS] << " succeeded";
+        << Statuses["SUCCESS"] << " succeeded";
     if (total) {
-        out << " (" << Statuses[NYdb::EStatus::SUCCESS] * 100 / total << "%)";
+        out << " (" << Statuses["SUCCESS"] * 100 / total << "%)";
     }
-    for (const auto&[status, counter] : Statuses) {
-        out << Endl << counter << " replies with status " << YdbStatusToString(status) << Endl;
+    for (const auto& [status, counter] : Statuses) {
+        out << Endl << counter << " replies with status " << status << Endl;
     }
     out << Endl << CountMaxInfly << " failed due to max infly" << Endl
         << ApplicationTimeout << " application timeouts" << Endl

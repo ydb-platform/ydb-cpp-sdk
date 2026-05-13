@@ -11,7 +11,7 @@ TGenerateInitialContentJob::TGenerateInitialContentJob(const TCreateOptions& cre
     : TThreadJob(createOpts.CommonOptions, "generate")
     , Executor(createOpts.CommonOptions, Stats, TExecutor::ModeBlocking)
     , PackGenerator(
-        createOpts.CommonOptions
+          MakeGeneratorOptions(createOpts.CommonOptions)
         , createOpts.PackSize
         , [](const TKeyValueRecordData& recordData) { return BuildValueFromRecord(recordData); }
         , createOpts.Count
