@@ -5,6 +5,8 @@
 
 #include <library/cpp/testing/gtest/gtest.h>
 
+#include <util/string/cast.h>
+
 #include <format>
 
 using namespace NYdb;
@@ -21,11 +23,7 @@ struct TRunArgs {
 TRunArgs GetRunArgs() {
     const char* endpoint = std::getenv("YDB_ENDPOINT");
     const char* database = std::getenv("YDB_DATABASE");
-    ASSERT_NE(endpoint, nullptr);
-    ASSERT_NE(database, nullptr);
-
     const char* testRoot = std::getenv("YDB_TEST_ROOT");
-    ASSERT_NE(testRoot, nullptr);
 
     auto driverConfig = TDriverConfig()
         .SetEndpoint(endpoint)
@@ -94,26 +92,30 @@ TStatus InsertRow(TSession& session, const std::string& tablePath, uint64_t id, 
 } // namespace
 
 TEST(KeyConflict, DuplicatePrimaryKeyInsertIsDetectableViaIssueCode) {
+    ASSERT_NE(std::getenv("YDB_ENDPOINT"), nullptr);
+    ASSERT_NE(std::getenv("YDB_DATABASE"), nullptr);
+    ASSERT_NE(std::getenv("YDB_TEST_ROOT"), nullptr);
+
     auto [driver, tablePath] = GetRunArgs();
     TTableClient client(driver);
 
     DropTableIfExists(client, tablePath);
 
     TStatus created = CreatePkTable(client, tablePath);
-    ASSERT_TRUE(created.IsSuccess()) << created;
+    ASSERT_TRUE(created.IsSuccess()) << ToString(created);
 
     TStatus firstInsert = client.RetryOperationSync([&](TSession session) {
         return InsertRow(session, tablePath, 1, "first");
     });
-    ASSERT_TRUE(firstInsert.IsSuccess()) << firstInsert;
+    ASSERT_TRUE(firstInsert.IsSuccess()) << ToString(firstInsert);
 
     TStatus secondInsert = client.RetryOperationSync([&](TSession session) {
         return InsertRow(session, tablePath, 1, "second");
     });
-    ASSERT_FALSE(secondInsert.IsSuccess()) << "duplicate PK insert must fail, got: " << secondInsert;
+    ASSERT_FALSE(secondInsert.IsSuccess()) << "duplicate PK insert must fail, got: " << ToString(secondInsert);
 
     ASSERT_TRUE(StatusContainsIssueWithCode(secondInsert, NIssue::CONSTRAINT_VIOLATION))
-        << "expected constraint violation issue, got: " << secondInsert;
+        << "expected constraint violation issue, got: " << ToString(secondInsert);
 
     DropTableIfExists(client, tablePath);
     driver.Stop(true);
