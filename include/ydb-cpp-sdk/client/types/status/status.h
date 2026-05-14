@@ -10,6 +10,7 @@
 
 #include <library/cpp/threading/future/future.h>
 
+#include <functional>
 #include <utility>
 
 namespace NYdb::inline V3 {
@@ -80,14 +81,16 @@ void ThrowOnErrorOrPrintIssues(TStatus status);
 
 //! Depth-first search in status issues (including sub-issues). @p pred is invoked on each issue until a match.
 template <typename TIssuePredicate>
-bool StatusContainsIssueIf(const TStatus& status, TIssuePredicate pred) {
+bool StatusContainsIssueIf(const TStatus& status, TIssuePredicate&& pred) {
     for (const auto& top : status.GetIssues()) {
-        bool found = false;
-        NYdb::NIssue::WalkThroughIssues(top, false, [&](const NYdb::NIssue::TIssue& issue, uint16_t /*level*/) -> bool {
-            found = pred(issue);
-            return !found; // continue if not found, stop early if found
-        });
-        if (found) {
+        const bool walkedToEnd = NYdb::NIssue::WalkThroughIssues(
+            top,
+            false,
+            std::function<bool(const NYdb::NIssue::TIssue&, uint16_t)>(
+                [&](const NYdb::NIssue::TIssue& issue, uint16_t /*level*/) -> bool {
+                    return !static_cast<bool>(std::forward<TIssuePredicate>(pred)(issue));
+                }));
+        if (!walkedToEnd) {
             return true;
         }
     }

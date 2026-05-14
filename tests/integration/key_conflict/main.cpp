@@ -112,7 +112,7 @@ TEST(KeyConflict, DuplicatePrimaryKeyInsertIsDetectableViaIssueCode) {
     });
     ASSERT_FALSE(secondInsert.IsSuccess()) << "duplicate PK insert must fail, got: " << secondInsert;
 
-    ASSERT_TRUE(StatusContainsIssueWithCode(secondInsert, NIssue::KIKIMR_CONSTRAINT_VIOLATION))
+    ASSERT_TRUE(StatusContainsIssueWithCode(secondInsert, NIssue::CONSTRAINT_VIOLATION))
         << "expected constraint violation issue, got: " << secondInsert;
 
     DropTableIfExists(client, tablePath);
