@@ -52,11 +52,23 @@ add_ydb_test(NAME client-endpoints_ut
     unit
 )
 
-add_ydb_test(NAME client-iam_ut GTEST
+add_ydb_test(NAME client-grpc_iam_ut GTEST
   SOURCES
-    iam/iam_ut.cpp
+    iam/grpc_iam_ut.cpp
   LINK_LIBRARIES
+    api-client-yc_public
     api-grpc
+    cpp-testing-common
+    client-types
+    YDB-CPP-SDK::Iam
+  LABELS
+    unit
+)
+
+add_ydb_test(NAME client-http_iam_ut GTEST
+  SOURCES
+    iam/http_iam_ut.cpp
+  LINK_LIBRARIES
     cpp-testing-common
     http-server
     json

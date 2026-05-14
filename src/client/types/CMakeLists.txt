@@ -8,6 +8,7 @@ add_subdirectory(status)
 _ydb_sdk_add_library(client-types)
 
 target_sources(client-types PRIVATE
+  core_facility/simple_core_facility.cpp
   ydb.cpp
 )
 
