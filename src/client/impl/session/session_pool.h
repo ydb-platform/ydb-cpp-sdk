@@ -2,7 +2,7 @@
 
 #include "kqp_session_common.h"
 
-#include <src/client/types/core_facility/core_facility.h>
+#include <ydb-cpp-sdk/client/types/core_facility/core_facility.h>
 
 
 namespace NYdb::inline V3 {
