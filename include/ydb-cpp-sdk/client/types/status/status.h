@@ -87,7 +87,7 @@ bool StatusContainsIssueIf(const TStatus& status, TIssuePredicate&& pred) {
             if (found) {
                 return;
             }
-            if (std::forward<TIssuePredicate>(pred)(issue)) {
+            if (pred(issue)) {
                 found = true;
             }
         });
