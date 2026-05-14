@@ -80,16 +80,12 @@ void ThrowOnErrorOrPrintIssues(TStatus status);
 
 //! Depth-first search in status issues (including sub-issues). @p pred is invoked on each issue until a match.
 template <typename TIssuePredicate>
-bool StatusContainsIssueIf(const TStatus& status, TIssuePredicate&& pred) {
+bool StatusContainsIssueIf(const TStatus& status, TIssuePredicate pred) {
     for (const auto& top : status.GetIssues()) {
         bool found = false;
-        NYdb::NIssue::WalkThroughIssues(top, false, [&](const NYdb::NIssue::TIssue& issue, uint16_t /*level*/) {
-            if (found) {
-                return;
-            }
-            if (pred(issue)) {
-                found = true;
-            }
+        NYdb::NIssue::WalkThroughIssues(top, false, [&](const NYdb::NIssue::TIssue& issue, uint16_t /*level*/) -> bool {
+            found = pred(issue);
+            return !found; // continue if not found, stop early if found
         });
         if (found) {
             return true;

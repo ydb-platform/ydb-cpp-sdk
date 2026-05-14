@@ -204,6 +204,10 @@ public:
 
 void WalkThroughIssues(const TIssue& topIssue, bool leafOnly, std::function<void(const TIssue&, uint16_t level)> fn, std::function<void(const TIssue&, uint16_t level)> afterChildrenFn = {});
 
+//! Same as WalkThroughIssues, but @p fn returns bool: return false to stop iteration early, true to continue.
+//! Returns false if iteration was stopped early, true if all issues were visited.
+bool WalkThroughIssues(const TIssue& topIssue, bool leafOnly, std::function<bool(const TIssue&, uint16_t level)> fn);
+
 ///////////////////////////////////////////////////////////////////////////////
 // TIssues
 ///////////////////////////////////////////////////////////////////////////////
