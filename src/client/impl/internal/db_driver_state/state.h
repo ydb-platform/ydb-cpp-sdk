@@ -6,7 +6,7 @@
 
 #include <src/client/impl/internal/internal_client/client.h>
 #include <ydb-cpp-sdk/client/common_client/ssl_credentials.h>
-#include <src/client/types/core_facility/core_facility.h>
+#include <ydb-cpp-sdk/client/types/core_facility/core_facility.h>
 
 namespace NYdb::inline V3 {
 
@@ -40,6 +40,7 @@ public:
     void SignalDiscoveryCompleted();
 
     void AddPeriodicTask(TPeriodicCb&& cb, TDeadline::Duration period) override;
+    void PostToResponseQueue(TPostTaskCb&& f) override;
 
     void AddCb(TCb&& cb, ENotifyType type);
     void ForEachEndpoint(const TEndpointElectorSafe::THandleCb& cb, const void* tag) const;
