@@ -10,6 +10,8 @@
 
 #include <library/cpp/threading/future/future.h>
 
+#include <utility>
+
 namespace NYdb::inline V3 {
 
 //! Internal status representation
@@ -75,6 +77,32 @@ private:
 
 void ThrowOnError(TStatus status, std::function<void(TStatus)> onSuccess = [](TStatus) {});
 void ThrowOnErrorOrPrintIssues(TStatus status);
+
+//! Depth-first search in status issues (including sub-issues). @p pred is invoked on each issue until a match.
+template <typename TIssuePredicate>
+bool StatusContainsIssueIf(const TStatus& status, TIssuePredicate&& pred) {
+    for (const auto& top : status.GetIssues()) {
+        bool found = false;
+        NYdb::NIssue::WalkThroughIssues(top, false, [&](const NYdb::NIssue::TIssue& issue, uint16_t /*level*/) {
+            if (found) {
+                return;
+            }
+            if (std::forward<TIssuePredicate>(pred)(issue)) {
+                found = true;
+            }
+        });
+        if (found) {
+            return true;
+        }
+    }
+    return false;
+}
+
+inline bool StatusContainsIssueWithCode(const TStatus& status, NYdb::NIssue::TIssueCode code) {
+    return StatusContainsIssueIf(status, [code](const NYdb::NIssue::TIssue& issue) noexcept {
+        return issue.GetCode() == code;
+    });
+}
 
 }
 

@@ -21,6 +21,9 @@ using TIssueCode = uint32_t;
 constexpr TIssueCode DEFAULT_ERROR = 0;
 constexpr TIssueCode UNEXPECTED_ERROR = 1;
 
+//! NYql.TIssuesIds.EIssueCode — returned on primary key / unique index conflicts and other constraint failures.
+constexpr TIssueCode KIKIMR_CONSTRAINT_VIOLATION = 2012;
+
 enum class ESeverity : uint32_t {
     Fatal = 0,
     Error = 1,
