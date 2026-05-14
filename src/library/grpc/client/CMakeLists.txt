@@ -5,10 +5,13 @@ target_link_libraries(grpc-client
     yutil
     ydb-time
     gRPC::grpc++
+  PRIVATE
+    openssl-holders
 )
 
 target_sources(grpc-client PRIVATE
   grpc_client_low.cpp
+  grpc_common.cpp
 )
 
 target_compile_definitions(grpc-client PRIVATE YDB_DISABLE_GRPC_SOCKET_MUTATOR)
