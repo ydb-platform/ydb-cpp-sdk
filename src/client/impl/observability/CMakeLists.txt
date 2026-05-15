@@ -14,7 +14,6 @@ target_link_libraries(impl-observability PUBLIC
 target_sources(impl-observability PRIVATE
   metrics.cpp
   observation.cpp
-  operation_name.cpp
   span.cpp
 )
 

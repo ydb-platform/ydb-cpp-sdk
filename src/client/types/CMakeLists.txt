@@ -9,6 +9,7 @@ _ydb_sdk_add_library(client-types)
 
 target_sources(client-types PRIVATE
   ydb.cpp
+  core_facility/simple_core_facility.cpp
 )
 
 target_link_libraries(client-types PUBLIC
