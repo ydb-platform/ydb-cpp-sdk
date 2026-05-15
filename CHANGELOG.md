@@ -1,3 +1,5 @@
+* Added a helper to detect specific issue codes within a TStatus (including nested sub-issues) and introduces the CONSTRAINT_VIOLATION issue code constant, intended to make it easier for SDK users to detect primary key / unique index conflicts.
+
 * Fixed some data races in Producer (concurrent access to `PartitionsIndex`)
 
 * Added interface for export of metrics and spans, supported plugin for OpenTelemetry
