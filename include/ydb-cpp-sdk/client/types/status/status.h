@@ -88,7 +88,7 @@ bool StatusContainsIssueIf(const TStatus& status, TIssuePredicate&& pred) {
             false,
             std::function<bool(const NYdb::NIssue::TIssue&, uint16_t)>(
                 [&](const NYdb::NIssue::TIssue& issue, uint16_t /*level*/) -> bool {
-                    return !static_cast<bool>(std::forward<TIssuePredicate>(pred)(issue));
+                    return !static_cast<bool>(pred(issue));
                 }));
         if (!walkedToEnd) {
             return true;
