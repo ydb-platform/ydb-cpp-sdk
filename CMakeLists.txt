@@ -14,6 +14,8 @@ option(YDB_SDK_ENABLE_OTEL_METRICS "Build OpenTelemetry metrics plugin" Off)
 option(YDB_SDK_ENABLE_OTEL_TRACE "Build OpenTelemetry trace plugin" Off)
 set(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET "" CACHE STRING "Name of cmake target preparing google common proto library")
 option(YDB_SDK_USE_RAPID_JSON "Search for rapid json library in system" ON)
+option(YDB_SDK_DOWNLOAD_PACKAGES "Download with CPM if there is no system-provided libraries" ON) # todo изменить сообщение 
+option(YDB_SDK_FORCE_DOWNLOAD_PACKAGES "Download all possible third party packages even if a system package is available" ON)
 
 set(BUILD_SHARED_LIBS Off)
 set(CMAKE_CXX_STANDARD 20)
@@ -70,6 +72,11 @@ endif()
 
 if (YDB_SDK_TESTS)
   add_subdirectory(tests)
+endif()
+
+if(CPM_PACKAGES)
+  include(DownloadUsingCPM)  
+  _ydb_sdk_print_cpm_packages()
 endif()
 
 if (YDB_SDK_INSTALL)
