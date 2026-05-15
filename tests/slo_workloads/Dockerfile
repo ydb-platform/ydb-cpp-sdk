@@ -123,4 +123,4 @@ RUN rm -rf build
 RUN cmake -DSLO_BRANCH_REF=${REF} --preset ${PRESET}
 RUN cmake --build --preset default --target slo-key-value
 
-ENTRYPOINT ["./build/tests/slo_workloads/key_value/slo-key-value"]
+ENTRYPOINT ["./build/tests/slo_workloads/native/key_value/slo-key-value"]

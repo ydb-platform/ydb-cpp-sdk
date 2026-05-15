@@ -1,9 +1,6 @@
 #include "generator.h"
 
-#include <util/generic/guid.h>
-
-
-TValueGenerator::TValueGenerator(const TCommonOptions& opts, ui32 startId)
+TValueGenerator::TValueGenerator(const TSloGeneratorOptions& opts, ui32 startId)
     : Opts(opts)
     , CurrentObjectId(startId)
 {
@@ -18,7 +15,7 @@ TRecordData TValueGenerator::Get() {
         CurrentObjectId,
         TInstant::Now().MicroSeconds(),
         CreateGuidAsString(),
-        GenerateRandomString(Opts.MinLength, Opts.MaxLength)
+        SloGenerateRandomString(Opts.MinLength, Opts.MaxLength)
     };
 }
 
@@ -26,7 +23,7 @@ TDuration TValueGenerator::GetComputeTime() const {
     return ComputeTime;
 }
 
-TKeyValueGenerator::TKeyValueGenerator(const TCommonOptions& opts, ui32 startId)
+TKeyValueGenerator::TKeyValueGenerator(const TSloGeneratorOptions& opts, ui32 startId)
     : Opts(opts)
     , CurrentObjectId(startId)
 {
@@ -38,7 +35,7 @@ TKeyValueRecordData TKeyValueGenerator::Get() {
     return {
         CurrentObjectId,
         TInstant::Now().MicroSeconds(),
-        GenerateRandomString(Opts.MinLength, Opts.MaxLength)
+        SloGenerateRandomString(Opts.MinLength, Opts.MaxLength)
     };
 }
 
