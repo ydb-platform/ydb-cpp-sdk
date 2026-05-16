@@ -161,7 +161,9 @@ NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession
     const std::string queryText = Conn_->WrapQueryForCurrentCatalog(sqlText);
     NQuery::TExecuteQuerySettings execSettings;
     const SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
-    execSettings.ClientTimeout(TDuration::Seconds(queryTimeoutSec));
+    if (queryTimeoutSec > 0) {
+        execSettings.ClientTimeout(TDuration::Seconds(queryTimeoutSec));
+    }
     const auto txSettings = Conn_->MakeTxSettings();
     if (Conn_->GetAutocommit()) {
         // TS_SNAPSHOT_RW doesn't support explicit BeginTx() - we use NoTx() instead
