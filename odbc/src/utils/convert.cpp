@@ -463,11 +463,12 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
                     break;
                 }
                 case EPrimitiveType::Date32: {
-                    const i32 days = parser.GetDate32();
-                    if (days < 0) {
+                    const auto days = parser.GetDate32().time_since_epoch();
+                    if (days.count() < 0) {
                         return SQL_ERROR;
                     }
-                    const TString t = TInstant::Days(static_cast<ui64>(days)).FormatGmTime("%Y-%m-%d");
+                    const TString t =
+                        TInstant::Days(static_cast<ui64>(days.count())).FormatGmTime("%Y-%m-%d");
                     str.assign(t.data(), t.size());
                     break;
                 }
@@ -477,13 +478,12 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
                     break;
                 }
                 case EPrimitiveType::Datetime64: {
-                    const std::int64_t secs = parser.GetDatetime64();
-                    if (secs < 0) {
+                    const auto secs = parser.GetDatetime64().time_since_epoch();
+                    if (secs.count() < 0) {
                         return SQL_ERROR;
                     }
-                    const TString t =
-                        TInstant::Seconds(static_cast<ui64>(static_cast<std::uint64_t>(secs)))
-                            .FormatGmTime("%Y-%m-%d %H:%M:%S");
+                    const TString t = TInstant::Seconds(static_cast<ui64>(static_cast<std::uint64_t>(secs.count())))
+                                          .FormatGmTime("%Y-%m-%d %H:%M:%S");
                     str.assign(t.data(), t.size());
                     break;
                 }
@@ -493,12 +493,12 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
                     break;
                 }
                 case EPrimitiveType::Timestamp64: {
-                    const std::int64_t micros = parser.GetTimestamp64();
-                    if (micros < 0) {
+                    const auto micros = parser.GetTimestamp64().time_since_epoch();
+                    if (micros.count() < 0) {
                         return SQL_ERROR;
                     }
                     const TString t =
-                        TInstant::MicroSeconds(static_cast<ui64>(static_cast<std::uint64_t>(micros)))
+                        TInstant::MicroSeconds(static_cast<ui64>(static_cast<std::uint64_t>(micros.count())))
                             .FormatGmTime("%Y-%m-%d %H:%M:%S");
                     str.assign(t.data(), t.size());
                     break;
