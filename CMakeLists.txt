@@ -79,6 +79,7 @@ if (YDB_SDK_INSTALL)
     CONFIGURATIONS RELEASE
     NAMESPACE YDB-CPP-SDK::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ydb-cpp-sdk/release
+    COMPONENT libydb-cpp
   )
   configure_package_config_file(
     ${YDB_SDK_SOURCE_DIR}/cmake/ydb-cpp-sdk-config.cmake.in
