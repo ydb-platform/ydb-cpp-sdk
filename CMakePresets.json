@@ -66,6 +66,22 @@
       "displayName": "Default Release Config (Clang)"
     },
     {
+      "name": "package-deb-clang",
+      "inherits": ["release-base", "clang-toolchain"],
+      "displayName": "Package Config (Clang) for .deb",
+      "binaryDir": "${sourceDir}/build-deb",
+      "cacheVariables": {
+        "YDB_SDK_INSTALL": "ON",
+        "YDB_SDK_ENABLE_OTEL_METRICS": "ON",
+        "YDB_SDK_ENABLE_OTEL_TRACE": "ON",
+        "YDB_SDK_EXAMPLES": "OFF",
+        "BUILD_SHARED_LIBS": "OFF",
+        "CMAKE_EXE_LINKER_FLAGS": "",
+        "CMAKE_SHARED_LINKER_FLAGS": "",
+        "CMAKE_PREFIX_PATH": "~/ydb_deps/absl;~/ydb_deps/protobuf;~/ydb_deps/grpc;~/ydb_deps/base64;~/ydb_deps/brotli;~/ydb_deps/jwt-cpp;~/ydb_deps/opentelemetry-cpp-install"
+      }
+    },
+    {
       "name": "release-gcc",
       "inherits": ["release-base", "gcc-toolchain"],
       "displayName": "Default Release Config (GCC)"
