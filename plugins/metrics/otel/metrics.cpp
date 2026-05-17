@@ -145,8 +145,9 @@ private:
         histogramConfig->boundaries_ = buckets;
 
         auto view = std::make_unique<sdk::metrics::View>(
+            name,
             std::string{},
-            std::string{},
+            unit,
             sdk::metrics::AggregationType::kHistogram,
             histogramConfig
         );

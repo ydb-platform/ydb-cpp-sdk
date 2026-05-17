@@ -1,5 +1,6 @@
 #include <ydb-cpp-sdk/open_telemetry/trace.h>
 
+#include <opentelemetry/common/key_value_iterable_view.h>
 #include <opentelemetry/common/attribute_value.h>
 #include <opentelemetry/context/runtime_context.h>
 #include <opentelemetry/trace/context.h>
@@ -60,24 +61,24 @@ public:
         Span_->End();
     }
 
-    void SetAttribute(const std::string& key, const std::string& value) override {
-        Span_->SetAttribute(key, value);
+    void SetAttribute(std::string_view key, std::string_view value) override {
+        Span_->SetAttribute(otel_nostd::string_view(key.data(), key.size()), otel_nostd::string_view(value.data(), value.size()));
     }
 
-    void SetAttribute(const std::string& key, int64_t value) override {
-        Span_->SetAttribute(key, value);
+    void SetAttribute(std::string_view key, int64_t value) override {
+        Span_->SetAttribute(otel_nostd::string_view(key.data(), key.size()), value);
     }
 
-    void AddEvent(const std::string& name, const std::map<std::string, std::string>& attributes) override {
-        if (attributes.empty()) {
-            Span_->AddEvent(name);
+    void AddEvent(std::string_view name, TAttributes attributes = {}) override {
+        if (attributes.size() == 0) {
+            Span_->AddEvent(otel_nostd::string_view(name.data(), name.size()));
         } else {
             std::vector<std::pair<otel_nostd::string_view, otel_common::AttributeValue>> attrs;
             attrs.reserve(attributes.size());
             for (const auto& [k, v] : attributes) {
-                attrs.emplace_back(otel_nostd::string_view(k), otel_common::AttributeValue(otel_nostd::string_view(v)));
+                attrs.emplace_back(otel_nostd::string_view(k.data(), k.size()), otel_common::AttributeValue(otel_nostd::string_view(v.data(), v.size())));
             }
-            Span_->AddEvent(name, attrs);
+            Span_->AddEvent(otel_nostd::string_view(name.data(), name.size()), otel_common::MakeAttributes(attrs));
         }
     }
 
@@ -85,8 +86,8 @@ public:
         return std::make_unique<TOtelScope>(Span_);
     }
 
-    void SetStatus(ESpanStatus status, const std::string& description) override {
-        Span_->SetStatus(MapSpanStatus(status), description);
+    void SetStatus(ESpanStatus status, std::string_view description = {}) override {
+        Span_->SetStatus(MapSpanStatus(status), otel_nostd::string_view(description.data(), description.size()));
     }
 
 private:
@@ -111,6 +112,10 @@ public:
             options.parent = otel_trace::SetSpan(context, otelParent->RawSpan());
         }
         return std::make_shared<TOtelSpan>(Tracer_->StartSpan(name, options));
+    }
+
+    std::string GetCurrentTraceparent() const override {
+        return ""; // Stub implementation, OpenTelemetry doesn't natively expose this through the Tracer easily
     }
 
 private:

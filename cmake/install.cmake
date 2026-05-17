@@ -2,13 +2,17 @@ function(_ydb_sdk_install_targets)
   if (NOT YDB_SDK_INSTALL)
     return()
   endif()
+  set(oneValueArgs COMPONENT)
   set(multiValueArgs TARGETS)
   cmake_parse_arguments(
-    ARG "${option}" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}"
+    ARG "${option}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
   )
   if (NOT ARG_TARGETS)
     message(FATAL_ERROR "No TARGETS given for install")
     return()
+  endif()
+  if (NOT ARG_COMPONENT)
+    set(ARG_COMPONENT "libydb-cpp")
   endif()
   foreach (ITEM_TARGET IN LISTS ARG_TARGETS)
     if(NOT TARGET ${ITEM_TARGET})
@@ -19,9 +23,9 @@ function(_ydb_sdk_install_targets)
   install(TARGETS ${ARG_TARGETS}
     EXPORT ydb-cpp-sdk-targets
     CONFIGURATIONS RELEASE
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${ARG_COMPONENT}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${ARG_COMPONENT}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${ARG_COMPONENT}
     INCLUDES DESTINATION
       ${CMAKE_INSTALL_INCLUDEDIR}
       ${CMAKE_INSTALL_INCLUDEDIR}/__ydb_sdk_special_headers
@@ -32,10 +36,10 @@ function(_ydb_sdk_directory_install)
   if (NOT ${YDB_SDK_INSTALL})
     return()
   endif()
-  set(oneValueArgs DESTINATION PATTERN)
+  set(oneValueArgs DESTINATION PATTERN COMPONENT EXCLUDE)
   set(multiValueArgs FILES DIRECTORY)
   cmake_parse_arguments(
-    ARG "${option}" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}"
+    ARG "${option}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
   )
   if (NOT ARG_DESTINATION)
     message(FATAL_ERROR "No DESTINATION for install")
@@ -46,13 +50,18 @@ function(_ydb_sdk_directory_install)
   if (ARG_FILES AND ARG_DIRECTORY)
     message(FATAL_ERROR "FILES and DIRECTORY are mutually exclusive install arguments")
   endif()
+  if (NOT ARG_COMPONENT)
+    set(ARG_COMPONENT "libydb-cpp")
+  endif()
   if (ARG_FILES)
-    install(FILES ${ARG_FILES} DESTINATION ${ARG_DESTINATION})
+    install(FILES ${ARG_FILES} DESTINATION ${ARG_DESTINATION} COMPONENT ${ARG_COMPONENT})
   else()
     if (DEFINED ARG_PATTERN)
-      install(DIRECTORY ${ARG_DIRECTORY} DESTINATION ${ARG_DESTINATION} USE_SOURCE_PERMISSIONS FILES_MATCHING PATTERN ${ARG_PATTERN})
+      install(DIRECTORY ${ARG_DIRECTORY} DESTINATION ${ARG_DESTINATION} USE_SOURCE_PERMISSIONS COMPONENT ${ARG_COMPONENT} FILES_MATCHING PATTERN ${ARG_PATTERN})
+    elseif (DEFINED ARG_EXCLUDE)
+      install(DIRECTORY ${ARG_DIRECTORY} DESTINATION ${ARG_DESTINATION} USE_SOURCE_PERMISSIONS COMPONENT ${ARG_COMPONENT} PATTERN ${ARG_EXCLUDE} EXCLUDE)
     else()
-      install(DIRECTORY ${ARG_DIRECTORY} DESTINATION ${ARG_DESTINATION} USE_SOURCE_PERMISSIONS)
+      install(DIRECTORY ${ARG_DIRECTORY} DESTINATION ${ARG_DESTINATION} USE_SOURCE_PERMISSIONS COMPONENT ${ARG_COMPONENT})
     endif()
   endif()
 endfunction()
@@ -61,27 +70,47 @@ function(_ydb_sdk_install_headers ArgIncludeDir)
   if (NOT ${YDB_SDK_INSTALL})
     return()
   endif()
-  _ydb_sdk_directory_install(DIRECTORY ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk
-    DESTINATION ${ArgIncludeDir}
+  set(oneValueArgs COMPONENT)
+  set(multiValueArgs DIRECTORY)
+  cmake_parse_arguments(
+    ARG "${option}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
   )
-
-  file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/public_headers.txt PublicHeaders)
-  file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/protos_public_headers.txt ProtosPublicHeaders)
-  if (NOT MSVC)
-    list(REMOVE_ITEM PublicHeaders library/cpp/deprecated/atomic/atomic_win.h)
+  if (NOT ARG_COMPONENT)
+    set(ARG_COMPONENT "libydb-cpp")
   endif()
-  foreach(HeaderPath ${PublicHeaders})
-    get_filename_component(RelInstallPath ${HeaderPath} DIRECTORY)
-    _ydb_sdk_directory_install(FILES
-        ${YDB_SDK_SOURCE_DIR}/${HeaderPath}
-      DESTINATION ${ArgIncludeDir}/__ydb_sdk_special_headers/${RelInstallPath}
+
+  if (ARG_DIRECTORY)
+    _ydb_sdk_directory_install(DIRECTORY ${ARG_DIRECTORY}
+      DESTINATION ${ArgIncludeDir}
+      COMPONENT ${ARG_COMPONENT}
     )
-  endforeach()
-  foreach(HeaderPath ${ProtosPublicHeaders})
-    get_filename_component(RelInstallPath ${HeaderPath} DIRECTORY)
-    _ydb_sdk_directory_install(FILES
-        ${YDB_SDK_BINARY_DIR}/${HeaderPath}
-      DESTINATION ${ArgIncludeDir}/__ydb_sdk_special_headers/${RelInstallPath}
+  else()
+    _ydb_sdk_directory_install(DIRECTORY ${YDB_SDK_SOURCE_DIR}/include/ydb-cpp-sdk
+      DESTINATION ${ArgIncludeDir}
+      COMPONENT ${ARG_COMPONENT}
+      EXCLUDE "open_telemetry"
     )
-  endforeach()
+
+    file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/public_headers.txt PublicHeaders)
+    file(STRINGS ${YDB_SDK_SOURCE_DIR}/cmake/protos_public_headers.txt ProtosPublicHeaders)
+    if (NOT MSVC)
+      list(REMOVE_ITEM PublicHeaders library/cpp/deprecated/atomic/atomic_win.h)
+    endif()
+    foreach(HeaderPath ${PublicHeaders})
+      get_filename_component(RelInstallPath ${HeaderPath} DIRECTORY)
+      _ydb_sdk_directory_install(FILES
+          ${YDB_SDK_SOURCE_DIR}/${HeaderPath}
+        DESTINATION ${ArgIncludeDir}/__ydb_sdk_special_headers/${RelInstallPath}
+        COMPONENT ${ARG_COMPONENT}
+      )
+    endforeach()
+    foreach(HeaderPath ${ProtosPublicHeaders})
+      get_filename_component(RelInstallPath ${HeaderPath} DIRECTORY)
+      _ydb_sdk_directory_install(FILES
+          ${YDB_SDK_BINARY_DIR}/${HeaderPath}
+        DESTINATION ${ArgIncludeDir}/__ydb_sdk_special_headers/${RelInstallPath}
+        COMPONENT ${ARG_COMPONENT}
+      )
+    endforeach()
+  endif()
 endfunction()

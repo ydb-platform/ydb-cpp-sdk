@@ -35,6 +35,7 @@ target_link_libraries(logger.global
   PUBLIC
     yutil
     json
+    logger
   PRIVATE
     enum_serialization_runtime
 )
