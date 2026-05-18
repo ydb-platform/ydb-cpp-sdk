@@ -73,6 +73,76 @@ if (YDB_SDK_TESTS)
 endif()
 
 if (YDB_SDK_INSTALL)
+  function(_ydb_sdk_create_package_library PackageProp TargetName ComponentName)
+    foreach(Tgt IN LISTS YDB_CPP_${PackageProp}_COMPONENT_TARGETS)
+      _ydb_sdk_collect_package_target(${PackageProp} ${Tgt})
+    endforeach()
+
+    get_property(PackageSources GLOBAL PROPERTY YDB_CPP_${PackageProp}_SOURCES)
+    if (NOT PackageSources)
+      return()
+    endif()
+
+    get_property(PackageInternalDeps GLOBAL PROPERTY YDB_CPP_${PackageProp}_INTERNAL_DEPS)
+    get_property(PackagePublicDeps GLOBAL PROPERTY YDB_CPP_${PackageProp}_PUBLIC_DEPS)
+    get_property(PackagePublicOpts GLOBAL PROPERTY YDB_CPP_${PackageProp}_PUBLIC_OPTS)
+    get_property(PackagePublicDefs GLOBAL PROPERTY YDB_CPP_${PackageProp}_PUBLIC_DEFS)
+    get_property(PackageIncludeDirs GLOBAL PROPERTY YDB_CPP_${PackageProp}_INCLUDE_DIRS)
+
+    list(REMOVE_DUPLICATES PackageSources)
+    if (PackageInternalDeps)
+      list(REMOVE_DUPLICATES PackageInternalDeps)
+    endif()
+    if (PackagePublicDeps)
+      list(REMOVE_DUPLICATES PackagePublicDeps)
+      list(REMOVE_ITEM PackagePublicDeps ${PackageInternalDeps})
+    endif()
+    if (PackagePublicOpts)
+      list(REMOVE_DUPLICATES PackagePublicOpts)
+    endif()
+    if (PackagePublicDefs)
+      list(REMOVE_DUPLICATES PackagePublicDefs)
+    endif()
+    if (PackageIncludeDirs)
+      list(REMOVE_DUPLICATES PackageIncludeDirs)
+    endif()
+
+    foreach(src IN LISTS PackageSources)
+      if (NOT EXISTS "${src}")
+        set_source_files_properties("${src}" PROPERTIES GENERATED TRUE)
+      endif()
+    endforeach()
+
+    add_library(${TargetName} STATIC ${PackageSources})
+    target_include_directories(${TargetName} PUBLIC
+      $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}>
+      $<BUILD_INTERFACE:${YDB_SDK_BINARY_DIR}>
+      $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}/include>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/__ydb_sdk_special_headers>
+    )
+    target_include_directories(${TargetName} PRIVATE
+      ${PackageIncludeDirs}
+    )
+    if (TargetName STREQUAL "libydb-cpp")
+      set_target_properties(${TargetName} PROPERTIES OUTPUT_NAME ydb-cpp)
+    endif()
+    target_compile_definitions(${TargetName} PUBLIC YDB_SDK_OSS ${PackagePublicDefs})
+    target_link_libraries(${TargetName} PUBLIC ${PackagePublicDeps})
+    if (PackageInternalDeps)
+      add_dependencies(${TargetName} ${PackageInternalDeps})
+    endif()
+    if (PackagePublicOpts)
+      target_compile_options(${TargetName} PUBLIC ${PackagePublicOpts})
+    endif()
+    _ydb_sdk_install_targets(TARGETS ${TargetName} COMPONENT ${ComponentName})
+  endfunction()
+
+  _ydb_sdk_create_package_library(CORE libydb-cpp libydb-cpp)
+  _ydb_sdk_create_package_library(LIBYDB_CPP_IAM ydb-cpp-iam libydb-cpp-iam)
+  _ydb_sdk_create_package_library(LIBYDB_CPP_OTEL_METRICS ydb-cpp-otel-metrics libydb-cpp-otel-metrics)
+  _ydb_sdk_create_package_library(LIBYDB_CPP_OTEL_TRACING ydb-cpp-otel-tracing libydb-cpp-otel-tracing)
+
   _ydb_sdk_install_headers(${CMAKE_INSTALL_INCLUDEDIR})
   install(EXPORT ydb-cpp-sdk-targets
     FILE ydb-cpp-sdk-targets.cmake
