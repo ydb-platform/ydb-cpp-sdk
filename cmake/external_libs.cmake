@@ -54,7 +54,12 @@ if (YDB_SDK_USE_RAPID_JSON)
 endif()
 
 # api-common-protos
-if (YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET)
+option(YDB_SDK_USE_SYSTEM_GOOGLEAPIS "Use system-provided yandex-googleapis-api-common-protos" OFF)
+
+if (YDB_SDK_USE_SYSTEM_GOOGLEAPIS)
+  find_package(yandex-googleapis-api-common-protos REQUIRED)
+  add_library(api-common-protos ALIAS yandex-googleapis-api-common-protos::api-common-protos)
+elseif (YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET)
   add_library(api-common-protos ALIAS ${YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET})
 else()
   file(MAKE_DIRECTORY ${YDB_SDK_BINARY_DIR}/third_party/api-common-protos)
