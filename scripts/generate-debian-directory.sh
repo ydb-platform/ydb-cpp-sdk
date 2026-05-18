@@ -125,7 +125,7 @@ override_dh_auto_configure:
 		-DBUILD_SHARED_LIBS=OFF \
 		-DYDB_SDK_USE_SYSTEM_GOOGLEAPIS=ON \
 		-DCMAKE_INSTALL_PREFIX=/usr/share/yandex \
-		-DCMAKE_PREFIX_PATH=/usr/share/yandex
+		-DCMAKE_PREFIX_PATH="/usr/local;/usr/share/yandex"
 EOF_RULES
 chmod +x debian/rules
 

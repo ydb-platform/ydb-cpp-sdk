@@ -4,3 +4,9 @@
 [submodule "third_party/FastLZ"]
 	path = third_party/FastLZ
 	url = https://github.com/ariya/FastLZ
+[submodule "third_party/aklomp-base64"]
+	path = third_party/aklomp-base64
+	url = https://github.com/aklomp/base64.git
+[submodule "third_party/jwt-cpp"]
+	path = third_party/jwt-cpp
+	url = https://github.com/Thalhammer/jwt-cpp.git
