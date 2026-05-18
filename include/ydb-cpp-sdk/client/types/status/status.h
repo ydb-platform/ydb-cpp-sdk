@@ -76,6 +76,8 @@ private:
 void ThrowOnError(TStatus status, std::function<void(TStatus)> onSuccess = [](TStatus) {});
 void ThrowOnErrorOrPrintIssues(TStatus status);
 
+bool StatusContainsIssueWithCode(const TStatus& status, NYdb::NIssue::TIssueCode code);
+
 }
 
 } // namespace NYdb
