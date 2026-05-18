@@ -121,3 +121,35 @@ function(add_ydb_test)
 
   vcs_info(${YDB_TEST_NAME})
 endfunction()
+
+if (YDB_SDK_ODBC)
+  function(add_odbc_test)
+    set(opts "")
+    set(oneval_args NAME WORKING_DIRECTORY OUTPUT_DIRECTORY)
+    set(multival_args SOURCES LINK_LIBRARIES LABELS)
+    cmake_parse_arguments(ODBC_TEST
+      "${opts}"
+      "${oneval_args}"
+      "${multival_args}"
+      ${ARGN}
+    )
+
+    add_ydb_test(GTEST
+      NAME ${ODBC_TEST_NAME}
+      SOURCES ${ODBC_TEST_SOURCES}
+      LINK_LIBRARIES
+        ${ODBC_TEST_LINK_LIBRARIES}
+        ODBC::ODBC
+      LABELS
+        integration
+        ${ODBC_TEST_LABELS}
+    )
+
+    target_compile_definitions(${ODBC_TEST_NAME} 
+      PRIVATE 
+        ODBC_DRIVER_PATH="$<TARGET_FILE:ydb-odbc>"
+    )
+
+    add_dependencies(${ODBC_TEST_NAME} ydb-odbc)
+  endfunction()
+endif()

@@ -1,0 +1,42 @@
+#pragma once
+
+#include "bindings.h"
+
+#include <ydb-cpp-sdk/client/query/client.h>
+
+#include <sql.h>
+
+#include <optional>
+#include <string>
+#include <vector>
+#include <memory>
+
+namespace NYdb {
+namespace NOdbc {
+
+struct TColumnMeta {
+    std::string Name;
+    SQLSMALLINT SqlType;
+    SQLULEN Size;
+    SQLSMALLINT Nullable;
+    SQLSMALLINT DecimalDigits = 0;
+};
+
+using TTable = std::vector<std::vector<TValue>>;
+
+class ICursor {
+public:
+    virtual ~ICursor() = default;    
+    virtual bool Fetch() = 0;
+    virtual SQLRETURN GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
+                              SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) = 0;
+    virtual const std::vector<TColumnMeta>& GetColumnMeta() const = 0;
+};
+
+std::unique_ptr<ICursor> CreateExecCursor(IBindingFiller* bindingFiller,
+    NYdb::NQuery::TExecuteQueryIterator iterator,
+    std::optional<NYdb::NQuery::TExecuteQueryPart> prefetchedPart = std::nullopt);
+std::unique_ptr<ICursor> CreateVirtualCursor(IBindingFiller* bindingFiller, const std::vector<TColumnMeta>& columns, const TTable& table);
+
+} // namespace NOdbc
+} // namespace NYdb

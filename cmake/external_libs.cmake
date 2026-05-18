@@ -19,6 +19,10 @@ if (YDB_SDK_ENABLE_OTEL_METRICS OR YDB_SDK_ENABLE_OTEL_TRACE)
   find_package(opentelemetry-cpp REQUIRED)
 endif()
 
+if (YDB_SDK_ODBC)
+  find_package(ODBC REQUIRED)
+endif()
+
 # RapidJSON
 if (YDB_SDK_USE_RAPID_JSON)
   find_package(RapidJSON REQUIRED)
