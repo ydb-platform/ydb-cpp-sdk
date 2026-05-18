@@ -151,6 +151,46 @@ cmake --preset $sdk_configure_preset
 cmake --build --preset $sdk_configure_preset
 ```
 
+### Build `.deb` packages
+
+The SDK can be packaged as Debian development packages with CPack. The packaging build uses static libraries and produces the following packages:
+
+- `libydb-cpp-dev` — core SDK static library, public headers and CMake package files;
+- `libydb-cpp-iam-dev` — IAM credentials plugin;
+- `libydb-cpp-otel-metrics-dev` — OpenTelemetry metrics plugin;
+- `libydb-cpp-otel-tracing-dev` — OpenTelemetry tracing plugin.
+
+The Debian packaging flow is intended for Ubuntu 24.04. Install the regular build dependencies first. If OpenTelemetry plugins are enabled, install `opentelemetry-cpp` as a CMake package as well; the default `package-deb-clang` preset expects it in `~/ydb_deps/opentelemetry-cpp-install`.
+
+To build `.deb` packages directly with CPack:
+
+```bash
+cmake --preset package-deb-clang
+cmake --build build-deb --target package -j$(nproc)
+```
+
+The generated `.deb` files are placed into `build-deb/`.
+
+To prepare Debian source-package metadata, run:
+
+```bash
+./scripts/generate-debian-directory.sh
+```
+
+This updates `debian/changelog` from `src/version.h` and the current Git commit. The `debian/` directory contains package metadata and install manifests for `dpkg-buildpackage`/PPA builds.
+
+To validate a binary Debian package build in an Ubuntu 24.04 Docker container:
+
+```bash
+./scripts/test_dpkg_buildpackage.sh
+```
+
+To smoke-test generated `.deb` packages with the sample consumer project:
+
+```bash
+./scripts/test_deb_packages.sh build-deb
+```
+
 ### Test
 
 Specify a level of parallelism by passing the `-j<level>` option into the command below (e.g. `-j$(nproc)`)
