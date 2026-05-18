@@ -6,6 +6,13 @@ set(CMAKE_CXX_STANDARD 20)
 find_package(Protobuf REQUIRED)
 
 set(PROTOS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/api-common-protos")
+get_filename_component(PROTOS_DIR "${PROTOS_DIR}" ABSOLUTE)
+
+if(NOT EXISTS "${PROTOS_DIR}/google")
+    message(FATAL_ERROR
+        "api-common-protos sources not found under \"${PROTOS_DIR}/google\". "
+        "Initialize git submodules / third_party checkout.")
+endif()
 
 file(GLOB_RECURSE PROTO_FILES "${PROTOS_DIR}/google/*.proto")
 
@@ -23,10 +30,14 @@ foreach(proto_file ${PROTO_FILES})
 
     add_custom_command(
         OUTPUT "${cpp_file}" "${h_file}"
-        COMMAND protobuf::protoc
-        ARGS --cpp_out="${CMAKE_CURRENT_BINARY_DIR}" -I"${PROTOS_DIR}" "${proto_file}"
+        COMMAND "${Protobuf_PROTOC_EXECUTABLE}"
+        ARGS
+            "--cpp_out=${CMAKE_CURRENT_BINARY_DIR}"
+            "-I."
+            "${rel_path}"
+        WORKING_DIRECTORY "${PROTOS_DIR}"
         DEPENDS "${proto_file}"
-        COMMENT "Running C++ protocol buffer compiler on ${proto_file}"
+        COMMENT "Running C++ protocol buffer compiler on ${rel_path}"
         VERBATIM
     )
 
