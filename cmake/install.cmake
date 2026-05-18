@@ -20,6 +20,12 @@ function(_ydb_sdk_install_targets)
       return()
     endif()
   endforeach()
+  if (ARG_COMPONENT STREQUAL "libydb-cpp")
+    list(FILTER ARG_TARGETS INCLUDE REGEX "^libydb-cpp$")
+    if (NOT ARG_TARGETS)
+      return()
+    endif()
+  endif()
   install(TARGETS ${ARG_TARGETS}
     EXPORT ydb-cpp-sdk-targets
     CONFIGURATIONS RELEASE
