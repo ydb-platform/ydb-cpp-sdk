@@ -9,9 +9,32 @@ find_package(ZSTD REQUIRED)
 find_package(BZip2 REQUIRED)
 find_package(LZ4 REQUIRED)
 find_package(Snappy 1.1.8 REQUIRED)
-find_package(base64 REQUIRED)
+find_package(base64 QUIET)
+if (NOT base64_FOUND)
+  include(FetchContent)
+  FetchContent_Declare(
+    base64
+    GIT_REPOSITORY https://github.com/aklomp/base64.git
+    GIT_TAG v0.5.2
+  )
+  FetchContent_MakeAvailable(base64)
+  if (TARGET base64 AND NOT TARGET aklomp::base64)
+    add_library(aklomp::base64 ALIAS base64)
+  endif()
+endif()
 find_package(Brotli 1.1.0 REQUIRED)
-find_package(jwt-cpp REQUIRED)
+find_package(jwt-cpp QUIET)
+if (NOT jwt-cpp_FOUND)
+  include(FetchContent)
+  FetchContent_Declare(
+    jwt-cpp
+    GIT_REPOSITORY https://github.com/Thalhammer/jwt-cpp.git
+    GIT_TAG v0.6.0
+  )
+  set(JWT_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+  set(JWT_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(jwt-cpp)
+endif()
 find_package(double-conversion REQUIRED)
 
 # OpenTelemetry

@@ -33,7 +33,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # See: https://maskray.me/blog/2021-11-07-init-ctors-init-array
     string(APPEND COMMON_C_CXX_FLAGS " -fuse-init-array")
   elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    string(APPEND COMMON_C_CXX_FLAGS " -fpermissive")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
   endif()
 endif()
 
