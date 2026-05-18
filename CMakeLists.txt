@@ -13,7 +13,7 @@ option(YDB_SDK_EXAMPLES "Build YDB C++ SDK examples" On)
 option(YDB_SDK_ENABLE_OTEL_METRICS "Build the OpenTelemetry metrics plugin" Off)
 option(YDB_SDK_ENABLE_OTEL_TRACE "Build the OpenTelemetry tracing plugin" Off)
 option(YDB_CPP_SDK_SLO_USE_INSTALLED_SDK "Build only SLO workloads against one installed SDK prefix" Off)
-option(YDB_SDK_ODBC "Build YDB ODBC driver" On)
+option(YDB_SDK_ODBC "Build YDB ODBC driver" Off)
 set(YDB_SDK_DEPENDENCY_MODE "CPM" CACHE STRING
   "Dependency provider: CPM (default, pinned sources) or SYSTEM (Ubuntu DEB builds)")
 set_property(CACHE YDB_SDK_DEPENDENCY_MODE PROPERTY STRINGS CPM SYSTEM)

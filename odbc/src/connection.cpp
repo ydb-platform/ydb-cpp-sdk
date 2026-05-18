@@ -2,6 +2,9 @@
 #include "statement.h"
 #include "utils/error_manager.h"
 
+#include <ydb-cpp-sdk/client/result/result.h>
+#include <ydb-cpp-sdk/client/types/status/status.h>
+
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -89,6 +92,7 @@ SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
     }
     Endpoint_ = params.contains("Server") ? params["Server"] : params["Endpoint"];
     Database_ = params["Database"];
+    DataSourceName_ = params.contains("DSN") ? params["DSN"] : "";
 
     if (Endpoint_.empty() || Database_.empty()) {
         throw TOdbcException("08001", 0, "Missing Endpoint (or Server) or Database in connection string");
@@ -104,6 +108,7 @@ SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
 SQLRETURN TConnection::Connect(const std::string& serverName,
                                const std::string& userName,
                                const std::string& auth) {
+    DataSourceName_ = serverName;
 
     char endpoint[256] = {0};
     char server[256] = {0};
@@ -130,6 +135,8 @@ SQLRETURN TConnection::Connect(const std::string& serverName,
 SQLRETURN TConnection::Disconnect() {
     QuerySession_.reset();
     Tx_.reset();
+    DbmsVersionCache_.reset();
+    DataSourceName_.clear();
     YdbSchemeClient_.reset();
     YdbTableClient_.reset();
     YdbClient_.reset();
@@ -242,9 +249,71 @@ TEnvironment* TConnection::GetEnvironment(){
     return ParentEnv_;
 }
 
+const std::string& TConnection::GetDataSourceName() const {
+    return DataSourceName_;
+}
+
+SQLUINTEGER TConnection::GetSupportedTxnIsolationOptions() const {
+    return Attributes_.GetSupportedTxnIsolationOptions();
+}
+
+bool TConnection::IsDataSourceReadOnly() const {
+    return Attributes_.GetAccessMode() == SQL_MODE_READ_ONLY;
+}
+
+const std::string& TConnection::GetDbmsVersion() {
+    if (DbmsVersionCache_) {
+        return *DbmsVersionCache_;
+    }
+
+    static const std::string fallback = "unknown";
+    DbmsVersionCache_ = fallback;
+
+    auto* client = GetClient();
+    if (!client) {
+        return *DbmsVersionCache_;
+    }
+
+    std::optional<std::string> fetched;
+    const NYdb::TStatus status = client->RetryQuerySync(
+        [&fetched](NQuery::TSession session) -> NYdb::TStatus {
+            auto iterator = session.StreamExecuteQuery(
+                "SELECT Version();",
+                NQuery::TTxControl::NoTx(),
+                NYdb::TParamsBuilder().Build()).ExtractValueSync();
+            if (!iterator.IsSuccess()) {
+                return NYdb::TStatus(iterator.GetStatus(), NYdb::NIssue::TIssues(iterator.GetIssues()));
+            }
+            while (true) {
+                auto part = iterator.ReadNext().ExtractValueSync();
+                if (part.EOS()) {
+                    break;
+                }
+                if (!part.IsSuccess()) {
+                    return NYdb::TStatus(part.GetStatus(), NYdb::NIssue::TIssues(part.GetIssues()));
+                }
+                if (!part.HasResultSet()) {
+                    continue;
+                }
+                TResultSetParser parser(part.ExtractResultSet());
+                if (parser.TryNextRow()) {
+                    fetched = parser.ColumnParser(0).GetUtf8();
+                }
+                return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
+            }
+            return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
+        });
+
+    if (status.IsSuccess() && fetched && !fetched->empty()) {
+        DbmsVersionCache_ = std::move(*fetched);
+    }
+    return *DbmsVersionCache_;
+}
+
 void TConnection::RecreateYdbClients() {
     QuerySession_.reset();
     Tx_.reset();
+    DbmsVersionCache_.reset();
     YdbSchemeClient_.reset();
     YdbTableClient_.reset();
     YdbClient_.reset();

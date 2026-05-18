@@ -107,21 +107,21 @@ SQLRETURN TMetadata::GetInfo(
         case SQL_DRIVER_NAME:
             return WriteInfoString(conn, "ydb-odbc", infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_DRIVER_VER:
-            return WriteInfoString(conn, "03.80.0000", infoValuePtr, bufferLength, stringLengthPtr);
+            return WriteInfoString(conn, "unknown", infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_DRIVER_ODBC_VER:
-            return WriteInfoString(conn, "03.80", infoValuePtr, bufferLength, stringLengthPtr);
+            return WriteInfoString(conn, "03.00", infoValuePtr, bufferLength, stringLengthPtr);
 
         // DBMS Information
         case SQL_DBMS_NAME:
             return WriteInfoString(conn, "YDB", infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_DBMS_VER:
-            return WriteInfoString(conn, "3.8.0", infoValuePtr, bufferLength, stringLengthPtr);
+            return WriteInfoString(conn, conn->GetDbmsVersion().c_str(), infoValuePtr, bufferLength, stringLengthPtr);
 
         // Identifier Handling
         case SQL_IDENTIFIER_QUOTE_CHAR:
             return WriteInfoString(conn, "\"", infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_IDENTIFIER_CASE:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_IC_MIXED, infoValuePtr, stringLengthPtr);
+            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_IC_LOWER, infoValuePtr, stringLengthPtr);
 
         // Catalog Support
         case SQL_CATALOG_NAME:
@@ -141,9 +141,10 @@ SQLRETURN TMetadata::GetInfo(
 
         // Data Source Capabilities
         case SQL_DATA_SOURCE_READ_ONLY:
-            return WriteInfoString(conn, "N", infoValuePtr, bufferLength, stringLengthPtr);
+            return WriteInfoString(
+                conn, conn->IsDataSourceReadOnly() ? "Y" : "N", infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_DATA_SOURCE_NAME:
-            return WriteInfoString(conn, "YDB", infoValuePtr, bufferLength, stringLengthPtr);
+            return WriteInfoString(conn, conn->GetDataSourceName().c_str(), infoValuePtr, bufferLength, stringLengthPtr);
 
         // Result Set Capabilities
         case SQL_MULT_RESULT_SETS:
@@ -163,52 +164,14 @@ SQLRETURN TMetadata::GetInfo(
             return WriteInfoScalar<SQLUINTEGER>(conn, SQL_TXN_SERIALIZABLE, infoValuePtr, stringLengthPtr);
         case SQL_TXN_ISOLATION_OPTION:
             return WriteInfoScalar<SQLUINTEGER>(
-                conn,
-                SQL_TXN_READ_UNCOMMITTED | SQL_TXN_READ_COMMITTED | SQL_TXN_REPEATABLE_READ | SQL_TXN_SERIALIZABLE,
-                infoValuePtr,
-                stringLengthPtr);
-
-        // Connection Limits
-        case SQL_MAX_CONCURRENT_ACTIVITIES:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, 1, infoValuePtr, stringLengthPtr);
-        case SQL_MAX_DRIVER_CONNECTIONS:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, 0, infoValuePtr, stringLengthPtr);
-
-        // SQL Support
-        case SQL_SQL_CONFORMANCE:
-            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_SC_SQL92_ENTRY, infoValuePtr, stringLengthPtr);
-        case SQL_SQL92_RELATIONAL_JOIN_OPERATORS:
-            return WriteInfoScalar<SQLUINTEGER>(conn, 0, infoValuePtr, stringLengthPtr);
-        case SQL_SUBQUERIES:
-            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_SQ_CORRELATED_SUBQUERIES, infoValuePtr, stringLengthPtr);
-
-        // Supported Statements
-        case SQL_SQL92_PREDICATES:
-            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_SP_IN | SQL_SP_ISNOTNULL | SQL_SP_ISNULL | SQL_SP_LIKE, infoValuePtr, stringLengthPtr);
-        case SQL_SQL92_VALUE_EXPRESSIONS:
-            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_SVE_CAST | SQL_SVE_CASE | SQL_SVE_COALESCE, infoValuePtr, stringLengthPtr);
-        case SQL_AGGREGATE_FUNCTIONS:
-            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_AF_ALL | SQL_AF_AVG | SQL_AF_COUNT | SQL_AF_MAX | SQL_AF_MIN | SQL_AF_SUM, infoValuePtr, stringLengthPtr);
-
-        // Data Type Limits
-        case SQL_MAX_CHAR_LITERAL_LEN:
-            return WriteInfoScalar<SQLUINTEGER>(conn, 0, infoValuePtr, stringLengthPtr);
-        case SQL_MAX_COLUMN_NAME_LEN:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, 255, infoValuePtr, stringLengthPtr);
-        case SQL_MAX_TABLE_NAME_LEN:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, 255, infoValuePtr, stringLengthPtr);
-        case SQL_MAX_COLUMNS_IN_TABLE:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, 256, infoValuePtr, stringLengthPtr);
-        case SQL_MAX_COLUMNS_IN_SELECT:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, 1024, infoValuePtr, stringLengthPtr);
+                conn, conn->GetSupportedTxnIsolationOptions(), infoValuePtr, stringLengthPtr);
 
         // Stored Procedures (not supported)
         case SQL_PROCEDURES:
             return WriteInfoString(conn, "N", infoValuePtr, bufferLength, stringLengthPtr);
 
-        // Outer Joins (limited support)
         case SQL_OUTER_JOINS:
-            return WriteInfoString(conn, "N", infoValuePtr, bufferLength, stringLengthPtr);
+            return WriteInfoString(conn, "Y", infoValuePtr, bufferLength, stringLengthPtr);
 
         // Positioned Operations (not supported)
         case SQL_POSITIONED_STATEMENTS:
@@ -236,7 +199,6 @@ SQLRETURN TMetadata::GetInfo(
         case SQL_ASYNC_MODE:
             return WriteInfoScalar<SQLUINTEGER>(conn, SQL_AM_NONE, infoValuePtr, stringLengthPtr);
 
-        // Case Sensitivity
         case SQL_QUOTED_IDENTIFIER_CASE:
             return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_IC_SENSITIVE, infoValuePtr, stringLengthPtr);
 
