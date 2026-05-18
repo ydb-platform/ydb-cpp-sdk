@@ -56,6 +56,8 @@ public:
         std::optional<std::string>& rebindDatabase,
         TErrorManager& errors);
     static void NormalizeCatalogPath(std::string& path);
+    SQLUINTEGER GetSupportedTxnIsolationOptions() const;
+    SQLUINTEGER GetAccessMode() const;
 
 private:
     SQLRETURN SetAutocommit(

@@ -228,6 +228,26 @@ SQLRETURN TConnectionAttributes::GetTxnIsolation(SQLPOINTER value) const {
     return SQL_SUCCESS;
 }
 
+SQLUINTEGER TConnectionAttributes::GetAccessMode() const {
+    return AccessMode_;
+}
+
+SQLUINTEGER TConnectionAttributes::GetSupportedTxnIsolationOptions() const {
+    static constexpr SQLUINTEGER kLevels[] = {
+        SQL_TXN_READ_UNCOMMITTED,
+        SQL_TXN_READ_COMMITTED,
+        SQL_TXN_REPEATABLE_READ,
+        SQL_TXN_SERIALIZABLE,
+    };
+    SQLUINTEGER mask = 0;
+    for (const SQLUINTEGER level : kLevels) {
+        if (Tx::ResolveTxMode(AccessMode_, level)) {
+            mask |= level;
+        }
+    }
+    return mask;
+}
+
 SQLRETURN TConnectionAttributes::GetCurrentCatalog(
     SQLPOINTER value,
     SQLINTEGER bufferLength,
