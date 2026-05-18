@@ -1,5 +1,6 @@
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/iam/iam.h>
+#include <google/api/http.pb.h>
 
 #include <iostream>
 

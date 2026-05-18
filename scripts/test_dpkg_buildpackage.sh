@@ -61,6 +61,12 @@ echo "Running dpkg-buildpackage in the container..."
 docker run --rm --network host \
     -v "$SOURCE_DIR:/source:ro" \
     ydb-cpp-sdk-dpkg-test \
-    bash -c "cp -r /source /tmp/source && cd /tmp/source && ./scripts/generate-debian-directory.sh && CMAKE_PREFIX_PATH='/usr/local' dpkg-buildpackage -us -uc -b -d -j\$(nproc)"
+    bash -c "cp -r /source /tmp/source && cd /tmp/source && \
+             cmake -S scripts/googleapis_deb -B build_googleapis_deb -DCMAKE_INSTALL_PREFIX=/usr/share/yandex && \
+             cmake --build build_googleapis_deb -j\$(nproc) && \
+             cmake --build build_googleapis_deb --target package && \
+             dpkg -i build_googleapis_deb/*.deb && \
+             ./scripts/generate-debian-directory.sh && \
+             CMAKE_PREFIX_PATH='/usr/local;/usr/share/yandex' dpkg-buildpackage -us -uc -b -d -j\$(nproc)"
 
 echo "Test successful! dpkg-buildpackage works."
