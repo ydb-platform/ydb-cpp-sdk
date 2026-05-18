@@ -98,7 +98,8 @@ enum class ECommandType {
     Unknown,
     Create,
     Run,
-    Cleanup
+    Cleanup,
+    All,  // No free-arg passed: execute Create -> Run -> Cleanup in one process
 };
 
 struct TTableStats {

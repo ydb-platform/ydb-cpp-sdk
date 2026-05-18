@@ -7,6 +7,8 @@
 #include <util/folder/path.h>
 #include <util/folder/dirut.h>
 #include <util/stream/file.h>
+#include <util/string/builder.h>
+#include <util/string/cast.h>
 #include <util/string/strip.h>
 #include <util/system/env.h>
 #include <util/random/random.h>
@@ -110,6 +112,19 @@ std::string GetDatabase(const std::string& connectionString) {
     return {};
 }
 
+static std::string DefaultConnectionStringFromEnv() {
+    std::string cs = GetEnv("YDB_CONNECTION_STRING");
+    if (!cs.empty()) {
+        return cs;
+    }
+    std::string endpoint = GetEnv("YDB_ENDPOINT");
+    std::string database = GetEnv("YDB_DATABASE");
+    if (!endpoint.empty() && !database.empty()) {
+        return TStringBuilder() << endpoint << "/?database=" << database;
+    }
+    return {};
+}
+
 int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TCleanupCommand cleanup) {
     TOpts opts = TOpts::Default();
 
@@ -121,8 +136,15 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
     std::string statConfigFile;
     std::string balancingPolicy;
 
-    opts.AddLongOption('c', "connection-string", "YDB connection string").Required().RequiredArgument("SCHEMA://HOST:PORT/?DATABASE=DATABASE")
+    std::string defaultConnectionString = DefaultConnectionStringFromEnv();
+
+    auto& connOpt = opts.AddLongOption('c', "connection-string", "YDB connection string").RequiredArgument("SCHEMA://HOST:PORT/?DATABASE=DATABASE")
         .StoreResult(&connectionString);
+    if (!defaultConnectionString.empty()) {
+        connOpt.DefaultValue(defaultConnectionString);
+    } else {
+        connOpt.Required();
+    }
     opts.AddLongOption('p', "prefix", "Base prefix for tables").RequiredArgument("PATH")
         .StoreResult(&prefix);
     opts.AddLongOption('k', "token", "security token").RequiredArgument("TOKEN")
@@ -136,22 +158,41 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
     opts.AddLongOption('b', "balancing-policy", "Balancing policy").Optional().DefaultValue("use-all-nodes").RequiredArgument("(use-all-nodes|prefer-local-dc|prefer-primary-pile)")
         .StoreResult(&balancingPolicy);
     opts.AddHelpOption('h');
-    opts.SetFreeArgsMin(1);
+    opts.SetFreeArgsMin(0);
     opts.SetFreeArgTitle(0, "<COMMAND>", GetCmdList());
     opts.ArgPermutation_ = NLastGetopt::REQUIRE_ORDER;
+    // Run-phase options (--read-rps, --write-rps, …) reach DoMain when the
+    // caller invokes the workload without an explicit subcommand (the v2 SLO
+    // action contract). Tolerate them here so the global parser stops at the
+    // first unknown option instead of erroring; they are forwarded to the
+    // run phase below.
+    opts.AllowUnknownLongOptions_ = true;
 
     TOptsParseResult res(&opts, argc, argv);
     size_t freeArgsPos = res.GetFreeArgsPos();
     argc -= freeArgsPos;
     argv += freeArgsPos;
-    ECommandType command = ParseCommand(*argv);
+
+    ECommandType command = (argc > 0) ? ParseCommand(*argv) : ECommandType::All;
     if (command == ECommandType::Unknown) {
-        Cerr << "Unknown command '" << *argv << "'" << Endl;
-        return EXIT_FAILURE;
+        if (argv[0][0] == '-') {
+            // First leftover token is an option, not a subcommand keyword:
+            // treat as implicit All mode and let the run phase parse it.
+            command = ECommandType::All;
+        } else {
+            Cerr << "Unknown command '" << *argv << "'" << Endl;
+            return EXIT_FAILURE;
+        }
     }
 
     if (prefix.empty()) {
         prefix = GetDatabase(connectionString);
+    }
+    if (prefix.empty()) {
+        // YDB SLO action sets YDB_CONNECTION_STRING in path form
+        // (grpc://host:port/Root/testdb), which GetDatabase can't parse.
+        // Fall back to YDB_DATABASE which the action sets alongside it.
+        prefix = GetEnv("YDB_DATABASE");
     }
 
     if (!ParseToken(token, tokenFile)) {
@@ -202,6 +243,35 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
             Cout << "Launching cleanup command..." << Endl;
             result = cleanup(dbOptions, argc);
             break;
+        case ECommandType::All: {
+            Cout << "Launching full lifecycle: create -> run -> cleanup" << Endl;
+            // Forward leftover argv to the run phase so options like
+            // --read-rps / --write-rps take effect. argv[0] here is the first
+            // run-phase option (no subcommand keyword was supplied), so
+            // prepend a synthetic program name for ParseOptionsRun.
+            char programName[] = "slo";
+            std::vector<char*> runArgv;
+            runArgv.reserve(argc + 1);
+            runArgv.push_back(programName);
+            for (int i = 0; i < argc; ++i) {
+                runArgv.push_back(argv[i]);
+            }
+            int fakeArgc = 1;
+            char* fakeArgv[] = { programName, nullptr };
+
+            Cout << "[all] Launching create command..." << Endl;
+            result = create(dbOptions, fakeArgc, fakeArgv);
+            if (!result) {
+                Cout << "[all] Launching run command..." << Endl;
+                result = run(dbOptions, static_cast<int>(runArgv.size()), runArgv.data());
+            }
+            Cout << "[all] Launching cleanup command..." << Endl;
+            int cleanupRc = cleanup(dbOptions, fakeArgc);
+            if (!result) {
+                result = cleanupRc;
+            }
+            break;
+        }
         default:
             Cerr << "Unknown command" << Endl;
             return EXIT_FAILURE;
@@ -216,7 +286,7 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
 }
 
 std::string GetCmdList() {
-    return "create, run, cleanup";
+    return "create, run, cleanup (omit to run create -> run -> cleanup in one process)";
 }
 
 ECommandType ParseCommand(const char* cmd) {
@@ -425,6 +495,11 @@ TTableStats GetTableStats(TDatabaseOptions& dbOptions, const std::string& tableN
 }
 
 void ParseOptionsCommon(TOpts& opts, TCommonOptions& options) {
+    std::string metricsPushUrlFromEnv = GetEnv("OTEL_EXPORTER_OTLP_METRICS_ENDPOINT");
+    if (!metricsPushUrlFromEnv.empty()) {
+        options.MetricsPushUrl = metricsPushUrlFromEnv;
+    }
+
     opts.AddLongOption("threads", "Number of threads to use").RequiredArgument("NUM")
         .DefaultValue(options.MaxInputThreads).StoreResult(&options.MaxInputThreads);
     opts.AddLongOption("stop-on-error", "Stop thread if an error occured").NoArgument()
@@ -485,6 +560,18 @@ bool ParseOptionsCreate(int argc, char** argv, TCreateOptions& createOptions) {
 bool ParseOptionsRun(int argc, char** argv, TRunOptions& runOptions) {
     TOpts opts = TOpts::Default();
     ParseOptionsCommon(opts, runOptions.CommonOptions);
+
+    if (std::string workloadDuration = GetEnv("WORKLOAD_DURATION"); !workloadDuration.empty()) {
+        try {
+            std::uint32_t parsed = FromString<std::uint32_t>(workloadDuration);
+            if (parsed > 0) {
+                runOptions.CommonOptions.SecondsToRun = parsed;
+            }
+        } catch (const std::exception& e) {
+            Cerr << "Invalid WORKLOAD_DURATION env value '" << workloadDuration << "': " << e.what() << Endl;
+        }
+    }
+
     opts.AddLongOption("time", "Time to run (Seconds)").RequiredArgument("Seconds")
         .DefaultValue(runOptions.CommonOptions.SecondsToRun).StoreResult(&runOptions.CommonOptions.SecondsToRun);
     opts.AddLongOption("read-rps", "Request generation rate for read requests (Thread A)").RequiredArgument("NUM")

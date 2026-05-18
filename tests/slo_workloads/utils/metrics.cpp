@@ -11,21 +11,93 @@
 
 #include <ydb-cpp-sdk/client/resources/ydb_resources.h>
 
+#include <util/system/env.h>
+
+#include <hdr/hdr_histogram.h>
+
+#include <atomic>
+#include <chrono>
+#include <memory>
+#include <mutex>
+#include <thread>
+
 
 using namespace std::chrono_literals;
 
-#ifdef REF
-static constexpr const std::string_view REF_LABEL = Y_STRINGIZE(REF);
-#else
-static constexpr const std::string_view REF_LABEL = "unknown";
-#endif
+namespace {
+
+constexpr std::int64_t kHdrMinLatencyNs = 1'000;          // 1 us
+constexpr std::int64_t kHdrMaxLatencyNs = 60'000'000'000; // 60 s
+constexpr int kHdrSignificantFigures = 3;
+
+std::string ResolveWorkloadRef() {
+    std::string ref = GetEnv("WORKLOAD_REF");
+    return ref.empty() ? "unknown" : ref;
+}
+
+// Minimal thread-safe wrapper around hdr_histogram for a single
+// (operation_type, operation_status="success") series. Only successful
+// latencies are recorded; errors are excluded from the percentile stream
+// per deploy/metrics.yaml.
+class TLatencyRecorder {
+public:
+    TLatencyRecorder() {
+        hdr_histogram* raw = nullptr;
+        int rc = hdr_init(kHdrMinLatencyNs, kHdrMaxLatencyNs, kHdrSignificantFigures, &raw);
+        Y_ABORT_UNLESS(rc == 0, "hdr_init failed: %d", rc);
+        Histogram_.reset(raw);
+    }
+
+    void Record(TDuration d) {
+        std::int64_t ns = static_cast<std::int64_t>(d.NanoSeconds());
+        if (ns < kHdrMinLatencyNs) {
+            ns = kHdrMinLatencyNs;
+        } else if (ns > kHdrMaxLatencyNs) {
+            ns = kHdrMaxLatencyNs;
+        }
+        std::lock_guard lock(Mutex_);
+        hdr_record_value(Histogram_.get(), ns);
+    }
+
+    // Returns p50/p95/p99 as seconds and resets the recorder window so
+    // gauges reflect only the most recent interval.
+    struct TPercentiles {
+        double P50 = 0.0;
+        double P95 = 0.0;
+        double P99 = 0.0;
+        bool HasData = false;
+    };
+
+    TPercentiles SnapshotAndReset() {
+        TPercentiles out;
+        std::lock_guard lock(Mutex_);
+        if (Histogram_->total_count == 0) {
+            return out;
+        }
+        out.HasData = true;
+        out.P50 = hdr_value_at_percentile(Histogram_.get(), 50.0) / 1e9;
+        out.P95 = hdr_value_at_percentile(Histogram_.get(), 95.0) / 1e9;
+        out.P99 = hdr_value_at_percentile(Histogram_.get(), 99.0) / 1e9;
+        hdr_reset(Histogram_.get());
+        return out;
+    }
+
+private:
+    struct THdrDeleter {
+        void operator()(hdr_histogram* h) const noexcept { if (h) hdr_close(h); }
+    };
+
+    std::mutex Mutex_;
+    std::unique_ptr<hdr_histogram, THdrDeleter> Histogram_;
+};
 
 class TOtelMetricsPusher : public IMetricsPusher {
 public:
     TOtelMetricsPusher(const std::string& metricsPushUrl, const std::string& operationType)
         : OperationType_(operationType)
+        , Ref_(ResolveWorkloadRef())
         , CommonAttributes_{
-            {"ref", std::string(REF_LABEL)},
+            {"ref", Ref_},
             {"sdk", "cpp"},
             {"sdk_version", NYdb::GetSdkSemver()}
         }
@@ -36,12 +108,11 @@ public:
         auto exporter = opentelemetry::exporter::otlp::OtlpHttpMetricExporterFactory::Create(exporterOptions);
 
         opentelemetry::sdk::metrics::PeriodicExportingMetricReaderOptions readerOptions;
-        readerOptions.export_interval_millis = 250ms;
-        readerOptions.export_timeout_millis  = 200ms;
+        readerOptions.export_interval_millis = 1000ms;
+        readerOptions.export_timeout_millis  = 900ms;
 
         auto metricReader = opentelemetry::sdk::metrics::PeriodicExportingMetricReaderFactory::Create(std::move(exporter), readerOptions);
 
-        // Create MeterContext with resource
         auto context = std::make_unique<opentelemetry::sdk::metrics::MeterContext>(
             std::unique_ptr<opentelemetry::sdk::metrics::ViewRegistry>(new opentelemetry::sdk::metrics::ViewRegistry()),
             opentelemetry::sdk::resource::Resource::Create(opentelemetry::common::MakeKeyValueIterableView(CommonAttributes_))
@@ -53,97 +124,87 @@ public:
         Meter_ = MeterProvider_->GetMeter("slo_workloads", NYdb::GetSdkSemver());
 
         InitMetrics();
+        StartPercentilePublisher();
+    }
+
+    ~TOtelMetricsPusher() override {
+        PublisherShouldStop_.store(true);
+        if (PublisherThread_.joinable()) {
+            PublisherThread_.join();
+        }
     }
 
     void PushRequestData(const TRequestData& requestData) override {
-        if (requestData.Status == NYdb::EStatus::SUCCESS) {
-            OperationsSuccessTotal_->Add(1, MergeAttributes({{"operation_type", OperationType_}}));
-        } else {
-            ErrorsTotal_->Add(1, MergeAttributes({{"status", YdbStatusToString(requestData.Status)}}));
-            OperationsFailureTotal_->Add(1, MergeAttributes({{"operation_type", OperationType_}}));
+        const bool success = requestData.Status == NYdb::EStatus::SUCCESS;
+        const std::string status = success ? "success" : "error";
+
+        OperationsTotal_->Add(uint64_t{1}, MergeAttributes({
+            {"operation_type", OperationType_},
+            {"operation_status", status},
+        }));
+
+        // sdk_retry_attempts_total = total number of technical attempts
+        // including the first one. TStatUnit counts only post-first attempts,
+        // so add 1 to include the initial attempt.
+        RetryAttemptsTotal_->Add(requestData.RetryAttempts + 1,
+            MergeAttributes({
+                {"operation_type", OperationType_},
+            })
+        );
+
+        if (success) {
+            Latency_.Record(requestData.Delay);
         }
-        OperationsTotal_->Add(1, MergeAttributes({{"operation_type", OperationType_}}));
-        OperationLatencySeconds_->Record(requestData.Delay.SecondsFloat(), MergeAttributes({{"operation_type", OperationType_}, {"status", YdbStatusToString(requestData.Status)}}));
-        RetryAttempts_->Record(requestData.RetryAttempts, MergeAttributes({{"operation_type", OperationType_}}));
     }
 
 private:
     void InitMetrics() {
-        ErrorsTotal_ = Meter_->CreateUInt64Counter("sdk_errors_total",
-            "Total number of errors encountered, categorized by error type."
-        );
-
         OperationsTotal_ = Meter_->CreateUInt64Counter("sdk_operations_total",
-            "Total number of operations, categorized by type attempted by the SDK."
-        );
-    
-        OperationsSuccessTotal_ = Meter_->CreateUInt64Counter("sdk_operations_success_total",
-            "Total number of successful operations, categorized by type."
+            "Total number of operations, categorized by operation type and status."
         );
 
-        OperationsFailureTotal_ = Meter_->CreateUInt64Counter("sdk_operations_failure_total",
-            "Total number of failed operations, categorized by type."
+        RetryAttemptsTotal_ = Meter_->CreateUInt64Counter("sdk_retry_attempts_total",
+            "Total number of retry attempts (including the first attempt), categorized by operation type."
         );
 
-        OperationLatencySeconds_ = CreateDoubleHistogram("sdk_operation_latency_seconds",
-            "Latency of operations performed by the SDK in seconds, categorized by type and status.",
-            {
-				0.001,  // 1 ms
-				0.002,  // 2 ms
-				0.003,  // 3 ms
-				0.004,  // 4 ms
-				0.005,  // 5 ms
-				0.0075, // 7.5 ms
-				0.010,  // 10 ms
-				0.020,  // 20 ms
-				0.050,  // 50 ms
-				0.100,  // 100 ms
-				0.200,  // 200 ms
-				0.500,  // 500 ms
-				1.000,  // 1 s
-			},
-            "s"
+        LatencyP50_ = Meter_->CreateDoubleGauge("sdk_operation_latency_p50_seconds",
+            "P50 latency of successful operations in seconds.", "s"
         );
-
-        RetryAttempts_ = Meter_->CreateInt64Gauge("sdk_retry_attempts",
-            "Current retry attempts, categorized by operation type."
+        LatencyP95_ = Meter_->CreateDoubleGauge("sdk_operation_latency_p95_seconds",
+            "P95 latency of successful operations in seconds.", "s"
+        );
+        LatencyP99_ = Meter_->CreateDoubleGauge("sdk_operation_latency_p99_seconds",
+            "P99 latency of successful operations in seconds.", "s"
         );
     }
 
-    std::unique_ptr<opentelemetry::metrics::Histogram<double>> CreateDoubleHistogram(
-        const std::string& name,
-        const std::string& description,
-        const std::vector<double>& buckets,
-        const std::string& unit = {})
-    {
-        auto selector = std::make_unique<opentelemetry::sdk::metrics::InstrumentSelector>(
-            opentelemetry::sdk::metrics::InstrumentType::kHistogram,
-            name,
-            unit
-        );
-
-        auto meterSelector = std::make_unique<opentelemetry::sdk::metrics::MeterSelector>(
-            "slo_workloads",
-            NYdb::GetSdkSemver(),
-            ""
-        );
-
-        auto histogramConfig = std::make_shared<opentelemetry::sdk::metrics::HistogramAggregationConfig>();
-        histogramConfig->boundaries_ = buckets;
-
-        auto view = std::make_unique<opentelemetry::sdk::metrics::View>(
-            "",
-            "",
-            opentelemetry::sdk::metrics::AggregationType::kHistogram,
-            histogramConfig
-        );
-
-        MeterProvider_->AddView(std::move(selector), std::move(meterSelector), std::move(view));
-
-        return Meter_->CreateDoubleHistogram(name, description, unit);
+    void StartPercentilePublisher() {
+        PublisherThread_ = std::thread([this]() {
+            while (!PublisherShouldStop_.load(std::memory_order_relaxed)) {
+                std::this_thread::sleep_for(1s);
+                PublishPercentiles();
+            }
+            // Final flush before exit.
+            PublishPercentiles();
+        });
     }
 
-    // Helper to merge common attributes with metric-specific ones
+    void PublishPercentiles() {
+        auto snapshot = Latency_.SnapshotAndReset();
+        auto attrs = MergeAttributes({
+            {"operation_type", OperationType_},
+            {"operation_status", "success"},
+        });
+        // When no successful ops landed in the last second, publish 0.0
+        // for all percentiles so the gauges reset with the HDR window
+        // rather than appearing "stuck" at the last non-empty value (the
+        // OTel periodic exporter would otherwise re-emit the previous
+        // Record() value on every collection cycle).
+        LatencyP50_->Record(snapshot.HasData ? snapshot.P50 : 0.0, attrs);
+        LatencyP95_->Record(snapshot.HasData ? snapshot.P95 : 0.0, attrs);
+        LatencyP99_->Record(snapshot.HasData ? snapshot.P99 : 0.0, attrs);
+    }
+
     std::map<std::string, std::string> MergeAttributes(const std::map<std::string, std::string>& metricAttrs) const {
         std::map<std::string, std::string> result = CommonAttributes_;
         result.insert(metricAttrs.begin(), metricAttrs.end());
@@ -151,23 +212,29 @@ private:
     }
 
     std::string OperationType_;
-    std::map<std::string, std::string> CommonAttributes_;  // ref, sdk, sdk_version
+    std::string Ref_;
+    std::map<std::string, std::string> CommonAttributes_;
 
     std::unique_ptr<opentelemetry::sdk::metrics::MeterProvider> MeterProvider_;
     std::shared_ptr<opentelemetry::metrics::Meter> Meter_;
 
-    std::unique_ptr<opentelemetry::metrics::Counter<uint64_t>> ErrorsTotal_;
     std::unique_ptr<opentelemetry::metrics::Counter<uint64_t>> OperationsTotal_;
-    std::unique_ptr<opentelemetry::metrics::Counter<uint64_t>> OperationsSuccessTotal_;
-    std::unique_ptr<opentelemetry::metrics::Counter<uint64_t>> OperationsFailureTotal_;
-    std::unique_ptr<opentelemetry::metrics::Histogram<double>> OperationLatencySeconds_;
-    std::unique_ptr<opentelemetry::metrics::Gauge<int64_t>> RetryAttempts_;
+    std::unique_ptr<opentelemetry::metrics::Counter<uint64_t>> RetryAttemptsTotal_;
+    std::unique_ptr<opentelemetry::metrics::Gauge<double>> LatencyP50_;
+    std::unique_ptr<opentelemetry::metrics::Gauge<double>> LatencyP95_;
+    std::unique_ptr<opentelemetry::metrics::Gauge<double>> LatencyP99_;
+
+    TLatencyRecorder Latency_;
+    std::thread PublisherThread_;
+    std::atomic<bool> PublisherShouldStop_{false};
 };
 
 class TNoopMetricsPusher : public IMetricsPusher {
 public:
     void PushRequestData([[maybe_unused]] const TRequestData& requestData) override {}
 };
+
+} // namespace
 
 std::unique_ptr<IMetricsPusher> CreateOtelMetricsPusher(const std::string& metricsPushUrl, const std::string& operationType) {
     return std::make_unique<TOtelMetricsPusher>(metricsPushUrl, operationType);
