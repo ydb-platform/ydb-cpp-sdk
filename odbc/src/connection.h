@@ -34,10 +34,12 @@ private:
     std::vector<std::unique_ptr<TStatement>> Statements_;
     std::string Endpoint_;
     std::string Database_;
+    std::string DataSourceName_;
     std::string AuthToken_;
     TEnvironment* ParentEnv_;
 
     TConnectionAttributes Attributes_;
+    mutable std::optional<std::string> DbmsVersionCache_;
 
     void RecreateYdbClients();
     void RebindToDatabase(const std::string& newDatabase);
@@ -65,6 +67,10 @@ public:
     NQuery::TTxSettings MakeTxSettings() const;
 
     std::string WrapQueryForCurrentCatalog(const std::string& sql) const;
+    const std::string& GetDbmsVersion();
+    const std::string& GetDataSourceName() const;
+    SQLUINTEGER GetSupportedTxnIsolationOptions() const;
+    bool IsDataSourceReadOnly() const;
 
     const std::optional<NQuery::TTransaction>& GetTx();
     void SetTx(const NQuery::TTransaction& tx);
