@@ -21,12 +21,6 @@ SQLRETURN WriteAttributeString(
     TErrorManager& errors);
 
 template<typename T>
-T ReadIntegerAttr(SQLPOINTER value) noexcept;
-
-template<typename T>
-std::optional<T> ReadIntegerAttrIfIn(SQLPOINTER value, std::initializer_list<T> allowed) noexcept;
-
-template<typename T>
 T ReadIntegerAttr(SQLPOINTER value) noexcept {
     return static_cast<T>(reinterpret_cast<uintptr_t>(value));
 }
@@ -41,6 +35,5 @@ std::optional<T> ReadIntegerAttrIfIn(SQLPOINTER value, std::initializer_list<T> 
     }
     return std::nullopt;
 }
-
 
 } // namespace NYdb::NOdbc
