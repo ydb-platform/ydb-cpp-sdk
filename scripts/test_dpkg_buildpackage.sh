@@ -62,6 +62,7 @@ docker run --rm --network host \
     -v "$SOURCE_DIR:/source:ro" \
     ydb-cpp-sdk-dpkg-test \
     bash -c "cp -r /source /tmp/source && cd /tmp/source && \
+             rm -rf build_googleapis_deb && \
              cmake -S scripts/googleapis_deb -B build_googleapis_deb -DCMAKE_INSTALL_PREFIX=/usr/share/yandex && \
              cmake --build build_googleapis_deb -j\$(nproc) && \
              cmake --build build_googleapis_deb --target package && \
