@@ -1,4 +1,0 @@
-debian/tmp/usr/lib/*/libydb-cpp.a usr/lib/
-debian/tmp/usr/include/ydb-cpp-sdk usr/include/
-debian/tmp/usr/include/__ydb_sdk_special_headers usr/include/
-debian/tmp/usr/lib/*/cmake/ydb-cpp-sdk usr/lib/*/cmake/

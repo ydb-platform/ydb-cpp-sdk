@@ -1,2 +1,0 @@
-debian/tmp/usr/lib/*/libydb-cpp-otel-tracing.a usr/lib/
-debian/tmp/usr/include/ydb-cpp-sdk/open_telemetry/trace.h usr/include/ydb-cpp-sdk/open_telemetry/

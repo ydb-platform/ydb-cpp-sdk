@@ -256,6 +256,11 @@ jobs:
               cmake --install /tmp/otel/build
 
               cd /source
+              cmake -S scripts/googleapis_deb -B build_googleapis_deb -DCMAKE_INSTALL_PREFIX=/usr/share/yandex
+              cmake --build build_googleapis_deb -j$(nproc)
+              cmake --build build_googleapis_deb --target package
+              dpkg -i build_googleapis_deb/*.deb
+
               ./scripts/generate-debian-directory.sh
               cmake -S . -B build-deb \
                 -DCMAKE_BUILD_TYPE=Release \
@@ -265,7 +270,9 @@ jobs:
                 -DYDB_SDK_ENABLE_OTEL_METRICS=ON \
                 -DYDB_SDK_ENABLE_OTEL_TRACE=ON \
                 -DBUILD_SHARED_LIBS=OFF \
-                -DCMAKE_PREFIX_PATH=/usr/local
+                -DYDB_SDK_USE_SYSTEM_GOOGLEAPIS=ON \
+                -DCMAKE_INSTALL_PREFIX=/usr/share/yandex \
+                -DCMAKE_PREFIX_PATH="/usr/local;/usr/share/yandex"
               cmake --build build-deb --target package -j$(nproc)
             '
 
