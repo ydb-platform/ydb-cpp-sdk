@@ -12,23 +12,53 @@ ODBC driver for YDB.
 ## Build
 
 ```bash
-cmake -DYDB_SDK_ODBC=1 --preset release-clang
+cmake -DYDB_SDK_ODBC=1 --preset release-test-clang
 cmake --build --preset default
 ```
+
+The shared library is produced as `build/odbc/libydb-odbc.so`.
+
+## Install
+
+After configure and build, CMake generates `build/odbc/odbcinst.ini` with the correct path to `libydb-odbc.so`.
+
+Register the driver with unixODBC:
+
+```bash
+sudo odbcinst -i -d -f build/odbc/odbcinst.ini
+```
+
+Add a DSN — either copy the sample into the system config:
+
+```bash
+sudo cp odbc/odbc.ini /etc/odbc.ini
+# edit Server, Database, etc.
+```
+
+or point applications at the sample in the repo:
+
+```bash
+export ODBCINI=/absolute/path/to/ydb-cpp-sdk/odbc/odbc.ini
+```
+
 
 ## Configuration
 
 1. Make sure the driver is registered:
+
 ```bash
 odbcinst -q -d
 ```
 
+You should see an entry named `YDB`.
+
 2. Check available data sources:
+
 ```bash
 odbcinst -q -s
 ```
 
-3. Edit `/etc/odbc.ini` to configure the connection:
+3. Edit `/etc/odbc.ini` (or your `ODBCINI` file) to configure the connection:
 ```ini
 [YDB]
 Driver=YDB
