@@ -27,13 +27,5 @@ RUN apt-get update && apt-get install -y \
     rapidjson-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone -b v1.12.0 https://github.com/open-telemetry/opentelemetry-cpp.git /tmp/otel && \
-    cd /tmp/otel && \
-    mkdir build && cd build && \
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DWITH_OTLP_HTTP=OFF -DWITH_OTLP_GRPC=OFF -DWITH_PROMETHEUS=OFF -DCMAKE_CXX_STANDARD=20 -DCMAKE_POSITION_INDEPENDENT_CODE=ON && \
-    make -j$(nproc) && \
-    make install && \
-    rm -rf /tmp/otel
-
 COPY test_project /test_project
 WORKDIR /test_project
