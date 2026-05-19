@@ -41,15 +41,6 @@ RUN apt-get update && apt-get install -y \\
     ragel \\
     yasm \\
     && rm -rf /var/lib/apt/lists/*
-
-RUN git clone -b v1.12.0 https://github.com/open-telemetry/opentelemetry-cpp.git /tmp/otel && \\
-    cd /tmp/otel && \\
-    mkdir build && cd build && \\
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DWITH_OTLP_HTTP=OFF -DWITH_OTLP_GRPC=OFF -DWITH_PROMETHEUS=OFF -DCMAKE_CXX_STANDARD=20 -DCMAKE_POSITION_INDEPENDENT_CODE=ON && \\
-    make -j\$(nproc) && \\
-    make install && \\
-    rm -rf /tmp/otel
-
 WORKDIR /source
 EOF
 
@@ -68,6 +59,6 @@ docker run --rm --network host \
              cmake --build build_googleapis_deb --target package && \
              dpkg -i build_googleapis_deb/*.deb && \
              ./scripts/generate-debian-directory.sh && \
-             CMAKE_PREFIX_PATH='/usr/local;/usr/share/yandex' dpkg-buildpackage -us -uc -b -d -j\$(nproc)"
+             dpkg-buildpackage -us -uc -b -d -j\$(nproc)"
 
 echo "Test successful! dpkg-buildpackage works."
