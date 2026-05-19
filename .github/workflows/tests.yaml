@@ -274,6 +274,7 @@ jobs:
                 -DCMAKE_INSTALL_PREFIX=/usr/share/yandex \
                 -DCMAKE_PREFIX_PATH="/usr/local;/usr/share/yandex"
               cmake --build build-deb --target package -j$(nproc)
+              cp build_googleapis_deb/*.deb build-deb/
             '
 
       - name: Smoke-test generated .deb packages
