@@ -134,6 +134,12 @@ debian/tmp/usr/share/yandex/lib/*/libydb-cpp.a usr/share/yandex/lib/
 debian/tmp/usr/share/yandex/include/ydb-cpp-sdk usr/share/yandex/include/
 debian/tmp/usr/share/yandex/include/__ydb_sdk_special_headers usr/share/yandex/include/
 debian/tmp/usr/share/yandex/lib/*/cmake/ydb-cpp-sdk usr/share/yandex/lib/*/cmake/
+debian/tmp/usr/share/yandex/include/libbase64.h usr/share/yandex/include/
+debian/tmp/usr/share/yandex/lib/*/libbase64.a usr/share/yandex/lib/
+debian/tmp/usr/share/yandex/lib/*/cmake/base64 usr/share/yandex/lib/*/cmake/
+debian/tmp/usr/share/yandex/include/picojson usr/share/yandex/include/
+debian/tmp/usr/share/yandex/include/jwt-cpp usr/share/yandex/include/
+debian/tmp/usr/share/yandex/cmake/jwt-cpp* usr/share/yandex/cmake/
 EOF_INSTALL
 
 cat <<EOF_INSTALL > debian/libydb-cpp-iam-dev.install
@@ -149,6 +155,7 @@ cat <<EOF_INSTALL > debian/libydb-cpp-otel-tracing-dev.install
 debian/tmp/usr/share/yandex/lib/*/libydb-cpp-otel-tracing.a usr/share/yandex/lib/
 debian/tmp/usr/share/yandex/include/ydb-cpp-sdk/open_telemetry/trace.h usr/share/yandex/include/ydb-cpp-sdk/open_telemetry/
 EOF_INSTALL
+
 
 mkdir -p debian/source
 echo "3.0 (quilt)" > debian/source/format
