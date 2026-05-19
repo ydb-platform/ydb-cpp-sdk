@@ -111,24 +111,11 @@ cat <<'EOF_RULES' > debian/rules
 #!/usr/bin/make -f
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
-OTEL_INSTALL_DIR := $(CURDIR)/debian/otel-install
 
 %:
 	dh $@ --buildsystem=cmake
 
 override_dh_auto_configure:
-	git clone -b v1.12.0 --depth 1 https://github.com/open-telemetry/opentelemetry-cpp.git debian/otel-src
-	cmake -S debian/otel-src -B debian/otel-build \
-		-DCMAKE_BUILD_TYPE=Release \
-		-DBUILD_TESTING=OFF \
-		-DWITH_OTLP_HTTP=OFF \
-		-DWITH_OTLP_GRPC=OFF \
-		-DWITH_PROMETHEUS=OFF \
-		-DCMAKE_CXX_STANDARD=20 \
-		-DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-		-DCMAKE_INSTALL_PREFIX=$(OTEL_INSTALL_DIR)
-	cmake --build debian/otel-build -j$$(nproc)
-	cmake --install debian/otel-build
 	dh_auto_configure -- \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DYDB_SDK_INSTALL=ON \
@@ -139,11 +126,7 @@ override_dh_auto_configure:
 		-DBUILD_SHARED_LIBS=OFF \
 		-DYDB_SDK_USE_SYSTEM_GOOGLEAPIS=ON \
 		-DCMAKE_INSTALL_PREFIX=/usr/share/yandex \
-		-DCMAKE_PREFIX_PATH="$(OTEL_INSTALL_DIR);/usr/share/yandex"
-
-override_dh_auto_clean:
-	dh_auto_clean
-	rm -rf debian/otel-src debian/otel-build debian/otel-install
+		-DCMAKE_PREFIX_PATH="/usr/share/yandex"
 EOF_RULES
 chmod +x debian/rules
 
@@ -158,6 +141,10 @@ debian/tmp/usr/share/yandex/lib/*/cmake/base64 usr/share/yandex/lib/*/cmake/
 debian/tmp/usr/share/yandex/include/picojson usr/share/yandex/include/
 debian/tmp/usr/share/yandex/include/jwt-cpp usr/share/yandex/include/
 debian/tmp/usr/share/yandex/cmake/jwt-cpp* usr/share/yandex/cmake/
+debian/tmp/usr/share/yandex/include/opentelemetry usr/share/yandex/include/
+debian/tmp/usr/share/yandex/lib/*/libopentelemetry_* usr/share/yandex/lib/
+debian/tmp/usr/share/yandex/lib/*/cmake/opentelemetry-cpp usr/share/yandex/lib/*/cmake/
+debian/tmp/usr/share/yandex/lib/*/pkgconfig/opentelemetry_*.pc usr/share/yandex/lib/*/pkgconfig/
 EOF_INSTALL
 
 cat <<EOF_INSTALL > debian/libydb-cpp-iam-dev.install
