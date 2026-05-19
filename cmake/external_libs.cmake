@@ -71,8 +71,55 @@ endif()
 find_package(double-conversion REQUIRED)
 
 # OpenTelemetry
+set(_ydb_sdk_vendor_otel "${YDB_SDK_SOURCE_DIR}/third_party/opentelemetry-cpp")
+
 if (YDB_SDK_ENABLE_OTEL_METRICS OR YDB_SDK_ENABLE_OTEL_TRACE)
-  find_package(opentelemetry-cpp REQUIRED)
+  find_package(opentelemetry-cpp QUIET)
+  if (NOT opentelemetry-cpp_FOUND)
+    set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    set(WITH_OTLP_HTTP OFF CACHE BOOL "" FORCE)
+    set(WITH_OTLP_GRPC OFF CACHE BOOL "" FORCE)
+    set(WITH_PROMETHEUS OFF CACHE BOOL "" FORCE)
+    set(WITH_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(OTELCPP_MAINTAINER_MODE OFF CACHE BOOL "" FORCE)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "" FORCE)
+    set(WITH_STL "CXX20" CACHE STRING "" FORCE)
+    set(OPENTELEMETRY_INSTALL ON CACHE BOOL "" FORCE)
+    if (EXISTS "${_ydb_sdk_vendor_otel}/CMakeLists.txt")
+      add_subdirectory("${_ydb_sdk_vendor_otel}" "${YDB_SDK_BINARY_DIR}/third_party/opentelemetry-cpp")
+    elseif (FETCHCONTENT_FULLY_DISCONNECTED)
+      message(FATAL_ERROR
+        "opentelemetry-cpp is required but was not found (find_package), vendored sources are missing at "
+        "'${_ydb_sdk_vendor_otel}', and FETCHCONTENT_FULLY_DISCONNECTED=ON prevents FetchContent.")
+    else()
+      include(FetchContent)
+      FetchContent_Declare(
+        opentelemetry-cpp
+        GIT_REPOSITORY https://github.com/open-telemetry/opentelemetry-cpp.git
+        GIT_TAG v1.12.0
+      )
+      FetchContent_MakeAvailable(opentelemetry-cpp)
+    endif()
+    # Create namespaced aliases matching the installed opentelemetry-cpp::* targets
+    if (TARGET opentelemetry_api AND NOT TARGET opentelemetry-cpp::api)
+      add_library(opentelemetry-cpp::api ALIAS opentelemetry_api)
+    endif()
+    if (TARGET opentelemetry_metrics AND NOT TARGET opentelemetry-cpp::metrics)
+      add_library(opentelemetry-cpp::metrics ALIAS opentelemetry_metrics)
+    endif()
+    if (TARGET opentelemetry_trace AND NOT TARGET opentelemetry-cpp::trace)
+      add_library(opentelemetry-cpp::trace ALIAS opentelemetry_trace)
+    endif()
+    if (TARGET opentelemetry_common AND NOT TARGET opentelemetry-cpp::common)
+      add_library(opentelemetry-cpp::common ALIAS opentelemetry_common)
+    endif()
+    if (TARGET opentelemetry_resources AND NOT TARGET opentelemetry-cpp::resources)
+      add_library(opentelemetry-cpp::resources ALIAS opentelemetry_resources)
+    endif()
+    if (TARGET opentelemetry_version AND NOT TARGET opentelemetry-cpp::version)
+      add_library(opentelemetry-cpp::version ALIAS opentelemetry_version)
+    endif()
+  endif()
 endif()
 
 # RapidJSON

@@ -17,6 +17,6 @@ echo "Running test container..."
 docker run --rm --network host \
     -v "$DEB_DIR:/deb_packages:ro" \
     ydb-cpp-sdk-deb-test \
-    bash -c "apt-get update && apt-get install -y /deb_packages/*.deb && mkdir build && cd build && cmake .. -DCMAKE_PREFIX_PATH='/usr/local;/usr/share/yandex' && make && ./test_app"
+    bash -c "apt-get update && apt-get install -y /deb_packages/*.deb && mkdir build && cd build && cmake .. -DCMAKE_PREFIX_PATH='/usr/share/yandex' && make && ./test_app"
 
 echo "Test successful!"

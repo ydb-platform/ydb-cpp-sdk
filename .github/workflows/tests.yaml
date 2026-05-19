@@ -242,19 +242,6 @@ jobs:
                 ragel \
                 yasm
 
-              git clone -b v1.12.0 https://github.com/open-telemetry/opentelemetry-cpp.git /tmp/otel
-              cmake -S /tmp/otel -B /tmp/otel/build \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DBUILD_TESTING=OFF \
-                -DWITH_OTLP_HTTP=OFF \
-                -DWITH_OTLP_GRPC=OFF \
-                -DWITH_PROMETHEUS=OFF \
-                -DCMAKE_CXX_STANDARD=20 \
-                -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-                -DCMAKE_INSTALL_PREFIX=/usr/local
-              cmake --build /tmp/otel/build -j$(nproc)
-              cmake --install /tmp/otel/build
-
               cd /source
               cmake -S scripts/googleapis_deb -B build_googleapis_deb -DCMAKE_INSTALL_PREFIX=/usr/share/yandex
               cmake --build build_googleapis_deb -j$(nproc)
@@ -272,7 +259,7 @@ jobs:
                 -DBUILD_SHARED_LIBS=OFF \
                 -DYDB_SDK_USE_SYSTEM_GOOGLEAPIS=ON \
                 -DCMAKE_INSTALL_PREFIX=/usr/share/yandex \
-                -DCMAKE_PREFIX_PATH="/usr/local;/usr/share/yandex"
+                -DCMAKE_PREFIX_PATH="/usr/share/yandex"
               cmake --build build-deb --target package -j$(nproc)
               cp build_googleapis_deb/*.deb build-deb/
             '
