@@ -48,14 +48,3 @@ install(DIRECTORY include/
 
 add_subdirectory(examples)
 add_subdirectory(tests)
-
-install(FILES
-  odbcinst.ini
-  DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/odbcinst.d
-  RENAME ydb-odbc.ini
-)
-
-install(FILES
-  odbc.ini
-  DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}
-)
