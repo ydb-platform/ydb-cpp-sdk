@@ -277,29 +277,19 @@ const std::string& TConnection::GetDbmsVersion() {
     std::optional<std::string> fetched;
     const NYdb::TStatus status = client->RetryQuerySync(
         [&fetched](NQuery::TSession session) -> NYdb::TStatus {
-            auto iterator = session.StreamExecuteQuery(
+            auto result = session.ExecuteQuery(
                 "SELECT Version();",
                 NQuery::TTxControl::NoTx(),
                 NYdb::TParamsBuilder().Build()).ExtractValueSync();
-            if (!iterator.IsSuccess()) {
-                return NYdb::TStatus(iterator.GetStatus(), NYdb::NIssue::TIssues(iterator.GetIssues()));
+            if (!result.IsSuccess()) {
+                return result;
             }
-            while (true) {
-                auto part = iterator.ReadNext().ExtractValueSync();
-                if (part.EOS()) {
-                    break;
-                }
-                if (!part.IsSuccess()) {
-                    return NYdb::TStatus(part.GetStatus(), NYdb::NIssue::TIssues(part.GetIssues()));
-                }
-                if (!part.HasResultSet()) {
-                    continue;
-                }
-                TResultSetParser parser(part.ExtractResultSet());
-                if (parser.TryNextRow()) {
-                    fetched = parser.ColumnParser(0).GetUtf8();
-                }
+            if (result.GetResultSets().empty()) {
                 return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
+            }
+            TResultSetParser parser(result.GetResultSetParser(0));
+            if (parser.TryNextRow()) {
+                fetched = parser.ColumnParser(0).GetUtf8();
             }
             return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
         });
