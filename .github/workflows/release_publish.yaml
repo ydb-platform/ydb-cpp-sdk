@@ -1,0 +1,128 @@
+name: Publish release artifacts
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach assets to (e.g. v1.2.3)"
+        required: true
+        type: string
+
+concurrency:
+  group: release-publish-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-upload-debs:
+    name: "Build .deb packages and attach to release (Ubuntu 24.04 / noble)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve release tag
+        id: tag
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+            echo "ref=${{ inputs.tag }}"  >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+            echo "ref=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          ref: ${{ steps.tag.outputs.ref }}
+
+      - name: Build .deb packages in Ubuntu 24.04 container
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          docker run --rm --network host \
+            -v "$PWD:/source" \
+            ubuntu:24.04 \
+            bash -c '
+              set -e
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update
+              apt-get install -y \
+                build-essential \
+                cmake \
+                pkg-config \
+                git \
+                libidn11-dev \
+                libssl-dev \
+                zlib1g-dev \
+                libprotobuf-dev \
+                protobuf-compiler \
+                libgrpc++-dev \
+                protobuf-compiler-grpc \
+                libbrotli-dev \
+                liblz4-dev \
+                libzstd-dev \
+                libbz2-dev \
+                libxxhash-dev \
+                libsnappy-dev \
+                libdouble-conversion-dev \
+                libgtest-dev \
+                libre2-dev \
+                libc-ares-dev \
+                rapidjson-dev \
+                python3 \
+                python3-six \
+                ragel \
+                yasm
+
+              cd /source
+              cmake -S scripts/googleapis_deb -B build_googleapis_deb -DCMAKE_INSTALL_PREFIX=/usr/share/yandex
+              cmake --build build_googleapis_deb -j$(nproc)
+              cmake --build build_googleapis_deb --target package
+              dpkg -i build_googleapis_deb/*.deb
+
+              ./scripts/generate-debian-directory.sh
+              cmake -S . -B build-deb \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DYDB_SDK_INSTALL=ON \
+                -DYDB_SDK_EXAMPLES=OFF \
+                -DYDB_SDK_TESTS=OFF \
+                -DYDB_SDK_ENABLE_OTEL_METRICS=ON \
+                -DYDB_SDK_ENABLE_OTEL_TRACE=ON \
+                -DBUILD_SHARED_LIBS=OFF \
+                -DYDB_SDK_USE_SYSTEM_GOOGLEAPIS=ON \
+                -DCMAKE_INSTALL_PREFIX=/usr/share/yandex \
+                -DCMAKE_PREFIX_PATH="/usr/share/yandex"
+              cmake --build build-deb --target package -j$(nproc)
+
+              cp build_googleapis_deb/*.deb /source/artifacts/
+              cp build-deb/*.deb            /source/artifacts/
+            '
+
+      - name: Smoke-test generated .deb packages
+        shell: bash
+        run: |
+          ./scripts/test_deb_packages.sh artifacts
+
+      - name: List built artifacts
+        shell: bash
+        run: ls -la artifacts/
+
+      - name: Upload .deb files to GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release upload "${{ steps.tag.outputs.tag }}" artifacts/*.deb --clobber
+
+      - name: Upload .deb files as workflow artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-packages-${{ steps.tag.outputs.tag }}
+          path: artifacts/*.deb
+          if-no-files-found: warn
+          retention-days: 30
