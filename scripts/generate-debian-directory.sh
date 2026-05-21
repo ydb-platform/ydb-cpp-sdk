@@ -82,8 +82,7 @@ Build-Depends: debhelper-compat (= 13),
  libre2-dev,
  libc-ares-dev,
  rapidjson-dev,
- yandex-googleapis-api-common-protos,
- yandex-opentelemetry-cpp-dev
+ yandex-googleapis-api-common-protos
 Standards-Version: 4.6.2
 Homepage: https://ydb.tech
 Rules-Requires-Root: no
@@ -119,13 +118,13 @@ Description: YDB C++ SDK IAM plugin development files
 
 Package: libydb-cpp-otel-metrics-dev
 Architecture: any
-Depends: \${misc:Depends}, libydb-cpp-dev (= \${binary:Version}), yandex-opentelemetry-cpp-dev
+Depends: \${misc:Depends}, libydb-cpp-dev (= \${binary:Version})
 Description: YDB C++ SDK OpenTelemetry metrics plugin development files
  Static library and headers for YDB C++ SDK OpenTelemetry metrics plugin.
 
 Package: libydb-cpp-otel-tracing-dev
 Architecture: any
-Depends: \${misc:Depends}, libydb-cpp-dev (= \${binary:Version}), yandex-opentelemetry-cpp-dev
+Depends: \${misc:Depends}, libydb-cpp-dev (= \${binary:Version})
 Description: YDB C++ SDK OpenTelemetry tracing plugin development files
  Static library and headers for YDB C++ SDK OpenTelemetry tracing plugin.
 EOF_CONTROL
@@ -164,6 +163,10 @@ debian/tmp/usr/share/yandex/lib/*/cmake/base64 usr/share/yandex/lib/*/cmake/
 debian/tmp/usr/share/yandex/include/picojson usr/share/yandex/include/
 debian/tmp/usr/share/yandex/include/jwt-cpp usr/share/yandex/include/
 debian/tmp/usr/share/yandex/cmake/jwt-cpp* usr/share/yandex/cmake/
+debian/tmp/usr/share/yandex/include/opentelemetry usr/share/yandex/include/
+debian/tmp/usr/share/yandex/lib/*/libopentelemetry_* usr/share/yandex/lib/
+debian/tmp/usr/share/yandex/lib/*/cmake/opentelemetry-cpp usr/share/yandex/lib/*/cmake/
+debian/tmp/usr/share/yandex/lib/*/pkgconfig/opentelemetry_*.pc usr/share/yandex/lib/*/pkgconfig/
 EOF_INSTALL
 
 cat <<EOF_INSTALL > debian/libydb-cpp-iam-dev.install
