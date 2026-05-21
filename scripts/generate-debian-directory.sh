@@ -4,6 +4,28 @@ set -e
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 SOURCE_DIR=$(realpath "$SCRIPT_DIR/..")
 
+# ---------------------------------------------------------------------------
+# Parse arguments
+# ---------------------------------------------------------------------------
+SERIES="noble"
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --series)
+            SERIES="$2"
+            shift 2
+            ;;
+        --series=*)
+            SERIES="${1#*=}"
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1" >&2
+            echo "Usage: $0 [--series <ubuntu_series>]" >&2
+            exit 1
+            ;;
+    esac
+done
+
 cd "$SOURCE_DIR"
 
 VERSION=$(grep -E 'YDB_SDK_VERSION = "[0-9]+\.[0-9]+\.[0-9]+"' src/version.h | sed -E 's/.*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/')
@@ -18,22 +40,22 @@ mkdir -p debian/
 
 CHANGELOG_FILE="debian/changelog"
 
-DEB_VERSION="${VERSION}-1"
+DEB_VERSION="${VERSION}-1~${SERIES}1"
 
 cat <<EOF_CHANGELOG > "$CHANGELOG_FILE"
-ydb-cpp-sdk (${DEB_VERSION}) unstable; urgency=low
+ydb-cpp-sdk (${DEB_VERSION}) ${SERIES}; urgency=low
 
   * Automated package build
   * Git commit: ${GIT_COMMIT}
 
- -- YDB Team <whoami@where>  $(date -R)
+ -- YDB Team <ydb-team@ydb.tech>  $(date -R)
 EOF_CHANGELOG
 
 cat <<EOF_CONTROL > debian/control
 Source: ydb-cpp-sdk
 Section: libdevel
 Priority: optional
-Maintainer: YDB Team <whoami@where>
+Maintainer: YDB Team <ydb-team@ydb.tech>
 Build-Depends: debhelper-compat (= 13),
  cmake,
  git,
@@ -60,7 +82,8 @@ Build-Depends: debhelper-compat (= 13),
  libre2-dev,
  libc-ares-dev,
  rapidjson-dev,
- yandex-googleapis-api-common-protos
+ yandex-googleapis-api-common-protos,
+ yandex-opentelemetry-cpp-dev
 Standards-Version: 4.6.2
 Homepage: https://ydb.tech
 Rules-Requires-Root: no
@@ -96,13 +119,13 @@ Description: YDB C++ SDK IAM plugin development files
 
 Package: libydb-cpp-otel-metrics-dev
 Architecture: any
-Depends: \${misc:Depends}, libydb-cpp-dev (= \${binary:Version})
+Depends: \${misc:Depends}, libydb-cpp-dev (= \${binary:Version}), yandex-opentelemetry-cpp-dev
 Description: YDB C++ SDK OpenTelemetry metrics plugin development files
  Static library and headers for YDB C++ SDK OpenTelemetry metrics plugin.
 
 Package: libydb-cpp-otel-tracing-dev
 Architecture: any
-Depends: \${misc:Depends}, libydb-cpp-dev (= \${binary:Version})
+Depends: \${misc:Depends}, libydb-cpp-dev (= \${binary:Version}), yandex-opentelemetry-cpp-dev
 Description: YDB C++ SDK OpenTelemetry tracing plugin development files
  Static library and headers for YDB C++ SDK OpenTelemetry tracing plugin.
 EOF_CONTROL
@@ -141,10 +164,6 @@ debian/tmp/usr/share/yandex/lib/*/cmake/base64 usr/share/yandex/lib/*/cmake/
 debian/tmp/usr/share/yandex/include/picojson usr/share/yandex/include/
 debian/tmp/usr/share/yandex/include/jwt-cpp usr/share/yandex/include/
 debian/tmp/usr/share/yandex/cmake/jwt-cpp* usr/share/yandex/cmake/
-debian/tmp/usr/share/yandex/include/opentelemetry usr/share/yandex/include/
-debian/tmp/usr/share/yandex/lib/*/libopentelemetry_* usr/share/yandex/lib/
-debian/tmp/usr/share/yandex/lib/*/cmake/opentelemetry-cpp usr/share/yandex/lib/*/cmake/
-debian/tmp/usr/share/yandex/lib/*/pkgconfig/opentelemetry_*.pc usr/share/yandex/lib/*/pkgconfig/
 EOF_INSTALL
 
 cat <<EOF_INSTALL > debian/libydb-cpp-iam-dev.install
@@ -165,4 +184,4 @@ EOF_INSTALL
 mkdir -p debian/source
 echo "3.0 (quilt)" > debian/source/format
 
-echo "Generated debian directory for version ${DEB_VERSION}"
+echo "Generated debian directory for version ${DEB_VERSION} (series: ${SERIES})"
