@@ -191,30 +191,28 @@ To smoke-test generated `.deb` packages with the sample consumer project:
 ./scripts/test_deb_packages.sh build-deb
 ```
 
-### Install from PPA
+### Install from GitHub releases
 
-Pre-built packages are available from the Launchpad PPA. This is the easiest
-way to install the SDK on Ubuntu 24.04 (Noble):
-
-```bash
-sudo add-apt-repository ppa:ydb-team/ydb-cpp-sdk
-sudo apt-get update
-sudo apt-get install libydb-cpp-dev
-```
-
-Optional packages:
+Pre-built `.deb` packages for Ubuntu 24.04 (Noble) are attached to each
+GitHub release. Download the assets and install them with `dpkg`:
 
 ```bash
-# IAM credentials plugin
-sudo apt-get install libydb-cpp-iam-dev
+# Replace <TAG> with the desired release tag (e.g. v1.2.3)
+TAG=<TAG>
+BASE="https://github.com/ydb-platform/ydb-cpp-sdk/releases/download/${TAG}"
 
-# OpenTelemetry plugins
-sudo apt-get install libydb-cpp-otel-metrics-dev libydb-cpp-otel-tracing-dev
+wget "${BASE}/yandex-googleapis-api-common-protos_1.0.0_amd64.deb"
+wget "${BASE}/libydb-cpp-dev_${TAG#v}_amd64.deb"
+# Optional plugins:
+wget "${BASE}/libydb-cpp-iam-dev_${TAG#v}_amd64.deb"
+wget "${BASE}/libydb-cpp-otel-metrics-dev_${TAG#v}_amd64.deb"
+wget "${BASE}/libydb-cpp-otel-tracing-dev_${TAG#v}_amd64.deb"
+
+sudo dpkg -i yandex-googleapis-api-common-protos_*.deb
+sudo dpkg -i libydb-cpp-dev_*.deb libydb-cpp-iam-dev_*.deb \
+             libydb-cpp-otel-metrics-dev_*.deb libydb-cpp-otel-tracing-dev_*.deb
+sudo apt-get install -f   # resolve any remaining dependencies
 ```
-
-The PPA also provides `yandex-googleapis-api-common-protos` and
-`yandex-opentelemetry-cpp-dev` which are installed automatically as
-dependencies.
 
 After installation, use the SDK in your CMake project:
 
@@ -223,24 +221,8 @@ find_package(ydb-cpp-sdk REQUIRED COMPONENTS Driver Table Topic)
 target_link_libraries(myapp PRIVATE YDB-CPP-SDK::Driver YDB-CPP-SDK::Table)
 ```
 
-Pass `-DCMAKE_PREFIX_PATH=/usr/share/yandex` if the packages are installed
+Pass `-DCMAKE_PREFIX_PATH=/usr/share/yandex` since the packages install
 under the Yandex prefix.
-
-### Publish to PPA
-
-To upload new package versions to the PPA (maintainers only):
-
-```bash
-# Dry run — build source packages without uploading
-./scripts/upload_to_ppa.sh --all --dry-run --series noble
-
-# Actual upload (requires GPG key registered on Launchpad)
-./scripts/upload_to_ppa.sh --all --gpg-key <KEY_ID> --series noble
-```
-
-Packages must be uploaded in order: `googleapis` → `otel` → `sdk`.
-See [plans/ppa-setup.md](plans/ppa-setup.md) for detailed PPA creation
-and GPG key setup instructions.
 
 ### Test
 
