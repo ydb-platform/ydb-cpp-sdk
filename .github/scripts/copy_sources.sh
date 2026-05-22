@@ -47,7 +47,6 @@ cp -r $2/cmake $tmp_dir
 cp -r $2/scripts $tmp_dir
 cp -r $2/third_party $tmp_dir
 cp -r $2/tools $tmp_dir
-test -d "$2/plugins" && cp -r "$2/plugins" "$tmp_dir"
 
 cp $2/.gitignore $tmp_dir
 cp $2/.gitmodules $tmp_dir
@@ -63,7 +62,8 @@ cp $2/src/version.h $tmp_dir/src/version.h
 
 cd $2
 
-find src/ include/ tests/ examples/ -type f -name "CMakeLists.txt" | while read f;
+# Preserve OSS-only CMakeLists.txt (monorepo builds plugins via ya.make).
+find src/ include/ tests/ examples/ plugins/ -type f -name "CMakeLists.txt" | while read f;
 do
     mkdir -p "$(dirname "$tmp_dir/$f")" && cp -p $f $tmp_dir/$f
 done
