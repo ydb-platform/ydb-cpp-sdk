@@ -266,12 +266,9 @@ const std::string& TConnection::GetDbmsVersion() {
         return *DbmsVersionCache_;
     }
 
-    static const std::string fallback = "unknown";
-    DbmsVersionCache_ = fallback;
-
     auto* client = GetClient();
     if (!client) {
-        return *DbmsVersionCache_;
+        throw TOdbcException("08003", 0, "Connection is not established");
     }
 
     std::optional<std::string> fetched;
@@ -294,9 +291,12 @@ const std::string& TConnection::GetDbmsVersion() {
             return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
         });
 
-    if (status.IsSuccess() && fetched && !fetched->empty()) {
-        DbmsVersionCache_ = std::move(*fetched);
+    NStatusHelpers::ThrowOnError(status);
+    if (!fetched || fetched->empty()) {
+        throw TOdbcException("HY000", 0, "Failed to retrieve DBMS version");
     }
+
+    DbmsVersionCache_ = std::move(*fetched);
     return *DbmsVersionCache_;
 }
 

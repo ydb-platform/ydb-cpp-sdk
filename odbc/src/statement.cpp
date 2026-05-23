@@ -53,25 +53,6 @@ namespace {
     NYdb::TStatus StatusFrom(const NYdb::TStatus& ydb_status) {
         return NYdb::TStatus(ydb_status.GetStatus(), NYdb::NIssue::TIssues(ydb_status.GetIssues()));
     }
-
-    NYdb::TStatus PrefetchFirstPartStatus(NQuery::TExecuteQueryIterator& iterator, std::optional<NQuery::TExecuteQueryPart>* prefetchedResultPart){
-        prefetchedResultPart->reset();
-        while (true) {
-            auto part = iterator.ReadNext().ExtractValueSync();
-            if (part.EOS()) {
-                break;
-            }
-            if (!part.IsSuccess()) {
-                return StatusFrom(part);
-    
-            }
-            if (part.HasResultSet()) {
-                prefetchedResultPart->emplace(std::move(part));
-                return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
-            }
-        }
-        return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
-    }
 }
 
 TStatement::TStatement(TConnection* conn)
@@ -103,49 +84,41 @@ SQLRETURN TStatement::Execute() {
         return buildRc;
     }
 
-    std::optional<NQuery::TExecuteQueryIterator> iterator;
-    std::optional<NQuery::TExecuteQueryPart> prefetchedResultPart;
-
-    if (Conn_->GetAutocommit()){
+    if (Conn_->GetAutocommit()) {
         Conn_->ResetTx();
         Conn_->ResetQuerySession();
-        const NYdb::NRetry::TRetryOperationSettings retrySettings =
-            MakeAutocommitRetrySettings();
+        const NYdb::NRetry::TRetryOperationSettings retrySettings = MakeAutocommitRetrySettings();
 
-        NYdb::TStatus execStatus = client->RetryQuerySync(
-            [this, &params, &iterator, &prefetchedResultPart](NQuery::TSession session) -> NYdb::TStatus{
-                auto retry_iterator = CreateExecuteIterator(session, params);
-                if (!retry_iterator.IsSuccess()) {
-                    return StatusFrom(retry_iterator);
+        const NYdb::TStatus execStatus = client->RetryQuerySync(
+            [this, &params](NQuery::TSession session) -> NYdb::TStatus {
+                auto retryIterator = CreateExecuteIterator(session, params);
+                if (!retryIterator.IsSuccess()) {
+                    return StatusFrom(retryIterator);
                 }
-                std::optional<NQuery::TExecuteQueryPart> retry_prefetched;
-                const NYdb::TStatus prefetchStatus = PrefetchFirstPartStatus(retry_iterator, &retry_prefetched);
-                if (!prefetchStatus.IsSuccess()) {
-                    return prefetchStatus;
+                TExecCursorCreateResult created = TryCreateExecCursor(this, std::move(retryIterator));
+                if (!created.Status.IsSuccess()) {
+                    return created.Status;
                 }
-                iterator.emplace(std::move(retry_iterator));
-                prefetchedResultPart = std::move(retry_prefetched);
+                Cursor_ = std::move(created.Cursor);
                 return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
-            }, retrySettings);
+            },
+            retrySettings);
 
         NStatusHelpers::ThrowOnError(execStatus);
     } else {
         NQuery::TSession& session = Conn_->GetOrCreateQuerySession();
-        iterator.emplace(CreateExecuteIterator(session, params));
-        NStatusHelpers::ThrowOnError(*iterator);
-        NStatusHelpers::ThrowOnError(PrefetchFirstPartStatus(*iterator, &prefetchedResultPart));
-    }
-
-    if (prefetchedResultPart) {
-        Cursor_ = CreateExecCursor(this, std::move(*iterator), std::move(prefetchedResultPart));
-    } else {
-        Cursor_.reset();
+        auto iterator = CreateExecuteIterator(session, params);
+        NStatusHelpers::ThrowOnError(iterator);
+        TExecCursorCreateResult created = TryCreateExecCursor(this, std::move(iterator));
+        NStatusHelpers::ThrowOnError(created.Status);
+        Cursor_ = std::move(created.Cursor);
     }
     return SQL_SUCCESS;
 }
 
 NYdb::NRetry::TRetryOperationSettings TStatement::MakeAutocommitRetrySettings() {
     NYdb::NRetry::TRetryOperationSettings settings;
+    settings.Idempotent(true);
     SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
     if (queryTimeoutSec > 0) {
         const TDuration deadline = TDuration::Seconds(queryTimeoutSec);
