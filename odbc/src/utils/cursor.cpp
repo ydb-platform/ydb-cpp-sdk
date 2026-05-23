@@ -8,16 +8,43 @@
 namespace NYdb {
 namespace NOdbc {
 
+namespace {
+
+NYdb::TStatus StatusFrom(const NYdb::TStatus& ydbStatus) {
+    return NYdb::TStatus(ydbStatus.GetStatus(), NYdb::NIssue::TIssues(ydbStatus.GetIssues()));
+}
+
+NYdb::TStatus PrefetchFirstResultSet(
+    NQuery::TExecuteQueryIterator& iterator,
+    std::optional<TResultSet>* resultSet) {
+    resultSet->reset();
+    while (true) {
+        auto part = iterator.ReadNext().ExtractValueSync();
+        if (part.EOS()) {
+            break;
+        }
+        if (!part.IsSuccess()) {
+            return StatusFrom(part);
+        }
+        if (part.HasResultSet()) {
+            resultSet->emplace(part.ExtractResultSet());
+            return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
+        }
+    }
+    return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
+}
+
+} // namespace
+
 class TExecCursor : public ICursor {
 public:
     TExecCursor(IBindingFiller* bindingFiller, NQuery::TExecuteQueryIterator iterator,
-            std::optional<NQuery::TExecuteQueryPart> prefetchedPart)
+            std::optional<TResultSet> firstResultSet)
         : BindingFiller_(bindingFiller)
         , Iterator_(std::move(iterator))
-        , PrefetchedPart_(std::move(prefetchedPart))
     {
-        if (PrefetchedPart_ && PrefetchedPart_->HasResultSet()) {
-            FillColumnsMeta(PrefetchedPart_->GetResultSet());
+        if (firstResultSet) {
+            InitResultSet(std::move(*firstResultSet));
         }
     }
 
@@ -30,14 +57,7 @@ public:
                 }
                 ResultSetParser_.reset();
             }
-            NQuery::TExecuteQueryPart part = [&]() {
-                if (PrefetchedPart_) {
-                    auto p = std::move(*PrefetchedPart_);
-                    PrefetchedPart_.reset();
-                    return p;
-                }
-                return Iterator_.ReadNext().ExtractValueSync();
-            }();
+            NQuery::TExecuteQueryPart part = Iterator_.ReadNext().ExtractValueSync();
             if (part.EOS()) {
                 return false;
             }
@@ -46,10 +66,7 @@ public:
                 return false;
             }
             if (part.HasResultSet()) {
-                TResultSet resultSet = part.ExtractResultSet();
-                Columns_.clear();
-                FillColumnsMeta(resultSet);
-                ResultSetParser_ = std::make_unique<TResultSetParser>(resultSet);
+                InitResultSet(part.ExtractResultSet());
             }
         }
         return false;
@@ -71,6 +88,12 @@ public:
     }
 
 private:
+    void InitResultSet(TResultSet resultSet) {
+        Columns_.clear();
+        FillColumnsMeta(resultSet);
+        ResultSetParser_ = std::make_unique<TResultSetParser>(std::move(resultSet));
+    }
+
     void FillColumnsMeta(const TResultSet& resultSet) {
         for (const auto& col : resultSet.GetColumnsMeta()) {
             const SQLSMALLINT sqlType = GetTypeId(col.Type);
@@ -85,7 +108,6 @@ private:
 
     IBindingFiller* BindingFiller_;
     NQuery::TExecuteQueryIterator Iterator_;
-    std::optional<NQuery::TExecuteQueryPart> PrefetchedPart_;
     std::unique_ptr<TResultSetParser> ResultSetParser_;
     std::vector<TColumnMeta> Columns_;
 };
@@ -130,10 +152,20 @@ private:
     int64_t Cursor_ = -1;
 };
 
-std::unique_ptr<ICursor> CreateExecCursor(IBindingFiller* bindingFiller,
-        NQuery::TExecuteQueryIterator iterator,
-        std::optional<NQuery::TExecuteQueryPart> prefetchedPart) {
-    return std::make_unique<TExecCursor>(bindingFiller, std::move(iterator), std::move(prefetchedPart));
+TExecCursorCreateResult TryCreateExecCursor(
+    IBindingFiller* bindingFiller,
+    NQuery::TExecuteQueryIterator iterator) {
+    std::optional<TResultSet> firstResultSet;
+    const NYdb::TStatus prefetchStatus = PrefetchFirstResultSet(iterator, &firstResultSet);
+    if (!prefetchStatus.IsSuccess()) {
+        return {prefetchStatus, nullptr};
+    }
+    if (!firstResultSet) {
+        return {NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues()), nullptr};
+    }
+    return {
+        NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues()),
+        std::make_unique<TExecCursor>(bindingFiller, std::move(iterator), std::move(firstResultSet))};
 }
 
 std::unique_ptr<ICursor> CreateVirtualCursor(IBindingFiller* bindingFiller, const std::vector<TColumnMeta>& columns, const TTable& table) {

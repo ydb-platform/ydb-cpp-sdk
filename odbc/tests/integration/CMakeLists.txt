@@ -8,7 +8,6 @@ add_odbc_test(NAME odbc-environment_api_it
     environment_api_it.cpp
 )
 
-# Core API Tests
 add_odbc_test(NAME odbc-connection_api_it
   SOURCES
     connection_api_it.cpp
