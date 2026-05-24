@@ -6,15 +6,6 @@ set(YDB_ODBC_DSN_SERVER "localhost:2136" CACHE STRING
 set(YDB_ODBC_DSN_DATABASE "/local" CACHE STRING
   "YDB database path in odbc.ini generated for ODBC integration tests")
 
-file(GENERATE
-  OUTPUT "${YDB_ODBC_TEST_CONFIG_DIR}/odbcinst.ini"
-  CONTENT "[YDB]
-Description=YDB ODBC Driver
-Driver=$<TARGET_FILE:ydb-odbc>
-Setup=$<TARGET_FILE:ydb-odbc>
-"
-)
-
 file(WRITE "${YDB_ODBC_TEST_CONFIG_DIR}/odbc.ini"
 "[ODBC Data Sources]
 YDB=YDB ODBC Driver
