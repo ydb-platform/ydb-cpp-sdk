@@ -38,6 +38,27 @@ set_target_properties(ydb-odbc PROPERTIES
 
 include(GNUInstallDirs)
 
+file(GENERATE
+  OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/odbcinst.ini"
+  CONTENT "[YDB]
+Description=YDB ODBC Driver
+Driver=$<TARGET_FILE:ydb-odbc>
+Setup=$<TARGET_FILE:ydb-odbc>
+"
+)
+
+set(YDB_ODBC_DRIVER_PATH
+  "${CMAKE_INSTALL_FULL_LIBDIR}/libydb-odbc${CMAKE_SHARED_LIBRARY_SUFFIX}")
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/odbcinst.ini.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/ydb-odbc-odbcinst.ini"
+  @ONLY
+)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/ydb-odbc-odbcinst.ini"
+  DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/odbcinst.d"
+  RENAME ydb-odbc.ini
+)
+
 install(TARGETS ydb-odbc
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
