@@ -24,11 +24,15 @@ The shared library is produced as `build/odbc/libydb-odbc.so`.
 cmake --install build --prefix /usr/local
 ```
 
+Installs `libydb-odbc` and registers the driver in
+`${prefix}/etc/odbcinst.d/ydb-odbc.ini`.
+`odbc.ini` is not installed — create your own DSN (see below).
+
 ## Configuration
 
 For `SQLConnect("YDB", ...)`, `isql -v YDB`, or `Driver=YDB`.
 
-**`odbcinst.ini`** — driver registration. Section `[YDB]` is the driver name used as `Driver=YDB` in connection strings and DSNs. `Driver` and `Setup` are the full path to `libydb-odbc.so`. Use `/etc/odbcinst.ini`, a file in `/etc/odbcinst.d/`, or set `ODBCSYSINI` to the directory that contains `odbcinst.ini`.
+**`odbcinst.ini`** — driver registration (generated on build/install). Section `[YDB]` is the driver name used as `Driver=YDB` in connection strings and DSNs. `Driver` and `Setup` are the full path to `libydb-odbc.so`. Use `/etc/odbcinst.ini`, a file in `/etc/odbcinst.d/`, or set `ODBCSYSINI` to the directory that contains `odbcinst.ini`.
 
 ```ini
 [YDB]
