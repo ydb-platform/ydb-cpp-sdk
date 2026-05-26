@@ -26,7 +26,7 @@ set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
   opentelemetry-cpp
   GIT_REPOSITORY https://github.com/open-telemetry/opentelemetry-cpp.git
-  GIT_TAG        v1.24.0
+  GIT_TAG        v1.26.0
 )
 
 FetchContent_MakeAvailable(opentelemetry-cpp)
