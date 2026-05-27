@@ -4,12 +4,11 @@ target_link_libraries(slo-key-value PUBLIC
   yutil
   getopt
   slo-utils
+  slo-kv-common
   YDB-CPP-SDK::Table
 )
 
 target_sources(slo-key-value PRIVATE
-  create.cpp
-  drop.cpp
   generate.cpp
   key_value.cpp
   main.cpp

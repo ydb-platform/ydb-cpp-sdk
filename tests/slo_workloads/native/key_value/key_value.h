@@ -1,14 +1,9 @@
 #pragma once
 
-#include <tests/slo_workloads/native/utils/utils.h>
+#include <tests/slo_workloads/common/key_value/kv_common.h>
 
-#include <tests/slo_workloads/core/generator.h>
 #include <tests/slo_workloads/native/utils/executor.h>
 #include <tests/slo_workloads/native/utils/job.h>
-
-extern const std::string TableName;
-
-NYdb::TValue BuildValueFromRecord(const TKeyValueRecordData& recordData);
 
 // Initial content generation
 class TGenerateInitialContentJob : public TThreadJob {
@@ -51,12 +46,9 @@ private:
     std::uint32_t ObjectIdRange;
 };
 
-int CreateTable(TDatabaseOptions& dbOptions);
-int DropTable(TDatabaseOptions& dbOptions);
-
 // Creates a table and fills it with initial content
 int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv);
-// Not implemented
+// Runs read/write workload
 int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv);
 // Drops the table
 int DoCleanup(TDatabaseOptions& dbOptions, int argc);

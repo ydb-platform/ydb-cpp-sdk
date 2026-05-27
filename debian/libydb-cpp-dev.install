@@ -1,0 +1,10 @@
+debian/tmp/usr/share/yandex/lib/*/libydb-cpp.a usr/share/yandex/lib/
+debian/tmp/usr/share/yandex/include/ydb-cpp-sdk usr/share/yandex/include/
+debian/tmp/usr/share/yandex/include/__ydb_sdk_special_headers usr/share/yandex/include/
+debian/tmp/usr/share/yandex/lib/*/cmake/ydb-cpp-sdk usr/share/yandex/lib/*/cmake/
+debian/tmp/usr/share/yandex/include/libbase64.h usr/share/yandex/include/
+debian/tmp/usr/share/yandex/lib/*/libbase64.a usr/share/yandex/lib/
+debian/tmp/usr/share/yandex/lib/*/cmake/base64 usr/share/yandex/lib/*/cmake/
+debian/tmp/usr/share/yandex/include/picojson usr/share/yandex/include/
+debian/tmp/usr/share/yandex/include/jwt-cpp usr/share/yandex/include/
+debian/tmp/usr/share/yandex/cmake/jwt-cpp* usr/share/yandex/cmake/

@@ -28,17 +28,22 @@ on:
 
 jobs:
   ydb-slo-action:
-    name: Run YDB SLO Tests
+    name: Run YDB SLO Tests (${{ matrix.workload }}, ${{ matrix.compiler }})
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     strategy:
       matrix:
         compiler: [clang, gcc]
+        workload: [native, userver]
         include:
-          - workload: table
+          - workload: native
+            dockerfile: tests/slo_workloads/Dockerfile
+          - workload: userver
+            dockerfile: tests/slo_workloads/Dockerfile.userver
 
     concurrency:
-      group: slo-${{ github.ref }}-${{ matrix.os }}-${{ matrix.workload }}-${{ matrix.compiler }}
+      group: slo-${{ github.ref }}-${{ matrix.workload }}-${{ matrix.compiler }}
       cancel-in-progress: true
 
     steps:
@@ -113,6 +118,8 @@ jobs:
           submodules: true
 
       - name: Build Workload Image
+        env:
+          DOCKER_BUILDKIT: "1"
         run: |
           echo "Cleaning up Docker system before builds..."
           docker system prune -af --volumes
@@ -120,7 +127,7 @@ jobs:
           df -h
 
           # Build current version
-          if [ -f "$GITHUB_WORKSPACE/current/tests/slo_workloads/Dockerfile" ]; then
+          if [ -f "$GITHUB_WORKSPACE/current/${{ matrix.dockerfile }}" ]; then
             echo "Building current app image..."
             cd "$GITHUB_WORKSPACE/current"
 
@@ -130,12 +137,12 @@ jobs:
             docker build -t ydb-app-current \
               --build-arg REF="${{ github.head_ref || github.ref_name }}" \
               --build-arg PRESET=release-test-${{ matrix.compiler }} \
-              -f tests/slo_workloads/Dockerfile .
+              -f ${{ matrix.dockerfile }} .
 
             # Clean up .dockerignore
             rm -f .dockerignore
           else
-            echo "No current app Dockerfile found"
+            echo "No current app Dockerfile found: ${{ matrix.dockerfile }}"
             exit 1
           fi
 
@@ -143,7 +150,7 @@ jobs:
           docker builder prune -af
 
           # Build baseline version
-          if [ -f "$GITHUB_WORKSPACE/baseline/tests/slo_workloads/Dockerfile" ]; then
+          if [ -f "$GITHUB_WORKSPACE/baseline/${{ matrix.dockerfile }}" ]; then
             echo "Building baseline app image..."
             cd "$GITHUB_WORKSPACE/baseline"
 
@@ -153,12 +160,12 @@ jobs:
             docker build -t ydb-app-baseline \
               --build-arg REF="${{ steps.baseline.outputs.ref }}" \
               --build-arg PRESET=release-test-${{ matrix.compiler }} \
-              -f tests/slo_workloads/Dockerfile .
+              -f ${{ matrix.dockerfile }} .
 
             # Clean up .dockerignore
             rm -f .dockerignore
           else
-            echo "No baseline app Dockerfile found"
+            echo "No baseline app Dockerfile found: ${{ matrix.dockerfile }}"
             exit 1
           fi
 
