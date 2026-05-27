@@ -1,19 +1,9 @@
-include(FetchContent)
+# Base utils library: shared between native and userver workloads
+# Contains: ParseOptions*, GetTableStats, YdbStatusToString, PackValuesToParamsAsList, etc.
+# Does NOT contain DoMain (each workload provides its own).
+add_library(slo-utils-base)
 
-FetchContent_Declare(
-  hdr_histogram
-  GIT_REPOSITORY https://github.com/HdrHistogram/HdrHistogram_c.git
-  GIT_TAG        0.11.8
-  EXCLUDE_FROM_ALL
-)
-set(HDR_HISTOGRAM_BUILD_PROGRAMS OFF CACHE BOOL "" FORCE)
-set(HDR_HISTOGRAM_BUILD_SHARED   OFF CACHE BOOL "" FORCE)
-set(HDR_LOG_REQUIRED             OFF CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(hdr_histogram)
-
-add_library(slo-utils)
-
-target_link_libraries(slo-utils PUBLIC
+target_link_libraries(slo-utils-base PUBLIC
   slo-workload-core
   yutil
   getopt
@@ -21,12 +11,23 @@ target_link_libraries(slo-utils PUBLIC
   YDB-CPP-SDK::Iam
 )
 
-target_link_libraries(slo-utils PRIVATE
-  hdr_histogram_static
+if (SLO_BRANCH_REF)
+  target_compile_definitions(slo-utils-base PRIVATE REF=${SLO_BRANCH_REF})
+endif()
+
+target_sources(slo-utils-base PRIVATE
+  utils.cpp
+)
+
+# Full native utils library: adds DoMain, executor and job infrastructure (thread-based)
+add_library(slo-utils)
+
+target_link_libraries(slo-utils PUBLIC
+  slo-utils-base
 )
 
 target_sources(slo-utils PRIVATE
+  utils_main.cpp
   executor.cpp
   job.cpp
-  utils.cpp
 )

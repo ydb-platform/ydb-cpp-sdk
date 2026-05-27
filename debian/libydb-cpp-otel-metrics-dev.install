@@ -1,0 +1,2 @@
+debian/tmp/usr/share/yandex/lib/*/libydb-cpp-otel-metrics.a usr/share/yandex/lib/
+debian/tmp/usr/share/yandex/include/ydb-cpp-sdk/open_telemetry/metrics.h usr/share/yandex/include/ydb-cpp-sdk/open_telemetry/
