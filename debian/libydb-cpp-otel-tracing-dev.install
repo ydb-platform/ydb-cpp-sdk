@@ -1,0 +1,2 @@
+debian/tmp/usr/share/yandex/lib/*/libydb-cpp-otel-tracing.a usr/share/yandex/lib/
+debian/tmp/usr/share/yandex/include/ydb-cpp-sdk/open_telemetry/trace.h usr/share/yandex/include/ydb-cpp-sdk/open_telemetry/
