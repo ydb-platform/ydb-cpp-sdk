@@ -1,4 +1,0 @@
-debian/tmp/usr/share/yandex/include/opentelemetry usr/share/yandex/include/
-debian/tmp/usr/share/yandex/lib/*/libopentelemetry_* usr/share/yandex/lib/
-debian/tmp/usr/share/yandex/lib/*/cmake/opentelemetry-cpp usr/share/yandex/lib/*/cmake/
-debian/tmp/usr/share/yandex/lib/*/pkgconfig/opentelemetry_*.pc usr/share/yandex/lib/*/pkgconfig/
