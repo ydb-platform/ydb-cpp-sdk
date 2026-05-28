@@ -30,7 +30,7 @@ jobs:
   ydb-slo-action:
     name: Run YDB SLO Tests (${{ matrix.workload }}, ${{ matrix.compiler }})
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
 
     strategy:
       matrix:
