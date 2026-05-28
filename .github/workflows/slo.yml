@@ -257,6 +257,11 @@ jobs:
           echo "Current container exit code: $CURRENT_EXIT"
           echo "Baseline container exit code: $BASELINE_EXIT"
 
+          if [ "$CURRENT_EXIT" != "0" ] || [ "$BASELINE_EXIT" != "0" ]; then
+            echo "Workload container exited with error: current=$CURRENT_EXIT baseline=$BASELINE_EXIT"
+            exit 1
+          fi
+
           # Show final logs
           echo ""
           echo "==================== FINAL CURRENT LOGS ===================="

@@ -57,31 +57,33 @@ int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv) {
 
     auto& ydbClient = userver_slo::GetTableClient();
 
-    TStat stats(
-        opts.DontPushMetrics ? std::nullopt : std::make_optional(opts.MetricsPushUrl),
-        "generate",
-        MakeNativeSloOtelResourceAttributes(),
-        NativeSloMeterSchemaVersion()
-    );
-    stats.Start();
+    // Engine primitives (Semaphore, AsyncNoSpan) require a task context; run.cpp
+    // wraps its workload loop the same way.
+    userver::engine::AsyncNoSpan([&]() {
+        TStat stats(
+            opts.DontPushMetrics ? std::nullopt : std::make_optional(opts.MetricsPushUrl),
+            "generate",
+            MakeNativeSloOtelResourceAttributes(),
+            NativeSloMeterSchemaVersion()
+        );
+        stats.Start();
 
-    // Generate initial content using userver coroutines
-    TPackGenerator<TKeyValueGenerator, TKeyValueRecordData, NYdb::TValue> packGenerator(
-        MakeGeneratorOptions(opts),
-        createOptions.PackSize,
-        [](const TKeyValueRecordData& recordData) { return BuildValueFromRecord(recordData); },
-        createOptions.Count,
-        maxId
-    );
+        TPackGenerator<TKeyValueGenerator, TKeyValueRecordData, NYdb::TValue> packGenerator(
+            MakeGeneratorOptions(opts),
+            createOptions.PackSize,
+            [](const TKeyValueRecordData& recordData) { return BuildValueFromRecord(recordData); },
+            createOptions.Count,
+            maxId
+        );
 
-    userver::engine::Semaphore semaphore{
-        static_cast<userver::engine::Semaphore::Counter>(opts.MaxInfly)};
+        userver::engine::Semaphore semaphore{
+            static_cast<userver::engine::Semaphore::Counter>(opts.MaxInfly)};
 
-    std::atomic<std::uint64_t> succeeded{0};
-    std::atomic<std::uint64_t> failed{0};
-    std::atomic<std::uint64_t> total{0};
+        std::atomic<std::uint64_t> succeeded{0};
+        std::atomic<std::uint64_t> failed{0};
+        std::atomic<std::uint64_t> total{0};
 
-    const TString query = Sprintf(R"(
+        const TString query = Sprintf(R"(
 --!syntax_v1
 PRAGMA TablePathPrefix("%s");
 
@@ -96,59 +98,59 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 
 )", prefix.c_str(), TableName.c_str());
 
-    std::vector<userver::engine::TaskWithResult<void>> tasks;
+        std::vector<userver::engine::TaskWithResult<void>> tasks;
 
-    std::vector<TValue> pack;
-    while (!ShouldStop.load() && packGenerator.GetNextPack(pack)) {
-        semaphore.lock_shared();
-        total.fetch_add(1);
+        std::vector<TValue> pack;
+        while (!ShouldStop.load() && packGenerator.GetNextPack(pack)) {
+            semaphore.lock_shared();
+            total.fetch_add(1);
 
-        auto params = userver_slo::PackValuesToPreparedArgs(pack);
+            auto params = userver_slo::PackValuesToPreparedArgs(pack);
 
-        tasks.push_back(userver::engine::AsyncNoSpan(
-            [&ydbClient, &semaphore, &stats, &succeeded, &failed,
-             &opts, query, params = std::move(params)]() mutable {
-                auto stat = stats.StartRequest();
-                try {
-                    uydb::OperationSettings settings;
-                    settings.client_timeout_ms = std::chrono::milliseconds(opts.ReactionTime.MilliSeconds());
+            tasks.push_back(userver::engine::AsyncNoSpan(
+                [&ydbClient, &semaphore, &stats, &succeeded, &failed,
+                 &opts, query, params = std::move(params)]() mutable {
+                    auto stat = stats.StartRequest();
+                    try {
+                        uydb::OperationSettings settings;
+                        settings.client_timeout_ms = std::chrono::milliseconds(opts.ReactionTime.MilliSeconds());
 
-                    ydbClient.ExecuteDataQuery(settings, uydb::Query{query}, std::move(params));
+                        ydbClient.ExecuteDataQuery(settings, uydb::Query{query}, std::move(params));
 
-                    TSloRequestFinish finish;
-                    finish.StatusLabel = "SUCCESS";
-                    stats.FinishRequest(stat, finish);
-                    succeeded.fetch_add(1);
-                } catch (const uydb::YdbResponseError& e) {
-                    TSloRequestFinish finish;
-                    finish.StatusLabel = YdbStatusToString(e.GetStatus().GetStatus());
-                    stats.FinishRequest(stat, finish);
-                    failed.fetch_add(1);
-                } catch (const std::exception& e) {
-                    TSloRequestFinish finish;
-                    finish.StatusLabel = "UNKNOWN_ERROR";
-                    stats.FinishRequest(stat, finish);
-                    failed.fetch_add(1);
+                        TSloRequestFinish finish;
+                        finish.StatusLabel = "SUCCESS";
+                        stats.FinishRequest(stat, finish);
+                        succeeded.fetch_add(1);
+                    } catch (const uydb::YdbResponseError& e) {
+                        TSloRequestFinish finish;
+                        finish.StatusLabel = YdbStatusToString(e.GetStatus().GetStatus());
+                        stats.FinishRequest(stat, finish);
+                        failed.fetch_add(1);
+                    } catch (const std::exception& e) {
+                        TSloRequestFinish finish;
+                        finish.StatusLabel = "UNKNOWN_ERROR";
+                        stats.FinishRequest(stat, finish);
+                        failed.fetch_add(1);
+                    }
+                    semaphore.unlock_shared();
                 }
-                semaphore.unlock_shared();
-            }
-        ));
-    }
+            ));
+        }
 
-    // Wait for all tasks to complete
-    for (auto& task : tasks) {
-        task.Wait();
-    }
+        for (auto& task : tasks) {
+            task.Wait();
+        }
 
-    stats.Finish();
+        stats.Finish();
 
-    TStringBuilder report;
-    report << Endl << "======- GenerateInitialContentJob report -======" << Endl;
-    report << "Total: " << total.load() << ", Succeeded: " << succeeded.load()
-           << ", Failed: " << failed.load() << Endl;
-    stats.PrintStatistics(report);
-    report << "========================================" << Endl;
-    Cout << report;
+        TStringBuilder report;
+        report << Endl << "======- GenerateInitialContentJob report -======" << Endl;
+        report << "Total: " << total.load() << ", Succeeded: " << succeeded.load()
+               << ", Failed: " << failed.load() << Endl;
+        stats.PrintStatistics(report);
+        report << "========================================" << Endl;
+        Cout << report;
+    }).Wait();
 
     return EXIT_SUCCESS;
 }
