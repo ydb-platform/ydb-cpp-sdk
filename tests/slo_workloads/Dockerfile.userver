@@ -134,8 +134,13 @@ ARG REF=unknown
 ARG USERVER_VERSION=v2.12
 
 COPY --from=userver-deb /userver/libuserver-all-dev*.deb /tmp/
+# libuserver-all-dev depends on build-essential (gcc-11), which overrides gcc-14 alternatives.
 RUN apt-get -y update && apt-get -y install --no-install-recommends /tmp/libuserver-all-dev*.deb \
-    && rm -rf /tmp/libuserver-all-dev*.deb /var/lib/apt/lists/*
+    && rm -rf /tmp/libuserver-all-dev*.deb /var/lib/apt/lists/* \
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 10000 \
+    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 10000 \
+    && update-alternatives --set gcc /usr/bin/gcc-14 \
+    && update-alternatives --set g++ /usr/bin/g++-14
 
 RUN git clone --depth 1 --branch ${USERVER_VERSION} \
       https://github.com/userver-framework/userver.git /userver-src \
