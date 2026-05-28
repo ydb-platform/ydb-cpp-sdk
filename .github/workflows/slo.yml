@@ -166,7 +166,8 @@ jobs:
             rm -f .dockerignore
           else
             echo "No baseline app Dockerfile found: ${{ matrix.dockerfile }}"
-            exit 1
+            echo "Workload is new on baseline (${{ steps.baseline.outputs.ref }}); reusing current image for baseline comparison."
+            docker tag ydb-app-current ydb-app-baseline
           fi
 
           docker system prune -f --volumes
