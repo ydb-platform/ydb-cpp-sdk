@@ -269,6 +269,9 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
             int cleanupRc = cleanup(dbOptions, fakeArgc);
             if (!result) {
                 result = cleanupRc;
+            } else if (cleanupRc) {
+                Cerr << "[all] Warning: cleanup failed (exit " << cleanupRc
+                    << ") but run succeeded; ignoring cleanup exit code." << Endl;
             }
             break;
         }
