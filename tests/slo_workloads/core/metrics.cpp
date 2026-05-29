@@ -1,5 +1,7 @@
 #include "metrics.h"
 
+#include "slo_text_utils.h"
+
 #include <opentelemetry/exporters/otlp/otlp_http_metric_exporter_factory.h>
 #include <opentelemetry/sdk/metrics/export/periodic_exporting_metric_reader_factory.h>
 #include <opentelemetry/sdk/metrics/meter_context.h>
@@ -28,8 +30,8 @@ public:
         auto exporter = opentelemetry::exporter::otlp::OtlpHttpMetricExporterFactory::Create(exporterOptions);
 
         opentelemetry::sdk::metrics::PeriodicExportingMetricReaderOptions readerOptions;
-        readerOptions.export_interval_millis = 1000ms;
-        readerOptions.export_timeout_millis = 900ms;
+        readerOptions.export_interval_millis = 250ms;
+        readerOptions.export_timeout_millis = 200ms;
 
         auto metricReader = opentelemetry::sdk::metrics::PeriodicExportingMetricReaderFactory::Create(std::move(exporter), readerOptions);
 
@@ -47,17 +49,16 @@ public:
     }
 
     void PushRequestData(const TRequestData& requestData) override {
-        const bool success = (requestData.StatusLabel == "SUCCESS");
-        if (success) {
+        if (requestData.Status == NYdb::EStatus::SUCCESS) {
             OperationsSuccessTotal_->Add(1, MergeAttributes({{"operation_type", OperationType_}}));
         } else {
-            ErrorsTotal_->Add(1, MergeAttributes({{"status", requestData.StatusLabel}}));
+            ErrorsTotal_->Add(1, MergeAttributes({{"status", SloYdbStatusToString(requestData.Status)}}));
             OperationsFailureTotal_->Add(1, MergeAttributes({{"operation_type", OperationType_}}));
         }
         OperationsTotal_->Add(1, MergeAttributes({{"operation_type", OperationType_}}));
         OperationLatencySeconds_->Record(
             requestData.Delay.SecondsFloat(),
-            MergeAttributes({{"operation_type", OperationType_}, {"status", requestData.StatusLabel}})
+            MergeAttributes({{"operation_type", OperationType_}, {"status", SloYdbStatusToString(requestData.Status)}})
         );
         RetryAttempts_->Record(static_cast<std::int64_t>(requestData.RetryAttempts), MergeAttributes({{"operation_type", OperationType_}}));
     }

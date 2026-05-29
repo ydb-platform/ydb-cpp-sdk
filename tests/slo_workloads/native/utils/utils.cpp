@@ -48,70 +48,7 @@ TParams PackValuesToParamsAsList(const std::vector<TValue>& items, const std::st
 }
 
 std::string YdbStatusToString(NYdb::EStatus status) {
-    switch (status) {
-        case NYdb::EStatus::SUCCESS:
-            return "SUCCESS";
-        case NYdb::EStatus::BAD_REQUEST:
-            return "BAD_REQUEST";
-        case NYdb::EStatus::UNAUTHORIZED:
-            return "UNAUTHORIZED";
-        case NYdb::EStatus::INTERNAL_ERROR:
-            return "INTERNAL_ERROR";
-        case NYdb::EStatus::ABORTED:
-            return "ABORTED";
-        case NYdb::EStatus::UNAVAILABLE:
-            return "UNAVAILABLE";
-        case NYdb::EStatus::OVERLOADED:
-            return "OVERLOADED";
-        case NYdb::EStatus::SCHEME_ERROR:
-            return "SCHEME_ERROR";
-        case NYdb::EStatus::GENERIC_ERROR:
-            return "GENERIC_ERROR";
-        case NYdb::EStatus::TIMEOUT:
-            return "TIMEOUT";
-        case NYdb::EStatus::BAD_SESSION:
-            return "BAD_SESSION";
-        case NYdb::EStatus::PRECONDITION_FAILED:
-            return "PRECONDITION_FAILED";
-        case NYdb::EStatus::ALREADY_EXISTS:
-            return "ALREADY_EXISTS";
-        case NYdb::EStatus::NOT_FOUND:
-            return "NOT_FOUND";
-        case NYdb::EStatus::SESSION_EXPIRED:
-            return "SESSION_EXPIRED";
-        case NYdb::EStatus::CANCELLED:
-            return "CANCELLED";
-        case NYdb::EStatus::UNDETERMINED:
-            return "UNDETERMINED";
-        case NYdb::EStatus::UNSUPPORTED:
-            return "UNSUPPORTED";
-        case NYdb::EStatus::SESSION_BUSY:
-            return "SESSION_BUSY";
-        case NYdb::EStatus::EXTERNAL_ERROR:
-            return "EXTERNAL_ERROR";
-        case NYdb::EStatus::STATUS_UNDEFINED:
-            return "STATUS_UNDEFINED";
-        case NYdb::EStatus::TRANSPORT_UNAVAILABLE:
-            return "TRANSPORT_UNAVAILABLE";
-        case NYdb::EStatus::CLIENT_RESOURCE_EXHAUSTED:
-            return "CLIENT_RESOURCE_EXHAUSTED";
-        case NYdb::EStatus::CLIENT_DEADLINE_EXCEEDED:
-            return "CLIENT_DEADLINE_EXCEEDED";
-        case NYdb::EStatus::CLIENT_INTERNAL_ERROR:
-            return "CLIENT_INTERNAL_ERROR";
-        case NYdb::EStatus::CLIENT_CANCELLED:
-            return "CLIENT_CANCELLED";
-        case NYdb::EStatus::CLIENT_UNAUTHENTICATED:
-            return "CLIENT_UNAUTHENTICATED";
-        case NYdb::EStatus::CLIENT_CALL_UNIMPLEMENTED:
-            return "CLIENT_CALL_UNIMPLEMENTED";
-        case NYdb::EStatus::CLIENT_OUT_OF_RANGE:
-            return "CLIENT_OUT_OF_RANGE";
-        case NYdb::EStatus::CLIENT_DISCOVERY_FAILED:
-            return "CLIENT_DISCOVERY_FAILED";
-        case NYdb::EStatus::CLIENT_LIMITS_REACHED:
-            return "CLIENT_LIMITS_REACHED";
-    }
+    return SloYdbStatusToString(status);
 }
 
 TTableStats GetTableStats(TDatabaseOptions& dbOptions, const std::string& tableName) {

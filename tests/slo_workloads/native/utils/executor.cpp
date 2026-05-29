@@ -286,13 +286,7 @@ bool TExecutor::Execute(const NYdb::NTable::TTableClient::TOperationFunc& func) 
         future.Subscribe([this, stat, SemaphoreWrapper](const TAsyncFinalStatus& future) mutable {
             Y_ABORT_UNLESS(future.HasValue());
             TFinalStatus resultStatus = future.GetValue();
-            TSloRequestFinish finish;
-            if (!resultStatus) {
-                finish.ApplicationTimeout = true;
-            } else {
-                finish.StatusLabel = YdbStatusToString(resultStatus->GetStatus());
-            }
-            Stats.FinishRequest(stat, finish);
+            Stats.FinishRequest(stat, resultStatus);
             if (resultStatus) {
                 CheckForError(*resultStatus);
             }
