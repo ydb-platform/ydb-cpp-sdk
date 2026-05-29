@@ -1,5 +1,7 @@
 #include "statistics.h"
 
+#include "slo_text_utils.h"
+
 #include <util/stream/output.h>
 
 #include <algorithm>
@@ -64,6 +66,34 @@ std::shared_ptr<TStatUnit> TStat::StartRequest() {
     return std::make_shared<TStatUnit>(TInstant::Now());
 }
 
+void TStat::FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TFinalStatus& status) {
+    std::lock_guard lock(Mutex);
+
+    unit->End = TInstant::Now();
+
+    auto delay = unit->End - unit->Start;
+
+    --Infly;
+
+    if (status) {
+        ++Statuses[status->GetStatus()];
+    } else {
+        ++ApplicationTimeout;
+    }
+
+    if (status && status->GetStatus() == NYdb::EStatus::SUCCESS) {
+        OkDelays.push_back(delay);
+    }
+
+    ScheduleMetricsPush([this, delay, status, unit]() {
+        MetricsPusher->PushRequestData({
+            .Delay = delay,
+            .Status = status ? status->GetStatus() : NYdb::EStatus::TIMEOUT,
+            .RetryAttempts = unit->RetryAttempts,
+        });
+    });
+}
+
 void TStat::FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TSloRequestFinish& finish) {
     std::lock_guard lock(Mutex);
 
@@ -71,25 +101,23 @@ void TStat::FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TSloRequ
     const auto delay = unit->End - unit->Start;
     --Infly;
 
-    std::string metricStatusLabel;
+    NYdb::EStatus metricStatus = NYdb::EStatus::GENERIC_ERROR;
     if (finish.ApplicationTimeout) {
         ++ApplicationTimeout;
-        metricStatusLabel = "APPLICATION_TIMEOUT";
+        metricStatus = NYdb::EStatus::TIMEOUT;
     } else if (finish.StatusLabel) {
-        ++Statuses[*finish.StatusLabel];
-        metricStatusLabel = *finish.StatusLabel;
-    } else {
-        metricStatusLabel = "UNKNOWN";
+        metricStatus = SloYdbStatusFromString(*finish.StatusLabel);
+        ++Statuses[metricStatus];
     }
 
     if (!finish.ApplicationTimeout && finish.StatusLabel && *finish.StatusLabel == "SUCCESS") {
         OkDelays.push_back(delay);
     }
 
-    ScheduleMetricsPush([this, delay, metricStatusLabel, unit]() {
+    ScheduleMetricsPush([this, delay, metricStatus, unit]() {
         MetricsPusher->PushRequestData({
             .Delay = delay,
-            .StatusLabel = metricStatusLabel,
+            .Status = metricStatus,
             .RetryAttempts = unit->RetryAttempts,
         });
     });
@@ -127,12 +155,12 @@ void TStat::PrintStatistics(TStringBuilder& out) {
     const std::uint64_t micros = timePassed.MicroSeconds();
     const std::uint64_t rps = micros ? total * 1000000 / micros : 0;
     out << total << " requests total" << Endl
-        << Statuses["SUCCESS"] << " succeeded";
+        << Statuses[NYdb::EStatus::SUCCESS] << " succeeded";
     if (total) {
-        out << " (" << Statuses["SUCCESS"] * 100 / total << "%)";
+        out << " (" << Statuses[NYdb::EStatus::SUCCESS] * 100 / total << "%)";
     }
     for (const auto& [status, counter] : Statuses) {
-        out << Endl << counter << " replies with status " << status << Endl;
+        out << Endl << counter << " replies with status " << SloYdbStatusToString(status) << Endl;
     }
     out << Endl << CountMaxInfly << " failed due to max infly" << Endl
         << ApplicationTimeout << " application timeouts" << Endl

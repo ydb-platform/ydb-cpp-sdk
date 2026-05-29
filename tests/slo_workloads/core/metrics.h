@@ -1,16 +1,17 @@
 #pragma once
 
+#include <ydb-cpp-sdk/client/types/status/status.h>
+
 #include <util/datetime/base.h>
 
 #include <cstdint>
 #include <map>
 #include <memory>
-#include <optional>
 #include <string>
 
 struct TRequestData {
     TDuration Delay;
-    std::string StatusLabel;
+    NYdb::EStatus Status;
     std::uint64_t RetryAttempts;
 };
 

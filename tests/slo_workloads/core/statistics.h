@@ -2,6 +2,8 @@
 
 #include "metrics.h"
 
+#include <ydb-cpp-sdk/client/driver/driver.h>
+
 #include <util/datetime/base.h>
 #include <util/string/builder.h>
 #include <util/string/printf.h>
@@ -21,6 +23,9 @@ inline std::string GetMillisecondsStr(const TDuration& d) {
 inline double GetMillisecondsDouble(const TDuration& d) {
     return static_cast<double>(d.MicroSeconds()) / 1000;
 }
+
+using TFinalStatus = std::optional<NYdb::TStatus>;
+using TAsyncFinalStatus = NThreading::TFuture<TFinalStatus>;
 
 struct TSloRequestFinish {
     bool ApplicationTimeout = false;
@@ -62,6 +67,7 @@ public:
     void Finish();
 
     std::shared_ptr<TStatUnit> StartRequest();
+    void FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TFinalStatus& status);
     void FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TSloRequestFinish& finish);
 
     void ReportMaxInfly();
@@ -85,7 +91,7 @@ private:
     std::uint64_t Infly = 0;
     std::uint64_t ActiveSessions = 0;
 
-    std::map<std::string, std::uint64_t> Statuses;
+    std::map<NYdb::EStatus, std::uint64_t> Statuses;
     std::uint64_t CountMaxInfly = 0;
     std::uint64_t ApplicationTimeout = 0;
     std::vector<TDuration> OkDelays;
