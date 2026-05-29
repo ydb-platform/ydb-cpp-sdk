@@ -50,6 +50,7 @@ int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv) {
     jobs->Start();
     jobs->Wait();
     jobs->ShowProgress();
+    jobs.reset();
 
     return EXIT_SUCCESS;
 }
@@ -95,6 +96,7 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
     Cout << "All jobs finished: " << TInstant::Now().ToRfc822StringLocal() << Endl;
 
     jobs->ShowProgress();
+    jobs.reset();
 
     return EXIT_SUCCESS;
 }

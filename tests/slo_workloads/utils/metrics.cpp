@@ -109,7 +109,7 @@ public:
 
         opentelemetry::sdk::metrics::PeriodicExportingMetricReaderOptions readerOptions;
         readerOptions.export_interval_millis = 1000ms;
-        readerOptions.export_timeout_millis  = 900ms;
+        readerOptions.export_timeout_millis  = 500ms;
 
         auto metricReader = opentelemetry::sdk::metrics::PeriodicExportingMetricReaderFactory::Create(std::move(exporter), readerOptions);
 
@@ -131,6 +131,9 @@ public:
         PublisherShouldStop_.store(true);
         if (PublisherThread_.joinable()) {
             PublisherThread_.join();
+        }
+        if (MeterProvider_) {
+            MeterProvider_->Shutdown(std::chrono::seconds(3));
         }
     }
 
