@@ -251,11 +251,12 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
             // prepend a synthetic program name for ParseOptionsRun.
             char programName[] = "slo";
             std::vector<char*> runArgv;
-            runArgv.reserve(argc + 1);
+            runArgv.reserve(argc + 2);
             runArgv.push_back(programName);
             for (int i = 0; i < argc; ++i) {
                 runArgv.push_back(argv[i]);
             }
+            runArgv.push_back(nullptr);
             int fakeArgc = 1;
             char* fakeArgv[] = { programName, nullptr };
 
@@ -263,7 +264,7 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
             result = create(dbOptions, fakeArgc, fakeArgv);
             if (!result) {
                 Cout << "[all] Launching run command..." << Endl;
-                result = run(dbOptions, static_cast<int>(runArgv.size()), runArgv.data());
+                result = run(dbOptions, static_cast<int>(runArgv.size() - 1), runArgv.data());
             }
             Cout << "[all] Launching cleanup command..." << Endl;
             int cleanupRc = cleanup(dbOptions, fakeArgc);
