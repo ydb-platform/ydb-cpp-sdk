@@ -267,11 +267,17 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
             }
             Cout << "[all] Launching cleanup command..." << Endl;
             int cleanupRc = cleanup(dbOptions, fakeArgc);
-            if (!result) {
-                result = cleanupRc;
-            } else if (cleanupRc) {
+            // Cleanup runs while chaos-monkey is still killing nodes, so a
+            // DropTable failure here is expected noise and must not mask a
+            // successful run. Surface the run's status; only fall back to
+            // the cleanup status when run itself failed and we have nothing
+            // else to report.
+            if (cleanupRc && !result) {
                 Cerr << "[all] Warning: cleanup failed (exit " << cleanupRc
                     << ") but run succeeded; ignoring cleanup exit code." << Endl;
+            } else if (cleanupRc) {
+                Cerr << "[all] Warning: cleanup failed (exit " << cleanupRc
+                    << "); preserving earlier run failure." << Endl;
             }
             break;
         }
