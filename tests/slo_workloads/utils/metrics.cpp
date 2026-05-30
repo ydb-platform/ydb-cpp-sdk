@@ -132,9 +132,8 @@ public:
         if (PublisherThread_.joinable()) {
             PublisherThread_.join();
         }
-        if (MeterProvider_) {
-            MeterProvider_->Shutdown(std::chrono::seconds(3));
-        }
+        // MeterProvider destructor calls Shutdown(); do not call it explicitly
+        // here — the OTel SDK rejects a second Shutdown with a warning.
     }
 
     void PushRequestData(const TRequestData& requestData) override {

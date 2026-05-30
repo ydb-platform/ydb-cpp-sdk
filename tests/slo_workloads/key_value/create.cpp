@@ -8,7 +8,7 @@ using namespace NYdb::NTable;
 
 namespace {
     void CreateTable(TTableClient& client, const std::string& prefix) {
-        RetryBackoff(client, 5, [prefix](TSession session) {
+        NYdb::NStatusHelpers::ThrowOnError(client.RetryOperationSync([prefix](TSession session) {
             auto desc = TTableBuilder()
                 .AddNullableColumn("object_id_key", EPrimitiveType::Uint32)
                 .AddNullableColumn("object_id", EPrimitiveType::Uint32)
@@ -27,7 +27,7 @@ namespace {
                 , std::move(desc)
                 , std::move(tableSettings)
             ).ExtractValueSync();
-        });
+        }));
     }
 } //namespace
 
