@@ -145,37 +145,66 @@ public:
 
     void Record(const std::string& operationType, const TRequestData& data) {
         const bool success = data.Status == NYdb::EStatus::SUCCESS;
-        const std::string status = success ? "success" : "error";
+        auto& series = GetOrCreateSeries(operationType);
 
-        OperationsTotal_->Add(uint64_t{1}, MergeAttributes({
-            {"operation_type", operationType},
-            {"operation_status", status},
-        }));
+        OperationsTotal_->Add(uint64_t{1},
+            opentelemetry::common::MakeKeyValueIterableView(
+                success ? series.SuccessAttrs : series.ErrorAttrs));
 
         // sdk_retry_attempts_total = total number of technical attempts
         // including the first one. RetryAttempts counts only post-first
         // attempts, so add 1 to include the initial attempt.
-        RetryAttemptsTotal_->Add(data.RetryAttempts + 1, MergeAttributes({
-            {"operation_type", operationType},
-        }));
+        RetryAttemptsTotal_->Add(data.RetryAttempts + 1,
+            opentelemetry::common::MakeKeyValueIterableView(series.RetryAttrs));
 
         if (success) {
-            GetOrCreateSeries(operationType).Recorder.Record(data.Delay);
+            series.Recorder.Record(data.Delay);
         }
     }
 
 private:
     struct TSeries {
         TLatencyRecorder Recorder;
-        // Cached snapshot, refreshed by the callback that runs first per
-        // export cycle (ObserveP50). All three callbacks read from these
-        // atomics so p50/p95/p99 land in the same export with consistent
-        // values from one HDR snapshot.
+        // Pre-merged attribute maps used on the hot path so Record() does not
+        // allocate / copy CommonAttributes_ per call.
+        std::map<std::string, std::string> SuccessAttrs;
+        std::map<std::string, std::string> ErrorAttrs;
+        std::map<std::string, std::string> RetryAttrs;
+
+        // Cached snapshot, refreshed by EnsureSnapshot() in whichever
+        // observable-gauge callback fires first per export cycle. All three
+        // callbacks read from these atomics so p50/p95/p99 land in the same
+        // export with consistent values from one HDR snapshot — independent
+        // of the order the SDK iterates instruments.
         std::atomic<double> P50{0.0};
         std::atomic<double> P95{0.0};
         std::atomic<double> P99{0.0};
         std::atomic<bool> HasData{false};
+        std::mutex SnapshotMutex;
+        std::chrono::steady_clock::time_point LastSnapshot{};
     };
+
+    // Half the export interval — guarantees one snapshot per cycle while
+    // tolerating arbitrary callback ordering.
+    static constexpr std::chrono::milliseconds kSnapshotFreshness{500};
+
+    void EnsureSnapshot(TSeries& series) {
+        auto now = std::chrono::steady_clock::now();
+        std::lock_guard lock(series.SnapshotMutex);
+        if (now - series.LastSnapshot < kSnapshotFreshness) {
+            return;
+        }
+        auto snap = series.Recorder.SnapshotAndReset();
+        if (snap.HasData) {
+            series.P50.store(snap.P50);
+            series.P95.store(snap.P95);
+            series.P99.store(snap.P99);
+            series.HasData.store(true);
+        } else {
+            series.HasData.store(false);
+        }
+        series.LastSnapshot = now;
+    }
 
     TSeries& GetOrCreateSeries(const std::string& op) {
         {
@@ -189,16 +218,16 @@ private:
         auto& slot = Series_[op];
         if (!slot) {
             slot = std::make_unique<TSeries>();
+            slot->SuccessAttrs = CommonAttributes_;
+            slot->SuccessAttrs["operation_type"] = op;
+            slot->SuccessAttrs["operation_status"] = "success";
+            slot->ErrorAttrs = CommonAttributes_;
+            slot->ErrorAttrs["operation_type"] = op;
+            slot->ErrorAttrs["operation_status"] = "error";
+            slot->RetryAttrs = CommonAttributes_;
+            slot->RetryAttrs["operation_type"] = op;
         }
         return *slot;
-    }
-
-    std::map<std::string, std::string> MergeAttributes(
-        const std::map<std::string, std::string>& metricAttrs) const
-    {
-        std::map<std::string, std::string> result = CommonAttributes_;
-        result.insert(metricAttrs.begin(), metricAttrs.end());
-        return result;
     }
 
     void InitMetrics() {
@@ -222,48 +251,23 @@ private:
         LatencyP99_->AddCallback(&TOtelSharedPusher::ObserveP99, this);
     }
 
-    // ObserveP50 runs first per export cycle, snapshots+resets each series'
-    // HDR once, and caches p50/p95/p99 in the series atomics for the
-    // subsequent two callbacks to read. This mirrors the Java workload's
-    // single-snapshot strategy without requiring a batch-callback API.
-    static void ObserveP50(opentelemetry::metrics::ObserverResult result, void* state) {
-        auto* self = static_cast<TOtelSharedPusher*>(state);
-        auto obs = opentelemetry::nostd::get<
-            opentelemetry::nostd::shared_ptr<opentelemetry::metrics::ObserverResultT<double>>>(result);
-
-        std::shared_lock lock(self->SeriesMutex_);
-        for (const auto& [op, series] : self->Series_) {
-            auto snap = series->Recorder.SnapshotAndReset();
-            if (snap.HasData) {
-                series->P50.store(snap.P50);
-                series->P95.store(snap.P95);
-                series->P99.store(snap.P99);
-                series->HasData.store(true);
-            } else {
-                series->HasData.store(false);
-            }
-            if (!series->HasData.load()) {
-                continue;
-            }
-            auto attrs = self->MergeAttributes({
-                {"operation_type", op},
-                {"operation_status", "success"},
-            });
-            obs->Observe(series->P50.load(),
-                opentelemetry::common::MakeKeyValueIterableView(attrs));
-        }
+    static void ObserveP50(opentelemetry::metrics::ObserverResult r, void* s) {
+        ObservePercentile(r, s, &TSeries::P50);
+    }
+    static void ObserveP95(opentelemetry::metrics::ObserverResult r, void* s) {
+        ObservePercentile(r, s, &TSeries::P95);
+    }
+    static void ObserveP99(opentelemetry::metrics::ObserverResult r, void* s) {
+        ObservePercentile(r, s, &TSeries::P99);
     }
 
-    static void ObserveP95(opentelemetry::metrics::ObserverResult result, void* state) {
-        ObserveCached(result, state, &TSeries::P95);
-    }
-
-    static void ObserveP99(opentelemetry::metrics::ObserverResult result, void* state) {
-        ObserveCached(result, state, &TSeries::P99);
-    }
-
-    static void ObserveCached(opentelemetry::metrics::ObserverResult result, void* state,
-                              std::atomic<double> TSeries::*field)
+    // Each callback ensures a fresh snapshot exists for the current export
+    // cycle (EnsureSnapshot is a no-op if one was taken less than
+    // kSnapshotFreshness ago). Whichever of P50/P95/P99 the SDK invokes first
+    // performs the snapshot+reset; the others read cached atomics. Order
+    // between the three callbacks is irrelevant.
+    static void ObservePercentile(opentelemetry::metrics::ObserverResult result, void* state,
+                                  std::atomic<double> TSeries::*field)
     {
         auto* self = static_cast<TOtelSharedPusher*>(state);
         auto obs = opentelemetry::nostd::get<
@@ -271,15 +275,12 @@ private:
 
         std::shared_lock lock(self->SeriesMutex_);
         for (const auto& [op, series] : self->Series_) {
+            self->EnsureSnapshot(*series);
             if (!series->HasData.load()) {
                 continue;
             }
-            auto attrs = self->MergeAttributes({
-                {"operation_type", op},
-                {"operation_status", "success"},
-            });
             obs->Observe((series.get()->*field).load(),
-                opentelemetry::common::MakeKeyValueIterableView(attrs));
+                opentelemetry::common::MakeKeyValueIterableView(series->SuccessAttrs));
         }
     }
 
