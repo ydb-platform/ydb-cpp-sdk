@@ -5,10 +5,16 @@ on:
     workflows: ["SLO"]
     types:
       - completed
+  workflow_dispatch:
+    inputs:
+      slo_run_id:
+        description: "Run ID of the SLO workflow whose artifacts to report on"
+        required: true
+        type: string
 
 jobs:
   publish-slo-report:
-    if: github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     name: Publish YDB SLO Report
     permissions:
@@ -21,11 +27,11 @@ jobs:
         uses: ydb-platform/ydb-slo-action/report@v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          github_run_id: ${{ github.event.workflow_run.id }}
+          github_run_id: ${{ inputs.slo_run_id || github.event.workflow_run.id }}
 
   remove-slo-label:
     needs: publish-slo-report
-    if: always() && github.event.workflow_run.event == 'pull_request'
+    if: always() && github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
     name: Remove SLO Label
     permissions:
