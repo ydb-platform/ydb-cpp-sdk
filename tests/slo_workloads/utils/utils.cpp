@@ -515,11 +515,6 @@ void ParseOptionsCommon(TOpts& opts, TCommonOptions& options) {
         .SetFlag(&options.DontPushMetrics).DefaultValue(options.DontPushMetrics);
     opts.AddLongOption("metrics-push-url", "URL to push metrics").RequiredArgument("URL")
         .DefaultValue(options.MetricsPushUrl).StoreResult(&options.MetricsPushUrl);
-    opts.AddLongOption("app-timeout", "Use application timeout (over SDK)").NoArgument()
-        .SetFlag(&options.UseApplicationTimeout).DefaultValue(options.UseApplicationTimeout);
-    opts.AddLongOption("prevention-request", "Send prevention request at 1/2 of timeout").NoArgument()
-        .SetFlag(&options.SendPreventiveRequest).DefaultValue(options.SendPreventiveRequest);
-
     opts.MutuallyExclusive("dont-push", "metrics-push-url");
 }
 

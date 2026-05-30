@@ -49,8 +49,6 @@ struct TCommonOptions {
     std::uint32_t MaxRetries = 50;
     TDuration ReactionTime = DefaultReactionTime;
     bool StopOnError = false;
-    bool UseApplicationTimeout = false;
-    bool SendPreventiveRequest = false;
 
     // Generator options:
     std::uint32_t MinLength = 20;
@@ -117,29 +115,6 @@ std::string GetCmdList();
 ECommandType ParseCommand(const char* cmd);
 
 std::string JoinPath(const std::string& prefix, const std::string& path);
-
-inline void RetryBackoff(
-    NYdb::NTable::TTableClient& client,
-    std::uint32_t retries,
-    const NYdb::NTable::TTableClient::TOperationSyncFunc& func
-) {
-    TDuration delay = TDuration::Seconds(5);
-    while (retries) {
-        NYdb::TStatus status = client.RetryOperationSync(func);
-        if (status.IsSuccess()) {
-            return;
-        }
-        --retries;
-        if (!retries) {
-            Cerr << "Create request failed after all retries." << Endl;
-            Cerr << status << Endl;
-            NYdb::NStatusHelpers::ThrowOnError(status);
-        }
-        Cerr << "Create request failed. Sleeping for " << delay << Endl;
-        Sleep(delay);
-        delay *= 2;
-    }
-}
 
 std::string GenerateRandomString(std::uint32_t minLength, std::uint32_t maxLength);
 
