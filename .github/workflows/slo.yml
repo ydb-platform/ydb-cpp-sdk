@@ -139,6 +139,9 @@ jobs:
       # source COPY, so only the actual workload link step reruns (~3 min).
       - name: Build current workload image
         uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: "false"
+          DOCKER_BUILD_RECORD_UPLOAD: "false"
         with:
           context: sdk-current
           file: sdk-current/tests/slo_workloads/Dockerfile
@@ -153,6 +156,9 @@ jobs:
         id: baseline-build
         continue-on-error: true
         uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: "false"
+          DOCKER_BUILD_RECORD_UPLOAD: "false"
         with:
           context: sdk-baseline
           file: sdk-baseline/tests/slo_workloads/Dockerfile
