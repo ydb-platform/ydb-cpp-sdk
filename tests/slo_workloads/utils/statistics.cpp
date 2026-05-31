@@ -1,12 +1,11 @@
 #include "statistics.h"
 
-#include "slo_text_utils.h"
+#include "metrics.h"
+#include "utils.h"
 
-#include <util/stream/output.h>
-
-#include <algorithm>
 
 namespace {
+    // Calculated percentiles for a period of time
     struct TPercentile {
         TDuration P50;
         TDuration P90;
@@ -30,18 +29,9 @@ namespace {
     }
 }
 
-TStat::TStat(
-    const std::optional<std::string>& metricsPushUrl,
-    const std::string& operationType,
-    const std::map<std::string, std::string>& resourceAttributes,
-    const std::string& meterSchemaVersion
-)
+TStat::TStat(const std::optional<std::string>& metricsPushUrl, const std::string& operationType)
     : StartTime(TInstant::Now())
-    , MetricsPusher(
-          metricsPushUrl
-              ? CreateOtelMetricsPusher(*metricsPushUrl, operationType, resourceAttributes, meterSchemaVersion)
-              : CreateNoopMetricsPusher()
-      )
+    , MetricsPusher(metricsPushUrl ? CreateOtelMetricsPusher(*metricsPushUrl, operationType) : CreateNoopMetricsPusher())
 {
     MetricsPushQueue.Start(20);
 }
@@ -86,45 +76,20 @@ void TStat::FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TFinalSt
     }
 
     ScheduleMetricsPush([this, delay, status, unit]() {
+        NYdb::EStatus requestStatus = status
+            ? status->GetStatus()
+            : NYdb::EStatus::CLIENT_DEADLINE_EXCEEDED;
         MetricsPusher->PushRequestData({
             .Delay = delay,
-            .Status = status ? status->GetStatus() : NYdb::EStatus::TIMEOUT,
-            .RetryAttempts = unit->RetryAttempts,
-        });
-    });
-}
-
-void TStat::FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TSloRequestFinish& finish) {
-    std::lock_guard lock(Mutex);
-
-    unit->End = TInstant::Now();
-    const auto delay = unit->End - unit->Start;
-    --Infly;
-
-    NYdb::EStatus metricStatus = NYdb::EStatus::GENERIC_ERROR;
-    if (finish.ApplicationTimeout) {
-        ++ApplicationTimeout;
-        metricStatus = NYdb::EStatus::TIMEOUT;
-    } else if (finish.StatusLabel) {
-        metricStatus = SloYdbStatusFromString(*finish.StatusLabel);
-        ++Statuses[metricStatus];
-    }
-
-    if (!finish.ApplicationTimeout && finish.StatusLabel && *finish.StatusLabel == "SUCCESS") {
-        OkDelays.push_back(delay);
-    }
-
-    ScheduleMetricsPush([this, delay, metricStatus, unit]() {
-        MetricsPusher->PushRequestData({
-            .Delay = delay,
-            .Status = metricStatus,
-            .RetryAttempts = unit->RetryAttempts,
+            .Status = requestStatus,
+            .RetryAttempts = unit->RetryAttempts
         });
     });
 }
 
 void TStat::ReportMaxInfly() {
     std::lock_guard lock(Mutex);
+
     ++CountMaxInfly;
 }
 
@@ -147,20 +112,20 @@ void TStat::PrintStatistics(TStringBuilder& out) {
 
     TDuration timePassed;
     if (FinishTime < StartTime) {
+        // If we ask for current progress
         timePassed = TInstant::Now() - StartTime;
     } else {
         timePassed = FinishTime - StartTime;
     }
 
-    const std::uint64_t micros = timePassed.MicroSeconds();
-    const std::uint64_t rps = micros ? total * 1000000 / micros : 0;
+    std::uint64_t rps = total * 1000000 / timePassed.MicroSeconds();
     out << total << " requests total" << Endl
         << Statuses[NYdb::EStatus::SUCCESS] << " succeeded";
     if (total) {
         out << " (" << Statuses[NYdb::EStatus::SUCCESS] * 100 / total << "%)";
     }
-    for (const auto& [status, counter] : Statuses) {
-        out << Endl << counter << " replies with status " << SloYdbStatusToString(status) << Endl;
+    for (const auto&[status, counter] : Statuses) {
+        out << Endl << counter << " replies with status " << YdbStatusToString(status) << Endl;
     }
     out << Endl << CountMaxInfly << " failed due to max infly" << Endl
         << ApplicationTimeout << " application timeouts" << Endl

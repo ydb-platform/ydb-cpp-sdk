@@ -1,8 +1,7 @@
 #pragma once
 
+#include "statistics.h"
 #include "utils.h"
-
-#include <tests/slo_workloads/core/statistics.h>
 
 #include <ydb-cpp-sdk/client/table/table.h>
 

@@ -9,7 +9,7 @@ using namespace NYdb::NTable;
 TWriteJob::TWriteJob(const TCommonOptions& opts, std::uint32_t maxId)
     : TThreadJob(opts, "write")
     , Executor(opts, Stats, TExecutor::ModeNonBlocking)
-    , Generator(MakeGeneratorOptions(opts), maxId)
+    , Generator(opts, maxId)
 {}
 
 void TWriteJob::ShowProgress(TStringBuilder& report) {

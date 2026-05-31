@@ -1,8 +1,7 @@
 #pragma once
 
+#include "statistics.h"
 #include "utils.h"
-
-#include <tests/slo_workloads/core/statistics.h>
 
 #include <util/string/builder.h>
 #include <util/thread/pool.h>
@@ -49,7 +48,7 @@ private:
 
 class TJobGC {
 public:
-    explicit TJobGC(std::shared_ptr<TJobContainer>& jobs)
+    TJobGC(std::shared_ptr<TJobContainer>& jobs)
         : Jobs(jobs)
     {}
 

@@ -1,20 +1,20 @@
-#include "kv_common.h"
+#include "key_value.h"
 
 #include <ydb-cpp-sdk/client/table/table.h>
 
 using namespace NYdb;
 using namespace NYdb::NTable;
 
-int CreateTable(TDatabaseOptions& dbOptions) {
-    TTableClient client(dbOptions.Driver);
-    NYdb::NStatusHelpers::ThrowOnError(client.RetryOperationSync(
-        [prefix = dbOptions.Prefix](TSession session) {
+
+namespace {
+    void CreateTable(TTableClient& client, const std::string& prefix) {
+        NYdb::NStatusHelpers::ThrowOnError(client.RetryOperationSync([prefix](TSession session) {
             auto desc = TTableBuilder()
                 .AddNullableColumn("object_id_key", EPrimitiveType::Uint32)
                 .AddNullableColumn("object_id", EPrimitiveType::Uint32)
                 .AddNullableColumn("timestamp", EPrimitiveType::Uint64)
                 .AddNullableColumn("payload", EPrimitiveType::Utf8)
-                .SetPrimaryKeyColumns({"object_id_key", "object_id"})
+                .SetPrimaryKeyColumns({ "object_id_key", "object_id" })
                 .Build();
 
             auto tableSettings = TCreateTableSettings()
@@ -23,11 +23,17 @@ int CreateTable(TDatabaseOptions& dbOptions) {
                 .ClientTimeout(DefaultReactionTime + TDuration::Seconds(5));
 
             return session.CreateTable(
-                JoinPath(prefix, TableName),
-                std::move(desc),
-                std::move(tableSettings)
+                JoinPath(prefix, TableName)
+                , std::move(desc)
+                , std::move(tableSettings)
             ).ExtractValueSync();
         }));
+    }
+} //namespace
+
+int CreateTable(TDatabaseOptions& dbOptions) {
+    TTableClient client(dbOptions.Driver);
+    CreateTable(client, dbOptions.Prefix);
     Cout << "Table created." << Endl;
     return EXIT_SUCCESS;
 }

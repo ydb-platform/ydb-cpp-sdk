@@ -2,13 +2,19 @@
 
 #include "userver_utils.h"
 
-#include <tests/slo_workloads/common/key_value/kv_common.h>
+#include <tests/slo_workloads/utils/generator.h>
+#include <tests/slo_workloads/utils/statistics.h>
 
-#include <tests/slo_workloads/core/statistics.h>
+#include <ydb-cpp-sdk/client/value/value.h>
 
 #include <string>
-#include <atomic>
-#include <memory>
+
+extern const std::string TableName;
+
+NYdb::TValue BuildValueFromRecord(const TKeyValueRecordData& recordData);
+
+int CreateTable(TDatabaseOptions& dbOptions);
+int DropTable(TDatabaseOptions& dbOptions);
 
 // Creates a table and fills it with initial content (userver coroutine-based)
 int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv);
