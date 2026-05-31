@@ -20,9 +20,6 @@ extern const TDuration WaitTimeout;
 // Debug use only
 extern std::atomic<std::uint64_t> ReadPromises;
 
-using TFinalStatus = std::optional<NYdb::TStatus>;
-using TAsyncFinalStatus = NThreading::TFuture<TFinalStatus>;
-
 template<typename T>
 class TTracedPromise : public NThreading::TPromise<T> {
 public:
