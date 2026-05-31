@@ -22,6 +22,10 @@ target_link_libraries(slo-workload-core PUBLIC
   hdr_histogram_static
 )
 
+target_link_libraries(slo-workload-core PRIVATE
+  hdr_histogram_static
+)
+
 target_sources(slo-workload-core PRIVATE
   duration_meter.cpp
   rps.cpp
