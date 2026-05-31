@@ -11,6 +11,7 @@
 #include <util/string/printf.h>
 #include <util/system/getpid.h>
 
+#include <atomic>
 #include <csignal>
 
 using namespace NYdb;
@@ -20,7 +21,6 @@ namespace uydb = userver::ydb;
 
 namespace {
 
-// Shared stop flag for signal handling
 std::atomic<bool> ShouldStop{false};
 
 } // namespace
@@ -45,7 +45,6 @@ int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv) {
     Cout << TInstant::Now().ToRfc822StringLocal() << " Uploading initial content... do 'kill -USR1 " << GetPID()
         << "' for progress details or Ctrl/Cmd+C to interrupt" << Endl;
 
-    // Set up signal handlers
     ShouldStop.store(false);
     signal(SIGINT, [](int) {
         Cerr << TInstant::Now().ToRfc822StringLocal() << " SIGINT received. Stopping..." << Endl;
@@ -57,21 +56,17 @@ int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv) {
 
     auto& ydbClient = userver_slo::GetTableClient();
 
-    // Engine primitives (Semaphore, AsyncNoSpan) require a task context; run.cpp
-    // wraps its workload loop the same way.
     userver::engine::AsyncNoSpan([&]() {
         TStat stats(
             opts.DontPushMetrics ? std::nullopt : std::make_optional(opts.MetricsPushUrl),
-            "generate",
-            MakeNativeSloOtelResourceAttributes(),
-            NativeSloMeterSchemaVersion()
+            "generate"
         );
         stats.Start();
 
-        TPackGenerator<TKeyValueGenerator, TKeyValueRecordData, NYdb::TValue> packGenerator(
-            MakeGeneratorOptions(opts),
+        TPackGenerator<TKeyValueGenerator, TKeyValueRecordData> packGenerator(
+            opts,
             createOptions.PackSize,
-            [](const TKeyValueRecordData& recordData) { return BuildValueFromRecord(recordData); },
+            &BuildValueFromRecord,
             createOptions.Count,
             maxId
         );
@@ -117,19 +112,13 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 
                         ydbClient.ExecuteDataQuery(settings, uydb::Query{query}, std::move(params));
 
-                        TSloRequestFinish finish;
-                        finish.StatusLabel = "SUCCESS";
-                        stats.FinishRequest(stat, finish);
+                        stats.FinishRequest(stat, TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues()));
                         succeeded.fetch_add(1);
                     } catch (const uydb::YdbResponseError& e) {
-                        TSloRequestFinish finish;
-                        finish.StatusLabel = YdbStatusToString(e.GetStatus().GetStatus());
-                        stats.FinishRequest(stat, finish);
+                        stats.FinishRequest(stat, TStatus(e.GetStatus().GetStatus(), NYdb::NIssue::TIssues()));
                         failed.fetch_add(1);
-                    } catch (const std::exception& e) {
-                        TSloRequestFinish finish;
-                        finish.StatusLabel = "UNKNOWN_ERROR";
-                        stats.FinishRequest(stat, finish);
+                    } catch (const std::exception&) {
+                        stats.FinishRequest(stat, TStatus(EStatus::CLIENT_INTERNAL_ERROR, NYdb::NIssue::TIssues()));
                         failed.fetch_add(1);
                     }
                     semaphore.unlock_shared();

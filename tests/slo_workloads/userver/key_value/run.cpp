@@ -2,11 +2,7 @@
 #include "userver_table_client.h"
 
 #include <userver/engine/async.hpp>
-#include <userver/engine/deadline.hpp>
-#include <userver/engine/future_status.hpp>
 #include <userver/engine/semaphore.hpp>
-#include <userver/engine/sleep.hpp>
-#include <userver/engine/wait_any.hpp>
 #include <userver/ydb/exceptions.hpp>
 #include <userver/ydb/query.hpp>
 #include <userver/ydb/settings.hpp>
@@ -15,8 +11,8 @@
 #include <util/string/printf.h>
 #include <util/system/getpid.h>
 
+#include <atomic>
 #include <csignal>
-#include <functional>
 
 using namespace NYdb;
 using namespace NYdb::NTable;
@@ -25,10 +21,8 @@ namespace uydb = userver::ydb;
 
 namespace {
 
-// Shared stop flag for signal handling
 std::atomic<bool> ShouldStop{false};
 
-// Show progress callback
 struct TProgressReporter {
     TStat* ReadStats = nullptr;
     TStat* WriteStats = nullptr;
@@ -61,125 +55,25 @@ struct TProgressReporter {
 
 TProgressReporter* GlobalReporter = nullptr;
 
-// Execute a query with optional application timeout and preventive request
-void ExecuteWithTimeout(
+void ExecuteQuery(
     uydb::TableClient& client,
     const uydb::OperationSettings& settings,
     const uydb::Query& query,
-    const std::function<uydb::PreparedArgsBuilder()>& makeParams,
+    uydb::PreparedArgsBuilder params,
     TStat& stats,
     std::atomic<std::uint64_t>& succeeded,
-    std::atomic<std::uint64_t>& failed,
-    bool useApplicationTimeout,
-    bool sendPreventiveRequest,
-    TDuration reactionTime)
+    std::atomic<std::uint64_t>& failed)
 {
     auto stat = stats.StartRequest();
-
-    auto doQuery = [&client, &settings, &query](uydb::PreparedArgsBuilder queryParams) {
-        client.ExecuteDataQuery(settings, query, std::move(queryParams));
-    };
-
     try {
-        if (!useApplicationTimeout && !sendPreventiveRequest) {
-            doQuery(makeParams());
-
-            TSloRequestFinish finish;
-            finish.StatusLabel = "SUCCESS";
-            stats.FinishRequest(stat, finish);
-            succeeded.fetch_add(1);
-            return;
-        }
-
-        if (useApplicationTimeout && !sendPreventiveRequest) {
-            auto task = userver::engine::AsyncNoSpan(
-                [&doQuery, &makeParams]() {
-                    doQuery(makeParams());
-                }
-            );
-
-            if (task.WaitNothrowUntil(userver::engine::Deadline::FromDuration(
-                    std::chrono::milliseconds(reactionTime.MilliSeconds())))
-                == userver::engine::FutureStatus::kReady) {
-                task.Get(); // may throw
-                TSloRequestFinish finish;
-                finish.StatusLabel = "SUCCESS";
-                stats.FinishRequest(stat, finish);
-                succeeded.fetch_add(1);
-            } else {
-                task.RequestCancel();
-                TSloRequestFinish finish;
-                finish.ApplicationTimeout = true;
-                stats.FinishRequest(stat, finish);
-                failed.fetch_add(1);
-            }
-            return;
-        }
-
-        if (sendPreventiveRequest) {
-            auto task1 = userver::engine::AsyncNoSpan(
-                [&doQuery, &makeParams]() {
-                    doQuery(makeParams());
-                }
-            );
-
-            userver::engine::SleepFor(
-                std::chrono::milliseconds(reactionTime.MilliSeconds() / 2));
-
-            if (task1.IsFinished()) {
-                task1.Get(); // may throw
-                TSloRequestFinish finish;
-                finish.StatusLabel = "SUCCESS";
-                stats.FinishRequest(stat, finish);
-                succeeded.fetch_add(1);
-                return;
-            }
-
-            auto task2 = userver::engine::AsyncNoSpan(
-                [&doQuery, &makeParams]() {
-                    doQuery(makeParams());
-                }
-            );
-
-            auto idx = userver::engine::WaitAny(task1, task2);
-
-            if (idx.has_value()) {
-                try {
-                    if (*idx == 0) {
-                        task1.Get();
-                    } else {
-                        task2.Get();
-                    }
-                    TSloRequestFinish finish;
-                    finish.StatusLabel = "SUCCESS";
-                    stats.FinishRequest(stat, finish);
-                    succeeded.fetch_add(1);
-                } catch (const uydb::YdbResponseError& e) {
-                    TSloRequestFinish finish;
-                    finish.StatusLabel = YdbStatusToString(e.GetStatus().GetStatus());
-                    stats.FinishRequest(stat, finish);
-                    failed.fetch_add(1);
-                }
-            } else if (useApplicationTimeout) {
-                TSloRequestFinish finish;
-                finish.ApplicationTimeout = true;
-                stats.FinishRequest(stat, finish);
-                failed.fetch_add(1);
-            }
-            // Cancel remaining tasks
-            task1.RequestCancel();
-            task2.RequestCancel();
-            return;
-        }
+        client.ExecuteDataQuery(settings, query, std::move(params));
+        stats.FinishRequest(stat, TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues()));
+        succeeded.fetch_add(1);
     } catch (const uydb::YdbResponseError& e) {
-        TSloRequestFinish finish;
-        finish.StatusLabel = YdbStatusToString(e.GetStatus().GetStatus());
-        stats.FinishRequest(stat, finish);
+        stats.FinishRequest(stat, TStatus(e.GetStatus().GetStatus(), NYdb::NIssue::TIssues()));
         failed.fetch_add(1);
-    } catch (const std::exception& e) {
-        TSloRequestFinish finish;
-        finish.StatusLabel = "UNKNOWN_ERROR";
-        stats.FinishRequest(stat, finish);
+    } catch (const std::exception&) {
+        stats.FinishRequest(stat, TStatus(EStatus::CLIENT_INTERNAL_ERROR, NYdb::NIssue::TIssues()));
         failed.fetch_add(1);
     }
 }
@@ -200,7 +94,6 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
 
     auto& ydbClient = userver_slo::GetTableClient();
 
-    // Stats objects
     std::unique_ptr<TStat> readStats;
     std::unique_ptr<TStat> writeStats;
 
@@ -213,21 +106,16 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
     if (!runOptions.DontRunA) {
         readStats = std::make_unique<TStat>(
             runOptions.CommonOptions.DontPushMetrics ? std::nullopt : std::make_optional(runOptions.CommonOptions.MetricsPushUrl),
-            "read",
-            MakeNativeSloOtelResourceAttributes(),
-            NativeSloMeterSchemaVersion()
+            "read"
         );
     }
     if (!runOptions.DontRunB) {
         writeStats = std::make_unique<TStat>(
             runOptions.CommonOptions.DontPushMetrics ? std::nullopt : std::make_optional(runOptions.CommonOptions.MetricsPushUrl),
-            "write",
-            MakeNativeSloOtelResourceAttributes(),
-            NativeSloMeterSchemaVersion()
+            "write"
         );
     }
 
-    // Set up progress reporter
     TProgressReporter reporter;
     reporter.ReadStats = readStats.get();
     reporter.WriteStats = writeStats.get();
@@ -238,7 +126,6 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
     reporter.WriteGenerated = &writeGenerated;
     GlobalReporter = &reporter;
 
-    // Set up signal handlers
     ShouldStop.store(false);
     signal(SIGUSR1, [](int) {
         Cout << TInstant::Now().ToRfc822StringLocal() << " SIGUSR1 handle" << Endl;
@@ -261,14 +148,11 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
 
     std::vector<userver::engine::TaskWithResult<void>> jobTasks;
 
-    // Thread A: Read workload
     if (!runOptions.DontRunA) {
         auto readRps = runOptions.Read_rps;
         auto readTimeout = runOptions.ReadTimeout;
-        auto useAppTimeout = runOptions.CommonOptions.UseApplicationTimeout;
-        auto sendPreventive = runOptions.CommonOptions.SendPreventiveRequest;
         auto maxInfly = runOptions.CommonOptions.MaxInfly;
-        auto objectIdRange = static_cast<std::uint32_t>(maxId * 1.25); // 20% no-result reads
+        auto objectIdRange = static_cast<std::uint32_t>(maxId * 1.25);
 
         const TString readQuery = Sprintf(R"(
 --!syntax_v1
@@ -283,7 +167,7 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
 
         jobTasks.push_back(userver::engine::AsyncNoSpan(
             [&ydbClient, &readStats, &readSucceeded, &readFailed,
-             readRps, readTimeout, useAppTimeout, sendPreventive, maxInfly,
+             readRps, readTimeout, maxInfly,
              objectIdRange, readQuery, deadline]() {
 
                 readStats->Start();
@@ -305,31 +189,25 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
 
                     tasks.push_back(userver::engine::AsyncNoSpan(
                         [&ydbClient, &semaphore, &readStats, &readSucceeded, &readFailed,
-                         readTimeout, useAppTimeout, sendPreventive,
-                         readQuery, objectIdKey, idToSelect]() {
+                         readTimeout, readQuery, objectIdKey, idToSelect]() {
 
                             uydb::OperationSettings settings;
                             settings.client_timeout_ms = std::chrono::milliseconds(readTimeout.MilliSeconds());
 
-                            const auto makeParams = [&ydbClient, objectIdKey, idToSelect]() {
-                                auto builder = ydbClient.GetBuilder();
-                                builder.Add("$object_id_key", objectIdKey);
-                                builder.Add("$object_id", idToSelect);
-                                return builder;
-                            };
+                            auto builder = ydbClient.GetBuilder();
+                            builder.Add("$object_id_key", objectIdKey);
+                            builder.Add("$object_id", idToSelect);
 
-                            ExecuteWithTimeout(
+                            ExecuteQuery(
                                 ydbClient, settings, uydb::Query{readQuery},
-                                makeParams, *readStats,
-                                readSucceeded, readFailed,
-                                useAppTimeout, sendPreventive, readTimeout);
+                                std::move(builder), *readStats,
+                                readSucceeded, readFailed);
 
                             semaphore.unlock_shared();
                         }
                     ));
                 }
 
-                // Wait for all read tasks
                 for (auto& task : tasks) {
                     task.Wait();
                 }
@@ -339,15 +217,12 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
         ));
     }
 
-    // Thread B: Write workload
     if (!runOptions.DontRunB) {
         auto writeRps = runOptions.Write_rps;
         auto writeTimeout = runOptions.WriteTimeout;
-        auto useAppTimeout = runOptions.CommonOptions.UseApplicationTimeout;
-        auto sendPreventive = runOptions.CommonOptions.SendPreventiveRequest;
         auto maxInfly = runOptions.CommonOptions.MaxInfly;
-        auto minLength = runOptions.CommonOptions.MinLength;
-        auto maxLength = runOptions.CommonOptions.MaxLength;
+
+        const TCommonOptions writeCommon = runOptions.CommonOptions;
 
         const TString writeQuery = Sprintf(R"(
 --!syntax_v1
@@ -366,17 +241,14 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 
         jobTasks.push_back(userver::engine::AsyncNoSpan(
             [&ydbClient, &writeStats, &writeSucceeded, &writeFailed, &writeGenerated,
-             writeRps, writeTimeout, useAppTimeout, sendPreventive, maxInfly,
-             minLength, maxLength, maxId, writeQuery, deadline]() {
+             writeRps, writeTimeout, maxInfly,
+             writeCommon, maxId, writeQuery, deadline]() {
 
                 writeStats->Start();
                 TRpsProvider rpsProvider(writeRps);
                 rpsProvider.Reset();
 
-                TSloGeneratorOptions genOpts;
-                genOpts.MinLength = minLength;
-                genOpts.MaxLength = maxLength;
-                TKeyValueGenerator generator(genOpts, maxId);
+                TKeyValueGenerator generator(writeCommon, maxId);
 
                 userver::engine::Semaphore semaphore{
                     static_cast<userver::engine::Semaphore::Counter>(maxInfly)};
@@ -393,28 +265,23 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 
                     tasks.push_back(userver::engine::AsyncNoSpan(
                         [&ydbClient, &semaphore, &writeStats, &writeSucceeded, &writeFailed,
-                         writeTimeout, useAppTimeout, sendPreventive,
-                         writeQuery, value]() {
+                         writeTimeout, writeQuery, value]() {
 
                             uydb::OperationSettings settings;
                             settings.client_timeout_ms = std::chrono::milliseconds(writeTimeout.MilliSeconds());
 
-                            const auto makeParams = [value]() {
-                                return userver_slo::PackValuesToPreparedArgs({value});
-                            };
+                            auto params = userver_slo::PackValuesToPreparedArgs({value});
 
-                            ExecuteWithTimeout(
+                            ExecuteQuery(
                                 ydbClient, settings, uydb::Query{writeQuery},
-                                makeParams, *writeStats,
-                                writeSucceeded, writeFailed,
-                                useAppTimeout, sendPreventive, writeTimeout);
+                                std::move(params), *writeStats,
+                                writeSucceeded, writeFailed);
 
                             semaphore.unlock_shared();
                         }
                     ));
                 }
 
-                // Wait for all write tasks
                 for (auto& task : tasks) {
                     task.Wait();
                 }
@@ -424,7 +291,6 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
         ));
     }
 
-    // Wait for all job tasks (read + write loops)
     for (auto& task : jobTasks) {
         task.Wait();
     }

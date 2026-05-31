@@ -46,8 +46,3 @@ ydb/core/
 ydb/apps/
 ydb/services/
 ydb/tools/
-
-# Local orphan submodule checkouts (untracked; not used by SLO Docker builds)
-third_party/aklomp-base64/
-third_party/jwt-cpp/
-third_party/opentelemetry-cpp/

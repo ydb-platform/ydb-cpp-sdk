@@ -21,37 +21,6 @@
 using namespace NLastGetopt;
 using namespace NYdb;
 
-namespace {
-
-bool ParseToken(std::string& token, std::string& tokenFile) {
-    if (!tokenFile.empty()) {
-        if (!token.empty()) {
-            Cerr << "Both token and token_file provided. Choose one." << Endl;
-        } else {
-            TFsPath path(tokenFile);
-            if (path.Exists()) {
-                token = Strip(TUnbufferedFileInput(path).ReadAll());
-                return true;
-            }
-            Cerr << "Wrong path provided for token_file." << Endl;
-        }
-    } else if (!token.empty()) {
-        return true;
-    } else {
-        token = GetEnv("YDB_TOKEN");
-        return true;
-    }
-    return false;
-}
-
-void StartStatCollecting([[maybe_unused]] TDriver& driver, const std::string& statConfigFile) {
-    if (statConfigFile.empty()) {
-        return;
-    }
-}
-
-} // namespace
-
 // Override DoMain to wrap command dispatch in RunStandalone.
 // The native DoMain (from slo-utils-base) runs commands directly in the calling
 // thread. The userver version needs the coroutine engine running for

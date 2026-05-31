@@ -8,12 +8,7 @@ const std::string LogFileName = "benchmark.log";
 TThreadJob::TThreadJob(const TCommonOptions& opts, const std::string& operationType)
     : RpsProvider(opts.Rps)
     , Prefix(opts.DatabaseOptions.Prefix)
-    , Stats(
-          opts.DontPushMetrics ? std::nullopt : std::make_optional(opts.MetricsPushUrl),
-          operationType,
-          MakeNativeSloOtelResourceAttributes(),
-          NativeSloMeterSchemaVersion()
-      )
+    , Stats(opts.DontPushMetrics ? std::nullopt : std::make_optional(opts.MetricsPushUrl), operationType)
     , StopOnError(opts.StopOnError)
     , MaxDelay(opts.ReactionTime)
 {
