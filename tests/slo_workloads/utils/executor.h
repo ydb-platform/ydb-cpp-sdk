@@ -53,7 +53,8 @@ public:
     TInsistentClient(const TCommonOptions& opts);
     ~TInsistentClient();
     void Report(TStringBuilder& out) const;
-    TAsyncFinalStatus ExecuteWithRetry(const NYdb::NTable::TTableClient::TOperationFunc& operation);
+    TAsyncFinalStatus ExecuteWithRetry(const NYdb::NTable::TTableClient::TOperationFunc& operation,
+        const std::shared_ptr<TStatUnit>& stat);
     std::uint64_t GetActiveSessions() const;
 
 private:
