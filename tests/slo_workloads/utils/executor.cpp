@@ -34,7 +34,9 @@ std::uint64_t TInsistentClient::GetActiveSessions() const {
     return static_cast<std::uint64_t>(sessions);
 }
 
-TAsyncFinalStatus TInsistentClient::ExecuteWithRetry(const NYdb::NTable::TTableClient::TOperationFunc& operation) {
+TAsyncFinalStatus TInsistentClient::ExecuteWithRetry(const NYdb::NTable::TTableClient::TOperationFunc& operation,
+    const std::shared_ptr<TStatUnit>& stat)
+{
     TTracedPromise<TFinalStatus> promise = TTracedPromise<TFinalStatus>(
         NThreading::NewPromise<TFinalStatus>(),
         &ExecutorPromises
@@ -46,7 +48,11 @@ TAsyncFinalStatus TInsistentClient::ExecuteWithRetry(const NYdb::NTable::TTableC
     settings.MaxRetries(ClientMaxRetries);
     settings.GetSessionClientTimeout(SessionTimeout);
 
-    auto future = Client.RetryOperation(operation, settings);
+    auto wrappedOperation = [operation, stat](NYdb::NTable::TSession session) {
+        stat->IncRetryAttempts();
+        return operation(session);
+    };
+    auto future = Client.RetryOperation(wrappedOperation, settings);
     future.Subscribe([promise, this](const NYdb::TAsyncStatus& f) mutable {
         Y_ABORT_UNLESS(f.HasValue());
         const auto& status = f.GetValue();
@@ -146,10 +152,7 @@ bool TExecutor::Execute(const NYdb::NTable::TTableClient::TOperationFunc& func) 
 
         auto stat = Stats.StartRequest();
 
-        auto future = InsistentClient.ExecuteWithRetry([func, stat](NYdb::NTable::TSession session) {
-            auto result = func(session);
-            return result;
-        });
+        auto future = InsistentClient.ExecuteWithRetry(func, stat);
 
         future.Subscribe([this, stat, SemaphoreWrapper](const TAsyncFinalStatus& future) mutable {
             Y_ABORT_UNLESS(future.HasValue());
