@@ -13,50 +13,6 @@
 using namespace NLastGetopt;
 using namespace NYdb;
 
-namespace {
-
-bool ParseToken(std::string& token, std::string& tokenFile) {
-    if (!tokenFile.empty()) {
-        if (!token.empty()) {
-            Cerr << "Both token and token_file provided. Choose one." << Endl;
-        } else {
-            TFsPath path(tokenFile);
-            if (path.Exists()) {
-                token = Strip(TUnbufferedFileInput(path).ReadAll());
-                return true;
-            }
-            Cerr << "Wrong path provided for token_file." << Endl;
-        }
-    } else if (!token.empty()) {
-        return true;
-    } else {
-        token = GetEnv("YDB_TOKEN");
-        return true;
-    }
-    return false;
-}
-
-void StartStatCollecting([[maybe_unused]] TDriver& driver, const std::string& statConfigFile) {
-    if (statConfigFile.empty()) {
-        return;
-    }
-}
-
-std::string DefaultConnectionStringFromEnv() {
-    std::string cs = GetEnv("YDB_CONNECTION_STRING");
-    if (!cs.empty()) {
-        return cs;
-    }
-    std::string endpoint = GetEnv("YDB_ENDPOINT");
-    std::string database = GetEnv("YDB_DATABASE");
-    if (!endpoint.empty() && !database.empty()) {
-        return TStringBuilder() << endpoint << "/?database=" << database;
-    }
-    return {};
-}
-
-} // namespace
-
 int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TCleanupCommand cleanup) {
     TOpts opts = TOpts::Default();
 
@@ -162,7 +118,7 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
     StartStatCollecting(driver, statConfigFile);
 
     TDatabaseOptions dbOptions{driver, prefix};
-    int result;
+    int result = EXIT_FAILURE;
     try {
         switch (command) {
             case ECommandType::Create:

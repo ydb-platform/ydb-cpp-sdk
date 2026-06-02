@@ -3,6 +3,7 @@
 
 #include <userver/engine/async.hpp>
 #include <userver/engine/semaphore.hpp>
+#include <userver/engine/sleep.hpp>
 #include <userver/ydb/exceptions.hpp>
 #include <userver/ydb/query.hpp>
 #include <userver/ydb/settings.hpp>
@@ -22,6 +23,51 @@ namespace uydb = userver::ydb;
 namespace {
 
 std::atomic<bool> ShouldStop{false};
+std::atomic<bool> ShowProgressRequested{false};
+
+class TUserverRpsProvider {
+public:
+    explicit TUserverRpsProvider(std::uint64_t rps)
+        : Rps_(rps)
+        , Period_(Max(TDuration::MilliSeconds(10), TDuration::MicroSeconds(1000000 / Rps_)))
+    {}
+
+    void Reset() { ProcessedTime_ = TInstant::Now() - Period_ - Period_; }
+
+    void Use() {
+        if (Allowed_) {
+            --Allowed_;
+            return;
+        }
+        while (!TryUse()) {
+            userver::engine::SleepFor(std::chrono::microseconds(Period_.MicroSeconds()));
+        }
+    }
+
+private:
+    bool TryUse() {
+        const TInstant now = TInstant::Now();
+        Allowed_ = Rps_ * TDuration(now - ProcessedTime_).MicroSeconds() / 1000000;
+        if (Allowed_) {
+            ProcessedTime_ += TDuration::MicroSeconds(1000000 * Allowed_ / Rps_);
+            --Allowed_;
+            return true;
+        }
+        return false;
+    }
+
+    std::uint64_t Rps_;
+    TDuration Period_;
+    TInstant ProcessedTime_;
+    std::uint32_t Allowed_ = 0;
+};
+
+void DrainCompletedTasks(std::vector<userver::engine::TaskWithResult<void>>& tasks) {
+    for (auto& task : tasks) {
+        task.Wait();
+    }
+    tasks.clear();
+}
 
 struct TProgressReporter {
     TStat* ReadStats = nullptr;
@@ -54,6 +100,15 @@ struct TProgressReporter {
 };
 
 TProgressReporter* GlobalReporter = nullptr;
+
+void PollSignals() {
+    if (ShowProgressRequested.exchange(false, std::memory_order_relaxed)) {
+        Cout << TInstant::Now().ToRfc822StringLocal() << " SIGUSR1 handle" << Endl;
+        if (GlobalReporter) {
+            GlobalReporter->ShowProgress();
+        }
+    }
+}
 
 void ExecuteQuery(
     uydb::TableClient& client,
@@ -127,16 +182,9 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
     GlobalReporter = &reporter;
 
     ShouldStop.store(false);
-    signal(SIGUSR1, [](int) {
-        Cout << TInstant::Now().ToRfc822StringLocal() << " SIGUSR1 handle" << Endl;
-        if (GlobalReporter) {
-            GlobalReporter->ShowProgress();
-        }
-    });
-    signal(SIGINT, [](int) {
-        Cerr << TInstant::Now().ToRfc822StringLocal() << " SIGINT received. Stopping..." << Endl;
-        ShouldStop.store(true);
-    });
+    ShowProgressRequested.store(false);
+    signal(SIGUSR1, [](int) { ShowProgressRequested.store(true, std::memory_order_relaxed); });
+    signal(SIGINT, [](int) { ShouldStop.store(true, std::memory_order_relaxed); });
 
     TInstant start = TInstant::Now();
     TInstant deadline = start + TDuration::Seconds(runOptions.CommonOptions.SecondsToRun);
@@ -171,7 +219,7 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
              objectIdRange, readQuery, deadline]() {
 
                 readStats->Start();
-                TRpsProvider rpsProvider(readRps);
+                TUserverRpsProvider rpsProvider(readRps);
                 rpsProvider.Reset();
 
                 userver::engine::Semaphore semaphore{
@@ -180,6 +228,8 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
                 std::vector<userver::engine::TaskWithResult<void>> tasks;
 
                 while (!ShouldStop.load() && TInstant::Now() < deadline) {
+                    PollSignals();
+
                     std::uint32_t idToSelect = RandomNumber<std::uint32_t>() % objectIdRange;
                     const std::uint32_t objectIdKey = GetHash(idToSelect);
 
@@ -206,6 +256,10 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
                             semaphore.unlock_shared();
                         }
                     ));
+
+                    if (tasks.size() >= static_cast<size_t>(maxInfly)) {
+                        DrainCompletedTasks(tasks);
+                    }
                 }
 
                 for (auto& task : tasks) {
@@ -245,7 +299,7 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
              writeCommon, maxId, writeQuery, deadline]() {
 
                 writeStats->Start();
-                TRpsProvider rpsProvider(writeRps);
+                TUserverRpsProvider rpsProvider(writeRps);
                 rpsProvider.Reset();
 
                 TKeyValueGenerator generator(writeCommon, maxId);
@@ -256,6 +310,8 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
                 std::vector<userver::engine::TaskWithResult<void>> tasks;
 
                 while (!ShouldStop.load() && TInstant::Now() < deadline) {
+                    PollSignals();
+
                     const auto value = BuildValueFromRecord(generator.Get());
                     writeGenerated.fetch_add(1);
 
@@ -280,6 +336,10 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
                             semaphore.unlock_shared();
                         }
                     ));
+
+                    if (tasks.size() >= static_cast<size_t>(maxInfly)) {
+                        DrainCompletedTasks(tasks);
+                    }
                 }
 
                 for (auto& task : tasks) {
@@ -293,6 +353,10 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 
     for (auto& task : jobTasks) {
         task.Wait();
+    }
+
+    if (ShouldStop.load()) {
+        Cerr << TInstant::Now().ToRfc822StringLocal() << " SIGINT received. Stopping..." << Endl;
     }
 
     Cout << "All jobs finished: " << TInstant::Now().ToRfc822StringLocal() << Endl;

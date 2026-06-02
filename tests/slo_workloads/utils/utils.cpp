@@ -101,6 +101,46 @@ std::string GetDatabase(const std::string& connectionString) {
     return {};
 }
 
+std::string DefaultConnectionStringFromEnv() {
+    std::string cs = GetEnv("YDB_CONNECTION_STRING");
+    if (!cs.empty()) {
+        return cs;
+    }
+    std::string endpoint = GetEnv("YDB_ENDPOINT");
+    std::string database = GetEnv("YDB_DATABASE");
+    if (!endpoint.empty() && !database.empty()) {
+        return TStringBuilder() << endpoint << "/?database=" << database;
+    }
+    return {};
+}
+
+bool ParseToken(std::string& token, std::string& tokenFile) {
+    if (!tokenFile.empty()) {
+        if (!token.empty()) {
+            Cerr << "Both token and token_file provided. Choose one." << Endl;
+        } else {
+            TFsPath path(tokenFile);
+            if (path.Exists()) {
+                token = Strip(TUnbufferedFileInput(path).ReadAll());
+                return true;
+            }
+            Cerr << "Wrong path provided for token_file." << Endl;
+        }
+    } else if (!token.empty()) {
+        return true;
+    } else {
+        token = GetEnv("YDB_TOKEN");
+        return true;
+    }
+    return false;
+}
+
+void StartStatCollecting([[maybe_unused]] TDriver& driver, const std::string& statConfigFile) {
+    if (statConfigFile.empty()) {
+        return;
+    }
+}
+
 std::string GetCmdList() {
     return "create, run, cleanup (omit to run create -> run -> cleanup in one process)";
 }
