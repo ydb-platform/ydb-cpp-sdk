@@ -132,7 +132,7 @@ public:
     }
 
     void Record(const std::string& operationType, const TRequestData& data) {
-        const bool success = data.StatusLabel == "SUCCESS";
+        const bool success = data.Status == NYdb::EStatus::SUCCESS;
         auto& series = GetOrCreateSeries(operationType);
 
         OperationsTotal_->Add(uint64_t{1},
