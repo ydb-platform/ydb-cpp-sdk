@@ -46,10 +46,7 @@ int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv) {
         << "' for progress details or Ctrl/Cmd+C to interrupt" << Endl;
 
     ShouldStop.store(false);
-    signal(SIGINT, [](int) {
-        Cerr << TInstant::Now().ToRfc822StringLocal() << " SIGINT received. Stopping..." << Endl;
-        ShouldStop.store(true);
-    });
+    signal(SIGINT, [](int) { ShouldStop.store(true, std::memory_order_relaxed); });
 
     const auto& opts = createOptions.CommonOptions;
     const std::string& prefix = opts.DatabaseOptions.Prefix;

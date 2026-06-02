@@ -136,6 +136,10 @@ TTableStats GetTableStats(TDatabaseOptions& dbOptions, const std::string& tableN
 
 std::string GetDatabase(const std::string& connectionString);
 
+std::string DefaultConnectionStringFromEnv();
+bool ParseToken(std::string& token, std::string& tokenFile);
+void StartStatCollecting(NYdb::TDriver& driver, const std::string& statConfigFile);
+
 std::map<std::string, std::string> MakeNativeSloOtelResourceAttributes();
 std::string NativeSloMeterSchemaVersion();
 

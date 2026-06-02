@@ -75,11 +75,13 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
 
     ECommandType command = (argc > 0) ? ParseCommand(*argv) : ECommandType::All;
     if (command == ECommandType::Unknown) {
-        if (argv[0][0] == '-') {
+        if (argc > 0 && argv[0][0] == '-') {
             command = ECommandType::All;
-        } else {
+        } else if (argc > 0) {
             Cerr << "Unknown command '" << *argv << "'" << Endl;
             return EXIT_FAILURE;
+        } else {
+            command = ECommandType::All;
         }
     }
 
