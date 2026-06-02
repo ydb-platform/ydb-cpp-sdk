@@ -1,12 +1,5 @@
 #pragma once
 
-#include <tests/slo_workloads/core/constants.h>
-#include <tests/slo_workloads/core/duration_meter.h>
-#include <tests/slo_workloads/core/records.h>
-#include <tests/slo_workloads/core/rps.h>
-#include <tests/slo_workloads/core/shard.h>
-#include <tests/slo_workloads/core/slo_text_utils.h>
-
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 #include <ydb-cpp-sdk/client/value/value.h>
@@ -15,9 +8,32 @@
 
 #include <util/random/random.h>
 
-#include <functional>
 #include <map>
-#include <string>
+
+extern const TDuration DefaultReactionTime;
+extern const TDuration ReactionTimeDelay;
+extern const std::uint64_t PartitionsCount;
+
+struct TRecordData {
+    std::uint32_t ObjectId;
+    std::uint64_t Timestamp;
+    std::string Guid;
+    std::string Payload;
+};
+
+struct TKeyValueRecordData {
+    std::uint32_t ObjectId;
+    std::uint64_t Timestamp;
+    std::string Payload;
+};
+
+struct TDurationMeter {
+    TDurationMeter(TDuration& value);
+    ~TDurationMeter();
+
+    TDuration& Value;
+    TInstant StartTime;
+};
 
 struct TDatabaseOptions {
     NYdb::TDriver& Driver;
@@ -61,13 +77,22 @@ struct TRunOptions {
     TDuration WriteTimeout = DefaultReactionTime;
 };
 
-using TCreateCommand = std::function<int(TDatabaseOptions&, int, char**)>;
-using TRunCommand = std::function<int(TDatabaseOptions&, int, char**)>;
-using TCleanupCommand = std::function<int(TDatabaseOptions&, int)>;
+class TRpsProvider {
+public:
+    TRpsProvider(std::uint64_t rps);
+    void Reset();
+    void Use();
+    bool TryUse();
+    std::uint64_t GetRps() const;
 
-int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TCleanupCommand cleanup);
-
-std::string GetCmdList();
+private:
+    std::uint64_t Rps;
+    TDuration Period;
+    TInstant ProcessedTime;
+    TInstant LastCheck;
+    std::uint32_t Allowed = 0;
+    TInstant StartTime;
+};
 
 enum class ECommandType {
     Unknown,
@@ -77,75 +102,42 @@ enum class ECommandType {
     All,  // No free-arg passed: execute Create -> Run -> Cleanup in one process
 };
 
-ECommandType ParseCommand(const char* cmd);
-
-inline std::string JoinPath(const std::string& prefix, const std::string& path) {
-    return SloJoinPath(prefix, path);
-}
-
-inline std::string GetDatabase(const std::string& connectionString) {
-    return SloGetDatabaseFromConnectionString(connectionString);
-}
-
-inline std::string GenerateRandomString(std::uint32_t minLength, std::uint32_t maxLength) {
-    return SloGenerateRandomString(minLength, maxLength);
-}
-
-inline std::uint32_t GetSpecialId(std::uint32_t id) {
-    return SloGetSpecialId(id);
-}
-
-inline std::uint32_t GetShardSpecialId(std::uint64_t shardNo) {
-    return SloGetShardSpecialId(shardNo);
-}
-
-inline std::uint32_t GetHash(std::uint32_t value) {
-    return SloGetHash(value);
-}
-
-inline TSloGeneratorOptions MakeGeneratorOptions(const TCommonOptions& opts) {
-    TSloGeneratorOptions o;
-    o.MinLength = opts.MinLength;
-    o.MaxLength = opts.MaxLength;
-    return o;
-}
-
-std::map<std::string, std::string> MakeNativeSloOtelResourceAttributes();
-std::string NativeSloMeterSchemaVersion();
-
-inline void RetryBackoff(
-    NYdb::NTable::TTableClient& client,
-    std::uint32_t retries,
-    const NYdb::NTable::TTableClient::TOperationSyncFunc& func
-) {
-    TDuration delay = TDuration::Seconds(5);
-    while (retries) {
-        NYdb::TStatus status = client.RetryOperationSync(func);
-        if (status.IsSuccess()) {
-            return;
-        }
-        --retries;
-        if (!retries) {
-            Cerr << "Create request failed after all retries." << Endl;
-            Cerr << status << Endl;
-            NYdb::NStatusHelpers::ThrowOnError(status);
-        }
-        Cerr << "Create request failed. Sleeping for " << delay << Endl;
-        Sleep(delay);
-        delay *= 2;
-    }
-}
-
-NYdb::TParams PackValuesToParamsAsList(const std::vector<NYdb::TValue>& items, const std::string name = "$items");
-
-std::string YdbStatusToString(NYdb::EStatus status);
-
 struct TTableStats {
     std::uint64_t RowCount = 0;
     std::uint32_t MaxId = 0;
 };
 
+using TCreateCommand = std::function<int(TDatabaseOptions&, int, char**)>;
+using TRunCommand = std::function<int(TDatabaseOptions&, int, char**)>;
+using TCleanupCommand = std::function<int(TDatabaseOptions&, int)>;
+
+int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TCleanupCommand cleanup);
+
+std::string GetCmdList();
+ECommandType ParseCommand(const char* cmd);
+
+std::string JoinPath(const std::string& prefix, const std::string& path);
+
+std::string GenerateRandomString(std::uint32_t minLength, std::uint32_t maxLength);
+
+NYdb::TParams PackValuesToParamsAsList(const std::vector<NYdb::TValue>& items, const std::string name = "$items");
+
+// Returns special object_id within the same shard as given id
+std::uint32_t GetSpecialId(std::uint32_t id);
+
+// Returns special object_id for given shard
+std::uint32_t GetShardSpecialId(std::uint64_t shardNo);
+
+std::uint32_t GetHash(std::uint32_t value);
+
+std::string YdbStatusToString(NYdb::EStatus status);
+
 TTableStats GetTableStats(TDatabaseOptions& dbOptions, const std::string& tableName);
+
+std::string GetDatabase(const std::string& connectionString);
+
+std::map<std::string, std::string> MakeNativeSloOtelResourceAttributes();
+std::string NativeSloMeterSchemaVersion();
 
 bool ParseOptionsCreate(int argc, char** argv, TCreateOptions& createOptions);
 bool ParseOptionsRun(int argc, char** argv, TRunOptions& runOptions);
