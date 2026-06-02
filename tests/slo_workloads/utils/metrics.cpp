@@ -1,4 +1,5 @@
 #include "metrics.h"
+#include "utils.h"
 
 #include <opentelemetry/exporters/otlp/otlp_http_metric_exporter_factory.h>
 #include <opentelemetry/sdk/metrics/export/periodic_exporting_metric_reader_factory.h>
@@ -356,12 +357,13 @@ public:
 
 std::unique_ptr<IMetricsPusher> CreateOtelMetricsPusher(
     const std::string& metricsPushUrl,
-    const std::string& operationType,
-    const std::map<std::string, std::string>& resourceAttributes,
-    const std::string& meterSchemaVersion
-) {
+    const std::string& operationType)
+{
     return std::make_unique<TOtelMetricsPusherWrapper>(
-        GetOrCreateSharedPusher(metricsPushUrl, resourceAttributes, meterSchemaVersion),
+        GetOrCreateSharedPusher(
+            metricsPushUrl,
+            MakeNativeSloOtelResourceAttributes(),
+            NativeSloMeterSchemaVersion()),
         operationType);
 }
 
