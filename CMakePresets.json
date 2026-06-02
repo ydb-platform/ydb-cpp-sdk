@@ -118,6 +118,21 @@
       "name": "debug-test-gcc",
       "inherits": ["debug-base", "gcc-toolchain", "test"],
       "displayName": "Default Debug Test Config (GCC)"
+    },
+    {
+      "name": "coverage-base",
+      "inherits": ["debug-base", "test"],
+      "hidden": true,
+      "cacheVariables": {
+        "YDB_SDK_COVERAGE": "ON",
+        "ARCADIA_ROOT": "${sourceDir}",
+        "ARCADIA_BUILD_ROOT": "."
+      }
+    },
+    {
+      "name": "coverage-test-clang",
+      "inherits": ["coverage-base", "clang-toolchain"],
+      "displayName": "Coverage Test Config (Clang)"
     }
   ],
   "buildPresets": [

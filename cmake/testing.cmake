@@ -51,6 +51,7 @@ function(add_ydb_test)
   endif()
 
   add_executable(${YDB_TEST_NAME})
+  _ydb_sdk_apply_coverage(${YDB_TEST_NAME})
   target_include_directories(${YDB_TEST_NAME} PRIVATE ${YDB_TEST_INCLUDE_DIRS})
   target_link_libraries(${YDB_TEST_NAME} PRIVATE ${YDB_TEST_LINK_LIBRARIES})
   target_sources(${YDB_TEST_NAME} PRIVATE ${YDB_TEST_SOURCES})

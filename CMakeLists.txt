@@ -43,6 +43,7 @@ include(CMakePackageConfigHelpers)
 list(APPEND CMAKE_MODULE_PATH ${YDB_SDK_SOURCE_DIR}/cmake)
 
 include(cmake/global_flags.cmake)
+include(cmake/coverage.cmake)
 include(cmake/global_vars.cmake)
 include(cmake/install.cmake)
 include(cmake/common.cmake)

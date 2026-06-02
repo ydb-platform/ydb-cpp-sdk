@@ -216,6 +216,7 @@ function(_ydb_sdk_add_library Tgt)
   target_compile_definitions(${Tgt} ${includeMode}
     YDB_SDK_OSS
   )
+  _ydb_sdk_apply_coverage(${Tgt})
   
 endfunction()
 
@@ -462,4 +463,3 @@ function(_ydb_sdk_validate_public_headers)
   )
   target_include_directories(validate_public_interface PUBLIC ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include)
 endfunction()
-
