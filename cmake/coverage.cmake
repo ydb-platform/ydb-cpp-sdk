@@ -1,5 +1,9 @@
 option(YDB_SDK_COVERAGE "Instrument SDK and tests for gcov/llvm-cov coverage" OFF)
 
+if (YDB_SDK_COVERAGE)
+  add_link_options(--coverage)
+endif()
+
 function(_ydb_sdk_apply_coverage target)
   if (NOT YDB_SDK_COVERAGE)
     return()
@@ -8,12 +12,10 @@ function(_ydb_sdk_apply_coverage target)
   if (is_iface STREQUAL "INTERFACE_LIBRARY")
     return()
   endif()
-  target_compile_options(${target} PRIVATE
-    --coverage
-    -O0
-    -g
-    -fno-inline
-    -fprofile-abs-path
-  )
+  set(_coverage_compile_flags --coverage -O0 -g -fno-inline)
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    list(APPEND _coverage_compile_flags -fprofile-abs-path)
+  endif()
+  target_compile_options(${target} PRIVATE ${_coverage_compile_flags})
   target_link_options(${target} PRIVATE --coverage)
 endfunction()
