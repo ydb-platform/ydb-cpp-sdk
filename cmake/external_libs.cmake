@@ -131,6 +131,66 @@ if (YDB_SDK_ENABLE_OTEL_METRICS OR YDB_SDK_ENABLE_OTEL_TRACE)
     endif()
   endif()
 
+  if (YDB_SDK_INSTALL)
+    set(_ydb_sdk_otel_binary_dir "${YDB_SDK_BINARY_DIR}/third_party/opentelemetry-cpp")
+    set(_ydb_sdk_otel_install_component libydb-cpp-otel-metrics)
+
+    if (EXISTS "${_ydb_sdk_otel_binary_dir}/cmake/opentelemetry-cpp")
+      install(DIRECTORY "${_ydb_sdk_otel_binary_dir}/cmake/opentelemetry-cpp/"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/opentelemetry-cpp"
+        COMPONENT ${_ydb_sdk_otel_install_component}
+        USE_SOURCE_PERMISSIONS)
+    endif()
+
+    if (EXISTS "${_ydb_sdk_vendor_otel}/cmake/find-package-support-functions.cmake")
+      install(FILES "${_ydb_sdk_vendor_otel}/cmake/find-package-support-functions.cmake"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/opentelemetry-cpp"
+        COMPONENT ${_ydb_sdk_otel_install_component})
+    endif()
+
+    foreach(_ydb_sdk_otel_cmake_file IN ITEMS
+        component-definitions.cmake
+        thirdparty-dependency-definitions.cmake)
+      if (EXISTS "${_ydb_sdk_otel_binary_dir}/cmake/${_ydb_sdk_otel_cmake_file}")
+        install(FILES "${_ydb_sdk_otel_binary_dir}/cmake/${_ydb_sdk_otel_cmake_file}"
+          DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/opentelemetry-cpp"
+          COMPONENT ${_ydb_sdk_otel_install_component})
+      endif()
+    endforeach()
+
+    # Export *-target.cmake files are generated during the OTel build; glob at install time.
+    install(CODE "
+      file(GLOB _ydb_sdk_otel_export_dirs \"${_ydb_sdk_otel_binary_dir}/CMakeFiles/Export/*\")
+      foreach(_ydb_sdk_otel_export_dir IN LISTS _ydb_sdk_otel_export_dirs)
+        if (IS_DIRECTORY \"\${_ydb_sdk_otel_export_dir}\")
+          file(GLOB _ydb_sdk_otel_export_cmake \"\${_ydb_sdk_otel_export_dir}/*.cmake\")
+          if (_ydb_sdk_otel_export_cmake)
+            file(INSTALL \${_ydb_sdk_otel_export_cmake}
+              DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/cmake/opentelemetry-cpp\")
+          endif()
+        endif()
+      endforeach()
+    " COMPONENT ${_ydb_sdk_otel_install_component})
+
+    foreach(_ydb_sdk_otel_include_dir IN ITEMS api sdk exporters)
+      if (EXISTS "${_ydb_sdk_vendor_otel}/${_ydb_sdk_otel_include_dir}/include")
+        install(DIRECTORY "${_ydb_sdk_vendor_otel}/${_ydb_sdk_otel_include_dir}/include/"
+          DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+          COMPONENT ${_ydb_sdk_otel_install_component}
+          USE_SOURCE_PERMISSIONS)
+      endif()
+    endforeach()
+
+    install(CODE "
+      file(GLOB_RECURSE _ydb_sdk_otel_static_libs
+        \"${_ydb_sdk_otel_binary_dir}/libopentelemetry_*.a\")
+      if (_ydb_sdk_otel_static_libs)
+        file(INSTALL \${_ydb_sdk_otel_static_libs}
+          DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}\")
+      endif()
+    " COMPONENT ${_ydb_sdk_otel_install_component})
+  endif()
+
   set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "${_ydb_sdk_saved_install_component}")
 endif()
 
