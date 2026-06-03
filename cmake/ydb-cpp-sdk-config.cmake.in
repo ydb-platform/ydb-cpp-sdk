@@ -41,7 +41,16 @@ if (@YDB_SDK_USE_RAPID_JSON@)
 endif()
 
 if (@YDB_SDK_ENABLE_OTEL_METRICS@ OR @YDB_SDK_ENABLE_OTEL_TRACE@)
-  find_package(opentelemetry-cpp REQUIRED)
+  set(_ydb_sdk_needs_otel FALSE)
+  if ("OpenTelemetryMetrics" IN_LIST YDB-CPP-SDK_FIND_COMPONENTS
+      OR "OpenTelemetryTrace" IN_LIST YDB-CPP-SDK_FIND_COMPONENTS)
+    set(_ydb_sdk_needs_otel TRUE)
+  endif()
+  if (_ydb_sdk_needs_otel)
+    get_filename_component(_ydb_sdk_cmake_lib_dir "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+    list(APPEND CMAKE_PREFIX_PATH "${_ydb_sdk_cmake_lib_dir}")
+    find_package(opentelemetry-cpp CONFIG REQUIRED)
+  endif()
 endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/release/ydb-cpp-sdk-targets.cmake")

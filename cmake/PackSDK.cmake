@@ -20,7 +20,7 @@ set(CPACK_COMPONENTS_ALL libydb-cpp libydb-cpp-iam libydb-cpp-otel-metrics libyd
 
 set(CPACK_DEBIAN_LIBYDB_CPP_PACKAGE_NAME "libydb-cpp-dev")
 set(CPACK_DEBIAN_LIBYDB_CPP_PACKAGE_DEPENDS
-  "libidn11-dev, libssl-dev, zlib1g-dev, libprotobuf-dev, libgrpc++-dev, libbrotli-dev, liblz4-dev, libzstd-dev, libbz2-dev, libxxhash-dev, libsnappy-dev, libdouble-conversion-dev, libgtest-dev, libre2-dev, libc-ares-dev, rapidjson-dev"
+  "libidn11-dev, libssl-dev, zlib1g-dev, libprotobuf-dev, libgrpc++-dev, libbrotli-dev, liblz4-dev, libzstd-dev, libbz2-dev, libxxhash-dev, libsnappy-dev, libdouble-conversion-dev, libgtest-dev, libre2-dev, libc-ares-dev, rapidjson-dev, yandex-googleapis-api-common-protos"
 )
 
 set(CPACK_DEBIAN_LIBYDB_CPP_IAM_PACKAGE_NAME "libydb-cpp-iam-dev")
@@ -30,7 +30,8 @@ set(CPACK_DEBIAN_LIBYDB_CPP_OTEL_METRICS_PACKAGE_NAME "libydb-cpp-otel-metrics-d
 set(CPACK_DEBIAN_LIBYDB_CPP_OTEL_METRICS_PACKAGE_DEPENDS "libydb-cpp-dev (= ${YDB_SDK_VERSION})")
 
 set(CPACK_DEBIAN_LIBYDB_CPP_OTEL_TRACING_PACKAGE_NAME "libydb-cpp-otel-tracing-dev")
-set(CPACK_DEBIAN_LIBYDB_CPP_OTEL_TRACING_PACKAGE_DEPENDS "libydb-cpp-dev (= ${YDB_SDK_VERSION})")
+set(CPACK_DEBIAN_LIBYDB_CPP_OTEL_TRACING_PACKAGE_DEPENDS
+  "libydb-cpp-dev (= ${YDB_SDK_VERSION}), libydb-cpp-otel-metrics-dev (= ${YDB_SDK_VERSION})")
 
 foreach(component IN ITEMS libydb-cpp libydb-cpp-iam libydb-cpp-otel-metrics libydb-cpp-otel-tracing)
   string(TOUPPER "${component}" component_upper)
