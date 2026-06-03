@@ -157,8 +157,8 @@ The SDK can be packaged as Debian development packages with CPack. The packaging
 
 - `libydb-cpp-dev` — core SDK static library, public headers and CMake package files;
 - `libydb-cpp-iam-dev` — IAM credentials plugin;
-- `libydb-cpp-otel-metrics-dev` — OpenTelemetry metrics plugin;
-- `libydb-cpp-otel-tracing-dev` — OpenTelemetry tracing plugin.
+- `libydb-cpp-otel-metrics-dev` — OpenTelemetry metrics plugin (includes vendored opentelemetry-cpp);
+- `libydb-cpp-otel-tracing-dev` — OpenTelemetry tracing plugin (requires `libydb-cpp-otel-metrics-dev` for OTel headers/libs).
 
 The Debian packaging flow is intended for Ubuntu 24.04. Install the regular build dependencies first. OpenTelemetry plugins use the vendored `third_party/opentelemetry-cpp` submodule (v1.26.0, matching the YDB monorepo pin); initialize it with `git submodule update --init third_party/opentelemetry-cpp` before building.
 

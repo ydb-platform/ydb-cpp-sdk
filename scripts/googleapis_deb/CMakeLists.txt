@@ -90,7 +90,7 @@ install(FILES
 set(CPACK_PACKAGE_NAME "yandex-googleapis-api-common-protos")
 set(CPACK_PACKAGE_VERSION "1.0.0")
 set(CPACK_GENERATOR "DEB")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "YDB Team <whoami@where>")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "YDB Team <info@ydb.tech>")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libprotobuf-dev")
 set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/share/yandex")
 

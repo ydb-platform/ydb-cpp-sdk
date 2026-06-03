@@ -44,12 +44,12 @@ RUN apt-get update && apt-get install -y \\
 WORKDIR /source
 EOF
 
-docker build --network host -t ydb-cpp-sdk-dpkg-test -f "$DOCKERFILE" .
+docker build -t ydb-cpp-sdk-dpkg-test -f "$DOCKERFILE" .
 rm -f "$DOCKERFILE"
 
 # Prepare a clean tarball or just copy the directory inside the container
 echo "Running dpkg-buildpackage in the container..."
-docker run --rm --network host \
+docker run --rm \
     -v "$SOURCE_DIR:/source:ro" \
     ydb-cpp-sdk-dpkg-test \
     bash -c "cp -r /source /tmp/source && cd /tmp/source && \

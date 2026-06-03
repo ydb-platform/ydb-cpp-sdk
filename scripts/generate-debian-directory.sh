@@ -48,14 +48,14 @@ ydb-cpp-sdk (${DEB_VERSION}) ${SERIES}; urgency=low
   * Automated package build
   * Git commit: ${GIT_COMMIT}
 
- -- YDB Team <ydb-team@ydb.tech>  $(date -R)
+ -- YDB Team <info@ydb.tech>  $(date -R)
 EOF_CHANGELOG
 
 cat <<EOF_CONTROL > debian/control
 Source: ydb-cpp-sdk
 Section: libdevel
 Priority: optional
-Maintainer: YDB Team <ydb-team@ydb.tech>
+Maintainer: YDB Team <info@ydb.tech>
 Build-Depends: debhelper-compat (= 13),
  cmake,
  git,
@@ -109,6 +109,8 @@ Depends: \${misc:Depends},
  yandex-googleapis-api-common-protos
 Description: YDB C++ SDK development files
  Static library, public headers and CMake package files for YDB C++ SDK.
+ Bundled third-party static libraries and headers: libbase64 (aklomp-base64),
+ jwt-cpp (includes picojson).
 
 Package: libydb-cpp-iam-dev
 Architecture: any
@@ -121,12 +123,15 @@ Architecture: any
 Depends: \${misc:Depends}, libydb-cpp-dev (= \${binary:Version})
 Description: YDB C++ SDK OpenTelemetry metrics plugin development files
  Static library and headers for YDB C++ SDK OpenTelemetry metrics plugin.
+ Includes vendored opentelemetry-cpp headers, static libraries, CMake and pkg-config files.
 
 Package: libydb-cpp-otel-tracing-dev
 Architecture: any
-Depends: \${misc:Depends}, libydb-cpp-dev (= \${binary:Version})
+Depends: \${misc:Depends}, libydb-cpp-dev (= \${binary:Version}),
+ libydb-cpp-otel-metrics-dev (= \${binary:Version})
 Description: YDB C++ SDK OpenTelemetry tracing plugin development files
  Static library and headers for YDB C++ SDK OpenTelemetry tracing plugin.
+ Requires libydb-cpp-otel-metrics-dev for vendored opentelemetry-cpp artifacts.
 EOF_CONTROL
 
 cat <<'EOF_RULES' > debian/rules
@@ -163,10 +168,6 @@ debian/tmp/usr/share/yandex/lib/*/cmake/base64 usr/share/yandex/lib/*/cmake/
 debian/tmp/usr/share/yandex/include/picojson usr/share/yandex/include/
 debian/tmp/usr/share/yandex/include/jwt-cpp usr/share/yandex/include/
 debian/tmp/usr/share/yandex/cmake/jwt-cpp* usr/share/yandex/cmake/
-debian/tmp/usr/share/yandex/include/opentelemetry usr/share/yandex/include/
-debian/tmp/usr/share/yandex/lib/*/libopentelemetry_* usr/share/yandex/lib/
-debian/tmp/usr/share/yandex/lib/*/cmake/opentelemetry-cpp usr/share/yandex/lib/*/cmake/
-debian/tmp/usr/share/yandex/lib/*/pkgconfig/opentelemetry_*.pc usr/share/yandex/lib/*/pkgconfig/
 EOF_INSTALL
 
 cat <<EOF_INSTALL > debian/libydb-cpp-iam-dev.install
@@ -176,6 +177,10 @@ EOF_INSTALL
 cat <<EOF_INSTALL > debian/libydb-cpp-otel-metrics-dev.install
 debian/tmp/usr/share/yandex/lib/*/libydb-cpp-otel-metrics.a usr/share/yandex/lib/
 debian/tmp/usr/share/yandex/include/ydb-cpp-sdk/open_telemetry/metrics.h usr/share/yandex/include/ydb-cpp-sdk/open_telemetry/
+debian/tmp/usr/share/yandex/include/opentelemetry usr/share/yandex/include/
+debian/tmp/usr/share/yandex/lib/*/libopentelemetry_* usr/share/yandex/lib/
+debian/tmp/usr/share/yandex/lib/*/cmake/opentelemetry-cpp usr/share/yandex/lib/*/cmake/
+debian/tmp/usr/share/yandex/lib/*/pkgconfig/opentelemetry_*.pc usr/share/yandex/lib/*/pkgconfig/
 EOF_INSTALL
 
 cat <<EOF_INSTALL > debian/libydb-cpp-otel-tracing-dev.install

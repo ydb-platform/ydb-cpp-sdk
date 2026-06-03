@@ -14,12 +14,6 @@ class ICounter {
 public:
     virtual ~ICounter() = default;
     virtual void Inc() = 0;
-
-    virtual void Add(std::uint64_t delta) {
-        for (std::uint64_t i = 0; i < delta; ++i) {
-            Inc();
-        }
-    }
 };
 
 class IGauge {
@@ -33,12 +27,6 @@ class IHistogram {
 public:
     virtual ~IHistogram() = default;
     virtual void Record(double value) = 0;
-
-    virtual void RecordMany(const std::vector<double>& values) {
-        for (double v : values) {
-            Record(v);
-        }
-    }
 };
 
 class IMetricRegistry {
