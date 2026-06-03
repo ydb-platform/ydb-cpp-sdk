@@ -195,16 +195,6 @@
       "displayName": "Run All Tests (coverage CI)",
       "execution": {
         "timeout": 1800
-      },
-      "filter": {
-        "exclude": {
-          "name": "ManyMessages"
-        }
-      },
-      "environment": {
-        "YDB_ENDPOINT": "localhost:2136",
-        "YDB_DATABASE": "/local",
-        "YDB_VERSION": "24.4"
       }
     }
   ]
