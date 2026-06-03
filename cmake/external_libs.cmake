@@ -86,6 +86,9 @@ if (YDB_SDK_ENABLE_OTEL_METRICS OR YDB_SDK_ENABLE_OTEL_TRACE)
   set(WITH_ABI_VERSION_2 ON CACHE BOOL "" FORCE)
   set(OPENTELEMETRY_INSTALL ON CACHE BOOL "" FORCE)
 
+  set(_ydb_sdk_saved_install_component "${CMAKE_INSTALL_DEFAULT_COMPONENT_NAME}")
+  set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME libydb-cpp-otel-metrics)
+
   if (EXISTS "${_ydb_sdk_vendor_otel}/CMakeLists.txt")
     add_subdirectory("${_ydb_sdk_vendor_otel}" "${YDB_SDK_BINARY_DIR}/third_party/opentelemetry-cpp")
   else()
@@ -127,6 +130,8 @@ if (YDB_SDK_ENABLE_OTEL_METRICS OR YDB_SDK_ENABLE_OTEL_TRACE)
       add_library(opentelemetry-cpp::version ALIAS opentelemetry_version)
     endif()
   endif()
+
+  set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "${_ydb_sdk_saved_install_component}")
 endif()
 
 # RapidJSON
