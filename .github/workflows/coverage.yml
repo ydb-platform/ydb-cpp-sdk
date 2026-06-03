@@ -16,6 +16,9 @@ concurrency:
 jobs:
   coverage:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      pull-requests: write
     services:
       ydb:
         image: ydbplatform/local-ydb:24.4
@@ -66,6 +69,7 @@ jobs:
           build-directory: build
           source-root: ${{ github.workspace }}
           gcov-executable: llvm-cov-16 gcov
+          post-pr-comment: ${{ github.event_name == 'pull_request' }}
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
