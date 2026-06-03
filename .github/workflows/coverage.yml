@@ -58,7 +58,7 @@ jobs:
       - name: Test
         shell: bash
         run: |
-          ctest -j2 --preset all --output-on-failure
+          ctest -j1 --preset coverage-all --output-on-failure
 
       - name: Generate coverage report
         uses: ./.github/actions/gcovr
