@@ -26,6 +26,14 @@ inputs:
     description: Fail if line coverage is below this percent (0 disables the gate)
     required: false
     default: "0"
+  post-pr-comment:
+    description: Post or update a sticky coverage summary on the pull request
+    required: false
+    default: "true"
+  github-token:
+    description: Token for posting PR comments
+    required: false
+    default: ${{ github.token }}
 
 runs:
   using: composite
@@ -56,3 +64,16 @@ runs:
         GCOV_EXECUTABLE="${{ inputs.gcov-executable }}" \
         FAIL_UNDER_LINE="${{ inputs.fail-under-line }}" \
         "${{ github.action_path }}/run_gcovr.sh"
+
+    - name: Post coverage PR comment
+      if: inputs.post-pr-comment == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        OUTPUT_DIR: ${{ github.workspace }}/${{ inputs.output-directory }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
+      run: |
+        chmod +x "${{ github.action_path }}/post_pr_comment.sh"
+        "${{ github.action_path }}/post_pr_comment.sh"
