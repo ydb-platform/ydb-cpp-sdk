@@ -55,7 +55,7 @@ jobs:
         run: |
           mkdir -p build
           rm -rf build/*
-          cmake --preset coverage-test-clang
+          cmake --preset coverage-test-gcc
           cmake --build build -j"$(nproc)"
 
       - name: Test
@@ -68,7 +68,7 @@ jobs:
         with:
           build-directory: build
           source-root: ${{ github.workspace }}
-          gcov-executable: llvm-cov-16 gcov
+          gcov-executable: gcov-13
           post-pr-comment: ${{ github.event_name == 'pull_request' }}
 
       - name: Upload coverage reports
