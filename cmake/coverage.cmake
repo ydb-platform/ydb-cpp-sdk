@@ -12,10 +12,10 @@ function(_ydb_sdk_apply_coverage target)
   if (is_iface STREQUAL "INTERFACE_LIBRARY")
     return()
   endif()
+  # Do not use -fprofile-abs-path: it expands __FILE__/__LOCATION__ to absolute paths
+  # and breaks util/system/src_location_ut and src_root_ut (and similar assertions).
+  # gcovr --root maps profile data to the source tree without it.
   set(_coverage_compile_flags --coverage -O0 -g -fno-inline)
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    list(APPEND _coverage_compile_flags -fprofile-abs-path)
-  endif()
   target_compile_options(${target} PRIVATE ${_coverage_compile_flags})
   target_link_options(${target} PRIVATE --coverage)
 endfunction()
