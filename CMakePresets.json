@@ -99,6 +99,21 @@
       "name": "debug-test-gcc",
       "inherits": ["debug-base", "gcc-toolchain", "test"],
       "displayName": "Default Debug Test Config (GCC)"
+    },
+    {
+      "name": "coverage-base",
+      "inherits": ["release-base", "test"],
+      "hidden": true,
+      "cacheVariables": {
+        "YDB_SDK_COVERAGE": "ON",
+        "ARCADIA_ROOT": "${sourceDir}",
+        "ARCADIA_BUILD_ROOT": "${sourceDir}/build"
+      }
+    },
+    {
+      "name": "coverage-test-gcc",
+      "inherits": ["coverage-base", "gcc-toolchain"],
+      "displayName": "Coverage Test Config (GCC)"
     }
   ],
   "buildPresets": [
@@ -153,6 +168,25 @@
       "environment": {
         "YDB_ENDPOINT": "localhost:2136",
         "YDB_DATABASE": "/local"
+      }
+    },
+    {
+      "name": "coverage-all",
+      "inherits": "all",
+      "displayName": "Run All Tests (coverage CI)",
+      "configurePreset": "coverage-test-gcc",
+      "execution": {
+        "timeout": 1800
+      },
+      "filter": {
+        "exclude": {
+          "name": "(ManyMessages|DiscoveryHang|DescribeHang)"
+        }
+      },
+      "environment": {
+        "YDB_ENDPOINT": "localhost:2136",
+        "YDB_DATABASE": "/local",
+        "YDB_VERSION": "24.4"
       }
     }
   ]

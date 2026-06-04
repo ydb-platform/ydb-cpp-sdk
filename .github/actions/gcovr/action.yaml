@@ -1,0 +1,79 @@
+name: Gcovr
+description: Generate code coverage reports with gcovr and llvm-cov
+
+inputs:
+  build-directory:
+    description: Build directory containing coverage data (.gcda / .gcno)
+    required: false
+    default: build
+  source-root:
+    description: Source root for gcovr --root
+    required: false
+    default: ${{ github.workspace }}
+  gcov-executable:
+    description: gcov executable passed to gcovr (e.g. llvm-cov-16 gcov for Clang)
+    required: false
+    default: llvm-cov-16 gcov
+  gcovr-version:
+    description: gcovr PyPI version to install
+    required: false
+    default: "8.4"
+  output-directory:
+    description: Directory for generated coverage reports
+    required: false
+    default: build/coverage
+  fail-under-line:
+    description: Fail if line coverage is below this percent (0 disables the gate)
+    required: false
+    default: "0"
+  post-pr-comment:
+    description: Post or update a sticky coverage summary on the pull request
+    required: false
+    default: "true"
+  github-token:
+    description: Token for posting PR comments
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install gcovr
+      shell: bash
+      run: |
+        python3 -m pip install --user "gcovr==${{ inputs.gcovr-version }}"
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+    - name: Verify llvm-cov
+      shell: bash
+      run: |
+        llvm_cov="${{ inputs.gcov-executable }}"
+        llvm_cov_bin="${llvm_cov%% *}"
+        if ! command -v "${llvm_cov_bin}" >/dev/null 2>&1; then
+          echo "::error::${llvm_cov_bin} not found; install LLVM or adjust gcov-executable"
+          exit 1
+        fi
+
+    - name: Generate coverage report
+      shell: bash
+      run: |
+        chmod +x "${{ github.action_path }}/run_gcovr.sh"
+        SOURCE_ROOT="${{ inputs.source-root }}" \
+        BUILD_DIR="${{ github.workspace }}/${{ inputs.build-directory }}" \
+        OUTPUT_DIR="${{ github.workspace }}/${{ inputs.output-directory }}" \
+        GCOV_EXECUTABLE="${{ inputs.gcov-executable }}" \
+        FAIL_UNDER_LINE="${{ inputs.fail-under-line }}" \
+        "${{ github.action_path }}/run_gcovr.sh"
+
+    - name: Post coverage PR comment
+      if: inputs.post-pr-comment == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        OUTPUT_DIR: ${{ github.workspace }}/${{ inputs.output-directory }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
+      run: |
+        chmod +x "${{ github.action_path }}/post_pr_comment.sh"
+        "${{ github.action_path }}/post_pr_comment.sh"
