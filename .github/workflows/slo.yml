@@ -1,18 +1,19 @@
-name: SLO Native
+name: SLO
 
 on:
   pull_request:
     types: [opened, reopened, synchronize, labeled]
 
+permissions:
+  contents: read
+
 jobs:
   ydb-slo-action:
     if: contains(github.event.pull_request.labels.*.name, 'SLO')
 
-    name: Run YDB SLO Tests
+    name: Run YDB SLO Tests (${{ matrix.sdk.name }})
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
+    timeout-minutes: 120
 
     strategy:
       fail-fast: false
@@ -20,6 +21,13 @@ jobs:
         sdk:
           - name: cpp-key-value
             preset: release-test-clang
+            dockerfile: tests/slo_workloads/Dockerfile
+            cache_scope: slo
+            command: ""
+          - name: cpp-key-value-userver
+            preset: release-test-clang
+            dockerfile: tests/slo_workloads/Dockerfile.userver
+            cache_scope: slo-userver
             command: ""
 
     concurrency:
@@ -116,9 +124,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ccache
-          key: slo-ccache-${{ matrix.sdk.preset }}-${{ github.run_id }}
+          key: ${{ matrix.sdk.cache_scope }}-ccache-${{ matrix.sdk.preset }}-${{ github.run_id }}
           restore-keys: |
-            slo-ccache-${{ matrix.sdk.preset }}-
+            ${{ matrix.sdk.cache_scope }}-ccache-${{ matrix.sdk.preset }}-
 
       - name: Inject ccache into BuildKit
         uses: reproducible-containers/buildkit-cache-dance@v3.1.2
@@ -127,16 +135,8 @@ jobs:
             {
               "ccache": "/root/.ccache"
             }
-          # Always extract so newly-compiled TUs from this run are saved by
-          # actions/cache (key uses ${{ github.run_id }}, so each run gets
-          # its own snapshot). Without extraction the cache stays frozen at
-          # whatever was first persisted.
           skip-extraction: false
 
-      # A clean build of the SLO image takes ~30 min because the Dockerfile
-      # rebuilds the full C++ toolchain + abseil/protobuf/grpc from source.
-      # The GHA cache lets subsequent runs reuse every layer up to the SDK
-      # source COPY, so only the actual workload link step reruns (~3 min).
       - name: Build current workload image
         uses: docker/build-push-action@v6
         env:
@@ -144,13 +144,13 @@ jobs:
           DOCKER_BUILD_RECORD_UPLOAD: "false"
         with:
           context: sdk-current
-          file: sdk-current/tests/slo_workloads/Dockerfile
+          file: sdk-current/${{ matrix.sdk.dockerfile }}
           platforms: linux/amd64
           tags: ydb-app-current
           load: true
           build-args: PRESET=${{ matrix.sdk.preset }}
-          cache-from: type=gha,scope=slo-${{ matrix.sdk.preset }}
-          cache-to: type=gha,mode=max,scope=slo-${{ matrix.sdk.preset }}
+          cache-from: type=gha,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
 
       - name: Build baseline workload image
         id: baseline-build
@@ -161,16 +161,13 @@ jobs:
           DOCKER_BUILD_RECORD_UPLOAD: "false"
         with:
           context: sdk-baseline
-          file: sdk-baseline/tests/slo_workloads/Dockerfile
+          file: sdk-baseline/${{ matrix.sdk.dockerfile }}
           platforms: linux/amd64
           tags: ydb-app-baseline
           load: true
           build-args: PRESET=${{ matrix.sdk.preset }}
-          cache-from: type=gha,scope=slo-${{ matrix.sdk.preset }}
+          cache-from: type=gha,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
 
-      # If the historical commit lacks the SLO Dockerfile or can't compile,
-      # reuse the current image so the SLO run is still comparable against
-      # itself rather than failing outright.
       - name: Fall back to current image for baseline
         if: steps.baseline-build.outcome == 'failure'
         run: |
