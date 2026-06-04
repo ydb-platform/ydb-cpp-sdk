@@ -31,9 +31,18 @@ static constexpr const char* RefLabel = Y_STRINGIZE(REF);
 static constexpr const char* RefLabel = "unknown";
 #endif
 
+// ydb-slo-action@v2 sets WORKLOAD_REF per container; fall back to compile-time REF locally.
+static std::string ResolveWorkloadRef() {
+    TString ref = GetEnv("WORKLOAD_REF");
+    if (!ref.empty()) {
+        return ref;
+    }
+    return RefLabel;
+}
+
 std::map<std::string, std::string> MakeNativeSloOtelResourceAttributes() {
     return {
-        {"ref", RefLabel},
+        {"ref", ResolveWorkloadRef()},
         {"sdk", "cpp"},
         {"sdk_version", NYdb::GetSdkSemver()},
     };
