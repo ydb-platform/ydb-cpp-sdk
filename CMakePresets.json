@@ -124,7 +124,9 @@
       "inherits": ["release-base", "test"],
       "hidden": true,
       "cacheVariables": {
-        "YDB_SDK_COVERAGE": "ON"
+        "YDB_SDK_COVERAGE": "ON",
+        "ARCADIA_ROOT": "${sourceDir}",
+        "ARCADIA_BUILD_ROOT": "${sourceDir}/build"
       }
     },
     {
