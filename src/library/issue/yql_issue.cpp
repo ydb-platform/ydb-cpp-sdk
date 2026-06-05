@@ -182,7 +182,7 @@ void ProgramLinesWithErrors(
     }
 }
 
-} // namspace
+} // namespace
 
 void TIssues::PrintTo(IOutputStream& out, bool oneLine) const
 {

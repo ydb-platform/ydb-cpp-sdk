@@ -62,8 +62,6 @@ public:
 
     TInstant GetStartTime() const;
 
-    ~TStat();
-
 private:
     void ScheduleMetricsPush(std::function<void()> func);
 

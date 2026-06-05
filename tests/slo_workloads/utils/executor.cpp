@@ -1,7 +1,5 @@
 #include "executor.h"
 
-#include "utils.h"
-
 const TDuration WaitTimeout = TDuration::Seconds(10);
 
 // Debug use only:
@@ -18,17 +16,62 @@ TInsistentClient::TInsistentClient(const TCommonOptions& opts)
             .AllowRequestMigration(true)
     )
     , ClientMaxRetries(opts.MaxRetries)
-    , SessionTimeout(opts.ReactionTime + ReactionTimeDelay)
+    , Timeout(opts.ReactionTime)
+    , RetryTimeout(Timeout / 2)
+    , SessionTimeout(Timeout + ReactionTimeDelay)
+    , UseApplicationTimeout(opts.UseApplicationTimeout)
+    , SendPreventiveRequest(opts.SendPreventiveRequest)
 {
+    if (UseApplicationTimeout || SendPreventiveRequest) {
+        CallbackQueue.Start(opts.MaxCallbackThreads);
+        // Thread that executes timeout callbacks
+        auto threadFunc = [this]() {
+            TDuration timeToSleep;
+            while (!ShouldStop.WaitT(timeToSleep)) {
+                TInstant wakeupTime;
+                TInstant now;
+                with_lock(CallbacksLock) {
+                    now = TInstant::Now();
+                    while (!TimeoutCallbacks.empty() && now >= TimeoutCallbacks.front().ExecucionTime) {
+                        Y_UNUSED(CallbackQueue.AddFunc(TimeoutCallbacks.front().Callback));
+                        RemoveTimeoutIter(TimeoutCallbacks.front().context);
+                    }
+                    while (!RetryCallbacks.empty() && now >= RetryCallbacks.front().ExecucionTime) {
+                        Y_UNUSED(CallbackQueue.AddFunc(RetryCallbacks.front().Callback));
+                        RemoveRetryIter(RetryCallbacks.front().context);
+                    }
+                    if (RetryCallbacks.empty()) {
+                        wakeupTime = now + RetryTimeout;
+                    } else {
+                        wakeupTime = RetryCallbacks.front().ExecucionTime;
+                    }
+                    if (!TimeoutCallbacks.empty()) {
+                        wakeupTime = Min(wakeupTime, TimeoutCallbacks.front().ExecucionTime);
+                    }
+                }
+                timeToSleep = wakeupTime - now;
+            }
+        };
+        WorkThread.reset(SystemThreadFactory()->Run(threadFunc).Release());
+    }
 }
 
 TInsistentClient::~TInsistentClient() {
+    ShouldStop.Signal();
+    if (UseApplicationTimeout || SendPreventiveRequest) {
+        if (WorkThread) {
+            WorkThread->Join();
+        } else {
+            Cerr << (TStringBuilder() << "TInsistentClient::~TINsistentClient Error: WorkThread is not running." << Endl);
+        }
+        CallbackQueue.Stop();
+    }
     Client.Stop().Wait(WaitTimeout);
 }
 
 void TInsistentClient::Report(TStringBuilder& out) const {
-    out << "Operations dispatched: " << CounterStart.load()
-        << ", succeeded: " << CounterOk.load() << Endl;
+    out << "Client retries sent: total " << CounterSStart.load()
+        << ", successful " << CounterSOk.load() << Endl;
 }
 
 std::uint64_t TInsistentClient::GetActiveSessions() const {
@@ -36,33 +79,112 @@ std::uint64_t TInsistentClient::GetActiveSessions() const {
     return static_cast<std::uint64_t>(sessions);
 }
 
-TAsyncFinalStatus TInsistentClient::ExecuteWithRetry(const NYdb::NTable::TTableClient::TOperationFunc& operation,
-    const std::shared_ptr<TStatUnit>& stat)
-{
+void TInsistentClient::ClearContext(std::shared_ptr<TOperationContext>& context) {
+    if (SendPreventiveRequest) {
+        RemoveRetryIter(context);
+    }
+    if (UseApplicationTimeout) {
+        RemoveTimeoutIter(context);
+    }
+}
+
+void TInsistentClient::RemoveRetryIter(std::shared_ptr<TOperationContext>& context) {
+    if (context->RetryIter.Valid) {
+        context->RetryIter.Valid = false;
+        RetryCallbacks.erase(context->RetryIter.RealIter);
+    }
+}
+
+void TInsistentClient::RemoveTimeoutIter(std::shared_ptr<TOperationContext>& context) {
+    if (context->TimeoutIter.Valid) {
+        context->TimeoutIter.Valid = false;
+        TimeoutCallbacks.erase(context->TimeoutIter.RealIter);
+    }
+}
+
+TAsyncFinalStatus TInsistentClient::ExecuteWithRetry(const NYdb::NTable::TTableClient::TOperationFunc& operation) {
     TTracedPromise<TFinalStatus> promise = TTracedPromise<TFinalStatus>(
         NThreading::NewPromise<TFinalStatus>(),
         &ExecutorPromises
     );
+    std::shared_ptr<TOperationContext> context = std::make_shared<TOperationContext>();
 
-    CounterStart.fetch_add(1);
-
-    NYdb::NTable::TRetryOperationSettings settings;
-    settings.MaxRetries(ClientMaxRetries);
-    settings.GetSessionClientTimeout(SessionTimeout);
-
-    auto wrappedOperation = [operation, stat](NYdb::NTable::TSession session) {
-        stat->IncRetryAttempts();
-        return operation(session);
-    };
-    auto future = Client.RetryOperation(wrappedOperation, settings);
-    future.Subscribe([promise, this](const NYdb::TAsyncStatus& f) mutable {
-        Y_ABORT_UNLESS(f.HasValue());
-        const auto& status = f.GetValue();
-        if (status.IsSuccess()) {
-            CounterOk.fetch_add(1);
+    auto launchOperation = [this, operation, promise, context](bool firstTime) mutable {
+        with_lock(context->Lock) {
+            if (context->Finished) {
+                return;
+            }
         }
-        promise.SetValue(status);
-    });
+        auto callback = [promise, context, firstTime, this](const NYdb::TAsyncStatus& future) mutable {
+            Y_ABORT_UNLESS(future.HasValue());
+            // Not setting promise under lock to avoid deadlock
+            bool firstCallback = false;
+            with_lock(context->Lock) {
+                if (!context->Finished) {
+                    context->Finished = true;
+                    firstCallback = true;
+                }
+            }
+            if (firstCallback) {
+                promise.SetValue(future.GetValue());
+                with_lock(CallbacksLock) {
+                    if (firstTime) {
+                        CounterFOk.fetch_add(1);
+                    } else {
+                        CounterSOk.fetch_add(1);
+                    }
+                    ClearContext(context);
+                }
+            }
+        };
+        if (firstTime) {
+            CounterFStart.fetch_add(1);
+        } else {
+            CounterSStart.fetch_add(1);
+        }
+        NYdb::NTable::TRetryOperationSettings settings;
+        settings.MaxRetries(ClientMaxRetries);
+        settings.GetSessionClientTimeout(SessionTimeout);
+        auto future = Client.RetryOperation(operation, settings);
+        future.Subscribe(std::move(callback));
+    };
+
+    with_lock(CallbacksLock) {
+        TInstant now = TInstant::Now();
+
+        if (SendPreventiveRequest) {
+            auto onRetryTimeout = [launchOperation]() mutable {
+                launchOperation(false);
+            };
+
+            RetryCallbacks.push_back({ now + RetryTimeout, onRetryTimeout, context });
+            context->RetryIter = { --RetryCallbacks.end() };
+        }
+
+        if (UseApplicationTimeout) {
+            auto onTimeout = [this, promise, context]() mutable {
+                // Not setting promise under lock to avoid deadlock
+                bool firstCallback = false;
+                with_lock(context->Lock) {
+                    if (!context->Finished) {
+                        context->Finished = true;
+                        firstCallback = true;
+                    }
+                }
+                if (firstCallback) {
+                    promise.SetValue(TFinalStatus());
+                    with_lock(CallbacksLock) {
+                        ClearContext(context);
+                    }
+                }
+            };
+
+            TimeoutCallbacks.push_back({ now + Timeout, onTimeout, context });
+            context->TimeoutIter = { --TimeoutCallbacks.end() };
+        }
+    }
+
+    launchOperation(true);
 
     return promise.GetFuture();
 }
@@ -154,7 +276,10 @@ bool TExecutor::Execute(const NYdb::NTable::TTableClient::TOperationFunc& func) 
 
         auto stat = Stats.StartRequest();
 
-        auto future = InsistentClient.ExecuteWithRetry(func, stat);
+        auto future = InsistentClient.ExecuteWithRetry([func, stat](NYdb::NTable::TSession session) {
+            auto result = func(session);
+            return result;
+        });
 
         future.Subscribe([this, stat, SemaphoreWrapper](const TAsyncFinalStatus& future) mutable {
             Y_ABORT_UNLESS(future.HasValue());
