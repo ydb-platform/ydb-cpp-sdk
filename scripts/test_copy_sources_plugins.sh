@@ -45,7 +45,7 @@ mkdir -p "$OSS/plugins/trace/otel"
 mkdir -p "$OSS/plugins/metrics/otel"
 mkdir -p "$OSS/include/ydb-cpp-sdk"
 mkdir -p "$OSS/src"
-mkdir -p "$OSS/tests/slo_workloads"
+mkdir -p "$OSS/tests/slo_workloads/key_value"
 
 echo "OSS_TRACE" > "$OSS/plugins/trace/otel/trace.cpp"
 echo "OSS_METRICS" > "$OSS/plugins/metrics/otel/metrics.cpp"
@@ -58,6 +58,7 @@ echo "# OSS_CMAKE" > "$OSS/plugins/metrics/otel/CMakeLists.txt"
 touch "$OSS/.gitignore" "$OSS/.gitmodules" "$OSS/CMakePresets.json" "$OSS/CMakeLists.txt"
 touch "$OSS/LICENSE" "$OSS/README.md"
 touch "$OSS/tests/slo_workloads/.dockerignore" "$OSS/tests/slo_workloads/Dockerfile"
+echo "OSS_SLO_WORKLOAD" > "$OSS/tests/slo_workloads/key_value/main.cpp"
 echo "// oss type_switcher" > "$OSS/include/ydb-cpp-sdk/type_switcher.h"
 echo "// oss version" > "$OSS/src/version.h"
 
@@ -89,6 +90,7 @@ assert_contains() {
 
 assert_contains "$OSS/plugins/trace/otel/trace.cpp" "MONOREPO_TRACE" "OSS_TRACE"
 assert_contains "$OSS/plugins/metrics/otel/metrics.cpp" "MONOREPO_METRICS" "OSS_METRICS"
+assert_contains "$OSS/tests/slo_workloads/key_value/main.cpp" "OSS_SLO_WORKLOAD" ""
 
 while IFS= read -r cmake_file; do
     assert_contains "$cmake_file" "OSS_CMAKE" "MONOREPO_PLUGINS_CMAKE"

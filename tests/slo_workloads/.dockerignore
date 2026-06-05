@@ -1,0 +1,48 @@
+# Git and version control
+.git
+.gitignore
+.github
+.gitattributes
+
+# IDE and editor files
+.idea/
+.vscode/
+.cache/
+.cursor/
+.cursorrules
+*.swp
+*.swo
+.DS_Store
+*.dSYM
+.clangd
+compile_commands.json
+
+# Build artifacts and cache
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+*.out
+*.log
+*.pyc
+__pycache__/
+*.egg-info/
+.pytest_cache/
+node_modules/
+
+# Documentation
+*.md
+docs/
+!requirements.txt
+
+# CI/CD
+.circleci
+.travis.yml
+azure-pipelines.yml
+
+# Large directories not needed for SDK builds
+ydb/core/
+ydb/apps/
+ydb/services/
+ydb/tools/
