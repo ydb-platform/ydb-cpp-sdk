@@ -54,9 +54,11 @@ cp $2/CMakePresets.json $tmp_dir
 cp $2/CMakeLists.txt $tmp_dir
 cp $2/LICENSE $tmp_dir
 cp $2/README.md $tmp_dir
-cp $2/tests/slo_workloads/.dockerignore $tmp_dir/tests/slo_workloads
-cp $2/tests/slo_workloads/Dockerfile $tmp_dir/tests/slo_workloads
-cp $2/tests/slo_workloads/Dockerfile.userver $tmp_dir/tests/slo_workloads
+if [ -d "$2/tests/slo_workloads" ]; then
+  rm -rf "$tmp_dir/tests/slo_workloads"
+  mkdir -p "$tmp_dir/tests"
+  cp -a "$2/tests/slo_workloads" "$tmp_dir/tests/"
+fi
 
 cp $2/include/ydb-cpp-sdk/type_switcher.h $tmp_dir/include/ydb-cpp-sdk/type_switcher.h
 cp $2/src/version.h $tmp_dir/src/version.h
