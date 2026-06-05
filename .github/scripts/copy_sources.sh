@@ -54,11 +54,13 @@ cp $2/CMakePresets.json $tmp_dir
 cp $2/CMakeLists.txt $tmp_dir
 cp $2/LICENSE $tmp_dir
 cp $2/README.md $tmp_dir
-if [ -d "$2/tests/slo_workloads" ]; then
-  rm -rf "$tmp_dir/tests/slo_workloads"
-  mkdir -p "$tmp_dir/tests"
-  cp -a "$2/tests/slo_workloads" "$tmp_dir/tests/"
-fi
+for oss_test_dir in slo_workloads deb_package; do
+  if [ -d "$2/tests/$oss_test_dir" ]; then
+    rm -rf "$tmp_dir/tests/$oss_test_dir"
+    mkdir -p "$tmp_dir/tests"
+    cp -a "$2/tests/$oss_test_dir" "$tmp_dir/tests/"
+  fi
+done
 
 cp $2/include/ydb-cpp-sdk/type_switcher.h $tmp_dir/include/ydb-cpp-sdk/type_switcher.h
 cp $2/src/version.h $tmp_dir/src/version.h
