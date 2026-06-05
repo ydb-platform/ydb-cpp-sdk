@@ -50,20 +50,59 @@ private:
 
 class TInsistentClient {
 public:
+    struct TDelayedCallback;
+
+    struct TCheckedIterator {
+        std::list<TDelayedCallback>::iterator RealIter;
+        bool Valid = true;
+    };
+
+    struct TOperationContext {
+        bool Finished = false;
+        TAdaptiveLock Lock;
+        TCheckedIterator RetryIter;
+        TCheckedIterator TimeoutIter;
+    };
+
+    struct TDelayedCallback {
+        TInstant ExecucionTime;
+        std::function<void()> Callback;
+        std::shared_ptr<TOperationContext> context;
+    };
+
     TInsistentClient(const TCommonOptions& opts);
     ~TInsistentClient();
     void Report(TStringBuilder& out) const;
-    TAsyncFinalStatus ExecuteWithRetry(const NYdb::NTable::TTableClient::TOperationFunc& operation,
-        const std::shared_ptr<TStatUnit>& stat);
+    TAsyncFinalStatus ExecuteWithRetry(const NYdb::NTable::TTableClient::TOperationFunc& operation);
     std::uint64_t GetActiveSessions() const;
 
 private:
+    void ClearContext(std::shared_ptr<TOperationContext>& context);
+    void RemoveRetryIter(std::shared_ptr<TOperationContext>& context);
+    void RemoveTimeoutIter(std::shared_ptr<TOperationContext>& context);
+
+    TThreadPool CallbackQueue;
     NYdb::NTable::TTableClient Client;
     std::uint32_t ClientMaxRetries;
+    TDuration Timeout;
+    TDuration RetryTimeout;
     TDuration SessionTimeout;
+    TAdaptiveLock CallbacksLock;
+    std::unique_ptr<IThreadFactory::IThread> WorkThread;
+    TManualEvent ShouldStop;
+    std::list<TDelayedCallback> RetryCallbacks;
+    std::list<TDelayedCallback> TimeoutCallbacks;
+    bool UseApplicationTimeout;
+    bool SendPreventiveRequest;
 
-    std::atomic<std::uint64_t> CounterStart = 0;
-    std::atomic<std::uint64_t> CounterOk = 0;
+    // Ok received on the First try
+    std::atomic<std::uint64_t> CounterFOk = 0;
+    // Ok received on the Second try
+    std::atomic<std::uint64_t> CounterSOk = 0;
+    // First try launches (= total)
+    std::atomic<std::uint64_t> CounterFStart = 0;
+    // Second try launches
+    std::atomic<std::uint64_t> CounterSStart = 0;
 };
 
 class TExecutor {

@@ -8,8 +8,6 @@
 
 #include <util/random/random.h>
 
-#include <map>
-
 extern const TDuration DefaultReactionTime;
 extern const TDuration ReactionTimeDelay;
 extern const std::uint64_t PartitionsCount;
@@ -51,6 +49,8 @@ struct TCommonOptions {
     std::uint32_t MaxRetries = 50;
     TDuration ReactionTime = DefaultReactionTime;
     bool StopOnError = false;
+    bool UseApplicationTimeout = false;
+    bool SendPreventiveRequest = false;
 
     // Generator options:
     std::uint32_t MinLength = 20;
@@ -98,8 +98,7 @@ enum class ECommandType {
     Unknown,
     Create,
     Run,
-    Cleanup,
-    All,  // No free-arg passed: execute Create -> Run -> Cleanup in one process
+    Cleanup
 };
 
 struct TTableStats {
@@ -118,6 +117,29 @@ ECommandType ParseCommand(const char* cmd);
 
 std::string JoinPath(const std::string& prefix, const std::string& path);
 
+inline void RetryBackoff(
+    NYdb::NTable::TTableClient& client,
+    std::uint32_t retries,
+    const NYdb::NTable::TTableClient::TOperationSyncFunc& func
+) {
+    TDuration delay = TDuration::Seconds(5);
+    while (retries) {
+        NYdb::TStatus status = client.RetryOperationSync(func);
+        if (status.IsSuccess()) {
+            return;
+        }
+        --retries;
+        if (!retries) {
+            Cerr << "Create request failed after all retries." << Endl;
+            Cerr << status << Endl;
+            NYdb::NStatusHelpers::ThrowOnError(status);
+        }
+        Cerr << "Create request failed. Sleeping for " << delay << Endl;
+        Sleep(delay);
+        delay *= 2;
+    }
+}
+
 std::string GenerateRandomString(std::uint32_t minLength, std::uint32_t maxLength);
 
 NYdb::TParams PackValuesToParamsAsList(const std::vector<NYdb::TValue>& items, const std::string name = "$items");
@@ -133,15 +155,6 @@ std::uint32_t GetHash(std::uint32_t value);
 std::string YdbStatusToString(NYdb::EStatus status);
 
 TTableStats GetTableStats(TDatabaseOptions& dbOptions, const std::string& tableName);
-
-std::string GetDatabase(const std::string& connectionString);
-
-std::string DefaultConnectionStringFromEnv();
-bool ParseToken(std::string& token, std::string& tokenFile);
-void StartStatCollecting(NYdb::TDriver& driver, const std::string& statConfigFile);
-
-std::map<std::string, std::string> MakeNativeSloOtelResourceAttributes();
-std::string NativeSloMeterSchemaVersion();
 
 bool ParseOptionsCreate(int argc, char** argv, TCreateOptions& createOptions);
 bool ParseOptionsRun(int argc, char** argv, TRunOptions& runOptions);

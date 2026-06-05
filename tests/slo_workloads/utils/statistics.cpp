@@ -36,11 +36,6 @@ TStat::TStat(const std::optional<std::string>& metricsPushUrl, const std::string
     MetricsPushQueue.Start(20);
 }
 
-TStat::~TStat() {
-    MetricsPushQueue.Stop();
-    MetricsPusher.reset();
-}
-
 void TStat::Start() {
     StartTime = TInstant::Now();
 }
@@ -76,12 +71,9 @@ void TStat::FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TFinalSt
     }
 
     ScheduleMetricsPush([this, delay, status, unit]() {
-        NYdb::EStatus requestStatus = status
-            ? status->GetStatus()
-            : NYdb::EStatus::CLIENT_DEADLINE_EXCEEDED;
         MetricsPusher->PushRequestData({
             .Delay = delay,
-            .Status = requestStatus,
+            .Status = status->GetStatus(),
             .RetryAttempts = unit->RetryAttempts
         });
     });

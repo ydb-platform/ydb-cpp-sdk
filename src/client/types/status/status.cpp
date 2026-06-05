@@ -104,7 +104,6 @@ bool TStreamPartStatus::EOS() const {
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace {
-
 template <typename TIssuePredicate>
 bool StatusContainsIssueIf(const TStatus& status, TIssuePredicate&& pred) {
     for (const auto& top : status.GetIssues()) {
@@ -121,7 +120,6 @@ bool StatusContainsIssueIf(const TStatus& status, TIssuePredicate&& pred) {
     }
     return false;
 }
-
 } // anonymous namespace
 
 namespace NStatusHelpers {

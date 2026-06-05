@@ -1,14 +1,12 @@
 #include "utils.h"
 
-#include <ydb-cpp-sdk/client/resources/ydb_resources.h>
+#include <ydb-cpp-sdk/client/iam/iam.h>
 
 #include <library/cpp/threading/future/async.h>
 
 #include <util/folder/path.h>
 #include <util/folder/dirut.h>
 #include <util/stream/file.h>
-#include <util/string/builder.h>
-#include <util/string/cast.h>
 #include <util/string/strip.h>
 #include <util/system/env.h>
 #include <util/random/random.h>
@@ -23,33 +21,6 @@ const std::uint64_t PartitionsCount = 64;
 Y_DECLARE_OUT_SPEC(, NYdb::TStatus, stream, value) {
     stream << "Status: " << value.GetStatus() << Endl;
     value.GetIssues().PrintTo(stream);
-}
-
-#ifdef REF
-static constexpr const char* RefLabel = Y_STRINGIZE(REF);
-#else
-static constexpr const char* RefLabel = "unknown";
-#endif
-
-// ydb-slo-action@v2 sets WORKLOAD_REF per container; fall back to compile-time REF locally.
-static std::string ResolveWorkloadRef() {
-    TString ref = GetEnv("WORKLOAD_REF");
-    if (!ref.empty()) {
-        return ref;
-    }
-    return RefLabel;
-}
-
-std::map<std::string, std::string> MakeNativeSloOtelResourceAttributes() {
-    return {
-        {"ref", ResolveWorkloadRef()},
-        {"sdk", "cpp"},
-        {"sdk_version", NYdb::GetSdkSemver()},
-    };
-}
-
-std::string NativeSloMeterSchemaVersion() {
-    return NYdb::GetSdkSemver();
 }
 
 TDurationMeter::TDurationMeter(TDuration& value)
@@ -101,28 +72,6 @@ std::uint64_t TRpsProvider::GetRps() const {
     return Rps;
 }
 
-std::string GetDatabase(const std::string& connectionString) {
-    constexpr std::string_view databaseFlag = "/?database=";
-    size_t pathIndex = connectionString.find(databaseFlag);
-    if (pathIndex != std::string::npos) {
-        return connectionString.substr(pathIndex + databaseFlag.size());
-    }
-    return {};
-}
-
-std::string DefaultConnectionStringFromEnv() {
-    std::string cs = GetEnv("YDB_CONNECTION_STRING");
-    if (!cs.empty()) {
-        return cs;
-    }
-    std::string endpoint = GetEnv("YDB_ENDPOINT");
-    std::string database = GetEnv("YDB_DATABASE");
-    if (!endpoint.empty() && !database.empty()) {
-        return TStringBuilder() << endpoint << "/?database=" << database;
-    }
-    return {};
-}
-
 bool ParseToken(std::string& token, std::string& tokenFile) {
     if (!tokenFile.empty()) {
         if (!token.empty()) {
@@ -148,10 +97,126 @@ void StartStatCollecting([[maybe_unused]] TDriver& driver, const std::string& st
     if (statConfigFile.empty()) {
         return;
     }
+
+    // TODO: Implement
+}
+
+std::string GetDatabase(const std::string& connectionString) {
+    constexpr std::string_view databaseFlag = "/?database=";
+    size_t pathIndex = connectionString.find(databaseFlag);
+    if (pathIndex != std::string::npos) {
+        return connectionString.substr(pathIndex + databaseFlag.size());
+    }
+    return {};
+}
+
+int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TCleanupCommand cleanup) {
+    TOpts opts = TOpts::Default();
+
+    std::string connectionString;
+    std::string prefix;
+    std::string token;
+    std::string tokenFile;
+    std::string iamSaKeyFile;
+    std::string statConfigFile;
+    std::string balancingPolicy;
+
+    opts.AddLongOption('c', "connection-string", "YDB connection string").Required().RequiredArgument("SCHEMA://HOST:PORT/?DATABASE=DATABASE")
+        .StoreResult(&connectionString);
+    opts.AddLongOption('p', "prefix", "Base prefix for tables").RequiredArgument("PATH")
+        .StoreResult(&prefix);
+    opts.AddLongOption('k', "token", "security token").RequiredArgument("TOKEN")
+        .StoreResult(&token);
+    opts.AddLongOption('f', "token-file", "security token file").RequiredArgument("PATH")
+        .StoreResult(&tokenFile);
+    opts.AddLongOption("iam-sa-key-file", "IAM service account key file").RequiredArgument("SECRET")
+        .StoreResult(&iamSaKeyFile);
+    opts.AddLongOption('s', "stat-config", "statistics config file").Optional().RequiredArgument("PATH")
+        .StoreResult(&statConfigFile);
+    opts.AddLongOption('b', "balancing-policy", "Balancing policy").Optional().DefaultValue("use-all-nodes").RequiredArgument("(use-all-nodes|prefer-local-dc|prefer-primary-pile)")
+        .StoreResult(&balancingPolicy);
+    opts.AddHelpOption('h');
+    opts.SetFreeArgsMin(1);
+    opts.SetFreeArgTitle(0, "<COMMAND>", GetCmdList());
+    opts.ArgPermutation_ = NLastGetopt::REQUIRE_ORDER;
+
+    TOptsParseResult res(&opts, argc, argv);
+    size_t freeArgsPos = res.GetFreeArgsPos();
+    argc -= freeArgsPos;
+    argv += freeArgsPos;
+    ECommandType command = ParseCommand(*argv);
+    if (command == ECommandType::Unknown) {
+        Cerr << "Unknown command '" << *argv << "'" << Endl;
+        return EXIT_FAILURE;
+    }
+
+    if (prefix.empty()) {
+        prefix = GetDatabase(connectionString);
+    }
+
+    if (!ParseToken(token, tokenFile)) {
+        return EXIT_FAILURE;
+    }
+
+    auto config = TDriverConfig(connectionString);
+
+    if (!iamSaKeyFile.empty()) {
+        Cout << "Enabling IAM authentication..." << Endl;
+        TIamJwtFilename iamJwtFilename{ .JwtFilename = iamSaKeyFile };
+        config.SetCredentialsProviderFactory(CreateIamJwtFileCredentialsProviderFactory(iamJwtFilename));
+    } else if (!token.empty()) {
+        Cout << "Enabling OAuth authentication..." << Endl;
+        config.SetCredentialsProviderFactory(CreateOAuthCredentialsProviderFactory(token));
+    } else {
+        Cerr << "Warning: No authentication methods provided." << Endl;
+    }
+
+    if (balancingPolicy == "use-all-nodes") {
+        config.SetBalancingPolicy(TBalancingPolicy::UseAllNodes());
+    } else if (balancingPolicy == "prefer-local-dc") {
+        config.SetBalancingPolicy(TBalancingPolicy::UsePreferableLocation());
+    } else if (balancingPolicy == "prefer-primary-pile") {
+        config.SetBalancingPolicy(TBalancingPolicy::UsePreferablePileState());
+    } else {
+        Cerr << "Unknown balancing policy: " << balancingPolicy << Endl;
+        return EXIT_FAILURE;
+    }
+
+    TDriver driver(config);
+
+    StartStatCollecting(driver, statConfigFile);
+
+    TDatabaseOptions dbOptions{ driver, prefix };
+    int result;
+    try {
+        switch (command) {
+        case ECommandType::Create:
+            Cout << "Launching create command..." << Endl;
+            result = create(dbOptions, argc, argv);
+            break;
+        case ECommandType::Run:
+            Cout << "Launching run command..." << Endl;
+            result = run(dbOptions, argc, argv);
+            break;
+        case ECommandType::Cleanup:
+            Cout << "Launching cleanup command..." << Endl;
+            result = cleanup(dbOptions, argc);
+            break;
+        default:
+            Cerr << "Unknown command" << Endl;
+            return EXIT_FAILURE;
+        }
+    }
+    catch (const NYdb::NStatusHelpers::TYdbErrorException& e) {
+        Cerr << "Exception caught: " << e << Endl;
+        return EXIT_FAILURE;
+    }
+    driver.Stop(true);
+    return result;
 }
 
 std::string GetCmdList() {
-    return "create, run, cleanup (omit to run create -> run -> cleanup in one process)";
+    return "create, run, cleanup";
 }
 
 ECommandType ParseCommand(const char* cmd) {
@@ -360,11 +425,6 @@ TTableStats GetTableStats(TDatabaseOptions& dbOptions, const std::string& tableN
 }
 
 void ParseOptionsCommon(TOpts& opts, TCommonOptions& options) {
-    std::string metricsPushUrlFromEnv = GetEnv("OTEL_EXPORTER_OTLP_METRICS_ENDPOINT");
-    if (!metricsPushUrlFromEnv.empty()) {
-        options.MetricsPushUrl = metricsPushUrlFromEnv;
-    }
-
     opts.AddLongOption("threads", "Number of threads to use").RequiredArgument("NUM")
         .DefaultValue(options.MaxInputThreads).StoreResult(&options.MaxInputThreads);
     opts.AddLongOption("stop-on-error", "Stop thread if an error occured").NoArgument()
@@ -377,6 +437,11 @@ void ParseOptionsCommon(TOpts& opts, TCommonOptions& options) {
         .SetFlag(&options.DontPushMetrics).DefaultValue(options.DontPushMetrics);
     opts.AddLongOption("metrics-push-url", "URL to push metrics").RequiredArgument("URL")
         .DefaultValue(options.MetricsPushUrl).StoreResult(&options.MetricsPushUrl);
+    opts.AddLongOption("app-timeout", "Use application timeout (over SDK)").NoArgument()
+        .SetFlag(&options.UseApplicationTimeout).DefaultValue(options.UseApplicationTimeout);
+    opts.AddLongOption("prevention-request", "Send prevention request at 1/2 of timeout").NoArgument()
+        .SetFlag(&options.SendPreventiveRequest).DefaultValue(options.SendPreventiveRequest);
+
     opts.MutuallyExclusive("dont-push", "metrics-push-url");
 }
 
@@ -420,18 +485,6 @@ bool ParseOptionsCreate(int argc, char** argv, TCreateOptions& createOptions) {
 bool ParseOptionsRun(int argc, char** argv, TRunOptions& runOptions) {
     TOpts opts = TOpts::Default();
     ParseOptionsCommon(opts, runOptions.CommonOptions);
-
-    if (std::string workloadDuration = GetEnv("WORKLOAD_DURATION"); !workloadDuration.empty()) {
-        try {
-            std::uint32_t parsed = FromString<std::uint32_t>(workloadDuration);
-            if (parsed > 0) {
-                runOptions.CommonOptions.SecondsToRun = parsed;
-            }
-        } catch (const std::exception& e) {
-            Cerr << "Invalid WORKLOAD_DURATION env value '" << workloadDuration << "': " << e.what() << Endl;
-        }
-    }
-
     opts.AddLongOption("time", "Time to run (Seconds)").RequiredArgument("Seconds")
         .DefaultValue(runOptions.CommonOptions.SecondsToRun).StoreResult(&runOptions.CommonOptions.SecondsToRun);
     opts.AddLongOption("read-rps", "Request generation rate for read requests (Thread A)").RequiredArgument("NUM")
