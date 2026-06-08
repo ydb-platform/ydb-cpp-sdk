@@ -201,17 +201,18 @@ GitHub release. Download the assets and install them with `dpkg`:
 TAG=<TAG>
 BASE="https://github.com/ydb-platform/ydb-cpp-sdk/releases/download/${TAG}"
 
-wget "${BASE}/yandex-googleapis-api-common-protos_1.0.0_amd64.deb"
+wget "${BASE}/yandex-googleapis-api-common-protos-1.0.0-Linux.deb"
 wget "${BASE}/libydb-cpp-dev_${TAG#v}_amd64.deb"
 # Optional plugins:
 wget "${BASE}/libydb-cpp-iam-dev_${TAG#v}_amd64.deb"
 wget "${BASE}/libydb-cpp-otel-metrics-dev_${TAG#v}_amd64.deb"
 wget "${BASE}/libydb-cpp-otel-tracing-dev_${TAG#v}_amd64.deb"
 
-sudo dpkg -i yandex-googleapis-api-common-protos_*.deb
-sudo dpkg -i libydb-cpp-dev_*.deb libydb-cpp-iam-dev_*.deb \
-             libydb-cpp-otel-metrics-dev_*.deb libydb-cpp-otel-tracing-dev_*.deb
-sudo apt-get install -f   # resolve any remaining dependencies
+sudo apt-get update
+sudo apt-get install -y \
+    ./yandex-googleapis-api-common-protos-*.deb \
+    ./libydb-cpp-dev_*.deb ./libydb-cpp-iam-dev_*.deb \
+    ./libydb-cpp-otel-metrics-dev_*.deb ./libydb-cpp-otel-tracing-dev_*.deb
 ```
 
 After installation, use the SDK in your CMake project:
