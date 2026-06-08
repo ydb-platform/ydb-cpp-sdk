@@ -14,6 +14,10 @@ option(YDB_SDK_ENABLE_OTEL_METRICS "Build the OpenTelemetry metrics plugin" Off)
 option(YDB_SDK_ENABLE_OTEL_TRACE "Build the OpenTelemetry tracing plugin" Off)
 option(YDB_CPP_SDK_SLO_USE_INSTALLED_SDK "Build only SLO workloads against one installed SDK prefix" Off)
 option(YDB_SDK_ODBC "Build YDB ODBC driver" Off)
+if(YDB_SDK_ODBC)
+  # ODBC is a shared library; static archives linked into it must be PIC.
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL "" FORCE)
+endif()
 set(YDB_SDK_DEPENDENCY_MODE "CPM" CACHE STRING
   "Dependency provider: CPM (default, pinned sources) or SYSTEM (Ubuntu DEB builds)")
 set_property(CACHE YDB_SDK_DEPENDENCY_MODE PROPERTY STRINGS CPM SYSTEM)

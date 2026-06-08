@@ -21,7 +21,7 @@ runs:
         if [[ '${{ inputs.mode }}' == 'build' ]]; then
           sudo apt-get -y install \
             ccache clang g++ gcc git libidn11-dev libssl-dev lld ninja-build \
-            pkg-config python3 ragel yasm
+            pkg-config python3 ragel unixodbc-dev yasm
           ccache --set-config=base_dir="$(realpath ..)"
           ccache --set-config=cache_dir="$HOME/.ccache"
           ccache --zero-stats
