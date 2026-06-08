@@ -6,14 +6,18 @@ ODBC driver for YDB.
 
 - CMake 3.10 or higher
 - C/C++ compiler with C11 and C++20 support
-- YDB C++ SDK
-- unixODBC (for Linux/macOS)
+- YDB C++ SDK (build with `YDB_SDK_ODBC=ON`)
+- unixODBC development packages (`unixodbc`, `unixodbc-dev` on Debian/Ubuntu)
+
+Static dependencies under `~/ydb_deps` must be built with
+`-DCMAKE_POSITION_INDEPENDENT_CODE=ON` when linking the shared ODBC driver. See the
+main [README](../README.md) dependency install section.
 
 ## Build
 
 ```bash
-cmake -DYDB_SDK_ODBC=1 --preset release-test-clang
-cmake --build --preset default
+cmake --preset release-test-clang
+cmake --build build --target ydb-odbc -j$(nproc)
 ```
 
 The shared library is produced as `build/odbc/libydb-odbc.so`.
