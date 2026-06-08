@@ -27,8 +27,10 @@ Ubuntu 24.04:
 ```bash
 sudo apt-get -y update
 sudo apt-get -y install build-essential ca-certificates ccache clang cmake git \
-  libidn11-dev libssl-dev lld ninja-build pkg-config python3 ragel yasm
+  libidn11-dev libssl-dev lld ninja-build pkg-config python3 ragel unixodbc-dev yasm
 ```
+
+`unixodbc-dev` is only required when configuring with `YDB_SDK_ODBC=ON`.
 
 Fedora 43:
 
