@@ -5,6 +5,7 @@
 #include <sql.h>
 #include <sqlext.h>
 
+#include <cstdlib>
 #include <cstring>
 #include <string>
 
@@ -30,6 +31,12 @@ inline bool SqlStatePrefix(const std::string& diag, const char* state5) {
 }
 
 inline void AllocEnv(SQLHENV* env) {
+    static bool configured = false;
+    if (!configured) {
+        setenv("ODBCINI", ODBC_TEST_ODBCINI, 1);
+        setenv("ODBCSYSINI", ODBC_TEST_ODBCSYSINI, 1);
+        configured = true;
+    }
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, env), SQL_SUCCESS);
     ASSERT_EQ(SQLSetEnvAttr(*env, SQL_ATTR_ODBC_VERSION, (void*)SQL_OV_ODBC3, 0), SQL_SUCCESS);
 }

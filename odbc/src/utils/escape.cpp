@@ -1,10 +1,10 @@
 #include "escape.h"
+#include "sql_type_map.h"
 
 #include <algorithm>
 #include <cctype>
 #include <optional>
 #include <string_view>
-#include <unordered_map>
 
 namespace NYdb::NOdbc {
 namespace {
@@ -95,55 +95,6 @@ std::string NormalizeOdbcTimestampLiteral(const std::string& raw) {
         normalized.push_back('Z');
     }
     return normalized;
-}
-
-std::string ToUpperAscii(std::string_view sv) {
-    std::string upper;
-    upper.resize(sv.size());
-    std::transform(sv.begin(), sv.end(), upper.begin(), [](unsigned char byte) {
-        return static_cast<char>(std::toupper(byte));
-    });
-    return upper;
-}
-
-std::string MapSqlTypeToken(std::string_view sqlType) {
-    static const std::unordered_map<std::string, std::string> kMap = {
-        {"CHAR", "Utf8"},
-        {"VARCHAR", "Utf8"},
-        {"LONGVARCHAR", "Utf8"},
-        {"WCHAR", "Utf8"},
-        {"WVARCHAR", "Utf8"},
-        {"WLONGVARCHAR", "Utf8"},
-        {"BIT", "Bool"},
-        {"TINYINT", "Int8"},
-        {"SMALLINT", "Int16"},
-        {"INTEGER", "Int32"},
-        {"BIGINT", "Int64"},
-        {"REAL", "Float"},
-        {"FLOAT", "Double"},
-        {"DOUBLE", "Double"},
-        {"DECIMAL", "Decimal(22, 9)"},
-        {"NUMERIC", "Decimal(22, 9)"},
-        {"BINARY", "String"},
-        {"VARBINARY", "String"},
-        {"LONGVARBINARY", "String"},
-        {"DATE", "Date"},
-        {"TIME", "Time"},
-        {"TIMESTAMP", "Datetime"},
-        {"TYPE_DATE", "Date"},
-        {"TYPE_TIME", "Time"},
-        {"TYPE_TIMESTAMP", "Datetime"},
-    };
-    std::string key = ToUpperAscii(sqlType);
-    const std::string kSql = "SQL_";
-    if (key.size() > kSql.size() && key.compare(0, kSql.size(), kSql) == 0) {
-        key.erase(0, kSql.size());
-    }
-    const auto mapped = kMap.find(key);
-    if (mapped != kMap.end()) {
-        return mapped->second;
-    }
-    return key;
 }
 
 std::string RewriteOdbcEscapesImpl(std::string_view sql);

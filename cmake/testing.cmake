@@ -77,10 +77,9 @@ function(add_ydb_test)
   endif()
 
   if (YDB_TEST_GTEST)
-    set(env_vars "")
+    set(test_environment "YDB_TEST_ROOT=sdk_tests")
     foreach(env_var ${YDB_TEST_ENV})
-      list(APPEND env_vars "ENVIRONMENT")
-      list(APPEND env_vars ${env_var})
+      string(APPEND test_environment ";${env_var}")
     endforeach()
 
     gtest_discover_tests(${YDB_TEST_NAME}
@@ -88,8 +87,7 @@ function(add_ydb_test)
       WORKING_DIRECTORY ${YDB_TEST_WORKING_DIRECTORY}
       PROPERTIES
         LABELS ${YDB_TEST_LABELS}
-        ENVIRONMENT "YDB_TEST_ROOT=sdk_tests"
-        ${env_vars}
+        ENVIRONMENT "${test_environment}"
     )
 
     target_link_libraries(${YDB_TEST_NAME} PRIVATE
@@ -148,6 +146,8 @@ if (YDB_SDK_ODBC)
     target_compile_definitions(${ODBC_TEST_NAME} 
       PRIVATE 
         ODBC_DRIVER_PATH="$<TARGET_FILE:ydb-odbc>"
+        ODBC_TEST_ODBCINI="${CMAKE_BINARY_DIR}/odbc/odbc.ini"
+        ODBC_TEST_ODBCSYSINI="${CMAKE_BINARY_DIR}/odbc"
     )
 
     add_dependencies(${ODBC_TEST_NAME} ydb-odbc)

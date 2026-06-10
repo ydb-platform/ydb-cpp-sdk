@@ -4,6 +4,7 @@
 #include "utils/types.h"
 #include "utils/error_manager.h"
 #include "utils/escape.h"
+#include "utils/param_rewrite.h"
 #include "utils/sql_like.h"
 
 #include <ydb-cpp-sdk/client/params/params.h>
@@ -128,10 +129,14 @@ NYdb::NRetry::TRetryOperationSettings TStatement::MakeAutocommitRetrySettings() 
 }
 
 NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession& session, const NYdb::TParams& params){
-    const std::string sqlText = Attributes_.GetNoScanMode() == SQL_NOSCAN_ON
+    const std::string sqlAfterEscapes = Attributes_.GetNoScanMode() == SQL_NOSCAN_ON
         ? PreparedQuery_
         : RewriteOdbcEscapes(PreparedQuery_);
-    const std::string queryText = Conn_->WrapQueryForCurrentCatalog(sqlText);
+    const TParamRewriteResult rewritten = RewriteOdbcQuestionMarks(sqlAfterEscapes, BoundParams_);
+    if (!rewritten.Success) {
+        throw TOdbcException(rewritten.SqlState, 0, rewritten.Message);
+    }
+    const std::string queryText = Conn_->WrapQueryForCurrentCatalog(rewritten.Sql);
     NQuery::TExecuteQuerySettings execSettings;
     const SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
     if (queryTimeoutSec > 0) {
