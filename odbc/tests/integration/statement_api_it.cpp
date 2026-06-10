@@ -84,6 +84,35 @@ TEST(StatementApi, ExecDirectInvalidTable) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(StatementApi, PrepareAndExecuteWithQuestionMarks) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"SELECT ? + ? AS result", SQL_NTS), stmt, SQL_HANDLE_STMT);
+
+    SQLINTEGER p1 = 10, p2 = 20;
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+                                   0, 0, &p1, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 2, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+                                   0, 0, &p2, 0, nullptr), stmt, SQL_HANDLE_STMT);
+
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+
+    SQLINTEGER result = 0;
+    SQLLEN resultInd = 0;
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &result, 0, &resultInd), SQL_SUCCESS);
+    ASSERT_EQ(result, 30);
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(StatementApi, PrepareAndExecute) {
     SQLHENV env;
     SQLHDBC dbc;
