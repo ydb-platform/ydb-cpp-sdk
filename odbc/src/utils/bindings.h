@@ -3,7 +3,7 @@
 #include <sql.h>
 #include <sqlext.h>
 
-#include <ydb-cpp-sdk/client/types/status/status.h>
+#include <ydb-cpp-sdk/client/types/fwd.h>
 
 namespace NYdb {
 namespace NOdbc {
