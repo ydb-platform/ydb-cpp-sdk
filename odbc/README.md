@@ -99,7 +99,8 @@ SQLDriverConnect(dbc, NULL, connStr, SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT
 
 ## Parameters
 
-Use names $p1, $p2, ... for parameter names
+`?` placeholders are rewritten to `$p1`, `$p2`, ... with auto-generated `DECLARE $pN AS <type>?;`
+from `SQLBindParameter` types. YDB-native `$pN` syntax also works.
 
 ## License
 
