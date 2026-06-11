@@ -31,7 +31,18 @@ TEST(OdbcParamRewrite, SkipsLiteralAndYqlOptionalSyntax) {
         "DECLARE $p1 AS Int32?;\nSELECT '?', $p1");
     EXPECT_EQ(RewriteOdbcQuestionMarks("DECLARE $p1 AS Int32?;\nSELECT $p1", params).Sql,
         "DECLARE $p1 AS Int32?;\nSELECT $p1");
-    EXPECT_EQ(RewriteOdbcQuestionMarks("SELECT $p1 + 10", params).Sql, "SELECT $p1 + 10");
+    EXPECT_EQ(RewriteOdbcQuestionMarks("SELECT $p1 + 10", params).Sql,
+        "DECLARE $p1 AS Int32?;\nSELECT $p1 + 10");
+}
+
+TEST(OdbcParamRewrite, PrependsDeclareForNativeDollarParams) {
+    const std::vector<TBoundParam> params = {IntParam(1), IntParam(2)};
+    const auto result = RewriteOdbcQuestionMarks("SELECT $p1 + $p2 AS result", params);
+    ASSERT_TRUE(result.Success);
+    EXPECT_EQ(result.Sql,
+        "DECLARE $p1 AS Int32?;\n"
+        "DECLARE $p2 AS Int32?;\n"
+        "SELECT $p1 + $p2 AS result");
 }
 
 TEST(OdbcParamRewrite, RejectsMismatchedBindCount) {

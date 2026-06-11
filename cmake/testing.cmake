@@ -78,8 +78,8 @@ function(add_ydb_test)
 
   if (YDB_TEST_GTEST)
     set(test_environment "YDB_TEST_ROOT=sdk_tests")
-    foreach(env_var ${YDB_TEST_ENV})
-      string(APPEND test_environment ";${env_var}")
+    foreach(env_var IN LISTS YDB_TEST_ENV)
+      list(APPEND test_environment "${env_var}")
     endforeach()
 
     gtest_discover_tests(${YDB_TEST_NAME}
