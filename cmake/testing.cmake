@@ -77,9 +77,10 @@ function(add_ydb_test)
   endif()
 
   if (YDB_TEST_GTEST)
-    set(test_environment "YDB_TEST_ROOT=sdk_tests")
+    set(env_vars "")
     foreach(env_var IN LISTS YDB_TEST_ENV)
-      list(APPEND test_environment "${env_var}")
+      list(APPEND env_vars "ENVIRONMENT")
+      list(APPEND env_vars "${env_var}")
     endforeach()
 
     gtest_discover_tests(${YDB_TEST_NAME}
@@ -87,7 +88,8 @@ function(add_ydb_test)
       WORKING_DIRECTORY ${YDB_TEST_WORKING_DIRECTORY}
       PROPERTIES
         LABELS ${YDB_TEST_LABELS}
-        ENVIRONMENT "${test_environment}"
+        ENVIRONMENT "YDB_TEST_ROOT=sdk_tests"
+        ${env_vars}
     )
 
     target_link_libraries(${YDB_TEST_NAME} PRIVATE
