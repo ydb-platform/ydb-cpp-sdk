@@ -2,6 +2,7 @@
 #include "sql_type_map.h"
 
 #include <cctype>
+#include <set>
 #include <string>
 #include <string_view>
 
@@ -22,13 +23,16 @@ bool IsParamMark(std::string_view sql, size_t i) {
     return true;
 }
 
-SQLSMALLINT FindParamType(const std::vector<TBoundParam>& params, SQLUSMALLINT index) {
-    for (const auto& param : params) {
-        if (param.ParamNumber == index) {
-            return param.ParameterType;
-        }
+bool TryParseDollarParam(std::string_view sql, size_t i, SQLUSMALLINT& index) {
+    if (sql.size() < i + 3 || sql[i] != '$' || sql[i + 1] != 'p' || !std::isdigit(static_cast<unsigned char>(sql[i + 2]))) {
+        return false;
     }
-    return 0;
+    unsigned n = 0;
+    for (size_t j = i + 2; j < sql.size() && std::isdigit(static_cast<unsigned char>(sql[j])); ++j) {
+        n = n * 10 + static_cast<unsigned>(sql[j] - '0');
+    }
+    index = static_cast<SQLUSMALLINT>(n);
+    return true;
 }
 
 } // namespace
@@ -38,9 +42,10 @@ TParamRewriteResult RewriteOdbcQuestionMarks(
     const std::vector<TBoundParam>& boundParams) {
     std::string body;
     body.reserve(sql.size());
-    size_t paramCount = 0;
+    size_t questionMarkCount = 0;
     bool inQuote = false;
     size_t braceDepth = 0;
+    std::set<SQLUSMALLINT> paramIndices;
 
     for (size_t i = 0; i < sql.size(); ++i) {
         const char ch = sql[i];
@@ -69,30 +74,44 @@ TParamRewriteResult RewriteOdbcQuestionMarks(
             body.push_back(ch);
             continue;
         }
-        if (braceDepth == 0 && IsParamMark(sql, i)) {
-            body += "$p";
-            body += std::to_string(++paramCount);
-            continue;
+        if (braceDepth == 0) {
+            if (IsParamMark(sql, i)) {
+                const auto index = static_cast<SQLUSMALLINT>(++questionMarkCount);
+                paramIndices.insert(index);
+                body += "$p";
+                body += std::to_string(index);
+                continue;
+            }
+            SQLUSMALLINT index = 0;
+            if (TryParseDollarParam(sql, i, index)) {
+                paramIndices.insert(index);
+            }
         }
         body.push_back(ch);
     }
 
-    if (paramCount == 0) {
+    if (paramIndices.empty()) {
         return {.Sql = std::string(sql)};
     }
-    if (paramCount != boundParams.size()) {
+    if (questionMarkCount > 0 && questionMarkCount != boundParams.size()) {
         return {.Success = false, .SqlState = "07002", .Message = "COUNT field incorrect"};
     }
 
     std::string declares;
-    for (size_t idx = 1; idx <= paramCount; ++idx) {
-        const SQLSMALLINT type = FindParamType(boundParams, static_cast<SQLUSMALLINT>(idx));
-        if (!type) {
+    for (const SQLUSMALLINT index : paramIndices) {
+        const std::string declare = "DECLARE $p" + std::to_string(index) + " AS";
+        if (sql.find(declare) != std::string_view::npos) {
+            continue;
+        }
+        const auto bound = std::ranges::find(boundParams, index, &TBoundParam::ParamNumber);
+        if (bound == boundParams.end()) {
             return {.Success = false, .SqlState = "07002", .Message = "COUNT field incorrect"};
         }
-        declares += "DECLARE $p" + std::to_string(idx) + " AS " + FormatYqlParamDeclareType(type) + ";\n";
+        declares += declare + " " + FormatYqlParamDeclareType(bound->ParameterType) + ";\n";
     }
-
+    if (declares.empty()) {
+        return {.Sql = body};
+    }
     return {.Sql = declares + body};
 }
 
