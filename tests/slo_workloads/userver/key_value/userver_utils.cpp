@@ -26,6 +26,7 @@ using namespace NYdb;
 // thread. The userver version needs the coroutine engine running for
 // ydb::TableClient, engine::Semaphore, AsyncNoSpan, SleepFor, WaitAny, etc.
 int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TCleanupCommand cleanup) {
+    SetEnv("SLO_STUB_RETRY", "1");
     TOpts opts = TOpts::Default();
 
     std::string connectionString;

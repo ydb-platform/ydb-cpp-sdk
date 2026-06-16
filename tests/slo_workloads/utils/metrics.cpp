@@ -1,6 +1,8 @@
 #include "metrics.h"
 #include "utils.h"
 
+#include <util/system/env.h>
+
 #include <opentelemetry/exporters/otlp/otlp_http_metric_exporter_factory.h>
 #include <opentelemetry/sdk/metrics/export/periodic_exporting_metric_reader_factory.h>
 #include <opentelemetry/sdk/metrics/meter_context.h>
@@ -140,11 +142,11 @@ public:
             opentelemetry::common::MakeKeyValueIterableView(
                 success ? series.SuccessAttrs : series.ErrorAttrs));
 
-        // sdk_retry_attempts_total = total number of technical attempts
-        // including the first one. RetryAttempts counts only post-first
-        // attempts, so add 1 to include the initial attempt.
-        RetryAttemptsTotal_->Add(data.RetryAttempts + 1,
-            opentelemetry::common::MakeKeyValueIterableView(series.RetryAttrs));
+        // userver TableClient does not expose per-request retry count.
+        if (GetEnv("SLO_STUB_RETRY").empty()) {
+            RetryAttemptsTotal_->Add(data.RetryAttempts + 1,
+                opentelemetry::common::MakeKeyValueIterableView(series.RetryAttrs));
+        }
 
         if (success) {
             series.Recorder.Record(data.Delay);
