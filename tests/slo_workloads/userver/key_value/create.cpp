@@ -1,8 +1,8 @@
 #include "key_value.h"
 #include "userver_table_client.h"
 
-#include <userver/concurrent/background_task_storage.hpp>
 #include <userver/engine/async.hpp>
+#include <userver/engine/get_all.hpp>
 #include <userver/engine/semaphore.hpp>
 #include <userver/engine/sleep.hpp>
 #include <userver/ydb/exceptions.hpp>
@@ -15,6 +15,7 @@
 
 #include <atomic>
 #include <csignal>
+#include <vector>
 
 using namespace NYdb;
 using namespace NYdb::NTable;
@@ -73,7 +74,7 @@ int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv) {
         userver::engine::Semaphore semaphore{
             static_cast<userver::engine::Semaphore::Counter>(opts.MaxInfly)};
 
-        userver::concurrent::BackgroundTaskStorage background_tasks;
+        std::vector<userver::engine::TaskWithResult<void>> tasks;
 
         std::atomic<std::uint64_t> succeeded{0};
         std::atomic<std::uint64_t> failed{0};
@@ -101,8 +102,7 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 
             auto params = userver_slo::PackValuesToPreparedArgs(pack);
 
-            background_tasks.AsyncDetach(
-                "generate",
+            tasks.push_back(userver::engine::AsyncNoSpan(
                 [&ydbClient, &semaphore, &stats, &succeeded, &failed,
                  &opts, query, params = std::move(params)]() mutable {
                     auto stat = stats.StartRequest();
@@ -122,12 +122,12 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
                         failed.fetch_add(1);
                     }
                     semaphore.unlock_shared();
-                });
+                }));
 
             userver::engine::Yield();
         }
 
-        background_tasks.CancelAndWait();
+        userver::engine::GetAll(tasks);
 
         stats.Finish();
 

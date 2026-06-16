@@ -1,8 +1,8 @@
 #include "key_value.h"
 #include "userver_table_client.h"
 
-#include <userver/concurrent/background_task_storage.hpp>
 #include <userver/engine/async.hpp>
+#include <userver/engine/get_all.hpp>
 #include <userver/engine/sleep.hpp>
 #include <userver/ydb/exceptions.hpp>
 #include <userver/ydb/query.hpp>
@@ -12,8 +12,10 @@
 #include <util/string/printf.h>
 #include <util/system/getpid.h>
 
+#include <algorithm>
 #include <atomic>
 #include <csignal>
+#include <vector>
 
 using namespace NYdb;
 using namespace NYdb::NTable;
@@ -101,6 +103,15 @@ void PollSignals() {
             GlobalReporter->ShowProgress();
         }
     }
+}
+
+void PruneFinishedTasks(std::vector<userver::engine::TaskWithResult<void>>& tasks) {
+    tasks.erase(
+        std::remove_if(tasks.begin(), tasks.end(),
+            [](userver::engine::TaskWithResult<void>& task) {
+                return !task.IsValid() || task.IsFinished();
+            }),
+        tasks.end());
 }
 
 void ExecuteQuery(
@@ -215,11 +226,12 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
                 TUserverRpsProvider rpsProvider(readRps);
                 rpsProvider.Reset();
 
-                userver::concurrent::BackgroundTaskStorage background_tasks;
+                std::vector<userver::engine::TaskWithResult<void>> tasks;
                 std::atomic<std::uint32_t> inflight{0};
 
                 while (!ShouldStop.load() && TInstant::Now() < deadline) {
                     PollSignals();
+                    PruneFinishedTasks(tasks);
 
                     std::uint32_t idToSelect = RandomNumber<std::uint32_t>() % objectIdRange;
                     const std::uint32_t objectIdKey = GetHash(idToSelect);
@@ -233,8 +245,7 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
                         continue;
                     }
 
-                    background_tasks.AsyncDetach(
-                        "read",
+                    tasks.push_back(userver::engine::AsyncNoSpan(
                         [&ydbClient, &readStats, &readSucceeded, &readFailed, &inflight,
                          readTimeout, readQuery, objectIdKey, idToSelect]() {
                             uydb::OperationSettings settings;
@@ -250,12 +261,12 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
                                 readSucceeded, readFailed);
 
                             inflight.fetch_sub(1);
-                        });
+                        }));
 
                     userver::engine::Yield();
                 }
 
-                background_tasks.CancelAndWait();
+                userver::engine::GetAll(tasks);
                 readStats->Finish();
             }
         ));
@@ -294,11 +305,12 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 
                 TKeyValueGenerator generator(writeCommon, maxId);
 
-                userver::concurrent::BackgroundTaskStorage background_tasks;
+                std::vector<userver::engine::TaskWithResult<void>> tasks;
                 std::atomic<std::uint32_t> inflight{0};
 
                 while (!ShouldStop.load() && TInstant::Now() < deadline) {
                     PollSignals();
+                    PruneFinishedTasks(tasks);
 
                     const auto value = BuildValueFromRecord(generator.Get());
                     writeGenerated.fetch_add(1);
@@ -312,8 +324,7 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
                         continue;
                     }
 
-                    background_tasks.AsyncDetach(
-                        "write",
+                    tasks.push_back(userver::engine::AsyncNoSpan(
                         [&ydbClient, &writeStats, &writeSucceeded, &writeFailed, &inflight,
                          writeTimeout, writeQuery, value]() {
                             uydb::OperationSettings settings;
@@ -327,12 +338,12 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
                                 writeSucceeded, writeFailed);
 
                             inflight.fetch_sub(1);
-                        });
+                        }));
 
                     userver::engine::Yield();
                 }
 
-                background_tasks.CancelAndWait();
+                userver::engine::GetAll(tasks);
                 writeStats->Finish();
             }
         ));
