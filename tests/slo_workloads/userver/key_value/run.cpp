@@ -1,8 +1,8 @@
 #include "key_value.h"
 #include "userver_table_client.h"
 
+#include <userver/concurrent/background_task_storage.hpp>
 #include <userver/engine/async.hpp>
-#include <userver/engine/semaphore.hpp>
 #include <userver/engine/sleep.hpp>
 #include <userver/ydb/exceptions.hpp>
 #include <userver/ydb/query.hpp>
@@ -61,13 +61,6 @@ private:
     TInstant ProcessedTime_;
     std::uint32_t Allowed_ = 0;
 };
-
-void DrainCompletedTasks(std::vector<userver::engine::TaskWithResult<void>>& tasks) {
-    for (auto& task : tasks) {
-        task.Wait();
-    }
-    tasks.clear();
-}
 
 struct TProgressReporter {
     TStat* ReadStats = nullptr;
@@ -222,10 +215,8 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
                 TUserverRpsProvider rpsProvider(readRps);
                 rpsProvider.Reset();
 
-                userver::engine::Semaphore semaphore{
-                    static_cast<userver::engine::Semaphore::Counter>(maxInfly)};
-
-                std::vector<userver::engine::TaskWithResult<void>> tasks;
+                userver::concurrent::BackgroundTaskStorage background_tasks;
+                std::atomic<std::uint32_t> inflight{0};
 
                 while (!ShouldStop.load() && TInstant::Now() < deadline) {
                     PollSignals();
@@ -235,12 +226,17 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
 
                     rpsProvider.Use();
 
-                    semaphore.lock_shared();
+                    if (inflight.fetch_add(1) >= maxInfly) {
+                        inflight.fetch_sub(1);
+                        readStats->ReportMaxInfly();
+                        userver::engine::Yield();
+                        continue;
+                    }
 
-                    tasks.push_back(userver::engine::AsyncNoSpan(
-                        [&ydbClient, &semaphore, &readStats, &readSucceeded, &readFailed,
+                    background_tasks.AsyncDetach(
+                        "read",
+                        [&ydbClient, &readStats, &readSucceeded, &readFailed, &inflight,
                          readTimeout, readQuery, objectIdKey, idToSelect]() {
-
                             uydb::OperationSettings settings;
                             settings.client_timeout_ms = std::chrono::milliseconds(readTimeout.MilliSeconds());
 
@@ -253,19 +249,13 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
                                 std::move(builder), *readStats,
                                 readSucceeded, readFailed);
 
-                            semaphore.unlock_shared();
-                        }
-                    ));
+                            inflight.fetch_sub(1);
+                        });
 
-                    if (tasks.size() >= static_cast<size_t>(maxInfly)) {
-                        DrainCompletedTasks(tasks);
-                    }
+                    userver::engine::Yield();
                 }
 
-                for (auto& task : tasks) {
-                    task.Wait();
-                }
-
+                background_tasks.CancelAndWait();
                 readStats->Finish();
             }
         ));
@@ -304,10 +294,8 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 
                 TKeyValueGenerator generator(writeCommon, maxId);
 
-                userver::engine::Semaphore semaphore{
-                    static_cast<userver::engine::Semaphore::Counter>(maxInfly)};
-
-                std::vector<userver::engine::TaskWithResult<void>> tasks;
+                userver::concurrent::BackgroundTaskStorage background_tasks;
+                std::atomic<std::uint32_t> inflight{0};
 
                 while (!ShouldStop.load() && TInstant::Now() < deadline) {
                     PollSignals();
@@ -317,12 +305,17 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 
                     rpsProvider.Use();
 
-                    semaphore.lock_shared();
+                    if (inflight.fetch_add(1) >= maxInfly) {
+                        inflight.fetch_sub(1);
+                        writeStats->ReportMaxInfly();
+                        userver::engine::Yield();
+                        continue;
+                    }
 
-                    tasks.push_back(userver::engine::AsyncNoSpan(
-                        [&ydbClient, &semaphore, &writeStats, &writeSucceeded, &writeFailed,
+                    background_tasks.AsyncDetach(
+                        "write",
+                        [&ydbClient, &writeStats, &writeSucceeded, &writeFailed, &inflight,
                          writeTimeout, writeQuery, value]() {
-
                             uydb::OperationSettings settings;
                             settings.client_timeout_ms = std::chrono::milliseconds(writeTimeout.MilliSeconds());
 
@@ -333,19 +326,13 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
                                 std::move(params), *writeStats,
                                 writeSucceeded, writeFailed);
 
-                            semaphore.unlock_shared();
-                        }
-                    ));
+                            inflight.fetch_sub(1);
+                        });
 
-                    if (tasks.size() >= static_cast<size_t>(maxInfly)) {
-                        DrainCompletedTasks(tasks);
-                    }
+                    userver::engine::Yield();
                 }
 
-                for (auto& task : tasks) {
-                    task.Wait();
-                }
-
+                background_tasks.CancelAndWait();
                 writeStats->Finish();
             }
         ));
