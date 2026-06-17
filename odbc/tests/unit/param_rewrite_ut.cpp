@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 using NYdb::NOdbc::RewriteOdbcQuestionMarks;
+using NYdb::NOdbc::CountOdbcParams;
 using NYdb::NOdbc::TBoundParam;
 
 namespace {
@@ -49,4 +50,11 @@ TEST(OdbcParamRewrite, RejectsMismatchedBindCount) {
     const auto result = RewriteOdbcQuestionMarks("SELECT ? + ?", {IntParam(1)});
     ASSERT_FALSE(result.Success);
     EXPECT_EQ(result.SqlState, "07002");
+}
+
+TEST(OdbcParamRewrite, CountOdbcParams) {
+    EXPECT_EQ(CountOdbcParams("SELECT ? + ?"), 2);
+    EXPECT_EQ(CountOdbcParams("SELECT $p1"), 1);
+    EXPECT_EQ(CountOdbcParams("SELECT $p1 + $p2"), 2);
+    EXPECT_EQ(CountOdbcParams("SELECT 1"), 0);
 }

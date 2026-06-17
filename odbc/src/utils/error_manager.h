@@ -89,6 +89,26 @@ enum class ENullInputHandlePolicy : unsigned char {
 };
 
 template <typename Handle>
+SQLRETURN HandleOdbcExceptionsConsuming(SQLHANDLE handlePtr, std::function<SQLRETURN(Handle*)>&& func) {
+    if (!handlePtr) {
+        return SQL_INVALID_HANDLE;
+    }
+    auto handle = static_cast<Handle*>(handlePtr);
+
+    try {
+        return func(handle);
+    } catch (const NStatusHelpers::TYdbErrorException& ex) {
+        return handle->AddError(ex.GetStatus());
+    } catch (const TOdbcException& ex) {
+        return handle->AddError(ex);
+    } catch (const std::exception& ex) {
+        return handle->AddError("HY000", 0, ex.what());
+    } catch (...) {
+        return handle->AddError("HY000", 0, "Unknown error");
+    }
+}
+
+template <typename Handle>
 SQLRETURN HandleOdbcExceptions(SQLHANDLE handlePtr, std::function<SQLRETURN(Handle*)>&& func) {
     if (!handlePtr) {
         return SQL_INVALID_HANDLE;

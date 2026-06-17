@@ -5,6 +5,8 @@
 
 #include <ydb-cpp-sdk/client/types/fwd.h>
 
+#include <string>
+
 namespace NYdb {
 namespace NOdbc {
 
@@ -18,6 +20,9 @@ struct TBoundParam {
     SQLPOINTER ParameterValuePtr;
     SQLLEN BufferLength;
     SQLLEN* StrLenOrIndPtr;
+    bool AtExec = false;
+    bool AtExecComplete = false;
+    std::string AtExecChunk;
 };
 
 struct TBoundColumn {

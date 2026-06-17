@@ -1,5 +1,7 @@
 #include "metadata.h"
 
+#include "utils/diag.h"
+
 #include <algorithm>
 #include <cstring>
 
@@ -12,30 +14,7 @@ SQLRETURN WriteInfoString(
     SQLPOINTER infoValuePtr,
     SQLSMALLINT bufferLength,
     SQLSMALLINT* stringLengthPtr) {
-    if (!infoValuePtr) {
-        return conn->AddError("HY009", 0, "Invalid use of null pointer");
-    }
-    if (bufferLength < 0) {
-        return conn->AddError("HY090", 0, "Invalid string or buffer length");
-    }
-    const SQLSMALLINT fullLen = static_cast<SQLSMALLINT>(std::strlen(value));
-    if (stringLengthPtr) {
-        *stringLengthPtr = fullLen;
-    }
-    if (bufferLength == 0) {
-        return fullLen == 0 ? SQL_SUCCESS : conn->AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
-    }
-
-    auto* out = reinterpret_cast<char*>(infoValuePtr);
-    const SQLSMALLINT copyLen = static_cast<SQLSMALLINT>(std::min<int>(fullLen, bufferLength - 1));
-    if (copyLen > 0) {
-        std::memcpy(out, value, static_cast<size_t>(copyLen));
-    }
-    out[copyLen] = '\0';
-    if (copyLen < fullLen) {
-        return conn->AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
-    }
-    return SQL_SUCCESS;
+    return Diag::WriteOdbcString(*conn, value, infoValuePtr, bufferLength, stringLengthPtr);
 }
 
 template <typename T>
@@ -60,10 +39,14 @@ bool IsSupportedFunction(SQLUSMALLINT functionId) {
         case SQL_API_SQLALLOCHANDLE:
         case SQL_API_SQLBINDCOL:
         case SQL_API_SQLBINDPARAMETER:
+        case SQL_API_SQLCANCEL:
         case SQL_API_SQLCLOSECURSOR:
+        case SQL_API_SQLCOLATTRIBUTE:
         case SQL_API_SQLCOLUMNS:
         case SQL_API_SQLCONNECT:
+        case SQL_API_SQLCOPYDESC:
         case SQL_API_SQLDESCRIBECOL:
+        case SQL_API_SQLDESCRIBEPARAM:
         case SQL_API_SQLDISCONNECT:
         case SQL_API_SQLDRIVERCONNECT:
         case SQL_API_SQLENDTRAN:
@@ -71,22 +54,38 @@ bool IsSupportedFunction(SQLUSMALLINT functionId) {
         case SQL_API_SQLEXECUTE:
         case SQL_API_SQLFETCH:
         case SQL_API_SQLFETCHSCROLL:
+        case SQL_API_SQLFOREIGNKEYS:
         case SQL_API_SQLFREEHANDLE:
         case SQL_API_SQLFREESTMT:
+        case SQL_API_SQLGETCURSORNAME:
         case SQL_API_SQLGETDATA:
+        case SQL_API_SQLGETDESCFIELD:
+        case SQL_API_SQLGETDESCREC:
         case SQL_API_SQLGETDIAGFIELD:
         case SQL_API_SQLGETDIAGREC:
         case SQL_API_SQLGETFUNCTIONS:
         case SQL_API_SQLGETCONNECTATTR:
+        case SQL_API_SQLGETENVATTR:
         case SQL_API_SQLGETINFO:
         case SQL_API_SQLGETSTMTATTR:
+        case SQL_API_SQLGETTYPEINFO:
         case SQL_API_SQLMORERESULTS:
+        case SQL_API_SQLNATIVESQL:
+        case SQL_API_SQLNUMPARAMS:
         case SQL_API_SQLNUMRESULTCOLS:
+        case SQL_API_SQLPARAMDATA:
         case SQL_API_SQLPREPARE:
+        case SQL_API_SQLPRIMARYKEYS:
+        case SQL_API_SQLPUTDATA:
         case SQL_API_SQLROWCOUNT:
         case SQL_API_SQLSETCONNECTATTR:
+        case SQL_API_SQLSETCURSORNAME:
+        case SQL_API_SQLSETDESCFIELD:
+        case SQL_API_SQLSETDESCREC:
         case SQL_API_SQLSETENVATTR:
         case SQL_API_SQLSETSTMTATTR:
+        case SQL_API_SQLSPECIALCOLUMNS:
+        case SQL_API_SQLSTATISTICS:
         case SQL_API_SQLTABLES:
             return true;
         default:
@@ -96,7 +95,7 @@ bool IsSupportedFunction(SQLUSMALLINT functionId) {
 
 } // namespace
 
-SQLRETURN TMetadata::GetInfo(
+SQLRETURN NMetadata::GetInfo(
     TConnection* conn,
     SQLUSMALLINT infoType,
     SQLPOINTER infoValuePtr,
@@ -110,6 +109,46 @@ SQLRETURN TMetadata::GetInfo(
             return WriteInfoString(conn, "unknown", infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_DRIVER_ODBC_VER:
             return WriteInfoString(conn, "03.00", infoValuePtr, bufferLength, stringLengthPtr);
+        case SQL_ODBC_INTERFACE_CONFORMANCE:
+            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_OIC_CORE, infoValuePtr, stringLengthPtr);
+        case SQL_ODBC_API_CONFORMANCE:
+            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_OAC_LEVEL1, infoValuePtr, stringLengthPtr);
+        case SQL_ODBC_SAG_CLI_CONFORMANCE:
+            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_OSCC_NOT_COMPLIANT, infoValuePtr, stringLengthPtr);
+        case SQL_ODBC_SQL_CONFORMANCE:
+            return WriteInfoScalar<SQLSMALLINT>(conn, SQL_OSC_MINIMUM, infoValuePtr, stringLengthPtr);
+        case SQL_MAX_TABLE_NAME_LEN:
+        case SQL_MAX_COLUMN_NAME_LEN:
+        case SQL_MAX_CATALOG_NAME_LEN:
+        case SQL_MAX_IDENTIFIER_LEN:
+            return WriteInfoScalar<SQLUSMALLINT>(conn, 255, infoValuePtr, stringLengthPtr);
+        case SQL_MAX_SCHEMA_NAME_LEN:
+        case SQL_MAX_PROCEDURE_NAME_LEN:
+            return WriteInfoScalar<SQLUSMALLINT>(conn, 0, infoValuePtr, stringLengthPtr);
+        case SQL_MAX_USER_NAME_LEN:
+            return WriteInfoScalar<SQLUSMALLINT>(conn, 128, infoValuePtr, stringLengthPtr);
+        case SQL_MAX_DRIVER_CONNECTIONS:
+        case SQL_MAX_CONCURRENT_ACTIVITIES:
+        case SQL_MAX_STATEMENT_LEN:
+        case SQL_MAX_BINARY_LITERAL_LEN:
+        case SQL_MAX_CHAR_LITERAL_LEN:
+        case SQL_MAX_COLUMNS_IN_GROUP_BY:
+        case SQL_MAX_COLUMNS_IN_ORDER_BY:
+        case SQL_MAX_COLUMNS_IN_INDEX:
+        case SQL_MAX_COLUMNS_IN_SELECT:
+        case SQL_MAX_COLUMNS_IN_TABLE:
+            return WriteInfoScalar<SQLUINTEGER>(conn, 0, infoValuePtr, stringLengthPtr);
+        case SQL_SEARCH_PATTERN_ESCAPE:
+            return WriteInfoString(conn, "\\", infoValuePtr, bufferLength, stringLengthPtr);
+        case SQL_KEYWORDS:
+        case SQL_SPECIAL_CHARACTERS:
+            return WriteInfoString(conn, "", infoValuePtr, bufferLength, stringLengthPtr);
+        case SQL_CONCAT_NULL_BEHAVIOR:
+            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_CB_NULL, infoValuePtr, stringLengthPtr);
+        case SQL_NULL_COLLATION:
+            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_NC_HIGH, infoValuePtr, stringLengthPtr);
+        case SQL_MAX_CURSOR_NAME_LEN:
+            return WriteInfoScalar<SQLUSMALLINT>(conn, 128, infoValuePtr, stringLengthPtr);
 
         // DBMS Information
         case SQL_DBMS_NAME:
@@ -208,7 +247,7 @@ SQLRETURN TMetadata::GetInfo(
 }
 
 
-SQLRETURN TMetadata::GetFunctions(SQLUSMALLINT functionId, SQLUSMALLINT* supportedPtr) {
+SQLRETURN NMetadata::GetFunctions(SQLUSMALLINT functionId, SQLUSMALLINT* supportedPtr) {
     if (!supportedPtr) {
         return SQL_ERROR;
     }
@@ -237,7 +276,7 @@ SQLRETURN TMetadata::GetFunctions(SQLUSMALLINT functionId, SQLUSMALLINT* support
     return SQL_SUCCESS;
 }
 
-SQLRETURN TMetadata::DescribeCol(
+SQLRETURN NMetadata::DescribeCol(
     TStatement* stmt,
     SQLUSMALLINT columnNumber,
     SQLCHAR* columnName,
@@ -253,13 +292,9 @@ SQLRETURN TMetadata::DescribeCol(
     }
 
     const auto& column = columns[columnNumber - 1];
-    if (nameLengthPtr) {
-        *nameLengthPtr = static_cast<SQLSMALLINT>(column.Name.size());
-    }
-    if (columnName && bufferLength > 0) {
-        const auto copyLength = std::min<size_t>(column.Name.size(), static_cast<size_t>(bufferLength - 1));
-        std::memcpy(columnName, column.Name.data(), copyLength);
-        columnName[copyLength] = '\0';
+    const SQLRETURN nameRc = Diag::WriteOdbcString(*stmt, column.Name, columnName, bufferLength, nameLengthPtr);
+    if (nameRc != SQL_SUCCESS) {
+        return nameRc;
     }
     if (dataTypePtr) {
         *dataTypePtr = column.SqlType;
@@ -274,6 +309,82 @@ SQLRETURN TMetadata::DescribeCol(
         *nullablePtr = column.Nullable;
     }
     return SQL_SUCCESS;
+}
+
+SQLRETURN NMetadata::ColAttribute(
+    TStatement* stmt,
+    SQLUSMALLINT columnNumber,
+    SQLUSMALLINT fieldIdentifier,
+    SQLPOINTER characterAttributePtr,
+    SQLSMALLINT bufferLength,
+    SQLSMALLINT* stringLengthAttributePtr,
+    SQLLEN* numericAttributePtr) {
+    SQLCHAR name[256] = {};
+    SQLSMALLINT nameLength = 0;
+    SQLSMALLINT dataType = 0;
+    SQLULEN columnSize = 0;
+    SQLSMALLINT decimalDigits = 0;
+    SQLSMALLINT nullable = 0;
+
+    const SQLRETURN describeRc = DescribeCol(
+        stmt, columnNumber, name, sizeof(name), &nameLength, &dataType, &columnSize, &decimalDigits, &nullable);
+    if (describeRc != SQL_SUCCESS) {
+        return describeRc;
+    }
+
+    const auto setNumericAttr = [&](SQLLEN value) -> SQLRETURN {
+        if (!numericAttributePtr) {
+            return stmt->AddError("HY009", 0, "Invalid use of null pointer");
+        }
+        *numericAttributePtr = value;
+        return SQL_SUCCESS;
+    };
+
+    switch (fieldIdentifier) {
+        case SQL_DESC_NAME:
+        case SQL_COLUMN_NAME: {
+            if (!characterAttributePtr && bufferLength != 0) {
+                return stmt->AddError("HY090", 0, "Invalid string or buffer length");
+            }
+            const SQLSMALLINT fullLen = nameLength;
+            if (stringLengthAttributePtr) {
+                *stringLengthAttributePtr = fullLen;
+            }
+            if (bufferLength == 0) {
+                return fullLen == 0 ? SQL_SUCCESS
+                    : stmt->AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
+            }
+            auto* out = reinterpret_cast<char*>(characterAttributePtr);
+            const SQLSMALLINT copyLen = static_cast<SQLSMALLINT>(std::min<int>(fullLen, bufferLength - 1));
+            if (copyLen > 0) {
+                std::memcpy(out, name, static_cast<size_t>(copyLen));
+            }
+            if (out) {
+                out[copyLen] = '\0';
+            }
+            if (copyLen < fullLen) {
+                return stmt->AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
+            }
+            return SQL_SUCCESS;
+        }
+        case SQL_DESC_TYPE:
+        case SQL_COLUMN_TYPE:
+            return setNumericAttr(dataType);
+        case SQL_DESC_LENGTH:
+        case SQL_COLUMN_LENGTH:
+            return setNumericAttr(static_cast<SQLLEN>(columnSize));
+        case SQL_DESC_PRECISION:
+        case SQL_COLUMN_PRECISION:
+            return setNumericAttr(static_cast<SQLLEN>(columnSize));
+        case SQL_DESC_SCALE:
+        case SQL_COLUMN_SCALE:
+            return setNumericAttr(decimalDigits);
+        case SQL_DESC_NULLABLE:
+        case SQL_COLUMN_NULLABLE:
+            return setNumericAttr(nullable);
+        default:
+            return stmt->AddError("HYC00", 0, "Optional feature not implemented");
+    }
 }
 
 } // namespace NYdb::NOdbc
