@@ -24,10 +24,21 @@ class TStatement;
 
 class TConnection : public TErrorManager {
 private:
-    std::shared_ptr<TDriver> YdbDriver_;
-    std::unique_ptr<NQuery::TQueryClient> YdbClient_;
-    std::unique_ptr<NTable::TTableClient> YdbTableClient_;
-    std::unique_ptr<NScheme::TSchemeClient> YdbSchemeClient_;
+    struct TYdbState {
+        TDriver Driver;
+        NQuery::TQueryClient QueryClient;
+        NScheme::TSchemeClient SchemeClient;
+        NTable::TTableClient TableClient;
+
+        TYdbState(const std::string& endpoint, const std::string& database)
+            : Driver(TDriverConfig().SetEndpoint(endpoint).SetDatabase(database))
+            , QueryClient(Driver)
+            , SchemeClient(Driver)
+            , TableClient(Driver)
+        {}
+    };
+
+    std::optional<TYdbState> Ydb_;
     std::optional<NQuery::TTransaction> Tx_;
     std::optional<NQuery::TSession> QuerySession_;
 
@@ -54,10 +65,10 @@ public:
     std::unique_ptr<TStatement> CreateStatement();
     void RemoveStatement(TStatement* stmt);
 
-    NYdb::NQuery::TQueryClient* GetClient() { return YdbClient_.get(); }
+    std::optional<NQuery::TQueryClient> GetClient();
     NQuery::TSession& GetOrCreateQuerySession();
-    NYdb::NTable::TTableClient* GetTableClient() { return YdbTableClient_.get(); }
-    NScheme::TSchemeClient* GetSchemeClient() { return YdbSchemeClient_.get(); }
+    std::optional<NTable::TTableClient> GetTableClient();
+    std::optional<NScheme::TSchemeClient> GetSchemeClient();
 
     SQLRETURN SetAutocommit(bool value);
     bool GetAutocommit() const;
