@@ -25,6 +25,7 @@ class TStatement;
 class TConnection : public TErrorManager {
 private:
     struct TYdbState {
+        // Declared first: constructed before clients, destroyed after them.
         TDriver Driver;
         NQuery::TQueryClient QueryClient;
         NScheme::TSchemeClient SchemeClient;
@@ -36,6 +37,10 @@ private:
             , SchemeClient(Driver)
             , TableClient(Driver)
         {}
+
+        ~TYdbState() {
+            Driver.Stop(true);
+        }
     };
 
     std::optional<TYdbState> Ydb_;
@@ -52,9 +57,12 @@ private:
     TConnectionAttributes Attributes_;
     mutable std::optional<std::string> DbmsVersionCache_;
 
+    void DestroyYdbState();
     void RecreateYdbClients();
     void RebindToDatabase(const std::string& newDatabase);
 public:
+    ~TConnection();
+
     SQLRETURN Connect(const std::string& serverName,
                       const std::string& userName,
                       const std::string& auth);
