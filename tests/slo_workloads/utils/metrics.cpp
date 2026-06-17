@@ -97,6 +97,8 @@ public:
     )
         : CommonAttributes_(std::move(resourceAttributes))
     {
+        StubRetry_ = !GetEnv("SLO_STUB_RETRY").empty();
+
         auto exporterOptions = opentelemetry::exporter::otlp::OtlpHttpMetricExporterOptions();
         exporterOptions.url = metricsPushUrl;
 
@@ -143,7 +145,7 @@ public:
                 success ? series.SuccessAttrs : series.ErrorAttrs));
 
         // userver TableClient does not expose per-request retry count.
-        if (GetEnv("SLO_STUB_RETRY").empty()) {
+        if (!StubRetry_) {
             RetryAttemptsTotal_->Add(data.RetryAttempts + 1,
                 opentelemetry::common::MakeKeyValueIterableView(series.RetryAttrs));
         }
@@ -276,6 +278,7 @@ private:
     }
 
     std::map<std::string, std::string> CommonAttributes_;
+    bool StubRetry_ = false;
 
     std::unique_ptr<opentelemetry::sdk::metrics::MeterProvider> MeterProvider_;
     std::shared_ptr<opentelemetry::metrics::Meter> Meter_;
