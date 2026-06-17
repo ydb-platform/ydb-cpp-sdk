@@ -4,10 +4,53 @@
 #include <util/generic/singleton.h>
 
 #include <algorithm>
+#include <climits>
+#include <cstdint>
 #include <map>
+#include <optional>
 
 namespace NYdb {
 namespace NOdbc {
+
+namespace {
+
+thread_local const char* LastConvertSqlState = nullptr;
+
+bool FitsInt16(int64_t value) {
+    return value >= INT16_MIN && value <= INT16_MAX;
+}
+
+bool FitsInt32(int64_t value) {
+    return value >= INT32_MIN && value <= INT32_MAX;
+}
+
+void SetNumericOutOfRange() {
+    LastConvertSqlState = "22003";
+}
+
+std::optional<int64_t> GetAsInt64(TValueParser& parser, EPrimitiveType ydbType) {
+    switch (ydbType) {
+        case EPrimitiveType::Int8: return parser.GetInt8();
+        case EPrimitiveType::Uint8: return parser.GetUint8();
+        case EPrimitiveType::Int16: return parser.GetInt16();
+        case EPrimitiveType::Uint16: return parser.GetUint16();
+        case EPrimitiveType::Int32: return parser.GetInt32();
+        case EPrimitiveType::Uint32: return parser.GetUint32();
+        case EPrimitiveType::Int64: return parser.GetInt64();
+        case EPrimitiveType::Uint64: {
+            const uint64_t unsignedValue = parser.GetUint64();
+            if (unsignedValue > static_cast<uint64_t>(INT64_MAX)) {
+                SetNumericOutOfRange();
+                return std::nullopt;
+            }
+            return static_cast<int64_t>(unsignedValue);
+        }
+        case EPrimitiveType::Bool: return parser.GetBool() ? 1 : 0;
+        default: return std::nullopt;
+    }
+}
+
+} // namespace
 
 template<SQLSMALLINT CType>
 struct TSqlTypeTraits;
@@ -348,6 +391,7 @@ SQLRETURN ConvertParam(const TBoundParam& param, TParamValueBuilder& builder) {
 }
 
 SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) {
+    LastConvertSqlState = nullptr;
     if (parser.IsNull()) {
         if (strLenOrInd) {
             *strLenOrInd = SQL_NULL_DATA;
@@ -372,19 +416,16 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
         case SQL_C_SHORT:
         case SQL_C_SSHORT:
         {
-            SQLSMALLINT v = 0;
-            switch (ydbType) {
-                case EPrimitiveType::Int16: v = parser.GetInt16(); break;
-                case EPrimitiveType::Uint16: v = static_cast<SQLSMALLINT>(parser.GetUint16()); break;
-                case EPrimitiveType::Int8: v = static_cast<SQLSMALLINT>(parser.GetInt8()); break;
-                case EPrimitiveType::Uint8: v = static_cast<SQLSMALLINT>(parser.GetUint8()); break;
-                case EPrimitiveType::Int32: v = static_cast<SQLSMALLINT>(parser.GetInt32()); break;
-                case EPrimitiveType::Uint32: v = static_cast<SQLSMALLINT>(parser.GetUint32()); break;
-                case EPrimitiveType::Bool: v = parser.GetBool() ? 1 : 0; break;
-                default: return SQL_ERROR;
+            const auto raw = GetAsInt64(parser, ydbType);
+            if (!raw) {
+                return SQL_ERROR;
+            }
+            if (!FitsInt16(*raw)) {
+                SetNumericOutOfRange();
+                return SQL_ERROR;
             }
             if (targetValue) {
-                *reinterpret_cast<SQLSMALLINT*>(targetValue) = v;
+                *reinterpret_cast<SQLSMALLINT*>(targetValue) = static_cast<SQLSMALLINT>(*raw);
             }
             if (strLenOrInd) {
                 *strLenOrInd = sizeof(SQLSMALLINT);
@@ -394,21 +435,16 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
         case SQL_C_SLONG:
         case SQL_C_LONG:
         {
-            int32_t v = 0;
-            switch (ydbType) {
-                case EPrimitiveType::Int16: v = static_cast<int32_t>(parser.GetInt16()); break;
-                case EPrimitiveType::Uint16: v = static_cast<int32_t>(parser.GetUint16()); break;
-                case EPrimitiveType::Int8: v = static_cast<int32_t>(parser.GetInt8()); break;
-                case EPrimitiveType::Uint8: v = static_cast<int32_t>(parser.GetUint8()); break;
-                case EPrimitiveType::Int32: v = static_cast<int32_t>(parser.GetInt32()); break;
-                case EPrimitiveType::Uint32: v = static_cast<int32_t>(parser.GetUint32()); break;
-                case EPrimitiveType::Int64: v = static_cast<int32_t>(parser.GetInt64()); break;
-                case EPrimitiveType::Uint64: v = static_cast<int32_t>(parser.GetUint64()); break;
-                case EPrimitiveType::Bool: v = parser.GetBool() ? 1 : 0; break;
-                default: return SQL_ERROR;
+            const auto raw = GetAsInt64(parser, ydbType);
+            if (!raw) {
+                return SQL_ERROR;
+            }
+            if (!FitsInt32(*raw)) {
+                SetNumericOutOfRange();
+                return SQL_ERROR;
             }
             if (targetValue) {
-                *reinterpret_cast<int32_t*>(targetValue) = v;
+                *reinterpret_cast<int32_t*>(targetValue) = static_cast<int32_t>(*raw);
             }
             if (strLenOrInd) {
                 *strLenOrInd = sizeof(int32_t);
@@ -417,16 +453,12 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
         }
         case SQL_C_SBIGINT:
         {
-            SQLBIGINT v = 0;
-            switch (ydbType) {
-                case EPrimitiveType::Int64: v = parser.GetInt64(); break;
-                case EPrimitiveType::Uint64: v = static_cast<SQLBIGINT>(parser.GetUint64()); break;
-                case EPrimitiveType::Int32: v = static_cast<SQLBIGINT>(parser.GetInt32()); break;
-                case EPrimitiveType::Uint32: v = static_cast<SQLBIGINT>(parser.GetUint32()); break;
-                default: return SQL_ERROR;
+            const auto raw = GetAsInt64(parser, ydbType);
+            if (!raw) {
+                return SQL_ERROR;
             }
             if (targetValue) {
-                *reinterpret_cast<SQLBIGINT*>(targetValue) = v;
+                *reinterpret_cast<SQLBIGINT*>(targetValue) = static_cast<SQLBIGINT>(*raw);
             }
             if (strLenOrInd) {
                 *strLenOrInd = sizeof(SQLBIGINT);
@@ -517,11 +549,22 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
             if (strLenOrInd) {
                 *strLenOrInd = len;
             }
+            if (targetValue && bufferLength > 0 && len >= static_cast<SQLLEN>(bufferLength)) {
+                return SQL_SUCCESS_WITH_INFO;
+            }
             return SQL_SUCCESS;
         }
         case SQL_C_BIT:
         {
-            char v = parser.GetBool() ? 1 : 0;
+            const auto raw = GetAsInt64(parser, ydbType);
+            if (!raw) {
+                return SQL_ERROR;
+            }
+            if (*raw != 0 && *raw != 1) {
+                SetNumericOutOfRange();
+                return SQL_ERROR;
+            }
+            const char v = *raw != 0 ? 1 : 0;
             if (targetValue) {
                 *reinterpret_cast<char*>(targetValue) = v;
             }
@@ -533,6 +576,12 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
         default:
             return SQL_ERROR;
     }
+}
+
+const char* ConsumeLastConvertSqlState() {
+    const char* result = LastConvertSqlState;
+    LastConvertSqlState = nullptr;
+    return result;
 }
 
 } // namespace NOdbc
