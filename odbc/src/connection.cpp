@@ -7,7 +7,6 @@
 
 #include <map>
 #include <string>
-#include <unordered_map>
 #include <algorithm>
 
 #include <sql.h>
@@ -17,60 +16,6 @@
 
 namespace NYdb {
 namespace NOdbc {
-
-namespace {
-
-struct TDriverKey {
-    std::string Endpoint;
-    std::string Database;
-
-    bool operator==(const TDriverKey& other) const noexcept {
-        return Endpoint == other.Endpoint && Database == other.Database;
-    }
-};
-
-struct TDriverKeyHash {
-    size_t operator()(const TDriverKey& key) const noexcept {
-        return std::hash<std::string>{}(key.Endpoint) ^ (std::hash<std::string>{}(key.Database) << 1U);
-    }
-};
-
-struct TDriverPool {
-    std::unordered_map<TDriverKey, std::weak_ptr<NYdb::TDriver>, TDriverKeyHash> DriversByKey;
-    size_t InsertionsSinceCleanup = 0;
-};
-
-void CleanupExpiredDrivers(TDriverPool& pool) {
-    for (auto mapIt = pool.DriversByKey.begin(); mapIt != pool.DriversByKey.end();) {
-        if (mapIt->second.expired()) {
-            mapIt = pool.DriversByKey.erase(mapIt);
-        } else {
-            ++mapIt;
-        }
-    }
-}
-
-std::shared_ptr<NYdb::TDriver> AcquireSharedDriver(const std::string& endpoint, const std::string& database) {
-    static TDriverPool pool;
-    TDriverKey key{endpoint, database};
-    auto it = pool.DriversByKey.find(key);
-    if (it != pool.DriversByKey.end()) {
-        if (std::shared_ptr<NYdb::TDriver> existing = it->second.lock()) {
-            return existing;
-        }
-    }
-    auto driver = std::make_shared<NYdb::TDriver>(
-        NYdb::TDriverConfig().SetEndpoint(endpoint).SetDatabase(database));
-    pool.DriversByKey[std::move(key)] = driver;
-    ++pool.InsertionsSinceCleanup;
-    if (pool.InsertionsSinceCleanup >= 32) {
-        CleanupExpiredDrivers(pool);
-        pool.InsertionsSinceCleanup = 0;
-    }
-    return driver;
-}
-
-} // namespace
 
 SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
     std::map<std::string, std::string> params;
@@ -137,20 +82,38 @@ SQLRETURN TConnection::Disconnect() {
     Tx_.reset();
     DbmsVersionCache_.reset();
     DataSourceName_.clear();
-    YdbSchemeClient_.reset();
-    YdbTableClient_.reset();
-    YdbClient_.reset();
-    YdbDriver_.reset();
+    Ydb_.reset();
     return SQL_SUCCESS;
 }
 
 NQuery::TSession& TConnection::GetOrCreateQuerySession() {
     if (!QuerySession_) {
-        auto sessionResult = YdbClient_->GetSession().ExtractValueSync();
+        auto sessionResult = Ydb_->QueryClient.GetSession().ExtractValueSync();
         NStatusHelpers::ThrowOnError(sessionResult);
         QuerySession_.emplace(std::move(sessionResult.GetSession()));
     }
     return *QuerySession_;
+}
+
+std::optional<NQuery::TQueryClient> TConnection::GetClient() {
+    if (!Ydb_) {
+        return std::nullopt;
+    }
+    return Ydb_->QueryClient;
+}
+
+std::optional<NTable::TTableClient> TConnection::GetTableClient() {
+    if (!Ydb_) {
+        return std::nullopt;
+    }
+    return Ydb_->TableClient;
+}
+
+std::optional<NScheme::TSchemeClient> TConnection::GetSchemeClient() {
+    if (!Ydb_) {
+        return std::nullopt;
+    }
+    return Ydb_->SchemeClient;
 }
 
 std::unique_ptr<TStatement> TConnection::CreateStatement() {
@@ -266,7 +229,7 @@ const std::string& TConnection::GetDbmsVersion() {
         return *DbmsVersionCache_;
     }
 
-    auto* client = GetClient();
+    auto client = GetClient();
     if (!client) {
         throw TOdbcException("08003", 0, "Connection is not established");
     }
@@ -304,13 +267,7 @@ void TConnection::RecreateYdbClients() {
     QuerySession_.reset();
     Tx_.reset();
     DbmsVersionCache_.reset();
-    YdbSchemeClient_.reset();
-    YdbTableClient_.reset();
-    YdbClient_.reset();
-    YdbDriver_ = AcquireSharedDriver(Endpoint_, Database_);
-    YdbClient_ = std::make_unique<NYdb::NQuery::TQueryClient>(*YdbDriver_);
-    YdbSchemeClient_ = std::make_unique<NYdb::NScheme::TSchemeClient>(*YdbDriver_);
-    YdbTableClient_ = std::make_unique<NYdb::NTable::TTableClient>(*YdbDriver_);
+    Ydb_.emplace(Endpoint_, Database_);
 }
 
 void TConnection::RebindToDatabase(const std::string& newDatabase) {
