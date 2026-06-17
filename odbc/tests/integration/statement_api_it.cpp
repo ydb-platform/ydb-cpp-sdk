@@ -386,6 +386,7 @@ TEST(StatementApi, RowCount) {
     
     SQLLEN rowCount;
     CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, -1);
     
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
@@ -602,6 +603,79 @@ TEST(StatementApi, EscapeSequenceTimestamp) {
     ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_CHAR, buf, sizeof(buf), &valueInd), SQL_SUCCESS);
     ASSERT_STREQ(buf, "2024-06-15 14:30:00");
     
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(StatementApi, NumericOutOfRange) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"SELECT CAST(3000000000 AS Uint64) AS v", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLINTEGER value = 0;
+    SQLLEN indicator = 0;
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &value, sizeof(value), &indicator), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "22003"));
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(StatementApi, UpsertAutocommitPersist) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_upsert_persist", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"CREATE TABLE test_upsert_persist (id Int32, val Int32, PRIMARY KEY (id))", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"UPSERT INTO test_upsert_persist (id, val) VALUES (1, 42)", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"SELECT val FROM test_upsert_persist WHERE id = 1", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLINTEGER val = 0;
+    SQLLEN ind = 0;
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &val, sizeof(val), &ind), SQL_SUCCESS);
+    ASSERT_EQ(val, 42);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(StatementApi, SqlCBit) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT true AS b", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    char bitVal = 0;
+    SQLLEN ind = 0;
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_BIT, &bitVal, sizeof(bitVal), &ind), SQL_SUCCESS);
+    ASSERT_EQ(bitVal, 1);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT false AS b", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_BIT, &bitVal, sizeof(bitVal), &ind), SQL_SUCCESS);
+    ASSERT_EQ(bitVal, 0);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

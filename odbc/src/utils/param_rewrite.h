@@ -19,4 +19,6 @@ TParamRewriteResult RewriteOdbcQuestionMarks(
     std::string_view sql,
     const std::vector<TBoundParam>& boundParams);
 
+SQLSMALLINT CountOdbcParams(std::string_view sql);
+
 } // namespace NYdb::NOdbc

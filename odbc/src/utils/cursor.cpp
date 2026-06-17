@@ -1,4 +1,5 @@
 #include "cursor.h"
+#include "status_util.h"
 
 #include "convert.h"
 #include "types.h"
@@ -7,12 +8,6 @@
 
 namespace NYdb {
 namespace NOdbc {
-
-namespace {
-
-NYdb::TStatus StatusFrom(const NYdb::TStatus& ydbStatus) {
-    return NYdb::TStatus(ydbStatus.GetStatus(), NYdb::NIssue::TIssues(ydbStatus.GetIssues()));
-}
 
 NYdb::TStatus PrefetchFirstResultSet(
     NQuery::TExecuteQueryIterator& iterator,
@@ -33,8 +28,6 @@ NYdb::TStatus PrefetchFirstResultSet(
     }
     return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
 }
-
-} // namespace
 
 class TExecCursor : public ICursor {
 public:
@@ -69,7 +62,6 @@ public:
                 InitResultSet(part.ExtractResultSet());
             }
         }
-        return false;
     }
 
     SQLRETURN GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType,

@@ -3,9 +3,11 @@ add_library(ydb-odbc SHARED
   src/utils/escape.cpp
   src/utils/sql_type_map.cpp
   src/utils/param_rewrite.cpp
+  src/utils/type_info_rows.cpp
   src/utils/cursor.cpp
   src/utils/types.cpp
   src/utils/util.cpp
+  src/utils/status_util.cpp
   src/utils/convert.cpp
   src/utils/error_manager.cpp
   src/odbc_driver.cpp
@@ -13,8 +15,10 @@ add_library(ydb-odbc SHARED
   src/connection.cpp
   src/statement_attr.cpp
   src/statement.cpp
+  src/statement_metadata.cpp
   src/environment.cpp
   src/metadata.cpp
+  src/descriptor.cpp
 )
 
 target_include_directories(ydb-odbc

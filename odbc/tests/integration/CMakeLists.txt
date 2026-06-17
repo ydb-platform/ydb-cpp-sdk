@@ -32,3 +32,13 @@ add_odbc_test(NAME odbc-metadata_api_it
   SOURCES
     metadata_api_it.cpp
 )
+
+add_odbc_test(NAME odbc-core_api_it
+  SOURCES
+    core_api_it.cpp
+)
+
+add_odbc_test(NAME odbc-descriptor_api_it
+  SOURCES
+    descriptor_api_it.cpp
+)

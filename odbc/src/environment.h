@@ -15,13 +15,14 @@ class TConnection;
 class TEnvironment : public TErrorManager {
 private:
     SQLINTEGER OdbcVersion_;
-    std::unordered_set<TConnection*> connections_;
+    std::unordered_set<TConnection*> Connections_;
 
 public:
     TEnvironment();
     ~TEnvironment();
 
     SQLRETURN SetAttribute(SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER stringLength);
+    SQLRETURN GetAttribute(SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr);
 
     void RegisterConnection(TConnection*);
     void UnregisterConnection(TConnection*);

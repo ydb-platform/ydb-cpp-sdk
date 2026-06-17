@@ -1,6 +1,6 @@
 #include "connection.h"
 #include "statement.h"
-#include "utils/error_manager.h"
+#include "utils/util.h"
 
 #include <ydb-cpp-sdk/client/result/result.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <cstring>
 
 #include <sql.h>
 #include <sqlext.h>
@@ -28,26 +29,10 @@ void TConnection::DestroyYdbState() {
 }
 
 SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
-    std::map<std::string, std::string> params;
-    size_t pos = 0;
-    while (pos < connectionString.size()) {
-        size_t eq = connectionString.find('=', pos);
-        if (eq == std::string::npos) {
-            break;
-        }
-
-        size_t sc = connectionString.find(';', eq);
-        std::string key = connectionString.substr(pos, eq-pos);
-        std::string val = connectionString.substr(eq+1, (sc == std::string::npos ? std::string::npos : sc-eq-1));
-        params[key] = val;
-        if (sc == std::string::npos) {
-            break;
-        }
-        pos = sc+1;
-    }
-    Endpoint_ = params.contains("Server") ? params["Server"] : params["Endpoint"];
-    Database_ = params["Database"];
-    DataSourceName_ = params.contains("DSN") ? params["DSN"] : "";
+    const std::map<std::string, std::string> params = ParseConnectionString(connectionString);
+    Endpoint_ = params.contains("Server") ? params.at("Server") : params.contains("Endpoint") ? params.at("Endpoint") : "";
+    Database_ = params.contains("Database") ? params.at("Database") : "";
+    DataSourceName_ = params.contains("DSN") ? params.at("DSN") : "";
 
     if (Endpoint_.empty() || Database_.empty()) {
         throw TOdbcException("08001", 0, "Missing Endpoint (or Server) or Database in connection string");
@@ -126,11 +111,6 @@ std::optional<NScheme::TSchemeClient> TConnection::GetSchemeClient() {
 
 std::unique_ptr<TStatement> TConnection::CreateStatement() {
     return std::make_unique<TStatement>(this);
-}
-
-void TConnection::RemoveStatement(TStatement* stmt) {
-    Statements_.erase(std::remove_if(Statements_.begin(), Statements_.end(),
-        [stmt](const std::unique_ptr<TStatement>& s) { return s.get() == stmt; }), Statements_.end());
 }
 
 SQLRETURN TConnection::SetAutocommit(bool value) {
@@ -301,5 +281,28 @@ std::string TConnection::WrapQueryForCurrentCatalog(const std::string& sql) cons
     }
     return "PRAGMA TablePathPrefix = \"" + escapedPrefix + "\";\n" + sql;
 }
+
+SQLRETURN TConnection::NativeSql(const std::string& inSql, SQLCHAR* outSql, SQLINTEGER outMax, SQLINTEGER* outLen) {
+    const SQLINTEGER fullLen = static_cast<SQLINTEGER>(inSql.size());
+    if (outLen) {
+        *outLen = fullLen;
+    }
+    if (!outSql) {
+        return outMax == 0 ? SQL_SUCCESS : AddError("HY090", 0, "Invalid string or buffer length");
+    }
+    if (outMax <= 0) {
+        return fullLen == 0 ? SQL_SUCCESS : AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
+    }
+    const SQLINTEGER copyLen = std::min(fullLen, outMax - 1);
+    if (copyLen > 0) {
+        std::memcpy(outSql, inSql.data(), static_cast<size_t>(copyLen));
+    }
+    outSql[copyLen] = '\0';
+    if (copyLen < fullLen) {
+        return AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
+    }
+    return SQL_SUCCESS;
+}
+
 } // namespace NOdbc
 } // namespace NYdb
