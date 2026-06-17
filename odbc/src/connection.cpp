@@ -17,6 +17,16 @@
 namespace NYdb {
 namespace NOdbc {
 
+TConnection::~TConnection() {
+    DestroyYdbState();
+}
+
+void TConnection::DestroyYdbState() {
+    QuerySession_.reset();
+    Tx_.reset();
+    Ydb_.reset();
+}
+
 SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
     std::map<std::string, std::string> params;
     size_t pos = 0;
@@ -78,11 +88,9 @@ SQLRETURN TConnection::Connect(const std::string& serverName,
 }
 
 SQLRETURN TConnection::Disconnect() {
-    QuerySession_.reset();
-    Tx_.reset();
+    DestroyYdbState();
     DbmsVersionCache_.reset();
     DataSourceName_.clear();
-    Ydb_.reset();
     return SQL_SUCCESS;
 }
 
@@ -264,8 +272,7 @@ const std::string& TConnection::GetDbmsVersion() {
 }
 
 void TConnection::RecreateYdbClients() {
-    QuerySession_.reset();
-    Tx_.reset();
+    DestroyYdbState();
     DbmsVersionCache_.reset();
     Ydb_.emplace(Endpoint_, Database_);
 }
