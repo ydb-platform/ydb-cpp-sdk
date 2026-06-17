@@ -2,6 +2,7 @@
 #include "connection.h"
 #include "statement.h"
 #include "metadata.h"
+#include "descriptor.h"
 
 #include "utils/util.h"
 #include "utils/error_manager.h"
@@ -62,6 +63,17 @@ SQLRETURN SQL_API SQLAllocHandle(SQLSMALLINT handleType,
                 return SQL_SUCCESS;
             });
         }
+        case SQL_HANDLE_DESC: {
+            return NYdb::NOdbc::HandleOdbcExceptions(
+                inputHandle,
+                [&]() {
+                    auto* const desc = new NYdb::NOdbc::TDescriptor(NYdb::NOdbc::EDescType::Explicit);
+                    *outputHandle = desc;
+                    desc->SetLastReturnCode(SQL_SUCCESS);
+                    return SQL_SUCCESS;
+                },
+                NYdb::NOdbc::ENullInputHandlePolicy::Allow);
+        }
         default:
             return SQL_ERROR;
     }
@@ -70,13 +82,13 @@ SQLRETURN SQL_API SQLAllocHandle(SQLSMALLINT handleType,
 SQLRETURN SQL_API SQLFreeHandle(SQLSMALLINT handleType, SQLHANDLE handle) {
     switch (handleType) {
         case SQL_HANDLE_ENV: {
-            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TEnvironment>(handle, [](auto* env) {
+            return NYdb::NOdbc::HandleOdbcExceptionsConsuming<NYdb::NOdbc::TEnvironment>(handle, [](auto* env) {
                 delete env;
                 return SQL_SUCCESS;
             });
         }
         case SQL_HANDLE_DBC: {
-            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(handle, [](auto* conn) {
+            return NYdb::NOdbc::HandleOdbcExceptionsConsuming<NYdb::NOdbc::TConnection>(handle, [](auto* conn) {
                 auto* env = conn->GetEnvironment();
                 if (env != nullptr){
                     env->UnregisterConnection(conn);
@@ -86,11 +98,14 @@ SQLRETURN SQL_API SQLFreeHandle(SQLSMALLINT handleType, SQLHANDLE handle) {
             });
         }
         case SQL_HANDLE_STMT: {
-            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(handle, [](auto* stmt) {
-                if (stmt->GetConnection()) {
-                    stmt->GetConnection()->RemoveStatement(stmt);
-                }
+            return NYdb::NOdbc::HandleOdbcExceptionsConsuming<NYdb::NOdbc::TStatement>(handle, [](auto* stmt) {
                 delete stmt;
+                return SQL_SUCCESS;
+            });
+        }
+        case SQL_HANDLE_DESC: {
+            return NYdb::NOdbc::HandleOdbcExceptionsConsuming<NYdb::NOdbc::TDescriptor>(handle, [](auto* desc) {
+                delete desc;
                 return SQL_SUCCESS;
             });
         }
@@ -110,6 +125,20 @@ SQLRETURN SQL_API SQLSetEnvAttr(SQLHENV environmentHandle,
     
     return NYdb::NOdbc::HandleOdbcExceptions(env, [&]() {
         return env->SetAttribute(attribute, value, stringLength);
+    });
+}
+
+SQLRETURN SQL_API SQLGetEnvAttr(SQLHENV environmentHandle,
+                                SQLINTEGER attribute,
+                                SQLPOINTER value,
+                                SQLINTEGER bufferLength,
+                                SQLINTEGER* stringLengthPtr) {
+    auto env = static_cast<NYdb::NOdbc::TEnvironment*>(environmentHandle);
+    if (!env) {
+        return SQL_INVALID_HANDLE;
+    }
+    return NYdb::NOdbc::HandleOdbcExceptions(env, [&]() {
+        return env->GetAttribute(attribute, value, bufferLength, stringLengthPtr);
     });
 }
 
@@ -353,12 +382,13 @@ SQLRETURN SQL_API SQLCloseCursor(SQLHSTMT statementHandle) {
 }
 
 SQLRETURN SQL_API SQLFreeStmt(SQLHSTMT statementHandle, SQLUSMALLINT option) {
+    if (option == SQL_DROP) {
+        return SQLFreeHandle(SQL_HANDLE_STMT, statementHandle);
+    }
     return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) -> SQLRETURN {
         switch (option) {
             case SQL_CLOSE:
                 return stmt->Close(true);
-            case SQL_DROP:
-                return SQLFreeHandle(SQL_HANDLE_STMT, statementHandle);
             case SQL_UNBIND:
                 stmt->UnbindColumns();
                 return SQL_SUCCESS;
@@ -405,7 +435,7 @@ SQLRETURN SQL_API SQLDescribeCol(
     SQLSMALLINT* decimalDigitsPtr,
     SQLSMALLINT* nullablePtr) {
     return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
-        return NYdb::NOdbc::TMetadata::DescribeCol(
+        return NYdb::NOdbc::NMetadata::DescribeCol(
             stmt,
             columnNumber,
             columnName,
@@ -425,7 +455,7 @@ SQLRETURN SQL_API SQLMoreResults(SQLHSTMT) {
 
 SQLRETURN SQL_API SQLGetFunctions(SQLHDBC connectionHandle, SQLUSMALLINT functionId, SQLUSMALLINT* supportedPtr) {
     return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(connectionHandle, [&](auto*) {
-        return NYdb::NOdbc::TMetadata::GetFunctions(functionId, supportedPtr);
+        return NYdb::NOdbc::NMetadata::GetFunctions(functionId, supportedPtr);
     });
 }
 
@@ -452,7 +482,189 @@ SQLRETURN SQL_API SQLGetInfo(SQLHDBC connectionHandle,
                              SQLSMALLINT bufferLength,
                              SQLSMALLINT* stringLengthPtr) {
     return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(connectionHandle, [&](auto* conn) {
-        return NYdb::NOdbc::TMetadata::GetInfo(conn, infoType, infoValuePtr, bufferLength, stringLengthPtr);
+        return NYdb::NOdbc::NMetadata::GetInfo(conn, infoType, infoValuePtr, bufferLength, stringLengthPtr);
+    });
+}
+
+SQLRETURN SQL_API SQLGetTypeInfo(SQLHSTMT statementHandle, SQLSMALLINT dataType) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->GetTypeInfo(dataType);
+    });
+}
+
+SQLRETURN SQL_API SQLStatistics(SQLHSTMT statementHandle,
+                                SQLCHAR* catalogName, SQLSMALLINT nameLength1,
+                                SQLCHAR* schemaName, SQLSMALLINT nameLength2,
+                                SQLCHAR* tableName, SQLSMALLINT nameLength3,
+                                SQLUSMALLINT unique, SQLUSMALLINT reserved) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->Statistics(
+            NYdb::NOdbc::GetString(catalogName, nameLength1),
+            NYdb::NOdbc::GetString(schemaName, nameLength2),
+            NYdb::NOdbc::GetString(tableName, nameLength3),
+            unique,
+            reserved);
+    });
+}
+
+SQLRETURN SQL_API SQLSpecialColumns(SQLHSTMT statementHandle,
+                                    SQLUSMALLINT identifierType,
+                                    SQLCHAR* catalogName, SQLSMALLINT nameLength1,
+                                    SQLCHAR* schemaName, SQLSMALLINT nameLength2,
+                                    SQLCHAR* tableName, SQLSMALLINT nameLength3,
+                                    SQLUSMALLINT scope,
+                                    SQLUSMALLINT nullable) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        (void)nullable;
+        return stmt->SpecialColumns(
+            NYdb::NOdbc::GetString(catalogName, nameLength1),
+            NYdb::NOdbc::GetString(schemaName, nameLength2),
+            NYdb::NOdbc::GetString(tableName, nameLength3),
+            identifierType,
+            scope);
+    });
+}
+
+SQLRETURN SQL_API SQLColAttribute(SQLHSTMT statementHandle,
+                                  SQLUSMALLINT columnNumber,
+                                  SQLUSMALLINT fieldIdentifier,
+                                  SQLPOINTER characterAttributePtr,
+                                  SQLSMALLINT bufferLength,
+                                  SQLSMALLINT* stringLengthAttributePtr,
+                                  SQLLEN* numericAttributePtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return NYdb::NOdbc::NMetadata::ColAttribute(
+            stmt, columnNumber, fieldIdentifier, characterAttributePtr, bufferLength,
+            stringLengthAttributePtr, numericAttributePtr);
+    });
+}
+
+SQLRETURN SQL_API SQLNumParams(SQLHSTMT statementHandle, SQLSMALLINT* paramCountPtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->NumParams(paramCountPtr);
+    });
+}
+
+SQLRETURN SQL_API SQLDescribeParam(SQLHSTMT statementHandle, SQLUSMALLINT paramNumber, SQLSMALLINT* dataTypePtr,
+                                   SQLULEN* paramSizePtr, SQLSMALLINT* decimalDigitsPtr, SQLSMALLINT* nullablePtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->DescribeParam(paramNumber, dataTypePtr, paramSizePtr, decimalDigitsPtr, nullablePtr);
+    });
+}
+
+SQLRETURN SQL_API SQLParamData(SQLHSTMT statementHandle, SQLPOINTER* valuePtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->ParamData(valuePtr);
+    });
+}
+
+SQLRETURN SQL_API SQLPutData(SQLHSTMT statementHandle, SQLPOINTER data, SQLLEN strLenOrInd) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->PutData(data, strLenOrInd);
+    });
+}
+
+SQLRETURN SQL_API SQLCancel(SQLHSTMT statementHandle) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->Cancel();
+    });
+}
+
+SQLRETURN SQL_API SQLNativeSql(SQLHDBC connectionHandle,
+                               SQLCHAR* inNativeSql,
+                               SQLINTEGER textLength1,
+                               SQLCHAR* outNativeSql,
+                               SQLINTEGER bufferLength,
+                               SQLINTEGER* outLengthPtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(connectionHandle, [&](auto* conn) {
+        const std::string inSql = textLength1 == SQL_NTS
+            ? reinterpret_cast<const char*>(inNativeSql)
+            : NYdb::NOdbc::GetString(inNativeSql, static_cast<SQLSMALLINT>(textLength1));
+        return conn->NativeSql(inSql, outNativeSql, bufferLength, outLengthPtr);
+    });
+}
+
+SQLRETURN SQL_API SQLSetCursorName(SQLHSTMT statementHandle, SQLCHAR* cursorName, SQLSMALLINT nameLength) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->SetCursorName(NYdb::NOdbc::GetString(cursorName, nameLength));
+    });
+}
+
+SQLRETURN SQL_API SQLGetCursorName(SQLHSTMT statementHandle,
+                                   SQLCHAR* cursorName,
+                                   SQLSMALLINT bufferLength,
+                                   SQLSMALLINT* nameLengthPtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->GetCursorName(cursorName, bufferLength, nameLengthPtr);
+    });
+}
+
+SQLRETURN SQL_API SQLPrimaryKeys(SQLHSTMT statementHandle,
+                                 SQLCHAR* catalogName, SQLSMALLINT nameLength1,
+                                 SQLCHAR* schemaName, SQLSMALLINT nameLength2,
+                                 SQLCHAR* tableName, SQLSMALLINT nameLength3) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->PrimaryKeys(
+            NYdb::NOdbc::GetString(catalogName, nameLength1),
+            NYdb::NOdbc::GetString(schemaName, nameLength2),
+            NYdb::NOdbc::GetString(tableName, nameLength3));
+    });
+}
+
+SQLRETURN SQL_API SQLForeignKeys(SQLHSTMT statementHandle,
+                                 SQLCHAR* pkCatalogName, SQLSMALLINT nameLength1,
+                                 SQLCHAR* pkSchemaName, SQLSMALLINT nameLength2,
+                                 SQLCHAR* pkTableName, SQLSMALLINT nameLength3,
+                                 SQLCHAR* fkCatalogName, SQLSMALLINT nameLength4,
+                                 SQLCHAR* fkSchemaName, SQLSMALLINT nameLength5,
+                                 SQLCHAR* fkTableName, SQLSMALLINT nameLength6) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->ForeignKeys(
+            NYdb::NOdbc::GetString(pkCatalogName, nameLength1),
+            NYdb::NOdbc::GetString(pkSchemaName, nameLength2),
+            NYdb::NOdbc::GetString(pkTableName, nameLength3),
+            NYdb::NOdbc::GetString(fkCatalogName, nameLength4),
+            NYdb::NOdbc::GetString(fkSchemaName, nameLength5),
+            NYdb::NOdbc::GetString(fkTableName, nameLength6));
+    });
+}
+
+SQLRETURN SQL_API SQLGetDescField(SQLHDESC descriptorHandle, SQLSMALLINT recNumber, SQLSMALLINT fieldIdentifier,
+                                  SQLPOINTER value, SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TDescriptor>(descriptorHandle, [&](auto* desc) {
+        return desc->GetDescField(recNumber, fieldIdentifier, value, bufferLength, stringLengthPtr);
+    });
+}
+
+SQLRETURN SQL_API SQLGetDescRec(SQLHDESC descriptorHandle, SQLSMALLINT recNumber, SQLCHAR* name,
+                                SQLSMALLINT bufferLength, SQLSMALLINT* stringLengthPtr, SQLSMALLINT* typePtr,
+                                SQLSMALLINT* subTypePtr, SQLLEN* lengthPtr, SQLSMALLINT* precisionPtr,
+                                SQLSMALLINT* scalePtr, SQLSMALLINT* nullablePtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TDescriptor>(descriptorHandle, [&](auto* desc) {
+        return desc->GetDescRec(recNumber, name, bufferLength, stringLengthPtr, typePtr, subTypePtr,
+                                lengthPtr, precisionPtr, scalePtr, nullablePtr);
+    });
+}
+
+SQLRETURN SQL_API SQLSetDescField(SQLHDESC descriptorHandle, SQLSMALLINT recNumber, SQLSMALLINT fieldIdentifier,
+                                  SQLPOINTER value, SQLINTEGER bufferLength) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TDescriptor>(descriptorHandle, [&](auto* desc) {
+        return desc->SetDescField(recNumber, fieldIdentifier, value, bufferLength);
+    });
+}
+
+SQLRETURN SQL_API SQLSetDescRec(SQLHDESC descriptorHandle, SQLSMALLINT recNumber, SQLSMALLINT type,
+                                SQLSMALLINT subType, SQLLEN length, SQLSMALLINT precision, SQLSMALLINT scale,
+                                SQLPOINTER dataPtr, SQLLEN* stringLengthPtr, SQLLEN* indicatorPtr) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TDescriptor>(descriptorHandle, [&](auto* desc) {
+        return desc->SetDescRec(recNumber, type, subType, length, precision, scale, dataPtr,
+                                stringLengthPtr, indicatorPtr);
+    });
+}
+
+SQLRETURN SQL_API SQLCopyDesc(SQLHDESC sourceDesc, SQLHDESC targetDesc) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TDescriptor>(sourceDesc, [&](auto* src) {
+        return src->CopyDesc(NYdb::NOdbc::TDescriptor::FromHandle(targetDesc));
     });
 }
 

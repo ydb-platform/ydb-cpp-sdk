@@ -4,30 +4,38 @@
 #include "statement.h"
 
 namespace NYdb::NOdbc {
+namespace NMetadata {
 
-class TMetadata {
-public:
-    static SQLRETURN GetInfo(
-        TConnection* conn,
-        SQLUSMALLINT infoType,
-        SQLPOINTER infoValuePtr,
-        SQLSMALLINT bufferLength,
-        SQLSMALLINT* stringLengthPtr);
+SQLRETURN GetInfo(
+    TConnection* conn,
+    SQLUSMALLINT infoType,
+    SQLPOINTER infoValuePtr,
+    SQLSMALLINT bufferLength,
+    SQLSMALLINT* stringLengthPtr);
 
-    static SQLRETURN GetFunctions(
-        SQLUSMALLINT functionId,
-        SQLUSMALLINT* supportedPtr);
+SQLRETURN GetFunctions(
+    SQLUSMALLINT functionId,
+    SQLUSMALLINT* supportedPtr);
 
-    static SQLRETURN DescribeCol(
-        TStatement* stmt,
-        SQLUSMALLINT columnNumber,
-        SQLCHAR* columnName,
-        SQLSMALLINT bufferLength,
-        SQLSMALLINT* nameLengthPtr,
-        SQLSMALLINT* dataTypePtr,
-        SQLULEN* columnSizePtr,
-        SQLSMALLINT* decimalDigitsPtr,
-        SQLSMALLINT* nullablePtr);
-};
+SQLRETURN DescribeCol(
+    TStatement* stmt,
+    SQLUSMALLINT columnNumber,
+    SQLCHAR* columnName,
+    SQLSMALLINT bufferLength,
+    SQLSMALLINT* nameLengthPtr,
+    SQLSMALLINT* dataTypePtr,
+    SQLULEN* columnSizePtr,
+    SQLSMALLINT* decimalDigitsPtr,
+    SQLSMALLINT* nullablePtr);
 
+SQLRETURN ColAttribute(
+    TStatement* stmt,
+    SQLUSMALLINT columnNumber,
+    SQLUSMALLINT fieldIdentifier,
+    SQLPOINTER characterAttributePtr,
+    SQLSMALLINT bufferLength,
+    SQLSMALLINT* stringLengthAttributePtr,
+    SQLLEN* numericAttributePtr);
+
+} // namespace NMetadata
 } // namespace NYdb::NOdbc

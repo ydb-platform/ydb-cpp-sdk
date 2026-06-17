@@ -47,12 +47,10 @@ private:
     std::optional<NQuery::TTransaction> Tx_;
     std::optional<NQuery::TSession> QuerySession_;
 
-    std::vector<std::unique_ptr<TStatement>> Statements_;
     std::string Endpoint_;
     std::string Database_;
     std::string DataSourceName_;
-    std::string AuthToken_;
-    TEnvironment* ParentEnv_;
+    TEnvironment* ParentEnv_ = nullptr;
 
     TConnectionAttributes Attributes_;
     mutable std::optional<std::string> DbmsVersionCache_;
@@ -71,7 +69,6 @@ public:
     SQLRETURN Disconnect();
 
     std::unique_ptr<TStatement> CreateStatement();
-    void RemoveStatement(TStatement* stmt);
 
     std::optional<NQuery::TQueryClient> GetClient();
     NQuery::TSession& GetOrCreateQuerySession();
@@ -101,6 +98,8 @@ public:
 
     void SetEnvironment(TEnvironment* env);
     TEnvironment* GetEnvironment();
+
+    SQLRETURN NativeSql(const std::string& inSql, SQLCHAR* outSql, SQLINTEGER outMax, SQLINTEGER* outLen);
 };
 
 } // namespace NOdbc
