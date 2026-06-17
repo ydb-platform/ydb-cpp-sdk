@@ -216,11 +216,63 @@ TEST(MetadataApi, SQLColumnsMetadataId) {
     ASSERT_EQ(SQLColumns(stmt, nullptr, 0, nullptr, 0,
                         (SQLCHAR*)exactTable.c_str(), SQL_NTS,
                         (SQLCHAR*)"val%", SQL_NTS),
-              SQL_ERROR);
-    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "42S22"));
+              SQL_SUCCESS);
+    ASSERT_EQ(SQLFetch(stmt), SQL_NO_DATA);
     SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLColumns(stmt, nullptr, 0, nullptr, 0,
+                            (SQLCHAR*)exactTable.c_str(), SQL_NTS,
+                            (SQLCHAR*)"nonexistent_col%", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_NO_DATA);
     CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_METADATA_ID, (SQLPOINTER)(uintptr_t)SQL_FALSE, 0),
                   stmt, SQL_HANDLE_STMT);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(MetadataApi, SQLTablesFilterByType) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_type_filter", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"CREATE TABLE test_type_filter (id Int32, PRIMARY KEY (id))", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLTables(stmt, nullptr, 0, nullptr, 0,
+                           (SQLCHAR*)"/local/test_type_filter", SQL_NTS,
+                           (SQLCHAR*)"VIEW", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLTables(stmt, nullptr, 0, nullptr, 0,
+                           (SQLCHAR*)"/local/test_type_filter", SQL_NTS,
+                           (SQLCHAR*)"TABLE", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    ASSERT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(MetadataApi, DdlWithComment) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_ddl_comment", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"/* ddl */ CREATE TABLE test_ddl_comment (id Int32, PRIMARY KEY (id))", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

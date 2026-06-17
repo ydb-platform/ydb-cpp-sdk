@@ -2,10 +2,13 @@
 
 #include "utils/convert.h"
 #include "utils/types.h"
-#include "utils/error_manager.h"
+#include "utils/diag.h"
 #include "utils/escape.h"
 #include "utils/param_rewrite.h"
 #include "utils/sql_like.h"
+#include "utils/type_info_rows.h"
+#include "utils/util.h"
+#include "utils/status_util.h"
 
 #include <ydb-cpp-sdk/client/params/params.h>
 #include <ydb-cpp-sdk/client/value/value.h>
@@ -17,47 +20,53 @@
 #include <optional>
 #include <cctype>
 #include <algorithm>
+#include <cstring>
 
 namespace NYdb {
 namespace NOdbc {
 
 namespace {
 
-    bool StartsWithPrefix(const char* s, size_t sLen, const char* prefix, size_t prefixLen) {
-        if (sLen < prefixLen) {
-            return false;
-        }
-        for (size_t i = 0; i < prefixLen; ++i) {
-            if (std::tolower(static_cast<unsigned char>(s[i])) !=
-                std::tolower(static_cast<unsigned char>(prefix[i]))) {
-                return false;
+    bool IsDdlQuery(const std::string& queryText) {
+        size_t i = 0;
+        while (i < queryText.size()) {
+            if (std::isspace(static_cast<unsigned char>(queryText[i]))) {
+                ++i;
+            } else if (queryText[i] == '-' && i + 1 < queryText.size() && queryText[i + 1] == '-') {
+                while (i < queryText.size() && queryText[i] != '\n') {
+                    ++i;
+                }
+            } else if (queryText[i] == '/' && i + 1 < queryText.size() && queryText[i + 1] == '*') {
+                i += 2;
+                while (i + 1 < queryText.size() && !(queryText[i] == '*' && queryText[i + 1] == '/')) {
+                    ++i;
+                }
+                if (i + 1 < queryText.size()) {
+                    i += 2;
+                } else {
+                    i = queryText.size();
+                }
+            } else {
+                break;
             }
         }
-        return true;
-    }
-
-    bool IsDdlQuery(const std::string& queryText) {
-        size_t pos = 0;
-        while (pos < queryText.size() && std::isspace(static_cast<unsigned char>(queryText[pos]))) {
-            ++pos;
-        }
-        if (queryText.size() - pos < 6) {
-            return false;
-        }
-        const char* start = queryText.c_str() + pos;
-        const size_t remaining = queryText.size() - pos;
+        const char* start = queryText.c_str() + i;
+        const size_t remaining = queryText.size() - i;
         return StartsWithPrefix(start, remaining, "CREATE", 6) ||
                StartsWithPrefix(start, remaining, "DROP", 4) ||
-               StartsWithPrefix(start, remaining, "ALTER", 5);
+               StartsWithPrefix(start, remaining, "ALTER", 5) ||
+               StartsWithPrefix(start, remaining, "GRANT", 5) ||
+               StartsWithPrefix(start, remaining, "REVOKE", 6);
     }
 
-    NYdb::TStatus StatusFrom(const NYdb::TStatus& ydb_status) {
-        return NYdb::TStatus(ydb_status.GetStatus(), NYdb::NIssue::TIssues(ydb_status.GetIssues()));
-    }
 }
 
 TStatement::TStatement(TConnection* conn)
-    : Conn_(conn) {}
+    : Conn_(conn)
+    , AppRowDesc_(std::make_unique<TDescriptor>(EDescType::AppRow, this))
+    , AppParamDesc_(std::make_unique<TDescriptor>(EDescType::AppParam, this))
+    , ImpRowDesc_(std::make_unique<TDescriptor>(EDescType::ImpRow, this))
+    , ImpParamDesc_(std::make_unique<TDescriptor>(EDescType::ImpParam, this)) {}
 
 SQLRETURN TStatement::Prepare(const std::string& statementText) {
     StreamFetchError_ = false;
@@ -65,6 +74,7 @@ SQLRETURN TStatement::Prepare(const std::string& statementText) {
     Cursor_.reset();
     PreparedQuery_ = statementText;
     IsPrepared_ = true;
+    ParamCount_ = CountOdbcParams(PreparedQuery_);
     return SQL_SUCCESS;
 }
 
@@ -72,6 +82,18 @@ SQLRETURN TStatement::Execute() {
     if (!IsPrepared_ || PreparedQuery_.empty()) {
         throw TOdbcException("HY007", 0, "No prepared statement");
     }
+    const SQLUSMALLINT next = FindNextNeedDataParam();
+    if (next != 0) {
+        NeedDataParam_ = next;
+        InAtExec_ = true;
+        return SQL_NEED_DATA;
+    }
+    InAtExec_ = false;
+    NeedDataParam_ = 0;
+    return ExecuteInternal();
+}
+
+SQLRETURN TStatement::ExecuteInternal() {
     StreamFetchError_ = false;
     RowsFetched_ = 0;
     Cursor_.reset();
@@ -114,7 +136,19 @@ SQLRETURN TStatement::Execute() {
         NStatusHelpers::ThrowOnError(created.Status);
         Cursor_ = std::move(created.Cursor);
     }
+    RowCount_ = Cursor_ ? -1 : 0;
+    InAtExec_ = false;
+    NeedDataParam_ = 0;
     return SQL_SUCCESS;
+}
+
+SQLUSMALLINT TStatement::FindNextNeedDataParam() const {
+    for (const auto& param : BoundParams_) {
+        if (param.AtExec && !param.AtExecComplete) {
+            return param.ParamNumber;
+        }
+    }
+    return 0;
 }
 
 NYdb::NRetry::TRetryOperationSettings TStatement::MakeAutocommitRetrySettings() {
@@ -128,7 +162,7 @@ NYdb::NRetry::TRetryOperationSettings TStatement::MakeAutocommitRetrySettings() 
     return settings;
 }
 
-NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession& session, const NYdb::TParams& params){
+NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession& session, const NYdb::TParams& params) {
     const std::string sqlAfterEscapes = Attributes_.GetNoScanMode() == SQL_NOSCAN_ON
         ? PreparedQuery_
         : RewriteOdbcEscapes(PreparedQuery_);
@@ -136,6 +170,7 @@ NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession
     if (!rewritten.Success) {
         throw TOdbcException(rewritten.SqlState, 0, rewritten.Message);
     }
+    const bool isDdl = IsDdlQuery(rewritten.Sql);
     const std::string queryText = Conn_->WrapQueryForCurrentCatalog(rewritten.Sql);
     NQuery::TExecuteQuerySettings execSettings;
     const SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
@@ -147,8 +182,6 @@ NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession
         // TS_SNAPSHOT_RW doesn't support explicit BeginTx() - we use NoTx() instead
         // DDL must use NoTx() per YDB documentation
         const bool isSnapshotRw = (txSettings.GetMode() == NQuery::TTxSettings::TS_SNAPSHOT_RW);
-        
-        const bool isDdl = IsDdlQuery(queryText);
 
         if (isSnapshotRw || isDdl) {
             return session.StreamExecuteQuery(
@@ -179,7 +212,6 @@ NQuery::TExecuteQueryIterator TStatement::CreateExecuteIterator(NQuery::TSession
 
 SQLRETURN TStatement::Fetch() {
     if (!Cursor_) {
-        Cursor_.reset();
         return SQL_NO_DATA;
     }
     const SQLULEN maxRows = Attributes_.GetMaxRows();
@@ -191,7 +223,10 @@ SQLRETURN TStatement::Fetch() {
         return StreamFetchError_ ? SQL_ERROR : SQL_NO_DATA;
     }
     ++RowsFetched_;
-    return SQL_SUCCESS;
+    if (LastFetchRc_ != SQL_SUCCESS) {
+        return LastFetchRc_;
+    }
+    return GetLastReturnCode() == SQL_SUCCESS_WITH_INFO ? SQL_SUCCESS_WITH_INFO : SQL_SUCCESS;
 }
 
 void TStatement::OnStreamPartError(const TStatus& status) {
@@ -205,15 +240,31 @@ SQLRETURN TStatement::GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
     if (!Cursor_) {
         return SQL_NO_DATA;
     }
-    return Cursor_->GetData(columnNumber, targetType, targetValue, bufferLength, strLenOrInd);
+    const SQLRETURN rc = Cursor_->GetData(columnNumber, targetType, targetValue, bufferLength, strLenOrInd);
+    if (const char* sqlState = ConsumeLastConvertSqlState()) {
+        AddError(sqlState, 0, std::strcmp(sqlState, "22003") == 0 ? "Numeric value out of range" : "Conversion error");
+    }
+    return rc;
 }
 
 void TStatement::FillBoundColumns() {
     if (!Cursor_) {
         return;
     }
+    LastFetchRc_ = SQL_SUCCESS;
     for (const auto& col : BoundColumns_) {
-        Cursor_->GetData(col.ColumnNumber, col.TargetType, col.TargetValue, col.BufferLength, col.StrLenOrInd);
+        const SQLRETURN rc = Cursor_->GetData(col.ColumnNumber, col.TargetType, col.TargetValue, col.BufferLength, col.StrLenOrInd);
+        if (rc == SQL_SUCCESS_WITH_INFO) {
+            AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
+            if (LastFetchRc_ == SQL_SUCCESS) {
+                LastFetchRc_ = SQL_SUCCESS_WITH_INFO;
+            }
+        } else if (rc != SQL_SUCCESS && LastFetchRc_ == SQL_SUCCESS) {
+            if (const char* sqlState = ConsumeLastConvertSqlState()) {
+                AddError(sqlState, 0, std::strcmp(sqlState, "22003") == 0 ? "Numeric value out of range" : "Conversion error");
+            }
+            LastFetchRc_ = rc;
+        }
     }
 }
 
@@ -252,13 +303,16 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
         throw TOdbcException("HYC00", 0, "Only input parameters are supported");
     }
 
+    const bool atExec = strLenOrIndPtr && *strLenOrIndPtr == SQL_DATA_AT_EXEC;
+
     BoundParams_.erase(std::remove_if(BoundParams_.begin(), BoundParams_.end(),
         [paramNumber](const TBoundParam& p) { return p.ParamNumber == paramNumber; }), BoundParams_.end());
 
-    if (!parameterValuePtr) {
+    if (!parameterValuePtr && !atExec) {
         return SQL_SUCCESS;
     }
-    BoundParams_.push_back({paramNumber, inputOutputType, valueType, parameterType, columnSize, decimalDigits, parameterValuePtr, bufferLength, strLenOrIndPtr});
+    BoundParams_.push_back({paramNumber, inputOutputType, valueType, parameterType, columnSize, decimalDigits,
+                            parameterValuePtr, bufferLength, strLenOrIndPtr, atExec, false, {}});
     return SQL_SUCCESS;
 }
 
@@ -267,6 +321,21 @@ SQLRETURN TStatement::BuildParams(NYdb::TParams& out) {
     NYdb::TParamsBuilder paramsBuilder;
     for (const auto& param : BoundParams_) {
         const std::string paramName = "$p" + std::to_string(param.ParamNumber);
+        if (param.AtExec) {
+            if (!param.AtExecComplete || param.AtExecChunk.empty()) {
+                return AddError("HY000", 0, "Missing data-at-execution parameter value");
+            }
+            SQLLEN nts = SQL_NTS;
+            TBoundParam tmp = param;
+            tmp.ParameterValuePtr = const_cast<char*>(param.AtExecChunk.data());
+            tmp.StrLenOrIndPtr = &nts;
+            const SQLRETURN convRc = ConvertParam(tmp, paramsBuilder.AddParam(paramName));
+            if (convRc != SQL_SUCCESS) {
+                return AddError("07006", 0, "Unsupported or invalid ODBC parameter type for parameter "
+                    + std::to_string(param.ParamNumber));
+            }
+            continue;
+        }
         const SQLRETURN convRc = ConvertParam(param, paramsBuilder.AddParam(paramName));
         if (convRc != SQL_SUCCESS) {
             return AddError(
@@ -281,235 +350,123 @@ SQLRETURN TStatement::BuildParams(NYdb::TParams& out) {
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::Columns(const std::string& catalogName,
-                              const std::string& schemaName,
-                              const std::string& tableName,
-                              const std::string& columnName) {
+
+SQLRETURN TStatement::NumParams(SQLSMALLINT* paramCount) {
+    if (!paramCount) {
+        throw TOdbcException("HY000", 0, "Invalid parameter");
+    }
+    if (!IsPrepared_) {
+        throw TOdbcException("HY010", 0, "Function sequence error");
+    }
+    *paramCount = ParamCount_;
+    return SQL_SUCCESS;
+}
+
+void TStatement::ResetForMetadata() {
     ClearErrors();
     RowsFetched_ = 0;
     Cursor_.reset();
+}
 
-    std::vector<TColumnMeta> columns = {
-        {"TABLE_CAT", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"TABLE_SCHEM", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"TABLE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"COLUMN_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"DATA_TYPE", SQL_INTEGER, 0, SQL_NO_NULLS},
-        {"TYPE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"COLUMN_SIZE", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"BUFFER_LENGTH", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"DECIMAL_DIGITS", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"NUM_PREC_RADIX", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"NULLABLE", SQL_INTEGER, 0, SQL_NO_NULLS},
-        {"REMARKS", SQL_VARCHAR, 762, SQL_NULLABLE},
-        {"COLUMN_DEF", SQL_VARCHAR, 254, SQL_NULLABLE},
-        {"SQL_DATA_TYPE", SQL_INTEGER, 0, SQL_NO_NULLS},
-        {"SQL_DATETIME_SUB", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"CHAR_OCTET_LENGTH", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"ORDINAL_POSITION", SQL_INTEGER, 0, SQL_NO_NULLS},
-        {"IS_NULLABLE", SQL_VARCHAR, 254, SQL_NO_NULLS}
-    };
+SQLRETURN TStatement::DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataTypePtr, SQLULEN* paramSizePtr,
+                                    SQLSMALLINT* decimalDigitsPtr, SQLSMALLINT* nullablePtr) {
+    if (!IsPrepared_) {
+        throw TOdbcException("HY010", 0, "Function sequence error");
+    }
+    if (paramNumber < 1 || paramNumber > ParamCount_) {
+        throw TOdbcException("07009", 0, "Invalid descriptor index");
+    }
+    const auto it = std::find_if(BoundParams_.begin(), BoundParams_.end(),
+        [paramNumber](const TBoundParam& p) { return p.ParamNumber == paramNumber; });
+    const SQLSMALLINT dataType = it != BoundParams_.end() ? it->ParameterType : SQL_UNKNOWN_TYPE;
+    const SQLULEN paramSize = it != BoundParams_.end() ? it->ColumnSize : 0;
+    const SQLSMALLINT decimalDigits = it != BoundParams_.end() ? it->DecimalDigits : 0;
+    const SQLSMALLINT nullable = it != BoundParams_.end() ? SQL_NULLABLE : SQL_NULLABLE_UNKNOWN;
+    if (dataTypePtr) {
+        *dataTypePtr = dataType;
+    }
+    if (paramSizePtr) {
+        *paramSizePtr = paramSize;
+    }
+    if (decimalDigitsPtr) {
+        *decimalDigitsPtr = decimalDigits;
+    }
+    if (nullablePtr) {
+        *nullablePtr = nullable;
+    }
+    return SQL_SUCCESS;
+}
 
-    auto entries = GetPatternEntries(tableName);
+SQLRETURN TStatement::ParamData(SQLPOINTER* valuePtr) {
+    if (!valuePtr) {
+        throw TOdbcException("HY009", 0, "Invalid use of null pointer");
+    }
+    if (!InAtExec_) {
+        return SQL_NO_DATA;
+    }
+    const SQLUSMALLINT next = FindNextNeedDataParam();
+    if (next != 0) {
+        NeedDataParam_ = next;
+        *valuePtr = reinterpret_cast<SQLPOINTER>(static_cast<intptr_t>(next));
+        return SQL_NEED_DATA;
+    }
+    InAtExec_ = false;
+    NeedDataParam_ = 0;
+    return ExecuteInternal();
+}
 
-    TTable table;
-    table.reserve(entries.size());
+SQLRETURN TStatement::PutData(SQLPOINTER data, SQLLEN strLenOrInd) {
+    if (!InAtExec_ || NeedDataParam_ == 0) {
+        throw TOdbcException("HY010", 0, "Function sequence error");
+    }
+    for (auto& param : BoundParams_) {
+        if (param.ParamNumber != NeedDataParam_) {
+            continue;
+        }
+        SQLLEN chunkLen = strLenOrInd;
+        if (chunkLen == SQL_NTS) {
+            if (!data) {
+                throw TOdbcException("HY009", 0, "Invalid use of null pointer");
+            }
+            chunkLen = static_cast<SQLLEN>(std::strlen(static_cast<const char*>(data)));
+        }
+        if (chunkLen > 0 && data) {
+            const char* bytes = static_cast<const char*>(data);
+            param.AtExecChunk.append(bytes, static_cast<size_t>(chunkLen));
+        }
+        if (strLenOrInd == 0 || strLenOrInd == SQL_NTS) {
+            param.AtExecComplete = true;
+            NeedDataParam_ = 0;
+        }
+        break;
+    }
+    return SQL_SUCCESS;
+}
 
-    if (entries.empty()) {
-        Cursor_ = CreateVirtualCursor(this, columns, table);
+SQLRETURN TStatement::Cancel() {
+    if (!Cursor_ && !InAtExec_) {
         return SQL_SUCCESS;
     }
-
-    for (const auto& entry : entries) {
-        if (entry.Type != NScheme::ESchemeEntryType::Table &&
-            entry.Type != NScheme::ESchemeEntryType::ColumnTable) {
-            continue;
-        }
-
-        auto tableClient = Conn_->GetTableClient();
-        if (!tableClient) {
-            throw TOdbcException("HY000", 0, "No client connection");
-        }
-
-        auto status = tableClient->RetryOperationSync([this, path = entry.Name, &table, &columnName](NTable::TSession session) -> TStatus {
-            auto result = session.DescribeTable(path).ExtractValueSync();
-            NStatusHelpers::ThrowOnError(result);
-
-            auto columns = result.GetTableDescription().GetTableColumns();
-
-            auto columnMatches = [&](const NTable::TTableColumn& column) {
-                if (columnName.empty()) {
-                    return true;
-                }
-                if (Attributes_.GetMetadataId() == SQL_TRUE) {
-                    return column.Name == columnName;
-                }
-                return SqlLikeMatch(column.Name, columnName);
-            };
-
-            bool foundColumn = false;
-            for (size_t columnIndex = 0; columnIndex < columns.size(); ++columnIndex) {
-                const auto& column = columns[columnIndex];
-                if (!columnMatches(column)) {
-                    continue;
-                }
-                foundColumn = true;
-
-            table.push_back({
-                TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-                TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-                TValueBuilder().Utf8(path).Build(),
-                TValueBuilder().Utf8(column.Name).Build(),
-                TValueBuilder().Int16(GetTypeId(column.Type)).Build(),
-                TValueBuilder().Utf8(column.Type.ToString()).Build(),
-                TValueBuilder().OptionalInt32(std::nullopt).Build(),
-                TValueBuilder().OptionalInt32(std::nullopt).Build(),
-                TValueBuilder().OptionalInt16(GetDecimalDigits(column.Type)).Build(),
-                TValueBuilder().OptionalInt16(GetRadix(column.Type)).Build(),
-                TValueBuilder().Int16(column.NotNull && *column.NotNull ? SQL_NO_NULLS : SQL_NULLABLE).Build(),
-                TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-                TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-                TValueBuilder().Int16(GetTypeId(column.Type)).Build(),
-                TValueBuilder().OptionalInt16(std::nullopt).Build(),
-                TValueBuilder().OptionalInt32(8).Build(),
-                TValueBuilder().OptionalInt32(columnIndex + 1).Build(),
-                TValueBuilder().Utf8(column.NotNull && *column.NotNull ? "NO" : "YES").Build(),
-            });
-        }
-            if (!foundColumn) {
-                throw TOdbcException("42S22", 0, "Column not found", SQL_ERROR);
-            }
-            return TStatus(EStatus::SUCCESS, {});
-        });
-
-        NStatusHelpers::ThrowOnError(status);
-    }
-
-    Cursor_ = CreateVirtualCursor(this, columns, table);
-    return SQL_SUCCESS;
-}
-
-SQLRETURN TStatement::Tables(const std::string& catalogName,
-                             const std::string& schemaName,
-                             const std::string& tableName,
-                             const std::string& tableType) {
-    ClearErrors();
-    RowsFetched_ = 0;
     Cursor_.reset();
-
-    std::vector<TColumnMeta> columns = {
-        {"TABLE_CAT", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"TABLE_SCHEM", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"TABLE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"TABLE_TYPE", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"REMARKS", SQL_VARCHAR, 254, SQL_NULLABLE}
-    };
-
-    auto entries = GetPatternEntries(tableName);
-
-    TTable table;
-    table.reserve(entries.size());
-
-    for (const auto& entry : entries) {
-        auto tableType = GetTableType(entry.Type);
-        if (!tableType) {
-            continue;
-        }
-
-        table.push_back({
-            TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-            TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-            TValueBuilder().Utf8(entry.Name).Build(),
-            TValueBuilder().Utf8(*tableType).Build(),
-            TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-        });
+    InAtExec_ = false;
+    NeedDataParam_ = 0;
+    for (auto& param : BoundParams_) {
+        param.AtExecComplete = false;
+        param.AtExecChunk.clear();
     }
-
-    Cursor_ = CreateVirtualCursor(this, columns, table);
+    RowsFetched_ = 0;
     return SQL_SUCCESS;
 }
 
-std::vector<NScheme::TSchemeEntry> TStatement::GetPatternEntries(const std::string& pattern) {
-    std::vector<NScheme::TSchemeEntry> entries;
-    VisitEntry("", pattern, entries);
-    return entries;
-}
-
-SQLRETURN TStatement::VisitEntry(const std::string& path, const std::string& pattern, std::vector<NScheme::TSchemeEntry>& resultEntries) {
-    auto schemeClient = Conn_->GetSchemeClient();
-    if (!schemeClient) {
-        throw TOdbcException("HY000", 0, "No client connection");
-    }
-    auto listDirectoryResult = schemeClient->ListDirectory(path + "/").ExtractValueSync();
-    NStatusHelpers::ThrowOnError(listDirectoryResult);
-
-    for (const auto& entry : listDirectoryResult.GetChildren()) {
-        std::string fullPath = path + "/" + entry.Name;
-        if (entry.Type == NScheme::ESchemeEntryType::Directory ||
-            entry.Type == NScheme::ESchemeEntryType::SubDomain) {
-            VisitEntry(fullPath, pattern, resultEntries);
-        } else if (IsPatternMatch(fullPath, pattern)) {
-            NScheme::TSchemeEntry entryCopy = entry;
-            entryCopy.Name = fullPath;
-            resultEntries.push_back(entryCopy);
-        }
-    }
+SQLRETURN TStatement::SetCursorName(const std::string& name) {
+    CursorName_ = name;
     return SQL_SUCCESS;
 }
 
-bool TStatement::IsPatternMatch(const std::string& path, const std::string& pattern) {
-    if (pattern.empty()) {
-        return true;
-    }
-    if (Attributes_.GetMetadataId() == SQL_TRUE) {
-        return path == pattern;
-    }
-    return SqlLikeMatch(path, pattern);
+SQLRETURN TStatement::GetCursorName(SQLCHAR* name, SQLSMALLINT bufferLength, SQLSMALLINT* nameLengthPtr) {
+    return Diag::WriteOdbcString(*this, CursorName_, name, bufferLength, nameLengthPtr);
 }
 
-std::optional<std::string> TStatement::GetTableType(NScheme::ESchemeEntryType type) {
-    switch (type) {
-        case NScheme::ESchemeEntryType::Table:
-            return "TABLE";
-        case NScheme::ESchemeEntryType::View:
-            return "VIEW";
-        case NScheme::ESchemeEntryType::ColumnStore:
-            return "COLUMN_STORE";
-        case NScheme::ESchemeEntryType::ColumnTable:
-            return "COLUMN_TABLE";
-        case NScheme::ESchemeEntryType::Sequence:
-            return "SEQUENCE";
-        case NScheme::ESchemeEntryType::Replication:
-            return "REPLICATION";
-        case NScheme::ESchemeEntryType::Topic:
-            return "TOPIC";
-        case NScheme::ESchemeEntryType::ExternalTable:
-            return "EXTERNAL_TABLE";
-        case NScheme::ESchemeEntryType::ExternalDataSource:
-            return "EXTERNAL_DATA_SOURCE";
-        case NScheme::ESchemeEntryType::ResourcePool:
-            return "RESOURCE_POOL";
-        case NScheme::ESchemeEntryType::PqGroup:
-            return "PQ_GROUP";
-        case NScheme::ESchemeEntryType::RtmrVolume:
-            return "RTMR_VOLUME";
-        case NScheme::ESchemeEntryType::BlockStoreVolume:
-            return "BLOCK_STORE_VOLUME";
-        case NScheme::ESchemeEntryType::CoordinationNode:
-            return "COORDINATION_NODE";
-        case NScheme::ESchemeEntryType::Unknown:
-            return "UNKNOWN";
-        case NScheme::ESchemeEntryType::SysView:
-            return "SYSTEM VIEW";
-        case NScheme::ESchemeEntryType::Transfer:
-            return "TRANSFER";
-        case NScheme::ESchemeEntryType::Directory:
-        case NScheme::ESchemeEntryType::SubDomain:
-            return std::nullopt;
-        default:
-            return std::nullopt;
-    }
-}
 
 SQLRETURN TStatement::Close(bool force) {
     if (!force && !Cursor_) {
@@ -535,7 +492,7 @@ SQLRETURN TStatement::RowCount(SQLLEN* rowCount) {
         throw TOdbcException("HY000", 0, "Invalid parameter");
     }
 
-    *rowCount = -1;
+    *rowCount = RowCount_;
     return SQL_SUCCESS;
 }
 
@@ -561,6 +518,25 @@ SQLRETURN TStatement::SetStmtAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER 
 }
 
 SQLRETURN TStatement::GetStmtAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr) {
+    if (!value) {
+        return AddError("HY009", 0, "Invalid use of null pointer");
+    }
+    switch (attr) {
+        case SQL_ATTR_APP_ROW_DESC:
+            *reinterpret_cast<SQLHDESC*>(value) = AppRowDesc_.get();
+            return SQL_SUCCESS;
+        case SQL_ATTR_APP_PARAM_DESC:
+            *reinterpret_cast<SQLHDESC*>(value) = AppParamDesc_.get();
+            return SQL_SUCCESS;
+        case SQL_ATTR_IMP_ROW_DESC:
+            *reinterpret_cast<SQLHDESC*>(value) = ImpRowDesc_.get();
+            return SQL_SUCCESS;
+        case SQL_ATTR_IMP_PARAM_DESC:
+            *reinterpret_cast<SQLHDESC*>(value) = ImpParamDesc_.get();
+            return SQL_SUCCESS;
+        default:
+            break;
+    }
     return Attributes_.GetStmtAttr(attr, value, bufferLength, stringLengthPtr, *this);
 }
 
