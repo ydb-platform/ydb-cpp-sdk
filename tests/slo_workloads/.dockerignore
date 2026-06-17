@@ -34,7 +34,6 @@ node_modules/
 # Documentation
 *.md
 docs/
-!requirements.txt
 
 # CI/CD
 .circleci
