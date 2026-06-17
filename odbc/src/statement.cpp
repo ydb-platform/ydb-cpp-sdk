@@ -75,7 +75,7 @@ SQLRETURN TStatement::Execute() {
     StreamFetchError_ = false;
     RowsFetched_ = 0;
     Cursor_.reset();
-    auto* client = Conn_->GetClient();
+    auto client = Conn_->GetClient();
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
     }
@@ -326,7 +326,12 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
             continue;
         }
 
-        auto status = Conn_->GetTableClient()->RetryOperationSync([this, path = entry.Name, &table, &columnName](NTable::TSession session) -> TStatus {
+        auto tableClient = Conn_->GetTableClient();
+        if (!tableClient) {
+            throw TOdbcException("HY000", 0, "No client connection");
+        }
+
+        auto status = tableClient->RetryOperationSync([this, path = entry.Name, &table, &columnName](NTable::TSession session) -> TStatus {
             auto result = session.DescribeTable(path).ExtractValueSync();
             NStatusHelpers::ThrowOnError(result);
 
@@ -432,6 +437,9 @@ std::vector<NScheme::TSchemeEntry> TStatement::GetPatternEntries(const std::stri
 
 SQLRETURN TStatement::VisitEntry(const std::string& path, const std::string& pattern, std::vector<NScheme::TSchemeEntry>& resultEntries) {
     auto schemeClient = Conn_->GetSchemeClient();
+    if (!schemeClient) {
+        throw TOdbcException("HY000", 0, "No client connection");
+    }
     auto listDirectoryResult = schemeClient->ListDirectory(path + "/").ExtractValueSync();
     NStatusHelpers::ThrowOnError(listDirectoryResult);
 
