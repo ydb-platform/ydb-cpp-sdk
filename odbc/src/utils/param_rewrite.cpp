@@ -1,6 +1,7 @@
 #include "param_rewrite.h"
 #include "sql_type_map.h"
 
+#include <algorithm>
 #include <cctype>
 #include <set>
 #include <string>
@@ -36,6 +37,52 @@ bool TryParseDollarParam(std::string_view sql, size_t i, SQLUSMALLINT& index) {
 }
 
 } // namespace
+
+SQLSMALLINT CountOdbcParams(std::string_view sql) {
+    SQLSMALLINT questionMarkCount = 0;
+    SQLSMALLINT maxDollarIndex = 0;
+    bool inQuote = false;
+    size_t braceDepth = 0;
+
+    for (size_t i = 0; i < sql.size(); ++i) {
+        const char ch = sql[i];
+        if (inQuote) {
+            if (ch == '\'' && i + 1 < sql.size() && sql[i + 1] == '\'') {
+                ++i;
+            } else if (ch == '\'') {
+                inQuote = false;
+            }
+            continue;
+        }
+        if (ch == '\'') {
+            inQuote = true;
+            continue;
+        }
+        if (ch == '{') {
+            ++braceDepth;
+            continue;
+        }
+        if (ch == '}' && braceDepth > 0) {
+            --braceDepth;
+            continue;
+        }
+        if (braceDepth == 0) {
+            if (IsParamMark(sql, i)) {
+                ++questionMarkCount;
+                continue;
+            }
+            SQLUSMALLINT index = 0;
+            if (TryParseDollarParam(sql, i, index)) {
+                maxDollarIndex = std::max(maxDollarIndex, static_cast<SQLSMALLINT>(index));
+            }
+        }
+    }
+
+    if (questionMarkCount > 0) {
+        return questionMarkCount;
+    }
+    return maxDollarIndex;
+}
 
 TParamRewriteResult RewriteOdbcQuestionMarks(
     std::string_view sql,
