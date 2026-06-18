@@ -1,0 +1,308 @@
+#include "connection.h"
+#include "statement.h"
+#include "utils/util.h"
+
+#include <ydb-cpp-sdk/client/result/result.h>
+#include <ydb-cpp-sdk/client/types/status/status.h>
+
+#include <map>
+#include <string>
+#include <algorithm>
+#include <cstring>
+
+#include <sql.h>
+#include <sqlext.h>
+
+#include <odbcinst.h>
+
+namespace NYdb {
+namespace NOdbc {
+
+TConnection::~TConnection() {
+    DestroyYdbState();
+}
+
+void TConnection::DestroyYdbState() {
+    QuerySession_.reset();
+    Tx_.reset();
+    Ydb_.reset();
+}
+
+SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
+    const std::map<std::string, std::string> params = ParseConnectionString(connectionString);
+    Endpoint_ = params.contains("Server") ? params.at("Server") : params.contains("Endpoint") ? params.at("Endpoint") : "";
+    Database_ = params.contains("Database") ? params.at("Database") : "";
+    DataSourceName_ = params.contains("DSN") ? params.at("DSN") : "";
+
+    if (Endpoint_.empty() || Database_.empty()) {
+        throw TOdbcException("08001", 0, "Missing Endpoint (or Server) or Database in connection string");
+    }
+
+    TConnectionAttributes::NormalizeCatalogPath(Database_);
+    RecreateYdbClients();
+    Attributes_.SetCurrentCatalog(Database_);
+
+    return SQL_SUCCESS;
+}
+
+SQLRETURN TConnection::Connect(const std::string& serverName,
+                               const std::string& userName,
+                               const std::string& auth) {
+    DataSourceName_ = serverName;
+
+    char endpoint[256] = {0};
+    char server[256] = {0};
+    char database[256] = {0};
+
+    SQLGetPrivateProfileString(serverName.c_str(), "Endpoint", "", endpoint, sizeof(endpoint), nullptr);
+    SQLGetPrivateProfileString(serverName.c_str(), "Server", "", server, sizeof(server), nullptr);
+    SQLGetPrivateProfileString(serverName.c_str(), "Database", "", database, sizeof(database), nullptr);
+
+    Endpoint_ = endpoint[0] ? endpoint : server;
+    Database_ = database;
+
+    if (Endpoint_.empty() || Database_.empty()) {
+        throw TOdbcException("08001", 0, "Missing Endpoint (or Server) or Database in DSN");
+    }
+
+    TConnectionAttributes::NormalizeCatalogPath(Database_);
+    RecreateYdbClients();
+    Attributes_.SetCurrentCatalog(Database_);
+
+    return SQL_SUCCESS;
+}
+
+SQLRETURN TConnection::Disconnect() {
+    DestroyYdbState();
+    DbmsVersionCache_.reset();
+    DataSourceName_.clear();
+    return SQL_SUCCESS;
+}
+
+NQuery::TSession& TConnection::GetOrCreateQuerySession() {
+    if (!QuerySession_) {
+        auto sessionResult = Ydb_->QueryClient.GetSession().ExtractValueSync();
+        NStatusHelpers::ThrowOnError(sessionResult);
+        QuerySession_.emplace(std::move(sessionResult.GetSession()));
+    }
+    return *QuerySession_;
+}
+
+std::optional<NQuery::TQueryClient> TConnection::GetClient() {
+    if (!Ydb_) {
+        return std::nullopt;
+    }
+    return Ydb_->QueryClient;
+}
+
+std::optional<NTable::TTableClient> TConnection::GetTableClient() {
+    if (!Ydb_) {
+        return std::nullopt;
+    }
+    return Ydb_->TableClient;
+}
+
+std::optional<NScheme::TSchemeClient> TConnection::GetSchemeClient() {
+    if (!Ydb_) {
+        return std::nullopt;
+    }
+    return Ydb_->SchemeClient;
+}
+
+std::unique_ptr<TStatement> TConnection::CreateStatement() {
+    return std::make_unique<TStatement>(this);
+}
+
+SQLRETURN TConnection::SetAutocommit(bool value) {
+    Attributes_.SetAutocommit(value);
+    if (Attributes_.GetAutocommit() && Tx_) {
+        auto status = Tx_->Commit().ExtractValueSync();
+        NStatusHelpers::ThrowOnError(status);
+        Tx_.reset();
+    }
+    return SQL_SUCCESS;
+}
+
+bool TConnection::GetAutocommit() const {
+    return Attributes_.GetAutocommit();
+}
+
+SQLRETURN TConnection::SetConnectAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER stringLength) {
+    if (attr == SQL_ATTR_CURRENT_CATALOG) {
+        std::optional<std::string> rebindDatabase;
+        SQLRETURN rc = Attributes_.ApplyCatalogChange(value, stringLength, Database_, rebindDatabase, *this);
+        if (rc != SQL_SUCCESS) {
+            return rc;
+        }
+        if (rebindDatabase) {
+            RebindToDatabase(*rebindDatabase);
+        }
+        return SQL_SUCCESS;
+    }
+    return Attributes_.SetConnectAttr(attr, value, stringLength, [this](bool autocommit) {
+        return SetAutocommit(autocommit);
+    }, *this);
+}
+
+SQLRETURN TConnection::GetConnectAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER bufferLength,
+                                      SQLINTEGER* stringLengthPtr) {
+    return Attributes_.GetConnectAttr(attr, value, bufferLength, stringLengthPtr, *this);
+}
+
+NQuery::TTxSettings TConnection::MakeTxSettings() const {
+    return Attributes_.MakeTxSettings();
+}
+
+const std::optional<NQuery::TTransaction>& TConnection::GetTx() {
+    return Tx_;
+}
+
+void TConnection::SetTx(const NQuery::TTransaction& tx) {
+    Tx_ = tx;
+}
+
+void TConnection::ResetTx() {
+    Tx_.reset();
+}
+
+void TConnection::ResetQuerySession() {
+    QuerySession_.reset();
+}
+
+SQLRETURN TConnection::CommitTx() {
+    if (!Tx_) {
+        return AddError("25000", 0, "Invalid transaction state: no active transaction");
+    }
+    auto status = Tx_->Commit().ExtractValueSync();
+    NStatusHelpers::ThrowOnError(status);
+    Tx_.reset();
+    return SQL_SUCCESS;
+}
+
+SQLRETURN TConnection::RollbackTx() {
+    if (!Tx_) {
+        return AddError("25000", 0, "Invalid transaction state: no active transaction");
+    }
+    auto status = Tx_->Rollback().ExtractValueSync();
+    NStatusHelpers::ThrowOnError(status);
+    Tx_.reset();
+    return SQL_SUCCESS;
+}
+
+void TConnection::SetEnvironment(TEnvironment* env){
+    if (ParentEnv_){
+        throw std::logic_error("Connection already bound to environment");
+    }
+    ParentEnv_ = env;
+}
+
+TEnvironment* TConnection::GetEnvironment(){
+    return ParentEnv_;
+}
+
+const std::string& TConnection::GetDataSourceName() const {
+    return DataSourceName_;
+}
+
+SQLUINTEGER TConnection::GetSupportedTxnIsolationOptions() const {
+    return Attributes_.GetSupportedTxnIsolationOptions();
+}
+
+bool TConnection::IsDataSourceReadOnly() const {
+    return Attributes_.GetAccessMode() == SQL_MODE_READ_ONLY;
+}
+
+const std::string& TConnection::GetDbmsVersion() {
+    if (DbmsVersionCache_) {
+        return *DbmsVersionCache_;
+    }
+
+    auto client = GetClient();
+    if (!client) {
+        throw TOdbcException("08003", 0, "Connection is not established");
+    }
+
+    std::optional<std::string> fetched;
+    const NYdb::TStatus status = client->RetryQuerySync(
+        [&fetched](NQuery::TSession session) -> NYdb::TStatus {
+            auto result = session.ExecuteQuery(
+                "SELECT Version();",
+                NQuery::TTxControl::NoTx(),
+                NYdb::TParamsBuilder().Build()).ExtractValueSync();
+            if (!result.IsSuccess()) {
+                return result;
+            }
+            if (result.GetResultSets().empty()) {
+                return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
+            }
+            TResultSetParser parser(result.GetResultSetParser(0));
+            if (parser.TryNextRow()) {
+                fetched = parser.ColumnParser(0).GetUtf8();
+            }
+            return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
+        });
+
+    NStatusHelpers::ThrowOnError(status);
+    if (!fetched || fetched->empty()) {
+        throw TOdbcException("HY000", 0, "Failed to retrieve DBMS version");
+    }
+
+    DbmsVersionCache_ = std::move(*fetched);
+    return *DbmsVersionCache_;
+}
+
+void TConnection::RecreateYdbClients() {
+    DestroyYdbState();
+    DbmsVersionCache_.reset();
+    Ydb_.emplace(Endpoint_, Database_);
+}
+
+void TConnection::RebindToDatabase(const std::string& newDatabase) {
+    std::string db = newDatabase;
+    TConnectionAttributes::NormalizeCatalogPath(db);
+    Database_ = std::move(db);
+    Attributes_.SetCurrentCatalog(Database_);
+    RecreateYdbClients();
+}
+
+
+std::string TConnection::WrapQueryForCurrentCatalog(const std::string& sql) const {
+    std::optional<std::string> rel = Attributes_.ResolveCatalogRoute(Database_).TablePathPrefix;
+    if (!rel) {
+        return sql;
+    }
+    std::string escapedPrefix;
+    escapedPrefix.reserve(rel->size() + 8);
+    for (const char ch : *rel) {
+        if (ch == '\\' || ch == '"') {
+            escapedPrefix.push_back('\\');
+        }
+        escapedPrefix.push_back(ch);
+    }
+    return "PRAGMA TablePathPrefix = \"" + escapedPrefix + "\";\n" + sql;
+}
+
+SQLRETURN TConnection::NativeSql(const std::string& inSql, SQLCHAR* outSql, SQLINTEGER outMax, SQLINTEGER* outLen) {
+    const SQLINTEGER fullLen = static_cast<SQLINTEGER>(inSql.size());
+    if (outLen) {
+        *outLen = fullLen;
+    }
+    if (!outSql) {
+        return outMax == 0 ? SQL_SUCCESS : AddError("HY090", 0, "Invalid string or buffer length");
+    }
+    if (outMax <= 0) {
+        return fullLen == 0 ? SQL_SUCCESS : AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
+    }
+    const SQLINTEGER copyLen = std::min(fullLen, outMax - 1);
+    if (copyLen > 0) {
+        std::memcpy(outSql, inSql.data(), static_cast<size_t>(copyLen));
+    }
+    outSql[copyLen] = '\0';
+    if (copyLen < fullLen) {
+        return AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
+    }
+    return SQL_SUCCESS;
+}
+
+} // namespace NOdbc
+} // namespace NYdb

@@ -1,0 +1,4 @@
+[YDB]
+Description=YDB ODBC Driver
+Driver=@YDB_ODBC_DRIVER_PATH@
+Setup=@YDB_ODBC_DRIVER_PATH@

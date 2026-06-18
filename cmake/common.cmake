@@ -110,7 +110,7 @@ function(generate_enum_serilization Tgt Input)
 endfunction()
 
 function(add_global_library_for TgtName MainName)
-  add_library(${TgtName} STATIC ${ARGN})
+  _ydb_sdk_add_library(${TgtName} STATIC ${ARGN})
   if(APPLE)
     target_link_options(${MainName} INTERFACE "SHELL:-Wl,-force_load,$<TARGET_FILE:$<INSTALL_INTERFACE:YDB-CPP-SDK::>${TgtName}>")
   else()
@@ -196,7 +196,7 @@ endfunction()
 
 function(_ydb_sdk_add_library Tgt)
   cmake_parse_arguments(ARG
-    "INTERFACE" "" ""
+    "INTERFACE;OBJECT;SHARED" "" ""
     ${ARGN}
   )
 
@@ -206,7 +206,12 @@ function(_ydb_sdk_add_library Tgt)
     set(libraryMode "INTERFACE")
     set(includeMode "INTERFACE")
   endif()
-  
+  if (ARG_OBJECT)
+    set(libraryMode "OBJECT")
+  endif()
+  if (ARG_SHARED)
+    set(libraryMode "SHARED")
+  endif()
   add_library(${Tgt} ${libraryMode})
   target_include_directories(${Tgt} ${includeMode}
     $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}>
@@ -216,6 +221,7 @@ function(_ydb_sdk_add_library Tgt)
   target_compile_definitions(${Tgt} ${includeMode}
     YDB_SDK_OSS
   )
+  set_property(TARGET ${Tgt} PROPERTY POSITION_INDEPENDENT_CODE ON)
   
 endfunction()
 
@@ -462,4 +468,3 @@ function(_ydb_sdk_validate_public_headers)
   )
   target_include_directories(validate_public_interface PUBLIC ${YDB_SDK_BINARY_DIR}/__validate_headers_dir/include)
 endfunction()
-

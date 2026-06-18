@@ -78,9 +78,9 @@ function(add_ydb_test)
 
   if (YDB_TEST_GTEST)
     set(env_vars "")
-    foreach(env_var ${YDB_TEST_ENV})
+    foreach(env_var IN LISTS YDB_TEST_ENV)
       list(APPEND env_vars "ENVIRONMENT")
-      list(APPEND env_vars ${env_var})
+      list(APPEND env_vars "${env_var}")
     endforeach()
 
     gtest_discover_tests(${YDB_TEST_NAME}
@@ -121,3 +121,37 @@ function(add_ydb_test)
 
   vcs_info(${YDB_TEST_NAME})
 endfunction()
+
+if (YDB_SDK_ODBC)
+  function(add_odbc_test)
+    set(opts "")
+    set(oneval_args NAME WORKING_DIRECTORY OUTPUT_DIRECTORY)
+    set(multival_args SOURCES LINK_LIBRARIES LABELS)
+    cmake_parse_arguments(ODBC_TEST
+      "${opts}"
+      "${oneval_args}"
+      "${multival_args}"
+      ${ARGN}
+    )
+
+    add_ydb_test(GTEST
+      NAME ${ODBC_TEST_NAME}
+      SOURCES ${ODBC_TEST_SOURCES}
+      LINK_LIBRARIES
+        ${ODBC_TEST_LINK_LIBRARIES}
+        ODBC::ODBC
+      LABELS
+        integration
+        ${ODBC_TEST_LABELS}
+    )
+
+    target_compile_definitions(${ODBC_TEST_NAME} 
+      PRIVATE 
+        ODBC_DRIVER_PATH="$<TARGET_FILE:ydb-odbc>"
+        ODBC_TEST_ODBCINI="${CMAKE_BINARY_DIR}/odbc/odbc.ini"
+        ODBC_TEST_ODBCSYSINI="${CMAKE_BINARY_DIR}/odbc"
+    )
+
+    add_dependencies(${ODBC_TEST_NAME} ydb-odbc)
+  endfunction()
+endif()
