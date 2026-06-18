@@ -10,7 +10,7 @@ TEST(DescriptorApi, ImplicitImpRowDesc) {
     SQLHDESC ird = SQL_NULL_HDESC;
     CHECK_ODBC_OK(SQLGetStmtAttr(stmt, SQL_ATTR_IMP_ROW_DESC, &ird, sizeof(ird), nullptr),
                   stmt, SQL_HANDLE_STMT);
-    ASSERT_NE(ird, SQL_NULL_HDESC);
+    ASSERT_NE(ird, nullptr);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
