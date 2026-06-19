@@ -19,7 +19,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-      pull-requests: write
     services:
       ydb:
         image: ydbplatform/local-ydb:24.4
@@ -70,7 +69,6 @@ jobs:
           build-directory: build
           source-root: ${{ github.workspace }}
           gcov-executable: gcov-13
-          post-pr-comment: ${{ github.event_name == 'pull_request' }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

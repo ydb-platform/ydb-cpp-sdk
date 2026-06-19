@@ -30,30 +30,3 @@ if [[ -n "${FAIL_UNDER_LINE:-}" && "${FAIL_UNDER_LINE}" != "0" ]]; then
 fi
 
 gcovr "${gcovr_args[@]}"
-
-if [[ -n "${GITHUB_STEP_SUMMARY:-}" && -f "${OUTPUT_DIR}/summary.json" ]]; then
-  {
-    echo "## Code coverage"
-    echo ""
-    echo "| Metric | Covered | Total | Percent |"
-    echo "| --- | ---: | ---: | ---: |"
-    jq -r '
-      def metric($name):
-        if has($name) then
-          .[$name]
-        else
-          {
-            covered: .[$name + "_covered"],
-            num: .[$name + "_total"],
-            percent: .[$name + "_percent"]
-          }
-        end;
-      metric("line") as $l
-      | metric("branch") as $b
-      | metric("function") as $f
-      | "| Line | \($l.covered) | \($l.num) | \($l.percent // 0)% |",
-        "| Branch | \($b.covered) | \($b.num) | \($b.percent // 0)% |",
-        "| Function | \($f.covered) | \($f.num) | \($f.percent // 0)% |"
-    ' "${OUTPUT_DIR}/summary.json"
-  } >> "${GITHUB_STEP_SUMMARY}"
-fi
