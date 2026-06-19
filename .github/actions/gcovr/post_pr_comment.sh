@@ -33,9 +33,18 @@ summary = json.loads(Path(os.environ["SUMMARY_JSON"]).read_text())
 repo = os.environ["GITHUB_REPOSITORY"]
 run_id = os.environ["GITHUB_RUN_ID"]
 
-line = summary["line"]
-branch = summary["branch"]
-func = summary["function"]
+def metric(name: str) -> dict:
+    if name in summary:
+        return summary[name]
+    return {
+        "covered": summary[f"{name}_covered"],
+        "num": summary[f"{name}_total"],
+        "percent": summary.get(f"{name}_percent") or 0,
+    }
+
+line = metric("line")
+branch = metric("branch")
+func = metric("function")
 
 def bar(percent: float) -> str:
     filled = max(0, min(10, int(round(percent / 10))))
