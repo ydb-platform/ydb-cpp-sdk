@@ -38,9 +38,19 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" && -f "${OUTPUT_DIR}/summary.json" ]]; then
     echo "| Metric | Covered | Total | Percent |"
     echo "| --- | ---: | ---: | ---: |"
     jq -r '
-      .line as $l
-      | .branch as $b
-      | .function as $f
+      def metric($name):
+        if has($name) then
+          .[$name]
+        else
+          {
+            covered: .[$name + "_covered"],
+            num: .[$name + "_total"],
+            percent: .[$name + "_percent"]
+          }
+        end;
+      metric("line") as $l
+      | metric("branch") as $b
+      | metric("function") as $f
       | "| Line | \($l.covered) | \($l.num) | \($l.percent // 0)% |",
         "| Branch | \($b.covered) | \($b.num) | \($b.percent // 0)% |",
         "| Function | \($f.covered) | \($f.num) | \($f.percent // 0)% |"

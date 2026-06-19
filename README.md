@@ -1,5 +1,7 @@
 # YDB C++ SDK: driver for [YDB](https://github.com/ydb-platform/ydb)
 
+[![Codecov](https://codecov.io/gh/ydb-platform/ydb-cpp-sdk/branch/main/graph/badge.svg)](https://app.codecov.io/gh/ydb-platform/ydb-cpp-sdk)
+
 ## Building YDB C++ SDK from sources
 
 ### Prerequisites

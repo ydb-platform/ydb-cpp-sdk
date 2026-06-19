@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-22.04
     permissions:
       contents: read
+      id-token: write
       pull-requests: write
     services:
       ydb:
@@ -70,6 +71,17 @@ jobs:
           source-root: ${{ github.workspace }}
           gcov-executable: gcov-13
           post-pr-comment: ${{ github.event_name == 'pull_request' }}
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          files: build/coverage/cobertura.xml
+          disable_search: true
+          flags: sdk
+          name: ydb-cpp-sdk
+          fail_ci_if_error: true
+          verbose: true
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
