@@ -20,6 +20,7 @@ gcovr_args=(
   --exclude '.*contrib/.*'
   --exclude '.*tests/.*'
   --exclude '.*/_deps/.*'
+  --merge-lines
   --filter 'src/'
   --filter 'include/ydb-cpp-sdk/'
   --filter 'plugins/'
