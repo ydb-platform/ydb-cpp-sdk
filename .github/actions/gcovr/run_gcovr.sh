@@ -16,7 +16,7 @@ gcovr_args=(
   --json-summary "${OUTPUT_DIR}/summary.json"
   --html --html-details
   -o "${OUTPUT_DIR}/index.html"
-  --cobertura "${OUTPUT_DIR}/cobertura.xml"
+  --lcov "${OUTPUT_DIR}/coverage.lcov"
   --exclude '.*contrib/.*'
   --exclude '.*tests/.*'
   --exclude '.*/_deps/.*'

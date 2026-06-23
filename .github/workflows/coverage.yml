@@ -74,8 +74,9 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           use_oidc: true
-          files: build/coverage/cobertura.xml
+          files: build/coverage/coverage.lcov
           disable_search: true
+          plugins: noop
           flags: sdk
           name: ydb-cpp-sdk
           fail_ci_if_error: true
