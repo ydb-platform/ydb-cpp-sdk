@@ -19,6 +19,7 @@ gcovr_args=(
   --lcov "${OUTPUT_DIR}/coverage.lcov"
   --exclude '.*contrib/.*'
   --exclude '.*tests/.*'
+  --merge-lines
   --exclude '.*/_deps/.*'
   --filter 'src/'
   --filter 'include/ydb-cpp-sdk/'
@@ -30,3 +31,6 @@ if [[ -n "${FAIL_UNDER_LINE:-}" && "${FAIL_UNDER_LINE}" != "0" ]]; then
 fi
 
 gcovr "${gcovr_args[@]}"
+
+sed '/^BRDA:/d;/^BRF:/d;/^BRH:/d' \
+  "${OUTPUT_DIR}/coverage.lcov" > "${OUTPUT_DIR}/coverage-codecov.lcov"

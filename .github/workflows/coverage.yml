@@ -74,7 +74,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           use_oidc: true
-          files: build/coverage/coverage.lcov
+          files: build/coverage/coverage-codecov.lcov
           disable_search: true
           plugins: noop
           flags: sdk
