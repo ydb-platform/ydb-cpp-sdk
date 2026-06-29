@@ -6,6 +6,8 @@
 
 #include <ydb-cpp-sdk/client/types/exceptions/exceptions.h>
 
+#include <exception>
+
 #include <util/string/cast.h>
 
 #include <functional>
