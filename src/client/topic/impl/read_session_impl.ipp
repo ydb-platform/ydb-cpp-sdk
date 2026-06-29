@@ -16,7 +16,7 @@
 
 #include <google/protobuf/util/time_util.h>
 
-#include <ydb/library/kafka/kafka_records.h>
+#include <src/library/kafka/kafka_records.h>
 
 #include <library/cpp/containers/disjoint_interval_tree/disjoint_interval_tree.h>
 
