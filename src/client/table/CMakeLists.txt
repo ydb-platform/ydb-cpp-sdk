@@ -14,6 +14,7 @@ target_link_libraries(client-ydb_table PUBLIC
   client-ydb_params
   client-ydb_proto
   client-ydb_result
+  client-ydb_row_ranges
   client-ydb_scheme
   client-ydb_table-impl
   client-ydb_table-query_stats

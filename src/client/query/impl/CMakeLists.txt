@@ -16,6 +16,7 @@ target_link_libraries(client-ydb_query-impl PUBLIC
 target_sources(client-ydb_query-impl PRIVATE
   exec_query.cpp
   client_session.cpp
+  session_state_handler.cpp
 )
 
 _ydb_sdk_install_targets(TARGETS client-ydb_query-impl)
