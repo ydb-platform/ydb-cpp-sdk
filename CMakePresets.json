@@ -199,7 +199,7 @@
       },
       "filter": {
         "exclude": {
-          "name": "(ManyMessages|DiscoveryHang|DescribeHang)"
+          "name": "(ManyMessages|DiscoveryHang|DescribeHang|iam_driver_auth_it)"
         }
       },
       "environment": {

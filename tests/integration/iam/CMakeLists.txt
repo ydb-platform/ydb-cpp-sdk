@@ -1,3 +1,9 @@
+# IAM integration tests require a recipe with:
+#   ENV(YDB_ENFORCE_USER_TOKEN_REQUIREMENT=true)
+#   ENV(YDB_DEFAULT_CLUSTERADMIN=root@builtin)
+# See ydb/public/sdk/cpp/tests/integration/iam/ya.make in the ydb repo.
+# OSS CI runs these under the integration-iam workflow job.
+
 add_ydb_test(NAME iam_metadata_it GTEST
   SOURCES
     iam_test_fixture.cpp
