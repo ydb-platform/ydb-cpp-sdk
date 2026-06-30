@@ -1,4 +1,5 @@
 add_subdirectory(auth)
+add_subdirectory(iam)
 add_subdirectory(basic_example)
 add_subdirectory(bulk_upsert)
 add_subdirectory(key_conflict)

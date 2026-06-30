@@ -58,6 +58,7 @@ add_ydb_test(NAME client-iam_grpc_ut GTEST
   LINK_LIBRARIES
     api-client-yc_public
     cpp-testing-common
+    tests-iam-mocks
     YDB-CPP-SDK::Iam
   LABELS
     unit
@@ -70,6 +71,7 @@ add_ydb_test(NAME client-iam_http_ut GTEST
     http-server
     json
     cpp-testing-common
+    tests-iam-mocks
     YDB-CPP-SDK::Iam
   LABELS
     unit
@@ -156,6 +158,91 @@ add_ydb_test(NAME client-ydb_spans_ut GTEST
     client-ydb_table-impl
     client-metrics
     client-trace
+  LABELS
+    unit
+)
+
+add_ydb_test(NAME client-build_info_ut GTEST
+  SOURCES
+    build_info/build_info_ut.cpp
+  LINK_LIBRARIES
+    YDB-CPP-SDK::Driver
+  LABELS
+    unit
+)
+
+add_ydb_test(NAME client-query_session_ut
+  SOURCES
+    query/client_session_ut.cpp
+  LINK_LIBRARIES
+    client-ydb_query-impl
+    impl-session
+    library-operation_id
+  LABELS
+    unit
+)
+
+add_ydb_test(NAME client-query_stats_ut
+  SOURCES
+    query/query_stats_ut.cpp
+  LINK_LIBRARIES
+    YDB-CPP-SDK::Query
+  LABELS
+    unit
+)
+
+add_ydb_test(NAME client-row_ranges_ut
+  SOURCES
+    row_ranges/row_ranges_ut.cpp
+  LINK_LIBRARIES
+    YDB-CPP-SDK::Query
+    YDB-CPP-SDK::Table
+  LABELS
+    unit
+)
+
+add_ydb_test(NAME client-row_ranges_public_include_ut
+  SOURCES
+    row_ranges/row_ranges_public_include_ut.cpp
+  LINK_LIBRARIES
+    YDB-CPP-SDK::Query
+    YDB-CPP-SDK::Table
+  LABELS
+    unit
+)
+
+add_ydb_test(NAME client-retry_range_ut
+  SOURCES
+    retry_range/retry_range_ut.cpp
+  LINK_LIBRARIES
+    api-grpc
+    grpc-client
+    YDB-CPP-SDK::Driver
+    YDB-CPP-SDK::Query
+    YDB-CPP-SDK::Table
+  LABELS
+    unit
+)
+
+add_ydb_test(NAME client-iam_private_grpc_ut GTEST
+  SOURCES
+    iam_private/grpc_iam_service_ut.cpp
+  LINK_LIBRARIES
+    api-client-yc_private
+    tests-iam-mocks
+    YDB-CPP-SDK::IamPrivate
+  LABELS
+    unit
+)
+
+add_ydb_test(NAME client-metric_buffer_ut GTEST
+  INCLUDE_DIRS
+    ${YDB_SDK_SOURCE_DIR}
+  SOURCES
+    observability/metric_buffer_ut.cpp
+  LINK_LIBRARIES
+    impl-observability
+    client-metrics
   LABELS
     unit
 )
