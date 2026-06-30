@@ -8,6 +8,7 @@ target_link_libraries(impl-internal-retry PUBLIC
 
 target_sources(impl-internal-retry PRIVATE
   retry.cpp
+  bulk_upsert_retry_state.cpp
 )
 
 _ydb_sdk_install_targets(TARGETS impl-internal-retry)

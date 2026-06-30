@@ -11,6 +11,7 @@ target_link_libraries(client-ydb_query PUBLIC
   client-ydb_driver
   client-ydb_query-impl
   client-ydb_result
+  client-ydb_row_ranges
   client-metrics
   client-trace
   client-types-operation
