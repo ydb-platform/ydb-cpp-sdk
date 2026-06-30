@@ -1,3 +1,5 @@
+## v3.19.0
+
 * Added automatic retries for unary methods of table and query clients(ExecuteQuery, ExecuteScript, BulkUpsert, ReadRows).
 
 * Implemented native ranges(TRowRange) and iterators over both streaming query results and TResultSet.
