@@ -1,0 +1,15 @@
+# Cross-repo uniform metric: every YDB SDK repo defines this same component_id,
+# so native-SDK coverage is queryable identically via the Codecov API
+# (?component_id=native-sdk), regardless of how each repo tags its uploads.
+#
+# The SDK proper lives in src/ (implementation) and include/ (public headers).
+# The vendored Arcadia libraries (util/, library/, contrib/, third_party/) and
+# examples/tests/tools are not part of the native SDK and are pinned out by listing
+# only the SDK paths.
+component_management:
+  individual_components:
+    - component_id: native-sdk
+      name: Native SDK
+      paths:
+        - "src/**"
+        - "include/**"
