@@ -1,4 +1,4 @@
-## v3.19.0
+## v3.20.0
 
 * Added automatic retries for unary methods of table and query clients(ExecuteQuery, ExecuteScript, BulkUpsert, ReadRows).
 
