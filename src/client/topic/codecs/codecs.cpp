@@ -1,7 +1,7 @@
 #include <ydb-cpp-sdk/client/topic/codecs.h>
 
-#include <ydb/library/kafka/kafka_messages_int.h>
-#include <ydb/library/kafka/kafka_records.h>
+#include <src/library/kafka/kafka_messages_int.h>
+#include <src/library/kafka/kafka_records.h>
 #include <src/api/protos/ydb_topic.pb.h>
 
 #include <library/cpp/streams/zstd/zstd.h>
