@@ -124,28 +124,7 @@ jobs:
 
         case '${{ matrix.ydb-version }}' in
           25.1|trunk)
-            cleanup_iam() { docker rm -f ydb-iam >/dev/null 2>&1 || true; }
-            trap cleanup_iam EXIT
-
-            docker run -d --name ydb-iam --hostname localhost \
-              -p 2235:2135 -p 2236:2136 -p 28765:8765 \
-              -v /tmp/ydb_iam_certs:/ydb_certs \
-              -e YDB_USE_IN_MEMORY_PDISKS=true \
-              -e YDB_TABLE_ENABLE_PREPARED_DDL=true \
-              -e YDB_ENFORCE_USER_TOKEN_REQUIREMENT=true \
-              -e YDB_DEFAULT_CLUSTERADMIN=root@builtin \
-              ghcr.io/ydb-platform/local-ydb:trunk
-
-            for _ in $(seq 1 60); do
-              if docker exec ydb-iam /ydb --endpoint grpc://localhost:2136 \
-                  --database /local sql -s 'select 1' >/dev/null 2>&1; then
-                break
-              fi
-              sleep 2
-            done
-
-            YDB_ENDPOINT=localhost:2236 YDB_DATABASE=/local \
-              ctest -j2 --test-dir build -R "${IAM_REGEX}" --output-on-failure
+            ./.github/scripts/run_iam_integration_tests.sh
             ;;
         esac
 
