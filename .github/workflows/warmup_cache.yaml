@@ -17,7 +17,13 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: true
+    - name: Prepare ccache timestamp
+      id: ccache_cache_timestamp
+      shell: bash
+      run: |
+        echo "timestamp=$(date -u +%Y-%m-%d-%H-%M-%S)" >> "$GITHUB_OUTPUT"
     - name: Restore cache files
+      id: ccache-restore
       uses: actions/cache/restore@v4
       with:
         path: ~/.ccache
@@ -26,20 +32,52 @@ jobs:
           ubuntu-22.04-ccache-${{ matrix.compiler }}-
     - name: Install dependencies
       uses: ./.github/actions/prepare_vm
-    - name: Prepare ccache timestamp
-      id: ccache_cache_timestamp
-      shell: cmake -P {0}
-      run: |
-        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
-        message("::set-output name=timestamp::${current_date}")
-    - name: Cache files
-      uses: actions/cache@v4
-      with:
-        path: ~/.ccache
-        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
-        restore-keys: |
-          ubuntu-22.04-ccache-${{ matrix.compiler }}-
     - name: Build
       uses: ./.github/actions/build
       with:
         compiler: ${{ matrix.compiler }}
+    - name: Save cache files
+      if: steps.ccache-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ~/.ccache
+        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+
+  coverage:
+    name: Build coverage binaries and cache artifacts
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Prepare coverage cache key
+      id: coverage-cache-key
+      shell: bash
+      run: |
+        echo "prefix=ubuntu-22.04-coverage-gcc-${{ hashFiles('CMakePresets.json', '**/CMakeLists.txt', 'cmake/**') }}" >> "$GITHUB_OUTPUT"
+    - name: Restore coverage build cache
+      id: coverage-build-cache
+      uses: actions/cache/restore@v4
+      with:
+        path: build
+        key: ${{ steps.coverage-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
+        restore-keys: |
+          ${{ steps.coverage-cache-key.outputs.prefix }}-
+          ubuntu-22.04-coverage-gcc-
+    - name: Install dependencies
+      uses: ./.github/actions/prepare_vm
+    - name: Configure and build with coverage
+      shell: bash
+      run: |
+        mkdir -p build
+        cmake --preset coverage-test-gcc
+        cmake --build build -j"$(nproc)"
+        find build -type f \( -name '*.gcda' -o -name '*.gcov' \) -delete
+        rm -rf build/coverage
+    - name: Save coverage build cache
+      if: steps.coverage-build-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: build
+        key: ${{ steps.coverage-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}

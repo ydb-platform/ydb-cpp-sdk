@@ -12,6 +12,7 @@ option(YDB_SDK_TESTS "Build YDB C++ SDK tests" Off)
 option(YDB_SDK_EXAMPLES "Build YDB C++ SDK examples" On)
 option(YDB_SDK_ENABLE_OTEL_METRICS "Build OpenTelemetry metrics plugin" Off)
 option(YDB_SDK_ENABLE_OTEL_TRACE "Build OpenTelemetry trace plugin" Off)
+option(YDB_CPP_SDK_SLO_USE_INSTALLED_SDK "Build only SLO workloads against an installed ydb-cpp-sdk package" Off)
 set(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET "" CACHE STRING "Name of cmake target preparing google common proto library")
 option(YDB_SDK_USE_RAPID_JSON "Search for rapid json library in system" ON)
 
@@ -51,8 +52,26 @@ include(cmake/ccache.cmake)
 include(cmake/protobuf.cmake)
 include(cmake/external_libs.cmake)
 
+set(YDB_SDK_TESTING_INCLUDED OFF)
 if (YDB_SDK_TESTS)
   include(cmake/testing.cmake)
+  set(YDB_SDK_TESTING_INCLUDED ON)
+endif()
+
+if (YDB_CPP_SDK_SLO_USE_INSTALLED_SDK)
+  if (NOT YDB_SDK_TESTING_INCLUDED)
+    include(cmake/testing.cmake)
+  endif()
+
+  find_package(ydb-cpp-sdk REQUIRED COMPONENTS Table Iam)
+
+  add_subdirectory(tools)
+  add_subdirectory(contrib/libs)
+  add_subdirectory(library/cpp)
+  add_subdirectory(util)
+  add_subdirectory(tests/slo_workloads)
+
+  return()
 endif()
 
 add_subdirectory(tools)
