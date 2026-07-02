@@ -2,6 +2,7 @@
 FROM ubuntu:22.04
 
 ARG PRESET=release-test-clang
+ARG SDK_PRESET=release-clang
 
 # ccache settings consumed by the configure/build steps below. The cache dir
 # is materialised by the BuildKit cache mount on those RUN steps; values
@@ -19,6 +20,8 @@ RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries && \
     echo 'Acquire::https::Timeout "60";' >> /etc/apt/apt.conf.d/80-retries
 
 ENV WGET_OPTS="--tries=5 --waitretry=15 --timeout=60 --retry-connrefused --retry-on-http-error=500,502,503,504"
+ENV YDB_CPP_SDK_INSTALL_PREFIX=/opt/ydb-cpp-sdk
+ENV YDB_DEPS_PREFIX_PATH="${YDB_CPP_SDK_INSTALL_PREFIX};/root/ydb_deps/absl;/root/ydb_deps/protobuf;/root/ydb_deps/grpc;/root/ydb_deps/brotli"
 
 # Install software-properties-common and add the gcc-13 PPA.
 # Acquire::Retries only retries HTTP errors; TCP connect timeouts to
@@ -157,7 +160,26 @@ WORKDIR /ydb-cpp-sdk
 RUN rm -rf build
 
 RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
+    cmake --preset ${SDK_PRESET} \
+        -DYDB_SDK_INSTALL=ON \
+        -DYDB_SDK_EXAMPLES=OFF \
+        -DYDB_SDK_TESTS=OFF \
+        -DCMAKE_INSTALL_PREFIX=${YDB_CPP_SDK_INSTALL_PREFIX} \
+        -DCMAKE_PREFIX_PATH="${YDB_DEPS_PREFIX_PATH}" \
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
+    ccache --zero-stats >/dev/null \
+    && cmake --build --preset default \
+    && cmake --install build \
+    && ccache --show-stats
+
+RUN rm -rf build
+
+RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
     cmake --preset ${PRESET} \
+        -DYDB_CPP_SDK_SLO_USE_INSTALLED_SDK=ON \
+        -DCMAKE_PREFIX_PATH="${YDB_DEPS_PREFIX_PATH}" \
         -DCMAKE_C_COMPILER_LAUNCHER=ccache \
         -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 RUN --mount=type=cache,target=/root/.ccache,sharing=locked \

@@ -47,6 +47,22 @@ jobs:
         with:
           submodules: true
 
+      - name: Prepare coverage cache key
+        id: coverage-cache-key
+        shell: bash
+        run: |
+          echo "prefix=ubuntu-22.04-coverage-gcc-${{ hashFiles('CMakePresets.json', '**/CMakeLists.txt', 'cmake/**') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore coverage build cache
+        id: coverage-build-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: build
+          key: ${{ steps.coverage-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            ${{ steps.coverage-cache-key.outputs.prefix }}-
+            ubuntu-22.04-coverage-gcc-
+
       - name: Install dependencies
         uses: ./.github/actions/prepare_vm
 
@@ -54,7 +70,6 @@ jobs:
         shell: bash
         run: |
           mkdir -p build
-          rm -rf build/*
           cmake --preset coverage-test-gcc
           cmake --build build -j"$(nproc)"
 
@@ -66,6 +81,9 @@ jobs:
           IAM_REGEX='^(DriverAuth|TMetadataFixture|TJwtIamFixture|TOAuthIamFixture|OAuth_WithFacility)\.'
           FLAKY_REGEX='(ManyMessages|DiscoveryHang|DescribeHang)'
           EXCLUDE_REGEX="${IAM_REGEX}|${FLAKY_REGEX}"
+
+          find build -type f \( -name '*.gcda' -o -name '*.gcov' \) -delete
+          rm -rf build/coverage
 
           ctest -j1 --preset coverage-all -E "${EXCLUDE_REGEX}" --output-on-failure
 
@@ -96,3 +114,17 @@ jobs:
           name: coverage-report
           path: build/coverage/
           retention-days: 14
+
+      - name: Clean coverage data before cache save
+        if: github.event_name != 'pull_request' && success()
+        shell: bash
+        run: |
+          find build -type f \( -name '*.gcda' -o -name '*.gcov' \) -delete
+          rm -rf build/coverage
+
+      - name: Save coverage build cache
+        if: github.event_name != 'pull_request' && success() && steps.coverage-build-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: build
+          key: ${{ steps.coverage-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
