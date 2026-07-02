@@ -14,7 +14,7 @@ concurrency:
 jobs:
   unit:
     concurrency:
-      group: unit-${{ github.ref }}-${{ matrix.os }}-${{ matrix.compiler }}
+      group: unit-${{ github.ref }}-ubuntu-22.04-${{ matrix.compiler }}
       cancel-in-progress: true
     strategy:
       fail-fast: false
@@ -37,10 +37,9 @@ jobs:
         submodules: true
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp
-      shell: cmake -P {0}
+      shell: bash
       run: |
-        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
-        message("::set-output name=timestamp::${current_date}")
+        echo "timestamp=$(date -u +%Y-%m-%d-%H-%M-%S)" >> "$GITHUB_OUTPUT"
     - name: Restore cache files
       uses: actions/cache/restore@v4
       with:
@@ -59,7 +58,61 @@ jobs:
       run: |
         ctest -j$(nproc) --preset unit
 
+  integration-build:
+    concurrency:
+      group: integration-build-${{ github.ref }}-${{ matrix.compiler }}
+      cancel-in-progress: true
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [clang, gcc]
+    steps:
+    - name: Checkout PR
+      uses: actions/checkout@v4
+      if: github.event.pull_request.head.sha != ''
+      with:
+        submodules: true
+        ref: ${{ github.event.pull_request.head.sha }}
+    - name: Checkout
+      uses: actions/checkout@v4
+      if: github.event.pull_request.head.sha == ''
+      with:
+        submodules: true
+    - name: Prepare ccache timestamp
+      id: ccache_cache_timestamp
+      shell: bash
+      run: |
+        echo "timestamp=$(date -u +%Y-%m-%d-%H-%M-%S)" >> "$GITHUB_OUTPUT"
+    - name: Restore cache files
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.ccache
+        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+        restore-keys: |
+          ubuntu-22.04-ccache-${{ matrix.compiler }}-
+    - name: Install dependencies
+      uses: ./.github/actions/prepare_vm
+    - name: Build
+      uses: ./.github/actions/build
+      with:
+        compiler: ${{ matrix.compiler }}
+    - name: Package integration build
+      shell: bash
+      run: |
+        tar -C build -czf "integration-build-${{ matrix.compiler }}.tar.gz" .
+        tar -C "$HOME" -czf "integration-deps-${{ matrix.compiler }}.tar.gz" ydb_deps
+    - name: Upload integration build
+      uses: actions/upload-artifact@v4
+      with:
+        name: integration-${{ matrix.compiler }}
+        path: |
+          integration-build-${{ matrix.compiler }}.tar.gz
+          integration-deps-${{ matrix.compiler }}.tar.gz
+        retention-days: 3
+
   integration:
+    needs: integration-build
     concurrency:
       group: integration-${{ github.ref }}-${{ matrix.ydb-version }}-${{ matrix.compiler }}
       cancel-in-progress: true
@@ -95,25 +148,27 @@ jobs:
       if: github.event.pull_request.head.sha == ''
       with:
         submodules: true
-    - name: Prepare ccache timestamp
-      id: ccache_cache_timestamp
-      shell: cmake -P {0}
+    - name: Install CMake
+      uses: lukka/get-cmake@v3.27.7
+    - name: Install runtime dependencies
+      shell: bash
       run: |
-        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
-        message("::set-output name=timestamp::${current_date}")
-    - name: Restore cache files
-      uses: actions/cache/restore@v4
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        sudo apt-get -y update
+        sudo apt-get -y install git gdb ninja-build libidn11-dev ragel yasm libc-ares-dev libre2-dev \
+          rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev libgtest-dev libgmock-dev \
+          libbz2-dev liblz4-dev libdouble-conversion-dev libssl-dev libstdc++-13-dev gcc-13 g++-13
+    - name: Download integration build
+      uses: actions/download-artifact@v4
       with:
-        path: ~/.ccache
-        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
-        restore-keys: |
-          ubuntu-22.04-ccache-${{ matrix.compiler }}-
-    - name: Install dependencies
-      uses: ./.github/actions/prepare_vm
-    - name: Build
-      uses: ./.github/actions/build
-      with:
-        compiler: ${{ matrix.compiler }}
+        name: integration-${{ matrix.compiler }}
+        path: .
+    - name: Unpack integration build
+      shell: bash
+      run: |
+        mkdir -p build
+        tar -C build -xzf "integration-build-${{ matrix.compiler }}.tar.gz"
+        tar -C "$HOME" -xzf "integration-deps-${{ matrix.compiler }}.tar.gz"
     - name: Test
       shell: bash
       run: |
@@ -157,10 +212,9 @@ jobs:
 
       - name: Prepare ccache timestamp
         id: ccache_cache_timestamp
-        shell: cmake -P {0}
+        shell: bash
         run: |
-          string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
-          message("::set-output name=timestamp::${current_date}")
+          echo "timestamp=$(date -u +%Y-%m-%d-%H-%M-%S)" >> "$GITHUB_OUTPUT"
 
       - name: Restore cache files
         uses: actions/cache/restore@v4
