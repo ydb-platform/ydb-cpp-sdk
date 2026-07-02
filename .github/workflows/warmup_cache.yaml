@@ -81,3 +81,47 @@ jobs:
       with:
         path: build
         key: ${{ steps.coverage-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
+
+  deb-packages:
+    name: Build Debian packages and cache artifacts
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Prepare Debian package cache key
+      id: deb-package-cache-key
+      shell: bash
+      run: |
+        echo "prefix=ubuntu-24.04-deb-packages-${{ hashFiles('CMakeLists.txt', 'cmake/**', 'contrib/**', 'include/**', 'library/**', 'plugins/**', 'scripts/build_cpack_deb_packages.sh', 'scripts/generate-debian-directory.sh', 'scripts/googleapis_deb/**', 'src/**', 'third_party/api-common-protos/**', 'tools/**', 'util/**') }}" >> "$GITHUB_OUTPUT"
+    - name: Restore Debian package build cache
+      id: deb-package-cache
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          .deb-ccache
+          build_googleapis_deb
+          build-deb
+        key: ${{ steps.deb-package-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
+        restore-keys: |
+          ${{ steps.deb-package-cache-key.outputs.prefix }}-
+          ubuntu-24.04-deb-packages-
+    - name: Build CPack .deb packages
+      shell: bash
+      run: |
+        mkdir -p .deb-ccache build_googleapis_deb build-deb
+        docker run --rm --network host \
+          -e CCACHE_DIR=/source/.deb-ccache \
+          -v "$PWD:/source" \
+          ubuntu:24.04 \
+          bash /source/scripts/build_cpack_deb_packages.sh /source/build-deb
+    - name: Save Debian package build cache
+      if: steps.deb-package-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          .deb-ccache
+          build_googleapis_deb
+          build-deb
+        key: ${{ steps.deb-package-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}

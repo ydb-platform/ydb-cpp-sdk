@@ -50,6 +50,8 @@ __pycache__/
 /build
 /build_*
 /build-*
+/.deb-ccache/
+/artifacts/
 
 .idea/
 .vscode/

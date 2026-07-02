@@ -262,72 +262,51 @@ jobs:
         with:
           submodules: true
 
+      - name: Prepare Debian package cache key
+        id: deb-package-cache-key
+        shell: bash
+        run: |
+          echo "prefix=ubuntu-24.04-deb-packages-${{ hashFiles('CMakeLists.txt', 'cmake/**', 'contrib/**', 'include/**', 'library/**', 'plugins/**', 'scripts/build_cpack_deb_packages.sh', 'scripts/generate-debian-directory.sh', 'scripts/googleapis_deb/**', 'src/**', 'third_party/api-common-protos/**', 'tools/**', 'util/**') }}" >> "$GITHUB_OUTPUT"
+
       - name: Validate dpkg-buildpackage
         shell: bash
         run: |
           ./scripts/test_dpkg_buildpackage.sh
 
+      - name: Restore Debian package build cache
+        id: deb-package-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            .deb-ccache
+            build_googleapis_deb
+            build-deb
+          key: ${{ steps.deb-package-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            ${{ steps.deb-package-cache-key.outputs.prefix }}-
+            ubuntu-24.04-deb-packages-
+
       - name: Build CPack .deb packages
         shell: bash
         run: |
+          mkdir -p .deb-ccache build_googleapis_deb build-deb
           docker run --rm --network host \
+            -e CCACHE_DIR=/source/.deb-ccache \
             -v "$PWD:/source" \
             ubuntu:24.04 \
-            bash -c '
-              set -e
-              export DEBIAN_FRONTEND=noninteractive
-              apt-get update
-              apt-get install -y \
-                build-essential \
-                cmake \
-                pkg-config \
-                git \
-                libidn11-dev \
-                libssl-dev \
-                zlib1g-dev \
-                libprotobuf-dev \
-                protobuf-compiler \
-                libgrpc++-dev \
-                protobuf-compiler-grpc \
-                libbrotli-dev \
-                liblz4-dev \
-                libzstd-dev \
-                libbz2-dev \
-                libxxhash-dev \
-                libsnappy-dev \
-                libdouble-conversion-dev \
-                libgtest-dev \
-                libre2-dev \
-                libc-ares-dev \
-                rapidjson-dev \
-                python3 \
-                python3-six \
-                ragel \
-                yasm
-
-              cd /source
-              cmake -S scripts/googleapis_deb -B build_googleapis_deb -DCMAKE_INSTALL_PREFIX=/usr/share/yandex
-              cmake --build build_googleapis_deb -j$(nproc)
-              cmake --build build_googleapis_deb --target package
-              dpkg -i build_googleapis_deb/*.deb
-
-              ./scripts/generate-debian-directory.sh
-              cmake -S . -B build-deb \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DYDB_SDK_INSTALL=ON \
-                -DYDB_SDK_EXAMPLES=OFF \
-                -DYDB_SDK_TESTS=OFF \
-                -DYDB_SDK_ENABLE_OTEL_METRICS=ON \
-                -DYDB_SDK_ENABLE_OTEL_TRACE=ON \
-                -DBUILD_SHARED_LIBS=OFF \
-                -DYDB_SDK_USE_SYSTEM_GOOGLEAPIS=ON \
-                -DCMAKE_INSTALL_PREFIX=/usr/share/yandex \
-                -DCMAKE_PREFIX_PATH="/usr/share/yandex"
-              cmake --build build-deb --target package -j$(nproc)
-              cp build_googleapis_deb/*.deb build-deb/
-            '
+            bash /source/scripts/build_cpack_deb_packages.sh /source/build-deb
 
       - name: Smoke-test generated .deb packages
         shell: bash
         run: |
           ./scripts/test_deb_packages.sh build-deb
+
+      - name: Save Debian package build cache
+        if: github.event_name != 'pull_request' && success() && steps.deb-package-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .deb-ccache
+            build_googleapis_deb
+            build-deb
+          key: ${{ steps.deb-package-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
