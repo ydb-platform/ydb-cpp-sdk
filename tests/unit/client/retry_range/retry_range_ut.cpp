@@ -158,6 +158,16 @@ struct TTableClientFixture {
                 .SetDatabase("/Root/My/DB"));
         Client = std::make_unique<NTable::TTableClient>(*Driver);
     }
+
+    ~TTableClientFixture() {
+        Client.reset();
+        if (Driver) {
+            Driver->Stop(true);
+        }
+        if (GrpcServer) {
+            GrpcServer->Shutdown();
+        }
+    }
 };
 
 struct TQueryClientFixture {
@@ -179,6 +189,16 @@ struct TQueryClientFixture {
                 .SetDiscoveryMode(EDiscoveryMode::Off)
                 .SetDatabase("/Root/My/DB"));
         Client = std::make_unique<NQuery::TQueryClient>(*Driver);
+    }
+
+    ~TQueryClientFixture() {
+        Client.reset();
+        if (Driver) {
+            Driver->Stop(true);
+        }
+        if (GrpcServer) {
+            GrpcServer->Shutdown();
+        }
     }
 };
 
