@@ -57,6 +57,25 @@ touch_existing_sources() {
     done
 }
 
+fix_output_permissions() {
+    local uid="${HOST_UID:-$(stat -c '%u' "$SOURCE_DIR" 2>/dev/null || true)}"
+    local gid="${HOST_GID:-$(stat -c '%g' "$SOURCE_DIR" 2>/dev/null || true)}"
+    local paths=()
+
+    for path in "$@"; do
+        [ ! -e "$path" ] || paths+=("$path")
+    done
+    if [ "${#paths[@]}" -eq 0 ]; then
+        return
+    fi
+
+    if [[ "$uid" =~ ^[0-9]+$ && "$gid" =~ ^[0-9]+$ ]] && chown -R "$uid:$gid" "${paths[@]}" 2>/dev/null; then
+        return
+    fi
+
+    chmod -R a+rX "${paths[@]}" 2>/dev/null || true
+}
+
 rm -f build_googleapis_deb/*.deb build-deb/*.deb "$OUTPUT_DIR"/*.deb 2>/dev/null || true
 
 if command -v ccache >/dev/null 2>&1; then
@@ -118,5 +137,5 @@ if command -v ccache >/dev/null 2>&1; then
     ccache --show-stats || true
 fi
 
-chmod -R a+rwX "$CCACHE_DIR" build_googleapis_deb build-deb "$OUTPUT_DIR" debian 2>/dev/null || true
+fix_output_permissions "$CCACHE_DIR" build_googleapis_deb build-deb "$OUTPUT_DIR" debian
 ls -la "$OUTPUT_DIR"

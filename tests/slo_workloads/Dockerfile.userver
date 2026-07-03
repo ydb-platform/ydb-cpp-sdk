@@ -39,7 +39,7 @@ RUN for i in 1 2 3 4 5; do \
 # Install C++ tools and libraries
 RUN for i in 1 2 3 4 5; do \
         apt-get -y install \
-            git gdb wget ninja-build libidn11-dev ragel yasm libc-ares-dev libre2-dev \
+            git gdb wget jq ninja-build libidn11-dev ragel yasm libc-ares-dev libre2-dev \
             rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev libgtest-dev libgmock-dev \
             libbz2-dev liblz4-dev libdouble-conversion-dev libssl-dev libstdc++-13-dev gcc-13 g++-13 && \
         break; \
@@ -157,7 +157,9 @@ RUN set -eux; \
     wget $WGET_OPTS -qO "${release_json}" \
         "https://api.github.com/repos/userver-framework/userver/releases/tags/${USERVER_VERSION}" || touch "${release_json}"; \
     USERVER_DEB_URL="$( \
-        sed -n 's/.*"browser_download_url": "\(.*libuserver-all-dev[^"]*ubuntu[^"]*22\.04[^"]*amd64[^"]*\.deb\)".*/\1/p' "${release_json}" | head -n1 \
+        jq -r '.assets[]?.browser_download_url // empty' "${release_json}" 2>/dev/null | \
+        grep -E 'libuserver-all-dev.*ubuntu.*22\.04.*amd64.*\.deb' | \
+        head -n1 || true \
     )"; \
     if [ -n "${USERVER_DEB_URL}" ]; then \
         wget $WGET_OPTS -O /tmp/libuserver-all-dev.deb "${USERVER_DEB_URL}"; \
