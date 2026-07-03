@@ -1,12 +1,18 @@
 name: Prepare VM for YDB SDK build
 description: Install required packages
 
+inputs:
+  mode:
+    description: "Setup scope: build installs full build dependencies; runtime installs only test runtime dependencies."
+    required: false
+    default: build
+
 runs:
   using: "composite"
   steps:
     - name: Install CMake and Ninja
       uses: lukka/get-cmake@v3.27.7
-    - name: Install dependencies
+    - name: Install runtime dependencies
       shell: bash
       run: |
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -15,6 +21,13 @@ runs:
           rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev libgtest-dev libgmock-dev \
           libbz2-dev liblz4-dev libdouble-conversion-dev libssl-dev libstdc++-13-dev gcc-13 g++-13
 
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 10000
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 10000
+
+    - name: Install build dependencies
+      if: ${{ inputs.mode == 'build' }}
+      shell: bash
+      run: |
         # Install ccache
         (V=4.8.1; curl -L https://github.com/ccache/ccache/releases/download/v${V}/ccache-${V}-linux-x86_64.tar.xz | \
         sudo tar -xJ -C /usr/local/bin/ --strip-components=1 --no-same-owner ccache-${V}-linux-x86_64/ccache)
@@ -29,9 +42,6 @@ runs:
         sudo ./llvm.sh 16
         sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 10000
         sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-16 10000
-
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 10000
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 10000
 
         # Install abseil-cpp
         wget -O abseil-cpp-20230802.0.tar.gz https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.0.tar.gz
