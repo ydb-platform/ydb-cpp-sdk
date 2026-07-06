@@ -1,6 +1,7 @@
 # YDB C++ SDK: driver for [YDB](https://github.com/ydb-platform/ydb)
-
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/ydb-platform/ydb-cpp-sdk/blob/main/LICENSE)
 [![Codecov](https://codecov.io/gh/ydb-platform/ydb-cpp-sdk/branch/main/graph/badge.svg)](https://app.codecov.io/gh/ydb-platform/ydb-cpp-sdk)
+[![Read the docs](https://readthedocs.org)](https://ydb.tech/docs/en/reference/ydb-sdk)
 
 ## Building YDB C++ SDK from sources
 
