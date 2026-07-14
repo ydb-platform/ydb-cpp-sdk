@@ -16,11 +16,12 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <unordered_set>
 
-namespace NYdb {
-namespace NOdbc {
+namespace NYdb::NOdbc {
 
 class TStatement;
+class TDescriptor;
 
 class TConnection : public TErrorManager {
 private:
@@ -54,6 +55,8 @@ private:
 
     TConnectionAttributes Attributes_;
     mutable std::optional<std::string> DbmsVersionCache_;
+    std::unordered_set<TStatement*> Statements_;
+    std::unordered_set<TDescriptor*> Descriptors_;
 
     void DestroyYdbState();
     void RecreateYdbClients();
@@ -69,6 +72,12 @@ public:
     SQLRETURN Disconnect();
 
     std::unique_ptr<TStatement> CreateStatement();
+    void RegisterStatement(TStatement* stmt) { Statements_.insert(stmt); }
+    void UnregisterStatement(TStatement* stmt) { Statements_.erase(stmt); }
+    void RegisterDescriptor(TDescriptor* desc) { Descriptors_.insert(desc); }
+    void UnregisterDescriptor(TDescriptor* desc) { Descriptors_.erase(desc); }
+    bool HasChildren() const noexcept { return !Statements_.empty() || !Descriptors_.empty(); }
+    void CloseStatementCursors();
 
     std::optional<NQuery::TQueryClient> GetClient();
     NQuery::TSession& GetOrCreateQuerySession();
@@ -102,5 +111,4 @@ public:
     SQLRETURN NativeSql(const std::string& inSql, SQLCHAR* outSql, SQLINTEGER outMax, SQLINTEGER* outLen);
 };
 
-} // namespace NOdbc
-} // namespace NYdb
+} // namespace NYdb::NOdbc

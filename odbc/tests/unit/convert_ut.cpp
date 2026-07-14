@@ -41,7 +41,7 @@ TEST(OdbcConvert, Int64ToYdb) {
     CheckProto(value->GetProto(), "int64_value: 42\n");
 }
 
-TEST(OdbcConvert, Uint64ToYdb) {
+TEST(OdbcConvert, UnsignedCToSignedSqlBigint) {
     SQLUBIGINT v = 123;
     TBoundParam param{
         1, SQL_PARAM_INPUT, SQL_C_UBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), nullptr
@@ -51,8 +51,8 @@ TEST(OdbcConvert, Uint64ToYdb) {
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
-    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: UINT64\n  }\n}\n");
-    CheckProto(value->GetProto(), "uint64_value: 123\n");
+    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: INT64\n  }\n}\n");
+    CheckProto(value->GetProto(), "int64_value: 123\n");
 }
 
 TEST(OdbcConvert, DoubleToYdb) {

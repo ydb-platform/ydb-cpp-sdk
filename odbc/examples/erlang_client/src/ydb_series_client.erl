@@ -11,7 +11,7 @@ run(ConnectionString) when is_list(ConnectionString) ->
     application:load(odbc),
     application:start(odbc),
 
-    case odbc:connect(ConnectionString, [{tuple_format, list}]) of
+    case odbc:connect(ConnectionString, []) of
         {ok, Ref} ->
             Result = run_example(Ref),
             odbc:disconnect(Ref),
@@ -82,38 +82,31 @@ fill_table_data(Ref) ->
     SeasonsData = sample_data:seasons(),
     EpisodesData = sample_data:episodes(),
 
-    lists:foreach(fun(Row) ->
-        [Id, Title, Info, Date] = Row,
-        Query = io_lib:format(
-            "UPSERT INTO series (series_id, title, series_info, release_date) VALUES (~p, \"~s\", \"~s\", ~p);",
-            [Id, escape_string(Title), escape_string(Info), Date]
-        ),
-        execute_update(Ref, Query)
-    end, SeriesData),
-
-    lists:foreach(fun(Row) ->
-        [SeriesId, SeasonId, Title, FirstAired, LastAired] = Row,
-        Query = io_lib:format(
-            "UPSERT INTO seasons (series_id, season_id, title, first_aired, last_aired) VALUES (~p, ~p, \"~s\", ~p, ~p);",
-            [SeriesId, SeasonId, escape_string(Title), FirstAired, LastAired]
-        ),
-        execute_update(Ref, Query)
-    end, SeasonsData),
-
-    lists:foreach(fun(Row) ->
-        [SeriesId, SeasonId, EpisodeId, Title, AirDate] = Row,
-        Query = io_lib:format(
-            "UPSERT INTO episodes (series_id, season_id, episode_id, title, air_date) VALUES (~p, ~p, ~p, \"~s\", ~p);",
-            [SeriesId, SeasonId, EpisodeId, escape_string(Title), AirDate]
-        ),
-        execute_update(Ref, Query)
-    end, EpisodesData),
+    batch_update(Ref,
+        "UPSERT INTO series (series_id, title, series_info, release_date) "
+        "VALUES (CAST(? AS Uint64), ?, ?, CAST(? AS Uint64))",
+        [{sql_integer, column(1, SeriesData)},
+         {{sql_varchar, 64}, column(2, SeriesData)},
+         {{sql_varchar, 256}, column(3, SeriesData)},
+         {sql_integer, column(4, SeriesData)}]),
+    batch_update(Ref,
+        "UPSERT INTO seasons (series_id, season_id, title, first_aired, last_aired) "
+        "VALUES (CAST(? AS Uint64), CAST(? AS Uint64), ?, CAST(? AS Uint64), CAST(? AS Uint64))",
+        [{sql_integer, column(1, SeasonsData)}, {sql_integer, column(2, SeasonsData)},
+         {{sql_varchar, 64}, column(3, SeasonsData)}, {sql_integer, column(4, SeasonsData)},
+         {sql_integer, column(5, SeasonsData)}]),
+    batch_update(Ref,
+        "UPSERT INTO episodes (series_id, season_id, episode_id, title, air_date) "
+        "VALUES (CAST(? AS Uint64), CAST(? AS Uint64), CAST(? AS Uint64), ?, CAST(? AS Uint64))",
+        [{sql_integer, column(1, EpisodesData)}, {sql_integer, column(2, EpisodesData)},
+         {sql_integer, column(3, EpisodesData)}, {{sql_varchar, 128}, column(4, EpisodesData)},
+         {sql_integer, column(5, EpisodesData)}]),
 
     io:format("Inserted ~p series, ~p seasons, ~p episodes~n",
               [length(SeriesData), length(SeasonsData), length(EpisodesData)]).
 
 select_simple(Ref) ->
-    Query = "SELECT CAST(series_id AS Utf8) AS series_id, title, CAST(release_date AS Date) AS release_date FROM series WHERE series_id = 1;",
+    Query = "SELECT series_id, title, CAST(release_date AS Date) AS release_date FROM series WHERE series_id = 1;",
     Rows = selected_rows(Ref, select_simple, Query),
     lists:foreach(fun(Row) ->
         [Id, Title, ReleaseDate] = row_values(Row),
@@ -131,7 +124,7 @@ select_with_params(Ref) ->
     Query =
         "SELECT sa.title AS season_title, sr.title AS series_title "
         "FROM seasons AS sa INNER JOIN series AS sr ON sa.series_id = sr.series_id "
-        "WHERE sa.series_id = CAST($p1 AS Uint64) AND sa.season_id = CAST($p2 AS Uint64);",
+        "WHERE sa.series_id = CAST(? AS Uint64) AND sa.season_id = CAST(? AS Uint64);",
     Params = [{sql_integer, [SeriesId]}, {sql_integer, [SeasonId]}],
 
     Rows = selected_param_rows(Ref, select_with_params, Query, Params),
@@ -145,7 +138,7 @@ multistep(Ref) ->
     SeasonId = 5,
 
     Query1 = io_lib:format(
-        "SELECT CAST(first_aired AS Utf8) AS first_aired FROM seasons WHERE series_id = ~p AND season_id = ~p;",
+        "SELECT first_aired FROM seasons WHERE series_id = ~p AND season_id = ~p;",
         [SeriesId, SeasonId]
     ),
 
@@ -156,7 +149,7 @@ multistep(Ref) ->
     ToDate = FromDate + 15,
 
     Query2 = io_lib:format(
-        "SELECT CAST(season_id AS Utf8) AS season_id, CAST(episode_id AS Utf8) AS episode_id, title, CAST(air_date AS Utf8) AS air_date FROM episodes "
+        "SELECT season_id, episode_id, title, air_date FROM episodes "
         "WHERE series_id = ~p AND air_date >= ~p AND air_date <= ~p;",
         [SeriesId, FromDate, ToDate]
     ),
@@ -172,7 +165,7 @@ select_seasons_by_series(Ref) ->
     InClause = string:join([integer_to_list(X) || X <- SeriesList], ", "),
 
     Query = io_lib:format(
-        "SELECT CAST(series_id AS Utf8) AS series_id, CAST(season_id AS Utf8) AS season_id, title, CAST(first_aired AS Date) AS first_aired "
+        "SELECT series_id, season_id, title, CAST(first_aired AS Date) AS first_aired "
         "FROM seasons WHERE series_id IN (~s) ORDER BY season_id;",
         [InClause]
     ),
@@ -195,15 +188,20 @@ drop_tables(Ref) ->
         end
     end, Tables).
 
-escape_string(String) ->
-    EscapedBackslash = string:replace(String, "\\", "\\\\", all),
-    lists:flatten(string:replace(EscapedBackslash, "\"", "\\\"", all)).
-
 execute_update(Ref, Query) ->
     case odbc:sql_query(Ref, lists:flatten(Query)) of
         {updated, _} -> ok;
         Error -> throw({query_failed, update, Error})
     end.
+
+batch_update(Ref, Query, Params) ->
+    case odbc:param_query(Ref, Query, Params) of
+        {updated, _} -> ok;
+        Error -> throw({query_failed, batch_update, Error})
+    end.
+
+column(Number, Rows) ->
+    [lists:nth(Number, Row) || Row <- Rows].
 
 selected_rows(Ref, Step, Query) ->
     case odbc:sql_query(Ref, lists:flatten(Query)) of

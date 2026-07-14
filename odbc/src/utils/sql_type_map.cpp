@@ -1,106 +1,68 @@
 #include "sql_type_map.h"
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <string>
-#include <string_view>
-#include <unordered_map>
 
 namespace NYdb::NOdbc {
-
 namespace {
 
-std::string ToUpperAscii(std::string_view sv) {
-    std::string upper;
-    upper.resize(sv.size());
-    std::transform(sv.begin(), sv.end(), upper.begin(), [](unsigned char byte) {
+constexpr std::array TypeSpecs{
+    TSqlTypeSpec{SQL_BIGINT, "BIGINT", "Int64", 19, true},
+    TSqlTypeSpec{SQL_INTEGER, "INTEGER", "Int32", 10, true},
+    TSqlTypeSpec{SQL_SMALLINT, "SMALLINT", "Int16", 5, true},
+    TSqlTypeSpec{SQL_DOUBLE, "DOUBLE", "Double", 15, true},
+    TSqlTypeSpec{SQL_REAL, "REAL", "Float", 7, true},
+    TSqlTypeSpec{SQL_VARCHAR, "VARCHAR", "Utf8", 255, true},
+    TSqlTypeSpec{SQL_CHAR, "CHAR", "Utf8", 255, true},
+    TSqlTypeSpec{SQL_LONGVARCHAR, "LONGVARCHAR", "Utf8", 4096, false},
+    TSqlTypeSpec{SQL_WCHAR, "WCHAR", "Utf8", 255, false},
+    TSqlTypeSpec{SQL_WVARCHAR, "WVARCHAR", "Utf8", 255, false},
+    TSqlTypeSpec{SQL_WLONGVARCHAR, "WLONGVARCHAR", "Utf8", 4096, false},
+    TSqlTypeSpec{SQL_BIT, "BIT", "Bool", 1, false},
+    TSqlTypeSpec{SQL_TINYINT, "TINYINT", "Int8", 3, false},
+    TSqlTypeSpec{SQL_FLOAT, "FLOAT", "Double", 15, false},
+    TSqlTypeSpec{SQL_DECIMAL, "DECIMAL", "Decimal(22, 9)", 22, false},
+    TSqlTypeSpec{SQL_NUMERIC, "NUMERIC", "Decimal(22, 9)", 22, false},
+    TSqlTypeSpec{SQL_BINARY, "BINARY", "String", 4096, false},
+    TSqlTypeSpec{SQL_VARBINARY, "VARBINARY", "String", 4096, false},
+    TSqlTypeSpec{SQL_LONGVARBINARY, "LONGVARBINARY", "String", 4096, false},
+    TSqlTypeSpec{SQL_TYPE_DATE, "DATE", "Date", 10, false},
+    TSqlTypeSpec{SQL_TYPE_TIME, "TIME", "Time", 8, false},
+    TSqlTypeSpec{SQL_TYPE_TIMESTAMP, "TIMESTAMP", "Datetime", 26, false},
+};
+
+std::string ToUpperAscii(std::string_view value) {
+    std::string upper(value);
+    std::ranges::transform(upper, upper.begin(), [](unsigned char byte) {
         return static_cast<char>(std::toupper(byte));
     });
     return upper;
 }
 
-const std::unordered_map<std::string, std::string>& SqlTypeTokenToYqlMap() {
-    static const std::unordered_map<std::string, std::string> kMap = {
-        {"CHAR", "Utf8"},
-        {"VARCHAR", "Utf8"},
-        {"LONGVARCHAR", "Utf8"},
-        {"WCHAR", "Utf8"},
-        {"WVARCHAR", "Utf8"},
-        {"WLONGVARCHAR", "Utf8"},
-        {"BIT", "Bool"},
-        {"TINYINT", "Int8"},
-        {"SMALLINT", "Int16"},
-        {"INTEGER", "Int32"},
-        {"BIGINT", "Int64"},
-        {"REAL", "Float"},
-        {"FLOAT", "Double"},
-        {"DOUBLE", "Double"},
-        {"DECIMAL", "Decimal(22, 9)"},
-        {"NUMERIC", "Decimal(22, 9)"},
-        {"BINARY", "String"},
-        {"VARBINARY", "String"},
-        {"LONGVARBINARY", "String"},
-        {"DATE", "Date"},
-        {"TIME", "Time"},
-        {"TIMESTAMP", "Datetime"},
-        {"TYPE_DATE", "Date"},
-        {"TYPE_TIME", "Time"},
-        {"TYPE_TIMESTAMP", "Datetime"},
-    };
-    return kMap;
-}
-
-const std::unordered_map<SQLSMALLINT, std::string_view>& OdbcSqlTypeTokens() {
-    static const std::unordered_map<SQLSMALLINT, std::string_view> kMap = {
-        {SQL_CHAR, "CHAR"},
-        {SQL_VARCHAR, "VARCHAR"},
-        {SQL_LONGVARCHAR, "LONGVARCHAR"},
-        {SQL_WCHAR, "WCHAR"},
-        {SQL_WVARCHAR, "WVARCHAR"},
-        {SQL_WLONGVARCHAR, "WLONGVARCHAR"},
-        {SQL_BIT, "BIT"},
-        {SQL_TINYINT, "TINYINT"},
-        {SQL_SMALLINT, "SMALLINT"},
-        {SQL_INTEGER, "INTEGER"},
-        {SQL_BIGINT, "BIGINT"},
-        {SQL_REAL, "REAL"},
-        {SQL_FLOAT, "FLOAT"},
-        {SQL_DOUBLE, "DOUBLE"},
-        {SQL_DECIMAL, "DECIMAL"},
-        {SQL_NUMERIC, "NUMERIC"},
-        {SQL_BINARY, "BINARY"},
-        {SQL_VARBINARY, "VARBINARY"},
-        {SQL_LONGVARBINARY, "LONGVARBINARY"},
-        {SQL_TYPE_DATE, "TYPE_DATE"},
-        {SQL_TYPE_TIME, "TYPE_TIME"},
-        {SQL_TYPE_TIMESTAMP, "TYPE_TIMESTAMP"},
-    };
-    return kMap;
-}
-
 } // namespace
+
+std::span<const TSqlTypeSpec> GetSqlTypeSpecs() {
+    return TypeSpecs;
+}
+
+const TSqlTypeSpec* FindSqlTypeSpec(SQLSMALLINT sqlType) {
+    const auto it = std::ranges::find(TypeSpecs, sqlType, &TSqlTypeSpec::Type);
+    return it == TypeSpecs.end() ? nullptr : &*it;
+}
 
 std::string MapSqlTypeToken(std::string_view sqlType) {
     std::string key = ToUpperAscii(sqlType);
-    const std::string kSql = "SQL_";
-    if (key.size() > kSql.size() && key.compare(0, kSql.size(), kSql) == 0) {
-        key.erase(0, kSql.size());
-    }
-    const auto& map = SqlTypeTokenToYqlMap();
-    const auto mapped = map.find(key);
-    if (mapped != map.end()) {
-        return mapped->second;
-    }
-    return key;
+    if (key.starts_with("SQL_")) key.erase(0, 4);
+    if (key.starts_with("TYPE_")) key.erase(0, 5);
+    const auto it = std::ranges::find(TypeSpecs, key, &TSqlTypeSpec::Name);
+    return it == TypeSpecs.end() ? key : std::string(it->YqlType);
 }
 
 std::string FormatYqlParamDeclareType(SQLSMALLINT sqlType) {
-    const auto& tokens = OdbcSqlTypeTokens();
-    const auto tokenIt = tokens.find(sqlType);
-    const std::string yql = tokenIt != tokens.end()
-        ? MapSqlTypeToken(tokenIt->second)
-        : MapSqlTypeToken(std::to_string(sqlType));
-    return yql + '?';
+    const TSqlTypeSpec* spec = FindSqlTypeSpec(sqlType);
+    return (spec ? std::string(spec->YqlType) : std::to_string(sqlType)) + '?';
 }
 
 } // namespace NYdb::NOdbc

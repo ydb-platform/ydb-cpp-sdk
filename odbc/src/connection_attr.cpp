@@ -120,6 +120,18 @@ SQLRETURN TConnectionAttributes::SetConnectAttr(
             return SetTxnIsolation(value, errors);
         case SQL_ATTR_CURRENT_CATALOG:
             return SetCurrentCatalog(value, stringLength, errors);
+        case SQL_ATTR_QUIET_MODE:
+            QuietMode_ = value;
+            return SQL_SUCCESS;
+        case SQL_ATTR_TRANSLATE_LIB:
+            if (!value) {
+                return Diag::AddNullPointer(errors);
+            }
+            return errors.AddError(
+                "HYC00", 0, "Translation libraries are not supported");
+        case SQL_ATTR_TRANSLATE_OPTION:
+            TranslateOption_ = ReadIntegerAttr<SQLUINTEGER>(value);
+            return SQL_SUCCESS;
         default:
             return Diag::AddNotImplemented(errors);
     }
@@ -131,7 +143,9 @@ SQLRETURN TConnectionAttributes::GetConnectAttr(
     SQLINTEGER bufferLength,
     SQLINTEGER* stringLengthPtr,
     TErrorManager& errors) const {
-    if (!value) {
+    const bool stringAttribute =
+        attr == SQL_ATTR_CURRENT_CATALOG || attr == SQL_ATTR_TRANSLATE_LIB;
+    if (!value && (!stringAttribute || !stringLengthPtr)) {
         return Diag::AddNullPointer(errors);
     }
     if (stringLengthPtr) {
@@ -146,6 +160,26 @@ SQLRETURN TConnectionAttributes::GetConnectAttr(
             return GetTxnIsolation(value);
         case SQL_ATTR_CURRENT_CATALOG:
             return GetCurrentCatalog(value, bufferLength, stringLengthPtr, errors);
+        case SQL_ATTR_QUIET_MODE:
+            if (!QuietMode_) {
+                return SQL_NO_DATA;
+            }
+            *reinterpret_cast<SQLPOINTER*>(value) = *QuietMode_;
+            if (stringLengthPtr) {
+                *stringLengthPtr = sizeof(SQLPOINTER);
+            }
+            return SQL_SUCCESS;
+        case SQL_ATTR_TRANSLATE_LIB:
+            return SQL_NO_DATA;
+        case SQL_ATTR_TRANSLATE_OPTION:
+            if (!TranslateOption_) {
+                return SQL_NO_DATA;
+            }
+            *reinterpret_cast<SQLUINTEGER*>(value) = *TranslateOption_;
+            if (stringLengthPtr) {
+                *stringLengthPtr = sizeof(SQLUINTEGER);
+            }
+            return SQL_SUCCESS;
         default:
             return Diag::AddNotImplemented(errors);
     }
@@ -172,16 +206,16 @@ SQLRETURN TConnectionAttributes::SetAccessMode(SQLPOINTER value, TErrorManager& 
     if (!mode) {
         return Diag::AddInvalidAttrValue(errors, "SQL_ATTR_ACCESS_MODE");
     }
-    AccessMode_ = *mode;
-    auto txMode = Tx::ResolveTxMode(AccessMode_, TxnIsolation_);
+    auto txMode = Tx::ResolveTxMode(*mode, TxnIsolation_);
     if (!txMode) {
         return errors.AddError(
             "HYC00",
             0,
-            AccessMode_ == SQL_MODE_READ_WRITE
+            *mode == SQL_MODE_READ_WRITE
                 ? "Transaction isolation is not supported for read-write mode"
                 : "Transaction isolation is not supported for read-only mode");
     }
+    AccessMode_ = *mode;
     TxMode_ = *txMode;
     return SQL_SUCCESS;
 }
@@ -204,11 +238,12 @@ SQLRETURN TConnectionAttributes::SetCurrentCatalog(SQLPOINTER value, SQLINTEGER 
     if (!value) {
         return Diag::AddNullPointer(errors);
     }
-    CurrentCatalog_ = ReadAttributeString(value, stringLength);
-    Catalog::NormalizePath(CurrentCatalog_);
-    if (CurrentCatalog_.empty()) {
+    std::string catalog = ReadAttributeString(value, stringLength);
+    Catalog::NormalizePath(catalog);
+    if (catalog.empty()) {
         return Diag::AddInvalidAttrValue(errors, "SQL_ATTR_CURRENT_CATALOG");
     }
+    CurrentCatalog_ = std::move(catalog);
     return SQL_SUCCESS;
 }
 
