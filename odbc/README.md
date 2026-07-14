@@ -102,6 +102,13 @@ SQLDriverConnect(dbc, NULL, connStr, SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT
 `?` placeholders are rewritten to `$p1`, `$p2`, ... with auto-generated `DECLARE $pN AS <type>?;`
 from `SQLBindParameter` types. YDB-native `$pN` syntax also works.
 
+## Core conformance tests
+
+The Linux/headless ODBC 3.x Core contract audit and the open-source test-suite
+evaluation are documented in [tests/conformance](tests/conformance/README.md).
+With a local YDB server running, build `odbc-core-conformance_it` and run
+`ctest --test-dir build -L core-conformance --output-on-failure`.
+
 ## License
 
 Apache License 2.0

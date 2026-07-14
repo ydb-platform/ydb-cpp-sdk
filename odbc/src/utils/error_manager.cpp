@@ -6,8 +6,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace NYdb {
-namespace NOdbc {
+namespace NYdb::NOdbc {
 
 namespace {
     struct OdbcErrorMapping {
@@ -21,8 +20,8 @@ namespace {
         {EStatus::BAD_REQUEST,          {"42000", "Syntax error or access rule violation", SQL_ERROR}},
         {EStatus::UNAUTHORIZED,         {"28000", "Invalid authorization specification", SQL_ERROR}},
         {EStatus::INTERNAL_ERROR,       {"HY000", "General error", SQL_ERROR}},
-        {EStatus::ABORTED,              {"25000", "Invalid transaction state", SQL_ERROR}},
-        {EStatus::UNAVAILABLE,          {"08001", "Client unable to establish connection", SQL_ERROR}},
+        {EStatus::ABORTED,              {"40001", "Serialization failure", SQL_ERROR}},
+        {EStatus::UNAVAILABLE,          {"08S01", "Communication link failure", SQL_ERROR}},
         {EStatus::OVERLOADED,           {"HY000", "General error - server overloaded", SQL_ERROR}},
         {EStatus::SCHEME_ERROR,         {"42S02", "Base table or view not found", SQL_ERROR}},
         {EStatus::GENERIC_ERROR,        {"HY000", "General error", SQL_ERROR}},
@@ -33,11 +32,11 @@ namespace {
         {EStatus::NOT_FOUND,            {"02000", "No data found", SQL_NO_DATA}},
         {EStatus::SESSION_EXPIRED,      {"08003", "Connection does not exist", SQL_ERROR}},
         {EStatus::CANCELLED,            {"HY008", "Operation canceled", SQL_ERROR}},
-        {EStatus::UNDETERMINED,         {"HY000", "General error", SQL_ERROR}},
+        {EStatus::UNDETERMINED,         {"40003", "Statement completion unknown", SQL_ERROR}},
         {EStatus::UNSUPPORTED,          {"HYC00", "Optional feature not implemented", SQL_ERROR}},
         {EStatus::SESSION_BUSY,         {"HY000", "General error - session busy", SQL_ERROR}},
         // Transport errors
-        {EStatus::TRANSPORT_UNAVAILABLE, {"08001", "Client unable to establish connection", SQL_ERROR}},
+        {EStatus::TRANSPORT_UNAVAILABLE, {"08S01", "Communication link failure", SQL_ERROR}},
         {EStatus::CLIENT_RESOURCE_EXHAUSTED, {"HY000", "General error - resource exhausted", SQL_ERROR}},
         {EStatus::CLIENT_DEADLINE_EXCEEDED, {"HYT00", "Timeout expired", SQL_ERROR}},
         {EStatus::CLIENT_INTERNAL_ERROR, {"HY000", "General error", SQL_ERROR}},
@@ -222,5 +221,4 @@ SQLRETURN HandleOdbcExceptions(
     }
 }
 
-} // namespace NOdbc
-} // namespace NYdb 
+} // namespace NYdb::NOdbc
