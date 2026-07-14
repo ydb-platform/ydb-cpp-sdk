@@ -64,15 +64,15 @@ SQLRETURN SQL_API SQLAllocHandle(SQLSMALLINT handleType,
             });
         }
         case SQL_HANDLE_DESC: {
-            return NYdb::NOdbc::HandleOdbcExceptions(
+            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(
                 inputHandle,
-                [&]() {
-                    auto* const desc = new NYdb::NOdbc::TDescriptor(NYdb::NOdbc::EDescType::Explicit);
+                [&](auto* conn) {
+                    auto* const desc = new NYdb::NOdbc::TDescriptor(
+                        NYdb::NOdbc::EDescType::Explicit, conn);
                     *outputHandle = desc;
                     desc->SetLastReturnCode(SQL_SUCCESS);
                     return SQL_SUCCESS;
-                },
-                NYdb::NOdbc::ENullInputHandlePolicy::Allow);
+                });
         }
         default:
             return SQL_ERROR;
@@ -83,18 +83,24 @@ SQLRETURN SQL_API SQLFreeHandle(SQLSMALLINT handleType, SQLHANDLE handle) {
     switch (handleType) {
         case SQL_HANDLE_ENV: {
             return NYdb::NOdbc::HandleOdbcExceptionsConsuming<NYdb::NOdbc::TEnvironment>(handle, [](auto* env) {
+                if (!env->GetConnectionsSnapshot().empty()) {
+                    return env->AddError("HY010", 0, "Connection handles are still allocated");
+                }
                 delete env;
-                return SQL_SUCCESS;
+                return static_cast<SQLRETURN>(SQL_SUCCESS);
             });
         }
         case SQL_HANDLE_DBC: {
             return NYdb::NOdbc::HandleOdbcExceptionsConsuming<NYdb::NOdbc::TConnection>(handle, [](auto* conn) {
+                if (conn->HasChildren()) {
+                    return conn->AddError("HY010", 0, "Statement or descriptor handles are still allocated");
+                }
                 auto* env = conn->GetEnvironment();
                 if (env != nullptr){
                     env->UnregisterConnection(conn);
                 }
                 delete conn;
-                return SQL_SUCCESS;
+                return static_cast<SQLRETURN>(SQL_SUCCESS);
             });
         }
         case SQL_HANDLE_STMT: {
@@ -105,8 +111,12 @@ SQLRETURN SQL_API SQLFreeHandle(SQLSMALLINT handleType, SQLHANDLE handle) {
         }
         case SQL_HANDLE_DESC: {
             return NYdb::NOdbc::HandleOdbcExceptionsConsuming<NYdb::NOdbc::TDescriptor>(handle, [](auto* desc) {
+                if (desc->GetDescType() != NYdb::NOdbc::EDescType::Explicit) {
+                    return desc->AddError(
+                        "HY017", 0, "Invalid use of an automatically allocated descriptor handle");
+                }
                 delete desc;
-                return SQL_SUCCESS;
+                return static_cast<SQLRETURN>(SQL_SUCCESS);
             });
         }
         default:
@@ -236,18 +246,23 @@ SQLRETURN SQL_API SQLGetDiagRec(SQLSMALLINT handleType,
                                 SQLSMALLINT* textLength) {
     switch (handleType) {
         case SQL_HANDLE_ENV: {
-            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TEnvironment>(handle, [&](auto* env) {
+            return NYdb::NOdbc::HandleOdbcDiagnostics<NYdb::NOdbc::TEnvironment>(handle, [&](auto* env) {
                 return env->GetDiagRec(recNumber, sqlState, nativeError, messageText, bufferLength, textLength);
             });
         }
         case SQL_HANDLE_DBC: {
-            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(handle, [&](auto* conn) {
+            return NYdb::NOdbc::HandleOdbcDiagnostics<NYdb::NOdbc::TConnection>(handle, [&](auto* conn) {
                 return conn->GetDiagRec(recNumber, sqlState, nativeError, messageText, bufferLength, textLength);
             });
         }
         case SQL_HANDLE_STMT: {
-            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(handle, [&](auto* stmt) {
+            return NYdb::NOdbc::HandleOdbcDiagnostics<NYdb::NOdbc::TStatement>(handle, [&](auto* stmt) {
                 return stmt->GetDiagRec(recNumber, sqlState, nativeError, messageText, bufferLength, textLength);
+            });
+        }
+        case SQL_HANDLE_DESC: {
+            return NYdb::NOdbc::HandleOdbcDiagnostics<NYdb::NOdbc::TDescriptor>(handle, [&](auto* desc) {
+                return desc->GetDiagRec(recNumber, sqlState, nativeError, messageText, bufferLength, textLength);
             });
         }
         default:
@@ -264,18 +279,23 @@ SQLRETURN SQL_API SQLGetDiagField(SQLSMALLINT handleType,
                                   SQLSMALLINT* stringLengthPtr) {
     switch (handleType) {
         case SQL_HANDLE_ENV: {
-            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TEnvironment>(handle, [&](auto* env) {
+            return NYdb::NOdbc::HandleOdbcDiagnostics<NYdb::NOdbc::TEnvironment>(handle, [&](auto* env) {
                 return env->GetDiagField(recNumber, diagIdentifier, diagInfoPtr, bufferLength, stringLengthPtr);
             });
         }
         case SQL_HANDLE_DBC: {
-            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TConnection>(handle, [&](auto* conn) {
+            return NYdb::NOdbc::HandleOdbcDiagnostics<NYdb::NOdbc::TConnection>(handle, [&](auto* conn) {
                 return conn->GetDiagField(recNumber, diagIdentifier, diagInfoPtr, bufferLength, stringLengthPtr);
             });
         }
         case SQL_HANDLE_STMT: {
-            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(handle, [&](auto* stmt) {
+            return NYdb::NOdbc::HandleOdbcDiagnostics<NYdb::NOdbc::TStatement>(handle, [&](auto* stmt) {
                 return stmt->GetDiagField(recNumber, diagIdentifier, diagInfoPtr, bufferLength, stringLengthPtr);
+            });
+        }
+        case SQL_HANDLE_DESC: {
+            return NYdb::NOdbc::HandleOdbcDiagnostics<NYdb::NOdbc::TDescriptor>(handle, [&](auto* desc) {
+                return desc->GetDiagField(recNumber, diagIdentifier, diagInfoPtr, bufferLength, stringLengthPtr);
             });
         }
         default:
@@ -307,20 +327,7 @@ SQLRETURN SQL_API SQLEndTran(SQLSMALLINT handleType, SQLHANDLE handle, SQLSMALLI
                 } else if (completionType == SQL_ROLLBACK) {
                     return conn->RollbackTx();
                 } else {
-                    throw NYdb::NOdbc::TOdbcException("HY000", 0, "Invalid completion type");
-                }
-            });
-        }
-        case SQL_HANDLE_STMT: {
-            return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(handle, [&](auto* stmt) -> SQLRETURN {
-                auto conn = stmt->GetConnection();
-                if (!conn) return SQL_INVALID_HANDLE;
-                if (completionType == SQL_COMMIT) {
-                    return conn->CommitTx();
-                } else if (completionType == SQL_ROLLBACK) {
-                    return conn->RollbackTx();
-                } else {
-                    throw NYdb::NOdbc::TOdbcException("HY000", 0, "Invalid completion type");
+                    throw NYdb::NOdbc::TOdbcException("HY012", 0, "Invalid transaction operation code");
                 }
             });
         }
@@ -330,7 +337,7 @@ SQLRETURN SQL_API SQLEndTran(SQLSMALLINT handleType, SQLHANDLE handle, SQLSMALLI
             });
         }
         default:
-            return SQL_ERROR;
+            return SQL_INVALID_HANDLE;
     }
 }
 

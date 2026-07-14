@@ -83,15 +83,27 @@ function(add_ydb_test)
       list(APPEND env_vars "ENVIRONMENT")
       list(APPEND env_vars "${env_var}")
     endforeach()
-
     gtest_discover_tests(${YDB_TEST_NAME}
       EXTRA_ARGS ${YDB_TEST_TEST_ARG}
       WORKING_DIRECTORY ${YDB_TEST_WORKING_DIRECTORY}
       PROPERTIES
-        LABELS ${YDB_TEST_LABELS}
         ENVIRONMENT "YDB_TEST_ROOT=sdk_tests"
         ${env_vars}
     )
+
+    # Discovered tests only exist when CTest loads this directory. Assign
+    # labels from a second include so a semicolon-separated label list stays a
+    # single property value rather than becoming extra property/value pairs.
+    if (YDB_TEST_LABELS)
+      set(test_labels_file
+        "${CMAKE_CURRENT_BINARY_DIR}/${YDB_TEST_NAME}_labels.cmake")
+      string(CONCAT test_labels_content
+        "if(DEFINED ${YDB_TEST_NAME}_TESTS)\n"
+        "  set_tests_properties(\${${YDB_TEST_NAME}_TESTS} PROPERTIES LABELS \"${YDB_TEST_LABELS}\")\n"
+        "endif()\n")
+      file(GENERATE OUTPUT "${test_labels_file}" CONTENT "${test_labels_content}")
+      set_property(DIRECTORY APPEND PROPERTY TEST_INCLUDE_FILES "${test_labels_file}")
+    endif()
 
     target_link_libraries(${YDB_TEST_NAME} PRIVATE
       GTest::gtest_main
@@ -113,7 +125,7 @@ function(add_ydb_test)
       cpp-testing-unittest_main
     )
 
-    set_tests_properties(${YDB_TEST_NAME} PROPERTIES LABELS ${YDB_TEST_LABELS})
+    set_tests_properties(${YDB_TEST_NAME} PROPERTIES LABELS "${YDB_TEST_LABELS}")
     set_tests_properties(${YDB_TEST_NAME} PROPERTIES ENVIRONMENT "YDB_TEST_ROOT=sdk_tests")
     if (YDB_TEST_ENV)
       set_tests_properties(${YDB_TEST_NAME} PROPERTIES ENVIRONMENT ${YDB_TEST_ENV})
