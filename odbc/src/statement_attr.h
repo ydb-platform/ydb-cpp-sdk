@@ -33,6 +33,7 @@ private:
     SQLULEN MaxRows_ = 0;
     SQLULEN NoScan_ = SQL_NOSCAN_OFF;
     SQLULEN MetadataId_ = SQL_FALSE;
+    SQLULEN CursorType_ = SQL_CURSOR_FORWARD_ONLY;
 };
 
 } // namespace NOdbc

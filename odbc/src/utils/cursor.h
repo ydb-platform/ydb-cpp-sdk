@@ -30,20 +30,16 @@ public:
     virtual ~ICursor() = default;
     virtual bool Fetch() = 0;
     virtual SQLRETURN GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
-                              SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) = 0;
+                              SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd,
+                              SQLLEN* offset = nullptr) = 0;
     virtual const std::vector<TColumnMeta>& GetColumnMeta() const = 0;
 };
 
-struct TExecCursorCreateResult {
-    NYdb::TStatus Status;
-    std::unique_ptr<ICursor> Cursor;
-};
+std::unique_ptr<ICursor> CreateExecCursor(const NYdb::NQuery::TExecuteQueryResult& result);
 
-TExecCursorCreateResult TryCreateExecCursor(
-    IBindingFiller* bindingFiller,
-    NYdb::NQuery::TExecuteQueryIterator iterator);
-
-std::unique_ptr<ICursor> CreateVirtualCursor(IBindingFiller* bindingFiller, const std::vector<TColumnMeta>& columns, const TTable& table);
+std::unique_ptr<ICursor> CreateVirtualCursor(
+    const std::vector<TColumnMeta>& columns,
+    const TTable& table);
 
 } // namespace NOdbc
 } // namespace NYdb

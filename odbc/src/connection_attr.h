@@ -79,6 +79,8 @@ private:
 
     bool Autocommit_ = true;
     std::string CurrentCatalog_;
+    std::optional<SQLPOINTER> QuietMode_;
+    std::optional<SQLUINTEGER> TranslateOption_;
     SQLUINTEGER AccessMode_ = SQL_MODE_READ_WRITE;
     SQLUINTEGER TxnIsolation_ = SQL_TXN_SERIALIZABLE;
     NQuery::TTxSettings::ETransactionMode TxMode_ = NQuery::TTxSettings::TS_SERIALIZABLE_RW;

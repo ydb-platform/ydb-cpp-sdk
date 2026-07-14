@@ -99,18 +99,17 @@ SQLRETURN TEnvironment::EndTran(SQLSMALLINT completionType){
         } catch (const std::exception& ex) {
             hasFailures = true;
             ++failedCount;
-            AddError("HY000", 0, ex.what(), SQL_SUCCESS_WITH_INFO);
+            AddError("HY000", 0, ex.what());
         } catch (...) {
             hasFailures = true;
             ++failedCount;
-            AddError("HY000", 0, "Unknown error during ENV-level transaction completion", SQL_SUCCESS_WITH_INFO);
+            AddError("HY000", 0, "Unknown error during ENV-level transaction completion");
         }
     }
     if (hasFailures) {
-        AddError("01000", 0,
-            "SQLEndTran(SQL_HANDLE_ENV): " + std::to_string(failedCount) + " connection(s) failed",
-            SQL_SUCCESS_WITH_INFO);
-        return SQL_SUCCESS_WITH_INFO;
+        AddError("HY000", 0,
+            "SQLEndTran(SQL_HANDLE_ENV): " + std::to_string(failedCount) + " connection(s) failed");
+        return SQL_ERROR;
     }
     return SQL_SUCCESS;
 }

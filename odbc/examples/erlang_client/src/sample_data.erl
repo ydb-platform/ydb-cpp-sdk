@@ -1,5 +1,5 @@
 -module(sample_data).
--export([series/0, seasons/0, episodes/0, format_date/1]).
+-export([series/0, seasons/0, episodes/0]).
 
 series() ->
     [
@@ -57,8 +57,3 @@ episodes() ->
 
 days_from_date({Year, Month, Day}) ->
     calendar:date_to_gregorian_days(Year, Month, Day) - calendar:date_to_gregorian_days(1970, 1, 1).
-
-format_date(Days) ->
-    Date = calendar:gregorian_days_to_date(Days + calendar:date_to_gregorian_days(1970, 1, 1)),
-    {Year, Month, Day} = Date,
-    io_lib:format("~4..0B-~2..0B-~2..0B", [Year, Month, Day]).

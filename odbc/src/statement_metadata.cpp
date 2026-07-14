@@ -103,7 +103,7 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
     table.reserve(entries.size());
 
     if (entries.empty()) {
-        Cursor_ = CreateVirtualCursor(this, columns, table);
+        SetCursor(CreateVirtualCursor(columns, table));
         return SQL_SUCCESS;
     }
 
@@ -178,7 +178,7 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
         NStatusHelpers::ThrowOnError(status);
     }
 
-    Cursor_ = CreateVirtualCursor(this, columns, table);
+    SetCursor(CreateVirtualCursor(columns, table));
     return SQL_SUCCESS;
 }
 
@@ -216,7 +216,7 @@ SQLRETURN TStatement::Tables(const std::string& catalogName,
         });
     }
 
-    Cursor_ = CreateVirtualCursor(this, columns, table);
+    SetCursor(CreateVirtualCursor(columns, table));
     return SQL_SUCCESS;
 }
 
@@ -245,7 +245,7 @@ SQLRETURN TStatement::GetTypeInfo(SQLSMALLINT dataType) {
         {"INTERVAL_PRECISION", SQL_SMALLINT, 0, SQL_NULLABLE},
     };
 
-    Cursor_ = CreateVirtualCursor(this, columns, BuildTypeInfoRows(dataType));
+    SetCursor(CreateVirtualCursor(columns, BuildTypeInfoRows(dataType)));
     return SQL_SUCCESS;
 }
 
@@ -272,7 +272,7 @@ SQLRETURN TStatement::Statistics(const std::string& /*catalogName*/,
         {"FILTER_CONDITION", SQL_VARCHAR, 128, SQL_NULLABLE},
     };
 
-    Cursor_ = CreateVirtualCursor(this, columns, TTable{});
+    SetCursor(CreateVirtualCursor(columns, TTable{}));
     return SQL_SUCCESS;
 }
 
@@ -302,7 +302,7 @@ SQLRETURN TStatement::SpecialColumns(const std::string& /*catalogName*/,
     auto entries = GetPatternEntries(tableName);
     if (entries.size() != 1) {
         if (entries.empty()) {
-            Cursor_ = CreateVirtualCursor(this, columns, table);
+            SetCursor(CreateVirtualCursor(columns, table));
             return SQL_SUCCESS;
         }
         throw TOdbcException("HY000", 0, "Ambiguous table name");
@@ -344,7 +344,7 @@ SQLRETURN TStatement::SpecialColumns(const std::string& /*catalogName*/,
     });
     NStatusHelpers::ThrowOnError(status);
 
-    Cursor_ = CreateVirtualCursor(this, columns, table);
+    SetCursor(CreateVirtualCursor(columns, table));
     return SQL_SUCCESS;
 }
 
@@ -366,7 +366,7 @@ SQLRETURN TStatement::PrimaryKeys(const std::string& /*catalogName*/,
     auto entries = GetPatternEntries(tableName);
     if (entries.size() != 1) {
         if (entries.empty()) {
-            Cursor_ = CreateVirtualCursor(this, columns, table);
+            SetCursor(CreateVirtualCursor(columns, table));
             return SQL_SUCCESS;
         }
         throw TOdbcException("HY000", 0, "Ambiguous table name");
@@ -398,7 +398,7 @@ SQLRETURN TStatement::PrimaryKeys(const std::string& /*catalogName*/,
     });
     NStatusHelpers::ThrowOnError(status);
 
-    Cursor_ = CreateVirtualCursor(this, columns, table);
+    SetCursor(CreateVirtualCursor(columns, table));
     return SQL_SUCCESS;
 }
 
@@ -427,7 +427,7 @@ SQLRETURN TStatement::ForeignKeys(const std::string& /*pkCatalogName*/,
         {"DEFERRABILITY", SQL_SMALLINT, 0, SQL_NULLABLE},
     };
 
-    Cursor_ = CreateVirtualCursor(this, columns, TTable{});
+    SetCursor(CreateVirtualCursor(columns, TTable{}));
     return SQL_SUCCESS;
 }
 
