@@ -6,11 +6,11 @@
 #include <string>
 #include <functional>
 #include <exception>
+#include <mutex>
 
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
-namespace NYdb {
-namespace NOdbc {
+namespace NYdb::NOdbc {
 
 struct TErrorInfo {
     std::string SqlState;
@@ -65,6 +65,7 @@ public:
     SQLRETURN AddError(const TStatus& status);
 
     void ClearErrors();
+    std::recursive_mutex& GetMutex() const noexcept { return Mutex_; }
 
     void SetLastReturnCode(SQLRETURN code) {
         LastReturnCode_ = code;
@@ -79,6 +80,7 @@ public:
                            SQLPOINTER diagInfoPtr, SQLSMALLINT bufferLength, SQLSMALLINT* stringLengthPtr);
 
 private:
+    mutable std::recursive_mutex Mutex_;
     TErrorList Errors_;
     SQLRETURN LastReturnCode_ = SQL_SUCCESS;
 };
@@ -94,6 +96,7 @@ SQLRETURN HandleOdbcExceptionsConsuming(SQLHANDLE handlePtr, std::function<SQLRE
         return SQL_INVALID_HANDLE;
     }
     auto handle = static_cast<Handle*>(handlePtr);
+    handle->ClearErrors();
 
     try {
         return func(handle);
@@ -109,11 +112,27 @@ SQLRETURN HandleOdbcExceptionsConsuming(SQLHANDLE handlePtr, std::function<SQLRE
 }
 
 template <typename Handle>
+SQLRETURN HandleOdbcDiagnostics(SQLHANDLE handlePtr, std::function<SQLRETURN(Handle*)>&& func) {
+    if (!handlePtr) {
+        return SQL_INVALID_HANDLE;
+    }
+    auto* handle = static_cast<Handle*>(handlePtr);
+    std::lock_guard lock(handle->GetMutex());
+    try {
+        return func(handle);
+    } catch (...) {
+        return SQL_ERROR;
+    }
+}
+
+template <typename Handle>
 SQLRETURN HandleOdbcExceptions(SQLHANDLE handlePtr, std::function<SQLRETURN(Handle*)>&& func) {
     if (!handlePtr) {
         return SQL_INVALID_HANDLE;
     }
     auto handle = static_cast<Handle*>(handlePtr);
+    std::lock_guard lock(handle->GetMutex());
+    handle->ClearErrors();
 
     try {
         const SQLRETURN ret = func(handle);
@@ -135,5 +154,4 @@ SQLRETURN HandleOdbcExceptions(
     std::function<SQLRETURN()>&& func,
     ENullInputHandlePolicy nullInputPolicy = ENullInputHandlePolicy::Reject);
 
-} // namespace NOdbc
-} // namespace NYdb
+} // namespace NYdb::NOdbc

@@ -1,4 +1,5 @@
 #include "types.h"
+#include "sql_type_map.h"
 
 namespace NYdb {
 namespace NOdbc {
@@ -85,32 +86,8 @@ SQLSMALLINT IsNullable(const TType& type) {
 }
 
 SQLULEN GetColumnSize(SQLSMALLINT sqlType) {
-    switch (sqlType) {
-        case SQL_BIT:
-            return 1;
-        case SQL_TINYINT:
-            return 3;
-        case SQL_SMALLINT:
-            return 5;
-        case SQL_INTEGER:
-            return 10;
-        case SQL_BIGINT:
-            return 20;
-        case SQL_REAL:
-            return 7;
-        case SQL_DOUBLE:
-            return 15;
-        case SQL_TYPE_DATE:
-            return 10;
-        case SQL_TYPE_TIMESTAMP:
-            return 26;
-        case SQL_GUID:
-            return 36;
-        case SQL_VARCHAR:
-        case SQL_VARBINARY:
-        default:
-            return 4096;
-    }
+    const TSqlTypeSpec* spec = FindSqlTypeSpec(sqlType);
+    return spec ? spec->ColumnSize : sqlType == SQL_GUID ? 36 : 4096;
 }
 
 std::optional<SQLSMALLINT> GetDecimalDigits(const TType& type) {

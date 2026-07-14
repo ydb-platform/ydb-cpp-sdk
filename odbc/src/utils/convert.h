@@ -11,9 +11,9 @@ namespace NYdb {
 namespace NOdbc {
 
 SQLRETURN ConvertParam(const TBoundParam& param, TParamValueBuilder& builder);
-SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd);
+SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER targetValue,
+                        SQLLEN bufferLength, SQLLEN* strLenOrInd, SQLLEN* offset = nullptr);
 const char* ConsumeLastConvertSqlState();
 
 } // namespace NOdbc
 } // namespace NYdb
-

@@ -158,9 +158,9 @@ SQLRETURN NMetadata::GetInfo(
 
         // Identifier Handling
         case SQL_IDENTIFIER_QUOTE_CHAR:
-            return WriteInfoString(conn, "\"", infoValuePtr, bufferLength, stringLengthPtr);
+            return WriteInfoString(conn, "`", infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_IDENTIFIER_CASE:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_IC_LOWER, infoValuePtr, stringLengthPtr);
+            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_IC_SENSITIVE, infoValuePtr, stringLengthPtr);
 
         // Catalog Support
         case SQL_CATALOG_NAME:
@@ -198,7 +198,7 @@ SQLRETURN NMetadata::GetInfo(
 
         // Transaction Support
         case SQL_TXN_CAPABLE:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_TC_ALL, infoValuePtr, stringLengthPtr);
+            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_TC_DML, infoValuePtr, stringLengthPtr);
         case SQL_DEFAULT_TXN_ISOLATION:
             return WriteInfoScalar<SQLUINTEGER>(conn, SQL_TXN_SERIALIZABLE, infoValuePtr, stringLengthPtr);
         case SQL_TXN_ISOLATION_OPTION:
@@ -221,6 +221,10 @@ SQLRETURN NMetadata::GetInfo(
             return WriteInfoScalar<SQLUINTEGER>(conn, 0, infoValuePtr, stringLengthPtr);
         case SQL_BATCH_ROW_COUNT:
             return WriteInfoScalar<SQLUINTEGER>(conn, 0, infoValuePtr, stringLengthPtr);
+        case SQL_PARAM_ARRAY_ROW_COUNTS:
+            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_PARC_NO_BATCH, infoValuePtr, stringLengthPtr);
+        case SQL_PARAM_ARRAY_SELECTS:
+            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_PAS_NO_SELECT, infoValuePtr, stringLengthPtr);
 
         // Bookmarks (not supported)
         case SQL_BOOKMARK_PERSISTENCE:
