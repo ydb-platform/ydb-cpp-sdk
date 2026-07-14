@@ -46,6 +46,15 @@ SQLRETURN TStatementAttributes::SetStmtAttr(
             MetadataId_ = *mode;
             return SQL_SUCCESS;
         }
+        case SQL_ATTR_CURSOR_TYPE: {
+            const SQLULEN cursorType = ReadIntegerAttr<SQLULEN>(value);
+            if (cursorType != SQL_CURSOR_FORWARD_ONLY) {
+                return errors.AddError(
+                    "01S02", 0, "Only SQL_CURSOR_FORWARD_ONLY is supported", SQL_SUCCESS_WITH_INFO);
+            }
+            CursorType_ = cursorType;
+            return SQL_SUCCESS;
+        }
         default:
             return Diag::AddNotImplemented(errors);
     }
@@ -75,6 +84,9 @@ SQLRETURN TStatementAttributes::GetStmtAttr(
             return SQL_SUCCESS;
         case SQL_ATTR_METADATA_ID:
             *reinterpret_cast<SQLULEN*>(value) = MetadataId_;
+            return SQL_SUCCESS;
+        case SQL_ATTR_CURSOR_TYPE:
+            *reinterpret_cast<SQLULEN*>(value) = CursorType_;
             return SQL_SUCCESS;
         default:
             return Diag::AddNotImplemented(errors);

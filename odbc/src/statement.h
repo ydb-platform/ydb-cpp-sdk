@@ -17,13 +17,13 @@
 #include <string>
 
 
-namespace NYdb {
-namespace NOdbc {
+namespace NYdb::NOdbc {
 
-class TStatement : public TErrorManager, public IBindingFiller {
+class TStatement : public TErrorManager {
     friend class TDescriptor;
 public:
     TStatement(TConnection* conn);
+    ~TStatement();
 
     SQLRETURN Prepare(const std::string& statementText);
     SQLRETURN Execute();
@@ -32,9 +32,6 @@ public:
     SQLRETURN Fetch();
     SQLRETURN GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, 
                      SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd);
-
-    void FillBoundColumns() override;
-    void OnStreamPartError(const TStatus& status) override;
 
     SQLRETURN Close(bool force = false);
     void UnbindColumns();
@@ -82,10 +79,7 @@ public:
     SQLRETURN SetCursorName(const std::string& name);
     SQLRETURN GetCursorName(SQLCHAR* name, SQLSMALLINT bufferLength, SQLSMALLINT* nameLengthPtr);
 
-    TDescriptor& GetAppRowDesc() { return *AppRowDesc_; }
-    TDescriptor& GetAppParamDesc() { return *AppParamDesc_; }
-    TDescriptor& GetImpRowDesc() { return *ImpRowDesc_; }
-    TDescriptor& GetImpParamDesc() { return *ImpParamDesc_; }
+    void DetachDescriptor(TDescriptor* desc);
 
     SQLRETURN RowCount(SQLLEN* rowCount);
     SQLRETURN NumResultCols(SQLSMALLINT* colCount);
@@ -96,12 +90,6 @@ public:
     SQLRETURN GetDiagField(SQLSMALLINT recNumber, SQLSMALLINT diagIdentifier, SQLPOINTER diagInfoPtr, SQLSMALLINT bufferLength,
         SQLSMALLINT* stringLengthPtr) override;
 
-    SQLSMALLINT GetParamCount() const { return ParamCount_; }
-
-    TConnection* GetConnection() {
-        return Conn_;
-    }
-
 private:
     TConnection* Conn_;
     std::unique_ptr<ICursor> Cursor_;
@@ -109,29 +97,35 @@ private:
     bool IsPrepared_ = false;
     SQLSMALLINT ParamCount_ = 0;
 
-    std::vector<TBoundColumn> BoundColumns_;
-    std::vector<TBoundParam> BoundParams_;
-    bool StreamFetchError_ = false;
     SQLULEN RowsFetched_ = 0;
     SQLLEN RowCount_ = -1;
     TStatementAttributes Attributes_;
     std::string CursorName_;
-    std::unique_ptr<TDescriptor> AppRowDesc_;
-    std::unique_ptr<TDescriptor> AppParamDesc_;
-    std::unique_ptr<TDescriptor> ImpRowDesc_;
-    std::unique_ptr<TDescriptor> ImpParamDesc_;
+    TDescriptor AppRowDesc_;
+    TDescriptor AppParamDesc_;
+    TDescriptor ImpRowDesc_;
+    TDescriptor ImpParamDesc_;
+    TDescriptor* CurrentAppRowDesc_;
+    TDescriptor* CurrentAppParamDesc_;
     SQLUSMALLINT NeedDataParam_ = 0;
     bool InAtExec_ = false;
+    bool NeedDataTokenDelivered_ = false;
     SQLRETURN LastFetchRc_ = SQL_SUCCESS;
+    SQLULEN BindingRow_ = 0;
+    std::vector<SQLLEN> GetDataOffsets_;
 
-    SQLRETURN BuildParams(NYdb::TParams& out);
+    SQLRETURN BuildParams(NYdb::TParams& out, SQLULEN paramSet);
+    SQLRETURN ExecuteParamSet(SQLULEN paramSet);
+    void FillBoundColumns();
+    std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;
+    void SetCursor(std::unique_ptr<ICursor> cursor);
 
     void ResetForMetadata();
 
     SQLUSMALLINT FindNextNeedDataParam() const;
     std::string GetTraversalRoot(const std::string& pattern) const;
 
-    NQuery::TExecuteQueryIterator CreateExecuteIterator(NQuery::TSession& session, const NYdb::TParams& params);
+    NQuery::TExecuteQueryResult ExecuteQuery(NQuery::TSession& session, const NYdb::TParams& params);
 
     NYdb::NRetry::TRetryOperationSettings MakeAutocommitRetrySettings();
     std::vector<NScheme::TSchemeEntry> GetPatternEntries(const std::string& pattern);
@@ -140,5 +134,4 @@ private:
     std::optional<std::string> GetTableType(NScheme::ESchemeEntryType type);
 };
 
-} // namespace NOdbc
-} // namespace NYdb
+} // namespace NYdb::NOdbc

@@ -15,8 +15,7 @@
 
 #include <odbcinst.h>
 
-namespace NYdb {
-namespace NOdbc {
+namespace NYdb::NOdbc {
 
 TConnection::~TConnection() {
     DestroyYdbState();
@@ -113,14 +112,19 @@ std::unique_ptr<TStatement> TConnection::CreateStatement() {
     return std::make_unique<TStatement>(this);
 }
 
+void TConnection::CloseStatementCursors() {
+    for (TStatement* stmt : Statements_) {
+        stmt->Close(true);
+    }
+}
+
 SQLRETURN TConnection::SetAutocommit(bool value) {
-    Attributes_.SetAutocommit(value);
-    if (Attributes_.GetAutocommit() && Tx_) {
+    if (value && Tx_) {
         auto status = Tx_->Commit().ExtractValueSync();
         NStatusHelpers::ThrowOnError(status);
         Tx_.reset();
     }
-    return SQL_SUCCESS;
+    return Attributes_.SetAutocommit(value);
 }
 
 bool TConnection::GetAutocommit() const {
@@ -171,21 +175,23 @@ void TConnection::ResetQuerySession() {
 
 SQLRETURN TConnection::CommitTx() {
     if (!Tx_) {
-        return AddError("25000", 0, "Invalid transaction state: no active transaction");
+        return SQL_SUCCESS;
     }
     auto status = Tx_->Commit().ExtractValueSync();
     NStatusHelpers::ThrowOnError(status);
     Tx_.reset();
+    CloseStatementCursors();
     return SQL_SUCCESS;
 }
 
 SQLRETURN TConnection::RollbackTx() {
     if (!Tx_) {
-        return AddError("25000", 0, "Invalid transaction state: no active transaction");
+        return SQL_SUCCESS;
     }
     auto status = Tx_->Rollback().ExtractValueSync();
     NStatusHelpers::ThrowOnError(status);
     Tx_.reset();
+    CloseStatementCursors();
     return SQL_SUCCESS;
 }
 
@@ -304,5 +310,4 @@ SQLRETURN TConnection::NativeSql(const std::string& inSql, SQLCHAR* outSql, SQLI
     return SQL_SUCCESS;
 }
 
-} // namespace NOdbc
-} // namespace NYdb
+} // namespace NYdb::NOdbc

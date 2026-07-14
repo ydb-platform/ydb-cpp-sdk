@@ -31,7 +31,7 @@ compile: prepare
 
 run: compile
 	@echo "Running YDB Series Example..."
-	$(ERL) -pa ebin -noshell -eval 'application:load(odbc), application:start(odbc), ydb_series_client:run("$(CONN)"), halt().'
+	$(ERL) -pa ebin -noshell -eval 'case ydb_series_client:run("$(CONN)") of ok -> halt(0); _ -> halt(1) end.'
 
 run-shell: compile
 	@echo "Starting Erlang shell with ydb_series_client..."
