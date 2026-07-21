@@ -6,13 +6,18 @@ target_compile_options(contrib-libs-libc_compat PRIVATE
 
 target_sources(contrib-libs-libc_compat PRIVATE
   ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/string.c
-  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/explicit_bzero.c
-  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/memfd_create.c
-  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/strlcat.c
-  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/strlcpy.c
-  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/reallocarray/reallocarray.c
-  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/random/getrandom.c
-  ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/random/getentropy.c
 )
+
+if(NOT APPLE)
+  target_sources(contrib-libs-libc_compat PRIVATE
+    ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/explicit_bzero.c
+    ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/memfd_create.c
+    ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/strlcat.c
+    ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/strlcpy.c
+    ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/reallocarray/reallocarray.c
+    ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/random/getrandom.c
+    ${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat/random/getentropy.c
+  )
+endif()
 
 _ydb_sdk_install_targets(TARGETS contrib-libs-libc_compat)
