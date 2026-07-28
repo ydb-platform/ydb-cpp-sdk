@@ -61,13 +61,13 @@ RUN wget $WGET_OPTS https://github.com/Kitware/CMake/releases/download/v${CMAKE_
     && rm cmake-install.sh
 
 # Install LLVM
-ENV LLVM_VERSION=16
+ENV LLVM_VERSION=17
 RUN wget $WGET_OPTS https://apt.llvm.org/llvm.sh && \
     chmod u+x llvm.sh && \
     ./llvm.sh ${LLVM_VERSION} && \
     rm llvm.sh
 
-# Update alternatives to use clang-16 by default
+# Update alternatives to use the selected Clang version by default
 RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${LLVM_VERSION} 10000 && \
     update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-${LLVM_VERSION} 10000 && \
     update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${LLVM_VERSION} 10000
