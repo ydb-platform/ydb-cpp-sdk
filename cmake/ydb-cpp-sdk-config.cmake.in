@@ -69,11 +69,13 @@ endif()
 if (@YDB_SDK_USE_RAPID_JSON@)
   find_package(RapidJSON REQUIRED)
 
-  add_library(RapidJSON::RapidJSON INTERFACE IMPORTED)
+  if (NOT TARGET RapidJSON::RapidJSON)
+    add_library(RapidJSON::RapidJSON INTERFACE IMPORTED)
 
-  target_include_directories(RapidJSON::RapidJSON INTERFACE
-    ${RAPIDJSON_INCLUDE_DIRS}
-  )
+    target_include_directories(RapidJSON::RapidJSON INTERFACE
+      ${RAPIDJSON_INCLUDE_DIRS}
+    )
+  endif()
 endif()
 
 if (@YDB_SDK_ENABLE_OTEL_METRICS@ OR @YDB_SDK_ENABLE_OTEL_TRACE@)
