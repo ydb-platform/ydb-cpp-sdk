@@ -102,12 +102,20 @@ SQLDriverConnect(dbc, NULL, connStr, SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT
 `?` placeholders are rewritten to `$p1`, `$p2`, ... with auto-generated `DECLARE $pN AS <type>?;`
 from `SQLBindParameter` types. YDB-native `$pN` syntax also works.
 
-## Core conformance tests
+## Conformance and client-framework tests
 
-The Linux/headless ODBC 3.x Core contract audit and the open-source test-suite
-evaluation are documented in [tests/conformance](tests/conformance/README.md).
-With a local YDB server running, build `odbc-core-conformance_it` and run
-`ctest --test-dir build -L core-conformance --output-on-failure`.
+The test build fetches pinned unixODBC-Test and SOCI revisions. The SOCI gate
+runs 51 unchanged upstream framework cases through its Core-only ODBC backend;
+the repository contains only the schema/capability adapter needed by the
+upstream harness. With a local server running, build the test preset and run
+either suite:
+
+```bash
+cmake --preset release-test-clang
+cmake --build build -j$(nproc)
+ctest --test-dir build -L core-conformance --output-on-failure
+ctest --test-dir build -L core-framework --output-on-failure
+```
 
 ## License
 
