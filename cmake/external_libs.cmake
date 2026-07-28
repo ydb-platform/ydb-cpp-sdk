@@ -1,7 +1,7 @@
 find_package(IDN REQUIRED)
 find_package(Iconv REQUIRED)
 find_package(OpenSSL REQUIRED)
-find_package(Protobuf REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC 1.41.0 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(xxHash REQUIRED)

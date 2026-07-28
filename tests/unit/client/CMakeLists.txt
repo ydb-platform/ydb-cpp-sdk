@@ -12,6 +12,7 @@ add_ydb_test(NAME client-connection_string_ut GTEST
 add_ydb_test(NAME client-coordination_ut
   SOURCES
     coordination/coordination_ut.cpp
+    coordination/distributed_lock_ut.cpp
   LINK_LIBRARIES
     YDB-CPP-SDK::Coordination
     api-grpc
@@ -174,7 +175,11 @@ add_ydb_test(NAME client-build_info_ut GTEST
 add_ydb_test(NAME client-query_session_ut
   SOURCES
     query/client_session_ut.cpp
+    query/deferred_session_creation_ut.cpp
   LINK_LIBRARIES
+    api-grpc
+    cpp-testing-common
+    YDB-CPP-SDK::Query
     client-ydb_query-impl
     impl-session
     library-operation_id
@@ -185,6 +190,7 @@ add_ydb_test(NAME client-query_session_ut
 add_ydb_test(NAME client-query_stats_ut
   SOURCES
     query/query_stats_ut.cpp
+    query/virtual_timestamp_ut.cpp
   LINK_LIBRARIES
     YDB-CPP-SDK::Query
   LABELS

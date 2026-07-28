@@ -15,6 +15,7 @@ target_link_libraries(client-ydb_coordination PUBLIC
 
 target_sources(client-ydb_coordination PRIVATE
   coordination.cpp
+  distributed_lock.cpp
   proto_accessor.cpp
 )
 

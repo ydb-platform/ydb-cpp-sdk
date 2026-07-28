@@ -44,17 +44,18 @@ RUN wget -O abseil-cpp-${ABSEIL_CPP_VERSION}.tar.gz https://github.com/abseil/ab
     cmake --install . --config Release --prefix ${ABSEIL_CPP_INSTALL_DIR}
 
 # Install protobuf
-ENV PROTOBUF_VERSION=3.21.12
+ENV PROTOBUF_VERSION=25.0
 ENV PROTOBUF_INSTALL_DIR=~/ydb_deps/protobuf
 RUN wget -O protobuf-${PROTOBUF_VERSION}.tar.gz https://github.com/protocolbuffers/protobuf/archive/refs/tags/v${PROTOBUF_VERSION}.tar.gz && \
     tar -xvzf protobuf-${PROTOBUF_VERSION}.tar.gz && cd protobuf-${PROTOBUF_VERSION} && \
     mkdir build && cd build && \
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_INSTALL=ON -Dprotobuf_ABSL_PROVIDER=package .. && \
+    cmake -G Ninja -DCMAKE_PREFIX_PATH="${ABSEIL_CPP_INSTALL_DIR}" \
+    -DCMAKE_BUILD_TYPE=Release -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_INSTALL=ON -Dprotobuf_ABSL_PROVIDER=package .. && \
     cmake --build . --config Release && \
     cmake --install . --config Release --prefix ${PROTOBUF_INSTALL_DIR}
 
 # Install grpc
-ENV GRPC_VERSION=1.54.3
+ENV GRPC_VERSION=1.60.2
 ENV GRPC_INSTALL_DIR=~/ydb_deps/grpc
 RUN wget -O grpc-${GRPC_VERSION}.tar.gz https://github.com/grpc/grpc/archive/refs/tags/v${GRPC_VERSION}.tar.gz && \
     tar -xvzf grpc-${GRPC_VERSION}.tar.gz && cd grpc-${GRPC_VERSION} && \
