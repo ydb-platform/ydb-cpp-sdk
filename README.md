@@ -44,6 +44,15 @@
 
 ### Install dependencies
 
+The standalone dependency bundle uses gRPC 1.60.2 to match the imported YDB sources.
+Its protobuf and Abseil pins match the dependency set published with that gRPC release:
+
+| Dependency | Version |
+|------------|---------|
+| Abseil | 20230802.0 |
+| protobuf | 25.0 |
+| gRPC | 1.60.2 |
+
 ```bash
 sudo apt-get -y update
 sudo apt-get -y install git gdb ninja-build libidn11-dev ragel yasm libc-ares-dev libre2-dev \
@@ -65,20 +74,21 @@ cmake --install . --config Release --prefix ~/ydb_deps/absl
 cd ../../
 
 # Install protobuf
-wget -O protobuf-3.21.12.tar.gz https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.21.12.tar.gz
-tar -xvzf protobuf-3.21.12.tar.gz
-cd protobuf-3.21.12
+wget -O protobuf-25.0.tar.gz https://github.com/protocolbuffers/protobuf/archive/refs/tags/v25.0.tar.gz
+tar -xvzf protobuf-25.0.tar.gz
+cd protobuf-25.0
 mkdir build && cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_INSTALL=ON ..
+cmake -G Ninja -DCMAKE_PREFIX_PATH="$HOME/ydb_deps/absl" -DCMAKE_BUILD_TYPE=Release \
+  -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_INSTALL=ON -Dprotobuf_ABSL_PROVIDER=package ..
 cmake --build . --config Release
 cmake --install . --config Release --prefix ~/ydb_deps/protobuf
 cd ../../
 
 # Install gRPC
-wget -O grpc-1.54.3.tar.gz https://github.com/grpc/grpc/archive/refs/tags/v1.54.3.tar.gz
-tar -xvzf grpc-1.54.3.tar.gz && cd grpc-1.54.3
+wget -O grpc-1.60.2.tar.gz https://github.com/grpc/grpc/archive/refs/tags/v1.60.2.tar.gz
+tar -xvzf grpc-1.60.2.tar.gz && cd grpc-1.60.2
 mkdir build && cd build
-cmake -G Ninja -DCMAKE_PREFIX_PATH="~/ydb_deps/absl;~/ydb_deps/protobuf" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 \
+cmake -G Ninja -DCMAKE_PREFIX_PATH="$HOME/ydb_deps/absl;$HOME/ydb_deps/protobuf" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 \
   -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DgRPC_BUILD_CSHARP_EXT=OFF \
   -DgRPC_ZLIB_PROVIDER=package -DgRPC_CARES_PROVIDER=package -DgRPC_RE2_PROVIDER=package \
   -DgRPC_SSL_PROVIDER=package -DgRPC_PROTOBUF_PROVIDER=package -DgRPC_ABSL_PROVIDER=package \

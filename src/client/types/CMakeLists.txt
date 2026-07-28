@@ -8,8 +8,14 @@ add_subdirectory(status)
 _ydb_sdk_add_library(client-types)
 
 target_sources(client-types PRIVATE
-  ydb.cpp
   core_facility/simple_core_facility.cpp
+  virtual_timestamp.cpp
+  ydb.cpp
+)
+
+set_property(SOURCE virtual_timestamp.cpp APPEND PROPERTY COMPILE_OPTIONS
+  "$<$<CXX_COMPILER_ID:MSVC>:/FI${YDB_SDK_SOURCE_DIR}/util/stream/str.h>"
+  "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-include${YDB_SDK_SOURCE_DIR}/util/stream/str.h>"
 )
 
 target_link_libraries(client-types PUBLIC
