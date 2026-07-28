@@ -58,7 +58,7 @@ RUN wget $WGET_OPTS https://github.com/Kitware/CMake/releases/download/v${CMAKE_
     && rm cmake-install.sh
 
 # Install LLVM
-ENV LLVM_VERSION=16
+ENV LLVM_VERSION=17
 RUN wget $WGET_OPTS https://apt.llvm.org/llvm.sh && \
     chmod u+x llvm.sh && \
     ./llvm.sh ${LLVM_VERSION} && \

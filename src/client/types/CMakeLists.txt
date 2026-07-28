@@ -13,7 +13,7 @@ target_sources(client-types PRIVATE
   ydb.cpp
 )
 
-set_property(SOURCE virtual_timestamp.cpp APPEND PROPERTY COMPILE_OPTIONS
+target_compile_options(client-types PRIVATE
   "$<$<CXX_COMPILER_ID:MSVC>:/FI${YDB_SDK_SOURCE_DIR}/util/stream/str.h>"
   "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-include${YDB_SDK_SOURCE_DIR}/util/stream/str.h>"
 )
