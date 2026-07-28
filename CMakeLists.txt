@@ -67,6 +67,7 @@ if (YDB_CPP_SDK_SLO_USE_INSTALLED_SDK)
 
   add_subdirectory(tools)
   add_subdirectory(contrib/libs)
+  add_subdirectory(src/library/string_utils/base64)
   add_subdirectory(library/cpp)
   add_subdirectory(util)
   add_subdirectory(tests/slo_workloads)

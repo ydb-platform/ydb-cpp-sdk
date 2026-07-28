@@ -1,7 +1,9 @@
 src/api/grpc/draft/ydb_datastreams_v1.pb.h
 src/api/grpc/ydb_topic_v1.pb.h
+src/api/protos/annotations/sensitive.pb.h
 src/api/protos/annotations/validation.pb.h
 src/api/protos/draft/datastreams.pb.h
+src/api/protos/draft/field_transformation.pb.h
 src/api/protos/ydb_common.pb.h
 src/api/protos/ydb_federation_discovery.pb.h
 src/api/protos/ydb_operation.pb.h

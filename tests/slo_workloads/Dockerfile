@@ -133,9 +133,9 @@ ENV BROTLI_INSTALL_DIR=/root/ydb_deps/brotli
 RUN wget $WGET_OPTS -O brotli-${BROTLI_VERSION}.tar.gz https://github.com/google/brotli/archive/refs/tags/v${BROTLI_VERSION}.tar.gz && \
     tar -xvzf brotli-${BROTLI_VERSION}.tar.gz && cd brotli-${BROTLI_VERSION} && \
     mkdir build && cd build && \
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && \
+    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${BROTLI_INSTALL_DIR} .. && \
     cmake --build . --config Release && \
-    cmake --install . --config Release --prefix ${BROTLI_INSTALL_DIR} && \
+    cmake --install . --config Release && \
     rm -rf brotli-${BROTLI_VERSION}.tar.gz brotli-${BROTLI_VERSION}
 
 # Install jwt-cpp
