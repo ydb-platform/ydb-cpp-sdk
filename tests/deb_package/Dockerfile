@@ -28,4 +28,5 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY test_project /test_project
+COPY component_test /component_test
 WORKDIR /test_project

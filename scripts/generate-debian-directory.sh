@@ -161,7 +161,9 @@ cat <<EOF_INSTALL > debian/libydb-cpp-dev.install
 debian/tmp/usr/share/yandex/lib/*/libydb-cpp.a usr/share/yandex/lib/
 debian/tmp/usr/share/yandex/include/ydb-cpp-sdk usr/share/yandex/include/
 debian/tmp/usr/share/yandex/include/__ydb_sdk_special_headers usr/share/yandex/include/
-debian/tmp/usr/share/yandex/lib/*/cmake/ydb-cpp-sdk usr/share/yandex/lib/*/cmake/
+debian/tmp/usr/share/yandex/lib/*/cmake/ydb-cpp-sdk/*.cmake usr/share/yandex/lib/*/cmake/ydb-cpp-sdk/
+debian/tmp/usr/share/yandex/lib/*/cmake/ydb-cpp-sdk/Modules usr/share/yandex/lib/*/cmake/ydb-cpp-sdk/
+debian/tmp/usr/share/yandex/lib/*/cmake/ydb-cpp-sdk/release/ydb-cpp-sdk-core-targets*.cmake usr/share/yandex/lib/*/cmake/ydb-cpp-sdk/release/
 debian/tmp/usr/share/yandex/include/libbase64.h usr/share/yandex/include/
 debian/tmp/usr/share/yandex/lib/*/libbase64.a usr/share/yandex/lib/
 debian/tmp/usr/share/yandex/lib/*/cmake/base64 usr/share/yandex/lib/*/cmake/
@@ -172,10 +174,12 @@ EOF_INSTALL
 
 cat <<EOF_INSTALL > debian/libydb-cpp-iam-dev.install
 debian/tmp/usr/share/yandex/lib/*/libydb-cpp-iam.a usr/share/yandex/lib/
+debian/tmp/usr/share/yandex/lib/*/cmake/ydb-cpp-sdk/release/ydb-cpp-sdk-iam-targets*.cmake usr/share/yandex/lib/*/cmake/ydb-cpp-sdk/release/
 EOF_INSTALL
 
 cat <<EOF_INSTALL > debian/libydb-cpp-otel-metrics-dev.install
 debian/tmp/usr/share/yandex/lib/*/libydb-cpp-otel-metrics.a usr/share/yandex/lib/
+debian/tmp/usr/share/yandex/lib/*/cmake/ydb-cpp-sdk/release/ydb-cpp-sdk-otel-metrics-targets*.cmake usr/share/yandex/lib/*/cmake/ydb-cpp-sdk/release/
 debian/tmp/usr/share/yandex/include/ydb-cpp-sdk/open_telemetry/metrics.h usr/share/yandex/include/ydb-cpp-sdk/open_telemetry/
 debian/tmp/usr/share/yandex/include/opentelemetry usr/share/yandex/include/
 debian/tmp/usr/share/yandex/lib/*/libopentelemetry_* usr/share/yandex/lib/
@@ -185,6 +189,7 @@ EOF_INSTALL
 
 cat <<EOF_INSTALL > debian/libydb-cpp-otel-tracing-dev.install
 debian/tmp/usr/share/yandex/lib/*/libydb-cpp-otel-tracing.a usr/share/yandex/lib/
+debian/tmp/usr/share/yandex/lib/*/cmake/ydb-cpp-sdk/release/ydb-cpp-sdk-otel-tracing-targets*.cmake usr/share/yandex/lib/*/cmake/ydb-cpp-sdk/release/
 debian/tmp/usr/share/yandex/include/ydb-cpp-sdk/open_telemetry/trace.h usr/share/yandex/include/ydb-cpp-sdk/open_telemetry/
 EOF_INSTALL
 

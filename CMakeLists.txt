@@ -164,13 +164,42 @@ if (YDB_SDK_INSTALL)
   _ydb_sdk_create_package_library(LIBYDB_CPP_OTEL_TRACING ydb-cpp-otel-tracing libydb-cpp-otel-tracing)
 
   _ydb_sdk_install_headers(${CMAKE_INSTALL_INCLUDEDIR})
-  install(EXPORT ydb-cpp-sdk-targets
-    FILE ydb-cpp-sdk-targets.cmake
+
+  install(EXPORT ydb-cpp-sdk-core-targets
+    FILE ydb-cpp-sdk-core-targets.cmake
     CONFIGURATIONS RELEASE
     NAMESPACE YDB-CPP-SDK::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ydb-cpp-sdk/release
     COMPONENT libydb-cpp
   )
+  if (TARGET ydb-cpp-iam)
+    install(EXPORT ydb-cpp-sdk-iam-targets
+      FILE ydb-cpp-sdk-iam-targets.cmake
+      CONFIGURATIONS RELEASE
+      NAMESPACE YDB-CPP-SDK::
+      DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ydb-cpp-sdk/release
+      COMPONENT libydb-cpp-iam
+    )
+  endif()
+  if (TARGET ydb-cpp-otel-metrics)
+    install(EXPORT ydb-cpp-sdk-otel-metrics-targets
+      FILE ydb-cpp-sdk-otel-metrics-targets.cmake
+      CONFIGURATIONS RELEASE
+      NAMESPACE YDB-CPP-SDK::
+      DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ydb-cpp-sdk/release
+      COMPONENT libydb-cpp-otel-metrics
+    )
+  endif()
+  if (TARGET ydb-cpp-otel-tracing)
+    install(EXPORT ydb-cpp-sdk-otel-tracing-targets
+      FILE ydb-cpp-sdk-otel-tracing-targets.cmake
+      CONFIGURATIONS RELEASE
+      NAMESPACE YDB-CPP-SDK::
+      DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ydb-cpp-sdk/release
+      COMPONENT libydb-cpp-otel-tracing
+    )
+  endif()
+
   configure_package_config_file(
     ${YDB_SDK_SOURCE_DIR}/cmake/ydb-cpp-sdk-config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/ydb-cpp-sdk-config.cmake
