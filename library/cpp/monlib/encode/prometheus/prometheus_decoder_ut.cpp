@@ -68,12 +68,13 @@ Y_UNIT_TEST_SUITE(TPrometheusDecoderTest) {
     Y_UNIT_TEST(Minimal) {
         auto samples = Decode(
                 "minimal_metric 1.234\n"
+                "big_num 1.04671344e+10\n"
                 "another_metric -3e3 103948\n"
                 "# Even that:\n"
                 "no_labels{} 3\n"
                 "# HELP line for non-existing metric will be ignored.\n");
 
-        UNIT_ASSERT_EQUAL(samples.SamplesSize(), 3);
+        UNIT_ASSERT_EQUAL(samples.SamplesSize(), 4);
         {
             auto& s = samples.GetSamples(0);
             UNIT_ASSERT_EQUAL(s.GetMetricType(), NProto::EMetricType::GAUGE);
@@ -84,17 +85,105 @@ Y_UNIT_TEST_SUITE(TPrometheusDecoderTest) {
         {
             auto& s = samples.GetSamples(1);
             UNIT_ASSERT_EQUAL(s.GetMetricType(), NProto::EMetricType::GAUGE);
+            UNIT_ASSERT_EQUAL(1, s.LabelsSize());
+            ASSERT_LABEL_EQUAL(s.GetLabels(0), "sensor", "big_num");
+            ASSERT_DOUBLE_POINT(s, TInstant::Zero(), 1.04671344e+10);
+        }
+        {
+            auto& s = samples.GetSamples(2);
+            UNIT_ASSERT_EQUAL(s.GetMetricType(), NProto::EMetricType::GAUGE);
             UNIT_ASSERT_EQUAL(s.LabelsSize(), 1);
             ASSERT_LABEL_EQUAL(s.GetLabels(0), "sensor", "another_metric");
             ASSERT_DOUBLE_POINT(s, TInstant::MilliSeconds(103948), -3000.0);
         }
         {
-            auto& s = samples.GetSamples(2);
+            auto& s = samples.GetSamples(3);
             UNIT_ASSERT_EQUAL(s.GetMetricType(), NProto::EMetricType::GAUGE);
             UNIT_ASSERT_EQUAL(1, s.LabelsSize());
             ASSERT_LABEL_EQUAL(s.GetLabels(0), "sensor", "no_labels");
             ASSERT_DOUBLE_POINT(s, TInstant::Zero(), 3.0);
         }
+    }
+
+    // ReadTokenAsLabelValue's loop runs MAX_LABEL_VALUE_LEN times: one iteration per
+    // appended character plus one final iteration to detect the closing quote. So the
+    // longest value it can successfully parse is (MAX_LABEL_VALUE_LEN - 1) characters.
+    Y_UNIT_TEST(LabelValueAtNewLimitIsAccepted) {
+        const auto value = TString(1023, 'a');
+        const auto inputMetrics = TString("m{l=\"") + value + "\"} 1\n";
+
+        auto samples = Decode(inputMetrics);
+
+        UNIT_ASSERT_VALUES_EQUAL(samples.SamplesSize(), 1);
+        auto& s = samples.GetSamples(0);
+        UNIT_ASSERT_VALUES_EQUAL(s.LabelsSize(), 2);
+        ASSERT_LABEL_EQUAL(s.GetLabels(0), "sensor", "m");
+        ASSERT_LABEL_EQUAL(s.GetLabels(1), "l", value);
+    }
+
+    Y_UNIT_TEST(LabelValueOverNewLimitStillThrows) {
+        const auto value = TString(1024, 'a');
+        const auto inputMetrics = TString("m{l=\"") + value + "\"} 1\n";
+
+        UNIT_ASSERT_EXCEPTION_CONTAINS(Decode(inputMetrics), TPrometheusDecodeException,
+            "trying to parse too long label value, size >= 1024");
+    }
+
+    Y_UNIT_TEST(NameAlreadyPresent) {
+        constexpr auto inputMetrics =
+            "# A normal comment.\n"
+            "#\n"
+            "# TYPE name counter\n"
+            "name{sensor=\"some_name\",labelname=\"val1\",basename=\"basevalue\"} NaN\n"
+            "name{labelname=\"val2\",basename=\"basevalue\"} Nan\n"
+            "name {labelname=\"val3\",basename=\"basevalue\"} 2.3 1234567890\n"
+            "# HELP name two-line\\n doc  str\\\\ing\n";
+
+        try {
+            auto samples = Decode(inputMetrics);
+        } catch(...) {
+            return;
+        }
+        UNIT_ASSERT(false);
+    }
+
+    Y_UNIT_TEST(NameAlreadyPresentButMangled) {
+        constexpr auto inputMetrics =
+            "# A normal comment.\n"
+            "#\n"
+            "# TYPE name counter\n"
+            "name{sensor=\"some_name\",labelname=\"val1\",basename=\"basevalue\"} NaN\n"
+            "name{labelname=\"val2\",basename=\"basevalue\"} Nan\n"
+            "name {labelname=\"val3\",basename=\"basevalue\"} 2.3 1234567890\n"
+            "# HELP name two-line\\n doc  str\\\\ing\n";
+
+        try {
+            auto samples = Decode(inputMetrics, TPrometheusDecodeSettings{.NameMangler = [](auto s) -> TString {
+                                      return TStringBuilder{}<<"mm_" << s;
+                                  }});
+        } catch(...) {
+            UNIT_ASSERT(false);
+        }
+    }
+
+    Y_UNIT_TEST(MangledNameClash) {
+        constexpr auto inputMetrics =
+            "# A normal comment.\n"
+            "#\n"
+            "# TYPE name counter\n"
+            "name{mm_sensor=\"other\",sensor=\"some_name\",labelname=\"val1\",basename=\"basevalue\"} NaN\n"
+            "name{labelname=\"val2\",basename=\"basevalue\"} Nan\n"
+            "name {labelname=\"val3\",basename=\"basevalue\"} 2.3 1234567890\n"
+            "# HELP name two-line\\n doc  str\\\\ing\n";
+
+        try {
+            auto samples = Decode(inputMetrics, TPrometheusDecodeSettings{.NameMangler = [](auto s) -> TString {
+                                      return TStringBuilder{}<<"mm_" << s;
+                                  }});
+        } catch(...) {
+            return;
+        }
+        UNIT_ASSERT(false);
     }
 
     Y_UNIT_TEST(Counter) {
@@ -103,12 +192,13 @@ Y_UNIT_TEST_SUITE(TPrometheusDecoderTest) {
             "#\n"
             "# TYPE name counter\n"
             "name{labelname=\"val1\",basename=\"basevalue\"} NaN\n"
-            "name {labelname=\"val2\",basename=\"basevalue\"} 2.3 1234567890\n"
+            "name{labelname=\"val2\",basename=\"basevalue\"} Nan\n"
+            "name {labelname=\"val3\",basename=\"basevalue\"} 2.3 1234567890\n"
             "# HELP name two-line\\n doc  str\\\\ing\n";
 
         {
             auto samples = Decode(inputMetrics);
-            UNIT_ASSERT_EQUAL(samples.SamplesSize(), 2);
+            UNIT_ASSERT_EQUAL(samples.SamplesSize(), 3);
 
             {
                 auto& s = samples.GetSamples(0);
@@ -126,6 +216,15 @@ Y_UNIT_TEST_SUITE(TPrometheusDecoderTest) {
                 ASSERT_LABEL_EQUAL(s.GetLabels(0), "sensor", "name");
                 ASSERT_LABEL_EQUAL(s.GetLabels(1), "basename", "basevalue");
                 ASSERT_LABEL_EQUAL(s.GetLabels(2), "labelname", "val2");
+                ASSERT_UINT_POINT(s, TInstant::Zero(), ui64(0));
+            }
+            {
+                auto& s = samples.GetSamples(2);
+                UNIT_ASSERT_EQUAL(s.GetMetricType(), NProto::EMetricType::RATE);
+                UNIT_ASSERT_EQUAL(s.LabelsSize(), 3);
+                ASSERT_LABEL_EQUAL(s.GetLabels(0), "sensor", "name");
+                ASSERT_LABEL_EQUAL(s.GetLabels(1), "basename", "basevalue");
+                ASSERT_LABEL_EQUAL(s.GetLabels(2), "labelname", "val3");
                 ASSERT_UINT_POINT(s, TInstant::MilliSeconds(1234567890), i64(2));
             }
         }
@@ -133,7 +232,7 @@ Y_UNIT_TEST_SUITE(TPrometheusDecoderTest) {
             TPrometheusDecodeSettings settings;
             settings.Mode = EPrometheusDecodeMode::RAW;
             auto samples = Decode(inputMetrics, settings);
-            UNIT_ASSERT_EQUAL(samples.SamplesSize(), 2);
+            UNIT_ASSERT_EQUAL(samples.SamplesSize(), 3);
 
             {
                 auto& s = samples.GetSamples(0);
@@ -151,6 +250,15 @@ Y_UNIT_TEST_SUITE(TPrometheusDecoderTest) {
                 ASSERT_LABEL_EQUAL(s.GetLabels(0), "sensor", "name");
                 ASSERT_LABEL_EQUAL(s.GetLabels(1), "basename", "basevalue");
                 ASSERT_LABEL_EQUAL(s.GetLabels(2), "labelname", "val2");
+                ASSERT_DOUBLE_POINT(s, TInstant::MilliSeconds(0), NAN);
+            }
+            {
+                auto& s = samples.GetSamples(2);
+                UNIT_ASSERT_EQUAL(s.GetMetricType(), NProto::EMetricType::GAUGE);
+                UNIT_ASSERT_EQUAL(s.LabelsSize(), 3);
+                ASSERT_LABEL_EQUAL(s.GetLabels(0), "sensor", "name");
+                ASSERT_LABEL_EQUAL(s.GetLabels(1), "basename", "basevalue");
+                ASSERT_LABEL_EQUAL(s.GetLabels(2), "labelname", "val3");
                 ASSERT_DOUBLE_POINT(s, TInstant::MilliSeconds(1234567890), 2.3);
             }
         }

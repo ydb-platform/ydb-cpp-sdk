@@ -7,7 +7,7 @@
 ### Prerequisites
 
 - cmake 3.22+
-- clang 17+
+- clang 18+
 - git 2.20+
 - ninja 1.10+
 - ragel
@@ -44,14 +44,18 @@
 
 ### Install dependencies
 
-The standalone dependency bundle uses gRPC 1.60.2 to match the imported YDB sources.
-Its protobuf and Abseil pins match the dependency set published with that gRPC release:
+The standalone dependency bundle is compatible with Ubuntu 24.04 and uses
+gRPC 1.60.2 to match the imported YDB sources. Its protobuf and Abseil pins
+match the dependency set published with that gRPC release:
 
 | Dependency | Version |
 |------------|---------|
 | Abseil | 20230802.0 |
 | protobuf | 25.0 |
 | gRPC | 1.60.2 |
+
+These pins are shared by regular CI builds, SLO workload images, and the
+development container.
 
 ```bash
 sudo apt-get -y update
@@ -61,7 +65,7 @@ sudo apt-get -y install git gdb ninja-build libidn11-dev ragel yasm libc-ares-de
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh
-sudo ./llvm.sh 17
+sudo ./llvm.sh 18
 
 # Install abseil-cpp
 wget -O abseil-cpp-20230802.0.tar.gz https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.0.tar.gz

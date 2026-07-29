@@ -5,6 +5,7 @@ target_link_libraries(resource
     yutil
     blockcodecs-core
     blockcodecs-codecs-zstd
+    absl::flat_hash_map
 )
 
 target_sources(resource

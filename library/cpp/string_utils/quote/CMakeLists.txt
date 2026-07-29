@@ -1,7 +1,7 @@
 if (YDB_SDK_TESTS)
   add_ydb_test(NAME string_utils-quote-ut
     SOURCES
-      quote_ut.cpp
+      ut/quote_ut.cpp
     LINK_LIBRARIES
       string_utils-quote
       cpp-testing-unittest_main

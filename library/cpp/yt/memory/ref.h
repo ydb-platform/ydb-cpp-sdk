@@ -54,6 +54,9 @@ public:
     //! Creates a TRef for a part of existing range.
     TRef Slice(size_t startOffset, size_t endOffset) const;
 
+    //! Returns |true| if #other's range lies entirely within this range.
+    bool Contains(TRef other) const;
+
     //! Compares the content for bitwise equality.
     static bool AreBitwiseEqual(TRef lhs, TRef rhs);
 };
@@ -90,9 +93,12 @@ public:
     template <class T>
     static TMutableRef FromPod(T& data);
 
-    //! Creates a non-owning TMutableRef for a given string.
+    //! Creates a non-owning TMutableRef for a given TString.
     //! Ensures that the string is not shared.
     static TMutableRef FromString(TString& str);
+
+    //! Creates a non-owning TMutableRef for a given std::string.
+    static TMutableRef FromString(std::string& str);
 
     //! Creates a TMutableRef for a part of existing range.
     TMutableRef Slice(size_t startOffset, size_t endOffset) const;
@@ -131,21 +137,30 @@ public:
     operator TRef() const;
 
 
-    //! Creates a TSharedRef from a string.
-    //! Since strings are ref-counted, no data is copied.
+    //! Creates a TSharedRef from TString.
+    //! Since strings are ref-counted, no data is being copied.
     //! The memory is marked with a given tag.
     template <class TTag>
     static TSharedRef FromString(TString str);
 
-    //! Creates a TSharedRef from a string.
-    //! Since strings are ref-counted, no data is copied.
-    //! The memory is marked with TDefaultSharedBlobTag.
+    //! Same as above but the memory is marked with TDefaultSharedBlobTag.
     static TSharedRef FromString(TString str);
 
-    //! Creates a TSharedRef reference from a string.
-    //! Since strings are ref-counted, no data is copied.
-    //! The memory is marked with a given tag.
+    //! Same as above but the memory tag is specified in #tagCookie.
     static TSharedRef FromString(TString str, TRefCountedTypeCookie tagCookie);
+
+    //! Creates a TSharedRef from std::string.
+    //! No data is being copied in #FromString itself but since #str is passed by value
+    //! a copy may occur at caller's side.
+    //! The memory is marked with a given tag.
+    template <class TTag>
+    static TSharedRef FromString(std::string str);
+
+    //! Same as above but the memory is marked with TDefaultSharedBlobTag.
+    static TSharedRef FromString(std::string str);
+
+    //! Same as above but the memory tag is specified in #tagCookie.
+    static TSharedRef FromString(std::string str, TRefCountedTypeCookie tagCookie);
 
     //! Creates a TSharedRef for a given blob taking ownership of its content.
     static TSharedRef FromBlob(TBlob&& blob);
@@ -173,15 +188,30 @@ public:
 
 private:
     friend class TSharedRefArrayImpl;
+
+    template <class TString>
+    static TSharedRef FromStringImpl(TString str, TRefCountedTypeCookie tagCookie);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//! Various options for allocating TSharedMutableRef.
+//! Various options for allocating TSharedMutableRef via malloc.
 struct TSharedMutableRefAllocateOptions
 {
+    //! If true, the storage is zero-initialized; otherwise its contents are undefined.
     bool InitializeStorage = true;
+    //! If true, the allocation is extended to the usable size reported by the allocator.
     bool ExtendToUsableSize = false;
+};
+
+//! Various options for allocating TSharedMutableRef via mmap.
+struct TSharedMutableRefAllocateViaMmapOptions
+{
+    //! See TSharedMutableRefAllocateOptions::InitializeStorage.
+    bool InitializeStorage = true;
+    //! Hints the kernel to back the region with transparent huge pages.
+    //! Best-effort; ignored on non-Linux systems.
+    bool UseThp = false;
 };
 
 //! A reference to a mutable range of memory with shared ownership.
@@ -244,6 +274,27 @@ public:
     //! The memory is marked with a given tag.
     static TSharedMutableRef AllocatePageAligned(size_t size, TSharedMutableRefAllocateOptions options, TRefCountedTypeCookie tagCookie);
 
+    //! Allocates a new shared block of memory backed by an anonymous mmap region.
+    //! Optionally requests transparent huge pages; see #UseThp.
+    //! Falls back to AllocatePageAligned on non-Linux systems.
+    //! The memory is marked with a given tag.
+    template <class TTag>
+    static TSharedMutableRef AllocateViaMmap(size_t size, TSharedMutableRefAllocateViaMmapOptions options = {});
+
+    //! Allocates a new shared block of memory backed by an anonymous mmap region.
+    //! The memory is marked with TDefaultSharedBlobTag.
+    static TSharedMutableRef AllocateViaMmap(size_t size, TSharedMutableRefAllocateViaMmapOptions options = {});
+
+    //! Allocates a new shared block of memory backed by an anonymous mmap region.
+    //! The memory is marked with a given tag.
+    static TSharedMutableRef AllocateViaMmap(size_t size, TSharedMutableRefAllocateViaMmapOptions options, TRefCountedTypeCookie tagCookie);
+
+    //! Allocates a new aligned shared block of memory.
+    //! #size must be divisible by alignment size.
+    //! The memory is marked with a given tag.
+    //! Unlike AllocatePageAligned, this method also stores size_t inside holder.
+    static TSharedMutableRef AllocateAligned(size_t size, size_t alignment, TSharedMutableRefAllocateOptions options, TRefCountedTypeCookie tagCookie);
+
     //! Creates a TSharedMutableRef for the whole blob taking ownership of its content.
     static TSharedMutableRef FromBlob(TBlob&& blob);
 
@@ -289,7 +340,7 @@ public:
     TSharedRefArray(TParts&& parts, TMoveParts);
 
     TSharedRefArray& operator = (const TSharedRefArray& other);
-    TSharedRefArray& operator = (TSharedRefArray&& other);
+    TSharedRefArray& operator = (TSharedRefArray&& other) noexcept;
 
     explicit operator bool() const;
 
@@ -310,6 +361,9 @@ public:
     //! Creates a copy of a given TSharedRefArray.
     //! The memory is marked with a given tag.
     static TSharedRefArray MakeCopy(const TSharedRefArray& array, TRefCountedTypeCookie tagCookie);
+
+    //! Checks if #lhs and #rhs consist of the same number of bitwise-equal parts.
+    static bool AreBitwiseEqual(const TSharedRefArray& lhs, const TSharedRefArray& rhs);
 
 private:
     friend class TSharedRefArrayBuilder;
@@ -343,7 +397,7 @@ public:
      *  The user must provide the total (resulting) part count in #size.
      *
      *  Additionally, the user may request a certain memory pool of size #poolCapacity
-     *  to be created. Parts occupiying space in the above pool are created with #AllocateAndAdd
+     *  to be created. Parts occupying space in the above pool are created with #AllocateAndAdd
      *  calls.
      *
      *  The pool (if any) and the array are created within a single memory allocation tagged with
@@ -406,6 +460,12 @@ size_t GetByteSize(const std::vector<T>& parts);
 #include "ref-inl.h"
 #undef REF_INL_H_
 
-//! Serialize TSharedRef like vector<char>. Useful for ::Save, ::Load serialization/deserialization. See util/ysaveload.h.
+//! Serialize TSharedRef like vector<char>.
+/*!
+ *  Useful for ::Save, ::Load serialization/deserialization.
+ *  See util/ysaveload.h.
+ */
 template <>
-class TSerializer<NYT::TSharedRef>: public TVectorSerializer<NYT::TSharedRange<char>> {};
+class TSerializer<NYT::TSharedRef>
+    : public TVectorSerializer<NYT::TSharedRange<char>>
+{ };

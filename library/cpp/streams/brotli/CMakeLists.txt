@@ -15,7 +15,6 @@ _ydb_sdk_add_library(streams-brotli)
 target_link_libraries(streams-brotli
   PUBLIC
     yutil
-  PRIVATE
     Brotli::enc
     Brotli::dec
 )

@@ -18,9 +18,9 @@ namespace NMaybe {
     struct TPolicyUndefinedFail {
         [[noreturn]] static void OnEmpty(const std::type_info& valueTypeInfo);
     };
-}
+} // namespace NMaybe
 
-struct TNothing {
+struct [[nodiscard]] TNothing {
     explicit constexpr TNothing(int) noexcept {
     }
 };
@@ -36,7 +36,7 @@ constexpr bool operator==(TNothing, TNothing) noexcept {
 }
 
 template <class T, class Policy /*= ::NMaybe::TPolicyUndefinedExcept*/>
-class TMaybe: private TMaybeBase<T> {
+class TMaybe: private TMaybeBase<T>, private NMaybe::TMaybeSFINAEConstructorBase<T> {
 public:
     using TInPlace = NMaybe::TInPlace;
 
@@ -288,7 +288,7 @@ public:
     std::enable_if_t<TMoveAssignable<U>::value,
                      TMaybe&>
     operator=(TMaybe<U, Policy>&& right) noexcept(
-        std::is_nothrow_assignable<T&, U&&>::value&& std::is_nothrow_constructible<T, U&&>::value)
+        std::is_nothrow_assignable<T&, U&&>::value && std::is_nothrow_constructible<T, U&&>::value)
     {
         if (right.Defined()) {
             if (Defined()) {
@@ -303,8 +303,30 @@ public:
         return *this;
     }
 
-    template <typename... Args>
-    T& ConstructInPlace(Args&&... args) {
+    template <typename... Args, class = std::enable_if_t<std::is_constructible_v<T, Args...>>>
+    T& GetOrEmplace(Args&&... args) Y_LIFETIME_BOUND {
+        if (!Defined()) {
+            Init(std::forward<Args>(args)...);
+        }
+        return *Data();
+    }
+
+    template <typename... Args, class = std::enable_if_t<std::is_constructible_v<T, Args...>>>
+    T& Emplace(Args&&... args) Y_LIFETIME_BOUND {
+        Clear();
+        Init(std::forward<Args>(args)...);
+        return *Data();
+    }
+
+    template <typename... Args, class = std::enable_if_t<std::is_constructible_v<T, Args...>>>
+    T& emplace(Args&&... args) Y_LIFETIME_BOUND {
+        Clear();
+        Init(std::forward<Args>(args)...);
+        return *Data();
+    }
+
+    template <typename... Args, class = std::enable_if_t<std::is_constructible_v<T, Args...>>>
+    T& ConstructInPlace(Args&&... args) Y_LIFETIME_BOUND {
         Clear();
         Init(std::forward<Args>(args)...);
         return *Data();
@@ -858,7 +880,7 @@ constexpr bool operator>=(const U& value, const TMaybe<T, TPolicy>& maybe) {
 class IOutputStream;
 
 template <class T, class TPolicy>
-inline IOutputStream& operator<<(IOutputStream& out, const TMaybe<T, TPolicy>& maybe) {
+inline IOutputStream& operator<<(IOutputStream& out Y_LIFETIME_BOUND, const TMaybe<T, TPolicy>& maybe) {
     if (maybe.Defined()) {
         out << *maybe;
     } else {

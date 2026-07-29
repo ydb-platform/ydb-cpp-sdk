@@ -4,14 +4,50 @@
 
 #include <util/charset/wide.h>
 
+#include <string_view>
+
 Y_UNIT_TEST_SUITE(TStripStringTest) {
+    Y_UNIT_TEST(TestConstexprStrip) {
+        constexpr std::string_view stripped = StripString<std::string_view>("  \n\t abc def \r\n ");
+        static_assert(stripped == "abc def");
+
+        constexpr std::string_view strippedLeft = StripStringLeft(std::string_view("  \n abc \n "));
+        static_assert(strippedLeft == "abc \n ");
+
+        constexpr std::string_view strippedRight = StripStringRight(std::string_view("  \n abc \n "));
+        static_assert(strippedRight == "  \n abc");
+
+        constexpr std::string_view empty = StripString<std::string_view>(" \n\t\r ");
+        static_assert(empty.empty());
+
+        constexpr std::string_view unchanged = StripString<std::string_view>("abc");
+        static_assert(unchanged == "abc");
+
+        UNIT_ASSERT_VALUES_EQUAL(stripped, "abc def");
+        UNIT_ASSERT_VALUES_EQUAL(strippedLeft, "abc \n ");
+        UNIT_ASSERT_VALUES_EQUAL(strippedRight, "  \n abc");
+    }
+
+    Y_UNIT_TEST(TestConstexprCustomStrip) {
+        constexpr std::string_view stripped = StripString(std::string_view("//abc//"), EqualsStripAdapter('/'));
+        static_assert(stripped == "abc");
+
+        constexpr std::string_view strippedLeft = StripStringLeft(std::string_view("//abc//"), EqualsStripAdapter('/'));
+        static_assert(strippedLeft == "abc//");
+
+        constexpr std::string_view strippedRight = StripStringRight(std::string_view("//abc//"), EqualsStripAdapter('/'));
+        static_assert(strippedRight == "//abc");
+
+        UNIT_ASSERT_VALUES_EQUAL(stripped, "abc");
+    }
+
     struct TStripTest {
         TStringBuf Str;
         TStringBuf StripLeftRes;
         TStringBuf StripRightRes;
         TStringBuf StripRes;
     };
-    static constexpr TStripTest StripTests[] = {
+    constexpr TStripTest StripTests[] = {
         {"  012  ", "012  ", "  012", "012"},
         {"  012", "012", "  012", "012"},
         {"012\t\t", "012\t\t", "012", "012"},
@@ -22,8 +58,12 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
         {"\n \t\r", "", "", ""},
         {"", "", "", ""},
         {"abc", "abc", "abc", "abc"},
+        {"  abc  ", "abc  ", "  abc", "abc"},
         {"a c", "a c", "a c", "a c"},
         {"  long string to avoid SSO            \n", "long string to avoid SSO            \n", "  long string to avoid SSO", "long string to avoid SSO"},
+        {"  набор не-ascii букв  ", "набор не-ascii букв  ", "  набор не-ascii букв", "набор не-ascii букв"},
+        // Russian "х" ends with \x85, whis is a space character in some encodings.
+        {"последней буквой идет х ", "последней буквой идет х ", "последней буквой идет х", "последней буквой идет х"},
     };
 
     Y_UNIT_TEST(TestStrip) {
@@ -32,20 +72,23 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
 
             TString s;
             Strip(inputStr, s);
-            UNIT_ASSERT_EQUAL(s, test.StripRes);
+            UNIT_ASSERT_VALUES_EQUAL(s, test.StripRes);
 
-            UNIT_ASSERT_EQUAL(StripString(inputStr), test.StripRes);
-            UNIT_ASSERT_EQUAL(StripStringLeft(inputStr), test.StripLeftRes);
-            UNIT_ASSERT_EQUAL(StripStringRight(inputStr), test.StripRightRes);
+            UNIT_ASSERT_VALUES_EQUAL(StripString(inputStr), test.StripRes);
+            UNIT_ASSERT_VALUES_EQUAL(StripStringLeft(inputStr), test.StripLeftRes);
+            UNIT_ASSERT_VALUES_EQUAL(StripStringRight(inputStr), test.StripRightRes);
 
             TStringBuf inputStrBuf(test.Str);
-            UNIT_ASSERT_EQUAL(StripString(inputStrBuf), test.StripRes);
-            UNIT_ASSERT_EQUAL(StripStringLeft(inputStrBuf), test.StripLeftRes);
-            UNIT_ASSERT_EQUAL(StripStringRight(inputStrBuf), test.StripRightRes);
+            UNIT_ASSERT_VALUES_EQUAL(StripString(inputStrBuf), test.StripRes);
+            UNIT_ASSERT_VALUES_EQUAL(StripStringLeft(inputStrBuf), test.StripLeftRes);
+            UNIT_ASSERT_VALUES_EQUAL(StripStringRight(inputStrBuf), test.StripRightRes);
         };
     }
 
     Y_UNIT_TEST(TestStripInPlace) {
+        // On Darwin default locale is set to a value which interprets certain cyrillic utf-8 sequences as spaces.
+        // Which we do not use ::isspace and only strip ASCII spaces, we want to ensure that this will not change in the future.
+        std::setlocale(LC_ALL, "");
         for (const auto& test : StripTests) {
             TString str(test.Str);
             Y_ASSERT(str.IsDetached() || str.empty()); // prerequisite of the test; check that we don't try to modify shared COW-string in-place by accident
@@ -96,7 +139,19 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
                 StripStringLeft(TString(test.Str), EqualsStripAdapter('/')),
                 test.ResultLeft);
             UNIT_ASSERT_EQUAL(
+                StripStringLeft(TStringBuf(test.Str), EqualsStripAdapter('/')),
+                test.ResultLeft);
+            UNIT_ASSERT_EQUAL(
+                StripStringLeft(std::string_view(test.Str), EqualsStripAdapter('/')),
+                test.ResultLeft);
+            UNIT_ASSERT_EQUAL(
                 StripStringRight(TString(test.Str), EqualsStripAdapter('/')),
+                test.ResultRight);
+            UNIT_ASSERT_EQUAL(
+                StripStringRight(TStringBuf(test.Str), EqualsStripAdapter('/')),
+                test.ResultRight);
+            UNIT_ASSERT_EQUAL(
+                StripStringRight(std::string_view(test.Str), EqualsStripAdapter('/')),
                 test.ResultRight);
         };
     }
@@ -120,6 +175,16 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
                 TWtringBuf(u"/abc/"),
                 EqualsStripAdapter(u'/')),
             u"abc");
+    }
+
+    Y_UNIT_TEST(TestSelfRefStringStrip) {
+        TStringBuf sb = "  abc ";
+        StripString(sb, sb);
+        UNIT_ASSERT_EQUAL(sb, "abc");
+
+        TString str = "  abc ";
+        StripString(str, str);
+        UNIT_ASSERT_EQUAL(str, "abc");
     }
 
     Y_UNIT_TEST(TestCollapseUtf32) {
@@ -184,4 +249,4 @@ Y_UNIT_TEST_SUITE(TStripStringTest) {
         UNIT_ASSERT_EQUAL(abs2 == "Very long description string written in unknown ...", true);
         UNIT_ASSERT_EQUAL(abs3 == "Very long description string written in ...", true);
     }
-}
+} // Y_UNIT_TEST_SUITE(TStripStringTest)

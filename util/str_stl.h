@@ -30,13 +30,15 @@ namespace std {
         }
         using is_transparent = void;
     };
-}
+} // namespace std
 
 #endif
 
 namespace NHashPrivate {
     template <class T, bool needNumericHashing>
     struct THashHelper {
+        using is_default_implementation = std::true_type;
+
         inline size_t operator()(const T& t) const noexcept {
             return (size_t)t; // If you have a compilation error here, look at explanation below:
             // Probably error is caused by undefined template specialization of THash<T>
@@ -59,7 +61,7 @@ namespace NHashPrivate {
             return NHashPrivate::ComputeStringHash(s.data(), s.size());
         }
     };
-}
+} // namespace NHashPrivate
 
 template <class T>
 struct hash: public NHashPrivate::THashHelper<T, std::is_scalar<T>::value && !std::is_integral<T>::value> {
@@ -144,7 +146,7 @@ namespace NHashPrivate {
         }
     };
 
-}
+} // namespace NHashPrivate
 
 template <typename... TArgs>
 struct THash<std::tuple<TArgs...>> {
@@ -158,7 +160,7 @@ struct THash: public ::hash<T> {
 };
 
 namespace NHashPrivate {
-    template <class TFirst, class TSecond, bool IsEmpty = std::is_empty<THash<TFirst>>::value&& std::is_empty<THash<TSecond>>::value>
+    template <class TFirst, class TSecond, bool IsEmpty = std::is_empty<THash<TFirst>>::value && std::is_empty<THash<TSecond>>::value>
     struct TPairHash {
     private:
         THash<TFirst> FirstHash;
@@ -186,7 +188,7 @@ namespace NHashPrivate {
             return CombineHashes(THash<TFirstClean>()(pair.first), THash<TSecondClean>()(pair.second));
         }
     };
-}
+} // namespace NHashPrivate
 
 template <class TFirst, class TSecond>
 struct hash<std::pair<TFirst, TSecond>>: public NHashPrivate::TPairHash<TFirst, TSecond> {
@@ -216,6 +218,11 @@ struct TEqualTo<const char*> {
     inline bool operator()(const char* a, const char* b) const {
         return strcmp(a, b) == 0;
     }
+};
+
+template <>
+struct TEqualTo<std::string>: public TEqualTo<TStringBuf> {
+    using is_transparent = void;
 };
 
 template <class TFirst, class TSecond>
@@ -262,6 +269,11 @@ struct TLess<TString>: public TLess<TStringBuf> {
 };
 
 template <>
+struct TLess<std::string>: public TLess<TStringBuf> {
+    using is_transparent = void;
+};
+
+template <>
 struct TLess<TUtf16String>: public TLess<TWtringBuf> {
     using is_transparent = void;
 };
@@ -284,6 +296,11 @@ struct TGreater: public std::greater<T> {
 
 template <>
 struct TGreater<TString>: public TGreater<TStringBuf> {
+    using is_transparent = void;
+};
+
+template <>
+struct TGreater<std::string>: public TGreater<TStringBuf> {
     using is_transparent = void;
 };
 

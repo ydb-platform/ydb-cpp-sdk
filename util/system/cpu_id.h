@@ -28,6 +28,7 @@
     F(AVX512CD)               \
     F(AVX512BW)               \
     F(AVX512VL)               \
+    F(AVX512VNNI)             \
     F(AVX512VBMI)             \
     F(PREFETCHWT1)            \
     F(SHA)                    \
@@ -58,6 +59,7 @@
     F(AVX512CD)                                      \
     F(AVX512BW)                                      \
     F(AVX512VL)                                      \
+    F(AVX512VNNI)                                    \
     F(AVX512VBMI)                                    \
     F(PREFETCHWT1)                                   \
     F(SHA)                                           \
@@ -152,6 +154,6 @@ namespace NX86 {
 
 #undef Y_LOOKUP_CPU_ID_IMPL
 
-}
+} // namespace NX86
 
 const char* CpuBrand(ui32 store[12]) noexcept;

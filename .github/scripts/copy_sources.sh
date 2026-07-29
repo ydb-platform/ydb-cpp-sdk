@@ -1,10 +1,158 @@
 #!/bin/bash
+set -euo pipefail
 
 tmp_dir=$(mktemp -d)
 
+sync_upstream_tree() {
+    local upstream_repo=$1
+    local oss_repo=$2
+    local destination_root=$3
+    local tree=$4
+    local mode=${5:-full}
+    local previous_commit
+    local current_commit
+    local merge_dir
+    local status
+    local path
+    local new_path
+    local local_file
+    local local_target
+    local base_file
+    local upstream_file
+    local merged_file
+    local conflicts=0
+
+    previous_commit=$(cat "$oss_repo/.github/last_commit.txt")
+    current_commit=$(git -C "$upstream_repo" rev-parse HEAD)
+    merge_dir=$(mktemp -d "$tmp_dir/upstream-merge.XXXXXX")
+
+    if ! git -C "$upstream_repo" merge-base --is-ancestor "$previous_commit" "$current_commit"; then
+        echo "Cannot sync $tree: $previous_commit is not an ancestor of $current_commit" >&2
+        return 1
+    fi
+
+    while IFS=$'\t' read -r status path new_path; do
+        [ -n "$path" ] || continue
+
+        # Standalone builds use CMake and deliberately do not import Arcadia build files.
+        if [ "$(basename "$path")" = "ya.make" ] ||
+            { [ -n "${new_path:-}" ] && [ "$(basename "$new_path")" = "ya.make" ]; }; then
+            continue
+        fi
+
+        local_file="$destination_root/$path"
+        base_file="$merge_dir/base"
+        upstream_file="$merge_dir/upstream"
+        merged_file="$merge_dir/merged"
+
+        case "$status" in
+            R*)
+                local_target="$destination_root/$new_path"
+                if [ ! -f "$local_file" ]; then
+                    if [ "$mode" = "managed" ]; then
+                        continue
+                    fi
+                    echo "Cannot rename upstream file missing locally: $path" >&2
+                    conflicts=$((conflicts + 1))
+                    continue
+                fi
+                if [ -e "$local_target" ] && [ "$local_target" != "$local_file" ]; then
+                    echo "Cannot rename upstream file onto existing local file: $new_path" >&2
+                    conflicts=$((conflicts + 1))
+                    continue
+                fi
+
+                git -C "$upstream_repo" show "$previous_commit:$path" > "$base_file"
+                git -C "$upstream_repo" show "$current_commit:$new_path" > "$upstream_file"
+                mkdir -p "$(dirname "$local_target")"
+
+                if cmp -s "$local_file" "$base_file"; then
+                    cp "$upstream_file" "$local_target"
+                elif git merge-file -p "$local_file" "$base_file" "$upstream_file" > "$merged_file"; then
+                    cp "$merged_file" "$local_target"
+                else
+                    echo "Cannot merge renamed upstream and standalone changes: $path -> $new_path" >&2
+                    conflicts=$((conflicts + 1))
+                    continue
+                fi
+
+                if [ "$local_target" != "$local_file" ]; then
+                    rm "$local_file"
+                fi
+                ;;
+            A)
+                if [ "$mode" = "managed" ] && [ ! -d "$(dirname "$local_file")" ]; then
+                    continue
+                fi
+                if [ ! -e "$local_file" ]; then
+                    mkdir -p "$(dirname "$local_file")"
+                    git -C "$upstream_repo" show "$current_commit:$path" > "$local_file"
+                else
+                    git -C "$upstream_repo" show "$current_commit:$path" > "$upstream_file"
+                    if ! cmp -s "$local_file" "$upstream_file"; then
+                        echo "Cannot import added upstream file modified locally: $path" >&2
+                        conflicts=$((conflicts + 1))
+                    fi
+                fi
+                ;;
+            D)
+                if [ -e "$local_file" ]; then
+                    git -C "$upstream_repo" show "$previous_commit:$path" > "$base_file"
+                    if cmp -s "$local_file" "$base_file"; then
+                        rm "$local_file"
+                    else
+                        echo "Cannot delete upstream file modified locally: $path" >&2
+                        conflicts=$((conflicts + 1))
+                    fi
+                fi
+                ;;
+            M)
+                if [ ! -f "$local_file" ]; then
+                    if [ "$mode" = "managed" ]; then
+                        continue
+                    fi
+                    echo "Cannot update upstream file missing locally: $path" >&2
+                    conflicts=$((conflicts + 1))
+                    continue
+                fi
+
+                git -C "$upstream_repo" show "$previous_commit:$path" > "$base_file"
+                git -C "$upstream_repo" show "$current_commit:$path" > "$upstream_file"
+
+                if cmp -s "$local_file" "$upstream_file"; then
+                    continue
+                fi
+
+                if cmp -s "$local_file" "$base_file"; then
+                    cp "$upstream_file" "$local_file"
+                    continue
+                fi
+
+                if git merge-file -p "$local_file" "$base_file" "$upstream_file" > "$merged_file"; then
+                    cp "$merged_file" "$local_file"
+                else
+                    echo "Cannot merge upstream and standalone changes: $path" >&2
+                    conflicts=$((conflicts + 1))
+                fi
+                ;;
+            *)
+                echo "Unsupported upstream change '$status' for $path" >&2
+                conflicts=$((conflicts + 1))
+                ;;
+        esac
+    done < <(git -C "$upstream_repo" diff --name-status --find-renames "$previous_commit..$current_commit" -- "$tree")
+
+    rm -rf "$merge_dir"
+
+    if [ "$conflicts" -ne 0 ]; then
+        echo "Failed to import $tree: $conflicts conflicting change(s)" >&2
+        return 1
+    fi
+}
+
 echo "Copying sources..."
 
-cp -r $1/ydb/public/sdk/cpp/* $tmp_dir
+cp -r "$1"/ydb/public/sdk/cpp/* "$tmp_dir"
 echo "tmp_dir: $tmp_dir"
 
 rm -r $tmp_dir/src/client/arrow
@@ -48,6 +196,13 @@ cp -r $2/scripts $tmp_dir
 cp -r $2/third_party $tmp_dir
 cp -r $2/tools $tmp_dir
 
+sync_upstream_tree "$1" "$2" "$tmp_dir" util
+sync_upstream_tree "$1" "$2" "$tmp_dir" library/cpp managed
+sync_upstream_tree "$1" "$2" "$tmp_dir" contrib/libs/libc_compat managed
+sync_upstream_tree "$1" "$2" "$tmp_dir" contrib/libs/lzmasdk managed
+sync_upstream_tree "$1" "$2" "$tmp_dir" tools/enum_parser managed
+sync_upstream_tree "$1" "$2" "$tmp_dir" tools/rescompiler managed
+
 cp $2/.gitignore $tmp_dir
 cp $2/.gitmodules $tmp_dir
 cp $2/CMakePresets.json $tmp_dir
@@ -63,6 +218,7 @@ for oss_test_dir in slo_workloads deb_package; do
 done
 
 cp $2/include/ydb-cpp-sdk/type_switcher.h $tmp_dir/include/ydb-cpp-sdk/type_switcher.h
+cp $2/include/ydb-cpp-sdk/stlfwd.h $tmp_dir/include/ydb-cpp-sdk/stlfwd.h
 cp $2/src/version.h $tmp_dir/src/version.h
 
 cd $2

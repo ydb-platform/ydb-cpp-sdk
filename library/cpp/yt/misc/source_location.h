@@ -10,12 +10,15 @@ namespace NYT {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class TStringBuilderBase;
+template <size_t N>
+struct TSourceLocationLite
+{
+    char FileName[N + 1];
+    i64 Line;
+};
 
-// TODO(dgolear): Drop when LLVM-14 is eradicated.
-#ifdef __cpp_lib_source_location
-void FormatValue(TStringBuilderBase* builder, const std::source_location& location, TStringBuf /*spec*/);
-#endif // __cpp_lib_source_location
+template <size_t N>
+consteval TSourceLocationLite<N> MakeSourceLocationLite(const char* fileName, i64 line);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,6 +30,9 @@ public:
 #ifdef __cpp_lib_source_location
     explicit TSourceLocation(const std::source_location& location);
 #endif // __cpp_lib_source_location
+
+    template <auto LocationLite>
+    static TSourceLocation FromLite();
 
     const char* GetFileName() const;
     int GetLine() const;
@@ -40,14 +46,21 @@ private:
     int Line_ = -1;
 };
 
+#ifdef __cpp_lib_source_location
+#define YT_CURRENT_SOURCE_LOCATION_LITE \
+    ::NYT::MakeSourceLocationLite<std::char_traits<char>::length(std::source_location::current().file_name())>( \
+        std::source_location::current().file_name(), \
+        std::source_location::current().line())
+#else
+#define YT_CURRENT_SOURCE_LOCATION_LITE ::NYT::MakeSourceLocationLite<std::char_traits<char>::length(__FILE__)>(__FILE__, __LINE__)
+#endif // __cpp_lib_source_location
+
 //! Defines a macro to record the current source location.
 #ifdef __cpp_lib_source_location
 #define YT_CURRENT_SOURCE_LOCATION ::NYT::TSourceLocation(std::source_location::current())
 #else
 #define YT_CURRENT_SOURCE_LOCATION ::NYT::TSourceLocation(__FILE__, __LINE__)
 #endif // __cpp_lib_source_location
-
-void FormatValue(TStringBuilderBase* builder, const TSourceLocation& location, TStringBuf spec);
 
 ////////////////////////////////////////////////////////////////////////////////
 
