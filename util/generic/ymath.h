@@ -73,8 +73,6 @@ static inline bool IsFinite(double f) {
     return isfinite(f);
 #elif defined(__GNUC__)
     return __builtin_isfinite(f);
-#elif defined(_STLP_VENDOR_STD)
-    return _STLP_VENDOR_STD::isfinite(f);
 #else
     return std::isfinite(f);
 #endif
@@ -193,7 +191,7 @@ namespace NUtilMathPrivate {
             return (x % y) ? (quot + 1) : quot;
         }
     };
-}
+} // namespace NUtilMathPrivate
 
 /**
  * @returns Equivalent to ceil((double) x / (double) y) but using only integer arithmetic operations

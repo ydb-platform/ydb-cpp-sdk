@@ -100,7 +100,6 @@ util/generic/algorithm.h
 util/generic/array_size.h
 util/generic/array_ref.h
 util/generic/bitops.h
-util/generic/bt_exception.h
 util/generic/buffer.h
 util/generic/cast.h
 util/generic/deque.h
@@ -113,6 +112,7 @@ util/generic/hash_table.h
 util/generic/hash.h
 util/generic/intrlist.h
 util/generic/is_in.h
+util/generic/iterator.h
 util/generic/iterator_range.h
 util/generic/list.h
 util/generic/map.h
@@ -149,7 +149,6 @@ util/network/ip.h
 util/network/sock.h
 util/network/socket.h
 util/random/random.h
-util/stream/debug.h
 util/stream/fwd.h
 util/stream/input.h
 util/stream/labeled.h

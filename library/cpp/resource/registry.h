@@ -3,9 +3,10 @@
 #include <util/generic/string.h>
 #include <util/generic/strbuf.h>
 
-#include "resource.h"
-
 namespace NResource {
+    struct TResource;
+
+
     TString Compress(const TStringBuf data);
     TString Decompress(const TStringBuf data);
 
@@ -31,4 +32,7 @@ namespace NResource {
     struct TRegHelper {
         TRegHelper(const TStringBuf key, const TStringBuf data);
     };
+
+    int LightRegisterS(const char* key, const char* data, unsigned long data_len);
+    int LightRegisterI(const char* key, const char* data, const char* data_end);
 }

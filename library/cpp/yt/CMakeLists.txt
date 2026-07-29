@@ -71,9 +71,11 @@ target_link_libraries(yt-memory
     yt-assert
     yt-misc
     yt-malloc
+    yt-system
 )
 target_sources(yt-memory
   PRIVATE
+    memory/allocation_tags_hooks.cpp
     memory/blob.cpp
     memory/chunked_input_stream.cpp
     memory/chunked_memory_allocator.cpp
@@ -81,10 +83,13 @@ target_sources(yt-memory
     memory/chunked_memory_pool_output.cpp
     memory/chunked_output_stream.cpp
     memory/memory_tag.cpp
+    memory/new.cpp
+    memory/poison.cpp
     memory/ref.cpp
     memory/ref_tracked.cpp
     memory/safe_memory_reader.cpp
     memory/shared_range.cpp
+    memory/simple_memory_usage_tracker.cpp
 )
 if (NOT WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(yt-memory PRIVATE
@@ -109,21 +114,34 @@ target_sources(yt-misc
   PRIVATE
     misc/guid.cpp
     misc/source_location.cpp
-    misc/thread_name.cpp
-    misc/variant.cpp
 )
 _ydb_sdk_install_targets(TARGETS yt-misc)
 
 
-_ydb_sdk_add_library(yt-small_containers INTERFACE)
-target_link_libraries(yt-small_containers 
+_ydb_sdk_add_library(yt-system)
+target_link_libraries(yt-system
+  PUBLIC
+    yutil
+    yt-exception
+    yt-misc
+)
+target_sources(yt-system
+  PRIVATE
+    system/exit.cpp
+    system/thread_name.cpp
+)
+_ydb_sdk_install_targets(TARGETS yt-system)
+
+
+_ydb_sdk_add_library(yt-compact_containers INTERFACE)
+target_link_libraries(yt-compact_containers
   INTERFACE
     yutil
     yt-assert
     yt-malloc
     yt-misc
 )
-_ydb_sdk_install_targets(TARGETS yt-small_containers)
+_ydb_sdk_install_targets(TARGETS yt-compact_containers)
 
 
 _ydb_sdk_add_library(yt-string)
@@ -138,15 +156,18 @@ target_link_libraries(yt-string
     yt-assert
     yt-exception
     yt-misc
-    yt-small_containers
+    yt-compact_containers
     yt-containers
 )
 target_sources(yt-string
   PRIVATE
     string/enum.cpp
+    string/format_string.cpp
     string/guid.cpp
     string/string.cpp
     string/format.cpp
+    string/string_builder.cpp
+    string/stream.cpp
 )
 _ydb_sdk_install_targets(TARGETS yt-string)
 
@@ -172,6 +193,7 @@ _ydb_sdk_add_library(yt-yson_string)
 target_link_libraries(yt-yson_string
   PUBLIC
     yutil
+    containers-cow_string
     yt-exception
     yt-string
     yt-memory

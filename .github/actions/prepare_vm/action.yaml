@@ -39,9 +39,9 @@ runs:
 
         wget https://apt.llvm.org/llvm.sh
         chmod u+x llvm.sh
-        sudo ./llvm.sh 17
-        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-17 10000
-        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-17 10000
+        sudo ./llvm.sh 18
+        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-18 10000
+        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-18 10000
 
         # Install abseil-cpp
         wget -O abseil-cpp-20230802.0.tar.gz https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.0.tar.gz

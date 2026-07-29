@@ -11,6 +11,8 @@
 
 #include <array>
 
+#include <util/string/escape.h>
+
 #include <util/stream/mem.h>
 
 namespace NYT::NYson {
@@ -63,6 +65,12 @@ TYsonString ConvertToYsonString<ui64>(const ui64& value)
 
 template <>
 TYsonString ConvertToYsonString<TString>(const TString& value)
+{
+    return ConvertToYsonString(static_cast<TStringBuf>(value));
+}
+
+template <>
+TYsonString ConvertToYsonString<std::string>(const std::string& value)
 {
     return ConvertToYsonString(static_cast<TStringBuf>(value));
 }
@@ -300,6 +308,17 @@ template <>
 TString ConvertFromYsonString<TString>(const TYsonStringBuf& str)
 {
     try {
+        return ParseStringFromYsonString(str);
+    } catch (const std::exception& ex) {
+        throw TYsonLiteralParseException(ex, "Error parsing \"string\" value from YSON");
+    }
+}
+
+template <>
+std::string ConvertFromYsonString<std::string>(const TYsonStringBuf& str)
+{
+    try {
+        // TODO(sabdenovch): Avoid copying.
         return ParseStringFromYsonString(str);
     } catch (const std::exception& ex) {
         throw TYsonLiteralParseException(ex, "Error parsing \"string\" value from YSON");

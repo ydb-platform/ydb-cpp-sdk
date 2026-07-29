@@ -11,6 +11,7 @@ target_link_libraries(monlib-dynamic_counters
     monlib-encode-json
     monlib-encode-spack
     monlib-encode-prometheus
+    html-escape
     string_utils-quote
 )
 target_sources(monlib-dynamic_counters

@@ -22,6 +22,8 @@ namespace NJson {
 #ifndef DISABLE_JSON_ESCAPE
         bool AllowEscapedApostrophe = false;
 #endif
+        // Allow to read Nan and Inf as integer values
+        bool AllowReadNanInf = false;
 
         ui64 MaxDepth = 0;
 
@@ -32,6 +34,11 @@ namespace NJson {
         size_t BufferSize;
     };
 
+    /*
+      The return value of the following functions indicates whether the JSON parsing is successful
+      unless 'throwOnError' parameter is set to 'true'.
+      In the latter case TJsonException is thrown in case of parsing errors.
+    */
     bool ReadJsonTree(TStringBuf in, TJsonValue* out, bool throwOnError = false);
     bool ReadJsonTree(TStringBuf in, bool allowComments, TJsonValue* out, bool throwOnError = false);
     bool ReadJsonTree(TStringBuf in, const TJsonReaderConfig* config, TJsonValue* out, bool throwOnError = false);
@@ -40,10 +47,18 @@ namespace NJson {
     bool ReadJsonTree(IInputStream* in, bool allowComments, TJsonValue* out, bool throwOnError = false);
     bool ReadJsonTree(IInputStream* in, const TJsonReaderConfig* config, TJsonValue* out, bool throwOnError = false);
 
+    /*
+      In case of parsing errors the behavior of the following functions will be:
+        If 'throwOnError' parameter is set to 'true' then TJsonException is thrown.
+        Otherwise an error is not reported and the return value is undefined.
+    */
     TJsonValue ReadJsonTree(IInputStream* in, bool throwOnError = false);
     TJsonValue ReadJsonTree(IInputStream* in, bool allowComments, bool throwOnError);
     TJsonValue ReadJsonTree(IInputStream* in, const TJsonReaderConfig* config, bool throwOnError = false);
 
+    /*
+      The return value of the following functions indicates whether the JSON parsing is successful
+    */
     bool ReadJson(IInputStream* in, TJsonCallbacks* callbacks);
     bool ReadJson(IInputStream* in, bool allowComments, TJsonCallbacks* callbacks);
 #ifndef DISABLE_JSON_ESCAPE
@@ -52,6 +67,7 @@ namespace NJson {
     bool ReadJson(IInputStream* in, const TJsonReaderConfig* config, TJsonCallbacks* callbacks);
 
     enum ReaderConfigFlags {
+        NANINF = 0b10000,
         ITERATIVE = 0b1000,
         COMMENTS = 0b0100,
         VALIDATE = 0b0010,
@@ -60,6 +76,11 @@ namespace NJson {
 #endif
     };
 
+    /*
+      The return value of the following functions indicates whether the JSON parsing is successful
+      unless 'throwOnError' parameter is set to 'true'.
+      In the latter case TJsonException is thrown in case of parsing errors.
+    */
     inline bool ValidateJson(IInputStream* in, const TJsonReaderConfig* config, bool throwOnError = false) {
         TJsonCallbacks c(throwOnError);
         return ReadJson(in, config, &c);
@@ -70,6 +91,9 @@ namespace NJson {
         return ValidateJson(&min, &config, throwOnError);
     }
 
+    /*
+      The following functions return 'true' if the JSON parsing is successful or throw TJsonException otherwise.
+    */
     inline bool ValidateJsonThrow(IInputStream* in, const TJsonReaderConfig* config) {
         return ValidateJson(in, config, true);
     }
@@ -137,4 +161,4 @@ namespace NJson {
     //// relaxed json, used in library/cpp/scheme
     bool ReadJsonFastTree(TStringBuf in, TJsonValue* out, bool throwOnError = false, bool notClosedBracketIsError = false);
     TJsonValue ReadJsonFastTree(TStringBuf in, bool notClosedBracketIsError = false);
-}
+} // namespace NJson

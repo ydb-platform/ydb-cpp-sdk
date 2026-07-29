@@ -45,6 +45,7 @@ if (YDB_SDK_TESTS)
       folder/iterator_ut.cpp
       folder/path_ut.cpp
       folder/pathsplit_ut.cpp
+      folder/tempdir_ut.cpp
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
@@ -66,7 +67,7 @@ if (YDB_SDK_TESTS)
       generic/buffer_ut.cpp
       generic/cast_ut.cpp
       generic/deque_ut.cpp
-      generic/enum_range_ut.cpp
+      generic/enum_cast_ut.cpp
       generic/explicit_type_ut.cpp
       generic/flags_ut.cpp
       generic/function_ref_ut.cpp
@@ -109,8 +110,15 @@ if (YDB_SDK_TESTS)
     LINK_LIBRARIES
       yutil
       cpp-testing-unittest_main
+      enum_serialization_runtime
+      case_insensitive_string
     LABELS
       unit
+  )
+  generate_enum_serilization(util-generic-ut
+    ${YDB_SDK_SOURCE_DIR}/util/generic/enum_cast_ut.h
+    INCLUDE_HEADERS
+    util/generic/enum_cast_ut.h
   )
 
   add_ydb_test(NAME util-generic-yexception_ut
@@ -209,6 +217,7 @@ if (YDB_SDK_TESTS)
       stream/length_ut.cpp
       stream/mem_ut.cpp
       stream/multi_ut.cpp
+      stream/output_ut.cpp
       stream/printf_ut.cpp
       stream/str_ut.cpp
       stream/tokenizer_ut.cpp
@@ -256,12 +265,14 @@ if (YDB_SDK_TESTS)
       system/backtrace_ut.cpp
       system/byteorder_ut.cpp
       system/compat_ut.cpp
+      system/compiler_ut.c
       system/compiler_ut.cpp
       system/condvar_ut.cpp
       system/context_ut.cpp
       system/cpu_id_ut.cpp
       system/daemon_ut.cpp
       system/datetime_ut.cpp
+      system/defaults_ut.c
       system/direct_io_ut.cpp
       system/env_ut.cpp
       system/error_ut.cpp
@@ -381,6 +392,17 @@ if (YDB_SDK_TESTS)
     LABELS
       unit
   )
+
+  add_ydb_test(NAME util-ut
+    SOURCES
+      ysafeptr_ut.cpp
+      ysaveload_ut.cpp
+    LINK_LIBRARIES
+      yutil
+      cpp-testing-unittest_main
+    LABELS
+      unit
+  )
 endif(YDB_SDK_TESTS)
 
 _ydb_sdk_add_library(yutil)
@@ -447,10 +469,10 @@ target_joined_source(yutil
   ${YDB_SDK_SOURCE_DIR}/util/generic/array_size.cpp
   ${YDB_SDK_SOURCE_DIR}/util/generic/bitmap.cpp
   ${YDB_SDK_SOURCE_DIR}/util/generic/bitops.cpp
-  ${YDB_SDK_SOURCE_DIR}/util/generic/bt_exception.cpp
   ${YDB_SDK_SOURCE_DIR}/util/generic/buffer.cpp
   ${YDB_SDK_SOURCE_DIR}/util/generic/cast.cpp
   ${YDB_SDK_SOURCE_DIR}/util/generic/deque.cpp
+  ${YDB_SDK_SOURCE_DIR}/util/generic/enum_cast.cpp
   ${YDB_SDK_SOURCE_DIR}/util/generic/explicit_type.cpp
   ${YDB_SDK_SOURCE_DIR}/util/generic/fastqueue.cpp
   ${YDB_SDK_SOURCE_DIR}/util/generic/flags.cpp
@@ -552,7 +574,6 @@ target_joined_source(yutil
   ${YDB_SDK_SOURCE_DIR}/util/stream/aligned.cpp
   ${YDB_SDK_SOURCE_DIR}/util/stream/buffer.cpp
   ${YDB_SDK_SOURCE_DIR}/util/stream/buffered.cpp
-  ${YDB_SDK_SOURCE_DIR}/util/stream/debug.cpp
   ${YDB_SDK_SOURCE_DIR}/util/stream/direct_io.cpp
   ${YDB_SDK_SOURCE_DIR}/util/stream/file.cpp
   ${YDB_SDK_SOURCE_DIR}/util/stream/format.cpp
@@ -606,7 +627,6 @@ target_joined_source(yutil
   ${YDB_SDK_SOURCE_DIR}/util/system/condvar.cpp
   ${YDB_SDK_SOURCE_DIR}/util/system/daemon.cpp
   ${YDB_SDK_SOURCE_DIR}/util/system/datetime.cpp
-  ${YDB_SDK_SOURCE_DIR}/util/system/defaults.c
   ${YDB_SDK_SOURCE_DIR}/util/system/direct_io.cpp
   ${YDB_SDK_SOURCE_DIR}/util/system/dynlib.cpp
   ${YDB_SDK_SOURCE_DIR}/util/system/env.cpp
@@ -663,6 +683,7 @@ target_joined_source(yutil
   ${YDB_SDK_SOURCE_DIR}/util/system/sys_alloc.cpp
   ${YDB_SDK_SOURCE_DIR}/util/system/sysstat.cpp
   ${YDB_SDK_SOURCE_DIR}/util/system/tempfile.cpp
+  ${YDB_SDK_SOURCE_DIR}/util/system/thread.cpp
   ${YDB_SDK_SOURCE_DIR}/util/system/tls.cpp
   ${YDB_SDK_SOURCE_DIR}/util/system/type_name.cpp
   ${YDB_SDK_SOURCE_DIR}/util/system/unaligned_mem.cpp
@@ -676,7 +697,6 @@ target_joined_source(yutil
   all_system_4.cpp
   ${YDB_SDK_SOURCE_DIR}/util/system/mem_info.cpp
   ${YDB_SDK_SOURCE_DIR}/util/system/sem.cpp
-  ${YDB_SDK_SOURCE_DIR}/util/system/thread.cpp
   ${YDB_SDK_SOURCE_DIR}/util/system/types.cpp
 )
 
