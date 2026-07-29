@@ -1,5 +1,5 @@
 # Odbc driver
-Odbc is a database connection layer, which gives users the opportunity to execute sql and interact with a database using a standardised C ABI. This document regulates how should the odbc driver for YDB be implemented, which functionality it is supposed to cover, performance issues and the acceptance criteria.
+Odbc is a database connection layer, which gives users the opportunity to execute sql and interact with a database using a standardised C ABI. This document regulates how should the odbc driver for YDB be implemented, which functionality it is supposed to cover and the acceptance criteria.
 
 ## Goal
 
@@ -11,10 +11,10 @@ Languages with a maintained native YDB SDK are excluded because their native SDK
 
 - Every selected language has exactly one primary ODBC framework or binding, a pinned upstream revision, a reproducible YDB patch series, an Allure test result set and a repository-owned example application.
 - Every upstream database test that exists is either executed, patched with a documented YDB-specific reason, or listed explicitly as not applicable; tests must never disappear silently.
-- Framework patches may adapt database assumptions to YDB, but they must not change the framework implementation or weaken assertions for ODBC behavior that the driver advertises.
-- The existing driver unit, integration and conformance suites continue to pass.
+- Framework implementation sources remain identical to the pinned upstream revision; YDB-specific changes are confined to test setup, fixtures and database adapters while preserving the original ODBC assertions.
+- The existing driver unit and integration suites continue to pass.
+- Driver-owned forward-only and static cursors provide standard ODBC fetch, scrolling, rowset binding and chunked-data behavior over YDB query results.
 - Multiple independent ODBC connections can target different YDB databases and hosts without sharing sessions, transactions, credentials or catalog state.
-- PHP PDO_ODBC performance does not regress relative to the pinned native PHP SDK. The target is for PDO_ODBC to outperform the deprecated SDK on equivalent operations.
 
 ## Language and framework matrix
 
@@ -42,13 +42,11 @@ The matrix is intentionally open-ended. A new language should be added whenever 
 | Expansion | Smalltalk | [Pharo-ODBC](https://github.com/pharo-rdbms/Pharo-ODBC) | Upstream SUnit tests | Headless Pharo example using connection, statement and result objects |
 | Expansion | Fortran | [`odbc.f`](https://davidpfister.github.io/odbc.f/) | Upstream fpm tests when present; otherwise the shared contract | Fortran application using connection, result-set and column-set objects |
 
-Core jobs run on every pull request once their baseline is stable. Expansion jobs run nightly while being onboarded and are promoted to the pull-request matrix after they produce deterministic results. Adding a new language requires one matrix row, not a second framework for a language already represented.
+Core and Expansion jobs run only after changes are merged into `odbc-driver-feature` and when a tag is pushed. They do not run for pull requests or on a nightly schedule. Adding a new language requires one matrix row, not a second framework for a language already represented.
 
 ## YDB compatibility policy
 
-YDB requires a primary key for every table. The ODBC driver must not synthesize keys, inject hidden columns, rewrite application DML to maintain hidden values or hide physical columns from metadata. Applications using YDB are responsible for providing a sound key, and framework test fixtures should be patched to do the same.
-
-YDB and YQL also differ from other relational databases in namespace structure, supported types, DDL, common-table-expression syntax, stored procedures, identity columns, result-set capabilities and transaction modes. These differences should be handled either by a semantics-preserving driver feature or by an explicit framework test patch when the test encodes a database-specific assumption rather than an ODBC requirement.
+The driver presents standard ODBC behavior and translates it to YDB semantics. This compatibility layer covers required table keys, namespace structure, supported types, DDL, common-table-expression syntax, identity behavior, result cursors and transaction modes. Applications and ODBC frameworks use their normal public APIs without YDB-specific source changes.
 
 ## Implementation details
 
@@ -60,22 +58,38 @@ The exported ODBC C ABI should remain in `src/odbc_driver.cpp`, while connection
 
 1. Apply the existing ODBC escape translation unless `SQL_NOSCAN` is enabled.
 2. Tokenize the statement while preserving string literals, quoted identifiers, comments and parameter markers.
-3. Apply semantics-preserving YDB compatibility rewrites for common table expressions, identifiers and namespace resolution; do not change table keys or application data.
+3. Apply semantics-preserving YDB compatibility rewrites for table keys, common table expressions, identifiers and namespace resolution while preserving application-visible data.
 4. Apply the existing `?` to `$pN` rewrite and generate typed `DECLARE` statements from the bound ODBC parameters.
 5. Add the compatibility pragmas required by the statement and apply the current catalog with `TConnection::WrapQueryForCurrentCatalog()`.
 6. Execute the final YQL through the Query Service and translate YDB status and result metadata back to ODBC diagnostics and types.
 
 `SQLNativeSql` should run the same translation pipeline without executing the statement. This makes the API useful for diagnosing the exact YQL that the driver will submit and prevents it from disagreeing with `SQLPrepare` and `SQLExecDirect`.
 
-### Primary-key behavior
+### Primary-key emulation
 
-The driver should submit `CREATE TABLE` statements without inventing a physical schema. If a table has no primary key, it should return the YDB failure through the normal ODBC diagnostic chain with an appropriate SQLSTATE and the native YDB issue text. Driver tests should verify correct diagnostics, while every framework fixture patch should add a deterministic key and update its inserts and expected metadata consistently.
+For `CREATE TABLE`, the compatibility parser should preserve an explicit primary key. When the statement has no primary key, it should promote a declared non-null unique constraint or unique index to the YDB primary key. If no suitable unique key exists, it should add a collision-free UUID column such as `_ydb_odbc_row_id` as the physical YDB primary key.
+
+The generated UUID column is an internal storage detail. The driver should populate it for inserts, preserve it for updates, use it to identify rows for deletes and omit it from `SELECT *`, `SQLColumns`, `SQLPrimaryKeys`, `SQLStatistics` and result metadata. Explicit column lists, parameter counts, ordinal positions and affected-row counts remain those of the application-visible schema. One shared table-mapping record should describe the logical columns, physical columns, selected key strategy and generated-column name so DDL rewriting, DML rewriting and metadata always agree.
+
+The mapping should be recovered from YDB schema metadata and a driver-owned metadata table, allowing a new process or pooled connection to use tables created by an earlier connection. Tests should cover explicit keys, promoted composite unique keys, generated UUID keys, inserts with and without column lists, updates, deletes, `SELECT *`, aliases, metadata, reconnects and concurrent writers.
+
+### Cursor emulation
+
+YDB returns query results rather than server-side ODBC cursors. Each executed statement should therefore create a driver-owned cursor over the returned typed rows and column metadata. The cursor state machine consists of `before first`, `on row or rowset`, `after last` and `closed`; statement re-execution replaces the previous cursor, and statement close, cancellation and connection close release its resources.
+
+The Core path should implement `SQLFetch` and `SQLFetchScroll(SQL_FETCH_NEXT)` as forward movement through that cursor. A static scrollable cursor should materialize a result snapshot and implement `SQL_FETCH_FIRST`, `LAST`, `PRIOR`, `ABSOLUTE` and `RELATIVE` by changing a logical row position. `SQL_ATTR_ROW_ARRAY_SIZE`, row-wise and column-wise binding, `SQL_ATTR_ROWS_FETCHED_PTR` and row-status arrays should operate on consecutive rows beginning at that position.
+
+Rows should remain in YDB's typed representation until `SQLBindCol` or `SQLGetData` requests an ODBC C type. The cursor keeps a separate `SQLGetData` byte offset for every column of the current row, resets those offsets whenever the position changes and preserves the row until all chunked reads are complete. Cursor movement should produce the standard ODBC outcomes and diagnostics, including `SQL_NO_DATA`, `24000`, `HY010`, `HY106`, `01004` and conversion SQLSTATEs.
+
+Forward-only cursors should consume rows incrementally. Static cursors should use a bounded in-memory row store with a statement-local spill file and an index of row offsets after the memory threshold is reached. `SQL_ATTR_MAX_ROWS` limits population of either store. Explicit commit or rollback closes open cursors consistently with the advertised `SQL_CB_CLOSE` behavior.
+
+The initial advertised cursor types should be `SQL_CURSOR_FORWARD_ONLY` and read-only `SQL_CURSOR_STATIC`. `SQLSetCursorName` and `SQLGetCursorName` maintain the statement-local ODBC name. Capability reporting should be derived from the implemented fetch orientations, cursor attributes and concurrency mode. Integration tests should exercise empty and single-row results, large spilled results, every supported orientation and offset, row arrays, bound columns, chunked `SQLGetData`, truncation, nulls, re-execution, cancellation, transaction completion and multiple simultaneous statement cursors.
 
 ### WITH-clause translation
 
 The compatibility parser should translate each non-recursive CTE to a collision-free YQL named expression. It must first collect every `$identifier` in the complete query, allocate a deterministic unused name such as `$_odbc_cte_s0_n0_<hash>`, and maintain a scope-aware mapping from the ANSI relation name to that generated expression. Multiple CTEs must be emitted in dependency order, table references must be rewritten only in the correct scope, and existing declared parameters or global YQL named expressions must remain unchanged.
 
-The initial implementation must cover chained CTEs, multiple references to one CTE, nested subqueries, CTE column aliases, quoted identifiers and statements containing ODBC parameters. `WITH RECURSIVE`, data-modifying CTEs and unsupported materialization modifiers should remain explicit driver gaps until they have a semantics-preserving implementation.
+The initial implementation must cover chained CTEs, multiple references to one CTE, nested subqueries, CTE column aliases, quoted identifiers and statements containing ODBC parameters. Recursive and data-modifying CTEs form the next compatibility milestone.
 
 Tests must include keywords inside strings and comments, nested and shadowed CTE names, an existing `$cte` variable, multiple CTEs and failure diagnostics for unsupported recursive syntax.
 
@@ -85,25 +99,25 @@ The implementation should build on the current catalog support rather than intro
 
 Qualified-name resolution and metadata filters must use one shared normalizer. It must handle quoted path components, absolute and current-catalog-relative table names, repeated separators and attempts to traverse above the configured database root. `SQLTables`, `SQLColumns`, `SQLPrimaryKeys`, `SQLStatistics` and query execution must resolve the same logical name to the same physical YDB path.
 
-If an upstream suite proves that a non-empty schema is required, schema support should be implemented as a tested directory alias layer on top of this mapping; returning inconsistent schema values only to satisfy metadata assertions is not acceptable.
+Schema support should use a tested directory alias layer on top of this mapping whenever a framework requires a non-empty schema.
 
 ### Multiple databases and hosts
 
-Each `SQLHDBC` must own an endpoint, database path, credentials, TLS settings, clients, sessions, transaction and current catalog. A single `SQLHENV` may contain many independently configured connection handles targeting different databases on the same host or databases on different hosts. Statements always execute through their parent connection, and disconnecting or failing one connection must not affect another.
+Each `SQLHDBC` must own an endpoint, database path, credentials, TLS settings, clients, sessions, transaction and current catalog. A single `SQLHENV` may contain many independently configured connection handles targeting different databases on the same host or databases on different hosts. Statements always execute through their parent connection, and each connection has an independent lifecycle and failure boundary.
 
-One connection string identifies one YDB discovery endpoint and one database. A multi-node YDB database should use its discovery or load-balancer endpoint rather than exposing a host list through ODBC. Cross-connection transactions are not atomic: `SQLEndTran(SQL_HANDLE_ENV, ...)` may iterate over connections, but it must not be described as a distributed transaction.
+One connection string identifies one YDB discovery or load-balancer endpoint and one database. `SQLEndTran(SQL_HANDLE_ENV, ...)` applies commit or rollback independently to every connected `SQLHDBC` and reports the per-connection diagnostic chain.
 
-Integration tests must cover two databases on one endpoint, two endpoints, concurrent queries, independent commit/rollback, isolated credentials and catalog state, failure of one endpoint, and driver-manager pooling without returning a connection for the wrong endpoint/database pair.
+Integration tests must cover two databases on one endpoint, two endpoints, concurrent queries, independent commit/rollback, isolated credentials and catalog state, failure of one endpoint, and driver-manager pooling keyed by the complete endpoint/database/credential identity.
 
 ### YDB, YQL and driver boundaries
 
-The required physical primary key and hierarchical object namespace are YDB constraints. YQL named expressions, parameter declarations, identifier quoting and unsupported ANSI constructs are language-level constraints. Patching framework fixtures to use a valid YDB schema, implementing semantics-preserving SQL translation, mapping catalogs, preserving ODBC transaction semantics and returning correct SQLSTATE diagnostics are project responsibilities.
+The required physical primary key and hierarchical object namespace are YDB constraints. YQL named expressions, parameter declarations, identifier quoting and ANSI translation are language-level constraints. The driver compatibility layer owns key emulation, SQL translation, catalog mapping, cursor emulation, transaction behavior and SQLSTATE diagnostics.
 
-Every failing framework test should be assigned to one of these boundaries in Allure. A portable ODBC behavior should be implemented in the driver when it can be provided without falsifying YDB semantics. A database-specific fixture or assertion should be patched or marked not applicable with a precise reason. A case may be classified as server-blocked only when no sound driver implementation or fixture adaptation exists, and it must remain visible with the exact server limitation documented.
+Every failing framework test should be assigned to one of these boundaries in Allure. Portable ODBC behavior belongs in the driver compatibility layer. Database-specific setup belongs in the test fixture or database adapter. Server limitations remain visible with the exact affected behavior and YDB issue documented.
 
 ### Capability reporting
 
-`SQLGetInfo` and `SQLGetFunctions` must describe implemented behavior, not intended behavior. Each compatibility feature should therefore land with both execution tests and capability-reporting tests. Unsupported procedures, multiple result sets, scrollable cursors, asynchronous execution and batch operations must continue to report unsupported until their complete API behavior is implemented.
+`SQLGetInfo` and `SQLGetFunctions` should be generated from a tested capability registry shared with the implementation. Each compatibility feature lands with execution tests, capability-reporting tests and the corresponding registry entry.
 
 ## Framework test implementation
 
@@ -122,37 +136,35 @@ odbc/tests/frameworks/
     convert-results
     example/
 odbc/tests/reporting/
-odbc/tests/performance/php/
 ```
 
 `registry.yaml` is the source of truth for the CI matrix and records the language, framework, tier, runtime image, upstream URL, revision, archive checksum, patch directory, test command, native result format and example command. `upstream.lock` repeats the immutable source identity inside each integration directory so a language can be reproduced independently.
 
 ### Patch policy
 
-Upstream framework and binding implementation code must remain unchanged. Test files, test fixtures and test-only configuration may be patched when necessary to make the suite sound for YDB. Patches should be stored as ordered files under `<language>/patches/` and applied to a clean pinned checkout during the CI job; the repository must not maintain an opaque fork.
+Framework and binding implementation files are verified against the pinned upstream revision. YDB-specific patches are limited by path to test files, fixtures and test-only configuration, stored as ordered files under `<language>/patches/` and applied to a clean pinned checkout during the CI job.
 
 Allowed patches include:
 
-- Add explicit primary keys to fixture DDL and update fixture inserts and expected key metadata consistently.
 - Replace another database's vendor-specific setup SQL with equivalent YDB/YQL setup.
 - Use YDB-supported types where the original type is vendor-specific and the test is not testing that exact ODBC type.
 - Map flat schemas, temporary database names or database creation steps to isolated YDB directories.
 - Adapt expected database-specific error text while preserving the expected SQLSTATE class and operation outcome.
 - Mark a test not applicable when it requires a database feature YDB does not provide and the driver accurately reports that capability as unsupported.
 
-Patches must not modify the framework or binding implementation, remove tests without a manifest entry, weaken assertions for advertised ODBC behavior, replace framework calls with direct YDB calls, turn a crash/hang/data corruption failure into an expected failure, or hide a driver regression behind a YDB limitation.
+CI enforces the allowed patch paths, the pinned implementation-source checksum, the original assertion count and a manifest entry for every changed or inapplicable test. Crash, hang and data-corruption outcomes remain failures.
 
-Every patch file must have a matching manifest record containing a stable patch ID, affected upstream test IDs, category (`YDB_PRIMARY_KEY`, `YDB_NAMESPACE`, `YQL_SYNTAX`, `YDB_TYPE`, `UNSUPPORTED_CAPABILITY` or `VENDOR_SPECIFIC`), rationale and link to the relevant YDB/YQL limitation. CI must verify the upstream checksum, run `git apply --check`, apply the ordered series and publish both the patch manifest and resulting tree hash.
+Every patch file must have a matching manifest record containing a stable patch ID, affected upstream test IDs, category (`YDB_NAMESPACE`, `YQL_SYNTAX`, `YDB_TYPE`, `UNSUPPORTED_CAPABILITY` or `VENDOR_SPECIFIC`), rationale and link to the relevant YDB/YQL limitation. CI must verify the upstream checksum, run `git apply --check`, apply the ordered series and publish both the patch manifest and resulting tree hash.
 
 ### Shared test contract
 
-Frameworks with an upstream database suite run that suite after applying the reviewed patches. Frameworks without a useful upstream integration suite run a repository-owned shared contract through the public API of the selected binding. The shared contract is not a replacement for upstream tests when upstream tests exist.
+Every framework runs its upstream database suite when one exists. Bindings with incomplete upstream integration coverage additionally run a repository-owned shared contract through the selected binding's public API.
 
-The shared contract covers connection and disconnection, invalid connection diagnostics, multiple connections, direct execution, preparation and rebinding, scalar and tabular results, `NULL`, integer, floating-point, decimal, UTF-8, binary and date/time values, metadata, affected-row counts, commit, rollback, autocommit, concurrent independent connections, cleanup after errors and resource finalization. Cases for optional ODBC features run only when capability discovery reports them as supported.
+The shared contract covers connection and disconnection, invalid connection diagnostics, multiple connections, direct execution, preparation and rebinding, scalar and tabular results, forward and static cursor movement, rowset binding, chunked reads, `NULL`, integer, floating-point, decimal, UTF-8, binary and date/time values, metadata, affected-row counts, commit, rollback, autocommit, concurrent independent connections, cleanup after errors and resource finalization. Cases for optional ODBC features run when capability discovery reports them as supported.
 
 ### Example applications
 
-Every language directory must contain a small executable example and a README with exact dependency installation and run commands. The example accepts `YDB_ODBC_DSN` or `YDB_ODBC_CONNECTION_STRING`, creates an isolated table with an explicit primary key, performs a parameterized insert, reads and prints typed rows, demonstrates commit and rollback, and removes its table. It must use only the selected language framework's public API and must run in CI after the tests.
+Every language directory must contain a small executable example and a README with exact dependency installation and run commands. The example accepts `YDB_ODBC_DSN` or `YDB_ODBC_CONNECTION_STRING`, creates an isolated table with a standard non-null unique `id`, performs a parameterized insert, reads and prints typed rows through the framework's cursor, demonstrates commit and rollback, and removes its table. It must use only the selected language framework's public API and must run in CI after the tests.
 
 Examples should share the same logical `people(id, name, score, created_at)` schema while remaining idiomatic for their language. They are product artifacts, not test patches, and should be suitable for copying into user documentation.
 
@@ -166,40 +178,24 @@ Failing tests should attach the SQLSTATE chain, native YDB issue text, translate
 
 ### CI workflow
 
-A framework workflow should run for pull requests targeting `odbc-driver-feature`, pushes to that branch, nightly schedules and manual dispatches. It should build the driver once and generate its matrix from `registry.yaml`. Core languages run on every pull request; all Core and Expansion languages run nightly and on manual full-matrix requests.
+A framework workflow should run only after changes are merged into `odbc-driver-feature` and when a tag is pushed. It must not run for pull requests, direct non-merge pushes, nightly or other scheduled events, or manual dispatches. Both triggers run the complete Core and Expansion matrix generated from `registry.yaml`, with the driver built once for the workflow.
 
 Each job should start the same pinned YDB version, wait for readiness, create an isolated database prefix, register the driver in a job-local `odbcinst.ini`, fetch and verify upstream source, apply the reviewed patch series, run upstream tests, run the shared contract when required, run the example, and upload native plus Allure results even on failure. A final `if: always()` job validates manifests, merges results, builds the HTML report and publishes the raw results, rendered report, patch manifests and example logs.
 
-The baseline may contain known failures while support is being implemented, but each pull request must satisfy an incremental gate: no passing test or example regresses, no test disappears, the targeted behavior becomes passing, and upstream or patch changes are explicit. Once a language is green, its gate switches to zero failed, broken, missing or unexpected skipped cases.
+The baseline may contain known failures while support is being implemented, but each post-merge or tag run must satisfy an incremental gate: no passing test or example regresses, no test disappears, the targeted behavior becomes passing, and upstream or patch changes are explicit. Once a language is green, its gate switches to zero failed, broken, missing or unexpected skipped cases.
 
-The development loop is: inspect aggregated Allure failures, decide whether each failure is a driver defect or an unsound database assumption, add a focused driver regression test or a documented test patch, rerun the affected language and existing ODBC suites, then merge into `odbc-driver-feature`. The branch must be rebased and the applicable matrix rerun when its base advances.
-
-## Performance test implementation
-
-The PHP comparison must use one repository-owned workload implementation with two thin backends: native PHP SDK `ExecuteQuery` and PDO_ODBC. Both backends must use the same PHP runtime, YDB server, schema, seed data, query text, parameter values, connection lifetime, concurrency schedule, retry policy and result validation.
-
-The benchmark should separate operation types rather than compare unlike APIs:
-
-- Result-returning statements: native `ExecuteQuery` versus PDO `prepare`/`execute` plus the same row fetch and decoding work.
-- Non-result statements: native `ExecuteQuery` versus PDO `exec` or prepared execution with identical transaction semantics.
-- Connection setup: measured separately from steady-state execution so pooling and driver initialization costs remain visible.
-
-The workload should include point reads, parameterized range reads, inserts, updates and an explicit transaction. It should run a warm-up phase followed by at least five paired 600-second samples in alternating backend order on the same isolated runner. Rate limiting, concurrency and data-set size must be explicit inputs and recorded in the result.
-
-The workflow should publish requests per second, p50/p95/p99/p99.9 latency, error rate, retry count, CPU time per operation and peak resident memory. Each operation must validate returned row counts or affected-row counts so a faster error or empty result cannot be reported as an improvement.
-
-The regression gate should compare paired samples with confidence intervals. PHP PDO_ODBC passes when throughput is not lower and p95/p99 latency is not higher than the pinned native PHP SDK by more than the agreed tolerance; the performance target is for ODBC to outperform the deprecated SDK, but correctness and a statistically stable no-regression gate come first. Any intentional change to the SDK version, YDB version, runner class or workload invalidates the stored baseline and requires a new reviewed baseline.
+The development loop is: inspect aggregated Allure failures, decide whether each failure is a driver defect or an unsound database assumption, add a focused driver regression test or a documented test patch, and rerun the affected language and existing ODBC suites locally before merging into `odbc-driver-feature`. The full matrix runs after that merge. Tag creation runs the same matrix against the tagged revision.
 
 ## Delivery order
 
 1. Add `registry.yaml`, the framework directory template, source verification, patch verification, native-result conversion and Allure aggregation.
-2. Onboard the Core languages with pinned upstream suites, reviewed YDB patches, test manifests and runnable examples.
-3. Add the shared contract for bindings with incomplete upstream integration coverage.
-4. Extract the shared SQL compatibility pipeline, make `SQLNativeSql` use it and implement collision-safe non-recursive WITH translation.
-5. Finish catalog normalization, per-connection authentication/TLS configuration and multiple-host/multiple-database isolation tests.
-6. Onboard Expansion languages one at a time and promote each stable job into the pull-request matrix.
-7. Resolve remaining Allure failures as driver fixes or reviewed database-specific test patches, with a focused regression test or patch rationale for every change.
-8. Add the paired PHP performance workflow and establish the reviewed native-SDK baseline.
-9. Enable zero-regression gates for every stable language and the PHP performance gate on `odbc-driver-feature`.
+2. Extract the shared SQL compatibility pipeline and implement primary-key emulation, persistent logical-to-physical table mappings, `SQLNativeSql` translation and collision-safe non-recursive WITH translation.
+3. Implement driver-owned forward-only and static cursors, bounded buffering and spill, all declared fetch orientations, rowset binding and chunked `SQLGetData`.
+4. Onboard the Core languages with pinned upstream suites, reviewed YDB patches, test manifests and runnable examples.
+5. Add the shared contract for bindings with incomplete upstream integration coverage.
+6. Finish catalog normalization, per-connection authentication/TLS configuration and multiple-host/multiple-database isolation tests.
+7. Onboard Expansion languages one at a time and add each stable job to the post-merge and tag matrix.
+8. Resolve remaining Allure failures as driver fixes or reviewed database-specific test patches, with a focused regression test or patch rationale for every change.
+9. Enable zero-regression gates for every stable language in the post-merge and tag workflow.
 
-The final acceptance evidence is a commit-specific Allure report for every registered language, the original and patched upstream source identities, patch manifests, example logs, existing ODBC unit/integration/conformance results, multiple-endpoint results and the paired PHP performance report. A result is not acceptable if implementation code in a selected framework was modified, a test was omitted without a manifest record, a patch masks advertised ODBC behavior, capability reporting overstates the driver, an example does not run, or the benchmark compares different semantics.
+The final acceptance evidence is a commit-specific Allure report for every registered language, the original and patched upstream source identities, patch manifests, example logs, existing ODBC unit and integration results and multiple-endpoint results.
