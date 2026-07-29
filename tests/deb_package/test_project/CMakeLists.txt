@@ -3,7 +3,10 @@ project(test_ydb_cpp_sdk)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(ydb-cpp-sdk REQUIRED)
+find_package(
+    ydb-cpp-sdk REQUIRED CONFIG
+    COMPONENTS Driver Iam OpenTelemetryMetrics OpenTelemetryTrace
+)
 
 add_executable(test_app main.cpp)
 

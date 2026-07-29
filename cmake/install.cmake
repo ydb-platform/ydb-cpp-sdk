@@ -32,8 +32,21 @@ function(_ydb_sdk_install_targets)
       return()
     endif()
   endif()
+
+  if (ARG_COMPONENT STREQUAL "libydb-cpp")
+    set(_ydb_sdk_export "ydb-cpp-sdk-core-targets")
+  elseif (ARG_COMPONENT STREQUAL "libydb-cpp-iam")
+    set(_ydb_sdk_export "ydb-cpp-sdk-iam-targets")
+  elseif (ARG_COMPONENT STREQUAL "libydb-cpp-otel-metrics")
+    set(_ydb_sdk_export "ydb-cpp-sdk-otel-metrics-targets")
+  elseif (ARG_COMPONENT STREQUAL "libydb-cpp-otel-tracing")
+    set(_ydb_sdk_export "ydb-cpp-sdk-otel-tracing-targets")
+  else()
+    message(FATAL_ERROR "Unknown YDB SDK package component: ${ARG_COMPONENT}")
+  endif()
+
   install(TARGETS ${ARG_TARGETS}
-    EXPORT ydb-cpp-sdk-targets
+    EXPORT ${_ydb_sdk_export}
     CONFIGURATIONS RELEASE
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${ARG_COMPONENT}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${ARG_COMPONENT}
