@@ -7,7 +7,7 @@
 ### Prerequisites
 
 - cmake 3.22+
-- clang 16+
+- clang 17+
 - git 2.20+
 - ninja 1.10+
 - ragel
@@ -61,7 +61,7 @@ sudo apt-get -y install git gdb ninja-build libidn11-dev ragel yasm libc-ares-de
 
 wget https://apt.llvm.org/llvm.sh
 chmod u+x llvm.sh
-sudo ./llvm.sh 16
+sudo ./llvm.sh 17
 
 # Install abseil-cpp
 wget -O abseil-cpp-20230802.0.tar.gz https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.0.tar.gz
@@ -111,9 +111,10 @@ cd ../../
 wget -O brotli-1.1.0.tar.gz https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz
 tar -xvzf brotli-1.1.0.tar.gz && cd brotli-1.1.0
 mkdir build && cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX="$HOME/ydb_deps/brotli" ..
 cmake --build . --config Release
-cmake --install . --config Release --prefix ~/ydb_deps/brotli
+cmake --install . --config Release
 cd ../../
 
 # Install jwt-cpp
@@ -165,20 +166,37 @@ cmake --build --preset $sdk_configure_preset
 
 ### Build `.deb` packages
 
-The SDK can be packaged as Debian development packages with CPack. The packaging build uses static libraries and produces the following packages:
+The SDK can be packaged as Debian development packages with CPack. The complete packaging flow uses static libraries and produces the following packages:
 
+- `yandex-googleapis-api-common-protos` — generated API Common Protos headers and static library, required by `libydb-cpp-dev`;
 - `libydb-cpp-dev` — core SDK static library, public headers and CMake package files;
 - `libydb-cpp-iam-dev` — IAM credentials plugin;
 - `libydb-cpp-otel-metrics-dev` — OpenTelemetry metrics plugin (includes vendored opentelemetry-cpp);
 - `libydb-cpp-otel-tracing-dev` — OpenTelemetry tracing plugin (requires `libydb-cpp-otel-metrics-dev` for OTel headers/libs).
 
-The Debian packaging flow is intended for Ubuntu 24.04. Install the regular build dependencies first. OpenTelemetry plugins use the vendored `third_party/opentelemetry-cpp` submodule (v1.26.0, matching the YDB monorepo pin); initialize it with `git submodule update --init third_party/opentelemetry-cpp` before building.
-
-To build `.deb` packages directly with CPack:
+The Debian packaging flow is intended for Ubuntu 24.04. Initialize the required submodules before building:
 
 ```bash
-cmake --preset package-deb-clang
-cmake --build build-deb --target package -j$(nproc)
+git submodule update --init --recursive
+```
+
+The packaging helper first builds `yandex-googleapis-api-common-protos` from the
+vendored API Common Protos using Ubuntu 24.04's `protobuf-compiler` and
+`libprotobuf-dev`. It installs that package in the build container before
+building the SDK, so both packages use the same distro protobuf ABI.
+OpenTelemetry plugins use the vendored `third_party/opentelemetry-cpp`
+submodule (v1.26.0, matching the YDB monorepo pin).
+
+To build the complete `.deb` package set with the same containerized flow used
+by CI and release publishing (Docker is required):
+
+```bash
+mkdir -p build-deb .deb-ccache
+docker run --rm --network host \
+  -e CCACHE_DIR=/source/.deb-ccache \
+  -v "$PWD:/source" \
+  ubuntu:24.04 \
+  bash /source/scripts/build_cpack_deb_packages.sh /source/build-deb
 ```
 
 The generated `.deb` files are placed into `build-deb/`.
@@ -206,7 +224,7 @@ To smoke-test generated `.deb` packages with the sample consumer project:
 ### Install from GitHub releases
 
 Pre-built `.deb` packages for Ubuntu 24.04 (Noble) are attached to each
-GitHub release. Download the assets and install them with `dpkg`:
+GitHub release. Download the assets and install them with APT:
 
 ```bash
 # Replace <TAG> with the desired release tag (e.g. v1.2.3)
