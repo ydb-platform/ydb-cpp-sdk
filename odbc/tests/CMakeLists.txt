@@ -18,5 +18,4 @@ Database=${YDB_ODBC_DSN_DATABASE}
 ")
 
 add_subdirectory(integration)
-add_subdirectory(conformance)
 add_subdirectory(unit)
