@@ -64,7 +64,6 @@ jobs:
         key: ${{ steps.coverage-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
         restore-keys: |
           ${{ steps.coverage-cache-key.outputs.prefix }}-
-          ubuntu-22.04-coverage-gcc-
     - name: Install dependencies
       uses: ./.github/actions/prepare_vm
     - name: Configure and build with coverage
@@ -75,6 +74,7 @@ jobs:
         cmake --build build -j"$(nproc)"
         find build -type f \( -name '*.gcda' -o -name '*.gcov' \) -delete
         rm -rf build/coverage
+        cmake -E remove_directory build/util/system/testing_out_stuff
     - name: Save coverage build cache
       if: steps.coverage-build-cache.outputs.cache-hit != 'true'
       uses: actions/cache/save@v4
