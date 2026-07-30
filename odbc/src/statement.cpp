@@ -281,6 +281,7 @@ SQLUSMALLINT TStatement::FindNextNeedDataParam() const {
 
 NYdb::NRetry::TRetryOperationSettings TStatement::MakeAutocommitRetrySettings() {
     NYdb::NRetry::TRetryOperationSettings settings;
+    settings.Idempotent(false);
     SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
     if (queryTimeoutSec > 0) {
         const TDuration deadline = TDuration::Seconds(queryTimeoutSec);
