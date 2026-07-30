@@ -16,8 +16,5 @@
 #include <functional>
 
 #ifdef __cpp_lib_format
-namespace std {
-    template <class T, class CharT>
-    struct formatter;
-}
+#include <format>
 #endif
