@@ -39,6 +39,24 @@ jobs:
           submodules: true
           ref: ${{ steps.tag.outputs.ref }}
 
+      - name: Verify release tag matches SDK version
+        env:
+          RELEASE_TAG: ${{ steps.tag.outputs.tag }}
+        shell: bash
+        run: |
+          sdk_version="$(sed -nE 's/.*YDB_SDK_VERSION = "([0-9]+\.[0-9]+\.[0-9]+)".*/\1/p' src/version.h)"
+          expected_tag="v${sdk_version}"
+
+          if [[ -z "$sdk_version" ]]; then
+            echo "::error::Could not extract YDB_SDK_VERSION from src/version.h"
+            exit 1
+          fi
+
+          if [[ "$RELEASE_TAG" != "$expected_tag" ]]; then
+            echo "::error::Release tag $RELEASE_TAG does not match SDK version $sdk_version (expected $expected_tag)"
+            exit 1
+          fi
+
       - name: Prepare Debian package cache key
         id: deb-package-cache-key
         shell: bash
