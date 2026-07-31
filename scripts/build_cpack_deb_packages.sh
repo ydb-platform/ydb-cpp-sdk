@@ -23,6 +23,8 @@ if [ "${YDB_DEB_INSTALL_DEPS:-1}" = "1" ]; then
         build-essential \
         ccache \
         cmake \
+        dpkg-dev \
+        file \
         pkg-config \
         git \
         libidn11-dev \
@@ -46,7 +48,9 @@ if [ "${YDB_DEB_INSTALL_DEPS:-1}" = "1" ]; then
         python3 \
         python3-six \
         ragel \
-        yasm
+        yasm \
+        odbcinst \
+        unixodbc-dev
 fi
 
 touch_existing_sources() {
@@ -107,6 +111,7 @@ touch_existing_sources \
     include \
     library \
     plugins \
+    odbc \
     scripts/build_cpack_deb_packages.sh \
     scripts/generate-debian-directory.sh \
     src \
@@ -121,8 +126,11 @@ cmake -S . -B build-deb \
     -DYDB_SDK_TESTS=OFF \
     -DYDB_SDK_ENABLE_OTEL_METRICS=ON \
     -DYDB_SDK_ENABLE_OTEL_TRACE=ON \
+    -DYDB_SDK_ODBC=ON \
     -DBUILD_SHARED_LIBS=OFF \
     -DYDB_SDK_USE_SYSTEM_GOOGLEAPIS=ON \
+    -DYDB_ODBC_INSTALL_LIBDIR="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)" \
+    -DYDB_ODBC_INSTALL_DATADIR=/usr/share/ydb-odbc \
     -DCMAKE_INSTALL_PREFIX=/usr/share/yandex \
     -DCMAKE_PREFIX_PATH="/usr/share/yandex" \
     "${CMAKE_COMPILER_LAUNCHER_ARGS[@]}"
