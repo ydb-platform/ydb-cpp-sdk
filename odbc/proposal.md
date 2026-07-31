@@ -18,19 +18,19 @@ Each language has one binding, one pinned upstream revision, its upstream databa
 | Core | Ruby | [ruby-odbc](https://github.com/larskanis/ruby-odbc) | Upstream test scripts |
 | Core | Lua | [LuaSQL ODBC](https://github.com/lunarmodules/luasql) | Common LuaSQL and ODBC parameter tests |
 | Core | Perl | [DBD::ODBC](https://github.com/perl5-dbi/DBD-ODBC) | Upstream TAP tests |
-| Core | R | [`odbc`](https://github.com/r-dbi/odbc) | `testthat` and DBItest |
+| Core | R | [odbc](https://github.com/r-dbi/odbc) | `testthat` and DBItest |
 | Core | Julia | [ODBC.jl](https://github.com/JuliaDatabases/ODBC.jl) | ODBC.jl, DBInterface, and Tables tests |
-| Core | Tcl | [`tdbc::odbc`](https://core.tcl-lang.org/tdbc) | ODBC backend `tcltest` suite |
+| Core | Tcl | [tdbc::odbc](https://core.tcl-lang.org/tdbcodbc/timeline) | ODBC backend `tcltest` suite |
 | Expansion | Raku | [DBDish::ODBC](https://github.com/salortiz/DBDish-ODBC) | Upstream and DBIish tests |
 | Expansion | Crystal | [crystal-odbc](https://github.com/naqvis/crystal-odbc) | `crystal spec` |
-| Expansion | Dart | [`dart_odbc`](https://pub.dev/packages/dart_odbc) | `dart test` |
-| Expansion | D | [`odbc`](https://github.com/singingbush/odbc) | Upstream unit and integration tests |
-| Expansion | OCaml | [`ocaml-odbc`](https://opam.ocaml.org/packages/odbc/) | Upstream tests |
+| Expansion | Dart | [dart_odbc](https://pub.dev/packages/dart_odbc) | `dart test` |
+| Expansion | D | [odbc](https://github.com/singingbush/odbc) | Upstream unit and integration tests |
+| Expansion | OCaml | [ocaml-odbc](https://opam.ocaml.org/packages/odbc/) | Upstream tests |
 | Expansion | Common Lisp | [CLSQL ODBC](https://github.com/sharplispers/clsql) | ODBC ASDF tests |
 | Expansion | COBOL | [GixSQL ODBC](https://github.com/mridoni/gixsql) | ODBC regression tests |
 | Expansion | Pascal | [Free Pascal SQLDB ODBC](https://gitlab.com/freepascal.org/fpc/source/-/tree/main/packages/fcl-db) | SQLDB connector tests |
 | Expansion | Smalltalk | [Pharo-ODBC](https://github.com/pharo-rdbms/Pharo-ODBC) | SUnit tests |
-| Expansion | Fortran | [`odbc.f`](https://davidpfister.github.io/odbc.f/) | Upstream fpm tests |
+| Expansion | Fortran | [odbc.f](https://davidpfister.github.io/odbc.f/) | Upstream fpm tests |
 
 ## Required driver behavior
 
@@ -44,6 +44,22 @@ Each `SQLHDBC` owns:
 - its query, table, and scheme clients;
 - its query session and active transaction;
 - its current catalog, credentials, and diagnostics.
+
+Connection strings and DSNs must accept:
+
+- `Server` or `Endpoint`, `Database`, and `DSN`;
+- `AuthMode=Anonymous`;
+- `AuthMode=Token` with `Token`;
+- `AuthMode=Static` with `User` and `Password`;
+- `AuthMode=Metadata`, optionally with `MetadataHost` and `MetadataPort`;
+- `AuthMode=ServiceAccount` with `ServiceAccountKeyFile`;
+- `AuthMode=OAuth2` with `OAuth2KeyFile`;
+- `AuthMode=Environment`;
+- `IamEndpoint`, `RootCertificate`, `ClientCertificate`, and `ClientPrivateKey`.
+
+`UID`/`PWD`, `AccessToken`, `SaFile`, and `CaFile` are accepted aliases. The
+authentication mode is inferred when exactly one credential type is present.
+`SQLConnect` user and password arguments override DSN values.
 
 The current implementation follows this model: `SQLAllocHandle(SQL_HANDLE_DBC)` creates a `TConnection`, and `TConnection::TYdbState` owns the SDK driver and clients. `SQLHENV` only tracks connection handles. Connections in the same environment therefore keep endpoint, database, session, transaction, and catalog state separate.
 
@@ -88,12 +104,37 @@ The driver must support the operations used by the Core bindings:
 - independent statements and connections;
 - deterministic cleanup after errors.
 
+### Row counts
+
+Data-modification statements must request Basic YDB query statistics.
+`SQLRowCount` must sum updated and deleted rows from every query phase.
+Parameter-array execution must sum the count of each executed parameter set. It
+returns `-1` for other statements or when statistics do not contain a usable
+count.
+
+### Debian package
+
+The driver is shipped as a separate `ydb-odbc` package with the same version as
+the SDK release. It contains `libydb-odbc.so` in the multiarch library directory
+and an unixODBC driver template. Package dependencies include `odbcinst` and the
+shared-library dependencies derived from the built artifact.
+
+Installation registers the `YDB` driver with `odbcinst -i -d -f`. Upgrade
+updates the registration without creating duplicate entries. Removal
+unregisters only the entry owned by the package. The package does not install
+`/etc/odbc.ini` or modify user DSNs.
+
+The package is built and published with the SDK release. A clean-container test
+installs it, checks `odbcinst -q -d`, connects through `isql` and Qt QODBC,
+tests an upgrade, removes the package, and verifies that unrelated drivers and
+user DSNs remain unchanged.
+
 ## Current limitations
 
 | Area | Limitation |
 |---|---|
 | SQL dialect | Statements are YQL. The driver rewrites ODBC escapes and `?` parameters; it is not a general ANSI SQL translator. |
-| Authentication | Connection strings currently configure only endpoint, database, and DSN. User/password, token, service-account, metadata credentials, TLS certificates, and custom IAM settings are not wired into `TDriverConfig`. |
+| Authentication | Connection strings currently configure only endpoint, database, and DSN. Authentication and TLS settings are not wired into `TDriverConfig`. |
 | Retry classification | The driver cannot infer whether arbitrary SQL is idempotent. Autocommit statement retries use `TRetryOperationSettings::Idempotent(false)`. This enables only retries safe for a non-idempotent operation and may return an error with an unknown execution outcome. See [YDB retry settings](https://ydb.tech/docs/en/recipes/ydb-sdk/retry) and [error handling](https://ydb.tech/docs/en/reference/ydb-sdk/error_handling). |
 | Explicit transactions | An ODBC transaction is not retried by the driver. Conflicts, node failures, maintenance, and network failures can abort it, including at commit. The application must open a new transaction and replay the entire unit of work in a retry loop. Retrying only the failed statement is incorrect ([query execution](https://ydb.tech/docs/en/concepts/query_execution/), [transactions](https://ydb.tech/docs/en/concepts/transactions)). |
 | Transaction isolation | Read-write connections support serializable and snapshot read-write modes. ODBC read-committed and read-uncommitted requests are rejected. |
@@ -102,7 +143,7 @@ The driver must support the operations used by the Core bindings:
 | Cursor support | The current implementation is forward-only. `SQLFetchScroll` accepts only `SQL_FETCH_NEXT`; static scrolling and spill are planned. |
 | Result sets | Only the first result set is exposed. `SQLMoreResults` returns `SQL_NO_DATA`. |
 | Result buffering | Query execution uses the non-streaming SDK result and keeps it for cursor fetches. Large results can consume memory proportional to the result size. |
-| Row counts | `SQLRowCount` returns `-1`; affected-row counts are not extracted from YDB query statistics. |
+| Row counts | `SQLRowCount` currently returns `-1`; affected-row counts are not extracted from YDB query statistics. |
 | Prepare | `SQLPrepare` stores the query and counts client-side parameter markers. It does not create a persistent server-side prepared statement. |
 | Batches | Parameter arrays are accepted only for data-modification statements and execute sequentially. Earlier parameter sets may already be committed when a later set fails. |
 | Cancellation | Execution is synchronous. `SQLCancel` clears local cursor and parameter state but does not interrupt an in-flight SDK request. |
@@ -135,23 +176,31 @@ Test output is converted to Allure without changing the upstream runner. Reports
 The complete matrix runs only:
 
 - after a merge into `odbc-driver-feature`;
-- for a pushed tag.
+- when a pull request has the special full-matrix tag.
 
-It does not run for pull requests, direct non-merge pushes, schedules, or manual dispatches.
+It does not run for ordinary pull requests, direct non-merge pushes, Git tags, schedules, or manual dispatches.
 
-Each job starts a pinned YDB version, registers the driver in a job-local `odbcinst.ini`, verifies the upstream source, runs the upstream tests and example, and uploads native and Allure results.
+Each job starts a pinned YDB version, installs the `ydb-odbc` package, creates a
+job-local DSN, verifies the upstream source, runs the upstream tests and
+example, and uploads native and Allure results.
 
 ## Delivery order
 
-1. Add the registry, framework runner template, source verification, result conversion, and report aggregation.
-2. Add static cursor emulation and cursor integration tests.
-3. Add two-endpoint and two-database isolation tests.
-4. Onboard Core bindings.
-5. Onboard Expansion bindings.
-6. Enable a zero-regression gate for stable bindings.
+1. Stabilize the driver build and add the `ydb-odbc` package component.
+2. Add clean install, upgrade, removal, unixODBC registration, `isql`, and Qt
+   QODBC package tests.
+3. Complete connection settings, authentication, TLS, row counts, and
+   endpoint/database isolation.
+4. Add static cursor emulation and cursor integration tests.
+5. Add the registry, framework runner template, source verification, result
+   conversion, and report aggregation.
+6. Onboard Core bindings and enable the full-matrix gate.
+7. Onboard Expansion bindings after the initial release.
 
 ## Acceptance
 
+- `ydb-odbc` passes clean install, upgrade, removal, registration, `isql`, and
+  Qt QODBC tests.
 - Every selected binding runs from a pinned, verified upstream source.
 - Binding implementation code is unchanged.
 - Every upstream database test is executed or reported as unsupported with its original test identifier.
