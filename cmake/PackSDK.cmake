@@ -18,6 +18,9 @@ set(CPACK_RESOURCE_FILE_LICENSE "${YDB_SDK_SOURCE_DIR}/LICENSE")
 
 set(CPACK_DEB_COMPONENT_INSTALL ON)
 set(CPACK_COMPONENTS_ALL libydb-cpp libydb-cpp-iam libydb-cpp-otel-metrics libydb-cpp-otel-tracing)
+if (YDB_SDK_ODBC)
+  list(APPEND CPACK_COMPONENTS_ALL ydb-odbc)
+endif()
 
 set(CPACK_DEBIAN_LIBYDB_CPP_PACKAGE_NAME "libydb-cpp-dev")
 set(CPACK_DEBIAN_LIBYDB_CPP_PACKAGE_DEPENDS
@@ -33,6 +36,18 @@ set(CPACK_DEBIAN_LIBYDB_CPP_OTEL_METRICS_PACKAGE_DEPENDS "libydb-cpp-dev (= ${YD
 set(CPACK_DEBIAN_LIBYDB_CPP_OTEL_TRACING_PACKAGE_NAME "libydb-cpp-otel-tracing-dev")
 set(CPACK_DEBIAN_LIBYDB_CPP_OTEL_TRACING_PACKAGE_DEPENDS
   "libydb-cpp-dev (= ${YDB_SDK_VERSION}), libydb-cpp-otel-metrics-dev (= ${YDB_SDK_VERSION})")
+
+if (YDB_SDK_ODBC)
+  set("CPACK_DEBIAN_YDB-ODBC_PACKAGE_NAME" "ydb-odbc")
+  set("CPACK_DEBIAN_YDB-ODBC_PACKAGE_DEPENDS" "odbcinst")
+  set("CPACK_DEBIAN_YDB-ODBC_PACKAGE_SHLIBDEPS" ON)
+  set("CPACK_DEBIAN_YDB-ODBC_PACKAGE_CONTROL_EXTRA"
+    "${YDB_ODBC_DEBIAN_CONTROL_EXTRA}")
+  set("CPACK_DEBIAN_YDB-ODBC_PACKAGE_CONTROL_STRICT_PERMISSION" ON)
+  set("CPACK_DEBIAN_YDB-ODBC_PACKAGE_SECTION" "database")
+  set("CPACK_DEBIAN_YDB-ODBC_DESCRIPTION"
+    "YDB ODBC driver\n Shared ODBC driver and unixODBC registration for YDB.")
+endif()
 
 foreach(component IN ITEMS libydb-cpp libydb-cpp-iam libydb-cpp-otel-metrics libydb-cpp-otel-tracing)
   string(TOUPPER "${component}" component_upper)
