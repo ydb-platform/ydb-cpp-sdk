@@ -248,12 +248,17 @@ wget "${BASE}/libydb-cpp-dev_${TAG#v}_amd64.deb"
 wget "${BASE}/libydb-cpp-iam-dev_${TAG#v}_amd64.deb"
 wget "${BASE}/libydb-cpp-otel-metrics-dev_${TAG#v}_amd64.deb"
 wget "${BASE}/libydb-cpp-otel-tracing-dev_${TAG#v}_amd64.deb"
+# Optional ODBC driver:
+wget "${BASE}/ydb-odbc_${TAG#v}_amd64.deb"
 
 sudo apt-get update
 sudo apt-get install -y \
     ./yandex-googleapis-api-common-protos-*.deb \
     ./libydb-cpp-dev_*.deb ./libydb-cpp-iam-dev_*.deb \
-    ./libydb-cpp-otel-metrics-dev_*.deb ./libydb-cpp-otel-tracing-dev_*.deb
+    ./libydb-cpp-otel-metrics-dev_*.deb ./libydb-cpp-otel-tracing-dev_*.deb \
+    ./ydb-odbc_*.deb
+
+odbcinst -q -d -n YDB
 ```
 
 After installation, use the SDK in your CMake project:
