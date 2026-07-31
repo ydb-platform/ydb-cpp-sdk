@@ -10,7 +10,9 @@
 
 namespace NYdb::NOdbc {
 
-std::string GetString(SQLCHAR* str, SQLSMALLINT length);
+std::string GetString(SQLCHAR* str, SQLINTEGER length);
+
+std::string GetString(SQLWCHAR* str, SQLINTEGER length);
 
 bool StartsWithPrefix(const char* s, size_t sLen, const char* prefix, size_t prefixLen);
 

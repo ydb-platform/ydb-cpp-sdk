@@ -194,9 +194,29 @@ SQLRETURN SQL_API SQLExecDirect(SQLHSTMT statementHandle,
     });
 }
 
+SQLRETURN SQL_API SQLExecDirectW(SQLHSTMT statementHandle,
+                                 SQLWCHAR* statementText,
+                                 SQLINTEGER textLength) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        auto ret = stmt->Prepare(NYdb::NOdbc::GetString(statementText, textLength));
+        if (ret != SQL_SUCCESS) {
+            return ret;
+        }
+        return stmt->Execute();
+    });
+}
+
 SQLRETURN SQL_API SQLPrepare(SQLHSTMT statementHandle,
                              SQLCHAR* statementText,
                              SQLINTEGER textLength) {
+    return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
+        return stmt->Prepare(NYdb::NOdbc::GetString(statementText, textLength));
+    });
+}
+
+SQLRETURN SQL_API SQLPrepareW(SQLHSTMT statementHandle,
+                              SQLWCHAR* statementText,
+                              SQLINTEGER textLength) {
     return NYdb::NOdbc::HandleOdbcExceptions<NYdb::NOdbc::TStatement>(statementHandle, [&](auto* stmt) {
         return stmt->Prepare(NYdb::NOdbc::GetString(statementText, textLength));
     });

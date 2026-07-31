@@ -1,6 +1,7 @@
 #include "util.h"
 
 #include <cctype>
+#include <cstdint>
 
 namespace NYdb::NOdbc {
 
@@ -17,7 +18,7 @@ void TrimInPlace(std::string& value) {
 
 } // namespace
 
-std::string GetString(SQLCHAR* str, SQLSMALLINT length) {
+std::string GetString(SQLCHAR* str, SQLINTEGER length) {
     if (!str) {
         return {};
     }
@@ -27,7 +28,63 @@ std::string GetString(SQLCHAR* str, SQLSMALLINT length) {
     if (length <= 0) {
         return {};
     }
-    return std::string(reinterpret_cast<const char*>(str), length);
+    size_t size = static_cast<size_t>(length);
+    if (str[size - 1] == 0) {
+        --size;
+    }
+    return std::string(reinterpret_cast<const char*>(str), size);
+}
+
+std::string GetString(SQLWCHAR* str, SQLINTEGER length) {
+    if (!str) {
+        return {};
+    }
+
+    size_t size = 0;
+    if (length == SQL_NTS) {
+        while (str[size] != 0) {
+            ++size;
+        }
+    } else if (length > 0) {
+        size = static_cast<size_t>(length);
+        if (str[size - 1] == 0) {
+            --size;
+        }
+    } else {
+        return {};
+    }
+
+    std::string result;
+    result.reserve(size);
+    for (size_t i = 0; i < size; ++i) {
+        uint32_t codePoint = str[i];
+        if (codePoint >= 0xd800 && codePoint <= 0xdbff) {
+            if (i + 1 < size && str[i + 1] >= 0xdc00 && str[i + 1] <= 0xdfff) {
+                codePoint = 0x10000 + ((codePoint - 0xd800) << 10) + (str[++i] - 0xdc00);
+            } else {
+                codePoint = 0xfffd;
+            }
+        } else if (codePoint >= 0xdc00 && codePoint <= 0xdfff) {
+            codePoint = 0xfffd;
+        }
+
+        if (codePoint <= 0x7f) {
+            result.push_back(static_cast<char>(codePoint));
+        } else if (codePoint <= 0x7ff) {
+            result.push_back(static_cast<char>(0xc0 | (codePoint >> 6)));
+            result.push_back(static_cast<char>(0x80 | (codePoint & 0x3f)));
+        } else if (codePoint <= 0xffff) {
+            result.push_back(static_cast<char>(0xe0 | (codePoint >> 12)));
+            result.push_back(static_cast<char>(0x80 | ((codePoint >> 6) & 0x3f)));
+            result.push_back(static_cast<char>(0x80 | (codePoint & 0x3f)));
+        } else {
+            result.push_back(static_cast<char>(0xf0 | (codePoint >> 18)));
+            result.push_back(static_cast<char>(0x80 | ((codePoint >> 12) & 0x3f)));
+            result.push_back(static_cast<char>(0x80 | ((codePoint >> 6) & 0x3f)));
+            result.push_back(static_cast<char>(0x80 | (codePoint & 0x3f)));
+        }
+    }
+    return result;
 }
 
 bool StartsWithPrefix(const char* s, size_t sLen, const char* prefix, size_t prefixLen) {
