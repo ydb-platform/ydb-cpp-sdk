@@ -26,7 +26,7 @@ if [ "${YDB_DEB_INSTALL_DEPS:-1}" = "1" ]; then
         libprotobuf-dev protobuf-compiler libgrpc++-dev protobuf-compiler-grpc \
         libabsl-dev libbrotli-dev liblz4-dev libzstd-dev libbz2-dev libxxhash-dev \
         libsnappy-dev libdouble-conversion-dev libre2-dev \
-        libc-ares-dev rapidjson-dev python3 ragel yasm
+        libc-ares-dev rapidjson-dev odbcinst unixodbc-dev python3 ragel yasm
 fi
 
 export CPM_SOURCE_CACHE CCACHE_DIR
@@ -62,6 +62,9 @@ cmake -S "$SOURCE_DIR" -B "$sdk_build" -G Ninja \
     -DYDB_SDK_TESTS=OFF \
     -DYDB_SDK_ENABLE_OTEL_METRICS=ON \
     -DYDB_SDK_ENABLE_OTEL_TRACE=ON \
+    -DYDB_SDK_ODBC=ON \
+    -DYDB_ODBC_INSTALL_LIBDIR="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)" \
+    -DYDB_ODBC_INSTALL_DATADIR=/usr/share/ydb-odbc \
     "${compiler_cache_args[@]}"
 cmake --build "$sdk_build" --target package --parallel
 
