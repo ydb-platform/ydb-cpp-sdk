@@ -19,6 +19,7 @@ library/cpp/iterator/iterate_values.h
 library/cpp/iterator/mapped.h
 library/cpp/json/common/defs.h
 library/cpp/json/fast_sax/parser.h
+library/cpp/json/writer/fwd.h
 library/cpp/json/writer/json.h
 library/cpp/json/writer/json_value.h
 library/cpp/json/json_reader.h
@@ -110,6 +111,7 @@ util/generic/fwd.h
 util/generic/hash_primes.h
 util/generic/hash_table.h
 util/generic/hash.h
+util/generic/hide_ptr.h
 util/generic/intrlist.h
 util/generic/is_in.h
 util/generic/iterator.h
@@ -149,6 +151,7 @@ util/network/ip.h
 util/network/sock.h
 util/network/socket.h
 util/random/random.h
+util/stream/buffered.h
 util/stream/fwd.h
 util/stream/input.h
 util/stream/labeled.h
@@ -193,6 +196,7 @@ util/system/spinlock.h
 util/system/src_location.h
 util/system/src_root.h
 util/system/sysstat.h
+util/system/thread.i
 util/system/type_name.h
 util/system/types.h
 util/system/unaligned_mem.h
