@@ -44,6 +44,25 @@ set_target_properties(ydb-odbc PROPERTIES
 
 include(GNUInstallDirs)
 
+set(YDB_ODBC_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}" CACHE STRING
+  "Directory where the YDB ODBC shared library is installed")
+set(YDB_ODBC_INSTALL_DATADIR "${CMAKE_INSTALL_DATAROOTDIR}/ydb-odbc" CACHE STRING
+  "Directory where the YDB ODBC driver registration template is installed")
+
+if (IS_ABSOLUTE "${YDB_ODBC_INSTALL_LIBDIR}")
+  set(YDB_ODBC_DRIVER_INSTALL_DIR "${YDB_ODBC_INSTALL_LIBDIR}")
+else()
+  set(YDB_ODBC_DRIVER_INSTALL_DIR
+    "${CMAKE_INSTALL_PREFIX}/${YDB_ODBC_INSTALL_LIBDIR}")
+endif()
+
+if (IS_ABSOLUTE "${YDB_ODBC_INSTALL_DATADIR}")
+  set(YDB_ODBC_DRIVER_TEMPLATE_DIR "${YDB_ODBC_INSTALL_DATADIR}")
+else()
+  set(YDB_ODBC_DRIVER_TEMPLATE_DIR
+    "${CMAKE_INSTALL_PREFIX}/${YDB_ODBC_INSTALL_DATADIR}")
+endif()
+
 file(GENERATE
   OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/odbcinst.ini"
   CONTENT "[YDB]
@@ -54,24 +73,45 @@ Setup=$<TARGET_FILE:ydb-odbc>
 )
 
 set(YDB_ODBC_DRIVER_PATH
-  "${CMAKE_INSTALL_FULL_LIBDIR}/libydb-odbc${CMAKE_SHARED_LIBRARY_SUFFIX}")
+  "${YDB_ODBC_DRIVER_INSTALL_DIR}/libydb-odbc${CMAKE_SHARED_LIBRARY_SUFFIX}")
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/odbcinst.ini.in"
   "${CMAKE_CURRENT_BINARY_DIR}/ydb-odbc-odbcinst.ini"
   @ONLY
 )
+
+set(YDB_ODBC_DRIVER_TEMPLATE_PATH
+  "${YDB_ODBC_DRIVER_TEMPLATE_DIR}/odbcinst.ini")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/debian")
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/packaging/postinst.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/debian/postinst"
+  @ONLY
+)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/packaging/prerm.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/debian/prerm"
+  @ONLY
+)
+set(YDB_ODBC_DEBIAN_CONTROL_EXTRA
+  "${CMAKE_CURRENT_BINARY_DIR}/debian/postinst;${CMAKE_CURRENT_BINARY_DIR}/debian/prerm"
+  CACHE INTERNAL "Debian control scripts for the ydb-odbc package")
+
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/ydb-odbc-odbcinst.ini"
-  DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/odbcinst.d"
-  RENAME ydb-odbc.ini
+  DESTINATION "${YDB_ODBC_INSTALL_DATADIR}"
+  RENAME odbcinst.ini
+  COMPONENT ydb-odbc
 )
 
 install(TARGETS ydb-odbc
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION "${YDB_ODBC_INSTALL_LIBDIR}"
+  COMPONENT ydb-odbc
 )
 
-install(DIRECTORY include/
-  DESTINATION include/ydb-odbc
-)
+if (YDB_SDK_EXAMPLES)
+  add_subdirectory(examples)
+endif()
 
-add_subdirectory(examples)
-add_subdirectory(tests)
+if (YDB_SDK_TESTS)
+  add_subdirectory(tests)
+endif()
