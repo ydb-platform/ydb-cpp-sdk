@@ -159,6 +159,21 @@ fi
 odbcinst -q -d -n UnrelatedPackageTest >/dev/null
 sha256sum --check /tmp/odbc-ini.sha256
 
+apt-get install -y "$odbc_deb"
+verify_ydb_registration
+odbcinst -u -d -n YDB
+cat >/tmp/replacement-ydb-odbcinst.ini <<EOF_REPLACEMENT
+[YDB]
+Description=Replacement YDB ODBC driver
+Driver=/usr/lib/${multiarch}/libodbc.so.2
+Setup=/usr/lib/${multiarch}/libodbcinst.so.2
+EOF_REPLACEMENT
+odbcinst -i -d -f /tmp/replacement-ydb-odbcinst.ini
+replacement_registration="$(odbcinst -q -d -n YDB)"
+apt-get remove -y ydb-odbc
+test "$(odbcinst -q -d -n YDB)" = "$replacement_registration"
+odbcinst -u -d -n YDB
+
 configure_components() {
   local name="$1"
   local components="${2:-}"
