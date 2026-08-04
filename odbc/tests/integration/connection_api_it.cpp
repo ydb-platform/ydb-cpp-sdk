@@ -118,11 +118,11 @@ TEST(ConnectionApi, SQLDriverConnectValidatesAuthenticationSettings) {
         {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=None;", "28000"},
         {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;Token=a;UID=b;PWD=c;", "28000"},
         {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=Static;UID=b;", "28000"},
-        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=Metadata;MetadataPort=70000;", "01S00"},
+        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=Metadata;MetadataPort=70000;", "HY024"},
         {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=ServiceAccount;SaFile=/missing/sa.json;", "08001"},
         {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=OAuth2;OAuth2KeyFile=/missing/oauth2.json;", "08001"},
         {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;ClientCertificate=client.pem;", "08001"},
-        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=grpc://localhost:2136;Database=/local;CaFile=ca.pem;", "01S00"},
+        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=grpc://localhost:2136;Database=/local;CaFile=ca.pem;", "HY024"},
         {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;RootCertificate=/missing/ca.pem;", "08001"},
     };
 
