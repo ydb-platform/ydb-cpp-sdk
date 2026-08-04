@@ -81,6 +81,63 @@ TEST(ConnectionApi, SQLDriverConnectInvalidConnString) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(ConnectionApi, SQLDriverConnectValidatesAuthenticationSettings) {
+    SQLHENV env;
+    AllocEnv(&env);
+
+    const struct {
+        const char* ConnectionString;
+        const char* SqlState;
+    } cases[] = {
+        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=None;", "28000"},
+        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;Token=a;UID=b;PWD=c;", "28000"},
+        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=Static;UID=b;", "28000"},
+        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=Metadata;MetadataPort=70000;", "01S00"},
+        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=ServiceAccount;SaFile=/missing/sa.json;", "08001"},
+        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=OAuth2;OAuth2KeyFile=/missing/oauth2.json;", "08001"},
+        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;ClientCertificate=client.pem;", "08001"},
+        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=grpc://localhost:2136;Database=/local;CaFile=ca.pem;", "01S00"},
+        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;RootCertificate=/missing/ca.pem;", "08001"},
+    };
+
+    for (const auto& testCase : cases) {
+        SQLHDBC dbc;
+        ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc), SQL_SUCCESS);
+        const SQLRETURN rc = SQLDriverConnect(
+            dbc, nullptr, reinterpret_cast<SQLCHAR*>(const_cast<char*>(testCase.ConnectionString)), SQL_NTS,
+            nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT);
+        ASSERT_EQ(rc, SQL_ERROR) << testCase.ConnectionString;
+        EXPECT_TRUE(SqlStatePrefix(GetOdbcError(dbc, SQL_HANDLE_DBC), testCase.SqlState))
+            << testCase.ConnectionString << ": " << GetOdbcError(dbc, SQL_HANDLE_DBC);
+        SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    }
+
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(ConnectionApi, SQLDriverConnectSupportsAliasesAndDsnOverlay) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    AllocEnv(&env);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc), SQL_SUCCESS);
+
+    SQLCHAR connectionString[] =
+        "DSN=YDB;Endpoint=grpc://127.0.0.1:2136;AuthMode=Token;AccessToken=ignored-by-anonymous-server;";
+    CHECK_ODBC_OK(SQLDriverConnect(
+        dbc, nullptr, connectionString, SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT),
+        dbc, SQL_HANDLE_DBC);
+
+    SQLHSTMT stmt;
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(ConnectionApi, SQLConnectMissingDSN) {
     SQLHENV env;
     SQLHDBC dbc;
