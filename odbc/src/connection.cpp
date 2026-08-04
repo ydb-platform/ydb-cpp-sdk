@@ -1,19 +1,15 @@
 #include "connection.h"
 #include "statement.h"
-#include "utils/util.h"
 
 #include <ydb-cpp-sdk/client/result/result.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
-#include <map>
 #include <string>
 #include <algorithm>
 #include <cstring>
 
 #include <sql.h>
 #include <sqlext.h>
-
-#include <odbcinst.h>
 
 namespace NYdb::NOdbc {
 
@@ -27,53 +23,48 @@ void TConnection::DestroyYdbState() {
     Ydb_.reset();
 }
 
-SQLRETURN TConnection::DriverConnect(const std::string& connectionString) {
-    const std::map<std::string, std::string> params = ParseConnectionString(connectionString);
-    Endpoint_ = params.contains("Server") ? params.at("Server") : params.contains("Endpoint") ? params.at("Endpoint") : "";
-    Database_ = params.contains("Database") ? params.at("Database") : "";
-    DataSourceName_ = params.contains("DSN") ? params.at("DSN") : "";
-
-    if (Endpoint_.empty() || Database_.empty()) {
-        throw TOdbcException("08001", 0, "Missing Endpoint (or Server) or Database in connection string");
+SQLRETURN TConnection::DriverConnect(std::string_view connectionString) {
+    TConnectionParameters explicitParameters = ParseAndNormalizeConnectionString(connectionString);
+    const auto dsnIt = explicitParameters.find("DSN");
+    TConnectionParameters parameters;
+    if (dsnIt != explicitParameters.end() && !dsnIt->second.empty()) {
+        parameters = ReadDsnParameters(dsnIt->second);
     }
-
-    TConnectionAttributes::NormalizeCatalogPath(Database_);
-    RecreateYdbClients();
-    Attributes_.SetCurrentCatalog(Database_);
+    OverlayConnectionParameters(parameters, explicitParameters);
+    ApplyResolvedSettings(ResolveConnectionSettings(std::move(parameters)));
 
     return SQL_SUCCESS;
 }
 
-SQLRETURN TConnection::Connect(const std::string& serverName,
-                               const std::string& userName,
-                               const std::string& auth) {
-    DataSourceName_ = serverName;
-
-    char endpoint[256] = {0};
-    char server[256] = {0};
-    char database[256] = {0};
-
-    SQLGetPrivateProfileString(serverName.c_str(), "Endpoint", "", endpoint, sizeof(endpoint), nullptr);
-    SQLGetPrivateProfileString(serverName.c_str(), "Server", "", server, sizeof(server), nullptr);
-    SQLGetPrivateProfileString(serverName.c_str(), "Database", "", database, sizeof(database), nullptr);
-
-    Endpoint_ = endpoint[0] ? endpoint : server;
-    Database_ = database;
-
-    if (Endpoint_.empty() || Database_.empty()) {
-        throw TOdbcException("08001", 0, "Missing Endpoint (or Server) or Database in DSN");
+SQLRETURN TConnection::Connect(std::string_view serverName,
+                               std::string_view userName,
+                               std::string_view auth) {
+    TConnectionParameters parameters = ReadDsnParameters(serverName);
+    if (!userName.empty() || !auth.empty()) {
+        for (const std::string_view key : {
+                "Token", "MetadataHost", "MetadataPort", "ServiceAccountKeyFile",
+                "OAuth2KeyFile", "IamEndpoint"}) {
+            parameters.erase(std::string(key));
+        }
+        parameters["AuthMode"] = "Static";
     }
-
-    TConnectionAttributes::NormalizeCatalogPath(Database_);
-    RecreateYdbClients();
-    Attributes_.SetCurrentCatalog(Database_);
+    if (!userName.empty()) {
+        parameters["User"] = std::string(userName);
+    }
+    if (!auth.empty()) {
+        parameters["Password"] = std::string(auth);
+    }
+    ApplyResolvedSettings(ResolveConnectionSettings(std::move(parameters), std::string(serverName)));
 
     return SQL_SUCCESS;
 }
 
 SQLRETURN TConnection::Disconnect() {
     DestroyYdbState();
+    DriverConfig_.reset();
     DbmsVersionCache_.reset();
+    Endpoint_.clear();
+    Database_.clear();
     DataSourceName_.clear();
     return SQL_SUCCESS;
 }
@@ -258,15 +249,31 @@ const std::string& TConnection::GetDbmsVersion() {
 }
 
 void TConnection::RecreateYdbClients() {
+    if (!DriverConfig_) {
+        throw TOdbcException("08003", 0, "Connection configuration is not available");
+    }
     DestroyYdbState();
     DbmsVersionCache_.reset();
-    Ydb_.emplace(Endpoint_, Database_);
+    Ydb_.emplace(*DriverConfig_);
 }
 
-void TConnection::RebindToDatabase(const std::string& newDatabase) {
-    std::string db = newDatabase;
+void TConnection::ApplyResolvedSettings(TResolvedConnectionSettings&& settings) {
+    TConnectionAttributes::NormalizeCatalogPath(settings.Database);
+    settings.DriverConfig.SetDatabase(settings.Database);
+
+    Endpoint_ = std::move(settings.Endpoint);
+    Database_ = std::move(settings.Database);
+    DataSourceName_ = std::move(settings.DataSourceName);
+    DriverConfig_.emplace(std::move(settings.DriverConfig));
+    RecreateYdbClients();
+    Attributes_.SetCurrentCatalog(Database_);
+}
+
+void TConnection::RebindToDatabase(std::string_view newDatabase) {
+    std::string db(newDatabase);
     TConnectionAttributes::NormalizeCatalogPath(db);
     Database_ = std::move(db);
+    DriverConfig_->SetDatabase(Database_);
     Attributes_.SetCurrentCatalog(Database_);
     RecreateYdbClients();
 }

@@ -60,6 +60,48 @@ YDB=YDB ODBC Driver
 Driver=YDB
 Server=localhost:2136
 Database=/local
+AuthMode=Anonymous
+```
+
+`SQLDriverConnect` may also combine a DSN with explicit attributes. Values in
+the connection string take precedence over values from the DSN. The user name
+and password passed to `SQLConnect` take precedence over `User` and `Password`
+in the DSN.
+
+### Connection attributes
+
+| Attribute | Meaning |
+| --- | --- |
+| `Endpoint` | YDB endpoint. `Server` is an alias. A `grpc://` prefix forces a plaintext connection; `grpcs://` enables TLS. |
+| `Database` | YDB database path. |
+| `DSN` | DSN section to load before applying the remaining connection-string attributes. |
+| `AuthMode` | `Anonymous`, `Token`, `Static`, `Metadata`, `ServiceAccount`, `OAuth2`, or `Environment`. Values are case-insensitive. |
+| `Token` | Access token for `Token` mode. `AccessToken` is an alias. |
+| `User`, `Password` | Credentials for `Static` mode. `UID` and `PWD` are aliases. |
+| `MetadataHost`, `MetadataPort` | Optional metadata service address for `Metadata` mode. |
+| `ServiceAccountKeyFile` | Path to a service-account JSON key for `ServiceAccount` mode. `SaFile` is an alias. |
+| `OAuth2KeyFile` | Path to an OAuth 2.0 token-exchange configuration file for `OAuth2` mode. |
+| `IamEndpoint` | IAM gRPC endpoint for service-account authentication, or HTTP token endpoint override for OAuth 2.0 token exchange. |
+| `RootCertificate` | Path to a PEM root-certificate file. `CaFile` is an alias. |
+| `ClientCertificate`, `ClientPrivateKey` | Paths to the PEM client certificate and private key. They must be specified together. |
+
+If `AuthMode` is omitted, the driver infers it from exactly one credential
+family (`Token`, static user/password, metadata settings, service-account key,
+or OAuth 2.0 key). With no credential attributes it uses `Anonymous`. Conflicting
+families and incomplete credentials are rejected with SQLSTATE `28000`.
+`Environment` uses the SDK's standard `YDB_*_CREDENTIALS` variables.
+
+Certificate attributes contain file paths, not inline PEM. The driver reads the
+files while establishing the ODBC connection. Supplying certificates enables
+TLS; certificates cannot be combined with an explicitly plaintext `grpc://`
+endpoint.
+
+Examples:
+
+```text
+Driver=YDB;Endpoint=grpcs://ydb.example.net:2135;Database=/production;AuthMode=Token;Token=...
+DSN=YDB;AuthMode=Static;UID=app;PWD=secret
+Driver=YDB;Endpoint=localhost:2136;Database=/local;AuthMode=ServiceAccount;SaFile=/run/secrets/sa.json;IamEndpoint=grpc://localhost:4284
 ```
 
 ## Usage
@@ -101,6 +143,11 @@ Alternatively, use `SQLDriverConnect` with a connection string (does not require
 SQLCHAR connStr[] = "Driver=YDB;Endpoint=localhost:2136;Database=/local";
 SQLDriverConnect(dbc, NULL, connStr, SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
 ```
+
+For `INSERT`, `UPDATE`, `DELETE`, `UPSERT`, and `REPLACE`, `SQLRowCount`
+returns the affected-row count reported by YDB query statistics. Counts from
+executed parameter-array entries are summed; ignored entries are not counted.
+For statements without an applicable count, it returns `-1`.
 
 ## Parameters
 

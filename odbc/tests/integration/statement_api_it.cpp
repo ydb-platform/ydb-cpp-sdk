@@ -380,14 +380,108 @@ TEST(StatementApi, RowCount) {
     AllocEnvAndConnect(&env, &dbc);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
     
-    CHECK_ODBC_OK(SQLExecDirect(stmt, 
-        (SQLCHAR*)"SELECT * FROM AS_TABLE(ListMap(ListFromRange(1, 4), ($x) -> (AsStruct($x AS v))))",
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS row_count_test", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"CREATE TABLE row_count_test (id Int32, value Int32, PRIMARY KEY (id))",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
-    
-    SQLLEN rowCount;
+
+    SQLLEN rowCount = -2;
     CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(rowCount, -1);
-    
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"UPSERT INTO row_count_test (id, value) VALUES (1, 10), (2, 20), (3, 30)",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, 3);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"UPDATE row_count_test SET value = value + 1 WHERE id <= 2",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, 2);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"DELETE FROM row_count_test WHERE id = 3",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, 1);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"UPDATE row_count_test SET value = 0 WHERE id = 100",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, 0);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"SELECT * FROM row_count_test",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, -1);
+
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE row_count_test", SQL_NTS);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(StatementApi, RowCountAggregatesParameterArrays) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS row_count_param_test", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"CREATE TABLE row_count_param_test (id Int32, value Int32, PRIMARY KEY (id))",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLPrepare(stmt,
+        (SQLCHAR*)"UPSERT INTO row_count_param_test (id, value) VALUES (?, ?)",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLINTEGER ids[] = {1, 2, 3};
+    SQLINTEGER values[] = {10, 20, 30};
+    SQLLEN idLengths[] = {0, 0, 0};
+    SQLLEN valueLengths[] = {0, 0, 0};
+    SQLUSMALLINT operations[] = {SQL_PARAM_PROCEED, SQL_PARAM_IGNORE, SQL_PARAM_PROCEED};
+    SQLUSMALLINT statuses[] = {SQL_PARAM_UNUSED, SQL_PARAM_UNUSED, SQL_PARAM_UNUSED};
+    SQLULEN processed = 0;
+
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_PARAMSET_SIZE,
+        reinterpret_cast<SQLPOINTER>(3), 0), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_PARAM_OPERATION_PTR,
+        operations, 0), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_PARAM_STATUS_PTR,
+        statuses, 0), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_PARAMS_PROCESSED_PTR,
+        &processed, 0), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+        0, 0, ids, 0, idLengths), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 2, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+        0, 0, values, 0, valueLengths), stmt, SQL_HANDLE_STMT);
+
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    SQLLEN rowCount = -1;
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, 2);
+    EXPECT_EQ(processed, 3);
+    EXPECT_EQ(statuses[0], SQL_PARAM_SUCCESS);
+    EXPECT_EQ(statuses[1], SQL_PARAM_UNUSED);
+    EXPECT_EQ(statuses[2], SQL_PARAM_SUCCESS);
+
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE row_count_param_test", SQL_NTS);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

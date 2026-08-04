@@ -13,6 +13,15 @@ add_odbc_test(NAME odbc-connection_api_it
     connection_api_it.cpp
 )
 
+add_odbc_test(NAME odbc-authentication_it
+  SOURCES
+    authentication_it.cpp
+  LINK_LIBRARIES
+    tests-iam-mocks
+    client-oauth2-ut-helpers
+    cpp-testing-unittest
+)
+
 add_odbc_test(NAME odbc-statement_api_it
   SOURCES
     statement_api_it.cpp

@@ -15,6 +15,7 @@ Driver=YDB
 Description=YDB Database Connection
 Server=${YDB_ODBC_DSN_SERVER}
 Database=${YDB_ODBC_DSN_DATABASE}
+AuthMode=Anonymous
 ")
 
 add_subdirectory(integration)
