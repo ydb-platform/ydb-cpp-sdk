@@ -100,15 +100,15 @@ bool StartsWithPrefix(const char* s, size_t sLen, const char* prefix, size_t pre
     return true;
 }
 
-std::map<std::string, std::string> ParseConnectionString(const std::string& connectionString) {
-    std::map<std::string, std::string> params;
+TConnectionStringEntries ParseConnectionStringEntries(std::string_view connectionString) {
+    TConnectionStringEntries entries;
     size_t pos = 0;
     while (pos < connectionString.size()) {
         const size_t eq = connectionString.find('=', pos);
         if (eq == std::string::npos) {
             break;
         }
-        std::string key = connectionString.substr(pos, eq - pos);
+        std::string key(connectionString.substr(pos, eq - pos));
         TrimInPlace(key);
         if (key.empty()) {
             break;
@@ -140,7 +140,8 @@ std::map<std::string, std::string> ParseConnectionString(const std::string& conn
                 valueEnd = connectionString.size();
                 pos = connectionString.size();
             }
-            params[key] = connectionString.substr(valueStart, valueEnd - valueStart);
+            entries.emplace_back(
+                std::move(key), std::string(connectionString.substr(valueStart, valueEnd - valueStart)));
             continue;
         }
 
@@ -151,9 +152,17 @@ std::map<std::string, std::string> ParseConnectionString(const std::string& conn
         } else {
             pos = connectionString.size();
         }
-        std::string val = connectionString.substr(valueStart, valueEnd - valueStart);
+        std::string val(connectionString.substr(valueStart, valueEnd - valueStart));
         TrimInPlace(val);
-        params[key] = val;
+        entries.emplace_back(std::move(key), std::move(val));
+    }
+    return entries;
+}
+
+std::map<std::string, std::string> ParseConnectionString(std::string_view connectionString) {
+    std::map<std::string, std::string> params;
+    for (auto&& [key, value] : ParseConnectionStringEntries(connectionString)) {
+        params[std::move(key)] = std::move(value);
     }
     return params;
 }
