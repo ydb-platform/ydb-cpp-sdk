@@ -285,6 +285,9 @@ void TConnection::ApplyResolvedSettings(TResolvedConnectionSettings&& settings) 
 }
 
 void TConnection::RebindToDatabase(std::string_view newDatabase) {
+    if (!DriverConfig_) {
+        throw TOdbcException("08003", 0, "Connection configuration is not available");
+    }
     std::string db(newDatabase);
     TConnectionAttributes::NormalizeCatalogPath(db);
     Database_ = std::move(db);

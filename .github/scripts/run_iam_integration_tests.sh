@@ -16,7 +16,7 @@ cleanup_iam() {
 wait_for_iam_ydb() {
   for _ in $(seq 1 "${IAM_READY_ATTEMPTS}"); do
     if docker exec -e "YDB_TOKEN=${IAM_TOKEN}" "${IAM_CONTAINER_NAME}" /ydb \
-        --endpoint grpc://localhost:2136 \
+        --endpoint grpc://localhost:2236 \
         --database /local \
         sql -s 'select 1' >/dev/null 2>&1; then
       return 0
@@ -30,8 +30,8 @@ wait_for_iam_ydb() {
 }
 
 provision_odbc_static_user() {
-  docker exec "${IAM_CONTAINER_NAME}" /ydb \
-    --endpoint grpc://localhost:2136 \
+  docker exec -e "YDB_TOKEN=${IAM_TOKEN}" "${IAM_CONTAINER_NAME}" /ydb \
+    --endpoint grpc://localhost:2236 \
     --database /local \
     sql -s "CREATE USER odbcauth PASSWORD '12345678'"
 }
@@ -40,8 +40,11 @@ trap cleanup_iam EXIT
 cleanup_iam
 
 docker run -d --name "${IAM_CONTAINER_NAME}" --hostname localhost \
-  -p 2235:2135 -p 2236:2136 -p 28765:8765 \
+  -p 2235:2235 -p 2236:2236 -p 28765:28765 \
   -v /tmp/ydb_iam_certs:/ydb_certs \
+  -e GRPC_TLS_PORT=2235 \
+  -e GRPC_PORT=2236 \
+  -e MON_PORT=28765 \
   -e YDB_USE_IN_MEMORY_PDISKS=true \
   -e YDB_TABLE_ENABLE_PREPARED_DDL=true \
   -e YDB_ENFORCE_USER_TOKEN_REQUIREMENT=true \
