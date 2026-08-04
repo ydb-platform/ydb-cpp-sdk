@@ -81,6 +81,32 @@ TEST(ConnectionApi, SQLDriverConnectInvalidConnString) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(ConnectionApi, SQLDriverConnectIgnoresUnrecognizedAttributes) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    AllocEnv(&env);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc), SQL_SUCCESS);
+
+    SQLCHAR connectionString[] =
+        "Driver=" ODBC_DRIVER_PATH
+        ";Endpoint=localhost:2136;Database=/local;APP=PowerBI;WSID=desktop;Timeout=30;";
+    const SQLRETURN rc = SQLDriverConnect(
+        dbc, nullptr, connectionString, SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT);
+    ASSERT_EQ(rc, SQL_SUCCESS_WITH_INFO) << GetOdbcError(dbc, SQL_HANDLE_DBC);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(dbc, SQL_HANDLE_DBC), "01S00"));
+
+    SQLHSTMT stmt;
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, reinterpret_cast<SQLCHAR*>(const_cast<char*>("SELECT 1")), SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(ConnectionApi, SQLDriverConnectValidatesAuthenticationSettings) {
     SQLHENV env;
     AllocEnv(&env);
