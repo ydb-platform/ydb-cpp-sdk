@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <string_view>
 
 inline std::string GetOdbcError(SQLHANDLE handle, SQLSMALLINT type) {
     SQLCHAR sqlState[6] = {0};
@@ -26,8 +27,8 @@ inline std::string GetOdbcError(SQLHANDLE handle, SQLSMALLINT type) {
 
 inline const char* kConnStr = "Driver=" ODBC_DRIVER_PATH ";Server=localhost:2136;Database=/local;";
 
-inline bool SqlStatePrefix(const std::string& diag, const char* state5) {
-    return diag.size() >= 5 && std::strncmp(diag.c_str(), state5, 5) == 0;
+inline bool SqlStatePrefix(std::string_view diag, std::string_view state) {
+    return diag.starts_with(state);
 }
 
 inline void AllocEnv(SQLHENV* env) {
