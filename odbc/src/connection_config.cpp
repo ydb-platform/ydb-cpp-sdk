@@ -58,7 +58,7 @@ std::optional<std::string> CanonicalKey(std::string_view key) {
 }
 
 [[noreturn]] void ThrowInvalidAttribute(std::string_view attribute, std::string_view detail) {
-    throw TOdbcException("01S00", 0, "Invalid connection string attribute " +
+    throw TOdbcException("HY024", 0, "Invalid connection string attribute " +
         std::string(attribute) + ": " + std::string(detail));
 }
 
