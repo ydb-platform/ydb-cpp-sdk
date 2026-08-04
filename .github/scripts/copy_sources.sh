@@ -207,6 +207,7 @@ cp $2/.gitignore $tmp_dir
 cp $2/.gitmodules $tmp_dir
 cp $2/CMakePresets.json $tmp_dir
 cp $2/CMakeLists.txt $tmp_dir
+cp $2/codecov.yml $tmp_dir
 cp $2/LICENSE $tmp_dir
 cp $2/README.md $tmp_dir
 for oss_test_dir in slo_workloads deb_package; do
