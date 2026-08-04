@@ -2,6 +2,7 @@
 
 #include "environment.h"
 #include "connection_attr.h"
+#include "connection_config.h"
 #include "utils/error_manager.h"
 
 #include <ydb-cpp-sdk/client/driver/driver.h>
@@ -15,6 +16,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <unordered_set>
 
@@ -32,8 +34,8 @@ private:
         NScheme::TSchemeClient SchemeClient;
         NTable::TTableClient TableClient;
 
-        TYdbState(const std::string& endpoint, const std::string& database)
-            : Driver(TDriverConfig().SetEndpoint(endpoint).SetDatabase(database))
+        explicit TYdbState(const TDriverConfig& config)
+            : Driver(config)
             , QueryClient(Driver)
             , SchemeClient(Driver)
             , TableClient(Driver)
@@ -45,6 +47,7 @@ private:
     };
 
     std::optional<TYdbState> Ydb_;
+    std::optional<TDriverConfig> DriverConfig_;
     std::optional<NQuery::TTransaction> Tx_;
     std::optional<NQuery::TSession> QuerySession_;
 
@@ -59,16 +62,17 @@ private:
     std::unordered_set<TDescriptor*> Descriptors_;
 
     void DestroyYdbState();
+    void ApplyResolvedSettings(TResolvedConnectionSettings&& settings);
     void RecreateYdbClients();
-    void RebindToDatabase(const std::string& newDatabase);
+    void RebindToDatabase(std::string_view newDatabase);
 public:
     ~TConnection();
 
-    SQLRETURN Connect(const std::string& serverName,
-                      const std::string& userName,
-                      const std::string& auth);
+    SQLRETURN Connect(std::string_view serverName,
+                      std::string_view userName,
+                      std::string_view auth);
 
-    SQLRETURN DriverConnect(const std::string& connectionString);
+    SQLRETURN DriverConnect(std::string_view connectionString);
     SQLRETURN Disconnect();
 
     std::unique_ptr<TStatement> CreateStatement();
