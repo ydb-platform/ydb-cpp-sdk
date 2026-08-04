@@ -982,12 +982,8 @@ SQLRETURN TStatement::GetDiagField(
     SQLPOINTER diagInfoPtr,
     SQLSMALLINT bufferLength,
     SQLSMALLINT* stringLengthPtr) {
-    if (recNumber == 0 && diagIdentifier == SQL_DIAG_ROW_COUNT) {
-        if (!diagInfoPtr) {
-            return SQL_ERROR;
-        }
-        *reinterpret_cast<SQLLEN*>(diagInfoPtr) = -1;
-        return SQL_SUCCESS;
+    if (diagIdentifier == SQL_DIAG_ROW_COUNT) {
+        return RowCount(static_cast<SQLLEN*>(diagInfoPtr));
     }
     return TErrorManager::GetDiagField(recNumber, diagIdentifier, diagInfoPtr, bufferLength, stringLengthPtr);
 }

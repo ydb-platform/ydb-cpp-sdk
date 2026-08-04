@@ -394,8 +394,12 @@ TEST(StatementApi, RowCount) {
     CHECK_ODBC_OK(SQLExecDirect(stmt,
         (SQLCHAR*)"UPSERT INTO row_count_test (id, value) VALUES (1, 10), (2, 20), (3, 30)",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLLEN diagRowCount = -2;
+    CHECK_ODBC_OK(SQLGetDiagField(SQL_HANDLE_STMT, stmt, 0, SQL_DIAG_ROW_COUNT,
+        &diagRowCount, 0, nullptr), stmt, SQL_HANDLE_STMT);
     CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(rowCount, 3);
+    EXPECT_EQ(diagRowCount, rowCount);
     SQLFreeStmt(stmt, SQL_CLOSE);
 
     CHECK_ODBC_OK(SQLExecDirect(stmt,
