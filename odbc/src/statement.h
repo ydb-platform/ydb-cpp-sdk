@@ -116,8 +116,7 @@ private:
     std::vector<SQLLEN> GetDataOffsets_;
 
     SQLRETURN BuildParams(NYdb::TParams& out, SQLULEN paramSet);
-    SQLRETURN ExecuteParamSet(SQLULEN paramSet, bool collectAffectedRows,
-                              std::optional<SQLLEN>& affectedRows);
+    SQLRETURN ExecuteParamSet(SQLULEN paramSet, std::optional<SQLLEN>& affectedRows);
     void FillBoundColumns();
     std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;
     void SetCursor(std::unique_ptr<ICursor> cursor);
@@ -127,8 +126,7 @@ private:
     SQLUSMALLINT FindNextNeedDataParam() const;
     std::string GetTraversalRoot(const std::string& pattern) const;
 
-    NQuery::TExecuteQueryResult ExecuteQuery(NQuery::TSession& session, const NYdb::TParams& params,
-                                             bool collectAffectedRows);
+    NQuery::TExecuteQueryResult ExecuteQuery(NQuery::TSession& session, const NYdb::TParams& params);
 
     NYdb::NRetry::TRetryOperationSettings MakeAutocommitRetrySettings();
     std::vector<NScheme::TSchemeEntry> GetPatternEntries(const std::string& pattern);

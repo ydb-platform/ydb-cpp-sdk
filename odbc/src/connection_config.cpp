@@ -232,12 +232,16 @@ EAuthenticationMode ResolveAuthMode(const TConnectionParameters& parameters) {
 
 } // namespace
 
-TConnectionParameters ParseAndNormalizeConnectionString(std::string_view connectionString) {
+TConnectionParameters ParseAndNormalizeConnectionString(
+    std::string_view connectionString,
+    std::vector<std::string>& ignoredAttributes)
+{
     TConnectionParameters parameters;
     for (const auto& [key, value] : ParseConnectionStringEntries(connectionString)) {
         const auto canonical = CanonicalKey(key);
         if (!canonical) {
-            ThrowInvalidAttribute(key, "unknown attribute");
+            ignoredAttributes.push_back(key);
+            continue;
         }
         parameters[*canonical] = value;
     }
