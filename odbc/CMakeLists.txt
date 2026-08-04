@@ -12,6 +12,7 @@ add_library(ydb-odbc SHARED
   src/utils/error_manager.cpp
   src/odbc_driver.cpp
   src/connection_attr.cpp
+  src/connection_config.cpp
   src/connection.cpp
   src/statement_attr.cpp
   src/statement.cpp
@@ -34,6 +35,9 @@ target_link_libraries(ydb-odbc
     YDB-CPP-SDK::Table
     YDB-CPP-SDK::Scheme
     YDB-CPP-SDK::Driver
+    YDB-CPP-SDK::Credentials
+    YDB-CPP-SDK::Helpers
+    YDB-CPP-SDK::Iam
     ODBC::ODBC
     odbcinst
 )

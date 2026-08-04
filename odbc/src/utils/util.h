@@ -7,6 +7,9 @@
 
 #include <map>
 #include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 namespace NYdb::NOdbc {
 
@@ -16,6 +19,10 @@ std::string GetString(SQLWCHAR* str, SQLINTEGER length);
 
 bool StartsWithPrefix(const char* s, size_t sLen, const char* prefix, size_t prefixLen);
 
-std::map<std::string, std::string> ParseConnectionString(const std::string& connectionString);
+using TConnectionStringEntries = std::vector<std::pair<std::string, std::string>>;
+
+TConnectionStringEntries ParseConnectionStringEntries(std::string_view connectionString);
+
+std::map<std::string, std::string> ParseConnectionString(std::string_view connectionString);
 
 } // namespace NYdb::NOdbc

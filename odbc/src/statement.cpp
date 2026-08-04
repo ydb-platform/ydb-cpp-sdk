@@ -22,6 +22,7 @@
 #include <cctype>
 #include <algorithm>
 #include <cstring>
+#include <limits>
 
 namespace NYdb::NOdbc {
 
@@ -70,7 +71,7 @@ namespace {
     }
 
     bool StartsWithStatement(
-        const std::string& queryText,
+        std::string_view queryText,
         std::initializer_list<std::string_view> keywords) {
         size_t i = 0;
         while (i < queryText.size()) {
@@ -97,11 +98,41 @@ namespace {
         const size_t remaining = queryText.size() - i;
         for (const std::string_view keyword : keywords) {
             if (StartsWithPrefix(
-                    queryText.c_str() + i, remaining, keyword.data(), keyword.size())) {
+                    queryText.data() + i, remaining, keyword.data(), keyword.size())) {
                 return true;
             }
         }
         return false;
+    }
+
+    std::optional<SQLLEN> ExtractAffectedRows(const NQuery::TExecuteQueryResult& result) {
+        const auto& stats = result.GetStats();
+        if (!stats) {
+            return std::nullopt;
+        }
+
+        const uint64_t maxSqlLen = static_cast<uint64_t>(std::numeric_limits<SQLLEN>::max());
+        uint64_t affectedRows = 0;
+        bool hasTableAccess = false;
+        for (const auto& phase : stats->GetQueryPhases()) {
+            for (const auto& table : phase.GetTableAccess()) {
+                hasTableAccess = true;
+                const uint64_t updates = table.GetUpdates().GetRows();
+                const uint64_t deletes = table.GetDeletes().GetRows();
+                if (updates > maxSqlLen - affectedRows) {
+                    return std::nullopt;
+                }
+                affectedRows += updates;
+                if (deletes > maxSqlLen - affectedRows) {
+                    return std::nullopt;
+                }
+                affectedRows += deletes;
+            }
+        }
+        if (!hasTableAccess) {
+            return std::nullopt;
+        }
+        return static_cast<SQLLEN>(affectedRows);
     }
 
 }
@@ -135,6 +166,7 @@ void TStatement::DetachDescriptor(TDescriptor* desc) {
 
 SQLRETURN TStatement::Prepare(const std::string& statementText) {
     RowsFetched_ = 0;
+    RowCount_ = -1;
     SetCursor(nullptr);
     PreparedQuery_ = statementText;
     IsPrepared_ = true;
@@ -173,6 +205,11 @@ SQLRETURN TStatement::Execute() {
 }
 
 SQLRETURN TStatement::ExecuteInternal() {
+    const bool collectAffectedRows = StartsWithStatement(
+        PreparedQuery_, {"INSERT", "UPDATE", "DELETE", "UPSERT", "REPLACE"});
+    RowCount_ = collectAffectedRows ? 0 : -1;
+    bool hasSuccessfulParamSet = false;
+    bool rowCountUsable = collectAffectedRows;
     const SQLULEN paramsetSize = ParamCount_ > 0 ? CurrentAppParamDesc_->GetArraySize() : 1;
     SQLUSMALLINT* const operations = CurrentAppParamDesc_->GetArrayStatusPtr();
     SQLUSMALLINT* const statuses = ImpParamDesc_.GetArrayStatusPtr();
@@ -201,7 +238,16 @@ SQLRETURN TStatement::ExecuteInternal() {
             }
             return AddError("HY024", 0, "Invalid parameter operation value");
         }
-        const SQLRETURN rc = ExecuteParamSet(paramSet);
+        std::optional<SQLLEN> affectedRows;
+        SQLRETURN rc;
+        try {
+            rc = ExecuteParamSet(paramSet, collectAffectedRows, affectedRows);
+        } catch (...) {
+            if (collectAffectedRows && !hasSuccessfulParamSet) {
+                RowCount_ = -1;
+            }
+            throw;
+        }
         if (statuses) {
             statuses[paramSet] = rc == SQL_SUCCESS_WITH_INFO
                 ? SQL_PARAM_SUCCESS_WITH_INFO
@@ -211,7 +257,19 @@ SQLRETURN TStatement::ExecuteInternal() {
             *processed = paramSet + 1;
         }
         if (rc == SQL_ERROR) {
+            if (collectAffectedRows && !hasSuccessfulParamSet) {
+                RowCount_ = -1;
+            }
             return SQL_ERROR;
+        }
+        hasSuccessfulParamSet = true;
+        if (collectAffectedRows && rowCountUsable) {
+            if (!affectedRows || *affectedRows > std::numeric_limits<SQLLEN>::max() - RowCount_) {
+                RowCount_ = -1;
+                rowCountUsable = false;
+            } else {
+                RowCount_ += *affectedRows;
+            }
         }
         if (rc == SQL_SUCCESS_WITH_INFO) {
             result = SQL_SUCCESS_WITH_INFO;
@@ -220,7 +278,11 @@ SQLRETURN TStatement::ExecuteInternal() {
     return result;
 }
 
-SQLRETURN TStatement::ExecuteParamSet(SQLULEN paramSet) {
+SQLRETURN TStatement::ExecuteParamSet(
+    SQLULEN paramSet,
+    bool collectAffectedRows,
+    std::optional<SQLLEN>& affectedRows)
+{
     RowsFetched_ = 0;
     SetCursor(nullptr);
     auto client = Conn_->GetClient();
@@ -239,10 +301,13 @@ SQLRETURN TStatement::ExecuteParamSet(SQLULEN paramSet) {
         const NYdb::NRetry::TRetryOperationSettings retrySettings = MakeAutocommitRetrySettings();
 
         const NYdb::TStatus execStatus = client->RetryQuerySync(
-            [this, &params](NQuery::TSession session) -> NYdb::TStatus {
-                NQuery::TExecuteQueryResult result = ExecuteQuery(session, params);
+            [this, &params, collectAffectedRows, &affectedRows](NQuery::TSession session) -> NYdb::TStatus {
+                NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, collectAffectedRows);
                 if (!result.IsSuccess()) {
                     return StatusFrom(result);
+                }
+                if (collectAffectedRows) {
+                    affectedRows = ExtractAffectedRows(result);
                 }
                 SetCursor(CreateExecCursor(result));
                 return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
@@ -252,11 +317,13 @@ SQLRETURN TStatement::ExecuteParamSet(SQLULEN paramSet) {
         NStatusHelpers::ThrowOnError(execStatus);
     } else {
         NQuery::TSession& session = Conn_->GetOrCreateQuerySession();
-        NQuery::TExecuteQueryResult result = ExecuteQuery(session, params);
+        NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, collectAffectedRows);
         NStatusHelpers::ThrowOnError(result);
+        if (collectAffectedRows) {
+            affectedRows = ExtractAffectedRows(result);
+        }
         SetCursor(CreateExecCursor(result));
     }
-    RowCount_ = -1;
     InAtExec_ = false;
     NeedDataParam_ = 0;
     NeedDataTokenDelivered_ = false;
@@ -290,7 +357,11 @@ NYdb::NRetry::TRetryOperationSettings TStatement::MakeAutocommitRetrySettings() 
     return settings;
 }
 
-NQuery::TExecuteQueryResult TStatement::ExecuteQuery(NQuery::TSession& session, const NYdb::TParams& params) {
+NQuery::TExecuteQueryResult TStatement::ExecuteQuery(
+    NQuery::TSession& session,
+    const NYdb::TParams& params,
+    bool collectAffectedRows)
+{
     const std::string sqlAfterEscapes = Attributes_.GetNoScanMode() == SQL_NOSCAN_ON
         ? PreparedQuery_
         : RewriteOdbcEscapes(PreparedQuery_);
@@ -303,6 +374,9 @@ NQuery::TExecuteQueryResult TStatement::ExecuteQuery(NQuery::TSession& session, 
         rewritten.Sql, {"CREATE", "DROP", "ALTER", "GRANT", "REVOKE"});
     const std::string queryText = Conn_->WrapQueryForCurrentCatalog(rewritten.Sql);
     NQuery::TExecuteQuerySettings execSettings;
+    if (collectAffectedRows) {
+        execSettings.StatsMode(NQuery::EStatsMode::Basic);
+    }
     const SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
     if (queryTimeoutSec > 0) {
         execSettings.ClientTimeout(TDuration::Seconds(queryTimeoutSec));
@@ -625,6 +699,7 @@ SQLRETURN TStatement::NumParams(SQLSMALLINT* paramCount) {
 void TStatement::ResetForMetadata() {
     ClearErrors();
     RowsFetched_ = 0;
+    RowCount_ = -1;
     SetCursor(nullptr);
 }
 

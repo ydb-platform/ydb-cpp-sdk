@@ -138,7 +138,7 @@ jobs:
       if: github.event_name != 'pull_request' || github.base_ref == 'main'
       shell: bash
       run: |
-        IAM_REGEX='^(DriverAuth|TMetadataFixture|TJwtIamFixture|TOAuthIamFixture|OAuth_WithFacility)\.'
+        IAM_REGEX='^(DriverAuth|TMetadataFixture|TJwtIamFixture|TOAuthIamFixture|OAuth_WithFacility|OdbcAuthentication)\.'
 
         YDB_VERSION=${{ matrix.ydb-version }} ctest -j2 --preset integration \
           -E "${IAM_REGEX}" --output-on-failure
@@ -153,7 +153,14 @@ jobs:
       shell: bash
       run: |
         YDB_VERSION=${{ matrix.ydb-version }} \
-          ctest --test-dir build/odbc/tests/integration -j2 --output-on-failure
+          ctest --test-dir build/odbc/tests/integration -j2 \
+            -E '^OdbcAuthentication\.' --output-on-failure
+
+        case '${{ matrix.ydb-version }}' in
+          25.1|trunk)
+            ./.github/scripts/run_iam_integration_tests.sh
+            ;;
+        esac
 
   test-install:
     if: github.event_name != 'pull_request' || github.base_ref == 'main'

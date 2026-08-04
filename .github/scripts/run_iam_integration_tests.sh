@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-IAM_REGEX='^(DriverAuth|TMetadataFixture|TJwtIamFixture|TOAuthIamFixture|OAuth_WithFacility)\.'
+IAM_REGEX='^(DriverAuth|TMetadataFixture|TJwtIamFixture|TOAuthIamFixture|OAuth_WithFacility|OdbcAuthentication)\.'
 IAM_CONTAINER_NAME="${IAM_CONTAINER_NAME:-ydb-iam}"
 IAM_CTEST_JOBS="${IAM_CTEST_JOBS:-2}"
 IAM_READY_ATTEMPTS="${IAM_READY_ATTEMPTS:-60}"
@@ -29,6 +29,13 @@ wait_for_iam_ydb() {
   return 1
 }
 
+provision_odbc_static_user() {
+  docker exec "${IAM_CONTAINER_NAME}" /ydb \
+    --endpoint grpc://localhost:2136 \
+    --database /local \
+    sql -s "CREATE USER odbcauth PASSWORD '12345678'"
+}
+
 trap cleanup_iam EXIT
 cleanup_iam
 
@@ -42,6 +49,8 @@ docker run -d --name "${IAM_CONTAINER_NAME}" --hostname localhost \
   ghcr.io/ydb-platform/local-ydb:trunk
 
 wait_for_iam_ydb
+provision_odbc_static_user
 
 YDB_ENDPOINT=localhost:2236 YDB_DATABASE=/local \
+YDB_ODBC_STATIC_USER=odbcauth YDB_ODBC_STATIC_PASSWORD=12345678 \
   ctest -j"${IAM_CTEST_JOBS}" --test-dir build -R "${IAM_REGEX}" --output-on-failure
