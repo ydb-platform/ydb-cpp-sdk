@@ -24,7 +24,9 @@ void TConnection::DestroyYdbState() {
 }
 
 SQLRETURN TConnection::DriverConnect(std::string_view connectionString) {
-    TConnectionParameters explicitParameters = ParseAndNormalizeConnectionString(connectionString);
+    std::vector<std::string> ignoredAttributes;
+    TConnectionParameters explicitParameters =
+        ParseAndNormalizeConnectionString(connectionString, ignoredAttributes);
     const auto dsnIt = explicitParameters.find("DSN");
     TConnectionParameters parameters;
     if (dsnIt != explicitParameters.end() && !dsnIt->second.empty()) {
@@ -32,6 +34,19 @@ SQLRETURN TConnection::DriverConnect(std::string_view connectionString) {
     }
     OverlayConnectionParameters(parameters, explicitParameters);
     ApplyResolvedSettings(ResolveConnectionSettings(std::move(parameters)));
+
+    if (!ignoredAttributes.empty()) {
+        std::string message = ignoredAttributes.size() == 1
+            ? "Invalid connection string attribute ignored: "
+            : "Invalid connection string attributes ignored: ";
+        for (size_t i = 0; i < ignoredAttributes.size(); ++i) {
+            if (i != 0) {
+                message += ", ";
+            }
+            message += ignoredAttributes[i];
+        }
+        return AddError("01S00", 0, message, SQL_SUCCESS_WITH_INFO);
+    }
 
     return SQL_SUCCESS;
 }
