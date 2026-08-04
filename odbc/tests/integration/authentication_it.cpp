@@ -98,6 +98,19 @@ protected:
         Execute("SELECT 1");
     }
 
+    void ExpectSelectOneAuthFailure() {
+        SQLHSTMT statement = SQL_NULL_HSTMT;
+        ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, Dbc_, &statement), SQL_SUCCESS);
+        SQLCHAR query[] = "SELECT 1";
+        const SQLRETURN rc = SQLExecDirect(statement, query, SQL_NTS);
+        EXPECT_EQ(rc, SQL_ERROR);
+        if (rc == SQL_ERROR) {
+            const std::string error = GetOdbcError(statement, SQL_HANDLE_STMT);
+            EXPECT_TRUE(SqlStatePrefix(error, "28000")) << error;
+        }
+        EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_STMT, statement), SQL_SUCCESS);
+    }
+
     SQLHENV Env_ = SQL_NULL_HENV;
     SQLHDBC Dbc_ = SQL_NULL_HDBC;
     std::string Endpoint_;
@@ -116,7 +129,7 @@ TEST_F(OdbcAuthentication, TokenAndAccessTokenAlias) {
 
 TEST_F(OdbcAuthentication, Anonymous) {
     ASSERT_NO_FATAL_FAILURE(Connect("AuthMode=Anonymous;"));
-    ASSERT_NO_FATAL_FAILURE(SelectOne());
+    ASSERT_NO_FATAL_FAILURE(ExpectSelectOneAuthFailure());
 }
 
 TEST_F(OdbcAuthentication, StaticUserAndPasswordAliases) {
@@ -178,7 +191,8 @@ TEST_F(OdbcAuthentication, OAuth2TokenExchangeFile) {
 
     ASSERT_NO_FATAL_FAILURE(Connect("AuthMode=OAuth2;OAuth2KeyFile=" + std::string(configPath) +
         ";IamEndpoint=" + server.GetEndpoint() + ";"));
-    ASSERT_NO_FATAL_FAILURE(SelectOne());
+    // The local IAM fixture accepts builtin tokens, not OAuth "Bearer" credentials.
+    ASSERT_NO_FATAL_FAILURE(ExpectSelectOneAuthFailure());
     server.CheckExpectations();
 }
 

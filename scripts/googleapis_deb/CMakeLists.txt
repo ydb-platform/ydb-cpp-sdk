@@ -48,6 +48,8 @@ endforeach()
 add_library(api-common-protos STATIC ${PROTO_SRCS} ${PROTO_HDRS})
 add_library(yandex-googleapis-api-common-protos::api-common-protos ALIAS api-common-protos)
 
+set_target_properties(api-common-protos PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 target_include_directories(api-common-protos PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<INSTALL_INTERFACE:include>
