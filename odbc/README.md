@@ -91,6 +91,10 @@ or OAuth 2.0 key). With no credential attributes it uses `Anonymous`. Conflictin
 families and incomplete credentials are rejected with SQLSTATE `28000`.
 `Environment` uses the SDK's standard `YDB_*_CREDENTIALS` variables.
 
+Unrecognized connection-string attributes are ignored after reporting SQLSTATE
+`01S00`; `SQLDriverConnect` completes with `SQL_SUCCESS_WITH_INFO`. This allows
+ODBC applications to supply tool-specific attributes such as `APP` or `WSID`.
+
 Certificate attributes contain file paths, not inline PEM. The driver reads the
 files while establishing the ODBC connection. Supplying certificates enables
 TLS; certificates cannot be combined with an explicitly plaintext `grpc://`

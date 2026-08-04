@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace NYdb::NOdbc {
 
@@ -27,7 +28,9 @@ struct TResolvedConnectionSettings {
     TDriverConfig DriverConfig;
 };
 
-TConnectionParameters ParseAndNormalizeConnectionString(std::string_view connectionString);
+TConnectionParameters ParseAndNormalizeConnectionString(
+    std::string_view connectionString,
+    std::vector<std::string>& ignoredAttributes);
 TConnectionParameters ReadDsnParameters(std::string_view dsn);
 void OverlayConnectionParameters(TConnectionParameters& destination, const TConnectionParameters& source);
 
