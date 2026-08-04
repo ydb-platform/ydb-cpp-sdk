@@ -420,6 +420,28 @@ TEST(StatementApi, RowCount) {
     SQLFreeStmt(stmt, SQL_CLOSE);
 
     CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"PRAGMA TablePathPrefix = \"/local\";\n"
+                  "UPDATE row_count_test SET value = value + 1 WHERE id = 1",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, 1);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLPrepare(stmt,
+        (SQLCHAR*)"DECLARE $p1 AS Int32?;\n"
+                  "UPDATE row_count_test SET value = value + 1 WHERE id = $p1",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLINTEGER nativeId = 2;
+    SQLLEN nativeIdLength = 0;
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+        0, 0, &nativeId, 0, &nativeIdLength), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, 1);
+    SQLFreeStmt(stmt, SQL_RESET_PARAMS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
         (SQLCHAR*)"SELECT * FROM row_count_test",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
     CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
