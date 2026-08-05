@@ -204,7 +204,6 @@ sync_upstream_tree "$1" "$2" "$tmp_dir" tools/enum_parser managed
 sync_upstream_tree "$1" "$2" "$tmp_dir" tools/rescompiler managed
 
 cp $2/.gitignore $tmp_dir
-cp $2/.gitmodules $tmp_dir
 cp $2/CMakePresets.json $tmp_dir
 cp $2/CMakeLists.txt $tmp_dir
 cp $2/LICENSE $tmp_dir

@@ -59,10 +59,9 @@ find_package(Snappy 1.1.8 REQUIRED)
 find_package(base64 REQUIRED)
 find_package(Brotli 1.1.0 REQUIRED)
 find_package(jwt-cpp REQUIRED)
-find_package(GTest REQUIRED)
 find_package(double-conversion REQUIRED)
 
-if (@YDB_SDK_USE_SYSTEM_GOOGLEAPIS@)
+if ("@YDB_SDK_DEPENDENCY_MODE@" STREQUAL "SYSTEM")
   find_package(yandex-googleapis-api-common-protos REQUIRED)
 endif()
 
@@ -78,7 +77,8 @@ if (@YDB_SDK_USE_RAPID_JSON@)
   endif()
 endif()
 
-if (@YDB_SDK_ENABLE_OTEL_METRICS@ OR @YDB_SDK_ENABLE_OTEL_TRACE@)
+if ("@YDB_SDK_DEPENDENCY_MODE@" STREQUAL "CPM" AND
+    (@YDB_SDK_ENABLE_OTEL_METRICS@ OR @YDB_SDK_ENABLE_OTEL_TRACE@))
   if (_ydb_sdk_needs_otel_metrics OR _ydb_sdk_needs_otel_tracing)
     get_filename_component(_ydb_sdk_cmake_lib_dir "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
     list(APPEND CMAKE_PREFIX_PATH "${_ydb_sdk_cmake_lib_dir}")

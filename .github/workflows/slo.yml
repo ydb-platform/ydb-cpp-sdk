@@ -66,7 +66,6 @@ jobs:
         with:
           path: sdk-current
           fetch-depth: 0
-          submodules: true
 
       - name: Determine baseline commit
         id: baseline
@@ -95,7 +94,6 @@ jobs:
           ref: ${{ steps.baseline.outputs.sha }}
           path: sdk-baseline
           fetch-depth: 1
-          submodules: true
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

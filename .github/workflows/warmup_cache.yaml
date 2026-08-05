@@ -1,127 +1,70 @@
 name: Warm up cache
 
-on:  
+on:
   schedule:
     - cron: "0 4 * * *"
   workflow_dispatch:
 
 jobs:
   main:
-    name: Build YDB C++ SDK and cache artifacts
+    name: Warm CPM and ccache (${{ matrix.compiler }})
     runs-on: ubuntu-22.04
     strategy:
       matrix:
         compiler: [clang, gcc]
+    env:
+      CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Prepare ccache timestamp
-      id: ccache_cache_timestamp
-      shell: bash
-      run: |
-        echo "timestamp=$(date -u +%Y-%m-%d-%H-%M-%S)" >> "$GITHUB_OUTPUT"
-    - name: Restore cache files
-      id: ccache-restore
-      uses: actions/cache/restore@v4
-      with:
-        path: ~/.ccache
-        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
-        restore-keys: |
-          ubuntu-22.04-ccache-${{ matrix.compiler }}-
-    - name: Install dependencies
-      uses: ./.github/actions/prepare_vm
-    - name: Build
-      uses: ./.github/actions/build
-      with:
-        compiler: ${{ matrix.compiler }}
-    - name: Save cache files
-      if: steps.ccache-restore.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
-      with:
-        path: ~/.ccache
-        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .cache/cpm
+            ~/.ccache
+          key: build-${{ runner.os }}-${{ matrix.compiler }}-${{ hashFiles('cmake/dependencies.cmake') }}-${{ github.run_id }}
+          restore-keys: |
+            build-${{ runner.os }}-${{ matrix.compiler }}-${{ hashFiles('cmake/dependencies.cmake') }}-
+      - uses: ./.github/actions/prepare_vm
+      - uses: ./.github/actions/build
+        with:
+          compiler: ${{ matrix.compiler }}
 
   coverage:
-    name: Build coverage binaries and cache artifacts
+    name: Warm coverage compiler cache
     runs-on: ubuntu-22.04
+    env:
+      CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Prepare coverage cache key
-      id: coverage-cache-key
-      shell: bash
-      run: |
-        echo "prefix=ubuntu-22.04-coverage-gcc-${{ hashFiles('CMakePresets.json', '**/CMakeLists.txt', 'cmake/**') }}" >> "$GITHUB_OUTPUT"
-    - name: Restore coverage build cache
-      id: coverage-build-cache
-      uses: actions/cache/restore@v4
-      with:
-        path: build
-        key: ${{ steps.coverage-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
-        restore-keys: |
-          ${{ steps.coverage-cache-key.outputs.prefix }}-
-    - name: Install dependencies
-      uses: ./.github/actions/prepare_vm
-    - name: Configure and build with coverage
-      shell: bash
-      run: |
-        mkdir -p build
-        cmake --preset coverage-test-gcc
-        cmake --build build -j"$(nproc)"
-        find build -type f \( -name '*.gcda' -o -name '*.gcov' \) -delete
-        rm -rf build/coverage
-        cmake -E remove_directory build/util/system/testing_out_stuff
-    - name: Save coverage build cache
-      if: steps.coverage-build-cache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
-      with:
-        path: build
-        key: ${{ steps.coverage-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .cache/cpm
+            ~/.ccache
+          key: coverage-${{ runner.os }}-${{ hashFiles('cmake/dependencies.cmake') }}-${{ github.run_id }}
+          restore-keys: |
+            coverage-${{ runner.os }}-${{ hashFiles('cmake/dependencies.cmake') }}-
+      - uses: ./.github/actions/prepare_vm
+      - name: Configure and build coverage binaries
+        run: |
+          cmake --preset coverage-test-gcc
+          cmake --build build --parallel
 
   deb-packages:
-    name: Build Debian packages and cache artifacts
-    runs-on: ubuntu-latest
+    name: Warm Ubuntu 24.04 DEB caches
+    runs-on: ubuntu-24.04
+    env:
+      CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
+      CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Prepare Debian package cache key
-      id: deb-package-cache-key
-      shell: bash
-      run: |
-        echo "prefix=ubuntu-24.04-deb-packages-${{ hashFiles('CMakeLists.txt', 'cmake/**', 'contrib/**', 'include/**', 'library/**', 'plugins/**', 'scripts/build_cpack_deb_packages.sh', 'scripts/generate-debian-directory.sh', 'scripts/googleapis_deb/**', 'src/**', 'third_party/api-common-protos/**', 'tools/**', 'util/**') }}" >> "$GITHUB_OUTPUT"
-    - name: Restore Debian package build cache
-      id: deb-package-cache
-      uses: actions/cache/restore@v4
-      with:
-        path: |
-          .deb-ccache
-          build_googleapis_deb
-          build-deb
-        key: ${{ steps.deb-package-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
-        restore-keys: |
-          ${{ steps.deb-package-cache-key.outputs.prefix }}-
-          ubuntu-24.04-deb-packages-
-    - name: Build CPack .deb packages
-      shell: bash
-      run: |
-        mkdir -p .deb-ccache build_googleapis_deb build-deb
-        docker run --rm --network host \
-          -e CCACHE_DIR=/source/.deb-ccache \
-          -v "$PWD:/source" \
-          ubuntu:24.04 \
-          bash /source/scripts/build_cpack_deb_packages.sh /source/build-deb
-    - name: Save Debian package build cache
-      if: steps.deb-package-cache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
-      with:
-        path: |
-          .deb-ccache
-          build_googleapis_deb
-          build-deb
-        key: ${{ steps.deb-package-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .cache/cpm
+            .cache/ccache
+          key: deb-ubuntu-24.04-${{ hashFiles('cmake/dependencies.cmake') }}-${{ github.run_id }}
+          restore-keys: |
+            deb-ubuntu-24.04-${{ hashFiles('cmake/dependencies.cmake') }}-
+      - name: Build CPack DEBs
+        run: ./scripts/build_cpack_deb_packages.sh build-deb/packages

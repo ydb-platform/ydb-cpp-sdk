@@ -1,94 +1,30 @@
 name: Prepare VM for YDB SDK build
-description: Install required packages
+description: Install platform prerequisites; CPM supplies project libraries
 
 inputs:
   mode:
-    description: "Setup scope: build installs full build dependencies; runtime installs only test runtime dependencies."
+    description: "Setup scope: build installs tools and headers; runtime installs shared runtime libraries."
     required: false
     default: build
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Install CMake and Ninja
-      uses: lukka/get-cmake@v3.27.7
-    - name: Install runtime dependencies
-      shell: bash
-      run: |
-        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-        sudo apt-get -y update
-        sudo apt-get -y install git gdb ninja-build libidn11-dev ragel yasm libc-ares-dev libre2-dev \
-          rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev libgtest-dev libgmock-dev \
-          libbz2-dev liblz4-dev libdouble-conversion-dev libssl-dev libstdc++-13-dev gcc-13 g++-13
-
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 10000
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 10000
-
-    - name: Install build dependencies
       if: ${{ inputs.mode == 'build' }}
+      uses: lukka/get-cmake@v3.27.7
+
+    - name: Install platform prerequisites
       shell: bash
       run: |
-        # Install ccache
-        (V=4.8.1; curl -L https://github.com/ccache/ccache/releases/download/v${V}/ccache-${V}-linux-x86_64.tar.xz | \
-        sudo tar -xJ -C /usr/local/bin/ --strip-components=1 --no-same-owner ccache-${V}-linux-x86_64/ccache)
-
-        ccache -o base_dir=`realpath ..`
-        ccache -o cache_dir=~/.ccache
-        ccache -z
-        export ENABLE_CCACHE="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
-
-        wget https://apt.llvm.org/llvm.sh
-        chmod u+x llvm.sh
-        sudo ./llvm.sh 18
-        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-18 10000
-        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-18 10000
-
-        # Install abseil-cpp
-        wget -O abseil-cpp-20230802.0.tar.gz https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.0.tar.gz
-        tar -xvzf abseil-cpp-20230802.0.tar.gz
-        cd abseil-cpp-20230802.0
-        mkdir build && cd build
-        cmake -G Ninja ${ENABLE_CCACHE} -DCMAKE_BUILD_TYPE=Release -DABSL_PROPAGATE_CXX_STD=ON ..
-        cmake --build . --config Release
-        cmake --install . --config Release --prefix ~/ydb_deps/absl
-        cd ../../
-
-        # Install protobuf
-        wget -O protobuf-25.0.tar.gz https://github.com/protocolbuffers/protobuf/archive/refs/tags/v25.0.tar.gz
-        tar -xvzf protobuf-25.0.tar.gz
-        cd protobuf-25.0
-        mkdir build && cd build
-        cmake -G Ninja ${ENABLE_CCACHE} -DCMAKE_PREFIX_PATH="${HOME}/ydb_deps/absl" -DCMAKE_BUILD_TYPE=Release \
-          -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_INSTALL=ON -Dprotobuf_ABSL_PROVIDER=package ..
-        cmake --build . --config Release
-        cmake --install . --config Release --prefix ~/ydb_deps/protobuf
-        cd ../../
-
-        # Install gRPC
-        wget -O grpc-1.60.2.tar.gz https://github.com/grpc/grpc/archive/refs/tags/v1.60.2.tar.gz
-        tar -xvzf grpc-1.60.2.tar.gz && cd grpc-1.60.2
-        mkdir build && cd build
-        cmake -G Ninja ${ENABLE_CCACHE} -DCMAKE_PREFIX_PATH="${HOME}/ydb_deps/absl;${HOME}/ydb_deps/protobuf" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 \
-          -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DgRPC_BUILD_CSHARP_EXT=OFF \
-          -DgRPC_ZLIB_PROVIDER=package -DgRPC_CARES_PROVIDER=package -DgRPC_RE2_PROVIDER=package \
-          -DgRPC_SSL_PROVIDER=package -DgRPC_PROTOBUF_PROVIDER=package -DgRPC_ABSL_PROVIDER=package \
-          -DgRPC_BUILD_GRPC_NODE_PLUGIN=OFF -DgRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN=OFF -DgRPC_BUILD_GRPC_PHP_PLUGIN=OFF \
-          -DgRPC_BUILD_GRPC_RUBY_PLUGIN=OFF -DgRPC_BUILD_GRPC_CSHARP_PLUGIN=OFF -DgRPC_BUILD_GRPC_PYTHON_PLUGIN=OFF ..
-        cmake --build . --config Release
-        cmake --install . --config Release --prefix ~/ydb_deps/grpc
-        cd ../../
-
-        # Install brotli
-        wget -O brotli-1.1.0.tar.gz https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz
-        tar -xvzf brotli-1.1.0.tar.gz && cd brotli-1.1.0
-        mkdir build && cd build
-        cmake -G Ninja ${ENABLE_CCACHE} -DCMAKE_BUILD_TYPE=Release ..
-        cmake --build . --config Release
-        cmake --install . --config Release --prefix ~/ydb_deps/brotli
-        cd ../../
-
-        # Clean up
-        ccache -s
-        sudo rm -rf llvm.sh abseil-cpp-20230802.0.tar.gz protobuf-25.0.tar.gz grpc-1.60.2.tar.gz \
-          brotli-1.1.0.tar.gz abseil-cpp-20230802.0 \
-          protobuf-25.0 grpc-1.60.2 brotli-1.1.0
+        sudo apt-get -y update
+        if [[ '${{ inputs.mode }}' == 'build' ]]; then
+          sudo apt-get -y install \
+            ccache git libidn11-dev libssl-dev ninja-build pkg-config \
+            python3 ragel yasm
+          ccache --set-config=base_dir="$(realpath ..)"
+          ccache --set-config=cache_dir="$HOME/.ccache"
+          ccache --zero-stats
+        else
+          sudo apt-get -y install libidn11 libssl3
+        fi

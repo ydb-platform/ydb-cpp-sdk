@@ -56,11 +56,24 @@ function(_ydb_sdk_init_proto_library_impl Tgt USE_API_COMMON_PROTOS)
 
   set(proto_incls ${YDB_SDK_SOURCE_DIR})
 
+  if(YDB_SDK_DEPENDENCY_MODE STREQUAL "CPM")
+    list(APPEND proto_incls ${YDB_SDK_PROTOBUF_SOURCE_DIR}/src)
+  else()
+    find_path(YDB_SDK_PROTOBUF_PROTO_INCLUDE_DIR google/protobuf/descriptor.proto
+      HINTS ${Protobuf_INCLUDE_DIRS} REQUIRED)
+    list(APPEND proto_incls ${YDB_SDK_PROTOBUF_PROTO_INCLUDE_DIR})
+  endif()
+
   if (USE_API_COMMON_PROTOS)
     target_link_libraries(${Tgt} PUBLIC
       api-common-protos
     )
-    list(APPEND proto_incls ${YDB_SDK_SOURCE_DIR}/third_party/api-common-protos)
+    if(YDB_SDK_DEPENDENCY_MODE STREQUAL "CPM")
+      list(APPEND proto_incls ${YDB_SDK_GOOGLEAPIS_SOURCE_DIR})
+    else()
+      find_path(YDB_SDK_GOOGLE_PROTO_INCLUDE_DIR google/api/annotations.proto REQUIRED)
+      list(APPEND proto_incls ${YDB_SDK_GOOGLE_PROTO_INCLUDE_DIR})
+    endif()
   endif()
 
   set_property(TARGET ${Tgt} PROPERTY 

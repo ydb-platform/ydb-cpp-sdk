@@ -1,18 +1,13 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.22)
 project(yandex-googleapis-api-common-protos)
 
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(Protobuf REQUIRED)
 
-set(PROTOS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/api-common-protos")
-get_filename_component(PROTOS_DIR "${PROTOS_DIR}" ABSOLUTE)
-
-if(NOT EXISTS "${PROTOS_DIR}/google")
-    message(FATAL_ERROR
-        "api-common-protos sources not found under \"${PROTOS_DIR}/google\". "
-        "Initialize git submodules / third_party checkout.")
-endif()
+set(YDB_SDK_DEPENDENCIES_GOOGLEAPIS_ONLY ON)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/dependencies.cmake")
+set(PROTOS_DIR "${YDB_SDK_GOOGLEAPIS_SOURCE_DIR}")
 
 file(GLOB_RECURSE PROTO_FILES "${PROTOS_DIR}/google/*.proto")
 
@@ -69,6 +64,11 @@ install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/google"
     FILES_MATCHING PATTERN "*.pb.h"
 )
 
+install(DIRECTORY "${YDB_SDK_GOOGLEAPIS_SOURCE_DIR}/google"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING PATTERN "*.proto"
+)
+
 install(EXPORT yandex-googleapis-api-common-protos-targets
     FILE yandex-googleapis-api-common-protosTargets.cmake
     NAMESPACE yandex-googleapis-api-common-protos::
@@ -90,6 +90,7 @@ install(FILES
 set(CPACK_PACKAGE_NAME "yandex-googleapis-api-common-protos")
 set(CPACK_PACKAGE_VERSION "1.0.0")
 set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "YDB Team <info@ydb.tech>")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libprotobuf-dev")
 set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/share/yandex")

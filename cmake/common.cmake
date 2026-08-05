@@ -2,6 +2,16 @@
 
 find_package(Python3 REQUIRED)
 
+function(_ydb_sdk_prepare_imported_libc_compat TargetName)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND
+     CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
+     CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 14)
+    target_compile_definitions(${TargetName} PRIVATE _GNU_SOURCE)
+    target_compile_options(${TargetName} PRIVATE
+      "$<$<COMPILE_LANGUAGE:C>:SHELL:-include unistd.h>")
+  endif()
+endfunction()
+
 # assumes ToolName is always both the binary and the target name
 function(get_built_tool_path OutBinPath SrcPath ToolName)
   set(${OutBinPath} "${YDB_SDK_BINARY_DIR}/${SrcPath}/${ToolName}${CMAKE_EXECUTABLE_SUFFIX}" PARENT_SCOPE)
@@ -9,6 +19,12 @@ endfunction()
 
 function(target_ragel_lexers TgtName Key Src)
   SET(RAGEL_BIN ragel${CMAKE_EXECUTABLE_SUFFIX})
+  set(RagelArgs ${ARGN})
+  execute_process(COMMAND ${RAGEL_BIN} --version OUTPUT_VARIABLE RagelVersion)
+  if(RagelVersion MATCHES "version ([0-9]+)" AND CMAKE_MATCH_1 GREATER_EQUAL 7)
+    # Ragel 7 selects C/C++ from the executable name and rejects Ragel 6's -C.
+    list(TRANSFORM RagelArgs REPLACE "^-C" "-")
+  endif()
   get_filename_component(OutPath ${Src} NAME_WLE)
   get_filename_component(SrcDirPath ${Src} DIRECTORY)
   get_filename_component(OutputExt ${OutPath} EXT)
@@ -17,7 +33,7 @@ function(target_ragel_lexers TgtName Key Src)
   endif()
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${OutPath}
-    COMMAND Python3::Interpreter ${YDB_SDK_SOURCE_DIR}/scripts/run_tool.py -- ${RAGEL_BIN} ${RAGEL_FLAGS} ${ARGN} -o ${CMAKE_CURRENT_BINARY_DIR}/${OutPath} ${Src}
+    COMMAND Python3::Interpreter ${YDB_SDK_SOURCE_DIR}/scripts/run_tool.py -- ${RAGEL_BIN} ${RAGEL_FLAGS} ${RagelArgs} -o ${CMAKE_CURRENT_BINARY_DIR}/${OutPath} ${Src}
     DEPENDS ${YDB_SDK_SOURCE_DIR}/scripts/run_tool.py ${Src}
     WORKING_DIRECTORY ${SrcDirPath}
   )
@@ -301,6 +317,7 @@ function(_ydb_sdk_collect_package_target PackageName Tgt)
     return()
   endif()
 
+  set(public_target ${Tgt})
   get_target_property(aliased_target ${Tgt} ALIASED_TARGET)
   if (aliased_target)
     set(Tgt ${aliased_target})
@@ -310,6 +327,19 @@ function(_ydb_sdk_collect_package_target PackageName Tgt)
   if (imported_target)
     set_property(GLOBAL APPEND PROPERTY YDB_CPP_${PackageName}_PUBLIC_DEPS ${Tgt})
     return()
+  endif()
+
+  if (YDB_SDK_DEPENDENCY_MODE STREQUAL "CPM")
+    get_target_property(tgt_source_dir ${Tgt} SOURCE_DIR)
+    get_property(cpm_source_dirs GLOBAL PROPERTY YDB_SDK_CPM_SOURCE_DIRS)
+    foreach(cpm_source_dir IN LISTS cpm_source_dirs)
+      cmake_path(IS_PREFIX cpm_source_dir "${tgt_source_dir}" NORMALIZE is_cpm_target)
+      if (is_cpm_target)
+        set_property(GLOBAL APPEND PROPERTY
+          YDB_CPP_${PackageName}_PUBLIC_DEPS ${public_target})
+        return()
+      endif()
+    endforeach()
   endif()
 
   get_property(visited_targets GLOBAL PROPERTY YDB_CPP_${PackageName}_VISITED_TARGETS)

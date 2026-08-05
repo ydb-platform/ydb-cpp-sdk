@@ -8,10 +8,11 @@
   "configurePresets": [
     {
       "name": "base",
-      "displayName": "Generic Config",
+      "displayName": "CPM-first generic configuration",
+      "description": "Fetch pinned libraries through CPM; CPM_SOURCE_CACHE may point at a reusable or offline cache.",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "CMAKE_PREFIX_PATH": "~/ydb_deps/absl;~/ydb_deps/protobuf;~/ydb_deps/grpc;~/ydb_deps/brotli"
+        "YDB_SDK_DEPENDENCY_MODE": "CPM"
       },
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build"
@@ -63,12 +64,13 @@
     {
       "name": "release-clang",
       "inherits": ["release-base", "clang-toolchain"],
-      "displayName": "Default Release Config (Clang)"
+      "displayName": "CPM Release (Clang)"
     },
     {
       "name": "package-deb-clang",
       "inherits": ["release-base", "clang-toolchain"],
-      "displayName": "Package Config (Clang) for .deb",
+      "displayName": "Ubuntu 24.04 CPack DEB (system libraries)",
+      "description": "Build all four SDK DEB components against Ubuntu package dependencies.",
       "binaryDir": "${sourceDir}/build-deb",
       "cacheVariables": {
         "YDB_SDK_INSTALL": "ON",
@@ -76,7 +78,7 @@
         "YDB_SDK_ENABLE_OTEL_TRACE": "ON",
         "YDB_SDK_EXAMPLES": "OFF",
         "YDB_SDK_TESTS": "OFF",
-        "YDB_SDK_USE_SYSTEM_GOOGLEAPIS": "ON",
+        "YDB_SDK_DEPENDENCY_MODE": "SYSTEM",
         "BUILD_SHARED_LIBS": "OFF",
         "CMAKE_INSTALL_PREFIX": "/usr/share/yandex",
         "CMAKE_PREFIX_PATH": "/usr/share/yandex",
@@ -87,37 +89,37 @@
     {
       "name": "release-gcc",
       "inherits": ["release-base", "gcc-toolchain"],
-      "displayName": "Default Release Config (GCC)"
+      "displayName": "CPM Release (GCC)"
     },
     {
       "name": "release-test-clang",
       "inherits": ["release-base", "clang-toolchain", "test"],
-      "displayName": "Default Release Test Config (Clang)"
+      "displayName": "CPM Release with all tests and examples (Clang)"
     },
     {
       "name": "release-test-gcc",
       "inherits": ["release-base", "gcc-toolchain", "test"],
-      "displayName": "Default Release Test Config (GCC)"
+      "displayName": "CPM Release with all tests and examples (GCC)"
     },
     {
       "name": "debug-clang",
       "inherits": ["debug-base", "clang-toolchain"],
-      "displayName": "Default Debug Config (Clang)"
+      "displayName": "CPM Debug (Clang)"
     },
     {
       "name": "debug-gcc",
       "inherits": ["debug-base", "gcc-toolchain"],
-      "displayName": "Default Debug Config (GCC)"
+      "displayName": "CPM Debug (GCC)"
     },
     {
       "name": "debug-test-clang",
       "inherits": ["debug-base", "clang-toolchain", "test"],
-      "displayName": "Default Debug Test Config (Clang)"
+      "displayName": "CPM Debug with all tests and examples (Clang)"
     },
     {
       "name": "debug-test-gcc",
       "inherits": ["debug-base", "gcc-toolchain", "test"],
-      "displayName": "Default Debug Test Config (GCC)"
+      "displayName": "CPM Debug with all tests and examples (GCC)"
     },
     {
       "name": "coverage-base",
@@ -132,7 +134,7 @@
     {
       "name": "coverage-test-gcc",
       "inherits": ["coverage-base", "gcc-toolchain"],
-      "displayName": "Coverage Test Config (GCC)"
+      "displayName": "CPM coverage with all tests and examples (GCC)"
     }
   ],
   "buildPresets": [
