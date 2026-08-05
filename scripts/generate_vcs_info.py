@@ -6,7 +6,6 @@ import os
 import subprocess
 import sys
 import time
-import six as six_
 
 
 INDENT = " " * 4
@@ -21,10 +20,7 @@ def _get_vcs_dictionary(vcs_type, *arg):
 
 def _get_user_locale():
     try:
-        if six_.PY3:
-            return [locale.getencoding()]
-        else:
-            return [locale.getdefaultlocale()[1]]
+        return [locale.getpreferredencoding(False)]
     except Exception:
         return []
 
@@ -99,8 +95,6 @@ class _GitVersion:
         # using local 'Popen' wrapper
         commit = _SystemInfo._system_command_call(['git'] + hash_args, env=env, cwd=arc_root).rstrip()
         author = _SystemInfo._system_command_call(['git'] + author_args, env=env, cwd=arc_root)
-        commit = _SystemInfo._system_command_call(['git'] + hash_args, env=env, cwd=arc_root).rstrip()
-        author = _SystemInfo._system_command_call(['git'] + author_args, env=env, cwd=arc_root)
         summary = _SystemInfo._system_command_call(['git'] + summary_args, env=env, cwd=arc_root)
         svn_id = _SystemInfo._system_command_call(['git'] + svn_args, env=env, cwd=arc_root)
         if not svn_id:
@@ -116,7 +110,7 @@ class _GitVersion:
         except Exception:
             branch_info = [''.encode('utf-8')]
 
-        depth = six_.text_type(_GitVersion._get_git_depth(env, arc_root)).encode('utf-8')
+        depth = str(_GitVersion._get_git_depth(env, arc_root)).encode('utf-8')
 
         # logger.debug('Git info commit:{}, author:{}, summary:{}, svn_id:{}'.format(commit, author, summary, svn_id))
         return [commit, author, summary, svn_id, tag_info[0], branch_info[0], depth]
@@ -175,7 +169,7 @@ class _SystemInfo:
 
     @staticmethod
     def _to_text(s):
-        if isinstance(s, six_.binary_type):
+        if isinstance(s, bytes):
             return s.decode(_SystemInfo.get_locale(), errors='replace')
         return s
 
@@ -239,7 +233,7 @@ class _SystemInfo:
                 try:
                     import ctypes
 
-                    msg = six_.text_type(ctypes.FormatError(e.winerror), _SystemInfo.get_locale()).encode('utf-8')
+                    msg = ctypes.FormatError(e.winerror).encode('utf-8')
                 except ImportError:
                     pass
             # logger.debug('System command call {} failed [{}]: {}\n'.format(command, errcodes, msg))

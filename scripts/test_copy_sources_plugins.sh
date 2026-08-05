@@ -77,7 +77,7 @@ echo "# OSS_CMAKE" > "$OSS/plugins/metrics/CMakeLists.txt"
 echo "# OSS_CMAKE" > "$OSS/plugins/trace/otel/CMakeLists.txt"
 echo "# OSS_CMAKE" > "$OSS/plugins/metrics/otel/CMakeLists.txt"
 
-touch "$OSS/.gitignore" "$OSS/.gitmodules" "$OSS/CMakePresets.json" "$OSS/CMakeLists.txt"
+touch "$OSS/.gitignore" "$OSS/CMakePresets.json" "$OSS/CMakeLists.txt"
 touch "$OSS/LICENSE" "$OSS/README.md"
 touch "$OSS/tests/slo_workloads/.dockerignore" "$OSS/tests/slo_workloads/Dockerfile"
 echo "OSS_SLO_WORKLOAD" > "$OSS/tests/slo_workloads/key_value/main.cpp"

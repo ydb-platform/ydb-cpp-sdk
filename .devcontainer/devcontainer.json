@@ -24,7 +24,7 @@
 		8765
 	],
 	// Use 'initializeCommand' to run commands before the container is created.
-	"initializeCommand": "mkdir -p ${localEnv:HOME}/.ccache && cd \"${localWorkspaceFolder}\" && git config --local user.email \"$(git config user.email)\" && git config --local user.name \"$(git config user.name)\"",
+	"initializeCommand": "mkdir -p ${localEnv:HOME}/.ccache ${localEnv:HOME}/.cache/ydb-cpp-sdk-cpm && cd \"${localWorkspaceFolder}\" && git config --local user.email \"$(git config user.email)\" && git config --local user.name \"$(git config user.name)\"",
 	// Use 'postStartCommand' to run commands after the container is started.
 	"postStartCommand": ".devcontainer/configure.sh",
 	// Configure tool-specific properties.
@@ -40,7 +40,8 @@
 		}
 	},
 	"mounts": [
-		"source=${localEnv:HOME}/.ccache,target=/root/.ccache,type=bind,consistency=cached"
+		"source=${localEnv:HOME}/.ccache,target=/root/.ccache,type=bind,consistency=cached",
+		"source=${localEnv:HOME}/.cache/ydb-cpp-sdk-cpm,target=/workspaces/.cache/cpm,type=bind,consistency=cached"
 	],
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	"remoteUser": "root"

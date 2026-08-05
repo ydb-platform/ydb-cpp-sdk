@@ -1,8 +1,6 @@
 #!/bin/sh
 
-mkdir -p build
-git submodule update --init --recursive
-ccache -o cache_dir=/root/.ccache
+ccache --set-config=cache_dir=/root/.ccache
 cmake --preset release-test-clang
 
 if which ydb > /dev/null 2>&1; then

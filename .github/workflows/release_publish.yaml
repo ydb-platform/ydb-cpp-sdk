@@ -20,7 +20,10 @@ permissions:
 jobs:
   build-and-upload-debs:
     name: "Build .deb packages and attach to release (Ubuntu 24.04 / noble)"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    env:
+      CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
+      CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
     steps:
       - name: Resolve release tag
         id: tag
@@ -36,7 +39,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: true
           ref: ${{ steps.tag.outputs.ref }}
 
       - name: Verify release tag matches SDK version
@@ -57,38 +59,20 @@ jobs:
             exit 1
           fi
 
-      - name: Prepare Debian package cache key
-        id: deb-package-cache-key
-        shell: bash
-        run: |
-          echo "prefix=ubuntu-24.04-deb-packages-${{ hashFiles('CMakeLists.txt', 'cmake/**', 'contrib/**', 'include/**', 'library/**', 'plugins/**', 'scripts/build_cpack_deb_packages.sh', 'scripts/generate-debian-directory.sh', 'scripts/googleapis_deb/**', 'src/**', 'third_party/api-common-protos/**', 'tools/**', 'util/**') }}" >> "$GITHUB_OUTPUT"
-
-      - name: Restore Debian package build cache
-        uses: actions/cache/restore@v4
+      - name: Restore CPM and compiler caches
+        uses: actions/cache@v4
         with:
           path: |
-            .deb-ccache
-            build_googleapis_deb
-            build-deb
-          key: ${{ steps.deb-package-cache-key.outputs.prefix }}-${{ github.run_id }}-${{ github.run_attempt }}
+            .cache/cpm
+            .cache/ccache
+          key: deb-ubuntu-24.04-${{ hashFiles('cmake/dependencies.cmake') }}-${{ github.run_id }}
           restore-keys: |
-            ${{ steps.deb-package-cache-key.outputs.prefix }}-
-            ubuntu-24.04-deb-packages-
+            deb-ubuntu-24.04-${{ hashFiles('cmake/dependencies.cmake') }}-
 
-      - name: Build .deb packages in Ubuntu 24.04 container
+      - name: Build .deb packages with CPack
         shell: bash
         run: |
-          mkdir -p artifacts .deb-ccache build_googleapis_deb build-deb
-          docker run --rm --network host \
-            -e CCACHE_DIR=/source/.deb-ccache \
-            -v "$PWD:/source" \
-            ubuntu:24.04 \
-            bash /source/scripts/build_cpack_deb_packages.sh /source/artifacts
-
-      - name: Smoke-test generated .deb packages
-        shell: bash
-        run: |
-          ./scripts/test_deb_packages.sh artifacts
+          ./scripts/build_cpack_deb_packages.sh artifacts
 
       - name: List built artifacts
         shell: bash

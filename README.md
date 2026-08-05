@@ -7,150 +7,47 @@
 ### Prerequisites
 
 - cmake 3.22+
-- clang 18+
+- a current C++20 compiler (GCC or Clang)
 - git 2.20+
 - ninja 1.10+
 - ragel
 - yasm
-- protoc
-
-### Library dependencies
-
-- gRPC
-- protobuf
 - OpenSSL
 - Iconv
 - IDN
-- rapidjson
-- xxhash
-- zlib
-- zstd
-- lz4
-- snappy 1.1.8+
-- base64
-- brotli 1.1.0+
-- double-conversion
-- jwt-cpp
-
-### Runtime requirements
-
-- libidn11-dev (IDN)
-- libiconv (Iconv)
-
-### Testing requirements
-
-- gtest
-- gmock
 
 ### Install dependencies
 
-The standalone dependency bundle is compatible with Ubuntu 24.04 and uses
-gRPC 1.60.2 to match the imported YDB sources. Its protobuf and Abseil pins
-match the dependency set published with that gRPC release:
+CPM fetches the pinned library dependencies during CMake configure. The only
+packages to install manually are the tools and platform prerequisites above.
+The authoritative pins are in `cmake/dependencies.cmake`.
 
-| Dependency | Version |
-|------------|---------|
-| Abseil | 20230802.0 |
-| protobuf | 25.0 |
-| gRPC | 1.60.2 |
-
-These pins are shared by regular CI builds, SLO workload images, and the
-development container.
+Ubuntu 24.04:
 
 ```bash
 sudo apt-get -y update
-sudo apt-get -y install git gdb ninja-build libidn11-dev ragel yasm libc-ares-dev libre2-dev \
-  rapidjson-dev zlib1g-dev libxxhash-dev libzstd-dev libsnappy-dev libgtest-dev libgmock-dev \
-  libbz2-dev liblz4-dev libdouble-conversion-dev libssl-dev libstdc++-13-dev gcc-13 g++-13
-
-wget https://apt.llvm.org/llvm.sh
-chmod u+x llvm.sh
-sudo ./llvm.sh 18
-
-# Install abseil-cpp
-wget -O abseil-cpp-20230802.0.tar.gz https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.0.tar.gz
-tar -xvzf abseil-cpp-20230802.0.tar.gz
-cd abseil-cpp-20230802.0
-mkdir build && cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DABSL_PROPAGATE_CXX_STD=ON ..
-cmake --build . --config Release
-cmake --install . --config Release --prefix ~/ydb_deps/absl
-cd ../../
-
-# Install protobuf
-wget -O protobuf-25.0.tar.gz https://github.com/protocolbuffers/protobuf/archive/refs/tags/v25.0.tar.gz
-tar -xvzf protobuf-25.0.tar.gz
-cd protobuf-25.0
-mkdir build && cd build
-cmake -G Ninja -DCMAKE_PREFIX_PATH="$HOME/ydb_deps/absl" -DCMAKE_BUILD_TYPE=Release \
-  -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_INSTALL=ON -Dprotobuf_ABSL_PROVIDER=package ..
-cmake --build . --config Release
-cmake --install . --config Release --prefix ~/ydb_deps/protobuf
-cd ../../
-
-# Install gRPC
-wget -O grpc-1.60.2.tar.gz https://github.com/grpc/grpc/archive/refs/tags/v1.60.2.tar.gz
-tar -xvzf grpc-1.60.2.tar.gz && cd grpc-1.60.2
-mkdir build && cd build
-cmake -G Ninja -DCMAKE_PREFIX_PATH="$HOME/ydb_deps/absl;$HOME/ydb_deps/protobuf" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 \
-  -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DgRPC_BUILD_CSHARP_EXT=OFF \
-  -DgRPC_ZLIB_PROVIDER=package -DgRPC_CARES_PROVIDER=package -DgRPC_RE2_PROVIDER=package \
-  -DgRPC_SSL_PROVIDER=package -DgRPC_PROTOBUF_PROVIDER=package -DgRPC_ABSL_PROVIDER=package \
-  -DgRPC_BUILD_GRPC_NODE_PLUGIN=OFF -DgRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN=OFF -DgRPC_BUILD_GRPC_PHP_PLUGIN=OFF \
-  -DgRPC_BUILD_GRPC_RUBY_PLUGIN=OFF -DgRPC_BUILD_GRPC_CSHARP_PLUGIN=OFF -DgRPC_BUILD_GRPC_PYTHON_PLUGIN=OFF ..
-cmake --build . --config Release
-cmake --install . --config Release --prefix ~/ydb_deps/grpc
-cd ../../
-
-# Install base64
-wget -O base64-0.5.2.tar.gz https://github.com/aklomp/base64/archive/refs/tags/v0.5.2.tar.gz
-tar -xvzf base64-0.5.2.tar.gz && cd base64-0.5.2
-mkdir build && cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
-cmake --build . --config Release
-cmake --install . --config Release --prefix ~/ydb_deps/base64
-cd ../../
-
-# Install brotli
-wget -O brotli-1.1.0.tar.gz https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz
-tar -xvzf brotli-1.1.0.tar.gz && cd brotli-1.1.0
-mkdir build && cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX="$HOME/ydb_deps/brotli" ..
-cmake --build . --config Release
-cmake --install . --config Release
-cd ../../
-
-# Install jwt-cpp
-wget -O jwt-cpp-0.7.0.tar.gz https://github.com/Thalhammer/jwt-cpp/archive/refs/tags/v0.7.0.tar.gz
-tar -xvzf jwt-cpp-0.7.0.tar.gz && cd jwt-cpp-0.7.0
-mkdir build && cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
-cmake --build . --config Release
-cmake --install . --config Release --prefix ~/ydb_deps/jwt-cpp
-cd ../../
+sudo apt-get -y install build-essential ca-certificates ccache clang cmake git \
+  libidn11-dev libssl-dev lld ninja-build pkg-config python3 ragel yasm
 ```
 
-### Create the work directory
+Fedora 43:
 
 ```bash
-mkdir ~/ydbwork && cd ~/ydbwork
-mkdir build
+sudo dnf install -y ccache cmake gcc gcc-c++ git libidn-devel \
+  ninja-build openssl-devel openssl-devel-engine pkgconf-pkg-config python3 ragel yasm
 ```
 
-### Install ccache
-
-Install `ccache` into `/usr/local/bin/`. The recommended version is `4.8.1` or above, the minimum required version is `4.7`.
+macOS 14:
 
 ```bash
-(V=4.8.1; curl -L https://github.com/ccache/ccache/releases/download/v${V}/ccache-${V}-linux-x86_64.tar.xz | \
-sudo tar -xJ -C /usr/local/bin/ --strip-components=1 --no-same-owner ccache-${V}-linux-x86_64/ccache)
+brew install ccache cmake git libidn llvm ninja openssl@3 python ragel yasm
+export PATH="$(brew --prefix llvm)/bin:$PATH"
 ```
 
 ### Clone the ydb-cpp-sdk repository
 
 ```bash
-git clone --recurse-submodules https://github.com/ydb-platform/ydb-cpp-sdk.git
+git clone https://github.com/ydb-platform/ydb-cpp-sdk.git
 ```
 
 ### Configure
@@ -162,10 +59,18 @@ cd ydb-cpp-sdk
 cmake --preset $sdk_configure_preset
 ```
 
+`YDB_SDK_DEPENDENCY_MODE` defaults to `CPM`. Set `CPM_SOURCE_CACHE` to a
+reusable directory before configuring; a fully populated cache can be reused
+offline with `FETCHCONTENT_FULLY_DISCONNECTED=ON`. `SYSTEM` mode is intended
+only for Ubuntu DEB builds. See `cmake/DEPENDENCIES.md` for pin maintenance.
+
+With the Dev Container CLI, `devcontainer up --workspace-folder .` creates the
+development container and configures the test build through the same CPM path.
+
 ### Build
 
 ```bash
-cmake --build --preset $sdk_configure_preset
+cmake --build build --parallel
 ```
 
 ### Build `.deb` packages
@@ -175,54 +80,25 @@ The SDK can be packaged as Debian development packages with CPack. The complete 
 - `yandex-googleapis-api-common-protos` — generated API Common Protos headers and static library, required by `libydb-cpp-dev`;
 - `libydb-cpp-dev` — core SDK static library, public headers and CMake package files;
 - `libydb-cpp-iam-dev` — IAM credentials plugin;
-- `libydb-cpp-otel-metrics-dev` — OpenTelemetry metrics plugin (includes vendored opentelemetry-cpp);
+- `libydb-cpp-otel-metrics-dev` — OpenTelemetry metrics plugin;
 - `libydb-cpp-otel-tracing-dev` — OpenTelemetry tracing plugin (requires `libydb-cpp-otel-metrics-dev` for OTel headers/libs).
 
-The Debian packaging flow is intended for Ubuntu 24.04. Initialize the required submodules before building:
+The CPack-only packaging flow is intended for Ubuntu 24.04. It builds and
+installs the Google common-protos package before packaging the four SDK
+components, so all five packages use the distro protobuf ABI:
 
 ```bash
-git submodule update --init --recursive
+./scripts/build_cpack_deb_packages.sh build-deb/packages
 ```
 
-The packaging helper first builds `yandex-googleapis-api-common-protos` from the
-vendored API Common Protos using Ubuntu 24.04's `protobuf-compiler` and
-`libprotobuf-dev`. It installs that package in the build container before
-building the SDK, so both packages use the same distro protobuf ABI.
-OpenTelemetry plugins use the vendored `third_party/opentelemetry-cpp`
-submodule (v1.26.0, matching the YDB monorepo pin).
-
-To build the complete `.deb` package set with the same containerized flow used
-by CI and release publishing (Docker is required):
-
-```bash
-mkdir -p build-deb .deb-ccache
-docker run --rm --network host \
-  -e CCACHE_DIR=/source/.deb-ccache \
-  -v "$PWD:/source" \
-  ubuntu:24.04 \
-  bash /source/scripts/build_cpack_deb_packages.sh /source/build-deb
-```
-
-The generated `.deb` files are placed into `build-deb/`.
-
-To prepare Debian source-package metadata, run:
-
-```bash
-./scripts/generate-debian-directory.sh
-```
-
-This updates `debian/changelog` from `src/version.h` and the current Git commit. The `debian/` directory contains package metadata and install manifests for `dpkg-buildpackage`/PPA builds.
-
-To validate a binary Debian package build in an Ubuntu 24.04 Docker container:
-
-```bash
-./scripts/test_dpkg_buildpackage.sh
-```
+The generated `.deb` files are placed into `build-deb/packages/` and install
+under `/usr/share/yandex`. The IAM and OTel packages require the matching core
+version; tracing additionally requires the matching metrics package.
 
 To smoke-test generated `.deb` packages with the sample consumer project:
 
 ```bash
-./scripts/test_deb_packages.sh build-deb
+./scripts/test_deb_packages.sh build-deb/packages
 ```
 
 ### Install from GitHub releases
@@ -235,7 +111,7 @@ GitHub release. Download the assets and install them with APT:
 TAG=<TAG>
 BASE="https://github.com/ydb-platform/ydb-cpp-sdk/releases/download/${TAG}"
 
-wget "${BASE}/yandex-googleapis-api-common-protos-1.0.0-Linux.deb"
+wget "${BASE}/yandex-googleapis-api-common-protos_1.0.0_amd64.deb"
 wget "${BASE}/libydb-cpp-dev_${TAG#v}_amd64.deb"
 # Optional plugins:
 wget "${BASE}/libydb-cpp-iam-dev_${TAG#v}_amd64.deb"
@@ -244,7 +120,7 @@ wget "${BASE}/libydb-cpp-otel-tracing-dev_${TAG#v}_amd64.deb"
 
 sudo apt-get update
 sudo apt-get install -y \
-    ./yandex-googleapis-api-common-protos-*.deb \
+    ./yandex-googleapis-api-common-protos_*.deb \
     ./libydb-cpp-dev_*.deb ./libydb-cpp-iam-dev_*.deb \
     ./libydb-cpp-otel-metrics-dev_*.deb ./libydb-cpp-otel-tracing-dev_*.deb
 ```
