@@ -74,6 +74,10 @@ jobs:
         run: |
           ./scripts/build_cpack_deb_packages.sh artifacts
 
+      - name: Test .deb packages
+        shell: bash
+        run: ./scripts/test_deb_packages.sh artifacts
+
       - name: List built artifacts
         shell: bash
         run: ls -la artifacts/

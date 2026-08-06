@@ -237,3 +237,7 @@ jobs:
         shell: bash
         run: |
           ./scripts/build_cpack_deb_packages.sh build-deb/packages
+
+      - name: Test CPack .deb packages
+        shell: bash
+        run: ./scripts/test_deb_packages.sh build-deb/packages

@@ -21,7 +21,7 @@ set(CPACK_COMPONENTS_ALL libydb-cpp libydb-cpp-iam libydb-cpp-otel-metrics libyd
 
 set(CPACK_DEBIAN_LIBYDB_CPP_PACKAGE_NAME "libydb-cpp-dev")
 set(CPACK_DEBIAN_LIBYDB_CPP_PACKAGE_DEPENDS
-  "libidn11-dev, libssl-dev, zlib1g-dev, libprotobuf-dev, libgrpc++-dev, libbrotli-dev, liblz4-dev, libzstd-dev, libbz2-dev, libxxhash-dev, libsnappy-dev, libdouble-conversion-dev, libgtest-dev, libre2-dev, libc-ares-dev, rapidjson-dev, yandex-googleapis-api-common-protos"
+  "libidn11-dev, libssl-dev, zlib1g-dev, libprotobuf-dev, libgrpc++-dev, protobuf-compiler-grpc, libbrotli-dev, liblz4-dev, libzstd-dev, libbz2-dev, libxxhash-dev, libsnappy-dev, libdouble-conversion-dev, libgtest-dev, libre2-dev, libc-ares-dev, rapidjson-dev, yandex-googleapis-api-common-protos"
 )
 
 set(CPACK_DEBIAN_LIBYDB_CPP_IAM_PACKAGE_NAME "libydb-cpp-iam-dev")
