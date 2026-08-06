@@ -62,7 +62,7 @@ cmake --preset $sdk_configure_preset
 `YDB_SDK_DEPENDENCY_MODE` defaults to `CPM`. Set `CPM_SOURCE_CACHE` to a
 reusable directory before configuring; a fully populated cache can be reused
 offline with `FETCHCONTENT_FULLY_DISCONNECTED=ON`. `SYSTEM` mode is intended
-only for Ubuntu DEB builds. See `cmake/DEPENDENCIES.md` for pin maintenance.
+only for Ubuntu DEB builds.
 
 With the Dev Container CLI, `devcontainer up --workspace-folder .` creates the
 development container and configures the test build through the same CPM path.

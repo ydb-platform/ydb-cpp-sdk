@@ -135,9 +135,15 @@ else()
     NAME ZLIB
     GITHUB_REPOSITORY madler/zlib
     GIT_TAG v${YDB_SDK_ZLIB_VERSION}
-    EXCLUDE_FROM_ALL ${_YDB_SDK_CPM_EXCLUDE_FROM_ALL}
+    EXCLUDE_FROM_ALL YES
     OPTIONS "ZLIB_BUILD_EXAMPLES OFF"
   )
+  if(YDB_SDK_INSTALL)
+    install(TARGETS zlibstatic ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      COMPONENT libydb-cpp)
+    install(FILES "${ZLIB_SOURCE_DIR}/zlib.h" "${ZLIB_BINARY_DIR}/zconf.h"
+      DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT libydb-cpp)
+  endif()
   # Keep build-tree implementation targets out of protobuf/gRPC install
   # exports. Consumers resolve this conventional target through FindZLIB.
   if(NOT TARGET ZLIB::ZLIB)
@@ -386,7 +392,7 @@ else()
       NAME RapidJSON
       GITHUB_REPOSITORY Tencent/rapidjson
       GIT_TAG v${YDB_SDK_RAPIDJSON_VERSION}
-      EXCLUDE_FROM_ALL ${_YDB_SDK_CPM_EXCLUDE_FROM_ALL}
+      EXCLUDE_FROM_ALL YES
       OPTIONS
         "RAPIDJSON_BUILD_DOC OFF"
         "RAPIDJSON_BUILD_EXAMPLES OFF"
@@ -398,48 +404,32 @@ else()
       target_include_directories(RapidJSON::RapidJSON INTERFACE
         "$<BUILD_INTERFACE:${RapidJSON_SOURCE_DIR}/include>")
     endif()
+    _ydb_sdk_cpm_package_stub(RapidJSON
+      "get_filename_component(_rapidjson_prefix \"\${CMAKE_CURRENT_LIST_DIR}/../../..\" ABSOLUTE)\nset(RapidJSON_FOUND TRUE)\nset(RapidJSON_INCLUDE_DIRS \"\${_rapidjson_prefix}/include\")\nunset(_rapidjson_prefix)")
+    if(YDB_SDK_INSTALL)
+      install(DIRECTORY "${RapidJSON_SOURCE_DIR}/include/rapidjson"
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT libydb-cpp)
+      install(FILES "${RapidJSON_DIR}/RapidJSONConfig.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/RapidJSON COMPONENT libydb-cpp)
+    endif()
   endif()
-
-  set(BASE64_WERROR OFF CACHE BOOL "" FORCE)
-  set(BASE64_BUILD_CLI OFF CACHE BOOL "" FORCE)
-  CPMAddPackage(
-    NAME base64
-    GITHUB_REPOSITORY aklomp/base64
-    GIT_TAG v${YDB_SDK_BASE64_VERSION}
-    EXCLUDE_FROM_ALL ${_YDB_SDK_CPM_EXCLUDE_FROM_ALL}
-    OPTIONS "BASE64_WERROR OFF" "BASE64_BUILD_CLI OFF"
-  )
-  _ydb_sdk_alias_library(aklomp::base64 base64)
-  _ydb_sdk_apply_aklomp_base64_simd_file_flags("${base64_SOURCE_DIR}")
-
-  CPMAddPackage(
-    NAME jwt-cpp
-    GITHUB_REPOSITORY Thalhammer/jwt-cpp
-    GIT_TAG v${YDB_SDK_JWT_CPP_VERSION}
-    EXCLUDE_FROM_ALL ${_YDB_SDK_CPM_EXCLUDE_FROM_ALL}
-    OPTIONS "JWT_BUILD_EXAMPLES OFF" "JWT_BUILD_TESTS OFF"
-  )
 
   set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "${_ydb_sdk_saved_install_component}")
 endif()
 
-# Header-only jwt-cpp and source-built OpenTelemetry are intentionally fetched
-# for SYSTEM packaging too: Ubuntu does not provide the pinned interfaces used
-# by the SDK, and their code is bundled into the corresponding SDK components.
-if(YDB_SDK_DEPENDENCY_MODE STREQUAL "SYSTEM")
-  set(BASE64_WERROR OFF CACHE BOOL "" FORCE)
-  set(BASE64_BUILD_CLI OFF CACHE BOOL "" FORCE)
-  CPMAddPackage(NAME base64 GITHUB_REPOSITORY aklomp/base64
-    GIT_TAG v${YDB_SDK_BASE64_VERSION}
-    EXCLUDE_FROM_ALL ${_YDB_SDK_CPM_EXCLUDE_FROM_ALL}
-    OPTIONS "BASE64_WERROR OFF" "BASE64_BUILD_CLI OFF")
-  _ydb_sdk_alias_library(aklomp::base64 base64)
-  _ydb_sdk_apply_aklomp_base64_simd_file_flags("${base64_SOURCE_DIR}")
-  CPMAddPackage(NAME jwt-cpp GITHUB_REPOSITORY Thalhammer/jwt-cpp
-    GIT_TAG v${YDB_SDK_JWT_CPP_VERSION}
-    EXCLUDE_FROM_ALL ${_YDB_SDK_CPM_EXCLUDE_FROM_ALL}
-    OPTIONS "JWT_BUILD_EXAMPLES OFF" "JWT_BUILD_TESTS OFF")
-endif()
+# Ubuntu packages do not provide the pinned base64 and jwt-cpp interfaces.
+set(BASE64_WERROR OFF CACHE BOOL "" FORCE)
+set(BASE64_BUILD_CLI OFF CACHE BOOL "" FORCE)
+CPMAddPackage(NAME base64 GITHUB_REPOSITORY aklomp/base64
+  GIT_TAG v${YDB_SDK_BASE64_VERSION}
+  EXCLUDE_FROM_ALL ${_YDB_SDK_CPM_EXCLUDE_FROM_ALL}
+  OPTIONS "BASE64_WERROR OFF" "BASE64_BUILD_CLI OFF")
+_ydb_sdk_alias_library(aklomp::base64 base64)
+_ydb_sdk_apply_aklomp_base64_simd_file_flags("${base64_SOURCE_DIR}")
+CPMAddPackage(NAME jwt-cpp GITHUB_REPOSITORY Thalhammer/jwt-cpp
+  GIT_TAG v${YDB_SDK_JWT_CPP_VERSION}
+  EXCLUDE_FROM_ALL ${_YDB_SDK_CPM_EXCLUDE_FROM_ALL}
+  OPTIONS "JWT_BUILD_EXAMPLES OFF" "JWT_BUILD_TESTS OFF")
 
 if(YDB_SDK_TESTS)
   CPMAddPackage(
