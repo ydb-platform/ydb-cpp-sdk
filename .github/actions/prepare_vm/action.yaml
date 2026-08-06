@@ -32,5 +32,5 @@ runs:
           ccache --set-config=cache_dir="$HOME/.ccache"
           ccache --zero-stats
         else
-          sudo apt-get -y install libidn11 libssl3
+          sudo apt-get -y install libidn12 libssl3
         fi
