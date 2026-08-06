@@ -14,7 +14,7 @@ concurrency:
 jobs:      
   main:
     name: Examples
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
     strategy:
@@ -49,7 +49,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: .cache/cpm
-        key: cpm-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
+        key: cpm-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp
       shell: bash
@@ -59,9 +59,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.ccache
-        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+        key: ubuntu-24.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
-          ubuntu-22.04-ccache-${{ matrix.compiler }}-
+          ubuntu-24.04-ccache-${{ matrix.compiler }}-
     - name: Install dependencies
       uses: ./.github/actions/prepare_vm
     - name: Build

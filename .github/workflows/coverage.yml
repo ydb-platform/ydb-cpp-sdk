@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   coverage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
     permissions:
@@ -52,9 +52,9 @@ jobs:
           path: |
             .cache/cpm
             ~/.ccache
-          key: coverage-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-${{ github.run_id }}
+          key: coverage-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-${{ github.run_id }}
           restore-keys: |
-            coverage-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-
+            coverage-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-
 
       - name: Install dependencies
         uses: ./.github/actions/prepare_vm
