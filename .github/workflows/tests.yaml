@@ -14,7 +14,7 @@ concurrency:
 jobs:
   build-and-unit:
     concurrency:
-      group: build-and-unit-${{ github.ref }}-ubuntu-22.04-${{ matrix.compiler }}
+      group: build-and-unit-${{ github.ref }}-ubuntu-24.04-${{ matrix.compiler }}
       cancel-in-progress: true
     strategy:
       fail-fast: false
@@ -22,7 +22,7 @@ jobs:
         compiler: [clang, gcc]
     env:
       CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout PR
       uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: .cache/cpm
-        key: cpm-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
+        key: cpm-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp
       shell: bash
@@ -46,9 +46,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.ccache
-        key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+        key: ubuntu-24.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
-          ubuntu-22.04-ccache-${{ matrix.compiler }}-
+          ubuntu-24.04-ccache-${{ matrix.compiler }}-
     - name: Install dependencies
       uses: ./.github/actions/prepare_vm
     - name: Build
@@ -84,7 +84,7 @@ jobs:
     concurrency:
       group: integration-${{ github.ref }}-${{ matrix.ydb-version }}-${{ matrix.compiler }}
       cancel-in-progress: true
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -150,7 +150,7 @@ jobs:
       fail-fast: false
       matrix:
         compiler: [clang, gcc]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
     steps:
@@ -167,7 +167,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .cache/cpm
-          key: cpm-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
+          key: cpm-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
 
       - name: Install dependencies
         uses: ./.github/actions/prepare_vm
@@ -182,9 +182,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.ccache
-          key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+          key: ubuntu-24.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
           restore-keys: |
-            ubuntu-22.04-ccache-${{ matrix.compiler }}-
+            ubuntu-24.04-ccache-${{ matrix.compiler }}-
 
       - name: Build and Install SDK
         shell: bash

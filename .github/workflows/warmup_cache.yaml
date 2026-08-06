@@ -8,7 +8,7 @@ on:
 jobs:
   main:
     name: Warm CPM and ccache (${{ matrix.compiler }})
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         compiler: [clang, gcc]
@@ -19,13 +19,13 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .cache/cpm
-          key: cpm-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
+          key: cpm-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
       - uses: actions/cache@v4
         with:
           path: ~/.ccache
-          key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ github.run_id }}
+          key: ubuntu-24.04-ccache-${{ matrix.compiler }}-${{ github.run_id }}
           restore-keys: |
-            ubuntu-22.04-ccache-${{ matrix.compiler }}-
+            ubuntu-24.04-ccache-${{ matrix.compiler }}-
       - uses: ./.github/actions/prepare_vm
       - uses: ./.github/actions/build
         with:
@@ -33,7 +33,7 @@ jobs:
 
   coverage:
     name: Warm coverage compiler cache
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
     steps:
@@ -43,9 +43,9 @@ jobs:
           path: |
             .cache/cpm
             ~/.ccache
-          key: coverage-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-${{ github.run_id }}
+          key: coverage-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-${{ github.run_id }}
           restore-keys: |
-            coverage-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-
+            coverage-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-
       - uses: ./.github/actions/prepare_vm
       - name: Configure and build coverage binaries
         run: |
