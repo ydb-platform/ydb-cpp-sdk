@@ -49,15 +49,14 @@ jobs:
       uses: actions/cache@v4
       with:
         path: .cache/cpm
-        key: cpm-${{ runner.os }}-${{ hashFiles('cmake/dependencies.cmake') }}
+        key: cpm-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp
-      shell: cmake -P {0}
+      shell: bash
       run: |
-        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
-        message("::set-output name=timestamp::${current_date}")
+        echo "timestamp=$(date -u +%Y-%m-%d-%H-%M-%S)" >> "$GITHUB_OUTPUT"
     - name: Restore cache files
-      uses: actions/cache/restore@v4
+      uses: actions/cache@v4
       with:
         path: ~/.ccache
         key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}

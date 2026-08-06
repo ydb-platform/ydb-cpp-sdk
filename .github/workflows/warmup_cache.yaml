@@ -18,12 +18,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
         with:
-          path: |
-            .cache/cpm
-            ~/.ccache
-          key: build-${{ runner.os }}-${{ matrix.compiler }}-${{ hashFiles('cmake/dependencies.cmake') }}-${{ github.run_id }}
+          path: .cache/cpm
+          key: cpm-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ github.run_id }}
           restore-keys: |
-            build-${{ runner.os }}-${{ matrix.compiler }}-${{ hashFiles('cmake/dependencies.cmake') }}-
+            ubuntu-22.04-ccache-${{ matrix.compiler }}-
       - uses: ./.github/actions/prepare_vm
       - uses: ./.github/actions/build
         with:
@@ -41,9 +43,9 @@ jobs:
           path: |
             .cache/cpm
             ~/.ccache
-          key: coverage-${{ runner.os }}-${{ hashFiles('cmake/dependencies.cmake') }}-${{ github.run_id }}
+          key: coverage-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-${{ github.run_id }}
           restore-keys: |
-            coverage-${{ runner.os }}-${{ hashFiles('cmake/dependencies.cmake') }}-
+            coverage-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-
       - uses: ./.github/actions/prepare_vm
       - name: Configure and build coverage binaries
         run: |
@@ -63,8 +65,8 @@ jobs:
           path: |
             .cache/cpm
             .cache/ccache
-          key: deb-ubuntu-24.04-${{ hashFiles('cmake/dependencies.cmake') }}-${{ github.run_id }}
+          key: deb-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-${{ github.run_id }}
           restore-keys: |
-            deb-ubuntu-24.04-${{ hashFiles('cmake/dependencies.cmake') }}-
+            deb-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-
       - name: Build CPack DEBs
         run: ./scripts/build_cpack_deb_packages.sh build-deb/packages

@@ -21,7 +21,6 @@ jobs:
       matrix:
         compiler: [clang, gcc]
     env:
-      OS: ubuntu-22.04
       CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
     runs-on: ubuntu-22.04
     steps:
@@ -37,14 +36,14 @@ jobs:
       uses: actions/cache@v4
       with:
         path: .cache/cpm
-        key: cpm-${{ runner.os }}-${{ hashFiles('cmake/dependencies.cmake') }}
+        key: cpm-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp
       shell: bash
       run: |
         echo "timestamp=$(date -u +%Y-%m-%d-%H-%M-%S)" >> "$GITHUB_OUTPUT"
     - name: Restore cache files
-      uses: actions/cache/restore@v4
+      uses: actions/cache@v4
       with:
         path: ~/.ccache
         key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
@@ -168,7 +167,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .cache/cpm
-          key: cpm-${{ runner.os }}-${{ hashFiles('cmake/dependencies.cmake') }}
+          key: cpm-ubuntu-22.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
 
       - name: Install dependencies
         uses: ./.github/actions/prepare_vm
@@ -180,12 +179,12 @@ jobs:
           echo "timestamp=$(date -u +%Y-%m-%d-%H-%M-%S)" >> "$GITHUB_OUTPUT"
 
       - name: Restore cache files
-        uses: actions/cache/restore@v4
+        uses: actions/cache@v4
         with:
           path: ~/.ccache
-          key: ${{ runner.os }}-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+          key: ubuntu-22.04-ccache-${{ matrix.compiler }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
           restore-keys: |
-            ${{ runner.os }}-ccache-${{ matrix.compiler }}-
+            ubuntu-22.04-ccache-${{ matrix.compiler }}-
 
       - name: Build and Install SDK
         shell: bash
@@ -230,9 +229,9 @@ jobs:
           path: |
             .cache/cpm
             .cache/ccache
-          key: deb-ubuntu-24.04-${{ hashFiles('cmake/dependencies.cmake') }}-${{ github.run_id }}
+          key: deb-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-${{ github.run_id }}
           restore-keys: |
-            deb-ubuntu-24.04-${{ hashFiles('cmake/dependencies.cmake') }}-
+            deb-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-
 
       - name: Build CPack .deb packages
         shell: bash

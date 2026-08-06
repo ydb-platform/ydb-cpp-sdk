@@ -65,9 +65,9 @@ jobs:
           path: |
             .cache/cpm
             .cache/ccache
-          key: deb-ubuntu-24.04-${{ hashFiles('cmake/dependencies.cmake') }}-${{ github.run_id }}
+          key: deb-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-${{ github.run_id }}
           restore-keys: |
-            deb-ubuntu-24.04-${{ hashFiles('cmake/dependencies.cmake') }}-
+            deb-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-
 
       - name: Build .deb packages with CPack
         shell: bash
