@@ -31,6 +31,8 @@ set(YDB_SDK_FASTLZ_GIT_TAG 344eb4025f9ae866ebf7a2ec48850f7113a97a42)
 
 set(CPM_USE_NAMED_CACHE_DIRECTORIES ON CACHE BOOL
     "Use stable per-package directories in CPM_SOURCE_CACHE")
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING
+    "Minimum CMake policy version accepted by fetched dependencies")
 include("${CMAKE_CURRENT_LIST_DIR}/CPM.cmake")
 
 set(_YDB_SDK_CPM_EXCLUDE_FROM_ALL YES)
