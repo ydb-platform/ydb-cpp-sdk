@@ -12,6 +12,7 @@ gcovr_args=(
   --root "${SOURCE_ROOT}"
   --object-directory "${BUILD_DIR}"
   --gcov-executable "${GCOV_EXECUTABLE}"
+  --gcov-ignore-parse-errors negative_hits.warn_once_per_file
   --print-summary
   --json-summary "${OUTPUT_DIR}/summary.json"
   --html --html-details
@@ -21,7 +22,6 @@ gcovr_args=(
   --exclude '.*tests/.*'
   --merge-lines
   --exclude '.*/_deps/.*'
-  --merge-lines
   --filter 'src/'
   --filter 'include/ydb-cpp-sdk/'
   --filter 'plugins/'
