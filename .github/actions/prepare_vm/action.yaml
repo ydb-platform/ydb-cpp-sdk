@@ -19,9 +19,15 @@ runs:
       run: |
         sudo apt-get -y update
         if [[ '${{ inputs.mode }}' == 'build' ]]; then
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          curl -fsSL https://apt.llvm.org/llvm.sh | sudo bash -s -- 18
           sudo apt-get -y install \
             ccache git libidn11-dev libssl-dev ninja-build pkg-config \
-            python3 ragel yasm
+            python3 ragel yasm gcc-13 g++-13 libstdc++-13-dev
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 10000
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 10000
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-18 10000
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-18 10000
           ccache --set-config=base_dir="$(realpath ..)"
           ccache --set-config=cache_dir="$HOME/.ccache"
           ccache --zero-stats
