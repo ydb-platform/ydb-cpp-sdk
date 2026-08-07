@@ -69,7 +69,20 @@ if (YDB_CPP_SDK_SLO_USE_INSTALLED_SDK)
   include(cmake/dependencies.cmake)
   include(cmake/testing.cmake)
 
-  find_package(ydb-cpp-sdk REQUIRED COMPONENTS Table Iam OpenTelemetryMetrics)
+  find_package(ydb-cpp-sdk REQUIRED COMPONENTS
+    Coordination
+    Driver
+    FederatedTopic
+    Iam
+    OpenTelemetryMetrics
+    Operation
+    Result
+    Scheme
+    SolomonStats
+    Table
+    Topic
+    Types
+  )
 
   add_subdirectory(tools)
   add_subdirectory(contrib/libs)
