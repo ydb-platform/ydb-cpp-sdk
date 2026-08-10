@@ -42,7 +42,6 @@ function(add_ydb_test)
     )
   elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     target_link_options(${YDB_TEST_NAME} PRIVATE
-      -Wl,-platform_version,macos,11.0,11.0
       -framework
       CoreFoundation
     )
