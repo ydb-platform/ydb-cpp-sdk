@@ -102,6 +102,8 @@ if (YDB_SDK_TESTS)
   include(cmake/testing.cmake)
 endif()
 
+set(_ydb_sdk_tests "${YDB_SDK_TESTS}")
+set(YDB_SDK_TESTS OFF)
 add_subdirectory(tools)
 add_subdirectory(contrib/libs)
 _ydb_sdk_prepare_imported_libc_compat(contrib-libs-libc_compat)
@@ -111,6 +113,8 @@ add_subdirectory(src)
 add_subdirectory(util)
 target_sources(yutil PRIVATE "${YDB_SDK_SOURCE_DIR}/cmake/tstring_abi.cpp")
 add_subdirectory(plugins)
+set(YDB_SDK_TESTS "${_ydb_sdk_tests}")
+unset(_ydb_sdk_tests)
 
 #_ydb_sdk_validate_public_headers()
 
