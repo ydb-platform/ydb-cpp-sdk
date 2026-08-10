@@ -3,7 +3,7 @@ _ydb_sdk_add_library(uri)
 target_link_libraries(uri
   PUBLIC
     yutil
-    charset
+    ydb-sdk-charset
   PRIVATE
     IDN::IDN
 )

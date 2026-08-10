@@ -31,7 +31,7 @@ target_link_libraries(http-fetch
     uri
     ZLIB::ZLIB
   PRIVATE
-    charset
+    ydb-sdk-charset
     digest-md5
     enum_serialization_runtime
 )
