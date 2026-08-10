@@ -234,9 +234,6 @@ else()
   set(gRPC_INSTALL ${YDB_SDK_INSTALL} CACHE BOOL "" FORCE)
   set(gRPC_BUILD_TESTS OFF CACHE BOOL "" FORCE)
   set(gRPC_BUILD_CODEGEN ON CACHE BOOL "" FORCE)
-  foreach(_provider IN ITEMS ZLIB CARES RE2 SSL PROTOBUF ABSL)
-    set(gRPC_${_provider}_PROVIDER package CACHE STRING "" FORCE)
-  endforeach()
   # gRPC 1.60 copies this property into protoc command arguments without
   # filtering an empty INSTALL_INTERFACE entry.
   get_target_property(_ydb_sdk_libprotoc_includes libprotoc INTERFACE_INCLUDE_DIRECTORIES)
