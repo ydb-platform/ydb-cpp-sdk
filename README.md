@@ -40,8 +40,8 @@ sudo dnf install -y ccache cmake gcc gcc-c++ git libidn-devel \
 macOS 14:
 
 ```bash
-brew install ccache cmake git libidn llvm ninja openssl@3 python ragel yasm
-export PATH="$(brew --prefix llvm)/bin:$PATH"
+xcode-select --install # if the Command Line Tools are not installed yet
+brew install ccache cmake git libidn ninja openssl@3 python ragel yasm
 ```
 
 ### Clone the ydb-cpp-sdk repository
