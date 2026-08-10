@@ -166,6 +166,20 @@ else()
       "ABSL_ENABLE_INSTALL ${YDB_SDK_INSTALL}"
       "ABSL_BUILD_TESTING OFF"
   )
+  if(APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # Keep Abseil's architecture flag pairs intact after CMake de-duplication.
+    foreach(_target IN ITEMS absl_random_internal_randen_hwaes
+        absl_random_internal_randen_hwaes_impl)
+      get_target_property(_copts ${_target} COMPILE_OPTIONS)
+      list(REMOVE_ITEM _copts
+        -Xarch_x86_64 -maes -msse4.1 -Xarch_arm64 -march=armv8-a+crypto)
+      list(APPEND _copts
+        "SHELL:-Xarch_x86_64 -maes"
+        "SHELL:-Xarch_x86_64 -msse4.1"
+        "SHELL:-Xarch_arm64 -march=armv8-a+crypto")
+      set_property(TARGET ${_target} PROPERTY COMPILE_OPTIONS "${_copts}")
+    endforeach()
+  endif()
   _ydb_sdk_cpm_package_stub(absl "set(absl_FOUND TRUE)")
 
   CPMAddPackage(
