@@ -2,9 +2,10 @@ include_guard(GLOBAL)
 
 # This file is the authoritative dependency manifest. Keep version changes here
 # so presets, containers, workflows, and documentation do not drift apart.
-set(YDB_SDK_ABSEIL_VERSION 20230802.0)
-set(YDB_SDK_PROTOBUF_VERSION 25.0)
-set(YDB_SDK_GRPC_VERSION 1.60.2)
+set(YDB_SDK_ABSEIL_VERSION 20240116.0)
+set(YDB_SDK_PROTOBUF_VERSION 26.1)
+set(YDB_SDK_GRPC_REVISION e55f69cedd0ef7344e0bcb64b5ec9205e6aa4f04)
+set(YDB_SDK_GRPC_SHA256 acdf93cc2d116769175712de3606f0ec6a4989f49276ca894b3ee398b1954015)
 set(YDB_SDK_BASE64_VERSION 0.5.2)
 set(YDB_SDK_BROTLI_VERSION 1.1.0)
 set(YDB_SDK_JWT_CPP_VERSION 0.6.0)
@@ -248,15 +249,15 @@ else()
   set(gRPC_INSTALL ${YDB_SDK_INSTALL} CACHE BOOL "" FORCE)
   set(gRPC_BUILD_TESTS OFF CACHE BOOL "" FORCE)
   set(gRPC_BUILD_CODEGEN ON CACHE BOOL "" FORCE)
-  # gRPC 1.60 copies this property into protoc command arguments without
+  # gRPC copies this property into protoc command arguments without
   # filtering an empty INSTALL_INTERFACE entry.
   get_target_property(_ydb_sdk_libprotoc_includes libprotoc INTERFACE_INCLUDE_DIRECTORIES)
   set_target_properties(libprotoc PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${Protobuf_SOURCE_DIR}/src")
   CPMAddPackage(
     NAME gRPC
-    GITHUB_REPOSITORY grpc/grpc
-    GIT_TAG v${YDB_SDK_GRPC_VERSION}
+    URL https://github.com/grpc/grpc/archive/${YDB_SDK_GRPC_REVISION}.tar.gz
+    URL_HASH SHA256=${YDB_SDK_GRPC_SHA256}
     EXCLUDE_FROM_ALL ${_YDB_SDK_CPM_EXCLUDE_FROM_ALL}
     OPTIONS
       "gRPC_INSTALL ${YDB_SDK_INSTALL}"
