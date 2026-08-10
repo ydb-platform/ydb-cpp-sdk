@@ -27,7 +27,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_link_options(bulk_upsert_simple PRIVATE
-    -Wl,-platform_version,macos,11.0,11.0
     -framework
     CoreFoundation
   )
