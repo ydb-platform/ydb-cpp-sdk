@@ -63,8 +63,6 @@ cmake -S "$SOURCE_DIR" -B "$sdk_build" -G Ninja \
     -DYDB_SDK_ENABLE_OTEL_METRICS=ON \
     -DYDB_SDK_ENABLE_OTEL_TRACE=ON \
     -DYDB_SDK_ODBC=ON \
-    -DYDB_ODBC_INSTALL_LIBDIR="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)" \
-    -DYDB_ODBC_INSTALL_DATADIR=/usr/share/ydb-odbc \
     "${compiler_cache_args[@]}"
 cmake --build "$sdk_build" --target package --parallel
 

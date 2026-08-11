@@ -48,10 +48,20 @@ set_target_properties(ydb-odbc PROPERTIES
 
 include(GNUInstallDirs)
 
-set(YDB_ODBC_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}" CACHE STRING
+if (YDB_SDK_DEPENDENCY_MODE STREQUAL "SYSTEM" AND CMAKE_LIBRARY_ARCHITECTURE)
+  set(_ydb_odbc_default_libdir "/usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}")
+  set(_ydb_odbc_default_datadir "/usr/share/ydb-odbc")
+else()
+  set(_ydb_odbc_default_libdir "${CMAKE_INSTALL_LIBDIR}")
+  set(_ydb_odbc_default_datadir "${CMAKE_INSTALL_DATAROOTDIR}/ydb-odbc")
+endif()
+
+set(YDB_ODBC_INSTALL_LIBDIR "${_ydb_odbc_default_libdir}" CACHE STRING
   "Directory where the YDB ODBC shared library is installed")
-set(YDB_ODBC_INSTALL_DATADIR "${CMAKE_INSTALL_DATAROOTDIR}/ydb-odbc" CACHE STRING
+set(YDB_ODBC_INSTALL_DATADIR "${_ydb_odbc_default_datadir}" CACHE STRING
   "Directory where the YDB ODBC driver registration template is installed")
+unset(_ydb_odbc_default_libdir)
+unset(_ydb_odbc_default_datadir)
 
 if (IS_ABSOLUTE "${YDB_ODBC_INSTALL_LIBDIR}")
   set(YDB_ODBC_DRIVER_INSTALL_DIR "${YDB_ODBC_INSTALL_LIBDIR}")
