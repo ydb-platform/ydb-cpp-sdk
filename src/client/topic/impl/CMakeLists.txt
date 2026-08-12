@@ -29,6 +29,8 @@ target_sources(client-ydb_topic-impl
   PRIVATE
     common.cpp
     deferred_commit.cpp
+    deferred_publication_ack_tracker.cpp
+    deferred_publications.cpp
     direct_reader.cpp
     event_handlers.cpp
     offsets_collector.cpp

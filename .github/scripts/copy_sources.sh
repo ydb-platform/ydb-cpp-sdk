@@ -195,6 +195,7 @@ cp -r $2/cmake $tmp_dir
 cp -r $2/scripts $tmp_dir
 cp -r $2/third_party $tmp_dir
 cp -r $2/tools $tmp_dir
+cp $2/AGENTS.md $tmp_dir
 
 sync_upstream_tree "$1" "$2" "$tmp_dir" util
 sync_upstream_tree "$1" "$2" "$tmp_dir" library/cpp managed
