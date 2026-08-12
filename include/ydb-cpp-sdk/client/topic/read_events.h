@@ -6,7 +6,6 @@
 
 #include <util/datetime/base.h>
 
-#include <span>
 
 namespace NYdb::inline V3::NTopic {
 
