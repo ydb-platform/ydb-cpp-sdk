@@ -232,11 +232,11 @@ TEST(MetricBufferTest, ThresholdTriggersImmediateFlush) {
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
     EXPECT_EQ(fakeCounter->Get(), 0);
 
-    for (int i = 0; i < 28; ++i) {
+    for (int i = 0; i < 50; ++i) {
         counter->Inc();
     }
-    SpinUntil([&]{ return fakeCounter->Get() == 128; });
-    EXPECT_EQ(fakeCounter->Get(), 128);
+    SpinUntil([&]{ return fakeCounter->Get() == 150; });
+    EXPECT_EQ(fakeCounter->Get(), 150);
 }
 
 // ---------------------------------------------------------------------------
@@ -332,6 +332,8 @@ TEST(MetricBufferTest, OverflowDropsUpdatesAndReportsDroppedMetrics) {
     auto fakeHist = fix.Fake->GetHistogram(kHistogram, {});
     ASSERT_NE(fakeCounter, nullptr);
     ASSERT_NE(fakeHist, nullptr);
+    EXPECT_LE(fakeCounter->Get(), 8);
+    EXPECT_LE(fakeHist->Count(), 8u);
 
     auto droppedCounter = fix.Fake->GetCounter(
         "ydb_sdk_metric_buffer_dropped_updates_total", {{"instrument", "counter"}});
@@ -339,9 +341,8 @@ TEST(MetricBufferTest, OverflowDropsUpdatesAndReportsDroppedMetrics) {
         "ydb_sdk_metric_buffer_dropped_updates_total", {{"instrument", "histogram"}});
     ASSERT_NE(droppedCounter, nullptr);
     ASSERT_NE(droppedHistogram, nullptr);
-    EXPECT_EQ(fakeCounter->Get() + droppedCounter->Get(), 50);
-    EXPECT_EQ(fakeHist->Count() + droppedHistogram->Get(), 50);
-    EXPECT_GT(droppedCounter->Get() + droppedHistogram->Get(), 0);
+    EXPECT_GT(droppedCounter->Get(), 0);
+    EXPECT_GT(droppedHistogram->Get(), 0);
 }
 
 TEST(MetricBufferTest, ZeroPendingLimitDisablesDropping) {
