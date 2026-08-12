@@ -31,7 +31,7 @@ jobs:
 
           LAST_COMMIT=$(cat ydb-cpp-sdk/.github/last_commit.txt)
 
-          COMMITS=$(git -C ydb log --format="%H" --reverse $LAST_COMMIT..main -- \
+          COMMITS=$(git -C ydb log --first-parent --format="%H" --reverse "$LAST_COMMIT..main" -- \
             ydb/public/sdk/cpp \
             ydb/public/api \
             util \
