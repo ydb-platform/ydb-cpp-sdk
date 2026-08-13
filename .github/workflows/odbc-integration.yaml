@@ -1,0 +1,302 @@
+name: ODBC consumer integration
+
+on:
+  pull_request:
+    branches:
+      - odbc-driver-feature
+    types: [labeled, synchronize, reopened, ready_for_review, closed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: odbc-integration-${{ github.event.pull_request.number }}-${{ github.event.action == 'closed' && 'merged' || 'pr' }}
+  cancel-in-progress: true
+
+jobs:
+  registry:
+    name: Validate consumer registry
+    if: >-
+      (github.event.action == 'closed' && github.event.pull_request.merged == true) ||
+      (github.event.action != 'closed' &&
+       contains(github.event.pull_request.labels.*.name, 'ODBC full matrix'))
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.registry.outputs.matrix }}
+      config: ${{ steps.registry.outputs.config }}
+      target_sha: ${{ steps.target.outputs.sha }}
+    steps:
+      - name: Resolve tested commit
+        id: target
+        shell: bash
+        run: |
+          if [[ '${{ github.event.action }}' == 'closed' ]]; then
+            echo 'sha=${{ github.event.pull_request.merge_commit_sha }}' >> "$GITHUB_OUTPUT"
+          else
+            echo 'sha=${{ github.event.pull_request.head.sha }}' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout tested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.target.outputs.sha }}
+
+      - name: Install registry parser
+        run: python3 -m pip install --user --break-system-packages 'PyYAML==6.0.2'
+
+      - name: Validate registry and create matrix
+        id: registry
+        shell: bash
+        run: |
+          validator=odbc/tests/frameworks/validate_registry.py
+          python3 "$validator"
+          python3 -m unittest odbc.tests.test_integration_harness
+          echo "matrix=$(python3 "$validator" --matrix)" >> "$GITHUB_OUTPUT"
+          echo "config=$(python3 "$validator" --workflow)" >> "$GITHUB_OUTPUT"
+
+  build-package:
+    name: Build ydb-odbc package
+    needs: registry
+    runs-on: ubuntu-24.04
+    env:
+      CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
+      CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
+    steps:
+      - name: Checkout tested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.registry.outputs.target_sha }}
+
+      - name: Restore dependency and compiler caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/cpm
+            .cache/ccache
+          key: odbc-deb-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-${{ github.run_id }}
+          restore-keys: |
+            odbc-deb-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-
+
+      - name: Build CPack packages
+        run: ./scripts/build_cpack_deb_packages.sh build-odbc/packages
+
+      - name: Validate package artifact
+        shell: bash
+        run: |
+          shopt -s nullglob
+          packages=(build-odbc/packages/ydb-odbc_*.deb)
+          if [[ "${#packages[@]}" -ne 1 ]]; then
+            echo "::error::Expected one ydb-odbc package, found ${#packages[@]}"
+            exit 1
+          fi
+          sha256sum "${packages[0]}" > build-odbc/packages/ydb-odbc.sha256
+          dpkg-deb -f "${packages[0]}" > build-odbc/packages/ydb-odbc.control
+
+      - name: Upload ydb-odbc package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ydb-odbc-package
+          path: |
+            build-odbc/packages/ydb-odbc_*.deb
+            build-odbc/packages/ydb-odbc.sha256
+            build-odbc/packages/ydb-odbc.control
+          if-no-files-found: error
+          retention-days: 3
+
+  package-contract:
+    name: Debian package contract
+    needs: [registry, build-package]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout tested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.registry.outputs.target_sha }}
+
+      - name: Download ydb-odbc package
+        uses: actions/download-artifact@v4
+        with:
+          name: ydb-odbc-package
+          path: package
+
+      - name: Install result parser
+        run: python3 -m pip install --user --break-system-packages 'PyYAML==6.0.2'
+
+      - name: Run package contract
+        id: contract
+        continue-on-error: true
+        env:
+          DRIVER_COMMIT: ${{ needs.registry.outputs.target_sha }}
+          ODBC_RUNTIME_IMAGE: ${{ fromJSON(needs.registry.outputs.config).package_runtime_image }}
+          YDB_TEST_IMAGE: ${{ fromJSON(needs.registry.outputs.config).ydb.image }}
+          YDB_ENDPOINT: ${{ fromJSON(needs.registry.outputs.config).ydb.endpoint }}
+          YDB_DATABASE: ${{ fromJSON(needs.registry.outputs.config).ydb.database }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          packages=(package/ydb-odbc_*.deb)
+          if [[ "${#packages[@]}" -ne 1 ]]; then
+            echo "Expected one ydb-odbc package, found ${#packages[@]}" >&2
+            exit 1
+          fi
+          mkdir -p results/package-contract
+          chmod 0777 results/package-contract
+          docker build \
+            --build-arg "RUNTIME_IMAGE=${ODBC_RUNTIME_IMAGE}" \
+            --tag "ydb-odbc-package-contract:${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            odbc/tests/package
+          docker run --rm --user 0:0 \
+            --volume "${GITHUB_WORKSPACE}/odbc/tests:/harness:ro" \
+            --volume "${GITHUB_WORKSPACE}/package:/packages:ro" \
+            --volume "${GITHUB_WORKSPACE}/results/package-contract:/results" \
+            --env "ODBC_PACKAGE_BASENAME=$(basename "${packages[0]}")" \
+            --env ODBC_RESULTS_DIR=/results \
+            --env ODBC_HARNESS_DIR=/harness \
+            --env "ODBC_RUNTIME_IMAGE=${ODBC_RUNTIME_IMAGE}" \
+            --env "DRIVER_COMMIT=${DRIVER_COMMIT}" \
+            --env "YDB_TEST_IMAGE=${YDB_TEST_IMAGE}" \
+            --env "YDB_ENDPOINT=${YDB_ENDPOINT}" \
+            --env "YDB_DATABASE=${YDB_DATABASE}" \
+            "ydb-odbc-package-contract:${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            /harness/package/run-contract.sh
+
+      - name: Convert and validate package results
+        id: validate
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          python3 odbc/tests/reporting/convert_normalized.py \
+            --input results/package-contract/native/results.json \
+            --output results/package-contract/allure \
+            --metadata results/package-contract/metadata.json
+          python3 odbc/tests/reporting/validate_results.py \
+            --results results/package-contract \
+            --expectations odbc/tests/package/expectations.yaml
+
+      - name: Upload package results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: odbc-results-package-contract
+          path: results/package-contract
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Enforce package result
+        if: always()
+        shell: bash
+        run: |
+          test '${{ steps.contract.outcome }}' = success
+          test '${{ steps.validate.outcome }}' = success
+
+  consumers:
+    name: ${{ matrix.display_name }}
+    needs: [registry, build-package]
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.registry.outputs.matrix) }}
+    services:
+      ydb:
+        image: ${{ fromJSON(needs.registry.outputs.config).ydb.image }}
+        ports:
+          - 2136:2136
+        env:
+          YDB_USE_IN_MEMORY_PDISKS: true
+          YDB_TABLE_ENABLE_PREPARED_DDL: true
+        options: '-h localhost'
+    steps:
+      - name: Checkout tested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.registry.outputs.target_sha }}
+
+      - name: Download ydb-odbc package
+        uses: actions/download-artifact@v4
+        with:
+          name: ydb-odbc-package
+          path: package
+
+      - name: Wait for YDB
+        shell: bash
+        run: |
+          for attempt in $(seq 1 60); do
+            if docker exec '${{ job.services.ydb.id }}' \
+                /ydb -e grpc://localhost:2136 -d /local scheme ls >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs '${{ job.services.ydb.id }}' || true
+          echo 'YDB did not become ready' >&2
+          exit 1
+
+      - name: Run consumer
+        env:
+          DRIVER_COMMIT: ${{ needs.registry.outputs.target_sha }}
+          YDB_TEST_IMAGE: ${{ fromJSON(needs.registry.outputs.config).ydb.image }}
+          YDB_ENDPOINT: ${{ fromJSON(needs.registry.outputs.config).ydb.endpoint }}
+          YDB_DATABASE: ${{ fromJSON(needs.registry.outputs.config).ydb.database }}
+        shell: bash
+        run: |
+          shopt -s nullglob
+          packages=(package/ydb-odbc_*.deb)
+          if [[ "${#packages[@]}" -ne 1 ]]; then
+            echo "Expected one ydb-odbc package, found ${#packages[@]}" >&2
+            exit 1
+          fi
+          odbc/tests/frameworks/common/run-consumer.sh \
+            '${{ matrix.consumer }}' \
+            '${{ matrix.runtime_image }}' \
+            "${packages[0]}" \
+            "results/${{ matrix.consumer }}"
+
+      - name: Upload consumer results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: odbc-results-${{ matrix.consumer }}
+          path: results/${{ matrix.consumer }}
+          if-no-files-found: warn
+          retention-days: 14
+
+  aggregate:
+    name: Aggregate ODBC reports
+    if: always() && needs.registry.result == 'success'
+    needs: [registry, package-contract, consumers]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout tested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.registry.outputs.target_sha }}
+
+      - name: Download result artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: odbc-results-*
+          path: collected-results
+          merge-multiple: false
+
+      - name: Aggregate and validate results
+        if: always()
+        env:
+          CONSUMER_IDS: ${{ join(fromJSON(needs.registry.outputs.config).consumer_ids, ',') }}
+        run: |
+          python3 odbc/tests/reporting/aggregate_results.py \
+            --input collected-results \
+            --output aggregated-results \
+            --expected "package-contract,${CONSUMER_IDS}" \
+            --summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload aggregate report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: odbc-integration-report
+          path: aggregated-results
+          if-no-files-found: warn
+          retention-days: 14
