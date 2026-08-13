@@ -7,12 +7,9 @@ RUN apt-get update \
         ca-certificates \
         cmake \
         libqt6sql6-odbc \
+        ninja-build \
         python3 \
         python3-yaml \
         qt6-base-dev \
+        qt6-base-private-dev \
     && rm -rf /var/lib/apt/lists/*
-COPY example /opt/ydb-odbc-qt-test-src
-RUN cmake -S /opt/ydb-odbc-qt-test-src -B /opt/ydb-odbc-qt-test-build \
-    && cmake --build /opt/ydb-odbc-qt-test-build --parallel \
-    && install -m 0755 /opt/ydb-odbc-qt-test-build/ydb_odbc_qt_test /usr/local/bin/ydb_odbc_qt_test \
-    && rm -rf /opt/ydb-odbc-qt-test-build /opt/ydb-odbc-qt-test-src
