@@ -1,7 +1,0 @@
-schema_version: 1
-
-tests:
-  qt.qodbc_dsn_select:
-    disposition: required
-  qt.qodbc_connection_string_select:
-    disposition: required

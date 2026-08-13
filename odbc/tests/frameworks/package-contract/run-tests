@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -uo pipefail
+source "${ODBC_HARNESS_DIR}/case.sh"
+package="/packages/${ODBC_PACKAGE_BASENAME}"
+multiarch="$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+driver="/usr/lib/${multiarch}/libydb-odbc.so"
+template="/usr/share/ydb-odbc/odbcinst.ini"
+version="$(dpkg-deb -f "$package" Version)"
+old_package=/tmp/ydb-odbc-old.deb
+registration() {
+    local value
+    value="$(odbcinst -q -d -n YDB)"
+    grep -Fx "Driver=${driver}" <<<"$value"
+    grep -Fx "Setup=${driver}" <<<"$value"
+    grep -Fx 'UsageCount=1' <<<"$value"
+}
+clean_install() {
+    local depends
+    test "$(dpkg-deb -f "$package" Package)" = ydb-odbc
+    test "$(dpkg-deb -f "$package" Architecture)" = "$(dpkg --print-architecture)"
+    depends="$(dpkg-deb -f "$package" Depends)"
+    for dependency in odbcinst libodbcinst2 libc6; do
+        grep -Eq "(^|, )${dependency}([ (]|,|$)" <<<"$depends"
+    done
+    cat >/tmp/unrelated.ini <<EOF
+[UnrelatedPackageTest]
+Driver=/usr/lib/${multiarch}/libodbc.so.2
+Setup=/usr/lib/${multiarch}/libodbcinst.so.2
+EOF
+    odbcinst -i -d -f /tmp/unrelated.ini
+    printf '[UnrelatedSystemDsn]\nDriver=UnrelatedPackageTest\n' >/etc/odbc.ini
+    printf '[UnrelatedUserDsn]\nDriver=UnrelatedPackageTest\n' >/root/.odbc.ini
+    sha256sum /etc/odbc.ini /root/.odbc.ini >/tmp/odbc-ini.sha256
+    rm -rf /tmp/ydb-odbc-old
+    dpkg-deb --raw-extract "$package" /tmp/ydb-odbc-old
+    sed -i "s/^Version: .*/Version: ${version}~integration1/" /tmp/ydb-odbc-old/DEBIAN/control
+    dpkg-deb --build /tmp/ydb-odbc-old "$old_package"
+    apt-get install -y "$old_package"
+    test -f "$driver" && test -f "$template"
+    grep -Fx "Driver=${driver}" "$template"
+    dpkg-query -S "$driver" | grep -Eq "^ydb-odbc(:[^:]+)?: ${driver}$"
+    registration
+}
+upgrade() {
+    apt-get install -y "$package"
+    test "$(dpkg-query -W -f='${Version}' ydb-odbc)" = "$version"
+    registration
+    sha256sum --check /tmp/odbc-ini.sha256
+}
+remove_package() {
+    apt-get remove -y ydb-odbc
+    test ! -e "$driver" && test ! -e "$template"
+    ! odbcinst -q -d -n YDB >/dev/null 2>&1
+    odbcinst -q -d -n UnrelatedPackageTest
+    sha256sum --check /tmp/odbc-ini.sha256
+}
+preserve_replacement() {
+    apt-get install -y "$package"
+    registration
+    odbcinst -u -d -n YDB
+    cat >/tmp/replacement.ini <<EOF
+[YDB]
+Driver=/usr/lib/${multiarch}/libodbc.so.2
+Setup=/usr/lib/${multiarch}/libodbcinst.so.2
+EOF
+    odbcinst -i -d -f /tmp/replacement.ini
+    local expected="$(odbcinst -q -d -n YDB)"
+    apt-get remove -y ydb-odbc
+    test "$(odbcinst -q -d -n YDB)" = "$expected"
+    sha256sum --check /tmp/odbc-ini.sha256
+}
+apt-get update
+run_case package.clean_install "Install and register ydb-odbc" clean_install
+run_case package.upgrade "Upgrade without duplicate registration" upgrade
+run_case package.remove "Remove without changing unrelated configuration" remove_package
+run_case package.replacement "Preserve a replacement YDB registration" preserve_replacement
+exit "$failed"
