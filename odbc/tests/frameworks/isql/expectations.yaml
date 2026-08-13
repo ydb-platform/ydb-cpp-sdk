@@ -1,0 +1,5 @@
+schema_version: 1
+
+tests:
+  isql.select_scalar:
+    disposition: required
