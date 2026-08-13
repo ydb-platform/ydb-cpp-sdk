@@ -33,20 +33,34 @@ consumers:
     expected:
       required: [isql.select_scalar]
   - id: qt
-    display_name: Qt 6 QODBC
-    kind: smoke
+    display_name: Qt 6.4 QODBC upstream SQL tests
+    kind: framework
     language: C++
-    tier: smoke
+    tier: core
     runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
-    runtime_version: [ydb_odbc_qt_test, --qt-version]
-    source: system
+    runtime_version: [qmake6, -query, QT_VERSION]
+    source:
+      kind: archive
+      url: https://codeload.github.com/qt/qtbase/tar.gz/e3e40c44d3f998a433a6a1080297c5f28e9a768f
+      revision: e3e40c44d3f998a433a6a1080297c5f28e9a768f
+      sha256: 31968efe5280ca254b66a60fe2d717e6bc3367e1bd7ff404b256c2a27eb003ba
+      license: GPL-3.0-only WITH Qt-GPL-exception-1.0
+      ci_only: true
     modes: [dsn, connection_string]
-    tests:
-      - id: qt.qodbc_dsn_select
-        name: Qt QODBC connects through a DSN
-        command: [ydb_odbc_qt_test, '{dsn}']
-      - id: qt.qodbc_connection_string_select
-        name: Qt QODBC connects through a connection string
-        command: [ydb_odbc_qt_test, '{connection_string}']
     expected:
-      required: [qt.qodbc_dsn_select, qt.qodbc_connection_string_select]
+      discovered: true
+      required:
+        - qt.*.qsql.*
+        - qt.*.qsqldatabase.{open,addDatabase,cloneDatabase,getConnectionName,multipleThreads,mysql_connectWithInvalidAddress}
+        - qt.*.qsqlquery.{value,forwardOnly,nullResult,invalidQuery,lastQuery,lastQueryTwoQueries,queryOnInvalidDatabase,reExecutePreparedForwardOnlyQuery,crashQueryOnCloseDatabase,prematureExec}
+        - qt.*.qsqlthread.{readFromSingleConnection,readWriteFromSingleConnection,preparedReadWriteFromSingleConnection,transactionsFromSingleConnection}
+        - qt.*.qsqlquerymodel.{setHeaderData,setQuerySignalEmission,setQueryWithNoRowsInResultSet,nestedResets,task_180617,task_QTBUG_4963_setHeaderDataWithProxyModel}
+      unsupported:
+        qt.*.qsqldatabase.*: Requires another DBMS or catalog, schema, transaction, or type support not exposed by YDB ODBC.
+        qt.*.qsqldriver.*: Requires complete SQLTables, SQLColumns, and SQLPrimaryKeys catalog metadata.
+        qt.*.qsqlquery.*: Requires scrollable cursors, row counts, extra result sets, procedures, BLOBs, or non-YQL fixture SQL.
+        qt.*.qsqlthread.*: Requires concurrent write or mutable cross-thread handle behavior not supported by the driver.
+        qt.*.qsqlquerymodel.*: Requires scrollable cursor or result metadata behavior not supported by the driver.
+        qt.*.qsqlrelationaldelegate.*: Requires Qt model table discovery through ODBC catalog metadata.
+        qt.*.qsqlrelationaltablemodel.*: Requires relational model catalog discovery and write semantics not supported by the driver.
+        qt.*.qsqltablemodel.*: Requires table model catalog discovery and write semantics not supported by the driver.
