@@ -1,4 +1,6 @@
+add_subdirectory(federated_topic)
 add_subdirectory(oauth2_token_exchange/helpers)
+add_subdirectory(topic)
 
 add_ydb_test(NAME client-connection_string_ut GTEST
   SOURCES
