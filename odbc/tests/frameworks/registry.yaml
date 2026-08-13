@@ -10,7 +10,8 @@ consumers:
     language: shell
     tier: smoke
     runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
-    runtime_version: '. /etc/os-release; printf "%s %s\n" "$NAME" "$VERSION_ID"'
+    runtime_version: [dpkg-query, -W, '-f=${Version}', base-files]
+    runner: package-contract
     source: system
     expected:
       required: [package.clean_install, package.upgrade, package.remove, package.replacement]
@@ -20,9 +21,15 @@ consumers:
     language: SQL
     tier: smoke
     runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
-    runtime_version: 'odbcinst -j | sed -n 1p'
+    runtime_version: [odbcinst, -j]
     source: system
     modes: [dsn]
+    tests:
+      - id: isql.select_scalar
+        name: isql executes a scalar query
+        command: [isql, -b, -v, '{dsn}']
+        stdin: "SELECT 42 AS value;\n"
+        output_regex: '(^|[^0-9])42([^0-9]|$)'
     expected:
       required: [isql.select_scalar]
   - id: qt
@@ -31,8 +38,15 @@ consumers:
     language: C++
     tier: smoke
     runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
-    runtime_version: 'ydb_odbc_qt_test --qt-version'
+    runtime_version: [ydb_odbc_qt_test, --qt-version]
     source: system
     modes: [dsn, connection_string]
+    tests:
+      - id: qt.qodbc_dsn_select
+        name: Qt QODBC connects through a DSN
+        command: [ydb_odbc_qt_test, '{dsn}']
+      - id: qt.qodbc_connection_string_select
+        name: Qt QODBC connects through a connection string
+        command: [ydb_odbc_qt_test, '{connection_string}']
     expected:
       required: [qt.qodbc_dsn_select, qt.qodbc_connection_string_select]
