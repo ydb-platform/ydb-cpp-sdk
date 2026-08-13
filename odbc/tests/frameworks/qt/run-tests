@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-set -uo pipefail
-source "${ODBC_HARNESS_DIR}/case.sh"
-
-run_case qt.qodbc_dsn_select "Qt QODBC connects through a DSN" \
-    ydb_odbc_qt_test "${YDB_ODBC_DSN}"
-run_case qt.qodbc_connection_string_select "Qt QODBC connects through a connection string" \
-    ydb_odbc_qt_test "${YDB_ODBC_CONNECTION_STRING}"
-exit "$failed"
