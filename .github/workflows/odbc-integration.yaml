@@ -80,9 +80,9 @@ jobs:
           YDB_ENDPOINT: ${{ fromJSON(steps.registry.outputs.config).ydb.endpoint }}
           YDB_DATABASE: ${{ fromJSON(steps.registry.outputs.config).ydb.database }}
         run: |
-          odbc/tests/frameworks/run.sh package-contract \
-            '${{ fromJSON(steps.registry.outputs.config).package_runtime_image }}' \
-            build-odbc/packages/ydb-odbc_*.deb results/package-contract
+          python3 odbc/tests/frameworks/harness.py launch --consumer package-contract \
+            --runtime-image '${{ fromJSON(steps.registry.outputs.config).package_runtime_image }}' \
+            --package build-odbc/packages/ydb-odbc_*.deb --results results/package-contract
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -130,9 +130,9 @@ jobs:
           YDB_ENDPOINT: ${{ fromJSON(needs.build.outputs.config).ydb.endpoint }}
           YDB_DATABASE: ${{ fromJSON(needs.build.outputs.config).ydb.database }}
         run: |
-          odbc/tests/frameworks/run.sh '${{ matrix.consumer }}' \
-            '${{ matrix.runtime_image }}' package/ydb-odbc_*.deb \
-            'results/${{ matrix.consumer }}'
+          python3 odbc/tests/frameworks/harness.py launch --consumer '${{ matrix.consumer }}' \
+            --runtime-image '${{ matrix.runtime_image }}' --package package/ydb-odbc_*.deb \
+            --results 'results/${{ matrix.consumer }}'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -145,6 +145,8 @@ jobs:
     if: always() && needs.build.result == 'success'
     needs: [build, consumers]
     runs-on: ubuntu-24.04
+    outputs:
+      report_url: ${{ steps.report.outputs.artifact-url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -156,14 +158,40 @@ jobs:
           pattern: odbc-results-*
           path: collected-results
       - name: Aggregate and validate results
+        id: aggregate
         run: |
           set -o pipefail
           python3 odbc/tests/frameworks/harness.py aggregate \
             --input collected-results --output aggregated-results | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
+        id: report
         if: always()
         with:
           name: odbc-integration-report
           path: aggregated-results
           if-no-files-found: warn
           retention-days: 14
+  comment:
+    name: Publish ODBC report link
+    if: always() && needs.aggregate.outputs.report_url != ''
+    needs: [build, aggregate]
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Add report link to pull request
+        continue-on-error: true
+        uses: actions/github-script@v7
+        env:
+          REPORT_URL: ${{ needs.aggregate.outputs.report_url }}
+          REPORT_RESULT: ${{ needs.aggregate.result }}
+          REPORT_SHA: ${{ needs.build.outputs.target_sha }}
+        with:
+          script: |
+            const marker = '<!-- ydb-odbc-integration-report -->'
+            const body = `${marker}\n### ODBC integration report\n[Download Allure results and summary](${process.env.REPORT_URL})\n\nCommit: \`${process.env.REPORT_SHA}\`; result: **${process.env.REPORT_RESULT}**; retained for 14 days.`
+            const request = {...context.repo, issue_number: context.issue.number, per_page: 100}
+            const comments = await github.paginate(github.rest.issues.listComments, request)
+            const previous = comments.find(comment => comment.body?.includes(marker))
+            if (previous) await github.rest.issues.updateComment({...context.repo, comment_id: previous.id, body})
+            else await github.rest.issues.createComment({...context.repo, issue_number: context.issue.number, body})

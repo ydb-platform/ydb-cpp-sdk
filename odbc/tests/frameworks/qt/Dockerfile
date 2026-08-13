@@ -1,8 +1,6 @@
 ARG RUNTIME_IMAGE=ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
 FROM ${RUNTIME_IMAGE}
-
 ENV DEBIAN_FRONTEND=noninteractive
-
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         build-essential \
@@ -13,7 +11,6 @@ RUN apt-get update \
         python3-yaml \
         qt6-base-dev \
     && rm -rf /var/lib/apt/lists/*
-
 COPY example /opt/ydb-odbc-qt-test-src
 RUN cmake -S /opt/ydb-odbc-qt-test-src -B /opt/ydb-odbc-qt-test-build \
     && cmake --build /opt/ydb-odbc-qt-test-build --parallel \

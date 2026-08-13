@@ -1,16 +1,9 @@
 # ODBC consumer harness
-
-Every registry entry runs in a digest-pinned image using only the packaged
-`ydb-odbc` driver. An adapter provides a `Dockerfile` and executable
-`run-tests`; archive-backed bindings also provide `upstream.lock` and an
-executable `example`. A `normalize-results` hook may convert an upstream test
-format into `native/results.json` without patching upstream code.
-
-Tests receive `YDB_ODBC_DSN`, `YDB_ODBC_CONNECTION_STRING`, `YDB_ENDPOINT`,
-`YDB_DATABASE`, `ODBC_UPSTREAM_DIR`, and result-directory variables. Use
-`case.sh` for simple command-based cases. Add expected or explicitly
-unsupported test IDs to `registry.yaml`, then run:
-
+Every entry runs in a digest-pinned image with the packaged `ydb-odbc` driver.
+Adapters provide a `Dockerfile` and declare commands in `registry.yaml`; custom
+`run-tests` executables are also supported. Archive bindings add `upstream.lock`
+and an executable `example`.
+Tests receive connection, upstream, and result variables. Declare expected or unsupported test IDs, then run:
 ```bash
 python3 odbc/tests/frameworks/harness.py registry
 python3 -m unittest odbc.tests.test_integration_harness
