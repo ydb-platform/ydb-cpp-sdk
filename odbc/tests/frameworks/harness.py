@@ -1,0 +1,417 @@
+#!/usr/bin/env python3
+import argparse
+import hashlib
+import json
+import os
+import pwd
+import re
+import shutil
+import stat
+import subprocess
+import sys
+import tarfile
+import time
+import urllib.request
+import uuid
+import zipfile
+from pathlib import Path
+import yaml
+ROOT = Path(__file__).resolve().parent
+REGISTRY = ROOT / "registry.yaml"
+RESULTS = Path("/results")
+WORK = Path("/work")
+IMAGE_RE = re.compile(r"^.+@sha256:[0-9a-f]{64}$")
+SOURCE_RE = re.compile(r"^[0-9a-f]{64}$")
+class HarnessError(ValueError):
+    pass
+def require(condition, message):
+    if not condition:
+        raise HarnessError(message)
+def read_yaml(path):
+    try:
+        return yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as error:
+        raise HarnessError(f"cannot read {path}: {error}") from error
+def load_registry(path=REGISTRY):
+    data = read_yaml(path)
+    require(isinstance(data, dict) and data.get("schema_version") == 1,
+            "unsupported registry schema")
+    ydb = data.get("ydb", {})
+    require(IMAGE_RE.match(str(ydb.get("image", ""))), "YDB image must be digest-pinned")
+    require(ydb.get("endpoint") and str(ydb.get("database", "")).startswith("/"),
+            "YDB endpoint and absolute database are required")
+    consumers = data.get("consumers")
+    require(isinstance(consumers, list) and consumers, "registry has no consumers")
+    seen = set()
+    for item in consumers:
+        consumer = item.get("id") if isinstance(item, dict) else None
+        require(re.match(r"^[a-z][a-z0-9_-]*$", str(consumer or "")),
+                f"invalid consumer id: {consumer}")
+        require(consumer not in seen, f"duplicate consumer id: {consumer}")
+        seen.add(consumer)
+        require(item.get("kind") in {"package", "smoke", "binding"},
+                f"{consumer}: invalid kind")
+        require(item.get("tier") in {"smoke", "core", "expansion"},
+                f"{consumer}: invalid tier")
+        for field in ("display_name", "language", "runtime_version"):
+            require(item.get(field), f"{consumer}: {field} is required")
+        require(IMAGE_RE.match(str(item.get("runtime_image", ""))),
+                f"{consumer}: runtime image must be digest-pinned")
+        adapter = path.parent / consumer
+        for name in ("Dockerfile", "run-tests"):
+            candidate = adapter / name
+            require(candidate.is_file(), f"{consumer}: missing {name}")
+            if name != "Dockerfile":
+                require(os.access(candidate, os.X_OK), f"{consumer}: {name} is not executable")
+        expected = item.get("expected", {})
+        required = expected.get("required", [])
+        unsupported = expected.get("unsupported", {})
+        require(isinstance(required, list) and required, f"{consumer}: required tests are empty")
+        require(isinstance(unsupported, dict), f"{consumer}: unsupported tests must be a mapping")
+        require(not (set(required) & set(unsupported)), f"{consumer}: duplicate expectations")
+        require(all(unsupported.values()), f"{consumer}: unsupported tests require reasons")
+        modes = item.get("modes", [])
+        require(item["kind"] == "package" or (modes and set(modes) <= {"dsn", "connection_string"}),
+                f"{consumer}: invalid connection modes")
+        source = item.get("source")
+        if item["kind"] != "binding":
+            require(source == "system", f"{consumer}: smoke/package source must be system")
+        else:
+            require(isinstance(source, dict) and source.get("kind") == "archive",
+                    f"{consumer}: binding source must be an archive")
+            require(source.get("url") and source.get("revision")
+                    and SOURCE_RE.match(str(source.get("sha256", ""))),
+                    f"{consumer}: invalid pinned source")
+            require(read_yaml(adapter / "upstream.lock") == source,
+                    f"{consumer}: upstream.lock differs from registry")
+            require((adapter / "example").is_file() and os.access(adapter / "example", os.X_OK),
+                    f"{consumer}: executable example is required")
+            require(f"{consumer}.example" in required,
+                    f"{consumer}: example must be a required test")
+        normalizer = adapter / "normalize-results"
+        require(not normalizer.exists() or (normalizer.is_file() and os.access(normalizer, os.X_OK)),
+                f"{consumer}: normalize-results is not executable")
+    return data
+def command(args, *, env=None, capture=False, user=None, check=True):
+    options = {"env": env, "text": True, "check": check}
+    if capture:
+        options.update(stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    if user:
+        account = pwd.getpwnam(user)
+        def demote():
+            os.setgroups([])
+            os.setgid(account.pw_gid)
+            os.setuid(account.pw_uid)
+        options["preexec_fn"] = demote
+    return subprocess.run([str(value) for value in args], **options)
+def append_result(output, test_id, name, status, start, stop, message="", log=None):
+    document = json.loads(output.read_text()) if output.exists() else {"schema_version": 1, "tests": []}
+    result = {"id": test_id, "name": name, "status": status, "start": start, "stop": stop}
+    if message:
+        result["message"] = message
+    if log:
+        result["attachments"] = [{"name": log.name, "path": log.name, "type": "text/plain"}]
+    output.parent.mkdir(parents=True, exist_ok=True)
+    document["tests"].append(result)
+    output.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+def safe_extract(archive, destination):
+    destination.mkdir(parents=True)
+    root = destination.resolve()
+    def check(name):
+        try:
+            (destination / name).resolve().relative_to(root)
+        except ValueError as error:
+            raise HarnessError(f"unsafe upstream path: {name}") from error
+    if tarfile.is_tarfile(archive):
+        with tarfile.open(archive) as stream:
+            for member in stream.getmembers():
+                check(member.name)
+                require(not (member.issym() or member.islnk()), f"upstream link: {member.name}")
+            stream.extractall(destination)
+    elif zipfile.is_zipfile(archive):
+        with zipfile.ZipFile(archive) as stream:
+            for member in stream.infolist():
+                check(member.filename)
+                require(not stat.S_ISLNK(member.external_attr >> 16),
+                        f"upstream link: {member.filename}")
+            stream.extractall(destination)
+    else:
+        raise HarnessError("upstream source is not a tar or zip archive")
+    for path in sorted(destination.rglob("*"), reverse=True):
+        path.chmod(0o555 if path.is_dir() else 0o444)
+    destination.chmod(0o555)
+def prepare_source(consumer):
+    source = consumer["source"]
+    if source == "system":
+        return "system", "system", Path("/nonexistent-upstream")
+    archive = WORK / "upstream.archive"
+    urllib.request.urlretrieve(source["url"], archive)
+    actual = hashlib.sha256(archive.read_bytes()).hexdigest()
+    require(actual == source["sha256"], f"upstream checksum mismatch: {actual}")
+    upstream = WORK / "upstream"
+    safe_extract(archive, upstream)
+    return source["revision"], source["sha256"], upstream
+def inspect_package(package):
+    field = lambda name: command(["dpkg-deb", "-f", package, name], capture=True).stdout.strip()
+    require(field("Package") == "ydb-odbc", "artifact is not the ydb-odbc package")
+    return field("Version"), hashlib.sha256(package.read_bytes()).hexdigest()
+def install_package(package):
+    command(["apt-get", "update"])
+    command(["apt-get", "install", "-y", "--no-install-recommends", package])
+    files = command(["dpkg-query", "-L", "ydb-odbc"], capture=True).stdout.splitlines()
+    drivers = [Path(value).resolve() for value in files if value.endswith("/libydb-odbc.so")]
+    require(len(drivers) == 1 and drivers[0].is_file(), f"expected one installed driver: {drivers}")
+    driver = drivers[0]
+    owner = command(["dpkg-query", "-S", driver], capture=True).stdout.strip()
+    require(owner.startswith("ydb-odbc:"), f"driver has wrong package owner: {owner}")
+    registration = command(["odbcinst", "-q", "-d", "-n", "YDB"], capture=True).stdout
+    require(f"Driver={driver}" in registration and f"Setup={driver}" in registration,
+            "YDB driver registration is invalid")
+    return str(driver)
+def write_dsn(consumer_id, endpoint, database):
+    dsn = f"YDB_{consumer_id}"
+    Path("/etc/odbc.ini").write_text(
+        f"[ODBC Data Sources]\n{dsn}=YDB ODBC Driver\n\n[{dsn}]\nDriver=YDB\n"
+        f"Server={endpoint}\nDatabase={database}\nAuthMode=Anonymous\n", encoding="utf-8")
+    return dsn
+def convert_allure(native, output, metadata):
+    tests = json.loads(native.read_text())["tests"]
+    output.mkdir(exist_ok=True)
+    for old in output.glob("*-result.json"):
+        old.unlink()
+    for test in tests:
+        result_id = str(uuid.uuid5(uuid.NAMESPACE_URL,
+                                   f"ydb-odbc:{metadata['consumer']}:{test['id']}"))
+        attachments = []
+        for index, attachment in enumerate(test.get("attachments", [])):
+            source = native.parent / attachment["path"]
+            require(source.is_file(), f"missing attachment for {test['id']}: {source}")
+            target = f"{result_id}-{index}-attachment{source.suffix or '.txt'}"
+            shutil.copyfile(source, output / target)
+            attachments.append({"name": attachment.get("name", source.name),
+                                "source": target, "type": attachment.get("type", "text/plain")})
+        result = {
+            "uuid": result_id, "historyId": f"{metadata['consumer']}::{test['id']}",
+            "testCaseId": test["id"], "name": test.get("name", test["id"]),
+            "fullName": f"{metadata['consumer']}.{test['id']}", "status": test["status"],
+            "stage": "finished", "start": test["start"], "stop": test["stop"],
+            "labels": [{"name": key, "value": str(metadata[value])} for key, value in
+                       (("suite", "consumer"), ("language", "language"), ("tier", "tier"),
+                        ("driverCommit", "driver_commit"), ("runtimeVersion", "runtime_version"),
+                        ("ydbImage", "ydb_image"))],
+            "parameters": [{"name": key, "value": str(metadata[value])} for key, value in
+                           (("endpoint", "endpoint"), ("database", "database"),
+                            ("packageSha256", "package_sha256"),
+                            ("upstreamRevision", "upstream_revision"),
+                            ("upstreamSha256", "upstream_sha256"))],
+            "attachments": attachments,
+        }
+        if test.get("message"):
+            result["statusDetails"] = {"message": test["message"]}
+        (output / f"{result_id}-result.json").write_text(
+            json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    properties = {key: metadata[key] for key in
+                  ("consumer", "runtime_version", "driver_commit", "package_sha256",
+                   "ydb_image", "endpoint", "database", "upstream_revision", "upstream_sha256")}
+    (output / "environment.properties").write_text(
+        "".join(f"{key}={value}\n" for key, value in sorted(properties.items())), encoding="utf-8")
+def validate_results(consumer, native, allure):
+    errors = []
+    try:
+        tests = json.loads(native.read_text())["tests"]
+        require(isinstance(tests, list) and tests, "test suite is empty")
+    except (OSError, KeyError, json.JSONDecodeError, HarnessError) as error:
+        tests, errors = [], [f"invalid results: {error}"]
+    actual = {}
+    for test in tests:
+        test_id = test.get("id") if isinstance(test, dict) else None
+        if not test_id or test_id in actual:
+            errors.append(f"missing or duplicate test id: {test_id}")
+        else:
+            actual[test_id] = test
+    required = set(consumer["expected"]["required"])
+    unsupported = set(consumer["expected"].get("unsupported", {}))
+    expected = required | unsupported
+    for test_id in sorted(expected - set(actual)):
+        errors.append(f"missing test: {test_id}")
+    for test_id in sorted(set(actual) - expected):
+        errors.append(f"unexpected test: {test_id}")
+    for test_id in sorted(expected & set(actual)):
+        status = actual[test_id].get("status")
+        if (test_id in required and status != "passed") or (test_id in unsupported and status != "skipped"):
+            errors.append(f"{test_id}: unexpected status {status}")
+    if len(list(allure.glob("*-result.json"))) != len(tests):
+        errors.append("Allure/native result count differs")
+    validation = {"consumer": consumer["id"], "ok": not errors,
+                  "test_count": len(tests), "errors": errors}
+    (RESULTS / "validation.json").write_text(
+        json.dumps(validation, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    for error in errors:
+        print(f"result error: {error}", file=sys.stderr)
+    return errors
+def run_consumer(consumer_id):
+    data = load_registry()
+    consumer = next((item for item in data["consumers"] if item["id"] == consumer_id), None)
+    require(consumer, f"unknown consumer: {consumer_id}")
+    adapter = ROOT / consumer_id
+    package = Path("/packages") / os.environ["ODBC_PACKAGE_BASENAME"]
+    native, allure = RESULTS / "native", RESULTS / "allure"
+    home = WORK / "home"
+    for path in (RESULTS, native, allure, WORK, home):
+        path.mkdir(parents=True, exist_ok=True)
+        path.chmod(0o777)
+    version, package_hash = inspect_package(package)
+    endpoint, database = os.environ["YDB_ENDPOINT"], os.environ["YDB_DATABASE"]
+    metadata = {
+        "consumer": consumer_id, "display_name": consumer["display_name"],
+        "kind": consumer["kind"], "language": consumer["language"], "tier": consumer["tier"],
+        "runtime_image": os.environ["ODBC_RUNTIME_IMAGE"], "runtime_version": "unknown",
+        "driver_commit": os.environ["DRIVER_COMMIT"], "package_sha256": package_hash,
+        "package_version": version, "ydb_image": os.environ["YDB_TEST_IMAGE"],
+        "endpoint": endpoint, "database": database, "connection_modes": consumer.get("modes", []),
+        "source_kind": "system" if consumer["source"] == "system" else "archive",
+        "upstream_revision": "unknown", "upstream_sha256": "unknown",
+    }
+    test_rc = normalize_rc = example_rc = 0
+    error = None
+    try:
+        if consumer["kind"] != "package":
+            metadata["driver_path"] = install_package(package)
+        revision, source_hash, upstream = prepare_source(consumer)
+        metadata.update(upstream_revision=revision, upstream_sha256=source_hash)
+        dsn = write_dsn(consumer_id, endpoint, database) if consumer["kind"] != "package" else ""
+        env = os.environ.copy()
+        env.pop("LD_LIBRARY_PATH", None)
+        env.update({
+            "HOME": str(home), "ODBCINI": "/etc/odbc.ini", "YDB_ODBC_DSN": dsn,
+            "YDB_ODBC_CONNECTION_STRING":
+                f"Driver={{YDB}};Server={endpoint};Database={database};AuthMode=Anonymous",
+            "ODBC_RESULTS_DIR": str(RESULTS), "ODBC_NATIVE_RESULTS_DIR": str(native),
+            "ODBC_ALLURE_RESULTS_DIR": str(allure), "ODBC_UPSTREAM_DIR": str(upstream),
+            "ODBC_ADAPTER_DIR": str(adapter), "ODBC_HARNESS_DIR": str(ROOT),
+            "YDB_ENDPOINT": endpoint, "YDB_DATABASE": database,
+        })
+        run_user = None if consumer["kind"] == "package" else "nobody"
+        metadata["runtime_version"] = command(
+            ["sh", "-c", consumer["runtime_version"]], env=env, capture=True,
+            user=run_user).stdout.strip()
+        (RESULTS / "metadata.json").write_text(
+            json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        test_rc = command([adapter / "run-tests"], env=env, user=run_user, check=False).returncode
+        normalizer = adapter / "normalize-results"
+        if normalizer.exists():
+            normalize_rc = command([normalizer], env=env, user=run_user, check=False).returncode
+        if consumer["kind"] == "binding":
+            start = int(time.time() * 1000)
+            result = command([adapter / "example"], env=env, capture=True, user="nobody", check=False)
+            stop = int(time.time() * 1000)
+            log = native / "upstream-example.log"
+            log.write_text(result.stdout or "", encoding="utf-8")
+            append_result(native / "results.json", f"{consumer_id}.example",
+                          f"{consumer['display_name']} example",
+                          "passed" if result.returncode == 0 else "failed", start, stop,
+                          "" if result.returncode == 0 else f"example exited {result.returncode}", log)
+            example_rc = result.returncode
+    except Exception as exception:  # preserve infrastructure failures as test output
+        error = str(exception)
+    (RESULTS / "metadata.json").write_text(
+        json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    results_file = native / "results.json"
+    if error or not results_file.exists():
+        now = int(time.time() * 1000)
+        append_result(results_file, f"{consumer_id}.infrastructure",
+                      f"{consumer_id} test infrastructure", "broken", now, now,
+                      error or f"test command exited {test_rc} without results")
+    try:
+        convert_allure(results_file, allure, metadata)
+        validation_errors = validate_results(consumer, results_file, allure)
+    except Exception as exception:
+        print(f"result finalization failed: {exception}", file=sys.stderr)
+        return 1
+    return int(bool(error or test_rc or normalize_rc or example_rc or validation_errors))
+def aggregate(source, output):
+    data = load_registry()
+    expected = {item["id"] for item in data["consumers"]}
+    output.mkdir(parents=True, exist_ok=True)
+    native_out, allure_out = output / "native", output / "allure-results"
+    native_out.mkdir(exist_ok=True)
+    allure_out.mkdir(exist_ok=True)
+    found, rows, errors = set(), [], []
+    for metadata_path in source.rglob("metadata.json"):
+        root = metadata_path.parent
+        try:
+            metadata = json.loads(metadata_path.read_text())
+            validation = json.loads((root / "validation.json").read_text())
+            consumer = metadata["consumer"]
+            require(consumer not in found, f"duplicate artifact: {consumer}")
+            found.add(consumer)
+            require(validation.get("ok"), f"{consumer}: result validation failed")
+            shutil.copytree(root / "native", native_out / consumer, dirs_exist_ok=True)
+            shutil.copy2(metadata_path, native_out / consumer / "metadata.json")
+            shutil.copy2(root / "validation.json", native_out / consumer / "validation.json")
+            for artifact in (root / "allure").iterdir():
+                shutil.copy2(artifact, allure_out / f"{consumer}-{artifact.name}")
+            rows.append((consumer, validation["test_count"], "passed"))
+        except (OSError, KeyError, json.JSONDecodeError, HarnessError) as error:
+            errors.append(f"invalid artifact at {root}: {error}")
+    if expected - found:
+        errors.append(f"missing result artifacts: {', '.join(sorted(expected - found))}")
+    if found - expected:
+        errors.append(f"unexpected result artifacts: {', '.join(sorted(found - expected))}")
+    lines = ["## ODBC integration results", "", "| Consumer | Tests | Status |",
+             "| --- | ---: | --- |"]
+    lines += [f"| {name} | {count} | {status} |" for name, count, status in sorted(rows)]
+    if errors:
+        lines += ["", "### Aggregation errors", ""] + [f"- {error}" for error in errors]
+    summary = "\n".join(lines) + "\n"
+    (output / "summary.md").write_text(summary, encoding="utf-8")
+    print(summary)
+    return int(bool(errors))
+def main():
+    parser = argparse.ArgumentParser(description="YDB ODBC integration harness")
+    commands = parser.add_subparsers(dest="command", required=True)
+    registry = commands.add_parser("registry")
+    registry.add_argument("--registry", type=Path, default=REGISTRY)
+    registry.add_argument("--matrix", action="store_true")
+    registry.add_argument("--config", action="store_true")
+    record = commands.add_parser("record")
+    for name in ("id", "name", "status"):
+        record.add_argument(f"--{name}", required=True)
+    record.add_argument("--output", type=Path, required=True)
+    record.add_argument("--start", type=int, required=True)
+    record.add_argument("--stop", type=int, required=True)
+    record.add_argument("--message", default="")
+    record.add_argument("--log", type=Path)
+    run = commands.add_parser("run")
+    run.add_argument("--consumer", required=True)
+    aggregation = commands.add_parser("aggregate")
+    aggregation.add_argument("--input", type=Path, required=True)
+    aggregation.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    try:
+        if args.command == "registry":
+            data = load_registry(args.registry.resolve())
+            if args.matrix:
+                print(json.dumps({"include": [{"consumer": item["id"],
+                    "display_name": item["display_name"], "runtime_image": item["runtime_image"]}
+                    for item in data["consumers"] if item["kind"] != "package"]}, separators=(",", ":")))
+            elif args.config:
+                package = next(item for item in data["consumers"] if item["kind"] == "package")
+                print(json.dumps({"ydb": data["ydb"], "package_runtime_image": package["runtime_image"]},
+                                 separators=(",", ":")))
+            else:
+                print(f"Validated {len(data['consumers'])} ODBC consumers")
+            return 0
+        if args.command == "record":
+            require(args.status in {"passed", "failed", "skipped", "broken"}, "invalid status")
+            append_result(args.output, args.id, args.name, args.status, args.start, args.stop,
+                          args.message, args.log)
+            return 0
+        if args.command == "run":
+            return run_consumer(args.consumer)
+        return aggregate(args.input, args.output)
+    except HarnessError as error:
+        print(f"harness error: {error}", file=sys.stderr)
+        return 1
+if __name__ == "__main__":
+    raise SystemExit(main())

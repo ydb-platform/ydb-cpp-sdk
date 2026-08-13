@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -uo pipefail
+source "${ODBC_HARNESS_DIR}/case.sh"
+
+select_scalar() {
+    local output rc
+    output="$(printf 'SELECT 42 AS value;\n' | isql -b -v "${YDB_ODBC_DSN}")"
+    rc=$?
+    printf '%s\n' "$output"
+    [[ "$rc" -eq 0 ]] && grep -Eq '(^|[^0-9])42([^0-9]|$)' <<<"$output"
+}
+
+run_case isql.select_scalar "isql executes a scalar query" select_scalar
+exit "$failed"
