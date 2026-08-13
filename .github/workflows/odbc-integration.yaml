@@ -145,8 +145,6 @@ jobs:
     if: always() && needs.build.result == 'success'
     needs: [build, consumers]
     runs-on: ubuntu-24.04
-    outputs:
-      report_url: ${{ steps.report.outputs.artifact-url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -158,38 +156,49 @@ jobs:
           pattern: odbc-results-*
           path: collected-results
       - name: Aggregate and validate results
-        id: aggregate
         run: |
           set -o pipefail
           python3 odbc/tests/frameworks/harness.py aggregate \
             --input collected-results --output aggregated-results | tee -a "$GITHUB_STEP_SUMMARY"
+      - run: npx -y allure@3.14.3 generate aggregated-results/allure-results --output aggregated-results/html
       - uses: actions/upload-artifact@v4
-        id: report
-        if: always()
         with:
           name: odbc-integration-report
           path: aggregated-results
           if-no-files-found: warn
           retention-days: 14
-  comment:
-    name: Publish ODBC report link
-    if: always() && needs.aggregate.outputs.report_url != ''
+  publish:
+    name: Publish ODBC HTML report
+    if: needs.aggregate.result == 'success' && github.event.pull_request.head.repo.full_name == github.repository
     needs: [build, aggregate]
     runs-on: ubuntu-24.04
-    permissions:
-      pull-requests: write
+    concurrency: {group: odbc-pages, cancel-in-progress: false}
+    permissions: {contents: write, pull-requests: write}
     steps:
+      - uses: actions/checkout@v4
+        with: {ref: gh-pages, path: pages}
+      - uses: actions/download-artifact@v4
+        with: {name: odbc-integration-report, path: report}
+      - name: Publish report to GitHub Pages
+        working-directory: pages
+        env: {DESTINATION: 'reports/odbc/pr-${{ github.event.pull_request.number }}'}
+        run: |
+          rm -rf "$DESTINATION" && mkdir -p "$DESTINATION"
+          cp -a "$GITHUB_WORKSPACE/report/html/." "$DESTINATION/"
+          git add "$DESTINATION"
+          git -c user.name=github-actions[bot] -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -m "Publish ODBC report for PR #${{ github.event.pull_request.number }}"
+          git push
       - name: Add report link to pull request
         continue-on-error: true
         uses: actions/github-script@v7
         env:
-          REPORT_URL: ${{ needs.aggregate.outputs.report_url }}
+          REPORT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/odbc/pr-${{ github.event.pull_request.number }}/index.html
           REPORT_RESULT: ${{ needs.aggregate.result }}
           REPORT_SHA: ${{ needs.build.outputs.target_sha }}
         with:
           script: |
             const marker = '<!-- ydb-odbc-integration-report -->'
-            const body = `${marker}\n### ODBC integration report\n[Download Allure results and summary](${process.env.REPORT_URL})\n\nCommit: \`${process.env.REPORT_SHA}\`; result: **${process.env.REPORT_RESULT}**; retained for 14 days.`
+            const body = `${marker}\n### ODBC integration report\n[Open the interactive Allure report](${process.env.REPORT_URL})\n\nCommit: \`${process.env.REPORT_SHA}\`; result: **${process.env.REPORT_RESULT}**; updated by each run.`
             const request = {...context.repo, issue_number: context.issue.number, per_page: 100}
             const comments = await github.paginate(github.rest.issues.listComments, request)
             const previous = comments.find(comment => comment.body?.includes(marker))
