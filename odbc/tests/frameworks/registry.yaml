@@ -1,0 +1,45 @@
+schema_version: 1
+
+workflow:
+  package_runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+
+ydb:
+  image: ydbplatform/local-ydb:25.2.1@sha256:f65076231c056659f85d5399ae79e98ecc6278dc0f97dbbde3d2d0a1c79d5412
+  endpoint: localhost:2136
+  database: /local
+
+consumers:
+  - id: isql
+    display_name: unixODBC isql
+    kind: smoke
+    language: SQL
+    tier: smoke
+    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+    source:
+      kind: system
+    commands:
+      test: run-tests
+      convert: convert-results
+      runtime_version: runtime-version
+    result_format: ydb-odbc-normalized-v1
+    expectations: expectations.yaml
+    modes:
+      - dsn
+
+  - id: qt
+    display_name: Qt 6 QODBC
+    kind: smoke
+    language: C++
+    tier: smoke
+    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+    source:
+      kind: system
+    commands:
+      test: run-tests
+      convert: convert-results
+      runtime_version: runtime-version
+    result_format: ydb-odbc-normalized-v1
+    expectations: expectations.yaml
+    modes:
+      - dsn
+      - connection_string
