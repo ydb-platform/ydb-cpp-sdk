@@ -53,16 +53,26 @@ def load_registry(path=REGISTRY):
                 f"{consumer}: invalid kind")
         require(item.get("tier") in {"smoke", "core", "expansion"},
                 f"{consumer}: invalid tier")
-        for field in ("display_name", "language", "runtime_version"):
+        for field in ("display_name", "language"):
             require(item.get(field), f"{consumer}: {field} is required")
+        require(isinstance(item.get("runtime_version"), list)
+                and all(isinstance(value, str) for value in item["runtime_version"]),
+                f"{consumer}: runtime_version must be a command list")
         require(IMAGE_RE.match(str(item.get("runtime_image", ""))),
                 f"{consumer}: runtime image must be digest-pinned")
         adapter = path.parent / consumer
-        for name in ("Dockerfile", "run-tests"):
-            candidate = adapter / name
-            require(candidate.is_file(), f"{consumer}: missing {name}")
-            if name != "Dockerfile":
-                require(os.access(candidate, os.X_OK), f"{consumer}: {name} is not executable")
+        require((adapter / "Dockerfile").is_file(), f"{consumer}: missing Dockerfile")
+        runner, tests = adapter / "run-tests", item.get("tests", [])
+        require(item["kind"] == "package" or tests or runner.is_file(),
+                f"{consumer}: tests or run-tests are required")
+        require(not runner.exists() or os.access(runner, os.X_OK),
+                f"{consumer}: run-tests is not executable")
+        for test in tests:
+            require(isinstance(test, dict) and test.get("id") and test.get("name")
+                    and isinstance(test.get("command"), list) and test["command"],
+                    f"{consumer}: invalid declarative test")
+            if test.get("output_regex"):
+                re.compile(test["output_regex"])
         expected = item.get("expected", {})
         required = expected.get("required", [])
         unsupported = expected.get("unsupported", {})
@@ -70,6 +80,8 @@ def load_registry(path=REGISTRY):
         require(isinstance(unsupported, dict), f"{consumer}: unsupported tests must be a mapping")
         require(not (set(required) & set(unsupported)), f"{consumer}: duplicate expectations")
         require(all(unsupported.values()), f"{consumer}: unsupported tests require reasons")
+        require(not tests or {test["id"] for test in tests} == set(required),
+                f"{consumer}: declarative tests differ from required tests")
         modes = item.get("modes", [])
         require(item["kind"] == "package" or (modes and set(modes) <= {"dsn", "connection_string"}),
                 f"{consumer}: invalid connection modes")
@@ -92,8 +104,10 @@ def load_registry(path=REGISTRY):
         require(not normalizer.exists() or (normalizer.is_file() and os.access(normalizer, os.X_OK)),
                 f"{consumer}: normalize-results is not executable")
     return data
-def command(args, *, env=None, capture=False, user=None, check=True):
+def command(args, *, env=None, capture=False, user=None, check=True, input_text=None):
     options = {"env": env, "text": True, "check": check}
+    if input_text is not None:
+        options["input"] = input_text
     if capture:
         options.update(stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if user:
@@ -114,6 +128,22 @@ def append_result(output, test_id, name, status, start, stop, message="", log=No
     output.parent.mkdir(parents=True, exist_ok=True)
     document["tests"].append(result)
     output.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+def logged(log, args, **options):
+    result = command(args, capture=True, check=False, **options)
+    log.append(f"$ {' '.join(map(str, args))}\n{result.stdout or ''}")
+    require(result.returncode == 0, f"{args[0]} exited with status {result.returncode}")
+    return result.stdout or ""
+def record_case(native, test_id, name, action):
+    start, lines, status, message = int(time.time() * 1000), [], "passed", ""
+    try:
+        action(lines)
+    except Exception as error:
+        status, message = "failed", str(error)
+        lines.append(f"\n{type(error).__name__}: {error}\n")
+    stop, log = int(time.time() * 1000), native / f"{test_id.replace('.', '-')}.log"
+    log.write_text("".join(lines), encoding="utf-8")
+    append_result(native / "results.json", test_id, name, status, start, stop, message, log)
+    return status != "passed"
 def safe_extract(archive, destination):
     destination.mkdir(parents=True)
     root = destination.resolve()
@@ -174,6 +204,103 @@ def write_dsn(consumer_id, endpoint, database):
         f"[ODBC Data Sources]\n{dsn}=YDB ODBC Driver\n\n[{dsn}]\nDriver=YDB\n"
         f"Server={endpoint}\nDatabase={database}\nAuthMode=Anonymous\n", encoding="utf-8")
     return dsn
+def package_suite(package, native):
+    multiarch = command(["dpkg-architecture", "-qDEB_HOST_MULTIARCH"], capture=True).stdout.splitlines()[-1]
+    driver, template = Path(f"/usr/lib/{multiarch}/libydb-odbc.so"), Path("/usr/share/ydb-odbc/odbcinst.ini")
+    old, unpacked, state = Path("/tmp/ydb-odbc-old.deb"), Path("/tmp/ydb-odbc-old"), {}
+    def field(log, name):
+        return logged(log, ["dpkg-deb", "-f", package, name]).strip()
+    def registration(log):
+        value = logged(log, ["odbcinst", "-q", "-d", "-n", "YDB"])
+        for expected in (f"Driver={driver}", f"Setup={driver}", "UsageCount=1"):
+            require(expected in value.splitlines(), f"missing registration: {expected}")
+    def unchanged():
+        require(all(hashlib.sha256(path.read_bytes()).hexdigest() == digest
+                    for path, digest in state["configs"].items()), "ODBC configuration changed")
+    def clean(log):
+        logged(log, ["apt-get", "update"])
+        require(field(log, "Package") == "ydb-odbc", "wrong package name")
+        require(field(log, "Architecture") == command(["dpkg", "--print-architecture"], capture=True).stdout.strip(),
+                "wrong package architecture")
+        depends = field(log, "Depends")
+        for dependency in ("odbcinst", "libodbcinst2", "libc6"):
+            require(re.search(fr"(^|, ){dependency}([ (]|,|$)", depends), f"missing dependency: {dependency}")
+        unrelated = Path("/tmp/unrelated.ini")
+        unrelated.write_text(f"[UnrelatedPackageTest]\nDriver=/usr/lib/{multiarch}/libodbc.so.2\nSetup=/usr/lib/{multiarch}/libodbcinst.so.2\n")
+        logged(log, ["odbcinst", "-i", "-d", "-f", unrelated])
+        configs = {Path("/etc/odbc.ini"): "[UnrelatedSystemDsn]\nDriver=UnrelatedPackageTest\n",
+                   Path("/root/.odbc.ini"): "[UnrelatedUserDsn]\nDriver=UnrelatedPackageTest\n"}
+        for path, content in configs.items():
+            path.write_text(content)
+        state["configs"] = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in configs}
+        shutil.rmtree(unpacked, ignore_errors=True)
+        logged(log, ["dpkg-deb", "--raw-extract", package, unpacked])
+        control = unpacked / "DEBIAN/control"
+        version = field(log, "Version")
+        control.write_text(re.sub(r"^Version: .*$", f"Version: {version}~integration1",
+                                  control.read_text(), flags=re.MULTILINE))
+        logged(log, ["dpkg-deb", "--build", unpacked, old])
+        logged(log, ["apt-get", "install", "-y", old])
+        require(driver.is_file() and template.is_file(), "installed files are missing")
+        require(f"Driver={driver}" in template.read_text().splitlines(), "invalid registration template")
+        require(logged(log, ["dpkg-query", "-S", driver]).startswith("ydb-odbc:"), "wrong file owner")
+        registration(log)
+    def upgrade(log):
+        logged(log, ["apt-get", "install", "-y", package])
+        require(logged(log, ["dpkg-query", "-W", "-f=${Version}", "ydb-odbc"]).strip()
+                == field(log, "Version"), "upgrade version differs")
+        registration(log); unchanged()
+    def remove(log):
+        logged(log, ["apt-get", "remove", "-y", "ydb-odbc"])
+        require(not driver.exists() and not template.exists(), "package files remain")
+        result = command(["odbcinst", "-q", "-d", "-n", "YDB"], capture=True, check=False)
+        log.append(result.stdout or "")
+        require(result.returncode != 0, "YDB registration remains")
+        logged(log, ["odbcinst", "-q", "-d", "-n", "UnrelatedPackageTest"]); unchanged()
+    def replacement(log):
+        logged(log, ["apt-get", "install", "-y", package]); registration(log)
+        logged(log, ["odbcinst", "-u", "-d", "-n", "YDB"])
+        replacement_file = Path("/tmp/replacement.ini")
+        replacement_file.write_text(f"[YDB]\nDriver=/usr/lib/{multiarch}/libodbc.so.2\nSetup=/usr/lib/{multiarch}/libodbcinst.so.2\n")
+        logged(log, ["odbcinst", "-i", "-d", "-f", replacement_file])
+        expected = logged(log, ["odbcinst", "-q", "-d", "-n", "YDB"])
+        logged(log, ["apt-get", "remove", "-y", "ydb-odbc"])
+        require(logged(log, ["odbcinst", "-q", "-d", "-n", "YDB"]) == expected,
+                "replacement registration changed"); unchanged()
+    cases = [("package.clean_install", "Install and register ydb-odbc", clean),
+             ("package.upgrade", "Upgrade without duplicate registration", upgrade),
+             ("package.remove", "Remove without changing unrelated configuration", remove),
+             ("package.replacement", "Preserve a replacement YDB registration", replacement)]
+    return int(any([record_case(native, *case) for case in cases]))
+def declarative_suite(consumer, env, native):
+    values = {"dsn": env["YDB_ODBC_DSN"], "connection_string": env["YDB_ODBC_CONNECTION_STRING"],
+              "endpoint": env["YDB_ENDPOINT"], "database": env["YDB_DATABASE"],
+              "upstream": env["ODBC_UPSTREAM_DIR"]}
+    failures = []
+    for test in consumer["tests"]:
+        args = [value.format(**values) for value in test["command"]]
+        def action(log, test=test, args=args):
+            output = logged(log, args, env=env, user="nobody", input_text=test.get("stdin"))
+            require(not test.get("output_regex") or re.search(test["output_regex"], output, re.MULTILINE),
+                    "output did not match expected pattern")
+        failures.append(record_case(native, test["id"], test["name"], action))
+    return int(any(failures))
+def launch_consumer(consumer, runtime, package, results):
+    package, adapter = package.resolve(), ROOT / consumer
+    require(package.is_file() and (adapter / "Dockerfile").is_file(), "package or adapter is missing")
+    results.mkdir(parents=True, exist_ok=True)
+    results, image_name = results.resolve(), f"ydb-odbc-{consumer}:{os.getenv('GITHUB_RUN_ID', 'local')}-{os.getenv('GITHUB_RUN_ATTEMPT', '1')}"
+    results.chmod(0o777)
+    command(["docker", "build", "--build-arg", f"RUNTIME_IMAGE={runtime}", "-t", image_name, adapter])
+    args = ["docker", "run", "--rm", "--network", "host", "--user", "0:0",
+            "-v", f"{ROOT}:/harness:ro", "-v", f"{package.parent}:/packages:ro",
+            "-v", f"{results}:/results", "-e", f"ODBC_PACKAGE_BASENAME={package.name}",
+            "-e", f"ODBC_RUNTIME_IMAGE={runtime}"]
+    for name in ("DRIVER_COMMIT", "YDB_TEST_IMAGE", "YDB_ENDPOINT", "YDB_DATABASE"):
+        require(os.getenv(name), f"{name} is required")
+        args += ["-e", f"{name}={os.environ[name]}"]
+    return command(args + [image_name, "python3", "/harness/harness.py", "run", "--consumer", consumer],
+                   check=False).returncode
 def convert_allure(native, output, metadata):
     tests = json.loads(native.read_text())["tests"]
     output.mkdir(exist_ok=True)
@@ -292,12 +419,17 @@ def run_consumer(consumer_id):
             "YDB_ENDPOINT": endpoint, "YDB_DATABASE": database,
         })
         run_user = None if consumer["kind"] == "package" else "nobody"
-        metadata["runtime_version"] = command(
-            ["sh", "-c", consumer["runtime_version"]], env=env, capture=True,
-            user=run_user).stdout.strip()
+        runtime_output = command(consumer["runtime_version"], env=env, capture=True,
+                                 user=run_user).stdout.strip()
+        metadata["runtime_version"] = runtime_output.splitlines()[0]
         (RESULTS / "metadata.json").write_text(
             json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        test_rc = command([adapter / "run-tests"], env=env, user=run_user, check=False).returncode
+        if consumer.get("runner") == "package-contract":
+            test_rc = package_suite(package, native)
+        elif consumer.get("tests"):
+            test_rc = declarative_suite(consumer, env, native)
+        else:
+            test_rc = command([adapter / "run-tests"], env=env, user=run_user, check=False).returncode
         normalizer = adapter / "normalize-results"
         if normalizer.exists():
             normalize_rc = command([normalizer], env=env, user=run_user, check=False).returncode
@@ -384,6 +516,11 @@ def main():
     record.add_argument("--log", type=Path)
     run = commands.add_parser("run")
     run.add_argument("--consumer", required=True)
+    launch = commands.add_parser("launch")
+    launch.add_argument("--consumer", required=True)
+    launch.add_argument("--runtime-image", required=True)
+    launch.add_argument("--package", type=Path, required=True)
+    launch.add_argument("--results", type=Path, required=True)
     aggregation = commands.add_parser("aggregate")
     aggregation.add_argument("--input", type=Path, required=True)
     aggregation.add_argument("--output", type=Path, required=True)
@@ -409,6 +546,8 @@ def main():
             return 0
         if args.command == "run":
             return run_consumer(args.consumer)
+        if args.command == "launch":
+            return launch_consumer(args.consumer, args.runtime_image, args.package, args.results)
         return aggregate(args.input, args.output)
     except HarnessError as error:
         print(f"harness error: {error}", file=sys.stderr)
