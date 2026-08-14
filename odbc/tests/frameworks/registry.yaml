@@ -50,17 +50,34 @@ consumers:
     expected:
       discovered: true
       required:
-        - qt.*.qsql.*
-        - qt.*.qsqldatabase.{open,addDatabase,cloneDatabase,getConnectionName,multipleThreads,mysql_connectWithInvalidAddress}
-        - qt.*.qsqlquery.{value,forwardOnly,nullResult,invalidQuery,lastQuery,lastQueryTwoQueries,queryOnInvalidDatabase,reExecutePreparedForwardOnlyQuery,crashQueryOnCloseDatabase,prematureExec}
-        - qt.*.qsqlthread.{readFromSingleConnection,readWriteFromSingleConnection,preparedReadWriteFromSingleConnection,transactionsFromSingleConnection}
-        - qt.*.qsqlquerymodel.{setHeaderData,setQuerySignalEmission,setQueryWithNoRowsInResultSet,nestedResets,task_180617,task_QTBUG_4963_setHeaderDataWithProxyModel}
+        - qt.*.*.*
       unsupported:
-        qt.*.qsqldatabase.*: Requires another DBMS or catalog, schema, transaction, or type support not exposed by YDB ODBC.
-        qt.*.qsqldriver.*: Requires complete SQLTables, SQLColumns, and SQLPrimaryKeys catalog metadata.
-        qt.*.qsqlquery.*: Requires scrollable cursors, row counts, extra result sets, procedures, BLOBs, or non-YQL fixture SQL.
-        qt.*.qsqlthread.*: Requires concurrent write or mutable cross-thread handle behavior not supported by the driver.
-        qt.*.qsqlquerymodel.*: Requires scrollable cursor or result metadata behavior not supported by the driver.
-        qt.*.qsqlrelationaldelegate.*: Requires Qt model table discovery through ODBC catalog metadata.
-        qt.*.qsqlrelationaltablemodel.*: Requires relational model catalog discovery and write semantics not supported by the driver.
-        qt.*.qsqltablemodel.*: Requires table model catalog discovery and write semantics not supported by the driver.
+        qt.*.qsqldatabase.{oci_tables,recordOCI,oci_serverDetach,oci_xmltypeSupport,oci_fieldLength,oci_synonymstest}: Requires Qt's Oracle plugin and Oracle-specific SQL rather than QODBC.
+        qt.*.qsqldatabase.{recordMySQL,mysql_multiselect,mysql_savepointtest}: Requires Qt's MySQL plugin and MySQL-specific SQL rather than QODBC.
+        qt.*.qsqldatabase.{recordPSQL,infinityAndNan,psql_schemas,psql_escapedIdentifiers,psql_escapeBytea,psql_bug249059}: Requires Qt's PostgreSQL plugin and PostgreSQL-specific SQL rather than QODBC.
+        qt.*.qsqldatabase.{errorReporting,recordTDS,recordSQLServer,odbc_uniqueidentifier}: Exercises SQL Server or TDS-specific behavior outside the YDB binding contract.
+        qt.*.qsqldatabase.{recordDB2,db2_valueCacheUpdate}: Requires Qt's DB2 plugin and DB2-specific behavior rather than QODBC.
+        qt.*.qsqldatabase.{recordSQLite,sqlite_bindAndFetchUInt,sqlite_enable_cache_mode,sqlite_enableRegexp,sqlite_openError,sqlite_check_json1}: Requires Qt's SQLite plugin and SQLite-specific behavior rather than QODBC.
+        qt.*.qsqldatabase.{recordAccess,accessOdbc_strings}: Exercises Microsoft Access-specific behavior rather than YDB ODBC.
+        qt.*.qsqldatabase.{recordIBase,ibase_numericFields,ibase_fetchBlobs,ibase_useCustomCharset,ibase_procWithoutReturnValues,ibase_procWithReturnValues}: Requires Qt's InterBase plugin and InterBase-specific SQL rather than QODBC.
+        qt.*.qsqldatabase.mysqlOdbc_unsignedIntegers: Exercises the MySQL ODBC driver rather than the YDB ODBC driver.
+        qt.*.qsqldatabase.{eventNotification,eventNotificationIBase,eventNotificationPSQL,eventNotificationSQLite}: Database event notifications are outside the binding contract.
+        qt.*.qsqldatabase.whitespaceInIdentifiers: YDB table paths are outside Qt's whitespace-delimited SQL identifier scenario.
+        qt.*.qsqlquery.{record_sqlite,sqlite_finish,sqliteVirtualTable,QTBUG_12186,QTBUG_21884,QTBUG_16967,QTBUG_23895,QTBUG_14904,sqlite_constraint,sqlite_real,QTBUG_57138}: Requires Qt's SQLite plugin and SQLite-specific SQL rather than QODBC.
+        qt.*.qsqlquery.{psql_forwardOnlyQueryResultsLost,psql_bindWithDoubleColonCastOperator,psql_specialFloatValues,task_233829,QTBUG_12477,QTBUG_5251,QTBUG_36211}: Requires Qt's PostgreSQL plugin and PostgreSQL-specific SQL rather than QODBC.
+        qt.*.qsqlquery.{oci_nullBlob,oci_rawField,oraOutValues,oraClob,oraClobBatch,oraLong,oraOCINumber,oraRowId,oraArrayBind,QTBUG_551,QTBUG_6421,QTBUG_14132,dateTime}: Requires Qt's Oracle plugin and Oracle-specific SQL rather than QODBC.
+        qt.*.qsqlquery.{mysql_outValues,mysql_timeType,QTBUG_6852,QTBUG_5765,QTBUG_53969,gisPointDatatype,integralTypesMysql}: Requires Qt's MySQL plugin and MySQL-specific SQL rather than QODBC.
+        qt.*.qsqlquery.{storedProceduresIBase,ibase_executeBlock,ibaseArray}: Requires Qt's InterBase plugin and InterBase-specific SQL rather than QODBC.
+        qt.*.qsqlquery.{tds_bitField,sqlServerLongStrings,sqlServerReturn0,QTBUG_6618,QTBUG_18435}: Exercises SQL Server or TDS-specific behavior outside the YDB binding contract.
+        qt.*.qsqlquery.outValuesDB2: Requires Qt's DB2 plugin and DB2-specific SQL rather than QODBC.
+        qt.*.qsqlquery.createQueryOnClosedDatabase: Exercises non-QODBC backend plugins selected explicitly by the upstream test.
+        qt.*.qsqlquery.{nextResult,forwardOnlyMultipleResultSet}: Multiple result sets are an optional ODBC feature outside the binding contract.
+        qt.*.qsqlquery.outValues: Stored procedures and output parameters are optional ODBC features outside the binding contract.
+        qt.*.qsqlquery.lastInsertId: Generated-key retrieval is outside the binding contract.
+        qt.*.qsqlquery.joins: Exercises generic ANSI join syntax instead of the YQL dialect accepted by the driver.
+        qt.*.qsqlquery.transaction: Upstream permanently disables this query-level experiment; qsqldatabase.transaction exercises the required transaction contract.
+        qt.*.qsqlrelationaltablemodel.whiteSpaceInIdentifiers: YDB table paths are outside Qt's whitespace-delimited SQL identifier scenario.
+        qt.*.qsqlrelationaltablemodel.psqlSchemaTest: Requires Qt's PostgreSQL plugin and PostgreSQL schema semantics rather than QODBC.
+        qt.*.qsqltablemodel.{insertWithAutoColumn,revert,primaryKeyOrder,sqlite_bigTable,sqlite_attachedDatabase,sqlite_selectFromIdentifierWithDot,modelInAnotherThread}: Requires Qt's SQLite plugin and SQLite-specific behavior rather than QODBC.
+        qt.*.qsqltablemodel.tablesAndSchemas: Requires Qt's PostgreSQL plugin and PostgreSQL schema semantics rather than QODBC.
+        qt.*.qsqltablemodel.whitespaceInIdentifiers: YDB table paths are outside Qt's whitespace-delimited SQL identifier scenario.

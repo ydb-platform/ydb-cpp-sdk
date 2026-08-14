@@ -1,4 +1,4 @@
-import json, shutil, sys, tempfile, unittest
+import json, re, shutil, sys, tempfile, unittest
 from pathlib import Path
 from unittest import mock
 import yaml
@@ -19,10 +19,15 @@ class HarnessTests(unittest.TestCase):
         with mock.patch.object(harness, "RESULTS", root):
             return harness.validate_results({"id": "sample", "expected": expected}, native / "results.json", allure)
     def test_registry_guards(self):
-        self.assertEqual(len(harness.load_registry()["consumers"]), 3)
+        registry = harness.load_registry()
+        self.assertEqual(len(registry["consumers"]), 3)
+        self.assertEqual({run["run_id"] for run in harness.consumer_runs(registry)},
+                         {"package-contract", "isql-dsn", "qt-dsn", "qt-connection_string"})
         cases = [(lambda data, _: data["consumers"].append(dict(data["consumers"][0])), "duplicate"),
                  (lambda data, _: data["consumers"][0].update(runtime_image="ubuntu:24.04"), "digest-pinned"),
-                 (lambda data, _: data["consumers"][2]["source"].update(sha256="0" * 64), "upstream.lock")]
+                 (lambda data, _: data["consumers"][2]["source"].update(sha256="0" * 64), "upstream.lock"),
+                 (lambda data, _: data["consumers"][2]["expected"]["unsupported"].update(
+                     {"qt.*.qsqlquery.*": "too broad"}), "suite-wide Qt exclusions")]
         for change, message in cases:
             with self.subTest(message=message), self.assertRaisesRegex(harness.HarnessError, message):
                 harness.load_registry(self.registry(change))
@@ -32,9 +37,34 @@ class HarnessTests(unittest.TestCase):
         for tests, message in (([], "empty"), ([{"id": "other", "status": "passed"}], "missing"),
                                ([{"id": "sample.case", "status": "skipped"}], "status")):
             self.assertTrue(any(message in error for error in self.validate(tests, required)))
-        discovered = {"discovered": True, "required": ["sample.ok"],
+        discovered = {"discovered": True, "required": ["sample.*"],
                       "unsupported": {"sample.unsupported": "known"}}
         tests = [{"id": "sample.ok", "status": "passed"},
-                 {"id": "sample.unsupported", "status": "failed", "message": "known"}]
+                 {"id": "sample.unsupported", "status": "broken", "message": "known"}]
         self.assertFalse(self.validate(tests, discovered))
+    def test_qt_fixture_patch_is_reviewable(self):
+        patch = (FRAMEWORKS / "qt" / "ydb.patch").read_text()
+        lock = yaml.safe_load((FRAMEWORKS / "qt" / "upstream.lock").read_text())
+        runner = (FRAMEWORKS / "qt" / "run-tests").read_text()
+        self.assertIn(f"Applies to qtbase revision {lock['revision']}.", patch)
+        self.assertIn('["patch", "--batch", "--forward", "-p1", "-i", patch]', runner)
+        self.assertNotIn("adapt_fixtures", runner)
+        self.assertNotIn("re.subn", runner)
+        self.assertNotIn("retry", runner)
+        self.assertNotIn("YDB_QT_TEST_MODE", runner + patch)
+        changed = [line for line in patch.splitlines()
+                   if line[:1] in {"+", "-"} and not line.startswith(("+++", "---"))]
+        assertion = re.compile(r"\b(?:QCOMPARE|QVERIFY|QFAIL|QSKIP|QEXPECT_FAIL)\b")
+        string_literal = re.compile(r'"(?:\\.|[^"\\])*"')
+        assertion_shape = lambda line: re.sub(r"\s+", "", string_literal.sub('""', line[1:]))
+        removed_assertions = [assertion_shape(line) for line in changed
+                              if line.startswith("-") and assertion.search(line)]
+        added_assertions = [assertion_shape(line) for line in changed
+                            if line.startswith("+") and assertion.search(line)]
+        self.assertCountEqual(added_assertions, removed_assertions)
+        removed_keys = [line for line in changed
+                        if line.startswith("-") and "primary key" in line.lower()]
+        added_keys = [line for line in changed
+                      if line.startswith("+") and "primary key" in line.lower()]
+        self.assertGreaterEqual(len(added_keys), len(removed_keys))
 if __name__ == "__main__": unittest.main()
