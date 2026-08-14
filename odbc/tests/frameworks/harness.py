@@ -313,7 +313,12 @@ def validate_results(consumer, native, allure):
         else: actual[test_id] = test
     expectations = consumer["expected"]; required = set(expectations["required"])
     unsupported = set(expectations.get("unsupported", {})); expected = required | unsupported
-    if expectations.get("discovered"):
+    infrastructure = [test for test_id, test in actual.items() if test_id.endswith(".infrastructure")]
+    if expectations.get("discovered") and infrastructure:
+        for test in infrastructure:
+            errors.append(f"{test['id']}: {test.get('message', 'infrastructure failure')}")
+        expected = set(actual)
+    elif expectations.get("discovered"):
         required_matches = {pattern: glob_ids(actual, pattern) for pattern in required}
         matched = {pattern: glob_ids(actual, pattern) for pattern in unsupported}
         for pattern, ids in list(required_matches.items()) + list(matched.items()):
