@@ -29,10 +29,14 @@ def problem_details(problem):
     return message, "" if trace == message else trace
 def prepare_source():
     shutil.copytree(PRISTINE, SOURCE, copy_function=shutil.copyfile)
+    for root, _, _ in os.walk(SOURCE):
+        Path(root).chmod(0o755)
     patch = ADAPTER / "ydb.patch"
     applied = run(["patch", "--batch", "--forward", "-p1", "-i", patch], cwd=SOURCE,
-                  check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     (NATIVE / "fixture-patch.log").write_text(applied.stdout or "")
+    if applied.returncode:
+        raise RuntimeError(f"fixture patch exited {applied.returncode}:\n{(applied.stdout or '').strip()}")
 def matches(name, pattern):
     match = re.search(r"\{([^{}]+)\}", pattern)
     patterns = [pattern] if not match else [pattern[:match.start()] + value + pattern[match.end():] for value in match.group(1).split(",")]

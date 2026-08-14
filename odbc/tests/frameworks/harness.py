@@ -118,6 +118,8 @@ def append_result(output, test_id, name, status, start, stop, message="", log=No
     if log: result["attachments"] = [{"name": log.name, "path": log.name, "type": "text/plain"}]
     output.parent.mkdir(parents=True, exist_ok=True); document["tests"].append(result)
     output.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+def infrastructure_test_id(consumer_id, mode):
+    return f"{consumer_id}.{mode}.infrastructure" if mode != "all" else f"{consumer_id}.infrastructure"
 def logged(log, args, **options):
     result = command(args, capture=True, check=False, **options)
     log.append(f"$ {' '.join(map(str, args))}\n{result.stdout or ''}")
@@ -391,7 +393,7 @@ def run_consumer(consumer_id, mode):
     results_file = native / "results.json"
     if error or not results_file.exists():
         now = int(time.time() * 1000)
-        append_result(results_file, f"{consumer_id}.infrastructure", f"{consumer_id} test infrastructure",
+        append_result(results_file, infrastructure_test_id(consumer_id, mode), f"{consumer_id} test infrastructure",
                       "broken", now, now, error or f"test command exited {test_rc} without results")
     try:
         convert_allure(results_file, allure, metadata)
