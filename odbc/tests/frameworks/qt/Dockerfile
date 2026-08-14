@@ -8,6 +8,7 @@ RUN apt-get update \
         cmake \
         libqt6sql6-odbc \
         ninja-build \
+        patch \
         python3 \
         python3-yaml \
         qt6-base-dev \
