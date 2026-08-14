@@ -21,6 +21,11 @@ class HarnessTests(unittest.TestCase):
     def test_registry_guards(self):
         registry = harness.load_registry()
         self.assertEqual(len(registry["consumers"]), 3)
+        self.assertEqual(harness.infrastructure_test_id("qt", "dsn"), "qt.dsn.infrastructure")
+        self.assertEqual(harness.infrastructure_test_id("qt", "connection_string"),
+                         "qt.connection_string.infrastructure")
+        self.assertEqual(harness.infrastructure_test_id("package-contract", "all"),
+                         "package-contract.infrastructure")
         self.assertEqual({run["run_id"] for run in harness.consumer_runs(registry)},
                          {"package-contract", "isql-dsn", "qt-dsn", "qt-connection_string"})
         cases = [(lambda data, _: data["consumers"].append(dict(data["consumers"][0])), "duplicate"),
@@ -52,6 +57,8 @@ class HarnessTests(unittest.TestCase):
         self.assertNotIn("re.subn", runner)
         self.assertNotIn("retry", runner)
         self.assertNotIn("YDB_QT_TEST_MODE", runner + patch)
+        self.assertIn("Path(root).chmod(0o755)", runner)
+        self.assertIn("fixture patch exited", runner)
         changed = [line for line in patch.splitlines()
                    if line[:1] in {"+", "-"} and not line.startswith(("+++", "---"))]
         assertion = re.compile(r"\b(?:QCOMPARE|QVERIFY|QFAIL|QSKIP|QEXPECT_FAIL)\b")
