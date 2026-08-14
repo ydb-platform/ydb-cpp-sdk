@@ -11,27 +11,22 @@ SOURCE, BUILD = Path("/work/qt-sql"), Path("/work/qt-build")
 TARGETS = ("qsql", "qsqldatabase", "qsqldriver", "qsqlquery", "qsqlthread",
            "qsqlquerymodel", "qsqlrelationaldelegate", "qsqlrelationaltablemodel",
            "qsqltablemodel")
-MODES = {"dsn": os.environ["YDB_ODBC_DSN"],
-         "connection_string": os.environ["YDB_ODBC_CONNECTION_STRING"]}
+MODES = {"dsn": os.environ["YDB_ODBC_DSN"], "connection_string": os.environ["YDB_ODBC_CONNECTION_STRING"]}
 def run(args, **options):
     return subprocess.run([str(arg) for arg in args], text=True, **options)
 def xml_cases(path):
-    try:
-        return ET.parse(path).getroot().findall("testcase")
-    except (ET.ParseError, OSError):
-        return []
+    try: return ET.parse(path).getroot().findall("testcase")
+    except (ET.ParseError, OSError): return []
 def matches(name, pattern):
     match = re.search(r"\{([^{}]+)\}", pattern)
-    patterns = [pattern] if not match else [pattern[:match.start()] + value + pattern[match.end():]
-                                            for value in match.group(1).split(",")]
+    patterns = [pattern] if not match else [pattern[:match.start()] + value + pattern[match.end():] for value in match.group(1).split(",")]
     return any(fnmatch.fnmatch(name, item) for item in patterns)
 def replace(path, old, new):
     text = path.read_text()
     count = text.count(old)
     if not count:
         raise RuntimeError(f"fixture patch no longer applies: {path.name}: {old[:50]}")
-    path.write_text(text.replace(old, new))
-    return count
+    path.write_text(text.replace(old, new)); return count
 def adapt_fixtures():
     """Make only fixture DDL/inserts YQL-compatible; assertions stay untouched."""
     sql = next(UPSTREAM.glob("*/tests/auto/sql"))
@@ -96,8 +91,7 @@ def adapt_fixtures():
           (("test", "id, name, title"), ("test2", "id, title"), ("test3", "id, random, randomtwo"))), []))
     (NATIVE / "fixture-adaptation.json").write_text(json.dumps(counts, indent=2) + "\n")
 def expectations():
-    registry = yaml.safe_load((Path(os.environ["ODBC_HARNESS_DIR"]) / "registry.yaml").read_text())
-    qt = next(item for item in registry["consumers"] if item["id"] == "qt")
+    registry = yaml.safe_load((Path(os.environ["ODBC_HARNESS_DIR"]) / "registry.yaml").read_text()); qt = next(item for item in registry["consumers"] if item["id"] == "qt")
     return qt["expected"].get("required", []), qt["expected"].get("unsupported", {})
 def main():
     adapt_fixtures(); run(["cmake", "-G", "Ninja", "-S", ADAPTER, "-B", BUILD, f"-DQT_SQL_SOURCE={SOURCE}"], check=True)
@@ -129,7 +123,7 @@ def main():
                         retry_cases = xml_cases(retry_xml)
                         selected = [case for case in retry_cases if case.get("name") == function or
                                     case.get("name", "").startswith(function + "(")]
-                status, message = "passed", ""
+                status, message, trace = "passed", "", ""
                 if not selected:
                     if retry and retry.returncode: status, message = "failed", f"Qt test process exited {retry.returncode} before JUnit output"
                     else: status, message = "broken", "upstream function missing from Qt JUnit output"
@@ -139,16 +133,22 @@ def main():
                     failures = [item for item in problems if item.tag != "skipped"]
                     if failures or (problems and len(problems) == len(selected)):
                         problem = (failures or problems)[0]
-                        status = "failed" if failures else "skipped"; message = problem.get("message") or (problem.text or "").strip() or problem.tag
+                        status = "failed" if failures else "skipped"
+                        message, trace = (problem.get("message") or "").strip(), "".join(problem.itertext()).strip()
+                        if not message: message, trace = trace or problem.tag, ""
+                        elif trace == message: trace = ""
                 required_match = any(matches(test_id, pattern) for pattern in required)
-                matched = [pattern for pattern in unsupported if matches(test_id, pattern)]
+                matched = [pattern for pattern in unsupported if matches(test_id, pattern)]; original_status = ""
                 if matched and not required_match and status in {"failed", "skipped"}:
-                    status, message = "skipped", unsupported[matched[0]]
+                    original_status, reason = status, unsupported[matched[0]]
+                    trace = f"Qt reported {status.upper()}: {message}" + (f"\n\n{trace}" if trace else "")
+                    status, message = "skipped", f"Expected unsupported: {reason}"
                 elif status != "passed": bad = True
                 results.append({"id": test_id, "name": f"Qt {target}: {function} ({mode})",
-                                "status": status, "message": message, "start": started,
-                                "stop": stopped, "attachments": [{"name": log.name,
-                                "path": log.name, "type": "text/plain"}]})
+                                "status": status, "message": message, "start": started, "stop": stopped,
+                                "attachments": [{"name": log.name, "path": log.name, "type": "text/plain"}],
+                                **({"trace": trace} if trace else {}),
+                                **({"original_status": original_status} if original_status else {})})
     (NATIVE / "results.json").write_text(json.dumps({"schema_version": 1, "tests": results}, indent=2, sort_keys=True) + "\n")
     return int(bad)
 if __name__ == "__main__": raise SystemExit(main())
