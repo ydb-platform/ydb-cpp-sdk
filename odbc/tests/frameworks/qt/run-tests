@@ -12,8 +12,9 @@ SOURCE, BUILD = Path("/work/qt-sql"), Path("/work/qt-build")
 TARGETS = ("qsql", "qsqldatabase", "qsqldriver", "qsqlquery", "qsqlthread",
            "qsqlquerymodel", "qsqlrelationaldelegate", "qsqlrelationaltablemodel",
            "qsqltablemodel")
-PROCESS_TERMINATING = {"qsqlthread": {"readWriteThreading"},
-                       "qsqltablemodel": {"modelInAnotherThread"}}
+RUN_LAST = {"qsqldatabase": {"transaction"},
+            "qsqlthread": {"readWriteThreading"},
+            "qsqltablemodel": {"modelInAnotherThread"}}
 MODE = os.environ["ODBC_TEST_MODE"]
 DATABASES = {"dsn": os.environ["YDB_ODBC_DSN"],
              "connection_string": os.environ["YDB_ODBC_CONNECTION_STRING"]}
@@ -55,9 +56,9 @@ def main():
             binary, xml = BUILD / f"tst_{target}", NATIVE / f"{mode}-{target}.xml"
             functions = [line.removesuffix("()") for line in run([binary, "-functions"], env=env, check=True,
                          stdout=subprocess.PIPE).stdout.splitlines() if line.endswith("()")]
-            terminating = PROCESS_TERMINATING.get(target, set())
-            ordered = [function for function in functions if function not in terminating]
-            ordered += [function for function in functions if function in terminating]
+            delayed = RUN_LAST.get(target, set())
+            ordered = [function for function in functions if function not in delayed]
+            ordered += [function for function in functions if function in delayed]
             started = int(time.time() * 1000)
             completed = run([binary, *ordered, "-o", f"{xml},junitxml"], env=env,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
