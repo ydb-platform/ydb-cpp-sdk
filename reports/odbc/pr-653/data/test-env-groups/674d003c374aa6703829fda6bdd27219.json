@@ -1,1 +1,1 @@
-{"id":"674d003c374aa6703829fda6bdd27219","fullName":"qt.qt.connection_string.qsqlquery.aggregateFunctionTypes","name":"Qt qsqlquery: aggregateFunctionTypes (connection_string)","status":"skipped","testResultsByEnv":{"default":"643d67766f04290605fd6700ef6a62aa"}}
+{"id":"674d003c374aa6703829fda6bdd27219","fullName":"qt.qt.connection_string.qsqlquery.aggregateFunctionTypes","name":"Qt qsqlquery: aggregateFunctionTypes (connection_string)","status":"failed","testResultsByEnv":{"default":"643d67766f04290605fd6700ef6a62aa"}}

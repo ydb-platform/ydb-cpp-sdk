@@ -1,1 +1,1 @@
-{"id":"b179b7c7f6de3b14e5fe0ab6f2d47189","fullName":"qt.qt.dsn.qsqldatabase.odbc_reopenDatabase","name":"Qt qsqldatabase: odbc_reopenDatabase (dsn)","status":"skipped","testResultsByEnv":{"default":"4bfe4a2bfd4ede4a56e9ee9050032ff0"}}
+{"id":"b179b7c7f6de3b14e5fe0ab6f2d47189","fullName":"qt.qt.dsn.qsqldatabase.odbc_reopenDatabase","name":"Qt qsqldatabase: odbc_reopenDatabase (dsn)","status":"failed","testResultsByEnv":{"default":"4bfe4a2bfd4ede4a56e9ee9050032ff0"}}

@@ -1,1 +1,1 @@
-{"id":"9152a37e9243e3c4e12dc0e11d013d7d","fullName":"qt.qt.connection_string.qsqltablemodel.emptyTable","name":"Qt qsqltablemodel: emptyTable (connection_string)","status":"skipped","testResultsByEnv":{"default":"b7ae01dbf70a214ab1f5fad8b5f6fce6"}}
+{"id":"9152a37e9243e3c4e12dc0e11d013d7d","fullName":"qt.qt.connection_string.qsqltablemodel.emptyTable","name":"Qt qsqltablemodel: emptyTable (connection_string)","status":"failed","testResultsByEnv":{"default":"b7ae01dbf70a214ab1f5fad8b5f6fce6"}}

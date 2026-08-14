@@ -1,1 +1,1 @@
-{"id":"fb5fc819a774dede991013bbe4d76bd9","fullName":"qt.qt.connection_string.qsqldatabase.odbc_reopenDatabase","name":"Qt qsqldatabase: odbc_reopenDatabase (connection_string)","status":"skipped","testResultsByEnv":{"default":"c91b4169adaf816a388b4491ebe710e4"}}
+{"id":"fb5fc819a774dede991013bbe4d76bd9","fullName":"qt.qt.connection_string.qsqldatabase.odbc_reopenDatabase","name":"Qt qsqldatabase: odbc_reopenDatabase (connection_string)","status":"failed","testResultsByEnv":{"default":"c91b4169adaf816a388b4491ebe710e4"}}

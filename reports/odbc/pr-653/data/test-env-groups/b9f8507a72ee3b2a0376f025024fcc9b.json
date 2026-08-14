@@ -1,1 +1,1 @@
-{"id":"b9f8507a72ee3b2a0376f025024fcc9b","fullName":"qt.qt.connection_string.qsqltablemodel.insertRecordsInLoop","name":"Qt qsqltablemodel: insertRecordsInLoop (connection_string)","status":"skipped","testResultsByEnv":{"default":"a642ae970f287821b1843cc9b2fcb774"}}
+{"id":"b9f8507a72ee3b2a0376f025024fcc9b","fullName":"qt.qt.connection_string.qsqltablemodel.insertRecordsInLoop","name":"Qt qsqltablemodel: insertRecordsInLoop (connection_string)","status":"failed","testResultsByEnv":{"default":"a642ae970f287821b1843cc9b2fcb774"}}

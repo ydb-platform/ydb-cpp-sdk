@@ -1,1 +1,1 @@
-{"id":"a1bbbe48a776908c034990485885d080","fullName":"qt.qt.dsn.qsqldatabase.precisionPolicy","name":"Qt qsqldatabase: precisionPolicy (dsn)","status":"skipped","testResultsByEnv":{"default":"82808957479dc26153b794289fc8874d"}}
+{"id":"a1bbbe48a776908c034990485885d080","fullName":"qt.qt.dsn.qsqldatabase.precisionPolicy","name":"Qt qsqldatabase: precisionPolicy (dsn)","status":"failed","testResultsByEnv":{"default":"82808957479dc26153b794289fc8874d"}}

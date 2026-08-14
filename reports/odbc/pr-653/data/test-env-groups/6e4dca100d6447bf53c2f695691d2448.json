@@ -1,1 +1,1 @@
-{"id":"6e4dca100d6447bf53c2f695691d2448","fullName":"qt.qt.connection_string.qsqltablemodel.insertMultiRecords","name":"Qt qsqltablemodel: insertMultiRecords (connection_string)","status":"skipped","testResultsByEnv":{"default":"d544e76c228b454491bb40bef1788244"}}
+{"id":"6e4dca100d6447bf53c2f695691d2448","fullName":"qt.qt.connection_string.qsqltablemodel.insertMultiRecords","name":"Qt qsqltablemodel: insertMultiRecords (connection_string)","status":"failed","testResultsByEnv":{"default":"d544e76c228b454491bb40bef1788244"}}

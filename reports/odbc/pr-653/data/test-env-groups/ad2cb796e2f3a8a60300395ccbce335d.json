@@ -1,1 +1,1 @@
-{"id":"ad2cb796e2f3a8a60300395ccbce335d","fullName":"qt.qt.connection_string.qsqltablemodel.insertRecord","name":"Qt qsqltablemodel: insertRecord (connection_string)","status":"skipped","testResultsByEnv":{"default":"7f140e85448a4266cbbb3d19348bd244"}}
+{"id":"ad2cb796e2f3a8a60300395ccbce335d","fullName":"qt.qt.connection_string.qsqltablemodel.insertRecord","name":"Qt qsqltablemodel: insertRecord (connection_string)","status":"failed","testResultsByEnv":{"default":"7f140e85448a4266cbbb3d19348bd244"}}

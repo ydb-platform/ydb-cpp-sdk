@@ -1,1 +1,1 @@
-{"id":"f2926966806583ed4c915e1d3b2ccc48","fullName":"qt.qt.dsn.qsqlquery.task_217003","name":"Qt qsqlquery: task_217003 (dsn)","status":"skipped","testResultsByEnv":{"default":"7fb62125bbac70aead09ba167c46d194"}}
+{"id":"f2926966806583ed4c915e1d3b2ccc48","fullName":"qt.qt.dsn.qsqlquery.task_217003","name":"Qt qsqlquery: task_217003 (dsn)","status":"failed","testResultsByEnv":{"default":"7fb62125bbac70aead09ba167c46d194"}}

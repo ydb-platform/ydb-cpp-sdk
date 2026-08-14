@@ -1,1 +1,1 @@
-{"id":"134a89e7f02612369597ce1ad7420369","fullName":"qt.qt.dsn.qsqltablemodel.whitespaceInIdentifiers","name":"Qt qsqltablemodel: whitespaceInIdentifiers (dsn)","status":"skipped","testResultsByEnv":{"default":"2ff2fa66f0dfb7583978eb263a876a23"}}
+{"id":"134a89e7f02612369597ce1ad7420369","fullName":"qt.qt.dsn.qsqltablemodel.whitespaceInIdentifiers","name":"Qt qsqltablemodel: whitespaceInIdentifiers (dsn)","status":"failed","testResultsByEnv":{"default":"2ff2fa66f0dfb7583978eb263a876a23"}}

@@ -1,1 +1,1 @@
-{"id":"132c4c4cd585edb383e89366a4fd3147","fullName":"qt.qt.connection_string.qsqltablemodel.removeRow","name":"Qt qsqltablemodel: removeRow (connection_string)","status":"skipped","testResultsByEnv":{"default":"064f773a907cdd3e9979ef043aad1355"}}
+{"id":"132c4c4cd585edb383e89366a4fd3147","fullName":"qt.qt.connection_string.qsqltablemodel.removeRow","name":"Qt qsqltablemodel: removeRow (connection_string)","status":"failed","testResultsByEnv":{"default":"064f773a907cdd3e9979ef043aad1355"}}

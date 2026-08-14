@@ -1,1 +1,1 @@
-{"id":"398e8d5f08e3d51f1e1b1f49e5cf6cee","fullName":"qt.qt.connection_string.qsqlthread.readWriteThreading","name":"Qt qsqlthread: readWriteThreading (connection_string)","status":"skipped","testResultsByEnv":{"default":"53225488189848202b5e28b836878028"}}
+{"id":"398e8d5f08e3d51f1e1b1f49e5cf6cee","fullName":"qt.qt.connection_string.qsqlthread.readWriteThreading","name":"Qt qsqlthread: readWriteThreading (connection_string)","status":"failed","testResultsByEnv":{"default":"53225488189848202b5e28b836878028"}}

@@ -1,1 +1,1 @@
-{"id":"e3a8d321cb5c7ba158aa98fe56e0ac92","fullName":"qt.qt.connection_string.qsqlquery.size","name":"Qt qsqlquery: size (connection_string)","status":"skipped","testResultsByEnv":{"default":"903f0199bf9a01c4cd1c21f49e6321fc"}}
+{"id":"e3a8d321cb5c7ba158aa98fe56e0ac92","fullName":"qt.qt.connection_string.qsqlquery.size","name":"Qt qsqlquery: size (connection_string)","status":"failed","testResultsByEnv":{"default":"903f0199bf9a01c4cd1c21f49e6321fc"}}

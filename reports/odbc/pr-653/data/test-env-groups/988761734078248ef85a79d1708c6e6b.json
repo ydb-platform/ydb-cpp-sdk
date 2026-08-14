@@ -1,1 +1,1 @@
-{"id":"988761734078248ef85a79d1708c6e6b","fullName":"qt.qt.dsn.qsqlrelationaltablemodel.setData","name":"Qt qsqlrelationaltablemodel: setData (dsn)","status":"skipped","testResultsByEnv":{"default":"ed02af19c5877787e4d178e8bf104d8e"}}
+{"id":"988761734078248ef85a79d1708c6e6b","fullName":"qt.qt.dsn.qsqlrelationaltablemodel.setData","name":"Qt qsqlrelationaltablemodel: setData (dsn)","status":"failed","testResultsByEnv":{"default":"ed02af19c5877787e4d178e8bf104d8e"}}

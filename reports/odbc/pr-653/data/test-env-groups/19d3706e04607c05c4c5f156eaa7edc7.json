@@ -1,1 +1,1 @@
-{"id":"19d3706e04607c05c4c5f156eaa7edc7","fullName":"qt.qt.connection_string.qsqlquery.last","name":"Qt qsqlquery: last (connection_string)","status":"skipped","testResultsByEnv":{"default":"ae2fd744c03ebbcaf57036ebc7082e51"}}
+{"id":"19d3706e04607c05c4c5f156eaa7edc7","fullName":"qt.qt.connection_string.qsqlquery.last","name":"Qt qsqlquery: last (connection_string)","status":"failed","testResultsByEnv":{"default":"ae2fd744c03ebbcaf57036ebc7082e51"}}

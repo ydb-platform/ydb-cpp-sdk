@@ -1,1 +1,1 @@
-{"id":"9ac3836d4bef91732de25b0443826e24","fullName":"qt.qt.dsn.qsqltablemodel.removeColumnAndRow","name":"Qt qsqltablemodel: removeColumnAndRow (dsn)","status":"skipped","testResultsByEnv":{"default":"105b545d91cb63f598d5bf08274981ce"}}
+{"id":"9ac3836d4bef91732de25b0443826e24","fullName":"qt.qt.dsn.qsqltablemodel.removeColumnAndRow","name":"Qt qsqltablemodel: removeColumnAndRow (dsn)","status":"failed","testResultsByEnv":{"default":"105b545d91cb63f598d5bf08274981ce"}}

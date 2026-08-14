@@ -1,1 +1,1 @@
-{"id":"088de96a717f0d0a8dcb556bb8f16940","fullName":"qt.qt.connection_string.qsqldatabase.transaction","name":"Qt qsqldatabase: transaction (connection_string)","status":"skipped","testResultsByEnv":{"default":"d1e6370918a6018f148e080d5054f9d7"}}
+{"id":"088de96a717f0d0a8dcb556bb8f16940","fullName":"qt.qt.connection_string.qsqldatabase.transaction","name":"Qt qsqldatabase: transaction (connection_string)","status":"failed","testResultsByEnv":{"default":"d1e6370918a6018f148e080d5054f9d7"}}

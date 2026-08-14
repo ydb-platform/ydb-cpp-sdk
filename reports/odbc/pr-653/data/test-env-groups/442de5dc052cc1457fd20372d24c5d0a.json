@@ -1,1 +1,1 @@
-{"id":"442de5dc052cc1457fd20372d24c5d0a","fullName":"qt.qt.dsn.qsqlquery.query_exec","name":"Qt qsqlquery: query_exec (dsn)","status":"skipped","testResultsByEnv":{"default":"20d238ab3a3ad9629cce85433b7e863c"}}
+{"id":"442de5dc052cc1457fd20372d24c5d0a","fullName":"qt.qt.dsn.qsqlquery.query_exec","name":"Qt qsqlquery: query_exec (dsn)","status":"failed","testResultsByEnv":{"default":"20d238ab3a3ad9629cce85433b7e863c"}}

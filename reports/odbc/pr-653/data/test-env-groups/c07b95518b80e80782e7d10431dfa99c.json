@@ -1,1 +1,1 @@
-{"id":"c07b95518b80e80782e7d10431dfa99c","fullName":"qt.qt.connection_string.qsqltablemodel.modelInAnotherThread","name":"Qt qsqltablemodel: modelInAnotherThread (connection_string)","status":"skipped","testResultsByEnv":{"default":"eac6b886ae4add12df357c9e930dd2ad"}}
+{"id":"c07b95518b80e80782e7d10431dfa99c","fullName":"qt.qt.connection_string.qsqltablemodel.modelInAnotherThread","name":"Qt qsqltablemodel: modelInAnotherThread (connection_string)","status":"failed","testResultsByEnv":{"default":"eac6b886ae4add12df357c9e930dd2ad"}}

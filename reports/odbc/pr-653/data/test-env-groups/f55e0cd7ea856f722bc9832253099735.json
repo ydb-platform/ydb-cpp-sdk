@@ -1,1 +1,1 @@
-{"id":"f55e0cd7ea856f722bc9832253099735","fullName":"qt.qt.connection_string.qsqltablemodel.recordReimpl","name":"Qt qsqltablemodel: recordReimpl (connection_string)","status":"skipped","testResultsByEnv":{"default":"4cd1748a23decf4747170419a21cbb16"}}
+{"id":"f55e0cd7ea856f722bc9832253099735","fullName":"qt.qt.connection_string.qsqltablemodel.recordReimpl","name":"Qt qsqltablemodel: recordReimpl (connection_string)","status":"failed","testResultsByEnv":{"default":"4cd1748a23decf4747170419a21cbb16"}}

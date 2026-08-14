@@ -1,1 +1,1 @@
-{"id":"cb34c177661a2d0ec1644d63169a3969","fullName":"qt.qt.connection_string.qsqlrelationaltablemodel.sort","name":"Qt qsqlrelationaltablemodel: sort (connection_string)","status":"skipped","testResultsByEnv":{"default":"7e7e3350086d7a74f00faea655084784"}}
+{"id":"cb34c177661a2d0ec1644d63169a3969","fullName":"qt.qt.connection_string.qsqlrelationaltablemodel.sort","name":"Qt qsqlrelationaltablemodel: sort (connection_string)","status":"failed","testResultsByEnv":{"default":"7e7e3350086d7a74f00faea655084784"}}

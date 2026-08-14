@@ -1,1 +1,1 @@
-{"id":"d29ade26f917338ae588c7cdff7aae21","fullName":"qt.qt.dsn.qsqltablemodel.removeInsertedRow","name":"Qt qsqltablemodel: removeInsertedRow (dsn)","status":"skipped","testResultsByEnv":{"default":"f273d7c6e2687232c8c5af24ebd47719"}}
+{"id":"d29ade26f917338ae588c7cdff7aae21","fullName":"qt.qt.dsn.qsqltablemodel.removeInsertedRow","name":"Qt qsqltablemodel: removeInsertedRow (dsn)","status":"failed","testResultsByEnv":{"default":"f273d7c6e2687232c8c5af24ebd47719"}}

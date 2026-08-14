@@ -1,1 +1,1 @@
-{"id":"5a22fc75ba14271be26ed9286fed95a4","fullName":"qt.qt.dsn.qsqlquery.last","name":"Qt qsqlquery: last (dsn)","status":"skipped","testResultsByEnv":{"default":"e810744365fc68a5ef3cb381ec8176fb"}}
+{"id":"5a22fc75ba14271be26ed9286fed95a4","fullName":"qt.qt.dsn.qsqlquery.last","name":"Qt qsqlquery: last (dsn)","status":"failed","testResultsByEnv":{"default":"e810744365fc68a5ef3cb381ec8176fb"}}

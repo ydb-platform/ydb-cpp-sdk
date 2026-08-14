@@ -1,1 +1,1 @@
-{"id":"d04bd3824bfa117c17064c52870049cb","fullName":"qt.qt.dsn.qsqltablemodel.modelInAnotherThread","name":"Qt qsqltablemodel: modelInAnotherThread (dsn)","status":"skipped","testResultsByEnv":{"default":"f29cef7d9df47afe569122460e52340d"}}
+{"id":"d04bd3824bfa117c17064c52870049cb","fullName":"qt.qt.dsn.qsqltablemodel.modelInAnotherThread","name":"Qt qsqltablemodel: modelInAnotherThread (dsn)","status":"failed","testResultsByEnv":{"default":"f29cef7d9df47afe569122460e52340d"}}

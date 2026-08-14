@@ -1,1 +1,1 @@
-{"id":"2a2558870740bc0ca79fc804b3be098f","fullName":"qt.qt.connection_string.qsqlrelationaltablemodel.relationModel","name":"Qt qsqlrelationaltablemodel: relationModel (connection_string)","status":"skipped","testResultsByEnv":{"default":"60e9b20803c755c851300c63f55d8151"}}
+{"id":"2a2558870740bc0ca79fc804b3be098f","fullName":"qt.qt.connection_string.qsqlrelationaltablemodel.relationModel","name":"Qt qsqlrelationaltablemodel: relationModel (connection_string)","status":"failed","testResultsByEnv":{"default":"60e9b20803c755c851300c63f55d8151"}}

@@ -1,1 +1,1 @@
-{"id":"36767bbd4ddc3313e99087b9417cebd0","fullName":"qt.qt.dsn.qsqltablemodel.setInvalidFilter","name":"Qt qsqltablemodel: setInvalidFilter (dsn)","status":"skipped","testResultsByEnv":{"default":"dfd54defca0b7a666c414fc5baa1e7da"}}
+{"id":"36767bbd4ddc3313e99087b9417cebd0","fullName":"qt.qt.dsn.qsqltablemodel.setInvalidFilter","name":"Qt qsqltablemodel: setInvalidFilter (dsn)","status":"failed","testResultsByEnv":{"default":"dfd54defca0b7a666c414fc5baa1e7da"}}

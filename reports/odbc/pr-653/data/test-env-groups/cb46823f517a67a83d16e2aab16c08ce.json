@@ -1,1 +1,1 @@
-{"id":"cb46823f517a67a83d16e2aab16c08ce","fullName":"qt.qt.dsn.qsqltablemodel.selectRow","name":"Qt qsqltablemodel: selectRow (dsn)","status":"skipped","testResultsByEnv":{"default":"406402c29234ac24a727880e471f343f"}}
+{"id":"cb46823f517a67a83d16e2aab16c08ce","fullName":"qt.qt.dsn.qsqltablemodel.selectRow","name":"Qt qsqltablemodel: selectRow (dsn)","status":"failed","testResultsByEnv":{"default":"406402c29234ac24a727880e471f343f"}}

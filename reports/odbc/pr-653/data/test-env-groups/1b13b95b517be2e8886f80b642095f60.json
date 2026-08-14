@@ -1,1 +1,1 @@
-{"id":"1b13b95b517be2e8886f80b642095f60","fullName":"qt.qt.connection_string.qsqlrelationaltablemodel.selectAfterUpdate","name":"Qt qsqlrelationaltablemodel: selectAfterUpdate (connection_string)","status":"skipped","testResultsByEnv":{"default":"7a9ba7a4e2236bb787b5d5c3a9c94bb8"}}
+{"id":"1b13b95b517be2e8886f80b642095f60","fullName":"qt.qt.connection_string.qsqlrelationaltablemodel.selectAfterUpdate","name":"Qt qsqlrelationaltablemodel: selectAfterUpdate (connection_string)","status":"failed","testResultsByEnv":{"default":"7a9ba7a4e2236bb787b5d5c3a9c94bb8"}}

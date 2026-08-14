@@ -1,1 +1,1 @@
-{"id":"4313f4fd63e6a051406461a897be2dcf","fullName":"qt.qt.dsn.qsqlrelationaltablemodel.selectAfterUpdate","name":"Qt qsqlrelationaltablemodel: selectAfterUpdate (dsn)","status":"skipped","testResultsByEnv":{"default":"b6a3dcee93e0f666e00590facd818553"}}
+{"id":"4313f4fd63e6a051406461a897be2dcf","fullName":"qt.qt.dsn.qsqlrelationaltablemodel.selectAfterUpdate","name":"Qt qsqlrelationaltablemodel: selectAfterUpdate (dsn)","status":"failed","testResultsByEnv":{"default":"b6a3dcee93e0f666e00590facd818553"}}

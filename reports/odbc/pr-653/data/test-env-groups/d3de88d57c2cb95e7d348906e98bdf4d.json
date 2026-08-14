@@ -1,1 +1,1 @@
-{"id":"d3de88d57c2cb95e7d348906e98bdf4d","fullName":"qt.qt.dsn.qsqlquery.record","name":"Qt qsqlquery: record (dsn)","status":"skipped","testResultsByEnv":{"default":"317cc1683c8372cdd7d290ce2ff765cf"}}
+{"id":"d3de88d57c2cb95e7d348906e98bdf4d","fullName":"qt.qt.dsn.qsqlquery.record","name":"Qt qsqlquery: record (dsn)","status":"failed","testResultsByEnv":{"default":"317cc1683c8372cdd7d290ce2ff765cf"}}

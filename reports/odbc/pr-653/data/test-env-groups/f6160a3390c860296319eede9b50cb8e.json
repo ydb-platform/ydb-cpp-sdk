@@ -1,1 +1,1 @@
-{"id":"f6160a3390c860296319eede9b50cb8e","fullName":"qt.qt.connection_string.qsqltablemodel.insertRowFailure","name":"Qt qsqltablemodel: insertRowFailure (connection_string)","status":"skipped","testResultsByEnv":{"default":"23fe5554786d9d3200f775c36bcec270"}}
+{"id":"f6160a3390c860296319eede9b50cb8e","fullName":"qt.qt.connection_string.qsqltablemodel.insertRowFailure","name":"Qt qsqltablemodel: insertRowFailure (connection_string)","status":"failed","testResultsByEnv":{"default":"23fe5554786d9d3200f775c36bcec270"}}

@@ -1,1 +1,1 @@
-{"id":"e0b24fee647dd65a9f340612488e5c4c","fullName":"qt.qt.connection_string.qsqlquerymodel.insertColumn","name":"Qt qsqlquerymodel: insertColumn (connection_string)","status":"skipped","testResultsByEnv":{"default":"b8f7badb8bab4175e12403e2b5ca4b7a"}}
+{"id":"e0b24fee647dd65a9f340612488e5c4c","fullName":"qt.qt.connection_string.qsqlquerymodel.insertColumn","name":"Qt qsqlquerymodel: insertColumn (connection_string)","status":"failed","testResultsByEnv":{"default":"b8f7badb8bab4175e12403e2b5ca4b7a"}}

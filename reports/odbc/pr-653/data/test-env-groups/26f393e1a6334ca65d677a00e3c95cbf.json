@@ -1,1 +1,1 @@
-{"id":"26f393e1a6334ca65d677a00e3c95cbf","fullName":"qt.qt.dsn.qsqlquery.isValid","name":"Qt qsqlquery: isValid (dsn)","status":"skipped","testResultsByEnv":{"default":"37063c6fbca83e4b217a17c63e92aae6"}}
+{"id":"26f393e1a6334ca65d677a00e3c95cbf","fullName":"qt.qt.dsn.qsqlquery.isValid","name":"Qt qsqlquery: isValid (dsn)","status":"failed","testResultsByEnv":{"default":"37063c6fbca83e4b217a17c63e92aae6"}}

@@ -1,1 +1,1 @@
-{"id":"574965cdc89a71bd7b29d2f08fad374f","fullName":"qt.qt.dsn.qsqldriver.record","name":"Qt qsqldriver: record (dsn)","status":"skipped","testResultsByEnv":{"default":"a40ca0d60c4c6342fd4d2b725b68202c"}}
+{"id":"574965cdc89a71bd7b29d2f08fad374f","fullName":"qt.qt.dsn.qsqldriver.record","name":"Qt qsqldriver: record (dsn)","status":"failed","testResultsByEnv":{"default":"a40ca0d60c4c6342fd4d2b725b68202c"}}
