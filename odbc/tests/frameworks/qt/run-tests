@@ -7,146 +7,96 @@ import yaml
 ADAPTER = Path(os.environ["ODBC_ADAPTER_DIR"])
 UPSTREAM = Path(os.environ["ODBC_UPSTREAM_DIR"])
 NATIVE = Path(os.environ["ODBC_NATIVE_RESULTS_DIR"])
+PRISTINE = next(UPSTREAM.glob("*/tests/auto/sql"))
 SOURCE, BUILD = Path("/work/qt-sql"), Path("/work/qt-build")
 TARGETS = ("qsql", "qsqldatabase", "qsqldriver", "qsqlquery", "qsqlthread",
            "qsqlquerymodel", "qsqlrelationaldelegate", "qsqlrelationaltablemodel",
            "qsqltablemodel")
-MODES = {"dsn": os.environ["YDB_ODBC_DSN"], "connection_string": os.environ["YDB_ODBC_CONNECTION_STRING"]}
+PROCESS_TERMINATING = {"qsqlthread": {"readWriteThreading"},
+                       "qsqltablemodel": {"modelInAnotherThread"}}
+MODE = os.environ["ODBC_TEST_MODE"]
+DATABASES = {"dsn": os.environ["YDB_ODBC_DSN"],
+             "connection_string": os.environ["YDB_ODBC_CONNECTION_STRING"]}
 def run(args, **options):
     return subprocess.run([str(arg) for arg in args], text=True, **options)
 def xml_cases(path):
     try: return ET.parse(path).getroot().findall("testcase")
     except (ET.ParseError, OSError): return []
+def problem_details(problem):
+    message = (problem.get("message") or "").strip()
+    trace = "".join(problem.itertext()).strip()
+    if not message: return trace or problem.tag, ""
+    return message, "" if trace == message else trace
+def prepare_source():
+    shutil.copytree(PRISTINE, SOURCE, copy_function=shutil.copyfile)
+    patch = ADAPTER / "ydb.patch"
+    applied = run(["patch", "--batch", "--forward", "-p1", "-i", patch], cwd=SOURCE,
+                  check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    (NATIVE / "fixture-patch.log").write_text(applied.stdout or "")
 def matches(name, pattern):
     match = re.search(r"\{([^{}]+)\}", pattern)
     patterns = [pattern] if not match else [pattern[:match.start()] + value + pattern[match.end():] for value in match.group(1).split(",")]
     return any(fnmatch.fnmatch(name, item) for item in patterns)
-def replace(path, old, new):
-    text = path.read_text()
-    count = text.count(old)
-    if not count:
-        raise RuntimeError(f"fixture patch no longer applies: {path.name}: {old[:50]}")
-    path.write_text(text.replace(old, new)); return count
-def adapt_fixtures():
-    """Make only fixture DDL/inserts YQL-compatible; assertions stay untouched."""
-    sql = next(UPSTREAM.glob("*/tests/auto/sql"))
-    shutil.copytree(sql, SOURCE)
-    for path in SOURCE.rglob("*"):
-        path.chmod(0o755 if path.is_dir() else 0o644)
-    counts = {}
-    for path in SOURCE.rglob("tst_*.cpp"):
-        text = path.read_text()
-        text, types = re.subn(r"\b(?:var)?char\s*\(\s*\d+\s*\)", "Utf8", text,
-                              flags=re.IGNORECASE)
-        text, numeric = re.subn(r"\b(?:numeric|decimal|double)\s*\(\s*\d+\s*,\s*\d+\s*\)",
-                                "Double", text, flags=re.IGNORECASE)
-        text, nulls = re.subn(r"\b(integer|int|Utf8|Double)\s+not\s+null\b", r"\1", text,
-                              flags=re.IGNORECASE)
-        text, inline_keys = re.subn(r"\b(integer|int|Utf8)\s+primary\s+key\b", r"\1", text,
-                                    flags=re.IGNORECASE)
-        path.write_text(text)
-        counts[path.name] = types + numeric + nulls + inline_keys
-    files = {path.parent.name: path for path in SOURCE.rglob("tst_*.cpp")}
-    files["databases"] = SOURCE / "kernel/qsqldatabase/tst_databases.h"
-    def patch(target, *pairs):
-        for old, new in zip(pairs[::2], pairs[1::2]):
-            counts[target] = counts.get(target, 0) + replace(files[target], old, new)
-    patch("databases", 'return name != QLatin1String("QSQLITE2");',
-          'return !name.startsWith("QODBC") && name != QLatin1String("QSQLITE2");',
-          "hostname.replace(QLatin1Char( '-' ), QLatin1Char( '_' ));",
-          "hostname.replace(QLatin1Char( '-' ), QLatin1Char( '_' ));\n        hostname += qEnvironmentVariable(\"YDB_QT_TEST_MODE\");")
-    patch("qsqldriver", ' + doubleField + QLatin1Char(\')\')))',
-          ' + doubleField + ", primary key (id)" + QLatin1Char(\')\')))',
-          ' + relTEST1 + " values(', ' + relTEST1 + " (id, name, title_key, another_title_key, more_data) values(')
-    patch("qsqlquery", ': "create table %1 (id int, t_varchar Utf8)"',
-          ': "create table %1 (id int, t_varchar Utf8, primary key (id))"')
-    for i in range(1, 6):
-        patch("qsqlquery", f'"insert into %1 values ({i}, \'VarChar{i}\', \'Char{i}\')"',
-              f'"insert into %1 (id, t_varchar, t_char) values ({i}, \'VarChar{i}\', \'Char{i}\')"')
-    for i, value in ((0, "NULL"), (1, "'n'"), (2, "'i'"), (3, "NULL")):
-        patch("qsqlquery", f'"insert into %1 values ({i}, {value})"',
-              f'"insert into %1 (id, t_varchar) values ({i}, {value})"')
-    patch("qsqlthread", '"(id int, name Utf8, title int)"', '"(id int, name Utf8, title int, primary key (id))"',
-          '"(id int, title Utf8)"', '"(id int, title Utf8, primary key (id))"', '"(id int)"',
-          '"(id int, primary key (id))"', ' + qtest + " values(', ' + qtest + " (id, name, title) values(',
-          ' + qTableName("qtest2", __FILE__, db) + " values(', ' + qTableName("qtest2", __FILE__, db) + " (id, title) values(')
-    patch("qsqlrelationaldelegate", ' + anotherTitleField + "int)"',
-          ' + anotherTitleField + " int, primary key (" + idField + "))"', ' + titleKeyField + " Utf8)"',
-          ' + titleKeyField + " Utf8, primary key (" + idField + "))"', ' + reltest1 + " values(',
-          ' + reltest1 + " (id, name, title_key, another_title_key) values(', ' + reltest2 + " values(',
-          ' + reltest2 + " (id, title_key) values(')
-    patch("qsqlquerymodel", *sum(([f' + qTableName("{table}", __FILE__, db) + " values(',
-          f' + qTableName("{table}", __FILE__, db) + " ({columns}) values('] for table, columns in
-          (("test", "id, name, title"), ("test2", "id, title"), ("test3", "id"))), []))
-    patch("qsqlrelationaltablemodel", *sum(([f'" ({ddl})"', f'" ({ddl}, primary key ({key}))"',
-          f' + {table} + " values(', f' + {table} + " ({columns}) values('] for table, ddl, columns, key in
-          (("reltest1", "id int, name Utf8, title_key int, another_title_key int", "id, name, title_key, another_title_key", "id"),
-           ("reltest2", "id int, title Utf8", "id, title", "id"), ("reltest3", "id int, name Utf8, city_key int", "id, name, city_key", "id"),
-           ("reltest4", "id int, name Utf8", "id, name", "id"), ("reltest5", "title Utf8, abbrev Utf8", "title, abbrev", "title"))), []))
-    patch("qsqltablemodel", *sum(([f'"({ddl})"', f'"({ddl}, primary key ({key}))"'] for ddl, key in
-          (("id int, name Utf8, title int", "id"), ("id int, title Utf8", "id"),
-           ("id int, random Utf8, randomtwo Utf8", "id"), ("column1 Utf8, column2 Utf8, column3 Utf8", "column1"),
-           ("id int", "id"), ("id int, a Utf8", "id"))), []) + sum(([f' + {table} + " values(',
-          f' + {table} + " ({columns}) values('] for table, columns in
-          (("test", "id, name, title"), ("test2", "id, title"), ("test3", "id, random, randomtwo"))), []))
-    (NATIVE / "fixture-adaptation.json").write_text(json.dumps(counts, indent=2) + "\n")
 def expectations():
     registry = yaml.safe_load((Path(os.environ["ODBC_HARNESS_DIR"]) / "registry.yaml").read_text()); qt = next(item for item in registry["consumers"] if item["id"] == "qt")
     return qt["expected"].get("required", []), qt["expected"].get("unsupported", {})
 def main():
-    adapt_fixtures(); run(["cmake", "-G", "Ninja", "-S", ADAPTER, "-B", BUILD, f"-DQT_SQL_SOURCE={SOURCE}"], check=True)
+    if MODE not in DATABASES: raise RuntimeError(f"unsupported ODBC test mode: {MODE}")
+    prepare_source(); run(["cmake", "-G", "Ninja", "-S", ADAPTER, "-B", BUILD, f"-DQT_SQL_SOURCE={SOURCE}"], check=True)
     run(["cmake", "--build", BUILD, "--parallel"], check=True); required, unsupported = expectations(); results, bad = [], False
-    for mode, database in MODES.items():
+    for mode, database in ((MODE, DATABASES[MODE]),):
         config = Path(f"/work/qt-databases-{mode}.json"); config.write_text(json.dumps({"entries": [{"driver": "QODBC", "name": database}]}) + "\n")
-        env = os.environ | {"QT_TEST_DATABASES_FILE": str(config), "QT_QPA_PLATFORM": "offscreen",
-                            "YDB_QT_TEST_MODE": mode}
+        env = os.environ | {"QT_TEST_DATABASES_FILE": str(config), "QT_QPA_PLATFORM": "offscreen"}
         for target in TARGETS:
             binary, xml = BUILD / f"tst_{target}", NATIVE / f"{mode}-{target}.xml"
             functions = [line.removesuffix("()") for line in run([binary, "-functions"], env=env, check=True,
                          stdout=subprocess.PIPE).stdout.splitlines() if line.endswith("()")]
+            terminating = PROCESS_TERMINATING.get(target, set())
+            ordered = [function for function in functions if function not in terminating]
+            ordered += [function for function in functions if function in terminating]
             started = int(time.time() * 1000)
-            completed = run([binary, "-o", f"{xml},junitxml"], env=env,
+            completed = run([binary, *ordered, "-o", f"{xml},junitxml"], env=env,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             stopped = int(time.time() * 1000); log = NATIVE / f"{mode}-{target}.log"; log.write_text(completed.stdout or ""); cases = xml_cases(xml)
+            suite_failures = [(case, item) for case in cases for item in case
+                              if item.tag in {"failure", "error"}]
             for function in functions:
                 test_id = f"qt.{mode}.{target}.{function}"
                 selected = [case for case in cases if case.get("name") == function or
                             case.get("name", "").startswith(function + "(")]
-                retry = None
-                if not selected:
-                    retry_xml = NATIVE / f"{mode}-{target}-{function}.xml"
-                    retry_env = env | {"YDB_QT_TEST_MODE": f"{mode}_{function}"}
-                    retry = run([binary, function, "-o", f"{retry_xml},junitxml"], env=retry_env,
-                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                    log.write_text(log.read_text() + (retry.stdout or ""))
-                    if retry_xml.exists():
-                        retry_cases = xml_cases(retry_xml)
-                        selected = [case for case in retry_cases if case.get("name") == function or
-                                    case.get("name", "").startswith(function + "(")]
                 status, message, trace = "passed", "", ""
                 if not selected:
-                    if retry and retry.returncode: status, message = "failed", f"Qt test process exited {retry.returncode} before JUnit output"
-                    else: status, message = "broken", "upstream function missing from Qt JUnit output"
+                    status = "broken"
+                    if suite_failures:
+                        case, problem = suite_failures[-1]
+                        detail, trace = problem_details(problem)
+                        message = f"Qt suite stopped in {case.get('name', 'unknown test')}: {detail}"
+                    elif completed.returncode:
+                        message = f"Qt suite exited {completed.returncode} before reporting this function"
+                    else:
+                        message = "Upstream function is missing from Qt JUnit output"
                 else:
                     problems = [item for case in selected for item in case
                                 if item.tag in {"failure", "error", "skipped"}]
-                    failures = [item for item in problems if item.tag != "skipped"]
-                    if failures or (problems and len(problems) == len(selected)):
-                        problem = (failures or problems)[0]
-                        status = "failed" if failures else "skipped"
-                        message, trace = (problem.get("message") or "").strip(), "".join(problem.itertext()).strip()
-                        if not message: message, trace = trace or problem.tag, ""
-                        elif trace == message: trace = ""
+                    errors = [item for item in problems if item.tag == "error"]
+                    failures = [item for item in problems if item.tag == "failure"]
+                    if errors or failures or (problems and len(problems) == len(selected)):
+                        problem = (errors or failures or problems)[0]
+                        status = "broken" if errors else "failed" if failures else "skipped"
+                        message, trace = problem_details(problem)
                 required_match = any(matches(test_id, pattern) for pattern in required)
-                matched = [pattern for pattern in unsupported if matches(test_id, pattern)]; original_status = ""
-                if matched and not required_match and status in {"failed", "skipped"}:
+                matched = [pattern for pattern in unsupported if matches(test_id, pattern)]
+                original_status = ""
+                if matched and status in {"broken", "failed", "skipped"}:
                     original_status, reason = status, unsupported[matched[0]]
                     trace = f"Qt reported {status.upper()}: {message}" + (f"\n\n{trace}" if trace else "")
                     message = f"Expected unsupported: {reason}"
-                elif status != "passed": bad = True
+                elif status != "passed" or not required_match or matched:
+                    bad = True
                 results.append({"id": test_id, "name": f"Qt {target}: {function} ({mode})",
                                 "status": status, "message": message, "start": started, "stop": stopped,
-                                "attachments": [{"name": log.name, "path": log.name, "type": "text/plain"}],
+                                "attachments": [{"name": log.name, "path": log.name, "type": "text/plain"},
+                                                {"name": xml.name, "path": xml.name, "type": "application/xml"}],
                                 **({"trace": trace} if trace else {}),
                                 **({"original_status": original_status} if original_status else {})})
     (NATIVE / "results.json").write_text(json.dumps({"schema_version": 1, "tests": results}, indent=2, sort_keys=True) + "\n")
