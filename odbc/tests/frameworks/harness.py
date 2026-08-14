@@ -75,6 +75,8 @@ def load_registry(path=REGISTRY):
         require(isinstance(unsupported, dict), f"{consumer}: unsupported tests must be a mapping")
         require(not (set(required) & set(unsupported)) and all(unsupported.values()),
                 f"{consumer}: duplicate or unexplained expectations")
+        require(not any(re.fullmatch(r"qt\.\*\.[^.]+\.\*", pattern) for pattern in unsupported),
+                f"{consumer}: suite-wide Qt exclusions are forbidden")
         require(not tests or {test["id"] for test in tests} == set(required),
                 f"{consumer}: declarative tests differ from required tests")
         modes = item.get("modes", [])
@@ -91,6 +93,14 @@ def load_registry(path=REGISTRY):
         else:
             require(source == "system", f"{consumer}: smoke/package source must be system")
     return data
+def consumer_runs(data):
+    for consumer in data["consumers"]:
+        modes = consumer.get("modes") or ["all"]
+        for mode in modes:
+            run_id = consumer["id"] if mode == "all" else f"{consumer['id']}-{mode}"
+            yield {"consumer": consumer["id"], "mode": mode, "run_id": run_id,
+                   "display_name": consumer["display_name"],
+                   "runtime_image": consumer["runtime_image"]}
 def command(args, *, env=None, capture=False, user=None, check=True, input_text=None):
     options = {"env": env, "text": True, "check": check}
     if input_text is not None: options["input"] = input_text
@@ -238,7 +248,7 @@ def declarative_suite(consumer, env, native):
                     "output did not match expected pattern")
         failures.append(record_case(native, test["id"], test["name"], action))
     return int(any(failures))
-def launch_consumer(consumer, runtime, package, results):
+def launch_consumer(consumer, mode, runtime, package, results):
     package, adapter = package.resolve(), ROOT / consumer
     require(package.is_file() and (adapter / "Dockerfile").is_file(), "package or adapter is missing")
     results.mkdir(parents=True, exist_ok=True); results = results.resolve(); results.chmod(0o777)
@@ -247,11 +257,12 @@ def launch_consumer(consumer, runtime, package, results):
     args = ["docker", "run", "--rm", "--network", "host", "--user", "0:0",
             "-v", f"{ROOT}:/harness:ro", "-v", f"{package.parent}:/packages:ro",
             "-v", f"{results}:/results", "-e", f"ODBC_PACKAGE_BASENAME={package.name}",
-            "-e", f"ODBC_RUNTIME_IMAGE={runtime}"]
+            "-e", f"ODBC_RUNTIME_IMAGE={runtime}", "-e", f"ODBC_TEST_MODE={mode}"]
     for name in ("DRIVER_COMMIT", "YDB_TEST_IMAGE", "YDB_ENDPOINT", "YDB_DATABASE"):
         require(os.getenv(name), f"{name} is required")
         args += ["-e", f"{name}={os.environ[name]}"]
-    return command(args + [image_name, "python3", "/harness/harness.py", "run", "--consumer", consumer],
+    return command(args + [image_name, "python3", "/harness/harness.py", "run", "--consumer", consumer,
+                           "--mode", mode],
                    check=False).returncode
 def convert_allure(native, output, metadata):
     tests = json.loads(native.read_text())["tests"]; output.mkdir(exist_ok=True)
@@ -271,7 +282,8 @@ def convert_allure(native, output, metadata):
             "stage": "finished", "start": test["start"], "stop": test["stop"],
             "labels": [{"name": key, "value": str(metadata[value])} for key, value in
                        (("suite", "consumer"), ("language", "language"), ("tier", "tier"), ("driverCommit", "driver_commit"),
-                        ("runtimeVersion", "runtime_version"), ("ydbImage", "ydb_image"))] + ([{"name": "originalStatus", "value": test["original_status"]}] if test.get("original_status") else []),
+                        ("runtimeVersion", "runtime_version"), ("ydbImage", "ydb_image"),
+                        ("connectionMode", "connection_mode"))] + ([{"name": "originalStatus", "value": test["original_status"]}] if test.get("original_status") else []),
             "parameters": [{"name": key, "value": str(metadata[value])} for key, value in
                            (("endpoint", "endpoint"), ("database", "database"),
                             ("packageSha256", "package_sha256"),
@@ -279,10 +291,10 @@ def convert_allure(native, output, metadata):
                             ("upstreamSha256", "upstream_sha256"))],
             "attachments": attachments,
         }
-        if test.get("message") or test.get("trace"): result["statusDetails"] = {key: test[key] for key in ("message", "trace") if test.get(key)} | ({"known": True} if test.get("original_status") == "failed" else {})
+        if test.get("message") or test.get("trace"): result["statusDetails"] = {key: test[key] for key in ("message", "trace") if test.get(key)} | ({"known": True} if test.get("original_status") in {"broken", "failed"} else {})
         (output / f"{result_id}-result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     properties = {key: metadata[key] for key in
-                  ("consumer", "runtime_version", "driver_commit", "package_sha256",
+                  ("consumer", "connection_mode", "run_id", "runtime_version", "driver_commit", "package_sha256",
                    "ydb_image", "endpoint", "database", "upstream_revision", "upstream_sha256")}
     (output / "environment.properties").write_text("".join(f"{key}={value}\n" for key, value in sorted(properties.items())))
 def validate_results(consumer, native, allure):
@@ -307,7 +319,7 @@ def validate_results(consumer, native, allure):
         for test_id, test in actual.items():
             is_required = any(test_id in ids for ids in required_matches.values())
             is_unsupported = any(test_id in ids for ids in matched.values())
-            wanted = {"passed"} if is_required else {"failed", "skipped"} if is_unsupported else None
+            wanted = {"broken", "failed", "skipped"} if is_unsupported else {"passed"} if is_required else None
             if wanted is None:
                 errors.append(f"{test_id}: missing discovered expectation"); continue
             if test.get("status") not in wanted: errors.append(f"{test_id}: unexpected status {test.get('status')}")
@@ -317,16 +329,19 @@ def validate_results(consumer, native, allure):
     for test_id in sorted(set(actual) - expected): errors.append(f"unexpected test: {test_id}")
     for test_id in sorted(expected & set(actual)):
         status = actual[test_id].get("status")
-        if (test_id in required and status != "passed") or (test_id in unsupported and status not in {"failed", "skipped"}):
+        if (test_id in required and status != "passed") or (test_id in unsupported and status not in {"broken", "failed", "skipped"}):
             errors.append(f"{test_id}: unexpected status {status}")
     if len(list(allure.glob("*-result.json"))) != len(tests): errors.append("Allure/native result count differs")
-    validation = {"consumer": consumer["id"], "ok": not errors, "test_count": len(tests), "errors": errors}
+    validation = {"consumer": consumer["id"], "connection_mode": os.environ.get("ODBC_TEST_MODE", "all"),
+                  "ok": not errors, "test_count": len(tests), "errors": errors}
     (RESULTS / "validation.json").write_text(json.dumps(validation, indent=2, sort_keys=True) + "\n")
     for error in errors: print(f"result error: {error}", file=sys.stderr)
     return errors
-def run_consumer(consumer_id):
+def run_consumer(consumer_id, mode):
     data = load_registry(); consumer = next((x for x in data["consumers"] if x["id"] == consumer_id), None)
     require(consumer, f"unknown consumer: {consumer_id}")
+    allowed_modes = consumer.get("modes") or ["all"]
+    require(mode in allowed_modes, f"{consumer_id}: invalid connection mode: {mode}")
     adapter, package = ROOT / consumer_id, Path("/packages") / os.environ["ODBC_PACKAGE_BASENAME"]
     native, allure, home = RESULTS / "native", RESULTS / "allure", WORK / "home"
     for path in (RESULTS, native, allure, WORK, home):
@@ -334,11 +349,12 @@ def run_consumer(consumer_id):
     version, package_hash = inspect_package(package); endpoint, database = os.environ["YDB_ENDPOINT"], os.environ["YDB_DATABASE"]
     metadata = {
         "consumer": consumer_id, "display_name": consumer["display_name"],
+        "connection_mode": mode, "run_id": consumer_id if mode == "all" else f"{consumer_id}-{mode}",
         "kind": consumer["kind"], "language": consumer["language"], "tier": consumer["tier"],
         "runtime_image": os.environ["ODBC_RUNTIME_IMAGE"], "runtime_version": "unknown",
         "driver_commit": os.environ["DRIVER_COMMIT"], "package_sha256": package_hash,
         "package_version": version, "ydb_image": os.environ["YDB_TEST_IMAGE"],
-        "endpoint": endpoint, "database": database, "connection_modes": consumer.get("modes", []),
+        "endpoint": endpoint, "database": database,
         "source_kind": "system" if consumer["source"] == "system" else "archive",
         "upstream_revision": "unknown", "upstream_sha256": "unknown",
     }
@@ -357,6 +373,7 @@ def run_consumer(consumer_id):
             "ODBC_NATIVE_RESULTS_DIR": str(native), "ODBC_UPSTREAM_DIR": str(upstream),
             "ODBC_ADAPTER_DIR": str(adapter), "ODBC_HARNESS_DIR": str(ROOT),
             "YDB_ENDPOINT": endpoint, "YDB_DATABASE": database,
+            "ODBC_TEST_MODE": mode,
         })
         run_user = None if consumer["kind"] == "package" else "nobody"
         runtime_output = command(consumer["runtime_version"], env=env, capture=True, user=run_user).stdout.strip()
@@ -383,7 +400,7 @@ def run_consumer(consumer_id):
         print(f"result finalization failed: {exception}", file=sys.stderr); return 1
     return int(bool(error or test_rc or validation_errors))
 def aggregate(source, output):
-    expected = {item["id"] for item in load_registry()["consumers"]}; output.mkdir(parents=True, exist_ok=True)
+    expected = {item["run_id"] for item in consumer_runs(load_registry())}; output.mkdir(parents=True, exist_ok=True)
     native_out, allure_out = output / "native", output / "allure-results"
     native_out.mkdir(exist_ok=True); allure_out.mkdir(exist_ok=True)
     found, rows, errors = set(), [], []
@@ -392,13 +409,13 @@ def aggregate(source, output):
         try:
             metadata = json.loads(metadata_path.read_text())
             validation = json.loads((root / "validation.json").read_text())
-            consumer = metadata["consumer"]
-            require(consumer not in found, f"duplicate artifact: {consumer}"); found.add(consumer)
-            shutil.copytree(root / "native", native_out / consumer, dirs_exist_ok=True)
-            for path in (metadata_path, root / "validation.json"): shutil.copy2(path, native_out / consumer / path.name)
-            for artifact in (root / "allure").iterdir(): shutil.copy2(artifact, allure_out / f"{consumer}-{artifact.name}")
-            require(validation.get("ok"), f"{consumer}: result validation failed")
-            rows.append((consumer, validation["test_count"], "passed"))
+            run_id = metadata["run_id"]
+            require(run_id not in found, f"duplicate artifact: {run_id}"); found.add(run_id)
+            shutil.copytree(root / "native", native_out / run_id, dirs_exist_ok=True)
+            for path in (metadata_path, root / "validation.json"): shutil.copy2(path, native_out / run_id / path.name)
+            for artifact in (root / "allure").iterdir(): shutil.copy2(artifact, allure_out / f"{run_id}-{artifact.name}")
+            require(validation.get("ok"), f"{run_id}: result validation failed")
+            rows.append((run_id, validation["test_count"], "passed"))
         except (OSError, KeyError, json.JSONDecodeError, HarnessError) as error:
             errors.append(f"invalid artifact at {root}: {error}")
     if expected - found: errors.append(f"missing result artifacts: {', '.join(sorted(expected - found))}")
@@ -415,7 +432,9 @@ def main():
     registry = commands.add_parser("registry"); registry.add_argument("--registry", type=Path, default=REGISTRY)
     registry.add_argument("--matrix", action="store_true"); registry.add_argument("--config", action="store_true")
     run = commands.add_parser("run"); run.add_argument("--consumer", required=True)
+    run.add_argument("--mode", default="all")
     launch = commands.add_parser("launch"); launch.add_argument("--consumer", required=True)
+    launch.add_argument("--mode", default="all")
     launch.add_argument("--runtime-image", required=True); launch.add_argument("--package", type=Path, required=True)
     launch.add_argument("--results", type=Path, required=True)
     aggregation = commands.add_parser("aggregate"); aggregation.add_argument("--input", type=Path, required=True)
@@ -425,17 +444,16 @@ def main():
         if args.command == "registry":
             data = load_registry(args.registry.resolve())
             if args.matrix:
-                print(json.dumps({"include": [{"consumer": item["id"],
-                    "display_name": item["display_name"], "runtime_image": item["runtime_image"]}
-                    for item in data["consumers"] if item["kind"] != "package"]}, separators=(",", ":")))
+                print(json.dumps({"include": [item for item in consumer_runs(data)
+                    if item["mode"] != "all"]}, separators=(",", ":")))
             elif args.config:
                 package = next(item for item in data["consumers"] if item["kind"] == "package")
                 print(json.dumps({"ydb": data["ydb"], "package_runtime_image": package["runtime_image"]},
                                  separators=(",", ":")))
             else: print(f"Validated {len(data['consumers'])} ODBC consumers")
             return 0
-        if args.command == "run": return run_consumer(args.consumer)
-        if args.command == "launch": return launch_consumer(args.consumer, args.runtime_image, args.package, args.results)
+        if args.command == "run": return run_consumer(args.consumer, args.mode)
+        if args.command == "launch": return launch_consumer(args.consumer, args.mode, args.runtime_image, args.package, args.results)
         return aggregate(args.input, args.output)
     except HarnessError as error:
         print(f"harness error: {error}", file=sys.stderr)
