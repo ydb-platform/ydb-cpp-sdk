@@ -1,1 +1,1 @@
-{"id":"3c21af4ab1c8ad3993f69b76ba9fa838","fullName":"qt.qt.dsn.qsqldatabase.noEscapedFieldNamesInRecord","name":"Qt qsqldatabase: noEscapedFieldNamesInRecord (dsn)","status":"failed","testResultsByEnv":{"default":"47e66ff52ca64302acffc7cc313da584"}}
+{"id":"3c21af4ab1c8ad3993f69b76ba9fa838","fullName":"qt.qt.dsn.qsqldatabase.noEscapedFieldNamesInRecord","name":"Qt qsqldatabase: noEscapedFieldNamesInRecord (dsn)","status":"passed","testResultsByEnv":{"default":"47e66ff52ca64302acffc7cc313da584"}}

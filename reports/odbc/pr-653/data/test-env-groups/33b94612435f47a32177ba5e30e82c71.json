@@ -1,1 +1,1 @@
-{"id":"33b94612435f47a32177ba5e30e82c71","fullName":"qt.qt.connection_string.qsqltablemodel.submitAllOnInvalidTable","name":"Qt qsqltablemodel: submitAllOnInvalidTable (connection_string)","status":"failed","testResultsByEnv":{"default":"817fd9ae66c4df204638a5f94307274c"}}
+{"id":"33b94612435f47a32177ba5e30e82c71","fullName":"qt.qt.connection_string.qsqltablemodel.submitAllOnInvalidTable","name":"Qt qsqltablemodel: submitAllOnInvalidTable (connection_string)","status":"passed","testResultsByEnv":{"default":"817fd9ae66c4df204638a5f94307274c"}}
