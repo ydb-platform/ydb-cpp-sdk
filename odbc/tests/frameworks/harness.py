@@ -307,17 +307,17 @@ def validate_results(consumer, native, allure):
         for test_id, test in actual.items():
             is_required = any(test_id in ids for ids in required_matches.values())
             is_unsupported = any(test_id in ids for ids in matched.values())
-            wanted = "passed" if is_required else "skipped" if is_unsupported else None
+            wanted = {"passed"} if is_required else {"failed", "skipped"} if is_unsupported else None
             if wanted is None:
                 errors.append(f"{test_id}: missing discovered expectation"); continue
-            if test.get("status") != wanted: errors.append(f"{test_id}: unexpected status {test.get('status')}")
-            if wanted == "skipped" and not test.get("message"): errors.append(f"{test_id}: no skip reason")
+            if test.get("status") not in wanted: errors.append(f"{test_id}: unexpected status {test.get('status')}")
+            if wanted != {"passed"} and not test.get("message"): errors.append(f"{test_id}: no unsupported reason")
         expected = set(actual)
     for test_id in sorted(expected - set(actual)): errors.append(f"missing test: {test_id}")
     for test_id in sorted(set(actual) - expected): errors.append(f"unexpected test: {test_id}")
     for test_id in sorted(expected & set(actual)):
         status = actual[test_id].get("status")
-        if (test_id in required and status != "passed") or (test_id in unsupported and status != "skipped"):
+        if (test_id in required and status != "passed") or (test_id in unsupported and status not in {"failed", "skipped"}):
             errors.append(f"{test_id}: unexpected status {status}")
     if len(list(allure.glob("*-result.json"))) != len(tests): errors.append("Allure/native result count differs")
     validation = {"consumer": consumer["id"], "ok": not errors, "test_count": len(tests), "errors": errors}

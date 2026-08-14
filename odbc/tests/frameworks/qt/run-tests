@@ -142,7 +142,7 @@ def main():
                 if matched and not required_match and status in {"failed", "skipped"}:
                     original_status, reason = status, unsupported[matched[0]]
                     trace = f"Qt reported {status.upper()}: {message}" + (f"\n\n{trace}" if trace else "")
-                    status, message = "skipped", f"Expected unsupported: {reason}"
+                    message = f"Expected unsupported: {reason}"
                 elif status != "passed": bad = True
                 results.append({"id": test_id, "name": f"Qt {target}: {function} ({mode})",
                                 "status": status, "message": message, "start": started, "stop": stopped,

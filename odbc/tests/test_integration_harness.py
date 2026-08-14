@@ -35,6 +35,6 @@ class HarnessTests(unittest.TestCase):
         discovered = {"discovered": True, "required": ["sample.ok"],
                       "unsupported": {"sample.unsupported": "known"}}
         tests = [{"id": "sample.ok", "status": "passed"},
-                 {"id": "sample.unsupported", "status": "skipped", "message": "known"}]
+                 {"id": "sample.unsupported", "status": "failed", "message": "known"}]
         self.assertFalse(self.validate(tests, discovered))
 if __name__ == "__main__": unittest.main()
