@@ -82,7 +82,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
   consumers:
-    name: ${{ matrix.display_name }}
+    name: ${{ matrix.display_name }} (${{ matrix.mode }})
     needs: build
     runs-on: ubuntu-24.04
     strategy:
@@ -120,13 +120,14 @@ jobs:
           YDB_DATABASE: ${{ fromJSON(needs.build.outputs.config).ydb.database }}
         run: >-
           python3 odbc/tests/frameworks/harness.py launch --consumer '${{ matrix.consumer }}'
+          --mode '${{ matrix.mode }}'
           --runtime-image '${{ matrix.runtime_image }}' --package package/ydb-odbc_*.deb
-          --results 'results/${{ matrix.consumer }}'
+          --results 'results/${{ matrix.run_id }}'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: odbc-results-${{ matrix.consumer }}
-          path: results/${{ matrix.consumer }}
+          name: odbc-results-${{ matrix.run_id }}
+          path: results/${{ matrix.run_id }}
           if-no-files-found: warn
           retention-days: 14
   aggregate:
