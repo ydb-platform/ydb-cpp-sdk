@@ -11,6 +11,7 @@
 # - INSERT statements name their destination columns.
 # - Nullable fixture columns do not use unsupported NOT NULL combinations.
 # - Statements that mutate rows update non-key columns.
+# - Fixture cleanup does not depend on catalog metadata that the suite tests.
 # - Whitespace identifiers remain an explicit unsupported capability.
 #
 # Keep changes here limited to fixture SQL required by YDB semantics. Do not
@@ -28,6 +29,19 @@ diff -ruN a/kernel/qsqldatabase/tst_databases.h b/kernel/qsqldatabase/tst_databa
  }
  
  inline static QString toHex( const QString& binary )
+@@ -326,6 +326,12 @@
+     // drop a table only if it exists to prevent warnings
+     static void safeDropTables( QSqlDatabase db, const QStringList& tableNames )
+     {
++        if (db.driverName().startsWith("QODBC")) {
++            QSqlQuery q(db);
++            for (const QString &tableName : tableNames)
++                q.exec("drop table if exists " + tableName);
++            return;
++        }
+         bool wasDropped;
+         QSqlQuery q( db );
+         QStringList dbtables=db.tables();
 @@ -555,4 +555,3 @@
  };
  
@@ -36,6 +50,37 @@ diff -ruN a/kernel/qsqldatabase/tst_databases.h b/kernel/qsqldatabase/tst_databa
 diff -ruN a/kernel/qsqldatabase/tst_qsqldatabase.cpp b/kernel/qsqldatabase/tst_qsqldatabase.cpp
 --- a/kernel/qsqldatabase/tst_qsqldatabase.cpp	2022-12-12 13:23:31.000000000 +0300
 +++ b/kernel/qsqldatabase/tst_qsqldatabase.cpp	2026-08-14 14:16:10.100573424 +0300
+@@ -199,7 +199,5 @@
+ //helper class for database specific tests
+ struct FieldDef {
+-    FieldDef(QString tn = QString(),
+-          int t = QMetaType::UnknownType,
+-          QVariant v = QVariant(),
+-          bool nl = true):
+-        typeName(tn), type(t), val(v), nullable(nl) {}
++    FieldDef(QString tn = QString(), int t = QMetaType::UnknownType,
++             QVariant v = QVariant(), bool nl = true, QString fn = QString()):
++        typeName(tn), type(t), val(v), nullable(nl), fieldNameOverride(fn) {}
+@@ -207,16 +205,19 @@
+     QString fieldName() const
+     {
++        if (!fieldNameOverride.isEmpty())
++            return fieldNameOverride;
+         QString rt = typeName;
+         rt.replace(QRegularExpression("\\s"), QString("_"));
+         int i = rt.indexOf(QLatin1Char('('));
+         if (i == -1)
+             i = rt.size();
+         if (i > 20)
+             i = 20;
+         return "t_" + rt.left(i);
+     }
+     QString typeName;
+     int type;
+     QVariant val;
+     bool nullable;
++    QString fieldNameOverride;
+ };
 @@ -233,11 +233,11 @@
      QString qs = "create table " + tableName;
      QString autoName = tst_Databases::autoFieldName(db);
@@ -220,11 +265,11 @@ diff -ruN a/kernel/qsqldatabase/tst_qsqldatabase.cpp b/kernel/qsqldatabase/tst_q
 -        FieldDef("float", QMetaType::Double,              1.123456789),
 -        FieldDef("double precision", QMetaType::Double,   1.123456789),
 -        FieldDef("real", QMetaType::Float,                1.12345),
-+        FieldDef("Double", QMetaType::Double,     1.123456789),
-+        FieldDef("Double", QMetaType::Double,      123.67),
-+        FieldDef("Float", QMetaType::Double,              1.123456789),
-+        FieldDef("Double", QMetaType::Double,             1.123456789),
-+        FieldDef("Float", QMetaType::Float,               1.12345),
++        FieldDef("Double", QMetaType::Double, 1.123456789, true, "t_decimal_10_9"),
++        FieldDef("Double", QMetaType::Double, 123.67, true, "t_numeric_5_2"),
++        FieldDef("Float", QMetaType::Double, 1.123456789, true, "t_float"),
++        FieldDef("Double", QMetaType::Double, 1.123456789, true, "t_double_precision"),
++        FieldDef("Float", QMetaType::Float, 1.12345, true, "t_real"),
  
  //        FieldDef("tinyint", QMetaType::Char, 127),    // not supported by psqlODBC
 -        FieldDef("smallint", QMetaType::Short,            32767),
@@ -237,16 +282,16 @@ diff -ruN a/kernel/qsqldatabase/tst_qsqldatabase.cpp b/kernel/qsqldatabase/tst_q
 -        FieldDef("char(20)", QMetaType::QString,           "Blah"),
 -        FieldDef("varchar(20)", QMetaType::QString,        "BlahBlah"),
 -        FieldDef("text", QMetaType::QString,               QString("blah6")),
-+        FieldDef("Int16", QMetaType::Short,               32767),
-+        FieldDef("Int32", QMetaType::Int,                 2147483647),
-+        FieldDef("Int64", QMetaType::LongLong,            Q_INT64_C(9223372036854775807)),
++        FieldDef("Int16", QMetaType::Short, 32767, true, "t_smallint"),
++        FieldDef("Int32", QMetaType::Int, 2147483647, true, "t_integer"),
++        FieldDef("Int64", QMetaType::LongLong, Q_INT64_C(9223372036854775807), true, "t_bigint"),
 +
-+        FieldDef("Date", QMetaType::QDate,                 QDate::currentDate()),
-+        FieldDef("Timestamp", QMetaType::QDateTime,        dt, false),
-+        FieldDef("Datetime", QMetaType::QTime,             dt.time()),
-+        FieldDef("Utf8", QMetaType::QString,           "Blah"),
-+        FieldDef("Utf8", QMetaType::QString,        "BlahBlah"),
-+        FieldDef("Utf8", QMetaType::QString,               QString("blah6")),
++        FieldDef("Date", QMetaType::QDate, QDate::currentDate(), true, "t_date"),
++        FieldDef("Timestamp", QMetaType::QDateTime, dt, false, "t_timestamp"),
++        FieldDef("Datetime", QMetaType::QTime, dt.time(), true, "t_time"),
++        FieldDef("Utf8", QMetaType::QString, "Blah", true, "t_char"),
++        FieldDef("Utf8", QMetaType::QString, "BlahBlah", true, "t_varchar"),
++        FieldDef("Utf8", QMetaType::QString, QString("blah6"), true, "t_text"),
  
          FieldDef()
      };
@@ -1636,4 +1681,3 @@ diff -ruN a/models/qsqltablemodel/tst_qsqltablemodel.cpp b/models/qsqltablemodel
          QVERIFY_SQL(qry, exec("insert into " + tableDot + " values(1, 'Andy')"));
          QSqlTableModel model(0, db);
          model.setTable(tableDot);
-
