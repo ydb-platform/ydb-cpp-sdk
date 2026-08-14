@@ -271,7 +271,7 @@ def convert_allure(native, output, metadata):
             "stage": "finished", "start": test["start"], "stop": test["stop"],
             "labels": [{"name": key, "value": str(metadata[value])} for key, value in
                        (("suite", "consumer"), ("language", "language"), ("tier", "tier"), ("driverCommit", "driver_commit"),
-                        ("runtimeVersion", "runtime_version"), ("ydbImage", "ydb_image"))],
+                        ("runtimeVersion", "runtime_version"), ("ydbImage", "ydb_image"))] + ([{"name": "originalStatus", "value": test["original_status"]}] if test.get("original_status") else []),
             "parameters": [{"name": key, "value": str(metadata[value])} for key, value in
                            (("endpoint", "endpoint"), ("database", "database"),
                             ("packageSha256", "package_sha256"),
@@ -279,7 +279,7 @@ def convert_allure(native, output, metadata):
                             ("upstreamSha256", "upstream_sha256"))],
             "attachments": attachments,
         }
-        if test.get("message"): result["statusDetails"] = {"message": test["message"]}
+        if test.get("message") or test.get("trace"): result["statusDetails"] = {key: test[key] for key in ("message", "trace") if test.get(key)} | ({"known": True} if test.get("original_status") == "failed" else {})
         (output / f"{result_id}-result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     properties = {key: metadata[key] for key in
                   ("consumer", "runtime_version", "driver_commit", "package_sha256",
