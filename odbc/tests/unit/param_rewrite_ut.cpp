@@ -26,6 +26,31 @@ TEST(OdbcParamRewrite, RewritesQuestionMarks) {
         "SELECT $p1 + $p2 AS result");
 }
 
+TEST(OdbcParamRewrite, UsesBoundCTypeForYdbDeclaration) {
+    SQLUBIGINT value = 42;
+    const std::vector<TBoundParam> params = {{
+        1, SQL_PARAM_INPUT, SQL_C_UBIGINT, SQL_BIGINT, 0, 0,
+        &value, sizeof(value), nullptr
+    }};
+    EXPECT_EQ(RewriteOdbcQuestionMarks("SELECT ?", params).Sql,
+              "DECLARE $p1 AS Uint64?;\nSELECT $p1");
+}
+
+TEST(OdbcParamRewrite, PreservesTemporalAndDecimalTypes) {
+    SQL_TIMESTAMP_STRUCT timestamp{};
+    SQLDOUBLE decimal = 0;
+    const std::vector<TBoundParam> params = {
+        {1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0,
+         &timestamp, sizeof(timestamp), nullptr},
+        {2, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DECIMAL, 18, 5,
+         &decimal, sizeof(decimal), nullptr},
+    };
+    EXPECT_EQ(RewriteOdbcQuestionMarks("SELECT ?, ?", params).Sql,
+              "DECLARE $p1 AS Timestamp?;\n"
+              "DECLARE $p2 AS Decimal(18, 5)?;\n"
+              "SELECT $p1, $p2");
+}
+
 TEST(OdbcParamRewrite, SkipsLiteralAndYqlOptionalSyntax) {
     const std::vector<TBoundParam> params = {IntParam(1)};
     EXPECT_EQ(RewriteOdbcQuestionMarks("SELECT '?', ?", params).Sql,

@@ -96,6 +96,7 @@ public:
     NQuery::TTxSettings MakeTxSettings() const;
 
     std::string WrapQueryForCurrentCatalog(const std::string& sql) const;
+    TConnectionAttributes::TCatalogBinding GetCatalogBinding() const;
     const std::string& GetDbmsVersion();
     const std::string& GetDataSourceName() const;
     SQLUINTEGER GetSupportedTxnIsolationOptions() const;

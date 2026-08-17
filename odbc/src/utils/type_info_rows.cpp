@@ -53,9 +53,17 @@ std::vector<TValue> MakeTypeInfoRow(const TSqlTypeSpec& spec) {
 } // namespace
 
 TTable BuildTypeInfoRows(SQLSMALLINT dataType) {
+    if (dataType == SQL_DATE) {
+        dataType = SQL_TYPE_DATE;
+    } else if (dataType == SQL_TIME) {
+        dataType = SQL_TYPE_TIME;
+    } else if (dataType == SQL_TIMESTAMP) {
+        dataType = SQL_TYPE_TIMESTAMP;
+    }
     TTable table;
     for (const TSqlTypeSpec& spec : GetSqlTypeSpecs()) {
-        if (!spec.Advertise || (dataType != SQL_ALL_TYPES && spec.Type != dataType)) {
+        if ((dataType == SQL_ALL_TYPES && !spec.Advertise)
+            || (dataType != SQL_ALL_TYPES && spec.Type != dataType)) {
             continue;
         }
         table.push_back(MakeTypeInfoRow(spec));

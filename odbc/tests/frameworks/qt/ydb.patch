@@ -11,6 +11,9 @@
 # - INSERT statements name their destination columns.
 # - Nullable fixture columns do not use unsupported NOT NULL combinations.
 # - Statements that mutate rows update non-key columns.
+# - Strict YQL assignments use explicit casts and textual Decimal fixtures.
+# - Explicit SELECT lists preserve the fixture's declared column order.
+# - Aggregate metadata expectations use YDB's native result types.
 # - Fixture cleanup does not depend on catalog metadata that the suite tests.
 # - Whitespace identifiers remain an explicit unsupported capability.
 #
@@ -267,7 +270,7 @@ diff -ruN a/kernel/qsqldatabase/tst_qsqldatabase.cpp b/kernel/qsqldatabase/tst_q
 -        FieldDef("real", QMetaType::Float,                1.12345),
 +        FieldDef("Double", QMetaType::Double, 1.123456789, true, "t_decimal_10_9"),
 +        FieldDef("Double", QMetaType::Double, 123.67, true, "t_numeric_5_2"),
-+        FieldDef("Float", QMetaType::Double, 1.123456789, true, "t_float"),
++        FieldDef("Double", QMetaType::Double, 1.123456789, true, "t_float"),
 +        FieldDef("Double", QMetaType::Double, 1.123456789, true, "t_double_precision"),
 +        FieldDef("Float", QMetaType::Float, 1.12345, true, "t_real"),
  
@@ -373,6 +376,19 @@ diff -ruN a/kernel/qsqldatabase/tst_qsqldatabase.cpp b/kernel/qsqldatabase/tst_q
          q.bindValue(0, 0);
          q.bindValue(1, ll);
          q.bindValue(2, ull);
+@@ -1263,9 +1271,9 @@
+     // Explicit test for case sensitive table creation without quoting
+     QSqlQuery qry(db);
+-    const auto noQuotesTable = qTableName("NoQuotes", __FILE__, db, false);
++    const auto noQuotesTable = db.driverName().startsWith("QODBC") ? qTableName("NoQuotes", __FILE__, db, false).toLower() : qTableName("NoQuotes", __FILE__, db, false);
+     tst_Databases::safeDropTable(db, noQuotesTable);
+-    QVERIFY_SQL(qry, exec("CREATE TABLE " + noQuotesTable + " (id INTEGER)"));
+-    QVERIFY_SQL(qry, exec("INSERT INTO " + noQuotesTable + " VALUES(1)"));
++    QVERIFY_SQL(qry, exec("CREATE TABLE " + noQuotesTable + " (id INTEGER, primary key (id))"));
++    QVERIFY_SQL(qry, exec("INSERT INTO " + noQuotesTable + " (id) VALUES(1)"));
+     QVERIFY_SQL(qry, exec("SELECT * FROM " + noQuotesTable));
+     QVERIFY_SQL(qry, next());
+     QCOMPARE(qry.value(0).toInt(), 1);
 @@ -1308,7 +1316,7 @@
      const auto table = schemaName + '.' + qTableName("qtesttable", __FILE__, db);
      const auto noescapeTable = qTableName("qtestschema", __FILE__, db, false) + '.' +
@@ -391,16 +407,21 @@ diff -ruN a/kernel/qsqldatabase/tst_qsqldatabase.cpp b/kernel/qsqldatabase/tst_q
                                  .arg(schemaName, tableName, field1Name, field2Name);
      QVERIFY_SQL(q, exec(createTable));
  
-@@ -1451,8 +1459,8 @@
+@@ -1451,11 +1459,11 @@
      if(tst_Databases::isMSAccess(db))
          QVERIFY_SQL(q, exec(QString("CREATE TABLE %1 (id smallint, num number)").arg(tableName)));
      else
 -        QVERIFY_SQL(q, exec(QString("CREATE TABLE %1 (id smallint, num numeric(18,5))").arg(tableName)));
 -    QVERIFY_SQL(q, prepare(QString("INSERT INTO %1 VALUES (?, ?)").arg(tableName)));
 +        QVERIFY_SQL(q, exec(QString("CREATE TABLE %1 (id Int16, num Decimal(18, 5), primary key (id))").arg(tableName)));
-+    QVERIFY_SQL(q, prepare(QString("INSERT INTO %1 (id, num) VALUES (?, ?)").arg(tableName)));
++    QVERIFY_SQL(q, prepare((db.driverName().startsWith("QODBC") ? QString("INSERT INTO %1 (id, num) VALUES (CAST(? AS Int16), CAST(? AS Decimal(18, 5)))") : QString("INSERT INTO %1 (id, num) VALUES (?, ?)")).arg(tableName)));
      q.bindValue(0, 1);
-     q.bindValue(1, 123);
+-    q.bindValue(1, 123);
++    q.bindValue(1, db.driverName().startsWith("QODBC") ? QVariant("123") : QVariant(123));
+     QVERIFY_SQL(q, exec());
+     q.bindValue(0, 2);
+-    q.bindValue(1, 1850000000000.0001);
++    q.bindValue(1, db.driverName().startsWith("QODBC") ? QVariant("1850000000000.0001") : QVariant(1850000000000.0001));
      QVERIFY_SQL(q, exec());
 @@ -1640,9 +1648,9 @@
  
@@ -780,17 +801,21 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
      QVERIFY(!q.isSelect());
  }
  
-@@ -1791,8 +1795,8 @@
+@@ -1791,9 +1795,9 @@
      // cases from the QSqlResultPrivate::isVariantNull helper. Only PostgreSQL supports
      // QUuid.
      QMultiHash<QString, QVariant> nullableTypes = {
 -        {"varchar(20)", u"not null"_s},
 -        {"varchar(20)", "not null"_ba},
 +        {"Utf8", u"not null"_s},
-+        {"Utf8", "not null"_ba},
-         {"date", QDateTime::currentDateTime()},
-         {"date", QDate::currentDate()},
-         {"date", QTime::currentTime()},
++        {"String", "not null"_ba},
+-        {"date", QDateTime::currentDateTime()},
+-        {"date", QDate::currentDate()},
+-        {"date", QTime::currentTime()},
++        {"Timestamp", QDateTime::currentDateTime()},
++        {"Date", QDate::currentDate()},
++        {"Datetime", QTime::currentTime()},
+     };
 @@ -1822,7 +1826,7 @@
              while (q.next())
                  qWarning() << q.value(0) << q.value(1);
@@ -805,7 +830,7 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
          int expectedNullCount = 0;
          // Verify that inserting a non-null value works:
 -        QVERIFY_SQL(q, prepare(QLatin1String("insert into %1 values(:id, :data)").arg(tableName)));
-+        QVERIFY_SQL(q, prepare(QLatin1String("insert into %1 (id, data) values(:id, :data)").arg(tableName)));
++        QVERIFY_SQL(q, prepare(db.driverName().startsWith("QODBC") ? QString("insert into %1 (id, data) values(:id, CAST(:data AS %2))").arg(tableName, nullableType) : QString("insert into %1 (id, data) values(:id, :data)").arg(tableName)));
          q.bindValue(":id", expectedNullCount);
          q.bindValue(":data", nonNullValue);
          QVERIFY_SQL(q, exec());
@@ -813,7 +838,7 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
  
          // Verify that inserting using a null QVariant produces a null entry in the database:
 -        QVERIFY_SQL(q, prepare(QLatin1String("insert into %1 values(:id, :data)").arg(tableName)));
-+        QVERIFY_SQL(q, prepare(QLatin1String("insert into %1 (id, data) values(:id, :data)").arg(tableName)));
++        QVERIFY_SQL(q, prepare(db.driverName().startsWith("QODBC") ? QString("insert into %1 (id, data) values(:id, CAST(:data AS %2))").arg(tableName, nullableType) : QString("insert into %1 (id, data) values(:id, :data)").arg(tableName)));
          q.bindValue(":id", ++expectedNullCount);
          q.bindValue(":data", QVariant());
          QVERIFY_SQL(q, exec());
@@ -822,7 +847,7 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
          QVERIFY(!nullValueVariant.isNull());
  
 -        QVERIFY_SQL(q, prepare(QLatin1String("insert into %1 values(:id, :data)").arg(tableName)));
-+        QVERIFY_SQL(q, prepare(QLatin1String("insert into %1 (id, data) values(:id, :data)").arg(tableName)));
++        QVERIFY_SQL(q, prepare(db.driverName().startsWith("QODBC") ? QString("insert into %1 (id, data) values(:id, CAST(:data AS %2))").arg(tableName, nullableType) : QString("insert into %1 (id, data) values(:id, :data)").arg(tableName)));
          q.bindValue(":id", ++expectedNullCount);
          q.bindValue(":data", nullValueVariant);
          QVERIFY_SQL(q, exec());
@@ -923,13 +948,13 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
      const QVariantList charCol = { u"harald"_s, u"boris"_s,
                                     QVariant(QMetaType(QMetaType::QString)) };
 @@ -2614,8 +2620,9 @@
- 
+
      // Test with positional placeholders
      QVERIFY_SQL(q, prepare(QLatin1String("insert into %1 "
 -                                         "(id, name, dt, num, dtstamp, extraId, extraName) "
 -                                         "values (?, ?, ?, ?, ?, ?, ?)").arg(tableName)));
 +                                         "(pk, id, name, dt, num, dtstamp, extraId, extraName) "
-+                                         "values (?, ?, ?, ?, ?, ?, ?, ?)").arg(tableName)));
++                                         "values (?, ?, ?, ?, CAST(? AS Decimal(8, 4)), ?, ?, ?)").arg(tableName)));
 +    q.addBindValue(keyCol);
      q.addBindValue(intCol);
      q.addBindValue(charCol);
@@ -941,7 +966,7 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
 -                               "insert into %1 (id, name, dt, num, dtstamp, extraId, extraName) "
 -                               "values (:id, :name, :dt, :num, :dtstamp, :id, :name)")
 +                               "insert into %1 (pk, id, name, dt, num, dtstamp, extraId, extraName) "
-+                               "values (:pk, :id, :name, :dt, :num, :dtstamp, :id, :name)")
++                               "values (:pk, :id, :name, :dt, CAST(:num AS Decimal(8, 4)), :dtstamp, :id, :name)")
                             .arg(tableName)));
 +    q.bindValue(":pk", keyCol);
      q.bindValue(":id", intCol);
@@ -1076,7 +1101,8 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
 +                                                          : "current_timestamp";
 +    QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 (id, datefield) VALUES (1, %2);")
 +                        .arg(tableName, now)));
-     QVERIFY_SQL(q, exec(QLatin1String("SELECT * FROM ") + tableName));
+-    QVERIFY_SQL(q, exec(QLatin1String("SELECT * FROM ") + tableName));
++    QVERIFY_SQL(q, exec(QLatin1String("SELECT id, datefield FROM ") + tableName));
      while (q.next())
          QVERIFY(q.value(1).toDateTime().isValid());
 @@ -3558,11 +3571,11 @@
@@ -1198,7 +1224,18 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
  
          QDateTime dt = QDateTime(QDate(2012, 7, 4), QTime(23, 59, 59, 999));
          QVERIFY_SQL(q, prepare(QLatin1String("INSERT INTO %1 (dt) VALUES (?)").arg(tableName)));
-@@ -4466,7 +4481,7 @@
+@@ -4455,7 +4470,10 @@
+         intType = sumType = countType = QMetaType::Double;
+     } else if (dbType == QSqlDriver::MySqlServer) {
+         sumType = QMetaType::Double;
+         countType = QMetaType::LongLong;
++    } else if (db.driverName().startsWith("QODBC")) {
++        sumType = QMetaType::LongLong;
++        countType = QMetaType::ULongLong;
+     }
+     {
+         const QString tableName(qTableName("numericFunctionsWithIntValues", __FILE__, db));
+@@ -4466,7 +4484,7 @@
          tst_Databases::safeDropTable(db, tableName);
  
          QSqlQuery q(db);
@@ -1207,6 +1244,16 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
  
          // First test without any entries
          QVERIFY_SQL(q, exec("SELECT SUM(id) FROM " + tableName));
+@@ -4487,7 +4505,8 @@
+         QVERIFY_SQL(q, exec("SELECT AVG(id) FROM " + tableName));
+         QVERIFY(q.next());
+         if (dbType == QSqlDriver::SQLite || dbType == QSqlDriver::PostgreSQL
+-            || dbType == QSqlDriver::MySqlServer || dbType == QSqlDriver::Oracle) {
++            || dbType == QSqlDriver::MySqlServer || dbType == QSqlDriver::Oracle
++            || db.driverName().startsWith("QODBC")) {
+             QCOMPARE(q.value(0).toDouble(), 1.5);
+             QCOMPARE(q.record().field(0).metaType().id(), QMetaType::Double);
+         } else {
 @@ -4516,7 +4531,7 @@
          tst_Databases::safeDropTable(db, tableName);
  
@@ -1227,12 +1274,32 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
  
          QVERIFY_SQL(q, exec("SELECT SUM(id) FROM " + tableName));
          QVERIFY(q.next());
-@@ -4580,7 +4595,7 @@
+@@ -4560,5 +4575,7 @@
+-        QVERIFY_SQL(q, exec(QLatin1String("SELECT ROUND(%1, 1) FROM %2 WHERE id=1.5")
+-                            .arg(field, tableName)));
++        const auto roundOneSql = db.driverName().startsWith("QODBC")
++                ? QLatin1String("SELECT Math::Round(%1 * 10.0) / 10.0 FROM %2 WHERE id=1.5")
++                : QLatin1String("SELECT ROUND(%1, 1) FROM %2 WHERE id=1.5");
++        QVERIFY_SQL(q, exec(roundOneSql.arg(field, tableName)));
+         QVERIFY(q.next());
+         QCOMPARE(q.value(0).toDouble(), 1.5);
+         QCOMPARE(q.record().field(0).metaType().id(), QMetaType::Double);
+@@ -4566,5 +4583,7 @@
+-        QVERIFY_SQL(q, exec(QLatin1String("SELECT ROUND(%1, 0) FROM %2 WHERE id=2.5")
+-                            .arg(field, tableName)));
++        const auto roundZeroSql = db.driverName().startsWith("QODBC")
++                ? QLatin1String("SELECT Math::Round(%1) FROM %2 WHERE id=2.5")
++                : QLatin1String("SELECT ROUND(%1, 0) FROM %2 WHERE id=2.5");
++        QVERIFY_SQL(q, exec(roundZeroSql.arg(field, tableName)));
+         QVERIFY(q.next());
+         if (dbType == QSqlDriver::MySqlServer)
+             QCOMPARE(q.value(0).toDouble(), 2.0);
+@@ -4580,7 +4599,7 @@
          tst_Databases::safeDropTable(db, tableName);
  
          QSqlQuery q(db);
 -        QVERIFY_SQL(q, exec(QLatin1String("CREATE TABLE %1 (id INTEGER, txt VARCHAR(50))")
-+        QVERIFY_SQL(q, exec(QLatin1String("CREATE TABLE %1 (id INTEGER, txt Utf8)")
++        QVERIFY_SQL(q, exec(QLatin1String("CREATE TABLE %1 (id INTEGER, txt Utf8, primary key (id))")
                              .arg(tableName)));
  
          QVERIFY_SQL(q, exec("SELECT MAX(txt) FROM " + tableName));
@@ -1246,7 +1313,7 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
 +                                 "dec3 Decimal(20, 3), primary key (pk))").arg(tableName)));
      QVERIFY_SQL(create, prepare(QLatin1String(
 -                                    "insert into %1 (dec2, dec0, dec3) values (?, ?, ?)")
-+                                    "insert into %1 (pk, dec2, dec0, dec3) values (1, ?, ?, ?)")
++                                    "insert into %1 (pk, dec2, dec0, dec3) values (1, CAST(? AS Decimal(4, 2)), CAST(? AS Decimal(20, 0)), CAST(? AS Decimal(20, 3)))")
                                  .arg(tableName)));
  
      create.addBindValue("99.99");
@@ -1681,3 +1748,79 @@ diff -ruN a/models/qsqltablemodel/tst_qsqltablemodel.cpp b/models/qsqltablemodel
          QVERIFY_SQL(qry, exec("insert into " + tableDot + " values(1, 'Andy')"));
          QSqlTableModel model(0, db);
          model.setTable(tableDot);
+
+diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.cpp
+--- a/kernel/qsqlquery/tst_qsqlquery.cpp	2026-08-17 00:00:00.000000000 +0300
++++ b/kernel/qsqlquery/tst_qsqlquery.cpp	2026-08-17 00:00:00.000000000 +0300
+@@ -2626,7 +2626,7 @@
+     q.addBindValue(intCol);
+     q.addBindValue(charCol);
+     q.addBindValue(dateCol);
+-    q.addBindValue(numCol);
++    q.addBindValue(db.driverName().startsWith("QODBC") ? QVariantList{u"2.3"_s, u"3.4"_s, QVariant(QMetaType(QMetaType::QString))} : numCol);
+     q.addBindValue(timeStampCol);
+     q.addBindValue(intCol);
+     q.addBindValue(charCol);
+@@ -2661,5 +2661,5 @@
+     q.bindValue(":id", intCol);
+     q.bindValue(":name", charCol);
+     q.bindValue(":dt", dateCol);
+-    q.bindValue(":num", numCol);
++    q.bindValue(":num", db.driverName().startsWith("QODBC") ? QVariantList{u"2.3"_s, u"3.4"_s, QVariant(QMetaType(QMetaType::QString))} : numCol);
+     q.bindValue(":dtstamp", timeStampCol);
+
+diff -ruN a/kernel/qsqldriver/tst_qsqldriver.cpp b/kernel/qsqldriver/tst_qsqldriver.cpp
+--- a/kernel/qsqldriver/tst_qsqldriver.cpp	2026-08-17 00:00:00.000000000 +0300
++++ b/kernel/qsqldriver/tst_qsqldriver.cpp	2026-08-17 00:00:00.000000000 +0300
+@@ -151,7 +151,9 @@
+     if (dbType == QSqlDriver::Interbase || dbType == QSqlDriver::Oracle || dbType == QSqlDriver::DB2)
+         tablename = tablename.toLower();
+     else if (dbType == QSqlDriver::PostgreSQL)
+         tablename = tablename.toUpper();
++    else if (db.driverName().startsWith("QODBC"))
++        tablename = tablename.toLower();
+-
++
+     //check that we can't get records using incorrect tablename casing that's been quoted
+     rec = db.driver()->record(db.driver()->escapeIdentifier(tablename,QSqlDriver::TableName));
+@@ -201,7 +203,9 @@
+     if (dbType == QSqlDriver::Interbase || dbType == QSqlDriver::Oracle || dbType == QSqlDriver::DB2)
+         tablename = tablename.toLower();
+     else if (dbType == QSqlDriver::PostgreSQL)
+         tablename = tablename.toUpper();
++    else if (db.driverName().startsWith("QODBC"))
++        tablename = tablename.toLower();
+-
++
+     index = db.driver()->primaryIndex(db.driver()->escapeIdentifier(tablename, QSqlDriver::TableName));
+     if (dbType == QSqlDriver::MySqlServer || dbType == QSqlDriver::SQLite || dbType == QSqlDriver::Sybase
+
+diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.cpp
+--- a/kernel/qsqlquery/tst_qsqlquery.cpp	2026-08-17 00:00:00.000000000 +0300
++++ b/kernel/qsqlquery/tst_qsqlquery.cpp	2026-08-17 00:00:00.000000000 +0300
+@@ -2449,15 +2452,16 @@
+         // Test that duplicated named placeholders before the next unique one
+         // works correctly - QTBUG-65150
+-        QVERIFY(q.prepare(QLatin1String("insert into %1 (id, name, name2) values (:id, :id, :name)")
+-                          .arg(qtest_prepare)));
++        QVERIFY(q.prepare(QLatin1String(db.driverName().startsWith("QODBC")
++                ? "insert into %1 (id, name, name2) values (:id, CAST(:id AS Utf8), :name)"
++                : "insert into %1 (id, name, name2) values (:id, :id, :name)").arg(qtest_prepare)));
+         for (i = 104; i < 106; ++i) {
+             q.bindValue(":id", i);
+             q.bindValue(":name", "name");
+             QVERIFY(q.exec());
+         }
+         QVERIFY(q.exec(QLatin1String("select * from %1 where id > 103 order by id")
+                        .arg(qtest_prepare)));
+         QVERIFY(q.next());
+         QCOMPARE(q.value(0).toInt(), 104);
+         QCOMPARE(q.value(1).toString(), u"104");
+         QCOMPARE(q.value(2).toString(), u"name");
+@@ -2465,3 +2469,4 @@
+         // Test that duplicated named placeholders in any order
+-        QVERIFY(q.prepare(QLatin1String("insert into %1 (id, name, name2) values (:id, :name, :id)")
+-                          .arg(qtest_prepare)));
++        QVERIFY(q.prepare(QLatin1String(db.driverName().startsWith("QODBC")
++                ? "insert into %1 (id, name, name2) values (:id, :name, CAST(:id AS Utf8))"
++                : "insert into %1 (id, name, name2) values (:id, :name, :id)").arg(qtest_prepare)));

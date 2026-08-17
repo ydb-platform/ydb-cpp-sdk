@@ -81,21 +81,28 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
         {"TABLE_SCHEM", SQL_VARCHAR, 128, SQL_NULLABLE},
         {"TABLE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
         {"COLUMN_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"DATA_TYPE", SQL_INTEGER, 0, SQL_NO_NULLS},
+        {"DATA_TYPE", SQL_SMALLINT, 0, SQL_NO_NULLS},
         {"TYPE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
         {"COLUMN_SIZE", SQL_INTEGER, 0, SQL_NULLABLE},
         {"BUFFER_LENGTH", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"DECIMAL_DIGITS", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"NUM_PREC_RADIX", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"NULLABLE", SQL_INTEGER, 0, SQL_NO_NULLS},
+        {"DECIMAL_DIGITS", SQL_SMALLINT, 0, SQL_NULLABLE},
+        {"NUM_PREC_RADIX", SQL_SMALLINT, 0, SQL_NULLABLE},
+        {"NULLABLE", SQL_SMALLINT, 0, SQL_NO_NULLS},
         {"REMARKS", SQL_VARCHAR, 762, SQL_NULLABLE},
         {"COLUMN_DEF", SQL_VARCHAR, 254, SQL_NULLABLE},
-        {"SQL_DATA_TYPE", SQL_INTEGER, 0, SQL_NO_NULLS},
-        {"SQL_DATETIME_SUB", SQL_INTEGER, 0, SQL_NULLABLE},
+        {"SQL_DATA_TYPE", SQL_SMALLINT, 0, SQL_NO_NULLS},
+        {"SQL_DATETIME_SUB", SQL_SMALLINT, 0, SQL_NULLABLE},
         {"CHAR_OCTET_LENGTH", SQL_INTEGER, 0, SQL_NULLABLE},
         {"ORDINAL_POSITION", SQL_INTEGER, 0, SQL_NO_NULLS},
         {"IS_NULLABLE", SQL_VARCHAR, 254, SQL_NO_NULLS}
     };
+
+    if (!MetadataNamespaceMatches(catalogName, schemaName)) {
+        SetCursor(CreateVirtualCursor(columns, TTable{}));
+        return SQL_SUCCESS;
+    }
+
+    const std::string catalog = Conn_->GetCatalogBinding().Catalog;
 
     auto entries = GetPatternEntries(tableName);
 
@@ -118,7 +125,7 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
             throw TOdbcException("HY000", 0, "No client connection");
         }
 
-        auto status = tableClient->RetryOperationSync([this, path = entry.Name, &table, &columnName](NTable::TSession session) -> TStatus {
+        auto status = tableClient->RetryOperationSync([this, path = entry.Name, catalog, &table, &columnName](NTable::TSession session) -> TStatus {
             auto result = session.DescribeTable(path).ExtractValueSync();
             NStatusHelpers::ThrowOnError(result);
 
@@ -143,15 +150,15 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
                 foundColumn = true;
 
                 const auto sqlType = GetTypeId(column.Type);
-                const auto colSize = GetColumnSize(sqlType);
+                const auto colSize = GetColumnSize(column.Type);
                 const auto decDigits = GetDecimalDigits(column.Type);
                 const auto radix = GetRadix(column.Type);
                 const std::optional<SQLINTEGER> colSizeOpt = colSize > 0 ? std::optional<SQLINTEGER>(static_cast<SQLINTEGER>(colSize)) : std::nullopt;
 
                 table.push_back({
+                    TValueBuilder().OptionalUtf8(catalog).Build(),
                     TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-                    TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-                    TValueBuilder().Utf8(path).Build(),
+                    TValueBuilder().Utf8(GetMetadataTableName(path)).Build(),
                     TValueBuilder().Utf8(column.Name).Build(),
                     TValueBuilder().Int16(sqlType).Build(),
                     TValueBuilder().Utf8(column.Type.ToString()).Build(),
@@ -196,6 +203,13 @@ SQLRETURN TStatement::Tables(const std::string& catalogName,
         {"REMARKS", SQL_VARCHAR, 254, SQL_NULLABLE}
     };
 
+    if (!MetadataNamespaceMatches(catalogName, schemaName)) {
+        SetCursor(CreateVirtualCursor(columns, TTable{}));
+        return SQL_SUCCESS;
+    }
+
+    const std::string catalog = Conn_->GetCatalogBinding().Catalog;
+
     auto entries = GetPatternEntries(tableName);
 
     TTable table;
@@ -208,9 +222,9 @@ SQLRETURN TStatement::Tables(const std::string& catalogName,
         }
 
         table.push_back({
+            TValueBuilder().OptionalUtf8(catalog).Build(),
             TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-            TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-            TValueBuilder().Utf8(entry.Name).Build(),
+            TValueBuilder().Utf8(GetMetadataTableName(entry.Name)).Build(),
             TValueBuilder().Utf8(*entryType).Build(),
             TValueBuilder().OptionalUtf8(std::nullopt).Build(),
         });
@@ -276,8 +290,8 @@ SQLRETURN TStatement::Statistics(const std::string& /*catalogName*/,
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::SpecialColumns(const std::string& /*catalogName*/,
-                                     const std::string& /*schemaName*/,
+SQLRETURN TStatement::SpecialColumns(const std::string& catalogName,
+                                     const std::string& schemaName,
                                      const std::string& tableName,
                                      SQLUSMALLINT identifierType,
                                      SQLUSMALLINT /*scope*/) {
@@ -297,6 +311,11 @@ SQLRETURN TStatement::SpecialColumns(const std::string& /*catalogName*/,
         {"DECIMAL_DIGITS", SQL_SMALLINT, 0, SQL_NULLABLE},
         {"PSEUDO_COLUMN", SQL_SMALLINT, 0, SQL_NO_NULLS},
     };
+
+    if (!MetadataNamespaceMatches(catalogName, schemaName)) {
+        SetCursor(CreateVirtualCursor(columns, TTable{}));
+        return SQL_SUCCESS;
+    }
 
     TTable table;
     auto entries = GetPatternEntries(tableName);
@@ -327,7 +346,7 @@ SQLRETURN TStatement::SpecialColumns(const std::string& /*catalogName*/,
                 continue;
             }
             const auto sqlType = GetTypeId(columnIt->Type);
-            const auto colSize = GetColumnSize(sqlType);
+            const auto colSize = GetColumnSize(columnIt->Type);
             const std::optional<SQLINTEGER> colSizeOpt = colSize > 0 ? std::optional<SQLINTEGER>(static_cast<SQLINTEGER>(colSize)) : std::nullopt;
             table.push_back({
                 TValueBuilder().OptionalInt16(SQL_SCOPE_SESSION).Build(),
@@ -348,8 +367,8 @@ SQLRETURN TStatement::SpecialColumns(const std::string& /*catalogName*/,
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::PrimaryKeys(const std::string& /*catalogName*/,
-                                  const std::string& /*schemaName*/,
+SQLRETURN TStatement::PrimaryKeys(const std::string& catalogName,
+                                  const std::string& schemaName,
                                   const std::string& tableName) {
     ResetForMetadata();
 
@@ -361,6 +380,13 @@ SQLRETURN TStatement::PrimaryKeys(const std::string& /*catalogName*/,
         {"KEY_SEQ", SQL_SMALLINT, 0, SQL_NO_NULLS},
         {"PK_NAME", SQL_VARCHAR, 128, SQL_NULLABLE},
     };
+
+    if (!MetadataNamespaceMatches(catalogName, schemaName)) {
+        SetCursor(CreateVirtualCursor(columns, TTable{}));
+        return SQL_SUCCESS;
+    }
+
+    const std::string catalog = Conn_->GetCatalogBinding().Catalog;
 
     TTable table;
     auto entries = GetPatternEntries(tableName);
@@ -378,7 +404,7 @@ SQLRETURN TStatement::PrimaryKeys(const std::string& /*catalogName*/,
     }
 
     const std::string path = entries.front().Name;
-    auto status = tableClient->RetryOperationSync([path, &table](NTable::TSession session) -> TStatus {
+    auto status = tableClient->RetryOperationSync([this, path, catalog, &table](NTable::TSession session) -> TStatus {
         auto result = session.DescribeTable(path).ExtractValueSync();
         NStatusHelpers::ThrowOnError(result);
 
@@ -386,9 +412,9 @@ SQLRETURN TStatement::PrimaryKeys(const std::string& /*catalogName*/,
         SQLSMALLINT keySeq = 1;
         for (const auto& pkName : pkColumns) {
             table.push_back({
+                TValueBuilder().OptionalUtf8(catalog).Build(),
                 TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-                TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-                TValueBuilder().Utf8(path).Build(),
+                TValueBuilder().Utf8(GetMetadataTableName(path)).Build(),
                 TValueBuilder().Utf8(pkName).Build(),
                 TValueBuilder().Int16(keySeq++).Build(),
                 TValueBuilder().OptionalUtf8(std::nullopt).Build(),
@@ -457,9 +483,42 @@ std::string TStatement::GetTraversalRoot(const std::string& pattern) const {
 }
 
 std::vector<NScheme::TSchemeEntry> TStatement::GetPatternEntries(const std::string& pattern) {
+    const std::string catalog = Conn_->GetCatalogBinding().Catalog;
+    std::string searchPattern = pattern;
+    if (!pattern.empty() && pattern.front() != '/' && pattern.find('/') == std::string::npos) {
+        searchPattern = catalog;
+        if (searchPattern.empty() || searchPattern.back() != '/') {
+            searchPattern += '/';
+        }
+        searchPattern += pattern;
+    }
     std::vector<NScheme::TSchemeEntry> entries;
-    VisitEntry(GetTraversalRoot(pattern), pattern, entries);
+    VisitEntry(pattern.empty() ? catalog : GetTraversalRoot(searchPattern), searchPattern, entries);
     return entries;
+}
+
+std::string TStatement::GetMetadataTableName(const std::string& path) const {
+    const std::string catalog = Conn_->GetCatalogBinding().Catalog;
+    if (catalog == "/" && path.starts_with('/')) {
+        return path.substr(1);
+    }
+    const std::string prefix = catalog + "/";
+    return path.starts_with(prefix) ? path.substr(prefix.size()) : path;
+}
+
+bool TStatement::MetadataNamespaceMatches(
+    const std::string& catalog,
+    const std::string& schema) const {
+    const std::string currentCatalog = Conn_->GetCatalogBinding().Catalog;
+    const auto matches = [&](const std::string& value, const std::string& pattern) {
+        if (pattern.empty()) {
+            return true;
+        }
+        return Attributes_.GetMetadataId() == SQL_TRUE
+            ? value == pattern
+            : SqlLikeMatch(value, pattern);
+    };
+    return matches(currentCatalog, catalog) && matches("", schema);
 }
 
 SQLRETURN TStatement::VisitEntry(const std::string& path, const std::string& pattern, std::vector<NScheme::TSchemeEntry>& resultEntries) {

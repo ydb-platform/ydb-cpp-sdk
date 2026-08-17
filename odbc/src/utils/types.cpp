@@ -47,6 +47,7 @@ SQLSMALLINT GetTypeId(const TType& type) {
             case EPrimitiveType::TzDate:
                 return SQL_TYPE_DATE;
             case EPrimitiveType::Datetime:
+                return SQL_TYPE_TIME;
             case EPrimitiveType::Timestamp:
             case EPrimitiveType::Datetime64:
             case EPrimitiveType::Timestamp64:
@@ -90,8 +91,44 @@ SQLULEN GetColumnSize(SQLSMALLINT sqlType) {
     return spec ? spec->ColumnSize : sqlType == SQL_GUID ? 36 : 4096;
 }
 
+SQLULEN GetColumnSize(const TType& type) {
+    TTypeParser parser(type);
+    while (parser.GetKind() == TTypeParser::ETypeKind::Optional) {
+        parser.OpenOptional();
+    }
+    if (parser.GetKind() == TTypeParser::ETypeKind::Decimal) {
+        return parser.GetDecimal().Precision;
+    }
+    return GetColumnSize(GetTypeId(type));
+}
+
+bool IsUnsigned(const TType& type) {
+    TTypeParser parser(type);
+    while (parser.GetKind() == TTypeParser::ETypeKind::Optional) {
+        parser.OpenOptional();
+    }
+    if (parser.GetKind() != TTypeParser::ETypeKind::Primitive) {
+        return false;
+    }
+    switch (parser.GetPrimitive()) {
+        case EPrimitiveType::Uint8:
+        case EPrimitiveType::Uint16:
+        case EPrimitiveType::Uint32:
+        case EPrimitiveType::Uint64:
+            return true;
+        default:
+            return false;
+    }
+}
+
 std::optional<SQLSMALLINT> GetDecimalDigits(const TType& type) {
     TTypeParser typeParser(type);
+    while (typeParser.GetKind() == TTypeParser::ETypeKind::Optional) {
+        typeParser.OpenOptional();
+    }
+    if (typeParser.GetKind() == TTypeParser::ETypeKind::Decimal) {
+        return typeParser.GetDecimal().Scale;
+    }
     if (typeParser.GetKind() != TTypeParser::ETypeKind::Primitive) {
         return std::nullopt;
     }
@@ -113,6 +150,12 @@ std::optional<SQLSMALLINT> GetDecimalDigits(const TType& type) {
 
 std::optional<SQLSMALLINT> GetRadix(const TType& type) {
     TTypeParser typeParser(type);
+    while (typeParser.GetKind() == TTypeParser::ETypeKind::Optional) {
+        typeParser.OpenOptional();
+    }
+    if (typeParser.GetKind() == TTypeParser::ETypeKind::Decimal) {
+        return 10;
+    }
     if (typeParser.GetKind() != TTypeParser::ETypeKind::Primitive) {
         return std::nullopt;
     }

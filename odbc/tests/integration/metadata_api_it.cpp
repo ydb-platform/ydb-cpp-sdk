@@ -80,6 +80,59 @@ TEST(MetadataApi, SQLTablesExactMatch) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(MetadataApi, RelativeTableMetadataUsesCurrentCatalog) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_relative_metadata", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"CREATE TABLE test_relative_metadata (id Int32, value Utf8, PRIMARY KEY (id))",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    const char* table = "test_relative_metadata";
+    CHECK_ODBC_OK(SQLTables(stmt, nullptr, 0, nullptr, 0,
+                           (SQLCHAR*)table, SQL_NTS, (SQLCHAR*)"TABLE", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    char catalog[64] = {};
+    char tableName[64] = {};
+    SQLLEN indicator = 0;
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_CHAR, catalog, sizeof(catalog), &indicator), SQL_SUCCESS);
+    ASSERT_EQ(SQLGetData(stmt, 3, SQL_C_CHAR, tableName, sizeof(tableName), &indicator), SQL_SUCCESS);
+    EXPECT_STREQ(catalog, "/local");
+    EXPECT_STREQ(tableName, table);
+    ASSERT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLColumns(stmt, nullptr, 0, nullptr, 0,
+                            (SQLCHAR*)table, SQL_NTS, nullptr, 0),
+                  stmt, SQL_HANDLE_STMT);
+    int columnCount = 0;
+    while (SQLFetch(stmt) == SQL_SUCCESS) {
+        ++columnCount;
+    }
+    EXPECT_EQ(columnCount, 2);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLPrimaryKeys(stmt, nullptr, 0, nullptr, 0,
+                                (SQLCHAR*)table, SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    char columnName[64] = {};
+    ASSERT_EQ(SQLGetData(stmt, 4, SQL_C_CHAR, columnName, sizeof(columnName), &indicator), SQL_SUCCESS);
+    EXPECT_STREQ(columnName, "id");
+    ASSERT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(MetadataApi, SQLTablesLikePatternWithMetadataId) {
     SQLHENV env;
     SQLHDBC dbc;

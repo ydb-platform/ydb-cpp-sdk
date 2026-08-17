@@ -298,9 +298,10 @@ void TConnection::RebindToDatabase(std::string_view newDatabase) {
 
 
 std::string TConnection::WrapQueryForCurrentCatalog(const std::string& sql) const {
+    std::string prefix = "PRAGMA AnsiImplicitCrossJoin;\n";
     std::optional<std::string> rel = Attributes_.ResolveCatalogRoute(Database_).TablePathPrefix;
     if (!rel) {
-        return sql;
+        return prefix + sql;
     }
     std::string escapedPrefix;
     escapedPrefix.reserve(rel->size() + 8);
@@ -310,7 +311,11 @@ std::string TConnection::WrapQueryForCurrentCatalog(const std::string& sql) cons
         }
         escapedPrefix.push_back(ch);
     }
-    return "PRAGMA TablePathPrefix = \"" + escapedPrefix + "\";\n" + sql;
+    return prefix + "PRAGMA TablePathPrefix = \"" + escapedPrefix + "\";\n" + sql;
+}
+
+TConnectionAttributes::TCatalogBinding TConnection::GetCatalogBinding() const {
+    return Attributes_.BuildCatalogBinding(Database_);
 }
 
 SQLRETURN TConnection::NativeSql(const std::string& inSql, SQLCHAR* outSql, SQLINTEGER outMax, SQLINTEGER* outLen) {
