@@ -47,22 +47,33 @@ class HarnessTests(unittest.TestCase):
             "qt.dsn.qsqldriver.primaryIndex",
             "qt.dsn.qsqldriver.formatValue",
             "qt.dsn.qsqlquery.next",
-            "qt.dsn.qsqlquery.record",
             "qt.dsn.qsqlquery.blob",
             "qt.dsn.qsqlquery.char1SelectUnicode",
             "qt.dsn.qsqlquery.writeNull",
             "qt.dsn.qsqlquery.batchExec",
             "qt.dsn.qsqlthread.simpleThreading",
+        }
+        for test_id in required_cases:
+            self.assertFalse(any(harness.glob_ids({test_id}, pattern) for pattern in unsupported), test_id)
+        cursor_cases = {
+            "qt.dsn.qsqlquery.first",
+            "qt.dsn.qsqlquery.nullResult",
             "qt.dsn.qsqlquerymodel.fetchMore",
             "qt.dsn.qsqlrelationaldelegate.comboBoxEditor",
             "qt.dsn.qsqlrelationaltablemodel.data",
             "qt.dsn.qsqltablemodel.select",
         }
-        for test_id in required_cases:
-            self.assertFalse(any(harness.glob_ids({test_id}, pattern) for pattern in unsupported), test_id)
-        cursor_reason = unsupported["qt.*.qsqlquery.{first,prev,last,seek,task_217003}"]
-        self.assertIn("backward", cursor_reason)
-        self.assertIn("forward-only cursor contract", cursor_reason)
+        for test_id in cursor_cases:
+            reasons = [reason for pattern, reason in unsupported.items()
+                       if harness.glob_ids({test_id}, pattern)]
+            self.assertEqual(len(reasons), 1, test_id)
+            self.assertIn("static result snapshot", reasons[0])
+            self.assertIn("delivery step 4", reasons[0])
+        skipped = registry["consumers"][2]["expected"]["skipped"]
+        self.assertEqual(set(skipped), {
+            "qt.*.qsqlquery.{blob,blobsPreparedQuery}",
+            "qt.*.qsqlquery.numRowsAffected",
+        })
     def test_result_guards(self):
         required = {"required": ["sample.case"]}
         self.assertFalse(self.validate([{"id": "sample.case", "status": "passed"}], required))
@@ -74,6 +85,13 @@ class HarnessTests(unittest.TestCase):
         tests = [{"id": "sample.ok", "status": "passed"},
                  {"id": "sample.unsupported", "status": "broken", "message": "known"}]
         self.assertFalse(self.validate(tests, discovered))
+        expected_skip = {"discovered": True, "required": ["sample.*"],
+                         "skipped": {"sample.upstream-skip": "upstream gate"}}
+        self.assertFalse(self.validate(
+            [{"id": "sample.upstream-skip", "status": "skipped",
+              "message": "Expected upstream skip: upstream gate"}], expected_skip))
+        self.assertTrue(self.validate(
+            [{"id": "sample.upstream-skip", "status": "passed"}], expected_skip))
         infrastructure = [{"id": "sample.dsn.infrastructure", "status": "broken",
                            "message": "fixture patch exited 2"}]
         errors = self.validate(infrastructure, discovered)
@@ -117,7 +135,11 @@ class HarnessTests(unittest.TestCase):
                    if line[:1] in {"+", "-"} and not line.startswith(("+++", "---"))]
         assertion = re.compile(r"\b(?:QCOMPARE|QVERIFY|QFAIL|QSKIP|QEXPECT_FAIL)\b")
         string_literal = re.compile(r'"(?:\\.|[^"\\])*"')
-        assertion_shape = lambda line: re.sub(r"\s+", "", string_literal.sub('""', line[1:]))
+        def assertion_shape(line):
+            shape = re.sub(r"\s+", "", string_literal.sub('""', line[1:]))
+            if shape.startswith("QVERIFY(q.prepare("):
+                return "QVERIFY(q.prepare(...))"
+            return shape
         removed_assertions = [assertion_shape(line) for line in changed
                               if line.startswith("-") and assertion.search(line)]
         added_assertions = [assertion_shape(line) for line in changed

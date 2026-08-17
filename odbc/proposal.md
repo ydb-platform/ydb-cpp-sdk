@@ -143,7 +143,6 @@ user DSNs remain unchanged.
 | Cursor support | The current implementation is forward-only. `SQLFetchScroll` accepts only `SQL_FETCH_NEXT`; static scrolling and spill are planned. |
 | Result sets | Only the first result set is exposed. `SQLMoreResults` returns `SQL_NO_DATA`. |
 | Result buffering | Query execution uses the non-streaming SDK result and keeps it for cursor fetches. Large results can consume memory proportional to the result size. |
-| Row counts | `SQLRowCount` currently returns `-1`; affected-row counts are not extracted from YDB query statistics. |
 | Prepare | `SQLPrepare` stores the query and counts client-side parameter markers. It does not create a persistent server-side prepared statement. |
 | Batches | Parameter arrays are accepted only for data-modification statements and execute sequentially. Earlier parameter sets may already be committed when a later set fails. |
 | Cancellation | Execution is synchronous. `SQLCancel` clears local cursor and parameter state but does not interrupt an in-flight SDK request. |

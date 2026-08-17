@@ -13,8 +13,8 @@ public:
         : Parser_(resultSet) {
         for (const auto& col : resultSet.GetColumnsMeta()) {
             const SQLSMALLINT sqlType = GetTypeId(col.Type);
-            Columns_.push_back({col.Name, sqlType, GetColumnSize(sqlType), IsNullable(col.Type),
-                                GetDecimalDigits(col.Type).value_or(0)});
+            Columns_.push_back({col.Name, sqlType, GetColumnSize(col.Type), IsNullable(col.Type),
+                                GetDecimalDigits(col.Type).value_or(0), IsUnsigned(col.Type)});
         }
     }
 
